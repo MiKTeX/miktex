@@ -1,6 +1,6 @@
 /* miktex/Core/AutoResource.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,6 +30,8 @@
 #include <cstdlib>
 
 #include <exception>
+
+#include <miktex/Helpers>
 
 #include "Session.h"
 
@@ -228,6 +230,52 @@ public:
 };
 
 typedef AutoResource<void*, free_> AutoMemoryPointer;
+
+template<class Func> struct AutoFunc
+{
+public:
+  AutoFunc() = default;
+
+public:
+  AutoFunc(const AutoFunc& other) = default;
+
+public:
+  AutoFunc& operator=(const AutoFunc& other) = default;
+
+public:
+  AutoFunc(AutoFunc&& other) = default;
+
+public:
+  AutoFunc& operator=(AutoFunc&& other) = default;
+
+public:
+  AutoFunc(Func func) :
+    func(func)
+  {
+  }
+
+public:
+  ~AutoFunc()
+  {
+    try
+    {
+      func();
+    }
+    catch (const std::exception&)
+    {
+    }
+  }
+
+private:
+  Func func;
+};
+
+template<class Func> AutoFunc<Func> CreateAutoFunc(Func func)
+{
+  return AutoFunc<Func>(func);
+}
+
+#define MIKTEX_AUTO(x) auto MIKTEX_UNIQUE(bbf09dd97db04f579f1c386c16f7fd38) = MiKTeX::Core::CreateAutoFunc([&](){x;})
 
 MIKTEX_CORE_END_NAMESPACE;
 

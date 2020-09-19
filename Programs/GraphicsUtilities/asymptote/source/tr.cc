@@ -50,22 +50,24 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "tr.h"
 #ifdef WIN32
 #include <windows.h>
 #endif
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-#include "tr.h"
 
 #define DEFAULT_TILE_WIDTH  256
 #define DEFAULT_TILE_HEIGHT 256
 #define DEFAULT_TILE_BORDER 0
 
+namespace gl {
+void frustum(GLdouble left, GLdouble right, GLdouble bottom,
+             GLdouble top, GLdouble nearVal, GLdouble farVal);
+void ortho(GLdouble left, GLdouble right, GLdouble bottom,
+           GLdouble top, GLdouble nearVal, GLdouble farVal);
+}
+
+using gl::frustum;
+using gl::ortho;
 
 struct _TRctx {
    /* Final image parameters */
@@ -300,7 +302,6 @@ void trPerspective(TRcontext *tr,
 
 void trBeginTile(TRcontext *tr)
 {
-   GLint matrixMode;
    GLint tileWidth, tileHeight, border;
    GLdouble left, right, bottom, top;
 
@@ -348,11 +349,6 @@ void trBeginTile(TRcontext *tr)
 
    glViewport(0, 0, tileWidth, tileHeight);  /* tile size including border */
 
-   /* save current matrix mode */
-   glGetIntegerv(GL_MATRIX_MODE, &matrixMode);
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-
    /* compute projection parameters */
    left = tr->Left + (tr->Right - tr->Left)
         * (tr->CurrentColumn * tr->TileWidthNB - border) / tr->ImageWidth;
@@ -362,12 +358,9 @@ void trBeginTile(TRcontext *tr)
    top = bottom + (tr->Top - tr->Bottom) * tileHeight / tr->ImageHeight;
 
    if (tr->Perspective)
-      glFrustum(left, right, bottom, top, tr->Near, tr->Far);
+      frustum(left, right, bottom, top, tr->Near, tr->Far);
    else
-      glOrtho(left, right, bottom, top, tr->Near, tr->Far);
-
-   /* restore user's matrix mode */
-   glMatrixMode(matrixMode);
+      ortho(left, right, bottom, top, tr->Near, tr->Far);
 }
 
 
@@ -435,62 +428,6 @@ int trEndTile(TRcontext *tr)
    }
    else
       return 1;
-}
-
-
-/*
- * Replacement for glRastePos3f() which avoids the problem with invalid
- * raster pos.
- */
-void trRasterPos3f(TRcontext *tr, GLfloat x, GLfloat y, GLfloat z)
-{
-   if (tr->CurrentTile<0) {
-      /* not doing tile rendering right now.  Let OpenGL do this. */
-      glRasterPos3f(x, y, z);
-   }
-   else {
-      GLdouble modelview[16], proj[16];
-      GLint viewport[4];
-      GLdouble winX, winY, winZ;
-
-      /* Get modelview, projection and viewport */
-      glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-      glGetDoublev(GL_PROJECTION_MATRIX, proj);
-      viewport[0] = 0;
-      viewport[1] = 0;
-      viewport[2] = tr->CurrentTileWidth;
-      viewport[3] = tr->CurrentTileHeight;
-
-      /* Project object coord to window coordinate */
-      if (gluProject(x, y, z, modelview, proj, viewport, &winX, &winY, &winZ)){
-
-         /* set raster pos to window coord (0,0) */
-         glMatrixMode(GL_MODELVIEW);
-         glPushMatrix();
-         glLoadIdentity();
-         glMatrixMode(GL_PROJECTION);
-         glPushMatrix();
-         glLoadIdentity();
-         glOrtho(0.0, tr->CurrentTileWidth,
-                 0.0, tr->CurrentTileHeight, 0.0, 1.0);
-         glRasterPos3f(0.0, 0.0, -winZ);
-
-         /* Now use empty bitmap to adjust raster position to (winX,winY) */
-         {
-            GLubyte bitmap[1] = {0};
-            glBitmap(1, 1, 0.0, 0.0, winX, winY, bitmap);
-         }
-
-         /* restore original matrices */
-         glPopMatrix(); /*proj*/
-         glMatrixMode(GL_MODELVIEW);
-         glPopMatrix();
-      }
-#ifdef DEBUG
-      if (glGetError())
-         printf("GL error!\n");
-#endif
-   }
 }
 
 #endif

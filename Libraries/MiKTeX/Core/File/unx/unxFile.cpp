@@ -1,6 +1,6 @@
 /* unxFile.cpp: file operations
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,6 +22,9 @@
 #include "config.h"
 
 #include <thread>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <fcntl.h>
 #include <sys/file.h>
@@ -76,13 +79,13 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
     {
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
       }
       return false;
     }
     if (session != nullptr)
     {
-      session->trace_access->WriteFormattedLine("core", T_("accessing file %s: OK"), Q_(path));
+      session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: OK"), Q_(path)));
     }
     return true;
   }
@@ -93,7 +96,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   }
   if (session != nullptr)
   {
-    session->trace_access->WriteFormattedLine("core", T_("accessing file %s: NOK"), Q_(path));
+    session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: NOK"), Q_(path)));
   }
   return false;
 }
@@ -161,7 +164,7 @@ void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttribu
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
   }
   if (chmod(path.GetData(), static_cast<mode_t>(nativeAttributes)) != 0)
   {
@@ -254,7 +257,7 @@ void File::Delete(const PathName& path)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
   }
   if (remove(path.GetData()) != 0)
   {
@@ -267,7 +270,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
+    session->trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
   }
   struct stat sourceStat;
   if (stat(source.GetData(), &sourceStat) != 0)
@@ -275,7 +278,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", source.ToString());
   }
   PathName destDir(dest);
-  destDir.MakeAbsolute();
+  destDir.MakeFullyQualified();
   destDir.RemoveFileSpec();
   struct stat destStat;
   if (stat(destDir.GetData(), &destStat) != 0)
@@ -335,7 +338,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession(); 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
+    session->trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
   }
   struct stat sourceStat;
   if (options[FileCopyOption::PreserveAttributes])
@@ -346,9 +349,15 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     }
   }
   FileStream sourceStream(File::Open(source, FileMode::Open, FileAccess::Read, false));
+  bool writing = false;
   try
   {
     FileStream destStream(File::Open(dest, FileMode::Create, FileAccess::Write, false));
+    if (!File::TryLock(destStream.GetFile(), File::LockType::Exclusive, 10s))
+    {
+      MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", dest.ToString());
+    }
+    writing = true;
     char buffer[4096];
     size_t n;
     while ((n = sourceStream.Read(buffer, 4096)) > 0)
@@ -356,6 +365,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
       destStream.Write(buffer, n);
     }
     sourceStream.Close();
+    File::Unlock(destStream.GetFile());
     destStream.Close();
     if (options[FileCopyOption::PreserveAttributes])
     {
@@ -366,19 +376,19 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
         MIKTEX_FATAL_CRT_ERROR_2("chown", "path", dest.ToString());
       }
 #endif
-      SetTimes(dest.GetData(), sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
+      SetTimes(dest, sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
     }
   }
-  catch (const MiKTeXException &)
+  catch (const MiKTeXException&)
   {
     try
     {
-      if (Exists(dest))
+      if (writing && Exists(dest))
       {
         Delete(dest, { FileDeleteOption::TryHard });
       }
     }
-    catch (const MiKTeXException &)
+    catch (const MiKTeXException&)
     {
     }
     throw;
@@ -407,7 +417,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("creating %s link from %s to %s"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName));
+    session->trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName)));
   }
   if (options[CreateLinkOption::Symbolic])
   {
@@ -473,7 +483,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("opening file %s (%d %d %d)"), Q_(path), (int)mode, (int)access, (int)isTextFile);
+    session->trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} {2} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile)));
   }
 
   int flags = 0;
@@ -526,7 +536,7 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
   if (mode == FileMode::Create || mode == FileMode::CreateNew || mode == FileMode::Append)
   {
     PathName dir(path);
-    dir.MakeAbsolute();
+    dir.MakeFullyQualified();
     dir.RemoveFileSpec();
     if (!Directory::Exists(dir))
     {

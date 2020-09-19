@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2017 Christian Schenk
+## Copyright (C) 2009-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,6 +33,12 @@ target_include_directories(${app_lib_name}
     ${public_include_directories}
 )
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${app_lib_name} PUBLIC MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${app_lib_name} PUBLIC ${fmt_lib_name})
+endif()
+
 if(USE_SYSTEM_LOG4CXX)
   target_link_libraries(${app_lib_name} PUBLIC MiKTeX::Imported::LOG4CXX)
 else()
@@ -43,6 +49,7 @@ target_link_libraries(${app_lib_name}
   PUBLIC
     ${core_lib_name}
     ${mpm_lib_name}
+    ${setup_lib_name}
 )
 
 if(INSTALL_STATIC_LIBRARIES)

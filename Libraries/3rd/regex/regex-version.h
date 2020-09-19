@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2.3.6"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002, 2003 Free Software Foundation, Inc."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002, 2003 Free Software Foundation, Inc."
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2002, 2003 Free Software Foundation, Inc."
 
 #include <miktex/Version>

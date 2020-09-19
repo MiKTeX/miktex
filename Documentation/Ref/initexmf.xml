@@ -156,6 +156,16 @@ executables.</para>
 <para>List all known &METAFONT; modes.</para></listitem>
 </varlistentry>
 <varlistentry>
+<term><option>--mklangs</option></term>
+<listitem>
+<indexterm>
+<primary>--mklangs</primary>
+</indexterm>
+<para>Create <filename>language.dat</filename>,
+<filename>language.dat.lua</filename> and
+<filename>language.def</filename>.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>--mklinks</option></term>
 <listitem>
 <indexterm>

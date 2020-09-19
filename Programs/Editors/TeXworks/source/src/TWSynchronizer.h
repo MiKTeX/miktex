@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2018  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2019  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -51,8 +51,8 @@ public:
     QList<QRectF> rects;
   };
 
-  TWSynchronizer() { }
-  virtual ~TWSynchronizer() { }
+  TWSynchronizer() = default;
+  virtual ~TWSynchronizer() = default;
   virtual PDFSyncPoint syncFromTeX(const TeXSyncPoint & src, const Resolution resolution) const = 0;
   virtual TeXSyncPoint syncFromPDF(const PDFSyncPoint & src, const Resolution resolution) const = 0;
 };
@@ -61,16 +61,16 @@ public:
 class TWSyncTeXSynchronizer : public TWSynchronizer
 {
 public:
-  TWSyncTeXSynchronizer(const QString & filename);
-  virtual ~TWSyncTeXSynchronizer();
+  explicit TWSyncTeXSynchronizer(const QString & filename);
+  ~TWSyncTeXSynchronizer() override;
 
   bool isValid() const;
 
   QString syncTeXFilename() const;
   QString pdfFilename() const;
 
-  virtual PDFSyncPoint syncFromTeX(const TeXSyncPoint & src, const Resolution resolution) const;
-  virtual TeXSyncPoint syncFromPDF(const PDFSyncPoint & src, const Resolution resolution) const;
+  PDFSyncPoint syncFromTeX(const TeXSyncPoint & src, const Resolution resolution) const override;
+  TeXSyncPoint syncFromPDF(const PDFSyncPoint & src, const Resolution resolution) const override;
 
 protected:
   void _syncFromTeXFine(const TeXSyncPoint & src, PDFSyncPoint & dest, const Resolution resolution) const;

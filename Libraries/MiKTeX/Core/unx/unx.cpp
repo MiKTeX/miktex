@@ -1,6 +1,6 @@
 /* unx.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <sys/stat.h>
 
@@ -55,10 +58,10 @@ MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* lpszPath)
 
 MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t mode)
 {
-  if (!Utils::IsAbsolutePath(path.GetData()))
+  if (!path.IsAbsolute())
   {
     PathName absPath(path);
-    absPath.MakeAbsolute();
+    absPath.MakeFullyQualified();
     // RECURSION
     CreateDirectoryPathWithMode(absPath, mode);
   }
@@ -85,7 +88,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t 
 
   if (session != nullptr)
   {
-    session->trace_config->WriteFormattedLine("core", T_("creating directory %s..."), Q_(path));
+    session->trace_config->WriteLine("core", fmt::format(T_("creating directory {0}..."), Q_(path)));
   }
 
   // create the directory itself

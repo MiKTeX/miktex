@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageInfo.h:                 -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -220,7 +220,11 @@ inline bool operator==(const PackageInfo& lhs, const PackageInfo& rhs)
     && lhs.targetSystem == rhs.targetSystem
     && lhs.description == rhs.description
     && lhs.creator == rhs.creator
+#if 0
+    // there was a time when the calculation of sizeRunFiles was broken
+    // maybe due to .tpm file treatment
     && lhs.sizeRunFiles == rhs.sizeRunFiles
+#endif
     && lhs.sizeDocFiles == rhs.sizeDocFiles
     && lhs.sizeSourceFiles == rhs.sizeSourceFiles
     && lhs.requiredPackages == rhs.requiredPackages

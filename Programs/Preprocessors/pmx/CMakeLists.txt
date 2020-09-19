@@ -300,7 +300,7 @@ foreach(p ${programs})
   )
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${p}_sources
-      ${MIKTEX_COMPATIBILITY_MANIFEST}
+      ${MIKTEX_COMMON_MANIFEST}
       ${p}.rc
     )
   endif()

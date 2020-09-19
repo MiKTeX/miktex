@@ -1,6 +1,6 @@
 /* LinuxOsRelease.cpp: 
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include <iomanip>
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/PathName>
 #include <miktex/Core/tux/LinuxOsRelease>
 
 #include "internal.h"
@@ -44,7 +45,7 @@ LinuxOsRelease ReadOsRelease()
 {
   LinuxOsRelease result;
   unique_ptr<Cfg> cfg = Cfg::Create();
-  cfg->Read("/etc/os-release");
+  cfg->Read(PathName("/etc/os-release"));
   for (const shared_ptr<Cfg::Key>& key : *cfg)
   {
     for (const shared_ptr<Cfg::Value>& val : *key)

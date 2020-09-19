@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/InputOutputImpl.h:              -*- C++ -*-
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -83,14 +83,14 @@ public:
   }
 
 public:
-  char* nameoffile() override
+  char*& nameoffile() override
   {
     MIKTEX_ASSERT(sizeof(program.nameoffile[0]) == sizeof(char));
-    return (char*)program.nameoffile;
+    return reinterpret_cast<char*&>(program.nameoffile);
   }
 
 public:
-  C4P::C4P_signed16& namelength() override
+  C4P::C4P_signed32& namelength() override
   {
     return program.namelength;
   }
@@ -105,19 +105,6 @@ public:
     return (char*)program.buffer;
 #endif
   }
-
-#if defined(WITH_OMEGA)
-public:
-  char16_t* buffer16() override
-  {
-#if defined(MIKTEX_OMEGA)
-    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char16_t));
-    return (char16_t*)program.buffer;
-#else
-    MIKTEX_UNEXPECTED();
-#endif
-  }
-#endif
 
 public:
   char32_t* buffer32() override

@@ -1,6 +1,6 @@
 /* mkocp.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -76,7 +76,7 @@ int main(int argc, char ** argv)
       tcerr << T_("mkocp: otp2ocp executable could not be found.") << endl;
       throw 1;
     }
-    PathName argv1 = argv[1];
+    PathName argv1(argv[1]);
     PathName outputName;
     if (PathName::Compare(argv1.GetExtension(), ".ocp") == 0)
     {

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -38,7 +38,7 @@ set(mtprint_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mtprint_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mtprint.rc
   )
 endif()
@@ -55,5 +55,11 @@ target_link_libraries(${MIKTEX_PROG_NAME_MTPRINT}
   ${texmf_dll_name}
   miktex-popt-wrapper
 )
+
+if (USE_SYSTEM_FMT)
+  target_link_libraries(${MIKTEX_PROG_NAME_MTPRINT} MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${MIKTEX_PROG_NAME_MTPRINT} ${fmt_dll_name})
+endif()
 
 install(TARGETS ${MIKTEX_PROG_NAME_MTPRINT} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

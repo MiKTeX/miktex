@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>PATGEN win32</TPM:Name>
+    <TPM:Title>PATGEN, Windows x86</TPM:Title>
+    <TPM:License type="pd"/>
+    <TPM:Version>1.6</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the PATGEN executable.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}patgen.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

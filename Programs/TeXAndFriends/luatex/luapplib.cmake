@@ -1,6 +1,6 @@
 ## luapplib.cmake
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,50 +18,57 @@
 ## USA.
 
 set(luapplib_sources
-  source/luapplib/ppapi.h
-  source/luapplib/pparray.c
-  source/luapplib/pparray.h
-  source/luapplib/ppconf.h
-  source/luapplib/ppcrypt.c
-  source/luapplib/ppcrypt.h
-  source/luapplib/ppdict.c
-  source/luapplib/ppdict.h
-  source/luapplib/ppfilter.h
-  source/luapplib/ppheap.c
-  source/luapplib/ppheap.h
-  source/luapplib/pplib.h
-  source/luapplib/ppload.c
-  source/luapplib/ppload.h
-  source/luapplib/ppstream.c
-  source/luapplib/ppstream.h
-  source/luapplib/ppxref.c
-  source/luapplib/ppxref.h
-  source/luapplib/util/utilarm.h
-  source/luapplib/util/utilbasexx.c
-  source/luapplib/util/utilbasexx.h
-  source/luapplib/util/utilcrypt.c
-  source/luapplib/util/utilcrypt.h
-  source/luapplib/util/utilcryptdef.h
-  source/luapplib/util/utildecl.h
-  source/luapplib/util/utilflate.c
-  source/luapplib/util/utilflate.h
-  source/luapplib/util/utilfpred.c
-  source/luapplib/util/utilfpred.h
-  source/luapplib/util/utiliof.c
-  source/luapplib/util/utiliof.h
-  source/luapplib/util/utillog.c
-  source/luapplib/util/utillog.h
-  source/luapplib/util/utillzw.c
-  source/luapplib/util/utillzw.h
-  source/luapplib/util/utilmd5.c
-  source/luapplib/util/utilmd5.h
-  source/luapplib/util/utilmem.c
-  source/luapplib/util/utilmem.h
-  source/luapplib/util/utilnumber.c
-  source/luapplib/util/utilnumber.h
-  source/luapplib/util/utilplat.h
-  source/luapplib/util/utilsha.c
-  source/luapplib/util/utilsha.h
+  source/luapplib/src/ppapi.h
+  source/luapplib/src/pparray.c
+  source/luapplib/src/pparray.h
+  source/luapplib/src/ppconf.h
+  source/luapplib/src/ppcrypt.c
+  source/luapplib/src/ppcrypt.h
+  source/luapplib/src/ppdict.c
+  source/luapplib/src/ppdict.h
+  source/luapplib/src/ppfilter.h
+  source/luapplib/src/ppheap.c
+  source/luapplib/src/ppheap.h
+  source/luapplib/src/pplib.h
+  source/luapplib/src/ppload.c
+  source/luapplib/src/ppload.h
+  source/luapplib/src/ppstream.c
+  source/luapplib/src/ppstream.h
+  source/luapplib/src/ppxref.c
+  source/luapplib/src/ppxref.h
+  source/luapplib/src/util/utilbasexx.c
+  source/luapplib/src/util/utilbasexx.h
+  source/luapplib/src/util/utilcrypt.c
+  source/luapplib/src/util/utilcrypt.h
+  source/luapplib/src/util/utilcryptdef.h
+  source/luapplib/src/util/utildecl.h
+  source/luapplib/src/util/utilflate.c
+  source/luapplib/src/util/utilflate.h
+  source/luapplib/src/util/utilfpred.c
+  source/luapplib/src/util/utilfpred.h
+  source/luapplib/src/util/utiliof.c
+  source/luapplib/src/util/utiliof.h
+  source/luapplib/src/util/utillog.c
+  source/luapplib/src/util/utillog.h
+  source/luapplib/src/util/utillzw.c
+  source/luapplib/src/util/utillzw.h
+  source/luapplib/src/util/utilmd5.c
+  source/luapplib/src/util/utilmd5.h
+  source/luapplib/src/util/utilmem.c
+  source/luapplib/src/util/utilmem.h
+  source/luapplib/src/util/utilmemallc.h
+  source/luapplib/src/util/utilmemallh.h
+  source/luapplib/src/util/utilmemheap.c
+  source/luapplib/src/util/utilmemheap.h
+  source/luapplib/src/util/utilmemheapiof.c
+  source/luapplib/src/util/utilmemheapiof.h
+  source/luapplib/src/util/utilmeminfo.c
+  source/luapplib/src/util/utilmeminfo.h
+  source/luapplib/src/util/utilnumber.c
+  source/luapplib/src/util/utilnumber.h
+  source/luapplib/src/util/utilplat.h
+  source/luapplib/src/util/utilsha.c
+  source/luapplib/src/util/utilsha.h
 )
 
 add_library(luatex-luapplib-objects OBJECT ${luapplib_sources})
@@ -70,7 +77,7 @@ set_property(TARGET luatex-luapplib-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOL
 
 target_include_directories(luatex-luapplib-objects
   PUBLIC
-    source/luapplib/util
+    source/luapplib/src/util
 )
 
 if(USE_SYSTEM_ZLIB)

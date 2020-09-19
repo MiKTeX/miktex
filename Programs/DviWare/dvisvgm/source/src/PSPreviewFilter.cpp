@@ -2,7 +2,7 @@
 ** PSPreviewFilter.cpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -30,12 +30,6 @@
 
 
 using namespace std;
-
-PSPreviewFilter::PSPreviewFilter (PSInterpreter &psi)
-	: PSFilter(psi), _active(false), _tightpage(false), _dvi2bp(1.0/65536.0)
-{
-}
-
 
 /** Activates this filter so that the PS code will be redirected through it if
  *  it's hooked into the PSInterpreter. */

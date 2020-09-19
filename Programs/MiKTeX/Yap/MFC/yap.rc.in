@@ -21,7 +21,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
+#pragma code_page(65001)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
     "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
+    "#pragma code_page(65001)\r\n"
     "#include ""@CMAKE_CURRENT_SOURCE_DIR@/res/yap.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""  \t// Standard components\r\n"
     "#include ""afxprint.rc""\t// printing/print preview resources\r\n"
@@ -1007,7 +1007,7 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Yap"
-    IDR_DVITYPE             "\nDVI\n\nDVI Files (*.dvi)\n.dvi\nMiKTeX.dvi.@MIKTEX_MAJOR_MINOR_STR@\nDVI File"
+    IDR_DVITYPE             "\nDVI\n\nDVI Files (*.dvi)\n.dvi\nMiKTeX.dvi.@MIKTEX_COM_MAJOR_MINOR_STR@\nDVI File"
 END
 
 STRINGTABLE
@@ -1148,7 +1148,7 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE 9, 1
-#pragma code_page(1252)
+#pragma code_page(65001)
 #include "res\yap.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"    // Standard components
 #include "afxprint.rc"  // printing/print preview resources

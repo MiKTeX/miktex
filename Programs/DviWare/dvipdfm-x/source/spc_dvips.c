@@ -1019,13 +1019,11 @@ spc_dvips_setup_handler (struct spc_handler *handle,
 }
 
 #ifdef __EMX__
-#define GS_CALCULATOR "gsos2 -q -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
-#elif defined(MIKTEX_WINDOWS)
-#define GS_CALCULATOR "mgs -q -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "gsos2 -q -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #elif defined(WIN32)
-#define GS_CALCULATOR "rungs -q -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "rungs -q -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #else
-#define GS_CALCULATOR "gs -q -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "gs -q -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #endif
 
 static

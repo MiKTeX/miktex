@@ -1,6 +1,6 @@
 /* texmfapp.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,6 +19,10 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
@@ -26,9 +30,33 @@
 
 #include <miktex/Trace/Trace>
 
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXMFEXPORT
+#endif
+#define B8C7815676699B4EA2DE96F0BD727276
+#include "miktex/TeXAndFriends/TeXMFApp.h"
+
 #include "internal.h"
 
 #include "miktex/texmfapp.defaults.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 class TeXMFApp::impl
 {
@@ -84,8 +112,8 @@ TeXMFApp::~TeXMFApp() noexcept
 STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
 {
   clock_t clockSinceStart = clock() - clockStart;
-  trace_time->WriteFormattedLine("libtexmf", T_("gross execution time: %u ms"), static_cast<unsigned>(clockSinceStart));
-  cerr << StringUtil::FormatString(T_("gross execution time: %u ms\n"), static_cast<unsigned>(clockSinceStart)) << endl;
+  trace_time->WriteLine("libtexmf", fmt::format(T_("gross execution time: {0} ms"), clockSinceStart));
+  cerr << fmt::format(T_("gross execution time: {0} ms\n"), clockSinceStart) << endl;
 #if defined(MIKTEX_WINDOWS)
   HINSTANCE hinstKernel;
   hinstKernel = LoadLibraryW(L"kernel32.dll");
@@ -113,9 +141,9 @@ STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
   tKernel64.HighPart = ftKernel.dwHighDateTime;
   tUser = static_cast<DWORD>(tUser64.QuadPart / 10000);
   tKernel = static_cast<DWORD>(tKernel64.QuadPart / 10000);
-  trace_time->WriteFormattedLine("libtexmf", T_("user mode: %u ms, kernel mode: %u ms, total: %u"), static_cast<unsigned>(tUser), static_cast<unsigned>(tKernel), static_cast<unsigned>(tUser + tKernel));
+  trace_time->WriteLine("libtexmf", fmt::format(T_("user mode: {0} ms, kernel mode: {1} ms, total: {2}"), tUser, tKernel, tUser + tKernel));
   cerr
-    << StringUtil::FormatString(T_("user mode: %u ms, kernel mode: %u ms, total: %u"), static_cast<unsigned>(tUser), static_cast<unsigned>(tKernel), static_cast<unsigned>(tUser + tKernel))
+    << fmt::format(T_("user mode: {0} ms, kernel mode: {1} ms, total: {2}"), tUser, tKernel, tUser + tKernel)
     << endl;
 #endif // MIKTEX_WINDOWS
 }
@@ -134,9 +162,6 @@ void TeXMFApp::Init(vector<char*>& args)
   pimpl->interactionMode = -1;
   pimpl->isInitProgram = false;
   pimpl->isUnicodeApp = AmI("xetex");
-#if defined(WITH_OMEGA)
-  pimpl->isUnicodeApp = pimpl->isUnicodeApp || AmI("omega");
-#endif
   pimpl->parseFirstLine = false;
   pimpl->recordFileNames = false;
   pimpl->setJobTime = false;
@@ -169,7 +194,7 @@ void TeXMFApp::OnTeXMFStartJob()
     }
   }
   session->PushBackAppName(appName);
-  pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, AmITeX()).GetBool();
+  pimpl->parseFirstLine = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE, ConfigValue(AmITeX())).GetBool();
   pimpl->showFileLineErrorMessages = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CSTYLEERRORS).GetBool();
   pimpl->clockStart = clock();
 }
@@ -188,7 +213,7 @@ void TeXMFApp::OnTeXMFFinishJob()
       fileName = pimpl->jobName;
     }
     shared_ptr<Session> session = GetSession();
-    session->SetRecorderPath(PathName(GetOutputDirectory(), fileName).AppendExtension(".fls"));
+    session->SetRecorderPath(PathName(GetOutputDirectory(), PathName(fileName)).AppendExtension(".fls"));
   }
   if (pimpl->timeStatistics)
   {
@@ -354,8 +379,8 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
 
   case OPT_AUX_DIRECTORY:
   {
-    PathName auxDirectory = optArg;
-    auxDirectory.MakeAbsolute();
+    PathName auxDirectory(optArg);
+    auxDirectory.MakeFullyQualified();
     SetAuxDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
     {
@@ -436,12 +461,6 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     {
       pimpl->jobName = optArg;
     }
-#if defined(WITH_OMEGA)
-    else if (AmI("omega"))
-    {
-      pimpl->jobName = MangleNameOfFile(optArg.c_str()).GetData();
-    }
-#endif
     else
     {
       pimpl->jobName = Q_(optArg);
@@ -464,10 +483,10 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
       time_t creationTime;
       time_t lastAccessTime;
       time_t lastWriteTime;
-      File::GetTimes(optArg, creationTime, lastAccessTime, lastWriteTime);
+      File::GetTimes(PathName(optArg), creationTime, lastAccessTime, lastWriteTime);
       jobTime = lastWriteTime;
     }
-    SetStartUpTime(jobTime, false);
+    GetProgram()->SetStartUpTime(jobTime, false);
     pimpl->setJobTime = true;
   }
   break;
@@ -494,8 +513,8 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
 
   case OPT_OUTPUT_DIRECTORY:
   {
-    PathName outputDirectory = optArg;
-    outputDirectory.MakeAbsolute();
+    PathName outputDirectory(optArg);
+    outputDirectory.MakeFullyQualified();
     SetOutputDirectory(outputDirectory);
     if (!Directory::Exists(outputDirectory))
     {
@@ -555,7 +574,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     break;
 
   case OPT_TCX:
-    SetTcxFileName(optArg);
+    SetTcxFileName(PathName(optArg));
     break;
 
   case OPT_UNDUMP:
@@ -595,8 +614,8 @@ bool inParseFirstLine = false;
 
 void TeXMFApp::CheckFirstLine(const PathName& fileName)
 {
-  AutoRestore<bool> autoRestoreInParseFirstLine(inParseFirstLine);
   inParseFirstLine = true;
+  MIKTEX_AUTO(inParseFirstLine = false);
 
   PathName path;
 
@@ -693,12 +712,12 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
   if (!renew)
   {
     time_t modificationTime = File::GetLastWriteTime(path);
-    time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-    renew = lastAdminMaintenance + 30 > modificationTime;
+    time_t lastAdminMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, ConfigValue("0")).GetTimeT();
+    renew = lastAdminMaintenance > modificationTime;
     if (!renew && !session->IsAdminMode())
     {
-      time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
-      renew = lastUserMaintenance + 30 > modificationTime;
+      time_t lastUserMaintenance = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, ConfigValue("0")).GetTimeT();
+      renew = lastUserMaintenance > modificationTime;
     }
     if (renew)
     {
@@ -708,7 +727,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void
   }
 #endif
 
-  FileStream stream(session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false));
+  FileStream stream(session->OpenFile(path, FileMode::Open, FileAccess::Read, false));
 
   if (pBuf != nullptr)
   {
@@ -741,13 +760,13 @@ void TeXMFApp::ProcessCommandLineOptions()
   }
 
   if (pimpl->parseFirstLine
-    && GetArgC() > 1
-    && GetArgV()[1][0] != '&'
-    && GetArgV()[1][0] != '*' // <fixme/>
-    && GetArgV()[1][0] != '\\'
+    && GetProgram()->GetArgC() > 1
+    && GetProgram()->GetArgV()[1][0] != '&'
+    && GetProgram()->GetArgV()[1][0] != '*' // <fixme/>
+    && GetProgram()->GetArgV()[1][0] != '\\'
     && (pimpl->memoryDumpFileName.empty() || GetTcxFileName().Empty()))
   {
-    CheckFirstLine(GetArgV()[1]);
+    CheckFirstLine(PathName(GetProgram()->GetArgV()[1]));
   }
 }
 
@@ -802,21 +821,16 @@ PathName TeXMFApp::GetDefaultMemoryDumpFileName() const
   return name;
 }
 
-bool IsFileNameArgument(const char* lpszArg)
+bool IsFileNameArgument(const char* arg)
 {
-  for (size_t l = 0; lpszArg[l] != 0; ++l)
+  for (size_t l = 0; arg[l] != 0; ++l)
   {
-    if (l >= BufferSizes::MaxPath)
-    {
-      return false;
-    }
-    char ch = lpszArg[l];
+    char ch = arg[l];
     if (ch == '<'
       || ch == '>'
       || ch == '"'
       || ch == '|'
-      || ch == '*'
-      || ch == '?')
+      || ch == '*')
     {
       return false;
     }
@@ -833,6 +847,9 @@ void TeXMFApp::InitializeBuffer() const
 
   shared_ptr<Session> session = Session::Get();
 
+  auto argc = GetProgram()->GetArgC();
+  auto argv = GetProgram()->GetArgV();
+
   if (AmITeX())
   {
     /* test command-line for one of:
@@ -842,33 +859,26 @@ void TeXMFApp::InitializeBuffer() const
     (d) initex &FORMAT FILENAME \dump
     */
     PathName path;
-    if (c4pargc == 2 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], GetInputFileType(), path))
+    if (argc == 2 && IsFileNameArgument(argv[1]) && session->FindFile(argv[1], GetInputFileType(), path))
     {
       fileNameArgIdx = 1;
     }
-    else if (c4pargc == 3 && c4pargv[1][0] == '&' && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], GetInputFileType(), path))
+    else if (argc == 3 && argv[1][0] == '&' && IsFileNameArgument(argv[2]) && session->FindFile(argv[2], GetInputFileType(), path))
     {
       fileNameArgIdx = 2;
     }
-    else if (c4pargc == 3 && strcmp(c4pargv[2], "\\dump") == 0 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], GetInputFileType(), path))
+    else if (argc == 3 && strcmp(argv[2], "\\dump") == 0 && IsFileNameArgument(argv[1]) && session->FindFile(argv[1], GetInputFileType(), path))
     {
       fileNameArgIdx = 1;
     }
-    else if (c4pargc == 4 && c4pargv[1][0] == '&' && strcmp(c4pargv[3], "\\dump") == 0 && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], GetInputFileType(), path))
+    else if (argc == 4 && argv[1][0] == '&' && strcmp(argv[3], "\\dump") == 0 && IsFileNameArgument(argv[2]) && session->FindFile(argv[2], GetInputFileType(), path))
     {
       fileNameArgIdx = 2;
     }
     if (fileNameArgIdx >= 0)
     {
-#if defined(WITH_OMEGA)
-      if (AmI("omega"))
-      {
-        fileName = WebAppInputLine::MangleNameOfFile(c4pargv[fileNameArgIdx]);
-      }
-      else
-#endif
 #if defined(MIKTEX_WINDOWS)
-        fileName = Q_(path.ToLongPathName().ToUnix());
+        fileName = Q_(path.ToUnix());
 #else
         fileName = Q_(path);
 #endif
@@ -876,14 +886,11 @@ void TeXMFApp::InitializeBuffer() const
   }
 
   //MIKTEX_ASSERT(inout->first() == 1);
-  C4P_signed32& last = inout->last();
+  C4P::C4P_signed32& last = inout->last();
   last = 1;
   char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
-#if defined(WITH_OMEGA)
-  char16_t* buffer16 = AmI("omega") ? inout->buffer16() : nullptr;
-#endif
   char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
-  for (int idx = 1; idx < c4pargc; ++idx)
+  for (int idx = 1; idx < argc; ++idx)
   {
     if (idx > 1)
     {
@@ -891,12 +898,6 @@ void TeXMFApp::InitializeBuffer() const
       {
         buffer32[last++] = U' ';
       }
-#if defined(WITH_OMEGA)
-      else if (AmI("omega"))
-      {
-        buffer16[last++] = u' ';
-      }
-#endif
       else
       {
         buffer[last++] = ' ';
@@ -909,7 +910,7 @@ void TeXMFApp::InitializeBuffer() const
     }
     else
     {
-      lpszOptArg = c4pargv[idx];
+      lpszOptArg = argv[idx];
     }
     if (AmI("xetex"))
     {
@@ -918,15 +919,6 @@ void TeXMFApp::InitializeBuffer() const
         buffer32[last++] = ch;
       }
     }
-#if defined(WITH_OMEGA)
-    else if (AmI("omega"))
-    {
-      for (const char16_t& ch : StringUtil::UTF8ToUTF16(lpszOptArg))
-      {
-        buffer16[last++] = ch;
-      }
-    }
-#endif
     else
     {
       for (const char* lpsz = lpszOptArg; *lpsz != 0; ++lpsz)
@@ -937,7 +929,7 @@ void TeXMFApp::InitializeBuffer() const
   }
 
   // clear the command-line
-  MakeCommandLine(vector<string>());
+  GetProgram()->MakeCommandLine(vector<string>());
 }
 
 void TeXMFApp::TouchJobOutputFile(FILE* file) const
@@ -946,7 +938,7 @@ void TeXMFApp::TouchJobOutputFile(FILE* file) const
   shared_ptr<Session> session = GetSession();
   if (pimpl->setJobTime && session->IsOutputFile(file))
   {
-    time_t time = GetStartUpTime();
+    time_t time = GetProgram()->GetStartUpTime();
     File::SetTimes(file, time, time, time);
   }
 }
@@ -1048,14 +1040,20 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
     CheckPoolPointer(stringHandler->poolptr(), len);
     memcpy(stringHandler->strpool() + stringHandler->poolptr(), lpsz, len * sizeof(char));
   }
-  stringHandler->poolptr() += static_cast<C4P_signed32>(len);
+  stringHandler->poolptr() += static_cast<C4P::C4P_signed32>(len);
   return stringHandler->makestring();
 }
 
-int TeXMFApp::GetJobName() const
+int TeXMFApp::GetJobName(int fallbackJobName) const
 {
   if (pimpl->jobName.empty())
   {
+    if (GetLastInputFileName().Empty())
+    {
+      pimpl->jobName = GetTeXString(fallbackJobName);
+      MIKTEX_EXPECT(pimpl->jobName.find(' ') == string::npos);
+      return fallbackJobName;
+    }
     PathName name = GetLastInputFileName().GetFileNameWithoutExtension();
     if (AmI("xetex"))
     {

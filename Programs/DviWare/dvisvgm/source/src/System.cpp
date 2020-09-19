@@ -2,7 +2,7 @@
 ** System.cpp                                                           **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -36,7 +36,7 @@ using namespace std;
 double System::time () {
 #if defined (HAVE_SYS_TIME_H)
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 	return tv.tv_sec + tv.tv_usec/1000000.0;
 #elif defined (HAVE_SYS_TIMEB_H)
 	struct timeb tb;

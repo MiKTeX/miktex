@@ -1,6 +1,6 @@
 /* runexe.cpp: running executables
 
-   Copyright (C) 2019 Christian Schenk
+   Copyright (C) 2019-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,6 +28,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 int SessionImpl::RunExe(int argc, const char** argv)
 {
@@ -58,7 +59,7 @@ int SessionImpl::RunExe(int argc, const char** argv)
   string oldPath;
   if (Utils::GetEnvironmentString("PATH", oldPath))
   {
-    newPath += PathName::PathNameDelimiter;
+    newPath += PathNameUtil::PathNameDelimiter;
     newPath += oldPath;
   }
   Utils::SetEnvironmentString("PATH", newPath);

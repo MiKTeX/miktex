@@ -1,6 +1,6 @@
 /* vfchar.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -21,13 +21,16 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 class DviFont;
 
 VfChar::VfChar(DviFont* dviFont) :
   DviChar(dviFont),
-  trace_vfchar(TraceStream::Open(MIKTEX_TRACE_DVIVFCHAR))
+  trace_vfchar(TraceStream::Open(MIKTEX_TRACE_DVIVFCHAR, dviFont->GetTraceCallback()))
 {
 }
 
@@ -73,14 +76,14 @@ void VfChar::Read(InputStream& inputstream, int size, double conv)
   }
 
   trace_vfchar->WriteLine("libdvi", T_("going to read vf character packet"));
-  trace_vfchar->WriteFormattedLine("libdvi", "pl: %d", packetSize);
-  trace_vfchar->WriteFormattedLine("libdvi", "cc: %d", charCode);
-  trace_vfchar->WriteFormattedLine("libdvi", "tfm: %d", tfm);
+  trace_vfchar->WriteLine("libdvi", fmt::format("pl: {0}", packetSize));
+  trace_vfchar->WriteLine("libdvi", fmt::format("cc: {0}", charCode));
+  trace_vfchar->WriteLine("libdvi", fmt::format("tfm: {0}", tfm));
 
   tfm = ScaleFix(tfm, dviFont->GetScaledAt());
   cx = static_cast<int>(tfm * conv + 0.5);
 
-  trace_vfchar->WriteFormattedLine("libdvi", "dx: %d", cx);
+  trace_vfchar->WriteLine("libdvi", fmt::format("dx: {0}", cx));
 
   if (packetSize <= sizeof(smallPacket))
   {

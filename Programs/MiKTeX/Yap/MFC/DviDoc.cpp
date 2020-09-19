@@ -1,6 +1,6 @@
 /* DviDoc.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -81,17 +81,18 @@ BOOL DviDoc::OnOpenDocument(LPCTSTR lpszPathName)
     MIKTEX_ASSERT(pDvi == nullptr);
     MIKTEX_ASSERT(pDviSave == nullptr);
     MIKTEX_ASSERT(!isPrintContext);
+    YapInfo(fmt::format("loading document: {0}", TU_(lpszPathName)));
     CreateDocument(TU_(lpszPathName));
     return TRUE;
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return FALSE;
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return FALSE;
   }
 }
@@ -141,7 +142,7 @@ void DviDoc::EndDviPrinting()
 void DviDoc::CreateDocument(const char* lpszPathName)
 {
   fileStatus = DVIFILE_NOT_LOADED;
-  modificationTime = File::GetLastWriteTime(lpszPathName);
+  modificationTime = File::GetLastWriteTime(PathName(lpszPathName));
   MIKTEXMFMODE mfmode;
   if (!pSession->GetMETAFONTMode(GetMetafontMode(), mfmode))
   {
@@ -156,7 +157,8 @@ void DviDoc::CreateDocument(const char* lpszPathName)
     IsPrintContext() ? DviPageMode::Dvips : dviPageMode,
     pSession->GetPaperSizeInfo(dvipsPaperName),
     landscape,
-    this);
+    this,
+    &theApp);
   pDvi->Scan();
   fileStatus = DVIFILE_LOADED;
 }
@@ -300,7 +302,7 @@ DviDoc* DviDoc::GetActiveDocument()
 
 PathName DviDoc::GetDocDir()
 {
-  PathName result = GetPathName();
+  PathName result(GetPathName());
   result.RemoveFileSpec();
   return result;
 }
@@ -326,7 +328,7 @@ void DviDoc::OnIdle()
     DviFileStatus newStatus = GetDviFileStatus();
     if (newStatus == DVIFILE_MODIFIED)
     {
-      YapLog(T_("document has been modified"));
+      YapInfo(T_("document has been modified"));
       POSITION posView = GetFirstViewPosition();
       while (posView != nullptr)
       {
@@ -361,7 +363,7 @@ DviDoc::DviFileStatus DviDoc::GetDviFileStatus()
       modificationTime = File::GetLastWriteTime(PathName(GetPathName()));
       if (timeMod != modificationTime)
       {
-        YapLog(T_("%s has been modified"), Q_(TU_(GetPathName())));
+        YapInfo(fmt::format(T_("{0} has been modified"), Q_(TU_(GetPathName()))));
         modificationTime = timeMod;
         fileStatus = DVIFILE_MODIFIED;
       }

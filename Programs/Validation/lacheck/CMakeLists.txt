@@ -60,7 +60,7 @@ set(lacheck_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND lacheck_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     lacheck.rc
   )
 endif()

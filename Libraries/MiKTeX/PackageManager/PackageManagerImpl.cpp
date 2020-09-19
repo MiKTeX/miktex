@@ -1,6 +1,6 @@
 /* PackageManagerImpl.cpp: MiKTeX Package Manager
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -30,11 +30,11 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
 #include <miktex/Core/PathNameParser>
-#include <miktex/Core/Registry>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Uri>
 #include <miktex/Core/Utils>
@@ -103,6 +103,27 @@ void PackageManagerImpl::Dispose()
   }
 }
 
+void PackageManagerImpl::Lock(chrono::milliseconds timeout)
+{
+  if (lockFile == nullptr)
+  {
+    lockFile = LockFile::Create(session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANAGER_LOCK));
+  }
+  if (!lockFile->TryLock(timeout))
+  {
+      MIKTEX_FATAL_ERROR_5(
+        T_("The package database is locked and cannot be accessed."),
+        T_("Another MiKTeX program has exclusevily locked the package database."),
+        T_("Close running MiKTeX programs and try again."),
+        "package-database-locked");
+  }
+}
+
+void PackageManagerImpl::Unlock()
+{
+  lockFile->Unlock();
+}
+
 unique_ptr<PackageInstaller> PackageManagerImpl::CreateInstaller(const PackageInstaller::InitInfo& initInfo)
 {
   return make_unique<PackageInstallerImpl>(shared_from_this(), initInfo);
@@ -115,20 +136,26 @@ unique_ptr<PackageInstaller> PackageManagerImpl::CreateInstaller()
 
 unique_ptr<PackageIterator> PackageManagerImpl::CreateIterator()
 {
-  return make_unique<PackageIteratorImpl>(shared_from_this());
+  return make_unique<PackageIteratorImpl>(shared_from_this(), false);
 }
 
 void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
 {
   PathName absPath(path);
-  absPath.MakeAbsolute();
+  absPath.MakeFullyQualified();
 
   unique_ptr<TemporaryDirectory> tempDir;
 
   PathName packageManifestsPath;
 
+  bool mustBeSigned = false;
+
   if (isArchive)
   {
+#if defined(WITH_PACKAGE_DB_SIGNING)
+    mustBeSigned = true;
+#endif
+
     // create temporary directory
     tempDir = TemporaryDirectory::Create();
 
@@ -136,16 +163,17 @@ void PackageManagerImpl::LoadDatabase(const PathName& path, bool isArchive)
     unique_ptr<MiKTeX::Extractor::Extractor> extractor(MiKTeX::Extractor::Extractor::CreateExtractor(DB_ARCHIVE_FILE_TYPE));
     extractor->Extract(absPath, tempDir->GetPathName());
 
-    packageManifestsPath = tempDir->GetPathName() / MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME;
+    packageManifestsPath = tempDir->GetPathName() / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME);
   }
   else
   {
+    mustBeSigned = false;
     packageManifestsPath = absPath;
   }
 
   // load "package-manifests.ini"
   packageDataStore.Clear();
-  packageDataStore.LoadAllPackageManifests(packageManifestsPath);
+  packageDataStore.LoadAllPackageManifests(packageManifestsPath, mustBeSigned);
 }
 
 void PackageManagerImpl::ClearAll()
@@ -160,6 +188,14 @@ void PackageManagerImpl::UnloadDatabase()
 
 bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo& packageInfo)
 {
+  if (!packageDataStore.LoadedAllPackageManifests())
+  {
+    MPM_LOCK_BEGIN(this)
+    {
+      packageDataStore.Load();
+    }
+    MPM_LOCK_END();
+  }
   bool knownPackage;
   tie(knownPackage, packageInfo) = packageDataStore.TryGetPackage(packageId);
   return knownPackage;
@@ -167,17 +203,25 @@ bool PackageManagerImpl::TryGetPackageInfo(const string& packageId, PackageInfo&
 
 PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 {
+  if (!packageDataStore.LoadedAllPackageManifests())
+  {
+    MPM_LOCK_BEGIN(this)
+    {
+      packageDataStore.Load();
+    }
+    MPM_LOCK_END();
+  }
   return packageDataStore.GetPackage(packageId);
-}
+  }
 
 bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
 {
   shared_ptr<Session> session = Session::Get();
   repositoryReleaseState = RepositoryReleaseState::Unknown;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, url))
   {
     string str;
-    if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_RELEASE_STATE, str))
+    if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REPOSITORY_RELEASE_STATE, str))
     {
       if (str == "stable")
       {
@@ -207,15 +251,15 @@ string PackageManager::GetRemotePackageRepository(RepositoryReleaseState& reposi
 void PackageManager::SetRemotePackageRepository(const string& url, RepositoryReleaseState repositoryReleaseState)
 {
   shared_ptr<Session> session = Session::Get();
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url);
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_RELEASE_STATE, repositoryReleaseState == RepositoryReleaseState::Stable ? "stable" : (repositoryReleaseState == RepositoryReleaseState::Next ? "next" : "unknown"));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, ConfigValue(url));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REPOSITORY_RELEASE_STATE, ConfigValue(repositoryReleaseState == RepositoryReleaseState::Stable ? "stable" : (repositoryReleaseState == RepositoryReleaseState::Next ? "next" : "unknown")));
 }
 
 bool PackageManager::TryGetLocalPackageRepository(PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   string str;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, str))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, str))
   {
     path = str;
     return true;
@@ -243,14 +287,14 @@ PathName PackageManager::GetLocalPackageRepository()
 
 void PackageManager::SetLocalPackageRepository(const PathName& path)
 {
-  Session::Get()->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, path.ToString());
+  Session::Get()->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(path.ToString()));
 }
 
 bool PackageManager::TryGetMiKTeXDirectRoot(PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   string str;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, str))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_MIKTEXDIRECT_ROOT, str))
   {
     path = str;
     return true;
@@ -279,7 +323,7 @@ PathName PackageManager::GetMiKTeXDirectRoot()
 void PackageManager::SetMiKTeXDirectRoot(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.ToString());
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_MIKTEXDIRECT_ROOT, ConfigValue(path.ToString()));
 }
 
 RepositoryInfo PackageManager::GetDefaultPackageRepository()
@@ -287,7 +331,7 @@ RepositoryInfo PackageManager::GetDefaultPackageRepository()
   RepositoryInfo result;
   shared_ptr<Session> session = Session::Get();
   string str;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, str))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REPOSITORY_TYPE, str))
   {
     if (str == "remote")
     {
@@ -338,11 +382,11 @@ void PackageManager::SetDefaultPackageRepository(const RepositoryInfo& repositor
   {
   case RepositoryType::MiKTeXDirect:
     repositoryTypeStr = "direct";
-    SetMiKTeXDirectRoot(repository.url);
+    SetMiKTeXDirectRoot(PathName(repository.url));
     break;
   case RepositoryType::Local:
     repositoryTypeStr = "local";
-    SetLocalPackageRepository(repository.url);
+    SetLocalPackageRepository(PathName(repository.url));
     break;
   case RepositoryType::Remote:
     repositoryTypeStr = "remote";
@@ -351,7 +395,7 @@ void PackageManager::SetDefaultPackageRepository(const RepositoryInfo& repositor
   default:
     MIKTEX_UNEXPECTED();
   }
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REPOSITORY_TYPE, ConfigValue(repositoryTypeStr));
 }
 
 void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)
@@ -388,13 +432,15 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const s
 {
   shared_ptr<Session> session = Session::Get();
 
-  string fileName;
+  string unprefixed;
 
   // ignore non-texmf files
-  if (!PackageManager::StripTeXMFPrefix(prefixedFileName, fileName))
+  if (!PackageManager::StripTeXMFPrefix(prefixedFileName, unprefixed))
   {
     return;
   }
+
+  PathName fileName(unprefixed);
 
   PathNameParser pathtok(fileName);
 
@@ -405,7 +451,7 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const s
 
   // initialize root path: "//MiKTeX/[MPM]"
   PathName path = session->GetMpmRootPath();
-  //  path += CURRENT_DIRECTORY;
+  // path += CURRENT_DIRECTORY;
 
   // s1: current path name component
   string s1 = *pathtok;
@@ -455,7 +501,7 @@ bool PackageManagerImpl::OnProgress(unsigned level, const PathName& directory)
   return true;
 }
 
-void PackageManagerImpl::CreateMpmFndb()
+void PackageManagerImpl::CreateMpmFndbNoLock()
 {
   // collect the file names
   for (const PackageInfo& pi : packageDataStore)
@@ -489,8 +535,8 @@ bool PackageManager::IsLocalPackageRepository(const PathName& path)
   }
 
   // local mirror of remote package repository?
-  PathName file1 = PathName(path, MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME);
-  PathName file2 = PathName(path, MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
+  PathName file1 = PathName(path, PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME));
+  PathName file2 = PathName(path, PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME));
   if (File::Exists(file1) && File::Exists(file2))
   {
     return true;
@@ -536,7 +582,23 @@ public:
 public:
   void AddAttribute(const string& name, const string& value)
   {
-    stream << fmt::format(" {}=\"{}\"", name, value);
+    string encodedValue;
+    for (const char& ch : value)
+    {
+      switch (ch)
+      {
+      case '&':
+        encodedValue += "&amp;";
+        break;
+      case '"':
+        encodedValue += "&quot;";
+        break;
+      default:
+        encodedValue += ch;
+        break;
+      }
+    }
+    stream << fmt::format(" {}=\"{}\"", name, encodedValue);
   }
 
 public:
@@ -900,7 +962,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
         {
           packageInfo.runFiles.push_back(path.ToString());
         }
@@ -918,7 +980,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
         {
           packageInfo.docFiles.push_back(path.ToString());
         }
@@ -936,7 +998,7 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
 #if defined(MIKTEX_UNIX)
         path.ConvertToUnix();
 #endif
-        if (texmfPrefix.empty() || (PathName::Compare(texmfPrefix, path, texmfPrefix.length()) == 0))
+        if (texmfPrefix.empty() || (PathName::Compare(PathName(texmfPrefix), path, texmfPrefix.length()) == 0))
         {
           packageInfo.sourceFiles.push_back(path.ToString());
         }
@@ -984,10 +1046,10 @@ bool PackageManager::StripTeXMFPrefix(const string& str, string& result)
 void PackageManager::SetProxy(const ProxySettings& proxySettings)
 {
   shared_ptr<Session> session = Session::Get();
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, proxySettings.useProxy);
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy);
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, proxySettings.port);
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, proxySettings.authenticationRequired);
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_USE_PROXY, ConfigValue(proxySettings.useProxy));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_HOST, ConfigValue(proxySettings.proxy));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_PORT, ConfigValue(proxySettings.port));
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_AUTH_REQ, ConfigValue(proxySettings.authenticationRequired));
   PackageManagerImpl::proxyUser = proxySettings.user;
   PackageManagerImpl::proxyPassword = proxySettings.password;
 }
@@ -995,97 +1057,21 @@ void PackageManager::SetProxy(const ProxySettings& proxySettings)
 bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings)
 {
   shared_ptr<Session> session = Session::Get(); 
-  proxySettings.useProxy = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, false).GetBool();
-  if (proxySettings.useProxy)
-  {
-    if (!session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy))
-    {
-      return false;
-    }
-    proxySettings.port = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, 8080).GetInt();
-    proxySettings.authenticationRequired = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, false).GetBool();
-    proxySettings.user = PackageManagerImpl::proxyUser;
-    proxySettings.password = PackageManagerImpl::proxyPassword;
-    return true;
-  }
-  string proxyEnv;
-  if (!url.empty())
-  {
-    Uri uri(url.c_str());
-    string scheme = uri.GetScheme();
-    string envName;
-    if (scheme == "https")
-    {
-      envName = "https_proxy";
-    }
-    else if (scheme == "http")
-    {
-      envName = "http_proxy";
-    }
-    else if (scheme == "ftp")
-    {
-      envName = "FTP_PROXY";
-    }
-    else
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    Utils::GetEnvironmentString(envName, proxyEnv);
-  }
-  if (proxyEnv.empty())
-  {
-    Utils::GetEnvironmentString("ALL_PROXY", proxyEnv);
-  }
-  if (proxyEnv.empty())
+  proxySettings.useProxy = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_USE_PROXY, ConfigValue(false)).GetBool();
+  if (!proxySettings.useProxy || !session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_HOST, proxySettings.proxy))
   {
     return false;
   }
-  Uri uri(proxyEnv);
-  proxySettings.useProxy = true;
-  proxySettings.proxy = uri.GetHost();
-  proxySettings.port = uri.GetPort();
-  string userInfo = uri.GetUserInfo();
-  proxySettings.authenticationRequired = !userInfo.empty();
-  if (proxySettings.authenticationRequired)
-  {
-    string::size_type idx = userInfo.find_first_of(":");
-    if (idx == string::npos)
-    {
-      proxySettings.user = userInfo;
-      proxySettings.password = "";
-    }
-    else
-    {
-      proxySettings.user = userInfo.substr(0, idx);
-      proxySettings.password = userInfo.substr(idx + 1);
-    }
-  }
-  else
-  {
-    proxySettings.user = "";
-    proxySettings.password = "";
-  }
+  proxySettings.port = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_PORT).GetInt();
+  proxySettings.authenticationRequired = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_AUTH_REQ, ConfigValue(false)).GetBool();
+  proxySettings.user = PackageManagerImpl::proxyUser;
+  proxySettings.password = PackageManagerImpl::proxyPassword;
   return true;
 }
 
 bool PackageManager::TryGetProxy(ProxySettings& proxySettings)
 {
   return TryGetProxy("", proxySettings);
-}
-
-ProxySettings PackageManager::GetProxy(const string& url)
-{
-  ProxySettings proxySettings;
-  if (!TryGetProxy(url, proxySettings))
-  {
-    MIKTEX_FATAL_ERROR(T_("No proxy host is configured."));
-  }
-  return proxySettings;
-}
-
-ProxySettings PackageManager::GetProxy()
-{
-  return GetProxy("");
 }
 
 void PackageManagerImpl::OnProgress()
@@ -1103,7 +1089,7 @@ bool PackageManagerImpl::TryGetFileDigest(const PathName& prefix, const string& 
   path /= unprefixed;
   if (!File::Exists(path))
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package verification failed: file {0} does not exist"), Q_(path)));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("package verification failed: file {0} does not exist"), Q_(path)));
     return false;
   }
   if (path.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
@@ -1136,9 +1122,9 @@ bool PackageManagerImpl::TryCollectFileDigests(const PathName& prefix, const vec
   return true;
 }
 
-bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
+bool PackageManagerImpl::TryVerifyInstalledPackageNoLock(const string& packageId)
 {
-  PackageInfo packageInfo = GetPackageInfo(packageId);
+  PackageInfo packageInfo = packageDataStore.GetPackage(packageId);
 
   PathName prefix;
 
@@ -1176,26 +1162,26 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string& packageId)
 
   if (!ok)
   {
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("expected digest: {0}"), packageInfo.digest));
-    trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("package {0} verification failed: some files have been modified"), Q_(packageId)));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("expected digest: {0}"), packageInfo.digest));
+    trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("computed digest: {0}"), md5Builder.GetMD5()));
   }
 
   return ok;
 }
 
-string PackageManagerImpl::GetContainerPath(const string& packageId, bool useDisplayNames)
+string PackageManagerImpl::GetContainerPathNoLock(const string& packageId, bool useDisplayNames)
 {
   string path;
-  PackageInfo packageInfo = GetPackageInfo(packageId);
+  PackageInfo packageInfo = packageDataStore.GetPackage(packageId);
   for (const string& reqby : packageInfo.requiredBy)
   {
-    PackageInfo packageInfo2 = GetPackageInfo(reqby);
+    PackageInfo packageInfo2 = packageDataStore.GetPackage(reqby);
     if (packageInfo2.IsPureContainer())
     {
       // RECUSION
-      path = GetContainerPath(reqby, useDisplayNames);
-      path += PathName::DirectoryDelimiter;
+      path = GetContainerPathNoLock(reqby, useDisplayNames);
+      path += PathNameUtil::DirectoryDelimiter;
       if (useDisplayNames)
       {
         path += packageInfo2.displayName;
@@ -1215,18 +1201,25 @@ InstallationSummary PackageManagerImpl::GetInstallationSummary(bool userScope)
   InstallationSummary result;
   result.packageCount = packageDataStore.GetNumberOfInstalledPackages(userScope);
   string lastUpdateCheckText;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER,
-                                 userScope ? MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK : MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK,
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM,
+                                 userScope ? MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK,
                                  lastUpdateCheckText))
   {
     result.lastUpdateCheck = std::stol(lastUpdateCheckText);
   }
   string lastUpdateText;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER,
-                                 userScope ? MIKTEX_REGVAL_LAST_USER_UPDATE : MIKTEX_REGVAL_LAST_ADMIN_UPDATE,
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM,
+                                 userScope ? MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE : MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE,
                                  lastUpdateText))
   {
       result.lastUpdate = std::stol(lastUpdateText);
+  }
+  string lastUpdateDbText;
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM,
+                                 userScope ? MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_DB : MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_DB,
+                                 lastUpdateDbText))
+  {
+    result.lastUpdateDb = std::stol(lastUpdateDbText);
   }
   return result;
 }

@@ -1,19 +1,35 @@
+/*
+	This is part of TeXworks, an environment for working with TeX documents
+	Copyright (C) 2018-2020  Jonathan Kew, Stefan Löffler
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	For links to further information, or to contact the authors,
+	see <http://www.tug.org/texworks/>.
+*/
 #include "Engine.h"
 #include "TWApp.h"
 
-Engine::Engine()
-	: QObject()
-	, _showPdf(false)
-{
-}
+#include <QDir>
 
-Engine::Engine(const QString& name, const QString& program, const QStringList arguments, bool showPdf)
-	: QObject(), _name(name), _program(program), _arguments(arguments), _showPdf(showPdf)
+Engine::Engine(const QString& name, const QString& program, const QStringList & arguments, bool showPdf)
+	: _name(name), _program(program), _arguments(arguments), _showPdf(showPdf)
 {
 }
 
 Engine::Engine(const Engine& orig)
-	: QObject(), _name(orig._name), _program(orig._program), _arguments(orig._arguments), _showPdf(orig._showPdf)
+	: _name(orig._name), _program(orig._program), _arguments(orig._arguments), _showPdf(orig._showPdf)
 {
 }
 
@@ -87,7 +103,7 @@ QString Engine::programPath(const QString & prog)
 }
 
 
-QProcess * Engine::run(QFileInfo input, QObject * parent /* = nullptr */)
+QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */)
 {
 	QString exeFilePath = programPath(program());
 	if (exeFilePath.isEmpty())

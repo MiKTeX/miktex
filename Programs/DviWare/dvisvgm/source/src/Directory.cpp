@@ -2,7 +2,7 @@
 ** Directory.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,10 +26,8 @@ using namespace std;
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #else
-#ifdef _WIN32
-	#include "windows.hpp"
-#else
-	#include <errno.h>
+#ifndef _WIN32
+	#include <cerrno>
 	#include <sys/stat.h>
 #endif
 #endif
@@ -37,30 +35,14 @@ using namespace std;
 Directory::Directory () {
 #if defined(MIKTEX)
 #else
-#if _WIN32
-	_handle = INVALID_HANDLE_VALUE;
-	_firstread = true;
+#ifdef _WIN32
 	memset(&_fileData, 0, sizeof(WIN32_FIND_DATA));
-#else
-	_dir = nullptr;
-	_dirent = nullptr;
 #endif
 #endif
 }
 
 
-Directory::Directory (const string &dirname) {
-#if defined(MIKTEX)
-#else
-#if _WIN32
-	_handle = INVALID_HANDLE_VALUE;
-	_firstread = true;
-	memset(&_fileData, 0, sizeof(WIN32_FIND_DATA));
-#else
-	_dir = nullptr;
-	_dirent = nullptr;
-#endif
-#endif
+Directory::Directory (const string &dirname) : Directory() {
 	open(dirname);
 }
 
@@ -73,11 +55,11 @@ Directory::~Directory () {
 bool Directory::open (string dirname) {
 	_dirname = dirname;
 #if defined(MIKTEX)
-        if (!MiKTeX::Core::Directory::Exists(dirname))
+        if (!MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(dirname)))
         {
           return false;
         }
-        directoryLister = MiKTeX::Core::DirectoryLister::Open(dirname);
+        directoryLister = MiKTeX::Core::DirectoryLister::Open(MiKTeX::Core::PathName(dirname));
         return true;
 #else
 #ifdef _WIN32

@@ -1,6 +1,6 @@
 /* miktex/Setup/SetupService.h:                         -*- C++ -*-
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -102,17 +102,36 @@ typedef MiKTeX::Core::OptionSet<ReportOption> ReportOptionSet;
 enum class IssueType
 {
   Path,
-  UpdateCheckOverdue,
+  AdminUpdateCheckOverdue,
   UserUpdateCheckOverdue,
   RootDirectoryCoverage,
   PackageDamaged
 };
 
+enum class IssueSeverity
+{
+  Critical = 1,
+  Major = 6,
+  Minor = 15,
+  Trivial = 43
+};
+
 struct Issue
 {
   IssueType type;
+  IssueSeverity severity;
   std::string message;
+  std::string remedy;
+  std::string tag;
+  MIKTEXSETUPCEEAPI(std::string) GetUrl() const;
+  MIKTEXSETUPCEEAPI(std::string) ToString() const;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Issue& issue)
+{
+  return os << issue.ToString();
+}
+
 
 struct SetupOptions
 {
@@ -392,6 +411,9 @@ public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<SetupService>) Create();
 
 public:
+  static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) CreateSandbox(MiKTeX::Core::StartupConfig& startupConfig);
+
+public:
   static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) TestLocalRepository(const MiKTeX::Core::PathName& pathRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel);
 
 public:
@@ -423,6 +445,9 @@ public:
 
 public:
   static MIKTEXSETUPCEEAPI(std::vector<Issue>) FindIssues(bool checkPath, bool checkPackageIntegrity);
+
+public:
+  static MIKTEXSETUPCEEAPI(std::vector<Issue>) GetIssues();
 };
 
 MIKTEX_SETUP_END_NAMESPACE;

@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -54,12 +54,12 @@ BEGIN_TEST_FUNCTION(1);
 
   unsigned localRootIdx = pSession->DeriveTEXMFRoot(localRoot);
   PathName fndbLocal = pSession->GetFilenameDatabasePathName(localRootIdx);
-  TEST(Fndb::Create(fndbLocal.GetData(), localRoot.GetData(), nullptr));
+  TEST(Fndb::Create(fndbLocal, localRoot, nullptr));
   TEST(File::Exists(fndbLocal));
 
   unsigned installRootIdx = pSession->DeriveTEXMFRoot(installRoot);
   PathName fndbInstall = pSession->GetFilenameDatabasePathName(installRootIdx);
-  TEST(Fndb::Create(fndbInstall.GetData(), installRoot.GetData(), nullptr));
+  TEST(Fndb::Create(fndbInstall, installRoot, nullptr));
   TEST(File::Exists(fndbInstall));
 }
 END_TEST_FUNCTION();
@@ -68,24 +68,24 @@ BEGIN_TEST_FUNCTION(2);
 {
   PathName path;
   TEST(pSession->FindFile("test.tex", "%R/tex//", path));
-  if (File::Exists("./test.tex"))
+  if (File::Exists(PathName("./test.tex")))
   {
-    File::Delete("./test.tex");
+    File::Delete(PathName("./test.tex"));
   }
   TEST(!pSession->FindFile("./test.tex", "%R/tex//", path));
   Touch("./test.tex");
   TEST(pSession->FindFile("./test.tex", "%R/tex//", path));
-  TEST(pSession->FindFile("./test.tex", StringUtil::Flatten({ ".", "%R/tex//" }, PathName::PathNameDelimiter), path));
-  path.MakeAbsolute();
+  TEST(pSession->FindFile("./test.tex", StringUtil::Flatten({ ".", "%R/tex//" }, PathNameUtil::PathNameDelimiter), path));
+  path.MakeFullyQualified();
   PathName path2;
   path2.SetToCurrentDirectory();
   path2 /= "test.tex";
   TEST(path == path2);
-  File::Delete("./test.tex");
+  File::Delete(PathName("./test.tex"));
   TEST(pSession->FindFile("test.tex", "%R/tex//base", path));
   TEST(pSession->FindFile("base/test.tex", "%R/tex//", path));
   vector<PathName> paths;
-  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathName::PathNameDelimiter), paths));
+  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathNameUtil::PathNameDelimiter), paths));
   TEST(paths.size() == 2);
 }
 END_TEST_FUNCTION();
@@ -93,13 +93,13 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(3);
 {
   vector<PathName> paths;
-  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathName::PathNameDelimiter), paths));
+  TEST(pSession->FindFile("xyz.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathNameUtil::PathNameDelimiter), paths));
   TEST(!paths.empty());
   for (const PathName& p : paths)
   {
     TEST(Fndb::FileExists(p));
   }
-  PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot) / "abrakadabra" / "hi.txt";
+  PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot) / PathName("abrakadabra") / PathName("hi.txt");
   TESTX(Fndb::Add({ {PathName(path)} }));
   TESTX(pSession->UnloadFilenameDatabase());
   TEST(Fndb::FileExists(path));

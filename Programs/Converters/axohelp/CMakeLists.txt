@@ -22,7 +22,7 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_CONVERTERS_FOLDER}/axohelp")
 
 configure_file(
-  axohelp-version.h.cmake
+  axohelp-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/axohelp-version.h
 )
 
@@ -60,7 +60,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/axohelp.rc
   )
   list(APPEND axohelp_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/axohelp.rc
   )
 endif()

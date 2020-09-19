@@ -2,7 +2,7 @@
 ** FontEncoding.cpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -32,7 +32,7 @@ using namespace std;
  * @return pointer to encoding object, or 0 if there is no encoding defined */
 FontEncoding* FontEncoding::encoding (const string &encname) {
 	if (encname.empty())
-		return 0;
+		return nullptr;
 
 	using EncodingMap = unordered_map<string, unique_ptr<EncFile>>;
 	static EncodingMap encmap;
@@ -77,7 +77,7 @@ const FontEncoding* FontEncodingPair::findCompatibleBaseFontMap (const PhysicalF
 		return _enc2->findCompatibleBaseFontMap(font, charmapID);
 	if (_enc1)
 		return _enc1->findCompatibleBaseFontMap(font, charmapID);
-	return 0;
+	return nullptr;
 }
 
 

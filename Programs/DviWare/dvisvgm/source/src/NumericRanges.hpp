@@ -2,7 +2,7 @@
 ** NumericRanges.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,8 +26,7 @@
 #include <utility>
 
 template <class T>
-class NumericRanges
-{
+class NumericRanges {
 	public:
 		using Range = std::pair<T,T>;
 		using Container = std::list<Range>;
@@ -54,7 +53,7 @@ template <class T>
 void NumericRanges<T>::addRange (T first, T last) {
 	if (first > last)
 		std::swap(first, last);
-	typename Container::iterator it = _ranges.begin();
+	auto it = _ranges.begin();
 	while (it != _ranges.end() && first > it->first+1 && first > it->second+1)
 		++it;
 	if (it == _ranges.end() || last < it->first-1 || first > it->second+1)
@@ -65,8 +64,8 @@ void NumericRanges<T>::addRange (T first, T last) {
 	}
 	// merge adjacent ranges
 	if (it != _ranges.end()) {
-		typename Container::iterator l = it;
-		typename Container::iterator r = it;
+		auto l = it;
+		auto r = it;
 		if (l == _ranges.begin())
 			l = _ranges.end();
 		else

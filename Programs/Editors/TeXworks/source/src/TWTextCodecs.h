@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2012  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,18 +27,18 @@
 class MacCentralEurRomanCodec : public QTextCodec
 {
 public:
-	MacCentralEurRomanCodec() : QTextCodec() { }
-	virtual ~MacCentralEurRomanCodec() { }
+	MacCentralEurRomanCodec() = default;
+	~MacCentralEurRomanCodec() override = default;
 
 	// NOTE: The mib number is arbitrary since this encoding is not in the IANA
 	// list (http://www.iana.org/assignments/character-sets).
-	int mibEnum() const { return -4000; }
-	QByteArray name() const { return "Mac Central European Roman"; }
-	QList<QByteArray> aliases() const;
+	int mibEnum() const override { return -4000; }
+	QByteArray name() const override { return "Mac Central European Roman"; }
+	QList<QByteArray> aliases() const override;
 
 protected:
-	QByteArray convertFromUnicode(const QChar * input, int length, ConverterState * state) const;
-	QString convertToUnicode(const char * chars, int len, ConverterState * state) const;
+	QByteArray convertFromUnicode(const QChar * input, int length, ConverterState * state) const override;
+	QString convertToUnicode(const char * chars, int len, ConverterState * state) const override;
 };
 
 #endif // !defined(TWTextCodecs)

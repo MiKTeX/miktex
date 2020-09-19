@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2019 Christian Schenk
+   Copyright (C) 2013-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,16 +19,18 @@
 
 #include "config.h"
 
+#include "setup-version.h"
+
 #include "internal.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winSetupService.h"
 #endif
 
-#include "setup-version.h"
-
 using namespace std;
 using namespace std::string_literals;
+
+using namespace nlohmann;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
@@ -56,7 +58,7 @@ SETUPSTATICFUNC(int) ComparePaths(const PathName& path1, const PathName& path2, 
     && (GetShortPathNameW(path1.ToWideCharString().c_str(), szShortPath1, BufferSizes::MaxPath) > 0)
     && (GetShortPathNameW(path2.ToWideCharString().c_str(), szShortPath2, BufferSizes::MaxPath) > 0))
   {
-    return PathName::Compare(szShortPath1, szShortPath2);
+    return PathName::Compare(PathName(szShortPath1), PathName(szShortPath2));
   }
 #endif
   return PathName::Compare(path1, path2);
@@ -103,7 +105,55 @@ bool Contains(const vector<PathName>& vec, const PathName& pathName)
   return false;
 }
 
+string IssueSeverityString(IssueSeverity severity)
+{
+  switch (severity)
+  {
+  case IssueSeverity::Critical: return T_("critical issue");
+  case IssueSeverity::Major: return T_("major issue");
+  case IssueSeverity::Minor: return T_("minor issue");
+  case IssueSeverity::Trivial: return T_("trivial issue");
+  default: MIKTEX_UNEXPECTED();
+  }
+}
+
 END_INTERNAL_NAMESPACE;
+
+namespace MiKTeX {
+  namespace Setup {
+    inline std::ostream& operator<<(std::ostream& os, const IssueSeverity& severity)
+    {
+      return os << IssueSeverityString(severity);
+    }
+    void to_json(json& j, const Issue& issue)
+    {
+      j = json{ {"type", issue.type}, {"severity", issue.severity}, {"message", issue.message}, {"remedy", issue.remedy}, {"tag", issue.tag} };
+    }
+    void from_json(const json& j, Issue& issue)
+    {
+      j.at("type").get_to(issue.type);
+      j.at("severity").get_to(issue.severity);
+      j.at("message").get_to(issue.message);
+      j.at("remedy").get_to(issue.remedy);
+      j.at("tag").get_to(issue.tag);
+    }
+  }
+}
+
+string Issue::GetUrl() const
+{
+  string url;
+  if (!tag.empty())
+  {
+    url = MIKTEX_URL_WWW_KNOWLEDGE_BASE + "/fix-"s + tag;
+  }
+  return url;
+}
+
+string Issue::ToString() const
+{
+  return fmt::format("{}: {}", severity, message);
+}
 
 SetupService::~SetupService() noexcept
 {
@@ -137,21 +187,46 @@ unique_ptr<SetupService> SetupService::Create()
 #endif
 }
 
+unique_ptr<TemporaryDirectory> SetupService::CreateSandbox(StartupConfig& startupConfig)
+{
+  unique_ptr<TemporaryDirectory> sandbox = TemporaryDirectory::Create();
+  startupConfig.userInstallRoot = sandbox->GetPathName();
+  startupConfig.userDataRoot = sandbox->GetPathName();
+  startupConfig.userConfigRoot = sandbox->GetPathName();
+  startupConfig.commonDataRoot = sandbox->GetPathName();
+  startupConfig.commonConfigRoot = sandbox->GetPathName();
+  startupConfig.commonInstallRoot = sandbox->GetPathName();
+#if defined(MIKTEX_WINDOWS)
+  PathName configDir = sandbox->GetPathName() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
+  Directory::Create(configDir);
+  PathName configFile = configDir / PathName(MIKTEX_INI_FILE);
+  ofstream s(configFile.ToString());
+  s << fmt::format("[{0}]", MIKTEX_CONFIG_SECTION_CORE) << "\n"
+    << fmt::format("{0}=t", MIKTEX_CONFIG_VALUE_NO_REGISTRY) << "\n";
+  s.close();
+#endif
+  return sandbox;
+}
+
 PathName SetupService::GetDefaultLocalRepository()
 {
   PathName ret;
   string val;
   shared_ptr<Session> session = Session::Get();
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, val))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, val))
   {
     ret = val;
   }
   else
   {
-    // default is current users Desktop\MiKTeX Download Files"
 #if defined(MIKTEX_WINDOWS)
-    ret = Utils::GetFolderPath(CSIDL_DESKTOPDIRECTORY, CSIDL_DESKTOPDIRECTORY, true);
-    ret /= "MiKTeX Download Files";
+    // default is current users download folder
+    wchar_t* downloadFolder = nullptr;
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_Downloads, 0, nullptr, &downloadFolder);
+    MIKTEX_EXPECT(SUCCEEDED(hr));
+    MIKTEX_AUTO(CoTaskMemFree(downloadFolder));
+    ret = downloadFolder;
+    ret /= MIKTEX_PRODUCTNAME_STR;
 #else
     // TODO
     MIKTEX_UNEXPECTED();
@@ -184,8 +259,8 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
   }
 
   // try ..\tm\packages
-  localRepository = session->GetMyLocation(false) / ".." / "tm" / "packages";
-  localRepository.MakeAbsolute();
+  localRepository = session->GetMyLocation(false) / PathName("..") / PathName("tm") / PathName("packages");
+  localRepository.MakeFullyQualified();
   packageLevel_ = SetupService::TestLocalRepository(localRepository, requestedPackageLevel);
   if (packageLevel_ != PackageLevel::None)
   {
@@ -209,7 +284,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
 
 PackageLevel SetupService::TestLocalRepository(const PathName& pathRepository, PackageLevel requestedPackageLevel)
 {
-  PathName pathInfoFile(pathRepository, DOWNLOAD_INFO_FILE);
+  PathName pathInfoFile(pathRepository, PathName(DOWNLOAD_INFO_FILE));
   if (!File::Exists(pathInfoFile))
   {
     return PackageLevel::None;
@@ -253,9 +328,9 @@ bool SetupService::IsMiKTeXDirect(PathName& root)
 {
   // check ..\texmf\miktex\config\miktexstartup.ini
   shared_ptr<Session> session = Session::Get();
-  root = session->GetMyLocation(false) / "..";
-  root.MakeAbsolute();
-  PathName pathStartupConfig = root / "texmf" / MIKTEX_PATH_STARTUP_CONFIG_FILE;
+  root = session->GetMyLocation(false) / PathName("..");
+  root.MakeFullyQualified();
+  PathName pathStartupConfig = root / PathName("texmf") / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
   if (!File::Exists(pathStartupConfig))
   {
     return false;
@@ -287,7 +362,7 @@ unique_ptr<TemporaryDirectory> SetupService::ExtractFiles()
   // TODO: get path of running executable
   UNIMPLEMENTED();
 #endif
-  FileStream myImage(File::Open(szPath, FileMode::Open, FileAccess::Read, false));
+  FileStream myImage(File::Open(PathName(szPath), FileMode::Open, FileAccess::Read, false));
   char magic[16];
   while (myImage.Read(magic, 16) == 16)
   {
@@ -342,7 +417,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   // we must have an intermediate log file
   if (!logStream.is_open())
   {
-    return "";
+    return PathName();
   }
 
   // close the intermediate log file
@@ -351,7 +426,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   if (cancel)
   {
     File::Delete(intermediateLogFile);
-    return "";
+    return PathName();
   }
 
   // determine the final log directory
@@ -362,11 +437,11 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   }
   else
   {
-    if (options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository)
+    if (options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::FinishSetup)
     {
       if (Directory::Exists(GetInstallRoot()))
       {
-        pathLogDir = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+        pathLogDir = GetInstallRoot() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
       }
       else
       {
@@ -388,7 +463,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
     {
       // remove the intermediate log file
       File::Delete(intermediateLogFile);
-      return "";
+      return PathName();
     }
   }
 
@@ -426,16 +501,14 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 
 void SetupServiceImpl::LogHeader()
 {
-  Log(fmt::format(T_("{0} {0} Report\n\n"), options.Banner, options.Version));
+  Log(fmt::format(T_("{0} {1} Report\n\n"), options.Banner, options.Version));
   time_t t = time(nullptr);
   struct tm* pTm = localtime(&t);
   Log(fmt::format(T_("Date: {0:%A, %B %d, %Y}\n"), *pTm));
   Log(fmt::format(T_("Time: {0:%H:%M:%S}\n"), *pTm));
   Log(fmt::format(T_("OS version: {0}\n"), Utils::GetOSVersionString()));
   shared_ptr<Session> session = Session::Get();
-#if defined(MIKTEX_WINDOWS)
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
-#endif
   if (options.Task != SetupTask::Download)
   {
     Log(fmt::format("SharedSetup: {}\n", options.IsCommonSetup));
@@ -453,13 +526,13 @@ void SetupServiceImpl::LogHeader()
   if (options.Task != SetupTask::Download)
   {
     Log(fmt::format("UserRoots: {}\n", options.Config.userRoots.empty() ? T_("<none specified>") : options.Config.userRoots));
-    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot));
-    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot));
+    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot.ToString()));
+    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot.ToString()));
     Log(fmt::format("CommonRoots: {}\n", options.Config.commonRoots.empty() ? T_("<none specified>") : options.Config.commonRoots));
-    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot));
-    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot));
+    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot.ToString()));
+    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot.ToString()));
     PathName installRoot = GetInstallRoot();
-    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? T_("<none specified>") : installRoot));
+    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? T_("<none specified>") : installRoot.ToString()));
   }
 }
 
@@ -478,7 +551,7 @@ void SetupServiceImpl::Log(const string& s)
   {
     if (lpsz[0] == '\n' || (lpsz[0] == '\r' && lpsz[1] == '\n'))
     {
-      traceStream->WriteFormattedLine("setup", "%s", currentLine.c_str());
+      traceStream->WriteLine("setup", currentLine);
       if (logStream.is_open())
       {
         logStream << currentLine << "\n";
@@ -516,9 +589,9 @@ PathName SetupServiceImpl::GetULogFileName()
   }
   else
   {
-    directory = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+    directory = GetInstallRoot() / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR);
   }
-  return directory / MIKTEX_UNINSTALL_LOG;
+  return directory / PathName(MIKTEX_UNINSTALL_LOG);
 }
 
 void SetupServiceImpl::ULogClose()
@@ -541,7 +614,7 @@ void SetupServiceImpl::ULogAddFile(const PathName& path)
     section = Files;
   }
   PathName absolutePath(path);
-  absolutePath.MakeAbsolute();
+  absolutePath.MakeFullyQualified();
 #if defined(MIKTEX_WINDOWS)
   absolutePath.ConvertToDos();
 #endif
@@ -646,6 +719,12 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
       options.Config.commonInstallRoot = "";
 #endif
     }
+#if defined(MIKTEX_WINDOWS)
+    if (options.FolderName.Empty())
+    {
+      options.FolderName = MIKTEX_PRODUCTNAME_STR;
+    }
+#endif
   }
   if (options.Task == SetupTask::Download || options.Task == SetupTask::InstallFromLocalRepository)
   {
@@ -677,7 +756,7 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
   if ((options.RemotePackageRepository.empty() && options.Task == SetupTask::Download) || options.Task == SetupTask::InstallFromRemoteRepository)
   {
-    if (!packageManager->TryGetRemotePackageRepository(options.RemotePackageRepository) && allowRemoteCalls)
+    if ((!packageManager->TryGetRemotePackageRepository(options.RemotePackageRepository) || options.RemotePackageRepository.empty()) && allowRemoteCalls)
     {
       options.RemotePackageRepository = packageManager->PickRepositoryUrl();
     }
@@ -694,7 +773,7 @@ void SetupServiceImpl::Initialize()
   }
   initialized = true;
 
-  ReportLine("initializing setup service...");
+  ReportLine(fmt::format("this is {0}", Utils::MakeProgramVersionString(MIKTEX_COMP_NAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))));
 
   packageInstaller = packageManager->CreateInstaller({ nullptr, true, false });
   cancelled = false;
@@ -737,7 +816,7 @@ void SetupServiceImpl::DoTheDownload()
   shared_ptr<Session> session = Session::Get();
 
   // remember local repository folder
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, options.LocalPackageRepository.ToString());
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(options.LocalPackageRepository.ToString()));
 
   // create the local repository directory
   Directory::Create(options.LocalPackageRepository);
@@ -755,10 +834,10 @@ void SetupServiceImpl::DoTheDownload()
 
   // copy the license file
   PathName licenseFile;
-  if (FindFile(LICENSE_FILE, licenseFile))
+  if (FindFile(PathName(LICENSE_FILE), licenseFile))
   {
-    PathName licenseFileDest(options.LocalPackageRepository, LICENSE_FILE);
-    if (ComparePaths(licenseFile.GetData(), licenseFileDest.GetData(), true) != 0)
+    PathName licenseFileDest(options.LocalPackageRepository, PathName(LICENSE_FILE));
+    if (ComparePaths(licenseFile, licenseFileDest, true) != 0)
     {
       File::Copy(licenseFile, licenseFileDest);
     }
@@ -772,9 +851,9 @@ void SetupServiceImpl::DoTheDownload()
     MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
   }
   PathName pathDest(options.LocalPackageRepository, PathName(szSetupPath).GetFileName());
-  if (ComparePaths(WU_(szSetupPath), pathDest, true) != 0)
+  if (ComparePaths(PathName(szSetupPath), pathDest, true) != 0)
   {
-    File::Copy(WU_(szSetupPath), pathDest);
+    File::Copy(PathName(szSetupPath), pathDest);
   }
 #else
   // TODO: copy setup program
@@ -831,7 +910,7 @@ void SetupServiceImpl::DoTheInstallation()
   StartupConfig startupConfig;
   if (options.IsPortable)
   {
-    startupConfig.commonInstallRoot = options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+    startupConfig.commonInstallRoot = options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
     startupConfig.userInstallRoot = startupConfig.commonInstallRoot;
   }
   else if (options.IsCommonSetup)
@@ -858,12 +937,12 @@ void SetupServiceImpl::DoTheInstallation()
   if (options.Task == SetupTask::InstallFromCD)
   {
     isArchive = false;
-    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_MANIFESTS_INI;
+    pathDB = options.MiKTeXDirectRoot / PathName("texmf") / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
   }
   else
   {
     isArchive = true;
-    pathDB = options.LocalPackageRepository / MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME;
+    pathDB = options.LocalPackageRepository / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
   }
   ReportLine(T_("Loading package database..."));
   packageManager->LoadDatabase(pathDB, isArchive);
@@ -884,7 +963,7 @@ void SetupServiceImpl::DoTheInstallation()
 
   // install package manifest files
   packageManager->UnloadDatabase();
-  packageInstaller->UpdateDb();
+  packageInstaller->UpdateDb({});
 
   if (cancelled)
   {
@@ -1002,7 +1081,7 @@ void SetupServiceImpl::DoCleanUp()
   shared_ptr<Session> session = Session::Get();
 
 #if defined(MIKTEX_WINDOWS)
-  logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
+  logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_UNINST_LOG));
 #endif
 
   if (options.CleanupOptions[CleanupOption::Links])
@@ -1164,7 +1243,7 @@ void SetupServiceImpl::DoCleanUp()
       PathName fontConfig(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
       // FIXME: hard-coded file name
       fontConfig /= "09-miktex.conf";
-      if (session->RunningAsAdministrator() && File::Exists(fontConfig))
+      if (session->IsAdminMode() && File::Exists(fontConfig))
       {
         File::Delete(fontConfig);
       }
@@ -1235,7 +1314,7 @@ vector<PathName> SetupServiceImpl::GetRoots()
 void SetupServiceImpl::UnregisterComponents()
 {
   shared_ptr<Session> session = Session::Get();
-  if (session->RunningAsAdministrator())
+  if (session->IsAdminMode())
   {
     std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager(PackageManager::Create());
     shared_ptr<PackageInstaller> packageInstaller(packageManager->CreateInstaller());
@@ -1254,10 +1333,14 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
   vector<string> args;
 
+  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::InstallFromCD || options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::InstallFromRemoteRepository || options.Task == SetupTask::PrepareMiKTeXDirect)
+  {
+    args.push_back("--principal=setup");
+  }
+
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // define roots & remove old fndbs
-    args.clear();
     if (options.IsPortable)
     {
       args.push_back("--portable=" + GetInstallRoot().ToString());
@@ -1293,12 +1376,12 @@ void SetupServiceImpl::ConfigureMiKTeX()
       {
         args.push_back("--no-registry");
         args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
-        args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_NO_REGISTRY + "=1");
+        args.push_back("--set-config-value="s + "[" + MIKTEX_CONFIG_SECTION_CORE + "]" + MIKTEX_CONFIG_VALUE_NO_REGISTRY + "=1");
       }
 #else
       args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
 #endif
-      args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_SHARED_SETUP + "=" + (options.IsCommonSetup ? "1" : "0"));
+      args.push_back("--set-config-value="s + "[" + MIKTEX_CONFIG_SECTION_CORE + "]" + MIKTEX_CONFIG_VALUE_SHARED_SETUP + "=" + (options.IsCommonSetup ? "1" : "0"));
     }
     if (!options.Config.commonRoots.empty())
     {
@@ -1408,7 +1491,7 @@ PathName SetupServiceImpl::GetInstallRoot() const
 {
   if (options.IsPortable)
   {
-    return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+    return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
   }
   else if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
@@ -1430,7 +1513,7 @@ PathName SetupServiceImpl::GetBinDir() const
   }
   else
   {
-    return GetInstallRoot() / MIKTEX_PATH_BIN_DIR;
+    return GetInstallRoot() / PathName(MIKTEX_PATH_BIN_DIR);
   }
 }
 
@@ -1439,15 +1522,11 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   shared_ptr<Session> session = Session::Get();
 
   // make absolute exe path name
-  PathName exePath = GetBinDir() / MIKTEX_INITEXMF_EXE;
+  PathName exePath = GetBinDir() / PathName(MIKTEX_INITEXMF_EXE);
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
   allArgs.insert(allArgs.end(), args.begin(), args.end());
-  if (options.Task == SetupTask::FinishSetup)
-  {
-    allArgs.push_back("--principal=setup");
-  }
   if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
@@ -1487,7 +1566,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
   // make absolute exe path name
-  PathName exePath = GetBinDir() / MIKTEX_MPM_EXE;
+  PathName exePath = GetBinDir() / PathName(MIKTEX_MPM_EXE);
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
@@ -1510,7 +1589,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 
 void SetupServiceImpl::CreateInfoFile()
 {
-  StreamWriter stream(PathName(options.LocalPackageRepository, DOWNLOAD_INFO_FILE));
+  StreamWriter stream(PathName(options.LocalPackageRepository, PathName(DOWNLOAD_INFO_FILE)));
   const char* lpszPackageSet;
   switch (options.PackageLevel)
   {
@@ -1547,7 +1626,7 @@ void SetupServiceImpl::CreateInfoFile()
   RepositoryInfo repositoryInfo;
   if (packageManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))
   {
-    StreamWriter stream(PathName(options.LocalPackageRepository, "pr.ini"));
+    StreamWriter stream(PathName(options.LocalPackageRepository, PathName("pr.ini")));
     stream.WriteLine("[repository]");
     stream.WriteLine(fmt::format("date={}", repositoryInfo.timeDate));
     stream.WriteLine(fmt::format("version={}", repositoryInfo.version));
@@ -1656,7 +1735,7 @@ bool SetupServiceImpl::OnProgress(MiKTeX::Packages::Notification nf)
   return true;
 }
 
-wstring& SetupServiceImpl::Expand(const char* source, wstring& dest)
+wstring& SetupServiceImpl::Expand(const string& source, wstring& dest)
 {
   dest = StringUtil::UTF8ToWideChar(source);
   wstring::size_type pos;
@@ -1727,7 +1806,7 @@ void SetupServiceImpl::CollectFiles(vector<PathName>& vec, const PathName& dir, 
     }
     else
     {
-      PathName path(dir, entry.name);
+      PathName path(dir, PathName(entry.name));
       if (path.HasExtension(lpszExt))
       {
         vec.push_back(path);
@@ -1738,7 +1817,7 @@ void SetupServiceImpl::CollectFiles(vector<PathName>& vec, const PathName& dir, 
   for (const string& s : subDirs)
   {
     // RECURSION
-    CollectFiles(vec, PathName(dir, s), lpszExt);
+    CollectFiles(vec, PathName(dir, PathName(s)), lpszExt);
   }
 }
 
@@ -1773,10 +1852,18 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
+    SetupConfig setupConfig = session->GetSetupConfig();
     auto p = Utils::CheckPath();
-    s << "Date: " << fmt::format("{:%F %T}", *localtime(&now)) << "\n"
-      << "MiKTeX: " << Utils::GetMiKTeXVersionString() << "\n"
-      << "OS: " << Utils::GetOSVersionString() << "\n"
+    s << "ReportDate: " << FormatTimestamp(now) << "\n"
+      << "CurrentVersion: " << Utils::GetMiKTeXVersionString() << "\n"
+      << "SetupDate: " << FormatTimestamp(setupConfig.setupDate) << "\n"
+      << "SetupVersion: " << (setupConfig.setupVersion == VersionNumber() ? MIKTEX_LEGACY_MAJOR_MINOR_STR : setupConfig.setupVersion.ToString()) << "\n"
+      << "Configuration: " << (session->IsMiKTeXPortable() ? "Portable" : "Regular") << "\n";
+    if (Utils::HaveGetGitInfo())
+    {
+      s << "GitInfo: " << Utils::GetGitInfo() << "\n";
+    }
+    s << "OS: " << Utils::GetOSVersionString() << "\n"
       << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
       << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
       << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n";
@@ -1785,6 +1872,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
       s << "LastUpdateCheckAdmin: " << FormatTimestamp(commonInstallation.lastUpdateCheck) << "\n";
       s << "LastUpdateAdmin: " << FormatTimestamp(commonInstallation.lastUpdate) << "\n";
+      s << "LastUpdateDbAdmin: " << FormatTimestamp(commonInstallation.lastUpdateDb) << "\n";
 
     }
     if (!session->IsAdminMode())
@@ -1794,6 +1882,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       {
         s << "LastUpdateCheck: " << FormatTimestamp(userInstallation.lastUpdateCheck) << "\n";
         s << "LastUpdate: " << FormatTimestamp(userInstallation.lastUpdate) << "\n";
+        s << "LastUpdateDb: " << FormatTimestamp(userInstallation.lastUpdateDb) << "\n";
       }
     }
   }
@@ -1830,7 +1919,7 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
     if (Utils::GetEnvironmentString("PATH", env))
     {
       int idx = 0;
-      for (const string& p : StringUtil::Split(env, PathName::PathNameDelimiter))
+      for (const string& p : StringUtil::Split(env, PathNameUtil::PathNameDelimiter))
       {
         s << "PATH" << idx++ << p << "\n";
       }
@@ -1839,11 +1928,11 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   vector<Issue> issues = FindIssues(options[ReportOption::General], options[ReportOption::BrokenPackages]);
   if (!issues.empty())
   {
-    s << "\n" << "Warning: the following problems were detected:" << "\n";
+    s << "\n" << "The following issues were detected:" << "\n";
     int nr = 1;
     for (const auto& iss : issues)
     {
-      s << fmt::format("  {}: {}", nr, iss.message) << "\n";
+      s << fmt::format("  {}: {}: {}", nr, iss.severity, iss.message) << "\n";
       nr++;
     }
   }
@@ -1865,36 +1954,99 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     auto p = Utils::CheckPath();
     if (!p.first && p.second)
     {
-      result.push_back({ IssueType::Path, T_("The PATH variable does not include the MiKTeX executables.")});
+      result.push_back({
+        IssueType::Path,
+        IssueSeverity::Minor,
+        T_("The PATH variable does not include the MiKTeX executables."),
+        T_("Find the directory which contains the MiKTeX executables and add it to the environment variable PATH."),
+        "path-variable"
+      });
     }
   }
   if (session->IsSharedSetup())
   {
     InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
-    if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+    if (session->IsAdminMode())
     {
-      result.push_back({ IssueType::UpdateCheckOverdue, T_("Never checked for system-wide updates.") });
+      if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+      {
+        result.push_back({
+          IssueType::AdminUpdateCheckOverdue,
+          IssueSeverity::Major,
+          T_("So far, no MiKTeX administrator has checked for updates."),
+          T_("Switch to MiKTeX administrator mode and check for updates.")
+        });
+      }
+      else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
+      {
+        result.push_back({
+          IssueType::AdminUpdateCheckOverdue,
+          IssueSeverity::Minor,
+          T_("It has been a long time since a MiKTeX administrator has checked for updates."),
+          T_("Switch to MiKTeX administrator mode and check for updates.")
+        });
+      }
     }
-    else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
-    {
-      result.push_back({ IssueType::UpdateCheckOverdue, T_("It has been a long time since system-wide updates were checked.") });
-    }
-    if (!session->IsAdminMode())
+    else
     {
       InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
-      if (userInstallation.packageCount > 0)
+      if (IsValidTimeT(userInstallation.lastUpdate) && (!IsValidTimeT(commonInstallation.lastUpdateCheck) || userInstallation.lastUpdate > commonInstallation.lastUpdateCheck))
+      {
+        result.push_back({
+          IssueType::AdminUpdateCheckOverdue,
+          IssueSeverity::Major,
+          T_("User/administrator updates are out-of-sync."),
+          T_("Switch to MiKTeX administrator mode and check for updates."),
+          "user-admin-updates-out-of-sync"
+        });
+      }
+      else if (!IsValidTimeT(commonInstallation.lastUpdateCheck))
+      {
+        result.push_back({
+          IssueType::AdminUpdateCheckOverdue,
+          IssueSeverity::Major,
+          T_("So far, no MiKTeX administrator has checked for updates."),
+          T_("Switch to MiKTeX administrator mode and check for updates.")
+        });
+      }
+      else if (now > commonInstallation.lastUpdateCheck + HALF_A_YEAR)
+      {
+        result.push_back({
+          IssueType::AdminUpdateCheckOverdue,
+          IssueSeverity::Minor,
+          T_("It has been a long time since a MiKTeX administrator has checked for updates."),
+          T_("Switch to MiKTeX administrator mode and check for updates.")
+        });
+      }
+      else if (userInstallation.packageCount > 0)
       {
         if (!IsValidTimeT(userInstallation.lastUpdateCheck))
         {
-          result.push_back({ IssueType::UserUpdateCheckOverdue, T_("Never checked for updates in user mode.") });
+          result.push_back({
+            IssueType::UserUpdateCheckOverdue,
+            IssueSeverity::Major,
+            T_("So far, you have not checked for updates as a MiKTeX user."),
+            T_("Stay in MiKTeX user mode and check for updates.")
+          });
         }
-        else if (IsValidTimeT(commonInstallation.lastUpdateCheck) &&commonInstallation.lastUpdateCheck > userInstallation.lastUpdateCheck + ONE_DAY)
+        else if (IsValidTimeT(commonInstallation.lastUpdate) && (!IsValidTimeT(userInstallation.lastUpdateCheck) || commonInstallation.lastUpdate > userInstallation.lastUpdateCheck))
         {
-          result.push_back({ IssueType::UserUpdateCheckOverdue, T_("User mode updates and system-wide updates are out-of-sync.") });
+          result.push_back({
+            IssueType::UserUpdateCheckOverdue,
+            IssueSeverity::Major,
+            T_("User/administrator updates are out-of-sync."),
+            T_("Stay in MiKTeX user mode and check for updates."),
+            "user-admin-updates-out-of-sync"
+            });
         }
         else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
         {
-          result.push_back({ IssueType::UserUpdateCheckOverdue, T_("It has been a long time since updates were checked in user mode.") });
+          result.push_back({
+            IssueType::UserUpdateCheckOverdue,
+            IssueSeverity::Minor,
+            T_("It has been a long time since you have checked for updates as a MiKTeX user."),
+            T_("Stay in MiKTeX user mode and check for updates.")
+          });
         }
       }
     }
@@ -1906,11 +2058,21 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     MIKTEX_ASSERT(userInstallation.packageCount > 0);
     if (!IsValidTimeT(userInstallation.lastUpdateCheck))
     {
-      result.push_back({ IssueType::UserUpdateCheckOverdue, T_("Never checked for updates.") });
+      result.push_back({
+        IssueType::UserUpdateCheckOverdue,
+        IssueSeverity::Major,
+        T_("So far, you have not checked for MiKTeX updates."),
+        T_("Check for MiKTeX updates.")
+      });
     }
     else if (now > userInstallation.lastUpdateCheck + HALF_A_YEAR)
     {
-      result.push_back({ IssueType::UserUpdateCheckOverdue, T_("It has been a long time since updates were checked.") });
+      result.push_back({
+        IssueType::UserUpdateCheckOverdue,
+        IssueSeverity::Minor,
+        T_("It has been a long time since you have checked for MiKTeX updates."),
+        T_("Check for MiKTeX updates.")
+      });
     }
   }
   vector<RootDirectoryInfo> roots = session->GetRootDirectories();
@@ -1920,11 +2082,21 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
     {
       if (Utils::IsParentDirectoryOf(roots[idx2].path, roots[idx].path))
       {
-        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2) });
+        result.push_back({
+          IssueType::RootDirectoryCoverage,
+          IssueSeverity::Major,
+          fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2),
+          T_("") // TODO
+        });
       }
       else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
       {
-        result.push_back({ IssueType::RootDirectoryCoverage, fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2) });
+        result.push_back({
+          IssueType::RootDirectoryCoverage,
+          IssueSeverity::Major,
+          fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2),
+          T_("") // TODO
+        });
       }
     }
   }
@@ -1940,11 +2112,51 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
       {
         if (!(packageManager->TryVerifyInstalledPackage(packageInfo.id)))
         {
-          result.push_back({ IssueType::PackageDamaged, fmt::format(T_("Package {0} has been tampered with."), packageInfo.id) });
+          result.push_back({
+            IssueType::PackageDamaged,
+            IssueSeverity::Critical,
+            fmt::format(T_("Package {0} has been tampered with."), packageInfo.id),
+            T_("") // TODO
+          });
         }
       }
     }
     pkgIter->Dispose();
   }
+  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
+  Directory::Create(issuesJson.GetDirectoryName());
+  File::CreateOutputStream(issuesJson) << json(result);
+  session->SetConfigValue(
+    MIKTEX_CONFIG_SECTION_SETUP,
+    session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_DIAGNOSE : MIKTEX_CONFIG_VALUE_LAST_USER_DIAGNOSE,
+    ConfigValue(std::to_string(time(nullptr))));
   return result;
+}
+
+vector<Issue> SetupService::GetIssues()
+{
+  vector<Setup::Issue> issues;
+  shared_ptr<Session> session = Session::Get();
+  PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
+  if (File::Exists(issuesJson))
+  {
+    try
+    {
+      const json j_array = json::parse(File::CreateInputStream(issuesJson));
+      if (j_array.is_array())
+      {
+        for (json::const_iterator it = j_array.begin(); it != j_array.end(); ++it)
+        {
+          Setup::Issue issue = it->get<Setup::Issue>();
+          issues.push_back(issue);
+        }
+      }
+    }
+    catch (const nlohmann::json::exception& ex)
+    {
+      // TODO: logging
+    }
+
+  }
+  return issues;
 }

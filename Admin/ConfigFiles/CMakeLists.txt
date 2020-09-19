@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -58,7 +58,6 @@ set(main_ini_names
   frtex
   ftex
   jadetex
-  lambda
   latex
   latex-dev
   latex209
@@ -68,11 +67,9 @@ set(main_ini_names
   lualatex
   lualatex-dev
   luatex
-  mex
   mllatex
   mltex
   olatex
-  omega
   pdfamstex
   pdfcslatex
   pdfcsplain
@@ -80,12 +77,10 @@ set(main_ini_names
   pdfjadetex
   pdflatex
   pdflatex-dev
-  pdfmex
   pdfplatex
   pdftex
   pdftexinfo
   pdfxlatex
-  pdfxmex
   pdfxmltex
   pdfxtex
   platex

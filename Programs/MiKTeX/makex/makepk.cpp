@@ -1,6 +1,6 @@
 /* makepk.cpp:
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakePK.
 
@@ -21,7 +21,9 @@
 
 #include "config.h"
 
-#include <miktex/Core/Registry>
+#include "makepk-version.h"
+
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Util/Tokenizer>
 
@@ -164,7 +166,7 @@ void MakePk::CreateDestinationDirectory()
   }
 
   // get destination path template
-  string templ1 = session->GetConfigValue(MIKTEX_REGKEY_MAKEPK, MIKTEX_REGVAL_DESTDIR, "%R/fonts/pk/%m/%s/%t/dpi%d").GetString();
+  string templ1 = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MAKEPK, MIKTEX_CONFIG_VALUE_DESTDIR).GetString();
 
   string templ2;
   for (const char* lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)
@@ -211,7 +213,7 @@ void MakePk::CreateDestinationDirectory()
 
 void MakePk::MakePKFilename(const char* name, int bdpi, int dpi, PathName& result)
 {
-  string templ = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, "%f.pk").GetString();
+  string templ = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE).GetString();
   string temp;
   for (const char* lpsz = templ.c_str(); *lpsz != 0; ++lpsz)
   {

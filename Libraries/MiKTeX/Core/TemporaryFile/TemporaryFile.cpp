@@ -1,6 +1,6 @@
 /* TemporaryFile.cpp:
 
-   Copyright (C) 2016-2019 Christian Schenk
+   Copyright (C) 2016-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/TemporaryFile>
 
@@ -46,7 +47,14 @@ public:
 public:
   TemporaryFileImpl(const PathName& path)
   {
-    this->path = path;
+    if (Directory::Exists(path))
+    {
+      this->path.SetToTempFile(path);
+    }
+    else
+    {
+      this->path = path;
+    }
   }
 
 public:

@@ -1,6 +1,6 @@
 /* Setup.cpp:
 
-   Copyright (C) 1999-2019 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -278,7 +278,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
 {
 #if 1
   string commonRoots;
-  for (const string& tok : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
+  for (const string& tok : StringUtil::Split(startupConfig.commonRoots, PathNameUtil::PathNameDelimiter))
   {
     PathName path(tok);
     if (path.Empty())
@@ -311,21 +311,21 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     }
     if (!commonRoots.empty())
     {
-      commonRoots += PathName::PathNameDelimiter;
+      commonRoots += PathNameUtil::PathNameDelimiter;
     }
     commonRoots += path.ToString();
   }
   startupConfig.commonRoots = commonRoots;
 
   string userRoots;
-  for (const string& tok : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
+  for (const string& tok : StringUtil::Split(startupConfig.userRoots, PathNameUtil::PathNameDelimiter))
   {
     PathName path(tok);
     if (path.Empty())
     {
       continue;
     }
-    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), string(1, PathName::PathNameDelimiter).c_str(), true))
+    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), string(1, PathNameUtil::PathNameDelimiter).c_str(), true))
     {
       MIKTEX_FATAL_ERROR_2(T_("Improper options: --user-roots value collides with --common-roots value."), "path", path.ToString());
     }
@@ -355,7 +355,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
     }
     if (!userRoots.empty())
     {
-      userRoots += PathName::PathNameDelimiter;
+      userRoots += PathNameUtil::PathNameDelimiter;
     }
     userRoots += path.ToString();
   }
@@ -590,7 +590,7 @@ bool FindFile(const PathName& fileName, PathName& result)
 bool ReadSetupWizIni(SetupCommandLineInfo& cmdinfo)
 {
   PathName fileName;
-  if (!FindFile("setupwiz.opt", fileName))
+  if (!FindFile(PathName("setupwiz.opt"), fileName))
   {
     return false;
   }
@@ -751,7 +751,7 @@ void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
   if (options.RemotePackageRepository.empty())
   {
     string str;
-    if (SetupApp::Instance->packageManager->TryGetRemotePackageRepository(str))
+    if (SetupApp::Instance->packageManager->TryGetRemotePackageRepository(str) && !str.empty())
     {
       options.RemotePackageRepository = str;
     }
@@ -810,29 +810,19 @@ BOOL SetupApp::InitInstance()
 
   try
   {
-    // create a scratch root directory
-    PathName tempDirectory;
-    tempDirectory.SetToTempDirectory();
-    tempDirectory /= "miktex-setup";
-    if (!Directory::Exists(tempDirectory))
-    {
-      Directory::Create(tempDirectory);
-    }
-    unique_ptr<TemporaryDirectory> scratchRoot = TemporaryDirectory::Create(tempDirectory);
+    // create a sandbox
+    DBGLOC2("creating sandbox");
+    StartupConfig startupConfig;
+    unique_ptr<TemporaryDirectory> sandbox = SetupService::CreateSandbox(startupConfig);
 
     // create a MiKTeX session
-    StartupConfig startupConfig;
-    startupConfig.userInstallRoot = scratchRoot->GetPathName();
-    startupConfig.userDataRoot = scratchRoot->GetPathName();
-    startupConfig.userConfigRoot = scratchRoot->GetPathName();
-    startupConfig.commonDataRoot = scratchRoot->GetPathName();
-    startupConfig.commonConfigRoot = scratchRoot->GetPathName();
-    startupConfig.commonInstallRoot = scratchRoot->GetPathName();
-    Session::InitInfo initInfo("setup", { Session::InitOption::NoConfigFiles, Session::InitOption::NoFixPath });
+    DBGLOC2("creating session");
+    Session::InitInfo initInfo("setup", { Session::InitOption::SettingUp, Session::InitOption::NoFixPath });
     initInfo.SetStartupConfig(startupConfig);
     shared_ptr<Session> session = Session::Create(initInfo);
 
     // create package manager
+    DBGLOC2("creating package manager");
     packageManager = PackageManager::Create();
 
     // create setup service
@@ -850,7 +840,7 @@ BOOL SetupApp::InitInstance()
    
     // set trace options
     traceStream = TraceStream::Open("setupwiz");
-    TraceStream::SetTraceFlags("error,extractor,mpm,process,config,setupwiz,setup");
+    TraceStream::SetOptions("error,extractor,mpm,process,config,setupwiz,setup");
 
     // extract package archive files
     unique_ptr<TemporaryDirectory> sfxDir = SetupService::ExtractFiles();
@@ -929,7 +919,7 @@ BOOL SetupApp::InitInstance()
 
     if (SetupApp::Instance->CheckUpdatesOnExit)
     {
-      PathName miktexConsole(GetInstallationDirectory() / MIKTEX_PATH_BIN_DIR / MIKTEX_CONSOLE_EXE);
+      PathName miktexConsole(GetInstallationDirectory() / PathName(MIKTEX_PATH_BIN_DIR) / PathName(MIKTEX_CONSOLE_EXE));
       vector<string> args{ "--hide", "--check-updates" };
       if (options.IsCommonSetup)
       {
@@ -949,7 +939,7 @@ BOOL SetupApp::InitInstance()
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
       if (r <= 32)
       {
-        Process::Start("notepad.exe", { "notepad", pathLogFile.ToString() });
+        Process::Start(PathName("notepad.exe"), { "notepad", pathLogFile.ToString() });
       }
     }
     traceStream.reset();
@@ -958,7 +948,7 @@ BOOL SetupApp::InitInstance()
     options = Service->GetOptions();
     Service = nullptr;
     session->UnloadFilenameDatabase();
-    scratchRoot = nullptr;
+    sandbox = nullptr;
     if (dlgRet == IDRETRY && sfxDir != nullptr)
     {
       string packageLevel;
@@ -1004,7 +994,7 @@ BOOL SetupApp::InitInstance()
       SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
       sei.cbSize = sizeof(sei);
       sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
-      CharBuffer<wchar_t> file((sfxDir->GetPathName() / "miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX).GetData());
+      CharBuffer<wchar_t> file((sfxDir->GetPathName() / PathName("miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX)).GetData());
       sei.lpFile = file.GetData();
       CharBuffer<wchar_t> parameters(CommandLineBuilder(args).ToString());
       sei.lpParameters = parameters.GetData();
@@ -1077,7 +1067,7 @@ void DDV_Path(CDataExchange* pDX, const CString& str)
     return;
   }
   CString str2;
-  if (isalpha(str[0]) && str[1] == ':' && IsDirectoryDelimiter(str[2]))
+  if (PathNameUtil::IsDosDriveLetter(str[0]) && PathNameUtil::IsDosVolumeDelimiter(str[1]) && PathNameUtil::IsDirectoryDelimiter(str[2]))
   {
     CString driveRoot = str.Left(3);
     if (!Directory::Exists(PathName(driveRoot)))
@@ -1093,7 +1083,7 @@ void DDV_Path(CDataExchange* pDX, const CString& str)
   else
   {
     PathName uncRoot;
-    if (!Utils::GetUncRootFromPath(TU_(str), uncRoot))
+    if (!Utils::GetUncRootFromPath(PathName(TU_(str)), uncRoot))
     {
       CString message;
       message.Format(T_(_T("The specified path is invalid because it is not fully qualified.")));

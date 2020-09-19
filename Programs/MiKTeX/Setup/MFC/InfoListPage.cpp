@@ -174,7 +174,7 @@ void InfoListPage::CreateReport()
     break;
   case SetupTask::PrepareMiKTeXDirect:
     info += T_("Prepare to run MiKTeX from ");
-    info += PathName(SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot, "texmf").GetData();
+    info += PathName(SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot, PathName("texmf")).GetData();
     break;
   default:
     MIKTEX_ASSERT(false);

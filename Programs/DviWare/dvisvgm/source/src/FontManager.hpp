@@ -2,7 +2,7 @@
 ** FontManager.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -66,7 +66,7 @@ class FontManager
 		void enterVF (VirtualFont *vf);
 		void leaveVF ();
 		void assignVFChar (int c, std::vector<uint8_t> &&dvi);
-		std::ostream& write (std::ostream &os, Font *font=0, int level=0);
+		std::ostream& write (std::ostream &os, Font *font=nullptr, int level=0);
 
 	protected:
 		FontManager () =default;

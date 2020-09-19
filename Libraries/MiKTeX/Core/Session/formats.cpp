@@ -59,7 +59,7 @@ bool SessionImpl::TryGetFormatInfo(const string& key, FormatInfo& formatInfo)
   ReadFormatsIni();
   for (const FormatInfo& fmt : formats)
   {
-    if (PathName::Equals(fmt.key, key))
+    if (PathName::Equals(PathName(fmt.key), PathName(key)))
     {
       formatInfo = fmt;
       return true;
@@ -80,7 +80,7 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
     vector<FormatInfo_>::iterator it;
     for (it = formats.begin(); it != formats.end(); ++it)
     {
-      if (PathName::Equals(it->key, key->GetName()))
+      if (PathName::Equals(PathName(it->key), PathName(key->GetName())))
       {
         formatInfo = *it;
         break;
@@ -174,7 +174,7 @@ void SessionImpl::WriteFormatsIni()
   {
     if (fmt.custom)
     {
-      if (PathName::Equals(fmt.key, fmt.name))
+      if (PathName::Equals(PathName(fmt.key), PathName(fmt.name)))
       {
         cfgFormats->PutValue(fmt.key, "name", fmt.name);
       }
@@ -225,7 +225,7 @@ void SessionImpl::WriteFormatsIni()
     cfgFormats->PutValue(fmt.key, "attributes", attributes);
   }
 
-  PathName pathLocalFormatsIni(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_FORMATS_INI);
+  PathName pathLocalFormatsIni(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_FORMATS_INI));
 
   Directory::Create(PathName(pathLocalFormatsIni).RemoveFileSpec());
 
@@ -244,7 +244,7 @@ void SessionImpl::DeleteFormatInfo(const string& key)
   ReadFormatsIni();
   for (vector<FormatInfo_>::iterator it = formats.begin(); it != formats.end(); ++it)
   {
-    if (PathName::Equals(it->key, key))
+    if (PathName::Equals(PathName(it->key), PathName(key)))
     {
       if (!it->custom)
       {
@@ -264,7 +264,7 @@ void SessionImpl::SetFormatInfo(const FormatInfo& formatInfo)
   vector<FormatInfo_>::iterator it;
   for (it = formats.begin(); it != formats.end(); ++it)
   {
-    if (PathName::Equals(it->key, formatInfo.key))
+    if (PathName::Equals(PathName(it->key), PathName(formatInfo.key)))
     {
       bool custom = it->custom;
       if (!custom)

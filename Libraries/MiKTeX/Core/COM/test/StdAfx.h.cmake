@@ -1,6 +1,6 @@
 /* StdAfx.h:                                            -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,4 +25,4 @@
 
 #import "@session_tlb_name@.tlb"
 
-using namespace MiKTeXSession@MIKTEX_MAJOR_MINOR_ID_STR@;
+using namespace MiKTeXSession@MIKTEX_COM_MAJOR_MINOR_ID_STR@;

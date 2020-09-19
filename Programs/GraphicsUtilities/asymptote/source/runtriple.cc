@@ -64,6 +64,7 @@ function *realRealFunction();
 #line 10 "runtriple.in"
 #include "triple.h"
 #include "path3.h"
+#include "drawelement.h"
 
 using namespace camp;
 
@@ -76,108 +77,107 @@ using namespace camp;
 
 #endif
 namespace run {
-#line 18 "runtriple.in"
+#line 19 "runtriple.in"
 void tripleZero(stack *Stack)
 {
-#line 19 "runtriple.in"
+#line 20 "runtriple.in"
   static triple zero;
   {Stack->push<triple>(zero); return;}
 }
 
-#line 24 "runtriple.in"
+#line 25 "runtriple.in"
 void realRealRealToTriple(stack *Stack)
 {
   real z=vm::pop<real>(Stack);
   real y=vm::pop<real>(Stack);
   real x=vm::pop<real>(Stack);
-#line 25 "runtriple.in"
+#line 26 "runtriple.in"
   {Stack->push<triple>(triple(x,y,z)); return;}
 }
 
-#line 29 "runtriple.in"
+#line 30 "runtriple.in"
 // real xpart(triple v);
 void tripleXPart(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
-#line 30 "runtriple.in"
+#line 31 "runtriple.in"
   {Stack->push<real>(v.getx()); return;}
 }
 
-#line 34 "runtriple.in"
+#line 35 "runtriple.in"
 // real ypart(triple v);
 void tripleYPart(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
-#line 35 "runtriple.in"
+#line 36 "runtriple.in"
   {Stack->push<real>(v.gety()); return;}
 }
 
-#line 39 "runtriple.in"
+#line 40 "runtriple.in"
 // real zpart(triple v);
 void tripleZPart(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
-#line 40 "runtriple.in"
+#line 41 "runtriple.in"
   {Stack->push<real>(v.getz()); return;}
 }
 
-#line 44 "runtriple.in"
+#line 45 "runtriple.in"
 // triple *(real x, triple v);
 void gen_runtriple5(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
   real x=vm::pop<real>(Stack);
-#line 45 "runtriple.in"
+#line 46 "runtriple.in"
   {Stack->push<triple>(x*v); return;}
 }
 
-#line 49 "runtriple.in"
+#line 50 "runtriple.in"
 // triple *(triple v, real x);
 void gen_runtriple6(stack *Stack)
 {
   real x=vm::pop<real>(Stack);
   triple v=vm::pop<triple>(Stack);
-#line 50 "runtriple.in"
+#line 51 "runtriple.in"
   {Stack->push<triple>(v*x); return;}
 }
 
-#line 54 "runtriple.in"
+#line 55 "runtriple.in"
 // triple /(triple v, real x);
 void gen_runtriple7(stack *Stack)
 {
   real x=vm::pop<real>(Stack);
   triple v=vm::pop<triple>(Stack);
-#line 55 "runtriple.in"
+#line 56 "runtriple.in"
   {Stack->push<triple>(v/x); return;}
 }
 
-#line 59 "runtriple.in"
+#line 60 "runtriple.in"
 // real length(triple v);
 void gen_runtriple8(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
-#line 60 "runtriple.in"
+#line 61 "runtriple.in"
   {Stack->push<real>(v.length()); return;}
 }
 
-#line 64 "runtriple.in"
+#line 65 "runtriple.in"
 // real abs(triple v);
 void gen_runtriple9(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
-#line 65 "runtriple.in"
+#line 66 "runtriple.in"
   {Stack->push<real>(v.length()); return;}
 }
 
-#line 69 "runtriple.in"
+#line 70 "runtriple.in"
 // real polar(triple v, bool warn=true);
 void gen_runtriple10(stack *Stack)
 {
   bool warn=vm::pop<bool>(Stack,true);
   triple v=vm::pop<triple>(Stack);
-#line 70 "runtriple.in"
-  if(!warn && v.getx() == 0.0 && v.gety() == 0.0 && v.getz() == 0.0) {Stack->push<real>(0.0); return;}
-  {Stack->push<real>(v.polar()); return;}
+#line 71 "runtriple.in"
+  {Stack->push<real>(v.polar(warn)); return;}
 }
 
 #line 75 "runtriple.in"
@@ -342,7 +342,7 @@ void gen_runtriple25(stack *Stack)
   triple b=vm::pop<triple>(Stack);
   triple a=vm::pop<triple>(Stack);
 #line 154 "runtriple.in"
-  {Stack->push<triple>(6.0*(t*(d-a+3.0*(b-c))+a+c-2.0*b)); return;}
+  {Stack->push<triple>(6.0*(t*(d-a+3.0*(b-c))+a+c)-12.0*b); return;}
 }
 
 #line 158 "runtriple.in"
@@ -354,7 +354,7 @@ void gen_runtriple26(stack *Stack)
   triple b=vm::pop<triple>(Stack);
   triple a=vm::pop<triple>(Stack);
 #line 159 "runtriple.in"
-  {Stack->push<triple>(6.0*(d-a+3.0*(b-c))); return;}
+  {Stack->push<triple>(6.0*(d-a)+18.0*(b-c)); return;}
 }
 
 } // namespace run
@@ -363,27 +363,27 @@ namespace trans {
 
 void gen_runtriple_venv(venv &ve)
 {
-#line 18 "runtriple.in"
+#line 19 "runtriple.in"
   REGISTER_BLTIN(run::tripleZero,"tripleZero");
-#line 24 "runtriple.in"
+#line 25 "runtriple.in"
   REGISTER_BLTIN(run::realRealRealToTriple,"realRealRealToTriple");
-#line 29 "runtriple.in"
+#line 30 "runtriple.in"
   addFunc(ve, run::tripleXPart, primReal(), SYM(xpart), formal(primTriple(), SYM(v), false, false));
-#line 34 "runtriple.in"
+#line 35 "runtriple.in"
   addFunc(ve, run::tripleYPart, primReal(), SYM(ypart), formal(primTriple(), SYM(v), false, false));
-#line 39 "runtriple.in"
+#line 40 "runtriple.in"
   addFunc(ve, run::tripleZPart, primReal(), SYM(zpart), formal(primTriple(), SYM(v), false, false));
-#line 44 "runtriple.in"
+#line 45 "runtriple.in"
   addFunc(ve, run::gen_runtriple5, primTriple(), SYM_TIMES, formal(primReal(), SYM(x), false, false), formal(primTriple(), SYM(v), false, false));
-#line 49 "runtriple.in"
+#line 50 "runtriple.in"
   addFunc(ve, run::gen_runtriple6, primTriple(), SYM_TIMES, formal(primTriple(), SYM(v), false, false), formal(primReal(), SYM(x), false, false));
-#line 54 "runtriple.in"
+#line 55 "runtriple.in"
   addFunc(ve, run::gen_runtriple7, primTriple(), SYM_DIVIDE, formal(primTriple(), SYM(v), false, false), formal(primReal(), SYM(x), false, false));
-#line 59 "runtriple.in"
+#line 60 "runtriple.in"
   addFunc(ve, run::gen_runtriple8, primReal(), SYM(length), formal(primTriple(), SYM(v), false, false));
-#line 64 "runtriple.in"
+#line 65 "runtriple.in"
   addFunc(ve, run::gen_runtriple9, primReal(), SYM(abs), formal(primTriple(), SYM(v), false, false));
-#line 69 "runtriple.in"
+#line 70 "runtriple.in"
   addFunc(ve, run::gen_runtriple10, primReal(), SYM(polar), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
 #line 75 "runtriple.in"
   addFunc(ve, run::gen_runtriple11, primReal(), SYM(azimuth), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));

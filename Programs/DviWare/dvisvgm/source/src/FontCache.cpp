@@ -2,7 +2,7 @@
 ** FontCache.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,16 +23,15 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include "CRC32.hpp"
 #include "FileSystem.hpp"
 #include "FontCache.hpp"
-#include "Glyph.hpp"
 #include "Pair.hpp"
 #include "StreamReader.hpp"
 #include "StreamWriter.hpp"
+#include "XXHashFunction.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -68,7 +67,7 @@ void FontCache::setGlyph (int c, const Glyph &glyph) {
  *  @return font glyph data (0 if no matching data was found) */
 const Glyph* FontCache::getGlyph (int c) const {
 	auto it = _glyphs.find(c);
-	return (it != _glyphs.end()) ? &it->second : 0;
+	return (it != _glyphs.end()) ? &it->second : nullptr;
 }
 
 
@@ -82,13 +81,12 @@ bool FontCache::write (const string &fontname, const string &dir) const {
 		return true;
 
 	if (!fontname.empty()) {
-		string dirstr = dir.empty() ? FileSystem::getcwd() : dir;
-		ostringstream oss;
-		oss << dirstr << '/' << fontname << ".fgd";
+		string pathstr = dir.empty() ? FileSystem::getcwd() : dir;
+		pathstr += "/" + fontname + ".fgd";
 #if defined(MIKTEX_WINDOWS)
-                ofstream ofs(UW_(oss.str()), ios::binary);
+                ofstream ofs(EXPATH_(pathstr), ios::binary);
 #else
-		ofstream ofs(oss.str(), ios::binary);
+		ofstream ofs(pathstr, ios::binary);
 #endif
 		return write(fontname, ofs);
 	}
@@ -102,7 +100,7 @@ bool FontCache::write (const string &dir) const {
 
 
 /** Returns the minimal number of bytes needed to store the given value. */
-static int max_int_size (int32_t value) {
+static int max_number_of_bytes (int32_t value) {
 	int32_t limit = 0x7f;
 	for (int i=1; i <= 4; i++) {
 		if ((value < 0  && -value <= limit+1) || (value >= 0 && value <= limit))
@@ -112,17 +110,47 @@ static int max_int_size (int32_t value) {
 	return 4;
 }
 
-
-/** Returns the minimal number of bytes needed to store the biggest
- *  pair component of the given vector. */
-static int max_int_size (const Pair<int32_t> *pairs, size_t n) {
-	int ret=0;
-	for (size_t i=0; i < n; i++) {
-		ret = max(ret, max_int_size(pairs[i].x()));
-		ret = max(ret, max_int_size(pairs[i].y()));
-	}
-	return ret;
+static int max_int_size () {
+	return 0;
 }
+
+template <typename ...Args>
+static int max_int_size (const Glyph::Point &p1, const Args& ...args) {
+	int max1 = max(max_number_of_bytes(p1.x()), max_number_of_bytes(p1.y()));
+	return max(max1, max_int_size(args...));
+}
+
+
+struct WriteActions : Glyph::IterationActions {
+	WriteActions (StreamWriter &sw, HashFunction &hashfunc) : _sw(sw), _hashfunc(hashfunc) {}
+
+	using Point = Glyph::Point;
+	void moveto (const Point &p) override {write('M', p);}
+	void lineto (const Point &p) override {write('L', p);}
+	void quadto (const Point &p1, const Point &p2) override {write('Q', p1, p2);}
+	void cubicto (const Point &p1, const Point &p2, const Point &p3) override {write('C', p1, p2, p3);	}
+	void closepath () override {write('Z');}
+
+	template <typename ...Args>
+	void write (char cmd, Args ...args) {
+		int bytesPerValue = max_int_size(args...);
+		int cmdchar = (bytesPerValue << 5) | (cmd - 'A');
+		_sw.writeUnsigned(cmdchar, 1, _hashfunc);
+		writeParams(bytesPerValue, args...);
+	}
+
+	static void writeParams (int bytesPerValue) {}
+
+	template <typename ...Args>
+	void writeParams (int bytesPerValue, const Point &p, const Args& ...args) {
+		_sw.writeSigned(p.x(), bytesPerValue, _hashfunc);
+		_sw.writeSigned(p.y(), bytesPerValue, _hashfunc);
+		writeParams(bytesPerValue, args...);
+	}
+
+	StreamWriter &_sw;
+	HashFunction &_hashfunc;
+};
 
 
 /** Writes the current cache data to a stream (only if anything changed after
@@ -137,36 +165,22 @@ bool FontCache::write (const string &fontname, ostream &os) const {
 		return false;
 
 	StreamWriter sw(os);
-	CRC32 crc32;
+	XXH32HashFunction hashfunc;
 
-	struct WriteActions : Glyph::Actions {
-		WriteActions (StreamWriter &sw, CRC32 &crc32) : _sw(sw), _crc32(crc32) {}
-
-		void draw (char cmd, const Glyph::Point *points, int n) override {
-			int bytes = max_int_size(points, n);
-			int cmdchar = (bytes << 5) | (cmd - 'A');
-			_sw.writeUnsigned(cmdchar, 1, _crc32);
-			for (int i=0; i < n; i++) {
-				_sw.writeSigned(points[i].x(), bytes, _crc32);
-				_sw.writeSigned(points[i].y(), bytes, _crc32);
-			}
-		}
-		StreamWriter &_sw;
-		CRC32 &_crc32;
-	} actions(sw, crc32);
-
-	sw.writeUnsigned(FORMAT_VERSION, 1, crc32);
-	sw.writeUnsigned(0, 4);  // space for checksum
-	sw.writeString(fontname, crc32, true);
-	sw.writeUnsigned(_glyphs.size(), 4, crc32);
+	sw.writeUnsigned(FORMAT_VERSION, 1, hashfunc);
+	sw.writeBytes(hashfunc.digestValue());  // space for checksum
+	sw.writeString(fontname, hashfunc, true);
+	sw.writeUnsigned(_glyphs.size(), 4, hashfunc);
+	WriteActions actions(sw, hashfunc);
 	for (const auto &charglyphpair : _glyphs) {
 		const Glyph &glyph = charglyphpair.second;
-		sw.writeUnsigned(charglyphpair.first, 4, crc32);
-		sw.writeUnsigned(glyph.size(), 2, crc32);
+		sw.writeUnsigned(charglyphpair.first, 4, hashfunc);
+		sw.writeUnsigned(glyph.size(), 2, hashfunc);
 		glyph.iterate(actions, false);
 	}
 	os.seekp(1);
-	sw.writeUnsigned(crc32.get(), 4);  // insert CRC32 checksum
+	auto digest = hashfunc.digestValue();
+	sw.writeBytes(digest);  // insert checksum
 	os.seekp(0, ios::end);
 	return true;
 }
@@ -186,7 +200,7 @@ bool FontCache::read (const string &fontname, const string &dir) {
 	ostringstream oss;
 	oss << dirstr << '/' << fontname << ".fgd";
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(oss.str()), ios::binary);
+        ifstream ifs(EXPATH_(oss.str()), ios::binary);
 #else
 	ifstream ifs(oss.str(), ios::binary);
 #endif
@@ -207,17 +221,17 @@ bool FontCache::read (const string &fontname, istream &is) {
 		return false;
 
 	StreamReader sr(is);
-	CRC32 crc32;
-	if (sr.readUnsigned(1, crc32) != FORMAT_VERSION)
+	XXH32HashFunction hashfunc;
+	if (sr.readUnsigned(1, hashfunc) != FORMAT_VERSION)
 		return false;
 
-	uint32_t crc32_cmp = sr.readUnsigned(4);
-	crc32.update(is);
-	if (crc32.get() != crc32_cmp)
+	auto hashcmp = sr.readBytes(hashfunc.digestSize());
+	hashfunc.update(is);
+	if (hashfunc.digestValue() != hashcmp)
 		return false;
 
 	is.clear();
-	is.seekg(5);  // continue reading after checksum
+	is.seekg(hashfunc.digestSize()+1);  // continue reading after checksum
 
 	string fname = sr.readString();
 	if (fname != fontname)
@@ -249,7 +263,7 @@ bool FontCache::read (const string &fontname, istream &is) {
 				case 'Q': {
 					Pair32 p1 = read_pair(bytes, sr);
 					Pair32 p2 = read_pair(bytes, sr);
-					glyph.conicto(p1, p2);
+					glyph.quadto(p1, p2);
 					break;
 				}
 				case 'Z':
@@ -278,7 +292,7 @@ bool FontCache::fontinfo (const string &dirname, vector<FontInfo> &infos, vector
 				FontInfo info;
 				string path = dirname+"/"+(fname.substr(1));
 #if defined(MIKTEX_WINDOWS)
-                                ifstream ifs(UW_(path), ios::binary);
+                                ifstream ifs(EXPATH_(path), ios::binary);
 #else
 				ifstream ifs(path, ios::binary);
 #endif
@@ -305,17 +319,17 @@ bool FontCache::fontinfo (std::istream &is, FontInfo &info) {
 		is.seekg(0);
 		try {
 			StreamReader sr(is);
-			CRC32 crc32;
-			if ((info.version = sr.readUnsigned(1, crc32)) != FORMAT_VERSION)
+			XXH32HashFunction hashfunc;
+			if ((info.version = sr.readUnsigned(1, hashfunc)) != FORMAT_VERSION)
 				return false;
 
-			info.checksum = sr.readUnsigned(4);
-			crc32.update(is);
-			if (crc32.get() != info.checksum)
+			info.checksum = sr.readBytes(hashfunc.digestSize());
+			hashfunc.update(is);
+			if (hashfunc.digestValue() != info.checksum)
 				return false;
 
 			is.clear();
-			is.seekg(5);  // continue reading after checksum
+			is.seekg(hashfunc.digestSize()+1);  // continue reading after checksum
 
 			info.name = sr.readString();
 			info.numchars = sr.readUnsigned(4);
@@ -377,8 +391,10 @@ void FontCache::fontinfo (const string &dirname, ostream &os, bool purge) {
 					<< setw(5)  << right << strinfopair.second->numchars << " glyph" << (strinfopair.second->numchars == 1 ? ' ':'s')
 					<< setw(10) << right << strinfopair.second->numcmds  << " cmd"   << (strinfopair.second->numcmds == 1 ? ' ':'s')
 					<< setw(12) << right << strinfopair.second->numbytes << " byte"  << (strinfopair.second->numbytes == 1 ? ' ':'s')
-					<< setw(6) << "crc:" << setw(8) << hex << right << setfill('0') << strinfopair.second->checksum
-					<< endl;
+					<< "  hash:" << hex;
+				for (int byte : strinfopair.second->checksum)
+					os << setw(2) << setfill('0') << byte;
+				os << '\n';
 			}
 		}
 		if (purge) {

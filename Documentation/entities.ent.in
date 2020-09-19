@@ -63,9 +63,9 @@
 <!ENTITY XDV "<acronym>XDV</acronym>">
 <!ENTITY XeTeX "<application>XeTeX</application>">
 <!ENTITY Yap "<application>Yap</application>">
-<!ENTITY basicmiktexexe "<command>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
+<!ENTITY basicmiktexexe "<command>basic-miktex-${MIKTEX_VERSION_STR}${EXESUFFIX}</command>">
 <!ENTITY commoninstalldir "<filename>${COMMONINSTALL}</filename>">
-<!ENTITY date "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_MDAY}, ${MIKTEX_CACHED_YEAR}">
+<!ENTITY date "${MIKTEX_MONTH_NAME_VERSION} ${MIKTEX_DAY_VERSION}, ${MIKTEX_YEAR_VERSION}">
 <!ENTITY eTeX "<application>eTeX</application>">
 <!ENTITY encTeX "<application>encTeX</application>">
 <!ENTITY findtexmf "<command>${MIKTEX_PROG_NAME_FINDTEXMF}</command>">
@@ -83,7 +83,7 @@
 <!ENTITY miktexpdflatex "<command>${MIKTEX_PREFIX}pdflatex</command>">
 <!ENTITY miktexpdftex "<command>${MIKTEX_PREFIX}pdftex</command>">
 <!ENTITY miktexprefix "<filename>${MIKTEX_PREFIX}</filename>">
-<!ENTITY miktexrev "${MIKTEX_FULL_VERSION_STR}">
+<!ENTITY miktexrev "${MIKTEX_DISPLAY_VERSION_STR}">
 <!ENTITY miktexsetup "<command>${MIKTEX_PROG_NAME_SETUP}</command>">
 <!ENTITY miktextex "<command>${MIKTEX_PREFIX}tex</command>">
 <!ENTITY miktexxetex "<command>${MIKTEX_PREFIX}xetex</command>">
@@ -95,12 +95,12 @@
 <!ENTITY pTeX "<application>pTeX</application>">
 <!ENTITY pdfTeX "<application>pdfTeX</application>">
 <!ENTITY prompt "${PROMPT}">
-<!ENTITY rev "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_COMP_J2000_VERSION}">
-<!ENTITY setupexe "<command>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
+<!ENTITY rev "${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}">
+<!ENTITY setupexe "<command>setup-${MIKTEX_VERSION_STR}${EXESUFFIX}</command>">
 <!ENTITY texify "<command>texify</command>">
 <!ENTITY userdatadir "<filename>${USERDATA}</filename>">
 <!ENTITY userinstalldir "<filename>${USERINSTALL}</filename>">
 <!ENTITY virmf "<command>virmf</command>">
 <!ENTITY virtex "<command>virtex</command>">
 <!ENTITY xdvipdfmx "<command>xdvipdfmx</command>">
-<!ENTITY year "${MIKTEX_CACHED_YEAR}">
+<!ENTITY year "${MIKTEX_YEAR_VERSION}">

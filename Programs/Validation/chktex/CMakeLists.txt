@@ -84,7 +84,7 @@ set(chktex_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND chktex_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     chktex.rc
   )
 endif()

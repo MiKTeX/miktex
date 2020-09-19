@@ -1,8 +1,8 @@
 -----------
 -- Lua bindings to Harfbuzz.
--- * [Wiki](http://github.com/deepakjois/luaharfbuzz/wiki)
--- * [Source on Github](https://github.com/deepakjois/luaharfbuzz)
--- * [API Coverage Status](https://github.com/deepakjois/luaharfbuzz/blob/master/status/done.txt)
+-- * [Wiki](http://github.com/ufytex/luaharfbuzz/wiki)
+-- * [Source on Github](https://github.com/ufytex/luaharfbuzz)
+-- * [API Coverage Status](https://github.com/ufytex/luaharfbuzz/blob/master/status/done.txt)
 --
 -- @author Deepak Jois <<deepak.jois@gmail.com>>
 -- @copyright 2016
@@ -23,7 +23,7 @@
 --  * `script`: A `Script` object representing the script.
 --  * `language`: A `Language` object representing the language.
 --  * `features`: features to enable, specified as either of the following.
---    - comma-separated list of features. See [feature string syntax reference](https://github.com/deepakjois/luaharfbuzz/wiki/Feature-Strings)
+--    - comma-separated list of features. See [feature string syntax reference](https://github.com/ufytex/luaharfbuzz/wiki/Feature-Strings)
 --    - table of `Feature` objects
 --  @function shape
 
@@ -291,7 +291,7 @@
 --  @type Feature
 
 --- Wraps `hb_feature_from_string`
---  @param feature_string See [feature string syntax reference](https://github.com/deepakjois/luaharfbuzz/wiki/Feature-Strings)
+--  @param feature_string See [feature string syntax reference](https://github.com/ufytex/luaharfbuzz/wiki/Feature-Strings)
 --  @function Feature.new
 
 --- Wraps `hb_feature_to_string`.

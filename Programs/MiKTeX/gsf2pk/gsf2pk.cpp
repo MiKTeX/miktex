@@ -1,6 +1,6 @@
 /* gsf2pk.cpp: Gsf-to-Pk converter (based on gsftopk)
 
-   Copyright (C) 2004-2018 Christian Schenk
+   Copyright (C) 2004-2020 Christian Schenk
    Copyright (C) 1993-2000 Paul Vojta
 
    Permission is hereby granted, free of charge, to any person
@@ -37,6 +37,8 @@
 #include <thread>
 #include <vector>
 
+#include <fmt/format.h>
+
 #include <miktex/App/Application>
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/CommandLineBuilder>
@@ -70,37 +72,23 @@ using namespace std::string_literals;
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
-try                                             \
-{
-
-#define VA_END(arglist)                         \
-}                                               \
-catch(...)                                      \
-{                                               \
-  va_end(arglist);                              \
-  throw;                                        \
-}                                               \
-va_end(arglist);
-
-class Converter
-  : public Application
+class Converter :
+  public Application
 {
 public:
   ~Converter();
 
 public:
-  void Main(int argc, const char * * argv);
+  void Main(int argc, const char** argv);
 
 private:
-  MIKTEXNORETURN void Error(const char * lpszFormat, ...) const;
+  MIKTEXNORETURN void Error(const string& msg) const;
 
 private:
-  void Verbose(const char * lpszFormat, ...);
+  void Verbose(const string& msg);
 
 private:
-  int GetByte(FILE * pfile) const;
+  int GetByte(FILE* pfile) const;
 
 private:
   int GetByte() const
@@ -109,7 +97,7 @@ private:
   }
 
 private:
-  int GetDword(FILE * pfile) const;
+  int GetDword(FILE* pfile) const;
 
 private:
   int GetDword() const
@@ -118,10 +106,10 @@ private:
   }
 
 private:
-  void Read(void * pv, size_t len);
+  void Read(void* pv, size_t len);
 
 private:
-  void Expect(const char * lpszWaitingFor, string * pLine = 0);
+  void Expect(const char* waitingFor, string* line = 0);
 
 private:
   int GetInt();
@@ -136,13 +124,13 @@ private:
   void PutDword(int dword) const;
 
 private:
-  void PutByteArray(const void * pv, size_t len) const;
+  void PutByteArray(const void* pv, size_t len) const;
 
 private:
-  int GetFirstByte(const PathName & file);
+  int GetFirstByte(const PathName& file);
 
 private:
-  void ReadTFMFile(const char * lpszTeXFontName);
+  void ReadTFMFile(const char* texFontName);
 
 private:
   void tallyup(int n);
@@ -175,25 +163,25 @@ private:
   void putlong(long w);
 
 private:
-  void putspecl(const char * str1, const char * str2 = 0);
+  void putspecl(const char* str1, const char* str2 = 0);
 
 private:
-  void Write(const void * pv, size_t len);
+  void Write(const void* pv, size_t len);
 
 private:
   void PutGlyph(int cc);
 
 private:
-  void WritePkFile(const char * lpszPkFile);
+  void WritePkFile(const char* pkFile);
 
 private:
-  Process * StartGhostscript(const char * lpszFontFile, const char * lpszEncFile, const char * lpszFontName, const char * lpszSpecInfo, const char * lpszDPI, FILE ** ppGsOut, FILE ** ppGsErr);
+  Process* StartGhostscript(const char* fontFile, const char* encFile, const char* fontName, const char* specInfo, const char* dpiString, FILE** ppGsOut, FILE** ppGsErr);
 
 private:
   void StderrReader();
 
 private:
-  void Convert(const char * lpszTeXFontName, const char * lpszFontName, const char * lpszSpecInfo, const char * lpszEncFile, const char * lpszFontFile, const char * lpszDPI, const char * lpszPkFile);
+  void Convert(const char* texFontName, const char* fontName, const char* specInfo, const char* encFile, const char* fontFile, const char* dpiString, const char* pkFile);
 
 public:
   void ShowGhostscriptTranscript() const;
@@ -259,8 +247,8 @@ private:
   vector<Byte> area1;
 
 private:
-  Byte * bitmap;
-  Byte * bitmap_end;
+  Byte* bitmap;
+  Byte* bitmap_end;
 
   int pk_len;
 
@@ -361,32 +349,26 @@ Converter::~Converter()
   {
     pFileGsErr->Reset();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 #endif
 }
 
-MIKTEXNORETURN void Converter::Error(const char * lpszFormat, ...) const
+MIKTEXNORETURN void Converter::Error(const string& msg) const
 {
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cerr << "gsf2pk" << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  VA_END(arglist);
+  cerr << "gsf2pk" << ": " << msg << endl;
   ShowGhostscriptTranscript();
   throw 1;
 }
 
-void Converter::Verbose(const char * lpszFormat, ...)
+void Converter::Verbose(const string& msg)
 {
   if (!verbose)
   {
     return;
   }
-  va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
-  VA_END(arglist);
+  cout << msg << endl;
 }
 
 void Converter::ShowGhostscriptTranscript() const
@@ -400,7 +382,7 @@ void Converter::ShowGhostscriptTranscript() const
     << gsStdErr << endl;
 }
 
-int Converter::GetByte(FILE * pfile) const
+int Converter::GetByte(FILE* pfile) const
 {
   int c = fgetc(pfile);
   if (c == EOF)
@@ -417,7 +399,7 @@ int Converter::GetByte(FILE * pfile) const
   return c & 0xff;
 }
 
-int Converter::GetDword(FILE * pfile) const
+int Converter::GetDword(FILE* pfile) const
 {
   int ret = GetByte(pfile) << 24;
   ret |= GetByte(pfile) << 16;
@@ -426,7 +408,7 @@ int Converter::GetDword(FILE * pfile) const
   return ret;
 }
 
-void Converter::Read(void * pv, size_t len)
+void Converter::Read(void* pv, size_t len)
 {
   if (fread(pv, 1, len, pFileGsf.Get()) != len)
   {
@@ -434,7 +416,7 @@ void Converter::Read(void * pv, size_t len)
   }
 }
 
-void Converter::Write(const void * pv, size_t len)
+void Converter::Write(const void* pv, size_t len)
 {
   if (fwrite(pv, 1, len, pFilePk.Get()) != len)
   {
@@ -442,7 +424,7 @@ void Converter::Write(const void * pv, size_t len)
   }
 }
 
-void Converter::Expect(const char * lpszWaitingFor, string * pLine)
+void Converter::Expect(const char* waitingFor, string* pLine)
 {
   bool found = false;
   string line;
@@ -450,14 +432,14 @@ void Converter::Expect(const char * lpszWaitingFor, string * pLine)
   {
     pLine = &line;
   }
-  size_t l = strlen(lpszWaitingFor);
+  size_t l = strlen(waitingFor);
   while (!found)
   {
-    if (!Utils::ReadUntilDelim(*pLine, '\n', pFileGsf.Get()))
+    if (!Utils::ReadLine(*pLine, pFileGsf.Get(), true))
     {
       Error(T_("Premature end of file."));
     }
-    found = (memcmp(pLine->c_str(), lpszWaitingFor, l) == 0);
+    found = (memcmp(pLine->c_str(), waitingFor, l) == 0);
   }
 }
 
@@ -522,7 +504,7 @@ void Converter::PutDword(int dword) const
   PutByte(dword & 0xff);
 }
 
-void Converter::PutByteArray(const void * pv, size_t len) const
+void Converter::PutByteArray(const void* pv, size_t len) const
 {
   PutByte(static_cast<int>(len));
   if (fwrite(pv, 1, len, pFilePk.Get()) != len)
@@ -531,7 +513,7 @@ void Converter::PutByteArray(const void * pv, size_t len) const
   }
 }
 
-int Converter::GetFirstByte(const PathName & file)
+int Converter::GetFirstByte(const PathName& file)
 {
   AutoFILE pFile(File::Open(file, FileMode::Open, FileAccess::Read, false));
   int ch = fgetc(pFile.Get());
@@ -539,7 +521,7 @@ int Converter::GetFirstByte(const PathName & file)
   return ch;
 }
 
-void Converter::ReadTFMFile(const char * lpszTeXFontName)
+void Converter::ReadTFMFile(const char* texFontName)
 {
   lengths.resize(12, 0);
   widths.resize(256, 0);
@@ -548,12 +530,12 @@ void Converter::ReadTFMFile(const char * lpszTeXFontName)
 
   PathName pathTFMFile;
 
-  if (!session->FindFile(lpszTeXFontName, FileType::TFM, pathTFMFile))
+  if (!session->FindFile(texFontName, FileType::TFM, pathTFMFile))
   {
     Error(T_("The TFM file could not be found."));
   }
 
-  Verbose(T_("Reading TFM file %s..."), Q_(pathTFMFile));
+  Verbose(fmt::format(T_("Reading TFM file {0}..."), Q_(pathTFMFile)));
 
   AutoFILE pFile(File::Open(pathTFMFile, FileMode::Open, FileAccess::Read, false));
 
@@ -596,7 +578,7 @@ void Converter::ReadTFMFile(const char * lpszTeXFontName)
   pFile.Reset();
 }
 
-Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lpszEncFile, const char * lpszFontName, const char * lpszSpecInfo, const char * lpszDPI, FILE ** ppGsOut, FILE ** ppGsErr)
+Process* Converter::StartGhostscript(const char* fontFile, const char* encFile, const char* fontName, const char* specInfo, const char* dpiString, FILE** ppGsOut, FILE** ppGsErr)
 {
   PathName pathGs = session->GetGhostscript(nullptr);
 
@@ -613,7 +595,7 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
   arguments.push_back("-dNOGC");
 
   // - set font substitution
-  arguments.push_back("-sSUBSTFONT="s + lpszFontName);
+  arguments.push_back("-sSUBSTFONT="s + fontName);
 
   // - be quiet
   arguments.push_back("-q");
@@ -630,12 +612,12 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
   arguments.push_back(pathRenderPS.ToUnix().ToString());
 
   // - font name
-  arguments.push_back(lpszFontName);
+  arguments.push_back(fontName);
 
   // - font/enc load string
   string loadString;
   PathName pathFont;
-  if (!session->FindFile(lpszFontFile, FileType::TYPE1, pathFont))
+  if (!session->FindFile(fontFile, FileType::TYPE1, pathFont))
   {
     Error(T_("The font file could not be found."));
   }
@@ -655,10 +637,10 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
   {
     loadString += "run";
   }
-  if (lpszEncFile != nullptr && *lpszEncFile != 0)
+  if (encFile != nullptr && *encFile != 0)
   {
     PathName pathEnc;
-    if (!session->FindFile(lpszEncFile, FileType::ENC, pathEnc))
+    if (!session->FindFile(encFile, FileType::ENC, pathEnc))
     {
       Error(T_("The encoding file could not be found."));
     }
@@ -669,12 +651,12 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
   arguments.push_back(loadString);
 
   // - special info
-  arguments.push_back(lpszSpecInfo == nullptr ? "" : lpszSpecInfo);
+  arguments.push_back(specInfo == nullptr ? "" : specInfo);
 
   // - DPI
-  arguments.push_back(lpszDPI);
+  arguments.push_back(dpiString);
 
-  Verbose(T_("Starting Ghostscript with arguments:\n%s"), CommandLineBuilder(arguments).ToString().c_str());
+  Verbose(fmt::format(T_("Starting Ghostscript with arguments:\n{0}"), CommandLineBuilder(arguments).ToString()));
 
   ProcessStartInfo startinfo;
 
@@ -732,7 +714,7 @@ void Converter::StderrReader()
       }
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -823,7 +805,7 @@ void Converter::pk_put_count(int n)
 
 void Converter::trim_bitmap()
 {
-  Byte * p;
+  Byte* p;
   Byte mask;
 
   // clear out garbage bits in bitmap
@@ -935,12 +917,12 @@ void Converter::trim_bitmap()
 bool Converter::pk_rll_cvt()
 {
   unsigned int ncounts;         // max to allow this time
-  int * nextcount;              // next count value
-  int * counts_end;             // pointer to end
-  Byte * rowptr;
-  Byte * p;
+  int* nextcount;               // next count value
+  int* counts_end;              // pointer to end
+  Byte* rowptr;
+  Byte* p;
   Byte mask;
-  Byte * rowdup;                // last row checked for dup
+  Byte* rowdup;                 // last row checked for dup
   Byte paint_switch;            // 0 or 0xff
   int bits_left;                // bits left in row
   int cost;
@@ -1015,8 +997,8 @@ bool Converter::pk_rll_cvt()
     // check for duplicate rows
     if (rowptr != rowdup && bits_left != width)
     {
-      Byte * p1 = rowptr;
-      Byte * q = rowptr + bytesWide;
+      Byte* p1 = rowptr;
+      Byte* q = rowptr + bytesWide;
       int repeat_count;
 
       while (q < bitmap_end && *p1 == *q)
@@ -1109,11 +1091,11 @@ bool Converter::pk_rll_cvt()
 
 void Converter::pk_bm_cvt()
 {
-  Byte * rowptr;
-  Byte * p;
+  Byte* rowptr;
+  Byte* p;
   int blib1;                    // bits left in byte
   int bits_left;                // bits left in row
-  Byte * q;
+  Byte* q;
   int blib2;
   Byte nextbyte;
 
@@ -1244,7 +1226,7 @@ void Converter::PutGlyph(int cc)
   bytesWide = (width + 7) / 8;
   bitmapSize = bytesWide * height;
   area1.resize(bitmapSize);
-  for (Byte * p = &area1[(height - 1) * bytesWide]; p >= &area1[0]; p -= bytesWide)
+  for (Byte* p = &area1[(height - 1) * bytesWide]; p >= &area1[0]; p -= bytesWide)
   {
     Read(p, bytesWide);
   }
@@ -1305,7 +1287,7 @@ void Converter::PutGlyph(int cc)
   Write(bitmap, pk_len);
 }
 
-void Converter::putspecl(const char * str1, const char * str2)
+void Converter::putspecl(const char* str1, const char* str2)
 {
   int len1 = static_cast<int>(strlen(str1));
   int len2 = 0;
@@ -1327,11 +1309,11 @@ void Converter::putspecl(const char * str1, const char * str2)
   }
 }
 
-void Converter::WritePkFile(const char * lpszPkFile)
+void Converter::WritePkFile(const char* pkFile)
 {
-  Verbose(T_("Writing Pk file %s..."), Q_(lpszPkFile));
+  Verbose(fmt::format(T_("Writing Pk file {0}..."), Q_(pkFile)));
 
-  pFilePk.Reset(File::Open(lpszPkFile, FileMode::Create, FileAccess::Write, false));
+  pFilePk.Reset(File::Open(PathName(pkFile), FileMode::Create, FileAccess::Write, false));
 
   const int PK_PRE = 247;
   const int PK_ID = 89;
@@ -1387,20 +1369,20 @@ void Converter::WritePkFile(const char * lpszPkFile)
   pFilePk.Reset();
 }
 
-void Converter::Convert(const char * lpszTeXFontName, const char * lpszFontName, const char * lpszSpecInfo, const char * lpszEncFile, const char * lpszFontFile, const char * lpszDPI, const char * lpszPkFile)
+void Converter::Convert(const char* texFontName, const char* fontName, const char* specInfo, const char* encFile, const char* fontFile, const char* dpiString, const char* pkFile)
 {
-  fontName = lpszTeXFontName;
-  dpi = atoi(lpszDPI);
+  fontName = texFontName;
+  dpi = atoi(dpiString);
 
-  ReadTFMFile(lpszTeXFontName);
+  ReadTFMFile(texFontName);
 
   try
   {
-    unique_ptr<Process> pGhostscript(StartGhostscript(lpszFontFile, lpszEncFile, lpszFontName, lpszSpecInfo, lpszDPI, &pFileGsf, &pFileGsErr));
+    unique_ptr<Process> pGhostscript(StartGhostscript(fontFile, encFile, fontName, specInfo, dpiString, &pFileGsf, &pFileGsErr));
 
     thread stderrReader(&Converter::StderrReader, this);
 
-    WritePkFile(lpszPkFile);
+    WritePkFile(pkFile);
 
     pFileGsf.Reset();
 
@@ -1419,7 +1401,7 @@ void Converter::Convert(const char * lpszTeXFontName, const char * lpszFontName,
     pGhostscript.reset();
   }
 
-  catch (const exception &)
+  catch (const exception&)
   {
     pFileGsf.Reset();
     throw;
@@ -1427,9 +1409,13 @@ void Converter::Convert(const char * lpszTeXFontName, const char * lpszFontName,
 
 }
 
-void Converter::Main(int argc, const char * * argv)
+void Converter::Main(int argc, const char** argv)
 {
-  PoptWrapper popt(argc, argv, aoption);
+  Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  auto ignored = ExamineArgs(newargv, initInfo);
+
+  PoptWrapper popt(newargv.size() - 1, &newargv[0], aoption);
 
   // process command-line options
   int option;
@@ -1453,9 +1439,10 @@ void Converter::Main(int argc, const char * * argv)
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString("gsf2pk", VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2004-2017 Christian Schenk" << endl
-        << "Copyright (C) 1993-2000 Paul Vojta" << endl
+        << Utils::MakeProgramVersionString("gsf2pk", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+	<< endl
+        << MIKTEX_COMP_COPYRIGHT_STR << endl
+	<< endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;
@@ -1467,7 +1454,7 @@ void Converter::Main(int argc, const char * * argv)
     string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
     msg += ": ";
     msg += popt.Strerror(option);
-    Error("%s", msg.c_str());
+    Error(msg);
   }
 
   vector<string> leftovers = popt.GetLeftovers();
@@ -1477,8 +1464,7 @@ void Converter::Main(int argc, const char * * argv)
     Error(T_("Wrong number of command-line arguments."));
   }
 
-  // MIKTEX-TODO: pass argc/argv
-  Init(argv[0]);
+  Init(initInfo);
   session = GetSession();
 
   Convert(leftovers[0].c_str(),  // "utmr8r"
@@ -1500,7 +1486,7 @@ void Converter::Main(int argc, const char * * argv)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR ** argv)
+int MAIN(int argc, MAINCHAR** argv)
 {
   Converter conv;
   try
@@ -1525,14 +1511,14 @@ int MAIN(int argc, MAINCHAR ** argv)
     return 0;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Application::Sorry("gsf2pk", e);
     e.Save();
     return 1;
   }
 
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Application::Sorry("gsf2pk", e);
     return 1;

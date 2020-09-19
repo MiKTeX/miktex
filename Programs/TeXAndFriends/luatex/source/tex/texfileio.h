@@ -105,7 +105,11 @@ extern char *pack_file_name(str_number n, str_number a, str_number e);
 
 extern char *TEX_format_default;
 
+#if defined(MIKTEX)
+extern char* open_fmt_file(int renew); 
+#else
 extern char *open_fmt_file(void);
+#endif
 
 extern boolean name_in_progress;        /* is a file name being scanned? */
 extern str_number job_name;     /* principal file name */
@@ -119,8 +123,12 @@ extern void start_input(void);
 
 extern int open_outfile(FILE ** f, const char *name, const char *mode);
 
+#if defined(MIKTEX)
+extern boolean zopen_w_input(FILE**, const char*, int, const_string fopen_mode, int renew);
+#else
 extern boolean zopen_w_input(FILE **, const char *, int,
                              const_string fopen_mode);
+#endif
 extern boolean zopen_w_output(FILE **, const char *, const_string fopen_mode);
 extern void zwclose(FILE *);
 
@@ -131,9 +139,11 @@ extern void zwclose(FILE *);
 extern boolean openinnameok(const_string);
 extern boolean openoutnameok(const_string);
 
+#if !defined(MIKTEX)
 #  ifdef WIN32
 extern FILE *Poptr;
 #  endif
+#endif
 
 extern boolean open_in_or_pipe(FILE **, char *, int, const_string fopen_mode,
                                boolean must_exist);

@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2019 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -21,6 +21,9 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/TPM")
 
 set(common_tpms
   miktex-config.tpm.in
+)
+
+set(common_tpms_no_version
   miktex-doc.tpm.in
 )
 
@@ -34,9 +37,18 @@ foreach(tpm ${common_tpms})
   get_filename_component(fn ${tpm} NAME_WE)
   configure_file(
     ${tpm}
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm"
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_LEGACY_MAJOR_MINOR_STR}.tpm"
   )
-  list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm")
+  list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_LEGACY_MAJOR_MINOR_STR}.tpm")
+endforeach()
+
+foreach(tpm ${common_tpms_no_version})
+  get_filename_component(fn ${tpm} NAME_WE)
+  configure_file(
+    ${tpm}
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}.tpm"
+  )
+  list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}.tpm")
 endforeach()
 
 if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
@@ -79,6 +91,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
     windows-x86/miktex-lacheck-bin.tpm.in
+    windows-x86/miktex-lcdf-typetools-bin.tpm.in
     windows-x86/miktex-libressl-bin.tpm.in
     windows-x86/miktex-log4cxx-bin.tpm.in
     windows-x86/miktex-lua53-bin.tpm.in
@@ -98,7 +111,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-mspack-bin.tpm.in
     windows-x86/miktex-mthelp-bin.tpm.in
     windows-x86/miktex-mtprint-bin.tpm.in
-    windows-x86/miktex-omega-bin.tpm.in
+    windows-x86/miktex-omegaware-bin.tpm.in
     windows-x86/miktex-pdftex-bin.tpm.in
     windows-x86/miktex-pixman-bin.tpm.in
     windows-x86/miktex-pmx-bin.tpm.in
@@ -110,7 +123,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-psutils-bin.tpm.in
     windows-x86/miktex-runtime-bin.tpm.in
     windows-x86/miktex-synctex-bin.tpm.in
-    windows-x86/miktex-tdsutil-bin.tpm.in
     windows-x86/miktex-teckit-bin.tpm.in
     windows-x86/miktex-tex-bin.tpm.in
     windows-x86/miktex-tex2xindy-bin.tpm.in
@@ -126,12 +138,16 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-zlib-bin.tpm.in
     windows-x86/miktex-zzip-bin.tpm.in
   )
+  set(target_system_tpms_no_version
+    windows-x86/miktex-patgen-bin.tpm.in
+    windows-x86/miktex-tdsutil-bin.tpm.in
+    windows-x86/miktex-upmendex-bin.tpm.in
+  )
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x86/miktex-context-bin.tpm.in
     )
   endif()
-
 elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   set(target_system_tpms
     windows-x64/miktex-arctrl-bin-x64.tpm.in
@@ -172,6 +188,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in
     windows-x64/miktex-lacheck-bin-x64.tpm.in
+    windows-x64/miktex-lcdf-typetools-bin-x64.tpm.in
     windows-x64/miktex-libressl-bin-x64.tpm.in
     windows-x64/miktex-log4cxx-bin-x64.tpm.in
     windows-x64/miktex-lua53-bin-x64.tpm.in
@@ -191,7 +208,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-mspack-bin-x64.tpm.in
     windows-x64/miktex-mthelp-bin-x64.tpm.in
     windows-x64/miktex-mtprint-bin-x64.tpm.in
-    windows-x64/miktex-omega-bin-x64.tpm.in
+    windows-x64/miktex-omegaware-bin-x64.tpm.in
     windows-x64/miktex-pdftex-bin-x64.tpm.in
     windows-x64/miktex-pixman-bin-x64.tpm.in
     windows-x64/miktex-pmx-bin-x64.tpm.in
@@ -203,7 +220,6 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-psutils-bin-x64.tpm.in
     windows-x64/miktex-runtime-bin-x64.tpm.in
     windows-x64/miktex-synctex-bin-x64.tpm.in
-    windows-x64/miktex-tdsutil-bin-x64.tpm.in
     windows-x64/miktex-teckit-bin-x64.tpm.in
     windows-x64/miktex-tex-bin-x64.tpm.in
     windows-x64/miktex-tex2xindy-bin-x64.tpm.in
@@ -219,6 +235,11 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-zlib-bin-x64.tpm.in
     windows-x64/miktex-zzip-bin-x64.tpm.in
   )
+  set(target_system_tpms_no_version
+    windows-x64/miktex-patgen-bin-x64.tpm.in
+    windows-x64/miktex-tdsutil-bin-x64.tpm.in
+    windows-x64/miktex-upmendex-bin-x64.tpm.in
+  )
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
       windows-x64/miktex-context-bin-x64.tpm.in
@@ -230,10 +251,20 @@ foreach(tpm ${target_system_tpms})
   get_filename_component(fn ${tpm} NAME_WE)
   configure_file(
     ${tpm}
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm"
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_LEGACY_MAJOR_MINOR_STR}.tpm"
   )
   list(APPEND tpms
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm")
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_LEGACY_MAJOR_MINOR_STR}.tpm")
+endforeach()
+
+foreach(tpm ${target_system_tpms_no_version})
+  get_filename_component(fn ${tpm} NAME_WE)
+  configure_file(
+    ${tpm}
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}.tpm"
+  )
+  list(APPEND tpms
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}.tpm")
 endforeach()
 
 install(

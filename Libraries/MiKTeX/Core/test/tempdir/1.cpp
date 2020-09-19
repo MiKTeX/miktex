@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -43,7 +43,7 @@ unique_ptr<TemporaryDirectory> Create(int n)
     unique_ptr<TemporaryDirectory> tmpDir = TemporaryDirectory::Create();
     for (int i = 1; i <= n; ++i)
     {
-      Touch(tmpDir->GetPathName() / (string("abrakadabra") + std::to_string(i)));
+      Touch(tmpDir->GetPathName() / PathName(string("abrakadabra") + std::to_string(i)));
     }
     return tmpDir;
   }
@@ -61,8 +61,8 @@ BEGIN_TEST_FUNCTION(1);
     TESTX(tmpdir = TemporaryDirectory::Create());
     tmpDirPath = tmpdir->GetPathName();
     TEST(Directory::Exists(tmpDirPath));
-    Touch(tmpDirPath / "abrakadabra");
-    TEST(File::Exists(tmpDirPath / "abrakadabra"));
+    Touch(tmpDirPath / PathName("abrakadabra"));
+    TEST(File::Exists(tmpDirPath / PathName("abrakadabra")));
   }
   TEST(!Directory::Exists(tmpDirPath));
 }
@@ -75,10 +75,11 @@ BEGIN_TEST_FUNCTION(2);
   TEST(Directory::Exists(tmpDir->GetPathName()));
   for (int i = 1; i <= 200; ++i)
   {
-    TEST(File::Exists(tmpDir->GetPathName() / (string("abrakadabra") + std::to_string(i))));
+    TEST(File::Exists(tmpDir->GetPathName() / PathName(string("abrakadabra") + std::to_string(i))));
   }
+  PathName tmpDirPath = tmpDir->GetPathName();
   tmpDir->Delete();
-  TEST(!Directory::Exists(tmpDir->GetPathName()));
+  TEST(!Directory::Exists(tmpDirPath));
 }
 END_TEST_FUNCTION();
 

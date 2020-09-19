@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2019  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,11 +14,7 @@
 #ifndef PDFDocumentView_H
 #define PDFDocumentView_H
 
-#if QT_VERSION_MAJOR < 5
-  #include <QtGui/QtGui>
-#else
-  #include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <PDFBackend.h>
 #include <PDFDocumentTools.h>
@@ -42,16 +38,16 @@ class PDFDocumentView : public QGraphicsView {
 
   QSharedPointer<PDFDocumentScene> _pdf_scene;
 
-  qreal _zoomLevel;
-  int _currentPage, _lastPage;
+  qreal _zoomLevel{1.0};
+  int _currentPage{-1}, _lastPage{-1};
 
   QString _searchString;
   QList<QGraphicsItem *> _searchResults;
   QFutureWatcher< QList<Backend::SearchResult> > _searchResultWatcher;
-  int _currentSearchResult;
+  int _currentSearchResult{-1};
   QBrush _searchResultHighlightBrush;
   QBrush _currentSearchResultHighlightBrush;
-  bool _useGrayScale;
+  bool _useGrayScale{false};
 
   friend class DocumentTool::AbstractTool;
   friend class DocumentTool::Select;
@@ -61,8 +57,8 @@ public:
   enum MouseMode { MouseMode_MagnifyingGlass, MouseMode_Move, MouseMode_MarqueeZoom, MouseMode_Measure, MouseMode_Select };
   enum Dock { Dock_TableOfContents, Dock_MetaData, Dock_Fonts, Dock_Permissions, Dock_Annotations };
 
-  PDFDocumentView(QWidget *parent = 0);
-  ~PDFDocumentView();
+  PDFDocumentView(QWidget *parent = nullptr);
+  ~PDFDocumentView() override;
   void setScene(QSharedPointer<PDFDocumentScene> a_scene);
   int currentPage();
   int lastPage();
@@ -77,7 +73,7 @@ public:
   // he has to destroy them, unless the `parent` widget does that automatically)
   // They are fully wired to this PDFDocumentView (e.g., clicking on entries in
   // the table of contents will change this view)
-  QDockWidget * dockWidget(const Dock type, QWidget * parent = NULL);
+  QDockWidget * dockWidget(const Dock type, QWidget * parent = nullptr);
   
   DocumentTool::AbstractTool * armedTool() const { return _armedTool; }
   void triggerContextClick(const int page, const QPointF pos) { emit contextClick(page, pos); }
@@ -168,14 +164,14 @@ signals:
 
 protected:
   // Keep track of the current page by overloading the widget paint event.
-  void paintEvent(QPaintEvent *event);
-  void keyPressEvent(QKeyEvent *event);
-  void keyReleaseEvent(QKeyEvent *event);
-  void mousePressEvent(QMouseEvent * event);
-  void mouseMoveEvent(QMouseEvent * event);
-  void mouseReleaseEvent(QMouseEvent * event);
-  void wheelEvent(QWheelEvent * event);
-  void changeEvent(QEvent * event);
+  void paintEvent(QPaintEvent * event) override;
+  void keyPressEvent(QKeyEvent * event) override;
+  void keyReleaseEvent(QKeyEvent * event) override;
+  void mousePressEvent(QMouseEvent * event) override;
+  void mouseMoveEvent(QMouseEvent * event) override;
+  void mouseReleaseEvent(QMouseEvent * event) override;
+  void wheelEvent(QWheelEvent * event) override;
+  void changeEvent(QEvent * event) override;
   
   // Maybe this will become public later on
   // Ownership of tool is transferred to PDFDocumentView
@@ -201,11 +197,11 @@ protected slots:
   void notifyTextSelectionChanged();
 
 private:
-  PageMode _pageMode;
-  MouseMode _mouseMode;
+  PageMode _pageMode{PageMode_OneColumnContinuous};
+  MouseMode _mouseMode{MouseMode_Move};
   QCursor _hiddenCursor;
   QVector<DocumentTool::AbstractTool*> _tools;
-  DocumentTool::AbstractTool * _armedTool;
+  DocumentTool::AbstractTool * _armedTool{nullptr};
   QMap<uint, DocumentTool::AbstractTool*> _toolAccessors;
 
   QStack<PDFDestination> _oldViewRects;
@@ -224,13 +220,13 @@ class PDFDocumentMagnifierView : public QGraphicsView {
   typedef QGraphicsView Super;
 
   PDFDocumentView * _parent_view;
-  qreal _zoomLevel, _zoomFactor;
+  qreal _zoomLevel{1.0}, _zoomFactor{2.0};
 
-  DocumentTool::MagnifyingGlass::MagnifierShape _shape;
-  int _size;
+  DocumentTool::MagnifyingGlass::MagnifierShape _shape{DocumentTool::MagnifyingGlass::Magnifier_Circle};
+  int _size{300};
 
 public:
-  PDFDocumentMagnifierView(PDFDocumentView *parent = 0);
+  PDFDocumentMagnifierView(PDFDocumentView *parent = nullptr);
   // the zoom factor multiplies the parent view's _zoomLevel
   void setZoomFactor(const qreal zoomFactor);
   void setPosition(const QPoint pos);
@@ -247,8 +243,8 @@ public:
   QPixmap& dropShadow();
 
 protected:
-  void wheelEvent(QWheelEvent * event) { event->ignore(); }
-  void paintEvent(QPaintEvent * event);
+  void wheelEvent(QWheelEvent * event) override { event->ignore(); }
+  void paintEvent(QPaintEvent * event) override;
   
   QPixmap _dropShadow;
 };
@@ -259,8 +255,8 @@ class PDFDocumentInfoWidget : public QWidget
   Q_OBJECT
   friend class PDFDocumentView;
 public:
-  PDFDocumentInfoWidget(QWidget * parent = NULL, const QString & title = QString(), const QString & objectName = QString()) : QWidget(parent) { setObjectName(objectName); setWindowTitle(title); }
-  virtual ~PDFDocumentInfoWidget() { }
+  PDFDocumentInfoWidget(QWidget * parent = nullptr, const QString & title = QString(), const QString & objectName = QString()) : QWidget(parent) { setObjectName(objectName); setWindowTitle(title); }
+  ~PDFDocumentInfoWidget() override = default;
   // If the widget has a fixed size, it should not be resized (it can, e.g., be
   // put into a QScrollArea instead).
 public slots:
@@ -269,10 +265,10 @@ signals:
   void windowTitleChanged(const QString &);
 protected slots:
   virtual void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) { _doc = doc; }
-  virtual void retranslateUi() { };
+  virtual void retranslateUi() { }
   virtual void clear() = 0;
 protected:
-  virtual void changeEvent(QEvent * event);
+  void changeEvent(QEvent * event) override;
   // we need to keep a reference to the document to allow dynamic lookup of data
   // (e.g., when retranslating the widget)
   QWeakPointer<QtPDF::Backend::Document> _doc;
@@ -283,12 +279,12 @@ class PDFToCInfoWidget : public PDFDocumentInfoWidget
   Q_OBJECT
 public:
   PDFToCInfoWidget(QWidget * parent);
-  virtual ~PDFToCInfoWidget();
+  ~PDFToCInfoWidget() override;
 
 protected slots:
-  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc);
-  void clear();
-  virtual void retranslateUi();
+  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc) override;
+  void clear() final;
+  void retranslateUi() override;
 signals:
   void actionTriggered(const QtPDF::PDFAction*);
 private slots:
@@ -304,12 +300,12 @@ class PDFMetaDataInfoWidget : public PDFDocumentInfoWidget
   Q_OBJECT
 public:
   PDFMetaDataInfoWidget(QWidget * parent);
-  virtual ~PDFMetaDataInfoWidget() { }
+  ~PDFMetaDataInfoWidget() override = default;
   
 protected slots:
-  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc);
-  void clear();
-  virtual void retranslateUi();
+  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) override;
+  void clear() override;
+  void retranslateUi() final;
   void reload();
 private:
   QGroupBox * _documentGroup;
@@ -333,15 +329,18 @@ class PDFFontsInfoWidget : public PDFDocumentInfoWidget
   Q_OBJECT
 public:
   PDFFontsInfoWidget(QWidget * parent);
-  virtual ~PDFFontsInfoWidget() { }
+  ~PDFFontsInfoWidget() override = default;
   
 protected slots:
-  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc);
-  void clear();
-  virtual void retranslateUi();
+  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) override;
+  void clear() final;
+  void retranslateUi() final;
   void reload();
 protected:
-  virtual void showEvent(QShowEvent * event) { initFromDocument(_doc); }
+  void showEvent(QShowEvent * event) override {
+    Q_UNUSED(event)
+    initFromDocument(_doc);
+  }
 private:
   QTableWidget * _table;
 };
@@ -351,12 +350,12 @@ class PDFPermissionsInfoWidget : public PDFDocumentInfoWidget
   Q_OBJECT
 public:
   PDFPermissionsInfoWidget(QWidget * parent);
-  virtual ~PDFPermissionsInfoWidget() { }
+  ~PDFPermissionsInfoWidget() override = default;
   
 protected slots:
-  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc);
-  void clear();
-  virtual void retranslateUi();
+  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) override;
+  void clear() final;
+  void retranslateUi() final;
   void reload();
 private:
   QLabel * _print, * _printLabel;
@@ -377,12 +376,12 @@ class PDFAnnotationsInfoWidget : public PDFDocumentInfoWidget
 
 public:
   PDFAnnotationsInfoWidget(QWidget * parent);
-  virtual ~PDFAnnotationsInfoWidget() { }
+  ~PDFAnnotationsInfoWidget() override = default;
     
 protected slots:
-  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc);
-  void clear();
-  virtual void retranslateUi();
+  void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc) override;
+  void clear() override;
+  void retranslateUi() final;
   void annotationsReady(int index);
 };
 
@@ -397,15 +396,15 @@ class PDFPageLayout : public QObject {
   };
 
   QList<LayoutItem> _layoutItems;
-  int _numCols;
-  int _firstCol;
-  qreal _xSpacing; // spacing in pixel @ zoom=1
-  qreal _ySpacing;
-  bool _isContinuous;
+  int _numCols{1};
+  int _firstCol{0};
+  qreal _xSpacing{10}; // spacing in pixel @ zoom=1
+  qreal _ySpacing{10};
+  bool _isContinuous{true};
 
 public:
-  PDFPageLayout();
-  virtual ~PDFPageLayout() { }
+  PDFPageLayout() = default;
+  ~PDFPageLayout() override = default;
   int columnCount() const { return _numCols; }
   int firstColumn() const { return _firstCol; }
   qreal xSpacing() const { return _xSpacing; }
@@ -422,7 +421,7 @@ public:
 
   void addPage(PDFPageGraphicsItem * page);
   void removePage(PDFPageGraphicsItem * page);
-  void insertPage(PDFPageGraphicsItem * page, PDFPageGraphicsItem * before = NULL);
+  void insertPage(PDFPageGraphicsItem * page, PDFPageGraphicsItem * before = nullptr);
   void clearPages() { _layoutItems.clear(); }
 
 public slots:
@@ -456,8 +455,8 @@ class PDFDocumentScene : public QGraphicsScene
   void handleActionEvent(const PDFActionEvent * action_event);
 
 public:
-  PDFDocumentScene(QSharedPointer<Backend::Document> a_doc, QObject *parent = 0, const double dpiX = -1, const double dpiY = -1);
-  ~PDFDocumentScene();
+  PDFDocumentScene(QSharedPointer<Backend::Document> a_doc, QObject *parent = nullptr, const double dpiX = -1, const double dpiY = -1);
+  ~PDFDocumentScene() override;
 
   QWeakPointer<Backend::Document> document();
   QList<QGraphicsItem*> pages();
@@ -502,8 +501,8 @@ protected:
   // Used in non-continuous mode to keep track of currently shown page across
   // reloads. -2 is used in continuous mode. -1 indicates an invalid value.
   int _shownPageIdx;
-  bool event(QEvent* event);
-  
+  bool event(QEvent * event) override;
+
   QWidget * _unlockWidget;
   QLabel * _unlockWidgetLockText, * _unlockWidgetLockIcon;
   QPushButton * _unlockWidgetUnlockButton;
@@ -547,18 +546,18 @@ class PDFPageGraphicsItem : public QGraphicsObject
   static void imageToGrayScale(QImage & img);
 
 public:
-  PDFPageGraphicsItem(QWeakPointer<Backend::Page> a_page, const double dpiX, const double dpiY, QGraphicsItem *parent = 0);
+  PDFPageGraphicsItem(QWeakPointer<Backend::Page> a_page, const double dpiX, const double dpiY, QGraphicsItem *parent = nullptr);
 
   // This seems fragile as it assumes no other code declaring a custom graphics
   // item will choose the same ID for it's object types. Unfortunately, there
   // appears to be no equivalent of `registerEventType` for `QGraphicsItem`
   // subclasses.
   enum { Type = UserType + 1 };
-  int type() const;
+  int type() const override;
 
-  void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
-  virtual QRectF boundingRect() const;
+  QRectF boundingRect() const override;
 
   QWeakPointer<Backend::Page> page() const { return _page; }
 
@@ -579,7 +578,7 @@ public:
   int pageNum() const { return _pageNum; }
 
 protected:
-  bool event(QEvent *event);
+  bool event(QEvent * event) override;
 
 private:
   // Parent has no copy constructor.
@@ -598,18 +597,18 @@ class PDFLinkGraphicsItem : public QGraphicsRectItem {
   bool _activated;
 
 public:
-  PDFLinkGraphicsItem(QSharedPointer<Annotation::Link> a_link, QGraphicsItem *parent = 0);
+  PDFLinkGraphicsItem(QSharedPointer<Annotation::Link> a_link, QGraphicsItem *parent = nullptr);
   // See concerns in `PDFPageGraphicsItem` for why this feels fragile.
   enum { Type = UserType + 2 };
-  int type() const;
+  int type() const override;
   void retranslateUi();
 
 protected:
-  void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-  void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+  void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
+  void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
 
-  void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent * event) override;
 
 private:
   // Parent class has no copy constructor.
@@ -626,17 +625,17 @@ class PDFMarkupAnnotationGraphicsItem : public QGraphicsRectItem {
   QWidget * _popup;
 
 public:
-  PDFMarkupAnnotationGraphicsItem(QSharedPointer<Annotation::Markup> annot, QGraphicsItem *parent = 0);
+  PDFMarkupAnnotationGraphicsItem(QSharedPointer<Annotation::Markup> annot, QGraphicsItem *parent = nullptr);
   // See concerns in `PDFPageGraphicsItem` for why this feels fragile.
   enum { Type = UserType + 3 };
-  int type() const;
+  int type() const override;
 
 protected:
-  void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-  void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+  void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
+  void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
 
-  void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent * event) override;
 
 private:
   // Parent class has no copy constructor.

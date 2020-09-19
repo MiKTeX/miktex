@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageInstaller.h:            -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -32,12 +32,21 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Core/OptionSet>
 #include <miktex/Core/PathName>
 
 #include "RepositoryInfo.h"
 #include "definitions.h"
 
 MIKTEX_PACKAGES_BEGIN_NAMESPACE;
+
+/// UpdateDb options.
+enum class UpdateDbOption
+{
+  FromCache,
+};
+
+typedef MiKTeX::Core::OptionSet<UpdateDbOption> UpdateDbOptionSet;
 
 /// Installer notifications.
 enum class Notification
@@ -112,7 +121,7 @@ public:
 
   /// Synchronizes the package database.
 public:
-  virtual void MIKTEXTHISCALL UpdateDb() = 0;
+  virtual void MIKTEXTHISCALL UpdateDb(UpdateDbOptionSet options) = 0;
 
   /// Starts the package database synchronization thread.
   /// @see WaitForCompletion

@@ -1,6 +1,6 @@
 /* makemf.cpp:
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeMF.
 
@@ -22,6 +22,8 @@
 /* Some algorithms are borrowed from the web2c mktex* shell scripts. */
 
 #include "config.h"
+
+#include "makemf-version.h"
 
 #include <miktex/Core/Fndb>
 
@@ -199,16 +201,16 @@ void MakeMf::CreateDestinationDirectory()
 {
   string templ;
   templ = "%R";
-  templ += PathName::DirectoryDelimiter;
+  templ += PathNameUtil::DirectoryDelimiter;
   templ += T_("fonts");
-  templ += PathName::DirectoryDelimiter;
+  templ += PathNameUtil::DirectoryDelimiter;
   templ += T_("source");
   if (!supplier.empty())
   {
-    templ += PathName::DirectoryDelimiter;
+    templ += PathNameUtil::DirectoryDelimiter;
     templ += supplier;
   }
-  templ += PathName::DirectoryDelimiter;
+  templ += PathNameUtil::DirectoryDelimiter;
   templ += typeface;
   destinationDirectory = CreateDirectoryFromTemplate(templ);
 }
@@ -231,7 +233,7 @@ void MakeMf::Run(int argc, const char** argv)
   // derive driver name from the TeX font name (e.g., "ecbi3583" =>
   // "ecbi"
   string driverName;
-  session->SplitFontPath(texFontname, nullptr, nullptr, nullptr, &driverName, nullptr);
+  session->SplitFontPath(PathName(texFontname), nullptr, nullptr, nullptr, &driverName, nullptr);
 
   // find the driver file
   {
@@ -290,7 +292,7 @@ void MakeMf::Run(int argc, const char** argv)
   if (!(toStdout || printOnly))
   {
     // make fully qualified destination file name
-    pathDest = destinationDirectory / texFontname;
+    pathDest = destinationDirectory / PathName(texFontname);
     pathDest.AppendExtension(".mf");
     Verbose(fmt::format(T_("Writing on {0}..."), Q_(pathDest)));
     filestream = File::CreateOutputStream(pathDest);

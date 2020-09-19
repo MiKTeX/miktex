@@ -2,7 +2,7 @@
 ** BoundingBox.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -31,11 +31,11 @@
 
 
 class Matrix;
-class XMLElementNode;
+class XMLElement;
 
 
 struct BoundingBoxException : MessageException {
-	BoundingBoxException (const std::string &msg) : MessageException(msg) {}
+	explicit BoundingBoxException (const std::string &msg) : MessageException(msg) {}
 };
 
 
@@ -45,7 +45,7 @@ class BoundingBox {
 		BoundingBox (double ulxx, double ulyy, double lrxx, double lryy);
 		BoundingBox (const DPair &p1, const DPair &p2);
 		BoundingBox (const Length &ulxx, const Length &ulyy, const Length &lrxx, const Length &lryy);
-		BoundingBox (const std::string &boxstr);
+		explicit BoundingBox (const std::string &boxstr);
 		void set (const std::string &boxstr);
 		void set (const std::vector<Length> &lengths);
 		void embed (double x, double y);
@@ -78,7 +78,7 @@ class BoundingBox {
 		void transform (const Matrix &tm);
 		std::string toSVGViewBox () const;
 		std::ostream& write (std::ostream &os) const;
-		std::unique_ptr<XMLElementNode> createSVGRect () const;
+		std::unique_ptr<XMLElement> createSVGRect () const;
 
 	private:
 		double _ulx, _uly; ///< coordinates of upper left vertex (in PS point units)

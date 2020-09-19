@@ -26,7 +26,7 @@
 #  include "pdf/pdfpage.h"
 
 typedef image_dict *idict_entry;
-idict_entry *idict_array;
+extern idict_entry *idict_array;
 
 void new_img_pdfstream_struct(image_dict *);
 image *new_image(void);

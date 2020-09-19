@@ -1,6 +1,6 @@
 /* miktex/Core/Quoter.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -57,19 +57,19 @@ public:
   ~Quoter() = default;
 
 public:
-  Quoter(const CharType* lpsz)
+  explicit Quoter(const CharType* lpsz)
   {
     Quote(lpsz);
   }
 
 public:
-  Quoter(const std::basic_string<CharType>& s)
+  explicit Quoter(const std::basic_string<CharType>& s)
   {
     Quote(s.c_str());
   }
 
 public:
-  Quoter(const PathName& path)
+  explicit Quoter(const PathName& path)
   {
     Quote(path.GetData());
   }

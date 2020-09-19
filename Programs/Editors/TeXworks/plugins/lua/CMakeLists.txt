@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,8 +18,10 @@
 ## USA.
 
 set(twluaplugin_sources
-  ${projdir}/source/plugins-src/TWLuaPlugin/TWLuaPlugin.cpp
-  ${projdir}/source/plugins-src/TWLuaPlugin/TWLuaPlugin.h
+  ${projdir}/source/plugins-src/TWLuaPlugin/LuaScript.cpp
+  ${projdir}/source/plugins-src/TWLuaPlugin/LuaScript.h
+  ${projdir}/source/plugins-src/TWLuaPlugin/LuaScriptInterface.cpp
+  ${projdir}/source/plugins-src/TWLuaPlugin/LuaScriptInterface.h
 )
 
 add_library(twluaplugin-static STATIC

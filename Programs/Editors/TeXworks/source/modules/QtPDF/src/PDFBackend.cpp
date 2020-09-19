@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,20 +15,22 @@
 #include <PDFBackend.h>
 #include <QPainter>
 #include <QApplication>
+#if defined(MIKTEX)
+#include <QPainterPath>
+#endif
 
 namespace QtPDF {
 
 namespace Backend {
 
 // TODO: Find a better place to put this
-QBrush * pageDummyBrush = NULL;
+static QBrush * pageDummyBrush = nullptr;
 
 QDateTime fromPDFDate(QString pdfDate)
 {
   QDate date;
   QTime time;
   QString format;
-  QDateTime retVal;
   int sign = 0;
   int hourOffset, minuteOffset = 0;
   bool ok;
@@ -79,12 +81,12 @@ QDateTime fromPDFDate(QString pdfDate)
   pdfDate.remove(0, 1);
   if (pdfDate.length() < 3 || pdfDate[2] != QChar::fromLatin1('\''))
     return QDateTime(date, time);
-  hourOffset = pdfDate.left(2).toInt(&ok);
+  hourOffset = pdfDate.leftRef(2).toInt(&ok);
   if (!ok)
     return QDateTime(date, time);
   pdfDate.remove(0, 3);
   if (pdfDate.length() >= 2)
-    minuteOffset = pdfDate.left(2).toInt();
+    minuteOffset = pdfDate.leftRef(2).toInt();
   return QDateTime(date, time, Qt::UTC).addSecs(sign * (hourOffset * 3600 + minuteOffset * 60)).toLocalTime();
 }
 
@@ -111,21 +113,8 @@ void PDFPageProcessingThread::dumpWorkStack(const QStack<PageProcessingRequest*>
 // Fonts
 // =================
 
-PDFFontDescriptor::PDFFontDescriptor(const QString fontName /* = QString() */) :
-  _name(fontName),
-  _stretch(FontStretch_Normal),
-  _weight(400),
-  _italicAngle(0),
-  _ascent(0),
-  _descent(0),
-  _leading(0),
-  _capHeight(0),
-  _xHeight(0),
-  _stemV(0),
-  _stemH(0),
-  _avgWidth(0),
-  _maxWidth(0),
-  _missingWidth(0)
+PDFFontDescriptor::PDFFontDescriptor(const QString & fontName /* = QString() */) :
+  _name(fontName)
 {
 }
 
@@ -146,21 +135,12 @@ QString PDFFontDescriptor::pureName() const
 {
   if (!isSubset())
     return _name;
-  else
-    return _name.mid(7);
+  return _name.mid(7);
 }
 
 
 // Backend Rendering
 // =================
-// The `PDFPageProcessingThread` is a thread that processes background jobs.
-// Each job is represented by a subclass of `PageProcessingRequest` and
-// contains an `execute` method that performs the actual work.
-PDFPageProcessingThread::PDFPageProcessingThread() :
-  _idle(true),
-  _quit(false)
-{
-}
 
 PDFPageProcessingThread::~PDFPageProcessingThread()
 {
@@ -223,7 +203,7 @@ void PDFPageProcessingThread::run()
   _idle = false;
   while (!_quit) {
     // mutex must be locked at start of loop
-    if (_workStack.size() > 0) {
+    if (!_workStack.empty()) {
       workItem = _workStack.pop();
       _mutex.unlock();
 
@@ -311,9 +291,9 @@ bool PageProcessingRenderPageRequest::operator==(const PageProcessingRequest & r
 {
   if (!PageProcessingRequest::operator==(r))
     return false;
-  const PageProcessingRenderPageRequest * rr = static_cast<const PageProcessingRenderPageRequest*>(&r);
+  const PageProcessingRenderPageRequest * rr = dynamic_cast<const PageProcessingRenderPageRequest*>(&r);
   // TODO: Should we care about the listener here as well?
-  return (xres == rr->xres && yres == rr->yres && render_box == rr->render_box && cache == rr->cache);
+  return (qFuzzyCompare(xres, rr->xres) && qFuzzyCompare(yres, rr->yres) && render_box == rr->render_box && cache == rr->cache);
 }
 
 #ifdef DEBUG
@@ -397,7 +377,7 @@ inline uint qHash(const double &d)
   // Note also that the QDataStream approach used previously also works on the
   // binary representation of doubles internally and so the same problem would
   // occur there as well.
-  return hash((const uchar*)&d, sizeof(d));
+  return hash(reinterpret_cast<const uchar*>(&d), sizeof(d));
 }
 
 // ### Cache for Rendered Images
@@ -482,13 +462,9 @@ void PDFPageCache::markOutdated()
 // This class is thread-safe. Data access is governed by the QReadWriteLock
 // _docLock.
 Document::Document(QString fileName):
-  _numPages(-1),
-  _fileName(fileName),
-  _meta_fileSize(0),
-  _meta_trapped(Trapped_Unknown),
-  _docLock(new QReadWriteLock(QReadWriteLock::Recursive))
+  _fileName(fileName)
 {
-  Q_ASSERT(_docLock != NULL);
+  Q_ASSERT(_docLock != nullptr);
 
 #ifdef DEBUG
 //  qDebug() << "Document::Document(" << fileName << ")";
@@ -514,7 +490,7 @@ int Document::numPages() { QReadLocker docLocker(_docLock.data()); return _numPa
 PDFPageProcessingThread &Document::processingThread() { QReadLocker docLocker(_docLock.data()); return _processingThread; }
 PDFPageCache &Document::pageCache() { QReadLocker docLocker(_docLock.data()); return _pageCache; }
 
-QList<SearchResult> Document::search(QString searchText, SearchFlags flags, int startPage)
+QList<SearchResult> Document::search(const QString & searchText, const SearchFlags & flags, const int startPage)
 {
   QReadLocker docLocker(_docLock.data());
   QList<SearchResult> results;
@@ -532,7 +508,7 @@ QList<SearchResult> Document::search(QString searchText, SearchFlags flags, int 
   }
 
   if (flags.testFlag(Search_WrapAround)) {
-    start = (flags & Search_Backwards ? _numPages - 1 : 0);
+    start = ((flags & Search_Backwards) ? _numPages - 1 : 0);
     end = startPage;
     for (i = start; i != end; i += step) {
       QSharedPointer<Page> page(_pages[i]);
@@ -591,14 +567,12 @@ void Document::clearMetaData()
 // member functions), the QSharedPointer<QReadWriteLock> _docLock must also be
 // acquired. Note that if _docLock and _pageLock are to be acquired, _docLock
 // must be acquired first.
-// Note that the Page may exist in a detached state, i.e., _parent == NULL. This
+// Note that the Page may exist in a detached state, i.e., _parent == nullptr. This
 // is typically the case when the document discarded the page object but some
 // other object (typically in another thread) still holds a QSharedPointer to it.
 Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
   _parent(parent),
   _n(at),
-  _transition(NULL),
-  _pageLock(new QReadWriteLock(QReadWriteLock::Recursive)),
   _docLock(docLock)
 {
   Q_ASSERT(_pageLock);
@@ -629,19 +603,12 @@ Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
   }
 }
 
-Page::~Page()
-{
-#ifdef DEBUG
-//  qDebug() << "Page::~Page(" << _n << ")";
-#endif
-}
-
 int Page::pageNum() { QReadLocker pageLocker(_pageLock); return _n; }
 
 void Page::detachFromParent()
 {
   QWriteLocker pageLocker(_pageLock);
-  _parent = NULL;
+  _parent = nullptr;
 }
 
 QRectF Page::getContentBoundingBox() const
@@ -674,11 +641,7 @@ QRectF Page::getContentBoundingBox() const
   // Find the bounding box (min/max values for x and y) of the content
   int x0 = img.width(), x1 = 0, y0 = img.height(), y1 = 0;
   for (int y = 0; y < img.height(); ++y) {
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
-    QRgb * row = ((QRgb*)img.constScanLine(y));
-#else
-    QRgb * row = ((QRgb*)img.scanLine(y));
-#endif
+    const QRgb * row = reinterpret_cast<const QRgb*>(img.constScanLine(y));
     for (int x = 0; x < img.width(); ++x) {
       if (row[x] != bg) {
         if (x0 > x) x0 = x;
@@ -692,7 +655,7 @@ QRectF Page::getContentBoundingBox() const
   return QRectF(x0 * pageSize.width() / 100., y0 * pageSize.height() / 100., (x1 - x0 + 1) * pageSize.width() / 100., (y1 - y0 + 1) * pageSize.height() / 100.);
 }
 
-QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect render_box /* = QRect() */, PDFPageCache::TileStatus * status /* = NULL */)
+QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect render_box /* = QRect() */, PDFPageCache::TileStatus * status /* = nullptr */)
 {
   QReadLocker docLocker(_docLock.data());
   QReadLocker pageLocker(_pageLock);
@@ -821,10 +784,8 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
     }
     return retVal;
   }
-  else {
-    renderToImage(xres, yres, render_box, true);
-    return getCachedImage(xres, yres, render_box);
-  }
+  renderToImage(xres, yres, render_box, true);
+  return getCachedImage(xres, yres, render_box);
 }
 
 void Page::asyncLoadLinks(QObject *listener)

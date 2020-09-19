@@ -7,7 +7,7 @@
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.112 -- we reflect the luatex version where changes happened
+LUATEXCOREVERSION = 1.120 -- we reflect the luatex version where changes happened
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
@@ -194,12 +194,20 @@ end
 
 if saferoption == 1 or shellescape ~= 1 then
 
+    package.loadlib      = function() end
+    package.searchers[4] = nil
+    package.searchers[3] = nil
+
     ffi = require('ffi')
-    for k, v in next, ffi do
-        if k ~= 'gc' then
-            ffi[k] = nil
+
+    if ffi then
+        for k, v in next, ffi do
+            if k ~= 'gc' then
+                ffi[k] = nil
+            end
         end
     end
+
     ffi = nil
 
 end

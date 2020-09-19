@@ -1,6 +1,6 @@
-/* miktex/C4P/config.h: C4P compile-time configuration  -*- C++ -*-
+/* miktex/C4P/config.h: C4P compile-time configuration
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -44,6 +44,13 @@
 
 // API decoration for exported functions
 #define C4PCEEAPI(type) C4PEXPORT type MIKTEXCEECALL
+
+// API decoration for exported types
+#if defined(__GNUC__)
+#  define C4PTYPEAPI(type) C4PEXPORT type
+#else
+#  define C4PTYPEAPI(type) type
+#endif
 
 #define C4PCEECALL MIKTEXCEECALL
 

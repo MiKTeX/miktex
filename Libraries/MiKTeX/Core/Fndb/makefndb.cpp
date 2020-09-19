@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,7 +33,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Registry>
+#include <miktex/Core/TemporaryFile>
 
 #include <miktex/Trace/Trace>
 
@@ -251,7 +251,7 @@ void FndbManager::AlignMem(size_t align)
 
 void FndbManager::GetIgnorableFiles(const PathName& dirPath, vector<string>& filesToBeIgnored)
 {
-  PathName ignoreFile(dirPath, FN_MIKTEXIGNORE);
+  PathName ignoreFile(dirPath, PathName(FN_MIKTEXIGNORE));
   if (!File::Exists(ignoreFile))
   {
     return;
@@ -277,7 +277,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dirPath);
   DirectoryEntry entry;
   vector<DirectoryEntry> toBeDeleted;
-  PathName directory = Utils::GetRelativizedPath(dirPath.GetData(), rootPath.GetData());
+  PathName directory(Utils::GetRelativizedPath(dirPath.GetData(), rootPath.GetData()));
   directory = directory.ToUnix();
   while (lister->GetNext(entry))
   {
@@ -308,7 +308,7 @@ void FndbManager::ReadDirectory(const PathName& dirPath, vector<string>& subDire
   {
     try
     {
-      PathName path(dirPath, e.name);
+      PathName path(dirPath, PathName(e.name));
       if (e.isDirectory)
       {
         Directory::Delete(path, true);
@@ -337,9 +337,9 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   bool done = false;
 
   PathName path(parentPath, folderName);
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
 
-  PathName directory = Utils::GetRelativizedPath(path.GetData(), rootPath.GetData());
+  PathName directory(Utils::GetRelativizedPath(path.GetData(), rootPath.GetData()));
   directory = directory.ToUnix();
 
   if (callback != nullptr)
@@ -381,7 +381,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
   for (const string& s : subDirectoryNames)
   {
     // RECURSION
-    CollectFiles(pathFolder, s, fileNames);
+    CollectFiles(pathFolder, PathName(s), fileNames);
     ++i;
   }
   --currentLevel;
@@ -406,7 +406,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     currentLevel = 0;
     this->callback = callback;
     vector<FILENAMEINFO> fileNames;
-    CollectFiles(rootPath, CURRENT_DIRECTORY, fileNames);
+    CollectFiles(rootPath, PathName(CURRENT_DIRECTORY), fileNames);
     numFiles = fileNames.size();
     AlignMem();
     fndb.foTable = ReserveMem(fileNames.size() * sizeof(FileNameDatabaseRecord));
@@ -444,40 +444,26 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     }
     // </fixme>
     
+    PathName tmpFndbPath(fndbPath);
+    tmpFndbPath.AppendExtension(".tmp");
+    unique_ptr<TemporaryFile> tmpFndbFile = TemporaryFile::Create(tmpFndbPath);
     FileStream streamFndb;
-#if defined(MIKTEX_WINDOWS)
-    chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + chrono::seconds(10);
-    do
-    {
-      try
-      {
-        streamFndb.Attach(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
-      }
-      catch (const SharingViolationException&)
-      {
-        if (chrono::high_resolution_clock::now() > tryUntil)
-        {
-          throw;
-        }
-        this_thread::sleep_for(chrono::milliseconds(200));
-      }
-    } while (streamFndb.GetFile() == nullptr);
-#else
-    streamFndb.Attach(File::Open(fndbPath, FileMode::Create, FileAccess::Write, false));
-#endif
-    if (!File::TryLock(streamFndb.GetFile(), File::LockType::Exclusive, 10s))
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Could not acquire exclusive lock."), "path", fndbPath.ToString());
-    }
+    streamFndb.Attach(File::Open(tmpFndbPath, FileMode::Create, FileAccess::Write, false));
     streamFndb.Write(reinterpret_cast<const char*>(GetMemPointer()), GetMemTop());
+    streamFndb.Close();
+    if (File::Exists(fndbPath))
+    {
+      File::Delete(fndbPath, { FileDeleteOption::TryHard });
+    }
+    File::Move(tmpFndbPath, fndbPath);
+    tmpFndbFile->Keep();
+
     PathName changeFile = fndbPath;
     changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
     if (File::Exists(changeFile))
     {
       File::Delete(changeFile);
     }
-    File::Unlock(streamFndb.GetFile());
-    streamFndb.Close();
     trace_fndb->WriteLine("core", T_("fndb creation completed"));
     SessionImpl::GetSession()->RecordMaintenance();
     return true;

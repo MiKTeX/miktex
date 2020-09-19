@@ -1,6 +1,6 @@
 /* src.cpp: src specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -20,6 +20,9 @@
    USA.  */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -63,7 +66,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
 
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
-    trace_search->WriteFormattedLine("libdvi", T_("searching src special %d %s"), line, fileName);
+    trace_search->WriteLine("libdvi", fmt::format(T_("searching src special {0} {1}"), line, fileName));
 
     SourceSpecial* pSourceSpecial1Best = nullptr;
     SourceSpecial* pSourceSpecial2Best = nullptr;
@@ -82,18 +85,18 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
     // absolute file name
     PathName fqFileName;
 
-    if (Utils::IsAbsolutePath(fileName))
+    if (PathNameUtil::IsAbsolutePath(fileName))
     {
       lpszRelFileName = Utils::GetRelativizedPath(fileName, documentLocation.GetData());
       fqFileName = fileName;
-      fqFileName.MakeAbsolute();
+      fqFileName.MakeFullyQualified();
     }
     else
     {
       lpszRelFileName = fileName;
       fqFileName = documentLocation;
       fqFileName /= fileName;
-      fqFileName.MakeAbsolute();
+      fqFileName.MakeFullyQualified();
     }
 
     //
@@ -130,22 +133,22 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
         const char* name = pSourceSpecial->GetFileName();
 
         // try exact match
-        bool nameMatch = (MyPathNameCompare(name, fileName) == 0);
+        bool nameMatch = (MyPathNameCompare(PathName(name), PathName(fileName)) == 0);
 
         // try fully qualified file names
         if (!nameMatch)
         {
           PathName fqName;
-          if (Utils::IsAbsolutePath(name))
+          if (PathNameUtil::IsAbsolutePath(name))
           {
             fqName = name;
-            fqName.MakeAbsolute();
+            fqName.MakeFullyQualified();
           }
           else
           {
             fqName = documentLocation;
             fqName /= name;
-            fqName.MakeAbsolute();
+            fqName.MakeFullyQualified();
           }
           nameMatch = (MyPathNameCompare(fqName, fqFileName) == 0);
         }
@@ -154,7 +157,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
         if (!nameMatch && lpszRelFileName != nullptr)
         {
           const char* lpszRelName;
-          if (!Utils::IsAbsolutePath(name))
+          if (!PathNameUtil::IsAbsolutePath(name))
           {
             lpszRelName = name;
           }
@@ -162,7 +165,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
           {
             lpszRelName = Utils::GetRelativizedPath(name, documentLocation.GetData());
           }
-          nameMatch = lpszRelName != nullptr && MyPathNameCompare(lpszRelName, lpszRelFileName) == 0;
+          nameMatch = lpszRelName != nullptr && MyPathNameCompare(PathName(lpszRelName), PathName(lpszRelFileName)) == 0;
         }
 
         if (!nameMatch)
@@ -224,16 +227,16 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
 
     if (pSourceSpecial1Best == nullptr)
     {
-      trace_search->WriteFormattedLine("libdvi", T_("found src2 on page #%d"), pageIdx2);
-      trace_search->WriteFormattedLine("libdvi", "   src2 = [%d (%d,%d)]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY());
+      trace_search->WriteLine("libdvi", fmt::format(T_("found src2 on page #{0}"), pageIdx2));
+      trace_search->WriteLine("libdvi", fmt::format("   src2 = [{0} ({1},{2})]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY()));
       position.pageIdx = pageIdx2;
       position.x = pSourceSpecial2Best->GetX();
       position.y = pSourceSpecial2Best->GetY();
     }
     else if (pSourceSpecial2Best == nullptr)
     {
-      trace_search->WriteFormattedLine("libdvi", T_("found src1 on page #%d"), pageIdx1);
-      trace_search->WriteFormattedLine("libdvi", "   src1 = [%d (%d,%d)]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY());
+      trace_search->WriteLine("libdvi", fmt::format(T_("found src1 on page #{0}"), pageIdx1));
+      trace_search->WriteLine("libdvi", fmt::format("   src1 = [{0} ({1},{2})]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY()));
       position.pageIdx = pageIdx1;
       position.x = pSourceSpecial1Best->GetX();
       position.y = pSourceSpecial1Best->GetY();
@@ -241,9 +244,9 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
     else
     {
       position.pageIdx = pageIdx1;
-      trace_search->WriteFormattedLine("libdvi", T_("found src region on page #%d"), position.pageIdx);
-      trace_search->WriteFormattedLine("libdvi", "   src1 = [%d (%d,%d)]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY());
-      trace_search->WriteFormattedLine("libdvi", "   src2 = [%d (%d,%d)]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY());
+      trace_search->WriteLine("libdvi", fmt::format(T_("found src region on page #{0}"), position.pageIdx));
+      trace_search->WriteLine("libdvi", fmt::format("   src1 = [{0} ({1},{2})]", pSourceSpecial1Best->GetLineNum(), pSourceSpecial1Best->GetX(), pSourceSpecial1Best->GetY()));
+      trace_search->WriteLine("libdvi", fmt::format("   src2 = [{0} ({1},{2})]", pSourceSpecial2Best->GetLineNum(), pSourceSpecial2Best->GetX(), pSourceSpecial2Best->GetY()));
       position.x = pSourceSpecial1Best->GetX();
       if (pSourceSpecial2Best->GetLineNum() == pSourceSpecial1Best->GetLineNum())
       {
@@ -258,7 +261,7 @@ bool DviImpl::FindSource(const char* fileName, int line, DviPosition& position)
             / (pSourceSpecial2Best->GetLineNum()
               - pSourceSpecial1Best->GetLineNum())));
       }
-      trace_search->WriteFormattedLine("libdvi", "   interpolated (x,y) = (%d,%d)", position.x, position.y);
+      trace_search->WriteLine("libdvi", fmt::format("   interpolated (x,y) = ({0},{1})", position.x, position.y));
     }
 
     return true;
@@ -334,7 +337,7 @@ bool DviImpl::GetSource(const DviPosition& pos, PathName& fileName, int* pLineNu
     {
       pSourceSpecial = pSourceSpecial1;
     }
-    else if (MyPathNameCompare(pSourceSpecial1->GetFileName(), pSourceSpecial2->GetFileName()) != 0)
+    else if (MyPathNameCompare(PathName(pSourceSpecial1->GetFileName()), PathName(pSourceSpecial2->GetFileName())) != 0)
     {
       if (cursorOffset - src1Offset < src2Offset - cursorOffset)
       {

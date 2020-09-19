@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,7 +39,7 @@ configure_file(
 )
 
 configure_file(
-  res/Setup.rc2.cmake
+  res/Setup.rc2.in
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.rc2
 )
 
@@ -56,7 +56,7 @@ configure_file(
 set(setup_mfc_sources
   ${CMAKE_CURRENT_BINARY_DIR}/Setup.rc
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest
-  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_COMMON_MANIFEST}
   ${MIKTEX_DPIAWARE_MANIFEST}
   ConnectionSettingsDialog.cpp
   ConnectionSettingsDialog.h

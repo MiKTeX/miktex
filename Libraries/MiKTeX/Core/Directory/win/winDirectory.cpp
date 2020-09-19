@@ -1,6 +1,6 @@
 /* winDirectory.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/win/winAutoResource>
@@ -60,20 +63,20 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
 bool Directory::Exists(const PathName& path)
 {
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
+  unsigned long attributes = GetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
   {
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
     {
       if (session != nullptr)
       {
-        session->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+        session->trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
       }
       return false;
     }
     if (session != nullptr)
     {
-      session->trace_access->WriteFormattedLine("core", T_("accessing directory %s: OK"), Q_(path));
+      session->trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: OK"), Q_(path)));
     }
     return true;
   }
@@ -95,7 +98,7 @@ bool Directory::Exists(const PathName& path)
   }
   if (session != nullptr)
   {
-    session->trace_access->WriteFormattedLine("core", T_("accessing directory %s: NOK"), Q_(path));
+    session->trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: NOK"), Q_(path)));
   }
   return false;
 }
@@ -105,9 +108,9 @@ void Directory::Delete(const PathName& path)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+    session->trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
   }
-  if (!RemoveDirectoryW(UW_(path.GetData())))
+  if (!RemoveDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("RemoveDirectoryW", "path", path.ToString());
   }
@@ -115,7 +118,7 @@ void Directory::Delete(const PathName& path)
 
 void Directory::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
-  HANDLE h = CreateFileW(path.ToWideCharString().c_str(), FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
+  HANDLE h = CreateFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
   if (h == INVALID_HANDLE_VALUE)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString());

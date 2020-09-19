@@ -1,6 +1,6 @@
 /* draw.cpp: DVI drawing routines
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -155,12 +155,12 @@ void DviView::OnDraw(CDC* pDC)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -174,7 +174,7 @@ void DviView::DrawPage(CDC* pDC, int pageIdx)
 
   if (pageStatus == PageStatus::Changed)
   {
-    YapLog(T_("DVI document has been changed"));
+    YapInfo(T_("DVI document has been changed"));
   }
 
   bool pageLoaded = (pageStatus == PageStatus::Loaded);
@@ -491,12 +491,12 @@ BOOL DviView::OnEraseBkgnd(CDC* pDC)
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
     return FALSE;
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
     return FALSE;
   }
 }

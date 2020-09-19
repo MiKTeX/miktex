@@ -1,6 +1,6 @@
 /* unxUtil.cpp: 
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,9 @@
 #if defined(HAVE_SYS_UTSNAME_H)
 #  include <sys/utsname.h>
 #endif
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathName>
@@ -69,7 +72,7 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
+    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
   }
   if (setenv(valueName.c_str(), value.c_str(), 1) != 0)
   {
@@ -82,7 +85,7 @@ void Utils::RemoveEnvironmentString(const string& valueName)
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
-    session->trace_config->WriteFormattedLine("core", T_("unsetting env %s"), valueName.c_str());
+    session->trace_config->WriteLine("core", fmt::format(T_("unsetting env {0}"), valueName));
   }
   if (unsetenv(valueName.c_str()) != 0)
   {

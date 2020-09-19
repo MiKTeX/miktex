@@ -1,6 +1,6 @@
 /* CurlWebFile.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -22,6 +22,9 @@
 #include "config.h"
 
 #if defined(HAVE_LIBCURL)
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "CurlWebFile.h"
 #include "CurlWebSession.h"
@@ -104,7 +107,7 @@ size_t CurlWebFile::WriteCallback(char* data, size_t elemSize, size_t numElement
     if (!This->buffer.CanWrite(size))
     {
       size_t newCapacity = This->buffer.GetCapacity() + 2 * size;
-      This->trace_mpm->WriteFormattedLine(TRACE_FACILITY, T_("reserve buffer: %u"), (unsigned)newCapacity);
+      This->trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Debug, fmt::format(T_("reserve buffer: {0}"), (unsigned)newCapacity));
       This->buffer.Reserve(newCapacity);
       MIKTEX_ASSERT(This->buffer.CanWrite(size));
     }

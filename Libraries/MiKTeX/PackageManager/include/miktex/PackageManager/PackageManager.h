@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageManager.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -66,6 +66,8 @@ struct InstallationSummary
   std::time_t lastUpdateCheck = InvalidTimeT;
   /// Time of last update.
   std::time_t lastUpdate = InvalidTimeT;
+  /// Time of last DB update.
+  std::time_t lastUpdateDb = InvalidTimeT;
   /// Number of installed packages.
   std::size_t packageCount = 0;
 };
@@ -415,22 +417,8 @@ public:
 public:
   static MIKTEXMPMCEEAPI(bool) TryGetProxy(ProxySettings& proxySettings);
 
-  /// Gets the configured proxy server.
-  /// @param url Identifies the scheme the proxy must support.
-  /// @exception MiKTeXException No proxy is configured.
-  /// @see SetProxy
-public:
-  static MIKTEXMPMCEEAPI(ProxySettings) GetProxy(const std::string& url);
-
-  /// Gets the configured proxy server.
-  /// @exception MiKTeXException No proxy is configured.
-  /// @see SetProxy
-public:
-  static MIKTEXMPMCEEAPI(ProxySettings) GetProxy();
-
   /// Configures a proxy server.
   /// @param proxySettings The proxy settings.
-  /// @see GetProxy
 public:
   static MIKTEXMPMCEEAPI(void) SetProxy(const ProxySettings& proxySettings);
 };

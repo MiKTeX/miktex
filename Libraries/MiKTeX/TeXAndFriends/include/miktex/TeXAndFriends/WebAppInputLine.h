@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -60,13 +60,11 @@ public:
 public:
   virtual C4P::C4P_signed32 bufsize() = 0;
 public:
-  virtual char* nameoffile() = 0;
+  virtual char*& nameoffile() = 0;
 public:
-  virtual C4P::C4P_signed16& namelength() = 0;
+  virtual C4P::C4P_signed32& namelength() = 0;
 public:
   virtual char* buffer() = 0;
-public:
-  virtual char16_t* buffer16() = 0;
 public:
   virtual char32_t* buffer32() = 0;
 public:
@@ -145,11 +143,11 @@ public:
   MiKTeX::Core::PathName GetNameOfFile() const
   {
     IInputOutput* inputOutput = GetInputOutput();
-    return inputOutput->nameoffile();
+    return MiKTeX::Core::PathName(inputOutput->nameoffile());
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) const
+  virtual void SetNameOfFile(const MiKTeX::Core::PathName& fileName)
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
@@ -195,16 +193,6 @@ protected:
 protected:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetLastInputFileName() const;
 
-#if defined(WITH_OMEGA)
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) MangleNameOfFile(const char* fileName);
-#endif
-
-#if defined(WITH_OMEGA)
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const char* fileName);
-#endif
-
 public:
   MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput* inputOutput);
 
@@ -231,11 +219,7 @@ template<class FileType> inline bool miktexopeninputfile(FileType& f)
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenInputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData()));
-#else
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq());
-#endif
   }
   return done;
 }
@@ -253,11 +237,7 @@ template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), isTextFile_deprecated, outPath);
   if (done)
   {
-#if defined(MIKTEX_OMEGA)
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
-#else
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
-#endif
   }
   return done;
 }

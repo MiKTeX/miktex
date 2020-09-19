@@ -1,6 +1,6 @@
 ## miktex-version.cmake: define the MiKTeX version number
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify it
 ## under the terms of the GNU General Public License as published by
@@ -16,66 +16,43 @@
 ## along with this file; if not, write to the Free Software Foundation,
 ## 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-## major version number
-set(MIKTEX_MAJOR_VERSION        2)
+## date based version
+set(MIKTEX_YEAR_VERSION 2020)
+set(MIKTEX_MONTH_VERSION 7)
+set(MIKTEX_DAY_VERSION 19)
 
-## minor version number
-set(MIKTEX_MINOR_VERSION        9)
+set(MIKTEX_DAY_VERSION_IS_PATCH_VERSION FALSE)
 
-## milestone; measured in: days since January 1, 2000
-set(MIKTEX_J2000_VERSION        7250)
+## internal major/minor/patch version
+math(EXPR
+  MIKTEX_MAJOR_VERSION
+  "${MIKTEX_YEAR_VERSION} - 2000"
+)
+set(MIKTEX_MINOR_VERSION ${MIKTEX_MONTH_VERSION})
+if(MIKTEX_DAY_VERSION_IS_PATCH_VERSION)
+  set(MIKTEX_PATCH_VERSION ${MIKTEX_DAY_VERSION})
+else()
+  set(MIKTEX_PATCH_VERSION 0)
+endif()
 
-## the version of the binary package
+
+## old (pre Jun 2020) version
+set(MIKTEX_LEGACY_MAJOR_VERSION 2)
+set(MIKTEX_LEGACY_MINOR_VERSION 9)
+
+## major/minor version for package database files
+set(MIKTEX_PACKAGES_MAJOR_VERSION 2)
+set(MIKTEX_PACKAGES_MINOR_VERSION 9)
+
+if(WIN32 AND NOT UNIX)
+  ## major/minor version for Windows related COMponents files and directories
+  set(MIKTEX_COM_MAJOR_VERSION 2)
+  set(MIKTEX_COM_MINOR_VERSION 9)
+endif()
+
+## the version of the MiKTeX binary package
 set(MIKTEX_PACKAGE_REVISION
   1
   CACHE STRING
   "The MiKTeX package revision."
 )
-
-if(MIKTEX_LINUX)
-  set(MIKTEX_LINUX_DIST
-    "ubuntu"
-    CACHE STRING
-    "The Linux distribution (ubuntu, debian, fedora, ...)."
-  )
-  set(MIKTEX_LINUX_DIST_VERSION
-    "16.04"
-    CACHE STRING
-    "The Linux distribution version (16.04, 9, 28, ...)."
-  )
-  set(MIKTEX_LINUX_DIST_CODE_NAME
-    "xenial"
-    CACHE STRING
-    "The Linux distribution code name (xenial, stretch, ...)."
-  )
-endif()
-
-## cached date
-set(MIKTEX_YEAR_VERSION            ${MIKTEX_CACHED_YEAR})
-
-## the release number; only meaningful for rc/beta builds
-set(MIKTEX_RELEASE_NUM          1)
-
-## the release state; one of:
-##   0 (stable)
-##   1 (next)
-##   4 (debug)
-set(MIKTEX_RELEASE_STATE
-  0
-  CACHE STRING
-  "The MiKTeX release state."
-)
-
-## sanity check
-if(MIKTEX_RELEASE_STATE EQUAL 0)
-elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-else()
-  message("${MIKTEX_RELEASE_STATE} is an unknown release state.")
-  message("Falling back to release state 4 (debug).")
-  set(MIKTEX_RELEASE_STATE
-      4
-      CACHE STRING
-      "MiKTeX release state; one of 0 (stable), 1 (next), 4 (debug)."
-      FORCE)
-endif()

@@ -1,6 +1,6 @@
 /* miktex-texworks.hpp:
 
-   Copyright (C) 2015-2019 Christian Schenk
+   Copyright (C) 2015-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,11 +20,39 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Trace/TraceStream>
 #include <miktex/Trace/TraceCallback>
 
-class MiKTeX_TeXworks :
+#define MIKTEX_FATAL(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Fatal, s)
+#define MIKTEX_ERROR(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Error, s)
+#define MIKTEX_WARNING(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Warning, s)
+#define MIKTEX_INFO(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Info, s)
+#define MIKTEX_TRACE(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Trace, s)
+#define MIKTEX_DEBUG(s) MiKTeX::TeXworks::Wrapper::GetInstance()->GetTraceStream()->WriteLine("texworks", MiKTeX::Trace::TraceLevel::Debug, s)
+
+namespace MiKTeX { namespace TeXworks {
+
+class Wrapper :
   public MiKTeX::Trace::TraceCallback
 {
+public:
+  Wrapper();
+
+public:
+  Wrapper(const Wrapper& other) = delete;
+
+public:
+  Wrapper& operator=(const Wrapper& other) = delete;
+
+public:
+  Wrapper(Wrapper&& other) = delete;
+
+public:
+  Wrapper& operator=(Wrapper&& other) = delete;
+
+public:
+  ~Wrapper() = default;
+
 public:
   int Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[]);
   
@@ -35,7 +63,7 @@ private:
   std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
+  bool MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
 
 private:
   void FlushPendingTraceMessages();
@@ -51,4 +79,24 @@ private:
 
 private:
   void Sorry(std::string reason);
+
+private:
+  std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
+
+public:
+  MiKTeX::Trace::TraceStream* GetTraceStream() const
+  {
+    return traceStream.get();
+  }
+
+private:
+  static Wrapper* instance;
+
+public:
+  static Wrapper* GetInstance()
+  {
+    return instance;
+  }
 };
+
+}}

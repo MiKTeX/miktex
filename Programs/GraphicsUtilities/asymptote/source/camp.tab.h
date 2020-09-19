@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.0.5.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 60 "camp.y" /* yacc.c:1909  */
+#line 60 "camp.y" /* yacc.c:1910  */
 
   position pos;
   bool boo;
@@ -158,7 +158,7 @@ union YYSTYPE
   absyntax::formal *fl;
   absyntax::formals *fls;
 
-#line 159 "camp.tab.h" /* yacc.c:1909  */
+#line 159 "camp.tab.h" /* yacc.c:1910  */
 };
 
 typedef union YYSTYPE YYSTYPE;

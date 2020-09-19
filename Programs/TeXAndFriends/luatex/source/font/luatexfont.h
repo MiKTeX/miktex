@@ -128,8 +128,8 @@ int write_tounicode(PDF, char **, char *);
 void replace_packet_fonts(internal_font_number f, int *old_fontid, int *new_fontid, int count);
 int *packet_local_fonts(internal_font_number f, int *num);
 
-int packet_cur_s;               /* current |do_vf_packet()| recursion level */
-int packet_stack_ptr;           /* pointer into |packet_stack| */
+extern int packet_cur_s;               /* current |do_vf_packet()| recursion level */
+extern int packet_stack_ptr;           /* pointer into |packet_stack| */
 vf_struct *new_vfstruct(void);
 
 /* writecff.c */

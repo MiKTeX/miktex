@@ -1,6 +1,6 @@
 /* miktex-texworks.cpp:
 
-   Copyright (C) 2015-2019 Christian Schenk
+   Copyright (C) 2015-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -34,17 +34,31 @@
 #include <log4cxx/rollingfileappender.h>
 
 #include "miktex-texworks.hpp"
-#include "miktex-texworks.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
+
+using namespace MiKTeX::TeXworks;
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("texworks"));
 static log4cxx::LoggerPtr synctexLogger(log4cxx::Logger::getLogger("synctex"));
 
-int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
+Wrapper* Wrapper::instance;
+
+Wrapper::Wrapper() :
+  traceStream(TraceStream::Open("texworks", this))
+{
+  if (instance != nullptr)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  instance = this;
+}
+
+int Wrapper::Run(int(*Main)(int argc, char* argv[]), int argc, char* argv[])
 {
   try
   {
@@ -56,7 +70,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* arg
     for (int idx = 0; idx < argc; ++idx)
     {
       utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
-      args.push_back(const_cast<char *>(utf8args[idx].c_str()));
+      args.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
 #else
     for (int idx = 0; idx < argc; ++idx)
@@ -76,7 +90,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* arg
       Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot)).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
       Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "texworks");
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
-      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX TeXworks", MIKTEX_COMP_ORIG_VERSION_STR));
+      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX TeXworks", VersionNumber(MIKTEX_COMP_ORIG_VERSION_STR)));
       FlushPendingTraceMessages();
       isLog4cxxConfigured = true;
       string cmdline;
@@ -90,16 +104,8 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* arg
         LOG4CXX_INFO(logger, "  argument(s):" << cmdline);
       }
     }
-    int exitCode;
-#if LOCAL8BIT_IS_UTF8
-    exitCode = Main(argc, &args[0]);
-#else
-    exitCode = Main(argc, argv);
-#endif
-    if (exitCode != 0)
-    {
-      LOG4CXX_INFO(logger, "exit code: " << exitCode);
-    }
+    int exitCode = Main(argc, argv);
+    LOG4CXX_INFO(logger, "exit code: " << exitCode);
     return exitCode;
   }
   catch (const MiKTeXException& e)
@@ -119,7 +125,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char* argv[]), int argc, char* arg
   }
 }
 
-void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage& traceMessage)
+bool Wrapper::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (isLog4cxxConfigured)
   {
@@ -129,9 +135,10 @@ void MiKTeX_TeXworks::Trace(const TraceCallback::TraceMessage& traceMessage)
   {
     pendingTraceMessages.push_back(traceMessage);
   }
+  return true;
 }
 
-void MiKTeX_TeXworks::FlushPendingTraceMessages()
+void Wrapper::FlushPendingTraceMessages()
 {
   for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
   {
@@ -140,21 +147,34 @@ void MiKTeX_TeXworks::FlushPendingTraceMessages()
   pendingTraceMessages.clear();
 }
 
-void MiKTeX_TeXworks::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
+void Wrapper::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
 {
   log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.texworks.") + traceMessage.facility);
-
-  if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+  switch (traceMessage.level)
   {
+  case TraceLevel::Fatal:
+    LOG4CXX_FATAL(logger, traceMessage.message);
+    break;
+  case TraceLevel::Error:
     LOG4CXX_ERROR(logger, traceMessage.message);
-  }
-  else
-  {
+    break;
+  case TraceLevel::Warning:
+    LOG4CXX_WARN(logger, traceMessage.message);
+    break;
+  case TraceLevel::Info:
+    LOG4CXX_INFO(logger, traceMessage.message);
+    break;
+  case TraceLevel::Trace:
     LOG4CXX_TRACE(logger, traceMessage.message);
+    break;
+  case TraceLevel::Debug:
+  default:
+    LOG4CXX_DEBUG(logger, traceMessage.message);
+    break;
   }
 }
 
-void MiKTeX_TeXworks::Sorry(string reason)
+void Wrapper::Sorry(string reason)
 {
   stringstream serr;
   serr

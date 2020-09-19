@@ -65,14 +65,6 @@ const struct poptOption IniTeXMFApp::options[] = {
   },
 
   {
-    "csv", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_CSV,
-    T_("Print comma-separated values."),
-    nullptr
-  },
-
-  {
     "default-paper-size", 0,
     POPT_ARG_STRING, nullptr,
     OPT_DEFAULT_PAPER_SIZE,
@@ -170,7 +162,7 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "mklangs", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_MKLANGS,
     T_("Create language.dat, language.dat.lua and language.def."),
     nullptr

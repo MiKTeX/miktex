@@ -50,6 +50,7 @@ extern double tfm_get_design_size  (int font_id);
 extern char  *tfm_get_codingscheme (int font_id);
 extern int tfm_is_vert (int font_id);
 #endif
+extern int tfm_is_jfm (int font_id);
 
 extern int tfm_exists  (const char *tfm_name);
 

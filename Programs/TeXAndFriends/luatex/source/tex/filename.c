@@ -197,6 +197,8 @@ void scan_file_name_toks(void)
 {
     char *a, *n, *e, *s = NULL;
     int i, l = 0;
+    int save_scanner_status = scanner_status;
+    halfword save_def_ref = def_ref;
     (void) scan_toks(false, true);
     s = tokenlist_to_cstring(def_ref, true, &l);
     a = n = s;
@@ -224,6 +226,8 @@ void scan_file_name_toks(void)
         cur_ext = get_nullstr();
     }
     flush_list(def_ref);
+    scanner_status = save_scanner_status;
+    def_ref = save_def_ref;
     xfree(s);
 }
 

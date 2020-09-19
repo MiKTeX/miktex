@@ -69,7 +69,7 @@ set(ttf2pk_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttf2pk_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ttf2pk.rc
   )
 endif()
@@ -122,7 +122,7 @@ set(ttf2tfm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttf2tfm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     ttf2tfm.rc
   )
 endif()

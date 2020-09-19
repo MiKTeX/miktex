@@ -57,7 +57,7 @@ add_custom_command(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mthelp_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     mthelp.rc
   )
 endif()

@@ -59,7 +59,7 @@ list(APPEND harfbuzz_sources
 )
 
 configure_file(
-  harfbuzz-version.h.cmake
+  harfbuzz-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/harfbuzz-version.h
 )
 

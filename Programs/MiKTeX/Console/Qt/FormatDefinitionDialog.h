@@ -1,6 +1,6 @@
 /* FormatDefinitionDialog.h:                            -*- C++ -*-
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -55,6 +55,9 @@ public:
 
 private:
   Ui::FormatDefinitionDialog* ui;
+
+private:
+  bool isCustom;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

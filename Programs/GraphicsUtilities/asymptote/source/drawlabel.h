@@ -33,10 +33,11 @@ protected:
   
 public:
   drawLabel(string label, string size, transform T, pair position,
-            pair align, pen pentype)
-    : label(label), size(size), T(shiftless(T)), position(position),
-      align(align), pentype(pentype), width(0.0), height(0.0), depth(0.0),
-      havebounds(false), suppress(false), enabled(false) {} 
+            pair align, pen pentype, const string& key="")
+    : drawElement(key), label(label), size(size), T(shiftless(T)),
+      position(position), align(align), pentype(pentype), width(0.0),
+      height(0.0), depth(0.0), havebounds(false), suppress(false),
+      enabled(false) {} 
   
   virtual ~drawLabel() {}
 
@@ -63,8 +64,9 @@ private:
   pair shift;
 public:
   drawLabelPath(string label, string size, path src,
-                string justify, pair shift, pen pentype) : 
-    drawLabel(label,size,identity,pair(0.0,0.0),pair(0.0,0.0),pentype),
+                string justify, pair shift, pen pentype,
+                const string& key="") : 
+    drawLabel(label,size,identity,pair(0.0,0.0),pair(0.0,0.0),pentype,key),
     drawPathPenBase(src,pentype), justify(justify), shift(shift) {}
   
   virtual ~drawLabelPath() {}

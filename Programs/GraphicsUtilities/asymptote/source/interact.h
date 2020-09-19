@@ -49,6 +49,7 @@ void setCompleter(completer *c);
 
 #define YY_READ_BUF_SIZE YY_BUF_SIZE
   
+void init_readline(bool tabcompletion);
 }
 
 #endif // INTERACT_H

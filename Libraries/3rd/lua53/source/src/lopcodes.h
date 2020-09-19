@@ -279,7 +279,7 @@ enum OpArgMask {
 };
 
 #if defined(MIKTEX)
-MIKTEX_LUA_EXPORT const lu_byte luaP_opmodes[NUM_OPCODES];
+extern MIKTEX_LUA_EXPORT const lu_byte luaP_opmodes[NUM_OPCODES];
 #else
 LUAI_DDEC const lu_byte luaP_opmodes[NUM_OPCODES];
 #endif
@@ -292,7 +292,7 @@ LUAI_DDEC const lu_byte luaP_opmodes[NUM_OPCODES];
 
 
 #if defined(MIKTEX)
-MIKTEX_LUA_EXPORT const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
+extern MIKTEX_LUA_EXPORT const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 #else
 LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 #endif

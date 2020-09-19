@@ -9,6 +9,7 @@
 #define BBOX_H
 
 #include "pair.h"
+#include "settings.h"
 
 namespace camp {
 
@@ -220,6 +221,20 @@ inline bbox pad(bbox b1, bbox b2)
     b.bottom = b1.bottom + b2.bottom;
     return b;
   }
+}
+
+inline bbox svgbbox(const bbox& B, pair shift=pair(0,0))
+{
+  bbox b=B;
+  double height=b.top-b.bottom;
+  double threshold=12.0*settings::tex2ps;
+  if(height < threshold) {
+    double offset=threshold-height;
+    b.top += offset;
+    b.bottom += offset;
+  }
+  b.shift(pair(1.99*settings::cm,1.9*settings::cm)+shift);
+  return b;
 }
 
 } // namespace camp

@@ -1,6 +1,6 @@
 /* xetex-miktex.h:                                      -*- C++ -*-
    
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -61,6 +61,8 @@ namespace xetex {
 #endif
 
 extern XETEXPROGCLASS XETEXPROG;
+
+extern XETEXPROGCLASS::utf8code* nameoffile;
 
 class MemoryHandlerImpl :
   public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<XETEXPROGCLASS>
@@ -204,23 +206,18 @@ public:
   void AllocateMemory() override
   {
     ETeXApp::AllocateMemory();
-    // special case: Web2C likes to add 1 to the nameoffile base address
-    extern XETEXPROGCLASS::utf8code* nameoffile;
-    nameoffile = &XETEXPROG.nameoffile[-1];
   }
 
 public:
   void FreeMemory() override
   {
     ETeXApp::FreeMemory();
-    extern XETEXPROGCLASS::utf8code* nameoffile;
-    nameoffile = nullptr;
   }
 
 public:
   MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
-    return "xetex.fmt";
+    return MiKTeX::Core::PathName("xetex.fmt");
   }
 
 public:
@@ -239,6 +236,18 @@ public:
   std::string TheNameOfTheGame() const override
   {
     return "XeTeX";
+  }
+
+public:
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  {
+    MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
+    MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
+    inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
+    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+    inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    nameoffile = reinterpret_cast<C4P::C4P_unsigned8*>(&(inputOutput->nameoffile()[-1]));
   }
 
 public:
@@ -280,8 +289,8 @@ extern XETEXPROGCLASS::scaled& loadedfontletterspace;
 extern voidpointer& loadedfontmapping;
 extern XETEXPROGCLASS::utf16code*& mappedtext;
 extern C4P::C4P_signed32& maxbufstack;
-extern C4P::C4P_signed16& namelength;
-extern C4P::C4P_signed16& namelength16;
+extern C4P::C4P_signed32& namelength;
+extern C4P::C4P_signed32& namelength16;
 extern XETEXPROGCLASS::utf16code*& nameoffile16;
 extern C4P::C4P_integer& nativefonttypeflag;
 extern C4P::C4P_boolean& nopdfoutput;
@@ -298,8 +307,6 @@ extern XETEXPROGCLASS::strnumber& texmflogname;
 extern C4P::C4P_integer& totalpages;
 extern char*& xdvbuffer;
 extern XETEXPROGCLASS::memoryword*& zmem;
-
-extern XETEXPROGCLASS::utf8code* nameoffile;
 
 inline void badutf8warning()
 {
@@ -476,14 +483,6 @@ inline int otpartglyph(const voidpointer a, int i)
   return otpartglyph((GlyphAssembly*)a, i);
 }
 
-inline void c4p_break(unicodefile& f)
-{
-  if (fflush(f->f) == EOF)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fflush");
-  }
-}
-
 inline bool inputln(unicodefile& f, C4P::C4P_boolean bypassEndOfLine = true)
 {
   bypassEndOfLine;
@@ -616,4 +615,12 @@ template<typename T> auto dfield(const T& t)
 inline bool insertsrcspecialauto()
 {
   return MiKTeX::TeXAndFriends::miktexinsertsrcspecialauto();
+}
+
+inline void miktexreallocatenameoffile(size_t n)
+{
+
+  XETEXPROG.nameoffile = reinterpret_cast<C4P::C4P_unsigned8*>(XETEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", XETEXPROG.nameoffile, sizeof(*XETEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
+  // special case: Web2C likes to add 1 to the nameoffile base address
+  nameoffile = &XETEXPROG.nameoffile[-1];
 }

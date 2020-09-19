@@ -2,6 +2,7 @@
 #define PRCFILE_H
 
 #include "memory.h"
+#include "pen.h"
 
 inline double X(const camp::triple &v) {return v.getx();}
 inline double Y(const camp::triple &v) {return v.gety();}

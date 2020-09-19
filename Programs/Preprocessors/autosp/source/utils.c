@@ -22,7 +22,51 @@
 /*  utils.c  - utilities for autosp, fixmsxpart.c and msxlint.c
  */
 
-# include "utils.h"
+#ifdef HAVE_CONFIG_H   /* for TeXLive */
+#include <config.h>
+#endif
+
+# define PRIVATE static
+# include <stdlib.h>
+# include <string.h>
+# include <stdio.h>
+# include <ctype.h>
+
+# ifdef KPATHSEA
+# include <kpathsea/getopt.h>
+# else
+# include <getopt.h>
+# endif
+# include <time.h>
+
+# define LINE_LEN 1024
+
+# ifdef HAVE_STDBOOL_H
+# include <stdbool.h>
+# else
+# ifndef HAVE__BOOL
+# define _Bool signed char
+# endif
+# define bool    _Bool
+# define true    1
+# define false   0
+# endif
+
+extern size_t append (char *dst, char **offset, const char *src, size_t n);
+/*  Copies src to *offset and updates *offset accordingly (if possible). 
+ *  Assumes *offset is dst if offset == NULL.
+ *  The src string must be null-terminated.
+ *  Execution aborts unless **offset == '\0'. 
+ *  Returns (original offset - dst) + strlen(src);  if >= n, the string was truncated.
+ */
+
+extern bool prefix (const char *cs, const char *ct); /* is string cs[] a prefix of ct[]?  */
+extern bool suffix (const char *cs, const char *ct); /* is string cs[] a suffix of ct[]?  */
+
+int lineno;
+
+extern void error (const char msg[]);	/* abort with stderr message msg */
+extern void warning (const char msg[]); /* output warning message msg to stderr  */
 
 void
 warning (const char msg[])    /* output warning message msg to stderr                 */

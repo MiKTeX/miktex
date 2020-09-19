@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,9 +23,12 @@
 
 #include <fstream>
 
-#include <miktex/Core/Cfg.h>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <miktex/Core/Cfg>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/FileStream>
-#include <miktex/Core/Registry.h>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/Tokenizer>
@@ -49,24 +52,25 @@ constexpr const char* COMMENT2 = ";;";
 constexpr const char* COMMENT3 = ";;;";
 constexpr const char* COMMENT4 = ";;;;";
 
-MIKTEXSTATICFUNC(string&) Trim(string& str)
+MIKTEXSTATICFUNC(string) Trim(const string& str)
 {
+  string result = str;
   constexpr const char* WHITESPACE = " \t\r\n";
-  size_t pos = str.find_last_not_of(WHITESPACE);
+  size_t pos = result.find_last_not_of(WHITESPACE);
   if (pos != string::npos)
   {
-    str.erase(pos + 1);
+    result.erase(pos + 1);
   }
-  pos = str.find_first_not_of(WHITESPACE);
+  pos = result.find_first_not_of(WHITESPACE);
   if (pos == string::npos)
   {
-    str.erase();
+    result.erase();
   }
   else if (pos != 0)
   {
-    str.erase(0, pos);
+    result.erase(0, pos);
   }
-  return str;
+  return result;
 }
 
 Cfg::Value::~Value() noexcept
@@ -124,7 +128,7 @@ public:
   {
     if (IsMultiValue())
     {
-      return StringUtil::Flatten(value, PathName::PathNameDelimiter);
+      return StringUtil::Flatten(value, PathNameUtil::PathNameDelimiter);
     }
     else
     {
@@ -145,7 +149,7 @@ public:
     }
     else
     {
-      return StringUtil::Split(value.front(), PathName::PathNameDelimiter);
+      return StringUtil::Split(value.front(), PathNameUtil::PathNameDelimiter);
     }
   }
 
@@ -265,8 +269,8 @@ inline bool operator<(const CfgKey& lhs, const CfgKey& rhs)
 static const char* const knownSearchPathValues[] = {
   "path",
   "extensions",
-  MIKTEX_REGVAL_COMMON_ROOTS,
-  MIKTEX_REGVAL_USER_ROOTS,
+  MIKTEX_CONFIG_VALUE_COMMON_ROOTS,
+  MIKTEX_CONFIG_VALUE_USER_ROOTS,
 };
 
 bool IsSearchPathValue(const string& valueName)
@@ -319,20 +323,20 @@ void CfgKey::WriteValues(ostream& stream) const
     {
       for (const string& val : v.value)
       {
-        stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << val << "\n";
+        stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << Trim(val) << "\n";
       }
     }
-    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathName::PathNameDelimiter) != string::npos)
+    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathNameUtil::PathNameDelimiter) != string::npos)
     {
       stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << "\n";
-      for (const string& root: StringUtil::Split(v.value.front(), PathName::PathNameDelimiter))
+      for (const string& root: StringUtil::Split(v.value.front(), PathNameUtil::PathNameDelimiter))
       {
-        stream << (v.commentedOut ? COMMENT1 : "") << v.name << ";=" << root << "\n";
+        stream << (v.commentedOut ? COMMENT1 : "") << v.name << ";=" << Trim(root) << "\n";
       }
     }
     else
     {
-      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << v.value.front() << "\n";
+      stream << (v.commentedOut ? COMMENT1 : "") << v.name << "=" << Trim(v.value.front()) << "\n";
     }
   }
 }
@@ -785,7 +789,7 @@ void CfgImpl::Walk(WalkCallback* callback) const
         {
           callback->addData(val.lookupName);
           callback->addData("=");
-          callback->addData(v);
+          callback->addData(Trim(v));
           callback->addData("\n");
         }
       }
@@ -793,7 +797,7 @@ void CfgImpl::Walk(WalkCallback* callback) const
       {
         callback->addData(val.lookupName);
         callback->addData("=");
-        callback->addData(val.value.front());
+        callback->addData(Trim(val.value.front()));
         callback->addData("\n");
       }
     }
@@ -896,7 +900,7 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, string&&
       {
         if (!itVal->second->value.front().empty())
         {
-          itVal->second->value.front() += PathName::PathNameDelimiter;
+          itVal->second->value.front() += PathNameUtil::PathNameDelimiter;
         }
         itVal->second->value.front() += std::move(value);
       }
@@ -949,7 +953,7 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), "core", path.ToString());
-  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
+  traceStream->WriteLine("core", fmt::format(T_("parsing: {0}..."), path));
   AutoRestore<int> autoRestore1(lineno);
   AutoRestore<PathName> autoRestore(currentFile);
   std::ifstream reader = File::CreateInputStream(path);
@@ -963,7 +967,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
 
   if (mustBeSigned)
   {
-    traceStream->WriteFormattedLine("core", T_("signature required..."));
+    traceStream->WriteLine("core", T_("signature required..."));
   }
 
   bool wasEmpty = Empty();
@@ -980,7 +984,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
   for (string line; std::getline(reader, line); )
   {
     ++lineno;
-    Trim(line);
+    line = Trim(line);
     if (line.empty())
     {
       documentation = "";
@@ -1001,7 +1005,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
           FATAL_CFG_ERROR(T_("missing file name argument"));
         }
         PathName path2(path);
-        path2.MakeAbsolute();
+        path2.MakeFullyQualified();
         path2.RemoveFileSpec();
         path2 /= *tok;
         Read(path2, keyName, level + 1, false, PathName());
@@ -1152,7 +1156,7 @@ bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string
   }
 
   value = line.substr(posEqual + 1);
-  Trim(value);
+  value = Trim(value);
 
   if (line[posEqual - 1] == '+')
   {
@@ -1166,7 +1170,7 @@ bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string
   }
 
   valueName = line.substr(0, posEqual);
-  Trim(valueName);
+  valueName = Trim(valueName);
 
   return true;
 }

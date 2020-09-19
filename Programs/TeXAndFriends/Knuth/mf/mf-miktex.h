@@ -1,6 +1,6 @@
 /* mf-miktex.h:                                         -*- C++ -*-
 
-   Copyright (C) 1991-2018 Christian Schenk
+   Copyright (C) 1991-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -123,7 +123,8 @@ public:
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     MetafontApp::Init(args);
-    SetProgramInfo("mf", MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, MIKTEX_COMP_TM_STR);
+    // TODO: can be removed?
+    SetProgram(&MFPROG, "mf", MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, MIKTEX_COMP_TM_STR);
 #ifdef IMPLEMENT_TCX
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
@@ -177,7 +178,7 @@ public:
 public:
   MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
-    return "mf.base";
+    return MiKTeX::Core::PathName("mf.base");
   }
 
 public:

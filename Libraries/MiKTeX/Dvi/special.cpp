@@ -1,6 +1,6 @@
 /* special.cpp: dvi specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -20,6 +20,9 @@
    USA.  */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -72,7 +75,7 @@ float DviImpl::PatternToShadeLevel(const char* textureSpec)
     case ' ':
       break;
     default:
-      trace_error->WriteFormattedLine("libdvi", T_("invalid texture: %s"), textureSpec);
+      trace_error->WriteLine("libdvi", fmt::format(T_("invalid texture: {0}"), textureSpec));
       return 0.5;
     }
     lpszPattern++;
@@ -172,7 +175,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& 
         lpsz += 9;
         if (sscanf(lpsz, "%f%2s", &texWidth, unit) != 2)
         {
-          trace_error->WriteFormattedLine("libdvi", T_("invalid special: %s"), lpsz);
+          trace_error->WriteLine("libdvi", fmt::format(T_("invalid special: {0}"), lpsz));
         }
         else
         {
@@ -258,7 +261,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& 
     {
       if (sscanf_s(specialSpec, "pn %d", &TpicSpecialRoot::tpicContext.penSize) != 1)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad pn special: %s"), specialSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("bad pn special: {0}"), specialSpec));
       }
       else
       {
@@ -277,7 +280,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& 
       TpicSpecial::point p;
       if (sscanf_s(specialSpec, "pa %d %d", &p.x, &p.y) != 2)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad pa special: %s"), specialSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("bad pa special: {0}"), specialSpec));
       }
       else
       {
@@ -306,7 +309,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& 
     {
       if (sscanf_s(specialSpec, "sh %f", &TpicSpecialRoot::tpicContext.shade) != 2)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad sh special: %s"), specialSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("bad sh special: {0}"), specialSpec));
       }
       else
       {
@@ -337,7 +340,7 @@ bool DviImpl::InterpretSpecial(DviPageImpl* dviPage, int x, int y, InputStream& 
 
   if (!ret)
   {
-    trace_error->WriteFormattedLine("libdvi", T_("unimplemented special: %s"), specialSpec);
+    trace_error->WriteLine("libdvi", fmt::format(T_("unimplemented special: {0}"), specialSpec));
   }
 
   return ret;

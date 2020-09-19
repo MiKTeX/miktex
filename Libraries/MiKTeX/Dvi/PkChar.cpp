@@ -1,6 +1,6 @@
 /* PkChar.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -20,6 +20,9 @@
    USA.  */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include "internal.h"
 
@@ -56,8 +59,8 @@ int PkChar::GetLower3()
 
 PkChar::PkChar(DviFont* pFont) :
   DviChar(pFont),
-  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
-  trace_pkchar(TraceStream::Open(MIKTEX_TRACE_DVIPKCHAR))
+  trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, pFont->GetTraceCallback())),
+  trace_pkchar(TraceStream::Open(MIKTEX_TRACE_DVIPKCHAR, pFont->GetTraceCallback()))
 {
 }
 
@@ -160,12 +163,12 @@ void PkChar::Read(InputStream& inputstream, int flag)
   if (packetSize == 0)
   {
 #if 0
-    trace_error->WriteFormattedLine("libdvi", T_("%d: no glyph!"), charCode);
+    trace_error->WriteLine("libdvi", fmt::format(T_("{0}: no glyph!"), charCode));
 #endif
   }
   else
   {
-    trace_pkchar->WriteFormattedLine("libdvi", T_("going to read character %d"), charCode);
+    trace_pkchar->WriteLine("libdvi", fmt::format(T_("going to read character {0}"), charCode));
     packedRaster = new BYTE[packetSize];
     inputstream.Read(packedRaster, packetSize);
   }

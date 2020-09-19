@@ -1,6 +1,6 @@
 /* SetupWizard.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -101,7 +101,7 @@ BOOL SetupWizard::OnInitDialog()
     CString title;
     if (SetupApp::Instance->IsMiKTeXDirect)
     {
-      title.Format(T_(_T("MiKTeX %s Setup (%d-bit)")), UT_(MIKTEX_FULL_VERSION_STR), static_cast<int>(sizeof(void*)) * 8);
+      title.Format(T_(_T("MiKTeX %s Setup (%d-bit)")), UT_(MIKTEX_VERSION_STR), static_cast<int>(sizeof(void*)) * 8);
     }
     else if (SetupApp::Instance->Service->GetOptions().IsPrefabricated)
     {
@@ -110,8 +110,8 @@ BOOL SetupWizard::OnInitDialog()
       unique_ptr<Cfg> pConfig(Cfg::Create());
       pConfig->Read(configFile);
       CString prefix;
-      CString version(UT_(MIKTEX_MAJOR_MINOR_STR));
-      version += _T('.');
+      CString version(UT_(MIKTEX_VERSION_STR));
+      version += _T(", ");
       auto value = pConfig->GetValue("repository", "version");
       if (value == nullptr)
       {
@@ -134,14 +134,14 @@ BOOL SetupWizard::OnInitDialog()
         __assume (false);
         break;
       }
-      title.Format(T_(_T("%sMiKTeX %s Installer (%d-bit)")),
+      title.Format(T_(_T("%sMiKTeX Installer (%s, %d-bit)")),
         static_cast<LPCTSTR>(prefix),
         static_cast<LPCTSTR>(version),
         static_cast<int>(sizeof(void*)) * 8);
     }
     else
     {
-      title.Format(T_(_T("MiKTeX %s Net Installer (%d-bit)")), UT_(MIKTEX_VERSION_STR), static_cast<int>(sizeof(void*)) * 8);
+      title.Format(T_(_T("MiKTeX Net Installer (%d-bit)")), static_cast<int>(sizeof(void*)) * 8);
     }
     SetTitle(title);
     if (!SetupApp::Instance->IsRestarted)

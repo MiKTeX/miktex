@@ -2,7 +2,7 @@
 ** FileSystem.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -36,8 +36,8 @@
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/File>
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 #endif
 
@@ -61,7 +61,6 @@ using namespace std;
 #endif
 
 
-FileSystem FileSystem::_fs;
 string FileSystem::TMPDIR;
 const char *FileSystem::TMPSUBDIR = nullptr;
 
@@ -118,8 +117,8 @@ bool FileSystem::remove (const string &fname) {
  *  @return true on success */
 bool FileSystem::copy (const string &src, const string &dest, bool remove_src) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(src), ios::in | ios::binary);
-        ofstream ofs(UW_(dest), ios::out | ios::binary);
+        ifstream ifs(EXPATH_(src), ios::in | ios::binary);
+        ofstream ofs(EXPATH_(dest), ios::out | ios::binary);
 #else
 	ifstream ifs(src, ios::in|ios::binary);
 	ofstream ofs(dest, ios::out|ios::binary);
@@ -153,7 +152,7 @@ uint64_t FileSystem::filesize (const string &fname) {
 	// so we have to use this freaky code
 	WIN32_FILE_ATTRIBUTE_DATA attr;
 #if defined(MIKTEX)
-        GetFileAttributesExW(UW_(fname.c_str()), GetFileExInfoStandard, &attr);
+        GetFileAttributesExW(EXPATH_(fname).c_str(), GetFileExInfoStandard, &attr);
 #else
 	GetFileAttributesExA(fname.c_str(), GetFileExInfoStandard, &attr);
 #endif
@@ -165,8 +164,10 @@ uint64_t FileSystem::filesize (const string &fname) {
 }
 
 
-string FileSystem::adaptPathSeperators (string path) {
+string FileSystem::ensureForwardSlashes (string path) {
+#ifdef _WIN32
 	std::replace(path.begin(), path.end(), PATHSEP, '/');
+#endif
 	return path;
 }
 
@@ -175,9 +176,9 @@ string FileSystem::getcwd () {
 	char buf[1024];
 #ifdef _WIN32
 #if defined(MIKTEX_UTF8_WRAP__GETCWD)
-        return adaptPathSeperators(miktex_utf8__getcwd(buf, 1024));
+        return ensureForwardSlashes(miktex_utf8__getcwd(buf, 1024));
 #else
-	return adaptPathSeperators(_getcwd(buf, 1024));
+	return ensureForwardSlashes(_getcwd(buf, 1024));
 #endif
 #else
 	return ::getcwd(buf, 1024);
@@ -215,7 +216,7 @@ const char* FileSystem::userdir () {
 		if (!ret.empty())
 			return ret.c_str();
 	}
-	return 0;
+	return nullptr;
 #else
 	const char *dir=getenv("HOME");
 	if (!dir) {
@@ -243,7 +244,7 @@ string FileSystem::tmpdir () {
 #ifdef _WIN32
 		char buf[MAX_PATH];
 		if (GetTempPath(MAX_PATH, buf))
-			ret = adaptPathSeperators(buf);
+			ret = ensureForwardSlashes(buf);
 		else
 			ret = ".";
 #else
@@ -278,7 +279,7 @@ bool FileSystem::mkdir (const string &dirname) {
 	bool success = false;
 	if (const char *cdirname = dirname.c_str()) {
 		success = true;
-		const string dirstr = adaptPathSeperators(util::trim(cdirname));
+		const string dirstr = ensureForwardSlashes(util::trim(cdirname));
 		for (size_t pos=1; success && (pos = dirstr.find('/', pos)) != string::npos; pos++)
 			success &= s_mkdir(dirstr.substr(0, pos));
 		success &= s_mkdir(dirstr);
@@ -295,7 +296,7 @@ bool FileSystem::rmdir (const string &dirname) {
 	if (isDirectory(dirname)) {
 		ok = true;
 #if defined(MIKTEX)
-                MiKTeX::Core::Directory::Delete(dirname, true);
+                MiKTeX::Core::Directory::Delete(MiKTeX::Core::PathName(dirname), true);
 #else
 #ifdef _WIN32
 		string pattern = dirname + "/*";
@@ -346,7 +347,7 @@ bool FileSystem::exists (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
 
 #if defined(MIKTEX)
-                return MiKTeX::Core::File::Exists(fname) || MiKTeX::Core::Directory::Exists(fname);
+                return MiKTeX::Core::File::Exists(MiKTeX::Core::PathName(fname)) || MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fname));
 #else
 #ifdef _WIN32
 		return GetFileAttributes(cfname) != INVALID_FILE_ATTRIBUTES;
@@ -364,7 +365,7 @@ bool FileSystem::exists (const string &fname) {
 bool FileSystem::isDirectory (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
 #if defined(MIKTEX)
-                return MiKTeX::Core::Directory::Exists(fname);
+                return MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fname));
 #else
 #ifdef _WIN32
 		auto attr = GetFileAttributes(cfname);
@@ -383,7 +384,7 @@ bool FileSystem::isDirectory (const string &fname) {
 bool FileSystem::isFile (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
 #if defined(MIKTEX)
-                return MiKTeX::Core::File::Exists(fname);
+                return MiKTeX::Core::File::Exists(MiKTeX::Core::PathName(fname));
 #else
 #ifdef _WIN32
 		ifstream ifs(cfname);
@@ -401,13 +402,13 @@ bool FileSystem::isFile (const string &fname) {
 int FileSystem::collect (const std::string &dirname, vector<string> &entries) {
 	entries.clear();
 #if defined(MIKTEX)
-        unique_ptr<MiKTeX::Core::DirectoryLister> lister = MiKTeX::Core::DirectoryLister::Open(dirname);
+        unique_ptr<MiKTeX::Core::DirectoryLister> lister = MiKTeX::Core::DirectoryLister::Open(MiKTeX::Core::PathName(dirname));
         MiKTeX::Core::DirectoryEntry entry;
         while (lister->GetNext(entry))
         {
           MiKTeX::Core::PathName path(dirname);
           path /= entry.name;
-          string typechar = isFile(path.GetData()) ? "f" : isDirectory(path.GetData()) ? "d" : "?";
+          string typechar = isFile(path.ToString()) ? "f" : isDirectory(path.ToString()) ? "d" : "?";
           if (entry.name != "." && entry.name != "..")
           {
             entries.push_back(typechar + entry.name);

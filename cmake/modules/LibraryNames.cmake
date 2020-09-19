@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,21 +17,27 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-## shared library names; naming convention:
-##    MiKTeXMN-NAME[-REV]
+## shared library names; naming convention (Windows):
+##    MiKTeXNNNNNN-NAME[-REL]
 ## where:
 ##    NAME is the component name
-##    MN is the MiKTeX major/minor version (as an integer)
-##    REV is the DLL revision (relative to the current major/minor version)
-
-set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT})
-
-if(MIKTEX_RELEASE_STATE EQUAL 0)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT})
-elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT}-next)
-elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT}-debug)
+##    NNNNNN is the MiKTeX major.minor.patch version (as an integer)
+##    REL is the DLL release state
+##
+## shared library names; naming convention (other):
+##    miktex-NAME
+## where:
+##    NAME is the component name
+if(MIKTEX_NATIVE_WINDOWS)
+  if(MIKTEX_RELEASE_STATE EQUAL 0)
+    set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT})
+  elseif(MIKTEX_RELEASE_STATE EQUAL 1)
+    set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT}-next)
+  elseif(MIKTEX_RELEASE_STATE EQUAL 4)
+    set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT}-debug)
+  endif()
+else()
+  set(miktex_dll_prefix miktex)
 endif()
 
 macro(define_library _name)
@@ -67,6 +73,7 @@ define_library(fribidi)
 define_library(gc)
 define_library(gd)
 define_library(getopt)
+define_library(glm)
 define_library(gmp)
 define_library(graphite2)
 define_library(harfbuzz)

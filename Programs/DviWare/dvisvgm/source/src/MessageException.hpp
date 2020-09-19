@@ -2,7 +2,7 @@
 ** MessageException.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,12 +25,10 @@
 #include <string>
 
 
-class MessageException : public std::exception
-{
+class MessageException : public std::exception {
 	public:
-		MessageException (const std::string &msg) : _message(msg) {}
-		virtual ~MessageException () throw() =default;
-		const char* what () const throw() override {return _message.c_str();}
+		explicit MessageException (std::string msg) : _message(std::move(msg)) {}
+		const char* what () const noexcept override {return _message.c_str();}
 
 	private:
 		std::string _message;

@@ -63,7 +63,7 @@
 [dvilualatex-dev]
 
 	attributes = exclude
-	compiler = luahbtex
+	compiler = lualatex
 	description = LuaLaTeX (DVI) dev
 	input = dvilualatex.ini
 
@@ -95,13 +95,6 @@
 	description = jadeTeX
 	input = jadetex.ini
 	preloaded = latex
-
-[lambda]
-
-	attributes = exclude
-	compiler = omega
-	description = Lambda
-	input = lambda.ini
 
 [latex-dev]
 
@@ -143,7 +136,7 @@
 
 [lualatex]
 
-	compiler = luatex
+	compiler = luahbtex
 	description = LuaLaTeX
 	input = lualatex.ini
 
@@ -152,14 +145,6 @@
 	compiler = luatex
 	description = LuaTeX
 	input = luatex.ini
-
-[mex]
-
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
-	compiler = pdftex
-	description = MeX
-	input = mex.ini
 
 [mf]
 
@@ -192,13 +177,6 @@
 	description = MPtoPDF
 	input = mptopdf.tex
 
-[omega]
-
-	attributes = exclude
-	compiler = omega
-	description = Omega
-	input = omega.ini
-
 [pdfetex]
 
 	arguments = -tcx=cp227.tcx
@@ -227,14 +205,6 @@
 	compiler = pdftex
 	description = pdfLaTeX
 	input = pdflatex.ini
-
-[pdfmex]
-
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
-	compiler = pdftex
-	description = pdfMeX
-	input = pdfmex.ini
 
 [pdftex]
 
@@ -312,6 +282,13 @@
 	compiler = luatex
 	description = lualollipop
 	input = lualollipop.ini
+
+[optex]
+
+	attributes = exclude
+	compiler = luatex
+	description = optex
+	input = optex.ini
 
 [utf8mex]
 

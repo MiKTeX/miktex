@@ -2,7 +2,7 @@
 ** TriangularPatch.cpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -31,7 +31,7 @@ TriangularPatch::TriangularPatch (const PointVec &points, const ColorVec &colors
 
 
 void TriangularPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) {
-	TriangularPatch *triangularPatch = dynamic_cast<TriangularPatch*>(patch);
+	auto triangularPatch = dynamic_cast<TriangularPatch*>(patch);
 	if (edgeflag > 0 && !triangularPatch)
 		throw ShadingException("missing preceding data in definition of triangular patch");
 	if ((edgeflag == 0 && points.size() != 3) || (edgeflag > 0 && points.size() != 1))
@@ -62,7 +62,7 @@ void TriangularPatch::setPoints (const DPair &p1, const DPair &p2, const DPair &
 
 
 void TriangularPatch::setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) {
-	TriangularPatch *triangularPatch = dynamic_cast<TriangularPatch*>(patch);
+	auto triangularPatch = dynamic_cast<TriangularPatch*>(patch);
 	if (edgeflag > 0 && !triangularPatch)
 		throw ShadingException("missing preceding data in definition of triangular patch");
 	if ((edgeflag == 0 && colors.size() != 3) || (edgeflag > 0 && colors.size() != 1))
@@ -142,9 +142,9 @@ Color TriangularPatch::averageColor (const Color &c1, const Color &c2, const Col
 /** Snaps value x to the interval [0,1]. Values lesser than or near 0 are mapped to 0, values
  *  greater than or near 1 are mapped to 1. */
 static inline double snap (double x) {
-	if (fabs(x) < 0.001)
+	if (abs(x) < 0.001)
 		return 0;
-	if (fabs(1-x) < 0.001)
+	if (abs(1-x) < 0.001)
 		return 1;
 	return x;
 }
@@ -161,8 +161,7 @@ static inline double snap (double x) {
  *  @param[in] callback object notified */
 void TriangularPatch::approximate (int gridsize, bool overlap, double delta, Callback &callback) const {
 	if (_colors[0] == _colors[1] && _colors[1] == _colors[2]) {
-		GraphicsPath<double> path;
-		getBoundaryPath(path);
+		GraphicsPath<double> path = getBoundaryPath();
 		callback.patchSegment(path, _colors[0]);
 	}
 	else {
@@ -197,18 +196,21 @@ void TriangularPatch::approximate (int gridsize, bool overlap, double delta, Cal
 }
 
 
-void TriangularPatch::getBoundaryPath(GraphicsPath<double> &path) const {
+GraphicsPath<double> TriangularPatch::getBoundaryPath () const {
+	GraphicsPath<double> path;
 	path.clear();
 	path.moveto(_points[0]);
 	path.lineto(_points[1]);
 	path.lineto(_points[2]);
 	path.closepath();
+	return path;
 }
 
 
-void TriangularPatch::getBBox (BoundingBox &bbox) const {
-	bbox.invalidate();
+BoundingBox TriangularPatch::getBBox () const {
+	BoundingBox bbox;
 	bbox.embed(_points[0]);
 	bbox.embed(_points[1]);
 	bbox.embed(_points[2]);
+	return bbox;
 }

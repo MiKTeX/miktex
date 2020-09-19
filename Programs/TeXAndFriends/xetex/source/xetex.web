@@ -315,8 +315,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".999991" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.999991' {current \XeTeX\ version}
+@d XeTeX_revision==".999992" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.999992' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.14159265',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}
@@ -9774,7 +9774,7 @@ set_page_int:@<Fetch the |dead_cycles| or the |insert_penalties|@>;
 set_page_dimen: @<Fetch something on the |page_so_far|@>;
 set_shape: @<Fetch the |par_shape| size@>;
 set_box_dimen: @<Fetch a box dimension@>;
-char_given,math_given: scanned_result(cur_chr)(int_val);
+char_given,math_given,XeTeX_math_given: scanned_result(cur_chr)(int_val);
 assign_font_dimen: @<Fetch a font dimension@>;
 assign_font_int: @<Fetch a font integer@>;
 register: @<Fetch a register@>;
@@ -24188,7 +24188,7 @@ are inside the individual sections.
     if prev_class = char_class_boundary then begin {boundary}
       if (state<>token_list) or (token_type<>backed_up_char) then begin
         find_sa_element(inter_char_val, char_class_boundary*char_class_limit + space_class, false);
-        if cur_ptr<>null then begin
+        if (cur_ptr<>null) and (sa_ptr(cur_ptr)<>null) then begin
           if cur_cmd<>letter then cur_cmd:=other_char;
           cur_tok:=(cur_cmd*max_char_val)+cur_chr;
           back_input; token_type:=backed_up_char;
@@ -24198,7 +24198,7 @@ are inside the individual sections.
       end
     end else begin
       find_sa_element(inter_char_val, prev_class*char_class_limit + space_class, false);
-      if cur_ptr<>null then begin
+      if (cur_ptr<>null) and (sa_ptr(cur_ptr)<>null) then begin
         if cur_cmd<>letter then cur_cmd:=other_char;
         cur_tok:=(cur_cmd*max_char_val)+cur_chr;
         back_input; token_type:=backed_up_char;
@@ -24214,7 +24214,7 @@ are inside the individual sections.
   if XeTeX_inter_char_tokens_en and (space_class<>char_class_ignored) and (prev_class<>char_class_boundary) then begin
     prev_class:=char_class_boundary;
     find_sa_element(inter_char_val, space_class*char_class_limit + char_class_boundary, false); {boundary}
-    if cur_ptr<>null then begin
+    if (cur_ptr<>null) and (sa_ptr(cur_ptr)<>null) then begin
       if cur_cs=0 then begin
         if cur_cmd=char_num then cur_cmd:=other_char;
         cur_tok:=(cur_cmd*max_char_val)+cur_chr;
@@ -30038,8 +30038,8 @@ end
 
 @ @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>=
 begin
-  pdf_last_x_pos:=cur_h + cur_h_offset;
-  pdf_last_y_pos:=cur_page_height - cur_v - cur_v_offset
+  pdf_last_x_pos:=cur_h + 4736286;
+  pdf_last_y_pos:=cur_page_height - cur_v - 4736286;
 end
 
 @ @<Calculate page dimensions and margins@>=

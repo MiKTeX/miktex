@@ -87,7 +87,7 @@ extern fm_entry *lookup_fontmap(char *);
 /* pdftoepdf.cc */
 extern void epdf_check_mem(void);
 extern void epdf_delete(void);
-extern int read_pdf_info(char *, char *, int, int, int, int);
+extern int read_pdf_info(char *, char *, int, int, int, int, int);
 
 /* utils.c */
 extern char *convertStringToPDFString(const char *in, int len);

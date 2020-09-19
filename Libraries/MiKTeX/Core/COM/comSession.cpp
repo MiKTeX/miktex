@@ -1,6 +1,6 @@
 /* comSession.cpp: MiKTeX session
 
-   Copyright (C) 2006-2019 Christian Schenk
+   Copyright (C) 2006-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -89,9 +89,9 @@ STDMETHODIMP comSession::RegisterRootDirectories(BSTR rootDirectories)
   try
   {
     CreateSession();
-    for (const auto& root : StringUtil::Split(WU_(rootDirectories), PathName::PathNameDelimiter))
+    for (const auto& root : StringUtil::Split(WU_(rootDirectories), PathNameUtil::PathNameDelimiter))
     {
-      session->RegisterRootDirectory(root, false);
+      session->RegisterRootDirectory(PathName(root), false);
     }
   }
   catch (const _com_error& e)
@@ -181,7 +181,7 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
   try
   {
     CreateSession();
-    _bstr_t version = UW_(Utils::GetMiKTeXVersionString());
+    _bstr_t version = UW_(MIKTEX_LEGACY_MAJOR_MINOR_STR);
     _bstr_t binDirectory = UW_(session->GetSpecialPath(SpecialPath::BinDirectory).ToWideCharString());
     _bstr_t installRoot = UW_(session->GetSpecialPath(SpecialPath::InstallRoot).ToWideCharString());
     _bstr_t commonConfigRoot;
@@ -254,7 +254,7 @@ STDMETHODIMP comSession::FindFile(BSTR fileName, BSTR* path, VARIANT_BOOL* found
   try
   {
     CreateSession();
-    FileType fileType = session->DeriveFileType(WU_(fileName));
+    FileType fileType = session->DeriveFileType(PathName(WU_(fileName)));
     if (fileType == FileType::None)
     {
       fileType = FileType::TEX;

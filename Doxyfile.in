@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "@MIKTEX_PRODUCT_NAME@"
-PROJECT_NUMBER         = "@MIKTEX_FULL_VERSION_STR@"
+PROJECT_NUMBER         = "@MIKTEX_VERSION_STR@"
 PROJECT_BRIEF          = "A scalable TeX distribution"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = "@MIKTEX_REL_DOC_API_DIR@"

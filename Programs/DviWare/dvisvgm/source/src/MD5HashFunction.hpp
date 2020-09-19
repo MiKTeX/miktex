@@ -2,7 +2,7 @@
 ** MD5HashFunction.hpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -44,8 +44,8 @@ class MD5HashFunction : public HashFunction {
 		MD5HashFunction () {MD5_Init(&_context);}
 #endif
 		MD5HashFunction (const char *data, size_t length) : MD5HashFunction() {update(data, length);}
-		MD5HashFunction (const std::string &data) : MD5HashFunction() {update(data);}
-		MD5HashFunction (const std::vector<uint8_t> &data) : MD5HashFunction() {update(data);}
+		explicit MD5HashFunction (const std::string &data) : MD5HashFunction() {update(data);}
+		explicit MD5HashFunction (const std::vector<uint8_t> &data) : MD5HashFunction() {update(data);}
 		int digestSize () const override {return 16;}
 #if defined(MIKTEX)
                 void reset() override

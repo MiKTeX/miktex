@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013  Stefan Löffler
+ * Copyright (C) 2013-2019  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
 
 namespace QtPDF {
 
-PDFDocumentWidget::PDFDocumentWidget(QWidget * parent /* = NULL */, const double dpi /* = -1 */)
+PDFDocumentWidget::PDFDocumentWidget(QWidget * parent /* = nullptr */, const double dpi /* = -1 */)
 : PDFDocumentView(parent)
 {
 #ifdef USE_MUPDF
@@ -71,7 +71,7 @@ bool PDFDocumentWidget::load(const QString &filename)
   // parent, thereby bypassing the QSharedPointer mechanism. docScene will be
   // freed automagically when the last QSharedPointer pointing to it will be
   // destroyed.
-  _scene = QSharedPointer<QtPDF::PDFDocumentScene>(new QtPDF::PDFDocumentScene(a_pdf_doc, NULL, _dpi, _dpi));
+  _scene = QSharedPointer<QtPDF::PDFDocumentScene>(new QtPDF::PDFDocumentScene(a_pdf_doc, nullptr, _dpi, _dpi));
   setScene(_scene);
   return true;
 }
@@ -96,7 +96,7 @@ QStringList PDFDocumentWidget::backends() const
 
 QString PDFDocumentWidget::defaultBackend() const
 {
-  if (_backends.size() == 0)
+  if (_backends.empty())
     return QString();
   return _backends[0]->name();
 }

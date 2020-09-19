@@ -91,7 +91,7 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipng_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     dvipng.rc
   )
 endif()

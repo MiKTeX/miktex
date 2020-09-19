@@ -2,11 +2,11 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY bibtexdefaults SYSTEM "bibtex.defaults">
 <!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
 <!ENTITY mfdefaults SYSTEM "mf.defaults">
 <!ENTITY miktexconfigini SYSTEM "miktex-config.ini">
 <!ENTITY mpostdefaults SYSTEM "mpost.defaults">
-<!ENTITY omegadefaults SYSTEM "omega.defaults">
 <!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
 <!ENTITY texappdefaults SYSTEM "texapp.defaults">
 <!ENTITY texmfappdefaults SYSTEM "texmfapp.defaults">
@@ -28,6 +28,14 @@ values which are described in this chapter.</para>
 
 </section>
 
+<section id="bibtexdefaults">
+
+<title>&BibTeX;</title>
+
+<programlisting>&bibtexdefaults;</programlisting>
+
+</section>
+
 <section id="texmfdefaults">
 
 <title>All &TeXMF; Programs</title>
@@ -41,14 +49,6 @@ values which are described in this chapter.</para>
 <title>All &TeX; Programs</title>
 
 <programlisting>&texappdefaults;</programlisting>
-
-</section>
-
-<section id="omegadefaults">
-
-<title>&Omega;</title>
-
-<programlisting>&omegadefaults;</programlisting>
 
 </section>
 

@@ -1,6 +1,6 @@
 /* graphics.cpp: graphics specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -88,7 +88,7 @@ DviSpecialType GraphicsSpecialImpl::Parse()
   }
   else
   {
-    trace_error->WriteFormattedLine("libdvi", T_("unknown graphics special: %s"), lpsz);
+    pDviPageImpl->Error(fmt::format(T_("unknown graphics special: {0}"), lpsz));
     return DviSpecialType::Unknown;
   }
 
@@ -113,7 +113,7 @@ DviSpecialType GraphicsSpecialImpl::Parse()
     char unit[3];
     if (sscanf_s(lpsz, "%f%2s", &texWidth, unit, 3) != 2)
     {
-      trace_error->WriteFormattedLine("libdvi", T_("invalid width specification: %s"), lpsz);
+      pDviPageImpl->Error(fmt::format(T_("invalid width specification: {0}"), lpsz));
       return DviSpecialType::Unknown;
     }
     width = CalculateWidth(texWidth, unit, GetPage()->GetDviObject()->GetResolution());
@@ -134,7 +134,7 @@ DviSpecialType GraphicsSpecialImpl::Parse()
       float texHeight;
       if (sscanf_s(lpsz, "%f%2s", &texHeight, unit, 3) != 2)
       {
-        trace_error->WriteFormattedLine("libdvi", T_("invalid width specification: %s"), lpsz);
+        pDviPageImpl->Error(fmt::format(T_("invalid width specification: {0}"), lpsz));
         return DviSpecialType::Unknown;
       }
       height = CalculateWidth(texHeight, unit, GetPage()->GetDviObject()->GetResolution());

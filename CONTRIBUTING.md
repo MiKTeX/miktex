@@ -45,10 +45,17 @@ fix date.
 Unreproducible bugs usually lead to queries. So be prepared to make
 available additional information.
 
-Sloppy bug reports will be closed (or deleted) without comment.
+Please note: sloppy bug reports will be closed (or deleted) without comment.
 
 ## Proposing a feature
 
-- open an issue with a detailed description of your proposed feature
+### Check list
+
+Please review this check list, before you click the `Submit` button:
+
+1. you have installed the latest MiKTeX updates
+2. the feature request is self-contained: it does not contain links to questions/reports on external sites (e.g., Stack Exchange Network)
+
+Please note: sloppy feature requests will be closed (or deleted) without comment.
 
 Thanks!

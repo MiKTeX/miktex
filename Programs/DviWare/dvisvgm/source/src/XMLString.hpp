@@ -2,7 +2,7 @@
 ** XMLString.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -24,14 +24,13 @@
 #include <string>
 
 
-class XMLString : public std::string
-{
+class XMLString : public std::string {
 	public:
 		XMLString () : std::string() {}
-		XMLString (const char *str, bool plain=false);
-		XMLString (const std::string &str, bool plain=false);
-		XMLString (int n, bool cast=true);
-		XMLString (double x);
+		explicit XMLString (const char *str, bool plain=false);
+		explicit XMLString (const std::string &str, bool plain=false);
+		explicit XMLString (int n, bool cast=true);
+		explicit XMLString (double x);
 
 		static int DECIMAL_PLACES;  ///< number of decimal places applied to floating point values (0-6)
 };

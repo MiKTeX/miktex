@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager (cli version)
 
-   Copyright (C) 2003-2019 Christian Schenk
+   Copyright (C) 2003-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -50,6 +50,7 @@
 #include "mpm-version.h"
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
@@ -95,12 +96,9 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-vector<string> DEFAULT_TRACE_STREAMS = {
-  MIKTEX_TRACE_CORE,
-  MIKTEX_TRACE_CURL,
-  MIKTEX_TRACE_ERROR,
-  MIKTEX_TRACE_FNDB,
-  MIKTEX_TRACE_MPM
+vector<string> DEFAULT_TRACE_OPTIONS = {
+  TraceStream::MakeOption("", "", TraceLevel::Info),
+  TraceStream::MakeOption(MIKTEX_TRACE_MPM, "", TraceLevel::Trace),
 };
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mpmcli"));
@@ -221,6 +219,9 @@ private:
   void Warn(const string& s);
 
 private:
+  void SecurityRisk(const string& s);
+
+private:
   void Message(const string& s);
 
 private:
@@ -316,7 +317,7 @@ private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override
+  bool MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -325,10 +326,11 @@ public:
         pendingTraceMessages.clear();
       }
       pendingTraceMessages.push_back(traceMessage);
-      return;
+      return true;
     }
     FlushPendingTraceMessages();
     TraceInternal(traceMessage);
+    return true;
   }
 
 private:
@@ -345,14 +347,27 @@ private:
   void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.mpmcli.") + traceMessage.facility);
-
-    if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
+    switch (traceMessage.level)
     {
+    case TraceLevel::Fatal:
+      LOG4CXX_FATAL(logger, traceMessage.message);
+      break;
+    case TraceLevel::Error:
       LOG4CXX_ERROR(logger, traceMessage.message);
-    }
-    else
-    {
+      break;
+    case TraceLevel::Warning:
+      LOG4CXX_WARN(logger, traceMessage.message);
+      break;
+    case TraceLevel::Info:
+      LOG4CXX_INFO(logger, traceMessage.message);
+      break;
+    case TraceLevel::Trace:
       LOG4CXX_TRACE(logger, traceMessage.message);
+      break;
+    case TraceLevel::Debug:
+    default:
+      LOG4CXX_DEBUG(logger, traceMessage.message);
+      break;
     }
   }
 
@@ -725,6 +740,15 @@ void Application::Warn(const string& s)
   cerr << T_("Warning:") << " " << s << endl;
 }
 
+void Application::SecurityRisk(const string& s)
+{
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, T_("security risk:") << " " << s);
+  }
+  cerr << T_("security risk:") << " " << s << endl;
+}
+
 void Application::Sorry(const string& description, const string& remedy, const string& url)
 {
   if (cerr.fail())
@@ -808,7 +832,7 @@ void Application::UpdateDb()
   {
     installer->SetRepository(repository);
   }
-  installer->UpdateDb();
+  installer->UpdateDb({});
   installer->Dispose();
 }
 
@@ -1425,7 +1449,7 @@ void Application::RestartWindowed()
   // locate miktex-console
   PathName miktexConsole;
 #if defined(MIKTEX_MACOS_BUNDLE)
-  miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / MIKTEX_MACOS_BUNDLE_NAME;
+  miktexConsole = session->GetSpecialPath(SpecialPath::MacOsDirectory) / PathName(MIKTEX_MACOS_BUNDLE_NAME);
 #else
   if (!session->FindFile(miktexConsoleName, FileType::EXE, miktexConsole))
   {
@@ -1449,7 +1473,7 @@ void ReadNames(const PathName& path, vector<string>& list)
       if (name[0] == '@')
       {
         // RECURSION
-        ReadNames(&name[1], list);
+        ReadNames(PathName(&name[1]), list);
       }
       else
       {
@@ -1464,7 +1488,7 @@ void ParseList(const string& s, vector<string>& list)
 {
   if (s.length() > 0 && s[0] == '@')
   {
-    ReadNames(&s[1], list);
+    ReadNames(PathName(&s[1]), list);
   }
   else
   {
@@ -1477,6 +1501,13 @@ void ParseList(const string& s, vector<string>& list)
 
 void Application::Main(int argc, const char** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  UINT activeOutputCodePage = GetConsoleOutputCP();
+  if (activeOutputCodePage != CP_UTF8)
+  {
+    SetConsoleOutputCP(CP_UTF8);
+  }
+#endif
   bool optAdmin = false;
   bool optCheckRepositories = false;
   bool optFindConflicts = false;
@@ -1535,7 +1566,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_TRACE:
       if (optArg.empty())
       {
-        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_STREAMS, ','));
+        initInfo.SetTraceFlags(StringUtil::Flatten(DEFAULT_TRACE_OPTIONS, ','));
       }
       else
       {
@@ -1593,7 +1624,7 @@ void Application::Main(int argc, const char** argv)
       // TODO
       Warn(T_("Option --install-some is deprecated"));
 #endif
-      ReadNames(optArg, toBeInstalled);
+      ReadNames(PathName(optArg), toBeInstalled);
       break;
     case OPT_LIST:
       optList = true;
@@ -1782,7 +1813,7 @@ void Application::Main(int argc, const char** argv)
         Error(T_("Already updating all packages."));
       }
       optUpdate = true;
-      ReadNames(optArg, updates);
+      ReadNames(PathName(optArg), updates);
       break;
     case OPT_UPGRADE:
       optUpgrade = true;
@@ -1826,8 +1857,10 @@ void Application::Main(int argc, const char** argv)
   if (optVersion)
   {
     cout
-      << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 2005-2019 Christian Schenk" << endl
+      << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+      << endl
+      << MIKTEX_COMP_COPYRIGHT_STR << endl
+      << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -1848,7 +1881,7 @@ void Application::Main(int argc, const char** argv)
 
   if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
-    Warn(T_("Option --admin should be specified when running this program with administrator privileges"));
+    SecurityRisk(T_("running with elevated privileges"));
   }
 
   PathName xmlFileName;
@@ -1865,7 +1898,25 @@ void Application::Main(int argc, const char** argv)
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;
-    LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
+    auto thisProcess = Process::GetCurrentProcess();
+    auto parentProcess = thisProcess->get_Parent();
+    string invokerName;
+    if (parentProcess != nullptr)
+    {
+      invokerName = parentProcess->get_ProcessName();
+    }
+    if (invokerName.empty())
+    {
+      invokerName = "unknown process";
+    }
+    LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("mpmcli", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
+    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
+#if defined(MIKTEX_WINDOWS)
+    if (activeOutputCodePage != CP_UTF8)
+    {
+      LOG4CXX_DEBUG(logger, fmt::format("changed console output code page from {0} to {1}", activeOutputCodePage, GetConsoleOutputCP()));
+    }
+#endif
   }
 
   if (session->IsAdminMode())
@@ -1877,7 +1928,7 @@ void Application::Main(int argc, const char** argv)
     Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
   }
 
-  packageManager = PackageManager::Create();
+  packageManager = PackageManager::Create(PackageManager::InitInfo(this));
 
   if (changeProxy)
   {
@@ -2142,6 +2193,10 @@ int MAIN(int argc, MAINCHAR* argv[])
 #if defined(MIKTEX_WINDOWS)
   CoUninitialize();
 #endif
-  logger = nullptr;
+  if (logger != nullptr)
+  {
+    LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);
+    logger = nullptr;
+  }
   return retCode;
 }

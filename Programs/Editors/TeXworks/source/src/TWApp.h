@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,18 +30,16 @@
 #include <QVariant>
 #include <QHash>
 
-#include "TWUtils.h"
-#include "Engine.h"
-#include "TWScriptable.h"
-#include "ConfigurableApp.h"
-#include "TWScriptAPI.h"
-
 #if defined(Q_OS_WIN)
 #define PATH_LIST_SEP   ";"
+#if !defined(MIKTEX)
 #define EXE             ".exe"
+#endif
 #else
 #define PATH_LIST_SEP   ":"
+#if !defined(MIKTEX)
 #define EXE
+#endif
 #endif
 
 #ifndef TW_BUILD_ID
@@ -49,38 +47,33 @@
 #endif
 #define STRINGIFY_2(s) #s
 #define STRINGIFY(s) STRINGIFY_2(s)
-#if defined(MIKTEX)
-#undef TW_BUILD_ID
-#define TW_BUILD_ID_STR MIKTEX_BANNER_STR
-#else
+#if !defined(MIKTEX)
 #define TW_BUILD_ID_STR STRINGIFY(TW_BUILD_ID)
 #endif
+
 #define DEFAULT_ENGINE_NAME "pdfLaTeX"
 
 class QString;
 class QMenu;
 class QMenuBar;
 
+class Engine;
+class TWScriptManager;
+
 // general constants used by multiple document types
 const int kStatusMessageDuration = 3000;
 const int kNewWindowOffset = 32;
 
-#if defined(Q_OS_WIN) // for communication with the original instance
-#if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0500
-	#define _WIN32_WINNT			0x0500	// for HWND_MESSAGE
-#endif
-#include <windows.h>
-#define TW_HIDDEN_WINDOW_CLASS	TEXWORKS_NAME ":MessageTarget"
-#define TW_OPEN_FILE_MSG		(('T' << 8) + 'W')	// just a small sanity check for the receiver
-#endif
-
-class TWApp : public ConfigurableApp
+class TWApp : public QApplication
 {
 	Q_OBJECT
 
+	// window positioning utilities
+	typedef void (WindowArrangementFunction)(const QWidgetList& windows, const QRect& bounds);
+
 public:
 	TWApp(int &argc, char **argv);
-	virtual ~TWApp();
+	~TWApp() override;
 
 	int maxRecentFiles() const;
 	void setMaxRecentFiles(int value);
@@ -120,16 +113,11 @@ public:
 
 	TWScriptManager* getScriptManager() { return scriptManager; }
 	
-	void notifyDictionaryListChanged() const { emit dictionaryListChanged(); }
-
 #if defined(Q_OS_WIN)
-	void createMessageTarget(QWidget* aWindow);
 	static QString GetWindowsVersionString();
 	static unsigned int GetWindowsVersion();
 #endif
-	void bringToFront();
 
-	QObject* openFile(const QString& fileName, const int pos = -1);
 	Q_INVOKABLE
 	QMap<QString, QVariant> openFileFromScript(const QString& fileName, QObject * scriptApiObj, const int pos = -1, const bool askUser = false);
 
@@ -179,6 +167,9 @@ private:
 #endif
 
 public slots:
+	void bringToFront();
+	QObject* openFile(const QString& fileName, const int pos = -1);
+
 	// called by documents when they load a file
 	void updateRecentFileActions();
 
@@ -212,7 +203,6 @@ public slots:
 
 	QString getOpenFileName(QString selectedFilter = QString());
 	QStringList getOpenFileNames(QString selectedFilter = QString());
-	QString getSaveFileName(const QString& defaultName);
 #if defined(MIKTEX)
         void aboutMiKTeX();
         void UnloadFileNameDatabase();
@@ -229,10 +219,6 @@ signals:
 	void engineListChanged();
 	
 	void scriptListChanged();
-	
-	// emitted when TWUtils::getDictionaryList reloads the dictionary list;
-	// windows can connect to it to rebuild, e.g., a spellchecking menu
-	void dictionaryListChanged() const;
 	
 	void syncPdf(const QString& sourceFile, int lineNo, int col, bool activatePreview);
 
@@ -253,12 +239,12 @@ private slots:
 	void globalDestroyed(QObject * obj);
 
 protected:
-	virtual bool event(QEvent *);
+	bool event(QEvent *) override;
 
 private:
 	void init();
 	
-	void arrangeWindows(TWUtils::WindowArrangementFunction func);
+	void arrangeWindows(WindowArrangementFunction func);
 
 	int recentFilesLimit;
 
@@ -277,10 +263,6 @@ private:
 	QHash<QString, QVariant> m_globals;
 	QList<QTextCodec*> customTextCodecs;
 	
-#if defined(Q_OS_WIN)
-	HWND messageTargetWindow;
-#endif
-
 	static TWApp *theAppInstance;
 };
 
@@ -294,40 +276,11 @@ class TWDocumentOpenEvent : public QEvent
 {
 public:
 	static const QEvent::Type type;
-	TWDocumentOpenEvent(const QString & filename, const int pos = 0) : QEvent(type), filename(filename), pos(pos) { }
+	explicit TWDocumentOpenEvent(const QString & filename, const int pos = 0) : QEvent(type), filename(filename), pos(pos) { }
 	
 	QString filename;
 	int pos;
 };
-
-
-#ifdef QT_DBUS_LIB
-#include <QtDBus>
-
-#define TW_SERVICE_NAME 	"org.tug.texworks.application"
-#define TW_APP_PATH		"/org/tug/texworks/application"
-#define TW_INTERFACE_NAME	"org.tug.texworks.application"
-
-class TWAdaptor: public QDBusAbstractAdaptor
-{
-	Q_OBJECT
-	Q_CLASSINFO("D-Bus Interface", "org.tug.texworks.application") // using the #define here fails :(
-
-private:
-	TWApp *app;
-
-public:
-	TWAdaptor(TWApp *application)
-		: QDBusAbstractAdaptor(application), app(application)
-		{ }
-	
-public slots:
-	Q_NOREPLY void openFile(const QString& fileName, const int position = -1)
-		{ app->openFile(fileName, position); }
-	Q_NOREPLY void bringToFront()
-		{ app->bringToFront(); }
-};
-#endif	// defined(QT_DBUS_LIB)
 
 #endif	// TWApp_H
 

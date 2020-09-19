@@ -1,6 +1,6 @@
 /* 5-1.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,8 +30,8 @@ BEGIN_TEST_SCRIPT("process-5-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  PathName file = vecArgs[0];
-  file.MakeAbsolute();
+  PathName file(vecArgs[0]);
+  file.MakeFullyQualified();
   pSession->ScheduleSystemCommand("echo hello>" + file.ToString());
 }
 END_TEST_FUNCTION();

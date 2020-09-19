@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2019 Christian Schenk
+## Copyright (C) 2013-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -33,10 +33,10 @@ add_library(${setup_dll_name} SHARED ${${setup_dll_name}_sources})
 
 set_property(TARGET ${setup_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_shared_library_version(
+set_shared_library_version_properties(
   ${setup_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
   ${MIKTEX_COMP_INTERFACE_VERSION}
-  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${setup_dll_name}
@@ -53,6 +53,7 @@ target_link_libraries(${setup_dll_name}
   PUBLIC
     ${core_dll_name}
     ${mpm_dll_name}
+    ${nlohmann_json_dll_name}
 )
 
 if(USE_SYSTEM_FMT)

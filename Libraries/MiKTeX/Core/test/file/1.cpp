@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -44,20 +44,20 @@ BEGIN_TEST_FUNCTION(1);
   TESTX(
     for (int i = 0; i < maxRounds; ++i)
     {
-      files.push_back(make_unique<FileStream>(File::Open("xxx.zzz", FileMode::Open, FileAccess::Read, false)));
+      files.push_back(make_unique<FileStream>(File::Open(PathName("xxx.zzz"), FileMode::Open, FileAccess::Read, false)));
     }
   );
   files.clear();
-  File::Delete("xxx.zzz");
+  File::Delete(PathName("xxx.zzz"));
 #endif
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  FileStream file(File::Open("delete.me", FileMode::Create, FileAccess::ReadWrite, false, { FileOpenOption::DeleteOnClose }));
+  FileStream file(File::Open(PathName("delete.me"), FileMode::Create, FileAccess::ReadWrite, false, { FileOpenOption::DeleteOnClose }));
   file.Close();
-  TEST(!File::Exists("delete.me"));
+  TEST(!File::Exists(PathName("delete.me")));
 }
 END_TEST_FUNCTION();
 

@@ -1,6 +1,6 @@
 /* ExpatTpmParser.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -84,7 +84,7 @@ void ExpatTpmParser::GetFiles(const XML_Char* text, vector<string>& files)
 #if defined(MIKTEX_UNIX)
     path.ConvertToUnix();
 #endif
-    if (texMFPrefix.empty() || (PathName::Compare(texMFPrefix, path, texMFPrefix.length()) == 0))
+    if (texMFPrefix.empty() || (PathName::Compare(PathName(texMFPrefix), path, texMFPrefix.length()) == 0))
     {
       files.push_back(path.ToString());
     }
@@ -274,7 +274,7 @@ void ExpatTpmParser::OnEndElement(void* pv, const XML_Char* name)
       bool haveManifestFile = false;
       for (const auto& file : This->packageInfo.runFiles)
       {
-        if (PathName::Compare(file, manifestFile) == 0)
+        if (PathName::Compare(PathName(file), manifestFile) == 0)
         {
           haveManifestFile = true;
           break;
@@ -355,7 +355,7 @@ void ExpatTpmParser::Parse(const PathName& path, const string& texmfPrefix)
     XML_Status st = XML_Parse(p, buf, static_cast<int>(n), (bytesToRead == 0));
     if (st == XML_STATUS_ERROR)
     {
-      traceError->WriteLine(TRACE_FACILITY, XML_ErrorString(XML_GetErrorCode(p)));
+      traceError->WriteLine(TRACE_FACILITY, TraceLevel::Error, XML_ErrorString(XML_GetErrorCode(p)));
       MIKTEX_FATAL_ERROR_2(T_("The package manifest file could not be parsed."), "path", path.ToString(), "line", std::to_string(XML_GetCurrentLineNumber(p)), "column", std::to_string(XML_GetCurrentColumnNumber(p)));
     }
   }

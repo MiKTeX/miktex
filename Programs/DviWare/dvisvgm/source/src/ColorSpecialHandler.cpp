@@ -2,7 +2,7 @@
 ** ColorSpecialHandler.cpp                                              **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -40,10 +40,10 @@ static double read_double (istream &is) {
 /** Reads multiple double values from a given stream. The number of
  *  values read is determined by the size of the result vector.
  *  @param[in]  is stream to be read from
- *  @param[out] v the resulting values */
-static void read_doubles (istream &is, vector<double> &v) {
-	for (size_t i=0; i < v.size(); i++)
-		v[i] = read_double(is);
+ *  @param[out] vec the resulting values */
+static void read_doubles (istream &is, vector<double> &vec) {
+	for (double &val : vec)
+		val = read_double(is);
 }
 
 

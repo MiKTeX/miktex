@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -30,8 +30,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <miktex/App/Application>
 
 #include <miktex/C4P/C4P>
 
@@ -79,22 +77,22 @@ enum class Feature
 
 template<class FileType> inline bool miktexopentfmfile(FileType& f, const char* fileName)
 {
-  return OpenTFMFile(&f, fileName);
+  return OpenTFMFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenvffile(FileType& f, const char* fileName)
 {
-  return OpenVFFile(&f, fileName);
+  return OpenVFFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline int miktexopenxfmfile(FileType& f, const char* fileName)
 {
-  return OpenXFMFile(&f, fileName);
+  return OpenXFMFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenxvffile(FileType& f, const char* fileName)
 {
-  return OpenXVFFile(&f, fileName);
+  return OpenXVFFile(&f, MiKTeX::Core::PathName(fileName));
 }
 
 template<class FileType> inline void miktexprintmiktexbanner(FileType& f)
@@ -127,7 +125,7 @@ public:
   static WebApp* GetWebApp()
   {
     MIKTEX_ASSERT(dynamic_cast<WebApp*>(Application::GetApplication()) != nullptr);
-    return (WebApp*)Application::GetApplication();
+    return reinterpret_cast<WebApp*>(Application::GetApplication());
   }
 
 public:
@@ -137,7 +135,7 @@ public:
   MIKTEXMFTHISAPI(void) Finalize() override;
 
 public:
-  MIKTEXMFTHISAPI(void) SetProgramInfo(const std::string& programName, const std::string& version, const std::string& copyright, const std::string& trademarks);
+  MIKTEXMFTHISAPI(void) SetProgram(C4P::ProgramBase* program, const std::string& programName, const std::string& version, const std::string& copyright, const std::string& trademarks);
 
 public:
   virtual MIKTEXMFTHISAPI(std::string) TheNameOfTheGame() const;
@@ -254,10 +252,21 @@ public:
 public:
   MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
 
+public:
+  MIKTEXMFTHISAPI(bool) GetVerboseFlag() const;
+
+public:
+  MIKTEXMFTHISAPI(C4P::ProgramBase*) GetProgram() const;
+
 private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+inline bool miktexgetverboseflag()
+{
+  return WebApp::GetWebApp()->GetVerboseFlag();
+}
 
 inline bool miktexgetquietflag()
 {
@@ -287,7 +296,7 @@ inline void miktexprocesscommandlineoptions()
 template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 {
 public:
-  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, const std::string& programName, int argc, char* argv[])
+  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, const std::string& progName, int argc, char* argv[])
   {
     std::string componentVersion;
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
@@ -301,7 +310,8 @@ public:
 #if defined(MIKTEX_COMP_TM_STR)
     componentTrademark = MIKTEX_COMP_TM_STR;
 #endif
-    app.SetProgramInfo(programName, componentVersion, componentCopyright, componentTrademark);
+    app.SetProgram(&prog, progName, componentVersion, componentCopyright, componentTrademark);
+    prog.SetParent(&app);
     try
     {
       MIKTEX_ASSERT(argv != nullptr && argv[argc] == nullptr);

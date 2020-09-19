@@ -1,6 +1,6 @@
 /* LanguageTableModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -21,6 +21,7 @@
 
 #include <memory>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Fndb>
 #include <miktex/Util/StringUtil>
 
@@ -143,7 +144,7 @@ vector<string> LanguageTableModel::WhichPackage(const string& texInputfile)
   directoryPattern /= "tex//";
   vector<Fndb::Record> records;
   vector<string> result;
-  if (Fndb::Search(texInputfile, directoryPattern.ToString(), false, records))
+  if (Fndb::Search(PathName(texInputfile), directoryPattern.ToString(), false, records))
   {
     for (const auto& r : records)
     {
@@ -168,6 +169,6 @@ void LanguageTableModel::ReadLanguageDat()
 void LanguageTableModel::Reload()
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   ReadLanguageDat();
-  endResetModel();
 }

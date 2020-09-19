@@ -2,7 +2,7 @@
 ** PageRanges.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,13 +21,10 @@
 #ifndef PAGERANGES_HPP
 #define PAGERANGES_HPP
 
-#include <list>
 #include <string>
-#include <utility>
 #include "NumericRanges.hpp"
 
-class PageRanges : public NumericRanges<int>
-{
+class PageRanges : public NumericRanges<int> {
 	public:
 		bool parse (const std::string &str, int max_page=0);
 		size_t numberOfPages () const;

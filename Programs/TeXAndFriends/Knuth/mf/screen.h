@@ -1,6 +1,6 @@
-/* screen.h: METAFONT online displays
+/* screen.h: METAFONT screen display
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
    Copyright (C) 1998 Wolfgang Kleinschmidt
 
    This file is free software; you can redistribute it and/or modify
@@ -21,20 +21,20 @@
 #pragma once
 
 #if defined(MIKTEX_WINDOWS)
-bool miktexinitscreen(int w, int h);
+bool miktexinitscreen(int screenWidth, int screenHeight);
 
-void miktexblankrectangle(MFPROGCLASS::screencol left_col, MFPROGCLASS::screencol right_col, MFPROGCLASS::screenrow top_row, MFPROGCLASS::screenrow bot_row);
+void miktexblankrectangle(MFPROGCLASS::screencol leftColumn, MFPROGCLASS::screencol rightColumn, MFPROGCLASS::screenrow topRow, MFPROGCLASS::screenrow bottomRow);
 
 void miktexupdatescreen();
 
-void miktexpaintrow(MFPROGCLASS::screenrow r, MFPROGCLASS::pixelcolor b, MFPROGCLASS::transspec a, MFPROGCLASS::screencol n);
+void miktexpaintrow(MFPROGCLASS::screenrow row, MFPROGCLASS::pixelcolor startColor, MFPROGCLASS::transspec blackWhiteTransitions, MFPROGCLASS::screencol numColumns);
 #else
-inline bool miktexinitscreen(int w, int h)
+inline bool miktexinitscreen(int screenWidth, int screenHeight)
 {
   return false;
 }
 
-inline void miktexblankrectangle(MFPROGCLASS::screencol left_col, MFPROGCLASS::screencol right_col, MFPROGCLASS::screenrow top_row, MFPROGCLASS::screenrow bot_row)
+inline void miktexblankrectangle(MFPROGCLASS::screencol leftColumn, MFPROGCLASS::screencol rightColumn, MFPROGCLASS::screenrow topRow, MFPROGCLASS::screenrow bottomRow)
 {
 }
 
@@ -42,7 +42,7 @@ inline void miktexupdatescreen()
 {
 }
 
-inline void miktexpaintrow(MFPROGCLASS::screenrow r, MFPROGCLASS::pixelcolor b, MFPROGCLASS::transspec a, MFPROGCLASS::screencol n)
+inline void miktexpaintrow(MFPROGCLASS::screenrow row, MFPROGCLASS::pixelcolor startColor, MFPROGCLASS::transspec blackWhiteTransitions, MFPROGCLASS::screencol numColumns)
 {
 }
 #endif

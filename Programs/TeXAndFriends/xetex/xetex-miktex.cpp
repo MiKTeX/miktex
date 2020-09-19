@@ -1,6 +1,6 @@
 /* xetex-miktex.cpp:
    
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -53,8 +53,8 @@ XETEXPROGCLASS::scaled& loadedfontletterspace = XETEXPROG.loadedfontletterspace;
 voidpointer& loadedfontmapping = XETEXPROG.loadedfontmapping;
 XETEXPROGCLASS::utf16code*& mappedtext = XETEXPROG.mappedtext;
 C4P::C4P_signed32& maxbufstack = XETEXPROG.maxbufstack;
-C4P::C4P_signed16& namelength = XETEXPROG.namelength;
-C4P::C4P_signed16& namelength16 = XETEXPROG.namelength16;
+C4P::C4P_signed32& namelength = XETEXPROG.namelength;
+C4P::C4P_signed32& namelength16 = XETEXPROG.namelength16;
 XETEXPROGCLASS::utf16code*& nameoffile16 = XETEXPROG.nameoffile16;
 C4P::C4P_integer& nativefonttypeflag = XETEXPROG.nativefonttypeflag;
 C4P::C4P_boolean& nopdfoutput = XETEXPROG.nopdfoutput;

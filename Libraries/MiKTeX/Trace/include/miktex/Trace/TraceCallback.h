@@ -1,6 +1,6 @@
 /* miktex/Trace/TraceCallback.h:                        -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Trace Library.
 
@@ -26,29 +26,48 @@
 
 #include "config.h"
 
+#include <ostream>
 #include <string>
 
 MIKTEX_TRACE_BEGIN_NAMESPACE;
+
+enum class TraceLevel
+{
+  Fatal,
+  Error,
+  Warning,
+  Info,
+  Trace,
+  Debug
+};
 
 class MIKTEXNOVTABLE TraceCallback
 {
 public:
   struct TraceMessage
   {
-    TraceMessage(const std::string& streamName, const std::string& facility, const std::string& message) :
+    TraceMessage(const std::string& streamName, const std::string& facility, TraceLevel level, const std::string& message) :
       streamName(streamName),
       facility(facility),
+      level(level),
       message(message)
     {
     }
+    MIKTEXTRACETHISAPI(std::string) ToString() const;
     std::string streamName;
     std::string facility;
+    TraceLevel level;
     std::string message;
   };
 
 public:
-  virtual void MIKTEXTHISCALL Trace(const TraceMessage& traceMessage) = 0;
+  virtual bool MIKTEXTHISCALL Trace(const TraceMessage& traceMessage) = 0;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const TraceCallback::TraceMessage& traceMessage)
+{
+  return os << traceMessage.ToString();
+}
 
 MIKTEX_TRACE_END_NAMESPACE;
 

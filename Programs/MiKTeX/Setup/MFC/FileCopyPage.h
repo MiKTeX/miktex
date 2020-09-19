@@ -80,7 +80,7 @@ private:
   static UINT WorkerThread(void* fileCopyPage);
 
 private:
-  void Report(bool writeLog, const char* format, ...);
+  void Report(bool writeLog, const std::string& str);
 
 private:
   CWnd* GetControl(UINT id);

@@ -2,7 +2,7 @@
 ** MiKTeXCom.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,10 +25,10 @@
 #include "windows.hpp"
 
 #ifdef _MSC_VER
-#import <MiKTeX209-session.tlb>
+#import <miktex-session.tlb>
 using namespace MiKTeXSession2_9;
 #else
-#include "miktex209-session.h"
+#include "miktex-session.h"
 #endif
 
 class MiKTeXCom {

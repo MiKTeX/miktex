@@ -2,7 +2,7 @@
 ** FontMetrics.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,8 +25,8 @@
 #include "JFM.hpp"
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -35,7 +35,7 @@ using namespace std;
 unique_ptr<FontMetrics> FontMetrics::read (const string &fontname) {
 	const char *path = FileFinder::instance().lookup(fontname + ".tfm");
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(path), ios::binary);
+        ifstream ifs(EXPATH_(path), ios::binary);
 #else
 	ifstream ifs(path, ios::binary);
 #endif

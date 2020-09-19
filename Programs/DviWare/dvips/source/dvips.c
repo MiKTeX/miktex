@@ -295,6 +295,7 @@ static const char *helparr[] = {
 "Options:",
 "-a*  Conserve memory, not time       -A   Print only odd (TeX) pages",
 "-b # Page copies, for posters e.g.   -B   Print only even (TeX) pages",
+"-bitmapfontenc [on,off,strict] control bitmap font encoding",
 "-c # Uncollated copies               -C # Collated copies",
 "-d # Debugging                       -D # Resolution",
 "-e # Maxdrift value                  -E*  Try to create EPSF",
@@ -773,8 +774,14 @@ main(int argc, char **argv)
             if (strlen (argv[i] + 1) == 8 &&
                 strcmp (argv[i] + 1, "-version") == 0) {
                puts (BANNER);
+#if defined(MIKTEX)
+               {
+                  puts(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
+               }
+#else
                puts (kpathsea_version_string);
-               puts ("Copyright 2019 Radical Eye Software.\n\
+#endif
+               puts ("Copyright 2020 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
@@ -792,6 +799,20 @@ case 'a':
                dopprescan = (*p != '0');
                break;
 case 'b':
+               if (strcmp(p, "itmapfontenc") == 0) {
+                  p = argv[++i] ;
+                  if (strcmp(p, "off") == 0) {
+                     bitmapencopt(0) ; // disable bitmap font enc feature
+                  } else if (strcmp(p, "on") == 0) {
+                     bitmapencopt(1) ; // try to include bitmap font encs
+                  } else if (strcmp(p, "strict") == 0) {
+                     bitmapencopt(2) ; // issue warnings for missing encs
+                  } else {
+                     error(
+               "! -bitmapfontenc option only supports off, on, and strict") ;
+                  }
+                  break ;
+               }
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
                if (sscanf(p, "%d", &pagecopies)==0)

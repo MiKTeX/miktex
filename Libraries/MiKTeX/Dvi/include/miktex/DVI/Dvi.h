@@ -1,6 +1,6 @@
 /* miktex/DVI/Dvi.h: DVI interfaces                     -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -53,6 +53,8 @@
 #include <miktex/Core/Session>
 
 #include <miktex/Graphics/DibChunker>
+
+#include <miktex/Trace/TraceCallback>
 
 MIKTEX_DVI_BEGIN_NAMESPACE;
 
@@ -558,10 +560,10 @@ public:
   virtual void MIKTEXTHISCALL Dispose() = 0;
 
 public:
-  static MIKTEXDVICEEAPI(Dvi*) Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, IDviCallback* callback);
+  static MIKTEXDVICEEAPI(Dvi*) Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, IDviCallback* dviCallback, MiKTeX::Trace::TraceCallback* traceCallback);
 
 public:
-  static MIKTEXDVICEEAPI(Dvi*) Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const MiKTeX::Core::PaperSizeInfo& defaultPaperSizeInfo, bool landscape, IDviCallback* callback);
+  static MIKTEXDVICEEAPI(Dvi*) Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess access, DviPageMode pageMode, const MiKTeX::Core::PaperSizeInfo& defaultPaperSizeInfo, bool landscape, IDviCallback* dviCallback, MiKTeX::Trace::TraceCallback* traceCallback);
 
 public:
   virtual int MIKTEXTHISCALL GetNumberOfPages() = 0;

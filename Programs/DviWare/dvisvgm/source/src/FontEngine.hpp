@@ -2,7 +2,7 @@
 ** FontEngine.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -73,10 +73,10 @@ class FontEngine {
 		int charIndex (const Character &c) const;
 
 	private:
-		mutable unsigned int _currentChar, _currentGlyphIndex;
-		FT_Face _currentFace;
+		mutable unsigned int _currentChar=0, _currentGlyphIndex=0;
+		FT_Face _currentFace = nullptr;
 		FT_Library _library;
-		const Font *_currentFont;
+		const Font *_currentFont = nullptr;
 };
 
 #endif

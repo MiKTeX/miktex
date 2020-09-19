@@ -1,6 +1,6 @@
 /* FormatTableModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -21,6 +21,7 @@
 
 #include <memory>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Util/StringUtil>
 
 #include "FormatTableModel.h"
@@ -96,8 +97,8 @@ QVariant FormatTableModel::headerData(int section, Qt::Orientation orientation, 
 void FormatTableModel::Reload()
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   formats = session->GetFormats();
-  endResetModel();
 }
 
 FormatInfo FormatTableModel::GetFormatInfo(const QModelIndex& index)

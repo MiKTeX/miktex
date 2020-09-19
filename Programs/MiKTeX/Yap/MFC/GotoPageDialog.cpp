@@ -57,11 +57,11 @@ BOOL GotoPageDialog::OnInitDialog()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
   return ret;
 }

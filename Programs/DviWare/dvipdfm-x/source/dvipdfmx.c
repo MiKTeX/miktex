@@ -2,7 +2,7 @@
 
     DVIPDFMx, an eXtended version of DVIPDFM by Mark A. Wicks.
 
-    Copyright (C) 2002-2019 by Jin-Hwan Cho, Matthias Franz, Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho, Matthias Franz, Shunsaku Hirata,
     the DVIPDFMx project team.
     
     Copyright (c) 2006 SIL. (xdvipdfmx extensions for XeTeX support)
@@ -143,15 +143,21 @@ set_default_pdf_filename(void)
   size_t      len = 0;
 
   dvi_base = xbasename(dvi_filename);
-  len      = strlen(dvi_base) - strlen(".dvi");
-  suffix   = dvi_base + len;
-  if (dpx_conf.compat_mode == dpx_mode_mpost_mode && len > 0 &&
+
+  suffix = strrchr(dvi_base, '.');
+  /* suffix can be dvi_base if dvi_base is like ".abcde" */
+
+  if (suffix == NULL || suffix == dvi_base) {
+    suffix = dvi_base + strlen(dvi_base);
+  }
+  len = strlen(dvi_base) - strlen(suffix);
+
+  if (dpx_conf.compat_mode == dpx_mode_mpost_mode &&
       FILESTRCASEEQ(".mps", suffix)) {
     pdf_filename = NEW(len+strlen(".pdf")+1, char);
     strncpy(pdf_filename, dvi_base, len);
     pdf_filename[len] = '\0';
-  } else if (len > 0 &&
-             (FILESTRCASEEQ(".dvi", suffix) ||
+  } else if ((FILESTRCASEEQ(".dvi", suffix) ||
               FILESTRCASEEQ(".xdv", suffix))) {
     pdf_filename = NEW(len+strlen(".pdf")+1, char);
     strncpy(pdf_filename, dvi_base, len);
@@ -167,18 +173,22 @@ set_default_pdf_filename(void)
 static void
 show_version (void)
 {
+#if defined(MIKTEX)
+  {
+    char miktexBanner[200];
+    miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0]));
+    printf ("This is %s Version %s (%s) by the DVIPDFMx project team,\n", my_name, VERSION, miktexBanner);
+  }
+#else
   printf ("This is %s Version " VERSION " by the DVIPDFMx project team,\n",
                    my_name);
-#if defined(MIKTEX)
-  printf("modified for TeX Live and MiKTeX,\n");
-#else
   printf ("modified for TeX Live,\n");
 #endif
   if (*my_name == 'x')
     printf ("an extended version of DVIPDFMx, which in turn was\n");
   printf ("an extended version of dvipdfm-0.13.2c developed by Mark A. Wicks.\n");
-  printf ("\nCopyright (C) 2002-2019 the DVIPDFMx project team\n");
-  printf ("Copyright (C) 2006-2019 SIL International.\n");
+  printf ("\nCopyright (C) 2002-2020 the DVIPDFMx project team\n");
+  printf ("Copyright (C) 2006-2020 SIL International.\n");
   printf ("\nThis is free software; you can redistribute it and/or modify\n");
   printf ("it under the terms of the GNU General Public License as published by\n");
   printf ("the Free Software Foundation; either version 2 of the License, or\n");
@@ -548,6 +558,18 @@ do_args_first_pass (int argc, char *argv[], const char *source, int unsafe)
       dpx_conf.compat_mode = dpx_mode_mpost_mode;
       break;
 
+    /* 'm' option placed here since other options set via special
+     * requires magnification already being determined for interpreting
+     * various length values.
+     */
+    case 'm':
+      {
+        char *nextptr;
+        if ((mag = strtod(optarg, &nextptr)) < 0.0 || nextptr == optarg)
+          ERROR("Invalid magnification specified: %s", optarg);
+      }
+      break;
+
     default: /* ignore everything else */
       break;
     }
@@ -588,6 +610,13 @@ do_args_second_pass (int argc, char *argv[], const char *source, int unsafe)
     case 'h': case 130: case 131: case 132: case 133: case 1000: case 'q': case 'v': case 'M': /* already done */
       break;
 
+    /* 'm' option handled in first_pass */
+    case 'm':
+      if (unsafe) { /* FIXME: it's not actually 'unsafe'... just to know it's called from special */
+        WARN("Ignoring \"m\" option for dvipdfmx:config special. (too late)");
+      }
+      break;
+
     case 'D':
       if (unsafe) {
         WARN("Ignoring \"D\" option for dvipdfmx:config special. (unsafe)");
@@ -602,11 +631,6 @@ do_args_second_pass (int argc, char *argv[], const char *source, int unsafe)
     case 'r':
       if ((font_dpi = atoi(optarg)) <= 0)
         ERROR("Invalid bitmap font dpi specified: %s", optarg);
-      break;
-
-    case 'm':
-      if ((mag = strtod(optarg, &nextptr)) < 0.0 || nextptr == optarg)
-        ERROR("Invalid magnification specified: %s", optarg);
       break;
 
     case 'g':

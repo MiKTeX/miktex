@@ -41,7 +41,7 @@ configure_file(
 )
 
 configure_file(
-  setup-version.h.cmake
+  setup-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
 )
 

@@ -224,12 +224,13 @@ void gen_runsystem6(stack *Stack)
 }
 
 #line 142 "runsystem.in"
-// string locatefile(string file);
+// string locatefile(string file, bool full=true);
 void gen_runsystem7(stack *Stack)
 {
+  bool full=vm::pop<bool>(Stack,true);
   string file=vm::pop<string>(Stack);
 #line 143 "runsystem.in"
-  {Stack->push<string>(locateFile(file)); return;}
+  {Stack->push<string>(locateFile(file,full)); return;}
 }
 
 #line 147 "runsystem.in"
@@ -421,7 +422,7 @@ void gen_runsystem_venv(venv &ve)
 #line 137 "runsystem.in"
   addFunc(ve, run::gen_runsystem6, primVoid(), SYM(breakpoint), formal(primCode(), SYM(s), true, false));
 #line 142 "runsystem.in"
-  addFunc(ve, run::gen_runsystem7, primString() , SYM(locatefile), formal(primString() , SYM(file), false, false));
+  addFunc(ve, run::gen_runsystem7, primString() , SYM(locatefile), formal(primString() , SYM(file), false, false), formal(primBoolean(), SYM(full), true, false));
 #line 147 "runsystem.in"
   addFunc(ve, run::gen_runsystem8, primVoid(), SYM(stop), formal(primString() , SYM(file), false, false), formal(primInt(), SYM(line), false, false), formal(primCode(), SYM(s), true, false));
 #line 155 "runsystem.in"

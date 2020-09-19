@@ -394,7 +394,7 @@ static int removedyncap (lua_State *L, Capture *capture,
 */
 /* luajit aarch64  */
 /* https://github.com/LuaJIT/LuaJIT/pull/230#issuecomment-260205661 */
-/* We play safe on arm64  assuming a virtual address bits VA_BITS >47, 
+/* We play safe on arm64  assuming a virtual address bits VA_BITS >47,*/
 /* even if a  Linux kernel  can be configured with VA_BITS < 47 */
 /* and lightuserdata is ok then.  Anyway, */
 /* replacing lightuserdata with full userdata seems ok wrt performance. */

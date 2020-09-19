@@ -55,12 +55,12 @@ BOOL AdvancedOptionsPage::OnApply()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
     return FALSE;
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
     return FALSE;
   }
 }

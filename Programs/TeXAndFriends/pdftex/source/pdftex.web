@@ -1,4 +1,4 @@
-% Copyright 1996-2019 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2020 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -306,8 +306,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="20" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.20' {current \pdfTeX\ version}
+@d pdftex_revision=="21" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.21' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.14159265',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -5669,31 +5669,32 @@ that will be defined later.
 @d pdf_unique_resname_code   = pdftex_first_integer_code + 6 {generate unique names for resouces}
 @d pdf_option_always_use_pdfpagebox_code = pdftex_first_integer_code + 7 {if the PDF inclusion should always use a specific PDF page box}
 @d pdf_option_pdf_inclusion_errorlevel_code = pdftex_first_integer_code + 8 {if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error}
-@d pdf_minor_version_code = pdftex_first_integer_code + 9 {fractional part of the PDF version produced}
-@d pdf_force_pagebox_code = pdftex_first_integer_code + 10 {if the PDF inclusion should always use a specific PDF page box}
-@d pdf_pagebox_code = pdftex_first_integer_code + 11 {default pagebox to use for PDF inclusion}
-@d pdf_inclusion_errorlevel_code = pdftex_first_integer_code + 12 {if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error}
-@d pdf_gamma_code            = pdftex_first_integer_code + 13
-@d pdf_image_gamma_code      = pdftex_first_integer_code + 14
-@d pdf_image_hicolor_code    = pdftex_first_integer_code + 15
-@d pdf_image_apply_gamma_code = pdftex_first_integer_code + 16
-@d pdf_adjust_spacing_code   = pdftex_first_integer_code + 17 {level of spacing adjusting}
-@d pdf_protrude_chars_code   = pdftex_first_integer_code + 18 {protrude chars at left/right edge of paragraphs}
-@d pdf_tracing_fonts_code    = pdftex_first_integer_code + 19 {level of font detail in log}
-@d pdf_objcompresslevel_code = pdftex_first_integer_code + 20 {activate object streams}
-@d pdf_adjust_interword_glue_code    = pdftex_first_integer_code + 21 {adjust interword glue?}
-@d pdf_prepend_kern_code     = pdftex_first_integer_code + 22 {prepend kern before certain characters?}
-@d pdf_append_kern_code      = pdftex_first_integer_code + 23 {append kern before certain characters?}
-@d pdf_gen_tounicode_code    = pdftex_first_integer_code + 24 {generate ToUnicode for fonts?}
-@d pdf_draftmode_code        = pdftex_first_integer_code + 25 {switch on draftmode if positive}
-@d pdf_inclusion_copy_font_code = pdftex_first_integer_code + 26 {generate ToUnicode for fonts?}
-@d pdf_suppress_warning_dup_dest_code    = pdftex_first_integer_code + 27 {suppress warning about duplicated destinations}
-@d pdf_suppress_warning_dup_map_code     = pdftex_first_integer_code + 28 {suppress warning about duplicated map lines}
-@d pdf_suppress_warning_page_group_code  = pdftex_first_integer_code + 29 {suppress warning about multiple pdfs with page group}
-@d pdf_info_omit_date_code  = pdftex_first_integer_code + 30 {omit generating CreationDate and ModDate}
-@d pdf_suppress_ptex_info_code = pdftex_first_integer_code + 31 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_omit_charset_code = pdftex_first_integer_code + 32 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_int_pars=pdftex_first_integer_code + 33 {total number of \pdfTeX's integer parameters}
+@d pdf_major_version_code = pdftex_first_integer_code + 9 {integer part of the PDF version produced}
+@d pdf_minor_version_code = pdftex_first_integer_code + 10 {fractional part of the PDF version produced}
+@d pdf_force_pagebox_code = pdftex_first_integer_code + 11 {if the PDF inclusion should always use a specific PDF page box}
+@d pdf_pagebox_code = pdftex_first_integer_code + 12 {default pagebox to use for PDF inclusion}
+@d pdf_inclusion_errorlevel_code = pdftex_first_integer_code + 13 {if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error}
+@d pdf_gamma_code            = pdftex_first_integer_code + 14
+@d pdf_image_gamma_code      = pdftex_first_integer_code + 15
+@d pdf_image_hicolor_code    = pdftex_first_integer_code + 16
+@d pdf_image_apply_gamma_code = pdftex_first_integer_code + 17
+@d pdf_adjust_spacing_code   = pdftex_first_integer_code + 18 {level of spacing adjusting}
+@d pdf_protrude_chars_code   = pdftex_first_integer_code + 19 {protrude chars at left/right edge of paragraphs}
+@d pdf_tracing_fonts_code    = pdftex_first_integer_code + 20 {level of font detail in log}
+@d pdf_objcompresslevel_code = pdftex_first_integer_code + 21 {activate object streams}
+@d pdf_adjust_interword_glue_code    = pdftex_first_integer_code + 22 {adjust interword glue?}
+@d pdf_prepend_kern_code     = pdftex_first_integer_code + 23 {prepend kern before certain characters?}
+@d pdf_append_kern_code      = pdftex_first_integer_code + 24 {append kern before certain characters?}
+@d pdf_gen_tounicode_code    = pdftex_first_integer_code + 25 {generate ToUnicode for fonts?}
+@d pdf_draftmode_code        = pdftex_first_integer_code + 26 {switch on draftmode if positive}
+@d pdf_inclusion_copy_font_code = pdftex_first_integer_code + 27 {generate ToUnicode for fonts?}
+@d pdf_suppress_warning_dup_dest_code    = pdftex_first_integer_code + 28 {suppress warning about duplicated destinations}
+@d pdf_suppress_warning_dup_map_code     = pdftex_first_integer_code + 29 {suppress warning about duplicated map lines}
+@d pdf_suppress_warning_page_group_code  = pdftex_first_integer_code + 30 {suppress warning about multiple pdfs with page group}
+@d pdf_info_omit_date_code  = pdftex_first_integer_code + 31 {omit generating CreationDate and ModDate}
+@d pdf_suppress_ptex_info_code = pdftex_first_integer_code + 32 {suppress /PTEX.* entries in PDF dictionaries}
+@d pdf_omit_charset_code = pdftex_first_integer_code + 33 {suppress /PTEX.* entries in PDF dictionaries}
+@d pdf_int_pars=pdftex_first_integer_code + 34 {total number of \pdfTeX's integer parameters}
 @#
 @d etex_int_base=pdf_int_pars {base for \eTeX's integer parameters}
 @d tracing_assigns_code=etex_int_base {show assignments}
@@ -5789,6 +5790,7 @@ that will be defined later.
 @d pdf_unique_resname   == int_par(pdf_unique_resname_code)
 @d pdf_option_always_use_pdfpagebox == int_par(pdf_option_always_use_pdfpagebox_code)
 @d pdf_option_pdf_inclusion_errorlevel == int_par(pdf_option_pdf_inclusion_errorlevel_code)
+@d pdf_major_version == int_par(pdf_major_version_code)
 @d pdf_minor_version == int_par(pdf_minor_version_code)
 @d pdf_force_pagebox == int_par(pdf_force_pagebox_code)
 @d pdf_pagebox == int_par(pdf_pagebox_code)
@@ -5890,6 +5892,7 @@ pdf_pk_resolution_code:    print_esc("pdfpkresolution");
 pdf_unique_resname_code:   print_esc("pdfuniqueresname");
 pdf_option_always_use_pdfpagebox_code: print_esc("pdfoptionalwaysusepdfpagebox");
 pdf_option_pdf_inclusion_errorlevel_code: print_esc("pdfoptionpdfinclusionerrorlevel");
+pdf_major_version_code: print_esc("pdfmajorversion");
 pdf_minor_version_code: print_esc("pdfminorversion");
 pdf_force_pagebox_code: print_esc("pdfforcepagebox");
 pdf_pagebox_code: print_esc("pdfpagebox");
@@ -6056,6 +6059,8 @@ primitive("pdfoptionalwaysusepdfpagebox",assign_int,int_base+pdf_option_always_u
 @!@:pdf_option_always_use_pdfpagebox_}{\.{\\pdfoptionalwaysusepdfpagebox} primitive@>
 primitive("pdfoptionpdfinclusionerrorlevel",assign_int,int_base+pdf_option_pdf_inclusion_errorlevel_code);@/
 @!@:pdf_option_pdf_inclusion_errorlevel_}{\.{\\pdfoptionpdfinclusionerrorlevel} primitive@>
+primitive("pdfmajorversion",assign_int,int_base+pdf_major_version_code);@/
+@!@:pdf_major_version_}{\.{\\pdfmajorversion} primitive@>
 primitive("pdfminorversion",assign_int,int_base+pdf_minor_version_code);@/
 @!@:pdf_minor_version_}{\.{\\pdfminorversion} primitive@>
 primitive("pdfforcepagebox",assign_int,int_base+pdf_force_pagebox_code);@/
@@ -15076,6 +15081,7 @@ pdf_compress_level := 9;
 pdf_objcompresslevel := 0;
 pdf_decimal_digits := 3;
 pdf_image_resolution := 72;
+pdf_major_version := 1;
 pdf_minor_version := 4;
 pdf_gamma := 1000;
 pdf_image_gamma := 2200;
@@ -15348,9 +15354,10 @@ end
 @!pdf_gone: longinteger; {number of bytes that were flushed to output}
 @!pdf_save_offset: longinteger; {to save |pdf_offset|}
 @!zip_write_state: integer; {which state of compression we are in}
+@!fixed_pdf_major_version: integer; {fixed major part of the PDF version}
 @!fixed_pdf_minor_version: integer; {fixed minor part of the PDF version}
 @!fixed_pdf_objcompresslevel: integer; {fixed level for activating PDF object streams}
-@!pdf_minor_version_written: boolean; {flag if the PDF version has been written}
+@!pdf_version_written: boolean; {flag if the PDF version has been written}
 @!fixed_pdfoutput: integer; {fixed output format}
 @!fixed_pdfoutput_set: boolean; {|fixed_pdfoutput| has been set?}
 @!fixed_gamma: integer;
@@ -15376,7 +15383,7 @@ pdf_os_buf_size := inf_pdf_os_buf_size;
 pdf_buf := pdf_op_buf;
 pdf_seek_write_length := false;
 zip_write_state := no_zip;
-pdf_minor_version_written := false;
+pdf_version_written := false;
 fixed_pdfoutput_set := false;
 fixed_pdf_draftmode_set := false;
 
@@ -15392,22 +15399,37 @@ begin
         fix_int := val;
 end;
 
-@ This ensures that |pdfminorversion| is set only before any bytes have
-been written to the generated PDF file. Here also the PDF file is opened
-by |ensure_pdf_open| and the PDF header is written.
+@ This ensures that |pdf_major_version| and |pdf_minor_version| are set
+to reasonable values before any bytes have been written to the generated
+PDF file. We also save their current values in case the user tries to
+change them later, along with |pdf_objcompresslevel|,
+|pdf_image_hicolor|, and various other parameters that must be fixed
+before any PDF output happens.
 
-@p procedure check_pdfminorversion;
+Here also the PDF file is opened by |ensure_pdf_open| and the PDF header
+is written.
+
+@p procedure check_pdfversion;
 begin
-    if not pdf_minor_version_written then begin
-        pdf_minor_version_written := true;
+    if not pdf_version_written then begin
+        pdf_version_written := true;
+        if pdf_major_version < 1 then begin
+            print_err("pdfTeX error (invalid pdfmajorversion)");
+            print_ln;
+            help2 ("The pdfmajorversion must be 1 or greater.")@/
+                ("I changed this to 1.");
+            int_error (pdf_major_version);
+            pdf_major_version := 1;
+        end;
         if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
-            print_err("pdfTeX error (illegal pdfminorversion)");
+            print_err("pdfTeX error (invalid pdfminorversion)");
             print_ln;
             help2 ("The pdfminorversion must be between 0 and 9.")@/
                 ("I changed this to 4.");
             int_error (pdf_minor_version);
             pdf_minor_version := 4;
         end;
+        fixed_pdf_major_version := pdf_major_version;
         fixed_pdf_minor_version := pdf_minor_version;
         fixed_gamma             := fix_int(pdf_gamma, 0, 1000000);
         fixed_image_gamma       := fix_int(pdf_image_gamma, 0, 1000000);
@@ -15416,18 +15438,21 @@ begin
         fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
         fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
         fixed_inclusion_copy_font      := fix_int(pdf_inclusion_copy_font, 0, 1);
-        if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
+        if ((fixed_pdf_major_version > 1) or (fixed_pdf_minor_version >= 5))
+            and (fixed_pdf_objcompresslevel > 0) then
             pdf_os_enable := true
         else begin
             if fixed_pdf_objcompresslevel > 0 then begin
-                pdf_warning("Object streams", "\pdfobjcompresslevel > 0 requires \pdfminorversion > 4. Object streams disabled now.", true, true);
+                pdf_warning("Object streams", "\pdfobjcompresslevel > 0 requires PDF-1.5 or greater. Object streams disabled now.", true, true);
                 fixed_pdf_objcompresslevel := 0;
             end;
             pdf_os_enable := false;
         end;
         ensure_pdf_open;
         fix_pdfoutput;
-        pdf_print("%PDF-1.");
+        pdf_print("%PDF-");
+        pdf_print_int(fixed_pdf_major_version);
+        pdf_print(".");
         pdf_print_int_ln(fixed_pdf_minor_version);
         pdf_print("%");
         pdf_out(208); {'P' + 128}
@@ -15437,9 +15462,10 @@ begin
         pdf_print_nl;
     end
     else begin
-        if fixed_pdf_minor_version <> pdf_minor_version then
+        if (fixed_pdf_minor_version <> pdf_minor_version)
+           or (fixed_pdf_major_version <> pdf_major_version) then
             pdf_error("setup",
-               "\pdfminorversion cannot be changed after data is written to the PDF file");
+        "PDF version cannot be changed after data is written to the PDF file");
     end;
 end;
 
@@ -16769,7 +16795,7 @@ end;
 
 procedure pdf_begin_obj(i: integer; pdf_os_level: integer); {begin a PDF object}
 begin
-    check_pdfminorversion;
+    check_pdfversion;
     pdf_os_prepare_obj(i, pdf_os_level);
     if not pdf_os_mode then begin
         pdf_print_int(i);
@@ -16798,7 +16824,7 @@ end;
 
 procedure pdf_begin_dict(i: integer; pdf_os_level: integer); {begin a PDF dictionary object}
 begin
-    check_pdfminorversion;
+    check_pdfversion;
     pdf_os_prepare_obj(i, pdf_os_level);
     if not pdf_os_mode then begin
         pdf_print_int(i);
@@ -19647,7 +19673,7 @@ begin
 end;
 
 @ @<Initialize variables for \.{PDF} output@>=
-check_pdfminorversion;
+check_pdfversion;
 prepare_mag;
 fixed_decimal_digits := fix_int(pdf_decimal_digits, 0, 4);
 min_bp_val :=
@@ -32999,7 +33025,7 @@ already in an earlier module.
 
 @<Undump pdftex data@>=
 begin
-undumpimagemeta(pdf_minor_version,pdf_inclusion_errorlevel);  {the image information array }
+undumpimagemeta(pdf_major_version,pdf_minor_version,pdf_inclusion_errorlevel);  {the image information array }
 undump_int(pdf_mem_size);
 pdf_mem := xrealloc_array(pdf_mem, integer, pdf_mem_size);
 undump_int(pdf_mem_ptr);
@@ -34358,7 +34384,7 @@ begin
     if pagebox = 0 then {no pagebox specification given}
         pagebox := pdf_box_spec_crop;
     obj_ximage_data(k) := read_image(s, page, named, colorspace, pagebox,
-                                     pdf_minor_version,
+                                     pdf_major_version, pdf_minor_version,
                                      pdf_inclusion_errorlevel);
     if named <> 0 then flush_str(named);
     flush_str(s);
@@ -34371,7 +34397,7 @@ end;
 @ @<Implement \.{\\pdfximage}@>=
 begin
     check_pdfoutput("\pdfximage", true);
-    check_pdfminorversion;
+    check_pdfversion;
     scan_image;
 end
 

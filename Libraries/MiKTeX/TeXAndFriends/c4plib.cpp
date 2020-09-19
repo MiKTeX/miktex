@@ -1,6 +1,6 @@
 /* c4plib.cpp: C4P runtime routines
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,70 +19,129 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
+#if defined(MIKTEX_TEXMF_SHARED)
+#  define C4PEXPORT MIKTEXDLLEXPORT
+#else
+#  define C4PEXPORT
+#endif
+#define C1F0C63F01D5114A90DDF8FC10FF410B
+#include "miktex/C4P/C4P.h"
+
 #include "internal.h"
+
+using namespace std;
+
+using namespace MiKTeX::Core;
 
 #define C4P_BEGIN_NAMESPACE namespace C4P {
 #define C4P_END_NAMESPACE }
 
 C4P_BEGIN_NAMESPACE;
 
-C4PCEEAPI(void) DiscardLine(C4P_text& textfile)
+void C4P_text::DiscardLine()
 {
-  MIKTEX_API_BEGIN("DiscardLine");
-  textfile.AssertValid();
+  AssertValid();
   // FIXME: OS X
-  while (!feof(textfile) && GetChar(textfile) != '\n')
+  while (!feof(file) && GetChar() != '\n')
   {
     ;
   }
-  MIKTEX_API_END("DiscardLine");
 }
 
-C4PCEEAPI(char) GetChar(C4P_text& textfile)
+inline bool C4P_text::IsTerminal()
 {
-  MIKTEX_API_BEGIN("GetChar");
-  textfile.AssertValid();
-  char ch = *textfile;
-  int ch2 = GetC(textfile);
-  if (ch2 != EOF)
+  int fd = fileno(file);
+  if (fd < 0)
   {
-    *textfile = static_cast<char>(ch2);
+    MIKTEX_FATAL_CRT_ERROR_2("fileno", "path", path.ToString());
+  }
+#if defined(MIKTEX_WINDOWS)
+  int x = _isatty(fd);
+#else
+  int x = isatty(fd);
+#endif
+#if 0
+  if (errno != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("isatty", "path", path.ToString());
+  }
+#endif
+  return x != 0;
+}
+
+char C4P_text::GetChar()
+{
+  AssertValid();
+  if (!IsPascalFileIO())
+  {
+    PascalFileIO(true);
+    bufref() = GetC(file);
+  }
+  char ch = bufref();
+  if (ch == '\n' && IsTerminal())
+  {
+    PascalFileIO(false);
+  }
+  else
+  {
+    int ch2 = GetC(file);
+    if (ch2 != EOF)
+    {
+      bufref() = static_cast<char>(ch2);
+    }
   }
   return ch;
-  MIKTEX_API_END("GetChar");
 }
 
-C4PCEEAPI(C4P_integer) GetInteger(C4P_text& textfile)
+C4P_integer C4P_text::GetInteger()
 {
-  MIKTEX_API_BEGIN("GetInteger");
-  textfile.AssertValid();
-  int ch = GetChar(textfile);
-  int sign = (ch == '-' ? -1 : 1);
-  C4P_integer result = 0;
-  if (ch == '+' || ch == '-')
+  AssertValid();
+  while (!Eof())
   {
-    ch = GetChar(textfile);
+    int ch;
+    do
+    {
+      ch = GetChar();
+    } while (!Eof() && !isdigit(ch) && ch != '-' && ch != '+');
+    int sign = (ch == '-' ? -1 : 1);
+    if ((ch == '+' || ch == '-') && !Eof())
+    {
+      ch = GetChar();
+    }
+    if (isdigit(ch))
+    {
+      C4P_integer result = 0;
+      while (isdigit(ch))
+      {
+        result *= 10;
+        result += (ch - '0');
+        if (Eof())
+        {
+          break;
+        }
+        ch = GetChar();
+      }
+      return result * sign;
+    }
   }
-  while (isdigit(ch))
-  {
-    result *= 10;
-    result += (ch - '0');
-    ch = GetChar(textfile);
-  }
-  return result * sign;
-  MIKTEX_API_END("GetInteger");
+  return 0;
 }
 
-C4PCEEAPI(C4P_real) GetReal(C4P_text& /*textfile*/)
+C4P_real C4P_text::GetReal()
 {
-  MIKTEX_API_BEGIN("GetReal");
-  MIKTEX_UNEXPECTED();
-  MIKTEX_API_END("GetReal");
+  MIKTEX_UNIMPLEMENTED();
 }
 
 bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool text, bool mustExist)
 {
-  MIKTEX_API_BEGIN("FileRoot::open");
+  this->path = path;
   FILE* file;
   shared_ptr<Session> session = Session::Get();
   if (mustExist)
@@ -99,12 +158,10 @@ bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool
   }
   Attach(file, true);
   return true;
-  MIKTEX_API_END("FileRoot::open");
 }
 
 C4PCEEAPI(C4P_integer) Round(double r)
 {
-  MIKTEX_API_BEGIN("Round");
   if (r > INT_MAX)
   {
     return INT_MAX;
@@ -121,7 +178,6 @@ C4PCEEAPI(C4P_integer) Round(double r)
   {
     return static_cast<C4P_integer>(r - 0.5);
   }
-  MIKTEX_API_END("Round");
 }
 
 C4P_END_NAMESPACE;

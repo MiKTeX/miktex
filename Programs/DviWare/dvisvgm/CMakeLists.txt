@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -49,10 +49,16 @@ if(CMAKE_CL_64)
 endif()
 
 set(HAVE_CXX11 1)
+set(VERSION "2.8.2")
 
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
+  source/src/version.hpp.in
+  ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
 )
 
 set(libclipper_sources
@@ -66,6 +72,7 @@ set(libxxhash_sources
 )
 
 set(libbrotli_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
   source/libs/brotli/common/constants.h
   source/libs/brotli/common/context.h
   source/libs/brotli/common/dictionary.c
@@ -264,6 +271,26 @@ set(potrace_sources
   source/libs/potrace/trace.c
   source/libs/potrace/trace.h
 )
+
+set(liboptimizer_sources
+  source/src/optimizer/AttributeExtractor.cpp
+  source/src/optimizer/AttributeExtractor.hpp
+  source/src/optimizer/DependencyGraph.hpp
+  source/src/optimizer/GroupCollapser.cpp
+  source/src/optimizer/GroupCollapser.hpp
+  source/src/optimizer/OptimizerModule.hpp
+  source/src/optimizer/RedundantElementRemover.cpp
+  source/src/optimizer/RedundantElementRemover.hpp
+  source/src/optimizer/SVGOptimizer.cpp
+  source/src/optimizer/SVGOptimizer.hpp
+  source/src/optimizer/TextSimplifier.cpp
+  source/src/optimizer/TextSimplifier.hpp
+  source/src/optimizer/TransformSimplifier.cpp
+  source/src/optimizer/TransformSimplifier.hpp
+  source/src/optimizer/WSNodeRemover.cpp
+  source/src/optimizer/WSNodeRemover.hpp
+)
+
 set(libdvisvgm_sources
   source/src/AGLTable.hpp
   source/src/BasicDVIReader.cpp
@@ -285,8 +312,6 @@ set(libdvisvgm_sources
   source/src/CMapManager.hpp
   source/src/CMapReader.cpp
   source/src/CMapReader.hpp
-  source/src/CRC32.cpp
-  source/src/CRC32.hpp
   source/src/Calculator.cpp
   source/src/Calculator.hpp
   source/src/CharMapID.cpp
@@ -296,6 +321,7 @@ set(libdvisvgm_sources
   source/src/Color.hpp
   source/src/ColorSpecialHandler.cpp
   source/src/ColorSpecialHandler.hpp
+  source/src/CommandLine.hpp
   source/src/DLLoader.cpp
   source/src/DLLoader.hpp
   source/src/DVIActions.hpp
@@ -305,7 +331,6 @@ set(libdvisvgm_sources
   source/src/DVIToSVG.hpp
   source/src/DVIToSVGActions.cpp
   source/src/DVIToSVGActions.hpp
-  source/src/DependencyGraph.hpp
   source/src/Directory.cpp
   source/src/Directory.hpp
   source/src/DvisvgmSpecialHandler.cpp
@@ -313,6 +338,8 @@ set(libdvisvgm_sources
   source/src/EPSFile.cpp
   source/src/EPSFile.hpp
   source/src/EPSToSVG.hpp
+  source/src/EllipticalArc.cpp
+  source/src/EllipticalArc.hpp
   source/src/EmSpecialHandler.cpp
   source/src/EmSpecialHandler.hpp
   source/src/EncFile.cpp
@@ -477,7 +504,6 @@ set(libdvisvgm_sources
   source/src/psdefs.cpp
   source/src/utility.cpp
   source/src/utility.hpp
-  source/src/version.hpp
   source/src/windows.hpp
 )
 
@@ -498,15 +524,16 @@ set(dvisvgm_sources
   ${libclipper_sources}
   ${libdvisvgm_sources}
   ${libffwoff_sources}
-  ${potrace_sources}
+  ${liboptimizer_sources}
   ${libwoff2_sources}
   ${libxxhash_sources}
+  ${potrace_sources}
   dvisvgm-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvisvgm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     dvisvgm.rc
   )
 endif()

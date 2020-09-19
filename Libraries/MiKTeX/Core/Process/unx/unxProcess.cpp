@@ -1,6 +1,6 @@
 /* unxProcess.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <signal.h>
 #include <sys/wait.h>
@@ -59,6 +62,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 const int filenoStdin = 0;
@@ -257,7 +261,7 @@ void unxProcess::Create()
   // fork
   if (session != nullptr)
   {
-    session->trace_process->WriteFormattedLine("core", "forking...");
+    session->trace_process->WriteLine("core", TraceLevel::Info, "forking...");
   }
   if (pipeStdout.GetReadEnd() >= 0
     || pipeStderr.GetReadEnd() >= 0
@@ -309,15 +313,10 @@ void unxProcess::Create()
       if (session != nullptr)
       {
         session->SetEnvironmentVariables();
-        session->trace_process->WriteFormattedLine("core", "execv: %s", startinfo.FileName.c_str());
-        for (int idx = 0; argv[idx] != nullptr; ++idx)
-        {
-          session->trace_process->WriteFormattedLine("core", " argv[%d]: %s", idx, argv[idx]);
-        }
       }
       if (!startinfo.WorkingDirectory.empty())
       {
-        Directory::SetCurrent(startinfo.WorkingDirectory);
+        Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
       }
       if (startinfo.Daemonize)
       {
@@ -325,6 +324,19 @@ void unxProcess::Create()
         {
           MIKTEX_FATAL_CRT_ERROR("setsid");
         }
+      }
+      if (session != nullptr)
+      {
+        string args;
+        for (int idx = 0; argv[idx] != nullptr; ++idx)
+        {
+          args += fmt::format("\"{0}\"", argv[idx]);
+          if (argv[idx + 1] != nullptr)
+          {
+            args += ", ";
+          }
+        }
+        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", startinfo.FileName, args));
       }
       execv(startinfo.FileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
       perror("execv failed");
@@ -455,7 +467,7 @@ void unxProcess::WaitForExit()
   if (this->pid > 0)
   {
     auto session = SessionImpl::GetSession();
-    session->trace_process->WriteFormattedLine("core", "waiting for process %d", static_cast<int>(this->pid));
+    session->trace_process->WriteLine("core", fmt::format("waiting for process {0}", this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
     while (waitpid(pid, &status, 0) <= 0)
@@ -467,19 +479,19 @@ void unxProcess::WaitForExit()
     }
     if (WIFEXITED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d exited with status %d", static_cast<int>(pid), WEXITSTATUS(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} exited with status {1}", pid, WEXITSTATUS(status)));
     }
     else if (WIFSIGNALED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d terminated due to signal %d", static_cast<int>(pid), WTERMSIG(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status)));
     }
     else if (WIFSTOPPED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d stopped due to signal %d", static_cast<int>(pid), WSTOPSIG(status));
+      session->trace_process->WriteLine("core", fmt::format("process {0} stopped due to signal {1}", pid, WSTOPSIG(status)));
     }
     else if (WIFCONTINUED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", "process %d continued");
+      session->trace_process->WriteLine("core", fmt::format("process {0} continued", pid));
     }
   }
 }
@@ -551,9 +563,9 @@ string ConfStr(int name)
 MIKTEXSTATICFUNC(PathName) FindSystemShell()
 {
 #if defined(HAVE_CONFSTR) && defined(_CS_SHELL)
-  return ConfStr(_CS_SHELL);
+  return PathName(ConfStr(_CS_SHELL));
 #else
-  return "/bin/sh";
+  return PathName("/bin/sh");
 #endif
 }
 
@@ -569,13 +581,13 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 void Process::StartSystemCommand(const string& commandLine)
 {
   vector<string> arguments = Wrap(commandLine);
-  Process::Start(arguments[0], arguments);
+  Process::Start(PathName(arguments[0]), arguments);
 }
 
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)
 {
   vector<string> arguments = Wrap(commandLine);
-  return Process::Run(arguments[0], arguments, callback, exitCode, directory);
+  return Process::Run(PathName(arguments[0]), arguments, callback, exitCode, directory);
 }
 
 unique_ptr<Process> Process::GetCurrentProcess()
@@ -611,7 +623,9 @@ unique_ptr<Process> unxProcess::get_Parent()
 string unxProcess::get_ProcessName()
 {
 #if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/comm";
+  PathName path("/proc");
+  path /= std::to_string(pid);
+  path /= "comm";
   if (!File::Exists(path))
   {
     // process does not exist anymore
@@ -688,7 +702,9 @@ ProcessInfo unxProcess::GetProcessInfo()
   ProcessInfo processInfo;
   processInfo.name = get_ProcessName();
 #if defined(__linux__)
-  string path = "/proc/" + std::to_string(pid) + "/stat";
+  PathName path("/proc");
+  path /= std::to_string(pid);
+  path /= "stat";
   if (!File::Exists(path))
   {
     // process does not exist anymore
@@ -790,4 +806,28 @@ ProcessInfo unxProcess::GetProcessInfo()
 #error Unimplemented: unxProcess::GetProcessInfo()
 #endif
   return processInfo;
+}
+
+
+void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
+{
+  MIKTEX_EXPECT(!fileName.Empty());
+
+  Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
+
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->UnloadFilenameDatabase();
+    session->SetEnvironmentVariables();
+    session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: {0}", fileName));
+    for (int idx = 0; argv[idx] != nullptr; ++idx)
+    {
+      session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
+    }
+  }
+
+  execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
+
+  MIKTEX_UNEXPECTED();
 }

@@ -1,6 +1,6 @@
 /* RepositoryListModel.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -19,6 +19,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Uri>
 #include <miktex/PackageManager/PackageManager>
 
@@ -128,8 +129,8 @@ void RepositoryTableModel::InternalReload()
 void RepositoryTableModel::Reload()
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   InternalReload();
-  endResetModel();
 }
 
 int RepositoryTableModel::GetDefaultIndex()

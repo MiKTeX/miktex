@@ -1448,8 +1448,7 @@ void set_math_char(mathcodeval mval)
         } else {
             math_class_to_type(subtype(p),mval.class_value);
         }
-        vlink(tail) = p;
-        tail = p;
+        tail_append(p);
     }
 }
 
@@ -1474,8 +1473,7 @@ void math_char_in_text(mathcodeval mval)
         back_input();
     } else {
         p = new_char(fam_fnt(mval.family_value, text_size), mval.character_value);
-        vlink(tail) = p;
-        tail = p;
+        tail_append(p);
     }
 }
 

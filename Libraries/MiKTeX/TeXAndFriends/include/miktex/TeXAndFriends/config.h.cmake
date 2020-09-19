@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/config.h:                       -*- C++ -*-
 
-   Copyright (C) 2009-2018 Christian Schenk
+   Copyright (C) 2009-2020 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -67,7 +67,6 @@
 
 #cmakedefine WITH_PDFTEX 1
 #cmakedefine WITH_SYNCTEX 1
-#cmakedefine WITH_OMEGA 1
 
 #if defined(MIKTEX_TEX) || defined(MIKTEX_TRIPTEX)
 #  define MIKTEX_TEX_COMPILER 1
@@ -78,11 +77,6 @@
 #endif
 
 #if defined(MIKTEX_XETEX)
-#  define MIKTEX_TEX_COMPILER 1
-#  define MIKTEX_TEXMF_UNICODE 1
-#endif
-
-#if defined(MIKTEX_OMEGA)
 #  define MIKTEX_TEX_COMPILER 1
 #  define MIKTEX_TEXMF_UNICODE 1
 #endif
@@ -100,12 +94,10 @@
 #  define HAVE_MAIN_MEMORY 1
 #  define HAVE_POOL_FREE 1
 #  define HAVE_STRINGS_FREE 1
-#  if !(defined(MIKTEX_XETEX) || defined(MIKTEX_OMEGA))
+#  if !defined(MIKTEX_XETEX)
 #    define IMPLEMENT_TCX 1
 #  endif
-#  if !defined(MIKTEX_OMEGA)
-#    define ENABLE_8BIT_CHARS 1
-#  endif
+#  define ENABLE_8BIT_CHARS 1
 #endif
 
 #if defined(MIKTEX_BIBTEX)

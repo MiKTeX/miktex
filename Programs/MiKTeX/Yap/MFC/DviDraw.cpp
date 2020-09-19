@@ -1,6 +1,6 @@
 /* DviDraw.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -100,7 +100,7 @@ DviDraw::~DviDraw()
     {
       if (!DeleteObject((*it).second))
       {
-        TraceError(T_("DeleteObject() failed for some reason"));
+        YapError(T_("DeleteObject() failed for some reason"));
       }
     }
   }
@@ -260,11 +260,11 @@ void DviDraw::DrawDviBitmaps(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
     // FIXME: use AutoResource
     if (!SelectObject(hdcMem, hOldBitmap))
     {
-      TraceError(T_("SelectObject() failed for some reason"));
+      YapError(T_("SelectObject() failed for some reason"));
     }
     if (!DeleteObject(hBitmap))
     {
-      TraceError(T_("DeleteObject() failed for some reason"));
+      YapError(T_("DeleteObject() failed for some reason"));
     }
 #endif
   }
@@ -273,7 +273,7 @@ void DviDraw::DrawDviBitmaps(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
   // FIXME: use AutoResource
   if (!DeleteDC(hdcMem))
   {
-    TraceError(T_("DeleteDC() failed for some reason"));
+    YapError(T_("DeleteDC() failed for some reason"));
   }
 #endif
 }
@@ -356,11 +356,11 @@ void DviDraw::DrawDibChunks(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
     // FIXME: use AutoResource
     if (!SelectObject(hdcMem, hOldBitmap))
     {
-      TraceError(T_("SelectObject() failed for some reason"));
+      YapError(T_("SelectObject() failed for some reason"));
     }
     if (!DeleteObject(hBitmap))
     {
-      TraceError(T_("DeleteObject() failed for some reason"));
+      YapError(T_("DeleteObject() failed for some reason"));
     }
 #endif
   }
@@ -369,7 +369,7 @@ void DviDraw::DrawDibChunks(CDC* pDC, DviDoc* pDoc, DviPage* pPage)
   // FIXME: use AutoResource
   if (!DeleteDC(hdcMem))
   {
-    TraceError(T_("DeleteDC() failed for some reason"));
+    YapError(T_("DeleteDC() failed for some reason"));
   }
 #endif
 }

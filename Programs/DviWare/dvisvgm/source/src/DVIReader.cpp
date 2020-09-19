@@ -2,7 +2,7 @@
 ** DVIReader.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -30,8 +30,8 @@
 #include "HashFunction.hpp"
 #include "VectorStream.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
@@ -281,7 +281,7 @@ void DVIReader::cmdPop (int) {
  *  @param[in] font current font (corresponding to _currFontNum)
  *  @param[in] c character to typeset */
 void DVIReader::putVFChar (Font *font, uint32_t c) {
-	if (VirtualFont *vf = dynamic_cast<VirtualFont*>(font)) { // is current font a virtual font?
+	if (auto vf = dynamic_cast<VirtualFont*>(font)) { // is current font a virtual font?
 		if (const vector<uint8_t> *dvi = vf->getDVI(c)) { // try to get DVI snippet that represents character c
 			FontManager &fm = FontManager::instance();
 			DVIState savedState = _dviState;  // save current cursor position
@@ -461,11 +461,8 @@ void DVIReader::cmdDir (int) {
 	uint8_t wmode = readUnsigned(1);
 	if (wmode == 4)  // yoko mode (4) equals default LR mode (0)
 		wmode = 0;
-	if (wmode == 2 || wmode > 3) {
-		ostringstream oss;
-		oss << "invalid writing mode value " << wmode << " (0, 1, 3, or 4 expected)";
-		throw DVIException(oss.str());
-	}
+	if (wmode == 2 || wmode > 3)
+		throw DVIException("invalid writing mode value " + std::to_string(wmode) + " (0, 1, 3, or 4 expected)");
 	_dviState.d = (WritingMode)wmode;
 	dviDir(_dviState.d);
 }
@@ -489,11 +486,8 @@ void DVIReader::setFont (int fontnum, SetFontMode mode) {
 		_currFontNum = fontnum;
 		dviFontNum(uint32_t(fontnum), mode, font);
 	}
-	else {
-		ostringstream oss;
-		oss << "undefined font number " << fontnum;
-		throw DVIException(oss.str());
-	}
+	else
+		throw DVIException("undefined font number " + std::to_string(fontnum));
 }
 
 
@@ -526,11 +520,11 @@ const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_
 	if (!font) {
 		int id = fm.registerFont(fontnum, name, cs, ds, ss);
 		font = fm.getFontById(id);
-		if (VirtualFont *vf = dynamic_cast<VirtualFont*>(font)) {
+		if (auto vf = dynamic_cast<VirtualFont*>(font)) {
 			// read vf file, register its font and character definitions
 			fm.enterVF(vf);
 #if defined(MIKTEX_WINDOWS)
-                        ifstream ifs(UW_(vf->path()), ios::binary);
+                        ifstream ifs(EXPATH_(vf->path()), ios::binary);
 #else
 			ifstream ifs(vf->path(), ios::binary);
 #endif

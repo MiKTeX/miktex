@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -61,7 +61,7 @@ set(minilua_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND minilua_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -99,7 +99,7 @@ set(buildvm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND buildvm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -382,7 +382,7 @@ set(luajit_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND luajit_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     luajit.rc
   )
 endif()

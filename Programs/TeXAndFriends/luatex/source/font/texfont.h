@@ -329,7 +329,6 @@ boolean cmp_font_area(int, str_number);
 #  define font_streamprovider(a)         font_tables[a]->_font_streamprovider
 #  define set_font_streamprovider(a,b)   font_streamprovider(a) = b
 
-
 #  define font_oldmath(a)                font_tables[a]->_font_oldmath
 #  define set_font_oldmath(a,b)          font_oldmath(a) = b
 

@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,6 +34,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
+using namespace MiKTeX::Util;
 using namespace std;
 
 class VarExpand : public MiKTeX::Core::HasNamedValues
@@ -132,7 +133,7 @@ BEGIN_TEST_FUNCTION(2);
 #if 0 // todo: kpathsea (right-to-left) expansion
   TEST(pSession->Expand("x{A,B}{1,2}y", ExpandOption::Braces, nullptr) == "xA1y;xB1y;xA2y;xB2y");
 #endif
-  TEST(Utils::IsAbsolutePath(fut7.get()));
+  TEST(PathNameUtil::IsAbsolutePath(fut7.get()));
 }
 END_TEST_FUNCTION();
 

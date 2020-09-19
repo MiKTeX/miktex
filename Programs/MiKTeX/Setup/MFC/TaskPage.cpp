@@ -1,6 +1,6 @@
 /* TaskPage.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2020 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -149,9 +149,22 @@ BOOL TaskPage::OnKillActive()
   BOOL ret = CPropertyPage::OnKillActive();
   if (ret)
   {
-    SetupOptions options = SetupApp::Instance->Service->GetOptions();
-    options.Task = (task == 0 ? SetupTask::Download : (task == 1 ? SetupTask::InstallFromLocalRepository : SetupTask::InstallFromRemoteRepository));
-    SetupApp::Instance->Service->SetOptions(options);
+    try
+    {
+      SetupOptions options = SetupApp::Instance->Service->GetOptions();
+      options.Task = (task == 0 ? SetupTask::Download : (task == 1 ? SetupTask::InstallFromLocalRepository : SetupTask::InstallFromRemoteRepository));
+      SetupApp::Instance->Service->SetOptions(options);
+    }
+    catch (const MiKTeXException& e)
+    {
+      sheet->ReportError(e);
+      ret = FALSE;
+    }
+    catch (const exception& e)
+    {
+      sheet->ReportError(e);
+      ret = FALSE;
+    }
   }
   return ret;
 }

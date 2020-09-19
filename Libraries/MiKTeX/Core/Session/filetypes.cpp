@@ -1,6 +1,6 @@
 /* filetypes.cpp: MiKTeX file type registry
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -163,7 +163,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, str))
     {
-      PathName binDir = str;
+      PathName binDir(str);
       binDir.Canonicalize();
       if (std::find(searchPath.begin(), searchPath.end(), binDir.ToString()) == searchPath.end())
       {
@@ -182,13 +182,13 @@ void SessionImpl::RegisterFileType(FileType fileType)
     }
 #if defined(MIKTEX_UNIX)
 #if !defined(MIKTEX_MACOS_BUNDLE)
-    PathName myPrefixBin = GetMyPrefix(false) / MIKTEX_BINARY_DESTINATION_DIR;
+    PathName myPrefixBin = GetMyPrefix(false) / PathName(MIKTEX_BINARY_DESTINATION_DIR);
     if (std::find(searchPath.begin(), searchPath.end(), myPrefixBin.ToString()) == searchPath.end())
     {
       searchPath.push_back(myPrefixBin.ToString());
     }
 #endif
-    PathName myPrefixBinCanon = GetMyPrefix(true) / MIKTEX_BINARY_DESTINATION_DIR;
+    PathName myPrefixBinCanon = GetMyPrefix(true) / PathName(MIKTEX_BINARY_DESTINATION_DIR);
     if (std::find(searchPath.begin(), searchPath.end(), myPrefixBinCanon.ToString()) == searchPath.end())
     {
       searchPath.push_back(myPrefixBinCanon.ToString());
@@ -263,14 +263,14 @@ FileType SessionImpl::DeriveFileType(const PathName& fileName)
     const InternalFileTypeInfo& fti = fileTypes[idx];
     if (extension.Empty())
     {
-      if (fti.fileTypeString == fileName)
+      if (PathName(fti.fileTypeString) == fileName)
       {
         return fti.fileType;
       }
     }
     else
     {
-      if (std::find_if(fti.fileNameExtensions.begin(), fti.fileNameExtensions.end(), [extension](const string& ext) { return extension == ext; }) != fti.fileNameExtensions.end())
+      if (std::find_if(fti.fileNameExtensions.begin(), fti.fileNameExtensions.end(), [extension](const string& ext) { return extension == PathName(ext); }) != fti.fileNameExtensions.end())
       {
         return fti.fileType;
       }

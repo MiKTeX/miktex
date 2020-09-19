@@ -1,6 +1,6 @@
 /* PackageManagerImpl.h:                                -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2020 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -25,16 +25,26 @@
 #include <map>
 #include <string>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Fndb>
+#include <miktex/Core/LockFile>
 #include <miktex/Core/MD5>
 
-#include <miktex/PackageManager/PackageManager.h>
+#include <miktex/PackageManager/PackageManager>
 
 #include "internal.h"
 
 #include "PackageDataStore.h"
 #include "PackageRepositoryDataStore.h"
 #include "WebSession.h"
+
+#define MPM_LOCK_BEGIN(packageManager)                                      \
+  {                                                                         \
+    packageManager->Lock(std::chrono::seconds(10));                         \
+    MIKTEX_AUTO(packageManager->Unlock());
+
+#define MPM_LOCK_END()                                                      \
+  }
 
 MPM_INTERNAL_BEGIN_NAMESPACE;
 
@@ -59,7 +69,21 @@ public:
   std::unique_ptr<class MiKTeX::Packages::PackageIterator> MIKTEXTHISCALL CreateIterator() override;
 
 public:
-  void MIKTEXTHISCALL CreateMpmFndb() override;
+  void MIKTEXTHISCALL CreateMpmFndb() override
+  {
+    if (!packageDataStore.LoadedAllPackageManifests())
+    {
+      MPM_LOCK_BEGIN(this)
+      {
+        packageDataStore.Load();
+      }
+      MPM_LOCK_END();
+    }
+    return CreateMpmFndbNoLock();
+  }
+
+public:
+  void MIKTEXTHISCALL CreateMpmFndbNoLock();
 
 public:
   MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) override;
@@ -131,16 +155,50 @@ public:
   }
 
 public:
-  bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& packageId) override;
+  bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& packageId) override
+  {
+    if (!packageDataStore.LoadedAllPackageManifests())
+    {
+      MPM_LOCK_BEGIN(this)
+      {
+        packageDataStore.Load();
+      }
+      MPM_LOCK_END();
+    }
+    return TryVerifyInstalledPackageNoLock(packageId);
+  }
 
 public:
-  std::string MIKTEXTHISCALL GetContainerPath(const std::string& packageId, bool useDisplayNames) override;
+  bool MIKTEXTHISCALL TryVerifyInstalledPackageNoLock(const std::string& packageId);
+
+public:
+  std::string MIKTEXTHISCALL GetContainerPath(const std::string& packageId, bool useDisplayNames) override
+  {
+    if (!packageDataStore.LoadedAllPackageManifests())
+    {
+      MPM_LOCK_BEGIN(this)
+      {
+        packageDataStore.Load();
+      }
+      MPM_LOCK_END();
+    }
+    return GetContainerPathNoLock(packageId, useDisplayNames);
+  }
+
+public:
+  std::string MIKTEXTHISCALL GetContainerPathNoLock(const std::string& packageId, bool useDisplayNames);
 
 public:
   InstallationSummary MIKTEXTHISCALL GetInstallationSummary(bool userScope) override;
 
 public:
   PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
+
+public:
+  void Lock(std::chrono::milliseconds timeout);
+
+public:
+  void Unlock();
 
 public:
   void ClearAll();
@@ -153,6 +211,9 @@ private:
 
 private:
   void Dispose();
+
+private:
+  std::unique_ptr<MiKTeX::Core::LockFile> lockFile;
 
 private:
   std::string remoteServiceBaseUrl;

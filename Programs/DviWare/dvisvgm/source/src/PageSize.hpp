@@ -2,7 +2,7 @@
 ** PageSize.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -25,14 +25,14 @@
 #include "MessageException.hpp"
 
 struct PageSizeException : public MessageException {
-	PageSizeException (const std::string &msg) : MessageException(msg) {}
+	explicit PageSizeException (const std::string &msg) : MessageException(msg) {}
 };
 
 class PageSize {
 	public:
 		PageSize () =default;
 		PageSize (Length w, Length h) : _width(w), _height(h) {}
-		PageSize (const std::string &name);
+		explicit PageSize (const std::string &name);
 		void resize (std:: string name);
 		void resize (Length w, Length h);
 		Length width () const  {return _width;}

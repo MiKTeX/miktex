@@ -17,6 +17,10 @@
 #include "path.h"
 #include "arrayop.h"
 
+// For CYGWIN
+#undef near
+#undef far
+
 namespace camp {
   
 void checkEmpty3(Int n);
@@ -35,11 +39,6 @@ struct solvedKnot3 : public gc {
   }
 };
 
-extern const double BigFuzz;
-extern const double Fuzz;
-extern const double Fuzz2;
-extern const double sqrtFuzz;
-  
 class path3 : public gc {
   bool cycles;  // If the path3 is closed in a loop
 
@@ -288,13 +287,13 @@ public:
   triple mintimes() const {
     checkEmpty3(n);
     bounds();
-    return camp::triple(times.left,times.bottom,times.lower);
+    return camp::triple(times.left,times.bottom,times.near);
   }
   
   triple maxtimes() const {
     checkEmpty3(n);
     bounds();
-    return camp::triple(times.right,times.top,times.upper);
+    return camp::triple(times.right,times.top,times.far);
   }
   
   template<class T>
@@ -330,6 +329,9 @@ public:
   Int windingnumber(const triple& z) const;
 };
 
+double arcLength(const triple& z0, const triple& c0, const triple& c1,
+                 const triple& z1);
+  
 path3 transformed(const vm::array& t, const path3& p);
 path3 transformed(const double* t, const path3& p);
   

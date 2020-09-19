@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -198,6 +198,51 @@ spc_pdfm_at_end_document (void)
   return  spc_handler_pdfm__clean(sd);
 }
 
+/* Why should we have this kind of things? */
+static int
+safeputresdent (pdf_obj *kp, pdf_obj *vp, void *dp)
+{
+  char  *key;
+
+  ASSERT(kp && vp && dp);
+
+  key = pdf_name_value(kp);
+  if (pdf_lookup_dict(dp, key))
+    WARN("Object \"%s\" already defined in dict! (ignored)", key);
+  else {
+    pdf_add_dict(dp,
+                 pdf_link_obj(kp), pdf_link_obj(vp));
+  }
+  return 0;
+}
+
+static int
+safeputresdict (pdf_obj *kp, pdf_obj *vp, void *dp)
+{
+  char    *key;
+  pdf_obj *dict;
+
+  ASSERT(kp && vp && dp);
+
+  key  = pdf_name_value(kp);
+  dict = pdf_lookup_dict(dp, key);
+
+  if (pdf_obj_typeof(vp) == PDF_INDIRECT) {
+    pdf_add_dict(dp, pdf_new_name(key), pdf_link_obj(vp));
+  } else if (pdf_obj_typeof(vp) == PDF_DICT) {
+    if (dict)
+      pdf_foreach_dict(vp, safeputresdent, dict);
+    else {
+      pdf_add_dict(dp, pdf_new_name(key), pdf_link_obj(vp));
+    }
+  } else {
+    WARN("Invalid type (not DICT) for page/form resource dict entry: key=\"%s\"", key);
+    return  -1;
+  }
+
+  return 0;
+}
+
 static
 int putpageresources (pdf_obj *kp, pdf_obj *vp, void *dp)
 {
@@ -206,7 +251,7 @@ int putpageresources (pdf_obj *kp, pdf_obj *vp, void *dp)
   ASSERT(kp && vp);
 
   resource_name = pdf_name_value(kp);
-  pdf_doc_add_page_resource(dp, resource_name, pdf_ref_obj(vp));
+  pdf_doc_add_page_resource(dp, resource_name, pdf_link_obj(vp));
 
   return 0;
 }
@@ -214,16 +259,65 @@ int putpageresources (pdf_obj *kp, pdf_obj *vp, void *dp)
 static
 int forallresourcecategory (pdf_obj *kp, pdf_obj *vp, void *dp)
 {
+  int   r = -1;
   char *category;
 
   ASSERT(kp && vp);
 
   category = pdf_name_value(kp);
-  if (!PDF_OBJ_DICTTYPE(vp)) {
-    return -1;
+  switch (pdf_obj_typeof(vp)) {
+  case PDF_DICT:
+    r = pdf_foreach_dict(vp, putpageresources, category);
+    break;
+  case PDF_INDIRECT:
+    {
+      /* In case pdf:pageresouces << /Category @res >> */
+      pdf_obj *obj;
+      obj = pdf_deref_obj(vp);
+      if (!obj) {
+        WARN("Can't deref object for page resource: %s", category);
+        r = -1;
+      } else if (pdf_obj_typeof(obj) != PDF_DICT) {
+        WARN("Invalid object type for page resource: %s", category);
+        r = -1;
+      } else {
+        pdf_obj *res_dict, *dict;
+
+        res_dict = pdf_doc_current_page_resources();
+        dict     = pdf_lookup_dict(res_dict, category);
+        if (!dict) {
+          pdf_add_dict(res_dict, pdf_new_name(category), pdf_link_obj(vp));
+        } else {
+          if (pdf_obj_typeof(dict) == PDF_INDIRECT) {
+            dict = pdf_deref_obj(dict);
+            pdf_release_obj(dict); /* FIXME: jus to decrement link counter */
+          }
+#if 1
+          /* This will leave garbage (object "res") since object "res"
+           * supplied as resource dictionary will have label but we copy the
+           * content of res here and never use reference to it.
+           */
+          pdf_foreach_dict(obj, safeputresdent, dict);
+#else
+          /* With the below code resource dictionary is replaced by user
+           * supplied one, @res. However, there is a problem that all
+           * resources including internally generated one may go into single
+           * dictionary referenced by @res, and will be visible from any
+           * subsequent pages. 
+           */
+          pdf_foreach_dict(dict, safeputresdent, obj);
+          pdf_add_dict(res_dict, pdf_new_name(category), pdf_link_obj(vp));
+#endif
+        }
+        pdf_release_obj(obj);
+      }
+    }
+    break;
+  default:
+    WARN("Invalid object type for page resource specified for \"%s\"", category);
   }
 
-  return pdf_foreach_dict(vp, putpageresources, category);
+  return r;
 }
 
 int
@@ -267,56 +361,6 @@ spc_handler_pdfm_eop (struct spc_env *spe, struct spc_arg *args)
 
 #define streamfiltered(o) \
   (pdf_lookup_dict(pdf_stream_dict((o)), "Filter") ? 1 : 0)
-
-/* Why should we have this kind of things? */
-static int
-safeputresdent (pdf_obj *kp, pdf_obj *vp, void *dp)
-{
-  char  *key;
-
-  ASSERT(kp && vp && dp);
-
-  key = pdf_name_value(kp);
-  if (pdf_lookup_dict(dp, key))
-    WARN("Object \"%s\" already defined in dict! (ignored)", key);
-  else {
-    pdf_add_dict(dp,
-                 pdf_link_obj(kp), pdf_link_obj(vp));
-  }
-  return 0;
-}
-
-#ifndef pdf_obj_isaref
-#define pdf_obj_isaref(o) (pdf_obj_typeof((o)) == PDF_INDIRECT)
-#endif
-
-static int
-safeputresdict (pdf_obj *kp, pdf_obj *vp, void *dp)
-{
-  char    *key;
-  pdf_obj *dict;
-
-  ASSERT(kp && vp && dp);
-
-  key  = pdf_name_value(kp);
-  dict = pdf_lookup_dict(dp, key);
-
-  if (pdf_obj_isaref(vp)) {
-    pdf_add_dict(dp, pdf_new_name(key), pdf_link_obj(vp));
-  } else if (pdf_obj_typeof(vp) == PDF_DICT) {
-    if (dict)
-      pdf_foreach_dict(vp, safeputresdent, dict);
-    else {
-      pdf_add_dict(dp, pdf_new_name(key), pdf_link_obj(vp));
-    }
-  } else {
-    WARN("Invalid type (not DICT) for page/form resource dict entry: key=\"%s\"", key);
-    return  -1;
-  }
-
-  return 0;
-}
-
 
 /* Think what happens if you do
  *
@@ -1716,7 +1760,8 @@ spc_handler_pdfm_bform (struct spc_env *spe, struct spc_arg *args)
 static int
 spc_handler_pdfm_eform (struct spc_env *spe, struct spc_arg *args)
 {
-  pdf_obj   *attrib = NULL;
+  pdf_obj         *attrib = NULL;
+  struct spc_pdf_ *sd     = &_pdf_stat;
 
   skip_white(&args->curptr, args->endptr);
 
@@ -1726,6 +1771,10 @@ spc_handler_pdfm_eform (struct spc_env *spe, struct spc_arg *args)
       pdf_release_obj(attrib);
       attrib = NULL;
     }
+  }
+  /* pageresources here too */
+  if (sd->pageresources) {
+    pdf_foreach_dict(sd->pageresources, forallresourcecategory, NULL);
   }
   pdf_doc_end_grabbing(attrib);
 
@@ -2043,6 +2092,20 @@ spc_handler_pdfm_pageresources (struct spc_env *spe, struct spc_arg *args)
   return 0;
 }
 
+static int
+spc_handler_pdft_compat_page (struct spc_env *spe, struct spc_arg *args)
+{
+  skip_white(&args->curptr, args->endptr);
+  if (args->curptr < args->endptr) {
+    pdf_doc_add_page_content(" ", 1);  /* op: */
+    pdf_doc_add_page_content(args->curptr, (int) (args->endptr - args->curptr));  /* op: ANY */
+  }
+
+  args->curptr = args->endptr;
+
+  return 0;
+}
+
 static struct spc_handler pdfm_handlers[] = {
   {"annotation", spc_handler_pdfm_annot},
   {"annotate",   spc_handler_pdfm_annot},
@@ -2158,6 +2221,15 @@ static struct spc_handler pdfm_handlers[] = {
   {"trailerid", spc_handler_pdfm_do_nothing},
 };
 
+static struct spc_handler pdft_compat_handlers[] = {
+  /* Text supplied to "direct" command should go inside of BT/ET block
+   * but dvipdfmx currently can't be implemented so.
+   * Here, "direct" is for the moment just an alias of "page".
+   */
+  {"direct", spc_handler_pdft_compat_page},
+  {"page", spc_handler_pdft_compat_page},
+};
+
 int
 spc_pdfm_check_special (const char *buf, int len)
 {
@@ -2196,15 +2268,34 @@ spc_pdfm_setup_handler (struct spc_handler *sph,
   skip_white(&ap->curptr, ap->endptr);
   q = parse_c_ident(&ap->curptr, ap->endptr);
   if (q) {
-    for (i = 0;
-         i < sizeof(pdfm_handlers) / sizeof(struct spc_handler); i++) {
-      if (!strcmp(q, pdfm_handlers[i].key)) {
-        ap->command = pdfm_handlers[i].key;
-        sph->key   = "pdf:";
-        sph->exec  = pdfm_handlers[i].exec;
-        skip_white(&ap->curptr, ap->endptr);
-        error = 0;
-        break;
+    int is_pdft_compat = 0;
+    if (ap->curptr < ap->endptr) {
+      if (ap->curptr[0] == ':') {
+        is_pdft_compat = 1;
+        ap->curptr++;
+      }
+    }
+    if (is_pdft_compat) {
+      for (i = 0; i < sizeof(pdft_compat_handlers) / sizeof(struct spc_handler); i++) {
+        if (!strcmp(q, pdft_compat_handlers[i].key)) {
+          ap->command = pdft_compat_handlers[i].key;
+          sph->key   = "pdf:";
+          sph->exec  = pdft_compat_handlers[i].exec;
+          skip_white(&ap->curptr, ap->endptr);
+          error = 0;
+          break;
+        }
+      }
+    } else {
+      for (i = 0; i < sizeof(pdfm_handlers) / sizeof(struct spc_handler); i++) {
+        if (!strcmp(q, pdfm_handlers[i].key)) {
+          ap->command = pdfm_handlers[i].key;
+          sph->key   = "pdf:";
+          sph->exec  = pdfm_handlers[i].exec;
+          skip_white(&ap->curptr, ap->endptr);
+          error = 0;
+          break;
+        }
       }
     }
     RELEASE(q);

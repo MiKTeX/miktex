@@ -105,7 +105,7 @@ if(INSTALL_MIKTEX_HEADERS)
 endif()
 
 configure_file(
-  kpsemu-version.h.cmake
+  kpsemu-version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/kpsemu-version.h
 )
 

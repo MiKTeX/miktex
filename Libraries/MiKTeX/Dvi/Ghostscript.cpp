@@ -1,6 +1,6 @@
 /* Ghostscript.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Quoter>
 
@@ -28,7 +31,8 @@
 
 #include "Ghostscript.h"
 
-Ghostscript::Ghostscript()
+Ghostscript::Ghostscript(TraceCallback* traceCallback) :
+  PostScript(traceCallback)
 {
 }
 
@@ -86,7 +90,7 @@ void Ghostscript::Start()
   arguments.push_back("-sOutputFile="s + "-");
   arguments.push_back("-");
 
-  tracePS->WriteFormattedLine("libdvi", "%s", CommandLineBuilder(arguments).ToString().c_str());
+  tracePS->WriteLine("libdvi", CommandLineBuilder(arguments).ToString());
 
   ProcessStartInfo startinfo;
 
@@ -96,7 +100,7 @@ void Ghostscript::Start()
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;
   startinfo.RedirectStandardError = true;
-  startinfo.WorkingDirectory = dviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
+  startinfo.WorkingDirectory = dviImpl->GetDviFileName().MakeFullyQualified().RemoveFileSpec().ToString();
 
   process = Process::Start(startinfo);
 
@@ -122,7 +126,7 @@ void Ghostscript::OnNewChunk(shared_ptr<DibChunk> dibChunk)
 
   // create a BMP file
   fileName.SetToTempFile();
-  tracePS->WriteFormattedLine("libdvi", T_("creating bitmap file %s"), Q_(fileName));
+  tracePS->WriteLine("libdvi", fmt::format(T_("creating bitmap file {0}"), Q_(fileName)));
   FileStream stream(File::Open(fileName, FileMode::Create, FileAccess::Write, false));
 
   const BITMAPINFO* bitmapInfo = dibChunk->GetBitmapInfo();
@@ -205,17 +209,13 @@ void Ghostscript::Write(const void* data, unsigned n)
   gsIn.Write(data, n);
 }
 
-void Ghostscript::Execute(const char* format, ...)
+void Ghostscript::Execute(const string& s)
 {
   if (process == nullptr)
   {
     Start();
   }
-  va_list argptr;
-  va_start(argptr, format);
-  string str = StringUtil::FormatStringVA(format, argptr);
-  va_end(argptr);
-  Write(str.c_str(), static_cast<unsigned>(str.length()));
+  Write(s.c_str(), static_cast<unsigned>(s.length()));
 }
 
 void Ghostscript::Finalize()
@@ -252,11 +252,11 @@ void Ghostscript::Finalize()
   // write the transcript to the debug stream
   if (!stderrBuffer.empty())
   {
-    tracePS->WriteFormattedLine("libdvi", T_("Ghostscript transcript follows:\n\
+    tracePS->WriteLine("libdvi", fmt::format(T_("Ghostscript transcript follows:\n\
 ==========================================================================\n\
-%s\n\
+{0}\n\
 =========================================================================="),
-  stderrBuffer.c_str());
+                       stderrBuffer));
   }
 
   // close Ghostscript's output stream

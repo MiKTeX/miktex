@@ -1,6 +1,6 @@
 /* miktex/App/Application.h:                            -*- C++ -*-
 
-   Copyright (C) 2005-2019 Christian Schenk
+   Copyright (C) 2005-2020 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -195,7 +195,7 @@ public:
   ///
   /// @param traceMessage The trace message to log.
 public:
-  MIKTEXAPPTHISAPI(void) Trace(const TraceCallback::TraceMessage& traceMessage) override;
+  MIKTEXAPPTHISAPI(bool) Trace(const TraceCallback::TraceMessage& traceMessage) override;
 
   /// Enables or disables the auto-installer.
   /// @param tri The new state (on, off, inherit configuration default).
@@ -211,6 +211,11 @@ public:
   /// @param message The warning message.
 public:
   MIKTEXAPPCEEAPI(void) Warning(const std::string& message);
+
+  /// Print a security warning nessage.
+  /// @param message The security warning message.
+public:
+  MIKTEXAPPCEEAPI(void) SecurityRisk(const std::string& message);
 
   /// Starts a text editor.
   /// @param editFileName Path to the file to be edited.
@@ -310,6 +315,9 @@ private:
 
 private:
   void AutoMaintenance();
+
+private:
+  void AutoDiagnose();
 
 private:
   class impl;

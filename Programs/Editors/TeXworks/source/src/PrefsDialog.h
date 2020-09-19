@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2018  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@
 #include <QDialog>
 #include <QList>
 
-#include "TWUtils.h"
 #include "Engine.h"
 
 #include "ui_PrefsDialog.h"
@@ -38,7 +37,7 @@ class PrefsDialog : public QDialog, private Ui::PrefsDialog
 	Q_OBJECT
 
 public:
-	PrefsDialog(QWidget *parent);
+	explicit PrefsDialog(QWidget * parent);
 
 	static DialogCode doPrefsDialog(QWidget *parent);
 
@@ -58,7 +57,7 @@ private slots:
 	void moveToolDown();
 	void addTool();
 	void removeTool();
-	void editTool(QListWidgetItem* item = NULL);
+	void editTool(QListWidgetItem* item = nullptr);
 
 private:
 	void init();
@@ -79,7 +78,7 @@ class ToolConfig : public QDialog, private Ui::ToolConfigDialog
 	Q_OBJECT
 	
 public:
-	ToolConfig(QWidget *parent);
+	explicit ToolConfig(QWidget * parent);
 	
 	static DialogCode doToolConfig(QWidget *parent, Engine &engine);
 

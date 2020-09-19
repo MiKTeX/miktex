@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2005-2018 Christian Schenk
+   Copyright (C) 2005-2020 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -28,3 +28,26 @@
 #define T_(x) MIKTEXTEXT(x)
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+
+template<class VALTYPE> class AutoRestore
+{
+public:
+  AutoRestore(VALTYPE& val) :
+    oldVal(val),
+    pVal(&val)
+  {
+  }
+
+public:
+  ~AutoRestore()
+  {
+    *pVal = oldVal;
+  }
+
+private:
+  VALTYPE oldVal;
+
+private:
+  VALTYPE* pVal;
+};
+

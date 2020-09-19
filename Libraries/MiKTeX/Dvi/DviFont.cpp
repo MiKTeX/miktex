@@ -1,6 +1,6 @@
 /* DviFont.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -57,4 +57,9 @@ int DviFont::GetLineSpacing()
 {
   Read();
   return (static_cast<int>(0.8 * scaledAt));
+}
+
+TraceCallback* DviFont::GetTraceCallback() const
+{
+  return dviImpl->GetTraceCallback();
 }

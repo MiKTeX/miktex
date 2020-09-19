@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -38,6 +38,7 @@ endif()
 
 set(dvips_c_sources
   source/bbox.c
+  source/bitmapenc.c
   source/color.c
   source/dopage.c
   source/dosection.c
@@ -98,7 +99,7 @@ set_source_files_properties(${dvips_c_sources}
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvips_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     dvips.rc
   )
 endif()
@@ -139,7 +140,7 @@ set_source_files_properties(source/afm2tfm.c
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND afm2tfm_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
     afm2tfm.rc
   )
 endif()

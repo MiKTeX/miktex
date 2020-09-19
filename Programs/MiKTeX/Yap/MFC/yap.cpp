@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -77,9 +77,9 @@ namespace {
       nullptr
     },
     {
-      "trace", 0, POPT_ARG_STRING, nullptr, OPT_TRACE,
-      T_("Turns tracing on."),
-      T_("TRACEFLAGS")
+      "trace", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_TRACE,
+      T_("Turn on tracing.  TRACEOPTIONS, if specified, is a comma-separated list of trace options (see the MiKTeX manual)."),
+      T_("TRACEOPTIONS")
     },
     {
       "unregister", 0, POPT_ARG_NONE, nullptr, OPT_UNREGISTER,
@@ -93,6 +93,14 @@ namespace {
 namespace {
   bool registering = false;
   bool unregistering = false;
+  vector<string> defaultTraceOptions = {
+    TraceStream::MakeOption(MIKTEX_TRACE_ERROR, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_PROCESS, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_YAP, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_DVIFILE, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_DVIPKFONT, "", TraceLevel::Trace),
+    TraceStream::MakeOption(MIKTEX_TRACE_DVIGC, "", TraceLevel::Trace)
+  };
 }
 
 void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
@@ -116,6 +124,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
 
   while ((option = popt.GetNextOpt()) >= 0)
   {
+    string optArg = popt.GetOptArg();
     switch (option)
     {
 
@@ -127,7 +136,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
     case OPT_FIND_SRC_SPECIAL:
     {
       char* lpszFileName = nullptr;
-      cmdInfo.sourceLineNum = strtol(popt.GetOptArg().c_str(), &lpszFileName, 10);
+      cmdInfo.sourceLineNum = strtol(optArg.c_str(), &lpszFileName, 10);
       if (lpszFileName != nullptr)
       {
         while (*lpszFileName == ' ')
@@ -143,7 +152,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
     }
 
     case OPT_GOTO_HYPER_LABEL:
-      cmdInfo.hyperLabel = popt.GetOptArg();
+      cmdInfo.hyperLabel = optArg;
       break;
 
     case OPT_PRINT:
@@ -160,7 +169,14 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
       break;
 
     case OPT_TRACE:
-      cmdInfo.traceFlags = popt.GetOptArg();
+      if (optArg.empty())
+      {
+        cmdInfo.traceOptions = StringUtil::Flatten(defaultTraceOptions, ',');
+      }
+      else
+      {
+        cmdInfo.traceOptions = optArg;
+      }
       break;
 
     case OPT_UNREGISTER:
@@ -190,7 +206,7 @@ void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
     {
       // we have a file name argument; append .dvi to the file
       // name, if necessary
-      PathName pathFileName = arg;
+      PathName pathFileName(arg);
       if (!pathFileName.HasExtension(".dvi"))
       {
         pathFileName.Append(".dvi", false);
@@ -226,6 +242,55 @@ YapApplication::YapApplication()
 {
   SetAppID(UT_("MiKTeXorg.MiKTeX.Yap." MIKTEX_COMPONENT_VERSION_STR));
   EnableHtmlHelp();
+}
+
+namespace
+{
+  log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("yap"));
+  bool isLog4cxxConfigured = false;
+}
+
+bool YapApplication::Trace(const TraceCallback::TraceMessage& traceMessage)
+{
+  if (!isLog4cxxConfigured)
+  {
+    if (pendingTraceMessages.size() > 100)
+    {
+      pendingTraceMessages.clear();
+    }
+    pendingTraceMessages.push_back(traceMessage);
+    return true;
+  }
+  FlushPendingTraceMessages();
+  TraceInternal(traceMessage);
+  return true;
+}
+
+void YapApplication::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
+{
+  log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.yap.") + traceMessage.facility);
+  switch (traceMessage.level)
+  {
+  case TraceLevel::Fatal:
+    LOG4CXX_FATAL(logger, traceMessage.message);
+    break;
+  case TraceLevel::Error:
+    LOG4CXX_ERROR(logger, traceMessage.message);
+    break;
+  case TraceLevel::Warning:
+    LOG4CXX_WARN(logger, traceMessage.message);
+    break;
+  case TraceLevel::Info:
+    LOG4CXX_INFO(logger, traceMessage.message);
+    break;
+  case TraceLevel::Trace:
+    LOG4CXX_TRACE(logger, traceMessage.message);
+    break;
+  case TraceLevel::Debug:
+  default:
+    LOG4CXX_DEBUG(logger, traceMessage.message);
+    break;
+  }
 }
 
 namespace {
@@ -302,22 +367,45 @@ BOOL YapApplication::InitInstance()
     // initialize MiKTeX Library
     session = Session::Create(Session::InitInfo("yap"));
 
-    trace_yap = TraceStream::Open("yap");
-    trace_error = TraceStream::Open("error");
+    trace_yap = TraceStream::Open("yap", this);
+    trace_error = TraceStream::Open("error", this);
 
     // get command-line arguments
     YapCommandLineInfo cmdInfo;
     ParseYapCommandLine(TU_(m_lpCmdLine), cmdInfo);
 
     // set trace flags
-    if (!cmdInfo.traceFlags.empty())
+    if (!cmdInfo.traceOptions.empty())
     {
       tracing = true;
-      traceFlags = cmdInfo.traceFlags;
-      TraceStream::SetTraceFlags(cmdInfo.traceFlags);
+      traceOptions = StringUtil::Split(cmdInfo.traceOptions, ',');
+      TraceStream::SetOptions(traceOptions);
     }
 
-    YapLog(T_("Yap arguments: %s"), TU_(m_lpCmdLine));
+    PathName xmlFileName;
+    if (session->FindFile("yap." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
+      || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
+    {
+      PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
+      string logName = "yap";
+      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", logDir.ToString());
+      Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
+      log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
+      isLog4cxxConfigured = true;
+      auto thisProcess = Process::GetCurrentProcess();
+      auto parentProcess = thisProcess->get_Parent();
+      string invokerName;
+      if (parentProcess != nullptr)
+      {
+        invokerName = parentProcess->get_ProcessName();
+      }
+      if (invokerName.empty())
+      {
+        invokerName = "unknown process";
+      }
+      LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString("Yap", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
+      LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << TU_(m_lpCmdLine));
+    }
 
     // return, if another application instance was found
     if (cmdInfo.singleInstance && ActivateFirstInstance(cmdInfo))
@@ -343,7 +431,7 @@ BOOL YapApplication::InitInstance()
     // change the registry key under which our settings are stored
     if (!session->IsMiKTeXPortable())
     {
-      SetRegistryKey(UT_(MIKTEX_COMP_COMPANY_STR "\\" MIKTEX_PRODUCTNAME_STR "\\" MIKTEX_MAJOR_MINOR_STR));
+      SetRegistryKey(UT_(MIKTEX_COMP_COMPANY_STR "\\" MIKTEX_PRODUCTNAME_STR "\\" MIKTEX_LEGACY_MAJOR_MINOR_STR));
     }
 
     // load standard ini file options (including MRU)
@@ -446,13 +534,13 @@ BOOL YapApplication::InitInstance()
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return FALSE;
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return FALSE;
   }
 }
@@ -490,7 +578,7 @@ void AboutDialog::DoDataExchange(CDataExchange* pDX)
     CString str;
     str.Format(T_(_T("Yet Another Previewer %s")), static_cast<LPTSTR>(UT_((MIKTEX_COMPONENT_VERSION_STR))));
     str += _T("\r\n");
-    str += _T(MIKTEX_COMP_COPYRIGHT_STR);
+    str += UT_(MIKTEX_COMP_COPYRIGHT_STR);
     GetDlgItem(IDC_THE_NAME_OF_THE_GAME)->SetWindowText(str);
   }
 }
@@ -515,11 +603,11 @@ void AboutDialog::OnClickRegisterMiKTeX()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -576,7 +664,11 @@ int YapApplication::ExitInstance()
 
   CoUninitialize();
 
-  return CWinApp::ExitInstance();
+  int exitCode = CWinApp::ExitInstance();
+
+  YapInfo(fmt::format("this process ({0}) finishes with exit code {1}", Process::GetCurrentProcess()->GetSystemId(), exitCode));
+
+  return exitCode;
 }
 
 void DdeExecute(const char* server, const char* topic, const char* command);
@@ -607,7 +699,7 @@ bool YapApplication::ActivateFirstInstance(const YapCommandLineInfo& cmdInfo)
 
   // open the DVI document via DDE
   PathName path(cmdInfo.m_strFileName);
-  path.MakeAbsolute();
+  path.MakeFullyQualified();
 
   CStringA ddeCommand;
   ddeCommand.Format("[open(\"%s\")]", path.GetData());
@@ -682,7 +774,7 @@ typedef AutoResource<HCONV, DdeDisconnect_> AutoDdeDisconnect;
 
 void DdeExecute(const char* lpszServer, const char* lpszTopic, const char* lpszCommand)
 {
-  YapLog("DdeExecute(\"%s\", \"%s\", \"%s\")", lpszServer, lpszTopic, lpszCommand);
+  YapInfo(fmt::format("DdeExecute(\"{0}\", \"{1}\", \"{2}\")", lpszServer, lpszTopic, lpszCommand));
   unsigned long inst = 0;
   UINT result = DdeInitialize(&inst, YapClientDDECallback, APPCMD_CLIENTONLY, 0);
   if (result != DMLERR_NO_ERROR)
@@ -738,7 +830,7 @@ BOOL YapApplication::OnDDECommand(LPTSTR lpszCommand)
 
   try
   {
-    YapLog("OnDDECommand(\"%s\")", static_cast<const char *>(TU_(lpszCommand)));
+    YapInfo(fmt::format("OnDDECommand(\"{0}\")", TU_(lpszCommand)));
 
     done = CWinApp::OnDDECommand(lpszCommand);
 
@@ -778,12 +870,12 @@ BOOL YapApplication::OnDDECommand(LPTSTR lpszCommand)
 
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   ddeServing = false;
@@ -868,7 +960,7 @@ void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line)
 
   // find the source file
   PathName path;
-  if (Utils::IsAbsolutePath(lpszFileName) || lpszDocDir == nullptr)
+  if (PathNameUtil::IsAbsolutePath(lpszFileName) || lpszDocDir == nullptr)
   {
     path = lpszFileName;
   }
@@ -948,34 +1040,38 @@ void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line)
   CloseHandle(processInfo.hProcess);
 }
 
-void VYapLog(const char* lpszFormat, va_list argptr)
+void YapInfo(const string& line)
 {
-  if (theApp.trace_yap != nullptr)
+  if (isLog4cxxConfigured)
   {
-    theApp.trace_yap->VTrace("yap", lpszFormat, argptr);
+    LOG4CXX_INFO(logger, line);
   }
 }
 
-void YapLog(const char* lpszFormat, ...)
+void YapError(const string& line)
 {
-  if (theApp.trace_yap != nullptr && theApp.trace_yap->IsEnabled("yap"))
+  if (isLog4cxxConfigured)
   {
-    va_list argptr;
-    va_start(argptr, lpszFormat);
-    VYapLog(lpszFormat, argptr);
-    va_end(argptr);
+    LOG4CXX_ERROR(logger, line);
   }
 }
 
-void TraceError(const char* lpszFormat, ...)
+void ShowError(CWnd* parent, const MiKTeXException& e)
 {
-  if (theApp.trace_error != nullptr)
+  if (isLog4cxxConfigured)
   {
-    va_list argptr;
-    va_start(argptr, lpszFormat);
-    theApp.trace_error->VTrace("yap", lpszFormat, argptr);
-    va_end(argptr);
+    LOG4CXX_ERROR(logger, e);
   }
+  ErrorDialog::DoModal(parent, e);
+}
+
+void ShowError(CWnd* parent, const exception& e)
+{
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_ERROR(logger, e.what());
+  }
+  ErrorDialog::DoModal(parent, e);
 }
 
 CDocument* YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
@@ -983,19 +1079,16 @@ CDocument* YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
   try
   {
     PathName pathShort(lpszFileName);
-#if defined(REMOVE_BLANKS_FROM_DOCUMENT_FILENAMES)
-    Utils::RemoveBlanksFromPathName(pathShort);
-#endif
     return CWinApp::OpenDocumentFile(UT_(pathShort.GetData()));
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return 0;
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
     return 0;
   }
 }
@@ -1048,20 +1141,20 @@ void YapApplication::OnViewTrace()
     tracing = !tracing;
     if (tracing)
     {
-      if (!traceFlags.empty())
+      if (traceOptions.empty())
       {
-        traceFlags = YAP_TRACE_FLAGS_LVL_3;
+        traceOptions = defaultTraceOptions;
       }
     }
-    TraceStream::SetTraceFlags(tracing ? traceFlags : "");
+    TraceStream::SetOptions(tracing ? traceOptions : vector<string>{});
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 }
 
@@ -1087,11 +1180,11 @@ void YapApplication::OnRegisterMiKTeX()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 }
 

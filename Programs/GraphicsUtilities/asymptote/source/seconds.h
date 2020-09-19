@@ -4,6 +4,7 @@
 #ifdef _WIN32
 #include <Winsock2.h>
 
+#if !defined(MIKTEX_WINDOWS)
 #include <time.h>
 #include <windows.h>
 #include <iostream>
@@ -71,6 +72,7 @@ inline int gettimeofday(struct timeval *tv, struct timezone *tz)
   return 0;
 }
 
+#endif
 #else
 
 #include <sys/time.h>

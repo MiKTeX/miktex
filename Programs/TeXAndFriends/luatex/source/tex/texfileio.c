@@ -813,7 +813,11 @@ char *TEX_format_default;
 
 */
 
+#if defined(MIKTEX)
+char* open_fmt_file(int renew)
+#else
 char *open_fmt_file(void)
+#endif
 {
     /*tex The first space after the format file name: */
     int j;
@@ -832,8 +836,12 @@ char *open_fmt_file(void)
         dist = (int) (strlen(fmt) - strlen(DUMP_EXT));
         if (!(strstr(fmt, DUMP_EXT) == fmt + dist))
             fmt = concat(fmt, DUMP_EXT);
+#if defined(MIKTEX)
+        if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE, renew))
+#else
         if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
-            goto FOUND;
+#endif
+          goto FOUND;
         wake_up_terminal();
         fprintf(stdout, "Sorry, I can't find the format `%s'; will try `%s'.\n",
                 fmt, TEX_format_default);
@@ -841,7 +849,11 @@ char *open_fmt_file(void)
     }
     /*tex Now pull out all the stops: try for the system \.{plain} file. */
     fmt = TEX_format_default;
+#if defined(MIKTEX)
+    if (!zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE, renew)) {
+#else
     if (!zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+#endif
         wake_up_terminal();
         fprintf(stdout, "I can't find the format file `%s'!\n",
                 TEX_format_default);
@@ -1277,7 +1289,11 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 
 #define COMPRESSION "R3"
 
+#if defined(MIKTEX)
+boolean zopen_w_input(FILE** f, const char* fname, int format, const_string fopen_mode, int renew)
+#else
 boolean zopen_w_input(FILE ** f, const char *fname, int format, const_string fopen_mode)
+#endif
 {
     int callbackid;
     int res;
@@ -1294,6 +1310,13 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format, const_string fop
             return 0;
         }
     } else {
+#if defined(MIKTEX)
+      if (format == DUMP_FORMAT)
+      {
+        res = miktex_open_format_file(fname, f, renew);
+      }
+      else
+#endif
         res = luatex_open_input(f, fname, format, fopen_mode, true);
     }
     if (res) {
@@ -1384,6 +1407,9 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
 
 static FILE *runpopen(char *cmd, const char *mode)
 {
+#if defined(MIKTEX)
+  return miktex_emulate__runpopen(cmd, mode);
+#else
     FILE *f = NULL;
     char *safecmd = NULL;
     char *cmdname = NULL;
@@ -1397,7 +1423,11 @@ static FILE *runpopen(char *cmd, const char *mode)
 #endif
     /*tex If |restrictedshell| is zero, any command is allowed. */
     if (restrictedshell == 0) {
+#if defined(MIKTEX)
+      allow = miktex_allow_unrestricted_shell_escape();
+#else
         allow = 1;
+#endif
     } else {
         const char *thecmd = cmd;
         allow = shell_cmd_is_allowed(thecmd, &safecmd, &cmdname);
@@ -1415,6 +1445,7 @@ static FILE *runpopen(char *cmd, const char *mode)
     if (cmdname)
         free(cmdname);
     return f;
+#endif
 }
 
 /*tex
@@ -1424,11 +1455,13 @@ static FILE *runpopen(char *cmd, const char *mode)
 
 */
 
+#if !defined(MIKTEX)
 #define NUM_PIPES 16
 static FILE *pipes[NUM_PIPES];
 
 #ifdef WIN32
 FILE *Poptr;
+#endif
 #endif
 
 boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
@@ -1450,19 +1483,25 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen
         if (fullnameoffile)
             free(fullnameoffile);
         fullnameoffile = xstrdup(fname);
+#if !defined(MIKTEX)
         recorder_record_input(fname + 1);
+#endif
         *f_ptr = runpopen(fname + 1, "r");
         free(fname);
+#if !defined(MIKTEX)
         for (i = 0; i < NUM_PIPES; i++) {
             if (pipes[i] == NULL) {
                 pipes[i] = *f_ptr;
                 break;
             }
         }
+#endif
         if (*f_ptr)
             setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
+#if !defined(MIKTEX)
 #ifdef WIN32
         Poptr = *f_ptr;
+#endif
 #endif
         return *f_ptr != NULL;
     }
@@ -1500,8 +1539,11 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
         } else {
             *f_ptr = runpopen(fname + 1, "w");
         }
+#if !defined(MIKTEX)
         recorder_record_output(fname + 1);
+#endif
         free(fname);
+#if !defined(MIKTEX)
         for (i = 0; i < NUM_PIPES; i++) {
             if (pipes[i] == NULL) {
                 pipes[i] = *f_ptr;
@@ -1510,6 +1552,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
         }
         if (*f_ptr)
             setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
+#endif
         return *f_ptr != NULL;
     }
     return luatex_open_output(f_ptr, fn, fopen_mode);
@@ -1518,6 +1561,9 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
 void close_file_or_pipe(FILE * f)
 {
+#if defined(MIKTEX)
+  miktex_emulate__close_file_or_pipe(f);
+#else
     int i;
     if (shellenabledp) {
         for (i = 0; i <= 15; i++) {
@@ -1535,4 +1581,5 @@ void close_file_or_pipe(FILE * f)
         }
     }
     close_file(f);
+#endif
 }

@@ -69,9 +69,10 @@ struct solvedKnot : public gc {
 };
 
 extern const double Fuzz;
-extern const double BigFuzz;
 extern const double Fuzz2;
+extern const double Fuzz4;
 extern const double sqrtFuzz;
+extern const double BigFuzz;
 extern const double fuzzFactor;
   
 class path : public gc {
@@ -383,6 +384,9 @@ public:
   path transformed(const transform& t) const;
   
 };
+
+double arcLength(const pair& z0, const pair& c0, const pair& c1,
+                 const pair& z1);
 
 extern path nullpath;
 extern const unsigned maxdepth;

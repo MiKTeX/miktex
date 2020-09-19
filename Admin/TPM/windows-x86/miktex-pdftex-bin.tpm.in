@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/pdftex/">
     <TPM:Name>pdfTeX win32</TPM:Name>
     <TPM:Title>pdfTeX, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Hàn Thế Thành" year="1996-2008"/>
+    <TPM:Copyright owner="Hàn Thế Thành" year="1996-2020"/>
     <TPM:License type="gpl"/>
-    <TPM:Version>1.40.20</TPM:Version>
+    <TPM:Version>1.40.21</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

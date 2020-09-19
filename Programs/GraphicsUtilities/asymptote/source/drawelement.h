@@ -17,28 +17,14 @@
 #include "psfile.h"
 #include "texfile.h"
 #include "prcfile.h"
+#include "jsfile.h"
 #include "glrender.h"
 #include "arrayop.h"
+#include "material.h"
 
 namespace camp {
 
-//extern double Tx[3]; // x-component of current transform
-//extern double Ty[3]; // y-component of current transform
-extern double Tz[3]; // z-component of current transform
-
 static const double pixel=1.0; // Adaptive rendering constant.
-
-// Return one-sixth of the second derivative of the Bezier curve defined
-// by a,b,c,d at 0. 
-inline triple bezierPP(triple a, triple b, triple c) {
-  return a+c-2.0*b;
-}
-
-// Return one-third of the third derivative of the Bezier curve defined by
-// a,b,c,d.
-inline triple bezierPPP(triple a, triple b, triple c, triple d) {
-  return d-a+3.0*(b-c);
-}
 
 enum Interaction {EMBEDDED=0,BILLBOARD};
 
@@ -81,18 +67,6 @@ public:
     return false;
   }
   
-// Returns true iff the point z lies in the region bounded by b.
-  bool inside(const pair& z) const {
-    bool c=false;
-    for(Int i=0; i < 3; ++i) {
-      pair pi=p[i];
-      pair pj=p[i < 3 ? i+1 : 0];
-      if(((pi.y <= z.y && z.y < pj.y) || (pj.y <= z.y && z.y < pi.y)) &&
-         z.x < pi.x+(pj.x-pi.x)*(z.y-pi.y)/(pj.y-pi.y)) c=!c;
-    }
-    return c;
-  }
-  
   double xmax() {
     return max(max(max(p[0].x,p[1].x),p[2].x),p[3].x);
   }
@@ -111,6 +85,62 @@ public:
   
 };
   
+class bbox2 {
+public:
+  double x,y,X,Y;
+  bbox2(size_t n, const triple *v) {
+    Bounds(v[0]);
+    for(size_t i=1; i < n; ++i)
+      bounds(v[i]);
+  }
+    
+  bbox2(const triple& m, const triple& M) {
+    Bounds(m);
+    bounds(triple(m.getx(),m.gety(),M.getz()));
+    bounds(triple(m.getx(),M.gety(),m.getz()));
+    bounds(triple(m.getx(),M.gety(),M.getz()));
+    bounds(triple(M.getx(),m.gety(),m.getz()));
+    bounds(triple(M.getx(),m.gety(),M.getz()));
+    bounds(triple(M.getx(),M.gety(),m.getz()));
+    bounds(M);
+  }
+    
+  bbox2(const triple& m, const triple& M, const Billboard& BB) {
+    Bounds(BB.transform(m));
+    bounds(BB.transform(triple(m.getx(),m.gety(),M.getz())));
+    bounds(BB.transform(triple(m.getx(),M.gety(),m.getz())));
+    bounds(BB.transform(triple(m.getx(),M.gety(),M.getz())));
+    bounds(BB.transform(triple(M.getx(),m.gety(),m.getz())));
+    bounds(BB.transform(triple(M.getx(),m.gety(),M.getz())));
+    bounds(BB.transform(triple(M.getx(),M.gety(),m.getz())));
+    bounds(BB.transform(M));
+  }
+    
+// Is 2D bounding box formed by projecting 3d points in vector v offscreen?
+  bool offscreen() {
+    double eps=1.0e-2;
+    double min=-1.0-eps;
+    double max=1.0+eps;
+    return X < min || x > max || Y < min || y > max;
+  }
+    
+  void Bounds(const triple& v) {
+    pair V=Transform2T(gl::dprojView,v);
+    x=X=V.getx();
+    y=Y=V.gety();
+  }
+  
+  void bounds(const triple& v) {
+    pair V=Transform2T(gl::dprojView,v);
+    double a=V.getx();
+    double b=V.gety();
+    if(a < x) x=a;
+    else if(a > X) X=a;
+    if(b < y) y=b;
+    else if(b > Y) Y=b;
+  }
+};
+
 typedef mem::vector<box> boxvector;
   
 typedef mem::list<bbox> bboxlist;
@@ -121,7 +151,17 @@ typedef mem::vector<groupmap> groupsmap;
 class drawElement : public gc
 {
 public:
+  string KEY;
+  
+  drawElement(const string& key="") : KEY(key == "" ? processData().KEY : key)
+                                      {}
+  
   virtual ~drawElement() {}
+  
+  static mem::vector<triple> center;
+  static size_t centerIndex;
+  static triple lastcenter;
+  static size_t lastcenterIndex;
   
   static pen lastpen;  
   static const triple zero;
@@ -137,28 +177,30 @@ public:
                      double fuzz, bool &first) {}
   
   virtual void minratio(const double *t, pair &b, double fuzz, bool &first) {
-    ratio(t, b, camp::min, fuzz, first);
+    ratio(t,b,camp::min,fuzz,first);
   }
   
   virtual void maxratio(const double *t,pair &b, double fuzz, bool &first) {
-    ratio(t, b, camp::max, fuzz, first);
+    ratio(t,b,camp::max,fuzz,first);
   }
   
   virtual void ratio(pair &b, double (*m)(double, double), double fuzz,
                      bool &first) {
-    ratio(NULL, b, m, fuzz, first);
+    ratio(NULL,b,m,fuzz,first);
   }
 
   virtual void minratio(pair &b, double fuzz, bool &first) {
-    minratio(NULL, b, fuzz, first);
+    minratio(NULL,b,fuzz,first);
   }
 
   virtual void maxratio(pair &b, double fuzz, bool &first) {
-    maxratio(NULL, b, fuzz, first);
+    maxratio(NULL,b,fuzz,first);
   }
 
   virtual bool islabel() {return false;}
 
+  virtual bool isnewpage() {return false;}
+  
   virtual bool islayer() {return false;}
 
   virtual bool is3D() {return false;}
@@ -198,13 +240,29 @@ public:
     return false;
   }
   
+  // Output to a JS file
+  virtual bool write(jsfile *out) {
+    return false;
+  }
+  
   // Used to compute deviation of a surface from a quadrilateral.
   virtual void displacement() {}
 
   // Render with OpenGL
-  virtual void render(GLUnurbs *nurb, double size2, 
-                      const triple& Min, const triple& Max,
-                      double perspective, bool lighton, bool transparent) {}
+  virtual void render(double size2, const triple& Min, const triple& Max,
+                      double perspective, bool remesh) 
+  {}
+
+  virtual void meshinit() {}
+  
+  size_t centerindex(const triple& center) {
+    if(drawElement::center.empty() || center != drawElement::lastcenter) {
+      drawElement::lastcenter=center;
+      drawElement::center.push_back(center);
+      drawElement::lastcenterIndex=drawElement::center.size();
+    }
+    return drawElement::lastcenterIndex;
+  }
 
   // Transform as part of a picture.
   virtual drawElement *transformed(const transform&) {
@@ -232,7 +290,8 @@ public:
     copyArray4x4C(T,&t);
   }
 
-  drawElementLC(const double* t, const drawElementLC *s) : T(NULL) {
+  drawElementLC(const double* t, const drawElementLC *s) : 
+    drawElement(s->KEY), T(NULL) {
     multiplyTransform3(T,t,s->T);
   }
 
@@ -365,10 +424,6 @@ public:
   }
   
   void strokepath(psfile *out) {
-    // strokepath and evenodd are incompatible
-    static pen zerowinding=pen((FillRule) ZEROWINDING);
-    pentype=pentype+zerowinding;
-    out->setpen(pentype);
     out->strokepath();
   }
   
@@ -396,6 +451,16 @@ public:
   }
 };
  
+#ifdef HAVE_LIBGLM
+void setcolors(bool colors,
+               const prc::RGBAColour& diffuse,
+               const prc::RGBAColour& emissive,
+               const prc::RGBAColour& specular, double shininess,
+               double metallic, double fresnel0, jsfile *out=NULL);
+#endif
+
+  
+
 }
 
 GC_DECLARE_PTRFREE(camp::box);

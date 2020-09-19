@@ -1,6 +1,6 @@
 /* miktex/Core/CsvList.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -55,7 +55,7 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CsvList(const std::string& s, char separator);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
+  explicit MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
   MIKTEXCORETHISAPI(std::string) operator*() const;

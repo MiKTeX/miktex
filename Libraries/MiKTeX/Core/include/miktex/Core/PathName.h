@@ -1,6 +1,6 @@
 /* miktex/Core/PathName.h:                              -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,6 +31,7 @@
 #include <vector>
 
 #include <miktex/Util/CharBuffer>
+#include <miktex/Util/PathNameUtil>
 
 #include "BufferSizes.h"
 #include "Debug.h"
@@ -51,14 +52,11 @@ enum class ConvertPathNameOption
   /// Replaces small letters with their capital letter counterpart.
   MakeUpper,
 #if defined(MIKTEX_WINDOWS)
-  /// Removes blanks from the path name.
-  RemoveBlanks,
-  ToLongPathName,
+  /// Prefix with \\?\ to create an extended-length path name.
+  ToExtendedLengthPathName,
 #endif
-  /// Makes the path name relative to the current directory.
-  MakeRelative,
-  /// Makes the path name absolute.
-  MakeAbsolute,
+  /// Makes the path name fully qualified.
+  MakeFullyQualified,
   /// Resolve symbolic links.
   Canonicalize,
 };
@@ -90,79 +88,18 @@ public:
   PathName& operator=(const PathName& other) = default;
 
 public:
-  PathName(PathName&& other) = default;
+  PathName(PathName&& other) noexcept = default;
 
 public:
-  PathName& operator=(PathName&& other) = default;
+  PathName& operator=(PathName&& other) noexcept = default;
 
 public:
-  ~PathName() = default;
-
-public:
-  static constexpr char DosDirectoryDelimiter{ '\\' };
-
-public:
-  static constexpr char UnixDirectoryDelimiter{ '/' };
-
-public:
-  static constexpr char DosPathNameDelimiter{ ';' };
-
-public:
-  static constexpr char UnixPathNameDelimiter{ ':' };
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static constexpr char AltDirectoryDelimiter{ UnixDirectoryDelimiter };
-#endif
-
-public:
-#if defined(MIKTEX_WINDOWS)
-  static constexpr char DirectoryDelimiter{ DosDirectoryDelimiter };
-#elif defined(MIKTEX_UNIX)
-  static constexpr char DirectoryDelimiter{ UnixDirectoryDelimiter };
-#endif
-
-public:
-#if defined(MIKTEX_WINDOWS)
-  static constexpr char PathNameDelimiter{ DosPathNameDelimiter };
-#elif defined(MIKTEX_UNIX)
-  static constexpr char PathNameDelimiter{ UnixPathNameDelimiter };
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static constexpr char VolumeDelimiter{ ':' };
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static bool IsVolumeDelimiter(int ch)
-  {
-    return ch == VolumeDelimiter;
-  }
-#endif
-
-public:
-  /// Tests if a character is a directory delimiter.
-  /// @param ch The character to test.
-  /// @return Returns true if the character is a directory delimiter.
-  static bool IsDirectoryDelimiter(int ch)
-  {
-    if (ch == DirectoryDelimiter)
-    {
-      return true;
-    }
-#if defined(MIKTEX_WINDOWS)
-    return ch == AltDirectoryDelimiter;
-#else
-    return false;
-#endif
-  }
+  virtual ~PathName() noexcept = default;
 
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const char* path) :
+  explicit PathName(const char* path) :
     Base(path)
   {
   }
@@ -170,7 +107,7 @@ public:
   /// Copies a wide character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const wchar_t* path) :
+  explicit PathName(const wchar_t* path) :
     Base(path)
   {
   }
@@ -178,7 +115,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::string& path) :
+  explicit PathName(const std::string& path) :
     Base(path)
   {
   }
@@ -186,16 +123,16 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::wstring& path) :
+  explicit PathName(const std::wstring& path) :
     Base(path)
   {
   }
 
 public:
-  PathName(int n) = delete;
+  PathName(size_t n) = delete;
 
   /// Combines path name components into a new PathName object.
-  /// @param component1 The first component (absolute directory path).
+  /// @param component1 The first component (fully qualified directory path).
   /// @param component2 The second component (relative file name path).
 public:
   PathName(const char* component1, const char* component2) :
@@ -208,7 +145,7 @@ public:
   }
 
   /// Combines path name components into a new PathName object.
-  /// @param component1 The first component (absolute directory path).
+  /// @param component1 The first component (fully qualified directory path).
   /// @param component2 The second component (relative file name path).
 public:
   PathName(const PathName& component1, const PathName& component2) :
@@ -224,7 +161,21 @@ public:
   }
 
 public:
+  PathName& operator=(const wchar_t* path)
+  {
+    Base::operator= (path);
+    return *this;
+  }
+
+public:
   PathName& operator=(const std::string& path)
+  {
+    Base::operator= (path);
+    return *this;
+  }
+
+public:
+  PathName& operator=(const std::wstring& path)
   {
     Base::operator= (path);
     return *this;
@@ -248,7 +199,7 @@ public:
     std::string fileNameWithoutExtension;
     std::string extension;
     Split(*this, directoryName, fileNameWithoutExtension, extension);
-    return directoryName;
+    return PathName(directoryName);
   }
 
 public:
@@ -258,7 +209,7 @@ public:
     std::string fileNameWithoutExtension;
     std::string extension;
     Split(*this, directoryName, fileNameWithoutExtension, extension);
-    return fileNameWithoutExtension + extension;
+    return PathName(fileNameWithoutExtension + extension);
   }
 
 public:
@@ -268,7 +219,7 @@ public:
     std::string fileNameWithoutExtension;
     std::string extension;
     Split(*this, directoryName, fileNameWithoutExtension, extension);
-    return fileNameWithoutExtension;
+    return PathName(fileNameWithoutExtension);
   }
 
   /// Removes the file name component from this path name.
@@ -356,10 +307,10 @@ public:
   }
 
 #if defined(MIKTEX_WINDOWS)
-  PathName ToLongPathName() const
+  PathName ToExtendedLengthPathName() const
   {
     PathName result = *this;
-    result.Convert({ ConvertPathNameOption::ToLongPathName });
+    result.Convert({ ConvertPathNameOption::ToExtendedLengthPathName });
     return result;
   }
 #endif
@@ -374,7 +325,7 @@ public:
 public:
   std::wstring ToNativeString() const
   {
-    return ToWideCharString();
+    return ToExtendedLengthPathName().ToWideCharString();
   }
 #else
 public:
@@ -400,12 +351,24 @@ public:
   }
 
 public:
+  bool IsFullyQUalified() const
+  {
+    return MiKTeX::Util::PathNameUtil::IsFullyQualifiedPath(ToString());
+  }
+
+public:
+  bool IsAbsolute() const
+  {
+    return MiKTeX::Util::PathNameUtil::IsAbsolutePath(ToString());
+  }
+
+public:
   bool IsComparable() const
   {
 #if defined(MIKTEX_WINDOWS)
     for (const char* lpsz = GetData(); *lpsz != 0; ++lpsz)
     {
-      if (*lpsz == DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
+      if (*lpsz == MiKTeX::Util::PathNameUtil::DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
       {
         return false;
       }
@@ -422,12 +385,12 @@ public:
     return Convert({ ConvertPathNameOption::Canonicalize });
   }
 
-  /// Converts this path name into an absolute path name.
+  /// Converts this path name into a fully qualified path name.
   /// @return Returns a reference to this object.
 public:
-  PathName& MakeAbsolute()
+  PathName& MakeFullyQualified()
   {
-    return Convert({ ConvertPathNameOption::MakeAbsolute });
+    return Convert({ ConvertPathNameOption::MakeFullyQualified });
   }
 
 public:
@@ -517,7 +480,7 @@ public:
   bool EndsWithDirectoryDelimiter() const
   {
     std::size_t l = GetLength();
-    return l > 0 && (IsDirectoryDelimiter(Base::operator[](l - 1)));
+    return l > 0 && (MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(Base::operator[](l - 1)));
   }
 
   /// Appends a character string to this path name.
@@ -528,7 +491,7 @@ public:
 public:
   PathName& Append(const char* lpsz, bool appendDirectoryDelimiter)
   {
-    if (appendDirectoryDelimiter && !Empty() && !IsDirectoryDelimiter(lpsz[0]))
+    if (appendDirectoryDelimiter && !Empty() && !MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(lpsz[0]))
     {
       AppendDirectoryDelimiter();
     }
@@ -604,14 +567,7 @@ public:
 public:
   bool IsExplicitlyRelative() const
   {
-    if ((*this)[0] == '.')
-    {
-      return IsDirectoryDelimiter((*this)[1] || ((*this)[1] == '.' && IsDirectoryDelimiter((*this)[2])));
-    }
-    else
-    {
-      return false;
-    }
+    return MiKTeX::Util::PathNameUtil::IsExplicitlyRelative(ToString());
   }
 
 public:
@@ -719,11 +675,6 @@ inline PathName operator/(const PathName& lhs, const PathName& rhs)
 inline std::ostream& operator<<(std::ostream& os, const PathName& path)
 {
   return os << path.ToDisplayString();
-}
-
-inline bool IsDirectoryDelimiter(int ch)
-{
-  return PathName::IsDirectoryDelimiter(ch);
 }
 
 MIKTEX_CORE_END_NAMESPACE;

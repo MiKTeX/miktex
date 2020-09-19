@@ -1,6 +1,6 @@
 /* FormatDefinitionDialog.cpp:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -30,6 +30,7 @@ using namespace std;
 FormatInfo newFormat()
 {
   FormatInfo format;
+  format.custom = true;
   return format;
 }
 
@@ -40,7 +41,8 @@ FormatDefinitionDialog::FormatDefinitionDialog(QWidget* parent) :
 
 FormatDefinitionDialog::FormatDefinitionDialog(QWidget* parent, const FormatInfo& format) :
   QDialog(parent),
-  ui(new Ui::FormatDefinitionDialog)
+  ui(new Ui::FormatDefinitionDialog),
+  isCustom(format.custom)
 {
   QRegularExpression azPlus("[a-z]+");
   QRegularExpression azStar("[a-z]*");
@@ -119,5 +121,6 @@ FormatInfo FormatDefinitionDialog::GetFormatInfo() const
   format.outputFile = ui->leOutputFileName->text().toUtf8().constData();
   format.description = ui->leDescription->text().toUtf8().constData();
   format.exclude = ui->checkExclude->isChecked();
+  format.custom = isCustom;
   return format;
 }

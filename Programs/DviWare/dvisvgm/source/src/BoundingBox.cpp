@@ -2,7 +2,7 @@
 ** BoundingBox.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -74,7 +74,7 @@ vector<Length> BoundingBox::extractLengths (string boxstr) {
 	boxstr = util::replace(boxstr, ",", " ");
 	boxstr = util::normalize_space(boxstr);
 	vector<string> lengthStrings = util::split(boxstr, " ");
-	for (string lenstr : lengthStrings) {
+	for (const string &lenstr : lengthStrings) {
 		if (!lenstr.empty())
 			lengths.emplace_back(Length(lenstr));
 	}
@@ -207,7 +207,7 @@ void BoundingBox::operator += (const BoundingBox &bbox) {
 
 
 static inline bool almost_equal (double v1, double v2) {
-	return fabs(v1-v2) < 1e-10;
+	return abs(v1-v2) < 1e-10;
 }
 
 
@@ -263,8 +263,8 @@ ostream& BoundingBox::write (ostream &os) const {
 }
 
 
-unique_ptr<XMLElementNode> BoundingBox::createSVGRect () const {
-	auto rect = util::make_unique<XMLElementNode>("rect");
+unique_ptr<XMLElement> BoundingBox::createSVGRect () const {
+	auto rect = util::make_unique<XMLElement>("rect");
 	rect->addAttribute("x", minX());
 	rect->addAttribute("y", minY());
 	rect->addAttribute("width", width());

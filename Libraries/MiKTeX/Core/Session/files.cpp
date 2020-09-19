@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,7 +26,10 @@
 #include <fstream>
 #include <thread>
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#if defined(_MSC_VER)
 #  include <io.h>
 #endif
 
@@ -49,6 +52,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 
 const size_t PIPE_SIZE = 4096;
 
@@ -61,41 +65,11 @@ MIKTEXSTATICFUNC(int) Close(int fd)
 #endif
 }
 
-MIKTEXSTATICFUNC(FILE*) POpen(const char* lpszCommand, const char* lpszMode)
-{
-  FILE* pFile;
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  pFile = _popen(lpszCommand, lpszMode);
-#else
-  pFile = popen(lpszCommand, lpszMode);
-#endif
-  if (pFile == nullptr)
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("popen", "command", lpszCommand, "mode", lpszMode);
-  }
-  return pFile;
-}
-
-MIKTEXSTATICFUNC(int) PClose(FILE* pFile)
-{
-  int exitCode;
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  exitCode = _pclose(pFile);
-#else
-  exitCode = pclose(pFile);
-#endif
-  if (exitCode < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("pclose");
-  }
-  return exitCode;
-}
-
 static array<unique_ptr<FileStream>, 2> CreatePipe(size_t pipeSize)
 {
   int handles[2];
   int p;
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(_MSC_VER)
   p = _pipe(handles, static_cast<unsigned>(pipeSize), _O_BINARY);
 #else
   UNUSED_ALWAYS(pipeSize);
@@ -183,40 +157,48 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 
 FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
-  trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text));
+  trace_files->WriteLine("core", fmt::format("OpenFile(\"{0}\", {1}, {2:x}, {3})", path, static_cast<int>(mode), static_cast<int>(access), text));
 
-  FILE* pFile = nullptr;
+  FILE* file = nullptr;
 
   if (mode == FileMode::Command)
   {
     MIKTEX_ASSERT(access == FileAccess::Read || access == FileAccess::Write);
     MIKTEX_ASSERT(!text);
-    pFile = InitiateProcessPipe(path.ToString(), access, mode);
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("starting {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, path));
+    file = InitiateProcessPipe(path.ToString(), access, mode);
   }
   else
   {
-    pFile = File::Open(path, mode, access, text);
+    file = File::Open(path, mode, access, text);
   }
 
   try
   {
     OpenFileInfo info;
-    info.file = pFile;
+    info.file = file;
     info.fileName = path.ToString();
     info.mode = mode;
     info.access = access;
-    openFilesMap.insert(pair<FILE*, OpenFileInfo>(pFile, info));
-    if (setvbuf(pFile, 0, _IOFBF, 1024 * 4) != 0)
+    openFilesMap.insert(pair<FILE*, OpenFileInfo>(file, info));
+    if (setvbuf(file, 0, _IOFBF, 1024 * 4) != 0)
     {
-      trace_error->WriteFormattedLine("core", "setvbuf() failed for some reason");
+      trace_error->WriteLine("core", TraceLevel::Error, "setvbuf() failed for some reason");
     }
     RecordFileInfo(path, access);
-    trace_files->WriteFormattedLine("core", "  => %p", pFile);
-    return pFile;
+    trace_files->WriteLine("core", fmt::format("  => {0}", static_cast<void*>(file)));
+    return file;
   }
   catch (const exception&)
   {
-    fclose(pFile);
+    if (mode == FileMode::Command)
+    {
+      CloseProcessPipe(file);
+    }
+    else
+    {
+      fclose(file);
+    }
     throw;
   }
 }
@@ -237,22 +219,49 @@ FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access,
   if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(GzipStream::Create(argv[1], true));
+    return OpenFileOnStream(GzipStream::Create(PathName(argv[1]), true));
   }
   else if (verb == "bzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(BZip2Stream::Create(argv[1], true));
+    return OpenFileOnStream(BZip2Stream::Create(PathName(argv[1]), true));
   }
   else if (verb == "xzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(LzmaStream::Create(argv[1], true));
+    return OpenFileOnStream(LzmaStream::Create(PathName(argv[1]), true));
   }
   else
   {
-    return POpen(command.c_str(), access == FileAccess::Read ? "r" : "w");
+    mode = FileMode::Command;
+    string popenMode = access == FileAccess::Read ? "r"s : "w"s;
+    FILE* file;
+#if defined(_MSC_VER)
+    file = _wpopen(UW_(command), UW_(popenMode));
+#else
+    file = popen(command.c_str(), popenMode.c_str());
+#endif
+    if (file == nullptr)
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("popen", "command", command, "mode", popenMode);
+    }
+    return file;
   }
+}
+
+int SessionImpl::CloseProcessPipe(FILE* file)
+{
+  int exitCode;
+#if defined(_MSC_VER)
+  exitCode = _pclose(file);
+#else
+  exitCode = pclose(file);
+#endif
+  if (exitCode < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("pclose");
+  }
+  return exitCode;
 }
 
 MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stream> outStream)
@@ -292,31 +301,37 @@ pair<bool, Session::OpenFileInfo> SessionImpl::TryGetOpenFileInfo(FILE* file)
   }
 }
 
-void SessionImpl::CloseFile(FILE* pFile)
+void SessionImpl::CloseFile(FILE* file, int& exitCode)
 {
-  MIKTEX_ASSERT_BUFFER(pFile, sizeof(*pFile));
-  trace_files->WriteFormattedLine("core", "CloseFile(%p)", pFile);
-  map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(pFile);
+  MIKTEX_ASSERT_BUFFER(file, sizeof(*file));
+  trace_files->WriteLine("core", fmt::format("CloseFile({0})", static_cast<void*>(file)));
+  map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(file);
   bool isCommand = false;
+  string command;
   if (it != openFilesMap.end())
   {
     isCommand = (it->second.mode == FileMode::Command);
+    command = it->second.fileName;
     openFilesMap.erase(it);
   }
   if (isCommand)
   {
-    PClose(pFile);
+    exitCode = CloseProcessPipe(file);
+    if (exitCode != 0)
+    {
+      trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(command), exitCode));
+    }
   }
-  else if (fclose(pFile) != 0)
+  else if (fclose(file) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fclose");
   }
 }
 
-bool SessionImpl::IsOutputFile(const FILE* pFile)
+bool SessionImpl::IsOutputFile(const FILE* file)
 {
-  MIKTEX_ASSERT(pFile != nullptr);
-  map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.find(pFile);
+  MIKTEX_ASSERT(file != nullptr);
+  map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.find(file);
   if (it == openFilesMap.end())
   {
     return false;
@@ -373,7 +388,7 @@ void SessionImpl::CheckOpenFiles()
 {
   for (map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
   {
-    trace_error->WriteFormattedLine("core", "still open: %s", Q_(it->second.fileName));
+    trace_error->WriteLine("core", TraceLevel::Warning, fmt::format("still open: {0}", Q_(it->second.fileName)));
   }
 }
 
@@ -383,7 +398,7 @@ void SessionImpl::WritePackageHistory()
   {
     return;
   }
-  ofstream stream = File::CreateOutputStream(packageHistoryFile, ios_base::app);
+  ofstream stream = File::CreateOutputStream(PathName(packageHistoryFile), ios_base::app);
   for (vector<FileInfoRecord>::const_iterator it = fileInfoRecords.begin(); it != fileInfoRecords.end(); ++it)
   {
     if (!it->packageName.empty())

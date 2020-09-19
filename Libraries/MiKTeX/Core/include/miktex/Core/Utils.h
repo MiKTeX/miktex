@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,7 +32,9 @@
 #include <ctime>
 
 #include <algorithm>
+#include <chrono>
 #include <exception>
+#include <ostream>
 #include <string>
 #include <utility>
 
@@ -66,6 +68,18 @@ inline bool operator<(const FontMapEntry& lhs, const FontMapEntry& rhs)
   return lhs.texName < rhs.texName;
 }
 
+struct GitInfo
+{
+  std::string commit;
+  std::string commitAbbrev;
+  std::chrono::time_point<std::chrono::system_clock> authorDate;
+  MIKTEXCORETHISAPI(std::string) ToString() const;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const GitInfo& gitInfo)
+{
+  return os << gitInfo.ToString();
+}
 
 /// MiKTeX utility class.
 class MIKTEXNOVTABLE Utils
@@ -127,6 +141,12 @@ public:
   static MIKTEXCORECEEAPI(std::string) GetOSVersionString();
 
 public:
+  static MIKTEXCORECEEAPI(GitInfo) GetGitInfo();
+
+public:
+  static MIKTEXCORECEEAPI(bool) HaveGetGitInfo();
+
+public:
   static MIKTEXCORECEEAPI(bool) RunningOnAServer();
 
 public:
@@ -140,9 +160,6 @@ public:
   static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const PathName& path, PathName& uncRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const PathName& path);
-
-public:
   static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName& path);
 
 public:
@@ -152,18 +169,10 @@ public:
   static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(void) MakeTeXPathName(PathName& path);
-
-public:
   static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string& valueName, const std::string& value);
 
 public:
   static MIKTEXCORECEEAPI(void) RemoveEnvironmentString(const std::string& valueName);
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static MIKTEXCORECEEAPI(void) RemoveBlanksFromPathName(PathName& path);
-#endif
 
 public:
   static MIKTEXCORECEEAPI(void) PrintException(const std::exception& e);
@@ -172,9 +181,6 @@ public:
   /// @param e Execption to print.  
 public:
   static MIKTEXCORECEEAPI(void) PrintException(const MiKTeXException& e);
-
-public:
-  static MIKTEXCORECEEAPI(bool) ReadUntilDelim(std::string& str, int delim, FILE* stream);
 
 public:
   static MIKTEXCORECEEAPI(bool) ReadLine(std::string& str, FILE* stream, bool keepLineEnding);

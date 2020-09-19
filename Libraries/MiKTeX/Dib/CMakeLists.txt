@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -75,11 +75,17 @@ target_link_libraries(${dib_dll_name}
     ${core_dll_name}
 )
 
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${dib_dll_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${dib_dll_name} PRIVATE ${fmt_dll_name})
+endif()
+
 set(chunkdib_sources chunkdib.cpp)
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND chunkdib_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_COMMON_MANIFEST}
   )
 endif()
 
@@ -96,6 +102,12 @@ target_link_libraries(chunkdib
   ${getopt_dll_name}
   miktex-popt-wrapper
 )  
+
+if (USE_SYSTEM_FMT)
+  target_link_libraries(chunkdib MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(chunkdib ${fmt_dll_name})
+endif()
 
 install(TARGETS ${dib_dll_name} chunkdib
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"

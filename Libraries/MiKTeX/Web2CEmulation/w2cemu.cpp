@@ -1,6 +1,6 @@
 /* w2cemu.cpp: web2c compatibility functions
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2020 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -27,13 +27,14 @@
 
 #include <iostream>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
-#include <miktex/Core/Registry>
 #include <miktex/TeXAndFriends/TeXApp>
 #include <miktex/TeXAndFriends/WebAppInputLine>
-#include <miktex/Util/StringUtil>
 #include <miktex/Version>
 
 #include <string>
@@ -45,7 +46,6 @@ using namespace std;
 using namespace MiKTeX;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
-using namespace MiKTeX::Util;
 
 namespace {
   PathName outputDirectory;
@@ -96,7 +96,7 @@ static FILE* TryFOpen(const char* path, const char* modeString)
   FileAccess access(FileAccess::Read);
   bool isTextFile;
   TranslateModeString(modeString, mode, access, isTextFile);
-  return session->TryOpenFile(path, mode, access, isTextFile);
+  return session->TryOpenFile(PathName(path), mode, access, isTextFile);
 }
 
 int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* modeString)
@@ -118,7 +118,7 @@ int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* mo
   }
   if (*ppfile != nullptr)
   {
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(path);
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(PathName(path));
   }
   MIKTEX_FREE(path);
   return *ppfile == nullptr ? 0 : 1;
@@ -131,7 +131,7 @@ void Web2C::RecordFileName(const char* path, FileAccess access)
   {
     session->StartFileInfoRecorder();
   }
-  session->RecordFileInfo(path, access);
+  session->RecordFileInfo(PathName(path), access);
 }
 
 void miktex_web2c_record_file_name(const char* path, int reading)
@@ -142,7 +142,7 @@ void miktex_web2c_record_file_name(const char* path, int reading)
 void Web2C::ChangeRecorderFileName(const char* fileName)
 {
   shared_ptr<Session> session = Session::Get();
-  PathName path(GetOutputDirectory(), fileName);
+  PathName path(GetOutputDirectory(), PathName(fileName));
   path.AppendExtension(".fls");
   session->SetRecorderPath(path);
 }
@@ -156,7 +156,7 @@ void Web2C::SetOutputDirectory(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   outputDirectory = path;
-  outputDirectory.MakeAbsolute();
+  outputDirectory.MakeFullyQualified();
   if (!Directory::Exists(outputDirectory))
   {
     if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY).GetString() == "t")
@@ -179,7 +179,7 @@ void Web2C::SetOutputDirectory(const PathName& path)
 
 void miktex_web2c_set_output_directory(const char* path)
 {
-  Web2C::SetOutputDirectory(path);
+  Web2C::SetOutputDirectory(PathName(path));
 }
 
 PathName Web2C::GetOutputDirectory()
@@ -276,7 +276,7 @@ void miktex_uexit(int status)
 void miktex_setupboundvariable(integer* var, const char* varName, integer dflt)
 {
   shared_ptr<Session> session = Session::Get();
-  int ret = session->GetConfigValue("", varName, dflt).GetInt();
+  int ret = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, ConfigValue(dflt)).GetInt();
   if (ret >= 0)
   {
     *var = ret;
@@ -296,7 +296,7 @@ void miktex_usagehelp(const char** lines, const char* bugEmail)
   }
   else
   {
-    cout << StringUtil::FormatString("Email bug reports to %s.", bugEmail) << "\n";
+    cout << fmt::format("Email bug reports to {0}.", bugEmail) << "\n";
   }
   cout.flush();
   throw 0;
@@ -313,6 +313,5 @@ int Web2C::RunSystemCommand(const char* cmd)
   return (int)TeXApp::GetTeXApp()->Write18(cmd, exitCode);
 }
 
-const char* miktex_web2c_version_string = WEB2CVERSION;
 boolean miktex_web2c_recorder_enabled = 0;
 char* miktex_web2c_fullnameoffile = nullptr;

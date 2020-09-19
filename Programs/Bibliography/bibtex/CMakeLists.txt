@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -24,4 +24,16 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+set(bibtex_sources
+  ${CMAKE_BINARY_DIR}/include/miktex/bibtex.defaults.h
+)
+
 create_web_app(BibTeX)
+
+add_dependencies(bibtex gen-defaults)
+
+set_source_files_properties(
+  ${CMAKE_BINARY_DIR}/include/miktex/bibtex.defaults.h
+  PROPERTIES
+    GENERATED TRUE
+)

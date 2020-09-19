@@ -1,6 +1,6 @@
 /* UpdateTableModel.cpp:
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2020 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -23,6 +23,7 @@
 
 #include <QDateTime>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Util/StringUtil>
 
 #include "UpdateTableModel.h"
@@ -120,8 +121,16 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       case PackageInstaller::UpdateInfo::Update:
         return tr("optional");
       case PackageInstaller::UpdateInfo::ForceUpdate:
-      case PackageInstaller::UpdateInfo::ForceRemove:
         return tr("required");
+      case PackageInstaller::UpdateInfo::ForceRemove:
+        if (session->IsSharedSetup() && !session->IsAdminMode())
+        {
+          return tr("competing installations (all users vs. private)");
+        }
+        else
+        {
+          return tr("removed from repository");
+        }
       case PackageInstaller::UpdateInfo::Repair:
         return tr("to be repaired");
       case PackageInstaller::UpdateInfo::ReleaseStateChange:
@@ -189,7 +198,7 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
     case 1:
       return tr("Installed");
     case 2:
-      return tr("Source");
+      return tr("Available");
     case 3:
       return tr("Action");
     case 4:
@@ -202,6 +211,7 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
 void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updates)
 {
   beginResetModel();
+  MIKTEX_AUTO(endResetModel());
   this->updates.clear();
   this->pending = 0;
   for (const auto& u : updates)
@@ -212,7 +222,6 @@ void UpdateTableModel::SetData(const vector<PackageInstaller::UpdateInfo>& updat
       this->pending += 1;
     }
   }
-  endResetModel();
 }
 
 bool UpdateTableModel::IsCheckable(const QModelIndex& index) const

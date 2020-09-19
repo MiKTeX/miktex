@@ -2,7 +2,7 @@
 ** PSInterpreter.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -32,7 +32,7 @@
 
 
 struct PSException : public MessageException {
-	PSException (const std::string &msg) : MessageException(msg) {}
+	explicit PSException (const std::string &msg) : MessageException(msg) {}
 };
 
 
@@ -51,6 +51,7 @@ struct PSActions {
 	virtual void gsave (std::vector<double> &p) =0;
 	virtual void grestore (std::vector<double> &p) =0;
 	virtual void grestoreall (std::vector<double> &p) =0;
+	virtual void image (std::vector<double> &p) =0;
 	virtual void initclip (std::vector<double> &p) =0;
 	virtual void lineto (std::vector<double> &p) =0;
 	virtual void makepattern (std::vector<double> &p) =0;
@@ -62,6 +63,7 @@ struct PSActions {
 	virtual void save (std::vector<double> &p) =0;
 	virtual void scale (std::vector<double> &p) =0;
 	virtual void setblendmode (std::vector<double> &p) =0;
+	virtual void setcolorspace (std::vector<double> &p) =0;
 	virtual void setcmykcolor (std::vector<double> &cmyk) =0;
 	virtual void setdash (std::vector<double> &p) =0;
 	virtual void setgray (std::vector<double> &p) =0;
@@ -71,6 +73,7 @@ struct PSActions {
 	virtual void setlinewidth (std::vector<double> &p) =0;
 	virtual void setmatrix (std::vector<double> &p) =0;
 	virtual void setmiterlimit (std::vector<double> &p) =0;
+	virtual void setnulldevice (std::vector<double> &p) =0;
 	virtual void setopacityalpha (std::vector<double> &p) =0;
 	virtual void setshapealpha (std::vector<double> &p) =0;
 	virtual void setpagedevice (std::vector<double> &p) =0;
@@ -84,13 +87,18 @@ struct PSActions {
 
 class PSFilter;
 
+struct PSDeviceInfo {
+	std::string name;
+	std::string description;
+};
+
 /** This class provides methods to execute chunks of PostScript code and calls
  *  several template methods on invocation of selected PS operators (see PSActions). */
 class PSInterpreter {
 	enum Mode {PS_NONE, PS_RUNNING, PS_QUIT};
 
 	public:
-		explicit PSInterpreter (PSActions *actions=0);
+		explicit PSInterpreter (PSActions *actions=nullptr);
 		PSInterpreter (const PSInterpreter &psi) =delete;
 		bool execute (const char *str, size_t len, bool flush=true);
 		bool execute (const char *str, bool flush=true)        {return execute(str, std::strlen(str), flush);}
@@ -104,6 +112,10 @@ class PSInterpreter {
 		int pdfPageCount (const std::string &fname);
 		BoundingBox pdfPageBox (const std::string &fname, int pageno);
 		const std::vector<std::string>& rawData () const {return _rawData;}
+		bool setImageDevice (const std::string &deviceStr);
+		static std::vector<PSDeviceInfo> getImageDeviceInfos ();
+		static void listImageDeviceInfos (std::ostream &os);
+		static bool imageDeviceKnown (std::string deviceStr);
 
 	protected:
 		void init ();

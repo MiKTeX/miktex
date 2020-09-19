@@ -1,6 +1,6 @@
 /* MakeUtility.h:                                       -*- C++ -*-
 
-   Copyright (C) 1998-2019 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -43,8 +43,6 @@
 
 #include <miktex/Util/StringUtil>
 
-#include "makefmt-version.h"
-
 #define OUT__ (stdoutStderr ? std::cerr : std::cout)
 
 #define T_(x) MIKTEXTEXT(x)
@@ -56,7 +54,7 @@
 
 inline bool HasPrefix(const std::string& s1, const std::string& s2)
 {
-  return MiKTeX::Core::PathName::Compare(s1, s2, s2.length()) == 0;
+  return MiKTeX::Core::PathName::Compare(MiKTeX::Core::PathName(s1), MiKTeX::Core::PathName(s2), s2.length()) == 0;
 }
 
 class ProcessOutputTrash :
@@ -215,6 +213,7 @@ protected:
     }
 
     allArgs.push_back("--miktex-disable-maintenance");
+    allArgs.push_back("--miktex-disable-diagnose");
 
     allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
 
@@ -266,7 +265,7 @@ protected:
       return true;
     }
     Verbose(T_("METAFONT failed for some reason"));
-    MiKTeX::Core::PathName pathLogFile = name;
+    MiKTeX::Core::PathName pathLogFile = workingDirectory / MiKTeX::Core::PathName(name);
     pathLogFile.AppendExtension(".log");
     bool noError = true;
     size_t nStrangePaths = 0;
@@ -312,7 +311,7 @@ protected:
     const char* lpszTemplate = templ.c_str();
     if (lpszTemplate[0] == '%'
         && lpszTemplate[1] == 'R'
-        && MiKTeX::Core::IsDirectoryDelimiter(lpszTemplate[2]))
+        && MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(lpszTemplate[2]))
     {
       path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
       path /= lpszTemplate + 3;
@@ -337,8 +336,10 @@ protected:
   void ShowVersion()
   {
     OUT__
-      << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << "\n"
-      << "Copyright (C) 1998-2019 Christian Schenk" << "\n"
+      << MiKTeX::Core::Utils::MakeProgramVersionString(MiKTeX::Core::Utils::GetExeName(), MiKTeX::Core::VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+      << "\n"
+      << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+      << "\n"
       << "This is free software; see the source for copying conditions.  There is NO" << "\n"
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << "\n";
   }

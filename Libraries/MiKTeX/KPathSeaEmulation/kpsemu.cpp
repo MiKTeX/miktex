@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2019 Christian Schenk
+   Copyright (C) 2000-2020 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -43,7 +43,6 @@
 #include <miktex/Core/Fndb>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
-#include <miktex/Core/Registry>
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/Prototypes>
 #include <miktex/Util/CharBuffer>
@@ -62,8 +61,6 @@ namespace {
   unsigned kpse_baseResolution = 600;
   std::string kpse_mode;
 }
-
-MIKTEXKPSDATA(const char*) miktex_kpathsea_version_string = KPSEVERSION;
 
 MIKTEXKPSDATA(const char*) miktex_kpathsea_bug_address = T_("Visit miktex.org for bug reports.");
 
@@ -165,7 +162,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea kpseInstance, const c
 
 MIKTEXSTATICFUNC(const char**) ToStringList(const std::string& str)
 {
-  vector<std::string> vec = StringUtil::Split(str, PathName::PathNameDelimiter);
+  vector<std::string> vec = StringUtil::Split(str, PathNameUtil::PathNameDelimiter);
   const char** result = XTALLOC(vec.size() + 1, const char*);
   size_t idx = 0;
   for (const std::string& s : vec)
@@ -365,7 +362,7 @@ MIKTEXSTATICFUNC(FILE*) FOpen(const char* fileName, const char* modeString)
   FileAccess access(FileAccess::Read);
   bool isTextFile;
   TranslateModeString(modeString, mode, access, isTextFile);
-  return session->OpenFile(fileName, mode, access, isTextFile);
+  return session->OpenFile(PathName(fileName), mode, access, isTextFile);
 }
 
 MIKTEXKPSCEEAPI(FILE*) miktex_kpathsea_open_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format)
@@ -399,7 +396,7 @@ MIKTEXKPSCEEAPI(const char*) miktex_xbasename(const char* fileName)
   while (s != fileName)
   {
     --s;
-    if (IsDirectoryDelimiter(*s) || *s == ':')
+    if (PathNameUtil::IsDirectoryDelimiter(*s) || *s == ':')
     {
       return s + 1;
     }
@@ -621,10 +618,20 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpseInstance, co
   Utils::SetEnvironmentString("progname", programName_);
 }
 
-MIKTEXKPSCEEAPI(char*) miktex_kpathsea_program_basename(const char* argv0_)
+MIKTEXKPSCEEAPI(char*) miktex_kpse_program_basename(const char* argv0)
 {
-  PathName argv0(argv0_);
-  return xstrdup(argv0.GetFileNameWithoutExtension().GetData());
+  PathName fileName(argv0);
+#if defined(MIKTEX_WINDOWS)
+  std::string baseName = fileName.GetFileNameWithoutExtension().ToString();
+#else
+  std::string baseName = fileName.GetFileName().ToString();
+#endif
+  size_t prefixLen = strlen(MIKTEX_PREFIX);
+  if (baseName.compare(0, prefixLen, MIKTEX_PREFIX) == 0)
+  {
+    baseName = baseName.substr(prefixLen);
+  }
+  return xstrdup(baseName.c_str());
 }
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_enabled(kpathsea kpseInstance, kpse_file_format_type fmt, boolean value, kpse_src_type level)
@@ -636,7 +643,7 @@ MIKTEXKPSCEEAPI(char*) miktex_find_suffix(const char* path)
   const char* ext = nullptr;
   for (; *path != 0; ++path)
   {
-    if (IsDirectoryDelimiter(*path))
+    if (PathNameUtil::IsDirectoryDelimiter(*path))
     {
       ext = nullptr;
     }
@@ -682,15 +689,15 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
   std::string result;
-  for (const std::string& path : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
+  for (const std::string& path : StringUtil::Split(searchPath, PathNameUtil::PathNameDelimiter))
   {
-    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))
+    if ((PathName::Compare(PathName(path), mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || PathNameUtil::IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
     if (!result.empty())
     {
-      result += PathName::PathNameDelimiter;
+      result += PathNameUtil::PathNameDelimiter;
     }
     result += path;
   }
@@ -706,13 +713,13 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   if (varName == "OPENTYPEFONTS")
   {
     FileTypeInfo fti = session->GetFileTypeInfo(FileType::OTF);
-    varValue = StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter);
+    varValue = StringUtil::Flatten(fti.searchPath, PathNameUtil::PathNameDelimiter);
     result = true;
   }
   else if (varName == "TTFONTS")
   {
     FileTypeInfo fti = session->GetFileTypeInfo(FileType::TTF);
-    varValue = StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter);
+    varValue = StringUtil::Flatten(fti.searchPath, PathNameUtil::PathNameDelimiter);
     result = true;
   }
   else if (varName == "SELFAUTOLOC")
@@ -839,7 +846,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
     result = true;
   }
   // configuration files and environment
-  else if (session->TryGetConfigValue("", varName, varValue))
+  else if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, varValue))
   {
     result = true;
   }
@@ -890,7 +897,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char*
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(fileName)
+  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
     : 0;
   if (ret == 0 && silent == 0)
@@ -903,7 +910,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const cha
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(fileName)
+  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
     : 0;
   if (ret == 0 && silent == 0)
@@ -917,7 +924,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const ch
 MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_absolute_p(kpathsea kpseInstance, const char* fileName, boolean relativeOk)
 {
   MIKTEX_ASSERT(relativeOk == 0);
-  return Utils::IsAbsolutePath(fileName);
+  return PathNameUtil::IsAbsolutePath(fileName);
 }
 
 MIKTEXKPSCEEAPI(void) miktex_str_list_add(str_list_type* stringLIst, char* s)
@@ -995,7 +1002,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const 
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpseInstance, const char* fileName)
 {
-  if (File::Exists(fileName))
+  if (File::Exists(PathName(fileName)))
   {
     return const_cast<char*>(fileName);
   }
@@ -1083,10 +1090,10 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea kpseInstance, 
     FileType ft = ToFileType(format);
     FileTypeInfo fti = session->GetFileTypeInfo(ft);
     VarExpand expander;
-    std::string searchPath = HideMpmRoot(session->Expand(StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter), { ExpandOption::Values, ExpandOption::Braces }, &expander));
+    std::string searchPath = HideMpmRoot(session->Expand(StringUtil::Flatten(fti.searchPath, PathNameUtil::PathNameDelimiter), { ExpandOption::Values, ExpandOption::Braces }, &expander));
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
-    formatInfo.suffix = ToStringList(StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter));
+    formatInfo.suffix = ToStringList(StringUtil::Flatten(fti.fileNameExtensions, PathNameUtil::PathNameDelimiter));
   }
   return formatInfo.path;
 }
@@ -1101,7 +1108,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
   texmfcnf += "texmf.cnf";
   time_t lastMaintenance = static_cast<time_t>(0);
   std::string value;
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, value))
   {
     long long intValue = _atoi64(value.c_str()); // fixme
     if (static_cast<time_t>(intValue) > lastMaintenance)
@@ -1109,7 +1116,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
       lastMaintenance = static_cast<time_t>(intValue);
     }
   }
-  if (session->TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, value))
+  if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_USER_MAINTENANCE, value))
   {
     long long intValue = _atoi64(value.c_str()); // fixme
     if (static_cast<time_t>(intValue) > lastMaintenance)
@@ -1128,7 +1135,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
       std::string val;
       if (VarValue(lpszVars[idx], val))
       {
-        stream.WriteFormattedLine("%s=%s", lpszVars[idx], val.c_str());
+        stream.WriteLine(fmt::format("{0}={1}", lpszVars[idx], val));
       }
     }
     PathName texmfDefaults(session->GetSpecialPath(SpecialPath::DistRoot));
@@ -1141,9 +1148,9 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
     lpszValueName != 0;
       lpszValueName = pCfg->NextValue(szValueName, BufferSizes::MaxCfgName))
     {
-      stream.WriteFormattedLine("%s=%s", lpszValueName, pCfg->GetValue(0, lpszValueName).c_str());
+      stream.WriteLIne(fmt::format("{0}={1}", lpszValueName, pCfg->GetValue(0, lpszValueName)));
     }
-    stream.WriteFormattedLine("TEXFONTMAPS=%s", ".;$TEXMF/fonts/map/{$progname,pdftex,dvips,}//");
+    stream.WriteLine(fmt::format("TEXFONTMAPS={0}", ".;$TEXMF/fonts/map/{$progname,pdftex,dvips,}//"));
     stream.Close();
     if (!Fndb::FileExists(texmfcnf))
     {
@@ -1160,7 +1167,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
     std::string val;
     if (VarValue("TEXMFVAR", val))
     {
-      stream.WriteFormattedLine("  TEXMFCACHE=\"%s\"", val.c_str());
+      stream.WriteLine(fmt::format("  TEXMFCACHE=\"{0}\"", val));
     }
     stream.WriteLine("}");
     stream.Close();

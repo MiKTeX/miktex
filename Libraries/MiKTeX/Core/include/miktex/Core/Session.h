@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,6 +39,7 @@
 #include <vector>
 
 #include <miktex/Trace/TraceCallback>
+#include <miktex/Util/DateUtil>
 
 #include "Exceptions.h"
 #include "File.h"
@@ -49,13 +50,14 @@
 #include "Process.h"
 #include "RootDirectoryInfo.h"
 #include "TriState.h"
+#include "VersionNumber.h"
 
 /// @namespace MiKTeX::Core
 /// @brief The core namespace.
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 /// An invalid TEXMF root index.
-const unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);
+constexpr unsigned INVALID_ROOT_INDEX = static_cast<unsigned>(-1);
 
 /// MiKTeX configurations.
 enum class MiKTeXConfiguration
@@ -196,6 +198,16 @@ inline std::ostream& operator<<(std::ostream& os, const StartupConfig& startupCo
   return os;
 }
 
+struct SetupConfig
+{
+public:
+  std::time_t setupDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
+public:
+  VersionNumber setupVersion;
+public:
+  bool isNew = false;
+};
+
 /// Special path names.
 enum class SpecialPath
 {
@@ -321,10 +333,10 @@ struct MiKTeXUserInfo
   std::string email;
   int role = 0;
   int level = 0;
-  time_t expirationDate = static_cast<time_t>(-1);
+  std::time_t expirationDate = MiKTeX::Util::DateUtil::UNDEFINED_TIME_T_VALUE;
   bool IsMember () const
   {
-    return level >= Individual && (expirationDate == static_cast<time_t>(-1) || expirationDate >= time(nullptr));
+    return level >= Individual && (!MiKTeX::Util::DateUtil::IsDefined(expirationDate) || expirationDate >= std::time(nullptr));
   }
   bool IsDeveloper () const { return IsMember() && (role & Developer) != 0; }
   bool IsContributor () const { return IsMember() && (role & Contributor) != 0; }
@@ -380,7 +392,7 @@ class ConfigValue
 public:
   ConfigValue()
   {
-  }
+  };
 
 public:
   ConfigValue(const ConfigValue& other)
@@ -417,7 +429,7 @@ public:
   ConfigValue& operator=(const ConfigValue& other) = delete;
 
 public:
-  ConfigValue(ConfigValue&& other)
+  ConfigValue(ConfigValue&& other) noexcept
   {
     switch (other.type)
     {
@@ -449,7 +461,7 @@ public:
   }
 
 public:
-  ConfigValue& operator=(ConfigValue&& other)
+  ConfigValue& operator=(ConfigValue&& other) noexcept
   {
     if (this->type == Type::String && other.type != Type::String)
     {
@@ -510,49 +522,49 @@ public:
   }
 
 public:
-  ConfigValue(const std::string& s)
+  explicit ConfigValue(const std::string& s)
   {
     new(&this->s) std::string(s);
     type = Type::String;
   }
 
 public:
-  ConfigValue(const char* lpsz)
+  explicit ConfigValue(const char* lpsz)
   {
     new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
     type = Type::String;
   }
 
 public:
-  ConfigValue(int i)
+  explicit ConfigValue(int i)
   {
     this->i = i;
     type = Type::Int;
   }
 
 public:
-  ConfigValue(bool b)
+  explicit ConfigValue(bool b)
   {
     this->b = b;
     type = Type::Bool;
   }
 
 public:
-  ConfigValue(TriState t)
+  explicit ConfigValue(TriState t)
   {
     this->t = t;
     type = Type::Tri;
   }
 
 public:
-  ConfigValue(char c)
+  explicit ConfigValue(char c)
   {
     this->c = c;
     type = Type::Char;
   }
 
 public:
-  ConfigValue(const std::vector<std::string>& sa)
+  explicit ConfigValue(const std::vector<std::string>& sa)
   {
     new(&this->sa) std::vector<std::string>(sa);
     type = Type::StringArray;
@@ -582,6 +594,11 @@ public:
   /// @return Returns the configuration value.
 public:
   MIKTEXCORETHISAPI(char) GetChar() const;
+
+  /// Gets the configuration value as a time_t.
+  /// @return Returns the configuration value.
+public:
+  MIKTEXCORETHISAPI(std::time_t) GetTimeT() const;
 
   /// Gets the configuration value as a string list.
   /// @return Returns the configuration value.
@@ -738,15 +755,15 @@ public:
   /// Initialization options.
   enum class InitOption
   {
-    /// No config files will be loaded.
-    NoConfigFiles,
+    /// We are setting up MiKTeX.
+    SettingUp,
     /// Don't fix `PATH`.
     NoFixPath,
 #if defined(MIKTEX_WINDOWS)
     /// Initialize the COM library.
     InitializeCOM,
 #endif
-    /// start in administrator mode.
+    /// Start in administrator mode.
     AdminMode,
   };
 
@@ -1110,6 +1127,15 @@ public:
   /// Tries to get a configuration value.
   /// @param sectionName Identifies the configuration section.
   /// @param valueName Identifies the value within the section.
+  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
+  /// @param[out] value The configuration value as a string.
+  /// @return Returns `true`, if the value was found.
+public:
+  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string& sectionName, const std::string& valueName, HasNamedValues* callback, std::string& value) = 0;
+
+  /// Tries to get a configuration value.
+  /// @param sectionName Identifies the configuration section.
+  /// @param valueName Identifies the value within the section.
   /// @param[out] value The configuration value as a string.
   /// @return Returns `true`, if the value was found.
 public:
@@ -1119,10 +1145,29 @@ public:
   /// @param sectionName Identifies the configuration section.
   /// @param valueName Identifies the value within the section.
   /// @param defaultValue Value to be returned if the requested value was not found.
+  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
+  /// @return Returns the configuration value.
+  /// @see SetConfigValue
+public:
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue, HasNamedValues* callback) = 0;
+
+  /// Gets a configuration value.
+  /// @param sectionName Identifies the configuration section.
+  /// @param valueName Identifies the value within the section.
+  /// @param defaultValue Value to be returned if the requested value was not found.
   /// @return Returns the configuration value.
   /// @see SetConfigValue
 public:
   virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue) = 0;
+
+  /// Gets a configuration value.
+  /// @param sectionName Identifies the configuration section.
+  /// @param valueName Identifies the value within the section.
+  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
+  /// @return Returns the configuration value.
+  /// @see SetConfigValue
+public:
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, HasNamedValues* callback) = 0;
 
   /// Gets a configuration value.
   /// @param sectionName Identifies the configuration section.
@@ -1174,7 +1219,13 @@ public:
   /// Closes a file.
   /// @param file The pointer to the `FILE` object.
 public:
+  virtual void MIKTEXTHISCALL CloseFile(FILE* file, int& exitCode) = 0;
+
+  /// Closes a file.
+  /// @param file The pointer to the `FILE` object.
+public:
   virtual void MIKTEXTHISCALL CloseFile(FILE* file) = 0;
+
 
   /// Tests whether a file has been opened for output.
   /// @param file The pointer to the `FILE` object.
@@ -1524,6 +1575,11 @@ public:
   /// @return Returns `true`, if this is a system-wide installation.
 public:
   virtual bool MIKTEXTHISCALL IsSharedSetup() = 0;
+
+public:
+  /// Get the setup configuration.
+  /// @return Returns the setup configuration.
+  virtual SetupConfig MIKTEXTHISCALL GetSetupConfig() = 0;
 
   /// Gets the next paper size.
   /// @param idx Index of the next entry in the paper size table.

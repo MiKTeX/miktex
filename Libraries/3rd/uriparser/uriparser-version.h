@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "0.9.2"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org>"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org>"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2007 Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org>"
 
 #include <miktex/Version>

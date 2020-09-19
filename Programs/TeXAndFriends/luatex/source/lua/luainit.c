@@ -2,7 +2,7 @@
 
 luainit.w
 
-Copyright 2006-2019 Taco Hoekwater <taco@@luatex.org>
+Copyright 2006-2020 Taco Hoekwater <taco@@luatex.org>
 
 This file is part of LuaTeX.
 
@@ -74,6 +74,7 @@ const_string LUATEX_IHELP[] = {
     "   --alias=NAME                  pretend to be program NAME; this affects the format file used and the search path",
     "   --aux-directory=DIR           use DIR as the directory to write auxiliary files to",
     "   --c-style-errors              enable file:line:error style messages",
+    "   --cnf-line =STRING            parse STRING as a configuration file line",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
     "   --disable-installer           disable the package installer (do not automatically install missing files)",
@@ -126,6 +127,7 @@ const_string LUATEX_IHELP[] = {
     "",
     "See the reference manual for more information about the startup process.",
 #else
+    "   --cnf-line =STRING            parse STRING as a configuration file line",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
     "   --draftmode                   switch on draft mode (generates no output PDF)",
@@ -197,7 +199,7 @@ The return value will be the directory of the executable, e.g.: \.{c:/TeX/bin}
 
 static char *ex_selfdir(char *argv0)
 {
-#if defined(WIN32) && !defined(MIKTEX)
+#if !defined(MIKTEX) && defined(WIN32)
 #if defined(__MINGW32__)
     char path[PATH_MAX], *fp;
     /*tex SearchPath() always gives back an absolute directory */
@@ -381,10 +383,12 @@ static int recorderoption = 0;
 
 static void parse_options(int ac, char **av)
 {
+#if !defined(MIKTEX)
 #ifdef WIN32
     /*tex We save |argc| and |argv|. */
     int sargc = argc;
     char **sargv = argv;
+#endif
 #endif
      /*tex The `getopt' return code. */
     int g;
@@ -394,10 +398,12 @@ static void parse_options(int ac, char **av)
     opterr = 0;
 #ifdef LuajitTeX
     if ((strstr(argv[0], "luajittexlua") != NULL) ||
-        (strstr(argv[0], "texluajit") != NULL)) {
+        (strstr(argv[0], "texluajit") != NULL) ||
+        (strstr(argv[0], "texluahbjit") != NULL) ) {
 #else
     if ((strstr(argv[0], "luatexlua") != NULL) ||
-        (strstr(argv[0], "texlua") != NULL)) {
+        (strstr(argv[0], "texlua") != NULL) ||
+        (strstr(argv[0], "texluahb") != NULL)) {
 #endif
         lua_only = 1;
         luainit = 1;
@@ -497,6 +503,18 @@ static void parse_options(int ac, char **av)
                 output_comment[255] = 0;
             }
 #if defined(MIKTEX)
+        } else if (ARGUMENT_IS("enable-write18") || ARGUMENT_IS("shell-escape")) {
+          shellenabledp = 1;
+          if (miktex_allow_unrestricted_shell_escape())
+          {
+            restrictedshell = 0;
+          }
+          else
+          {
+            restrictedshell = 1;
+          }
+#endif
+#if defined(MIKTEX)
         } else if (ARGUMENT_IS("restrict-write18") || ARGUMENT_IS("shell-restricted")) {
 #else
         } else if (ARGUMENT_IS("shell-restricted")) {
@@ -566,7 +584,7 @@ static void parse_options(int ac, char **av)
                  "the terms of the GNU General Public License, version 2 or (at your option)\n"
                  "any later version. For more information about these matters, see the file\n"
                  "named COPYING and the LuaTeX source.\n\n"
-                 "LuaTeX is Copyright 2019 Taco Hoekwater and the LuaTeX Team.\n");
+                 "LuaTeX is Copyright 2020 Taco Hoekwater and the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {
@@ -580,7 +598,11 @@ static void parse_options(int ac, char **av)
                  "etex      : Peter Breitenlohner, Phil Taylor and friends\n"
                  "omega     : John Plaice and Yannis Haralambous\n"
                  "aleph     : Giuseppe Bilotta\n"
+#if defined(MIKTEX)
+                 "pdftex    : Hàn Thế Thành and friends\n"
+#else
                  "pdftex    : Han The Thanh and friends\n"
+#endif
                  "kpathsea  : Karl Berry, Olaf Weber and others\n"
                  "lua       : Roberto Ierusalimschy, Waldemar Celes and Luiz Henrique de Figueiredo\n"
                  "metapost  : John Hobby, Taco Hoekwater, Luigi Scarso, Hans Hagen and friends\n"
@@ -603,7 +625,14 @@ static void parse_options(int ac, char **av)
         }
     } else if (argv[optind] && argv[optind][0] == '&') {
         dump_name = xstrdup(argv[optind] + 1);
+#if defined(MIKTEX_WINDOWS)
+    } else if (argv[optind] && (argv[optind][0] != '\\' || miktex_is_fully_qualified_path(argv[optind]))) {
+#else
     } else if (argv[optind] && argv[optind][0] != '\\') {
+#endif
+#if defined(MIKTEX_WINDOWS)
+      miktex_convert_to_unix(argv[optind]);
+#endif
         if (argv[optind][0] == '*') {
             input_name = xstrdup(argv[optind] + 1);
         } else {
@@ -626,6 +655,7 @@ static void parse_options(int ac, char **av)
                 input_name = firstfile;
             }
         }
+#if !defined(MIKTEX)
 #ifdef WIN32
     } else if (sargc > 1 && sargv[sargc-1] && sargv[sargc-1][0] != '-' &&
                sargv[sargc-1][0] != '\\') {
@@ -641,6 +671,7 @@ static void parse_options(int ac, char **av)
         if (safer_option)      /* --safer implies --nosocket */
             nosocket_option = 1;
         return;
+#endif
 #endif
     }
     /*tex |--safer| implies |--nosocket| */
@@ -709,19 +740,11 @@ static void init_kpse(void)
                 user_progname = remove_suffix (input_name);
             }
             if (!user_progname) {
-#if defined(MIKTEX)
-                user_progname = miktex_program_basename(argv[0]);
-#else
                 user_progname = kpse_program_basename(argv[0]);
-#endif
             }
         } else {
             if (!dump_name) {
-#if defined(MIKTEX)
-                dump_name = miktex_program_basename(argv[0]);
-#else
                 dump_name = kpse_program_basename(argv[0]);
-#endif
             }
             user_progname = dump_name;
         }
@@ -806,6 +829,7 @@ static int luatex_kpse_lua_find(lua_State * L)
         /*tex library not found in this path */
         return 1;
     }
+    recorder_record_input(filename);
     if (luaL_loadfile(L, filename) != 0) {
         luaL_error(L, "error loading module %s from file %s:\n\t%s",
             lua_tostring(L, 1), filename, lua_tostring(L, -1));
@@ -843,6 +867,7 @@ static int luatex_kpse_clua_find(lua_State * L)
             /*tex library not found in this path */
             return 1;
         }
+        recorder_record_input(filename);
         extensionless = strdup(filename);
         if (!extensionless) {
             /*tex allocation failure */
@@ -1035,8 +1060,10 @@ static void mk_suffixlist(void)
 void lua_initialize(int ac, char **av)
 {
     char *given_file = NULL;
+#if !defined(MIKTEX)
     char *banner;
     size_t len;
+#endif
     int starttime;
     int utc;
     static char LC_CTYPE_C[] = "LC_CTYPE=C";
@@ -1047,18 +1074,20 @@ void lua_initialize(int ac, char **av)
     char *env_locale = NULL;
     char *tmp = NULL;
     /*tex Save to pass along to topenin. */
+#if !defined(MIKTEX)
     const char *fmt = "This is " MyName ", Version %s" WEB2CVERSION;
+#endif
     argc = ac;
     argv = av;
+#if defined(MIKTEX)
+    luatex_banner = miktex_banner(MyName, luatex_version_string);
+#else
     len = strlen(fmt) + strlen(luatex_version_string) ;
     banner = xmalloc(len);
     sprintf(banner, fmt, luatex_version_string);
     luatex_banner = banner;
-#if defined(MIKTEX)
-    kpse_invocation_name = miktex_program_basename(argv[0]);
-#else
-    kpse_invocation_name = kpse_program_basename(argv[0]);
 #endif
+    kpse_invocation_name = kpse_program_basename(argv[0]);
     /*tex be `luac' */
     if (argc >1) {
 #ifdef LuajitTeX

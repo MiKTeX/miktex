@@ -1,3 +1,23 @@
+/*
+	This is part of TeXworks, an environment for working with TeX documents
+	Copyright (C) 2016-2020  Stefan Löffler
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	For links to further information, or to contact the authors,
+	see <http://www.tug.org/texworks/>.
+*/
 #ifndef SCREENCALIBRATIONWIDGET_H
 #define SCREENCALIBRATIONWIDGET_H
 
@@ -11,8 +31,8 @@ class ScreenCalibrationWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	ScreenCalibrationWidget(QWidget *parent = 0);
-	virtual ~ScreenCalibrationWidget() { }
+	ScreenCalibrationWidget(QWidget * parent = nullptr);
+	~ScreenCalibrationWidget() override = default;
 
 	double dpi() const;
 
@@ -29,19 +49,19 @@ protected slots:
 	void repositionSpinBox();
 
 protected:
-	virtual void paintEvent(QPaintEvent * event);
-	virtual void resizeEvent(QResizeEvent * event);
-	virtual void mousePressEvent(QMouseEvent * event);
-	virtual void mouseMoveEvent(QMouseEvent * event);
-	virtual void mouseReleaseEvent(QMouseEvent * event);
-	virtual void changeEvent(QEvent * event);
-	virtual void contextMenuEvent(QContextMenuEvent * event);
-	virtual bool eventFilter(QObject * object, QEvent * event);
+	void paintEvent(QPaintEvent * event) override;
+	void resizeEvent(QResizeEvent * event) override;
+	void mousePressEvent(QMouseEvent * event) override;
+	void mouseMoveEvent(QMouseEvent * event) override;
+	void mouseReleaseEvent(QMouseEvent * event) override;
+	void changeEvent(QEvent * event) override;
+	void contextMenuEvent(QContextMenuEvent * event) override;
+	bool eventFilter(QObject * object, QEvent * event) override;
 
 
 	QDoubleSpinBox * _sbDPI;
 	QRect _rulerRect;
-	unsigned int _majorTickHeight, _mediumTickHeight, _minorTickHeight, _paperTickHeight;
+	int _majorTickHeight{20}, _mediumTickHeight{10}, _minorTickHeight{5}, _paperTickHeight{40};
 	QMenu _contextMenu;
 	QActionGroup _contextMenuActionGroup;
 	QSignalMapper _unitSignalMapper;
@@ -60,12 +80,12 @@ protected:
 		bool visible;
 	};
 	QList<paperSize> _paperSizes;
-	unsigned int _curUnit;
-	int _hSpace;
+	int _curUnit;
+	int _hSpace{0};
 
 	QPoint _mouseDownPos;
-	float _mouseDownInches;
-	bool _isDragging;
+	double _mouseDownInches{0};
+	bool _isDragging{false};
 };
 
 #endif // SCREENCALIBRATIONWIDGET_H

@@ -1,6 +1,6 @@
 /* hypertex.cpp: html specials
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 HyperTeXSpecialImpl::State HyperTeXSpecialImpl::state;
@@ -35,7 +38,7 @@ DviSpecial* DviImpl::ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const 
   }
   if (*lpsz++ != '<')
   {
-    trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
+    trace_error->WriteLine("libdvi", fmt::format(T_("bad html special: {0}"), specialSpec));
     return 0;
   }
   if (*lpsz == '/' && tolower(lpsz[1]) == 'a' && lpsz[2] == '>')
@@ -77,7 +80,7 @@ DviSpecial* DviImpl::ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const 
     }
     if (isBaseUrl && !HyperTeXSpecialImpl::state.isHref)
     {
-      trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
+      trace_error->WriteLine("libdvi", fmt::format(T_("bad html special: {0}"), specialSpec));
       return 0;
     }
     if (HyperTeXSpecialImpl::state.isName || HyperTeXSpecialImpl::state.isHref)
@@ -88,7 +91,7 @@ DviSpecial* DviImpl::ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const 
       }
       if (*lpsz != '=')
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("bad html special: {0}"), specialSpec));
         return 0;
       }
       ++lpsz;
@@ -98,7 +101,7 @@ DviSpecial* DviImpl::ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const 
       }
       if (*lpsz != '"')
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("bad html special: {0}"), specialSpec));
         return 0;
       }
       ++lpsz;
@@ -109,7 +112,7 @@ DviSpecial* DviImpl::ProcessHtmlSpecial(DviPageImpl* ppage, int x, int y, const 
       }
       if (*lpsz != '"')
       {
-        trace_error->WriteFormattedLine("libdvi", T_("bad html special: %s"), specialSpec);
+        trace_error->WriteLine("libdvi", fmt::format(T_("bad html special: {0}"), specialSpec));
         return 0;
       }
       if (isBaseUrl)
@@ -142,11 +145,11 @@ DviSpecialType HyperTeXSpecialImpl::Parse()
   isName = state.isName;
   if (state.isName)
   {
-    trace_hypertex->WriteFormattedLine("libdvi", T_("new hypertex target \"%s\" (%d, %d, %d, %d)"), name.c_str(), state.llx, state.lly, state.urx, state.ury);
+    trace_hypertex->WriteLine("libdvi", fmt::format(T_("new hypertex target \"{0}\" ({1}, {2}, {3}, {4})"), name, state.llx, state.lly, state.urx, state.ury));
   }
   else
   {
-    trace_hypertex->WriteFormattedLine("libdvi", T_("new hypertex reference \"%s\" (%d, %d, %d, %d)"), name.c_str(), state.llx, state.lly, state.urx, state.ury);
+    trace_hypertex->WriteLine("libdvi", fmt::format(T_("new hypertex reference \"{0}\" ({1}, {2}, {3}, {4})"), name, state.llx, state.lly, state.urx, state.ury));
   }
   return DviSpecialType::Hypertex;
 }
@@ -176,8 +179,7 @@ bool DviImpl::FindHyperLabel(const char* label, DviPosition& position)
   CheckCondition();
   BEGIN_CRITICAL_SECTION(dviMutex)
   {
-    trace_hypertex->WriteFormattedLine
-      ("libdvi", T_("searching hyperlabel %s"), label);
+    trace_hypertex->WriteLine("libdvi", fmt::format(T_("searching hyperlabel {0}"), label));
 
     for (int p = 0; p < GetNumberOfPages(); ++p)
     {
@@ -206,7 +208,7 @@ bool DviImpl::FindHyperLabel(const char* label, DviPosition& position)
           position.pageIdx = p;
           position.x = hyperSpecial->GetX();
           position.y = hyperSpecial->GetY();
-          trace_hypertex->WriteFormattedLine("libdvi", T_("found %s on page %d at %d,%d"), label, p, position.x, position.y);
+          trace_hypertex->WriteLine("libdvi", fmt::format(T_("found {0} on page {1} at {2},{3}"), label, p, position.x, position.y));
           return true;
         }
       }

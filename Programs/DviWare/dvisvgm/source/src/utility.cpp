@@ -2,7 +2,7 @@
 ** utility.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -20,16 +20,67 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <fstream>
 #include <functional>
 #include <iterator>
 #include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
 #endif
 
 using namespace std;
+
+/** Computes the singular value decomposition of a given 2x2 matrix M
+ *  so that M = rotate(phi)*scale(sx,sy)*rotate(theta), where
+ *  rotate(t):={{cos t, -sin t}, {sin t, cos t}} and scale(sx, sy):={{sx, 0}, {0, sy}}.
+ *  The corresponding math can be found in Jim Blinn: "Consider the Lowly 2x2 Matrix"
+ *  https://ieeexplore.ieee.org/document/486688
+ *  Also published in "Jim Blinn's Corner: Notation, Notation, Notation", pp. 69--95.
+ *  @param[in] m matrix {{m00, m01}, {m10, m11}} where the inner pairs denote the rows
+ *  @return vector {phi, sx, sy, theta} */
+vector<double> math::svd (const double (&m)[2][2]) {
+	double phi=0, theta=0, sx=0, sy=0;
+	if (m[0][0] != 0 || m[0][1] != 0 || m[1][0] != 0 || m[1][1] != 0) {
+		double e = (m[0][0] + m[1][1])/2;  // = cos(phi+theta)*(sx+sy)/2
+		double f = (m[0][0] - m[1][1])/2;  // = cos(phi-theta)*(sx-sy)/2
+		double g = (m[1][0] + m[0][1])/2;  // = sin(phi-theta)*(sx-sy)/2
+		double h = (m[1][0] - m[0][1])/2;  // = sin(phi+theta)*(sx+sy)/2
+		double hyp1 = hypot(e, h);  // = (sx+sy)/2
+		double hyp2 = hypot(f, g);  // = (sx-sy)/2
+		sx = hyp1+hyp2;
+		sy = hyp1-hyp2;
+		if (hyp2 == 0)              // uniformly scaled rotation?
+			theta = atan2(h, e);
+		else if (hyp1 == 0)         // uniformly scaled reflection?
+			theta = -atan2(g, f);
+		else {
+			double a1 = atan2(g, f); // = phi-theta (g/f = tan(phi-theta))
+			double a2 = atan2(h, e); // = phi+theta (h/e = tan(phi+theta))
+			phi = (a2+a1)/2;
+			theta = (a2-a1)/2;
+		}
+	}
+	return vector<double>{phi, sx, sy, theta};
+}
+
+
+/** Normalizes an angle to the interval [-mod, mod). */
+double math::normalize_angle (double angle, double mod) {
+	angle = fmod(angle+mod, 2.0*mod);
+	if (angle < 0)
+		angle += 2.0*mod;
+	return angle-mod;
+}
+
+
+double math::normalize_0_2pi (double rad) {
+	rad = fmod(rad, TWO_PI);
+	if (rad < 0)
+		rad += TWO_PI;
+	return rad;
+}
 
 
 /** Returns a given string with leading and trailing whitespace removed.
@@ -113,6 +164,20 @@ string util::tolower (const string &str) {
 }
 
 
+/** Converts a double to a string and strips redundant trailing digits/dots. */
+string util::to_string (double val) {
+	string str = std::to_string(val);
+	if (str.find('.') != string::npos) {  // double value and not an integer?
+		size_t pos = str.find_last_not_of('0');
+		if (pos != string::npos)  // trailing zeros
+			str.erase(pos+1, string::npos);
+		if (str.back() == '.')    // trailing dot?
+			str.pop_back();
+	}
+	return str;
+}
+
+
 /** Returns the integer part of log10 of a given integer \f$n>0\f$.
  *  If \f$n<0\f$, the result is 0. */
 int util::ilog10 (int n) {
@@ -129,7 +194,7 @@ int util::ilog10 (int n) {
  *  @param[in] fname name/path of the file */
 string util::read_file_contents (const string &fname) {
 #if defined(MIKTEX_WINDOWS)
-        ifstream ifs(UW_(fname), ios::binary);
+        ifstream ifs(EXPATH_(fname), ios::binary);
 #else
 	ifstream ifs(fname, ios::binary);
 #endif
@@ -143,7 +208,7 @@ string util::read_file_contents (const string &fname) {
  *  @param[in] end iterator pointing to the first byte after the byte sequence to write */
 void util::write_file_contents (const string &fname, string::iterator start, string::iterator end) {
 #if defined(MIKTEX_WINDOWS)
-        ofstream ofs(UW_(fname), ios::binary);
+        ofstream ofs(EXPATH_(fname), ios::binary);
 #else
 	ofstream ofs(fname, ios::binary);
 #endif

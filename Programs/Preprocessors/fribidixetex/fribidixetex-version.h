@@ -21,7 +21,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "0.20"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2016 Vafa Khalighi"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2016 Vafa Khalighi"
+#define MIKTEX_COMP_COPYRIGHT_STR "Â© 2016 Vafa Khalighi"
 
 #include <miktex/Version>

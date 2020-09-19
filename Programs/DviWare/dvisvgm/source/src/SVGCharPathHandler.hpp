@@ -2,7 +2,7 @@
 ** SVGCharPathHandler.hpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -37,10 +37,10 @@ class SVGCharPathHandler : public SVGCharHandler {
 		void resetContextNode () override;
 
 	private:
-		AppendMethod _appendChar;       ///< method called to append a single character
-		bool _relativePathCommands;     ///< if true, create relative rather than absolute SVG path commands
-		XMLElementNode *_groupNode;     ///< current group node taking the path elements
-		CharProperty<Color> _fontColor; ///< color of current font
+		AppendMethod _appendChar;        ///< method called to append a single character
+		bool _relativePathCommands;      ///< if true, create relative rather than absolute SVG path commands
+		XMLElement *_groupNode=nullptr;  ///< current group node taking the path elements
+		CharProperty<Color> _fontColor=Color::BLACK;  ///< color of current font
 };
 
 #endif

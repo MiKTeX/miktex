@@ -2,7 +2,7 @@
 ** PageRanges.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <sstream>
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
 #include "PageRanges.hpp"
@@ -78,7 +77,7 @@ bool PageRanges::parse (const string &str, int max_page) {
 /** Returns the number of pages. */
 size_t PageRanges::numberOfPages () const {
 	size_t sum=0;
-	for (NumericRanges<int>::ConstIterator it=begin(); it != end(); ++it)
-		sum += it->second - it->first + 1;
+	for (const auto &entry : *this)
+		sum += entry.second - entry.first + 1;
 	return sum;
 }

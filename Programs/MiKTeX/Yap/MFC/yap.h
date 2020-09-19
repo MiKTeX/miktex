@@ -1,6 +1,6 @@
 /* yap.h: main header file for the Yap application      -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -22,20 +22,6 @@
 
 #include "resource.h"
 #include "SplashWindow.h"
-
-#define YAP_TRACE_FLAGS_LVL_1                   \
-  MIKTEX_TRACE_ERROR ","                        \
-  MIKTEX_TRACE_PROCESS ","                      \
-  MIKTEX_TRACE_YAP
-
-#define YAP_TRACE_FLAGS_LVL_2                   \
-  YAP_TRACE_FLAGS_LVL_1 ","                     \
-  MIKTEX_TRACE_DVIFILE ","                      \
-  MIKTEX_TRACE_DVIPKFONT
-
-#define YAP_TRACE_FLAGS_LVL_3                   \
-  YAP_TRACE_FLAGS_LVL_2 ","                     \
-  MIKTEX_TRACE_DVIGC
 
 #define SIXTEENBITGDI 0
 
@@ -404,11 +390,12 @@ public:
   bool singleInstance = false;
 
 public:
-  string traceFlags;
+  string traceOptions;
 };
 
 class YapApplication :
-  public CWinApp
+  public CWinApp,
+  public MiKTeX::Trace::TraceCallback
 {
 protected:
   DECLARE_MESSAGE_MAP();
@@ -452,11 +439,30 @@ private:
 private:
   bool GotoHyperLabel(const char* lpszLabel);
 
+private:
+  std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
+
+public:
+  bool MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
+
+private:
+  void FlushPendingTraceMessages()
+  {
+    for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
+    {
+      TraceInternal(msg);
+    }
+    pendingTraceMessages.clear();
+  }
+
+private:
+  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
+
 protected:
   bool tracing = false;
 
 public:
-  string traceFlags;
+  std::vector<std::string> traceOptions;
 
 private:
   shared_ptr<Session> session;
@@ -470,6 +476,8 @@ public:
 public:
   unique_ptr<TraceStream> trace_error;
 };
+
+extern YapApplication theApp;
 
 template<class VALTYPE> class AutoRestore
 {
@@ -509,13 +517,15 @@ void RGBtoHLS(DWORD, WORD&, WORD&, WORD&);
 
 void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line);
 
-void VYapLog(const char *, va_list);
-
 void UpdateAllDviViews(bool reread = false);
 
-void YapLog(const char *, ...);
+void YapInfo(const std::string& line);
 
-void TraceError(const char* lpszFormat, ...);
+void YapError(const std::string& line);
+
+void ShowError(CWnd* parent, const MiKTeX::Core::MiKTeXException& e);
+
+void ShowError(CWnd* parent, const std::exception& e);
 
 enum {
   WM_DVIPROGRESS = WM_APP + 1, WM_MAKEFONTS

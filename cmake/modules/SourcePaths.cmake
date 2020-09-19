@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -68,6 +68,7 @@ set(MIKTEX_REL_FRIBIDIXETEX_DIR         "Programs/Preprocessors/fribidixetex")
 set(MIKTEX_REL_GC_DIR                   "Libraries/3rd/gc")
 set(MIKTEX_REL_GD_DIR                   "Libraries/3rd/gd")
 set(MIKTEX_REL_GETOPT_DIR               "Libraries/3rd/getopt")
+set(MIKTEX_REL_GLM_DIR                  "Libraries/3rd/glm")
 set(MIKTEX_REL_GMP_DIR                  "Libraries/3rd/gmp")
 set(MIKTEX_REL_GRAPHITE2_DIR            "Libraries/3rd/graphite2")
 set(MIKTEX_REL_GREGORIO_DIR             "Programs/Converters/gregorio")
@@ -82,6 +83,7 @@ set(MIKTEX_REL_KPSEWHICH_DIR            "${MIKTEX_REL_KPSEMU_DIR}/test/kpsewhich
 set(MIKTEX_REL_LACHECK_DIR              "Programs/Validation/lacheck")
 set(MIKTEX_REL_LIBATOMIC_OPS_DIR        "Libraries/3rd/libatomic_ops")
 set(MIKTEX_REL_LIBRESSL_DIR             "Libraries/3rd/libressl")
+set(MIKTEX_REL_LCDF_TYPETOOLS_DIR       "Programs/FontUtilities/lcdf-typetools")
 set(MIKTEX_REL_LOG4CXX_DIR              "Libraries/3rd/log4cxx")
 set(MIKTEX_REL_LUA52_DIR                "Libraries/3rd/lua52")
 set(MIKTEX_REL_LUA53_DIR                "Libraries/3rd/lua53")
@@ -108,10 +110,10 @@ set(MIKTEX_REL_MTHELP_DIR               "Programs/MiKTeX/mthelp")
 set(MIKTEX_REL_MTPRINT_DIR              "Programs/MiKTeX/mtprint")
 set(MIKTEX_REL_NLOHMANN_JSON_DIR        "Libraries/3rd/nlohmann-json")
 set(MIKTEX_REL_OPENGL_REGISTRY_DIR      "Libraries/3rd/opengl-registry")
-set(MIKTEX_REL_OMEGA_DIR                "Programs/TeXAndFriends/omega/omega")
 set(MIKTEX_REL_OMEGAWARE_DIR            "Programs/TeXAndFriends/omega/omegaware")
 set(MIKTEX_REL_OTPS_DIR                 "Programs/TeXAndFriends/omega/otps")
 set(MIKTEX_REL_PADOUT_DIR               "BuildUtilities/padout")
+set(MIKTEX_REL_PATGEN_DIR               "Programs/Generators/patgen")
 set(MIKTEX_REL_PDFTEX_DIR               "Programs/TeXAndFriends/pdftex")
 set(MIKTEX_REL_PIXMAN_DIR               "Libraries/3rd/pixman")
 set(MIKTEX_REL_PNG_DIR                  "Libraries/3rd/libpng")
@@ -145,6 +147,7 @@ set(MIKTEX_REL_TTF2PK2_DIR              "Programs/FontUtilities/ttf2pk2")
 set(MIKTEX_REL_UI_DIR                   "Libraries/MiKTeX/UI")
 set(MIKTEX_REL_UI_QT_DIR                "Libraries/MiKTeX/UI/Qt")
 set(MIKTEX_REL_UNXEMU_DIR               "Libraries/MiKTeX/UnxEmulation")
+set(MIKTEX_REL_UPMENDEX_DIR             "Programs/Indexing/upmendex")
 set(MIKTEX_REL_URIPARSER_DIR            "Libraries/3rd/uriparser")
 set(MIKTEX_REL_UTF8WRAP_DIR             "Libraries/MiKTeX/UTF8Wrap")
 set(MIKTEX_REL_UTIL_DIR                 "Libraries/MiKTeX/Util")
@@ -163,7 +166,6 @@ set(MIKTEX_REL_XSL_DIR                  "${MIKTEX_REL_DOC_DIR}/Styles")
 
 # engine defaults
 set(MIKTEX_METAFONT_DEFAULTS    "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mf.defaults")
-set(MIKTEX_OMEGA_DEFAULTS       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/omega.defaults")
 set(MIKTEX_PDFTEX_DEFAULTS      "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/pdftex.defaults")
 
 # source files
@@ -180,7 +182,7 @@ set(MIKTEX_MANUAL_STYLES        "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_CSS_DIR}/mikte
 set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/catalog")
 
 # resources
-set(MIKTEX_COMPATIBILITY_MANIFEST       "${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest")
+set(MIKTEX_COMMON_MANIFEST              "${CMAKE_SOURCE_DIR}/Resources/Manifests/common.manifest")
 set(MIKTEX_CONSOLE_ICNS                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.icns")
 set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.ico")
 set(MIKTEX_COPYING_CONDITIONS_MD        "${CMAKE_SOURCE_DIR}/COPYING.md")
@@ -196,7 +198,6 @@ set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/
 
 # sed scripts
 set(MIKTEX_DYN_ETEX_SCRIPT      "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/dyn.sed")
-set(MIKTEX_DYN_OMEGA_SCRIPT     "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_OMEGA_DIR}/dyn.sed")
 set(MIKTEX_DYN_TEX_SCRIPT       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/dyn.sed")
 
 # change files
@@ -231,6 +232,9 @@ if(MIKTEX_NATIVE_WINDOWS)
   set(HHC_EXECUTABLE_WRAPPER "${CMAKE_BINARY_DIR}/${MIKTEX_REL_BUILD_TOOLS_ETC_DIR}/hhc.cmd")
 endif()
 
+# generated Git info
+set(MIKTEX_GITINFO_H "${CMAKE_BINARY_DIR}/include/miktex/GitInfo.h")
+
 # IDE folders
 set(MIKTEX_IDE_ADMIN_FOLDER                     "Admin")
 set(MIKTEX_IDE_BUILD_UTILITIES_FOLDER           "Build Utilities")
@@ -247,6 +251,7 @@ set(MIKTEX_IDE_CONVERTERS_FOLDER                "${MIKTEX_IDE_PROGRAMS_FOLDER}/C
 set(MIKTEX_IDE_DVIWARE_FOLDER                   "${MIKTEX_IDE_PROGRAMS_FOLDER}/DVI Ware")
 set(MIKTEX_IDE_EDITORS_FOLDER                   "${MIKTEX_IDE_PROGRAMS_FOLDER}/Editors")
 set(MIKTEX_IDE_FONT_UTILITIES_FOLDER            "${MIKTEX_IDE_PROGRAMS_FOLDER}/Font Utilities")
+set(MIKTEX_IDE_GENERATORS_FOLDER                "${MIKTEX_IDE_PROGRAMS_FOLDER}/Generators")
 set(MIKTEX_IDE_GRAPHICS_UTILITIES_FOLDER        "${MIKTEX_IDE_PROGRAMS_FOLDER}/Graphics Utilities")
 set(MIKTEX_IDE_INDEXING_FOLDER                  "${MIKTEX_IDE_PROGRAMS_FOLDER}/Indexing")
 set(MIKTEX_IDE_KNUTH_FOLDER                     "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/Knuth")

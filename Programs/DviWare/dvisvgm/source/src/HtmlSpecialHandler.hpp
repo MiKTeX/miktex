@@ -2,7 +2,7 @@
 ** HtmlSpecialHandler.hpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -29,7 +29,6 @@ class SpecialActions;
 
 class HtmlSpecialHandler : public SpecialHandler {
 	public:
-		HtmlSpecialHandler () : _active(false) {}
 		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		const char* name () const override {return "html";}
@@ -41,7 +40,7 @@ class HtmlSpecialHandler : public SpecialHandler {
 		void dviMovedTo (double x, double y, SpecialActions &actions) override;
 
 	private:
-		bool _active;
+		bool _active=false;
 };
 
 #endif

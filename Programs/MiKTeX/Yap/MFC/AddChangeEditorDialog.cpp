@@ -1,6 +1,6 @@
 /* AddChangeEditorDialog.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of Yap.
 
@@ -66,7 +66,7 @@ BOOL AddChangeEditorDialog::OnInitDialog()
     if (hr.Failed())
     {
 #if 1
-      TraceError(T_("Auto completion error: %s"), hr.GetText());
+      YapError(fmt::format(T_("Auto completion error: {0}"), hr));
 #else
       MIKTEX_FATAL_ERROR_2(T_("Auto completion error."), "hr", hr.GetText());
 #endif
@@ -75,11 +75,11 @@ BOOL AddChangeEditorDialog::OnInitDialog()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(nullptr, e);
+    ShowError(nullptr, e);
   }
 
   return ret;
@@ -171,11 +171,11 @@ void AddChangeEditorDialog::OnBrowse()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -187,11 +187,11 @@ void AddChangeEditorDialog::OnChangeName()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -203,11 +203,11 @@ void AddChangeEditorDialog::OnChangePath()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 
@@ -219,11 +219,11 @@ void AddChangeEditorDialog::OnChangeArguments()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    ShowError(this, e);
   }
 }
 

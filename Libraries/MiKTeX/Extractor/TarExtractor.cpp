@@ -376,7 +376,7 @@ void TarExtractor::Extract(Stream* streamIn_, const PathName& destDir, bool make
       }
 
       // skip directory prefix
-      if (PathName::Compare(prefix, dest, prefixLen) == 0)
+      if (PathName::Compare(PathName(prefix), dest, prefixLen) == 0)
       {
         PathName tmp(dest);
         dest = tmp.GetData() + prefixLen;

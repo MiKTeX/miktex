@@ -1,6 +1,6 @@
 ## CreateWebApp.cmake
 ##
-## Copyright (C) 2006-2019 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -264,7 +264,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc)
     endif()
     list(APPEND ${_short_name_l}_program_sources
-      ${MIKTEX_COMPATIBILITY_MANIFEST}
+      ${MIKTEX_COMMON_MANIFEST}
     )
   endif()
 

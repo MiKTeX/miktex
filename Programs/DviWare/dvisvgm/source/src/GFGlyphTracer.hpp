@@ -2,7 +2,7 @@
 ** GFGlyphTracer.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2019 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,8 +26,7 @@
 #include "GFTracer.hpp"
 #include "Glyph.hpp"
 
-class GFGlyphTracer : public GFTracer
-{
+class GFGlyphTracer : public GFTracer {
 	public:
 		struct Callback {
 			virtual ~Callback () =default;
@@ -38,8 +37,8 @@ class GFGlyphTracer : public GFTracer
 		};
 
 	public:
-		GFGlyphTracer ();
-		GFGlyphTracer (std::string &fname, double upp, Callback *cb=0);
+		GFGlyphTracer () : GFTracer(_ifs, 0) {}
+		GFGlyphTracer (std::string &fname, double upp, Callback *cb=nullptr);
 		void reset (std::string &fname, double upp);
 		void setCallback (Callback *cb) {_callback = cb;}
 		bool executeChar (uint8_t c) override;
@@ -53,8 +52,8 @@ class GFGlyphTracer : public GFTracer
 
 	private:
 		std::ifstream _ifs;
-		Glyph *_glyph;
-		Callback *_callback;
+		Glyph *_glyph = nullptr;
+		Callback *_callback = nullptr;
 };
 
 #endif

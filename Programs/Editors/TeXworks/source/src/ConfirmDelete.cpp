@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,10 +32,6 @@ ConfirmDelete::ConfirmDelete(QWidget *parent)
 	init();
 }
 
-ConfirmDelete::~ConfirmDelete()
-{
-}
-
 void ConfirmDelete::init()
 {
 	setupUi(this);
@@ -56,7 +52,7 @@ void ConfirmDelete::doConfirmDelete(const QDir& dir, const QStringList& fileList
 		dlg.listWidget->item(i)->setCheckState(Qt::Checked);
 
 	dlg.show();
-	DialogCode	result = (DialogCode)dlg.exec();
+	DialogCode result = static_cast<DialogCode>(dlg.exec());
 
 	if (result == Accepted) {
 		bool failed = false;
@@ -68,7 +64,7 @@ void ConfirmDelete::doConfirmDelete(const QDir& dir, const QStringList& fileList
 			}
 		}
 		if (failed)
-			(void)QMessageBox::warning(NULL, tr("Unable to delete"),
+			(void)QMessageBox::warning(nullptr, tr("Unable to delete"),
 									   tr("Some of the auxiliary files could not be removed. Perhaps you don't have permission to delete them."));
 	}
 }

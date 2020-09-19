@@ -54,10 +54,8 @@ extern FILE *pipeout;
 
 inline void openpipeout() 
 {
-  int fd=settings::getSetting<Int>("outpipe");
-  if(!pipeout) {
-    if(fd >= 0) pipeout=fdopen(intcast(fd),"w");
-  }
+  int fd=intcast(settings::getSetting<Int>("outpipe"));
+  if(!pipeout && fd >= 0) pipeout=fdopen(fd,"w");
   if(!pipeout) {
     ostringstream buf;
     buf << "Cannot open outpipe " << fd;
@@ -123,7 +121,7 @@ public:
   file(const string& name, bool check=true, Mode type=NOMODE, bool binary=false,
        bool closed=false) : 
     name(name), check(check), type(type), linemode(false), csvmode(false),
-    singlereal(false), singleint(true), signedint(true),
+    wordmode(false), singlereal(false), singleint(true), signedint(true),
     closed(closed), standard(name.empty()),
     binary(binary), nullfield(false), whitespace("") {dimension();}
   
@@ -253,7 +251,7 @@ public:
 
 class opipe : public file {
 public:
-  opipe(const string& name) : file(name,false,OPIPE) {}
+  opipe(const string& name) : file(name,false,OPIPE) {standard=false;}
 
   void open() {
     openpipeout();
@@ -441,7 +439,8 @@ public:
     ifile(name,comment,true,UPDATE,std::ios::in | std::ios::out) {}
 
   Int precision(Int p) {
-    return p == 0 ? stream->precision() : stream->precision(p);
+    return p == 0 ? stream->precision(settings::getSetting<Int>("digits")) :
+      stream->precision(p);
   }
   void flush() {if(fstream) fstream->flush();}
   
@@ -481,6 +480,7 @@ public:
     } else {
       name=outpath(name);
       stream=fstream=new std::ofstream(name.c_str(),mode | std::ios::trunc);
+      stream->precision(settings::getSetting<Int>("digits"));
       index=processData().ofile.add(fstream);
       Check();
     }
@@ -501,7 +501,8 @@ public:
   }
   void clear() {stream->clear();}
   Int precision(Int p) {
-    return p == 0 ? stream->precision() : stream->precision(p);
+    return p == 0 ? stream->precision(settings::getSetting<Int>("digits")) :
+      stream->precision(p);
   }
   void flush() {stream->flush();}
   

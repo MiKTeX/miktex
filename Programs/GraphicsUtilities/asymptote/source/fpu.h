@@ -1,6 +1,11 @@
 #ifndef FPU_H
 #define FPU_H
 
+#ifdef __GNU_VISIBLE
+#undef __GNU_VISIBLE
+#define __GNU_VISIBLE 1
+#endif
+
 #include "common.h"
 
 #ifdef HAVE_FEENABLEEXCEPT
