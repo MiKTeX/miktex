@@ -546,6 +546,26 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory)
 {
+  constexpr const char* PREFIX = "//?/";
+  constexpr int PREFIX_LENGTH = 4;
+  PathName workingDirectoryNonUNC;
+  if (workingDirectory != nullptr && PathName::Compare(workingDirectory, PREFIX, PREFIX_LENGTH) == 0)
+  {
+    workingDirectoryNonUNC = &workingDirectory[PREFIX_LENGTH];
+  }
+  else if (workingDirectory == nullptr)
+  {
+    PathName cwd;
+    cwd.SetToCurrentDirectory();
+    if (PathName::Compare(cwd, PathName(PREFIX), PREFIX_LENGTH) == 0)
+    {
+      workingDirectoryNonUNC = &cwd[PREFIX_LENGTH];
+    }
+  }
+  if (!workingDirectoryNonUNC.Empty())
+  {
+    workingDirectory = workingDirectoryNonUNC.GetData();
+  }
   vector<string> arguments = Wrap(commandLine);
   return Process::Run(PathName(arguments[0]), arguments, callback, exitCode, workingDirectory);
 }
