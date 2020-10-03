@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -25,6 +25,11 @@ target_compile_definitions(${lua53_lib_name}
   PUBLIC
     ${public_compile_definitions}
     -DMIKTEX_LUA_STATIC
+)
+
+target_link_libraries(${lua53_lib_name}
+  PRIVATE
+    ${core_dll_name}
 )
 
 target_include_directories(${lua53_lib_name}

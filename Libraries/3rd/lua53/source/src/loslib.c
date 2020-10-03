@@ -8,6 +8,9 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
+#if defined(MIKTEX)
+#  include <miktex/lua.h>
+#endif
 #define loslib_c
 #define LUA_LIB
 
@@ -144,7 +147,11 @@ static time_t l_checktime (lua_State *L, int arg) {
 
 static int os_execute (lua_State *L) {
   const char *cmd = luaL_optstring(L, 1, NULL);
+#if defined(MIKTEX)
+  int stat = miktex_system(cmd);
+#else
   int stat = system(cmd);
+#endif
   if (cmd != NULL)
     return luaL_execresult(L, stat);
   else {

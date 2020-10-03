@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -45,6 +45,11 @@ target_include_directories(${lua53_dll_name}
     ${public_include_directories}
 )
 
+target_link_libraries(${lua53_dll_name}
+  PRIVATE
+    ${core_dll_name}
+)
+
 if(MIKTEX_UNIX_ALIKE)
   target_link_libraries(${lua53_dll_name}
     PRIVATE
@@ -60,10 +65,10 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-set_shared_library_version(
+set_shared_library_version_properties(
   ${lua53_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
   ${MIKTEX_COMP_INTERFACE_VERSION}
-  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 install(TARGETS ${lua53_dll_name}
