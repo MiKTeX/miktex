@@ -409,6 +409,20 @@ void MakeFmt::Run(int argc, const char** argv)
   PathName pathDest(destinationDirectory, destinationName);
   pathDest.AppendExtension(MIKTEX_FORMAT_FILE_SUFFIX);
 
+  // make the log file name
+  PathName logFile(destinationName);
+  logFile.AppendExtension(".log");
+
+  // make fully qualified destination log file name
+  time_t t = time(nullptr);
+  char dateTime[128];
+  strftime(dateTime, 128, "%Y-%m-%d-%H-%M-%S", localtime(&t));
+  PathName logDest(session->GetSpecialPath(SpecialPath::LogDirectory));
+  logDest /= "makefmt";
+  logDest /= destinationName;
+  logDest /= dateTime;
+  logDest.AppendExtension(".log");
+
   Verbose(fmt::format(T_("Creating the {0} format file..."), Q_(destinationName)));
 
   // create a temporary working directory
@@ -449,8 +463,16 @@ void MakeFmt::Run(int argc, const char** argv)
     arguments.push_back("\\dump");
   }
 
-  // start the engine
-  if (!RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName()))
+  // run the engine
+  bool done = RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName());
+
+  // install log file
+  if (File::Exists(wrkDir->GetPathName() / logFile))
+  {
+    Install(wrkDir->GetPathName() / logFile, logDest);
+  }
+
+  if (!done)
   {
     FatalError(fmt::format(T_("{0} failed on {1}."), GetEngineExeName(), Q_(name)));
   }

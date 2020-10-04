@@ -379,6 +379,11 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
       SetNativeAttributes(dest, destAttributes2);
     }
   }
+  PathName dir = dest.GetDirectoryName();
+  if (!dir.Empty() && !Directory::Exists(dir))
+  {
+    Directory::Create(dir);
+  }
   if (!CopyFileW(source.ToExtendedLengthPathName().ToWideCharString().c_str(), dest.ToExtendedLengthPathName().ToWideCharString().c_str(), options[FileCopyOption::ReplaceExisting] ? FALSE : TRUE))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CopyFileW", "existing", source.ToString(), "path", dest.ToString());
