@@ -213,7 +213,14 @@ void TeXMFApp::OnTeXMFFinishJob()
       fileName = pimpl->jobName;
     }
     shared_ptr<Session> session = GetSession();
-    session->SetRecorderPath(PathName(GetOutputDirectory(), PathName(fileName)).AppendExtension(".fls"));
+    PathName recorderPath = GetAuxDirectory();
+    if (recorderPath.Empty())
+    {
+      recorderPath = GetOutputDirectory();
+    }
+    recorderPath /= fileName;
+    recorderPath.AppendExtension(".fls");
+    session->SetRecorderPath(recorderPath);
   }
   if (pimpl->timeStatistics)
   {
