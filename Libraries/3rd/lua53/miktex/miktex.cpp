@@ -25,6 +25,10 @@ using namespace MiKTeX::Core;
 
 int miktex_system(const char* commandLine)
 {
+  if (commandLine == nullptr)
+  {
+    return 1;
+  }
   try
   {
     int exitCode;

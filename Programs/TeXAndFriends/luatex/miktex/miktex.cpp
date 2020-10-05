@@ -219,6 +219,10 @@ int miktex_allow_unrestricted_shell_escape()
 
 int miktex_system(const char* commandLine)
 {
+  if (commandLine == nullptr)
+  {
+    return 1;
+  }
   try
   {
     int exitCode;
