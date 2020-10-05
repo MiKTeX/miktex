@@ -181,6 +181,7 @@ void InstallSignalHandler(int sig)
 template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initInfo, Impl* pimpl)
 {
   CommandLineBuilder commandLine;
+  commandLine.SetQuotingConvention(QuotingConvention::None);
   auto it = args.begin();
   while (it != args.end() && *it != nullptr)
   {

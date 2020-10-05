@@ -97,7 +97,7 @@ void winProcess::Create()
   }
 
   CommandLineBuilder commandLine;
-  commandLine.SetQuotingConvention(QuotingConvention::Whitespace);
+  commandLine.SetQuotingConvention(QuotingConvention::None);
   commandLine.AppendArguments(startinfo.Arguments.empty() ? vector<string>{ PathName(startinfo.FileName).GetFileNameWithoutExtension().ToString() } : startinfo.Arguments);
 
   // standard security attributes for pipes
