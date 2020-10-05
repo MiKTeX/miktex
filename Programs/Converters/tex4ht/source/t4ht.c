@@ -110,6 +110,9 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
+#if defined(MIKTEX)
+# include <miktex/tex4ht.h>
+#endif
 
 #ifdef KPATHSEA
 #include <kpathsea/config.h>
@@ -1186,7 +1189,11 @@ static void call_sys
 {
    if( *command ){
       (IGNORED) printf("System call: %s\n", command);
+#if defined(MIKTEX)
+      system_return = system_yes ? miktex_system(command) : -1;
+#else
       system_return = system_yes?  (int) system(command) : -1;
+#endif
       (IGNORED) printf("%sSystem return: %d\n",
             system_return? "--- Warning --- " : "", system_return );
       if( always_call_sys ){ system_return = 0; }
@@ -1581,7 +1588,11 @@ HOME_DIR = getenv("HOME");
 #ifdef SYSTEM_FUNCTION_OK
 0
 #else
+#if defined(MIKTEX)
+    miktex_system(yes) != 0
+#else
 system( yes ) != 0
+#endif
 #endif
 
 );
@@ -1878,7 +1889,11 @@ envfile= kpse_find_file ("tex4ht.env", kpse_program_text_format, 0);
 
  }
    if ( !envfile ){ 
+#if defined(MIKTEX)
+     if (miktex_system("miktex-kpsewhich --progname=tex4ht tex4ht.env > tex4ht.tmp") == 0) {
+#else
 if( system("kpsewhich --progname=tex4ht tex4ht.env > tex4ht.tmp") == 0 ){
+#endif
    
 char fileaddr [256];
 int loc = 0;

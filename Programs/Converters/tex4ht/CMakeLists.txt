@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,6 +18,10 @@
 ## USA.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_CONVERTERS_FOLDER}/tex4ht")
+
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 add_definitions(
   -DANSI
@@ -43,6 +47,7 @@ set_source_files_properties(
 
 set(t4ht_sources
   ${MIKTEX_LIBRARY_WRAPPER}
+  miktex/tex4ht.h
   source/t4ht.c
   t4ht-version.h
 )
@@ -74,6 +79,7 @@ install(TARGETS ${MIKTEX_PREFIX}t4ht DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR
 
 set(tex4ht_sources
   ${MIKTEX_LIBRARY_WRAPPER}
+  miktex/tex4ht.h
   source/tex4ht.c
   tex4ht-version.h
 )

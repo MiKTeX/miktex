@@ -155,6 +155,7 @@
 #  include <miktex/unxemu.h>
 #endif
 #if defined(MIKTEX)
+#include <miktex/tex4ht.h>
 #define register
 #endif
 #ifdef KPATHSEA
@@ -6038,7 +6039,11 @@ dvi_file = stdin;
 
 
 {                   U_CHAR   *yes = NULL;
+#if defined(MIKTEX)
+  system_yes = (miktex_system(yes) != 0);
+#else
   system_yes =  (system( yes ) != 0);
+#endif
 }
 
 
@@ -6556,11 +6561,19 @@ envfile= kpse_find_file ("tex4ht.env", kpse_program_text_format, 0);
 
  }
   if ( !envfile ){ 
+#if defined(MIKTEX)
+#define KPSEWHICH_CMD "miktex-kpsewhich --progname=tex4ht --format=othertext tex4ht.env"
+#else
 #define KPSEWHICH_CMD "kpsewhich --progname=tex4ht --format=othertext tex4ht.env"
+#endif
 if( dump_env_search ){
   (IGNORED) printf("system(" KPSEWHICH_CMD ")?\n"); /* cpp concatenation */
 }
+#if defined(MIKTEX)
+if (miktex_system(KPSEWHICH_CMD ">tex4ht.tmp") == 0) {
+#else
 if( system(KPSEWHICH_CMD ">tex4ht.tmp") == 0 ){
+#endif
    
 char fileaddr [256];
 int loc = 0;
@@ -7591,10 +7604,18 @@ new_font.design_sz = (INTEGER) get_unt(4);
   tfmfile = kpse_find_file (file_name, kpse_tfm_format, 0);
   if( !tfmfile ){ 
 char s [256];
+#if defined(MIKTEX)
+strcpy(s, "miktex-kpsewhich ");
+#else
 (IGNORED) strcpy(s, "kpsewhich ");
+#endif
 (IGNORED) strcat(s, file_name);
 (IGNORED) strcat(s, " > tex4ht.tmp ");
+#if defined(MIKTEX)
+if (miktex_system(s) == 0) {
+#else
 if( system(s) == 0 ){
+#endif
    
 char fileaddr [256];
 int loc = 0;
@@ -9364,7 +9385,11 @@ while( p ){
 
 if( flag ){
   (IGNORED) printf("System return: %d\n",
+#if defined(MIKTEX)
+    system_yes ? miktex_system(name) : -1);
+#else
                     system_yes?  (int) system(name) : -1 );
+#endif
 } else { (IGNORED) printf("No permission for system call\n"); }
 
     break; }
