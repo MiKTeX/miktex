@@ -17,10 +17,13 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
+#include <mutex>
+
 #include <miktex/Core/Process>
 
 #include "lua.h"
 
+using namespace std;
 using namespace MiKTeX::Core;
 
 int miktex_system(const char* commandLine)
@@ -40,6 +43,56 @@ int miktex_system(const char* commandLine)
     {
       return -1;
     }
+  }
+  catch (const MiKTeXException&)
+  {
+    return -1;
+  }
+}
+
+unordered_map<FILE*, unique_ptr<Process>> processes;
+mutex mux;
+
+FILE* miktex_popen(const char* commandLine, const char* mode)
+{
+  try
+  {
+    FILE* file = nullptr;
+    unique_ptr<Process> process;
+    if (strcmp(mode, "r") == 0)
+    {
+      process = Process::StartSystemCommand(commandLine, nullptr, &file);
+    }
+    else
+    {
+      process = Process::StartSystemCommand(commandLine, &file, nullptr);
+    }
+    lock_guard<mutex> lockGuard(mux);
+    processes[file] = std::move(process);
+    return file;
+  }
+  catch (const MiKTeXException&)
+  {
+    return nullptr;
+  }
+}
+
+int miktex_pclose(FILE* file)
+{
+  try
+  {
+    lock_guard<mutex> lockGuard(mux);
+    auto it = processes.find(file);
+    if (it == processes.end())
+    {
+      return -1;
+    }
+    it->second->WaitForExit();
+    fclose(file);
+    int exitCode = it->second->get_ExitCode();
+    it->second->Close();
+    processes.erase(it);
+    return exitCode;
   }
   catch (const MiKTeXException&)
   {

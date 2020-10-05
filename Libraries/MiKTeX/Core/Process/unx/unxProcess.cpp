@@ -578,10 +578,24 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
   };
 }
 
-void Process::StartSystemCommand(const string& commandLine)
+unique_ptr<Process> Process::StartSystemCommand(const string& commandLine, FILE** ppFileStandardInput, FILE** ppFileStandardOutput)
 {
   vector<string> arguments = Wrap(commandLine);
-  Process::Start(PathName(arguments[0]), arguments);
+  ProcessStartInfo startinfo;
+  startinfo.FileName = arguments[0];
+  startinfo.Arguments = arguments;
+  startinfo.RedirectStandardInput = ppFileStandardInput != nullptr;
+  startinfo.RedirectStandardOutput = ppFileStandardOutput != nullptr;
+  unique_ptr<Process> process(Process::Start(startinfo));
+  if (ppFileStandardInput != nullptr)
+  {
+    *ppFileStandardInput = process->get_StandardInput();
+  }
+  if (ppFileStandardOutput != nullptr)
+  {
+    *ppFileStandardOutput = process->get_StandardOutput();
+  }
+  return process;
 }
 
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)

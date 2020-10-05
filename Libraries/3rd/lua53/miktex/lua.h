@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+int miktex_pclose(FILE* file);
+FILE* miktex_popen(const char* commandLine, const char* mode);
 int miktex_system(const char* commandLine);
 
 #if defined(__cplusplus)

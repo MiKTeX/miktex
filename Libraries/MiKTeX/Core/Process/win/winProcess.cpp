@@ -544,10 +544,11 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
   };
 }
 
+constexpr const char* PREFIX = "//?/";
+constexpr int PREFIX_LENGTH = 4;
+
 bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory)
 {
-  constexpr const char* PREFIX = "//?/";
-  constexpr int PREFIX_LENGTH = 4;
   PathName workingDirectoryNonUNC;
   if (workingDirectory != nullptr && PathName::Compare(workingDirectory, PREFIX, PREFIX_LENGTH) == 0)
   {
@@ -570,10 +571,40 @@ bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRu
   return Process::Run(PathName(arguments[0]), arguments, callback, exitCode, workingDirectory);
 }
 
-void Process::StartSystemCommand(const string& commandLine)
+unique_ptr<Process> Process::StartSystemCommand(const string& commandLine, FILE** ppFileStandardInput, FILE** ppFileStandardOutput)
 {
+  const char* workingDirectory = nullptr;
+  PathName workingDirectoryNonUNC;
+  PathName cwd;
+  cwd.SetToCurrentDirectory();
+  if (PathName::Compare(cwd, PathName(PREFIX), PREFIX_LENGTH) == 0)
+  {
+    workingDirectoryNonUNC = &cwd[PREFIX_LENGTH];
+  }
+  if (!workingDirectoryNonUNC.Empty())
+  {
+    workingDirectory = workingDirectoryNonUNC.GetData();
+  }
   vector<string> arguments = Wrap(commandLine);
-  Process::Start(PathName(arguments[0]), arguments);
+  ProcessStartInfo startinfo;
+  startinfo.FileName = arguments[0];
+  startinfo.Arguments = arguments;
+  startinfo.RedirectStandardInput = ppFileStandardInput != nullptr;
+  startinfo.RedirectStandardOutput = ppFileStandardOutput != nullptr;
+  if (workingDirectory != nullptr)
+  {
+    startinfo.WorkingDirectory = workingDirectory;
+  }
+  unique_ptr<Process> process(Process::Start(startinfo));
+  if (ppFileStandardInput != nullptr)
+  {
+    *ppFileStandardInput = process->get_StandardInput();
+  }
+  if (ppFileStandardOutput != nullptr)
+  {
+    *ppFileStandardOutput = process->get_StandardOutput();
+  }
+  return process;
 }
 
 winProcess::winProcess()

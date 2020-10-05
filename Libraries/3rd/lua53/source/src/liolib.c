@@ -13,6 +13,9 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
+#if defined(MIKTEX)
+#include <miktex/lua.h>
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -63,9 +66,17 @@ static int l_checkmode (const char *mode) {
 
 #if defined(LUA_USE_POSIX)	/* { */
 
+#if defined(MIKTEX)
+#define l_popen(L,c,m)		(fflush(NULL), miktex_popen(c,m))
+#define l_pclose(L,file)	(miktex_pclose(file))
+#else
 #define l_popen(L,c,m)		(fflush(NULL), popen(c,m))
 #define l_pclose(L,file)	(pclose(file))
+#endif
 
+#elif defined(MIKTEX)
+#define l_popen(L,c,m)		(miktex_popen(c,m))
+#define l_pclose(L,file)	(miktex_pclose(file))
 #elif defined(LUA_USE_WINDOWS)	/* }{ */
 
 #define l_popen(L,c,m)		(_popen(c,m))

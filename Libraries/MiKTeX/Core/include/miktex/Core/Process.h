@@ -249,7 +249,7 @@ public:
   /// @return Returns the process name.
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
-  
+
   /// Gets information about this process.
   /// @return Returns the process information.
 public:
@@ -274,7 +274,16 @@ public:
   /// Starts the system shell to execute a command.
   /// @param commandLine The command (and arguments) to be executed.
 public:
-  static MIKTEXCORECEEAPI(void) StartSystemCommand(const std::string& commandLine);
+  static MIKTEXCORECEEAPI(std::unique_ptr<Process>) StartSystemCommand(const std::string& commandLine, FILE** ppFileStandardInput, FILE** ppFileStandardOutput);
+
+  /// Starts the system shell to execute a command.
+  /// @param commandLine The command (and arguments) to be executed.
+public:
+  static void StartSystemCommand(const std::string& commandLine)
+  {
+    auto process = StartSystemCommand(commandLine, nullptr, nullptr);
+    process->Close();
+  }
 
   /// Runs the system shell to execute a command.
   /// @param commandLine The command (and arguments) to be executed.
