@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <mutex>
+
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Debug>
@@ -285,4 +287,79 @@ MIKTEXCORECEEAPI(void) miktex_start_process(const char* fileName, const char* co
 {
   MIKTEX_ASSERT_STRING(commandLine);
   Process::Start(PathName(fileName), Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, workingDirectory);
+}
+
+MIKTEXCORECEEAPI(int) miktex_system(const char* commandLine)
+{
+  if (commandLine == nullptr)
+  {
+    return 1;
+  }
+  try
+  {
+    int exitCode;
+    if (Process::ExecuteSystemCommand(commandLine, &exitCode))
+    {
+      return exitCode;
+    }
+    else
+    {
+      return -1;
+    }
+  }
+  catch (const MiKTeXException&)
+  {
+    return -1;
+  }
+}
+
+
+unordered_map<FILE*, unique_ptr<Process>> processes;
+mutex mux;
+
+MIKTEXCORECEEAPI(FILE*) miktex_popen(const char* commandLine, const char* mode)
+{
+  try
+  {
+    FILE* file = nullptr;
+    unique_ptr<Process> process;
+    if (strcmp(mode, "r") == 0)
+    {
+      process = Process::StartSystemCommand(commandLine, nullptr, &file);
+    }
+    else
+    {
+      process = Process::StartSystemCommand(commandLine, &file, nullptr);
+    }
+    lock_guard<mutex> lockGuard(mux);
+    processes[file] = std::move(process);
+    return file;
+  }
+  catch (const MiKTeXException&)
+  {
+    return nullptr;
+  }
+}
+
+MIKTEXCORECEEAPI(int) miktex_pclose(FILE* file)
+{
+  try
+  {
+    lock_guard<mutex> lockGuard(mux);
+    auto it = processes.find(file);
+    if (it == processes.end())
+    {
+      return -1;
+    }
+    it->second->WaitForExit();
+    fclose(file);
+    int exitCode = it->second->get_ExitCode();
+    it->second->Close();
+    processes.erase(it);
+    return exitCode;
+  }
+  catch (const MiKTeXException&)
+  {
+    return -1;
+  }
 }

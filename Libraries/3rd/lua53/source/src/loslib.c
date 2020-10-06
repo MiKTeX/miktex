@@ -9,7 +9,7 @@
 #  include <miktex/utf8wrap.h>
 #endif
 #if defined(MIKTEX)
-#  include <miktex/lua.h>
+#include <miktex/Core/c/api.h>
 #endif
 #define loslib_c
 #define LUA_LIB

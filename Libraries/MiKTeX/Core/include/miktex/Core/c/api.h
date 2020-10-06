@@ -55,7 +55,10 @@ MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* version, size_t 
 MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots();
 MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* path);
 MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* path1, const char* path2);
+MIKTEXCORECEEAPI(int) miktex_pclose(FILE* file);
+MIKTEXCORECEEAPI(FILE*) miktex_popen(const char* commandLine, const char* mode);
 MIKTEXCORECEEAPI(void) miktex_start_process(const char* fileName, const char* commandLine, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory);
+MIKTEXCORECEEAPI(int) miktex_system(const char* commandLine);
 MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* pathIn, char* pathOut);
 MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char* utf8, size_t sizeWideChar, wchar_t* wideChar);
 MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t* wideChar, size_t sizeUtf8, char* utf8);

@@ -217,30 +217,6 @@ int miktex_allow_unrestricted_shell_escape()
   return okay ? 1 : 0;
 }
 
-int miktex_system(const char* commandLine)
-{
-  if (commandLine == nullptr)
-  {
-    return 1;
-  }
-  try
-  {
-    int exitCode;
-    if (Process::ExecuteSystemCommand(commandLine, &exitCode))
-    {
-      return exitCode;
-    }
-    else
-    {
-      return -1;
-    }
-  }
-  catch (const MiKTeXException&)
-  {
-    return -1;
-  }
-}
-
 int miktex_emulate__spawn_command(const char* fileName, char* const* argv, char* const* env)
 {
   vector<std::string> arguments;
