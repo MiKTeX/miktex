@@ -60,9 +60,6 @@ CORE_INTERNAL_BEGIN_NAMESPACE;
 
 #define REPORT_EVENTS 0
 
-#define C_FUNC_BEGIN()
-#define C_FUNC_END()
-
 #if defined(MIKTEX_WINDOWS)
 #  define DEBUG_BREAK() DebugBreak()
 #else

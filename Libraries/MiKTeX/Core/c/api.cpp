@@ -37,65 +37,53 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* lpszFileName)
+MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* fileName)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_PATH_BUFFER(lpszFileName);
-  StringUtil::CopyString(lpszFileName, BufferSizes::MaxPath, PathName().SetToTempFile().GetData());
-  C_FUNC_END();
+  MIKTEX_ASSERT_PATH_BUFFER(fileName);
+  StringUtil::CopyString(fileName, BufferSizes::MaxPath, PathName().SetToTempFile().GetData());
 }
 
-MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* lpszPathIn, char* lpszPathOut)
+MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* pathIn, char* pathOut)
 {
-  C_FUNC_BEGIN();
   PathName temp;
-  Utils::UncompressFile(PathName(lpszPathIn), temp);
-  StringUtil::CopyString(lpszPathOut, BufferSizes::MaxPath, temp.GetData());
-  C_FUNC_END();
+  Utils::UncompressFile(PathName(pathIn), temp);
+  StringUtil::CopyString(pathOut, BufferSizes::MaxPath, temp.GetData());
 }
 
-MIKTEXCORECEEAPI(void*) miktex_core_malloc(size_t size, const char* lpszFileName, int line)
+MIKTEXCORECEEAPI(void*) miktex_core_malloc(size_t size, const char* fileName, int line)
 {
-  C_FUNC_BEGIN();
 #if defined(MIKTEX_DEBUG)
-  return MiKTeX::Debug::Malloc(size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+  return MiKTeX::Debug::Malloc(size, SourceLocation("", fileName == nullptr ? "" : fileName, line));
 #else
   return MiKTeX::Debug::Malloc(size, SourceLocation());
 #endif
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void) miktex_core_free(void* ptr, const char* lpszFileName, int line)
+MIKTEXCORECEEAPI(void) miktex_core_free(void* ptr, const char* fileName, int line)
 {
-  C_FUNC_BEGIN();
 #if defined(MIKTEX_DEBUG)
-  MiKTeX::Debug::Free(ptr, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+  MiKTeX::Debug::Free(ptr, SourceLocation("", fileName == nullptr ? "" : fileName, line));
 #else
   MiKTeX::Debug::Free(ptr, SourceLocation());
 #endif
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void*) miktex_core_calloc(size_t num, size_t size, const char* lpszFileName, int line)
+MIKTEXCORECEEAPI(void*) miktex_core_calloc(size_t num, size_t size, const char* fileName, int line)
 {
-  C_FUNC_BEGIN();
 #if defined(MIKTEX_DEBUG)
-  return MiKTeX::Debug::Calloc(num, size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+  return MiKTeX::Debug::Calloc(num, size, SourceLocation("", fileName == nullptr ? "" : fileName, line));
 #else
   return MiKTeX::Debug::Calloc(num, size, SourceLocation());
 #endif
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* lpszFileName, int line)
+MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* fileName, int line)
 {
-  C_FUNC_BEGIN();
 #if defined(MIKTEX_DEBUG)
-  return MiKTeX::Debug::Realloc(ptr, size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+  return MiKTeX::Debug::Realloc(ptr, size, SourceLocation("", fileName == nullptr ? "" : fileName, line));
 #else
   return MiKTeX::Debug::Realloc(ptr, size, SourceLocation());
 #endif
-  C_FUNC_END();
 }
 
 #if defined(_MSC_VER)
@@ -103,26 +91,22 @@ MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* 
 #  undef StrDup
 #endif
 
-MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line)
+MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* fileName, int line)
 {
-  C_FUNC_BEGIN();
 #if defined(MIKTEX_DEBUG)
-  return MiKTeX::Debug::StrDup(lpsz, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+  return MiKTeX::Debug::StrDup(lpsz, SourceLocation("", fileName == nullptr ? "" : fileName, line));
 #else
   return MiKTeX::Debug::StrDup(lpsz, SourceLocation());
 #endif
-  C_FUNC_END();
 }
 
 #if defined(_MSC_VER)
 #  pragma pop_macro("StrDup")
 #endif
 
-MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* lpszPath1, const char* lpszPath2)
+MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* path1, const char* path2)
 {
-  C_FUNC_BEGIN();
-  return PathName::Compare(lpszPath1, lpszPath2);
-  C_FUNC_END();
+  return PathName::Compare(path1, path2);
 }
 
 MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)
@@ -130,117 +114,99 @@ MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)
   throw status;
 }
 
-MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char* lpszMiktexFunction, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine)
+MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char* miktexFunction, const char* message, const char* info, const char* sourceFile, int sourceLine)
 {
-  C_FUNC_BEGIN();
-  Session::FatalMiKTeXError(lpszMessage, "", "", "", MiKTeXException::KVMAP("", lpszInfo == nullptr ? "" : lpszInfo), SourceLocation(lpszMiktexFunction == nullptr ? "" : lpszMiktexFunction, lpszSourceFile == nullptr ? "" : lpszSourceFile, sourceLine));
-  C_FUNC_END();
+  Session::FatalMiKTeXError(message, "", "", "", MiKTeXException::KVMAP("", info == nullptr ? "" : info), SourceLocation(miktexFunction == nullptr ? "" : miktexFunction, sourceFile == nullptr ? "" : sourceFile, sourceLine));
 }
 
 MIKTEXCORECEEAPI(int) miktex_get_miktex_banner(char* buf, size_t bufSize)
 {
-  C_FUNC_BEGIN();
   string banner = Utils::GetMiKTeXBannerString();
   StringUtil::CopyString(buf, bufSize, banner.c_str());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* lpszVersion, size_t bufSize)
+MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* version, size_t bufSize)
 {
-  C_FUNC_BEGIN();
-  string version = Utils::GetMiKTeXVersionString();
-  StringUtil::CopyString(lpszVersion, bufSize, version.c_str());
+  StringUtil::CopyString(version, bufSize, Utils::GetMiKTeXVersionString().c_str());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_file(const char* lpszFileName, const char* lpszPathList, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_file(const char* fileName, const char* pathList, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszFileName);
-  MIKTEX_ASSERT_STRING(lpszPathList);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING(fileName);
+  MIKTEX_ASSERT_STRING(pathList);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszFileName, lpszPathList, temp))
+  if (!SessionImpl::GetSession()->FindFile(fileName, pathList, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* lpszFontName, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* fontName, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING(fontName);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszFontName, FileType::TFM, temp))
+  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::TFM, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* lpszFontName, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* fontName, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING(fontName);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszFontName, FileType::TTF, temp))
+  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::TTF, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* lpszFontName, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* fontName, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING(fontName);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszFontName, FileType::ENC, temp))
+  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::ENC, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* lpszHeaderName, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* headerName, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszHeaderName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING(headerName);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszHeaderName, FileType::PSHEADER, temp))
+  if (!SessionImpl::GetSession()->FindFile(headerName, FileType::PSHEADER, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* lpszApplicationName, const char* lpszFileName, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* applicationName, const char* fileName, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszApplicationName);
-  MIKTEX_ASSERT_STRING(lpszFileName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING_OR_NIL(applicationName);
+  MIKTEX_ASSERT_STRING(fileName);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszFileName, FileType::None, temp))
+  if (!SessionImpl::GetSession()->FindFile(fileName, FileType::None, temp))
   {
-    if (lpszApplicationName == nullptr)
+    if (applicationName == nullptr)
     {
       return 0;
     }
@@ -248,92 +214,75 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* lpszApplicationName, co
     searchPath += PATH_DELIMITER;
     searchPath += TEXMF_PLACEHOLDER;
     searchPath += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
-    searchPath += lpszApplicationName;
+    searchPath += applicationName;
     searchPath += RECURSION_INDICATOR;
-    if (!SessionImpl::GetSession()->FindFile(lpszFileName, searchPath, temp))
+    if (!SessionImpl::GetSession()->FindFile(fileName, searchPath, temp))
     {
       return 0;
     }
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* lpszFontName, char* lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* fontName, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
+  MIKTEX_ASSERT_STRING(fontName);
+  MIKTEX_ASSERT_PATH_BUFFER(path);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszFontName, FileType::HBF, temp))
+  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::HBF, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* lpszExeName, char* lpszExePath)
+MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* exeName, char* exePath)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_STRING(lpszExeName);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszExePath);
+  MIKTEX_ASSERT_STRING(exeName);
+  MIKTEX_ASSERT_PATH_BUFFER(exePath);
   PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(lpszExeName, FileType::EXE, temp))
+  if (!SessionImpl::GetSession()->FindFile(exeName, FileType::EXE, temp))
   {
     return 0;
   }
-  StringUtil::CopyString(lpszExePath, BufferSizes::MaxPath, temp.GetData());
+  StringUtil::CopyString(exePath, BufferSizes::MaxPath, temp.GetData());
   return 1;
-  C_FUNC_END();
 }
 
 MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots()
 {
-  C_FUNC_BEGIN();
   return SessionImpl::GetSession()->GetNumberOfTEXMFRoots();
-  C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* lpszPath)
+MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* path)
 {
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, SessionImpl::GetSession()->GetRootDirectoryPath(r).GetData());
-  return lpszPath;
-  C_FUNC_END();
+  MIKTEX_ASSERT_PATH_BUFFER(path);
+  StringUtil::CopyString(path, BufferSizes::MaxPath, SessionImpl::GetSession()->GetRootDirectoryPath(r).GetData());
+  return path;
 }
 
-MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char* lpszUtf8, size_t sizeWideChar, wchar_t* lpszWideChar)
+MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char* utf8, size_t sizeWideChar, wchar_t* wideChar)
 {
-  C_FUNC_BEGIN();
-  StringUtil::CopyString(lpszWideChar, sizeWideChar, lpszUtf8);
-  return lpszWideChar;
-  C_FUNC_END();
+  StringUtil::CopyString(wideChar, sizeWideChar, utf8);
+  return wideChar;
 }
 
-MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t* lpszWideChar, size_t sizeUtf8, char* lpszUtf8)
+MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t* wideChar, size_t sizeUtf8, char* utf8)
 {
-  C_FUNC_BEGIN();
-  StringUtil::CopyString(lpszUtf8, sizeUtf8, lpszWideChar);
-  return lpszUtf8;
-  C_FUNC_END();
+  StringUtil::CopyString(utf8, sizeUtf8, wideChar);
+  return utf8;
 }
 
 MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char* command, int* exitCode)
 {
-  C_FUNC_BEGIN();
   return Process::ExecuteSystemCommand(command, exitCode) ? 1 : 0;
-  C_FUNC_END();
 }
 
 
-MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char* commandLine, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
+MIKTEXCORECEEAPI(void) miktex_start_process(const char* fileName, const char* commandLine, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory)
 {
-  C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(commandLine);
-  Process::Start(PathName(lpszFileName), Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
-  C_FUNC_END();
+  Process::Start(PathName(fileName), Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, workingDirectory);
 }

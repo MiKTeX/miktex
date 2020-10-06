@@ -34,49 +34,31 @@
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
-MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char * lpszFileName);
-
-MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status);
-
 #if defined(USE_MIKTEX_EXIT)
 #  define exit(status) miktex_exit(status)
 #endif
 
-MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char * command, int * exitCode);
 
-MIKTEXCORECEEAPI(int) miktex_find_input_file(const char * lpszApplicationNames, const char * lpszFileName, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char * lpszFontName, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_find_file(const char * lpszFileName, const char * lpszPathList, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char * lpszFileName, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char * lpszExeName, char * lpszExePath);
-
-MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char * lpszHeaderName, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char * lpszFontName, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char * lpszFontName, char * lpszPath);
-
+MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* fileName);
+MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status);
+MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char* command, int* exitCode);
+MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* applicationName, const char* fileName, char* path);
+MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* fontName, char* path);
+MIKTEXCORECEEAPI(int) miktex_find_file(const char* fileName, const char* pathList, char* path);
+MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* fileName, char* path);
+MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* exeName, char* exePath);
+MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* headerName, char* path);
+MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* fontName, char* path);
+MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* fontName, char* path);
 MIKTEXCORECEEAPI(int) miktex_get_miktex_banner(char* buf, size_t bufSize);
-
-MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char * lpszVersion, size_t maxsize);
-
+MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* version, size_t maxsize);
 MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots();
-
-MIKTEXCORECEEAPI(char *) miktex_get_root_directory(unsigned r, char * lpszPath);
-
-MIKTEXCORECEEAPI(int) miktex_pathcmp(const char * lpszPath1, const char * lpszPath2);
-
-MIKTEXCORECEEAPI(void) miktex_start_process(const char * lpszFileName, const char * commandLine, FILE * pFileStandardInput, FILE ** ppFileStandardInput, FILE ** ppFileStandardOutput, FILE ** ppFileStandardError, const char * lpszWorkingDirectory);
-
-MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char * lpszPathIn, char * lpszPathOut);
-
-MIKTEXCORECEEAPI(wchar_t *) miktex_utf8_to_wide_char(const char * lpszUtf8, size_t sizeWideChar, wchar_t * lpszWideChar);
-
-MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t * lpszWideChar, size_t sizeUtf8, char * lpszUtf8);
+MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* path);
+MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* path1, const char* path2);
+MIKTEXCORECEEAPI(void) miktex_start_process(const char* fileName, const char* commandLine, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory);
+MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* pathIn, char* pathOut);
+MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char* utf8, size_t sizeWideChar, wchar_t* wideChar);
+MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t* wideChar, size_t sizeUtf8, char* utf8);
 
 MIKTEX_END_EXTERN_C_BLOCK;
 
