@@ -951,10 +951,10 @@ private:
   bool FindMETAFONTMode(const char* mnemonic, MiKTeX::Core::MIKTEXMFMODE* mfMode);
 
 private:
-  FILE* InitiateProcessPipe(const std::string& command, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileMode& mode);
+  std::tuple<std::unique_ptr<MiKTeX::Core::Process>, FILE*> InitiateProcessPipe(const std::string& command, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileMode& mode);
 
 private:
-  int CloseProcessPipe(FILE* file);
+  int CloseProcessPipe(MiKTeX::Core::Process* process, FILE* file);
 
 private:
   FILE* OpenFileOnStream(std::unique_ptr<MiKTeX::Core::Stream> stream);
@@ -1016,9 +1016,16 @@ private:
 private:
   std::vector<MiKTeX::Core::MIKTEXMFMODE> metafontModes;
 
+private:
+  struct InternalOpenFileInfo :
+    public MiKTeX::Core::Session::OpenFileInfo
+  {
+    std::unique_ptr<MiKTeX::Core::Process> process;
+  };
+
   // caching open files
 private:
-  std::map<const FILE*, OpenFileInfo> openFilesMap;
+  std::map<const FILE*, InternalOpenFileInfo> openFilesMap;
 
   // caching path patterns
 private:
