@@ -280,7 +280,8 @@ add_library(f2c STATIC ${libf2c_a_sources})
 prevent_all_warnings_on_bad_code_target(f2c)
 
 target_link_libraries(f2c
-  ${core_dll_name}
+  PRIVATE
+    ${core_dll_name}
 )
 
 if(MIKTEX_UNIX_ALIKE)
