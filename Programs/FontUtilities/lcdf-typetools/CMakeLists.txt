@@ -194,6 +194,11 @@ add_library(libefont ${libefont_sources} ${headers})
 
 set_property(TARGET libefont PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+target_link_libraries(libefont
+  PRIVATE
+    ${core_dll_name}
+)
+
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(libefont
     PRIVATE
