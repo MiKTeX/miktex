@@ -9,6 +9,9 @@
 #include "dvips.h" /* The copyright notice in that file is included too! */
 #include <ctype.h>
 #include <stdlib.h>
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #ifdef OS2
 #ifdef _MSC_VER
@@ -210,7 +213,11 @@ copyfile_general(const char *s, struct header_list *cur_header)
 #endif
       if (secure == 0) {
          sprintf(errbuf, "Execution of <%.500s> failed ", s);
+#if defined(MIKTEX)
+         f = miktex_popen(s, "r");
+#else
          f = popen(s, "r");
+#endif
          if (f != 0)
             SET_BINARY(fileno(f));
 	}
@@ -659,7 +666,11 @@ msdosdone:
                pclose(f);
          }
 #else
+#if defined(MIKTEX)
+        miktex_pclose(f);
+#else
          pclose(f);
+#endif
 #endif
       else
 #endif
@@ -1392,7 +1403,11 @@ open_output(void) {
             && !__dosexec_find_on_path(oname+1, environ, found))
            pf = fopen("PRN", "w");
 #endif
+#if defined(MIKTEX)
+        if (pf == NULL && (pf = miktex_popen(oname + 1, "w")) != NULL) {
+#else
 	 if (pf == NULL && (pf = popen(oname+1, "w")) != NULL) {
+#endif
 	    popened = 1;
 	    SET_BINARY(fileno(pf));
 	 }
@@ -1638,7 +1653,11 @@ cleanprinter(void)
    if (_osmode == OS2_MODE)
 #endif
       if (popened)
+#if defined(MIKTEX)
+        miktex_pclose(bitfile);
+#else
          pclose(bitfile);
+#endif
 #endif
 #endif
 #endif

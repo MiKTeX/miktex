@@ -1,6 +1,6 @@
 /* miktex/utf8wrap.h: Unx emulation                     -*- C++ -*-
 
-   Copyright (C) 2011-2018 Christian Schenk
+   Copyright (C) 2011-2020 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -70,12 +70,6 @@
 #endif
 #if MIKTEX_UTF8_WRAP__OPEN
 #  define _open _open_hidden
-#endif
-#if MIKTEX_UTF8_WRAP_POPEN
-#  define popen popen_hidden
-#endif
-#if MIKTEX_UTF8_WRAP__POPEN
-#  define _popen _popen_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_PUTC && !IS_DEFINED_PUTC
 #  define putc putc_hidden
@@ -174,8 +168,6 @@ MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8_getenv(const char* name);
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__mkdir(const char* path);
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__open(const char* path, int flags, ...);
-
-MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* command, const char* mode);
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putc(int ch, FILE* file);
 
@@ -334,22 +326,6 @@ static inline int _open(const char* path, int oflag, ...)
     va_end(ap);
   }
   return miktex_utf8__open(path, oflag, pmode);
-}
-#endif
-
-#if MIKTEX_UTF8_WRAP_POPEN
-#undef popen
-static inline FILE* popen(const char* command, const char* mode)
-{
-  return miktex_utf8__popen(command, mode);
-}
-#endif
-
-#if MIKTEX_UTF8_WRAP__POPEN
-#undef _popen
-static inline FILE* _popen(const char* command, const char* mode)
-{
-  return miktex_utf8__popen(command, mode);
 }
 #endif
 

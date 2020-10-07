@@ -36,6 +36,9 @@
 #include <time.h>
 #include "unicoderange.h"
 #include "psfont.h"
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #ifdef _WIN32
 #define MKDIR(A,B) mkdir(A)
@@ -260,7 +263,11 @@ char *Decompress(char *name, int compression) {
 #else
     snprintf( buf, sizeof(buf), "%s < %s > %s", compressors[compression].decomp, name, tmpfile );
 #endif
+#if defined(MIKTEX)
+    if (miktex_system(buf) == 0)
+#else
     if ( system(buf)==0 )
+#endif
 return( tmpfile );
     free(tmpfile);
 return( NULL );

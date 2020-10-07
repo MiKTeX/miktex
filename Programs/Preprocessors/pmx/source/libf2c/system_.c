@@ -16,6 +16,9 @@ system_(s, n) register char *s; ftnlen n;
 extern "C" {
 #endif
 extern char *F77_aloc(ftnlen, char*);
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
  integer
 system_(register char *s, ftnlen n)
@@ -32,7 +35,11 @@ system_(register char *s, ftnlen n)
 	while(bp < blast && *s)
 		*bp++ = *s++;
 	*bp = 0;
+#if defined(MIKTEX)
+	rv = miktex_system(buff);
+#else
 	rv = system(buff);
+#endif
 	if (buff != buff0)
 		free(buff);
 	return rv;

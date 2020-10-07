@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2019 Christian Schenk
+## Copyright (C) 2016-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -278,6 +278,10 @@ list(APPEND libf2c_a_extra
 add_library(f2c STATIC ${libf2c_a_sources})
 
 prevent_all_warnings_on_bad_code_target(f2c)
+
+target_link_libraries(f2c
+  ${core_dll_name}
+)
 
 if(MIKTEX_UNIX_ALIKE)
   target_link_libraries(f2c

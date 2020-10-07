@@ -6,6 +6,9 @@
  *   This source file assumes KPATHSEA is defined.
  */
 #include "dvips.h" /* The copyright notice in that file is included too! */
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #ifndef KPATHSEA
 "goodbye, search.c can only be compiled with -DKPATHSEA"
@@ -371,7 +374,11 @@ int
 close_file(FILE *f)
 {
    switch(to_close) {
+#if defined(MIKTEX)
+   case USE_PCLOSE:  return miktex_pclose(f);
+#else
 case USE_PCLOSE:  return pclose(f);
+#endif
 case USE_FCLOSE:  return fclose(f);
 #if defined(MIKTEX)
    case USE_MIKTEX_CLOSE_FILE:

@@ -31,6 +31,9 @@
 	}
 	#endif
 #endif
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #include <cstdlib>
 #include <fstream>
@@ -230,7 +233,14 @@ const char* FileFinder::mktex (const std::string &fname) const {
 #ifdef MIKTEX
 	// maketfm and makemf are located in miktex/bin which is in the search PATH
 	std::string toolname = (ext == "tfm" ? "miktex-maketfm" : "miktex-makemf");
+#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
+	toolname += ".exe";
+#endif
+	miktex_system((toolname + fname).c_str());
+#else
 	system((toolname+".exe "+fname).c_str());
+#endif
 	path = findFile(fname, nullptr);
 #else
 	kpse_file_format_type type = (ext == "tfm" ? kpse_tfm_format : kpse_mf_format);

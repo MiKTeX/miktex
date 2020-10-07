@@ -18,6 +18,9 @@
 #include <kpathsea/tex-file.h>
 #include <kpathsea/variable.h>
 #endif
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 /*
  *   This is the structure definition for resident fonts.  We use
  *   a small and simple hash table to handle these.  We don't need
@@ -695,7 +698,11 @@ case 'E' :
             error("E in config is disabled. To enable E, set z0 before E");
             break;
          }
+#if defined(MIKTEX)
+         miktex_system(was_inline + 1);
+#else
          system(was_inline+1);
+#endif
 #endif
          break;
 case 'K':

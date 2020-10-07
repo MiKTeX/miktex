@@ -64,6 +64,9 @@
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
 #endif
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 #   ifdef __linux__
 #       define _ISOC99_SOURCE /* to get the fmax() prototype */
 #   endif
@@ -487,7 +490,11 @@ int synctex_view_proceed(synctex_view_params_t * Ps) {
                 }
                 buffer_cur[size] = '\0';
                 printf("SyncTeX: Executing\n%s\n",buffer);
+#if defined(MIKTEX)
+                status = miktex_system(buffer);
+#else
                 status = system(buffer);
+#endif
                 free(buffer);
                 buffer = NULL;
                 return status;
@@ -762,7 +769,11 @@ int synctex_edit_proceed(synctex_edit_params_t * Ps) {
                     return -1;
                 }\
                 printf("SyncTeX: Executing\n%s\n",buffer);
+#if defined(MIKTEX)
+                status = miktex_system(buffer);
+#else
                 status = system(buffer);
+#endif
                 free(buffer);
                 buffer = NULL;
                 return status;

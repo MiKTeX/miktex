@@ -10,6 +10,9 @@
  * 11/1996 Aaron Sawdey
  */
 #include "dvips.h" /* The copyright notice in that file is included too! */
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 #ifdef KPATHSEA
 #include <kpathsea/c-ctype.h>
 #else
@@ -392,7 +395,11 @@ scanfontcomments(const char *filename)
 /*
  *   Allow scanning of ` commands.  Better return same results both times.
  */
+#if defined(MIKTEX)
+     f = miktex_popen(filename + 1, "r");
+#else
       f = popen(filename+1, "r");
+#endif
       SET_BINARY(fileno(f));
       to_close = USE_PCLOSE;
    } else {

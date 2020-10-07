@@ -31,6 +31,9 @@
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 String
 read_file(String filename, ErrorHandler *errh, bool warning)
@@ -158,7 +161,11 @@ mysystem(const char *command, ErrorHandler *errh)
     } else {
         if (verbose)
             errh->message("running %s", command);
+#if defined(MIKTEX)
+        return miktex_system(command);
+#else
         return system(command);
+#endif
     }
 }
 
@@ -167,11 +174,19 @@ mypopen(const char* command, const char* type, ErrorHandler* errh)
 {
     if (no_create) {
         errh->message("would run %s", command);
+#if defined(MIKTEX)
+        return miktex_popen("true", type);
+#else
         return popen("true", type);
+#endif
     } else {
         if (verbose)
             errh->message("running %s", command);
+#if defined(MIKTEX)
+        return miktex_popen(command, type);
+#else
         return popen(command, type);
+#endif
     }
 }
 

@@ -232,11 +232,6 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* command)
   return _wsystem(command == nullptr ? nullptr : UW_(command));
 }
 
-MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8__popen(const char* command, const char* mode)
-{
-  return _wpopen(UW_(command), UW_(mode));
-}
-
 MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE* file)
 {
   bool isStdout = _fileno(file) == _fileno(stdout);

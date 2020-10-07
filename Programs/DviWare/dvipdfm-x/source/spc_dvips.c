@@ -23,6 +23,9 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #include <string.h>
 
@@ -1064,7 +1067,11 @@ int calculate_PS (char *strptr, int length, double *res1, double *res2, double *
   strcpy(cmd, GS_CALCULATOR);
   strcat(cmd, formula);
 
+#if defined(MIKTEX)
+  coord = miktex_popen(cmd, "r");
+#else
   coord = popen(cmd, "r");
+#endif
   if (coord) {
     if (res1 == 0)
       fscanf(coord, " %lf ", res2);
@@ -1077,7 +1084,11 @@ int calculate_PS (char *strptr, int length, double *res1, double *res2, double *
   } else
     return -1;
 
+#if defined(MIKTEX)
+  miktex_pclose(coord);
+#else
   pclose(coord);
+#endif
   RELEASE(cmd);
   dpx_delete_temp_file(formula, true);
   return 0;

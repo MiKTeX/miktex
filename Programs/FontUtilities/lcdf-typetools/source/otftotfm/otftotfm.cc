@@ -14,6 +14,9 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 #ifdef WIN32
 # define _USE_MATH_DEFINES
 #endif
@@ -1218,7 +1221,11 @@ output_tfm(Metrics &metrics, const String &ps_name, int boundary_char,
         }
         if (!results.empty())
             fwrite(results.begin(), 1, results.length(), stderr);
+#if defined(MIKTEX)
+        status = miktex_pclose(cmdfile);
+#else
         status = pclose(cmdfile);
+#endif
     } else
         status = -1;
 

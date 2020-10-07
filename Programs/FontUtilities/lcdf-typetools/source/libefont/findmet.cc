@@ -18,6 +18,7 @@
 #endif
 #if defined(MIKTEX)
 #include <unistd.h>
+#include <miktex/Core/c/api.h>
 #endif
 #include <efont/findmet.hh>
 #include <efont/afmparse.hh>
@@ -217,12 +218,20 @@ InstanceMetricsFinder::find_metrics_instance(PermString name,
         char *buf = new char[amfm->font_name().length() + 30];
         sprintf(buf, "mmpfb -q --amcp-info '%s'", amfm->font_name().c_str());
 
+#if defined(MIKTEX)
+        FILE* f = miktex_popen(buf, "r");
+#else
         FILE *f = popen(buf, "r");
+#endif
         if (f) {
             Filename fake("<mmpfb output>");
             Slurper slurpy(fake, f);
             AmfmReader::add_amcp_file(slurpy, amfm, errh);
+#if defined(MIKTEX)
+            miktex_pclose(f);
+#else
             pclose(f);
+#endif
         }
 
         delete[] buf;

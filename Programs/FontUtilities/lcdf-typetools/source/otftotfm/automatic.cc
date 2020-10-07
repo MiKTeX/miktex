@@ -37,6 +37,9 @@
 # include <fcntl.h>
 #endif
 #include <algorithm>
+#if defined(MIKTEX)
+#include <miktex/Core/c/api.h>
+#endif
 
 #ifdef WIN32
 # define mkdir(dir, access) mkdir(dir)
@@ -330,7 +333,11 @@ update_odir(int o, String file, ErrorHandler *errh)
         // run script
         if (mktexupd) {
             String command = mktexupd + " " + shell_quote(writable_texdir + directory) + " " + shell_quote(file);
+#if defined(MIKTEX)
+            int retval = miktex_system(command.c_str());
+#else
             int retval = system(command.c_str());
+#endif
             if (retval == 127)
                 errh->error("could not run %<%s%>", command.c_str());
             else if (retval < 0)

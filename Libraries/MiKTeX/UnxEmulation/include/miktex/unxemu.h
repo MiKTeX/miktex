@@ -1,6 +1,6 @@
 /* miktex/unxemu.h: Unx emulation                       -*- C++ -*-
 
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2020 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -116,26 +116,6 @@ MIKTEX_END_EXTERN_C_BLOCK;
 static inline int finite(double x)
 {
   return _finite(x);
-}
-#endif
-
-/* stdio.h */
-
-#if !HAVE_PCLOSE && !defined(pclose)
-#undef HAVE_PCLOSE
-#define HAVE_PCLOSE 1
-static inline int pclose(FILE* stream)
-{
-  return _pclose(stream);
-}
-#endif
-
-#if !HAVE_POPEN && !defined(popen)
-#undef HAVE_POPEN
-#define HAVE_POPEN 1
-static inline FILE* popen(const char* command, const char* mode)
-{
-  return _popen(command, mode);
 }
 #endif
 
