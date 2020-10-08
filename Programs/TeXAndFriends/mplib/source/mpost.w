@@ -42,8 +42,8 @@ have our customary command-line interface.
 #  if defined(MIKTEX_WINDOWS)
 #    define MIKTEX_UTF8_WRAP_ALL 1
 #    include <miktex/utf8wrap.h>
-#    include <miktex/mpost.h>
 #  endif
+#  include <miktex/mpost.h>
 #  include <miktex/Core/c/api.h>
 #endif
 #include <w2c/config.h>

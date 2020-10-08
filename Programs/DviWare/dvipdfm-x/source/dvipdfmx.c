@@ -63,9 +63,11 @@
 #include "tt_aux.h"
 
 #include "error.h"
+#if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/unxemu.h>
 #include <getopt.h>
+#endif
 #include <miktex/dvipdfm-x.h>
 #endif
 

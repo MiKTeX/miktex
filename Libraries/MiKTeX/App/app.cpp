@@ -343,7 +343,7 @@ void Application::AutoMaintenance()
     {
       return;
     }
-    LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
+    LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE");
     if (mustUpdateDb)
     {
       LOG4CXX_INFO(logger, "refreshing user's package database from cache");
@@ -700,7 +700,7 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
   vector<string> fileList;
   fileList.push_back(packageId);
   pimpl->installer->SetFileLists(fileList, vector<string>());
-  LOG4CXX_INFO(logger, "installing package " << packageId << " triggered by " << trigger.ToString())
+  LOG4CXX_INFO(logger, "installing package " << packageId << " triggered by " << trigger.ToString());
   if (!GetQuietFlag())
   {
     cout << "\n" << SEP << endl;

@@ -1,6 +1,6 @@
 /* mplib/miktex/mpost.h:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,6 +18,8 @@
    USA.  */
 
 #pragma once
+
+#include <stdio.h>
 
 #if defined(__cplusplus)
 extern "C" {

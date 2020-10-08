@@ -258,6 +258,18 @@ char *foptarg = NULL;
 void print_two(int line, int left, int right);
 int isLaTeXcmdletter(char a);
 int entkerne_IeC(char buf[], const char *s);
+#if defined(MIKTEX)
+int Vergleich(const char *a, const char *b);
+int do_only(char ret[], const char form[], const char in[]);
+int hasinnerentry(const char *p, const char *icmdlist[][2], const int num);
+int isinstr(const char *p, const char *s);
+int lcmdcmp(const char *s, const char *p);
+int llstrlen(const char *s);
+int subdoubleauthors(int found, int addtxt, char a[], int remi, int i, const char *q, const char *p, int qline, int pline, int fe, char xx[]);
+int texcmp(const char *s, const char *p, int dqcats, int dqcatp);
+int userusesdq(int deepsort, int linec);
+int vergleich(const char *a, const char *b);
+#endif
 
 char *mydefault = "";
 char *nofnt = "(nofnt)";   /* nur "" wuerde Fehler machen */

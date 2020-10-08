@@ -160,7 +160,7 @@ BEGIN_TEST_FUNCTION(6);
 }
 END_TEST_FUNCTION();
 
-BEGIN_TEST_FUNCTION(7)
+BEGIN_TEST_FUNCTION(7);
 {
   PathName path("/abc/def/ghi.jkl/mno.pqr.stu");
   PathName path2("/abc/def/", "ghi.jkl/mno.pqr.stu");
