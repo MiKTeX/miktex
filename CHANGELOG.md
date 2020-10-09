@@ -1,5 +1,15 @@
 # MiKTeX Change Log
 
+## 20.10 - 2020-10-12
+
+### Fixed issues
+
+- [206](https://github.com/MiKTeX/miktex/issues/206): store log-files of "build format" runs
+- [598](https://github.com/MiKTeX/miktex/issues/598): Installing anyway when hitting "back" on windows
+- [607](https://github.com/MiKTeX/miktex/issues/607): MiKTeX 20.6.29 64 bit installation bug
+- [634](https://github.com/MiKTeX/miktex/issues/634): .fls files are put in output directory, should be placed in aux directory instead
+- [635](https://github.com/MiKTeX/miktex/issues/635): make4ht odt compilations on miktex systems fail
+
 ## 20.7 - 2020-08-03
 
 ### Fixed issues
