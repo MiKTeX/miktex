@@ -27,13 +27,13 @@ static apr_status_t _thread_mutex_cleanup(void * data)
     apr_thread_mutex_t *lock = (apr_thread_mutex_t*)data;
     if (lock->LockCount != 0) {
         /* we're still locked... */
-    	while (atomic_add(&lock->LockCount , -1) > 1){
-    	    /* OK we had more than one person waiting on the lock so 
-    	     * the sem is also locked. Release it until we have no more
-    	     * locks left.
-    	     */
+        while (atomic_add(&lock->LockCount , -1) > 1){
+            /* OK we had more than one person waiting on the lock so 
+             * the sem is also locked. Release it until we have no more
+             * locks left.
+             */
             release_sem (lock->Lock);
-    	}
+        }
     }
     delete_sem(lock->Lock);
     return APR_SUCCESS;
@@ -91,13 +91,13 @@ APR_DECLARE(apr_status_t) apr_thread_mutex_lock(apr_thread_mutex_t *mutex)
         return APR_SUCCESS;
     }
     
-	if (atomic_add(&mutex->LockCount, 1) > 0) {
-		if ((stat = acquire_sem(mutex->Lock)) < B_NO_ERROR) {
+    if (atomic_add(&mutex->LockCount, 1) > 0) {
+        if ((stat = acquire_sem(mutex->Lock)) < B_NO_ERROR) {
             /* Oh dear, acquire_sem failed!!  */
-		    atomic_add(&mutex->LockCount, -1);
-		    return stat;
-		}
-	}
+            atomic_add(&mutex->LockCount, -1);
+            return stat;
+        }
+    }
 
     mutex->owner = me;
     mutex->owner_ref = 1;
@@ -107,7 +107,62 @@ APR_DECLARE(apr_status_t) apr_thread_mutex_lock(apr_thread_mutex_t *mutex)
 
 APR_DECLARE(apr_status_t) apr_thread_mutex_trylock(apr_thread_mutex_t *mutex)
 {
-    return APR_ENOTIMPL;
+    int32 stat;
+    thread_id me = find_thread(NULL);
+    
+    if (mutex->nested && mutex->owner == me) {
+        mutex->owner_ref++;
+        return APR_SUCCESS;
+    }
+    
+    if (atomic_add(&mutex->LockCount, 1) > 0) {
+        if ((stat = acquire_sem_etc(mutex->Lock, 1, 0, 0)) < B_NO_ERROR) {
+            atomic_add(&mutex->LockCount, -1);
+            if (stat == B_WOULD_BLOCK) {
+                stat = APR_EBUSY;
+            }
+            return stat;
+        }
+    }
+
+    mutex->owner = me;
+    mutex->owner_ref = 1;
+    
+    return APR_SUCCESS;
+}
+
+APR_DECLARE(apr_status_t) apr_thread_mutex_timedlock(apr_thread_mutex_t *mutex,
+                                                 apr_interval_time_t timeout)
+{
+    int32 stat;
+    thread_id me = find_thread(NULL);
+    
+    if (mutex->nested && mutex->owner == me) {
+        mutex->owner_ref++;
+        return APR_SUCCESS;
+    }
+    
+    if (atomic_add(&mutex->LockCount, 1) > 0) {
+        if (timeout <= 0) {
+            stat = B_TIMED_OUT;
+        }
+        else {
+            stat = acquire_sem_etc(mutex->Lock, 1, B_RELATIVE_TIMEOUT,
+                                   timeout);
+        }
+        if (stat < B_NO_ERROR) {
+            atomic_add(&mutex->LockCount, -1);
+            if (stat == B_TIMED_OUT) {
+                stat = APR_TIMEUP;
+            }
+            return stat;
+        }
+    }
+
+    mutex->owner = me;
+    mutex->owner_ref = 1;
+    
+    return APR_SUCCESS;
 }
 
 APR_DECLARE(apr_status_t) apr_thread_mutex_unlock(apr_thread_mutex_t *mutex)
@@ -120,7 +175,7 @@ APR_DECLARE(apr_status_t) apr_thread_mutex_unlock(apr_thread_mutex_t *mutex)
             return APR_SUCCESS;
     }
     
-	if (atomic_add(&mutex->LockCount, -1) > 1) {
+    if (atomic_add(&mutex->LockCount, -1) > 1) {
         if ((stat = release_sem(mutex->Lock)) < B_NO_ERROR) {
             atomic_add(&mutex->LockCount, 1);
             return stat;

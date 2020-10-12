@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#include "apr.h"
-#include "apr_atomic.h"
-#include "apr_thread_mutex.h"
+#include "apr_arch_atomic.h"
 
 APR_DECLARE(apr_status_t) apr_atomic_init(apr_pool_t *p)
 {
+#if defined (NEED_ATOMICS_GENERIC64)
+    return apr__atomic_generic64_init(p);
+#else
     return APR_SUCCESS;
+#endif
 }
 
 APR_DECLARE(apr_uint32_t) apr_atomic_add32(volatile apr_uint32_t *mem, apr_uint32_t val)

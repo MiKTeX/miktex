@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>Bzip2 lib win64</TPM:Name>
     <TPM:Title>Bzip2 runtime library, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Julian R Seward" year="1996-2010"/>
+    <TPM:Copyright owner="Julian R Seward" year="1996-2019"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>1.0.6</TPM:Version>
+    <TPM:Version>1.0.8</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

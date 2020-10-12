@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>libcurl win64</TPM:Name>
     <TPM:Title>libcurl, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Daniel Stenberg, et al." year="1998-2017"/>
+    <TPM:Copyright owner="Daniel Stenberg, et al." year="1998-2020"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>7.61.1</TPM:Version>
+    <TPM:Version>7.72.0</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

@@ -76,7 +76,7 @@ APR_DECLARE(apr_status_t) apr_file_pipe_create_ex(apr_file_t **in,
                                                   apr_int32_t blocking,
                                                   apr_pool_t *p)
 {
-    return apr_file_pipe_create_pools(in, out, blocking, p, p);
+    return apr_file_pipe_create_pools(in, out, APR_FULL_BLOCK, p, p);
 }
 
 APR_DECLARE(apr_status_t) apr_file_pipe_create_pools(apr_file_t **in,

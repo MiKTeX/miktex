@@ -85,7 +85,7 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_create(apr_proc_mutex_t **mutex,
     ULONG rc;
     char *semname;
 
-    if (mech != APR_LOCK_DEFAULT) {
+    if (mech != APR_LOCK_DEFAULT && mech != APR_LOCK_DEFAULT_TIMED) {
         return APR_ENOTIMPL;
     }
 
@@ -156,7 +156,29 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_trylock(apr_proc_mutex_t *mutex)
         mutex->lock_count++;
     }
 
-    return APR_FROM_OS_ERROR(rc);
+    return (rc == ERROR_TIMEOUT) ? APR_EBUSY : APR_FROM_OS_ERROR(rc);
+}
+
+
+
+APR_DECLARE(apr_status_t) apr_proc_mutex_timedlock(apr_proc_mutex_t *mutex,
+                                               apr_interval_time_t timeout)
+{
+    ULONG rc;
+    
+    if (timeout <= 0) {
+        rc = DosRequestMutexSem(mutex->hMutex, SEM_IMMEDIATE_RETURN);
+    }
+    else {
+        rc = DosRequestMutexSem(mutex->hMutex, apr_time_as_msec(timeout));
+    }
+
+    if (rc == 0) {
+        mutex->owner = CurrentTid;
+        mutex->lock_count++;
+    }
+
+    return (rc == ERROR_TIMEOUT) ? APR_TIMEUP : APR_FROM_OS_ERROR(rc);
 }
 
 
@@ -239,7 +261,7 @@ APR_DECLARE(apr_status_t) apr_os_proc_mutex_put_ex(apr_proc_mutex_t **pmutex,
     if (pool == NULL) {
         return APR_ENOPOOL;
     }
-    if (mech != APR_LOCK_DEFAULT) {
+    if (mech != APR_LOCK_DEFAULT && mech != APR_LOCK_DEFAULT_TIMED) {
         return APR_ENOTIMPL;
     }
 

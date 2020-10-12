@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,11 +17,18 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/bzip2")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+configure_file(
+  libbz2-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libbz2-version.h
 )
 
 set(public_include_directories

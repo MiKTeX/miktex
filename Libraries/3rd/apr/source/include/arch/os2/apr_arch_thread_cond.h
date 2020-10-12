@@ -22,6 +22,11 @@
 
 struct apr_thread_cond_t {
     apr_pool_t *pool;
+    HEV semaphore;
+    HMTX mutex;
+    unsigned long num_waiting;
+    unsigned long num_wake;
+    unsigned long generation;
 };
 
 #endif  /* THREAD_COND_H */

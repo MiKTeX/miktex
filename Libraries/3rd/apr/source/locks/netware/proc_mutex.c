@@ -26,9 +26,14 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_create(apr_proc_mutex_t **mutex,
                                                 apr_pool_t *pool)
 {
     apr_status_t ret;
-    apr_proc_mutex_t *new_mutex = NULL;
+    apr_proc_mutex_t *new_mutex;
+    unsigned int flags = APR_THREAD_MUTEX_DEFAULT;
 
-    if (mech != APR_LOCK_DEFAULT) {
+    *mutex = NULL;
+    if (mech == APR_LOCK_DEFAULT_TIMED) {
+        flags |= APR_THREAD_MUTEX_TIMED;
+    }
+    else if (mech != APR_LOCK_DEFAULT) {
         return APR_ENOTIMPL;
     }
 
@@ -38,7 +43,7 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_create(apr_proc_mutex_t **mutex,
     }     
     
     new_mutex->pool = pool;
-    ret = apr_thread_mutex_create(&(new_mutex->mutex), APR_THREAD_MUTEX_DEFAULT, pool);
+    ret = apr_thread_mutex_create(&(new_mutex->mutex), flags, pool);
 
     if (ret == APR_SUCCESS)
         *mutex = new_mutex;
@@ -64,6 +69,14 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_trylock(apr_proc_mutex_t *mutex)
 {
     if (mutex)
         return apr_thread_mutex_trylock(mutex->mutex);
+    return APR_ENOLOCK;
+}
+
+APR_DECLARE(apr_status_t) apr_proc_mutex_timedlock(apr_proc_mutex_t *mutex,
+                                               apr_interval_time_t timeout)
+{
+    if (mutex)
+        return apr_thread_mutex_timedlock(mutex->mutex, timeout);
     return APR_ENOLOCK;
 }
 
@@ -146,7 +159,7 @@ APR_DECLARE(apr_status_t) apr_os_proc_mutex_put_ex(apr_proc_mutex_t **pmutex,
     if (pool == NULL) {
         return APR_ENOPOOL;
     }
-    if (mech != APR_LOCK_DEFAULT) {
+    if (mech != APR_LOCK_DEFAULT && mech != APR_LOCK_DEFAULT_TIMED) {
         return APR_ENOTIMPL;
     }
 #if 0

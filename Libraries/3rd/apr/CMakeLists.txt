@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/log4cxx")
 
@@ -79,6 +81,11 @@ set(public_headers
   include/apr_user.h
   include/apr_version.h
   include/apr_want.h
+)
+
+configure_file(
+  apr-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/apr-version.h
 )
 
 foreach(h ${public_headers})

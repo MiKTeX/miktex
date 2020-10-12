@@ -81,7 +81,7 @@ APR_DECLARE(apr_status_t) apr_thread_cond_create(apr_thread_cond_t **cond,
 
 
 static apr_status_t do_wait(apr_thread_cond_t *cond, apr_thread_mutex_t *mutex,
-                            int timeout)
+                            apr_interval_time_t timeout)
 {
     struct waiter_t *wait;
     thread_id cth = find_thread(NULL);

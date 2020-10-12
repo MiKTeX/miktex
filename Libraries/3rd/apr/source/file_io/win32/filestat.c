@@ -15,7 +15,7 @@
  */
 
 #include "apr.h"
-#if defined(MIKTEX) && defined(__MINGW32__)
+#if defined(MIKTEX_WINDOWS) && defined(__MINGW32__)
 #define COM_NO_WINDOWS_H
 #endif
 #include <aclapi.h>
@@ -213,6 +213,71 @@ static apr_status_t guess_protection_bits(apr_finfo_t *finfo,
     return ((wanted & ~finfo->valid) ? APR_INCOMPLETE : APR_SUCCESS);
 }
 
+static int reparse_point_is_link(WIN32_FILE_ATTRIBUTE_DATA *wininfo,
+    int finddata, const char *fname)
+{
+    int tag = 0;
+
+    if (!(wininfo->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
+    {
+        return 0;
+    }
+
+    if (finddata)
+    {
+        // no matter A or W as we don't need file name
+        tag = ((WIN32_FIND_DATAA*)wininfo)->dwReserved0;
+    }
+    else
+    {
+        if (test_safe_name(fname) != APR_SUCCESS) {
+            return 0;
+        }
+
+#if APR_HAS_UNICODE_FS
+        IF_WIN_OS_IS_UNICODE
+        {
+            apr_wchar_t wfname[APR_PATH_MAX];
+            HANDLE hFind;
+            WIN32_FIND_DATAW fd;
+
+            if (utf8_to_unicode_path(wfname, APR_PATH_MAX, fname) != APR_SUCCESS) {
+                return 0;
+            }
+
+            hFind = FindFirstFileW(wfname, &fd);
+            if (hFind == INVALID_HANDLE_VALUE) {
+                return 0;
+            }
+
+            FindClose(hFind);
+
+            tag = fd.dwReserved0;
+        }
+#endif
+#if APR_HAS_ANSI_FS || 1
+        ELSE_WIN_OS_IS_ANSI
+        {
+            HANDLE hFind;
+            WIN32_FIND_DATAA fd;
+
+            hFind = FindFirstFileA(fname, &fd);
+            if (hFind == INVALID_HANDLE_VALUE) {
+                return 0;
+            }
+
+            FindClose(hFind);
+
+            tag = fd.dwReserved0;
+        }
+#endif
+    }
+
+    // Test "Name surrogate bit" to detect any kind of symbolic link
+    // See https://docs.microsoft.com/en-us/windows/desktop/fileio/reparse-point-tags
+    return tag & 0x20000000;
+}
+
 apr_status_t more_finfo(apr_finfo_t *finfo, const void *ufile, 
                         apr_int32_t wanted, int whatfile)
 {
@@ -354,7 +419,10 @@ apr_status_t more_finfo(apr_finfo_t *finfo, const void *ufile,
  */
 int fillin_fileinfo(apr_finfo_t *finfo, 
                     WIN32_FILE_ATTRIBUTE_DATA *wininfo, 
-                    int byhandle, apr_int32_t wanted) 
+                    int byhandle,
+                    int finddata,
+                    const char *fname,
+                    apr_int32_t wanted)
 {
     DWORD *sizes = &wininfo->nFileSizeHigh + byhandle;
     int warn = 0;
@@ -375,7 +443,7 @@ int fillin_fileinfo(apr_finfo_t *finfo,
 #endif
 
     if (wanted & APR_FINFO_LINK &&
-        wininfo->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
+        reparse_point_is_link(wininfo, finddata, fname)) {
         finfo->filetype = APR_LNK;
     }
     else if (wininfo->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
@@ -452,7 +520,7 @@ APR_DECLARE(apr_status_t) apr_file_info_get(apr_finfo_t *finfo, apr_int32_t want
         return apr_get_os_error();
     }
 
-    fillin_fileinfo(finfo, (WIN32_FILE_ATTRIBUTE_DATA *) &FileInfo, 1, wanted);
+    fillin_fileinfo(finfo, (WIN32_FILE_ATTRIBUTE_DATA *) &FileInfo, 1, 0, thefile->fname, wanted);
 
     if (finfo->filetype == APR_REG)
     {
@@ -523,6 +591,7 @@ APR_DECLARE(apr_status_t) apr_stat(apr_finfo_t *finfo, const char *fname,
         WIN32_FIND_DATAA n;
         WIN32_FILE_ATTRIBUTE_DATA i;
     } FileInfo;
+    int finddata = 0;
     
     /* Catch fname length == MAX_PATH since GetFileAttributesEx fails 
      * with PATH_NOT_FOUND.  We would rather indicate length error than 
@@ -558,7 +627,7 @@ APR_DECLARE(apr_status_t) apr_stat(apr_finfo_t *finfo, const char *fname,
         if ((rv = utf8_to_unicode_path(wfname, sizeof(wfname) 
                                             / sizeof(apr_wchar_t), fname)))
             return rv;
-        if (!(wanted & APR_FINFO_NAME)) {
+        if (!(wanted & (APR_FINFO_NAME | APR_FINFO_LINK))) {
             if (!GetFileAttributesExW(wfname, GetFileExInfoStandard, 
                                       &FileInfo.i))
                 return apr_get_os_error();
@@ -568,7 +637,6 @@ APR_DECLARE(apr_status_t) apr_stat(apr_finfo_t *finfo, const char *fname,
              * since we want the true name, and set aside a long
              * enough string to handle the longest file name.
              */
-            char tmpname[APR_FILE_MAX * 3 + 1];
             HANDLE hFind;
             if ((rv = test_safe_name(fname)) != APR_SUCCESS) {
                 return rv;
@@ -577,11 +645,17 @@ APR_DECLARE(apr_status_t) apr_stat(apr_finfo_t *finfo, const char *fname,
             if (hFind == INVALID_HANDLE_VALUE)
                 return apr_get_os_error();
             FindClose(hFind);
-            if (unicode_to_utf8_path(tmpname, sizeof(tmpname), 
-                                     FileInfo.w.cFileName)) {
-                return APR_ENAMETOOLONG;
+            finddata = 1;
+
+            if (wanted & APR_FINFO_NAME)
+            {
+                char tmpname[APR_FILE_MAX * 3 + 1];
+                if (unicode_to_utf8_path(tmpname, sizeof(tmpname),
+                                         FileInfo.w.cFileName)) {
+                    return APR_ENAMETOOLONG;
+                }
+                filename = apr_pstrdup(pool, tmpname);
             }
-            filename = apr_pstrdup(pool, tmpname);
         }
     }
 #endif
@@ -593,7 +667,7 @@ APR_DECLARE(apr_status_t) apr_stat(apr_finfo_t *finfo, const char *fname,
         rv = apr_filepath_root(&root, &test, APR_FILEPATH_NATIVE, pool);
         isroot = (root && *root && !(*test));
 
-        if ((apr_os_level >= APR_WIN_98) && (!(wanted & APR_FINFO_NAME) || isroot))
+        if ((apr_os_level >= APR_WIN_98) && (!(wanted & (APR_FINFO_NAME | APR_FINFO_LINK)) || isroot))
         {
             /* cannot use FindFile on a Win98 root, it returns \*
              * GetFileAttributesExA is not available on Win95
@@ -635,16 +709,19 @@ APR_DECLARE(apr_status_t) apr_stat(apr_finfo_t *finfo, const char *fname,
             hFind = FindFirstFileA(fname, &FileInfo.n);
             if (hFind == INVALID_HANDLE_VALUE) {
                 return apr_get_os_error();
-    	    } 
+            } 
             FindClose(hFind);
-            filename = apr_pstrdup(pool, FileInfo.n.cFileName);
+            finddata = 1;
+            if (wanted & APR_FINFO_NAME) {
+                filename = apr_pstrdup(pool, FileInfo.n.cFileName);
+            }
         }
     }
 #endif
 
     if (ident_rv != APR_INCOMPLETE) {
         if (fillin_fileinfo(finfo, (WIN32_FILE_ATTRIBUTE_DATA *) &FileInfo, 
-                            0, wanted))
+                            0, finddata, fname, wanted))
         {
             /* Go the extra mile to assure we have a file.  WinNT/2000 seems
              * to reliably translate char devices to the path '\\.\device'

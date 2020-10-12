@@ -4,10 +4,10 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>Expat lib win32</TPM:Name>
     <TPM:Title>Expat runtime library, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Expat maintainers" year="2001-2016"/>
-    <TPM:Copyright owner="Thai Open Source Software Center Ltd" year="1998-2000"/>
+    <TPM:Copyright owner="Expat development team" year="2000-2017"/>
+    <TPM:Copyright owner="Thai Open Source Software Center Ltd" year="1997-2000"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>2.2.6</TPM:Version>
+    <TPM:Version>2.2.10</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

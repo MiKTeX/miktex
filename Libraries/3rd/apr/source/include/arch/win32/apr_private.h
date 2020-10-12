@@ -143,6 +143,8 @@ APR_DECLARE_DATA int errno;
 #if APR_HAVE_IPV6
 #define HAVE_GETADDRINFO 1
 #define HAVE_GETNAMEINFO 1
+#define HAVE_IF_INDEXTONAME 1
+#define HAVE_IF_NAMETOINDEX 1
 #endif
 
 /* MSVC 7.0 introduced _strtoi64 */

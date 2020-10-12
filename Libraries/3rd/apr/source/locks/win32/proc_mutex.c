@@ -43,7 +43,7 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_create(apr_proc_mutex_t **mutex,
     HANDLE hMutex;
     void *mutexkey;
 
-    if (mech != APR_LOCK_DEFAULT) {
+    if (mech != APR_LOCK_DEFAULT && mech != APR_LOCK_DEFAULT_TIMED) {
         return APR_ENOTIMPL;
     }
 
@@ -164,6 +164,39 @@ APR_DECLARE(apr_status_t) apr_proc_mutex_trylock(apr_proc_mutex_t *mutex)
     return apr_get_os_error();
 }
 
+APR_DECLARE(apr_status_t) apr_proc_mutex_timedlock(apr_proc_mutex_t *mutex,
+                                               apr_interval_time_t timeout)
+{
+    DWORD rv, timeout_ms = 0;
+    apr_interval_time_t t = timeout;
+
+    do {
+        if (t > 0) {
+            /* Given timeout is 64bit usecs whereas Windows timeouts are
+             * 32bit msecs and below INFINITE (2^32 - 1), so we may need
+             * multiple timed out waits...
+             */
+            if (t > apr_time_from_msec(INFINITE - 1)) {
+                timeout_ms = INFINITE - 1;
+                t -= apr_time_from_msec(INFINITE - 1);
+            }
+            else {
+                timeout_ms = (DWORD)apr_time_as_msec(t);
+                t = 0;
+            }
+        }
+        rv = WaitForSingleObject(mutex->handle, timeout_ms);
+    } while (rv == WAIT_TIMEOUT && t > 0);
+
+    if (rv == WAIT_TIMEOUT) {
+        return APR_TIMEUP;
+    }
+    if (rv == WAIT_OBJECT_0 || rv == WAIT_ABANDONED) {
+        return APR_SUCCESS;
+    } 
+    return apr_get_os_error();
+}
+
 APR_DECLARE(apr_status_t) apr_proc_mutex_unlock(apr_proc_mutex_t *mutex)
 {
     if (ReleaseMutex(mutex->handle) == 0) {
@@ -240,7 +273,7 @@ APR_DECLARE(apr_status_t) apr_os_proc_mutex_put_ex(apr_proc_mutex_t **pmutex,
     if (pool == NULL) {
         return APR_ENOPOOL;
     }
-    if (mech != APR_LOCK_DEFAULT) {
+    if (mech != APR_LOCK_DEFAULT && mech != APR_LOCK_DEFAULT_TIMED) {
         return APR_ENOTIMPL;
     }
 
