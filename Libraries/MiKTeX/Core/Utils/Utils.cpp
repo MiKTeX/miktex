@@ -23,9 +23,9 @@
 
 #include <iostream>
 
+#include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-#include <fmt/time.h>
 
 #if defined(MIKTEX_WINDOWS)
 #include <direct.h>

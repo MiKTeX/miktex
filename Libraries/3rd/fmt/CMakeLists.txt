@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2018 Christian Schenk
+## Copyright (C) 2018-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,16 +31,19 @@ set(public_include_directories
 
 set(fmt_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/format.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/posix.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/os.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/chrono.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/color.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/compile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/core.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/format-inl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/format.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/locale.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/os.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/ostream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/posix.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/printf.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/ranges.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/time.h
 )
 
 configure_file(

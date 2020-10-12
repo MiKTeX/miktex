@@ -68,9 +68,9 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Util/inliners.h>
 
+#include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-#include <fmt/time.h>
 
 #include <nlohmann/json.hpp>
 

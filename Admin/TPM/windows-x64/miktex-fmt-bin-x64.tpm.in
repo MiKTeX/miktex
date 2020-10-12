@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>{fmt} formatting library win64</TPM:Name>
     <TPM:Title>{fmt}, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Victor Zverovich" year="2012-2018"/>
+    <TPM:Copyright owner="Victor Zverovich" year="2012-2020"/>
     <TPM:License type="bsd2"/>
-    <TPM:Version>5.2.1</TPM:Version>
+    <TPM:Version>7.0.3</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
