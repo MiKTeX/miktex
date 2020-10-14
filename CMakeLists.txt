@@ -584,8 +584,6 @@ option(
 
 if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
   set(USE_SYSTEM_OPENGL TRUE)
-  set(WITH_LIBATOMIC_OPS TRUE)
-  set(WITH_GC TRUE)
 endif()
   
 ###############################################################################
@@ -1648,10 +1646,6 @@ else()
   add_subdirectory(${MIKTEX_REL_FRIBIDI_DIR})
 endif()
 
-if(WITH_GC)
-  add_subdirectory(${MIKTEX_REL_GC_DIR})
-endif()
-
 if(USE_SYSTEM_GLM)
   get_filename_component(suffix ${GLM_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1779,10 +1773,6 @@ if(USE_SYSTEM_HUNSPELL)
   )
 else()
   add_subdirectory(${MIKTEX_REL_HUNSPELL_DIR})
-endif()
-
-if(WITH_LIBATOMIC_OPS)
-  add_subdirectory(${MIKTEX_REL_LIBATOMIC_OPS_DIR})
 endif()
 
 if(USE_SYSTEM_LOG4CXX)

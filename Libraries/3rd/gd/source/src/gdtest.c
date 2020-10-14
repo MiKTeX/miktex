@@ -24,7 +24,6 @@ static int fwriteWrapper (void *context, const char *buffer, int len);
 int
 main (int argc, char **argv)
 {
-#ifdef HAVE_LIBPNG
 	gdImagePtr im, ref, im2, im3;
 	FILE *in, *out;
 	void *iptr;
@@ -87,12 +86,12 @@ main (int argc, char **argv)
 	}
 	im2 = gdImageCreateFromPng (in);
 	fclose (in);
-	
+
 	if (!im2) {
 		fprintf(stderr, "gdImageCreateFromPng failed.\n");
 		exit (1);
 	}
-	
+
 	CompareImages ("GD->PNG File->GD", ref, im2);
 
 	unlink (of);
@@ -196,7 +195,7 @@ main (int argc, char **argv)
 		fprintf(stderr, "gdImageCreateFromGdPtr failed.\n");
 		exit (1);
 	}
-	
+
 	CompareImages ("GD->GD ptr->GD", ref, im2);
 
 	gdImageDestroy (im2);
@@ -409,9 +408,6 @@ main (int argc, char **argv)
 	}
 	gdImageDestroy (im);
 	gdImageDestroy (ref);
-#else
-	fprintf(stderr, "No PNG library support.\n");
-#endif /* HAVE_LIBPNG */
 
 	return 0;
 }

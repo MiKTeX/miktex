@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2019 Christian Schenk
+## Copyright (C) 2013-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -20,15 +20,14 @@
 # Base and default-included sources and headers
 
 set(HB_BASE_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-fdsc-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-ankr-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-bsln-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-common.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-feat-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-just-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-kerx-table.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-lcar-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-morx-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-opbd-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout-trak-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-aat-layout.hh
@@ -54,8 +53,11 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-config.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-debug.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-dispatch.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-draw.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-draw.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-fallback-shape.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-iter.hh
@@ -66,10 +68,13 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-meta.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-mutex.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-null.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-object.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-file.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-open-type.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff-common.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff1-std-str.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff1-table.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff1-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff2-table.cc
@@ -106,6 +111,10 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-maxp-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-meta-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-meta.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-metrics.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-metrics.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-name-language-static.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-name-language.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-name-table.hh
@@ -115,6 +124,7 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-macroman.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-fallback.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-joining-list.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-win1256.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic.cc
@@ -147,6 +157,7 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-avar-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-fvar-table.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-gvar-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-hvar-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-mvar-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.cc
@@ -166,6 +177,7 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-static.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-string-array.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-style.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ucd-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ucd.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode-emoji-table.hh
@@ -173,13 +185,13 @@ set(HB_BASE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-utf.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-vector.hh
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-warning.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb.hh
 )
 
 set(HB_BASE_RAGEL_GENERATED_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-json.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-text.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number-parser.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-machine.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer-machine.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar-machine.hh
@@ -193,6 +205,7 @@ set(HB_BASE_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-common.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-deprecated.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-draw.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.h
@@ -201,6 +214,8 @@ set(HB_BASE_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-font.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-math.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-meta.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-metrics.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-name.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.h
@@ -208,13 +223,10 @@ set(HB_BASE_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-style.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb.h
-)
-
-set(HB_FALLBACK_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-fallback-shape.cc
 )
 
 set(HB_FT_sources
@@ -257,6 +269,14 @@ set(HB_DIRECTWRITE_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-directwrite.h
 )
 
+set(HB_GDI_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-gdi.cc
+)
+
+set(HB_GDI_headers
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-gdi.h
+)
+
 set(HB_UNISCRIBE_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-uniscribe.cc
 )
@@ -274,6 +294,8 @@ set(HB_ICU_headers
 )
 
 set(HB_SUBSET_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff1-table.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff2-table.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-static.cc

@@ -37,9 +37,9 @@ struct hb_ot_shape_plan_key_t
 {
   unsigned int variations_index[2];
 
-  void init (hb_face_t   *face,
-		    const int   *coords,
-		    unsigned int num_coords)
+  void init (hb_face_t *face,
+	     const int *coords,
+	     unsigned   num_coords)
   {
     for (unsigned int table_index = 0; table_index < 2; table_index++)
       hb_ot_layout_table_find_feature_variations (face,
@@ -78,7 +78,7 @@ struct hb_ot_shape_plan_t
 #else
   static constexpr hb_mask_t kern_mask = 0;
 #endif
-#ifndef HB_NO_SHAPE_AAT
+#ifndef HB_NO_AAT_SHAPE
   hb_mask_t trak_mask;
 #else
   static constexpr hb_mask_t trak_mask = 0;
@@ -89,7 +89,7 @@ struct hb_ot_shape_plan_t
 #else
   static constexpr bool requested_kerning = false;
 #endif
-#ifndef HB_NO_SHAPE_AAT
+#ifndef HB_NO_AAT_SHAPE
   bool requested_tracking : 1;
 #else
   static constexpr bool requested_tracking = false;
@@ -99,6 +99,7 @@ struct hb_ot_shape_plan_t
 #else
   static constexpr bool has_frac = false;
 #endif
+  bool has_vert : 1;
   bool has_gpos_mark : 1;
   bool zero_marks : 1;
   bool fallback_glyph_classes : 1;
@@ -111,7 +112,7 @@ struct hb_ot_shape_plan_t
 #else
   static constexpr bool apply_kern = false;
 #endif
-#ifndef HB_NO_SHAPE_AAT
+#ifndef HB_NO_AAT_SHAPE
   bool apply_kerx : 1;
   bool apply_morx : 1;
   bool apply_trak : 1;
@@ -149,7 +150,7 @@ struct hb_ot_shape_planner_t
   hb_segment_properties_t props;
   hb_ot_map_builder_t map;
   hb_aat_map_builder_t aat_map;
-#ifndef HB_NO_SHAPE_AAT
+#ifndef HB_NO_AAT_SHAPE
   bool apply_morx : 1;
 #else
   static constexpr bool apply_morx = false;

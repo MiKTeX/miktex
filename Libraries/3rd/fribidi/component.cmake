@@ -1,6 +1,6 @@
 ## component.cmake:
 ##
-## Copyright (C) 2018 Christian Schenk
+## Copyright (C) 2018-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,7 +19,6 @@
 
 include(version.cmake)
 
-set(MIKTEX_COMP_DESCRIPTION "fribidi - Unicode Bidirectional Algorithm Library")
-
 set(MIKTEX_COMP_COMPANY_STR "")
-set(MIKTEX_COMP_COPYRIGHT_STR "")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 2004 Sharif FarsiWeb, Inc")
+set(MIKTEX_COMP_DESCRIPTION "fribidi - Unicode Bidirectional Algorithm Library")

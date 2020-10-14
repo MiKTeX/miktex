@@ -5,7 +5,7 @@
     <TPM:Name>LZMA lib win64</TPM:Name>
     <TPM:Title>LZMA runtime library, Windows x64</TPM:Title>
     <TPM:License type="pd"/>
-    <TPM:Version>5.2.4</TPM:Version>
+    <TPM:Version>5.2.5</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

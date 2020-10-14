@@ -1,4 +1,3 @@
-/* $Id$ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -592,7 +591,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromPngCtx (gdIOCtx * infile)
     gdImagePtr im;
     int black, white;
     FILE *out;
-     
+
     im = gdImageCreate(100, 100);              // Create the image
     white = gdImageColorAllocate(im, 255, 255, 255); // Alloc background
     black = gdImageColorAllocate(im, 0, 0, 0); // Allocate drawing color
@@ -772,6 +771,7 @@ static int _gdImagePngCtxEx(gdImagePtr im, gdIOCtx * outfile, int level)
 	png_color palette[gdMaxColors];
 	png_structp png_ptr;
 	png_infop info_ptr;
+	png_bytep *row_pointers = NULL;
 	volatile int transparent = im->transparent;
 	volatile int remap = FALSE;
 #ifdef PNG_SETJMP_SUPPORTED
@@ -806,6 +806,13 @@ static int _gdImagePngCtxEx(gdImagePtr im, gdIOCtx * outfile, int level)
 	if (setjmp(jbw.jmpbuf)) {
 		gd_error("gd-png error: setjmp returns error condition\n");
 		png_destroy_write_struct (&png_ptr, &info_ptr);
+
+		if (row_pointers) {
+			for (i = 0; i < height; ++i)
+				gdFree(row_pointers[i]);
+			gdFree(row_pointers);
+		}
+
 		return 1;
 	}
 #endif
@@ -981,7 +988,6 @@ static int _gdImagePngCtxEx(gdImagePtr im, gdIOCtx * outfile, int level)
 		/* performance optimizations by Phong Tran */
 		int channels = im->saveAlphaFlag ? 4 : 3;
 		/* Our little 7-bit alpha channel trick costs us a bit here. */
-		png_bytep *row_pointers;
 		unsigned char *pOutputRow;
 		int **ptpixels = im->tpixels;
 		int *pThisRow;
@@ -993,7 +999,8 @@ static int _gdImagePngCtxEx(gdImagePtr im, gdIOCtx * outfile, int level)
 			ret = 1;
 			goto bail;
 		}
-		row_pointers = gdMalloc (sizeof (png_bytep) * height);
+		/* Need to use calloc so we can clean it up sanely in the error handler. */
+		row_pointers = gdCalloc(height, sizeof (png_bytep));
 		if (row_pointers == NULL) {
 			gd_error("gd-png error: unable to allocate row_pointers\n");
 			ret = 1;
@@ -1082,5 +1089,57 @@ bail:
 	return ret;
 }
 
+#else /* !HAVE_LIBPNG */
+
+static void _noPngError(void)
+{
+	gd_error("PNG image support has been disabled\n");
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromPng (FILE * inFile)
+{
+	_noPngError();
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromPngPtr (int size, void *data)
+{
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromPngCtx (gdIOCtx * infile)
+{
+	return NULL;
+}
+
+BGD_DECLARE(void) gdImagePngEx (gdImagePtr im, FILE * outFile, int level)
+{
+	_noPngError();
+}
+
+BGD_DECLARE(void) gdImagePng (gdImagePtr im, FILE * outFile)
+{
+	_noPngError();
+}
+
+BGD_DECLARE(void *) gdImagePngPtr (gdImagePtr im, int *size)
+{
+	return NULL;
+}
+
+BGD_DECLARE(void *) gdImagePngPtrEx (gdImagePtr im, int *size, int level)
+{
+	return NULL;
+}
+
+BGD_DECLARE(void) gdImagePngCtx (gdImagePtr im, gdIOCtx * outfile)
+{
+	_noPngError();
+}
+
+BGD_DECLARE(void) gdImagePngCtxEx (gdImagePtr im, gdIOCtx * outfile, int level)
+{
+	_noPngError();
+}
 
 #endif /* HAVE_LIBPNG */

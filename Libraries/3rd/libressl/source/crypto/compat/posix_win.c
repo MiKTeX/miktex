@@ -4,11 +4,12 @@
  * BSD socket emulation code for Winsock2
  * File IO compatibility shims
  * Brent Cook <bcook@openbsd.org>
+ * Kinichiro Inoguchi <inoguchi@openbsd.org>
  */
 
 #define NO_REDEF_POSIX_FUNCTIONS
 
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
 #include <ws2tcpip.h>
 #endif
 #include <windows.h>
@@ -164,7 +165,8 @@ posix_close(int fd)
 {
 	if (closesocket(fd) == SOCKET_ERROR) {
 		int err = WSAGetLastError();
-		return (err == WSAENOTSOCK || err == WSAEBADF) ?
+		return (err == WSAENOTSOCK || err == WSAEBADF ||
+		    err == WSANOTINITIALISED) ?
 			close(fd) : wsa_errno(err);
 	}
 	return 0;
@@ -176,7 +178,8 @@ posix_read(int fd, void *buf, size_t count)
 	ssize_t rc = recv(fd, buf, count, 0);
 	if (rc == SOCKET_ERROR) {
 		int err = WSAGetLastError();
-		return (err == WSAENOTSOCK || err == WSAEBADF) ?
+		return (err == WSAENOTSOCK || err == WSAEBADF ||
+		    err == WSANOTINITIALISED) ?
 			read(fd, buf, count) : wsa_errno(err);
 	}
 	return rc;
@@ -188,7 +191,8 @@ posix_write(int fd, const void *buf, size_t count)
 	ssize_t rc = send(fd, buf, count, 0);
 	if (rc == SOCKET_ERROR) {
 		int err = WSAGetLastError();
-		return (err == WSAENOTSOCK || err == WSAEBADF) ?
+		return (err == WSAENOTSOCK || err == WSAEBADF ||
+		    err == WSANOTINITIALISED) ?
 			write(fd, buf, count) : wsa_errno(err);
 	}
 	return rc;
@@ -209,6 +213,12 @@ posix_setsockopt(int sockfd, int level, int optname,
 {
 	int rc = setsockopt(sockfd, level, optname, (char *)optval, optlen);
 	return rc == 0 ? 0 : wsa_errno(WSAGetLastError());
+}
+
+uid_t getuid(void)
+{
+	/* Windows fstat sets 0 as st_uid */
+	return 0;
 }
 
 #ifdef _MSC_VER
@@ -233,12 +243,6 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 	tp->tv_sec = (long)((time - EPOCH) / 10000000L);
 	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
 	return 0;
-}
-
-unsigned int sleep(unsigned int seconds)
-{
-	Sleep(seconds * 1000);
-	return seconds;
 }
 
 #endif

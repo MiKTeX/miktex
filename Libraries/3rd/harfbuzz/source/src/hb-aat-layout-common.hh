@@ -93,8 +93,8 @@ struct LookupSegmentSingle
     return_trace (c->check_struct (this) && value.sanitize (c, base));
   }
 
-  GlyphID	last;		/* Last GlyphID in this segment */
-  GlyphID	first;		/* First GlyphID in this segment */
+  HBGlyphID	last;		/* Last GlyphID in this segment */
+  HBGlyphID	first;		/* First GlyphID in this segment */
   T		value;		/* The lookup value (only one) */
   public:
   DEFINE_SIZE_STATIC (4 + T::static_size);
@@ -162,8 +162,8 @@ struct LookupSegmentArray
 		  valuesZ.sanitize (c, base, last - first + 1, hb_forward<Ts> (ds)...));
   }
 
-  GlyphID	last;		/* Last GlyphID in this segment */
-  GlyphID	first;		/* First GlyphID in this segment */
+  HBGlyphID	last;		/* Last GlyphID in this segment */
+  HBGlyphID	first;		/* First GlyphID in this segment */
   NNOffsetTo<UnsizedArrayOf<T>>
 		valuesZ;	/* A 16-bit offset from the start of
 				 * the table to the data. */
@@ -222,7 +222,7 @@ struct LookupSingle
     return_trace (c->check_struct (this) && value.sanitize (c, base));
   }
 
-  GlyphID	glyph;		/* Last GlyphID */
+  HBGlyphID	glyph;		/* Last GlyphID */
   T		value;		/* The lookup value (only one) */
   public:
   DEFINE_SIZE_STATIC (2 + T::static_size);
@@ -284,7 +284,7 @@ struct LookupFormat8
 
   protected:
   HBUINT16	format;		/* Format identifier--format = 8 */
-  GlyphID	firstGlyph;	/* First glyph index included in the trimmed array. */
+  HBGlyphID	firstGlyph;	/* First glyph index included in the trimmed array. */
   HBUINT16	glyphCount;	/* Total number of glyphs (equivalent to the last
 				 * glyph minus the value of firstGlyph plus 1). */
   UnsizedArrayOf<T>
@@ -303,7 +303,7 @@ struct LookupFormat10
   const typename T::type get_value_or_null (hb_codepoint_t glyph_id) const
   {
     if (!(firstGlyph <= glyph_id && glyph_id - firstGlyph < glyphCount))
-      return Null(T);
+      return Null (T);
 
     const HBUINT8 *p = &valueArrayZ[(glyph_id - firstGlyph) * valueSize];
 
@@ -326,7 +326,7 @@ struct LookupFormat10
   protected:
   HBUINT16	format;		/* Format identifier--format = 8 */
   HBUINT16	valueSize;	/* Byte size of each value. */
-  GlyphID	firstGlyph;	/* First glyph index included in the trimmed array. */
+  HBGlyphID	firstGlyph;	/* First glyph index included in the trimmed array. */
   HBUINT16	glyphCount;	/* Total number of glyphs (equivalent to the last
 				 * glyph minus the value of firstGlyph plus 1). */
   UnsizedArrayOf<HBUINT8>
@@ -358,7 +358,7 @@ struct Lookup
       case 10: return u.format10.get_value_or_null (glyph_id);
       default:
       const T *v = get_value (glyph_id, num_glyphs);
-      return v ? *v : Null(T);
+      return v ? *v : Null (T);
     }
   }
 
@@ -658,7 +658,7 @@ struct ClassTable
     return_trace (c->check_struct (this) && classArray.sanitize (c));
   }
   protected:
-  GlyphID		firstGlyph;	/* First glyph index included in the trimmed array. */
+  HBGlyphID		firstGlyph;	/* First glyph index included in the trimmed array. */
   ArrayOf<HBUCHAR>	classArray;	/* The class codes (indexed by glyph index minus
 					 * firstGlyph). */
   public:
@@ -678,7 +678,7 @@ struct ObsoleteTypes
 				     const void *base,
 				     const T *array)
   {
-    return (offset - ((const char *) array - (const char *) base)) / sizeof (T);
+    return (offset - ((const char *) array - (const char *) base)) / T::static_size;
   }
   template <typename T>
   static unsigned int byteOffsetToIndex (unsigned int offset,
@@ -820,12 +820,11 @@ struct hb_aat_apply_context_t :
 
   /* Unused. For debug tracing only. */
   unsigned int lookup_index;
-  unsigned int debug_depth;
 
   HB_INTERNAL hb_aat_apply_context_t (const hb_ot_shape_plan_t *plan_,
 				      hb_font_t *font_,
 				      hb_buffer_t *buffer_,
-				      hb_blob_t *blob = const_cast<hb_blob_t *> (&Null(hb_blob_t)));
+				      hb_blob_t *blob = const_cast<hb_blob_t *> (&Null (hb_blob_t)));
 
   HB_INTERNAL ~hb_aat_apply_context_t ();
 

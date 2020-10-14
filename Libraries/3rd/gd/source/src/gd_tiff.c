@@ -27,7 +27,6 @@
 
    ----------------------------------------------------------------------------
  */
-/* $Id$ */
 
 /**
  * File: TIFF IO
@@ -790,7 +789,7 @@ static int createFromTiffRgba(TIFF * tif, gdImagePtr im)
 				rgba = buffer[(y * width + x)];
 				a = (0xff - TIFFGetA(rgba)) / 2;
 				color = gdTrueColorAlpha(TIFFGetR(rgba), TIFFGetG(rgba), TIFFGetB(rgba), a);
-	
+
 				/* set pixel colour to this colour */
 				gdImageSetPixel(im, x, height - y - 1, color);
 			}
@@ -993,10 +992,10 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffCtx(gdIOCtx *infile)
 		goto error;
 	}
 
-	if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &res_float)) { 
+	if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &res_float)) {
 		im->res_x = (unsigned int)res_float;  //truncate
 	}
-	if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &res_float)) { 
+	if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &res_float)) {
 		im->res_y = (unsigned int)res_float;  //truncate
 	}
 
@@ -1068,6 +1067,47 @@ BGD_DECLARE(void *) gdImageTiffPtr(gdImagePtr im, int *size)
 	rv = gdDPExtractData(out, size);
 	out->gd_free(out);
 	return rv;
+}
+
+#else
+
+static void _noTiffError(void)
+{
+	gd_error("TIFF image support has been disabled\n");
+}
+
+BGD_DECLARE(void) gdImageTiffCtx(gdImagePtr image, gdIOCtx *out)
+{
+	_noTiffError();
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffCtx(gdIOCtx *infile)
+{
+	_noTiffError();
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromTiff(FILE *inFile)
+{
+	_noTiffError();
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffPtr(int size, void *data)
+{
+	_noTiffError();
+	return NULL;
+}
+
+BGD_DECLARE(void) gdImageTiff(gdImagePtr im, FILE *outFile)
+{
+	_noTiffError();
+}
+
+BGD_DECLARE(void *) gdImageTiffPtr(gdImagePtr im, int *size)
+{
+	_noTiffError();
+	return NULL;
 }
 
 #endif

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/libressl")
 
@@ -34,10 +36,18 @@ include_directories(BEFORE
   ${libressl_source_dir}/include/compat
 )
 
+configure_file(
+  libressl-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libressl-version.h
+)
+
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 set(public_headers
   openssl/aes.h
   openssl/asn1.h
-  openssl/asn1_mac.h
   openssl/asn1t.h
   openssl/bio.h
   openssl/blowfish.h
@@ -47,6 +57,7 @@ set(public_headers
   openssl/cast.h
   openssl/chacha.h
   openssl/cmac.h
+  openssl/cms.h
   openssl/comp.h
   openssl/conf.h
   openssl/conf_api.h
@@ -64,6 +75,7 @@ set(public_headers
   openssl/err.h
   openssl/evp.h
   openssl/gost.h
+  openssl/hkdf.h
   openssl/hmac.h
   openssl/idea.h
   openssl/lhash.h
@@ -89,6 +101,8 @@ set(public_headers
   openssl/rsa.h
   openssl/safestack.h
   openssl/sha.h
+  openssl/sm3.h
+  openssl/sm4.h
   openssl/srtp.h
   openssl/ssl.h
   openssl/ssl2.h

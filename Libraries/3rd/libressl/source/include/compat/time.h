@@ -33,12 +33,17 @@ time_t timegm(struct tm *tm);
 #define CLOCK_REALTIME 0
 #endif
 
+#ifndef _WIN32
 #ifndef HAVE_CLOCK_GETTIME
 typedef int clockid_t;
 int clock_gettime(clockid_t clock_id, struct timespec *tp);
 #endif
 
-#ifndef timespecsub
+#ifdef timespecsub
+#define HAVE_TIMESPECSUB
+#endif
+
+#ifndef HAVE_TIMESPECSUB
 #define timespecsub(tsp, usp, vsp)                                      \
         do {                                                            \
                 (vsp)->tv_sec = (tsp)->tv_sec - (usp)->tv_sec;          \
@@ -48,6 +53,8 @@ int clock_gettime(clockid_t clock_id, struct timespec *tp);
                         (vsp)->tv_nsec += 1000000000L;                  \
                 }                                                       \
         } while (0)
+#endif
+
 #endif
 
 #endif

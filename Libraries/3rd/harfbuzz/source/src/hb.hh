@@ -98,6 +98,7 @@
 #ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_WARNING
 #pragma GCC diagnostic warning "-Wbuiltin-macro-redefined"
 #pragma GCC diagnostic warning "-Wdeprecated"
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
 #pragma GCC diagnostic warning "-Wdisabled-optimization"
 #pragma GCC diagnostic warning "-Wdouble-promotion"
 #pragma GCC diagnostic warning "-Wformat=2"
@@ -106,6 +107,7 @@
 #pragma GCC diagnostic warning "-Wmaybe-uninitialized"
 #pragma GCC diagnostic warning "-Wmissing-format-attribute"
 #pragma GCC diagnostic warning "-Wundef"
+#pragma GCC diagnostic warning "-Wunused-but-set-variable"
 #endif
 
 /* Ignored currently, but should be fixed at some point. */
@@ -175,11 +177,11 @@
 
 #include <limits.h>
 #include <math.h>
+#include <float.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <assert.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -188,10 +190,14 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
 #endif
-#include <windows.h>
 #else
 #include <intrin.h>
 #endif
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#include <winapifamily.h>
 #endif
 
 #define HB_PASTE1(a,b) a##b
@@ -200,10 +206,15 @@
 
 /* Compile-time custom allocator support. */
 
-#if defined(hb_malloc_impl) \
- && defined(hb_calloc_impl) \
- && defined(hb_realloc_impl) \
- && defined(hb_free_impl)
+#if !defined(HB_CUSTOM_MALLOC) \
+  && defined(hb_malloc_impl) \
+  && defined(hb_calloc_impl) \
+  && defined(hb_realloc_impl) \
+  && defined(hb_free_impl)
+#define HB_CUSTOM_MALLOC
+#endif
+
+#ifdef HB_CUSTOM_MALLOC
 extern "C" void* hb_malloc_impl(size_t size);
 extern "C" void* hb_calloc_impl(size_t nmemb, size_t size);
 extern "C" void* hb_realloc_impl(void *ptr, size_t size);
@@ -241,7 +252,7 @@ extern "C" void  hb_free_impl(void *ptr);
 #define HB_CONST_FUNC
 #define HB_PRINTF_FUNC(format_idx, arg_idx)
 #endif
-#if defined(__GNUC__) && (__GNUC__ >= 4)
+#if defined(__GNUC__) && (__GNUC__ >= 4) || (__clang__)
 #define HB_UNUSED	__attribute__((unused))
 #elif defined(_MSC_VER) /* https://github.com/harfbuzz/harfbuzz/issues/635 */
 #define HB_UNUSED __pragma(warning(suppress: 4100 4101))
@@ -317,7 +328,20 @@ extern "C" void  hb_free_impl(void *ptr);
 #  define HB_FALLTHROUGH /* FALLTHROUGH */
 #endif
 
-#ifdef __clang__
+/* A tag to enforce use of return value for a function */
+#if __cplusplus >= 201703L
+#  define HB_NODISCARD [[nodiscard]]
+#elif defined(__GNUC__) || defined(__clang__)
+#  define HB_NODISCARD __attribute__((warn_unused_result))
+#elif defined(_MSC_VER)
+#  define HB_NODISCARD _Check_return_
+#else
+#  define HB_NODISCARD
+#endif
+#define hb_success_t HB_NODISCARD bool
+
+/* https://github.com/harfbuzz/harfbuzz/issues/1852 */
+#if defined(__clang__) && !(defined(_AIX) && (defined(__IBMCPP__) || defined(__ibmxl__)))
 /* Disable certain sanitizer errors. */
 /* https://github.com/harfbuzz/harfbuzz/issues/1247 */
 #define HB_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW __attribute__((no_sanitize("signed-integer-overflow")))
@@ -334,7 +358,7 @@ extern "C" void  hb_free_impl(void *ptr);
 #    undef _WIN32_WINNT
 #  endif
 #  ifndef _WIN32_WINNT
-#    if !defined(WINAPI_FAMILY) || !(WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #      define _WIN32_WINNT 0x0600
 #    endif
 #  endif
@@ -353,9 +377,9 @@ extern "C" void  hb_free_impl(void *ptr);
 #    endif
 #    if _WIN32_WCE < 0x800
 #      define HB_NO_SETLOCALE
-static int errno = 0; /* Use something better? */
+#      define HB_NO_ERRNO
 #    endif
-#  elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#  elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #    ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #    endif
@@ -367,6 +391,14 @@ static int errno = 0; /* Use something better? */
 
 #ifdef HB_NO_GETENV
 #define getenv(Name) nullptr
+#endif
+
+#ifndef HB_NO_ERRNO
+#  include <errno.h>
+#else
+static int HB_UNUSED _hb_errno = 0;
+#  undef errno
+#  define errno _hb_errno
 #endif
 
 #if defined(HAVE_ATEXIT) && !defined(HB_USE_ATEXIT)
@@ -473,8 +505,19 @@ static_assert ((sizeof (hb_var_int_t) == 4), "");
 
 
 /* Size signifying variable-sized array */
-#define VAR 1
+#ifndef HB_VAR_ARRAY
+#define HB_VAR_ARRAY 1
+#endif
 
+static inline float
+_hb_roundf (float x) { return floorf (x + .5f); }
+#define roundf(x) _hb_roundf(x)
+
+/* Endian swap, used in Windows related backends */
+static inline uint16_t hb_uint16_swap (const uint16_t v)
+{ return (v >> 8) | (v << 8); }
+static inline uint32_t hb_uint32_swap (const uint32_t v)
+{ return (hb_uint16_swap (v) << 16) | hb_uint16_swap (v >> 16); }
 
 /*
  * Big-endian integers.  Here because fundamental.
@@ -519,7 +562,7 @@ struct BEInt<Type, 2>
 #endif
 #endif
     return (v[0] <<  8)
-         + (v[1]      );
+	 + (v[1]      );
   }
   private: uint8_t v[2];
 };
@@ -537,8 +580,8 @@ struct BEInt<Type, 3>
   operator Type () const
   {
     return (v[0] << 16)
-         + (v[1] <<  8)
-         + (v[2]      );
+	 + (v[1] <<  8)
+	 + (v[2]      );
   }
   private: uint8_t v[3];
 };
@@ -557,9 +600,9 @@ struct BEInt<Type, 4>
   operator Type () const
   {
     return (v[0] << 24)
-         + (v[1] << 16)
-         + (v[2] <<  8)
-         + (v[3]      );
+	 + (v[1] << 16)
+	 + (v[2] <<  8)
+	 + (v[3]      );
   }
   private: uint8_t v[4];
 };
@@ -578,9 +621,10 @@ struct BEInt<Type, 4>
  * them directly.*/
 #include "hb-meta.hh"
 #include "hb-mutex.hh"
+#include "hb-number.hh"
 #include "hb-atomic.hh"	// Requires: hb-meta
 #include "hb-null.hh"	// Requires: hb-meta
-#include "hb-algs.hh"	// Requires: hb-meta hb-null
+#include "hb-algs.hh"	// Requires: hb-meta hb-null hb-number
 #include "hb-iter.hh"	// Requires: hb-algs hb-meta
 #include "hb-debug.hh"	// Requires: hb-algs hb-atomic
 #include "hb-array.hh"	// Requires: hb-algs hb-iter hb-null

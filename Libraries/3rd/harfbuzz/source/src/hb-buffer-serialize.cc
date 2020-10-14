@@ -135,7 +135,7 @@ _hb_buffer_serialize_glyphs_json (hb_buffer_t *buffer,
       hb_font_glyph_to_string (font, info[i].codepoint, g, sizeof (g));
       *p++ = '"';
       for (char *q = g; *q; q++) {
-        if (*q == '"')
+	if (*q == '"')
 	  *p++ = '\\';
 	*p++ = *q;
       }
@@ -348,8 +348,8 @@ hb_buffer_serialize_glyphs (hb_buffer_t *buffer,
   if (buf_size)
     *buf = '\0';
 
-  assert ((!buffer->len && buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID) ||
-	  buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS);
+  assert ((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) ||
+	  (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
 
   if (!buffer->have_positions)
     flags |= HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS;
@@ -379,43 +379,24 @@ hb_buffer_serialize_glyphs (hb_buffer_t *buffer,
   }
 }
 
-
-static hb_bool_t
-parse_uint (const char *pp, const char *end, uint32_t *pv)
+static bool
+parse_int (const char *pp, const char *end, int32_t *pv)
 {
-  char buf[32];
-  unsigned int len = hb_min (ARRAY_LENGTH (buf) - 1, (unsigned int) (end - pp));
-  strncpy (buf, pp, len);
-  buf[len] = '\0';
-
-  char *p = buf;
-  char *pend = p;
-  uint32_t v;
-
-  errno = 0;
-  v = strtol (p, &pend, 10);
-  if (errno || p == pend || pend - p != end - pp)
+  int v;
+  const char *p = pp;
+  if (unlikely (!hb_parse_int (&p, end, &v, true/* whole buffer */)))
     return false;
 
   *pv = v;
   return true;
 }
 
-static hb_bool_t
-parse_int (const char *pp, const char *end, int32_t *pv)
+static bool
+parse_uint (const char *pp, const char *end, uint32_t *pv)
 {
-  char buf[32];
-  unsigned int len = hb_min (ARRAY_LENGTH (buf) - 1, (unsigned int) (end - pp));
-  strncpy (buf, pp, len);
-  buf[len] = '\0';
-
-  char *p = buf;
-  char *pend = p;
-  int32_t v;
-
-  errno = 0;
-  v = strtol (p, &pend, 10);
-  if (errno || p == pend || pend - p != end - pp)
+  unsigned int v;
+  const char *p = pp;
+  if (unlikely (!hb_parse_uint (&p, end, &v, true/* whole buffer */)))
     return false;
 
   *pv = v;
@@ -453,8 +434,8 @@ hb_buffer_deserialize_glyphs (hb_buffer_t *buffer,
     end_ptr = &end;
   *end_ptr = buf;
 
-  assert ((!buffer->len && buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID) ||
-	  buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS);
+  assert ((!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)) ||
+	  (buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS));
 
   if (buf_len == -1)
     buf_len = strlen (buf);

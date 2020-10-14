@@ -89,7 +89,7 @@
 	    q;					\
 	})
 #  define REMAINDER_IS_ALREADY_CALCULATED
-#  elif defined(__x86_64)
+#  elif defined(__x86_64) && defined(_LP64)
    /*
     * Same story here, but it's 128-bit by 64-bit division. Wow!
     *					<appro@fy.chalmers.se>

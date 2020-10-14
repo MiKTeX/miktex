@@ -37,10 +37,10 @@ prevent_all_warnings_on_bad_code_target(${libressl_crypto_dll_name})
 
 set_property(TARGET ${libressl_crypto_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${libressl_crypto_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version_properties(
+  ${libressl_crypto_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_include_directories(${libressl_crypto_dll_name}

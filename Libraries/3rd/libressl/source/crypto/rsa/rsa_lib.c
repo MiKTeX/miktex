@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa_lib.c,v 1.37 2018/04/14 07:09:21 tb Exp $ */
+/* $OpenBSD: rsa_lib.c,v 1.40 2020/01/17 10:40:03 inoguchi Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -63,8 +63,11 @@
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
 #include <openssl/lhash.h>
 #include <openssl/rsa.h>
+
+#include "evp_locl.h"
 
 #ifndef OPENSSL_NO_ENGINE
 #include <openssl/engine.h>
@@ -128,68 +131,52 @@ RSA_new_method(ENGINE *engine)
 {
 	RSA *ret;
 
-	ret = malloc(sizeof(RSA));
-	if (ret == NULL) {
+	if ((ret = calloc(1, sizeof(RSA))) == NULL) {
 		RSAerror(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
 
 	ret->meth = RSA_get_default_method();
+
 #ifndef OPENSSL_NO_ENGINE
-	if (engine) {
+	if (engine != NULL) {
 		if (!ENGINE_init(engine)) {
 			RSAerror(ERR_R_ENGINE_LIB);
-			free(ret);
-			return NULL;
+			goto err;
 		}
 		ret->engine = engine;
-	} else
+	} else {
 		ret->engine = ENGINE_get_default_RSA();
-	if (ret->engine) {
-		ret->meth = ENGINE_get_RSA(ret->engine);
-		if (ret->meth == NULL) {
+	}
+
+	if (ret->engine != NULL) {
+		if ((ret->meth = ENGINE_get_RSA(ret->engine)) == NULL) {
 			RSAerror(ERR_R_ENGINE_LIB);
-			ENGINE_finish(ret->engine);
-			free(ret);
-			return NULL;
+			goto err;
 		}
 	}
 #endif
 
-	ret->pad = 0;
-	ret->version = 0;
-	ret->n = NULL;
-	ret->e = NULL;
-	ret->d = NULL;
-	ret->p = NULL;
-	ret->q = NULL;
-	ret->dmp1 = NULL;
-	ret->dmq1 = NULL;
-	ret->iqmp = NULL;
 	ret->references = 1;
-	ret->_method_mod_n = NULL;
-	ret->_method_mod_p = NULL;
-	ret->_method_mod_q = NULL;
-	ret->blinding = NULL;
-	ret->mt_blinding = NULL;
 	ret->flags = ret->meth->flags & ~RSA_FLAG_NON_FIPS_ALLOW;
-	if (!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_RSA, ret, &ret->ex_data)) {
-#ifndef OPENSSL_NO_ENGINE
-		ENGINE_finish(ret->engine);
-#endif
-		free(ret);
-		return NULL;
-	}
+
+	if (!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_RSA, ret, &ret->ex_data))
+		goto err;
 
 	if (ret->meth->init != NULL && !ret->meth->init(ret)) {
-#ifndef OPENSSL_NO_ENGINE
-		ENGINE_finish(ret->engine);
-#endif
 		CRYPTO_free_ex_data(CRYPTO_EX_INDEX_RSA, ret, &ret->ex_data);
-		free(ret);
-		ret = NULL;
+		goto err;
 	}
+
 	return ret;
+
+ err:
+#ifndef OPENSSL_NO_ENGINE
+	ENGINE_finish(ret->engine);
+#endif
+	free(ret);
+
+	return NULL;
 }
 
 void
@@ -222,6 +209,7 @@ RSA_free(RSA *r)
 	BN_clear_free(r->iqmp);
 	BN_BLINDING_free(r->blinding);
 	BN_BLINDING_free(r->mt_blinding);
+	RSA_PSS_PARAMS_free(r->pss);
 	free(r);
 }
 
@@ -364,4 +352,16 @@ void
 RSA_set_flags(RSA *r, int flags)
 {
 	r->flags |= flags;
+}
+
+int
+RSA_pkey_ctx_ctrl(EVP_PKEY_CTX *ctx, int optype, int cmd, int p1, void *p2)
+{
+	/* Return an error if the key type is not RSA or RSA-PSS. */
+	if (ctx != NULL && ctx->pmeth != NULL &&
+	    ctx->pmeth->pkey_id != EVP_PKEY_RSA &&
+	    ctx->pmeth->pkey_id != EVP_PKEY_RSA_PSS)
+		return -1;
+
+	return EVP_PKEY_CTX_ctrl(ctx, -1, optype, cmd, p1, p2);
 }

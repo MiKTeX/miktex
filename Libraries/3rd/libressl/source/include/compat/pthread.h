@@ -3,6 +3,9 @@
  * pthread.h compatibility shim
  */
 
+#ifndef LIBCRYPTOCOMPAT_PTHREAD_H
+#define LIBCRYPTOCOMPAT_PTHREAD_H
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -38,25 +41,46 @@ pthread_once(pthread_once_t *once, void (*cb) (void))
 		return 0;
 }
 
-struct pthread {
-	HANDLE handle;
-};
-typedef struct pthread pthread_t;
+typedef DWORD pthread_t;
 
 static inline pthread_t
 pthread_self(void)
 {
-	pthread_t self;
-	self.handle = GetCurrentThread();
-	return self;
+	return GetCurrentThreadId();
 }
 
 static inline int
 pthread_equal(pthread_t t1, pthread_t t2)
 {
-	return t1.handle == t2.handle;
+	return t1 == t2;
+}
+
+typedef CRITICAL_SECTION pthread_mutex_t;
+typedef void pthread_mutexattr_t;
+
+static inline int
+pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
+{
+	InitializeCriticalSection(mutex);
+	return 0;
+}
+
+static inline int
+pthread_mutex_lock(pthread_mutex_t *mutex)
+{
+	EnterCriticalSection(mutex);
+	return 0;
+}
+
+static inline int
+pthread_mutex_unlock(pthread_mutex_t *mutex)
+{
+	LeaveCriticalSection(mutex);
+	return 0;
 }
 
 #else
 #include_next <pthread.h>
+#endif
+
 #endif

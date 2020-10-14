@@ -993,7 +993,7 @@ bool KernCollider::mergeSlot(Segment *seg, Slot *slot, const Position &currShift
             nooverlap = false;
     }
     if (nooverlap)
-        _mingap = max(_mingap, _xbound + currSpace + _margin - x);
+        _mingap = max(_mingap, _xbound - rtl * (currSpace + _margin + x));
     if (collides && !nooverlap)
         _hit = true;
     return collides | nooverlap;   // note that true is not a necessarily reliable value
@@ -1081,8 +1081,8 @@ void SlotCollision::initFromSlot(Segment *seg, Slot *slot)
         return;
     const sparse &p = glyphFace->attrs();
     _flags = p[aCol];
-    _limit = Rect(Position(p[aCol+1], p[aCol+2]),
-                  Position(p[aCol+3], p[aCol+4]));
+    _limit = Rect(Position(int16(p[aCol+1]), int16(p[aCol+2])),
+                  Position(int16(p[aCol+3]), int16(p[aCol+4])));
     _margin = p[aCol+5];
     _marginWt = p[aCol+6];
 

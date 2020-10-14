@@ -1,4 +1,4 @@
-/* $OpenBSD: ec_lcl.h,v 1.10 2018/07/16 17:32:39 tb Exp $ */
+/* $OpenBSD: ec_lcl.h,v 1.13 2019/01/19 01:12:48 tb Exp $ */
 /*
  * Originally written by Bodo Moeller for the OpenSSL project.
  */
@@ -73,6 +73,7 @@
 
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
+#include <openssl/ecdsa.h>
 #include <openssl/bn.h>
 
 __BEGIN_HIDDEN_DECLS
@@ -182,6 +183,7 @@ struct ec_method_st {
 	int (*field_encode)(const EC_GROUP *, BIGNUM *r, const BIGNUM *a, BN_CTX *); /* e.g. to Montgomery */
 	int (*field_decode)(const EC_GROUP *, BIGNUM *r, const BIGNUM *a, BN_CTX *); /* e.g. from Montgomery */
 	int (*field_set_to_one)(const EC_GROUP *, BIGNUM *r, BN_CTX *);
+	int (*blind_coordinates)(const EC_GROUP *group, EC_POINT *p, BN_CTX *ctx);
 } /* EC_METHOD */;
 
 typedef struct ec_extra_data_st {
@@ -244,6 +246,9 @@ struct ec_group_st {
 } /* EC_GROUP */;
 
 struct ec_key_st {
+	const EC_KEY_METHOD *meth;
+	ENGINE	*engine;
+
 	int version;
 
 	EC_GROUP *group;
@@ -258,6 +263,7 @@ struct ec_key_st {
 	int	flags;
 
 	EC_EXTRA_DATA *method_data;
+	CRYPTO_EX_DATA ex_data;
 } /* EC_KEY */;
 
 /* Basically a 'mixin' for extra data, but available for EC_GROUPs/EC_KEYs only
@@ -339,6 +345,7 @@ int ec_GFp_simple_make_affine(const EC_GROUP *, EC_POINT *, BN_CTX *);
 int ec_GFp_simple_points_make_affine(const EC_GROUP *, size_t num, EC_POINT *[], BN_CTX *);
 int ec_GFp_simple_field_mul(const EC_GROUP *, BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *);
 int ec_GFp_simple_field_sqr(const EC_GROUP *, BIGNUM *r, const BIGNUM *a, BN_CTX *);
+int ec_GFp_simple_blind_coordinates(const EC_GROUP *group, EC_POINT *p, BN_CTX *ctx);
 int ec_GFp_simple_mul_generator_ct(const EC_GROUP *, EC_POINT *r, const BIGNUM *scalar, BN_CTX *);
 int ec_GFp_simple_mul_single_ct(const EC_GROUP *, EC_POINT *r, const BIGNUM *scalar,
 	const EC_POINT *point, BN_CTX *);
@@ -358,6 +365,7 @@ int ec_GFp_mont_field_encode(const EC_GROUP *, BIGNUM *r, const BIGNUM *a, BN_CT
 int ec_GFp_mont_field_decode(const EC_GROUP *, BIGNUM *r, const BIGNUM *a, BN_CTX *);
 int ec_GFp_mont_field_set_to_one(const EC_GROUP *, BIGNUM *r, BN_CTX *);
 
+int ec_point_blind_coordinates(const EC_GROUP *group, EC_POINT *p, BN_CTX *ctx);
 
 /* method functions in ecp_nist.c */
 int ec_GFp_nist_group_copy(EC_GROUP *dest, const EC_GROUP *src);
@@ -437,6 +445,44 @@ int ec_GFp_nistp256_have_precompute_mult(const EC_GROUP *group);
 #ifdef ECP_NISTZ256_ASM
 const EC_METHOD *EC_GFp_nistz256_method(void);
 #endif
+
+/* EC_METHOD definitions */
+
+struct ec_key_method_st {
+	const char *name;
+	int32_t flags;
+	int (*init)(EC_KEY *key);
+	void (*finish)(EC_KEY *key);
+	int (*copy)(EC_KEY *dest, const EC_KEY *src);
+	int (*set_group)(EC_KEY *key, const EC_GROUP *grp);
+	int (*set_private)(EC_KEY *key, const BIGNUM *priv_key);
+	int (*set_public)(EC_KEY *key, const EC_POINT *pub_key);
+	int (*keygen)(EC_KEY *key);
+	int (*compute_key)(void *out, size_t outlen, const EC_POINT *pub_key, EC_KEY *ecdh,
+	    void *(*KDF) (const void *in, size_t inlen, void *out, size_t *outlen));
+	int (*sign)(int type, const unsigned char *dgst, int dlen, unsigned char
+	    *sig, unsigned int *siglen, const BIGNUM *kinv,
+	    const BIGNUM *r, EC_KEY *eckey);
+	int (*sign_setup)(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp,
+	    BIGNUM **rp);
+	ECDSA_SIG *(*sign_sig)(const unsigned char *dgst, int dgst_len,
+	    const BIGNUM *in_kinv, const BIGNUM *in_r,
+	    EC_KEY *eckey);
+	int (*verify)(int type, const unsigned char *dgst, int dgst_len,
+	    const unsigned char *sigbuf, int sig_len, EC_KEY *eckey);
+	int (*verify_sig)(const unsigned char *dgst, int dgst_len,
+	    const ECDSA_SIG *sig, EC_KEY *eckey);
+} /* EC_KEY_METHOD */;
+
+#define EC_KEY_METHOD_DYNAMIC   1
+
+int ossl_ec_key_gen(EC_KEY *eckey);
+int ossl_ecdh_compute_key(void *out, size_t outlen, const EC_POINT *pub_key, EC_KEY *ecdh,
+    void *(*KDF) (const void *in, size_t inlen, void *out, size_t *outlen));
+int ossl_ecdsa_verify(int type, const unsigned char *dgst, int dgst_len,
+    const unsigned char *sigbuf, int sig_len, EC_KEY *eckey);
+int ossl_ecdsa_verify_sig(const unsigned char *dgst, int dgst_len,
+    const ECDSA_SIG *sig, EC_KEY *eckey);
 
 /* method functions in ecp_nistp521.c */
 int ec_GFp_nistp521_group_init(EC_GROUP *group);

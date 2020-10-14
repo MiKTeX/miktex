@@ -57,14 +57,14 @@ struct call_context_t
 
 /* call stack */
 const unsigned int kMaxCallLimit = 10;
-struct call_stack_t : stack_t<call_context_t, kMaxCallLimit> {};
+struct call_stack_t : cff_stack_t<call_context_t, kMaxCallLimit> {};
 
 template <typename SUBRS>
 struct biased_subrs_t
 {
-  void init (const SUBRS &subrs_)
+  void init (const SUBRS *subrs_)
   {
-    subrs = &subrs_;
+    subrs = subrs_;
     unsigned int  nSubrs = get_count ();
     if (nSubrs < 1240)
       bias = 107;
@@ -76,13 +76,13 @@ struct biased_subrs_t
 
   void fini () {}
 
-  unsigned int get_count () const { return (subrs == nullptr) ? 0 : subrs->count; }
+  unsigned int get_count () const { return subrs ? subrs->count : 0; }
   unsigned int get_bias () const  { return bias; }
 
   byte_str_t operator [] (unsigned int index) const
   {
-    if (unlikely ((subrs == nullptr) || index >= subrs->count))
-      return Null(byte_str_t);
+    if (unlikely (!subrs || index >= subrs->count))
+      return Null (byte_str_t);
     else
       return (*subrs)[index];
   }
@@ -118,7 +118,7 @@ struct point_t
 template <typename ARG, typename SUBRS>
 struct cs_interp_env_t : interp_env_t<ARG>
 {
-  void init (const byte_str_t &str, const SUBRS &globalSubrs_, const SUBRS &localSubrs_)
+  void init (const byte_str_t &str, const SUBRS *globalSubrs_, const SUBRS *localSubrs_)
   {
     interp_env_t<ARG>::init (str);
 
@@ -551,8 +551,13 @@ struct path_procs_t
 
   static void rcurveline (ENV &env, PARAM& param)
   {
+    unsigned int arg_count = env.argStack.get_count ();
+    if (unlikely (arg_count < 8))
+      return;
+
     unsigned int i = 0;
-    for (; i + 6 <= env.argStack.get_count (); i += 6)
+    unsigned int curve_limit = arg_count - 2;
+    for (; i + 6 <= curve_limit; i += 6)
     {
       point_t pt1 = env.get_pt ();
       pt1.move (env.eval_arg (i), env.eval_arg (i+1));
@@ -562,34 +567,34 @@ struct path_procs_t
       pt3.move (env.eval_arg (i+4), env.eval_arg (i+5));
       PATH::curve (env, param, pt1, pt2, pt3);
     }
-    for (; i + 2 <= env.argStack.get_count (); i += 2)
-    {
-      point_t pt1 = env.get_pt ();
-      pt1.move (env.eval_arg (i), env.eval_arg (i+1));
-      PATH::line (env, param, pt1);
-    }
+
+    point_t pt1 = env.get_pt ();
+    pt1.move (env.eval_arg (i), env.eval_arg (i+1));
+    PATH::line (env, param, pt1);
   }
 
   static void rlinecurve (ENV &env, PARAM& param)
   {
+    unsigned int arg_count = env.argStack.get_count ();
+    if (unlikely (arg_count < 8))
+      return;
+
     unsigned int i = 0;
-    unsigned int line_limit = (env.argStack.get_count () % 6);
+    unsigned int line_limit = arg_count - 6;
     for (; i + 2 <= line_limit; i += 2)
     {
       point_t pt1 = env.get_pt ();
       pt1.move (env.eval_arg (i), env.eval_arg (i+1));
       PATH::line (env, param, pt1);
     }
-    for (; i + 6 <= env.argStack.get_count (); i += 6)
-    {
-      point_t pt1 = env.get_pt ();
-      pt1.move (env.eval_arg (i), env.eval_arg (i+1));
-      point_t pt2 = pt1;
-      pt2.move (env.eval_arg (i+2), env.eval_arg (i+3));
-      point_t pt3 = pt2;
-      pt3.move (env.eval_arg (i+4), env.eval_arg (i+5));
-      PATH::curve (env, param, pt1, pt2, pt3);
-    }
+
+    point_t pt1 = env.get_pt ();
+    pt1.move (env.eval_arg (i), env.eval_arg (i+1));
+    point_t pt2 = pt1;
+    pt2.move (env.eval_arg (i+2), env.eval_arg (i+3));
+    point_t pt3 = pt2;
+    pt3.move (env.eval_arg (i+4), env.eval_arg (i+5));
+    PATH::curve (env, param, pt1, pt2, pt3);
   }
 
   static void vvcurveto (ENV &env, PARAM& param)

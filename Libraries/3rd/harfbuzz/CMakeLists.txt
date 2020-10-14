@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2019 Christian Schenk
+## Copyright (C) 2013-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,8 +70,6 @@ list(APPEND harfbuzz_sources
 list(APPEND harfbuzz_sources
   ${HB_BASE_sources}
   ${HB_BASE_RAGEL_GENERATED_sources}
-
-  ${HB_FALLBACK_sources}
 
   ${HB_BASE_headers}
 

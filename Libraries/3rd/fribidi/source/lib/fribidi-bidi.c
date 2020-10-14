@@ -149,7 +149,7 @@ static FriBidiRun *get_adjacent_run(FriBidiRun *list, fribidi_boolean forward, f
     {
       FriBidiCharType ppp_type = RL_TYPE (ppp);
 
-      if (ppp_type == _FRIBIDI_TYPE_SENTINEL)
+      if (ppp_type == FRIBIDI_TYPE_SENTINEL)
         break;
 
       /* Note that when sweeping forward we continue one run
@@ -289,7 +289,7 @@ static void print_pairing_nodes(FriBidiPairingNode *nodes)
  * define macros for push and pop the status in to / out of the stack
  *-------------------------------------------------------------------------*/
 
-/* There are a few little points in pushing into and poping from the status
+/* There are a few little points in pushing into and popping from the status
    stack:
    1. when the embedding level is not valid (more than
    FRIBIDI_BIDI_MAX_EXPLICIT_LEVEL=125), you must reject it, and not to push
@@ -506,7 +506,6 @@ fribidi_get_par_embedding_levels_ex (
   FriBidiLevel *embedding_levels
 )
 {
-  FriBidiLevel base_level_per_iso_level[FRIBIDI_BIDI_MAX_EXPLICIT_LEVEL];
   FriBidiLevel base_level, max_level = 0;
   FriBidiParType base_dir;
   FriBidiRun *main_run_list = NULL, *explicits_list = NULL, *pp;
@@ -565,8 +564,6 @@ fribidi_get_par_embedding_levels_ex (
   DBG2 ("  base level : %c", fribidi_char_from_level (base_level));
   DBG2 ("  base dir   : %s", fribidi_get_bidi_type_name (base_dir));
 
-  base_level_per_iso_level[0] = base_level;
-
 # if DEBUG
   if UNLIKELY
     (fribidi_debug_status ())
@@ -595,6 +592,7 @@ fribidi_get_par_embedding_levels_ex (
     } status_stack[FRIBIDI_BIDI_MAX_RESOLVED_LEVELS];
     FriBidiRun temp_link;
     FriBidiRun *run_per_isolate_level[FRIBIDI_BIDI_MAX_RESOLVED_LEVELS];
+    int prev_isolate_level = 0; /* When running over the isolate levels, remember the previous level */
 
     memset(run_per_isolate_level, 0, sizeof(run_per_isolate_level[0])
            * FRIBIDI_BIDI_MAX_RESOLVED_LEVELS);
@@ -747,8 +745,9 @@ fribidi_get_par_embedding_levels_ex (
             }
 
 	  RL_LEVEL (pp) = level;
-          RL_ISOLATE_LEVEL (pp) = isolate_level++;
-          base_level_per_iso_level[isolate_level] = new_level;
+          RL_ISOLATE_LEVEL (pp) = isolate_level;
+          if (isolate_level < FRIBIDI_BIDI_MAX_EXPLICIT_LEVEL-1)
+              isolate_level++;
 
 	  if (!FRIBIDI_IS_NEUTRAL (override))
 	    RL_TYPE (pp) = override;
@@ -784,9 +783,19 @@ fribidi_get_par_embedding_levels_ex (
     }
 
     /* Build the isolate_level connections */
+    prev_isolate_level = 0;
     for_run_list (pp, main_run_list)
     {
       int isolate_level = RL_ISOLATE_LEVEL (pp);
+      int i;
+
+      /* When going from an upper to a lower level, zero out all higher levels
+         in order not erroneous connections! */
+      if (isolate_level<prev_isolate_level)
+        for (i=isolate_level+1; i<=prev_isolate_level; i++)
+          run_per_isolate_level[i]=0;
+      prev_isolate_level = isolate_level;
+      
       if (run_per_isolate_level[isolate_level])
         {
           run_per_isolate_level[isolate_level]->next_isolate = pp;
@@ -826,7 +835,7 @@ fribidi_get_par_embedding_levels_ex (
 
   /* 4. Resolving weak types. Also calculate the maximum isolate level */
   max_iso_level = 0;
-  DBG ("resolving weak types");
+  DBG ("4a. resolving weak types");
   {
     int last_strong_stack[FRIBIDI_BIDI_MAX_RESOLVED_LEVELS];
     FriBidiCharType prev_type_orig;
@@ -904,8 +913,21 @@ fribidi_get_par_embedding_levels_ex (
 	}
     }
 
+# if DEBUG
+  if UNLIKELY
+    (fribidi_debug_status ())
+    {
+      print_resolved_levels (main_run_list);
+      print_resolved_types (main_run_list);
+    }
+# endif	/* DEBUG */
 
+    /* The last iso level is used to invalidate the the last strong values when going from
+       a higher to a lower iso level. When this occur, all "last_strong" values are
+       set to the base_dir. */
     last_strong_stack[0] = base_dir;
+
+    DBG ("4b. resolving weak types. W4 and W5");
 
     /* Resolving dependency of loops for rules W4 and W5, W5 may
        want to prevent W4 to take effect in the next turn, do this
@@ -1008,7 +1030,7 @@ fribidi_get_par_embedding_levels_ex (
 
   /* 5. Resolving Neutral Types */
 
-  DBG ("resolving neutral types - N0");
+  DBG ("5. resolving neutral types - N0");
   {
     /*  BD16 - Build list of all pairs*/
     int num_iso_levels = max_iso_level + 1;
@@ -1098,8 +1120,7 @@ fribidi_get_par_embedding_levels_ex (
       FriBidiPairingNode *ppairs = pairing_nodes;
       while (ppairs)
         {
-          int iso_level = ppairs->open->isolate_level;
-          int embedding_level = base_level_per_iso_level[iso_level];
+          int embedding_level = ppairs->open->level; 
 
           /* Find matching strong. */
           fribidi_boolean found = false;
@@ -1151,7 +1172,6 @@ fribidi_get_par_embedding_levels_ex (
                          compare with the preceding strong to establish whether
                          to apply N0c1 (opposite) or N0c2 embedding */
                       RL_TYPE(ppairs->open) = RL_TYPE(ppairs->close) = prec_strong_level % 2 ? FRIBIDI_TYPE_RTL : FRIBIDI_TYPE_LTR;
-                      RL_LEVEL(ppairs->open) = RL_LEVEL(ppairs->close) = prec_strong_level;
                       found = true;
                       break;
                     }

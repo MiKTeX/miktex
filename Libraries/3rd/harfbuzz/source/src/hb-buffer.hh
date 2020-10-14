@@ -126,9 +126,9 @@ struct hb_buffer_t
   /* Debugging API */
 #ifndef HB_NO_BUFFER_MESSAGE
   hb_buffer_message_func_t message_func;
-#endif
   void *message_data;
   hb_destroy_func_t message_destroy;
+#endif
 
   /* Internal debugging. */
   /* The bits here reflect current allocations of the bytes in glyph_info_t's var1 and var2. */
@@ -228,10 +228,10 @@ struct hb_buffer_t
   /* Makes a copy of the glyph at idx to output and replace glyph_index */
   hb_glyph_info_t & output_glyph (hb_codepoint_t glyph_index)
   {
-    if (unlikely (!make_room_for (0, 1))) return Crap(hb_glyph_info_t);
+    if (unlikely (!make_room_for (0, 1))) return Crap (hb_glyph_info_t);
 
     if (unlikely (idx == len && !out_len))
-      return Crap(hb_glyph_info_t);
+      return Crap (hb_glyph_info_t);
 
     out_info[out_len] = idx < len ? info[idx] : out_info[out_len - 1];
     out_info[out_len].codepoint = glyph_index;
@@ -318,7 +318,7 @@ struct hb_buffer_t
   HB_INTERNAL void delete_glyph ();
 
   void unsafe_to_break (unsigned int start,
-			       unsigned int end)
+			unsigned int end)
   {
     if (end - start < 2)
       return;
@@ -386,7 +386,7 @@ struct hb_buffer_t
     inf.cluster = cluster;
   }
 
-  int
+  unsigned int
   _unsafe_to_break_find_min_cluster (const hb_glyph_info_t *infos,
 				     unsigned int start, unsigned int end,
 				     unsigned int cluster) const
@@ -408,8 +408,7 @@ struct hb_buffer_t
       }
   }
 
-  void unsafe_to_break_all ()
-  { unsafe_to_break_impl (0, len); }
+  void unsafe_to_break_all () { unsafe_to_break_impl (0, len); }
   void safe_to_break_all ()
   {
     for (unsigned int i = 0; i < len; i++)

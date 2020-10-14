@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2018 Christian Schenk
+## Copyright (C) 2016-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,13 +31,19 @@ include_directories(BEFORE
   ${crypto_source_dir}/asn1
   ${crypto_source_dir}/bn
   ${crypto_source_dir}/dsa
+  ${crypto_source_dir}/ec
+  ${crypto_source_dir}/ecdh
+  ${crypto_source_dir}/ecdsa
   ${crypto_source_dir}/evp
   ${crypto_source_dir}/modes
 )
 
 list(APPEND crypto_sources
-  ${crypto_source_dir}/aes/aes_cbc.c
   ${crypto_source_dir}/aes/aes_core.c
+)
+
+list(APPEND crypto_sources
+  ${crypto_source_dir}/aes/aes_cbc.c
   ${crypto_source_dir}/camellia/camellia.c
   ${crypto_source_dir}/camellia/cmll_cbc.c
   ${crypto_source_dir}/rc4/rc4_enc.c
@@ -66,7 +72,6 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/aes/aes_wrap.c
   ${crypto_source_dir}/asn1/a_bitstr.c
   ${crypto_source_dir}/asn1/a_bool.c
-  ${crypto_source_dir}/asn1/a_bytes.c
   ${crypto_source_dir}/asn1/a_d2i_fp.c
   ${crypto_source_dir}/asn1/a_digest.c
   ${crypto_source_dir}/asn1/a_dup.c
@@ -77,7 +82,6 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/asn1/a_object.c
   ${crypto_source_dir}/asn1/a_octet.c
   ${crypto_source_dir}/asn1/a_print.c
-  ${crypto_source_dir}/asn1/a_set.c
   ${crypto_source_dir}/asn1/a_sign.c
   ${crypto_source_dir}/asn1/a_strex.c
   ${crypto_source_dir}/asn1/a_strnid.c
@@ -209,6 +213,21 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/cmac/cm_ameth.c
   ${crypto_source_dir}/cmac/cm_pmeth.c
   ${crypto_source_dir}/cmac/cmac.c
+  ${crypto_source_dir}/cms/cms_asn1.c
+  ${crypto_source_dir}/cms/cms_att.c
+  ${crypto_source_dir}/cms/cms_cd.c
+  ${crypto_source_dir}/cms/cms_dd.c
+  ${crypto_source_dir}/cms/cms_enc.c
+  ${crypto_source_dir}/cms/cms_env.c
+  ${crypto_source_dir}/cms/cms_err.c
+  ${crypto_source_dir}/cms/cms_ess.c
+  ${crypto_source_dir}/cms/cms_io.c
+  ${crypto_source_dir}/cms/cms_kari.c
+  ${crypto_source_dir}/cms/cms_lcl.h
+  ${crypto_source_dir}/cms/cms_lib.c
+  ${crypto_source_dir}/cms/cms_pwri.c
+  ${crypto_source_dir}/cms/cms_sd.c
+  ${crypto_source_dir}/cms/cms_smime.c
   ${crypto_source_dir}/comp/c_rle.c
   ${crypto_source_dir}/comp/c_zlib.c
   ${crypto_source_dir}/comp/comp_err.c
@@ -282,6 +301,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/ec/ec_cvt.c
   ${crypto_source_dir}/ec/ec_err.c
   ${crypto_source_dir}/ec/ec_key.c
+  ${crypto_source_dir}/ec/ec_kmeth.c
   ${crypto_source_dir}/ec/ec_lib.c
   ${crypto_source_dir}/ec/ec_mult.c
   ${crypto_source_dir}/ec/ec_oct.c
@@ -292,6 +312,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/ec/ecp_nist.c
   ${crypto_source_dir}/ec/ecp_oct.c
   ${crypto_source_dir}/ec/ecp_smpl.c
+  ${crypto_source_dir}/ecdh/ecdh_kdf.c
   ${crypto_source_dir}/ecdh/ech_err.c
   ${crypto_source_dir}/ecdh/ech_key.c
   ${crypto_source_dir}/ecdh/ech_lib.c
@@ -320,6 +341,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/engine/tb_dsa.c
   ${crypto_source_dir}/engine/tb_ecdh.c
   ${crypto_source_dir}/engine/tb_ecdsa.c
+  ${crypto_source_dir}/engine/tb_eckey.c
   ${crypto_source_dir}/engine/tb_pkmeth.c
   ${crypto_source_dir}/engine/tb_rand.c
   ${crypto_source_dir}/engine/tb_rsa.c
@@ -348,6 +370,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/evp/e_rc2.c
   ${crypto_source_dir}/evp/e_rc4.c
   ${crypto_source_dir}/evp/e_rc4_hmac_md5.c
+  ${crypto_source_dir}/evp/e_sm4.c
   ${crypto_source_dir}/evp/e_xcbc_d.c
   ${crypto_source_dir}/evp/encode.c
   ${crypto_source_dir}/evp/evp_aead.c
@@ -370,6 +393,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/evp/m_sha1.c
   ${crypto_source_dir}/evp/m_sigver.c
   ${crypto_source_dir}/evp/m_streebog.c
+  ${crypto_source_dir}/evp/m_sm3.c
   ${crypto_source_dir}/evp/m_wp.c
   ${crypto_source_dir}/evp/names.c
   ${crypto_source_dir}/evp/p5_crpt.c
@@ -504,6 +528,8 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/sha/sha1dgst.c
   ${crypto_source_dir}/sha/sha256.c
   ${crypto_source_dir}/sha/sha512.c
+  ${crypto_source_dir}/sm3/sm3.c
+  ${crypto_source_dir}/sm4/sm4.c
   ${crypto_source_dir}/stack/stack.c
   ${crypto_source_dir}/ts/ts_asn1.c
   ${crypto_source_dir}/ts/ts_conf.c
@@ -589,6 +615,7 @@ list(APPEND crypto_sources
 if(WIN32)
   list(APPEND crypto_sources
     ${crypto_source_dir}/bio/b_win.c
+    ${crypto_source_dir}/compat/crypto_lock_win.c
     ${crypto_source_dir}/ui/ui_openssl_win.c
   )
 endif()
@@ -644,6 +671,10 @@ endif()
 
 if(NOT HAVE_STRSEP)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/strsep.c)
+endif()
+
+if(NOT HAVE_SYSLOG_R)
+  list(APPEND crypto_sources ${crypto_source_dir}/compat/syslog_r.c)
 endif()
 
 if(NOT HAVE_TIMEGM)

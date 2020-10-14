@@ -32,6 +32,7 @@
 #include "hb.hh"
 #include "hb-meta.hh"
 #include "hb-null.hh"
+#include "hb-number.hh"
 
 
 /* Encodes three unsigned integers in one 64-bit number.  If the inputs have more than 21 bits,
@@ -50,31 +51,31 @@
 struct
 {
   /* Note.  This is dangerous in that if it's passed an rvalue, it returns rvalue-reference. */
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (T&& v) const HB_AUTO_RETURN ( hb_forward<T> (v) )
 }
 HB_FUNCOBJ (hb_identity);
 struct
 {
   /* Like identity(), but only retains lvalue-references.  Rvalues are returned as rvalues. */
-  template <typename T> T&
+  template <typename T> constexpr T&
   operator () (T& v) const { return v; }
 
-  template <typename T> hb_remove_reference<T>
+  template <typename T> constexpr hb_remove_reference<T>
   operator () (T&& v) const { return v; }
 }
 HB_FUNCOBJ (hb_lidentity);
 struct
 {
   /* Like identity(), but always returns rvalue. */
-  template <typename T> hb_remove_reference<T>
+  template <typename T> constexpr hb_remove_reference<T>
   operator () (T&& v) const { return v; }
 }
 HB_FUNCOBJ (hb_ridentity);
 
 struct
 {
-  template <typename T> bool
+  template <typename T> constexpr bool
   operator () (T&& v) const { return bool (hb_forward<T> (v)); }
 }
 HB_FUNCOBJ (hb_bool);
@@ -82,11 +83,12 @@ HB_FUNCOBJ (hb_bool);
 struct
 {
   private:
-  template <typename T> auto
+
+  template <typename T> constexpr auto
   impl (const T& v, hb_priority<1>) const HB_RETURN (uint32_t, hb_deref (v).hash ())
 
   template <typename T,
-	    hb_enable_if (hb_is_integral (T))> auto
+	    hb_enable_if (hb_is_integral (T))> constexpr auto
   impl (const T& v, hb_priority<0>) const HB_AUTO_RETURN
   (
     /* Knuth's multiplicative method: */
@@ -95,7 +97,7 @@ struct
 
   public:
 
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T& v) const HB_RETURN (uint32_t, impl (v, hb_prioritize))
 }
 HB_FUNCOBJ (hb_hash);
@@ -328,14 +330,14 @@ hb_pair (T1&& a, T2&& b) { return hb_pair_t<T1, T2> (a, b); }
 
 struct
 {
-  template <typename Pair> typename Pair::first_t
+  template <typename Pair> constexpr typename Pair::first_t
   operator () (const Pair& pair) const { return pair.first; }
 }
 HB_FUNCOBJ (hb_first);
 
 struct
 {
-  template <typename Pair> typename Pair::second_t
+  template <typename Pair> constexpr typename Pair::second_t
   operator () (const Pair& pair) const { return pair.second; }
 }
 HB_FUNCOBJ (hb_second);
@@ -346,18 +348,25 @@ HB_FUNCOBJ (hb_second);
  * comparing integers of different signedness. */
 struct
 {
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (T&& a, T2&& b) const HB_AUTO_RETURN
   (hb_forward<T> (a) <= hb_forward<T2> (b) ? hb_forward<T> (a) : hb_forward<T2> (b))
 }
 HB_FUNCOBJ (hb_min);
 struct
 {
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (T&& a, T2&& b) const HB_AUTO_RETURN
   (hb_forward<T> (a) >= hb_forward<T2> (b) ? hb_forward<T> (a) : hb_forward<T2> (b))
 }
 HB_FUNCOBJ (hb_max);
+struct
+{
+  template <typename T, typename T2, typename T3> constexpr auto
+  operator () (T&& x, T2&& min, T3&& max) const HB_AUTO_RETURN
+  (hb_min (hb_max (hb_forward<T> (x), hb_forward<T2> (min)), hb_forward<T3> (max)))
+}
+HB_FUNCOBJ (hb_clamp);
 
 
 /*
@@ -484,7 +493,7 @@ template <typename T>
 static inline HB_CONST_FUNC unsigned int
 hb_ctz (T v)
 {
-  if (unlikely (!v)) return 0;
+  if (unlikely (!v)) return 8 * sizeof (T);
 
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
   if (sizeof (T) <= sizeof (unsigned int))
@@ -568,6 +577,12 @@ static inline unsigned char TOUPPER (unsigned char c)
 { return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c; }
 static inline unsigned char TOLOWER (unsigned char c)
 { return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c; }
+static inline bool ISHEX (unsigned char c)
+{ return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
+static inline unsigned char TOHEX (uint8_t c)
+{ return (c & 0xF) <= 9 ? (c & 0xF) + '0' : (c & 0xF) + 'a' - 10; }
+static inline uint8_t FROMHEX (unsigned char c)
+{ return (c >= '0' && c <= '9') ? c - '0' : TOLOWER (c) - 'a' + 10; }
 
 static inline unsigned int DIV_CEIL (const unsigned int a, unsigned int b)
 { return (a + (b - 1)) / b; }
@@ -586,14 +601,16 @@ hb_memcmp (const void *a, const void *b, unsigned int len)
   /* It's illegal to pass NULL to memcmp(), even if len is zero.
    * So, wrap it.
    * https://sourceware.org/bugzilla/show_bug.cgi?id=23878 */
-  if (!len) return 0;
+  if (unlikely (!len)) return 0;
   return memcmp (a, b, len);
 }
 
-static inline bool
-hb_unsigned_mul_overflows (unsigned int count, unsigned int size)
+static inline void *
+hb_memset (void *s, int c, unsigned int n)
 {
-  return (size > 0) && (count >= ((unsigned int) -1) / size);
+  /* It's illegal to pass NULL to memset(), even if n is zero. */
+  if (unlikely (!n)) return 0;
+  return memset (s, c, n);
 }
 
 static inline unsigned int
@@ -624,29 +641,90 @@ hb_in_ranges (T u, T lo1, T hi1, T lo2, T hi2, T lo3, T hi3)
 
 
 /*
+ * Overflow checking.
+ */
+
+/* Consider __builtin_mul_overflow use here also */
+static inline bool
+hb_unsigned_mul_overflows (unsigned int count, unsigned int size)
+{
+  return (size > 0) && (count >= ((unsigned int) -1) / size);
+}
+
+
+/*
  * Sort and search.
  */
-template <typename ...Ts>
-static inline void *
-hb_bsearch (const void *key, const void *base,
-	    size_t nmemb, size_t size,
-	    int (*compar)(const void *_key, const void *_item, Ts... _ds),
-	    Ts... ds)
+
+template <typename K, typename V, typename ...Ts>
+static int
+_hb_cmp_method (const void *pkey, const void *pval, Ts... ds)
 {
+  const K& key = * (const K*) pkey;
+  const V& val = * (const V*) pval;
+
+  return val.cmp (key, ds...);
+}
+
+template <typename V, typename K, typename ...Ts>
+static inline bool
+hb_bsearch_impl (unsigned *pos, /* Out */
+		 const K& key,
+		 V* base, size_t nmemb, size_t stride,
+		 int (*compar)(const void *_key, const void *_item, Ts... _ds),
+		 Ts... ds)
+{
+  /* This is our *only* bsearch implementation. */
+
   int min = 0, max = (int) nmemb - 1;
   while (min <= max)
   {
     int mid = ((unsigned int) min + (unsigned int) max) / 2;
-    const void *p = (const void *) (((const char *) base) + (mid * size));
-    int c = compar (key, p, ds...);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+    V* p = (V*) (((const char *) base) + (mid * stride));
+#pragma GCC diagnostic pop
+    int c = compar ((const void *) hb_addressof (key), (const void *) p, ds...);
     if (c < 0)
       max = mid - 1;
     else if (c > 0)
       min = mid + 1;
     else
-      return (void *) p;
+    {
+      *pos = mid;
+      return true;
+    }
   }
-  return nullptr;
+  *pos = min;
+  return false;
+}
+
+template <typename V, typename K>
+static inline V*
+hb_bsearch (const K& key, V* base,
+	    size_t nmemb, size_t stride = sizeof (V),
+	    int (*compar)(const void *_key, const void *_item) = _hb_cmp_method<K, V>)
+{
+  unsigned pos;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+  return hb_bsearch_impl (&pos, key, base, nmemb, stride, compar) ?
+	 (V*) (((const char *) base) + (pos * stride)) : nullptr;
+#pragma GCC diagnostic pop
+}
+template <typename V, typename K, typename ...Ts>
+static inline V*
+hb_bsearch (const K& key, V* base,
+	    size_t nmemb, size_t stride,
+	    int (*compar)(const void *_key, const void *_item, Ts... _ds),
+	    Ts... ds)
+{
+  unsigned pos;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+  return hb_bsearch_impl (&pos, key, base, nmemb, stride, compar, ds...) ?
+	 (V*) (((const char *) base) + (pos * stride)) : nullptr;
+#pragma GCC diagnostic pop
 }
 
 
@@ -895,17 +973,12 @@ hb_stable_sort (T *array, unsigned int len, int(*compar)(const T *, const T *))
 static inline hb_bool_t
 hb_codepoint_parse (const char *s, unsigned int len, int base, hb_codepoint_t *out)
 {
-  /* Pain because we don't know whether s is nul-terminated. */
-  char buf[64];
-  len = hb_min (ARRAY_LENGTH (buf) - 1, len);
-  strncpy (buf, s, len);
-  buf[len] = '\0';
+  unsigned int v;
+  const char *p = s;
+  const char *end = p + len;
+  if (unlikely (!hb_parse_uint (&p, end, &v, true/* whole buffer */, base)))
+    return false;
 
-  char *end;
-  errno = 0;
-  unsigned long v = strtoul (buf, &end, base);
-  if (errno) return false;
-  if (*end) return false;
   *out = v;
   return true;
 }
@@ -917,7 +990,7 @@ struct hb_bitwise_and
 { HB_PARTIALIZE(2);
   static constexpr bool passthru_left = false;
   static constexpr bool passthru_right = false;
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a, const T &b) const HB_AUTO_RETURN (a & b)
 }
 HB_FUNCOBJ (hb_bitwise_and);
@@ -925,7 +998,7 @@ struct hb_bitwise_or
 { HB_PARTIALIZE(2);
   static constexpr bool passthru_left = true;
   static constexpr bool passthru_right = true;
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a, const T &b) const HB_AUTO_RETURN (a | b)
 }
 HB_FUNCOBJ (hb_bitwise_or);
@@ -933,7 +1006,7 @@ struct hb_bitwise_xor
 { HB_PARTIALIZE(2);
   static constexpr bool passthru_left = true;
   static constexpr bool passthru_right = true;
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a, const T &b) const HB_AUTO_RETURN (a ^ b)
 }
 HB_FUNCOBJ (hb_bitwise_xor);
@@ -941,59 +1014,71 @@ struct hb_bitwise_sub
 { HB_PARTIALIZE(2);
   static constexpr bool passthru_left = true;
   static constexpr bool passthru_right = false;
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a, const T &b) const HB_AUTO_RETURN (a & ~b)
 }
 HB_FUNCOBJ (hb_bitwise_sub);
 struct
 {
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a) const HB_AUTO_RETURN (~a)
 }
 HB_FUNCOBJ (hb_bitwise_neg);
 
 struct
 { HB_PARTIALIZE(2);
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (const T &a, const T2 &b) const HB_AUTO_RETURN (a + b)
 }
 HB_FUNCOBJ (hb_add);
 struct
 { HB_PARTIALIZE(2);
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (const T &a, const T2 &b) const HB_AUTO_RETURN (a - b)
 }
 HB_FUNCOBJ (hb_sub);
 struct
 { HB_PARTIALIZE(2);
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (const T &a, const T2 &b) const HB_AUTO_RETURN (a * b)
 }
 HB_FUNCOBJ (hb_mul);
 struct
 { HB_PARTIALIZE(2);
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (const T &a, const T2 &b) const HB_AUTO_RETURN (a / b)
 }
 HB_FUNCOBJ (hb_div);
 struct
 { HB_PARTIALIZE(2);
-  template <typename T, typename T2> auto
+  template <typename T, typename T2> constexpr auto
   operator () (const T &a, const T2 &b) const HB_AUTO_RETURN (a % b)
 }
 HB_FUNCOBJ (hb_mod);
 struct
 {
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a) const HB_AUTO_RETURN (+a)
 }
 HB_FUNCOBJ (hb_pos);
 struct
 {
-  template <typename T> auto
+  template <typename T> constexpr auto
   operator () (const T &a) const HB_AUTO_RETURN (-a)
 }
 HB_FUNCOBJ (hb_neg);
+struct
+{
+  template <typename T> constexpr auto
+  operator () (T &a) const HB_AUTO_RETURN (++a)
+}
+HB_FUNCOBJ (hb_inc);
+struct
+{
+  template <typename T> constexpr auto
+  operator () (T &a) const HB_AUTO_RETURN (--a)
+}
+HB_FUNCOBJ (hb_dec);
 
 
 /* Compiler-assisted vectorization. */

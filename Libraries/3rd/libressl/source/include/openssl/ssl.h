@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl.h,v 1.159 2018/08/24 20:30:21 tb Exp $ */
+/* $OpenBSD: ssl.h,v 1.171 2020/03/16 15:25:13 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -146,6 +146,7 @@
 #include <stdint.h>
 
 #include <openssl/opensslconf.h>
+
 #include <openssl/hmac.h>
 #include <openssl/pem.h>
 #include <openssl/safestack.h>
@@ -305,6 +306,9 @@ extern "C" {
 #define SSL_TXT_TLSV1		"TLSv1"
 #define SSL_TXT_TLSV1_1		"TLSv1.1"
 #define SSL_TXT_TLSV1_2		"TLSv1.2"
+#if defined(LIBRESSL_HAS_TLS1_3) || defined(LIBRESSL_INTERNAL)
+#define SSL_TXT_TLSV1_3		"TLSv1.3"
+#endif
 
 #define SSL_TXT_EXP		"EXP"
 #define SSL_TXT_EXPORT		"EXPORT"
@@ -399,7 +403,7 @@ struct ssl_method_internal_st;
 struct ssl_method_st {
 	int (*ssl_dispatch_alert)(SSL *s);
 	int (*num_ciphers)(void);
-	const SSL_CIPHER *(*get_cipher)(unsigned ncipher);
+	const SSL_CIPHER *(*get_cipher)(unsigned int ncipher);
 	const SSL_CIPHER *(*get_cipher_by_char)(const unsigned char *ptr);
 	int (*put_cipher_by_char)(const SSL_CIPHER *cipher, unsigned char *ptr);
 
@@ -511,6 +515,10 @@ struct ssl_session_st {
 #define SSL_OP_NO_TLSv1					0x04000000L
 #define SSL_OP_NO_TLSv1_2				0x08000000L
 #define SSL_OP_NO_TLSv1_1				0x10000000L
+
+#if defined(LIBRESSL_HAS_TLS1_3) || defined(LIBRESSL_INTERNAL)
+#define SSL_OP_NO_TLSv1_3				0x20000000L
+#endif
 
 /* SSL_OP_ALL: various bug workarounds that should be rather harmless. */
 #define SSL_OP_ALL \
@@ -758,7 +766,7 @@ int SSL_select_next_proto(unsigned char **out, unsigned char *outlen,
     const unsigned char *in, unsigned int inlen, const unsigned char *client,
     unsigned int client_len);
 void SSL_get0_next_proto_negotiated(const SSL *s, const unsigned char **data,
-    unsigned *len);
+    unsigned int *len);
 
 #define OPENSSL_NPN_UNSUPPORTED	0
 #define OPENSSL_NPN_NEGOTIATED	1
@@ -1110,12 +1118,17 @@ int PEM_write_SSL_SESSION(FILE *fp, SSL_SESSION *x);
 #define SSL_CTRL_GET_EXTRA_CHAIN_CERTS		82
 #define SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS	83
 
+#define	SSL_CTRL_CHAIN					88
+#define	SSL_CTRL_CHAIN_CERT				89
+
 #define SSL_CTRL_SET_GROUPS				91
 #define SSL_CTRL_SET_GROUPS_LIST			92
 
 #define SSL_CTRL_SET_ECDH_AUTO			94
 
 #define SSL_CTRL_GET_SERVER_TMP_KEY		109
+
+#define	SSL_CTRL_GET_CHAIN_CERTS			115
 
 #define SSL_CTRL_SET_DH_AUTO			118
 
@@ -1166,6 +1179,20 @@ int PEM_write_SSL_SESSION(FILE *fp, SSL_SESSION *x);
 #define SSL_set_ecdh_auto(s, onoff) \
 	SSL_ctrl(s,SSL_CTRL_SET_ECDH_AUTO,onoff,NULL)
 
+int SSL_CTX_set0_chain(SSL_CTX *ctx, STACK_OF(X509) *chain);
+int SSL_CTX_set1_chain(SSL_CTX *ctx, STACK_OF(X509) *chain);
+int SSL_CTX_add0_chain_cert(SSL_CTX *ctx, X509 *x509);
+int SSL_CTX_add1_chain_cert(SSL_CTX *ctx, X509 *x509);
+int SSL_CTX_get0_chain_certs(const SSL_CTX *ctx, STACK_OF(X509) **out_chain);
+int SSL_CTX_clear_chain_certs(SSL_CTX *ctx);
+
+int SSL_set0_chain(SSL *ssl, STACK_OF(X509) *chain);
+int SSL_set1_chain(SSL *ssl, STACK_OF(X509) *chain);
+int SSL_add0_chain_cert(SSL *ssl, X509 *x509);
+int SSL_add1_chain_cert(SSL *ssl, X509 *x509);
+int SSL_get0_chain_certs(const SSL *ssl, STACK_OF(X509) **out_chain);
+int SSL_clear_chain_certs(SSL *ssl);
+
 int SSL_CTX_set1_groups(SSL_CTX *ctx, const int *groups, size_t groups_len);
 int SSL_CTX_set1_groups_list(SSL_CTX *ctx, const char *groups);
 
@@ -1192,12 +1219,14 @@ int SSL_set_max_proto_version(SSL *ssl, uint16_t version);
 #define SSL_set1_curves_list SSL_set1_groups_list
 #endif
 
-#define SSL_CTX_add_extra_chain_cert(ctx,x509) \
-	SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)x509)
-#define SSL_CTX_get_extra_chain_certs(ctx,px509) \
-	SSL_CTX_ctrl(ctx,SSL_CTRL_GET_EXTRA_CHAIN_CERTS,0,px509)
+#define SSL_CTX_add_extra_chain_cert(ctx, x509) \
+	SSL_CTX_ctrl(ctx, SSL_CTRL_EXTRA_CHAIN_CERT, 0, (char *)x509)
+#define SSL_CTX_get_extra_chain_certs(ctx, px509) \
+	SSL_CTX_ctrl(ctx, SSL_CTRL_GET_EXTRA_CHAIN_CERTS, 0, px509)
+#define SSL_CTX_get_extra_chain_certs_only(ctx, px509) \
+	SSL_CTX_ctrl(ctx, SSL_CTRL_GET_EXTRA_CHAIN_CERTS, 1, px509)
 #define SSL_CTX_clear_extra_chain_certs(ctx) \
-	SSL_CTX_ctrl(ctx,SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS,0,NULL)
+	SSL_CTX_ctrl(ctx, SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS, 0, NULL)
 
 #define SSL_get_server_tmp_key(s, pk) \
 	SSL_ctrl(s,SSL_CTRL_GET_SERVER_TMP_KEY,0,pk)
@@ -1207,14 +1236,30 @@ int SSL_set_max_proto_version(SSL *ssl, uint16_t version);
  * Also provide those functions as macros for compatibility with
  * existing users.
  */
+#define SSL_CTX_set0_chain		SSL_CTX_set0_chain
+#define SSL_CTX_set1_chain		SSL_CTX_set1_chain
+#define SSL_CTX_add0_chain_cert		SSL_CTX_add0_chain_cert
+#define SSL_CTX_add1_chain_cert		SSL_CTX_add1_chain_cert
+#define SSL_CTX_get0_chain_certs	SSL_CTX_get0_chain_certs
+#define SSL_CTX_clear_chain_certs	SSL_CTX_clear_chain_certs
+
+#define SSL_add0_chain_cert		SSL_add0_chain_cert
+#define SSL_add1_chain_cert		SSL_add1_chain_cert
+#define SSL_set0_chain			SSL_set0_chain
+#define SSL_set1_chain			SSL_set1_chain
+#define SSL_get0_chain_certs		SSL_get0_chain_certs
+#define SSL_clear_chain_certs		SSL_clear_chain_certs
+
 #define SSL_CTX_set1_groups		SSL_CTX_set1_groups
 #define SSL_CTX_set1_groups_list	SSL_CTX_set1_groups_list
 #define SSL_set1_groups			SSL_set1_groups
 #define SSL_set1_groups_list		SSL_set1_groups_list
+
 #define SSL_CTX_get_min_proto_version	SSL_CTX_get_min_proto_version
 #define SSL_CTX_get_max_proto_version	SSL_CTX_get_max_proto_version
 #define SSL_CTX_set_min_proto_version	SSL_CTX_set_min_proto_version
 #define SSL_CTX_set_max_proto_version	SSL_CTX_set_max_proto_version
+
 #define SSL_get_min_proto_version	SSL_get_min_proto_version
 #define SSL_get_max_proto_version	SSL_get_max_proto_version
 #define SSL_set_min_proto_version	SSL_set_min_proto_version
@@ -1377,6 +1422,7 @@ int SSL_CTX_set_purpose(SSL_CTX *s, int purpose);
 int SSL_set_purpose(SSL *s, int purpose);
 int SSL_CTX_set_trust(SSL_CTX *s, int trust);
 int SSL_set_trust(SSL *s, int trust);
+int SSL_set1_host(SSL *s, const char *hostname);
 
 X509_VERIFY_PARAM *SSL_CTX_get0_param(SSL_CTX *ctx);
 int SSL_CTX_set1_param(SSL_CTX *ctx, X509_VERIFY_PARAM *vpm);
@@ -1427,7 +1473,13 @@ const SSL_METHOD *DTLSv1_method(void);		/* DTLSv1.0 */
 const SSL_METHOD *DTLSv1_server_method(void);	/* DTLSv1.0 */
 const SSL_METHOD *DTLSv1_client_method(void);	/* DTLSv1.0 */
 
+const SSL_METHOD *DTLS_method(void);		/* DTLS v1.0 or later */
+const SSL_METHOD *DTLS_server_method(void);	/* DTLS v1.0 or later */
+const SSL_METHOD *DTLS_client_method(void);	/* DTLS v1.0 or later */
+
 STACK_OF(SSL_CIPHER) *SSL_get_ciphers(const SSL *s);
+STACK_OF(SSL_CIPHER) *SSL_get_client_ciphers(const SSL *s);
+STACK_OF(SSL_CIPHER) *SSL_get1_supported_ciphers(SSL *s);
 
 int SSL_do_handshake(SSL *s);
 int SSL_renegotiate(SSL *s);
@@ -2110,6 +2162,7 @@ void ERR_load_SSL_strings(void);
 #define SSL_R_X509_LIB					 268
 #define SSL_R_X509_VERIFICATION_SETUP_PROBLEMS		 269
 #define SSL_R_PEER_BEHAVING_BADLY			 666
+#define SSL_R_UNKNOWN					 999
 
 /*
  * OpenSSL compatible OPENSSL_INIT options

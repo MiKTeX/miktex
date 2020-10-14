@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2018 Christian Schenk
+## Copyright (C) 2016-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,11 +29,6 @@ target_include_directories(${fribidi_lib_name}
 )
 
 target_compile_definitions(${fribidi_lib_name}
-  PRIVATE
-    -DFRIBIDI_ENTRY=
-)
-
-target_compile_definitions(${fribidi_lib_name}
-  INTERFACE
-    -DFRIBIDI_STATIC
+  PUBLIC
+    -DFRIBIDI_LIB_STATIC
 )

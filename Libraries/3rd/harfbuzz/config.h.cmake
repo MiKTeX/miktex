@@ -42,6 +42,9 @@
 /* Define to 1 if you have the `FT_Set_Var_Blend_Coordinates' function. */
 #cmakedefine HAVE_FT_SET_VAR_BLEND_COORDINATES 1
 
+/* Have GDI library */
+#cmakedefine HAVE_GDI 1
+
 /* Define to 1 if you have the `getpagesize' function. */
 #cmakedefine HAVE_GETPAGESIZE 1
 
@@ -78,9 +81,6 @@
 /* Define to 1 if you have the `mprotect' function. */
 #cmakedefine HAVE_MPROTECT 1
 
-/* Define to 1 if you have the `newlocale' function. */
-#cmakedefine HAVE_NEWLOCALE 1
-
 /* Have POSIX threads */
 #cmakedefine HAVE_PTHREAD 1
 
@@ -111,9 +111,6 @@
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
 
-/* Define to 1 if you have the `strtod_l' function. */
-#cmakedefine HAVE_STRTOD_L 1
-
 /* Define to 1 if you have the `sysconf' function. */
 #cmakedefine HAVE_SYSCONF 1
 
@@ -137,9 +134,6 @@
 
 /* Define to 1 if you have the <windows.h> header file. */
 #cmakedefine HAVE_WINDOWS_H 1
-
-/* Define to 1 if you have the <xlocale.h> header file. */
-#cmakedefine HAVE_XLOCALE_H 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR 1

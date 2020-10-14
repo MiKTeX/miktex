@@ -1,6 +1,6 @@
 /* freetype2.rc:                                        -*- C++ -*-
 
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,9 +19,9 @@
 
 #include "freetype2-version.h"
 
-#define VER_FILEDESCRIPTION_STR "FreeType - a library to render fonts"
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${freetype2_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${freetype2_dll_name}.dll"
+#define VER_INTERNALNAME_STR "@freetype2_dll_name@"
+#define VER_ORIGINALFILENAME_STR "@freetype2_dll_name@.dll"
 
 #include <miktex/win/version.rc>

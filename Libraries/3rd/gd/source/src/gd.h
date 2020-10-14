@@ -1,20 +1,20 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef GD_H
+#define GD_H 1
 
 #include <stdlib.h>
 
-#ifndef GD_H
-#define GD_H 1
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Version information.  This gets parsed by build scripts as well as
  * gcc so each #define line in this group must also be splittable on
  * whitespace, take the form GD_*_VERSION and contain the magical
  * trailing comment. */
 #define GD_MAJOR_VERSION    2           /*version605b5d1778*/
-#define GD_MINOR_VERSION    2           /*version605b5d1778*/
-#define GD_RELEASE_VERSION  5           /*version605b5d1778*/
-#define GD_EXTRA_VERSION    ""          /*version605b5d1778*/
+#define GD_MINOR_VERSION    3           /*version605b5d1778*/
+#define GD_RELEASE_VERSION  0           /*version605b5d1778*/
+#define GD_EXTRA_VERSION    ""      /*version605b5d1778*/
 /* End parsable section. */
 
 /* The version string.  This is constructed from the version number
@@ -29,7 +29,7 @@ extern "C" {
                       GDXXX_STR(GD_RELEASE_VERSION),                    \
                       GD_EXTRA_VERSION)
 
-    
+
 /* Do the DLL dance: dllexport when building the DLL,
    dllimport when importing from it, nothing when
    not on Silly Silly Windows (tm Aardman Productions). */
@@ -51,14 +51,14 @@ extern "C" {
 #   define BGD_EXPORT_DATA_PROT
 #  else
 #   ifdef __GNUC__
-#    define BGD_EXPORT_DATA_PROT __attribute__ ((dllexport))
+#    define BGD_EXPORT_DATA_PROT __attribute__ ((__dllexport__))
 #   else
 #    define BGD_EXPORT_DATA_PROT __declspec(dllexport)
 #   endif
 #  endif
 # else
 #  ifdef __GNUC__
-#   define BGD_EXPORT_DATA_PROT __attribute__ ((dllimport))
+#   define BGD_EXPORT_DATA_PROT __attribute__ ((__dllimport__))
 #  else
 #   define BGD_EXPORT_DATA_PROT __declspec(dllimport)
 #  endif
@@ -67,8 +67,8 @@ extern "C" {
 # define BGD_EXPORT_DATA_IMPL
 #else
 # if defined(__GNUC__) || defined(__clang__)
-#  define BGD_EXPORT_DATA_PROT __attribute__ ((visibility ("default")))
-#  define BGD_EXPORT_DATA_IMPL __attribute__ ((visibility ("hidden")))
+#  define BGD_EXPORT_DATA_PROT __attribute__ ((__visibility__ ("default")))
+#  define BGD_EXPORT_DATA_IMPL __attribute__ ((__visibility__ ("hidden")))
 # else
 #  define BGD_EXPORT_DATA_PROT
 #  define BGD_EXPORT_DATA_IMPL
@@ -79,24 +79,19 @@ extern "C" {
 #define BGD_DECLARE(rt) BGD_EXPORT_DATA_PROT rt BGD_STDCALL
 
 /* VS2012+ disable keyword macroizing unless _ALLOW_KEYWORD_MACROS is set
-   We define inline, snprintf, and strcasecmp if they're missing 
+   We define inline, snprintf, and strcasecmp if they're missing
 */
 #ifdef _MSC_VER
 #  define _ALLOW_KEYWORD_MACROS
 #  ifndef inline
 #    define inline __inline
-#  endif 
+#  endif
 #  ifndef strcasecmp
 #    define strcasecmp _stricmp
-#  endif 
+#  endif
 #if _MSC_VER < 1900
      extern int snprintf(char*, size_t, const char*, ...);
 #endif
-#endif 
-
-#ifdef __cplusplus
-	extern "C"
-	{
 #endif
 
 /* gd.h: declarations file for the graphic-draw module.
@@ -131,9 +126,9 @@ extern "C" {
    must be 32 bits wide or more.
 
    True colors are repsented as follows:
-   
+
    ARGB
-	
+
    Where 'A' (alpha channel) occupies only the
    LOWER 7 BITS of the MSB. This very small
    loss of alpha channel resolution allows gd 2.x
@@ -209,7 +204,7 @@ extern "C" {
  * Group: Effects
  *
  * The layering effect
- * 
+ *
  * When pixels are drawn the new colors are "mixed" with the background
  * depending on the effect.
  *
@@ -286,7 +281,7 @@ enum gdPaletteQuantizationMethod {
  *
  *  GD_BELL				 - Bell
  *  GD_BESSEL			 - Bessel
- *  GD_BILINEAR_FIXED 	 - fixed point bilinear 
+ *  GD_BILINEAR_FIXED 	 - fixed point bilinear
  *  GD_BICUBIC 			 - Bicubic
  *  GD_BICUBIC_FIXED 	 - fixed point bicubic integer
  *  GD_BLACKMAN			 - Blackman
@@ -346,7 +341,7 @@ typedef double (* interpolation_method )(double);
 
 /*
    Group: Types
- 
+
    typedef: gdImage
 
    typedef: gdImagePtr
@@ -513,7 +508,7 @@ gdPointF, *gdPointFPtr;
   structure.
 
   Please see the files gdfontl.c and gdfontl.h for an example of
-  the proper declaration of this structure. 
+  the proper declaration of this structure.
 
   > typedef struct {
   >   // # of characters in font
@@ -710,7 +705,7 @@ BGD_DECLARE(void) gdImageDestroy (gdImagePtr im);
    alpha channel value of 'color'; default is to overwrite.
    Tiling and line styling are also implemented
    here. All other gd drawing functions pass through this call,
-   allowing for many useful effects. 
+   allowing for many useful effects.
    Overlay and multiply effects are used when gdImageAlphaBlending
    is passed gdEffectOverlay and gdEffectMultiply */
 
@@ -768,14 +763,14 @@ BGD_DECLARE(void) gdFontCacheShutdown (void);
 BGD_DECLARE(void) gdFreeFontCache (void);
 
 /* Calls gdImageStringFT. Provided for backwards compatibility only. */
-BGD_DECLARE(char *) gdImageStringTTF (gdImage * im, int *brect, int fg, char *fontlist,
+BGD_DECLARE(char *) gdImageStringTTF (gdImage * im, int *brect, int fg, const char *fontlist,
                                       double ptsize, double angle, int x, int y,
-                                      char *string);
+                                      const char *string);
 
 /* FreeType 2 text output */
-BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, char *fontlist,
+BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, const char *fontlist,
                                      double ptsize, double angle, int x, int y,
-                                     char *string);
+                                     const char *string);
 
 
 /*
@@ -808,7 +803,7 @@ typedef struct {
 				    then, on return, xshow is a malloc'ed
 				    string containing xshow position data for
 				    the last string.
-				    
+
 				    NB. The caller is responsible for gdFree'ing
 				    the xshow string.
 				 */
@@ -817,7 +812,7 @@ typedef struct {
 				    string containing the actual font file path name
 				    used, which can be interesting when fontconfig
 				    is in use.
-				    
+
 				    The caller is responsible for gdFree'ing the
 				    fontpath string.
 				 */
@@ -857,9 +852,9 @@ BGD_DECLARE(int) gdFTUseFontConfig(int flag);
 #define gdFTEX_Big5 2
 #define gdFTEX_Adobe_Custom 3
 
-BGD_DECLARE(char *) gdImageStringFTEx (gdImage * im, int *brect, int fg, char *fontlist,
+BGD_DECLARE(char *) gdImageStringFTEx (gdImage * im, int *brect, int fg, const char *fontlist,
                                        double ptsize, double angle, int x, int y,
-                                       char *string, gdFTStringExtraPtr strex);
+                                       const char *string, gdFTStringExtraPtr strex);
 
 
 /*
@@ -977,16 +972,16 @@ BGD_DECLARE(void) gdImageColorDeallocate (gdImagePtr im, int color);
    anything up to 256. If the original source image
    includes photographic information or anything that
    came out of a JPEG, 256 is strongly recommended.
-   
+
    Better yet, don't use these function -- write real
    truecolor PNGs and JPEGs. The disk space gain of
    conversion to palette is not great (for small images
    it can be negative) and the quality loss is ugly.
-   
+
    DIFFERENCES: gdImageCreatePaletteFromTrueColor creates and
    returns a new image. gdImageTrueColorToPalette modifies
    an existing image, and the truecolor pixels are discarded.
-   
+
    gdImageTrueColorToPalette() returns TRUE on success, FALSE on failure.
 */
 
@@ -1092,7 +1087,7 @@ BGD_DECLARE(void) gdImageWebpCtx (gdImagePtr im, gdIOCtx * outfile, int quantiza
 
 /**
  * Group: GifAnim
- * 
+ *
  *   Legal values for Disposal. gdDisposalNone is always used by
  *   the built-in optimizer if previm is passed.
  *
@@ -1318,7 +1313,7 @@ BGD_DECLARE(gdImagePtr) gdImageCopyGaussianBlurred(gdImagePtr src, int radius,
  * Macro: gdImageSX
  *
  * Gets the width (in pixels) of an image.
- * 
+ *
  * Parameters:
  *   im - The image.
  */
@@ -1536,11 +1531,11 @@ BGD_DECLARE(void) gdImageFlipBoth(gdImagePtr im);
  * Group: Crop
  *
  * Constants: gdCropMode
- *  GD_CROP_DEFAULT - Default crop mode (4 corners or background)
+ *  GD_CROP_DEFAULT     - Same as GD_CROP_TRANSPARENT
  *  GD_CROP_TRANSPARENT - Crop using the transparent color
- *  GD_CROP_BLACK - Crop black borders
- *  GD_CROP_WHITE - Crop white borders
- *  GD_CROP_SIDES - Crop using colors of the 4 corners
+ *  GD_CROP_BLACK       - Crop black borders
+ *  GD_CROP_WHITE       - Crop white borders
+ *  GD_CROP_SIDES       - Crop using colors of the 4 corners
  *
  * See also:
  *   - <gdImageCropAuto>
@@ -1634,16 +1629,11 @@ BGD_DECLARE(int) gdReleaseVersion(void);
 BGD_DECLARE(const char *) gdExtraVersion(void);
 BGD_DECLARE(const char *) gdVersionString(void);
 
-
-#ifdef __cplusplus
-}
-#endif
-
 /* newfangled special effects */
 #include "gdfx.h"
 
-#endif				/* GD_H */
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif				/* GD_H */

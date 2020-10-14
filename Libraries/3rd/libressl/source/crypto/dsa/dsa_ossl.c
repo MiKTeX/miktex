@@ -1,4 +1,4 @@
-/* $OpenBSD: dsa_ossl.c,v 1.37 2018/06/14 18:34:50 jsing Exp $ */
+/* $OpenBSD: dsa_ossl.c,v 1.42 2019/06/04 18:12:26 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -148,30 +148,26 @@ dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa)
 	 * In order to reduce the possibility of a side-channel attack, the
 	 * following is calculated using a blinding value:
 	 *
-	 *  s = inv(k)inv(b)(bm + bxr) mod q
+	 *  s = inv(b)(bm + bxr)inv(k) mod q
 	 *
-	 * Where b is a random value in the range [1, q-1].
+	 * Where b is a random value in the range [1, q).
 	 */
-	if (!BN_sub(&bm, dsa->q, BN_value_one()))
-		goto err;
-	if (!BN_rand_range(&b, &bm))
-		goto err;
-	if (!BN_add(&b, &b, BN_value_one()))
+	if (!bn_rand_interval(&b, BN_value_one(), dsa->q))
 		goto err;
 	if (BN_mod_inverse_ct(&binv, &b, dsa->q, ctx) == NULL)
 		goto err;
 
 	if (!BN_mod_mul(&bxr, &b, dsa->priv_key, dsa->q, ctx))	/* bx */
 		goto err;
-	if (!BN_mod_mul(&bxr, &bxr, r, dsa->q, ctx))		/* bxr */
+	if (!BN_mod_mul(&bxr, &bxr, r, dsa->q, ctx))	/* bxr */
 		goto err;
-	if (!BN_mod_mul(&bm, &b, &m, dsa->q, ctx))		/* bm */
+	if (!BN_mod_mul(&bm, &b, &m, dsa->q, ctx))	/* bm */
 		goto err;
-	if (!BN_mod_add(s, &bxr, &bm, dsa->q, ctx))		/* s = bm + bxr */
+	if (!BN_mod_add(s, &bxr, &bm, dsa->q, ctx))	/* s = bm + bxr */
 		goto err;
-	if (!BN_mod_mul(s, s, &binv, dsa->q, ctx))		/* s = m + xr */
+	if (!BN_mod_mul(s, s, kinv, dsa->q, ctx))	/* s = b(m + xr)k^-1 */
 		goto err;
-	if (!BN_mod_mul(s, s, kinv, dsa->q, ctx))
+	if (!BN_mod_mul(s, s, &binv, dsa->q, ctx))	/* s = (m + xr)k^-1 */
 		goto err;
 
 	/*
@@ -242,11 +238,8 @@ dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
 	    !BN_set_bit(&m, q_bits))
 		goto err;
 
-	/* Get random k */
-	do {
-		if (!BN_rand_range(&k, dsa->q))
-			goto err;
-	} while (BN_is_zero(&k));
+	if (!bn_rand_interval(&k, BN_value_one(), dsa->q))
+		goto err;
 
 	BN_set_flags(&k, BN_FLG_CONSTTIME);
 

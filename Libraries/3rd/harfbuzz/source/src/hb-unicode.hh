@@ -105,9 +105,6 @@ HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE
   unsigned int
   modified_combining_class (hb_codepoint_t u)
   {
-    /* XXX This hack belongs to the Myanmar shaper. */
-    if (unlikely (u == 0x1037u)) u = 0x103Au;
-
     /* XXX This hack belongs to the USE shaper (for Tai Tham):
      * Reorder SAKOT to ensure it comes after any tone marks. */
     if (unlikely (u == 0x1A60u)) return 254;
@@ -327,10 +324,10 @@ DECLARE_NULL_INSTANCE (hb_unicode_funcs_t);
  * Modify Telugu length marks (ccc=84, ccc=91).
  * These are the only matras in the main Indic scripts range that have
  * a non-zero ccc.  That makes them reorder with the Halant (ccc=9).
- * Assign 5 and 6, which are otherwise unassigned.
+ * Assign 4 and 5, which are otherwise unassigned.
  */
-#define HB_MODIFIED_COMBINING_CLASS_CCC84 5 /* length mark */
-#define HB_MODIFIED_COMBINING_CLASS_CCC91 6 /* ai length mark */
+#define HB_MODIFIED_COMBINING_CLASS_CCC84 4 /* length mark */
+#define HB_MODIFIED_COMBINING_CLASS_CCC91 5 /* ai length mark */
 
 /* Thai
  *
@@ -393,6 +390,9 @@ struct hb_unicode_range_t
 
 HB_INTERNAL bool
 _hb_unicode_is_emoji_Extended_Pictographic (hb_codepoint_t cp);
+
+
+extern "C" HB_INTERNAL hb_unicode_funcs_t *hb_ucd_get_unicode_funcs ();
 
 
 #endif /* HB_UNICODE_HH */

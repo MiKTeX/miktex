@@ -2,7 +2,7 @@
 
 /*
 
-Copyright 1996-2016 Free Software Foundation, Inc.
+Copyright 1996-2020 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -175,6 +175,26 @@ see https://www.gnu.org/licenses/.
 #cmakedefine HAVE_HOST_CPU_pentiumpro 1
 #cmakedefine HAVE_HOST_CPU_pentium2 1
 #cmakedefine HAVE_HOST_CPU_pentium3 1
+#cmakedefine HAVE_HOST_CPU_pentium4 1
+#cmakedefine HAVE_HOST_CPU_core2 1
+#cmakedefine HAVE_HOST_CPU_nehalem 1
+#cmakedefine HAVE_HOST_CPU_westmere 1
+#cmakedefine HAVE_HOST_CPU_sandybridge 1
+#cmakedefine HAVE_HOST_CPU_ivybridge 1
+#cmakedefine HAVE_HOST_CPU_haswell 1
+#cmakedefine HAVE_HOST_CPU_broadwell 1
+#cmakedefine HAVE_HOST_CPU_skylake 1
+#cmakedefine HAVE_HOST_CPU_silvermont 1
+#cmakedefine HAVE_HOST_CPU_goldmont 1
+#cmakedefine HAVE_HOST_CPU_k8 1
+#cmakedefine HAVE_HOST_CPU_k10 1
+#cmakedefine HAVE_HOST_CPU_bulldozer 1
+#cmakedefine HAVE_HOST_CPU_piledriver 1
+#cmakedefine HAVE_HOST_CPU_steamroller 1
+#cmakedefine HAVE_HOST_CPU_excavator 1
+#cmakedefine HAVE_HOST_CPU_zen 1
+#cmakedefine HAVE_HOST_CPU_bobcat 1
+#cmakedefine HAVE_HOST_CPU_jaguar 1
 #cmakedefine HAVE_HOST_CPU_s390_z900 1
 #cmakedefine HAVE_HOST_CPU_s390_z990 1
 #cmakedefine HAVE_HOST_CPU_s390_z9 1
@@ -283,6 +303,8 @@ see https://www.gnu.org/licenses/.
 #cmakedefine HAVE_NATIVE_mpn_divrem_1c 1
 #cmakedefine HAVE_NATIVE_mpn_divrem_2 1
 #cmakedefine HAVE_NATIVE_mpn_gcd_1 1
+#cmakedefine HAVE_NATIVE_mpn_gcd_11 1
+#cmakedefine HAVE_NATIVE_mpn_gcd_22 1
 #cmakedefine HAVE_NATIVE_mpn_hamdist 1
 #cmakedefine HAVE_NATIVE_mpn_invert_limb 1
 #cmakedefine HAVE_NATIVE_mpn_ior_n 1
@@ -325,6 +347,7 @@ see https://www.gnu.org/licenses/.
 #cmakedefine HAVE_NATIVE_mpn_rsh1sub_n 1
 #cmakedefine HAVE_NATIVE_mpn_rsh1sub_nc 1
 #cmakedefine HAVE_NATIVE_mpn_rshift 1
+#cmakedefine HAVE_NATIVE_mpn_sbpi1_bdiv_r 1
 #cmakedefine HAVE_NATIVE_mpn_sqr_basecase 1
 #cmakedefine HAVE_NATIVE_mpn_sqr_diagonal 1
 #cmakedefine HAVE_NATIVE_mpn_sqr_diag_addlsh1 1
@@ -611,6 +634,9 @@ see https://www.gnu.org/licenses/.
 #  undef WORDS_BIGENDIAN
 # endif
 #endif
+
+/* Define to 1 if the assembler understands the mulx instruction */
+#cmakedefine X86_ASM_MULX 1
 
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */

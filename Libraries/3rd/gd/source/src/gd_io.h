@@ -1,11 +1,11 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef GD_IO_H
 #define GD_IO_H 1
 
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef VMS
 #	define Putchar gdPutchar
@@ -17,7 +17,7 @@ extern "C" {
   typedef: gdIOCtx
 
   gdIOCtx structures hold function pointers for doing image IO.
-  
+
   Most of the gd functions that read and write files, such as
   <gdImagePng> also have variants that accept a <gdIOCtx> structure;
   see <gdImagePngCtx> and <gdImageCreateFromJpegCtx>.
@@ -45,14 +45,14 @@ extern "C" {
   > {
   >   int (*getC) (struct gdIOCtx *);
   >   int (*getBuf) (struct gdIOCtx *, void *, int wanted);
-  > 
+  >
   >   void (*putC) (struct gdIOCtx *, int);
   >   int (*putBuf) (struct gdIOCtx *, const void *, int wanted);
-  > 
-  >   // seek must return 1 on SUCCESS, 0 on FAILURE. Unlike fseek! 
+  >
+  >   // seek must return 1 on SUCCESS, 0 on FAILURE. Unlike fseek!
   >   int (*seek) (struct gdIOCtx *, const int);
   >   long (*tell) (struct gdIOCtx *);
-  > 
+  >
   >   void (*gd_free) (struct gdIOCtx *);
   > } gdIOCtx;
 
@@ -93,8 +93,8 @@ int gdGetIntLSB(signed int *result, gdIOCtx *ctx);
 int gdSeek(gdIOCtx *ctx, const int offset);
 long gdTell(gdIOCtx *ctx);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

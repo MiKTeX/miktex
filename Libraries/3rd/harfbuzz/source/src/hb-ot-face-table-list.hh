@@ -50,19 +50,24 @@ HB_OT_TABLE (OT, head)
 #if !defined(HB_NO_FACE_COLLECT_UNICODES) || !defined(HB_NO_OT_FONT)
 HB_OT_ACCELERATOR (OT, cmap)
 #endif
+HB_OT_TABLE (OT, hhea)
 HB_OT_ACCELERATOR (OT, hmtx)
 HB_OT_TABLE (OT, OS2)
-#ifndef HB_NO_OT_FONT_GLYPH_NAMES
+#if !defined(HB_NO_OT_FONT_GLYPH_NAMES) || !defined(HB_NO_METRICS) || !defined(HB_NO_STYLE)
 HB_OT_ACCELERATOR (OT, post)
 #endif
 #ifndef HB_NO_NAME
 HB_OT_ACCELERATOR (OT, name)
 #endif
-#ifndef HB_NO_STAT
+#ifndef HB_NO_STYLE
 HB_OT_TABLE (OT, STAT)
+#endif
+#ifndef HB_NO_META
+HB_OT_ACCELERATOR (OT, meta)
 #endif
 
 /* Vertical layout. */
+HB_OT_TABLE (OT, vhea)
 HB_OT_ACCELERATOR (OT, vmtx)
 
 /* TrueType outlines. */
@@ -79,6 +84,7 @@ HB_OT_TABLE (OT, VORG)
 #ifndef HB_NO_VAR
 HB_OT_TABLE (OT, fvar)
 HB_OT_TABLE (OT, avar)
+HB_OT_ACCELERATOR (OT, gvar)
 HB_OT_TABLE (OT, MVAR)
 #endif
 
@@ -88,11 +94,17 @@ HB_OT_TABLE (OT, kern)
 #endif
 
 /* OpenType shaping. */
+#ifndef HB_NO_OT_LAYOUT
 HB_OT_ACCELERATOR (OT, GDEF)
 HB_OT_ACCELERATOR (OT, GSUB)
 HB_OT_ACCELERATOR (OT, GPOS)
-//HB_OT_TABLE (OT, BASE)
 //HB_OT_TABLE (OT, JSTF)
+#endif
+
+/* OpenType baseline. */
+#ifndef HB_NO_BASE
+HB_OT_TABLE (OT, BASE)
+#endif
 
 /* AAT shaping. */
 #ifndef HB_NO_AAT
@@ -101,9 +113,9 @@ HB_OT_TABLE (AAT, mort)
 HB_OT_TABLE (AAT, kerx)
 HB_OT_TABLE (AAT, ankr)
 HB_OT_TABLE (AAT, trak)
-HB_OT_TABLE (AAT, lcar)
 HB_OT_TABLE (AAT, ltag)
 HB_OT_TABLE (AAT, feat)
+// HB_OT_TABLE (AAT, opbd)
 #endif
 
 /* OpenType color fonts. */

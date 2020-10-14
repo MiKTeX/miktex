@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>FreeType2 win64</TPM:Name>
     <TPM:Title>FreeType2 library, Windows x64</TPM:Title>
-    <TPM:Copyright owner="David Turner, Robert Wilhelm, and Werner Lemberg" year="2006-2016"/>
+    <TPM:Copyright owner="David Turner, Robert Wilhelm, and Werner Lemberg" year="2006-2020"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>2.9.1</TPM:Version>
+    <TPM:Version>2.10.3</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

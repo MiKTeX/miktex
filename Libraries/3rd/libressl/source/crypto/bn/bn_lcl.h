@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_lcl.h,v 1.29 2018/07/23 18:14:32 tb Exp $ */
+/* $OpenBSD: bn_lcl.h,v 1.30 2018/11/05 23:52:47 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -239,7 +239,7 @@ __BEGIN_HIDDEN_DECLS
 	     : "r"(a), "r"(b));		\
 	ret;			})
 #  endif	/* compiler */
-# elif defined(__x86_64) || defined(__x86_64__)
+# elif (defined(__x86_64) || defined(__x86_64__)) && defined(_LP64)
 #  if defined(__GNUC__) && __GNUC__>=2
 #   define BN_UMULT_HIGH(a,b)	({	\
 	BN_ULONG ret,discard;	\
@@ -583,6 +583,7 @@ BN_ULONG bn_add_words(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp, int 
 BN_ULONG bn_sub_words(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp, int num);
 
 int BN_bntest_rand(BIGNUM *rnd, int bits, int top, int bottom);
+int bn_rand_interval(BIGNUM *rnd, const BIGNUM *lower_inc, const BIGNUM *upper_exc);
 
 /* Explicitly const time / non-const time versions for internal use */
 int BN_mod_exp_ct(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,

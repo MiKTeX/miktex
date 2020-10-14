@@ -91,15 +91,10 @@ typedef struct OffsetTable
   {
     if (table_count)
     {
-      if (start_offset >= tables.len)
-        *table_count = 0;
-      else
-        *table_count = hb_min (*table_count, tables.len - start_offset);
-
-      const TableRecord *sub_tables = tables.arrayZ + start_offset;
-      unsigned int count = *table_count;
-      for (unsigned int i = 0; i < count; i++)
-	table_tags[i] = sub_tables[i].tag;
+      + tables.sub_array (start_offset, table_count)
+      | hb_map (&TableRecord::tag)
+      | hb_sink (hb_array (table_tags, *table_count))
+      ;
     }
     return tables.len;
   }
@@ -141,14 +136,15 @@ typedef struct OffsetTable
       TableRecord &rec = tables.arrayZ[i];
       hb_blob_t *blob = items[i].blob;
       rec.tag = items[i].tag;
-      rec.length = hb_blob_get_length (blob);
+      rec.length = blob->length;
       rec.offset.serialize (c, this);
 
       /* Allocate room for the table and copy it. */
       char *start = (char *) c->allocate_size<void> (rec.length);
-      if (unlikely (!start)) {return false;}
+      if (unlikely (!start)) return false;
 
-      memcpy (start, hb_blob_get_data (blob, nullptr), rec.length);
+      if (likely (rec.length))
+	memcpy (start, blob->data, rec.length);
 
       /* 4-byte alignment. */
       c->align (4);
@@ -248,7 +244,7 @@ struct TTCHeader
     switch (u.header.version.major) {
     case 2: /* version 2 is compatible with version 1 */
     case 1: return u.version1.get_face (i);
-    default:return Null(OpenTypeFontFace);
+    default:return Null (OpenTypeFontFace);
     }
   }
 
@@ -283,10 +279,10 @@ struct TTCHeader
 struct ResourceRecord
 {
   const OpenTypeFontFace & get_face (const void *data_base) const
-  { return CastR<OpenTypeFontFace> ((data_base+offset).arrayZ); }
+  { return * reinterpret_cast<const OpenTypeFontFace *> ((data_base+offset).arrayZ); }
 
   bool sanitize (hb_sanitize_context_t *c,
-			const void *data_base) const
+		 const void *data_base) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
@@ -477,7 +473,7 @@ struct OpenTypeFontFile
     case TrueTypeTag:	return u.fontFace;
     case TTCTag:	return u.ttcHeader.get_face (i);
     case DFontTag:	return u.rfHeader.get_face (i, base_offset);
-    default:		return Null(OpenTypeFontFace);
+    default:		return Null (OpenTypeFontFace);
     }
   }
 

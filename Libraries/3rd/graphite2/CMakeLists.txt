@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/graphite2")
 
 include_directories(BEFORE
@@ -124,6 +126,11 @@ set(${graphite2_dll_name}_sources
   ${PRIVATE_HEADERS}
 )
 
+configure_file(
+  graphite2-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/graphite2-version.h
+)
+
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
     graphite2.rc.in
@@ -139,10 +146,10 @@ add_library(${graphite2_dll_name} SHARED ${${graphite2_dll_name}_sources})
 
 set_property(TARGET ${graphite2_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${graphite2_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version_properties(
+  ${graphite2_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_include_directories(${graphite2_dll_name}

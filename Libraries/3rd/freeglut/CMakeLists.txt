@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2018 Christian Schenk
+## Copyright (C) 2018-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -47,8 +47,11 @@ list(APPEND freeglut_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/freeglut.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/freeglut_ext.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/freeglut_std.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/glut.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/freeglut_ucall.h
 
+${CMAKE_CURRENT_SOURCE_DIR}/source/include/GL/glut.h
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fg_callback_macros.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fg_callbacks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fg_cursor.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fg_display.c

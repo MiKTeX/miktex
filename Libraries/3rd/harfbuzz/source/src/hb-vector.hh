@@ -117,7 +117,7 @@ struct hb_vector_t
   {
     unsigned int i = (unsigned int) i_;
     if (unlikely (i >= length))
-      return Null(Type);
+      return Null (Type);
     return arrayZ[i];
   }
 
@@ -143,13 +143,13 @@ struct hb_vector_t
   operator writer_t ()       { return writer (); }
 
   hb_array_t<const Type> sub_array (unsigned int start_offset, unsigned int count) const
-  { return as_array ().sub_array (start_offset, count);}
+  { return as_array ().sub_array (start_offset, count); }
   hb_array_t<const Type> sub_array (unsigned int start_offset, unsigned int *count = nullptr /* IN/OUT */) const
-  { return as_array ().sub_array (start_offset, count);}
+  { return as_array ().sub_array (start_offset, count); }
   hb_array_t<Type> sub_array (unsigned int start_offset, unsigned int count)
-  { return as_array ().sub_array (start_offset, count);}
+  { return as_array ().sub_array (start_offset, count); }
   hb_array_t<Type> sub_array (unsigned int start_offset, unsigned int *count = nullptr /* IN/OUT */)
-  { return as_array ().sub_array (start_offset, count);}
+  { return as_array ().sub_array (start_offset, count); }
 
   hb_sorted_array_t<Type> as_sorted_array ()
   { return hb_sorted_array (arrayZ, length); }
@@ -165,7 +165,7 @@ struct hb_vector_t
   Type *push ()
   {
     if (unlikely (!resize (length + 1)))
-      return &Crap(Type);
+      return &Crap (Type);
     return &arrayZ[length - 1];
   }
   template <typename T>
@@ -228,7 +228,7 @@ struct hb_vector_t
 
   Type pop ()
   {
-    if (!length) return Null(Type);
+    if (!length) return Null (Type);
     return hb_move (arrayZ[--length]); /* Does this move actually work? */
   }
 
@@ -277,6 +277,9 @@ struct hb_vector_t
   template <typename T>
   const Type *lsearch (const T &x, const Type *not_found = nullptr) const
   { return as_array ().lsearch (x, not_found); }
+  template <typename T>
+  bool lfind (const T &x, unsigned *pos = nullptr) const
+  { return as_array ().lfind (x, pos); }
 };
 
 template <typename Type>
@@ -290,7 +293,7 @@ struct hb_sorted_vector_t : hb_vector_t<Type>
   typedef hb_sorted_array_t<      Type>       iter_t;
   const_iter_t  iter () const { return as_array (); }
   const_iter_t citer () const { return as_array (); }
-        iter_t  iter ()       { return as_array (); }
+	iter_t  iter ()       { return as_array (); }
   operator       iter_t ()       { return iter (); }
   operator const_iter_t () const { return iter (); }
 
@@ -302,8 +305,8 @@ struct hb_sorted_vector_t : hb_vector_t<Type>
   { return as_array ().bsearch (x, not_found); }
   template <typename T>
   bool bfind (const T &x, unsigned int *i = nullptr,
-		     hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
-		     unsigned int to_store = (unsigned int) -1) const
+	      hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
+	      unsigned int to_store = (unsigned int) -1) const
   { return as_array ().bfind (x, i, not_found, to_store); }
 };
 

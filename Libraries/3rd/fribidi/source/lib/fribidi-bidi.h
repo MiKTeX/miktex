@@ -118,7 +118,7 @@ fribidi_get_par_embedding_levels_ex (
  * Returns: Maximum level found in this line plus one, or zero if any error
  * occurred (memory allocation failure most probably).
  */
-     FRIBIDI_ENTRY FriBidiLevel fribidi_reorder_line (
+FRIBIDI_ENTRY FriBidiLevel fribidi_reorder_line (
   FriBidiFlags flags, /* reorder flags */
   const FriBidiCharType *bidi_types,	/* input list of bidi types as returned by
 					   fribidi_get_bidi_types() */

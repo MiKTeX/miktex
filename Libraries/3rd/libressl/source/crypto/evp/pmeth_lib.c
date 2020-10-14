@@ -1,4 +1,4 @@
-/* $OpenBSD: pmeth_lib.c,v 1.14 2018/04/14 07:09:21 tb Exp $ */
+/* $OpenBSD: pmeth_lib.c,v 1.16 2019/11/01 15:08:57 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2006.
  */
@@ -78,7 +78,8 @@ typedef int sk_cmp_fn_type(const char * const *a, const char * const *b);
 DECLARE_STACK_OF(EVP_PKEY_METHOD)
 STACK_OF(EVP_PKEY_METHOD) *app_pkey_methods = NULL;
 
-extern const EVP_PKEY_METHOD rsa_pkey_meth, dh_pkey_meth, dsa_pkey_meth;
+extern const EVP_PKEY_METHOD rsa_pkey_meth, rsa_pss_pkey_meth;
+extern const EVP_PKEY_METHOD dh_pkey_meth, dsa_pkey_meth;
 extern const EVP_PKEY_METHOD ec_pkey_meth, hmac_pkey_meth, cmac_pkey_meth;
 extern const EVP_PKEY_METHOD gostimit_pkey_meth, gostr01_pkey_meth;
 
@@ -101,6 +102,9 @@ static const EVP_PKEY_METHOD *standard_methods[] = {
 #endif
 	&hmac_pkey_meth,
 	&cmac_pkey_meth,
+#ifndef OPENSSL_NO_RSA
+	&rsa_pss_pkey_meth,
+#endif
 };
 
 static int pmeth_cmp_BSEARCH_CMP_FN(const void *, const void *);
@@ -438,14 +442,22 @@ EVP_PKEY_CTX_ctrl_str(EVP_PKEY_CTX *ctx, const char *name, const char *value)
 		return -2;
 	}
 	if (!strcmp(name, "digest")) {
-		const EVP_MD *md;
-		if (!value || !(md = EVP_get_digestbyname(value))) {
-			EVPerror(EVP_R_INVALID_DIGEST);
-			return 0;
-		}
-		return EVP_PKEY_CTX_set_signature_md(ctx, md);
+		return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_TYPE_SIG,
+		    EVP_PKEY_CTRL_MD, value);
 	}
 	return ctx->pmeth->ctrl_str(ctx, name, value);
+}
+
+int
+EVP_PKEY_CTX_md(EVP_PKEY_CTX *ctx, int optype, int cmd, const char *md_name)
+{
+	const EVP_MD *md;
+
+	if ((md = EVP_get_digestbyname(md_name)) == NULL) {
+		EVPerror(EVP_R_INVALID_DIGEST);
+		return 0;
+	}
+	return EVP_PKEY_CTX_ctrl(ctx, -1, optype, cmd, 0, (void *)md);
 }
 
 int

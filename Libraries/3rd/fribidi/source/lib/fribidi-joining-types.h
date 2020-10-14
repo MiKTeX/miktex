@@ -222,7 +222,7 @@ fribidi_get_joining_type (
  * fribidi_get_joining_type for more information about the joining types
  * returned by this function.
  */
-     FRIBIDI_ENTRY void fribidi_get_joining_types (
+FRIBIDI_ENTRY void fribidi_get_joining_types (
   const FriBidiChar *str,	/* input string */
   const FriBidiStrIndex len,	/* input string length */
   FriBidiJoiningType *jtypes	/* output joining types */
@@ -237,7 +237,7 @@ fribidi_get_joining_type (
  * Joining Classes of the Unicode standard available at
  * http://www.unicode.org/versions/Unicode4.0.0/ch08.pdf#G7462.
  */
-     FRIBIDI_ENTRY const char *fribidi_get_joining_type_name (
+FRIBIDI_ENTRY const char *fribidi_get_joining_type_name (
   FriBidiJoiningType j		/* input joining type */
 ) FRIBIDI_GNUC_CONST;
 

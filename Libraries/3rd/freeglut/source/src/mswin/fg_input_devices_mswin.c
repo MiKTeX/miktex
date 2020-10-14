@@ -41,11 +41,11 @@ typedef struct {
 } SERIALPORT;
 
 /* Serial Port Prototypes */
-SERIALPORT *serial_open ( const char *device );
-void serial_close ( SERIALPORT *port );
-int serial_getchar ( SERIALPORT *port );
-int serial_putchar ( SERIALPORT *port, unsigned char ch );
-void serial_flush ( SERIALPORT *port );
+SERIALPORT *fg_serial_open ( const char *device );
+void fg_serial_close ( SERIALPORT *port );
+int fg_serial_getchar ( SERIALPORT *port );
+int fg_serial_putchar ( SERIALPORT *port, unsigned char ch );
+void fg_serial_flush ( SERIALPORT *port );
 
 
 void fgPlatformRegisterDialDevice ( const char *dial_device )
@@ -66,7 +66,7 @@ void fgPlatformRegisterDialDevice ( const char *dial_device )
 
 
 /*  Serial Port Functions */
-SERIALPORT *serial_open(const char *device){
+SERIALPORT *fg_serial_open(const char *device){
     HANDLE fh;
     DCB dcb={sizeof(DCB)};
     COMMTIMEOUTS timeouts;
@@ -103,12 +103,12 @@ SERIALPORT *serial_open(const char *device){
     timeouts.WriteTotalTimeoutConstant=1;
     SetCommTimeouts(fh,&timeouts);
 
-    serial_flush(port);
+    fg_serial_flush(port);
 
     return port;
 }
 
-void serial_close(SERIALPORT *port){
+void fg_serial_close(SERIALPORT *port){
     if (port){
         /* restore old port settings */
         SetCommState(port->fh,&port->dcb_save);
@@ -118,7 +118,7 @@ void serial_close(SERIALPORT *port){
     }
 }
 
-int serial_getchar(SERIALPORT *port){
+int fg_serial_getchar(SERIALPORT *port){
     DWORD n;
     unsigned char ch;
     if (!port) return EOF;
@@ -127,13 +127,13 @@ int serial_getchar(SERIALPORT *port){
     return EOF;
 }
 
-int serial_putchar(SERIALPORT *port, unsigned char ch){
+int fg_serial_putchar(SERIALPORT *port, unsigned char ch){
     DWORD n;
     if (!port) return 0;
     return WriteFile(port->fh,&ch,1,&n,NULL);
 }
 
-void serial_flush ( SERIALPORT *port )
+void fg_serial_flush ( SERIALPORT *port )
 {
     FlushFileBuffers(port->fh);
 }

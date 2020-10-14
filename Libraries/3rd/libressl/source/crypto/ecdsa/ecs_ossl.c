@@ -1,4 +1,4 @@
-/* $OpenBSD: ecs_ossl.c,v 1.16 2018/07/10 21:36:02 tb Exp $ */
+/* $OpenBSD: ecs_ossl.c,v 1.20 2019/06/04 18:15:27 tb Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project
  */
@@ -56,6 +56,8 @@
  *
  */
 
+#include <string.h>
+
 #include <openssl/opensslconf.h>
 
 #include <openssl/err.h>
@@ -108,6 +110,21 @@ ecdsa_prepare_digest(const unsigned char *dgst, int dgst_len, BIGNUM *order,
 		}
 	}
 
+	return 1;
+}
+
+int
+ossl_ecdsa_sign(int type, const unsigned char *dgst, int dlen, unsigned char *sig,
+    unsigned int *siglen, const BIGNUM *kinv, const BIGNUM *r, EC_KEY *eckey)
+{
+	ECDSA_SIG *s;
+
+	if ((s = ECDSA_do_sign_ex(dgst, dlen, kinv, r, eckey)) == NULL) {
+		*siglen = 0;
+		return 0;
+	}
+	*siglen = i2d_ECDSA_SIG(s, &sig);
+	ECDSA_SIG_free(s);
 	return 1;
 }
 
@@ -234,6 +251,16 @@ ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
 	return (ret);
 }
 
+/* replace w/ ecdsa_sign_setup() when ECDSA_METHOD gets removed */
+int
+ossl_ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
+{
+	ECDSA_DATA *ecdsa;
+
+	if ((ecdsa = ecdsa_check(eckey)) == NULL)
+		return 0;
+	return ecdsa->meth->ecdsa_sign_setup(eckey, ctx_in, kinvp, rp);
+}
 
 static ECDSA_SIG *
 ecdsa_do_sign(const unsigned char *dgst, int dgst_len,
@@ -302,7 +329,7 @@ ecdsa_do_sign(const unsigned char *dgst, int dgst_len,
 		 * In order to reduce the possibility of a side-channel attack,
 		 * the following is calculated using a blinding value:
 		 *
-		 *  s = inv(k)inv(b)(bm + bxr) mod order
+		 *  s = inv(b)(bm + bxr)inv(k) mod order
 		 *
 		 * where b is a random value in the range [1, order-1].
 		 */
@@ -342,11 +369,11 @@ ecdsa_do_sign(const unsigned char *dgst, int dgst_len,
 			ECDSAerror(ERR_R_BN_LIB);
 			goto err;
 		}
-		if (!BN_mod_mul(s, s, binv, order, ctx)) { /* s = m + xr */
+		if (!BN_mod_mul(s, s, ckinv, order, ctx)) { /* s = b(m + xr)k^-1 */
 			ECDSAerror(ERR_R_BN_LIB);
 			goto err;
 		}
-		if (!BN_mod_mul(s, s, ckinv, order, ctx)) {
+		if (!BN_mod_mul(s, s, binv, order, ctx)) { /* s = (m + xr)k^-1 */
 			ECDSAerror(ERR_R_BN_LIB);
 			goto err;
 		}
@@ -382,6 +409,44 @@ ecdsa_do_sign(const unsigned char *dgst, int dgst_len,
 	BN_free(order);
 	BN_free(range);
 	return ret;
+}
+
+/* replace w/ ecdsa_do_sign() when ECDSA_METHOD gets removed */
+ECDSA_SIG *
+ossl_ecdsa_sign_sig(const unsigned char *dgst, int dgst_len,
+    const BIGNUM *in_kinv, const BIGNUM *in_r, EC_KEY *eckey)
+{
+	ECDSA_DATA *ecdsa;
+
+	if ((ecdsa = ecdsa_check(eckey)) == NULL)
+		return NULL;
+	return ecdsa->meth->ecdsa_do_sign(dgst, dgst_len, in_kinv, in_r, eckey);
+}
+
+int
+ossl_ecdsa_verify(int type, const unsigned char *dgst, int dgst_len,
+    const unsigned char *sigbuf, int sig_len, EC_KEY *eckey)
+{
+	ECDSA_SIG *s;
+	unsigned char *der = NULL;
+	const unsigned char *p = sigbuf;
+	int derlen = -1;
+	int ret = -1;
+
+	if ((s = ECDSA_SIG_new()) == NULL)
+		return (ret);
+	if (d2i_ECDSA_SIG(&s, &p, sig_len) == NULL)
+		goto err;
+	/* Ensure signature uses DER and doesn't have trailing garbage */
+	derlen = i2d_ECDSA_SIG(s, &der);
+	if (derlen != sig_len || memcmp(sigbuf, der, derlen))
+		goto err;
+	ret = ECDSA_do_verify(dgst, dgst_len, s, eckey);
+
+ err:
+	freezero(der, derlen);
+	ECDSA_SIG_free(s);
+	return (ret);
 }
 
 static int
@@ -486,4 +551,16 @@ ecdsa_do_verify(const unsigned char *dgst, int dgst_len, const ECDSA_SIG *sig,
 	BN_CTX_free(ctx);
 	EC_POINT_free(point);
 	return ret;
+}
+
+/* replace w/ ecdsa_do_verify() when ECDSA_METHOD gets removed */
+int
+ossl_ecdsa_verify_sig(const unsigned char *dgst, int dgst_len,
+    const ECDSA_SIG *sig, EC_KEY *eckey)
+{
+	ECDSA_DATA *ecdsa;
+
+	if ((ecdsa = ecdsa_check(eckey)) == NULL)
+		return 0;
+	return ecdsa->meth->ecdsa_do_verify(dgst, dgst_len, sig, eckey);
 }

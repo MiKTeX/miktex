@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/jpeg")
 
 include_directories(BEFORE
@@ -27,6 +29,11 @@ include_directories(BEFORE
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(-DIN_JPEG_DLL)
 endif()
+
+configure_file(
+  libjpeg-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libjpeg-version.h
+)
 
 set(${jpeg_dll_name}_sources
 
@@ -101,10 +108,10 @@ add_library(${jpeg_dll_name} SHARED ${${jpeg_dll_name}_sources})
 
 set_property(TARGET ${jpeg_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${jpeg_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version_properties(
+  ${jpeg_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_compile_definitions(${jpeg_dll_name}

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/lzma2")
 
@@ -33,6 +35,11 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/liblzma/delta
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/liblzma/simple
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/common
+)
+
+configure_file(
+  liblzma-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/liblzma-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

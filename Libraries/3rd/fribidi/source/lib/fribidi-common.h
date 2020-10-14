@@ -42,19 +42,29 @@
 
 
 /* FRIBIDI_ENTRY is a macro used to declare library entry points. */
-#ifndef FRIBIDI_ENTRY
-# if (defined(_MSC_VER) || defined(FRIBIDI_BUILT_WITH_MSVC)) && !defined(FRIBIDI_STATIC)
-/* if we're building fribidi itself with MSVC, FRIBIDI_ENTRY will be defined,
- * so if we're here then this is an external user including fribidi headers.
- * The dllimport is needed here mostly for the fribidi_version_info variable,
- * for functions it's not required. Probably needs more fine-tuning if
- * someone starts building fribidi as static library with MSVC. We'll cross
- * that brige when we get there. */
-#  define FRIBIDI_ENTRY __declspec(dllimport) extern
+#ifndef FRIBIDI_LIB_STATIC
+# ifdef _WIN32
+#  ifdef FRIBIDI_BUILD
+#    define FRIBIDI_ENTRY __declspec(dllexport)
+#  else
+#    define FRIBIDI_ENTRY __declspec(dllimport)
+#  endif
+# elif (defined(__SUNPRO_C)  || defined(__SUNPRO_CC))
+#  define FRIBIDI_ENTRY __global
 # else
-#  define FRIBIDI_ENTRY extern
+#  if (defined(__GNUC__) && __GNUC__ >= 4) || defined(__ICC)
+#    define FRIBIDI_ENTRY __attribute__ ((visibility("default")))
+#  else
+#   define FRIBIDI_ENTRY
+#  endif
 # endif
-#endif /* !FRIBIDI_ENTRY */
+#else
+# ifndef FRIBIDI_ENTRY
+#   define FRIBIDI_ENTRY
+# endif
+#endif
+
+#define FRIBIDI_EXTERN extern
 
 #ifdef __ICC
 #define FRIBIDI_BEGIN_IGNORE_DEPRECATIONS               \
@@ -85,7 +95,7 @@
 #define FRIBIDI_END_IGNORE_DEPRECATIONS
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ > 2)
+#if (defined(__GNUC__) && (__GNUC__ > 2)) && ! defined(_WIN32)
 # define FRIBIDI_GNUC_WARN_UNUSED __attribute__((__warn_unused_result__))
 # define FRIBIDI_GNUC_MALLOC      __attribute__((__malloc__))
 # define FRIBIDI_GNUC_HIDDEN      __attribute__((__visibility__ ("hidden")))

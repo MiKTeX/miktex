@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
@@ -182,7 +182,7 @@ int Hunzip::getbuf() {
   do {
     if (inc == 0) {
       fin.read(in, BUFSIZE);
-      inbits = fin.gcount() * 8;
+      inbits = int(fin.gcount() * 8);
     }
     for (; inc < inbits; inc++) {
       int b = (in[inc / 8] & (1 << (7 - (inc % 8)))) ? 1 : 0;
