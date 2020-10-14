@@ -20,40 +20,46 @@
 
 #include <log4cxx/pattern/loggingeventpatternconverter.h>
 
-namespace log4cxx { namespace pattern {
+namespace log4cxx
+{
+namespace pattern
+{
 
 
 /**
  * Formats the message of an logging event.
  *
- * 
- * 
+ *
+ *
  */
-class LOG4CXX_EXPORT MessagePatternConverter : public LoggingEventPatternConverter {
+class LOG4CXX_EXPORT MessagePatternConverter : public LoggingEventPatternConverter
+{
 
-  /**
-   * Private constructor.
-   */
-  MessagePatternConverter();
+		/**
+		 * Private constructor.
+		 */
+		MessagePatternConverter();
 
-public:
-DECLARE_LOG4CXX_PATTERN(MessagePatternConverter)
-BEGIN_LOG4CXX_CAST_MAP()
-     LOG4CXX_CAST_ENTRY(MessagePatternConverter)
-     LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
-END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_PATTERN(MessagePatternConverter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(MessagePatternConverter)
+		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
+		END_LOG4CXX_CAST_MAP()
 
-  /**
-   * Obtains an instance of pattern converter.
-   * @param options options, may be null.
-   * @return instance of pattern converter.
-   */
-  static PatternConverterPtr newInstance(
-    const std::vector<LogString>& options);
+		/**
+		 * Obtains an instance of pattern converter.
+		 * @param options options, may be null.
+		 * @return instance of pattern converter.
+		 */
+		static PatternConverterPtr newInstance(
+			const std::vector<LogString>& options);
 
-  void format(const log4cxx::spi::LoggingEventPtr& event,
-      LogString& toAppendTo,
-      log4cxx::helpers::Pool& p) const;
+		using LoggingEventPatternConverter::format;
+
+		void format(const log4cxx::spi::LoggingEventPtr& event,
+			LogString& toAppendTo,
+			log4cxx::helpers::Pool& p) const;
 };
 }
 }

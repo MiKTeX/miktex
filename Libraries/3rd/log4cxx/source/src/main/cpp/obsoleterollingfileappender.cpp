@@ -29,127 +29,149 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 using namespace log4cxx::spi;
 
-namespace log4cxx {
-    class ClassRollingFileAppender : public Class 
-    {
-    public:
-        ClassRollingFileAppender() : helpers::Class() {}
-        virtual LogString getName() const {
-            return LOG4CXX_STR("org.apache.log4j.RollingFileAppender");
-        }
-        virtual ObjectPtr newInstance() const {
-            return new RollingFileAppender();
-        }
-    };
+namespace log4cxx
+{
+class ClassRollingFileAppender : public Class
+{
+	public:
+		ClassRollingFileAppender() : helpers::Class() {}
+		virtual LogString getName() const
+		{
+			return LOG4CXX_STR("org.apache.log4j.RollingFileAppender");
+		}
+		virtual ObjectPtr newInstance() const
+		{
+			return new RollingFileAppender();
+		}
+};
 }
 
-const log4cxx::helpers::Class& RollingFileAppender::getClass() const { return getStaticClass(); }
-const log4cxx::helpers::Class& RollingFileAppender::getStaticClass() { 
-   static ClassRollingFileAppender theClass;
-   return theClass;
-}                                                        
-const log4cxx::helpers::ClassRegistration& RollingFileAppender::registerClass() {
-    static log4cxx::helpers::ClassRegistration classReg(RollingFileAppender::getStaticClass);
-    return classReg;
+const log4cxx::helpers::Class& RollingFileAppender::getClass() const
+{
+	return getStaticClass();
 }
-namespace log4cxx { namespace classes {
-const log4cxx::helpers::ClassRegistration& ObsoleteRollingFileAppenderRegistration = 
-        RollingFileAppender::registerClass();
-} }
+const log4cxx::helpers::Class& RollingFileAppender::getStaticClass()
+{
+	static ClassRollingFileAppender theClass;
+	return theClass;
+}
+const log4cxx::helpers::ClassRegistration& RollingFileAppender::registerClass()
+{
+	static log4cxx::helpers::ClassRegistration classReg(RollingFileAppender::getStaticClass);
+	return classReg;
+}
+namespace log4cxx
+{
+namespace classes
+{
+const log4cxx::helpers::ClassRegistration& ObsoleteRollingFileAppenderRegistration =
+	RollingFileAppender::registerClass();
+}
+}
 
 
 
 RollingFileAppender::RollingFileAppender()
-   : maxFileSize(10*1024*1024), maxBackupIndex(1) {
+	: maxFileSize(10 * 1024 * 1024), maxBackupIndex(1)
+{
 }
 
 RollingFileAppender::RollingFileAppender(
-  const LayoutPtr& layout,
-  const LogString& filename,
-  bool append)
-  : maxFileSize(10*1024*1024), maxBackupIndex(1) {
-  setLayout(layout);
-  setFile(filename);
-  setAppend(append);
-  Pool pool;
-  activateOptions(pool);
+	const LayoutPtr& newLayout,
+	const LogString& filename,
+	bool append)
+	: maxFileSize(10 * 1024 * 1024), maxBackupIndex(1)
+{
+	setLayout(newLayout);
+	setFile(filename);
+	setAppend(append);
+	Pool p;
+	activateOptions(p);
 }
 
-RollingFileAppender::RollingFileAppender(const LayoutPtr& layout,
-   const LogString& filename)
-   : maxFileSize(10*1024*1024), maxBackupIndex(1) {
-  setLayout(layout);
-  setFile(filename);
-  Pool pool;
-  activateOptions(pool);
+RollingFileAppender::RollingFileAppender(const LayoutPtr& newLayout,
+	const LogString& filename)
+	: maxFileSize(10 * 1024 * 1024), maxBackupIndex(1)
+{
+	setLayout(newLayout);
+	setFile(filename);
+	Pool p;
+	activateOptions(p);
 }
 
-RollingFileAppender::~RollingFileAppender() {
+RollingFileAppender::~RollingFileAppender()
+{
 }
 
 
 void RollingFileAppender::setOption(const LogString& option,
-        const LogString& value)
+	const LogString& value)
 {
-        if (StringHelper::equalsIgnoreCase(option,
-                        LOG4CXX_STR("MAXFILESIZE"), LOG4CXX_STR("maxfilesize"))
-                || StringHelper::equalsIgnoreCase(option,
-                        LOG4CXX_STR("MAXIMUMFILESIZE"), LOG4CXX_STR("maximumfilesize")))
-        {
-                setMaxFileSize(value);
-        }
-        else if (StringHelper::equalsIgnoreCase(option,
-                        LOG4CXX_STR("MAXBACKUPINDEX"), LOG4CXX_STR("maxbackupindex"))
-                || StringHelper::equalsIgnoreCase(option,
-                        LOG4CXX_STR("MAXIMUMBACKUPINDEX"), LOG4CXX_STR("maximumbackupindex")))
-        {
-                maxBackupIndex = StringHelper::toInt(value);
-        }
-        else
-        {
-                using namespace log4cxx::rolling;
-                RollingFileAppenderSkeleton::setOption(option, value);
-        }
+	if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("MAXFILESIZE"), LOG4CXX_STR("maxfilesize"))
+		|| StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("MAXIMUMFILESIZE"), LOG4CXX_STR("maximumfilesize")))
+	{
+		setMaxFileSize(value);
+	}
+	else if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("MAXBACKUPINDEX"), LOG4CXX_STR("maxbackupindex"))
+		|| StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("MAXIMUMBACKUPINDEX"), LOG4CXX_STR("maximumbackupindex")))
+	{
+		maxBackupIndex = StringHelper::toInt(value);
+	}
+	else
+	{
+		using namespace log4cxx::rolling;
+		RollingFileAppenderSkeleton::setOption(option, value);
+	}
 }
 
 
-int RollingFileAppender::getMaxBackupIndex() const {
-  return maxBackupIndex;
+int RollingFileAppender::getMaxBackupIndex() const
+{
+	return maxBackupIndex;
 }
 
-long RollingFileAppender::getMaximumFileSize() const {
-  return maxFileSize;
+long RollingFileAppender::getMaximumFileSize() const
+{
+	return maxFileSize;
 }
 
-void RollingFileAppender::setMaxBackupIndex(int maxBackups) {
-  maxBackupIndex = maxBackups;
+void RollingFileAppender::setMaxBackupIndex(int maxBackups)
+{
+	maxBackupIndex = maxBackups;
 }
 
-void RollingFileAppender::setMaximumFileSize(int maxFileSize1) {
-  maxFileSize = maxFileSize1;
+void RollingFileAppender::setMaximumFileSize(int maxFileSize1)
+{
+	maxFileSize = maxFileSize1;
 }
 
-void RollingFileAppender::setMaxFileSize(const LogString& value) {
-  maxFileSize = OptionConverter::toFileSize(value, maxFileSize + 1);
+void RollingFileAppender::setMaxFileSize(const LogString& value)
+{
+	maxFileSize = OptionConverter::toFileSize(value, maxFileSize + 1);
 }
 
-void RollingFileAppender::activateOptions(Pool& pool) {
-  log4cxx::rolling::SizeBasedTriggeringPolicyPtr trigger(
-      new log4cxx::rolling::SizeBasedTriggeringPolicy());
-  trigger->setMaxFileSize(maxFileSize);
-  trigger->activateOptions(pool);
-  setTriggeringPolicy(trigger);
+void RollingFileAppender::activateOptions(Pool& p)
+{
+	log4cxx::rolling::SizeBasedTriggeringPolicyPtr trigger(
+		new log4cxx::rolling::SizeBasedTriggeringPolicy());
+	trigger->setMaxFileSize(maxFileSize);
+	trigger->activateOptions(p);
+	setTriggeringPolicy(trigger);
 
-  log4cxx::rolling::FixedWindowRollingPolicyPtr rolling(
-      new log4cxx::rolling::FixedWindowRollingPolicy());
-  rolling->setMinIndex(1);
-  rolling->setMaxIndex(maxBackupIndex);
-  rolling->setFileNamePattern(getFile() + LOG4CXX_STR(".%i"));
-  rolling->activateOptions(pool);
-  setRollingPolicy(rolling);
+	log4cxx::rolling::FixedWindowRollingPolicyPtr rolling(
+		new log4cxx::rolling::FixedWindowRollingPolicy());
+	rolling->setMinIndex(1);
+	rolling->setMaxIndex(maxBackupIndex);
+	rolling->setFileNamePattern(getFile() + LOG4CXX_STR(".%i"));
+	rolling->activateOptions(p);
+	setRollingPolicy(rolling);
 
-  using namespace log4cxx::rolling;
-  RollingFileAppenderSkeleton::activateOptions(pool);
+	using namespace log4cxx::rolling;
+	RollingFileAppenderSkeleton::activateOptions(p);
 }
 
 

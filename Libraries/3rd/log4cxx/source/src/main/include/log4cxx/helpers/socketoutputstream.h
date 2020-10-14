@@ -19,8 +19,8 @@
 #define _LOG4CXX_HELPERS_SOCKET_OUTPUT_STREAM_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -30,48 +30,43 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
+namespace helpers
+{
+LOG4CXX_LIST_DEF(ByteList, unsigned char);
 
-#if defined(MIKTEX)
-                LOG4CXX_LIST_DEF(ByteList, unsigned char);
-#endif
-                class LOG4CXX_EXPORT SocketOutputStream : public OutputStream
-                {
-                public:
-                        DECLARE_ABSTRACT_LOG4CXX_OBJECT(SocketOutputStream)
-                        BEGIN_LOG4CXX_CAST_MAP()
-                                LOG4CXX_CAST_ENTRY(SocketOutputStream)
-                                LOG4CXX_CAST_ENTRY_CHAIN(OutputStream)
-                        END_LOG4CXX_CAST_MAP()
+class LOG4CXX_EXPORT SocketOutputStream : public OutputStream
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(SocketOutputStream)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(SocketOutputStream)
+		LOG4CXX_CAST_ENTRY_CHAIN(OutputStream)
+		END_LOG4CXX_CAST_MAP()
 
-                        SocketOutputStream(const SocketPtr& socket);
-                        ~SocketOutputStream();
+		SocketOutputStream(const SocketPtr& socket);
+		~SocketOutputStream();
 
-                        virtual void close(Pool& p);
-                        virtual void flush(Pool& p);
-                        virtual void write(ByteBuffer& buf, Pool& p);
+		virtual void close(Pool& p);
+		virtual void flush(Pool& p);
+		virtual void write(ByteBuffer& buf, Pool& p);
 
-                private:
-#if !defined(MIKTEX)
-                        LOG4CXX_LIST_DEF(ByteList, unsigned char);
-#endif
-                        ByteList array;
-                        SocketPtr socket;
-                       //
-                       //   prevent copy and assignment statements
-                       SocketOutputStream(const SocketOutputStream&);
-                       SocketOutputStream& operator=(const SocketOutputStream&);
+	private:
+		ByteList array;
+		SocketPtr socket;
+		//
+		//   prevent copy and assignment statements
+		SocketOutputStream(const SocketOutputStream&);
+		SocketOutputStream& operator=(const SocketOutputStream&);
 
-                };
-                
-                LOG4CXX_PTR_DEF(SocketOutputStream);
-                
-        }  // namespace helpers
+};
+
+LOG4CXX_PTR_DEF(SocketOutputStream);
+
+}  // namespace helpers
 } // namespace log4cxx
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 

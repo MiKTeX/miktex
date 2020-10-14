@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/log4cxx")
 
@@ -55,6 +57,7 @@ set(public_headers
   log4cxx/filter/levelmatchfilter.h
   log4cxx/filter/levelrangefilter.h
   log4cxx/filter/locationinfofilter.h
+  log4cxx/filter/loggermatchfilter.h
   log4cxx/filter/mapfilter.h
   log4cxx/filter/propertyfilter.h
   log4cxx/filter/stringmatchfilter.h
@@ -131,8 +134,11 @@ set(public_headers
   log4cxx/helpers/xml.h
   log4cxx/hierarchy.h
   log4cxx/htmllayout.h
+  log4cxx/jsonlayout.h
   log4cxx/layout.h
   log4cxx/level.h
+  log4cxx/log4cxx.h.in
+  log4cxx/log4cxx.hw
   log4cxx/logger.h
   log4cxx/logmanager.h
   log4cxx/logstring.h
@@ -145,6 +151,7 @@ set(public_headers
   log4cxx/net/syslogappender.h
   log4cxx/net/telnetappender.h
   log4cxx/net/xmlsocketappender.h
+  log4cxx/nt/EventLogCategories.mc
   log4cxx/nt/nteventlogappender.h
   log4cxx/nt/outputdebugstringappender.h
   log4cxx/pattern/classnamepatternconverter.h
@@ -173,6 +180,8 @@ set(public_headers
   log4cxx/pattern/throwableinformationpatternconverter.h
   log4cxx/patternlayout.h
   log4cxx/portability.h
+  log4cxx/private/log4cxx_private.h.in
+  log4cxx/private/log4cxx_private.hw
   log4cxx/propertyconfigurator.h
   log4cxx/provisionnode.h
   log4cxx/rolling/action.h
@@ -250,23 +259,32 @@ else()
 endif()
 
 configure_file(
+  log4cxx-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/log4cxx-version.h
+)
+
+list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/log4cxx-version.h)
+
+configure_file(
   ${log4cxx_h_in}
   ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/log4cxx.h
 )
+
 list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/log4cxx.h)
 
 configure_file(
   ${log4cxx_private_h_in}
   ${CMAKE_CURRENT_BINARY_DIR}/privateinclude/log4cxx/private/log4cxx_private.h
 )
+
 list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/privateinclude/log4cxx/private/log4cxx_private.h)
 
 list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/action.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/andfilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/appenderattachableimpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/appenderskeleton.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/aprinitializer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/asyncappender.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/basicconfigurator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/bufferedwriter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/bytearrayinputstream.cpp
@@ -316,6 +334,7 @@ list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/inputstreamreader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/integer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/integerpatternconverter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/jsonlayout.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/layout.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/level.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/levelmatchfilter.cpp
@@ -328,6 +347,7 @@ list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/locale.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/locationinfo.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/logger.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/loggermatchfilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/loggerpatternconverter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/loggingevent.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/loggingeventpatternconverter.cpp
@@ -335,6 +355,7 @@ list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/logmanager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/logstream.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/manualtriggeringpolicy.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/mapfilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/mdc.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/messagebuffer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/messagepatternconverter.cpp
@@ -410,9 +431,17 @@ list(APPEND log4cxx_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/xmllayout.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/xmlsocketappender.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/zipcompressaction.cpp
-
-  ${CMAKE_CURRENT_SOURCE_DIR}/log4cxx-version.h  
 )
+
+if(TRUE)
+  list(APPEND log4cxx_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/asyncappender.cpp
+  )
+else()
+  list(APPEND log4cxx_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/asyncappender_nonblocking.cpp
+  )
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND system_libraries

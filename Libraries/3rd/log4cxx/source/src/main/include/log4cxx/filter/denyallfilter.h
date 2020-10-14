@@ -19,8 +19,8 @@
 #define _LOG4CXX_FILTER_DENY_ALL_FILTER_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -28,45 +28,48 @@
 
 namespace log4cxx
 {
-        namespace filter
-        {
-                /**
-                This filter drops all logging events.
-                <p>You can add this filter to the end of a filter chain to
-                switch from the default "accept all unless instructed otherwise"
-                filtering behaviour to a "deny all unless instructed otherwise"
-                behaviour.
-                */
+namespace filter
+{
+/**
+This filter drops all logging events.
+<p>You can add this filter to the end of a filter chain to
+switch from the default "accept all unless instructed otherwise"
+filtering behaviour to a "deny all unless instructed otherwise"
+behaviour.
+*/
 
-                class LOG4CXX_EXPORT DenyAllFilter : public spi::Filter
-                {
-                public:
-                        DenyAllFilter() : spi::Filter() {
-                        }
+class LOG4CXX_EXPORT DenyAllFilter : public spi::Filter
+{
+	public:
+		DenyAllFilter() : spi::Filter()
+		{
+		}
 
-                        typedef spi::Filter BASE_CLASS;
-                        DECLARE_LOG4CXX_OBJECT(DenyAllFilter)
-                        BEGIN_LOG4CXX_CAST_MAP()
-                                LOG4CXX_CAST_ENTRY(DenyAllFilter)
-                                LOG4CXX_CAST_ENTRY_CHAIN(BASE_CLASS)
-                        END_LOG4CXX_CAST_MAP()
+		typedef spi::Filter BASE_CLASS;
+		DECLARE_LOG4CXX_OBJECT(DenyAllFilter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(DenyAllFilter)
+		LOG4CXX_CAST_ENTRY_CHAIN(BASE_CLASS)
+		END_LOG4CXX_CAST_MAP()
 
-                        /**
-                        Always returns the integer constant {@link spi::Filter#DENY DENY}
-                        regardless of the {@link spi::LoggingEvent LoggingEvent} parameter.
-                        @param event The LoggingEvent to filter.
-                        @return Always returns {@link spi::Filter#DENY DENY}.
-                        */
-                        FilterDecision decide(const spi::LoggingEventPtr& /* event */) const
-                                { return spi::Filter::DENY; }
-                }; // class DenyAllFilter
+		/**
+		Always returns the integer constant {@link spi::Filter#DENY DENY}
+		regardless of the {@link spi::LoggingEventPtr LoggingEvent} parameter.
+		@param event The LoggingEvent to filter.
+		@return Always returns {@link spi::Filter#DENY DENY}.
+		*/
+		FilterDecision decide(const spi::LoggingEventPtr& event) const
+		{
+			return spi::Filter::DENY;
+		}
+}; // class DenyAllFilter
 
-                LOG4CXX_PTR_DEF(DenyAllFilter);
-        }  // namespace filter
+LOG4CXX_PTR_DEF(DenyAllFilter);
+}  // namespace filter
 } // namespace log4cxx
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 

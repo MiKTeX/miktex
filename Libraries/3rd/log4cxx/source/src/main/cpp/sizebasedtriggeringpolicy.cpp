@@ -26,31 +26,38 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(SizeBasedTriggeringPolicy)
 
 SizeBasedTriggeringPolicy::SizeBasedTriggeringPolicy()
-      : maxFileSize(10 * 1024 * 1024) {
+	: maxFileSize(10 * 1024 * 1024)
+{
 }
 
 bool SizeBasedTriggeringPolicy::isTriggeringEvent(Appender* /* appender */,
-          const log4cxx::spi::LoggingEventPtr& /* event */,
-          const LogString& /* file */,
-          size_t fileLength) {
-  return (fileLength >= maxFileSize);
+	const log4cxx::spi::LoggingEventPtr& /* event */,
+	const LogString& /* file */,
+	size_t fileLength)
+{
+	return (fileLength >= maxFileSize);
 }
 
-size_t SizeBasedTriggeringPolicy::getMaxFileSize() {
-  return maxFileSize;
+size_t SizeBasedTriggeringPolicy::getMaxFileSize()
+{
+	return maxFileSize;
 }
 
-void SizeBasedTriggeringPolicy::setMaxFileSize(size_t l) {
-  maxFileSize = l;
+void SizeBasedTriggeringPolicy::setMaxFileSize(size_t l)
+{
+	maxFileSize = l;
 }
 
-void SizeBasedTriggeringPolicy::activateOptions(Pool& /* p */) {
+void SizeBasedTriggeringPolicy::activateOptions(Pool& /* p */)
+{
 }
 
-void SizeBasedTriggeringPolicy::setOption(const LogString& option, const LogString& value) {
-  if (StringHelper::equalsIgnoreCase(option,
-       LOG4CXX_STR("MAXFILESIZE"),
-       LOG4CXX_STR("maxfilesize"))) {
-       maxFileSize = OptionConverter::toFileSize(value, 10*1024*1024);
-  }
+void SizeBasedTriggeringPolicy::setOption(const LogString& option, const LogString& value)
+{
+	if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("MAXFILESIZE"),
+			LOG4CXX_STR("maxfilesize")))
+	{
+		maxFileSize = OptionConverter::toFileSize(value, 10 * 1024 * 1024);
+	}
 }

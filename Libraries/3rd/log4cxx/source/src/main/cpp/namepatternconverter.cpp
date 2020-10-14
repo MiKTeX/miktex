@@ -16,7 +16,7 @@
  */
 
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -31,26 +31,31 @@ using namespace log4cxx::spi;
 IMPLEMENT_LOG4CXX_OBJECT(NamePatternConverter)
 
 NamePatternConverter::NamePatternConverter(
-    const LogString& name1,
-    const LogString& style1,
-    const std::vector<LogString>& options) :
-    LoggingEventPatternConverter(name1, style1),
-    abbreviator(getAbbreviator(options)) {
+	const LogString& name1,
+	const LogString& style1,
+	const std::vector<LogString>& options) :
+	LoggingEventPatternConverter(name1, style1),
+	abbreviator(getAbbreviator(options))
+{
 }
 
 NameAbbreviatorPtr NamePatternConverter::getAbbreviator(
-    const std::vector<LogString>& options) {
-    if (options.size() > 0) {
-       return NameAbbreviator::getAbbreviator(options[0]);
-    }
-    return NameAbbreviator::getDefaultAbbreviator();
+	const std::vector<LogString>& options)
+{
+	if (options.size() > 0)
+	{
+		return NameAbbreviator::getAbbreviator(options[0]);
+	}
+
+	return NameAbbreviator::getDefaultAbbreviator();
 }
 
-  /**
-   * Abbreviate name in string buffer.
-   * @param nameStart starting position of name to abbreviate.
-   * @param buf string buffer containing name.
-   */
-void NamePatternConverter::abbreviate(int nameStart, LogString& buf) const {
-    abbreviator->abbreviate(nameStart, buf);
+/**
+ * Abbreviate name in string buffer.
+ * @param nameStart starting position of name to abbreviate.
+ * @param buf string buffer containing name.
+ */
+void NamePatternConverter::abbreviate(int nameStart, LogString& buf) const
+{
+	abbreviator->abbreviate(nameStart, buf);
 }

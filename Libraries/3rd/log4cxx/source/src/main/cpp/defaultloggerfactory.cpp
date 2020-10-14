@@ -23,8 +23,8 @@ using namespace log4cxx;
 IMPLEMENT_LOG4CXX_OBJECT(DefaultLoggerFactory)
 
 LoggerPtr DefaultLoggerFactory::makeNewLoggerInstance(
-    log4cxx::helpers::Pool& pool,
-    const LogString& name) const
+	log4cxx::helpers::Pool& pool,
+	const LogString& name) const
 {
-    return new Logger(pool, name);
+	return new Logger(pool, name);
 }

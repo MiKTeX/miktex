@@ -23,52 +23,55 @@
 
 #include <vector>
 
-namespace log4cxx {
-  namespace pattern {
+namespace log4cxx
+{
+namespace pattern
+{
 
 /**
  *
  * Base class for other pattern converters which can return only parts of their name.
  *
  */
-class LOG4CXX_EXPORT NamePatternConverter : public LoggingEventPatternConverter {
-  /**
-   * Abbreviator.
-   */
-  const NameAbbreviatorPtr abbreviator;
+class LOG4CXX_EXPORT NamePatternConverter : public LoggingEventPatternConverter
+{
+		/**
+		 * Abbreviator.
+		 */
+		const NameAbbreviatorPtr abbreviator;
 
-public:
-DECLARE_LOG4CXX_PATTERN(NamePatternConverter)
-BEGIN_LOG4CXX_CAST_MAP()
-     LOG4CXX_CAST_ENTRY(NamePatternConverter)
-     LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
-END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_PATTERN(NamePatternConverter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(NamePatternConverter)
+		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
+		END_LOG4CXX_CAST_MAP()
 
 
-protected:
-  /**
-   * Constructor.
-   * @param name name of converter.
-   * @param style style name for associated output.
-   * @param options options, may be null, first element will be interpreted as an abbreviation pattern.
-   */
-  NamePatternConverter(
-    const LogString& name,
-    const LogString& style,
-    const std::vector<LogString>& options);
+	protected:
+		/**
+		 * Constructor.
+		 * @param name name of converter.
+		 * @param style style name for associated output.
+		 * @param options options, may be null, first element will be interpreted as an abbreviation pattern.
+		 */
+		NamePatternConverter(
+			const LogString& name,
+			const LogString& style,
+			const std::vector<LogString>& options);
 
-  /**
-   * Abbreviate name in string buffer.
-   * @param nameStart starting position of name to abbreviate.
-   * @param buf string buffer containing name.
-   */
-  void abbreviate(int nameStart, LogString& buf) const;
+		/**
+		 * Abbreviate name in string buffer.
+		 * @param nameStart starting position of name to abbreviate.
+		 * @param buf string buffer containing name.
+		 */
+		void abbreviate(int nameStart, LogString& buf) const;
 
-private:
-   NameAbbreviatorPtr getAbbreviator(const std::vector<LogString>& options);
+	private:
+		NameAbbreviatorPtr getAbbreviator(const std::vector<LogString>& options);
 };
 
-  }
+}
 }
 
 #endif

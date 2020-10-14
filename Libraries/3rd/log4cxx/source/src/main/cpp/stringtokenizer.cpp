@@ -19,7 +19,7 @@
 #include <log4cxx/helpers/stringtokenizer.h>
 #include <log4cxx/helpers/exception.h>
 #if !defined(LOG4CXX)
-#define LOG4CXX 1
+	#define LOG4CXX 1
 #endif
 #include <log4cxx/private/log4cxx_private.h>
 
@@ -27,7 +27,7 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 
 StringTokenizer::StringTokenizer(const LogString& str, const LogString& delim1)
-: src(str), delim(delim1), pos(0)
+	: src(str), delim(delim1), pos(0)
 {
 }
 
@@ -37,24 +37,31 @@ StringTokenizer::~StringTokenizer()
 
 bool StringTokenizer::hasMoreTokens() const
 {
-        return (pos != LogString::npos
-            && src.find_first_not_of(delim, pos) != LogString::npos);
+	return (pos != LogString::npos
+			&& src.find_first_not_of(delim, pos) != LogString::npos);
 }
 
 LogString StringTokenizer::nextToken()
 {
-        if (pos != LogString::npos) {
-            size_t nextPos = src.find_first_not_of(delim, pos);
-            if (nextPos != LogString::npos) {
-               pos = src.find_first_of(delim, nextPos);
-               if (pos == LogString::npos) {
-                 return src.substr(nextPos);
-               }
-               return src.substr(nextPos, pos - nextPos);
-            }
-        }
-        throw NoSuchElementException();
+	if (pos != LogString::npos)
+	{
+		size_t nextPos = src.find_first_not_of(delim, pos);
+
+		if (nextPos != LogString::npos)
+		{
+			pos = src.find_first_of(delim, nextPos);
+
+			if (pos == LogString::npos)
+			{
+				return src.substr(nextPos);
+			}
+
+			return src.substr(nextPos, pos - nextPos);
+		}
+	}
+
+	throw NoSuchElementException();
 #if LOG4CXX_RETURN_AFTER_THROW
-        return LogString();
+	return LogString();
 #endif
 }

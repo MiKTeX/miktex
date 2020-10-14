@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -31,22 +31,27 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(IntegerPatternConverter)
 
 IntegerPatternConverter::IntegerPatternConverter() :
-   PatternConverter(LOG4CXX_STR("Integer"),
-      LOG4CXX_STR("integer")) {
+	PatternConverter(LOG4CXX_STR("Integer"),
+		LOG4CXX_STR("integer"))
+{
 }
 
 PatternConverterPtr IntegerPatternConverter::newInstance(
-   const std::vector<LogString>& /* options */) {
-   static PatternConverterPtr instance(new IntegerPatternConverter());
-   return instance;
+	const std::vector<LogString>& /* options */)
+{
+	static PatternConverterPtr instance(new IntegerPatternConverter());
+	return instance;
 }
 
 void IntegerPatternConverter::format(
-  const ObjectPtr& obj,
-  LogString& toAppendTo,
-  Pool& p) const {
-   IntegerPtr i(obj);
-   if (i != NULL) {
-      StringHelper::toString(i->intValue(), p, toAppendTo);
-   }
+	const ObjectPtr& obj,
+	LogString& toAppendTo,
+	Pool& p) const
+{
+	IntegerPtr i(obj);
+
+	if (i != NULL)
+	{
+		StringHelper::toString(i->intValue(), p, toAppendTo);
+	}
 }

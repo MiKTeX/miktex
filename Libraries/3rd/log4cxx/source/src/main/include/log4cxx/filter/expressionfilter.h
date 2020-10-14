@@ -19,8 +19,8 @@
 #define _LOG4CXX_FILTER_EXPRESSIONFILTER_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -28,15 +28,15 @@
 
 namespace log4cxx
 {
-    namespace rule
-    {
-        class Rule;
-        typedef helpers::ObjectPtrT < Rule > RulePtr;
-    }
+namespace rule
+{
+class Rule;
+typedef helpers::ObjectPtrT < Rule > RulePtr;
+}
 
 
-    namespace filter
-    {
+namespace filter
+{
 
 
 /**
@@ -79,51 +79,51 @@ namespace log4cxx
  *
  * If there is no match, {@link log4cxx::spi::Filter#NEUTRAL} is returned.
  *
- * 
+ *
  */
-        class LOG4CXX_EXPORT ExpressionFilter:public log4cxx::spi::Filter
-        {
-          private:
-            bool acceptOnMatch;
-            bool convertInFixToPostFix;
-            LogString expression;
-                      log4cxx::rule::RulePtr expressionRule;
-                      ExpressionFilter(const ExpressionFilter &);
-                  ExpressionFilter & operator=(const ExpressionFilter &);
+class LOG4CXX_EXPORT ExpressionFilter: public log4cxx::spi::Filter
+{
+	private:
+		bool acceptOnMatch;
+		bool convertInFixToPostFix;
+		LogString expression;
+		log4cxx::rule::RulePtr expressionRule;
+		ExpressionFilter(const ExpressionFilter&);
+		ExpressionFilter& operator=(const ExpressionFilter&);
 
-          public:
-                  DECLARE_LOG4CXX_OBJECT(ExpressionFilter)
-                  BEGIN_LOG4CXX_CAST_MAP()
-                  LOG4CXX_CAST_ENTRY(log4cxx::spi::Filter)
-                  END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_OBJECT(ExpressionFilter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(log4cxx::spi::Filter)
+		END_LOG4CXX_CAST_MAP()
 
 
-                  ExpressionFilter();
+		ExpressionFilter();
 
-            void activateOptions(log4cxx::helpers::Pool & p);
+		void activateOptions(log4cxx::helpers::Pool& p);
 
-            void setExpression(const LogString & expression);
+		void setExpression(const LogString& expression);
 
-            LogString getExpression() const;
+		LogString getExpression() const;
 
-            void setConvertInFixToPostFix(bool convertInFixToPostFix);
+		void setConvertInFixToPostFix(bool convertInFixToPostFix);
 
-            bool getConvertInFixToPostFix() const;
+		bool getConvertInFixToPostFix() const;
 
-            void setAcceptOnMatch(bool acceptOnMatch);
+		void setAcceptOnMatch(bool acceptOnMatch);
 
-            bool getAcceptOnMatch() const;
+		bool getAcceptOnMatch() const;
 
-  /**
-     Returns {@link log4cxx::spi::Filter#NEUTRAL} is there is no string match.
-   */
-            FilterDecision decide(const spi::LoggingEventPtr & event) const;
-        };
-    }
+		/**
+		   Returns {@link log4cxx::spi::Filter#NEUTRAL} is there is no string match.
+		 */
+		FilterDecision decide(const spi::LoggingEventPtr& event) const;
+};
+}
 }
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 

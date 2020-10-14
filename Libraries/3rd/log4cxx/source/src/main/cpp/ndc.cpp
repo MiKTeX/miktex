@@ -16,7 +16,7 @@
  */
 
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -29,215 +29,277 @@ using namespace log4cxx::helpers;
 
 NDC::NDC(const std::string& message)
 {
-        push(message);
+	push(message);
 }
 
 NDC::~NDC()
 {
-        pop();
+	pop();
 }
 
 
-LogString& NDC::getMessage(NDC::DiagnosticContext& ctx) {
-    return ctx.first;
+LogString& NDC::getMessage(NDC::DiagnosticContext& ctx)
+{
+	return ctx.first;
 }
 
-LogString& NDC::getFullMessage(NDC::DiagnosticContext& ctx) {
-    return ctx.second;
+LogString& NDC::getFullMessage(NDC::DiagnosticContext& ctx)
+{
+	return ctx.second;
 }
 
 void NDC::clear()
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        while(!stack.empty()) {
-          stack.pop();
-        }
-        data->recycle();
-    }
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		while (!stack.empty())
+		{
+			stack.pop();
+		}
+
+		data->recycle();
+	}
 }
 
 NDC::Stack* NDC::cloneStack()
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if (!stack.empty()) {
-            return new Stack(stack);
-        }
-    }
-    return new Stack();
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			return new Stack(stack);
+		}
+	}
+
+	return new Stack();
 }
 
-void NDC::inherit(NDC::Stack * stack) {
-    if (stack != NULL) {
-        ThreadSpecificData::inherit(*stack);
-        delete stack;
-    }
+void NDC::inherit(NDC::Stack* stack)
+{
+	if (stack != NULL)
+	{
+		ThreadSpecificData::inherit(*stack);
+		delete stack;
+	}
 }
 
 
 bool NDC::get(LogString& dest)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty()) {
-                dest.append(getFullMessage(stack.top()));
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			dest.append(getFullMessage(stack.top()));
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
-int NDC::getDepth() {
-    int size = 0;
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        size = data->getStack().size();
-        if (size == 0) {
-            data->recycle();
-        }
-    }
-    return size;
+int NDC::getDepth()
+{
+	int size = 0;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		size = (int)data->getStack().size();
+
+		if (size == 0)
+		{
+			data->recycle();
+		}
+	}
+
+	return size;
 }
 
 LogString NDC::pop()
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                LogString value(getMessage(stack.top()));
-                stack.pop();
-                data->recycle();
-                return value;
-        }
-        data->recycle();
-    }
-    return LogString();
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			LogString value(getMessage(stack.top()));
+			stack.pop();
+			data->recycle();
+			return value;
+		}
+
+		data->recycle();
+	}
+
+	return LogString();
 }
 
 bool NDC::pop(std::string& dst)
 {
-    bool retval = false;
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                Transcoder::encode(getMessage(stack.top()), dst);
-                stack.pop();
-                retval = true;
-        }
-        data->recycle();
-    }
-    return retval;
+	bool retval = false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			Transcoder::encode(getMessage(stack.top()), dst);
+			stack.pop();
+			retval = true;
+		}
+
+		data->recycle();
+	}
+
+	return retval;
 }
 
 LogString NDC::peek()
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                return getMessage(stack.top());
-        }
-        data->recycle();
-    }
-    return LogString();
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			return getMessage(stack.top());
+		}
+
+		data->recycle();
+	}
+
+	return LogString();
 }
 
 bool NDC::peek(std::string& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                Transcoder::encode(getMessage(stack.top()), dst);
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			Transcoder::encode(getMessage(stack.top()), dst);
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 void NDC::pushLS(const LogString& message)
 {
-    ThreadSpecificData::push(message);
+	ThreadSpecificData::push(message);
 }
 
 void NDC::push(const std::string& message)
 {
-   LOG4CXX_DECODE_CHAR(msg, message);
-   pushLS(msg);
+	LOG4CXX_DECODE_CHAR(msg, message);
+	pushLS(msg);
 }
 
 void NDC::remove()
 {
-        clear();
+	clear();
 }
 
-bool NDC::empty() {
-    bool empty = true;
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        empty = stack.empty();
-        if (empty) {
-            data->recycle();
-        }
-    }
-    return empty;
+bool NDC::empty()
+{
+	bool empty = true;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+		empty = stack.empty();
+
+		if (empty)
+		{
+			data->recycle();
+		}
+	}
+
+	return empty;
 }
 
 #if LOG4CXX_WCHAR_T_API
 NDC::NDC(const std::wstring& message)
 {
-        push(message);
+	push(message);
 }
 
 void NDC::push(const std::wstring& message)
 {
-   LOG4CXX_DECODE_WCHAR(msg, message);
-   pushLS(msg);
+	LOG4CXX_DECODE_WCHAR(msg, message);
+	pushLS(msg);
 }
 
 bool NDC::pop(std::wstring& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                Transcoder::encode(getMessage(stack.top()), dst);
-                stack.pop();
-                data->recycle();
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			Transcoder::encode(getMessage(stack.top()), dst);
+			stack.pop();
+			data->recycle();
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 bool NDC::peek(std::wstring& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                Transcoder::encode(getMessage(stack.top()), dst);
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			Transcoder::encode(getMessage(stack.top()), dst);
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 #endif
@@ -246,45 +308,55 @@ bool NDC::peek(std::wstring& dst)
 #if LOG4CXX_UNICHAR_API
 NDC::NDC(const std::basic_string<UniChar>& message)
 {
-        push(message);
+	push(message);
 }
 
 void NDC::push(const std::basic_string<UniChar>& message)
 {
-   LOG4CXX_DECODE_UNICHAR(msg, message);
-   pushLS(msg);
+	LOG4CXX_DECODE_UNICHAR(msg, message);
+	pushLS(msg);
 }
 
 bool NDC::pop(std::basic_string<UniChar>& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                Transcoder::encode(stack.top().message, dst);
-                stack.pop();
-                data->recycle();
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			Transcoder::encode(stack.top().message, dst);
+			stack.pop();
+			data->recycle();
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 bool NDC::peek(std::basic_string<UniChar>& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                Transcoder::encode(stack.top().message, dst);
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			Transcoder::encode(stack.top().message, dst);
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 #endif
@@ -293,45 +365,55 @@ bool NDC::peek(std::basic_string<UniChar>& dst)
 #if LOG4CXX_CFSTRING_API
 NDC::NDC(const CFStringRef& message)
 {
-        push(message);
+	push(message);
 }
 
 void NDC::push(const CFStringRef& message)
 {
-   LOG4CXX_DECODE_CFSTRING(msg, message);
-   pushLS(msg);
+	LOG4CXX_DECODE_CFSTRING(msg, message);
+	pushLS(msg);
 }
 
 bool NDC::pop(CFStringRef& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                dst = Transcoder::encode(stack.top().message);
-                stack.pop();
-                data->recycle();
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			dst = Transcoder::encode(getMessage(stack.top()));
+			stack.pop();
+			data->recycle();
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 bool NDC::peek(CFStringRef& dst)
 {
-    ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
-    if (data != 0) {
-        Stack& stack = data->getStack();
-        if(!stack.empty())
-        {
-                dst = Transcoder::encode(stack.top().message);
-                return true;
-        }
-        data->recycle();
-    }
-    return false;
+	ThreadSpecificData* data = ThreadSpecificData::getCurrentData();
+
+	if (data != 0)
+	{
+		Stack& stack = data->getStack();
+
+		if (!stack.empty())
+		{
+			dst = Transcoder::encode(getMessage(stack.top()));
+			return true;
+		}
+
+		data->recycle();
+	}
+
+	return false;
 }
 
 #endif

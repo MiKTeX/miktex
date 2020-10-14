@@ -31,59 +31,59 @@ IMPLEMENT_LOG4CXX_OBJECT(LevelRangeFilter)
 
 
 LevelRangeFilter::LevelRangeFilter()
-: acceptOnMatch(true), levelMin(Level::getAll()), levelMax(Level::getOff())
+	: acceptOnMatch(false), levelMin(Level::getAll()), levelMax(Level::getOff())
 {
 }
 
 void LevelRangeFilter::setOption(const LogString& option,
-   const LogString& value)
+	const LogString& value)
 {
 
-   if (StringHelper::equalsIgnoreCase(option,
-                 LOG4CXX_STR("LEVELMIN"), LOG4CXX_STR("levelmin")))
-   {
-      levelMin = OptionConverter::toLevel(value, levelMin);
-   }
-        else if (StringHelper::equalsIgnoreCase(option,
-                LOG4CXX_STR("LEVELMAX"), LOG4CXX_STR("levelmax")))
-   {
-      levelMax = OptionConverter::toLevel(value, levelMax);
-   }
-   else if (StringHelper::equalsIgnoreCase(option,
-                LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
-   {
-      acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
-   }
+	if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("LEVELMIN"), LOG4CXX_STR("levelmin")))
+	{
+		levelMin = OptionConverter::toLevel(value, levelMin);
+	}
+	else if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("LEVELMAX"), LOG4CXX_STR("levelmax")))
+	{
+		levelMax = OptionConverter::toLevel(value, levelMax);
+	}
+	else if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
+	{
+		acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
+	}
 }
 
 Filter::FilterDecision LevelRangeFilter::decide(
-   const spi::LoggingEventPtr& event) const
+	const spi::LoggingEventPtr& event) const
 {
-   if (levelMin != 0 && !event->getLevel()->isGreaterOrEqual(levelMin))
-   {
-      // level of event is less than minimum
-      return Filter::DENY;
-   }
+	if (levelMin != 0 && !event->getLevel()->isGreaterOrEqual(levelMin))
+	{
+		// level of event is less than minimum
+		return Filter::DENY;
+	}
 
-   if (levelMax != 0 && event->getLevel()->toInt() > levelMax->toInt())
-   {
-      // level of event is greater than maximum
-      // Alas, there is no Level.isGreater method. and using
-      // a combo of isGreaterOrEqual && !Equal seems worse than
-      // checking the int values of the level objects..
-      return Filter::DENY;
-   }
+	if (levelMax != 0 && event->getLevel()->toInt() > levelMax->toInt())
+	{
+		// level of event is greater than maximum
+		// Alas, there is no Level.isGreater method. and using
+		// a combo of isGreaterOrEqual && !Equal seems worse than
+		// checking the int values of the level objects..
+		return Filter::DENY;
+	}
 
-   if (acceptOnMatch)
-   {
-      // this filter set up to bypass later filters and always return
-      // accept if level in range
-      return Filter::ACCEPT;
-   }
-   else
-   {
-      // event is ok for this filter; allow later filters to have a look..
-      return Filter::NEUTRAL;
-   }
+	if (acceptOnMatch)
+	{
+		// this filter set up to bypass later filters and always return
+		// accept if level in range
+		return Filter::ACCEPT;
+	}
+	else
+	{
+		// event is ok for this filter; allow later filters to have a look..
+		return Filter::NEUTRAL;
+	}
 }
 

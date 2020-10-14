@@ -23,13 +23,16 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(TriggeringPolicy)
 
-TriggeringPolicy::~TriggeringPolicy() {
+TriggeringPolicy::~TriggeringPolicy()
+{
 }
 
-void TriggeringPolicy::addRef() const {
-    ObjectImpl::addRef();
+void TriggeringPolicy::addRef() const
+{
+	ObjectImpl::addRef();
 }
 
-void TriggeringPolicy::releaseRef() const {
-    ObjectImpl::releaseRef();
+void TriggeringPolicy::releaseRef() const
+{
+	ObjectImpl::releaseRef();
 }

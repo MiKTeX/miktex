@@ -18,7 +18,7 @@
 #include <log4cxx/helpers/propertyresourcebundle.h>
 #include <log4cxx/helpers/exception.h>
 #if !defined(LOG4CXX)
-#define LOG4CXX 1
+	#define LOG4CXX 1
 #endif
 #include <log4cxx/private/log4cxx_private.h>
 
@@ -30,28 +30,29 @@ IMPLEMENT_LOG4CXX_OBJECT(PropertyResourceBundle)
 
 PropertyResourceBundle::PropertyResourceBundle(InputStreamPtr inStream)
 {
-   properties.load(inStream);
+	properties.load(inStream);
 }
 
 LogString PropertyResourceBundle::getString(const LogString& key) const
 {
-   LogString resource;
-   PropertyResourceBundlePtr resourceBundle(const_cast<PropertyResourceBundle*>(this));
+	LogString resource;
+	PropertyResourceBundlePtr resourceBundle(const_cast<PropertyResourceBundle*>(this));
 
-   do
-   {
-      resource = resourceBundle->properties.getProperty(key);
-      if (!resource.empty())
-      {
-         return resource;
-      }
+	do
+	{
+		resource = resourceBundle->properties.getProperty(key);
 
-      resourceBundle = resourceBundle->parent;
-   }
-   while (resourceBundle != 0);
+		if (!resource.empty())
+		{
+			return resource;
+		}
 
-   throw MissingResourceException(key);
+		resourceBundle = resourceBundle->parent;
+	}
+	while (resourceBundle != 0);
+
+	throw MissingResourceException(key);
 #if LOG4CXX_RETURN_AFTER_THROW
-   return resource;
+	return resource;
 #endif
 }

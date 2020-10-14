@@ -25,11 +25,13 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(FileRenameAction)
 
 FileRenameAction::FileRenameAction(const File& toRename,
-    const File& renameTo,
-    bool renameEmptyFile1)
-   : source(toRename), destination(renameTo), renameEmptyFile(renameEmptyFile1) {
+	const File& renameTo,
+	bool renameEmptyFile1)
+	: source(toRename), destination(renameTo), renameEmptyFile(renameEmptyFile1)
+{
 }
 
-bool FileRenameAction::execute(log4cxx::helpers::Pool& pool1) const {
-  return source.renameTo(destination, pool1);
+bool FileRenameAction::execute(log4cxx::helpers::Pool& pool1) const
+{
+	return source.renameTo(destination, pool1);
 }

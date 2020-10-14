@@ -19,8 +19,8 @@
 #define _LOG4CXX_SPI_LOG_REPOSITORY_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -31,85 +31,85 @@
 
 namespace log4cxx
 {
-    namespace spi
-        {
-            
-            /**
-            A <code>LoggerRepository</code> is used to create and retrieve
-            <code>Loggers</code>. The relation between loggers in a repository
-            depends on the repository but typically loggers are arranged in a
-            named hierarchy.
+namespace spi
+{
 
-            <p>In addition to the creational methods, a
-            <code>LoggerRepository</code> can be queried for existing loggers,
-            can act as a point of registry for events related to loggers.
-            */
-            class LOG4CXX_EXPORT LoggerRepository : public virtual helpers::Object
-            {
-            public:
-                DECLARE_ABSTRACT_LOG4CXX_OBJECT(LoggerRepository)
-                    virtual ~LoggerRepository() {}
+/**
+A <code>LoggerRepository</code> is used to create and retrieve
+<code>Loggers</code>. The relation between loggers in a repository
+depends on the repository but typically loggers are arranged in a
+named hierarchy.
 
-                /**
-                Add a {@link spi::HierarchyEventListener HierarchyEventListener}
-                            event to the repository.
-                */
-                virtual void addHierarchyEventListener(const HierarchyEventListenerPtr&
-                                    listener) = 0;
-                /**
-                Is the repository disabled for a given level? The answer depends
-                on the repository threshold and the <code>level</code>
-                parameter. See also #setThreshold method.  */
-                virtual bool isDisabled(int level) const = 0;
+<p>In addition to the creational methods, a
+<code>LoggerRepository</code> can be queried for existing loggers,
+can act as a point of registry for events related to loggers.
+*/
+class LOG4CXX_EXPORT LoggerRepository : public virtual helpers::Object
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(LoggerRepository)
+		virtual ~LoggerRepository() {}
 
-                /**
-                Set the repository-wide threshold. All logging requests below the
-                threshold are immediately dropped. By default, the threshold is
-                set to <code>Level::getAll()</code> which has the lowest possible rank.  */
-                virtual void setThreshold(const LevelPtr& level) = 0;
+		/**
+		Add a {@link spi::HierarchyEventListener HierarchyEventListener}
+		            event to the repository.
+		*/
+		virtual void addHierarchyEventListener(const HierarchyEventListenerPtr&
+			listener) = 0;
+		/**
+		Is the repository disabled for a given level? The answer depends
+		on the repository threshold and the <code>level</code>
+		parameter. See also #setThreshold method.  */
+		virtual bool isDisabled(int level) const = 0;
 
-                /**
-                Another form of {@link #setThreshold(const LevelPtr&)
-                            setThreshold} accepting a string
-                parameter instead of a <code>Level</code>. */
-                virtual void setThreshold(const LogString& val) = 0;
+		/**
+		Set the repository-wide threshold. All logging requests below the
+		threshold are immediately dropped. By default, the threshold is
+		set to <code>Level::getAll()</code> which has the lowest possible rank.  */
+		virtual void setThreshold(const LevelPtr& level) = 0;
 
-                virtual void emitNoAppenderWarning(const LoggerPtr& logger) = 0;
+		/**
+		Another form of {@link #setThreshold(const LevelPtr&)
+		            setThreshold} accepting a string
+		parameter instead of a <code>Level</code>. */
+		virtual void setThreshold(const LogString& val) = 0;
 
-                /**
-                Get the repository-wide threshold. See {@link
-                #setThreshold(const LevelPtr&) setThreshold}
-                            for an explanation. */
-                virtual const LevelPtr& getThreshold() const = 0;
+		virtual void emitNoAppenderWarning(const LoggerPtr& logger) = 0;
 
-                virtual LoggerPtr getLogger(const LogString& name) = 0;
+		/**
+		Get the repository-wide threshold. See {@link
+		#setThreshold(const LevelPtr&) setThreshold}
+		            for an explanation. */
+		virtual const LevelPtr& getThreshold() const = 0;
 
-                virtual LoggerPtr getLogger(const LogString& name,
-                     const spi::LoggerFactoryPtr& factory) = 0;
+		virtual LoggerPtr getLogger(const LogString& name) = 0;
 
-                virtual LoggerPtr getRootLogger() const = 0;
+		virtual LoggerPtr getLogger(const LogString& name,
+			const spi::LoggerFactoryPtr& factory) = 0;
 
-                virtual LoggerPtr exists(const LogString& name) = 0;
+		virtual LoggerPtr getRootLogger() const = 0;
 
-                virtual void shutdown() = 0;
+		virtual LoggerPtr exists(const LogString& name) = 0;
 
-                virtual LoggerList getCurrentLoggers() const = 0;
+		virtual void shutdown() = 0;
 
-                virtual void fireAddAppenderEvent(const LoggerPtr& logger,
-                                    const AppenderPtr& appender) = 0;
+		virtual LoggerList getCurrentLoggers() const = 0;
 
-                virtual void resetConfiguration() = 0;
+		virtual void fireAddAppenderEvent(const LoggerPtr& logger,
+			const AppenderPtr& appender) = 0;
 
-            virtual bool isConfigured() = 0;
-            virtual void setConfigured(bool configured) = 0;
+		virtual void resetConfiguration() = 0;
 
-            }; // class LoggerRepository
+		virtual bool isConfigured() = 0;
+		virtual void setConfigured(bool configured) = 0;
 
-        }  // namespace spi
+}; // class LoggerRepository
+
+}  // namespace spi
 } // namespace log4cxx
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 

@@ -16,7 +16,7 @@
  */
 
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -33,24 +33,27 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(FullLocationPatternConverter)
 
 FullLocationPatternConverter::FullLocationPatternConverter() :
-   LoggingEventPatternConverter(LOG4CXX_STR("Full Location"),
-      LOG4CXX_STR("fullLocation")) {
+	LoggingEventPatternConverter(LOG4CXX_STR("Full Location"),
+		LOG4CXX_STR("fullLocation"))
+{
 }
 
 PatternConverterPtr FullLocationPatternConverter::newInstance(
-   const std::vector<LogString>& /* options */) {
-   static PatternConverterPtr instance(new FullLocationPatternConverter());
-   return instance;
+	const std::vector<LogString>& /* options */)
+{
+	static PatternConverterPtr instance(new FullLocationPatternConverter());
+	return instance;
 }
 
 void FullLocationPatternConverter::format(
-  const LoggingEventPtr& event,
-  LogString& toAppendTo,
-  Pool& p) const {
-   append(toAppendTo, event->getLocationInformation().getFileName());
-   toAppendTo.append(1, (logchar) 0x28 /* '(' */);
-   StringHelper::toString(
-       event->getLocationInformation().getLineNumber(),
-       p, toAppendTo);
-   toAppendTo.append(1, (logchar) 0x29 /* ')' */);
+	const LoggingEventPtr& event,
+	LogString& toAppendTo,
+	Pool& p) const
+{
+	append(toAppendTo, event->getLocationInformation().getFileName());
+	toAppendTo.append(1, (logchar) 0x28 /* '(' */);
+	StringHelper::toString(
+		event->getLocationInformation().getLineNumber(),
+		p, toAppendTo);
+	toAppendTo.append(1, (logchar) 0x29 /* ')' */);
 }

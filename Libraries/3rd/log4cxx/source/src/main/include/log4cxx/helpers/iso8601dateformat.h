@@ -22,24 +22,24 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                /**
-                Formats a date in the format <b>yyyy-MM-dd HH:mm:ss,SSS</b> for example
-                "1999-11-27 15:49:37,459".
+namespace helpers
+{
+/**
+Formats a date in the format <b>yyyy-MM-dd HH:mm:ss,SSS</b> for example
+"1999-11-27 15:49:37,459".
 
-                <p>Refer to the
-                <a href=http://www.cl.cam.ac.uk/~mgk25/iso-time.html>summary of the
-                International Standard Date and Time Notation</a> for more
-                information on this format.
-                */
-                class LOG4CXX_EXPORT ISO8601DateFormat : public SimpleDateFormat
-                {
-                public:
-                        ISO8601DateFormat()
-                         : SimpleDateFormat(LOG4CXX_STR("yyyy-MM-dd HH:mm:ss,SSS")) {}
-                };
-        }  // namespace helpers
+<p>Refer to the
+<a href=http://www.cl.cam.ac.uk/~mgk25/iso-time.html>summary of the
+International Standard Date and Time Notation</a> for more
+information on this format.
+*/
+class LOG4CXX_EXPORT ISO8601DateFormat : public SimpleDateFormat
+{
+	public:
+		ISO8601DateFormat()
+			: SimpleDateFormat(LOG4CXX_STR("yyyy-MM-dd HH:mm:ss,SSS")) {}
+};
+}  // namespace helpers
 } // namespace log4cxx
 
 #endif // _LOG4CXX_HELPERS_ISO_8601_DATE_FORMAT_H

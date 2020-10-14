@@ -45,72 +45,89 @@ int XMLSocketAppender::DEFAULT_RECONNECTION_DELAY   = 30000;
 const int XMLSocketAppender::MAX_EVENT_LEN          = 1024;
 
 XMLSocketAppender::XMLSocketAppender()
-: SocketAppenderSkeleton(DEFAULT_PORT, DEFAULT_RECONNECTION_DELAY)
+	: SocketAppenderSkeleton(DEFAULT_PORT, DEFAULT_RECONNECTION_DELAY)
 {
-        layout = new XMLLayout();
+	layout = new XMLLayout();
 }
 
 XMLSocketAppender::XMLSocketAppender(InetAddressPtr address1, int port1)
-: SocketAppenderSkeleton(address1, port1, DEFAULT_RECONNECTION_DELAY)
+	: SocketAppenderSkeleton(address1, port1, DEFAULT_RECONNECTION_DELAY)
 {
-        layout = new XMLLayout();
-        Pool p;
-        activateOptions(p);
+	layout = new XMLLayout();
+	Pool p;
+	activateOptions(p);
 }
 
 XMLSocketAppender::XMLSocketAppender(const LogString& host, int port1)
-: SocketAppenderSkeleton(host, port1, DEFAULT_RECONNECTION_DELAY)
+	: SocketAppenderSkeleton(host, port1, DEFAULT_RECONNECTION_DELAY)
 {
-        layout = new XMLLayout();
-        Pool p;
-        activateOptions(p);
+	layout = new XMLLayout();
+	Pool p;
+	activateOptions(p);
 }
 
-XMLSocketAppender::~XMLSocketAppender() {
-    finalize();
+XMLSocketAppender::~XMLSocketAppender()
+{
+	finalize();
 }
 
 
-int XMLSocketAppender::getDefaultDelay() const {
-    return DEFAULT_RECONNECTION_DELAY;
+int XMLSocketAppender::getDefaultDelay() const
+{
+	return DEFAULT_RECONNECTION_DELAY;
 }
 
-int XMLSocketAppender::getDefaultPort() const {
-    return DEFAULT_PORT;
+int XMLSocketAppender::getDefaultPort() const
+{
+	return DEFAULT_PORT;
 }
 
-void XMLSocketAppender::setSocket(log4cxx::helpers::SocketPtr& socket, Pool& p) {
-    OutputStreamPtr os(new SocketOutputStream(socket));
-    CharsetEncoderPtr charset(CharsetEncoder::getUTF8Encoder());
-    synchronized sync(mutex);
-    writer = new OutputStreamWriter(os, charset);
+void XMLSocketAppender::setSocket(log4cxx::helpers::SocketPtr& socket, Pool& p)
+{
+	OutputStreamPtr os(new SocketOutputStream(socket));
+	CharsetEncoderPtr charset(CharsetEncoder::getUTF8Encoder());
+	LOCK_W sync(mutex);
+	writer = new OutputStreamWriter(os, charset);
 }
 
-void XMLSocketAppender::cleanUp(Pool& p) {
-    if (writer != 0) {
-        try {
-            writer->close(p);
-            writer = 0;
-        } catch(std::exception &e) {
-        }
-    }
+void XMLSocketAppender::cleanUp(Pool& p)
+{
+	if (writer != 0)
+	{
+		try
+		{
+			writer->close(p);
+			writer = 0;
+		}
+		catch (std::exception&)
+		{
+		}
+	}
 }
 
-void XMLSocketAppender::append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p) {
-    if (writer != 0) {
-        LogString output;
-        layout->format(output, event, p);
-        try {
-            writer->write(output, p);
-            writer->flush(p);
-        } catch(std::exception& e) {
-           writer = 0;
-           LogLog::warn(LOG4CXX_STR("Detected problem with connection: "), e);
-           if (getReconnectionDelay() > 0) {
-               fireConnector();
-           }
-        }
-    }
+void XMLSocketAppender::append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p)
+{
+	if (writer != 0)
+	{
+		LogString output;
+		layout->format(output, event, p);
+
+		try
+		{
+			writer->write(output, p);
+			writer->flush(p);
+		}
+		catch (std::exception& e)
+		{
+			writer = 0;
+			LogLog::warn(LOG4CXX_STR("Detected problem with connection: "), e);
+
+			if (getReconnectionDelay() > 0)
+			{
+				fireConnector();
+			}
+		}
+	}
 }
 
 

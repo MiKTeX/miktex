@@ -26,40 +26,40 @@
 
 namespace log4cxx
 {
-   class Appender;
-   typedef helpers::ObjectPtrT<Appender> AppenderPtr;
+class Appender;
+typedef helpers::ObjectPtrT<Appender> AppenderPtr;
 
-   /**
-   Use this class to quickly configure the package.
-   <p>For file based configuration see
-   PropertyConfigurator. For XML based configuration see
-   DOMConfigurator.
-   */
-   class LOG4CXX_EXPORT BasicConfigurator
-   {
-   protected:
-      BasicConfigurator() {}
+/**
+Use this class to quickly configure the package.
+<p>For file based configuration see
+PropertyConfigurator. For XML based configuration see
+DOMConfigurator.
+*/
+class LOG4CXX_EXPORT BasicConfigurator
+{
+	protected:
+		BasicConfigurator() {}
 
-   public:
-      /**
-      Add a ConsoleAppender that uses PatternLayout
-      using the PatternLayout#TTCC_CONVERSION_PATTERN and
-      prints to <code>stdout</code> to the root logger.*/
-      static void configure();
+	public:
+		/**
+		Add a ConsoleAppender that uses PatternLayout
+		using the PatternLayout#TTCC_CONVERSION_PATTERN and
+		prints to <code>stdout</code> to the root logger.*/
+		static void configure();
 
-      /**
-      Add <code>appender</code> to the root logger.
-      @param appender The appender to add to the root logger.
-      */
-      static void configure(const AppenderPtr& appender);
+		/**
+		Add <code>appender</code> to the root logger.
+		@param appender The appender to add to the root logger.
+		*/
+		static void configure(const AppenderPtr& appender);
 
-      /**
-      Reset the default hierarchy to its defaut. It is equivalent to
-      calling
-      <code>Logger::getDefaultHierarchy()->resetConfiguration()</code>.
-      See Hierarchy#resetConfiguration() for more details.  */
-      static void resetConfiguration();
-   }; // class BasicConfigurator
+		/**
+		Reset the default hierarchy to its defaut. It is equivalent to
+		calling
+		<code>Logger::getDefaultHierarchy()->resetConfiguration()</code>.
+		See Hierarchy#resetConfiguration() for more details.  */
+		static void resetConfiguration();
+}; // class BasicConfigurator
 }  // namespace log4cxx
 
 #endif //_LOG4CXX_BASIC_CONFIGURATOR_H

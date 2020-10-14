@@ -22,38 +22,38 @@
 #include <string>
 
 extern "C" {
-   struct apr_pool_t;
+	struct apr_pool_t;
 }
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                class LOG4CXX_EXPORT Pool
-                {
-                public:
-                        Pool();
-                        Pool(apr_pool_t* pool, bool release);
-                        ~Pool();
+namespace helpers
+{
+class LOG4CXX_EXPORT Pool
+{
+	public:
+		Pool();
+		Pool(apr_pool_t* pool, bool release);
+		~Pool();
 
-                        apr_pool_t* getAPRPool();
-                        apr_pool_t* create();
-                        void* palloc(size_t length);
-                        char* pstralloc(size_t length);
-                        char* itoa(int n);
-                        char* pstrndup(const char* s, size_t len);
-                        char* pstrdup(const char*s);
-                        char* pstrdup(const std::string&);
+		apr_pool_t* getAPRPool();
+		apr_pool_t* create();
+		void* palloc(size_t length);
+		char* pstralloc(size_t length);
+		char* itoa(int n);
+		char* pstrndup(const char* s, size_t len);
+		char* pstrdup(const char* s);
+		char* pstrdup(const std::string&);
 
-                protected:
-                        apr_pool_t* pool;
-                        const bool release;
+	protected:
+		apr_pool_t* pool;
+		const bool release;
 
-                private:
-                        Pool(const log4cxx::helpers::Pool&);
-                        Pool& operator=(const Pool&);
-                };
-        } // namespace helpers
+	private:
+		Pool(const log4cxx::helpers::Pool&);
+		Pool& operator=(const Pool&);
+};
+} // namespace helpers
 } // namespace log4cxx
 
 #endif //_LOG4CXX_HELPERS_POOL_H

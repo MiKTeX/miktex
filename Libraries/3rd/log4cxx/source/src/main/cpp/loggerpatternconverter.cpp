@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -31,25 +31,30 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(LoggerPatternConverter)
 
 LoggerPatternConverter::LoggerPatternConverter(
-   const std::vector<LogString>& options) :
-   NamePatternConverter(LOG4CXX_STR("Logger"),
-      LOG4CXX_STR("logger"), options) {
+	const std::vector<LogString>& options) :
+	NamePatternConverter(LOG4CXX_STR("Logger"),
+		LOG4CXX_STR("logger"), options)
+{
 }
 
 PatternConverterPtr LoggerPatternConverter::newInstance(
-   const std::vector<LogString>& options) {
-   if (options.size() == 0) {
-     static PatternConverterPtr def(new LoggerPatternConverter(options));
-     return def;
-   }
-   return new LoggerPatternConverter(options);
+	const std::vector<LogString>& options)
+{
+	if (options.size() == 0)
+	{
+		static PatternConverterPtr def(new LoggerPatternConverter(options));
+		return def;
+	}
+
+	return new LoggerPatternConverter(options);
 }
 
 void LoggerPatternConverter::format(
-  const LoggingEventPtr& event,
-  LogString& toAppendTo,
-  Pool& /* p */ ) const {
-   int initialLength = toAppendTo.length();
-   toAppendTo.append(event->getLoggerName());
-   abbreviate(initialLength, toAppendTo);
- }
+	const LoggingEventPtr& event,
+	LogString& toAppendTo,
+	Pool& /* p */ ) const
+{
+	int initialLength = (int)toAppendTo.length();
+	toAppendTo.append(event->getLoggerName());
+	abbreviate(initialLength, toAppendTo);
+}

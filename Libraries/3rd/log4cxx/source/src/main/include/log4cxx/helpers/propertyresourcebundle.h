@@ -24,38 +24,38 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
+namespace helpers
+{
 
-                /**
-                PropertyResourceBundle is a concrete subclass of ResourceBundle that
-                manages resources for a locale using a set of static strings from a
-                property file.
-                */
-                class LOG4CXX_EXPORT PropertyResourceBundle : public ResourceBundle
-                {
-                public:
-                        DECLARE_ABSTRACT_LOG4CXX_OBJECT(PropertyResourceBundle)
-                        BEGIN_LOG4CXX_CAST_MAP()
-                                LOG4CXX_CAST_ENTRY(PropertyResourceBundle)
-                                LOG4CXX_CAST_ENTRY_CHAIN(ResourceBundle)
-                        END_LOG4CXX_CAST_MAP()
+/**
+PropertyResourceBundle is a concrete subclass of ResourceBundle that
+manages resources for a locale using a set of static strings from a
+property file.
+*/
+class LOG4CXX_EXPORT PropertyResourceBundle : public ResourceBundle
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(PropertyResourceBundle)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(PropertyResourceBundle)
+		LOG4CXX_CAST_ENTRY_CHAIN(ResourceBundle)
+		END_LOG4CXX_CAST_MAP()
 
-                        /**
-                        Creates a property resource bundle.
-                        @param inStream property file to read from.
-                        @throw IOException if an error occurred when reading from the
-                        input stream.
-                        */
-                        PropertyResourceBundle(InputStreamPtr inStream);
+		/**
+		Creates a property resource bundle.
+		@param inStream property file to read from.
+		@throw IOException if an error occurred when reading from the
+		input stream.
+		*/
+		PropertyResourceBundle(InputStreamPtr inStream);
 
-                        virtual LogString getString(const LogString& key) const;
+		virtual LogString getString(const LogString& key) const;
 
-                protected:
-                        Properties properties;
-                }; // class PropertyResourceBundle
-            LOG4CXX_PTR_DEF(PropertyResourceBundle);
-        }  // namespace helpers
+	protected:
+		Properties properties;
+}; // class PropertyResourceBundle
+LOG4CXX_PTR_DEF(PropertyResourceBundle);
+}  // namespace helpers
 } // namespace log4cxx
 
 #endif // _LOG4CXX_HELPERS_PROPERTY_RESOURCE_BUNDLE_H

@@ -23,13 +23,16 @@
 
 
 
-namespace log4cxx {
+namespace log4cxx
+{
 
-    namespace helpers {
-      class Pool;
-    }
+namespace helpers
+{
+class Pool;
+}
 
-    namespace rolling {
+namespace rolling
+{
 
 
 /**
@@ -62,80 +65,69 @@ namespace log4cxx {
  * larger values are specified by the user.
  *
  *
- * 
- * 
+ *
+ *
  * */
-        class LOG4CXX_EXPORT FixedWindowRollingPolicy : public RollingPolicyBase {
-          DECLARE_LOG4CXX_OBJECT(FixedWindowRollingPolicy)
-          BEGIN_LOG4CXX_CAST_MAP()
-                  LOG4CXX_CAST_ENTRY(FixedWindowRollingPolicy)
-                  LOG4CXX_CAST_ENTRY_CHAIN(RollingPolicyBase)
-          END_LOG4CXX_CAST_MAP()
+class LOG4CXX_EXPORT FixedWindowRollingPolicy : public RollingPolicyBase
+{
+		DECLARE_LOG4CXX_OBJECT(FixedWindowRollingPolicy)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(FixedWindowRollingPolicy)
+		LOG4CXX_CAST_ENTRY_CHAIN(RollingPolicyBase)
+		END_LOG4CXX_CAST_MAP()
 
-          int minIndex;
-          int maxIndex;
-          bool explicitActiveFile;
+		int minIndex;
+		int maxIndex;
+		bool explicitActiveFile;
 
-          /**
-           * It's almost always a bad idea to have a large window size, say over 12.
-           */
-          enum { MAX_WINDOW_SIZE = 12 };
+		/**
+		 * It's almost always a bad idea to have a large window size, say over 12.
+		 */
+		enum { MAX_WINDOW_SIZE = 12 };
 
-          bool purge(int purgeStart, int maxIndex, log4cxx::helpers::Pool& p) const;
+		bool purge(int purgeStart, int maxIndex, log4cxx::helpers::Pool& p) const;
 
-        public:
+	public:
 
-          FixedWindowRollingPolicy();
+		FixedWindowRollingPolicy();
 
-          void activateOptions(log4cxx::helpers::Pool& p);
-          void setOption(const LogString& option,
-             const LogString& value);
+		void activateOptions(log4cxx::helpers::Pool& p);
+		void setOption(const LogString& option,
+			const LogString& value);
 
-          void rollover();
+		void rollover();
 
-          int getMaxIndex() const;
+		int getMaxIndex() const;
 
-          int getMinIndex() const;
+		int getMinIndex() const;
 
-          void setMaxIndex(int newVal);
-          void setMinIndex(int newVal);
+		void setMaxIndex(int newVal);
+		void setMinIndex(int newVal);
 
+		/**
+		 * {@inheritDoc}
+		 */
+		RolloverDescriptionPtr initialize(
+			const   LogString&              currentActiveFile,
+			const   bool                    append,
+			log4cxx::helpers::Pool& pool);
 
-/**
-* Initialize the policy and return any initial actions for rolling file appender.
-*
-* @param file current value of RollingFileAppender::getFile().
-* @param append current value of RollingFileAppender::getAppend().
-* @param p pool used for any required memory allocations.
-* @return Description of the initialization, may be null to indicate
-* no initialization needed.
-* @throws SecurityException if denied access to log files.
-*/
-virtual RolloverDescriptionPtr initialize(
-const LogString& file, const bool append, log4cxx::helpers::Pool& p);
+		/**
+		 * {@inheritDoc}
+		 */
+		RolloverDescriptionPtr rollover(
+			const   LogString&              currentActiveFile,
+			const   bool                    append,
+			log4cxx::helpers::Pool& pool);
 
-/**
-* Prepare for a rollover.  This method is called prior to
-* closing the active log file, performs any necessary
-* preliminary actions and describes actions needed
-* after close of current log file.
-*
-* @param activeFile file name for current active log file.
-* @param p pool used for any required memory allocations.
-* @return Description of pending rollover, may be null to indicate no rollover
-* at this time.
-* @throws SecurityException if denied access to log files.
-*/
-virtual RolloverDescriptionPtr rollover(const LogString& activeFile, log4cxx::helpers::Pool& p);
+	protected:
+		log4cxx::pattern::PatternMap getFormatSpecifiers() const;
 
-protected:
-             log4cxx::pattern::PatternMap getFormatSpecifiers() const;
+};
 
-        };
+LOG4CXX_PTR_DEF(FixedWindowRollingPolicy);
 
-        LOG4CXX_PTR_DEF(FixedWindowRollingPolicy);
-
-     }
+}
 }
 
 #endif

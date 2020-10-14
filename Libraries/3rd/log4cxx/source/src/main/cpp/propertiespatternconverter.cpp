@@ -16,13 +16,15 @@
  */
 
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/propertiespatternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
 #include <log4cxx/spi/location/locationinfo.h>
+
+#include <iterator>
 
 using namespace log4cxx;
 using namespace log4cxx::pattern;
@@ -32,57 +34,66 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(PropertiesPatternConverter)
 
 PropertiesPatternConverter::PropertiesPatternConverter(const LogString& name1,
-      const LogString& propertyName) :
-   LoggingEventPatternConverter(name1,LOG4CXX_STR("property")),
-   option(propertyName) {
+	const LogString& propertyName) :
+	LoggingEventPatternConverter(name1, LOG4CXX_STR("property")),
+	option(propertyName)
+{
 }
 
 PatternConverterPtr PropertiesPatternConverter::newInstance(
-   const std::vector<LogString>& options) {
-   if (options.size() == 0) {
-      static PatternConverterPtr def(new PropertiesPatternConverter(
-         LOG4CXX_STR("Properties"), LOG4CXX_STR("")));
-      return def;
-   }
-   LogString converterName(LOG4CXX_STR("Property{"));
-   converterName.append(options[0]);
-   converterName.append(LOG4CXX_STR("}"));
-   PatternConverterPtr converter(new PropertiesPatternConverter(
-        converterName, options[0]));
-   return converter;
+	const std::vector<LogString>& options)
+{
+	if (options.size() == 0)
+	{
+		static PatternConverterPtr def(new PropertiesPatternConverter(
+				LOG4CXX_STR("Properties"), LOG4CXX_STR("")));
+		return def;
+	}
+
+	LogString converterName(LOG4CXX_STR("Property{"));
+	converterName.append(options[0]);
+	converterName.append(LOG4CXX_STR("}"));
+	PatternConverterPtr converter(new PropertiesPatternConverter(
+			converterName, options[0]));
+	return converter;
 }
 
 void PropertiesPatternConverter::format(
-  const LoggingEventPtr& event,
-  LogString& toAppendTo,
-  Pool& /* p */) const {
-    if (option.length() == 0) {
-      toAppendTo.append(1, (logchar) 0x7B /* '{' */);
+	const LoggingEventPtr& event,
+	LogString& toAppendTo,
+	Pool& /* p */) const
+{
+	if (option.length() == 0)
+	{
+		toAppendTo.append(1, (logchar) 0x7B /* '{' */);
 
 #if defined(MIKTEX)
       KeySet keySet(event->getMDCKeySet());
 #else
-      LoggingEvent::KeySet keySet(event->getMDCKeySet());
+		LoggingEvent::KeySet keySet(event->getMDCKeySet());
 #endif
 
 #if defined(MIKTEX)
       for(KeySet::const_iterator iter = keySet.begin();
 #else
-      for(LoggingEvent::KeySet::const_iterator iter = keySet.begin();
+		for (LoggingEvent::KeySet::const_iterator iter = keySet.begin();
 #endif
-          iter != keySet.end();
-          iter++) {
-          toAppendTo.append(1, (logchar) 0x7B /* '{' */);
-          toAppendTo.append(*iter);
-          toAppendTo.append(1, (logchar) 0x2C /* ',' */);
-          event->getMDC(*iter, toAppendTo);
-          toAppendTo.append(1, (logchar) 0x7D /* '}' */);
-      }
+			iter != keySet.end();
+			iter++)
+		{
+			toAppendTo.append(1, (logchar) 0x7B /* '{' */);
+			toAppendTo.append(*iter);
+			toAppendTo.append(1, (logchar) 0x2C /* ',' */);
+			event->getMDC(*iter, toAppendTo);
+			toAppendTo.append(1, (logchar) 0x7D /* '}' */);
+		}
 
-      toAppendTo.append(1, (logchar) 0x7D /* '}' */);
+		toAppendTo.append(1, (logchar) 0x7D /* '}' */);
 
-    } else {
-      event->getMDC(option, toAppendTo);
-    }
- }
+	}
+	else
+	{
+		event->getMDC(option, toAppendTo);
+	}
+}
 

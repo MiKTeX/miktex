@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -33,21 +33,24 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(RelativeTimePatternConverter)
 
 RelativeTimePatternConverter::RelativeTimePatternConverter() :
-   LoggingEventPatternConverter(LOG4CXX_STR("Time"),
-      LOG4CXX_STR("time")) {
+	LoggingEventPatternConverter(LOG4CXX_STR("Time"),
+		LOG4CXX_STR("time"))
+{
 }
 
 PatternConverterPtr RelativeTimePatternConverter::newInstance(
-   const std::vector<LogString>& /* options */) {
-   static PatternConverterPtr def(new RelativeTimePatternConverter());
-   return def;
+	const std::vector<LogString>& /* options */)
+{
+	static PatternConverterPtr def(new RelativeTimePatternConverter());
+	return def;
 }
 
 void RelativeTimePatternConverter::format(
-  const LoggingEventPtr& event,
-  LogString& toAppendTo,
-  Pool& p) const {
-    log4cxx_time_t delta = (event->getTimeStamp() - LoggingEvent::getStartTime())/1000;
-    StringHelper::toString(delta, p, toAppendTo);
- }
+	const LoggingEventPtr& event,
+	LogString& toAppendTo,
+	Pool& p) const
+{
+	log4cxx_time_t delta = (event->getTimeStamp() - LoggingEvent::getStartTime()) / 1000;
+	StringHelper::toString(delta, p, toAppendTo);
+}
 

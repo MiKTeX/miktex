@@ -31,54 +31,54 @@ IMPLEMENT_LOG4CXX_OBJECT(LevelMatchFilter)
 
 
 LevelMatchFilter::LevelMatchFilter()
-: acceptOnMatch(true)
+	: acceptOnMatch(true)
 {
 }
 
 void LevelMatchFilter::setOption(const LogString& option,
-   const LogString& value)
+	const LogString& value)
 {
 
 
-   if (StringHelper::equalsIgnoreCase(option,
-             LOG4CXX_STR("LEVELTOMATCH"), LOG4CXX_STR("leveltomatch")))
-   {
-      setLevelToMatch(value);
-   }
-   else if (StringHelper::equalsIgnoreCase(option,
-             LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
-   {
-      acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
-   }
+	if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("LEVELTOMATCH"), LOG4CXX_STR("leveltomatch")))
+	{
+		setLevelToMatch(value);
+	}
+	else if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
+	{
+		acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
+	}
 }
 
 void LevelMatchFilter::setLevelToMatch(const LogString& levelToMatch1)
 {
-   this->levelToMatch = OptionConverter::toLevel(levelToMatch1, this->levelToMatch);
+	this->levelToMatch = OptionConverter::toLevel(levelToMatch1, this->levelToMatch);
 }
 
 LogString LevelMatchFilter::getLevelToMatch() const
 {
-   return levelToMatch->toString();
+	return levelToMatch->toString();
 }
 
 Filter::FilterDecision LevelMatchFilter::decide(
-   const log4cxx::spi::LoggingEventPtr& event) const
+	const log4cxx::spi::LoggingEventPtr& event) const
 {
-   if(levelToMatch != 0 && levelToMatch->equals(event->getLevel()))
-   {
-      if(acceptOnMatch)
-      {
-         return Filter::ACCEPT;
-      }
-      else
-      {
-         return Filter::DENY;
-      }
-   }
-   else
-   {
-      return Filter::NEUTRAL;
-   }
+	if (levelToMatch != 0 && levelToMatch->equals(event->getLevel()))
+	{
+		if (acceptOnMatch)
+		{
+			return Filter::ACCEPT;
+		}
+		else
+		{
+			return Filter::DENY;
+		}
+	}
+	else
+	{
+		return Filter::NEUTRAL;
+	}
 }
 

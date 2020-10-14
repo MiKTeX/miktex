@@ -22,34 +22,35 @@
 
 namespace log4cxx
 {
-   namespace spi {
-       class LoggerRepository;
-       typedef helpers::ObjectPtrT<LoggerRepository> LoggerRepositoryPtr;
-   }
+namespace spi
+{
+class LoggerRepository;
+typedef helpers::ObjectPtrT<LoggerRepository> LoggerRepositoryPtr;
+}
 
-   /**
-    *   Configures the repository from environmental settings and files.
-   *
-   */
-   class LOG4CXX_EXPORT DefaultConfigurator
-   {
-   private:
-      DefaultConfigurator() {}
+/**
+ *   Configures the repository from environmental settings and files.
+*
+*/
+class LOG4CXX_EXPORT DefaultConfigurator
+{
+	private:
+		DefaultConfigurator() {}
 
-   public:
-      /**
-      Add a ConsoleAppender that uses PatternLayout
-      using the PatternLayout#TTCC_CONVERSION_PATTERN and
-      prints to <code>stdout</code> to the root logger.*/
-     static void configure(log4cxx::spi::LoggerRepository*);
+	public:
+		/**
+		Add a ConsoleAppender that uses PatternLayout
+		using the PatternLayout#TTCC_CONVERSION_PATTERN and
+		prints to <code>stdout</code> to the root logger.*/
+		static void configure(log4cxx::spi::LoggerRepository*);
 
-   private:
-            static const LogString getConfigurationFileName();
-            static const LogString getConfiguratorClass();
+	private:
+		static const LogString getConfigurationFileName();
+		static const LogString getConfiguratorClass();
 
 
 
-   }; // class DefaultConfigurator
+}; // class DefaultConfigurator
 }  // namespace log4cxx
 
 #endif //_LOG4CXX_DEFAULT_CONFIGURATOR_H

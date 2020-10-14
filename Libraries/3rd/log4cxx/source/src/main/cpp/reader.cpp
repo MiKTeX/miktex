@@ -22,8 +22,10 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(Reader)
 
-Reader::Reader() {
+Reader::Reader()
+{
 }
 
-Reader::~Reader() {
+Reader::~Reader()
+{
 }

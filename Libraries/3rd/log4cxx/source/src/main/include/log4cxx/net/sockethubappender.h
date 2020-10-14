@@ -19,8 +19,8 @@
 #define _LOG4CXX_NET_SOCKET_HUB_APPENDER_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -32,171 +32,178 @@
 
 namespace log4cxx
 {
-        namespace helpers {
-                class ObjectOutputStream;
-                typedef ObjectPtrT<ObjectOutputStream> ObjectOutputStreamPtr;
-        }
-        namespace net
-        {
-                /**
-                Sends {@link log4cxx::spi::LoggingEvent LoggingEvent} objects to a set of remote log
-                servers, usually a SocketNode.
+namespace helpers
+{
+class ObjectOutputStream;
+typedef ObjectPtrT<ObjectOutputStream> ObjectOutputStreamPtr;
+}
+namespace net
+{
+LOG4CXX_LIST_DEF(ObjectOutputStreamList, log4cxx::helpers::ObjectOutputStreamPtr);
 
-                <p>Acts just like SocketAppender except that instead of
-                connecting to a given remote log server,
-                <code>SocketHubAppender</code> accepts connections from the remote
-                log servers as clients.  It can accept more than one connection.
-                When a log event is received, the event is sent to the set of
-                currently connected remote log servers. Implemented this way it does
-                not require any update to the configuration file to send data to
-                another remote log server. The remote log server simply connects to
-                the host and port the <code>SocketHubAppender</code> is running on.
+/**
+Sends {@link log4cxx::spi::LoggingEvent LoggingEvent} objects to a set of remote log
+servers, usually a SocketNode.
 
-                <p>The <code>SocketHubAppender</code> does not store events such
-                that the remote side will events that arrived after the
-                establishment of its connection. Once connected, events arrive in
-                order as guaranteed by the TCP protocol.
+<p>Acts just like SocketAppender except that instead of
+connecting to a given remote log server,
+<code>SocketHubAppender</code> accepts connections from the remote
+log servers as clients.  It can accept more than one connection.
+When a log event is received, the event is sent to the set of
+currently connected remote log servers. Implemented this way it does
+not require any update to the configuration file to send data to
+another remote log server. The remote log server simply connects to
+the host and port the <code>SocketHubAppender</code> is running on.
 
-                <p>This implementation borrows heavily from the SocketAppender.
+<p>The <code>SocketHubAppender</code> does not store events such
+that the remote side will events that arrived after the
+establishment of its connection. Once connected, events arrive in
+order as guaranteed by the TCP protocol.
 
-                <p>The SocketHubAppender has the following characteristics:
+<p>This implementation borrows heavily from the SocketAppender.
 
-                - If sent to a SocketNode, logging is non-intrusive as
-                far as the log event is concerned. In other words, the event will be
-                logged with the same time stamp, NDC,
-                location info as if it were logged locally.
+<p>The SocketHubAppender has the following characteristics:
 
-                - <code>SocketHubAppender</code> does not use a layout. It
-                ships a serialized spi::LoggingEvent object to the remote side.
+- If sent to a SocketNode, logging is non-intrusive as
+far as the log event is concerned. In other words, the event will be
+logged with the same time stamp, NDC,
+location info as if it were logged locally.
 
-                - <code>SocketHubAppender</code> relies on the TCP
-                protocol. Consequently, if the remote side is reachable, then log
-                events will eventually arrive at remote client.
+- <code>SocketHubAppender</code> does not use a layout. It
+ships a serialized spi::LoggingEvent object to the remote side.
 
-                - If no remote clients are attached, the logging requests are
-                simply dropped.
+- <code>SocketHubAppender</code> relies on the TCP
+protocol. Consequently, if the remote side is reachable, then log
+events will eventually arrive at remote client.
 
-                - Logging events are automatically <em>buffered</em> by the
-                native TCP implementation. This means that if the link to remote
-                client is slow but still faster than the rate of (log) event
-                production, the application will not be affected by the slow network
-                connection. However, if the network connection is slower then the
-                rate of event production, then the local application can only
-                progress at the network rate. In particular, if the network link to
-                the the remote client is down, the application will be blocked.
-                @n @n On the other hand, if the network link is up, but the remote
-                client is down, the client will not be blocked when making log
-                requests but the log events will be lost due to client
-                unavailability.
-                @n @n The single remote client case extends to multiple clients
-                connections. The rate of logging will be determined by the slowest
-                link.
+- If no remote clients are attached, the logging requests are
+simply dropped.
 
-                - If the application hosting the <code>SocketHubAppender</code>
-                exits before the <code>SocketHubAppender</code> is closed either
-                explicitly or subsequent to garbage collection, then there might
-                be untransmitted data in the pipe which might be lost. This is a
-                common problem on Windows based systems.
-                @n @n To avoid lost data, it is usually sufficient to #close
-                the <code>SocketHubAppender</code> either explicitly or by calling
-                the LogManager#shutdown method before
-                exiting the application.
-                */
+- Logging events are automatically <em>buffered</em> by the
+native TCP implementation. This means that if the link to remote
+client is slow but still faster than the rate of (log) event
+production, the application will not be affected by the slow network
+connection. However, if the network connection is slower then the
+rate of event production, then the local application can only
+progress at the network rate. In particular, if the network link to
+the the remote client is down, the application will be blocked.
+@n @n On the other hand, if the network link is up, but the remote
+client is down, the client will not be blocked when making log
+requests but the log events will be lost due to client
+unavailability.
+@n @n The single remote client case extends to multiple clients
+connections. The rate of logging will be determined by the slowest
+link.
 
-#if defined(MIKTEX)
-                LOG4CXX_LIST_DEF(ObjectOutputStreamList, log4cxx::helpers::ObjectOutputStreamPtr);
-#endif
-                class LOG4CXX_EXPORT SocketHubAppender : public AppenderSkeleton
-                {
-                private:
-                        /**
-                        The default port number of the ServerSocket will be created on.
-                        */
-                        static int DEFAULT_PORT;
+- If the application hosting the <code>SocketHubAppender</code>
+exits before the <code>SocketHubAppender</code> is closed either
+explicitly or subsequent to garbage collection, then there might
+be untransmitted data in the pipe which might be lost. This is a
+common problem on Windows based systems.
+@n @n To avoid lost data, it is usually sufficient to #close
+the <code>SocketHubAppender</code> either explicitly or by calling
+the LogManager#shutdown method before
+exiting the application.
+*/
 
-                        int port;
-#if !defined(MIKTEX)
-                        LOG4CXX_LIST_DEF(ObjectOutputStreamList, log4cxx::helpers::ObjectOutputStreamPtr);
-#endif
-                        ObjectOutputStreamList streams;
-                        bool locationInfo;
+class LOG4CXX_EXPORT SocketHubAppender : public AppenderSkeleton
+{
+	private:
+		/**
+		The default port number of the ServerSocket will be created on.
+		*/
+		static int DEFAULT_PORT;
 
-                public:
-                        DECLARE_LOG4CXX_OBJECT(SocketHubAppender)
-                        BEGIN_LOG4CXX_CAST_MAP()
-                                LOG4CXX_CAST_ENTRY(SocketHubAppender)
-                                LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
-                        END_LOG4CXX_CAST_MAP()
+		int port;
+		ObjectOutputStreamList streams;
+		bool locationInfo;
 
-                        SocketHubAppender();
-                        ~SocketHubAppender();
+	public:
+		DECLARE_LOG4CXX_OBJECT(SocketHubAppender)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(SocketHubAppender)
+		LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
+		END_LOG4CXX_CAST_MAP()
 
-                        /**
-                        Connects to remote server at <code>address</code> and <code>port</code>.
-                        */
-                        SocketHubAppender(int port) ;
+		SocketHubAppender();
+		~SocketHubAppender();
 
-                        /**
-                        Set up the socket server on the specified port.
-                        */
-                        virtual void activateOptions(log4cxx::helpers::Pool& p);
+		/**
+		Connects to remote server at <code>address</code> and <code>port</code>.
+		*/
+		SocketHubAppender(int port) ;
 
-                    /**
-                    Set options
-                    */
-                        virtual void setOption(const LogString& option, const LogString& value);
+		/**
+		Set up the socket server on the specified port.
+		*/
+		virtual void activateOptions(log4cxx::helpers::Pool& p);
 
-                        virtual void close();
+		/**
+		Set options
+		*/
+		virtual void setOption(const LogString& option, const LogString& value);
 
-                        /**
-                        Append an event to all of current connections. */
-                        virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
+		virtual void close();
 
-                        /**
-                        The SocketHubAppender does not use a layout. Hence, this method returns
-                        <code>false</code>. */
-                        virtual bool requiresLayout() const
-                                { return false; }
+		/**
+		Append an event to all of current connections. */
+		virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
 
-                        /**
-                        The <b>Port</b> option takes a positive integer representing
-                        the port where the server is waiting for connections. */
-                        inline void setPort(int port1)
-                                { this->port = port1; }
+		/**
+		The SocketHubAppender does not use a layout. Hence, this method returns
+		<code>false</code>. */
+		virtual bool requiresLayout() const
+		{
+			return false;
+		}
 
-                        /**
-                        Returns value of the <b>Port</b> option. */
-                        inline int getPort() const
-                                { return port; }
+		/**
+		The <b>Port</b> option takes a positive integer representing
+		the port where the server is waiting for connections. */
+		inline void setPort(int port1)
+		{
+			this->port = port1;
+		}
 
-                        /**
-                        The <b>LocationInfo</b> option takes a boolean value. If true,
-                        the information sent to the remote host will include location
-                        information. By default no location information is sent to the server. */
-                        inline void setLocationInfo(bool locationInfo1)
-                                {  this->locationInfo = locationInfo1; }
+		/**
+		Returns value of the <b>Port</b> option. */
+		inline int getPort() const
+		{
+			return port;
+		}
 
-                        /**
-                        Returns value of the <b>LocationInfo</b> option. */
-                        inline bool getLocationInfo() const
-                                { return locationInfo; }
+		/**
+		The <b>LocationInfo</b> option takes a boolean value. If true,
+		the information sent to the remote host will include location
+		information. By default no location information is sent to the server. */
+		inline void setLocationInfo(bool locationInfo1)
+		{
+			this->locationInfo = locationInfo1;
+		}
 
-                        /**
-                        Start the ServerMonitor thread. */
-                private:
-                        void startServer();
+		/**
+		Returns value of the <b>LocationInfo</b> option. */
+		inline bool getLocationInfo() const
+		{
+			return locationInfo;
+		}
 
-                        helpers::Thread thread;
-                        static void* LOG4CXX_THREAD_FUNC monitor(apr_thread_t* thread, void* data);
+		/**
+		Start the ServerMonitor thread. */
+	private:
+		void startServer();
 
-                }; // class SocketHubAppender
-                LOG4CXX_PTR_DEF(SocketHubAppender);
-        }  // namespace net
+		helpers::Thread thread;
+		static void* LOG4CXX_THREAD_FUNC monitor(apr_thread_t* thread, void* data);
+
+}; // class SocketHubAppender
+LOG4CXX_PTR_DEF(SocketHubAppender);
+}  // namespace net
 } // namespace log4cxx
 
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 #endif // _LOG4CXX_NET_SOCKET_HUB_APPENDER_H

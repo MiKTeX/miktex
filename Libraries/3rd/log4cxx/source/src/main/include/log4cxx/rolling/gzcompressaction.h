@@ -19,54 +19,57 @@
 #define _LOG4CXX_ROLLING_GZ_COMPRESS_ACTION_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/rolling/action.h>
 #include <log4cxx/file.h>
 
-namespace log4cxx {
-    namespace rolling {
+namespace log4cxx
+{
+namespace rolling
+{
 
 
-        class GZCompressAction : public Action {
-           const File source;
-           const File destination;
-           bool deleteSource;
-        public:
-          DECLARE_ABSTRACT_LOG4CXX_OBJECT(GZCompressAction)
-          BEGIN_LOG4CXX_CAST_MAP()
-                  LOG4CXX_CAST_ENTRY(GZCompressAction)
-                  LOG4CXX_CAST_ENTRY_CHAIN(Action)
-          END_LOG4CXX_CAST_MAP()
+class GZCompressAction : public Action
+{
+		const File source;
+		const File destination;
+		bool deleteSource;
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(GZCompressAction)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(GZCompressAction)
+		LOG4CXX_CAST_ENTRY_CHAIN(Action)
+		END_LOG4CXX_CAST_MAP()
 
-        /**
-         * Constructor.
-         */
-        GZCompressAction(const File& source,
-            const File& destination,
-            bool deleteSource);
+		/**
+		 * Constructor.
+		 */
+		GZCompressAction(const File& source,
+			const File& destination,
+			bool deleteSource);
 
-        /**
-         * Perform action.
-         *
-         * @return true if successful.
-         */
-        virtual bool execute(log4cxx::helpers::Pool& pool) const;
+		/**
+		 * Perform action.
+		 *
+		 * @return true if successful.
+		 */
+		virtual bool execute(log4cxx::helpers::Pool& pool) const;
 
-        private:
-        GZCompressAction(const GZCompressAction&);
-        GZCompressAction& operator=(const GZCompressAction&);
-        };
+	private:
+		GZCompressAction(const GZCompressAction&);
+		GZCompressAction& operator=(const GZCompressAction&);
+};
 
-        LOG4CXX_PTR_DEF(GZCompressAction);
+LOG4CXX_PTR_DEF(GZCompressAction);
 
-    }
+}
 }
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 #endif

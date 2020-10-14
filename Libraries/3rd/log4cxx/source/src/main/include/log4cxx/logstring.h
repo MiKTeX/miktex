@@ -19,72 +19,71 @@
 #define _LOG4CXX_STRING_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
 #include <string>
 #include <log4cxx/log4cxx.h>
 
-#if LOG4CXX_LOGCHAR_IS_WCHAR && LOG4CXX_LOGCHAR_IS_UTF8 && LOG4CXX_LOGCHAR_IS_UNICHAR
-#error only one of LOG4CXX_LOGCHAR_IS_WCHAR, LOG4CXX_LOGCHAR_IS_UTF8 or LOG4CXX_LOGCHAR_IS_UNICHAR may be true
+#if (LOG4CXX_LOGCHAR_IS_WCHAR + LOG4CXX_LOGCHAR_IS_UTF8 + LOG4CXX_LOGCHAR_IS_UNICHAR)>1
+	#error only one of LOG4CXX_LOGCHAR_IS_WCHAR, LOG4CXX_LOGCHAR_IS_UTF8 or LOG4CXX_LOGCHAR_IS_UNICHAR may be true
 #endif
 
 #if LOG4CXX_CFSTRING_API
 extern "C" {
-typedef const struct __CFString* CFStringRef;
+	typedef const struct __CFString* CFStringRef;
 }
 #endif
 
-
-
-namespace log4cxx {
+namespace log4cxx
+{
 
 #if LOG4CXX_LOGCHAR_IS_UNICHAR || LOG4CXX_UNICHAR_API || LOG4CXX_CFSTRING_API
-typedef unsigned short UniChar;
+	typedef unsigned short UniChar;
 #endif
 
 #if LOG4CXX_LOGCHAR_IS_WCHAR
-   typedef wchar_t logchar;
-#define LOG4CXX_STR(str) L ## str
+	typedef wchar_t logchar;
+	#define LOG4CXX_STR(str) L ## str
 #endif
 
 #if LOG4CXX_LOGCHAR_IS_UTF8
-   typedef char logchar;
-#if LOG4CXX_CHARSET_EBCDIC
-#define LOG4CXX_STR(str) log4cxx::helpers::Transcoder::decode(str)
-#else   
-#define LOG4CXX_STR(str) str
-#endif
+	typedef char logchar;
+	#if LOG4CXX_CHARSET_EBCDIC
+		#define LOG4CXX_STR(str) log4cxx::helpers::Transcoder::decode(str)
+	#else
+		#define LOG4CXX_STR(str) str
+	#endif
 #endif
 
 #if LOG4CXX_LOGCHAR_IS_UNICHAR
-   typedef UniChar logchar;
-#define LOG4CXX_STR(str) log4cxx::helpers::Transcoder::decode(str)   
+	typedef UniChar logchar;
+	#define LOG4CXX_STR(str) log4cxx::helpers::Transcoder::decode(str)
 #endif
 
-   typedef std::basic_string<logchar> LogString;
+typedef std::basic_string<logchar> LogString;
 
 
 }
 
 
 #if !defined(LOG4CXX_EOL)
-#if defined(_WIN32)
-#define LOG4CXX_EOL LOG4CXX_STR("\x0D\x0A")
-#else
-#define LOG4CXX_EOL LOG4CXX_STR("\x0A")
-#endif
+	#if defined(_WIN32)
+		#define LOG4CXX_EOL LOG4CXX_STR("\x0D\x0A")
+	#else
+		#define LOG4CXX_EOL LOG4CXX_STR("\x0A")
+	#endif
 #endif
 
 
 #if LOG4CXX_LOGCHAR_IS_UNICHAR || (LOG4CXX_LOGCHAR_IS_UTF8 || LOG4CXX_CHARSET_EBCDIC)
-#include <log4cxx/helpers/transcoder.h>
+	#include <log4cxx/helpers/transcoder.h>
 #endif
 
 #if defined(_MSC_VER)
-#pragma warning (pop)
+	#pragma warning (pop)
 #endif
 
 #endif //_LOG4CXX_STRING_H

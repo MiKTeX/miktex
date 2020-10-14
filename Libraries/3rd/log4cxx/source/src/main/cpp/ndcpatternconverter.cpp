@@ -16,7 +16,7 @@
  */
 
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -34,21 +34,25 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(NDCPatternConverter)
 
 NDCPatternConverter::NDCPatternConverter() :
-   LoggingEventPatternConverter(LOG4CXX_STR("NDC"),
-      LOG4CXX_STR("ndc")) {
+	LoggingEventPatternConverter(LOG4CXX_STR("NDC"),
+		LOG4CXX_STR("ndc"))
+{
 }
 
 PatternConverterPtr NDCPatternConverter::newInstance(
-   const std::vector<LogString>& /* options */) {
-   static PatternConverterPtr def(new NDCPatternConverter());
-   return def;
+	const std::vector<LogString>& /* options */)
+{
+	static PatternConverterPtr def(new NDCPatternConverter());
+	return def;
 }
 
 void NDCPatternConverter::format(
-  const LoggingEventPtr& event,
-  LogString& toAppendTo,
-  Pool& /* p */) const {
-   if(!event->getNDC(toAppendTo)) {
-       toAppendTo.append(LOG4CXX_STR("null"));
-   }
- }
+	const LoggingEventPtr& event,
+	LogString& toAppendTo,
+	Pool& /* p */) const
+{
+	if (!event->getNDC(toAppendTo))
+	{
+		toAppendTo.append(LOG4CXX_STR("null"));
+	}
+}

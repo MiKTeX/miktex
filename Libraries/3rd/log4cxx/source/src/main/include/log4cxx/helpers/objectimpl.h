@@ -22,28 +22,28 @@
 
 namespace log4cxx
 {
-   namespace helpers
-   {
-      /** Implementation class for Object.*/
-      class LOG4CXX_EXPORT ObjectImpl : public virtual Object
-      {
-      public:
-         ObjectImpl();
-         virtual ~ObjectImpl();
-         void addRef() const;
-         void releaseRef() const;
+namespace helpers
+{
+/** Implementation class for Object.*/
+class LOG4CXX_EXPORT ObjectImpl : public virtual Object
+{
+	public:
+		ObjectImpl();
+		virtual ~ObjectImpl();
+		void addRef() const;
+		void releaseRef() const;
 
-      protected:
-         mutable unsigned int volatile ref;
+	protected:
+		mutable unsigned int volatile ref;
 
-        private:
-                        //
-            //   prevent object copy and assignment
-            //
-            ObjectImpl(const ObjectImpl&);
-            ObjectImpl& operator=(const ObjectImpl&);
-      };
-   }
+	private:
+		//
+		//   prevent object copy and assignment
+		//
+		ObjectImpl(const ObjectImpl&);
+		ObjectImpl& operator=(const ObjectImpl&);
+};
+}
 }
 
 #endif //_LOG4CXX_HELPERS_OBJECT_IMPL_H

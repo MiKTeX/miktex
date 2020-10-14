@@ -23,49 +23,50 @@
 namespace log4cxx
 {
 
-        namespace helpers {
-          class ByteBuffer;
+namespace helpers
+{
+class ByteBuffer;
 
-          /**
-           * Abstract class for reading from character streams.
-           * 
-           */
-          class LOG4CXX_EXPORT InputStream : public ObjectImpl
-          {
-          public:
-                  DECLARE_ABSTRACT_LOG4CXX_OBJECT(InputStream)
-                  BEGIN_LOG4CXX_CAST_MAP()
-                          LOG4CXX_CAST_ENTRY(InputStream)
-                  END_LOG4CXX_CAST_MAP()
+/**
+ * Abstract class for reading from character streams.
+ *
+ */
+class LOG4CXX_EXPORT InputStream : public ObjectImpl
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(InputStream)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(InputStream)
+		END_LOG4CXX_CAST_MAP()
 
-          protected:
-                  InputStream();
+	protected:
+		InputStream();
 
-                  virtual ~InputStream();
+		virtual ~InputStream();
 
-          public:
-                  /**
-                   * Reads a sequence of bytes into the given buffer.
-                   *
-                   * @param dst The buffer into which bytes are to be transferred.
-                   * @return the total number of bytes read into the buffer, or -1 if there
-                   *         is no more data because the end of the stream has been reached.
-                   */
-                  virtual int read(ByteBuffer& dst) = 0;
+	public:
+		/**
+		 * Reads a sequence of bytes into the given buffer.
+		 *
+		 * @param dst The buffer into which bytes are to be transferred.
+		 * @return the total number of bytes read into the buffer, or -1 if there
+		 *         is no more data because the end of the stream has been reached.
+		 */
+		virtual int read(ByteBuffer& dst) = 0;
 
-                  /**
-                   * Closes this input stream and releases any system 
-                   * resources associated with the stream.
-                   */
-                  virtual void close() = 0;
+		/**
+		 * Closes this input stream and releases any system
+		 * resources associated with the stream.
+		 */
+		virtual void close() = 0;
 
-          private:
-                  InputStream(const InputStream&);
-                  InputStream& operator=(const InputStream&);
-          };
+	private:
+		InputStream(const InputStream&);
+		InputStream& operator=(const InputStream&);
+};
 
-          LOG4CXX_PTR_DEF(InputStream);
-        } // namespace helpers
+LOG4CXX_PTR_DEF(InputStream);
+} // namespace helpers
 
 }  //namespace log4cxx
 

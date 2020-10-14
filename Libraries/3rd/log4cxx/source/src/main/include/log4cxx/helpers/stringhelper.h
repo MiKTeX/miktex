@@ -24,38 +24,38 @@
 
 namespace log4cxx
 {
-    namespace helpers
-    {
-        class Pool;
-                /**
-                String manipulation routines
-                */
-        class LOG4CXX_EXPORT StringHelper
-        {
-           public:
-            static LogString trim(const LogString& s);
-            static bool startsWith(const LogString& s, const LogString& suffix);
-            static bool endsWith(const LogString& s, const LogString& suffix);
-            static bool equalsIgnoreCase(const LogString& s1,
-                 const logchar* upper, const logchar* lower);
-            static bool equalsIgnoreCase(const LogString& s1,
-                 const LogString& upper, const LogString& lower);
+namespace helpers
+{
+class Pool;
+/**
+String manipulation routines
+*/
+class LOG4CXX_EXPORT StringHelper
+{
+	public:
+		static LogString trim(const LogString& s);
+		static bool startsWith(const LogString& s, const LogString& suffix);
+		static bool endsWith(const LogString& s, const LogString& suffix);
+		static bool equalsIgnoreCase(const LogString& s1,
+			const logchar* upper, const logchar* lower);
+		static bool equalsIgnoreCase(const LogString& s1,
+			const LogString& upper, const LogString& lower);
 
 
-            static int toInt(const LogString& s);
-            static log4cxx_int64_t toInt64(const LogString& s);
+		static int toInt(const LogString& s);
+		static log4cxx_int64_t toInt64(const LogString& s);
 
-            static void toString(int i, log4cxx::helpers::Pool& pool, LogString& dst);
-            static void toString(log4cxx_int64_t i, log4cxx::helpers::Pool& pool, LogString& dst);
-            static void toString(size_t i, log4cxx::helpers::Pool& pool, LogString& dst);
+		static void toString(int i, log4cxx::helpers::Pool& pool, LogString& dst);
+		static void toString(log4cxx_int64_t i, log4cxx::helpers::Pool& pool, LogString& dst);
+		static void toString(size_t i, log4cxx::helpers::Pool& pool, LogString& dst);
 
-            static void toString(bool val, LogString& dst);
+		static void toString(bool val, LogString& dst);
 
-            static LogString toLowerCase(const LogString& s);
+		static LogString toLowerCase(const LogString& s);
 
-            static LogString format(const LogString& pattern, const std::vector<LogString>& params);
-        };
-    }
+		static LogString format(const LogString& pattern, const std::vector<LogString>& params);
+};
+}
 }
 
 #endif //_LOG4CXX_HELPERS_STRING_HELPER_H

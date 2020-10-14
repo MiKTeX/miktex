@@ -3,10 +3,10 @@
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>log4cxx lib win32</TPM:Name>
-    <TPM:Title>log4cxx runtime librart, Windows x86</TPM:Title>
-    <TPM:Copyright owner="The Apache Software Foundation" year="2000-2015"/>
+    <TPM:Title>log4cxx runtime library, Windows x86</TPM:Title>
+    <TPM:Copyright owner="The Apache Software Foundation" year="2000-2007"/>
     <TPM:License type="apache"/>
-    <TPM:Version>0.10.0</TPM:Version>
+    <TPM:Version>0.11.0</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

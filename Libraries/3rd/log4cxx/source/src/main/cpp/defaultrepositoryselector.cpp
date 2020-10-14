@@ -23,18 +23,22 @@ using namespace log4cxx::helpers;
 
 
 DefaultRepositorySelector::DefaultRepositorySelector(const LoggerRepositoryPtr& repository1)
-     : repository(repository1) {
+	: repository(repository1)
+{
 }
 
-void DefaultRepositorySelector::addRef() const { 
-    ObjectImpl::addRef(); 
+void DefaultRepositorySelector::addRef() const
+{
+	ObjectImpl::addRef();
 }
 
 
-void DefaultRepositorySelector::releaseRef() const { 
-    ObjectImpl::releaseRef(); 
+void DefaultRepositorySelector::releaseRef() const
+{
+	ObjectImpl::releaseRef();
 }
 
-LoggerRepositoryPtr& DefaultRepositorySelector::getLoggerRepository() {
-    return repository;
+LoggerRepositoryPtr& DefaultRepositorySelector::getLoggerRepository()
+{
+	return repository;
 }

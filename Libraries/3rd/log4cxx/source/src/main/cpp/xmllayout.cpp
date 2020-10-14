@@ -35,125 +35,138 @@ using namespace log4cxx::xml;
 IMPLEMENT_LOG4CXX_OBJECT(XMLLayout)
 
 XMLLayout::XMLLayout()
-: locationInfo(false), properties(false)
+	: locationInfo(false), properties(false)
 {
 }
 
 void XMLLayout::setOption(const LogString& option,
-        const LogString& value)
+	const LogString& value)
 {
-        if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"), LOG4CXX_STR("locationinfo")))
-        {
-                setLocationInfo(OptionConverter::toBoolean(value, false));
-        }
-        if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PROPERTIES"), LOG4CXX_STR("properties")))
-        {
-                setProperties(OptionConverter::toBoolean(value, false));
-        }
+	if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"), LOG4CXX_STR("locationinfo")))
+	{
+		setLocationInfo(OptionConverter::toBoolean(value, false));
+	}
+
+	if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PROPERTIES"), LOG4CXX_STR("properties")))
+	{
+		setProperties(OptionConverter::toBoolean(value, false));
+	}
 }
 
 void XMLLayout::format(LogString& output,
-     const spi::LoggingEventPtr& event,
-     Pool& p) const
+	const spi::LoggingEventPtr& event,
+	Pool& p) const
 {
-        output.append(LOG4CXX_STR("<log4j:event logger=\""));
-        Transform::appendEscapingTags(output, event->getLoggerName());
-        output.append(LOG4CXX_STR("\" timestamp=\""));
-        StringHelper::toString(event->getTimeStamp()/1000L, p, output);
-        output.append(LOG4CXX_STR("\" level=\""));
-        Transform::appendEscapingTags(output, event->getLevel()->toString());
-        output.append(LOG4CXX_STR("\" thread=\""));
-        Transform::appendEscapingTags(output, event->getThreadName());
-        output.append(LOG4CXX_STR("\">"));
-        output.append(LOG4CXX_EOL);
+	output.append(LOG4CXX_STR("<log4j:event logger=\""));
+	Transform::appendEscapingTags(output, event->getLoggerName());
+	output.append(LOG4CXX_STR("\" timestamp=\""));
+	StringHelper::toString(event->getTimeStamp() / 1000L, p, output);
+	output.append(LOG4CXX_STR("\" level=\""));
+	Transform::appendEscapingTags(output, event->getLevel()->toString());
+	output.append(LOG4CXX_STR("\" thread=\""));
+	Transform::appendEscapingTags(output, event->getThreadName());
+	output.append(LOG4CXX_STR("\">"));
+	output.append(LOG4CXX_EOL);
 
-        output.append(LOG4CXX_STR("<log4j:message><![CDATA["));
-        // Append the rendered message. Also make sure to escape any
-        // existing CDATA sections.
-        Transform::appendEscapingCDATA(output, event->getRenderedMessage());
-        output.append(LOG4CXX_STR("]]></log4j:message>"));
-        output.append(LOG4CXX_EOL);
+	output.append(LOG4CXX_STR("<log4j:message><![CDATA["));
+	// Append the rendered message. Also make sure to escape any
+	// existing CDATA sections.
+	Transform::appendEscapingCDATA(output, event->getRenderedMessage());
+	output.append(LOG4CXX_STR("]]></log4j:message>"));
+	output.append(LOG4CXX_EOL);
 
-        LogString ndc;
-        if(event->getNDC(ndc)) {
-                output.append(LOG4CXX_STR("<log4j:NDC><![CDATA["));
-                Transform::appendEscapingCDATA(output, ndc);
-                output.append(LOG4CXX_STR("]]></log4j:NDC>"));
-                output.append(LOG4CXX_EOL);
-        }
+	LogString ndc;
 
-        if(locationInfo)
-        {
-                output.append(LOG4CXX_STR("<log4j:locationInfo class=\""));
-                const LocationInfo& locInfo = event->getLocationInformation();
-                LOG4CXX_DECODE_CHAR(className, locInfo.getClassName());
-                Transform::appendEscapingTags(output, className);
-                output.append(LOG4CXX_STR("\" method=\""));
-                LOG4CXX_DECODE_CHAR(method, locInfo.getMethodName());
-                Transform::appendEscapingTags(output, method);
-                output.append(LOG4CXX_STR("\" file=\""));
-                LOG4CXX_DECODE_CHAR(fileName, locInfo.getFileName());
-                Transform::appendEscapingTags(output, fileName);
-                output.append(LOG4CXX_STR("\" line=\""));
-                StringHelper::toString(locInfo.getLineNumber(), p, output);
-                output.append(LOG4CXX_STR("\"/>"));
-                output.append(LOG4CXX_EOL);
-        }
-        
-        if (properties) {
+	if (event->getNDC(ndc))
+	{
+		output.append(LOG4CXX_STR("<log4j:NDC><![CDATA["));
+		Transform::appendEscapingCDATA(output, ndc);
+		output.append(LOG4CXX_STR("]]></log4j:NDC>"));
+		output.append(LOG4CXX_EOL);
+	}
+
+	if (locationInfo)
+	{
+		output.append(LOG4CXX_STR("<log4j:locationInfo class=\""));
+		const LocationInfo& locInfo = event->getLocationInformation();
+		LOG4CXX_DECODE_CHAR(className, locInfo.getClassName());
+		Transform::appendEscapingTags(output, className);
+		output.append(LOG4CXX_STR("\" method=\""));
+		LOG4CXX_DECODE_CHAR(method, locInfo.getMethodName());
+		Transform::appendEscapingTags(output, method);
+		output.append(LOG4CXX_STR("\" file=\""));
+		LOG4CXX_DECODE_CHAR(fileName, locInfo.getFileName());
+		Transform::appendEscapingTags(output, fileName);
+		output.append(LOG4CXX_STR("\" line=\""));
+		StringHelper::toString(locInfo.getLineNumber(), p, output);
+		output.append(LOG4CXX_STR("\"/>"));
+		output.append(LOG4CXX_EOL);
+	}
+
+	if (properties)
+	{
 #if defined(MIKTEX)
             KeySet propertySet(event->getPropertyKeySet());
             KeySet keySet(event->getMDCKeySet());
 #else
-            LoggingEvent::KeySet propertySet(event->getPropertyKeySet());
-            LoggingEvent::KeySet keySet(event->getMDCKeySet());
+		LoggingEvent::KeySet propertySet(event->getPropertyKeySet());
+		LoggingEvent::KeySet keySet(event->getMDCKeySet());
 #endif
-            if (!(keySet.empty() && propertySet.empty())) {
-                output.append(LOG4CXX_STR("<log4j:properties>"));
-                output.append(LOG4CXX_EOL);
+		if (!(keySet.empty() && propertySet.empty()))
+		{
+			output.append(LOG4CXX_STR("<log4j:properties>"));
+			output.append(LOG4CXX_EOL);
 #if defined(MIKTEX)
                 for (KeySet::const_iterator i = keySet.begin();
 #else
-                for (LoggingEvent::KeySet::const_iterator i = keySet.begin();
+			for (LoggingEvent::KeySet::const_iterator i = keySet.begin();
 #endif
-                        i != keySet.end(); 
-                        i++) {
-                        LogString key(*i);
-                        LogString value;
-                        if(event->getMDC(key, value)) {
-                            output.append(LOG4CXX_STR("<log4j:data name=\""));
-                            Transform::appendEscapingTags(output, key);
-                            output.append(LOG4CXX_STR("\" value=\""));
-                            Transform::appendEscapingTags(output, value);
-                            output.append(LOG4CXX_STR("\"/>"));
-                            output.append(LOG4CXX_EOL);
-                        }
-                }
+				i != keySet.end();
+				i++)
+			{
+				LogString key(*i);
+				LogString value;
+
+				if (event->getMDC(key, value))
+				{
+					output.append(LOG4CXX_STR("<log4j:data name=\""));
+					Transform::appendEscapingTags(output, key);
+					output.append(LOG4CXX_STR("\" value=\""));
+					Transform::appendEscapingTags(output, value);
+					output.append(LOG4CXX_STR("\"/>"));
+					output.append(LOG4CXX_EOL);
+				}
+			}
+
 #if defined(MIKTEX)
             for (KeySet::const_iterator i2 = propertySet.begin();
 #else
-            for (LoggingEvent::KeySet::const_iterator i2 = propertySet.begin();
+			for (LoggingEvent::KeySet::const_iterator i2 = propertySet.begin();
 #endif
-                        i2 != propertySet.end(); 
-                        i2++) {
-                        LogString key(*i2);
-                        LogString value;
-                        if(event->getProperty(key, value)) {
-                            output.append(LOG4CXX_STR("<log4j:data name=\""));
-                            Transform::appendEscapingTags(output, key);
-                            output.append(LOG4CXX_STR("\" value=\""));
-                            Transform::appendEscapingTags(output, value);
-                            output.append(LOG4CXX_STR("\"/>"));
-                            output.append(LOG4CXX_EOL);
-                        }
-                }
-                output.append(LOG4CXX_STR("</log4j:properties>"));
-                output.append(LOG4CXX_EOL);
-            }
-        }
+				i2 != propertySet.end();
+				i2++)
+			{
+				LogString key(*i2);
+				LogString value;
 
-        output.append(LOG4CXX_STR("</log4j:event>"));
-        output.append(LOG4CXX_EOL);
-        output.append(LOG4CXX_EOL);        
+				if (event->getProperty(key, value))
+				{
+					output.append(LOG4CXX_STR("<log4j:data name=\""));
+					Transform::appendEscapingTags(output, key);
+					output.append(LOG4CXX_STR("\" value=\""));
+					Transform::appendEscapingTags(output, value);
+					output.append(LOG4CXX_STR("\"/>"));
+					output.append(LOG4CXX_EOL);
+				}
+			}
+
+			output.append(LOG4CXX_STR("</log4j:properties>"));
+			output.append(LOG4CXX_EOL);
+		}
+	}
+
+	output.append(LOG4CXX_STR("</log4j:event>"));
+	output.append(LOG4CXX_EOL);
+	output.append(LOG4CXX_EOL);
 }
 

@@ -22,20 +22,20 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                class Class;
-                class LOG4CXX_EXPORT ClassRegistration
-                {
-                public:
-                        typedef const Class& (*ClassAccessor)();
-                        ClassRegistration(ClassAccessor classAccessor);
+namespace helpers
+{
+class Class;
+class LOG4CXX_EXPORT ClassRegistration
+{
+	public:
+		typedef const Class& (*ClassAccessor)();
+		ClassRegistration(ClassAccessor classAccessor);
 
-                private:
-                        ClassRegistration(const ClassRegistration&);
-                        ClassRegistration& operator=(const ClassRegistration&);
-                };
-        }  // namespace log4cxx
+	private:
+		ClassRegistration(const ClassRegistration&);
+		ClassRegistration& operator=(const ClassRegistration&);
+};
+}  // namespace log4cxx
 } // namespace helper
 
 #endif //_LOG4CXX_HELPERS_CLASSREGISTRATION_H

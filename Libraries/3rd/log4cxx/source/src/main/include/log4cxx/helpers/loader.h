@@ -26,18 +26,18 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                class Class;
+namespace helpers
+{
+class Class;
 
-                class LOG4CXX_EXPORT Loader
-                {
-                public:
-                        static const Class& loadClass(const LogString& clazz);
+class LOG4CXX_EXPORT Loader
+{
+	public:
+		static const Class& loadClass(const LogString& clazz);
 
-                        static InputStreamPtr getResourceAsStream(
-                                                         const LogString& name);
-                };
-        }  // namespace helpers
+		static InputStreamPtr getResourceAsStream(
+			const LogString& name);
+};
+}  // namespace helpers
 } // namespace log4cxx
 #endif //_LOG4CXX_HELPERS_LOADER_H

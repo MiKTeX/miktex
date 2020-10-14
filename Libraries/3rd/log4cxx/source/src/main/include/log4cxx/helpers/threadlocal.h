@@ -22,64 +22,65 @@
 #include <log4cxx/helpers/pool.h>
 
 #if !defined(LOG4CXX_THREAD_FUNC)
-#if defined(_WIN32)
-#define LOG4CXX_THREAD_FUNC __stdcall
-#else
-#define LOG4CXX_THREAD_FUNC
-#endif
+	#if defined(_WIN32)
+		#define LOG4CXX_THREAD_FUNC __stdcall
+	#else
+		#define LOG4CXX_THREAD_FUNC
+	#endif
 #endif
 
 
 extern "C" {
-    struct apr_threadkey_t;
+	struct apr_threadkey_t;
 }
 
 namespace log4cxx
 {
-        namespace helpers
-        {
+namespace helpers
+{
 
-                /**
-                 *  This class provides thread-local variables.  This class is similar in function
-                 *  to java.lang.ThreadLocal.
-                 */
-                class LOG4CXX_EXPORT ThreadLocal {
-                public:
-                    /**
-                     *   Create new instance.
-                     */
-                    ThreadLocal();
-                    /**
-                     *    Destructor.
-                     */
-                    ~ThreadLocal();
-                    /**
-                     *  Sets the value in the current thread's copy of this thread-local variable.
-                     *  @param priv new value.
-                     */
-                    void set(void* priv);                    
-                    /**
-                     *  Returns the value in the current thread's copy of this thread-local variable.
-                     *  @return value of thread-local variable for the current thread.
-                     */
-                    void* get();
-               
-                private:
-                    /**
-                     * Prevent use of default copy constructor.
-                     */
-                     ThreadLocal(const ThreadLocal&);
-                    /**
-                     *   Prevent use of default assignment operator.  
-                     */
-                     ThreadLocal& operator=(const ThreadLocal&);
-                     
-                     static apr_threadkey_t* create(Pool& p);
+/**
+ *  This class provides thread-local variables.  This class is similar in function
+ *  to java.lang.ThreadLocal.
+ */
+class LOG4CXX_EXPORT ThreadLocal
+{
+	public:
+		/**
+		 *   Create new instance.
+		 */
+		ThreadLocal();
+		/**
+		 *    Destructor.
+		 */
+		~ThreadLocal();
+		/**
+		 *  Sets the value in the current thread's copy of this thread-local variable.
+		 *  @param priv new value.
+		 */
+		void set(void* priv);
+		/**
+		 *  Returns the value in the current thread's copy of this thread-local variable.
+		 *  @return value of thread-local variable for the current thread.
+		 */
+		void* get();
 
-                Pool p;
-                     apr_threadkey_t* key;
-                };
-        } // namespace helpers
+	private:
+		/**
+		 * Prevent use of default copy constructor.
+		 */
+		ThreadLocal(const ThreadLocal&);
+		/**
+		 *   Prevent use of default assignment operator.
+		 */
+		ThreadLocal& operator=(const ThreadLocal&);
+
+		static apr_threadkey_t* create(Pool& p);
+
+		Pool p;
+		apr_threadkey_t* key;
+};
+} // namespace helpers
 } // namespace log4cxx
 
 #endif //_LOG4CXX_HELPERS_THREAD_LOCAL_H

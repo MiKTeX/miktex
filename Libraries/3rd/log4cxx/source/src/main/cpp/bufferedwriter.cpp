@@ -24,37 +24,49 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(BufferedWriter)
 
 BufferedWriter::BufferedWriter(WriterPtr& out1)
-    : out(out1), sz(1024) {
+	: out(out1), sz(1024)
+{
 }
 
 BufferedWriter::BufferedWriter(WriterPtr& out1, size_t sz1)
-    : out(out1), sz(sz1) {
+	: out(out1), sz(sz1)
+{
 }
 
-BufferedWriter::~BufferedWriter() {
+BufferedWriter::~BufferedWriter()
+{
 }
 
-void BufferedWriter::close(Pool& p) {
-   flush(p);
-   out->close(p);
+void BufferedWriter::close(Pool& p)
+{
+	flush(p);
+	out->close(p);
 }
 
-void BufferedWriter::flush(Pool& p) {
-  if (buf.length() > 0) {
-     out->write(buf, p);
-     buf.erase(buf.begin(), buf.end());
-  }
+void BufferedWriter::flush(Pool& p)
+{
+	if (buf.length() > 0)
+	{
+		out->write(buf, p);
+		buf.erase(buf.begin(), buf.end());
+	}
 }
 
-void BufferedWriter::write(const LogString& str, Pool& p) {
-  if (buf.length() + str.length() > sz) {
-    out->write(buf, p);
-    buf.erase(buf.begin(), buf.end());
-  }
-  if (str.length() > sz) {
-    out->write(str, p);
-  } else {
-    buf.append(str);
-  }
+void BufferedWriter::write(const LogString& str, Pool& p)
+{
+	if (buf.length() + str.length() > sz)
+	{
+		out->write(buf, p);
+		buf.erase(buf.begin(), buf.end());
+	}
+
+	if (str.length() > sz)
+	{
+		out->write(str, p);
+	}
+	else
+	{
+		buf.append(str);
+	}
 }
 

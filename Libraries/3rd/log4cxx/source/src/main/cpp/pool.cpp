@@ -22,7 +22,7 @@
 #include <apr_pools.h>
 #include <assert.h>
 #if !defined(LOG4CXX)
-#define LOG4CXX 1
+	#define LOG4CXX 1
 #endif
 #include <log4cxx/helpers/aprinitializer.h>
 
@@ -30,57 +30,74 @@ using namespace log4cxx::helpers;
 using namespace log4cxx;
 
 
-Pool::Pool() : pool(0), release(true) {
-    apr_status_t stat = apr_pool_create(&pool, APRInitializer::getRootPool());
-    if (stat != APR_SUCCESS) {
-        throw PoolException(stat);
-    }
+Pool::Pool() : pool(0), release(true)
+{
+	apr_status_t stat = apr_pool_create(&pool, APRInitializer::getRootPool());
+
+	if (stat != APR_SUCCESS)
+	{
+		throw PoolException(stat);
+	}
 }
 
-Pool::Pool(apr_pool_t* p, bool release1) : pool(p), release(release1) {
-    assert(p != NULL);
+Pool::Pool(apr_pool_t* p, bool release1) : pool(p), release(release1)
+{
+	assert(p != NULL);
 }
 
-Pool::~Pool() {
-    if (release) {
-      apr_pool_destroy(pool);
-    }
+Pool::~Pool()
+{
+	if (release)
+	{
+		apr_pool_destroy(pool);
+	}
 }
 
 
-apr_pool_t* Pool::getAPRPool() {
-   return pool;
+apr_pool_t* Pool::getAPRPool()
+{
+	return pool;
 }
 
-apr_pool_t* Pool::create() {
-    apr_pool_t* child;
-    apr_status_t stat = apr_pool_create(&child, pool);
-    if (stat != APR_SUCCESS) {
-        throw PoolException(stat);
-    }
-    return child;
+apr_pool_t* Pool::create()
+{
+	apr_pool_t* child;
+	apr_status_t stat = apr_pool_create(&child, pool);
+
+	if (stat != APR_SUCCESS)
+	{
+		throw PoolException(stat);
+	}
+
+	return child;
 }
 
-void* Pool::palloc(size_t size) {
-  return apr_palloc(pool, size);
+void* Pool::palloc(size_t size)
+{
+	return apr_palloc(pool, size);
 }
 
-char* Pool::pstralloc(size_t size) {
-  return (char*) palloc(size);
+char* Pool::pstralloc(size_t size)
+{
+	return (char*) palloc(size);
 }
 
-char* Pool::itoa(int n) {
-    return apr_itoa(pool, n);
+char* Pool::itoa(int n)
+{
+	return apr_itoa(pool, n);
 }
 
-char* Pool::pstrndup(const char* s, size_t len) {
-    return apr_pstrndup(pool, s, len);
+char* Pool::pstrndup(const char* s, size_t len)
+{
+	return apr_pstrndup(pool, s, len);
 }
 
-char* Pool::pstrdup(const char* s) {
-    return apr_pstrdup(pool, s);
+char* Pool::pstrdup(const char* s)
+{
+	return apr_pstrdup(pool, s);
 }
 
-char* Pool::pstrdup(const std::string& s) {
-    return apr_pstrndup(pool, s.data(), s.length());
+char* Pool::pstrdup(const std::string& s)
+{
+	return apr_pstrndup(pool, s.data(), s.length());
 }

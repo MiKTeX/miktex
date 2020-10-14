@@ -22,40 +22,40 @@
 
 namespace log4cxx
 {
-    class File;
+class File;
 
-   namespace spi
-   {
-      /**
-      Implemented by classes capable of configuring log4j using a URL.
-      */
-      class LOG4CXX_EXPORT Configurator : virtual public helpers::Object
-      {
-      public:
-         DECLARE_ABSTRACT_LOG4CXX_OBJECT(Configurator)
-         Configurator();
+namespace spi
+{
+/**
+Implemented by classes capable of configuring log4j using a URL.
+*/
+class LOG4CXX_EXPORT Configurator : virtual public helpers::Object
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(Configurator)
+		Configurator();
 
-         /**
-         Interpret a resource pointed by a URL and set up log4j accordingly.
+		/**
+		Interpret a resource pointed by a URL and set up log4j accordingly.
 
-         The configuration is done relative to the <code>hierarchy</code>
-         parameter.
+		The configuration is done relative to the <code>hierarchy</code>
+		parameter.
 
-         @param configFileName The file to parse
-         @param repository The hierarchy to operation upon.
-         */
-         virtual void doConfigure(const File& configFileName,
-            spi::LoggerRepositoryPtr& repository) = 0;
+		@param configFileName The file to parse
+		@param repository The hierarchy to operation upon.
+		*/
+		virtual void doConfigure(const File& configFileName,
+			spi::LoggerRepositoryPtr& repository) = 0;
 
 
-      private:
-         Configurator(const Configurator&);
-         Configurator& operator=(const Configurator&);
-         bool initialized;
-      };
+	private:
+		Configurator(const Configurator&);
+		Configurator& operator=(const Configurator&);
+		bool initialized;
+};
 
-      LOG4CXX_PTR_DEF(Configurator);
-   }
+LOG4CXX_PTR_DEF(Configurator);
+}
 }
 
 #endif // _LOG4CXX_SPI_CONFIGURATOR_H

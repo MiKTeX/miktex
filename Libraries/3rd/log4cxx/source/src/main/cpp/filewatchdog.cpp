@@ -22,7 +22,7 @@
 #include <apr_thread_proc.h>
 #include <apr_atomic.h>
 #include <log4cxx/helpers/transcoder.h>
-
+#include <log4cxx/helpers/exception.h>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -32,62 +32,79 @@ long FileWatchdog::DEFAULT_DELAY = 60000;
 #if APR_HAS_THREADS
 
 FileWatchdog::FileWatchdog(const File& file1)
- : file(file1), delay(DEFAULT_DELAY), lastModif(0),
-warnedAlready(false), interrupted(0), thread()
+	: file(file1), delay(DEFAULT_DELAY), lastModif(0),
+	  warnedAlready(false), interrupted(0), thread()
 {
 }
 
-FileWatchdog::~FileWatchdog() {
-   apr_atomic_set32(&interrupted, 0xFFFF);
-   thread.join();
+FileWatchdog::~FileWatchdog()
+{
+	apr_atomic_set32(&interrupted, 0xFFFF);
+
+	try
+	{
+		thread.interrupt();
+		thread.join();
+	}
+	catch (Exception&)
+	{
+	}
 }
 
 void FileWatchdog::checkAndConfigure()
 {
-    Pool pool1;
-   if (!file.exists(pool1))
-   {
-              if(!warnedAlready)
-              {
-                      LogLog::debug(((LogString) LOG4CXX_STR("["))
-                         + file.getPath()
-                         + LOG4CXX_STR("] does not exist."));
-                      warnedAlready = true;
-              }
-   }
-   else
-   {
-        apr_time_t thisMod = file.lastModified(pool1);
-      if (thisMod > lastModif)
-      {
-         lastModif = thisMod;
-         doOnChange();
-         warnedAlready = false;
-      }
-   }
+	Pool pool1;
+
+	if (!file.exists(pool1))
+	{
+		if (!warnedAlready)
+		{
+			LogLog::debug(((LogString) LOG4CXX_STR("["))
+				+ file.getPath()
+				+ LOG4CXX_STR("] does not exist."));
+			warnedAlready = true;
+		}
+	}
+	else
+	{
+		apr_time_t thisMod = file.lastModified(pool1);
+
+		if (thisMod > lastModif)
+		{
+			lastModif = thisMod;
+			doOnChange();
+			warnedAlready = false;
+		}
+	}
 }
 
-void* APR_THREAD_FUNC FileWatchdog::run(apr_thread_t* /* thread */, void* data) {
-   FileWatchdog* pThis = (FileWatchdog*) data;
+void* APR_THREAD_FUNC FileWatchdog::run(apr_thread_t* /* thread */, void* data)
+{
+	FileWatchdog* pThis = (FileWatchdog*) data;
 
-   unsigned int interrupted = apr_atomic_read32(&pThis->interrupted);
-    while(!interrupted)
-   {
-      apr_sleep(APR_INT64_C(1000) * pThis->delay);
-      interrupted = apr_atomic_read32(&pThis->interrupted);
-      if (!interrupted) {
-        pThis->checkAndConfigure();
-        interrupted = apr_atomic_read32(&pThis->interrupted);
-      }
-    }
-   return NULL;
+	unsigned int interrupted = apr_atomic_read32(&pThis->interrupted);
+
+	while (!interrupted)
+	{
+		try
+		{
+			Thread::sleep(pThis->delay);
+			pThis->checkAndConfigure();
+		}
+		catch (InterruptedException&)
+		{
+			interrupted = apr_atomic_read32(&pThis->interrupted);
+		}
+	}
+
+	return NULL;
 }
 
 void FileWatchdog::start()
 {
-   checkAndConfigure();
+	checkAndConfigure();
 
-   thread.run(run, this);
+	thread.run(run, this);
 }
 
 #endif

@@ -20,49 +20,58 @@
 
 #include <log4cxx/helpers/dateformat.h>
 
+#if defined(_MSC_VER)
+	#pragma warning ( push )
+	#pragma warning ( disable: 4251 )
+#endif
+
 namespace log4cxx
 {
-        namespace helpers
-        {
+namespace helpers
+{
 
-          /**
-          Concrete class for formatting and parsing dates in a
-          locale-sensitive manner.
+/**
+Concrete class for formatting and parsing dates in a
+locale-sensitive manner.
 
-          */
-          class LOG4CXX_EXPORT StrftimeDateFormat : public DateFormat
-          {
-          public:
-                  /**
-                  Constructs a DateFormat using the given pattern and the default
-                  time zone.
+*/
+class LOG4CXX_EXPORT StrftimeDateFormat : public DateFormat
+{
+	public:
+		/**
+		Constructs a DateFormat using the given pattern and the default
+		time zone.
 
-                  @param pattern the pattern describing the date and time format
-                  */
-                  StrftimeDateFormat(const LogString& pattern);
-                  ~StrftimeDateFormat();
+		@param pattern the pattern describing the date and time format
+		*/
+		StrftimeDateFormat(const LogString& pattern);
+		~StrftimeDateFormat();
 
-                  virtual void format(LogString& s,
-                                      log4cxx_time_t tm,
-                                      log4cxx::helpers::Pool& p) const;
+		virtual void format(LogString& s,
+			log4cxx_time_t tm,
+			log4cxx::helpers::Pool& p) const;
 
-                  /**
-                  *    Set time zone.
-                  * @param zone new time zone.
-                  */
-                  void setTimeZone(const TimeZonePtr& zone);
-
-
-          private:
-                  /**
-                  *    Time zone.
-                  */
-                  TimeZonePtr timeZone;
-                  std::string pattern;
-          };
+		/**
+		*    Set time zone.
+		* @param zone new time zone.
+		*/
+		void setTimeZone(const TimeZonePtr& zone);
 
 
-        }  // namespace helpers
+	private:
+		/**
+		*    Time zone.
+		*/
+		TimeZonePtr timeZone;
+		std::string pattern;
+};
+
+
+}  // namespace helpers
 } // namespace log4cxx
+
+#if defined(_MSC_VER)
+	#pragma warning (pop)
+#endif
 
 #endif // _LOG4CXX_HELPERS_STRFTIME_DATE_FORMAT_H

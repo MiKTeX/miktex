@@ -20,40 +20,44 @@
 
 #include <log4cxx/pattern/patternconverter.h>
 
-namespace log4cxx { namespace pattern {
+namespace log4cxx
+{
+namespace pattern
+{
 
 
 /**
  * Formats an integer.
  *
- * 
- * 
+ *
+ *
  */
-class LOG4CXX_EXPORT IntegerPatternConverter : public PatternConverter {
+class LOG4CXX_EXPORT IntegerPatternConverter : public PatternConverter
+{
 
-  /**
-   * Private constructor.
-   */
-  IntegerPatternConverter();
+		/**
+		 * Private constructor.
+		 */
+		IntegerPatternConverter();
 
-public:
-  DECLARE_LOG4CXX_PATTERN(IntegerPatternConverter)
-  BEGIN_LOG4CXX_CAST_MAP()
-       LOG4CXX_CAST_ENTRY(IntegerPatternConverter)
-       LOG4CXX_CAST_ENTRY_CHAIN(PatternConverter)
-  END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_PATTERN(IntegerPatternConverter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(IntegerPatternConverter)
+		LOG4CXX_CAST_ENTRY_CHAIN(PatternConverter)
+		END_LOG4CXX_CAST_MAP()
 
-  /**
-   * Obtains an instance of pattern converter.
-   * @param options options, may be null.
-   * @return instance of pattern converter.
-   */
-  static PatternConverterPtr newInstance(
-    const std::vector<LogString>& options);
+		/**
+		 * Obtains an instance of pattern converter.
+		 * @param options options, may be null.
+		 * @return instance of pattern converter.
+		 */
+		static PatternConverterPtr newInstance(
+			const std::vector<LogString>& options);
 
-  void format(const log4cxx::helpers::ObjectPtr& obj,
-      LogString& toAppendTo,
-      log4cxx::helpers::Pool& p) const;
+		void format(const log4cxx::helpers::ObjectPtr& obj,
+			LogString& toAppendTo,
+			log4cxx::helpers::Pool& p) const;
 };
 
 LOG4CXX_PTR_DEF(IntegerPatternConverter);

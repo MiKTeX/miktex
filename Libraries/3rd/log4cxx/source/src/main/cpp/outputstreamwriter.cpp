@@ -28,51 +28,74 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(OutputStreamWriter)
 
 OutputStreamWriter::OutputStreamWriter(OutputStreamPtr& out1)
-   : out(out1), enc(CharsetEncoder::getDefaultEncoder()) {
-   if (out1 == 0) {
-      throw NullPointerException(LOG4CXX_STR("out parameter may not be null."));
-   }
+	: out(out1), enc(CharsetEncoder::getDefaultEncoder())
+{
+	if (out1 == 0)
+	{
+		throw NullPointerException(LOG4CXX_STR("out parameter may not be null."));
+	}
 }
 
 OutputStreamWriter::OutputStreamWriter(OutputStreamPtr& out1,
-     CharsetEncoderPtr &enc1)
-    : out(out1), enc(enc1) {
-    if (out1 == 0) {
-       throw NullPointerException(LOG4CXX_STR("out parameter may not be null."));
-    }
-    if (enc1 == 0) {
-       throw NullPointerException(LOG4CXX_STR("enc parameter may not be null."));
-    }
+	CharsetEncoderPtr& enc1)
+	: out(out1), enc(enc1)
+{
+	if (out1 == 0)
+	{
+		throw NullPointerException(LOG4CXX_STR("out parameter may not be null."));
+	}
+
+	if (enc1 == 0)
+	{
+		throw NullPointerException(LOG4CXX_STR("enc parameter may not be null."));
+	}
 }
 
-OutputStreamWriter::~OutputStreamWriter() {
+OutputStreamWriter::~OutputStreamWriter()
+{
 }
 
-void OutputStreamWriter::close(Pool& p) {
-  out->close(p);
+void OutputStreamWriter::close(Pool& p)
+{
+	out->close(p);
 }
 
-void OutputStreamWriter::flush(Pool& p) {
-  out->flush(p);
+void OutputStreamWriter::flush(Pool& p)
+{
+	out->flush(p);
 }
 
-void OutputStreamWriter::write(const LogString& str, Pool& p) {
-  if (str.length() > 0) {
-    enum { BUFSIZE = 1024 };
-    char rawbuf[BUFSIZE];
-    ByteBuffer buf(rawbuf, (size_t) BUFSIZE);
-    enc->reset();
-    LogString::const_iterator iter = str.begin();
-    while(iter != str.end()) {
-      CharsetEncoder::encode(enc, str, iter, buf);
-      buf.flip();
-      out->write(buf, p);
-      buf.clear();
-    }
-    CharsetEncoder::encode(enc, str, iter, buf);
-    enc->flush(buf);
-    buf.flip();
-    out->write(buf, p);
-  }
+void OutputStreamWriter::write(const LogString& str, Pool& p)
+{
+	if (str.length() > 0)
+	{
+#ifdef LOG4CXX_MULTI_PROCESS
+		size_t bufSize = str.length() * 2;
+		char* rawbuf = new char[bufSize];
+		ByteBuffer buf(rawbuf, (size_t) bufSize);
+#else
+		enum { BUFSIZE = 1024 };
+		char rawbuf[BUFSIZE];
+		ByteBuffer buf(rawbuf, (size_t) BUFSIZE);
+#endif
+		enc->reset();
+		LogString::const_iterator iter = str.begin();
+
+		while (iter != str.end())
+		{
+			CharsetEncoder::encode(enc, str, iter, buf);
+			buf.flip();
+			out->write(buf, p);
+			buf.clear();
+		}
+
+		CharsetEncoder::encode(enc, str, iter, buf);
+		enc->flush(buf);
+		buf.flip();
+		out->write(buf, p);
+#ifdef LOG4CXX_MULTI_PROCESS
+		delete []rawbuf;
+#endif
+	}
 }
 

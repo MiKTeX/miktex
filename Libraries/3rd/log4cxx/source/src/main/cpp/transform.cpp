@@ -24,94 +24,108 @@ using namespace log4cxx::helpers;
 
 
 void Transform::appendEscapingTags(
-   LogString& buf, const LogString& input)
+	LogString& buf, const LogString& input)
 {
-   //Check if the string is zero length -- if so, return
-   //what was sent in.
+	//Check if the string is zero length -- if so, return
+	//what was sent in.
 
-   if(input.length() == 0 )
-   {
-      return;
-   }
-   
-   logchar specials[] = { 0x22 /* " */, 0x26 /* & */, 0x3C /* < */, 0x3E /* > */, 0x00 };
-   size_t start = 0;
-   size_t special = input.find_first_of(specials, start);
-   while(special != LogString::npos) {
-        if (special > start) {
-            buf.append(input, start, special - start);
-        }
-        switch(input[special]) {
-            case 0x22:
-            buf.append(LOG4CXX_STR("&quot;"));
-            break;
-            
-            case 0x26:
-            buf.append(LOG4CXX_STR("&amp;"));
-            break;
-            
-            case 0x3C:
-            buf.append(LOG4CXX_STR("&lt;"));
-            break;
-            
-            case 0x3E:
-            buf.append(LOG4CXX_STR("&gt;"));
-            break;
-            
-            default:
-            buf.append(1, input[special]);
-            break;
-        }
-        start = special+1;
-        if (special < input.size()) {
-            special = input.find_first_of(specials, start);
-        } else {
-            special = LogString::npos;
-        }
-   }
-   
-   if (start < input.size()) {
-        buf.append(input, start, input.size() - start);
-    }
+	if (input.length() == 0 )
+	{
+		return;
+	}
+
+	logchar specials[] = { 0x22 /* " */, 0x26 /* & */, 0x3C /* < */, 0x3E /* > */, 0x00 };
+	size_t start = 0;
+	size_t special = input.find_first_of(specials, start);
+
+	while (special != LogString::npos)
+	{
+		if (special > start)
+		{
+			buf.append(input, start, special - start);
+		}
+
+		switch (input[special])
+		{
+			case 0x22:
+				buf.append(LOG4CXX_STR("&quot;"));
+				break;
+
+			case 0x26:
+				buf.append(LOG4CXX_STR("&amp;"));
+				break;
+
+			case 0x3C:
+				buf.append(LOG4CXX_STR("&lt;"));
+				break;
+
+			case 0x3E:
+				buf.append(LOG4CXX_STR("&gt;"));
+				break;
+
+			default:
+				buf.append(1, input[special]);
+				break;
+		}
+
+		start = special + 1;
+
+		if (special < input.size())
+		{
+			special = input.find_first_of(specials, start);
+		}
+		else
+		{
+			special = LogString::npos;
+		}
+	}
+
+	if (start < input.size())
+	{
+		buf.append(input, start, input.size() - start);
+	}
 }
 
 void Transform::appendEscapingCDATA(
-   LogString& buf, const LogString& input)
+	LogString& buf, const LogString& input)
 {
-     static const LogString CDATA_END(LOG4CXX_STR("]]>"));
-     static const LogString CDATA_EMBEDED_END(LOG4CXX_STR("]]>]]&gt;<![CDATA["));
+	static const LogString CDATA_END(LOG4CXX_STR("]]>"));
+	static const LogString CDATA_EMBEDED_END(LOG4CXX_STR("]]>]]&gt;<![CDATA["));
 
-     const LogString::size_type CDATA_END_LEN = 3;
+	const LogString::size_type CDATA_END_LEN = 3;
 
 
-   if(input.length() == 0 )
-   {
-      return;
-   }
+	if (input.length() == 0 )
+	{
+		return;
+	}
 
-   LogString::size_type end = input.find(CDATA_END);
-   if (end == LogString::npos)
-   {
-      buf.append(input);
-      return;
-   }
+	LogString::size_type end = input.find(CDATA_END);
 
-   LogString::size_type start = 0;
-   while (end != LogString::npos)
-   {
-      buf.append(input, start, end-start);
-      buf.append(CDATA_EMBEDED_END);
-      start = end + CDATA_END_LEN;
-      if (start < input.length())
-      {
-         end = input.find(CDATA_END, start);
-      }
-      else
-      {
-         return;
-      }
-   }
+	if (end == LogString::npos)
+	{
+		buf.append(input);
+		return;
+	}
 
-   buf.append(input, start, input.length() - start);
+	LogString::size_type start = 0;
+
+	while (end != LogString::npos)
+	{
+		buf.append(input, start, end - start);
+		buf.append(CDATA_EMBEDED_END);
+		start = end + CDATA_END_LEN;
+
+		if (start < input.length())
+		{
+			end = input.find(CDATA_END, start);
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	buf.append(input, start, input.length() - start);
 }
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/net/sockethubappender.h>
@@ -45,194 +45,211 @@ int SocketHubAppender::DEFAULT_PORT = 4560;
 
 SocketHubAppender::~SocketHubAppender()
 {
-        finalize();
+	finalize();
 }
 
 SocketHubAppender::SocketHubAppender()
- : port(DEFAULT_PORT), streams(), locationInfo(false), thread()
+	: port(DEFAULT_PORT), streams(), locationInfo(false), thread()
 {
 }
 
 SocketHubAppender::SocketHubAppender(int port1)
- : port(port1), streams(), locationInfo(false), thread()
+	: port(port1), streams(), locationInfo(false), thread()
 {
-        startServer();
+	startServer();
 }
 
 void SocketHubAppender::activateOptions(Pool& /* p */ )
 {
-        startServer();
+	startServer();
 }
 
 void SocketHubAppender::setOption(const LogString& option,
-        const LogString& value)
+	const LogString& value)
 {
-        if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PORT"), LOG4CXX_STR("port")))
-        {
-                setPort(OptionConverter::toInt(value, DEFAULT_PORT));
-        }
-        else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"), LOG4CXX_STR("locationinfo")))
-        {
-                setLocationInfo(OptionConverter::toBoolean(value, true));
-        }
-        else
-        {
-                AppenderSkeleton::setOption(option, value);
-        }
+	if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PORT"), LOG4CXX_STR("port")))
+	{
+		setPort(OptionConverter::toInt(value, DEFAULT_PORT));
+	}
+	else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"), LOG4CXX_STR("locationinfo")))
+	{
+		setLocationInfo(OptionConverter::toBoolean(value, true));
+	}
+	else
+	{
+		AppenderSkeleton::setOption(option, value);
+	}
 }
 
 
 void SocketHubAppender::close()
 {
-        {
-            synchronized sync(mutex);
-            if (closed) {
-                return;
-            }
-            closed = true;
-        }
+	{
+		LOCK_W sync(mutex);
 
-        LogLog::debug(LOG4CXX_STR("closing SocketHubAppender ") + getName());
-        //
-        //  wait until the server thread completes
-        //
-        thread.join();
+		if (closed)
+		{
+			return;
+		}
 
-        synchronized sync(mutex);
-        // close all of the connections
-        LogLog::debug(LOG4CXX_STR("closing client connections"));
-        for (std::vector<helpers::ObjectOutputStreamPtr>::iterator iter = streams.begin();
-             iter != streams.end();
-             iter++) {
-                 if ( (*iter) != NULL) {
-                         try {
-                                (*iter)->close(pool);
-                         } catch(SocketException& e) {
-                                LogLog::error(LOG4CXX_STR("could not close socket: "), e);
-                         }
-                 }
-         }
-        streams.erase(streams.begin(), streams.end());
+		closed = true;
+	}
+
+	LogLog::debug(LOG4CXX_STR("closing SocketHubAppender ") + getName());
+	//
+	//  wait until the server thread completes
+	//
+	thread.join();
+
+	LOCK_W sync(mutex);
+	// close all of the connections
+	LogLog::debug(LOG4CXX_STR("closing client connections"));
+
+	for (std::vector<helpers::ObjectOutputStreamPtr>::iterator iter = streams.begin();
+		iter != streams.end();
+		iter++)
+	{
+		if ( (*iter) != NULL)
+		{
+			try
+			{
+				(*iter)->close(pool);
+			}
+			catch (SocketException& e)
+			{
+				LogLog::error(LOG4CXX_STR("could not close socket: "), e);
+			}
+		}
+	}
+
+	streams.erase(streams.begin(), streams.end());
 
 
-        LogLog::debug(LOG4CXX_STR("SocketHubAppender ")
-              + getName() + LOG4CXX_STR(" closed"));
+	LogLog::debug(LOG4CXX_STR("SocketHubAppender ")
+		+ getName() + LOG4CXX_STR(" closed"));
 }
 
 void SocketHubAppender::append(const spi::LoggingEventPtr& event, Pool& p)
 {
 
-        // if no open connections, exit now
-        if(streams.empty())
-        {
-                return;
-        }
-        
-        LogString ndcVal;
-        event->getNDC(ndcVal);
-        event->getThreadName();
-        // Get a copy of this thread's MDC.
-        event->getMDCCopy();
-       
+	// if no open connections, exit now
+	if (streams.empty())
+	{
+		return;
+	}
 
-        // loop through the current set of open connections, appending the event to each
-        std::vector<ObjectOutputStreamPtr>::iterator it = streams.begin();
-        std::vector<ObjectOutputStreamPtr>::iterator itEnd = streams.end();
-        while(it != itEnd)
-        {
-                // list size changed unexpectedly? Just exit the append.
-                if (*it == 0)
-                {
-                        break;
-                }
+	LogString ndcVal;
+	event->getNDC(ndcVal);
+	event->getThreadName();
+	// Get a copy of this thread's MDC.
+	event->getMDCCopy();
 
-                try
-                {
-                        event->write(**it, p);
-                        (*it)->flush(p);
-                        it++;
-                }
-                catch(std::exception& e)
-                {
-                        // there was an io exception so just drop the connection
-                        it = streams.erase(it);
-                        LogLog::debug(LOG4CXX_STR("dropped connection"), e);
-                }
-        }
+
+	// loop through the current set of open connections, appending the event to each
+	std::vector<ObjectOutputStreamPtr>::iterator it = streams.begin();
+	std::vector<ObjectOutputStreamPtr>::iterator itEnd = streams.end();
+
+	while (it != itEnd)
+	{
+		// list size changed unexpectedly? Just exit the append.
+		if (*it == 0)
+		{
+			break;
+		}
+
+		try
+		{
+			event->write(**it, p);
+			(*it)->flush(p);
+			it++;
+		}
+		catch (std::exception& e)
+		{
+			// there was an io exception so just drop the connection
+			it = streams.erase(it);
+			itEnd = streams.end();
+			LogLog::debug(LOG4CXX_STR("dropped connection"), e);
+		}
+	}
 }
 
 void SocketHubAppender::startServer()
 {
-        thread.run(monitor, this);
+	thread.run(monitor, this);
 }
 
-void* APR_THREAD_FUNC SocketHubAppender::monitor(apr_thread_t* /* thread */, void* data) {
-        SocketHubAppender* pThis = (SocketHubAppender*) data;
+void* APR_THREAD_FUNC SocketHubAppender::monitor(apr_thread_t* /* thread */, void* data)
+{
+	SocketHubAppender* pThis = (SocketHubAppender*) data;
 
-        ServerSocket* serverSocket = 0;
+	ServerSocket* serverSocket = 0;
 
-        try
-        {
-                serverSocket = new ServerSocket(pThis->port);
-                serverSocket->setSoTimeout(1000);
-        }
-        catch (SocketException& e)
-        {
-                LogLog::error(LOG4CXX_STR("exception setting timeout, shutting down server socket."), e);
-                delete serverSocket;
-                return NULL;
-        }
+	try
+	{
+		serverSocket = new ServerSocket(pThis->port);
+		serverSocket->setSoTimeout(1000);
+	}
+	catch (SocketException& e)
+	{
+		LogLog::error(LOG4CXX_STR("exception setting timeout, shutting down server socket."), e);
+		delete serverSocket;
+		return NULL;
+	}
 
-        bool stopRunning = pThis->closed;
-        while (!stopRunning)
-        {
-                SocketPtr socket;
-                try
-                {
-                        socket = serverSocket->accept();
-                }
-                catch (InterruptedIOException&)
-                {
-                        // timeout occurred, so just loop
-                }
-                catch (SocketException& e)
-                {
-                        LogLog::error(LOG4CXX_STR("exception accepting socket, shutting down server socket."), e);
-                        stopRunning = true;
-                }
-                catch (IOException& e)
-                {
-                        LogLog::error(LOG4CXX_STR("exception accepting socket."), e);
-                }
+	bool stopRunning = pThis->closed;
 
-                // if there was a socket accepted
-                if (socket != 0)
-                {
-                        try
-                        {
-                                InetAddressPtr remoteAddress = socket->getInetAddress();
-                                LogLog::debug(LOG4CXX_STR("accepting connection from ")
-                                       + remoteAddress->getHostName()
-                                       + LOG4CXX_STR(" (")
-                                       + remoteAddress->getHostAddress()
-                                       + LOG4CXX_STR(")"));
+	while (!stopRunning)
+	{
+		SocketPtr socket;
 
-                                // add it to the oosList.
-                                synchronized sync(pThis->mutex);
-                                OutputStreamPtr os(new SocketOutputStream(socket));
-                                Pool p;
-                                ObjectOutputStreamPtr oos(new ObjectOutputStream(os, p));
-                                pThis->streams.push_back(oos);
-                        }
-                        catch (IOException& e)
-                        {
-                                LogLog::error(LOG4CXX_STR("exception creating output stream on socket."), e);
-                        }
-                }
-                stopRunning = (stopRunning || pThis->closed);
-        }
-        delete serverSocket;
-        return NULL;
+		try
+		{
+			socket = serverSocket->accept();
+		}
+		catch (InterruptedIOException&)
+		{
+			// timeout occurred, so just loop
+		}
+		catch (SocketException& e)
+		{
+			LogLog::error(LOG4CXX_STR("exception accepting socket, shutting down server socket."), e);
+			stopRunning = true;
+		}
+		catch (IOException& e)
+		{
+			LogLog::error(LOG4CXX_STR("exception accepting socket."), e);
+		}
+
+		// if there was a socket accepted
+		if (socket != 0)
+		{
+			try
+			{
+				InetAddressPtr remoteAddress = socket->getInetAddress();
+				LogLog::debug(LOG4CXX_STR("accepting connection from ")
+					+ remoteAddress->getHostName()
+					+ LOG4CXX_STR(" (")
+					+ remoteAddress->getHostAddress()
+					+ LOG4CXX_STR(")"));
+
+				// add it to the oosList.
+				LOCK_W sync(pThis->mutex);
+				OutputStreamPtr os(new SocketOutputStream(socket));
+				Pool p;
+				ObjectOutputStreamPtr oos(new ObjectOutputStream(os, p));
+				pThis->streams.push_back(oos);
+			}
+			catch (IOException& e)
+			{
+				LogLog::error(LOG4CXX_STR("exception creating output stream on socket."), e);
+			}
+		}
+
+		stopRunning = (stopRunning || pThis->closed);
+	}
+
+	delete serverSocket;
+	return NULL;
 }
 
 #endif

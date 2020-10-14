@@ -17,37 +17,40 @@
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/date.h>
 
-
+#include <apr_time.h>
 #ifndef INT64_C
-#define INT64_C(x) x ## LL
+	#define INT64_C(x) x ## LL
 #endif
 
-
-#include <apr_time.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(Date)
 
-
-Date::Date() : time(apr_time_now()) {
+Date::Date() : time(apr_time_now())
+{
 }
 
-Date::Date(log4cxx_time_t t) : time(t) {
+Date::Date(log4cxx_time_t t) : time(t)
+{
 }
 
-Date::~Date() {
+Date::~Date()
+{
 }
 
-log4cxx_time_t Date::getMicrosecondsPerDay() {
-   return APR_INT64_C(86400000000);
+log4cxx_time_t Date::getMicrosecondsPerDay()
+{
+	return APR_INT64_C(86400000000);
 }
 
-log4cxx_time_t Date::getMicrosecondsPerSecond() {
-   return APR_USEC_PER_SEC;
+log4cxx_time_t Date::getMicrosecondsPerSecond()
+{
+	return APR_USEC_PER_SEC;
 }
 
 
-log4cxx_time_t Date::getNextSecond() const {
-    return ((time / APR_USEC_PER_SEC) + 1) * APR_USEC_PER_SEC;
+log4cxx_time_t Date::getNextSecond() const
+{
+	return ((time / APR_USEC_PER_SEC) + 1) * APR_USEC_PER_SEC;
 }

@@ -14,53 +14,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #ifndef _LOG4CXX_PATTERN_LOGGER_PATTERN_CONVERTER_H
- #define _LOG4CXX_PATTERN_LOGGER_PATTERN_CONVERTER_H
+#ifndef _LOG4CXX_PATTERN_LOGGER_PATTERN_CONVERTER_H
+#define _LOG4CXX_PATTERN_LOGGER_PATTERN_CONVERTER_H
 
 
 #include <log4cxx/pattern/namepatternconverter.h>
 
-namespace log4cxx {
-  namespace pattern {
+namespace log4cxx
+{
+namespace pattern
+{
 
 
 /**
  * Formats a logger name.
  *
- * 
  *
- * 
+ *
+ *
  */
-class LOG4CXX_EXPORT LoggerPatternConverter : public NamePatternConverter {
+class LOG4CXX_EXPORT LoggerPatternConverter : public NamePatternConverter
+{
 
-  /**
-   * Private constructor.
-   * @param options options, may be null.
-   * @param logger logger for diagnostic messages, may be null.
-   */
-  LoggerPatternConverter(const std::vector<LogString>& options);
+		/**
+		 * Private constructor.
+		 * @param options options, may be null.
+		 * @param logger logger for diagnostic messages, may be null.
+		 */
+		LoggerPatternConverter(const std::vector<LogString>& options);
 
-public:
-  DECLARE_LOG4CXX_PATTERN(LoggerPatternConverter)
-  BEGIN_LOG4CXX_CAST_MAP()
-       LOG4CXX_CAST_ENTRY(LoggerPatternConverter)
-       LOG4CXX_CAST_ENTRY_CHAIN(NamePatternConverter)
-  END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_PATTERN(LoggerPatternConverter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(LoggerPatternConverter)
+		LOG4CXX_CAST_ENTRY_CHAIN(NamePatternConverter)
+		END_LOG4CXX_CAST_MAP()
 
-  /**
-   * Obtains an instance of pattern converter.
-   * @param options options, may be null.
-   * @return instance of pattern converter.
-   */
-  static PatternConverterPtr newInstance(
-    const std::vector<LogString>& options);
+		/**
+		 * Obtains an instance of pattern converter.
+		 * @param options options, may be null.
+		 * @return instance of pattern converter.
+		 */
+		static PatternConverterPtr newInstance(
+			const std::vector<LogString>& options);
 
-  void format(const log4cxx::spi::LoggingEventPtr& event,
-      LogString& toAppendTo,
-      log4cxx::helpers::Pool& p) const;
+		using NamePatternConverter::format;
+
+		void format(const log4cxx::spi::LoggingEventPtr& event,
+			LogString& toAppendTo,
+			log4cxx::helpers::Pool& p) const;
 };
 
-  }
+}
 }
 
 #endif

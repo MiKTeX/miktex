@@ -21,27 +21,32 @@
 
 using namespace log4cxx::helpers;
 
-ObjectPtrBase::ObjectPtrBase() {
+ObjectPtrBase::ObjectPtrBase()
+{
 }
 
-ObjectPtrBase::~ObjectPtrBase() {
+ObjectPtrBase::~ObjectPtrBase()
+{
 }
 
-void ObjectPtrBase::checkNull(const int& null) {
-    if (null != 0) {
-       throw IllegalArgumentException(LOG4CXX_STR("Attempt to set pointer to a non-zero numeric value."));
-    }
+void ObjectPtrBase::checkNull(const int& null)
+{
+	if (null != 0)
+	{
+		throw IllegalArgumentException(LOG4CXX_STR("Attempt to set pointer to a non-zero numeric value."));
+	}
 }
 
-void* ObjectPtrBase::exchange(void** destination, void* newValue) {
+void* ObjectPtrBase::exchange(void** destination, void* newValue)
+{
 #if _WIN32 && (!defined(_MSC_VER) || _MSC_VER >= 1300)
-    return InterlockedExchangePointer(destination, newValue);
+	return InterlockedExchangePointer(destination, newValue);
 #elif APR_SIZEOF_VOIDP == 4
-   return (void*) apr_atomic_xchg32((volatile apr_uint32_t*) destination,
-                          (apr_uint32_t) newValue);
+	return (void*) apr_atomic_xchg32((volatile apr_uint32_t*) destination,
+			(apr_uint32_t) newValue);
 #else
-   void* oldValue = *destination;
-   *destination = newValue;
-   return oldValue;
+	void* oldValue = *destination;
+	*destination = newValue;
+	return oldValue;
 #endif
 }

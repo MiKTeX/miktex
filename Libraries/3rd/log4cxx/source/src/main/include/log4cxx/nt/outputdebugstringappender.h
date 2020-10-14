@@ -22,27 +22,29 @@
 
 namespace log4cxx
 {
-        namespace nt
-        {
-                class LOG4CXX_EXPORT OutputDebugStringAppender : public AppenderSkeleton
-                {
-                public:
-                DECLARE_LOG4CXX_OBJECT(OutputDebugStringAppender)
-                BEGIN_LOG4CXX_CAST_MAP()
-                        LOG4CXX_CAST_ENTRY(OutputDebugStringAppender)
-                        LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
-                END_LOG4CXX_CAST_MAP()
+namespace nt
+{
+class LOG4CXX_EXPORT OutputDebugStringAppender : public AppenderSkeleton
+{
+	public:
+		DECLARE_LOG4CXX_OBJECT(OutputDebugStringAppender)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(OutputDebugStringAppender)
+		LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
+		END_LOG4CXX_CAST_MAP()
 
-                OutputDebugStringAppender();
+		OutputDebugStringAppender();
 
-                        bool requiresLayout() const
-                        { return true; }
+		bool requiresLayout() const
+		{
+			return true;
+		}
 
-                        virtual void close() {}
+		virtual void close() {}
 
-                        virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
-                };
-        }
+		virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
+};
+}
 }
 
 #endif //_LOG4CXX_NT_OUTPUTDEBUGSTRING_APPENDER_HEADER_

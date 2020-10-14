@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -28,23 +28,28 @@ using namespace log4cxx::pattern;
 IMPLEMENT_LOG4CXX_OBJECT(PatternConverter)
 
 PatternConverter::PatternConverter(
-   const LogString& name1, const LogString& style1) :
-   name(name1), style(style1) {
+	const LogString& name1, const LogString& style1) :
+	name(name1), style(style1)
+{
 }
 
-PatternConverter::~PatternConverter() {
+PatternConverter::~PatternConverter()
+{
 }
 
-LogString PatternConverter::getName() const {
-    return name;
+LogString PatternConverter::getName() const
+{
+	return name;
 }
 
-LogString PatternConverter::getStyleClass(const log4cxx::helpers::ObjectPtr& /* e */) const {
-    return style;
-  }
+LogString PatternConverter::getStyleClass(const log4cxx::helpers::ObjectPtr& /* e */) const
+{
+	return style;
+}
 
-void PatternConverter::append(LogString& toAppendTo, const std::string& src) {
-  LOG4CXX_DECODE_CHAR(decoded, src);
-  toAppendTo.append(decoded);
+void PatternConverter::append(LogString& toAppendTo, const std::string& src)
+{
+	LOG4CXX_DECODE_CHAR(decoded, src);
+	toAppendTo.append(decoded);
 }
 

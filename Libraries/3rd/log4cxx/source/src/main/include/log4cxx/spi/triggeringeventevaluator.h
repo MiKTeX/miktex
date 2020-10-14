@@ -22,29 +22,29 @@
 
 namespace log4cxx
 {
-        namespace spi
-        {
-                /**
-                Implementions of this interface allow certain appenders to decide
-                when to perform an appender specific action.
+namespace spi
+{
+/**
+Implementions of this interface allow certain appenders to decide
+when to perform an appender specific action.
 
-                <p>For example the {@link net::SMTPAppender SMTPAppender} sends
-                an email when the #isTriggeringEvent method returns
-                <code>true</code> and adds the event to an internal buffer when the
-                returned result is <code>false</code>.
+<p>For example the {@link net::SMTPAppender SMTPAppender} sends
+an email when the #isTriggeringEvent method returns
+<code>true</code> and adds the event to an internal buffer when the
+returned result is <code>false</code>.
 
-                */
-                class LOG4CXX_EXPORT TriggeringEventEvaluator : public virtual helpers::Object
-                {
-                public:
-                        DECLARE_ABSTRACT_LOG4CXX_OBJECT(TriggeringEventEvaluator)
-                        /**
-                        Is this the triggering event?
-                        */
-                        virtual bool isTriggeringEvent(const spi::LoggingEventPtr& event) = 0;
-                };
-            LOG4CXX_PTR_DEF(TriggeringEventEvaluator);
-        }
+*/
+class LOG4CXX_EXPORT TriggeringEventEvaluator : public virtual helpers::Object
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(TriggeringEventEvaluator)
+		/**
+		Is this the triggering event?
+		*/
+		virtual bool isTriggeringEvent(const spi::LoggingEventPtr& event) = 0;
+};
+LOG4CXX_PTR_DEF(TriggeringEventEvaluator);
+}
 }
 
 #endif // _LOG4CXX_SPI_TRIGGERING_EVENT_EVALUATOR_H

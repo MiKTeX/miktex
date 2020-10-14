@@ -19,8 +19,8 @@
 #define _LOG4CXX_HELPERS_CLASS_H
 
 #if defined(_MSC_VER)
-#pragma warning (push)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning (push)
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -30,37 +30,37 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                class Object;
-                typedef ObjectPtrT<Object> ObjectPtr;
+namespace helpers
+{
+class Object;
+typedef ObjectPtrT<Object> ObjectPtr;
 
 
-                class LOG4CXX_EXPORT Class
-                {
-                public:
-                        virtual ~Class();
-                        virtual ObjectPtr newInstance() const;
-                        LogString toString() const;
-                        virtual LogString getName() const = 0;
-                        static const Class& forName(const LogString& className);
-                        static bool registerClass(const Class& newClass);
+class LOG4CXX_EXPORT Class
+{
+	public:
+		virtual ~Class();
+		virtual ObjectPtr newInstance() const;
+		LogString toString() const;
+		virtual LogString getName() const = 0;
+		static const Class& forName(const LogString& className);
+		static bool registerClass(const Class& newClass);
 
-                protected:
-                        Class();
+	protected:
+		Class();
 
-                private:
-                        Class(const Class&);
-                        Class& operator=(const Class&);
-                        typedef std::map<LogString, const Class *> ClassMap;
-                        static ClassMap& getRegistry();
-                        static void registerClasses();
-                };
-        }  // namespace log4cxx
+	private:
+		Class(const Class&);
+		Class& operator=(const Class&);
+		typedef std::map<LogString, const Class*> ClassMap;
+		static ClassMap& getRegistry();
+		static void registerClasses();
+};
+}  // namespace log4cxx
 } // namespace helper
 
 #if defined(_MSC_VER)
-#pragma warning (pop)
+	#pragma warning (pop)
 #endif
 
 

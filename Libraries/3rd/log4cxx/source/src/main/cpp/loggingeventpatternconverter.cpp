@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -32,18 +32,23 @@ IMPLEMENT_LOG4CXX_OBJECT(LoggingEventPatternConverter)
 
 
 LoggingEventPatternConverter::LoggingEventPatternConverter(
-    const LogString& name1, const LogString& style1) : PatternConverter(name1, style1) {
-  }
-
-void LoggingEventPatternConverter::format(const ObjectPtr& obj,
-    LogString& output,
-    log4cxx::helpers::Pool& p) const {
-    LoggingEventPtr le(obj);
-    if (le != NULL) {
-       format(le, output, p);
-    }
+	const LogString& name1, const LogString& style1) : PatternConverter(name1, style1)
+{
 }
 
-bool LoggingEventPatternConverter::handlesThrowable() const {
-    return false;
+void LoggingEventPatternConverter::format(const ObjectPtr& obj,
+	LogString& output,
+	log4cxx::helpers::Pool& p) const
+{
+	LoggingEventPtr le(obj);
+
+	if (le != NULL)
+	{
+		format(le, output, p);
+	}
+}
+
+bool LoggingEventPatternConverter::handlesThrowable() const
+{
+	return false;
 }

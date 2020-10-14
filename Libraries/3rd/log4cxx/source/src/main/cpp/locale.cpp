@@ -22,34 +22,34 @@ using namespace log4cxx::helpers;
 
 
 Locale::Locale(const LogString& language1)
- : language(language1)
+	: language(language1)
 {
 }
 
 Locale::Locale(const LogString& language1, const LogString& country1)
- : language(language1), country(country1)
+	: language(language1), country(country1)
 {
 }
 
 Locale::Locale(const LogString& language1, const LogString& country1,
-   const LogString& variant1)
-: language(language1), country(country1), variant(variant1)
+	const LogString& variant1)
+	: language(language1), country(country1), variant(variant1)
 {
 }
 
 
 const LogString& Locale::getLanguage() const
 {
-   return language;
+	return language;
 }
 
 const LogString& Locale::getCountry() const
 {
-   return country;
+	return country;
 }
 
 const LogString& Locale::getVariant() const
 {
-   return variant;
+	return variant;
 }
 

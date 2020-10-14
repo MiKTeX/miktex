@@ -21,64 +21,67 @@
 #include <log4cxx/pattern/patternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
 
-namespace log4cxx {
+namespace log4cxx
+{
 
-  namespace pattern {
-    /**
-    * LoggingEventPatternConverter is a base class for pattern converters
-    * that can format information from instances of LoggingEvent.
-    *
-    * 
-    *
-    * 
-    */
-class LOG4CXX_EXPORT LoggingEventPatternConverter : public PatternConverter {
-protected:
-  /**
-   * Constructs an instance of LoggingEventPatternConverter.
-   * @param name name of converter.
-   * @param style CSS style for output.
-   */
-  LoggingEventPatternConverter(
-    const LogString& name, const LogString& style);
+namespace pattern
+{
+/**
+* LoggingEventPatternConverter is a base class for pattern converters
+* that can format information from instances of LoggingEvent.
+*
+*
+*
+*
+*/
+class LOG4CXX_EXPORT LoggingEventPatternConverter : public PatternConverter
+{
+	protected:
+		/**
+		 * Constructs an instance of LoggingEventPatternConverter.
+		 * @param name name of converter.
+		 * @param style CSS style for output.
+		 */
+		LoggingEventPatternConverter(
+			const LogString& name, const LogString& style);
 
-public:
-DECLARE_LOG4CXX_PATTERN(LoggingEventPatternConverter)
-BEGIN_LOG4CXX_CAST_MAP()
-     LOG4CXX_CAST_ENTRY(LoggingEventPatternConverter)
-     LOG4CXX_CAST_ENTRY_CHAIN(PatternConverter)
-END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_PATTERN(LoggingEventPatternConverter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(LoggingEventPatternConverter)
+		LOG4CXX_CAST_ENTRY_CHAIN(PatternConverter)
+		END_LOG4CXX_CAST_MAP()
 
-  /**
-   * Formats an event into a string buffer.
-   * @param event event to format, may not be null.
-   * @param toAppendTo string buffer to which the formatted event will be appended.  May not be null.
-   * @param p pool for memory allocations needing during format.
-   */
-  virtual void format(
-    const log4cxx::spi::LoggingEventPtr& event,
-    LogString& toAppendTo,
-    log4cxx::helpers::Pool& p) const = 0;
+		/**
+		 * Formats an event into a string buffer.
+		 * @param event event to format, may not be null.
+		 * @param toAppendTo string buffer to which the formatted event will be appended.  May not be null.
+		 * @param p pool for memory allocations needing during format.
+		 */
+		virtual void format(
+			const log4cxx::spi::LoggingEventPtr& event,
+			LogString& toAppendTo,
+			log4cxx::helpers::Pool& p) const = 0;
 
-  void format(const log4cxx::helpers::ObjectPtr& obj,
-     LogString& toAppendTo,
-     log4cxx::helpers::Pool& p) const;
+		void format(const log4cxx::helpers::ObjectPtr& obj,
+			LogString& toAppendTo,
+			log4cxx::helpers::Pool& p) const;
 
-  /**
-   * Normally pattern converters are not meant to handle Exceptions although
-   * few pattern converters might.
-   *
-   * By examining the return values for this method, the containing layout will
-   * determine whether it handles throwables or not.
+		/**
+		 * Normally pattern converters are not meant to handle Exceptions although
+		 * few pattern converters might.
+		 *
+		 * By examining the return values for this method, the containing layout will
+		 * determine whether it handles throwables or not.
 
-   * @return true if this PatternConverter handles throwables
-   */
-  virtual bool handlesThrowable() const;
+		 * @return true if this PatternConverter handles throwables
+		 */
+		virtual bool handlesThrowable() const;
 };
 
 LOG4CXX_PTR_DEF(LoggingEventPatternConverter);
 
-  }
+}
 }
 
 #endif

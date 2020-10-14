@@ -23,42 +23,42 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                class LOG4CXX_EXPORT ServerSocket
-                {
-                public:
-                        /**  Creates a server socket on a specified port.
-                        */
-                        ServerSocket(int port);
+namespace helpers
+{
+class LOG4CXX_EXPORT ServerSocket
+{
+	public:
+		/**  Creates a server socket on a specified port.
+		*/
+		ServerSocket(int port);
 
-                        virtual ~ServerSocket();
+		virtual ~ServerSocket();
 
-                        /** Listens for a connection to be made to this socket and
-                        accepts it
-                        */
-                        SocketPtr accept();
+		/** Listens for a connection to be made to this socket and
+		accepts it
+		*/
+		SocketPtr accept();
 
-                        /** Closes this socket.
-                        */
-                        void close();
+		/** Closes this socket.
+		*/
+		void close();
 
-                        /** Retrive setting for SO_TIMEOUT.
-                        */
-                        int getSoTimeout() const;
+		/** Retrive setting for SO_TIMEOUT.
+		*/
+		int getSoTimeout() const;
 
-                        /** Enable/disable SO_TIMEOUT with the specified timeout, in milliseconds.
-                        */
-                        void setSoTimeout(int timeout);
-                        
-                private:
-                        Pool pool;
-                        Mutex mutex;
-                        apr_socket_t* socket;
-                        int timeout;
-                        
-                };
-        }  // namespace helpers
+		/** Enable/disable SO_TIMEOUT with the specified timeout, in milliseconds.
+		*/
+		void setSoTimeout(int timeout);
+
+	private:
+		Pool pool;
+		Mutex mutex;
+		apr_socket_t* socket;
+		int timeout;
+
+};
+}  // namespace helpers
 } // namespace log4cxx
 
 #endif //_LOG4CXX_HELPERS_SERVER_SOCKET_H

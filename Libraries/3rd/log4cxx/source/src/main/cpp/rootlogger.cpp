@@ -24,28 +24,28 @@ using namespace log4cxx;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
-RootLogger::RootLogger(Pool& pool, const LevelPtr& level1) : 
-    Logger(pool, LOG4CXX_STR("root"))
+RootLogger::RootLogger(Pool& pool, const LevelPtr& level1) :
+	Logger(pool, LOG4CXX_STR("root"))
 {
-   setLevel(level1);
+	setLevel(level1);
 }
 
 const LevelPtr& RootLogger::getEffectiveLevel() const
 {
-   return level;
+	return level;
 }
 
 void RootLogger::setLevel(const LevelPtr& level1)
 {
-   if(level1 == 0)
-   {
-      LogLog::error(LOG4CXX_STR("You have tried to set a null level to root."));
-   }
-   else
-   {
+	if (level1 == 0)
+	{
+		LogLog::error(LOG4CXX_STR("You have tried to set a null level to root."));
+	}
+	else
+	{
 
-      this->level = level1;
-   }
+		this->level = level1;
+	}
 }
 
 

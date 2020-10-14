@@ -25,14 +25,15 @@
 
 
 log4cxx::helpers::RelativeTimeDateFormat::RelativeTimeDateFormat()
- : DateFormat(), startTime(log4cxx::spi::LoggingEvent::getStartTime())
+	: DateFormat(), startTime(log4cxx::spi::LoggingEvent::getStartTime())
 {
 }
 
 void log4cxx::helpers::RelativeTimeDateFormat::format(
-    LogString &s,
-    log4cxx_time_t date,
-    Pool& p) const {
-    log4cxx_int64_t interval = (date - startTime) / APR_INT64_C(1000);
-    StringHelper::toString(interval, p, s);
+	LogString& s,
+	log4cxx_time_t date,
+	Pool& p) const
+{
+	log4cxx_int64_t interval = (date - startTime) / APR_INT64_C(1000);
+	StringHelper::toString(interval, p, s);
 }

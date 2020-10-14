@@ -23,32 +23,32 @@
 
 namespace log4cxx
 {
-        namespace spi
-        {
-                class LoggerRepository;
-                typedef helpers::ObjectPtrT<LoggerRepository> LoggerRepositoryPtr;
+namespace spi
+{
+class LoggerRepository;
+typedef helpers::ObjectPtrT<LoggerRepository> LoggerRepositoryPtr;
 
-       /**
-       The <code>LogManager</code> uses one (and only one)
-       <code>RepositorySelector</code> implementation to select the
-       {@link log4cxx::spi::LoggerRepository LoggerRepository}
-           for a particular application context.
+/**
+The <code>LogManager</code> uses one (and only one)
+<code>RepositorySelector</code> implementation to select the
+{@link log4cxx::spi::LoggerRepository LoggerRepository}
+    for a particular application context.
 
-       <p>It is the responsability of the <code>RepositorySelector</code>
-       implementation to track the application context. log4cxx makes no
-       assumptions about the application context or on its management.
+<p>It is the responsability of the <code>RepositorySelector</code>
+implementation to track the application context. log4cxx makes no
+assumptions about the application context or on its management.
 
-       <p>See also LogManager.
-       */
-                class LOG4CXX_EXPORT RepositorySelector : public virtual helpers::Object
-                {
-                public:
-                        DECLARE_ABSTRACT_LOG4CXX_OBJECT(RepositorySelector)
-                        virtual ~RepositorySelector() {}
-                        virtual LoggerRepositoryPtr& getLoggerRepository() = 0;
-                };
-            LOG4CXX_PTR_DEF(RepositorySelector);
-        }  //namespace spi
+<p>See also LogManager.
+*/
+class LOG4CXX_EXPORT RepositorySelector : public virtual helpers::Object
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(RepositorySelector)
+		virtual ~RepositorySelector() {}
+		virtual LoggerRepositoryPtr& getLoggerRepository() = 0;
+};
+LOG4CXX_PTR_DEF(RepositorySelector);
+}  //namespace spi
 } //namespace log4cxx
 
 #endif //_LOG4CXX_SPI_REPOSITORY_SELECTOR_H

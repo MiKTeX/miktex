@@ -15,39 +15,39 @@
  * limitations under the License.
  */
 
- #ifndef _LOG4CXX_HELPERS_SYSTEM_H
- #define _LOG4CXX_HELPERS_SYSTEM_H
+#ifndef _LOG4CXX_HELPERS_SYSTEM_H
+#define _LOG4CXX_HELPERS_SYSTEM_H
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/exception.h>
 
- namespace log4cxx
- {
-        namespace helpers
-        {
-                class Properties;
+namespace log4cxx
+{
+namespace helpers
+{
+class Properties;
 
-                /** The System class contains several useful class fields and methods.
-                It cannot be instantiated.
-                */
-                class LOG4CXX_EXPORT System
-                {
-                public:
+/** The System class contains several useful class fields and methods.
+It cannot be instantiated.
+*/
+class LOG4CXX_EXPORT System
+{
+	public:
 
-                /**
-                Gets the system property indicated by the specified key.
+		/**
+		Gets the system property indicated by the specified key.
 
-                @param key the name of the system property.
+		@param key the name of the system property.
 
-                @return the string value of the system property, or the default value if
-                there is no property with that key.
+		@return the string value of the system property, or the default value if
+		there is no property with that key.
 
-                @throws IllegalArgumentException if key is empty.
-                */
-                static LogString getProperty(const LogString& key);
+		@throws IllegalArgumentException if key is empty.
+		*/
+		static LogString getProperty(const LogString& key);
 
-                };
-        } // namespace helpers
- } //  namespace log4cxx
+};
+} // namespace helpers
+} //  namespace log4cxx
 
- #endif //_LOG4CXX_HELPERS_SYSTEM_H
+#endif //_LOG4CXX_HELPERS_SYSTEM_H

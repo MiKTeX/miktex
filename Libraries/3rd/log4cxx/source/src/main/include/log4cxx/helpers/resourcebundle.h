@@ -23,66 +23,68 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                class Locale;
+namespace helpers
+{
+class Locale;
 
-                class ResourceBundle;
-                LOG4CXX_PTR_DEF(ResourceBundle);
+class ResourceBundle;
+LOG4CXX_PTR_DEF(ResourceBundle);
 
-                /**
-                Resource bundles contain locale-specific objects
-                */
-                class LOG4CXX_EXPORT ResourceBundle : public ObjectImpl
-                {
-                public:
-                        DECLARE_ABSTRACT_LOG4CXX_OBJECT(ResourceBundle)
-                        BEGIN_LOG4CXX_CAST_MAP()
-                                LOG4CXX_CAST_ENTRY(ResourceBundle)
-                        END_LOG4CXX_CAST_MAP()
+/**
+Resource bundles contain locale-specific objects
+*/
+class LOG4CXX_EXPORT ResourceBundle : public ObjectImpl
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(ResourceBundle)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(ResourceBundle)
+		END_LOG4CXX_CAST_MAP()
 
-                        /**
-                        Gets a string for the given key from this resource bundle or one of
-                        its parents. Calling this method is equivalent to calling
+		/**
+		Gets a string for the given key from this resource bundle or one of
+		its parents. Calling this method is equivalent to calling
 
-                        @param key the key for the desired string
-                        @return the string for the given key
-                        @throw MissingResourceException - if no object for the given key
-                        can be found
-                        */
-                        virtual LogString getString(const LogString& key) const = 0;
+		@param key the key for the desired string
+		@return the string for the given key
+		@throw MissingResourceException - if no object for the given key
+		can be found
+		*/
+		virtual LogString getString(const LogString& key) const = 0;
 
-                        /**
-                        Gets a resource bundle using the specified base name and locale
+		/**
+		Gets a resource bundle using the specified base name and locale
 
-                        @param baseName the base name of the resource bundle, a fully
-                        qualified class name or property filename
-                        @param locale the locale for which a resource bundle is desired
-                        */
-                        static ResourceBundlePtr getBundle(const LogString& baseName,
-                                const Locale& locale);
+		@param baseName the base name of the resource bundle, a fully
+		qualified class name or property filename
+		@param locale the locale for which a resource bundle is desired
+		*/
+		static ResourceBundlePtr getBundle(const LogString& baseName,
+			const Locale& locale);
 
-                protected:
-                        /*
-                        Sets the parent bundle of this bundle. The parent bundle is
-                        searched by #getString when this bundle does not contain a particular
-                        resource.
+	protected:
+		/*
+		Sets the parent bundle of this bundle. The parent bundle is
+		searched by #getString when this bundle does not contain a particular
+		resource.
 
-                        Parameters:
-                        parent - this bundle's parent bundle.
-                        */
-                        inline void setParent(const ResourceBundlePtr& parent1)
-                                { this->parent = parent1; }
+		Parameters:
+		parent - this bundle's parent bundle.
+		*/
+		inline void setParent(const ResourceBundlePtr& parent1)
+		{
+			this->parent = parent1;
+		}
 
-                        /**
-                        The parent bundle of this bundle.
+		/**
+		The parent bundle of this bundle.
 
-                        The parent bundle is searched by #getString when this bundle does
-                        not contain a particular resource.
-                        */
-                        ResourceBundlePtr parent;
-                }; // class ResourceBundle
-        }  // namespace helpers
+		The parent bundle is searched by #getString when this bundle does
+		not contain a particular resource.
+		*/
+		ResourceBundlePtr parent;
+}; // class ResourceBundle
+}  // namespace helpers
 } // namespace log4cxx
 
 #endif

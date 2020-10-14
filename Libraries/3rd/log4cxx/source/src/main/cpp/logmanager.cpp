@@ -17,7 +17,7 @@
 
 
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logmanager.h>
@@ -38,7 +38,7 @@
 #include <log4cxx/file.h>
 #include <log4cxx/helpers/transcoder.h>
 #if !defined(LOG4CXX)
-#define LOG4CXX 1
+	#define LOG4CXX 1
 #endif
 #include <log4cxx/helpers/aprinitializer.h>
 
@@ -48,54 +48,55 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(DefaultRepositorySelector)
 
-void * LogManager::guard = 0;
+void* LogManager::guard = 0;
 
 
 
-RepositorySelectorPtr& LogManager::getRepositorySelector() {
-   //
-   //     call to initialize APR and trigger "start" of logging clock
-   //
-   APRInitializer::initialize();
-   static spi::RepositorySelectorPtr selector;
-   return selector;
+RepositorySelectorPtr& LogManager::getRepositorySelector()
+{
+	//
+	//     call to initialize APR and trigger "start" of logging clock
+	//
+	APRInitializer::initialize();
+	static spi::RepositorySelectorPtr selector;
+	return selector;
 }
 
 void LogManager::setRepositorySelector(spi::RepositorySelectorPtr selector,
-        void * guard1)
+	void* guard1)
 {
-        if((LogManager::guard != 0) && (LogManager::guard != guard1))
-        {
-          throw IllegalArgumentException(LOG4CXX_STR("Attempted to reset the LoggerFactory without possessing the guard."));
-        }
+	if ((LogManager::guard != 0) && (LogManager::guard != guard1))
+	{
+		throw IllegalArgumentException(LOG4CXX_STR("Attempted to reset the LoggerFactory without possessing the guard."));
+	}
 
-        if(selector == 0)
-        {
-                throw IllegalArgumentException(LOG4CXX_STR("RepositorySelector must be non-null."));
-        }
+	if (selector == 0)
+	{
+		throw IllegalArgumentException(LOG4CXX_STR("RepositorySelector must be non-null."));
+	}
 
-        LogManager::guard = guard1;
-        LogManager::getRepositorySelector() = selector;
+	LogManager::guard = guard1;
+	LogManager::getRepositorySelector() = selector;
 }
 
 
 
 LoggerRepositoryPtr& LogManager::getLoggerRepository()
 {
-        if (getRepositorySelector() == 0)
-        {
-                LoggerRepositoryPtr hierarchy(new Hierarchy());
-                RepositorySelectorPtr selector(new DefaultRepositorySelector(hierarchy));
-                getRepositorySelector() = selector;
-        }
+	if (getRepositorySelector() == 0)
+	{
+		LoggerRepositoryPtr hierarchy(new Hierarchy());
+		RepositorySelectorPtr selector(new DefaultRepositorySelector(hierarchy));
+		getRepositorySelector() = selector;
+	}
 
-        return getRepositorySelector()->getLoggerRepository();
+	return getRepositorySelector()->getLoggerRepository();
 }
 
 LoggerPtr LogManager::getRootLogger()
 {
-        // Delegate the actual manufacturing of the logger to the logger repository.
-        return getLoggerRepository()->getRootLogger();
+	// Delegate the actual manufacturing of the logger to the logger repository.
+	return getLoggerRepository()->getRootLogger();
 }
 
 /**
@@ -103,109 +104,117 @@ Retrieve the appropriate Logger instance.
 */
 LoggerPtr LogManager::getLoggerLS(const LogString& name)
 {
-        return getLoggerRepository()->getLogger(name);
+	return getLoggerRepository()->getLogger(name);
 }
 
 /**
 Retrieve the appropriate Logger instance.
 */
 LoggerPtr LogManager::getLoggerLS(const LogString& name,
-        const spi::LoggerFactoryPtr& factory)
+	const spi::LoggerFactoryPtr& factory)
 {
-        // Delegate the actual manufacturing of the logger to the logger repository.
-        return getLoggerRepository()->getLogger(name, factory);
+	// Delegate the actual manufacturing of the logger to the logger repository.
+	return getLoggerRepository()->getLogger(name, factory);
 }
 
-LoggerPtr LogManager::getLogger(const std::string& name) {
-       LOG4CXX_DECODE_CHAR(n, name);
-       return getLoggerLS(n);
+LoggerPtr LogManager::getLogger(const std::string& name)
+{
+	LOG4CXX_DECODE_CHAR(n, name);
+	return getLoggerLS(n);
 }
 
 LoggerPtr LogManager::getLogger(const std::string& name,
-        const spi::LoggerFactoryPtr& factory) {
-       LOG4CXX_DECODE_CHAR(n, name);
-       return getLoggerLS(n, factory);
+	const spi::LoggerFactoryPtr& factory)
+{
+	LOG4CXX_DECODE_CHAR(n, name);
+	return getLoggerLS(n, factory);
 }
 
 LoggerPtr LogManager::exists(const std::string& name)
 {
-        LOG4CXX_DECODE_CHAR(n, name);
-        return existsLS(n);
+	LOG4CXX_DECODE_CHAR(n, name);
+	return existsLS(n);
 }
 
 #if LOG4CXX_WCHAR_T_API
-LoggerPtr LogManager::getLogger(const std::wstring& name) {
-       LOG4CXX_DECODE_WCHAR(n, name);
-       return getLoggerLS(n);
+LoggerPtr LogManager::getLogger(const std::wstring& name)
+{
+	LOG4CXX_DECODE_WCHAR(n, name);
+	return getLoggerLS(n);
 }
 
 LoggerPtr LogManager::getLogger(const std::wstring& name,
-        const spi::LoggerFactoryPtr& factory) {
-       LOG4CXX_DECODE_WCHAR(n, name);
-       return getLoggerLS(n, factory);
+	const spi::LoggerFactoryPtr& factory)
+{
+	LOG4CXX_DECODE_WCHAR(n, name);
+	return getLoggerLS(n, factory);
 }
 
 LoggerPtr LogManager::exists(const std::wstring& name)
 {
-        LOG4CXX_DECODE_WCHAR(n, name);
-        return existsLS(n);
+	LOG4CXX_DECODE_WCHAR(n, name);
+	return existsLS(n);
 }
 #endif
 
 #if LOG4CXX_UNICHAR_API
-LoggerPtr LogManager::getLogger(const std::basic_string<UniChar>& name) {
-       LOG4CXX_DECODE_UNICHAR(n, name);
-       return getLoggerLS(n);
+LoggerPtr LogManager::getLogger(const std::basic_string<UniChar>& name)
+{
+	LOG4CXX_DECODE_UNICHAR(n, name);
+	return getLoggerLS(n);
 }
 
 LoggerPtr LogManager::getLogger(const std::basic_string<UniChar>& name,
-        const spi::LoggerFactoryPtr& factory) {
-       LOG4CXX_DECODE_UNICHAR(n, name);
-       return getLoggerLS(n, factory);
+	const spi::LoggerFactoryPtr& factory)
+{
+	LOG4CXX_DECODE_UNICHAR(n, name);
+	return getLoggerLS(n, factory);
 }
 
 LoggerPtr LogManager::exists(const std::basic_string<UniChar>& name)
 {
-        LOG4CXX_DECODE_UNICHAR(n, name);
-        return existsLS(n);
+	LOG4CXX_DECODE_UNICHAR(n, name);
+	return existsLS(n);
 }
 #endif
 
 #if LOG4CXX_CFSTRING_API
-LoggerPtr LogManager::getLogger(const CFStringRef& name) {
-       LOG4CXX_DECODE_CFSTRING(n, name);
-       return getLoggerLS(n);
+LoggerPtr LogManager::getLogger(const CFStringRef& name)
+{
+	LOG4CXX_DECODE_CFSTRING(n, name);
+	return getLoggerLS(n);
 }
 
 LoggerPtr LogManager::getLogger(const CFStringRef& name,
-        const spi::LoggerFactoryPtr& factory) {
-       LOG4CXX_DECODE_CFSTRING(n, name);
-       return getLoggerLS(n, factory);
+	const spi::LoggerFactoryPtr& factory)
+{
+	LOG4CXX_DECODE_CFSTRING(n, name);
+	return getLoggerLS(n, factory);
 }
 
 LoggerPtr LogManager::exists(const CFStringRef& name)
 {
-        LOG4CXX_DECODE_CFSTRING(n, name);
-        return existsLS(n);
+	LOG4CXX_DECODE_CFSTRING(n, name);
+	return existsLS(n);
 }
 #endif
 
 LoggerPtr LogManager::existsLS(const LogString& name)
 {
-        return getLoggerRepository()->exists(name);
+	return getLoggerRepository()->exists(name);
 }
 
 LoggerList LogManager::getCurrentLoggers()
 {
-        return getLoggerRepository()->getCurrentLoggers();
+	return getLoggerRepository()->getCurrentLoggers();
 }
 
 void LogManager::shutdown()
 {
-        getLoggerRepository()->shutdown();
+	getLoggerRepository()->shutdown();
 }
 
 void LogManager::resetConfiguration()
 {
-        getLoggerRepository()->resetConfiguration();
+	getLoggerRepository()->resetConfiguration();
 }

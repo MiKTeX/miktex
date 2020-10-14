@@ -24,111 +24,113 @@
 namespace log4cxx
 {
 
-        namespace helpers {
-          class ByteBuffer;
-          class CharsetEncoder;
-          LOG4CXX_PTR_DEF(CharsetEncoder);
+namespace helpers
+{
+class ByteBuffer;
+class CharsetEncoder;
+LOG4CXX_PTR_DEF(CharsetEncoder);
 
-          /**
-          *   An engine to transform LogStrings into bytes
-          *     for the specific character set.
-          */
-          class LOG4CXX_EXPORT CharsetEncoder : public ObjectImpl
-          {
-          public:
-                  DECLARE_ABSTRACT_LOG4CXX_OBJECT(CharsetEncoder)
-                  BEGIN_LOG4CXX_CAST_MAP()
-                          LOG4CXX_CAST_ENTRY(CharsetEncoder)
-                  END_LOG4CXX_CAST_MAP()
+/**
+*   An engine to transform LogStrings into bytes
+*     for the specific character set.
+*/
+class LOG4CXX_EXPORT CharsetEncoder : public ObjectImpl
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(CharsetEncoder)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(CharsetEncoder)
+		END_LOG4CXX_CAST_MAP()
 
-          protected:
-               /**
-               *  Protected constructor.
-               */
-                  CharsetEncoder();
+	protected:
+		/**
+		*  Protected constructor.
+		*/
+		CharsetEncoder();
 
-          public:
-               /**
-               * Destructor.
-               */
-                  virtual ~CharsetEncoder();
-              /**
-               *  Get encoder for default charset.
-               */
-                  static CharsetEncoderPtr getDefaultEncoder();
+	public:
+		/**
+		* Destructor.
+		*/
+		virtual ~CharsetEncoder();
+		/**
+		 *  Get encoder for default charset.
+		 */
+		static CharsetEncoderPtr getDefaultEncoder();
 
-              /**
-               *  Get encoder for specified character set.
-               *  @param charset the following values should be recognized:
-               *     "US-ASCII", "ISO-8859-1", "UTF-8",
-               *     "UTF-16BE", "UTF-16LE".
-               *  @return encoder.
-               *  @throws IllegalArgumentException if encoding is not recognized.
-               */
-                static CharsetEncoderPtr getEncoder(const LogString& charset);
-
-
-              /**
-               *   Get encoder for UTF-8.
-               */
-                  static CharsetEncoderPtr getUTF8Encoder();
-
-                  /**
-                  * Encodes a string replacing unmappable
-                  * characters with escape sequences.
-                  *
-                  */
-                  static void encode(CharsetEncoderPtr& enc,
-                      const LogString& src,
-                      LogString::const_iterator& iter,
-                      ByteBuffer& dst);
-
-              /**
-               * Encodes as many characters from the input string as possible
-               *   to the output buffer.
-                   *  @param in input string
-               *  @param iter position in string to start.
-               *  @param out output buffer.
-               *  @return APR_SUCCESS unless a character can not be represented in
-               *    the encoding.
-               */
-                  virtual log4cxx_status_t encode(const LogString& in,
-                        LogString::const_iterator& iter,
-                        ByteBuffer& out) = 0;
-
-              /**
-               *   Resets any internal state.
-               */
-                  virtual void reset();
-
-              /**
-               *   Flushes the encoder.
-               */
-                  virtual void flush(ByteBuffer& out);
-
-              /**
-               *   Determines if the return value from encode indicates
-               *     an unconvertable character.
-               */
-                  inline static bool isError(log4cxx_status_t stat) {
-                     return (stat != 0);
-                  }
+		/**
+		 *  Get encoder for specified character set.
+		 *  @param charset the following values should be recognized:
+		 *     "US-ASCII", "ISO-8859-1", "UTF-8",
+		 *     "UTF-16BE", "UTF-16LE".
+		 *  @return encoder.
+		 *  @throws IllegalArgumentException if encoding is not recognized.
+		 */
+		static CharsetEncoderPtr getEncoder(const LogString& charset);
 
 
-          private:
-               /**
-               *   Private copy constructor.
-               */
-                  CharsetEncoder(const CharsetEncoder&);
-              /**
-               *   Private assignment operator.
-               */
-                  CharsetEncoder& operator=(const CharsetEncoder&);
+		/**
+		 *   Get encoder for UTF-8.
+		 */
+		static CharsetEncoderPtr getUTF8Encoder();
 
-              static CharsetEncoder* createDefaultEncoder();
-        };
+		/**
+		* Encodes a string replacing unmappable
+		* characters with escape sequences.
+		*
+		*/
+		static void encode(CharsetEncoderPtr& enc,
+			const LogString& src,
+			LogString::const_iterator& iter,
+			ByteBuffer& dst);
 
-        } // namespace helpers
+		/**
+		 * Encodes as many characters from the input string as possible
+		 *   to the output buffer.
+		     *  @param in input string
+		 *  @param iter position in string to start.
+		 *  @param out output buffer.
+		 *  @return APR_SUCCESS unless a character can not be represented in
+		 *    the encoding.
+		 */
+		virtual log4cxx_status_t encode(const LogString& in,
+			LogString::const_iterator& iter,
+			ByteBuffer& out) = 0;
+
+		/**
+		 *   Resets any internal state.
+		 */
+		virtual void reset();
+
+		/**
+		 *   Flushes the encoder.
+		 */
+		virtual void flush(ByteBuffer& out);
+
+		/**
+		 *   Determines if the return value from encode indicates
+		 *     an unconvertable character.
+		 */
+		inline static bool isError(log4cxx_status_t stat)
+		{
+			return (stat != 0);
+		}
+
+
+	private:
+		/**
+		*   Private copy constructor.
+		*/
+		CharsetEncoder(const CharsetEncoder&);
+		/**
+		 *   Private assignment operator.
+		 */
+		CharsetEncoder& operator=(const CharsetEncoder&);
+
+		static CharsetEncoder* createDefaultEncoder();
+};
+
+} // namespace helpers
 
 }  //namespace log4cxx
 

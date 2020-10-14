@@ -22,45 +22,49 @@
 #include <log4cxx/log4cxx.h>
 
 
-namespace log4cxx {
-   namespace helpers {
-     /**
-     *    Simple transcoder for converting between
-     *      external char and wchar_t strings and
-     *      internal strings.
-     *
-     */
-      class LOG4CXX_EXPORT Date : public ObjectImpl {
-      const log4cxx_time_t time;
+namespace log4cxx
+{
+namespace helpers
+{
+/**
+*    Simple transcoder for converting between
+*      external char and wchar_t strings and
+*      internal strings.
+*
+*/
+class LOG4CXX_EXPORT Date : public ObjectImpl
+{
+		const log4cxx_time_t time;
 
-      public:
-      DECLARE_LOG4CXX_OBJECT(Date)
-      BEGIN_LOG4CXX_CAST_MAP()
-              LOG4CXX_CAST_ENTRY(Date)
-      END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_LOG4CXX_OBJECT(Date)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(Date)
+		END_LOG4CXX_CAST_MAP()
 
-      Date();
-      Date(log4cxx_time_t time);
-      virtual ~Date();
+		Date();
+		Date(log4cxx_time_t time);
+		virtual ~Date();
 
-      inline log4cxx_time_t getTime() const {
-        return time;
-      }
+		inline log4cxx_time_t getTime() const
+		{
+			return time;
+		}
 
-      /**
-       *   Get start of next second
-       */
-      log4cxx_time_t getNextSecond() const;
+		/**
+		 *   Get start of next second
+		 */
+		log4cxx_time_t getNextSecond() const;
 
 
-      static log4cxx_time_t getMicrosecondsPerDay();
-      static log4cxx_time_t getMicrosecondsPerSecond();
+		static log4cxx_time_t getMicrosecondsPerDay();
+		static log4cxx_time_t getMicrosecondsPerSecond();
 
-      };
+};
 
-      LOG4CXX_PTR_DEF(Date);
+LOG4CXX_PTR_DEF(Date);
 
-   }
+}
 }
 
 

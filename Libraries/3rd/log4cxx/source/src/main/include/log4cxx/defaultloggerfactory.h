@@ -23,23 +23,23 @@
 
 namespace log4cxx
 {
-        class Logger;
-        typedef helpers::ObjectPtrT<Logger> LoggerPtr;
+class Logger;
+typedef helpers::ObjectPtrT<Logger> LoggerPtr;
 
-        class LOG4CXX_EXPORT DefaultLoggerFactory :
-                public virtual spi::LoggerFactory,
-                public virtual helpers::ObjectImpl
-        {
-        public:
-                DECLARE_ABSTRACT_LOG4CXX_OBJECT(DefaultLoggerFactory)
-                BEGIN_LOG4CXX_CAST_MAP()
-                        LOG4CXX_CAST_ENTRY(spi::LoggerFactory)
-                END_LOG4CXX_CAST_MAP()
+class LOG4CXX_EXPORT DefaultLoggerFactory :
+	public virtual spi::LoggerFactory,
+	public virtual helpers::ObjectImpl
+{
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(DefaultLoggerFactory)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(spi::LoggerFactory)
+		END_LOG4CXX_CAST_MAP()
 
-                virtual LoggerPtr makeNewLoggerInstance(
-                    log4cxx::helpers::Pool& pool, 
-                    const LogString& name) const;
-        };
+		virtual LoggerPtr makeNewLoggerInstance(
+			log4cxx::helpers::Pool& pool,
+			const LogString& name) const;
+};
 }  // namespace log4cxx
 
 #endif //_LOG4CXX_DEFAULT_LOGGER_FACTORY_H

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -28,12 +28,15 @@ using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
 PatternConverterPtr FileDatePatternConverter::newInstance(
-   const std::vector<LogString>& options) {
-   if (options.size() == 0) {
-     std::vector<LogString> altOptions;
-     altOptions.push_back(LOG4CXX_STR("yyyy-MM-dd"));
-     return DatePatternConverter::newInstance(altOptions);
-   }
-   return DatePatternConverter::newInstance(options);
+	const std::vector<LogString>& options)
+{
+	if (options.size() == 0)
+	{
+		std::vector<LogString> altOptions;
+		altOptions.push_back(LOG4CXX_STR("yyyy-MM-dd"));
+		return DatePatternConverter::newInstance(altOptions);
+	}
+
+	return DatePatternConverter::newInstance(options);
 }
 

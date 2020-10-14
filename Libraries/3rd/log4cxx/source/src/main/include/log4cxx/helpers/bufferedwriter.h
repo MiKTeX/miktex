@@ -20,44 +20,54 @@
 
 #include <log4cxx/helpers/writer.h>
 
+#if defined(_MSC_VER)
+	#pragma warning ( push )
+	#pragma warning ( disable: 4251 )
+#endif
+
 namespace log4cxx
 {
 
-        namespace helpers {
+namespace helpers
+{
 
-          /**
-          *   Writes text to a character-output stream buffering
-          *       requests to increase efficiency.
-          */
-          class LOG4CXX_EXPORT BufferedWriter : public Writer
-          {
-          private:
-                  WriterPtr out;
-                  size_t sz;
-                  LogString buf;
+/**
+*   Writes text to a character-output stream buffering
+*       requests to increase efficiency.
+*/
+class LOG4CXX_EXPORT BufferedWriter : public Writer
+{
+	private:
+		WriterPtr out;
+		size_t sz;
+		LogString buf;
 
-          public:
-                  DECLARE_ABSTRACT_LOG4CXX_OBJECT(BufferedWriter)
-                  BEGIN_LOG4CXX_CAST_MAP()
-                          LOG4CXX_CAST_ENTRY(BufferedWriter)
-                          LOG4CXX_CAST_ENTRY_CHAIN(Writer)
-                  END_LOG4CXX_CAST_MAP()
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(BufferedWriter)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(BufferedWriter)
+		LOG4CXX_CAST_ENTRY_CHAIN(Writer)
+		END_LOG4CXX_CAST_MAP()
 
-                  BufferedWriter(WriterPtr& out);
-                  BufferedWriter(WriterPtr& out, size_t sz);
-                  virtual ~BufferedWriter();
+		BufferedWriter(WriterPtr& out);
+		BufferedWriter(WriterPtr& out, size_t sz);
+		virtual ~BufferedWriter();
 
-                  virtual void close(Pool& p);
-                  virtual void flush(Pool& p);
-                  virtual void write(const LogString& str, Pool& p);
+		virtual void close(Pool& p);
+		virtual void flush(Pool& p);
+		virtual void write(const LogString& str, Pool& p);
 
-          private:
-                  BufferedWriter(const BufferedWriter&);
-                  BufferedWriter& operator=(const BufferedWriter&);
-          };
+	private:
+		BufferedWriter(const BufferedWriter&);
+		BufferedWriter& operator=(const BufferedWriter&);
+};
 
-        } // namespace helpers
+} // namespace helpers
 
 }  //namespace log4cxx
+
+#if defined(_MSC_VER)
+	#pragma warning (pop)
+#endif
 
 #endif //_LOG4CXX_HELPERS_BUFFEREDWRITER_H

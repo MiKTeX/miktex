@@ -25,18 +25,22 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(ManualTriggeringPolicy)
 
-ManualTriggeringPolicy::ManualTriggeringPolicy() {
+ManualTriggeringPolicy::ManualTriggeringPolicy()
+{
 }
 
 bool ManualTriggeringPolicy::isTriggeringEvent(Appender* /* appender */,
-          const log4cxx::spi::LoggingEventPtr& /* event */,
-          const LogString& /* file */,
-          size_t /* fileLength */ ) {
-  return false;
+	const log4cxx::spi::LoggingEventPtr& /* event */,
+	const LogString& /* file */,
+	size_t /* fileLength */ )
+{
+	return false;
 }
 
-void ManualTriggeringPolicy::activateOptions(Pool& /* p */ ) {
+void ManualTriggeringPolicy::activateOptions(Pool& /* p */ )
+{
 }
 
-void ManualTriggeringPolicy::setOption(const LogString& /* option */ , const LogString& /* value */ ) {
+void ManualTriggeringPolicy::setOption(const LogString& /* option */, const LogString& /* value */ )
+{
 }

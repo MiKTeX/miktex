@@ -41,212 +41,265 @@ const int TelnetAppender::DEFAULT_PORT = 23;
 const int TelnetAppender::MAX_CONNECTIONS = 20;
 
 TelnetAppender::TelnetAppender()
-  : port(DEFAULT_PORT), connections(MAX_CONNECTIONS),
-    encoding(LOG4CXX_STR("UTF-8")), 
-    encoder(CharsetEncoder::getUTF8Encoder()), 
-    serverSocket(NULL), sh()
+	: port(DEFAULT_PORT), connections(MAX_CONNECTIONS),
+	  encoding(LOG4CXX_STR("UTF-8")),
+	  encoder(CharsetEncoder::getUTF8Encoder()),
+	  serverSocket(NULL), sh()
 {
-   synchronized sync(mutex);
-   activeConnections = 0;
+	LOCK_W sync(mutex);
+	activeConnections = 0;
 }
 
 TelnetAppender::~TelnetAppender()
 {
-        finalize();
-        delete serverSocket;
+	finalize();
+	delete serverSocket;
 }
 
 void TelnetAppender::activateOptions(Pool& /* p */)
 {
-        if (serverSocket == NULL) {
-                serverSocket = new ServerSocket(port);
-                serverSocket->setSoTimeout(1000);                
-        }
-        sh.run(acceptConnections, this);
+	if (serverSocket == NULL)
+	{
+		serverSocket = new ServerSocket(port);
+		serverSocket->setSoTimeout(1000);
+	}
+
+	sh.run(acceptConnections, this);
 }
 
 void TelnetAppender::setOption(const LogString& option,
-        const LogString& value)
+	const LogString& value)
 {
-        if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PORT"), LOG4CXX_STR("port")))
-        {
-                setPort(OptionConverter::toInt(value, DEFAULT_PORT));
-        }
-        else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("ENCODING"), LOG4CXX_STR("encoding")))
-        {
-                setEncoding(value);
-        }
-        else
-        {
-                AppenderSkeleton::setOption(option, value);
-        }
+	if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PORT"), LOG4CXX_STR("port")))
+	{
+		setPort(OptionConverter::toInt(value, DEFAULT_PORT));
+	}
+	else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("ENCODING"), LOG4CXX_STR("encoding")))
+	{
+		setEncoding(value);
+	}
+	else
+	{
+		AppenderSkeleton::setOption(option, value);
+	}
 }
 
-LogString TelnetAppender::getEncoding() const {
-    synchronized sync(mutex);
-    return encoding;
+LogString TelnetAppender::getEncoding() const
+{
+	LOCK_W sync(mutex);
+	return encoding;
 }
 
-void TelnetAppender::setEncoding(const LogString& value) {
-    synchronized sync(mutex);
-    encoder = CharsetEncoder::getEncoder(value);
-    encoding = value;
+void TelnetAppender::setEncoding(const LogString& value)
+{
+	LOCK_W sync(mutex);
+	encoder = CharsetEncoder::getEncoder(value);
+	encoding = value;
 }
 
 
 void TelnetAppender::close()
 {
-        synchronized sync(mutex);
-        if (closed) return;
-        closed = true;
+	LOCK_W sync(mutex);
 
-        SocketPtr nullSocket;
-        for(ConnectionList::iterator iter = connections.begin();
-            iter != connections.end();
-            iter++) {
-            if (*iter != 0) {
-                (*iter)->close();
-                *iter = nullSocket;
-            }
-        }
+	if (closed)
+	{
+		return;
+	}
 
-        if (serverSocket != NULL) {
-                try {
-                    serverSocket->close();
-                } catch(Exception&) {
-                }
-        }
-        
-        try {
-            sh.join();
-        } catch(Exception& ex) {
-        }
+	closed = true;
 
-        activeConnections = 0;
+	SocketPtr nullSocket;
+
+	for (ConnectionList::iterator iter = connections.begin();
+		iter != connections.end();
+		iter++)
+	{
+		if (*iter != 0)
+		{
+			(*iter)->close();
+			*iter = nullSocket;
+		}
+	}
+
+	if (serverSocket != NULL)
+	{
+		try
+		{
+			serverSocket->close();
+		}
+		catch (Exception&)
+		{
+		}
+	}
+
+	try
+	{
+		sh.join();
+	}
+	catch (Exception&)
+	{
+	}
+
+	activeConnections = 0;
 }
 
 
-void TelnetAppender::write(ByteBuffer& buf) {
-        for (ConnectionList::iterator iter = connections.begin();
-             iter != connections.end();
-             iter++) {
-             if (*iter != 0) {
-                try {
-                    ByteBuffer b(buf.current(), buf.remaining());
-                    (*iter)->write(b);
-                } catch(Exception& ex) {
-                    // The client has closed the connection, remove it from our list:
-                    *iter = 0;
-                    activeConnections--;
-                }
-            }
-        }
+void TelnetAppender::write(ByteBuffer& buf)
+{
+	for (ConnectionList::iterator iter = connections.begin();
+		iter != connections.end();
+		iter++)
+	{
+		if (*iter != 0)
+		{
+			try
+			{
+				ByteBuffer b(buf.current(), buf.remaining());
+				(*iter)->write(b);
+			}
+			catch (Exception&)
+			{
+				// The client has closed the connection, remove it from our list:
+				*iter = 0;
+				activeConnections--;
+			}
+		}
+	}
 }
 
-void TelnetAppender::writeStatus(const SocketPtr& socket, const LogString& msg, Pool& p) {
-        size_t bytesSize = msg.size() * 2;
-        char* bytes = p.pstralloc(bytesSize);
-                
-        LogString::const_iterator msgIter(msg.begin());
-        ByteBuffer buf(bytes, bytesSize);
+void TelnetAppender::writeStatus(const SocketPtr& socket, const LogString& msg, Pool& p)
+{
+	size_t bytesSize = msg.size() * 2;
+	char* bytes = p.pstralloc(bytesSize);
 
-        while(msgIter != msg.end()) {
-            encoder->encode(msg, msgIter, buf);
-            buf.flip();
-            socket->write(buf);
-            buf.clear();
-        }
+	LogString::const_iterator msgIter(msg.begin());
+	ByteBuffer buf(bytes, bytesSize);
+
+	while (msgIter != msg.end())
+	{
+		encoder->encode(msg, msgIter, buf);
+		buf.flip();
+		socket->write(buf);
+		buf.clear();
+	}
 }
 
 void TelnetAppender::append(const spi::LoggingEventPtr& event, Pool& p)
 {
-        size_t count = activeConnections;
-        if (count > 0) {
-                LogString msg;
-                this->layout->format(msg, event, pool);
-                msg.append(LOG4CXX_STR("\r\n"));
-                size_t bytesSize = msg.size() * 2;
-                char* bytes = p.pstralloc(bytesSize);
-                
-                LogString::const_iterator msgIter(msg.begin());
-                ByteBuffer buf(bytes, bytesSize);
+	size_t count = activeConnections;
 
-                synchronized sync(this->mutex);
-                while(msgIter != msg.end()) {
-                    log4cxx_status_t stat = encoder->encode(msg, msgIter, buf);
-                    buf.flip();
-                    write(buf);
-                    buf.clear();
-                    if (CharsetEncoder::isError(stat)) {
-                        LogString unrepresented(1, 0x3F /* '?' */);
-                        LogString::const_iterator unrepresentedIter(unrepresented.begin());
-                        stat = encoder->encode(unrepresented, unrepresentedIter, buf);
-                        buf.flip();
-                        write(buf);
-                        buf.clear();
-                        msgIter++;
-                    }
-                }
-        }
+	if (count > 0)
+	{
+		LogString msg;
+		this->layout->format(msg, event, pool);
+		msg.append(LOG4CXX_STR("\r\n"));
+		size_t bytesSize = msg.size() * 2;
+		char* bytes = p.pstralloc(bytesSize);
+
+		LogString::const_iterator msgIter(msg.begin());
+		ByteBuffer buf(bytes, bytesSize);
+
+		LOCK_W sync(this->mutex);
+
+		while (msgIter != msg.end())
+		{
+			log4cxx_status_t stat = encoder->encode(msg, msgIter, buf);
+			buf.flip();
+			write(buf);
+			buf.clear();
+
+			if (CharsetEncoder::isError(stat))
+			{
+				LogString unrepresented(1, 0x3F /* '?' */);
+				LogString::const_iterator unrepresentedIter(unrepresented.begin());
+				stat = encoder->encode(unrepresented, unrepresentedIter, buf);
+				buf.flip();
+				write(buf);
+				buf.clear();
+				msgIter++;
+			}
+		}
+	}
 }
 
-void* APR_THREAD_FUNC TelnetAppender::acceptConnections(apr_thread_t* /* thread */, void* data) {
-    TelnetAppender* pThis = (TelnetAppender*) data;
+void* APR_THREAD_FUNC TelnetAppender::acceptConnections(apr_thread_t* /* thread */, void* data)
+{
+	TelnetAppender* pThis = (TelnetAppender*) data;
 
-    // main loop; is left when This->closed is != 0 after an accept()
-    while(true)
-    {
-        try
-        {
-                SocketPtr newClient = pThis->serverSocket->accept();
-                bool done = pThis->closed;
-                if (done) {
-                        Pool p;
-                        pThis->writeStatus(newClient, LOG4CXX_STR("Log closed.\r\n"), p);
-                        newClient->close();
-                        return NULL;
-                }
+	// main loop; is left when This->closed is != 0 after an accept()
+	while (true)
+	{
+		try
+		{
+			SocketPtr newClient = pThis->serverSocket->accept();
+			bool done = pThis->closed;
 
-                size_t count = pThis->activeConnections;
-                if (count >= pThis->connections.size()) {
-                        Pool p;
-                        pThis->writeStatus(newClient, LOG4CXX_STR("Too many connections.\r\n"), p);
-                        newClient->close();
-                } else {
-                        //
-                        //   find unoccupied connection
-                        //
-                        synchronized sync(pThis->mutex);
-                        for(ConnectionList::iterator iter = pThis->connections.begin();
-                                iter != pThis->connections.end();
-                                iter++) {
-                                if (*iter == NULL) {
-                                    *iter = newClient;
-                                    pThis->activeConnections++;
-                                    break;
-                                }
-                        }
+			if (done)
+			{
+				Pool p;
+				pThis->writeStatus(newClient, LOG4CXX_STR("Log closed.\r\n"), p);
+				newClient->close();
 
-                        Pool p;
-                        LogString oss(LOG4CXX_STR("TelnetAppender v1.0 ("));
-                        StringHelper::toString((int) count+1, p, oss);
-                        oss += LOG4CXX_STR(" active connections)\r\n\r\n");
-                        pThis->writeStatus(newClient, oss, p);
-                }
-        } catch(InterruptedIOException &e) {
-                if (pThis->closed) {
-                    return NULL;
-                }
-        } catch(Exception& e) {
-                if (!pThis->closed) {
-                    LogLog::error(LOG4CXX_STR("Encountered error while in SocketHandler loop."), e);
-                } else {
-                    return NULL;
-                }
-        }
-    }
+				break;
+			}
 
-    return NULL;
+			size_t count = pThis->activeConnections;
+
+			if (count >= pThis->connections.size())
+			{
+				Pool p;
+				pThis->writeStatus(newClient, LOG4CXX_STR("Too many connections.\r\n"), p);
+				newClient->close();
+			}
+			else
+			{
+				//
+				//   find unoccupied connection
+				//
+				LOCK_W sync(pThis->mutex);
+
+				for (ConnectionList::iterator iter = pThis->connections.begin();
+					iter != pThis->connections.end();
+					iter++)
+				{
+					if (*iter == NULL)
+					{
+						*iter = newClient;
+						pThis->activeConnections++;
+
+						break;
+					}
+				}
+
+				Pool p;
+				LogString oss(LOG4CXX_STR("TelnetAppender v1.0 ("));
+				StringHelper::toString((int) count + 1, p, oss);
+				oss += LOG4CXX_STR(" active connections)\r\n\r\n");
+				pThis->writeStatus(newClient, oss, p);
+			}
+		}
+		catch (InterruptedIOException&)
+		{
+			if (pThis->closed)
+			{
+				break;
+			}
+		}
+		catch (Exception& e)
+		{
+			if (!pThis->closed)
+			{
+				LogLog::error(LOG4CXX_STR("Encountered error while in SocketHandler loop."), e);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 #endif

@@ -19,8 +19,8 @@
 #define _LOG4CXX_HELPERS_BYTEARRAYOUTPUTSTREAM_H
 
 #if defined(_MSC_VER)
-#pragma warning ( push )
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( push )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 
@@ -32,50 +32,47 @@
 namespace log4cxx
 {
 
-        namespace helpers {
-          class Pool;
+namespace helpers
+{
+class Pool;
 
-          /**
-          *   OutputStream implemented on top of std::vector
-          */
-#if defined(MIKTEX)
-          LOG4CXX_LIST_DEF(ByteList, unsigned char);
-#endif
-          class LOG4CXX_EXPORT ByteArrayOutputStream : public OutputStream
-          {
-          private:
-#if !defined(MIKTEX)
-                 LOG4CXX_LIST_DEF(ByteList, unsigned char);
-#endif
-                 ByteList array;
+LOG4CXX_LIST_DEF(ByteList, unsigned char);
 
-          public:
-                  DECLARE_ABSTRACT_LOG4CXX_OBJECT(ByteArrayOutputStream)
-                  BEGIN_LOG4CXX_CAST_MAP()
-                          LOG4CXX_CAST_ENTRY(ByteArrayOutputStream)
-                          LOG4CXX_CAST_ENTRY_CHAIN(OutputStream)
-                  END_LOG4CXX_CAST_MAP()
+/**
+*   OutputStream implemented on top of std::vector
+*/
+class LOG4CXX_EXPORT ByteArrayOutputStream : public OutputStream
+{
+	private:
+		ByteList array;
 
-                  ByteArrayOutputStream();
-                  virtual ~ByteArrayOutputStream();
+	public:
+		DECLARE_ABSTRACT_LOG4CXX_OBJECT(ByteArrayOutputStream)
+		BEGIN_LOG4CXX_CAST_MAP()
+		LOG4CXX_CAST_ENTRY(ByteArrayOutputStream)
+		LOG4CXX_CAST_ENTRY_CHAIN(OutputStream)
+		END_LOG4CXX_CAST_MAP()
 
-                  virtual void close(Pool& p);
-                  virtual void flush(Pool& p);
-                  virtual void write(ByteBuffer& buf, Pool& p);
-                  ByteList toByteArray() const;
+		ByteArrayOutputStream();
+		virtual ~ByteArrayOutputStream();
 
-          private:
-                  ByteArrayOutputStream(const ByteArrayOutputStream&);
-                  ByteArrayOutputStream& operator=(const ByteArrayOutputStream&);
-          };
+		virtual void close(Pool& p);
+		virtual void flush(Pool& p);
+		virtual void write(ByteBuffer& buf, Pool& p);
+		ByteList toByteArray() const;
 
-          LOG4CXX_PTR_DEF(ByteArrayOutputStream);
-        } // namespace helpers
+	private:
+		ByteArrayOutputStream(const ByteArrayOutputStream&);
+		ByteArrayOutputStream& operator=(const ByteArrayOutputStream&);
+};
+
+LOG4CXX_PTR_DEF(ByteArrayOutputStream);
+} // namespace helpers
 
 }  //namespace log4cxx
 
 #if defined(_MSC_VER)
-#pragma warning ( pop )
+	#pragma warning ( pop )
 #endif
 
 

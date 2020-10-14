@@ -17,13 +17,23 @@
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/writer.h>
+#include <stdexcept>
 
 using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(Writer)
 
-Writer::Writer() {
+Writer::Writer()
+{
 }
 
-Writer::~Writer() {
+Writer::~Writer()
+{
 }
+
+#ifdef LOG4CXX_MULTI_PROCESS
+OutputStreamPtr Writer::getOutPutStreamPtr()
+{
+	throw std::logic_error("getOutPutStreamPtr must be implemented in the derived class that you are using");
+}
+#endif

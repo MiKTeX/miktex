@@ -24,45 +24,54 @@ using namespace log4cxx::pattern;
 
 IMPLEMENT_LOG4CXX_OBJECT(FormattingInfo)
 
-  /**
-   * Creates new instance.
-   * @param leftAlign left align if true.
-   * @param minLength minimum length.
-   * @param maxLength maximum length.
-   */
+/**
+ * Creates new instance.
+ * @param leftAlign left align if true.
+ * @param minLength minimum length.
+ * @param maxLength maximum length.
+ */
 FormattingInfo::FormattingInfo(
-    const bool leftAlign1, const int minLength1, const int maxLength1) :
-    minLength(minLength1),
-    maxLength(maxLength1),
-    leftAlign(leftAlign1) {
+	const bool leftAlign1, const int minLength1, const int maxLength1) :
+	minLength(minLength1),
+	maxLength(maxLength1),
+	leftAlign(leftAlign1)
+{
 }
 
-  /**
-   * Gets default instance.
-   * @return default instance.
-   */
-FormattingInfoPtr FormattingInfo::getDefault() {
-    static FormattingInfoPtr def(new FormattingInfo(false, 0, INT_MAX));
-    return def;
+/**
+ * Gets default instance.
+ * @return default instance.
+ */
+FormattingInfoPtr FormattingInfo::getDefault()
+{
+	static FormattingInfoPtr def(new FormattingInfo(false, 0, INT_MAX));
+	return def;
 }
 
-  /**
-   * Adjust the content of the buffer based on the specified lengths and alignment.
-   *
-   * @param fieldStart start of field in buffer.
-   * @param buffer buffer to be modified.
-   */
-void FormattingInfo::format(const int fieldStart, LogString& buffer) const {
-    int rawLength = buffer.length() - fieldStart;
+/**
+ * Adjust the content of the buffer based on the specified lengths and alignment.
+ *
+ * @param fieldStart start of field in buffer.
+ * @param buffer buffer to be modified.
+ */
+void FormattingInfo::format(const int fieldStart, LogString& buffer) const
+{
+	int rawLength = int(buffer.length() - fieldStart);
 
-    if (rawLength > maxLength) {
-      buffer.erase(buffer.begin() + fieldStart,
-                   buffer.begin() + fieldStart + (rawLength - maxLength));
-    } else if (rawLength < minLength) {
-      if (leftAlign) {
-        buffer.append(minLength - rawLength, (logchar) 0x20 /* ' ' */);
-      } else {
-        buffer.insert(fieldStart, minLength - rawLength, 0x20 /* ' ' */);
-      }
-    }
-  }
+	if (rawLength > maxLength)
+	{
+		buffer.erase(buffer.begin() + fieldStart,
+			buffer.begin() + fieldStart + (rawLength - maxLength));
+	}
+	else if (rawLength < minLength)
+	{
+		if (leftAlign)
+		{
+			buffer.append(minLength - rawLength, (logchar) 0x20 /* ' ' */);
+		}
+		else
+		{
+			buffer.insert(fieldStart, minLength - rawLength, 0x20 /* ' ' */);
+		}
+	}
+}

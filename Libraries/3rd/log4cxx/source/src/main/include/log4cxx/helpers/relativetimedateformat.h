@@ -22,26 +22,26 @@
 
 namespace log4cxx
 {
-        namespace helpers
-        {
-                /**
-                Formats a date by printing the number of seconds
-                elapsed since the start of the application. This is the fastest
-                printing DateFormat in the package.
-                */
-                class LOG4CXX_EXPORT RelativeTimeDateFormat : public DateFormat
-                {
-                public:
-                        RelativeTimeDateFormat();
-                        virtual void format(LogString &s,
-                                        log4cxx_time_t tm,
-                                        log4cxx::helpers::Pool& p) const;
+namespace helpers
+{
+/**
+Formats a date by printing the number of milliseconds
+elapsed since the start of the application. This is the fastest
+printing DateFormat in the package.
+*/
+class LOG4CXX_EXPORT RelativeTimeDateFormat : public DateFormat
+{
+	public:
+		RelativeTimeDateFormat();
+		virtual void format(LogString& s,
+			log4cxx_time_t tm,
+			log4cxx::helpers::Pool& p) const;
 
-                private:
-                        log4cxx_time_t startTime;
+	private:
+		log4cxx_time_t startTime;
 
-                };
-        }  // namespace helpers
+};
+}  // namespace helpers
 } // namespace log4cxx
 
 #endif // _LOG4CXX_HELPERS_RELATIVE_TIME_DATE_FORMAT_H

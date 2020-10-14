@@ -22,28 +22,35 @@ using namespace log4cxx;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
-Filter::Filter() : next() {
+Filter::Filter() : next()
+{
 }
 
-void Filter::addRef() const {
-    ObjectImpl::addRef();
+void Filter::addRef() const
+{
+	ObjectImpl::addRef();
 }
 
-void Filter::releaseRef() const {
-    ObjectImpl::releaseRef();
+void Filter::releaseRef() const
+{
+	ObjectImpl::releaseRef();
 }
 
-FilterPtr Filter::getNext() const {
-   return next;
+FilterPtr Filter::getNext() const
+{
+	return next;
 }
 
-void Filter::setNext(const FilterPtr& newNext) {
-    next = newNext;
+void Filter::setNext(const FilterPtr& newNext)
+{
+	next = newNext;
 }
 
-void Filter::activateOptions(Pool&) {
+void Filter::activateOptions(Pool&)
+{
 }
 
-void Filter::setOption(const LogString&, const LogString&) {
+void Filter::setOption(const LogString&, const LogString&)
+{
 }
 

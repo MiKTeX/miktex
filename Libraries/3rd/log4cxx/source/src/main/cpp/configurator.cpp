@@ -28,5 +28,6 @@ IMPLEMENT_LOG4CXX_OBJECT(Configurator)
 
 
 
-Configurator::Configurator() {
+Configurator::Configurator()
+{
 }

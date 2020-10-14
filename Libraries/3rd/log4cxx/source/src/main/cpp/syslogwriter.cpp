@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if defined(_MSC_VER)
-#pragma warning ( disable: 4231 4251 4275 4786 )
+	#pragma warning ( disable: 4231 4251 4275 4786 )
 #endif
 
 #include <log4cxx/logstring.h>
@@ -26,43 +26,43 @@
 #include <log4cxx/helpers/datagrampacket.h>
 #include <log4cxx/helpers/transcoder.h>
 
-#define SYSLOG_PORT 514
-
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
-SyslogWriter::SyslogWriter(const LogString& syslogHost1)
-: syslogHost(syslogHost1)
+SyslogWriter::SyslogWriter(const LogString& syslogHost1, int syslogHostPort1)
+	: syslogHost(syslogHost1), syslogHostPort(syslogHostPort1)
 {
-   try
-   {
-      this->address = InetAddress::getByName(syslogHost1);
-   }
-   catch(UnknownHostException& e)
-   {
-      LogLog::error(((LogString) LOG4CXX_STR("Could not find ")) + syslogHost1 +
-         LOG4CXX_STR(". All logging will FAIL."), e);
-   }
+	try
+	{
+		this->address = InetAddress::getByName(syslogHost1);
+	}
+	catch (UnknownHostException& e)
+	{
+		LogLog::error(((LogString) LOG4CXX_STR("Could not find ")) + syslogHost1 +
+			LOG4CXX_STR(". All logging will FAIL."), e);
+	}
 
-   try
-   {
-      this->ds = new DatagramSocket();
-   }
-   catch (SocketException& e)
-   {
-      LogLog::error(((LogString) LOG4CXX_STR("Could not instantiate DatagramSocket to ")) + syslogHost1 +
-            LOG4CXX_STR(". All logging will FAIL."), e);
-   }
+	try
+	{
+		this->ds = new DatagramSocket();
+	}
+	catch (SocketException& e)
+	{
+		LogLog::error(((LogString) LOG4CXX_STR("Could not instantiate DatagramSocket to ")) + syslogHost1 +
+			LOG4CXX_STR(". All logging will FAIL."), e);
+	}
 }
 
-void SyslogWriter::write(const LogString& source) {
-  if (this->ds != 0 && this->address != 0) {
-      LOG4CXX_ENCODE_CHAR(data, source);
+void SyslogWriter::write(const LogString& source)
+{
+	if (this->ds != 0 && this->address != 0)
+	{
+		LOG4CXX_ENCODE_CHAR(data, source);
 
-      DatagramPacketPtr packet( 
-          new DatagramPacket((void*) data.data(), data.length(),
-                             address, SYSLOG_PORT));
+		DatagramPacketPtr packet(
+			new DatagramPacket((void*) data.data(), data.length(),
+				address, syslogHostPort));
 
-      ds->send(packet);
-   }
+		ds->send(packet);
+	}
 }
