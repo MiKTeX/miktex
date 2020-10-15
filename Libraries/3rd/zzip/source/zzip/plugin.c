@@ -7,6 +7,10 @@
  * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include <zzip/lib.h>
 #include <zzip/plugin.h>
 

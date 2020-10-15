@@ -138,6 +138,13 @@ target_include_directories(${zzip_dll_name}
     ${public_include_directories}
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${zzip_dll_name}
+    PRIVATE
+      ${utf8wrap_dll_name}
+  )
+endif()
+
 if(USE_SYSTEM_ZLIB)
   target_link_libraries(${zzip_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
 else()
