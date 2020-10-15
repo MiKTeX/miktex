@@ -1,6 +1,6 @@
 /* mspack.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 2005-2016 Christian Schenk
+   Copyright (C) 2005-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,9 +19,9 @@
 
 #include "mspack-version.h"
 
-#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${mspack_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${mspack_dll_name}.dll"
+#define VER_INTERNALNAME_STR "@mspack_dll_name@"
+#define VER_ORIGINALFILENAME_STR "@mspack_dll_name@.dll"
 
 #include <miktex/win/version.rc>

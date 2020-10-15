@@ -6,7 +6,7 @@
     <TPM:Title>libmspack runtime libraries, Windows x86</TPM:Title>
     <TPM:Copyright owner="Stuart Caie" year="2003-2004"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>0.8alpha</TPM:Version>
+    <TPM:Version>0.10.1alpha</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

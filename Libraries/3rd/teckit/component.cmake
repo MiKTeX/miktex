@@ -1,6 +1,6 @@
 ## component.cmake:
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,7 +19,6 @@
 
 include(version.cmake)
 
-set(MIKTEX_COMP_DESCRIPTION "TECkit - a Text Encoding Conversion toolkit")
-
 set(MIKTEX_COMP_COMPANY_STR "SIL International")
-set(MIKTEX_COMP_COPYRIGHT_STR "© 2002-2018 SIL International")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 2002-2020 SIL International")
+set(MIKTEX_COMP_DESCRIPTION "TECkit - a Text Encoding Conversion toolkit")

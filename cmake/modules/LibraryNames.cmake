@@ -120,6 +120,7 @@ define_library(utf8wrap)
 define_library(util)
 define_library(web2c w2cemu)
 define_library(web2c_sources)
+define_library(xpdf)
 define_library(zlib)
 define_library(zzip)
 

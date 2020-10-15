@@ -21,7 +21,7 @@
 
 #include <jpeglib.h>
 #include <png.h>
-#include <poppler/poppler-config.h>
+#include <xpdf/config.h>
 #include <zlib.h>
 
 using namespace MiKTeX::Core;
@@ -109,7 +109,7 @@ void PDFTEXAPPCLASS::GetLibraryVersions(std::vector<LibraryVersion>& versions) c
   ETeXApp::GetLibraryVersions(versions);
   versions.push_back(LibraryVersion("zlib", ZLIB_VERSION, zlib_version));
   versions.push_back(LibraryVersion("libpng", PNG_LIBPNG_VER_STRING, png_libpng_ver));
-  versions.push_back(LibraryVersion("poppler", POPPLER_VERSION, ""));
+  versions.push_back(LibraryVersion("xpdf", xpdfVersion, ""));
 #if defined(JPEG_LIB_VERSION_MAJOR)
   VersionNumber jpegVersion(JPEG_LIB_VERSION_MAJOR, JPEG_LIB_VERSION_MINOR, 0, 0);
 #else

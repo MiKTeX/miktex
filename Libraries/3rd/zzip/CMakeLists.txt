@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/zzip")
 
 include_directories(BEFORE
@@ -32,6 +34,16 @@ set(public_include_directories
 add_definitions(
   -DZZIP_HAVE_STDINT_H=1
   -DZZIP_EXPORTS=1
+)
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/_config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/zzip/_config.h
+)
+
+configure_file(
+  zzip-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/zzip-version.h
 )
 
 set(sources
@@ -68,7 +80,7 @@ set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/zzip.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/zzip32.h
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/zzip-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/zzip-version.h
 )
 
 set(public_headers
@@ -115,10 +127,10 @@ add_library(${zzip_dll_name} SHARED ${${zzip_dll_name}_sources})
 
 set_property(TARGET ${zzip_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${zzip_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version_properties(
+  ${zzip_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_include_directories(${zzip_dll_name}

@@ -5,7 +5,7 @@
     <TPM:Name>Pixman lib win32</TPM:Name>
     <TPM:Title>Pixel manipulation library, Windows x86</TPM:Title>
     <TPM:License type="mit"/>
-    <TPM:Version>0.34.0</TPM:Version>
+    <TPM:Version>0.40.0</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

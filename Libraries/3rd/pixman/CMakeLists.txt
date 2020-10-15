@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2018 Christian Schenk
+## Copyright (C) 2013-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -77,13 +77,14 @@ set(pixman_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-sse2.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-ssse3.c
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/dither/blue-noise-64x64.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-accessor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-combine32.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-compiler.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-edge-imp.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-inlines.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman-private.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/pixman/pixman.h
 )
 
 configure_file(

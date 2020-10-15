@@ -2505,23 +2505,23 @@ routines cited there must be modified to allow negative glue ratios.)
 @!glue_ratio=real; {one-word representation of a glue expansion factor}
 
 @* \[7b] Random numbers.
-
+%
 \font\tenlogo=logo10 % font used for the METAFONT logo
 \def\MP{{\tenlogo META}\-{\tenlogo POST}}
-
-This section is (almost) straight from MetaPost. I had to change
+%
+This section is (almost) straight from \MP. I had to change
 the types (use |integer| instead of |fraction|), but that should
 not have any influence on the actual calculations (the original
 comments refer to quantities like |fraction_four| ($2^{30}$), and
 that is the same as the numeric representation of |maxdimen|).
 
 I've copied the low-level variables and routines that are needed, but
-only those (e.g. |m_log|), not the accompanying ones like |m_exp|. Most
+only those (e.g.~|m_log|), not the accompanying ones like |m_exp|. Most
 of the following low-level numeric routines are only needed within the
 calculation of |norm_rand|. I've been forced to rename |make_fraction|
 to |make_frac| because TeX already has a routine by that name with
 a wholly different function (it creates a |fraction_noad| for math
-typesetting) -- Taco
+typesetting) -- Taco.
 
 And now let's complete our collection of numeric utility routines
 by considering random number generation.
@@ -2540,7 +2540,7 @@ been consumed.
 @!j_random:0..54; {the number of unused |randoms|}
 @!random_seed:scaled; {the default random seed}
 
-@ A small bit of metafont is needed.
+@ A small bit of \MF\ is needed.
 
 @d fraction_half==@'1000000000 {$2^{27}$, represents 0.50000000}
 @d fraction_one==@'2000000000 {$2^{28}$, represents 1.00000000}
@@ -3753,6 +3753,7 @@ inserted from \.{\\mkern} specifications in math formulas).
 @d kern_node=11 {|type| of a kern node}
 @d explicit=1 {|subtype| of kern nodes from \.{\\kern} and \.{\\/}}
 @d acc_kern=2 {|subtype| of kern nodes from accents}
+@d auto_kern=3 {|subtype| of kern nodes created by |get_auto_kern|}
 
 @# {memory structure for marginal kerns}
 @d margin_kern_node = 40
@@ -3776,7 +3777,6 @@ inserted from \.{\\mkern} specifications in math formulas).
 @d kn_bc_code_base == 10
 @d kn_ac_code_base == 11
 
-@d auto_kern == explicit
 
 @d no_lig_code == 6
 
@@ -4409,6 +4409,7 @@ if subtype(p)<>mu_glue then
   print_scaled(width(p));
   if subtype(p)=acc_kern then print(" (for accent)");
 @.for accent@>
+  if subtype(p)=auto_kern then print(" (for \pdfprependkern/\pdfappendkern)");
   end
 else  begin print_esc("mkern"); print_scaled(width(p)); print("mu");
   end
@@ -4995,7 +4996,7 @@ any more details about the page-building process.
 @<Set init...@>=
 nest_ptr:=0; max_nest_stack:=0;
 mode:=vmode; head:=contrib_head; tail:=contrib_head;
-eTeX_aux:=null;
+eTeX_aux:=null; save_tail:=null;
 prev_depth:=ignore_depth; mode_line:=0;
 prev_graf:=0; shown_mode:=0;
 @<Start a new current page@>;
@@ -6567,7 +6568,7 @@ for k:=j+1 to j+l-1 do
   while h>=hash_prime do h:=h-hash_prime;
   end
 
-@ Here is the subroutine that searches the primitive table for an identifier
+@ Here is the subroutine that searches the primitive table for an identifier:
 
 @p function prim_lookup(@!s:str_number):pointer; {search the primitives table}
 label found; {go here if you found it}
@@ -6700,7 +6701,7 @@ Hironori's explanation of the previous behavior and fix continues (off-list):
 \textindent{*} When \TeX\ gets input from a token list (at module
 $\langle\,$Input from token list, |goto restart| \dots$\,\rangle$),
 \TeX\ looks at the saved |cur_tok| value $t$, and recover the command
-code (|cur_cmd|) and its fmodifier (|cur_chr|) from it:
+code (|cur_cmd|) and its modifier (|cur_chr|) from it:
 
 {\advance\leftskip by 1.5em
 \textindent{--} If |t>=cs_token_flag|, $t$ points to an |eqtb| location
@@ -8971,7 +8972,7 @@ end
 
 @ The \.{\\pdfprimitive} handling. If the primitive meaning of the next
 token is an expandable command, it suffices to replace the current
-token with the primitive one and restart |expand|/
+token with the primitive one and restart |expand|.
 
 Otherwise, the token we just read has to be pushed back, as well
 as a token matching the internal form of \.{\\pdfprimitive}, that is
@@ -9761,9 +9762,9 @@ The |set_page_int| command has modifier 0 or 1, for `\.{\\deadcycles}' and
 modified by either |width_offset|, |height_offset|, or |depth_offset|.
 And the |last_item| command is modified by either |int_val|, |dimen_val|,
 |glue_val|, |input_line_no_code|, or |badness_code|.
-\pdfTeX\ adds the codes for its extensions: |pdftex_version_code|, \dots\ .
+\pdfTeX\ adds the codes for its extensions: |pdftex_version_code|, \dots.
 \eTeX\ inserts |last_node_type_code| after |glue_val| and adds
-the codes for its extensions: |eTeX_version_code|, \dots\ .
+the codes for its extensions: |eTeX_version_code|, \dots.
 
 @d last_node_type_code=glue_val+1 {code for \.{\\lastnodetype}}
 @d input_line_no_code=glue_val+2 {code for \.{\\inputlineno}}
@@ -10749,9 +10750,9 @@ end;
 
 \eTeX\ adds \.{\\eTeXrevision} such that |job_name_code| remains last.
 
-\pdfTeX\ adds \.{\\eTeXrevision}, \.{\\pdftexrevision}, \.{\\pdftexbanner},
-\.{\\pdffontname}, \.{\\pdffontobjnum}, \.{\\pdffontsize}, and \.{\\pdfpageref}
-such that |job_name_code| remains last.
+\pdfTeX\ adds \.{\\pdftexrevision}, \.{\\pdftexbanner}, \.{\\pdffontname},
+\.{\\pdffontobjnum}, \.{\\pdffontsize}, and \.{\\pdfpageref} such that
+|job_name_code| remains last.
 
 @d number_code=0 {command code for \.{\\number}}
 @d roman_numeral_code=1 {command code for \.{\\romannumeral}}
@@ -10954,6 +10955,7 @@ expanded_code:
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
     ins_list(link(def_ref));
+    free_avail(def_ref);
     def_ref := save_def_ref;
     restore_cur_string;
     return;
@@ -15069,10 +15071,8 @@ while font_ptr>font_base do
   end
 
 
-@* \[32a] \pdfTeX\ basic.
-
-Initialize \pdfTeX's parameters to some useful default value.
-Helpful in case one forgets to set them during initex run.
+@* \[32a] \pdfTeX\ basic.  Initialize \pdfTeX's parameters to some useful
+default value.  Helpful in case one forgets to set them during \.{INITEX} run.
 
 @<Initialize table entries...@>=
 pdf_h_origin := (one_hundred_inch + 50) div 100;
@@ -15197,7 +15197,7 @@ begin
     new_dummy_font := read_font_info(null_cs, "dummy", "", -1000);
 end;
 
-@ Helper for debugging purposes
+@ Helper for debugging purposes:
 
 @p procedure short_display_n(@!p, m:integer); {prints highlights of list |p|}
 var n:integer; {for replacement counts}
@@ -15250,7 +15250,7 @@ while p>mem_min do
   update_terminal;
 end;
 
-@ Sometimes it is neccesary to allocate memory for PDF output that cannot
+@ Sometimes it is necessary to allocate memory for PDF output that cannot
 be deallocated then, so we use |pdf_mem| for this purpose.
 
 @<Constants...@>=
@@ -15267,7 +15267,7 @@ pdf_mem_ptr := 1; {the first word is not used so we can use zero as a value for 
 whether a pointer to |pdf_mem| is valid}
 pdf_mem_size := inf_pdf_mem_size; {allocated size of |pdf_mem| array}
 
-@ We use |pdf_get_mem| to allocate memory in |pdf_mem|
+@ We use |pdf_get_mem| to allocate memory in |pdf_mem|.
 
 @p function pdf_get_mem(s: integer): integer; {allocate |s| words in |pdf_mem|}
 var a: integer;
@@ -15289,7 +15289,7 @@ begin
 end;
 
 @* \[32b] \pdfTeX\ output low-level subroutines.
-We use the similiar subroutines to handle the output buffer for
+We use the similar subroutines to handle the output buffer for
 PDF output. When compress is used, the state of writing to buffer
 is held in |zip_write_state|. We must write the header of PDF
 output file in initialization to ensure that it will be the first
@@ -15301,7 +15301,7 @@ written bytes.
 @!sup_pdf_os_buf_size = 5000000; {arbitrary upper hard limit of |pdf_os_buf_size|}
 @!pdf_os_max_objs = 100; {maximum number of objects in object stream}
 
-@ The following macros are similar as for \.{DVI} buffer handling
+@ The following macros are similar as for \.{DVI} buffer handling:
 
 @d pdf_offset == (pdf_gone + pdf_ptr) {the file offset of last byte in PDF
 buffer that |pdf_ptr| points to}
@@ -15486,7 +15486,7 @@ end;
 
 @ The PDF buffer is flushed by calling |pdf_flush|, which checks the
 variable |zip_write_state| and will compress the buffer before flushing if
-neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
+necessary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
 to finish it. The stream contents will be compressed if compression is turn on.
 
 @p procedure pdf_flush; {flush out the |pdf_buf|}
@@ -15549,7 +15549,7 @@ begin
     pdf_end_obj;
 end;
 
-@ Basic printing procedures for PDF output are very similiar to \TeX\ basic
+@ Basic printing procedures for PDF output are very similar to \TeX\ basic
 printing ones but the output is going to PDF buffer. Subroutines with
 suffix |_ln| append a new-line character to the PDF output.
 
@@ -15737,7 +15737,7 @@ end;
 
 
 @ To print |scaled| value to PDF output we need some subroutines to ensure
-accurary.
+accuracy.
 
 @d max_integer == @"7FFFFFFF {$2^{31}-1$}
 @d call_func(#) == begin if # <> 0 then do_nothing end
@@ -15815,7 +15815,7 @@ else
     round_xn_over_d := -u;
 end;
 
-@ Next subroutines are needed for controling spacing in PDF page description.
+@ Next subroutines are needed for controlling spacing in PDF page description.
 For a given character |c| from a font |f|,
 the procedure |adv_char_width| advances |pdf_h|
 by {\it about\/} the amount |w|, which is the character width.
@@ -15929,7 +15929,7 @@ DVI}
 @!pdf_output_value: integer;
 @!pdf_draftmode_option: integer;
 @!pdf_draftmode_value: integer;
-@!pdf_cur_Tm_a: integer; {|a| value of the current text matrix, ie the current
+@!pdf_cur_Tm_a: integer; {|a| value of the current text matrix, i.e., the current
                           horizontal scaling factor}
 @!pdf_last_f: internal_font_number; {last font in PDF output page}
 @!pdf_last_fs: internal_font_number; {last font size in PDF output page}
@@ -16037,7 +16037,7 @@ end;
 can load the same font several times for various sizes. For such fonts we
 define only one font resource. The array |pdf_font_num| holds the object
 number of font resource. A negative value of an entry of |pdf_font_num|
-indicates that the corresponding font shares the font resource with the font
+indicates that the corresponding font shares the font resource with the font.
 
 @d pdf_print_resname_prefix ==
 if pdf_resname_prefix <> 0 then
@@ -16062,7 +16062,7 @@ begin
 
     {check whether |f| can share the font object with some |k|: we have 2 cases
     here: 1) |f| and |k| have the same tfm name (so they have been loaded at
-    different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
+    different sizes, e.g., 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
     expanded from |k|}
     if isscalable(f) then begin
         i := head_tab[obj_type_font];
@@ -16365,13 +16365,11 @@ begin
     pdf_print_nl;
 end;
 
-@* \[32d] The cross-reference table.
-
-The cross-reference table |obj_tab| is an array of |obj_tab_size| of
-|obj_entry|. Each entry contains five integer fields and represents an object
-in PDF file whose object number is the index of this entry in |obj_tab|.
-Objects in |obj_tab| maybe linked into list; objects in such a linked list have
-the same type.
+@* \[32d] The cross-reference table.  The cross-reference table |obj_tab| is an
+array of |obj_tab_size| of |obj_entry|. Each entry contains five integer fields
+and represents an object in PDF file whose object number is the index of this
+entry in |obj_tab|.  Objects in |obj_tab| maybe linked into list; objects in
+such a linked list have the same type.
 
 @<Types...@>=
 @!obj_entry = record@;@/
@@ -16381,7 +16379,7 @@ the same type.
 end;
 
 @ The first field contains information representing identifier of this object.
-It is usally a number for most of object types, but it may be a string number
+It is usually a number for most of object types, but it may be a string number
 for named destination or named thread.
 
 The second field of |obj_entry| contains link to the next
@@ -16949,7 +16947,7 @@ end;
 @!pdf_image_procset: integer; {collection of image types used in current page/form}
 @!pdf_text_procset: boolean; {mask of used ProcSet's in the current page/form}
 
-@ Subroutines to print out various PDF objects
+@ Subroutines to print out various PDF objects:
 
 @d is_hex_char(#) == (((# >= '0') and (# <= '9')) or
                       ((# >= 'A') and (# <= 'F')) or
@@ -17079,11 +17077,9 @@ begin
     pdf_print_nl;
 end;
 
-@* \[32e] Font processing.
-
-As \pdfTeX{} should also act as a back-end driver, it needs to support virtual
-fonts too. Information about virtual fonts can be found in the source of some
-\.{DVI}-related programs.
+@* \[32e] Font processing.  As \pdfTeX{} should also act as a back-end driver,
+it needs to support virtual fonts too. Information about virtual fonts can be
+found in the source of some \.{DVI}-related programs.
 
 Whenever we want to write out a character in a font to PDF output, we
 should check whether the used font is a new (has not been used yet),
@@ -17434,7 +17430,8 @@ begin
         else
             k := read_font_info(null_cs, s, "", font_size[f]);
     end;
-    copy_expand_params(k, f, e);
+    if k <> null_font then
+        copy_expand_params(k, f, e);
     load_expand_font := k;
 end;
 
@@ -17632,7 +17629,7 @@ begin
         font_info[width_base[k] + i].sc :=
             font_info[width_base[k] + i].sc + round_xn_over_d(quad(k), e, 1000);
 
-    {append eg '+100ls' to font name}
+    {append, e.g., '+100ls' to font name}
     flush_str(font_name[k]);
     str_room(length(font_name[k]) + 7); {|abs(e) <= 1000|}
     old_setting := selector;
@@ -17945,7 +17942,7 @@ begin
 end;
 
 procedure vf_local_font_warning(f, k: internal_font_number; s: str_number);
-{print a warning message if an error ocurrs during processing local fonts in
+{print a warning message if an error occurs during processing local fonts in
 \.{VF} file}
 begin
     print_nl(s);
@@ -17990,12 +17987,12 @@ begin
             vf_local_font_warning(f, k, "checksum mismatch");
         if ds <> font_dsize[k] then
             vf_local_font_warning(f, k, "design size mismatch");
+        if (pdf_font_step[f] <> 0) then
+            set_expand_params(k, pdf_font_auto_expand[f],
+                              pdf_font_expand_ratio[pdf_font_stretch[f]],
+                              -pdf_font_expand_ratio[pdf_font_shrink[f]],
+                              pdf_font_step[f], pdf_font_expand_ratio[f]);
     end;
-    if (pdf_font_step[f] <> 0) then
-        set_expand_params(k, pdf_font_auto_expand[f],
-                          pdf_font_expand_ratio[pdf_font_stretch[f]],
-                          -pdf_font_expand_ratio[pdf_font_shrink[f]],
-                          pdf_font_step[f], pdf_font_expand_ratio[f]);
     vf_def_font := k;
 end;
 
@@ -18609,11 +18606,11 @@ begin
     flush_str(s);
 end;
 
-@ Similiar to |vlist_out|, |pdf_vlist_out| needs to be declared forward
+@ Similar to |vlist_out|, |pdf_vlist_out| needs to be declared forward.
 
 @p procedure@?pdf_vlist_out; forward;
 
-@ The implementation of procedure |pdf_hlist_out| is similiar to |hlist_out|
+@ The implementation of procedure |pdf_hlist_out| is similar to |hlist_out|.
 
 @p @t\4@>@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>@t@>@/
 
@@ -18655,7 +18652,7 @@ end;
 @ @<Create link annotations for the current hbox if needed@>=
 for i := 1 to pdf_link_stack_ptr do begin
     pdfassert(is_running(pdf_width(pdf_link_stack[i].link_node)));
-    if (pdf_link_stack[i].nesting_level = cur_s) then
+    if (pdf_link_stack[i].nesting_level = cur_s) and gen_running_link then
         append_link(this_box, left_edge, base_line, i);
 end
 
@@ -18925,7 +18922,7 @@ begin
 end;
 
 @ |fix_pdf_draftmode| freezes |pdfdraftmode| when something has been written to
-the output and also switches somes things off when draftmode is on.
+the output and also switches some things off when draftmode is on.
 @p procedure fix_pdf_draftmode;
 begin
     if not fixed_pdf_draftmode_set then begin
@@ -19325,8 +19322,10 @@ begin
         cur_area := "";
         cur_ext := "";
         pack_cur_name;
-        if not tex_b_openin(f) then
+        if not tex_b_openin(f) then begin
+            print_nl("! "); print(s); print(" not found.");
             pdf_error("ext5", "cannot open file for embedding");
+        end;
         print("<<");
         print(s);
         if not eof(f) then begin {at least one byte available}
@@ -20014,7 +20013,7 @@ if is_root and (pdf_pages_attr <> null) then
     pdf_print_toks_ln(pdf_pages_attr);
 pdf_end_dict;
 
-@ The name tree is very similiar to Pages tree so its construction should be
+@ The name tree is very similar to Pages tree so its construction should be
 certain from Pages tree construction. For intermediate node |obj_info| will be
 the first name and |obj_link| will be the last name in \.{\\Limits} array.
 Note that |pdf_dest_names_ptr| will be less than |obj_ptr|, so we test if
@@ -20135,7 +20134,7 @@ if pdf_catalog_openaction <> 0 then
 pdf_end_dict
 
 @ If the same keys in a dictionary are given several times, then it is not
-defined which value is choosen by an application.  Therefore the keys
+defined which value is chosen by an application.  Therefore the keys
 |/Producer| and |/Creator| are only set if the token list
 |pdf_info_toks| converted to a string does not contain these key strings.
 
@@ -21597,7 +21596,7 @@ than the alternative of using \PASCAL's strange |forward| declaration for a
 procedure with parameters. The \PASCAL\ convention about dropping parameters
 from a post-|forward| procedure is, frankly, so intolerable to the author
 of \TeX\ that he would rather stoop to communication via a global temporary
-variable. (A similar stoopidity occurred with respect to |hlist_out| and
+variable. (A similar stupidity occurred with respect to |hlist_out| and
 |vlist_out| above, and it will occur with respect to |mlist_to_hlist| below.)
 @^Knuth, Donald Ervin@>
 @:PASCAL}{\PASCAL@>
@@ -33568,7 +33567,9 @@ stays the same.
 @d pdf_interword_space_on_node == pdftex_first_extension_code + 37
 @d pdf_interword_space_off_node== pdftex_first_extension_code + 38
 @d pdf_fake_space_node         == pdftex_first_extension_code + 39
-@d pdftex_last_extension_code  == pdftex_first_extension_code + 39
+@d pdf_running_link_off_node   == pdftex_first_extension_code + 40
+@d pdf_running_link_on_node    == pdftex_first_extension_code + 41
+@d pdftex_last_extension_code  == pdftex_first_extension_code + 41
 
 @<Put each...@>=
 primitive("openout",extension,open_node);@/
@@ -33663,6 +33664,10 @@ primitive("pdfinterwordspaceoff",extension,pdf_interword_space_off_node);@/
 @!@:pdf_interword_space_off_}{\.{\\pdfinterwordspaceoff} primitive@>
 primitive("pdffakespace",extension,pdf_fake_space_node);@/
 @!@:pdf_fake_space_}{\.{\\pdffakespace} primitive@>
+primitive("pdfrunninglinkoff",extension,pdf_running_link_off_node);@/
+@!@:pdf_running_link_off_}{\.{\\pdfrunninglinkoff} primitive@>
+primitive("pdfrunninglinkon",extension,pdf_running_link_on_node);@/
+@!@:pdf_running_link_on_}{\.{\\pdfrunninglinkon} primitive@>
 
 @ The variable |write_loc| just introduced is used to provide an
 appropriate error message in case of ``runaway'' write texts.
@@ -33718,6 +33723,8 @@ extension: case chr_code of
   pdf_interword_space_on_node: print_esc("pdfinterwordspaceon");
   pdf_interword_space_off_node: print_esc("pdfinterwordspaceoff");
   pdf_fake_space_node: print_esc("pdffakespace");
+  pdf_running_link_off_node: print_esc("pdfrunninglinkoff");
+  pdf_running_link_on_node: print_esc("pdfrunninglinkon");
   othercases print("[unknown extension!]")
   endcases;
 
@@ -33779,6 +33786,8 @@ begin case cur_chr of
   pdf_interword_space_on_node: @<Implement \.{\\pdfinterwordspaceon}@>;
   pdf_interword_space_off_node: @<Implement \.{\\pdfinterwordspaceoff}@>;
   pdf_fake_space_node: @<Implement \.{\\pdffakespace}@>;
+  pdf_running_link_off_node: @<Implement \.{\\pdfrunninglinkoff}@>;
+  pdf_running_link_on_node: @<Implement \.{\\pdfrunninglinkon}@>;
 othercases confusion("ext1")
 @:this can't happen ext1}{\quad ext1@>
 endcases;
@@ -33840,7 +33849,7 @@ end
     read_expand_font
 
 @ The following macros are needed for further manipulation with whatsit nodes
-for \pdfTeX{} extensions (copying, destroying etc.)
+for \pdfTeX{} extensions (copying, destroying, etc.).
 
 @d add_action_ref(#) == incr(pdf_action_refcount(#)) {increase count of
 references to this action}
@@ -33957,7 +33966,7 @@ begin
         print_err("Invalid negative color stack number");
 @.Invalid negative color stack number@>
         help2("I'll use default color stack 0 here.")@/
-        ("Proceed, with fingers corssed.");
+        ("Proceed, with fingers crossed.");
         error;
         cur_val := 0;
     end;
@@ -34116,8 +34125,8 @@ begin
     pdf_obj_objnum(tail) := cur_val;
 end
 
-@ \.{\\pdfxform} and \.{\\pdfrefxform} are similiar to \.{\\pdfobj} and
-  \.{\\pdfrefobj}
+@ \.{\\pdfxform} and \.{\\pdfrefxform} are similar to \.{\\pdfobj} and
+  \.{\\pdfrefobj}.
 
 @<Glob...@>=
 @!pdf_last_xform: integer;
@@ -34165,7 +34174,7 @@ begin
     pdf_depth(tail) := obj_xform_depth(cur_val);
 end
 
-@ \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
+@ \.{\\pdfximage} and \.{\\pdfrefximage} are similar to \.{\\pdfxform} and
   \.{\\pdfrefxform}. As we have to scan |<rule spec>| quite often, it is better
   have a |rule_node| that holds the most recently scanned |<rule spec>|.
 
@@ -34597,7 +34606,7 @@ begin
     end
 end
 
-@ pdflastlink needs an extra global variable
+@ \.{\\pdflastlink} needs an extra global variable.
 @<Glob...@>=
 @!pdf_last_link: integer;
 
@@ -34981,7 +34990,7 @@ end
   seconds_and_micros(epochseconds,microseconds);
   init_start_time;
 
-@ Negative random seed values are silently converted to positive ones
+@ Negative random seed values are silently converted to positive ones.
 
 @<Implement \.{\\pdfsetrandomseed}@>=
 begin
@@ -35103,7 +35112,19 @@ begin
     new_whatsit(pdf_fake_space_node, small_node_size);
 end
 
-@ The following function are needed for outputing article thread.
+@ @<Implement \.{\\pdfrunninglinkoff}@>=
+begin
+    check_pdfoutput("\pdfrunninglinkoff", true);
+    new_whatsit(pdf_running_link_off_node, small_node_size);
+end
+
+@ @<Implement \.{\\pdfrunninglinkon}@>=
+begin
+    check_pdfoutput("\pdfrunninglinkon", true);
+    new_whatsit(pdf_running_link_on_node, small_node_size);
+end
+
+@ The following function are needed for outputting article thread.
 
 @<Declare procedures needed in |do_ext...@>=
 procedure thread_title(thread: integer);
@@ -35424,6 +35445,8 @@ end;
 pdf_interword_space_on_node: print_esc("pdfinterwordspaceon");
 pdf_interword_space_off_node: print_esc("pdfinterwordspaceoff");
 pdf_fake_space_node: print_esc("pdffakespace");
+pdf_running_link_off_node: print_esc("pdfrunninglinkoff");
+pdf_running_link_on_node: print_esc("pdfrunninglinkon");
 othercases print("whatsit?")
 endcases
 
@@ -35531,6 +35554,10 @@ pdf_interword_space_off_node:
     r := get_node(small_node_size);
 pdf_fake_space_node:
     r := get_node(small_node_size);
+pdf_running_link_off_node:
+    r := get_node(small_node_size);
+pdf_running_link_on_node:
+    r := get_node(small_node_size);
 othercases confusion("ext2")
 @:this can't happen ext2}{\quad ext2@>
 endcases
@@ -35612,6 +35639,10 @@ pdf_interword_space_on_node:
 pdf_interword_space_off_node:
     free_node(p, small_node_size);
 pdf_fake_space_node:
+    free_node(p, small_node_size);
+pdf_running_link_off_node:
+    free_node(p, small_node_size);
+pdf_running_link_on_node:
     free_node(p, small_node_size);
 othercases confusion("ext3")
 @:this can't happen ext3}{\quad ext3@>
@@ -35934,6 +35965,7 @@ thread}
 @!pdf_trailer_toks: pointer; {additional keys of Trailer dictionary}
 @!pdf_trailer_id_toks: pointer; {custom Trailer ID}
 @!gen_faked_interword_space: boolean; {flag to turn on/off faked interword spaces}
+@!gen_running_link: boolean; {flag to turn on/off running link}
 
 @ @<Set init...@>=
 pdf_first_outline:= 0;
@@ -35950,8 +35982,9 @@ pdf_catalog_openaction := 0;
 pdf_trailer_toks := null;
 pdf_trailer_id_toks := null;
 gen_faked_interword_space := false;
+gen_running_link := true;
 
-@ The following procedures are needed for outputing whatsit nodes for
+@ The following procedures are needed for outputting whatsit nodes for
 \pdfTeX{}.
 
 @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
@@ -36145,7 +36178,7 @@ begin
     if pdf_link_stack_ptr < 1 then
         pdf_error("ext4", "pdf_link_stack empty, \pdfendlink used without \pdfstartlink?");
     if pdf_link_stack_top.nesting_level <> cur_s then
-        pdf_error("ext4", "\pdfendlink ended up in different nesting level than \pdfstartlink");
+        pdf_warning(0, "\pdfendlink ended up in different nesting level than \pdfstartlink", true, true);
 
     {N.B.: test for running link must be done on |link_node| and not |ref_link_node|,
      as |ref_link_node| can be set by |do_link| or |append_link| already}
@@ -36529,7 +36562,7 @@ begin
 end;
 
 procedure do_snapy_comp(p, b: pointer); {do snapping compensation in vertical
-direction; searchs for the next snap node and do the compensation if found}
+direction; search for the next snap node and do the compensation if found}
 var q: pointer;
     tmp_v, g, g2: scaled;
 begin
@@ -36648,6 +36681,10 @@ pdf_interword_space_off_node:
     gen_faked_interword_space := false;
 pdf_fake_space_node:
     pdf_insert_fake_space;
+pdf_running_link_off_node:
+    gen_running_link := false;
+pdf_running_link_on_node:
+    gen_running_link := true;
 othercases out_what(p);
 endcases
 
@@ -36729,6 +36766,10 @@ pdf_interword_space_off_node:
     gen_faked_interword_space := false;
 pdf_fake_space_node:
     pdf_insert_fake_space;
+pdf_running_link_off_node:
+    gen_running_link := false;
+pdf_running_link_on_node:
+    gen_running_link := true;
 othercases out_what(p);
 endcases
 
@@ -37372,7 +37413,7 @@ however, get modified in order to prevent arithmetic overflow during
 |hlist_out| when each of them is multiplied by a large |glue_set| value.
 
 Since this ``glue rounding'' depends on state variables |cur_g| and
-|cur_glue| and \TeXXeT\ is supposed to emulate the behaviour of \TeXeT\
+|cur_glue| and \TeXXeT\ is supposed to emulate the behavior of \TeXeT\
 (plus a suitable postprocessor) as close as possible the glue rounding
 cannot be postponed until (segments of) an hlist has been reversed.
 
@@ -37597,7 +37638,7 @@ begin if eTeX_ex then
   end
 
 @ Breaking a paragraph into lines while \TeXXeT\ is disabled may result
-in lines whith unpaired math nodes.  Such hlists are silently accepted
+in lines with unpaired math nodes.  Such hlists are silently accepted
 in the absence of text direction directives.
 
 @d LR_dir(#)==(subtype(#) div R_code) {text direction of a `math node'}
@@ -38640,7 +38681,7 @@ end;
 @ Parenthesized subexpressions can be inside expressions, and this
 nesting has a stack.  Seven local variables represent the top of the
 expression stack:  |p| points to pushed-down entries, if any; |l|
-specifies the type of expression currently beeing evaluated; |e| is the
+specifies the type of expression currently being evaluated; |e| is the
 expression so far and |r| is the state of its evaluation; |t| is the
 term so far and |s| is the state of its evaluation; finally |n| is the
 numerator for a combined multiplication and division, if any.
@@ -39181,7 +39222,7 @@ words contain the five types of current marks
 @d word_node_size=3 {size of an element with a word value}
 @d sa_num==sa_ptr {the register number}
 @d sa_int(#)==mem[#+2].int {an integer}
-@d sa_dim(#)==mem[#+2].sc {a dimension (a somewhat esotheric distinction)}
+@d sa_dim(#)==mem[#+2].sc {a dimension (a somewhat esoteric distinction)}
 @#
 @d mark_class_node_size=4 {size of an element for a mark class}
 @#
@@ -39473,7 +39514,7 @@ toks_register,register:
 essentially the same when the register is realized as sparse array
 element or entry in |eqtb|.  The global variable |sa_chain| is the head
 of a linked list of entries saved at the topmost level |sa_level|; the
-lists for lowel levels are kept in special save stack entries.
+lists for lower levels are kept in special save stack entries.
 
 @<Glob...@>=
 @!sa_chain: pointer; {chain of saved sparse array entries}
@@ -39591,7 +39632,7 @@ delete_sa_ref(p);
 end;
 
 @ The |sa_restore| procedure restores the sparse array entries pointed
-at by |sa_chain|
+at by |sa_chain|.
 
 @<Declare \eTeX\ procedures for tr...@>=
 procedure sa_restore;

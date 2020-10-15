@@ -14,7 +14,7 @@
 
 /* ------------------------- fetch helpers --------------------------------- */
 
-/**
+/** internal.
  * Make 32 bit value in host byteorder from little-endian mapped octet-data
  * (works also on machines which SIGBUS on misaligned data access (eg. 68000))
  */

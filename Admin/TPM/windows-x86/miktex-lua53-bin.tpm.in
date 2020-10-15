@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>Lua 5.3 lib win32</TPM:Name>
     <TPM:Title>Lua 5.3 runtime library, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Lua.org, PUC-Rio" year="1994-2017"/>
+    <TPM:Copyright owner="Lua.org, PUC-Rio" year="1994-2020"/>
     <TPM:License type="mit"/>
-    <TPM:Version>5.3.5</TPM:Version>
+    <TPM:Version>5.3.6</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

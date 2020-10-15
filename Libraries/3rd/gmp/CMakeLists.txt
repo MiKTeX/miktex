@@ -242,9 +242,11 @@ set(mpn_sources
   ${fqsrcdir}/mpn/generic/addmul_1.c
   ${fqsrcdir}/mpn/generic/bdiv_dbm1c.c
   ${fqsrcdir}/mpn/generic/bdiv_q.c
+  ${fqsrcdir}/mpn/generic/bdiv_q_1.c
   ${fqsrcdir}/mpn/generic/binvert.c
   ${fqsrcdir}/mpn/generic/cmp.c
   ${fqsrcdir}/mpn/generic/com.c
+  ${fqsrcdir}/mpn/generic/compute_powtab.c
   ${fqsrcdir}/mpn/generic/copyd.c
   ${fqsrcdir}/mpn/generic/copyi.c
   ${fqsrcdir}/mpn/generic/dcpi1_bdiv_q.c
@@ -385,6 +387,7 @@ set(mpz_sources
   ${fqsrcdir}/mpz/scan0.c
   ${fqsrcdir}/mpz/scan1.c
   ${fqsrcdir}/mpz/set.c
+  ${fqsrcdir}/mpz/set_si.c
   ${fqsrcdir}/mpz/size.c
   ${fqsrcdir}/mpz/set_ui.c
   ${fqsrcdir}/mpz/sizeinbase.c

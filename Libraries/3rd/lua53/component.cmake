@@ -1,6 +1,6 @@
 ## component.cmake:
 ##
-## Copyright (C) 2017-2018 Christian Schenk
+## Copyright (C) 2017-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -21,4 +21,4 @@ include(version.cmake)
 
 set(MIKTEX_COMP_DESCRIPTION "Lua scripting language library")
 
-set(MIKTEX_COMP_COPYRIGHT_STR "© 1994-2017 Lua.org, PUC-Rio")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 1994-2020 Lua.org, PUC-Rio")

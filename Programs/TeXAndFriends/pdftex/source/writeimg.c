@@ -313,7 +313,7 @@ integer readimage(strnumber s, integer page_num, strnumber page_name,
     img_name(img) = cur_file_name;
 #endif
     if (img_name(img) == NULL)
-        pdftex_fail("cannot find image file");
+        pdftex_fail("cannot find image file %s", makecstring(s));
 #if defined(MIKTEX)
     /* kpse_find_file perhaps changed the file name */
     cur_file_name = img_name(img);

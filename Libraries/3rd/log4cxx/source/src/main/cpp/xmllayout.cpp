@@ -105,22 +105,15 @@ void XMLLayout::format(LogString& output,
 
 	if (properties)
 	{
-#if defined(MIKTEX)
-            KeySet propertySet(event->getPropertyKeySet());
-            KeySet keySet(event->getMDCKeySet());
-#else
 		LoggingEvent::KeySet propertySet(event->getPropertyKeySet());
 		LoggingEvent::KeySet keySet(event->getMDCKeySet());
-#endif
+
 		if (!(keySet.empty() && propertySet.empty()))
 		{
 			output.append(LOG4CXX_STR("<log4j:properties>"));
 			output.append(LOG4CXX_EOL);
-#if defined(MIKTEX)
-                for (KeySet::const_iterator i = keySet.begin();
-#else
+
 			for (LoggingEvent::KeySet::const_iterator i = keySet.begin();
-#endif
 				i != keySet.end();
 				i++)
 			{
@@ -138,11 +131,7 @@ void XMLLayout::format(LogString& output,
 				}
 			}
 
-#if defined(MIKTEX)
-            for (KeySet::const_iterator i2 = propertySet.begin();
-#else
 			for (LoggingEvent::KeySet::const_iterator i2 = propertySet.begin();
-#endif
 				i2 != propertySet.end();
 				i2++)
 			{

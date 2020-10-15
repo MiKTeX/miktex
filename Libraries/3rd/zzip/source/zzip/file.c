@@ -18,6 +18,7 @@
 
 #include <zzip/format.h>
 #include <zzip/fetch.h>
+#include <zzip/zzip32.h>
 #include <zzip/__debug.h>
 
 #if 0
@@ -30,8 +31,8 @@
 #define tells(fd) seeks(fd,0,SEEK_CUR)
 #endif
 
-/**
- * the direct function of => zzip_close(fp). it will cleanup the
+/** end usage.
+ * This function is the direct call of => zzip_close(fp). It will cleanup the
  * inflate-portion of => zlib and free the structure given.
  *
  * it is called quite from the error-cleanup parts
@@ -163,9 +164,9 @@ dirsep_strcasecmp(zzip_char_t * s1, zzip_char_t * s2)
 
 static int zzip_inflate_init(ZZIP_FILE *, struct zzip_dir_hdr *);
 
-/**
- * open an => ZZIP_FILE from an already open => ZZIP_DIR handle. Since
- * we have a chance to reuse a cached => buf32k and => ZZIP_FILE memchunk
+/** start usage.
+ * This function opens an => ZZIP_FILE from an already open => ZZIP_DIR handle. 
+ * Since we have a chance to reuse a cached => buf32k and => ZZIP_FILE memchunk
  * this is the best choice to unpack multiple files.
  *
  * Note: the zlib supports 2..15 bit windowsize, hence we provide a 32k
@@ -305,7 +306,7 @@ zzip_file_open(ZZIP_DIR * dir, zzip_char_t * name, int o_mode)
     return NULL;
 }
 
-/**
+/** internal.
  *  call => inflateInit and setup fp's iterator variables,
  *  used by lowlevel => _open functions.
  */
@@ -334,7 +335,7 @@ zzip_inflate_init(ZZIP_FILE * fp, struct zzip_dir_hdr *hdr)
     return err;
 }
 
-/**
+/** end usage.
  * This function closes the given ZZIP_FILE handle.
  *
  * If the ZZIP_FILE wraps a normal stat'fd then it is just that int'fd
@@ -359,10 +360,10 @@ zzip_close(ZZIP_FILE * fp)
     return zzip_fclose(fp);
 }
 
-/**
- * This functions read data from zip-contained file.
+/** read data.
+ * This function reads data from zip-contained file.
  *
- * It works like => read(2) and will fill the given buffer with bytes from
+ * This fuction works like => read(2) and will fill the given buffer with bytes from
  * the opened file. It will return the number of bytes read, so if the => EOF
  * is encountered you will be prompted with the number of bytes actually read.
  *
@@ -456,11 +457,11 @@ zzip_file_read(ZZIP_FILE * fp, void *buf, zzip_size_t len)
     }
 }
 
-/**
+/** read data.
  * This function will read(2) data from a real/zipped file.
  *
- * the replacement for => read(2) will fill the given buffer with bytes from
- * the opened file. It will return the number of bytes read, so if the EOF
+ * This function is the replacement for => read(2) will fill the given buffer with 
+ * bytes from the opened file. It will return the number of bytes read, so if the EOF
  * is encountered you will be prompted with the number of bytes actually read.
  *
  * If the file-handle is wrapping a stat'able file then it will actually just
@@ -515,7 +516,7 @@ zzip_fread(void *ptr, zzip_size_t size, zzip_size_t nmemb, ZZIP_FILE * file)
 
 /* ------------------------------------------------------------------- */
 
-/**                                                          also: fopen(2)
+/** start usage.                                            also: fopen(2)
  * This function will => fopen(3) a real/zipped file.
  *
  * It has some magic functionality builtin - it will first try to open
@@ -654,7 +655,7 @@ zzip_freopen(zzip_char_t * filename, zzip_char_t * mode, ZZIP_FILE * stream)
     }
 }
 
-/**
+/** start usage.
  * This function will => open(2) a real/zipped file
  *
  * It has some magic functionality builtin - it will first try to open
@@ -864,6 +865,9 @@ zzip_open_shared_io(ZZIP_FILE * stream,
 }
 
 #if defined ZZIP_LARGEFILE_RENAME && defined EOVERFLOW && defined PIC
+
+/* DLL compatibility layer - so that 32bit code can link with this lib too */
+
 #undef zzip_open_shared_io      /* zzip_open_shared_io64 */
 #undef zzip_open_ext_io         /* zzip_open_ext_io64 */
 #undef zzip_opendir_ext_io      /* zzip_opendir_ext_io64 */
@@ -877,8 +881,6 @@ ZZIP_FILE *zzip_open_ext_io(zzip_char_t * name, int o_flags,
                             zzip_plugin_io_t io);
 ZZIP_DIR *zzip_opendir_ext_io(zzip_char_t * name, int o_modes,
                               zzip_strings_t * ext, zzip_plugin_io_t io);
-
-/* DLL compatibility layer - so that 32bit code can link with this lib too */
 
 ZZIP_FILE *
 zzip_open_shared_io(ZZIP_FILE * stream,
@@ -915,7 +917,8 @@ zzip_opendir_ext_io(zzip_char_t * name, int o_modes,
 
 /* ------------------------------------------------------------------- */
 
-/**
+/** rewind.
+ *
  * This function will rewind a real/zipped file.
  *
  * It seeks to the beginning of this file's data in the zip,
@@ -975,7 +978,8 @@ zzip_rewind(ZZIP_FILE * fp)
     return err;
 }
 
-/**
+/** seek.
+ *
  * This function will perform a => lseek(2) operation on a real/zipped file
  *
  * It will try to seek to the offset specified by offset, relative to whence,
@@ -1098,7 +1102,8 @@ zzip_seek(ZZIP_FILE * fp, zzip_off_t offset, int whence)
     return zzip_tell(fp);
 }
 
-/**
+/** tell.
+ *
  * This function will => tell(2) the current position in a real/zipped file
  *
  * It will return the current offset within the real/zipped file,

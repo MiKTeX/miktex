@@ -38,8 +38,19 @@
     typedef unsigned long uint32_t;     typedef signed long int32_t;
 # endif
 
+/* either (long long) on Unix or (__int64) on Windows */
 typedef unsigned _zzip___int64 uint64_t; typedef _zzip___int64 int64_t;
-#endif
 
+# if defined ZZIP_SIZEOF_INT_P 
+#  if ZZIP_SIZEOF_INT_P == ZZIP_SIZEOF_LONG+0
+    typedef long intptr_t;
+#  elif ZZIP_SIZEOF_INT_P == ZZIP_SIZEOF_INT+0
+    typedef int intptr_t;
+#  else
+    typedef int64_t intptr_t;
+#  endif
+# endif
+
+#endif /* ZZIP_HAVE_... */
 #endif /*_ZZIP_STDINT_H*/
 

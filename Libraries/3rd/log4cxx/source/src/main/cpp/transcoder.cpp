@@ -31,9 +31,6 @@
 #endif
 #include <log4cxx/private/log4cxx_private.h>
 
-#if defined(MIKTEX) && LOG4CXX_LOGCHAR_IS_WCHAR
-#define LOG4CXX_LOGCHAR_IS_WCHAR_T 1
-#endif
 #if LOG4CXX_LOGCHAR_IS_UNICHAR || LOG4CXX_CFSTRING_API || LOG4CXX_UNICHAR_API
 	#include <CoreFoundation/CFString.h>
 #endif
@@ -484,11 +481,7 @@ static void encodeUTF16(unsigned int sv, String& dst)
 void Transcoder::decode(const std::wstring& src, LogString& dst)
 {
 #if LOG4CXX_LOGCHAR_IS_WCHAR_T
-#if defined(MIKTEX)
-  dst.append(src);
-#else
 	dst.append(src, len);
-#endif
 #else
 	std::wstring::const_iterator i = src.begin();
 
@@ -536,11 +529,7 @@ void Transcoder::encode(const LogString& src, std::wstring& dst)
 wchar_t* Transcoder::wencode(const LogString& src, Pool& p)
 {
 #if LOG4CXX_LOGCHAR_IS_WCHAR_T
-#if defined(MIKTEX)
-    std::wstring tmp = src;
-#else
 	std::wstring& tmp = src;
-#endif
 #else
 	std::wstring tmp;
 	encode(src, tmp);

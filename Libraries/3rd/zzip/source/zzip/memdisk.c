@@ -69,6 +69,9 @@ zzip_mem_entry_new(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry);
 static void
 zzip_mem_entry_free(ZZIP_MEM_ENTRY * _zzip_restrict item);
 
+/** => zzip_mem_disk_open
+ * This function is internally used to prepare opening a disk.
+ */
 zzip__new__ ZZIP_MEM_DISK *
 zzip_mem_disk_new(void)
 {
@@ -76,7 +79,8 @@ zzip_mem_disk_new(void)
 }
 
 /** create new diskdir handle.
- *  wraps underlying zzip_disk_open. */
+ *  This function wraps underlying zzip_disk_open. 
+ */
 zzip__new__ ZZIP_MEM_DISK *
 zzip_mem_disk_open(char *filename)
 {
@@ -95,8 +99,9 @@ zzip_mem_disk_open(char *filename)
     ____;
 }
 
-/** create new diskdir handle.
- *  wraps underlying zzip_disk_open. */
+/** => zzip_mem_disk_open
+ *  This function wraps the underlying zzip_disk_open. 
+ */
 zzip__new__ ZZIP_MEM_DISK *
 zzip_mem_disk_fdopen(int fd)
 {
@@ -109,14 +114,15 @@ zzip_mem_disk_fdopen(int fd)
     ___ ZZIP_MEM_DISK *dir = zzip_mem_disk_new();
     if (zzip_mem_disk_load(dir, disk) == -1)
     {
-       debug2("unable to load disk fd %s", fd);
+       debug2("unable to load disk fd %i", fd);
     }
     return dir;
     ____;
 }
 
 /** create new diskdir handle.
- *  wraps underlying zzip_disk_buffer. */
+ *  This function wraps underlying zzip_disk_buffer.
+ */
 zzip__new__ ZZIP_MEM_DISK *
 zzip_mem_disk_buffer(char *buffer, size_t buflen)
 {
@@ -148,6 +154,7 @@ zzip_mem_disk_load(ZZIP_MEM_DISK * dir, ZZIP_DISK * disk)
         zzip_mem_disk_unload(dir);
     ___ long count = 0;
     ___ struct zzip_disk_entry *entry = zzip_disk_findfirst(disk);
+    if (!entry) goto error;
     for (; entry; entry = zzip_disk_findnext(disk, entry))
     {
         ZZIP_MEM_ENTRY *item = zzip_mem_entry_new(disk, entry);
@@ -215,6 +222,14 @@ zzip_mem_entry_new(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
     item->zz_filetype = zzip_disk_entry_get_filetype(entry);
 
     /*
+     * If zz_data+zz_csize exceeds the size of the file, bail out
+     */
+    if ((item->zz_data + item->zz_csize) < disk->buffer ||
+	(item->zz_data + item->zz_csize) >= disk->endbuf)
+    {
+	goto error;
+    }
+   /*
      * If the file is uncompressed, zz_csize and zz_usize should be the same
      * If they are not, we cannot guarantee that either is correct, so ...
      */
@@ -229,10 +244,10 @@ zzip_mem_entry_new(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
     }
 
     {   /* copy the extra blocks to memory as well (maximum 64K each) */
-        zzip_size_t /*    */ ext1_len = zzip_disk_entry_get_extras(entry);
-        char *_zzip_restrict ext1_ptr = zzip_disk_entry_to_extras(entry);
-        zzip_size_t /*    */ ext2_len = zzip_file_header_get_extras(header);
-        char *_zzip_restrict ext2_ptr = zzip_file_header_to_extras(header);
+        zzip_size_t /*           */ ext1_len = zzip_disk_entry_get_extras(entry);
+        zzip_byte_t *_zzip_restrict ext1_ptr = zzip_disk_entry_to_extras(entry);
+        zzip_size_t /*           */ ext2_len = zzip_file_header_get_extras(header);
+        zzip_byte_t *_zzip_restrict ext2_ptr = zzip_file_header_to_extras(header);
 
         if (ext1_len > 0 && ext1_len <= 65535)
         {
@@ -298,7 +313,8 @@ zzip_mem_entry_extra_block(ZZIP_MEM_ENTRY * entry, short datatype)
    return zzip_mem_entry_find_extra_block(entry, datatype, 16);
 }
 
-/* find an extra block for the given datatype code.
+/** get extra block.
+ * This function finds an extra block for the given datatype code.
  * The returned EXTRA_BLOCK is still in disk-encoding but
  * already a pointer into an allocated heap space block.
  *
@@ -315,7 +331,14 @@ zzip_mem_entry_find_extra_block(ZZIP_MEM_ENTRY * entry, short datatype, zzip_siz
         char* ext_end = ext + entry->zz_extlen[i];
         if (ext)
         {
-            while (ext + zzip_extra_block_headerlength <= ext_end)
+	    /*
+	     * Make sure that
+	     * 1) the extra block header
+	     * AND
+	     * 2) the block we're looking for
+	     * fit into the extra block!
+	     */
+            while (ext + zzip_extra_block_headerlength + blocksize <= ext_end)
             {
                 if (datatype == zzip_extra_block_get_datatype(ext))
                 {
@@ -337,6 +360,9 @@ zzip_mem_entry_find_extra_block(ZZIP_MEM_ENTRY * entry, short datatype, zzip_siz
     }
 }
 
+/** => zzip_mem_disk_close
+ * This function ends usage of a file entry in a disk.
+ */
 void
 zzip_mem_entry_free(ZZIP_MEM_ENTRY * _zzip_restrict item)
 {
@@ -353,6 +379,9 @@ zzip_mem_entry_free(ZZIP_MEM_ENTRY * _zzip_restrict item)
     }
 }
 
+/** => zzip_mem_disk_close
+ * This function will trigger an underlying disk_close 
+ */
 void
 zzip_mem_disk_unload(ZZIP_MEM_DISK * dir)
 {
@@ -368,6 +397,9 @@ zzip_mem_disk_unload(ZZIP_MEM_DISK * dir)
     dir->disk = 0;
 }
 
+/** end usage.
+ * This function closes the dir and disk handles.
+ */
 void
 zzip_mem_disk_close(ZZIP_MEM_DISK * _zzip_restrict dir)
 {
@@ -431,6 +463,9 @@ foo(short zz_datatype)
 }
 #endif
 
+/** search entries.
+ * This function walks through the zip directory looking for a file.
+ */
 ZZIP_MEM_ENTRY *
 zzip_mem_disk_findfile(ZZIP_MEM_DISK * dir,
                        char *filename, ZZIP_MEM_ENTRY * after,
@@ -449,6 +484,9 @@ zzip_mem_disk_findfile(ZZIP_MEM_DISK * dir,
     return 0;
 }
 
+/* => zzip_mem_disk_findfile
+ * This function uses an fnmatch-like comparator to find files.
+ */
 ZZIP_MEM_ENTRY *
 zzip_mem_disk_findmatch(ZZIP_MEM_DISK * dir,
                         char *filespec, ZZIP_MEM_ENTRY * after,
@@ -467,6 +505,9 @@ zzip_mem_disk_findmatch(ZZIP_MEM_DISK * dir,
     return 0;
 }
 
+/** start usage.
+ * This function opens a referenced file entry from a openend disk.
+ */
 zzip__new__ ZZIP_MEM_DISK_FILE *
 zzip_mem_entry_fopen(ZZIP_MEM_DISK * dir, ZZIP_MEM_ENTRY * entry)
 {
@@ -488,13 +529,25 @@ zzip_mem_entry_fopen(ZZIP_MEM_DISK * dir, ZZIP_MEM_ENTRY * entry)
     file->zlib.avail_in = zzip_mem_entry_csize(entry);
     file->zlib.next_in = zzip_mem_entry_to_data(entry);
 
+    debug2("compressed size %i", (int) file->zlib.avail_in);
+    if (file->zlib.next_in + file->zlib.avail_in >= file->endbuf)
+         goto error;
+    if (file->zlib.next_in < file->buffer)
+         goto error;
+
     if (! zzip_mem_entry_data_deflated(entry) ||
         inflateInit2(&file->zlib, -MAX_WBITS) != Z_OK)
         { free (file); return 0; }
 
     return file;
+error:
+    errno = EBADMSG;
+    return NULL;
 }
 
+/** => zzip_mem_disk_open
+ * This function opens a file by name from an openend disk.
+ */
 zzip__new__ ZZIP_MEM_DISK_FILE *
 zzip_mem_disk_fopen(ZZIP_MEM_DISK * dir, char *filename)
 {
@@ -505,6 +558,9 @@ zzip_mem_disk_fopen(ZZIP_MEM_DISK * dir, char *filename)
         return zzip_mem_entry_fopen(dir, entry);
 }
 
+/** get data
+ * This function mimics the fread(2) behaviour.
+ */
 _zzip_size_t
 zzip_mem_disk_fread(void *ptr, _zzip_size_t size, _zzip_size_t nmemb,
                     ZZIP_MEM_DISK_FILE * file)
@@ -512,19 +568,27 @@ zzip_mem_disk_fread(void *ptr, _zzip_size_t size, _zzip_size_t nmemb,
     return zzip_disk_fread(ptr, size, nmemb, file);
 }
 
+/** close disk.
+ * This function mimics the fclose(2) behaviour.
+ */
 int
 zzip_mem_disk_fclose(ZZIP_MEM_DISK_FILE * file)
 {
     return zzip_disk_fclose(file);
 }
 
+/** check disk.
+ * This function mimics the feof(2) behaviour.
+ */
 int
 zzip_mem_disk_feof(ZZIP_MEM_DISK_FILE * file)
 {
     return zzip_disk_feof(file);
 }
 
-/* convert dostime of entry to unix time_t */
+/** helper.
+ * This function converts a zip dostime of an entry to unix time_t 
+ */
 long
 zzip_disk_entry_get_mktime(ZZIP_DISK_ENTRY * entry)
 {

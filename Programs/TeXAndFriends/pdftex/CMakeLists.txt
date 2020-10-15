@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -69,7 +69,7 @@ set(pdftex_ch_synctex
 set(pdftosrc_sources
   ${MIKTEX_LIBRARY_WRAPPER}
   pdftosrc-version.h
-  source/pdftosrc-newpoppler.cc
+  source/pdftosrc.cc
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -86,11 +86,6 @@ if(USE_SYSTEM_JPEG)
 else()
   target_link_libraries(${MIKTEX_PREFIX}pdftosrc ${jpeg_dll_name})
 endif()
-if(USE_SYSTEM_POPPLER)
-  target_link_libraries(${MIKTEX_PREFIX}pdftosrc MiKTeX::Imported::POPPLER)
-else()
-  target_link_libraries(${MIKTEX_PREFIX}pdftosrc ${poppler_dll_name})
-endif()
 if(USE_SYSTEM_ZLIB)
   target_link_libraries(${MIKTEX_PREFIX}pdftosrc MiKTeX::Imported::ZLIB)
 else()
@@ -100,6 +95,7 @@ target_link_libraries(${MIKTEX_PREFIX}pdftosrc
   ${app_dll_name}
   ${core_dll_name}
   ${w2cemu_dll_name}
+  ${xpdf_lib_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}pdftosrc
@@ -266,7 +262,7 @@ set(${pdftex_target_name}_sources
   source/pdftex-common.h
   source/pdftex.h
   source/pdftexextra.c
-  source/pdftoepdf-poppler0.68.0.cc
+  source/pdftoepdf.cc
   source/pkin.c
   source/ptexlib.h
   source/ptexmac.h
@@ -337,16 +333,12 @@ if(LINK_EVERYTHING_STATICALLY)
   else()
     target_link_libraries(${MIKTEX_PREFIX}pdftex ${png_lib_name})
   endif()
-  if(USE_SYSTEM_POPPLER)
-    target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::POPPLER)
-  else()
-    target_link_libraries(${MIKTEX_PREFIX}pdftex ${poppler_dll_name})
-  endif()
   target_link_libraries(${MIKTEX_PREFIX}pdftex
     ${kpsemu_lib_name}
     ${md5_lib_name}
     ${w2cemu_lib_name}
     ${web2c_sources_lib_name}
+    ${xpdf_lib_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${MIKTEX_PREFIX}pdftex
@@ -365,17 +357,13 @@ else()
   else()
     target_link_libraries(${pdftex_target_name} PRIVATE ${png_dll_name})
   endif()
-  if(USE_SYSTEM_POPPLER)
-    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::POPPLER)
-  else()
-    target_link_libraries(${pdftex_target_name} PRIVATE ${poppler_dll_name})
-  endif()
   target_link_libraries(${pdftex_target_name}
     PRIVATE
       ${kpsemu_dll_name}
       ${md5_dll_name}
       ${w2cemu_dll_name}
       ${web2c_sources_dll_name}
+      ${xpdf_lib_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${pdftex_target_name}

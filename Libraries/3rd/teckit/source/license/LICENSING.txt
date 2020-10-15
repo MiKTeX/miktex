@@ -12,7 +12,7 @@ with a license of LGPL-2+
 
 Rest of the project:
 
-		   Copyright 2002-2018, SIL International
+		   Copyright 2002-2020, SIL International
 			    All rights reserved.
 
     This library is free software; you can redistribute it and/or modify
@@ -42,8 +42,8 @@ Rest of the project:
 
     You should also have received a copy of the GNU Lesser General Public
     License along with this library in the file named "License_LGPLv21.txt".
-    If not, write to the Free Software Foundation, Inc., 59 Temple Place,
-    Suite 330, Boston, MA 02111-1307, USA or visit their web page on the
+    If not, write to the Free Software Foundation, Inc., 51 Franklin Street,
+    Fifth Floor, Boston, MA  02110-1301, USA or visit their web page on the
     internet at http://www.fsf.org/licenses/lgpl.html.
 
     The GNU General Public License to which the GNU Lesser General Public

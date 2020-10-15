@@ -562,8 +562,6 @@ CharsetEncoder* CharsetEncoder::createDefaultEncoder()
 	return new ISOLatinCharsetEncoder();
 #elif LOG4CXX_CHARSET_USASCII
 	return new USASCIICharsetEncoder();
-#elif defined(MIKTEX_WINDOWS) && LOG4CXX_LOGCHAR_IS_WCHAR
-   return new UTF8CharsetEncoder();
 #elif LOG4CXX_LOGCHAR_IS_WCHAR && LOG4CXX_HAS_WCSTOMBS
 	return new WcstombsCharsetEncoder();
 #else

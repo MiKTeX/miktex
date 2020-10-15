@@ -71,7 +71,7 @@ void read_png_info(integer img)
         pdftex_fail("unsupported type of color_type <%i>",
                     png_get_color_type(png_ptr(img), png_info(img)));
     }
-    if (fixedpdfmajorversion > 1 || fixedpdfminorversion >= 4
+    if ((fixedpdfmajorversion > 1 || fixedpdfminorversion >= 4)
         && (png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_GRAY_ALPHA
             || png_get_color_type(png_ptr(img), png_info(img)) == PNG_COLOR_TYPE_RGB_ALPHA)) {
         /* png with alpha channel in device colours; we have to add a Page

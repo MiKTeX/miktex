@@ -67,17 +67,9 @@ void PropertiesPatternConverter::format(
 	{
 		toAppendTo.append(1, (logchar) 0x7B /* '{' */);
 
-#if defined(MIKTEX)
-      KeySet keySet(event->getMDCKeySet());
-#else
 		LoggingEvent::KeySet keySet(event->getMDCKeySet());
-#endif
 
-#if defined(MIKTEX)
-      for(KeySet::const_iterator iter = keySet.begin();
-#else
 		for (LoggingEvent::KeySet::const_iterator iter = keySet.begin();
-#endif
 			iter != keySet.end();
 			iter++)
 		{

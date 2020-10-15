@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -63,7 +63,7 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/clears.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmp2.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmp_abs.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmpabs.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmp_si.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmp_ui.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/comparisons.c
@@ -85,12 +85,14 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/extract.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_sint.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_slong.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_ulong.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/free_cache.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_d.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_si.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_str.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_z.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_z_exp.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_ui.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/gmp_op.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/init.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/init2.c
@@ -100,6 +102,8 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/isnum.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/isqrt.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/log.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/log2.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/min_prec.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mpfr-gmp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mpn_exp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mp_clz_tab.c
@@ -108,6 +112,7 @@ set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mul_2ui.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mul_ui.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mulders.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/nbits_ulong.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/neg.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/next.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/pool.c

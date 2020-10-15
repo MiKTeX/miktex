@@ -513,8 +513,6 @@ CharsetDecoder* CharsetDecoder::createDefaultDecoder()
 	return new ISOLatinCharsetDecoder();
 #elif LOG4CXX_CHARSET_USASCII
 	return new USASCIICharsetDecoder();
-#elif defined(MIKTEX_WINDOWS) && LOG4CXX_LOGCHAR_IS_WCHAR
-  return new UTF8CharsetDecoder();
 #elif LOG4CXX_LOGCHAR_IS_WCHAR && LOG4CXX_HAS_MBSRTOWCS
 	return new MbstowcsCharsetDecoder();
 #else

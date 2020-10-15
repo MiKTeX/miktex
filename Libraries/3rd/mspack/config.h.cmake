@@ -1,10 +1,10 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if building universal (internal helper macro) */
+#cmakedefine AC_APPLE_UNIVERSAL_BUILD
+
 /* Turn debugging mode on? */
 #cmakedefine DEBUG
-
-/* Define to 1 if you have the <ctype.h> header file. */
-#cmakedefine HAVE_CTYPE_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H 1
@@ -15,11 +15,11 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the <limits.h> header file. */
-#cmakedefine HAVE_LIMITS_H 1
-
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1
+
+/* Define to 1 if you have the `mkdir' function. */
+#cmakedefine HAVE_MKDIR 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1
@@ -39,21 +39,20 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H 1
 
-/* Define to 1 if you have the `tolower' function. */
-#cmakedefine HAVE_TOLOWER 1
-
 /* Define to 1 if you have the `towlower' function. */
 #cmakedefine HAVE_TOWLOWER 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
-/* Define to 1 if you have the <wctype.h> header file. */
-#cmakedefine HAVE_WCTYPE_H 1
+/* Define to 1 if you have the `_mkdir' function. */
+#cmakedefine HAVE__MKDIR 1
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR
+
+/* Define if mkdir takes only one argument. */
+#cmakedefine MKDIR_TAKES_ONE_ARG
 
 /* Name of package */
 #cmakedefine PACKAGE
@@ -85,6 +84,18 @@
 /* Version number of package */
 #cmakedefine VERSION
 
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
+
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
 # define _DARWIN_USE_64_BIT_INODE 1
@@ -105,9 +116,7 @@
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
-#if defined(_MSC_VER)
-#  define inline __inline
-#endif
+#undef inline
 #endif
 
 /* Define to `int' if <sys/types.h> does not define. */

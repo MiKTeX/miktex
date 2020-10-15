@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2019 Christian Schenk
+## Copyright (C) 2008-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/uriparser")
 
@@ -36,6 +38,11 @@ add_definitions(
 configure_file(
   source/src/UriConfig.h.in
   config.h
+)
+
+configure_file(
+  uriparser-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/uriparser-version.h
 )
 
 set(uriparser_sources

@@ -17,8 +17,8 @@
 #include <stdio.h>
 #endif
 
-/**
- *  just returns dir->errcode of the ZZIP_DIR handle
+/** get errror status.
+ *  This function just returns dir->errcode of the ZZIP_DIR handle
  *  see: => zzip_dir_open, => zzip_dir_open, => zzip_readdir, => zzip_dir_read
  */
 int
@@ -33,8 +33,8 @@ zzip_error(ZZIP_DIR * dir)
 void
 zzip_seterror(ZZIP_DIR * dir, int errcode) { dir->errcode = errcode; }
 
-/**
- * This function will just return fp->dir
+/** get handle.
+ * This function will just return the fp->dir value.
  *
  * If a ZZIP_FILE is contained within a zip-file that one will be a valid
  * pointer, otherwise a NULL is returned and the ZZIP_FILE wraps a real file.
@@ -58,18 +58,19 @@ zzip_dirfd(ZZIP_DIR * dir)
     return dir->fd;
 }
 
+#define LENGTH(x) (sizeof(x) / sizeof(*x))
 static const char* comprlevel[] = {
     "stored",   "shrunk",   "redu:1",   "redu:2",   "redu:3",   "redu:4",
     "impl:N",   "toknze",   "defl:N",   "defl:B",   "impl:B" };
 
-/**
- * return static const string of the known compression methods,
- * otherwise just "zipped" is returned
+/** compr name.
+ * This function returns the static const string of the known compression methods,
+ * Unknown id values will return just "zipped" as the string code.
  */
 zzip_char_t *
 zzip_compr_str(int compr)
 {
-    if (0 <= compr && compr < sizeof(comprlevel))
+    if (0 <= compr && (unsigned) compr < LENGTH(comprlevel))
     {
         return comprlevel[compr];
     } else if (0 < compr && compr < 256) 
@@ -110,7 +111,7 @@ zzip_dir_real(ZZIP_DIR * dir)
     return dir->realdir != 0;
 }
 
-/**
+/** check real or zipped file.
  * This function checks if the ZZIP_FILE-handle is wrapping
  * a real file or a zip-contained file.
  * Returns 1 for a stat'able file, and 0 for a file inside a zip-archive.

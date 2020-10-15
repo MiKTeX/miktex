@@ -16,7 +16,6 @@
 #include <zzip/zzip.h>
 #include <zzip/plugin.h>
 #include <zzip/stdint.h>
-#include <zzip/zzip32.h>
 
 #ifdef __cplusplus
 extern "C" {

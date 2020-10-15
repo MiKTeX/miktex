@@ -6,7 +6,7 @@
     <TPM:Title>Uriparser runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Weijia Song and Sebastian Pipping" year="2007"/>
     <TPM:License type="bsd3"/>
-    <TPM:Version>0.9.2</TPM:Version>
+    <TPM:Version>0.9.4</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

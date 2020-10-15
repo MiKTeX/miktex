@@ -71,7 +71,7 @@ struct zzip_file_header
     /* followed by filename (of variable size) */
     /* followed by extra field (of variable size) */
 } ZZIP_GNUC_PACKED;
-#define zzip_file_header_headerlength (4+2+2+2+4+4+4+4+2+2)
+#define zzip_file_header_headerlength (4U+2U+2U+2U+4U+4U+4U+4U+2U+2U)
 
 /* B. data descriptor
  * the data descriptor exists only if bit 3 of z_flags is set. It is byte aligned
@@ -87,7 +87,7 @@ struct zzip_file_trailer
     zzip_byte_t   z_csize[4]; /* compressed size */
     zzip_byte_t   z_usize[4]; /* uncompressed size */
 } ZZIP_GNUC_PACKED;
-#define zzip_file_trailer_headerlength (4+4+4+4)
+#define zzip_file_trailer_headerlength (4U+4U+4U+4U)
 
 /* C. central directory structure:
     [file header] . . . end of central dir record
@@ -121,7 +121,7 @@ struct zzip_disk_entry
     /* followed by extra field (of variable size) */
     /* followed by file comment (of variable size) */
 } ZZIP_GNUC_PACKED;
-#define zzip_disk_entry_headerlength (4+2+2+2+2+4+4+4+4+2+2+2+2+2+4+4)
+#define zzip_disk_entry_headerlength (4U+2U+2U+2U+2U+4U+4U+4U+4U+2U+2U+2U+2U+2U+4U+4U)
 
 
 struct zzip_root_dirent
@@ -163,7 +163,7 @@ struct zzip_disk_trailer
     zzip_byte_t  z_comment[2];  /* zipfile comment length */
     /* followed by zipfile comment (of variable size) */
 } ZZIP_GNUC_PACKED;
-#define zzip_disk_trailer_headerlength (4+2+2+2+2+4+4+2)
+#define zzip_disk_trailer_headerlength (4U+2U+2U+2U+2U+4U+4U+2U)
 
 /* extra field should be type + size + data + type + size + data ... */
 struct zzip_extra_block
@@ -171,7 +171,7 @@ struct zzip_extra_block
     zzip_byte_t  z_datatype[2];       /* as input type - a mere <char*> is okay */
     zzip_byte_t  z_datasize[2];       /* being returned by xx_to_extras usually */
 } ZZIP_GNUC_PACKED;
-#define zzip_extra_block_headerlength (2+2)
+#define zzip_extra_block_headerlength (2U+2U)
 
 /* Zip64 end of central dir record */
 struct zzip_disk64_trailer
@@ -191,7 +191,7 @@ struct zzip_disk64_trailer
                           * the starting disk number */
     /* followed by zip64 extensible data sector (of variable size) */
 } ZZIP_GNUC_PACKED;
-#define zzip_disk64_trailer_headerlength (4+8+2+2+4+4+8+8+8+8)
+#define zzip_disk64_trailer_headerlength (4U+8U+2U+2U+4U+4U+8U+8U+8U+8U)
 
 /* z_flags */
 #define ZZIP_IS_ENCRYPTED(p)    ((*(zzip_byte_t*)p)&1)

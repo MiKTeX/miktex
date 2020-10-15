@@ -37,7 +37,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define assert MIKTEX_ASSERT
 #define exit(status) throw(status)
 #else
-#include <libgen.h>
 #include <pdftexdir/ptexmac.h>
 #include <pdftexdir/writettf.h>
 #endif

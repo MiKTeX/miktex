@@ -1,4 +1,4 @@
-/* d8ad60cf1b0e82c34c1c2201431d8da32aecb7b7d5ad8c4573fb4ecf0f2100e9 (0.9.2+)
+/* 520782e6334595efe9dee874cfa720d7b49de30fa51caba8bce352e55f521ee1 (0.9.4+)
  *
  * uriparser - RFC 3986 URI parsing library
  *
@@ -6,32 +6,32 @@
  * Copyright (C) 2007, Sebastian Pipping <sebastian@pipping.org>
  * All rights reserved.
  *
- * Redistribution  and use in source and binary forms, with or without
- * modification,  are permitted provided that the following conditions
+ * Redistribution and use in source  and binary forms, with or without
+ * modification, are permitted provided  that the following conditions
  * are met:
  *
- *     * Redistributions   of  source  code  must  retain  the   above
- *       copyright  notice, this list of conditions and the  following
- *       disclaimer.
+ *     1. Redistributions  of  source  code   must  retain  the  above
+ *        copyright notice, this list  of conditions and the following
+ *        disclaimer.
  *
- *     * Redistributions  in  binary  form must  reproduce  the  above
- *       copyright  notice, this list of conditions and the  following
- *       disclaimer   in  the  documentation  and/or  other  materials
- *       provided with the distribution.
+ *     2. Redistributions  in binary  form  must  reproduce the  above
+ *        copyright notice, this list  of conditions and the following
+ *        disclaimer  in  the  documentation  and/or  other  materials
+ *        provided with the distribution.
  *
- *     * Neither  the name of the <ORGANIZATION> nor the names of  its
- *       contributors  may  be  used to endorse  or  promote  products
- *       derived  from  this software without specific  prior  written
- *       permission.
+ *     3. Neither the  name of the  copyright holder nor the  names of
+ *        its contributors may be used  to endorse or promote products
+ *        derived from  this software  without specific  prior written
+ *        permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT  NOT
- * LIMITED  TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS
- * FOR  A  PARTICULAR  PURPOSE ARE DISCLAIMED. IN NO EVENT  SHALL  THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL,    SPECIAL,   EXEMPLARY,   OR   CONSEQUENTIAL   DAMAGES
- * (INCLUDING,  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES;  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * "AS IS" AND  ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING, BUT NOT
+ * LIMITED TO,  THE IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS
+ * FOR  A  PARTICULAR  PURPOSE  ARE  DISCLAIMED.  IN  NO  EVENT  SHALL
+ * THE  COPYRIGHT HOLDER  OR CONTRIBUTORS  BE LIABLE  FOR ANY  DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO,  PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA,  OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT  LIABILITY,  OR  TORT (INCLUDING  NEGLIGENCE  OR  OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
@@ -1077,6 +1077,40 @@ URI_PUBLIC void URI_FUNC(FreeQueryList)(URI_TYPE(QueryList) * queryList);
  */
 URI_PUBLIC int URI_FUNC(FreeQueryListMm)(URI_TYPE(QueryList) * queryList,
 		UriMemoryManager * memory);
+
+
+
+/**
+ * Makes the %URI hold copies of strings so that it no longer depends
+ * on the original %URI string.  If the %URI is already owner of copies,
+ * this function returns <c>URI_TRUE</c> and does not modify the %URI further.
+ *
+ * Uses default libc-based memory manager.
+ *
+ * @param uri    <b>INOUT</b>: %URI to make independent
+ * @return       Error code or 0 on success
+ *
+ * @see uriMakeOwnerMmA
+ * @since 0.9.4
+ */
+URI_PUBLIC int URI_FUNC(MakeOwner)(URI_TYPE(Uri) * uri);
+
+
+
+/**
+ * Makes the %URI hold copies of strings so that it no longer depends
+ * on the original %URI string.  If the %URI is already owner of copies,
+ * this function returns <c>URI_TRUE</c> and does not modify the %URI further.
+ *
+ * @param uri     <b>INOUT</b>: %URI to make independent
+ * @param memory  <b>IN</b>: Memory manager to use, NULL for default libc
+ * @return        Error code or 0 on success
+ *
+ * @see uriMakeOwnerA
+ * @since 0.9.4
+ */
+URI_PUBLIC int URI_FUNC(MakeOwnerMm)(URI_TYPE(Uri) * uri,
+                                     UriMemoryManager * memory);
 
 
 

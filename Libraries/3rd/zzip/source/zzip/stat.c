@@ -24,9 +24,9 @@
 #define ZZIP_USE_INTERNAL
 #include <zzip/info.h>
 
-/**
- * obtain information about a filename in an opened zip-archive without 
- * opening that file first. Mostly used to obtain the uncompressed 
+/**    get meta infornation on a zipped element.
+ * This function obtains information about a filename in an opened zip-archive 
+ * without opening that file first. Mostly used to obtain the uncompressed 
  * size of a file inside a zip-archive. see => zzip_dir_open.
  */
 int

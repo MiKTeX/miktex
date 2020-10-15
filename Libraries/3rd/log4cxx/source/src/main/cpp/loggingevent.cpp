@@ -132,17 +132,9 @@ bool LoggingEvent::getMDC(const LogString& key, LogString& dest) const
 
 }
 
-#if defined(MIKTEX)
-KeySet LoggingEvent::getMDCKeySet() const
-#else
 LoggingEvent::KeySet LoggingEvent::getMDCKeySet() const
-#endif
 {
-#if defined(MIKTEX)
-        KeySet set;
-#else
 	LoggingEvent::KeySet set;
-#endif
 
 	if (mdcCopy != 0 && !mdcCopy->empty())
 	{
@@ -209,17 +201,9 @@ bool LoggingEvent::getProperty(const LogString& key, LogString& dest) const
 	return false;
 }
 
-#if defined(MIKTEX)
-KeySet LoggingEvent::getPropertyKeySet() const
-#else
 LoggingEvent::KeySet LoggingEvent::getPropertyKeySet() const
-#endif
 {
-#if defined(MIKTEX)
-        KeySet set;
-#else
 	LoggingEvent::KeySet set;
-#endif
 
 	if (properties != 0)
 	{

@@ -2058,6 +2058,7 @@ add_subdirectory(${MIKTEX_REL_WEB2C_DIR})
 add_subdirectory(${MIKTEX_REL_WEB_DIR})
 add_subdirectory(${MIKTEX_REL_XETEX_DIR})
 add_subdirectory(${MIKTEX_REL_XINDY_DIR})
+add_subdirectory(${MIKTEX_REL_XPDF_DIR})
 
 if(WITH_ASYMPTOTE)
   add_subdirectory(${MIKTEX_REL_ASYMPTOTE_DIR})

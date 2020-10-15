@@ -66,6 +66,9 @@
 /* Define to 1 if you have the `strndup' function. */
 /* #undef HAVE_STRNDUP */
 
+/* Define to 1 if you have the `strnlen' function. */
+/* #undef HAVE_STRNLEN */
+
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
 /* #undef HAVE_SYS_DIR_H */
@@ -120,9 +123,11 @@
    */
 /* #undef LARGEFILE_SENSITIVE */
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 /* #undef LT_OBJDIR */
+
+/* Define if debugging is disabled */
+/* #undef NDEBUG */
 
 /* Name of package */
 #ifndef ZZIP_PACKAGE 
@@ -151,6 +156,9 @@
 #ifndef ZZIP_SIZEOF_INT 
 #define ZZIP_SIZEOF_INT  4 
 #endif
+
+/* The number of bytes in type int * */
+/* #undef SIZEOF_INT_P */
 
 /* The number of bytes in type long */
 #ifndef ZZIP_SIZEOF_LONG 
