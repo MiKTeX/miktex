@@ -32,8 +32,9 @@ set(public_include_directories
 )
 
 add_definitions(
-  -DZZIP_HAVE_STDINT_H=1
   -DZZIP_EXPORTS=1
+  -DZZIP_HAVE_DIRENT_H=1
+  -DZZIP_HAVE_STDINT_H=1
 )
 
 configure_file(
@@ -141,6 +142,7 @@ target_include_directories(${zzip_dll_name}
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${zzip_dll_name}
     PRIVATE
+      ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
 endif()
