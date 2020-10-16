@@ -31,11 +31,23 @@ set(public_include_directories
   ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
+set(ZZIP_HAVE_DIRENT_H HAVE_DIRENT_H)
+set(ZZIP_HAVE_STDINT_H HAVE_STDINT_H)
+set(ZZIP_HAVE_SYS_MMAN_H HAVE_SYS_MMAN_H)
+
 add_definitions(
   -DZZIP_EXPORTS=1
-  -DZZIP_HAVE_DIRENT_H=1
-  -DZZIP_HAVE_STDINT_H=1
+  -D_USE_MMAP=1
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DUNICODE
+    -DZZIP_HAVE_DIRENT_H=1
+    -DZZIP_HAVE_STDINT_H=1
+    -D_UNICODE
+  )
+endif()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/_config.h.cmake
@@ -81,6 +93,7 @@ set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/zzip.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/zzip32.h
 
+  ${CMAKE_CURRENT_BINARY_DIR}/include/zzip/_config.h
   ${CMAKE_CURRENT_BINARY_DIR}/zzip-version.h
 )
 
