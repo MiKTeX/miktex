@@ -23,12 +23,13 @@
 
 #include <errno.h>
 
+#include <WinSock2.h>
+
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
+#include <miktex/Core/Session>
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/inliners.h>
-
-#include <WinSock2.h>
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
@@ -109,6 +110,18 @@ MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* dir)
   StringUtil::CopyString(dir->direntry.d_name, sizeof(dir->direntry.d_name) / sizeof(dir->direntry.d_name[0]), directoryEntry.name.c_str());
   return &dir->direntry;
   C_FUNC_END();
+}
+
+MIKTEXUNXCEEAPI(void) seekdir(DIR* dir, long int loc)
+{
+  // not yet implemented
+  MIKTEX_UNEXPECTED();
+}
+
+MIKTEXUNXCEEAPI(long int) telldir(DIR* dir)
+{
+  // not yet implemented
+  MIKTEX_UNEXPECTED();
 }
 
 MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* dir)

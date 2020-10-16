@@ -98,6 +98,10 @@ MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* dir);
 
 MIKTEXUNXCEEAPI(void) rewinddir(DIR* dir);
 
+MIKTEXUNXCEEAPI(void) seekdir(DIR* dir, long int loc);
+
+MIKTEXUNXCEEAPI(long int) telldir(DIR* dir);
+
 MIKTEXUNXCEEAPI(int) wclosedir(WDIR* dir);
 
 MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* path);
