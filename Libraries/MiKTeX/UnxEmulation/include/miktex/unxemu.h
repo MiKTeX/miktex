@@ -92,19 +92,19 @@ struct wdirent
 
 MIKTEXUNXCEEAPI(int) closedir(DIR* pDir);
 
-MIKTEXUNXCEEAPI(DIR*) opendir(const char* lpszPath);
+MIKTEXUNXCEEAPI(DIR*) opendir(const char* path);
 
-MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* pDir);
+MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* dir);
 
-MIKTEXUNXCEEAPI(void) rewinddir(DIR* pDir);
+MIKTEXUNXCEEAPI(void) rewinddir(DIR* dir);
 
-MIKTEXUNXCEEAPI(int) wclosedir(WDIR* pDir);
+MIKTEXUNXCEEAPI(int) wclosedir(WDIR* dir);
 
-MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* lpszPath);
+MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* path);
 
-MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* pDir);
+MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* dir);
 
-MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* pDir);
+MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* dir);
 
 MIKTEX_END_EXTERN_C_BLOCK;
 
@@ -207,7 +207,7 @@ static inline int stat(const char* path, struct _stat* buf)
 
 /* sys/time.h */
 
-MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* pNull);
+MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* null);
 
 #if !HAVE_GETTIMEOFDAY && !defined(gettimeofday)
 static inline int gettimeofday(struct timeval* tp, void* tzp)

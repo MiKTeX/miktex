@@ -145,9 +145,9 @@ MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char* lpsz1, const char* lpsz2, si
   return MiKTeX::Util::StringCompare(lpsz1, lpsz2, n, true);
 }
 
-MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* pNull)
+MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* null)
 {
-  MIKTEX_ASSERT(pNull == nullptr);
+  MIKTEX_ASSERT(null == nullptr);
   MIKTEX_ASSERT(ptv != nullptr);
   SYSTEMTIME systemTime;
   GetSystemTime(&systemTime);
