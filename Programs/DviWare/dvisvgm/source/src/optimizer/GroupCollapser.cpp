@@ -61,7 +61,7 @@ static void remove_ws_nodes (XMLElement *elem) {
 			node = node->next();
 		else {
 			XMLNode *next = node->next();
-			XMLElement::remove(node);
+			XMLElement::detach(node);
 			node = next;
 		}
 	}
@@ -69,29 +69,31 @@ static void remove_ws_nodes (XMLElement *elem) {
 
 
 /** Recursively removes all redundant group elements from the given context element
- *  and moves their attributes to the corresponding parent element.
+ *  and moves their attributes to the corresponding parent elements.
  *  @param[in] context root of the subtree to process */
 void GroupCollapser::execute (XMLElement *context) {
 	if (!context)
 		return;
-	XMLNode *node=context->firstChild();
-	while (node) {
-		XMLNode *next = node->next();  // keep safe pointer to next node
-		if (XMLElement *elem = node->toElement())
-			execute(elem);
-		node = next;
+
+	XMLNode *child=context->firstChild();
+	while (child) {
+		XMLNode *next=child->next();
+		if (XMLElement *childElement = child->toElement()) {
+			execute(childElement);
+			// check for groups without attributes and remove them
+			if (childElement->name() == "g" && childElement->attributes().empty()) {
+				remove_ws_nodes(childElement);
+				if (XMLNode *firstUnwrappedNode = XMLElement::unwrap(childElement))
+					next = firstUnwrappedNode;
+			}
+		}
+		child = next;
 	}
-	if (context->name() == "g" && context->attributes().empty()) {
-		// unwrap group without attributes
-		remove_ws_nodes(context);
-		XMLElement::unwrap(context);
-	}
-	else {
-		XMLElement *child = only_child_element(context);
-		if (child && collapsible(*context)) {
-			if (child->name() == "g" && unwrappable(*child, *context) && moveAttributes(*child, *context)) {
+	if (XMLElement *childElement = only_child_element(context)) {
+		if (collapsible(*context)) {
+			if (childElement->name() == "g" && unwrappable(*childElement, *context) && moveAttributes(*childElement, *context)) {
 				remove_ws_nodes(context);
-				XMLElement::unwrap(child);
+				XMLElement::unwrap(childElement);
 			}
 		}
 	}
@@ -147,12 +149,15 @@ bool GroupCollapser::collapsible (const XMLElement &element) {
  *  @param[in] source element whose children and attributes should be moved
  *  @param[in] dest element that should receive the children and attributes */
 bool GroupCollapser::unwrappable (const XMLElement &source, const XMLElement &dest) {
-	// check for colliding clip-path attributes
-	if (const char *cp1 = source.getAttributeValue("clip-path")) {
-		if (const char *cp2 = dest.getAttributeValue("clip-path")) {
-			if (string(cp1) != cp2)
-				return false;
-		}
+	const char *cp1 = source.getAttributeValue("clip-path");
+	const char *cp2 = dest.getAttributeValue("clip-path");
+	if (cp2) {
+		// check for colliding clip-path attributes
+		if (cp1 && string(cp1) != string(cp2))
+			return false;
+		// don't apply inner transformations to outer clipping paths
+		if (source.hasAttribute("transform"))
+			return false;
 	}
 	// these attributes prevent a group from being unwrapped
 	static const char *attribs[] = {

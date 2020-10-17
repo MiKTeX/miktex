@@ -34,7 +34,7 @@ void WSNodeRemover::execute (XMLElement *context) {
 	while (child) {
 		if (removeWS && child->toWSNode()) {
 			XMLNode *next = child->next();
-			XMLElement::remove(child);
+			XMLElement::detach(child);
 			child = next;
 			continue;
 		}

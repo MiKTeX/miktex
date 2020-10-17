@@ -99,7 +99,7 @@ void HashFunction::update (istream &is) {
 string HashFunction::digestString () const {
 	ostringstream oss;
 	oss << hex << setfill('0');
-	for (int byte : digestValue())
+	for (int byte : digestBytes())
 		oss << setw(2) << byte;
 	return oss.str();
 }

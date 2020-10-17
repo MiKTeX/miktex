@@ -79,8 +79,9 @@ bool TransformSimplifier::incorporateTransform (XMLElement *elem, const Matrix &
 		if (const char *ystr = elem->getAttributeValue("y"))
 			y = strtod(ystr, nullptr);
 		// width and height attributes must not become negative. Hence, only apply the scaling
-		// values if they are non-negative. Otherwise, keep a scaling matrix
-		if (sx < 0 || sy < 0) {
+		// values if they are non-negative. Otherwise, keep a scaling matrix. Also retain scaling
+		// transformations in image elements to avoid the need of attribute 'preseveAspectRatio'.
+		if (sx < 0 || sy < 0 || elem->name() == "image") {
 			x += (sx == 0 ? 0 : tx/sx);
 			y += (sy == 0 ? 0 : ty/sy);
 			elem->addAttribute("transform", "scale("+XMLString(sx)+","+XMLString(sy)+")");
@@ -120,7 +121,7 @@ static string scale_cmd (double sx, double sy) {
 	XMLString sxstr(sx), systr(sy);
 	if (sxstr != "1" || systr != "1") {
 		ret = "scale("+sxstr;
-		if (systr != "1")
+		if (systr != sxstr)
 			ret += " "+systr;
 		ret += ')';
 	}

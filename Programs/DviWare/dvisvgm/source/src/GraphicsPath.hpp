@@ -732,7 +732,7 @@ class GraphicsPath {
 
 	private:
 		std::deque<CommandVariant> _commands; ///< sequence of path commands
-		WindingRule _windingRule;
+		WindingRule _windingRule = WindingRule::NON_ZERO;
 		Point _startPoint; ///< start point of final sub-path
 		Point _finalPoint; ///< final point reached by last command in path
 };

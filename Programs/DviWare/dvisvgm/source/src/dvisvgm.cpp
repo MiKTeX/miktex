@@ -487,16 +487,20 @@ int main (int argc, char *argv[]) {
 	}
 	catch (DVIException &e) {
 		Message::estream() << "\nDVI error: " << e.what() << '\n';
+		return -1;
 	}
 	catch (PSException &e) {
 		Message::estream() << "\nPostScript error: " << e.what() << '\n';
+		return -2;
 	}
 	catch (SignalException &e) {
 		Message::wstream().clearline();
 		Message::wstream(true) << "execution interrupted by user\n";
+		return -3;
 	}
 	catch (exception &e) {
 		Message::estream(true) << e.what() << '\n';
+		return -4;
 	}
 	return 0;
 }

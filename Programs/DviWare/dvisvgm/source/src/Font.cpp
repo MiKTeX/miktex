@@ -610,8 +610,13 @@ PhysicalFont::Type NativeFont::type () const {
 double NativeFont::charWidth (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
-	double w = upem ? (scaledSize()*FontEngine::instance().getAdvance(c)/upem*_style.extend) : 0;
-	w += abs(_style.slant*charHeight(c));
+	return upem ? (scaledSize()*FontEngine::instance().getAdvance(c)/upem*_style.extend) : 0;
+}
+
+
+double NativeFont::italicCorr(int c) const {
+	double w = abs(_style.slant*charHeight(c));   // slant := tan(phi) = dx/height
+	w *= _style.extend;
 	return w;
 }
 

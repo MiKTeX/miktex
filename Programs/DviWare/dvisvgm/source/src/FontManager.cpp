@@ -255,8 +255,6 @@ int FontManager::registerFont (uint32_t fontnum, string filename, int fontIndex,
 	if (id >= 0)
 		return id;
 
-	if (!filename.empty() && filename[0] == '[' && filename[filename.size()-1] == ']')
-		filename = filename.substr(1, filename.size()-2);
 	string fontname = NativeFont::uniqueName(filename, style);
 	const char *path = filename.c_str();
 	unique_ptr<Font> newfont;

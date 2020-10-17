@@ -122,7 +122,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 		bbox.transform(getMatrix());
 	embed(bbox);
 #if 0
-	XMLElement *rect = new XMLElement("rect");
+	auto rect = util::make_unique<XMLElement>("rect");
 	rect->addAttribute("x", x-metrics.wl);
 	rect->addAttribute("y", y-metrics.h);
 	rect->addAttribute("width", metrics.wl+metrics.wr);
@@ -130,26 +130,26 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 	rect->addAttribute("fill", "none");
 	rect->addAttribute("stroke", "red");
 	rect->addAttribute("stroke-width", "0.5");
-	_svg.appendToPage(rect);
+	_svg.appendToPage(std::move(rect));
 	if (metrics.d > 0) {
-		XMLElement *line = new XMLElement("line");
+		auto line = util::make_unique<XMLElement>("line");
 		line->addAttribute("x1", x-metrics.wl);
 		line->addAttribute("y1", y);
 		line->addAttribute("x2", x+metrics.wr);
 		line->addAttribute("y2", y);
 		line->addAttribute("stroke", "blue");
 		line->addAttribute("stroke-width", "0.5");
-		_svg.appendToPage(line);
+		_svg.appendToPage(std::move(line));
 	}
 	if (metrics.wl > 0) {
-		XMLElement *line = new XMLElement("line");
+		auto line = util::make_unique<XMLElement>("line");
 		line->addAttribute("x1", x);
 		line->addAttribute("y1", y-metrics.h);
 		line->addAttribute("x2", x);
 		line->addAttribute("y2", y+metrics.d);
 		line->addAttribute("stroke", "blue");
 		line->addAttribute("stroke-width", "0.5");
-		_svg.appendToPage(line);
+		_svg.appendToPage(std::move(line));
 	}
 #endif
 }
@@ -227,7 +227,12 @@ void DVIToSVGActions::beginPage (unsigned pageno, const vector<int32_t>&) {
 
 /** This method is called when an "end of page (eop)" command was found in the DVI file. */
 void DVIToSVGActions::endPage (unsigned pageno) {
-	SpecialManager::instance().notifyEndPage(pageno, *this);
+	try {
+		SpecialManager::instance().notifyEndPage(pageno, *this);
+	}
+	catch (const SpecialException &e) {
+		Message::estream(true) << "error in special: " << e.what() << '\n';
+	}
 	Matrix matrix = _dvireader->getPageTransformation();
 	_svg.transformPage(matrix);
 	if (_bgcolor != Color::TRANSPARENT) {

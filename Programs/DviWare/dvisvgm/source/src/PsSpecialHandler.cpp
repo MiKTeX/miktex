@@ -88,8 +88,9 @@ void PsSpecialHandler::initgraphics () {
 	_linecap = _linejoin = 0;  // butt end caps and miter joins
 	_miterlimit = 4;
 	_xmlnode = _savenode = nullptr;
-	_opacityalpha = _shapealpha = 1;  // fully opaque
-	_blendmode = 0; // "normal" mode (no blending)
+	_isshapealpha = false;               // opacity operators change constant component by default
+	_fillalpha = _strokealpha = {1, 1};  // set constant and shape opacity to non-transparent
+	_blendmode = 0;   // "normal" mode (no blending)
 	_sx = _sy = _cos = 1.0;
 	_pattern = nullptr;
 	_patternEnabled = false;
@@ -570,8 +571,9 @@ void PsSpecialHandler::setpagedevice (std::vector<double> &p) {
 	_linewidth = 1;
 	_linecap = _linejoin = 0;  // butt end caps and miter joins
 	_miterlimit = 4;
-	_opacityalpha = _shapealpha = 1;  // fully opaque
-	_blendmode = 0; // "normal" mode (no blending)
+	_isshapealpha = false;               // opacity operators change constant component by default
+	_fillalpha = _strokealpha = {1, 1};  // set constant and shape opacity to non-transparent
+	_blendmode = 0;  // "normal" mode (no blending)
 	_sx = _sy = _cos = 1.0;
 	_pattern = nullptr;
 	_currentcolor = Color::BLACK;
@@ -686,8 +688,8 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 			path->addAttribute("stroke-linecap", _linecap == 1 ? "round" : "square");
 		if (_linejoin > 0)    // default value is "miter", no need to set it explicitly
 			path->addAttribute("stroke-linejoin", _linecap == 1 ? "round" : "bevel");
-		if (_opacityalpha < 1 || _shapealpha < 1)
-			path->addAttribute("stroke-opacity", _opacityalpha*_shapealpha);
+		if (_strokealpha[0] < 1 || _strokealpha[1] < 1)
+			path->addAttribute("stroke-opacity", _strokealpha[0] * _strokealpha[1]);
 		if (_blendmode > 0 && _blendmode < 16)
 			path->addAttribute("style", "mix-blend-mode:"+css_blendmode_name(_blendmode));
 		if (!_dashpattern.empty()) {
@@ -750,8 +752,8 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 	}
 	if (evenodd)  // SVG default fill rule is "nonzero" algorithm
 		path->addAttribute("fill-rule", "evenodd");
-	if (_opacityalpha < 1 || _shapealpha < 1)
-		path->addAttribute("fill-opacity", _opacityalpha*_shapealpha);
+	if (_fillalpha[0] < 1 || _fillalpha[1] < 1)
+		path->addAttribute("fill-opacity", _fillalpha[0] * _fillalpha[1]);
 	if (_blendmode > 0 && _blendmode < 16)
 		path->addAttribute("style", "mix-blend-mode:"+css_blendmode_name(_blendmode));
 	if (_xmlnode)
@@ -960,7 +962,7 @@ void PsSpecialHandler::clip (Path path, bool evenodd) {
 	if (!_actions->getMatrix().isIdentity())
 		path.transform(_actions->getMatrix());
 	if (_clipStack.prependedPath())
-		path.prepend(*_clipStack.prependedPath());
+		path = PathClipper().unite(*_clipStack.prependedPath(), path);
 
 	int oldID = _clipStack.topID();
 
@@ -973,9 +975,7 @@ void PsSpecialHandler::clip (Path path, bool evenodd) {
 	else {
 		// compute the intersection of the current clipping path with the current graphics path
 		const Path *oldPath = _clipStack.path();
-		Path intersectedPath(windingRule);
-		PathClipper clipper;
-		clipper.intersect(*oldPath, path, intersectedPath);
+		Path intersectedPath = PathClipper().intersect(*oldPath, path);
 		pathReplaced = _clipStack.replace(intersectedPath);
 		intersectedPath.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
 	}

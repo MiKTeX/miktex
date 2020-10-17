@@ -39,9 +39,9 @@ SVGOptimizer::SVGOptimizer (SVGTree *svg) : _svg(svg) {
 	// optimizer modules available to the user; must be listed in default order
 //	_moduleEntries.emplace_back(ModuleEntry("remove-ws", util::make_unique<WSNodeRemover>()));
 	_moduleEntries.emplace_back(ModuleEntry("simplify-text", util::make_unique<TextSimplifier>()));
+	_moduleEntries.emplace_back(ModuleEntry("simplify-transform", util::make_unique<TransformSimplifier>()));
 	_moduleEntries.emplace_back(ModuleEntry("group-attributes", util::make_unique<AttributeExtractor>()));
 	_moduleEntries.emplace_back(ModuleEntry("collapse-groups", util::make_unique<GroupCollapser>()));
-	_moduleEntries.emplace_back(ModuleEntry("simplify-transform", util::make_unique<TransformSimplifier>()));
 	_moduleEntries.emplace_back(ModuleEntry("remove-clippath", util::make_unique<RedundantElementRemover>()));
 }
 

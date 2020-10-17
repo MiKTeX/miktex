@@ -25,8 +25,23 @@
 #include <vector>
 
 class FileSystem {
+	class TemporaryDirectory {
+		friend class FileSystem;
+		public:
+			TemporaryDirectory (const std::string &folder, std::string prefix);
+			TemporaryDirectory (TemporaryDirectory &&tmpdir) =default;
+			~TemporaryDirectory ();
+			TemporaryDirectory& operator = (TemporaryDirectory &&tmpdir) =default;
+			const std::string& path () const {return _path;}
+
+		protected:
+			TemporaryDirectory () =default;
+
+		private:
+			std::string _path;
+	};
+
 	public:
-		~FileSystem ();
 		static bool remove (const std::string &fname);
 		static bool rename (const std::string &oldname, const std::string &newname);
 		static bool copy (const std::string &src, const std::string &dest, bool remove_src=false);
@@ -48,8 +63,9 @@ class FileSystem {
 
 	protected:
 		FileSystem () =default;
-		bool system_tmpdir_available ();
-		static const char* TMPSUBDIR; ///< subdirectory of the system's temporary folder
+
+	private:
+		static TemporaryDirectory _tmpdir;
 };
 
 #endif

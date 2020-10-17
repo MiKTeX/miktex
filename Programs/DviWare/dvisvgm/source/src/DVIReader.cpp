@@ -19,8 +19,6 @@
 *************************************************************************/
 
 #include <algorithm>
-#include <cstdarg>
-#include <fstream>
 #include <sstream>
 #include "Color.hpp"
 #include "DVIActions.hpp"
@@ -28,6 +26,7 @@
 #include "Font.hpp"
 #include "FontManager.hpp"
 #include "HashFunction.hpp"
+#include "utility.hpp"
 #include "VectorStream.hpp"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/PathNameUtil>
@@ -508,30 +507,68 @@ void DVIReader::cmdFontNum (int len) {
 }
 
 
+/** Parses a sequence of font attributes given as key1=val1;key2=val2;...;keyn=valn */
+static map<string,string> parse_font_attribs (const string &str) {
+	map<string,string> attribs;
+	if (!str.empty()) {
+		for (const string &attr : util::split(str, ";")) {
+			vector<string> keyval = util::split(attr, "=");
+			if (keyval.size() == 2)
+				attribs[keyval[0]] = keyval[1];
+		}
+	}
+	return attribs;
+}
+
+
 /** Helper function to handle a font definition.
  *  @param[in] fontnum local font number
- *  @param[in] name font name
+ *  @param[in] name font name (or file path if enclosed in square brackets)
  *  @param[in] cs checksum to be compared with TFM checksum
- *  @param[in] ds design size in PS point units
- *  @param[in] ss scaled size in PS point units */
-const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_t cs, double ds, double ss) {
+ *  @param[in] dsize design size of font in PS point units
+ *  @param[in] ssize scaled size of font in PS point units */
+const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_t cs, double dsize, double ssize) {
 	FontManager &fm = FontManager::instance();
 	Font *font = fm.getFont(fontnum);
-	if (!font) {
-		int id = fm.registerFont(fontnum, name, cs, ds, ss);
-		font = fm.getFontById(id);
-		if (auto vf = dynamic_cast<VirtualFont*>(font)) {
-			// read vf file, register its font and character definitions
-			fm.enterVF(vf);
+	if (!font && !name.empty()) {  // font not registered yet?
+		if (name[0] == '[') {       // LuaTeX native font reference?
+			size_t last = name.rfind(']');
+			if (last != string::npos) {
+				string path = name.substr(1, last-1);
+				FontStyle style;
+				int fontIndex=0;
+				if (name.size() > last && name[last+1] == ':') {  // look for font attributes?
+					auto attribs = parse_font_attribs(name.substr(last+2));
+					auto it = attribs.begin();
+					if ((it = attribs.find("index")) != attribs.end())
+						fontIndex = stoi(it->second);
+					if ((it = attribs.find("embolden")) != attribs.end())
+						style.bold = stoi(it->second)/65536.0;
+					if ((it = attribs.find("extend")) != attribs.end())
+						style.extend = stoi(it->second)/65536.0;
+					if ((it = attribs.find("slant")) != attribs.end())
+						style.slant = stoi(it->second)/65536.0;
+				}
+				int id = fm.registerFont(fontnum, path, fontIndex, ssize, style, Color::BLACK);
+				font = fm.getFontById(id);
+			}
+		}
+		else {  // TFM-based font specified by name
+			int id = fm.registerFont(fontnum, name, cs, dsize, ssize);
+			font = fm.getFontById(id);
+			if (auto vf = dynamic_cast<VirtualFont*>(font)) {
+				// read vf file, register its font and character definitions
+				fm.enterVF(vf);
 #if defined(MIKTEX_WINDOWS)
-                        ifstream ifs(EXPATH_(vf->path()), ios::binary);
+				ifstream ifs(EXPATH_(vf->path()), ios::binary);
 #else
-			ifstream ifs(vf->path(), ios::binary);
+				ifstream ifs(vf->path(), ios::binary);
 #endif
-			VFReader vfReader(ifs);
-			vfReader.replaceActions(this);
-			vfReader.executeAll();
-			fm.leaveVF();
+				VFReader vfReader(ifs);
+				vfReader.replaceActions(this);
+				vfReader.executeAll();
+				fm.leaveVF();
+			}
 		}
 	}
 	return font;

@@ -66,7 +66,7 @@ class MD5HashFunction : public HashFunction {
 		void update (const std::string &data) override {update(data.data(), data.length());}
 		void update (const std::vector<uint8_t> &data) override {update(reinterpret_cast<const char*>(data.data()), data.size());}
 
-		std::vector<uint8_t> digestValue () const override {
+		std::vector<uint8_t> digestBytes () const override {
 			std::vector<uint8_t> hash(16);
 #if defined(MIKTEX)
                         auto tmpContext = md5Builder;

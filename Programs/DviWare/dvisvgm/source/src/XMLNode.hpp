@@ -157,7 +157,7 @@ class XMLElement : public XMLNode {
 		const XMLElement* toElement () const override {return this;}
 		const Attribute* getAttribute (const std::string &name) const;
 
-		static std::unique_ptr<XMLNode> remove (XMLNode *child);
+		static std::unique_ptr<XMLNode> detach (XMLNode *node);
 		static XMLElement* wrap (XMLNode *first, XMLNode *last, const std::string &name);
 		static XMLNode* unwrap (XMLElement *child);
 

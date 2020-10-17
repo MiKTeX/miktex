@@ -20,12 +20,14 @@
 
 #include <config.h>
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include "FileSystem.hpp"
 #include "utility.hpp"
 #include "version.hpp"
+#include "XXHashFunction.hpp"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -62,7 +64,7 @@ using namespace std;
 
 
 string FileSystem::TMPDIR;
-const char *FileSystem::TMPSUBDIR = nullptr;
+FileSystem::TemporaryDirectory FileSystem::_tmpdir;
 
 
 /** Private wrapper function for mkdir: creates a single folder.
@@ -95,13 +97,6 @@ static bool inline s_rmdir (const string &dirname) {
 #else
 	return (::rmdir(dirname.c_str()) == 0);
 #endif
-}
-
-
-FileSystem::~FileSystem () {
-	// remove the subdirectory from the system's temp folder (if empty)
-	if (TMPSUBDIR)
-		s_rmdir(tmpdir());
 }
 
 
@@ -232,42 +227,35 @@ const char* FileSystem::userdir () {
 
 /** Returns the path of the temporary folder. */
 string FileSystem::tmpdir () {
-	string ret;
-	if (!TMPDIR.empty())
-		ret = TMPDIR;
-	else {
+	if (_tmpdir.path().empty()) {
+		string basedir;
+		if (!TMPDIR.empty())
+			basedir = TMPDIR;
+		else {
+#ifdef _WIN32
 #if defined(MIKTEX)
           MiKTeX::Core::PathName tmpdir;
           tmpdir.SetToTempDirectory();
-          ret = tmpdir.ToString();
+	  basedir = tmpdir.ToString();
 #else
-#ifdef _WIN32
-		char buf[MAX_PATH];
-		if (GetTempPath(MAX_PATH, buf))
-			ret = ensureForwardSlashes(buf);
-		else
-			ret = ".";
-#else
-		if (const char *path = getenv("TMPDIR"))
-			ret = path;
-		else
-			ret = "/tmp";
+			char buf[MAX_PATH];
+			if (GetTempPath(MAX_PATH, buf))
+				basedir = ensureForwardSlashes(buf);
+			else
+				basedir = ".";
 #endif
-		if (ret.back() == '/')
-			ret.pop_back();
-		static bool initialized=false;
-		if (!initialized && ret != ".") {
-			TMPSUBDIR = PROGRAM_NAME;
-			s_mkdir(ret + "/" + TMPSUBDIR);
-			initialized = true;
+#else
+			if (const char *path = getenv("TMPDIR"))
+				basedir = path;
+			else
+				basedir = "/tmp";
+#endif
+			if (basedir.back() == '/')
+				basedir.pop_back();
 		}
-		if (TMPSUBDIR)
-			ret += string("/") + TMPSUBDIR;
-#endif
+		_tmpdir = TemporaryDirectory(basedir, PROGRAM_NAME);
 	}
-	if (!ret.empty() && ret.back() != '/')
-		ret += '/';
-	return ret;
+	return _tmpdir.path();
 }
 
 
@@ -445,4 +433,34 @@ int FileSystem::collect (const std::string &dirname, vector<string> &entries) {
 #endif
 #endif
 	return entries.size();
+}
+
+
+/** Creates a temporary directory in a given folder.
+ *  @param[in] folder folder path in which the directory is to be created
+ *  @param[in] prefix initial string of the directory name */
+FileSystem::TemporaryDirectory::TemporaryDirectory (const std::string &folder, string prefix) {
+	using namespace std::chrono;
+	auto now = system_clock::now().time_since_epoch();
+	auto now_ms = duration_cast<milliseconds>(now).count();
+	auto hash = XXH64HashFunction(to_string(now_ms)).digestValue();
+	if (!prefix.empty() && prefix.back() != '-')
+		prefix += "-";
+	for (int i=0; i < 10 && _path.empty(); i++) {
+		hash++;
+		stringstream oss;
+		oss << folder << '/' << prefix << hex << hash;
+		if (exists(oss.str()))
+			continue;
+		if (s_mkdir(oss.str()))
+			_path = oss.str() + "/";
+		else
+			break;
+	}
+}
+
+
+FileSystem::TemporaryDirectory::~TemporaryDirectory () {
+	if (!_path.empty())
+		s_rmdir(_path);
 }

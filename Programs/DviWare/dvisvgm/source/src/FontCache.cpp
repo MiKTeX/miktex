@@ -168,7 +168,7 @@ bool FontCache::write (const string &fontname, ostream &os) const {
 	XXH32HashFunction hashfunc;
 
 	sw.writeUnsigned(FORMAT_VERSION, 1, hashfunc);
-	sw.writeBytes(hashfunc.digestValue());  // space for checksum
+	sw.writeBytes(hashfunc.digestBytes());  // space for checksum
 	sw.writeString(fontname, hashfunc, true);
 	sw.writeUnsigned(_glyphs.size(), 4, hashfunc);
 	WriteActions actions(sw, hashfunc);
@@ -179,7 +179,7 @@ bool FontCache::write (const string &fontname, ostream &os) const {
 		glyph.iterate(actions, false);
 	}
 	os.seekp(1);
-	auto digest = hashfunc.digestValue();
+	auto digest = hashfunc.digestBytes();
 	sw.writeBytes(digest);  // insert checksum
 	os.seekp(0, ios::end);
 	return true;
@@ -227,7 +227,7 @@ bool FontCache::read (const string &fontname, istream &is) {
 
 	auto hashcmp = sr.readBytes(hashfunc.digestSize());
 	hashfunc.update(is);
-	if (hashfunc.digestValue() != hashcmp)
+	if (hashfunc.digestBytes() != hashcmp)
 		return false;
 
 	is.clear();
@@ -325,7 +325,7 @@ bool FontCache::fontinfo (std::istream &is, FontInfo &info) {
 
 			info.checksum = sr.readBytes(hashfunc.digestSize());
 			hashfunc.update(is);
-			if (hashfunc.digestValue() != info.checksum)
+			if (hashfunc.digestBytes() != info.checksum)
 				return false;
 
 			is.clear();

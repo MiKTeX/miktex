@@ -64,6 +64,6 @@ void RedundantElementRemover::execute (XMLElement *defs, XMLElement *context) {
 	descendants.clear();
 	for (const string &str : idTree.getKeys()) {
 		XMLElement *node = defs->getFirstDescendant("clipPath", "id", str.c_str());
-		XMLElement::remove(node);
+		XMLElement::detach(node);
 	}
 }

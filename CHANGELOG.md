@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 20.11
+
+### Upgraded programs
+
+* dvisvgm 2.10.1
+
 ## 20.10 - 2020-10-12
 
 ### Fixed issues

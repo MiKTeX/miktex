@@ -74,7 +74,7 @@ class DVIReader : public BasicDVIReader, public VFActions {
 		virtual void moveDown (double dy, MoveMode mode);
 		void putVFChar (Font *font, uint32_t c);
 		double putGlyphArray (bool xonly, std::vector<double> &dx, std::vector<double> &dy, std::vector<uint16_t> &glyphs);
-		const Font* defineFont (uint32_t fontnum, const std::string &name, uint32_t cs, double ds, double ss);
+		const Font* defineFont (uint32_t fontnum, const std::string &name, uint32_t cs, double dsize, double ssize);
 		void setFont (int num, SetFontMode mode);
 		const DVIState& dviState() const {return _dviState;}
 		double dvi2bp () const {return _dvi2bp;}

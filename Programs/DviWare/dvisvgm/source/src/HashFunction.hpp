@@ -35,7 +35,7 @@ class HashFunction {
 		virtual void update (const char *data, size_t length) =0;
 		virtual void update (const std::string &data) =0;
 		virtual void update (const std::vector<uint8_t> &data) =0;
-		virtual std::vector<uint8_t> digestValue () const =0;
+		virtual std::vector<uint8_t> digestBytes () const =0;
 		void update (std::istream &is);
 		std::string digestString () const;
 		static std::vector<std::string> supportedAlgorithms ();

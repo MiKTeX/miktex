@@ -36,6 +36,7 @@ struct XXHInterface {
 template<>
 struct XXHInterface<4> {
 	using State = XXH32_state_t;
+	using Digest = XXH32_hash_t;
 	static constexpr auto createState = &XXH32_createState;
 	static constexpr auto freeState = &XXH32_freeState;
 	static constexpr auto reset = &XXH32_reset;
@@ -46,6 +47,7 @@ struct XXHInterface<4> {
 template<>
 struct XXHInterface<8> {
 	using State = XXH64_state_t;
+	using Digest = XXH64_hash_t;
 	static constexpr auto createState = &XXH64_createState;
 	static constexpr auto freeState = &XXH64_freeState;
 	static constexpr auto reset = &XXH64_reset;
@@ -57,6 +59,7 @@ struct XXHInterface<8> {
 template<>
 struct XXHInterface<16> {
 	using State = XXH3_state_t;
+	using Digest = XXH128_hash_t;
 	static constexpr auto createState = &XXH3_createState;
 	static constexpr auto freeState = &XXH3_freeState;
 	static constexpr auto reset = &XXH3_128bits_reset_withSeed;
@@ -71,7 +74,7 @@ class XXHashFunction : public HashFunction {
 	using Interface = XXHInterface<HASH_BYTES>;
 	public:
 		XXHashFunction () : _state(Interface::createState()) {Interface::reset(_state, 0);}
-		XXHashFunction(const char *data, size_t length) : XXHashFunction() {update(data, length);}
+		XXHashFunction (const char *data, size_t length) : XXHashFunction() {update(data, length);}
 		explicit XXHashFunction(const std::string &data) : XXHashFunction() {update(data);}
 		explicit XXHashFunction(const std::vector<uint8_t> &data) : XXHashFunction() {update(data);}
 		~XXHashFunction () override {Interface::freeState(_state);}
@@ -83,10 +86,11 @@ class XXHashFunction : public HashFunction {
 
 		using HashFunction::update;  // unhide update(istream &is) defined in base class
 
-		std::vector<uint8_t> digestValue () const override {
+		std::vector<uint8_t> digestBytes () const override {
 			return util::bytes(Interface::digest(_state), HASH_BYTES);
 		}
 
+		typename Interface::Digest digestValue () const {return Interface::digest(_state);}
 		static unsigned version () {return XXH_versionNumber();}
 
 	private:
@@ -100,7 +104,7 @@ using XXH64HashFunction = XXHashFunction<8>;
 using XXH128HashFunction = XXHashFunction<16>;
 
 template<>
-inline std::vector<uint8_t> XXHashFunction<16>::digestValue () const {
+inline std::vector<uint8_t> XXHashFunction<16>::digestBytes () const {
 	std::vector<uint8_t> hash;
 	auto digest = Interface::digest(_state);
 	for (auto chunk : {digest.high64, digest.low64}) {

@@ -73,10 +73,13 @@ set(libxxhash_sources
 
 set(libbrotli_sources
   ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
+  source/libs/brotli/common/constants.c
   source/libs/brotli/common/constants.h
+  source/libs/brotli/common/context.c
   source/libs/brotli/common/context.h
   source/libs/brotli/common/dictionary.c
   source/libs/brotli/common/dictionary.h
+  source/libs/brotli/common/platform.c
   source/libs/brotli/common/platform.h
   source/libs/brotli/common/transform.c
   source/libs/brotli/common/transform.h
@@ -98,6 +101,7 @@ set(libbrotli_sources
   source/libs/brotli/enc/cluster.c
   source/libs/brotli/enc/cluster.h
   source/libs/brotli/enc/cluster_inc.h
+  source/libs/brotli/enc/command.c
   source/libs/brotli/enc/command.h
   source/libs/brotli/enc/compress_fragment.c
   source/libs/brotli/enc/compress_fragment.h
@@ -111,6 +115,7 @@ set(libbrotli_sources
   source/libs/brotli/enc/entropy_encode.c
   source/libs/brotli/enc/entropy_encode.h
   source/libs/brotli/enc/entropy_encode_static.h
+  source/libs/brotli/enc/fast_log.c
   source/libs/brotli/enc/fast_log.h
   source/libs/brotli/enc/find_match_length.h
   source/libs/brotli/enc/hash.h

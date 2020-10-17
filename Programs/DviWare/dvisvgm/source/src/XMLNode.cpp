@@ -263,7 +263,7 @@ XMLElement* XMLElement::wrap (XMLNode *first, XMLNode *last, const string &name)
 	XMLNode *child = first;
 	while (child && child != last) {
 		XMLNode *next = child->next();
-		wrapper->insertLast(remove(child));
+		wrapper->insertLast(detach(child));
 		child = next;
 	}
 	XMLElement *ret = wrapper.get();
@@ -281,44 +281,41 @@ XMLElement* XMLElement::wrap (XMLNode *first, XMLNode *last, const string &name)
  *  Example: unwrap a child element b of a:
  *  <a>text1<b><c/>text2<d/></b></a> => <a>text1<c/>text2<d/></a>
  *  @param[in] child child element to unwrap
- *  @return raw pointer to the first node C1 of the unwrapped sequence */
-XMLNode* XMLElement::unwrap (XMLElement *child) {
-	if (!child || !child->parent())
+ *  @return raw pointer to the first node C1 of the unwrapped sequence or nullptr if element was empty */
+XMLNode* XMLElement::unwrap (XMLElement *element) {
+	if (!element || !element->parent())
 		return nullptr;
-	XMLElement *parent = child->parent()->toElement();
-	auto removedChild = remove(child);
-	if (child->empty())
-		return child->next();
-	XMLNode *firstGrandchild = child->firstChild();
-	XMLNode *prev = child->prev();
-	unique_ptr<XMLNode> grandchild = std::move(child->_firstChild);
-	while (grandchild) {
-		prev = parent->insertAfter(std::move(grandchild), prev);
-		grandchild = std::move(prev->_next);
-	}
-	return firstGrandchild;
+	XMLElement *parent = element->parent()->toElement();
+	XMLNode *prev = element->prev();
+	auto detachedElement = util::static_unique_ptr_cast<XMLElement>(detach(element));
+	if (detachedElement->empty())
+		return nullptr;
+	XMLNode *firstChild = detachedElement->firstChild();
+	while (auto child = detach(detachedElement->firstChild()))
+		prev = parent->insertAfter(std::move(child), prev);
+	return firstChild;
 }
 
 
-/** Removes a child node from the element.
- *  @param[in] child pointer to child to remove
- *  @return pointer to removed child or nullptr if given child doesn't belong to this element */
-unique_ptr<XMLNode> XMLElement::remove (XMLNode *child) {
-	unique_ptr<XMLNode> node;
-	if (child && child->parent()) {
-		XMLElement *parent = child->parent()->toElement();
-		if (child == parent->_lastChild)
-			parent->_lastChild = child->prev();
-		if (child != parent->firstChild())
-			node = child->prev()->removeNext();
+/** Isolates a node and its descendants from a subtree.
+ *  @param[in] node raw pointer to node to be detached
+ *  @return unique pointer to the detached node. */
+unique_ptr<XMLNode> XMLElement::detach (XMLNode *node) {
+	unique_ptr<XMLNode> uniqueNode;
+	if (node && node->parent()) {
+		XMLElement *parent = node->parent()->toElement();
+		if (node == parent->_lastChild)
+			parent->_lastChild = node->prev();
+		if (node != parent->firstChild())
+			uniqueNode = node->prev()->removeNext();
 		else {
-			node = std::move(parent->_firstChild);
-			if ((parent->_firstChild = std::move(node->_next)))
+			uniqueNode = std::move(parent->_firstChild);
+			if ((parent->_firstChild = std::move(uniqueNode->_next)))
 				parent->_firstChild->prev(nullptr);
 		}
-		child->parent(nullptr);
+		node->parent(nullptr);
 	}
-	return node;
+	return uniqueNode;
 }
 
 
