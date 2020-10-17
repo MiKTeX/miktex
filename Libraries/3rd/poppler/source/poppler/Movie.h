@@ -1,11 +1,11 @@
 //*********************************************************************************
 //                               Movie.h
 //---------------------------------------------------------------------------------
-// 
+//
 //---------------------------------------------------------------------------------
 // Hugo Mercier <hmercier31[at]gmail.com> (c) 2008
 // Carlos Garcia Campos <carlosgc@gnome.org> (c) 2010
-// Albert Astals Cid <aacid@kde.org> (c) 2017
+// Albert Astals Cid <aacid@kde.org> (c) 2017-2019
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,86 +27,94 @@
 
 #include "Object.h"
 
-struct MovieActivationParameters {
+struct MovieActivationParameters
+{
 
-  MovieActivationParameters();
-  ~MovieActivationParameters();
+    MovieActivationParameters();
+    ~MovieActivationParameters();
 
-  // parse from a "Movie Activation" dictionary
-  void parseMovieActivation(Object* actObj);
+    // parse from a "Movie Activation" dictionary
+    void parseMovieActivation(const Object *aDict);
 
-  enum MovieRepeatMode {
-    repeatModeOnce,
-    repeatModeOpen,
-    repeatModeRepeat,
-    repeatModePalindrome
-  };
+    enum MovieRepeatMode
+    {
+        repeatModeOnce,
+        repeatModeOpen,
+        repeatModeRepeat,
+        repeatModePalindrome
+    };
 
-  struct MovieTime {
-    MovieTime() { units_per_second = 0; }
-    Gulong units;
-    int units_per_second; // 0 : defined by movie
-  };
+    struct MovieTime
+    {
+        MovieTime() { units_per_second = 0; }
+        unsigned long units;
+        int units_per_second; // 0 : defined by movie
+    };
 
-  MovieTime start;                         // 0
-  MovieTime duration;                      // 0
+    MovieTime start; // 0
+    MovieTime duration; // 0
 
-  double rate;                             // 1.0
+    double rate; // 1.0
 
-  int volume;                              // 100
+    int volume; // 100
 
-  GBool showControls;                      // false
+    bool showControls; // false
 
-  GBool synchronousPlay;                   // false
-  MovieRepeatMode repeatMode;              // repeatModeOnce
+    bool synchronousPlay; // false
+    MovieRepeatMode repeatMode; // repeatModeOnce
 
-  // floating window position
-  GBool floatingWindow;
-  double xPosition;                        // 0.5
-  double yPosition;                        // 0.5
-  int znum;                                // 1
-  int zdenum;                              // 1
+    // floating window position
+    bool floatingWindow;
+    double xPosition; // 0.5
+    double yPosition; // 0.5
+    int znum; // 1
+    int zdenum; // 1
 };
 
-class Movie {
- public:
-  Movie(Object *objMovie, Object *objAct);
-  Movie(Object *objMovie);
-  Movie(const Movie &movie);
-  ~Movie();
+class Movie
+{
+public:
+    Movie(const Object *movieDict, const Object *aDict);
+    Movie(const Object *movieDict);
+    Movie(const Movie &other);
+    ~Movie();
+    Movie &operator=(const Movie &) = delete;
 
-  GBool isOk() { return ok; }
-  MovieActivationParameters* getActivationParameters() { return &MA; }
+    bool isOk() const { return ok; }
+    const MovieActivationParameters *getActivationParameters() const { return &MA; }
 
-  GooString* getFileName() { return fileName; }
+    const GooString *getFileName() const { return fileName; }
 
-  Gushort getRotationAngle() { return rotationAngle; }
-  void getAspect (int *widthA, int *heightA) { *widthA = width; *heightA = height; }
+    unsigned short getRotationAngle() const { return rotationAngle; }
+    void getAspect(int *widthA, int *heightA) const
+    {
+        *widthA = width;
+        *heightA = height;
+    }
 
-  Object getPoster() { return poster.copy(); }
-  GBool getShowPoster() { return showPoster; }
+    Object getPoster() const { return poster.copy(); }
+    bool getShowPoster() const { return showPoster; }
 
-  GBool getUseFloatingWindow() { return MA.floatingWindow; }
-  void  getFloatingWindowSize(int *width, int *height);
+    bool getUseFloatingWindow() const { return MA.floatingWindow; }
+    void getFloatingWindowSize(int *width, int *height);
 
-  Movie* copy();
+    Movie *copy() const;
 
- private:
-  void parseMovie (Object *movieDict);
+private:
+    void parseMovie(const Object *movieDict);
 
-  GBool ok;
+    bool ok;
 
-  Gushort rotationAngle;                   // 0
-  int width;                               // Aspect
-  int height;                              // Aspect
+    unsigned short rotationAngle; // 0
+    int width; // Aspect
+    int height; // Aspect
 
-  Object poster;
-  GBool showPoster;
+    Object poster;
+    bool showPoster;
 
-  GooString* fileName;
+    GooString *fileName;
 
-  MovieActivationParameters MA;
+    MovieActivationParameters MA;
 };
 
 #endif
-

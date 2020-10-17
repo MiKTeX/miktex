@@ -12,7 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2018 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -22,11 +22,6 @@
 #ifndef SPLASHFONTFILE_H
 #define SPLASHFONTFILE_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
-#include "goo/gtypes.h"
 #include "SplashTypes.h"
 
 class GooString;
@@ -38,58 +33,64 @@ class SplashFontFileID;
 // SplashFontFile
 //------------------------------------------------------------------------
 
-class SplashFontSrc {
+class SplashFontSrc
+{
 public:
-  SplashFontSrc();
+    SplashFontSrc();
 
-  void setFile(GooString *file, GBool del);
-  void setFile(const char *file, GBool del);
-  void setBuf(char *bufA, int buflenA, GBool del);
+    SplashFontSrc(const SplashFontSrc &) = delete;
+    SplashFontSrc &operator=(const SplashFontSrc &) = delete;
 
-  void ref();
-  void unref();
+    void setFile(GooString *file, bool del);
+    void setFile(const char *file, bool del);
+    void setBuf(char *bufA, int buflenA, bool del);
 
-  GBool isFile;
-  GooString *fileName;
-  char *buf;
-  int bufLen;
+    void ref();
+    void unref();
+
+    bool isFile;
+    GooString *fileName;
+    char *buf;
+    int bufLen;
 
 private:
-  ~SplashFontSrc();
-  int refcnt;
-  GBool deleteSrc;
+    ~SplashFontSrc();
+    int refcnt;
+    bool deleteSrc;
 };
 
-class SplashFontFile {
+class SplashFontFile
+{
 public:
+    virtual ~SplashFontFile();
 
-  virtual ~SplashFontFile();
+    SplashFontFile(const SplashFontFile &) = delete;
+    SplashFontFile &operator=(const SplashFontFile &) = delete;
 
-  // Create a new SplashFont, i.e., a scaled instance of this font
-  // file.
-  virtual SplashFont *makeFont(SplashCoord *mat, SplashCoord *textMat) = 0;
+    // Create a new SplashFont, i.e., a scaled instance of this font
+    // file.
+    virtual SplashFont *makeFont(SplashCoord *mat, const SplashCoord *textMat) = 0;
 
-  // Get the font file ID.
-  SplashFontFileID *getID() { return id; }
+    // Get the font file ID.
+    SplashFontFileID *getID() { return id; }
 
-  // Increment the reference count.
-  void incRefCnt();
+    // Increment the reference count.
+    void incRefCnt();
 
-  // Decrement the reference count.  If the new value is zero, delete
-  // the SplashFontFile object.
-  void decRefCnt();
+    // Decrement the reference count.  If the new value is zero, delete
+    // the SplashFontFile object.
+    void decRefCnt();
 
-  GBool doAdjustMatrix;
+    bool doAdjustMatrix;
 
 protected:
+    SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA);
 
-  SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA);
+    SplashFontFileID *id;
+    SplashFontSrc *src;
+    int refCnt;
 
-  SplashFontFileID *id;
-  SplashFontSrc *src;
-  int refCnt;
-
-  friend class SplashFontEngine;
+    friend class SplashFontEngine;
 };
 
 #endif

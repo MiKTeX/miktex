@@ -30,30 +30,29 @@
 
 class OCGs;
 
-namespace Poppler
-{
-  class Document;
-  class OptContentModelPrivate;
+namespace Poppler {
+class Document;
+class OptContentModelPrivate;
 
-  /**
-   * \brief Model for optional content
-   *
-   * OptContentModel is an item model representing the optional content items
-   * that can be found in PDF documents.
-   *
-   * The model offers a mostly read-only display of the data, allowing to
-   * enable/disable some contents setting the Qt::CheckStateRole data role.
-   *
-   * \since 0.8
-   */
-  class POPPLER_QT5_EXPORT OptContentModel : public QAbstractItemModel
-  {
+/**
+ * \brief Model for optional content
+ *
+ * OptContentModel is an item model representing the optional content items
+ * that can be found in PDF documents.
+ *
+ * The model offers a mostly read-only display of the data, allowing to
+ * enable/disable some contents setting the Qt::CheckStateRole data role.
+ *
+ * \since 0.8
+ */
+class POPPLER_QT5_EXPORT OptContentModel : public QAbstractItemModel
+{
     friend class Document;
 
     Q_OBJECT
 
-    public:
-    ~OptContentModel();
+public:
+    ~OptContentModel() override;
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const override;
     QModelIndex parent(const QModelIndex &child) const override;
@@ -62,24 +61,24 @@ namespace Poppler
     int columnCount(const QModelIndex &parent) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole ) override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-    Qt::ItemFlags flags ( const QModelIndex & index ) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /**
      * Applies the Optional Content Changes specified by that link.
      * \since 0.50
      */
-    void applyLink( LinkOCGState *link );
+    void applyLink(LinkOCGState *link);
 
-    private:
-    OptContentModel( OCGs *optContent, QObject *parent = 0);
+private:
+    OptContentModel(OCGs *optContent, QObject *parent = nullptr);
 
     friend class OptContentModelPrivate;
     OptContentModelPrivate *d;
-  };
+};
 }
 
 #endif

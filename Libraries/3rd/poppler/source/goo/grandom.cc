@@ -6,65 +6,34 @@
  * Pseudo-random number generation
  *
  * Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
+ * Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
  */
 
-#include <config.h>
 #include "grandom.h"
-#include "gtypes.h"
 
-#ifdef HAVE_RAND_R // rand_r backend (POSIX)
+#include <random>
 
-static GBool initialized = gFalse;
+namespace {
 
-#include <stdlib.h>
-#include <time.h>
-static unsigned int seed;
-
-static void initialize() {
-  if (!initialized) {
-    seed = time(NULL);
-    initialized = gTrue;
-  }
+auto &grandom_engine()
+{
+    static thread_local std::default_random_engine engine { std::random_device {}() };
+    return engine;
 }
 
-void grandom_fill(Guchar *buff, int size)
+}
+
+void grandom_fill(unsigned char *buff, int size)
 {
-  initialize();
-  while (size--)
-    *buff++ = rand_r(&seed) % 256;
+    auto &engine = grandom_engine();
+    std::uniform_int_distribution<unsigned short> distribution { std::numeric_limits<unsigned char>::min(), std::numeric_limits<unsigned char>::max() };
+    for (int index = 0; index < size; ++index) {
+        buff[index] = distribution(engine);
+    }
 }
 
 double grandom_double()
 {
-  initialize();
-  return rand_r(&seed) / (1 + (double)RAND_MAX);
+    auto &engine = grandom_engine();
+    return std::generate_canonical<double, std::numeric_limits<double>::digits>(engine);
 }
-
-#else // srand+rand backend (unsafe, because it may interfere with the application)
-
-static GBool initialized = gFalse;
-
-#include <stdlib.h>
-#include <time.h>
-
-static void initialize() {
-  if (!initialized) {
-    srand(time(NULL));
-    initialized = gTrue;
-  }
-}
-
-void grandom_fill(Guchar *buff, int size)
-{
-  initialize();
-  while (size--)
-    *buff++ = rand() % 256;
-}
-
-double grandom_double()
-{
-  initialize();
-  return rand() / (1 + (double)RAND_MAX);
-}
-
-#endif

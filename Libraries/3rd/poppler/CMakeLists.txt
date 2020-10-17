@@ -85,14 +85,11 @@ configure_file(
 )
 
 set(poppler_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gbase64.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gbasename.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gfile.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gmempp.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooHash.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooList.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooTimer.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooString.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gmem.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/FixedPoint.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/NetPBMWriter.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/PNGWriter.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/TiffWriter.cc
@@ -101,6 +98,7 @@ set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gstrtod.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/grandom.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/glibc.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/glibc_strtok_r.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiBase.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiEncodings.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiTrueType.cc
@@ -109,8 +107,6 @@ set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiIdentifier.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Annot.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Array.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BuiltinFont.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BuiltinFontTables.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CachedFile.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Catalog.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CharCodeToUnicode.cc
@@ -131,6 +127,7 @@ set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Hints.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JArithmeticDecoder.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JBIG2Stream.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JSInfo.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Lexer.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Link.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Linearization.cc
@@ -147,7 +144,6 @@ set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/PDFDoc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/PDFDocEncoding.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/PDFDocFactory.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/PopplerCache.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/ProfileData.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/PreScanOutputDev.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/PSTokenizer.cc
@@ -155,8 +151,8 @@ set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Stream.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/StructTreeRoot.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/StructElement.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/strtok_r.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeMap.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeMapFuncs.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeTypeTable.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UTF.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/XRef.cc
@@ -168,9 +164,10 @@ set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/StdinPDFDocBuilder.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Sound.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/ViewerPreferences.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/XpdfPluginAPI.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Movie.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Rendition.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CertificateInfo.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BBoxOutputDev.cc
 )
 
 if(ENABLE_SPLASH)
@@ -190,9 +187,6 @@ if(ENABLE_SPLASH)
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashPattern.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashScreen.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashState.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashT1Font.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashT1FontEngine.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashT1FontFile.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashXPath.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashXPathScanner.cc
   )
@@ -234,17 +228,31 @@ list(APPEND poppler_sources
 )
 
 list(APPEND poppler_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CourierWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CourierBoldWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CourierBoldObliqueWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CourierObliqueWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/HelveticaWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/HelveticaBoldWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/HelveticaBoldObliqueWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/HelveticaObliqueWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SymbolWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/TimesBoldWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/TimesBoldItalicWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/TimesItalicWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/TimesRomanWidths.pregenerated.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/ZapfDingbatsWidths.pregenerated.c
+)
+
+list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiBase.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiEncodings.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiIdentifier.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiTrueType.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiType1.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiType1C.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/FixedPoint.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooHash.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooCheckedOps.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooLikely.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooList.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooMutex.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooString.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooTimer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/ImgWriter.h
@@ -252,25 +260,28 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/NetPBMWriter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/PNGWriter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/TiffWriter.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gbase64.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gbasename.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gdir.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gfile.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/glibc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gmem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/grandom.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gstrtod.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gtypes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gtypes_p.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Annot.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Array.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BBoxOutputDev.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BuiltinFont.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BuiltinFontTables.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/BuiltinFontWidth.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CMap.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CachedFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CairoFontEngine.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CairoOutputDev.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CairoRescaleBox.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Catalog.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CertificateInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CharCodeToUnicode.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CharTypes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CompactFontTables.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CurlCachedFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CurlPDFDocBuilder.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/DCTStream.h
@@ -280,6 +291,7 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Error.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/ErrorCodes.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FileSpec.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FlateEncoder.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FlateStream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FontEncodingTables.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FontInfo.h
@@ -295,6 +307,7 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JBIG2Stream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JPEG2000Stream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JPXStream.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JSInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Lexer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Linearization.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Link.h
@@ -323,6 +336,8 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/ProfileData.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Rendition.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SecurityHandler.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SignatureHandler.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SignatureInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/Sound.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SplashOutputDev.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/StdinCachedFile.h
@@ -333,16 +348,15 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/StructTreeRoot.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/TextOutputDev.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UTF.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UTF8.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeCClassTables.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeCompTables.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeDecompTables.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeMap.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeMapFuncs.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeMapTables.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/UnicodeTypeTable.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/ViewerPreferences.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/XRef.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/XpdfPluginAPI.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/Splash.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashBitmap.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashClip.h
@@ -360,9 +374,6 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashPattern.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashScreen.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashState.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashT1Font.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashT1FontEngine.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashT1FontFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashTypes.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashXPath.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashXPathScanner.h

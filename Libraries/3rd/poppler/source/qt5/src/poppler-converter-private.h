@@ -1,5 +1,5 @@
 /* poppler-converter-private.h: Qt interface to poppler
- * Copyright (C) 2007, 2009, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2007, 2009, 2018, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,18 +30,21 @@ class DocumentData;
 
 class BaseConverterPrivate
 {
-	public:
-		BaseConverterPrivate();
-		virtual ~BaseConverterPrivate();
+public:
+    BaseConverterPrivate();
+    virtual ~BaseConverterPrivate();
 
-		QIODevice* openDevice();
-		void closeDevice();
+    BaseConverterPrivate(const BaseConverterPrivate &) = delete;
+    BaseConverterPrivate &operator=(const BaseConverterPrivate &) = delete;
 
-		DocumentData *document;
-		QString outputFileName;
-		QIODevice *iodev;
-		bool ownIodev : 1;
-		BaseConverter::Error lastError;
+    QIODevice *openDevice();
+    void closeDevice();
+
+    DocumentData *document;
+    QString outputFileName;
+    QIODevice *iodev;
+    bool ownIodev : 1;
+    BaseConverter::Error lastError;
 };
 
 }

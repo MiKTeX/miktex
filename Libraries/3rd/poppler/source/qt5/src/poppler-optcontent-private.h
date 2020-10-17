@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2007, Brad Hards <bradh@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
- * Copyright (C) 2016, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2016, 2018, 2019, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2017, Hubert Figuière <hub@figuiere.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,30 +33,34 @@ class OptionalContentGroup;
 
 class QModelIndex;
 
-namespace Poppler
+namespace Poppler {
+class OptContentItem;
+class OptContentModel;
+class OptContentModelPrivate;
+
+class RadioButtonGroup
 {
-  class OptContentItem;
-  class OptContentModel;
-  class OptContentModelPrivate;
-
-  class RadioButtonGroup
-  {
-  public:
-    RadioButtonGroup( OptContentModelPrivate *ocModel, Array *rbarray);
+public:
+    RadioButtonGroup(OptContentModelPrivate *ocModel, Array *rbarray);
     ~RadioButtonGroup();
-    QSet<OptContentItem *> setItemOn( OptContentItem *itemToSetOn );
+    QSet<OptContentItem *> setItemOn(OptContentItem *itemToSetOn);
 
-  private:
-    QList<OptContentItem*> itemsInGroup;
-  };
+private:
+    QList<OptContentItem *> itemsInGroup;
+};
 
-  class OptContentItem
-  {
-    public:
-    enum ItemState { On, Off, HeadingOnly };
+class OptContentItem
+{
+public:
+    enum ItemState
+    {
+        On,
+        Off,
+        HeadingOnly
+    };
 
-    OptContentItem( OptionalContentGroup *group );
-    OptContentItem( const QString &label );
+    OptContentItem(OptionalContentGroup *group);
+    OptContentItem(const QString &label);
     OptContentItem();
     ~OptContentItem();
 
@@ -64,37 +68,42 @@ namespace Poppler
     ItemState state() const { return m_stateBackup; }
     void setState(ItemState state, bool obeyRadioGroups, QSet<OptContentItem *> &changedItems);
 
-    QList<OptContentItem*> childList() { return m_children; }
+    QList<OptContentItem *> childList() { return m_children; }
 
-    void setParent( OptContentItem* parent) { m_parent = parent; }
-    OptContentItem* parent() { return m_parent; }
+    void setParent(OptContentItem *parent) { m_parent = parent; }
+    OptContentItem *parent() { return m_parent; }
 
-    void addChild( OptContentItem *child );
+    void addChild(OptContentItem *child);
 
-    void appendRBGroup( RadioButtonGroup *rbgroup );
+    void appendRBGroup(RadioButtonGroup *rbgroup);
 
     bool isEnabled() const { return m_enabled; }
 
-    QSet<OptContentItem*> recurseListChildren(bool includeMe = false) const;
+    QSet<OptContentItem *> recurseListChildren(bool includeMe = false) const;
 
-    private:
+    OptionalContentGroup *group() const { return m_group; }
+
+private:
     OptionalContentGroup *m_group;
     QString m_name;
     ItemState m_state; // true for ON, false for OFF
     ItemState m_stateBackup;
-    QList<OptContentItem*> m_children;
+    QList<OptContentItem *> m_children;
     OptContentItem *m_parent;
-    QList<RadioButtonGroup*> m_rbGroups;
+    QList<RadioButtonGroup *> m_rbGroups;
     bool m_enabled;
-  };
+};
 
-  class OptContentModelPrivate
-  {
-    public:
-    OptContentModelPrivate( OptContentModel *qq, OCGs *optContent );
+class OptContentModelPrivate
+{
+public:
+    OptContentModelPrivate(OptContentModel *qq, OCGs *optContent);
     ~OptContentModelPrivate();
 
-    void parseRBGroupsArray( Array *rBGroupArray );
+    OptContentModelPrivate(const OptContentModelPrivate &) = delete;
+    OptContentModelPrivate &operator=(const OptContentModelPrivate &) = delete;
+
+    void parseRBGroupsArray(Array *rBGroupArray);
     OptContentItem *nodeFromIndex(const QModelIndex &index, bool canBeNull = false) const;
     QModelIndex indexFromItem(OptContentItem *node, int column) const;
 
@@ -105,20 +114,20 @@ namespace Poppler
 
        \return the matching optional content item, or null if the reference wasn't found
     */
-    OptContentItem *itemFromRef( const QString &ref ) const;
+    OptContentItem *itemFromRef(const QString &ref) const;
     void setRootNode(OptContentItem *node);
 
     OptContentModel *q;
 
-    QMap<QString, OptContentItem*> m_optContentItems;
-    QList<OptContentItem*> m_headerOptContentItems;
-    QList<RadioButtonGroup*> m_rbgroups;
+    QMap<QString, OptContentItem *> m_optContentItems;
+    QList<OptContentItem *> m_headerOptContentItems;
+    QList<RadioButtonGroup *> m_rbgroups;
     OptContentItem *m_rootNode;
 
-    private:
-    void addChild( OptContentItem *parent, OptContentItem *child);
-    void parseOrderArray( OptContentItem *parentNode, Array *orderArray );
-  };
+private:
+    void addChild(OptContentItem *parent, OptContentItem *child);
+    void parseOrderArray(OptContentItem *parentNode, Array *orderArray);
+};
 }
 
 #endif

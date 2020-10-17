@@ -10,6 +10,4 @@
 
 #include "ImgWriter.h"
 
-ImgWriter::~ImgWriter()
-{
-}
+ImgWriter::~ImgWriter() { }

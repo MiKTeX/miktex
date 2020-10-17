@@ -17,9 +17,6 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#if defined(MIKTEX)
-#  include <config.h>
-#endif
 #include "poppler-qt5.h"
 
 #include "poppler-private.h"
@@ -34,85 +31,73 @@ namespace Poppler {
 
 class PDFConverterPrivate : public BaseConverterPrivate
 {
-	public:
-		PDFConverterPrivate();
+public:
+    PDFConverterPrivate();
 
-		PDFConverter::PDFOptions opts;
+    PDFConverter::PDFOptions opts;
 };
 
-PDFConverterPrivate::PDFConverterPrivate()
-	: BaseConverterPrivate(), opts(0)
+PDFConverterPrivate::PDFConverterPrivate() : BaseConverterPrivate(), opts(nullptr) { }
+
+PDFConverter::PDFConverter(DocumentData *document) : BaseConverter(*new PDFConverterPrivate())
 {
+    Q_D(PDFConverter);
+    d->document = document;
 }
 
-
-PDFConverter::PDFConverter(DocumentData *document)
-	: BaseConverter(*new PDFConverterPrivate())
-{
-	Q_D(PDFConverter);
-	d->document = document;
-}
-
-PDFConverter::~PDFConverter()
-{
-}
+PDFConverter::~PDFConverter() { }
 
 void PDFConverter::setPDFOptions(PDFConverter::PDFOptions options)
 {
-	Q_D(PDFConverter);
-	d->opts = options;
+    Q_D(PDFConverter);
+    d->opts = options;
 }
 
 PDFConverter::PDFOptions PDFConverter::pdfOptions() const
 {
-	Q_D(const PDFConverter);
-	return d->opts;
+    Q_D(const PDFConverter);
+    return d->opts;
 }
 
 bool PDFConverter::convert()
 {
-	Q_D(PDFConverter);
-	d->lastError = NoError;
+    Q_D(PDFConverter);
+    d->lastError = NoError;
 
-	if (d->document->locked)
-	{
-		d->lastError = FileLockedError;
-		return false;
-	}
+    if (d->document->locked) {
+        d->lastError = FileLockedError;
+        return false;
+    }
 
-	QIODevice *dev = d->openDevice();
-	if (!dev)
-	{
-		d->lastError = OpenOutputError;
-		return false;
-	}
+    QIODevice *dev = d->openDevice();
+    if (!dev) {
+        d->lastError = OpenOutputError;
+        return false;
+    }
 
-	bool deleteFile = false;
-	if (QFile *file = qobject_cast<QFile*>(dev))
-		deleteFile = !file->exists();
+    bool deleteFile = false;
+    if (QFile *file = qobject_cast<QFile *>(dev))
+        deleteFile = !file->exists();
 
-	int errorCode = errNone;
-	QIODeviceOutStream stream(dev);
-	if (d->opts & WithChanges)
-	{
-		errorCode = d->document->doc->saveAs(&stream);
-	}
-	else
-	{
-		errorCode = d->document->doc->saveWithoutChangesAs(&stream);
-	}
-	d->closeDevice();
-	if (errorCode != errNone)
-	{
-		if (deleteFile)
-		{
-			qobject_cast<QFile*>(dev)->remove();
-		}
-		if (errorCode == errOpenFile) d->lastError = OpenOutputError;
-		else d->lastError = NotSupportedInputFileError;
-	}
+    int errorCode = errNone;
+    QIODeviceOutStream stream(dev);
+    if (d->opts & WithChanges) {
+        errorCode = d->document->doc->saveAs(&stream);
+    } else {
+        errorCode = d->document->doc->saveWithoutChangesAs(&stream);
+    }
+    d->closeDevice();
+    if (errorCode != errNone) {
+        if (deleteFile) {
+            qobject_cast<QFile *>(dev)->remove();
+        }
+        if (errorCode == errOpenFile)
+            d->lastError = OpenOutputError;
+        else
+            d->lastError = NotSupportedInputFileError;
+    }
 
-	return (errorCode == errNone);
+    return (errorCode == errNone);
 }
 
 }

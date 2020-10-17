@@ -5,13 +5,13 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
+// Copyright 2019 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
 #ifndef LINEARIZATION_H
 #define LINEARIZATION_H
 
-#include "goo/gtypes.h"
 #include "Object.h"
 class BaseStream;
 
@@ -19,27 +19,25 @@ class BaseStream;
 // Linearization
 //------------------------------------------------------------------------
 
-class Linearization {
+class Linearization
+{
 public:
+    Linearization(BaseStream *str);
+    ~Linearization();
 
-  Linearization(BaseStream *str);
-  ~Linearization();
-
-  Guint getLength();
-  Guint getHintsOffset();
-  Guint getHintsLength();
-  Guint getHintsOffset2();
-  Guint getHintsLength2();
-  int getObjectNumberFirst();
-  Guint getEndFirst();
-  int getNumPages();
-  Guint getMainXRefEntriesOffset();
-  int getPageFirst();
+    unsigned int getLength() const;
+    unsigned int getHintsOffset() const;
+    unsigned int getHintsLength() const;
+    unsigned int getHintsOffset2() const;
+    unsigned int getHintsLength2() const;
+    int getObjectNumberFirst() const;
+    unsigned int getEndFirst() const;
+    int getNumPages() const;
+    unsigned int getMainXRefEntriesOffset() const;
+    int getPageFirst() const;
 
 private:
-
-  Object linDict;
-
+    Object linDict;
 };
 
 #endif

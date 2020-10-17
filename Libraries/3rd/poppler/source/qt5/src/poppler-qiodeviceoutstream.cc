@@ -21,44 +21,37 @@
 
 #include <QtCore/QIODevice>
 
-#include <stdio.h>
+#include <cstdio>
 
 #define QIODeviceOutStreamBufSize 8192
 
 namespace Poppler {
 
-QIODeviceOutStream::QIODeviceOutStream(QIODevice* device)
-  : m_device(device)
-{
-}
+QIODeviceOutStream::QIODeviceOutStream(QIODevice *device) : m_device(device) { }
 
-QIODeviceOutStream::~QIODeviceOutStream()
-{
-}
+QIODeviceOutStream::~QIODeviceOutStream() { }
 
-void QIODeviceOutStream::close()
-{
-}
+void QIODeviceOutStream::close() { }
 
 Goffset QIODeviceOutStream::getPos()
 {
-  return m_device->pos();
+    return m_device->pos();
 }
 
 void QIODeviceOutStream::put(char c)
 {
-  m_device->putChar(c);
+    m_device->putChar(c);
 }
 
 void QIODeviceOutStream::printf(const char *format, ...)
 {
-  va_list ap;
-  va_start(ap, format);
-  char buf[QIODeviceOutStreamBufSize];
-  size_t bufsize = 0;
-  bufsize = qvsnprintf(buf, QIODeviceOutStreamBufSize - 1, format, ap);
-  va_end(ap);
-  m_device->write(buf, bufsize);
+    va_list ap;
+    va_start(ap, format);
+    char buf[QIODeviceOutStreamBufSize];
+    size_t bufsize = 0;
+    bufsize = qvsnprintf(buf, QIODeviceOutStreamBufSize - 1, format, ap);
+    va_end(ap);
+    m_device->write(buf, bufsize);
 }
 
 }

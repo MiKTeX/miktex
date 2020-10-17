@@ -13,6 +13,7 @@
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -20,105 +21,107 @@
 //========================================================================
 
 #include <config.h>
-
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#    include <unistd.h>
 #endif
 #include "goo/gmem.h"
 #include "goo/GooString.h"
 #include "SplashFontFile.h"
 #include "SplashFontFileID.h"
 
-#ifdef VMS
-#if (__VMS_VER < 70000000)
-extern "C" int unlink(char *filename);
-#endif
-#endif
-
 //------------------------------------------------------------------------
 // SplashFontFile
 //------------------------------------------------------------------------
 
-SplashFontFile::SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA) {
-  id = idA;
-  src = srcA;
-  src->ref();
-  refCnt = 0;
-  doAdjustMatrix = gFalse;
+SplashFontFile::SplashFontFile(SplashFontFileID *idA, SplashFontSrc *srcA)
+{
+    id = idA;
+    src = srcA;
+    src->ref();
+    refCnt = 0;
+    doAdjustMatrix = false;
 }
 
-SplashFontFile::~SplashFontFile() {
-  src->unref();
-  delete id;
+SplashFontFile::~SplashFontFile()
+{
+    src->unref();
+    delete id;
 }
 
-void SplashFontFile::incRefCnt() {
-  ++refCnt;
+void SplashFontFile::incRefCnt()
+{
+    ++refCnt;
 }
 
-void SplashFontFile::decRefCnt() {
-  if (!--refCnt) {
-    delete this;
-  }
+void SplashFontFile::decRefCnt()
+{
+    if (!--refCnt) {
+        delete this;
+    }
 }
 
 //
 
-SplashFontSrc::SplashFontSrc() {
-  isFile = gFalse;
-  deleteSrc = gFalse;
-  fileName = NULL;
-  buf = NULL;
-  refcnt = 1;
+SplashFontSrc::SplashFontSrc()
+{
+    isFile = false;
+    deleteSrc = false;
+    fileName = nullptr;
+    buf = nullptr;
+    refcnt = 1;
 }
 
-SplashFontSrc::~SplashFontSrc() {
-  if (deleteSrc) {
-    if (isFile) {
-      if (fileName)
-	unlink(fileName->getCString());
-    } else {
-      if (buf)
-	gfree(buf);
+SplashFontSrc::~SplashFontSrc()
+{
+    if (deleteSrc) {
+        if (isFile) {
+            if (fileName)
+                unlink(fileName->c_str());
+        } else {
+            if (buf)
+                gfree(buf);
+        }
     }
-  }
 
-  if (isFile && fileName)
-    delete fileName;
+    if (isFile && fileName)
+        delete fileName;
 }
 
-void SplashFontSrc::ref() {
-  refcnt++;
-}
-
-void SplashFontSrc::unref() {
-  if (! --refcnt)
-    delete this;
-}
-
-void SplashFontSrc::setFile(GooString *file, GBool del)
+void SplashFontSrc::ref()
 {
-  isFile = gTrue;
-  fileName = file->copy();
-  deleteSrc = del;
+    refcnt++;
 }
 
-void SplashFontSrc::setFile(const char *file, GBool del)
+void SplashFontSrc::unref()
 {
-  isFile = gTrue;
-  fileName = new GooString(file);
-  deleteSrc = del;
+    if (!--refcnt)
+        delete this;
 }
 
-void SplashFontSrc::setBuf(char *bufA, int bufLenA, GBool del)
+void SplashFontSrc::setFile(GooString *file, bool del)
 {
-  isFile = gFalse;
-  buf = bufA;
-  bufLen = bufLenA;
-  deleteSrc = del;
+    isFile = true;
+    fileName = file->copy();
+    deleteSrc = del;
+}
+
+void SplashFontSrc::setFile(const char *file, bool del)
+{
+    isFile = true;
+    fileName = new GooString(file);
+    deleteSrc = del;
+}
+
+void SplashFontSrc::setBuf(char *bufA, int bufLenA, bool del)
+{
+    isFile = false;
+    buf = bufA;
+    bufLen = bufLenA;
+    deleteSrc = del;
 }

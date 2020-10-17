@@ -29,16 +29,16 @@ namespace Poppler {
 
 class QIODeviceOutStream : public OutStream
 {
-  public:
-    QIODeviceOutStream(QIODevice* device);
-    ~QIODeviceOutStream();
+public:
+    QIODeviceOutStream(QIODevice *device);
+    ~QIODeviceOutStream() override;
 
     void close() override;
     Goffset getPos() override;
     void put(char c) override;
     void printf(const char *format, ...) override;
 
-  private:
+private:
     QIODevice *m_device;
 };
 

@@ -27,26 +27,29 @@
 class NetPBMWriter : public ImgWriter
 {
 public:
+    /* RGB        - 3 bytes/pixel
+     * MONOCHROME - 8 pixels/byte
+     */
+    enum Format
+    {
+        RGB,
+        MONOCHROME
+    };
 
-  /* RGB        - 3 bytes/pixel
-   * MONOCHROME - 8 pixels/byte
-   */
-  enum Format { RGB, MONOCHROME };
+    NetPBMWriter(Format formatA = RGB);
+    ~NetPBMWriter() override {};
 
-  NetPBMWriter(Format formatA = RGB);
-  ~NetPBMWriter() {};
+    bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
 
-  bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
+    bool writePointers(unsigned char **rowPointers, int rowCount) override;
+    bool writeRow(unsigned char **row) override;
 
-  bool writePointers(unsigned char **rowPointers, int rowCount) override;
-  bool writeRow(unsigned char **row) override;
-
-  bool close() override;
+    bool close() override;
 
 private:
-  FILE *file;
-  Format format;
-  int width;
+    FILE *file;
+    Format format;
+    int width;
 };
 
 #endif

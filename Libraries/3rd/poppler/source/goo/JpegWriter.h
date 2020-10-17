@@ -11,6 +11,7 @@
 // Copyright (C) 2010 Brian Cameron <brian.cameron@oracle.com>
 // Copyright (C) 2011 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2018 Martin Packman <gzlist@googlemail.com>
 //
 //========================================================================
 
@@ -21,39 +22,45 @@
 
 #ifdef ENABLE_LIBJPEG
 
-#include <sys/types.h>
-#include "ImgWriter.h"
+#    include <sys/types.h>
+#    include "ImgWriter.h"
 
 struct JpegWriterPrivate;
 
 class JpegWriter : public ImgWriter
 {
 public:
-  /* RGB                 - 3 bytes/pixel
-   * GRAY                - 1 byte/pixel
-   * CMYK                - 4 bytes/pixel
-   */
-  enum Format { RGB, GRAY, CMYK };
+    /* RGB                 - 3 bytes/pixel
+     * GRAY                - 1 byte/pixel
+     * CMYK                - 4 bytes/pixel
+     */
+    enum Format
+    {
+        RGB,
+        GRAY,
+        CMYK
+    };
 
-  JpegWriter(int quality, bool progressive, Format format = RGB);
-  JpegWriter(Format format = RGB);
-  ~JpegWriter();
+    JpegWriter(int quality, bool progressive, Format format = RGB);
+    JpegWriter(Format format = RGB);
+    ~JpegWriter() override;
 
-  void setQuality(int quality);
-  void setProgressive(bool progressive);
-  bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
+    JpegWriter(const JpegWriter &other) = delete;
+    JpegWriter &operator=(const JpegWriter &other) = delete;
 
-  bool writePointers(unsigned char **rowPointers, int rowCount) override;
-  bool writeRow(unsigned char **row) override;
+    void setQuality(int quality);
+    void setProgressive(bool progressive);
+    void setOptimize(bool optimize);
+    bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
 
-  bool close() override;
-  bool supportCMYK() override;
+    bool writePointers(unsigned char **rowPointers, int rowCount) override;
+    bool writeRow(unsigned char **row) override;
+
+    bool close() override;
+    bool supportCMYK() override;
 
 private:
-  JpegWriter(const JpegWriter &other);
-  JpegWriter& operator=(const JpegWriter &other);
-
-  JpegWriterPrivate *priv;
+    JpegWriterPrivate *priv;
 };
 
 #endif

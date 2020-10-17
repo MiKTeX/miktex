@@ -30,6 +30,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2018 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -39,23 +40,21 @@
 #ifndef CAIRO_RESCALE_BOX_H
 #define CAIRO_RESCALE_BOX_H
 
-#include "goo/gtypes.h"
 #include <cairo.h>
 
-class CairoRescaleBox {
+class CairoRescaleBox
+{
 public:
+    CairoRescaleBox() {};
+    virtual ~CairoRescaleBox() {};
 
-  CairoRescaleBox() {};
-  virtual ~CairoRescaleBox() {};
+    CairoRescaleBox(const CairoRescaleBox &) = delete;
+    CairoRescaleBox &operator=(const CairoRescaleBox &) = delete;
 
-  virtual GBool downScaleImage(unsigned orig_width, unsigned orig_height,
-                               signed scaled_width, signed scaled_height,
-                               unsigned short int start_column, unsigned short int start_row,
-                               unsigned short int width, unsigned short int height,
-                               cairo_surface_t *dest_surface);
+    virtual bool downScaleImage(unsigned orig_width, unsigned orig_height, signed scaled_width, signed scaled_height, unsigned short int start_column, unsigned short int start_row, unsigned short int width, unsigned short int height,
+                                cairo_surface_t *dest_surface);
 
-  virtual void getRow(int row_num, uint32_t *row_data) = 0;
-
+    virtual void getRow(int row_num, uint32_t *row_data) = 0;
 };
 
 #endif /* CAIRO_RESCALE_BOX_H */

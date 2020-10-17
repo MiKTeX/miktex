@@ -4,7 +4,9 @@
 //
 // Copyright 2007 Brad Hards <bradh@kde.org>
 // Copyright 2008 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright 2013, 2018, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright 2019 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // Released under the GPL (version 2, or later, at your option)
 //
@@ -13,128 +15,102 @@
 #ifndef OPTIONALCONTENT_H
 #define OPTIONALCONTENT_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
 #include "Object.h"
 #include "CharTypes.h"
+#include <unordered_map>
+#include <memory>
 
 class GooString;
-class GooList;
 class XRef;
 
 class OptionalContentGroup;
-class OCDisplayNode;
 
 //------------------------------------------------------------------------
 
-class OCGs {
+class OCGs
+{
 public:
+    OCGs(Object *ocgObject, XRef *xref);
 
-  OCGs(Object *ocgObject, XRef *xref);
-  ~OCGs();
+    OCGs(const OCGs &) = delete;
+    OCGs &operator=(const OCGs &) = delete;
 
-  // Is OCGS valid?
-  GBool isOk() { return ok; }
-  
-  bool hasOCGs();
-  GooList *getOCGs() const { return optionalContentGroups; }
+    // Is OCGS valid?
+    bool isOk() const { return ok; }
 
-  OptionalContentGroup* findOcgByRef( const Ref &ref);
+    bool hasOCGs() const;
+    const std::unordered_map<Ref, std::unique_ptr<OptionalContentGroup>> &getOCGs() const { return optionalContentGroups; }
 
-  // Get the root node of the optional content group display tree
-  // (which does not necessarily include all of the OCGs).
-  OCDisplayNode *getDisplayRoot();
+    OptionalContentGroup *findOcgByRef(const Ref ref);
 
-  Array* getOrderArray() 
-    { return (order.isArray() && order.arrayGetLength() > 0) ? order.getArray() : NULL; }
-  Array* getRBGroupsArray() 
-    { return (rbgroups.isArray() && rbgroups.arrayGetLength()) ? rbgroups.getArray() : NULL; }
+    Array *getOrderArray() { return (order.isArray() && order.arrayGetLength() > 0) ? order.getArray() : nullptr; }
+    Array *getRBGroupsArray() { return (rbgroups.isArray() && rbgroups.arrayGetLength()) ? rbgroups.getArray() : nullptr; }
 
-  bool optContentIsVisible( Object *dictRef );
+    bool optContentIsVisible(const Object *dictRef);
 
 private:
-  GBool ok;
+    bool ok;
 
-  GBool evalOCVisibilityExpr(Object *expr, int recursion);
-  bool allOn( Array *ocgArray );
-  bool allOff( Array *ocgArray );
-  bool anyOn( Array *ocgArray );
-  bool anyOff( Array *ocgArray );
+    bool evalOCVisibilityExpr(const Object *expr, int recursion);
+    bool allOn(Array *ocgArray);
+    bool allOff(Array *ocgArray);
+    bool anyOn(Array *ocgArray);
+    bool anyOff(Array *ocgArray);
 
-  GooList *optionalContentGroups;
+    std::unordered_map<Ref, std::unique_ptr<OptionalContentGroup>> optionalContentGroups;
 
-  Object order;
-  Object rbgroups;
-  XRef *m_xref;
-  OCDisplayNode *display; // root node of display tree
+    Object order;
+    Object rbgroups;
+    XRef *m_xref;
 };
 
 //------------------------------------------------------------------------
 
-class OptionalContentGroup {
+class OptionalContentGroup
+{
 public:
-  enum State { On, Off };
+    enum State
+    {
+        On,
+        Off
+    };
 
-  // Values from the optional content usage dictionary.
-  enum UsageState {
-    ocUsageOn,
-    ocUsageOff,
-    ocUsageUnset
-  };
+    // Values from the optional content usage dictionary.
+    enum UsageState
+    {
+        ocUsageOn,
+        ocUsageOff,
+        ocUsageUnset
+    };
 
-  OptionalContentGroup(Dict *dict);
+    OptionalContentGroup(Dict *dict);
 
-  OptionalContentGroup(GooString *label);
+    OptionalContentGroup(GooString *label);
 
-  ~OptionalContentGroup();
+    ~OptionalContentGroup();
 
-  GooString* getName() const;
+    OptionalContentGroup(const OptionalContentGroup &) = delete;
+    OptionalContentGroup &operator=(const OptionalContentGroup &) = delete;
 
-  Ref getRef() const;
-  void setRef(const Ref ref);
+    const GooString *getName() const;
 
-  State getState() { return m_state; };
-  void setState(State state) { m_state = state; };
+    Ref getRef() const;
+    void setRef(const Ref ref);
 
-  UsageState getViewState() { return viewState; }
-  UsageState getPrintState() { return printState; }
+    State getState() const { return m_state; };
+    void setState(State state) { m_state = state; };
+
+    UsageState getViewState() const { return viewState; }
+    UsageState getPrintState() const { return printState; }
 
 private:
-  GooString *m_name;
-  Ref m_ref;
-  State m_state;
-  UsageState viewState;	 // suggested state when viewing
-  UsageState printState; // suggested state when printing
+    GooString *m_name;
+    Ref m_ref;
+    State m_state;
+    UsageState viewState; // suggested state when viewing
+    UsageState printState; // suggested state when printing
 };
 
 //------------------------------------------------------------------------
-
-class OCDisplayNode {
-public:
-
-  static OCDisplayNode *parse(Object *obj, OCGs *oc, XRef *xref, int recursion = 0);
-  OCDisplayNode();
-  ~OCDisplayNode();
-
-  GooString *getName() { return name; }
-  OptionalContentGroup *getOCG() { return ocg; }
-  int getNumChildren();
-  OCDisplayNode *getChild(int idx);
-
-private:
-
-  OCDisplayNode(GooString *nameA);
-  OCDisplayNode(OptionalContentGroup *ocgA);
-  void addChild(OCDisplayNode *child);
-  void addChildren(GooList *childrenA);
-  GooList *takeChildren();
-
-  GooString *name;		// display name (may be NULL)
-  OptionalContentGroup *ocg;	// NULL for display labels
-  GooList *children;		// NULL if there are no children
-				//   [OCDisplayNode]
-};
 
 #endif

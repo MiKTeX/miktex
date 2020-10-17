@@ -16,7 +16,9 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2013, 2017 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2013, 2017, 2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2018, 2019 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -25,125 +27,91 @@
 
 #include <config.h>
 
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
+#include <cassert>
 
-#include <stdlib.h>
-#include <stddef.h>
-#include "goo/gmem.h"
 #include "Object.h"
 #include "Array.h"
 
-#if MULTITHREADED
-#  define arrayLocker()   MutexLocker locker(&mutex)
-#else
-#  define arrayLocker()
-#endif
 //------------------------------------------------------------------------
 // Array
 //------------------------------------------------------------------------
 
-Array::Array(XRef *xrefA) {
-  xref = xrefA;
-  elems = NULL;
-  size = length = 0;
-  ref = 1;
-#if MULTITHREADED
-  gInitMutex(&mutex);
-#endif
-}
+#define arrayLocker() std::unique_lock<std::recursive_mutex> locker(mutex)
 
-Array::~Array() {
-  int i;
-
-  for (i = 0; i < length; ++i)
-    elems[i].free();
-  gfree(elems);
-#if MULTITHREADED
-  gDestroyMutex(&mutex);
-#endif
-}
-
-Object Array::copy(XRef *xrefA) const {
-  arrayLocker();
-  Array *a = new Array(xrefA);
-  for (int i = 0; i < length; ++i) {
-    a->add(elems[i].copy());
-  }
-  return Object(a);
-}
-
-int Array::incRef() {
-  arrayLocker();
-  ++ref;
-  return ref;
-}
-
-int Array::decRef() {
-  arrayLocker();
-  --ref;
-  return ref;
-}
-
-void Array::add(Object &&elem) {
-  arrayLocker();
-  if (length == size) {
-    if (length == 0) {
-      size = 8;
-    } else {
-      size *= 2;
-    }
-    elems = (Object *)greallocn(elems, size, sizeof(Object));
-  }
-  elems[length].initNullAfterMalloc();
-  elems[length] = std::move(elem);
-  ++length;
-}
-
-void Array::remove(int i) {
-  arrayLocker();
-  if (i < 0 || i >= length) {
-#ifdef DEBUG_MEM
-    abort();
-#else
-    return;
-#endif
-  }
-  --length;
-  memmove( elems + i, elems + i + 1, sizeof(elems[0]) * (length - i) );
-}
-
-Object Array::get(int i, int recursion) const {
-  if (i < 0 || i >= length) {
-#ifdef DEBUG_MEM
-    abort();
-#else
-    return Object(objNull);
-#endif
-  }
-  return elems[i].fetch(xref, recursion);
-}
-
-Object Array::getNF(int i) const {
-  if (i < 0 || i >= length) {
-#ifdef DEBUG_MEM
-    abort();
-#else
-    return Object(objNull);
-#endif
-  }
-  return elems[i].copy();
-}
-
-GBool Array::getString(int i, GooString *string) const
+Array::Array(XRef *xrefA)
 {
-  Object obj = getNF(i);
-  if (obj.isString()) {
-    string->clear();
-    string->append(obj.getString());
-    return gTrue;
-  } else {
-    return gFalse;
-  }
+    xref = xrefA;
+    ref = 1;
+}
+
+Array::~Array() { }
+
+Array *Array::copy(XRef *xrefA) const
+{
+    arrayLocker();
+    Array *a = new Array(xrefA);
+    a->elems.reserve(elems.size());
+    for (const auto &elem : elems) {
+        a->elems.push_back(elem.copy());
+    }
+    return a;
+}
+
+void Array::add(Object &&elem)
+{
+    arrayLocker();
+    elems.push_back(std::move(elem));
+}
+
+void Array::remove(int i)
+{
+    arrayLocker();
+    if (i < 0 || std::size_t(i) >= elems.size()) {
+        assert(i >= 0 && std::size_t(i) < elems.size());
+        return;
+    }
+    elems.erase(elems.begin() + i);
+}
+
+Object Array::get(int i, int recursion) const
+{
+    if (i < 0 || std::size_t(i) >= elems.size()) {
+        return Object(objNull);
+    }
+    return elems[i].fetch(xref, recursion);
+}
+
+Object Array::get(int i, Ref *returnRef, int recursion) const
+{
+    if (i < 0 || std::size_t(i) >= elems.size()) {
+        *returnRef = Ref::INVALID();
+        return Object(objNull);
+    }
+    if (elems[i].getType() == objRef) {
+        *returnRef = elems[i].getRef();
+    } else {
+        *returnRef = Ref::INVALID();
+    }
+    return elems[i].fetch(xref, recursion);
+}
+
+const Object &Array::getNF(int i) const
+{
+    if (i < 0 || std::size_t(i) >= elems.size()) {
+        static Object nullObj(objNull);
+        return nullObj;
+    }
+    return elems[i];
+}
+
+bool Array::getString(int i, GooString *string) const
+{
+    const Object &obj = getNF(i);
+    if (obj.isString()) {
+        string->clear();
+        string->append(obj.getString());
+        return true;
+    } else {
+        return false;
+    }
 }

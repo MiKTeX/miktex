@@ -21,30 +21,25 @@
 // CurlPDFDocBuilder
 //------------------------------------------------------------------------
 
-PDFDoc *
-CurlPDFDocBuilder::buildPDFDoc(const GooString &uri,
-        GooString *ownerPassword, GooString *userPassword, void *guiDataA)
+PDFDoc *CurlPDFDocBuilder::buildPDFDoc(const GooString &uri, GooString *ownerPassword, GooString *userPassword, void *guiDataA)
 {
-    CachedFile *cachedFile = new CachedFile(
-        new CurlCachedFileLoader(), uri.copy());
+    CachedFile *cachedFile = new CachedFile(new CurlCachedFileLoader(), uri.copy());
 
-    if (cachedFile->getLength() == ((Guint) -1)) {
+    if (cachedFile->getLength() == ((unsigned int)-1)) {
         cachedFile->decRefCnt();
         return PDFDoc::ErrorPDFDoc(errOpenFile, uri.copy());
     }
 
-    BaseStream *str = new CachedFileStream(
-         cachedFile, 0, gFalse, cachedFile->getLength(), Object(objNull));
+    BaseStream *str = new CachedFileStream(cachedFile, 0, false, cachedFile->getLength(), Object(objNull));
 
     return new PDFDoc(str, ownerPassword, userPassword, guiDataA);
 }
 
-GBool CurlPDFDocBuilder::supports(const GooString &uri)
+bool CurlPDFDocBuilder::supports(const GooString &uri)
 {
-  if (uri.cmpN("http://", 7) == 0 || uri.cmpN("https://", 8) == 0) {
-    return gTrue;
-  } else {
-    return gFalse;
-  }
+    if (uri.cmpN("http://", 7) == 0 || uri.cmpN("https://", 8) == 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
-

@@ -1,6 +1,7 @@
 /* Sound.h - an object that holds the sound structure
  * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
- * Copyright (C) 2017, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2017-2020, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2020, Oliver Sander <oliver.sander@tu-dresden.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,56 +21,62 @@
 #ifndef Sound_H
 #define Sound_H
 
-class GooString;
+#include <memory>
+
 class Object;
 class Stream;
 
 //------------------------------------------------------------------------
 
-enum SoundKind {
-  soundEmbedded,		// embedded sound
-  soundExternal			// external sound
+enum SoundKind
+{
+    soundEmbedded, // embedded sound
+    soundExternal // external sound
 };
 
-enum SoundEncoding {
-  soundRaw,			// raw encoding
-  soundSigned,			// twos-complement values
-  soundMuLaw,			// mu-law-encoded samples
-  soundALaw			// A-law-encoded samples
+enum SoundEncoding
+{
+    soundRaw, // raw encoding
+    soundSigned, // twos-complement values
+    soundMuLaw, // mu-law-encoded samples
+    soundALaw // A-law-encoded samples
 };
 
 class Sound
 {
 public:
-  // Try to parse the Object s
-  static Sound *parseSound(Object *s);
+    // Try to parse the Object obj
+    static std::unique_ptr<Sound> parseSound(Object *obj);
 
-  // Destructor
-  ~Sound();
+    // Destructor
+    ~Sound();
 
-  Object *getObject() { return &streamObj; }
-  Stream *getStream();
+    Sound(const Sound &) = delete;
+    Sound &operator=(const Sound &) = delete;
 
-  SoundKind getSoundKind() { return kind; }
-  GooString *getFileName() { return fileName; }
-  double getSamplingRate() { return samplingRate; }
-  int getChannels() { return channels; }
-  int getBitsPerSample() { return bitsPerSample; }
-  SoundEncoding getEncoding() { return encoding; }
+    const Object *getObject() const { return &streamObj; }
+    Stream *getStream();
 
-  Sound *copy();
+    SoundKind getSoundKind() const { return kind; }
+    const std::string &getFileName() const { return fileName; }
+    double getSamplingRate() const { return samplingRate; }
+    int getChannels() const { return channels; }
+    int getBitsPerSample() const { return bitsPerSample; }
+    SoundEncoding getEncoding() const { return encoding; }
+
+    Sound *copy() const;
 
 private:
-  // Create a sound. The Object obj is ensured to be a Stream with a Dict
-  Sound(Object *obj, bool readAttrs = true);
+    // Create a sound. The Object obj is ensured to be a Stream with a Dict
+    Sound(const Object *obj, bool readAttrs = true);
 
-  Object streamObj;
-  SoundKind kind;
-  GooString *fileName;
-  double samplingRate;
-  int channels;
-  int bitsPerSample;
-  SoundEncoding encoding;
+    Object streamObj;
+    SoundKind kind;
+    std::string fileName;
+    double samplingRate;
+    int channels;
+    int bitsPerSample;
+    SoundEncoding encoding;
 };
 
 #endif

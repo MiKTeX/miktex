@@ -1,6 +1,6 @@
 /* poppler-media.cc: qt interface to poppler
  * Copyright (C) 2012 Guillermo A. Amaral B. <gamaral@kde.org>
- * Copyright (C) 2013 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2013, 2018 Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#if defined(MIKTEX)
-#  include <config.h>
-#endif
 #include "poppler-media.h"
 
 #include "Rendition.h"
@@ -30,142 +27,128 @@
 
 #define BUFFER_MAX 4096
 
-namespace Poppler
-{
+namespace Poppler {
 
 class MediaRenditionPrivate
 {
 public:
+    MediaRenditionPrivate(::MediaRendition *renditionA) : rendition(renditionA) { }
 
-  MediaRenditionPrivate(::MediaRendition *rendition)
-  : rendition(rendition)
-  {
-  }
-  
-  ~MediaRenditionPrivate()
-  {
-    delete rendition;
-  }
+    ~MediaRenditionPrivate() { delete rendition; }
 
-  ::MediaRendition *rendition;
+    MediaRenditionPrivate(const MediaRenditionPrivate &) = delete;
+    MediaRenditionPrivate &operator=(const MediaRenditionPrivate &) = delete;
+
+    ::MediaRendition *rendition;
 };
 
-MediaRendition::MediaRendition(::MediaRendition *rendition)
-  : d_ptr(new MediaRenditionPrivate(rendition))
-{
-}
+MediaRendition::MediaRendition(::MediaRendition *rendition) : d_ptr(new MediaRenditionPrivate(rendition)) { }
 
 MediaRendition::~MediaRendition()
 {
-  delete d_ptr;
+    delete d_ptr;
 }
 
-bool
-MediaRendition::isValid() const
+bool MediaRendition::isValid() const
 {
-  Q_D( const MediaRendition );
-  return d->rendition && d->rendition->isOk();
+    Q_D(const MediaRendition);
+    return d->rendition && d->rendition->isOk();
 }
 
-QString
-MediaRendition::contentType() const
+QString MediaRendition::contentType() const
 {
-  Q_ASSERT(isValid() && "Invalid media rendition.");
-  Q_D( const MediaRendition );
-  return UnicodeParsedString(d->rendition->getContentType());
+    Q_ASSERT(isValid() && "Invalid media rendition.");
+    Q_D(const MediaRendition);
+    return UnicodeParsedString(d->rendition->getContentType());
 }
 
-QString
-MediaRendition::fileName() const
+QString MediaRendition::fileName() const
 {
-  Q_ASSERT(isValid() && "Invalid media rendition.");
-  Q_D( const MediaRendition );
-  return UnicodeParsedString(d->rendition->getFileName());
+    Q_ASSERT(isValid() && "Invalid media rendition.");
+    Q_D(const MediaRendition);
+    return UnicodeParsedString(d->rendition->getFileName());
 }
 
-bool
-MediaRendition::isEmbedded() const
+bool MediaRendition::isEmbedded() const
 {
-  Q_ASSERT(isValid() && "Invalid media rendition.");
-  Q_D( const MediaRendition );
-  return d->rendition->getIsEmbedded();
+    Q_ASSERT(isValid() && "Invalid media rendition.");
+    Q_D(const MediaRendition);
+    return d->rendition->getIsEmbedded();
 }
 
-QByteArray
-MediaRendition::data() const
+QByteArray MediaRendition::data() const
 {
-  Q_ASSERT(isValid() && "Invalid media rendition.");
-  Q_D( const MediaRendition );
+    Q_ASSERT(isValid() && "Invalid media rendition.");
+    Q_D(const MediaRendition);
 
-  Stream *s = d->rendition->getEmbbededStream();
-  if (!s)
-    return QByteArray();
+    Stream *s = d->rendition->getEmbbededStream();
+    if (!s)
+        return QByteArray();
 
-  QBuffer buffer;
-  Guchar data[BUFFER_MAX];
-  int bread;
+    QBuffer buffer;
+    unsigned char data[BUFFER_MAX];
+    int bread;
 
-  buffer.open(QIODevice::WriteOnly);
-  s->reset();
-  while ((bread = s->doGetChars(BUFFER_MAX, data)) != 0)
-    buffer.write(reinterpret_cast<const char *>(data), bread);
-  buffer.close();
+    buffer.open(QIODevice::WriteOnly);
+    s->reset();
+    while ((bread = s->doGetChars(BUFFER_MAX, data)) != 0)
+        buffer.write(reinterpret_cast<const char *>(data), bread);
+    buffer.close();
 
-  return buffer.data();
+    return buffer.data();
 }
 
-bool
-MediaRendition::autoPlay() const
+bool MediaRendition::autoPlay() const
 {
-  Q_D( const MediaRendition );
-  if (d->rendition->getBEParameters()) {
-    return d->rendition->getBEParameters()->autoPlay;
-  } else if (d->rendition->getMHParameters()) {
-    return d->rendition->getMHParameters()->autoPlay;
-  } else qDebug("No BE or MH parameters to reference!");
-  return false;
+    Q_D(const MediaRendition);
+    if (d->rendition->getBEParameters()) {
+        return d->rendition->getBEParameters()->autoPlay;
+    } else if (d->rendition->getMHParameters()) {
+        return d->rendition->getMHParameters()->autoPlay;
+    } else
+        qDebug("No BE or MH parameters to reference!");
+    return false;
 }
 
-bool
-MediaRendition::showControls() const
+bool MediaRendition::showControls() const
 {
-  Q_D( const MediaRendition );
-  if (d->rendition->getBEParameters()) {
-    return d->rendition->getBEParameters()->showControls;
-  } else if (d->rendition->getMHParameters()) {
-    return d->rendition->getMHParameters()->showControls;
-  } else qDebug("No BE or MH parameters to reference!");
-  return false;
+    Q_D(const MediaRendition);
+    if (d->rendition->getBEParameters()) {
+        return d->rendition->getBEParameters()->showControls;
+    } else if (d->rendition->getMHParameters()) {
+        return d->rendition->getMHParameters()->showControls;
+    } else
+        qDebug("No BE or MH parameters to reference!");
+    return false;
 }
 
-float
-MediaRendition::repeatCount() const
+float MediaRendition::repeatCount() const
 {
-  Q_D( const MediaRendition );
-  if (d->rendition->getBEParameters()) {
-    return d->rendition->getBEParameters()->repeatCount;
-  } else if (d->rendition->getMHParameters()) {
-    return d->rendition->getMHParameters()->repeatCount;
-  } else qDebug("No BE or MH parameters to reference!");
-  return 1.f;
+    Q_D(const MediaRendition);
+    if (d->rendition->getBEParameters()) {
+        return d->rendition->getBEParameters()->repeatCount;
+    } else if (d->rendition->getMHParameters()) {
+        return d->rendition->getMHParameters()->repeatCount;
+    } else
+        qDebug("No BE or MH parameters to reference!");
+    return 1.f;
 }
 
-QSize
-MediaRendition::size() const
+QSize MediaRendition::size() const
 {
-  Q_D( const MediaRendition );
-  MediaParameters *mp = 0;
+    Q_D(const MediaRendition);
+    const MediaParameters *mp = nullptr;
 
-  if (d->rendition->getBEParameters())
-    mp = d->rendition->getBEParameters();
-  else if (d->rendition->getMHParameters())
-    mp = d->rendition->getMHParameters();
-  else qDebug("No BE or MH parameters to reference!");
+    if (d->rendition->getBEParameters())
+        mp = d->rendition->getBEParameters();
+    else if (d->rendition->getMHParameters())
+        mp = d->rendition->getMHParameters();
+    else
+        qDebug("No BE or MH parameters to reference!");
 
-  if (mp)
-    return QSize(mp->windowParams.width, mp->windowParams.height);
-  return QSize();
+    if (mp)
+        return QSize(mp->windowParams.width, mp->windowParams.height);
+    return QSize();
 }
 
 }
-

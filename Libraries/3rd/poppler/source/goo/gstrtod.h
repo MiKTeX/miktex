@@ -1,5 +1,5 @@
 /* This file is part of Libspectre.
- * 
+ *
  * Copyright (C) 2007 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
  *

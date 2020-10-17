@@ -17,46 +17,41 @@
 #ifndef GOOTIMER_H
 #define GOOTIMER_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
 #include "poppler-config.h"
-#include "gtypes.h"
 #ifdef HAVE_GETTIMEOFDAY
-#include <sys/time.h>
+#    include <sys/time.h>
 #endif
 
 #ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
+#    include <windows.h>
 #endif
 
 //------------------------------------------------------------------------
 // GooTimer
 //------------------------------------------------------------------------
 
-class GooTimer {
+class GooTimer
+{
 public:
+    // Create a new timer.
+    GooTimer();
 
-  // Create a new timer.
-  GooTimer();
-
-  void start();
-  void stop();
-  double getElapsed();
+    void start();
+    void stop();
+    double getElapsed();
 
 private:
 #ifdef HAVE_GETTIMEOFDAY
-  struct timeval start_time;
-  struct timeval end_time;
+    struct timeval start_time;
+    struct timeval end_time;
 #elif defined(_WIN32)
-  LARGE_INTEGER start_time;
-  LARGE_INTEGER end_time;
+    LARGE_INTEGER start_time;
+    LARGE_INTEGER end_time;
 #endif
-  GBool active;
+    bool active;
 };
 
 #endif

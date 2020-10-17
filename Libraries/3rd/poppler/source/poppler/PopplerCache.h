@@ -5,74 +5,61 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009, 2010, 2017 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010, 2017, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 //========================================================================
 
 #ifndef POPPLER_CACHE_H
 #define POPPLER_CACHE_H
 
-#include "Object.h"
+#include <algorithm>
+#include <memory>
+#include <utility>
+#include <vector>
 
-class PopplerCacheItem
-{
-  public:
-   virtual ~PopplerCacheItem();
-};
-
-class PopplerCacheKey
-{
-  public:
-    virtual ~PopplerCacheKey();
-    virtual bool operator==(const PopplerCacheKey &key) const = 0;
-};
-
+template<typename Key, typename Item>
 class PopplerCache
 {
-  public:
-    PopplerCache(int cacheSizeA);
-    ~PopplerCache();
-    
+public:
+    PopplerCache(const PopplerCache &) = delete;
+    PopplerCache &operator=(const PopplerCache &other) = delete;
+
+    PopplerCache(std::size_t cacheSizeA) { entries.reserve(cacheSizeA); }
+
     /* The item returned is owned by the cache */
-    PopplerCacheItem *lookup(const PopplerCacheKey &key);
-    
+    Item *lookup(const Key &key)
+    {
+        if (!entries.empty() && entries.front().first == key) {
+            return entries.front().second.get();
+        }
+
+        for (auto it = entries.begin(); it != entries.end(); ++it) {
+            if (it->first == key) {
+                auto *item = it->second.get();
+
+                std::rotate(entries.begin(), it, std::next(it));
+
+                return item;
+            }
+        }
+
+        return nullptr;
+    }
+
     /* The key and item pointers ownership is taken by the cache */
-    void put(PopplerCacheKey *key, PopplerCacheItem *item);
-    
-    /* The max size of the cache */
-    int size();
-    
-    /* The number of items in the cache */
-    int numberOfItems();
-    
-    /* The n-th item in the cache */
-    PopplerCacheItem *item(int index);
-    
-    /* The n-th key in the cache */
-    PopplerCacheKey *key(int index);
-  
-  private:
-    PopplerCache(const PopplerCache &cache); // not allowed
-  
-    PopplerCacheKey **keys;
-    PopplerCacheItem **items;
-    int lastValidCacheIndex;
-    int cacheSize;
-};
+    void put(const Key &key, Item *item)
+    {
+        if (entries.size() == entries.capacity()) {
+            entries.pop_back();
+        }
 
-class PopplerObjectCache
-{
-  public:
-    PopplerObjectCache (int cacheSizeA, XRef *xrefA);
-    ~PopplerObjectCache();
+        entries.emplace(entries.begin(), key, std::unique_ptr<Item> { item });
+    }
 
-    Object *put(const Ref &ref);
-    Object lookup(const Ref &ref);
-
-  private:
-    XRef *xref;
-    PopplerCache *cache;
+private:
+    std::vector<std::pair<Key, std::unique_ptr<Item>>> entries;
 };
 
 #endif

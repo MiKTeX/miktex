@@ -26,6 +26,12 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+configure_file(
+  ${projdir}/source/qt5/src/poppler-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/poppler-version.h
+  @ONLY
+)
+
 set(${poppler_qt_dll_name}_sources
   ${projdir}/source/qt5/src/poppler-annotation.cc
   ${projdir}/source/qt5/src/poppler-document.cc
@@ -41,13 +47,16 @@ set(${poppler_qt_dll_name}_sources
   ${projdir}/source/qt5/src/poppler-pdf-converter.cc
   ${projdir}/source/qt5/src/poppler-private.cc
   ${projdir}/source/qt5/src/poppler-ps-converter.cc
+  ${projdir}/source/qt5/src/poppler-qiodeviceinstream.cc
   ${projdir}/source/qt5/src/poppler-qiodeviceoutstream.cc
   ${projdir}/source/qt5/src/poppler-sound.cc
   ${projdir}/source/qt5/src/poppler-textbox.cc
   ${projdir}/source/qt5/src/poppler-page-transition.cc
   ${projdir}/source/qt5/src/poppler-media.cc
+  ${projdir}/source/qt5/src/poppler-outline.cc
   ${projdir}/source/qt5/src/ArthurOutputDev.cc
-  
+  ${projdir}/source/qt5/src/poppler-version.cpp
+
   ${projdir}/source/qt5/src/ArthurOutputDev.h
   ${projdir}/source/qt5/src/poppler-annotation-helper.h
   ${projdir}/source/qt5/src/poppler-annotation-private.h
@@ -62,10 +71,12 @@ set(${poppler_qt_dll_name}_sources
   ${projdir}/source/qt5/src/poppler-media.h
   ${projdir}/source/qt5/src/poppler-optcontent-private.h
   ${projdir}/source/qt5/src/poppler-optcontent.h
+  ${projdir}/source/qt5/src/poppler-outline-private.h
   ${projdir}/source/qt5/src/poppler-page-private.h
   ${projdir}/source/qt5/src/poppler-page-transition-private.h
   ${projdir}/source/qt5/src/poppler-page-transition.h
   ${projdir}/source/qt5/src/poppler-private.h
+  ${projdir}/source/qt5/src/poppler-qiodeviceinstream-private.h
   ${projdir}/source/qt5/src/poppler-qiodeviceoutstream-private.h
   ${projdir}/source/qt5/src/poppler-qt5.h
 )
@@ -74,10 +85,10 @@ add_library(${poppler_qt_dll_name} SHARED ${${poppler_qt_dll_name}_sources})
 
 set_property(TARGET ${poppler_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${poppler_qt_dll_name}
-  PROPERTIES
-   VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-   SOVERSION 1
+set_shared_library_version_properties(
+  ${poppler_qt_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_include_directories(${poppler_qt_dll_name}

@@ -6,6 +6,7 @@
  * Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
  * Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2014 Adrian Johnson <ajohnson@redneon.com>
+ * Copyright (C) 2020 William Bader <williambader@hotmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +23,6 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#if defined(MIKTEX)
-#  include <config.h>
-#endif
 #include "poppler-qt5.h"
 
 #include "poppler-private.h"
@@ -34,250 +32,225 @@
 
 static void outputToQIODevice(void *stream, const char *data, int len)
 {
-	static_cast<QIODevice*>(stream)->write(data, len);
+    static_cast<QIODevice *>(stream)->write(data, len);
 }
 
 namespace Poppler {
 
 class PSConverterPrivate : public BaseConverterPrivate
 {
-	public:
-		PSConverterPrivate();
+public:
+    PSConverterPrivate();
 
-		QList<int> pageList;
-		QString title;
-		double hDPI;
-		double vDPI;
-		int rotate;
-		int paperWidth;
-		int paperHeight;
-		int marginRight;
-		int marginBottom;
-		int marginLeft;
-		int marginTop;
-		PSConverter::PSOptions opts;
-		void (* pageConvertedCallback)(int page, void *payload);
-		void *pageConvertedPayload;
+    QList<int> pageList;
+    QString title;
+    double hDPI;
+    double vDPI;
+    int rotate;
+    int paperWidth;
+    int paperHeight;
+    int marginRight;
+    int marginBottom;
+    int marginLeft;
+    int marginTop;
+    PSConverter::PSOptions opts;
+    void (*pageConvertedCallback)(int page, void *payload);
+    void *pageConvertedPayload;
 };
 
 PSConverterPrivate::PSConverterPrivate()
-	: BaseConverterPrivate(),
-	hDPI(72), vDPI(72), rotate(0), paperWidth(-1), paperHeight(-1),
-	marginRight(0), marginBottom(0), marginLeft(0), marginTop(0),
-	opts(PSConverter::Printing), pageConvertedCallback(0),
-	pageConvertedPayload(0)
+    : BaseConverterPrivate(),
+      hDPI(72),
+      vDPI(72),
+      rotate(0),
+      paperWidth(-1),
+      paperHeight(-1),
+      marginRight(0),
+      marginBottom(0),
+      marginLeft(0),
+      marginTop(0),
+      opts(PSConverter::Printing),
+      pageConvertedCallback(nullptr),
+      pageConvertedPayload(nullptr)
 {
 }
 
-
-PSConverter::PSConverter(DocumentData *document)
-	: BaseConverter(*new PSConverterPrivate())
+PSConverter::PSConverter(DocumentData *document) : BaseConverter(*new PSConverterPrivate())
 {
-	Q_D(PSConverter);
-	d->document = document;
+    Q_D(PSConverter);
+    d->document = document;
 }
 
-PSConverter::~PSConverter()
-{
-}
+PSConverter::~PSConverter() { }
 
 void PSConverter::setPageList(const QList<int> &pageList)
 {
-	Q_D(PSConverter);
-	d->pageList = pageList;
+    Q_D(PSConverter);
+    d->pageList = pageList;
 }
 
 void PSConverter::setTitle(const QString &title)
 {
-	Q_D(PSConverter);
-	d->title = title;
+    Q_D(PSConverter);
+    d->title = title;
 }
 
 void PSConverter::setHDPI(double hDPI)
 {
-	Q_D(PSConverter);
-	d->hDPI = hDPI;
+    Q_D(PSConverter);
+    d->hDPI = hDPI;
 }
 
 void PSConverter::setVDPI(double vDPI)
 {
-	Q_D(PSConverter);
-	d->vDPI = vDPI;
+    Q_D(PSConverter);
+    d->vDPI = vDPI;
 }
 
 void PSConverter::setRotate(int rotate)
 {
-	Q_D(PSConverter);
-	d->rotate = rotate;
+    Q_D(PSConverter);
+    d->rotate = rotate;
 }
 
 void PSConverter::setPaperWidth(int paperWidth)
 {
-	Q_D(PSConverter);
-	d->paperWidth = paperWidth;
+    Q_D(PSConverter);
+    d->paperWidth = paperWidth;
 }
 
 void PSConverter::setPaperHeight(int paperHeight)
 {
-	Q_D(PSConverter);
-	d->paperHeight = paperHeight;
+    Q_D(PSConverter);
+    d->paperHeight = paperHeight;
 }
 
 void PSConverter::setRightMargin(int marginRight)
 {
-	Q_D(PSConverter);
-	d->marginRight = marginRight;
+    Q_D(PSConverter);
+    d->marginRight = marginRight;
 }
 
 void PSConverter::setBottomMargin(int marginBottom)
 {
-	Q_D(PSConverter);
-	d->marginBottom = marginBottom;
+    Q_D(PSConverter);
+    d->marginBottom = marginBottom;
 }
 
 void PSConverter::setLeftMargin(int marginLeft)
 {
-	Q_D(PSConverter);
-	d->marginLeft = marginLeft;
+    Q_D(PSConverter);
+    d->marginLeft = marginLeft;
 }
 
 void PSConverter::setTopMargin(int marginTop)
 {
-	Q_D(PSConverter);
-	d->marginTop = marginTop;
+    Q_D(PSConverter);
+    d->marginTop = marginTop;
 }
 
 void PSConverter::setStrictMargins(bool strictMargins)
 {
-	Q_D(PSConverter);
-	if (strictMargins)
-		d->opts |= StrictMargins;
-	else
-		d->opts &= ~StrictMargins;
+    Q_D(PSConverter);
+    if (strictMargins)
+        d->opts |= StrictMargins;
+    else
+        d->opts &= ~StrictMargins;
 }
 
 void PSConverter::setForceRasterize(bool forceRasterize)
 {
-	Q_D(PSConverter);
-	if (forceRasterize)
-		d->opts |= ForceRasterization;
-	else
-		d->opts &= ~ForceRasterization;
+    Q_D(PSConverter);
+    if (forceRasterize)
+        d->opts |= ForceRasterization;
+    else
+        d->opts &= ~ForceRasterization;
 }
 
 void PSConverter::setPSOptions(PSConverter::PSOptions options)
 {
-	Q_D(PSConverter);
-	d->opts = options;
+    Q_D(PSConverter);
+    d->opts = options;
 }
 
 PSConverter::PSOptions PSConverter::psOptions() const
 {
-	Q_D(const PSConverter);
-	return d->opts;
+    Q_D(const PSConverter);
+    return d->opts;
 }
 
-void PSConverter::setPageConvertedCallback(void (* callback)(int page, void *payload), void *payload)
+void PSConverter::setPageConvertedCallback(void (*callback)(int page, void *payload), void *payload)
 {
-	Q_D(PSConverter);
-	d->pageConvertedCallback = callback;
-	d->pageConvertedPayload = payload;
+    Q_D(PSConverter);
+    d->pageConvertedCallback = callback;
+    d->pageConvertedPayload = payload;
 }
 
-static GBool annotDisplayDecideCbk(Annot *annot, void *user_data)
+static bool annotDisplayDecideCbk(Annot *annot, void *user_data)
 {
-	if (annot->getType() == Annot::typeWidget)
-		return gTrue; // Never hide forms
-	else
-		return *(GBool*)user_data;
+    if (annot->getType() == Annot::typeWidget)
+        return true; // Never hide forms
+    else
+        return *(bool *)user_data;
 }
 
 bool PSConverter::convert()
 {
-	Q_D(PSConverter);
-	d->lastError = NoError;
+    Q_D(PSConverter);
+    d->lastError = NoError;
 
-	Q_ASSERT(!d->pageList.isEmpty());
-	Q_ASSERT(d->paperWidth != -1);
-	Q_ASSERT(d->paperHeight != -1);
-	
-	if (d->document->locked)
-	{
-		d->lastError = FileLockedError;
-		return false;
-	}
-	
-	QIODevice *dev = d->openDevice();
-	if (!dev)
-	{
-		d->lastError = OpenOutputError;
-		return false;
-	}
+    Q_ASSERT(!d->pageList.isEmpty());
+    Q_ASSERT(d->paperWidth != -1);
+    Q_ASSERT(d->paperHeight != -1);
 
-	QByteArray pstitle8Bit = d->title.toLocal8Bit();
-	char* pstitlechar;
-	if (!d->title.isEmpty()) pstitlechar = pstitle8Bit.data();
-	else pstitlechar = 0;
-	
-	std::vector<int> pages;
-	foreach(int page, d->pageList)
-	{
-		pages.push_back(page);
-	}
+    if (d->document->locked) {
+        d->lastError = FileLockedError;
+        return false;
+    }
 
-	PSOutputDev *psOut = new PSOutputDev(outputToQIODevice, dev,
-	                                     pstitlechar,
-	                                     d->document->doc,
-	                                     pages,
-	                                     (d->opts & PrintToEPS) ? psModeEPS : psModePS,
-	                                     d->paperWidth,
-	                                     d->paperHeight,
-	                                     gFalse,
-	                                     gFalse,
-	                                     d->marginLeft,
-	                                     d->marginBottom,
-	                                     d->paperWidth - d->marginRight,
-	                                     d->paperHeight - d->marginTop,
-	                                     (d->opts & ForceRasterization));
-	
-	if (d->opts & StrictMargins)
-	{
-		double xScale = ((double)d->paperWidth - (double)d->marginLeft - (double)d->marginRight) / (double)d->paperWidth;
-		double yScale = ((double)d->paperHeight - (double)d->marginBottom - (double)d->marginTop) / (double)d->paperHeight;
-		psOut->setScale(xScale, yScale);
-	}
-	
-	if (psOut->isOk())
-	{
-		GBool isPrinting = (d->opts & Printing) ? gTrue : gFalse;
-		GBool showAnnotations = (d->opts & HideAnnotations) ? gFalse : gTrue;
-		foreach(int page, d->pageList)
-		{
-			d->document->doc->displayPage(psOut,
-			                              page,
-			                              d->hDPI,
-			                              d->vDPI,
-			                              d->rotate,
-			                              gFalse,
-			                              gTrue,
-			                              isPrinting,
-			                              NULL,
-			                              NULL,
-			                              annotDisplayDecideCbk,
-			                              &showAnnotations, gTrue);
-			if (d->pageConvertedCallback)
-				(*d->pageConvertedCallback)(page, d->pageConvertedPayload);
-		}
-		delete psOut;
-		d->closeDevice();
-		return true;
-	}
-	else
-	{
-		delete psOut;
-		d->closeDevice();
-		return false;
-	}
+    QIODevice *dev = d->openDevice();
+    if (!dev) {
+        d->lastError = OpenOutputError;
+        return false;
+    }
+
+    QByteArray pstitle8Bit = d->title.toLocal8Bit();
+    char *pstitlechar;
+    if (!d->title.isEmpty())
+        pstitlechar = pstitle8Bit.data();
+    else
+        pstitlechar = nullptr;
+
+    std::vector<int> pages;
+    foreach (int page, d->pageList) {
+        pages.push_back(page);
+    }
+
+    PSOutputDev *psOut = new PSOutputDev(outputToQIODevice, dev, pstitlechar, d->document->doc, pages, (d->opts & PrintToEPS) ? psModeEPS : psModePS, d->paperWidth, d->paperHeight, false, false, d->marginLeft, d->marginBottom,
+                                         d->paperWidth - d->marginRight, d->paperHeight - d->marginTop, (d->opts & ForceRasterization) ? psAlwaysRasterize : psRasterizeWhenNeeded);
+
+    if (d->opts & StrictMargins) {
+        double xScale = ((double)d->paperWidth - (double)d->marginLeft - (double)d->marginRight) / (double)d->paperWidth;
+        double yScale = ((double)d->paperHeight - (double)d->marginBottom - (double)d->marginTop) / (double)d->paperHeight;
+        psOut->setScale(xScale, yScale);
+    }
+
+    if (psOut->isOk()) {
+        bool isPrinting = (d->opts & Printing) ? true : false;
+        bool showAnnotations = (d->opts & HideAnnotations) ? false : true;
+        foreach (int page, d->pageList) {
+            d->document->doc->displayPage(psOut, page, d->hDPI, d->vDPI, d->rotate, false, true, isPrinting, nullptr, nullptr, annotDisplayDecideCbk, &showAnnotations, true);
+            if (d->pageConvertedCallback)
+                (*d->pageConvertedCallback)(page, d->pageConvertedPayload);
+        }
+        delete psOut;
+        d->closeDevice();
+        return true;
+    } else {
+        delete psOut;
+        d->closeDevice();
+        return false;
+    }
 }
 
 }

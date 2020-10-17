@@ -11,8 +11,9 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2019 Stefan Brüns <stefan.bruens@rwth-aachen.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -22,131 +23,107 @@
 #ifndef SPLASHCLIP_H
 #define SPLASHCLIP_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
 #include "SplashTypes.h"
-#include "SplashMath.h"
-#include "SplashXPathScanner.h"
 
 class SplashPath;
 class SplashXPath;
+class SplashXPathScanner;
 class SplashBitmap;
 
 //------------------------------------------------------------------------
 
-enum SplashClipResult {
-  splashClipAllInside,
-  splashClipAllOutside,
-  splashClipPartial
+enum SplashClipResult
+{
+    splashClipAllInside,
+    splashClipAllOutside,
+    splashClipPartial
 };
 
 //------------------------------------------------------------------------
 // SplashClip
 //------------------------------------------------------------------------
 
-class SplashClip {
+class SplashClip
+{
 public:
+    // Create a clip, for the given rectangle.
+    SplashClip(SplashCoord x0, SplashCoord y0, SplashCoord x1, SplashCoord y1, bool antialiasA);
 
-  // Create a clip, for the given rectangle.
-  SplashClip(SplashCoord x0, SplashCoord y0,
-	     SplashCoord x1, SplashCoord y1,
-	     GBool antialiasA);
+    // Copy a clip.
+    SplashClip *copy() { return new SplashClip(this); }
 
-  // Copy a clip.
-  SplashClip *copy() { return new SplashClip(this); }
+    ~SplashClip();
 
-  ~SplashClip();
+    SplashClip(const SplashClip &) = delete;
+    SplashClip &operator=(const SplashClip &) = delete;
 
-  // Reset the clip to a rectangle.
-  void resetToRect(SplashCoord x0, SplashCoord y0,
-		   SplashCoord x1, SplashCoord y1);
+    // Reset the clip to a rectangle.
+    void resetToRect(SplashCoord x0, SplashCoord y0, SplashCoord x1, SplashCoord y1);
 
-  // Intersect the clip with a rectangle.
-  SplashError clipToRect(SplashCoord x0, SplashCoord y0,
-			 SplashCoord x1, SplashCoord y1);
+    // Intersect the clip with a rectangle.
+    SplashError clipToRect(SplashCoord x0, SplashCoord y0, SplashCoord x1, SplashCoord y1);
 
-  // Interesect the clip with <path>.
-  SplashError clipToPath(SplashPath *path, SplashCoord *matrix,
-			 SplashCoord flatness, GBool eo);
+    // Intersect the clip with <path>.
+    SplashError clipToPath(SplashPath *path, SplashCoord *matrix, SplashCoord flatness, bool eo);
 
-  // Returns true if (<x>,<y>) is inside the clip.
-  GBool test(int x, int y)
-  {
-    int i;
+    // Returns true if (<x>,<y>) is inside the clip.
+    bool test(int x, int y)
+    {
+        // check the rectangle
+        if (x < xMinI || x > xMaxI || y < yMinI || y > yMaxI) {
+            return false;
+        }
 
-    // check the rectangle
-    if (x < xMinI || x > xMaxI || y < yMinI || y > yMaxI) {
-      return gFalse;
+        // check the paths
+        return testClipPaths(x, y);
     }
 
-    // check the paths
-    if (antialias) {
-      for (i = 0; i < length; ++i) {
-        if (!scanners[i]->test(x * splashAASize, y * splashAASize)) {
-	  return gFalse;
-        }
-      }
-    } else {
-      for (i = 0; i < length; ++i) {
-        if (!scanners[i]->test(x, y)) {
-	  return gFalse;
-        }
-      }
-    }
+    // Tests a rectangle against the clipping region.  Returns one of:
+    //   - splashClipAllInside if the entire rectangle is inside the
+    //     clipping region, i.e., all pixels in the rectangle are
+    //     visible
+    //   - splashClipAllOutside if the entire rectangle is outside the
+    //     clipping region, i.e., all the pixels in the rectangle are
+    //     clipped
+    //   - splashClipPartial if the rectangle is part inside and part
+    //     outside the clipping region
+    SplashClipResult testRect(int rectXMin, int rectYMin, int rectXMax, int rectYMax);
 
-    return gTrue;
-  }
+    // Similar to testRect, but tests a horizontal span.
+    SplashClipResult testSpan(int spanXMin, int spanXMax, int spanY);
 
-  // Tests a rectangle against the clipping region.  Returns one of:
-  //   - splashClipAllInside if the entire rectangle is inside the
-  //     clipping region, i.e., all pixels in the rectangle are
-  //     visible
-  //   - splashClipAllOutside if the entire rectangle is outside the
-  //     clipping region, i.e., all the pixels in the rectangle are
-  //     clipped
-  //   - splashClipPartial if the rectangle is part inside and part
-  //     outside the clipping region
-  SplashClipResult testRect(int rectXMin, int rectYMin,
-			    int rectXMax, int rectYMax);
+    // Clips an anti-aliased line by setting pixels to zero.  On entry,
+    // all non-zero pixels are between <x0> and <x1>.  This function
+    // will update <x0> and <x1>.
+    void clipAALine(SplashBitmap *aaBuf, int *x0, int *x1, int y, bool adjustVertLine = false);
 
-  // Similar to testRect, but tests a horizontal span.
-  SplashClipResult testSpan(int spanXMin, int spanXMax, int spanY);
+    // Get the rectangle part of the clip region.
+    SplashCoord getXMin() { return xMin; }
+    SplashCoord getXMax() { return xMax; }
+    SplashCoord getYMin() { return yMin; }
+    SplashCoord getYMax() { return yMax; }
 
-  // Clips an anti-aliased line by setting pixels to zero.  On entry,
-  // all non-zero pixels are between <x0> and <x1>.  This function
-  // will update <x0> and <x1>.
-  void clipAALine(SplashBitmap *aaBuf, int *x0, int *x1, int y,
-    GBool adjustVertLine = gFalse);
+    // Get the rectangle part of the clip region, in integer coordinates.
+    int getXMinI() { return xMinI; }
+    int getXMaxI() { return xMaxI; }
+    int getYMinI() { return yMinI; }
+    int getYMaxI() { return yMaxI; }
 
-  // Get the rectangle part of the clip region.
-  SplashCoord getXMin() { return xMin; }
-  SplashCoord getXMax() { return xMax; }
-  SplashCoord getYMin() { return yMin; }
-  SplashCoord getYMax() { return yMax; }
-
-  // Get the rectangle part of the clip region, in integer coordinates.
-  int getXMinI() { return xMinI; }
-  int getXMaxI() { return xMaxI; }
-  int getYMinI() { return yMinI; }
-  int getYMaxI() { return yMaxI; }
-
-  // Get the number of arbitrary paths used by the clip region.
-  int getNumPaths() { return length; }
+    // Get the number of arbitrary paths used by the clip region.
+    int getNumPaths() { return length; }
 
 protected:
+    SplashClip(SplashClip *clip);
+    void grow(int nPaths);
+    bool testClipPaths(int x, int y);
 
-  SplashClip(SplashClip *clip);
-  void grow(int nPaths);
-
-  GBool antialias;
-  SplashCoord xMin, yMin, xMax, yMax;
-  int xMinI, yMinI, xMaxI, yMaxI;
-  SplashXPath **paths;
-  Guchar *flags;
-  SplashXPathScanner **scanners;
-  int length, size;
+    bool antialias;
+    SplashCoord xMin, yMin, xMax, yMax;
+    int xMinI, yMinI, xMaxI, yMaxI;
+    SplashXPath **paths;
+    unsigned char *flags;
+    SplashXPathScanner **scanners;
+    int length, size;
 };
 
 #endif

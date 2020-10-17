@@ -19,22 +19,19 @@
 
 //------------------------------------------------------------------------
 
-class CurlCachedFileLoader : public CachedFileLoader {
+class CurlCachedFileLoader : public CachedFileLoader
+{
 
 public:
-
-  CurlCachedFileLoader();
-  ~CurlCachedFileLoader();
-  size_t init(GooString *url, CachedFile* cachedFile) override;
-  int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) override;
+    CurlCachedFileLoader();
+    ~CurlCachedFileLoader() override;
+    size_t init(GooString *url, CachedFile *cachedFile) override;
+    int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) override;
 
 private:
-
-  GooString *url;
-  CachedFile *cachedFile;
-  CURL *curl;
-
+    GooString *url;
+    CachedFile *cachedFile;
+    CURL *curl;
 };
 
 #endif
-

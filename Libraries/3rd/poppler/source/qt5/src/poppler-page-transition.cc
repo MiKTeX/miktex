@@ -1,6 +1,7 @@
 /* PageTransition.cc
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2015, Arseniy Lartsev <arseniy@alumni.chalmers.se>
+ * Copyright (C) 2018 Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,77 +26,80 @@ namespace Poppler {
 
 class PageTransitionData
 {
-  public:
-    PageTransitionData(Object *trans)
-    {
-        pt = new ::PageTransition(trans);
-    }
+public:
+    PageTransitionData(Object *trans) { pt = new ::PageTransition(trans); }
 
-    PageTransitionData(const PageTransitionData &ptd)
-    {
-        pt = new ::PageTransition(*ptd.pt);
-    }
+    PageTransitionData(const PageTransitionData &ptd) { pt = new ::PageTransition(*ptd.pt); }
 
-    ~PageTransitionData()
-    {
-        delete pt;
-    }
+    ~PageTransitionData() { delete pt; }
+
+    PageTransitionData &operator=(const PageTransitionData &) = delete;
 
     ::PageTransition *pt;
 };
 
-PageTransition::PageTransition(const PageTransitionParams &params)
+PageTransition::PageTransition(const PageTransitionParams &params) // clazy:exclude=function-args-by-value
 {
-  data = new PageTransitionData(params.dictObj);
+    data = new PageTransitionData(params.dictObj);
 }
 
 PageTransition::PageTransition(const PageTransition &pt)
 {
-  data = new PageTransitionData(*pt.data);
+    data = new PageTransitionData(*pt.data);
 }
 
 PageTransition::~PageTransition()
 {
-  delete data;
+    delete data;
+}
+
+PageTransition &PageTransition::operator=(const PageTransition &other)
+{
+    if (this != &other) {
+        delete data;
+        data = new PageTransitionData(*other.data);
+    }
+
+    return *this;
 }
 
 PageTransition::Type PageTransition::type() const
 {
-  return (Poppler::PageTransition::Type)data->pt->getType();
+    return (Poppler::PageTransition::Type)data->pt->getType();
 }
 
 int PageTransition::duration() const
 {
-  return data->pt->getDuration();
+    return data->pt->getDuration();
 }
 
 double PageTransition::durationReal() const
 {
-  return data->pt->getDuration();
+    return data->pt->getDuration();
 }
 
 PageTransition::Alignment PageTransition::alignment() const
 {
-  return (Poppler::PageTransition::Alignment)data->pt->getAlignment();
+    return (Poppler::PageTransition::Alignment)data->pt->getAlignment();
 }
 
 PageTransition::Direction PageTransition::direction() const
 {
-  return (Poppler::PageTransition::Direction)data->pt->getDirection();
+    return (Poppler::PageTransition::Direction)data->pt->getDirection();
 }
 
 int PageTransition::angle() const
 {
-  return data->pt->getAngle();
+    return data->pt->getAngle();
 }
 
 double PageTransition::scale() const
 {
-  return data->pt->getScale();
+    return data->pt->getScale();
 }
 bool PageTransition::isRectangular() const
 {
-  return data->pt->isRectangular();
+    return data->pt->isRectangular();
 }
 
 }

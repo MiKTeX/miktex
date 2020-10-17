@@ -15,17 +15,25 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2007-2011, 2013, 2015 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2007-2011, 2013, 2015, 2018 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
-// Copyright (C) 2009-2011, 2013, 2016, 2017 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009-2011, 2013, 2016-2020 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012, 2015 Tobias Koenig <tokoe@kdab.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
+// Copyright (C) 2018 Dileep Sankhla <sankhla.dileep96@gmail.com>
+// Copyright (C) 2018, 2019 Tobias Deiminger <haxtibal@posteo.de>
+// Copyright (C) 2018, 2020 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright (C) 2019 Umang Malik <umang99m@gmail.com>
+// Copyright (C) 2019 João Netto <joaonetto901@gmail.com>
+// Copyright (C) 2020 Nelson Benítez León <nbenitezl@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -35,9 +43,10 @@
 #ifndef ANNOT_H
 #define ANNOT_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
+#include <memory>
+#include <atomic>
+#include <mutex>
+#include <vector>
 
 #include "Object.h"
 
@@ -51,6 +60,8 @@ class PDFDoc;
 class Form;
 class FormWidget;
 class FormField;
+class FormFieldButton;
+class FormFieldText;
 class FormFieldChoice;
 class PDFRectangle;
 class Movie;
@@ -58,399 +69,446 @@ class LinkAction;
 class Sound;
 class FileSpec;
 
-enum AnnotLineEndingStyle {
-  annotLineEndingSquare,        // Square
-  annotLineEndingCircle,        // Circle
-  annotLineEndingDiamond,       // Diamond
-  annotLineEndingOpenArrow,     // OpenArrow
-  annotLineEndingClosedArrow,   // ClosedArrow
-  annotLineEndingNone,          // None
-  annotLineEndingButt,          // Butt
-  annotLineEndingROpenArrow,    // ROpenArrow
-  annotLineEndingRClosedArrow,  // RClosedArrow
-  annotLineEndingSlash          // Slash
+enum AnnotLineEndingStyle
+{
+    annotLineEndingSquare, // Square
+    annotLineEndingCircle, // Circle
+    annotLineEndingDiamond, // Diamond
+    annotLineEndingOpenArrow, // OpenArrow
+    annotLineEndingClosedArrow, // ClosedArrow
+    annotLineEndingNone, // None
+    annotLineEndingButt, // Butt
+    annotLineEndingROpenArrow, // ROpenArrow
+    annotLineEndingRClosedArrow, // RClosedArrow
+    annotLineEndingSlash // Slash
 };
 
-enum AnnotExternalDataType {
-  annotExternalDataMarkupUnknown,
-  annotExternalDataMarkup3D       // Markup3D
+enum AnnotExternalDataType
+{
+    annotExternalDataMarkupUnknown,
+    annotExternalDataMarkup3D // Markup3D
 };
 
 //------------------------------------------------------------------------
 // AnnotCoord
 //------------------------------------------------------------------------
 
-class AnnotCoord {
+class AnnotCoord
+{
 public:
+    AnnotCoord() : x(0), y(0) { }
+    AnnotCoord(double _x, double _y) : x(_x), y(_y) { }
 
-  AnnotCoord() : x(0), y(0) { }
-  AnnotCoord(double _x, double _y) : x(_x), y(_y) { }
+    double getX() const { return x; }
+    double getY() const { return y; }
 
-  double getX() const { return x; }
-  double getY() const { return y; }
-  
 protected:
-
-  double x, y;
+    double x, y;
 };
 
 //------------------------------------------------------------------------
 // AnnotPath
 //------------------------------------------------------------------------
 
-class AnnotPath {
+class AnnotPath
+{
 public:
-  AnnotPath();
-  AnnotPath(Array *array);
-  AnnotPath(AnnotCoord **coords, int coordLength);
-  ~AnnotPath();
+    AnnotPath();
+    AnnotPath(Array *array);
+    AnnotPath(std::vector<AnnotCoord> &&coords);
+    ~AnnotPath();
 
-  double getX(int coord) const;
-  double getY(int coord) const;
-  AnnotCoord *getCoord(int coord) const;
-  int getCoordsLength() const { return coordsLength; }
+    AnnotPath(const AnnotPath &) = delete;
+    AnnotPath &operator=(const AnnotPath &other) = delete;
+
+    double getX(int coord) const;
+    double getY(int coord) const;
+    AnnotCoord *getCoord(int coord);
+    int getCoordsLength() const { return coords.size(); }
+
 protected:
-  AnnotCoord **coords;
-  int coordsLength;
+    std::vector<AnnotCoord> coords;
 
-  void parsePathArray(Array *array);
+    void parsePathArray(Array *array);
 };
-  
+
 //------------------------------------------------------------------------
 // AnnotCalloutLine
 //------------------------------------------------------------------------
 
-class AnnotCalloutLine {
+class AnnotCalloutLine
+{
 public:
+    AnnotCalloutLine(double x1, double y1, double x2, double y2);
+    virtual ~AnnotCalloutLine() { }
 
-  AnnotCalloutLine(double x1, double y1, double x2, double y2);
-  virtual ~AnnotCalloutLine() { }
+    AnnotCalloutLine(const AnnotCalloutLine &) = delete;
+    AnnotCalloutLine &operator=(const AnnotCalloutLine &other) = delete;
 
-  double getX1() const { return coord1.getX(); }
-  double getY1() const { return coord1.getY(); }
-  double getX2() const { return coord2.getX(); }
-  double getY2() const { return coord2.getY(); }
-  
+    double getX1() const { return coord1.getX(); }
+    double getY1() const { return coord1.getY(); }
+    double getX2() const { return coord2.getX(); }
+    double getY2() const { return coord2.getY(); }
+
 protected:
-
-  AnnotCoord coord1, coord2;
+    AnnotCoord coord1, coord2;
 };
 
 //------------------------------------------------------------------------
 // AnnotCalloutMultiLine
 //------------------------------------------------------------------------
 
-class AnnotCalloutMultiLine: public AnnotCalloutLine {
+class AnnotCalloutMultiLine : public AnnotCalloutLine
+{
 public:
+    AnnotCalloutMultiLine(double x1, double y1, double x2, double y2, double x3, double y3);
 
-  AnnotCalloutMultiLine(double x1, double y1, double x2, double y2,
-    double x3, double y3);
-
-  double getX3() const { return coord3.getX(); }
-  double getY3() const { return coord3.getY(); }
+    double getX3() const { return coord3.getX(); }
+    double getY3() const { return coord3.getY(); }
 
 protected:
-
-  AnnotCoord coord3;
+    AnnotCoord coord3;
 };
 
 //------------------------------------------------------------------------
 // AnnotBorderEffect
 //------------------------------------------------------------------------
 
-class AnnotBorderEffect {
+class AnnotBorderEffect
+{
 public:
+    enum AnnotBorderEffectType
+    {
+        borderEffectNoEffect, // S
+        borderEffectCloudy // C
+    };
 
-  enum AnnotBorderEffectType {
-    borderEffectNoEffect, // S
-    borderEffectCloudy    // C
-  };
+    AnnotBorderEffect(Dict *dict);
 
-  AnnotBorderEffect(Dict *dict);
-
-  AnnotBorderEffectType getEffectType() const { return effectType; }
-  double getIntensity() const { return intensity; }
+    AnnotBorderEffectType getEffectType() const { return effectType; }
+    double getIntensity() const { return intensity; }
 
 private:
-
-  AnnotBorderEffectType effectType; // S  (Default S)
-  double intensity;                 // I  (Default 0)
+    AnnotBorderEffectType effectType; // S  (Default S)
+    double intensity; // I  (Default 0)
 };
 
 //------------------------------------------------------------------------
 // AnnotQuadrilateral
 //------------------------------------------------------------------------
 
-class AnnotQuadrilaterals {
+class AnnotQuadrilaterals
+{
 public:
-  class AnnotQuadrilateral {
-  public:
-    AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3,
-      double y3, double x4, double y4);
+    class AnnotQuadrilateral
+    {
+    public:
+        AnnotQuadrilateral();
+        AnnotQuadrilateral(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4);
 
-    AnnotCoord coord1, coord2, coord3, coord4;
-  };
+        AnnotCoord coord1, coord2, coord3, coord4;
+    };
 
-  AnnotQuadrilaterals(Array *array, PDFRectangle *rect);
-  AnnotQuadrilaterals(AnnotQuadrilateral **quads, int quadsLength);
-  ~AnnotQuadrilaterals();
+    AnnotQuadrilaterals(Array *array, PDFRectangle *rect);
+    AnnotQuadrilaterals(std::unique_ptr<AnnotQuadrilateral[]> &&quads, int quadsLength);
+    ~AnnotQuadrilaterals();
 
-  double getX1(int quadrilateral);
-  double getY1(int quadrilateral);
-  double getX2(int quadrilateral);
-  double getY2(int quadrilateral);
-  double getX3(int quadrilateral);
-  double getY3(int quadrilateral);
-  double getX4(int quadrilateral);
-  double getY4(int quadrilateral);
-  int getQuadrilateralsLength() const { return quadrilateralsLength; }
+    AnnotQuadrilaterals(const AnnotQuadrilaterals &) = delete;
+    AnnotQuadrilaterals &operator=(const AnnotQuadrilaterals &other) = delete;
+
+    double getX1(int quadrilateral);
+    double getY1(int quadrilateral);
+    double getX2(int quadrilateral);
+    double getY2(int quadrilateral);
+    double getX3(int quadrilateral);
+    double getY3(int quadrilateral);
+    double getX4(int quadrilateral);
+    double getY4(int quadrilateral);
+    int getQuadrilateralsLength() const { return quadrilateralsLength; }
+
 protected:
-
-  AnnotQuadrilateral** quadrilaterals;
-  int quadrilateralsLength;
+    std::unique_ptr<AnnotQuadrilateral[]> quadrilaterals;
+    int quadrilateralsLength;
 };
 
 //------------------------------------------------------------------------
 // AnnotBorder
 //------------------------------------------------------------------------
 
-class AnnotBorder {
+class AnnotBorder
+{
 public:
-  enum AnnotBorderType {
-    typeArray,
-    typeBS
-  };
+    enum AnnotBorderType
+    {
+        typeArray,
+        typeBS
+    };
 
-  enum AnnotBorderStyle {
-    borderSolid,      // Solid
-    borderDashed,     // Dashed
-    borderBeveled,    // Beveled
-    borderInset,      // Inset
-    borderUnderlined  // Underlined
-  };
+    enum AnnotBorderStyle
+    {
+        borderSolid, // Solid
+        borderDashed, // Dashed
+        borderBeveled, // Beveled
+        borderInset, // Inset
+        borderUnderlined // Underlined
+    };
 
-  virtual ~AnnotBorder();
+    virtual ~AnnotBorder();
 
-  virtual void setWidth(double new_width) { width = new_width; }
+    AnnotBorder(const AnnotBorder &) = delete;
+    AnnotBorder &operator=(const AnnotBorder &other) = delete;
 
-  virtual AnnotBorderType getType() const = 0;
-  virtual double getWidth() const { return width; }
-  virtual int getDashLength() const { return dashLength; }
-  virtual double *getDash() const { return dash; }
-  virtual AnnotBorderStyle getStyle() const { return style; }
+    virtual void setWidth(double new_width) { width = new_width; }
 
-  virtual Object writeToObject(XRef *xref) const = 0;
+    virtual AnnotBorderType getType() const = 0;
+    virtual double getWidth() const { return width; }
+    virtual int getDashLength() const { return dashLength; }
+    virtual double *getDash() const { return dash; }
+    virtual AnnotBorderStyle getStyle() const { return style; }
+
+    virtual Object writeToObject(XRef *xref) const = 0;
 
 protected:
-  AnnotBorder();
+    AnnotBorder();
 
-  GBool parseDashArray(Object *dashObj);
+    bool parseDashArray(Object *dashObj);
 
-  AnnotBorderType type;
-  double width;
-  static const int DASH_LIMIT = 10; // implementation note 82 in Appendix H.
-  int dashLength;
-  double *dash;
-  AnnotBorderStyle style;
+    AnnotBorderType type;
+    double width;
+    static const int DASH_LIMIT = 10; // implementation note 82 in Appendix H.
+    int dashLength;
+    double *dash;
+    AnnotBorderStyle style;
 };
 
 //------------------------------------------------------------------------
 // AnnotBorderArray
 //------------------------------------------------------------------------
 
-class AnnotBorderArray: public AnnotBorder {
+class AnnotBorderArray : public AnnotBorder
+{
 public:
-  AnnotBorderArray();
-  AnnotBorderArray(Array *array);
+    AnnotBorderArray();
+    AnnotBorderArray(Array *array);
 
-  void setHorizontalCorner(double hc) { horizontalCorner = hc; }
-  void setVerticalCorner(double vc) { verticalCorner = vc; }
+    void setHorizontalCorner(double hc) { horizontalCorner = hc; }
+    void setVerticalCorner(double vc) { verticalCorner = vc; }
 
-  double getHorizontalCorner() const { return horizontalCorner; }
-  double getVerticalCorner() const { return verticalCorner; }
+    double getHorizontalCorner() const { return horizontalCorner; }
+    double getVerticalCorner() const { return verticalCorner; }
 
 private:
-  AnnotBorderType getType() const override { return typeArray; }
-  Object writeToObject(XRef *xref) const override;
+    AnnotBorderType getType() const override { return typeArray; }
+    Object writeToObject(XRef *xref) const override;
 
-  double horizontalCorner;          // (Default 0)
-  double verticalCorner;            // (Default 0)
-  // double width;                  // (Default 1)  (inherited from AnnotBorder)
+    double horizontalCorner; // (Default 0)
+    double verticalCorner; // (Default 0)
+    // double width;                  // (Default 1)  (inherited from AnnotBorder)
 };
 
 //------------------------------------------------------------------------
 // AnnotBorderBS
 //------------------------------------------------------------------------
 
-class AnnotBorderBS: public AnnotBorder {
+class AnnotBorderBS : public AnnotBorder
+{
 public:
-
-  AnnotBorderBS();
-  AnnotBorderBS(Dict *dict);
+    AnnotBorderBS();
+    AnnotBorderBS(Dict *dict);
 
 private:
-  AnnotBorderType getType() const override { return typeBS; }
-  Object writeToObject(XRef *xref) const override;
+    AnnotBorderType getType() const override { return typeBS; }
+    Object writeToObject(XRef *xref) const override;
 
-  const char *getStyleName() const;
+    const char *getStyleName() const;
 
-  // double width;           // W  (Default 1)   (inherited from AnnotBorder)
-  // AnnotBorderStyle style; // S  (Default S)   (inherited from AnnotBorder)
-  // double *dash;           // D  (Default [3]) (inherited from AnnotBorder)
+    // double width;           // W  (Default 1)   (inherited from AnnotBorder)
+    // AnnotBorderStyle style; // S  (Default S)   (inherited from AnnotBorder)
+    // double *dash;           // D  (Default [3]) (inherited from AnnotBorder)
 };
 
 //------------------------------------------------------------------------
 // AnnotColor
 //------------------------------------------------------------------------
 
-class AnnotColor {
+class AnnotColor
+{
 public:
+    enum AnnotColorSpace
+    {
+        colorTransparent = 0,
+        colorGray = 1,
+        colorRGB = 3,
+        colorCMYK = 4
+    };
 
-  enum AnnotColorSpace {
-    colorTransparent = 0,
-    colorGray        = 1,
-    colorRGB         = 3,
-    colorCMYK        = 4
-  };
+    AnnotColor();
+    AnnotColor(double gray);
+    AnnotColor(double r, double g, double b);
+    AnnotColor(double c, double m, double y, double k);
+    AnnotColor(Array *array, int adjust = 0);
 
-  AnnotColor();
-  AnnotColor(double gray);
-  AnnotColor(double r, double g, double b);
-  AnnotColor(double c, double m, double y, double k);
-  AnnotColor(Array *array, int adjust = 0);
+    void adjustColor(int adjust);
 
-  void adjustColor(int adjust);
+    AnnotColorSpace getSpace() const { return (AnnotColorSpace)length; }
+    const double *getValues() const { return values; }
 
-  AnnotColorSpace getSpace() const { return (AnnotColorSpace) length; }
-  const double *getValues() const { return values; }
-
-  Object writeToObject(XRef *xref) const;
+    Object writeToObject(XRef *xref) const;
 
 private:
+    double values[4];
+    int length;
+};
 
-  double values[4];
-  int length;
+//------------------------------------------------------------------------
+// DefaultAppearance
+//------------------------------------------------------------------------
+
+class DefaultAppearance
+{
+public:
+    DefaultAppearance(Object &&fontNameA, double fontPtSizeA, std::unique_ptr<AnnotColor> fontColorA);
+    DefaultAppearance(GooString *da);
+    void setFontName(Object &&fontNameA);
+    const Object &getFontName() const { return fontName; }
+    void setFontPtSize(double fontPtSizeA);
+    double getFontPtSize() const { return fontPtSize; }
+    void setFontColor(std::unique_ptr<AnnotColor> fontColorA);
+    const AnnotColor *getFontColor() const { return fontColor.get(); }
+    GooString *toAppearanceString() const;
+
+    DefaultAppearance(const DefaultAppearance &) = delete;
+    DefaultAppearance &operator=(const DefaultAppearance &) = delete;
+
+private:
+    Object fontName;
+    double fontPtSize;
+    std::unique_ptr<AnnotColor> fontColor;
 };
 
 //------------------------------------------------------------------------
 // AnnotIconFit
 //------------------------------------------------------------------------
 
-class AnnotIconFit {
+class AnnotIconFit
+{
 public:
+    enum AnnotIconFitScaleWhen
+    {
+        scaleAlways, // A
+        scaleBigger, // B
+        scaleSmaller, // S
+        scaleNever // N
+    };
 
-  enum AnnotIconFitScaleWhen {
-    scaleAlways,  // A
-    scaleBigger,  // B
-    scaleSmaller, // S
-    scaleNever    // N
-  };
+    enum AnnotIconFitScale
+    {
+        scaleAnamorphic, // A
+        scaleProportional // P
+    };
 
-  enum AnnotIconFitScale {
-    scaleAnamorphic,  // A
-    scaleProportional // P
-  };
+    AnnotIconFit(Dict *dict);
 
-  AnnotIconFit(Dict *dict);
-
-  AnnotIconFitScaleWhen getScaleWhen() { return scaleWhen; }
-  AnnotIconFitScale getScale() { return scale; }
-  double getLeft() { return left; }
-  double getBottom() { return bottom; }
-  bool getFullyBounds() { return fullyBounds; }
+    AnnotIconFitScaleWhen getScaleWhen() { return scaleWhen; }
+    AnnotIconFitScale getScale() { return scale; }
+    double getLeft() { return left; }
+    double getBottom() { return bottom; }
+    bool getFullyBounds() { return fullyBounds; }
 
 protected:
-
-  AnnotIconFitScaleWhen scaleWhen;  // SW (Default A)
-  AnnotIconFitScale scale;          // S  (Default P)
-  double left;                      // A  (Default [0.5 0.5]
-  double bottom;                    // Only if scale is P
-  bool fullyBounds;                 // FB (Default false)
+    AnnotIconFitScaleWhen scaleWhen; // SW (Default A)
+    AnnotIconFitScale scale; // S  (Default P)
+    double left; // A  (Default [0.5 0.5]
+    double bottom; // Only if scale is P
+    bool fullyBounds; // FB (Default false)
 };
 
 //------------------------------------------------------------------------
 // AnnotAppearance
 //------------------------------------------------------------------------
 
-class AnnotAppearance {
+class AnnotAppearance
+{
 public:
+    enum AnnotAppearanceType
+    {
+        appearNormal,
+        appearRollover,
+        appearDown
+    };
 
-  enum AnnotAppearanceType {
-    appearNormal,
-    appearRollover,
-    appearDown
-  };
+    AnnotAppearance(PDFDoc *docA, Object *dict);
+    ~AnnotAppearance();
 
-  AnnotAppearance(PDFDoc *docA, Object *dict);
-  ~AnnotAppearance();
+    // State is ignored if no subdictionary is present
+    Object getAppearanceStream(AnnotAppearanceType type, const char *state);
 
-  // State is ignored if no subdictionary is present
-  Object getAppearanceStream(AnnotAppearanceType type, const char *state);
+    // Access keys in normal appearance subdictionary (N)
+    std::unique_ptr<GooString> getStateKey(int i);
+    int getNumStates();
 
-  // Access keys in normal appearance subdictionary (N)
-  GooString * getStateKey(int i);
-  int getNumStates();
+    // Removes all associated streams in the xref table. Caller is required to
+    // reset parent annotation's AP and AS after this call.
+    void removeAllStreams();
 
-  // Removes all associated streams in the xref table. Caller is required to
-  // reset parent annotation's AP and AS after this call.
-  void removeAllStreams();
-
-  // Test if this AnnotAppearance references the specified stream
-  GBool referencesStream(Ref targetStreamRef);
+    // Test if this AnnotAppearance references the specified stream
+    bool referencesStream(Ref refToStream);
 
 private:
-  static GBool referencesStream(Object *stateObj, Ref targetStreamRef);
-  void removeStream(Ref refToStream);
-  void removeStateStreams(Object *state);
+    static bool referencesStream(const Object *stateObj, Ref refToStream);
+    void removeStream(Ref refToStream);
+    void removeStateStreams(const Object *state);
 
 protected:
-  PDFDoc *doc;
-  XRef *xref;                   // the xref table for this PDF file
-  Object appearDict;            // Annotation's AP
+    PDFDoc *doc;
+    Object appearDict; // Annotation's AP
 };
 
 //------------------------------------------------------------------------
 // AnnotAppearanceCharacs
 //------------------------------------------------------------------------
 
-class AnnotAppearanceCharacs {
+class AnnotAppearanceCharacs
+{
 public:
+    enum AnnotAppearanceCharacsTextPos
+    {
+        captionNoIcon, // 0
+        captionNoCaption, // 1
+        captionBelow, // 2
+        captionAbove, // 3
+        captionRight, // 4
+        captionLeft, // 5
+        captionOverlaid // 6
+    };
 
-  enum AnnotAppearanceCharacsTextPos {
-    captionNoIcon,    // 0
-    captionNoCaption, // 1
-    captionBelow,     // 2
-    captionAbove,     // 3
-    captionRight,     // 4
-    captionLeft,      // 5
-    captionOverlaid   // 6
-  };
+    AnnotAppearanceCharacs(Dict *dict);
+    ~AnnotAppearanceCharacs();
 
-  AnnotAppearanceCharacs(Dict *dict);
-  ~AnnotAppearanceCharacs();
+    AnnotAppearanceCharacs(const AnnotAppearanceCharacs &) = delete;
+    AnnotAppearanceCharacs &operator=(const AnnotAppearanceCharacs &) = delete;
 
-  int getRotation() { return rotation; }
-  AnnotColor *getBorderColor() { return borderColor; }
-  AnnotColor *getBackColor() { return backColor; }
-  GooString *getNormalCaption() { return normalCaption; }
-  GooString *getRolloverCaption() { return rolloverCaption; }
-  GooString *getAlternateCaption() { return alternateCaption; }
-  AnnotIconFit *getIconFit() { return iconFit; }
-  AnnotAppearanceCharacsTextPos getPosition() { return position; }
+    int getRotation() const { return rotation; }
+    const AnnotColor *getBorderColor() const { return borderColor.get(); }
+    const AnnotColor *getBackColor() const { return backColor.get(); }
+    const GooString *getNormalCaption() const { return normalCaption.get(); }
+    const GooString *getRolloverCaption() { return rolloverCaption.get(); }
+    const GooString *getAlternateCaption() { return alternateCaption.get(); }
+    const AnnotIconFit *getIconFit() { return iconFit.get(); }
+    AnnotAppearanceCharacsTextPos getPosition() const { return position; }
 
 protected:
-
-  int rotation;                           // R  (Default 0)
-  AnnotColor *borderColor;                // BC
-  AnnotColor *backColor;                  // BG
-  GooString *normalCaption;               // CA
-  GooString *rolloverCaption;             // RC
-  GooString *alternateCaption;            // AC
-  // I
-  // RI
-  // IX
-  AnnotIconFit *iconFit;                  // IF
-  AnnotAppearanceCharacsTextPos position; // TP (Default 0)
+    int rotation; // R  (Default 0)
+    std::unique_ptr<AnnotColor> borderColor; // BC
+    std::unique_ptr<AnnotColor> backColor; // BG
+    std::unique_ptr<GooString> normalCaption; // CA
+    std::unique_ptr<GooString> rolloverCaption; // RC
+    std::unique_ptr<GooString> alternateCaption; // AC
+    // I
+    // RI
+    // IX
+    std::unique_ptr<AnnotIconFit> iconFit; // IF
+    AnnotAppearanceCharacsTextPos position; // TP (Default 0)
 };
 
 //------------------------------------------------------------------------
@@ -460,1149 +518,1216 @@ protected:
 class AnnotAppearanceBBox
 {
 public:
-  AnnotAppearanceBBox(PDFRectangle *init);
+    AnnotAppearanceBBox(PDFRectangle *rect);
 
-  void setBorderWidth(double w) { borderWidth = w; }
+    void setBorderWidth(double w) { borderWidth = w; }
 
-  // The following functions operate on coords relative to [origX origY]
-  void extendTo(double x, double y);
-  void getBBoxRect(double bbox[4]) const;
+    // The following functions operate on coords relative to [origX origY]
+    void extendTo(double x, double y);
+    void getBBoxRect(double bbox[4]) const;
 
-  // Get boundaries in page coordinates
-  double getPageXMin() const;
-  double getPageYMin() const;
-  double getPageXMax() const;
-  double getPageYMax() const;
+    // Get boundaries in page coordinates
+    double getPageXMin() const;
+    double getPageYMin() const;
+    double getPageXMax() const;
+    double getPageYMax() const;
 
 private:
-  double origX, origY, borderWidth;
-  double minX, minY, maxX, maxY;
+    double origX, origY, borderWidth;
+    double minX, minY, maxX, maxY;
+};
+
+//------------------------------------------------------------------------
+// AnnotAppearanceBuilder
+//------------------------------------------------------------------------
+class Matrix;
+class AnnotAppearanceBuilder
+{
+public:
+    AnnotAppearanceBuilder();
+    ~AnnotAppearanceBuilder();
+
+    AnnotAppearanceBuilder(const AnnotAppearanceBuilder &) = delete;
+    AnnotAppearanceBuilder &operator=(const AnnotAppearanceBuilder &) = delete;
+
+    void setDrawColor(const AnnotColor *color, bool fill);
+    void setLineStyleForBorder(const AnnotBorder *border);
+    void setTextFont(const Object &fontName, double fontSize);
+    void drawCircle(double cx, double cy, double r, bool fill);
+    void drawCircleTopLeft(double cx, double cy, double r);
+    void drawCircleBottomRight(double cx, double cy, double r);
+    void drawLineEnding(AnnotLineEndingStyle endingStyle, double x, double y, double size, bool fill, const Matrix &m);
+    void drawLineEndSquare(double x, double y, double size, bool fill, const Matrix &m);
+    void drawLineEndCircle(double x, double y, double size, bool fill, const Matrix &m);
+    void drawLineEndDiamond(double x, double y, double size, bool fill, const Matrix &m);
+    void drawLineEndArrow(double x, double y, double size, int orientation, bool isOpen, bool fill, const Matrix &m);
+    void drawLineEndSlash(double x, double y, double size, const Matrix &m);
+    void drawFieldBorder(const FormField *field, const AnnotBorder *border, const AnnotAppearanceCharacs *appearCharacs, const PDFRectangle *rect);
+    bool drawFormField(const FormField *field, const Form *form, const GfxResources *resources, const GooString *da, const AnnotBorder *border, const AnnotAppearanceCharacs *appearCharacs, const PDFRectangle *rect,
+                       const GooString *appearState, XRef *xref, bool *addedDingbatsResource);
+    static double lineEndingXShorten(AnnotLineEndingStyle endingStyle, double size);
+    static double lineEndingXExtendBBox(AnnotLineEndingStyle endingStyle, double size);
+    void writeString(const GooString &str);
+
+    void append(const char *text);
+    void appendf(const char *fmt, ...) GOOSTRING_FORMAT;
+
+    const GooString *buffer() const;
+
+private:
+    bool drawListBox(const FormFieldChoice *fieldChoice, const AnnotBorder *border, const PDFRectangle *rect, const GooString *da, const GfxResources *resources, int quadding);
+    bool drawFormFieldButton(const FormFieldButton *field, const GfxResources *resources, const GooString *da, const AnnotBorder *border, const AnnotAppearanceCharacs *appearCharacs, const PDFRectangle *rect, const GooString *appearState,
+                             XRef *xref, bool *addedDingbatsResource);
+    bool drawFormFieldText(const FormFieldText *fieldText, const Form *form, const GfxResources *resources, const GooString *da, const AnnotBorder *border, const AnnotAppearanceCharacs *appearCharacs, const PDFRectangle *rect);
+    bool drawFormFieldChoice(const FormFieldChoice *fieldChoice, const Form *form, const GfxResources *resources, const GooString *da, const AnnotBorder *border, const AnnotAppearanceCharacs *appearCharacs, const PDFRectangle *rect);
+    bool drawText(const GooString *text, const GooString *da, const GfxResources *resources, const AnnotBorder *border, const AnnotAppearanceCharacs *appearCharacs, const PDFRectangle *rect, bool multiline, int comb, int quadding,
+                  bool txField, bool forceZapfDingbats, XRef *xref, bool *addedDingbatsResource, // xref and addedDingbatsResource both must not be null if forceZapfDingbats is passed
+                  bool password);
+    void drawArrowPath(double x, double y, const Matrix &m, int orientation = 1);
+
+    GooString *appearBuf;
 };
 
 //------------------------------------------------------------------------
 // Annot
 //------------------------------------------------------------------------
 
-class Annot {
-  friend class Annots;
-  friend class Page;
+class Annot
+{
+    friend class Annots;
+    friend class Page;
+
 public:
-  enum AnnotFlag {
-    flagUnknown        = 0x0000,
-    flagInvisible      = 0x0001,
-    flagHidden         = 0x0002,
-    flagPrint          = 0x0004,
-    flagNoZoom         = 0x0008,
-    flagNoRotate       = 0x0010,
-    flagNoView         = 0x0020,
-    flagReadOnly       = 0x0040,
-    flagLocked         = 0x0080,
-    flagToggleNoView   = 0x0100,
-    flagLockedContents = 0x0200
-  };
+    enum AnnotFlag
+    {
+        flagUnknown = 0x0000,
+        flagInvisible = 0x0001,
+        flagHidden = 0x0002,
+        flagPrint = 0x0004,
+        flagNoZoom = 0x0008,
+        flagNoRotate = 0x0010,
+        flagNoView = 0x0020,
+        flagReadOnly = 0x0040,
+        flagLocked = 0x0080,
+        flagToggleNoView = 0x0100,
+        flagLockedContents = 0x0200
+    };
 
-  enum AnnotSubtype {
-    typeUnknown,        //                 0
-    typeText,           // Text            1
-    typeLink,           // Link            2
-    typeFreeText,       // FreeText        3
-    typeLine,           // Line            4
-    typeSquare,         // Square          5
-    typeCircle,         // Circle          6
-    typePolygon,        // Polygon         7
-    typePolyLine,       // PolyLine        8
-    typeHighlight,      // Highlight       9
-    typeUnderline,      // Underline      10
-    typeSquiggly,       // Squiggly       11
-    typeStrikeOut,      // StrikeOut      12
-    typeStamp,          // Stamp          13
-    typeCaret,          // Caret          14
-    typeInk,            // Ink            15
-    typePopup,          // Popup          16
-    typeFileAttachment, // FileAttachment 17
-    typeSound,          // Sound          18
-    typeMovie,          // Movie          19
-    typeWidget,         // Widget         20
-    typeScreen,         // Screen         21
-    typePrinterMark,    // PrinterMark    22
-    typeTrapNet,        // TrapNet        23
-    typeWatermark,      // Watermark      24
-    type3D,             // 3D             25
-    typeRichMedia       // RichMedia      26
-  };
+    enum AnnotSubtype
+    {
+        typeUnknown, //                 0
+        typeText, // Text            1
+        typeLink, // Link            2
+        typeFreeText, // FreeText        3
+        typeLine, // Line            4
+        typeSquare, // Square          5
+        typeCircle, // Circle          6
+        typePolygon, // Polygon         7
+        typePolyLine, // PolyLine        8
+        typeHighlight, // Highlight       9
+        typeUnderline, // Underline      10
+        typeSquiggly, // Squiggly       11
+        typeStrikeOut, // StrikeOut      12
+        typeStamp, // Stamp          13
+        typeCaret, // Caret          14
+        typeInk, // Ink            15
+        typePopup, // Popup          16
+        typeFileAttachment, // FileAttachment 17
+        typeSound, // Sound          18
+        typeMovie, // Movie          19
+        typeWidget, // Widget         20
+        typeScreen, // Screen         21
+        typePrinterMark, // PrinterMark    22
+        typeTrapNet, // TrapNet        23
+        typeWatermark, // Watermark      24
+        type3D, // 3D             25
+        typeRichMedia // RichMedia      26
+    };
 
-  /**
-   * Describes the additional actions of a screen or widget annotation.
-   */
-  enum AdditionalActionsType {
-    actionCursorEntering, ///< Performed when the cursor enters the annotation's active area
-    actionCursorLeaving,  ///< Performed when the cursor exists the annotation's active area
-    actionMousePressed,   ///< Performed when the mouse button is pressed inside the annotation's active area
-    actionMouseReleased,  ///< Performed when the mouse button is released inside the annotation's active area
-    actionFocusIn,        ///< Performed when the annotation receives the input focus
-    actionFocusOut,       ///< Performed when the annotation loses the input focus
-    actionPageOpening,    ///< Performed when the page containing the annotation is opened
-    actionPageClosing,    ///< Performed when the page containing the annotation is closed
-    actionPageVisible,    ///< Performed when the page containing the annotation becomes visible
-    actionPageInvisible   ///< Performed when the page containing the annotation becomes invisible
-  };
+    /**
+     * Describes the additional actions of a screen or widget annotation.
+     */
+    enum AdditionalActionsType
+    {
+        actionCursorEntering, ///< Performed when the cursor enters the annotation's active area
+        actionCursorLeaving, ///< Performed when the cursor exists the annotation's active area
+        actionMousePressed, ///< Performed when the mouse button is pressed inside the annotation's active area
+        actionMouseReleased, ///< Performed when the mouse button is released inside the annotation's active area
+        actionFocusIn, ///< Performed when the annotation receives the input focus
+        actionFocusOut, ///< Performed when the annotation loses the input focus
+        actionPageOpening, ///< Performed when the page containing the annotation is opened
+        actionPageClosing, ///< Performed when the page containing the annotation is closed
+        actionPageVisible, ///< Performed when the page containing the annotation becomes visible
+        actionPageInvisible ///< Performed when the page containing the annotation becomes invisible
+    };
 
-  enum FormAdditionalActionsType {
-    actionFieldModified,   ///< Performed when the when the user modifies the field
-    actionFormatField,     ///< Performed before the field is formatted to display its value
-    actionValidateField,   ///< Performed when the field value changes
-    actionCalculateField,  ///< Performed when the field needs to be recalculated
-  };
+    enum FormAdditionalActionsType
+    {
+        actionFieldModified, ///< Performed when the when the user modifies the field
+        actionFormatField, ///< Performed before the field is formatted to display its value
+        actionValidateField, ///< Performed when the field value changes
+        actionCalculateField, ///< Performed when the field needs to be recalculated
+    };
 
-  Annot(PDFDoc *docA, PDFRectangle *rectA);
-  Annot(PDFDoc *docA, Object *dictObject);
-  Annot(PDFDoc *docA, Object *dictObject, Object *obj);
-  GBool isOk() { return ok; }
+    Annot(PDFDoc *docA, PDFRectangle *rectA);
+    Annot(PDFDoc *docA, Object &&dictObject);
+    Annot(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    bool isOk() { return ok; }
 
-  void incRefCnt();
-  void decRefCnt();
+    void incRefCnt();
+    void decRefCnt();
 
-  virtual void draw(Gfx *gfx, GBool printing);
-  // Get the resource dict of the appearance stream
-  virtual Object getAppearanceResDict();
+    virtual void draw(Gfx *gfx, bool printing);
+    // Get the resource dict of the appearance stream
+    virtual Object getAppearanceResDict();
 
-  GBool match(Ref *refA)
-    { return ref.num == refA->num && ref.gen == refA->gen; }
+    bool match(const Ref *refA) const { return ref == *refA; }
 
-  double getXMin();
-  double getYMin();
-  double getXMax();
-  double getYMax();
+    double getXMin();
+    double getYMin();
+    double getXMax();
+    double getYMax();
 
-  double getFontSize() { return fontSize; }
+    void setRect(PDFRectangle *rect);
+    void setRect(double x1, double y1, double x2, double y2);
 
-  void setRect(PDFRectangle *rect);
-  void setRect(double x1, double y1, double x2, double y2);
+    // Sets the annot contents to new_content
+    // new_content should never be NULL
+    virtual void setContents(GooString *new_content);
+    void setName(GooString *new_name);
+    void setModified(GooString *new_modified);
+    void setFlags(unsigned int new_flags);
 
-  // Sets the annot contents to new_content
-  // new_content should never be NULL
-  virtual void setContents(GooString *new_content);
-  void setName(GooString *new_name);
-  void setModified(GooString *new_date);
-  void setFlags(Guint new_flags);
+    void setBorder(std::unique_ptr<AnnotBorder> &&new_border);
+    void setColor(std::unique_ptr<AnnotColor> &&new_color);
 
-  void setBorder(AnnotBorder *new_border); // Takes ownership
+    void setAppearanceState(const char *state);
 
-  // The annotation takes the ownership of
-  // new_color. 
-  void setColor(AnnotColor *new_color);
+    // getters
+    PDFDoc *getDoc() const { return doc; }
+    bool getHasRef() const { return hasRef; }
+    Ref getRef() const { return ref; }
+    const Object &getAnnotObj() const { return annotObj; }
+    AnnotSubtype getType() const { return type; }
+    PDFRectangle *getRect() const { return rect.get(); }
+    void getRect(double *x1, double *y1, double *x2, double *y2) const;
+    const GooString *getContents() const { return contents.get(); }
+    int getPageNum() const { return page; }
+    const GooString *getName() const { return name.get(); }
+    const GooString *getModified() const { return modified.get(); }
+    unsigned int getFlags() const { return flags; }
+    AnnotAppearance *getAppearStreams() const { return appearStreams.get(); }
+    const GooString *getAppearState() const { return appearState.get(); }
+    AnnotBorder *getBorder() const { return border.get(); }
+    AnnotColor *getColor() const { return color.get(); }
+    int getTreeKey() const { return treeKey; }
 
-  void setAppearanceState(const char *state);
+    int getId() { return ref.num; }
 
-  // getters
-  PDFDoc *getDoc() const { return doc; }
-  XRef *getXRef() const { return xref; }
-  GBool getHasRef() const { return hasRef; }
-  Ref getRef() const { return ref; }
-  AnnotSubtype getType() const { return type; }
-  PDFRectangle *getRect() const { return rect; }
-  void getRect(double *x1, double *y1, double *x2, double *y2) const;
-  GooString *getContents() const { return contents; }
-  int getPageNum() const { return page; }
-  GooString *getName() const { return name; }
-  GooString *getModified() const { return modified; }
-  Guint getFlags() const { return flags; }
-  AnnotAppearance *getAppearStreams() const { return appearStreams; }
-  GooString *getAppearState() const { return appearState; }
-  AnnotBorder *getBorder() const { return border; }
-  AnnotColor *getColor() const { return color; }
-  int getTreeKey() const { return treeKey; }
+    // Check if point is inside the annot rectangle.
+    bool inRect(double x, double y) const;
 
-  int getId() { return ref.num; }
-
-  // Check if point is inside the annot rectangle.
-  GBool inRect(double x, double y) const;
+    static void layoutText(const GooString *text, GooString *outBuf, int *i, const GfxFont *font, double *width, double widthLimit, int *charCount, bool noReencode);
 
 private:
-  void readArrayNum(Object *pdfArray, int key, double *value);
-  // write vStr[i:j[ in appearBuf
+    void readArrayNum(Object *pdfArray, int key, double *value);
+    // write vStr[i:j[ in appearBuf
 
-  void initialize (PDFDoc *docA, Dict *dict);
-  void setPage (int new_page, GBool updateP); // Called by Page::addAnnot and Annots ctor
-
+    void initialize(PDFDoc *docA, Dict *dict);
+    void setPage(int pageIndex, bool updateP); // Called by Page::addAnnot and Annots ctor
 
 protected:
-  virtual ~Annot();
-  virtual void removeReferencedObjects(); // Called by Page::removeAnnot
-  void setColor(AnnotColor *color, GBool fill);
-  void setLineStyleForBorder(AnnotBorder *border);
-  void drawCircle(double cx, double cy, double r, GBool fill);
-  void drawCircleTopLeft(double cx, double cy, double r);
-  void drawCircleBottomRight(double cx, double cy, double r);
-  void layoutText(GooString *text, GooString *outBuf, int *i, GfxFont *font,
-		  double *width, double widthLimit, int *charCount,
-		  GBool noReencode);
-  void writeString(GooString *str, GooString *appearBuf);
-  Object createForm(double *bbox, GBool transparencyGroup, Dict *resDict);
-  Dict *createResourcesDict(const char *formName, Object &&formStream, const char *stateName,
-			   double opacity, const char *blendMode);
-  GBool isVisible(GBool printing);
-  int getRotation() const;
+    virtual ~Annot();
+    virtual void removeReferencedObjects(); // Called by Page::removeAnnot
+    Object createForm(const GooString *appearBuf, double *bbox, bool transparencyGroup, Dict *resDict);
+    Object createForm(const GooString *appearBuf, double *bbox, bool transparencyGroup, Object &&resDictObject); // overload to support incRef/decRef
+    Dict *createResourcesDict(const char *formName, Object &&formStream, const char *stateName, double opacity, const char *blendMode);
+    bool isVisible(bool printing);
+    int getRotation() const;
 
-  // Updates the field key of the annotation dictionary
-  // and sets M to the current time
-  void update(const char *key, Object &&value);
+    // Updates the field key of the annotation dictionary
+    // and sets M to the current time
+    void update(const char *key, Object &&value);
 
-  // Delete appearance streams and reset appearance state
-  void invalidateAppearance();
+    // Delete appearance streams and reset appearance state
+    void invalidateAppearance();
 
-  Object annotObj;
+    Object annotObj;
 
-  int refCnt;
-  
-  // required data
-  AnnotSubtype type;                // Annotation type
-  PDFRectangle *rect;               // Rect
+    std::atomic_int refCnt;
 
-  // optional data
-  GooString *contents;              // Contents
-  GooString *name;                  // NM
-  GooString *modified;              // M
-  int       page;                   // P
-  Guint flags;                      // F (must be a 32 bit unsigned int)
-  AnnotAppearance *appearStreams;   // AP
-  Object appearance;     // a reference to the Form XObject stream
-                         //   for the normal appearance
-  AnnotAppearanceBBox *appearBBox;  // BBox of generated appearance
-  GooString *appearState;           // AS
-  int treeKey;                      // Struct Parent;
-  Object oc;                        // OC
+    // required data
+    AnnotSubtype type; // Annotation type
+    std::unique_ptr<PDFRectangle> rect; // Rect
 
-  PDFDoc *doc;
-  XRef *xref;			// the xref table for this PDF file
-  Ref ref;                      // object ref identifying this annotation
-  GooString *appearBuf;
-  AnnotBorder *border;          // Border, BS
-  AnnotColor *color;            // C
-  double fontSize; 
-  GBool ok;
+    // optional data
+    std::unique_ptr<GooString> contents; // Contents
+    std::unique_ptr<GooString> name; // NM
+    std::unique_ptr<GooString> modified; // M
+    int page; // P
+    unsigned int flags; // F (must be a 32 bit unsigned int)
+    std::unique_ptr<AnnotAppearance> appearStreams; // AP
+    Object appearance; // a reference to the Form XObject stream
+                       //   for the normal appearance
+    std::unique_ptr<AnnotAppearanceBBox> appearBBox; // BBox of generated appearance
+    std::unique_ptr<GooString> appearState; // AS
+    int treeKey; // Struct Parent;
+    Object oc; // OC
 
-  bool hasRef;
-#if MULTITHREADED
-  GooMutex mutex;
-#endif
+    PDFDoc *doc;
+    Ref ref; // object ref identifying this annotation
+    std::unique_ptr<AnnotBorder> border; // Border, BS
+    std::unique_ptr<AnnotColor> color; // C
+    bool ok;
+
+    bool hasRef;
+    mutable std::recursive_mutex mutex;
 };
 
 //------------------------------------------------------------------------
 // AnnotPopup
 //------------------------------------------------------------------------
 
-class AnnotPopup: public Annot {
+class AnnotPopup : public Annot
+{
 public:
-  AnnotPopup(PDFDoc *docA, PDFRectangle *rect);
-  AnnotPopup(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotPopup();
+    AnnotPopup(PDFDoc *docA, PDFRectangle *rect);
+    AnnotPopup(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotPopup() override;
 
-  Object *getParentNF() { return &parent; }
-  void setParent(Object *parentA);
-  void setParent(Annot *parentA);
-  GBool getOpen() const { return open; }
-  void setOpen(GBool openA);
+    bool hasParent() const { return parentRef != Ref::INVALID(); }
+    void setParent(Annot *parentA);
+    bool getOpen() const { return open; }
+    void setOpen(bool openA);
 
 protected:
-  void initialize(PDFDoc *docA, Dict *dict);
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  Object parent; // Parent
-  GBool open;   // Open
+    Ref parentRef; // Parent
+    bool open; // Open
 };
 
 //------------------------------------------------------------------------
 // AnnotMarkup
 //------------------------------------------------------------------------
 
-class AnnotMarkup: public Annot {
+class AnnotMarkup : public Annot
+{
 public:
-  enum  AnnotMarkupReplyType {
-    replyTypeR,     // R
-    replyTypeGroup  // Group
-  };
+    enum AnnotMarkupReplyType
+    {
+        replyTypeR, // R
+        replyTypeGroup // Group
+    };
 
-  AnnotMarkup(PDFDoc *docA, PDFRectangle *rect);
-  AnnotMarkup(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotMarkup();
+    AnnotMarkup(PDFDoc *docA, PDFRectangle *rect);
+    AnnotMarkup(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotMarkup() override;
 
-  // getters
-  GooString *getLabel() const { return label; }
-  AnnotPopup *getPopup() const { return popup; }
-  double getOpacity() const { return opacity; }
-  // getRC
-  GooString *getDate() const { return date; }
-  int getInReplyToID() const { return inReplyTo.num; }
-  GooString *getSubject() const { return subject; }
-  AnnotMarkupReplyType getReplyTo() const { return replyTo; }
-  AnnotExternalDataType getExData() const { return exData; }
+    // getters
+    const GooString *getLabel() const { return label.get(); }
+    AnnotPopup *getPopup() const { return popup.get(); }
+    double getOpacity() const { return opacity; }
+    // getRC
+    const GooString *getDate() const { return date.get(); }
+    bool isInReplyTo() const { return inReplyTo != Ref::INVALID(); }
+    int getInReplyToID() const { return inReplyTo.num; }
+    const GooString *getSubject() const { return subject.get(); }
+    AnnotMarkupReplyType getReplyTo() const { return replyTo; }
+    AnnotExternalDataType getExData() const { return exData; }
 
-  // The annotation takes the ownership of new_popup
-  void setPopup(AnnotPopup *new_popup);
-  void setLabel(GooString *new_label);
-  void setOpacity(double opacityA);
-  void setDate(GooString *new_date);
+    // The annotation takes the ownership of new_popup
+    void setPopup(std::unique_ptr<AnnotPopup> &&new_popup);
+    void setLabel(GooString *new_label);
+    void setOpacity(double opacityA);
+    void setDate(GooString *new_date);
 
 protected:
-  void removeReferencedObjects() override;
+    void removeReferencedObjects() override;
 
-  GooString *label;             // T            (Default autor)
-  AnnotPopup *popup;            // Popup
-  double opacity;               // CA           (Default 1.0)
-  // RC
-  GooString *date;              // CreationDate
-  Ref inReplyTo;                // IRT
-  GooString *subject;           // Subj
-  AnnotMarkupReplyType replyTo; // RT           (Default R)
-  // this object is overrided by the custom intent fields defined in some
-  // annotation types.
-  //GooString *intent;          // IT
-  AnnotExternalDataType exData; // ExData
+    std::unique_ptr<GooString> label; // T            (Default author)
+    std::unique_ptr<AnnotPopup> popup; // Popup
+    double opacity; // CA           (Default 1.0)
+    // RC
+    std::unique_ptr<GooString> date; // CreationDate
+    Ref inReplyTo; // IRT
+    std::unique_ptr<GooString> subject; // Subj
+    AnnotMarkupReplyType replyTo; // RT           (Default R)
+    // this object is overridden by the custom intent fields defined in some
+    // annotation types.
+    // GooString *intent;                // IT
+    AnnotExternalDataType exData; // ExData
 
 private:
-  void initialize(PDFDoc *docA, Dict *dict, Object *obj);
+    void initialize(PDFDoc *docA, Dict *dict);
 };
 
 //------------------------------------------------------------------------
 // AnnotText
 //------------------------------------------------------------------------
 
-class AnnotText: public AnnotMarkup {
+class AnnotText : public AnnotMarkup
+{
 public:
-  enum AnnotTextState {
-    stateUnknown,
-    // Marked state model
-    stateMarked,    // Marked
-    stateUnmarked,  // Unmarked
-    // Review state model
-    stateAccepted,  // Accepted
-    stateRejected,  // Rejected
-    stateCancelled, // Cancelled
-    stateCompleted, // Completed
-    stateNone       // None
-  };
+    enum AnnotTextState
+    {
+        stateUnknown,
+        // Marked state model
+        stateMarked, // Marked
+        stateUnmarked, // Unmarked
+        // Review state model
+        stateAccepted, // Accepted
+        stateRejected, // Rejected
+        stateCancelled, // Cancelled
+        stateCompleted, // Completed
+        stateNone // None
+    };
 
-  AnnotText(PDFDoc *docA, PDFRectangle *rect);
-  AnnotText(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotText();
+    AnnotText(PDFDoc *docA, PDFRectangle *rect);
+    AnnotText(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotText() override;
 
-  void draw(Gfx *gfx, GBool printing) override;
+    void draw(Gfx *gfx, bool printing) override;
 
-  // getters
-  GBool getOpen() const { return open; }
-  GooString *getIcon() const { return icon; }
-  AnnotTextState getState() const { return state; }
+    // getters
+    bool getOpen() const { return open; }
+    const GooString *getIcon() const { return icon.get(); }
+    AnnotTextState getState() const { return state; }
 
-  void setOpen(GBool openA);
-  void setIcon(GooString *new_icon);
+    void setOpen(bool openA);
+    void setIcon(GooString *new_icon);
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  GBool open;                       // Open       (Default false)
-  GooString *icon;                  // Name       (Default Note)
-  AnnotTextState state;             // State      (Default Umarked if
-                                    //             StateModel Marked
-                                    //             None if StareModel Review)
+    bool open; // Open       (Default false)
+    std::unique_ptr<GooString> icon; // Name       (Default Note)
+    AnnotTextState state; // State      (Default Umarked if
+                          //             StateModel Marked
+                          //             None if StareModel Review)
 };
 
 //------------------------------------------------------------------------
 // AnnotMovie
 //------------------------------------------------------------------------
 
+class AnnotMovie : public Annot
+{
+public:
+    AnnotMovie(PDFDoc *docA, PDFRectangle *rect, Movie *movieA);
+    AnnotMovie(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotMovie() override;
 
+    void draw(Gfx *gfx, bool printing) override;
 
-class AnnotMovie: public Annot {
- public:
-  AnnotMovie(PDFDoc *docA, PDFRectangle *rect, Movie *movieA);
-  AnnotMovie(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotMovie();
+    const GooString *getTitle() const { return title.get(); }
+    Movie *getMovie() { return movie.get(); }
 
-  void draw(Gfx *gfx, GBool printing) override;
+private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  GooString* getTitle() { return title; }
-  Movie* getMovie() { return movie; }
-
- private:
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  GooString* title;      // T
-  Movie* movie;          // Movie + A
+    std::unique_ptr<GooString> title; // T
+    std::unique_ptr<Movie> movie; // Movie + A
 };
-
 
 //------------------------------------------------------------------------
 // AnnotScreen
 //------------------------------------------------------------------------
 
-class AnnotScreen: public Annot {
- public:
+class AnnotScreen : public Annot
+{
+public:
+    AnnotScreen(PDFDoc *docA, PDFRectangle *rect);
+    AnnotScreen(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotScreen() override;
 
-  AnnotScreen(PDFDoc *docA, PDFRectangle *rect);
-  AnnotScreen(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotScreen();
+    const GooString *getTitle() const { return title.get(); }
 
-  GooString* getTitle() { return title; }
+    AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs.get(); }
+    LinkAction *getAction() { return action.get(); } // The caller should not delete the result
+    std::unique_ptr<LinkAction> getAdditionalAction(AdditionalActionsType type);
 
-  AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs; }
-  LinkAction* getAction() { return action; } // The caller should now delete the result
-  LinkAction *getAdditionalAction(AdditionalActionsType type); // The caller should delete the result
+private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
- private:
-  void initialize(PDFDoc *docA, Dict *dict);
+    std::unique_ptr<GooString> title; // T
 
+    std::unique_ptr<AnnotAppearanceCharacs> appearCharacs; // MK
 
-  GooString* title;                      // T
-
-  AnnotAppearanceCharacs* appearCharacs; // MK
-
-  LinkAction *action;                    // A
-  Object additionalActions;              // AA
+    std::unique_ptr<LinkAction> action; // A
+    Object additionalActions; // AA
 };
 
 //------------------------------------------------------------------------
 // AnnotLink
 //------------------------------------------------------------------------
 
-class AnnotLink: public Annot {
+class AnnotLink : public Annot
+{
 public:
+    enum AnnotLinkEffect
+    {
+        effectNone, // N
+        effectInvert, // I
+        effectOutline, // O
+        effectPush // P
+    };
 
-  enum AnnotLinkEffect {
-    effectNone,     // N
-    effectInvert,   // I
-    effectOutline,  // O
-    effectPush      // P
-  };
+    AnnotLink(PDFDoc *docA, PDFRectangle *rect);
+    AnnotLink(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotLink() override;
 
-  AnnotLink(PDFDoc *docA, PDFRectangle *rect);
-  AnnotLink(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotLink();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
-
-  // getters
-  LinkAction *getAction() const { return action; }
-  AnnotLinkEffect getLinkEffect() const { return linkEffect; }
-  Dict *getUriAction() const { return uriAction; }
-  AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
+    // getters
+    LinkAction *getAction() const { return action.get(); }
+    AnnotLinkEffect getLinkEffect() const { return linkEffect; }
+    AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals.get(); }
 
 protected:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
+    std::unique_ptr<LinkAction> action; // A, Dest
+    AnnotLinkEffect linkEffect; // H          (Default I)
+    // Dict *uriAction;                                   // PA
 
-  LinkAction *action;                  // A, Dest
-  AnnotLinkEffect linkEffect;          // H          (Default I)
-  Dict *uriAction;                     // PA
-
-  AnnotQuadrilaterals *quadrilaterals; // QuadPoints
+    std::unique_ptr<AnnotQuadrilaterals> quadrilaterals; // QuadPoints
 };
 
 //------------------------------------------------------------------------
 // AnnotFreeText
 //------------------------------------------------------------------------
 
-class AnnotFreeText: public AnnotMarkup {
+class AnnotFreeText : public AnnotMarkup
+{
 public:
+    enum AnnotFreeTextQuadding
+    {
+        quaddingLeftJustified, // 0
+        quaddingCentered, // 1
+        quaddingRightJustified // 2
+    };
 
-  enum AnnotFreeTextQuadding {
-    quaddingLeftJustified,  // 0
-    quaddingCentered,       // 1
-    quaddingRightJustified  // 2
-  };
+    enum AnnotFreeTextIntent
+    {
+        intentFreeText, // FreeText
+        intentFreeTextCallout, // FreeTextCallout
+        intentFreeTextTypeWriter // FreeTextTypeWriter
+    };
 
-  enum AnnotFreeTextIntent {
-    intentFreeText,           // FreeText
-    intentFreeTextCallout,    // FreeTextCallout
-    intentFreeTextTypeWriter  // FreeTextTypeWriter
-  };
+#if defined(MIKTEX)
+    static MIKTEX_POPPLER_EXPORT const double undefinedFontPtSize;
+#else
+    static const double undefinedFontPtSize;
+#endif
 
-  AnnotFreeText(PDFDoc *docA, PDFRectangle *rect, GooString *da);
-  AnnotFreeText(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotFreeText();
+    AnnotFreeText(PDFDoc *docA, PDFRectangle *rect, const DefaultAppearance &da);
+    AnnotFreeText(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotFreeText() override;
 
-  void draw(Gfx *gfx, GBool printing) override;
-  Object getAppearanceResDict() override;
-  void setContents(GooString *new_content) override;
+    void draw(Gfx *gfx, bool printing) override;
+    Object getAppearanceResDict() override;
+    void setContents(GooString *new_content) override;
 
-  void setAppearanceString(GooString *new_string);
-  void setQuadding(AnnotFreeTextQuadding new_quadding);
-  void setStyleString(GooString *new_string);
-  void setCalloutLine(AnnotCalloutLine *line);
-  void setIntent(AnnotFreeTextIntent new_intent);
+    void setDefaultAppearance(const DefaultAppearance &da);
+    void setQuadding(AnnotFreeTextQuadding new_quadding);
+    void setStyleString(GooString *new_string);
+    void setCalloutLine(AnnotCalloutLine *line);
+    void setIntent(AnnotFreeTextIntent new_intent);
 
-  // getters
-  GooString *getAppearanceString() const { return appearanceString; }
-  AnnotFreeTextQuadding getQuadding() const { return quadding; }
-  // return rc
-  GooString *getStyleString() const { return styleString; }
-  AnnotCalloutLine *getCalloutLine() const {  return calloutLine; }
-  AnnotFreeTextIntent getIntent() const { return intent; }
-  AnnotBorderEffect *getBorderEffect() const { return borderEffect; }
-  PDFRectangle *getRectangle() const { return rectangle; }
-  AnnotLineEndingStyle getEndStyle() const { return endStyle; }
+    // getters
+    std::unique_ptr<DefaultAppearance> getDefaultAppearance() const;
+    AnnotFreeTextQuadding getQuadding() const { return quadding; }
+    // return rc
+    const GooString *getStyleString() const { return styleString.get(); }
+    AnnotCalloutLine *getCalloutLine() const { return calloutLine.get(); }
+    AnnotFreeTextIntent getIntent() const { return intent; }
+    AnnotBorderEffect *getBorderEffect() const { return borderEffect.get(); }
+    PDFRectangle *getRectangle() const { return rectangle.get(); }
+    AnnotLineEndingStyle getEndStyle() const { return endStyle; }
 
 protected:
+    void initialize(PDFDoc *docA, Dict *dict);
+    void generateFreeTextAppearance();
 
-  void initialize(PDFDoc *docA, Dict *dict);
-  static void parseAppearanceString(GooString *da, double &fontsize, AnnotColor* &fontcolor);
-  void generateFreeTextAppearance();
+    // required
+    std::unique_ptr<GooString> appearanceString; // DA
 
-  // required
-  GooString *appearanceString;      // DA
-
-  // optional
-  AnnotFreeTextQuadding quadding;   // Q  (Default 0)
-  // RC
-  GooString *styleString;           // DS
-  AnnotCalloutLine *calloutLine;    // CL
-  AnnotFreeTextIntent intent;       // IT
-  AnnotBorderEffect *borderEffect;  // BE
-  PDFRectangle *rectangle;          // RD
-  // inherited  from Annot
-  // AnnotBorderBS border;          // BS
-  AnnotLineEndingStyle endStyle;    // LE (Default None)
+    // optional
+    AnnotFreeTextQuadding quadding; // Q  (Default 0)
+    // RC
+    std::unique_ptr<GooString> styleString; // DS
+    std::unique_ptr<AnnotCalloutLine> calloutLine; // CL
+    AnnotFreeTextIntent intent; // IT
+    std::unique_ptr<AnnotBorderEffect> borderEffect; // BE
+    std::unique_ptr<PDFRectangle> rectangle; // RD
+    // inherited  from Annot
+    // AnnotBorderBS border;                          // BS
+    AnnotLineEndingStyle endStyle; // LE (Default None)
 };
 
 //------------------------------------------------------------------------
 // AnnotLine
 //------------------------------------------------------------------------
 
-class AnnotLine: public AnnotMarkup {
+class AnnotLine : public AnnotMarkup
+{
 public:
+    enum AnnotLineIntent
+    {
+        intentLineArrow, // LineArrow
+        intentLineDimension // LineDimension
+    };
 
-  enum AnnotLineIntent {
-    intentLineArrow,    // LineArrow
-    intentLineDimension // LineDimension
-  };
+    enum AnnotLineCaptionPos
+    {
+        captionPosInline, // Inline
+        captionPosTop // Top
+    };
 
-  enum AnnotLineCaptionPos {
-    captionPosInline, // Inline
-    captionPosTop     // Top
-  };
+    AnnotLine(PDFDoc *docA, PDFRectangle *rect);
+    AnnotLine(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotLine() override;
 
-  AnnotLine(PDFDoc *docA, PDFRectangle *rect);
-  AnnotLine(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotLine();
+    void draw(Gfx *gfx, bool printing) override;
+    Object getAppearanceResDict() override;
+    void setContents(GooString *new_content) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
-  Object getAppearanceResDict() override;
-  void setContents(GooString *new_content) override;
+    void setVertices(double x1, double y1, double x2, double y2);
+    void setStartEndStyle(AnnotLineEndingStyle start, AnnotLineEndingStyle end);
+    void setInteriorColor(std::unique_ptr<AnnotColor> &&new_color);
+    void setLeaderLineLength(double len);
+    void setLeaderLineExtension(double len);
+    void setCaption(bool new_cap);
+    void setIntent(AnnotLineIntent new_intent);
 
-  void setVertices(double x1, double y1, double x2, double y2);
-  void setStartEndStyle(AnnotLineEndingStyle start, AnnotLineEndingStyle end);
-  void setInteriorColor(AnnotColor *new_color);
-  void setLeaderLineLength(double len);
-  void setLeaderLineExtension(double len);
-  void setCaption(bool new_cap);
-  void setIntent(AnnotLineIntent new_intent);
-
-  // getters
-  AnnotLineEndingStyle getStartStyle() const { return startStyle; }
-  AnnotLineEndingStyle getEndStyle() const { return endStyle; }
-  AnnotColor *getInteriorColor() const { return interiorColor; }
-  double getLeaderLineLength() const { return leaderLineLength; }
-  double getLeaderLineExtension() const { return leaderLineExtension; }
-  bool getCaption() const { return caption; }
-  AnnotLineIntent getIntent() const { return intent; }
-  double  getLeaderLineOffset() const { return leaderLineOffset; }
-  AnnotLineCaptionPos getCaptionPos() const { return captionPos; }
-  Dict *getMeasure() const { return measure; }
-  double getCaptionTextHorizontal() const { return captionTextHorizontal; }
-  double getCaptionTextVertical() const { return captionTextVertical; }
-  double getX1() const { return coord1->getX(); }
-  double getY1() const { return coord1->getY(); }
-  double getX2() const { return coord2->getX(); }
-  double getY2() const { return coord2->getY(); }
+    // getters
+    AnnotLineEndingStyle getStartStyle() const { return startStyle; }
+    AnnotLineEndingStyle getEndStyle() const { return endStyle; }
+    AnnotColor *getInteriorColor() const { return interiorColor.get(); }
+    double getLeaderLineLength() const { return leaderLineLength; }
+    double getLeaderLineExtension() const { return leaderLineExtension; }
+    bool getCaption() const { return caption; }
+    AnnotLineIntent getIntent() const { return intent; }
+    double getLeaderLineOffset() const { return leaderLineOffset; }
+    AnnotLineCaptionPos getCaptionPos() const { return captionPos; }
+    Dict *getMeasure() const { return measure; }
+    double getCaptionTextHorizontal() const { return captionTextHorizontal; }
+    double getCaptionTextVertical() const { return captionTextVertical; }
+    double getX1() const { return coord1->getX(); }
+    double getY1() const { return coord1->getY(); }
+    double getX2() const { return coord2->getX(); }
+    double getY2() const { return coord2->getY(); }
 
 protected:
+    void initialize(PDFDoc *docA, Dict *dict);
+    void generateLineAppearance();
 
-  void initialize(PDFDoc *docA, Dict *dict);
-  void generateLineAppearance();
+    // required
+    std::unique_ptr<AnnotCoord> coord1;
+    std::unique_ptr<AnnotCoord> coord2;
 
-  // required
-  AnnotCoord *coord1, *coord2;
-  
-  // optional
-  // inherited  from Annot
-  // AnnotBorderBS border;          // BS
-  AnnotLineEndingStyle startStyle;  // LE       (Default [/None /None])
-  AnnotLineEndingStyle endStyle;    //
-  AnnotColor *interiorColor;        // IC
-  double leaderLineLength;          // LL       (Default 0)
-  double leaderLineExtension;       // LLE      (Default 0)
-  bool caption;                     // Cap      (Default false)
-  AnnotLineIntent intent;           // IT
-  double leaderLineOffset;          // LLO
-  AnnotLineCaptionPos captionPos;   // CP       (Default Inline)
-  Dict *measure;                    // Measure
-  double captionTextHorizontal;     // CO       (Default [0, 0])
-  double captionTextVertical;       //
+    // optional
+    // inherited  from Annot
+    // AnnotBorderBS border;                   // BS
+    AnnotLineEndingStyle startStyle; // LE       (Default [/None /None])
+    AnnotLineEndingStyle endStyle; //
+    std::unique_ptr<AnnotColor> interiorColor; // IC
+    double leaderLineLength; // LL       (Default 0)
+    double leaderLineExtension; // LLE      (Default 0)
+    bool caption; // Cap      (Default false)
+    AnnotLineIntent intent; // IT
+    double leaderLineOffset; // LLO
+    AnnotLineCaptionPos captionPos; // CP       (Default Inline)
+    Dict *measure; // Measure
+    double captionTextHorizontal; // CO       (Default [0, 0])
+    double captionTextVertical; //
 };
 
 //------------------------------------------------------------------------
 // AnnotTextMarkup
 //------------------------------------------------------------------------
 
-class AnnotTextMarkup: public AnnotMarkup {
+class AnnotTextMarkup : public AnnotMarkup
+{
 public:
+    AnnotTextMarkup(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subType);
+    AnnotTextMarkup(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotTextMarkup() override;
 
-  AnnotTextMarkup(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subType);
-  AnnotTextMarkup(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotTextMarkup();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
+    // typeHighlight, typeUnderline, typeSquiggly or typeStrikeOut
+    void setType(AnnotSubtype new_type);
 
-  // typeHighlight, typeUnderline, typeSquiggly or typeStrikeOut
-  void setType(AnnotSubtype new_type);
+    void setQuadrilaterals(AnnotQuadrilaterals *quadPoints);
 
-  void setQuadrilaterals(AnnotQuadrilaterals *quadPoints);
-
-  AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals; }
+    AnnotQuadrilaterals *getQuadrilaterals() const { return quadrilaterals.get(); }
 
 protected:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-  
-  AnnotQuadrilaterals *quadrilaterals; // QuadPoints
+    std::unique_ptr<AnnotQuadrilaterals> quadrilaterals; // QuadPoints
 };
 
 //------------------------------------------------------------------------
 // AnnotStamp
 //------------------------------------------------------------------------
 
-class AnnotStamp: public AnnotMarkup {
+class AnnotStamp : public AnnotMarkup
+{
 public:
+    AnnotStamp(PDFDoc *docA, PDFRectangle *rect);
+    AnnotStamp(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotStamp() override;
 
-  AnnotStamp(PDFDoc *docA, PDFRectangle *rect);
-  AnnotStamp(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotStamp();
+    void setIcon(GooString *new_icon);
 
-  void setIcon(GooString *new_icon);
-
-  // getters
-  GooString *getIcon() const { return icon; }
+    // getters
+    const GooString *getIcon() const { return icon.get(); }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  GooString *icon;                  // Name       (Default Draft)
+    std::unique_ptr<GooString> icon; // Name       (Default Draft)
 };
 
 //------------------------------------------------------------------------
 // AnnotGeometry
 //------------------------------------------------------------------------
 
-class AnnotGeometry: public AnnotMarkup {
+class AnnotGeometry : public AnnotMarkup
+{
 public:
+    AnnotGeometry(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subType);
+    AnnotGeometry(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotGeometry() override;
 
-  AnnotGeometry(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subType);
-  AnnotGeometry(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotGeometry();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
+    void setType(AnnotSubtype new_type); // typeSquare or typeCircle
+    void setInteriorColor(std::unique_ptr<AnnotColor> &&new_color);
 
-  void setType(AnnotSubtype new_type); // typeSquare or typeCircle
-  void setInteriorColor(AnnotColor *new_color);
-
-  // getters
-  AnnotColor *getInteriorColor() const { return interiorColor; }
-  AnnotBorderEffect *getBorderEffect() const { return borderEffect; }
-  PDFRectangle *getGeometryRect() const { return geometryRect; }
+    // getters
+    AnnotColor *getInteriorColor() const { return interiorColor.get(); }
+    AnnotBorderEffect *getBorderEffect() const { return borderEffect.get(); }
+    PDFRectangle *getGeometryRect() const { return geometryRect.get(); }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  AnnotColor *interiorColor;        // IC
-  AnnotBorderEffect *borderEffect;  // BE
-  PDFRectangle *geometryRect;       // RD (combined with Rect)
+    std::unique_ptr<AnnotColor> interiorColor; // IC
+    std::unique_ptr<AnnotBorderEffect> borderEffect; // BE
+    std::unique_ptr<PDFRectangle> geometryRect; // RD (combined with Rect)
 };
 
 //------------------------------------------------------------------------
 // AnnotPolygon
 //------------------------------------------------------------------------
 
-class AnnotPolygon: public AnnotMarkup {
+class AnnotPolygon : public AnnotMarkup
+{
 public:
+    enum AnnotPolygonIntent
+    {
+        polygonCloud, // PolygonCloud
+        polylineDimension, // PolyLineDimension
+        polygonDimension // PolygonDimension
+    };
 
-  enum AnnotPolygonIntent {
-    polygonCloud,      // PolygonCloud
-    polylineDimension, // PolyLineDimension
-    polygonDimension   // PolygonDimension
-  };
+    AnnotPolygon(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subType);
+    AnnotPolygon(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotPolygon() override;
 
-  AnnotPolygon(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subType);
-  AnnotPolygon(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotPolygon();
+    void draw(Gfx *gfx, bool printing) override;
+    void generatePolyLineAppearance(AnnotAppearanceBuilder *appearBuilder);
+    void setType(AnnotSubtype new_type); // typePolygon or typePolyLine
+    void setVertices(AnnotPath *path);
+    void setStartEndStyle(AnnotLineEndingStyle start, AnnotLineEndingStyle end);
+    void setInteriorColor(std::unique_ptr<AnnotColor> &&new_color);
+    void setIntent(AnnotPolygonIntent new_intent);
 
-  void draw(Gfx *gfx, GBool printing) override;
-
-  void setType(AnnotSubtype new_type); // typePolygon or typePolyLine
-  void setVertices(AnnotPath *path);
-  void setStartEndStyle(AnnotLineEndingStyle start, AnnotLineEndingStyle end);
-  void setInteriorColor(AnnotColor *new_color);
-  void setIntent(AnnotPolygonIntent new_intent);
-
-  // getters
-  AnnotPath *getVertices() const { return vertices; }
-  AnnotLineEndingStyle getStartStyle() const { return startStyle; }
-  AnnotLineEndingStyle getEndStyle() const { return endStyle; }
-  AnnotColor *getInteriorColor() const { return interiorColor; }
-  AnnotBorderEffect *getBorderEffect() const { return borderEffect; }
-  AnnotPolygonIntent getIntent() const { return intent; }
+    // getters
+    AnnotPath *getVertices() const { return vertices.get(); }
+    AnnotLineEndingStyle getStartStyle() const { return startStyle; }
+    AnnotLineEndingStyle getEndStyle() const { return endStyle; }
+    AnnotColor *getInteriorColor() const { return interiorColor.get(); }
+    AnnotBorderEffect *getBorderEffect() const { return borderEffect.get(); }
+    AnnotPolygonIntent getIntent() const { return intent; }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
+    // required
+    std::unique_ptr<AnnotPath> vertices; // Vertices
 
-  // required
-  AnnotPath *vertices;              // Vertices
-
-  // optional
-  AnnotLineEndingStyle startStyle;  // LE       (Default [/None /None])
-  AnnotLineEndingStyle endStyle;    //
-  // inherited  from Annot
-  // AnnotBorderBS border;          // BS
-  AnnotColor *interiorColor;        // IC
-  AnnotBorderEffect *borderEffect;  // BE
-  AnnotPolygonIntent intent;        // IT
-  // Measure
+    // optional
+    AnnotLineEndingStyle startStyle; // LE       (Default [/None /None])
+    AnnotLineEndingStyle endStyle; //
+    // inherited  from Annot
+    // AnnotBorderBS border;                          // BS
+    std::unique_ptr<AnnotColor> interiorColor; // IC
+    std::unique_ptr<AnnotBorderEffect> borderEffect; // BE
+    AnnotPolygonIntent intent; // IT
+    // Measure
 };
 
 //------------------------------------------------------------------------
 // AnnotCaret
 //------------------------------------------------------------------------
 
-class AnnotCaret: public AnnotMarkup {
+class AnnotCaret : public AnnotMarkup
+{
 public:
+    enum AnnotCaretSymbol
+    {
+        symbolNone, // None
+        symbolP // P
+    };
 
-  enum AnnotCaretSymbol {
-    symbolNone,     // None
-    symbolP         // P
-  };
+    AnnotCaret(PDFDoc *docA, PDFRectangle *rect);
+    AnnotCaret(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotCaret() override;
 
-  AnnotCaret(PDFDoc *docA, PDFRectangle *rect);
-  AnnotCaret(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotCaret();
+    void setSymbol(AnnotCaretSymbol new_symbol);
 
-  void setSymbol(AnnotCaretSymbol new_symbol);
-
-  // getters
-  AnnotCaretSymbol getSymbol() const { return symbol; }
-  PDFRectangle *getCaretRect() const { return caretRect; }
+    // getters
+    AnnotCaretSymbol getSymbol() const { return symbol; }
+    PDFRectangle *getCaretRect() const { return caretRect.get(); }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  AnnotCaretSymbol symbol;       // Sy         (Default None)
-  PDFRectangle *caretRect;       // RD (combined with Rect)
+    AnnotCaretSymbol symbol; // Sy         (Default None)
+    std::unique_ptr<PDFRectangle> caretRect; // RD (combined with Rect)
 };
 
 //------------------------------------------------------------------------
 // AnnotInk
 //------------------------------------------------------------------------
 
-class AnnotInk: public AnnotMarkup {
+class AnnotInk : public AnnotMarkup
+{
 public:
+    AnnotInk(PDFDoc *docA, PDFRectangle *rect);
+    AnnotInk(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotInk() override;
 
-  AnnotInk(PDFDoc *docA, PDFRectangle *rect);
-  AnnotInk(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotInk();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
+    void setInkList(AnnotPath **paths, int n_paths);
 
-  void setInkList(AnnotPath **paths, int n_paths);
-
-  // getters
-  AnnotPath **getInkList() const { return inkList; }
-  int getInkListLength() const { return inkListLength; }
+    // getters
+    AnnotPath **getInkList() const { return inkList; }
+    int getInkListLength() const { return inkListLength; }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
+    void writeInkList(AnnotPath **paths, int n_paths, Array *dest_array);
+    void parseInkList(Array *src_array);
+    void freeInkList();
 
-  void initialize(PDFDoc *docA, Dict *dict);
-  void writeInkList(AnnotPath **paths, int n_paths, Array *dest_array);
-  void parseInkList(Array *src_array);
-  void freeInkList();
+    // required
+    AnnotPath **inkList; // InkList
+    int inkListLength;
 
-  // required
-  AnnotPath **inkList;       // InkList
-  int inkListLength;
-
-  // optional
-  // inherited from Annot
-  // AnnotBorderBS border;  // BS
+    // optional
+    // inherited from Annot
+    // AnnotBorderBS border;  // BS
 };
 
 //------------------------------------------------------------------------
 // AnnotFileAttachment
 //------------------------------------------------------------------------
 
-class AnnotFileAttachment: public AnnotMarkup {
+class AnnotFileAttachment : public AnnotMarkup
+{
 public:
+    AnnotFileAttachment(PDFDoc *docA, PDFRectangle *rect, GooString *filename);
+    AnnotFileAttachment(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotFileAttachment() override;
 
-  AnnotFileAttachment(PDFDoc *docA, PDFRectangle *rect, GooString *filename);
-  AnnotFileAttachment(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotFileAttachment();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
-
-  // getters
-  Object *getFile() { return &file; }
-  GooString *getName() const { return name; }
+    // getters
+    Object *getFile() { return &file; }
+    const GooString *getName() const { return name.get(); }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
+    // required
+    Object file; // FS
 
-  // required
-  Object file;      // FS
-
-  // optional
-  GooString *name;  // Name
+    // optional
+    std::unique_ptr<GooString> name; // Name
 };
 
 //------------------------------------------------------------------------
 // AnnotSound
 //------------------------------------------------------------------------
 
-class AnnotSound: public AnnotMarkup {
+class AnnotSound : public AnnotMarkup
+{
 public:
+    AnnotSound(PDFDoc *docA, PDFRectangle *rect, Sound *soundA);
+    AnnotSound(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotSound() override;
 
-  AnnotSound(PDFDoc *docA, PDFRectangle *rect, Sound *soundA);
-  AnnotSound(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotSound();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
-
-  // getters
-  Sound *getSound() { return sound; }
-  GooString *getName() const { return name; }
+    // getters
+    Sound *getSound() { return sound.get(); }
+    const GooString *getName() const { return name.get(); }
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
+    // required
+    std::unique_ptr<Sound> sound; // Sound
 
-  // required
-  Sound *sound;                  // Sound
-
-  // optional
-  GooString *name;               // Name
+    // optional
+    std::unique_ptr<GooString> name; // Name
 };
 
 //------------------------------------------------------------------------
 // AnnotWidget
 //------------------------------------------------------------------------
 
-class AnnotWidget: public Annot {
+class AnnotWidget : public Annot
+{
 public:
+    enum AnnotWidgetHighlightMode
+    {
+        highlightModeNone, // N
+        highlightModeInvert, // I
+        highlightModeOutline, // O
+        highlightModePush // P,T
+    };
 
-  enum AnnotWidgetHighlightMode {
-    highlightModeNone,    // N
-    highlightModeInvert,  // I
-    highlightModeOutline, // O
-    highlightModePush     // P,T
-  };
+    AnnotWidget(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    AnnotWidget(PDFDoc *docA, Object *dictObject, Object *obj, FormField *fieldA);
+    ~AnnotWidget() override;
 
-  AnnotWidget(PDFDoc *docA, Object *dictObject, Object *obj);
-  AnnotWidget(PDFDoc *docA, Object *dictObject, Object *obj, FormField *fieldA);
-  ~AnnotWidget();
+    void draw(Gfx *gfx, bool printing) override;
 
-  void draw(Gfx *gfx, GBool printing) override;
+    void generateFieldAppearance(bool *addedDingbatsResource);
+    void updateAppearanceStream();
 
-  void drawBorder();
-  void drawFormFieldButton(GfxResources *resources, GooString *da);
-  void drawFormFieldText(GfxResources *resources, GooString *da);
-  void drawFormFieldChoice(GfxResources *resources, GooString *da);
-  void generateFieldAppearance ();
-  void updateAppearanceStream ();
+    AnnotWidgetHighlightMode getMode() { return mode; }
+    AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs.get(); }
+    LinkAction *getAction() { return action.get(); } // The caller should not delete the result
+    std::unique_ptr<LinkAction> getAdditionalAction(AdditionalActionsType type);
+    std::unique_ptr<LinkAction> getFormAdditionalAction(FormAdditionalActionsType type);
+    Dict *getParent() { return parent; }
+    void setNewAppearance(Object &&newAppearance);
 
-  AnnotWidgetHighlightMode getMode() { return mode; }
-  AnnotAppearanceCharacs *getAppearCharacs() { return appearCharacs; }
-  LinkAction *getAction() { return action; }  // The caller should not delete the result
-  LinkAction *getAdditionalAction(AdditionalActionsType type); // The caller should delete the result
-  LinkAction *getFormAdditionalAction(FormAdditionalActionsType type); // The caller should delete the result
-  Dict *getParent() { return parent; }
+    bool setFormAdditionalAction(FormAdditionalActionsType type, const GooString &js);
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  void drawText(GooString *text, GooString *da, GfxResources *resources,
-		GBool multiline, int comb, int quadding,
-		GBool txField, GBool forceZapfDingbats,
-		GBool password=false);
-  void drawListBox(FormFieldChoice *fieldChoice,
-		   GooString *da, GfxResources *resources, int quadding);
-
-  Form *form;
-  FormField *field;                       // FormField object for this annotation
-  AnnotWidgetHighlightMode mode;          // H  (Default I)
-  AnnotAppearanceCharacs *appearCharacs;  // MK
-  LinkAction *action;                     // A
-  Object additionalActions;               // AA
-  // inherited  from Annot
-  // AnnotBorderBS border;                // BS
-  Dict *parent;                           // Parent
-  GBool addDingbatsResource;
-  Ref updatedAppearanceStream; // {-1,-1} if updateAppearanceStream has never been called
+    Form *form;
+    FormField *field; // FormField object for this annotation
+    AnnotWidgetHighlightMode mode; // H  (Default I)
+    std::unique_ptr<AnnotAppearanceCharacs> appearCharacs; // MK
+    std::unique_ptr<LinkAction> action; // A
+    Object additionalActions; // AA
+    // inherited  from Annot
+    // AnnotBorderBS border;                // BS
+    Dict *parent; // Parent
+    Ref updatedAppearanceStream; // {-1,-1} if updateAppearanceStream has never been called
 };
 
 //------------------------------------------------------------------------
 // Annot3D
 //------------------------------------------------------------------------
 
-class Annot3D: public Annot {
-  class Activation {
-  public:
-    enum ActivationATrigger {
-      aTriggerUnknown,
-      aTriggerPageOpened,  // PO
-      aTriggerPageVisible, // PV
-      aTriggerUserAction   // XA
+class Annot3D : public Annot
+{
+    class Activation
+    {
+    public:
+        enum ActivationATrigger
+        {
+            aTriggerUnknown,
+            aTriggerPageOpened, // PO
+            aTriggerPageVisible, // PV
+            aTriggerUserAction // XA
+        };
+
+        enum ActivationAState
+        {
+            aStateUnknown,
+            aStateEnabled, // I
+            aStateDisabled // L
+        };
+
+        enum ActivationDTrigger
+        {
+            dTriggerUnknown,
+            dTriggerPageClosed, // PC
+            dTriggerPageInvisible, // PI
+            dTriggerUserAction // XD
+        };
+
+        enum ActivationDState
+        {
+            dStateUnknown,
+            dStateUninstantiaded, // U
+            dStateInstantiated, // I
+            dStateLive // L
+        };
+
+        Activation(Dict *dict);
+
+    private:
+        ActivationATrigger aTrigger; // A   (Default XA)
+        ActivationAState aState; // AIS (Default L)
+        ActivationDTrigger dTrigger; // D   (Default PI)
+        ActivationDState dState; // DIS (Default U)
+        bool displayToolbar; // TB  (Default true)
+        bool displayNavigation; // NP  (Default false);
     };
 
-    enum ActivationAState {
-      aStateUnknown,
-      aStateEnabled, // I
-      aStateDisabled // L
-    };
-
-    enum ActivationDTrigger {
-      dTriggerUnknown,
-      dTriggerPageClosed,    // PC
-      dTriggerPageInvisible, // PI
-      dTriggerUserAction     // XD
-    };
-
-    enum ActivationDState {
-      dStateUnknown,
-      dStateUninstantiaded, // U
-      dStateInstantiated,   // I
-      dStateLive            // L
-    };
-
-    Activation(Dict *dict);
-  private:
-    
-    ActivationATrigger aTrigger;  // A   (Default XA)
-    ActivationAState aState;      // AIS (Default L)
-    ActivationDTrigger dTrigger;  // D   (Default PI)
-    ActivationDState dState;      // DIS (Default U)
-    GBool displayToolbar;         // TB  (Default true)
-    GBool displayNavigation;      // NP  (Default false);
-  };
 public:
+    Annot3D(PDFDoc *docA, PDFRectangle *rect);
+    Annot3D(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~Annot3D() override;
 
-  Annot3D(PDFDoc *docA, PDFRectangle *rect);
-  Annot3D(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~Annot3D();
-
-  // getters
+    // getters
 
 private:
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  void initialize(PDFDoc *docA, Dict *dict);
-
-  Activation *activation;  // 3DA
+    std::unique_ptr<Activation> activation; // 3DA
 };
 
 //------------------------------------------------------------------------
 // AnnotRichMedia
 //------------------------------------------------------------------------
 
-class AnnotRichMedia: public Annot {
+class AnnotRichMedia : public Annot
+{
 public:
-  class Params {
-  public:
-    Params(Dict *dict);
-    ~Params();
+    class Params
+    {
+    public:
+        Params(Dict *dict);
+        ~Params();
 
-    GooString* getFlashVars() const;
+        Params(const Params &) = delete;
+        Params &operator=(const Params &) = delete;
 
-  private:
-    // optional
-    GooString *flashVars; // FlashVars
-  };
+        const GooString *getFlashVars() const;
 
-  class Instance {
-  public:
-    enum Type {
-      type3D,       // 3D
-      typeFlash,    // Flash
-      typeSound,    // Sound
-      typeVideo     // Video
+    private:
+        // optional
+        std::unique_ptr<GooString> flashVars; // FlashVars
     };
 
-    Instance(Dict *dict);
-    ~Instance();
+    class Instance
+    {
+    public:
+        enum Type
+        {
+            type3D, // 3D
+            typeFlash, // Flash
+            typeSound, // Sound
+            typeVideo // Video
+        };
 
-    Type getType() const;
-    Params* getParams() const;
+        Instance(Dict *dict);
+        ~Instance();
 
-  private:
-    // optional
-    Type type;     // Subtype
-    Params *params; // Params
-  };
+        Instance(const Instance &) = delete;
+        Instance &operator=(const Instance &) = delete;
 
-  class Configuration {
-  public:
-    enum Type {
-      type3D,       // 3D
-      typeFlash,    // Flash
-      typeSound,    // Sound
-      typeVideo     // Video
+        Type getType() const;
+        Params *getParams() const;
+
+    private:
+        // optional
+        Type type; // Subtype
+        std::unique_ptr<Params> params; // Params
     };
 
-    Configuration(Dict *dict);
-    ~Configuration();
+    class Configuration
+    {
+    public:
+        enum Type
+        {
+            type3D, // 3D
+            typeFlash, // Flash
+            typeSound, // Sound
+            typeVideo // Video
+        };
 
-    Type getType() const;
-    GooString* getName() const;
-    int getInstancesCount() const;
-    Instance* getInstance(int index) const;
+        Configuration(Dict *dict);
+        ~Configuration();
 
-  private:
-    // optional
-    Type type;            // Subtype
-    GooString *name;      // Name
-    Instance **instances; // Instances
-    int nInstances;
-  };
+        Configuration(const Configuration &) = delete;
+        Configuration &operator=(const Configuration &) = delete;
 
-  class Content;
+        Type getType() const;
+        const GooString *getName() const;
+        int getInstancesCount() const;
+        Instance *getInstance(int index) const;
 
-  class Asset {
-  public:
-    Asset();
-    ~Asset();
-
-    GooString* getName() const;
-    Object* getFileSpec() const;
-
-  private:
-    friend class AnnotRichMedia::Content;
-
-    GooString *name;
-    Object fileSpec;
-  };
-
-  class Content {
-  public:
-    Content(Dict *dict);
-    ~Content();
-
-    int getConfigurationsCount() const;
-    Configuration* getConfiguration(int index) const;
-
-    int getAssetsCount() const;
-    Asset* getAsset(int index) const;
-
-  private:
-    // optional
-    Configuration **configurations; // Configurations
-    int nConfigurations;
-
-    Asset **assets; // Assets
-    int nAssets;
-  };
-
-  class Activation {
-  public:
-    enum Condition {
-      conditionPageOpened,  // PO
-      conditionPageVisible, // PV
-      conditionUserAction   // XA
+    private:
+        // optional
+        Type type; // Subtype
+        std::unique_ptr<GooString> name; // Name
+        Instance **instances; // Instances
+        int nInstances;
     };
 
-    Activation(Dict *dict);
+    class Content;
 
-    Condition getCondition() const;
+    class Asset
+    {
+    public:
+        Asset();
+        ~Asset();
 
-  private:
-    // optional
-    Condition condition;
-  };
+        Asset(const Asset &) = delete;
+        Asset &operator=(const Asset &) = delete;
 
-  class Deactivation {
-  public:
-    enum Condition {
-      conditionPageClosed,    // PC
-      conditionPageInvisible, // PI
-      conditionUserAction     // XD
+        const GooString *getName() const;
+        Object *getFileSpec() const;
+
+    private:
+        friend class AnnotRichMedia::Content;
+
+        std::unique_ptr<GooString> name;
+        Object fileSpec;
     };
 
-    Deactivation(Dict *dict);
+    class Content
+    {
+    public:
+        Content(Dict *dict);
+        ~Content();
 
-    Condition getCondition() const;
+        Content(const Content &) = delete;
+        Content &operator=(const Content &) = delete;
 
-  private:
-    // optional
-    Condition condition;
-  };
+        int getConfigurationsCount() const;
+        Configuration *getConfiguration(int index) const;
 
-  class Settings {
-  public:
-    Settings(Dict *dict);
-    ~Settings();
+        int getAssetsCount() const;
+        Asset *getAsset(int index) const;
 
-    Activation* getActivation() const;
-    Deactivation* getDeactivation() const;
+    private:
+        // optional
+        Configuration **configurations; // Configurations
+        int nConfigurations;
 
-  private:
-    // optional
-    Activation *activation;
-    Deactivation *deactivation;
-  };
+        Asset **assets; // Assets
+        int nAssets;
+    };
 
-  AnnotRichMedia(PDFDoc *docA, PDFRectangle *rect);
-  AnnotRichMedia(PDFDoc *docA, Object *dictObject, Object *obj);
-  ~AnnotRichMedia();
+    class Activation
+    {
+    public:
+        enum Condition
+        {
+            conditionPageOpened, // PO
+            conditionPageVisible, // PV
+            conditionUserAction // XA
+        };
 
-  Content* getContent() const;
+        Activation(Dict *dict);
 
-  Settings* getSettings() const;
+        Condition getCondition() const;
+
+    private:
+        // optional
+        Condition condition;
+    };
+
+    class Deactivation
+    {
+    public:
+        enum Condition
+        {
+            conditionPageClosed, // PC
+            conditionPageInvisible, // PI
+            conditionUserAction // XD
+        };
+
+        Deactivation(Dict *dict);
+
+        Condition getCondition() const;
+
+    private:
+        // optional
+        Condition condition;
+    };
+
+    class Settings
+    {
+    public:
+        Settings(Dict *dict);
+        ~Settings();
+
+        Settings(const Settings &) = delete;
+        Settings &operator=(const Settings &) = delete;
+
+        Activation *getActivation() const;
+        Deactivation *getDeactivation() const;
+
+    private:
+        // optional
+        std::unique_ptr<Activation> activation;
+        std::unique_ptr<Deactivation> deactivation;
+    };
+
+    AnnotRichMedia(PDFDoc *docA, PDFRectangle *rect);
+    AnnotRichMedia(PDFDoc *docA, Object &&dictObject, const Object *obj);
+    ~AnnotRichMedia() override;
+
+    Content *getContent() const;
+
+    Settings *getSettings() const;
 
 private:
-  void initialize(PDFDoc *docA, Dict *dict);
+    void initialize(PDFDoc *docA, Dict *dict);
 
-  // required
-  Content *content;     // RichMediaContent
+    // required
+    std::unique_ptr<Content> content; // RichMediaContent
 
-  // optional
-  Settings *settings;   // RichMediaSettings
+    // optional
+    std::unique_ptr<Settings> settings; // RichMediaSettings
 };
-
 
 //------------------------------------------------------------------------
 // Annots
 //------------------------------------------------------------------------
 
-class Annots {
+class Annots
+{
 public:
+    // Build a list of Annot objects and call setPage on them
+    Annots(PDFDoc *docA, int page, Object *annotsObj);
 
-  // Build a list of Annot objects and call setPage on them
-  Annots(PDFDoc *docA, int page, Object *annotsObj);
+    ~Annots();
 
-  ~Annots();
+    Annots(const Annots &) = delete;
+    Annots &operator=(const Annots &) = delete;
 
-  // Iterate through list of annotations.
-  int getNumAnnots() { return nAnnots; }
-  Annot *getAnnot(int i) { return annots[i]; }
-  void appendAnnot(Annot *annot);
-  GBool removeAnnot(Annot *annot);
+    // Iterate through list of annotations.
+    int getNumAnnots() const { return annots.size(); }
+    Annot *getAnnot(int i) { return annots[i]; }
+    void appendAnnot(Annot *annot);
+    bool removeAnnot(Annot *annot);
 
 private:
-  Annot* createAnnot(Object* dictObject, Object *obj);
-  Annot *findAnnot(Ref *ref);
+    Annot *createAnnot(Object &&dictObject, const Object *obj);
+    Annot *findAnnot(Ref *ref);
 
-  PDFDoc *doc;
-  Annot **annots;
-  int nAnnots;
-  int size;
+    PDFDoc *doc;
+    std::vector<Annot *> annots;
 };
 
 #endif

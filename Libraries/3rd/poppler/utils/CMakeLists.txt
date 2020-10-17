@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -119,8 +119,6 @@ set(pdfimages_sources
   ${common_sources}
   ${projdir}/source/utils/ImageOutputDev.cc
   ${projdir}/source/utils/ImageOutputDev.h
-  ${projdir}/source/utils/JSInfo.cc
-  ${projdir}/source/utils/JSInfo.h
   ${projdir}/source/utils/pdfimages.cc
 )
 add_executable(${MIKTEX_PREFIX}pdfimages ${pdfimages_sources})
@@ -139,8 +137,6 @@ install(TARGETS ${MIKTEX_PREFIX}pdfimages DESTINATION ${MIKTEX_BINARY_DESTINATIO
 set(pdfinfo_sources
   ${MIKTEX_LIBRARY_WRAPPER}
   ${common_sources}
-  ${projdir}/source/utils/JSInfo.cc
-  ${projdir}/source/utils/JSInfo.h
   ${projdir}/source/utils/pdfinfo.cc
   ${projdir}/source/utils/printencodings.cc
 )
@@ -200,6 +196,7 @@ set(pdftohtml_sources
   ${common_sources}
   ${projdir}/source/utils/HtmlFonts.cc
   ${projdir}/source/utils/HtmlLinks.cc
+  ${projdir}/source/utils/InMemoryFile.cc
   ${projdir}/source/utils/HtmlOutputDev.cc
   ${projdir}/source/utils/pdftohtml.cc
 )

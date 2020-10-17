@@ -18,42 +18,50 @@
 
 #ifdef ENABLE_LIBTIFF
 
-#include <sys/types.h>
-#include "ImgWriter.h"
+#    include <sys/types.h>
+#    include "ImgWriter.h"
 
 struct TiffWriterPrivate;
 
 class TiffWriter : public ImgWriter
 {
 public:
-  /* RGB                 - 3 bytes/pixel
-   * RGBA_PREMULTIPLIED  - 4 bytes/pixel premultiplied by alpha
-   * GRAY                - 1 byte/pixel
-   * MONOCHROME          - 8 pixels/byte
-   * CMYK                - 4 bytes/pixel
-   * RGB48               - 6 bytes/pixel
-   */
-  enum Format { RGB, RGBA_PREMULTIPLIED, GRAY, MONOCHROME, CMYK, RGB48 };
+    /* RGB                 - 3 bytes/pixel
+     * RGBA_PREMULTIPLIED  - 4 bytes/pixel premultiplied by alpha
+     * GRAY                - 1 byte/pixel
+     * MONOCHROME          - 8 pixels/byte
+     * CMYK                - 4 bytes/pixel
+     * RGB48               - 6 bytes/pixel
+     */
+    enum Format
+    {
+        RGB,
+        RGBA_PREMULTIPLIED,
+        GRAY,
+        MONOCHROME,
+        CMYK,
+        RGB48
+    };
 
-  TiffWriter(Format format = RGB);
-  ~TiffWriter();
+    TiffWriter(Format format = RGB);
+    ~TiffWriter() override;
 
-  void setCompressionString(const char *compressionStringArg);
+    TiffWriter(const TiffWriter &other) = delete;
+    TiffWriter &operator=(const TiffWriter &other) = delete;
 
-  bool init(FILE *openedFile, int width, int height, int hDPI, int vDPI) override;
+    void setCompressionString(const char *compressionStringArg);
 
-  bool writePointers(unsigned char **rowPointers, int rowCount) override;
-  bool writeRow(unsigned char **rowData) override;
+    bool init(FILE *openedFile, int width, int height, int hDPI, int vDPI) override;
 
-  bool supportCMYK() override { return true; }
+    bool writePointers(unsigned char **rowPointers, int rowCount) override;
+    bool writeRow(unsigned char **rowData) override;
 
-  bool close() override;
+    bool supportCMYK() override { return true; }
+
+    bool close() override;
 
 private:
-  TiffWriter(const TiffWriter &other);
-  TiffWriter& operator=(const TiffWriter &other);
-
-  TiffWriterPrivate *priv;
+    TiffWriterPrivate *priv;
 };
 
 #endif

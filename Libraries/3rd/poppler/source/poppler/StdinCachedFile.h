@@ -14,13 +14,12 @@
 
 #include "CachedFile.h"
 
-class StdinCacheLoader : public CachedFileLoader {
+class StdinCacheLoader : public CachedFileLoader
+{
 
 public:
-  size_t init(GooString *dummy, CachedFile* cachedFile) override;
-  int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) override;
-
+    size_t init(GooString *dummy, CachedFile *cachedFile) override;
+    int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) override;
 };
 
 #endif
-

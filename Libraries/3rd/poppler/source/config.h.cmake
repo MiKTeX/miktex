@@ -46,9 +46,6 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
-/* Have FreeType2 include files */
-#cmakedefine HAVE_FREETYPE_H 1
-
 /* Define to 1 if you have the `fseek64' function. */
 #cmakedefine HAVE_FSEEK64 1
 
@@ -76,29 +73,14 @@
 /* Define if you have the iconv() function and it works. */
 #cmakedefine HAVE_ICONV 1
 
-/* Define to 1 if you have the <inttypes.h> header file. */
-#cmakedefine HAVE_INTTYPES_H 1
-
-/* Define to 1 if you have the `openjpeg' library (-lopenjpeg). */
-#cmakedefine HAVE_LIBOPENJPEG 1
-
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
 
 /* Defines if localtime_r is available on your system */
 #cmakedefine HAVE_LOCALTIME_R 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to 1 if you have the `mkstemp' function. */
 #cmakedefine HAVE_MKSTEMP 1
-
-/* Define to 1 if you have the `mkstemps' function. */
-#cmakedefine HAVE_MKSTEMPS 1
-
-/* Define to 1 if you have the `rand_r' function. */
-#cmakedefine HAVE_RAND_R 1
 
 /* Define to 1 if you have the `strcpy_s' function. */
 #cmakedefine HAVE_STRCPY_S 1
@@ -106,32 +88,17 @@
 /* Define to 1 if you have the `strcat_s' function. */
 #cmakedefine HAVE_STRCAT_S 1
 
+/* Defines if strtok_r is available on your system */
+#cmakedefine HAVE_STRTOK_R 1
+
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_NDIR_H 1
-
-/* Define to 1 if you have the <openjpeg.h> header file. */
-#cmakedefine HAVE_OPENJPEG_H 1
 
 /* Define to 1 if you have the `popen' function. */
 #cmakedefine HAVE_POPEN 1
 
-/* Define if you have POSIX threads libraries and header files. */
-#cmakedefine HAVE_PTHREAD 1
-
 /* Use splash for rendering. */
 #cmakedefine HAVE_SPLASH 1
-
-/* Define to 1 if you have the <stdint.h> header file. */
-#cmakedefine HAVE_STDINT_H 1
-
-/* Define to 1 if you have the <stdlib.h> header file. */
-#cmakedefine HAVE_STDLIB_H 1
-
-/* Define to 1 if you have the <strings.h> header file. */
-#cmakedefine HAVE_STRINGS_H 1
-
-/* Define to 1 if you have the <string.h> header file. */
-#cmakedefine HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
@@ -147,23 +114,17 @@
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #cmakedefine HAVE_SYS_STAT_H 1
 
-/* Define to 1 if you have the <sys/types.h> header file. */
-#cmakedefine HAVE_SYS_TYPES_H 1
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
-/* Define to 1 if you have the <zlib.h> header file. */
-#cmakedefine HAVE_ZLIB_H 1
+/* Define to 1 if you have the <codecvt> header file. */
+#cmakedefine HAVE_CODECVT
 
 /* Define to 1 if you have a big endian machine */
 #cmakedefine WORDS_BIGENDIAN 1
 
 /* Define as const if the declaration of iconv() needs const. */
 #define ICONV_CONST ${ICONV_CONST}
-
-/* Enable multithreading support. */
-#cmakedefine MULTITHREADED 1
 
 /* Generate OPI comments in PS output. */
 #cmakedefine OPI_SUPPORT 1
@@ -195,26 +156,14 @@
 /* Support for curl based doc builder is compiled in. */
 #cmakedefine POPPLER_HAS_CURL_SUPPORT 1
 
-/* Include support for CMYK rasterization */
-#cmakedefine SPLASH_CMYK 1
-
-/* Define to 1 if you have the ANSI C header files. */
-#define STDC_HEADERS 1
-
 /* Enable word list support. */
 #cmakedefine TEXTOUT_WORD_LIST 1
 
 /* Defines if use cms */
 #cmakedefine USE_CMS 1
 
-/* Use fixed point arithmetic in the Splash backend */
-#cmakedefine USE_FIXEDPOINT 1
-
 /* Use single precision arithmetic in the Splash backend */
 #cmakedefine USE_FLOAT 1
-
-/* Defines if use lcms1 */
-#cmakedefine USE_LCMS1 1
 
 /* Version number of package */
 #define VERSION "${POPPLER_VERSION}"
@@ -228,21 +177,17 @@
 /* OpenJPEG with the OPJ_DPARAMETERS_IGNORE_PCLR_CMAP_CDEF_FLAG flag */
 #cmakedefine WITH_OPENJPEG_IGNORE_PCLR_CMAP_CDEF_FLAG 1
 
-/* Define to 1 if the X Window System is missing or not being used. */
-/* #undef X_DISPLAY_MISSING */
-
-/*
- * jpeg.h needs HAVE_BOOLEAN, when the system uses boolean in system
- * headers and I'm too lazy to write a configure test as long as only
- * unixware is related
- */
-#ifdef _UNIXWARE
-#define HAVE_BOOLEAN
-#endif
-
 /* MS defined snprintf as deprecated but then added it in Visual Studio 2015. */
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
+
+//------------------------------------------------------------------------
+// popen
+//------------------------------------------------------------------------
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+#define popen _popen
+#define pclose _pclose
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
@@ -253,9 +198,3 @@
 
 /* Define for large files, on AIX-style hosts. */
 /* TODO This is wrong, port if needed #undef _LARGE_FILES */
-#if defined(MIKTEX)
-#  if defined(MIKTEX_WINDOWS)
-#    define MIKTEX_UTF8_WRAP_ALL 1
-#    include <miktex/utf8wrap.h>
-#  endif
-#endif

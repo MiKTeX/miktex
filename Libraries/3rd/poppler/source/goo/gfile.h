@@ -16,13 +16,16 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2009, 2011, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2011, 2012, 2017, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2014 Bogdan Cristea <cristeab@gmail.com>
 // Copyright (C) 2014 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
+// Copyright (C) 2017 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2018 Mojca Miklavec <mojca@macports.org>
+// Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -33,89 +36,59 @@
 #define GFILE_H
 
 #include "poppler-config.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstddef>
+#include <ctime>
 extern "C" {
 #if defined(_WIN32)
-#  include <sys/stat.h>
-#  ifdef FPTEX
-#    include <win32lib.h>
-#  else
-#    ifndef NOMINMAX
-#      define NOMINMAX
+#    include <sys/stat.h>
+#    ifdef FPTEX
+#        include <win32lib.h>
+#    else
+#        ifndef NOMINMAX
+#            define NOMINMAX
+#        endif
+#        include <windows.h>
 #    endif
-#    include <windows.h>
-#  endif
-#elif defined(ACORN)
-#elif defined(MACOS)
-#  include <ctime.h>
 #else
-#  include <unistd.h>
-#  include <sys/types.h>
-#  ifdef VMS
-#    include "vms_dirent.h"
-#  elif HAVE_DIRENT_H
-#    include <dirent.h>
-#    define NAMLEN(d) strlen((d)->d_name)
-#  else
-#    define dirent direct
-#    define NAMLEN(d) (d)->d_namlen
-#    if HAVE_SYS_NDIR_H
-#      include <sys/ndir.h>
+#    include <unistd.h>
+#    include <sys/types.h>
+#    if defined(HAVE_DIRENT_H)
+#        include <dirent.h>
+#        define NAMLEN(d) strlen((d)->d_name)
+#    else
+#        define dirent direct
+#        define NAMLEN(d) (d)->d_namlen
+#        ifdef HAVE_SYS_NDIR_H
+#            include <sys/ndir.h>
+#        endif
+#        ifdef HAVE_SYS_DIR_H
+#            include <sys/dir.h>
+#        endif
+#        ifdef HAVE_NDIR_H
+#            include <ndir.h>
+#        endif
 #    endif
-#    if HAVE_SYS_DIR_H
-#      include <sys/dir.h>
-#    endif
-#    if HAVE_NDIR_H
-#      include <ndir.h>
-#    endif
-#  endif
 #endif
 }
-#include "gtypes.h"
-#if defined(MIKTEX_WINDOWS)
-#  include <miktex/unxemu.h>
-#endif
 
 class GooString;
 
-//------------------------------------------------------------------------
+/* Integer type for all file offsets and file sizes */
+typedef long long Goffset;
 
-// Get current directory.
-extern GooString *getCurrentDir();
+//------------------------------------------------------------------------
 
 // Append a file name to a path string.  <path> may be an empty
 // string, denoting the current directory).  Returns <path>.
 extern GooString *appendToPath(GooString *path, const char *fileName);
 
-// Grab the path from the front of the file name.  If there is no
-// directory component in <fileName>, returns an empty string.
-extern GooString *grabPath(char *fileName);
-
-// Is this an absolute path or file name?
-extern GBool isAbsolutePath(char *path);
-
-// Get the modification time for <fileName>.  Returns 0 if there is an
-// error.
-extern time_t getModTime(char *fileName);
-
-// Create a temporary file and open it for writing.  If <ext> is not
-// NULL, it will be used as the file name extension.  Returns both the
-// name and the file pointer.  For security reasons, all writing
-// should be done to the returned file pointer; the file may be
-// reopened later for reading, but not for writing.  The <mode> string
-// should be "w" or "wb".  Returns true on success.
-extern GBool openTempFile(GooString **name, FILE **f, const char *mode);
-
-#if !defined(MIKTEX)
-#ifdef WIN32
-// Convert a file name from Latin-1 to UTF-8.
-extern GooString *fileNameToUTF8(char *path);
-
-// Convert a file name from UCS-2 to UTF-8.
-extern GooString *fileNameToUTF8(wchar_t *path);
-#endif
+#ifndef _WIN32
+// Open a file descriptor
+// Could be implemented on WIN32 too, but the only external caller of
+// this function is not used on WIN32
+extern int openFileDescriptor(const char *path, int flags);
 #endif
 
 // Open a file.  On Windows, this converts the path from UTF-8 to
@@ -141,75 +114,36 @@ extern Goffset GoffsetMax();
 class GooFile
 {
 public:
-  int read(char *buf, int n, Goffset offset) const;
-  Goffset size() const;
-  
-  static GooFile *open(const GooString *fileName);
-  
+    GooFile(const GooFile &) = delete;
+    GooFile &operator=(const GooFile &other) = delete;
+
+    int read(char *buf, int n, Goffset offset) const;
+    Goffset size() const;
+
+    static GooFile *open(const GooString *fileName);
+
 #ifdef _WIN32
-  static GooFile *open(const wchar_t *fileName);
-  
-  ~GooFile() { CloseHandle(handle); }
-  
+    static GooFile *open(const wchar_t *fileName);
+
+    ~GooFile() { CloseHandle(handle); }
+
+    // Asuming than on windows you can't change files that are already open
+    bool modificationTimeChangedSinceOpen() const;
+
 private:
-  GooFile(HANDLE handleA): handle(handleA) {}
-  HANDLE handle;
+    GooFile(HANDLE handleA);
+    HANDLE handle;
+    struct _FILETIME modifiedTimeOnOpen;
 #else
-  ~GooFile() { close(fd); }
-    
+    ~GooFile() { close(fd); }
+
+    bool modificationTimeChangedSinceOpen() const;
+
 private:
-  GooFile(int fdA) : fd(fdA) {}
-  int fd;
+    GooFile(int fdA);
+    int fd;
+    struct timespec modifiedTimeOnOpen;
 #endif // _WIN32
-};
-
-//------------------------------------------------------------------------
-// GDir and GDirEntry
-//------------------------------------------------------------------------
-
-class GDirEntry {
-public:
-
-  GDirEntry(char *dirPath, char *nameA, GBool doStat);
-  ~GDirEntry();
-  GooString *getName() { return name; }
-  GooString *getFullPath() { return fullPath; }
-  GBool isDir() { return dir; }
-
-private:
-  GDirEntry(const GDirEntry &other);
-  GDirEntry& operator=(const GDirEntry &other);
-
-  GooString *name;		// dir/file name
-  GooString *fullPath;
-  GBool dir;			// is it a directory?
-};
-
-class GDir {
-public:
-
-  GDir(char *name, GBool doStatA = gTrue);
-  ~GDir();
-  GDirEntry *getNextEntry();
-  void rewind();
-
-private:
-  GDir(const GDir &other);
-  GDir& operator=(const GDir &other);
-
-  GooString *path;		// directory path
-  GBool doStat;			// call stat() for each entry?
-#if defined(_WIN32) && !defined(MIKTEX)
-  WIN32_FIND_DATAA ffd;
-  HANDLE hnd;
-#elif defined(ACORN)
-#elif defined(MACOS)
-#else
-  DIR *dir;			// the DIR structure from opendir()
-#ifdef VMS
-  GBool needParent;		// need to return an entry for [-]
-#endif
-#endif
 };
 
 #endif

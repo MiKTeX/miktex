@@ -28,57 +28,54 @@
 #include "poppler-qt5.h"
 #include "poppler-page-private.h"
 
-namespace Poppler
-{
+namespace Poppler {
 
-LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data)
-  : m_data(data)
+LinkExtractorOutputDev::LinkExtractorOutputDev(PageData *data) : m_data(data)
 {
-  Q_ASSERT(m_data);
-  ::Page *popplerPage = m_data->page;
-  m_pageCropWidth = popplerPage->getCropWidth();
-  m_pageCropHeight = popplerPage->getCropHeight();
-  if (popplerPage->getRotate() == 90 || popplerPage->getRotate() == 270)
-    qSwap(m_pageCropWidth, m_pageCropHeight);
-  GfxState gfxState(72.0, 72.0, popplerPage->getCropBox(), popplerPage->getRotate(), gTrue);
-  setDefaultCTM(gfxState.getCTM());
+    Q_ASSERT(m_data);
+    ::Page *popplerPage = m_data->page;
+    m_pageCropWidth = popplerPage->getCropWidth();
+    m_pageCropHeight = popplerPage->getCropHeight();
+    if (popplerPage->getRotate() == 90 || popplerPage->getRotate() == 270)
+        qSwap(m_pageCropWidth, m_pageCropHeight);
+    GfxState gfxState(72.0, 72.0, popplerPage->getCropBox(), popplerPage->getRotate(), true);
+    setDefaultCTM(gfxState.getCTM());
 }
 
 LinkExtractorOutputDev::~LinkExtractorOutputDev()
 {
-  qDeleteAll(m_links);
+    qDeleteAll(m_links);
 }
 
 void LinkExtractorOutputDev::processLink(::AnnotLink *link)
 {
-  if (!link->isOk())
-    return;
+    if (!link->isOk())
+        return;
 
-  double left, top, right, bottom;
-  int leftAux, topAux, rightAux, bottomAux;
-  link->getRect(&left, &top, &right, &bottom);
-  QRectF linkArea;
+    double left, top, right, bottom;
+    int leftAux, topAux, rightAux, bottomAux;
+    link->getRect(&left, &top, &right, &bottom);
+    QRectF linkArea;
 
-  cvtUserToDev(left, top, &leftAux, &topAux);
-  cvtUserToDev(right, bottom, &rightAux, &bottomAux);
-  linkArea.setLeft((double)leftAux / m_pageCropWidth);
-  linkArea.setTop((double)topAux / m_pageCropHeight);
-  linkArea.setRight((double)rightAux / m_pageCropWidth);
-  linkArea.setBottom((double)bottomAux / m_pageCropHeight);
+    cvtUserToDev(left, top, &leftAux, &topAux);
+    cvtUserToDev(right, bottom, &rightAux, &bottomAux);
+    linkArea.setLeft((double)leftAux / m_pageCropWidth);
+    linkArea.setTop((double)topAux / m_pageCropHeight);
+    linkArea.setRight((double)rightAux / m_pageCropWidth);
+    linkArea.setBottom((double)bottomAux / m_pageCropHeight);
 
-  Link *popplerLink = m_data->convertLinkActionToLink(link->getAction(), linkArea);
-  if (popplerLink)
-  {
-    m_links.append(popplerLink);
-  }
-  OutputDev::processLink(link);
+    Link *popplerLink = m_data->convertLinkActionToLink(link->getAction(), linkArea);
+    if (popplerLink) {
+        m_links.append(popplerLink);
+    }
+    OutputDev::processLink(link);
 }
 
-QList< Link* > LinkExtractorOutputDev::links()
+QList<Link *> LinkExtractorOutputDev::links()
 {
-  QList< Link* > ret = m_links;
-  m_links.clear();
-  return ret;
+    QList<Link *> ret = m_links;
+    m_links.clear();
+    return ret;
 }
 
 }

@@ -25,81 +25,65 @@
 
 namespace Poppler {
 
-BaseConverterPrivate::BaseConverterPrivate()
-	: document(0), iodev(0), ownIodev(true)
-{
-}
+BaseConverterPrivate::BaseConverterPrivate() : document(nullptr), iodev(nullptr), ownIodev(true) { }
 
-BaseConverterPrivate::~BaseConverterPrivate()
-{
-}
+BaseConverterPrivate::~BaseConverterPrivate() { }
 
-QIODevice* BaseConverterPrivate::openDevice()
+QIODevice *BaseConverterPrivate::openDevice()
 {
-	if (!iodev)
-	{
-		Q_ASSERT(!outputFileName.isEmpty());
-		QFile *f = new QFile(outputFileName);
-		iodev = f;
-		ownIodev = true;
-	}
-	Q_ASSERT(iodev);
-	if (!iodev->isOpen())
-	{
-		if (!iodev->open(QIODevice::WriteOnly))
-		{
-			if (ownIodev)
-			{
-				delete iodev;
-				iodev = 0;
-			}
-			else
-			{
-				return 0;
-			}
-		}
-	}
-	return iodev;
+    if (!iodev) {
+        Q_ASSERT(!outputFileName.isEmpty());
+        QFile *f = new QFile(outputFileName);
+        iodev = f;
+        ownIodev = true;
+    }
+    Q_ASSERT(iodev);
+    if (!iodev->isOpen()) {
+        if (!iodev->open(QIODevice::WriteOnly)) {
+            if (ownIodev) {
+                delete iodev;
+                iodev = nullptr;
+            } else {
+                return nullptr;
+            }
+        }
+    }
+    return iodev;
 }
 
 void BaseConverterPrivate::closeDevice()
 {
-	if (ownIodev)
-	{
-		iodev->close();
-		delete iodev;
-		iodev = 0;
-	}
+    if (ownIodev) {
+        iodev->close();
+        delete iodev;
+        iodev = nullptr;
+    }
 }
 
-
-BaseConverter::BaseConverter(BaseConverterPrivate &dd)
-	: d_ptr(&dd)
-{
-}
+BaseConverter::BaseConverter(BaseConverterPrivate &dd) : d_ptr(&dd) { }
 
 BaseConverter::~BaseConverter()
 {
-	delete d_ptr;
+    delete d_ptr;
 }
 
 void BaseConverter::setOutputFileName(const QString &outputFileName)
 {
-	Q_D(BaseConverter);
-	d->outputFileName = outputFileName;
+    Q_D(BaseConverter);
+    d->outputFileName = outputFileName;
 }
 
 void BaseConverter::setOutputDevice(QIODevice *device)
 {
-	Q_D(BaseConverter);
-	d->iodev = device;
-	d->ownIodev = false;
+    Q_D(BaseConverter);
+    d->iodev = device;
+    d->ownIodev = false;
 }
 
 BaseConverter::Error BaseConverter::lastError() const
 {
-	Q_D(const BaseConverter);
-	return d->lastError;
+    Q_D(const BaseConverter);
+    return d->lastError;
 }
 
 }

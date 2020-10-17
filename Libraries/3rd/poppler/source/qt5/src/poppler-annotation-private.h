@@ -2,7 +2,7 @@
  * Copyright (C) 2007, Pino Toscano <pino@kde.org>
  * Copyright (C) 2012, Tobias Koenig <tokoe@kdab.com>
  * Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
- * Copyright (C) 2012, 2014, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2012, 2014, 2018, 2019, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,79 +32,80 @@
 
 class Annot;
 class AnnotPath;
-class Link;
 class Page;
 class PDFRectangle;
 
-namespace Poppler
-{
+namespace Poppler {
 class DocumentData;
 
 class AnnotationPrivate : public QSharedData
 {
-    public:
-        AnnotationPrivate();
-        virtual ~AnnotationPrivate();
+public:
+    AnnotationPrivate();
+    virtual ~AnnotationPrivate();
 
-        void addRevision(Annotation *ann, Annotation::RevScope scope, Annotation::RevType type);
+    AnnotationPrivate(const AnnotationPrivate &) = delete;
+    AnnotationPrivate &operator=(const AnnotationPrivate &) = delete;
 
-        /* Returns an Annotation of the right subclass whose d_ptr points to
-         * this AnnotationPrivate */
-        virtual Annotation * makeAlias() = 0;
+    void addRevision(Annotation *ann, Annotation::RevScope scope, Annotation::RevType type);
 
-        /* properties: contents related */
-        QString author;
-        QString contents;
-        QString uniqueName;
-        QDateTime modDate;       // before or equal to currentDateTime()
-        QDateTime creationDate;  // before or equal to modifyDate
+    /* Returns an Annotation of the right subclass whose d_ptr points to
+     * this AnnotationPrivate */
+    virtual Annotation *makeAlias() = 0;
 
-        /* properties: look/interaction related */
-        int flags;
-        QRectF boundary;
+    /* properties: contents related */
+    QString author;
+    QString contents;
+    QString uniqueName;
+    QDateTime modDate; // before or equal to currentDateTime()
+    QDateTime creationDate; // before or equal to modifyDate
 
-        /* style and popup */
-        Annotation::Style style;
-        Annotation::Popup popup;
+    /* properties: look/interaction related */
+    int flags;
+    QRectF boundary;
 
-        /* revisions */
-        Annotation::RevScope revisionScope;
-        Annotation::RevType revisionType;
-        QList<Annotation*> revisions;
+    /* style and popup */
+    Annotation::Style style;
+    Annotation::Popup popup;
 
-        /* After this call, the Annotation object will behave like a wrapper for
-         * the specified Annot object. All cached values are discarded */
-        void tieToNativeAnnot(Annot *ann, ::Page *page, DocumentData *doc);
+    /* revisions */
+    Annotation::RevScope revisionScope;
+    Annotation::RevType revisionType;
+    QList<Annotation *> revisions;
 
-        /* Creates a new Annot object on the specified page, flushes current
-         * values to that object and ties this Annotation to that object */
-        virtual Annot* createNativeAnnot(::Page *destPage, DocumentData *doc) = 0;
+    /* After this call, the Annotation object will behave like a wrapper for
+     * the specified Annot object. All cached values are discarded */
+    void tieToNativeAnnot(Annot *ann, ::Page *page, DocumentData *doc);
 
-        /* Inited to 0 (i.e. untied annotation) */
-        Annot *pdfAnnot;
-        ::Page *pdfPage;
-        DocumentData * parentDoc;
+    /* Creates a new Annot object on the specified page, flushes current
+     * values to that object and ties this Annotation to that object */
+    virtual Annot *createNativeAnnot(::Page *destPage, DocumentData *doc) = 0;
 
-        /* The following helpers only work if pdfPage is set */
-        void flushBaseAnnotationProperties();
-        void fillNormalizationMTX(double MTX[6], int pageRotation) const;
-        void fillTransformationMTX(double MTX[6]) const;
-        QRectF fromPdfRectangle(const PDFRectangle &r) const;
-        PDFRectangle boundaryToPdfRectangle(const QRectF &r, int flags) const;
-        AnnotPath * toAnnotPath(const QLinkedList<QPointF> &l) const;
+    /* Inited to 0 (i.e. untied annotation) */
+    Annot *pdfAnnot;
+    ::Page *pdfPage;
+    DocumentData *parentDoc;
 
-        /* Scan page for annotations, parentId=0 searches for root annotations, subtypes empty means all subtypes */
-        static QList<Annotation*> findAnnotations(::Page *pdfPage, DocumentData *doc, const QSet<Annotation::SubType> &subtypes, int parentId = 0);
+    /* The following helpers only work if pdfPage is set */
+    void flushBaseAnnotationProperties();
+    void fillNormalizationMTX(double MTX[6], int pageRotation) const;
+    void fillTransformationMTX(double MTX[6]) const;
+    QRectF fromPdfRectangle(const PDFRectangle &r) const;
+    PDFRectangle boundaryToPdfRectangle(const QRectF &r, int flags) const;
+    AnnotPath *toAnnotPath(const QLinkedList<QPointF> &l) const;
 
-        /* Add given annotation to given page */
-        static void addAnnotationToPage(::Page *pdfPage, DocumentData *doc, const Annotation * ann);
+    /* Scan page for annotations, parentId=0 searches for root annotations, subtypes empty means all subtypes */
+    static QList<Annotation *> findAnnotations(::Page *pdfPage, DocumentData *doc, const QSet<Annotation::SubType> &subtypes, int parentId = -1);
 
-        /* Remove annotation from page and destroy ann */
-        static void removeAnnotationFromPage(::Page *pdfPage, const Annotation * ann);
+    /* Add given annotation to given page */
+    static void addAnnotationToPage(::Page *pdfPage, DocumentData *doc, const Annotation *ann);
 
-        Ref pdfObjectReference() const;
+    /* Remove annotation from page and destroy ann */
+    static void removeAnnotationFromPage(::Page *pdfPage, const Annotation *ann);
 
-        Link* additionalAction( Annotation::AdditionalActionType type ) const;
+    Ref pdfObjectReference() const;
+
+    Link *additionalAction(Annotation::AdditionalActionType type) const;
 };
 
 }

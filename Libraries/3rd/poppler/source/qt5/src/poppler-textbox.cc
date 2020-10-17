@@ -18,49 +18,46 @@
  * Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#if defined(MIKTEX)
-#  include <config.h>
-#endif
 #include "poppler-qt5.h"
 #include "poppler-private.h"
 
 namespace Poppler {
 
-TextBox::TextBox(const QString& text, const QRectF &bBox)
+TextBox::TextBox(const QString &text, const QRectF &bBox)
 {
-	m_data = new TextBoxData();
-	m_data->text = text;
-	m_data->bBox = bBox;
+    m_data = new TextBoxData();
+    m_data->text = text;
+    m_data->bBox = bBox;
 }
 
 TextBox::~TextBox()
 {
-	delete m_data;
+    delete m_data;
 }
 
 QString TextBox::text() const
 {
-	return m_data->text;
+    return m_data->text;
 }
 
 QRectF TextBox::boundingBox() const
 {
-	return m_data->bBox;
+    return m_data->bBox;
 }
 
 TextBox *TextBox::nextWord() const
 {
-	return m_data->nextWord;
+    return m_data->nextWord;
 }
 
 QRectF TextBox::charBoundingBox(int i) const
 {
-	return m_data->charBBoxes.value(i);
+    return m_data->charBBoxes.value(i);
 }
 
 bool TextBox::hasSpaceAfter() const
 {
-	return m_data->hasSpaceAfter;
+    return m_data->hasSpaceAfter;
 }
 
 }

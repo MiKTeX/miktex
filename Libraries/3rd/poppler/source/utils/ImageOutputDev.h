@@ -19,6 +19,7 @@
 // Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
 // Copyright (C) 2012, 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2018, 2019 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -30,12 +31,7 @@
 
 #include "poppler/poppler-config.h"
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
-#include <stdio.h>
-#include "goo/gtypes.h"
+#include <cstdio>
 #include "goo/ImgWriter.h"
 #include "OutputDev.h"
 
@@ -45,136 +41,114 @@ class GfxState;
 // ImageOutputDev
 //------------------------------------------------------------------------
 
-class ImageOutputDev: public OutputDev {
+class ImageOutputDev : public OutputDev
+{
 public:
-  enum ImageType {
-    imgImage,
-    imgStencil,
-    imgMask,
-    imgSmask
-  };
-  enum ImageFormat {
-    imgRGB,
-    imgRGB48,
-    imgGray,
-    imgMonochrome,
-    imgCMYK
-  };
+    enum ImageType
+    {
+        imgImage,
+        imgStencil,
+        imgMask,
+        imgSmask
+    };
+    enum ImageFormat
+    {
+        imgRGB,
+        imgRGB48,
+        imgGray,
+        imgMonochrome,
+        imgCMYK
+    };
 
-  // Create an OutputDev which will write images to files named
-  // <fileRoot>-NNN.<type> or <fileRoot>-PPP-NNN.<type>, if 
-  // <pageNames> is set. Normally, all images are written as PBM
-  // (.pbm) or PPM (.ppm) files unless PNG or Tiff output is enabled
-  // (PNG is used if both are enabled).  If Jpeg is enabled, JPEG images
-  // are written as JPEG (.jpg) files.
-  ImageOutputDev(char *fileRootA, GBool pageNamesA, GBool listImagesA);
+    // Create an OutputDev which will write images to files named
+    // <fileRoot>-NNN.<type> or <fileRoot>-PPP-NNN.<type>, if
+    // <pageNames> is set. Normally, all images are written as PBM
+    // (.pbm) or PPM (.ppm) files unless PNG or Tiff output is enabled
+    // (PNG is used if both are enabled).  If Jpeg is enabled, JPEG images
+    // are written as JPEG (.jpg) files.
+    ImageOutputDev(char *fileRootA, bool pageNamesA, bool listImagesA);
 
-  // Destructor.
-  virtual ~ImageOutputDev();
+    // Destructor.
+    ~ImageOutputDev() override;
 
-  // Use PNG format for output
-  void enablePNG(GBool png) { outputPNG = png; }
+    // Use PNG format for output
+    void enablePNG(bool png) { outputPNG = png; }
 
-  // Use TIFF format for output
-  void enableTiff(GBool tiff) { outputTiff = tiff; }
+    // Use TIFF format for output
+    void enableTiff(bool tiff) { outputTiff = tiff; }
 
-  // Use Jpeg format for Jpeg files
-  void enableJpeg(GBool jpeg) { dumpJPEG = jpeg; }
+    // Use Jpeg format for Jpeg files
+    void enableJpeg(bool jpeg) { dumpJPEG = jpeg; }
 
-  // Use Jpeg2000 format for Jpeg2000 files
-  void enableJpeg2000(GBool jp2) { dumpJP2 = jp2; }
+    // Use Jpeg2000 format for Jpeg2000 files
+    void enableJpeg2000(bool jp2) { dumpJP2 = jp2; }
 
-  // Use JBIG2 format for JBIG2 files
-  void enableJBig2(GBool jbig2) { dumpJBIG2 = jbig2; }
+    // Use JBIG2 format for JBIG2 files
+    void enableJBig2(bool jbig2) { dumpJBIG2 = jbig2; }
 
-  // Use CCITT format for CCITT files
-  void enableCCITT(GBool ccitt) { dumpCCITT = ccitt; }
+    // Use CCITT format for CCITT files
+    void enableCCITT(bool ccitt) { dumpCCITT = ccitt; }
 
-  // Check if file was successfully created.
-  virtual GBool isOk() { return ok; }
+    // Check if file was successfully created.
+    virtual bool isOk() { return ok; }
 
-  // Does this device use tilingPatternFill()?  If this returns false,
-  // tiling pattern fills will be reduced to a series of other drawing
-  // operations.
-  GBool useTilingPatternFill() override { return gTrue; }
+    // Does this device use tilingPatternFill()?  If this returns false,
+    // tiling pattern fills will be reduced to a series of other drawing
+    // operations.
+    bool useTilingPatternFill() override { return true; }
 
-  // Does this device use beginType3Char/endType3Char?  Otherwise,
-  // text in Type 3 fonts will be drawn with drawChar/drawString.
-  GBool interpretType3Chars() override { return gFalse; }
+    // Does this device use beginType3Char/endType3Char?  Otherwise,
+    // text in Type 3 fonts will be drawn with drawChar/drawString.
+    bool interpretType3Chars() override { return false; }
 
-  // Does this device need non-text content?
-  GBool needNonText() override { return gTrue; }
+    // Does this device need non-text content?
+    bool needNonText() override { return true; }
 
-  // Start a page
-  void startPage(int pageNumA, GfxState *state, XRef *xref)  override
-			{ pageNum = pageNumA; }
- 
-  //---- get info about output device
+    // Start a page
+    void startPage(int pageNumA, GfxState *state, XRef *xref) override { pageNum = pageNumA; }
 
-  // Does this device use upside-down coordinates?
-  // (Upside-down means (0,0) is the top left corner of the page.)
-  GBool upsideDown() override { return gTrue; }
+    //---- get info about output device
 
-  // Does this device use drawChar() or drawString()?
-  GBool useDrawChar() override { return gFalse; }
+    // Does this device use upside-down coordinates?
+    // (Upside-down means (0,0) is the top left corner of the page.)
+    bool upsideDown() override { return true; }
 
-  //----- path painting
-  GBool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str,
-			  double *pmat, int paintType, int tilingType, Dict *resDict,
-			  double *mat, double *bbox,
-			  int x0, int y0, int x1, int y1,
-			  double xStep, double yStep) override;
+    // Does this device use drawChar() or drawString()?
+    bool useDrawChar() override { return false; }
 
-  //----- image drawing
-  void drawImageMask(GfxState *state, Object *ref, Stream *str,
-		     int width, int height, GBool invert,
-		     GBool interpolate, GBool inlineImg) override;
-  void drawImage(GfxState *state, Object *ref, Stream *str,
-		 int width, int height, GfxImageColorMap *colorMap,
-		 GBool interpolate, int *maskColors, GBool inlineImg) override;
-  void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
-		       int width, int height,
-		       GfxImageColorMap *colorMap,
-		       GBool interpolate,
-		       Stream *maskStr, int maskWidth, int maskHeight,
-		       GBool maskInvert, GBool maskInterpolate) override;
-  void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
-			   int width, int height,
-			   GfxImageColorMap *colorMap,
-			   GBool interpolate,
-			   Stream *maskStr,
-			   int maskWidth, int maskHeight,
-			   GfxImageColorMap *maskColorMap,
-			   GBool maskInterpolate) override;
+    //----- path painting
+    bool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str, const double *pmat, int paintType, int tilingType, Dict *resDict, const double *mat, const double *bbox, int x0, int y0, int x1, int y1, double xStep,
+                           double yStep) override;
+
+    //----- image drawing
+    void drawImageMask(GfxState *state, Object *ref, Stream *str, int width, int height, bool invert, bool interpolate, bool inlineImg) override;
+    void drawImage(GfxState *state, Object *ref, Stream *str, int width, int height, GfxImageColorMap *colorMap, bool interpolate, const int *maskColors, bool inlineImg) override;
+    void drawMaskedImage(GfxState *state, Object *ref, Stream *str, int width, int height, GfxImageColorMap *colorMap, bool interpolate, Stream *maskStr, int maskWidth, int maskHeight, bool maskInvert, bool maskInterpolate) override;
+    void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str, int width, int height, GfxImageColorMap *colorMap, bool interpolate, Stream *maskStr, int maskWidth, int maskHeight, GfxImageColorMap *maskColorMap,
+                             bool maskInterpolate) override;
 
 private:
-  // Sets the output filename with a given file extension
-  void setFilename(const char *fileExt);
-  void listImage(GfxState *state, Object *ref, Stream *str,
-		 int width, int height,
-		 GfxImageColorMap *colorMap,
-		 GBool interpolate, GBool inlineImg,
-		 ImageType imageType);
-  void writeImage(GfxState *state, Object *ref, Stream *str,
-                  int width, int height, GfxImageColorMap *colorMap, GBool inlineImg);
-  void writeRawImage(Stream *str, const char *ext);
-  void writeImageFile(ImgWriter *writer, ImageFormat format, const char *ext,
-                      Stream *str, int width, int height, GfxImageColorMap *colorMap);
-  long getInlineImageLength(Stream *str, int width, int height, GfxImageColorMap *colorMap);
+    // Sets the output filename with a given file extension
+    void setFilename(const char *fileExt);
+    void listImage(GfxState *state, Object *ref, Stream *str, int width, int height, GfxImageColorMap *colorMap, bool interpolate, bool inlineImg, ImageType imageType);
+    void writeImage(GfxState *state, Object *ref, Stream *str, int width, int height, GfxImageColorMap *colorMap, bool inlineImg);
+    void writeRawImage(Stream *str, const char *ext);
+    void writeImageFile(ImgWriter *writer, ImageFormat format, const char *ext, Stream *str, int width, int height, GfxImageColorMap *colorMap);
+    long getInlineImageLength(Stream *str, int width, int height, GfxImageColorMap *colorMap);
 
-  char *fileRoot;		// root of output file names
-  char *fileName;		// buffer for output file names
-  GBool listImages;		// list images instead of dumping
-  GBool dumpJPEG;		// set to dump native JPEG files
-  GBool dumpJP2;		// set to dump native JPEG2000 files
-  GBool dumpJBIG2;		// set to dump native JBIG2 files
-  GBool dumpCCITT;		// set to dump native CCITT files
-  GBool outputPNG;		// set to output in PNG format
-  GBool outputTiff;		// set to output in TIFF format
-  GBool pageNames;		// set to include page number in file names
-  int pageNum;			// current page number
-  int imgNum;			// current image number
-  GBool ok;			// set up ok?
+    char *fileRoot; // root of output file names
+    char *fileName; // buffer for output file names
+    bool listImages; // list images instead of dumping
+    bool dumpJPEG; // set to dump native JPEG files
+    bool dumpJP2; // set to dump native JPEG2000 files
+    bool dumpJBIG2; // set to dump native JBIG2 files
+    bool dumpCCITT; // set to dump native CCITT files
+    bool outputPNG; // set to output in PNG format
+    bool outputTiff; // set to output in TIFF format
+    bool pageNames; // set to include page number in file names
+    int pageNum; // current page number
+    int imgNum; // current image number
+    bool ok; // set up ok?
 };
 
 #endif
