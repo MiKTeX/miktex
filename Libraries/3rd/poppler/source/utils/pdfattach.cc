@@ -45,7 +45,11 @@ static bool fileExists(const char *filePath)
     return false;
 }
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv)
+#else
 int main(int argc, char *argv[])
+#endif
 {
     Win32Console win32Console(&argc, &argv);
 

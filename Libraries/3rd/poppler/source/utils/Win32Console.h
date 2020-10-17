@@ -21,16 +21,7 @@
 // Converts argc/argv to UTF-8. Supports UTF-8 stdout/stderr to win32 console.
 // On other platforms this class is a no-op.
 
-#ifdef _WIN32
-#if defined(MIKTEX)
-class Win32Console
-{
-public:
-  Win32Console(int* argc, char*** argv)
-  {
-  }
-};
-#else
+#if !defined(MIKTEX) && defined(_WIN32)
 
 // Ensure stdio.h is included before redefining stdio functions. We need to provide
 // our own declarations for the redefined functions because win32 stdio.h functions
@@ -65,7 +56,6 @@ private:
     char **privateArgList;
 };
 
-#endif
 #else
 
 // On other platforms this class is a no-op.

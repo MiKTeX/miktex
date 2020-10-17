@@ -16,6 +16,7 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${poppler_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${poppler_qt_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}pdfattach.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}pdfdetach.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}pdffonts.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}pdfimages.exe

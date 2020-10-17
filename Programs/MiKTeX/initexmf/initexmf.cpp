@@ -1520,6 +1520,7 @@ vector<FileLink> miktexFileLinks =
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
 #endif
 #if defined(WITH_POPPLER_UTILS)
+  { MIKTEX_PDFATTACH_EXE, { "pdfattach" } },
   { MIKTEX_PDFDETACH_EXE, { "pdfdetach" } },
   { MIKTEX_PDFFONTS_EXE, { "pdffonts" } },
   { MIKTEX_PDFIMAGES_EXE, { "pdfimages" } },

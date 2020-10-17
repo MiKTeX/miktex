@@ -269,3 +269,21 @@ if(ENABLE_NSS3)
   )
   install(TARGETS ${MIKTEX_PREFIX}pdfsig DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()
+
+set(pdfattach_sources
+  ${MIKTEX_LIBRARY_WRAPPER}
+  ${common_sources}
+  ${projdir}/source/utils/pdfattach.cc
+)
+add_executable(${MIKTEX_PREFIX}pdfattach ${pdfattach_sources})
+set_property(TARGET ${MIKTEX_PREFIX}pdfattach PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(${MIKTEX_PREFIX}pdfattach
+  ${app_dll_name}
+  ${poppler_dll_name}
+)
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdfattach
+    ${utf8wrap_dll_name}
+  )
+endif()
+install(TARGETS ${MIKTEX_PREFIX}pdfattach DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
