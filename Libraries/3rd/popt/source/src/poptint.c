@@ -1,25 +1,15 @@
 #include "system.h"
 #include <stdarg.h>
+#include <errno.h>
+#ifdef HAVE_LANGINFO_H
+#include <langinfo.h>
+#endif
 #include "poptint.h"
 
 /* Any pair of 32 bit hashes can be used. lookup3.c generates pairs, will do. */
 #define _JLU3_jlu32lpair        1
 #define	jlu32lpair	poptJlu32lpair
 #include "lookup3.c"
-
-/*@-varuse +charint +ignoresigns @*/
-/*@unchecked@*/ /*@observer@*/
-static const unsigned char utf8_skip_data[256] = {
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,6,6,1,1
-};
-/*@=varuse =charint =ignoresigns @*/
 
 const char *
 POPT_prev_char (const char *str)
@@ -48,7 +38,7 @@ POPT_next_char (const char *str)
 
 #if !defined(POPT_fprintf)	/* XXX lose all the goop ... */
 
-#if defined(HAVE_DCGETTEXT) && !defined(__LCLINT__)
+#if defined(HAVE_DCGETTEXT)
 /*
  * Rebind a "UTF-8" codeset for popt's internal use.
  */
@@ -75,9 +65,8 @@ POPT_dgettext(const char * dom, const char * str)
  * @param istr		input string (UTF-8 encoding assumed)
  * @return		localized string
  */
-static /*@only@*/ /*@null@*/ char *
-strdup_locale_from_utf8 (/*@null@*/ char * istr)
-	/*@*/
+static char *
+strdup_locale_from_utf8 (char * istr)
 {
     char * codeset = NULL;
     char * ostr = NULL;
@@ -95,7 +84,6 @@ strdup_locale_from_utf8 (/*@null@*/ char * istr)
     {
 	char * shift_pin = NULL;
 	size_t db = strlen(istr);
-/*@owned@*/
 	char * dstr = malloc((db + 1) * sizeof(*dstr));
 	char * pin = istr;
 	char * pout = dstr;
@@ -127,11 +115,11 @@ strdup_locale_from_utf8 (/*@null@*/ char * istr)
 		    ob = db - used;
 		    continue;
 		}
-	    }   /*@switchbreak@*/ break;
+	    }   break;
 	    case EINVAL:
 	    case EILSEQ:
 	    default:
-		/*@switchbreak@*/ break;
+		break;
 	    }
 	    break;
 	}
@@ -153,7 +141,7 @@ POPT_fprintf (FILE * stream, const char * format, ...)
     int rc;
     va_list ap;
 
-#if defined(HAVE_VASPRINTF) && !defined(__LCLINT__)
+#if defined(HAVE_VASPRINTF)
     va_start(ap, format);
     if ((rc = vasprintf(&b, format, ap)) < 0)
 	b = NULL;

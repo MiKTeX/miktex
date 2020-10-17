@@ -11,7 +11,7 @@
 #define POPT_ARGV_ARRAY_GROW_DELTA 5
 
 #if defined(MIKTEX) && defined(MIKTEXPOPTAPI)
-MIKTEXPOPTAPI(int) poptDupArgv(int argc, const char **argv,
+MIKTEXPOPTAPI(int) poptDupArgv(int argc, const char** argv,
 #else
 int poptDupArgv(int argc, const char **argv,
 #endif
@@ -56,7 +56,7 @@ int poptDupArgv(int argc, const char **argv,
 }
 
 #if defined(MIKTEX) && defined(MIKTEXPOPTAPI)
-MIKTEXPOPTAPI(int) poptParseArgvString(const char * s, int * argcPtr, const char *** argvPtr)
+MIKTEXPOPTAPI(int) poptParseArgvString(const char* s, int* argcPtr, const char*** argvPtr)
 #else
 int poptParseArgvString(const char * s, int * argcPtr, const char *** argvPtr)
 #endif
@@ -105,17 +105,17 @@ int poptParseArgvString(const char * s, int * argcPtr, const char *** argvPtr)
 	  case '"':
 	  case '\'':
 	    quote = *src;
-	    /*@switchbreak@*/ break;
+	    break;
 	  case '\\':
 	    src++;
 	    if (!*src) {
 		rc = POPT_ERROR_BADQUOTE;
 		goto exit;
 	    }
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	  default:
 	    *buf++ = *src;
-	    /*@switchbreak@*/ break;
+	    break;
 	}
     }
 
@@ -137,11 +137,10 @@ exit:
  * 3== umm.... more?
  */
 #if defined(MIKTEX) && defined(MIKTEXPOPTAPI)
-MIKTEXPOPTAPI(int) poptConfigFileToString(FILE *fp, char ** argstrp,
-		/*@unused@*/ UNUSED(int flags))
+MIKTEXPOPTAPI(int) poptConfigFileToString(FILE* fp, char** argstrp, UNUSED(int flags))
 #else
 int poptConfigFileToString(FILE *fp, char ** argstrp,
-		/*@unused@*/ UNUSED(int flags))
+		UNUSED(int flags))
 #endif
 {
     char line[999];

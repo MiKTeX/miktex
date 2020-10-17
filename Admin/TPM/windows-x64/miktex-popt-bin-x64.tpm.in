@@ -6,7 +6,7 @@
     <TPM:Title>libpopt runtime libraries, Windows x64</TPM:Title>
     <TPM:Copyright owner="Red Hat, Inc." year="1998-2002"/>
     <TPM:License type="mit"/>
-    <TPM:Version>1.16</TPM:Version>
+    <TPM:Version>1.18</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

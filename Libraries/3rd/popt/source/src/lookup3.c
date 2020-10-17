@@ -43,15 +43,12 @@
 # define _JLU3_jlu32b		1
 #endif
 
-/*@-redef@*/
-/*@unchecked@*/
 static const union _dbswap {
     const uint32_t ui;
     const unsigned char uc[4];
 } endian = { .ui = 0x11223344 };
 # define HASH_LITTLE_ENDIAN	(endian.uc[0] == (unsigned char) 0x44)
 # define HASH_BIG_ENDIAN	(endian.uc[0] == (unsigned char) 0x11)
-/*@=redef@*/
 
 #ifndef ROTL32
 # define ROTL32(x, s) (((x) << (s)) | ((x) >> (32 - (s))))
@@ -151,8 +148,7 @@ static const union _dbswap {
 }
 
 #if defined(_JLU3_jlu32w)
-uint32_t jlu32w(uint32_t h, /*@null@*/ const uint32_t *k, size_t size)
-	/*@*/;
+uint32_t jlu32w(uint32_t h, const uint32_t *k, size_t size);
 /* -------------------------------------------------------------------- */
 /**
  *  This works on all machines.  To be useful, it requires
@@ -196,7 +192,7 @@ uint32_t jlu32w(uint32_t h, const uint32_t *k, size_t size)
     case 2 : b+=k[1];
     case 1 : a+=k[0];
 	_JLU3_FINAL(a,b,c);
-	/*@fallthrough@*/
+	/* fallthrough */
     case 0:
 	break;
     }
@@ -207,8 +203,7 @@ exit:
 #endif	/* defined(_JLU3_jlu32w) */
 
 #if defined(_JLU3_jlu32l)
-uint32_t jlu32l(uint32_t h, const void *key, size_t size)
-	/*@*/;
+uint32_t jlu32l(uint32_t h, const void *key, size_t size);
 /* -------------------------------------------------------------------- */
 /*
  * jlu32l() -- hash a variable-length key into a 32-bit value
@@ -300,16 +295,16 @@ uint32_t jlu32l(uint32_t h, const void *key, size_t size)
 	k8 = (const uint8_t *)k;
 	switch (size) {
 	case 12:	c += k[2]; b+=k[1]; a+=k[0]	break;
-	case 11:	c += ((uint32_t)k8[10])<<16;	/*@fallthrough@*/
-	case 10:	c += ((uint32_t)k8[9])<<8;	/*@fallthrough@*/
-	case  9:	c += k8[8];			/*@fallthrough@*/
+	case 11:	c += ((uint32_t)k8[10])<<16;	/* fallthrough */
+	case 10:	c += ((uint32_t)k8[9])<<8;	/* fallthrough */
+	case  9:	c += k8[8];			/* fallthrough */
 	case  8:	b += k[1]; a+=k[0];		break;
-	case  7:	b += ((uint32_t)k8[6])<<16;	/*@fallthrough@*/
-	case  6:	b += ((uint32_t)k8[5])<<8;	/*@fallthrough@*/
-	case  5:	b += k8[4];			/*@fallthrough@*/
+	case  7:	b += ((uint32_t)k8[6])<<16;	/* fallthrough */
+	case  6:	b += ((uint32_t)k8[5])<<8;	/* fallthrough */
+	case  5:	b += k8[4];			/* fallthrough */
 	case  4:	a += k[0];			break;
-	case  3:	a += ((uint32_t)k8[2])<<16;	/*@fallthrough@*/
-	case  2:	a += ((uint32_t)k8[1])<<8;	/*@fallthrough@*/
+	case  3:	a += ((uint32_t)k8[2])<<16;	/* fallthrough */
+	case  2:	a += ((uint32_t)k8[1])<<8;	/* fallthrough */
 	case  1:	a += k8[0];			break;
 	case  0:	goto exit;
 	}
@@ -340,7 +335,7 @@ uint32_t jlu32l(uint32_t h, const void *key, size_t size)
 	    break;
 	case 11:
 	    c += ((uint32_t)k8[10])<<16;
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case 10:
 	    c += (uint32_t)k[4];
 	    b += k[2]+(((uint32_t)k[3])<<16);
@@ -348,27 +343,27 @@ uint32_t jlu32l(uint32_t h, const void *key, size_t size)
 	    break;
 	case  9:
 	    c += (uint32_t)k8[8];
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  8:
 	    b += k[2]+(((uint32_t)k[3])<<16);
 	    a += k[0]+(((uint32_t)k[1])<<16);
 	    break;
 	case  7:
 	    b += ((uint32_t)k8[6])<<16;
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  6:
 	    b += (uint32_t)k[2];
 	    a += k[0]+(((uint32_t)k[1])<<16);
 	    break;
 	case  5:
 	    b += (uint32_t)k8[4];
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  4:
 	    a += k[0]+(((uint32_t)k[1])<<16);
 	    break;
 	case  3:
 	    a += ((uint32_t)k8[2])<<16;
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  2:
 	    a += (uint32_t)k[0];
 	    break;
@@ -403,17 +398,17 @@ uint32_t jlu32l(uint32_t h, const void *key, size_t size)
 
 	/*---------------------------- last block: affect all 32 bits of (c) */
 	switch (size) {
-	case 12:	c += ((uint32_t)k[11])<<24;	/*@fallthrough@*/
-	case 11:	c += ((uint32_t)k[10])<<16;	/*@fallthrough@*/
-	case 10:	c += ((uint32_t)k[9])<<8;	/*@fallthrough@*/
-	case  9:	c += (uint32_t)k[8];		/*@fallthrough@*/
-	case  8:	b += ((uint32_t)k[7])<<24;	/*@fallthrough@*/
-	case  7:	b += ((uint32_t)k[6])<<16;	/*@fallthrough@*/
-	case  6:	b += ((uint32_t)k[5])<<8;	/*@fallthrough@*/
-	case  5:	b += (uint32_t)k[4];		/*@fallthrough@*/
-	case  4:	a += ((uint32_t)k[3])<<24;	/*@fallthrough@*/
-	case  3:	a += ((uint32_t)k[2])<<16;	/*@fallthrough@*/
-	case  2:	a += ((uint32_t)k[1])<<8;	/*@fallthrough@*/
+	case 12:	c += ((uint32_t)k[11])<<24;	/* fallthrough */
+	case 11:	c += ((uint32_t)k[10])<<16;	/* fallthrough */
+	case 10:	c += ((uint32_t)k[9])<<8;	/* fallthrough */
+	case  9:	c += (uint32_t)k[8];		/* fallthrough */
+	case  8:	b += ((uint32_t)k[7])<<24;	/* fallthrough */
+	case  7:	b += ((uint32_t)k[6])<<16;	/* fallthrough */
+	case  6:	b += ((uint32_t)k[5])<<8;	/* fallthrough */
+	case  5:	b += (uint32_t)k[4];		/* fallthrough */
+	case  4:	a += ((uint32_t)k[3])<<24;	/* fallthrough */
+	case  3:	a += ((uint32_t)k[2])<<16;	/* fallthrough */
+	case  2:	a += ((uint32_t)k[1])<<8;	/* fallthrough */
 	case  1:	a += (uint32_t)k[0];
 	    break;
 	case  0:
@@ -506,16 +501,16 @@ void jlu32lpair(const void *key, size_t size, uint32_t *pc, uint32_t *pb)
 	k8 = (const uint8_t *)k;
 	switch (size) {
 	case 12:	c += k[2]; b+=k[1]; a+=k[0];	break;
-	case 11:	c += ((uint32_t)k8[10])<<16;	/*@fallthrough@*/
-	case 10:	c += ((uint32_t)k8[9])<<8;	/*@fallthrough@*/
-	case  9:	c += k8[8];			/*@fallthrough@*/
+	case 11:	c += ((uint32_t)k8[10])<<16;	/* fallthrough */
+	case 10:	c += ((uint32_t)k8[9])<<8;	/* fallthrough */
+	case  9:	c += k8[8];			/* fallthrough */
 	case  8:	b += k[1]; a+=k[0];		break;
-	case  7:	b += ((uint32_t)k8[6])<<16;	/*@fallthrough@*/
-	case  6:	b += ((uint32_t)k8[5])<<8;	/*@fallthrough@*/
-	case  5:	b += k8[4];			/*@fallthrough@*/
+	case  7:	b += ((uint32_t)k8[6])<<16;	/* fallthrough */
+	case  6:	b += ((uint32_t)k8[5])<<8;	/* fallthrough */
+	case  5:	b += k8[4];			/* fallthrough */
 	case  4:	a += k[0];			break;
-	case  3:	a += ((uint32_t)k8[2])<<16;	/*@fallthrough@*/
-	case  2:	a += ((uint32_t)k8[1])<<8;	/*@fallthrough@*/
+	case  3:	a += ((uint32_t)k8[2])<<16;	/* fallthrough */
+	case  2:	a += ((uint32_t)k8[1])<<8;	/* fallthrough */
 	case  1:	a += k8[0];			break;
 	case  0:	goto exit;
 	}
@@ -546,7 +541,7 @@ void jlu32lpair(const void *key, size_t size, uint32_t *pc, uint32_t *pb)
 	    break;
 	case 11:
 	    c += ((uint32_t)k8[10])<<16;
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case 10:
 	    c += k[4];
 	    b += k[2]+(((uint32_t)k[3])<<16);
@@ -554,27 +549,27 @@ void jlu32lpair(const void *key, size_t size, uint32_t *pc, uint32_t *pb)
 	    break;
 	case  9:
 	    c += k8[8];
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  8:
 	    b += k[2]+(((uint32_t)k[3])<<16);
 	    a += k[0]+(((uint32_t)k[1])<<16);
 	    break;
 	case  7:
 	    b += ((uint32_t)k8[6])<<16;
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  6:
 	    b += k[2];
 	    a += k[0]+(((uint32_t)k[1])<<16);
 	    break;
 	case  5:
 	    b += k8[4];
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  4:
 	    a += k[0]+(((uint32_t)k[1])<<16);
 	    break;
 	case  3:
 	    a += ((uint32_t)k8[2])<<16;
-	    /*@fallthrough@*/
+	    /* fallthrough */
 	case  2:
 	    a += k[0];
 	    break;
@@ -609,17 +604,17 @@ void jlu32lpair(const void *key, size_t size, uint32_t *pc, uint32_t *pb)
 
 	/*---------------------------- last block: affect all 32 bits of (c) */
 	switch (size) {
-	case 12:	c += ((uint32_t)k[11])<<24;	/*@fallthrough@*/
-	case 11:	c += ((uint32_t)k[10])<<16;	/*@fallthrough@*/
-	case 10:	c += ((uint32_t)k[9])<<8;	/*@fallthrough@*/
-	case  9:	c += k[8];			/*@fallthrough@*/
-	case  8:	b += ((uint32_t)k[7])<<24;	/*@fallthrough@*/
-	case  7:	b += ((uint32_t)k[6])<<16;	/*@fallthrough@*/
-	case  6:	b += ((uint32_t)k[5])<<8;	/*@fallthrough@*/
-	case  5:	b += k[4];			/*@fallthrough@*/
-	case  4:	a += ((uint32_t)k[3])<<24;	/*@fallthrough@*/
-	case  3:	a += ((uint32_t)k[2])<<16;	/*@fallthrough@*/
-	case  2:	a += ((uint32_t)k[1])<<8;	/*@fallthrough@*/
+	case 12:	c += ((uint32_t)k[11])<<24;	/* fallthrough */
+	case 11:	c += ((uint32_t)k[10])<<16;	/* fallthrough */
+	case 10:	c += ((uint32_t)k[9])<<8;	/* fallthrough */
+	case  9:	c += k[8];			/* fallthrough */
+	case  8:	b += ((uint32_t)k[7])<<24;	/* fallthrough */
+	case  7:	b += ((uint32_t)k[6])<<16;	/* fallthrough */
+	case  6:	b += ((uint32_t)k[5])<<8;	/* fallthrough */
+	case  5:	b += k[4];			/* fallthrough */
+	case  4:	a += ((uint32_t)k[3])<<24;	/* fallthrough */
+	case  3:	a += ((uint32_t)k[2])<<16;	/* fallthrough */
+	case  2:	a += ((uint32_t)k[1])<<8;	/* fallthrough */
 	case  1:	a += k[0];
 	    break;
 	case  0:
@@ -637,8 +632,7 @@ exit:
 #endif	/* defined(_JLU3_jlu32lpair) */
 
 #if defined(_JLU3_jlu32b)
-uint32_t jlu32b(uint32_t h, /*@null@*/ const void *key, size_t size)
-	/*@*/;
+uint32_t jlu32b(uint32_t h, const void *key, size_t size);
 /*
  * jlu32b():
  * This is the same as jlu32w() on big-endian machines.  It is different
@@ -710,16 +704,16 @@ uint32_t jlu32b(uint32_t h, const void *key, size_t size)
 	k8 = (const uint8_t *)k;
 	switch (size) {	/* all the case statements fall through */
 	case 12:	c += k[2]; b+=k[1]; a+=k[0];	break;
-	case 11:	c += ((uint32_t)k8[10])<<8;	/*@fallthrough@*/
-	case 10:	c += ((uint32_t)k8[9])<<16;	/*@fallthrough@*/
-	case  9:	c += ((uint32_t)k8[8])<<24;	/*@fallthrough@*/
+	case 11:	c += ((uint32_t)k8[10])<<8;	/* fallthrough */
+	case 10:	c += ((uint32_t)k8[9])<<16;	/* fallthrough */
+	case  9:	c += ((uint32_t)k8[8])<<24;	/* fallthrough */
 	case  8:	b += k[1]; a+=k[0];		break;
-	case  7:	b += ((uint32_t)k8[6])<<8;	/*@fallthrough@*/
-	case  6:	b += ((uint32_t)k8[5])<<16;	/*@fallthrough@*/
-	case  5:	b += ((uint32_t)k8[4])<<24;	/*@fallthrough@*/
+	case  7:	b += ((uint32_t)k8[6])<<8;	/* fallthrough */
+	case  6:	b += ((uint32_t)k8[5])<<16;	/* fallthrough */
+	case  5:	b += ((uint32_t)k8[4])<<24;	/* fallthrough */
 	case  4:	a += k[0];			break;
-	case  3:	a += ((uint32_t)k8[2])<<8;	/*@fallthrough@*/
-	case  2:	a += ((uint32_t)k8[1])<<16;	/*@fallthrough@*/
+	case  3:	a += ((uint32_t)k8[2])<<8;	/* fallthrough */
+	case  2:	a += ((uint32_t)k8[1])<<16;	/* fallthrough */
 	case  1:	a += ((uint32_t)k8[0])<<24;	break;
 	case  0:	goto exit;
     }
@@ -750,18 +744,18 @@ uint32_t jlu32b(uint32_t h, const void *key, size_t size)
 
 	/*---------------------------- last block: affect all 32 bits of (c) */
 	switch (size) {	/* all the case statements fall through */
-	case 12:	c += k[11];			/*@fallthrough@*/
-	case 11:	c += ((uint32_t)k[10])<<8;	/*@fallthrough@*/
-	case 10:	c += ((uint32_t)k[9])<<16;	/*@fallthrough@*/
-	case  9:	c += ((uint32_t)k[8])<<24;	/*@fallthrough@*/
-	case  8:	b += k[7];			/*@fallthrough@*/
-	case  7:	b += ((uint32_t)k[6])<<8;	/*@fallthrough@*/
-	case  6:	b += ((uint32_t)k[5])<<16;	/*@fallthrough@*/
-	case  5:	b += ((uint32_t)k[4])<<24;	/*@fallthrough@*/
-	case  4:	a += k[3];			/*@fallthrough@*/
-	case  3:	a += ((uint32_t)k[2])<<8;	/*@fallthrough@*/
-	case  2:	a += ((uint32_t)k[1])<<16;	/*@fallthrough@*/
-	case  1:	a += ((uint32_t)k[0])<<24;	/*@fallthrough@*/
+	case 12:	c += k[11];			/* fallthrough */
+	case 11:	c += ((uint32_t)k[10])<<8;	/* fallthrough */
+	case 10:	c += ((uint32_t)k[9])<<16;	/* fallthrough */
+	case  9:	c += ((uint32_t)k[8])<<24;	/* fallthrough */
+	case  8:	b += k[7];			/* fallthrough */
+	case  7:	b += ((uint32_t)k[6])<<8;	/* fallthrough */
+	case  6:	b += ((uint32_t)k[5])<<16;	/* fallthrough */
+	case  5:	b += ((uint32_t)k[4])<<24;	/* fallthrough */
+	case  4:	a += k[3];			/* fallthrough */
+	case  3:	a += ((uint32_t)k[2])<<8;	/* fallthrough */
+	case  2:	a += ((uint32_t)k[1])<<16;	/* fallthrough */
+	case  1:	a += ((uint32_t)k[0])<<24;	/* fallthrough */
 	    break;
 	case  0:
 	    goto exit;
@@ -779,7 +773,6 @@ exit:
 
 /* used for timings */
 static void driver1(void)
-	/*@*/
 {
     uint8_t buf[256];
     uint32_t i;
@@ -801,7 +794,6 @@ static void driver1(void)
 #define MAXPAIR 60
 #define MAXLEN  70
 static void driver2(void)
-	/*@*/
 {
     uint8_t qa[MAXLEN+1], qb[MAXLEN+2], *a = &qa[0], *b = &qb[1];
     uint32_t c[HASHSTATE], d[HASHSTATE], i=0, j=0, k, l, m=0, z;
@@ -864,7 +856,6 @@ static void driver2(void)
 
 /* Check for reading beyond the end of the buffer and alignment problems */
 static void driver3(void)
-	/*@*/
 {
     uint8_t buf[MAXLEN+20], *b;
     uint32_t len;
@@ -938,7 +929,6 @@ static void driver3(void)
 
 /* check for problems with nulls */
 static void driver4(void)
-	/*@*/
 {
     uint8_t buf[1];
     uint32_t h;

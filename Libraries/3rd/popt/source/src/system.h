@@ -7,7 +7,6 @@
 #endif
 
 #if defined(MIKTEX)
-
 #  if defined(_WIN32)
 #    define MIKTEX_UTF8_WRAP_ALL 1
 #    include <miktex/utf8wrap.h>
@@ -32,64 +31,25 @@
 #    endif
 #  endif
 #endif
-
-#if defined (__GLIBC__) && defined(__LCLINT__)
-/*@-declundef@*/
-/*@unchecked@*/
-extern __const __int32_t *__ctype_tolower;
-/*@unchecked@*/
-extern __const __int32_t *__ctype_toupper;
-/*@=declundef@*/
-#endif
-
 #include <ctype.h>
 
 /* XXX isspace(3) has i18n encoding signednesss issues on Solaris. */
 #define	_isspaceptr(_chp)	isspace((int)(*(unsigned char *)(_chp)))
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-
 #ifdef HAVE_MCHECK_H
 #include <mcheck.h>
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(HAVE_UNISTD_H) && !defined(__LCLINT__)
-#include <unistd.h>
-#endif
+void * xmalloc (size_t size);
 
-#ifdef __NeXT
-/* access macros are not declared in non posix mode in unistd.h -
- don't try to use posix on NeXTstep 3.3 ! */
-#include <libc.h>
-#endif
+void * xcalloc (size_t nmemb, size_t size);
 
-/*@-incondefs@*/
-/*@mayexit@*/ /*@only@*/ /*@out@*/ /*@unused@*/
-void * xmalloc (size_t size)
-	/*@globals errno @*/
-	/*@ensures maxSet(result) == (size - 1) @*/
-	/*@modifies errno @*/;
+void * xrealloc (void * ptr, size_t size);
 
-/*@mayexit@*/ /*@only@*/ /*@unused@*/
-void * xcalloc (size_t nmemb, size_t size)
-	/*@ensures maxSet(result) == (nmemb - 1) @*/
-	/*@*/;
-
-/*@mayexit@*/ /*@only@*/ /*@unused@*/
-void * xrealloc (/*@null@*/ /*@only@*/ void * ptr, size_t size)
-	/*@ensures maxSet(result) == (size - 1) @*/
-	/*@modifies *ptr @*/;
-
-/*@mayexit@*/ /*@only@*/ /*@unused@*/
-char * xstrdup (const char *str)
-	/*@*/;
-/*@=incondefs@*/
+char * xstrdup (const char *str);
 
 #if !defined(HAVE_STPCPY)
 /* Copy SRC to DEST, returning the address of the terminating '\0' in DEST.  */
@@ -118,7 +78,9 @@ static inline char * stpcpy (char *dest, const char * src) {
 #define	xstrdup(_str)	strdup(_str)
 #endif  /* defined(HAVE_MCHECK_H) && defined(__GNUC__) */
 
-#if defined(HAVE___SECURE_GETENV) && !defined(__LCLINT__)
+#if defined(HAVE_SECURE_GETENV)
+#define getenv(_s)	secure_getenv(_s)
+#elif defined(HAVE___SECURE_GETENV)
 #define	getenv(_s)	__secure_getenv(_s)
 #endif
 

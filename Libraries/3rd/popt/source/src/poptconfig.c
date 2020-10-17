@@ -9,45 +9,23 @@
 #include "system.h"
 #include "poptint.h"
 #include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #if defined(HAVE_FNMATCH_H)
 #include <fnmatch.h>
 
-#if defined(__LCLINT__)
-/*@-declundef -exportheader -incondefs -protoparammatch -redecl -type @*/
-extern int fnmatch (const char *__pattern, const char *__name, int __flags)
-	/*@*/;
-/*@=declundef =exportheader =incondefs =protoparammatch =redecl =type @*/
-#endif	/* __LCLINT__ */
 #endif
 
 #if defined(HAVE_GLOB_H)
 #include <glob.h>
-
-#if defined(__LCLINT__)
-/*@-declundef -exportheader -incondefs -protoparammatch -redecl -type @*/
-extern int glob (const char *__pattern, int __flags,
-		/*@null@*/ int (*__errfunc) (const char *, int),
-		/*@out@*/ glob_t *__pglob)
-	/*@globals errno, fileSystem @*/
-	/*@modifies *__pglob, errno, fileSystem @*/;
-
-/* XXX only annotation is a white lie */
-extern void globfree (/*@only@*/ glob_t *__pglob)
-	/*@modifies *__pglob @*/;
-
-/* XXX _GNU_SOURCE ifdef and/or retrofit is needed for portability. */
-extern int glob_pattern_p (const char *__pattern, int __quote)
-        /*@*/;
-/*@=declundef =exportheader =incondefs =protoparammatch =redecl =type @*/
-#endif	/* __LCLINT__ */
 
 #if !defined(__GLIBC__)
 /* Return nonzero if PATTERN contains any metacharacters.
    Metacharacters can be quoted with backslashes if QUOTE is nonzero.  */
 static int
 glob_pattern_p (const char * pattern, int quote)
-	/*@*/
 {
     const char * p;
     int open = 0;
@@ -57,29 +35,27 @@ glob_pattern_p (const char * pattern, int quote)
     case '?':
     case '*':
 	return 1;
-	/*@notreached@*/ /*@switchbreak@*/ break;
+	break;
     case '\\':
 	if (quote && p[1] != '\0')
 	  ++p;
-	/*@switchbreak@*/ break;
+	break;
     case '[':
 	open = 1;
-	/*@switchbreak@*/ break;
+	break;
     case ']':
 	if (open)
 	  return 1;
-	/*@switchbreak@*/ break;
+	break;
     }
     return 0;
 }
 #endif	/* !defined(__GLIBC__) */
 
-/*@unchecked@*/
 static int poptGlobFlags = 0;
 
-static int poptGlob_error(/*@unused@*/ UNUSED(const char * epath),
-		/*@unused@*/ UNUSED(int eerrno))
-	/*@*/
+static int poptGlob_error(UNUSED(const char * epath),
+		UNUSED(int eerrno))
 {
     return 1;
 }
@@ -93,35 +69,30 @@ static int poptGlob_error(/*@unused@*/ UNUSED(const char * epath),
  * @retval *avp		array of paths
  * @return		0 on success
  */
-static int poptGlob(/*@unused@*/ UNUSED(poptContext con), const char * pattern,
-		/*@out@*/ int * acp, /*@out@*/ const char *** avp)
-	/*@modifies *acp, *avp @*/
+static int poptGlob(UNUSED(poptContext con), const char * pattern,
+		int * acp, const char *** avp)
 {
     const char * pat = pattern;
     int rc = 0;		/* assume success */
-
-    /* XXX skip the attention marker. */
-    if (pat[0] == '@' && pat[1] != '(')
-	pat++;
 
 #if defined(HAVE_GLOB_H)
     if (glob_pattern_p(pat, 0)) {
 	glob_t _g, *pglob = &_g;
 
-	if (!glob(pat, poptGlobFlags, poptGlob_error, pglob)) {
+	if (!(rc = glob(pat, poptGlobFlags, poptGlob_error, pglob))) {
 	    if (acp) {
 		*acp = (int) pglob->gl_pathc;
 		pglob->gl_pathc = 0;
 	    }
 	    if (avp) {
-/*@-onlytrans@*/
 		*avp = (const char **) pglob->gl_pathv;
-/*@=onlytrans@*/
 		pglob->gl_pathv = NULL;
 	    }
-/*@-nullstate@*/
 	    globfree(pglob);
-/*@=nullstate@*/
+	} else if (rc == GLOB_NOMATCH) {
+	    *avp = NULL;
+	    *acp = 0;
+	    rc = 0;
 	} else
 	    rc = POPT_ERROR_ERRNO;
     } else
@@ -136,23 +107,21 @@ static int poptGlob(/*@unused@*/ UNUSED(poptContext con), const char * pattern,
     return rc;
 }
 
-/*@access poptContext @*/
 
 int poptSaneFile(const char * fn)
 {
     struct stat sb;
-    uid_t uid = getuid();
 
+    if (fn == NULL || strstr(fn, ".rpmnew") || strstr(fn, ".rpmsave"))
+	return 0;
     if (stat(fn, &sb) == -1)
-	return 1;
-    if ((uid_t)sb.st_uid != uid)
 	return 0;
     if (!S_ISREG(sb.st_mode))
 	return 0;
-/*@-bitwisesigned@*/
-    if (sb.st_mode & (S_IWGRP|S_IWOTH))
+#if !defined(MIKTEX_WINDOWS)
+    if (sb.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH))
 	return 0;
-/*@=bitwisesigned@*/
+#endif
     return 1;
 }
 
@@ -187,9 +156,7 @@ int poptReadFile(const char * fn, char ** bp, size_t * nbp, int flags)
     rc = 0;
 
    /* Trim out escaped newlines. */
-/*@-bitwisesigned@*/
     if (flags & POPT_READFILE_TRIMNEWLINES)
-/*@=bitwisesigned@*/
     {
 	for (t = b, s = b, se = b + nb; *s && s < se; s++) {
 	    switch (*s) {
@@ -198,10 +165,10 @@ int poptReadFile(const char * fn, char ** bp, size_t * nbp, int flags)
 		    s++;
 		    continue;
 		}
-		/*@fallthrough@*/
+		/* fallthrough */
 	    default:
 		*t++ = *s;
-		/*@switchbreak@*/ break;
+		break;
 	    }
 	}
 	*t++ = '\0';
@@ -210,24 +177,18 @@ int poptReadFile(const char * fn, char ** bp, size_t * nbp, int flags)
 
 exit:
     if (rc != 0) {
-/*@-usedef@*/
 	if (b)
 	    free(b);
-/*@=usedef@*/
 	b = NULL;
 	nb = 0;
     }
     if (bp)
 	*bp = b;
-/*@-usereleased@*/
     else if (b)
 	free(b);
-/*@=usereleased@*/
     if (nbp)
 	*nbp = (size_t)nb;
-/*@-compdef -nullstate @*/	/* XXX cannot annotate char ** correctly */
     return rc;
-/*@=compdef =nullstate @*/
 }
 
 /**
@@ -237,7 +198,6 @@ exit:
  * return		0 if config application matches
  */
 static int configAppMatch(poptContext con, const char * s)
-	/*@*/
 {
     int rc = 1;
 
@@ -246,12 +206,10 @@ static int configAppMatch(poptContext con, const char * s)
 
 #if defined(HAVE_GLOB_H) && defined(HAVE_FNMATCH_H)
     if (glob_pattern_p(s, 1)) {
-/*@-bitwisesigned@*/
 	static int flags = FNM_PATHNAME | FNM_PERIOD;
 #ifdef FNM_EXTMATCH
 	flags |= FNM_EXTMATCH;
 #endif
-/*@=bitwisesigned@*/
 	rc = fnmatch(s, con->appName, flags);
     } else
 #endif
@@ -259,10 +217,7 @@ static int configAppMatch(poptContext con, const char * s)
     return rc;
 }
 
-/*@-compmempass@*/	/* FIX: item->option.longName kept, not dependent. */
 static int poptConfigLine(poptContext con, char * line)
-	/*@globals fileSystem, internalState @*/
-	/*@modifies con, fileSystem, internalState @*/
 {
     char *b = NULL;
     size_t nb = 0;
@@ -304,7 +259,6 @@ static int poptConfigLine(poptContext con, char * line)
     while (*se != '\0' && _isspaceptr(se)) se++;
     if (opt[0] == '-' && *se == '\0') goto exit;
 
-/*@-temptrans@*/ /* FIX: line alias is saved */
     if (opt[0] == '-' && opt[1] == '-')
 	item->option.longName = opt + 2;
     else if (opt[0] == '-' && opt[2] == '\0')
@@ -343,11 +297,9 @@ static int poptConfigLine(poptContext con, char * line)
 		item->option.shortName = longName[0];
 	}
     }
-/*@=temptrans@*/
 
     if (poptParseArgvString(se, &item->argc, &item->argv)) goto exit;
 
-/*@-modobserver@*/
     item->option.argInfo = POPT_ARGFLAG_DOC_HIDDEN;
     for (i = 0, j = 0; i < item->argc; i++, j++) {
 	const char * f;
@@ -373,24 +325,20 @@ static int poptConfigLine(poptContext con, char * line)
 	item->argv[j] = NULL;
 	item->argc = j;
     }
-/*@=modobserver@*/
 	
-/*@-nullstate@*/ /* FIX: item->argv[] may be NULL */
     if (!strcmp(entryType, "alias"))
 	rc = poptAddItem(con, item, 0);
     else if (!strcmp(entryType, "exec"))
 	rc = poptAddItem(con, item, 1);
-/*@=nullstate@*/
 exit:
     rc = 0;	/* XXX for now, always return success */
     if (b)
 	free(b);
     return rc;
 }
-/*@=compmempass@*/
 
 #if defined(MIKTEX) && defined(MIKTEXPOPTAPI)
-MIKTEXPOPTAPI(int) poptReadConfigFile(poptContext con, const char * fn)
+MIKTEXPOPTAPI(int) poptReadConfigFile(poptContext con, const char* fn)
 #else
 int poptReadConfigFile(poptContext con, const char * fn)
 #endif
@@ -400,7 +348,6 @@ int poptReadConfigFile(poptContext con, const char * fn)
     const char *se;
     char *t, *te;
     int rc;
-    int xx;
 
     if ((rc = poptReadFile(fn, &b, &nb, POPT_READFILE_TRIMNEWLINES)) != 0)
 	return (errno == ENOENT ? 0 : rc);
@@ -419,9 +366,9 @@ int poptReadConfigFile(poptContext con, const char * fn)
 	    te = t;
 	    while (*te && _isspaceptr(te)) te++;
 	    if (*te && *te != '#')
-		xx = poptConfigLine(con, te);
-	    /*@switchbreak@*/ break;
-/*@-usedef@*/	/* XXX *se may be uninitialized */
+		if ((rc = poptConfigLine(con, te)) != 0)
+		    goto exit;
+	    break;
 	  case '\\':
 	    *te = *se++;
 	    /* \ at the end of a line does not insert a \n */
@@ -429,18 +376,16 @@ int poptReadConfigFile(poptContext con, const char * fn)
 		te++;
 		*te++ = *se;
 	    }
-	    /*@switchbreak@*/ break;
+	    break;
 	  default:
 	    *te++ = *se;
-	    /*@switchbreak@*/ break;
-/*@=usedef@*/
+	    break;
 	}
     }
-
-    free(t);
     rc = 0;
 
 exit:
+    free(t);
     if (b)
 	free(b);
     return rc;
@@ -471,17 +416,8 @@ int poptReadConfigFiles(poptContext con, const char * paths)
 	/* work-off each resulting file from the path element */
 	for (i = 0; i < ac; i++) {
 	    const char * fn = av[i];
-	    if (av[i] == NULL)	/* XXX can't happen */
-		/*@innercontinue@*/ continue;
-	    /* XXX should '@' attention be pushed into poptReadConfigFile? */
-	    if (p[0] == '@' && p[1] != '(') {
-		if (fn[0] == '@' && fn[1] != '(')
-		    fn++;
-		xx = poptSaneFile(fn);
-		if (!xx && rc == 0)
-		    rc = POPT_ERROR_BADCONFIG;
-		/*@innercontinue@*/ continue;
-	    }
+	    if (!poptSaneFile(fn))
+		continue;
 	    xx = poptReadConfigFile(con, fn);
 	    if (xx && rc == 0)
 		rc = xx;
@@ -492,56 +428,40 @@ int poptReadConfigFiles(poptContext con, const char * paths)
 	av = NULL;
     }
 
-/*@-usedef@*/
     if (buf)
 	free(buf);
-/*@=usedef@*/
 
     return rc;
 }
 
 #if defined(MIKTEX) && defined(MIKTEXPOPTAPI)
-MIKTEXPOPTAPI(int) poptReadDefaultConfig(poptContext con, /*@unused@*/ int useEnv)
+MIKTEXPOPTAPI(int) poptReadDefaultConfig(poptContext con, UNUSED(int useEnv))
 #else
-int poptReadDefaultConfig(poptContext con, /*@unused@*/ int useEnv)
+int poptReadDefaultConfig(poptContext con, UNUSED(int useEnv))
 #endif
 {
-#if defined(MIKTEX)
-    // TODO
-    static const char _popt_sysconfdir[] = "/TODO/popt";
-#else
-    static const char _popt_sysconfdir[] = POPT_SYSCONFDIR "/popt";
-#endif
-    static const char _popt_etc[] = "/etc/popt";
     char * home;
     struct stat sb;
     int rc = 0;		/* assume success */
 
     if (con->appName == NULL) goto exit;
 
-    if (strcmp(_popt_sysconfdir, _popt_etc)) {
-	rc = poptReadConfigFile(con, _popt_sysconfdir);
-	if (rc) goto exit;
-    }
-
-    rc = poptReadConfigFile(con, _popt_etc);
+#if !defined(MIKTEX)
+    rc = poptReadConfigFile(con, POPT_SYSCONFDIR "/popt");
+#endif
     if (rc) goto exit;
 
 #if defined(HAVE_GLOB_H)
-    if (!stat("/etc/popt.d", &sb) && S_ISDIR(sb.st_mode)) {
+    if (!stat(POPT_SYSCONFDIR "/popt.d", &sb) && S_ISDIR(sb.st_mode)) {
 	const char ** av = NULL;
 	int ac = 0;
 	int i;
 
-	if ((rc = poptGlob(con, "/etc/popt.d/*", &ac, &av)) == 0) {
+	if ((rc = poptGlob(con, POPT_SYSCONFDIR "/popt.d/*", &ac, &av)) == 0) {
 	    for (i = 0; rc == 0 && i < ac; i++) {
 		const char * fn = av[i];
-		if (fn == NULL || strstr(fn, ".rpmnew") || strstr(fn, ".rpmsave"))
+		if (!poptSaneFile(fn))
 		    continue;
-		if (!stat(fn, &sb)) {
-		    if (!S_ISREG(sb.st_mode) && !S_ISLNK(sb.st_mode))
-			continue;
-		}
 		rc = poptReadConfigFile(con, fn);
 		free((void *)av[i]);
 		av[i] = NULL;
