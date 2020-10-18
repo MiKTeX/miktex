@@ -1,6 +1,6 @@
 /* unxProcess.h:                                        -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -50,6 +50,9 @@ public:
 
 public:
   bool WaitForExit(int milliseconds) override;
+
+public:
+  MiKTeX::Core::ProcessExitStatus get_ExitStatus() const override;
 
 public:
   int get_ExitCode() const override;

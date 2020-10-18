@@ -530,6 +530,23 @@ bool unxProcess::WaitForExit(int milliseconds)
   return false;
 }
 
+ProcessExitStatus unxProcess::get_ExitStatus() const
+{
+  if (WIFEXITED(status) != 0)
+  {
+    return ProcessExitStatus::Exited;
+  }
+  else if (WIFSIGNALED(status) != 0)
+  {
+    ProcessExitStatus::Signalled;
+  }
+  else
+  {
+    MIKTEX_UNEXPECTED();
+  }
+}
+
+
 int unxProcess::get_ExitCode() const
 {
   if (WIFEXITED(status) != 0)

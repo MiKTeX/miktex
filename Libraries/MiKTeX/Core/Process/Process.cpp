@@ -144,7 +144,8 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   process->WaitForExit();
 
   // get the exit code & close process
-  int processExitCode = process->get_ExitCode();
+  ProcessExitStatus exitStatus = process->get_ExitStatus();
+  int processExitCode = exitStatus == ProcessExitStatus::Exited ? process->get_ExitCode() : -1;
   MiKTeXException processException;
   bool haveException = process->get_Exception(processException);
   process->Close();
@@ -170,7 +171,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   if (exitCode != nullptr)
   {
     *exitCode = processExitCode;
-    return true;
+    return exitStatus == ProcessExitStatus::Exited;
   }
   else if (processExitCode == 0)
   {
@@ -180,7 +181,14 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   {
     if (session != nullptr)
     {
-      session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(fileName), processExitCode));
+      if (exitStatus == ProcessExitStatus::Exited)
+      {
+        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(fileName), processExitCode));
+      }
+      else
+      {
+        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was killed by a signal", Q_(fileName)));
+      }
     }
     return false;
   }

@@ -1,6 +1,6 @@
 /* miktex/Core/Process.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2020 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -179,6 +179,14 @@ enum class ProcessStatus
   Other
 };
 
+/// Process exit status.
+enum class ProcessExitStatus
+{
+  None,
+  Exited,
+  Signalled
+};
+
 /// Process information.
 struct ProcessInfo
 {
@@ -220,6 +228,11 @@ public:
   /// @return Returns `true`, if the process has finished.
 public:
   virtual bool MIKTEXTHISCALL WaitForExit(int milliseconds) = 0;
+
+  /// Gets the exit status of the process.
+  /// @return Returns the exit status.
+public:
+  virtual ProcessExitStatus MIKTEXTHISCALL get_ExitStatus() const = 0;
 
   /// Gets the exit code of the process.
   /// @return Returns the exit code.

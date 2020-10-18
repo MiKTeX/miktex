@@ -481,6 +481,21 @@ bool winProcess::WaitForExit(int milliseconds)
   return WaitForSingleObject(processInformation.hProcess, static_cast<DWORD>(milliseconds)) == WAIT_OBJECT_0;
 }
 
+ProcessExitStatus winProcess::get_ExitStatus() const
+{
+  DWORD exitCode;
+  if (!GetExitCodeProcess(processInformation.hProcess, &exitCode))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("GetExitCodeProcess");
+  }
+  MIKTEX_EXPECT(exitCode != STATUS_PENDING);
+  if (exitCode == STATUS_ACCESS_VIOLATION)
+  {
+    return ProcessExitStatus::Signalled;
+  }
+  return ProcessExitStatus::Exited;
+}
+
 int winProcess::get_ExitCode() const
 {
   DWORD exitCode;
