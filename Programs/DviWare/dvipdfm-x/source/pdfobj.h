@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 
+typedef struct pdf_out pdf_out;
 
 /* Here is the complete list of PDF object types */
 
@@ -54,13 +55,19 @@ typedef struct pdf_file pdf_file;
 extern void     pdf_error_cleanup   (void);
 
 extern FILE    *pdf_get_output_file (void);
-
-extern void     pdf_out_init      (const char *filename,
-                                   int enable_encrypt, int enable_objstm,
-                                   int enable_predictor);
+extern pdf_out *pdf_out_init (const char *filename,
+                              const unsigned char *id1, const unsigned char *id2,
+                              int ver_major, int ver_minor,
+                              int compression_level,
+                              int enable_encrypt,
+                              int enable_objstm,
+                              int enable_predictor);
+extern void     pdf_out_set_encrypt (int keybits, int32_t permission,
+                                     const char *opasswd, const char *upasswd,
+                                     int use_aes, int encrypt_metadata);
 extern void     pdf_out_flush     (void);
-extern void     pdf_set_version   (int version);
-extern int      pdf_get_version   (void);
+
+extern int      pdf_get_version       (void);
 extern int      pdf_get_version_major (void);
 extern int      pdf_get_version_minor (void);
 
@@ -152,6 +159,7 @@ extern pdf_obj    *pdf_new_stream        (int flags);
 extern void        pdf_add_stream        (pdf_obj *stream,
                                           const void *stream_data_ptr,
                                           int stream_data_len);
+
 extern int         pdf_concat_stream     (pdf_obj *dst, pdf_obj *src);
 extern pdf_obj    *pdf_stream_dict       (pdf_obj *stream);
 extern int         pdf_stream_length     (pdf_obj *stream);
@@ -164,23 +172,21 @@ extern void        pdf_stream_set_predictor (pdf_obj *stream,
                                              int predictor, int32_t columns,
                                              int bpc, int colors);
 
-/* Compare label of two indirect reference object.
- */
+/* Compare label of two indirect reference object. */
 extern int         pdf_compare_reference (pdf_obj *ref1, pdf_obj *ref2);
+/* Compare objects. */
+extern int         pdf_compare_object    (pdf_obj *obj1, pdf_obj *obj2);
+
 
 /* The following routines are not appropriate for pdfobj.
  */
 
-extern void      pdf_set_compression (int level);
-
 extern void      pdf_set_info     (pdf_obj *obj);
 extern void      pdf_set_root     (pdf_obj *obj);
-extern void      pdf_set_id       (pdf_obj *id);
-extern void      pdf_set_encrypt  (pdf_obj *encrypt);
 
 extern void      pdf_files_init    (void);
 extern void      pdf_files_close   (void);
-extern int      check_for_pdf     (FILE *file);
+extern int       check_for_pdf     (FILE *file);
 extern pdf_file *pdf_open          (const char *ident, FILE *file);
 extern void      pdf_close         (pdf_file *pf);
 extern pdf_obj  *pdf_file_get_trailer (pdf_file *pf);
@@ -192,7 +198,7 @@ extern pdf_obj *pdf_import_object (pdf_obj *object);
 
 extern int      pdfobj_escape_str (char *buffer, int size, const unsigned char *s, int len);
 
-extern pdf_obj *pdf_new_indirect  (pdf_file *pf, unsigned label, unsigned short generation);
+extern pdf_obj *pdf_new_indirect  (pdf_file *pf, uint32_t label, uint16_t generation);
 
 extern int pdf_check_version (int major, int minor);
 

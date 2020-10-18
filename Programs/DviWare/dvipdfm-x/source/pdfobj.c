@@ -238,9 +238,6 @@ struct pdf_out {
    */
   char         *free_list;
 };
-#if defined(MIKTEX)
-typedef struct pdf_out pdf_out;
-#endif
 
 #if defined(LIBDPX)
 size_t output_file_size;
@@ -449,11 +446,7 @@ add_xref_entry (pdf_out *p,
 }
 
 #define BINARY_MARKER "%\344\360\355\370\n"
-#if defined(MIKTEX)
-void
-#else
 pdf_out *
-#endif
 pdf_out_init (const char *filename,
               const unsigned char *id1,
               const unsigned char *id2,
