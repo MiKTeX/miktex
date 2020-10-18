@@ -491,7 +491,7 @@ ProcessExitStatus winProcess::get_ExitStatus() const
   MIKTEX_EXPECT(exitCode != STATUS_PENDING);
   if (exitCode == STATUS_ACCESS_VIOLATION)
   {
-    return ProcessExitStatus::Signalled;
+    return ProcessExitStatus::Signaled;
   }
   return ProcessExitStatus::Exited;
 }

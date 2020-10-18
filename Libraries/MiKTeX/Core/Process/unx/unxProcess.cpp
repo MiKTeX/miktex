@@ -538,7 +538,11 @@ ProcessExitStatus unxProcess::get_ExitStatus() const
   }
   else if (WIFSIGNALED(status) != 0)
   {
-    ProcessExitStatus::Signalled;
+    ProcessExitStatus::Signaled;
+  }
+  else if (WIFSTOPPED(status) != 0)
+  {
+    ProcessExitStatus::Stopped;
   }
   else
   {

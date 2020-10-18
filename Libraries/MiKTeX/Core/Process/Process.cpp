@@ -185,9 +185,13 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
       {
         session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(fileName), processExitCode));
       }
-      else
+      else if (exitStatus == ProcessExitStatus::Signaled)
       {
         session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was killed by a signal", Q_(fileName)));
+      }
+      else if (exitStatus == ProcessExitStatus::Stopped)
+      {
+        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was stopped by a signal", Q_(fileName)));
       }
     }
     return false;
