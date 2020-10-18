@@ -436,8 +436,6 @@ set(libdvisvgm_sources
   source/src/PdfSpecialHandler.hpp
   source/src/PreScanDVIReader.cpp
   source/src/PreScanDVIReader.hpp
-  source/src/Process.cpp
-  source/src/Process.hpp
   source/src/PsSpecialHandler.cpp
   source/src/PsSpecialHandler.hpp
   source/src/RangeMap.cpp

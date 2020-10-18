@@ -25,12 +25,15 @@
 #include "FileFinder.hpp"
 #include "Message.hpp"
 #include "MetafontWrapper.hpp"
-#include "Process.hpp"
-#include "XMLString.hpp"
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX)
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
 #include <miktex/Util/PathNameUtil>
 #define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
+#else
+#include "Process.hpp"
 #endif
+#include "XMLString.hpp"
 
 using namespace std;
 
@@ -57,6 +60,20 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 		return false;     // mf file not available => no need to call the "slow" Metafont
 	FileSystem::remove(_fontname+".gf");
 
+#if defined(MIKTEX)
+	MiKTeX::Core::ProcessOutput<50000> processOutput;
+	MiKTeX::Core::Process::Run(MiKTeX::Core::PathName(MIKTEX_MF_EXE), {
+	  "\\mode="s + mode + ";"s,
+	  "mode_setup;"s,
+	  "mag:="s + std::to_string(mag) + ";"s,
+	  "show pixels_per_inch*mag;"s,
+	  "batchmode;",
+	  "input"s,
+	  _fontname
+	  },
+	  &processOutput);
+	string mf_messages = processOutput.StdoutToString();
+#else
 	string mfName = "mf";  // file name of Metafont executable
 #ifndef MIKTEX
 	if (const char *mfnowinPath = FileFinder::instance().lookupExecutable("mf-nowin", true))
@@ -82,6 +99,7 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 	Process mf_process(mfName, oss.str());
 	string mf_messages;
 	mf_process.run(_dir, &mf_messages);
+#endif
 
 	int resolution = getResolution(mf_messages);
 

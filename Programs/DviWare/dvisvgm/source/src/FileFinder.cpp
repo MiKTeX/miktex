@@ -45,7 +45,9 @@
 #include "FontMap.hpp"
 #include "Message.hpp"
 #include "MessageException.hpp"
+#if !defined(MIKTEX)
 #include "Process.hpp"
+#endif
 
 std::string FileFinder::_argv0;
 std::string FileFinder::_progname;
