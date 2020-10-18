@@ -62,6 +62,8 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 
 #if defined(MIKTEX)
 	MiKTeX::Core::ProcessOutput<50000> processOutput;
+	int exitCode;
+	Message::mstream(false, Message::MC_STATE) << "\nrunning Metafont for " << _fontname << '\n';
 	MiKTeX::Core::Process::Run(MiKTeX::Core::PathName(MIKTEX_MF_EXE), {
 	  "\\mode="s + mode + ";"s,
 	  "mode_setup;"s,
@@ -71,7 +73,11 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 	  "input"s,
 	  _fontname
 	  },
-	  &processOutput);
+	  &processOutput, &exitCode, nullptr);
+	if (exitCode != 0)
+	{
+	  return false;
+	}
 	string mf_messages = processOutput.StdoutToString();
 #else
 	string mfName = "mf";  // file name of Metafont executable
