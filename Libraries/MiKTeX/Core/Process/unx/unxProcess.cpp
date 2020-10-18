@@ -51,6 +51,7 @@
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/StreamReader>
 
+#include <miktex/Util/PathNameUtil>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
@@ -206,6 +207,15 @@ void unxProcess::Create()
 {
   MIKTEX_EXPECT(!startinfo.FileName.empty());
 
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+
+  PathName fileName;
+
+  if (PathNameUtil::IsAbsolutePath(startinfo.FileName) || session == nullptr || !session->FindFile(startinfo.FileName, FileType::EXE, fileName))
+  {
+    fileName = startinfo.FileName;
+  }
+
   Argv argv(startinfo.Arguments.empty() ? vector<string>{ PathName(startinfo.FileName).GetFileNameWithoutExtension().ToString() } : startinfo.Arguments);
 
   Pipe pipeStdout;
@@ -247,8 +257,6 @@ void unxProcess::Create()
   {
     pipeStdin.Create();
   }
-
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
 
   if (session != nullptr)
   {
@@ -336,9 +344,9 @@ void unxProcess::Create()
             args += ", ";
           }
         }
-        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", startinfo.FileName, args));
+        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
       }
-      execv(startinfo.FileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
+      execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
       perror("execv failed");
     }
     catch (const exception&)
