@@ -1,6 +1,6 @@
 /* This is DVIPDFMx, an eXtended version of DVIPDFM by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -31,6 +31,7 @@ enum dpx_mode {
 };
 
 extern struct _dpx_conf {
+  int            is_xbb;
   int            verbose_level;
   enum dpx_mode  compat_mode;
   int            ignore_font_license;

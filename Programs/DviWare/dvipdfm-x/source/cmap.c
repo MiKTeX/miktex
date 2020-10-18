@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     This program is free software; you can redistribute it and/or modify
@@ -62,12 +62,12 @@ CMap_set_silent (int value)
 /* Private funcs. */
 static int  bytes_consumed   (CMap *cmap, const unsigned char *instr, int inbytes);
 static void handle_undefined (CMap *cmap,
-			      const unsigned char **inbuf, int *inbytesleft,
-			      unsigned char **outbuf, int *outbytesleft);
+                              const unsigned char **inbuf, int *inbytesleft,
+                              unsigned char **outbuf, int *outbytesleft);
 
 static int  check_range      (CMap *cmap,
-			      const unsigned char *srclo, const unsigned char *srchi, int srcdim,
-			      const unsigned char *dst, int dstdim);
+                              const unsigned char *srclo, const unsigned char *srchi, int srcdim,
+                              const unsigned char *dst, int dstdim);
 
 static unsigned char *get_mem (CMap *cmap, int size);
 static mapDef *mapDef_new     (void);
@@ -86,10 +86,10 @@ CMap_new (void)
   cmap->useCMap  = NULL;
   cmap->CSI      = NULL;
 
-  cmap->profile.minBytesIn  = 2;
-  cmap->profile.maxBytesIn  = 2;
-  cmap->profile.minBytesOut = 2;
-  cmap->profile.maxBytesOut = 2;
+  cmap->profile.minBytesIn  = 65535;
+  cmap->profile.maxBytesIn  = 0;
+  cmap->profile.minBytesOut = 65535;
+  cmap->profile.maxBytesOut = 0;
 
   cmap->flags = 0;
 
@@ -129,7 +129,7 @@ CMap_release (CMap *cmap)
     while (map != NULL) {
       mapData *prev = map->prev;
       if (map->data != NULL)
-	RELEASE(map->data);
+        RELEASE(map->data);
       RELEASE(map);
       map = prev;
     }
@@ -171,9 +171,9 @@ CMap_is_valid (CMap *cmap)
     csi1 = CMap_get_CIDSysInfo(cmap);
     csi2 = CMap_get_CIDSysInfo(cmap->useCMap);
     if (strcmp(csi1->registry, csi2->registry) ||
-	strcmp(csi1->ordering, csi2->ordering)) {
+      strcmp(csi1->ordering, csi2->ordering)) {
       WARN("CIDSystemInfo mismatched %s <--> %s",
-	   CMap_get_name(cmap), CMap_get_name(cmap->useCMap));
+           CMap_get_name(cmap), CMap_get_name(cmap->useCMap));
       return 0;
     }
   }
@@ -212,8 +212,8 @@ CMap_get_profile (CMap *cmap, int type)
  */
 static void
 handle_undefined (CMap *cmap,
-		  const unsigned char **inbuf,  int *inbytesleft,
-		  unsigned char **outbuf, int *outbytesleft)
+                  const unsigned char **inbuf,  int *inbytesleft,
+                  unsigned char **outbuf, int *outbytesleft)
 {
   int len = 0;
 
@@ -243,8 +243,8 @@ handle_undefined (CMap *cmap,
 
 void
 CMap_decode_char (CMap *cmap,
-		  const unsigned char **inbuf, int *inbytesleft,
-		  unsigned char **outbuf, int *outbytesleft)
+                  const unsigned char **inbuf, int *inbytesleft,
+                  unsigned char **outbuf, int *outbytesleft)
 {
   mapDef *t;
   const unsigned char *p, *save;
@@ -318,9 +318,9 @@ CMap_decode_char (CMap *cmap,
       /* continue */
     case MAP_IS_CID: case MAP_IS_CODE:
       if (*outbytesleft >= t[c].len)
-	memcpy(*outbuf, t[c].code, t[c].len);
+        memcpy(*outbuf, t[c].code, t[c].len);
       else
-	ERROR("%s: Buffer overflow.", CMAP_DEBUG_STR);
+        ERROR("%s: Buffer overflow.", CMAP_DEBUG_STR);
       *outbuf       += t[c].len;
       *outbytesleft -= t[c].len;
       break;
@@ -341,8 +341,8 @@ CMap_decode_char (CMap *cmap,
  */
 int
 CMap_decode (CMap *cmap,
-	     const unsigned char **inbuf,  int *inbytesleft,
-	     unsigned char **outbuf, int *outbytesleft)
+             const unsigned char **inbuf,  int *inbytesleft,
+             unsigned char **outbuf, int *outbytesleft)
 {
   int count;
 
@@ -445,7 +445,7 @@ CMap_set_usecmap (CMap *cmap, CMap *ucmap)
 
   if (cmap == ucmap)
     ERROR("%s: Identical CMap object cannot be used for usecmap CMap: 0x%p=0x%p",
-	  CMAP_DEBUG_STR, cmap, ucmap);
+          CMAP_DEBUG_STR, cmap, ucmap);
 
   /* Check if ucmap have neccesary information. */
   if (!CMap_is_valid(ucmap))
@@ -457,13 +457,13 @@ CMap_set_usecmap (CMap *cmap, CMap *ucmap)
    */
   if (cmap->name && strcmp(cmap->name, ucmap->name) == 0)
     ERROR("%s: CMap refering itself not allowed: CMap %s --> %s",
-	  CMAP_DEBUG_STR, cmap->name, ucmap->name);
+          CMAP_DEBUG_STR, cmap->name, ucmap->name);
 
   if (cmap->CSI && cmap->CSI->registry && cmap->CSI->ordering) {
     if (strcmp(cmap->CSI->registry, ucmap->CSI->registry) ||
-	strcmp(cmap->CSI->ordering, ucmap->CSI->ordering))
+        strcmp(cmap->CSI->ordering, ucmap->CSI->ordering))
       ERROR("%s: CMap %s required by %s have different CSI.",
-	    CMAP_DEBUG_STR, CMap_get_name(cmap), CMap_get_name(ucmap));
+            CMAP_DEBUG_STR, CMap_get_name(cmap), CMap_get_name(ucmap));
   }
 
   /* We must copy codespaceranges. */
@@ -488,7 +488,7 @@ CMap_match_codespace (CMap *cmap, const unsigned char *c, int dim)
       continue;
     for (pos = 0; pos < dim; pos++) {
       if (c[pos] > csr->codeHi[pos] || c[pos] < csr->codeLo[pos])
-	break;
+        break;
     }
     if (pos == dim)
       return 0; /* Valid */
@@ -514,10 +514,10 @@ CMap_add_codespacerange (CMap *cmap,
     csr = cmap->codespace.ranges + i;
     for (j = 0; j < MIN(csr->dim, dim) && overlap; j++) {
       if ((codelo[j] >= csr->codeLo[j] && codelo[j] <= csr->codeHi[j]) ||
-	  (codehi[j] >= csr->codeLo[j] && codehi[j] <= csr->codeHi[j]))
-	overlap = 1;
+          (codehi[j] >= csr->codeLo[j] && codehi[j] <= csr->codeHi[j]))
+        overlap = 1;
       else
-	overlap = 0;
+        overlap = 0;
     }
     if (overlap) {
       WARN("Overlapping codespace found. (ingored)");
@@ -576,7 +576,7 @@ CMap_add_notdefrange (CMap *cmap,
   for (c = srclo[srcdim-1]; c <= srchi[srcdim-1]; c++) {
     if (MAP_DEFINED(cur[c].flag)) {
       if (!__silent)
-	WARN("Trying to redefine already defined code mapping. (ignored)");
+        WARN("Trying to redefine already defined code mapping. (ignored)");
     } else {
       cur[c].flag = (MAP_LOOKUP_END|MAP_IS_NOTDEF);
       cur[c].code = get_mem(cmap, 2);
@@ -592,16 +592,16 @@ CMap_add_notdefrange (CMap *cmap,
 
 int
 CMap_add_bfchar (CMap *cmap,
-		 const unsigned char *src, int srcdim,
-		 const unsigned char *dst, int dstdim)
+                 const unsigned char *src, int srcdim,
+                 const unsigned char *dst, int dstdim)
 {
   return CMap_add_bfrange(cmap, src, src, srcdim, dst, dstdim);
 }
 
 int
 CMap_add_bfrange (CMap *cmap,
-		  const unsigned char *srclo, const unsigned char *srchi, int srcdim,
-		  const unsigned char *base, int dstdim)
+                  const unsigned char *srclo, const unsigned char *srchi, int srcdim,
+                  const unsigned char *base, int dstdim)
 {
   int     c, last_byte, i;
   mapDef *cur;
@@ -680,7 +680,7 @@ CMap_add_cidrange (CMap *cmap,
   for (c = srclo[srcdim-1]; c <= srchi[srcdim-1]; c++) {
     if (cur[c].flag != 0) {
       if (!__silent)
-	WARN("Trying to redefine already defined CID mapping. (ignored)");
+        WARN("Trying to redefine already defined CID mapping. (ignored)");
     } else {
       cur[c].flag = (MAP_LOOKUP_END|MAP_IS_CID);
       cur[c].len  = 2;
@@ -783,7 +783,7 @@ bytes_consumed (CMap *cmap, const unsigned char *instr, int inbytes)
     rangeDef *csr = cmap->codespace.ranges + i;
     for (pos = 0; pos < MIN(csr->dim, inbytes); pos++) {
       if (instr[pos] > csr->codeHi[pos] || instr[pos] < csr->codeLo[pos])
-	break;
+        break;
     }
     if (pos == csr->dim) /* part of instr is totally valid in this codespace. */
       return csr->dim;
@@ -798,7 +798,7 @@ bytes_consumed (CMap *cmap, const unsigned char *instr, int inbytes)
     for (i = 0; i< cmap->codespace.num; i++) {
       rangeDef *csr = cmap->codespace.ranges + i;
       if (csr->dim > longest && csr->dim < bytesconsumed)
-	bytesconsumed = csr->dim;
+        bytesconsumed = csr->dim;
     }
   }
 
@@ -807,8 +807,8 @@ bytes_consumed (CMap *cmap, const unsigned char *instr, int inbytes)
 
 static int
 check_range (CMap *cmap,
-	     const unsigned char *srclo, const unsigned char *srchi, int srcdim,
-	     const unsigned char *dst, int dstdim)
+             const unsigned char *srclo, const unsigned char *srchi, int srcdim,
+             const unsigned char *dst, int dstdim)
 {
   if ((srcdim < 1 || dstdim < 1) ||
       (!srclo || !srchi || !dst) ||

@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -104,9 +104,25 @@ spc_suspend_annot (struct spc_env *spe)
   return  0;
 }
 
+/* Added this for supporting bann-eann erea only with \phantom text */
+int
+spc_is_tracking_boxes (struct spc_env *spe)
+{
+  return dvi_is_tracking_boxes();
+}
 
+void
+spc_set_linkmode (struct spc_env *spe, int mode)
+{
+  dvi_set_linkmode(mode);
+}
 
-static struct ht_table *named_objects = NULL;
+void
+spc_set_phantom (struct spc_env *spe, double height, double depth)
+{
+  dvi_set_phantom_height(height, depth);
+}
+
 
 /* reserved keys */
 static const char *_rkeys[] = {
@@ -160,8 +176,6 @@ spc_lookup_reference (const char *key)
   pdf_coord   cp;
   int         k;
 
-  ASSERT(named_objects);
-
   if (!key)
     return  NULL;
 
@@ -206,7 +220,7 @@ spc_lookup_reference (const char *key)
     if (ispageref(key))
       value = pdf_doc_ref_page(atoi(key + 4));
     else {
-      value = pdf_names_lookup_reference(named_objects, key, strlen(key));
+      value = pdf_names_lookup_reference(global_names, key, strlen(key));
     }
     break;
   }
@@ -224,8 +238,6 @@ spc_lookup_object (const char *key)
   pdf_obj    *value = NULL;
   pdf_coord   cp;
   int         k;
-
-  ASSERT(named_objects);
 
   if (!key)
     return  NULL;
@@ -261,7 +273,7 @@ spc_lookup_object (const char *key)
     value = pdf_doc_docinfo();
     break;
   default:
-    value = pdf_names_lookup_object(named_objects, key, strlen(key));
+    value = pdf_names_lookup_object(global_names, key, strlen(key));
     break;
   }
 
@@ -275,33 +287,187 @@ spc_lookup_object (const char *key)
 }
 
 void
-spc_push_object (const char *key, pdf_obj *value)
+spc_push_object (struct spc_env *spe, const char *key, pdf_obj *value)
 {
-  ASSERT(named_objects);
-
   if (!key || !value)
     return;
 
-  pdf_names_add_object(named_objects, key, strlen(key), value);
+  pdf_names_add_object(global_names, key, strlen(key), value);
 }
 
 void
-spc_flush_object (const char *key)
+spc_flush_object (struct spc_env *spe, const char *key)
 {
-  pdf_names_close_object(named_objects, key, strlen(key));
+  pdf_names_close_object(global_names, key, strlen(key));
 }
 
 void
-spc_clear_objects (void)
+spc_clear_objects (struct spc_env *spe)
 {
-  pdf_delete_name_tree(&named_objects);
-  named_objects = pdf_new_name_tree();
+  /* Do nothing... */
+}
+
+/* Migrated form pdf_dev.c
+ * No need to palce this into pdfdev.c at all.
+ */
+static dpx_stack coords;
+
+void
+spc_get_coord (struct spc_env *spe, double *x, double *y)
+{
+  ASSERT(x && y );
+
+  if (dpx_stack_depth(&coords) > 0) {
+    pdf_coord *p = dpx_stack_top(&coords);
+    *x = p->x;
+    *y = p->y;
+  } else {
+    *x = *y = 0.0;
+  }
+}
+
+void
+spc_push_coord (struct spc_env *spe, double x, double y)
+{
+  pdf_coord *p;
+
+  p = NEW(1, pdf_coord);
+  p->x = x; p->y = y;
+  dpx_stack_push(&coords, p);
+  dvi_set_compensation(x, y);
+}
+
+void
+spc_pop_coord (struct spc_env *spe)
+{
+  double     x, y;
+  pdf_coord *p;
+
+  p = dpx_stack_pop(&coords);
+  if (p)
+    RELEASE(p);
+
+  spc_get_coord(spe, &x, &y);
+  dvi_set_compensation(x, y);
+}
+
+/* Migrated from pdfdraw.c.
+ *
+ * pt_fixee is obviously not a PDF graphics state parameter.
+ *
+ */
+
+static dpx_stack pt_fixee;
+
+void
+spc_set_fixed_point (struct spc_env *spe, double x, double y)
+{
+  pdf_coord *p;
+
+  p = dpx_stack_top(&pt_fixee);
+  if (p) {
+    p->x = x;
+    p->y = y;
+  } else {
+    p = NEW(1, pdf_coord);
+    p->x = x;
+    p->y = y;
+    dpx_stack_push(&pt_fixee, p);
+  }
+}
+
+void
+spc_get_fixed_point (struct spc_env *spe, double *x, double *y)
+{
+  pdf_coord *p;
+
+  ASSERT(x && y);
+
+  p = dpx_stack_top(&pt_fixee);
+  if (p) {
+    *x = p->x;
+    *y = p->y;
+  } else {
+    *x = 0.0;
+    *y = 0.0;
+  }
+}
+
+void
+spc_put_fixed_point (struct spc_env *spe, double x, double y)
+{
+  pdf_coord *p;
+
+  p = NEW(1, pdf_coord);
+  p->x = x;
+  p->y = y;
+  dpx_stack_push(&pt_fixee, p);
+}
+
+void
+spc_dup_fixed_point (struct spc_env *spe)
+{
+  pdf_coord *p1, *p2;
+
+  p1 = dpx_stack_top(&pt_fixee);
+  p2 = NEW(1, pdf_coord);
+  if (p1) {
+    p2->x = p1->x; p2->y = p1->y;
+  } else {
+    p2->x = 0.0; p2->y = 0.0;
+  }
+  dpx_stack_push(&pt_fixee, p2);
+}
+
+void
+spc_pop_fixed_point (struct spc_env *spe)
+{
+  pdf_coord *p;
+  p = dpx_stack_pop(&pt_fixee);
+  if (p)
+    RELEASE(p);
+}
+
+void
+spc_clear_fixed_point (struct spc_env *spe)
+{
+  pdf_coord *p;
+
+  for (;;) {
+    p = dpx_stack_pop(&pt_fixee);
+    if (!p)
+      break;
+    else
+      RELEASE(p);
+  }
+}
+
+void
+spc_get_current_point (struct spc_env *spe, pdf_coord *cp)
+{
+  double xoff, yoff;
+
+  if (!spe || !cp)
+    return;
+
+  spc_get_coord(spe, &xoff, &yoff);
+  cp->x = spe->x_user - xoff;
+  cp->y = spe->y_user - yoff;
+}
+
+void
+spc_put_image (struct spc_env *spe, int res_id, transform_info *ti, double xpos, double ypos)
+{
+  double xoff, yoff;
+
+  spc_get_coord(spe, &xoff, &yoff);
+  pdf_dev_put_image(res_id, ti, xpos - xoff, ypos - yoff, &spe->info.rect);
+  spe->info.is_drawable = 1;
 }
 
 
 static int
-spc_handler_unknown (struct spc_env *spe,
-                     struct spc_arg *args)
+spc_handler_unknown (struct spc_env *spe, struct spc_arg *args)
 {
   ASSERT(spe && args);
 
@@ -325,6 +491,11 @@ init_special (struct spc_handler *special,
   spe->y_user = y_user;
   spe->mag    = mag;
   spe->pg     = pdf_doc_current_page_number(); /* _FIXME_ */
+  spe->info.is_drawable = 0;
+  spe->info.rect.llx    = 0.0;
+  spe->info.rect.lly    = 0.0;
+  spe->info.rect.urx    = 0.0;
+  spe->info.rect.ury    = 0.0;
 
   args->curptr = p;
   args->endptr = args->curptr + size;
@@ -357,6 +528,8 @@ static struct {
   int (*eodhk_func) (void);
   int (*bophk_func) (void);
   int (*eophk_func) (void);
+  int (*bofhk_func) (void);
+  int (*eofhk_func) (void);
   int (*check_func) (const char *, int);
   int (*setup_func) (struct spc_handler *, struct spc_env *, struct spc_arg *);
 } known_specials[] = {
@@ -366,11 +539,15 @@ static struct {
    spc_pdfm_at_end_document,
    NULL,
    spc_pdfm_at_end_page,
+   NULL,
+   NULL,
    spc_pdfm_check_special,
    spc_pdfm_setup_handler
   },
 
   {"x:",
+   NULL,
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -384,6 +561,8 @@ static struct {
    NULL,
    NULL,
    NULL,
+   NULL,
+   NULL,
    spc_dvipdfmx_check_special,
    spc_dvipdfmx_setup_handler
   },
@@ -393,11 +572,15 @@ static struct {
    spc_dvips_at_end_document,
    spc_dvips_at_begin_page,
    spc_dvips_at_end_page,
+   NULL,
+   NULL,
    spc_dvips_check_special,
    spc_dvips_setup_handler
   },
 
   {"color",
+   NULL,
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -411,6 +594,8 @@ static struct {
    spc_tpic_at_end_document,
    spc_tpic_at_begin_page,
    spc_tpic_at_end_page,
+   NULL,
+   NULL,
    spc_tpic_check_special,
    spc_tpic_setup_handler
   },
@@ -420,21 +605,63 @@ static struct {
    spc_html_at_end_document,
    spc_html_at_begin_page,
    spc_html_at_end_page,
+   NULL,
+   NULL,
    spc_html_check_special,
    spc_html_setup_handler
   },
 
-  {"unknown",
+  {"compat",
+   spc_misc_at_begin_document,
+   spc_misc_at_end_document,
+   spc_misc_at_begin_page,
    NULL,
-   NULL,
-   NULL,
-   NULL,
+   spc_misc_at_begin_form,
+   spc_misc_at_end_form,
    spc_misc_check_special,
    spc_misc_setup_handler
   },
 
   {NULL} /* end */
 };
+
+int
+spc_begin_form (struct spc_env *spe, const char *ident, pdf_coord cp, pdf_rect *cropbox)
+{
+  int  error = 0;
+  int  i, xobj_id;
+
+  xobj_id = pdf_doc_begin_grabbing(ident, cp.x, cp.y, cropbox);
+
+  if (xobj_id < 0) {
+    error = -1;
+  } else {
+    for (i = 0; known_specials[i].key != NULL; i++) {
+      if (known_specials[i].bofhk_func) {
+        error = known_specials[i].bofhk_func();
+      }
+    }
+  }
+
+  return error;
+}
+
+int
+spc_end_form (struct spc_env *spe, pdf_obj *attr)
+{
+  int  error = 0;
+  int  i;
+
+  pdf_doc_end_grabbing(attr);
+
+  for (i = 0; known_specials[i].key != NULL; i++) {
+    if (known_specials[i].eofhk_func) {
+      error = known_specials[i].eofhk_func();
+    }
+  }
+
+  return error;
+}
 
 int
 spc_exec_at_begin_page (void)
@@ -472,15 +699,14 @@ spc_exec_at_begin_document (void)
   int  error = 0;
   int  i;
 
-  ASSERT(!named_objects);
-
-  named_objects = pdf_new_name_tree();
-
   for (i = 0; known_specials[i].key != NULL; i++) {
     if (known_specials[i].bodhk_func) {
       error = known_specials[i].bodhk_func();
     }
   }
+  
+  dpx_stack_init(&coords);
+  dpx_stack_init(&pt_fixee);
 
   return error;
 }
@@ -488,8 +714,9 @@ spc_exec_at_begin_document (void)
 int
 spc_exec_at_end_document (void)
 {
-  int  error = 0;
-  int  i;
+  int        error = 0;
+  int        i;
+  pdf_coord *p;
 
   for (i = 0; known_specials[i].key != NULL; i++) {
     if (known_specials[i].eodhk_func) {
@@ -497,8 +724,11 @@ spc_exec_at_end_document (void)
     }
   }
 
-  if (named_objects) {
-    pdf_delete_name_tree(&named_objects);
+  while ((p = dpx_stack_pop(&coords)) != NULL) {  
+    RELEASE(p);
+  }
+  while ((p = dpx_stack_pop(&pt_fixee)) != NULL) {  
+    RELEASE(p);
   }
 
   return error;
@@ -557,7 +787,8 @@ print_error (const char *name, struct spc_env *spe, struct spc_arg *ap)
 
 int
 spc_exec_special (const char *buffer, int32_t size,
-		  double x_user, double y_user, double mag)
+                  double x_user, double y_user, double mag,
+                  int *is_drawable, pdf_rect *rect)
 {
   int    error = -1;
   int    i, found;
@@ -577,10 +808,19 @@ spc_exec_special (const char *buffer, int32_t size,
     if (found) {
       error = known_specials[i].setup_func(&special, &spe, &args);
       if (!error) {
-	error = special.exec(&spe, &args);
+        error = special.exec(&spe, &args);
       }
       if (error) {
-	print_error(known_specials[i].key, &spe, &args);
+        print_error(known_specials[i].key, &spe, &args);
+      } else {
+        if (is_drawable)
+          *is_drawable = spe.info.is_drawable;
+        if (rect) {
+          rect->llx    = spe.info.rect.llx;
+          rect->lly    = spe.info.rect.lly;
+          rect->urx    = spe.info.rect.urx;
+          rect->ury    = spe.info.rect.ury;
+        }
       }
       break;
     }

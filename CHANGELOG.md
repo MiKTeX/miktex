@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* dvipdfmx 20201014
 * dvisvgm 2.10.1
 
 ## 20.10 - 2020-10-12

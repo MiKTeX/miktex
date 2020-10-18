@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -64,14 +64,10 @@ extern void     pdf_close_images          (void);
 extern char    *pdf_ximage_get_resname    (int xobj_id);
 extern pdf_obj *pdf_ximage_get_reference  (int xobj_id);
 
-/* Please use different interface than findresource...
- * This is not intended to be used for specifying page number and others.
- * Only pdf:image special in spc_pdfm.c want optinal dict!
- */
-extern int      pdf_ximage_findresource   (const char  *ident,
-                                           load_options options);
-extern int      pdf_ximage_defineresource (const char *ident, int subtype,
-                                           void *cdata, pdf_obj *resource);
+extern int      pdf_ximage_findresource   (const char *ident);
+extern int      pdf_ximage_load_image     (const char *ident, const char *filename, load_options options);
+extern int      pdf_ximage_defineresource (const char *ident, int subtype, void *cdata, pdf_obj *resource);
+extern int      pdf_ximage_reserve        (const char *ident);
 
 /* Called by pngimage, jpegimage, epdf, mpost, etc. */
 extern void pdf_ximage_init_image_info (ximage_info *info);
@@ -101,5 +97,7 @@ pdf_ximage_set_attr (int xobj_id,
                      double llx, double lly, double urx, double ury);
 
 /* Migrated from pdfobj.h. Those are not PDF object related... */
+
+extern void pdf_error_cleanup_cache (void);
 
 #endif /* _PDFXIMAGE_H_ */

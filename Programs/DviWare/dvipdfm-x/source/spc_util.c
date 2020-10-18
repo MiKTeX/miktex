@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -34,14 +34,12 @@
 #include "pdfparse.h"
 #include "pdfcolor.h"
 #include "pdfdraw.h"
+#include "pdfresource.h"
 
 #include "specials.h"
 
 #include "spc_util.h"
 
-#if defined(MIKTEX_WINDOWS)
-#include <miktex/unxemu.h>
-#endif
 
 #ifndef ISBLANK
 #define ISBLANK(c) ((c) == ' ' || (c) == '\t')
@@ -194,50 +192,225 @@ spc_read_color_color (struct spc_env *spe, pdf_color *colorspec, struct spc_arg 
 static int
 spc_read_color_pdf (struct spc_env *spe, pdf_color *colorspec, struct spc_arg *ap)
 {
-  double  cv[4]; /* at most four */
-  int     nc, isarry = 0;
+  double  cv[PDF_COLOR_COMPONENT_MAX]; /* dvipdfmx limit */
+  int     nc = -1, type = PDF_COLORSPACE_TYPE_INVALID, isarry = 0;
   int     error = 0;
   char   *q;
 
   skip_blank(&ap->curptr, ap->endptr);
+  if (ap->curptr[0] == '@') {
+    char    *ident  = NULL;
+    int      res_id = -1;
+    char    *name   = NULL;
 
-  if (ap->curptr[0] == '[') {
-    ap->curptr++; skip_blank(&ap->curptr, ap->endptr);
-    isarry = 1;
-  }
-
-  nc = spc_util_read_numbers(cv, 4, ap);
-  switch (nc) {
-  case  1:
-    pdf_color_graycolor(colorspec, cv[0]);
-    break;
-  case  3:
-    pdf_color_rgbcolor (colorspec, cv[0], cv[1], cv[2]);
-    break;
-  case  4:
-    pdf_color_cmykcolor(colorspec, cv[0], cv[1], cv[2], cv[3]);
-    break;
-  default:
-    /* Try to read the color names defined in dvipsname.def */
-    q = parse_c_ident(&ap->curptr, ap->endptr);
-    if (!q) {
-      spc_warn(spe, "No valid color specified?");
-      return  -1;
-    }
-    error = pdf_color_namedcolor(colorspec, q);
-    if (error)
-      spc_warn(spe, "Unrecognized color name: %s, keep the current color", q);
-    RELEASE(q);
-    break;
-  }
-
-  if (isarry) {
+    ident = parse_opt_ident(&ap->curptr, ap->endptr);
     skip_blank(&ap->curptr, ap->endptr);
-    if (ap->curptr >= ap->endptr || ap->curptr[0] != ']') {
-      spc_warn(spe, "Unbalanced '[' and ']' in color specification.");
-      error = -1;
+    res_id = pdf_findresource("ColorSpace", ident);
+    {
+      pdf_obj *cspace, *csname;
+
+      cspace = spc_lookup_object(ident);
+      if (!cspace || !PDF_OBJ_ARRAYTYPE(cspace)) {
+        WARN("Couldn't find ColorSpace resource for \"@%s\"... (or not an array object?)", ident);
+        RELEASE(ident);
+        return -1;
+      }
+      csname = pdf_get_array(cspace, 0);
+      if (!csname || !PDF_OBJ_NAMETYPE(csname)) {
+        WARN("Invalid ColorSpace resource for \"@%s\" found...", ident);
+        RELEASE(ident);
+        return -1;
+      }
+
+      name = pdf_name_value(csname);
+      if (!strcmp(name, "Separation")) {
+        type = PDF_COLORSPACE_TYPE_SEPARATION;
+      } else if (!strcmp(name, "CalGray")) {
+        type = PDF_COLORSPACE_TYPE_CALGRAY;
+        nc   = 1;
+      } else if (!strcmp(name, "CalRGB")) {
+        type = PDF_COLORSPACE_TYPE_CALRGB;
+        nc   = 3;
+      } else if (!strcmp(name, "LAB")) {
+        type = PDF_COLORSPACE_TYPE_LAB;
+        nc   = 3;
+      } else if (!strcmp(name, "ICCBased")) {
+        type = PDF_COLORSPACE_TYPE_ICCBASED;
+        nc   = -1;
+      } else if (!strcmp(name, "DeviceN")) {
+        type = PDF_COLORSPACE_TYPE_DEVICEN;
+        nc   = -1;
+      } else if (!strcmp(name, "Indexed")) {
+        type = PDF_COLORSPACE_TYPE_INDEXED;
+        nc   = 1;
+      } else if (!strcmp(name, "Pattern")) {
+        type = PDF_COLORSPACE_TYPE_PATTERN;
+        nc   = -1;
+      } else {
+        WARN("Specified object \"%s\" not a ColorSpace???", ident);
+        return -1;
+      }
+      if (res_id < 0) {
+        res_id = pdf_defineresource("ColorSpace", ident, pdf_link_obj(cspace), 0);
+      }
+      RELEASE(ident);
+    }
+  
+    colorspec->res_id = res_id;
+    colorspec->type   = type;
+    if (ap->curptr[0] == '[') {
+      ap->curptr++; skip_blank(&ap->curptr, ap->endptr);
+      isarry = 1;
+    }
+    if (nc > 0) {
+      int n;
+      n  = spc_util_read_numbers(cv, nc, ap);
+      if (n != nc) {
+        WARN("Wrong number of color components...");
+        return -1;
+      }
     } else {
-      ap->curptr++;
+      nc = spc_util_read_numbers(cv, PDF_COLOR_COMPONENT_MAX, ap);
+    }
+    colorspec->num_components = nc;
+    while (nc-- > 0) {
+      colorspec->values[nc] = cv[nc];
+    }
+    if (type == PDF_COLORSPACE_TYPE_PATTERN) {
+      /* reference appears */
+      skip_blank(&ap->curptr, ap->endptr);
+      if (ap->curptr[0] != '@') {
+        WARN("An object reference expected but not found for Pattern!");
+        return -1;
+      }
+      ident  = parse_opt_ident(&ap->curptr, ap->endptr);
+      res_id = pdf_findresource("Pattern", ident);
+      if (res_id < 0) {
+        pdf_obj *pattern = spc_lookup_object(ident);
+        /* Skip checking. /Type entry is optional... */
+        res_id = pdf_defineresource("Pattern", ident, pdf_link_obj(pattern), 0);
+      }
+      colorspec->pattern_id = res_id;
+      RELEASE(ident);
+    }
+    if (isarry) {
+      skip_blank(&ap->curptr, ap->endptr);
+      if (ap->curptr >= ap->endptr || ap->curptr[0] != ']') {
+        spc_warn(spe, "Unbalanced '[' and ']' or wrong number of color components in color specification?");
+        error = -1;
+      } else {
+        ap->curptr++;
+      }
+    }    
+  } else if (ap->curptr[0] == '/') { /* /DeviceGray... */
+    pdf_obj *csname;
+    csname = parse_pdf_name(&ap->curptr, ap->endptr);
+    if (!csname) {
+      WARN("Failed to read a name object while parsing colorspecification...");
+      return -1;
+    } else {
+      char *name = pdf_name_value(csname);
+      if (!strcmp(name, "DeviceGray")) {
+        type = PDF_COLORSPACE_TYPE_DEVICEGRAY;
+        nc   = 1;
+      } else if (!strcmp(name, "DeviceRGB")) {
+        type = PDF_COLORSPACE_TYPE_DEVICERGB;
+        nc   = 3;
+      } else if (!strcmp(name, "DeviceCMYK")) {
+        type = PDF_COLORSPACE_TYPE_DEVICECMYK;
+        nc   = 4;
+      } else if (!strcmp(name, "Pattern")) {
+        type = PDF_COLORSPACE_TYPE_PATTERN;
+        nc   = 0;
+      } else {
+        WARN("Unknown ColorSpace name specified: %s", name);
+        return -1;
+      }
+      pdf_release_obj(csname);
+      skip_blank(&ap->curptr, ap->endptr);
+    }
+    colorspec->res_id = -1;
+    colorspec->type   = type;
+    if (ap->curptr[0] == '[') {
+      ap->curptr++; skip_blank(&ap->curptr, ap->endptr);
+      isarry = 1;
+    }
+    {
+      int n = spc_util_read_numbers(cv, nc, ap);
+      if (n != nc) {
+        WARN("Wrong number of color components for this ColorSpace...");
+        return -1;
+      }
+    }
+    colorspec->num_components = nc;
+    while (nc-- > 0) {
+      colorspec->values[nc] = cv[nc];
+    }
+    if (type == PDF_COLORSPACE_TYPE_PATTERN) {
+      char *ident  = NULL;
+      int   res_id = -1;
+      /* reference appears */
+      skip_blank(&ap->curptr, ap->endptr);
+      if (ap->curptr[0] != '@') {
+        WARN("An object reference expected but not found for Pattern!");
+        return -1;
+      }
+      ident  = parse_opt_ident(&ap->curptr, ap->endptr);
+      res_id = pdf_findresource("Pattern", ident);
+      if (res_id < 0) {
+        pdf_obj *pattern = spc_lookup_object(ident);
+        /* Skip checking. /Type entry is optional... */
+        res_id = pdf_defineresource("Pattern", ident, pdf_link_obj(pattern), 0);
+      }
+      colorspec->pattern_id = res_id;
+      RELEASE(ident);
+    }
+    if (isarry) {
+      skip_blank(&ap->curptr, ap->endptr);
+      if (ap->curptr >= ap->endptr || ap->curptr[0] != ']') {
+        spc_warn(spe, "Unbalanced '[' and ']' or wrong number of color components in color specification?");
+        error = -1;
+      } else {
+        ap->curptr++;
+      }
+    }
+  } else {
+    if (ap->curptr[0] == '[') {
+      ap->curptr++; skip_blank(&ap->curptr, ap->endptr);
+      isarry = 1;
+    }
+    nc = spc_util_read_numbers(cv, 4, ap);
+    switch (nc) {
+    case  1:
+      pdf_color_graycolor(colorspec, cv[0]);
+      break;
+    case  3:
+      pdf_color_rgbcolor (colorspec, cv[0], cv[1], cv[2]);
+      break;
+    case  4:
+      pdf_color_cmykcolor(colorspec, cv[0], cv[1], cv[2], cv[3]);
+      break;
+    default:
+      /* Try to read the color names defined in dvipsname.def */
+      q = parse_c_ident(&ap->curptr, ap->endptr);
+      if (!q) {
+        spc_warn(spe, "No valid color specified?");
+        return  -1;
+      }
+      error = pdf_color_namedcolor(colorspec, q);
+      if (error)
+        spc_warn(spe, "Unrecognized color name: %s, keep the current color", q);
+      RELEASE(q);
+      break;
+    }
+    if (isarry) {
+      skip_blank(&ap->curptr, ap->endptr);
+      if (ap->curptr >= ap->endptr || ap->curptr[0] != ']') {
+        spc_warn(spe, "Unbalanced '[' and ']' in color specification.");
+        error = -1;
+      } else {
+        ap->curptr++;
+      }
     }
   }
 
@@ -255,6 +428,7 @@ spc_util_read_colorspec (struct spc_env *spe, pdf_color *colorspec, struct spc_a
     return -1;
   }
 
+  pdf_color_black(colorspec); /* As initialization... */
   if (syntax)
     return spc_read_color_color(spe, colorspec, ap);
   else
@@ -931,9 +1105,9 @@ spc_util_read_blahblah (struct spc_env *spe,
 #ifdef  cmyk
 #undef  cmyk
 #endif
-#define gray(g)       {1, NULL, {g}}
-#define rgb8(r,g,b)   {3, NULL, {((r)/255.0), ((g)/255.0), ((b)/255.0), 0.0}}
-#define cmyk(c,m,y,k) {4, NULL, {(c), (m), (y), (k)}}
+#define gray(g)       {-1, PDF_COLORSPACE_TYPE_GRAY, 1, NULL, {g}, -1}
+#define rgb8(r,g,b)   {-1, PDF_COLORSPACE_TYPE_RGB,  3, NULL, {((r)/255.0), ((g)/255.0), ((b)/255.0), 0.0}, -1}
+#define cmyk(c,m,y,k) {-1, PDF_COLORSPACE_TYPE_CMYK, 4, NULL, {(c), (m), (y), (k)}, -1}
 
 static struct colordef_
 {

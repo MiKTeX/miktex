@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -23,10 +23,6 @@
 #ifndef _MFILEIO_H_
 #define _MFILEIO_H_
 
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#endif
 #include <stdio.h>
 #include "numbers.h"
 
@@ -39,15 +35,11 @@ int mfclose (FILE *file, const char *function, int line);
 #define MFCLOSE(file) \
    mfclose((file),__FUNCTION__,__LINE__)
 #else
-#if defined(MIKTEX)
-#define MFOPEN(name,mode) fopen((name),(mode))
-#else
-#if defined(WIN32)
+#if !defined(MIKTEX) && defined(WIN32)
 extern FILE *generic_fsyscp_fopen(const char *fname, const char *mode);
 #define MFOPEN(name,mode) generic_fsyscp_fopen((name),(mode))
 #else
 #define MFOPEN(name,mode) fopen((name),(mode))
-#endif
 #endif
 #define MFCLOSE(file) fclose(file)
 #endif

@@ -1,5 +1,5 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
-    Copyright (C) 2007-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -160,9 +160,21 @@ static char  _tmpbuf[PATH_MAX+1];
 #endif /* MIKTEX */
 
 #if !defined(MIKTEX)
-#if defined(WIN32)
+#if defined(_WIN32)
 extern int utf8name_failed;
-#endif /* WIN32 */
+int fsyscp_stat(const char *path, struct stat *buffer)
+{
+  wchar_t *wpath;
+  int     ret;
+  wpath = get_wstring_from_mbstring(file_system_codepage,
+          path, wpath = NULL);
+  if (wpath == NULL)
+    return -1;
+  ret = _wstat(wpath, buffer);
+  free(wpath);
+  return ret;
+}
+#endif /* _WIN32 */
 #endif
 
 #define CMDBUFSIZ 1024
@@ -1020,6 +1032,9 @@ dpx_delete_old_cache (int life)
           if (dpx_clear_cache_filter(de)) {
               struct stat sb;
               sprintf(pathname, "%s/%s", dir, de->d_name);
+/* Here pathname is always ASCII only. So fsyscp_stat() is
+ * not necessary for Windows.
+ */
               stat(pathname, &sb);
               if (sb.st_mtime < limit) {
                   remove(pathname);

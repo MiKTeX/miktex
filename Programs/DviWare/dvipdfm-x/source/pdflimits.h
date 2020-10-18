@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -36,6 +36,7 @@
  * PDF_NAME_LEN_MAX: see, Appendix C of PDF Ref. v1.3, 2nd. ed.
  * This is Acrobat implementation limit.
  */
-#define PDF_NAME_LEN_MAX 127
+#define PDF_NAME_LEN_MAX     127
+#define PDF_NUM_INDIRECT_MAX 8388607ul
 
 #endif /* _PDFLIMITS_H_ */

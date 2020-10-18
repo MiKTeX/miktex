@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -24,10 +24,8 @@
 #include "pdfobj.h"
 #include "sfnt.h"
 
-extern int always_embed; /* flag declared in dvipdfmx.c */
-
 /* TTC (TrueType Collection) */
-extern ULONG    ttc_read_offset (sfnt *sfont, int ttc_idx);
+extern ULONG    ttc_read_offset (sfnt *sfont, ULONG ttc_idx);
 
 /* FontDescriptor */
 extern pdf_obj *tt_get_fontdesc (sfnt *sfont, int *embed, int stemv, int type, const char* fontname);

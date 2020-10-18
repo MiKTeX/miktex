@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -83,10 +83,6 @@ extern int    pdf_dev_rlineto       (double x0 , double y0);
 extern int    pdf_dev_curveto       (double x0 , double y0,
                                      double x1 , double y1,
                                      double x2 , double y2);
-extern int    pdf_dev_vcurveto      (double x0 , double y0,
-                                     double x1 , double y1);
-extern int    pdf_dev_ycurveto      (double x0 , double y0,
-                                     double x1 , double y1);
 extern int    pdf_dev_rcurveto      (double x0 , double y0,
                                      double x1 , double y1,
                                      double x2 , double y2);
@@ -104,16 +100,13 @@ extern int    pdf_dev_newpath       (void);
 extern int    pdf_dev_clip          (void);
 extern int    pdf_dev_eoclip        (void);
 
-#if 0
+
 extern int    pdf_dev_rectstroke    (double x, double y,
                                      double w, double h,
                                      const pdf_tmatrix *M  /* optional */
                                     );
-#endif
-
 extern int    pdf_dev_rectfill      (double x, double y, double w, double h);
 extern int    pdf_dev_rectclip      (double x, double y, double w, double h);
-extern int    pdf_dev_rectadd       (double x, double y, double w, double h);
  
 extern int    pdf_dev_flushpath     (char p_op, int fill_rule);
 
@@ -122,9 +115,7 @@ extern int    pdf_dev_concat        (const pdf_tmatrix *M);
 extern void   pdf_dev_dtransform    (pdf_coord *p, const pdf_tmatrix *M);
 extern void   pdf_dev_idtransform   (pdf_coord *p, const pdf_tmatrix *M);
 extern void   pdf_dev_transform     (pdf_coord *p, const pdf_tmatrix *M);
-#if 0
 extern void   pdf_dev_itransform    (pdf_coord *p, const pdf_tmatrix *M);
-#endif
 
 extern int    pdf_dev_gsave         (void);
 extern int    pdf_dev_grestore      (void);
@@ -166,5 +157,9 @@ extern void pdf_dev_get_fixed_point (pdf_coord *p);
 extern void   pdf_dev_set_color     (const pdf_color *color, char mask, int force);
 #define pdf_dev_set_strokingcolor(c)     pdf_dev_set_color(c,    0, 0);
 #define pdf_dev_set_nonstrokingcolor(c)  pdf_dev_set_color(c, 0x20, 0);
+
+extern void pdf_dev_xgstate_push  (pdf_obj *object);
+extern void pdf_dev_xgstate_pop   (void);
+extern int  pdf_dev_reset_xgstate (int force);
 
 #endif /* _PDF_DRAW_H_ */

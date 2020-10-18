@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -98,20 +98,19 @@ dpx_open_pk_font_at (const char *ident, unsigned dpi)
 
 
 int
-pdf_font_open_pkfont (pdf_font *font)
+pdf_font_open_pkfont (pdf_font *font, const char *ident, int index, int encoding_id, int embedding, double point_size)
 {
-  char     *ident;
-  double    point_size;
-  int       encoding_id;
   unsigned  dpi;
   FILE     *fp;
 
-  ident       = pdf_font_get_ident(font);
-  point_size  = pdf_font_get_param(font, PDF_FONT_PARAM_POINT_SIZE);
-  encoding_id = pdf_font_get_encoding(font);
-
   if (!ident || point_size <= 0.0)
     return  -1;
+  if (!embedding) {
+    WARN("Ignoring no-embed option for PK font: %s", ident);
+  }
+  if (index != 0) {
+    WARN("Ignoring font index option for PK font: %s", ident);
+  }
 
   dpi = truedpi(ident, point_size, base_dpi);
   fp  = dpx_open_pk_font_at(ident, dpi);
@@ -122,7 +121,8 @@ pdf_font_open_pkfont (pdf_font *font)
   /* Type 3 fonts doesn't have FontName.
    * FontFamily is recommended for PDF 1.5.
    */
-  pdf_font_set_fontname(font, ident);
+  font->fontname = NEW(strlen(ident)+1, char);
+  strcpy(font->fontname, ident);
 
   if (encoding_id >= 0) {
     pdf_encoding_used_by_type3(encoding_id);
@@ -502,15 +502,14 @@ pdf_font_load_pkfont (pdf_font *font)
 #endif /* ENABLE_GLYPHENC */
   int       error = 0;
 
-  if (!pdf_font_is_in_use(font)) {
+  if (!font->reference)
     return 0;
-  }
 
-  ident       = pdf_font_get_ident(font);
-  point_size  = pdf_font_get_param(font, PDF_FONT_PARAM_POINT_SIZE);
-  usedchars   = pdf_font_get_usedchars(font);
+  ident       = font->filename;
+  point_size  = font->point_size;
+  usedchars   = font->usedchars;
 #if  ENABLE_GLYPHENC
-  encoding_id = pdf_font_get_encoding(font);
+  encoding_id = font->encoding_id;
   if (encoding_id < 0)
     enc_vec = NULL;
   else {

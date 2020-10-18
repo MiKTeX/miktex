@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -46,6 +46,7 @@ extern void MESG  (const char *fmt, ...);
 extern void WARN  (const char *fmt, ...);
 
 #define ASSERT(e) assert(e)
+
 #if !defined(MIKTEX)
 #if defined(WIN32)
 #undef vfprintf

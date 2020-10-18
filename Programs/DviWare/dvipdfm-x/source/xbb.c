@@ -308,7 +308,7 @@ int extractbb (int argc, char *argv[])
 
   pdf_files_init();
 
-  pdf_set_version(PDF_VERSION_MAX);
+  dpx_conf.is_xbb = 1;
 
   opterr = 0;
   

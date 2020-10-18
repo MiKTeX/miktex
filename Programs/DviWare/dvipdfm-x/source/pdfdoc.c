@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2008-2019 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -66,19 +66,6 @@
 #define PDFDOC_ARTICLE_ALLOC_SIZE 16
 #define PDFDOC_BEAD_ALLOC_SIZE    16
 
-static char  manual_thumb_enabled  = 0;
-static char *thumb_basename = NULL;
-
-void
-pdf_doc_enable_manual_thumbnails (void)
-{
-#if HAVE_LIBPNG
-  manual_thumb_enabled = 1;
-#else
-  WARN("Manual thumbnail is not supported without the libpng library.");
-#endif
-}
-
 static pdf_obj *
 read_thumbnail (const char *thumb_filename) 
 {
@@ -99,7 +86,7 @@ read_thumbnail (const char *thumb_filename)
   }
   MFCLOSE(fp);
 
-  xobj_id = pdf_ximage_findresource(thumb_filename, options);
+  xobj_id = pdf_ximage_load_image(thumb_filename, thumb_filename, options);
   if (xobj_id < 0) {
     WARN("Could not read thumbnail file \"%s\".", thumb_filename);
     image_ref = NULL;
@@ -110,6 +97,8 @@ read_thumbnail (const char *thumb_filename)
   return image_ref;
 }
 
+/* Sorry no appropriate place to put this... */
+struct ht_table *global_names = NULL;
 
 typedef struct pdf_form
 {
@@ -232,10 +221,12 @@ typedef struct pdf_doc
   struct {
     int    outline_open_depth;
     double annot_grow;
-  } opt;
+    int    enable_manual_thumb;
+  } options;
 
   struct form_list_node *pending_forms;
 
+  char *thumb_basename;
 } pdf_doc;
 static pdf_doc pdoc;
 
@@ -527,7 +518,11 @@ pdf_doc_get_page_resources (pdf_doc *p, const char *category)
     pdf_add_dict(res_dict, pdf_new_name(category), resources);
   } else if (pdf_obj_typeof(resources) == PDF_INDIRECT) {
     resources = pdf_deref_obj(resources); /* FIXME: deref_obj increment link count */
-    pdf_release_obj(resources); /* FIXME: just to decrement link count */
+    if (!resources) {
+      WARN("Resource %s already released?", category);
+    } else {
+      pdf_release_obj(resources); /* FIXME: just to decrement link count */
+    }
   }
 
   return resources;
@@ -541,19 +536,19 @@ pdf_doc_add_page_resource (const char *category,
   pdf_obj *resources;
   pdf_obj *duplicate;
 
-#if 0
-  if (!PDF_OBJ_INDIRECTTYPE(resource_ref)) {
-    WARN("Passed non indirect reference...");
-    resource_ref = pdf_ref_obj(resource_ref); /* leak */
-  }
-#endif
   resources = pdf_doc_get_page_resources(p, category);
+  if (!resources) {
+    WARN("Can't add object to resource %s", category);
+    return;
+  }
   duplicate = pdf_lookup_dict(resources, resource_name);
-  if (duplicate && pdf_compare_reference(duplicate, resource_ref)) {
-    WARN("Conflicting page resource found (page: %d, category: %s, name: %s).",
-         pdf_doc_current_page_number(), category, resource_name);
-    WARN("Ignoring...");
-    pdf_release_obj(resource_ref);
+  if (duplicate) {
+    if (pdf_compare_reference(duplicate, resource_ref)) {
+      WARN("Possibly two different resource using the same name... (page: %d, category: %s, name: %s).",
+           pdf_doc_current_page_number(), category, resource_name);
+      WARN("Ignoring...");
+    }
+    pdf_release_obj(resource_ref); /* Discard */
   } else {
     pdf_add_dict(resources, pdf_new_name(resource_name), resource_ref);
   }
@@ -1264,7 +1259,7 @@ pdf_doc_init_bookmarks (pdf_doc *p, int bm_open_depth)
   pdf_olitem *item;
 
 #define MAX_OUTLINE_DEPTH 256u
-  p->opt.outline_open_depth =
+  p->options.outline_open_depth =
     ((bm_open_depth >= 0) ?
      bm_open_depth : MAX_OUTLINE_DEPTH - bm_open_depth);
 
@@ -1477,7 +1472,7 @@ pdf_doc_bookmarks_add (pdf_obj *dict, int is_open)
     item = item->next;
   }
 
-#define BMOPEN(b,p) (((b) < 0) ? (((p)->outlines.current_depth > (p)->opt.outline_open_depth) ? 0 : 1) : (b))
+#define BMOPEN(b,p) (((b) < 0) ? (((p)->outlines.current_depth > (p)->options.outline_open_depth) ? 0 : 1) : (b))
 
 #if 0
   item->dict    = pdf_link_obj(dict);
@@ -1790,8 +1785,6 @@ pdf_doc_add_annot (unsigned page_no, const pdf_rect *rect,
   pdf_doc  *p = &pdoc;
   pdf_page *page;
   pdf_obj  *rect_array;
-  double    xpos, ypos;
-  pdf_rect  annbox;
 
   page = doc_get_page_entry(p, page_no);
   if (!page->annots)
@@ -1801,30 +1794,26 @@ pdf_doc_add_annot (unsigned page_no, const pdf_rect *rect,
     pdf_rect  mediabox;
 
     pdf_doc_get_mediabox(page_no, &mediabox);
-    pdf_dev_get_coord(&xpos, &ypos);
-    annbox.llx = rect->llx - xpos; annbox.lly = rect->lly - ypos;
-    annbox.urx = rect->urx - xpos; annbox.ury = rect->ury - ypos;
-
-    if (annbox.llx < mediabox.llx || annbox.urx > mediabox.urx ||
-        annbox.lly < mediabox.lly || annbox.ury > mediabox.ury) {
+    if (rect->llx < mediabox.llx || rect->urx > mediabox.urx ||
+        rect->lly < mediabox.lly || rect->ury > mediabox.ury) {
       WARN("Annotation out of page boundary.");
       WARN("Current page's MediaBox: [%g %g %g %g]",
            mediabox.llx, mediabox.lly, mediabox.urx, mediabox.ury);
       WARN("Annotation: [%g %g %g %g]",
-           annbox.llx, annbox.lly, annbox.urx, annbox.ury);
+           rect->llx, rect->lly, rect->urx, rect->ury);
       WARN("Maybe incorrect paper size specified.");
     }
-    if (annbox.llx > annbox.urx || annbox.lly > annbox.ury) {
+    if (rect->llx > rect->urx || rect->lly > rect->ury) {
       WARN("Rectangle with negative width/height: [%g %g %g %g]",
-           annbox.llx, annbox.lly, annbox.urx, annbox.ury);
+           rect->llx, rect->lly, rect->urx, rect->ury);
     }
   }
 
   rect_array = pdf_new_array();
-  pdf_add_array(rect_array, pdf_new_number(ROUND(annbox.llx, 0.001)));
-  pdf_add_array(rect_array, pdf_new_number(ROUND(annbox.lly, 0.001)));
-  pdf_add_array(rect_array, pdf_new_number(ROUND(annbox.urx, 0.001)));
-  pdf_add_array(rect_array, pdf_new_number(ROUND(annbox.ury, 0.001)));
+  pdf_add_array(rect_array, pdf_new_number(ROUND(rect->llx, 0.001)));
+  pdf_add_array(rect_array, pdf_new_number(ROUND(rect->lly, 0.001)));
+  pdf_add_array(rect_array, pdf_new_number(ROUND(rect->urx, 0.001)));
+  pdf_add_array(rect_array, pdf_new_number(ROUND(rect->ury, 0.001)));
   pdf_add_dict (annot_dict, pdf_new_name("Rect"), rect_array);
 
   pdf_add_array(page->annots, pdf_ref_obj(annot_dict));
@@ -2388,13 +2377,13 @@ pdf_doc_finish_page (pdf_doc *p)
     currentpage->resources = NULL;
   }
 
-  if (manual_thumb_enabled) {
+  if (p->options.enable_manual_thumb) {
     char    *thumb_filename;
     pdf_obj *thumb_ref;
 
-    thumb_filename = NEW(strlen(thumb_basename)+7, char);
+    thumb_filename = NEW(strlen(p->thumb_basename)+7, char);
     sprintf(thumb_filename, "%s.%ld",
-            thumb_basename, (p->pages.num_entries % 99999) + 1L);
+            p->thumb_basename, (p->pages.num_entries % 99999) + 1L);
     thumb_ref = read_thumbnail(thumb_filename);
     RELEASE(thumb_filename);
     if (thumb_ref)
@@ -2406,14 +2395,14 @@ pdf_doc_finish_page (pdf_doc *p)
   return;
 }
 
-static pdf_color bgcolor = { 1, NULL, { 1.0 } };
+static pdf_color bgcolor = { -1, PDF_COLORSPACE_TYPE_GRAY, 1, NULL, { 1.0 }, -1};
 
 void
 pdf_doc_set_bgcolor (const pdf_color *color)
 {
-  if (color)
+  if (color) {
     pdf_color_copycolor(&bgcolor, color);
-  else { /* as clear... */
+  } else { /* as clear... */
     pdf_color_white(&bgcolor);
   }
 }
@@ -2501,22 +2490,29 @@ pdf_doc_add_page_content (const char *buffer, unsigned length)
 
 void
 pdf_open_document (const char *filename,
-                   const char *creator, const unsigned char *id1, const unsigned char *id2,
+                   const char *creator,
+                   const unsigned char *id1, const unsigned char *id2,
                    struct pdf_setting settings)
 {
   pdf_doc *p = &pdoc;
 
-  if (settings.enable_encrypt)
-    pdf_init_encryption(settings.encrypt, id1);
-
-  pdf_out_init(filename, settings.enable_encrypt,
+  pdf_out_init(filename, id1, id2,
+               settings.ver_major, settings.ver_minor, settings.object.compression_level,
+               settings.enable_encrypt,
                settings.object.enable_objstm, settings.object.enable_predictor);
   pdf_files_init();
 
   pdf_doc_init_catalog(p);
 
-  p->opt.annot_grow = settings.annot_grow_amount;
-  p->opt.outline_open_depth = settings.outline_open_depth;
+  /* After Catalog is created... */
+  if (settings.enable_encrypt) {
+    pdf_out_set_encrypt(settings.encrypt.key_size, settings.encrypt.permission,
+                        settings.encrypt.oplain, settings.encrypt.uplain,
+                        1, 1);
+  }
+
+  p->options.annot_grow = settings.annot_grow_amount;
+  p->options.outline_open_depth = settings.outline_open_depth;
 
   pdf_init_resources();
   pdf_init_colors();
@@ -2538,30 +2534,18 @@ pdf_open_document (const char *filename,
 
   pdf_doc_set_bgcolor(NULL);
 
-  if (settings.enable_encrypt) {
-    pdf_obj *encrypt = pdf_encrypt_obj();
-    pdf_set_encrypt(encrypt);
-    pdf_release_obj(encrypt);
-  }
-  if (id1 && id2) {
-    pdf_obj *id_obj = pdf_new_array();
-
-    pdf_add_array(id_obj, pdf_new_string(id1, 16));
-    pdf_add_array(id_obj, pdf_new_string(id2, 16));
-    pdf_set_id(id_obj);
-  }
-
+  p->options.enable_manual_thumb = settings.enable_manual_thumb;
   /* Create a default name for thumbnail image files */
-  if (manual_thumb_enabled) {
+  if (p->options.enable_manual_thumb) {
     if (strlen(filename) > 4 &&
         !strncmp(".pdf", filename + strlen(filename) - 4, 4)) {
       size_t len = strlen(filename) - strlen(".pdf");
-      thumb_basename = NEW(len+1, char);
-      strncpy(thumb_basename, filename, len);
-      thumb_basename[len] = 0;
+      p->thumb_basename = NEW(len+1, char);
+      strncpy(p->thumb_basename, filename, len);
+      p->thumb_basename[len] = 0;
     } else {
-      thumb_basename = NEW(strlen(filename)+1, char);
-      strcpy(thumb_basename, filename);
+      p->thumb_basename = NEW(strlen(filename)+1, char);
+      strcpy(p->thumb_basename, filename);
     }
   }
 
@@ -2570,6 +2554,9 @@ pdf_open_document (const char *filename,
   pdf_init_device(settings.device.dvi2pts, settings.device.precision,
                   settings.device.ignore_colors);
 
+
+  global_names = pdf_new_name_tree();
+
   return;
 }
 
@@ -2577,6 +2564,8 @@ void
 pdf_close_document (void)
 {
   pdf_doc *p = &pdoc;
+
+  pdf_delete_name_tree(&global_names);
 
   pdf_close_device();
 
@@ -2600,8 +2589,8 @@ pdf_close_document (void)
   pdf_files_close();
   pdf_out_flush();
 
-  if (thumb_basename)
-    RELEASE(thumb_basename);
+  if (p->thumb_basename)
+    RELEASE(p->thumb_basename);
 
   return;
 }
@@ -2713,10 +2702,12 @@ pdf_doc_begin_grabbing (const char *ident,
   info.bbox.urx = cropbox->urx;
   info.bbox.ury = cropbox->ury;
 
-  /* Use reference since content itself isn't available yet. */
+  /* Use reference since content itself isn't available yet.
+   * - 2020/07/21 Changed... "forward reference" support requires object itself.
+   */
   xobj_id = pdf_ximage_defineresource(ident,
                                       PDF_XOBJECT_TYPE_FORM,
-                                      &info, pdf_ref_obj(form->contents));
+                                      &info, pdf_link_obj(form->contents));
 
   p->pending_forms = fnode;
 
@@ -2726,6 +2717,7 @@ pdf_doc_begin_grabbing (const char *ident,
    */
   pdf_dev_reset_fonts(1);
   pdf_dev_reset_color(1);  /* force color operators to be added to stream */
+  pdf_dev_reset_xgstate(1);
 
   return xobj_id;
 }
@@ -2772,6 +2764,7 @@ pdf_doc_end_grabbing (pdf_obj *attrib)
 
   pdf_dev_reset_fonts(1);
   pdf_dev_reset_color(0);
+  pdf_dev_reset_xgstate(0);
 
   RELEASE(fnode);
 
@@ -2806,6 +2799,8 @@ void
 pdf_doc_end_annot (void)
 {
   pdf_doc_break_annot();
+  if (breaking_state.annot_dict)
+    pdf_release_obj(breaking_state.annot_dict);
   breaking_state.annot_dict = NULL;
 }
 
@@ -2813,15 +2808,17 @@ void
 pdf_doc_break_annot (void)
 {
   pdf_doc *p = &pdoc;
-  double   g = p->opt.annot_grow;
+  double   g = p->options.annot_grow;
 
   if (breaking_state.dirty) {
-    pdf_obj  *annot_dict;
+    pdf_obj  *annot_dict, *annot_copy;
     pdf_rect  rect;
 
     /* Copy dict */
-    annot_dict = pdf_new_dict();
-    pdf_merge_dict(annot_dict, breaking_state.annot_dict);
+    annot_dict = breaking_state.annot_dict;
+    annot_copy = pdf_new_dict();
+    pdf_merge_dict(annot_copy, breaking_state.annot_dict);
+    breaking_state.annot_dict = annot_copy;
     rect = breaking_state.rect;
     rect.llx -= g;
     rect.lly -= g;

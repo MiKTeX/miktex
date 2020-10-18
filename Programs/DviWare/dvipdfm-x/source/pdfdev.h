@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -26,6 +26,8 @@
 #include "numbers.h"
 #include "pdfobj.h"
 #include "pdfcolor.h"
+
+typedef struct pdf_dev pdf_dev;
 
 typedef int spt_t;
 
@@ -89,39 +91,6 @@ extern void   pdf_close_device  (void);
 /* returns 1.0/unit_conv */
 extern double dev_unit_dviunit  (void);
 
-#if 0
-/* DVI interpreter knows text positioning in relative motion.
- * However, pdf_dev_set_string() recieves text string with placement
- * in absolute position in user space, and it convert absolute
- * positioning back to relative positioning. It is quite wasteful.
- *
- * TeX using DVI register stack operation to do CR and then use down
- * command for LF. DVI interpreter knows hint for current leading
- * and others (raised or lowered), but they are mostly lost in
- * pdf_dev_set_string().
- */
-
-typedef struct
-{
-  int      argc;
-
-  struct {
-    int    is_kern; /* kern or string */
-
-    spt_t  kern;    /* negative kern means space */
-
-    int    offset;  /* offset to sbuf   */
-    int    length;  /* length of string */
-  } args[];
-
-  unsigned char sbuf[PDF_STRING_LEN_MAX];
-
-} pdf_text_string;
-
-/* Something for handling raise, leading, etc. here. */
-
-#endif
-
 /* Draw texts and rules:
  *
  * xpos, ypos, width, and height are all fixed-point numbers
@@ -134,15 +103,12 @@ typedef struct
  *   2 - input string is in 16-bit encoding.
  */
 extern void   pdf_dev_set_string (spt_t xpos, spt_t ypos,
-				  const void *instr_ptr, int instr_len,
-				  spt_t text_width,
-				  int   font_id, int ctype);
-extern void   pdf_dev_set_rule   (spt_t xpos, spt_t ypos,
-				  spt_t width, spt_t height);
+                                  const void *instr_ptr, int instr_len,
+                                  spt_t text_width, int font_id);
+extern void   pdf_dev_set_rule   (spt_t xpos, spt_t ypos, spt_t width, spt_t height);
 
-/* Place XObject */
-extern int    pdf_dev_put_image  (int xobj_id,
-				  transform_info *p, double ref_x, double ref_y);
+/* Place XObject: rect returned */
+extern int    pdf_dev_put_image  (int xobj_id, transform_info *p, double ref_x, double ref_y, pdf_rect *rect);
 
 /* The design_size and ptsize required by PK font support...
  */
@@ -151,18 +117,9 @@ extern int    pdf_dev_locate_font (const char *font_name, spt_t ptsize);
 /* The following two routines are NOT WORKING.
  * Dvipdfmx doesn't manage gstate well..
  */
-#if 0
-/* pdf_dev_translate() or pdf_dev_concat() should be used. */
-extern void   pdf_dev_set_origin (double orig_x, double orig_y);
-#endif
-/* Always returns 1.0, please rename this. */
-extern double pdf_dev_scale      (void);
+#define pdf_dev_scale() (1.0)
 
 /* Access text state parameters. */
-#if 0
-extern int    pdf_dev_currentfont     (void); /* returns font_id */
-extern double pdf_dev_get_font_ptsize (int font_id);
-#endif
 extern int    pdf_dev_get_font_wmode  (int font_id); /* ps: special support want this (pTeX). */
 
 /* Text composition (direction) mode
@@ -214,11 +171,8 @@ extern void   pdf_dev_eop (void);
  */
 extern void   graphics_mode (void);
 
-extern void   pdf_dev_get_coord(double *xpos, double *ypos);
-extern void   pdf_dev_push_coord(double xpos, double ypos);
-extern void   pdf_dev_pop_coord(void);
-
 extern void   pdf_dev_begin_actualtext (uint16_t *unicodes, int len);
-extern void   pdf_dev_end_actualtext (void);
+extern void   pdf_dev_end_actualtext   (void);
 
+extern int    pdf_dev_font_minbytes    (int font_id);
 #endif /* _PDFDEV_H_ */

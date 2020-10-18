@@ -1,7 +1,7 @@
 /*  This is xdvipdfmx, an extended version of dvipdfmx,
     an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2013-2019 by the dvipdfmx project team.
+    Copyright (C) 2013-2020 by the dvipdfmx project team.
 
     Copyright (c) 2006 SIL International
     Originally written by Jonathan Kew
@@ -60,7 +60,7 @@
 
 
 int
-spc_handler_xtx_do_transform (double x_user, double y_user, double a, double b, double c, double d, double e, double f)
+spc_handler_xtx_do_transform (struct spc_env *spe, double x_user, double y_user, double a, double b, double c, double d, double e, double f)
 {
   pdf_tmatrix     M = { 0, 0, 0, 0, 0, 0 };
   pdf_coord       pt;
@@ -74,8 +74,8 @@ spc_handler_xtx_do_transform (double x_user, double y_user, double a, double b, 
   M.f = ((1.0 - M.d) * y_user - M.b * x_user) + f;
 
   pdf_dev_concat(&M);
-  pdf_dev_get_fixed_point(&pt);
-  pdf_dev_set_fixed_point(x_user - pt.x, y_user - pt.y);
+  spc_get_fixed_point(spe, &pt.x, &pt.y);
+  spc_set_fixed_point(spe, x_user - pt.x, y_user - pt.y);
 
   return  0;
 }
@@ -90,7 +90,7 @@ spc_handler_xtx_scale (struct spc_env *spe, struct spc_arg *args)
   }
   args->curptr = args->endptr;
 
-  return spc_handler_xtx_do_transform(spe->x_user, spe->y_user, values[0], 0, 0, values[1], 0, 0);
+  return spc_handler_xtx_do_transform(spe, spe->x_user, spe->y_user, values[0], 0, 0, values[1], 0, 0);
 }
 
 /* Scaling without gsave/grestore. */
@@ -114,7 +114,7 @@ spc_handler_xtx_bscale (struct spc_env *spe, struct spc_arg *args)
   scaleFactors[scaleFactorCount].y = 1 / values[1];
   args->curptr = args->endptr;
 
-  return  spc_handler_xtx_do_transform (spe->x_user, spe->y_user, values[0], 0, 0, values[1], 0, 0);
+  return  spc_handler_xtx_do_transform (spe, spe->x_user, spe->y_user, values[0], 0, 0, values[1], 0, 0);
 }
 
 static int
@@ -124,7 +124,7 @@ spc_handler_xtx_escale (struct spc_env *spe, struct spc_arg *args)
 
   args->curptr = args->endptr;
 
-  return  spc_handler_xtx_do_transform (spe->x_user, spe->y_user, factor.x, 0, 0, factor.y, 0, 0);
+  return  spc_handler_xtx_do_transform (spe, spe->x_user, spe->y_user, factor.x, 0, 0, factor.y, 0, 0);
 }
 
 static int
@@ -137,16 +137,17 @@ spc_handler_xtx_rotate (struct spc_env *spe, struct spc_arg *args)
   }
   args->curptr = args->endptr;
 
-  return  spc_handler_xtx_do_transform (spe->x_user, spe->y_user,
-      cos(value * M_PI / 180), sin(value * M_PI / 180),
-      -sin(value * M_PI / 180), cos(value * M_PI / 180),
-      0, 0);
+  return  spc_handler_xtx_do_transform (spe, spe->x_user, spe->y_user,
+                                        cos(value * M_PI / 180), sin(value * M_PI / 180),
+                                        -sin(value * M_PI / 180), cos(value * M_PI / 180),
+                                        0, 0);
 }
 
 int
 spc_handler_xtx_gsave (struct spc_env *spe, struct spc_arg *args)
 {
   pdf_dev_gsave();
+  spc_dup_fixed_point(spe);
 
   return  0;
 }
@@ -155,6 +156,7 @@ int
 spc_handler_xtx_grestore (struct spc_env *spe, struct spc_arg *args)
 {
   pdf_dev_grestore();
+  spc_pop_fixed_point(spe);
 
   /*
    * Unfortunately, the following line is necessary in case
@@ -165,6 +167,7 @@ spc_handler_xtx_grestore (struct spc_env *spe, struct spc_arg *args)
    */
   pdf_dev_reset_fonts(0);
   pdf_dev_reset_color(0);
+  pdf_dev_reset_xgstate(0);
 
   return  0;
 }

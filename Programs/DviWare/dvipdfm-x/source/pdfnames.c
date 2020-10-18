@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -44,6 +44,7 @@
 
 struct obj_data
 {
+  pdf_obj *reference;
   pdf_obj *object;
   int closed;            /* 1 if object is closed */
 };
@@ -80,9 +81,13 @@ hval_free (void *hval)
 
   value = (struct obj_data *) hval;
 
+  if (value->reference) {
+    pdf_release_obj(value->reference);
+    value->reference = NULL;
+  }
   if (value->object) {
     pdf_release_obj(value->object);
-    value->object     = NULL;
+    value->object    = NULL;
   }
 
   RELEASE(value);
@@ -114,11 +119,10 @@ check_objects_defined (struct ht_table *ht_tab)
 
       key   = ht_iter_getkey(&iter, &keylen);
       value = ht_iter_getval(&iter);
-      ASSERT(value->object);
       if (PDF_OBJ_UNDEFINED(value->object)) {
-	pdf_names_add_object(ht_tab, key, keylen, pdf_new_null());
-	WARN("Object @%s used, but not defined. Replaced by null.",
-	     printable_key(key, keylen));
+        pdf_names_add_object(ht_tab, key, keylen, pdf_new_null());
+        WARN("Object @%s used, but not defined. Replaced by null.",
+        printable_key(key, keylen));
       }
     } while (ht_iter_next(&iter) >= 0);
     ht_clear_iter(&iter);
@@ -138,8 +142,7 @@ pdf_delete_name_tree (struct ht_table **names)
 }
 
 int
-pdf_names_add_object (struct ht_table *names,
-		      const void *key, int keylen, pdf_obj *object)
+pdf_names_add_object (struct ht_table *names, const void *key, int keylen, pdf_obj *object)
 {
   struct obj_data *value;
 
@@ -154,11 +157,11 @@ pdf_names_add_object (struct ht_table *names,
   if (!value) {
     value = NEW(1, struct obj_data);
     value->object     = object;
+    value->reference  = NULL;
     value->closed     = 0;
     ht_append_table(names, key, keylen, value);
   } else {
-    ASSERT(value->object);
-    if (PDF_OBJ_UNDEFINED(value->object)) {
+    if (value->object && PDF_OBJ_UNDEFINED(value->object)) {
       pdf_transfer_label(object, value->object);
       pdf_release_obj(value->object);
       value->object = object;
@@ -172,38 +175,76 @@ pdf_names_add_object (struct ht_table *names,
   return 0;
 }
 
+pdf_obj *
+pdf_names_reserve (struct ht_table *names, const void *key, int keylen)
+{
+  pdf_obj         *obj_ref = NULL;
+  struct obj_data *value;
+
+  ASSERT(names);
+
+  if (!key || keylen < 1) {
+    WARN("Null string used for name tree key.");
+    return NULL;
+  }
+
+  value = ht_lookup_table(names, key, keylen);
+  if (!value) {
+    value = NEW(1, struct obj_data);
+    value->object     = pdf_new_undefined();
+    value->reference  = NULL;
+    value->closed     = 0;
+    ht_append_table(names, key, keylen, value);
+    obj_ref = pdf_ref_obj(value->object);
+  } else {
+    if (value->object && PDF_OBJ_UNDEFINED(value->object)) {
+      if (!value->reference)
+        value->reference = pdf_ref_obj(value->object);
+      obj_ref = pdf_link_obj(value->reference);
+    } else {
+      WARN("Object @%s already defined.", printable_key(key, keylen));
+      obj_ref = NULL;
+    }
+  }
+
+  return obj_ref;
+}
+
 /*
  * The following routine returns copies, not the original object.
  */
 pdf_obj *
-pdf_names_lookup_reference (struct ht_table *names,
-			    const void *key, int keylen)
+pdf_names_lookup_reference (struct ht_table *names, const void *key, int keylen)
 {
   struct obj_data *value;
-  pdf_obj *object;
+  pdf_obj         *obj_ref;
 
   ASSERT(names);
 
   value = ht_lookup_table(names, key, keylen);
 
   if (value) {
-    object = value->object;
-    ASSERT(object);
+    if (!value->reference) {
+      if (value->object) {
+        value->reference = pdf_ref_obj(value->object);
+      } else {
+        WARN("Can't create object ref for already released object: %s", printable_key(key, keylen));
+      }
+    }
+    obj_ref = pdf_link_obj(value->reference);
   } else {
     /* A null object as dummy would create problems because as value
      * of a dictionary entry, a null object is be equivalent to no entry
      * at all. This matters for optimization of PDF destinations.
      */
-    object = pdf_new_undefined();
-    pdf_names_add_object(names, key, keylen, object);
+    obj_ref = pdf_names_reserve(names, key, keylen);
   }
 
-  return pdf_ref_obj(object);
+  return obj_ref;
 }
 
 pdf_obj *
-pdf_names_lookup_object (struct ht_table *names,
-			 const void *key, int keylen)
+pdf_names_lookup_object (struct ht_table *names, const void *key, int keylen)
 {
   struct obj_data *value;
 
@@ -212,14 +253,14 @@ pdf_names_lookup_object (struct ht_table *names,
   value = ht_lookup_table(names, key, keylen);
   if (!value || PDF_OBJ_UNDEFINED(value->object))
     return NULL;
-  ASSERT(value->object);
+  if (value->closed)
+    WARN("Object \"%s\" already closed.", printable_key(key, keylen));
 
   return value->object;
 }
 
 int
-pdf_names_close_object (struct ht_table *names,
-			const void *key, int keylen)
+pdf_names_close_object (struct ht_table *names, const void *key, int keylen)
 {
   struct obj_data *value;
 
@@ -237,6 +278,10 @@ pdf_names_close_object (struct ht_table *names,
     return -1;
   }
 
+  if (value->reference) {
+    pdf_release_obj(value->object);
+    value->object = NULL;
+  }
   value->closed = 1;
 
   return 0;

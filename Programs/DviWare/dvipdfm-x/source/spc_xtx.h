@@ -1,7 +1,7 @@
 /*  This is xdvipdfmx, an extended version of dvipdfmx,
     an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2013-2016 by the dvipdfmx project team.
+    Copyright (C) 2013-2020 by the dvipdfmx project team.
 
     Copyright (c) 2006 SIL International
     Originally written by Jonathan Kew
@@ -34,7 +34,7 @@
 extern int  spc_xtx_check_special (const char *buffer, int size);
 extern int  spc_xtx_setup_handler (struct spc_handler *handle,
 				    struct spc_env *spe, struct spc_arg *args);
-extern int spc_handler_xtx_do_transform (double x_user, double y_user, double a, double b, double c, double d, double e, double f);
+extern int spc_handler_xtx_do_transform (struct spc_env *spe, double x_user, double y_user, double a, double b, double c, double d, double e, double f);
 extern int spc_handler_xtx_gsave (struct spc_env *spe, struct spc_arg *args);
 extern int spc_handler_xtx_grestore (struct spc_env *spe, struct spc_arg *args);
 

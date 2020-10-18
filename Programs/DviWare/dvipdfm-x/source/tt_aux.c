@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@
 #include "tt_post.h"
 #include "tt_aux.h"
 
-ULONG ttc_read_offset (sfnt *sfont, int ttc_idx)
+ULONG ttc_read_offset (sfnt *sfont, ULONG ttc_idx)
 {
   ULONG offset = 0, num_dirs = 0;
   
@@ -49,7 +49,7 @@ ULONG ttc_read_offset (sfnt *sfont, int ttc_idx)
 
   /* version = */ sfnt_get_ulong(sfont);
   num_dirs = sfnt_get_ulong(sfont);
-  if (ttc_idx < 0 || ttc_idx > num_dirs - 1)
+  if (ttc_idx > num_dirs - 1)
     ERROR("Invalid TTC index number");
 
   sfnt_seek_set (sfont, 12 + ttc_idx * 4);

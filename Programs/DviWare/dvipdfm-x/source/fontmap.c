@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -401,11 +401,7 @@ fontmap_parse_mapdef_dpm (fontmap_rec *mrec,
         WARN("Missing TTC index number...");
         return  -1;
       }
-      mrec->opt.index = atoi(q);
-      if (mrec->opt.index < 0) {
-        WARN("Invalid TTC index number: %s", q);
-        return  -1;
-      }
+      mrec->opt.index = strtoul(q, NULL, 10);
       RELEASE(q);
       break;
 
@@ -1222,7 +1218,7 @@ strip_options (const char *map_name, fontmap_opt *opt)
   opt->flags     = 0;
 
   if (*p == ':' && isdigit((unsigned char)*(p+1))) {
-    opt->index = (int) strtoul(p+1, &next, 10);
+    opt->index = strtoul(p+1, &next, 10);
     if (*next == ':')
       p = next + 1;
     else {

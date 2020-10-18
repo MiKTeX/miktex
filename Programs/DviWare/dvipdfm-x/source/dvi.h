@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2018 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -82,6 +82,17 @@ extern int   dvi_locate_font   (const char *name, spt_t ptsize);
  * footnote and page number in link annotation.
  */
 extern void  dvi_link_annot    (int flag);
+
+/* linkmode
+ * To capture \phantom's, DVI "right" instructions are also taken into
+ * account in calculation of annotaion rectangle.
+ * Mode 1 for catching phantoms.
+ * dvi_set_phantom_height() specifies the height of phantom box (default
+ * is the current font size).
+ */
+extern void  dvi_set_linkmode (int mode);
+extern void  dvi_set_phantom_height (double height, double depth);
+
 /* The followings are for calculating bounding box of text for annotation.
  * DVI uses push/pop to do line-feed-carriage-return. So line breaking is
  * handled by inspecting current depth of DVI register stack.
@@ -94,5 +105,7 @@ extern void  dvi_do_special    (const void *buffer, int32_t size);
 
 /* allow other modules (pdfdev) to ask whether we're collecting box areas */
 extern int dvi_is_tracking_boxes(void);
+
+extern void  dvi_set_compensation (double x, double y);
 
 #endif /* _DVI_H_ */

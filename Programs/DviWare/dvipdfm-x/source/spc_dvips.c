@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2019 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -167,7 +167,7 @@ spc_handler_ps_file (struct spc_env *spe, struct spc_arg *args)
     return  -1;
   }
 
-  form_id = pdf_ximage_findresource(filename, options);
+  form_id = pdf_ximage_load_image(NULL, filename, options);
   if (form_id < 0) {
     spc_warn(spe, "Failed to read image file: %s", filename);
     RELEASE(filename);
@@ -175,7 +175,7 @@ spc_handler_ps_file (struct spc_env *spe, struct spc_arg *args)
   }
   RELEASE(filename);
 
-  pdf_dev_put_image(form_id, &ti, spe->x_user, spe->y_user);
+  spc_put_image(spe, form_id, &ti, spe->x_user, spe->y_user);
 
   return  0;
 }
@@ -201,7 +201,7 @@ spc_handler_ps_plotfile (struct spc_env *spe, struct spc_arg *args)
     return -1;
   }
 
-  form_id = pdf_ximage_findresource(filename, options);
+  form_id = pdf_ximage_load_image(NULL, filename, options);
   if (form_id < 0) {
     spc_warn(spe, "Could not open PS file: %s", filename);
     error = -1;
@@ -214,7 +214,7 @@ spc_handler_ps_plotfile (struct spc_env *spe, struct spc_arg *args)
 		      block_pending ? pending_x : spe->x_user,
 		      block_pending ? pending_y : spe->y_user);
 #endif
-    pdf_dev_put_image(form_id, &p, 0, 0);
+    spc_put_image(spe, form_id, &p, 0, 0);
   }
   RELEASE(filename);
 
@@ -224,22 +224,22 @@ spc_handler_ps_plotfile (struct spc_env *spe, struct spc_arg *args)
 static int
 spc_handler_ps_literal (struct spc_env *spe, struct spc_arg *args)
 {
-  int     error = 0;
-  int     st_depth, gs_depth;
-  double  x_user, y_user;
+  int       error = 0;
+  int       st_depth, gs_depth;
+  double    x_user, y_user;
+  pdf_coord cp;
 
-  ASSERT(spe && args && args->curptr <= args->endptr);
-
+  spc_get_current_point(spe, &cp);
   if (args->curptr + strlen(":[begin]") <= args->endptr &&
       !strncmp(args->curptr, ":[begin]", strlen(":[begin]"))) {
     block_pending++;
     position_set = 1;
 
-    x_user = pending_x = spe->x_user;
-    y_user = pending_y = spe->y_user;
+    x_user = pending_x = cp.x;
+    y_user = pending_y = cp.y;
     args->curptr += strlen(":[begin]");
   } else if (args->curptr + strlen(":[end]") <= args->endptr &&
-	     !strncmp(args->curptr, ":[end]", strlen(":[end]"))) {
+             !strncmp(args->curptr, ":[end]", strlen(":[end]"))) {
     if (block_pending <= 0) {
       spc_warn(spe, "No corresponding ::[begin] found.");
       return -1;
@@ -251,15 +251,14 @@ spc_handler_ps_literal (struct spc_env *spe, struct spc_arg *args)
     x_user = pending_x;
     y_user = pending_y;
     args->curptr += strlen(":[end]");
-  } else if (args->curptr < args->endptr &&
-	     args->curptr[0] == ':') {
-    x_user = position_set ? pending_x : spe->x_user;
-    y_user = position_set ? pending_y : spe->y_user;
+  } else if (args->curptr < args->endptr && args->curptr[0] == ':') {
+    x_user = position_set ? pending_x : cp.x;
+    y_user = position_set ? pending_y : cp.y;
     args->curptr++;
   } else {
     position_set = 1;
-    x_user = pending_x = spe->x_user;
-    y_user = pending_y = spe->y_user;
+    x_user = pending_x = cp.x;
+    y_user = pending_y = cp.y;
   }
 
   skip_white(&args->curptr, args->endptr);
@@ -268,9 +267,7 @@ spc_handler_ps_literal (struct spc_env *spe, struct spc_arg *args)
     st_depth = mps_stack_depth();
     gs_depth = pdf_dev_current_depth();
 
-    error = mps_exec_inline(&args->curptr,
-			    args->endptr,
-			    x_user, y_user);
+    error = mps_exec_inline(&args->curptr, args->endptr, x_user, y_user);
     if (error) {
       spc_warn(spe, "Interpreting PS code failed!!! Output might be broken!!!");
       pdf_dev_grestore_to(gs_depth);
@@ -316,7 +313,7 @@ spc_handler_ps_tricks_pdef (struct spc_env *spe, struct spc_arg *args)
   pdf_coord pt;
 
   pdf_dev_currentmatrix(&M);
-  pdf_dev_get_fixed_point(&pt);
+  spc_get_fixed_point(spe, &pt.x, &pt.y);
   T.e = pt.x;
   T.f = pt.y;
   pdf_concatmatrix(&M, &T);
@@ -459,10 +456,10 @@ spc_handler_ps_tricks_brotate (struct spc_env *spe, struct spc_arg *args)
     return -1;
   RAngles[RAngleCount] = value;
 
-  return  spc_handler_xtx_do_transform (spe->x_user, spe->y_user,
-      cos(value * M_PI / 180), sin(value * M_PI / 180),
-      -sin(value * M_PI / 180), cos(value * M_PI / 180),
-      0, 0);
+  return  spc_handler_xtx_do_transform (spe, spe->x_user, spe->y_user,
+                                        cos(value * M_PI / 180), sin(value * M_PI / 180),
+                                        -sin(value * M_PI / 180), cos(value * M_PI / 180),
+                                        0, 0);
 }
 
 static int
@@ -470,10 +467,10 @@ spc_handler_ps_tricks_erotate (struct spc_env *spe, struct spc_arg *args)
 {
   double value = RAngles[RAngleCount--];
 
-  return  spc_handler_xtx_do_transform (spe->x_user, spe->y_user,
-      cos(value * M_PI / 180), -sin(value * M_PI / 180),
-      sin(value * M_PI / 180), cos(value * M_PI / 180),
-      0, 0);
+  return  spc_handler_xtx_do_transform (spe, spe->x_user, spe->y_user,
+                                        cos(value * M_PI / 180), -sin(value * M_PI / 180),
+                                        sin(value * M_PI / 180), cos(value * M_PI / 180),
+                                        0, 0);
 }
 
 static int
@@ -498,7 +495,7 @@ spc_handler_ps_tricks_transform (struct spc_env *spe, struct spc_arg *args)
       return -1;
     if (spc_handler_xtx_gsave (0, 0) != 0)
       return -1;
-    return spc_handler_xtx_do_transform (spe->x_user, spe->y_user, d1, d2, d3, d4, d5, d6);
+    return spc_handler_xtx_do_transform (spe, spe->x_user, spe->y_user, d1, d2, d3, d4, d5, d6);
   }
   return  spc_handler_xtx_grestore (0, 0);
 }
@@ -712,7 +709,7 @@ spc_handler_ps_tricks_render (struct spc_env *spe, struct spc_arg *args)
       return error;
     }
 
-    form_id = pdf_ximage_findresource(gs_out, options);
+    form_id = pdf_ximage_load_image(NULL, gs_out, options);
     if (form_id < 0) {
       spc_warn(spe, "Failed to read converted PSTricks image file.");
       RELEASE(gs_in);
@@ -720,7 +717,7 @@ spc_handler_ps_tricks_render (struct spc_env *spe, struct spc_arg *args)
       RELEASE(gs_out);
       return  -1;
     }
-    pdf_dev_put_image(form_id, &p, 0, 0);
+    spc_put_image(spe, form_id, &p, 0, 0);
 
     dpx_delete_temp_file(gs_out, true);
     dpx_delete_temp_file(gs_in, true);
@@ -846,12 +843,13 @@ spc_handler_ps_default (struct spc_env *spe, struct spc_arg *args)
 
   {
     pdf_tmatrix M;
-    M.a = M.d = 1.0; M.b = M.c = 0.0; M.e = spe->x_user; M.f = spe->y_user;
+    pdf_coord   cp;
+
+    spc_get_current_point(spe, &cp);
+    M.a = M.d = 1.0; M.b = M.c = 0.0; M.e = cp.x; M.f = cp.y;
     pdf_dev_concat(&M);
-  error = mps_exec_inline(&args->curptr,
-			  args->endptr,
-			  spe->x_user, spe->y_user);
-    M.e = -spe->x_user; M.f = -spe->y_user;
+    error = mps_exec_inline(&args->curptr, args->endptr, cp.x, cp.y);
+    M.e = -cp.x; M.f = -cp.y;
     pdf_dev_concat(&M);
   }
   if (error)
@@ -1022,11 +1020,11 @@ spc_dvips_setup_handler (struct spc_handler *handle,
 }
 
 #ifdef __EMX__
-#define GS_CALCULATOR "gsos2 -q -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "gsos2 -q -dALLOWPSTRANSPARENCY -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #elif defined(WIN32)
-#define GS_CALCULATOR "rungs -q -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "rungs -q -dALLOWPSTRANSPARENCY -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #else
-#define GS_CALCULATOR "gs -q -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "gs -q -dALLOWPSTRANSPARENCY -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #endif
 
 static

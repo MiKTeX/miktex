@@ -77,7 +77,6 @@ set(dvipdfm_x_sources
   source/cid.c
   source/cid.h
   source/cid_basefont.h
-  source/cid_p.h
   source/cidtype0.c
   source/cidtype0.h
   source/cidtype2.c

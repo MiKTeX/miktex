@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -25,7 +25,7 @@
 
 #include   "pdffont.h"
 
-extern int  pdf_font_open_pkfont (pdf_font *font);
+extern int  pdf_font_open_pkfont (pdf_font *font, const char *ident, int index, int encoding_id, int embedding, double point_size);
 extern int  pdf_font_load_pkfont (pdf_font *font);
 
 extern void PKFont_set_dpi(int dpi);

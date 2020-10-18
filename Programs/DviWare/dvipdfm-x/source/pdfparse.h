@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -48,6 +48,15 @@ extern pdf_obj *parse_pdf_dict    (const char **pp, const char *endptr, pdf_file
 extern pdf_obj *parse_pdf_array   (const char **pp, const char *endptr, pdf_file *pf);
 extern pdf_obj *parse_pdf_object  (const char **pp, const char *endptr, pdf_file *pf);
 
-extern pdf_obj *parse_pdf_tainted_dict (const char **pp, const char *endptr);
+extern pdf_obj *parse_pdf_object_extended (const char **pp, const char *endptr, pdf_file *pf,
+                                           pdf_obj* (*unknown_handler) (const char **pp,
+                                                                        const char *endptr,
+                                                                        void *user_data),
+                                           void *user_data);
+extern pdf_obj *parse_pdf_tainted_dict (const char **pp, const char *endptr,
+                                        pdf_obj* (*unknown_handler) (const char **pp,
+                                                                     const char *endptr,
+                                                                     void *user_data),
+                                        void *user_data);
 
 #endif /* _PDFPARSE_H_ */
