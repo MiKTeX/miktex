@@ -530,15 +530,11 @@ ProcessExitStatus unxProcess::get_ExitStatus() const
   }
   else if (WIFSIGNALED(status) != 0)
   {
-    ProcessExitStatus::Signaled;
+    return ProcessExitStatus::Signaled;
   }
   else if (WIFSTOPPED(status) != 0)
   {
-    ProcessExitStatus::Stopped;
-  }
-  else
-  {
-    MIKTEX_FATAL_ERROR_2(T_("Process terminated unexpectedly."), "fileName", startinfo.FileName, "exitStatus", std::to_string(status));
+    return ProcessExitStatus::Other;
   }
 }
 
@@ -548,10 +544,6 @@ int unxProcess::get_ExitCode() const
   if (WIFEXITED(status) != 0)
   {
     return WEXITSTATUS(status);
-  }
-  else if (WIFSIGNALED(status) != 0)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("Process terminated due to a signal."), "fileName", startinfo.FileName, "signal", std::to_string(WTERMSIG(status)));
   }
   else
   {

@@ -489,11 +489,7 @@ ProcessExitStatus winProcess::get_ExitStatus() const
     MIKTEX_FATAL_WINDOWS_ERROR("GetExitCodeProcess");
   }
   MIKTEX_EXPECT(exitCode != STATUS_PENDING);
-  if (exitCode == STATUS_ACCESS_VIOLATION)
-  {
-    return ProcessExitStatus::Signaled;
-  }
-  return ProcessExitStatus::Exited;
+  return exitCode < 128 ? ProcessExitStatus::Exited : ProcessExitStatus::Other;
 }
 
 int winProcess::get_ExitCode() const
@@ -504,9 +500,9 @@ int winProcess::get_ExitCode() const
     MIKTEX_FATAL_WINDOWS_ERROR("GetExitCodeProcess");
   }
   MIKTEX_EXPECT(exitCode != STATUS_PENDING);
-  if (exitCode == STATUS_ACCESS_VIOLATION)
+  if (exitCode > 127)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The process terminated due to an access violation."), "fileName", startinfo.FileName);
+    MIKTEX_FATAL_ERROR_2(T_("The child process exited abnormally."), "fileName", startinfo.FileName, "exitCode", std::to_string(exitCode));
   }
   return static_cast<int>(exitCode);
 }

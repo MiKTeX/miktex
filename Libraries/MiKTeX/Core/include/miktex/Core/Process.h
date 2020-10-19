@@ -185,7 +185,7 @@ enum class ProcessExitStatus
   None,
   Exited,
   Signaled,
-  Stopped
+  Other
 };
 
 /// Process information.

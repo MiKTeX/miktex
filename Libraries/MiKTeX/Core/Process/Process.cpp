@@ -189,9 +189,9 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
       {
         session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was killed by a signal", Q_(fileName)));
       }
-      else if (exitStatus == ProcessExitStatus::Stopped)
+      else
       {
-        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was stopped by a signal", Q_(fileName)));
+        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} exited abnormmally", Q_(fileName)));
       }
     }
     return false;
