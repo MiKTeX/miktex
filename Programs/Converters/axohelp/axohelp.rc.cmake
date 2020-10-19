@@ -1,6 +1,6 @@
 /* axohelp.rc: version number                           -*- C++ -*-
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,7 +19,7 @@
 
 #include "axohelp-version.h"
 
-#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_INTERNALNAME_STR "axohelp"
 #define VER_ORIGINALFILENAME_STR "miktex-axohelp.exe"
 

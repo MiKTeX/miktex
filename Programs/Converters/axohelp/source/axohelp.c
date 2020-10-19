@@ -1,7 +1,12 @@
 /*
+
+   Need to do:
+   1. Fix reporting of number of object to in-file number
+   2. Or Don't require object 0 for ID line
+
   	#[ License :
 
-    (C) 2016-2018 by authors:
+    (C) 2016-2019 by authors:
             John Collins (jcc8 at psu dot edu)
             Jos Vermaseren (t68 at nikhef dot nl) 
 
@@ -67,6 +72,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 
 /*
   	#] Includes : 
@@ -74,9 +80,9 @@
 */
 
 #define NAME "axohelp"
-#define VERSIONDATE "2018 Feb 20"
+#define VERSIONDATE "2019 Aug 28"
 #define VERSION 1
-#define SUBVERSION 2
+#define SUBVERSION 3
 
 #define COMMENTCHAR '%'
 #define TERMCHAR ';'
@@ -117,7 +123,10 @@ double linesep = 0;
 int flip = 0;
 int clockwise = 0;
  
-void OutputString(char *);
+void CleanupOutput(char *str);
+void send( char* str );
+void sendClean( char* str );
+
 void ArrowHead();
 void GetArrow(double *);
 void BezierArrow(double *);
@@ -336,40 +345,43 @@ double mod( double x, int n ) {
   	#[ PDF utilities :
 
     These routines are included to make the program more readable and easier
-    to write. It also allows the easy use of the OutputString routine that
+    to write. It also allows the easy use of the OutputString?? OLD name routine that
     compactifies the output.
 */
 
-#define Stroke outpos += sprintf(outpos," S")
-#define CloseAndStroke outpos += sprintf(outpos," h S")
-#define Fill outpos += sprintf(outpos," f")
-#define CloseAndFill outpos += sprintf(outpos," h f")
-#define SaveGraphicsState outpos += sprintf(outpos," q")
-#define RestoreGraphicsState outpos += sprintf(outpos," Q")
+#define Stroke send(" S")
+#define CloseAndStroke send(" h S")
+#define Fill send(" f")
+#define CloseAndFill send(" h f")
+#define SaveGraphicsState send(" q")
+#define RestoreGraphicsState send(" Q")
 
 void Bezier(double x1,double y1,double x2,double y2,double x3,double y3) {
-    outpos +=
-    sprintf(outpos,"\n %12.3f %12.3f %12.3f %12.3f %12.3f %12.3f c",x1,y1,x2,y2,x3,y3);
+    sprintf(outputbuffer,"\n %12.3f %12.3f %12.3f %12.3f %12.3f %12.3f c",x1,y1,x2,y2,x3,y3);
+    sendClean(outputbuffer);
 }
 
 void LineTo(double x1,double y1) {
-    outpos +=
-    sprintf(outpos,"\n %12.3f %12.3f l",x1,y1);
+    sprintf(outputbuffer,"\n %12.3f %12.3f l",x1,y1);
+    sendClean(outputbuffer);
 }
 
 void MoveTo(double x1,double y1) {
-    outpos +=
-    sprintf(outpos,"\n %12.3f %12.3f m",x1,y1);
+    sprintf(outputbuffer,"\n %12.3f %12.3f m",x1,y1);
+    sendClean(outputbuffer);
 }
 
 void SetLineWidth(double w) {
-    outpos +=
-    sprintf(outpos," %12.3f w",w);
+    sprintf(outputbuffer," %12.3f w",w);
+    sendClean(outputbuffer);
 }
 
 void SetDashSize(double dashsize,double phase) {
-    if ( dashsize ) outpos += sprintf(outpos," [%12.3f] %12.3f d",dashsize,phase);
-    else outpos += sprintf(outpos," [] 0 d");
+    if ( dashsize ) {
+        sprintf(outputbuffer," [%12.3f] %12.3f d",dashsize,phase);
+        sendClean(outputbuffer);
+    }
+    else send(" [] 0 d");
 }
 
 void SetTransferMatrix(double x11,double x12,double x21,double x22,double x,double y)
@@ -377,8 +389,8 @@ void SetTransferMatrix(double x11,double x12,double x21,double x22,double x,doub
     if ( ( fabs(x11-1.) > 0.001 ) || ( fabs(x22-1.) > 0.001 )
          || ( fabs(x12) > 0.001 ) || ( fabs(x21) > 0.001 )
          || ( fabs(x) > 0.001 ) || ( fabs(y) > 0.001 ) ) {
-        outpos +=
-        sprintf(outpos,"%12.3f %12.3f %12.3f %12.3f %12.3f %12.3f cm\n",x11,x12,x21,x22,x,y);
+        sprintf(outputbuffer,"%12.3f %12.3f %12.3f %12.3f %12.3f %12.3f cm\n",x11,x12,x21,x22,x,y);
+        sendClean(outputbuffer);
     }
 }
 
@@ -386,6 +398,7 @@ static double BzK;
 
 void BezierCircle(double r,char *action)
 {
+    char *outpos = outputbuffer;
     outpos +=
     sprintf(outpos," %12.3f 0 m %12.3f %12.3f %12.3f %12.3f 0 %12.3f c\n",-r,-r,r*BzK,-r*BzK,r,r);
     outpos +=
@@ -394,10 +407,12 @@ void BezierCircle(double r,char *action)
     sprintf(outpos," %12.3f %12.3f %12.3f %12.3f 0 %12.3f c\n",r,-r*BzK,r*BzK,-r,-r);
     outpos +=
     sprintf(outpos," %12.3f %12.3f %12.3f %12.3f %12.3f 0 c %s\n",-r*BzK,-r,-r,-r*BzK,-r,action);
+    sendClean(outputbuffer);
 }
 
 void BezierOval(double w, double h, char *action)
 {
+    char *outpos = outputbuffer;
     outpos +=
     sprintf(outpos," %12.3f 0 m %12.3f %12.3f %12.3f %12.3f 0 %12.3f c\n",-w,-w,h*BzK,-w*BzK,h,h);
     outpos +=
@@ -406,41 +421,45 @@ void BezierOval(double w, double h, char *action)
     sprintf(outpos," %12.3f %12.3f %12.3f %12.3f 0 %12.3f c\n",w,-h*BzK,w*BzK,-h,-h);
     outpos +=
     sprintf(outpos," %12.3f %12.3f %12.3f %12.3f %12.3f 0 c %s\n",-w*BzK,-h,-w,-h*BzK,-w,action);
+    sendClean(outputbuffer);
 }
 
 void SetGray(double grayscale,int par)
 {
     if ( par == STROKING ) {
-        outpos += sprintf(outpos," %12.3f G",grayscale);
+        sprintf(outputbuffer," %12.3f G",grayscale);
     }
     else {
-        outpos += sprintf(outpos," %12.3f g",grayscale);
+        sprintf(outputbuffer," %12.3f g",grayscale);
     }
+    sendClean(outputbuffer);
 }
 
 void SetColor(double c, double m, double y, double k,int par)
 {
     if ( par == STROKING ) {
-        outpos += sprintf(outpos," %12.3f %12.3f %12.3f %12.3f K",c,m,y,k);
+        sprintf(outputbuffer," %12.3f %12.3f %12.3f %12.3f K",c,m,y,k);
     }
     else {
-        outpos += sprintf(outpos," %12.3f %12.3f %12.3f %12.3f k",c,m,y,k);
+        sprintf(outputbuffer," %12.3f %12.3f %12.3f %12.3f k",c,m,y,k);
     }
+    sendClean(outputbuffer);
 }
 
 void SetBackgroundColor(int par)
 {
-    if ( par == STROKING ) { outpos += sprintf(outpos," 0 0 0 0 K"); }
-    else                   { outpos += sprintf(outpos," 0 0 0 0 k"); }
+    if ( par == STROKING ) { send(" 0 0 0 0 K"); }
+    else                   { send(" 0 0 0 0 k"); }
 }
 
 void Rectangle(double x,double y,double w,double h) {
-    outpos += sprintf(outpos,"\n %12.3f %12.3f %12.3f %12.3f re",x,y,w,h);
+    sprintf(outputbuffer,"\n %12.3f %12.3f %12.3f %12.3f re",x,y,w,h);
+    sendClean(outputbuffer);
 }
 
 void Triangle(double x1,double y1,double x2,double y2,double x3,double y3) {
-    outpos +=
-    sprintf(outpos,"\n %12.3f %12.3f m %12.3f %12.3f l %12.3f %12.3f l h",x1,y1,x2,y2,x3,y3);
+    sprintf(outputbuffer,"\n %12.3f %12.3f m %12.3f %12.3f l %12.3f %12.3f l h",x1,y1,x2,y2,x3,y3);
+    sendClean(outputbuffer);
 }
 
 /*
@@ -510,10 +529,10 @@ void ArrowHead()
             LineTo(-length*0.5,-arrow.width);
             if (k == 1) {
                 SetBackgroundColor(NONSTROKING);
-                outpos += sprintf(outpos," h f");
+                send(" h f");
             }
             else {
-                outpos += sprintf(outpos," s");
+                send(" s");
             }
             RestoreGraphicsState;
         }
@@ -523,7 +542,7 @@ void ArrowHead()
         LineTo(-length*0.5,arrow.width);
         LineTo(-length*0.5+length*arrow.inset,0);
         LineTo(-length*0.5,-arrow.width);
-        outpos += sprintf(outpos," h f");
+        send(" h f");
     }
     RestoreGraphicsState;
 }
@@ -935,17 +954,17 @@ char *ReadInput(char *filename)
     char *buffer;
     if ( ( finput = fopen(filename,"r") ) == 0 ) {
         fprintf(stderr,"%s: Cannot open file %s\n",axohelp,filename);
-        exit(-1);
+        exit(1);
     }
     if ( ( fseek(finput,0,SEEK_END) != 0 )
       || ( ( filesize = ftell(finput) ) < 0 )
       || ( fseek(finput,0,SEEK_SET) != 0 ) ) {
         fprintf(stderr,"%s: File error in file %s\n",axohelp,filename);
-        exit(-1);
+        exit(1);
     }
     if ( ( buffer = malloc((filesize+1)*sizeof(char)) ) == 0 ) {
         fprintf(stderr,"%s: Error allocating %ld bytes of memory",axohelp,filesize+1);
-        exit(-1);
+        exit(1);
     }
 /*
         Assume character in file is 1 byte, which is true for all cases
@@ -954,7 +973,7 @@ char *ReadInput(char *filename)
     num = fread( buffer, 1, filesize, finput );
     if ( ferror(finput) ) {
         fprintf(stderr,"%s: Error reading file %s\n",axohelp,filename);
-        exit(-1);
+        exit(1);
     }
 /*
         By definition, fread reads ALL the items specified, or it gets to
@@ -981,31 +1000,37 @@ void CleanupOutput(char *str)
     char *s, *t;
     int period = 0;
     s = t = str;
-    while ( *s && *s != '}' ) {
-        if ( *s == '\n' ) *s = ' ';
-        if ( ( *s == ' ' || *s == '\n' ) && ( s[1] == ' ' || s[1] == '\n' ) ) s++;
-        else *t++ = *s++;
+    // Collapse multiple white space (' ' and '\n') to one.  Remove trailing space.
+    while ( *s ) {
+        if ( *s == '\n' ) {*s = ' '; }
+        if ( (*s == ' ') && ( s[1] == ' ' || s[1] == '\n' || s[1] == 0 ) ) { s++;}
+        else { *t++ = *s++; }
     }
-    while ( *s ) *t++ = *s++;
     *t = 0;
+
+    // Optimize format of numbers:
     s = t = str;
     while ( *s ) {
         if ( *s == '.' ) { period = 1; *t++ = *s++; }
-        else if ( *s == '-' && s[1] == '0' && s[2] == ' ' ) { s++; }
-        else if ( *s <= '9' && *s >= '0' ) { *t++ = *s++; }
-        else if ( *s == '\n' && ( t > str && t[-1] == '\n' ) ) { s++; }
+        else if ( isdigit(*s) ) { *t++ = *s++; }
         else if ( period ) {
-            while ( t > str && t[-1] == '0' ) t--;
-            if ( t > str && t[-1] == '.' ) t--;
-            while ( *s == ' ' && s[1] == ' ' ) s++;
+          while ( t > str && t[-1] == '0' ) { t--; }
+            if ( t > str && t[-1] == '.' ) {
+                t--;
+                // Handle case that number is .000, not e.g. 9.000
+                if (t > str && ! isdigit(t[-1]) ) {
+                  *t++ = '0';
+                }
+            }
             period = 0; *t++ = *s++;
         }
-        else if ( *s == ' ' && s[1] == ' ' ) s++;
         else {
             period = 0; *t++ = *s++;
         }
     }
     *t = 0;
+
+    // Collapse '-0' to '0'
     s = t = str;
     while ( *s ) {
         if ( *s == '-' && s[1] == '0' && s[2] == ' ' ) { s++; }
@@ -1015,65 +1040,87 @@ void CleanupOutput(char *str)
 }
 
 /*
-  	#] CleanupOutput : 
+  	#] CleanupOutput :
+  	#[ send :
+*/
+
+void send( char* str ) {
+    fprintf(outfile, "%s",str);
+}
+
+/*
+  	#] CleanupOutput :
+  	#[ sendClean :
+*/
+
+void sendClean( char* str ) {
+    CleanupOutput(str);
+    send(str);
+}
+
+/*
+  	#] sendClean :
   	#[ DoOneObject :
 */
 
 int DoOneObject(char *cinput)
 {
-    int num, i, num1, num2;
-    char *s, *t, *StartClean;
+    // Single point for exit, to ensure proper clean up.
+    int num, i, num1, num2, retcode;
+    char *s, *t;
     double *argbuf = 0;
+    retcode = -1;
     SetDefaults();
+
+    // Locate number of object:
     s = cinput; while ( *s != '[' ) s++;
     s++; t = s; while ( *t != ']' ) t++;
     *t++ = 0; while ( *t == ' ' || *t == '\t' || *t == '\n' ) t++;
+
+    fprintf(outfile,"\\axo@setObject{%s}%%\n{%s%c}%%\n{",s,t,TERMCHAR);
     outpos = outputbuffer;
-    outpos += sprintf(outpos,"\\axo@setObject{%s}%%\n{%s%c}%%\n{",s,t,TERMCHAR);
-    if ( *s == '0' && s[1] == ']' ) {
-/*
-        The identification line.
-        In due time we might add more options here.
-*/
-        if ( strcmp(nameobject,"AxodrawWantsPDF") == 0 ) {
-            identification = 1;
-            outpos += sprintf(outpos,"Axohelp version %d.%d. PDF output.}",VERSION,SUBVERSION);
-            fprintf(outfile,"%s",outputbuffer);
-            return(0);
-        }
-        else {
-            fprintf(stderr,"%s: Illegal request in identification string [0]: %s\n"
-                        ,axohelp,nameobject);
-            if ( argbuf ) free(argbuf);
-            return(-1); 
-        }
-    }
-/*
-    if ( identification == 0 ) {
-        fprintf(stderr,"%s: No identification string. Check versions.\n",axohelp);
-        if ( argbuf ) free(argbuf);
-        return(-1); 
-    }
-*/
-    StartClean = outpos;
 
     nameobject = t; while ( *t != ' ' && *t != '\t' && *t != '\n' && *t ) t++;
     *t++ = 0; while ( *t == ' ' || *t == '\t' || *t == '\n' ) t++;
 /*
         Now nameobject is the name of the command and t points at the first parameter.
 */
+
+    if ( *s == '0' && s[1] == 0 ) {
+/*
+        The identification line.
+        In due time we might add more options here.
+*/
+        if ( strcmp(nameobject,"AxodrawWantsPDF") == 0 ) {
+            identification = 1;
+            fprintf(outfile,"Axohelp version %d.%d. PDF output.",VERSION,SUBVERSION);
+            goto SUCCESS;
+        }
+        else {
+            fprintf(stderr,"%s: Illegal request in identification string [0]: %s\n"
+                        ,axohelp,nameobject);
+            goto EXIT; 
+        }
+    }
+/*
+    if ( identification == 0 ) {
+        fprintf(stderr,"%s: No identification string. Check versions.\n",axohelp);
+        goto EXIT; 
+    }
+*/
+
     if ( ( strcmp(nameobject,"Curve") == 0 )
       || ( strcmp(nameobject,"Polygon") == 0 )
       || ( strcmp(nameobject,"FilledPolygon") == 0 ) ) {
 /*
  		#[ Curve,Polygons :
 */
-        if ( ( argbuf = ReadArray(t,&num1,&num2) ) == 0 ) return(-1);
+        if ( ( argbuf = ReadArray(t,&num1,&num2) ) == 0 )
+             goto EXIT;
         if ( num2-1 != 0 ) {
             fprintf(stderr,"%s: Command %s should have no extra numbers in %s.\n",
                     axohelp,nameobject,inname);
-            free(argbuf);
-            return(-1);
+            goto EXIT;
         }
         else {
 /*
@@ -1094,6 +1141,7 @@ int DoOneObject(char *cinput)
                 Polygon(argbuf,num1,1);
             }
             free(argbuf);
+            argbuf = 0;
         }
 /*
  		#] Curve,Polygons : 
@@ -1103,12 +1151,12 @@ int DoOneObject(char *cinput)
 /*
  		#[ DashCurve :
 */
-        if ( ( argbuf = ReadArray(t,&num1,&num2) ) == 0 ) return(-1);
+        if ( ( argbuf = ReadArray(t,&num1,&num2) ) == 0 )
+          goto EXIT;
         if ( num2 != 2 ) {
             fprintf(stderr,"%s: Command %s does not have two numbers after the coordinates\n  in file %s.\n",
                     axohelp,nameobject,inname);
-            free(argbuf);
-            return(-1);
+            goto EXIT;
         }
         else {
 /*
@@ -1121,6 +1169,7 @@ int DoOneObject(char *cinput)
             SetLineWidth(axolinewidth);
             DashCurve(argbuf,num1);
             free(argbuf);
+            argbuf = 0;
         }
 /*
  		#] DashCurve : 
@@ -1130,7 +1179,8 @@ int DoOneObject(char *cinput)
 /*
  		#[ Regular command :
 */
-        if ( ( argbuf = ReadTail(t,&num) ) == 0 ) return(-1);
+        if ( ( argbuf = ReadTail(t,&num) ) == 0 )
+          goto EXIT;
         for ( i = 0; i < sizeof(commands)/sizeof(KEYWORD); i++ ) {
             if ( strcmp(nameobject,commands[i].name) == 0 ) {
                 if ( num == commands[i].numargs+1 ) {
@@ -1144,13 +1194,13 @@ int DoOneObject(char *cinput)
                     SetLineWidth(axolinewidth);
                     (*(commands[i].func))(argbuf);
                     free(argbuf);
+                    argbuf = 0;
                     break;
                 }
                 else {
                     fprintf(stderr,"%s: Command %s should have %d(+1) arguments in %s.\n"
                         ,axohelp,nameobject,commands[i].numargs,inname);
-                    free(argbuf);
-                    return(-1); 
+                    goto EXIT; 
                 }
             }
         }
@@ -1160,14 +1210,15 @@ int DoOneObject(char *cinput)
         if ( i >= sizeof(commands)/sizeof(KEYWORD) ) {
             fprintf(stderr,"%s: Command %s not recognized in file %s.\n",
                     axohelp,nameobject,inname);
-            free(argbuf);
-            return(-1); 
+            goto EXIT; 
         }
     }
-    outpos += sprintf(outpos,"}\n");
-    CleanupOutput(StartClean);
-    fprintf(outfile,"%s",outputbuffer);
-    return(0);
+ SUCCESS:
+    retcode = 0;
+ EXIT:
+    if (argbuf) { free(argbuf); }
+    fprintf(outfile,"}\n");
+    return(retcode);
 }
 
 /*
@@ -1226,7 +1277,7 @@ int main(int argc,char **argv)
     axohelp = *argv++;
     if ( argc <= 0 ) {
         PrintHelp(axohelp);
-	return -1;
+	return 1;
     }
     while ( (*argv)[0] == '-' ) {   /* we have options */
         s = *argv;
@@ -1253,19 +1304,19 @@ int main(int argc,char **argv)
         else {
  	    fprintf(stderr,"%s: Illegal option %s\n", axohelp, *argv);
             PrintHelpPrompt(axohelp);
-	    return -1;
+	    return 1;
         }
         argc--; argv++;
         if ( argc <= 0 ) {
             fprintf(stderr,"%s: Not enough arguments\n",axohelp);
             PrintHelpPrompt(axohelp);
-	    return -1;
+	    return 1;
         }
     }
     if ( argc != 1 ) {
         fprintf(stderr,"%s: Too many arguments\n",axohelp);
         PrintHelpPrompt(axohelp);
-        return -1;
+        return 1;
     }
 /*
     The filename is now in s. We copy it to a separate string and
@@ -1283,10 +1334,10 @@ int main(int argc,char **argv)
         strcpy( inname+length, ".ax1" );
         strcpy( outname+length, ".ax2" );
     }
-    if ( ( inbuffer = ReadInput(inname) ) == 0 ) return(-1);
+    if ( ( inbuffer = ReadInput(inname) ) == 0 ) return(1);
     if ( ( outfile = fopen(outname,"w") ) == 0 ) {
         fprintf(stderr,"%s: Cannot create file %s\n",axohelp,outname);
-        exit(-1);
+        exit(1);
     }
     num = ScanForObjects(inbuffer);
     for ( i = 0; i < num; i++ ) {
@@ -1297,7 +1348,7 @@ int main(int argc,char **argv)
     if ( error > 0 ) {
         fprintf(stderr,"%s: %d objects in %s were not translated correctly.\n",
             axohelp,error,inname);
-        return(-1);
+        return(1);
     }
     return(0);
 }
