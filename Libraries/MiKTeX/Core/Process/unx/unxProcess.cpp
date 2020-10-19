@@ -757,7 +757,7 @@ ProcessInfo unxProcess::GetProcessInfo()
         processInfo.status = ProcessStatus::Sleeping;
         break;
       case 'T':
-        processInfo.status = ProcessStatus::Stoped;
+        processInfo.status = ProcessStatus::Stopped;
         break;
       case 'Z':
         processInfo.status = ProcessStatus::Zombie;
@@ -788,7 +788,7 @@ ProcessInfo unxProcess::GetProcessInfo()
       processInfo.status = ProcessStatus::Sleeping;
       break;
     case SSTOP:
-      processInfo.status = ProcessStatus::Stoped;
+      processInfo.status = ProcessStatus::Stopped;
       break;
     case SZOMB:
       processInfo.status = ProcessStatus::Zombie;
@@ -817,7 +817,7 @@ ProcessInfo unxProcess::GetProcessInfo()
           processInfo.status = ProcessStatus::Sleeping;
           break;
         case SSTOP:
-          processInfo.status = ProcessStatus::Stoped;
+          processInfo.status = ProcessStatus::Stopped;
           break;
         case SZOMB:
           processInfo.status = ProcessStatus::Zombie;

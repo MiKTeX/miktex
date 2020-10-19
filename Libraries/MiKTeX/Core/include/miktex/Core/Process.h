@@ -174,7 +174,7 @@ enum class ProcessStatus
   None,
   Runnable,
   Sleeping,
-  Stoped,
+  Stopped,
   Zombie,
   Other
 };
