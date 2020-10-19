@@ -493,14 +493,6 @@ void unxProcess::WaitForExit()
     {
       session->trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status)));
     }
-    else if (WIFSTOPPED(status) != 0)
-    {
-      session->trace_process->WriteLine("core", fmt::format("process {0} stopped due to signal {1}", pid, WSTOPSIG(status)));
-    }
-    else if (WIFCONTINUED(status) != 0)
-    {
-      session->trace_process->WriteLine("core", fmt::format("process {0} continued", pid));
-    }
   }
 }
 
@@ -546,7 +538,7 @@ ProcessExitStatus unxProcess::get_ExitStatus() const
   }
   else
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR_2(T_("Process terminated unexpectedly."), "fileName", startinfo.FileName, "exitStatus", std::to_string(status));
   }
 }
 
@@ -563,7 +555,7 @@ int unxProcess::get_ExitCode() const
   }
   else
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR_2(T_("Process terminated unexpectedly."), "fileName", startinfo.FileName, "exitStatus", std::to_string(status));
   }
 }
 
