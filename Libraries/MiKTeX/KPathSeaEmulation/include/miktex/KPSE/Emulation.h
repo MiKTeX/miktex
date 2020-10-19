@@ -561,6 +561,12 @@ inline char* concat(const char* s1, const char* s2)
 
 #define xgetcwd() miktex_xgetcwd()
 
+#define kpathsea_dir_p(kpse, fn) miktex_kpathsea_dir_p(kpse, fn)
+
+#if defined (KPSE_COMPAT_API)
+#  define dir_p(fn) kpathsea_dir_p(kpse_def, fn)
+#endif
+
 /// @}
 
 /* _________________________________________________________________________
@@ -1048,6 +1054,8 @@ MIKTEXKPSCEEAPI(char**) miktex_kpathsea_all_path_search(kpathsea kpseInstance, c
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_bitmap_tolerance(kpathsea kpseInstance, double dpi1, double dpi2);
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_brace_expand(kpathsea kpseInstance, const char* path);
+
+MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_dir_p(kpathsea kpse, string fn);
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_file(kpathsea kpseInstance, const char* fileName, kpse_file_format_type format, int mustExist);
 

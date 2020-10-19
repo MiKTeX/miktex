@@ -132,6 +132,7 @@ extern void pdftex_fail(const char *fmt, ...);
 #endif
 extern char start_time_str[];
 extern void initstarttime(void);
+extern string find_input_file(integer s);
 #if !defined(XeTeX)
 extern char *makecstring(integer s);
 extern char *makecfilename(integer s);
@@ -257,6 +258,14 @@ extern void topenin (void);
 #define aopenout(f)   open_out_or_pipe(&(f),FOPEN_W_MODE)
 #define aclose(f)     close_file_or_pipe(f)
 #endif
+
+/* define FMT_COMPRESS for engines which compress formats */
+#if defined(pTeX) || defined(epTeX) || defined(upTeX) || defined(eupTeX)
+#define FMT_COMPRESS 1
+#endif
+#if defined(eTeX) || defined(pdfTeX) || defined(XeTeX)
+#define FMT_COMPRESS 1
+#endif
 #endif
 
 #if !defined(MIKTEX)
@@ -269,7 +278,7 @@ extern void topenin (void);
 
 #define bopenout(f)	open_output (&(f), FOPEN_WBIN_MODE)
 #define bclose		aclose
-#ifdef XeTeX
+#ifdef FMT_COMPRESS
 /* f is declared as gzFile, but we temporarily use it for a FILE *
    so that we can use the standard open calls */
 #define wopenin(f)	(open_input ((FILE**)&(f), DUMP_FORMAT, FOPEN_RBIN_MODE) \
@@ -367,7 +376,7 @@ extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
   } while (0)
 
 /* We define the routines to do the actual work in texmfmp.c.  */
-#ifdef XeTeX
+#ifdef FMT_COMPRESS
 #include <zlib.h>
 extern void do_dump (char *, int, int, gzFile);
 extern void do_undump (char *, int, int, gzFile);

@@ -38,6 +38,7 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Fndb>
@@ -1096,6 +1097,11 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea kpseInstance, 
     formatInfo.suffix = ToStringList(StringUtil::Flatten(fti.fileNameExtensions, PathNameUtil::PathNameDelimiter));
   }
   return formatInfo.path;
+}
+
+MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_dir_p(kpathsea kpseInstance, ::string fn)
+{
+  return Directory::Exists(PathName(fn)) ? 1 : 0;
 }
 
 #if WITH_CONTEXT_SUPPORT
