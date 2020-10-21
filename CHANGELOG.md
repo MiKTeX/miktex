@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* asymptote 2.67
 * axohelp 1.3
 * dvipdfmx 20201014
 * dvisvgm 2.10.1
