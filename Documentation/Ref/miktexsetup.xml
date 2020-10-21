@@ -58,6 +58,24 @@ the &MiKTeXSetupWizard;. It is suitable for unattended setup tasks.
 </indexterm>
 </para>
 
+<para>The utility comes in two variants:</para>
+
+<variablelist>
+<varlistentry>
+<term>standalone</term>
+<listitem>
+<para>The standalone variant can be downloaded from the &MiKTeX; download page.
+It is only available for Windows.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>integrated</term>
+<listitem>
+<para>The integrated variant is a compoment of each &MiKTeX; installation.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
 <para>The <userinput>download</userinput> task creates a local package
 package repository which is a mirror of the remote package
 repository. It is possible to run the task on a regular basis in order
@@ -65,11 +83,11 @@ to maintain an up-to-date package repository.</para>
 
 <para>The <userinput>install</userinput> task installs &MiKTeX; from
 a local package repository.
-This task is only available in the standalone variant and only on Windows.</para>
+This task is only available in the standalone variant.</para>
 
 <para>The <userinput>uninstall</userinput> task removes
 &MiKTeX;.
-This task is only available in the standalone variant and only on Windows.</para>
+This task is only available in the integrated variant and only on Windows.</para>
 
 </refsect1>
 
@@ -312,7 +330,7 @@ program folder name: "MiKTeX"</screen>
 <title>Uninstalling</title>
 
 <para>&MiKTeX; can be removed by selecting the
-<userinput>uninstall</userinput> task. <option>--shared=yes</option>
+<userinput>uninstall</userinput> task (only available in the integrated variant on  Windows). <option>--shared=yes</option>
 should be specified, if &MiKTeX; is installed for all users.</para>
 
 <screen><prompt>&prompt;</prompt><userinput>miktexsetup --verbose --shared=yes uninstall</userinput></screen>
