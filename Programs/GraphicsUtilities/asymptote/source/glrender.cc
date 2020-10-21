@@ -327,7 +327,7 @@ void idle()
 }
 #endif
 
-void home(bool webgl=false) 
+void home(bool webgl=false)
 {
   X=Y=cx=cy=0.0;
 #ifdef HAVE_GL
@@ -1622,7 +1622,7 @@ void glrender(const string& prefix, const picture *pic, const string& format,
   if(maxTileHeight <= 0) maxTileHeight=768;
 
   bool webgl=Format == "html";
-  
+
 #ifdef HAVE_GL
 #if defined(MIKTEX) || defined(HAVE_PTHREAD)
   static bool initializedView=false;

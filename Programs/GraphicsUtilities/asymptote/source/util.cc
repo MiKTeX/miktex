@@ -36,6 +36,7 @@
 #include "errormsg.h"
 #include "camperror.h"
 #include "interact.h"
+#include "locate.h"
 #if defined(MIKTEX)
 #  include <miktex/Core/PathName>
 #  include <miktex/Core/Process>

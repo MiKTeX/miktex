@@ -95,7 +95,7 @@ const bool havegl=false;
 #endif
 
 mode_t mask;
-  
+
 #if defined(MIKTEX)
 string systemDir;
 #else
