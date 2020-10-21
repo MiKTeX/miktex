@@ -22,9 +22,9 @@
 
 namespace camp {
 
-inline void BoundingBox(std::ostream& s, const bbox& box) 
+inline void BoundingBox(std::ostream& s, const bbox& box)
 {
-  s << "%%BoundingBox: " << std::setprecision(0) << std::fixed 
+  s << "%%BoundingBox: " << std::setprecision(0) << std::fixed
     << box.LowRes() << newl;
   s.unsetf(std::ios::fixed);
   s << "%%HiResBoundingBox: " << std::setprecision(9) << box << newl;
@@ -39,7 +39,7 @@ class encode85 {
   static const int width=72;
 public:
   encode85(ostream *out) : out(out), tuple(0), pos(0), count(0) {}
-  
+
   ~encode85() {
     if(count > 0)
       encode(tuple, count);
@@ -47,7 +47,7 @@ public:
       *out << '\n';
     *out << "~>\n";
   }
-private:  
+private:
   void encode(unsigned int tuple, int count) {
     unsigned char buf[5], *s=buf;
     int i=5;
@@ -65,7 +65,7 @@ private:
     } while(i-- > 0);
   }
 
-public:  
+public:
   void put(unsigned char c) {
     switch (count++) {
       case 0:
@@ -95,65 +95,64 @@ public:
 };
 
 class psfile {
-protected:  
+protected:
   mem::stack<pen> pens;
-  
+
 public:
-  
+
   string filename;
   bool pdfformat;    // Is final output format PDF?
   bool pdf;          // Output direct PDF?
-  bool transparency; // Is transparency used?
   unsigned char *buffer;
   size_t count;
 
   void write(pen *p, size_t ncomponents);
-  void writefromRGB(unsigned char r, unsigned char g, unsigned char b, 
+  void writefromRGB(unsigned char r, unsigned char g, unsigned char b,
                     ColorSpace colorspace, size_t ncomponents);
-  
+
   void writeCompressed(const unsigned char *a, size_t size);
   void dealias(unsigned char *a, size_t width, size_t height, size_t n,
                bool convertrgb=false, ColorSpace colorspace=DEFCOLOR);
-  
+
   void beginImage(size_t n) {
     buffer=new unsigned char[n];
     count=0;
   }
-  
+
   void outImage(bool antialias, size_t width, size_t height,
                 size_t ncomponents);
-  
+
   void endImage(bool antialias, size_t width, size_t height,
                 size_t ncomponents) {
     outImage(antialias,width,height,ncomponents);
     delete[] buffer;
   }
-  
+
   void writeByte(unsigned char n) {
     buffer[count++]=n;
   }
-  
+
 protected:
   pen lastpen;
   std::ostream *out;
-  
-public: 
+
+public:
   psfile(const string& filename, bool pdfformat);
-  
+
   psfile() {pdf=settings::pdf(settings::getSetting<string>("tex"));}
 
   virtual ~psfile();
-  
+
   void BoundingBox(const bbox& box) {
     camp::BoundingBox(*out,box);
   }
-  
+
   void prologue(const bbox& box);
   void epilogue();
   void header(bool eps);
 
   void close();
-  
+
   void write(double x) {
     *out << " " << x;
   }
@@ -161,11 +160,7 @@ public:
   void writenewl() {
     *out << newl;
   }
-  
-//  bool Transparency() {
-//    return transparency;
-//  }
-  
+
   void write(pair z) {
     *out << " " << z.getx() << " " << z.gety();
   }
@@ -182,24 +177,24 @@ public:
     lastpen=pen(initialpen);
     lastpen.convert();
   }
-  
+
   void setcolor(const pen& p, const string& begin, const string& end);
   void setopacity(const pen& p);
 
   virtual void setpen(pen p);
-  
+
   void write(const pen& p);
-  
+
   void write(path p, bool newPath=true);
-  
+
   virtual void writeclip(path p, bool newPath=true) {
     write(p,newPath);
   }
-  
+
   virtual void dot(path p, pen, bool newPath=true) {
     write(p,newPath);
   }
-  
+
   virtual void newpath() {
     if(!pdf) *out << "newpath";
   }
@@ -231,12 +226,12 @@ public:
     if(pdf) *out << "S" << newl;
     else *out << "stroke" << newl;
   }
-  
+
   virtual void strokepath() {
     if(pdf) reportError("PDF does not support strokepath");
     else *out << "strokepath" << newl;
   }
-  
+
   virtual void fill(const pen &p) {
     if(p.evenodd()) {
       if(pdf) *out << "f*" << newl;
@@ -246,11 +241,11 @@ public:
       else *out << "fill" << newl;
     }
   }
-  
+
   virtual void beginclip() {
     newpath();
   }
-  
+
   virtual void endclip(const pen &p) {
     if(p.evenodd()) {
       if(pdf) *out << "W* n" << newl;
@@ -260,43 +255,40 @@ public:
       else *out << "clip" << newl;
     }
   }
-  
+
   virtual void endpsclip(const pen &p) {endclip(p);}
-  
+
   void checkLevel() {
     int n=settings::getSetting<Int>("level");
     if(n < 3)
       reportError("PostScript shading requires -level 3");
   }
-  
+
   virtual void beginlatticeshade(const vm::array& a, const bbox& b) {}
   virtual void latticeshade(const vm::array& a, const transform& t);
-  
+
   virtual void begingradientshade(bool axial, ColorSpace colorspace,
                                   const pen& pena, const pair& a, double ra,
                                   const pen& penb, const pair& b, double rb) {}
-  
+
   virtual void gradientshade(bool axial, ColorSpace colorspace,
                              const pen& pena, const pair& a, double ra,
                              bool extenda, const pen& penb, const pair& b,
                              double rb, bool extendb);
-  
+
   virtual void begingouraudshade(const vm::array& pens,
                                  const vm::array& vertices,
                                  const vm::array& edges) {}
   virtual void gouraudshade(const pen& pentype, const vm::array& pens,
                             const vm::array& vertices, const vm::array& edges);
-  
-  virtual void begintensorshade(const vm::array& pens,
-                                const vm::array& boundaries,
-                                const vm::array& z) {}
+
   virtual void tensorshade(const pen& pentype, const vm::array& pens,
                            const vm::array& boundaries, const vm::array& z);
-  
+
   void vertexpen(vm::array *pi, int j, ColorSpace colorspace);
-  
+
   void imageheader(size_t width, size_t height, ColorSpace colorspace);
-  
+
   void image(const vm::array& a, const vm::array& p, bool antialias);
   void image(const vm::array& a, bool antialias);
   void image(vm::stack *Stack, vm::callable *f, Int width, Int height,
@@ -310,7 +302,7 @@ public:
     if(!tex) *out << newl;
     pens.push(lastpen);
   }
-  
+
   virtual void grestore(bool tex=false) {
     if(pens.size() < 1)
       reportError("grestore without matching gsave");
@@ -336,11 +328,11 @@ public:
     if(pdf) *out << " cm" << newl;
     else *out << " concat" << newl;
   }
-  
+
   void verbatimline(const string& s) {
     *out << s << newl;
   }
-  
+
   void verbatim(const string& s) {
     *out << s;
   }
@@ -352,7 +344,7 @@ public:
       setopacity(*p);
     }
   }
-  
+
   ColorSpace maxcolorspace(const vm::array& pens) {
     ColorSpace colorspace=DEFCOLOR;
     size_t size=pens.size();
@@ -363,7 +355,7 @@ public:
     }
     return colorspace;
   }
-  
+
   ColorSpace maxcolorspace2(const vm::array& penarray) {
     ColorSpace colorspace=DEFCOLOR;
     size_t size=penarray.size();

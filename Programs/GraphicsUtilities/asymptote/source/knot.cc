@@ -71,7 +71,7 @@ double velocity(double theta, double phi, tension t)
 
   double denom = t.val * (3.0 + c*ct + d*cf);
 
-  double r = denom != 0.0 ? (2.0 + a*(st - b*sf)*(sf - b*st)*(ct-cf)) / denom 
+  double r = denom != 0.0 ? (2.0 + a*(st - b*sf)*(sf - b*st)*(ct-cf)) / denom
     : VELOCITY_BOUND;
 
   //cerr << " velocity(" << theta << "," << phi <<")= " << r << endl;
@@ -282,7 +282,7 @@ struct eqnprop : public knotprop<eqn> {
 // Ax=0), there is no need to solve for theta; we can just use zeros for the
 // thetas.  In fact, our general solving method may not work in this case.
 // A common example of this is
-//   
+//
 //   a{curl 1}..{curl 1}b
 //
 // which arises when solving a one-length path a..b or in a larger path a
@@ -320,7 +320,7 @@ weqn scale(weqn q) {
 
 /* Recalculate the equations in the form:
  *   theta[j] + post * theta[j+1] = aug + w * theta[0]
- * 
+ *
  * Used as the first step in solve cyclic equations.
  */
 cvector<weqn> recalc(cvector<eqn>& e)
@@ -375,7 +375,7 @@ double solveForTheta0(cvector<weqn>& we)
   }
 
   // After the iteration we have
-  // 
+  //
   //   theta[n] = a + b*theta[0] + c*theta[n]
   //
   // where theta[n]=theta[0], so
@@ -601,7 +601,7 @@ void encodeStraight(protopath& p, Int k, knotlist& l)
   pair b=l.back().z;
   double bt=l.back().tin.val;
   pair step=(b-a)/3.0;
-  
+
   if (at==1.0 && bt==1.0) {
     p.straight(k)=true;
     p.post(k)=a+step;
@@ -804,7 +804,7 @@ path solveSimple(cvector<pair>& z)
 {
   // The two specifiers used: an open spec and a curl spec for the ends.
   spec open;
-  
+
 //  curlSpec curl;
 //  curlSpec curly(2.0);
 //  dirSpec E(0);

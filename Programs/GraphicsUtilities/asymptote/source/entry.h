@@ -47,7 +47,7 @@ class entry : public gc {
     // Reports an error if permission is not allowed.
     void report(action act, position pos, coder &c);
   };
-  
+
   mem::list<pr> perms;
 
   void addPerm(permission perm, record *r) {
@@ -62,7 +62,7 @@ class entry : public gc {
 
   // The location (file and line number) where the entry was defined.
   position pos;
-  
+
 public:
   entry(record *where, position pos) : where(where), pos(pos) {}
   entry(permission perm, record *r, record *where, position pos)
@@ -73,7 +73,7 @@ public:
   // (Non-destructively) merges two entries, appending permission lists.
   // The 'where' member is taken from the second entry.
   entry(entry &e1, entry &e2);
-  
+
   // Create an entry with one more permission in the list.
   entry(entry &base, permission perm, record *r);
 
@@ -83,12 +83,12 @@ public:
   record *whereDefined() {
     return where;
   }
-  
+
   position getPos() {
     return pos;
   }
 };
-    
+
 class varEntry : public entry {
   ty *t;
   access *location;
@@ -179,40 +179,6 @@ public:
            tenv& source, varEntry *qualifier, coder &c);
 };
 
-#if 0 //{{{
- /* This version of venv is provided for compiling on systems which do not
-  * have some form of STL hash table.  It will eventually be removed.
-  * See the hash version below for documentation on the functions.
-  */
-/*NOHASH*/ class venv : public sym::table<varEntry*> {
-/*NOHASH*/ public:
-/*NOHASH*/   venv() {}
-/*NOHASH*/ 
-/*NOHASH*/   struct file_env_tag {};
-/*NOHASH*/   venv(file_env_tag) {}
-/*NOHASH*/ 
-/*NOHASH*/   void add(venv& source, varEntry *qualifier, coder &c);
-/*NOHASH*/ 
-/*NOHASH*/   bool add(symbol src, symbol dest,
-/*NOHASH*/            venv& source, varEntry *qualifier, coder &c);
-/*NOHASH*/ 
-/*NOHASH*/   varEntry *lookByType(symbol name, ty *t);
-/*NOHASH*/ 
-/*NOHASH*/   varEntry *lookBySignature(symbol name, signature *sig) {
-/*NOHASH*/     // This optimization is not implemented for the NOHASH version.
-/*NOHASH*/     return 0;
-/*NOHASH*/   }
-/*NOHASH*/ 
-/*NOHASH*/   ty *getType(symbol name);
-/*NOHASH*/ 
-/*NOHASH*/   friend std::ostream& operator<< (std::ostream& out,
-/*NOHASH*/                                    const venv& ve);
-/*NOHASH*/   
-/*NOHASH*/   void list(record *module=0);
-/*NOHASH*/ };
-
-//}}}
-#else
 
 // For speed reasons, many asserts are only tested when DEBUG_CACHE is set.
 #ifdef DEBUG_CACHE
@@ -428,7 +394,7 @@ class venv {
     namevalue() : maxFormals(0), t(0) {}
 
     void addType(ty *s);
-    
+
     void replaceType(ty *new_t, ty *old_t);
 
 #if DEBUG_CACHE
@@ -478,9 +444,9 @@ public:
   venv(file_env_tag)
     : core(fileCoreSize),
 #ifndef NOHASH
-    names(fileNamesSize),
+      names(fileNamesSize),
 #endif
-    empty_scopes(0) {}
+      empty_scopes(0) {}
 
   // Add a new variable definition.
   void enter(symbol name, varEntry *v);
@@ -521,7 +487,7 @@ public:
 
   void beginScope();
   void endScope();
-  
+
   // Merges the top-level scope with the level immediately underneath it.
   void collapseScope();
 
@@ -531,7 +497,6 @@ public:
   // Adds to l, all names prefixed by start.
   void completions(mem::list<symbol>& l, string start);
 };
-#endif
 
 } // namespace trans
 

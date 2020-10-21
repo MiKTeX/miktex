@@ -44,7 +44,7 @@ enum ty_kind {
   ty_record,    // "struct" in Asymptote language
   ty_function,
   ty_overloaded,
- 
+
 #define PRIMITIVE(name,Name,asyName) ty_##name,
 #define PRIMERROR
 #include "primitives.h"
@@ -137,7 +137,7 @@ public:
   }
 
   // If a cast function is not stored in the environment, ask the type itself.
-  // This handles null->record casting, and the like.  The caster is used as a 
+  // This handles null->record casting, and the like.  The caster is used as a
   // callback to the environment for casts of subtypes.
   virtual trans::access *castTo(ty *, caster &) {
     return 0;
@@ -190,7 +190,7 @@ class primitiveTy : public ty {
 public:
   primitiveTy(ty_kind kind)
     : ty(kind) {}
-  
+
   bool primitive() {
     return true;
   }
@@ -198,7 +198,7 @@ public:
   bool isReference() {
     return false;
   }
-  
+
   ty *virtualFieldGetType(symbol );
   trans::varEntry *virtualField(symbol, signature *);
 
@@ -216,7 +216,7 @@ class nullTy : public primitiveTy {
 public:
   nullTy()
     : primitiveTy(ty_null) {}
-  
+
   bool isReference() {
     return true;
   }
@@ -284,10 +284,10 @@ struct array : public ty {
 };
 
 /* Base types */
-#define PRIMITIVE(name,Name,asyName) \
-  ty *prim##Name(); \
-  ty *name##Array(); \
-  ty *name##Array2(); \
+#define PRIMITIVE(name,Name,asyName)            \
+  ty *prim##Name();                             \
+  ty *name##Array();                            \
+  ty *name##Array2();                           \
   ty *name##Array3();
 #define PRIMERROR
 #include "primitives.h"
@@ -302,7 +302,7 @@ struct formal {
   symbol name;
   bool defval;
   bool Explicit;
-  
+
   formal(ty *t,
          symbol name=symbol::nullsym,
          bool optional=false,
@@ -380,7 +380,7 @@ struct signature : public gc {
     return rest.t ? formals.size() + 1 : formals.size();
   }
 
-  formal& getFormal(size_t n) { 
+  formal& getFormal(size_t n) {
     assert(n < formals.size());
     return formals[n];
   }
@@ -489,7 +489,7 @@ struct function : public ty {
   ty *getResult() {
     return result;
   }
-  
+
   signature *getSignature() {
     return &sig;
   }

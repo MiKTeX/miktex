@@ -56,7 +56,7 @@ void restArg::trans(coenv &e, temp_vector &temps)
 
   if (rest)
     rest->trans(e, temps);
-  
+
   transMaker(e, (Int)inits.size(), (bool)rest);
 }
 
@@ -96,7 +96,7 @@ class maximizer {
         ++y;
     l.push_front(x);
   }
-  
+
   // Tests if x is maximal.
   bool maximal(application *x) {
     for (app_list::iterator y=l.begin(); y!=l.end(); ++y)
@@ -143,7 +143,7 @@ void application::initRest() {
   }
 }
 
-//const Int REST=-1; 
+//const Int REST=-1;
 const Int NOMATCH=-2;
 
 Int application::find(symbol name) {
@@ -188,7 +188,7 @@ bool application::matchAtSpot(size_t spot, env &e, formal &source,
 {
   formal &target=sig->getFormal(spot);
   if(target.t->kind == types::ty_error) return false;
-  
+
   score s=castScore(e, target, source);
 
   if (s == FAIL)
@@ -255,7 +255,7 @@ bool application::matchRest(env &e, formal &source, varinit *a,
     }
   return false;
 }
-  
+
 // When the argument should be evaluated, possibly adjusting for a rest
 // argument which occurs before named arguments.
 size_t adjustIndex(size_t i, size_t ri)
@@ -294,7 +294,7 @@ bool application::matchSignature(env &e, types::signature *source,
   // Fill in any remaining arguments with their defaults.
   return complete();
 }
-       
+
 bool application::matchOpen(env &e, signature *source, arglist &al) {
   assert(rest);
 
@@ -319,8 +319,8 @@ application *application::match(env &e, function *t, signature *source,
   application *app=new application(t);
 
   bool success = t->getSignature()->isOpen ?
-                     app->matchOpen(e, source, al) :
-                     app->matchSignature(e, source, al);
+    app->matchOpen(e, source, al) :
+    app->matchSignature(e, source, al);
 
   //cout << "MATCH " << success << endl;
 
@@ -431,7 +431,7 @@ bool exactMightMatch(signature *target, signature *source)
   if (source->hasRest()) {
     if (!target->hasRest())
       return false;
-    
+
     if (!equivalent(source->getRest().t, target->getRest().t))
       return false;
   }
@@ -457,42 +457,42 @@ app_list exactMultimatch(env &e,
     return l; /* empty */
 
   for (ty_vector::iterator t=o->sub.begin(); t!=o->sub.end(); ++t)
-  {
-    if ((*t)->kind != ty_function)
-      continue;
+    {
+      if ((*t)->kind != ty_function)
+        continue;
 
-    function *ft = (function *)*t;
+      function *ft = (function *)*t;
 
-    // First we run a test to see if all arguments could be exactly matched.
-    // If this returns false, no such match is possible.
-    // If it returns true, an exact match may or may not be possible.
-    if (!exactMightMatch(ft->getSignature(), source))
-      continue;
+      // First we run a test to see if all arguments could be exactly matched.
+      // If this returns false, no such match is possible.
+      // If it returns true, an exact match may or may not be possible.
+      if (!exactMightMatch(ft->getSignature(), source))
+        continue;
 
-    application *a=application::match(e, ft, source, al);
+      application *a=application::match(e, ft, source, al);
 
-    // Consider calling
-    //   void f(A a=new A, int y)
-    // with
-    //   f(3)
-    // This matches exactly if there is no implicit cast from int to A.
-    // Otherwise, it does not match.
-    // Thus, there is no way to know if the
-    // match truly is exact without looking at the environment.
-    // In such a case, exactMightMatch() must return true, but there is no
-    // exact match.  Such false positives are eliminated here.
-    // 
-    // Consider calling
-    //   void f(int x, real y=0.0, int z=0)
-    // with
-    //   f(1,2)
-    // exactMightMatch() will return true, matching 1 to x and 2 to z, but the
-    // application::match will give an inexact match of 1 to x to 2 to y, due
-    // to the cast from int to real.  Therefore, we must test for exactness
-    // even after matching.
-    if (a && a->exact())
-      l.push_back(a);
-  }
+      // Consider calling
+      //   void f(A a=new A, int y)
+      // with
+      //   f(3)
+      // This matches exactly if there is no implicit cast from int to A.
+      // Otherwise, it does not match.
+      // Thus, there is no way to know if the
+      // match truly is exact without looking at the environment.
+      // In such a case, exactMightMatch() must return true, but there is no
+      // exact match.  Such false positives are eliminated here.
+      //
+      // Consider calling
+      //   void f(int x, real y=0.0, int z=0)
+      // with
+      //   f(1,2)
+      // exactMightMatch() will return true, matching 1 to x and 2 to z, but the
+      // application::match will give an inexact match of 1 to x to 2 to y, due
+      // to the cast from int to real.  Therefore, we must test for exactness
+      // even after matching.
+      if (a && a->exact())
+        l.push_back(a);
+    }
 
   //cout << "EXACTMATCH " << (!l.empty()) << endl;
   return l;
@@ -517,8 +517,8 @@ bool halfExactMightMatch(env &e,
   // application::match.  It would be nice to avoid this somehow, but the
   // additional complexity is probably not worth the minor speed improvement.
   if (equivalent(formals[0].t, t1))
-     return e.fastCastable(formals[1].t, t2);
-  else 
+    return e.fastCastable(formals[1].t, t2);
+  else
     return equivalent(formals[1].t, t2) && e.fastCastable(formals[0].t, t1);
 }
 
@@ -553,24 +553,24 @@ app_list halfExactMultimatch(env &e,
   assert(t1); assert(t2);
 
   for (ty_vector::iterator t=o->sub.begin(); t!=o->sub.end(); ++t)
-  {
-    if ((*t)->kind != ty_function)
-      continue;
+    {
+      if ((*t)->kind != ty_function)
+        continue;
 
-    function *ft = (function *)*t;
-
-#if 1
-    if (!halfExactMightMatch(e, ft->getSignature(), t1, t2))
-      continue;
-#endif
-
-    application *a=application::match(e, ft, source, al);
+      function *ft = (function *)*t;
 
 #if 1
-    if (a && a->halfExact())
-      l.push_back(a);
+      if (!halfExactMightMatch(e, ft->getSignature(), t1, t2))
+        continue;
 #endif
-  }
+
+      application *a=application::match(e, ft, source, al);
+
+#if 1
+      if (a && a->halfExact())
+        l.push_back(a);
+#endif
+    }
 
   return l;
 }
@@ -581,7 +581,7 @@ app_list halfExactMultimatch(env &e,
 // not give any speed-up.
 bool tooManyArgs(types::signature *target, types::signature *source) {
   return source->getNumFormals() > target->getNumFormals() &&
-         !target->hasRest();
+    !target->hasRest();
 }
 
 // The full overloading resolution system, which handles casting of arguments,
@@ -627,9 +627,9 @@ app_list inexactMultimatch(env &e,
         assert(a->exact() == exactlyMatchable(ft->getSignature(), source));
         if (a->halfExact() && !namedFormals(source)) {
           assert(halfExactMightMatch(e, target, source->getFormal(0).t,
-                                                source->getFormal(1).t));
+                                     source->getFormal(1).t));
         }
-          
+
       }
       if (a && a->exact())
         exact = true;
@@ -643,7 +643,7 @@ app_list inexactMultimatch(env &e,
   cout << (perfect     ? "PERFECT" :
            exact       ? "EXACT" :
            halfExact   ? "HALFEXACT" :
-                         "IMPERFECT")
+           "IMPERFECT")
        << endl;
 #endif
 

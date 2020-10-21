@@ -4,7 +4,7 @@
  *
  * The transform datatype stores an affine transformation on the plane
  * The datamembers are x, y, xx, xy, yx, and yy.  A pair (x,y) is
- * transformed as 
+ * transformed as
  *   x' = t.x + t.xx * x + t.xy * y
  *   y' = t.y + t.yx * x + t.yy * y
  *****/
@@ -209,7 +209,7 @@ inline transform reflectabout(pair z, pair w)
 {
   if (z == w)
     reportError("points determining line to reflect about must be distinct");
-  
+
   // Also could be optimized.
   transform basis = shift(z) * scale(w-z);
   transform flip = yscale(-1.0);
@@ -223,25 +223,25 @@ inline transform rotation(transform t)
   pair z(2.0*t.getxx()*t.getyy(),t.getyx()*t.getyy()-t.getxx()*t.getxy());
   if(t.getxx() < 0) z=-z;
   return rotate(atan2(z.gety(),z.getx()));
-} 
+}
 
 // Remove the x and y components, so that the new transform maps zero to zero.
 inline transform shiftless(transform t)
 {
   return transform(0, 0, t.getxx(), t.getxy(), t.getyx(), t.getyy());
-} 
+}
 
 // Return the translational component of t.
 inline transform shift(transform t)
 {
   return transform(t.getx(), t.gety(), 1.0, 0, 0, 1.0);
-} 
+}
 
 // Return the translational pair of t.
 inline pair shiftpair(transform t)
 {
   return pair(t.getx(), t.gety());
-} 
+}
 
 inline transform matrix(pair lb, pair rt)
 {

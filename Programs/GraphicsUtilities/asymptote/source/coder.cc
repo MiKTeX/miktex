@@ -41,7 +41,7 @@ coder::coder(position pos, string name, modifier sord)
 #if SIMPLE_FRAME
   : level(frame::indirect_frame(name)),
 #else
-  : level(new frame(name, 0, 0)),
+    : level(new frame(name, 0, 0)),
 #endif
     recordLevel(0),
     recordType(0),
@@ -63,7 +63,7 @@ coder::coder(position pos, string name, function *t, coder *parent,
   : level(reframe ? new frame(name,
                               parent->getFrame(),
                               t->sig.getNumFormals()) :
-                    parent->getFrame()),
+          parent->getFrame()),
     recordLevel(parent->recordLevel),
     recordType(parent->recordType),
     isCodelet(!reframe),
@@ -112,7 +112,7 @@ record *coder::newRecord(symbol id)
   frame *underlevel = getFrame();
 
   frame *level = new frame(id, underlevel, 0);
-  
+
   record *r = new record(id, level);
 
   return r;
@@ -165,7 +165,7 @@ void coder::encodePop()
 bool coder::encode(frame *f)
 {
   frame *toplevel = getFrame();
-  
+
   if (f == 0) {
     encode(inst::constpush,(item)0);
     return true;
@@ -225,7 +225,7 @@ label coder::defNewLabel()
 {
   if (isStatic())
     return parent->defNewLabel();
-  
+
   label l = new label_t();
   assert(!l->location.defined());
   assert(!l->firstUse.defined());
@@ -266,7 +266,7 @@ void coder::useLabel(inst::opcode op, label label)
 {
   if (isStatic())
     return parent->useLabel(op,label);
-  
+
   if (label->location.defined()) {
     encode(op, label->location);
   } else {
@@ -287,7 +287,7 @@ label coder::fwdLabel()
 {
   if (isStatic())
     return parent->fwdLabel();
-  
+
   // Create a new label without specifying its position.
   label l = new label_t();
   assert(!l->location.defined());

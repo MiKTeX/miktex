@@ -22,7 +22,7 @@
 #undef far
 
 namespace camp {
-  
+
 void checkEmpty3(Int n);
 
 // Used in the storage of solved path3 knots.
@@ -32,7 +32,7 @@ struct solvedKnot3 : public gc {
   triple post;
   bool straight;
   solvedKnot3() : straight(false) {}
-  
+
   friend bool operator== (const solvedKnot3& p, const solvedKnot3& q)
   {
     return p.pre == q.pre && p.point == q.point && p.post == q.post;
@@ -46,7 +46,7 @@ class path3 : public gc {
 
   mem::vector<solvedKnot3> nodes;
   mutable double cached_length; // Cache length since path3 is immutable.
-  
+
   mutable bbox3 box;
   mutable bbox3 times; // Times where minimum and maximum extents are attained.
 
@@ -60,7 +60,7 @@ public:
   {
     nodes[0].pre = nodes[0].point = nodes[0].post = z;
     nodes[0].straight = false;
-  }  
+  }
 
   // Creates path3 from a list of knots.  This will be used by camp
   // methods such as the guide solver, but should probably not be used by a
@@ -84,11 +84,11 @@ public:
     nodes[0].pre = nodes[0].point;
     nodes[1].post = nodes[1].point;
   }
-  
+
   // Copy constructor
   path3(const path3& p)
     : cycles(p.cycles), n(p.n), nodes(p.nodes), cached_length(p.cached_length),
-      box(p.box)
+      box(p.box), times(p.times)
   {}
 
   path3 unstraighten() const
@@ -98,7 +98,7 @@ public:
       P.nodes[i].straight=false;
     return P;
   }
-  
+
   virtual ~path3()
   {
   }
@@ -123,17 +123,17 @@ public:
   {
     return cycles;
   }
-  
+
   mem::vector<solvedKnot3>& Nodes() {
     return nodes;
   }
-  
+
   bool straight(Int t) const
   {
     if (cycles) return nodes[imod(t,n)].straight;
     return (t >= 0 && t < n) ? nodes[t].straight : false;
   }
-  
+
   bool piecewisestraight() const
   {
     Int L=length();
@@ -141,28 +141,28 @@ public:
       if(!straight(i)) return false;
     return true;
   }
-  
+
   triple point(Int t) const
   {
     return nodes[adjustedIndex(t,n,cycles)].point;
   }
 
   triple point(double t) const;
-  
+
   triple precontrol(Int t) const
   {
     return nodes[adjustedIndex(t,n,cycles)].pre;
   }
 
   triple precontrol(double t) const;
-  
+
   triple postcontrol(Int t) const
   {
     return nodes[adjustedIndex(t,n,cycles)].post;
   }
 
   triple postcontrol(double t) const;
-  
+
   inline double norm(const triple& z0, const triple& c0, const triple& c1,
                      const triple& z1) const {
     return Fuzz2*camp::max((c0-z0).abs2(),
@@ -248,7 +248,7 @@ public:
     triple z1=point(t);
     return 6.0*(z1+c0)-12.0*c1;
   }
-  
+
   triple accel(Int t, Int sign) const {
     if(sign == 0) return 0.5*(preaccel(t)+postaccel(t));
     if(sign > 0) return postaccel(t);
@@ -280,22 +280,22 @@ public:
 
   // Special case of subpath used by intersect.
   void halve(path3 &first, path3 &second) const;
-  
+
   // Used by picture to determine bounding box.
   bbox3 bounds() const;
-  
+
   triple mintimes() const {
     checkEmpty3(n);
     bounds();
     return camp::triple(times.left,times.bottom,times.near);
   }
-  
+
   triple maxtimes() const {
     checkEmpty3(n);
     bounds();
     return camp::triple(times.right,times.top,times.far);
   }
-  
+
   template<class T>
   void addpoint(bbox3& box, T i) const {
     box.addnonempty(point(i),times,(double) i);
@@ -304,7 +304,7 @@ public:
   double cubiclength(Int i, double goal=-1) const;
   double arclength () const;
   double arctime (double l) const;
- 
+
   triple max() const {
     checkEmpty3(n);
     return bounds().Max();
@@ -314,12 +314,12 @@ public:
     checkEmpty3(n);
     return bounds().Min();
   }
-  
+
   pair ratio(double (*m)(double, double)) const;
-  
+
 // Increment count if the path3 has a vertical component at t.
   bool Count(Int& count, double t) const;
-  
+
 // Count if t is in (begin,end] and z lies to the left of point(i+t).
   void countleft(Int& count, double x, Int i, double t,
                  double begin, double end, double& mint, double& maxt) const;
@@ -331,18 +331,18 @@ public:
 
 double arcLength(const triple& z0, const triple& c0, const triple& c1,
                  const triple& z1);
-  
+
 path3 transformed(const vm::array& t, const path3& p);
 path3 transformed(const double* t, const path3& p);
-  
+
 extern path3 nullpath3;
 extern const unsigned maxdepth;
- 
+
 bool intersect(double& S, double& T, path3& p, path3& q, double fuzz,
                unsigned depth=maxdepth);
 bool intersections(double& s, double& t, std::vector<double>& S,
                    std::vector<double>& T, path3& p, path3& q,
-                   double fuzz, bool single, bool exact, 
+                   double fuzz, bool single, bool exact,
                    unsigned depth=maxdepth);
 void intersections(std::vector<double>& S, path3& g,
                    const triple& p, const triple& q, double fuzz);
@@ -356,7 +356,7 @@ bool intersections(double& U, double& V, const triple& v, triple *P,
 // Concatenates two path3s into a new one.
 path3 concat(const path3& p1, const path3& p2);
 
-// return the perpendicular displacement of a point z from the line through 
+// return the perpendicular displacement of a point z from the line through
 // points p and q.
 inline triple displacement(const triple& z, const triple& p, const triple& q)
 {
@@ -366,12 +366,12 @@ inline triple displacement(const triple& z, const triple& p, const triple& q)
 }
 
 typedef double bound_double(double *P, double (*m)(double, double), double b,
-                     double fuzz, int depth);
+                            double fuzz, int depth);
 
 typedef double bound_triple(triple *P, double (*m)(double, double),
-                       double (*f)(const triple&), double b, double fuzz,
-                       int depth);
-  
+                            double (*f)(const triple&), double b, double fuzz,
+                            int depth);
+
 bound_double bound,boundtri;
 
 double bound(triple z0, triple c0, triple c1, triple z1,

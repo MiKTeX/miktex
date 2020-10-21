@@ -21,12 +21,12 @@ simpson(double& integral,       // Approximate value of the integral.
         double dxmax)           // Maximum limit on the width of a subinterval
 // For periodic functions, dxmax should be
 // set to the period or smaller to prevent
-// premature convergence of Simpson's rule. 
+// premature convergence of Simpson's rule.
 {
   double diff,area,estl,estr,alpha,da,dx,wt,est,fv[5];
   TABLE table[nest],*p,*pstop;
   static const double sixth=1.0/6.0;
-        
+
   bool success=true;
   p=table;
   pstop=table+nest-1;
@@ -114,21 +114,21 @@ unsimpson(double integral,      // Given value for the integral.
           double dxmax,         // Maximum limit on the width of a subinterval
                                 // For periodic functions, dxmax should be
                                 // set to the period or smaller to prevent
-                                // premature convergence of Simpson's rule. 
+                                // premature convergence of Simpson's rule.
           double dxmin=0)       // Lower limit on sampling width.
 {
   double diff,estl,estr,alpha,da,dx,wt,est,fv[5];
   double sum,parea,pdiff,b2;
   TABLE table[nest],*p,*pstop;
   static const double sixth=1.0/6.0;
-        
+
   p=table;
   pstop=table+nest-1;
   p->psum=0.0;
   alpha=a;
   parea=0.0;
   pdiff=0.0;
-  
+
   for(;;) {
     p->left=true;
     da=b-alpha;
@@ -172,7 +172,7 @@ unsimpson(double integral,      // Given value for the integral.
             // Accept approximate integral sum.
             // If it was a right interval, add results to finish at this level.
             // If it was a left interval, process right interval.
-      
+
             pdiff += diff;
             for(;;) {
               if(p->left == false) { // process right-half interval

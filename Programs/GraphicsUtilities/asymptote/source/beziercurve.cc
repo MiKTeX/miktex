@@ -16,7 +16,7 @@ void BezierCurve::init(double res)
 {
   this->res=res;
   res2=res*res;
-  
+
   MaterialIndex=materialIndex;
 }
 
@@ -25,7 +25,7 @@ inline triple normal(triple bP, triple bPP)
   return dot(bP,bP)*bPP-dot(bP,bPP)*bP;
 }
 
-void BezierCurve::render(const triple *p, bool straight) 
+void BezierCurve::render(const triple *p, bool straight)
 {
   triple p0=p[0];
   triple p3=p[3];
@@ -52,7 +52,7 @@ void BezierCurve::render(const triple *p, bool straight)
     render(p,i0,i3);
   append();
 }
-  
+
 // Use a uniform partition to draw a Bezier curve.
 // p is an array of 4 triples representing the control points.
 // Ii are the vertex indices.
@@ -77,13 +77,13 @@ void BezierCurve::render(const triple *p, GLuint I0, GLuint I1)
     triple m3=0.5*(m0+m1);
     triple m4=0.5*(m1+m2);
     triple m5=0.5*(m3+m4);
-      
+
     triple s0[]={p0,m0,m3,m5};
     triple s1[]={m5,m4,m2,p3};
-      
+
     triple n0=normal(bezierPh(p0,p1,p2,p3),bezierPPh(p0,p1,p2,p3));
     GLuint i0=data.vertex(m5,n0);
-      
+
     render(s0,I0,i0);
     render(s1,i0,I1);
   }

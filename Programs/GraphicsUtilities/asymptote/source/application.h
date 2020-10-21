@@ -18,7 +18,7 @@
 
 // Defined in runtime.in:
 namespace run {
-  void pushDefault(vm::stack *Stack);
+void pushDefault(vm::stack *Stack);
 }
 
 using absyntax::arglist;
@@ -93,7 +93,7 @@ public:
   restArg()
     : rest(0) {}
 
-  virtual ~restArg() 
+  virtual ~restArg()
   {}
 
   // Encodes the instructions to make an array from size elements on the stack.
@@ -247,11 +247,11 @@ class application : public gc {
 
   // Matches the argument to a formal in the target signature (possibly causing
   // other formals in the target to be matched to default values), and updates
-  // the matchpoint accordingly. 
+  // the matchpoint accordingly.
   bool matchArgument(env &e, types::formal& source,
                      varinit *a, size_t evalIndex);
 
-  // Match an argument bound to a name, as in f(index=7). 
+  // Match an argument bound to a name, as in f(index=7).
   bool matchNamedArgument(env &e, types::formal& source,
                           varinit *a, size_t evalIndex);
 
@@ -261,7 +261,7 @@ class application : public gc {
 
   // Match a rest argument in the calling expression.
   bool matchRest(env &e, types::formal& f, varinit *a, size_t evalIndex);
- 
+
   // Match the argument represented in signature to the target signature.  On
   // success, all of the arguments in args will be properly set up.
   bool matchSignature(env &e, types::signature *source, arglist &al);

@@ -46,7 +46,7 @@ bool definesImplicitConstructor(coenv &e, record *r, varEntry *v, symbol id)
       if (ft->getResult()->kind == ty_void)
         return true;
     }
-  
+
   return false;
 }
 
@@ -91,7 +91,7 @@ varEntry *constructorFromInitializer(position pos, coenv &e, record *r,
   assert(r);
 
   types::function *ft=new types::function(r, init->getSignature());
- 
+
   ostringstream out;
   ft->printVar(out, symbol::trans("<constructor>"));
 
@@ -101,7 +101,7 @@ varEntry *constructorFromInitializer(position pos, coenv &e, record *r,
 
   // Translate the function.
   fe.e.beginScope();
-  
+
   transConstructorBody(pos, fe, r, init);
 
   fe.e.endScope();

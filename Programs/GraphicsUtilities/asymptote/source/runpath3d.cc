@@ -351,7 +351,7 @@ void gen_runpath3d22(stack *Stack)
   {Stack->push<path3>(p.unstraighten()); return;}
 }
 
-// return the maximum distance squared of points c0 and c1 from 
+// return the maximum distance squared of points c0 and c1 from
 // the respective internal control points of z0--z1.
 #line 183 "runpath3d.in"
 // real straightness(triple z0, triple c0, triple c1, triple z1);
@@ -430,7 +430,7 @@ void gen_runpath3d29(stack *Stack)
   if(fuzz < 0)
     fuzz=BigFuzz*::max(::max(length(p.max()),length(p.min())),
                        ::max(length(q.max()),length(q.min())));
-  
+
   std::vector<real> S,T;
   real s,t;
   if(intersections(s,t,S,T,p,q,fuzz,true,exact)) {
@@ -455,7 +455,7 @@ void gen_runpath3d30(stack *Stack)
     fuzz=BigFuzz*::max(::max(length(p.max()),length(p.min())),
                        ::max(length(q.max()),length(q.min())));
   bool single=!exact;
-  
+
   real s,t;
   std::vector<real> S,T;
   bool found=intersections(s,t,S,T,p,q,fuzz,single,exact);
@@ -628,7 +628,7 @@ void gen_runpath3d41(stack *Stack)
 
 // Return a negative (positive) value if a--b--c--cycle is oriented
 // counterclockwise (clockwise) when viewed from d or zero if all four
-// points are coplanar. 
+// points are coplanar.
 // The value returned is the determinant
 // |a.x a.y a.z 1|
 // |b.x b.y b.z 1|

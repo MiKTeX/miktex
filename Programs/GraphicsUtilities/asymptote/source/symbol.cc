@@ -239,7 +239,7 @@ symbol advancedInsert(const char *s, size_t len)
   // entry (either empty or a skip entry) and insert there.
   for (;;) {
     symbolRecord &r = recordByHashplus(hashplus);
-    
+
     if (r.flag != USED) {
       r.flag = USED;
       r.s = new char[len];
@@ -252,7 +252,7 @@ symbol advancedInsert(const char *s, size_t len)
 
       return symbolize(hashplus);
     }
-    
+
     ++hashplus;
   }
 
@@ -281,14 +281,14 @@ symbol symbol::rawTrans(const char *s, size_t len)
   // an empty field.
   for (;;) {
     symbolRecord &r = recordByHashplus(hashplus);
-    
+
     // Translating pre-existing symbols is more common, so check for it first.
     if (r.hashplus == hashplus &&
         r.flag == USED &&
         strncmp(r.s, s, len) == 0) {
       return symbolize(hashplus);
     }
-    
+
     // Then check for an empty entry, in which case the entry is added.
     if (r.flag == 0) {
       // Test if the table needs resizing before entering a new symbol, or if
@@ -309,7 +309,7 @@ symbol symbol::rawTrans(const char *s, size_t len)
 
       return symbolize(hashplus);
     }
-    
+
     // A case where a different symbol is in the spot, continue along the
     // table.
     ++hashplus;
@@ -333,13 +333,13 @@ ostream& operator<< (ostream& out, const symbol sym)
 } // end namespace sym
 
 /* Define all of operator symbols SYM_PLUS, etc. */
-#define OPSYMBOL(str, name) \
+#define OPSYMBOL(str, name)                     \
   sym::symbol name = sym::symbol::opTrans(str)
 #include "opsymbols.h"
 #undef OPSYMBOL
 
 /* Define all of the symbols of the type SYM(name) in selected files. */
-#define ADDSYMBOL(name) \
+#define ADDSYMBOL(name)                                                 \
   sym::symbol PRETRANSLATED_SYMBOL_##name = sym::symbol::literalTrans(#name)
 #include "allsymbols.h"
 #undef ADDSYMBOL

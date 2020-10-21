@@ -19,7 +19,7 @@ extern int lines; // Interactive scroll count
 extern bool query; // Enable interactive scrolling;
 
 void init_interactive();
-  
+
 // Read a line from the input, without any processing.
 string simpleline(string prompt);
 
@@ -48,7 +48,7 @@ public:
 void setCompleter(completer *c);
 
 #define YY_READ_BUF_SIZE YY_BUF_SIZE
-  
+
 void init_readline(bool tabcompletion);
 }
 

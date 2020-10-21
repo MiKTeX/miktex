@@ -34,7 +34,7 @@ public:
   types::ty *trans(coenv &e);
   types::ty *getType(coenv &e);
 };
-  
+
 class newArrayExp : public exp {
   ty *celltype;
   explist *dimexps;
@@ -54,7 +54,7 @@ public:
   types::ty *trans(coenv &e);
   types::ty *getType(coenv &e);
 };
-  
+
 } // namespace absyntax
 
 #endif

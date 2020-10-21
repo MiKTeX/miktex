@@ -42,9 +42,9 @@
 #ifdef __DECCXX_LIBCXX_RH70
 #define CONST
 #else
-#define CONST const  
+#define CONST const
 #endif
-  
+
 #ifdef USEGC
 
 #define GC_THREADS
@@ -107,8 +107,8 @@ inline void* operator new(size_t size, GCPlacement) {
 }
 
 inline void* operator new[](size_t size, GCPlacement) {
-  return operator new(size);
-}
+                           return operator new(size);
+                         }
 
 template<class T>
 struct GC_type_traits {};
@@ -155,15 +155,15 @@ GC_CONTAINER(multimap);
 #undef GC_CONTAINER
 
 #ifndef NOHASH
-#define GC_CONTAINER(KIND)                                              \
-  template <typename Key, typename T,                                   \
-            typename Hash = EXT::hash<Key>,                             \
-            typename Eq = std::equal_to<Key> >                          \
-  struct KIND : public                                                  \
-  EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC>, public gc {                      \
-    KIND() : EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC> () {}                  \
-    KIND(size_t n)                                                      \
-      : EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC> (n) {}                      \
+#define GC_CONTAINER(KIND)                              \
+  template <typename Key, typename T,                   \
+            typename Hash = EXT::hash<Key>,             \
+            typename Eq = std::equal_to<Key> >          \
+  struct KIND : public                                  \
+  EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC>, public gc {      \
+    KIND() : EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC> () {}  \
+    KIND(size_t n)                                      \
+      : EXT::KIND<Key,T,Hash,Eq,PAIR_ALLOC> (n) {}      \
   }
 
 GC_CONTAINER(unordered_map);

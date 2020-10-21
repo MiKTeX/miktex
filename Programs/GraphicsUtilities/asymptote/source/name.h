@@ -133,10 +133,10 @@ class qualifiedName : public name {
   record *castToRecord(types::ty *t, bool tacit = false);
 
   // Translates as a virtual field, if possible.  qt is the type of the
-  // qualifier.  Return true if there was a matching virtual field. 
+  // qualifier.  Return true if there was a matching virtual field.
   bool varTransVirtual(action act, coenv &e,
                        types::ty *target, types::ty *qt);
-  
+
   // Translates as an ordinary (non-virtual) field of a record, r.
   void varTransField(action act, coenv &e,
                      types::ty *target, record *r);

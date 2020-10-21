@@ -16,8 +16,8 @@ using std::fmod;
 
 inline Int Mod(Int x, Int y) {return x % y;}
 inline double Mod(double x, double y) {return fmod(x,y);}
-  
-template<typename T>  
+
+template<typename T>
 inline T portableMod(T x,T y)
 {
 // Implementation-independent definition of mod; ensure that result has
@@ -26,7 +26,7 @@ inline T portableMod(T x,T y)
   if((y > 0 && val < 0) || (y < 0 && val > 0)) val += y;
   return val;
 }
-  
+
 inline Int imod(Int x, Int y)
 {
   return portableMod<Int>(x,y);

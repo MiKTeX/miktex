@@ -18,8 +18,8 @@
 #ifdef __Array_h__
 
 namespace Array {
-static const array1<Complex> NULL1;  
-static const array2<Complex> NULL2;  
+static const array1<Complex> NULL1;
+static const array2<Complex> NULL2;
 static const array3<Complex> NULL3;
 }
 
@@ -64,9 +64,9 @@ inline void newAlign(T *&v, size_t len, size_t align)
   const char *nomem="Memory limits exceeded";
 #ifdef HAVE_POSIX_MEMALIGN
   int rc=posix_memalign(&mem,align,len*sizeof(T));
-#else  
+#else
   int rc=posix_memalign0(&mem,align,len*sizeof(T));
-#endif  
+#endif
   if(rc == EINVAL) std::cerr << invalid << std::endl;
   if(rc == ENOMEM) std::cerr << nomem << std::endl;
   v=(T *) mem;
@@ -81,7 +81,7 @@ inline void deleteAlign(T *v, size_t len)
   free(v);
 #else
   free0(v);
-#endif  
+#endif
 }
 }
 
@@ -115,7 +115,7 @@ inline void deleteAlign(T *p)
   free(p);
 #else
   Array::free0(p);
-#endif  
+#endif
 }
 
 }

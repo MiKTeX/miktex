@@ -44,14 +44,14 @@ namespace types {
 #include "primitives.h"
 #undef PRIMERROR
 #undef PRIMITIVE
-                             
+
 nullTy pNull;
 ty *primNull() { return &pNull; }
-  
+
 const char *names[] = {
   "null",
   "<structure>", "<function>", "<overloaded>",
-  
+
 #define PRIMITIVE(name,Name,asyName) #asyName,
 #define PRIMERROR
 #include "primitives.h"
@@ -77,36 +77,36 @@ void ty::print(ostream& out) const
     return &v;                                                  \
   }
 
-#define RWFIELD(Type, name, getter, setter)                       \
-  if (sig == 0 && id == name) {                                   \
-    static trans::virtualFieldAccess a(run::getter, run::setter); \
-    static trans::varEntry v(Type(), &a, 0, position());          \
-    return &v;                                                    \
+#define RWFIELD(Type, name, getter, setter)                             \
+  if (sig == 0 && id == name) {                                         \
+    static trans::virtualFieldAccess a(run::getter, run::setter);       \
+    static trans::varEntry v(Type(), &a, 0, position());                \
+    return &v;                                                          \
   }
-      
-#define SIGFIELD(Type, name, func)                                         \
-  if (id == name &&                                                        \
-      equivalent(sig, Type()->getSignature()))                             \
-    {                                                                      \
+
+#define SIGFIELD(Type, name, func)                                      \
+  if (id == name &&                                                     \
+      equivalent(sig, Type()->getSignature()))                          \
+    {                                                                   \
       static trans::virtualFieldAccess a(run::func, 0, run::func##Helper); \
-      static trans::varEntry v(Type(), &a, 0, position());                 \
-      return &v;                                                           \
+      static trans::varEntry v(Type(), &a, 0, position());              \
+      return &v;                                                        \
     }
 
-#define DSIGFIELD(name, sym, func)                                         \
-  if (id == sym &&                                                         \
-      equivalent(sig, name##Type()->getSignature()))                       \
-    {                                                                      \
+#define DSIGFIELD(name, sym, func)                                      \
+  if (id == sym &&                                                      \
+      equivalent(sig, name##Type()->getSignature()))                    \
+    {                                                                   \
       static trans::virtualFieldAccess a(run::func, 0, run::func##Helper); \
-      /* for some fields, v needs to be dynamic */                         \
-      /* e.g. when the function type depends on an array type. */          \
-      trans::varEntry *v =                                                 \
-        new trans::varEntry(name##Type(), &a, 0, position());              \
-      return v;                                                            \
+      /* for some fields, v needs to be dynamic */                      \
+      /* e.g. when the function type depends on an array type. */       \
+      trans::varEntry *v =                                              \
+        new trans::varEntry(name##Type(), &a, 0, position());           \
+      return v;                                                         \
     }
 
-#define FILEFIELD(GetType, SetType, name, sym) \
-  FIELD(GetType,sym,name##Part);               \
+#define FILEFIELD(GetType, SetType, name, sym)  \
+  FIELD(GetType,sym,name##Part);                \
   SIGFIELD(SetType,sym,name##Set);
 
 
@@ -154,7 +154,7 @@ trans::varEntry *primitiveTy::virtualField(symbol id, signature *sig)
       FIELD(primReal,SYM(value),curlSpecifierValuePart);
       FIELD(primInt,SYM(side),curlSpecifierSidePart);
       break;
-    case ty_file:      
+    case ty_file:
       FIELD(primString,SYM(name),namePart);
       FIELD(primString,SYM(mode),modePart);
       FILEFIELD(IntArray,dimensionType,dimension,SYM(dimension));
@@ -197,37 +197,37 @@ ty *primitiveTy::virtualFieldGetType(symbol id)
   if(kind == ty_file) {
     if (id == SYM(dimension))
       return overloadedDimensionType();
-  
-    if (id == SYM(line) || id == SYM(csv) || 
-        id == SYM(word) || id == SYM(singlereal) || 
+
+    if (id == SYM(line) || id == SYM(csv) ||
+        id == SYM(word) || id == SYM(singlereal) ||
         id == SYM(singleint) || id == SYM(signedint))
       return overloadedModeType();
-  
+
     if (id == SYM(read))
       return readType();
   }
-  
+
   trans::varEntry *v = virtualField(id, 0);
-  
+
   return v ? v->getType() : 0;
 }
 
-#define RETURN_STATIC_BLTIN(func) \
-  { \
-    static trans::bltinAccess a(run::func); \
-    return &a; \
+#define RETURN_STATIC_BLTIN(func)               \
+  {                                             \
+    static trans::bltinAccess a(run::func);     \
+    return &a;                                  \
   }
 
 trans::access *nullTy::castTo(ty *target, caster &) {
   switch (target->kind) {
     case ty_array: {
-       RETURN_STATIC_BLTIN(pushNullArray);
+      RETURN_STATIC_BLTIN(pushNullArray);
     }
     case ty_record: {
-       RETURN_STATIC_BLTIN(pushNullRecord);
-    } 
+      RETURN_STATIC_BLTIN(pushNullRecord);
+    }
     case ty_function: {
-       RETURN_STATIC_BLTIN(pushNullFunction);
+      RETURN_STATIC_BLTIN(pushNullFunction);
     }
     default:
       return 0;
@@ -237,7 +237,7 @@ trans::access *nullTy::castTo(ty *target, caster &) {
 trans::access *array::initializer()
 {
   RETURN_STATIC_BLTIN(emptyArray)
-}
+    }
 
 ty *array::pushType()
 {
@@ -270,7 +270,7 @@ ty *array::insertType()
     f->addRest(this);
     inserttype = f;
   }
-  
+
   return inserttype;
 }
 
@@ -287,25 +287,25 @@ ty *initializedType() {
   return new function(primBoolean(),formal(primInt(),SYM(i)));
 }
 
-#define SIGFIELDLIST \
-  ASIGFIELD(initialized, SYM(initialized), arrayInitialized); \
-  ASIGFIELD(push, SYM(push), arrayPush); \
-  ASIGFIELD(pop, SYM(pop), arrayPop); \
-  ASIGFIELD(append, SYM(append), arrayAppend); \
-  ASIGFIELD(insert, SYM(insert), arrayInsert); \
-  ASIGFIELD(delete, SYM(delete), arrayDelete); \
+#define SIGFIELDLIST                                            \
+  ASIGFIELD(initialized, SYM(initialized), arrayInitialized);   \
+  ASIGFIELD(push, SYM(push), arrayPush);                        \
+  ASIGFIELD(pop, SYM(pop), arrayPop);                           \
+  ASIGFIELD(append, SYM(append), arrayAppend);                  \
+  ASIGFIELD(insert, SYM(insert), arrayInsert);                  \
+  ASIGFIELD(delete, SYM(delete), arrayDelete);                  \
 
 ty *array::virtualFieldGetType(symbol id)
 {
-  #define ASIGFIELD(name, sym, func) \
-  if (id == sym) \
+#define ASIGFIELD(name, sym, func)              \
+  if (id == sym)                                \
     return name##Type();
 
   SIGFIELDLIST
 
-  #undef ASIGFIELD
+#undef ASIGFIELD
 
-  return ty::virtualFieldGetType(id);
+    return ty::virtualFieldGetType(id);
 }
 
 trans::varEntry *array::virtualField(symbol id, signature *sig)
@@ -314,14 +314,14 @@ trans::varEntry *array::virtualField(symbol id, signature *sig)
   FIELD(IntArray, SYM(keys), arrayKeys);
   RWFIELD(primBoolean, SYM(cyclic), arrayCyclicFlag, arraySetCyclicFlag);
 
-  #define ASIGFIELD(name, sym, func) DSIGFIELD(name, sym, func)
-  
+#define ASIGFIELD(name, sym, func) DSIGFIELD(name, sym, func)
+
   SIGFIELDLIST
-    
-  #undef ASIGFIELD
-  
-  // Fall back on base class to handle no match.
-  return ty::virtualField(id, sig);
+
+#undef ASIGFIELD
+
+    // Fall back on base class to handle no match.
+    return ty::virtualField(id, sig);
 }
 
 #undef SIGFIELDLIST
@@ -353,7 +353,7 @@ ostream& operator<< (ostream& out, const formal& f)
   printFormal(out, f, false);
   return out;
 }
-  
+
 bool equivalent(const formal& f1, const formal& f2) {
   // Just test the types.
   // This cannot be used on rest formal with types equal to NULL.
@@ -385,11 +385,11 @@ ostream& operator<< (ostream& out, const signature& s)
   out << "(";
 
   for (size_t i = 0; i < s.formals.size(); ++i)
-  {
-    if (i > 0)
-      out << ", ";
-    printFormal(out, s.getFormal(i), s.formalIsKeywordOnly(i));
-  }
+    {
+      if (i > 0)
+        out << ", ";
+      printFormal(out, s.getFormal(i), s.formalIsKeywordOnly(i));
+    }
 
   if (s.rest.t) {
     if (!s.formals.empty())
@@ -423,7 +423,7 @@ bool equivalent(const signature *s1, const signature *s2)
     return false;
 
   if (!std::equal(s1->formals.begin(),s1->formals.end(),s2->formals.begin(),
-                 (bool (*)(const formal&,const formal&)) equivalent))
+                  (bool (*)(const formal&,const formal&)) equivalent))
     return false;
 
   if (s1->rest.t)
@@ -445,7 +445,7 @@ bool argumentEquivalent(const signature *s1, const signature *s2)
 
   return std::equal(s1->formals.begin(),s1->formals.end(),s2->formals.begin(),
                     (bool (*)(const formal&,const formal&))
-                            argumentEquivalent) &&
+                    argumentEquivalent) &&
     argumentEquivalent(s1->rest, s2->rest);
 }
 
@@ -510,7 +510,7 @@ ty *overloaded::signatureless()
   for(ty_vector::iterator t = sub.begin(); t != sub.end(); ++t)
     if ((*t)->getSignature()==0)
       return *t;
- 
+
   return 0;
 }
 
@@ -526,7 +526,7 @@ bool equivalent(const ty *t1, const ty *t2)
 {
   // The same pointer must point to the same type.
   if (t1 == t2)
-    return true; 
+    return true;
 
   // Ensure if an overloaded type is compared to a non-overloaded one, that the
   // overloaded type's method is called.
@@ -545,7 +545,7 @@ bool equivalent(const ty *t1, const ty *t2)
 
 bool equivalent(const ty *t1, const ty *t2, bool special) {
   return special ? equivalent(t1, t2) :
-                   equivalent(t1->getSignature(), t2->getSignature());
+    equivalent(t1->getSignature(), t2->getSignature());
 }
 
 #undef FIELD

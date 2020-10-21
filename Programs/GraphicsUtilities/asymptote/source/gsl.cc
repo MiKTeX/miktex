@@ -708,14 +708,14 @@ void addGSLrngRealUIntFuncInt(symbol name, symbol arg1, symbol arg2)
 template<unsigned int (*func)(const gsl_rng*, unsigned int, unsigned int,
                               unsigned int)>
 void intUIntUIntUIntGSLrng(stack *s)
-                              {
-                                unsigned int t = unsignedcast(pop<Int>(s));
-                                unsigned int n2 = unsignedcast(pop<Int>(s));
-                                unsigned int n1 = unsignedcast(pop<Int>(s));
-                                checkGSLrng();
-                                s->push<Int>(func(GSLrng,n1,n2,t));
-                                checkGSLerror();
-                              }
+{
+  unsigned int t = unsignedcast(pop<Int>(s));
+  unsigned int n2 = unsignedcast(pop<Int>(s));
+  unsigned int n1 = unsignedcast(pop<Int>(s));
+  checkGSLrng();
+  s->push<Int>(func(GSLrng,n1,n2,t));
+  checkGSLerror();
+}
 
 template<unsigned int (*fcn)(const gsl_rng*, unsigned int, unsigned int,
                              unsigned int)>
@@ -1091,9 +1091,9 @@ void gen_rungsl_venv(venv &ve)
   addGSLDOUBLE3Func<gsl_sf_ellint_P>(SYM(P),SYM(phi),SYM(k),SYM(n));
 #if GSL_MAJOR_VERSION >= 2
   addGSLDOUBLE2Func<gsl_sf_ellint_D>(SYM(D),SYM(phi),SYM(k));
-#else  
+#else
   addGSLDOUBLE3Func<gsl_sf_ellint_D>(SYM(D),SYM(phi),SYM(k),SYM(n));
-#endif  
+#endif
   addGSLDOUBLE2Func<gsl_sf_ellint_RC>(SYM(RC),SYM(x),SYM(y));
   addGSLDOUBLE3Func<gsl_sf_ellint_RD>(SYM(RD),SYM(x),SYM(y),SYM(z));
   addGSLDOUBLE3Func<gsl_sf_ellint_RF>(SYM(RF),SYM(x),SYM(y),SYM(z));
@@ -1325,7 +1325,7 @@ void gen_rungsl_venv(venv &ve)
     (SYM(cdf_##NAME##_Pinv),SYM(P),SYM(ARG));   \
   addGSLRealRealFunc<gsl_cdf_##NAME##_Qinv>     \
     (SYM(cdf_##NAME##_Qinv),SYM(Q),SYM(ARG))
-  
+
   // Exponential, Laplace, Cauchy, Rayleigh, Chi-squared, t,
   // and Logistic distribution
   addGSLrealdist1param(exponential,mu);
@@ -1350,7 +1350,7 @@ void gen_rungsl_venv(venv &ve)
     (SYM(cdf_##NAME##_Pinv),SYM(P),SYM(ARG1),SYM(ARG2));        \
   addGSLRealRealRealFunc<gsl_cdf_##NAME##_Qinv>                 \
     (SYM(cdf_##NAME##_Qinv),SYM(Q),SYM(ARG1),SYM(ARG2))
-  
+
   // Uniform, log-normal, F, Beta, Pareto, Weibull, Type-1 Gumbel,
   // and Type-2 Gumbel distribution
   addGSLrealdist2param(flat,a,b);
@@ -1362,7 +1362,7 @@ void gen_rungsl_venv(venv &ve)
   addGSLrealdist2param(gumbel1,a,b);
   addGSLrealdist2param(gumbel2,a,b);
 #undef addGSLrealdist2param
-    
+
   // Exponential power distribution
   addGSLrngRealRealFunc<gsl_ran_exppow>
     (SYM(rng_exppow),SYM(a),SYM(b));
@@ -1411,7 +1411,7 @@ void gen_rungsl_venv(venv &ve)
   addFunc(GSLModule->e.ve,GSLrng_dir3d,primTriple(),SYM(rng_dir3d));
   addFunc(GSLModule->e.ve,GSLrng_dir,realArray(),SYM(rng_dir),
           formal(primInt(),SYM(n)));
-  
+
   // Elliptic functions (Jacobi)
   addFunc(GSLModule->e.ve,GSLsf_elljac_e,realArray(),SYM(sncndn),
           formal(primReal(),SYM(u)),formal(primReal(),SYM(m)));
@@ -1435,7 +1435,7 @@ void gen_rungsl_venv(venv &ve)
     (SYM(cdf_##NAME##_P),SYM(k),SYM(ARG));      \
   addGSLUInt##TYPE##Func<gsl_cdf_##NAME##_Q>    \
     (SYM(cdf_##NAME##_Q),SYM(k),SYM(ARG))
-    
+
   // Poisson, geometric distributions
   addGSLdiscdist1param(poisson,mu,Real);
   addGSLdiscdist1param(geometric,p,Real);
@@ -1450,7 +1450,7 @@ void gen_rungsl_venv(venv &ve)
     (SYM(cdf_##NAME##_P),SYM(k),SYM(ARG1),SYM(ARG2));           \
   addGSLUInt##TYPE1##TYPE2##Func<gsl_cdf_##NAME##_Q>            \
     (SYM(cdf_##NAME##_Q),SYM(k),SYM(ARG1),SYM(ARG2))
-  
+
   // Binomial, negative binomial distributions
   addGSLdiscdist2param(binomial,p,Real,n,UInt);
   addGSLdiscdist2param(negative_binomial,p,Real,n,Real);

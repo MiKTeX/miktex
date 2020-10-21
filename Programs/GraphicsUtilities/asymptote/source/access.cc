@@ -56,7 +56,7 @@ void bltinAccess::encode(action act, position pos, coder &e, frame *)
   e.encode(inst::pop);
   encode(act, pos, e);
 }
-  
+
 /* callableAccess */
 void callableAccess::encode(action act, position pos, coder &e)
 {
@@ -79,7 +79,7 @@ void callableAccess::encode(action act, position pos, coder &e, frame *)
   e.encode(inst::pop);
   encode(act, pos, e);
 }
-  
+
 
 /* frameAccess */
 void frameAccess::encode(action act, position pos, coder &e)
@@ -122,8 +122,8 @@ void localAccess::encode(action act, position pos, coder &e)
              offset);
   }
   else if (e.encode(level)) {
-      e.encode(act == WRITE ? inst::fieldsave : inst::fieldpush,
-               offset);
+    e.encode(act == WRITE ? inst::fieldsave : inst::fieldpush,
+             offset);
   }
   else {
     frameError(pos);
@@ -159,5 +159,5 @@ void qualifiedAccess::encode(action act, position pos, coder &e, frame *top)
   field->encode(act, pos, e, qualifierLevel);
 }
 
-    
+
 } // namespace trans

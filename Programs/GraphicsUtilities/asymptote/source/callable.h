@@ -1,7 +1,7 @@
 /*****
  * callable.h
  * Tom Prince 2005/06/19
- * 
+ *
  * Runtime representation of functions.
  *****/
 
@@ -51,7 +51,7 @@ struct func : public callable {
   void print(ostream& out);
 };
 
-class bfunc : public callable 
+class bfunc : public callable
 {
 public:
   bfunc(bltin b) : func(b) {}

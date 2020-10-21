@@ -37,7 +37,7 @@ class frame : public gc {
     : parent(new frame("<subframe of " + name + ">", 0, 0)),
       numFormals(0), numLocals(1), style(INDIRECT_FRAME)
 #ifdef DEBUG_FRAME
-      , name(name)
+    , name(name)
 #endif
   {}
 
@@ -46,7 +46,7 @@ public:
     : parent(parent), numFormals(numFormals), numLocals(0),
       style(DIRECT_FRAME)
 #ifdef DEBUG_FRAME
-      , name(name)
+    , name(name)
 #endif
   {}
 
@@ -95,4 +95,4 @@ inline void print(ostream& out, frame *f) {
 } // namespace trans
 
 #endif
-     
+

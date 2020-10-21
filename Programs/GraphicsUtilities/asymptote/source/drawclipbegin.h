@@ -21,7 +21,7 @@ public:
   void noncyclic() {
     reportError("cannot clip to non-cyclic path");
   }
-  
+
   drawClipBegin(const vm::array& src, bool stroke, pen pentype,
                 bool gsave=true, const string& key="") :
     drawElement(key), drawSuperPathPenBase(src,pentype), gsave(gsave),
@@ -32,7 +32,7 @@ public:
   virtual ~drawClipBegin() {}
 
   bool beginclip() {return true;}
-  
+
   void bounds(bbox& b, iopipestream& iopipe, boxvector& vbox,
               bboxlist& bboxstack) {
     bboxstack.push_back(b);
@@ -43,13 +43,13 @@ public:
   }
 
   bool begingroup() {return true;}
-  
+
   bool svg() {return true;}
-  
+
   void save(bool b) {
     gsave=b;
   }
-  
+
   bool draw(psfile *out) {
     if(gsave) out->gsave();
     if(empty()) return true;
@@ -63,10 +63,10 @@ public:
   bool write(texfile *out, const bbox& bpath) {
     if(gsave) out->gsave();
     if(empty()) return true;
-    
-    if(out->toplevel()) 
+
+    if(out->toplevel())
       out->beginpicture(bpath);
-      
+
     out->begingroup();
 
     out->beginspecial();
@@ -76,10 +76,10 @@ public:
     out->endclip(pentype);
     out->endraw();
     out->endspecial();
-    
+
     return true;
   }
-  
+
   drawElement *transformed(const transform& t)
   {
     return new drawClipBegin(transpath(t),stroke,transpen(t),gsave,KEY);

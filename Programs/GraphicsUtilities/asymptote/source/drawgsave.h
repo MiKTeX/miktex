@@ -21,7 +21,7 @@ public:
     out->gsave();
     return true;
   }
-  
+
   bool write(texfile *out, const bbox&) {
     out->gsave();
     return true;

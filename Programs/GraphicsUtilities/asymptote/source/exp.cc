@@ -25,7 +25,7 @@
 #include "process.h"
 
 //void runCode(absyntax::block *code);
-  
+
 namespace absyntax {
 
 using namespace types;
@@ -100,7 +100,7 @@ void exp::testCachedType(coenv &e) {
     types::ty *t = getType(e);
     if (!equivalent(t, ct)) {
       em.compiler(getPos());
-      em << "cached type '" << *ct 
+      em << "cached type '" << *ct
          << "' doesn't match actual type '" << *t << "'";
       em.sync();
     }
@@ -305,7 +305,7 @@ types::ty *subscriptExp::getType(coenv &e)
   return a ? (isAnArray(e, index) ? a : a->celltype) :
     primError();
 }
-     
+
 void subscriptExp::transWrite(coenv &e, types::ty *t, exp *value)
 {
   // Put array, index, and value on the stack in that order, then call
@@ -315,14 +315,14 @@ void subscriptExp::transWrite(coenv &e, types::ty *t, exp *value)
     return;
 
   if (!equivalent(a->celltype, t))
-  {
-    em.error(getPos());
-    em << "array expression cannot be used as an address";
+    {
+      em.error(getPos());
+      em << "array expression cannot be used as an address";
 
-    // Translate the value for errors.
-    value->transToType(e, t);
-    return;
-  }
+      // Translate the value for errors.
+      value->transToType(e, t);
+      return;
+    }
 
   index->transToType(e, types::primInt());
 
@@ -447,17 +447,17 @@ types::ty *uniqueFunction(types::ty *t) {
   if (t->isOverloaded()) {
     types::ty *ft = 0;
     for (ty_iterator i = t->begin(); i != t->end(); ++i)
-    {
-      if ((*i)->kind != types::ty_function) 
-        continue;
+      {
+        if ((*i)->kind != types::ty_function)
+          continue;
 
-      if (ft) {
-        // Multiple function types.
-        return 0;
+        if (ft) {
+          // Multiple function types.
+          return 0;
+        }
+
+        ft = *i;
       }
-
-      ft = *i;
-    }
 
     return ft;
   }
@@ -475,20 +475,20 @@ types::ty *uniqueFunction(types::ty *t1, types::ty *t2) {
   if (t1->isOverloaded()) {
     types::ty *ft = 0;
     for (ty_iterator i = t1->begin(); i != t1->end(); ++i)
-    {
-      if ((*i)->kind != types::ty_function) 
-        continue;
+      {
+        if ((*i)->kind != types::ty_function)
+          continue;
 
-      if (!equivalent(*i, t2))
-        continue;
+        if (!equivalent(*i, t2))
+          continue;
 
-      if (ft) {
-        // Multiple function types.
-        return 0;
+        if (ft) {
+          // Multiple function types.
+          return 0;
+        }
+
+        ft = *i;
       }
-
-      ft = *i;
-    }
 
     return ft;
   }
@@ -588,8 +588,8 @@ void intExp::prettyprint(ostream &out, Int indent)
 types::ty *intExp::trans(coenv &e)
 {
   e.c.encode(inst::intpush,value);
-  
-  return types::primInt();  
+
+  return types::primInt();
 }
 
 
@@ -602,8 +602,8 @@ void realExp::prettyprint(ostream &out, Int indent)
 types::ty *realExp::trans(coenv &e)
 {
   e.c.encode(inst::constpush,(item)value);
-  
-  return types::primReal();  
+
+  return types::primReal();
 }
 
 void stringExp::prettyprint(ostream &out, Int indent)
@@ -615,8 +615,8 @@ void stringExp::prettyprint(ostream &out, Int indent)
 types::ty *stringExp::trans(coenv &e)
 {
   e.c.encode(inst::constpush,(item) string(str));
-  
-  return types::primString();  
+
+  return types::primString();
 }
 
 
@@ -629,8 +629,8 @@ void booleanExp::prettyprint(ostream &out, Int indent)
 types::ty *booleanExp::trans(coenv &e)
 {
   e.c.encode(inst::constpush,(item)value);
-  
-  return types::primBoolean();  
+
+  return types::primBoolean();
 }
 
 void newPictureExp::prettyprint(ostream &out, Int indent)
@@ -641,8 +641,8 @@ void newPictureExp::prettyprint(ostream &out, Int indent)
 types::ty *newPictureExp::trans(coenv &e)
 {
   e.c.encode(inst::builtin, run::newPicture);
-  
-  return types::primPicture();  
+
+  return types::primPicture();
 }
 
 void cycleExp::prettyprint(ostream &out, Int indent)
@@ -653,8 +653,8 @@ void cycleExp::prettyprint(ostream &out, Int indent)
 types::ty *cycleExp::trans(coenv &e)
 {
   e.c.encode(inst::builtin, run::newCycleToken);
-  
-  return types::primCycleToken();  
+
+  return types::primCycleToken();
 }
 
 void nullPathExp::prettyprint(ostream &out, Int indent)
@@ -665,8 +665,8 @@ void nullPathExp::prettyprint(ostream &out, Int indent)
 types::ty *nullPathExp::trans(coenv &e)
 {
   e.c.encode(inst::builtin, run::nullPath);
-  
-  return types::primPath();  
+
+  return types::primPath();
 }
 
 void nullExp::prettyprint(ostream &out, Int indent)
@@ -678,7 +678,7 @@ types::ty *nullExp::trans(coenv &)
 {
   // Things get put on the stack when ty_null
   // is cast to an appropriate type
-  return types::primNull();  
+  return types::primNull();
 }
 
 
@@ -691,8 +691,8 @@ void quoteExp::prettyprint(ostream &out, Int indent)
 types::ty *quoteExp::trans(coenv &e)
 {
   e.c.encode(inst::constpush,(item)value);
-  
-  return types::primCode();  
+
+  return types::primCode();
 }
 
 void explist::prettyprint(ostream &out, Int indent)
@@ -740,7 +740,7 @@ signature *callExp::argTypes(coenv &e, bool *searchable)
   *searchable = true;
 
   size_t n = args->size();
-  
+
   for (size_t i = 0; i < n; i++) {
     if(string(args->args[i].name) == "KEY") {
       stringExp *s=dynamic_cast<stringExp*>(args->args[i].val);
@@ -851,7 +851,7 @@ void callExp::reportMismatch(function *ft, signature *source)
 void callExp::reportArgErrors(coenv &e)
 {
   // Cycle through the parameters to report all errors.
-  // NOTE: This may report inappropriate ambiguity errors. 
+  // NOTE: This may report inappropriate ambiguity errors.
   for (size_t i = 0; i < args->size(); i++) {
     (*args)[i].val->trans(e);
   }
@@ -860,12 +860,12 @@ void callExp::reportArgErrors(coenv &e)
 }
 
 void callExp::reportNonFunction() {
-    em.error(getPos());
-    symbol s = callee->getName();
-    if (s)
-      em << "\'" << s << "\' is not a function";
-    else
-      em << "called expression is not a function";
+  em.error(getPos());
+  symbol s = callee->getName();
+  if (s)
+    em << "\'" << s << "\' is not a function";
+  else
+    em << "called expression is not a function";
 }
 
 types::ty *callExp::cacheAppOrVarEntry(coenv &e, bool tacit)
@@ -880,7 +880,7 @@ types::ty *callExp::cacheAppOrVarEntry(coenv &e, bool tacit)
   cout << "getApp for ";
   if (callee->getName())
     cout << *callee->getName();
-  else 
+  else
     cout << "unnamed";
   cout << " at " << getPos() << endl;
   cout << "searchable: " << searchable << endl;
@@ -916,7 +916,7 @@ types::ty *callExp::cacheAppOrVarEntry(coenv &e, bool tacit)
 
 #ifdef DEBUG_GETAPP
   string name = callee->getName() ? string(*callee->getName()) :
-                                    string("unnamed");
+    string("unnamed");
   if (!callee->getName())
     cout << getPos() << endl;
 #endif
@@ -1035,8 +1035,8 @@ bool callExp::resolved(coenv &e) {
     cacheAppOrVarEntry(e, true);
   return cachedApp || cachedVarEntry;
 }
-  
-    
+
+
 void pairExp::prettyprint(ostream &out, Int indent)
 {
   prettyname(out, "pairExp",indent);
@@ -1217,7 +1217,7 @@ types::ty *promote(coenv &e, types::ty *x, types::ty *y)
         bool castToFirst=e.castable(x, y, symbol::castsym);
         bool castToSecond=e.castable(y, x, symbol::castsym);
 
-        return (castToFirst && castToSecond) ? both(x,y) : 
+        return (castToFirst && castToSecond) ? both(x,y) :
           castToFirst ? x :
           castToSecond ? y :
           0;
@@ -1265,7 +1265,7 @@ types::ty *conditionalExp::getType(coenv &e)
   types::ty *t = promote(e, tt, ft);
   return t ? t : primError();
 }
- 
+
 
 void orExp::prettyprint(ostream &out, Int indent)
 {
@@ -1350,7 +1350,7 @@ void joinExp::prettyprint(ostream &out, Int indent)
 void specExp::prettyprint(ostream &out, Int indent)
 {
   prettyindent(out,indent);
-  out << "specExp '" << op << "' " 
+  out << "specExp '" << op << "' "
       << (s==camp::OUT ? "out" :
           s==camp::IN  ? "in" :
           "invalid side") << '\n';
@@ -1453,7 +1453,7 @@ void prefixExp::prettyprint(ostream &out, Int indent)
 {
   prettyindent(out, indent);
   out << "prefixExp '" << op << "'\n";
-  
+
   dest->prettyprint(out, indent+1);
 }
 

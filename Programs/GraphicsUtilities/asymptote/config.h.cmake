@@ -15,6 +15,9 @@
 /* Define to 1 if you have the `dup2' function. */
 #cmakedefine HAVE_DUP2 1
 
+/* Define to 1 if you have the <editline/readline.h> header file. */
+#cmakedefine HAVE_EDITLINE_READLINE_H 1
+
 /* Define to 1 if you have the `feenableexcept' function. */
 #cmakedefine HAVE_FEENABLEEXCEPT 1
 
@@ -42,8 +45,14 @@
 /* Define to 1 if you have the `lgamma' function. */
 #cmakedefine HAVE_LGAMMA 1
 
+/* Define to 1 if you have the `curl' library (-lcurl). */
+#cmakedefine HAVE_LIBCURL 1
+
 /* Define to 1 if you have the `ncurses' library (-lncurses). */
 #cmakedefine HAVE_LIBCURSES 1
+
+/* Define to 1 if you have the `edit' library (-ledit). */
+#cmakedefine HAVE_LIBEDIT 1
 
 /* Define to 1 if you have the `fftw3' library (-lfftw3). */
 #cmakedefine HAVE_LIBFFTW3 1
@@ -110,6 +119,9 @@
 
 /* Define to 1 if you have the <ncurses.h> header file. */
 #cmakedefine HAVE_NCURSES_H 1
+
+/* Define to 1 if you have the `popcount' function. */
+#cmakedefine HAVE_POPCOUNT 1
 
 /* Define if you have POSIX threads libraries and header files. */
 #cmakedefine HAVE_PTHREAD

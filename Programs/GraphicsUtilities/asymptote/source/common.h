@@ -7,9 +7,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#if !defined(MIKTEX)
 #undef NDEBUG
-#endif
 
 #include <iostream>
 #include <climits>
@@ -18,7 +16,7 @@
 #include "config.h"
 #endif
 
-#if !defined(FOR_SHARED) && \
+#if !defined(FOR_SHARED) &&                                             \
   ((defined(HAVE_LIBGL) && defined(HAVE_LIBGLUT) && defined(HAVE_LIBGLM)) || \
    defined(HAVE_LIBOSMESA))
 #define HAVE_GL
@@ -90,4 +88,13 @@ using mem::istringstream;
 using mem::ostringstream;
 using mem::stringbuf;
 
-#endif 
+static const struct ws_t {} ws={};
+
+// Portable way of skipping whitespace
+inline std::istream &operator >> (std::istream & s, const ws_t &ws) {
+  if(!s.eof())
+    s >> std::ws;
+  return s;
+}
+
+#endif

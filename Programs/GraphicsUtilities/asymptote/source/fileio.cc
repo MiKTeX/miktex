@@ -7,6 +7,10 @@
 
 #include "fileio.h"
 #include "settings.h"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 
 namespace camp {
 
@@ -17,6 +21,53 @@ string newline="\n";
 
 ofile Stdout("");
 file nullfile("",false,NOMODE,false,true);
+
+void ifile::open()
+{
+  if(standard) {
+    if(mode & std::ios::binary)
+      reportError("Cannot open standard input in binary mode");
+    stream=&cin;
+  } else {
+    if(mode & std::ios::out)
+      name=outpath(name);
+    else {
+#ifdef HAVE_LIBCURL
+      if(parser::isURL(name)) {
+        parser::readURL(buf,name);
+        stream=&buf;
+      } else
+#endif
+      {
+        name=locatefile(inpath(name));
+#if defined(MIKTEX_WINDOWS)
+        stream = fstream = new std::fstream(UW_(name), mode);
+#else
+        stream=fstream=new std::fstream(name.c_str(),mode);
+#endif
+      }
+    }
+
+    if(mode & std::ios::out) {
+      if(error()) {
+        delete fstream;
+#if defined(MIKTEX_WINDOWS)
+        std::ofstream f(UW_(name));
+#else
+        std::ofstream f(name.c_str());
+#endif
+        f.close();
+#if defined(MIKTEX_WINDOWS)
+        stream = fstream = new std::fstream(UW_(name), mode);
+#else
+        stream=fstream=new std::fstream(name.c_str(),mode);
+#endif
+      }
+    }
+    index=processData().ifile.add(fstream);
+    if(check) Check();
+  }
+}
 
 void ifile::ignoreComment()
 {
@@ -38,7 +89,7 @@ void ifile::ignoreComment()
     } else {if(c != EOF && eol) stream->unget(); return;}
   }
 }
-  
+
 bool ifile::eol()
 {
   int c;
@@ -51,7 +102,7 @@ bool ifile::eol()
   }
   return false;
 }
-  
+
 bool ifile::nexteol()
 {
   int c;
@@ -59,7 +110,7 @@ bool ifile::nexteol()
     nullfield=false;
     return true;
   }
-  
+
   while(isspace(c=stream->peek())) {
     if(c == '\n' && comma) {
       nullfield=true;
@@ -80,7 +131,7 @@ bool ifile::nexteol()
   }
   return false;
 }
-  
+
 void ifile::csv()
 {
   comma=false;
@@ -96,7 +147,7 @@ void ifile::csv()
   } else stream->clear(rdstate);
   if(c == ',') comma=true;
 }
-  
+
 void ifile::Read(string& val)
 {
   string s;
@@ -132,7 +183,7 @@ void ifile::Read(string& val)
     }
   } else
     getline(*stream,s);
-  
+
   if(comment) {
     size_t p=0;
     while((p=s.find(comment,p)) < string::npos) {
@@ -140,7 +191,7 @@ void ifile::Read(string& val)
         s.erase(p,1);
         ++p;
       } else {
-        s.erase(p);     
+        s.erase(p);
         break;
       }
     }
@@ -152,8 +203,8 @@ void ifile::Read(string& val)
   }
   val=whitespace+s;
 }
-  
-void ofile::writeline() 
+
+void ofile::writeline()
 {
   if(standard && interact::query && !vm::indebugger) {
     Int scroll=settings::getScroll();
@@ -176,5 +227,5 @@ void ofile::writeline()
   } else *stream << newline;
   if(errorstream::interrupt) {interact::lines=0; throw interrupted();}
 }
-  
+
 } // namespace camp

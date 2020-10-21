@@ -1,7 +1,7 @@
 /*****
  * opcodes.h
  * Andy Hammerlindl 2010/10/24
- * 
+ *
  * A list of the virtual machine opcodes, defined by the macro OPCODE.
  *****/
 

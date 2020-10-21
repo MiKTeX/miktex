@@ -17,12 +17,12 @@ inline prc::RGBAColour rgba(pen p) {
   p.torgb();
   return prc::RGBAColour(p.red(),p.green(),p.blue(),p.opacity());
 }
-  
+
 static const double inches=72;
 static const double cm=inches/2.54;
 
 class prcfile : public prc::oPRCFile {
-public:  
+public:
   prcfile(string name) : prc::oPRCFile(name.c_str(),10.0/cm) {} // Use bp.
 };
 

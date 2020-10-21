@@ -171,156 +171,150 @@ void gen_runtriple9(stack *Stack)
 }
 
 #line 70 "runtriple.in"
-// real polar(triple v, bool warn=true);
+// real abs2(triple v);
 void gen_runtriple10(stack *Stack)
 {
-  bool warn=vm::pop<bool>(Stack,true);
   triple v=vm::pop<triple>(Stack);
 #line 71 "runtriple.in"
-  {Stack->push<real>(v.polar(warn)); return;}
+  {Stack->push<real>(abs2(v)); return;}
 }
 
 #line 75 "runtriple.in"
-// real azimuth(triple v, bool warn=true);
+// real polar(triple v, bool warn=true);
 void gen_runtriple11(stack *Stack)
 {
   bool warn=vm::pop<bool>(Stack,true);
   triple v=vm::pop<triple>(Stack);
 #line 76 "runtriple.in"
-  if(!warn && v.getx() == 0.0 && v.gety() == 0.0) {Stack->push<real>(0.0); return;}
-  {Stack->push<real>(v.azimuth()); return;}
+  {Stack->push<real>(v.polar(warn)); return;}
 }
 
-#line 81 "runtriple.in"
-// real colatitude(triple v, bool warn=true);
+#line 80 "runtriple.in"
+// real azimuth(triple v, bool warn=true);
 void gen_runtriple12(stack *Stack)
 {
   bool warn=vm::pop<bool>(Stack,true);
   triple v=vm::pop<triple>(Stack);
-#line 82 "runtriple.in"
-  if(!warn && v.getx() == 0.0 && v.gety() == 0.0 && v.getz() == 0.0) {Stack->push<real>(0.0); return;}
-  {Stack->push<real>(degrees(v.polar())); return;}
+#line 81 "runtriple.in"
+  if(!warn && v.getx() == 0.0 && v.gety() == 0.0) {Stack->push<real>(0.0); return;}
+  {Stack->push<real>(v.azimuth()); return;}
 }
 
-#line 87 "runtriple.in"
-// real latitude(triple v, bool warn=true);
+#line 86 "runtriple.in"
+// real colatitude(triple v, bool warn=true);
 void gen_runtriple13(stack *Stack)
 {
   bool warn=vm::pop<bool>(Stack,true);
   triple v=vm::pop<triple>(Stack);
-#line 88 "runtriple.in"
+#line 87 "runtriple.in"
+  if(!warn && v.getx() == 0.0 && v.gety() == 0.0 && v.getz() == 0.0) {Stack->push<real>(0.0); return;}
+  {Stack->push<real>(degrees(v.polar())); return;}
+}
+
+#line 92 "runtriple.in"
+// real latitude(triple v, bool warn=true);
+void gen_runtriple14(stack *Stack)
+{
+  bool warn=vm::pop<bool>(Stack,true);
+  triple v=vm::pop<triple>(Stack);
+#line 93 "runtriple.in"
   if(!warn && v.getx() == 0.0 && v.gety() == 0.0 && v.getz() == 0.0) {Stack->push<real>(0.0); return;}
   {Stack->push<real>(90.0-degrees(v.polar())); return;}
 }
 
 // Return the longitude of v in [0,360).
-#line 94 "runtriple.in"
+#line 99 "runtriple.in"
 // real longitude(triple v, bool warn=true);
-void gen_runtriple14(stack *Stack)
+void gen_runtriple15(stack *Stack)
 {
   bool warn=vm::pop<bool>(Stack,true);
   triple v=vm::pop<triple>(Stack);
-#line 95 "runtriple.in"
+#line 100 "runtriple.in"
   if(!warn && v.getx() == 0.0 && v.gety() == 0.0) {Stack->push<real>(0.0); return;}
   {Stack->push<real>(principalBranch(degrees(v.azimuth()))); return;}
 }
 
-#line 100 "runtriple.in"
-// triple unit(triple v);
-void gen_runtriple15(stack *Stack)
-{
-  triple v=vm::pop<triple>(Stack);
-#line 101 "runtriple.in"
-  {Stack->push<triple>(unit(v)); return;}
-}
-
 #line 105 "runtriple.in"
-// real dot(triple u, triple v);
+// triple unit(triple v);
 void gen_runtriple16(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
-  triple u=vm::pop<triple>(Stack);
 #line 106 "runtriple.in"
-  {Stack->push<real>(dot(u,v)); return;}
+  {Stack->push<triple>(unit(v)); return;}
 }
 
 #line 110 "runtriple.in"
-// triple cross(triple u, triple v);
+// real dot(triple u, triple v);
 void gen_runtriple17(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
   triple u=vm::pop<triple>(Stack);
 #line 111 "runtriple.in"
-  {Stack->push<triple>(cross(u,v)); return;}
+  {Stack->push<real>(dot(u,v)); return;}
 }
 
 #line 115 "runtriple.in"
-// triple dir(explicit triple z);
+// triple cross(triple u, triple v);
 void gen_runtriple18(stack *Stack)
-{
-  triple z=vm::pop<triple>(Stack);
-#line 116 "runtriple.in"
-  {Stack->push<triple>(unit(z)); return;}
-}
-
-#line 120 "runtriple.in"
-// triple expi(real polar, real azimuth);
-void gen_runtriple19(stack *Stack)
-{
-  real azimuth=vm::pop<real>(Stack);
-  real polar=vm::pop<real>(Stack);
-#line 121 "runtriple.in"
-  {Stack->push<triple>(expi(polar,azimuth)); return;}
-}
-
-#line 125 "runtriple.in"
-// triple dir(real colatitude, real longitude);
-void gen_runtriple20(stack *Stack)
-{
-  real longitude=vm::pop<real>(Stack);
-  real colatitude=vm::pop<real>(Stack);
-#line 126 "runtriple.in"
-  {Stack->push<triple>(expi(radians(colatitude),radians(longitude))); return;}
-}
-
-#line 130 "runtriple.in"
-// triple realmult(triple u, triple v);
-void gen_runtriple21(stack *Stack)
 {
   triple v=vm::pop<triple>(Stack);
   triple u=vm::pop<triple>(Stack);
+#line 116 "runtriple.in"
+  {Stack->push<triple>(cross(u,v)); return;}
+}
+
+#line 120 "runtriple.in"
+// triple dir(explicit triple z);
+void gen_runtriple19(stack *Stack)
+{
+  triple z=vm::pop<triple>(Stack);
+#line 121 "runtriple.in"
+  {Stack->push<triple>(unit(z)); return;}
+}
+
+#line 125 "runtriple.in"
+// triple expi(real polar, real azimuth);
+void gen_runtriple20(stack *Stack)
+{
+  real azimuth=vm::pop<real>(Stack);
+  real polar=vm::pop<real>(Stack);
+#line 126 "runtriple.in"
+  {Stack->push<triple>(expi(polar,azimuth)); return;}
+}
+
+#line 130 "runtriple.in"
+// triple dir(real colatitude, real longitude);
+void gen_runtriple21(stack *Stack)
+{
+  real longitude=vm::pop<real>(Stack);
+  real colatitude=vm::pop<real>(Stack);
 #line 131 "runtriple.in"
+  {Stack->push<triple>(expi(radians(colatitude),radians(longitude))); return;}
+}
+
+#line 135 "runtriple.in"
+// triple realmult(triple u, triple v);
+void gen_runtriple22(stack *Stack)
+{
+  triple v=vm::pop<triple>(Stack);
+  triple u=vm::pop<triple>(Stack);
+#line 136 "runtriple.in"
   {Stack->push<triple>(triple (u.getx()*v.getx(),u.gety()*v.gety(),u.getz()*v.getz())); return;}
 }
 
 // Return the component of vector v perpendicular to a unit vector u.
-#line 136 "runtriple.in"
+#line 141 "runtriple.in"
 // triple perp(triple v, triple u);
-void gen_runtriple22(stack *Stack)
+void gen_runtriple23(stack *Stack)
 {
   triple u=vm::pop<triple>(Stack);
   triple v=vm::pop<triple>(Stack);
-#line 137 "runtriple.in"
+#line 142 "runtriple.in"
   {Stack->push<triple>(perp(v,u)); return;}
 }
 
-#line 141 "runtriple.in"
+#line 146 "runtriple.in"
 // triple bezier(triple a, triple b, triple c, triple d, real t);
-void gen_runtriple23(stack *Stack)
-{
-  real t=vm::pop<real>(Stack);
-  triple d=vm::pop<triple>(Stack);
-  triple c=vm::pop<triple>(Stack);
-  triple b=vm::pop<triple>(Stack);
-  triple a=vm::pop<triple>(Stack);
-#line 142 "runtriple.in"
-  real onemt=1-t;
-  real onemt2=onemt*onemt;
-  {Stack->push<triple>(onemt2*onemt*a+t*(3.0*(onemt2*b+t*onemt*c)+t*t*d)); return;}
-}
-
-#line 148 "runtriple.in"
-// triple bezierP(triple a, triple b, triple c, triple d, real t);
 void gen_runtriple24(stack *Stack)
 {
   real t=vm::pop<real>(Stack);
@@ -328,12 +322,14 @@ void gen_runtriple24(stack *Stack)
   triple c=vm::pop<triple>(Stack);
   triple b=vm::pop<triple>(Stack);
   triple a=vm::pop<triple>(Stack);
-#line 149 "runtriple.in"
-  {Stack->push<triple>(3.0*(t*t*(d-a+3.0*(b-c))+t*(2.0*(a+c)-4.0*b)+b-a)); return;}
+#line 147 "runtriple.in"
+  real onemt=1-t;
+  real onemt2=onemt*onemt;
+  {Stack->push<triple>(onemt2*onemt*a+t*(3.0*(onemt2*b+t*onemt*c)+t*t*d)); return;}
 }
 
 #line 153 "runtriple.in"
-// triple bezierPP(triple a, triple b, triple c, triple d, real t);
+// triple bezierP(triple a, triple b, triple c, triple d, real t);
 void gen_runtriple25(stack *Stack)
 {
   real t=vm::pop<real>(Stack);
@@ -342,18 +338,31 @@ void gen_runtriple25(stack *Stack)
   triple b=vm::pop<triple>(Stack);
   triple a=vm::pop<triple>(Stack);
 #line 154 "runtriple.in"
-  {Stack->push<triple>(6.0*(t*(d-a+3.0*(b-c))+a+c)-12.0*b); return;}
+  {Stack->push<triple>(3.0*(t*t*(d-a+3.0*(b-c))+t*(2.0*(a+c)-4.0*b)+b-a)); return;}
 }
 
 #line 158 "runtriple.in"
-// triple bezierPPP(triple a, triple b, triple c, triple d);
+// triple bezierPP(triple a, triple b, triple c, triple d, real t);
 void gen_runtriple26(stack *Stack)
 {
+  real t=vm::pop<real>(Stack);
   triple d=vm::pop<triple>(Stack);
   triple c=vm::pop<triple>(Stack);
   triple b=vm::pop<triple>(Stack);
   triple a=vm::pop<triple>(Stack);
 #line 159 "runtriple.in"
+  {Stack->push<triple>(6.0*(t*(d-a+3.0*(b-c))+a+c)-12.0*b); return;}
+}
+
+#line 163 "runtriple.in"
+// triple bezierPPP(triple a, triple b, triple c, triple d);
+void gen_runtriple27(stack *Stack)
+{
+  triple d=vm::pop<triple>(Stack);
+  triple c=vm::pop<triple>(Stack);
+  triple b=vm::pop<triple>(Stack);
+  triple a=vm::pop<triple>(Stack);
+#line 164 "runtriple.in"
   {Stack->push<triple>(6.0*(d-a)+18.0*(b-c)); return;}
 }
 
@@ -384,39 +393,41 @@ void gen_runtriple_venv(venv &ve)
 #line 65 "runtriple.in"
   addFunc(ve, run::gen_runtriple9, primReal(), SYM(abs), formal(primTriple(), SYM(v), false, false));
 #line 70 "runtriple.in"
-  addFunc(ve, run::gen_runtriple10, primReal(), SYM(polar), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
+  addFunc(ve, run::gen_runtriple10, primReal(), SYM(abs2), formal(primTriple(), SYM(v), false, false));
 #line 75 "runtriple.in"
-  addFunc(ve, run::gen_runtriple11, primReal(), SYM(azimuth), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
-#line 81 "runtriple.in"
-  addFunc(ve, run::gen_runtriple12, primReal(), SYM(colatitude), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
-#line 87 "runtriple.in"
-  addFunc(ve, run::gen_runtriple13, primReal(), SYM(latitude), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
-#line 93 "runtriple.in"
-  addFunc(ve, run::gen_runtriple14, primReal(), SYM(longitude), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
-#line 100 "runtriple.in"
-  addFunc(ve, run::gen_runtriple15, primTriple(), SYM(unit), formal(primTriple(), SYM(v), false, false));
+  addFunc(ve, run::gen_runtriple11, primReal(), SYM(polar), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
+#line 80 "runtriple.in"
+  addFunc(ve, run::gen_runtriple12, primReal(), SYM(azimuth), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
+#line 86 "runtriple.in"
+  addFunc(ve, run::gen_runtriple13, primReal(), SYM(colatitude), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
+#line 92 "runtriple.in"
+  addFunc(ve, run::gen_runtriple14, primReal(), SYM(latitude), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
+#line 98 "runtriple.in"
+  addFunc(ve, run::gen_runtriple15, primReal(), SYM(longitude), formal(primTriple(), SYM(v), false, false), formal(primBoolean(), SYM(warn), true, false));
 #line 105 "runtriple.in"
-  addFunc(ve, run::gen_runtriple16, primReal(), SYM(dot), formal(primTriple(), SYM(u), false, false), formal(primTriple(), SYM(v), false, false));
+  addFunc(ve, run::gen_runtriple16, primTriple(), SYM(unit), formal(primTriple(), SYM(v), false, false));
 #line 110 "runtriple.in"
-  addFunc(ve, run::gen_runtriple17, primTriple(), SYM(cross), formal(primTriple(), SYM(u), false, false), formal(primTriple(), SYM(v), false, false));
+  addFunc(ve, run::gen_runtriple17, primReal(), SYM(dot), formal(primTriple(), SYM(u), false, false), formal(primTriple(), SYM(v), false, false));
 #line 115 "runtriple.in"
-  addFunc(ve, run::gen_runtriple18, primTriple(), SYM(dir), formal(primTriple(), SYM(z), false, true));
+  addFunc(ve, run::gen_runtriple18, primTriple(), SYM(cross), formal(primTriple(), SYM(u), false, false), formal(primTriple(), SYM(v), false, false));
 #line 120 "runtriple.in"
-  addFunc(ve, run::gen_runtriple19, primTriple(), SYM(expi), formal(primReal(), SYM(polar), false, false), formal(primReal(), SYM(azimuth), false, false));
+  addFunc(ve, run::gen_runtriple19, primTriple(), SYM(dir), formal(primTriple(), SYM(z), false, true));
 #line 125 "runtriple.in"
-  addFunc(ve, run::gen_runtriple20, primTriple(), SYM(dir), formal(primReal(), SYM(colatitude), false, false), formal(primReal(), SYM(longitude), false, false));
+  addFunc(ve, run::gen_runtriple20, primTriple(), SYM(expi), formal(primReal(), SYM(polar), false, false), formal(primReal(), SYM(azimuth), false, false));
 #line 130 "runtriple.in"
-  addFunc(ve, run::gen_runtriple21, primTriple(), SYM(realmult), formal(primTriple(), SYM(u), false, false), formal(primTriple(), SYM(v), false, false));
+  addFunc(ve, run::gen_runtriple21, primTriple(), SYM(dir), formal(primReal(), SYM(colatitude), false, false), formal(primReal(), SYM(longitude), false, false));
 #line 135 "runtriple.in"
-  addFunc(ve, run::gen_runtriple22, primTriple(), SYM(perp), formal(primTriple(), SYM(v), false, false), formal(primTriple(), SYM(u), false, false));
-#line 141 "runtriple.in"
-  addFunc(ve, run::gen_runtriple23, primTriple(), SYM(bezier), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false), formal(primReal(), SYM(t), false, false));
-#line 148 "runtriple.in"
-  addFunc(ve, run::gen_runtriple24, primTriple(), SYM(bezierP), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false), formal(primReal(), SYM(t), false, false));
+  addFunc(ve, run::gen_runtriple22, primTriple(), SYM(realmult), formal(primTriple(), SYM(u), false, false), formal(primTriple(), SYM(v), false, false));
+#line 140 "runtriple.in"
+  addFunc(ve, run::gen_runtriple23, primTriple(), SYM(perp), formal(primTriple(), SYM(v), false, false), formal(primTriple(), SYM(u), false, false));
+#line 146 "runtriple.in"
+  addFunc(ve, run::gen_runtriple24, primTriple(), SYM(bezier), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false), formal(primReal(), SYM(t), false, false));
 #line 153 "runtriple.in"
-  addFunc(ve, run::gen_runtriple25, primTriple(), SYM(bezierPP), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false), formal(primReal(), SYM(t), false, false));
+  addFunc(ve, run::gen_runtriple25, primTriple(), SYM(bezierP), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false), formal(primReal(), SYM(t), false, false));
 #line 158 "runtriple.in"
-  addFunc(ve, run::gen_runtriple26, primTriple(), SYM(bezierPPP), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false));
+  addFunc(ve, run::gen_runtriple26, primTriple(), SYM(bezierPP), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false), formal(primReal(), SYM(t), false, false));
+#line 163 "runtriple.in"
+  addFunc(ve, run::gen_runtriple27, primTriple(), SYM(bezierPPP), formal(primTriple(), SYM(a), false, false), formal(primTriple(), SYM(b), false, false), formal(primTriple(), SYM(c), false, false), formal(primTriple(), SYM(d), false, false));
 }
 
 } // namespace trans

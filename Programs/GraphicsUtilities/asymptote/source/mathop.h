@@ -71,7 +71,7 @@ template <typename T>
 struct minus {
   T operator() (T x, T y, size_t=0) {return x-y;}
 };
-  
+
 template <typename T>
 struct times {
   T operator() (T x, T y, size_t=0) {return x*y;}
@@ -87,9 +87,9 @@ struct timesR {
   T operator () (T y, double x, size_t=0) {return x*y;}
 };
 
-extern void dividebyzero(size_t i=0);  
-extern void integeroverflow(size_t i=0);  
-  
+extern void dividebyzero(size_t i=0);
+extern void integeroverflow(size_t i=0);
+
 template <typename T>
 struct divide {
   T operator() (T x, T y,  size_t i=0) {
@@ -106,20 +106,20 @@ struct divide<camp::triple> {
 inline bool validInt(double x) {
   return x > Int_MIN-0.5 && x < Int_MAX+0.5;
 }
-  
+
 inline void checkInt(double x, size_t i)
 {
   if(validInt(x)) return;
   integeroverflow(i);
 }
-  
+
 inline Int Intcast(double x)
 {
   if(validInt(x)) return (Int) x;
   integeroverflow(0);
   return 0;
 }
-  
+
 template<>
 struct plus<Int> {
   Int operator() (Int x, Int y, size_t i=0) {
@@ -143,7 +143,7 @@ struct times<Int> {
   Int operator() (Int x, Int y, size_t i=0) {
     if(y == 0) return 0;
     if(y < 0) {y=-y; x=-x;}
-    if((y > int_MAX || x > int_MAX/(int) y || x < int_MIN/(int) y) && 
+    if((y > int_MAX || x > int_MAX/(int) y || x < int_MIN/(int) y) &&
        (x > Int_MAX/y || x < Int_MIN/y))
       integeroverflow(i);
     return x*y;
@@ -169,7 +169,7 @@ inline Int Negate(Int x, size_t i=0) {
   if(x < -Int_MAX) integeroverflow(i);
   return -x;
 }
-  
+
 template<>
 inline void Negate<Int>(vm::stack *s)
 {
@@ -187,7 +187,7 @@ T pow(T x, Int y)
   if(y == 0) return 1.0;
   if(x == 0.0 && y > 0) return 0.0;
   if(y < 0) {y=-y; x=1/x;}
-        
+
   T r=1.0;
   for(;;) {
     if(y & 1) r *= x;
@@ -195,7 +195,7 @@ T pow(T x, Int y)
     x *= x;
   }
 }
-  
+
 template <typename T>
 struct power {
   T operator() (T x, T y, size_t=0) {return pow(x,y);}
@@ -233,7 +233,7 @@ struct power<Int> {
     }
   }
 };
- 
+
 template <typename T>
 struct mod {
   T operator() (T x, T y,  size_t i=0) {
@@ -299,7 +299,7 @@ struct maxbound {
 };
 
 template <double (*func)(double)>
-void realReal(vm::stack *s) 
+void realReal(vm::stack *s)
 {
   double x=vm::pop<double>(s);
   s->push(func(x));

@@ -12,7 +12,7 @@
 
 #ifdef __MSDOS__
 #undef _WIN32
-#include "GL/wglew.h"
+#include <GL/wglew.h>
 #include <GL/wglext.h>
 #endif
 

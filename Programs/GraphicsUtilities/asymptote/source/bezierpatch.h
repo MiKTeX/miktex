@@ -30,7 +30,7 @@ struct BezierPatch
   bool Onscreen;
 
   void init(double res);
-    
+
   triple normal(triple left3, triple left2, triple left1, triple middle,
                 triple right1, triple right2, triple right3) {
     triple lp=3.0*(left1-middle);
@@ -66,11 +66,11 @@ struct BezierPatch
     triple p=p1-p0;
     if(abs2(p) > epsilon)
       return p;
-    
+
     p=bezierPP(p0,p1,p2);
     if(abs2(p) > epsilon)
       return p;
-    
+
     return bezierPPP(p0,p1,p2,p3);
   }
 
@@ -96,10 +96,10 @@ struct BezierPatch
     v=max(v,Straightness(p[4],p[5],p[6],p[7]));
     v=max(v,Straightness(p[8],p[9],p[10],p[11]));
     v=max(v,Straightness(p12,p[13],p[14],p15));
-    
+
     return pair(h,v);
   }
-  
+
   struct Split3 {
     triple m0,m2,m3,m4,m5;
     Split3() {}
@@ -112,7 +112,7 @@ struct BezierPatch
       m5=0.5*(m3+m4);
     }
   };
-  
+
   // Approximate bounds by bounding box of control polyhedron.
   bool offscreen(size_t n, const triple *v) {
     if(bbox2(n,v).offscreen()) {
@@ -129,7 +129,7 @@ struct BezierPatch
               bool flat0, bool flat1, bool flat2, bool flat3,
               GLfloat *C0=NULL, GLfloat *C1=NULL, GLfloat *C2=NULL,
               GLfloat *C3=NULL);
-  
+
   void append() {
     if(transparent)
       transparentData.Append(data);
@@ -140,28 +140,40 @@ struct BezierPatch
         materialData.append(data);
     }
   }
-  
+
+  virtual void notRendered() {
+    if(transparent)
+      transparentData.rendered=false;
+    else {
+      if(color)
+        colorData.rendered=false;
+      else
+        materialData.rendered=false;
+    }
+  }
+
   void queue(const triple *g, bool straight, double ratio, bool Transparent,
              GLfloat *colors=NULL) {
     data.clear();
+    notRendered();
     Onscreen=true;
     transparent=Transparent;
     color=colors;
     init(pixel*ratio);
     render(g,straight,colors);
   }
-  
+
 };
 
 struct BezierTriangle : public BezierPatch {
 public:
   BezierTriangle() : BezierPatch() {}
-  
+
   double Distance(const triple *p) {
     triple p0=p[0];
     triple p6=p[6];
     triple p9=p[9];
-    
+
     // Check how far the internal point is from the centroid of the vertices.
     double d=abs2((p0+p6+p9)*third-p[4]);
 
@@ -170,7 +182,7 @@ public:
     d=max(d,Straightness(p0,p[2],p[5],p9));
     return max(d,Straightness(p6,p[7],p[8],p9));
   }
-  
+
   void render(const triple *p, bool straight, GLfloat *c0=NULL);
   void render(const triple *p,
               GLuint I0, GLuint I1, GLuint I2,
@@ -187,12 +199,19 @@ public:
              size_t nC, const prc::RGBAColour* C, size_t nI,
              const uint32_t (*PI)[3], const uint32_t (*NI)[3],
              const uint32_t (*CI)[3], bool transparent);
-  
+
   void append() {
     if(transparent)
       transparentData.Append(data);
     else
       triangleData.Append(data);
+  }
+
+  void notRendered() {
+    if(transparent)
+      transparentData.rendered=false;
+    else
+      triangleData.rendered=false;
   }
 
 };

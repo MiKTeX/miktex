@@ -1,7 +1,7 @@
 /*****
  * array.h
  * Tom Prince 2005/06/18
- * 
+ *
  * Array type used by virtual machine.
  *****/
 
@@ -14,15 +14,17 @@
 
 namespace vm {
 
+extern const char *dereferenceNullArray;
+
 // Arrays are vectors with push and pop functions.
 class array : public mem::vector<item> {
-  bool cycle;  
+  bool cycle;
 
   void setNonBridgingSlice(size_t l, size_t r, mem::vector<item> *a);
   void setBridgingSlice(size_t l, size_t r, mem::vector<item> *a);
 public:
   array() : cycle(false) {}
-  
+
   array(size_t n)
     : mem::vector<item>(n), cycle(false)
   {}
@@ -46,14 +48,14 @@ public:
   {
     return get<T>((*this)[i]);
   }
-  
+
   array *slice(Int left, Int right);
   void setSlice(Int left, Int right, array *a);
 
   void cyclic(bool b) {
     cycle=b;
   }
-  
+
   bool cyclic() const {
     return cycle;
   }
@@ -75,7 +77,7 @@ inline T read(const array &a, size_t i)
 
 inline size_t checkArray(const vm::array *a)
 {
-  if(a == 0) vm::error("dereference of null array");
+  if(a == 0) vm::error(dereferenceNullArray);
   return a->size();
 }
 
@@ -87,14 +89,14 @@ inline void checkEqual(size_t i, size_t j) {
   vm::error(buf);
 }
 
-inline size_t checkArrays(const vm::array *a, const vm::array *b) 
+inline size_t checkArrays(const vm::array *a, const vm::array *b)
 {
   size_t asize=checkArray(a);
   size_t bsize=checkArray(b);
   checkEqual(asize,bsize);
   return asize;
 }
- 
+
 // Copies an item to a depth d.  If d == 0 then the item is just returned
 // without copying, otherwise, the array and its subarrays are copied to
 // depth d.

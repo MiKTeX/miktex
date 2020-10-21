@@ -47,7 +47,7 @@ public:
 
   types::ty *getType(coenv &) { return types::primError(); }
   types::ty *trans(coenv &e) { complain(); return getType(e); }
-  
+
   void transAsType(coenv &e, types::ty *target) { complain(); }
 };
 
@@ -58,7 +58,7 @@ public:
 
   virtual int_typ toInt() {
     datumError("cannot convert to integer");
-    
+
     // Return a weird value that will hopefully be noticed.
     return -777777;
   }
@@ -268,7 +268,7 @@ public:
     return new fieldExp(nullPos, parent->getExp(), id);
   }
 };
- 
+
 ImpDatum *ImpDatum::getField(const char *name)
 {
   coenv &e = coenvInOngoingProcess();
@@ -387,7 +387,7 @@ void imp_releaseArguments(arguments_typ args)
 }
 
 void imp_addArgument(arguments_typ args, const char *name, handle_typ handle,
-    arg_rest_option isRest)
+                     arg_rest_option isRest)
 {
   unwrapArgs(args)->add(name, unwrap(handle), isRest);
 }
@@ -406,7 +406,7 @@ ImpDatum *callDatum(ImpDatum *callee, ImpArguments *args)
   }
 
   assert(t->isNotOverloaded()); // Calls are never overloaded.
-  
+
   if (t->kind == types::ty_void) {
     // Execute the call and return 0 to indicate void.
     runExp(&callex);
@@ -451,7 +451,7 @@ public:
   int_typ numParams() {
     /*if (params)
       return params->val.size();
-    else */ {
+      else */ {
       datumError("parameters accessed outside of function");
       return 0;
     }
@@ -459,12 +459,12 @@ public:
 
   ImpDatum *getParam(int_typ index) {
     /*if (params) {
-      if (index >= 0 && index < static_cast<int_typ>(params->val.size())) 
-        return params->val[index];
+      if (index >= 0 && index < static_cast<int_typ>(params->val.size()))
+      return params->val[index];
       else
-        return datumError("invalid index for parameter");
-    }
-    else */ {
+      return datumError("invalid index for parameter");
+      }
+      else */ {
       return datumError("parameters accessed outside of function");
     }
   }
@@ -473,11 +473,11 @@ public:
   {
     /*if (params) {
       if (this->retval)
-        datumError("return value set more than once");
+      datumError("return value set more than once");
       else
-        this->retval = retval;
-    }
-    else */ {
+      this->retval = retval;
+      }
+      else */ {
       datumError("return value set outside of function");
     }
   }
@@ -547,7 +547,7 @@ public:
 #endif
 
 handle_typ imp_handleFromFunction(const char *signature,
-    function_typ f, void *data)
+                                  function_typ f, void *data)
 {
   // TODO: Re-implement.
   return 0; //wrap(new FunctionDatum(f, data));
@@ -592,24 +592,24 @@ void init(bool resetpath=true);
 
 extern "C" {
 
-policy_typ *_asy_getPolicy()
-{
-  return &imp_policy;
-}
+  policy_typ *_asy_getPolicy()
+  {
+    return &imp_policy;
+  }
 
-state_typ _asy_getState()
-{
-  static state_typ state = cheatState();
+  state_typ _asy_getState()
+  {
+    static state_typ state = cheatState();
 
-  // TODO: Make sure this runs once.
-  char buf[] = "asymptote.so";
-  char *argv [] = { buf };
-  settings::setOptions(1,argv);
+    // TODO: Make sure this runs once.
+    char buf[] = "asymptote.so";
+    char *argv [] = { buf };
+    settings::setOptions(1,argv);
 
-  // Ensures uptodate is not used.
-  init();
+    // Ensures uptodate is not used.
+    init();
 
-  return state;
-}
+    return state;
+  }
 
 }

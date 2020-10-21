@@ -43,10 +43,10 @@ void checkColorSpace(ColorSpace colorspace)
       break;
   }
 }
-    
+
 psfile::psfile(const string& filename, bool pdfformat)
   : filename(filename), pdfformat(pdfformat), pdf(false),
-    transparency(false), buffer(NULL), out(NULL) 
+    buffer(NULL), out(NULL)
 {
   if(filename.empty()) out=&cout;
   else out=new ofstream(filename.c_str());
@@ -57,9 +57,9 @@ psfile::psfile(const string& filename, bool pdfformat)
 
 static const char *inconsistent="inconsistent colorspaces";
 static const char *rectangular="matrix is not rectangular";
-  
-void psfile::writefromRGB(unsigned char r, unsigned char g, unsigned char b, 
-                          ColorSpace colorspace, size_t ncomponents) 
+
+void psfile::writefromRGB(unsigned char r, unsigned char g, unsigned char b,
+                          ColorSpace colorspace, size_t ncomponents)
 {
   static const double factor=1.0/255.0;
   pen p(r*factor,g*factor,b*factor);
@@ -109,10 +109,10 @@ void psfile::dealias(unsigned char *a, size_t width, size_t height, size_t n,
 }
 
 void psfile::writeCompressed(const unsigned char *a, size_t size)
-{  
+{
   uLongf compressedSize=compressBound(size);
   Bytef *compressed=new Bytef[compressedSize];
-  
+
   if(compress(compressed,&compressedSize,a,size) != Z_OK)
     reportError("image compression failed");
 
@@ -120,15 +120,15 @@ void psfile::writeCompressed(const unsigned char *a, size_t size)
   for(size_t i=0; i < compressedSize; ++i)
     e.put(compressed[i]);
 }
-  
+
 void psfile::close()
 {
   if(out) {
     out->flush();
     if(!filename.empty()) {
-#ifdef __MSDOS__  
+#ifdef __MSDOS__
       chmod(filename.c_str(),~settings::mask & 0777);
-#endif	    
+#endif
       if(!out->good())
         // Don't call reportError since this may be called on handled_error.
         reportFatal("Cannot write to "+filename);
@@ -142,7 +142,7 @@ psfile::~psfile()
 {
   close();
 }
-  
+
 void psfile::header(bool eps)
 {
   Int level=settings::getSetting<Int>("level");
@@ -151,7 +151,7 @@ void psfile::header(bool eps)
     *out << " EPSF-" << level << ".0";
   *out << newl;
 }
-  
+
 void psfile::prologue(const bbox& box)
 {
   header(true);
@@ -170,9 +170,9 @@ void psfile::prologue(const bbox& box)
 
   *out << "%%Pages: 1" << newl;
   *out << "%%Page: 1 1" << newl;
-  
+
   if(!pdfformat)
-    *out 
+    *out
       << "/Setlinewidth {0 exch dtransform dup abs 1 lt {pop 0}{round} ifelse"
       << newl
       << "idtransform setlinewidth pop} bind def" << newl;
@@ -188,15 +188,15 @@ void psfile::setcolor(const pen& p, const string& begin="",
                       const string& end="")
 {
   if(p.cmyk() && (!lastpen.cmyk() ||
-                  (p.cyan() != lastpen.cyan() || 
-                   p.magenta() != lastpen.magenta() || 
+                  (p.cyan() != lastpen.cyan() ||
+                   p.magenta() != lastpen.magenta() ||
                    p.yellow() != lastpen.yellow() ||
                    p.black() != lastpen.black()))) {
-    *out << begin << p.cyan() << " " << p.magenta() << " " << p.yellow() << " " 
+    *out << begin << p.cyan() << " " << p.magenta() << " " << p.yellow() << " "
          << p.black() << (pdf ? " k" : " setcmykcolor") << end << newl;
-  } else if(p.rgb() && (!lastpen.rgb() || 
-                        (p.red() != lastpen.red() || 
-                         p.green() != lastpen.green() || 
+  } else if(p.rgb() && (!lastpen.rgb() ||
+                        (p.red() != lastpen.red() ||
+                         p.green() != lastpen.green() ||
                          p.blue() != lastpen.blue()))) {
     *out << begin << p.red() << " " << p.green() << " " << p.blue()
          << (pdf ? " rg" : " setrgbcolor") << end << newl;
@@ -205,71 +205,73 @@ void psfile::setcolor(const pen& p, const string& begin="",
     *out << begin << p.gray() << (pdf ? " g" : " setgray") << end << newl;
   }
 }
-  
+
 void psfile::setopacity(const pen& p)
 {
   if(p.blend() != lastpen.blend()) {
     *out << "/" << p.blend() << " .setblendmode" << newl;
-    transparency=true;
   }
-  
-  if(p.opacity() != lastpen.opacity()) {
-    *out << p.opacity() << " .setopacityalpha" << newl;
-    transparency=true;
+
+  string outputformat=settings::getSetting<string>("outformat");
+  if(p.opacity() != lastpen.opacity() &&
+     (pdf || outputformat == "pdf" || outputformat == "html" ||
+      outputformat == "svg")) {
+    *out << p.opacity() << " .setfillconstantalpha" << newl
+         << p.opacity() << " .setstrokeconstantalpha" << newl;
   }
-  
+
   lastpen.settransparency(p);
 }
 
-  
+
 void psfile::setpen(pen p)
 {
   p.convert();
-    
+
   setopacity(p);
-  
-  if(!p.fillpattern().empty() && p.fillpattern() != lastpen.fillpattern()) 
+
+  if(!p.fillpattern().empty() && p.fillpattern() != lastpen.fillpattern())
     *out << p.fillpattern() << " setpattern" << newl;
   else setcolor(p);
-  
+
   // Defer dynamic linewidth until stroke time in case currentmatrix changes.
   if(p.width() != lastpen.width())
-    *out << p.width() << (pdfformat ? " setlinewidth" : " Setlinewidth") 
+    *out << p.width() << (pdfformat ? " setlinewidth" : " Setlinewidth")
          << newl;
-    
+
   if(p.cap() != lastpen.cap())
     *out << p.cap() << " setlinecap" << newl;
-    
+
   if(p.join() != lastpen.join())
     *out << p.join() << " setlinejoin" << newl;
-    
+
   if(p.miter() != lastpen.miter())
     *out << p.miter() << " setmiterlimit" << newl;
 
   const LineType *linetype=p.linetype();
   const LineType *lastlinetype=lastpen.linetype();
-  
-  if(!(linetype->pattern == lastlinetype->pattern) || 
+
+  if(!(linetype->pattern == lastlinetype->pattern) ||
      linetype->offset != lastlinetype->offset) {
     out->setf(std::ios::fixed);
     *out << linetype->pattern << " " << linetype->offset << " setdash" << newl;
     out->unsetf(std::ios::fixed);
   }
-    
+
   lastpen=p;
 }
 
 void psfile::write(const pen& p)
 {
   if(p.cmyk())
-    *out << p.cyan() << " " << p.magenta() << " " << p.yellow() << " " 
+    *out << p.cyan() << " " << p.magenta() << " " << p.yellow() << " "
          << p.black();
   else if(p.rgb())
     *out << p.red() << " " << p.green() << " " << p.blue();
   else if(p.grayscale())
     *out << p.gray();
 }
-  
+
 void psfile::write(path p, bool newPath)
 {
   Int n = p.size();
@@ -281,7 +283,7 @@ void psfile::write(path p, bool newPath)
 
   // Draw points
   moveto(z0);
-  
+
   for(Int i = 1; i < n; i++) {
     if(p.straight(i-1)) lineto(p.point(i));
     else curveto(p.postcontrol(i-1),p.precontrol(i),p.point(i));
@@ -301,16 +303,16 @@ void psfile::latticeshade(const vm::array& a, const transform& t)
   checkLevel();
   size_t n=a.size();
   if(n == 0) return;
-  
+
   array *a0=read<array *>(a,0);
   size_t m=a0->size();
   setfirstopacity(*a0);
-  
+
   ColorSpace colorspace=maxcolorspace2(a);
   checkColorSpace(colorspace);
-  
+
   size_t ncomponents=ColorComponents[colorspace];
-  
+
   *out << "<< /ShadingType 1" << newl
        << "/Matrix ";
   write(t);
@@ -345,7 +347,7 @@ void psfile::latticeshade(const vm::array& a, const transform& t)
       *out << p->hex() << newl;
     }
   }
-  
+
   *out << ">" << newl
        << ">>" << newl
        << ">>" << newl
@@ -363,7 +365,7 @@ void psfile::gradientshade(bool axial, ColorSpace colorspace,
 
   setopacity(pena);
   checkColorSpace(colorspace);
-  
+
   *out << "<< /ShadingType " << (axial ? "2" : "3") << newl
        << "/ColorSpace /Device" << ColorDeviceSuffix[colorspace] << newl
        << "/Coords [";
@@ -387,7 +389,7 @@ void psfile::gradientshade(bool axial, ColorSpace colorspace,
        << ">>" << newl
        << "shfill" << newl;
 }
-  
+
 void psfile::gouraudshade(const pen& pentype,
                           const array& pens, const array& vertices,
                           const array& edges)
@@ -397,7 +399,7 @@ void psfile::gouraudshade(const pen& pentype,
 
   size_t size=pens.size();
   if(size == 0) return;
-  
+
   setfirstopacity(pens);
   ColorSpace colorspace=maxcolorspace(pens);
 
@@ -419,7 +421,7 @@ void psfile::gouraudshade(const pen& pentype,
        << ">>" << newl
        << "shfill" << newl;
 }
- 
+
 void psfile::vertexpen(array *pi, int j, ColorSpace colorspace)
 {
   pen *p=read<pen *>(pi,j);
@@ -436,27 +438,27 @@ void psfile::tensorshade(const pen& pentype, const array& pens,
 {
   checkLevel();
   endclip(pentype);
-  
+
   size_t size=pens.size();
   if(size == 0) return;
   size_t nz=z.size();
-  
+
   array *p0=read<array *>(pens,0);
   if(checkArray(p0) != 4)
     reportError("4 pens required");
   setfirstopacity(*p0);
-  
+
   ColorSpace colorspace=maxcolorspace2(pens);
   checkColorSpace(colorspace);
 
   *out << "<< /ShadingType 7" << newl
        << "/ColorSpace /Device" << ColorDeviceSuffix[colorspace] << newl
        << "/DataSource [" << newl;
-  
+
   for(size_t i=0; i < size; i++) {
     // Only edge flag 0 (new patch) is implemented since the 32% data
     // compression (for RGB) afforded by other edge flags really isn't worth
-    // the trouble or confusion for the user. 
+    // the trouble or confusion for the user.
     write(0);
     path g=read<path>(boundaries,i);
     if(!(g.cyclic() && g.size() == 4))
@@ -483,7 +485,7 @@ void psfile::tensorshade(const pen& pentype, const array& pens,
       write(read<pair>(zi,2));
       write(read<pair>(zi,1));
     }
-    
+
     array *pi=read<array *>(pens,i);
     if(checkArray(pi) != 4)
       reportError("specify 4 pens for each path");
@@ -493,38 +495,38 @@ void psfile::tensorshade(const pen& pentype, const array& pens,
     vertexpen(pi,1,colorspace);
     *out << newl;
   }
-  
+
   *out << "]" << newl
        << ">>" << newl
        << "shfill" << newl;
 }
- 
-void psfile::write(pen *p, size_t ncomponents) 
+
+void psfile::write(pen *p, size_t ncomponents)
 {
   switch(ncomponents) {
     case 0:
       break;
-    case 1: 
-      writeByte(byte(p->gray())); 
+    case 1:
+      writeByte(byte(p->gray()));
       break;
     case 3:
-      writeByte(byte(p->red())); 
-      writeByte(byte(p->green())); 
-      writeByte(byte(p->blue())); 
+      writeByte(byte(p->red()));
+      writeByte(byte(p->green()));
+      writeByte(byte(p->blue()));
       break;
     case 4:
-      writeByte(byte(p->cyan())); 
-      writeByte(byte(p->magenta())); 
-      writeByte(byte(p->yellow())); 
-      writeByte(byte(p->black())); 
+      writeByte(byte(p->cyan()));
+      writeByte(byte(p->magenta()));
+      writeByte(byte(p->yellow()));
+      writeByte(byte(p->black()));
     default:
       break;
   }
 }
 
-string filter() 
+string filter()
 {
-  return settings::getSetting<Int>("level") >= 3 ? 
+  return settings::getSetting<Int>("level") >= 3 ?
     "1 (~>) /SubFileDecode filter /ASCII85Decode filter\n/FlateDecode" :
     "1 (~>) /SubFileDecode filter /ASCII85Decode";
 }
@@ -532,7 +534,7 @@ string filter()
 void psfile::imageheader(size_t width, size_t height, ColorSpace colorspace)
 {
   size_t ncomponents=ColorComponents[colorspace];
-  *out << "/Device" << ColorDeviceSuffix[colorspace] << " setcolorspace" 
+  *out << "/Device" << ColorDeviceSuffix[colorspace] << " setcolorspace"
        << newl
        << "<<" << newl
        << "/ImageType 1" << newl
@@ -540,10 +542,10 @@ void psfile::imageheader(size_t width, size_t height, ColorSpace colorspace)
        << "/Height " << height << newl
        << "/BitsPerComponent 8" << newl
        << "/Decode [";
-  
+
   for(size_t i=0; i < ncomponents; ++i)
     *out << "0 1 ";
-  
+
   *out << "]" << newl
        << "/ImageMatrix [" << width << " 0 0 " << height << " 0 0]" << newl
        << "/DataSource currentfile " << filter() << " filter" << newl
@@ -556,36 +558,36 @@ void psfile::image(const array& a, const array& P, bool antialias)
   size_t asize=a.size();
   size_t Psize=P.size();
   if(asize == 0 || Psize == 0) return;
-  
+
   array *a0=read<array *>(a,0);
   size_t a0size=a0->size();
   if(a0size == 0) return;
-  
+
   setfirstopacity(P);
-  
+
   ColorSpace colorspace=maxcolorspace(P);
   checkColorSpace(colorspace);
-  
+
   size_t ncomponents=ColorComponents[colorspace];
-  
+
   imageheader(a0size,asize,colorspace);
-    
+
   double min=read<double>(a0,0);
   double max=min;
   for(size_t i=0; i < asize; i++) {
     array *ai=read<array *>(a,i);
     size_t size=ai->size();
     if(size != a0size)
-        reportError(rectangular);
+      reportError(rectangular);
     for(size_t j=0; j < size; j++) {
       double val=read<double>(ai,j);
       if(val > max) max=val;
       else if(val < min) min=val;
     }
   }
-  
+
   double step=(max == min) ? 0.0 : (Psize-1)/(max-min);
-  
+
   beginImage(ncomponents*a0size*asize);
   for(size_t i=0; i < asize; i++) {
     array *ai=read<array *>(a,i);
@@ -606,26 +608,26 @@ void psfile::image(const array& a, bool antialias)
 {
   size_t asize=a.size();
   if(asize == 0) return;
-  
+
   array *a0=read<array *>(a,0);
   size_t a0size=a0->size();
   if(a0size == 0) return;
-  
+
   setfirstopacity(*a0);
-  
+
   ColorSpace colorspace=maxcolorspace2(a);
   checkColorSpace(colorspace);
-  
+
   size_t ncomponents=ColorComponents[colorspace];
-  
+
   imageheader(a0size,asize,colorspace);
-    
+
   beginImage(ncomponents*a0size*asize);
   for(size_t i=0; i < asize; i++) {
     array *ai=read<array *>(a,i);
     size_t size=ai->size();
     if(size != a0size)
-        reportError(rectangular);
+      reportError(rectangular);
     for(size_t j=0; j < size; j++) {
       pen *p=read<pen *>(ai,j);
       p->convert();
@@ -636,26 +638,26 @@ void psfile::image(const array& a, bool antialias)
   }
   endImage(antialias,a0size,asize,ncomponents);
 }
-  
+
 void psfile::image(stack *Stack, callable *f, Int width, Int height,
                    bool antialias)
 {
   if(width <= 0 || height <= 0) return;
-  
+
   Stack->push(0);
   Stack->push(0);
   f->call(Stack);
   pen p=pop<pen>(Stack);
 
   setopacity(p);
-  
+
   ColorSpace colorspace=p.colorspace();
   checkColorSpace(colorspace);
-  
+
   size_t ncomponents=ColorComponents[colorspace];
-  
+
   imageheader(width,height,colorspace);
-    
+
   beginImage(ncomponents*width*height);
   for(Int j=0; j < height; j++) {
     for(Int i=0; i < width; i++) {
@@ -671,7 +673,7 @@ void psfile::image(stack *Stack, callable *f, Int width, Int height,
   }
   endImage(antialias,width,height,ncomponents);
 }
-  
+
 void psfile::outImage(bool antialias, size_t width, size_t height,
                       size_t ncomponents)
 {
@@ -684,7 +686,7 @@ void psfile::outImage(bool antialias, size_t width, size_t height,
       e.put(buffer[i]);
   }
 }
-  
+
 void psfile::rawimage(unsigned char *a, size_t width, size_t height,
                       bool antialias)
 {
@@ -692,11 +694,11 @@ void psfile::rawimage(unsigned char *a, size_t width, size_t height,
   p.convert();
   ColorSpace colorspace=p.colorspace();
   checkColorSpace(colorspace);
-  
+
   size_t ncomponents=ColorComponents[colorspace];
-  
+
   imageheader(width,height,colorspace);
-  
+
   count=ncomponents*width*height;
   if(colorspace == RGB) {
     buffer=a;

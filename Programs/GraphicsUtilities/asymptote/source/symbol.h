@@ -29,8 +29,8 @@ struct GCInit {
     GC_set_free_space_divisor(2);
     mem::compact(0);
     GC_INIT();
-#endif  
-    
+#endif
+
     // Put the symbol table into a state where symbols can be translated.
     initTable();
   }
@@ -60,7 +60,7 @@ struct symbol {
   static symbol initsym;
   static symbol castsym;
   static symbol ecastsym;
-  
+
   bool special() const {
     return *this == initsym || *this == castsym || *this == ecastsym;
   }

@@ -15,15 +15,15 @@
 using namespace settings;
 
 namespace camp {
-  
+
 string texready=string("(Please type a command or say `\\end')\n*");
 
-void drawLabel::labelwarning(const char *action) 
+void drawLabel::labelwarning(const char *action)
 {
-  cerr << "warning: label \"" << label 
+  cerr << "warning: label \"" << label
        << "\" " << action << " to avoid overwriting" << endl;
 }
- 
+
 // Reads one of the dimensions from the pipe.
 void texdim(iopipestream& tex, double& dest, const string command,
             const string name)
@@ -62,10 +62,10 @@ void texbounds(double& width, double& height, double& depth,
   texdim(tex,width,"wd","width");
   texdim(tex,height,"ht","height");
   texdim(tex,depth,"dp","depth");
-}   
+}
 
 inline double urand()
-{                         
+{
 #if defined(MIKTEX)
   // MIKTEX-TODO
   static const double factor = 2.0 / RAND_MAX;
@@ -76,10 +76,10 @@ inline double urand()
 #endif
 }
 
-void setpen(iopipestream& tex, const string& texengine, const pen& pentype) 
+void setpen(iopipestream& tex, const string& texengine, const pen& pentype)
 {
   bool Latex=latex(texengine);
-  
+
   if(Latex && setlatexfont(tex,pentype,drawElement::lastpen)) {
     tex << "\n";
     tex.wait(texready.c_str());
@@ -88,7 +88,7 @@ void setpen(iopipestream& tex, const string& texengine, const pen& pentype)
     tex << "\n";
     tex.wait(texready.c_str());
   }
-  
+
   drawElement::lastpen=pentype;
 }
 
@@ -96,20 +96,20 @@ void drawLabel::getbounds(iopipestream& tex, const string& texengine)
 {
   if(havebounds) return;
   havebounds=true;
-  
+
   setpen(tex,texengine,pentype);
   texbounds(width,height,depth,tex,label);
-  
+
   if(width == 0.0 && height == 0.0 && depth == 0.0 && !size.empty())
     texbounds(width,height,depth,tex,size);
 
   enabled=true;
-    
+
   Align=inverse(T)*align;
   double scale0=max(fabs(Align.getx()),fabs(Align.gety()));
   if(scale0) Align *= 0.5/scale0;
   Align -= pair(0.5,0.5);
-  double Depth=(pentype.Baseline() == NOBASEALIGN) ? depth : 
+  double Depth=(pentype.Baseline() == NOBASEALIGN) ? depth :
     -depth*Align.gety();
   texAlign=Align;
   const double vertical=height+depth;
@@ -124,9 +124,9 @@ void drawLabel::bounds(bbox& b, iopipestream& tex, boxvector& labelbounds,
 {
   string texengine=getSetting<string>("tex");
   if(texengine == "none") {b += position; return;}
-  
+
   getbounds(tex,texengine);
-  
+
   // alignment point
   pair p=position+Align;
   const double vertical=height+depth;
@@ -135,7 +135,7 @@ void drawLabel::bounds(bbox& b, iopipestream& tex, boxvector& labelbounds,
   pair B=p+T*pair(-fuzz,vertical+fuzz);
   pair C=p+T*pair(width+fuzz,vertical+fuzz);
   pair D=p+T*pair(width+fuzz,-fuzz);
-  
+
   if(pentype.Overwrite() != ALLOW && label != "") {
     size_t n=labelbounds.size();
     box Box=box(A,B,C,D);
@@ -145,7 +145,7 @@ void drawLabel::bounds(bbox& b, iopipestream& tex, boxvector& labelbounds,
           case SUPPRESS:
             labelwarning("suppressed");
           case SUPPRESSQUIET:
-            suppress=true; 
+            suppress=true;
             return;
           case MOVE:
             labelwarning("moved");
@@ -174,13 +174,13 @@ void drawLabel::bounds(bbox& b, iopipestream& tex, boxvector& labelbounds,
     labelbounds.resize(n+1);
     labelbounds[n]=Box;
   }
-  
+
   Box=bbox();
   Box += A;
   Box += B;
   Box += C;
   Box += D;
-  
+
   b += Box;
 }
 
@@ -209,10 +209,10 @@ void drawLabelPath::bounds(bbox& b, iopipestream& tex, boxvector&, bboxlist&)
 {
   string texengine=getSetting<string>("tex");
   if(texengine == "none") {b += position; return;}
-    
+
   getbounds(tex,texengine);
   double L=p.arclength();
-  
+
   double s1,s2;
   if(justify == "l") {
     s1=0.0;
@@ -226,30 +226,30 @@ void drawLabelPath::bounds(bbox& b, iopipestream& tex, boxvector&, bboxlist&)
     s1=s-h;
     s2=s+h;
   }
-  
+
   double Sx=shift.getx();
   double Sy=shift.gety();
   s1 += Sx;
   s2 += Sx;
-  
+
   if(width > L || (!p.cyclic() && (s1 < 0 || s2 > L))) {
     ostringstream buf;
     buf << "Cannot fit label \"" << label << "\" to path";
     reportError(buf);
   }
-  
+
   path q=p.subpath(p.arctime(s1),p.arctime(s2));
-  
+
   b += q.bounds(Sy,Sy+height);
   Box=b;
 }
-  
+
 bool drawLabelPath::write(texfile *out, const bbox&)
 {
   bbox b=Box;
   double Hoffset=getSetting<bool>("inlinetex") ? b.right : b.left;
   b.shift(pair(-Hoffset,-b.bottom));
-  
+
   checkbounds();
   if(drawLabel::pentype.invisible()) return true;
   out->setpen(drawLabel::pentype);

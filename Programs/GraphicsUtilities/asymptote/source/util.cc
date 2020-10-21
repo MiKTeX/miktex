@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <algorithm>
+#include <dirent.h>
 
 #include "util.h"
 #include "settings.h"
@@ -41,6 +42,7 @@
 #endif
 
 using namespace settings;
+using camp::reportError;
 
 bool False=false;
 
@@ -71,7 +73,7 @@ string demangle(const char* s)
 {
   return s;
 }
-#endif 
+#endif
 
 char *Strdup(string s)
 {
@@ -103,10 +105,10 @@ string stripDir(string name)
   return MiKTeX::Core::PathName(name.c_str()).GetFileName().GetData();
 #else
   size_t p;
-#ifdef __MSDOS__  
+#ifdef __MSDOS__
   p=name.rfind('\\');
   if(p < string::npos) name.erase(0,p+1);
-#endif  
+#endif
   p=name.rfind('/');
   if(p < string::npos) name.erase(0,p+1);
   return name;
@@ -120,25 +122,25 @@ string stripFile(string name)
 #else
   size_t p;
   bool dir=false;
-#ifdef __MSDOS__  
+#ifdef __MSDOS__
   p=name.rfind('\\');
   if(p < string::npos) {
     dir=true;
     while(p > 0 && name[p-1] == '\\') --p;
     name.erase(p+1);
   }
-#endif  
+#endif
   p=name.rfind('/');
   if(p < string::npos) {
     dir=true;
     while(p > 0 && name[p-1] == '/') --p;
     name.erase(p+1);
   }
-  
+
   return dir ? name : "";
 #endif
 }
-  
+
 string stripExt(string name, const string& ext)
 {
   string suffix="."+ext;
@@ -149,14 +151,14 @@ string stripExt(string name, const string& ext)
   else return name;
 }
 
-void backslashToSlash(string& s) 
+void backslashToSlash(string& s)
 {
   size_t p;
   while((p=s.find('\\')) < string::npos)
     s[p]='/';
 }
 
-void spaceToUnderscore(string& s) 
+void spaceToUnderscore(string& s)
 {
   size_t p;
   while((p=s.find(' ')) < string::npos)
@@ -172,12 +174,17 @@ string Getenv(const char *name, bool msdos)
   return S;
 }
 
+void readDisabled()
+{
+  camp::reportError("Read from other directories disabled; override with option -globalread");
+}
+
 void writeDisabled()
 {
   camp::reportError("Write to other directories disabled; override with option -globalwrite");
 }
 
-string cleanpath(string name) 
+string cleanpath(string name)
 {
   string dir=stripFile(name);
   name=stripDir(name);
@@ -185,7 +192,17 @@ string cleanpath(string name)
   return dir+name;
 }
 
-string outpath(string name) 
+string inpath(string name)
+{
+  bool global=globalread();
+  string dir=stripFile(name);
+  if(global && !dir.empty()) return name;
+  string indir=stripFile(outname());
+  if(!(global || dir.empty() || dir == indir)) readDisabled();
+  return stripDir(name);
+}
+
+string outpath(string name)
 {
   bool global=globalwrite();
   string dir=stripFile(name);
@@ -195,7 +212,7 @@ string outpath(string name)
   return outdir+stripDir(name);
 }
 
-string buildname(string name, string suffix, string aux) 
+string buildname(string name, string suffix, string aux)
 {
   name=stripExt(outpath(name),defaultformat())+aux;
   if(!suffix.empty()) name += "."+suffix;
@@ -217,12 +234,12 @@ sighandler_t Signal(int signum, sighandler_t handler)
   action.sa_handler=handler;
   sigemptyset(&action.sa_mask);
   action.sa_flags=0;
-  return sigaction(signum,&action,&oldaction) == 0 ? oldaction.sa_handler : 
+  return sigaction(signum,&action,&oldaction) == 0 ? oldaction.sa_handler :
     SIG_ERR;
 #endif
 }
 
-void push_split(mem::vector<string>& a, const string& S) 
+void push_split(mem::vector<string>& a, const string& S)
 {
   const char *p=S.c_str();
   string s;
@@ -242,18 +259,18 @@ void push_split(mem::vector<string>& a, const string& S)
 char **args(const mem::vector<string>& s, bool quiet)
 {
   size_t count=s.size();
-  
+
   char **argv=NULL;
   argv=new char*[count+1];
   for(size_t i=0; i < count; ++i)
     argv[i]=StrdupNoGC(s[i]);
-  
+
   if(!quiet && settings::verbose > 1) {
     cerr << argv[0];
     for(size_t i=1; i < count; ++i) cerr << " " << argv[i];
     cerr << endl;
   }
-  
+
   argv[count]=NULL;
   return argv;
 }
@@ -264,21 +281,21 @@ void execError(const char *command, const char *hint, const char *application)
   if(*application == 0) application=hint;
   if(hint) {
     string s=string(hint);
-    transform(s.begin(), s.end(), s.begin(), toupper);        
+    transform(s.begin(), s.end(), s.begin(), toupper);
     cerr << "Please put in a file " << getSetting<string>("config")
          << ": " << endl << endl
          << "import settings;" << endl
          << hint << "=\"LOCATION\";" << endl << endl
-         << "where LOCATION specifies the location of " 
+         << "where LOCATION specifies the location of "
          << application << "." << endl << endl
-         << "Alternatively, set the environment variable ASYMPTOTE_" << s 
-         << endl << "or use the command line option -" << hint 
+         << "Alternatively, set the environment variable ASYMPTOTE_" << s
+         << endl << "or use the command line option -" << hint
          << "=\"LOCATION\". For further details, see" << endl
          << "http://asymptote.sourceforge.net/doc/Configuring.html" << endl
          << "http://asymptote.sourceforge.net/doc/Search-paths.html" << endl;
   }
 }
-                                                    
+
 // quiet: 0=none; 1=suppress stdout; 2=suppress stdout+stderr.
 int System(const mem::vector<string> &command, int quiet, bool wait,
            const char *hint, const char *application, int *ppid)
@@ -310,13 +327,13 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
   int status;
 
   cout.flush(); // Flush stdout to avoid duplicate output.
-    
+
   char **argv=args(command);
 
   int pid=fork();
   if(pid == -1)
     camp::reportError("Cannot fork process");
-  
+
   if(pid == 0) {
     if(interact::interactive) signal(SIGINT,SIG_IGN);
     if(quiet) {
@@ -377,7 +394,7 @@ string stripblanklines(const string& s)
   bool blank=true;
   const char *t=S.c_str();
   size_t len=S.length();
-  
+
   for(size_t i=0; i < len; i++) {
     if(t[i] == '\n') {
       if(blank) S[i]=' ';
@@ -428,7 +445,63 @@ const char *setPath(const char *s, bool quiet)
   return p;
 }
 
-void push_command(mem::vector<string>& a, const string& s) 
+void fatal(const char *msg, const char *s=NULL)
+{
+  ostringstream buf;
+  buf << msg;
+  if(s) {
+    buf << " " << getPath();
+    if(*s) buf << "/";
+    buf << s;
+  }
+  buf << ": " << strerror(errno) << endl;
+  camp::reportError(buf);
+}
+
+#if !defined(MIKTEX)
+void empty_current_dir()
+{
+  static struct stat buf;
+  DIR *dir=opendir(".");
+  if(dir == NULL) fatal("Cannot open directory","");
+  dirent *p;
+  while((p=readdir(dir)) != NULL) {
+    if(strcmp(p->d_name,".") == 0 || strcmp(p->d_name,"..") == 0) continue;
+    if(lstat(p->d_name,&buf) == 0) {
+      if(S_ISDIR(buf.st_mode)) {
+        if(chdir(p->d_name)) fatal("Cannot change directory to",p->d_name);
+        empty_current_dir();
+        if(chdir(".."))
+          fatal("Cannot change to parent directory of",p->d_name);
+        if(rmdir(p->d_name))
+          fatal("Cannot remove directory",p->d_name);
+      } else {
+        if(unlink(p->d_name)) fatal("Cannot remove file",p->d_name);
+      }
+    }
+  }
+  if(closedir(dir)) fatal("Invalid current directory stream descriptor");
+}
+#endif
+
+#if !defined(MIKTEX)
+void recursive_delete(char *name)
+{
+  static struct stat buf;
+  if(lstat(name,&buf) == 0) {
+    if(S_ISDIR(buf.st_mode)) {
+      const char *path=getPath();
+      if(chdir(name)) fatal("Cannot change directory to",name);
+      empty_current_dir();
+      if(chdir(path)) fatal("Cannot change to directory","");
+      if(rmdir(name)) fatal("Cannot remove directory", name);
+    }
+    else unlink(name);
+  }
+}
+#endif
+
+void push_command(mem::vector<string>& a, const string& s)
 {
   a.push_back(s);
 #if defined(MIKTEX_WINDOWS) && !defined(__MSDOS__)
@@ -445,7 +518,7 @@ void push_command(mem::vector<string>& a, const string& s)
     a.push_back("start");
     a.push_back("\"\"");
   }
-#endif      
+#endif
 }
 
 void popupHelp() {
@@ -465,7 +538,7 @@ void popupHelp() {
 #endif
     mem::vector<string> cmd;
     push_command(cmd,getSetting<string>("pdfviewer"));
-    string viewerOptions=getSetting<string>("pdfviewerOptions"); 
+    string viewerOptions=getSetting<string>("pdfviewerOptions");
     if(!viewerOptions.empty())
       cmd.push_back(viewerOptions);
     cmd.push_back(docdir+dirsep+"asymptote.pdf");

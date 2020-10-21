@@ -73,7 +73,7 @@ void arrayinit::transToType(coenv &e, types::ty *target)
 
   if (rest)
     rest->transToType(e, target);
-  
+
   transMaker(e, (Int)inits.size(), (bool)rest);
 }
 

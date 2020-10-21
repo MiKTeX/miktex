@@ -39,6 +39,7 @@ ADDSYMBOL(deconstruct);
 ADDSYMBOL(deletepreamble);
 ADDSYMBOL(dest);
 ADDSYMBOL(diffuse);
+ADDSYMBOL(digits);
 ADDSYMBOL(dobreak);
 ADDSYMBOL(draw);
 ADDSYMBOL(drawCylinder);

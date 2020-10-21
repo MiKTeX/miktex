@@ -26,7 +26,6 @@
 #include <csignal>
 
 #define GLEW_NO_GLU
-//#define GLEW_OSMESA
 
 #ifdef __MSDOS__
 #define GLEW_STATIC
@@ -112,7 +111,6 @@ namespace gl {
 
 extern bool outlinemode;
 extern bool wireframeMode;
-extern bool exporting;
 
 extern bool orthographic;
 extern double xmin,xmax;
@@ -124,12 +122,12 @@ extern double Angle;
 extern camp::pair Shift;
 extern camp::pair Margin;
 
-extern camp::triple *Lights; 
+extern camp::triple *Lights;
 extern size_t nlights;
 extern double *Diffuse;
 extern double *Background;
 
-struct projection 
+struct projection
 {
 public:
   bool orthographic;
@@ -139,11 +137,11 @@ public:
   double zoom;
   double angle;
   camp::pair viewportshift;
-  
+
   projection(bool orthographic=false, camp::triple camera=0.0,
              camp::triple up=0.0, camp::triple target=0.0,
              double zoom=0.0, double angle=0.0,
-             camp::pair viewportshift=0.0) : 
+             camp::pair viewportshift=0.0) :
     orthographic(orthographic), camera(camera), up(up), target(target),
     zoom(zoom), angle(angle), viewportshift(viewportshift) {}
 };
@@ -173,18 +171,18 @@ namespace camp {
 
 struct Billboard {
   double cx,cy,cz;
-  
+
   void init(const triple& center) {
     cx=center.getx();
     cy=center.gety();
     cz=center.getz();
   }
-    
+
   triple transform(const triple& v) const {
     double x=v.getx()-cx;
     double y=v.gety()-cy;
     double z=v.getz()-cz;
-    
+
     return triple(x*gl::BBT[0]+y*gl::BBT[3]+z*gl::BBT[6]+cx,
                   x*gl::BBT[1]+y*gl::BBT[4]+z*gl::BBT[7]+cy,
                   x*gl::BBT[2]+y*gl::BBT[5]+z*gl::BBT[8]+cz);
@@ -207,7 +205,7 @@ extern int MaterialIndex;
 extern const size_t Nbuffer; // Initial size of 2D dynamic buffers
 extern const size_t nbuffer; // Initial size of 0D & 1D dynamic buffers
 
-class vertexData 
+class vertexData
 {
 public:
   GLfloat position[3];
@@ -272,8 +270,15 @@ public:
 };
 
 class vertexBuffer {
-public:  
-  GLint type;
+public:
+  GLenum type;
+
+  GLuint verticesBuffer;
+  GLuint VerticesBuffer;
+  GLuint vertices0Buffer;
+  GLuint indicesBuffer;
+  GLuint materialsBuffer;
+
   std::vector<vertexData> vertices;
   std::vector<VertexData> Vertices;
   std::vector<vertexData0> vertices0;
@@ -282,7 +287,18 @@ public:
   std::vector<Material> materials;
   std::vector<GLint> materialTable;
 
-  vertexBuffer(GLint type=GL_TRIANGLES) : type(type) {}
+  bool rendered; // Are all patches in this buffer fully rendered?
+  bool partial;  // Does buffer contain incomplete data?
+
+  vertexBuffer(GLint type=GL_TRIANGLES) : type(type),
+                                          verticesBuffer(0),
+                                          VerticesBuffer(0),
+                                          vertices0Buffer(0),
+                                          indicesBuffer(0),
+                                          materialsBuffer(0),
+                                          rendered(false),
+                                          partial(false)
+  {}
 
   void clear() {
     vertices.clear();
@@ -297,22 +313,22 @@ public:
     vertices0.reserve(nbuffer);
   }
 
- void reserve() {
+  void reserve() {
     vertices.reserve(Nbuffer);
     indices.reserve(Nbuffer);
- }
+  }
 
- void Reserve() {
+  void Reserve() {
     Vertices.reserve(Nbuffer);
     indices.reserve(Nbuffer);
- }
-  
+  }
+
 // Store the vertex v and its normal vector n.
   GLuint vertex(const triple &v, const triple& n) {
     size_t nvertices=vertices.size();
     vertices.push_back(vertexData(v,n));
     return nvertices;
-  }     
+  }
 
 // Store the vertex v and its normal vector n, without an explicit color.
   GLuint tvertex(const triple &v, const triple& n) {
@@ -326,14 +342,14 @@ public:
     size_t nvertices=Vertices.size();
     Vertices.push_back(VertexData(v,n,c));
     return nvertices;
-  }     
+  }
 
 // Store the pixel v and its width.
   GLuint vertex0(const triple &v, double width) {
     size_t nvertices=vertices0.size();
     vertices0.push_back(vertexData0(v,width));
     return nvertices;
-  }     
+  }
 
   // append array b onto array a with offset
   void appendOffset(std::vector<GLuint>& a,
@@ -345,7 +361,6 @@ public:
       a[n+i]=b[i]+offset;
   }
 
-  // append array b onto array a
   void append(const vertexBuffer& b) {
     appendOffset(indices,b.indices,vertices.size());
     vertices.insert(vertices.end(),b.vertices.begin(),b.vertices.end());

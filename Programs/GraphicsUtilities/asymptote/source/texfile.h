@@ -37,7 +37,7 @@ void texdocumentclass(T& out, bool pipe=false)
      (pipe || !settings::getSetting<bool>("inlinetex")))
     out << "\\documentclass[12pt]{article}" << newl;
 }
-  
+
 template<class T>
 void texuserpreamble(T& out,
                      mem::list<string>& preamble=processData().TeXpreamble,
@@ -49,9 +49,9 @@ void texuserpreamble(T& out,
     if(pipe) out << newl << newl;
   }
 }
-  
+
 template<class T>
-void latexfontencoding(T& out) 
+void latexfontencoding(T& out)
 {
   out << "\\makeatletter%" << newl
       << "\\let\\ASYencoding\\f@encoding%" << newl
@@ -100,7 +100,7 @@ template<class T>
 void dvipsfix(T &out)
 {
   if(!settings::pdf(settings::getSetting<string>("tex"))) {
-    out << "\\makeatletter" << newl 
+    out << "\\makeatletter" << newl
         << "\\def\\Ginclude@eps#1{%" << newl
         << " \\message{<#1>}%" << newl
         << "  \\bgroup" << newl
@@ -160,7 +160,7 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
     }
   } else if(!settings::context(texengine)) {
     out << "\\input graphicx" << newl // Fix miniltx path parsing bug:
-        << "\\makeatletter" << newl 
+        << "\\makeatletter" << newl
         << "\\def\\filename@parse#1{%" << newl
         << "  \\let\\filename@area\\@empty" << newl
         << "  \\expandafter\\filename@path#1/\\\\}" << newl
@@ -179,12 +179,12 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
       out << "\\input picture" << newl;
   }
 }
-  
+
 template<class T>
 bool setlatexfont(T& out, const pen& p, const pen& lastpen)
 {
   if(p.size() != lastpen.size() || p.Lineskip() != lastpen.Lineskip()) {
-    out <<  "\\fontsize{" << p.size()*settings::ps2tex << "}{" 
+    out <<  "\\fontsize{" << p.size()*settings::ps2tex << "}{"
         << p.Lineskip()*settings::ps2tex << "}\\selectfont%" << newl;
     return true;
   }
@@ -192,7 +192,7 @@ bool setlatexfont(T& out, const pen& p, const pen& lastpen)
 }
 
 template<class T>
-bool settexfont(T& out, const pen& p, const pen& lastpen, bool latex) 
+bool settexfont(T& out, const pen& p, const pen& lastpen, bool latex)
 {
   string font=p.Font();
   if(font != lastpen.Font() || (!latex && p.size() != lastpen.size())) {
@@ -203,15 +203,15 @@ bool settexfont(T& out, const pen& p, const pen& lastpen, bool latex)
 }
 
 class texfile : public psfile {
-protected:  
+protected:
   bbox box;
   bool inlinetex;
   double Hoffset;
   int level;
-  
+
 public:
   string texengine;
-  
+
   texfile(const string& texname, const bbox& box, bool pipe=false);
   virtual ~texfile();
 
@@ -223,39 +223,40 @@ public:
 
   void setlatexcolor(pen p);
   void setpen(pen p);
-  
+
   void setfont(pen p);
-  
+
   void gsave(bool tex=true);
-  
+
   void grestore(bool tex=true);
-  
+
   void beginspecial();
-  
+
   void endspecial();
-  
+
   void beginraw();
-  
+
   void endraw();
-  
+
   void begingroup() {++level;}
-  
+
   void endgroup() {--level;}
-  
+
   bool toplevel() {return level == 0;}
-  
+
   void beginpicture(const bbox& b);
   void endpicture(const bbox& b);
-  
+
   void writepair(pair z) {
     *out << z;
   }
-  
+
   void miniprologue();
-  
+
   void writeshifted(path p, bool newPath=true);
-  double hoffset() {return Hoffset;}
-  
+  virtual double hoffset() {return Hoffset;}
+  virtual double voffset() {return box.bottom;}
+
   // Draws label transformed by T at position z.
   void put(const string& label, const transform& T, const pair& z,
            const pair& Align);
@@ -272,7 +273,8 @@ class svgtexfile : public texfile {
   size_t tensorcount;
   bool inspecial;
   static string nl;
-public:  
+  pair offset;
+public:
   svgtexfile(const string& texname, const bbox& box, bool pipe=false) :
     texfile(texname,box,pipe) {
     clipcount=0;
@@ -280,52 +282,62 @@ public:
     gouraudcount=0;
     tensorcount=0;
     inspecial=false;
+
+    *out << "\\catcode`\\%=12" << newl
+         << "\\def\\percent{%}" << newl
+         << "\\catcode`\\%=14" << newl;
+
+    offset=pair(box.left,box.top);
   }
-  
+
   void writeclip(path p, bool newPath=true) {
     write(p,false);
   }
-  
+
   void dot(path p, pen, bool newPath=true);
-  
+
   void writeshifted(pair z) {
-    write(conj(z)*settings::ps2tex);
+    write(conj(shift(-offset)*z)*settings::ps2tex);
   }
-  
+
+  double hoffset() {return Hoffset+offset.getx();}
+  double voffset() {return box.bottom+offset.gety();}
+
   void translate(pair z) {}
   void concat(transform t) {}
-  
-  void beginspecial();
+
+  void beginspecial(bool def=false);
   void endspecial();
-  
+
   // Prevent unwanted page breaks.
   void beginpage() {
     beginpicture(box);
   }
-  
+
   void endpage() {
     endpicture(box);
   }
-  
+
+  void transform();
   void begintransform();
   void endtransform();
-  
+
   void clippath();
-  
+
   void beginpath();
   void endpath();
-  
+
   void newpath() {
     beginspecial();
     begintransform();
     beginpath();
   }
-  
+
   void moveto(pair z) {
     *out << "M";
     writeshifted(z);
   }
-  
+
   void lineto(pair z) {
     *out << "L";
     writeshifted(z);
@@ -344,16 +356,16 @@ public:
     p.torgb();
     return p.hex();
   }
-  
+
   void properties(const pen& p);
   void color(const pen &p, const string& type);
-    
+
   void stroke(const pen &p, bool dot=false);
   void strokepath();
-  
+
   void fillrule(const pen& p, const string& type="fill");
   void fill(const pen &p);
-  
+
   void begingradientshade(bool axial, ColorSpace colorspace,
                           const pen& pena, const pair& a, double ra,
                           const pen& penb, const pair& b, double rb);
@@ -361,34 +373,27 @@ public:
                      const pen& pena, const pair& a, double ra,
                      bool extenda, const pen& penb, const pair& b,
                      double rb, bool extendb);
-  
+
   void gouraudshade(const pen& p0, const pair& z0,
-                    const pen& p1, const pair& z1, 
+                    const pen& p1, const pair& z1,
                     const pen& p2, const pair& z2);
   void begingouraudshade(const vm::array& pens, const vm::array& vertices,
                          const vm::array& edges);
   void gouraudshade(const pen& pentype, const vm::array& pens,
                     const vm::array& vertices, const vm::array& edges);
-  
-  void begintensorshade(const vm::array& pens,
-                        const vm::array& boundaries,
-                        const vm::array& z);
-  void tensorshade(const pen& pentype, const vm::array& pens,
-                   const vm::array& boundaries, const vm::array& z);
 
   void beginclip();
-  
-  void endclip0(const pen &p);
+
   void endclip(const pen &p);
   void endpsclip(const pen &p) {}
-  
+
   void setpen(pen p) {if(!inspecial) texfile::setpen(p);}
-  
+
   void gsave(bool tex=false);
-  
+
   void grestore(bool tex=false);
 };
-  
+
 } //namespace camp
 
 #endif

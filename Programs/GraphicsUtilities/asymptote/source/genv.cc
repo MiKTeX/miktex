@@ -54,9 +54,9 @@ genv::genv()
 
     Setting("autoplain")=true;
   }
-#ifdef HAVE_LIBGSL  
+#ifdef HAVE_LIBGSL
   imap["gsl"]=trans::getGSLModule();
-#endif  
+#endif
 }
 
 bool endswith(string suffix, string str)
@@ -80,7 +80,7 @@ record *genv::loadModule(symbol id, string filename) {
   em.sync();
 
   record *r=ast->transAsFile(*this, id);
-  
+
   inTranslation.remove(filename);
 
   return r;
@@ -127,7 +127,7 @@ importInitMap *genv::getInitMap()
       return r ? r->getInit() : 0;
     }
   };
-  
+
   return new initMap(*this);
 }
 

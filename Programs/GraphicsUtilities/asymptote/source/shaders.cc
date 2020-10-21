@@ -13,7 +13,7 @@
 
 #include "shaders.h"
 
-GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders, 
+GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders,
                             size_t Nlights, size_t NMaterials,
                             std::vector<std::string> const& defineflags)
 {
@@ -33,7 +33,7 @@ GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders,
   glBindAttribLocation(shader,materialAttrib,"material");
   glBindAttribLocation(shader,colorAttrib,"color");
   glBindAttribLocation(shader,widthAttrib,"width");
-  
+
   glLinkProgram(shader);
 
   for(size_t i=0; i < n; ++i) {
@@ -50,12 +50,12 @@ GLuint createShaders(GLchar const* src, int shaderType,
   GLuint shader=glCreateShader(shaderType);
   glShaderSource(shader, 1, &src, NULL);
   glCompileShader(shader);
-    
+
   GLint status;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
   if(status != GL_TRUE) {
-    GLint length; 
+    GLint length;
 
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
@@ -70,7 +70,7 @@ GLuint createShaders(GLchar const* src, int shaderType,
 
     std::cerr << std::endl << "GL Compile error" << std::endl;
     std::cerr << src << std::endl;
-    throw 1; 
+    throw 1;
   }
   return shader;
 }
@@ -88,7 +88,7 @@ GLuint createShaderFile(std::string file, int shaderType, size_t Nlights,
 #else
 #define GLSL_VERSION "130"
 #endif
-  
+
   shaderSrc << "#version " << GLSL_VERSION << "\n";
   shaderSrc << "#extension GL_ARB_uniform_buffer_object : enable"
             << "\n";

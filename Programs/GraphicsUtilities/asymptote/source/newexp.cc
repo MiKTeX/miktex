@@ -90,7 +90,7 @@ types::ty *newRecordExp::transFromTyEntry(position pos, coenv &e,
   record *r = dynamic_cast<record *>(t);
   assert(r);
 
-  // Encode the allocation. 
+  // Encode the allocation.
   e.c.encode(inst::makefunc,r->getInit());
   e.c.encode(inst::popcall);
 
@@ -109,7 +109,7 @@ types::ty *newRecordExp::getType(coenv &e)
     return primError();
   else
     return t;
-}  
+}
 
 void newArrayExp::prettyprint(ostream &out, Int indent)
 {
@@ -117,7 +117,7 @@ void newArrayExp::prettyprint(ostream &out, Int indent)
 
   celltype->prettyprint(out, indent+1);
   if (dimexps) dimexps->prettyprint(out, indent+1);
-  if (dims) dims->prettyprint(out, indent+1); 
+  if (dims) dims->prettyprint(out, indent+1);
   if (ai) ai->prettyprint(out, indent+1);
 }
 

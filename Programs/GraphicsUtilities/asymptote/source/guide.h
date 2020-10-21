@@ -19,7 +19,7 @@ class guide : public gc {
 protected:
 public:
   virtual ~guide() {}
-  
+
   // Returns the path that the guide represents.
   virtual path solve() {
     return path();
@@ -27,20 +27,20 @@ public:
 
   // Add the information in the guide to the flatguide, so that it can be
   // solved via the knotlist solving routines.
-  // Returns true if guide has an interior cycle token. 
+  // Returns true if guide has an interior cycle token.
   virtual void flatten(flatguide&, bool allowsolve=true)=0;
-  
+
   virtual bool cyclic() {return false;}
-  
+
   virtual void print(ostream& out) const {
     out << "nullpath";
   }
-  
+
   // Needed so that multiguide can know where to put in ".." symbols.
   virtual side printLocation() const {
     return END;
   }
-  
+
 };
 
 inline ostream& operator<< (ostream& out, const guide& g)
@@ -78,7 +78,7 @@ public:
   void print(ostream& out) const {
     out << z;
   }
-  
+
   side printLocation() const {
     return END;
   }
@@ -106,7 +106,7 @@ public:
   void print(ostream& out) const {
     out << p;
   }
-  
+
   side printLocation() const {
     return END;
   }
@@ -148,7 +148,7 @@ public:
     out << (tout.atleast ? ".. tension atleast " : ".. tension ")
         << tout.val << " and " << tin.val << " ..";
   }
-  
+
   side printLocation() const {
     return JOIN;
   }
@@ -177,7 +177,7 @@ public:
   void flatten(flatguide& g, bool=true) {
     g.setSpec(p,s);
   }
-  
+
   specguide(spec *p, side s)
     : p(p), s(s) {}
 
@@ -187,7 +187,7 @@ public:
   void print(ostream& out) const {
     out << *p;
   }
-  
+
   side printLocation() const {
     return s;
   }
@@ -213,7 +213,7 @@ public:
     out << ".. controls "
         << zout << " and " << zin << " ..";
   }
-  
+
   side printLocation() const {
     return JOIN;
   }
@@ -224,39 +224,39 @@ public:
 // tensions in between.
 typedef mem::vector<guide *> guidevector;
 
-// A multiguide represents a guide given by the first "length" items of 
+// A multiguide represents a guide given by the first "length" items of
 // the vector pointed to by "base".
 // The constructor, if given another multiguide as a first argument,
 // will try to avoid allocating a new "base" array.
 class multiguide : public guide {
-    guidevector *base;
-    size_t length;
+  guidevector *base;
+  size_t length;
 
-    guide *subguide(size_t i) const
-    {
-        assert(i < length);
-        assert(length <= base->size());
-        return (*base)[i];
-    }
+  guide *subguide(size_t i) const
+  {
+    assert(i < length);
+    assert(length <= base->size());
+    return (*base)[i];
+  }
 
 public:
 
   multiguide(guidevector& v);
 
   void flatten(flatguide&, bool=true);
-  
+
   bool cyclic() {
     size_t n=length;
     if(n < 1) return false;
     return subguide(n-1)->cyclic();
   }
-  
+
   path solve() {
     if (settings::verbose>3) {
       cerr << "solving guide:\n";
       print(cerr); cerr << "\n\n";
     }
-    
+
     flatguide g;
     this->flatten(g);
     path p=g.solve(false);
@@ -268,7 +268,7 @@ public:
   }
 
   void print(ostream& out) const;
-  
+
   side printLocation() const {
     int n = length;
     return subguide(n-1)->printLocation();
@@ -291,7 +291,7 @@ public:
   }
 
   bool cyclic() {return true;}
-  
+
   path solve() {
     // Just a cycle on it's own makes an empty guide.
     return path();

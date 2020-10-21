@@ -20,7 +20,7 @@ protected:
 public:
   drawImage(const transform& t, bool antialias, const string& key="")
     : drawElement(key), t(t), antialias(antialias) {}
-  
+
   virtual ~drawImage() {}
 
   void bounds(bbox& b, iopipestream&, boxvector&, bboxlist&) {
@@ -39,16 +39,16 @@ public:
   drawPaletteImage(const vm::array& image, const vm::array& palette,
                    const transform& t, bool antialias, const string& key="")
     : drawImage(t,antialias,key), image(image), palette(palette) {}
-  
+
   virtual ~drawPaletteImage() {}
 
   bool draw(psfile *out) {
     out->gsave();
     out->concat(t);
     out->image(image,palette,antialias);
-    
+
     out->grestore();
-    
+
     return true;
   }
 
@@ -63,7 +63,7 @@ public:
   drawNoPaletteImage(const vm::array& image, const transform& t,
                      bool antialias, const string& key="")
     : drawImage(t,antialias,key), image(image) {}
-  
+
   virtual ~drawNoPaletteImage() {}
 
   bool draw(psfile *out) {
@@ -88,7 +88,7 @@ public:
                     const transform& t, bool antialias, const string& key="")
     : drawImage(t,antialias,key), Stack(Stack), f(f),
       width(width), height(height) {}
-  
+
   virtual ~drawFunctionImage() {}
 
   bool draw(psfile *out) {
@@ -111,7 +111,7 @@ public:
   drawRawImage(unsigned char *raw, size_t width, size_t height,
                const transform& t, bool antialias, const string& key="")
     : drawImage(t,antialias,key), raw(raw), width(width), height(height) {}
-  
+
   virtual ~drawRawImage() {}
 
   bool draw(psfile *out) {

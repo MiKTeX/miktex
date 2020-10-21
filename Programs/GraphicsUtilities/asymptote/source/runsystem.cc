@@ -93,7 +93,7 @@ function *breakpointFunction()
                       primCode());
 }
 
-void clear(string file, Int line, bool warn=false) 
+void clear(string file, Int line, bool warn=false)
 {
   bpinfo bp(file,line);
   for(mem::list<bpinfo>::iterator p=bplist.begin(); p != bplist.end(); ++p) {
@@ -363,10 +363,10 @@ void gen_runsystem18(stack *Stack)
                  "your ImageMagick convert utility");
   if(oldPath != NULL)
     setPath(oldPath);
-  
+
   if(ret == 0 && verbose > 0)
     cout << "Wrote " << (file.empty() ? name : file) << endl;
-  
+
   {Stack->push<Int>(ret); return;}
 }
 
@@ -388,7 +388,7 @@ void gen_runsystem19(stack *Stack)
     cmd.push_back(name);
     {Stack->push<Int>(System(cmd,0,false,"animate","your animated GIF viewer")); return;}
   }
-#endif  
+#endif
   {Stack->push<Int>(0); return;}
 }
 
@@ -408,7 +408,7 @@ namespace trans {
 void gen_runsystem_venv(venv &ve)
 {
 #line 107 "runsystem.in"
-  addFunc(ve, run::gen_runsystem0, primString() , SYM(outname));
+  addFunc(ve, run::gen_runsystem0, primString(), SYM(outname));
 #line 112 "runsystem.in"
   addFunc(ve, run::gen_runsystem1, primVoid(), SYM(atupdate), formal(voidFunction(), SYM(f), false, false));
 #line 117 "runsystem.in"
@@ -422,31 +422,31 @@ void gen_runsystem_venv(venv &ve)
 #line 137 "runsystem.in"
   addFunc(ve, run::gen_runsystem6, primVoid(), SYM(breakpoint), formal(primCode(), SYM(s), true, false));
 #line 142 "runsystem.in"
-  addFunc(ve, run::gen_runsystem7, primString() , SYM(locatefile), formal(primString() , SYM(file), false, false), formal(primBoolean(), SYM(full), true, false));
+  addFunc(ve, run::gen_runsystem7, primString(), SYM(locatefile), formal(primString(), SYM(file), false, false), formal(primBoolean(), SYM(full), true, false));
 #line 147 "runsystem.in"
-  addFunc(ve, run::gen_runsystem8, primVoid(), SYM(stop), formal(primString() , SYM(file), false, false), formal(primInt(), SYM(line), false, false), formal(primCode(), SYM(s), true, false));
+  addFunc(ve, run::gen_runsystem8, primVoid(), SYM(stop), formal(primString(), SYM(file), false, false), formal(primInt(), SYM(line), false, false), formal(primCode(), SYM(s), true, false));
 #line 155 "runsystem.in"
   addFunc(ve, run::gen_runsystem9, primVoid(), SYM(breakpoints));
 #line 161 "runsystem.in"
-  addFunc(ve, run::gen_runsystem10, primVoid(), SYM(clear), formal(primString() , SYM(file), false, false), formal(primInt(), SYM(line), false, false));
+  addFunc(ve, run::gen_runsystem10, primVoid(), SYM(clear), formal(primString(), SYM(file), false, false), formal(primInt(), SYM(line), false, false));
 #line 167 "runsystem.in"
   addFunc(ve, run::gen_runsystem11, primVoid(), SYM(clear));
 #line 172 "runsystem.in"
-  addFunc(ve, run::gen_runsystem12, primVoid(), SYM(warn), formal(primString() , SYM(s), false, false));
+  addFunc(ve, run::gen_runsystem12, primVoid(), SYM(warn), formal(primString(), SYM(s), false, false));
 #line 177 "runsystem.in"
-  addFunc(ve, run::gen_runsystem13, primVoid(), SYM(nowarn), formal(primString() , SYM(s), false, false));
+  addFunc(ve, run::gen_runsystem13, primVoid(), SYM(nowarn), formal(primString(), SYM(s), false, false));
 #line 182 "runsystem.in"
-  addFunc(ve, run::gen_runsystem14, primVoid(), SYM(warning), formal(primString() , SYM(s), false, false), formal(primString() , SYM(t), false, false), formal(primBoolean(), SYM(position), true, false));
+  addFunc(ve, run::gen_runsystem14, primVoid(), SYM(warning), formal(primString(), SYM(s), false, false), formal(primString(), SYM(t), false, false), formal(primBoolean(), SYM(position), true, false));
 #line 190 "runsystem.in"
-  addFunc(ve, run::gen_runsystem15, primString() , SYM(stripdirectory), formal(primString(), SYM(s), false, false));
+  addFunc(ve, run::gen_runsystem15, primString(), SYM(stripdirectory), formal(primString(), SYM(s), false, false));
 #line 196 "runsystem.in"
-  addFunc(ve, run::gen_runsystem16, primString() , SYM(stripfile), formal(primString(), SYM(s), false, false));
+  addFunc(ve, run::gen_runsystem16, primString(), SYM(stripfile), formal(primString(), SYM(s), false, false));
 #line 202 "runsystem.in"
-  addFunc(ve, run::gen_runsystem17, primString() , SYM(stripextension), formal(primString(), SYM(s), false, false));
+  addFunc(ve, run::gen_runsystem17, primString(), SYM(stripextension), formal(primString(), SYM(s), false, false));
 #line 208 "runsystem.in"
-  addFunc(ve, run::gen_runsystem18, primInt(), SYM(convert), formal(primString() , SYM(args), true, false), formal(primString() , SYM(file), true, false), formal(primString() , SYM(format), true, false));
+  addFunc(ve, run::gen_runsystem18, primInt(), SYM(convert), formal(primString(), SYM(args), true, false), formal(primString(), SYM(file), true, false), formal(primString(), SYM(format), true, false));
 #line 236 "runsystem.in"
-  addFunc(ve, run::gen_runsystem19, primInt(), SYM(animate), formal(primString() , SYM(args), true, false), formal(primString() , SYM(file), true, false), formal(primString() , SYM(format), true, false));
+  addFunc(ve, run::gen_runsystem19, primInt(), SYM(animate), formal(primString(), SYM(args), true, false), formal(primString(), SYM(file), true, false), formal(primString(), SYM(format), true, false));
 #line 253 "runsystem.in"
   addFunc(ve, run::gen_runsystem20, primVoid(), SYM(purge), formal(primInt(), SYM(divisor), true, false));
 }

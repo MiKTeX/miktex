@@ -64,11 +64,11 @@ public:
   }
 
   // A block is guaranteed to return iff its last statement is
-  // guaranteed to return. 
+  // guaranteed to return.
   bool returns() {
     return base->returns();
   }
-    
+
 };
 
 // A statement that consist of a single expression to evaluate.
@@ -191,7 +191,7 @@ public:
 
 class returnStm : public stm {
   exp *value;
-  
+
 public:
   returnStm(position pos, exp *value = 0)
     : stm(pos), value(value) {}
@@ -212,7 +212,7 @@ class stmExpList : public stm {
   mem::list<stm *> stms;
 
 public:
-  stmExpList(position pos) 
+  stmExpList(position pos)
     : stm(pos) {}
 
   // To ensure list deallocates properly.

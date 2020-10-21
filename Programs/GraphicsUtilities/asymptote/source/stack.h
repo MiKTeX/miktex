@@ -1,7 +1,7 @@
 /*****
  * stack.h
  * Andy Hammerlindl 2002/06/27
- * 
+ *
  * The general stack machine  used to run compiled camp code.
  *****/
 
@@ -25,23 +25,23 @@ class importInitMap;
 struct bpinfo : public gc {
   fileinfo f;
   absyntax::runnable *r;
-  
+
   bpinfo(const string& filename, size_t lineNum,
          absyntax::runnable *r=NULL) :
     f(fileinfo(filename,lineNum)), r(r) {}
 };
-  
+
 inline bool operator == (const bpinfo& a, const bpinfo& b)
 {
   return a.f == b.f;
 }
-  
+
 extern mem::list<bpinfo> bplist;
-  
+
 class runnable;
-  
-extern bool indebugger;  
-  
+
+extern bool indebugger;
+
 class stack {
 public:
   typedef frame* vars_t;
@@ -66,7 +66,7 @@ private:
   // instance.
   typedef mem::map<CONST string,frame *> importInstanceMap;
   importInstanceMap instMap;
-  
+
   // One can associate an environment to embedded code while running.
   trans::coenv *e;
 
@@ -74,14 +74,14 @@ private:
   char debugOp;
   position lastPos, breakPos;
   bool newline;
-  
+
   // Move arguments from stack to frame.
   void marshall(size_t args, stack::vars_t vars);
 
 public:
   stack() : e(0), debugOp(0), lastPos(nullPos),
             breakPos(nullPos), newline(false) {};
-  
+
   virtual ~stack() {};
 
   void setInitMap(importInitMap *i) {
@@ -105,7 +105,7 @@ public:
 
   void breakpoint(absyntax::runnable *r=NULL);
   void debug();
-  
+
   // Put an import (indexed by name) on top of the stack, initializing it if
   // necessary.
   void load(string index);
@@ -143,20 +143,20 @@ inline T pop(stack* s)
 {
   return get<T>(pop(s));
 }
-  
+
 template <typename T>
 inline T pop(stack* s, T defval)
 {
   item it=pop(s);
   return isdefault(it) ? defval : get<T>(it);
 }
-  
+
 class interactiveStack : public stack {
   vars_t globals;
   size_t globals_size;
 public:
   interactiveStack();
-    
+
   // Run a codelet, a small piece of code that uses globals as its frame.
   void run(lambda *codelet);
 };
@@ -164,4 +164,4 @@ public:
 } // namespace vm
 
 #endif // STACK_H
-  
+

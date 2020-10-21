@@ -27,11 +27,11 @@ namespace types {
 class record : public ty {
   // The base name of this type.
   symbol name;
-  
+
   // The frame.  Like a frame for a function, it allocates the accesses
   // for fields and specifies the size of the record.
   frame *level;
-  
+
   // The runtime representation of the record used by the virtual machine.
   vm::lambda *init;
 
@@ -125,4 +125,4 @@ public:
 
 } //namespace types
 
-#endif  
+#endif

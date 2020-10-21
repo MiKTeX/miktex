@@ -86,14 +86,14 @@ using types::penArray;
 using types::pathArray;
 using types::pathArray2;
 
-void cannotread(const string& s) 
+void cannotread(const string& s)
 {
   ostringstream buf;
   buf << "Cannot read from " << s;
   error(buf);
 }
 
-void cannotwrite(const string& s) 
+void cannotwrite(const string& s)
 {
   ostringstream buf;
   buf << "Cannot write to " << s;
@@ -115,7 +115,7 @@ string currentpoint="print currentpoint ASYy ASYx ";
 string ASYinit="/ASYX currentpoint pop def /ASYY currentpoint exch pop def ";
 string ASY1="ASY1 {"+ASYinit+"/ASY1 false def} if ";
 
-void endpath(std::ostream& ps) 
+void endpath(std::ostream& ps)
 {
   ps << ASY1 << pathforall << " (M) " << currentpoint
      << "currentpoint newpath moveto} bind def" << endl;
@@ -127,7 +127,7 @@ void fillpath(std::ostream& ps)
   endpath(ps);
 }
 
-void showpath(std::ostream& ps) 
+void showpath(std::ostream& ps)
 {
   ps << ASYx << newl
      << ASYy << newl
@@ -176,25 +176,25 @@ array *readpath(const string& psname, bool keep, bool pdf=false,
     if(s.empty()) break;
     if(!pdf) gs << newl;
 
-// Workaround broken stringstream container in MacOS 10.9 libc++.
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__ )
+// Workaround broken stringstream container in libc++.
+#ifdef _LIBCPP_VERSION
     for(string::iterator i=s.begin(); i != s.end(); ++i) {
       if(isalpha(*i) && *i != 'e') {buf << " ";}
       buf << *i;
     }
-#else    
+#else
     buf << s;
 #endif
-    
+
     if(verbose > 2) cout << endl;
-  
+
     mem::vector<solvedKnot> nodes;
     solvedKnot node;
     bool active=false;
-  
+
     array *P=new array(0);
     PP->push(P);
-    
+
     while(!buf.eof()) {
       char c;
       buf >> c;
@@ -253,10 +253,10 @@ array *readpath(const string& psname, bool keep, bool pdf=false,
       }
     }
   }
-  
+
   if(oldPath != NULL)
     setPath(oldPath);
-  
+
   if(!keep)
     unlink(psname.c_str());
   return PP;
@@ -304,13 +304,13 @@ void gen_runlabel2(stack *Stack)
 #line 226 "runlabel.in"
   texinit();
   processDataStruct &pd=processData();
-  
+
   string texengine=getSetting<string>("tex");
   setpen(pd.tex,texengine,p);
-  
+
   double width,height,depth;
   texbounds(width,height,depth,pd.tex,*s);
-  
+
   array *t=new array(3);
   (*t)[0]=width;
   (*t)[1]=height;
@@ -327,7 +327,7 @@ void gen_runlabel3(stack *Stack)
 #line 244 "runlabel.in"
   size_t n=checkArrays(s,p);
   if(n == 0) {Stack->push<patharray2*>(new array(0)); return;}
-  
+
   string prefix=cleanpath(outname());
   string psname=auxname(prefix,"ps");
   string texname=auxname(prefix,"tex");
@@ -335,10 +335,10 @@ void gen_runlabel3(stack *Stack)
   bbox b;
   string texengine=getSetting<string>("tex");
   bool xe=settings::xe(texengine) || settings::lua(texengine) ||
-          settings::context(texengine);
+    settings::context(texengine);
   texfile tex(texname,b,true);
   tex.miniprologue();
-  
+
   for(size_t i=0; i < n; ++i) {
     tex.setfont(read<pen>(p,i));
     if(i != 0) {
@@ -362,15 +362,15 @@ void gen_runlabel3(stack *Stack)
     }
     tex.verbatimline(read<string>(s,i)+"\\ %");
   }
-  
+
   tex.epilogue(true);
   tex.close();
-  
+
   int status=opentex(texname,prefix,!xe);
-  
+
   string pdfname,pdfname2,psname2;
   bool keep=getSetting<bool>("keep");
-  
+
   bool legacygs=false;
   if(!status) {
     if(xe) {
@@ -384,7 +384,7 @@ void gen_runlabel3(stack *Stack)
       if(!fs::exists(pdfname)) {Stack->push<patharray2*>(new array(n)); return;}
       std::ofstream ps(psname.c_str(),std::ios::binary);
       if(!ps) cannotwrite(psname);
-      
+
       showpath(ps);
 
       mem::vector<string> pcmd;
@@ -445,7 +445,7 @@ void gen_runlabel3(stack *Stack)
     }
   } else
     error("texpath failed");
-    
+
   if(!keep) { // Delete temporary files.
     unlink(texname.c_str());
     if(!getSetting<bool>("keepaux"))
@@ -463,7 +463,7 @@ void gen_runlabel3(stack *Stack)
       unlink(auxname(prefix,"tui").c_str());
     }
   }
-  {Stack->push<patharray2*>(xe ? readpath(psname,keep,!legacygs,0.1) : 
+  {Stack->push<patharray2*>(xe ? readpath(psname,keep,!legacygs,0.1) :
     readpath(psname,keep,false,0.12,-1.0)); return;}
 }
 
@@ -476,13 +476,13 @@ void gen_runlabel4(stack *Stack)
 #line 388 "runlabel.in"
   size_t n=checkArrays(s,p);
   if(n == 0) {Stack->push<patharray2*>(new array(0)); return;}
-  
+
   string prefix=cleanpath(outname());
   string outputname=auxname(prefix,getSetting<string>("textoutformat"));
 
   string textname=auxname(prefix,getSetting<string>("textextension"));
   std::ofstream text(textname.c_str());
-  
+
   if(!text) cannotwrite(textname);
 
   for(size_t i=0; i < n; ++i) {
@@ -492,20 +492,20 @@ void gen_runlabel4(stack *Stack)
          << getSetting<string>("textepilogue") << endl;
   }
   text.close();
-  
+
   string psname=auxname(prefix,"ps");
   std::ofstream ps(psname.c_str());
   if(!ps) cannotwrite(psname);
 
   showpath(ps);
-  
+
   mem::vector<string> cmd;
   cmd.push_back(getSetting<string>("textcommand"));
   push_split(cmd,getSetting<string>("textcommandOptions"));
   cmd.push_back(textname);
   iopipestream typesetter(cmd);
   typesetter.block(true,false);
-  
+
   mem::vector<string> cmd2;
   cmd2.push_back(getSetting<string>("gs"));
   cmd2.push_back("-q");
@@ -530,16 +530,16 @@ void gen_runlabel4(stack *Stack)
         typesetter.pipeclose();
         gs.eof();
       }
-    } 
+    }
     string out2;
     gs >> out2;
     if(out2.empty() && !gs.running()) break;
     ps << out2;
   }
   ps.close();
-  
+
   if(verbose > 2) cout << endl;
-  
+
   bool keep=getSetting<bool>("keep");
   if(!keep) // Delete temporary files.
     unlink(textname.c_str());
@@ -555,7 +555,7 @@ void gen_runlabel5(stack *Stack)
 #line 462 "runlabel.in"
   array *P=new array(0);
   if(g.size() == 0) {Stack->push<patharray*>(P); return;}
-  
+
   string prefix=cleanpath(outname());
   string psname=auxname(prefix,"ps");
   bbox b;
@@ -589,11 +589,11 @@ void gen_runlabel_venv(venv &ve)
 #line 225 "runlabel.in"
   addFunc(ve, run::gen_runlabel2, realArray(), SYM(texsize), formal(primString(), SYM(s), false, false), formal(primPen(), SYM(p), true, false));
 #line 243 "runlabel.in"
-  addFunc(ve, run::gen_runlabel3, pathArray2() , SYM(_texpath), formal(stringArray() , SYM(s), false, false), formal(penArray() , SYM(p), false, false));
+  addFunc(ve, run::gen_runlabel3, pathArray2(), SYM(_texpath), formal(stringArray(), SYM(s), false, false), formal(penArray(), SYM(p), false, false));
 #line 387 "runlabel.in"
-  addFunc(ve, run::gen_runlabel4, pathArray2() , SYM(textpath), formal(stringArray() , SYM(s), false, false), formal(penArray() , SYM(p), false, false));
+  addFunc(ve, run::gen_runlabel4, pathArray2(), SYM(textpath), formal(stringArray(), SYM(s), false, false), formal(penArray(), SYM(p), false, false));
 #line 461 "runlabel.in"
-  addFunc(ve, run::gen_runlabel5, pathArray() , SYM(_strokepath), formal(primPath(), SYM(g), false, false), formal(primPen(), SYM(p), true, false));
+  addFunc(ve, run::gen_runlabel5, pathArray(), SYM(_strokepath), formal(primPath(), SYM(g), false, false), formal(primPen(), SYM(p), true, false));
 }
 
 } // namespace trans

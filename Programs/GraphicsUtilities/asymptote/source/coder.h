@@ -62,12 +62,12 @@ class coder {
   frame *level;
 
   // The frame of the enclosing record that the "this" expression yields.  ie.
-  // the highest frame that is a record, not a function. 
+  // the highest frame that is a record, not a function.
   frame *recordLevel;
 
   // The type of the enclosing record.  Also needed for the "this" expression.
   record *recordType;
-  
+
   // Are we translating a codelet?
   bool isCodelet;
 
@@ -94,7 +94,7 @@ class coder {
   // TODO: Ensure private fields don't show up calling lookup for a
   // record.
   permission perm;
-  
+
   // The function code as its being written.  Code points to next place in
   // array to write.
   vm::program *program;
@@ -139,9 +139,9 @@ public:
 
   coder(position pos,
         string name, modifier sord = DEFAULT_DYNAMIC);
-  
+
   coder(const coder&);
-  
+
   /* Add a static or dynamic modifier. */
   void pushModifier(modifier s)
   {
@@ -195,7 +195,7 @@ public:
   {
     perm = DEFAULT_PERM;
   }
-    
+
 
   // Says what the return type of the function is.
   ty *getReturnType() {
@@ -203,7 +203,7 @@ public:
   }
 
   bool isRecord();
-  
+
   // Creates a new coder to handle the translation of a new function.
   coder newFunction(position pos,
                     string name, function *t, modifier sord=DEFAULT_DYNAMIC);
@@ -345,7 +345,7 @@ public:
   // If an address has to be used for a jump instruction before it is
   // actually encoded, a handle can be given to it by this function.
   // When that handle's label is later defined, the proper address will
-  // be inserted into the code where the handle was used. 
+  // be inserted into the code where the handle was used.
   label fwdLabel();
 
   void pushLoop(label c, label b) {

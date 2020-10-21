@@ -25,7 +25,7 @@ struct bbox3 {
   double right;
   double top;
   double far;
-  
+
   // Start bbox3 about the origin
   bbox3()
     : empty(true), left(0.0), bottom(0.0), near(0.0),
@@ -60,7 +60,7 @@ struct bbox3 {
       right(M.getx()),    top(M.gety()), far(M.getz())
   {
   }
-  
+
   // Add a point to a bbox3
   void add(const triple& v)
   {
@@ -77,9 +77,9 @@ struct bbox3 {
     }
     else {
       if(x < left)
-        left = x;  
+        left = x;
       else if(x > right)
-        right = x;  
+        right = x;
       if(y < bottom)
         bottom = y;
       else if(y > top)
@@ -95,9 +95,9 @@ struct bbox3 {
   void addnonempty(double x, double y, double z)
   {
     if(x < left)
-      left = x;  
+      left = x;
     else if(x > right)
-      right = x;  
+      right = x;
     if(y < bottom)
       bottom = y;
     else if(y > top)
@@ -113,9 +113,9 @@ struct bbox3 {
   {
     double x=v.getx();
     if(x < left)
-      left = x;  
+      left = x;
     else if(x > right)
-      right = x;  
+      right = x;
     double y=v.gety();
     if(y < bottom)
       bottom = y;
@@ -135,11 +135,11 @@ struct bbox3 {
     double x = v.getx(), y = v.gety(), z = v.getz();
 
     if(x < left) {
-      left = x;  
+      left = x;
       times.left = t;
     }
     else if(x > right) {
-      right = x;  
+      right = x;
       times.right = t;
     }
     if(y < bottom) {
@@ -169,25 +169,25 @@ struct bbox3 {
   triple Min() const {
     return triple(left,bottom,near);
   }
-  
+
   triple Max() const {
     return triple(right,top,far);
   }
-  
+
   pair Min2() const {
     return pair(left,bottom);
   }
-  
+
   pair Max2() const {
     return pair(right,top);
   }
-  
+
   friend ostream& operator << (ostream& out, const bbox3& b)
   {
     out << "Min " << b.Min() << " Max " << b.Max();
     return out;
   }
-  
+
 };
 
 } // namespace camp

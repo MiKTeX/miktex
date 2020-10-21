@@ -13,7 +13,7 @@ inline double max(double a, double b)
   return (a > b) ? a : b;
 }
 
-int XYZCompare(const void *v1, const void *v2) 
+int XYZCompare(const void *v1, const void *v2)
 {
   double x1=((XYZ*)v1)->p[0];
   double x2=((XYZ*)v2)->p[0];
@@ -48,7 +48,7 @@ Int Triangulate(Int nv, XYZ pxyz[], ITRIANGLE v[], Int &ntri,
 
   if(presort) qsort(pxyz,nv,sizeof(XYZ),XYZCompare);
   else postsort=false;
-  
+
 /* Allocate memory for the completeness list, flag for each triangle */
   Int trimax = 4 * nv;
   Int *complete = new Int[trimax];
@@ -114,14 +114,14 @@ Int Triangulate(Int nv, XYZ pxyz[], ITRIANGLE v[], Int &ntri,
       double *a=pxyz[vj->p1].p;
       double *b=pxyz[vj->p2].p;
       double *c=pxyz[vj->p3].p;
-      
+
       if(incircle(a,b,c,d) <= 0.0) { // Point d is inside or on circumcircle
 /* Check that we haven't exceeded the edge list size */
         if(nedge + 3 >= emax) {
           emax += 100;
           IEDGE *p_EdgeTemp = new IEDGE[emax];
           for (Int i = 0; i < nedge; i++) {
-            p_EdgeTemp[i] = edges[i];   
+            p_EdgeTemp[i] = edges[i];
           }
           delete[] edges;
           edges = p_EdgeTemp;
@@ -199,7 +199,7 @@ Int Triangulate(Int nv, XYZ pxyz[], ITRIANGLE v[], Int &ntri,
   delete[] edges;
   delete[] complete;
 
-  if(postsort) { 
+  if(postsort) {
     for(Int i = 0; i < ntri; i++) {
       ITRIANGLE *vi=v+i;
       vi->p1=pxyz[vi->p1].i;
@@ -209,4 +209,4 @@ Int Triangulate(Int nv, XYZ pxyz[], ITRIANGLE v[], Int &ntri,
   }
 
   return 0;
-} 
+}

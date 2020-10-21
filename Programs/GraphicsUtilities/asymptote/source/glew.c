@@ -7,5 +7,9 @@
 #endif
 
 #ifdef HAVE_LIBGL
+#ifdef HAVE_LIBOSMESA
+#define GLEW_OSMESA
+#endif
+
 #include "GL/glew.c"
 #endif /* HAVE_LIBGL */

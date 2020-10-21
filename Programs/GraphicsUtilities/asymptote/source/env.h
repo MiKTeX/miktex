@@ -47,7 +47,7 @@ public:
     : ve(tag) {}
 
   protoenv(const protoenv&);
-  
+
   void beginScope()
   {
     te.beginScope(); ve.beginScope();
@@ -120,7 +120,7 @@ public:
   {
     te.enter(name, desc);
   }
-  
+
   void addVar(symbol name, varEntry *desc)
   {
     // Don't check for multiple variables, as this makes adding casts
@@ -140,7 +140,7 @@ public:
   bool add(symbol src, symbol dest,
            protoenv &source, varEntry *qualifier, coder &c)
   {
-    return te.add(src, dest, source.te, qualifier, c) | 
+    return te.add(src, dest, source.te, qualifier, c) |
       ve.add(src, dest, source.ve, qualifier, c);
   }
 

@@ -59,7 +59,7 @@ frame *name::frameTrans(coenv &e)
   else
     return tyFrameTrans(e);
 }
-    
+
 
 types::ty *name::getType(coenv &e, bool tacit)
 {
@@ -76,11 +76,11 @@ varEntry *simpleName::getVarEntry(coenv &e)
   types::ty *t=signatureless(varGetType(e));
   return t ? e.e.lookupVarByType(id, t) : 0;
 }
-  
+
 void simpleName::varTrans(action act, coenv &e, types::ty *target)
 {
   varEntry *v = e.e.lookupVarByType(id, target);
-  
+
   if (v) {
     v->encode(act, getPos(), e.c);
     forceEquivalency(act, e, target, v->getType());
@@ -135,7 +135,7 @@ frame *simpleName::tyFrameTrans(coenv &e)
     ent->v->encode(READ, getPos(), e.c);
     return ent->v->getLevel();
   }
-  else 
+  else
     return 0;
 }
 
@@ -311,7 +311,7 @@ frame *qualifiedName::tyFrameTrans(coenv &e)
       ent->v->encode(READ, getPos(), e.c);
     return ent->v->getLevel();
   }
-  else 
+  else
     return f;
 }
 

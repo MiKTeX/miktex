@@ -24,7 +24,7 @@ using camp::tab;
 
 vm::array *copyArray(vm::array *a);
 vm::array *copyArray2(vm::array *a);
-  
+
 template<class T, class U, template <class S> class op>
 void arrayOp(vm::stack *s)
 {
@@ -73,7 +73,7 @@ void sumArray(vm::stack *s)
 }
 
 extern const char *arrayempty;
-  
+
 template<class T, template <class S> class op>
 void binopArray(vm::stack *s)
 {
@@ -202,7 +202,7 @@ bool Array2Equals(vm::stack *s)
   if(n == 0) return true;
   size_t n0=checkArray(read<array*>(a,0));
   if(n0 != checkArray(read<array*>(b,0))) return false;
-    
+
   for(size_t i=0; i < n; ++i) {
     array *ai=read<array*>(a,i);
     array *bi=read<array*>(b,i);
@@ -300,7 +300,7 @@ void searchArray(vm::stack *s)
   size_t u=size-1;
   if(key >= read<T>(a,u)) {s->push((Int) u); return;}
   size_t l=0;
-        
+
   while (l < u) {
     size_t i=(l+u)/2;
     if(key < read<T>(a,i)) u=i;
@@ -311,9 +311,9 @@ void searchArray(vm::stack *s)
 }
 
 extern string emptystring;
-  
+
 void writestring(vm::stack *s);
-  
+
 template<class T>
 void write(vm::stack *s)
 {
@@ -325,7 +325,7 @@ void write(vm::stack *s)
   bool defaultfile=isdefault(it);
   camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
   if(!f->isOpen() || !f->enabled()) return;
-  
+
   size_t size=checkArray(a);
   if(S != "") f->write(S);
   f->write(first);
@@ -356,14 +356,14 @@ void writeArray(vm::stack *s)
   bool defaultfile=isdefault(it);
   camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
   if(!f->isOpen() || !f->enabled()) return;
-  
+
   size_t asize=checkArray(a);
   size_t Asize=checkArray(A);
   if(f->Standard()) interact::lines=0;
   else if(!f->isOpen()) return;
   try {
     if(S != "") {f->write(S); f->writeline();}
-  
+
     size_t i=0;
     bool cont=true;
     while(cont) {
@@ -402,7 +402,7 @@ void writeArray(vm::stack *s)
   }
   f->flush();
 }
-  
+
 template<class T>
 void writeArray2(vm::stack *s)
 {
@@ -411,10 +411,10 @@ void writeArray2(vm::stack *s)
   bool defaultfile=isdefault(it);
   camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
   if(!f->isOpen() || !f->enabled()) return;
-  
+
   size_t size=checkArray(a);
   if(f->Standard()) interact::lines=0;
-  
+
   try {
     for(size_t i=0; i < size; i++) {
       vm::item& I=(*a)[i];
@@ -443,10 +443,10 @@ void writeArray3(vm::stack *s)
   bool defaultfile=isdefault(it);
   camp::ofile *f=defaultfile ? &camp::Stdout : vm::get<camp::ofile*>(it);
   if(!f->isOpen() || !f->enabled()) return;
-  
+
   size_t size=checkArray(a);
   if(f->Standard()) interact::lines=0;
-  
+
   try {
     for(size_t i=0; i < size;) {
       vm::item& I=(*a)[i];
@@ -477,7 +477,7 @@ void writeArray3(vm::stack *s)
 }
 
 template <class T, class S, T (*func)(S)>
-void arrayFunc(vm::stack *s) 
+void arrayFunc(vm::stack *s)
 {
   array *a=pop<array*>(s);
   size_t size=checkArray(a);
@@ -488,7 +488,7 @@ void arrayFunc(vm::stack *s)
 }
 
 template <class T, class S, T (*func)(S)>
-void arrayFunc2(vm::stack *s) 
+void arrayFunc2(vm::stack *s)
 {
   array *a=pop<array*>(s);
   size_t size=checkArray(a);
@@ -499,7 +499,7 @@ void arrayFunc2(vm::stack *s)
     array *ci=new array(aisize);
     (*c)[i]=ci;
     for(size_t j=0; j < aisize; j++)
-    (*ci)[j]=func(read<S>(ai,j));
+      (*ci)[j]=func(read<S>(ai,j));
   }
   s->push(c);
 }
@@ -526,7 +526,7 @@ inline void copyArrayC(T* &dest, const vm::array *a, size_t dim=0,
 {
   size_t size=checkdimension(a,dim);
   dest=(placement == NoGC) ? new T[size] : new(placement) T[size];
-  for(size_t i=0; i < size; i++) 
+  for(size_t i=0; i < size; i++)
     dest[i]=vm::read<T>(a,i);
 }
 
@@ -536,7 +536,7 @@ inline void copyArrayC(T* &dest, const vm::array *a, T (*cast)(A),
 {
   size_t size=checkdimension(a,dim);
   dest=(placement == NoGC) ? new T[size] : new(placement) T[size];
-  for(size_t i=0; i < size; i++) 
+  for(size_t i=0; i < size; i++)
     dest[i]=cast(vm::read<A>(a,i));
 }
 
@@ -559,17 +559,17 @@ inline void copyArray2C(T* &dest, const vm::array *a, bool square=true,
     buf << "second matrix dimension must be " << dim2;
     vm::error(buf);
   }
-  
+
   dest=(placement == NoGC) ? new T[n*m] : new(placement) T[n*m];
   for(size_t i=0; i < n; i++) {
     vm::array *ai=vm::read<vm::array*>(a,i);
     size_t aisize=checkArray(ai);
     if(aisize == m) {
       T *desti=dest+i*m;
-      for(size_t j=0; j < m; j++) 
+      for(size_t j=0; j < m; j++)
         desti[j]=vm::read<T>(ai,j);
     } else
-      vm::error(square ? "matrix must be square" : 
+      vm::error(square ? "matrix must be square" :
                 "matrix must be rectangular");
   }
 }
@@ -581,7 +581,7 @@ inline vm::array* copyCArray2(const size_t n, const size_t m, const T* p)
   for(size_t i=0; i < n; ++i) {
     array *ai=new array(m);
     (*a)[i]=ai;
-    for(size_t j=0; j < m; ++j) 
+    for(size_t j=0; j < m; ++j)
       (*ai)[j]=p[m*i+j];
   }
   return a;

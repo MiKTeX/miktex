@@ -13,6 +13,7 @@
 
 ADDSYMBOL(a);
 ADDSYMBOL(abs);
+ADDSYMBOL(abs2);
 ADDSYMBOL(azimuth);
 ADDSYMBOL(b);
 ADDSYMBOL(bezier);

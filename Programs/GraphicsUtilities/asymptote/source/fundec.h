@@ -31,7 +31,7 @@ public:
 
   // Build the corresponding types::formal to put into a signature.
   types::formal trans(coenv &e, bool encodeDefVal, bool tacit=false);
-  
+
   // Add the formal parameter to the environment to prepare for the
   // function body's translation.
   virtual void transAsVar(coenv &e, Int index);
@@ -134,7 +134,7 @@ class fundef : public exp {
   symbol id;
 
   friend class fundec;
-  
+
 public:
   fundef(position pos, ty *result, formals *params, stm *body)
     : exp(pos), result(result), params(params), body(body), id() {}
@@ -167,7 +167,7 @@ public:
 
   void transAsField(coenv &e, record *r);
 };
-  
+
 } // namespace absyntax
 
 #endif

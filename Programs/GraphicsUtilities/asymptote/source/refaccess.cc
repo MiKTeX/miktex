@@ -8,7 +8,7 @@
 #include "refaccess.h"
 
 namespace trans {
-  
+
 using vm::item;
 using vm::stack;
 using vm::pop;

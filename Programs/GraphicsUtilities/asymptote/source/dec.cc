@@ -94,7 +94,7 @@ void arrayTy::addOps(coenv &e, record *r)
       r->e.addArrayOps(at);
   }
 }
-  
+
 types::ty *arrayTy::trans(coenv &e, bool tacit)
 {
   types::ty *ct = cell->trans(e, tacit);
@@ -106,7 +106,7 @@ types::ty *arrayTy::trans(coenv &e, bool tacit)
 
   types::array *t = dims->truetype(ct);
   assert(t);
-  
+
   return t;
 }
 
@@ -188,7 +188,7 @@ record *block::transAsFile(genv& ge, symbol id)
   }
   transAsRecordBody(ce, r);
   em.sync();
-  
+
   return r;
 }
 
@@ -208,22 +208,22 @@ vardec *block::asVardec()
   for (list<runnable *>::iterator p=stms.begin();
        p != stms.end();
        ++p)
-  {
-    vardec *v = dynamic_cast<vardec *>(*p);
-    if (v) {
-      if (var)
-        // Multiple vardecs.
+    {
+      vardec *v = dynamic_cast<vardec *>(*p);
+      if (v) {
+        if (var)
+          // Multiple vardecs.
+          return 0;
+        var = v;
+      }
+      else if (!dynamic_cast<emptyStm *>(*p))
+        // Failure due to another runnable in the block.
         return 0;
-      var = v;
     }
-    else if (!dynamic_cast<emptyStm *>(*p))
-      // Failure due to another runnable in the block.
-      return 0;
-  }
 
   return var;
 }
-  
+
 
 void dec::prettyprint(ostream &out, Int indent)
 {
@@ -235,7 +235,7 @@ void modifierList::prettyprint(ostream &out, Int indent)
 {
   prettyindent(out,indent);
   out << "modifierList (";
-  
+
   for (list<modifier>::iterator p = mods.begin(); p != mods.end(); ++p) {
     if (p != mods.begin())
       out << ", ";
@@ -243,16 +243,16 @@ void modifierList::prettyprint(ostream &out, Int indent)
       case EXPLICIT_STATIC:
         out << "static";
         break;
-#if 0   
+#if 0
       case EXPLICIT_DYNAMIC:
         out << "dynamic";
         break;
-#endif  
+#endif
       default:
         out << "invalid code";
     }
   }
-  
+
   for (list<permission>::iterator p = perms.begin(); p != perms.end(); ++p) {
     if (p != perms.begin() || !mods.empty())
       out << ", ";
@@ -317,12 +317,12 @@ void modifiedRunnable::transAsField(coenv &e, record *r)
   }
 
   permission p = mods->getPermission();
-#if 0 // This is innocuous 
+#if 0 // This is innocuous
   if (p != DEFAULT_PERM && (!r || !body->allowPermissions())) {
     em.warning(pos);
     em << "permission modifier is meaningless";
   }
-#endif  
+#endif
   e.c.setPermission(p);
 
   body->transAsField(e,r);
@@ -464,7 +464,7 @@ void initializeVar(position pos, coenv &e, varEntry *v, varinit *init)
     definit d(pos);
     d.transToType(e, t);
   }
-  
+
   v->getLocation()->encode(WRITE, pos, e.c);
   e.c.encodePop();
 }
@@ -550,7 +550,7 @@ void decid::transAsTypedefField(coenv &e, trans::tyEntry *base, record *r)
     em.error(getPos());
     em << "type definition cannot have initializer";
   }
-   
+
   start->addOps(base->t, e, r);
 
   addTypeWithPermission(e, r, ent, start->getName());
@@ -872,7 +872,7 @@ void recorddec::transAsField(coenv &e, record *parent)
 {
   record *r = parent ? parent->newRecord(id, e.c.isStatic()) :
     e.c.newRecord(id);
-                     
+
   addTypeWithPermission(e, parent, new trans::tyEntry(r,0,parent,getPos()), id);
   e.e.addRecordOps(r);
   if (parent)
@@ -881,7 +881,7 @@ void recorddec::transAsField(coenv &e, record *parent)
   // Start translating the initializer.
   coder c=e.c.newRecordInit(getPos(), r);
   coenv re(c,e.e);
-  
+
   body->transAsRecordBody(re, r);
 
   // After the record is translated, add a default initializer so that a
@@ -893,7 +893,7 @@ void recorddec::transAsField(coenv &e, record *parent)
   // the enclosing environment.  These are the implicit constructors defined by
   // "operator init".
   addPostRecordEnvironment(e, r, parent);
-}  
+}
 
 runnable *autoplainRunnable() {
   // Abstract syntax for the code:

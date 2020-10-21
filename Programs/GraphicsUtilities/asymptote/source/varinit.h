@@ -61,7 +61,7 @@ public:
   arrayinit(position pos)
     : varinit(pos), rest(0) {}
 
-  virtual ~arrayinit() 
+  virtual ~arrayinit()
   {}
 
   void prettyprint(ostream &out, Int indent);

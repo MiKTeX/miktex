@@ -10,17 +10,17 @@ namespace camp {
 
 multiguide::multiguide(guidevector& v)
 {
-    // This constructor tests if the first subguide is also a multiguide and,
-    // if possible, uses the same base, extending it beyond what is used.
-    multiguide *rg = v.empty() ? 0 : dynamic_cast<multiguide *>(v[0]);
-    if (rg && rg->base->size() == rg->length) {
-        base = rg->base;
-        base->insert(base->end(), v.begin()+1, v.end());
-    }
-    else
-        base = new guidevector(v);
+  // This constructor tests if the first subguide is also a multiguide and,
+  // if possible, uses the same base, extending it beyond what is used.
+  multiguide *rg = v.empty() ? 0 : dynamic_cast<multiguide *>(v[0]);
+  if (rg && rg->base->size() == rg->length) {
+    base = rg->base;
+    base->insert(base->end(), v.begin()+1, v.end());
+  }
+  else
+    base = new guidevector(v);
 
-    length = base->size();
+  length = base->size();
 }
 
 void multiguide::flatten(flatguide& g, bool allowsolve)

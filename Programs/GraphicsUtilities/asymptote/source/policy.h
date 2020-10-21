@@ -63,12 +63,12 @@ typedef struct {
   // value.
   // TODO: Change name to sig.
   void (*addField)(handle_typ handle,
-      const char *name, handle_typ init);
+                   const char *name, handle_typ init);
 
   arguments_typ (*newArguments)();
   void (*releaseArguments)(arguments_typ args);
   void (*addArgument)(arguments_typ args, const char *name, handle_typ handle,
-                   arg_rest_option at);
+                      arg_rest_option at);
   handle_typ (*call)(handle_typ callee, arguments_typ args);
 
   handle_typ (*globals)(state_typ state);

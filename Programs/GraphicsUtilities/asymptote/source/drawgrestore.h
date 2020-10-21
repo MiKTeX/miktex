@@ -21,7 +21,7 @@ public:
     out->grestore();
     return true;
   }
-  
+
   bool write(texfile *out, const bbox&) {
     out->grestore();
     return true;

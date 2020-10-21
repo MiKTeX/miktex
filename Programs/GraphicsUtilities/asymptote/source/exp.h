@@ -60,7 +60,7 @@ public:
   // expression.  ie. 3sin(x)
   // If a "non-scalable" expression is scaled a warning is issued.
   virtual bool scalable() { return true; }
-  
+
   // Specifies if the value of the expression should be written to interactive
   // prompt if typed as a stand-alone expression.  For example:
   // > 2+3;
@@ -177,7 +177,7 @@ public:
   // be called with the same target type as the original call to evaluate.
   // When evaluate() is called during the translation of a function, that
   // function must still be in translation when the evaluation is translated.
-  // 
+  //
   // The base implementation uses a tempExp (see below).  This is
   // sufficient for most expressions.
   virtual exp *evaluate(coenv &e, types::ty *target);
@@ -207,7 +207,7 @@ public:
 class varEntryExp : public exp {
   trans::varEntry *v;
 public:
-  varEntryExp(position pos, trans::varEntry *v) 
+  varEntryExp(position pos, trans::varEntry *v)
     : exp(pos), v(v) {}
   varEntryExp(position pos, types::ty *t, access *a);
   varEntryExp(position pos, types::ty *t, vm::bltin f);
@@ -217,7 +217,7 @@ public:
   types::ty *getType(coenv &);
   types::ty *trans(coenv &e);
   trans::varEntry *getCallee(coenv &e, types::signature *sig);
-  
+
   void transAct(action act, coenv &e, types::ty *target);
   void transAsType(coenv &e, types::ty *target);
   void transWrite(coenv &e, types::ty *t, exp *value);
@@ -246,7 +246,7 @@ public:
 
   void transAsType(coenv &e, types::ty *target) {
     value->varTrans(trans::READ, e, target);
-    
+
     // After translation, the cached type is no longer needed and should be
     // garbage collected.  This could presumably be done in every class derived
     // from exp, but here it is most important as nameExp can have heavily
@@ -290,7 +290,7 @@ public:
 
     ct=0;  // See note in transAsType.
   }
-  
+
   void transCall(coenv &e, types::ty *target) {
     value->varTrans(trans::CALL, e, target);
 
@@ -401,7 +401,7 @@ protected:
   array *transArray(coenv &e);
 
 public:
-  arrayExp(position pos, exp *set) 
+  arrayExp(position pos, exp *set)
     : exp(pos), set(set) {}
 };
 
@@ -629,7 +629,7 @@ public:
     : absyn(pos) {}
 
   virtual ~explist() {}
-  
+
   virtual void add(exp *e) {
     exps.push_back(e);
   }
@@ -639,7 +639,7 @@ public:
   virtual size_t size() {
     return exps.size();
   }
-  
+
   virtual exp * operator[] (size_t index) {
     return exps[index];
   }
@@ -675,7 +675,7 @@ public:
     : args(), rest(), restPosition(DUMMY_REST_POSITION) {}
 
   virtual ~arglist() {}
-  
+
   virtual void addFront(argument a) {
     args.insert(args.begin(), a);
   }
@@ -717,7 +717,7 @@ public:
   virtual size_t size() {
     return args.size();
   }
-  
+
   virtual argument& operator[] (size_t index) {
     return args[index];
   }
@@ -943,9 +943,9 @@ public:
   void transToType(coenv &e, types::ty *target);
   types::ty *trans(coenv &e);
   types::ty *getType(coenv &e);
-  
+
 };
- 
+
 class andOrExp : public exp {
 protected:
   exp *left;
@@ -1098,7 +1098,7 @@ public:
   types::ty *trans(coenv &e);
   types::ty *getType(coenv &) { return types::primError(); }
 };
-  
+
 } // namespace absyntax
 
 #endif

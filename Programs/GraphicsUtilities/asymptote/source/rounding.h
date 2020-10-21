@@ -8,7 +8,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
@@ -26,14 +26,14 @@
 #  ifdef _FPU_EXTENDED
 #   if !defined(__alpha__) || !defined(__GLIBC__)
 #    if defined(__arm__)
-     static fpu_control_t fpu_round_double = _FPU_DEFAULT;
+static fpu_control_t fpu_round_double = _FPU_DEFAULT;
 #    else
-     static fpu_control_t fpu_round_double =
-       (_FPU_DEFAULT & ~ _FPU_EXTENDED)|_FPU_DOUBLE;
+static fpu_control_t fpu_round_double =
+  (_FPU_DEFAULT & ~ _FPU_EXTENDED)|_FPU_DOUBLE;
 #    endif
-     static fpu_control_t fpu_init;
-#    define FPU_ROUND_DOUBLE  { _FPU_GETCW(fpu_init);\
-                                _FPU_SETCW(fpu_round_double); }
+static fpu_control_t fpu_init;
+#    define FPU_ROUND_DOUBLE  { _FPU_GETCW(fpu_init);   \
+    _FPU_SETCW(fpu_round_double); }
 #    define FPU_RESTORE       {_FPU_SETCW(fpu_init);}
 #   else /* __alpha__ && __GLIBC__ */
 #    define FPU_ROUND_DOUBLE
@@ -56,15 +56,15 @@
 #        define FPU_RESTORE
 #       else
 #        include <float.h>
-         static unsigned int fpu_init;
-#        define FPU_ROUND_DOUBLE (fpu_init = _controlfp (0, 0),\
-                                 _controlfp (_PC_53, MCW_PC))
+static unsigned int fpu_init;
+#        define FPU_ROUND_DOUBLE (fpu_init = _controlfp (0, 0), \
+                                  _controlfp (_PC_53, MCW_PC))
 #        define FPU_RESTORE      (_controlfp (fpu_init, 0xfffff))
 #       endif
 #      elif __MINGW32__
 #        include <float.h>
-         static unsigned int fpu_init;
-#        define FPU_ROUND_DOUBLE (fpu_init = _controlfp (0, 0),\
+static unsigned int fpu_init;
+#        define FPU_ROUND_DOUBLE (fpu_init = _controlfp (0, 0), \
                                   _controlfp (_PC_53, _MCW_PC))
 #        define FPU_RESTORE      (_controlfp (fpu_init, 0xfffff))
 #      else /* not _MSC_VER or __MINGW32__ */
@@ -72,13 +72,13 @@
 #      endif /*  not _MSC_VER or __MINGW32__ */
 #    else /* not WIN32 */
 #      ifdef __CYGWIN__
-         typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__HI__)));
-         static fpu_control_t fpu_round_double = 0x027f;
-         static fpu_control_t fpu_init;
+typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__HI__)));
+static fpu_control_t fpu_round_double = 0x027f;
+static fpu_control_t fpu_init;
 #        define _FPU_GETCW(cw) __asm__ ("fnstcw %0" : "=m" (*&cw))
 #        define _FPU_SETCW(cw) __asm__ ("fldcw %0" : : "m" (*&cw))
-#        define FPU_ROUND_DOUBLE  { _FPU_GETCW(fpu_init);\
-                                    _FPU_SETCW(fpu_round_double); }
+#        define FPU_ROUND_DOUBLE  { _FPU_GETCW(fpu_init);       \
+    _FPU_SETCW(fpu_round_double); }
 #        define FPU_RESTORE       { _FPU_SETCW(fpu_init);}
 #      else /* not __CYGWIN__ */
 #        ifdef CPP_HAS_WARNING

@@ -1,7 +1,7 @@
 /*****
  * inst.h
  * Andy Hammerlindl 2002/06/27
- * 
+ *
  * Descibes the items and instructions that are used by the virtual machine.
  *****/
 
@@ -19,7 +19,7 @@ namespace vm {
 
 // Forward declarations
 struct inst; class stack; class program;
- 
+
 // A function "lambda," that is, the code that runs a function.
 // It also needs the closure of the enclosing module or function to run.
 struct lambda : public gc {
@@ -75,4 +75,4 @@ inline T get(const inst& it)
 } // namespace vm
 
 #endif
-  
+

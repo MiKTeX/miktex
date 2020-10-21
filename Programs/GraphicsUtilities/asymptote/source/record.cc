@@ -34,7 +34,7 @@ record *record::newRecord(symbol id, bool statically)
 {
   frame *underlevel = getLevel(statically);
   assert(underlevel);
-    
+
   frame *level = new frame(id, underlevel, 0);
 
   record *r = new record(id, level);
@@ -47,7 +47,7 @@ trans::access *record::initializer() {
   return &a;
 }
 
-dummyRecord::dummyRecord(symbol name) 
+dummyRecord::dummyRecord(symbol name)
   : record(name, new frame(name, 0,0))
 {
   // Encode the instructions to put an placeholder instance of the record
@@ -68,7 +68,7 @@ dummyRecord::dummyRecord(string s)
 void dummyRecord::add(string name, ty *t, trans::access *a,
                       trans::permission perm) {
   e.addVar(symbol::trans(name),
-           new trans::varEntry(t, a, perm, this, this, position())); 
+           new trans::varEntry(t, a, perm, this, this, position()));
 }
 
 void dummyRecord::add(string name, function *t, vm::bltin f,

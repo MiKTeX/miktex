@@ -12,6 +12,8 @@
 #include <cstdlib>
 
 #include "errormsg.h"
+#include "interact.h"
+#include "fileio.h"
 
 errorstream em;
 
@@ -25,8 +27,30 @@ ostream& operator<< (ostream& out, const position& pos)
   if (!pos)
     return out;
 
-  out << pos.file->name() << ": ";
+  string filename=pos.file->name();
+
+  if(filename != "-" && !settings::getSetting<bool>("quiet")) {
+    std::ifstream fin(pos.file->name().c_str());
+    string s;
+    size_t count=pos.line;
+    while(count > 0 && getline(fin,s)) {
+      count--;
+    }
+    out << s << endl;
+    for(size_t i=1; i < pos.column; ++i)
+      out << " ";
+    out << "^" << endl;
+  }
+
+  out << filename << ": ";
   out << pos.line << "." << pos.column << ": ";
+
+  if(settings::getSetting<bool>("xasy")) {
+    camp::openpipeout();
+    fprintf(camp::pipeout,"Error\n");
+    fflush(camp::pipeout);
+  }
+
   return out;
 }
 
@@ -88,7 +112,7 @@ void errorstream::fatal(position pos)
 void errorstream::trace(position pos)
 {
   static position lastpos;
-  if(!pos || (pos.match(lastpos.filename()) && pos.match(lastpos.Line()))) 
+  if(!pos || (pos.match(lastpos.filename()) && pos.match(lastpos.Line())))
     return;
   lastpos=pos;
   message(pos,"");
@@ -106,7 +130,7 @@ void errorstream::sync()
   floating = false;
 }
 
-void outOfMemory() 
+void outOfMemory()
 {
   cerr << "error: out of memory" << endl;
   exit(1);

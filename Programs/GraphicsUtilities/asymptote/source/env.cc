@@ -32,7 +32,7 @@ public:
     return e.castable(target, source, name);
   }
 };
-  
+
 access *protoenv::baseLookupCast(ty *target, ty *source, symbol name) {
   static identAccess id;
 
@@ -159,10 +159,10 @@ ty *protoenv::castTarget(ty *target, ty *source, symbol name) {
       return e.castable(target, source, name) ? target : 0;
     }
   };
-          
+
   resolver r(*this, name);
   return r.collect(target, source);
-} 
+}
 
 ty *protoenv::castSource(ty *target, ty *source, symbol name) {
   struct resolver : public collector {
@@ -176,10 +176,10 @@ ty *protoenv::castSource(ty *target, ty *source, symbol name) {
       return e.castable(target, source, name) ? source : 0;
     }
   };
-          
+
   resolver r(*this, name);
   return r.collect(target, source);
-} 
+}
 
 void protoenv::addArrayOps(array *a)
 {

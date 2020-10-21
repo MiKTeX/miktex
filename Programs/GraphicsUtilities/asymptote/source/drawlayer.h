@@ -29,9 +29,9 @@ public:
 
   bool islabel() {return true;}
   bool isnewpage() {return true;}
-  
+
   bool write(texfile *out, const bbox&) {
-    out->verbatimline(settings::latex(out->texengine) ? "\\newpage" : 
+    out->verbatimline(settings::latex(out->texengine) ? "\\newpage" :
                       settings::context(out->texengine) ? "}\\page\\hbox{%" :
                       "\\eject");
     return true;

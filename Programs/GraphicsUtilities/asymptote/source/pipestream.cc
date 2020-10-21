@@ -46,10 +46,9 @@ void pipeHandler(int)
 #endif
   instance->pipeclose();
 }
-  
+
 void iopipestream::open(const mem::vector<string> &command, const char *hint,
-                        const char *application, const char *Fatal,
-                        int out_fileno)
+                        const char *application, int out_fileno)
 {
 #if defined(MIKTEX_WINDOWS)
   pipeStream.Open(MiKTeX::Core::PathName(command[0]), command);
@@ -101,7 +100,6 @@ void iopipestream::open(const mem::vector<string> &command, const char *hint,
   Running=true;
   pipeopen=true;
   pipein=true;
-  fatal=Fatal;
   block(false,true);
 }
 
@@ -159,10 +157,10 @@ ssize_t iopipestream::readbuffer()
 #else
     if((nc=read(out[0],p,size)) < 0) {
       if(errno == EAGAIN || errno == EINTR) {p[0]=0; break;}
-     else {
-       ostringstream buf;
-       buf << "read from pipe failed: errno=" << errno;
-       camp::reportError(buf);
+      else {
+        ostringstream buf;
+        buf << "read from pipe failed: errno=" << errno;
+        camp::reportError(buf);
       }
       nc=0;
     }
@@ -222,10 +220,10 @@ void iopipestream::wait(const char *prompt)
 {
   sbuffer.clear();
   size_t plen=strlen(prompt);
-  size_t flen=strlen(fatal);
 
   do {
     readbuffer();
+    if(*buffer == 0) camp::reportError(sbuffer);
     sbuffer.append(buffer);
 
 #if defined(MIKTEX)
@@ -235,8 +233,6 @@ void iopipestream::wait(const char *prompt)
     }
 #endif
     if(tailequals(sbuffer.c_str(),sbuffer.size(),prompt,plen)) break;
-    if(*fatal && tailequals(sbuffer.c_str(),sbuffer.size(),fatal,flen))
-      camp::reportError(sbuffer);
   } while(true);
 }
 

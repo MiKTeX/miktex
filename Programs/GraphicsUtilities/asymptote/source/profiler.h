@@ -41,7 +41,7 @@ inline void printNameFromLambda(ostream& out, lambda *func) {
     out << "<top level>";
     return;
   }
-  
+
 #ifdef DEBUG_FRAME
   string name = func->name;
 #else
@@ -165,12 +165,12 @@ class profiler : public gc {
 #endif
 
       out << "dict(\n"
-           << "    name = '" << name << " " << func << "',\n"
-           << "    pos = '" << positionFromLambda(func) << "',\n"
-           << "    calls = " << calls << ",\n"
-           << "    instructions = " << instructions << ",\n"
-           << "    nsecs = " << nsecs << ",\n"
-           << "    children = [\n";
+          << "    name = '" << name << " " << func << "',\n"
+          << "    pos = '" << positionFromLambda(func) << "',\n"
+          << "    calls = " << calls << ",\n"
+          << "    instructions = " << instructions << ",\n"
+          << "    nsecs = " << nsecs << ",\n"
+          << "    children = [\n";
 
       size_t n = children.size();
       for (size_t i = 0; i < n; ++i) {
@@ -240,35 +240,35 @@ class profiler : public gc {
       for (mem::map<lambda *, arc>::iterator i = arcs.begin();
            i != arcs.end();
            ++i)
-      {
-        lambda *l = i->first;
-        arc& a = i->second;
+        {
+          lambda *l = i->first;
+          arc& a = i->second;
 
-        out << "cfl=" << positionFromLambda(l) << "\n";
+          out << "cfl=" << positionFromLambda(l) << "\n";
 
-        out << "cfn=";
-        printNameFromLambda(out, l);
-        out << "\n";
+          out << "cfn=";
+          printNameFromLambda(out, l);
+          out << "\n";
 
-        out << "calls=" << a.calls << " " << POS << "\n";
-        out << POS << " " << a.instTotal << " " << a.nsecsTotal << "\n";
-      }
+          out << "calls=" << a.calls << " " << POS << "\n";
+          out << POS << " " << a.instTotal << " " << a.nsecsTotal << "\n";
+        }
       for (mem::map<bltin, arc>::iterator i = carcs.begin();
            i != carcs.end();
            ++i)
-      {
-        bltin b = i->first;
-        arc& a = i->second;
+        {
+          bltin b = i->first;
+          arc& a = i->second;
 
-        out << "cfl=C++ code" << endl;
+          out << "cfl=C++ code" << endl;
 
-        out << "cfn=";
-        printNameFromBltin(out, b);
-        out << "\n";
+          out << "cfn=";
+          printNameFromBltin(out, b);
+          out << "\n";
 
-        out << "calls=" << a.calls << " " << POS << "\n";
-        out << POS << " " << a.instTotal << " " << a.nsecsTotal << "\n";
-      }
+          out << "calls=" << a.calls << " " << POS << "\n";
+          out << POS << " " << a.instTotal << " " << a.nsecsTotal << "\n";
+        }
     }
   };
 
@@ -280,7 +280,7 @@ class profiler : public gc {
 
   void analyseNode(node& n) {
     fun& f = n.cfunc ? cfuns[n.cfunc] :
-                       funs[n.func];
+      funs[n.func];
 
     f.analyse(n);
 
@@ -307,7 +307,7 @@ class profiler : public gc {
     struct timeval now;
     gettimeofday(&now, 0);
     long long nsecs = 1000000000LL * (now.tv_sec - timestamp.tv_sec) +
-                      1000LL * (now.tv_usec - timestamp.tv_usec);
+      1000LL * (now.tv_usec - timestamp.tv_usec);
     timestamp = now;
     return nsecs;
   }
@@ -340,8 +340,8 @@ public:
 inline profiler::profiler()
   : emptynode()
 {
-    callstack.push(&emptynode);
-    startLap();
+  callstack.push(&emptynode);
+  startLap();
 }
 
 inline void profiler::beginFunction(lambda *func) {
@@ -402,33 +402,33 @@ inline void profiler::dump(ostream& out) {
   for (mem::map<lambda *, fun>::iterator i = funs.begin();
        i != funs.end();
        ++i)
-  {
-    lambda *l = i->first;
-    fun& f = i->second;
+    {
+      lambda *l = i->first;
+      fun& f = i->second;
 
-    out << "fl=" << positionFromLambda(l) << "\n";
+      out << "fl=" << positionFromLambda(l) << "\n";
 
-    out << "fn=";
-    printNameFromLambda(out, l);
-    out << "\n";
+      out << "fn=";
+      printNameFromLambda(out, l);
+      out << "\n";
 
-    f.dump(out);
-  }
+      f.dump(out);
+    }
   for (mem::map<bltin, fun>::iterator i = cfuns.begin();
        i != cfuns.end();
        ++i)
-  {
-    bltin b = i->first;
-    fun& f = i->second;
+    {
+      bltin b = i->first;
+      fun& f = i->second;
 
-    out << "fl=C++ code\n";
+      out << "fl=C++ code\n";
 
-    out << "fn=";
-    printNameFromBltin(out, b);
-    out << "\n";
+      out << "fn=";
+      printNameFromBltin(out, b);
+      out << "\n";
 
-    f.dump(out);
-  }
+      f.dump(out);
+    }
 }
 
 

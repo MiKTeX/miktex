@@ -99,72 +99,72 @@ extern "C" {
 #define TR_MINOR_VERSION 1
 
 
-typedef struct _TRctx TRcontext;
+  typedef struct _TRctx TRcontext;
 
 
-typedef enum {
-   TR_TILE_WIDTH = 100,
-   TR_TILE_HEIGHT,
-   TR_TILE_BORDER,
-   TR_IMAGE_WIDTH,
-   TR_IMAGE_HEIGHT,
-   TR_ROWS,
-   TR_COLUMNS,
-   TR_CURRENT_ROW,
-   TR_CURRENT_COLUMN,
-   TR_CURRENT_TILE_WIDTH,
-   TR_CURRENT_TILE_HEIGHT,
-   TR_ROW_ORDER,
-   TR_TOP_TO_BOTTOM,
-   TR_BOTTOM_TO_TOP
-} TRenum;
+  typedef enum {
+    TR_TILE_WIDTH = 100,
+    TR_TILE_HEIGHT,
+    TR_TILE_BORDER,
+    TR_IMAGE_WIDTH,
+    TR_IMAGE_HEIGHT,
+    TR_ROWS,
+    TR_COLUMNS,
+    TR_CURRENT_ROW,
+    TR_CURRENT_COLUMN,
+    TR_CURRENT_TILE_WIDTH,
+    TR_CURRENT_TILE_HEIGHT,
+    TR_ROW_ORDER,
+    TR_TOP_TO_BOTTOM,
+    TR_BOTTOM_TO_TOP
+  } TRenum;
 
 
 
-extern TRcontext *trNew(void);
+  extern TRcontext *trNew(void);
 
-extern void trDelete(TRcontext *tr);
-
-
-extern void trTileSize(TRcontext *tr, GLint width, GLint height, GLint border);
-
-extern void trTileBuffer(TRcontext *tr, GLenum format, GLenum type,
-			 GLvoid *image);
+  extern void trDelete(TRcontext *tr);
 
 
-extern void trImageSize(TRcontext *tr, GLint width, GLint height);
+  extern void trTileSize(TRcontext *tr, GLint width, GLint height, GLint border);
 
-extern void trImageBuffer(TRcontext *tr, GLenum format, GLenum type,
-			  GLvoid *image);
-
-
-extern void trRowOrder(TRcontext *tr, TRenum order);
+  extern void trTileBuffer(TRcontext *tr, GLenum format, GLenum type,
+                           GLvoid *image);
 
 
-extern GLint trGet(TRcontext *tr, TRenum param);
+  extern void trImageSize(TRcontext *tr, GLint width, GLint height);
+
+  extern void trImageBuffer(TRcontext *tr, GLenum format, GLenum type,
+                            GLvoid *image);
 
 
-extern void trOrtho(TRcontext *tr,
-		    GLdouble left, GLdouble right,
-		    GLdouble bottom, GLdouble top,
-		    GLdouble zNear, GLdouble zFar);
-
-extern void trFrustum(TRcontext *tr,
-		      GLdouble left, GLdouble right,
-		      GLdouble bottom, GLdouble top,
-		      GLdouble zNear, GLdouble zFar);
-
-extern void trPerspective(TRcontext *tr,
-			  GLdouble fovy, GLdouble aspect,
-			  GLdouble zNear, GLdouble zFar );
+  extern void trRowOrder(TRcontext *tr, TRenum order);
 
 
-extern void trBeginTile(TRcontext *tr);
-
-extern int trEndTile(TRcontext *tr);
+  extern GLint trGet(TRcontext *tr, TRenum param);
 
 
-extern void trRasterPos3f(TRcontext *tr, GLfloat x, GLfloat y, GLfloat z);
+  extern void trOrtho(TRcontext *tr,
+                      GLdouble left, GLdouble right,
+                      GLdouble bottom, GLdouble top,
+                      GLdouble zNear, GLdouble zFar);
+
+  extern void trFrustum(TRcontext *tr,
+                        GLdouble left, GLdouble right,
+                        GLdouble bottom, GLdouble top,
+                        GLdouble zNear, GLdouble zFar);
+
+  extern void trPerspective(TRcontext *tr,
+                            GLdouble fovy, GLdouble aspect,
+                            GLdouble zNear, GLdouble zFar );
+
+
+  extern void trBeginTile(TRcontext *tr);
+
+  extern int trEndTile(TRcontext *tr);
+
+
+  extern void trRasterPos3f(TRcontext *tr, GLfloat x, GLfloat y, GLfloat z);
 
 
 

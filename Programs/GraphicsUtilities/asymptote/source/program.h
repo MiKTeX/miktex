@@ -1,7 +1,7 @@
 /*****
  * program.h
  * Tom Prince
- * 
+ *
  * The list of instructions used by the virtual machine.
  *****/
 

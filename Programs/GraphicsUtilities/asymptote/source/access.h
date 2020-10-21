@@ -17,11 +17,11 @@
 #include "vm.h"
 
 namespace vm {
-  struct callable;
+struct callable;
 }
 
 namespace trans {
-  
+
 class frame;
 class coder;
 
@@ -32,7 +32,7 @@ enum action {
 };
 
 // These serves as the base class for the accesses.
-class access : public gc { 
+class access : public gc {
 protected:
   // Generic compiler access error - if the compiler functions properly,
   // none of these should be reachable by the user.
@@ -44,7 +44,7 @@ protected:
 
 public:
   virtual ~access() = 0;
-  
+
   // Encode a read/write/call of the access when nothing is on the stack.
   virtual void encode(action, position pos, coder &)
   {
@@ -59,7 +59,7 @@ public:
 };
 
 // This class represents identity conversions in casting.
-class identAccess : public access 
+class identAccess : public access
 {
   virtual void encode(action act, position, coder&);
 };
@@ -95,7 +95,7 @@ class frameAccess : public access {
 public:
   frameAccess(frame *f)
     : f(f) {}
-  
+
   void encode(action act, position pos, coder &e);
   void encode(action act, position pos, coder &e, frame *top);
 };
@@ -116,7 +116,7 @@ public:
 class qualifiedAccess : public access {
   // The location and frame of the record.
   access *qualifier;
-  frame *qualifierLevel;  
+  frame *qualifierLevel;
 
   // The location of the field relative to the record.
   access *field;

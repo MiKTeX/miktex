@@ -22,24 +22,24 @@ double PatternLength(double arclength, const array& pat,
                      bool cyclic, double penwidth)
 {
   double sum=0.0;
-      
+
   size_t n=pat.size();
   for(unsigned i=0; i < n; i ++)
     sum += read<double>(pat,i)*penwidth;
-  
+
   if(sum == 0.0) return 0.0;
-  
+
   if(n % 2 == 1) sum *= 2.0; // On/off pattern repeats after 2 cycles.
-      
+
   double pat0=read<double>(pat,0);
   // Fix bounding box resolution problem. Example:
   // asy -f pdf testlinetype; gv -scale -2 testlinetype.pdf
   if(!cyclic && pat0 == 0) sum += 1.0e-3*penwidth;
-      
+
   double terminator=(cyclic && arclength >= 0.5*sum) ? 0.0 : pat0*penwidth;
   int ncycle=(int)((arclength-terminator)/sum+0.5);
 
-  return (ncycle >= 1 || terminator >= 0.75*arclength) ? 
+  return (ncycle >= 1 || terminator >= 0.75*arclength) ?
     ncycle*sum+terminator : 0.0;
 }
 
@@ -55,26 +55,26 @@ pen adjustdash(pen& p, double arclength, bool cyclic)
   // Adjust dash sizes to fit arclength; also compensate for linewidth.
   const LineType *linetype=q.linetype();
   size_t n=linetype->pattern.size();
-    
+
   if(n > 0) {
     double penwidth=linetype->scale ? q.width() : 1.0;
     double factor=penwidth;
-    
+
     if(linetype->adjust && arclength) {
       double denom=PatternLength(arclength,linetype->pattern,cyclic,penwidth);
       if(denom != 0.0) factor *= arclength/denom;
     }
-    
+
     if(factor != 1.0)
       q.adjust(max(factor,0.1));
   }
   return q;
 }
- 
+
 // Account for square or extended pen cap contributions to bounding box.
 void cap(bbox& b, double t, path p, pen pentype) {
-  transform T=pentype.getTransform();  
-  
+  transform T=pentype.getTransform();
+
   double h=0.5*pentype.width();
   pair v=p.dir(t);
   transform S=rotate(conj(v))*shiftless(T);
@@ -85,7 +85,7 @@ void cap(bbox& b, double t, path p, pen pentype) {
   double numer=xx*yx+xy*yy;
   double x=numer/y;
   pair z=shift(T)*p.point(t);
-  
+
   switch(pentype.cap()) {
     case 0:
     {
@@ -113,16 +113,16 @@ void drawPathPenBase::strokebounds(bbox& b, const path& p)
 {
   Int l=p.length();
   if(l < 0) return;
-  
+
   bbox penbounds=pentype.bounds();
-  
+
   if(cyclic() || pentype.cap() == 1) {
     b += pad(p.bounds(),penbounds);
     return;
   }
-  
+
   b += p.internalbounds(penbounds);
-  
+
   cap(b,0,p,pentype);
   cap(b,l,p,pentype);
 }
@@ -147,17 +147,17 @@ bool drawPath::draw(psfile *out)
     out->dot(p,q);
 
   penConcat(out);
-  
+
   out->setpen(q);
-  
+
   out->stroke(q,n == 1);
-  
+
   penRestore(out);
 
   return true;
 }
 
-drawElement *drawPath::transformed(const transform& t) 
+drawElement *drawPath::transformed(const transform& t)
 {
   return new drawPath(transpath(t),transpen(t),KEY);
 }

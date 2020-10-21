@@ -53,7 +53,7 @@ public:
   virtual void prettyprint(ostream &out, Int indent) = 0;
 
   // If we introduced a new type, automatically add corresponding functions for
-  // that type.  
+  // that type.
   virtual void addOps(coenv &, record *) {}
 
   // Returns the internal representation of the type.  This method can
@@ -90,7 +90,7 @@ public:
 
   void increase()
   { depth++; }
-  
+
   size_t size() {
     return depth;
   }
@@ -142,13 +142,13 @@ public:
     : absyn(pos) {}
 
   virtual void prettyprint(ostream &out, Int indent) = 0;
-  
+
   void markTrans(coenv &e)
   {
     markPos(e);
     trans(e);
   }
-  
+
   /* Translates the stm or dec as if it were in a function definition. */
   virtual void trans(coenv &e) {
     transAsField(e, 0);
@@ -182,10 +182,10 @@ public:
   { return false; }
 
   // Returns true if it is syntatically allowable to modify this
-  // runnable by a PUBLIC or PRIVATE modifier. 
+  // runnable by a PUBLIC or PRIVATE modifier.
   virtual bool allowPermissions()
   { return false; }
-}; 
+};
 
 class block : public runnable {
 public:
@@ -356,7 +356,7 @@ public:
 
   virtual void transAsField(coenv &e, record *r, types::ty *base);
 
-  // Translate, but add the names in as types rather than variables. 
+  // Translate, but add the names in as types rather than variables.
   virtual void transAsTypedefField(coenv &e, trans::tyEntry *base, record *r);
 
   decidstart *getStart() { return start; }
@@ -370,7 +370,7 @@ public:
     : absyn(pos) {}
 
   virtual ~decidlist() {}
-  
+
   void add(decid *p) {
     decs.push_back(p);
   }
@@ -379,9 +379,9 @@ public:
 
   virtual void transAsField(coenv &e, record *r, types::ty *base);
 
-  // Translate, but add the names in as types rather than variables. 
+  // Translate, but add the names in as types rather than variables.
   virtual void transAsTypedefField(coenv &e, trans::tyEntry *base, record *r);
-  
+
   // If the list consists of a single entry, return it.
   decid *singleEntry()
   {
@@ -428,7 +428,7 @@ public:
     decs->transAsField(e, r, base->trans(e));
   }
 
-  // Translate, but add the names in as types rather than variables. 
+  // Translate, but add the names in as types rather than variables.
   virtual void transAsTypedefField(coenv &e, record *r);
 
   // If the vardec encodes a single declaration, return the name of that
@@ -466,7 +466,7 @@ struct idpair : public absyn {
 
   // Translates as: access src as dest;
   void transAsAccess(coenv &e, record *r);
-  
+
   // Translates as: from _ unravel src as dest;
   // where _ is the qualifier record with source as its fields and types.
   void transAsUnravel(coenv &e, record *r,
@@ -594,7 +594,7 @@ public:
   void transAsField(coenv &e, record *r) {
     base.transAsField(e, r);
   }
-  
+
   void prettyprint(ostream &out, Int indent);
 };
 
@@ -655,7 +655,7 @@ public:
 runnable *autoplainRunnable();
 
 void addVar(coenv &e, record *r, varEntry *v, symbol id);
-  
+
 } // namespace absyntax
 
 #endif

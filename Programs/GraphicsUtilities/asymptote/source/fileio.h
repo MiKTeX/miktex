@@ -28,20 +28,22 @@
 #include "errormsg.h"
 #include "util.h"
 #include "process.h"
+#include "locate.h"
+#include "parser.h"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
 namespace vm {
-extern bool indebugger;  
+extern bool indebugger;
 }
 
 namespace camp {
 
 extern string tab;
 extern string newline;
-  
+
 enum Mode {NOMODE,INPUT,OUTPUT,UPDATE,BINPUT,BOUTPUT,BUPDATE,XINPUT,XOUTPUT,
            XUPDATE,OPIPE};
 
@@ -52,7 +54,7 @@ static const string FileModes[]=
 
 extern FILE *pipeout;
 
-inline void openpipeout() 
+inline void openpipeout()
 {
   int fd=intcast(settings::getSetting<Int>("outpipe"));
   if(!pipeout && fd >= 0) pipeout=fdopen(fd,"w");
@@ -63,12 +65,17 @@ inline void openpipeout()
   }
 }
 
+inline string locatefile(string name) {
+  string s=settings::locateFile(name);
+  return s.empty() ? name : s;
+}
+
 class file : public gc {
-protected:  
+protected:
   string name;
   bool check;      // Check whether input file exists.
   Mode type;
-  
+
   Int nx,ny,nz;    // Array dimensions
   bool linemode;   // Array reads will stop at eol instead of eof.
   bool csvmode;    // Read comma-separated values.
@@ -76,25 +83,25 @@ protected:
   bool singlereal; // Read/write single-precision XDR/binary reals.
   bool singleint;  // Read/write single-precision XDR/binary ints.
   bool signedint;  // Read/write signed XDR/binary ints.
-  
+
   bool closed;     // File has been closed.
   bool standard;   // Standard input/output
   bool binary;     // Read in binary mode.
-  
+
   bool nullfield;  // Used to detect a final null field in csv+line mode.
   string whitespace;
   size_t index;    // Terminator index.
 
-public: 
+public:
 
   bool Standard() {return standard;}
-  
+
   void standardEOF() {
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)
     cout << endl;
-#endif  
+#endif
   }
-  
+
   template<class T>
   void purgeStandard(T&) {
     if(standard) {
@@ -110,23 +117,31 @@ public:
       }
     }
   }
-  
+
   void purgeStandard(string&) {
     if(cin.eof())
       standardEOF();
   }
-  
-  void dimension(Int Nx=-1, Int Ny=-1, Int Nz=-1) {nx=Nx; ny=Ny; nz=Nz;}
-  
-  file(const string& name, bool check=true, Mode type=NOMODE, bool binary=false,
-       bool closed=false) : 
+
+  void dimension(Int Nx=-1, Int Ny=-1, Int Nz=-1) {
+    if(Nx < -2 || Ny < -2 || Nz < -2) {
+      ostringstream buf;
+      buf << "Invalid array dimensions: " << Nx << ", " << Ny << ", " << Nz;
+      reportError(buf);
+    }
+
+    nx=Nx; ny=Ny; nz=Nz;
+  }
+
+  file(const string& name, bool check=true, Mode type=NOMODE,
+       bool binary=false, bool closed=false) :
     name(name), check(check), type(type), linemode(false), csvmode(false),
     wordmode(false), singlereal(false), singleint(true), signedint(true),
-    closed(closed), standard(name.empty()),
-    binary(binary), nullfield(false), whitespace("") {dimension();}
-  
+    closed(closed), standard(name.empty()), binary(binary), nullfield(false),
+    whitespace("") {dimension();}
+
   virtual void open() {}
-  
+
   void Check() {
     if(error()) {
       ostringstream buf;
@@ -134,7 +149,7 @@ public:
       reportError(buf);
     }
   }
-  
+
   virtual ~file() {}
 
   bool isOpen() {
@@ -147,7 +162,7 @@ public:
     }
     return true;
   }
-                
+
   string filename() {return name;}
   virtual bool eol() {return false;}
   virtual bool nexteol() {return false;}
@@ -160,19 +175,19 @@ public:
   virtual void flush() {}
   virtual size_t tell() {return 0;}
   virtual void seek(Int, bool=true) {}
-  
+
   string FileMode() {return FileModes[type];}
-  
+
   void unsupported(const char *rw, const char *type) {
     ostringstream buf;
     buf << rw << " of type " << type << " not supported in " << FileMode()
         << " mode";
     reportError(buf);
   }
-  
+
   void noread(const char *type) {unsupported("Read",type);}
   void nowrite(const char *type) {unsupported("Write",type);}
-  
+
   virtual void Read(bool&) {noread("bool");}
   virtual void Read(Int&) {noread("int");}
   virtual void Read(double&) {noread("real");}
@@ -182,7 +197,7 @@ public:
   virtual void Read(char&) {noread("char");}
   virtual void Read(string&) {noread("string");}
   virtual void readwhite(string&) {noread("string");}
-  
+
   virtual void write(bool) {nowrite("bool");}
   virtual void write(Int) {nowrite("int");}
   virtual void write(double) {nowrite("real");}
@@ -193,18 +208,18 @@ public:
   virtual void write(guide *) {nowrite("guide");}
   virtual void write(const transform&) {nowrite("transform");}
   virtual void writeline() {nowrite("string");}
-  
+
   virtual void ignoreComment() {};
   virtual void csv() {};
-  
+
   template<class T>
   void ignoreComment(T&) {
     ignoreComment();
   }
-  
+
   void ignoreComment(string&) {}
   void ignoreComment(char&) {}
-  
+
   template<class T>
   void read(T& val) {
     if(binary) Read(val);
@@ -221,30 +236,30 @@ public:
       }
     }
   }
-  
+
   Int Nx() {return nx;}
   Int Ny() {return ny;}
   Int Nz() {return nz;}
-  
+
   void Nx(Int n) {nx=n;}
   void Ny(Int n) {ny=n;}
   void Nz(Int n) {nz=n;}
-  
+
   void LineMode(bool b) {linemode=b;}
   bool LineMode() {return linemode;}
-  
+
   void CSVMode(bool b) {csvmode=b; if(b) wordmode=false;}
   bool CSVMode() {return csvmode;}
-  
+
   void WordMode(bool b) {wordmode=b; if(b) csvmode=false;}
   bool WordMode() {return wordmode;}
-  
+
   void SingleReal(bool b) {singlereal=b;}
   bool SingleReal() {return singlereal;}
-  
+
   void SingleInt(bool b) {singleint=b;}
   bool SingleInt() {return singleint;}
-  
+
   void SignedInt(bool b) {signedint=b;}
   bool SignedInt() {return signedint;}
 };
@@ -256,34 +271,34 @@ public:
   void open() {
     openpipeout();
   }
-  
+
   bool text() {return true;}
   bool eof() {return pipeout ? feof(pipeout) : true;}
   bool error() {return pipeout ? ferror(pipeout) : true;}
   void clear() {if(pipeout) clearerr(pipeout);}
   void flush() {if(pipeout) fflush(pipeout);}
-  
+
   void seek(Int pos, bool begin=true) {
     if(!standard && pipeout) {
       clear();
       fseek(pipeout,pos,begin ? SEEK_SET : SEEK_END);
     }
   }
-  
+
   size_t tell() {
     return pipeout ? ftell(pipeout) : 0;
   }
-  
+
   void write(const string& val) {
     fprintf(pipeout,"%s",val.c_str());
   }
-  
+
   void write(bool val) {
     ostringstream s;
     s << val;
     write(s.str());
   }
-  
+
   void write(Int val) {
     ostringstream s;
     s << val;
@@ -310,19 +325,19 @@ public:
     s << val;
     write(s.str());
   }
-  
+
   void write(guide *val) {
     ostringstream s;
     s << *val;
     write(s.str());
   }
-  
+
   void write(const transform& val) {
     ostringstream s;
     s << val;
     write(s.str());
   }
-  
+
   void writeline() {
     fprintf(pipeout,"\n");
     if(errorstream::interrupt) throw interrupted();
@@ -330,67 +345,35 @@ public:
 };
 
 class ifile : public file {
-protected:  
+protected:
   istream *stream;
   std::fstream *fstream;
+  stringstream buf;
   char comment;
   std::ios::openmode mode;
   bool comma;
-  
+
 public:
-  ifile(const string& name, char comment, bool check=true, Mode type=INPUT, 
+  ifile(const string& name, char comment, bool check=true, Mode type=INPUT,
         std::ios::openmode mode=std::ios::in) :
-    file(name,check,type), stream(&cin), fstream(NULL), comment(comment),
-    mode(mode), comma(false) {}
-  
+    file(name,check,type), stream(&cin), fstream(NULL),
+    comment(comment), mode(mode), comma(false) {}
+
   // Binary file
   ifile(const string& name, bool check=true, Mode type=BINPUT,
         std::ios::openmode mode=std::ios::in) :
     file(name,check,type,true), mode(mode) {}
-  
+
   ~ifile() {close();}
-  
-  void open() {
-    if(standard) {
-      if(mode & std::ios::binary) 
-        reportError("Cannot open standard input in binary mode");
-      stream=&cin;
-    } else {
-      if(mode & std::ios::out)
-        name=outpath(name);
-#if defined(MIKTEX_WINDOWS)
-      stream = fstream = new std::fstream(UW_(name.c_str()), mode);
-#else
-      stream=fstream=new std::fstream(name.c_str(),mode);
-#endif
-      if(mode & std::ios::out) {
-        if(error()) {
-          delete fstream;
-#if defined(MIKTEX_WINDOWS)
-          std::ofstream f(UW_(name.c_str()));
-#else
-          std::ofstream f(name.c_str());
-#endif
-          f.close();
-#if defined(MIKTEX_WINDOWS)
-          stream = fstream = new std::fstream(UW_(name.c_str()), mode);
-#else
-          stream=fstream=new std::fstream(name.c_str(),mode);
-#endif
-        }
-      }
-      index=processData().ifile.add(fstream);
-      if(check) Check();
-    }
-  }
-  
+
+  void open();
   bool eol();
   bool nexteol();
-  
+
   bool text() {return true;}
   bool eof() {return stream->eof();}
   bool error() {return stream->fail();}
-  
+
   void close() {
     if(!standard && fstream) {
       fstream->close();
@@ -400,30 +383,30 @@ public:
       processData().ifile.remove(index);
     }
   }
-  
+
   void clear() {stream->clear();}
-  
+
   void seek(Int pos, bool begin=true) {
     if(!standard && fstream) {
       clear();
       fstream->seekg(pos,begin ? std::ios::beg : std::ios::end);
     }
   }
-  
+
   size_t tell() {
-    if(fstream) 
+    if(fstream)
       return fstream->tellg();
     else
       return 0;
   }
-  
+
   void csv();
-  
+
   virtual void ignoreComment();
-  
+
   // Skip over white space
   void readwhite(string& val) {val=string(); *stream >> val;}
-  
+
   void Read(bool &val) {string t; readwhite(t); val=(t == "true");}
   void Read(Int& val) {*stream >> val;}
   void Read(double& val) {*stream >> val;}
@@ -432,10 +415,10 @@ public:
   void Read(char& val) {stream->get(val);}
   void Read(string& val);
 };
-  
+
 class iofile : public ifile {
 public:
-  iofile(const string& name, char comment=0) : 
+  iofile(const string& name, char comment=0) :
     ifile(name,comment,true,UPDATE,std::ios::in | std::ios::out) {}
 
   Int precision(Int p) {
@@ -443,7 +426,7 @@ public:
       stream->precision(p);
   }
   void flush() {if(fstream) fstream->flush();}
-  
+
   void write(bool val) {*fstream << (val ? "true " : "false ");}
   void write(Int val) {*fstream << val;}
   void write(double val) {*fstream << val;}
@@ -453,13 +436,13 @@ public:
   void write(const pen& val) {*fstream << val;}
   void write(guide *val) {*fstream << *val;}
   void write(const transform& val) {*fstream << val;}
-  
+
   void writeline() {
     *fstream << newline;
     if(errorstream::interrupt) throw interrupted();
   }
 };
-  
+
 class ofile : public file {
 protected:
   ostream *stream;
@@ -467,29 +450,33 @@ protected:
   std::ios::openmode mode;
 public:
   ofile(const string& name, Mode type=OUTPUT,
-        std::ios::openmode mode=std::ios::trunc) : 
+        std::ios::openmode mode=std::ios::trunc) :
     file(name,true,type), stream(&cout), fstream(NULL), mode(mode) {}
-  
+
   ~ofile() {close();}
-  
+
   void open() {
     if(standard) {
-      if(mode & std::ios::binary) 
+      if(mode & std::ios::binary)
         reportError("Cannot open standard output in binary mode");
       stream=&cout;
     } else {
       name=outpath(name);
+#if defined(MIKTEX_WINDOWS)
+      stream = fstream = new std::ofstream(UW_(name), mode | std::ios::trunc);
+#else
       stream=fstream=new std::ofstream(name.c_str(),mode | std::ios::trunc);
+#endif
       stream->precision(settings::getSetting<Int>("digits"));
       index=processData().ofile.add(fstream);
       Check();
     }
   }
-  
+
   bool text() {return true;}
   bool eof() {return stream->eof();}
   bool error() {return stream->fail();}
-  
+
   void close() {
     if(!standard && fstream) {
       fstream->close();
@@ -505,24 +492,24 @@ public:
       stream->precision(p);
   }
   void flush() {stream->flush();}
-  
+
   void seek(Int pos, bool begin=true) {
     if(!standard && fstream) {
       clear();
       fstream->seekp(pos,begin ? std::ios::beg : std::ios::end);
     }
   }
-  
+
   size_t tell() {
-    if(fstream) 
+    if(fstream)
       return fstream->tellp();
     else
       return 0;
   }
-  
-  bool enabled() {return !standard || settings::verbose > 1 || 
+
+  bool enabled() {return !standard || settings::verbose > 1 ||
       interact::interactive || !settings::getSetting<bool>("quiet");}
-  
+
   void write(bool val) {*stream << (val ? "true " : "false ");}
   void write(Int val) {*stream << val;}
   void write(double val) {*stream << val;}
@@ -532,21 +519,21 @@ public:
   void write(const pen& val) {*stream << val;}
   void write(guide *val) {*stream << *val;}
   void write(const transform& val) {*stream << val;}
-  
+
   void writeline();
 };
 
 class ibfile : public ifile {
 public:
   ibfile(const string& name, bool check=true, Mode type=BINPUT,
-         std::ios::openmode mode=std::ios::in) : 
+         std::ios::openmode mode=std::ios::in) :
     ifile(name,check,type,mode | std::ios::binary) {}
   template<class T>
   void iread(T& val) {
     val=T();
     if(fstream) fstream->read((char *) &val,sizeof(T));
   }
-  
+
   void Read(bool& val) {iread(val);}
   void Read(Int& val) {
     if(signedint) {
@@ -559,25 +546,25 @@ public:
   }
   void Read(char& val) {iread(val);}
   void Read(string& val) {char c; iread(c); val=c;}
-  
+
   void Read(double& val) {
     if(singlereal) {float fval; iread(fval); val=fval;}
     else iread(val);
   }
 };
-  
+
 class iobfile : public ibfile {
 public:
-  iobfile(const string& name) : 
+  iobfile(const string& name) :
     ibfile(name,true,BUPDATE,std::ios::in | std::ios::out) {}
 
   void flush() {if(fstream) fstream->flush();}
-  
+
   template<class T>
   void iwrite(T val) {
     if(fstream) fstream->write((char *) &val,sizeof(T));
   }
-  
+
   void write(bool val) {iwrite(val);}
   void write(Int val) {
     if(signedint) {
@@ -607,7 +594,7 @@ public:
   }
   void writeline() {}
 };
-  
+
 class obfile : public ofile {
 public:
   obfile(const string& name) : ofile(name,BOUTPUT,std::ios::binary) {}
@@ -616,7 +603,7 @@ public:
   void iwrite(T val) {
     if(fstream) fstream->write((char *) &val,sizeof(T));
   }
-  
+
   void write(bool val) {iwrite(val);}
   void write(Int val) {
     if(signedint) {
@@ -644,14 +631,14 @@ public:
     write(val.gety());
     write(val.getz());
   }
-  
+
   void writeline() {}
 };
-  
+
 #ifdef HAVE_RPC_RPC_H
 
 class ixfile : public file {
-protected:  
+protected:
   xdr::ioxstream *fstream;
   xdr::xios::open_mode mode;
 public:
@@ -660,11 +647,12 @@ public:
     file(name,check,type,true), fstream(NULL), mode(mode) {}
 
   void open() {
+    name=locatefile(inpath(name));
     fstream=new xdr::ioxstream(name.c_str(),mode);
     index=processData().ixfile.add(fstream);
     if(check) Check();
   }
-    
+
   void close() {
     if(fstream) {
       fstream->close();
@@ -674,28 +662,28 @@ public:
       processData().ixfile.remove(index);
     }
   }
-  
+
   ~ixfile() {close();}
-  
+
   bool eof() {return fstream ? fstream->eof() : true;}
   bool error() {return fstream ? fstream->fail() : true;}
 
   void clear() {if(fstream) fstream->clear();}
-  
+
   void seek(Int pos, bool begin=true) {
     if(!standard && fstream) {
       clear();
       fstream->seek(pos,begin ? xdr::xios::beg : xdr::xios::end);
     }
   }
-  
+
   size_t tell() {
-    if(fstream) 
+    if(fstream)
       return fstream->tell();
     else
       return 0;
   }
-  
+
   void Read(Int& val) {
     if(signedint) {
       if(singleint) {int ival=0; *fstream >> ival; val=ival;}
@@ -729,10 +717,11 @@ public:
 
 class ioxfile : public ixfile {
 public:
-  ioxfile(const string& name) : ixfile(name,true,XUPDATE,xdr::xios::out) {}
+  ioxfile(const string& name) : ixfile(outpath(name),true,XUPDATE,
+                                       xdr::xios::out) {}
 
   void flush() {if(fstream) fstream->flush();}
-  
+
   void write(Int val) {
     if(signedint) {
       if(singleint) *fstream << intcast(val);
@@ -756,7 +745,7 @@ public:
     write(val.getz());
   }
 };
-  
+
 class oxfile : public file {
   xdr::oxstream *fstream;
 public:
@@ -767,7 +756,7 @@ public:
     index=processData().oxfile.add(fstream);
     Check();
   }
-  
+
   void close() {
     if(fstream) {
       fstream->close();
@@ -777,28 +766,28 @@ public:
       processData().oxfile.remove(index);
     }
   }
-  
+
   ~oxfile() {close();}
-  
+
   bool eof() {return fstream ? fstream->eof() : true;}
   bool error() {return fstream ? fstream->fail() : true;}
   void clear() {if(fstream) fstream->clear();}
   void flush() {if(fstream) fstream->flush();}
-  
+
   void seek(Int pos, bool begin=true) {
     if(!standard && fstream) {
       clear();
       fstream->seek(pos,begin ? xdr::xios::beg : xdr::xios::end);
     }
   }
-  
+
   size_t tell() {
-    if(fstream) 
+    if(fstream)
       return fstream->tell();
     else
       return 0;
   }
-  
+
   void write(Int val) {
     if(signedint) {
       if(singleint) *fstream << intcast(val);

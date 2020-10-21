@@ -37,7 +37,7 @@ public:
   cvector(size_t n) : vector<T>(n) {}
   cvector(size_t n, const T& t) : vector<T>(n,t) {}
   cvector(const vector<T>& v) : vector<T>(v) {}
-  
+
   T& operator[](Int j) {
     return vector<T>::operator[](imod(j,(Int) this->size()));
   }
@@ -51,9 +51,9 @@ class knotlist;
 
 /* A linear equation (one of a set of equations to solve for direction through
    knots in a path).  The i-th equation is:
-  
+
    pre*theta[i-1] + piv*theta[i] + post*theta[i+1] = aug
-  
+
    where indices are taken mod n.
 */
 struct eqn {
@@ -64,7 +64,7 @@ struct eqn {
   friend ostream& operator<< (ostream& out, const eqn& e)
   {
     return out << e.pre << " * pre + "
-               << e.piv << " * piv + "  
+               << e.piv << " * piv + "
                << e.post << " * post = "
                << e.aug;
   }
@@ -76,7 +76,7 @@ struct eqn {
 class spec : public gc {
 public:
   virtual ~spec() {}
-  
+
   // If the knot is open, it gives no restriction on the behavior of the
   // path.
   virtual bool open() { return true; }
@@ -126,7 +126,7 @@ public:
     : given(niceAngle(z)) {}
 
   pair dir() { return expi(given); }
-  
+
   eqn eqnOut(Int j, knotlist& l, cvector<double>& d, cvector<double>& psi);
   eqn eqnIn (Int j, knotlist& l, cvector<double>& d, cvector<double>& psi);
 
@@ -146,7 +146,7 @@ public:
     if(gamma < 0)
       reportError("curl cannot be less than 0");
   }
-  
+
   double curl() { return gamma; }
 
   eqn eqnOut(Int j, knotlist& l, cvector<double>& d, cvector<double>& psi);
@@ -165,9 +165,9 @@ public:
   pair cz;
   bool straight;
 
-  controlSpec(pair cz, bool straight=false) 
+  controlSpec(pair cz, bool straight=false)
     : cz(cz), straight(straight) {}
-    
+
   bool open() { return false; }
   bool controlled() { return true; }
   pair control() { return cz; }
@@ -226,7 +226,7 @@ ostream& operator<<(ostream& out, const knot& k);
 class knotlist {
 public:
   virtual ~knotlist() {}
-  
+
   virtual Int length() = 0;
   virtual bool cyclic() = 0;
 
@@ -278,7 +278,7 @@ struct simpleknotlist : public knotlist {
   bool cyclic() { return cycles; }
   knot& cell(Int j) { return nodes[j]; }
 };
-    
+
 // A protopath is a path being made.
 struct protopath {
   bool cycles;
@@ -361,7 +361,7 @@ protected:
     }
     return v;
   }
-  
+
   virtual cvector<T> cyclicCompute()
   {
     Int n=l.length();
@@ -385,7 +385,7 @@ protected:
     }
     return v;
   }
-  
+
   virtual cvector<T> cyclicBackCompute()
   {
     Int n=l.length();
@@ -397,7 +397,7 @@ protected:
 
 public:
   virtual ~knotprop() {}
-  
+
   virtual cvector<T> compute() {
     return l.cyclic() ? cyclicCompute() : linearCompute();
   }
@@ -429,7 +429,7 @@ protected:
 
 public:
   virtual ~knottrans() {}
-  
+
   knottrans(knotlist& l)
     : knotprop<knot>(l) {}
 
@@ -470,7 +470,7 @@ protected:
       end(n);
     }
   }
-  
+
   virtual void cyclicExec()
   {
     Int n=l.length();
@@ -490,7 +490,7 @@ protected:
       start(0);
     }
   }
-  
+
   virtual void cyclicBackExec()
   {
     Int n=l.length();
@@ -500,7 +500,7 @@ protected:
 
 public:
   virtual ~knoteffect() {}
-  
+
   virtual void exec() {
     if (l.cyclic())
       cyclicExec();
@@ -524,7 +524,7 @@ path solve(knotlist& l);
 path solveSimple(cvector<pair>& z);
 
 double velocity(double theta, double phi, tension t);
-  
+
 } // namespace camp
 
 GC_DECLARE_PTRFREE(camp::eqn);

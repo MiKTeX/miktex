@@ -19,11 +19,11 @@ using namespace types;
 using mem::list;
 
 varinit *Default=new definit(nullPos);
-  
+
 void formal::prettyprint(ostream &out, Int indent)
 {
   prettyname(out, keywordOnly ? "formal (keyword only)" : "formal", indent);
-  
+
   base->prettyprint(out, indent+1);
   if (start) start->prettyprint(out, indent+1);
   if (defval) defval->prettyprint(out, indent+1);
@@ -47,12 +47,12 @@ types::ty *formal::getType(coenv &e, bool tacit) {
 
   return t;
 }
-  
+
 void formal::addOps(coenv &e, record *r) {
   base->addOps(e, r);
   if (start)
     start->addOps(base->trans(e, true), e, r);
-} 
+}
 
 void formals::prettyprint(ostream &out, Int indent)
 {
@@ -121,7 +121,7 @@ class basicAssignExp : public exp {
   varEntry *dest;
   varinit *value;
 public:
-  basicAssignExp(position pos, varEntry *dest, varinit *value) 
+  basicAssignExp(position pos, varEntry *dest, varinit *value)
     : exp(pos), dest(dest), value(value) {}
 
   void prettyprint(ostream &out, Int indent) {
@@ -139,7 +139,7 @@ public:
     return getType(e);
   }
 };
-  
+
 void transDefault(coenv &e, position pos, varEntry *v, varinit *init) {
   // This roughly translates into the statement
   //   if (isDefault(x))
@@ -250,7 +250,7 @@ void fundef::baseTrans(coenv &e, types::function *ft)
   // Translate the function.
   fe.e.beginScope();
   params->trans(fe);
-  
+
   body->trans(fe);
 
   types::ty *rt = ft->result;
@@ -279,7 +279,7 @@ types::ty *fundef::trans(coenv &e) {
   // operator cannot be added before translation.  (getType() is not allowed to
   // manipulate the environment.)
   // A new function expression is assigned to a variable, given as a return
-  // value, or used as an argument to a function.  In any of these 
+  // value, or used as an argument to a function.  In any of these
   //
   // We must still addOps though, for the return type and formals.  ex:
   //
@@ -288,7 +288,7 @@ types::ty *fundef::trans(coenv &e) {
   //   };
   function *ft=transTypeAndAddOps(e, (record *)0, false);
   assert(ft);
-  
+
   baseTrans(e, ft);
 
   return ft;
@@ -313,6 +313,6 @@ void fundec::transAsField(coenv &e, record *r)
   assert(ft);
 
   createVar(getPos(), e, r, id, ft, fun.makeVarInit(ft));
-} 
+}
 
 } // namespace absyntax
