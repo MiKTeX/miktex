@@ -2635,10 +2635,24 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
     (*f)->skipNextLF = 0;
 #if defined(MIKTEX)
     rval = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenInputFile(&((*f)->f), MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
+    bool isCommand = false;
+    if (rval)
+    {
+      auto info = MiKTeX::Core::Session::Get()->TryGetOpenFileInfo((*f)->f);
+      isCommand = info.first && info.second.mode == MiKTeX::Core::FileMode::Command;
+    }
 #else
     rval = open_input (&((*f)->f), filefmt, fopen_mode);
 #endif
     if (rval) {
+#if defined(MIKTEX)
+      if (isCommand)
+      {
+        (*f)->encodingMode = (mode == AUTO) ? UTF8 : mode;
+      }
+      else
+      {
+#endif
         int B1, B2;
         if (mode == AUTO) {
             /* sniff encoding form */
@@ -2666,6 +2680,9 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
         }
 
         setinputfileencoding(*f, mode, encodingData);
+#if defined(MIKTEX)
+      }
+#endif
     }
     return rval;
 }

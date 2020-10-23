@@ -9,6 +9,10 @@
 * dvipdfmx 20201014
 * dvisvgm 2.10.1
 
+### Fixed issues
+
+- [648](https://github.com/MiKTeX/miktex/issues/648): lualatex/xelatex: handling of `stderr` when using pipes
+
 ## 20.10 - 2020-10-12
 
 ### Fixed issues

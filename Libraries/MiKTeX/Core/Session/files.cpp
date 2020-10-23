@@ -197,7 +197,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   info.mode = mode;
   info.access = access;
   info.process = move(process);
-  openFilesMap.insert(pair<const FILE*, InternalOpenFileInfo>(file, move(info)));
+  openFilesMap[file] = move(info);
   if (setvbuf(file, 0, _IOFBF, 1024 * 4) != 0)
   {
     trace_error->WriteLine("core", TraceLevel::Error, "setvbuf() failed for some reason");
