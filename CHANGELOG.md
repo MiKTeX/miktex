@@ -11,6 +11,7 @@
 
 ### Fixed issues
 
+- [650](https://github.com/MiKTeX/miktex/issues/650): Compilation get's stuck when using input pipes with inputs larger than 4KB
 - [648](https://github.com/MiKTeX/miktex/issues/648): lualatex/xelatex: handling of `stderr` when using pipes
 
 ## 20.10 - 2020-10-12

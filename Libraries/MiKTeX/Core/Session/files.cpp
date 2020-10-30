@@ -252,10 +252,10 @@ std::tuple<unique_ptr<Process>, FILE*> SessionImpl::InitiateProcessPipe(const st
 
 int SessionImpl::CloseProcessPipe(Process* process, FILE* file)
 {
+  fclose(file);
   process->WaitForExit();
   int exitCode = process->get_ExitCode();
   process->Close();
-  fclose(file);
   return exitCode;
 }
 
