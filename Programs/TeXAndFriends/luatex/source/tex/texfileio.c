@@ -1423,11 +1423,7 @@ static FILE *runpopen(char *cmd, const char *mode)
 #endif
     /*tex If |restrictedshell| is zero, any command is allowed. */
     if (restrictedshell == 0) {
-#if defined(MIKTEX)
-      allow = miktex_allow_unrestricted_shell_escape();
-#else
         allow = 1;
-#endif
     } else {
         const char *thecmd = cmd;
         allow = shell_cmd_is_allowed(thecmd, &safecmd, &cmdname);
