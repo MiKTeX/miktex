@@ -16,12 +16,14 @@
 #include <PDFBackend.h>
 #include <QBitArray>
 
+#if !defined(MIKTEX)
 #if defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
 #include "poppler-config.h"
 #include "GlobalParams.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <memory>
+#endif
 #endif
 
 
@@ -1041,6 +1043,7 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
 
 // NOLINTNEXTLINE(modernize-use-equals-default)
 PopplerQtBackend::PopplerQtBackend() {
+#if !defined(MIKTEX)
 #if defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
   #if defined(POPPLER_HAS_GLOBALPARAMSINITER)
     QDir dataDir{QCoreApplication::applicationDirPath()};
@@ -1065,6 +1068,7 @@ PopplerQtBackend::PopplerQtBackend() {
     }
   #endif // defined(POPPLER_HAS_GLOBALPARAMSINITER)
 #endif // defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
+#endif
 }
 
 } // namespace QtPDF
