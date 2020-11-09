@@ -53,6 +53,7 @@ void Directory::SetCurrent(const PathName& path)
 static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_FILE_NOT_FOUND, // 2
   ERROR_PATH_NOT_FOUND, // 3
+  ERROR_ACCESS_DENIED, // 5
   ERROR_NOT_READY, // 21
   ERROR_BAD_NETPATH, // 53
   ERROR_BAD_NET_NAME, // 67
