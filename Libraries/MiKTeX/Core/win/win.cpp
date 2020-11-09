@@ -219,7 +219,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char* path)
 
 MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 {
-  if (!path.IsFullyQUalified())
+  if (!path.IsFullyQualified())
   {
     PathName fqPath(path);
     fqPath.MakeFullyQualified();

@@ -288,7 +288,7 @@ PathName PackageManager::GetLocalPackageRepository()
 void PackageManager::SetLocalPackageRepository(const PathName& path)
 {
   PathName fqPath(path);
-  if (!fqPath.IsFullyQUalified())
+  if (!fqPath.IsFullyQualified())
   {
     fqPath.MakeFullyQualified();
   }

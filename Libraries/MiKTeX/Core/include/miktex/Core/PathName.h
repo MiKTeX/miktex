@@ -351,7 +351,7 @@ public:
   }
 
 public:
-  bool IsFullyQUalified() const
+  bool IsFullyQualified() const
   {
     return MiKTeX::Util::PathNameUtil::IsFullyQualifiedPath(ToString());
   }
