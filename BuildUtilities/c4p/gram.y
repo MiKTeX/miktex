@@ -1,6 +1,6 @@
 /* gram.y: C4P parser specification                     -*- C++ -*-
 
-   Copyright (C) 1991-2018 Christian Schenk
+   Copyright (C) 1991-2020 Christian Schenk
 
    This file is part of C4P.
 
@@ -1744,15 +1744,19 @@ expression:
                   $$ = coerce($1, $4);
                   if (relational_cast_expressions)
                   {
-                    if ($$ == REAL_TYPE)
+                    if ($1 == $4)
+                    {
+                      cppout.out_buf_over($<buf_mark>3, "                  ", 18);
+                    }
+                    else if ($$ == REAL_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
                     }
-                    if ($$ == LONG_REAL_TYPE)
+                    else if ($$ == LONG_REAL_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
                     }
-                    if ($$ == LONG_INTEGER_TYPE)
+                    else if ($$ == LONG_INTEGER_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
                     }
@@ -1822,15 +1826,19 @@ simple_expression:
                   $$ = coerce($1, $4);
                   if (other_cast_expressions)
                   {
-                    if ($$ == REAL_TYPE)
+                    if ($1 == $4)
+                    {
+                      cppout.out_buf_over($<buf_mark>3, "                  ", 18);
+                    }
+                    else if ($$ == REAL_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
                     }
-                    if ($$ == LONG_REAL_TYPE)
+                    else if ($$ == LONG_REAL_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
                     }
-                    if ($$ == LONG_INTEGER_TYPE)
+                    else if ($$ == LONG_INTEGER_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
                     }
@@ -1878,15 +1886,19 @@ term:
                   $$ = coerce($1,$4);
                   if (other_cast_expressions)
                   {
-                    if ($$ == REAL_TYPE)
+                    if ($1 == $4)
+                    {
+                      cppout.out_buf_over($<buf_mark>3, "                  ", 18);
+                    }
+                    else if ($$ == REAL_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_real)        ", 18);
                     }
-                    if ($$ == LONG_REAL_TYPE)
+                    else if ($$ == LONG_REAL_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_longreal)    ", 18);
                     }
-                    if ($$ == LONG_INTEGER_TYPE)
+                    else if ($$ == LONG_INTEGER_TYPE)
                     {
                       cppout.out_buf_over($<buf_mark>3, "(C4P_longinteger) ", 18);
                     }
