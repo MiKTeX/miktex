@@ -131,11 +131,6 @@ RepositoryType PackageRepositoryDataStore::DetermineRepositoryType(const string&
     return RepositoryType::Remote;
   }
 
-  if (!PathNameUtil::IsAbsolutePath(repository))
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
   if (PackageManager::IsLocalPackageRepository(PathName(repository)))
   {
     return RepositoryType::Local;

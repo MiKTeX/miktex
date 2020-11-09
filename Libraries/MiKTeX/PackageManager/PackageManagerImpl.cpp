@@ -287,7 +287,12 @@ PathName PackageManager::GetLocalPackageRepository()
 
 void PackageManager::SetLocalPackageRepository(const PathName& path)
 {
-  Session::Get()->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(path.ToString()));
+  PathName fqPath(path);
+  if (!fqPath.IsFullyQUalified())
+  {
+    fqPath.MakeFullyQualified();
+  }
+  Session::Get()->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(fqPath.ToString()));
 }
 
 bool PackageManager::TryGetMiKTeXDirectRoot(PathName& path)
