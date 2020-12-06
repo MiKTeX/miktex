@@ -159,6 +159,22 @@ bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName
     return found;
   }
 
+  // if a HOME relative path name is given, then don't look out
+  // any further: search the HOME directory
+  if (!fileName.empty() && fileName[0] == '~' && (fileName.length() == 1 || PathNameUtil::IsDirectoryDelimiter(fileName[1])))
+  {
+    auto p = Utils::ExpandTilde(fileName);
+    if (p.first)
+    {
+      found = CheckCandidate(p.second, nullptr);
+      if (found)
+      {
+        result.push_back(p.second);
+      }
+      return found;
+    }
+  }
+
   // make use of the file name database
   if (useFndb)
   {
