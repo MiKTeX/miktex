@@ -1012,7 +1012,7 @@ time_t Utils::ToTimeT(const string& s)
 
 pair<bool, PathName> Utils::ExpandTilde(const string& s)
 {
-  if (s[0] == '~' && (s[1] == 0 || PathNameUtil::IsDirectoryDelimiter(s[1])))
+  if (!s.empty() && s[0] == '~' && (s.length() == 1 || PathNameUtil::IsDirectoryDelimiter(s[1])))
   {
     PathName pathFQ = GetHomeDirectory();
     if (!pathFQ.IsAbsolute())
