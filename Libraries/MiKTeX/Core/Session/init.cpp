@@ -988,31 +988,24 @@ void SessionImpl::SetEnvironmentVariables()
   Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter));
 #endif
 
-  PathName path = GetTempDirectory();
+  PathName tempDirectory = GetTempDirectory();
 
-  if (!HaveEnvironmentString("TEMPDIR") || IsMiKTeXPortable())
+  for (const string& envName : vector<string>{ "TEMP", "TEMPDIR", "TMP", "TMPDIR" })
   {
-    Utils::SetEnvironmentString("TEMPDIR", path.ToString());
+    PathName envValue;
+    if (!Utils::GetEnvironmentString(envName, envValue) || !envValue.IsAbsolute() || IsMiKTeXPortable())
+    {
+      Utils::SetEnvironmentString(envName, tempDirectory.ToString());
+    }
   }
 
-  if (!HaveEnvironmentString("TMPDIR") || IsMiKTeXPortable())
+  for (const string& envName : vector<string>{ "HOME" })
   {
-    Utils::SetEnvironmentString("TMPDIR", path.ToString());
-  }
-
-  if (!HaveEnvironmentString("TEMP") || IsMiKTeXPortable())
-  {
-    Utils::SetEnvironmentString("TEMP", path.ToString());
-  }
-
-  if (!HaveEnvironmentString("TMP") || IsMiKTeXPortable())
-  {
-    Utils::SetEnvironmentString("TMP", path.ToString());
-  }
-
-  if (!HaveEnvironmentString("HOME"))
-  {
-    Utils::SetEnvironmentString("HOME", GetHomeDirectory().ToString());
+    PathName envValue;
+    if (!Utils::GetEnvironmentString(envName, envValue) || !envValue.IsAbsolute())
+    {
+      Utils::SetEnvironmentString(envName, GetHomeDirectory().ToString());
+    }
   }
 
   SetCWDEnv();

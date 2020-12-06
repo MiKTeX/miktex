@@ -50,11 +50,18 @@ PathName& PathName::SetToCurrentDirectory()
 
 PathName& PathName::SetToTempDirectory()
 {
+  for (const string& env : vector<string>{ "TMP", "TEMP", "USERPROFILE" })
+  {
+    if (Utils::GetEnvironmentString(env, *this) && this->IsAbsolute())
+    {
+      return *this;
+    }
+  }
   wchar_t szTemp[BufferSizes::MaxPath];
-  unsigned long n =GetTempPathW(static_cast<DWORD>(BufferSizes::MaxPath), szTemp);
+  unsigned long n = GetWindowsDirectoryW(szTemp, static_cast<DWORD>(BufferSizes::MaxPath));
   if (n == 0)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR("GetTempPathW");
+    MIKTEX_FATAL_WINDOWS_ERROR("GetWindowsDirectoryW");
   }
   if (n >= GetCapacity())
   {

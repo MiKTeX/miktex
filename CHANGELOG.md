@@ -7,6 +7,7 @@
 - [597](https://github.com/MiKTeX/miktex/issues/597): xetex rounds all image sizes to integer pt values
 - [652](https://github.com/MiKTeX/miktex/issues/652): miktexsetup.exe: MiKTeX encountered an internal error.
 - [659](https://github.com/MiKTeX/miktex/issues/659): Check for directory that executable doesn't have permissions for causes crash
+- [666](https://github.com/MiKTeX/miktex/issues/666): miktex (lualatex.exe) fails to run from flask subprocess
 
 ## 20.11 - 2020-11-02
 

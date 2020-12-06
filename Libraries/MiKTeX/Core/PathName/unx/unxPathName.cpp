@@ -55,19 +55,15 @@ PathName& PathName::SetToCurrentDirectory()
 
 PathName& PathName::SetToTempDirectory()
 {
-  string tmpdir;
-  if (Utils::GetEnvironmentString("TMPDIR", tmpdir))
+  if (Utils::GetEnvironmentString("TMPDIR", *this) && this->IsAbsolute())
   {
-    *this = tmpdir;
+    return *this;
   }
-  else
-  {
 #if defined(P_tmpdir)
-    *this = P_tmpdir;
+  *this = P_tmpdir;
 #else
-    *this = "/tmp";
+  *this = "/tmp";
 #endif
-  }
   return *this;
 }
 
