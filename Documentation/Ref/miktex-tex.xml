@@ -144,14 +144,12 @@ character (usually <keycombo>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableenctex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablemltex.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/errorline.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/extramembot.xml" />

@@ -134,8 +134,6 @@ public:
 public:
   ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
 public:
-  bool enablePipes = false;
-public:
   PathName lastInputFileName;
 public:
   IInputOutput* inputOutput = nullptr;
@@ -158,7 +156,6 @@ void WebAppInputLine::Init(vector<char*>& args)
 {
   WebApp::Init(args);
   pimpl->shellCommandMode = ShellCommandMode::Forbidden;
-  pimpl->enablePipes = false;
 }
 
 void WebAppInputLine::Finalize()
@@ -242,7 +239,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
 #endif
   shared_ptr<Session> session = GetSession();
   FILE* file = nullptr;
-  if (pimpl->enablePipes && lpszPath[0] == '|')
+  if (lpszPath[0] == '|')
   {
     string command = lpszPath + 1;
 #if defined(MIKTEX_WINDOWS)
@@ -344,7 +341,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
 
   shared_ptr<Session> session = GetSession();
 
-  if (pimpl->enablePipes && lpszFileName[0] == '|')
+  if (lpszFileName[0] == '|')
   {
     string command = lpszFileName + 1;
 #if defined(MIKTEX_WINDOWS)
@@ -572,16 +569,6 @@ void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
 ShellCommandMode WebAppInputLine::GetShellCommandMode() const
 {
   return pimpl->shellCommandMode;
-}
-
-void WebAppInputLine::EnablePipes(bool f)
-{
-  if (f == pimpl->enablePipes)
-  {
-    return;
-  }
-  LogInfo((f ? "enabling"s : "disabling"s) + " input (output) from (to) processes"s);
-  pimpl->enablePipes = f;
 }
 
 PathName WebAppInputLine::GetLastInputFileName() const

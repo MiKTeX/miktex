@@ -99,7 +99,6 @@ void TeXApp::OnTeXMFStartJob()
   shared_ptr<Session> session = GetSession();
   ShellCommandMode shellCommandMode = session->GetShellCommandMode();
   EnableShellCommands(shellCommandMode);
-  EnablePipes(shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted);
 }
 
 void TeXApp::Finalize()
@@ -110,11 +109,9 @@ void TeXApp::Finalize()
 }
 
 enum {
-  OPT_DISABLE_PIPES,
   OPT_DISABLE_WRITE18,
   OPT_ENABLE_ENCTEX,
   OPT_ENABLE_MLTEX,
-  OPT_ENABLE_PIPES,
   OPT_ENABLE_WRITE18,
   OPT_FONT_MAX,
   OPT_FONT_MEM_SIZE,
@@ -136,17 +133,11 @@ void TeXApp::AddOptions()
 
   pimpl->optBase = (int)GetOptions().size();
 
-  AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), 
-    FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
-
   AddOption(T_("disable-write18\0Disable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_WRITE18);
 
   AddOption(T_("enable-mltex\0Enable MLTeX extensions such as \\charsubdef."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_MLTEX);
-
-  AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."),
-    FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_PIPES);
 
   AddOption(T_("enable-write18\0Enable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_WRITE18);
@@ -223,6 +214,10 @@ void TeXApp::AddOptions()
     FIRST_OPTION_VAL + pimpl->optBase + OPT_SRC_SPECIALS);
 #endif
 
+  // deprecated options
+  AddOption("disable-pipes", OPT_NOOP);
+  AddOption("enable-pipes", OPT_NOOP);
+
   // obsolete options
   AddOption("try-gz\0", OPT_UNSUPPORTED);
 
@@ -232,9 +227,9 @@ void TeXApp::AddOptions()
   // supported Web2C options
   AddOption("mltex", "enable-mltex");
   AddOption("fmt", "undump");
-  AddOptionShortcut("no-shell-escape", { "--disable-write18", "--disable-pipes" });
-  AddOptionShortcut("shell-restricted", { "--restrict-write18", "--enable-pipes" });
-  AddOptionShortcut("shell-escape", { "--enable-write18", "--enable-pipes" });
+  AddOptionShortcut("no-shell-escape", { "--disable-write18" });
+  AddOptionShortcut("shell-restricted", { "--restrict-write18" });
+  AddOptionShortcut("shell-escape", { "--enable-write18" });
   if (!AmI("xetex"))
   {
     AddOption("enc", "enable-enctex");
@@ -256,24 +251,14 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   bool done = true;
   switch (optchar - FIRST_OPTION_VAL - pimpl->optBase)
   {
-  case OPT_DISABLE_PIPES:
-    EnablePipes(false);
-    break;
   case OPT_DISABLE_WRITE18:
     EnableShellCommands(ShellCommandMode::Forbidden);
-    EnablePipes(false);
     break;
   case OPT_ENABLE_ENCTEX:
     pimpl->enableEncTeX = true;
     break;
   case OPT_ENABLE_MLTEX:
     pimpl->enableMLTeX = true;
-    break;
-  case OPT_ENABLE_PIPES:
-    if (!inParseFirstLine)
-    {
-      EnablePipes(true);
-    }
     break;
   case OPT_ENABLE_WRITE18:
     if (!inParseFirstLine)

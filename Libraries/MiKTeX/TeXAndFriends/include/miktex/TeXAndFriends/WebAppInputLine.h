@@ -188,9 +188,6 @@ protected:
   MIKTEXMFTHISAPI(MiKTeX::Core::ShellCommandMode) GetShellCommandMode() const;
 
 protected:
-  MIKTEXMFTHISAPI(void) EnablePipes(bool f);
-
-protected:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetLastInputFileName() const;
 
 public:

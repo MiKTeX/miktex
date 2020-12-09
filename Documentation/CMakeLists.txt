@@ -72,7 +72,6 @@ set(options_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/cstyleerrors.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/disable8bitchars.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/disableinstaller.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Options/disablepipes.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/disablewriteeighteen.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/dontparsefirstline.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/enable8bitchars.xml
@@ -80,7 +79,6 @@ set(options_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/enableetex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/enableinstaller.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/enablemltex.xml
-  ${CMAKE_CURRENT_SOURCE_DIR}/Options/enablepipes.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/enablewriteeighteen.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/errorline.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Options/extramembot.xml
