@@ -342,10 +342,6 @@ void unxProcess::Create()
       pipeStdout.Dispose();
       pipeStderr.Dispose();
       pipeStdin.Dispose();
-      if (!startinfo.WorkingDirectory.empty())
-      {
-        Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
-      }
       if (startinfo.Daemonize)
       {
         if (setsid() == -1)
@@ -365,9 +361,6 @@ void unxProcess::Create()
           }
         }
         session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
-      }
-      if (session != nullptr)
-      {
         unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
         envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
         char* environmentStrings;
@@ -375,10 +368,18 @@ void unxProcess::Create()
         tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
         MIKTEX_AUTO(delete[]environmentStrings);
         MIKTEX_AUTO(delete[]environmentPointers);
+        if (!startinfo.WorkingDirectory.empty())
+        {
+          Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
+        }
         execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
       }
       else
       {
+        if (!startinfo.WorkingDirectory.empty())
+        {
+          Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
+        }
         execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
       }
       perror("execve failed");
