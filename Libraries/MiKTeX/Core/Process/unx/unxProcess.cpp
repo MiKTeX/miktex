@@ -566,7 +566,6 @@ ProcessExitStatus unxProcess::get_ExitStatus() const
   }
 }
 
-
 int unxProcess::get_ExitCode() const
 {
   if (WIFEXITED(status) != 0)

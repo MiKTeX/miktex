@@ -960,7 +960,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
     envMap[WU_(name)] = WU_(value);
   }
 #else
-  for (const char** env = environ; *env != nullptr; ++env)
+  for (char** env = environ; *env != nullptr; ++env)
   {
     string name;
     auto s = *env;
