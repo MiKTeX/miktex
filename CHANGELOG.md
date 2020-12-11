@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 20.12 - 2020-12-
+## 20.12 - 2020-12-14
 
 ### Breaking changes
 
