@@ -318,10 +318,6 @@ void unxProcess::Create()
       pipeStdout.Dispose();
       pipeStderr.Dispose();
       pipeStdin.Dispose();
-      if (session != nullptr)
-      {
-        session->SetEnvironmentVariables();
-      }
       if (!startinfo.WorkingDirectory.empty())
       {
         Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
@@ -346,8 +342,40 @@ void unxProcess::Create()
         }
         session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
       }
-      execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
-      perror("execv failed");
+      unordered_map<string, string> envMap;
+      if (session != nullptr)
+      {
+        envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+      }
+      size_t envSize = 0;
+      for (const auto& p : envMap)
+      {
+        envSize += p.first.length() + 1 + p.second.length() + 1;
+      }
+      char* environmentStrings = new char[envSize];
+      MIKTEX_AUTO(delete[]environmentStrings);
+      char** environmentPointers = new char*[envMap.size() + 1];
+      MIKTEX_AUTO(delete[]environmentPointers);
+      size_t stringIdx = 0;
+      size_t pointerIdx = 0;
+      for (const auto& p : envMap)
+      {
+        string s = fmt::format("{}={}", p.first, p.second);
+        strcpy(environmentStrings + stringIdx, s.c_str());
+        environmentPointers[pointerIdx] = environmentStrings + stringIdx;
+        stringIdx += s.length() + 1;
+        ++pointerIdx;
+      }
+      environmentPointers[pointerIdx] = nullptr;
+      if (session != nullptr)
+      {
+        execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
+      }
+      else
+      {
+        execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
+      }
+      perror("execve failed");
     }
     catch (const exception&)
     {

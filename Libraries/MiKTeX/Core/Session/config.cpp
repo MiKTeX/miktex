@@ -864,7 +864,6 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
     // reinitialize root directories
     InitializeRootDirectories(initStartupConfig, false);
   }
-  SetEnvironmentVariables();
 }
 
 bool SessionImpl::IsAdminMode()

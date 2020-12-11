@@ -664,21 +664,6 @@ MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName& publicKeyFile)
 }
 #endif
 
-void SessionImpl::SetCWDEnv()
-{
-  string str;
-  str.reserve(256);
-  for (const PathName& dir : inputDirectories)
-  {
-    if (!str.empty())
-    {
-      str += PATH_DELIMITER;
-    }
-    str += dir.ToString();
-  }
-  Utils::SetEnvironmentString(MIKTEX_ENV_CWD_LIST, str);
-}
-
 void SessionImpl::AddInputDirectory(const PathName& path, bool atEnd)
 {
   if (!path.IsAbsolute())
@@ -697,10 +682,6 @@ void SessionImpl::AddInputDirectory(const PathName& path, bool atEnd)
   {
     inputDirectories.push_front(path);
   }
-
-#if 1
-  SetCWDEnv();
-#endif
 }
 
 bool SessionImpl::GetWorkingDirectory(unsigned n, PathName& path)

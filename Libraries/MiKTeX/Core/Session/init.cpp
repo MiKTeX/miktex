@@ -34,6 +34,7 @@
 // FIXME: must be the first MiKTeX header
 #include "core-version.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -252,8 +253,6 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
       AddInputDirectory(PathName(cwd), true);
     }
   }
-
-  SetEnvironmentVariables();
 
   trace_core->WriteLine("core", fmt::format(T_("initializing MiKTeX Core version {0}"), MIKTEX_COMPONENT_VERSION_STR));
 
@@ -931,13 +930,61 @@ void SessionImpl::Reset()
   this->onFinishScript = move(onFinishScript);
 }
 
-void SessionImpl::SetEnvironmentVariables()
+unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDirectory)
 {
-#if MIKTEX_WINDOWS
-  Utils::SetEnvironmentString("TEXSYSTEM", "miktex");
+  unordered_map<string, string> envMap;
 
-  // Ghostscript
-  Utils::SetEnvironmentString("GSC", MIKTEX_GS_EXE);
+#if defined(MIKTEX_WINDOWS)
+  auto environmentStrings = GetEnvironmentStringsW();
+  MIKTEX_AUTO(FreeEnvironmentStringsW(environmentStrings));
+  for (const wchar_t* env = environmentStrings; *env != 0; ++env)
+  {
+    wstring name;
+    if (*env == L'=')
+    {
+      name += *env++;
+    }
+    for (; *env != L'=' && *env != 0; ++env)
+    {
+      name += *env;
+    }
+    if (*env == L'=')
+    {
+      ++env;
+    }
+    wstring value;
+    for (; *env != 0; ++env)
+    {
+      value += *env;
+    }
+    envMap[WU_(name)] = WU_(value);
+  }
+#else
+  for (const char** env = environ; *env != nullptr; ++env)
+  {
+    string name;
+    auto s = *env;
+    for (; *s != '=' && *s != 0; ++s)
+    {
+      name += *s;
+    }
+    if (*s == '=')
+    {
+      ++s;
+    }
+    string value;
+    for (; *s != 0; ++s)
+    {
+      value += *s;
+    }
+    envMap[name] = value;
+  }
+#endif
+
+  envMap["TEXSYSTEM"] = "miktex";
+
+#if defined(MIKTEX_WINDOWS)
+  envMap["GSC"] = MIKTEX_GS_EXE;
 #endif
 
   vector<string> gsDirectories;
@@ -970,12 +1017,12 @@ void SessionImpl::SetEnvironmentVariables()
   MIKTEX_ASSERT(!gsDirectories.Empty());
 
 #if defined(MIKTEX_WINDOWS)
-  Utils::SetEnvironmentString("MIKTEX_GS_LIB", StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter));
+  envMap["MIKTEX_GS_LIB"] = StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter);
 #else
-  string origGsLib;
-  if (Utils::GetEnvironmentString("GS_LIB", origGsLib))
+  auto it = envMap.find("GS_LIB");
+  if (it != envMap.end())
   {
-    vector<string> origGsLibDirectories = StringUtil::Split(origGsLib, PathNameUtil::PathNameDelimiter);
+    vector<string> origGsLibDirectories = StringUtil::Split(it->second, PathNameUtil::PathNameDelimiter);
     for (const string& d1 : origGsLibDirectories)
     {
       auto it = find_if(gsDirectories.begin(), gsDirectories.end(), [d1](const string& d2) { return PathName::Compare(d1, d2) == 0; });
@@ -985,55 +1032,66 @@ void SessionImpl::SetEnvironmentVariables()
       }
     }
   }
-  Utils::SetEnvironmentString("GS_LIB", StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter));
+  envMap["GS_LIB"] = StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter);
 #endif
 
   PathName tempDirectory = GetTempDirectory();
-
   for (const string& envName : vector<string>{ "TEMP", "TEMPDIR", "TMP", "TMPDIR" })
   {
-    PathName envValue;
-    if (!Utils::GetEnvironmentString(envName, envValue) || !envValue.IsAbsolute() || IsMiKTeXPortable())
+    auto it = envMap.find(envName);
+    if (it == envMap.end() || !PathName(it->second).IsAbsolute() || IsMiKTeXPortable())
     {
-      Utils::SetEnvironmentString(envName, tempDirectory.ToString());
+      envMap[envName] = tempDirectory.ToString();
     }
   }
 
   for (const string& envName : vector<string>{ "HOME" })
   {
-    PathName envValue;
-    if (!Utils::GetEnvironmentString(envName, envValue) || !envValue.IsAbsolute())
+    auto it = envMap.find(envName);
+    if (it == envMap.end() || !PathName(it->second).IsAbsolute())
     {
-      Utils::SetEnvironmentString(envName, GetHomeDirectory().ToString());
+      envMap[envName] = GetHomeDirectory().ToString();
     }
   }
 
-  SetCWDEnv();
+  vector<string> cwdList;
+  for (const PathName& dir : inputDirectories)
+  {
+    cwdList.push_back(dir.ToString());
+  }
+  if (changeDirectory)
+  {
+    cwdList.push_back(PathName().SetToCurrentDirectory().ToString());
+  }
+  envMap[MIKTEX_ENV_CWD_LIST] = StringUtil::Flatten(cwdList, PathNameUtil::PathNameDelimiter);
 
   if (!initInfo.GetOptions()[InitOption::NoFixPath])
   {
     string envPath;
-    if (!GetEnvironmentString("PATH", envPath))
+    auto it = envMap.find("PATH");
+    if (it != envMap.end())
     {
-      envPath = "";
+      envPath = it->second;
     }
     string newEnvPath;
     bool competition;
     auto p = TryGetBinDirectory(true);
     if (p.first && FixProgramSearchPath(envPath, p.second, false, newEnvPath, competition))
     {
-      Utils::SetEnvironmentString("PATH", newEnvPath);
+      envMap["PATH"] = newEnvPath;
       envPath = newEnvPath;
     }
 #if !defined(MIKTEX_MACOS_BUNDLE)
     p = TryGetBinDirectory(false);
     if (p.first && FixProgramSearchPath(envPath, p.second, false, newEnvPath, competition))
     {
-      Utils::SetEnvironmentString("PATH", newEnvPath);
+      envMap["PATH"] = newEnvPath;
       envPath = newEnvPath;
     }
 #endif
   }
+
+  return envMap;
 }
 
 void SessionImpl::SetTheNameOfTheGame(const string& name)

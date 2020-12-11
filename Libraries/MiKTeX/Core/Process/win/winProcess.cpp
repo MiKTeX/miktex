@@ -283,19 +283,12 @@ void winProcess::Create()
       siStartInfo.hStdError = hChildStderr != INVALID_HANDLE_VALUE ? hChildStderr : GetStdHandle(STD_ERROR_HANDLE);
     }
 
-    DWORD creationFlags = 0;
+    DWORD creationFlags = CREATE_UNICODE_ENVIRONMENT;
 
     // don't open a window if both stdout & stderr are redirected or if we are shutting down
     if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE || session == nullptr)
     {
       creationFlags |= CREATE_NO_WINDOW;
-    }
-
-    // set environment variables
-    if (session != nullptr)
-    {
-      // FIXME
-      session->SetEnvironmentVariables();
     }
 
     // start child process
@@ -304,10 +297,35 @@ void winProcess::Create()
       session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
     }
 
-    tmpFile = TemporaryFile::Create();
-    tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
+    // create environment map
+    unordered_map<string, string> envMap;
+    if (session != nullptr)
+    {
+      envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+    }
 
-    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
+    tmpFile = TemporaryFile::Create();
+    envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
+
+    // create environment strings
+    size_t envSize = 0;
+    for (const auto& p : envMap)
+    {
+      envSize += p.first.length() + 1 + p.second.length() + 1;
+    }
+    envSize += 1;
+    wchar_t* environmentStrings = new wchar_t[envSize];
+    MIKTEX_AUTO(delete[]environmentStrings);
+    size_t stringIdx = 0;
+    for (const auto& p : envMap)
+    {
+      wstring s = fmt::format(L"{}={}", UW_(p.first), UW_(p.second));
+      wcscpy_s(environmentStrings + stringIdx, envSize - stringIdx, s.c_str());
+      stringIdx += s.length() + 1;
+    }
+    environmentStrings[stringIdx] = wchar_t();
+
+    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, session != nullptr ? environmentStrings : nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine.ToString());
     }
@@ -405,7 +423,6 @@ void winProcess::Close()
   }
   if (tmpFile != nullptr)
   {
-    tmpEnv.Restore();
     tmpFile->Delete();
     tmpFile = nullptr;
   }

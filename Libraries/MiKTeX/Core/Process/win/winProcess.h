@@ -26,8 +26,6 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/TemporaryFile>
 
-#include "Utils/AutoEnv.h"
-
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class winProcess :
@@ -108,9 +106,6 @@ private:
 
 private:
   std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpFile;
-
-private:
-  AutoEnv tmpEnv;
 
 private:
   static PROCESSENTRY32W GetProcessEntry(DWORD processId);

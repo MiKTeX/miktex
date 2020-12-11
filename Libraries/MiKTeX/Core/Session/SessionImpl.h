@@ -754,9 +754,6 @@ private:
 #endif
 
 private:
-  void SetCWDEnv();
-
-private:
   bool GetWorkingDirectory(unsigned n, MiKTeX::Core::PathName& path);
 
 private:
@@ -809,7 +806,7 @@ private:
   std::deque<MiKTeX::Core::PathName> inputDirectories;
 
 public:
-  void SetEnvironmentVariables();
+  std::unordered_map<std::string, std::string> CreateChildEnvironment(bool changeDirectory);
 
 private:
   std::vector<MiKTeX::Core::PathName> GetFilenameDatabasePathNames(unsigned r);
