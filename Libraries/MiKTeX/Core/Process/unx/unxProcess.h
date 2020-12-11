@@ -29,8 +29,6 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/TemporaryFile>
 
-#include "Utils/AutoEnv.h"
-
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class unxProcess :
@@ -110,9 +108,6 @@ private:
 
 private:
   std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpFile;
-
-private:
-  AutoEnv tmpEnv;
 
 private:
   friend class MiKTeX::Core::Process;
