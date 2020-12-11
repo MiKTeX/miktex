@@ -46,6 +46,7 @@
 
 #include <thread>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Environment>
 #include <miktex/Core/CommandLineBuilder>
@@ -264,7 +265,7 @@ void unxProcess::Create()
   }
 
   tmpFile = TemporaryFile::Create();
-  tmpEnv.Set(MIKTEX_ENV_EXCEPTION_PATH, tmpFile->GetPathName().ToString());
+  envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
 
   // fork
   if (session != nullptr)
@@ -447,7 +448,6 @@ void unxProcess::Close()
   this->pid = -1;
   if (tmpFile != nullptr)
   {
-    tmpEnv.Restore();
     tmpFile->Delete();
     tmpFile = nullptr;
   }
@@ -864,25 +864,70 @@ ProcessInfo unxProcess::GetProcessInfo()
 }
 
 
+
+     
+      if (session != nullptr)
+      {
+        
+      }
+      if (session != nullptr)
+      {
+        execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
+      }
+      else
+      {
+        execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
+      }
+
+
 void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
 {
   MIKTEX_EXPECT(!fileName.Empty());
 
   Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
+  unordered_map<string, string> envMap;
 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
     session->UnloadFilenameDatabase();
-    session->SetEnvironmentVariables();
-    session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: {0}", fileName));
+    envMap = session->CreateChildEnvironment(false);
+    session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execve: {0}", fileName));
     for (int idx = 0; argv[idx] != nullptr; ++idx)
     {
       session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
     }
   }
 
-  execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
+  size_t envSize = 0;
+  for (const auto& p : envMap)
+  {
+    envSize += p.first.length() + 1 + p.second.length() + 1;
+  }
+  char* environmentStrings = new char[envSize];
+  MIKTEX_AUTO(delete[]environmentStrings);
+  char** environmentPointers = new char*[envMap.size() + 1];
+  MIKTEX_AUTO(delete[]environmentPointers);
+  size_t stringIdx = 0;
+  size_t pointerIdx = 0;
+  for (const auto& p : envMap)
+  {
+    string s = fmt::format("{}={}", p.first, p.second);
+    strcpy(environmentStrings + stringIdx, s.c_str());
+    environmentPointers[pointerIdx] = environmentStrings + stringIdx;
+    stringIdx += s.length() + 1;
+    ++pointerIdx;
+  }
+  environmentPointers[pointerIdx] = nullptr;
+
+  if (session != nullptr)
+  {
+    execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
+  }
+  else
+  {
+    execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
+  }
 
   MIKTEX_UNEXPECTED();
 }
