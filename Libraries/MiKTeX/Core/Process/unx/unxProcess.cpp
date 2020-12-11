@@ -265,7 +265,6 @@ void unxProcess::Create()
   }
 
   tmpFile = TemporaryFile::Create();
-  envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
 
   // fork
   if (session != nullptr)
@@ -347,6 +346,7 @@ void unxProcess::Create()
       if (session != nullptr)
       {
         envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+        envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
       }
       size_t envSize = 0;
       for (const auto& p : envMap)
@@ -862,23 +862,6 @@ ProcessInfo unxProcess::GetProcessInfo()
 #endif
   return processInfo;
 }
-
-
-
-     
-      if (session != nullptr)
-      {
-        
-      }
-      if (session != nullptr)
-      {
-        execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
-      }
-      else
-      {
-        execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
-      }
-
 
 void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
 {
