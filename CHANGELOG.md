@@ -14,6 +14,7 @@ Options `--disable-pipes` and `--enable-pipes` (TeX engines) are deprecated and 
 - [666](https://github.com/MiKTeX/miktex/issues/666): miktex (lualatex.exe) fails to run from flask subprocess
 - [668](https://github.com/MiKTeX/miktex/issues/668): expand tilde prefixes
 - [669](https://github.com/MiKTeX/miktex/issues/669): testing if pipes are enabled.
+- [672](https://github.com/MiKTeX/miktex/issues/672): miktex-mf (or maketfm) doesn't find .mf files in the current directory
 
 ## 20.11 - 2020-11-02
 
