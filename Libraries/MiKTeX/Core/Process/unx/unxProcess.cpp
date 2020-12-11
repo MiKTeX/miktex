@@ -45,6 +45,7 @@
 #endif
 
 #include <thread>
+#include <tuple>
 
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/Directory>
@@ -192,6 +193,29 @@ public:
 private:
   int twofd[2] = { -1, -1 };
 };
+
+tuple<char*, char**> CreateEnvironmentBlock(const unordered_map<string, string>& envMap)
+{
+  size_t envSize = 0;
+  for (const auto& p : envMap)
+  {
+    envSize += p.first.length() + 1 + p.second.length() + 1;
+  }
+  char* environmentStrings = new char[envSize];
+  char** environmentPointers = new char*[envMap.size() + 1];
+  size_t stringIdx = 0;
+  size_t pointerIdx = 0;
+  for (const auto& p : envMap)
+  {
+    string s = fmt::format("{}={}", p.first, p.second);
+    strcpy(environmentStrings + stringIdx, s.c_str());
+    environmentPointers[pointerIdx] = environmentStrings + stringIdx;
+    stringIdx += s.length() + 1;
+    ++pointerIdx;
+  }
+  environmentPointers[pointerIdx] = nullptr;
+  return make_tuple(environmentStrings, environmentPointers);
+}
 
 unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 {
@@ -342,34 +366,15 @@ void unxProcess::Create()
         }
         session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
       }
-      unordered_map<string, string> envMap;
       if (session != nullptr)
       {
-        envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+        unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
         envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
-      }
-      size_t envSize = 0;
-      for (const auto& p : envMap)
-      {
-        envSize += p.first.length() + 1 + p.second.length() + 1;
-      }
-      char* environmentStrings = new char[envSize];
-      MIKTEX_AUTO(delete[]environmentStrings);
-      char** environmentPointers = new char*[envMap.size() + 1];
-      MIKTEX_AUTO(delete[]environmentPointers);
-      size_t stringIdx = 0;
-      size_t pointerIdx = 0;
-      for (const auto& p : envMap)
-      {
-        string s = fmt::format("{}={}", p.first, p.second);
-        strcpy(environmentStrings + stringIdx, s.c_str());
-        environmentPointers[pointerIdx] = environmentStrings + stringIdx;
-        stringIdx += s.length() + 1;
-        ++pointerIdx;
-      }
-      environmentPointers[pointerIdx] = nullptr;
-      if (session != nullptr)
-      {
+        char* environmentStrings;
+        char** environmentPointers;
+        tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
+        MIKTEX_AUTO(delete[]environmentStrings);
+        MIKTEX_AUTO(delete[]environmentPointers);
         execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
       }
       else
@@ -867,43 +872,22 @@ void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
   MIKTEX_EXPECT(!fileName.Empty());
 
   Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
-  unordered_map<string, string> envMap;
 
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   if (session != nullptr)
   {
     session->UnloadFilenameDatabase();
-    envMap = session->CreateChildEnvironment(false);
     session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execve: {0}", fileName));
     for (int idx = 0; argv[idx] != nullptr; ++idx)
     {
       session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
     }
-  }
-
-  size_t envSize = 0;
-  for (const auto& p : envMap)
-  {
-    envSize += p.first.length() + 1 + p.second.length() + 1;
-  }
-  char* environmentStrings = new char[envSize];
-  MIKTEX_AUTO(delete[]environmentStrings);
-  char** environmentPointers = new char*[envMap.size() + 1];
-  MIKTEX_AUTO(delete[]environmentPointers);
-  size_t stringIdx = 0;
-  size_t pointerIdx = 0;
-  for (const auto& p : envMap)
-  {
-    string s = fmt::format("{}={}", p.first, p.second);
-    strcpy(environmentStrings + stringIdx, s.c_str());
-    environmentPointers[pointerIdx] = environmentStrings + stringIdx;
-    stringIdx += s.length() + 1;
-    ++pointerIdx;
-  }
-  environmentPointers[pointerIdx] = nullptr;
-
-  if (session != nullptr)
-  {
+    unordered_map<string, string> envMap = session->CreateChildEnvironment(false);
+    char* environmentStrings;
+    char** environmentPointers;
+    tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
+    MIKTEX_AUTO(delete[]environmentStrings);
+    MIKTEX_AUTO(delete[]environmentPointers);
     execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
   }
   else
