@@ -25,6 +25,11 @@
 #  include <unistd.h>
 #endif
 
+#if defined(MIKTEX_MACOS_BUNDLE)
+#  include <crt_externs.h>
+#  define environ (*_NSGetEnviron ())
+#endif
+
 #include <fstream>
 #include <iostream>
 
