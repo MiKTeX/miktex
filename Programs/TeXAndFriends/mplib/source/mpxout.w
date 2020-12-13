@@ -3973,6 +3973,9 @@ systems.
 
 @c
 static int do_spawn (MPX mpx, char *icmd, char **options) {
+#if defined(MIKTEX)
+  return miktex_emulate__do_spawn(mpx, icmd, options);
+#else
 #ifndef WIN32
   pid_t child;
 #endif
@@ -4003,6 +4006,7 @@ static int do_spawn (MPX mpx, char *icmd, char **options) {
 #endif
   xfree(cmd);
   return retcode;
+#endif
 }
 
 @ @c

@@ -25,6 +25,7 @@
 extern "C" {
 #endif
 
+int miktex_emulate__do_spawn(void* mpx, const char* fileName, char* const* argv);
 void miktex_print_banner(FILE* file, const char* name, const char* version);
 void miktex_show_library_versions();
 

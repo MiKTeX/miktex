@@ -1,6 +1,6 @@
 /* mplib/miktex/mpost.cpp:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2020 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,6 +18,7 @@
    USA.  */
 
 #include <string>
+#include <vector>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -26,6 +27,8 @@
 #include <miktex/Core/Utils>
 
 #include "mpost.h"
+
+using namespace std;
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -43,4 +46,24 @@ inline std::string GetBanner(const char* name, const char* version)
 void miktex_print_banner(FILE* file, const char* name, const char* version)
 {
   fprintf(file, "%s\n", GetBanner(name, version).c_str());
+}
+
+int miktex_emulate__do_spawn(void* mpx, const char* fileName, char* const* argv)
+{
+  vector<string> arguments;
+  for (; *argv != nullptr; ++argv)
+  {
+    arguments.push_back(*argv);
+  }
+  try
+  {
+    int exitCode;
+    Process::Run(PathName(fileName), arguments, nullptr, &exitCode, nullptr);
+    return exitCode;
+  }
+  catch (const MiKTeXException&)
+  {
+    errno = ENOENT;
+    return -1;
+  }
 }
