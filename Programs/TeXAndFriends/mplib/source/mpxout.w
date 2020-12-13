@@ -33,6 +33,9 @@ The local C preprocessor definitions have to come after the C includes
 in order to prevent name clashes.
 
 @c
+#if defined(MIKTEX)
+#  include <miktex/mpost.h>
+#endif
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
