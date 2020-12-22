@@ -1,4 +1,4 @@
-/* $Id: emspecial.c 50670 2019-03-30 22:42:24Z karl $
+/* $Id$
  *   emspecial.c
  *   This routine handles the emTeX special commands.
  */
@@ -270,7 +270,7 @@ char *emp;
 	   }
 	}
 	else if (strncmp(emp, "message", 7) == 0) {
-           fprintf(stderr, "em message: %s\n", emp+7);
+           fprintf_str(stderr, "em message: %s\n", emp+7);
 	}
 	else if (strncmp(emp, "graph", 5) == 0) {
 	   int i;
@@ -668,7 +668,7 @@ imagehead(char *filename, int wide, int high,
 		fprintf(stderr,"\n");
 		prettycolumn = 0;
 	    }
-	    fprintf(stderr,"<%s",name);
+	    fprintf_str(stderr,"<%s",name);
 	    fflush(stderr);
 	    prettycolumn += 2+strlen(name);
 	    if (fullname) free (fullname);
@@ -692,7 +692,7 @@ imagehead(char *filename, int wide, int high,
 	  fprintf(stderr,
 	    "\nem:graph: %s width  %d pixels scaled to %.1f pixels\n",
 	    filename, wide, emwidth);
-	  fprintf(stderr,
+	  fprintf_str(stderr,
 	    "em:graph: %s height %d pixels scaled to %.1f pixels\n",
 	    filename, high, emheight);
    	}

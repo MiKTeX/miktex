@@ -31,14 +31,12 @@ typedef char t3_line_entry;
 define_array(t3_line);
 
 FILE *t3_file;
-static boolean t3_image_used;
 
 static int t3_char_procs[256];
-static float t3_char_widths[256];
+static double t3_char_widths[256];
 static int t3_glyph_num;
-static float t3_font_scale;
+static double t3_font_scale;
 static int t3_b0, t3_b1, t3_b2, t3_b3;
-static boolean is_pk_font;
 
 /*tex Not static because used elsewhere. */
 
@@ -135,8 +133,6 @@ static boolean writepk(PDF pdf, internal_font_number f)
         t3_read_file();
         t3_close();
     }
-    t3_image_used = true;
-    is_pk_font = true;
     report_start_file(filetype_font,(char *) name);
     cd.rastersize = 256;
     cd.raster = xtalloc((unsigned long) cd.rastersize, halfword);
@@ -150,7 +146,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         check_preamble = false;
         if (!pdf_char_marked(f, cd.charcode))
             continue;
-        t3_char_widths[cd.charcode] = (float) pk_char_width(pdf, f, get_charwidth(f, cd.charcode), pdf->pk_scale_factor);
+        t3_char_widths[cd.charcode] = (double) pk_char_width(pdf, f, get_charwidth(f, cd.charcode), pdf->pk_scale_factor);
         if (cd.cwidth < 1 || cd.cheight < 1) {
             cd.xescape = cd.cwidth = round(t3_char_widths[cd.charcode] / 100.0);
             cd.cheight = 1;
@@ -206,35 +202,86 @@ static boolean writepk(PDF pdf, internal_font_number f)
     return true;
 }
 
-void writet3(PDF pdf, internal_font_number f)
+/*tex
+
+    Mode |0| is traditional pk with map file lookup, while mode |1| listens to
+    the callback. The callback gets a font id and character number and returns an
+    object number of a stream object plus the width that ends up in the widths
+    array. The stream can of course refer to another xform but it has to start
+    with the right sequence for being a character. As there are different
+    situations this is more flexible that hardcoding all kind of variants that
+    will never suit all possible purposes.
+
+    The next ones are a bit strange. We could as well have had one callback that
+    just generates the whole type 3 but I think that the assumption is that
+    \LUATEX\ should do the work. So, instead we have one callback that is invoked
+    with several intentions as indicated by the first argument.
+
+*/
+
+static void writet3(PDF pdf, internal_font_number f, int callback_id)
 {
     int i;
     char s[32];
     int wptr, eptr, cptr;
     int first_char, last_char;
     int pk_font_scale;
+    int tounicode_objnum = 0;
     pdffloat pf;
     boolean is_notdef;
     t3_glyph_num = 0;
-    t3_image_used = false;
     for (i = 0; i < 256; i++) {
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    is_pk_font = false;
     xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
-    if (!writepk(pdf, f))
-        return;
-    for (i = font_bc(f); i <= font_ec(f); i++)
-        if (pdf_char_marked(f, i))
+    for (i = font_bc(f); i <= font_ec(f); i++) {
+        if (pdf_char_marked(f, i)) {
             break;
+        }
+    }
     first_char = i;
-    for (i = font_ec(f); i > first_char; i--)
-        if (pdf_char_marked(f, i))
+    for (i = font_ec(f); i > first_char; i--) {
+        if (pdf_char_marked(f, i)) {
             break;
+        }
+    }
     last_char = i;
+    if (callback_id > 0) {
+        /*tex We assume a user font. */
+        for (i = first_char; i <= last_char; i++) {
+            if (pdf_char_marked(f, i)) {
+                int r = 0;
+                double w = 0;
+                /*tex
+                    We pass |2|, the font id, the character index, and we expect
+                    back a width in basepoints, an object number of a stream, and
+                    an objectnumber of an xobject used where zero means nothing is
+                    used.
+                */
+                run_callback(callback_id, "ddd->df", 2, f, i, &r, &w);
+                if (r > 0) {
+                    t3_char_procs[i] = r;
+                    t3_char_widths[i] = w;
+                }
+            }
+        }
+        t3_font_scale = 0.001;
+        t3_b0 = 0;
+        t3_b1 = 0;
+        t3_b2 = 0;
+        t3_b3 = 0;
+    } else if (writepk(pdf, f)) {
+        /*tex We assume a pk font. */
+    } else {
+        /*tex We just quit. */
+        return;
+    }
+    if (pdf->gen_tounicode > 0) {
+        tounicode_objnum = write_raw_tounicode(pdf, f, font_fullname(f));
+    }
     /*tex We create a |Type3| font dictionary: */
     pdf_begin_obj(pdf, pdf_font_num(f), OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
@@ -247,7 +294,53 @@ void writet3(PDF pdf, internal_font_number f)
         pdf_print(pdf, pdf_font_attr(f));
         pdf_out(pdf, '\n');
     }
-    if (is_pk_font) {
+    pdf_add_name(pdf, font_key[FONTBBOX1_CODE].pdfname);
+    pdf_begin_array(pdf);
+    pdf_add_int(pdf, (int) t3_b0);
+    pdf_add_int(pdf, (int) t3_b1);
+    pdf_add_int(pdf, (int) t3_b2);
+    pdf_add_int(pdf, (int) t3_b3);
+    pdf_end_array(pdf);
+    pdf_add_name(pdf, "Resources");
+    /*tex
+        This is not mandate but we just set them all. They are ignored anyway. In
+        PDF version 2 they are even obsolete but then, unknown entries are again
+        ignored.
+    */
+    pdf_begin_dict(pdf);
+    pdf_add_name(pdf, "ProcSet");
+    pdf_begin_array(pdf);
+    pdf_add_name(pdf, "PDF");
+    pdf_add_name(pdf, "ImageB");
+    if (callback_id) {
+        pdf_add_name(pdf, "ImageC");
+        pdf_add_name(pdf, "ImageI");
+        pdf_add_name(pdf, "Text");
+    }
+    pdf_end_array(pdf);
+    /*tex
+        A previous version had two calls that dealt with adding font resources and
+        xform references and a separate one for the font matrix but we now delegate
+        some stupid work to the caller and have all in one: we expect a matrix and
+        a resource string.
+    */
+    if (callback_id > 0) {
+        char *str = NULL;
+        double s = t3_font_scale;
+        run_callback(callback_id, "dd->fR", 3, f, &s, &str);
+        t3_font_scale = s;
+        if (str != NULL) {
+            pdf_out(pdf, ' ');
+            pdf_puts(pdf, str);
+            free(str);
+        }
+        pdf_end_dict(pdf); /*tex The resources. */
+        pdf_add_name(pdf, "FontMatrix");
+        pdf_begin_array(pdf);
+        pdf_printf(pdf, "%g 0 0 %g 0 0", t3_font_scale, t3_font_scale);
+        pdf_end_array(pdf);
+    } else {
+        pdf_end_dict(pdf); /*tex The resources. */
         pk_font_scale = get_pk_font_scale(pdf,f,pdf->pk_scale_factor);
         pdf_add_name(pdf, "FontMatrix");
         pdf_begin_array(pdf);
@@ -257,29 +350,8 @@ void writet3(PDF pdf, internal_font_number f)
         print_pdffloat(pdf, pf);
         pdf_puts(pdf, " 0 0");
         pdf_end_array(pdf);
-    } else {
-        pdf_add_name(pdf, "FontMatrix");
-        pdf_begin_array(pdf);
-        pdf_printf(pdf, "%g 0 0 %g 0 0", (double) t3_font_scale, (double) t3_font_scale);
-        pdf_end_array(pdf);
     }
-    pdf_add_name(pdf, font_key[FONTBBOX1_CODE].pdfname);
-    pdf_begin_array(pdf);
-    pdf_add_int(pdf, (int) t3_b0);
-    pdf_add_int(pdf, (int) t3_b1);
-    pdf_add_int(pdf, (int) t3_b2);
-    pdf_add_int(pdf, (int) t3_b3);
-    pdf_end_array(pdf);
-    pdf_add_name(pdf, "Resources");
-    pdf_begin_dict(pdf);
-    pdf_add_name(pdf, "ProcSet");
-    pdf_begin_array(pdf);
-    pdf_add_name(pdf, "PDF");
-    if (t3_image_used) {
-        pdf_add_name(pdf, "ImageB");
-    }
-    pdf_end_array(pdf);
-    pdf_end_dict(pdf);
+    /*tex Some preparations. */
     pdf_dict_add_int(pdf, "FirstChar", first_char);
     pdf_dict_add_int(pdf, "LastChar", last_char);
     wptr = pdf_create_obj(pdf, obj_type_others, 0);
@@ -288,20 +360,23 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_dict_add_ref(pdf, "Widths", (int) wptr);
     pdf_dict_add_ref(pdf, "Encoding", (int) eptr);
     pdf_dict_add_ref(pdf, "CharProcs", (int) cptr);
+    if (tounicode_objnum) {
+        pdf_dict_add_ref(pdf, "ToUnicode", tounicode_objnum);
+    }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
     /*tex The |Widths| array: */
     pdf_begin_obj(pdf, wptr, OBJSTM_ALWAYS);
     pdf_begin_array(pdf);
-    if (is_pk_font) {
+    if (callback_id) {
+        for (i = first_char; i <= last_char; i++) {
+            pdf_printf(pdf, " %g", t3_char_widths[i]);
+        }
+    } else {
         for (i = first_char; i <= last_char; i++) {
             setpdffloat(pf, (int64_t) t3_char_widths[i], 2);
             print_pdffloat(pdf, pf);
             pdf_out(pdf, ' ');
-        }
-    } else {
-        for (i = first_char; i <= last_char; i++) {
-            pdf_add_int(pdf, (int) t3_char_widths[i]);
         }
     }
     pdf_end_array(pdf);
@@ -353,4 +428,31 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_end_obj(pdf);
     report_stop_file(filetype_font);
     cur_file_name = NULL;
+}
+
+void writet3pk(PDF pdf, internal_font_number f)
+{
+    writet3(pdf, f, 0);
+}
+
+void prerollt3user(PDF pdf, internal_font_number f)
+{
+    int callback_id = callback_defined(provide_charproc_data_callback);
+    if (callback_id > 0) {
+        int i;
+        for (i = font_bc(f); i <= font_ec(f); i++) {
+            if (pdf_char_marked(f, i)) {
+                /*tex We pass |true|, the font id and the character index. */
+                run_callback(callback_id, "ddd->", 1, f, i);
+            }
+        }
+    }
+}
+
+void writet3user(PDF pdf, internal_font_number f)
+{
+    int callback_id = callback_defined(provide_charproc_data_callback);
+    if (callback_id) {
+        writet3(pdf, f, callback_id);
+    }
 }

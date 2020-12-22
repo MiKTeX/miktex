@@ -1,4 +1,4 @@
-/* $Id: color.c 50641 2019-03-29 18:02:17Z karl $
+/* $Id$
  *  This is a set of routines for dvips that are used to process color
  *  commands in the TeX file (passed by \special commands).  This was
  *  orignally written by J. Hafner, E. Blanz and M. Flickner of IBM
@@ -180,11 +180,11 @@ resetcolorstack(char * p, int outtops)
    if (q > cstack && outtops == 0) {
 #ifdef SHORTINT
      fprintf(stderr, "You've mistakenly made a global color change ");
-     fprintf(stderr, "to %s within nested colors\n", p);
+     fprintf_str(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %ld. Will try to recover.\n", pagenum);
 #else   /* ~SHORTINT */
      fprintf(stderr, "You've mistakenly made a global color change ");
-     fprintf(stderr, "to %s within nested colors\n", p);
+     fprintf_str(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %d. Will try to recover.\n", pagenum);
 #endif  /* ~SHORTINT */
    }

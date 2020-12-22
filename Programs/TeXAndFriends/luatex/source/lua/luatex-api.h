@@ -610,6 +610,8 @@ make_lua_key(best_size);\
 make_lua_key(bin);\
 make_lua_key(bleed);\
 make_lua_key(bot);\
+make_lua_key(bottom);\
+make_lua_key(splitbottom);\
 make_lua_key(bot_accent);\
 make_lua_key(bothflexible);\
 make_lua_key(bottom_left);\
@@ -761,6 +763,7 @@ make_lua_key(fin_row);\
 make_lua_key(finalhyphendemerits);\
 make_lua_key(finalpenalty);\
 make_lua_key(first);\
+make_lua_key(splitfirst);\
 make_lua_key(fit);\
 make_lua_key(fitb);\
 make_lua_key(fitbh);\
@@ -1317,6 +1320,8 @@ init_lua_key(best_size);\
 init_lua_key(bin);\
 init_lua_key(bleed);\
 init_lua_key(bot);\
+init_lua_key(bottom);\
+init_lua_key(splitbottom);\
 init_lua_key(bot_accent);\
 init_lua_key(bothflexible);\
 init_lua_key(bottom_left);\
@@ -1467,6 +1472,7 @@ init_lua_key(fin_row);\
 init_lua_key(finalhyphendemerits);\
 init_lua_key(finalpenalty);\
 init_lua_key(first);\
+init_lua_key(splitfirst);\
 init_lua_key(fit);\
 init_lua_key(fitb);\
 init_lua_key(fitbh);\
@@ -2073,6 +2079,8 @@ use_lua_key(best_size);
 use_lua_key(bin);
 use_lua_key(bleed);
 use_lua_key(bot);
+use_lua_key(bottom);
+use_lua_key(splitbottom);
 use_lua_key(bot_accent);
 use_lua_key(bothflexible);
 use_lua_key(bottom_left);
@@ -2224,6 +2232,7 @@ use_lua_key(fin_row);
 use_lua_key(finalhyphendemerits);
 use_lua_key(finalpenalty);
 use_lua_key(first);
+use_lua_key(splitfirst);
 use_lua_key(fit);
 use_lua_key(fitb);
 use_lua_key(fitbh);

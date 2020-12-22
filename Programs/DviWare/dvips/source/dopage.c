@@ -129,7 +129,57 @@ dochar:
        NEED_NEW_BOX = 0;
        }
 #endif
-   cd = &(curfnt->chardesc[mychar]);
+   if (mychar<curfnt->maxchars)
+      cd = &(curfnt->chardesc[mychar]);
+   if (!noptex && mychar<0x1000000 && curfnt->loaded == 2 && curfnt->kind == VF_PTEX) {
+      if (mychar>=curfnt->maxchars || !(cd->flags & EXISTS)) {
+      /* try fallback */
+#ifdef DEBUG
+         if (dd(D_FONTS))
+            fprintf_str(stderr,
+              "Fallback pTeX vf:%s char=%d(0x%06x) to %s\n",
+               curfnt->name, mychar, mychar, curfnt->localfonts->desc->name);
+#endif /* DEBUG */
+         cd = curfnt->localfonts->desc->chardesc;
+         if (charmove) {
+            if (!dir) {
+               sp->hh = hh + cd->pixelwidth;
+               sp->h = h + cd->TFMwidth;
+            } else {
+               sp->v = v + cd->TFMwidth;
+               sp->vv = PixRound(sp->v);
+            }
+         } else {
+            if (!dir) {
+               sp->hh = hh; sp->h = h;
+            } else {
+               sp->vv = vv; sp->v = v;
+            }
+         }
+         if (!dir) {
+            sp->vv = vv; sp->v = v;
+         } else {
+            sp->hh = hh; sp->h = h;
+         }
+         sp->w = w; sp->x = x; sp->y = y; sp->z = z; sp->dir = dir;
+         if (++sp >= &stack[STACKSIZE]) error("! Out of stack space");
+         w = x = y = z = 0; /* will be in relative units at new stack level */
+         frp->ff = ffont;
+         frp->curf = curfnt;
+         if (++frp == &frames[MAXFRAME] )
+            error("! virtual recursion stack overflow");
+         ffont = curfnt->localfonts;
+         if (ffont) {
+            curfnt = ffont->desc;
+            thinspace = curfnt->thinspace;
+         } else {
+            curfnt = NULL;
+            thinspace = vertsmallspace;
+         }
+         drawchar(cd, mychar);
+         goto end_of_vf;
+      }
+   }
    if (cd->flags & EXISTS) {
       if (curfnt->loaded == 2) { /* virtual character being typeset */
          if (charmove) {
@@ -256,6 +306,7 @@ case 140: /* eop or end of virtual character */
 #endif
      break;
    }
+end_of_vf:
    --frp;
    curfnt = frp->curf;
    thinspace = (curfnt) ? curfnt->thinspace : vertsmallspace;
@@ -419,7 +470,7 @@ verticalmotion:
    /* printf("Doing vertical motion: p = %i, v = %i, vv = %i\n",p,v,vv); */
 		/* printf("inHTMLregion %i\n", inHTMLregion); */
      if (HPS_FLAG && inHTMLregion) NEED_NEW_BOX = 1 /* vertical_in_hps() */;
-#endif   
+#endif
       goto beginloop;
 /*
  *   Horizontal motion is analogous. We know the exact width of each

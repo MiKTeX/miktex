@@ -497,7 +497,7 @@ int downloadbmencoding(const char *name, double scale, fontdesctype *curfnt) {
    for (i=0; i<256 && i<curfnt->maxchars; i++) {
       if ((curfnt->chardesc[i].flags2 & EXISTS) &&
                                 !(bme->existsbm[i>>3] & (1 << (i & 7)))) {
-         fprintf(stderr,
+         fprintf_str(stderr,
 "Can't use PostScript encoding vector for font %s; character %d has no name.\n",
          name, i) ;
          return -1 ;
@@ -568,7 +568,7 @@ static int warned_about_missing_encoding = 0 ;
  */
 static void bmenc_warn(const char *fontname, const char *msg) {
    if (encodetype3 > 1)
-      fprintf(stderr,
+      fprintf_str(stderr,
          "dvips: Static bitmap font encoding for font %s (and others?): %s.\n",
                    fontname, msg) ;
 }

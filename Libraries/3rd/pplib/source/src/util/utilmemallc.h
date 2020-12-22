@@ -85,18 +85,22 @@ apply to pools, which returns constant size memory chunks). Here is an interface
 heap and stock):
 
   some(heap, atleast, &space);
-  more(heap, taken, written, space);
+  ...
+  atleast <<= 1;
+  more(heap, taken, written, atleast, &space);
   ...
   done(heap, taken, written);
 
 some() operation provides a data pointer to at least a given bytes. The actual space provided for writing is set to the third
 argument. The caller may write space-bytes. If more space is needed, more() operation takes care to provide a chunk for a given
-amount of bytes (space) and rewrites already written amount of bytes from a previous chunk to a new location. The function takes
-the pointer to the chunk previously taken; the one returned by some() or more(). This argument must not be NULL. If you don't want
-to copy a data, set written argument to zero. No matter if more() operation was used zero, one or multiple times, all the cycle must
-end with done(). Calls triple - some(), more() and done() - must not be interrupted by any other api calls. In particular, using take()
-or back() smells like a segfault. However, if there is a need discard the buffer being written (eg. input data error), instead of
-done() one may use
+amount of bytes and rewrites already written amount of bytes from a previous chunk to a new location. Same as with() some, the
+requests for atleast bytes, and the actual provided chunk size is given as space (space >= atleast).
+
+The function takes the pointer to the chunk previously taken; the one returned by some() or more(). This argument must not be NULL. 
+If you don't want to copy a data, set written argument to zero. No matter if more() operation was used zero, one or multiple times, 
+all the cycle must end with done(). Calls triple - some(), more() and done() - must not be interrupted by any other api calls. 
+In particular, using take() or back() smells like a segfault. However, if there is a need discard the buffer being written 
+(eg. input data error), instead of done() one may use
 
   giveup(heap, taken)
 

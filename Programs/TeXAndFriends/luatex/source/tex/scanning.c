@@ -536,9 +536,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level, boolea
                     /*tex assumes identical values */
                     cur_val_level = cur_chr;
                 }
-                if ((cur_list.tail_field != contrib_head) &&
-                    !is_char_node(cur_list.tail_field) &&
-                    (cur_list.mode_field != 0)) {
+                if ((cur_list.tail_field != contrib_head) && (cur_list.mode_field != 0)) {
                     switch (cur_chr) {
                         case lastpenalty_code:
                             if (type(cur_list.tail_field) == penalty_node)

@@ -111,16 +111,19 @@ Type0Font_attach_ToUnicode_stream (pdf_font *font)
 
   tounicode = NULL;
   csi       = &cidfont->cid.csi;
-  fontname  = cidfont->fontname;
   if (cidfont->cid.options.embed) {
-    fontname += 7; /* FIXME: Skip pseudo unique tag... */
+    fontname = NEW(strlen(cidfont->fontname)+8, char);
+    sprintf(fontname, "%s+%s", cidfont->uniqueID, cidfont->fontname);
+  } else {
+    fontname = NEW(strlen(cidfont->fontname)+1, char);
+    strcpy(fontname, cidfont->fontname);
   }
 
   switch (cidfont->subtype) {
   case PDF_FONT_FONTTYPE_CIDTYPE2:
     if (!strcmp(csi->registry, "Adobe") && !strcmp(csi->ordering, "Identity")) {
       tounicode = otf_create_ToUnicode_stream(cidfont->ident, cidfont->index,
-                                              cidfont->fontname, font->usedchars);
+                                              fontname, font->usedchars);
     } else {
       char *cmap_base = NEW(strlen(csi->registry) + strlen(csi->ordering) + 2, char);
       sprintf(cmap_base, "%s-%s", csi->registry, csi->ordering);
@@ -132,26 +135,27 @@ Type0Font_attach_ToUnicode_stream (pdf_font *font)
   default:
     if (cidfont->flags & CIDFONT_FLAG_TYPE1C) {
       tounicode = otf_create_ToUnicode_stream(cidfont->ident, cidfont->index,
-                                              cidfont->fontname, font->usedchars);
+                                              fontname, font->usedchars);
     } else if (cidfont->flags & CIDFONT_FLAG_TYPE1) {
-      tounicode = CIDFont_type0_t1create_ToUnicode_stream(cidfont->ident, cidfont->fontname, font->usedchars);
+      tounicode = CIDFont_type0_t1create_ToUnicode_stream(cidfont->ident, fontname, font->usedchars);
     } else {
-      tounicode = try_load_ToUnicode_file(fontname);
+      tounicode = try_load_ToUnicode_file(cidfont->fontname);
       if (!tounicode) {
         tounicode = otf_create_ToUnicode_stream(cidfont->ident, cidfont->index,
-                                                cidfont->fontname, font->usedchars);
+                                                fontname, font->usedchars);
       }
     }
   }
+  RELEASE(fontname);
 
   if (tounicode) {
     pdf_add_dict(font->resource, pdf_new_name("ToUnicode"), tounicode);
   } else {
 #if defined(LIBDPX)
     if (dpx_conf.verbose_level > 0)
-      WARN("Failed to load ToUnicode CMap for font \"%s\"", fontname);
+      WARN("Failed to load ToUnicode CMap for font \"%s\"", cidfont->fontname);
 #else
-    WARN("Failed to load ToUnicode CMap for font \"%s\"", fontname);
+    WARN("Failed to load ToUnicode CMap for font \"%s\"", cidfont->filename);
 #endif /* LIBDPX */
   }
 
@@ -191,13 +195,16 @@ pdf_font_open_type0 (pdf_font *font, int cid_id, int wmode)
    *  Type0 font's fontname is usually descendant CID-keyed font's font name 
    *  appended by -ENCODING.
    */
-  fontname = cidfont->fontname;
+  if (cidfont->cid.options.embed) {
+    fontname = NEW(strlen(cidfont->fontname)+8, char);
+    sprintf(fontname, "%s+%s", cidfont->uniqueID, cidfont->fontname);
+  } else {
+    fontname = NEW(strlen(cidfont->fontname)+1, char);
+    strcpy(fontname, cidfont->fontname);
+  }
 
   if (dpx_conf.verbose_level > 0) {
-    if (cidfont->cid.options.embed && strlen(fontname) > 7)
-      MESG("(CID:%s)", fontname+7); /* skip XXXXXX+ */
-    else
-      MESG("(CID:%s)", fontname);
+    MESG("(CID:%s)", cidfont->fontname);
   }
 
   switch (cidfont->subtype) {

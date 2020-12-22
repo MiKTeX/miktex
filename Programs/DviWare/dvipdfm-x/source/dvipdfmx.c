@@ -212,7 +212,7 @@ show_usage (void)
   printf ("  -c \t\tIgnore color specials (for B&W printing)\n");
   printf ("  --dvipdfm\tEnable DVIPDFM emulation mode\n");
   printf ("  -d number\tSet PDF decimal digits (0-5) [3]\n");
-  printf ("  -f filename\tSet font map file name [pdftex.map]\n");
+  printf ("  -f filename\tLoad additional font map filename[.map]\n");
   printf ("  -g dimension\tAnnotation \"grow\" amount [0.0in]\n");
   printf ("  -h | --help \tShow this help message and exit\n");
   printf ("  -l \t\tLandscape mode\n");

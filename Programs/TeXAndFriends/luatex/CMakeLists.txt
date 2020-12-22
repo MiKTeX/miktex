@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -59,7 +59,6 @@ include(luaffi.cmake)
 include(luafontforge.cmake)
 include(luaharfbuzz.cmake)
 include(luamisc.cmake)
-include(luapplib.cmake)
 include(luasocket.cmake)
 include(miktex.cmake)
 
@@ -88,11 +87,11 @@ endif()
 
 list(APPEND common_engine_libs
   ${lua53_target_name}
+  ${pplib_lib_name}
   luatex-common-engine-objects
   luatex-luafontforge-objects
   luatex-luaffi-objects
   luatex-luamisc-objects
-  luatex-luapplib-objects
   luatex-luasocket-objects
 )
 

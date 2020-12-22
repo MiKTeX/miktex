@@ -24,6 +24,11 @@
 
 extern int cur_size;
 
+extern halfword del_width;
+extern halfword del_height;
+extern halfword del_depth;
+extern halfword del_shift;
+
 extern void run_mlist_to_hlist(halfword, boolean, int);
 extern void mlist_to_hlist(halfword, boolean, int);
 extern void fixup_math_parameters(int fam_id, int size_id, int f, int lvl);

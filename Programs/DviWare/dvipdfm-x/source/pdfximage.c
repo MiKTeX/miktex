@@ -476,8 +476,17 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
       WARN("Try again with the distiller.");
       format = IMAGE_TYPE_EPS;
       rewind(fp);
-    } else
+    } else {
+      /* Workaround for the problem reported.
+       * mps_include_page() above doesn't set I->filename...
+       */
+      I = &ic->ximages[id];
+      if (!I->filename) {
+        I->filename = NEW(strlen(filename)+1, char);
+        strcpy(I->filename, filename);
+      }
       break;
+    }
   default:
     id = load_image(ident, filename, fullname, format, fp, options);
     break;
@@ -612,12 +621,18 @@ pdf_ximage_set_image (pdf_ximage *I, void *image_info, pdf_obj *resource)
     pdf_merge_dict(dict, I->attr.dict);
 
   if (I->ident) {
-    pdf_names_add_object(global_names, I->ident, strlen(I->ident), pdf_link_obj(resource));
+    int error;
+
+    error = pdf_names_add_object(global_names, I->ident, strlen(I->ident), pdf_link_obj(resource));
     if (I->reference)
       pdf_release_obj(I->reference);
-    /* Need to create object reference before closing it */
-    I->reference = pdf_names_lookup_reference(global_names, I->ident, strlen(I->ident));
-    pdf_names_close_object(global_names, I->ident, strlen(I->ident));
+    if (error) {
+      I->reference = pdf_ref_obj(resource);
+    } else {
+      /* Need to create object reference before closing it */
+      I->reference = pdf_names_lookup_reference(global_names, I->ident, strlen(I->ident));
+      pdf_names_close_object(global_names, I->ident, strlen(I->ident));
+    }
     I->reserved = 0;
   } else {
     I->reference = pdf_ref_obj(resource);
@@ -652,12 +667,18 @@ pdf_ximage_set_form (pdf_ximage *I, void *form_info, pdf_obj *resource)
   I->attr.bbox.ury = max4(p1.y, p2.y, p3.y, p4.y);
 
   if (I->ident) {
-    pdf_names_add_object(global_names, I->ident, strlen(I->ident), pdf_link_obj(resource));
+    int error;
+    
+    error = pdf_names_add_object(global_names, I->ident, strlen(I->ident), pdf_link_obj(resource));
     if (I->reference)
       pdf_release_obj(I->reference);
-    /* Need to create object reference before closing it */
-    I->reference = pdf_names_lookup_reference(global_names, I->ident, strlen(I->ident));
-    pdf_names_close_object(global_names, I->ident, strlen(I->ident));
+    if (error) {
+      I->reference = pdf_ref_obj(resource);
+    } else {
+      /* Need to create object reference before closing it */
+      I->reference = pdf_names_lookup_reference(global_names, I->ident, strlen(I->ident));
+      pdf_names_close_object(global_names, I->ident, strlen(I->ident));
+    }
     I->reserved = 0;
   } else {
     I->reference = pdf_ref_obj(resource);

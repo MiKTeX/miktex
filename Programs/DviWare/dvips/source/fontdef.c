@@ -65,7 +65,7 @@ newfontdesc(integer cksum, integer scsize, integer dssize,
    fp->loadeddpi = fp->dpi;
 #ifdef DEBUG
    if (dd(D_FONTS))
-      fprintf(stderr,"Defining font (%s) %s at %.1fpt\n",
+      fprintf_str(stderr,"Defining font (%s) %s at %.1fpt\n",
          area, name, (real)scsize/(alpha*0x100000));
 #endif /* DEBUG */
    return fp;

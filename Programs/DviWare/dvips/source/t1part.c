@@ -654,7 +654,7 @@ PrintChar(CHAR *TmpChar)
     {
         if(ThisChar->choose==1)
         {
-            fprintf(stderr, " Debug: Char %d '%s'\n",
+            fprintf_str(stderr, " Debug: Char %d '%s'\n",
                     ThisChar->num,ThisChar->name);
         }
         ThisChar = ThisChar->NextChar;
@@ -1020,7 +1020,7 @@ ViewReturnCall(int num_err, int top, int *pstack,
             {
                 if(TableCommand[k].code==*pstack)
                 {
-                    fprintf(stderr," %s",
+                    fprintf_str(stderr," %s",
                     TableCommand[k].command);
                     k=0;
                     break;
@@ -1134,7 +1134,7 @@ DeCodeStr(int num, int numseac)
         {
             byte = CDeCrypt(*loc++, &loccr);
             if (byte > MAX_ESCAPE)
-                fprintf(stderr,
+                fprintf_str(stderr,
             "Error: not_defined_e%d in %s", byte, psfontfile);
             else
             {
@@ -1357,7 +1357,7 @@ ScanChars(int i)
 
                         if(dd(D_VIEW_VECTOR)&&(num_err==-1))
                         {
-                            fprintf(stderr,
+                            fprintf_str(stderr,
                          " Debug: Char '%s' not used in WorkVector\n", token);
 
                         }
@@ -1405,7 +1405,7 @@ ScanChars(int i)
                         if(dd(D_CALL_SUBR))
                         {
                             if(num_err>0)
-                                fprintf(stderr,
+                                fprintf_str(stderr,
                             " Debug for Char '%s'\n", tmp_token);
                         }
 #endif
@@ -1419,7 +1419,7 @@ ScanChars(int i)
                 if(num_err<0)
                 {
                     ErrorOfScan(num_err);
-                    fprintf(stderr,"in Char string of '%s'", tmp_token);
+                    fprintf_str(stderr,"in Char string of '%s'", tmp_token);
                     exit(1);
                 }
                 number++;
@@ -1427,7 +1427,7 @@ ScanChars(int i)
         }
         else
         {
-            fprintf(stderr,
+            fprintf_str(stderr,
            "\n File <%s> ended before all chars have been found.", psfontfile);
 
             fprintf(stderr,
@@ -1437,7 +1437,7 @@ ScanChars(int i)
 
             if(tmp_token!=NULL)
             {
-                fprintf(stderr, "\n Last seen token was '%s'\n", tmp_token);
+                fprintf_str(stderr, "\n Last seen token was '%s'\n", tmp_token);
             }
             exit(1);
         }
@@ -1511,7 +1511,7 @@ FindKeyWord(int First_Key, int lastkey)
                         tmp_num = GetNum();
                         if(tmp_num<0)
                         {
-                            fprintf(stderr,
+                            fprintf_str(stderr,
                             "\n ERROR: Number not found for '%s' in <%s>",
                             Key[i].name, psfontfile);
                             exit(1);
@@ -1526,11 +1526,11 @@ FindKeyWord(int First_Key, int lastkey)
         }
         else
         {
-            fprintf(stderr,
+            fprintf_str(stderr,
             "\n ERROR: In <%s> keyword not found:", psfontfile);
 
             for(i=First_Key; i<=lastkey; i++)
-                fprintf(stderr,"\n %dth > '%s' ",i,Key[i].name);
+                fprintf_str(stderr,"\n %dth > '%s' ",i,Key[i].name);
             exit(1);
         }
     }
@@ -1586,7 +1586,7 @@ ScanBinary(void)
                     for(i=0;i<=2;i++)
                     {
                         if(keyword[i].oldnum!=0)
-                            fprintf(stderr, " Result for <%s>:  %s  %d (instead %d) \n",
+                            fprintf_str(stderr, " Result for <%s>:  %s  %d (instead %d) \n",
                             psfontfile, Key[keyword[i].type].name,keyword[i].newnum, keyword[i].oldnum);
                     }
 
@@ -1864,7 +1864,7 @@ FindEncoding(void)
         if(num_err<0)
         {
             ErrorOfScan(num_err);
-            fprintf(stderr,
+            fprintf_str(stderr,
             "\n ERROR in encoding vector in <%s>",  psfontfile);
             exit(1);
         }
@@ -1894,7 +1894,7 @@ CheckChoosing(void)
         }
         else
         {
-            fprintf(stderr,
+            fprintf_str(stderr,
             "WARNING: '/Encoding' not found in <%s>\n", psfontfile);
             exit(1);
         }
@@ -1926,7 +1926,7 @@ CheckChoosing(void)
             fprintf(stderr,
             "\n Warning: after loading AFM file \n");
 
-            fprintf(stderr,
+            fprintf_str(stderr,
             " only %d chars found instead %d for <%s>\n",
             CharCount, GridCount, psfontfile);
         }
@@ -1945,7 +1945,7 @@ CheckChoosing(void)
             fprintf(stderr, " Encoding: not standard \n");
 
         if(reencode==FLG_REENCODE)
-            fprintf(stderr, " with reencode vector <%s>\n", psvectfile);
+            fprintf_str(stderr, " with reencode vector <%s>\n", psvectfile);
 
         PrintChar(FirstCharW);
     }
@@ -2396,7 +2396,7 @@ Afm(void)
 
     afmfile[i]='\0';
     strcat((char *) afmfile,".afm");
-    fprintf(stderr, "<%s>", afmfile);
+    fprintf_str(stderr, "<%s>", afmfile);
 
     if ((fafm = psfopen((char *) afmfile, "r")) == NULL)
     {
@@ -2490,7 +2490,7 @@ FontPart(FILE *fout, unsigned char *fontfile,
 
 #ifdef DEBUG
         if(dd(D_VIEW_VECTOR))
-           fprintf(stderr, " Base vector <%s>.", basevect);
+           fprintf_str(stderr, " Base vector <%s>.", basevect);
 #endif
 
         if(LoadVector(1, FirstCharB)==1)
@@ -2524,7 +2524,7 @@ FontPart(FILE *fout, unsigned char *fontfile,
             if (rc == FALSE)
             {
                 NameOfProgram();
-                (void) fprintf(stderr,
+                (void) fprintf_str(stderr,
                 "Error: %s is not a valid PFA file\n", fontfile);
                 return -1;
             }
@@ -2541,14 +2541,14 @@ FontPart(FILE *fout, unsigned char *fontfile,
             if (rc==FALSE)
             {
                 NameOfProgram();
-                (void) fprintf(stderr,
+                (void) fprintf_str(stderr,
                 "Error: %s is not a valid PFB file\n", fontfile);
                 return -1;
             }
             break;
         case -1:
             NameOfProgram();
-            fprintf(stderr,
+            fprintf_str(stderr,
             "Error: %s has neither PFA nor PFB extension", fontfile);
             return -1;
     }
@@ -2621,7 +2621,7 @@ LoadVector(int num, CHAR *TmpChar)
                             CharCount++;
                         else
                         {
-                           fprintf(stderr,
+                           fprintf_str(stderr,
                "Error: '%s' not found in reencoding vector <%s> for <%s>\n",
                              token,psvectfile, psfontfile);
                         }
@@ -2654,7 +2654,7 @@ LoadVector(int num, CHAR *TmpChar)
         if((index_grid!=256)&&(CharCount!=256))
         {
             fclose(fvect);
-            fprintf(stderr,"Error during Load Vector in <%s>  \n",
+            fprintf_str(stderr,"Error during Load Vector in <%s>  \n",
             psvectfile);
             fprintf(stderr,
                     "Found %d chars instead 256\n", max(index_grid,CharCount));
@@ -2669,7 +2669,7 @@ LoadVector(int num, CHAR *TmpChar)
         else
         {
             fclose(fvect);
-            fprintf(stderr,
+            fprintf_str(stderr,
                      "\n Warning: Vector from <%s> for <%s> doesn't load\n",
             psvectfile, psfontfile);
             return -1;
@@ -2677,7 +2677,7 @@ LoadVector(int num, CHAR *TmpChar)
     }
     else
     {
-        fprintf(stderr,"\n Error: ending token 'def' not found in <%s> \n",
+        fprintf_str(stderr,"\n Error: ending token 'def' not found in <%s> \n",
         psvectfile);
         return -2;
     }

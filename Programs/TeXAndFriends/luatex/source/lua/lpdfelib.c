@@ -45,7 +45,7 @@
 # undef output
 # endif
 
-# include "luapplib/src/pplib.h"
+# include "pplib.h"
 
 # include "image/epdf.h"
 
@@ -1237,9 +1237,10 @@ static int pdfelib_getfromreference(lua_State * L)
     ppref *r = (((pdfe_reference *) p)->xref != NULL) ? ppxref_find(((pdfe_reference *) p)->xref, (ppuint) (((pdfe_reference *) p)->onum)) : NULL; \
     ppobj *o = (r != NULL) ? ppref_obj(r) : NULL; \
 
-# define pdfelib_get_value_direct(get_d,get_a) do {                      \
+# define pdfelib_get_value_direct(get_d,get_a) do {                     \
     int t = lua_type(L,2);                                              \
     void *p = lua_touserdata(L, 1);                                     \
+    lua_settop(L,2);                                                    \
     pdfelib_get_value_check_1;                                          \
     if (t == LUA_TSTRING) {                                             \
         const char *key = lua_tostring(L,-2);                           \
@@ -1286,6 +1287,7 @@ static int pdfelib_getfromreference(lua_State * L)
 # define pdfelib_get_value_indirect(get_d,get_a) do {                       \
     int t = lua_type(L,2);                                                  \
     void *p = lua_touserdata(L, 1);                                         \
+    lua_settop(L,2);                                                        \
     pdfelib_get_value_check_1;                                              \
     if (t == LUA_TSTRING) {                                                 \
         const char *key = lua_tostring(L,-2);                               \
@@ -1320,6 +1322,8 @@ static int pdfelib_getfromreference(lua_State * L)
     }                                                                       \
 } while (0)
 
+/* pre 1.13 version:
+
 static int pdfelib_getstring(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
@@ -1327,7 +1331,38 @@ static int pdfelib_getstring(lua_State * L)
         pdfelib_get_value_direct(ppdict_rget_string,pparray_rget_string);
         if (value != NULL) {
             lua_pushlstring(L, ppstring_data(value), ppstring_size(value));
-            return 1;
+            return 2;
+        }
+    }
+    return 0;
+}
+
+*/
+
+static int pdfelib_getstring(lua_State *L)
+{
+    if (lua_gettop(L) > 1) {
+        ppstring *value = NULL;
+        int how = 0;
+        if (lua_type(L, 3) == LUA_TBOOLEAN) {
+            if (lua_toboolean(L, 3)) {
+                how = 1;
+            } else {
+                how = 2;
+            }
+        }
+        pdfelib_get_value_direct(ppdict_rget_string,pparray_rget_string);
+        if (value != NULL) {
+            if (how == 1) {
+                value = ppstring_decoded(value);
+            }
+            lua_pushlstring(L,ppstring_data(value),ppstring_size(value));
+            if (how == 2) {
+                lua_pushboolean(L,ppstring_hex(value));
+                return 2;
+            } else {
+                return 1;
+            }
         }
     }
     return 0;

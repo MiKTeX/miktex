@@ -2352,6 +2352,8 @@ void ins_the_toks(void)
 
 */
 
+# define immediate_permitted(n,target) ((eq_level(toks_base + n) == cur_level) && (token_ref_count(target) == 0))
+
 void combine_the_toks(void)
 {
     halfword how = cur_chr;
@@ -2395,7 +2397,7 @@ void combine_the_toks(void)
                         token_link(source) = null;
                     } else if (append) {
                         /*tex Append. */
-                        if (token_ref_count(target) == 0) {
+                        if (immediate_permitted(nt,target)) {
                             p = t;
                             while (token_link(p) != null) {
                                 p = token_link(p);
@@ -2405,13 +2407,12 @@ void combine_the_toks(void)
                                 s = token_link(s);
                             }
                         } else {
-                            token_ref_count(target)--;
                             append_copied_toks_list(t,s);
                             set_toks_register(nt,temp_token_head,global);
                         }
                     } else {
                         /* prepend */
-                        if (token_ref_count(target) == 0) {
+                        if (immediate_permitted(nt,target)) {
                             h = null;
                             p = null ;
                             while (s != null) {
@@ -2424,7 +2425,6 @@ void combine_the_toks(void)
                             set_token_link(p,t);
                             set_token_link(target,h);
                         } else {
-                            token_ref_count(target)--;
                             append_copied_toks_list(s,t);
                             set_toks_register(nt,temp_token_head,global);
                         }
@@ -2455,7 +2455,7 @@ void combine_the_toks(void)
             t = token_link(target);
             if (append) {
                 /*tex Append. */
-                if (token_ref_count(target) == 0) {
+                if (immediate_permitted(nt,target)) {
                     p = t;
                     while (token_link(p) != null) {
                         p = token_link(p);
@@ -2465,13 +2465,12 @@ void combine_the_toks(void)
                         s = token_link(s);
                     }
                 } else {
-                    token_ref_count(target)--;
                     append_copied_toks_list(t,s);
                     set_toks_register(nt,temp_token_head,global);
                 }
             } else {
                 /*tex Prepend. */
-                if (token_ref_count(target) == 0) {
+                if (immediate_permitted(nt,target)) {
                     h = null;
                     p = null;
                     while (s != null) {
@@ -2484,7 +2483,6 @@ void combine_the_toks(void)
                     set_token_link(p,t);
                     set_token_link(target,h);
                 } else {
-                    token_ref_count(target)--;
                     append_copied_toks_list(s,t);
                     set_toks_register(nt,temp_token_head,global);
                 }
@@ -2876,6 +2874,8 @@ void conv_toks(void)
             warning_index = save_warning_index;
             scanner_status = save_scanner_status;
             ins_list(token_link(def_ref));
+            token_link(def_ref) = null;
+            free_avail(def_ref);
             def_ref = save_def_ref;
             restore_cur_string(u);
             /*tex No further action. */

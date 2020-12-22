@@ -1,6 +1,6 @@
-## version.cmake:
+## component.cmake:
 ##
-## Copyright (C) 2017-2020 Christian Schenk
+## Copyright (C) 2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,10 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_MAJOR_VERSION 4)
-set(MIKTEX_COMP_MINOR_VERSION 3)
-set(MIKTEX_COMP_PATCH_VERSION 0)
+include(version.cmake)
 
-set(MIKTEX_COMP_ORIG_VERSION_STR "20201216")
-
-set(MIKTEX_COMP_COPYRIGHT_STR "© 1998,1999 Mark Wicks, © 2002-2020 Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team")
+set(MIKTEX_COMP_COMPANY_STR "")
+set(MIKTEX_COMP_COPYRIGHT_STR "")
+set(MIKTEX_COMP_DESCRIPTION "pplib - pdf disassembling library for LuaTeX")

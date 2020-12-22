@@ -475,10 +475,12 @@ write_fontfile (pdf_font *font, cff_font *cffont, pdf_obj *pdfcharset)
   pdf_add_stream (fontfile, (void *) stream_data_ptr,  offset);
   pdf_release_obj(fontfile);
 #if !defined(LIBDPX)
-  pdf_add_dict(descriptor,
-               pdf_new_name("CharSet"),
-               pdf_new_string(pdf_stream_dataptr(pdfcharset),
-                              pdf_stream_length(pdfcharset)));
+  if (pdf_check_version(2, 0) < 0) {
+    pdf_add_dict(descriptor,
+                pdf_new_name("CharSet"),
+                pdf_new_string(pdf_stream_dataptr(pdfcharset),
+                               pdf_stream_length(pdfcharset)));
+  }
 #endif /* !LIBDPX */
   RELEASE(stream_data_ptr);
 

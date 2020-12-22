@@ -130,7 +130,7 @@ static void check_type_by_header(image_dict * idict)
 static void check_type_by_extension(image_dict * idict)
 {
     char *image_suffix;
-    if (idict != NULL)
+    if (idict == NULL)
         return;
     if (img_type(idict) != IMG_TYPE_NONE)
         return;

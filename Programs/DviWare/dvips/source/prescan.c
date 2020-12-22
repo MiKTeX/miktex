@@ -39,10 +39,10 @@ readpreamble(void)
 #ifdef MVSXA /* IBM: MVS/XA */
         for(p=preamblecomment;*p;p++) putc(ascii2ebcdic[*p], stderr);
 #else
-        for(p=preamblecomment;*p;p++) putc(*p, stderr);
+        for(p=preamblecomment;*p;p++) putc_str(*p, stderr);
 #endif  /* IBM: VM/CMS */
 #endif
-        fprintf(stderr, "' -> %s\n", oname);
+        fprintf_str(stderr, "' -> %s\n", oname);
       }
    } else
       skipover(dvibyte());

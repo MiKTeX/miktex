@@ -263,7 +263,7 @@ copyfile_general(const char *s, struct header_list *cur_header)
 #if defined(VMCMS) || defined (MVSXA)
          fprintf(stderr, "<%s>", trunc_s);
 #else
-         fprintf(stderr, "<%s>", realnameoffile);
+         fprintf_str(stderr, "<%s>", realnameoffile);
 #endif
          fflush(stderr);
 #if defined(VMCMS) || defined (MVSXA)
@@ -1468,8 +1468,10 @@ initprinter(sectiontype *sect)
       if (tryepsf && isepsf == 0)
          error("We tried, but couldn't make it EPSF.");
       fprintf(bitfile, "%%%%Creator: %s\n", banner + 8);
-      if (*iname)
-         fprintf(bitfile, "%%%%Title: %s\n", iname);
+      if (*titlename)
+         fprintf(bitfile, "%%%%Title: %s\n", titlename);
+      else if (*iname)
+         fprintf(bitfile, "%%%%Title: %s\n", xbasename(iname));
 #ifdef CREATIONDATE
       jobtime = get_unique_time_if_given();
       if (jobtime == INVALID_EPOCH_VALUE) {

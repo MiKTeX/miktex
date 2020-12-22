@@ -8403,10 +8403,11 @@ static int lua_nodelib_properties_get_table(lua_State * L)
 static int lua_nodelib_get_property_t(lua_State * L)
 {   /* <table> <node> */
     halfword n = *((halfword *) lua_touserdata(L, 2));
-    if (n == null) {
-        lua_pushnil(L);
+    if (n != null) {
+        lua_get_metatablelua(node_properties);
+        lua_rawgeti(L, -1, n);
     } else {
-        lua_rawgeti(L,1,n);
+        lua_pushnil(L);
     }
     return 1;
 }
@@ -8416,8 +8417,9 @@ static int lua_nodelib_set_property_t(lua_State * L)
     /* <table> <node> <value> */
     halfword n = *((halfword *) lua_touserdata(L, 2));
     if (n != null) {
-        lua_settop(L,3);
-        lua_rawseti(L,1,n);
+        lua_get_metatablelua(node_properties);
+        lua_insert(L, -2);
+        lua_rawseti(L, -2, n);
     }
     return 0;
 }

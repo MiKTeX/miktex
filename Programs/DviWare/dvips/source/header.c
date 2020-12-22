@@ -101,7 +101,7 @@ checkhmem(const char *s, char *pre, char *post)
       (*close_file) (f);
 #ifdef DEBUG
       if (dd(D_HEADER))
-         fprintf(stderr, "Adding header file \"%s\" %ld\n",
+         fprintf_str(stderr, "Adding header file \"%s\" %ld\n",
                                 s, mem);
 #endif
       fontmem -= mem;
@@ -168,7 +168,7 @@ send_headers(void) {
    while (0 != (q=get_name(&p))) {
 #ifdef DEBUG
       if (dd(D_HEADER))
-         fprintf(stderr, "Sending header file \"%s\"\n", q);
+         fprintf_str(stderr, "Sending header file \"%s\"\n", q);
 #endif
 #ifdef HPS
      if (HPS_FLAG) {

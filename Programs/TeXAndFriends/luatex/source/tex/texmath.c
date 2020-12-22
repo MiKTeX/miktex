@@ -1926,6 +1926,8 @@ void math_fraction(void)
                 while (1) {
                     if (scan_keyword("exact")) {
                         options = options | noad_option_exact ;
+                    } else if (scan_keyword("norule")) {
+                        options = options | noad_option_no_rule ;
                     } else {
                         break;
                     }

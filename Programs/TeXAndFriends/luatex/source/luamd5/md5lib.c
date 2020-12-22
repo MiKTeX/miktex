@@ -194,7 +194,7 @@ int luaopen_md5(lua_State *L) {
 
 /* We could use a different file but this is as easy. */
 
-#include "../luapplib/src/util/utilsha.h"
+#include "utilsha.h"
 
 static int sha2_256(lua_State * L)
 {

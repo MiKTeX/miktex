@@ -1,4 +1,4 @@
-/*   $Id: afm2tfm.c 53427 2020-01-16 22:02:50Z karl $  */
+/*   $Id$  */
 
 /*   Public domain, originally written by Tom Rokicki.
  *   This program converts AFM files to TeX TFM files, and optionally

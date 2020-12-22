@@ -291,6 +291,7 @@ extern integer maxsecsize;
 extern integer firstboploc;
 extern Boolean sepfiles;
 extern int numcopies;
+extern char *titlename;
 extern const char *oname;
 extern char *iname;
 extern char *fulliname;

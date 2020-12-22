@@ -193,11 +193,16 @@ dochar:
          if (curfnt==NULL)
             error("! Bad DVI file: no font selected");
          if (mychar>=curfnt->maxchars) {
-            sprintf(errbuf,"! invalid char %d from font %.500s",
-                    mychar, curfnt->name);
-            error(errbuf);
+            if (!noptex && mychar<0x1000000 && curfnt->loaded == 2 && curfnt->kind == VF_PTEX) {
+               /* fallback */
+            } else {
+               sprintf(errbuf,"! [scanpage] invalid char %d from font %.500s",
+                       mychar, curfnt->name);
+               error(errbuf);
+            }
          }
          if (curfnt->loaded == 2) { /* scanning a virtual font character */
+            struct tft *ffont0;
             frp->curp = curpos;
             frp->curl = curlim;
             frp->ff = ffont;
@@ -205,23 +210,38 @@ dochar:
             if (++frp == &frames[MAXFRAME] )
                error("! virtual recursion stack overflow");
             cd = curfnt->chardesc + mychar;
-            if (cd->packptr == 0) {
-               fprintf(stderr, "Wrong char code: %04X\n", mychar);
-               error("! a non-existent virtual character is being used; check vf/tfm files");
+            if (mychar>=curfnt->maxchars || cd->packptr == NULL) {
+               if (!noptex && mychar<0x1000000 && curfnt->kind == VF_PTEX) { /* fallback */
+#ifdef DEBUG
+   if (dd(D_FONTS))
+      fprintf_str(stderr,
+              "We will fallback pTeX vf:%s to %s\n",
+               curfnt->name, curfnt->localfonts->desc->name);
+#endif /* DEBUG */
+               } else {
+                  fprintf(stderr, "Wrong char code: %04X\n", mychar);
+                  error("! a non-existent virtual character is being used; check vf/tfm files");
+               }
+               ffont0 = curfnt->localfonts;
+               if (ffont0==NULL)
+                  curfnt = NULL;
+               else if (!preselectfont(ffont0->desc))
+                  goto outofmem;
+            } else {
+               curpos = cd->packptr + 2;
+               curlim = curpos + (256*(long)(*cd->packptr)+(*(cd->packptr+1)));
+               ffont = curfnt->localfonts;
+               if (ffont==NULL)
+                  curfnt = NULL;
+               else if (!preselectfont(ffont->desc))
+                  goto outofmem;
             }
-            curpos = cd->packptr + 2;
-            curlim = curpos + (256*(long)(*cd->packptr)+(*(cd->packptr+1)));
-            ffont = curfnt->localfonts;
-            if (ffont==NULL)
-               curfnt = NULL;
-            else if (!preselectfont(ffont->desc))
-               goto outofmem;
          } else {
             pagecost++;
             if (!prescanchar(curfnt->chardesc + mychar))
                goto outofmem;
          }
-         break;        
+         break;
 case 171: case 172: case 173: case 174: case 175: case 176: case 177:
 case 178: case 179: case 180: case 181: case 182: case 183: case 184:
 case 185: case 186: case 187: case 188: case 189: case 190: case 191:

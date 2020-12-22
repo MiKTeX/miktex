@@ -274,10 +274,10 @@ static void pdftex_fail(const char *fmt, ...)
     va_start(args, fmt);
     fputs("\nError: module writet1", stderr);
     if (cur_file_name)
-        fprintf(stderr, " (file %s)", cur_file_name);
+        fprintf_str(stderr, " (file %s)", cur_file_name);
     fputs(": ", stderr);
     vsprintf(print_buf, fmt, args);
-    fputs(print_buf, stderr);
+    fputs_str(print_buf, stderr);
     fputs("\n ==> Fatal error occurred, the output PS file is not finished!\n", stderr);
     va_end(args);
     exit(-1);
@@ -289,10 +289,10 @@ static void pdftex_warn(const char *fmt, ...)
     va_start(args, fmt);
     fputs("\nWarning: module writet1 of dvips", stderr);
     if (cur_file_name)
-        fprintf(stderr, " (file %s)", cur_file_name);
+        fprintf_str(stderr, " (file %s)", cur_file_name);
     fputs(": ", stderr);
     vsprintf(print_buf, fmt, args);
-    fputs(print_buf, stderr);
+    fputs_str(print_buf, stderr);
     fputs("\n", stderr);
     va_end(args);
 }

@@ -614,23 +614,35 @@ static int run_scan_argument(lua_State * L) /* HH */
         get_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
     if (cur_cmd == left_brace_cmd) {
+        int exp = 1;
+        if (lua_type(L, 1) == LUA_TBOOLEAN) {
+            exp = lua_toboolean(L, 1);
+        }
         back_input();
         saved_defref = def_ref;
-        (void) scan_toks(false, true);
+        (void) scan_toks(false, exp);
         t = def_ref;
         def_ref = saved_defref;
         tokenlist_to_luastring(L,t);
         flush_list(t);
     } else if (cur_cmd == call_cmd) {
         halfword saved_cur_tok = cur_tok;
+        int exp = 1;
+        if (lua_type(L, 1) == LUA_TBOOLEAN) {
+            exp = lua_toboolean(L, 1);
+        }
         cur_tok = right_brace_token + '}';
         back_input();
-        cur_tok = saved_cur_tok;
-        back_input();
+        if (exp) {
+            cur_tok = saved_cur_tok;
+            back_input();
+        } else {
+            expand();
+        }
         cur_tok = left_brace_token + '{';
         back_input();
         saved_defref = def_ref;
-        (void) scan_toks(false, true);
+        (void) scan_toks(false, exp);
         t = def_ref;
         def_ref = saved_defref;
         tokenlist_to_luastring(L,t);
@@ -740,6 +752,7 @@ static int run_lookup(lua_State * L)
     return 1;
 }
 
+/*
 static int lua_tokenlib_is_defined(lua_State * L)
 {
     const char *s;
@@ -752,6 +765,26 @@ static int lua_tokenlib_is_defined(lua_State * L)
         }
     }
     lua_pushnil(L);
+    return 1;
+}
+*/
+
+static int lua_tokenlib_is_defined(lua_State * L)
+{
+    int b = 0;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        size_t l;
+        const char *s = lua_tolstring(L, 1, &l);
+        if (l > 0) {
+            int cs = string_lookup(s, l);
+            if (lua_toboolean(L, 2)) {
+                b = cs != undefined_control_sequence;
+            } else {
+                b = eq_type(cs) != undefined_cs_cmd;
+            }
+        }
+    }
+    lua_pushboolean(L, b);
     return 1;
 }
 

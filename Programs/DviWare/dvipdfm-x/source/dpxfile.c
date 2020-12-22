@@ -1269,8 +1269,13 @@ qcheck_filetype (const char *fqpn, dpx_res_type type)
   if (!fqpn)
     return  0;
 
+#if !defined(MIKTEX) && defined(_WIN32)
+  if (fsyscp_stat(fqpn, &sb) != 0 && stat(fqpn, &sb) != 0)
+    return 0;
+#else
   if (stat(fqpn, &sb) != 0)
     return 0;
+#endif /* _WIN32 */
 
   if (sb.st_size == 0)
     return 0;

@@ -1,4 +1,4 @@
-/*   $Id: dvips.h 53427 2020-01-16 22:02:50Z karl $
+/*   $Id$
  *   Copyright 1986-2020 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
@@ -209,8 +209,12 @@ typedef struct tfd {
    struct tfd *nextsize;
    char *scalename;
    chardesctype *chardesc;
-   int iswide;
+   int iswide, kind;
 } fontdesctype;
+
+#define VF_TEX   (1)
+#define VF_OMEGA (2)
+#define VF_PTEX  (3)
 
 /*  A fontmap associates a fontdesc with a font number.
  */
@@ -326,6 +330,19 @@ struct papsiz {
 
 #define USE_PCLOSE (801)
 #define USE_FCLOSE (802)
+
+/* output Unicode string on console in windows */
+#if !defined(MIKTEX) && defined(KPATHSEA) && defined(WIN32)
+#undef  perror
+#define fprintf_str  win32_fprintf
+#define fputs_str    win32_fputs
+#define putc_str     win32_putc
+#define perror       win32_perror
+#else
+#define fprintf_str  fprintf
+#define fputs_str    fputs
+#define putc_str     putc
+#endif
 #if defined(MIKTEX)
 #define USE_MIKTEX_CLOSE_FILE (803)
 #endif

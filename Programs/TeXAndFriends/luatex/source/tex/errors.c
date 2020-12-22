@@ -403,8 +403,9 @@ static void luatex_calledit (int baseptr, int linenumber)
         strcat(fullcmd, "\"");
         strcat(fullcmd, command);
     }
-#endif
+#else
     fullcmd = command;
+#endif
     /*tex Execute the command. */
     if (system (fullcmd) != 0) {
         fprintf (stderr, "! Trouble executing `%s'.\n", command);
@@ -447,6 +448,21 @@ void error(void)
         /*tex Get user's advice and |return|. */
         while (1) {
           CONTINUE:
+            /*tex  
+             Original reports:
+
+             https://tex.stackexchange.com/questions/551313/
+             https://tug.org/pipermail/tex-live/2020-June/045876.html
+
+            This will probably be fixed by DEK in the 2021 tuneup in a different
+            way (so we'll have to remove or alter this change), but the interaction
+            sequence in the reports above causes a segmentation fault in web2c -
+            writing to the closed \write15 stream because we wrongly decrement
+            selector from 16 to 15 in term_input, due to the lack of this check in
+            recursive error() call.
+            */
+            if (interaction !=error_stop_mode) 
+                return;
             clear_for_error_prompt();
             prompt_input("? ");
             if (last == first)
@@ -885,6 +901,8 @@ When \TeX\ wants to typeset a character that doesn't exist, the character node i
 not created; thus the output routine can assume that characters exist when it
 sees them. The following procedure prints a warning message unless the user has
 suppressed it.
+If |tracing_lost_chars_par| (i.e. \.{\\tracinglostchar})  is  greater than 2,
+it's considered as an error.
 
 */
 
@@ -920,6 +938,9 @@ void char_warning(internal_font_number f, int c)
         print_char('!');
         end_diagnostic(false);
         tracing_online_par = old_setting;
+    }
+    if (tracing_lost_chars_par > 2) {
+       error();
     }
 }
 

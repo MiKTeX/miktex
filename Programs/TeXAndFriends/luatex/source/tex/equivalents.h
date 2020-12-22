@@ -308,8 +308,9 @@ the |number_regs| \.{\\dimen} registers.
 #  define copy_lua_input_nodes_code 115
 #  define suppress_primitive_error_code 116
 #  define fixup_boxes_code 117
+#  define glyph_dimensions_code 118
 
-#  define math_option_code (suppress_primitive_error_code+1)
+#  define math_option_code 119
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
 #  define mathoption_int_last_code (mathoption_int_base_code+8)
@@ -809,6 +810,7 @@ extern halfword last_cs_name;
 #define cur_font_par                       equiv(cur_font_loc)
 
 #define fixup_boxes_par                    int_par(fixup_boxes_code)
+#define glyph_dimensions_par               int_par(glyph_dimensions_code)
 
 /* */
 

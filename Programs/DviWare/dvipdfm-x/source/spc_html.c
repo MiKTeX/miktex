@@ -313,10 +313,8 @@ html_open_link (struct spc_env *spe, const char *name, struct spc_html_ *sd)
   ASSERT( sd->link_dict == NULL ); /* Should be checked somewhere else */
 
   sd->link_dict = pdf_new_dict();
-  pdf_add_dict(sd->link_dict,
-	       pdf_new_name("Type"),    pdf_new_name ("Annot"));
-  pdf_add_dict(sd->link_dict,
-	       pdf_new_name("Subtype"), pdf_new_name ("Link"));
+  pdf_add_dict(sd->link_dict, pdf_new_name("Type"), pdf_new_name ("Annot"));
+  pdf_add_dict(sd->link_dict, pdf_new_name("Subtype"), pdf_new_name ("Link"));
 
   color = pdf_new_array ();
   pdf_add_array(color, pdf_new_number(0.0));
@@ -327,28 +325,18 @@ html_open_link (struct spc_env *spe, const char *name, struct spc_html_ *sd)
   url = fqurl(sd->baseurl, name);
   if (url[0] == '#') {
     /* url++; causes memory leak in RELEASE(url) */
-    pdf_add_dict(sd->link_dict,
-		 pdf_new_name("Dest"),
-		 pdf_new_string(url+1, strlen(url+1)));
+    pdf_add_dict(sd->link_dict, pdf_new_name("Dest"), pdf_new_string(url+1, strlen(url+1)));
   } else { /* Assume this is URL */
     pdf_obj  *action = pdf_new_dict();
-    pdf_add_dict(action,
-		 pdf_new_name("Type"),
-		 pdf_new_name("Action"));
-    pdf_add_dict(action,
-		 pdf_new_name("S"),
-		 pdf_new_name("URI"));
-    pdf_add_dict(action,
-		 pdf_new_name("URI"),
-		 pdf_new_string(url, strlen(url)));
-    pdf_add_dict(sd->link_dict,
-		 pdf_new_name("A"),
-		 pdf_link_obj(action));
+    pdf_add_dict(action, pdf_new_name("Type"), pdf_new_name("Action"));
+    pdf_add_dict(action, pdf_new_name("S"), pdf_new_name("URI"));
+    pdf_add_dict(action, pdf_new_name("URI"), pdf_new_string(url, strlen(url)));
+    pdf_add_dict(sd->link_dict, pdf_new_name("A"), pdf_link_obj(action));
     pdf_release_obj(action);
   }
   RELEASE(url);
 
-  spc_begin_annot(spe, sd->link_dict);
+  spc_begin_annot(spe, pdf_link_obj(sd->link_dict));
 
   sd->pending_type = ANCHOR_TYPE_HREF;
 
@@ -375,9 +363,7 @@ html_open_dest (struct spc_env *spe, const char *name, struct spc_html_ *sd)
   pdf_add_array(array, pdf_new_number(cp.y + 24.0));
   pdf_add_array(array, pdf_new_null());
 
-  error = pdf_doc_add_names("Dests",
-			    name, strlen(name),
-			    array);
+  error = pdf_doc_add_names("Dests", name, strlen(name), array);
 
   if (error)
     spc_warn(spe, "Failed to add named destination: %s", name);

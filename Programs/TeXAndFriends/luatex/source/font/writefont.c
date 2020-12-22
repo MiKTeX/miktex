@@ -851,10 +851,24 @@ void do_pdf_font(PDF pdf, internal_font_number f)
         create_cid_fontdictionary(pdf, f);
     } else {
         /*tex By now |font_map(f)|, if any, should have been set via |pdf_init_font|. */
-        if ((fm = font_map(f)) == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
-            writet3(pdf, f);
+        if (font_psname(f) != NULL && strstr(font_psname(f),"none"))
+            writet3user(pdf, f);
+        else if ((fm = font_map(f)) == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
+            writet3pk(pdf, f);
         else
             create_fontdictionary(pdf, f);
+    }
+}
+
+int do_pdf_preroll_font(PDF pdf, internal_font_number f)
+{
+    if (!font_has_subset(f)) {
+        return 0;
+    } else if (font_encodingbytes(f) != 2 && font_psname(f) != NULL && strstr(font_psname(f),"none")) {
+        prerollt3user(pdf, f);
+        return 1;
+    } else {
+        return 0;
     }
 }
 

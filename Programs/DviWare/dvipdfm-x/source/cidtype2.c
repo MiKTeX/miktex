@@ -439,10 +439,10 @@ fix_CJK_symbols (unsigned short code)
 static int32_t
 cid_to_code (CMap *cmap, CID cid, int unicode_cmap)
 {
-  unsigned char  inbuf[2], outbuf[32];
-  int            inbytesleft = 2, outbytesleft = 32;
+  unsigned char        inbuf[2], outbuf[32];
+  int                  inbytesleft = 2, outbytesleft = 32;
   const unsigned char *p;
-  unsigned char *q;
+  unsigned char       *q;
 
   if (!cmap)
     return cid;
@@ -479,6 +479,29 @@ cid_to_code (CMap *cmap, CID cid, int unicode_cmap)
   return -1;
 }
 
+static uint16_t
+cid_to_gid (CMap *cmap, CID cid)
+{
+  unsigned char        inbuf[2], outbuf[2];
+  int                  inbytesleft = 2, outbytesleft = 2;
+  const unsigned char *p;
+  unsigned char       *q;
+
+  if (!cmap)
+    return cid;
+
+  inbuf[0] = (cid >> 8) & 0xff;
+  inbuf[1] = cid & 0xff;
+  p = inbuf; q = outbuf;
+
+  CMap_decode_char(cmap, &p, &inbytesleft, &q, &outbytesleft);
+
+  if (inbytesleft != 0 || outbytesleft != 0)
+    return 0;
+
+  return (uint16_t) (outbuf[0] << 8|outbuf[1]);
+}
+
 /* #define NO_GHOSTSCRIPT_BUG 1 */
 
 int
@@ -494,7 +517,12 @@ CIDFont_type2_dofont (pdf_font *font)
   CID               cid, last_cid;
   unsigned char    *cidtogidmap;
   USHORT            num_glyphs;
-  int               i, glyph_ordering = 0, unicode_cmap = 0;
+  enum {
+    glyph_ordering,
+    via_cid_to_code,
+    via_cid_to_gid,
+  } maptype = via_cid_to_code;
+  int               i, unicode_cmap = 0;
   FILE             *fp = NULL;
 
   if (!font->reference)
@@ -592,51 +620,65 @@ CIDFont_type2_dofont (pdf_font *font)
    */
   if (!strcmp(font->cid.csi.registry, "Adobe") &&
       !strcmp(font->cid.csi.ordering, "Identity")) {
-    glyph_ordering = 1;
-  } else {
-    glyph_ordering = 0;
-  }
+    maptype = glyph_ordering;
+    ttcmap  = NULL;
+    cmap    = NULL;
+  } else { 
+    if (font->cid.csi.registry && font->cid.csi.ordering) {
+      char   *cmap_name;
+      size_t  len;
+      int     cmap_id;
 
-  /*
-   * Select TrueType cmap table, find ToCode CMap for each TrueType encodings.
-   */
-  if (glyph_ordering) {
-    ttcmap = NULL;
-    cmap   = NULL;
-  } else {
-    /*
-     * This part contains a bug. It may choose SJIS encoding TrueType cmap
-     * table for Adobe-GB1.
-     */
-    for (i = 0; i <= KNOWN_ENCODINGS_MAX; i++) {
-      ttcmap = tt_cmap_read(sfont,
-                            known_encodings[i].platform,
-                            known_encodings[i].encoding);
-      if (ttcmap)
-        break;
+      len  = strlen(font->cid.csi.registry) + strlen(font->cid.csi.ordering);
+      len += strlen(font->fontname);
+      len += 3;
+      cmap_name = NEW(len+1, char);
+      snprintf(cmap_name, len + 1, "%s-%s-%s",
+               font->cid.csi.registry, font->cid.csi.ordering, font->fontname);
+      cmap_id = CMap_cache_find(cmap_name);
+      RELEASE(cmap_name);
+      if (cmap_id >= 0) {
+        cmap    = CMap_cache_get(cmap_id);
+        ttcmap  = NULL;
+        maptype = via_cid_to_gid;
+      }
     }
-    if (!ttcmap) {
-      WARN("No usable TrueType cmap table found for font \"%s\".", font->filename);
-      WARN("CID character collection for this font is set to \"%s-%s\"",
-           font->cid.csi.registry, font->cid.csi.ordering);
-      WARN("Cannot continue without this...");
-      sfnt_close(sfont);
-      DPXFCLOSE(fp);
-      return -1;
-    } else if (i <= WIN_UCS_INDEX_MAX) {
-      unicode_cmap = 1;
-    } else {
-      unicode_cmap = 0;
-    }
-
-    if (!strcmp(font->cid.csi.ordering, "UCS") && i <= WIN_UCS_INDEX_MAX) {
-      cmap = NULL;
-    } else {
-      cmap = find_tocode_cmap(font->cid.csi.registry, font->cid.csi.ordering, i);
-      if (!cmap) {
+    if (maptype != via_cid_to_gid) {
+      maptype = via_cid_to_code;
+      /*
+      * This part contains a bug. It may choose SJIS encoding TrueType cmap
+      * table for Adobe-GB1.
+      */
+      for (i = 0; i <= KNOWN_ENCODINGS_MAX; i++) {
+        ttcmap = tt_cmap_read(sfont,
+                              known_encodings[i].platform,
+                              known_encodings[i].encoding);
+        if (ttcmap)
+          break;
+      }
+      if (!ttcmap) {
+        WARN("No usable TrueType cmap table found for font \"%s\".", font->filename);
+        WARN("CID character collection for this font is set to \"%s-%s\"",
+             font->cid.csi.registry, font->cid.csi.ordering);
+        WARN("Cannot continue without this...");
         sfnt_close(sfont);
         DPXFCLOSE(fp);
-        return -1; 
+        return -1;
+      } else if (i <= WIN_UCS_INDEX_MAX) {
+        unicode_cmap = 1;
+      } else {
+        unicode_cmap = 0;
+      }
+
+      if (!strcmp(font->cid.csi.ordering, "UCS") && i <= WIN_UCS_INDEX_MAX) {
+        cmap = NULL;
+      } else {
+        cmap = find_tocode_cmap(font->cid.csi.registry, font->cid.csi.ordering, i);
+        if (!cmap) {
+          sfnt_close(sfont);
+          DPXFCLOSE(fp);
+          return -1; 
+        }
       }
     }
   }
@@ -708,10 +750,16 @@ CIDFont_type2_dofont (pdf_font *font)
       if (!is_used_char2(h_used_chars, cid))
         continue;
 
-      if (glyph_ordering) {
+      switch (maptype) {
+      case glyph_ordering:
         gid  = cid;
         code = cid;
-      } else {
+        break;
+      case via_cid_to_gid: 
+        gid  = cid_to_gid(cmap, cid);
+        code = cid;
+        break;
+      case via_cid_to_code:
         code = cid_to_code(cmap, cid, unicode_cmap);
         if (code < 0) {
           WARN("Unable to map CID to code: CID=%u", cid);
@@ -731,6 +779,7 @@ CIDFont_type2_dofont (pdf_font *font)
           }
 #endif /* FIX_CJK_UNIOCDE_SYMBOLS */
         }
+        break;
       }
       if (gid == 0) {
         if (code >= 0)
@@ -759,7 +808,7 @@ CIDFont_type2_dofont (pdf_font *font)
     /*
      * Require `vrt2' or `vert'.
      */
-    if (glyph_ordering) {
+    if (maptype != via_cid_to_code) {
       gsub_list = NULL;
     } else {
       gsub_list = otl_gsub_new();
@@ -791,10 +840,16 @@ CIDFont_type2_dofont (pdf_font *font)
         continue;
       }
 
-      if (glyph_ordering) {
+      switch (maptype) {
+      case glyph_ordering:
         gid  = cid;
         code = cid;
-      } else {
+        break;
+      case via_cid_to_gid:
+        gid  = cid_to_gid(cmap, cid);
+        code = cid;
+        break;
+      case via_cid_to_code:
         code = cid_to_code(cmap, cid, unicode_cmap);
         if (code < 0) {
           WARN("Unable to map CID to code: CID=%u", cid);
@@ -814,6 +869,7 @@ CIDFont_type2_dofont (pdf_font *font)
           }
 #endif /* FIX_CJK_UNIOCDE_SYMBOLS */
         }
+        break;
       }
       if (gid == 0) {
         if (code >= 0)
@@ -884,7 +940,7 @@ CIDFont_type2_dofont (pdf_font *font)
    * NOTE: All glyphs including component glyph and dummy glyph must be
    * listed in CIDSet. However, .notdef glyph should be ommitted.
    */
-  {
+  if (pdf_check_version(2, 0) < 0) {
     pdf_obj *cidset;
     char    *cidset_data;
 
@@ -1099,13 +1155,18 @@ CIDFont_type2_open (pdf_font *font, const char *name, int index, cid_opt *opt)
   }
 
   if (opt->embed) {
-    memmove(fontname + 7, fontname, strlen(fontname) + 1);
-    pdf_font_make_uniqueTag(fontname);
-    fontname[6] = '+';
+    char *tmp;
+    
+    pdf_font_make_uniqueTag(font->uniqueID);
+    tmp = NEW(strlen(fontname)+8, char);
+    sprintf(tmp, "%s+%s", font->uniqueID, font->fontname);
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(tmp));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(tmp));
+    RELEASE(tmp);
+  } else {
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(font->fontname));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(font->fontname));
   }
-
-  pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(fontname));
-  pdf_add_dict(font->resource,  pdf_new_name("BaseFont"), pdf_new_name(fontname));
 
   sfnt_close(sfont);
   if (fp)

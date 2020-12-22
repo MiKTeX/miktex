@@ -537,7 +537,7 @@ downpsfont(charusetype *p, charusetype *all)
               fprintf(stderr, "\n");
               prettycolumn = 0;
            }
-           fprintf(stderr, "<%s>", realnameoffile);
+           fprintf_str(stderr, "<%s>", realnameoffile);
            prettycolumn += strlen(realnameoffile) + 2;
         }
         if (! disablecomments)

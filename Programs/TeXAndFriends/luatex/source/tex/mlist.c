@@ -1246,7 +1246,7 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
 
 /*tex Size code corresponding to |cur_style|:  */
 
-int cur_size;
+int cur_size = 0;
 
 static pointer get_delim_box(internal_font_number fnt, halfword chr, scaled v, scaled min_overlap, int horizontal, halfword att)
 {
@@ -1538,6 +1538,18 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
     boolean do_parts = false;
     boolean parts_done = false;
     extinfo *ext;
+
+    if (d && ! small_fam(d) && ! large_fam(d) && ! small_char(d) && ! large_char(d)) {
+        halfword b = new_null_box();
+        subtype(b) = math_v_delimiter_list;
+        if (! flat)
+            width(b) = null_delimiter_space_par;
+        node_attr(b) = node_attr(d);
+        node_attr(d) = null;
+        flush_node(d);
+        return b;
+    }
+
     f = null_font;
     c = 0;
     if (d == null) {
@@ -2976,10 +2988,7 @@ static void make_fraction(pointer q, int cur_style)
         /*tex This also equals |width(z)|. */
         width(v) = width(x);
         reset_attributes(v, node_attr(q));
-        if (thickness(q) == 0) {
-            p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
-            couple_nodes(p,z);
-        } else {
+        if (thickness(q) && ! fractionnorule(q)) {
             y = do_fraction_rule(thickness(q), node_attr(q), math_fraction_rule, cur_size, used_fam);
             p = new_kern((math_axis_size(cur_size) - delta) - (height(z) - shift_down));
             reset_attributes(p, node_attr(q));
@@ -2987,6 +2996,9 @@ static void make_fraction(pointer q, int cur_style)
             couple_nodes(p,z);
             p = new_kern((shift_up - depth(x)) - (math_axis_size(cur_size) + delta));
             couple_nodes(p,y);
+        } else {
+            p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
+            couple_nodes(p,z);
         }
         reset_attributes(p, node_attr(q));
         couple_nodes(x,p);
@@ -3294,12 +3306,10 @@ static scaled make_op(pointer q, int cur_style)
             shift_down = limit_below_bgap(cur_style) - height(z);
             if (shift_down < limit_below_vgap(cur_style))
                 shift_down = limit_below_vgap(cur_style);
-            if (shift_down > 0) {
-                p = new_kern(shift_down);
-                reset_attributes(p, node_attr(q));
-                couple_nodes(y,p);
-                couple_nodes(p,z);
-            }
+            p = new_kern(shift_down);
+            reset_attributes(p, node_attr(q));
+            couple_nodes(y,p);
+            couple_nodes(p,z);
             p = new_kern(limit_below_kern(cur_style));
             reset_attributes(p, node_attr(q));
             couple_nodes(z,p);

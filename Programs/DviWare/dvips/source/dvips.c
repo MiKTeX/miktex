@@ -125,6 +125,7 @@ integer maxsecsize = 0;       /* the maximum size of a section */
 integer firstboploc;         /* where the first bop is */
 Boolean sepfiles;            /* each section in its own file? */
 int numcopies;               /* number of copies of each page to print */
+char *titlename="";          /* if given, used for %%Title */
 const char *oname;           /* output file name */
 char *iname;                 /* dvi file name */
 char *fulliname;             /* same, with current working directory */
@@ -324,6 +325,7 @@ static const char *helparr[] = {
 "-r*  Reverse order of pages          -R*  Run securely",
 "-s*  Enclose output in save/restore  -S # Max section size in pages",
 "-t s Paper format                    -T c Specify desired page size",
+"-title s Title in comment",
 "-u s PS mapfile                      -U*  Disable string param trick",
 "-v   Print version number and quit   -V*  Send downloadable PS fonts as PK",
 "-x # Override dvi magnification      -X # Horizontal resolution",
@@ -374,7 +376,7 @@ error_with_perror(const char *s, const char *fname)
    if (prettycolumn > 0)
         fprintf(stderr,"\n");
    prettycolumn = 0;
-   fprintf(stderr, "%s: %s", progname, s);
+   fprintf_str(stderr, "%s: %s", progname, s);
    if (fname) {
      putc (' ', stderr);
      perror (fname);
@@ -1044,21 +1046,24 @@ case 'r' :
                reverse = (*p != '0');
                break;
 case 't' :
-               if (*p == 0 && argv[i+1])
-                  p = argv[++i];
-               if (strcmp(p, "landscape") == 0) {
-                  if (hpapersize || vpapersize)
-                     error(
-             "both landscape and papersize specified; ignoring landscape");
-                  else
-                     landscape = 1;
-               } else
-                  paperfmt = p;
+               if (STREQ (p, "itle") && argv[i+1]) {
+                  titlename = argv[++i];
+               } else {
+                  if (*p == 0 && argv[i+1])
+                     p = argv[++i];
+                  if (strcmp(p, "landscape") == 0) {
+                     if (hpapersize || vpapersize)
+                        error("both landscape and papersize specified; ignoring landscape");
+                     else
+                        landscape = 1;
+                  } else
+                     paperfmt = p;
+               }
                break;
 case 'v':
-                printf ("%s %s\n", banner, banner2);
-                exit (0);
-                break;
+               printf ("%s %s\n", banner, banner2);
+               exit (0);
+               break;
 case 'x' : case 'y' :
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
@@ -1399,19 +1404,19 @@ default:
 #ifdef DEBUG
    if (dd(D_PATHS)) {
 #ifdef SHORTINT
-        fprintf(stderr,"input file %s output file %s swmem %ld\n",
+        fprintf_str(stderr,"input file %s output file %s swmem %ld\n",
 #else /* ~SHORTINT */
-           fprintf(stderr,"input file %s output file %s swmem %d\n",
+           fprintf_str(stderr,"input file %s output file %s swmem %d\n",
 #endif /* ~SHORTINT */
            iname, oname, swmem);
 #ifndef KPATHSEA
-   fprintf(stderr,"tfm path %s\npk path %s\n", tfmpath, pkpath);
-   fprintf(stderr,"fig path %s\nvf path %s\n", figpath, vfpath);
-   fprintf(stderr,"config path %s\nheader path %s\n",
+   fprintf_str(stderr,"tfm path %s\npk path %s\n", tfmpath, pkpath);
+   fprintf_str(stderr,"fig path %s\nvf path %s\n", figpath, vfpath);
+   fprintf_str(stderr,"config path %s\nheader path %s\n",
                   configpath, headerpath);
 #endif
 #ifdef FONTLIB
-   fprintf(stderr,"fli path %s\nfli names %s\n", flipath, fliname);
+   fprintf_str(stderr,"fli path %s\nfli names %s\n", flipath, fliname);
 #endif
    } /* dd(D_PATHS) */
 #endif /* DEBUG */
@@ -1560,7 +1565,7 @@ default:
                   fprintf(stderr, "\n");
                   prettycolumn = 0;
                }
-               fprintf(stderr, "(-> %s) ", oname);
+               fprintf_str(stderr, "(-> %s) ", oname);
                prettycolumn += strlen(oname) + 6;
             }
 #ifdef HPS

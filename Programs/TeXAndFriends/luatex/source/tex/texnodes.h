@@ -597,6 +597,7 @@ typedef enum {
     noad_option_no_sub_script   = 0x21 + 0x08,
     noad_option_no_super_script = 0x22 + 0x08,
     noad_option_no_script       = 0x23 + 0x08,
+    noad_option_no_rule         = 0x24 + 0x08,
 } delimiter_options ;
 
 #  define delimiteroptionset(a) ((delimiteroptions(a) & noad_option_set    ) == noad_option_set    )
@@ -657,6 +658,7 @@ typedef enum {
 #  define fractionoptionset(a) ((fractionoptions(a) & noad_option_set    ) == noad_option_set    )
 #  define fractionexact(a)     ((fractionoptions(a) & noad_option_exact  ) == noad_option_exact  )
 #  define fractionnoaxis(a)    ((fractionoptions(a) & noad_option_no_axis) == noad_option_no_axis)
+#  define fractionnorule(a)    ((fractionoptions(a) & noad_option_no_rule) == noad_option_no_rule)
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */

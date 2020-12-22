@@ -32,6 +32,18 @@ extern FILE *generic_fsyscp_fopen(const char *name, const char *mode);
 #define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
 #define popen(pcmd, pmode)  fsyscp_popen(pcmd, pmode)
 #define pclose(pstream) _pclose(pstream)
+
+#undef FATAL_PERROR
+#if defined (KPSE_COMPAT_API)
+#define FATAL_PERROR(str) do { \
+  win32_fprintf (stderr, "%s: ", kpse_def->invocation_name); \
+  win32_perror (str); exit (EXIT_FAILURE); } while (0)
+#else
+/* If there is no global variable available, just output the error */
+#define FATAL_PERROR(str) do { \
+  win32_perror (str); exit (EXIT_FAILURE); } while (0)
+#endif
+
 #endif
 #endif
 
@@ -207,7 +219,7 @@ search(kpse_file_format_type format, const char *file, const char *mode)
       cmd = concat3 (prog, " -c ", quoted_name);
       ret = popen (cmd, "r");
       if (dd(D_FILES)) {
-        fprintf(stderr, "popen(%s) %s\n", cmd,
+        fprintf_str(stderr, "popen(%s) %s\n", cmd,
                          ret == NULL ? "failed" : "succeeded");
       }
       SET_BINARY(fileno(ret));
@@ -281,7 +293,7 @@ my_real_fopen(register const char *n, register const char *t)
 {
    FILE *tf;
    if (dd(D_FILES)) {
-      fprintf(stderr, "<%s(%s)> ", n, t);
+      fprintf_str(stderr, "<%s(%s)> ", n, t);
       tf = fopen(n, t);
       if (tf == 0)
          fprintf(stderr, "failed\n");
@@ -355,7 +367,7 @@ fat_fopen(char *fname, char *t)
       strcpy(np,nbuf);
       /* now code copied from my_real_fopen() */
       if (dd(D_FILES)) {
-         fprintf(stderr, "<%s(%s)> ", n, t);
+         fprintf_str(stderr, "<%s(%s)> ", n, t);
          tf = fopen(n, t);
          if (tf == 0)
             fprintf(stderr, "failed\n");

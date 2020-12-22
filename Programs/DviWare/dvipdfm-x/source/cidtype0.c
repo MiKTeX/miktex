@@ -754,7 +754,7 @@ CIDFont_type0_dofont (pdf_font *font)
   if (dpx_conf.verbose_level > 1)
     MESG("[%u/%u glyphs][%ld bytes]", num_glyphs, cs_count, destlen);
 
-  if (pdf_check_version(2, 0) >= 0) {
+  if (pdf_check_version(2, 0) < 0) {
     CIDFont_type0_add_CIDSet(font, used_chars, last_cid);
   }
 
@@ -823,17 +823,18 @@ CIDFont_type0_open_from_t1 (pdf_font *font, const char *name, int index, cid_opt
                pdf_new_name("Subtype"),
                pdf_new_name("CIDFontType0"));
 
-  memmove(fontname + 7, fontname, strlen(fontname) + 1);
-  pdf_font_make_uniqueTag(fontname); 
-  fontname[6] = '+';
+  pdf_font_make_uniqueTag(font->uniqueID); 
 
   font->descriptor = pdf_new_dict();
-  pdf_add_dict(font->descriptor,
-               pdf_new_name("FontName"),
-               pdf_new_name(fontname));
-  pdf_add_dict(font->resource, 
-               pdf_new_name("BaseFont"),
-               pdf_new_name(fontname));
+  {
+    char *tmp;
+    
+    tmp = NEW(strlen(font->fontname)+8, char);
+    sprintf(tmp, "%s+%s", font->uniqueID, font->fontname);
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(tmp));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(tmp));
+    RELEASE(tmp);
+  }
   {
     pdf_obj *csi_dict = pdf_new_dict();
     pdf_add_dict(csi_dict,
@@ -971,17 +972,18 @@ CIDFont_type0_open (pdf_font *font, const char *name, int index, cid_opt *opt)
                pdf_new_name("CIDFontType0"));
 
   if (opt->embed) {
-    memmove(fontname + 7, fontname, strlen(fontname) + 1);
-    pdf_font_make_uniqueTag(fontname); 
-    fontname[6] = '+';
-  }
+    char *tmp;
 
-  pdf_add_dict(font->descriptor,
-               pdf_new_name("FontName"),
-               pdf_new_name(fontname));
-  pdf_add_dict(font->resource, 
-               pdf_new_name("BaseFont"),
-               pdf_new_name(fontname));
+    tmp = NEW(strlen(font->fontname)+8, char);
+    pdf_font_make_uniqueTag(font->uniqueID);
+    sprintf(tmp, "%s+%s", font->uniqueID, font->fontname);
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(tmp));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(tmp));
+    RELEASE(tmp);
+  } else {
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(font->fontname));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(font->fontname));
+  }
   {
     pdf_obj *csi_dict = pdf_new_dict();
     pdf_add_dict(csi_dict,
@@ -1118,17 +1120,18 @@ CIDFont_type0_open_from_t1c (pdf_font *font, const char *name, int index, cid_op
                pdf_new_name("CIDFontType0"));
 
   if (opt->embed) {
-    memmove(fontname + 7, fontname, strlen(fontname) + 1);
-    pdf_font_make_uniqueTag(fontname); 
-    fontname[6] = '+';
-  }
+    char *tmp;
 
-  pdf_add_dict(font->descriptor,
-               pdf_new_name("FontName"),
-               pdf_new_name(fontname));
-  pdf_add_dict(font->resource, 
-               pdf_new_name("BaseFont"),
-               pdf_new_name(fontname));
+    tmp = NEW(strlen(font->fontname)+8, char);
+    pdf_font_make_uniqueTag(font->uniqueID);
+    sprintf(tmp, "%s+%s", font->uniqueID, font->fontname);
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(tmp));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(tmp));
+    RELEASE(tmp);
+  } else {
+    pdf_add_dict(font->descriptor, pdf_new_name("FontName"), pdf_new_name(font->fontname));
+    pdf_add_dict(font->resource,   pdf_new_name("BaseFont"), pdf_new_name(font->fontname));
+  }
   {
     pdf_obj *csi_dict = pdf_new_dict();
     pdf_add_dict(csi_dict,
@@ -1438,7 +1441,7 @@ CIDFont_type0_t1cdofont (pdf_font *font)
   if (dpx_conf.verbose_level > 1)
     MESG("[%u glyphs][%ld bytes]", num_glyphs, destlen);
 
-  if (pdf_check_version(2, 0) >= 0) {
+  if (pdf_check_version(2, 0) < 0) {
     CIDFont_type0_add_CIDSet(font, used_chars, last_cid);
   }
 
@@ -2107,7 +2110,7 @@ CIDFont_type0_t1dofont (pdf_font *font)
 
   cff_close(cffont);
 
-  if (pdf_check_version(2, 0) >= 0) {
+  if (pdf_check_version(2, 0) < 0) {
     CIDFont_type0_add_CIDSet(font, used_chars, last_cid);
   }
 

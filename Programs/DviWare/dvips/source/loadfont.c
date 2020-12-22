@@ -349,12 +349,12 @@ loadfont(register fontdesctype *curfnt)
          fprintf(stderr, "\n");
          prettycolumn = 0;
       }
-      fprintf(stderr, "<%s>", realnameoffile);
+      fprintf_str(stderr, "<%s>", realnameoffile);
       prettycolumn += strlen(realnameoffile) + 2;
    }
 #ifdef DEBUG
    if (dd(D_FONTS))
-      fprintf(stderr,"Loading pk font %s at %.1fpt\n",
+      fprintf_str(stderr,"Loading pk font %s at %.1fpt\n",
          curfnt->name, (real)scaledsize/(alpha*0x100000));
 #endif /* DEBUG */
    if (pkbyte()!=247)

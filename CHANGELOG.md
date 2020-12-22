@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## 21.1 - pending release
+
+### Upgraded programs
+
+* dvipdfmx 20201216
+* luatex 1.13.0
+
 ## 20.12 - 2020-12-14
 
 ### Breaking changes

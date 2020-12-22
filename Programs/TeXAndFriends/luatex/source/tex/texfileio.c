@@ -337,7 +337,7 @@ boolean lua_a_open_in(alpha_file * f, char *fn, int n)
         }
     } else {
         /*tex no read callback */
-        if (openinnameok(fnam)) {
+        if (openinnameok(fn)) {
             ret = open_in_or_pipe(f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, (n == 0 ? true : false));
         } else {
             /*tex open failed */
@@ -841,7 +841,7 @@ char *open_fmt_file(void)
 #else
         if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
 #endif
-          goto FOUND;
+            goto FOUND;
         wake_up_terminal();
         fprintf(stdout, "Sorry, I can't find the format `%s'; will try `%s'.\n",
                 fmt, TEX_format_default);

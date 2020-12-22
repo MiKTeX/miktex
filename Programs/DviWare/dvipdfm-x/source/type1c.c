@@ -463,7 +463,7 @@ pdf_font_load_type1c (pdf_font *font)
     widths[code] = notdef_width;
 
     if (!usedchars[code] || !enc_vec[code] ||
-	!strcmp(enc_vec[code], ".notdef"))
+        !strcmp(enc_vec[code], ".notdef"))
       continue;
 
     /*
@@ -485,12 +485,12 @@ pdf_font_load_type1c (pdf_font *font)
      */
     for (j = 0; j < charset->num_entries; j++) {
       if (sid == charset->data.glyphs[j]) {
-	/* Already have this glyph. */
-	encoding->supp[encoding->num_supps].code  = code;
-	encoding->supp[encoding->num_supps].glyph = sid;
-	usedchars[code] = 0; /* Used but multiply-encoded. */
-	encoding->num_supps += 1;
-	break;
+        /* Already have this glyph. */
+        encoding->supp[encoding->num_supps].code  = code;
+        encoding->supp[encoding->num_supps].glyph = sid;
+        usedchars[code] = 0; /* Used but multiply-encoded. */
+        encoding->num_supps += 1;
+        break;
       }
     }
     if (j < charset->num_entries) {
@@ -729,10 +729,12 @@ pdf_font_load_type1c (pdf_font *font)
   /*
    * CharSet
    */
-  pdf_add_dict(descriptor,
-               pdf_new_name("CharSet"),
-               pdf_new_string(pdf_stream_dataptr(pdfcharset),
-                              pdf_stream_length(pdfcharset)));
+  if (pdf_check_version(2, 0) < 0) {
+    pdf_add_dict(descriptor,
+                 pdf_new_name("CharSet"),
+                 pdf_new_string(pdf_stream_dataptr(pdfcharset),
+                                pdf_stream_length(pdfcharset)));
+  }
   pdf_release_obj(pdfcharset);
   /*
    * Write PDF FontFile data.

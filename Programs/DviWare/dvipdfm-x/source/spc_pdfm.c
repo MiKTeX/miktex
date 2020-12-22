@@ -193,6 +193,20 @@ safeputresdict (pdf_obj *kp, pdf_obj *vp, void *dp)
   key  = pdf_name_value(kp);
   dict = pdf_lookup_dict(dp, key);
 
+  /* Not sure what is the best way to handle this situation */
+  if (PDF_OBJ_INDIRECTTYPE(dict)) {
+    if (PDF_OBJ_INDIRECTTYPE(vp)) {
+      /* If two indirect objects are pointing the same object, do nothing. */
+      if (!pdf_compare_reference(dict, vp)) {
+        return 0;
+      } else {
+        /* otherwise merge the content of old one (see below) */
+        dict = pdf_deref_obj(dict);
+        pdf_release_obj(dict); /* decrement link count */
+      }
+    }
+  }
+
   if (pdf_obj_typeof(vp) == PDF_INDIRECT) {
     /* Copy the content of old resource category dict (if exists) */
     if (dict) {
