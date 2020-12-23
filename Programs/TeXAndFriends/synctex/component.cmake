@@ -19,4 +19,4 @@
 
 include(version.cmake)
 
-set(MIKTEX_COMP_DESCRIPTION "SyncTEX output file parser")
+set(MIKTEX_COMP_DESCRIPTION "SyncTeX output file parser")

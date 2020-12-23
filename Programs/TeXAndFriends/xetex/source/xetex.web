@@ -172,6 +172,9 @@
 %       "reflectedabout((.5[l,r],0),(.5[l,r],1));";
 %     input cmbx10
 %+++++++++++++++++++++++++++++++++++++++++++++++++
+\TeXXeTstate=1
+\def\XeT{X\kern-.125em\lower.424ex\hbox{E}\kern-.1667emT}
+\def\TeXXeT{\TeX-{}-\XeT} % for TeX--XeT
 \def\TeXeT{\TeX-{\revrm\beginR\TeX\endR}} % for TeX-XeT
 \def\PASCAL{Pascal}
 \def\ph{\hbox{Pascal-H}}
@@ -8638,7 +8641,7 @@ else  begin start_cs: k:=loc; cur_chr:=buffer[k]; cat:=cat_code(cur_chr);
     |goto found|@>
   else @<If an expanded code is present, reduce it and |goto start_cs|@>;
   {At this point, we have a single-character cs name in the buffer.
-   But if the character code is > @"FFFF, we treat it like a multiletter name
+   But if the character code is ${}>|@"FFFF|$, we treat it like a multiletter name
    for string purposes, because we use UTF-16 in the string pool.}
   if buffer[loc]>@"FFFF then begin
     cur_cs:=id_lookup(loc,1); incr(loc); goto found;
@@ -9054,7 +9057,6 @@ else begin
   end;
 goto restart;
 end
-@z
 
 @ @<Complain about an undefined macro@>=
 begin print_err("Undefined control sequence");
@@ -11092,6 +11094,7 @@ expanded_code:
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
     ins_list(link(def_ref));
+    free_avail(def_ref);
     def_ref := save_def_ref;
     restore_cur_string;
     return;
@@ -14745,7 +14748,7 @@ end_node_run: {now |r| points to first |native_word_node| of the run, and |p| to
         link(p):=null;
         { Extract any "invisible" nodes from the old list and insert them after the new node,
           so we don't lose them altogether. Note that the first node cannot be one of these,
-          as we always start merging at a native_word node. }
+          as we always start merging at a |native_word| node. }
         prev_p := r;
         p := link(r);
         while p <> null do begin
@@ -15268,7 +15271,7 @@ while font_ptr>font_base do
   decr(font_ptr);
   end
 
-@* \[32b] \pdfTeX\ output low-level subroutines (equivalents)
+@* \[32b] \pdfTeX\ output low-level subroutines (equivalents).
 
 @<Glob...@>=
 @!epochseconds: integer;
@@ -18314,8 +18317,16 @@ var p,@!x,@!y,@!z:pointer; {temporary registers for box construction}
 @!script_c:pointer; {temprary native character for sub/superscript}
 @!script_g:quarterword; {temporary register for sub/superscript native glyph id}
 @!script_f:internal_font_number; {temporary register for sub/superscript font}
+@!sup_g:quarterword; {superscript native glyph id}
+@!sup_f:internal_font_number; {superscript font}
+@!sub_g:quarterword; {subscript native glyph id}
+@!sub_f:internal_font_number; {subscript font}
 @!t:integer; {subsidiary size code}
 @!save_f:internal_font_number;
+@!script_head:pointer; {scratch var for OpenType s*scripts}
+@!script_ptr:pointer; {scratch var for OpenType s*scripts}
+@!saved_math_style:small_number; {scratch var for OpenType s*scripts}
+@!this_math_style:small_number; {scratch var for OpenType s*scripts}
 begin p:=new_hlist(q);
 script_c:=null; script_g:=0; script_f:=0; sup_kern:=0; sub_kern:=0;
 if is_char_node(p) or is_glyph_node(p) then
@@ -18346,6 +18357,10 @@ should not exceed the baseline plus four-fifths of the x-height.
 
 @<Construct a subscript box |x| when there is no superscript@>=
 begin
+script_head:=subscr(q);
+@<Fetch first character of a sub/superscript@>;
+sub_g:=script_g;
+sub_f:=script_f;
 save_f:=cur_f;
 x:=clean_box(subscr(q),sub_style(cur_style));
 cur_f:=save_f;
@@ -18365,6 +18380,10 @@ one-fourth of the x-height.
 
 @<Construct a superscript box |x|@>=
 begin
+script_head:=supscr(q);
+@<Fetch first character of a sub/superscript@>;
+sup_g:=script_g;
+sup_f:=script_f;
 save_f:=cur_f;
 x:=clean_box(supscr(q),sup_style(cur_style));
 cur_f:=save_f;
@@ -18390,6 +18409,10 @@ is at least as high as the baseline plus four-fifths of the x-height.
 @<Construct a sub/superscript combination box |x|...@>=
 begin
 save_f:=cur_f;
+script_head:=subscr(q);
+@<Fetch first character of a sub/superscript@>;
+sub_g:=script_g;
+sub_f:=script_f;
 y:=clean_box(subscr(q),sub_style(cur_style));
 cur_f:=save_f;
 width(y):=width(y)+script_space;
@@ -18412,6 +18435,9 @@ if clr>0 then
 if is_new_mathfont(cur_f) then begin
   @<Attach subscript OpenType math kerning@>@/
   @<Attach superscript OpenType math kerning@>
+  end
+else
+  begin sup_kern:=0; sub_kern:=0;
   end;
 shift_amount(x):=sup_kern+delta-sub_kern; {superscript is |delta| to the right of the subscript}
 p:=new_kern((shift_up-depth(x))-(height(y)-shift_down)); link(x):=p; link(p):=y;
@@ -18426,44 +18452,100 @@ The following definitions should be kept in sync with \.{XeTeXOTMath.cpp}.
 @d sup_cmd=0 {superscript kern type for |get_ot_math_kern|}
 @d sub_cmd=1 {subscript kern type for |get_ot_math_kern|}
 
-@<Attach subscript OpenType math kerning@>=
-begin if math_type(subscr(q))=math_char then
-  begin save_f:=cur_f;
-  fetch(subscr(q));
-  if is_new_mathfont(cur_f) then
-    begin script_c:=new_native_character(cur_f, qo(cur_c));
-    script_g:=get_native_glyph(script_c, 0);
-    script_f:=cur_f;
-  end else
-    begin script_g:=0; script_f:=0
-    end;
-  cur_f:=save_f;
-  end;
-if is_glyph_node(p) then
-  sub_kern:=get_ot_math_kern(native_font(p), native_glyph(p), script_f, script_g, sub_cmd, shift_down);
+@d is_valid_pointer(#) == ((# >= mem_min) and (# <= mem_end))
 
-if sub_kern<>0 then p:=attach_hkern_to_new_hlist(q, sub_kern);
+@ @<Fetch first character of a sub/superscript@> =
+script_c:=null;
+script_g:=qi(0);
+script_f:=null_font;
+this_math_style:=sub_style(cur_style);
+
+{ Loop through the |sub_mlist| looking for the first character-like
+  thing.  Ignore kerns or glue so that, for example, changing
+  $P_j$ to $P_{\!j}$ will have a predictable effect.  Intercept
+  |style_node|s and execute them.  If we encounter a |choice_node|,
+  follow the appropriate branch.  Anything else halts the search
+  and inhibits OpenType kerning. }
+
+{ Don't try to do anything clever if the nucleus of the
+  |script_head| is empty, e.g., $P_{^j}$ and the such. }
+
+if math_type(script_head)=sub_mlist then
+  begin
+  script_ptr:=info(script_head);
+  script_head:=null;
+
+  while is_valid_pointer(script_ptr) do
+    begin
+    case type(script_ptr) of
+      kern_node, glue_node: do_nothing;
+      style_node: begin this_math_style:=subtype(script_ptr);
+        end;
+      choice_node: do_nothing; {see below}
+      ord_noad, op_noad, bin_noad, rel_noad, open_noad,
+      close_noad, punct_noad: begin script_head:=nucleus(script_ptr);
+        script_ptr:=null;
+        end;
+      othercases script_ptr:=null {end the search}
+    endcases;
+
+    if is_valid_pointer(script_ptr) then
+      if type(script_ptr)=choice_node then
+        case this_math_style div 2 of
+          0: script_ptr:=display_mlist(script_ptr);
+          1: script_ptr:=text_mlist(script_ptr);
+          2: script_ptr:=script_mlist(script_ptr);
+          3: script_ptr:=script_script_mlist(script_ptr);
+        end
+      else
+        script_ptr:=link(script_ptr);
+    end;
+  end;
+
+if is_valid_pointer(script_head) and math_type(script_head)=math_char then
+  begin
+  save_f:=cur_f;
+  saved_math_style:=cur_style;
+  cur_style:=this_math_style;
+  @<Set up the values of |cur_size| and |cur_mu|, based on |cur_style|@>;
+  fetch(script_head);
+
+  if is_new_mathfont(cur_f) then
+    begin
+    script_c:=new_native_character(cur_f,qo(cur_c));
+    script_g:=get_native_glyph(script_c,0);
+    script_f:=cur_f; {script font}
+    end;
+
+  cur_f:=save_f;
+  cur_style:=saved_math_style;
+  @<Set up the values of |cur_size| and |cur_mu|, based on |cur_style|@>;
+  end;
+
+  { The remaining case is |math_type(script_head) = sub_box|.
+    Although it would be possible to deconstruct the box node to
+    find the first glyph, it will most likely be from a text font
+    without MATH kerning, so there's probably no point. }
+
+@ @<Attach subscript OpenType math kerning@> =
+begin
+if is_glyph_node(p) then
+  begin
+  sub_kern:=get_ot_math_kern(native_font(p),native_glyph(p),sub_f,sub_g,sub_cmd,shift_down);
+  if sub_kern<>0 then p:=attach_hkern_to_new_hlist(q,sub_kern);
+  end;
 end;
 
-@ @<Attach superscript OpenType math kerning@>=
-begin if math_type(supscr(q))=math_char then
-  begin save_f:=cur_f;
-  fetch(supscr(q));
-  if is_new_mathfont(cur_f) then
-    begin script_c:=new_native_character(cur_f, qo(cur_c));
-    script_g:=get_native_glyph(script_c, 0);
-    script_f:=cur_f;
-  end else
-    begin script_g:=0; script_f:=0
-    end;
-  cur_f:=save_f;
-  end;
-if is_glyph_node(p) then
-  sup_kern:=get_ot_math_kern(native_font(p), native_glyph(p), script_f, script_g, sup_cmd, shift_up);
+@ @<Attach superscript OpenType math kerning@> =
+begin
+{ if there is a superscript the kern will be added to |shift_amount(x)| }
 
-if (sup_kern<>0) and (math_type(subscr(q))=empty) then
-  {if there is a superscript the kern will be added to |shift_amount(x)|}
-  p:=attach_hkern_to_new_hlist(q, sup_kern);
+if math_type(subscr(q))=empty then
+  if is_glyph_node(p) then
+    begin
+    sup_kern:=get_ot_math_kern(native_font(p),native_glyph(p),sup_f,sup_g,sup_cmd,shift_up);
+    if sup_kern<>0 then p:=attach_hkern_to_new_hlist(q,sup_kern);
+    end;
 end;
 
 @ We have now tied up all the loose ends of the first pass of |mlist_to_hlist|.
@@ -21298,8 +21380,8 @@ terminating node $p_m$. All characters that do not have the same font as
 $c_1$ will be treated as nonletters. The |hyphen_char| for that font
 must be between 0 and 255, otherwise hyphenation will not be attempted.
 \TeX\ looks ahead for as many consecutive letters $c_1\ldots c_n$ as
-possible; however, |n| must be less than max_hyphenatable_length+1, so a character that would
-otherwise be $c_{max_hyphenatable_length+1}$ is effectively not a letter. Furthermore $c_n$ must
+possible; however, |n| must be less than |max_hyphenatable_length+1|, so a character that would
+otherwise be $c_{|max_hyphenatable_length|+1}$ is effectively not a letter. Furthermore $c_n$ must
 not be in the middle of a ligature.  In this way we obtain a string of
 letters $c_1\ldots c_n$ that are generated by nodes $p_a\ldots p_b$, where
 |1<=a<=b+1<=m|. If |n>=l_hyf+r_hyf|, this string qualifies for hyphenation;
@@ -24427,7 +24509,7 @@ collected:
       measure that space in context and replace it with an adjusted glue value
       if it differs from the font's normal space. }
 
-    { First we look for the most recent native_word in the list and set |main_pp| to it.
+    { First we look for the most recent |native_word| in the list and set |main_pp| to it.
       This is potentially expensive, in the case of very long paragraphs,
       but in practice it's negligible compared to the cost of shaping and measurement. }
     main_p := head;
@@ -24442,10 +24524,10 @@ collected:
       if (native_font(main_pp) = main_f) then begin
         main_p := link(main_pp);
 
-        { Skip nodes that should be invisible to inter-word spacing,
-          so that e.g. |\nobreak\ | doesn't prevent contextual measurement.
+	{ Skip nodes that should be invisible to inter-word spacing, so that
+          e.g., `\.{\\nobreak\\ }' doesn't prevent contextual measurement.
           This loop is guaranteed to end safely because it'll eventually hit
-          |tail|, which is a native_word node, if nothing else intervenes. }
+          |tail|, which is a |native_word| node, if nothing else intervenes. }
         while node_is_invisible_to_interword_space(main_p) do
           main_p := link(main_p);
 
@@ -24459,7 +24541,7 @@ collected:
 
           if main_ppp = tail then begin
             { We found a candidate inter-word space! Collect the characters of both words,
-              separated by a single space, into a native_word node and measure its overall width. }
+              separated by a single space, into a |native_word| node and measure its overall width. }
             temp_ptr := new_native_word_node(main_f, native_length(main_pp) + 1 + native_length(tail));
             main_k := 0;
             for t := 0 to native_length(main_pp)-1 do begin
@@ -33335,8 +33417,8 @@ sparse array of the up to 32512 additional registers of each kind,
 one for inter-character token lists at specified class transitions, and
 one for the sparse array of the up to 32767 additional mark classes.
 The root of each such tree, if it exists, is an index node containing 64
-pointers to subtrees for 64^4 consecutive array elements.  Similar index
-nodes are the starting points for all nonempty subtrees for 64^3, 64^2,
+pointers to subtrees for $64^4$ consecutive array elements.  Similar index
+nodes are the starting points for all nonempty subtrees for $64^3$, $64^2$,
 and 64 consecutive array elements.  These four levels of index nodes are
 followed by a fifth level with nodes for the individual array elements.
 

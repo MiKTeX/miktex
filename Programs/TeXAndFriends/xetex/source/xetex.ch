@@ -415,18 +415,6 @@ for j:=1 to n do append_to_name(TEX_format_default[j]);
 @y
 @z
 
-@x [29.526] - scan a bgroup/egroup-delimited file name
-  stop_at_space := false; {set |stop_at_space| to false to allow spaces in file names}
-  begin_name;
-  for i:=str_start[s] to str_start[s+1]-1 do
-    dummy := more_name(str_pool[i]); {add each read character to the current file name}
-@y
-  stop_at_space := false; {set |stop_at_space| to false to allow spaces in file names}
-  begin_name;
-  for i:=str_start_macro(s) to str_start_macro(s+1)-1 do
-    dummy := more_name(str_pool[i]); {add each read character to the current file name}
-@z
-
 @x [29.536] l.10331
   wlog(' (');
   fputs(translate_filename, log_file);
@@ -684,8 +672,8 @@ undump_checked_things(0, pool_ptr, str_start_macro(too_big_char), str_ptr+1-too_
   if is_native_font(k) or (font_mapping[k]<>0) then
     begin print_file_name(font_name[k],"","");
     print_err("Can't \dump a format with native fonts or font-mappings");
-    help3("You really, really don't want to do this.")
-    ("It won't work, and only confuses me.")
+    help3("You really, really don't want to do this.")@/
+    ("It won't work, and only confuses me.")@/
     ("(Load them at runtime, not as part of the format file.)");
     error;
     end
@@ -901,6 +889,18 @@ end;
   while s>255 do  {first 256 strings depend on implementation!!}
 @y
   while s>65535 do  {first 64K strings don't really exist in the pool!}
+@z
+
+@x [54/web2c.1407] - scan a bgroup/egroup-delimited file name
+  stop_at_space := false; {set |stop_at_space| to false to allow spaces in file names}
+  begin_name;
+  for i:=str_start[s] to str_start[s+1]-1 do
+    dummy := more_name(str_pool[i]); {add each read character to the current file name}
+@y
+  stop_at_space := false; {set |stop_at_space| to false to allow spaces in file names}
+  begin_name;
+  for i:=str_start_macro(s) to str_start_macro(s+1)-1 do
+    dummy := more_name(str_pool[i]); {add each read character to the current file name}
 @z
 
 @x

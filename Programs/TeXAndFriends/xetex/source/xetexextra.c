@@ -7,6 +7,7 @@
 using namespace MiKTeX::TeXAndFriends;
 #else
 #define	EXTERN /* Instantiate data from xetexd.h here.  */
+#define DLLPROC dllxetexmain
 
 /* This file defines TeX and XeTeX.  */
 #include <xetexd.h>

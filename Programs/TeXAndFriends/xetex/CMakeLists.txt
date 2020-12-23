@@ -300,12 +300,6 @@ else()
   target_link_libraries(${xetex_target_name} PRIVATE ${png_dll_name})
 endif()
 
-if(USE_SYSTEM_POPPLER)
-  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::POPPLER)
-else()
-  target_link_libraries(${xetex_target_name} PRIVATE ${poppler_dll_name})
-endif()
-
 if(USE_SYSTEM_ZLIB)
   target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
 else()
@@ -315,6 +309,7 @@ endif()
 target_link_libraries(${xetex_target_name}
   PRIVATE
     ${kpsemu_dll_name}
+    ${pplib_lib_name}
     ${teckit_dll_name}
     ${w2cemu_dll_name}
     ${web2c_sources_lib_name}

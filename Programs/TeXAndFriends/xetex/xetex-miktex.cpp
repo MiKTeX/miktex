@@ -19,7 +19,7 @@
 
 #include "miktex-first.h"
 
-#include <poppler-config.h>
+#include <pplib.h>
 #include <hb-icu.h>
 #include <graphite2/Font.h>
 #include <jpeglib.h>
@@ -80,7 +80,7 @@ void XETEXAPPCLASS::GetLibraryVersions(std::vector<LibraryVersion>& versions) co
 
   versions.push_back(LibraryVersion("zlib", ZLIB_VERSION, zlib_version));
   versions.push_back(LibraryVersion("libpng", PNG_LIBPNG_VER_STRING, png_libpng_ver));
-  versions.push_back(LibraryVersion("poppler", POPPLER_VERSION, ""));
+  versions.push_back(LibraryVersion("pplib", pplib_version, ""));
 #if defined(JPEG_LIB_VERSION_MAJOR)
   VersionNumber jpegVersion(JPEG_LIB_VERSION_MAJOR, JPEG_LIB_VERSION_MINOR, 0, 0);
 #else

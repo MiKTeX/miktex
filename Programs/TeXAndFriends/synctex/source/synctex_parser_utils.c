@@ -52,7 +52,6 @@
 
 #include <limits.h>
 #include <ctype.h>
-#include <string.h>
 
 #include <sys/stat.h>
 
@@ -91,7 +90,7 @@ void _synctex_free(void * ptr) {
 #   include <syslog.h>
 #endif
 
-int _synctex_log(int level, const char * prompt, const char * reason,va_list arg) {
+static int _synctex_log(int level, const char * prompt, const char * reason,va_list arg) {
 	int result;
 #	ifdef SYNCTEX_RECENT_WINDOWS
 	{/*	This code is contributed by William Blum.
@@ -305,7 +304,7 @@ int _synctex_copy_with_quoting_last_path_component(const char * src, char ** des
   if(src && dest_ref) {
       const char * lpc;
 #		define dest (*dest_ref)
-		dest = NULL;	/*	Default behavior: no change and sucess. */
+		dest = NULL;	/*	Default behavior: no change and success. */
 		lpc = _synctex_last_path_component(src);
 		if(strlen(lpc)) {
 			if(strchr(lpc,' ') && lpc[0]!='"' && lpc[strlen(lpc)-1]!='"') {
@@ -355,6 +354,7 @@ char * _synctex_merge_strings(const char * first,...) {
 		size_t len = strlen(temp);
 		if(UINT_MAX-len<size) {
 			_synctex_error("!  _synctex_merge_strings: Capacity exceeded.");
+			va_end(arg);
 			return NULL;
 		}
 		size+=len;
@@ -375,6 +375,7 @@ char * _synctex_merge_strings(const char * first,...) {
 						_synctex_error("!  _synctex_merge_strings: Copy problem");
 						free(result);
 						result = NULL;
+						va_end(arg);
 						return NULL;
 					}
 					dest += size;
@@ -392,7 +393,7 @@ char * _synctex_merge_strings(const char * first,...) {
 
 /*  The purpose of _synctex_get_name is to find the name of the synctex file.
  *  There is a list of possible filenames from which we return the most recent one and try to remove all the others.
- *  With two runs of pdftex or xetex we are sure the the synctex file is really the most appropriate.
+ *  With two runs of pdftex or xetex we are sure the synctex file is really the most appropriate.
  */
 int _synctex_get_name(const char * output, const char * build_directory, char ** synctex_name_ref, synctex_io_mode_t * io_mode_ref)
 {

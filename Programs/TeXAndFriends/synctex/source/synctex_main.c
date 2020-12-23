@@ -392,7 +392,7 @@ int synctex_view_proceed(synctex_view_params_t * Ps) {
     printf("input:%s\n",Ps->input);
     printf("viewer:%s\n",Ps->viewer);
     printf("before:%s\n",Ps->before);
-    printf("offset:%i\n",Ps->offset);
+    printf("offset:%u\n",Ps->offset);
     printf("middle:%s\n",Ps->middle);
     printf("after:%s\n",Ps->after);
     printf("output:%s\n",Ps->output);
@@ -476,7 +476,7 @@ int synctex_view_proceed(synctex_view_params_t * Ps) {
                     TEST("&{width}", "%f",fabs(synctex_node_box_visible_width(node)));
                     TEST("&{height}","%f",fmax(synctex_node_box_visible_height(node)+synctex_node_box_visible_depth(node),1));
                     TEST("&{before}","%s",(Ps->before && strlen(Ps->before)<SYNCTEX_STR_SIZE?Ps->before:""));
-                    TEST("&{offset}","%i",Ps->offset);
+                    TEST("&{offset}","%u",Ps->offset);
                     TEST("&{middle}","%s",(Ps->middle && strlen(Ps->middle)<SYNCTEX_STR_SIZE?Ps->middle:""));
                     TEST("&{after}", "%s",(Ps->after && strlen(Ps->after)<SYNCTEX_STR_SIZE?Ps->after:""));
 #                   undef TEST
@@ -687,7 +687,7 @@ int synctex_edit_proceed(synctex_edit_params_t * Ps) {
     printf("y:%f\n",Ps->y);
     printf("almost output:%s\n",Ps->output);
     printf("editor:%s\n",Ps->editor);
-    printf("offset:%i\n",Ps->offset);
+    printf("offset:%u\n",Ps->offset);
     printf("context:%s\n",Ps->context);
     printf("cwd:%s\n",getcwd(NULL,0));
 #endif
@@ -757,7 +757,7 @@ int synctex_edit_proceed(synctex_edit_params_t * Ps) {
                     TEST("&{input}",  "%s",input);
                     TEST("&{line}",   "%i",synctex_node_line(node));
                     TEST("&{column}", "%i",-1);
-                    TEST("&{offset}", "%i",Ps->offset);
+                    TEST("&{offset}", "%u",Ps->offset);
                     TEST("&{context}","%s",Ps->context);
 #                   undef TEST
                     break;
