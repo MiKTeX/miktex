@@ -32,6 +32,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define putc win32_putc
 #endif
 #endif
+
 #if defined(MIKTEX)
 #  if defined(MIKTEX_WINDOWS)
 #    define MIKTEX_UTF8_WRAP_ALL 1

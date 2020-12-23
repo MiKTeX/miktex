@@ -16208,6 +16208,7 @@ begin
 @{    print_nl("v_out = "); print_scaled(v_out); @}
 
     if gen_faked_interword_space and
+        pdf_doing_string and
         ((abs(v_out) > 2*x_height(f)) or
          (s_out > space(f) - space_shrink(f)) or
          ((f <> pdf_f) and (v = 0))) then
