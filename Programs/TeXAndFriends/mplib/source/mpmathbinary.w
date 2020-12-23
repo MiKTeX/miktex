@@ -216,7 +216,7 @@ void * mp_initialize_binary_math (MP mp);
 @d equation_threshold 0.001
 @d tfm_warn_threshold 0.0625
 @d warning_limit pow(2.0,52.0)  /* this is a large value that can just be expressed without loss of precision */
-@d epsilon "1E-52"
+@d epsilon  pow(2.0,-173.0)  /* almost "1E-52" */
 @d epsilonf pow(2.0,-52.0)
 @d EL_GORDO   "1E1000000" /* the largest value that \MP\ likes. */
 @d one_third_EL_GORDO (EL_GORDO/3.0)
@@ -255,7 +255,7 @@ void init_binary_constants (void) {
     mpfr_set_si (fraction_one_plus_mpfr_t, (fraction_one+1), ROUNDING);
     mpfr_set_si (angle_multiplier_mpfr_t, angle_multiplier, ROUNDING);
     mpfr_set_str (PI_mpfr_t, PI_STRING, 10, ROUNDING);
-    mpfr_set_str (epsilon_mpfr_t, epsilon, 10, ROUNDING);
+    mpfr_set_d(epsilon_mpfr_t, epsilon , ROUNDING);
     mpfr_set_str (EL_GORDO_mpfr_t, EL_GORDO, 10, ROUNDING);
     initialized = true;
   }

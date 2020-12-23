@@ -353,7 +353,7 @@ void * mp_initialize_decimal_math (MP mp);
 @d p_over_v_threshold 0x80000 /* TODO */
 @d equation_threshold 0.001
 @d tfm_warn_threshold 0.0625
-@d epsilon "1E-52"
+@d epsilon  pow(2.0,-173.0)   /* almost "1E-52" */
 @d epsilonf pow(2.0,-52.0)
 @d EL_GORDO     "1E1000000" /* the largest value that \MP\ likes. */
 @d warning_limit "1E1000000" /* this is a large value that can just be expressed without loss of precision */
@@ -401,7 +401,7 @@ void * mp_initialize_decimal_math (MP mp) {
     decNumberFromInt32(&fraction_one_plus_decNumber, (fraction_one+1));
     decNumberFromInt32(&angle_multiplier_decNumber, angle_multiplier);
     decNumberFromString(&PI_decNumber, PI_STRING, &set);
-    decNumberFromString(&epsilon_decNumber, epsilon, &set);
+    decNumberFromDouble(&epsilon_decNumber, epsilon);
     decNumberFromString(&EL_GORDO_decNumber, EL_GORDO, &set);
     factorials = (decNumber **)mp_xmalloc(mp,PRECALC_FACTORIALS_CACHESIZE,sizeof(decNumber *));
     factorials[0] = (decNumber *)mp_xmalloc(mp,1,sizeof(decNumber));
