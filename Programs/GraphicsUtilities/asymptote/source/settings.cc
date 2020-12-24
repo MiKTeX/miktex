@@ -101,6 +101,7 @@ string systemDir;
 #else
 string systemDir=ASYMPTOTE_SYSDIR;
 #endif
+string defaultPSdriver="ps2write";
 string defaultEPSdriver="eps2write";
 string defaultAsyGL="https://vectorgraphics.github.io/asymptote/base/webgl/asygl-"+
   string(AsyGLVersion)+".js";
@@ -931,7 +932,7 @@ void version()
 void usage(const char *program)
 {
   version();
-  cerr << "\t\t\t" << "http://asymptote.sourceforge.net/"
+  cerr << "\t\t\t" << "https://asymptote.sourceforge.io/"
        << endl
        << "Usage: " << program << " [options] [file ...]"
        << endl;
@@ -1329,6 +1330,8 @@ void initSettings() {
 
   addOption(new boolSetting("inlineimage", 0,
                             "Generate inline embedded image"));
+  addOption(new boolSetting("compress", 0,
+                            "Compress images in PDF output", true));
   addOption(new boolSetting("parseonly", 'p', "Parse file"));
   addOption(new boolSetting("translate", 's',
                             "Show translated virtual machine code"));
@@ -1470,6 +1473,7 @@ void initSettings() {
   addOption(new envSetting("gs", defaultGhostscript));
   addOption(new envSetting("libgs", defaultGhostscriptLibrary));
   addOption(new envSetting("epsdriver", defaultEPSdriver));
+  addOption(new envSetting("psdriver", defaultPSdriver));
   addOption(new envSetting("asygl", defaultAsyGL));
   addOption(new envSetting("texpath", ""));
   addOption(new envSetting("texcommand", ""));

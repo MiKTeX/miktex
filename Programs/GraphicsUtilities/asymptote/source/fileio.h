@@ -66,7 +66,7 @@ inline void openpipeout()
 }
 
 inline string locatefile(string name) {
-  string s=settings::locateFile(name);
+  string s=settings::locateFile(name,false,"");
   return s.empty() ? name : s;
 }
 
@@ -88,7 +88,7 @@ protected:
   bool standard;   // Standard input/output
   bool binary;     // Read in binary mode.
 
-  bool nullfield;  // Used to detect a final null field in csv+line mode.
+  bool nullfield;  // Used to detect null fields in line mode and cvs mode.
   string whitespace;
   size_t index;    // Terminator index.
 
@@ -228,7 +228,7 @@ public:
       if(errorstream::interrupt) throw interrupted();
       else {
         ignoreComment(val);
-        val=T();
+        val=vm::Undefined;
         if(!nullfield)
           Read(val);
         csv();
@@ -545,7 +545,11 @@ public:
     }
   }
   void Read(char& val) {iread(val);}
-  void Read(string& val) {char c; iread(c); val=c;}
+  void Read(string& val) {
+    ostringstream buf;
+    buf << fstream->rdbuf();
+    val=buf.str();
+  }
 
   void Read(double& val) {
     if(singlereal) {float fval; iread(fval); val=fval;}

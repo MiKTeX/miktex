@@ -641,6 +641,7 @@ bool picture::texprocess(const string& texname, const string& outname,
 
 int picture::epstopdf(const string& epsname, const string& pdfname)
 {
+  string compress=getSetting<bool>("compress") ? "true" : "false";
   mem::vector<string> cmd;
   cmd.push_back(getSetting<string>("gs"));
   cmd.push_back("-q");
@@ -655,7 +656,8 @@ int picture::epstopdf(const string& epsname, const string& pdfname)
   cmd.push_back("-dSubsetFonts=true");
   cmd.push_back("-dEmbedAllFonts=true");
   cmd.push_back("-dMaxSubsetPct=100");
-  cmd.push_back("-dPDFSETTINGS=/prepress");
+  cmd.push_back("-dEncodeColorImages="+compress);
+  cmd.push_back("-dEncodeGrayImages="+compress);
   cmd.push_back("-dCompatibilityLevel=1.4");
   if(!getSetting<bool>("autorotate"))
     cmd.push_back("-dAutoRotatePages=/None");
@@ -696,12 +698,7 @@ int picture::pdftoeps(const string& pdfname, const string& epsname, bool eps)
   if(safe)
     cmd.push_back("-dSAFER");
   string texengine=getSetting<string>("tex");
-
-  if(eps)
-    cmd.push_back("-sDEVICE="+getSetting<string>("epsdriver"));
-  else
-    cmd.push_back("-sDEVICE=ps2write");
-
+  cmd.push_back("-sDEVICE="+getSetting<string>(eps ? "epsdriver": "psdriver"));
   cmd.push_back("-sOutputFile="+stripDir(epsname));
   cmd.push_back(stripDir(pdfname));
 

@@ -102,6 +102,11 @@ public:
       xx == 1.0 && xy == 0.0 && yx == 0.0 && yy == 1.0;
   }
 
+  bool isIsometry() const
+  {
+    return xx*xx+xy*xy == 1.0 && xx*yx+xy*yy == 0.0 && yx*yx+yy*yy == 1.0;
+  }
+
   bool isNull() const
   {
     return x == 0.0 && y == 0.0 &&

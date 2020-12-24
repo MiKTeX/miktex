@@ -41,15 +41,15 @@ bool exists(string filename)
 file_list_t searchPath;
 
 // Returns list of possible filenames, accounting for extensions.
-file_list_t mungeFileName(string id)
+file_list_t mungeFileName(string id, string suffix)
 {
   string ext = fs::extension(id);
   file_list_t files;
-  if (ext == "."+settings::suffix) {
+  if (ext == "."+suffix) {
     files.push_back(id);
-    files.push_back(id+"."+settings::suffix);
+    files.push_back(id+"."+suffix);
   } else {
-    files.push_back(id+"."+settings::suffix);
+    files.push_back(id+"."+suffix);
     files.push_back(id);
   }
   return files;
@@ -66,10 +66,10 @@ string join(string dir, string file, bool full)
 
 // Find the appropriate file, first looking in the local directory, then the
 // directory given in settings, and finally the global system directory.
-string locateFile(string id, bool full)
+string locateFile(string id, bool full, string suffix)
 {
   if(id.empty()) return "";
-  file_list_t filenames = mungeFileName(id);
+  file_list_t filenames = mungeFileName(id,suffix);
   for (file_list_t::iterator leaf = filenames.begin();
        leaf != filenames.end();
        ++leaf) {

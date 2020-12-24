@@ -292,8 +292,8 @@ void execError(const char *command, const char *hint, const char *application)
          << "Alternatively, set the environment variable ASYMPTOTE_" << s
          << endl << "or use the command line option -" << hint
          << "=\"LOCATION\". For further details, see" << endl
-         << "http://asymptote.sourceforge.net/doc/Configuring.html" << endl
-         << "http://asymptote.sourceforge.net/doc/Search-paths.html" << endl;
+         << "https://asymptote.sourceforge.io/doc/Configuring.html" << endl
+         << "https://asymptote.sourceforge.io/doc/Search-paths.html" << endl;
   }
 }
 

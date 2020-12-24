@@ -1063,9 +1063,9 @@ void Triangles::queue(size_t nP, const triple* P, size_t nN, const triple* N,
   if(!nN) return;
 
   data.clear();
-  notRendered();
   Onscreen=true;
   transparent=Transparent;
+  notRendered();
 
   data.Vertices.resize(nP);
   data.indices.resize(3*nI);

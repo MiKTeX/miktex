@@ -390,6 +390,7 @@ ADDSYMBOL(inverse);
 ADDSYMBOL(invisible);
 ADDSYMBOL(is3D);
 ADDSYMBOL(isnan);
+ADDSYMBOL(isometry);
 ADDSYMBOL(iterations);
 ADDSYMBOL(j);
 ADDSYMBOL(j0);

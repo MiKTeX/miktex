@@ -127,8 +127,27 @@ template<class T>
 void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
                 bool pipe=false)
 {
-  if(pipe || !settings::getSetting<bool>("inlinetex"))
+  string texengine=settings::getSetting<string>("tex");
+  bool latex=settings::latex(texengine);
+  bool inlinetex=settings::getSetting<bool>("inlinetex");
+  if(pipe || !inlinetex) {
+    if(latex) {
+      if(texengine == "lualatex") {
+        out << "\\ifx\\pdfpagewidth\\undefined\\let\\pdfpagewidth\\paperwidth"
+            << "\\fi" << newl
+            << "\\ifx\\pdfpageheight\\undefined\\let\\pdfpageheight"
+            << "\\paperheight"
+            << "\\fi" << newl
+            << "\\usepackage{graphicx}" << newl;
+      } else {
+        out << "\\let\\paperwidthsave\\paperwidth\\let\\paperwidth\\undefined"
+            << newl
+            << "\\usepackage{graphicx}" << newl
+            << "\\let\\paperwidth\\paperwidthsave" << newl;
+      }
+    }
     texpreamble(out,preamble,pipe);
+  }
 
   if(pipe) {
     // Make tex pipe aware of a previously generated aux file.
@@ -145,14 +164,11 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
         fout << s << endl;
     }
   }
-  string texengine=settings::getSetting<string>("tex");
-  if(settings::latex(texengine)) {
-    if(pipe || !settings::getSetting<bool>("inlinetex")) {
-      out << "\\usepackage{graphicx}" << newl;
-      if(!pipe) {
-        dvipsfix(out);
-        out << "\\usepackage{color}" << newl;
-      }
+
+  if(latex) {
+    if(!inlinetex) {
+      dvipsfix(out);
+      out << "\\usepackage{color}" << newl;
     }
     if(pipe) {
       out << "\\begin{document}" << newl;

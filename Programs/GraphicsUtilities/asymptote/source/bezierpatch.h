@@ -155,10 +155,10 @@ struct BezierPatch
   void queue(const triple *g, bool straight, double ratio, bool Transparent,
              GLfloat *colors=NULL) {
     data.clear();
-    notRendered();
     Onscreen=true;
     transparent=Transparent;
     color=colors;
+    notRendered();
     init(pixel*ratio);
     render(g,straight,colors);
   }

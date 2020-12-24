@@ -137,7 +137,7 @@ void showpath(std::ostream& ps)
   fillpath(ps);
 }
 
-array *readpath(const string& psname, bool keep, bool pdf=false,
+array *readpath(const string& psname, bool keep,
                 double hscale=1.0, double vsign=1.0)
 {
   double vscale=vsign*hscale;
@@ -165,8 +165,8 @@ array *readpath(const string& psname, bool keep, bool pdf=false,
   const string null="/dev/null";
 #endif
 #endif
-  string epsdriver=getSetting<string>("epsdriver");
-  cmd.push_back("-sDEVICE="+epsdriver);
+  string psdriver=getSetting<string>("psdriver");
+  cmd.push_back("-sDEVICE="+psdriver);
   cmd.push_back("-sOutputFile="+null);
   cmd.push_back(stripDir(psname));
   iopipestream gs(cmd,"gs","Ghostscript");
@@ -174,7 +174,7 @@ array *readpath(const string& psname, bool keep, bool pdf=false,
     stringstream buf;
     string s=gs.readline();
     if(s.empty()) break;
-    if(!pdf) gs << newl;
+    gs << newl;
 
 // Workaround broken stringstream container in libc++.
 #ifdef _LIBCPP_VERSION
@@ -371,13 +371,9 @@ void gen_runlabel3(stack *Stack)
   string pdfname,pdfname2,psname2;
   bool keep=getSetting<bool>("keep");
 
-  bool legacygs=false;
   if(!status) {
     if(xe) {
-// Use legacy ghostscript driver for gs-9.13 and earlier.
-      string epsdriver=getSetting<string>("epsdriver");
-      legacygs=epsdriver == "epswrite";
-
+      string psdriver=getSetting<string>("psdriver");
       pdfname=auxname(prefix,"pdf");
       pdfname2=auxname(prefix+"_","pdf");
       psname2=auxname(prefix+"_","ps");
@@ -406,28 +402,13 @@ void gen_runlabel3(stack *Stack)
         cmd.push_back("-dNOPAUSE");
         cmd.push_back("-dBATCH");
         if(safe) cmd.push_back("-dSAFER");
-        cmd.push_back("-sDEVICE="+epsdriver);
-        // Work around eps2write bug that forces all postscript to first page.
-        cmd.push_back("-sOutputFile="+psname2+(legacygs ? "" : "%d"));
+        cmd.push_back("-sDEVICE="+psdriver);
+        cmd.push_back("-sOutputFile="+psname2);
         cmd.push_back(pdfname2);
         status=System(cmd,0,true,"gs");
 
-        if(legacygs) {
-          std::ifstream in(psname2.c_str());
-          ps << in.rdbuf();
-        } else {
-          for(unsigned int i=1; i <= n ; ++i) {
-            ostringstream buf;
-            buf << psname2 << i;
-            const string& s=buf.str();
-            const char *name=s.c_str();
-            std::ifstream in(name,std::ios::binary);
-            ps << in.rdbuf();
-            ps << "(>\n) print flush\n";
-            in.close();
-            if(!keep) unlink(name);
-          }
-        }
+        std::ifstream in(psname2.c_str());
+        ps << in.rdbuf();
         ps.close();
       }
     } else {
@@ -463,17 +444,16 @@ void gen_runlabel3(stack *Stack)
       unlink(auxname(prefix,"tui").c_str());
     }
   }
-  {Stack->push<patharray2*>(xe ? readpath(psname,keep,!legacygs,0.1) :
-    readpath(psname,keep,false,0.12,-1.0)); return;}
+  {Stack->push<patharray2*>(xe ? readpath(psname,keep,0.1) : readpath(psname,keep,0.12,-1.0)); return;}
 }
 
-#line 387 "runlabel.in"
+#line 367 "runlabel.in"
 // patharray2* textpath(stringarray *s, penarray *p);
 void gen_runlabel4(stack *Stack)
 {
   penarray * p=vm::pop<penarray *>(Stack);
   stringarray * s=vm::pop<stringarray *>(Stack);
-#line 388 "runlabel.in"
+#line 368 "runlabel.in"
   size_t n=checkArrays(s,p);
   if(n == 0) {Stack->push<patharray2*>(new array(0)); return;}
 
@@ -514,7 +494,7 @@ void gen_runlabel4(stack *Stack)
   cmd2.push_back("-dBATCH");
   cmd2.push_back("-P");
   if(safe) cmd2.push_back("-dSAFER");
-  cmd2.push_back("-sDEVICE="+getSetting<string>("epsdriver"));
+  cmd2.push_back("-sDEVICE="+getSetting<string>("psdriver"));
   cmd2.push_back("-sOutputFile=-");
   cmd2.push_back("-");
   iopipestream gs(cmd2,"gs","Ghostscript");
@@ -543,16 +523,16 @@ void gen_runlabel4(stack *Stack)
   bool keep=getSetting<bool>("keep");
   if(!keep) // Delete temporary files.
     unlink(textname.c_str());
-  {Stack->push<patharray2*>(readpath(psname,keep,false,0.1)); return;}
+  {Stack->push<patharray2*>(readpath(psname,keep,0.1)); return;}
 }
 
-#line 461 "runlabel.in"
+#line 441 "runlabel.in"
 // patharray* _strokepath(path g, pen p=CURRENTPEN);
 void gen_runlabel5(stack *Stack)
 {
   pen p=vm::pop<pen>(Stack,CURRENTPEN);
   path g=vm::pop<path>(Stack);
-#line 462 "runlabel.in"
+#line 442 "runlabel.in"
   array *P=new array(0);
   if(g.size() == 0) {Stack->push<patharray*>(P); return;}
 
@@ -590,9 +570,9 @@ void gen_runlabel_venv(venv &ve)
   addFunc(ve, run::gen_runlabel2, realArray(), SYM(texsize), formal(primString(), SYM(s), false, false), formal(primPen(), SYM(p), true, false));
 #line 243 "runlabel.in"
   addFunc(ve, run::gen_runlabel3, pathArray2(), SYM(_texpath), formal(stringArray(), SYM(s), false, false), formal(penArray(), SYM(p), false, false));
-#line 387 "runlabel.in"
+#line 367 "runlabel.in"
   addFunc(ve, run::gen_runlabel4, pathArray2(), SYM(textpath), formal(stringArray(), SYM(s), false, false), formal(penArray(), SYM(p), false, false));
-#line 461 "runlabel.in"
+#line 441 "runlabel.in"
   addFunc(ve, run::gen_runlabel5, pathArray(), SYM(_strokepath), formal(primPath(), SYM(g), false, false), formal(primPen(), SYM(p), true, false));
 }
 

@@ -55,6 +55,7 @@ ADDSYMBOL(interp);
 ADDSYMBOL(inverse);
 ADDSYMBOL(invisible);
 ADDSYMBOL(isnan);
+ADDSYMBOL(isometry);
 ADDSYMBOL(k);
 ADDSYMBOL(length);
 ADDSYMBOL(linecap);
