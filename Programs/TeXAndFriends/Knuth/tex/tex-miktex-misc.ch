@@ -9,18 +9,17 @@
 \def\PASCAL{Pascal}
 @y
 \def\PASCAL{Pascal}
-\def\C4P{C4P}
+\def\CfourP{C4P}
 \def\Cplusplus{C++}
 \def\MiKTeX{MiK\TeX}
 @z
 
 %% WEAVE: print changes only.
-
 @x
   \def\?##1]{\hbox to 1in{\hfil##1.\ }}
   }
-@y 83
-  \def\?##1]{\hbox{Changes to \hbox to 1em{\hfil##1}.\ }}
+@y
+  \def\?##1]{\hbox{Changes to ##1.\ }}
   }
 \let\maybe=\iffalse
 @z
@@ -426,7 +425,7 @@ in \ph. The `\.{/I}' switch suppresses the first |get|.
 @^system dependencies@>
 
 \MiKTeX: standard input and output streams were prepared
-by the \C4P\ runtime library.
+by the \CfourP\ runtime library.
 @z
 
 @x
@@ -2519,7 +2518,7 @@ var j:small_number; {write stream number}
 @x
 @* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @y
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 @^<system dependencies@>
 
 @ When debugging a macro package, it can be useful to see the exact
@@ -2725,8 +2724,7 @@ if s>0 then
 slow_make_string:=t;
 exit:end;
 
-
-@* \[54/MiKTeX] More changes for MiKTeX.
+@* \[54/\MiKTeX-more] More changes for \MiKTeX.
 When |scan_file_name| starts it looks for a |left_brace|
 (skipping \.{\\relax}es, as other \.{\\toks}-like primitives).
 If a |left_brace| is found, then the procedure scans a file

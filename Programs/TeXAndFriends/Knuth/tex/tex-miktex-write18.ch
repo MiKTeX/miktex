@@ -1,6 +1,6 @@
 %% tex-miktex-write18.ch: implement write18
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -109,9 +109,9 @@ selector:=old_setting;
 % _____________________________________________________________________________
 
 @x
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 @y
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 
 @ Forward declaration of \MiKTeX\ functions.
 

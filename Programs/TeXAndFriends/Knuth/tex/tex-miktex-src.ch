@@ -1,6 +1,6 @@
 %% tex-miktex-src.ch:
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -133,9 +133,9 @@ text(frozen_special):="special"; eqtb[frozen_special]:=eqtb[cur_val];@/
 % _____________________________________________________________________________
 
 @x
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 @y
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 
 @ This routine inserts a source special.
 

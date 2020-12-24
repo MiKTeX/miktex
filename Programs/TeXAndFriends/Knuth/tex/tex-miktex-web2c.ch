@@ -1,6 +1,6 @@
 %% tex-miktex-web2c.ch:
 %% 
-%% Copyright (C) 2007-2016 Christian Schenk
+%% Copyright (C) 2007-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -17,9 +17,9 @@
 %% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 @x
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 @y
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 
 @ Define Web2C compatibility functions.
 

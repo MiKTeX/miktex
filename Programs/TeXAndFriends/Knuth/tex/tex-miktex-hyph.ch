@@ -1,6 +1,6 @@
 %% tex-miktex-hyph.ch:
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -763,9 +763,9 @@ tini@/
 % _____________________________________________________________________________
 
 @x
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 @y
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 
 @ Define \MiKTeX\ variables.
 

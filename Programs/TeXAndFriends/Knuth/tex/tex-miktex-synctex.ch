@@ -1,6 +1,6 @@
 %% tex-miktex-synctex.ch:
 %% 
-%% Copyright (C) 2008-2016 Christian Schenk
+%% Copyright (C) 2008-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -22,9 +22,9 @@
 % _____________________________________________________________________________
 
 @x
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 @y
-@* \[54/MiKTeX] System-dependent changes for MiKTeX.
+@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
 
 @ @<Set init...@>=
 synctexoption := miktex_get_synchronization_options;

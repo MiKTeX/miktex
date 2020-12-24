@@ -146,10 +146,45 @@ add_custom_command(
   VERBATIM
 )
 
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.tex
+  COMMAND
+    ${MIKTEX_PREFIX}weave 
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.web
+    ${tex_change_file}
+    ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.tex
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    ${MIKTEX_PREFIX}weave
+    ${tex_change_file}
+    source/tex.web
+  VERBATIM
+)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/tex.tex
+  COMMAND
+    ${MIKTEX_PREFIX}weave 
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.web
+    ${MIKTEX_DEV_NULL}
+    ${CMAKE_CURRENT_BINARY_DIR}/tex.tex
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    ${MIKTEX_PREFIX}weave
+    source/tex.web
+  VERBATIM
+)
+
 add_custom_target(tex-dev ALL
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/tex-n.web
     ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/tex.tex
+    ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.tex
 )
 
 set_property(TARGET tex-dev PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
