@@ -26,6 +26,21 @@
 
 % _____________________________________________________________________________
 %
+% [1.2]
+% _____________________________________________________________________________
+
+@x
+@d banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@y
+@d TeX_banner_k=='This is mikTeX, Version 3.14159265' {printed when \TeX\ starts}
+@d TeX_banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@#
+@d banner==TeX_banner
+@d banner_k==TeX_banner_k
+@z
+
+% _____________________________________________________________________________
+%
 % [1.4]
 % _____________________________________________________________________________
 
@@ -551,6 +566,15 @@ loop@+begin
 %
 % [5.61]
 % _____________________________________________________________________________
+
+@x
+wterm(banner);
+@y
+if not miktex_is_compatible then
+  wterm(banner_k);
+else
+  wterm(banner);
+@z
 
 @x
 if format_ident=0 then wterm_ln(' (no format preloaded)')
@@ -1604,6 +1628,17 @@ if job_name=0 then job_name:=miktex_get_job_name("texput");
 % _____________________________________________________________________________
 
 @x
+begin wlog(banner);
+@y
+begin
+if not miktex_is_compatible
+then
+  wlog(banner_k)
+else
+  wlog(banner);
+@z
+
+@x
 slow_print(format_ident); print("  ");
 print_int(day); print_char(" ");
 months:='JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC';
@@ -2580,6 +2615,7 @@ function miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
 function miktex_get_interaction : integer; forward;@t\2@>@/
 function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
 function miktex_is_init_program : boolean; forward;@t\2@>@/
+function miktex_is_compatible : boolean; forward;@t\2@>@/
 function miktex_make_full_name_string : str_number; forward;@t\2@>@/
 
 @ Define \MiKTeX\ constants.

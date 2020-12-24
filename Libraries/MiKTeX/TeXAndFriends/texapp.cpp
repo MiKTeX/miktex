@@ -455,6 +455,11 @@ bool TeXApp::IsSourceSpecialOn(SourceSpecial s) const
   return pimpl->sourceSpecials[(std::size_t)s];
 }
 
+bool TeXApp::SourceSpecialsP() const
+{
+  return pimpl->sourceSpecials.any();
+}
+
 void TeXApp::SetFormatHandler(IFormatHandler* formatHandler)
 {
   pimpl->formatHandler = formatHandler;

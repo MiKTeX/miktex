@@ -1,6 +1,6 @@
 %% pdftex-post.ch:
 %% 
-%% Copyright (C) 2003-2016 Christian Schenk
+%% Copyright (C) 2003-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -21,6 +21,19 @@
 %% //                      INSPIRED BY WEB2C'S TEX.CH                        //
 %% //                                                                        //
 %% ////////////////////////////////////////////////////////////////////////////
+
+% _____________________________________________________________________________
+%
+% [1.2]
+% _____________________________________________________________________________
+
+@x
+@d banner==TeX_banner
+@d banner_k==TeX_banner_k
+@y
+@d banner==pdfTeX_banner
+@d banner_k==pdfTeX_banner
+@z
 
 % _____________________________________________________________________________
 %

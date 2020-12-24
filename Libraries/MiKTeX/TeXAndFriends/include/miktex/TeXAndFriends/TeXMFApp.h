@@ -218,6 +218,9 @@ public:
   MIKTEXMFTHISAPI(bool) CStyleErrorMessagesP() const;
 
 public:
+  MIKTEXMFTHISAPI(bool) ParseFirstLineP() const;
+
+public:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetDefaultMemoryDumpFileName() const;
 
 public:

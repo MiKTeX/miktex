@@ -1,6 +1,6 @@
 %% pdftex-pre.ch:
 %% 
-%% Copyright (C) 2003-2016 Christian Schenk
+%% Copyright (C) 2003-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -24,11 +24,13 @@
 
 % _____________________________________________________________________________
 %
-% [18.254]
+% [1.2]
 % _____________________________________________________________________________
 
 @x
-@d tex_int_pars=55 {total number of \TeX's integer parameters}
+@d TeX_banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@#
+@d banner==pdfTeX_banner
 @y
-@d int_pars=55 {total number of integer parameters}
+@d banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
 @z

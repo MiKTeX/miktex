@@ -1,6 +1,6 @@
 %% tex-miktex-hash.ch:
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2020 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -332,7 +332,7 @@ if hash_high>0 then undump_things(eqtb[eqtb_size+1],hash_high);
 
 @x
 dump_int(hash_used); cs_count:=frozen_control_sequence-1-hash_used;
-@y  23968
+@y
 dump_int(hash_used); cs_count:=frozen_control_sequence-1-hash_used+hash_high;
 @z
 
@@ -393,7 +393,7 @@ miktex_allocate_memory;
 @x
   wlog_ln(' ',cs_count:1,' multiletter control sequences out of ',
     hash_size:1);@/
-@y  24276
+@y
   wlog_ln(' ',cs_count:1,' multiletter control sequences out of ',
     hash_size:1, '+', hash_extra:1);@/
 @z
@@ -409,4 +409,3 @@ miktex_allocate_memory;
   w_close(fmt_file);
   eqtb:=zeqtb;
 @z
-

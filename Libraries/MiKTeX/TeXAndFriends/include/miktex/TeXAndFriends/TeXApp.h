@@ -144,6 +144,9 @@ public:
   MIKTEXMFTHISAPI(bool) IsSourceSpecialOn(SourceSpecial s) const;
 
 public:
+  MIKTEXMFTHISAPI(bool) SourceSpecialsP() const;
+
+public:
   MIKTEXMFTHISAPI(bool) IsNewSource(int sourceFileName, int line) const;
 
 public:
@@ -305,6 +308,11 @@ inline bool restrictedshell()
 inline bool shellenabledp()
 {
   return miktexwrite18p();
+}
+
+inline bool miktexiscompatible()
+{
+  return !TeXApp::GetTeXApp()->SourceSpecialsP() && !TeXApp::GetTeXApp()->CStyleErrorMessagesP() && !TeXApp::GetTeXApp()->ParseFirstLineP();
 }
 
 MIKTEX_TEXMF_END_NAMESPACE;

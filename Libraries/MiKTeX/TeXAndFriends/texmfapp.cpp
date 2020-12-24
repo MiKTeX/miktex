@@ -955,6 +955,11 @@ bool TeXMFApp::CStyleErrorMessagesP() const
   return pimpl->showFileLineErrorMessages;
 }
 
+bool TeXMFApp::ParseFirstLineP() const
+{
+  return pimpl->parseFirstLine;
+}
+
 bool TeXMFApp::HaltOnErrorP() const
 {
   return pimpl->haltOnError;

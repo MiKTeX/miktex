@@ -171,7 +171,7 @@ until v=min_trie_op;
 
 @x
 different from $\alpha$, we can conclude that $\alpha$ is not in the table.
-@y  18126
+@y
 different from $\alpha$, we can conclude that $\alpha$ is not in the table.
 This is a clever scheme which saves the need for a hash link array.
 However, it is difficult to increase the size of the hyphen exception
@@ -217,7 +217,7 @@ for z:=0 to hyph_size do
   begin hyph_word[z]:=0; hyph_list[z]:=null;
   end;
 hyph_count:=0;
-@y  18148
+@y
 for z:=0 to hyph_size do
   begin hyph_word[z]:=0; hyph_list[z]:=null; hyph_link[z]:=0;
   end;

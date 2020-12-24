@@ -175,6 +175,7 @@ add_custom_command(
     ${pdftex_web_file}
     ${pdftex_ch_synctex}
     ${ETEX_MIKTEX_PRE_CH}
+    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
     ${miktex_tex_change_files}
     #${ETEX_MIKTEX_POST_CH}
     ${ETEX_MIKTEX_CH}
@@ -407,6 +408,7 @@ add_custom_command(
     ${pdftex_web_file}
     ${pdftex_ch_synctex}
     ${ETEX_MIKTEX_PRE_CH}
+    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
     ${miktex_tex_change_files}
     #${ETEX_MIKTEX_POST_CH}
     ${ETEX_MIKTEX_CH}
