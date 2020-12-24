@@ -49,7 +49,7 @@ if(CMAKE_CL_64)
 endif()
 
 set(HAVE_CXX11 1)
-set(VERSION "2.8.2")
+set(VERSION "2.10.1")
 
 configure_file(
   config.h.cmake
