@@ -127,7 +127,6 @@ inline int loadpoolstrings(int size)
 extern TEXAPPCLASS TEXAPP;
 
 inline void miktexreallocatenameoffile(size_t n)
-{
-  
+{  
   TEXPROG.nameoffile = reinterpret_cast<char*>(TEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", TEXPROG.nameoffile, sizeof(*TEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
 }
