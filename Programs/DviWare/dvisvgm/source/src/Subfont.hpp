@@ -43,7 +43,7 @@ class SubfontDefinition {
 		const std::string& name() const {return _sfname;}
 		std::string filename() const    {return _sfname+".sfd";}
 		Subfont* subfont (const std::string &id) const;
-		int subfonts (std::vector<Subfont*> &sfs) const;
+		std::vector<Subfont*> subfonts () const;
 		const char* path () const;
 
 	protected:

@@ -170,7 +170,7 @@ bool FontMap::append (const MapLine &mapline) {
 		if (!mapline.fontfname().empty() || !mapline.encname().empty()) {
 			vector<Subfont*> subfonts;
 			if (mapline.sfd())
-				mapline.sfd()->subfonts(subfonts);
+				subfonts = mapline.sfd()->subfonts();
 			else
 				subfonts.push_back(nullptr);
 			for (Subfont *subfont : subfonts) {
@@ -199,7 +199,7 @@ bool FontMap::replace (const MapLine &mapline) {
 
 	vector<Subfont*> subfonts;
 	if (mapline.sfd())
-		mapline.sfd()->subfonts(subfonts);
+		subfonts = mapline.sfd()->subfonts();
 	else
 		subfonts.push_back(nullptr);
 	for (Subfont *subfont : subfonts) {
@@ -223,7 +223,7 @@ bool FontMap::remove (const MapLine &mapline) {
 	if (!mapline.texname().empty()) {
 		vector<Subfont*> subfonts;
 		if (mapline.sfd())
-			mapline.sfd()->subfonts(subfonts);
+			subfonts = mapline.sfd()->subfonts();
 		else
 			subfonts.push_back(nullptr);
 		for (const Subfont *subfont : subfonts) {

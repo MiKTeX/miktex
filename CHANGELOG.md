@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvipdfmx 20201216
+* dvisvgm 2.11
 * luatex 1.13.0
 
 ## 20.12 - 2020-12-14

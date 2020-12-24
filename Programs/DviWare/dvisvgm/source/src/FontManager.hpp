@@ -41,12 +41,12 @@ class VirtualFont;
  *  we need a single list with unique IDs of all physical fonts. Characters of
  *  virtual fonts are completely replaced by their DVI description so they don't
  *  appear anywhere in the output. */
-class FontManager
-{
-	using Num2IdMap = std::unordered_map<uint32_t,int>;
-	using Name2IdMap = std::unordered_map<std::string,int>;
-	using VfNum2IdMap = std::unordered_map<const VirtualFont*,Num2IdMap>;
-	using VfFirstFontMap = std::unordered_map<const VirtualFont*,uint32_t>;
+class FontManager {
+	using Num2IdMap = std::unordered_map<uint32_t, int>;
+	using Name2IdMap = std::unordered_map<std::string, int>;
+	using VfNum2IdMap = std::unordered_map<const VirtualFont*, Num2IdMap>;
+	using VfFirstFontNumMap = std::unordered_map<const VirtualFont*, uint32_t>;
+	using VfFirstFontMap = std::unordered_map<const VirtualFont*, Font*>;
 	using VfStack = std::stack<VirtualFont*>;
 
 	public:
@@ -63,6 +63,7 @@ class FontManager
 		int fontID (const std::string &name) const;
 		int fontnum (int id) const;
 		int vfFirstFontNum (const VirtualFont *vf) const;
+		Font* vfFirstFont (const VirtualFont *vf) const;
 		void enterVF (VirtualFont *vf);
 		void leaveVF ();
 		void assignVFChar (int c, std::vector<uint8_t> &&dvi);
@@ -77,7 +78,8 @@ class FontManager
 		Name2IdMap     _name2id;   ///< fontname -> fontID
 		VfNum2IdMap    _vfnum2id;
 		VfStack        _vfStack;   ///< stack of currently processed virtual fonts
-		VfFirstFontMap _vfFirstFontMap; ///< VF -> local font number of first font defined in VF
+		VfFirstFontNumMap _vfFirstFontNumMap; ///< VF -> local font number of first font defined in VF
+		VfFirstFontMap _vfFirstFontMap;       ///< VF -> first font defined
 };
 
 #endif

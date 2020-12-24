@@ -48,7 +48,9 @@ void PdfSpecialHandler::preprocess (const string&, istream &is, SpecialActions &
 		{"bannot",   &PdfSpecialHandler::preprocessBeginAnn},
 		{"beginann", &PdfSpecialHandler::preprocessBeginAnn},
 		{"dest",     &PdfSpecialHandler::preprocessDest},
-		{"pagesize", &PdfSpecialHandler::preprocessPagesize}
+		{"pagesize", &PdfSpecialHandler::preprocessPagesize},
+		{"mapfile",  &PdfSpecialHandler::preprocessMapfile},
+		{"mapline",  &PdfSpecialHandler::preprocessMapline}
 	};
 	auto it = commands.find(cmdstr);
 	if (it != commands.end())
@@ -71,8 +73,6 @@ bool PdfSpecialHandler::process (const string&, istream &is, SpecialActions &act
 		{"eannot",   &PdfSpecialHandler::processEndAnn},
 		{"endann",   &PdfSpecialHandler::processEndAnn},
 		{"dest",     &PdfSpecialHandler::processDest},
-		{"mapfile",  &PdfSpecialHandler::processMapfile},
-		{"mapline",  &PdfSpecialHandler::processMapline}
 	};
 	auto it = commands.find(cmdstr);
 	if (it != commands.end())
@@ -116,7 +116,7 @@ void PdfSpecialHandler::preprocessPagesize (StreamInputReader &ir, SpecialAction
 }
 
 
-void PdfSpecialHandler::processMapfile (StreamInputReader &ir, SpecialActions&) {
+void PdfSpecialHandler::preprocessMapfile (StreamInputReader &ir, SpecialActions&) {
 	char modechar = prepare_mode(ir);
 	string fname = ir.getString();
 	if (!FontMap::instance().read(fname, modechar))
@@ -124,7 +124,7 @@ void PdfSpecialHandler::processMapfile (StreamInputReader &ir, SpecialActions&) 
 }
 
 
-void PdfSpecialHandler::processMapline (StreamInputReader &ir, SpecialActions&) {
+void PdfSpecialHandler::preprocessMapline (StreamInputReader &ir, SpecialActions&) {
 	char modechar = prepare_mode(ir);
 	try {
 		MapLine mapline(ir.getStream());

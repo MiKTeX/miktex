@@ -72,6 +72,15 @@ bool FontEncodingPair::mapsToCharIndex () const {
 }
 
 
+bool FontEncodingPair::mapsToUnicode () const {
+	if (_enc2)
+		return _enc2->mapsToUnicode();
+	if (_enc1)
+		return _enc1->mapsToUnicode();
+	return false;
+}
+
+
 const FontEncoding* FontEncodingPair::findCompatibleBaseFontMap (const PhysicalFont *font, CharMapID &charmapID) const {
 	if (_enc2)
 		return _enc2->findCompatibleBaseFontMap(font, charmapID);

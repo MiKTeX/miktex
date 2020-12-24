@@ -38,11 +38,11 @@ class PdfSpecialHandler : public SpecialHandler {
 		void preprocessBeginAnn (StreamInputReader &ir, SpecialActions &actions);
 		void preprocessDest (StreamInputReader &ir, SpecialActions &actions);
 		void preprocessPagesize (StreamInputReader &ir, SpecialActions &actions);
+		void preprocessMapfile (StreamInputReader &ir, SpecialActions &actions);
+		void preprocessMapline (StreamInputReader &ir, SpecialActions &actions);
 		void processBeginAnn (StreamInputReader &ir, SpecialActions &actions);
 		void processEndAnn (StreamInputReader &ir, SpecialActions &actions);
 		void processDest (StreamInputReader &ir, SpecialActions &actions);
-		void processMapfile (StreamInputReader &ir, SpecialActions &actions);
-		void processMapline (StreamInputReader &ir, SpecialActions &actions);
 
 		void dviMovedTo (double x, double y, SpecialActions &actions) override;
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;

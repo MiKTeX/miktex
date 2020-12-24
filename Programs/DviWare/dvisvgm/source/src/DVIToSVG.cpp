@@ -169,6 +169,7 @@ void DVIToSVG::convert (const string &rangestr, pair<int,int> *pageinfo) {
 		prescan.executeAllPages();
 		actions->setDVIReader(*this);
 		SpecialManager::instance().notifyPreprocessingFinished();
+		executeFontDefs();
 	}
 
 	unique_ptr<HashFunction> hashFunc;

@@ -498,7 +498,7 @@ const FontEncoding* PhysicalFontImpl::encoding () const {
 
 bool PhysicalFontImpl::findAndAssignBaseFontMap () {
 	const FontEncoding *enc = encoding();
-	if (enc && enc->mapsToCharIndex()) {
+	if (enc && !enc->mapsToUnicode() && enc->mapsToCharIndex()) {
 		// try to find a base font map that maps from character indexes to a suitable
 		// target encoding supported by the font file
 		if (const FontEncoding *bfmap = enc->findCompatibleBaseFontMap(this, _charmapID))

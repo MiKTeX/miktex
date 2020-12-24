@@ -105,10 +105,11 @@ Subfont* SubfontDefinition::subfont (const string &id) const {
 
 
 /** Returns all subfonts defined in this SFD. */
-int SubfontDefinition::subfonts (vector<Subfont*> &sfs) const {
+vector<Subfont*> SubfontDefinition::subfonts () const {
+	vector<Subfont*> subfonts;
 	for (const auto &strsfpair : _subfonts)
-		sfs.push_back(strsfpair.second.get());
-	return int(sfs.size());
+		subfonts.push_back(strsfpair.second.get());
+	return subfonts;
 }
 
 //////////////////////////////////////////////////////////////////////

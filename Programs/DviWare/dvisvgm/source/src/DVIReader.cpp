@@ -26,6 +26,7 @@
 #include "Font.hpp"
 #include "FontManager.hpp"
 #include "HashFunction.hpp"
+#include "JFM.hpp"
 #include "utility.hpp"
 #include "VectorStream.hpp"
 #if defined(MIKTEX_WINDOWS)
@@ -37,21 +38,12 @@ using namespace std;
 
 DVIReader::DVIReader (istream &is) : BasicDVIReader(is)
 {
-	_inPage = false;
-	_dvi2bp = 0.0;
-	_inPostamble = false;
-	_currFontNum = 0;
-	_currPageNum = 0;
-	_mag = 1;
 	executePreamble();
-	collectBopOffsets();
-	executePostamble();
-}
-
-
-int DVIReader::executeCommand () {
-	int opcode = BasicDVIReader::executeCommand();
-	return opcode;
+	_bopOffsets = collectBopOffsets();
+	// read data from postamble but don't process font definitions
+	goToPostamble();
+	executeCommand();
+	executePostPost();
 }
 
 
@@ -82,72 +74,9 @@ bool DVIReader::executePage (unsigned n) {
 		return false;
 
 	seek(_bopOffsets[n-1]); // goto bop of n-th page
-	_inPostamble = false;   // not in postamble
 	_currPageNum = n;
 	while (executeCommand() != OP_EOP);
 	return true;
-}
-
-
-void DVIReader::executePreamble () {
-	clearStream();
-	if (isStreamValid()) {
-		seek(0);
-		if (readByte() == OP_PRE) {
-			cmdPre(0);
-			return;
-		}
-	}
-	throw DVIException("invalid DVI file");
-}
-
-
-/** Moves stream pointer to begin of postamble */
-void DVIReader::goToPostamble () {
-	clearStream();
-	if (!isStreamValid())
-		throw DVIException("invalid DVI file");
-
-	seek(-1, ios::end);  // stream pointer to last byte
-	int count=0;
-	while (peek() == DVI_FILL) {   // skip fill bytes
-		seek(-1, ios::cur);
-		count++;
-	}
-	if (count < 4)  // the standard requires at least 4 trailing fill bytes
-		throw DVIException("missing fill bytes at end of file");
-
-	seek(-4, ios::cur);            // now at first byte of q (pointer to begin of postamble)
-	uint32_t q = readUnsigned(4);  // pointer to begin of postamble
-	seek(q);                       // now at begin of postamble
-}
-
-
-/** Reads and executes the commands of the postamble. */
-void DVIReader::executePostamble () {
-	goToPostamble();
-	while (executeCommand() != OP_POSTPOST);  // executes all commands until post_post (= 249) is reached
-}
-
-
-/** Collects and records the file offsets of all bop commands. */
-void DVIReader::collectBopOffsets () {
-	goToPostamble();
-	_bopOffsets.push_back(tell());      // also add offset of postamble
-	readByte();                         // skip post command
-	uint32_t offset = readUnsigned(4);  // offset of final bop
-	while (int32_t(offset) != -1) {     // not yet on first bop?
-		_bopOffsets.push_back(offset);   // record offset
-		seek(offset);                    // now on previous bop
-		if (readByte() != OP_BOP)
-			throw DVIException("bop offset at "+to_string(offset)+" doesn't point to bop command" );
-		seek(40, ios::cur);              // skip the 10 \count values => now on offset of previous bop
-		uint32_t prevOffset = readUnsigned(4);
-		if ((prevOffset >= offset && int32_t(prevOffset) != -1))
-			throw DVIException("invalid bop offset at "+to_string(tell()-static_cast<streamoff>(4)));
-		offset = prevOffset;
-	}
-	reverse(_bopOffsets.begin(), _bopOffsets.end());
 }
 
 
@@ -216,7 +145,6 @@ void DVIReader::cmdPost (int) {
 	// 1 dviunit * num/den == multiples of 0.0000001m
 	// 1 dviunit * _dvi2bp: length of 1 dviunit in PS points * _mag/1000
 	_dvi2bp = numer/254000.0*72.0/denom*_mag/1000.0;
-	_inPostamble = true;
 	dviPost(stackDepth, numPages, pageWidth*_dvi2bp, pageHeight*_dvi2bp, _mag, numer, denom, prevBopOffset);
 }
 
@@ -224,7 +152,6 @@ void DVIReader::cmdPost (int) {
 /** Reads and executes DVI post_post command.
  *  Format: post_post q[4] i[1] 223[>=4] */
 void DVIReader::cmdPostPost (int) {
-	_inPostamble = false;
 	uint32_t postOffset = readUnsigned(4);   // pointer to begin of postamble
 	uint8_t id = readUnsigned(1);
 	setDVIVersion(DVIVersion(id));   // identification byte
@@ -281,16 +208,22 @@ void DVIReader::cmdPop (int) {
  *  @param[in] c character to typeset */
 void DVIReader::putVFChar (Font *font, uint32_t c) {
 	if (auto vf = dynamic_cast<VirtualFont*>(font)) { // is current font a virtual font?
-		if (const vector<uint8_t> *dvi = vf->getDVI(c)) { // try to get DVI snippet that represents character c
-			FontManager &fm = FontManager::instance();
+		FontManager &fm = FontManager::instance();
+		const vector<uint8_t> *dvi = vf->getDVI(c);    // try to get DVI snippet that represents character c
+		Font *firstFont = fm.vfFirstFont(vf);
+		if (!dvi && (!firstFont || !dynamic_cast<const JFM*>(firstFont->getMetrics())))
+			return;
+		fm.enterVF(vf);                              // enter VF font number context
+		int savedFontNum = _currFontNum;             // save current font number
+		setFont(fm.vfFirstFontNum(vf), SetFontMode::VF_ENTER);
+		if (!dvi)                                    // no definition present for current (Japanese) char?
+			dviPutChar(c, firstFont);                 // fallback for JFM-based virtual fonts
+		else {
+			// DVI units in virtual fonts are multiples of 1^(-20) times the scaled size of the VF
+			double savedScale = _dvi2bp;
+			_dvi2bp = vf->scaledSize()/(1 << 20);
 			DVIState savedState = _dviState;  // save current cursor position
 			_dviState.x = _dviState.y = _dviState.w = _dviState.z = 0;
-			int savedFontNum = _currFontNum; // save current font number
-			fm.enterVF(vf);                  // enter VF font number context
-			setFont(fm.vfFirstFontNum(vf), SetFontMode::VF_ENTER);
-			double savedScale = _dvi2bp;
-			// DVI units in virtual fonts are multiples of 1^(-20) times the scaled size of the VF
-			_dvi2bp = vf->scaledSize()/(1 << 20);
 			VectorInputStream<uint8_t> vis(*dvi);
 			istream &is = replaceStream(vis);
 			try {
@@ -299,12 +232,12 @@ void DVIReader::putVFChar (Font *font, uint32_t c) {
 			catch (const DVIException &e) {
 				// Message::estream(true) << "invalid dvi in vf: " << e.getMessage() << endl; // @@
 			}
-			replaceStream(is);     // restore previous input stream
-			_dvi2bp = savedScale;  // restore previous scale factor
-			fm.leaveVF();          // restore previous font number context
-			setFont(savedFontNum, SetFontMode::VF_LEAVE);  // restore previous font number
+			replaceStream(is);       // restore previous input stream
 			_dviState = savedState;  // restore previous cursor position
+			_dvi2bp = savedScale;    // restore previous scale factor
 		}
+		fm.leaveVF();          // restore previous font number context
+		setFont(savedFontNum, SetFontMode::VF_LEAVE);  // restore previous font number
 	}
 }
 

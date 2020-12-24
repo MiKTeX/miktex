@@ -53,10 +53,7 @@ class DVIReader : public BasicDVIReader, public VFActions {
 		explicit DVIReader (std::istream &is);
 		bool executeDocument ();
 		void executeAll ();
-		void executePreamble ();
-		void executePostamble ();
 		bool executePage (unsigned n);
-		bool inPostamble () const                    {return _inPostamble;}
 		double getXPos () const override             {return _dviState.h;}
 		double getYPos () const override             {return _dviState.v;}
 		int stackDepth () const override             {return _stateStack.size();}
@@ -65,11 +62,8 @@ class DVIReader : public BasicDVIReader, public VFActions {
 		unsigned numberOfPages () const              {return _bopOffsets.empty() ? 0 : _bopOffsets.size()-1;}
 
 	protected:
-		int executeCommand () override;
-		void collectBopOffsets ();
 		size_t numberOfPageBytes (int n) const {return _bopOffsets.size() > 1 ? _bopOffsets[n+1]-_bopOffsets[n] : 0;}
 		bool computePageHash (size_t pageno, HashFunction &hashFunc);
-		void goToPostamble ();
 		virtual void moveRight (double dx, MoveMode mode);
 		virtual void moveDown (double dy, MoveMode mode);
 		void putVFChar (Font *font, uint32_t c);
@@ -160,13 +154,12 @@ class DVIReader : public BasicDVIReader, public VFActions {
 		void cmdXTextAndGlyphs (int len) override;
 
 	private:
-		bool _inPage;            ///< true if stream pointer is between bop and eop
-		unsigned _currPageNum;   ///< current page number (1 is first page)
-		int _currFontNum;        ///< current font number
-		double _dvi2bp;          ///< factor to convert dvi units to PS points
-		uint32_t _mag;           ///< magnification factor * 1000
-		bool _inPostamble;       ///< true if stream pointer is inside the postamble
-		DVIState _dviState;      ///< current state of the DVI registers
+		bool _inPage=false;          ///< true if stream pointer is between bop and eop
+		unsigned _currPageNum=0;     ///< current page number (1 is first page)
+		int _currFontNum=0;          ///< current font number
+		double _dvi2bp=0.0;          ///< factor to convert dvi units to PS points
+		uint32_t _mag=1;             ///< magnification factor * 1000
+		DVIState _dviState;          ///< current state of the DVI registers
 		std::stack<DVIState> _stateStack;
 		std::vector<uint32_t> _bopOffsets;
 };

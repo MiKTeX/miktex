@@ -154,6 +154,47 @@ int BasicDVIReader::executeCommand () {
 }
 
 
+void BasicDVIReader::executePreamble () {
+	clearStream();
+	if (isStreamValid()) {
+		seek(0);
+		if (readByte() == OP_PRE) {
+			cmdPre(0);
+			return;
+		}
+	}
+	throw DVIException("invalid DVI file");
+}
+
+
+/** Moves stream pointer to begin of postamble */
+void BasicDVIReader::goToPostamble () {
+	clearStream();
+	if (!isStreamValid())
+		throw DVIException("invalid DVI file");
+
+	seek(-1, ios::end);  // stream pointer to last byte
+	int count=0;
+	while (peek() == DVI_FILL) {   // skip fill bytes
+		seek(-1, ios::cur);
+		count++;
+	}
+	if (count < 4)  // the standard requires at least 4 trailing fill bytes
+		throw DVIException("missing fill bytes at end of file");
+
+	seek(-4, ios::cur);            // now at first byte of q (pointer to begin of postamble)
+	uint32_t q = readUnsigned(4);  // pointer to begin of postamble
+	seek(q);                       // now at begin of postamble
+}
+
+
+/** Reads and executes the commands of the postamble. */
+void BasicDVIReader::executePostamble () {
+	goToPostamble();
+	while (executeCommand() != OP_POSTPOST);  // executes all commands until post_post (= 249) is reached
+}
+
+
 void BasicDVIReader::executePostPost () {
 	clearStream();  // reset all status bits
 	if (!isStreamValid())
@@ -169,6 +210,37 @@ void BasicDVIReader::executePostPost () {
 		throw DVIException("missing fill bytes at end of file");
 
 	setDVIVersion((DVIVersion)readUnsigned(1));
+}
+
+
+void BasicDVIReader::executeFontDefs () {
+	goToPostamble();
+	seek(1+28, ios::cur); // now on first fontdef or postpost
+	if (peek() != OP_POSTPOST)
+		while (executeCommand() != OP_POSTPOST);
+}
+
+
+/** Collects and records the file offsets of all bop commands. */
+vector<uint32_t> BasicDVIReader::collectBopOffsets () {
+	std::vector<uint32_t> bopOffsets;
+	goToPostamble();
+	bopOffsets.push_back(tell());      // also add offset of postamble
+	readByte();                         // skip post command
+	uint32_t offset = readUnsigned(4);  // offset of final bop
+	while (int32_t(offset) != -1) {     // not yet on first bop?
+		bopOffsets.push_back(offset);   // record offset
+		seek(offset);                    // now on previous bop
+		if (readByte() != OP_BOP)
+			throw DVIException("bop offset at "+to_string(offset)+" doesn't point to bop command" );
+		seek(40, ios::cur);              // skip the 10 \count values => now on offset of previous bop
+		uint32_t prevOffset = readUnsigned(4);
+		if ((prevOffset >= offset && int32_t(prevOffset) != -1))
+			throw DVIException("invalid bop offset at "+to_string(tell()-static_cast<streamoff>(4)));
+		offset = prevOffset;
+	}
+	reverse(bopOffsets.begin(), bopOffsets.end());
+	return bopOffsets;
 }
 
 
