@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/i18n">
+        <file alias="console_de.qm">${CMAKE_CURRENT_BINARY_DIR}/console_de.qm</file>
+    </qresource>
+</RCC>

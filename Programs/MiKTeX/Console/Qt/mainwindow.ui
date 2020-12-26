@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>6</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -492,7 +492,7 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;If you want, you can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is MiKTeX Console. The program will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;If you want, you can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -936,7 +936,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -985,7 +985,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                     <item>
                      <widget class="QLabel" name="label_11">
                       <property name="text">
-                       <string>You can choose whether missing packages are to be installed on-the-fly:</string>
+                       <string>You can choose whether missing packages are to be installed automatically (on-the-fly):</string>
                       </property>
                       <property name="wordWrap">
                        <bool>true</bool>
@@ -1015,7 +1015,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                         <item>
                          <widget class="QRadioButton" name="radioAutoInstallYes">
                           <property name="text">
-                           <string>Always install missing packages on-the-fly</string>
+                           <string>Always</string>
                           </property>
                          </widget>
                         </item>
@@ -1056,7 +1056,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                         <item>
                          <widget class="QRadioButton" name="radioAutoInstallNo">
                           <property name="text">
-                           <string>Never install missing packages on-the-fly</string>
+                           <string>Never</string>
                           </property>
                          </widget>
                         </item>
@@ -1072,7 +1072,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                <item>
                 <widget class="QGroupBox" name="groupPaper">
                  <property name="title">
-                  <string>Paper</string>
+                  <string>Paper format</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_10">
                   <item>
@@ -1682,7 +1682,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                 <item>
                  <widget class="QPushButton" name="pushButtonOpenReport">
                   <property name="text">
-                   <string>Open in text editor...</string>
+                   <string>Open...</string>
                   </property>
                  </widget>
                 </item>
@@ -1857,7 +1857,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
            <item>
             <widget class="QCommandLinkButton" name="buttonUninstall">
              <property name="text">
-              <string>Uninstall MiKTeX</string>
+              <string>Remove MiKTeX</string>
              </property>
              <property name="description">
               <string>This removes MiKTeX from your computer.
@@ -1906,7 +1906,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
      <x>0</x>
      <y>0</y>
      <width>841</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

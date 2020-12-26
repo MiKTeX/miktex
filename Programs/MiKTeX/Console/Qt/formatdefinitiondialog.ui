@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Format Definition</string>
+   <string>Format Properties</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -22,7 +22,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Format key:</string>
+        <string>Key:</string>
        </property>
       </widget>
      </item>
@@ -32,7 +32,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Format name:</string>
+        <string>Name:</string>
        </property>
       </widget>
      </item>
@@ -52,7 +52,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Input file name:</string>
+        <string>Input file:</string>
        </property>
       </widget>
      </item>
@@ -62,7 +62,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Output file name:</string>
+        <string>Output file:</string>
        </property>
       </widget>
      </item>
@@ -72,7 +72,7 @@
      <item row="5" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Preloaded format:</string>
+        <string>Base format:</string>
        </property>
       </widget>
      </item>

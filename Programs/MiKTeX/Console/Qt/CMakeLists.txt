@@ -49,6 +49,8 @@ set(console_sources
   mainwindow.h
 )
 
+list(APPEND l_sources ${console_sources})
+
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
     win/console.rc.in
@@ -89,7 +91,21 @@ set(console_ui_files
   mainwindow.ui
 )
 
+list(APPEND l_sources ${console_ui_files})
+
+configure_file(
+  translations.qrc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
+)
+
+set(translations
+  translations/console_de.ts
+)
+
+qt5_create_translation(qm_files ${translations} ${l_sources})
+
 set(console_rcs_files
+  ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
   console.qrc
 )
 

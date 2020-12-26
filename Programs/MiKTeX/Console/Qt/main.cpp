@@ -30,6 +30,7 @@
 #include <QApplication>
 #include <QtWidgets>
 #include <QSystemTrayIcon>
+#include <QTranslator>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
@@ -216,7 +217,6 @@ int main(int argc, char* argv[])
   bool optHide = false;
   bool optMkmaps = false;
   bool optVersion = false;
-  QString displayName = "MiKTeX Console";
 #if defined(MIKTEX_MACOS_BUNDLE)
   PathName plugIns = GetExecutableDir() / PathName("..") / PathName("PlugIns");
   plugIns.MakeFullyQualified();
@@ -226,6 +226,17 @@ int main(int argc, char* argv[])
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
   QApplication application(argc, argv);
+  QTranslator translator;
+  if (translator.load(QLocale(), "console", "_", ":/i18n", ".qm"))
+  {
+    qDebug() << "installing translator: " << translator.language();
+    QCoreApplication::installTranslator(&translator);
+  }
+  else
+  {
+    qDebug() << "no translator found for: " << QLocale().uiLanguages();
+  }
+  QString displayName = QCoreApplication::translate("main", "MiKTeX Console");
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
 #endif
@@ -238,7 +249,7 @@ int main(int argc, char* argv[])
     lockFile = LockFile::Create(lockFileName);
     if (!lockFile->TryLock(500ms))
     {
-      QMessageBox::warning(nullptr, displayName, "MiKTeX Console is already running.");
+      QMessageBox::warning(nullptr, displayName, QCoreApplication::translate("main", "MiKTeX Console is already running."));
       return 1;
     }
   }
@@ -247,7 +258,7 @@ int main(int argc, char* argv[])
 #if defined(MIKTEX_WINDOWS)
     OutputDebugStringW(StringUtil::UTF8ToWideChar(e.what()).c_str());
 #endif
-    QMessageBox::critical(nullptr, displayName, QString("MiKTeX Console cannot be started.\n\nRemedy: remove %1").arg(QString::fromUtf8(lockFileName.GetData())));
+    QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "MiKTeX Console cannot be started.\n\nRemedy: remove %1").arg(QString::fromUtf8(lockFileName.GetData())));
     return 1;
   }
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
@@ -341,9 +352,9 @@ int main(int argc, char* argv[])
       if (!session->RunningAsAdministrator())
       {
 #if defined(MIKTEX_WINDOWS)
-        QMessageBox::critical(nullptr, displayName, "Administrator mode was requested (--admin), but the program is not running elevated (as Administrator).");
+        QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "Administrator mode was requested (--admin), but the program is not running as Administrator."));
 #else
-        QMessageBox::critical(nullptr, displayName, "Administrator mode was requested (--admin), but the program is not running as root user.");
+        QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "Administrator mode was requested (--admin), but the program is not running as root."));
 #endif
         return 1;
       }
@@ -430,7 +441,7 @@ int main(int argc, char* argv[])
     {
       traceSink.FlushPendingTraceMessages();
     }
-    if (QMessageBox::critical(nullptr, "MiKTeX Console", "Sorry, but something went wrong.\n\nDo you want to see the error details?",
+    if (QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "Sorry, but something went wrong.\n\nDo you want to see the error details?"),
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
     {
@@ -449,7 +460,7 @@ int main(int argc, char* argv[])
     {
       traceSink.FlushPendingTraceMessages();
     }
-    if (QMessageBox::critical(nullptr, "MiKTeX Console", "Sorry, but something went wrong.\n\nDo you want to see the error details?",
+    if (QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "Sorry, but something went wrong.\n\nDo you want to see the error details?"),
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
     {
