@@ -27,6 +27,8 @@
 
 #include "internal.h"
 
+#include <QTranslator>
+
 #include "miktex/UI/UI"
 
 #include "InstallPackageDialog.h"
@@ -100,6 +102,11 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   else
   {
     application = new QCoreApplication(argc, argv);
+    QTranslator translator;
+    if (translator.load(QLocale(), "ui", "_", ":/i18n", ".qm"))
+    {
+      QCoreApplication::installTranslator(&translator);
+    }
   }
 }
 

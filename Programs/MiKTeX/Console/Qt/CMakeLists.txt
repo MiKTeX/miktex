@@ -93,18 +93,32 @@ set(console_ui_files
 
 list(APPEND l_sources ${console_ui_files})
 
+foreach(l ${MIKTEX_TRANSLATION_LOCALES})
+  list(APPEND translations
+    translations/console_${l}.ts
+  )
+  set(qresource_files
+    "${qresource_files}<file alias='console_${l}.qm'>${CMAKE_CURRENT_BINARY_DIR}/console_${l}.qm</file>"
+  )
+endforeach()
+
+get_target_property(LUPDATE_EXECUTABLE Qt5::lupdate LOCATION)
+
+add_custom_target(gen-console-translations
+  COMMAND
+    ${LUPDATE_EXECUTABLE} ${l_sources} -ts ${translations}
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+qt5_add_translation(qm_files ${translations})
+
 configure_file(
   translations.qrc.in
   ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
 )
 
-set(translations
-  translations/console_de.ts
-)
-
-qt5_create_translation(qm_files ${translations} ${l_sources})
-
-set(console_rcs_files
+set(console_qrc_files
   ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
   console.qrc
 )
@@ -115,7 +129,7 @@ qt5_wrap_ui(console_ui_headers ${console_ui_files})
 
 qt5_wrap_cpp(console_ui_mocs ${console_ui_headers})
 
-qt5_add_resources(console_rcc_sources ${console_rcs_files})
+qt5_add_resources(console_rcc_sources ${console_qrc_files})
 
 set(sources
   ${console_sources}

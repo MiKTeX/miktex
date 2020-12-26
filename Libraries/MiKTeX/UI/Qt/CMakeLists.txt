@@ -91,6 +91,8 @@ set(${ui_qt_dll_name}_sources
   mikuiqt.cpp
 )
 
+list(APPEND l_sources ${${ui_qt_dll_name}_sources})
+
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/mikuiqt.rc.in
@@ -114,7 +116,35 @@ set(${ui_qt_dll_name}_ui_files
   UpdateDialog.ui
 )
 
+list(APPEND l_sources ${${ui_qt_dll_name}_ui_files})
+
+foreach(l ${MIKTEX_TRANSLATION_LOCALES})
+  list(APPEND translations
+    translations/ui_${l}.ts
+  )
+  set(qresource_files
+    "${qresource_files}<file alias='ui_${l}.qm'>${CMAKE_CURRENT_BINARY_DIR}/ui_${l}.qm</file>"
+  )
+endforeach()
+
+get_target_property(LUPDATE_EXECUTABLE Qt5::lupdate LOCATION)
+
+add_custom_target(gen-ui-translations
+  COMMAND
+    ${LUPDATE_EXECUTABLE} ${l_sources} -ts ${translations}
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+qt5_add_translation(qm_files ${translations})
+
+configure_file(
+  translations.qrc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
+)
+
 set(${ui_qt_dll_name}_qrc_files
+  ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
   mikuiqt.qrc
 )
 

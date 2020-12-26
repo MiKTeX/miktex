@@ -236,6 +236,15 @@ int main(int argc, char* argv[])
   {
     qDebug() << "no translator found for: " << QLocale().uiLanguages();
   }
+  if (translator.load(QLocale(), "ui", "_", ":/i18n", ".qm"))
+  {
+    qDebug() << "installing translator: ui " << translator.language();
+    QCoreApplication::installTranslator(&translator);
+  }
+  else
+  {
+    qDebug() << "no translator found for: ui " << QLocale().uiLanguages();
+  }
   QString displayName = QCoreApplication::translate("main", "MiKTeX Console");
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);

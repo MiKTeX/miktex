@@ -785,6 +785,13 @@ endif()
 set(MIKTEX_LEGACY_MAJOR_MINOR_STR "${MIKTEX_LEGACY_MAJOR_VERSION}.${MIKTEX_LEGACY_MINOR_VERSION}")
 
 ###############################################################################
+## Localization
+
+set(MIKTEX_TRANSLATION_LOCALES
+  "de"
+)
+
+###############################################################################
 ## Endianess
 
 include(TestBigEndian)
