@@ -114,13 +114,13 @@ set(${ui_qt_dll_name}_ui_files
   UpdateDialog.ui
 )
 
-set(${ui_qt_dll_name}_rcs_files
+set(${ui_qt_dll_name}_qrc_files
   mikuiqt.qrc
 )
 
 qt5_wrap_ui(${ui_qt_dll_name}_ui_headers ${${ui_qt_dll_name}_ui_files})
 
-qt5_add_resources(${ui_qt_dll_name}_rcc_sources ${${ui_qt_dll_name}_rcs_files})
+qt5_add_resources(${ui_qt_dll_name}_rcc_sources ${${ui_qt_dll_name}_qrc_files})
 
 add_library(${ui_qt_dll_name} SHARED
   ${${ui_qt_dll_name}_sources}
