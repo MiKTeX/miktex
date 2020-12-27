@@ -110,6 +110,7 @@ add_custom_target(gen-console-translations
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+set_property(TARGET gen-console-translations PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 qt5_add_translation(qm_files ${translations})
 

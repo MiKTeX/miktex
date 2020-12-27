@@ -75,12 +75,14 @@ add_custom_target(setuplib-pot
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+set_property(TARGET setuplib-pot PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 add_custom_target(gen-setuplib-translations)
-
+set_property(TARGET gen-setuplib-translations PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 add_dependencies(gen-setuplib-translations setuplib-pot)
 
 add_custom_target(setuplib-mo ALL)
+set_property(TARGET setuplib-mo PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 foreach(l ${MIKTEX_TRANSLATION_LOCALES})
   add_custom_target(setuplib-po-${l}
@@ -89,9 +91,11 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_SOURCE_DIR}
   )
+  set_property(TARGET setuplib-po-${l} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
   add_dependencies(gen-setuplib-translations setuplib-po-${l})
-  add_custom_target(setuplib-${l}-mo DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo)
-  add_dependencies(setuplib-mo setuplib-${l}-mo)
+  add_custom_target(setuplib-mo-${l} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo)
+  set_property(TARGET setuplib-mo-${l} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
+  add_dependencies(setuplib-mo setuplib-mo-${l})
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo

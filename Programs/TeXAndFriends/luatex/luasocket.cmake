@@ -1,6 +1,6 @@
 ## luasocket.cmake
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -91,6 +91,7 @@ add_custom_target(
   DEPENDS
     ${generated_luasocket_sources}
 )
+set_property(TARGET gen-luasocket-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 list(APPEND luasocket_sources ${generated_luasocket_sources})
 

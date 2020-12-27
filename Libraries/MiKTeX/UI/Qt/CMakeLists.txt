@@ -135,6 +135,7 @@ add_custom_target(gen-ui-translations
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+set_property(TARGET gen-ui-translations PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 qt5_add_translation(qm_files ${translations})
 
