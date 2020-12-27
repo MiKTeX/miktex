@@ -1,6 +1,6 @@
 /* SiteWizLocal.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -80,7 +80,7 @@ bool SiteWizLocal::validatePage()
     PathName directory(leDirectory->text().toLocal8Bit().data());
     if (!Directory::Exists(directory))
     {
-      QMessageBox::critical(this, QString(), T_("The specified directory does not exist."));
+      QMessageBox::critical(this, QString(), tr("The specified directory does not exist."));
       return false;
     }
     if (!packageManager->IsLocalPackageRepository(directory))
@@ -90,7 +90,7 @@ bool SiteWizLocal::validatePage()
       mpmIni /= MIKTEX_PATH_MPM_INI;
       if (!File::Exists(mpmIni))
       {
-        QMessageBox::critical(this, QString(), T_("Not a local package repository."));
+        QMessageBox::critical(this, QString(), tr("Not a local package repository."));
         return false;
       }
     }

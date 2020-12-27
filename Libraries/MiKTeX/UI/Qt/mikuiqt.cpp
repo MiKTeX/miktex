@@ -41,6 +41,7 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 static QCoreApplication* application = nullptr;
+static QTranslator* translator = nullptr;
 
 #if defined(MIKTEX_MACOS_BUNDLE)
 PathName GetExecutablePath()
@@ -98,15 +99,15 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   if (useGUI)
   {
     application = new QApplication(argc, argv);
+    translator = new QTranslator();
+    if (translator->load(QLocale(), "ui", "_", ":/i18n", ".qm"))
+    {
+      QApplication::installTranslator(translator);
+    }
   }
   else
   {
     application = new QCoreApplication(argc, argv);
-    QTranslator translator;
-    if (translator.load(QLocale(), "ui", "_", ":/i18n", ".qm"))
-    {
-      QCoreApplication::installTranslator(&translator);
-    }
   }
 }
 
@@ -114,6 +115,11 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
 {
   delete application;
   application = nullptr;
+  if (translator != nullptr)
+  {
+    delete translator;
+    translator = nullptr;
+  }
 }
 
 MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessageBox(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)

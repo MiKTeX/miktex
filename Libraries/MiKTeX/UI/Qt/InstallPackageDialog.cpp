@@ -60,7 +60,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     {
       MIKTEX_UNEXPECTED();
     }
-    okayButton->setText(T_("Install"));
+    okayButton->setText(tr("Install"));
     lblPackageName->setText(QString::fromLocal8Bit(packageName.c_str()));
     lblMissingFile->setText(QString::fromLocal8Bit(trigger.c_str()));
     PackageInfo packageInfo = packageManager->GetPackageInfo(packageName);
@@ -72,7 +72,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     }
     else
     {
-      leInstallationSource->setText(T_("<Random package repository>"));
+      leInstallationSource->setText(tr("<Random package repository>"));
     }
     PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
     PathName userInstallRoot = session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot);
@@ -80,7 +80,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     enableCommonInstall = enableCommonInstall && Directory::Exists(commonInstallRoot);
     if (enableCommonInstall)
     {
-      cbInstallationDirectory->addItem(T_("Anyone who uses this computer (all users)"), true);
+      cbInstallationDirectory->addItem(tr("Anyone who uses this computer (all users)"), true);
     }
     if (!session->IsAdminMode())
     {
@@ -94,7 +94,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       }
       else if (GetLastError() == ERROR_NOT_LOGGED_ON)
       {
-        currentUser = T_("Unknown user");
+        currentUser = tr("Unknown user");
       }
       else
       {
@@ -109,7 +109,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
         currentUser += ")";
       }
 #else
-      currentUser = T_("The current user");
+      currentUser = tr("The current user");
 #endif
       cbInstallationDirectory->addItem(currentUser, false);
     }

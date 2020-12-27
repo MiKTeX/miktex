@@ -936,7 +936,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -954,7 +954,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                     <item>
                      <widget class="QLabel" name="label_13">
                       <property name="text">
-                       <string>Packages are installed from:</string>
+                       <string>Packages are retrieved from:</string>
                       </property>
                      </widget>
                     </item>
@@ -1080,7 +1080,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                     <item>
                      <widget class="QLabel" name="label_10">
                       <property name="text">
-                       <string>Select your default paper format:</string>
+                       <string>Select your preferred paper format:</string>
                       </property>
                      </widget>
                     </item>
@@ -1101,21 +1101,6 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                      </spacer>
                     </item>
                    </layout>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_12">
-                    <property name="font">
-                     <font>
-                      <italic>true</italic>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Changing the paper format triggers a rebuild of the format files.</string>
-                    </property>
-                    <property name="wordWrap">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -1149,7 +1134,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                   <item>
                    <widget class="QLabel" name="label_14">
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the order, in which files are searched. A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;. If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users. More information:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the search order of files. A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;. If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users. More information:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="wordWrap">
                      <bool>true</bool>
@@ -1379,7 +1364,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
              <item row="0" column="0">
               <widget class="QLabel" name="label_22">
                <property name="text">
-                <string>Install from:</string>
+                <string>Retrieve from:</string>
                </property>
               </widget>
              </item>
@@ -1407,7 +1392,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
              <item row="1" column="0">
               <widget class="QLabel" name="labelInstallTo2">
                <property name="text">
-                <string>Install to:</string>
+                <string>Install in:</string>
                </property>
               </widget>
              </item>
@@ -1570,14 +1555,14 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
              <item row="0" column="0">
               <widget class="QLabel" name="labelInstallFrom">
                <property name="text">
-                <string>Install from:</string>
+                <string>Retrieve from:</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="labelInstallTo">
                <property name="text">
-                <string>Install to:</string>
+                <string>Install in:</string>
                </property>
               </widget>
              </item>
@@ -1704,7 +1689,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <item>
                <widget class="QLabel" name="label_17x_2">
                 <property name="text">
-                 <string>When you write an issue ticket, you should include the report as an attachement.</string>
+                 <string>When you issue a ticket, you should include the report as an attachement.</string>
                 </property>
                </widget>
               </item>
@@ -1720,7 +1705,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <item>
                <widget class="QLabel" name="label_16">
                 <property name="text">
-                 <string>If something goes wrong, you can check the log files in:</string>
+                 <string>If something goes wrong, you can check the log files:</string>
                 </property>
                </widget>
               </item>
@@ -1736,7 +1721,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                 <item>
                  <widget class="QPushButton" name="pushButtonShowLogDirectory">
                   <property name="text">
-                   <string>Open in file explorer...</string>
+                   <string>Open...</string>
                   </property>
                  </widget>
                 </item>
@@ -1758,7 +1743,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <item>
                <widget class="QLabel" name="label_17x_3">
                 <property name="text">
-                 <string>When you write an issue ticket, you should include relevant log files as attachements.</string>
+                 <string>When you issue a ticket, you should include relevant log files as attachements.</string>
                 </property>
                </widget>
               </item>

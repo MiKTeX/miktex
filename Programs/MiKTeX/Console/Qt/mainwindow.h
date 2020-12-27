@@ -49,6 +49,8 @@ namespace Ui
   class MainWindow;
 }
 
+constexpr auto TheNameOfTheGame = "MiKTeX Console";
+
 class MainWindow :
   public QMainWindow
 {

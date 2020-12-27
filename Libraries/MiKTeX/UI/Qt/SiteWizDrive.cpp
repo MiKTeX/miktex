@@ -62,7 +62,7 @@ void SiteWizDrive::initializePage()
     }
     if (locations.empty())
     {
-      cbDrives->addItem(T_("No MiKTeX CD/DVD found"));
+      cbDrives->addItem(tr("No MiKTeX CD/DVD found"));
     }
   }
   catch (const MiKTeXException& e)

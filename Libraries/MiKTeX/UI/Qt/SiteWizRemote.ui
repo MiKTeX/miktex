@@ -15,7 +15,7 @@
    <string>Remote Package Repository</string>
   </property>
   <property name="subTitle">
-   <string>Many servers on the Internet host a MiKTeX package repository.</string>
+   <string>There are many MiKTeX package repositories around the world.</string>
   </property>
   <layout class="QVBoxLayout">
    <item>

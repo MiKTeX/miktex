@@ -85,15 +85,15 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       case 5:
         if (packageInfo.IsInstalled(ConfigurationScope::Common) && packageInfo.IsInstalled(ConfigurationScope::User))
         {
-          return "Admin, User";
+          return tr("Admin") + ", " + tr("User");
         }
         else if (packageInfo.IsInstalled(ConfigurationScope::Common))
         {
-          return session->IsSharedSetup() ? "Admin" : "User";
+          return session->IsSharedSetup() ? tr("Admin") : tr("User");
         }
         else if (packageInfo.IsInstalled(ConfigurationScope::User))
         {
-          return "User";
+          return tr("User");
         }
         break;
       case 6:

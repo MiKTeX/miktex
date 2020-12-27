@@ -6,27 +6,27 @@
     <message>
         <location filename="../ConnectionSettingsDialog.ui" line="14"/>
         <source>Connection Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindungseinstellungen</translation>
     </message>
     <message>
         <location filename="../ConnectionSettingsDialog.ui" line="20"/>
         <source>&amp;Use a proxy server</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen Proxy-Server &amp;benutzen</translation>
     </message>
     <message>
         <location filename="../ConnectionSettingsDialog.ui" line="37"/>
         <source>&amp;Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Adresse:</translation>
     </message>
     <message>
         <location filename="../ConnectionSettingsDialog.ui" line="57"/>
         <source>&amp;Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Port:</translation>
     </message>
     <message>
         <location filename="../ConnectionSettingsDialog.ui" line="79"/>
         <source>Au&amp;thentication required</source>
-        <translation type="unfinished"></translation>
+        <translation>Au&amp;thentifizierung erforderlich</translation>
     </message>
 </context>
 <context>
@@ -34,17 +34,17 @@
     <message>
         <location filename="../ErrorDialog.ui" line="15"/>
         <source>MiKTeX Error Report</source>
-        <translation type="unfinished"></translation>
+        <translation>MiKTeX-Fehlerbericht</translation>
     </message>
     <message>
         <location filename="../ErrorDialog.ui" line="38"/>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Details:</translation>
     </message>
     <message>
         <location filename="../ErrorDialog.ui" line="52"/>
         <source>Copy the error report to the Clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere den Fehlerbericht in die Zwischenablage.</translation>
     </message>
     <message>
         <location filename="../ErrorDialog.ui" line="55"/>
@@ -53,16 +53,29 @@
     </message>
 </context>
 <context>
+    <name>ErrorDialogImpl</name>
+    <message>
+        <location filename="../ErrorDialog.cpp" line="97"/>
+        <source>Report Copied</source>
+        <translation>Fehlerbericht kopiert</translation>
+    </message>
+    <message>
+        <location filename="../ErrorDialog.cpp" line="97"/>
+        <source>The error report has been copied to the Clipboard.</source>
+        <translation>Der Fehlerbericht wurde in die Zwischenablage kopiert.</translation>
+    </message>
+</context>
+<context>
     <name>FileTableModel</name>
     <message>
         <location filename="../FileTableModel.cpp" line="72"/>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiname</translation>
     </message>
     <message>
         <location filename="../FileTableModel.cpp" line="74"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad</translation>
     </message>
 </context>
 <context>
@@ -70,22 +83,26 @@
     <message>
         <location filename="../InstallPackageDialog.ui" line="24"/>
         <source>Package Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Installation</translation>
+    </message>
+    <message>
+        <source>The required file</source>
+        <translation type="vanished">Die erforderliche Datei</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="30"/>
-        <source>The required file</source>
-        <translation type="unfinished"></translation>
+        <source>This required file is missing:</source>
+        <translation>Diese erfordeliche Datei fehlt:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="76"/>
-        <source>is missing. It is a part of the following package:</source>
-        <translation type="unfinished"></translation>
+        <source>It is a part of the following package:</source>
+        <translation>Sie ist im folgenden Paket enthalten:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="172"/>
-        <source>The package will be installed from:</source>
-        <translation type="unfinished"></translation>
+        <source>The package will be retrieved from this source:</source>
+        <translation>Das Paket wird von dieser Quelle bezogen:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="193"/>
@@ -100,17 +117,42 @@
     <message>
         <location filename="../InstallPackageDialog.ui" line="228"/>
         <source>&amp;Change...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ä&amp;ndern...</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="257"/>
         <source>The package will be installed for:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Paket wird installiert für:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="290"/>
-        <source>&amp;Always show this dialog before installing packages</source>
-        <translation type="unfinished"></translation>
+        <source>&amp;Always show this dialog</source>
+        <translation>Dieses Dialogfeld &amp;immer anzeigen</translation>
+    </message>
+    <message>
+        <location filename="../InstallPackageDialog.cpp" line="63"/>
+        <source>Install</source>
+        <translation>Installieren</translation>
+    </message>
+    <message>
+        <location filename="../InstallPackageDialog.cpp" line="75"/>
+        <source>&lt;Random package repository&gt;</source>
+        <translation>&lt;Zufälliges Paket-Repository&gt;</translation>
+    </message>
+    <message>
+        <location filename="../InstallPackageDialog.cpp" line="83"/>
+        <source>Anyone who uses this computer (all users)</source>
+        <translation>Jeder der den Computer benutzt (alle Benutzer)</translation>
+    </message>
+    <message>
+        <location filename="../InstallPackageDialog.cpp" line="97"/>
+        <source>Unknown user</source>
+        <translation>Unbekannter Benutzer</translation>
+    </message>
+    <message>
+        <location filename="../InstallPackageDialog.cpp" line="112"/>
+        <source>The current user</source>
+        <translation>Der aktuelle Benutzer</translation>
     </message>
 </context>
 <context>
@@ -118,62 +160,62 @@
     <message>
         <location filename="../PackageInfoDialog.ui" line="23"/>
         <source>Package Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Informationen</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="33"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="44"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="58"/>
         <source>Date:</source>
-        <translation type="unfinished"></translation>
+        <translation>Datum:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="72"/>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="86"/>
         <source>Maintainer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maintainer:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="100"/>
         <source>Title:</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="120"/>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="134"/>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="151"/>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="157"/>
         <source>Run-time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Laufzeit:</translation>
     </message>
     <message>
         <location filename="../PackageInfoDialog.ui" line="171"/>
         <source>Documentation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumentation:</translation>
     </message>
 </context>
 <context>
@@ -181,22 +223,22 @@
     <message>
         <location filename="../ProxyAuthenticationDialog.ui" line="14"/>
         <source>Proxy Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Authentifizierung</translation>
     </message>
     <message>
         <location filename="../ProxyAuthenticationDialog.ui" line="20"/>
         <source>Proxy authentication required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Authentifizierung erforderlich.</translation>
     </message>
     <message>
         <location filename="../ProxyAuthenticationDialog.ui" line="29"/>
         <source>&amp;Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Name:</translation>
     </message>
     <message>
         <location filename="../ProxyAuthenticationDialog.ui" line="45"/>
         <source>&amp;Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Passwort:</translation>
     </message>
 </context>
 <context>
@@ -204,27 +246,27 @@
     <message>
         <location filename="../RepositoryTableModel.cpp" line="90"/>
         <source>Ranking</source>
-        <translation type="unfinished"></translation>
+        <translation>Ranking</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="92"/>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Land</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="94"/>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="96"/>
         <source>Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Host</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="98"/>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>Datum</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="100"/>
@@ -244,39 +286,54 @@
         <source>Packages will be installed from a MiKTeX CD/DVD.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../SiteWizDrive.cpp" line="65"/>
+        <source>No MiKTeX CD/DVD found</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SiteWizLocal</name>
     <message>
         <location filename="../SiteWizLocal.ui" line="15"/>
         <source>Form</source>
+        <translatorcomment>do not translate</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../SiteWizLocal.ui" line="18"/>
         <source>Local Package Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Paket-Repository</translation>
     </message>
     <message>
         <location filename="../SiteWizLocal.ui" line="21"/>
         <source>A local MiKTeX package repository is a directory on your file system which mirrors a remote package repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein lokales Paket-Repository ist ein Verzeichnis in Ihrem Dateisystem, welches ein entferntes Paket-Repository spiegelt.</translation>
     </message>
     <message>
         <location filename="../SiteWizLocal.ui" line="27"/>
         <source>Please choose the directory which contains the repository contents:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte wählen Sie das Verzeichnis, welches die Repository-Inhalte enthält:</translation>
     </message>
     <message>
         <location filename="../SiteWizLocal.ui" line="65"/>
         <source>Bro&amp;wse...</source>
-        <translation type="unfinished"></translation>
+        <translation>Durch&amp;suchen...</translation>
     </message>
     <message>
         <location filename="../SiteWizLocal.ui" line="74"/>
-        <source>&lt;p&gt;If you do not have a local package repository yet, it is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;HOWTO: set up a local package repository&lt;/a&gt;&lt;/p&gt;
-</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You do not yet have a local package repository? It is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: set up a local package repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie haben noch kein lokales Paket-Repository? Es ist leicht, eines einzurichten: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: set up a local package repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../SiteWizLocal.cpp" line="83"/>
+        <source>The specified directory does not exist.</source>
+        <translation>Das Verzeichnis existiert nicht.</translation>
+    </message>
+    <message>
+        <location filename="../SiteWizLocal.cpp" line="93"/>
+        <source>Not a local package repository.</source>
+        <translation>Kein lokales Paket-Repository.</translation>
     </message>
 </context>
 <context>
@@ -284,17 +341,25 @@
     <message>
         <location filename="../SiteWizRemote.ui" line="15"/>
         <source>Remote Package Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Paket-Repository</translation>
     </message>
     <message>
         <location filename="../SiteWizRemote.ui" line="18"/>
-        <source>Many servers on the Internet host a MiKTeX package repository.</source>
-        <translation type="unfinished"></translation>
+        <source>There are many MiKTeX package repositories around the world.</source>
+        <translation>Es gibt viele MiKTeX-Paket-Repositories rund um die Welt.</translation>
     </message>
     <message>
         <location filename="../SiteWizRemote.ui" line="24"/>
         <source>For easy selection, the following list is sorted by network proximity. It is recommended that you select a host in your country which supports a secure transport protocol:</source>
-        <translation type="unfinished"></translation>
+        <translation>Für eine einfache Auswahl ist die folgende Liste nach Netzwerknähe sortiert. Es wird empfohlen, daß Sie einen Host in Ihrem Land auswählen, der ein sicheres Transportprotokoll unterstützt:</translation>
+    </message>
+</context>
+<context>
+    <name>SiteWizSheetImpl</name>
+    <message>
+        <location filename="../SiteWizSheet.cpp" line="43"/>
+        <source>Change Package Repository</source>
+        <translation>Paket-Repository ändern</translation>
     </message>
 </context>
 <context>
@@ -302,53 +367,52 @@
     <message>
         <location filename="../SiteWizType.ui" line="15"/>
         <source>Package Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Quelle</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="18"/>
         <source>Packages can be retrieved from different sources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete können von verschiedenen Quellen bezogen werden.</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="24"/>
         <source>Please choose the type of package source:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte wählen Sie die Art der Paketquelle:</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="55"/>
         <source>Remote package repository (Internet)</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Paket-Repository (Internet)</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="78"/>
         <source>&amp;Connection Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Verbindungseinstellungen...</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="108"/>
         <source>Retrieve pre-release (experimental) packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Beziehe Vorabversionen (experimentell) von Paketen</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="117"/>
         <source>Local package repository (file system)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Paket-Repository (Dateisystem)</translation>
     </message>
     <message>
         <location filename="../SiteWizType.ui" line="142"/>
-        <source>&lt;p&gt;If you do not have a local package repository yet, it is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;HOWTO: set up a local package repository&lt;/a&gt;&lt;/p&gt;
-</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;p&gt;You do not yet have a local package repository? It is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: set up a local package repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Sie haben noch kein lokales Paket-Repository? Es ist leicht, eines einzurichten: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: set up a local package repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../SiteWizType.ui" line="158"/>
+        <location filename="../SiteWizType.ui" line="157"/>
         <source>MiKTeX DVD (mounted drive or ISO image)</source>
-        <translation type="unfinished"></translation>
+        <translation>MiKTeX DVD (bereitgestelltes Laufwerk oder ISO-Image)</translation>
     </message>
     <message>
         <location filename="../SiteWizType.cpp" line="149"/>
         <source>MiKTeX Package Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>MiKTeX Paket-Manager</translation>
     </message>
     <message>
         <location filename="../SiteWizType.cpp" line="150"/>
@@ -363,27 +427,27 @@ Please visit http://miktex.org/kb/miktex-next, for more information.</source>
     <message>
         <location filename="../UpdateDialog.ui" line="47"/>
         <source>Downloading:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird heruntergeladen:</translation>
     </message>
     <message>
         <location filename="../UpdateDialog.ui" line="60"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../UpdateDialog.ui" line="80"/>
         <source>Total</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamt</translation>
     </message>
     <message>
         <location filename="../UpdateDialog.ui" line="102"/>
         <source>Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete</translation>
     </message>
     <message>
         <location filename="../UpdateDialog.ui" line="141"/>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien</translation>
     </message>
     <message>
         <location filename="../UpdateDialog.ui" line="180"/>
@@ -398,7 +462,7 @@ Please visit http://miktex.org/kb/miktex-next, for more information.</source>
     <message>
         <location filename="../UpdateDialog.ui" line="284"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -406,12 +470,12 @@ Please visit http://miktex.org/kb/miktex-next, for more information.</source>
     <message>
         <location filename="../UpdateDialog.cpp" line="247"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <location filename="../UpdateDialog.cpp" line="300"/>
         <source>The update operation will now be cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Update-Vorgang wird jetzt abgebrochen.</translation>
     </message>
 </context>
 </TS>

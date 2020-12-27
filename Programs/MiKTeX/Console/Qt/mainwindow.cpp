@@ -206,7 +206,7 @@ void MainWindow::ShowMajorIssue()
       }
       else
       {
-        QMessageBox::critical(this, tr("MiKTeX Console"), text);
+        QMessageBox::critical(this, TheNameOfTheGame, text);
       }
       return;
     }
@@ -222,7 +222,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 {
   if (IsBackgroundWorkerActive())
   {
-    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("A task is running in the background. Are you sure you want to quit?"))
+    if (QMessageBox::question(this, TheNameOfTheGame, tr("A task is running in the background. Are you sure you want to quit?"))
       != QMessageBox::Yes)
     {
       event->ignore();
@@ -231,7 +231,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
   }
   if (updateModel->Pending() > 0)
   {
-    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("There are pending updates. Are you sure you want to quit?"))
+    if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit?"))
       != QMessageBox::Yes)
     {
       event->ignore();
@@ -278,7 +278,7 @@ void MainWindow::CriticalError(const QString& shortText, const MiKTeXException& 
   else
   {
     text += "<p>" + tr("Do you want to see the error details?") + "</p>";
-    if (QMessageBox::critical(this, tr("MiKTeX Console"), text,
+    if (QMessageBox::critical(this, TheNameOfTheGame, text,
       QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
       == QMessageBox::StandardButton::Yes)
     {
@@ -438,7 +438,7 @@ void MainWindow::CreateTrayIcon()
 #else
   trayIcon->setIcon(QIcon((":/Icons/miktex-console-32x32.png")));
 #endif
-  trayIcon->setToolTip(tr("MiKTeX Console"));
+  trayIcon->setToolTip(TheNameOfTheGame);
   trayIcon->show();
 
   (void)connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::TrayIconActivated);
@@ -483,7 +483,7 @@ void MainWindow::ShowTrayMessage(TrayMessageContext context, const QString& mess
     switch (context)
     {
     default:
-      title = tr("MiKTeX Console");
+      title = TheNameOfTheGame;
       break;
     case TrayMessageContext::Error:
       title = tr("MiKTeX Problem");
@@ -616,14 +616,14 @@ void MainWindow::StartTerminal()
 void MainWindow::AboutDialog()
 {
   QString message;
-  message = tr("<p>MiKTeX Console ");
+  message = QString("<p>%1 ").arg(TheNameOfTheGame);
   message += QString::fromUtf8(VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString().c_str());
   message += "</p>";
   message += "<p>" + QString::fromUtf8(MIKTEX_COMP_COPYRIGHT_STR) + "</p>";
-  message += tr("<p>MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.</p>");
-  message += tr("<p>MiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>");
-  message += tr("<p>You can support the project by giving back: <a href=\"https://miktex.org/giveback\">https://miktex.org/giveback</a><br>Thank you!</p>");
-  QMessageBox::about(this, tr("MiKTeX Console"), message);
+  message += tr("<p>%1 is free software. You are welcome to redistribute it under certain conditions.</p>").arg(TheNameOfTheGame);
+  message += tr("<p>%1 comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>").arg(TheNameOfTheGame);
+  message += tr("<p>You can support the project by giving back: <a href=\"%1\">%1</a><br>Thank you!</p>").arg("https://miktex.org/giveback");
+  QMessageBox::about(this, TheNameOfTheGame, message);
 }
 
 void MainWindow::RestartAdmin()
@@ -632,7 +632,7 @@ void MainWindow::RestartAdmin()
   {
     if (updateModel->Pending() > 0)
     {
-      if (QMessageBox::question(this, tr("MiKTeX Console"), tr("There are pending updates. Are you sure you want to quit?"))
+      if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit?"))
         != QMessageBox::Yes)
       {
         return;
@@ -848,13 +848,13 @@ void MainWindow::on_buttonFixPath_clicked()
   LOG4CXX_INFO(logger, "fixing PATH");
   if (Utils::CheckPath(true))
   {
-    QMessageBox::information(this, tr("MiKTeX Console"), tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
+    QMessageBox::information(this, TheNameOfTheGame, tr("The PATH environment variable has been successfully modified."), QMessageBox::Ok);
     ui->groupPathIssue->hide();
     FindIssues();
   }
   else
   {
-    QMessageBox::warning(this, tr("MiKTeX Console"), tr("The PATH environment variable could not be modified."), QMessageBox::Ok);
+    QMessageBox::warning(this, TheNameOfTheGame, tr("The PATH environment variable could not be modified."), QMessageBox::Ok);
   }
 }
 #endif
@@ -1018,7 +1018,7 @@ void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
   PathName initexmf;
   if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
-    MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility executable (initexmf) could not be found.").toStdString());
+    MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility (initexmf) could not be found.").toStdString());
   }
   vector<string> allArgs{
     initexmf.GetFileNameWithoutExtension().ToString(),
@@ -1041,7 +1041,7 @@ void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
     FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
     outstream.Write(&outputBytes[0], outputBytes.size());
     outstream.Close();
-    MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.").toStdString(),
+    MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The output has been saved to a file.").toStdString(),
       "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
   }
 }
@@ -1680,7 +1680,7 @@ void MainWindow::AddRootDirectory()
     PathName root(directory.toUtf8().constData());
     if (!CheckRoot(root))
     {
-      if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a <a href=\"https://miktex.org/kb/tds\">TDS-compliant</a> root directory. Are you sure you want to add it?"))
+      if (QMessageBox::question(this, TheNameOfTheGame, tr("This does not look like a <a href=\"https://miktex.org/kb/tds\">TDS-compliant</a> root directory. Are you sure you want to add it?"))
         != QMessageBox::Yes)
       {
         return;
@@ -1947,7 +1947,7 @@ void MainWindow::RemoveFormat()
 {
   try
   {
-    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("Are you sure you want to remove the selected format definition?")) != QMessageBox::Yes)
+    if (QMessageBox::question(this, TheNameOfTheGame, tr("Are you sure you want to remove the selected format definition?")) != QMessageBox::Yes)
     {
       return;
     }
@@ -2262,7 +2262,7 @@ void MainWindow::InstallPackage()
       tr("Your MiKTeX installation will now be updated:\n\n")
       + tr("%n package(s) will be installed\n", "", toBeInstalled.size())
       + tr("%n package(s) will be removed", "", toBeRemoved.size());
-    if (QMessageBox::Ok != QMessageBox::information(this, tr("MiKTeX Console"), message, QMessageBox::Ok | QMessageBox::Cancel))
+    if (QMessageBox::Ok != QMessageBox::information(this, TheNameOfTheGame, message, QMessageBox::Ok | QMessageBox::Cancel))
     {
       return;
     }
@@ -2519,7 +2519,7 @@ void MainWindow::UserReset()
   }
   message += "</ul>";
   message += tr("<p>Are you sure?</p>");
-  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  if (QMessageBox::warning(this, TheNameOfTheGame, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
   {
     return;
   }
@@ -2535,11 +2535,11 @@ void MainWindow::UserReset()
       UserResetWorker* worker = (UserResetWorker*)sender();
       if (worker->GetResult())
       {
-        QMessageBox::information(this, tr("MiKTeX Console"), tr("The personal MiKTeX configuration has been resetted.\n\nThe application window will now be closed."));
+        QMessageBox::information(this, TheNameOfTheGame, tr("The personal MiKTeX configuration has been resetted.\n\nThe application window will now be closed."));
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), tr("Something went wrong while resetting your personal MiKTeX configuration.\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, TheNameOfTheGame, tr("Something went wrong while resetting your personal MiKTeX configuration.\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
@@ -2597,7 +2597,7 @@ void MainWindow::FactoryReset()
   message += tr("<p>You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.");
   message += tr(" In other words: your TeX installation will be restored to its original state, as when it was first installed.</p>");
   message += tr("Are you sure?");
-  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  if (QMessageBox::warning(this, TheNameOfTheGame, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
   {
     return;
   }
@@ -2613,11 +2613,11 @@ void MainWindow::FactoryReset()
       FactoryResetWorker* worker = (FactoryResetWorker*)sender();
       if (worker->GetResult())
       {
-        QMessageBox::information(this, tr("MiKTeX Console"), tr("The TeX installation has been restored to its initial state.\n\nThe application window will now be closed."));
+        QMessageBox::information(this, TheNameOfTheGame, tr("The TeX installation has been restored to its initial state.\n\nThe application window will now be closed."));
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, TheNameOfTheGame, QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
@@ -2674,7 +2674,7 @@ void MainWindow::Uninstall()
   QString message = tr("<h3>Uninstall MiKTeX</h3>");
   message += tr("<p>You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</p>");
   message += tr("Are you sure?");
-  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+  if (QMessageBox::warning(this, TheNameOfTheGame, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
   {
     return;
   }
@@ -2690,11 +2690,11 @@ void MainWindow::Uninstall()
       UninstallWorker* worker = (UninstallWorker*)sender();
       if (worker->GetResult())
       {
-        QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX has been removed from your computer.\n\nThe application window will now be closed."));
+        QMessageBox::information(this, TheNameOfTheGame, tr("MiKTeX has been removed from your computer.\n\nThe application window will now be closed."));
       }
       else
       {
-        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
+        QMessageBox::warning(this, TheNameOfTheGame, QString::fromUtf8(worker->GetMiKTeXException().GetErrorMessage().c_str()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
       session->UnloadFilenameDatabase();
@@ -2746,14 +2746,14 @@ void MainWindow::WriteSettings()
 void MainWindow::Exit()
 {
   LOG4CXX_INFO(logger, "MiKTeX Console needs to be closed");
-  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be closed."));
+  QMessageBox::information(this, TheNameOfTheGame, tr("%1 needs to be closed.").arg(TheNameOfTheGame));
   this->close();
 }
 
 void MainWindow::Restart()
 {
   LOG4CXX_INFO(logger, "MiKTeX Console needs to be restarted");
-  QMessageBox::information(this, tr("MiKTeX Console"), tr("MiKTeX Console needs to be restarted."));
+  QMessageBox::information(this, TheNameOfTheGame, tr("%1 needs to be restarted.").arg(TheNameOfTheGame));
   vector<string> args{ MIKTEX_CONSOLE_EXE };
   if (session->IsAdminMode())
   {

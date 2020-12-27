@@ -10,7 +10,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
+    <width>461</width>
     <height>317</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>The required file</string>
+      <string>This required file is missing:</string>
      </property>
     </widget>
    </item>
@@ -73,7 +73,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>is missing. It is a part of the following package:</string>
+      <string>It is a part of the following package:</string>
      </property>
     </widget>
    </item>
@@ -169,7 +169,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>The package will be installed from:</string>
+        <string>The package will be retrieved from this source:</string>
        </property>
        <property name="buddy">
         <cstring>leInstallationSource</cstring>
@@ -287,7 +287,7 @@
      <item>
       <widget class="QCheckBox" name="chkAlwaysAsk">
        <property name="text">
-        <string>&amp;Always show this dialog before installing packages</string>
+        <string>&amp;Always show this dialog</string>
        </property>
       </widget>
      </item>

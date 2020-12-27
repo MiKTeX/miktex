@@ -229,23 +229,14 @@ int main(int argc, char* argv[])
   QTranslator translator;
   if (translator.load(QLocale(), "console", "_", ":/i18n", ".qm"))
   {
-    qDebug() << "installing translator: " << translator.language();
     QCoreApplication::installTranslator(&translator);
   }
-  else
+  QTranslator uiTranslator;
+  if (uiTranslator.load(QLocale(), "ui", "_", ":/i18n", ".qm"))
   {
-    qDebug() << "no translator found for: " << QLocale().uiLanguages();
+    QCoreApplication::installTranslator(&uiTranslator);
   }
-  if (translator.load(QLocale(), "ui", "_", ":/i18n", ".qm"))
-  {
-    qDebug() << "installing translator: ui " << translator.language();
-    QCoreApplication::installTranslator(&translator);
-  }
-  else
-  {
-    qDebug() << "no translator found for: ui " << QLocale().uiLanguages();
-  }
-  QString displayName = QCoreApplication::translate("main", "MiKTeX Console");
+  QString displayName = TheNameOfTheGame;
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
 #endif
@@ -258,7 +249,7 @@ int main(int argc, char* argv[])
     lockFile = LockFile::Create(lockFileName);
     if (!lockFile->TryLock(500ms))
     {
-      QMessageBox::warning(nullptr, displayName, QCoreApplication::translate("main", "MiKTeX Console is already running."));
+      QMessageBox::warning(nullptr, displayName, QCoreApplication::translate("main", "%1 is already running.").arg(TheNameOfTheGame));
       return 1;
     }
   }
@@ -267,7 +258,7 @@ int main(int argc, char* argv[])
 #if defined(MIKTEX_WINDOWS)
     OutputDebugStringW(StringUtil::UTF8ToWideChar(e.what()).c_str());
 #endif
-    QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "MiKTeX Console cannot be started.\n\nRemedy: remove %1").arg(QString::fromUtf8(lockFileName.GetData())));
+    QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "%1 cannot be started.\n\nRemedy: remove %2").arg(TheNameOfTheGame).arg(QString::fromUtf8(lockFileName.GetData())));
     return 1;
   }
   MainWindow::Pages startPage = MainWindow::Pages::Overview;
@@ -388,12 +379,12 @@ int main(int argc, char* argv[])
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       isLog4cxxConfigured = true;
       traceSink.FlushPendingTraceMessages();
-      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX Console", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
+      LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     }
     if (optVersion)
     {
       cout
-        << Utils::MakeProgramVersionString("MiKTeX Console", VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+        << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
 	<< endl
         << MIKTEX_COMP_COPYRIGHT_STR << endl
 	<< endl

@@ -139,8 +139,7 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>&lt;p&gt;If you do not have a local package repository yet, it is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;HOWTO: set up a local package repository&lt;/a&gt;&lt;/p&gt;
-</string>
+              <string>&lt;p&gt;You do not yet have a local package repository? It is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: set up a local package repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>

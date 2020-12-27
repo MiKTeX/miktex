@@ -1,6 +1,6 @@
 /* ErrorDialog.cpp:
 
-   Copyright (C) 2008-2019 Christian Schenk
+   Copyright (C) 2008-2020 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -94,7 +94,7 @@ void ErrorDialogImpl::on_btnCopy_clicked()
   {
     string report = CreateReport();
     QApplication::clipboard()->setText(QString::fromUtf8(report.c_str()));
-    QMessageBox::information(this, T_("Report Copied"), T_("The error report has been copied to the Clipboard."));
+    QMessageBox::information(this, tr("Report Copied"), tr("The error report has been copied to the Clipboard."));
   }
   catch (const exception&)
   {
