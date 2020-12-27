@@ -29,7 +29,7 @@ using namespace MiKTeX::Util;
 
 void LogFile::Load(const PathName& logFileName)
 {
-  setupService->ReportLine(fmt::format(T_("loading {0}..."), logFileName));
+  setupService->ReportLine(fmt::format("loading {0}...", logFileName));
   files.clear();
 #if defined(MIKTEX_WINDOWS)
   regValues.clear();
@@ -125,7 +125,7 @@ void LogFile::RemoveStartMenu()
 #if defined(MIKTEX_WINDOWS)
 void LogFile::RemoveRegistrySettings()
 {
-  setupService->ReportLine(fmt::format(T_("removing {0} registry values..."), regValues.size()));
+  setupService->ReportLine(fmt::format("removing {0} registry values...", regValues.size()));
   for (const RegValue& rv :regValues)
   {
     if (setupService->IsCancelled())
@@ -153,7 +153,7 @@ void LogFile::RemoveRegistrySettings()
 
 void LogFile::RemoveFiles(const PathName& prefix)
 {
-  setupService->ReportLine(fmt::format(T_("removing MiKTeX files from {0}..."), prefix));
+  setupService->ReportLine(fmt::format("removing MiKTeX files from {0}...", prefix));
   set<PathName> directories;
   for (const PathName& file : files)
   {

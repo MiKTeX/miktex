@@ -109,10 +109,10 @@ string IssueSeverityString(IssueSeverity severity)
 {
   switch (severity)
   {
-  case IssueSeverity::Critical: return T_("critical issue");
-  case IssueSeverity::Major: return T_("major issue");
-  case IssueSeverity::Minor: return T_("minor issue");
-  case IssueSeverity::Trivial: return T_("trivial issue");
+  case IssueSeverity::Critical: return "critical issue";
+  case IssueSeverity::Major: return "major issue";
+  case IssueSeverity::Minor: return "minor issue";
+  case IssueSeverity::Trivial: return "trivial issue";
   default: MIKTEX_UNEXPECTED();
   }
 }
@@ -501,12 +501,12 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 
 void SetupServiceImpl::LogHeader()
 {
-  Log(fmt::format(T_("{0} {1} Report\n\n"), options.Banner, options.Version));
+  Log(fmt::format("{0} {1} Report\n\n", options.Banner, options.Version));
   time_t t = time(nullptr);
   struct tm* pTm = localtime(&t);
-  Log(fmt::format(T_("Date: {0:%A, %B %d, %Y}\n"), *pTm));
-  Log(fmt::format(T_("Time: {0:%H:%M:%S}\n"), *pTm));
-  Log(fmt::format(T_("OS version: {0}\n"), Utils::GetOSVersionString()));
+  Log(fmt::format("Date: {0:%A, %B %d, %Y}\n", *pTm));
+  Log(fmt::format("Time: {0:%H:%M:%S}\n", *pTm));
+  Log(fmt::format("OS version: {0}\n", Utils::GetOSVersionString()));
   shared_ptr<Session> session = Session::Get();
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
   if (options.Task != SetupTask::Download)
@@ -519,20 +519,20 @@ void SetupServiceImpl::LogHeader()
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
   }
-  Log(fmt::format(T_("Setup path: {0}\n"), WU_(szSetupPath)));
+  Log(fmt::format("Setup path: {0}\n", WU_(szSetupPath)));
 #else
   // TODO: log setup path
 #endif
   if (options.Task != SetupTask::Download)
   {
-    Log(fmt::format("UserRoots: {}\n", options.Config.userRoots.empty() ? T_("<none specified>") : options.Config.userRoots));
-    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot.ToString()));
-    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot.ToString()));
-    Log(fmt::format("CommonRoots: {}\n", options.Config.commonRoots.empty() ? T_("<none specified>") : options.Config.commonRoots));
-    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot.ToString()));
-    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot.ToString()));
+    Log(fmt::format("UserRoots: {}\n", options.Config.userRoots.empty() ? "<none specified>" : options.Config.userRoots));
+    Log(fmt::format("UserData: {}\n", options.Config.userDataRoot.Empty() ? "<none specified>" : options.Config.userDataRoot.ToString()));
+    Log(fmt::format("UserConfig: {}\n", options.Config.userConfigRoot.Empty() ? "<none specified>" : options.Config.userConfigRoot.ToString()));
+    Log(fmt::format("CommonRoots: {}\n", options.Config.commonRoots.empty() ? "<none specified>" : options.Config.commonRoots));
+    Log(fmt::format("CommonData: {}\n", options.Config.commonDataRoot.Empty() ? "<none specified>" : options.Config.commonDataRoot.ToString()));
+    Log(fmt::format("CommonConfig: {}\n", options.Config.commonConfigRoot.Empty() ? "<none specified>" : options.Config.commonConfigRoot.ToString()));
     PathName installRoot = GetInstallRoot();
-    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? T_("<none specified>") : installRoot.ToString()));
+    Log(fmt::format("Installation: {}\n", installRoot.Empty() ? "<none specified>" : installRoot.ToString()));
   }
 }
 
@@ -741,7 +741,7 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
       {
         if (foundPackageLevel < options.PackageLevel)
         {
-          MIKTEX_FATAL_ERROR(T_("no local package directory found"));
+          MIKTEX_FATAL_ERROR("no local package directory found");
         }
       }
       if (options.PackageLevel == PackageLevel::None)
@@ -944,7 +944,7 @@ void SetupServiceImpl::DoTheInstallation()
     isArchive = true;
     pathDB = options.LocalPackageRepository / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME);
   }
-  ReportLine(T_("Loading package database..."));
+  ReportLine("Loading package database...");
   packageManager->LoadDatabase(pathDB, isArchive);
 
   // create the destination directory
@@ -1605,7 +1605,7 @@ void SetupServiceImpl::CreateInfoFile()
   default:
     MIKTEX_ASSERT(false);
   }
-  stream.WriteLine(fmt::format(T_("This folder contains the {0} package set."), lpszPackageSet));
+  stream.WriteLine(fmt::format("This folder contains the {0} package set.", lpszPackageSet));
   stream.WriteLine();
   stream.WriteLine();
 #if defined(MIKTEX_WINDOWS)
@@ -1616,11 +1616,11 @@ void SetupServiceImpl::CreateInfoFile()
   }
   PathName setupExe(szSetupPath);
   setupExe.RemoveDirectorySpec();
-  stream.WriteLine(fmt::format(T_("To install MiKTeX, run {0}."), setupExe));
+  stream.WriteLine(fmt::format("To install MiKTeX, run {0}.", setupExe));
   stream.WriteLine();
   stream.WriteLine();
 #endif
-  stream.WriteLine(T_("For more information, visit the MiKTeX project page at\n\nhttps://miktex.org."));
+  stream.WriteLine("For more information, visit the MiKTeX project page at\n\nhttps://miktex.org.");
   stream.WriteLine();
   stream.Close();
   RepositoryInfo repositoryInfo;
@@ -1842,7 +1842,7 @@ constexpr time_t ONE_DAY = 86400;
 
 inline string FormatTimestamp(time_t t)
 {
-  return IsValidTimeT(t) ? fmt::format("{:%F %T}", *localtime(&t)) : T_("not yet");
+  return IsValidTimeT(t) ? fmt::format("{:%F %T}", *localtime(&t)) : "not yet";
 }
 
 void SetupService::WriteReport(ostream& s, ReportOptionSet options)
@@ -1864,9 +1864,9 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
       s << "GitInfo: " << Utils::GetGitInfo() << "\n";
     }
     s << "OS: " << Utils::GetOSVersionString() << "\n"
-      << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << "\n"
+      << "SharedSetup: " << (session->IsSharedSetup() ? "yes" : "no") << "\n"
       << "LinkTargetDirectory: " << session->GetSpecialPath(SpecialPath::LinkTargetDirectory) << "\n"
-      << "PathOkay: " << (p.first ? T_("yes") : T_("no")) << "\n";
+      << "PathOkay: " << (p.first ? "yes" : "no") << "\n";
     if (session->IsSharedSetup())
     {
       InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
@@ -1888,9 +1888,9 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   }
   if (options[ReportOption::CurrentUser])
   {
-    s << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << "\n"
-      << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << "\n"
-      << "AdminMode: " << (session->IsAdminMode() ? T_("yes") : T_("no")) << "\n";
+    s << "SystemAdmin: " << (session->IsUserAnAdministrator() ? "yes" : "no") << "\n"
+      << "RootPrivileges: " << (session->RunningAsAdministrator() ? "yes" : "no") << "\n"
+      << "AdminMode: " << (session->IsAdminMode() ? "yes" : "no") << "\n";
   }
   if (options[ReportOption::RootDirectories])
   {
@@ -2086,7 +2086,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
           IssueType::RootDirectoryCoverage,
           IssueSeverity::Major,
           fmt::format(T_("Root directory #{0} is covered by root directory #{1}."), idx, idx2),
-          T_("") // TODO
+          "" // TODO
         });
       }
       else if (Utils::IsParentDirectoryOf(roots[idx].path, roots[idx2].path))
@@ -2095,7 +2095,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
           IssueType::RootDirectoryCoverage,
           IssueSeverity::Major,
           fmt::format(T_("Root directory #{0} covers root directory #{1}."), idx, idx2),
-          T_("") // TODO
+          "" // TODO
         });
       }
     }
@@ -2116,7 +2116,7 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
             IssueType::PackageDamaged,
             IssueSeverity::Critical,
             fmt::format(T_("Package {0} has been tampered with."), packageInfo.id),
-            T_("") // TODO
+            "" // TODO
           });
         }
       }

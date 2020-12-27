@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2019 Christian Schenk
+## Copyright (C) 2013-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -55,16 +55,60 @@ set(setup_sources
   ${public_headers}
 )
 
+list(APPEND l_sources LogFile.cpp SetupService.cpp)
+
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND setup_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winSetupService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winSetupService.h
   )
+  list(APPEND l_sources win/winSetupService.cpp)
 else()
   list(APPEND setup_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/unx/unxSetupService.cpp
   )
 endif()
+
+add_custom_target(setuplib-pot
+  COMMAND
+    ${XGETTEXT_EXECUTABLE} --join-existing --keyword=T_ --from-code=UTF-8 --add-comments --output=po/setuplib.pot ${l_sources}
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(gen-setuplib-translations)
+
+add_dependencies(gen-setuplib-translations setuplib-pot)
+
+add_custom_target(setuplib-mo ALL)
+
+foreach(l ${MIKTEX_TRANSLATION_LOCALES})
+  add_custom_target(setuplib-po-${l}
+    COMMAND
+      ${MSGMERGE_EXECUTABLE} --update --backup=none po/${l}/setuplib.po po/setuplib.pot
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+  add_dependencies(gen-setuplib-translations setuplib-po-${l})
+  add_custom_target(setuplib-${l}-mo DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo)
+  add_dependencies(setuplib-mo setuplib-${l}-mo)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}
+    COMMAND
+      ${MSGFMT_EXECUTABLE} --output-file=locale/${l}/setuplib.mo ${CMAKE_CURRENT_SOURCE_DIR}/po/${l}/setuplib.po
+    DEPENDS
+      ${CMAKE_CURRENT_SOURCE_DIR}/po/${l}/setuplib.po
+  )
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/setuplib.mo
+    DESTINATION
+      ${MIKTEX_LOCALE_DESTINATION_DIR}/${l}/LC_MESSAGES/
+  )
+endforeach()
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)

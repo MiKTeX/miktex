@@ -934,7 +934,10 @@ endif()
 set(required_programs
   cat
   diff
+  msgfmt
+  msgmerge
   sed
+  xgettext
   xsltproc
 )
 

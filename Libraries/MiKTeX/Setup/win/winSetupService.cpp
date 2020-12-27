@@ -65,7 +65,7 @@ winSetupServiceImpl::winSetupServiceImpl()
 {
   if (FAILED(CoInitialize(nullptr)))
   {
-    MIKTEX_FATAL_ERROR(T_("COM could not be initialized"));
+    MIKTEX_FATAL_ERROR("COM could not be initialized");
   }
 }
 
@@ -142,7 +142,7 @@ const ShellLinkData shellLinks[] = {
     "MiKTeX Console",
     EXEPATH(MIKTEX_CONSOLE_EXE),
     LD_USESHOWCMD | LD_USEDESC,
-    T_("The MiKTeX Console helps you to manage the MiKTeX configuration."),
+    T_("MiKTeX Console helps you to manage your MiKTeX configuration."),
     "",
     "",
     0,
@@ -159,7 +159,7 @@ const ShellLinkData shellLinks[] = {
     "TeXworks",
     EXEPATH(MIKTEX_TEXWORKS_EXE),
     LD_USESHOWCMD | LD_USEDESC,
-    T_("TeXworks is a simple TeX front-end program."),
+    T_("TeXworks is a TeX front-end program."),
     "",
     "",
     0,
@@ -444,7 +444,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
   if (File::Exists(pathLink))
   {
-    Log(fmt::format(T_("removing {}...\n"), Q_(pathLink)));
+    Log(fmt::format("removing {}...\n", Q_(pathLink)));
     if (!options.IsDryRun)
     {
       File::Delete(pathLink);
@@ -462,11 +462,11 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
   if (ld.isUrl)
   {
-    Log(fmt::format(T_("creating internet shortcut {}...\n"), Q_(pathLink)));
+    Log(fmt::format("creating internet shortcut {}...\n", Q_(pathLink)));
   }
   else
   {
-    Log(fmt::format(T_("creating shell link {}...\n"), Q_(pathLink)));
+    Log(fmt::format("creating shell link {}...\n", Q_(pathLink)));
   }
 
   if (options.IsDryRun)
@@ -488,7 +488,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (FAILED(hr))
     {
-      Log(fmt::format(T_("IShellLinkW could not be created ({0:#08X})\n"), hr));
+      Log(fmt::format("IShellLinkW could not be created ({0:#08X})\n", hr));
       MIKTEX_UNEXPECTED();
     }
 
@@ -498,7 +498,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (FAILED(hr))
     {
-      Log(fmt::format(T_("IShellLinkW::SetPath() failed ({0:#08X})\n"), hr));
+      Log(fmt::format("IShellLinkW::SetPath() failed ({0:#08X})\n", hr));
       MIKTEX_UNEXPECTED();
     }
 
@@ -507,7 +507,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetArguments(Expand(ld.args, str).c_str());
       if (FAILED(hr))
       {
-        Log(fmt::format(T_("IShellLinkW::SetArguments() failed ({0:#08X})\n"), hr));
+        Log(fmt::format("IShellLinkW::SetArguments() failed ({0:#08X})\n", hr));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -517,7 +517,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetDescription(UW_(ld.description));
       if (FAILED(hr))
       {
-        Log(fmt::format(T_("IShellLinkW::SetDescription() failed ({0:#08X})\n"), hr));
+        Log(fmt::format("IShellLinkW::SetDescription() failed ({0:#08X})\n", hr));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -527,7 +527,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetIconLocation(Expand(ld.iconPath, str).c_str(), ld.iconIndex);
       if (FAILED(hr))
       {
-        Log(fmt::format(T_("IShellLinkW::SetIconLocation() failed ({0:#08X})\n"), hr));
+        Log(fmt::format("IShellLinkW::SetIconLocation() failed ({0:#08X})\n", hr));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -537,7 +537,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetWorkingDirectory(Expand(ld.workingDir, str).c_str());
       if (FAILED(hr))
       {
-        Log(fmt::format(T_("IShellLinkW::SetWorkingDirectory() failed ({0:#08X})\n"), hr));
+        Log(fmt::format("IShellLinkW::SetWorkingDirectory() failed ({0:#08X})\n", hr));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -547,7 +547,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetShowCmd(ld.showCmd);
       if (FAILED(hr))
       {
-        Log(fmt::format(T_("IShellLinkW::SetShowCmd() failed ({0:#08X})\n"), hr));
+        Log(fmt::format("IShellLinkW::SetShowCmd() failed ({0:#08X})\n", hr));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -557,7 +557,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetHotkey(ld.hotKey);
       if (FAILED(hr))
       {
-        Log(fmt::format(T_("IShellLinkW::SetHotkey() failed ({0:#08X})\n"), hr));
+        Log(fmt::format("IShellLinkW::SetHotkey() failed ({0:#08X})\n", hr));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -568,7 +568,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (FAILED(hr))
     {
-      Log(fmt::format(T_("IPersistFile could not be created ({0:#08X})\n"), hr));
+      Log(fmt::format("IPersistFile could not be created ({0:#08X})\n", hr));
       MIKTEX_UNEXPECTED();
     }
 
@@ -576,7 +576,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (FAILED(hr))
     {
-      Log(fmt::format(T_("IPersistFile::Save() failed ({0:#08X})\n"), hr));
+      Log(fmt::format("IPersistFile::Save() failed ({0:#08X})\n", hr));
       MIKTEX_UNEXPECTED();
     }
   }
@@ -594,7 +594,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (FAILED(hr))
   {
-    Log(fmt::format(T_("IUniformResourceLocator could not be created ({0:#08X})\n"), hr));
+    Log(fmt::format("IUniformResourceLocator could not be created ({0:#08X})\n", hr));
     MIKTEX_UNEXPECTED();
   }
 
@@ -602,7 +602,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (FAILED(hr))
   {
-    Log(fmt::format(T_("IUniformResourceLocatorW::SetURL() failed ({0:#08X})\n"), hr));
+    Log(fmt::format("IUniformResourceLocatorW::SetURL() failed ({0:#08X})\n", hr));
     MIKTEX_UNEXPECTED();
   }
 
@@ -612,7 +612,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (FAILED(hr))
   {
-    Log(fmt::format(T_("IPersistFile could not be created ({0:#08X})\n"), hr));
+    Log(fmt::format("IPersistFile could not be created ({0:#08X})\n", hr));
     MIKTEX_UNEXPECTED();
   }
 
@@ -620,7 +620,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (FAILED(hr))
   {
-    Log(fmt::format(T_("IPersistFile::Save() failed ({0:#08X})\n"), hr));
+    Log(fmt::format("IPersistFile::Save() failed ({0:#08X})\n", hr));
     MIKTEX_UNEXPECTED();
   }
 }
