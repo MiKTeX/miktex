@@ -129,7 +129,7 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
     "${resource_includes}#include \"${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h\""
   )
   set(resource_adders
-    "${resource_adders}addResource(\"LC_MESSAGES/${l}/setuplib.mo\", setuplib_${l}_mo);"
+    "${resource_adders}addResource(\"/i18n/${l}/LC_MESSAGES/setuplib.mo\", { setuplib_${l}_mo, sizeof(setuplib_${l}_mo) });"
   )
 endforeach()
 

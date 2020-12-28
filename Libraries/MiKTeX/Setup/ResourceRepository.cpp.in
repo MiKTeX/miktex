@@ -8,15 +8,15 @@ using namespace std;
 class ResourceRepository::impl
 {
 public:
-  map<string, const unsigned char*> resources;
+  map<string, Resource> resources;
 };
 
-void ResourceRepository::addResource(const char* resourceId, const unsigned char* data)
+void ResourceRepository::addResource(const char* resourceId, const Resource& resource)
 {
-  pimpl->resources[resourceId] = data;
+  pimpl->resources[resourceId] = resource;
 }
 
-const unsigned char* ResourceRepository::GetResource(const char* resourceId)
+const Resource& ResourceRepository::GetResource(const char* resourceId)
 {
     return pimpl->resources[resourceId];
 }

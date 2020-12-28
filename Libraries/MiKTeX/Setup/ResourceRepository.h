@@ -1,3 +1,9 @@
+struct Resource
+{
+  const void* data;
+  size_t len;
+};
+
 class ResourceRepository
 {
 public:
@@ -5,9 +11,9 @@ public:
 public:
   virtual ~ResourceRepository();
 public:
-  const unsigned char* GetResource(const char* resourceId);
+  const Resource& GetResource(const char* resourceId);
 private:
-  void addResource(const char* resourceId, const unsigned char* data);
+  void addResource(const char* resourceId, const Resource& resource);
 private:
   class impl;
   impl* pimpl;

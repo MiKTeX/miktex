@@ -23,6 +23,8 @@
 
 #include "internal.h"
 
+#include "ResourceRepository.h"
+
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winSetupService.h"
 #endif
@@ -765,9 +767,43 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
 }
 
+ResourceRepository resources;
+
 vector<char> loadFile(string const& fileName, string const& encoding)
 {
-  return vector<char>();
+  if (encoding != "UTF-8" && encoding != "utf-8")
+  {
+    return vector<char>();
+  }
+  const Resource& resource = resources.GetResource(fileName.c_str());
+  if (resource.data == nullptr)
+  {
+    return vector<char>();
+  }
+  const char* data = static_cast<const char*>(resource.data);
+  return vector<char>(data, data + resource.len);
+}
+
+string GetUiLanguage()
+{
+  ULONG numLanguages;
+  PZZWSTR buffer = nullptr;
+  ULONG bufferSize = 0;
+  if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, buffer, &bufferSize))
+  {
+    return "";
+  }
+  buffer = new wchar_t[bufferSize];
+  MIKTEX_AUTO(delete[] buffer);
+  if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, buffer, &bufferSize))
+  {
+    return "";
+  }
+  if (numLanguages == 0)
+  {
+    return "";
+  }
+  return StringUtil::WideCharToUTF8(buffer);
 }
 
 void SetupServiceImpl::Initialize()
@@ -781,18 +817,18 @@ void SetupServiceImpl::Initialize()
   initialized = true;
 
 #if defined(WITH_BOOST_LOCALE)
-  boost::locale::gnu_gettext::messages_info msginfo;
-  msginfo.paths.push_back("");
-  msginfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain("setuplib"));
-  msginfo.callback = loadFile;
+  boost::locale::gnu_gettext::messages_info messagesInfo;
+  messagesInfo.paths.push_back("/i18n");
+  messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain("setuplib"));
+  messagesInfo.callback = loadFile;
   boost::locale::generator gen;
-  std::locale base_locale = gen("de_DE");
+  std::locale base_locale = gen(GetUiLanguage() + ".UTF-8");
   boost::locale::info const& properties = std::use_facet<boost::locale::info>(base_locale);
-  msginfo.language = properties.language();
-  msginfo.country = properties.country();
-  msginfo.encoding = properties.encoding();
-  msginfo.variant = properties.variant();
-  uiLocale = std::locale(base_locale, boost::locale::gnu_gettext::create_messages_facet<char>(msginfo));
+  messagesInfo.language = properties.language();
+  messagesInfo.country = properties.country();
+  messagesInfo.encoding = properties.encoding();
+  messagesInfo.variant = properties.variant();
+  uiLocale = std::locale(base_locale, boost::locale::gnu_gettext::create_messages_facet<char>(messagesInfo));
 #endif
 
   ReportLine(fmt::format("this is {0}", Utils::MakeProgramVersionString(MIKTEX_COMP_NAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))));

@@ -68,7 +68,9 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Util/inliners.h>
 
+#if !defined(MIKTEX_SETUP_STATIC)
 #define WITH_BOOST_LOCALE
+#endif
 
 #if defined(WITH_BOOST_LOCALE)
 #include <boost/locale.hpp>
