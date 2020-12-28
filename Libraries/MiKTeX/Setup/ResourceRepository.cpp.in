@@ -1,0 +1,35 @@
+#include <map>
+#include <string>
+
+#include "ResourceRepository.h"
+
+using namespace std;
+
+class ResourceRepository::impl
+{
+public:
+  map<string, const unsigned char*> resources;
+};
+
+void ResourceRepository::addResource(const char* resourceId, const unsigned char* data)
+{
+  pimpl->resources[resourceId] = data;
+}
+
+const unsigned char* ResourceRepository::GetResource(const char* resourceId)
+{
+    return pimpl->resources[resourceId];
+}
+
+${resource_includes}
+
+ResourceRepository::ResourceRepository()
+  :pimpl(new ResourceRepository::impl)
+{
+   ${resource_adders}
+}
+
+ResourceRepository::~ResourceRepository()
+{
+  delete pimpl;
+}

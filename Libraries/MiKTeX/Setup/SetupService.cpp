@@ -117,6 +117,8 @@ string IssueSeverityString(IssueSeverity severity)
   }
 }
 
+std::locale uiLocale;
+
 END_INTERNAL_NAMESPACE;
 
 namespace MiKTeX {
@@ -763,6 +765,11 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
 }
 
+vector<char> loadFile(string const& fileName, string const& encoding)
+{
+  return vector<char>();
+}
+
 void SetupServiceImpl::Initialize()
 {
   shared_ptr<Session> session = Session::Get();
@@ -772,6 +779,21 @@ void SetupServiceImpl::Initialize()
     return;
   }
   initialized = true;
+
+#if defined(WITH_BOOST_LOCALE)
+  boost::locale::gnu_gettext::messages_info msginfo;
+  msginfo.paths.push_back("");
+  msginfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain("setuplib"));
+  msginfo.callback = loadFile;
+  boost::locale::generator gen;
+  std::locale base_locale = gen("de_DE");
+  boost::locale::info const& properties = std::use_facet<boost::locale::info>(base_locale);
+  msginfo.language = properties.language();
+  msginfo.country = properties.country();
+  msginfo.encoding = properties.encoding();
+  msginfo.variant = properties.variant();
+  uiLocale = std::locale(base_locale, boost::locale::gnu_gettext::create_messages_facet<char>(msginfo));
+#endif
 
   ReportLine(fmt::format("this is {0}", Utils::MakeProgramVersionString(MIKTEX_COMP_NAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))));
 

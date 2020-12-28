@@ -56,6 +56,18 @@ target_link_libraries(${setup_dll_name}
     ${nlohmann_json_dll_name}
 )
 
+add_dependencies(${setup_dll_name} gen-setuplib-sources)
+
+set_source_files_properties(
+  ${generated_setuplib_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
+if(USE_SYSTEM_BOOST)
+  target_link_libraries(${setup_dll_name} PRIVATE Boost::locale)
+endif()
+
 if(USE_SYSTEM_FMT)
   target_link_libraries(${setup_dll_name} PRIVATE MiKTeX::Imported::FMT)
 else()

@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2013-2018 Christian Schenk
+## Copyright (C) 2013-2020 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,6 +39,18 @@ target_link_libraries(${setup_lib_name}
     ${mpm_lib_name}
     ${nlohmann_json_lib_name}
 )
+
+add_dependencies(${setup_lib_name} gen-setuplib-sources)
+
+set_source_files_properties(
+  ${generated_setuplib_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
+if(USE_SYSTEM_BOOST)
+  target_link_libraries(${setup_lib_name} PRIVATE Boost::locale)
+endif()
 
 if(USE_SYSTEM_FMT)
   target_link_libraries(${setup_lib_name} PRIVATE MiKTeX::Imported::FMT)

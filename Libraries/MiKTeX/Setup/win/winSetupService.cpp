@@ -634,7 +634,7 @@ constexpr auto UNINST_DISPLAY_VERSION = MIKTEX_DISPLAY_VERSION_STR;
    : UNINST_DISPLAY_NAME)
 constexpr auto UNINST_ABOUT_URL = "https://miktex.org/about";
 constexpr auto UNINST_UPDATE_URL = "https://miktex.org";
-constexpr auto UNINST_COMMENTS = T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS.");
+const string UNINST_COMMENTS = T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS.");
 constexpr auto UNINST_README = UNINST_HELP_LINK;
 
 constexpr auto UNINST_DISPLAY_NAME = MIKTEX_PRODUCTNAME_STR;

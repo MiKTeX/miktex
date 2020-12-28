@@ -98,7 +98,7 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
   add_dependencies(setuplib-mo setuplib-mo-${l})
   add_custom_command(
     OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo
+      ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/setuplib.mo
     COMMAND
       ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}
     COMMAND
@@ -106,13 +106,49 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/po/${l}/setuplib.po
   )
-  install(
-    FILES
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h
+    COMMAND
+      bintoc setuplib_${l}_mo
+      < ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/setuplib.mo
+      > ${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h.tmp
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h.tmp
+      ${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h
+    COMMAND
+      ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h.tmp
+    DEPENDS
+      bintoc
       ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/setuplib.mo
-    DESTINATION
-      ${MIKTEX_LOCALE_DESTINATION_DIR}/${l}/LC_MESSAGES/
+    VERBATIM
+  )
+  list(APPEND generated_setuplib_sources ${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h)
+  set(resource_includes
+    "${resource_includes}#include \"${CMAKE_CURRENT_BINARY_DIR}/setuplib_${l}_mo.h\""
+  )
+  set(resource_adders
+    "${resource_adders}addResource(\"LC_MESSAGES/${l}/setuplib.mo\", setuplib_${l}_mo);"
   )
 endforeach()
+
+configure_file(
+  ResourceRepository.cpp.in
+  ${CMAKE_CURRENT_BINARY_DIR}/ResourceRepository.cpp
+)
+
+add_custom_target(gen-setuplib-sources DEPENDS
+  ${generated_setuplib_sources}
+)
+
+set_property(TARGET gen-setuplib-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
+
+list(APPEND setup_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/ResourceRepository.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ResourceRepository.h
+  ${generated_setuplib_sources}
+)
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)

@@ -68,6 +68,12 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Util/inliners.h>
 
+#define WITH_BOOST_LOCALE
+
+#if defined(WITH_BOOST_LOCALE)
+#include <boost/locale.hpp>
+#endif
+
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -103,7 +109,15 @@ BEGIN_INTERNAL_NAMESPACE;
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-#define T_(x) MIKTEXTEXT(x)
+inline std::string T_(const char* msgid)
+{
+#if defined(WITH_BOOST_LOCALE)
+  extern std::locale uiLocale;
+  return boost::locale::gettext(msgid, uiLocale);
+#else
+  return msgid;
+#endif
+}
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 

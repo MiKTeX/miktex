@@ -204,6 +204,12 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
+# we always depend on the system Boost development files
+set(
+  USE_SYSTEM_BOOST
+  TRUE
+)
+
 option(
   USE_SYSTEM_BZIP2
   "Use the system bzip2 compression library."
@@ -1026,6 +1032,15 @@ endif()
 
 if(USE_SYSTEM_APRUTIL)
   find_package(APRUTIL REQUIRED)
+endif()
+
+if(USE_SYSTEM_BOOST)
+  set(Boost_USE_STATIC_LIBS ON)
+  set(Boost_USE_DEBUG_LIBS ON)
+  set(Boost_USE_RELEASE_LIBS ON)
+  set(Boost_USE_MULTITHREADED ON)
+  set(Boost_USE_STATIC_RUNTIME OFF)
+  find_package(Boost REQUIRED locale)
 endif()
 
 if(USE_SYSTEM_BZIP2)
