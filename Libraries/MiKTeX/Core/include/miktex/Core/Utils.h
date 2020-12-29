@@ -37,6 +37,7 @@
 #include <ostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Debug.h"
 #include "Exceptions.h"
@@ -296,6 +297,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(std::time_t) ToTimeT(const std::string& s);
+
+public:
+  static MIKTEXCORECEEAPI(std::vector<std::string>) GetUILanguages();
 
 public:
   static MIKTEXCOREEXPORT std::pair<bool, bool> MIKTEXCEECALL CheckPath();

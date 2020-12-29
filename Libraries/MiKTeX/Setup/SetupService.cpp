@@ -784,32 +784,6 @@ vector<char> loadFile(string const& fileName, string const& encoding)
   return vector<char>(data, data + resource.len);
 }
 
-string GetUiLanguage()
-{
-#if defined(MIKTEX_WINDOWS)
-  ULONG numLanguages;
-  PZZWSTR buffer = nullptr;
-  ULONG bufferSize = 0;
-  if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, buffer, &bufferSize))
-  {
-    return "";
-  }
-  buffer = new wchar_t[bufferSize];
-  MIKTEX_AUTO(delete[] buffer);
-  if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, buffer, &bufferSize))
-  {
-    return "";
-  }
-  if (numLanguages == 0)
-  {
-    return "";
-  }
-  return StringUtil::WideCharToUTF8(buffer);
-#else
-  return "";
-#endif
-}
-
 void SetupServiceImpl::Initialize()
 {
   shared_ptr<Session> session = Session::Get();
@@ -826,7 +800,13 @@ void SetupServiceImpl::Initialize()
   messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(MIKTEX_COMP_ID));
   messagesInfo.callback = loadFile;
   boost::locale::generator gen;
-  std::locale base_locale = gen(GetUiLanguage() + ".UTF-8");
+  string localeIdentifier;
+  auto uiLanguages = Utils::GetUILanguages();
+  if (!uiLanguages.empty())
+  {
+    localeIdentifier = fmt::format("{0}.UTF-8", uiLanguages[0]);
+  }
+  std::locale base_locale = gen(localeIdentifier);
   boost::locale::info const& properties = std::use_facet<boost::locale::info>(base_locale);
   messagesInfo.language = properties.language();
   messagesInfo.country = properties.country();

@@ -118,7 +118,7 @@ set(${ui_qt_dll_name}_ui_files
 
 list(APPEND l_sources ${${ui_qt_dll_name}_ui_files})
 
-foreach(l ${MIKTEX_TRANSLATION_LOCALES})
+foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
   list(APPEND translations
     translations/ui_${l}.ts
   )

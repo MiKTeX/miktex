@@ -27,6 +27,7 @@ include_directories(BEFORE
 )
 
 set(console_sources
+  ${CMAKE_BINARY_DIR}/config.h
   FormatDefinitionDialog.cpp
   FormatDefinitionDialog.h
   FormatTableModel.cpp
@@ -93,7 +94,10 @@ set(console_ui_files
 
 list(APPEND l_sources ${console_ui_files})
 
-foreach(l ${MIKTEX_TRANSLATION_LOCALES})
+set(ui_languages "en")
+
+foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
+  list(APPEND ui_languages ${l})
   list(APPEND translations
     translations/console_${l}.ts
   )
@@ -101,6 +105,8 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
     "${qresource_files}<file alias='console_${l}.qm'>${CMAKE_CURRENT_BINARY_DIR}/console_${l}.qm</file>"
   )
 endforeach()
+
+list(SORT ui_languages)
 
 get_target_property(LUPDATE_EXECUTABLE Qt5::lupdate LOCATION)
 
@@ -159,6 +165,11 @@ if(MIKTEX_NATIVE_WINDOWS)
     Comctl32.lib
   )
 endif()
+
+configure_file(
+  config.h.cmake
+  ${CMAKE_BINARY_DIR}/config.h
+)
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
 if(MIKTEX_MACOS_BUNDLE)

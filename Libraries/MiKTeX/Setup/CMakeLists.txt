@@ -84,7 +84,7 @@ add_dependencies(gen-${MIKTEX_COMP_ID}-translations ${MIKTEX_COMP_ID}-pot)
 add_custom_target(${MIKTEX_COMP_ID}-mo ALL)
 set_property(TARGET ${MIKTEX_COMP_ID}-mo PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
-foreach(l ${MIKTEX_TRANSLATION_LOCALES})
+foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
   add_custom_target(${MIKTEX_COMP_ID}-po-${l}
     COMMAND
       ${MSGMERGE_EXECUTABLE} --update --backup=none po/${l}/${MIKTEX_COMP_ID}.po po/${MIKTEX_COMP_ID}.pot

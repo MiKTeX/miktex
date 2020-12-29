@@ -227,12 +227,14 @@ int main(int argc, char* argv[])
 #endif
   QApplication application(argc, argv);
   QTranslator translator;
-  if (translator.load(QLocale(), "console", "_", ":/i18n", ".qm"))
+  auto uiLanguages = Utils::GetUILanguages();
+  QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
+  if (translator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
   {
     QCoreApplication::installTranslator(&translator);
   }
   QTranslator uiTranslator;
-  if (uiTranslator.load(QLocale(), "ui", "_", ":/i18n", ".qm"))
+  if (uiTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
   {
     QCoreApplication::installTranslator(&uiTranslator);
   }

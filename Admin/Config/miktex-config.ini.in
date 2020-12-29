@@ -130,6 +130,9 @@
 	;; Extra per-user MiKTeX trees.
 	;${MIKTEX_CONFIG_VALUE_USER_ROOTS} = 
 
+	;; Preferred UI languages.
+	;${MIKTEX_CONFIG_VALUE_UI_LANGUAGES} = 
+
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.afm]
 
 	;; Search path for Adobe font metric (AFM) files.

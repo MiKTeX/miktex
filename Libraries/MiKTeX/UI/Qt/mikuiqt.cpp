@@ -100,7 +100,9 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   {
     application = new QApplication(argc, argv);
     translator = new QTranslator();
-    if (translator->load(QLocale(), "ui", "_", ":/i18n", ".qm"))
+    auto uiLanguages = Utils::GetUILanguages();
+    QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
+    if (translator->load(uiLocale, "ui", "_", ":/i18n", ".qm"))
     {
       QApplication::installTranslator(translator);
     }
