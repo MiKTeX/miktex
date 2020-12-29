@@ -786,6 +786,7 @@ vector<char> loadFile(string const& fileName, string const& encoding)
 
 string GetUiLanguage()
 {
+#if defined(MIKTEX_WINDOWS)
   ULONG numLanguages;
   PZZWSTR buffer = nullptr;
   ULONG bufferSize = 0;
@@ -804,6 +805,9 @@ string GetUiLanguage()
     return "";
   }
   return StringUtil::WideCharToUTF8(buffer);
+#else
+  return "";
+#endif
 }
 
 void SetupServiceImpl::Initialize()
