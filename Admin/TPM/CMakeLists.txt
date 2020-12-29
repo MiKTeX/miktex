@@ -51,14 +51,6 @@ foreach(tpm ${common_tpms_no_version})
   list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}.tpm")
 endforeach()
 
-foreach(l ${MIKTEX_TRANSLATION_LOCALES})
-  configure_file(
-    miktex-lang-${l}.tpm.in
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/miktex-lang-${l}.tpm"
-  )
-  list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/miktex-lang-${l}.tpm")  
-endforeach()
-
 if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
   set(target_system_tpms
     windows-x86/miktex-arctrl-bin.tpm.in

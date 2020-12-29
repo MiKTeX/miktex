@@ -56,10 +56,10 @@ target_link_libraries(${setup_dll_name}
     ${nlohmann_json_dll_name}
 )
 
-add_dependencies(${setup_dll_name} gen-setuplib-sources)
+add_dependencies(${setup_dll_name} gen-${MIKTEX_COMP_ID}-sources)
 
 set_source_files_properties(
-  ${generated_setuplib_sources}
+  ${generated_${MIKTEX_COMP_ID}_sources}
   PROPERTIES
     GENERATED TRUE
 )

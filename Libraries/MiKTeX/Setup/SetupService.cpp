@@ -823,7 +823,7 @@ void SetupServiceImpl::Initialize()
 #if defined(WITH_BOOST_LOCALE)
   boost::locale::gnu_gettext::messages_info messagesInfo;
   messagesInfo.paths.push_back("/i18n");
-  messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain("setuplib"));
+  messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(MIKTEX_COMP_ID));
   messagesInfo.callback = loadFile;
   boost::locale::generator gen;
   std::locale base_locale = gen(GetUiLanguage() + ".UTF-8");

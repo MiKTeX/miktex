@@ -21,3 +21,4 @@ include(version.cmake)
 
 set(MIKTEX_COMP_NAME "MiKTeX Setup Service")
 set(MIKTEX_COMP_DESCRIPTION "MiKTeX setup service")
+set(MIKTEX_COMP_ID "miktex-setup")
