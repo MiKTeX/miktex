@@ -93,7 +93,7 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
   )
   set_property(TARGET setuplib-po-${l} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
   add_dependencies(gen-setuplib-translations setuplib-po-${l})
-  add_custom_target(setuplib-mo-${l} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/setuplib-${l}.mo)
+  add_custom_target(setuplib-mo-${l} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/setuplib.mo)
   set_property(TARGET setuplib-mo-${l} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
   add_dependencies(setuplib-mo setuplib-mo-${l})
   add_custom_command(
