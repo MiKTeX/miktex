@@ -27,7 +27,7 @@ include_directories(BEFORE
 )
 
 set(console_sources
-  ${CMAKE_BINARY_DIR}/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   FormatDefinitionDialog.cpp
   FormatDefinitionDialog.h
   FormatTableModel.cpp
@@ -42,6 +42,8 @@ set(console_sources
   RepositoryTableModel.h
   RootTableModel.cpp
   RootTableModel.h
+  UILanguageTableModel.cpp
+  UILanguageTableModel.h
   UpdateTableModel.cpp
   UpdateTableModel.h
   console-version.h
@@ -83,6 +85,7 @@ set(console_moc_sources
   PackageTableModel.h
   RepositoryTableModel.h
   RootTableModel.h
+  UILanguageTableModel.h
   UpdateTableModel.h
   mainwindow.h
 )
@@ -94,7 +97,7 @@ set(console_ui_files
 
 list(APPEND l_sources ${console_ui_files})
 
-set(ui_languages "en")
+set(ui_languages ${MIKTEX_INTERNAL_LOCALE})
 
 foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
   list(APPEND ui_languages ${l})
@@ -168,7 +171,7 @@ endif()
 
 configure_file(
   config.h.cmake
-  ${CMAKE_BINARY_DIR}/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt

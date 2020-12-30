@@ -793,6 +793,8 @@ set(MIKTEX_LEGACY_MAJOR_MINOR_STR "${MIKTEX_LEGACY_MAJOR_VERSION}.${MIKTEX_LEGAC
 ###############################################################################
 ## Localization
 
+set(MIKTEX_INTERNAL_LOCALE "en")
+
 #LIST(APPEND MIKTEX_TRANSLATION_LOCALES "af")
 #LIST(APPEND MIKTEX_TRANSLATION_LOCALES "ar")
 #LIST(APPEND MIKTEX_TRANSLATION_LOCALES "ca")
@@ -852,7 +854,6 @@ foreach(l ${MIKTEX_TRANSLATION_LOCALES})
     list(APPEND MIKTEX_TRANSLATION_DONE_LOCALES ${l})
   endif()
 endforeach()
-list(SORT MIKTEX_TRANSLATION_DONE_LOCALES)
 
 ###############################################################################
 ## Endianess

@@ -226,18 +226,6 @@ int main(int argc, char* argv[])
   QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
   QApplication application(argc, argv);
-  QTranslator translator;
-  auto uiLanguages = Utils::GetUILanguages();
-  QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
-  if (translator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
-  {
-    QCoreApplication::installTranslator(&translator);
-  }
-  QTranslator uiTranslator;
-  if (uiTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
-  {
-    QCoreApplication::installTranslator(&uiTranslator);
-  }
   QString displayName = TheNameOfTheGame;
 #if QT_VERSION >= 0x050000
   application.setApplicationDisplayName(displayName);
@@ -348,6 +336,18 @@ int main(int argc, char* argv[])
     }
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
+    QTranslator translator;
+    auto uiLanguages = Utils::GetUILanguages();
+    QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
+    if (translator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
+    {
+      QCoreApplication::installTranslator(&translator);
+    }
+    QTranslator uiTranslator;
+    if (uiTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
+    {
+      QCoreApplication::installTranslator(&uiTranslator);
+    }
     bool switchToAdmin = false;
     if (optAdmin)
     {

@@ -1013,7 +1013,7 @@ time_t Utils::ToTimeT(const string& s)
   return ToUnsignedLongLong(s);
 }
 
-tuple<string, string, string, string> ParseLocaleIdentifier(const string& localeIdentifier)
+tuple<string, string, string, string> Utils::ParseLocaleIdentifier(const string& localeIdentifier)
 {
   string language;
   string country;
@@ -1040,7 +1040,7 @@ tuple<string, string, string, string> ParseLocaleIdentifier(const string& locale
   {
     pos += 1;
     auto nextPos = localeIdentifier.find_first_of(".@", pos);
-    country = localeIdentifier.substr(pos, nextPos);
+    country = localeIdentifier.substr(pos, nextPos - pos);
     for (char& ch : country)
     {
       if (ch >= 'a' && ch <= 'z')
@@ -1054,11 +1054,15 @@ tuple<string, string, string, string> ParseLocaleIdentifier(const string& locale
     }
     pos = nextPos;
   }
+  if (pos == string::npos)
+  {
+    return make_tuple(language, country, encoding, variant);
+  }
   if (localeIdentifier[pos] == '.')
   {
     pos += 1;
     auto nextPos = localeIdentifier.find_first_of("@", pos);
-    encoding = localeIdentifier.substr(pos, nextPos);
+    encoding = localeIdentifier.substr(pos, nextPos - pos);
     for (char& ch : encoding)
     {
       if (ch >= 'A' && ch <= 'Z')
@@ -1067,6 +1071,10 @@ tuple<string, string, string, string> ParseLocaleIdentifier(const string& locale
       }
     }
     pos = nextPos;
+  }
+  if (pos == string::npos)
+  {
+    return make_tuple(language, country, encoding, variant);
   }
   if (localeIdentifier[pos] == '@')
   {
@@ -1140,7 +1148,7 @@ vector<string> Utils::GetUILanguages()
     if (::GetEnvironmentString(envName, lang) && !lang.empty())
     {
       string language, country, encoding, variant;
-      std::tie(language, country, encoding, variant) = ParseLocaleIdentifier(lang);
+      std::tie(language, country, encoding, variant) = Utils::ParseLocaleIdentifier(lang);
       if (language.empty())
       {
         continue;

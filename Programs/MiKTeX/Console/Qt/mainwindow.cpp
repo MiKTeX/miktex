@@ -36,6 +36,7 @@
 #include "PackageTableModel.h"
 #include "RepositoryTableModel.h"
 #include "RootTableModel.h"
+#include "UILanguageTableModel.h"
 #include "UpdateTableModel.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -127,11 +128,13 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFi
   ReadSettings();
 
   repositoryModel = new RepositoryTableModel(this);
+  uiLanguageModel = new UILanguageTableModel(this);
 
   SetupUiDirectories();
   SetupUiFormats();
   SetupUiLanguages();
   SetupUiUpdates();
+  SetupUiUserInterface();
   SetupUiPackageInstallation();
   SetupUiPackages();
   SetupUiDiagnose();
@@ -367,6 +370,7 @@ void MainWindow::UpdateUi()
       }
     }
     UpdateUiPaper();
+    UpdateUiUserInterface();
     UpdateUiPackageInstallation();
     UpdateUiDirectories();
     UpdateUiFormats();
@@ -1402,6 +1406,61 @@ void MainWindow::OnContextMenuUpdates(const QPoint& pos)
     contextMenuUpdate->exec(ui->treeViewUpdates->mapToGlobal(pos));
   }
 }
+
+
+
+
+
+
+void MainWindow::SetupUiUserInterface()
+{
+  ui->comboUILanguage->setModel(uiLanguageModel);
+  (void)connect(ui->comboUILanguage, SIGNAL(currentIndexChanged(int)), this, SLOT(OnUILanguageSelected(int)));
+}
+
+void MainWindow::UpdateUiUserInterface()
+{
+  ui->comboUILanguage->setEnabled(!IsBackgroundWorkerActive());
+  ui->comboUILanguage->blockSignals(true);
+  ui->comboUILanguage->setCurrentIndex(uiLanguageModel->GetDefaultIndex());
+  ui->comboUILanguage->blockSignals(false);
+}
+
+void MainWindow::OnUILanguageSelected(int index)
+{
+  try
+  {
+    session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_UI_LANGUAGES, ConfigValue(uiLanguageModel->GetData(index)));
+    UpdateUi();
+    QMessageBox msgBox;
+    msgBox.setText(tr("The language change will take effect after restart."));
+    QAbstractButton* restartNow = msgBox.addButton(tr("Restart now"), QMessageBox::YesRole);
+    msgBox.addButton(tr("Later"), QMessageBox::NoRole);
+    msgBox.exec();
+    if (msgBox.clickedButton() == restartNow)
+    {
+      Restart(true);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 void MainWindow::SetupUiPackageInstallation()
 {
@@ -2750,10 +2809,13 @@ void MainWindow::Exit()
   this->close();
 }
 
-void MainWindow::Restart()
+void MainWindow::Restart(bool silent)
 {
   LOG4CXX_INFO(logger, "MiKTeX Console needs to be restarted");
-  QMessageBox::information(this, TheNameOfTheGame, tr("%1 needs to be restarted.").arg(TheNameOfTheGame));
+  if (!silent)
+  {
+    QMessageBox::information(this, TheNameOfTheGame, tr("%1 needs to be restarted.").arg(TheNameOfTheGame));
+  }
   vector<string> args{ MIKTEX_CONSOLE_EXE };
   if (session->IsAdminMode())
   {

@@ -82,7 +82,7 @@ typedef std::vector<T> N
 //
 //   pointer and list definition macros when linking with DLL using VC
 //
-#elif !defined(MIKTEX) defined(_MSC_VER) && !defined(LOG4CXX_STATIC)
+#elif !defined(MIKTEX) && defined(_MSC_VER) && !defined(LOG4CXX_STATIC)
 	#define LOG4CXX_PTR_DEF(T)													\
 		__pragma(warning(push))													\
 		__pragma(warning(disable: 4231))										\

@@ -36,6 +36,7 @@
 #include <exception>
 #include <ostream>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -300,6 +301,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetUILanguages();
+
+ public:
+  static MIKTEXCOREEXPORT std::tuple<std::string, std::string, std::string, std::string> MIKTEXCEECALL ParseLocaleIdentifier(const std::string& localeIdentifier);
 
 public:
   static MIKTEXCOREEXPORT std::pair<bool, bool> MIKTEXCEECALL CheckPath();

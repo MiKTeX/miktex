@@ -42,6 +42,7 @@ class PackageProxyModel;
 class PackageTableModel;
 class RepositoryTableModel;
 class RootTableModel;
+class UILanguageTableModel;
 class UpdateTableModel;
 
 namespace Ui
@@ -353,6 +354,47 @@ private:
 private slots:
   void OnContextMenuUpdates(const QPoint& pos);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+private:
+  void SetupUiUserInterface();
+
+private:
+  void UpdateUiUserInterface();
+
+private slots:
+  void OnUILanguageSelected(int index);
+
+private:
+  UILanguageTableModel* uiLanguageModel = nullptr;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 private:
   void SetupUiPackageInstallation();
 
@@ -638,7 +680,7 @@ private:
   void Exit();
 
 private:
-  void Restart();
+  void Restart(bool silent = false);
 
 private slots:
   void UnloadFileNameDatabase();
