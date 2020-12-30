@@ -111,6 +111,6 @@ std::string Translator::Translate(const char* msgId)
   std::call_once(pimpl->flag1, [this]() { LoadTranslations(); });
   return boost::locale::gettext(msgId, pimpl->uiLocale);
 #else
-  return msgid;
+  return msgId;
 #endif
 }
