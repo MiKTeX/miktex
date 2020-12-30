@@ -354,22 +354,6 @@ private:
 private slots:
   void OnContextMenuUpdates(const QPoint& pos);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 private:
   void SetupUiUserInterface();
 
@@ -381,19 +365,6 @@ private slots:
 
 private:
   UILanguageTableModel* uiLanguageModel = nullptr;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 private:
   void SetupUiPackageInstallation();

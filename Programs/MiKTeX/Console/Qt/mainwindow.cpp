@@ -1407,11 +1407,6 @@ void MainWindow::OnContextMenuUpdates(const QPoint& pos)
   }
 }
 
-
-
-
-
-
 void MainWindow::SetupUiUserInterface()
 {
   ui->comboUILanguage->setModel(uiLanguageModel);
@@ -1451,16 +1446,6 @@ void MainWindow::OnUILanguageSelected(int index)
     CriticalError(e);
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 void MainWindow::SetupUiPackageInstallation()
 {
