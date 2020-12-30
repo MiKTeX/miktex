@@ -137,8 +137,6 @@ set(public_headers
   log4cxx/jsonlayout.h
   log4cxx/layout.h
   log4cxx/level.h
-  log4cxx/log4cxx.h.in
-  log4cxx/log4cxx.hw
   log4cxx/logger.h
   log4cxx/logmanager.h
   log4cxx/logstring.h
@@ -180,8 +178,6 @@ set(public_headers
   log4cxx/pattern/throwableinformationpatternconverter.h
   log4cxx/patternlayout.h
   log4cxx/portability.h
-  log4cxx/private/log4cxx_private.h.in
-  log4cxx/private/log4cxx_private.hw
   log4cxx/propertyconfigurator.h
   log4cxx/provisionnode.h
   log4cxx/rolling/action.h
