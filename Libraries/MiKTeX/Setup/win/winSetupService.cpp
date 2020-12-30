@@ -130,28 +130,27 @@ constexpr auto LD_IFCOMMON = 0x00000040;
 #define EXEPATH(name) fmt::format("%MIKTEX_INSTALL%\\{0}\\{1}", MIKTEX_PATH_BIN_DIR, name)
 #define DOCPATH(name) fmt::format("%MIKTEX_INSTALL%\\{0}\\{1}", MIKTEX_PATH_MIKTEX_DOC_DIR, name)
 
-BEGIN_ANONYMOUS_NAMESPACE;
+vector<ShellLinkData> winSetupServiceImpl::GetShellLinks()
+{
+  return vector<ShellLinkData> {
+    // "MiKTeX Console"
+    {
+      false,
+        false,
+        "",
+        "MiKTeX Console",
+        EXEPATH(MIKTEX_CONSOLE_EXE),
+        LD_USESHOWCMD | LD_USEDESC,
+        T_("MiKTeX Console helps you to manage your MiKTeX configuration."),
+        "",
+        "",
+        0,
+        "",
+        SW_SHOWNORMAL,
+        0,
+    },
 
-const ShellLinkData shellLinks[] = {
-
-  // "MiKTeX Console"
-  {
-    false,
-    false,
-    "",
-    "MiKTeX Console",
-    EXEPATH(MIKTEX_CONSOLE_EXE),
-    LD_USESHOWCMD | LD_USEDESC,
-    T_("MiKTeX Console helps you to manage your MiKTeX configuration."),
-    "",
-    "",
-    0,
-    "",
-    SW_SHOWNORMAL,
-    0,
-  },
-
-  // "TeXworks"
+      // "TeXworks"
   {
     false,
     false,
@@ -289,125 +288,124 @@ const ShellLinkData shellLinks[] = {
 
 #if 0
   // "Help->Manual"
-  {
-    false,
-    true,
-    "Help",
-    "MiKTeX Manual",
-    DOCPATH(MIKTEX_MAIN_HELP_FILE),
-    LD_USESHOWCMD,
-    "",
-    "",
-    "",
-    0,
-    "",
-    SW_SHOWNORMAL,
-    0,
-  },
+      {
+        false,
+        true,
+        "Help",
+        "MiKTeX Manual",
+        DOCPATH(MIKTEX_MAIN_HELP_FILE),
+        LD_USESHOWCMD,
+        "",
+        "",
+        "",
+        0,
+        "",
+        SW_SHOWNORMAL,
+        0,
+      },
 #endif
 
 #if 0
-  // "Help->FAQ"
-  {
-    false,
-    true,
-    "Help",
-    "MiKTeX FAQ",
-    DOCPATH(MIKTEX_FAQ_HELP_FILE),
-    LD_USESHOWCMD,
-    "",
-    "",
-    "",
-    0,
-    "",
-    SW_SHOWNORMAL,
-    0,
-  },
+      // "Help->FAQ"
+      {
+        false,
+        true,
+        "Help",
+        "MiKTeX FAQ",
+        DOCPATH(MIKTEX_FAQ_HELP_FILE),
+        LD_USESHOWCMD,
+        "",
+        "",
+        "",
+        0,
+        "",
+        SW_SHOWNORMAL,
+        0,
+      },
 #endif
 
 #if 0
-  // "MiKTeX on the Web->MiKTeX Project Page"
-  {
-    true,
-    true,
-    "MiKTeX on the Web",
-    "MiKTeX Project Page",
-    MIKTEX_URL_WWW,
-    0,
-    "",
-    "",
-    "",
-    0,
-    "",
-    0,
-    0,
-  },
+      // "MiKTeX on the Web->MiKTeX Project Page"
+      {
+        true,
+        true,
+        "MiKTeX on the Web",
+        "MiKTeX Project Page",
+        MIKTEX_URL_WWW,
+        0,
+        "",
+        "",
+        "",
+        0,
+        "",
+        0,
+        0,
+      },
 #endif
 
 #if 0
-  // "MiKTeX on the Web->Support"
-  {
-    true,
-    true,
-    "MiKTeX on the Web",
-    "MiKTeX Support",
-    MIKTEX_URL_WWW_SUPPORT,
-    0,
-    "",
-    "",
-    "",
-    0,
-    "",
-    0,
-    0,
-  },
+      // "MiKTeX on the Web->Support"
+      {
+        true,
+        true,
+        "MiKTeX on the Web",
+        "MiKTeX Support",
+        MIKTEX_URL_WWW_SUPPORT,
+        0,
+        "",
+        "",
+        "",
+        0,
+        "",
+        0,
+        0,
+      },
 #endif
 
 #if 0
-  // "MiKTeX on the Web->Give back"
-  {
-    true,
-    true,
-    "MiKTeX on the Web",
-    "Give back",
-    MIKTEX_URL_WWW_GIVE_BACK,
-    0,
-    "",
-    "",
-    "",
-    0,
-    "",
-    0,
-    0,
-  },
+      // "MiKTeX on the Web->Give back"
+      {
+        true,
+        true,
+        "MiKTeX on the Web",
+        "Give back",
+        MIKTEX_URL_WWW_GIVE_BACK,
+        0,
+        "",
+        "",
+        "",
+        0,
+        "",
+        0,
+        0,
+      },
 #endif
 
 #if 0
-  // "MiKTeX on the Web->Known Issues"
-  {
-    true,
-    true,
-    "MiKTeX on the Web",
-    "Known Issues",
-    MIKTEX_URL_WWW_KNOWN_ISSUES,
-    0,
-    "",
-    "",
-    "",
-    0,
-    "",
-    0,
-    0,
-  },
+      // "MiKTeX on the Web->Known Issues"
+      {
+        true,
+        true,
+        "MiKTeX on the Web",
+        "Known Issues",
+        MIKTEX_URL_WWW_KNOWN_ISSUES,
+        0,
+        "",
+        "",
+        "",
+        0,
+        "",
+        0,
+        0,
+      },
 #endif
-};
-
-END_ANONYMOUS_NAMESPACE;
+  };
+}
 
 void winSetupServiceImpl::CreateProgramIcons()
 {
   PathName path = CreateProgramFolder();
-  for (const ShellLinkData& shlnk : shellLinks)
+  for (const ShellLinkData& shlnk : GetShellLinks())
   {
     CreateShellLink(path, shlnk);
   }
@@ -634,7 +632,7 @@ constexpr auto UNINST_DISPLAY_VERSION = MIKTEX_DISPLAY_VERSION_STR;
    : UNINST_DISPLAY_NAME)
 constexpr auto UNINST_ABOUT_URL = "https://miktex.org/about";
 constexpr auto UNINST_UPDATE_URL = "https://miktex.org";
-const string UNINST_COMMENTS = T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS.");
+string GetUninstallComments() { return T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS."); }
 constexpr auto UNINST_README = UNINST_HELP_LINK;
 
 constexpr auto UNINST_DISPLAY_NAME = MIKTEX_PRODUCTNAME_STR;
@@ -673,7 +671,7 @@ void winSetupServiceImpl::RegisterUninstaller()
 
   // set values
   PathName installRoot(GetInstallRoot());
-  AddUninstallerRegValue(hkey, "Comments", UNINST_COMMENTS);
+  AddUninstallerRegValue(hkey, "Comments", GetUninstallComments());
   AddUninstallerRegValue(hkey, "DisplayIcon", iconPath.ToString());
   AddUninstallerRegValue(hkey, "DisplayName", UNINST_DISPLAY_STRING);
   AddUninstallerRegValue(hkey, "DisplayVersion", UNINST_DISPLAY_VERSION);

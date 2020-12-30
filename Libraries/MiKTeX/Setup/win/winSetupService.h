@@ -91,6 +91,9 @@ private:
 
 private:
   void CreateInternetShortcut(const MiKTeX::Core::PathName& path, const std::string& url);
+
+private:
+  std::vector<ShellLinkData> GetShellLinks();
 };
 
 END_INTERNAL_NAMESPACE;

@@ -50,6 +50,8 @@ set(setup_sources
   ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/LogFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SetupService.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Translator.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Setup/SetupService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${public_headers}

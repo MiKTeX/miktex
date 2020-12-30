@@ -23,8 +23,6 @@
 
 #include "internal.h"
 
-#include "ResourceRepository.h"
-
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winSetupService.h"
 #endif
@@ -118,8 +116,6 @@ string IssueSeverityString(IssueSeverity severity)
   default: MIKTEX_UNEXPECTED();
   }
 }
-
-std::locale uiLocale;
 
 END_INTERNAL_NAMESPACE;
 
@@ -767,25 +763,9 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
 }
 
-ResourceRepository resources;
-
-vector<char> loadFile(string const& fileName, string const& encoding)
-{
-  if (encoding != "UTF-8" && encoding != "utf-8")
-  {
-    return vector<char>();
-  }
-  const Resource& resource = resources.GetResource(fileName.c_str());
-  if (resource.data == nullptr)
-  {
-    return vector<char>();
-  }
-  const char* data = static_cast<const char*>(resource.data);
-  return vector<char>(data, data + resource.len);
-}
-
 void SetupServiceImpl::Initialize()
 {
+  auto xxx = T_("The PATH variable does not include the MiKTeX executables.");
   shared_ptr<Session> session = Session::Get();
 
   if (initialized)
@@ -793,27 +773,6 @@ void SetupServiceImpl::Initialize()
     return;
   }
   initialized = true;
-
-#if defined(WITH_BOOST_LOCALE)
-  boost::locale::gnu_gettext::messages_info messagesInfo;
-  messagesInfo.paths.push_back("/i18n");
-  messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(MIKTEX_COMP_ID));
-  messagesInfo.callback = loadFile;
-  boost::locale::generator gen;
-  string localeIdentifier;
-  auto uiLanguages = Utils::GetUILanguages();
-  if (!uiLanguages.empty())
-  {
-    localeIdentifier = fmt::format("{0}.UTF-8", uiLanguages[0]);
-  }
-  std::locale base_locale = gen(localeIdentifier);
-  boost::locale::info const& properties = std::use_facet<boost::locale::info>(base_locale);
-  messagesInfo.language = properties.language();
-  messagesInfo.country = properties.country();
-  messagesInfo.encoding = properties.encoding();
-  messagesInfo.variant = properties.variant();
-  uiLocale = std::locale(base_locale, boost::locale::gnu_gettext::create_messages_facet<char>(messagesInfo));
-#endif
 
   ReportLine(fmt::format("this is {0}", Utils::MakeProgramVersionString(MIKTEX_COMP_NAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR))));
 
