@@ -40,6 +40,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Core/PathNameParser>
 #include <miktex/Core/Paths>
+#include <miktex/Core/Utils>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
