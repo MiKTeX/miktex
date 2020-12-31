@@ -1,6 +1,0 @@
-${resource_includes}
-
-void ResourceRepository::Init()
-{
-   ${resource_adders}
-}

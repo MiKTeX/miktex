@@ -29,7 +29,7 @@ public:
   Translator() = delete;
 
 public:
-  Translator(const std::string& domain, const ResourceRepository& resources);
+  Translator(const std::string& domain, ResourceRepository& resources);
 
 public:
   Translator(const Translator& other) = delete;

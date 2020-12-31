@@ -48,14 +48,14 @@ class Translator::impl
 public:
   string domain;
 public:
-  const ResourceRepository* resources;
+  ResourceRepository* resources;
 public:
   std::locale uiLocale;
 public:
   std::once_flag initFlag;
 };
 
-Translator::Translator(const string& domain, const ResourceRepository& resources) :
+Translator::Translator(const string& domain, ResourceRepository& resources) :
   pimpl(new impl)
 {
   pimpl->domain = domain;
@@ -67,7 +67,7 @@ Translator::~Translator()
   delete pimpl;
 }
 
-vector<char> LoadFile(const ResourceRepository& resources, string const& fileName, string const& encoding)
+vector<char> LoadFile(ResourceRepository& resources, string const& fileName, string const& encoding)
 {
   if (encoding != "UTF-8" && encoding != "utf-8")
   {
@@ -86,7 +86,7 @@ void Translator::Init()
 {
 #if defined(WITH_BOOST_LOCALE)
   boost::locale::gnu_gettext::messages_info messagesInfo;
-  messagesInfo.paths.push_back("/i18n");
+  messagesInfo.paths.push_back("/usr/share/locale");
   messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(pimpl->domain));
   std::function<vector<char>(const string&, const string&)> callback = [this](const string& fileName, const string& encoding) { return LoadFile(*pimpl->resources, fileName, encoding); };
   messagesInfo.callback = callback;

@@ -135,13 +135,13 @@ foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
     "${resource_includes}#include \"${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/${MIKTEX_COMP_ID}.mo.h\""
   )
   set(resource_adders
-    "${resource_adders}R_(\"/i18n/${l}/LC_MESSAGES/${MIKTEX_COMP_ID}.mo\", messages_${l});"
+    "${resource_adders}R_(\"/usr/share/locale/${l}/LC_MESSAGES/${MIKTEX_COMP_ID}.mo\", messages_${l});"
   )
 endforeach()
 
 configure_file(
-  resdata.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/resdata.h
+  SetupResources.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/SetupResources.h
 )
 
 add_custom_target(gen-${MIKTEX_COMP_ID}-sources DEPENDS
@@ -151,7 +151,7 @@ add_custom_target(gen-${MIKTEX_COMP_ID}-sources DEPENDS
 set_property(TARGET gen-${MIKTEX_COMP_ID}-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 list(APPEND setup_sources
-   ${CMAKE_CURRENT_BINARY_DIR}/resdata.h
+   ${CMAKE_CURRENT_BINARY_DIR}/SetupResources.h
   ${generated_${MIKTEX_COMP_ID}_sources}
 )
 

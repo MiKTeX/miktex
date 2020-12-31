@@ -1,0 +1,21 @@
+#pragma once
+
+#include <ResourceRepository.h>
+
+${resource_includes}
+
+class SetupResources
+  : public ResourceRepository
+{
+protected:
+  void Init() override
+  {
+    ${resource_adders}
+  }
+
+private:
+  template<std::size_t N> void R_(const char* resourceId, unsigned char const (&byteArray)[N])
+  {
+    addResource(resourceId, { byteArray, sizeof(byteArray) });
+  }
+};

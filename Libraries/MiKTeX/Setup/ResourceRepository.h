@@ -23,8 +23,8 @@
 
 struct Resource
 {
-  const void* data;
-  std::size_t len;
+  const void* data = nullptr;
+  std::size_t len = 0;
 };
 
 class ResourceRepository
@@ -48,19 +48,13 @@ public:
   virtual ~ResourceRepository();
 
 public:
-  const Resource& GetResource(const char* resourceId) const;
+  const Resource& GetResource(const char* resourceId);
 
-private:
-  void Init();
+protected:
+  virtual void Init() = 0;
 
-private:
+protected:
   void addResource(const char* resourceId, const Resource& resource);
-
-private:
-  template<std::size_t N> void R_(const char* resourceId, unsigned char const (&byteArray)[N])
-  {
-    addResource(resourceId, { byteArray, sizeof(byteArray) });
-  }
 
 private:
   class impl;

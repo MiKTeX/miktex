@@ -18,10 +18,10 @@
    USA. */
 
 #include <map>
+#include <mutex>
 #include <string>
 
 #include "ResourceRepository.h"
-#include "resdata.h"
 
 using namespace std;
 
@@ -29,6 +29,8 @@ class ResourceRepository::impl
 {
 public:
   map<string, Resource> resources;
+public:
+  std::once_flag initFlag;
 };
 
 void ResourceRepository::addResource(const char* resourceId, const Resource& resource)
@@ -36,9 +38,16 @@ void ResourceRepository::addResource(const char* resourceId, const Resource& res
   pimpl->resources[resourceId] = resource;
 }
 
-const Resource& ResourceRepository::GetResource(const char* resourceId) const
+const Resource& ResourceRepository::GetResource(const char* resourceId)
 {
-    return pimpl->resources[resourceId];
+  std::call_once(pimpl->initFlag, [this]() { Init(); });
+  auto it = pimpl->resources.find(resourceId);
+  if (it == pimpl->resources.end())
+  {
+    static Resource nullResource;
+    return nullResource;
+  }
+  return it->second;
 }
 
 ResourceRepository::ResourceRepository()

@@ -76,6 +76,8 @@
 
 #include "Translator.h"
 
+#include "SetupResources.h"
+
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
 #define BEGIN_INTERNAL_NAMESPACE                        \
@@ -107,7 +109,7 @@ BEGIN_INTERNAL_NAMESPACE;
 
 inline std::string T_(const char* msgId)
 {
-  static ResourceRepository resources;
+  static SetupResources resources;
   static Translator translator(MIKTEX_COMP_ID, resources);
   return translator.Translate(msgId);
 }
