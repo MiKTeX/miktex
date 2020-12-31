@@ -1,4 +1,4 @@
-/* Translator.cpp:
+/* Translator.h:
 
    Copyright (C) 2020 Christian Schenk
 
@@ -21,27 +21,38 @@
 
 #include <string>
 
+#include <ResourceRepository.h>
+
 class Translator
 {
 public:
-  Translator();
+  Translator() = delete;
 
 public:
-  ~Translator();
+  Translator(const std::string& domain, const ResourceRepository& resources);
+
+public:
+  Translator(const Translator& other) = delete;
+
+public:
+  Translator& operator=(const Translator& other) = delete;
+
+public:
+  Translator(const Translator&& other) = delete;
+
+public:
+  Translator& operator=(const Translator&& other) = delete;
+
+public:
+  virtual ~Translator();
 
 public:
   std::string Translate(const char* msgId);
 
 private:
-  void LoadTranslations();
+  void Init();
 
 private:
   class impl;
   impl* pimpl;
 };
-
-inline std::string T_(const char* msgId)
-{
-  extern Translator globalTranslator;
-  return globalTranslator.Translate(msgId);
-}

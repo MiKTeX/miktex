@@ -17,7 +17,6 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include "config.h"
 
 #include <mutex>
 #include <string>
@@ -44,29 +43,31 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 
-Translator globalTranslator;
-
 class Translator::impl
 {
 public:
-  std::locale uiLocale{};
+  string domain;
 public:
-  std::once_flag flag1;
+  const ResourceRepository* resources;
+public:
+  std::locale uiLocale;
+public:
+  std::once_flag initFlag;
 };
 
-Translator::Translator() :
+Translator::Translator(const string& domain, const ResourceRepository& resources) :
   pimpl(new impl)
 {
+  pimpl->domain = domain;
+  pimpl->resources = &resources;
 }
 
 Translator::~Translator()
 {
-  delete[]pimpl;
+  delete pimpl;
 }
 
-ResourceRepository resources;
-
-vector<char> LoadFile(string const& fileName, string const& encoding)
+vector<char> LoadFile(const ResourceRepository& resources, string const& fileName, string const& encoding)
 {
   if (encoding != "UTF-8" && encoding != "utf-8")
   {
@@ -81,13 +82,14 @@ vector<char> LoadFile(string const& fileName, string const& encoding)
   return vector<char>(data, data + resource.len);
 }
 
-void Translator::LoadTranslations()
+void Translator::Init()
 {
 #if defined(WITH_BOOST_LOCALE)
   boost::locale::gnu_gettext::messages_info messagesInfo;
   messagesInfo.paths.push_back("/i18n");
-  messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(MIKTEX_COMP_ID));
-  messagesInfo.callback = LoadFile;
+  messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(pimpl->domain));
+  std::function<vector<char>(const string&, const string&)> callback = [this](const string& fileName, const string& encoding) { return LoadFile(*pimpl->resources, fileName, encoding); };
+  messagesInfo.callback = callback;
   boost::locale::generator gen;
   string localeIdentifier;
   auto uiLanguages = Utils::GetUILanguages();
@@ -108,7 +110,7 @@ void Translator::LoadTranslations()
 std::string Translator::Translate(const char* msgId)
 {
 #if defined(WITH_BOOST_LOCALE)
-  std::call_once(pimpl->flag1, [this]() { LoadTranslations(); });
+  std::call_once(pimpl->initFlag, [this]() { Init(); });
   return boost::locale::gettext(msgId, pimpl->uiLocale);
 #else
   return msgId;

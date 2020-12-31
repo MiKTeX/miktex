@@ -49,6 +49,8 @@ set(setup_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/LogFile.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ResourceRepository.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ResourceRepository.h
   ${CMAKE_CURRENT_SOURCE_DIR}/SetupService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Translator.h
@@ -133,13 +135,13 @@ foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
     "${resource_includes}#include \"${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/${MIKTEX_COMP_ID}.mo.h\""
   )
   set(resource_adders
-    "${resource_adders}addResource(\"/i18n/${l}/LC_MESSAGES/${MIKTEX_COMP_ID}.mo\", { messages_${l}, sizeof(messages_${l}) });"
+    "${resource_adders}R_(\"/i18n/${l}/LC_MESSAGES/${MIKTEX_COMP_ID}.mo\", messages_${l});"
   )
 endforeach()
 
 configure_file(
-  ResourceRepository.cpp.in
-  ${CMAKE_CURRENT_BINARY_DIR}/ResourceRepository.cpp
+  resdata.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/resdata.h
 )
 
 add_custom_target(gen-${MIKTEX_COMP_ID}-sources DEPENDS
@@ -149,8 +151,7 @@ add_custom_target(gen-${MIKTEX_COMP_ID}-sources DEPENDS
 set_property(TARGET gen-${MIKTEX_COMP_ID}-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 list(APPEND setup_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/ResourceRepository.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/ResourceRepository.h
+   ${CMAKE_CURRENT_BINARY_DIR}/resdata.h
   ${generated_${MIKTEX_COMP_ID}_sources}
 )
 

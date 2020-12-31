@@ -105,6 +105,13 @@ BEGIN_INTERNAL_NAMESPACE;
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
+inline std::string T_(const char* msgId)
+{
+  static ResourceRepository resources;
+  static Translator translator(MIKTEX_COMP_ID, resources);
+  return translator.Translate(msgId);
+}
+
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
