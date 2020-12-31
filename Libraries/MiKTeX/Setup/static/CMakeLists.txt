@@ -36,6 +36,7 @@ target_include_directories(${setup_lib_name}
 target_link_libraries(${setup_lib_name}
   PUBLIC 
     ${core_lib_name}
+    ${loc_lib_name}
     ${mpm_lib_name}
     ${nlohmann_json_lib_name}
 )

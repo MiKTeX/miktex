@@ -1,4 +1,4 @@
-/* ResourceRepository.h:
+/* miktex/Resources/ResourceRepository.h:
 
    Copyright (C) 2020 Christian Schenk
 
@@ -19,7 +19,11 @@
 
 #pragma once
 
+#include "config.h"
+
 #include <cstddef>
+
+MIKTEX_RES_BEGIN_NAMESPACE;
 
 struct Resource
 {
@@ -27,10 +31,10 @@ struct Resource
   std::size_t len = 0;
 };
 
-class ResourceRepository
+class MIKTEXRESTYPEAPI(ResourceRepository)
 {
 public:
-  ResourceRepository();
+   MIKTEXRESEXPORT MIKTEXTHISCALL ResourceRepository();
 
 public:
   ResourceRepository(const ResourceRepository& other) = delete;
@@ -45,18 +49,20 @@ public:
   ResourceRepository& operator=(const ResourceRepository&& other) = delete;
 
 public:
-  virtual ~ResourceRepository();
+  virtual MIKTEXRESEXPORT MIKTEXTHISCALL ~ResourceRepository() noexcept;
 
 public:
-  const Resource& GetResource(const char* resourceId);
+   MIKTEXRESTHISAPI(const Resource&) GetResource(const char* resourceId);
 
 protected:
-  virtual void Init() = 0;
+  virtual  MIKTEXRESTHISAPI(void) Init() = 0;
 
 protected:
-  void addResource(const char* resourceId, const Resource& resource);
+   MIKTEXRESTHISAPI(void) addResource(const char* resourceId, const Resource& resource);
 
 private:
   class impl;
   impl* pimpl;
 };
+
+MIKTEX_RES_END_NAMESPACE;

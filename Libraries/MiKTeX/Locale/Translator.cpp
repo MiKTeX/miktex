@@ -30,18 +30,17 @@
 #include <boost/locale.hpp>
 #endif
 
-#include <fmt/chrono.h>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
 #include <miktex/Core/Utils.h>
+#include <miktex/Resources/ResourceRepository>
 
-#include "ResourceRepository.h"
-#include "Translator.h"
+#include "miktex/Locale/Translator.h"
+
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Locale;
+using namespace MiKTeX::Resources;
 
 class Translator::impl
 {
@@ -95,7 +94,7 @@ void Translator::Init()
   auto uiLanguages = Utils::GetUILanguages();
   if (!uiLanguages.empty())
   {
-    localeIdentifier = fmt::format("{0}.UTF-8", uiLanguages[0]);
+    localeIdentifier = uiLanguages[0] + ".UTF-8";
   }
   std::locale base_locale = gen(localeIdentifier);
   boost::locale::info const& properties = std::use_facet<boost::locale::info>(base_locale);

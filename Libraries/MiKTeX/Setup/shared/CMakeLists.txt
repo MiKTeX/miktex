@@ -52,6 +52,7 @@ target_include_directories(${setup_dll_name}
 target_link_libraries(${setup_dll_name}
   PUBLIC
     ${core_dll_name}
+    ${loc_dll_name}
     ${mpm_dll_name}
     ${nlohmann_json_dll_name}
 )

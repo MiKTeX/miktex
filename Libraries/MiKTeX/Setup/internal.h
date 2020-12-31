@@ -60,6 +60,8 @@
 
 #include <miktex/Extractor/Extractor>
 
+#include <miktex/Locale/Translator>
+
 #include <miktex/PackageManager/PackageManager>
 
 #include <miktex/Trace/TraceStream>
@@ -73,8 +75,6 @@
 #include <fmt/ostream.h>
 
 #include <nlohmann/json.hpp>
-
-#include "Translator.h"
 
 #include "SetupResources.h"
 
@@ -110,7 +110,7 @@ BEGIN_INTERNAL_NAMESPACE;
 inline std::string T_(const char* msgId)
 {
   static SetupResources resources;
-  static Translator translator(MIKTEX_COMP_ID, resources);
+  static MiKTeX::Locale::Translator translator(MIKTEX_COMP_ID, resources);
   return translator.Translate(msgId);
 }
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ResourceRepository.h>
+#include <miktex/Resources/ResourceRepository>
 
 ${resource_includes}
 
 class SetupResources
-  : public ResourceRepository
+  : public MiKTeX::Resources::ResourceRepository
 {
 protected:
   void Init() override

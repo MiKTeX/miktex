@@ -1,4 +1,4 @@
-/* ResourceRepository.h:
+/* ResourceRepository.cpp:
 
    Copyright (C) 2020 Christian Schenk
 
@@ -17,13 +17,17 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#include "config.h"
+
 #include <map>
 #include <mutex>
 #include <string>
 
-#include "ResourceRepository.h"
+#include "miktex/Resources/ResourceRepository.h"
 
 using namespace std;
+
+using namespace MiKTeX::Resources;
 
 class ResourceRepository::impl
 {
@@ -51,7 +55,7 @@ const Resource& ResourceRepository::GetResource(const char* resourceId)
 }
 
 ResourceRepository::ResourceRepository()
-  :pimpl(new ResourceRepository::impl)
+  : pimpl(new ResourceRepository::impl)
 {
 }
 
