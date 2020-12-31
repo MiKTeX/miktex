@@ -20,8 +20,10 @@ texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${core_ps_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${dib_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${extractor_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${kpsemu_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${loc_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mpm_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mpm_ps_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${res_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${setup_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${texmf_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${trace_dll_name}.dll
