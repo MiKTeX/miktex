@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MiKTeX Console</string>
+   <string notr="true">MiKTeX Console</string>
   </property>
   <property name="windowIcon">
    <iconset resource="console.qrc">

@@ -111,11 +111,6 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.ui" line="20"/>
-        <source>MiKTeX Console</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../mainwindow.ui" line="88"/>
         <source>MiKTeX configuration overview</source>
         <translation>Überblick über die MiKTeX-Konfiguration</translation>
