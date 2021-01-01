@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: MiKTeX 20.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-12-27 18:59+0100\n"
-"PO-Revision-Date: 2020-12-27 18:39+0100\n"
+"PO-Revision-Date: 2021-01-01 13:15+0100\n"
 "Last-Translator: Christian Schenk <cs@miktex.org>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -19,14 +19,14 @@ msgstr ""
 
 #: SetupService.cpp:1960
 msgid "The PATH variable does not include the MiKTeX executables."
-msgstr "Die PATH-Variable schließt nicht die MiKTeX-Programme ein."
+msgstr "Die PATH-Variable schliesst nicht die MiKTeX-Programme ein."
 
 #: SetupService.cpp:1961
 msgid ""
 "Find the directory which contains the MiKTeX executables and add it to the "
 "environment variable PATH."
 msgstr ""
-"Suchen Sie da Verzeichnis, daß die MiKTeX-Programme enthält und "
+"Suchen Sie das Verzeichnis, dass die MiKTeX-Programme enthält, und "
 "fÜgen Sie es der Umgebungsvariablen PATH hinzu."
 
 #: SetupService.cpp:1976 SetupService.cpp:2008

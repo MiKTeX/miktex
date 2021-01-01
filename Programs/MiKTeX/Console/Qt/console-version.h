@@ -1,6 +1,6 @@
 /* console-version.h: MiKTeX Console version            -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 #define MIKTEX_COMP_MINOR_VERSION 1
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2018-2020 Christian Schenk"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2018-2021 Christian Schenk"
 
 #include <miktex/Version>

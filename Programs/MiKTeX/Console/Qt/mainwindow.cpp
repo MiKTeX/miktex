@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -1240,7 +1240,7 @@ void MainWindow::CheckUpdates()
           }
           else
           {
-            msg = tr("There are %1 updates available!").arg(updates.size());
+            msg = tr("There are %n updates available!", "", updates.size());
           }
         }
         ShowTrayMessage(TrayMessageContext::Updates, msg);
@@ -1262,8 +1262,8 @@ void MainWindow::CheckUpdates()
   });
   (void)connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   (void)connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  ui->labelUpdateStatus->setText(tr("Checking..."));
-  ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
+  ui->labelUpdateStatus->setText(tr("Checking for updates..."));
+  ui->labelCheckUpdatesStatus->setText(tr("Checking for updates..."));
   ui->labelUpdatePercent->setText("");
   ui->labelUpdateDetails->setText("");
   UpdateUi();

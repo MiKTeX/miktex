@@ -59,7 +59,7 @@
     <message>
         <location filename="../formatdefinitiondialog.ui" line="102"/>
         <source>Exclude this format when updating all format files</source>
-        <translation>Schließe dieses Format aus, wenn alle Formatdateien aktualisiert werden</translation>
+        <translation>Schliesse dieses Format aus, wenn alle Formatdateien aktualisiert werden</translation>
     </message>
 </context>
 <context>
@@ -230,7 +230,7 @@
         <location filename="../mainwindow.ui" line="495"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is MiKTeX Console. The program will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;If you want, you can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translatorcomment>Do not translate the HOWTO title</translatorcomment>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dies ist MiKTeX Console. Das Programm wird Ihnen dabei behilflich sein, Ihr MiKTeX-Konfiguration zu managen.&lt;/p&gt;&lt;p&gt;Wenn Sie möchten, können Sie mit einem Online-Tutorial beginnen: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dies ist MiKTeX Console. Das Programm wird Ihnen dabei behilflich sein, Ihre MiKTeX-Konfiguration zu managen.&lt;/p&gt;&lt;p&gt;Wenn Sie möchten, können Sie mit einem Online-Tutorial beginnen: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="524"/>
@@ -269,13 +269,13 @@
     <message>
         <location filename="../mainwindow.ui" line="628"/>
         <source>Please decide how you wish to continue:</source>
-        <translation>Bitte entscheiden Sie, wie sie fortfahren wollen:</translation>
+        <translation>Bitte entscheiden Sie, wie Sie fortfahren wollen:</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="641"/>
         <location filename="../mainwindow.ui" line="1968"/>
         <source>Switch to MiKTeX administrator mode</source>
-        <translation>Umschalten in den MiKTeX-Administratormodus</translation>
+        <translation>Wechsle in den MiKTeX-Administratormodus</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="644"/>
@@ -326,17 +326,17 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="817"/>
         <source>Upgrade</source>
-        <translation type="unfinished"></translation>
+        <translation>Upgrade</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="829"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can upgrade your minimal TeX installation to a standard TeX installation. This is completely optional because MiKTeX is a scalable TeX distribution which installs missing packages on-the-fly. More information:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: “Just enough TeX”&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie können Ihre minimale TeX-Installation auf eine Standard-TeX-Installation hochrüsten. Dies ist vollkommen optional, da MiKTeX eine skalierbare TeX-Distribution ist, die fehlende Pakete automatisch installiert. Weitere Informationen:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: “Just enough TeX”&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="844"/>
         <source>Upgrade now</source>
-        <translation type="unfinished"></translation>
+        <translation>Jetzt upgraden</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="925"/>
@@ -361,7 +361,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="985"/>
         <source>Package installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketinstallation</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1013"/>
@@ -402,6 +402,21 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
         <translation>Papierformat</translation>
     </message>
     <message>
+        <location filename="../mainwindow.ui" line="1874"/>
+        <source>This leaves you with a fresh TeX installation. Use this option if you intend to remove MiKTeX.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="2145"/>
+        <source>Remove package</source>
+        <translation>Entferne Paket</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="2151"/>
+        <source>Removes the selected packages.</source>
+        <translation>Entfernt die ausgewählten Pakete.</translation>
+    </message>
+    <message>
         <source>Select your default paper format:</source>
         <translation type="vanished">Wählen Sie Ihr Standard-Papierformat:</translation>
     </message>
@@ -413,12 +428,11 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="1167"/>
         <source>TEXMF root directories</source>
-        <translation>TEXMF Wurzelverzeichnisse</translation>
+        <translation>TEXMF-Wurzelverzeichnisse</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1173"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the search order of files. A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;. If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users. More information:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dies ist die Lister der TEXMF-Wurzelverzeichnisse. Die Listenreihenfolge beeinflusst due Suchreihenfolge von Dateien. Ein Wurzelverzeichnis kann mehreren Zwecken dienen: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;. Wenn einem Wurzelverzeichnis das &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt;-Attribut zugewiesen ist, dann wird es von allen Benutzern gemeinsam verwendet. Weitere Informationen:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1209"/>
@@ -468,8 +482,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="1691"/>
         <source>Report</source>
-        <translation>Bericht
-</translation>
+        <translation>Bericht</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1697"/>
@@ -524,6 +537,11 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
         <translation type="vanished">Im Datei-Explorer öffnen...</translation>
     </message>
     <message>
+        <location filename="../mainwindow.ui" line="1173"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the search order of files. A root directory can serve one or more purposes (&lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install)&lt;/span&gt;. A &lt;span style=&quot; font-style:italic;&quot;&gt;common&lt;/span&gt; root directory is shared by all users. More information:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dies ist die Liste der TEXMF-Wurzelverzeichnisse. Die Reihenfolge in der Liste beeinflusst die Suchreihenfolge für Dateien. Ein Wurzelverzeichnis kann einem oder mehreren Zwecken dienen (&lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install)&lt;/span&gt;. Ein &quot;&lt;span style=&quot; font-style:italic;&quot;&gt;common&lt;/span&gt;&quot;-Wurzelverzeichnis wird von allen Benutzern verwendet. Weitere Informationen:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
         <location filename="../mainwindow.ui" line="1782"/>
         <source>When you issue a ticket, you should include relevant log files as attachements.</source>
         <translation>Wenn Sie ein Ticket einstellen, dann sollten sie relevante Log-Dateien als Anhang hinzufügen.</translation>
@@ -536,7 +554,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="1798"/>
         <source>Please visit the &lt;a href=&quot;https://miktex.org&quot;&gt;MiKTeX project page&lt;/a&gt;, if you need assistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte besuchen Sie &lt;a href=&quot;https://miktex.org&quot;&gt;MiKTeX project page&lt;/a&gt;, wenn Sie Unterstützung benötigen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1840"/>
@@ -546,7 +564,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="1854"/>
         <source>To clean up your TeX installation, use one of the folllowing options.</source>
-        <translation type="unfinished">Wählen Sie eine der folgenden Optionen, um Ihre TeX-Installation zu bereinigen.</translation>
+        <translation>Wählen Sie eine der folgenden Optionen, um Ihre TeX-Installation zu bereinigen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1861"/>
@@ -562,15 +580,11 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="1871"/>
         <source>Reset the TeX installation to factory defaults</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="1874"/>
-        <source>This leaves you with a fresh TeX installation. Use this option if you intend to uninstall MiKTeX.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze die TeX-Installation auf die Werkseinstellungen zurück</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1881"/>
+        <location filename="../mainwindow.ui" line="2283"/>
         <source>Remove MiKTeX</source>
         <translation>MiKTeX entfernen</translation>
     </message>
@@ -619,7 +633,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.ui" line="1982"/>
         <source>Quits the application.</source>
-        <translation>Beenden die Anwendung</translation>
+        <translation>Beendet die Anwendung.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1991"/>
@@ -658,6 +672,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2040"/>
+        <location filename="../mainwindow.ui" line="2148"/>
         <location filename="../mainwindow.ui" line="2249"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
@@ -769,19 +784,16 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         <translation>Installiert die ausgewählten Pakete</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="2145"/>
         <source>Uninstall package</source>
-        <translation>Deinstalliere Paket</translation>
+        <translation type="vanished">Deinstalliere Paket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="2148"/>
         <source>Uninstall</source>
-        <translation>Deinstallieren</translation>
+        <translation type="vanished">Deinstallieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="2151"/>
         <source>Uninstalls the selected packages.</source>
-        <translation>Deinstalliert die ausgewählten Pakete</translation>
+        <translation type="vanished">Deinstalliert die ausgewählten Pakete</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2160"/>
@@ -856,7 +868,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.ui" line="2222"/>
         <source>Resets the TeX installation to the factory defaults.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt die TeX-Installation auf die Werkseinstellungen zurück.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2231"/>
@@ -909,14 +921,9 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         <translation>Baut das ausgewählte Format.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="2283"/>
-        <source>Uninstall MiKTeX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../mainwindow.ui" line="2291"/>
         <source>Removes MiKTeX data and configuration settings of the current user</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernt MiKTeX-Daten und Konfigurationseinstellungen des aktuellen Benutzers</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="194"/>
@@ -938,13 +945,13 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="228"/>
         <source>A task is running in the background. Are you sure you want to quit?</source>
-        <translation>Ein Auftrag wird im Hintergrund ausgeführt. Sind Sie sicher, daß Sie beenden möchten?</translation>
+        <translation>Ein Auftrag wird im Hintergrund ausgeführt. Sind Sie sicher, dass Sie beenden möchten?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="237"/>
         <location filename="../mainwindow.cpp" line="639"/>
         <source>There are pending updates. Are you sure you want to quit?</source>
-        <translation>Es gibt ausstehende Updates. Sind Sie sicher, daß Sie beenden möchten?</translation>
+        <translation>Es gibt ausstehende Updates. Sind Sie sicher, dass Sie beenden möchten?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="283"/>
@@ -954,7 +961,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="323"/>
         <source>Finish shared setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsames Setup fertigstellen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="493"/>
@@ -989,51 +996,51 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="799"/>
         <source>Finishing the MiKTeX setup...</source>
-        <translation type="unfinished"></translation>
+        <translation>Das MiKTeX-Setup wird fertiggestellt...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="825"/>
         <source>Something went wrong while finishing the MiKTeX setup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Fertigstellen des MiKTeX-Setup.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="855"/>
         <source>The PATH environment variable has been successfully modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die PATH-Variable wurde erfolgreich geändert.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="861"/>
         <source>The PATH environment variable could not be modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die PATH-Variable konnte nicht geändert werden.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="909"/>
         <source>Installing packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete werden installiert...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="916"/>
         <location filename="../mainwindow.cpp" line="1337"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation>Fertig</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="920"/>
         <source>Something went wrong while installing packages.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Installieren von Paketen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="921"/>
         <location filename="../mainwindow.cpp" line="1253"/>
         <location filename="../mainwindow.cpp" line="1351"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="936"/>
         <location filename="../mainwindow.cpp" line="1372"/>
         <source>we&apos;re almost done</source>
-        <translation type="unfinished"></translation>
+        <translation>wir sind fast fertig</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="940"/>
@@ -1056,64 +1063,66 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="957"/>
         <source>Upgrade in progress...</source>
-        <translation type="unfinished"></translation>
+        <translation>Upgrade im Gange...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="959"/>
         <location filename="../mainwindow.cpp" line="1395"/>
         <source>(initializing)</source>
-        <translation type="unfinished"></translation>
+        <translation>(wird initialisiert)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="990"/>
         <source>Refreshing file name database...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateinamendatenbank wird aktualisiert...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="997"/>
         <source>Something went wrong while refreshing the file name database.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Aktualisieren der Dateinamendatenbank.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1077"/>
         <source>Refreshing font map files...</source>
-        <translation type="unfinished"></translation>
+        <translation>Font-Map-Dateien werden aktualisiert...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1084"/>
         <source>Something went wrong while refreshing the font map files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Aktualisieren der Font-Map-Dateien.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1110"/>
         <source>Last checked: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt überprüft: %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1114"/>
         <source>You have not yet checked for updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben noch nicht nach Updates gesucht.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1122"/>
         <location filename="../mainwindow.cpp" line="1233"/>
         <source>There are currently no updates available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zur Zeit sind keine Updates verfügbar.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1128"/>
         <source>The following updates are available:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Updates sind verfügbar:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1130"/>
         <source>Updates (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Updates (%1)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1215"/>
+        <location filename="../mainwindow.cpp" line="1265"/>
+        <location filename="../mainwindow.cpp" line="1266"/>
         <source>Checking for updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>Updates werden gesucht...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1239"/>
@@ -1121,93 +1130,90 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1243"/>
-        <source>There are %1 updates available!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="1252"/>
         <source>Something went wrong while checking for updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Suchen nach Updates.</translation>
     </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1265"/>
-        <location filename="../mainwindow.cpp" line="1266"/>
-        <source>Checking...</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <location filename="../mainwindow.cpp" line="1243"/>
+        <source>There are %n updates available!</source>
+        <translation>
+            <numerusform>Es ist ein Update verfügbar!</numerusform>
+            <numerusform>Es sind %n Updates verfügbar!</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1328"/>
         <source>Installing package updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Updates werden installiert...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1350"/>
         <source>Something went wrong while installing package updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Installieren von Paket-Updates.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1393"/>
         <source>Update in progress...</source>
-        <translation type="unfinished"></translation>
+        <translation>Update ist im Gange...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1436"/>
+        <location filename="../mainwindow.cpp" line="1431"/>
         <source>The language change will take effect after restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Sprachänderung wird nach dem Neustart wirksam.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1437"/>
+        <location filename="../mainwindow.cpp" line="1432"/>
         <source>Restart now</source>
-        <translation type="unfinished"></translation>
+        <translation>Jetzt neustarten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1438"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>Later</source>
-        <translation type="unfinished"></translation>
+        <translation>Später</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1742"/>
+        <location filename="../mainwindow.cpp" line="1727"/>
         <source>This does not look like a &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-compliant&lt;/a&gt; root directory. Are you sure you want to add it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies sieht nich wie ein &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-konformes&lt;/a&gt; Wurzelverteichnis aus. Sind Sie sich sicher, dass sie es hinzufügen möchten?</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1872"/>
+        <source>Change Link Target Directory</source>
+        <translation>Zielverzeichnis für Verknüpfungen ändern</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1880"/>
+        <source>Changing link target directory...</source>
+        <translation>Zielverzeichnis für Verknüpfungen wird geändert...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1887"/>
-        <source>Change Link Target Directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1895"/>
-        <source>Changing link target directory...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1902"/>
         <source>Something went wrong while changing the link target directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Ändern des Zielverzeichnisses für Verknüpfungen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2009"/>
+        <location filename="../mainwindow.cpp" line="1994"/>
         <source>Are you sure you want to remove the selected format definition?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sind Sie sich sicher, dass Sie die ausgewählte Format-Definition entfernen möchten?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2091"/>
+        <location filename="../mainwindow.cpp" line="2076"/>
         <source>Building format %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Format %1 wird erstellt...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2091"/>
+        <location filename="../mainwindow.cpp" line="2076"/>
         <source>Building formats...</source>
-        <translation type="unfinished"></translation>
+        <translation>Formate werden erstellt...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2098"/>
+        <location filename="../mainwindow.cpp" line="2083"/>
         <source>Something went wrong while building formats.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Erstellen der Formate.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2321"/>
+        <location filename="../mainwindow.cpp" line="2306"/>
         <source>Your MiKTeX installation will now be updated:
 
 </source>
@@ -1216,7 +1222,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
 </translation>
     </message>
     <message numerus="yes">
-        <location filename="../mainwindow.cpp" line="2322"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>%n package(s) will be installed
 </source>
         <translation>
@@ -1227,7 +1233,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../mainwindow.cpp" line="2323"/>
+        <location filename="../mainwindow.cpp" line="2308"/>
         <source>%n package(s) will be removed</source>
         <translation>
             <numerusform>Ein Paket wird entfernt</numerusform>
@@ -1235,136 +1241,140 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2379"/>
+        <location filename="../mainwindow.cpp" line="2364"/>
         <source>Updating the package database...</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Datenbank wird aktualisiert...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2386"/>
+        <location filename="../mainwindow.cpp" line="2371"/>
         <source>Something went wrong while updating the package database.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Aktualisieren der Paket-Datenbank.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2561"/>
+        <location filename="../mainwindow.cpp" line="2546"/>
         <source>&lt;h3&gt;Reset personal MiKTeX configuration&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Persönliche MiKTeX-Konfiguration zurücksetzen&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2562"/>
+        <location filename="../mainwindow.cpp" line="2547"/>
         <source>&lt;p&gt;You are about to remove:&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2565"/>
+        <location filename="../mainwindow.cpp" line="2550"/>
         <source>&lt;li&gt;MiKTeX registry keys in &lt;tt&gt;HKEY_CURRENT_USER&lt;/tt&gt;&lt;/li&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2576"/>
+        <location filename="../mainwindow.cpp" line="2561"/>
         <source>&lt;li&gt;Directory &lt;tt&gt;%1&lt;/tt&gt;&lt;/li&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2580"/>
+        <location filename="../mainwindow.cpp" line="2565"/>
         <source>&lt;p&gt;Are you sure?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Sind Sie sich sicher?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2590"/>
+        <location filename="../mainwindow.cpp" line="2575"/>
         <source>Resetting personal MiKTeX configuration...</source>
-        <translation type="unfinished"></translation>
+        <translation>Persönliche MiKTeX-Konfiguration wird zurückgesetzt...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2597"/>
+        <location filename="../mainwindow.cpp" line="2582"/>
         <source>The personal MiKTeX configuration has been resetted.
 
 The application window will now be closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die persönliche MiKTeX-Konfiguration wurde zurückgesetzt.
+
+Das Anwendungsfenster wird jetzt geschlossen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2601"/>
+        <location filename="../mainwindow.cpp" line="2586"/>
         <source>Something went wrong while resetting your personal MiKTeX configuration.
 
 The application window will now be closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etwas ist schiefgegangen beim Zurücksetzen der MiKTeX-Konfiguration.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2655"/>
+        <location filename="../mainwindow.cpp" line="2640"/>
         <source>&lt;h3&gt;Reset the TeX installation to factory defaults&lt;/h3&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2656"/>
+        <location filename="../mainwindow.cpp" line="2641"/>
         <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2657"/>
+        <location filename="../mainwindow.cpp" line="2642"/>
         <source> In other words: your TeX installation will be restored to its original state, as when it was first installed.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2658"/>
-        <location filename="../mainwindow.cpp" line="2735"/>
+        <location filename="../mainwindow.cpp" line="2643"/>
+        <location filename="../mainwindow.cpp" line="2720"/>
         <source>Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2668"/>
+        <location filename="../mainwindow.cpp" line="2653"/>
         <source>Resetting the TeX installation...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2675"/>
+        <location filename="../mainwindow.cpp" line="2660"/>
         <source>The TeX installation has been restored to its initial state.
 
 The application window will now be closed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2679"/>
-        <location filename="../mainwindow.cpp" line="2756"/>
+        <location filename="../mainwindow.cpp" line="2664"/>
+        <location filename="../mainwindow.cpp" line="2741"/>
         <source>
 
 The application window will now be closed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2733"/>
+        <location filename="../mainwindow.cpp" line="2718"/>
         <source>&lt;h3&gt;Uninstall MiKTeX&lt;/h3&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2734"/>
+        <location filename="../mainwindow.cpp" line="2719"/>
         <source>&lt;p&gt;You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie sind im Begriff, MiKTeX von Ihrem Computer zu entfernen. Alle TEXMF-Wurzelverzeichnisse werden entfernt, und sie verlieren alla Konfigurationseinstellungen, Log-Dateien, Datendateien und Pakete.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Sie sind im Begriff, MiKTeX von Ihrem Computer zu entfernen. Alle TEXMF-Wurzelverzeichnisse werden entfernt und sie verlieren alle Konfigurationseinstellungen, Log-Dateien, Datendateien und Pakete.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2745"/>
+        <location filename="../mainwindow.cpp" line="2730"/>
         <source>Uninstalling MiKTeX...</source>
-        <translation type="unfinished"></translation>
+        <translation>MiKTeX wird entfernt...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2752"/>
+        <location filename="../mainwindow.cpp" line="2737"/>
         <source>MiKTeX has been removed from your computer.
 
 The application window will now be closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>MiKTeX wurde von Ihrem Computer entfernt.
+
+Das Anwendungsfenster wird jetzt geschlossen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2808"/>
+        <location filename="../mainwindow.cpp" line="2793"/>
         <source>%1 needs to be closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 muss geschlossen werden.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2817"/>
+        <location filename="../mainwindow.cpp" line="2802"/>
         <source>%1 needs to be restarted.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 muss neugestartet werden.</translation>
     </message>
     <message>
         <location filename="../mainwindow.h" line="93"/>
         <source>Sorry, something went wrong.</source>
-        <translation type="unfinished">Entschuldigung, etwas ist schiefgegangen.</translation>
+        <translation>Entschuldigung, etwas ist schiefgegangen.</translation>
     </message>
 </context>
 <context>
@@ -1373,14 +1383,14 @@ The application window will now be closed.</source>
         <location filename="../PackageTableModel.cpp" line="88"/>
         <location filename="../PackageTableModel.cpp" line="92"/>
         <source>Admin</source>
-        <translation type="unfinished"></translation>
+        <translation>Admin</translation>
     </message>
     <message>
         <location filename="../PackageTableModel.cpp" line="88"/>
         <location filename="../PackageTableModel.cpp" line="92"/>
         <location filename="../PackageTableModel.cpp" line="96"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzer</translation>
     </message>
     <message>
         <location filename="../PackageTableModel.cpp" line="129"/>
@@ -1395,7 +1405,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../PackageTableModel.cpp" line="133"/>
         <source>Size</source>
-        <translation>Größe</translation>
+        <translation>Grösse</translation>
     </message>
     <message>
         <location filename="../PackageTableModel.cpp" line="135"/>
@@ -1433,7 +1443,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="84"/>
         <source>stable</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="108"/>
@@ -1443,7 +1453,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="110"/>
         <source>Release State</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1504,7 +1514,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../UpdateTableModel.cpp" line="118"/>
         <source>update only possible in admin mode</source>
-        <translation type="unfinished">Update ist nur im Administratormodus möglich</translation>
+        <translation>Update ist nur im Administratormodus möglich</translation>
     </message>
     <message>
         <location filename="../UpdateTableModel.cpp" line="120"/>
@@ -1534,7 +1544,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../UpdateTableModel.cpp" line="135"/>
         <source>to be repaired</source>
-        <translation>muß repariert werden</translation>
+        <translation>muss repariert werden</translation>
     </message>
     <message>
         <location filename="../UpdateTableModel.cpp" line="137"/>

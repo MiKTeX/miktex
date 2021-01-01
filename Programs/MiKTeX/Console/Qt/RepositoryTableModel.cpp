@@ -1,6 +1,6 @@
 /* RepositoryListModel.cpp:
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -81,7 +81,7 @@ QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
         return QString::fromUtf8(repositoryInfo.url.c_str());
       }
     case 1:
-      return repositoryInfo.releaseState == RepositoryReleaseState::Next ? "NEXT" : tr("stable");
+      return repositoryInfo.releaseState == RepositoryReleaseState::Next ? "NEXT" : "stable";
     }
   }
   else if (role == Qt::UserRole)

@@ -936,7 +936,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -1170,7 +1170,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
                   <item>
                    <widget class="QLabel" name="label_14">
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the search order of files. A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;. If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users. More information:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the search order of files. A root directory can serve one or more purposes (&lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install)&lt;/span&gt;. A &lt;span style=&quot; font-style:italic;&quot;&gt;common&lt;/span&gt; root directory is shared by all users. More information:&lt;br/&gt;&lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://miktex.org/faq/local-additions&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;FAQ: Which is the best directory to keep my .sty files?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="wordWrap">
                      <bool>true</bool>
@@ -1871,7 +1871,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <string>Reset the TeX installation to factory defaults</string>
              </property>
              <property name="description">
-              <string>This leaves you with a fresh TeX installation. Use this option if you intend to uninstall MiKTeX.</string>
+              <string>This leaves you with a fresh TeX installation. Use this option if you intend to remove MiKTeX.</string>
              </property>
             </widget>
            </item>
@@ -2142,13 +2142,13 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
      <normaloff>:/Icons/list-remove-16x16.png</normaloff>:/Icons/list-remove-16x16.png</iconset>
    </property>
    <property name="text">
-    <string>Uninstall package</string>
+    <string>Remove package</string>
    </property>
    <property name="toolTip">
-    <string>Uninstall</string>
+    <string>Remove</string>
    </property>
    <property name="statusTip">
-    <string>Uninstalls the selected packages.</string>
+    <string>Removes the selected packages.</string>
    </property>
   </action>
   <action name="actionPackageInfo">
@@ -2280,7 +2280,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
   </action>
   <action name="actionUninstall">
    <property name="text">
-    <string>Uninstall MiKTeX</string>
+    <string>Remove MiKTeX</string>
    </property>
   </action>
   <action name="actionUserReset">
