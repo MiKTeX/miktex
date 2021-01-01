@@ -1,4 +1,4 @@
-/* RepositoryListModel.cpp:
+/* RepositoryTableModel.cpp:
 
    Copyright (C) 2018-2021 Christian Schenk
 
