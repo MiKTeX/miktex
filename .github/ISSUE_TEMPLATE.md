@@ -1,1 +1,2 @@
-- [x] I have read the [MiKTeX Contributing Guidelines](https://github.com/MiKTeX/miktex/blob/master/CONTRIBUTING.md)
+- [ ] I have read and acknowledged this HOWTO article:  
+  [Submitting a MiKTeX problem report](https://miktex.org/howto/bug-report)
