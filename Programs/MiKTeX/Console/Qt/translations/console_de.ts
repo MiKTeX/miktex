@@ -199,32 +199,32 @@
     <message>
         <location filename="../mainwindow.ui" line="376"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;link target directory&lt;/span&gt; with symbolic links to the MiKTeX executables. The location of this directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; for a private TeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) TeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;It is possible to change the location of the link target directory later.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Danke, dass Sie MiKTeX ausprobieren!&lt;/p&gt;&lt;p&gt;Wir werden das Setup jetzt fertigstellen, indem wir das &lt;span style=&quot; font-style:italic;&quot;&gt;Zielverzeichnis für Verknüpfungen&lt;/span&gt; mit symbolischen Verknüpfungen zu den MiKTeX-Programmen auffüllen. Die Lage dieses Verzeichnisses hängt von Ihrer Entscheidung ab:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; für eine private TeX-Installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; für eine gemeinsame (System-weite) TeX-Installation. Diese Option erfordert Administratorrechte.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Es ist möglich, die Lage des Zielverzeichnisses für Verknüpfungen zu einem späteren Zeitpunkt zu ändern.&lt;/p&gt;&lt;p&gt;Weitere Informationen: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="410"/>
         <source>Finish private setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Privates Setup fertigstellen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="413"/>
         <source>The TeX installation will be available for your private use only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die TeX-Installation wird nur für die private Nutzung zur Verfügung stehen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="420"/>
         <source>Restart as administrator and finish setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Administrator neu starten und das Setup fertigstellen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="423"/>
         <source>The TeX installation will be available for all users.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die TeX-Installation wird allen Benutzern zur Verfügung stehen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="436"/>
         <source>Please wait a few moments. It doesn&apos;t take too long...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte warten Sie einen Momen. Es sollte nicht sehr lange dauern...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="495"/>
@@ -404,7 +404,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     <message>
         <location filename="../mainwindow.ui" line="1874"/>
         <source>This leaves you with a fresh TeX installation. Use this option if you intend to remove MiKTeX.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies hinterlässt eine frische TeX-Installation. Nutzen Sie diese Option, wenn Sie beabsichtigen, MiKTeX zu entfernen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2145"/>
@@ -781,7 +781,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.ui" line="2136"/>
         <source>Installs the selected packages.</source>
-        <translation>Installiert die ausgewählten Pakete</translation>
+        <translation>Installiert die ausgewählten Pakete.</translation>
     </message>
     <message>
         <source>Uninstall package</source>
@@ -818,7 +818,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.ui" line="2178"/>
         <source>Apply the package filter</source>
-        <translation>Den Paket-Filter anwenden.</translation>
+        <translation>Den Paket-Filter anwenden</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2181"/>
@@ -903,7 +903,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.ui" line="2267"/>
         <source>Shows format properties.</source>
-        <translation>Zeigt die Formateigenschaften</translation>
+        <translation>Zeigt die Formateigenschaften.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2272"/>
@@ -1127,12 +1127,32 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="1239"/>
         <source>There is an update available!</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist ein Update verfügbar!</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1252"/>
         <source>Something went wrong while checking for updates.</source>
         <translation>Etwas ist schiefgegangen beim Suchen nach Updates.</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="2547"/>
+        <source>&lt;p&gt;You are about to remove the following:&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Sie sind im Begriff, folgendes zu entfernen:&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="2550"/>
+        <source>&lt;li&gt;MiKTeX registry keys under &lt;tt&gt;HKEY_CURRENT_USER&lt;/tt&gt;&lt;/li&gt;</source>
+        <translation>&lt;li&gt;MiKTeX Registry-Schlüssel unterhalb von &lt;tt&gt;HKEY_CURRENT_USER&lt;/tt&gt;&lt;/li&gt;</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="2718"/>
+        <source>&lt;h3&gt;Remove MiKTeX&lt;/h3&gt;</source>
+        <translation>&lt;h3&gt;MiKTeX entfernen&lt;/h3&gt;</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="2730"/>
+        <source>Removing MiKTeX...</source>
+        <translation>MiKTeX wird entfernt...</translation>
     </message>
     <message numerus="yes">
         <location filename="../mainwindow.cpp" line="1243"/>
@@ -1256,19 +1276,9 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         <translation>&lt;h3&gt;Persönliche MiKTeX-Konfiguration zurücksetzen&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2547"/>
-        <source>&lt;p&gt;You are about to remove:&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2550"/>
-        <source>&lt;li&gt;MiKTeX registry keys in &lt;tt&gt;HKEY_CURRENT_USER&lt;/tt&gt;&lt;/li&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="2561"/>
         <source>&lt;li&gt;Directory &lt;tt&gt;%1&lt;/tt&gt;&lt;/li&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;li&gt;Verzeichnis &lt;tt&gt;%1&lt;/tt&gt;&lt;/li&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2565"/>
@@ -1299,35 +1309,37 @@ The application window will now be closed.</source>
     <message>
         <location filename="../mainwindow.cpp" line="2640"/>
         <source>&lt;h3&gt;Reset the TeX installation to factory defaults&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Die TeX-Installation auf Werkseinstellungen zurücksetzen&lt;/h3&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2641"/>
         <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Sie sind im Begriff, die TeX-Installation auf Werkseinstellungen zurückzusetzen. Alle TEXMF-Wurzelverzeichnisse werden entfernt und Sie verlieren alle Konfigurationseinstellungen, Log-Dateien, Datendateien und Pakete.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2642"/>
         <source> In other words: your TeX installation will be restored to its original state, as when it was first installed.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation> Mit anderen Worten: Ihre TeX-Installation wird in den Ursprungszustand zurückversetzt, so wie sie nach der Erstinstallation vorhanden war.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2643"/>
         <location filename="../mainwindow.cpp" line="2720"/>
         <source>Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sind Sie sich sicher?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2653"/>
         <source>Resetting the TeX installation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Die TeX-Installation wird auf Werkseinstellungen zurückgesetzt...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2660"/>
         <source>The TeX installation has been restored to its initial state.
 
 The application window will now be closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die TeX-Installation wurde auf die Werkseinstellungen zurückgesetzt.
+
+Das Anwendungsfenter wird jetzt geschlossen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2664"/>
@@ -1335,12 +1347,9 @@ The application window will now be closed.</source>
         <source>
 
 The application window will now be closed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2718"/>
-        <source>&lt;h3&gt;Uninstall MiKTeX&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Das Anwendungsfenster wurd jetzt geschlossen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2719"/>
@@ -1348,9 +1357,8 @@ The application window will now be closed.</source>
         <translation>&lt;p&gt;Sie sind im Begriff, MiKTeX von Ihrem Computer zu entfernen. Alle TEXMF-Wurzelverzeichnisse werden entfernt und sie verlieren alle Konfigurationseinstellungen, Log-Dateien, Datendateien und Pakete.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2730"/>
         <source>Uninstalling MiKTeX...</source>
-        <translation>MiKTeX wird entfernt...</translation>
+        <translation type="vanished">MiKTeX wird entfernt...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2737"/>
@@ -1439,11 +1447,6 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
         <location filename="../RepositoryTableModel.cpp" line="72"/>
         <source>a random package repository on the Internet</source>
         <translation>ein beliebiges Repository im Internet</translation>
-    </message>
-    <message>
-        <location filename="../RepositoryTableModel.cpp" line="84"/>
-        <source>stable</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="108"/>

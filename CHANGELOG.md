@@ -2,12 +2,20 @@
 
 ## 21.1 - pending release
 
+### MiKTeX Console German translation
+
+MiKTeX Console now supports localization. To begin with, the UI has been translated to German.
+
 ### Upgraded programs
 
 * asymptote 2.68
 * dvipdfmx 20201216
 * dvisvgm 2.11
 * luatex 1.13.0
+
+### Fixed issues
+
+- [676](https://github.com/MiKTeX/miktex/issues/676): MiKTeX Console localization: de_DE
 
 ## 20.12 - 2020-12-14
 

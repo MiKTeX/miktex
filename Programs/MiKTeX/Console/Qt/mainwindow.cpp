@@ -2544,10 +2544,10 @@ bool UserResetWorker::Run()
 void MainWindow::UserReset()
 {
   QString message = tr("<h3>Reset personal MiKTeX configuration</h3>");
-  message += tr("<p>You are about to remove:</p>");
+  message += tr("<p>You are about to remove the following:</p>");
   message += "<ul>";
 #if defined(MIKTEX_WINDOWS)
-  message += tr("<li>MiKTeX registry keys in <tt>HKEY_CURRENT_USER</tt></li>");
+  message += tr("<li>MiKTeX registry keys under <tt>HKEY_CURRENT_USER</tt></li>");
 #endif
   set<PathName> roots{
     session->GetSpecialPath(SpecialPath::UserConfigRoot),
@@ -2715,7 +2715,7 @@ bool UninstallWorker::Run()
 
 void MainWindow::Uninstall()
 {
-  QString message = tr("<h3>Uninstall MiKTeX</h3>");
+  QString message = tr("<h3>Remove MiKTeX</h3>");
   message += tr("<p>You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</p>");
   message += tr("Are you sure?");
   if (QMessageBox::warning(this, TheNameOfTheGame, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
@@ -2727,7 +2727,7 @@ void MainWindow::Uninstall()
     QThread* thread = new QThread;
     UninstallWorker* worker = new UninstallWorker;
     backgroundWorkers++;
-    ui->labelBackgroundTask->setText(tr("Uninstalling MiKTeX..."));
+    ui->labelBackgroundTask->setText(tr("Removing MiKTeX..."));
     worker->moveToThread(thread);
     (void)connect(thread, SIGNAL(started()), worker, SLOT(Process()));
     (void)connect(worker, &UninstallWorker::OnFinish, this, [this]() {
