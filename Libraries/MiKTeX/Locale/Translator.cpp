@@ -1,6 +1,6 @@
 /* Translator.cpp:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#if !defined(MIKTEX_SETUP_STATIC)
+#if !defined(MIKTEX_LOC_STATIC)
 #define WITH_BOOST_LOCALE
 #endif
 
