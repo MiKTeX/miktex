@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2020 Christian Schenk
+   Copyright (C) 2013-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -32,6 +32,7 @@ using namespace std::string_literals;
 
 using namespace nlohmann;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;

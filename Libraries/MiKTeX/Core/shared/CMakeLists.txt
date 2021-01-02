@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ##
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -116,6 +116,7 @@ target_link_libraries(${core_dll_name}
   PRIVATE
     Threads::Threads
   PUBLIC
+    ${config_dll_name}
     ${md5_dll_name}
     ${trace_dll_name}
     ${util_dll_name}

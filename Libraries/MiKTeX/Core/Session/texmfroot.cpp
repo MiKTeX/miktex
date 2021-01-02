@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,7 +26,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Environment>
 #include <miktex/Core/Paths>
 #include <miktex/Core/RootDirectoryInfo>
@@ -44,6 +44,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;

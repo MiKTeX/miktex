@@ -1,6 +1,6 @@
 /* init.cpp: session initialization
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -39,8 +39,8 @@
 // FIXME: must be the first MiKTeX header
 #include "core-version.h"
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/AutoResource>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
@@ -57,6 +57,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;

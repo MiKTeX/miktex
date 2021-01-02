@@ -1,6 +1,6 @@
 /* makepk.cpp:
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is part of MiKTeX MakePK.
 
@@ -23,7 +23,7 @@
 
 #include "makepk-version.h"
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Util/Tokenizer>
 

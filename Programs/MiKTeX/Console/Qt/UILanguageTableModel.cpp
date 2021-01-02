@@ -1,6 +1,6 @@
 /* UILanguageTableModel.cpp:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -25,8 +25,8 @@
 
 #include <memory>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/AutoResource>
-#include <miktex/Core/ConfigNames>
 
 #include "UILanguageTableModel.h"
 

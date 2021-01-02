@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,7 +29,7 @@
 #include <memory>
 #include <string>
 
-#include <miktex/Core/HasNamedValues>
+#include <miktex/Configuration/HasNamedValues>
 #include <miktex/Core/Session>
 
 using namespace MiKTeX::Core;
@@ -37,7 +37,7 @@ using namespace MiKTeX::Test;
 using namespace MiKTeX::Util;
 using namespace std;
 
-class VarExpand : public MiKTeX::Core::HasNamedValues
+class VarExpand : public MiKTeX::Configuration::HasNamedValues
 {
 public:
   VarExpand(shared_ptr<Session> session) :

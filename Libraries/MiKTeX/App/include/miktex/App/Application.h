@@ -1,6 +1,6 @@
 /* miktex/App/Application.h:                            -*- C++ -*-
 
-   Copyright (C) 2005-2020 Christian Schenk
+   Copyright (C) 2005-2021 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -200,7 +200,7 @@ public:
   /// Enables or disables the auto-installer.
   /// @param tri The new state (on, off, inherit configuration default).
 public:
-  MIKTEXAPPTHISAPI(void) EnableInstaller(MiKTeX::Core::TriState tri);
+  MIKTEXAPPTHISAPI(void) EnableInstaller(MiKTeX::Configuration::TriState tri);
 
   /// Terminates the application with an error. 
   /// @param message The error message.
@@ -273,7 +273,7 @@ public:
   /// Gets the current auto-installer mode.
   /// @return Returns the current auto-installer mode (on, off, inherit configuration default).
 public:
-  MIKTEXAPPTHISAPI(MiKTeX::Core::TriState) GetEnableInstaller() const;
+  MIKTEXAPPTHISAPI(MiKTeX::Configuration::TriState) GetEnableInstaller() const;
 
   /// Logs an informational message.
   /// @param message The message to log.

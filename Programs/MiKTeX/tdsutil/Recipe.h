@@ -1,6 +1,6 @@
 /* Recipe.h:                                            -*- C++ -*-
 
-   Copyright (C) 2016-2017 Christian Schenk
+   Copyright (C) 2016-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,14 +23,14 @@
 #include <vector>
 
 #include <miktex/Core/Cfg>
-#include <miktex/Core/HasNamedValues>
+#include <miktex/Configuration/HasNamedValues>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Session>
 
 #include "TDS.h"
 
 class Recipe :
-  public MiKTeX::Core::HasNamedValues
+  public MiKTeX::Configuration::HasNamedValues
 {
 public:
   Recipe(const std::string& package, const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& destDir, bool verbose) :

@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,18 +38,19 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Configuration/ConfigurationProvider>
+#include <miktex/Configuration/HasNamedValues>
+#include <miktex/Configuration/TriState>
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Util/DateUtil>
 
 #include "Exceptions.h"
 #include "File.h"
 #include "FileType.h"
-#include "HasNamedValues.h"
 #include "OptionSet.h"
 #include "PathName.h"
 #include "Process.h"
 #include "RootDirectoryInfo.h"
-#include "TriState.h"
 #include "VersionNumber.h"
 
 /// @namespace MiKTeX::Core
@@ -386,291 +387,6 @@ struct LanguageInfo
   bool custom = false;
 };
 
-/// MiKTeX configuration value.
-class ConfigValue
-{
-public:
-  ConfigValue()
-  {
-  };
-
-public:
-  ConfigValue(const ConfigValue& other)
-  {
-    switch (other.type)
-    {
-    case Type::String:
-      new (&this->s) std::string(other.s);
-      break;
-    case Type::Int:
-      this->i = other.i;
-      break;
-    case Type::Bool:
-      this->b = other.b;
-      break;
-    case Type::Tri:
-      this->t = other.t;
-      break;
-    case Type::Char:
-      this->c = other.c;
-      break;
-    case Type::StringArray:
-      new (&this->sa) std::vector<std::string>(other.sa);
-      break;
-    case Type::None:
-      break;
-    }
-    this->type = other.type;
-    this->section = other.section;
-    this->description = other.description;
-  }
-
-public:
-  ConfigValue& operator=(const ConfigValue& other) = delete;
-
-public:
-  ConfigValue(ConfigValue&& other) noexcept
-  {
-    switch (other.type)
-    {
-    case Type::String:
-      new (&this->s) std::string(other.s);
-      this->s = std::move(other.s);
-      break;
-    case Type::Int:
-      this->i = other.i;
-      break;
-    case Type::Bool:
-      this->b = other.b;
-      break;
-    case Type::Tri:
-      this->t = other.t;
-      break;
-    case Type::Char:
-      this->c = other.c;
-      break;
-    case Type::StringArray:
-      new (&this->sa) std::vector<std::string>(other.sa);
-      this->sa = std::move(other.sa);
-      break;
-    case Type::None:
-      break;
-    }
-    this->type = other.type;
-    this->section = other.section;
-  }
-
-public:
-  ConfigValue& operator=(ConfigValue&& other) noexcept
-  {
-    if (this->type == Type::String && other.type != Type::String)
-    {
-      this->s.~basic_string();
-    }
-    else if (this->type == Type::StringArray && other.type != Type::StringArray)
-    {
-      this->sa.~vector();
-    }
-    switch (other.type)
-    {
-    case Type::String:
-      if (this->type != Type::String)
-      {
-        new (&this->s) std::string(other.s);
-      }
-      this->s = std::move(other.s);
-      break;
-    case Type::Int:
-      this->i = other.i;
-      break;
-    case Type::Bool:
-      this->b = other.b;
-      break;
-    case Type::Tri:
-      this->t = other.t;
-      break;
-    case Type::Char:
-      this->c = other.c;
-      break;
-    case Type::StringArray:
-      if (this->type != Type::StringArray)
-      {
-        new (&this->sa) std::vector<std::string>(other.sa);
-      }
-      this->sa = std::move(other.sa);
-      break;
-    case Type::None:
-      break;
-    }
-    this->type = other.type;
-    this->section = other.section;
-    return *this;
-  }
-
-public:
-  virtual ~ConfigValue() noexcept
-  {
-    if (type == Type::String)
-    {
-      this->s.~basic_string();
-    }
-    else if (type == Type::StringArray)
-    {
-      this->sa.~vector();
-    }
-    type = Type::None;
-  }
-
-public:
-  explicit ConfigValue(const std::string& s)
-  {
-    new(&this->s) std::string(s);
-    type = Type::String;
-  }
-
-public:
-  explicit ConfigValue(const char* lpsz)
-  {
-    new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
-    type = Type::String;
-  }
-
-public:
-  explicit ConfigValue(int i)
-  {
-    this->i = i;
-    type = Type::Int;
-  }
-
-public:
-  explicit ConfigValue(bool b)
-  {
-    this->b = b;
-    type = Type::Bool;
-  }
-
-public:
-  explicit ConfigValue(TriState t)
-  {
-    this->t = t;
-    type = Type::Tri;
-  }
-
-public:
-  explicit ConfigValue(char c)
-  {
-    this->c = c;
-    type = Type::Char;
-  }
-
-public:
-  explicit ConfigValue(const std::vector<std::string>& sa)
-  {
-    new(&this->sa) std::vector<std::string>(sa);
-    type = Type::StringArray;
-  }
-
-  /// Gets the configuration value as a string.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(std::string) GetString() const;
-
-  /// Gets the configuration value as an integer.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(int) GetInt() const;
-
-  /// Gets the configuration value as a boolean.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(bool) GetBool() const;
-
-  /// Gets the configuration value as a tri-state.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(TriState) GetTriState() const;
-
-  /// Gets the configuration value as a character.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(char) GetChar() const;
-
-  /// Gets the configuration value as a time_t.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(std::time_t) GetTimeT() const;
-
-  /// Gets the configuration value as a string list.
-  /// @return Returns the configuration value.
-public:
-  MIKTEXCORETHISAPI(std::vector<std::string>) GetStringArray() const;
-
-  /// Value type.
-public:
-  enum class Type
-  {
-    None,
-    String,
-    Int,
-    Bool,
-    Tri,
-    Char,
-    StringArray
-  };
-
-private:
-  Type type = Type::None;
-
-  /// Gets the value type.
-  /// @return Returns the value type
-public:
-  Type GetType() const
-  {
-    return type;
-  }
-
-  /// Tests whether the configuration value is defined.
-  /// @return Returns `true`, if the configuration value is defined.
-public:
-  bool HasValue() const
-  {
-    return type != Type::None;
-  }
-
-private:
-  std::string section;
-
-  /// Gets the section of the configuration value.
-  /// @return Returns the section name.
-public:
-  std::string GetSection() const
-  {
-    return section;
-  }
-
-private:
-  std::string description;
-
-  /// Gets the description of the configuration value.
-  /// @return Returns the description.
-public:
-  std::string GetDescription() const
-  {
-    return description;
-  }
-
-private:
-  union
-  {
-    std::string s;
-    int i;
-    bool b;
-    TriState t;
-    char c;
-    std::vector<std::string> sa;
-  };
-};
-
 /// Expansion options.
 enum class ExpandOption
 {
@@ -732,7 +448,8 @@ public:
 };
 
 /// The MiKTeX session interface.
-class MIKTEXNOVTABLE Session
+class MIKTEXNOVTABLE Session :
+  public MiKTeX::Configuration::ConfigurationProvider
 {
 public:
   /// Find file options.
@@ -1124,67 +841,6 @@ public:
 public:
   virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE& Mode) = 0;
 
-  /// Tries to get a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
-  /// @param[out] value The configuration value as a string.
-  /// @return Returns `true`, if the value was found.
-public:
-  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string& sectionName, const std::string& valueName, HasNamedValues* callback, std::string& value) = 0;
-
-  /// Tries to get a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @param[out] value The configuration value as a string.
-  /// @return Returns `true`, if the value was found.
-public:
-  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) = 0;
-
-  /// Gets a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @param defaultValue Value to be returned if the requested value was not found.
-  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
-  /// @return Returns the configuration value.
-  /// @see SetConfigValue
-public:
-  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue, HasNamedValues* callback) = 0;
-
-  /// Gets a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @param defaultValue Value to be returned if the requested value was not found.
-  /// @return Returns the configuration value.
-  /// @see SetConfigValue
-public:
-  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue) = 0;
-
-  /// Gets a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
-  /// @return Returns the configuration value.
-  /// @see SetConfigValue
-public:
-  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, HasNamedValues* callback) = 0;
-
-  /// Gets a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @return Returns the configuration value.
-  /// @see SetConfigValue
-public:
-  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName) = 0;
-
-  /// Sets a configuration value.
-  /// @param sectionName Identifies the configuration section.
-  /// @param valueName Identifies the value within the section.
-  /// @param The configuration value.
-  /// @see GetConfigValue
-public:
-  virtual void MIKTEXTHISCALL SetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& value) = 0;
-
   /// Gets the name of the running engine (e.g., `pdftex`).
   /// @return Returns the engine name.
 public:
@@ -1435,7 +1091,7 @@ public:
   /// @param enableInstaller Indicates whether automatic package installation is allowed.
   /// @return Returns the `makepk` command-line arguments.
 public:
-  virtual std::vector<std::string> MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, TriState enableInstaller) = 0;
+  virtual std::vector<std::string> MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, MiKTeX::Configuration::TriState enableInstaller) = 0;
 
 #if defined(MIKTEX_WINDOWS)
   /// Executes a Windows batch script.
@@ -1615,13 +1271,13 @@ public:
   /// @param pathOut The file system path to the destination file.
   /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathIn, const PathName& pathOut, HasNamedValues* callback = nullptr) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathIn, const PathName& pathOut, MiKTeX::Configuration::HasNamedValues* callback = nullptr) = 0;
 
   /// Configures a file.
   /// @param pathRel The relative file system path to the destination file.
   /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathRel, HasNamedValues* callback = nullptr) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathRel, MiKTeX::Configuration::HasNamedValues* callback = nullptr) = 0;
 
   /// Sets the descriptive name of the running program.
   /// @param name The descriptive name.
@@ -1650,7 +1306,7 @@ public:
   /// @param callback The pointer to an object which implements the `HasNamedValues` interface.
   /// @return Returns the expanded string.
 public:
-  virtual std::string Expand(const std::string& toBeExpanded, HasNamedValues* callback) = 0;
+  virtual std::string Expand(const std::string& toBeExpanded, MiKTeX::Configuration::HasNamedValues* callback) = 0;
 
   /// Expands a string.
   /// @param toBeExpanded The string to expand.
@@ -1658,7 +1314,7 @@ public:
   /// @param callback The pointer to an object which implements the `HasNamedValues` interface.
   /// @return Returns the expanded string.
 public:
-  virtual std::string Expand(const std::string& toBeExpanded, ExpandOptionSet options, HasNamedValues* callback) = 0;
+  virtual std::string Expand(const std::string& toBeExpanded, ExpandOptionSet options, MiKTeX::Configuration::HasNamedValues* callback) = 0;
 
   /// Updates language data.
   /// @param languageInfo The language data.

@@ -1,6 +1,6 @@
 /* mikuiqt.cpp:
 
-   Copyright (C) 2008-2020 Christian Schenk
+   Copyright (C) 2008-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -23,7 +23,7 @@
 #include <mach-o/dyld.h>
 #endif
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 
 #include "internal.h"
 
@@ -34,6 +34,7 @@
 #include "InstallPackageDialog.h"
 #include "ProxyAuthenticationDialog.h"
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;

@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class                    -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -242,7 +242,7 @@ public:
   bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE& mode) override;
 
 public:
-  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Core::HasNamedValues* callback, std::string& value) override;
+  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Configuration::HasNamedValues* callback, std::string& value) override;
 
 public:
   bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) override
@@ -251,25 +251,25 @@ public:
   }
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue, MiKTeX::Core::HasNamedValues* callback) override;
+  MiKTeX::Configuration::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Configuration::ConfigValue& defaultValue, MiKTeX::Configuration::HasNamedValues* callback) override;
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override
+  MiKTeX::Configuration::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Configuration::ConfigValue& defaultValue) override
   {
     return GetConfigValue(sectionName, valueName, defaultValue, nullptr);
   }
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Core::HasNamedValues* callback) override;
+  MiKTeX::Configuration::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, MiKTeX::Configuration::HasNamedValues* callback) override;
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override
+  MiKTeX::Configuration::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override
   {
     return GetConfigValue(sectionName, valueName, nullptr);
   }
 
 public:
-  void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& value) override;
+  void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Configuration::ConfigValue& value) override;
 
 public:
   FILE* OpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
@@ -397,7 +397,7 @@ public:
   bool GetMakeFontsFlag() override;
 
 public:
-  std::vector<std::string> MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Core::TriState enableInstaller) override;
+  std::vector<std::string> MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Configuration::TriState enableInstaller) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -490,10 +490,10 @@ public:
   bool IsUserAnAdministrator() override;
 
 public:
-  void ConfigureFile(const MiKTeX::Core::PathName& pathIn, const MiKTeX::Core::PathName& pathOut, MiKTeX::Core::HasNamedValues* callback) override;
+  void ConfigureFile(const MiKTeX::Core::PathName& pathIn, const MiKTeX::Core::PathName& pathOut, MiKTeX::Configuration::HasNamedValues* callback) override;
 
 public:
-  void ConfigureFile(const MiKTeX::Core::PathName& pathRel, MiKTeX::Core::HasNamedValues* callback) override;
+  void ConfigureFile(const MiKTeX::Core::PathName& pathRel, MiKTeX::Configuration::HasNamedValues* callback) override;
 
 public:
   void SetTheNameOfTheGame(const std::string& name) override;
@@ -508,10 +508,10 @@ public:
   std::string Expand(const std::string& toBeExpanded) override;
 
 public:
-  std::string Expand(const std::string& toBeExpanded, MiKTeX::Core::HasNamedValues* callback) override;
+  std::string Expand(const std::string& toBeExpanded, MiKTeX::Configuration::HasNamedValues* callback) override;
 
 public:
-  std::string Expand(const std::string& toBeExpanded, MiKTeX::Core::ExpandOptionSet options, MiKTeX::Core::HasNamedValues* callback) override;
+  std::string Expand(const std::string& toBeExpanded, MiKTeX::Core::ExpandOptionSet options, MiKTeX::Configuration::HasNamedValues* callback) override;
 
 public:
   void SetLanguageInfo(const MiKTeX::Core::LanguageInfo& languageInfo) override;
@@ -662,7 +662,7 @@ public:
 
 #if defined(MIKTEX_WINDOWS) && defined(MIKTEX_CORE_SHARED)
 public:
-  static MiKTeX::Core::TriState dynamicLoad;
+  static MiKTeX::Configuration::TriState dynamicLoad;
 #endif
 
 public:
@@ -797,7 +797,7 @@ private:
   bool CheckCandidate(MiKTeX::Core::PathName& path, const char* fileInfo);
 
 private:
-  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, MiKTeX::Core::HasNamedValues* callback);
+  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, MiKTeX::Configuration::HasNamedValues* callback);
 
 private:
   void ReadAllConfigFiles(const std::string& baseName, MiKTeX::Core::Cfg& cfg);
@@ -963,7 +963,7 @@ private:
   void WritePackageHistory();
 
 private:
-  std::string ExpandValues(const std::string& toBeExpanded, MiKTeX::Core::HasNamedValues* callback);
+  std::string ExpandValues(const std::string& toBeExpanded, MiKTeX::Configuration::HasNamedValues* callback);
 
 private:
   void DirectoryWalk(const MiKTeX::Core::PathName& directory, const MiKTeX::Core::PathName& pathPattern, std::vector<MiKTeX::Core::PathName>& paths);
@@ -1075,13 +1075,13 @@ private:
   bool adminMode = false;
 
 private:
-  MiKTeX::Core::TriState runningAsAdministrator = MiKTeX::Core::TriState::Undetermined;
+  MiKTeX::Configuration::TriState runningAsAdministrator = MiKTeX::Configuration::TriState::Undetermined;
 
 private:
-  MiKTeX::Core::TriState isUserAnAdministrator = MiKTeX::Core::TriState::Undetermined;
+  MiKTeX::Configuration::TriState isUserAnAdministrator = MiKTeX::Configuration::TriState::Undetermined;
 
 private:
-  MiKTeX::Core::TriState isSharedSetup = MiKTeX::Core::TriState::Undetermined;
+  MiKTeX::Configuration::TriState isSharedSetup = MiKTeX::Configuration::TriState::Undetermined;
 
 private:
   std::string applicationNames;
@@ -1181,7 +1181,7 @@ private:
   // TriState::False if not running from a MiKTeXDirect medium
   // TriState::Undetermined otherwise
 private:
- MiKTeX::Core:: TriState triMiKTeXDirect = MiKTeX::Core::TriState::Undetermined;
+ MiKTeX::Configuration::TriState triMiKTeXDirect = MiKTeX::Configuration::TriState::Undetermined;
 
   // fully qualified path to the running application file
 private:

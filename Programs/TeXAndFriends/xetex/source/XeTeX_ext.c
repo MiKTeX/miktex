@@ -2742,10 +2742,10 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
     processStartInfo.Arguments.push_back(dvipdfmxExecutable);
     switch (MiKTeX::App::Application::GetApplication()->GetEnableInstaller())
     {
-    case MiKTeX::Core::TriState::False:
+    case MiKTeX::Configuration::TriState::False:
       processStartInfo.Arguments.push_back("--miktex-disable-installer");
       break;
-    case MiKTeX::Core::TriState::True:
+    case MiKTeX::Configuration::TriState::True:
       processStartInfo.Arguments.push_back("--miktex-enable-installer");
       break;
     default:

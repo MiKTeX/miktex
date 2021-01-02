@@ -43,9 +43,9 @@
 
 #include "console-version.h"
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -70,6 +70,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;

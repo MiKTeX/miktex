@@ -1,7 +1,7 @@
 /* cjklatex.cpp: call latex after preprocessing of the .tex file by
    the cjk conversion tool
 
-   Written in the years 2004-2020 by Christian Schenk.
+   Written in the years 2004-2021 by Christian Schenk.
 
    This file is based on public domain work (cjklatex.c, 2001) by
    Fabrice Popineau.
@@ -39,6 +39,7 @@
 #include <miktex/Util/StringUtil>
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;

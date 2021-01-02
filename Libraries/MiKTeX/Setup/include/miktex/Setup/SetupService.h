@@ -1,6 +1,6 @@
 /* miktex/Setup/SetupService.h:                         -*- C++ -*-
 
-   Copyright (C) 2013-2020 Christian Schenk
+   Copyright (C) 2013-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -48,11 +48,12 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Configuration/TriState>
+
 #include <miktex/Core/OptionSet>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryDirectory>
-#include <miktex/Core/TriState>
 
 #include <miktex/PackageManager/PackageManager>
 
@@ -168,7 +169,7 @@ public:
   CleanupOptionSet CleanupOptions;
 
 public:
-  MiKTeX::Core::TriState IsInstallOnTheFlyEnabled = MiKTeX::Core::TriState::Undetermined;
+  MiKTeX::Configuration::TriState IsInstallOnTheFlyEnabled = MiKTeX::Configuration::TriState::Undetermined;
 
 public:
   MiKTeX::Core::StartupConfig Config;

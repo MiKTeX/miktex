@@ -1,6 +1,6 @@
 /* PackageRepositoryDataStore.cpp
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -21,8 +21,8 @@
 
 #include "config.h"
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Cfg>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Uri>
 
 #include <miktex/PackageManager/PackageManager>

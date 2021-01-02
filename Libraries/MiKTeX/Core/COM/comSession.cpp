@@ -1,6 +1,6 @@
 /* comSession.cpp: MiKTeX session
 
-   Copyright (C) 2006-2020 Christian Schenk
+   Copyright (C) 2006-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,6 +38,7 @@
 #include "COM/session.h"
 
 using namespace ATL;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeXSessionLib;

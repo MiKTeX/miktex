@@ -1,6 +1,6 @@
 /* RestRemoteService.cpp
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -23,7 +23,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Session>
 
 #include <miktex/PackageManager/PackageManager>
@@ -38,6 +38,7 @@ using namespace std::chrono;
 
 using namespace nlohmann;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;

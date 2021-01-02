@@ -1,6 +1,6 @@
 /* mthelp.cpp:
 
-   Copyright (C) 2004-2020 Christian Schenk
+   Copyright (C) 2004-2021 Christian Schenk
 
    This file is a part of MTHelp.
 
@@ -29,8 +29,8 @@
 #include "mthelp-version.h"
 
 #include <miktex/App/Application>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Paths>
@@ -51,6 +51,7 @@
 #include <fmt/ostream.h>
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Util;

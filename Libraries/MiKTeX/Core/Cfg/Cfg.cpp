@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,8 +26,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Cfg>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/FileStream>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>

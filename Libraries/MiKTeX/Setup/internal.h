@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2013-2020 Christian Schenk
+   Copyright (C) 2013-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -36,9 +36,10 @@
 #include <mutex>
 #include <set>
 
+#include <miktex/Configuration/ConfigNames>
+
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>

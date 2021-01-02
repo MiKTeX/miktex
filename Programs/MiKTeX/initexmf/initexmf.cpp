@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -36,10 +36,10 @@
 
 #include "initexmf-version.h"
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
@@ -69,6 +69,7 @@
 using namespace std;
 using namespace std::string_literals;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;

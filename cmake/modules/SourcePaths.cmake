@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,6 +36,7 @@ set(MIKTEX_REL_CFG_DIR                  "BuildUtilities/cfg")
 set(MIKTEX_REL_CHKTEX_DIR               "Programs/Validation/chktex")
 set(MIKTEX_REL_CJKUTILS_DIR             "Programs/FontUtilities/cjkutils")
 set(MIKTEX_REL_CONFIGFILES_DIR          "Admin/ConfigFiles")
+set(MIKTEX_REL_CONFIGLIB_DIR            "Libraries/MiKTeX/Configuration")
 set(MIKTEX_REL_CONFIG_DIR               "Admin/Config")
 set(MIKTEX_REL_CONSOLE_QT_DIR           "Programs/MiKTeX/Console/Qt")
 set(MIKTEX_REL_CORE_DIR                 "Libraries/MiKTeX/Core")

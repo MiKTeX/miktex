@@ -1,6 +1,6 @@
 /* MakeUtility.h:                                       -*- C++ -*-
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -142,10 +142,10 @@ protected:
         session->SetAdminMode(true);
         break;
       case 'D':
-        this->EnableInstaller(MiKTeX::Core::TriState::False);
+        this->EnableInstaller(MiKTeX::Configuration::TriState::False);
         break;
       case 'E':
-        this->EnableInstaller(MiKTeX::Core::TriState::True);
+        this->EnableInstaller(MiKTeX::Configuration::TriState::True);
         break;
       case 'h':
         Usage();
@@ -202,10 +202,10 @@ protected:
 
     switch (GetEnableInstaller())
     {
-    case MiKTeX::Core::TriState::False:
+    case MiKTeX::Configuration::TriState::False:
       allArgs.push_back("--miktex-disable-installer");
       break;
-    case MiKTeX::Core::TriState::True:
+    case MiKTeX::Configuration::TriState::True:
       allArgs.push_back("--miktex-enable-installer");
       break;
     default:

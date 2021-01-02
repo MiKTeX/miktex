@@ -1,6 +1,6 @@
 /* findtexmf.cpp: finding TeXMF related files
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of FindTeXMF.
 
@@ -44,6 +44,7 @@
 #include <fmt/ostream.h>
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Wrappers;
 using namespace MiKTeX::Util;

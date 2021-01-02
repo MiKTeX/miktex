@@ -1,6 +1,6 @@
 /* util.cpp: generi utilities
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,8 +33,8 @@
 
 #include <miktex/GitInfo>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/AutoResource>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
 #include <miktex/Core/PathName>

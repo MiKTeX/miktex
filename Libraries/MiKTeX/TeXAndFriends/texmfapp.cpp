@@ -1,6 +1,6 @@
 /* texmfapp.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -22,8 +22,9 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Configuration/ConfigNames>
+
 #include <miktex/Core/AutoResource>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
 #include <miktex/Core/StreamReader>
@@ -52,6 +53,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Trace;

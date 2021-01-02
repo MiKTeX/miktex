@@ -1,6 +1,6 @@
 ## CMakeLists.txt: top-level CMake file for building MiKTeX
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -2072,6 +2072,7 @@ add_subdirectory(${MIKTEX_REL_C4P_DIR})
 add_subdirectory(${MIKTEX_REL_CFG_DIR})
 add_subdirectory(${MIKTEX_REL_CHKTEX_DIR})
 add_subdirectory(${MIKTEX_REL_CJKUTILS_DIR})
+add_subdirectory(${MIKTEX_REL_CONFIGLIB_DIR})
 add_subdirectory(${MIKTEX_REL_CONFIG_DIR})
 add_subdirectory(${MIKTEX_REL_CORE_DIR})
 add_subdirectory(${MIKTEX_REL_CWEB_DIR})

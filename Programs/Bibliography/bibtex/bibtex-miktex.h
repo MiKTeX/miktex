@@ -1,6 +1,6 @@
 /* bibtex-miktex.h:                                     -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,7 +25,7 @@
 
 #define IMPLEMENT_TCX 1
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/FileType>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
@@ -108,10 +108,10 @@ public:
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
-    BIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", MiKTeX::Core::ConfigValue(bibtex::bibtex::ent_str_size())).GetInt();
-    BIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", MiKTeX::Core::ConfigValue(bibtex::bibtex::glob_str_size())).GetInt();
-    BIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", MiKTeX::Core::ConfigValue(bibtex::bibtex::max_strings())).GetInt();
-    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "min_crossrefs", MiKTeX::Core::ConfigValue(bibtex::bibtex::min_crossrefs())).GetInt();
+    BIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::ent_str_size())).GetInt();
+    BIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::glob_str_size())).GetInt();
+    BIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::max_strings())).GetInt();
+    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "min_crossrefs", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::min_crossrefs())).GetInt();
     BIBTEXPROG.hashsize = BIBTEXPROG.maxstrings;
     const int HASH_SIZE_MIN = 5000;
     if (BIBTEXPROG.hashsize < HASH_SIZE_MIN)

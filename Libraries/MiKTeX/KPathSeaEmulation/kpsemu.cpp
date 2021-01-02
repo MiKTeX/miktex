@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2020 Christian Schenk
+   Copyright (C) 2000-2021 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -35,9 +35,9 @@
 
 #include <miktex/App/Application>
 #include <miktex/C4P/C4P>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Cfg>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
@@ -54,6 +54,7 @@
 using namespace std;
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX;

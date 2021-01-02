@@ -1,6 +1,6 @@
 /* winRegistry.h: Windows Registry operations
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,8 +23,6 @@
 
 #if !defined(DC954E57C2A944218F4555DB45B27527)
 #define DC954E57C2A944218F4555DB45B27527
-
-#include <miktex/Core/TriState>
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 

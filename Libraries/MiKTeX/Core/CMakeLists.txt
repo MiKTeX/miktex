@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,11 +36,6 @@ set(public_include_directories
 
 set(REPORT_EVENTS FALSE)
 set(MIKTEX_FNDB_VERSION 5)
-
-configure_file(
-  include/miktex/Core/ConfigNames.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
-)
 
 configure_file(
   include/miktex/Core/Paths.h.in
@@ -86,7 +81,6 @@ set(headers_no_ext
   miktex/Core/BufferSizes
   miktex/Core/Cfg
   miktex/Core/CommandLineBuilder
-  miktex/Core/ConfigNames
   miktex/Core/CsvList
   miktex/Core/Debug
   miktex/Core/Directory
@@ -98,7 +92,6 @@ set(headers_no_ext
   miktex/Core/FileType
   miktex/Core/Fndb
   miktex/Core/GzipStream
-  miktex/Core/HasNamedValues
   miktex/Core/Help
   miktex/Core/IntegerTypes
   miktex/Core/LibraryVersion
@@ -121,7 +114,6 @@ set(headers_no_ext
   miktex/Core/TemporaryFile
   miktex/Core/Test
   miktex/Core/Text
-  miktex/Core/TriState
   miktex/Core/Uri
   miktex/Core/Urls
   miktex/Core/Utils
@@ -166,7 +158,6 @@ foreach(h ${headers_no_ext})
 endforeach()
 
 set(public_headers_core
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
@@ -188,7 +179,6 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/FileType.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Fndb.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/GzipStream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/HasNamedValues.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Help.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LibraryVersion.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LockFile.h
@@ -210,7 +200,6 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TemporaryFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Test.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Text.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/TriState.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Uri.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Utils.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/VersionNumber.h

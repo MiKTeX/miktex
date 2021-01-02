@@ -1,6 +1,6 @@
 /* luatex/miktex/miktex.cpp:
 
-   Copyright (C) 2016-2020 Christian Schenk
+   Copyright (C) 2016-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,8 +23,8 @@
 #include <fmt/ostream.h>
 
 #include <miktex/App/Application>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
@@ -39,6 +39,7 @@
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;

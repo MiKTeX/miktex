@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -58,6 +58,7 @@ define_library(apr)
 define_library(aprutil apr_util)
 define_library(bzip2)
 define_library(cairo)
+define_library(config)
 define_library(core)
 define_library(curl)
 define_library(dib)

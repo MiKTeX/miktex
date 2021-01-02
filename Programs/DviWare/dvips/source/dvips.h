@@ -33,6 +33,7 @@
 #undef kpse_tex_hush
 #define kpse_tex_hush(what) 1
 #include <cstdlib>
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 #define exit(status) throw(status)
 #define ERRBUFSIZE 512

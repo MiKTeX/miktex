@@ -1,6 +1,6 @@
 /* wrapper.cpp: wrap a main function
 
-   Copyright (C) 2004-2018 Christian Schenk
+   Copyright (C) 2004-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -107,7 +107,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 #endif
 
 #if defined(DISABLE_INSTALLER)
-    app.EnableInstaller(MiKTeX::Core::TriState::False);
+    app.EnableInstaller(MiKTeX::Configuration::TriState::False);
 #endif
 
 #if defined(BEQUIET)

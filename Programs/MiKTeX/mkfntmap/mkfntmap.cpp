@@ -1,6 +1,6 @@
 /* mkfntmap.cpp:
 
-   Copyright (C) 2002-2020 Christian Schenk
+   Copyright (C) 2002-2021 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -30,6 +30,7 @@
 using namespace std;
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;

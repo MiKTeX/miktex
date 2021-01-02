@@ -1,6 +1,6 @@
 /* CurlWebSession.cpp:
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -30,7 +30,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Uri>
 #include <miktex/Util/StringUtil>
 

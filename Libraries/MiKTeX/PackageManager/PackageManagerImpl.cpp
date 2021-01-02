@@ -1,6 +1,6 @@
 /* PackageManagerImpl.cpp: MiKTeX Package Manager
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -30,7 +30,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Core/ConfigNames>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
@@ -49,6 +49,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Packages;

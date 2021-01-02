@@ -1,6 +1,6 @@
 /* w2cemu.cpp: web2c compatibility functions
 
-   Copyright (C) 2010-2020 Christian Schenk
+   Copyright (C) 2010-2021 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -30,8 +30,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/TeXAndFriends/TeXApp>
 #include <miktex/TeXAndFriends/WebAppInputLine>
@@ -44,6 +44,7 @@
 using namespace std;
 
 using namespace MiKTeX;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
 

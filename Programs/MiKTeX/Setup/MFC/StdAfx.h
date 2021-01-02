@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 1999-2020 Christian Schenk
+   Copyright (C) 1999-2021 Christian Schenk
 
    This file is part of MiKTeX Setup Wizard.
 
@@ -84,6 +84,7 @@
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/StringUtil>
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;

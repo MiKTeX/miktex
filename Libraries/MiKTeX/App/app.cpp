@@ -1,6 +1,6 @@
 /* app.cpp:
 
-   Copyright (C) 2005-2020 Christian Schenk
+   Copyright (C) 2005-2021 Christian Schenk
  
    This file is part of the MiKTeX App Library.
 
@@ -39,10 +39,10 @@
 #include <log4cxx/xml/domconfigurator.h>
 
 #include <miktex/App/Application>
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
@@ -64,6 +64,7 @@ using namespace std;
 using namespace std::string_literals;
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;

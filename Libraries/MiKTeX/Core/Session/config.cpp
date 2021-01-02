@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,8 +23,8 @@
 
 #include <fmt/format.h>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/ConfigNames>
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Environment>
@@ -48,6 +48,7 @@ namespace {
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
@@ -494,276 +495,6 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 
   return haveValue;
-}
-
-std::string ConfigValue::GetString() const
-{
-  switch (type)
-  {
-  case Type::String:
-    return this->s;
-  case Type::Int:
-    return std::to_string(this->i);
-  case Type::Bool:
-    return this->b ? "true" : "false";
-  case Type::Tri:
-    return this->t == TriState::Undetermined ? "undetermined" : this->t == TriState::False ? "false" : "true";
-  case Type::Char:
-    return std::string(1, this->c);
-  case Type::StringArray:
-    return StringUtil::Flatten(this->sa, PathNameUtil::PathNameDelimiter);
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string."), "type", std::to_string(static_cast<int>(this->type)));
-  }
-}
-
-int ConfigValue::GetInt() const
-{
-  switch (type)
-  {
-  case Type::String:
-    return std::stoi(this->s);
-  case Type::Int:
-    return this->i;
-  case Type::Bool:
-    return (int)this->b;
-  case Type::Tri:
-    return (int)this->t;
-  case Type::Char:
-    return (int)this->c;
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to integer."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to integer."), "type", std::to_string(static_cast<int>(this->type)));
-  }
-}
-
-std::time_t ConfigValue::GetTimeT() const
-{
-  switch (type)
-  {
-  case Type::String:
-    return std::stoll(this->s);
-  case Type::Int:
-    return (std::time_t)this->i;
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to time_t."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to time_t."), "type", std::to_string(static_cast<int>(this->type)));
-  }
-}
-
-bool ConfigValue::GetBool() const
-{
-  switch (type)
-  {
-  case Type::String:
-    if (this->s == "0"
-      || this->s == "disable"
-      || this->s == "off"
-      || this->s == "f"
-      || this->s == "false"
-      || this->s == "n"
-      || this->s == "no")
-    {
-      return false;
-    }
-    else if (this->s == "1"
-      || this->s == "enable"
-      || this->s == "on"
-      || this->s == "t"
-      || this->s == "true"
-      || this->s == "y"
-      || this->s == "yes")
-    {
-      return true;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to boolean."), "s", this->s);
-    }
-  case Type::Int:
-    if (this->i == 0)
-    {
-      return false;
-    }
-    else if (this->i == 1)
-    {
-      return true;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to boolean."), "i", std::to_string(this->i));
-    }
-  case Type::Bool:
-    return this->b;
-  case Type::Tri:
-    if (this->t == TriState::False)
-    {
-      return false;
-    }
-    else if (this->t == TriState::True)
-    {
-      return true;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {t} to boolean."), "t", std::to_string(static_cast<int>(this->t)));
-    }
-  case Type::Char:
-    if (this->c == '0'
-      || this->c == 'f'
-      || this->c == 'n')
-    {
-      return false;
-    }
-    else if (this->c == '1'
-      || this->c == 't'
-      || this->c == 'y')
-    {
-      return true;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to boolean."), "c", string(1, this->c));
-    }
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to boolean."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to boolean."), "type", std::to_string(static_cast<int>(this->type)));
-  }
-}
-
-TriState ConfigValue::GetTriState() const
-{
-  switch (type)
-  {
-  case Type::String:
-    if (this->s == "0"
-      || this->s == "disable"
-      || this->s == "off"
-      || this->s == "f"
-      || this->s == "false"
-      || this->s == "n"
-      || this->s == "no")
-    {
-      return TriState::False;
-    }
-    else if (this->s == "1"
-      || this->s == "enable"
-      || this->s == "on"
-      || this->s == "t"
-      || this->s == "true"
-      || this->s == "y"
-      || this->s == "yes")
-    {
-      return TriState::True;
-    }
-    else if (this->s == ""
-      || this->s == "2"
-      || this->s == "?"
-      || this->s == "undetermined")
-    {
-      return TriState::Undetermined;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to tri-state."), "s", this->s);
-    }
-  case Type::Int:
-    if (this->i == 0)
-    {
-      return TriState::False;
-    }
-    else if (this->i == 1)
-    {
-      return TriState::True;
-    }
-    else if (this->i == 2)
-    {
-      return TriState::Undetermined;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to tri-state."), "i", std::to_string(this->i));
-    }
-  case Type::Bool:
-    return this->b ? TriState::True : TriState::False;
-  case Type::Tri:
-    return this->t;
-  case Type::Char:
-    if (this->c == '0'
-      || this->c == 'f'
-      || this->c == 'n')
-    {
-      return TriState::False;
-    }
-    else if (this->c == '1'
-      || this->c == 't'
-      || this->c == 'y')
-    {
-      return TriState::True;
-    }
-    else if (this->c == '2'
-      || this->c == '?')
-    {
-      return TriState::Undetermined;
-    }
-    else
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to tri-state."), "c", string(1, this->c));
-    }
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to tri-state."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to tri-state."), "type", std::to_string(static_cast<int>(this->type)));
-  }
-}
-
-char ConfigValue::GetChar() const
-{
-  switch (type)
-  {
-  case Type::String:
-    if (this->s.length() != 1)
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to character."), "s", this->s);
-    }
-    return this->s[0];
-  case Type::Int:
-    if (this->i < CHAR_MIN || this->i > CHAR_MAX)
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to character."), "i", std::to_string(this->i));
-    }
-    return (char)this->i;
-  case Type::Bool:
-    return this->b ? 't' : 'f';
-  case Type::Tri:
-    return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
-  case Type::Char:
-    return this->c;
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to character."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to character."), "type", std::to_string(static_cast<int>(this->type)));
-  }
-}
-
-vector<string> ConfigValue::GetStringArray() const
-{
-  switch (type)
-  {
-  case Type::String:
-    return StringUtil::Split(this->s, PathNameUtil::PathNameDelimiter);
-  case Type::StringArray:
-    return this->sa;
-  case Type::None:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string array."));
-  default:
-    MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string array."), "type", std::to_string(static_cast<int>(this->type)));
-  }
 }
 
 bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, HasNamedValues* callback, string& value)
