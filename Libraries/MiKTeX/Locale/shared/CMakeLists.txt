@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2020 Christian Schenk
+## Copyright (C) 2020-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -50,8 +50,10 @@ target_include_directories(${loc_dll_name}
 )
 
 target_link_libraries(${loc_dll_name}
+  PRIVATE
+    ${util_dll_name}
   PUBLIC
-    ${core_dll_name}
+    ${config_dll_name}
     ${res_dll_name}
 )
 

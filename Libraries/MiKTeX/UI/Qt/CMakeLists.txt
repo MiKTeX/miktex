@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2020 Christian Schenk
+## Copyright (C) 2008-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -181,6 +181,7 @@ target_include_directories(${ui_qt_dll_name}
 target_link_libraries(${ui_qt_dll_name}
   PRIVATE
     ${core_dll_name}
+    ${locale_dll_name}
     ${mpm_dll_name}
     ${setup_dll_name}
     Qt5::Gui

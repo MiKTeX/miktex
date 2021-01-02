@@ -111,7 +111,7 @@ BEGIN_INTERNAL_NAMESPACE;
 inline std::string T_(const char* msgId)
 {
   static SetupResources resources;
-  static MiKTeX::Locale::Translator translator(MIKTEX_COMP_ID, resources);
+  static MiKTeX::Locale::Translator translator(MIKTEX_COMP_ID, &resources, MiKTeX::Core::Session::TryGet());
   return translator.Translate(msgId);
 }
 

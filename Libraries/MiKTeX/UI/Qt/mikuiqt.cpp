@@ -24,6 +24,7 @@
 #endif
 
 #include <miktex/Configuration/ConfigNames>
+#include <miktex/Locale/Translator>
 
 #include "internal.h"
 
@@ -36,13 +37,14 @@
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Locale;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
 
 static QCoreApplication* application = nullptr;
-static QTranslator* translator = nullptr;
+static QTranslator* qTranslator = nullptr;
 
 #if defined(MIKTEX_MACOS_BUNDLE)
 PathName GetExecutablePath()
@@ -94,18 +96,20 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   static int argc = 1;
   static PathName argv0;
   static char* argv[2];
-  argv0 = Session::Get()->GetMyProgramFile(false).GetFileNameWithoutExtension();
+  auto session = Session::Get();
+  argv0 = session->GetMyProgramFile(false).GetFileNameWithoutExtension();
   argv[0] = argv0.GetData();
   argv[1] = nullptr;
   if (useGUI)
   {
     application = new QApplication(argc, argv);
-    translator = new QTranslator();
-    auto uiLanguages = Utils::GetUILanguages();
+    qTranslator = new QTranslator();
+    Translator translator("miktex-ui", nullptr, session);
+    auto uiLanguages = translator.GetSystemUILanguages();
     QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
-    if (translator->load(uiLocale, "ui", "_", ":/i18n", ".qm"))
+    if (qTranslator->load(uiLocale, "ui", "_", ":/i18n", ".qm"))
     {
-      QApplication::installTranslator(translator);
+      QApplication::installTranslator(qTranslator);
     }
   }
   else
@@ -118,10 +122,10 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
 {
   delete application;
   application = nullptr;
-  if (translator != nullptr)
+  if (qTranslator != nullptr)
   {
-    delete translator;
-    translator = nullptr;
+    delete qTranslator;
+    qTranslator = nullptr;
   }
 }
 

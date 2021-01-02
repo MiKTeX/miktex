@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,7 +36,6 @@
 #include <exception>
 #include <ostream>
 #include <string>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -298,12 +297,6 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(std::time_t) ToTimeT(const std::string& s);
-
-public:
-  static MIKTEXCORECEEAPI(std::vector<std::string>) GetUILanguages();
-
- public:
-  static MIKTEXCOREEXPORT std::tuple<std::string, std::string, std::string, std::string> MIKTEXCEECALL ParseLocaleIdentifier(const std::string& localeIdentifier);
 
 public:
   static MIKTEXCOREEXPORT std::pair<bool, bool> MIKTEXCEECALL CheckPath();

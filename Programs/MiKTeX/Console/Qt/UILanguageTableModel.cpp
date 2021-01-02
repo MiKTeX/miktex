@@ -27,12 +27,14 @@
 
 #include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/AutoResource>
+#include <miktex/Locale/Translator>
 
 #include "UILanguageTableModel.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Locale;
 using namespace MiKTeX::Util;
 
 UILanguageTableModel::UILanguageTableModel(QObject* parent) :
@@ -114,7 +116,7 @@ void UILanguageTableModel::InternalReload()
   {
     QLocale qloc(QString::fromStdString(l));
     string language, country, encoding, variant;
-    std::tie(language, country, encoding, variant) = Utils::ParseLocaleIdentifier(l);
+    std::tie(language, country, encoding, variant) = Translator::ParseLocaleIdentifier(l);
     string displayName = QLocale::languageToString(qloc.language()).toStdString();
     if (!country.empty())
     {

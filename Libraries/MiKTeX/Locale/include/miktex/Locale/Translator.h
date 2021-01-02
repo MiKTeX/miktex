@@ -1,6 +1,6 @@
 /* miktex/Locale/Translator.h:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,21 +19,25 @@
 
 #pragma once
 
-#include "config.h"
+#include <miktex/Locale/config.h>
 
+#include <memory>
 #include <string>
+#include <tuple>
+#include <vector>
 
+#include <miktex/Configuration/ConfigurationProvider>
 #include <miktex/Resources/ResourceRepository>
 
 MIKTEX_LOC_BEGIN_NAMESPACE;
 
-class MIKTEXRESTYPEAPI(Translator)
+class MIKTEXLOCTYPEAPI(Translator)
 {
 public:
   Translator() = delete;
 
 public:
-  MIKTEXRESEXPORT MIKTEXTHISCALL Translator(const std::string& domain, MiKTeX::Resources::ResourceRepository& resources);
+  MIKTEXLOCEXPORT MIKTEXTHISCALL Translator(const std::string& domain, MiKTeX::Resources::ResourceRepository* resources, std::shared_ptr<MiKTeX::Configuration::ConfigurationProvider> config);
 
 public:
   Translator(const Translator& other) = delete;
@@ -48,10 +52,17 @@ public:
   Translator& operator=(const Translator&& other) = delete;
 
 public:
-  virtual MIKTEXRESEXPORT MIKTEXTHISCALL ~Translator() noexcept;
+  virtual MIKTEXLOCEXPORT MIKTEXTHISCALL ~Translator() noexcept;
 
 public:
-  MIKTEXRESTHISAPI(std::string) Translate(const char* msgId);
+  MIKTEXLOCTHISAPI(std::string) Translate(const char* msgId);
+
+public:
+  MIKTEXLOCTHISAPI(std::vector<std::string>) GetSystemUILanguages();
+
+public:
+  static MIKTEXLOCEXPORT std::tuple<std::string, std::string, std::string, std::string> MIKTEXCEECALL ParseLocaleIdentifier(const std::string& localeIdentifier);
+
 
 private:
   void Init();

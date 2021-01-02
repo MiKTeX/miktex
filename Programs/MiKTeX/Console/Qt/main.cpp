@@ -1,6 +1,6 @@
 /* main.cpp:
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -42,6 +42,7 @@
 #include <miktex/Core/LockFile>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Locale/Translator>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/Util/StringUtil>
 #include <miktex/Trace/Trace>
@@ -51,6 +52,7 @@
 #include "mainwindow.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Locale;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
@@ -336,12 +338,13 @@ int main(int argc, char* argv[])
     }
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
-    QTranslator translator;
-    auto uiLanguages = Utils::GetUILanguages();
+    Translator translator("miktex-console", nullptr, session);
+    auto uiLanguages = translator.GetSystemUILanguages();
     QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
-    if (translator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
+    QTranslator qtranslator;
+    if (qtranslator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
     {
-      QCoreApplication::installTranslator(&translator);
+      QCoreApplication::installTranslator(&qtranslator);
     }
     QTranslator uiTranslator;
     if (uiTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
