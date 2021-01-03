@@ -19,7 +19,9 @@
 
 #include "config.h"
 
+#if defined(MIKTEX_WINDOWS)
 #include <Windows.h>
+#endif
 
 #include <locale>
 #include <mutex>
