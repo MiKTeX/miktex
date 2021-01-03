@@ -23,6 +23,7 @@
 
 #include <miktex/Configuration/config.h>
 
+#include <climits>
 #include <ctime>
 
 #include <string>
