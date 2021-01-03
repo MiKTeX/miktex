@@ -1,6 +1,6 @@
 /* ResourceRepository.cpp:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -37,7 +37,7 @@ public:
   std::once_flag initFlag;
 };
 
-void ResourceRepository::addResource(const char* resourceId, const Resource& resource)
+void ResourceRepository::AddResource(const char* resourceId, const Resource& resource)
 {
   pimpl->resources[resourceId] = resource;
 }

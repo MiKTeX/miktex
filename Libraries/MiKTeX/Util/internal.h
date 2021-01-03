@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -24,9 +24,6 @@
 #define A7C88F5FBE5C45EB970B3796F331CD89
 #include "miktex/Util/config.h"
 
-#define MIKTEXSTATICFUNC(type) type
-#define MIKTEXSTATICFUNC2(type, callconv) type callconv
-
 #define BEGIN_INTERNAL_NAMESPACE                \
 namespace MiKTeX {                              \
   namespace DD62CE0F78794BD2AEEFCDD29780398B {
@@ -35,16 +32,13 @@ namespace MiKTeX {                              \
   }                                             \
 }
 
-#define BEGIN_ANONYMOUS_NAMESPACE namespace {
-#define END_ANONYMOUS_NAMESPACE }
-
 BEGIN_INTERNAL_NAMESPACE;
 
-class UtilException :
+class Exception :
   public std::exception
 {
 public:
-  UtilException(const char* msg) :
+  Exception(const char* msg) :
     msg(msg)
   {
   }
@@ -61,4 +55,4 @@ END_INTERNAL_NAMESPACE;
 
 using namespace MiKTeX::DD62CE0F78794BD2AEEFCDD29780398B;
 
-#define FATAL_ERROR() throw UtilException("MiKTeX encountered an internal error.")
+#define FATAL_ERROR() throw Exception("MiKTeX encountered an internal error.")

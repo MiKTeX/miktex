@@ -49,6 +49,35 @@ using namespace MiKTeX::Locale;
 using namespace MiKTeX::Resources;
 using namespace MiKTeX::Util;
 
+namespace {
+  class Exception :
+    public exception
+  {
+  public:
+    Exception(const string& msg) :
+      msg(msg)
+    {
+    }
+  public:
+    const char* what() const noexcept override
+    {
+      return msg.c_str();
+    }
+  private:
+    string msg;
+  };
+
+  class InvalidLocaleIdentifier :
+    public Exception
+  {
+  public:
+    InvalidLocaleIdentifier(const string& localeIdentifier) :
+      Exception("Invalid locale identifier: " + localeIdentifier)
+    {
+    }
+  };
+}
+
 class Translator::impl
 {
 public:
@@ -76,7 +105,7 @@ Translator::~Translator()
   delete pimpl;
 }
 
-vector<char> LoadFile(ResourceRepository* resources, string const& fileName, string const& encoding)
+static vector<char> LoadFile(ResourceRepository* resources, string const& fileName, string const& encoding)
 {
   if (encoding != "UTF-8" && encoding != "utf-8")
   {
@@ -146,8 +175,7 @@ tuple<string, string, string, string> Translator::ParseLocaleIdentifier(const st
     }
     else if (!(ch >= 'a' && ch <= 'z'))
     {
-      // TODO: MIKTEX_FATAL_ERROR_2("Invalid locale identifier.", "localeIdentifier", localeIdentifier);
-      throw 1;
+      throw InvalidLocaleIdentifier(localeIdentifier);
     }
   }
   if (pos == string::npos)
@@ -167,8 +195,7 @@ tuple<string, string, string, string> Translator::ParseLocaleIdentifier(const st
       }
       else if (!(ch >= 'A' && ch <= 'Z'))
       {
-        // TODO: MIKTEX_FATAL_ERROR_2("Invalid locale identifier.", "localeIdentifier", localeIdentifier);
-        throw 1;
+        throw InvalidLocaleIdentifier(localeIdentifier);
       }
     }
     pos = nextPos;

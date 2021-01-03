@@ -1,6 +1,6 @@
 /* winPathNameUtil.cpp:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -51,14 +51,14 @@ wstring PathNameUtil::ToLengthExtendedPathName(const string& path)
   DWORD len = GetFullPathNameW(wpath.c_str(), 0, nullptr, nullptr);
   if (len == 0)
   {
-    throw UtilException("GetFullPathNameW failed");
+    throw Exception("GetFullPathNameW failed");
   }
   CharBuffer<wchar_t> absPath;
   absPath.Reserve(len);
   len = GetFullPathNameW(wpath.c_str(), len, &absPath[0], nullptr);
   if (len == 0 || len >= absPath.GetCapacity())
   {
-    throw UtilException("GetFullPathNameW failed");
+    throw Exception("GetFullPathNameW failed");
   }
   if (IsDosDriveLetter(absPath[0])
     && IsDosVolumeDelimiter(absPath[1])

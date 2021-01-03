@@ -1,6 +1,6 @@
 /* StringUtil.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -98,7 +98,7 @@ size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
   return length;
 }
 
-MIKTEXSTATICFUNC(void) CopyString2(char* lpszBuf, size_t bufSize, const char* lpszSource, size_t count)
+static void CopyString2(char* lpszBuf, size_t bufSize, const char* lpszSource, size_t count)
 {
   // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
   // TODO: MIKTEX_ASSERT_STRING(lpszSource);
@@ -254,7 +254,7 @@ u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
   }
   catch (const range_error&)
   {
-    throw UtilException("Conversion from UTF-8 byte sequence to UTF-16 string did not succeed.");
+    throw Exception("Conversion from UTF-8 byte sequence to UTF-16 string did not succeed.");
   }
 }
 
@@ -275,7 +275,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
   }
   catch (const range_error&)
   {
-    throw UtilException("Conversion from UFT-16 string to UTF-8 byte sequence did not succeed.");
+    throw Exception("Conversion from UFT-16 string to UTF-8 byte sequence did not succeed.");
   }
 }
 
@@ -298,7 +298,7 @@ u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
   }
   catch (const range_error&)
   {
-    throw UtilException("Conversion from UTF-8 byte sequence to UTF-32 string did not succeed.");
+    throw Exception("Conversion from UTF-8 byte sequence to UTF-32 string did not succeed.");
   }
 }
 
@@ -317,7 +317,7 @@ string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
   }
   catch (const range_error&)
   {
-    throw UtilException("Conversion from UFT-32 string to UTF-8 byte sequence did not succeed.");
+    throw Exception("Conversion from UFT-32 string to UTF-8 byte sequence did not succeed.");
   }
 }
 
@@ -330,7 +330,7 @@ wstring StringUtil::UTF8ToWideChar(const char* utf8Chars)
   }
   catch (const range_error&)
   {
-    throw UtilException("Conversion from UTF-8 byte sequence to wide character string did not succeed.");
+    throw Exception("Conversion from UTF-8 byte sequence to wide character string did not succeed.");
   }
 }
 
@@ -343,6 +343,6 @@ string StringUtil::WideCharToUTF8(const wchar_t* wideChars)
   }
   catch (const range_error&)
   {
-    throw UtilException("Conversion from wide character string to UTF-8 byte sequence did not succeed.");
+    throw Exception("Conversion from wide character string to UTF-8 byte sequence did not succeed.");
   }
 }

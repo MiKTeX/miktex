@@ -1,6 +1,10 @@
 #pragma once
 
+#include "config.h"
+
 #include <miktex/Resources/ResourceRepository>
+
+BEGIN_INTERNAL_NAMESPACE;
 
 ${resource_includes}
 
@@ -16,6 +20,8 @@ protected:
 private:
   template<std::size_t N> void R_(const char* resourceId, unsigned char const (&byteArray)[N])
   {
-    addResource(resourceId, { byteArray, sizeof(byteArray) });
+    AddResource(resourceId, { byteArray, sizeof(byteArray) });
   }
 };
+
+END_INTERNAL_NAMESPACE;

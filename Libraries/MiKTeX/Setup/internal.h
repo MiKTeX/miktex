@@ -77,8 +77,6 @@
 
 #include <nlohmann/json.hpp>
 
-#include "SetupResources.h"
-
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
 #define BEGIN_INTERNAL_NAMESPACE                        \
@@ -93,6 +91,8 @@ namespace MiKTeX {                                      \
 
 #define BEGIN_ANONYMOUS_NAMESPACE namespace {
 #define END_ANONYMOUS_NAMESPACE }
+
+#include "SetupResources.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 

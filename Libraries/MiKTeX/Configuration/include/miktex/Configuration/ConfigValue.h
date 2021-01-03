@@ -26,6 +26,7 @@
 #include <climits>
 #include <ctime>
 
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -35,6 +36,34 @@
 #include "TriState.h"
 
 MIKTEX_CONFIG_BEGIN_NAMESPACE;
+
+class Exception :
+  public std::exception
+{
+public:
+  Exception(const std::string& msg) :
+    msg(msg)
+  {
+  }
+public:
+  const char* what() const noexcept override
+  {
+    return msg.c_str();
+  }
+private:
+  std::string msg;
+};
+
+class ConfigurationError :
+  public MiKTeX::Configuration::Exception
+{
+public:
+  ConfigurationError(const std::string& msg) :
+    Exception("Configuration error: " + msg)
+  {
+  }
+};
+
 
 /// MiKTeX configuration value.
 class ConfigValue
@@ -240,11 +269,9 @@ public:
     case Type::StringArray:
       return MiKTeX::Util::StringUtil::Flatten(this->sa, MiKTeX::Util::PathNameUtil::PathNameDelimiter);
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to string.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion to string from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 
@@ -266,11 +293,9 @@ public:
     case Type::Char:
       return (int)this->c;
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to integer."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to integer.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to integer."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion to integer from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 
@@ -304,8 +329,7 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to boolean."), "s", this->s);
-        throw 1;
+        throw ConfigurationError("cannot convert to boolean from string: " + this->s);
       }
     case Type::Int:
       if (this->i == 0)
@@ -318,8 +342,7 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to boolean."), "i", std::to_string(this->i));
-        throw 1;
+        throw ConfigurationError("cannot convert to boolean from int: " + std::to_string(this->i));
       }
     case Type::Bool:
       return this->b;
@@ -334,8 +357,7 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {t} to boolean."), "t", std::to_string(static_cast<int>(this->t)));
-        throw 1;
+        throw ConfigurationError("cannot convert to boolean from tri-state: " + std::to_string(static_cast<int>(this->t)));
       }
     case Type::Char:
       if (this->c == '0'
@@ -352,15 +374,12 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to boolean."), "c", string(1, this->c));
-        throw 1;
+        throw ConfigurationError("cannot convert to boolean from char: " + std::string(1, this->c));
       }
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to boolean."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to boolean.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to boolean."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion to boolean from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 
@@ -401,8 +420,7 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to tri-state."), "s", this->s);
-        throw 1;
+        throw ConfigurationError("cannot convert to tri-state from string: " + this->s);
       }
     case Type::Int:
       if (this->i == 0)
@@ -419,8 +437,7 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to tri-state."), "i", std::to_string(this->i));
-        throw 1;
+        throw ConfigurationError("cannot convert to tri-state from int: " + std::to_string(this->i));
       }
     case Type::Bool:
       return this->b ? TriState::True : TriState::False;
@@ -446,15 +463,12 @@ public:
       }
       else
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{c}' to tri-state."), "c", string(1, this->c));
-        throw 1;
+        throw ConfigurationError("cannot convert to tri-state from char: " + std::string(1, this->c));
       }
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to tri-state."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to tri-state.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to tri-state."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion to tri-state from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 
@@ -468,15 +482,13 @@ public:
     case Type::String:
       if (this->s.length() != 1)
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert '{s}' to character."), "s", this->s);
-        throw 1;
+        throw ConfigurationError("cannot convert to char from string: " + this->s);
       }
       return this->s[0];
     case Type::Int:
       if (this->i < CHAR_MIN || this->i > CHAR_MAX)
       {
-        // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: cannot convert {i} to character."), "i", std::to_string(this->i));
-        throw 1;
+        throw ConfigurationError("cannot convert to char from int: " + std::to_string(this->i));
       }
       return (char)this->i;
     case Type::Bool:
@@ -486,11 +498,9 @@ public:
     case Type::Char:
       return this->c;
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to character."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to char.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to character."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion from type to char from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 
@@ -506,11 +516,9 @@ public:
     case Type::Int:
       return (std::time_t)this->i;
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to time_t."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to time_t.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to time_t."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion from time_t from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 
@@ -526,11 +534,9 @@ public:
     case Type::StringArray:
       return this->sa;
     case Type::None:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from undefined configuration value to string array."));
-      throw 1;
+      throw ConfigurationError("no conversion from undefined configuration value to string array.");
     default:
-      // TODO: MIKTEX_FATAL_ERROR_2(T_("Configuration error: no conversion from type {type} to string array."), "type", std::to_string(static_cast<int>(this->type)));
-      throw 1;
+      throw ConfigurationError("no conversion from to string array from type: " + std::to_string(static_cast<int>(this->type)));
     }
   }
 

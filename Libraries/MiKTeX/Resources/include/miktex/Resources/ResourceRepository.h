@@ -1,6 +1,6 @@
 /* miktex/Resources/ResourceRepository.h:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -58,7 +58,7 @@ protected:
   virtual  MIKTEXRESTHISAPI(void) Init() = 0;
 
 protected:
-   MIKTEXRESTHISAPI(void) addResource(const char* resourceId, const Resource& resource);
+   MIKTEXRESTHISAPI(void) AddResource(const char* resourceId, const Resource& resource);
 
 private:
   class impl;
