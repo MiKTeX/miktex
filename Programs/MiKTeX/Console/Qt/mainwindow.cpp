@@ -2447,7 +2447,8 @@ void MainWindow::CreateReport()
   {
     MIKTEX_FATAL_ERROR("The report could not be written.");
   }
-  SetupService::WriteReport(ofs);
+  auto setupService = SetupService::Create();
+  setupService->WriteReport(ofs);
   ofs.close();
 }
 

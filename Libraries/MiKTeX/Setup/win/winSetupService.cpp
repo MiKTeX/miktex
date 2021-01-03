@@ -1,6 +1,6 @@
 /* winSetupService.cpp:
 
-   Copyright (C) 2014-2020 Christian Schenk
+   Copyright (C) 2014-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -633,7 +633,6 @@ constexpr auto UNINST_DISPLAY_VERSION = MIKTEX_DISPLAY_VERSION_STR;
    : UNINST_DISPLAY_NAME)
 constexpr auto UNINST_ABOUT_URL = "https://miktex.org/about";
 constexpr auto UNINST_UPDATE_URL = "https://miktex.org";
-string GetUninstallComments() { return T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS."); }
 constexpr auto UNINST_README = UNINST_HELP_LINK;
 
 constexpr auto UNINST_DISPLAY_NAME = MIKTEX_PRODUCTNAME_STR;
@@ -672,7 +671,7 @@ void winSetupServiceImpl::RegisterUninstaller()
 
   // set values
   PathName installRoot(GetInstallRoot());
-  AddUninstallerRegValue(hkey, "Comments", GetUninstallComments());
+  AddUninstallerRegValue(hkey, "Comments", T_("MiKTeX is a scalable TeX distribution for Windows, Linux and macOS."));
   AddUninstallerRegValue(hkey, "DisplayIcon", iconPath.ToString());
   AddUninstallerRegValue(hkey, "DisplayName", UNINST_DISPLAY_STRING);
   AddUninstallerRegValue(hkey, "DisplayVersion", UNINST_DISPLAY_VERSION);

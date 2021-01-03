@@ -1,6 +1,6 @@
 /* mainwindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -117,7 +117,15 @@ private:
 private:
   void FindIssues()
   {
-    issues = isSetupMode || dontFindIssues ? std::vector<MiKTeX::Setup::Issue>() : MiKTeX::Setup::SetupService::FindIssues(true, false);
+    if (isSetupMode || dontFindIssues)
+    {
+      issues = std::vector<MiKTeX::Setup::Issue>();
+    }
+    else
+    {
+      auto setupService = MiKTeX::Setup::SetupService::Create();
+      issues = setupService->FindIssues(true, false);
+    }
     checkedIssues = true;
   }
 

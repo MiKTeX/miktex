@@ -421,13 +421,14 @@ void Application::AutoDiagnose()
   time_t now = time(nullptr);
   PathName issuesJson = pimpl->session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
   vector<Setup::Issue> issues;
+  auto setupService = MiKTeX::Setup::SetupService::Create();
   if (!File::Exists(issuesJson) || now > File::GetLastWriteTime(issuesJson) + ONE_WEEK)
   {
-    issues = MiKTeX::Setup::SetupService::FindIssues(false, false);
+    issues = setupService->FindIssues(false, false);
   }
   else
   {
-    issues = MiKTeX::Setup::SetupService::GetIssues();
+    issues = setupService->GetIssues();
   }
 
   for (const Setup::Issue& issue : issues)

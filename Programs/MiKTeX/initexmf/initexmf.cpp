@@ -2150,7 +2150,8 @@ void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 
 void IniTeXMFApp::WriteReport()
 {
-  SetupService::WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
+  auto setupService = SetupService::Create();
+  setupService->WriteReport(cout, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
 }
 
 void IniTeXMFApp::Run(int argc, const char* argv[])

@@ -35,6 +35,7 @@ using namespace nlohmann;
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
+using namespace MiKTeX::Locale;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
@@ -118,6 +119,8 @@ string IssueSeverityString(IssueSeverity severity)
   }
 }
 
+SetupResources SetupServiceImpl::resources;
+
 END_INTERNAL_NAMESPACE;
 
 namespace MiKTeX {
@@ -164,9 +167,10 @@ SetupServiceImpl::SetupServiceImpl()
 {
   traceStream = TraceStream::Open("setup");
   packageManager = PackageManager::Create();
-  shared_ptr<Session> session = Session::Get();
+  session = Session::Get();
   logFile.SetCallback(this);
   options.IsCommonSetup = session->RunningAsAdministrator();
+  translator = make_unique<Translator>(MIKTEX_COMP_ID, &resources, session);
 }
 
 SetupServiceImpl::~SetupServiceImpl()
@@ -508,7 +512,6 @@ void SetupServiceImpl::LogHeader()
   Log(fmt::format("Date: {0:%A, %B %d, %Y}\n", *pTm));
   Log(fmt::format("Time: {0:%H:%M:%S}\n", *pTm));
   Log(fmt::format("OS version: {0}\n", Utils::GetOSVersionString()));
-  shared_ptr<Session> session = Session::Get();
   Log(fmt::format("SystemAdmin: {}\n", session->RunningAsAdministrator()));
   if (options.Task != SetupTask::Download)
   {
@@ -671,8 +674,6 @@ void SetupServiceImpl::Run()
 
 void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
 {
-  shared_ptr<Session> session = Session::Get();
-
   if (options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
     options.IsCommonSetup = session->IsSharedSetup();
@@ -766,8 +767,7 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
 
 void SetupServiceImpl::Initialize()
 {
-  shared_ptr<Session> session = Session::Get();
-
+  auto xxx = T_("The PATH variable does not include the MiKTeX executables.");
   if (initialized)
   {
     return;
@@ -813,8 +813,6 @@ void SetupServiceImpl::Initialize()
 void SetupServiceImpl::DoTheDownload()
 {
   ReportLine("starting downloader...");
-
-  shared_ptr<Session> session = Session::Get();
 
   // remember local repository folder
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(options.LocalPackageRepository.ToString()));
@@ -925,7 +923,6 @@ void SetupServiceImpl::DoTheInstallation()
   {
     startupConfig.userInstallRoot = options.Config.userInstallRoot;
   }
-  shared_ptr<Session> session = Session::Get();
   RegisterRootDirectoriesOptionSet regOptions = { RegisterRootDirectoriesOption::Temporary };
 #if defined(MIKTEX_WINDOWS)
   regOptions += RegisterRootDirectoriesOption::NoRegistry;
@@ -1056,7 +1053,6 @@ void SetupServiceImpl::DoFinishSetup()
 void SetupServiceImpl::DoFinishUpdate()
 {
   ReportLine("finishing update...");
-  shared_ptr<Session> session = Session::Get();
   RemoveFormatFiles();
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
@@ -1079,8 +1075,6 @@ void SetupServiceImpl::DoFinishUpdate()
 
 void SetupServiceImpl::DoCleanUp()
 {
-  shared_ptr<Session> session = Session::Get();
-
 #if defined(MIKTEX_WINDOWS)
   logFile.Load(session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_UNINST_LOG));
 #endif
@@ -1166,7 +1160,6 @@ void SetupServiceImpl::DoCleanUp()
     {
       PathName parent;
       vector<PathName> roots = GetRoots();
-      shared_ptr<Session> session = Session::Get();
       session->UnloadFilenameDatabase();
       for (const PathName& root : roots)
       {
@@ -1277,7 +1270,6 @@ void SetupServiceImpl::DoCleanUp()
 vector<PathName> SetupServiceImpl::GetRoots()
 {
   vector<PathName> vec;
-  shared_ptr<Session> session = Session::Get();
   if (!session->IsMiKTeXDirect())
   {
     PathName installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
@@ -1314,10 +1306,8 @@ vector<PathName> SetupServiceImpl::GetRoots()
 
 void SetupServiceImpl::UnregisterComponents()
 {
-  shared_ptr<Session> session = Session::Get();
   if (session->IsAdminMode())
   {
-    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager(PackageManager::Create());
     shared_ptr<PackageInstaller> packageInstaller(packageManager->CreateInstaller());
     packageInstaller->RegisterComponents(false);
     packageInstaller->Dispose();
@@ -1496,7 +1486,6 @@ PathName SetupServiceImpl::GetInstallRoot() const
   }
   else if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
-    shared_ptr<Session> session = Session::Get();
     return session->GetSpecialPath(SpecialPath::InstallRoot);
   }
   else
@@ -1509,7 +1498,6 @@ PathName SetupServiceImpl::GetBinDir() const
 {
   if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
-    shared_ptr<Session> session = Session::Get();
     return session->GetSpecialPath(SpecialPath::BinDirectory);
   }
   else
@@ -1520,8 +1508,6 @@ PathName SetupServiceImpl::GetBinDir() const
 
 void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
 {
-  shared_ptr<Session> session = Session::Get();
-
   // make absolute exe path name
   PathName exePath = GetBinDir() / PathName(MIKTEX_INITEXMF_EXE);
 
@@ -1565,7 +1551,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
 
 void SetupServiceImpl::RunMpm(const vector<string>& args)
 {
-  shared_ptr<Session> session = Session::Get();
   // make absolute exe path name
   PathName exePath = GetBinDir() / PathName(MIKTEX_MPM_EXE);
 
@@ -1749,8 +1734,6 @@ wstring& SetupServiceImpl::Expand(const string& source, wstring& dest)
 
 bool SetupServiceImpl::FindFile(const PathName& fileName, PathName& result)
 {
-  shared_ptr<Session> session = Session::Get();
-
   // try my directory
   result = session->GetMyLocation(false) / fileName;
   if (File::Exists(result))
@@ -1771,7 +1754,6 @@ bool SetupServiceImpl::FindFile(const PathName& fileName, PathName& result)
 
 void SetupServiceImpl::RemoveFormatFiles()
 {
-  shared_ptr<Session> session = Session::Get();
   vector<PathName> toBeDeleted;
   PathName pathFmt(session->GetSpecialPath(SpecialPath::DataRoot));
   pathFmt /= MIKTEX_PATH_FMT_DIR;
@@ -1846,10 +1828,8 @@ inline string FormatTimestamp(time_t t)
   return IsValidTimeT(t) ? fmt::format("{:%F %T}", *localtime(&t)) : "not yet";
 }
 
-void SetupService::WriteReport(ostream& s, ReportOptionSet options)
+void SetupServiceImpl::WriteReport(ostream& s, ReportOptionSet options)
 {
-  shared_ptr<Session> session = Session::Get();
-  shared_ptr<PackageManager> packageManager = PackageManager::Create();
   time_t now = time(nullptr);
   if (options[ReportOption::General])
   {
@@ -1939,16 +1919,14 @@ void SetupService::WriteReport(ostream& s, ReportOptionSet options)
   }
 }
 
-void SetupService::WriteReport(ostream& s)
+void SetupServiceImpl::WriteReport(ostream& s)
 {
   WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser });
 }
 
-vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrity)
+vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageIntegrity)
 {
   vector<Issue> result;
-  shared_ptr<Session> session = Session::Get();
-  shared_ptr<PackageManager> packageManager = PackageManager::Create();
   time_t now = time(nullptr);
   if (checkPath)
   {
@@ -2134,10 +2112,9 @@ vector<Issue> SetupService::FindIssues(bool checkPath, bool checkPackageIntegrit
   return result;
 }
 
-vector<Issue> SetupService::GetIssues()
+vector<Issue> SetupServiceImpl::GetIssues()
 {
   vector<Setup::Issue> issues;
-  shared_ptr<Session> session = Session::Get();
   PathName issuesJson = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_ISSUES_JSON);
   if (File::Exists(issuesJson))
   {

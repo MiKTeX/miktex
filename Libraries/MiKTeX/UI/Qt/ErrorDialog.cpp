@@ -1,6 +1,6 @@
 /* ErrorDialog.cpp:
 
-   Copyright (C) 2008-2020 Christian Schenk
+   Copyright (C) 2008-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -128,7 +128,8 @@ string ErrorDialogImpl::CreateReport()
   try
   {
     s << T_("GENERAL MIKTEX INFORMATION") << "\n";
-    SetupService::WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser, ReportOption::Processes });
+    auto setupService = SetupService::Create();
+    setupService->WriteReport(s, { ReportOption::General, ReportOption::RootDirectories, ReportOption::CurrentUser, ReportOption::Processes });
     s << "\n";
     s << T_("ERROR DETAILS") << "\n";
     if (isMiKTeXException)

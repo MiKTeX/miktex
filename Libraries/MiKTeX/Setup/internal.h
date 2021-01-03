@@ -108,13 +108,6 @@ BEGIN_INTERNAL_NAMESPACE;
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-inline std::string T_(const char* msgId)
-{
-  static SetupResources resources;
-  static MiKTeX::Locale::Translator translator(MIKTEX_COMP_ID, &resources, MiKTeX::Core::Session::TryGet());
-  return translator.Translate(msgId);
-}
-
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
@@ -253,9 +246,33 @@ public:
   void Run() override;
 
 public:
+  void WriteReport(std::ostream& s, ReportOptionSet options) override;
+
+public:
+  void WriteReport(std::ostream& s) override;
+
+public:
+  std::vector<Issue> FindIssues(bool checkPath, bool checkPackageIntegrity) override;
+
+public:
+  std::vector<Issue> GetIssues() override;
+
+public:
   bool IsCancelled()
   {
     return cancelled;
+  }
+
+protected:
+  static SetupResources resources;
+
+protected:
+  std::unique_ptr<MiKTeX::Locale::Translator> translator;
+
+protected:
+  std::string T_(const char* msgId)
+  {
+    return translator->Translate(msgId);
   }
 
 protected:
@@ -388,6 +405,9 @@ protected:
 
 protected:
   bool initialized = false;
+
+protected:
+  std::shared_ptr<MiKTeX::Core::Session> session;
 
 protected:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;

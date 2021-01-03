@@ -409,6 +409,18 @@ public:
 #endif
 
 public:
+  virtual void MIKTEXTHISCALL WriteReport(std::ostream& s, ReportOptionSet options) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL WriteReport(std::ostream& s) = 0;
+
+public:
+  virtual std::vector<Issue> MIKTEXTHISCALL FindIssues(bool checkPath, bool checkPackageIntegrity) = 0;
+
+public:
+  virtual std::vector<Issue> MIKTEXTHISCALL GetIssues() = 0;
+
+public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<SetupService>) Create();
 
 public:
@@ -437,18 +449,6 @@ public:
 
 public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) ExtractFiles();
-
-public:
-  static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s, ReportOptionSet options);
-
-public:
-  static MIKTEXSETUPCEEAPI(void) WriteReport(std::ostream& s);
-
-public:
-  static MIKTEXSETUPCEEAPI(std::vector<Issue>) FindIssues(bool checkPath, bool checkPackageIntegrity);
-
-public:
-  static MIKTEXSETUPCEEAPI(std::vector<Issue>) GetIssues();
 };
 
 MIKTEX_SETUP_END_NAMESPACE;
