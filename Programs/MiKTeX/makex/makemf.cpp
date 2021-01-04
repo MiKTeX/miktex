@@ -1,6 +1,6 @@
 /* makemf.cpp:
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is part of MiKTeX MakeMF.
 
@@ -384,14 +384,14 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makemf", ex);
+    app.Sorry("makemf", ex);
     logger = nullptr;
     ex.Save();
     return 1;
   }
   catch (const exception& ex)
   {
-    Application::Sorry("makemf", ex);
+    app.Sorry("makemf", ex);
     logger = nullptr;
     return 1;
   }

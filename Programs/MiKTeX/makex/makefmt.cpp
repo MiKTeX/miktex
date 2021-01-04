@@ -520,14 +520,14 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makefmt", ex);
+    app.Sorry("makefmt", ex);
     logger = nullptr;
     ex.Save();
     return 1;
   }
   catch (const exception& ex)
   {
-    Application::Sorry("makefmt", ex);
+    app.Sorry("makefmt", ex);
     logger = nullptr;
     return 1;
   }

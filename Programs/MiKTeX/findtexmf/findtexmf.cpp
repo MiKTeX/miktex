@@ -423,14 +423,14 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry(TheNameOfTheGame, ex);
+    app.Sorry(TheNameOfTheGame, ex);
     app.Finalize2(EXIT_FAILURE);
     ex.Save();
     return EXIT_FAILURE;
   }
   catch (const exception& ex)
   {
-    Application::Sorry(TheNameOfTheGame, ex);
+    app.Sorry(TheNameOfTheGame, ex);
     app.Finalize2(EXIT_FAILURE);
     return EXIT_FAILURE;
   }

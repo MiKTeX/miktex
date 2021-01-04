@@ -1,6 +1,6 @@
 /* rungs.cpp: the MiKTeX Ghostscript runner
 
-   Copyright (C) 2019 Christian Schenk
+   Copyright (C) 2019-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -65,13 +65,13 @@ int main(int argc, char** argv)
   }
   catch (const MiKTeXException& e)
   {
-    Application::Sorry(programName, e);
+    app.Sorry(programName, e);
     e.Save();
     return 1;
   }
   catch (const std::exception& e)
   {
-    Application::Sorry(programName, e);
+    app.Sorry(programName, e);
     return 1;
   }
 }

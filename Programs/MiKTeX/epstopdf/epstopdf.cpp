@@ -1,6 +1,6 @@
 /* epstopdf.cpp: epstopdf
 
-   Copyright (C) 2000-2020 Christian Schenk
+   Copyright (C) 2000-2021 Christian Schenk
    Copyright (C) 1998-2001 by Sebastian Rahtz et al.
 
    This file is part of EPStoPDF.
@@ -1075,13 +1075,13 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& e)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, e);
+    app.Sorry(THE_NAME_OF_THE_GAME, e);
     e.Save();
     return 1;
   }
   catch (const exception& e)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, e);
+    app.Sorry(THE_NAME_OF_THE_GAME, e);
     return 1;
   }
   catch (int exitCode)

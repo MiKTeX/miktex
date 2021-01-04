@@ -229,13 +229,13 @@ public:
   /// @param name User friendly program name.
   /// @param ex Error information.
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const MiKTeX::Core::MiKTeXException& ex);
+  MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const MiKTeX::Core::MiKTeXException& ex);
 
   /// Prints a user friendly error message.
   /// @param name User friendly program name.
   /// @param ex Error information.
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::exception& ex);
+  MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const std::exception& ex);
 
   /// Prints a user friendly error message.
   /// @param name User friendly program name.
@@ -243,12 +243,12 @@ public:
   /// @param remedy A user friendly recipe to remedy the error.
   /// @param url A link to a help page.
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy, const std::string& url);
+  MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy, const std::string& url);
 
   /// Prints a user friendly error message.
   /// @param name User friendly program name.
 public:
-  static void Sorry(const std::string& name)
+  void Sorry(const std::string& name)
   {
     Sorry(name, "", "", "");
   }
@@ -302,7 +302,7 @@ protected:
 
   /// Throws an exception if the application should be terminated.
 public:
-  static MIKTEXAPPCEEAPI(void) CheckCancel();
+  MIKTEXAPPTHISAPI(void) CheckCancel();
 
 private:
   void FlushPendingTraceMessages();

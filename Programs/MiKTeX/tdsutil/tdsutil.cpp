@@ -1,6 +1,6 @@
 /* tdsutil.cpp: MiKTeX TDS Utility
 
-   Copyright (C) 2016-2020 Christian Schenk
+   Copyright (C) 2016-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -246,6 +246,7 @@ void TdsUtility::Run(int argc, const char ** argv)
 
 int MAIN(int argc, MAINCHAR * argv[])
 {
+  TdsUtility app;
   try
   {
     vector<string> utf8args;
@@ -264,18 +265,17 @@ int MAIN(int argc, MAINCHAR * argv[])
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    TdsUtility app;
     app.Run(argc, &newargv[0]);
     return 0;
   }
   catch (const MiKTeXException & e)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    app.Sorry(TheNameOfTheGame, e);
     return 1;
   }
   catch (const exception & e)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    app.Sorry(TheNameOfTheGame, e);
     return 1;
   }
   catch (int exitCode)

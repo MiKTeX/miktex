@@ -1,6 +1,6 @@
 /* mtprint.cpp: MiKTeX Print Utility
 
-   Copyright (C) 2003-2020 Christian Schenk
+   Copyright (C) 2003-2021 Christian Schenk
 
    This file is part of MiKTeX Print Utility.
 
@@ -656,13 +656,13 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& e)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, e);
+    app.Sorry(THE_NAME_OF_THE_GAME, e);
     e.Save();
     return 1;
   }
   catch (const exception& e)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, e);
+    app.Sorry(THE_NAME_OF_THE_GAME, e);
     return 1;
   }
   catch (int exitCode)

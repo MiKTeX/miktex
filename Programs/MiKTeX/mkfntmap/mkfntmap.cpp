@@ -1393,14 +1393,14 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    app.Sorry(THE_NAME_OF_THE_GAME, ex);
     logger = nullptr;
     ex.Save();
     return 1;
   }
   catch (const exception& ex)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    app.Sorry(THE_NAME_OF_THE_GAME, ex);
     logger = nullptr;
     return 1;
   }

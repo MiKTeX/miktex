@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -1727,7 +1727,7 @@ void Driver::RunViewer()
 void Driver::Run()
 {
   ExpandMacros();
-  Application::CheckCancel();
+  app->CheckCancel();
   InsertCommands();
 
   SetIncludeDirectories();
@@ -1742,7 +1742,7 @@ void Driver::Run()
 
   for (int i = 0; i < options->maxIterations; ++i)
   {
-    Application::CheckCancel();
+    app->CheckCancel();
     vector<string> idxFiles;
     GetAuxFiles(previousAuxFiles, &idxFiles);
     if (!previousAuxFiles.empty())
@@ -1753,10 +1753,10 @@ void Driver::Run()
     RunBibTeX();
     if (idxFiles.size() > 0)
     {
-      Application::CheckCancel();
+      app->CheckCancel();
       RunIndexGenerator(idxFiles);
     }
-    Application::CheckCancel();
+    app->CheckCancel();
     RunTeX();
     if (Ready())
     {
@@ -2257,14 +2257,14 @@ int MAIN(int argc, MAINCHAR* argv[])
 
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    app.Sorry(THE_NAME_OF_THE_GAME, ex);
     ex.Save();
     return 1;
   }
 
   catch (const exception& ex)
   {
-    Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    app.Sorry(THE_NAME_OF_THE_GAME, ex);
     return 1;
   }
 

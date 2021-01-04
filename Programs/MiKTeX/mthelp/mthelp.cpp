@@ -603,13 +603,13 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry(TheNameOfTheGame, ex);
+    app.Sorry(TheNameOfTheGame, ex);
     ex.Save();
     return 1;
   }
   catch (const exception& ex)
   {
-    Application::Sorry(TheNameOfTheGame, ex);
+    app.Sorry(TheNameOfTheGame, ex);
     return 1;
   }
   catch (int exitCode)

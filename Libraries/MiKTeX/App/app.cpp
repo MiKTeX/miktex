@@ -70,13 +70,10 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
-static log4cxx::LoggerPtr logger;
-static bool isLog4cxxConfigured = false;
-
 static Application* instance = nullptr;
 
 static bool initUiFrameworkDone = false;
-
+static bool isLog4cxxConfigured = false;
 static volatile sig_atomic_t cancelled;
 
 static void MIKTEXCEECALL SignalHandler(int signalToBeHandled)
@@ -96,14 +93,6 @@ bool Application::Cancelled()
   return cancelled == 0 ? false : true;
 }
 
-void Application::CheckCancel()
-{
-  if (Cancelled())
-  {
-    throw MiKTeXException(Utils::GetExeName(), T_("The current operation has been cancelled (Ctrl-C)."), MiKTeXException::KVMAP(), SourceLocation());
-  }
-}
-
 Application* Application::GetApplication()
 {
   return instance;
@@ -111,6 +100,11 @@ Application* Application::GetApplication()
 
 class Impl
 {
+public:
+  string Translate(const char* msgId)
+  {
+    return msgId;
+  }
 public:
   set<string> ignoredPackages;
 public:
@@ -135,6 +129,8 @@ public:
   shared_ptr<Session> session;
 public:
   string commandLine;
+public:
+  log4cxx::LoggerPtr logger;
 };
 
 class Application::impl :
@@ -142,6 +138,16 @@ class Application::impl :
 {
 
 };
+
+#define T_(x) this->pimpl->Translate(x)
+
+void Application::CheckCancel()
+{
+  if (Cancelled())
+  {
+    throw MiKTeXException(Utils::GetExeName(), T_("The current operation has been cancelled (Ctrl-C)."), MiKTeXException::KVMAP(), SourceLocation());
+  }
+}
 
 Application::Application() :
   pimpl(make_unique<impl>())
@@ -281,7 +287,7 @@ void Application::ConfigureLogging()
     log4cxx::BasicConfigurator::configure();
   }
   isLog4cxxConfigured = true;
-  logger = log4cxx::Logger::getLogger(myName);
+  pimpl->logger = log4cxx::Logger::getLogger(myName);
 }
 
 inline bool IsNewer(const PathName& path1, const PathName& path2)
@@ -343,10 +349,10 @@ void Application::AutoMaintenance()
     {
       return;
     }
-    LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE");
+    LOG4CXX_TRACE(pimpl->logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE");
     if (mustUpdateDb)
     {
-      LOG4CXX_INFO(logger, "refreshing user's package database from cache");
+      LOG4CXX_INFO(pimpl->logger, "refreshing user's package database from cache");
       if (pimpl->packageManager == nullptr)
       {
         pimpl->packageManager = PackageManager::Create(PackageManager::InitInfo(this));
@@ -382,21 +388,21 @@ void Application::AutoMaintenance()
     {
       vector<string> args = commonArgs;
       args.push_back("--update-fndb");
-      LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
+      LOG4CXX_INFO(pimpl->logger, "running 'initexmf' to refresh the file name database");
       pimpl->session->UnloadFilenameDatabase();
       if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
       {
-        LOG4CXX_ERROR(logger, "initexmf exited with code " << exitCode);
+        LOG4CXX_ERROR(pimpl->logger, "initexmf exited with code " << exitCode);
       }
     }
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
       args.push_back("--mkmaps");
-      LOG4CXX_INFO(logger, "running 'initexmf' to create font map files");
+      LOG4CXX_INFO(pimpl->logger, "running 'initexmf' to create font map files");
       if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
       {
-        LOG4CXX_ERROR(logger, "initexmf exited with code " << exitCode);
+        LOG4CXX_ERROR(pimpl->logger, "initexmf exited with code " << exitCode);
       }
     }
     if (mustRefreshUserLanguageDat)
@@ -404,10 +410,10 @@ void Application::AutoMaintenance()
       MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
       vector<string> args = commonArgs;
       args.push_back("--mklangs");
-      LOG4CXX_INFO(logger, "running 'initexmf' to refresh language.dat");
+      LOG4CXX_INFO(pimpl->logger, "running 'initexmf' to refresh language.dat");
       if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
       {
-        LOG4CXX_ERROR(logger, "initexmf exited with code " << exitCode);
+        LOG4CXX_ERROR(pimpl->logger, "initexmf exited with code " << exitCode);
       }
     }
   }
@@ -433,19 +439,19 @@ void Application::AutoDiagnose()
 
   for (const Setup::Issue& issue : issues)
   {
-    if (isLog4cxxConfigured)
+    if (pimpl->logger != nullptr)
     {
       if (issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major)
       {
-        LOG4CXX_FATAL(logger, issue);
+        LOG4CXX_FATAL(pimpl->logger, issue);
       }
       else if (issue.severity == Setup::IssueSeverity::Major)
       {
-        LOG4CXX_ERROR(logger, issue);
+        LOG4CXX_ERROR(pimpl->logger, issue);
       }
       else
       {
-        LOG4CXX_ERROR(logger, issue);
+        LOG4CXX_ERROR(pimpl->logger, issue);
       }
     }
     if ((issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major) && !GetQuietFlag())
@@ -488,12 +494,12 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   }
   else
   {
-    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << pimpl->commandLine);
+    LOG4CXX_INFO(pimpl->logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << pimpl->commandLine);
   }
 #if defined(MIKTEX_WINDOWS)
   if (activeOutputCodePage != CP_UTF8)
   {
-    LOG4CXX_DEBUG(logger, fmt::format("changed console output code page from {0} to {1}", activeOutputCodePage, GetConsoleOutputCP()));
+    LOG4CXX_DEBUG(pimpl->logger, fmt::format("changed console output code page from {0} to {1}", activeOutputCodePage, GetConsoleOutputCP()));
   }
 #endif
   pimpl->beQuiet = false;
@@ -557,10 +563,10 @@ void Application::Init(const string& programInvocationName)
 
 void Application::Finalize2(int exitCode)
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
     auto thisProcess = Process::GetCurrentProcess();
-    LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") finishes with exit code " << exitCode);
+    LOG4CXX_INFO(pimpl->logger, "this process (" << thisProcess->GetSystemId() << ") finishes with exit code " << exitCode);
   }
   Finalize();
 }
@@ -588,7 +594,7 @@ void Application::Finalize()
     MiKTeX::UI::FinalizeFramework();
     initUiFrameworkDone = false;
   }
-  logger = nullptr;
+  pimpl->logger = nullptr;
   pimpl->initialized = false;
   instance = nullptr;
 }
@@ -596,7 +602,7 @@ void Application::Finalize()
 void Application::ReportLine(const string& str)
 {
   MIKTEX_ASSERT(logger != nullptr);
-  LOG4CXX_INFO(logger, "mpm: " << str);
+  LOG4CXX_INFO(pimpl->logger, "mpm: " << str);
   if (!GetQuietFlag())
   {
     cout << str << endl;
@@ -701,7 +707,7 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
   vector<string> fileList;
   fileList.push_back(packageId);
   pimpl->installer->SetFileLists(fileList, vector<string>());
-  LOG4CXX_INFO(logger, "installing package " << packageId << " triggered by " << trigger.ToString());
+  LOG4CXX_INFO(pimpl->logger, "installing package " << packageId << " triggered by " << trigger.ToString());
   if (!GetQuietFlag())
   {
     cout << "\n" << SEP << endl;
@@ -722,10 +728,10 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
   {
     pimpl->enableInstaller = TriState::False;
     pimpl->ignoredPackages.insert(packageId);
-    LOG4CXX_FATAL(logger, ex.GetErrorMessage());
-    LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
-    LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
-    LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
+    LOG4CXX_FATAL(pimpl->logger, ex.GetErrorMessage());
+    LOG4CXX_FATAL(pimpl->logger, "Info: " << ex.GetInfo());
+    LOG4CXX_FATAL(pimpl->logger, "Source: " << ex.GetSourceFile());
+    LOG4CXX_FATAL(pimpl->logger, "Line: " << ex.GetSourceLine());
     cerr
       << "\n"
       << "Unfortunately, the package " << packageId << " could not be installed." << endl;
@@ -792,20 +798,20 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
   default:
     return false;
   }
-  LOG4CXX_INFO(logger, "going to create file: " << fileName);
+  LOG4CXX_INFO(pimpl->logger, "going to create file: " << fileName);
   ProcessOutput<50000> processOutput;
   int exitCode;
   args[0] = makeUtility.GetFileNameWithoutExtension().ToString();
   if (!Process::Run(makeUtility, args, &processOutput, &exitCode, nullptr))
   {
-    LOG4CXX_ERROR(logger, makeUtility << " could not be started");
+    LOG4CXX_ERROR(pimpl->logger, makeUtility << " could not be started");
     return false;
   }
   if (exitCode != 0)
   {
-    LOG4CXX_ERROR(logger, makeUtility << " did not succeed; exitCode: " << exitCode);
-    LOG4CXX_ERROR(logger, "output:");
-    LOG4CXX_ERROR(logger, processOutput.StdoutToString());
+    LOG4CXX_ERROR(pimpl->logger, makeUtility << " did not succeed; exitCode: " << exitCode);
+    LOG4CXX_ERROR(pimpl->logger, "output:");
+    LOG4CXX_ERROR(pimpl->logger, processOutput.StdoutToString());
     return false;
   }
   return true;
@@ -931,12 +937,12 @@ void Application::Sorry(const string& name, const string& description, const str
 
 void Application::Sorry(const string& name, const MiKTeXException& ex)
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
-    LOG4CXX_FATAL(logger, ex.GetErrorMessage());
-    LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
-    LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
-    LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
+    LOG4CXX_FATAL(pimpl->logger, ex.GetErrorMessage());
+    LOG4CXX_FATAL(pimpl->logger, "Info: " << ex.GetInfo());
+    LOG4CXX_FATAL(pimpl->logger, "Source: " << ex.GetSourceFile());
+    LOG4CXX_FATAL(pimpl->logger, "Line: " << ex.GetSourceLine());
   }
   else
   {
@@ -947,9 +953,9 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
 
 void Application::Sorry(const string& name, const exception& ex)
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
-    LOG4CXX_FATAL(logger, ex.what());
+    LOG4CXX_FATAL(pimpl->logger, ex.what());
   }
   else
   {
@@ -962,9 +968,9 @@ void Application::Sorry(const string& name, const exception& ex)
 
 MIKTEXNORETURN void Application::FatalError(const string& s)
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
-    LOG4CXX_FATAL(logger, s);
+    LOG4CXX_FATAL(pimpl->logger, s);
   }
   Sorry(Utils::GetExeName(), s);
   throw 1;
@@ -1117,24 +1123,24 @@ shared_ptr<Session> Application::GetSession() const
 
 void Application::LogInfo(const std::string& message) const
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
-    LOG4CXX_INFO(logger, message);
+    LOG4CXX_INFO(pimpl->logger, message);
   }
 }
 
 void Application::LogWarn(const std::string& message) const
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
-    LOG4CXX_WARN(logger, message);
+    LOG4CXX_WARN(pimpl->logger, message);
   }
 }
 
 void Application::LogError(const std::string& message) const
 {
-  if (logger != nullptr)
+  if (pimpl->logger != nullptr)
   {
-    LOG4CXX_ERROR(logger, message);
+    LOG4CXX_ERROR(pimpl->logger, message);
   }
 }

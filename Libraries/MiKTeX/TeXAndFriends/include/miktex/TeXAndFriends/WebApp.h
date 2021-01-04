@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -324,14 +324,14 @@ public:
     }
     catch (const MiKTeX::Core::MiKTeXException& ex)
     {
-      MiKTeX::App::Application::Sorry(argv[0], ex);
+      app.Sorry(argv[0], ex);
       app.Finalize2(1);
       ex.Save();
       return 1;
     }
     catch (const std::exception& ex)
     {
-      MiKTeX::App::Application::Sorry(argv[0], ex);
+      app.Sorry(argv[0], ex);
       app.Finalize2(1);
       return 1;
     }

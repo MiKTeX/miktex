@@ -25,8 +25,6 @@
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-#define T_(x) MIKTEXTEXT(x)
-
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 template<class VALTYPE> class AutoRestore

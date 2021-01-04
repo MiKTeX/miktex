@@ -1,6 +1,6 @@
 /* runbat.cpp: the MiKTeX batch file runner
 
-   Copyright (C) 2004-2019 Christian Schenk
+   Copyright (C) 2004-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -65,13 +65,13 @@ int main(int argc, char** argv)
   }
   catch (const MiKTeXException& e)
   {
-    Application::Sorry(programName, e);
+    app.Sorry(programName, e);
     e.Save();
     return 1;
   }
   catch (const std::exception& e)
   {
-    Application::Sorry(programName, e);
+    app.Sorry(programName, e);
     return 1;
   }
 }

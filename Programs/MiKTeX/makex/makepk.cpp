@@ -669,14 +669,14 @@ int MAIN(int argc, MAINCHAR** argv)
   }
   catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makepk", ex);
+    app.Sorry("makepk", ex);
     logger = nullptr;
     ex.Save();
     return 1;
   }
   catch (const exception& ex)
   {
-    Application::Sorry("makepk", ex);
+    app.Sorry("makepk", ex);
     logger = nullptr;
     return 1;
   }

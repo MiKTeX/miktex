@@ -1,6 +1,6 @@
 /* arctrl.cpp: Acrobat Reader (AR) Controller
 
-   Written in the years 2006-2020 by Christian Schenk.
+   Written in the years 2006-2021 by Christian Schenk.
 
    This file is based on public domain work by Fabrice Popineau.
 
@@ -749,13 +749,13 @@ extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, char** argv)
   }
   catch (const MiKTeXException& e)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    app.Sorry(TheNameOfTheGame, e);
     e.Save();
     return 1;
   }
   catch (const exception& e)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    app.Sorry(TheNameOfTheGame, e);
     return 1;
   }
   catch (int exitCode)

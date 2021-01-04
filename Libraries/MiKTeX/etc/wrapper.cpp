@@ -122,14 +122,14 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
   }
   catch (const MiKTeX::Core::MiKTeXException& ex)
   {
-    MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
+    app.Sorry(nameOfTheGame, ex);
     app.Finalize2(EXIT_FAILURE);
     ex.Save();
     return EXIT_FAILURE;
   }
   catch (const std::exception& ex)
   {
-    MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
+    app.Sorry(nameOfTheGame, ex);
     app.Finalize2(EXIT_FAILURE);
     return EXIT_FAILURE;
   }
