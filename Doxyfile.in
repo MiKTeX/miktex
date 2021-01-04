@@ -32,7 +32,7 @@ FULL_PATH_NAMES        = YES
 STRIP_FROM_PATH        += @CMAKE_BINARY_DIR@
 STRIP_FROM_PATH        += @CMAKE_SOURCE_DIR@
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_APP_DIR@/include
-STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CONFIG_DIR@/include
+STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CONFIGLIB_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_EXTRACTOR_DIR@/include
 STRIP_FROM_INC_PATH    += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_KPSEMU_DIR@/include
@@ -128,7 +128,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 INPUT                  += @CMAKE_SOURCE_DIR@/HACKING.md
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_APP_DIR@/include/miktex/App
-INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CONFIG_DIR@/include/miktex/Configuration
+INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CONFIGLIB_DIR@/include/miktex/Configuration
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_CORE_DIR@/include/miktex/Core
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_EXTRACTOR_DIR@/include/miktex/Extractor
 INPUT                  += @CMAKE_SOURCE_DIR@/@MIKTEX_REL_KPSEMU_DIR@/include/miktex/KPSE
