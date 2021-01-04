@@ -504,7 +504,7 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
   if (pimpl->mpmAutoAdmin == TriState::True && !pimpl->session->IsSharedSetup())
   {
-    LogWarn(T_("ignoring AutoAdmin=t because this is not a shared setup"));
+    LogWarn("ignoring AutoAdmin=t because this is not a shared setup");
     pimpl->mpmAutoAdmin = TriState::False;
   }
   InstallSignalHandler(SIGINT);
