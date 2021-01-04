@@ -28,8 +28,11 @@
 #include "ConfigValue.h"
 #include "HasNamedValues.h"
 
+/// @namespace MiKTeX::Config
+/// @brief The Config namespace.
 MIKTEX_CONFIG_BEGIN_NAMESPACE;
 
+/// The MiKTeX ConfigurationProvider interface.
 class MIKTEXNOVTABLE ConfigurationProvider
 {
   /// Tries to get a configuration value.
