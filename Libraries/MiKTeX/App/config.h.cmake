@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2005-2018 Christian Schenk
+   Copyright (C) 2005-2021 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -20,6 +20,8 @@
    02111-1307, USA. */
 
 #include <miktex/First>
+
+#define MIKTEX_COMP_ID "${MIKTEX_COMP_ID}"
 
 #define BDF6E2537F116547846406B5B2B65949
 

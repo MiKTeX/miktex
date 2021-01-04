@@ -23,6 +23,14 @@ add_library(${setup_lib_name} STATIC ${setup_sources})
 
 set_property(TARGET ${setup_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+add_dependencies(${setup_lib_name} gen-${MIKTEX_COMP_ID}-sources)
+
+set_source_files_properties(
+  ${generated_${MIKTEX_COMP_ID}_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
 target_compile_definitions(${setup_lib_name}
   PUBLIC
     -DMIKTEX_SETUP_STATIC
@@ -39,14 +47,6 @@ target_link_libraries(${setup_lib_name}
     ${loc_lib_name}
     ${mpm_lib_name}
     ${nlohmann_json_lib_name}
-)
-
-add_dependencies(${setup_lib_name} gen-${MIKTEX_COMP_ID}-sources)
-
-set_source_files_properties(
-  ${generated_${MIKTEX_COMP_ID}_sources}
-  PROPERTIES
-    GENERATED TRUE
 )
 
 if(USE_SYSTEM_FMT)

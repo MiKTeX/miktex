@@ -51,6 +51,7 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
+#include <miktex/Locale/Translator>
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/UI/UI>
@@ -66,6 +67,7 @@ using namespace std::string_literals;
 using namespace MiKTeX::App;
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Locale;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
@@ -131,7 +133,13 @@ public:
   string commandLine;
 public:
   log4cxx::LoggerPtr logger;
+public:
+  static AppResources resources;
+public:
+  unique_ptr<Translator> translator;
 };
+
+AppResources Impl::resources;
 
 class Application::impl :
   public Impl
@@ -476,6 +484,7 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   initInfo.SetTraceCallback(this);
   pimpl->session = Session::Create(initInfo);
   pimpl->session->SetFindFileCallback(this);
+  pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, pimpl->session);
   ConfigureLogging();
   auto thisProcess = Process::GetCurrentProcess();
   auto parentProcess = thisProcess->get_Parent();

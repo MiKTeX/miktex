@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,6 +39,14 @@ set_shared_library_version_properties(
   ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
+add_dependencies(${app_dll_name} gen-${MIKTEX_COMP_ID}-sources)
+
+set_source_files_properties(
+  ${generated_${MIKTEX_COMP_ID}_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
 target_compile_definitions(${app_dll_name}
   PUBLIC
     -DMIKTEX_APP_SHARED
@@ -64,6 +72,7 @@ endif()
 target_link_libraries(${app_dll_name}
   PUBLIC
     ${core_dll_name}
+    ${loc_dll_name}
     ${mpm_dll_name}
     ${setup_dll_name}
 )

@@ -39,6 +39,14 @@ set_shared_library_version_properties(
   ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
+add_dependencies(${setup_dll_name} gen-${MIKTEX_COMP_ID}-sources)
+
+set_source_files_properties(
+  ${generated_${MIKTEX_COMP_ID}_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
 target_compile_definitions(${setup_dll_name}
   PUBLIC
     -DMIKTEX_SETUP_SHARED
@@ -55,14 +63,6 @@ target_link_libraries(${setup_dll_name}
     ${loc_dll_name}
     ${mpm_dll_name}
     ${nlohmann_json_dll_name}
-)
-
-add_dependencies(${setup_dll_name} gen-${MIKTEX_COMP_ID}-sources)
-
-set_source_files_properties(
-  ${generated_${MIKTEX_COMP_ID}_sources}
-  PROPERTIES
-    GENERATED TRUE
 )
 
 if(USE_SYSTEM_FMT)

@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2005-2020 Christian Schenk
+   Copyright (C) 2005-2021 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -27,6 +27,20 @@
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
+#define BEGIN_INTERNAL_NAMESPACE                        \
+namespace MiKTeX {                                      \
+  namespace App {                                       \
+    namespace AA9DF7E0B05849A3B04FB16D33E23633 {
+
+#define END_INTERNAL_NAMESPACE                  \
+    }                                           \
+  }                                             \
+}
+
+#include "AppResources.h"
+
+BEGIN_INTERNAL_NAMESPACE;
+
 template<class VALTYPE> class AutoRestore
 {
 public:
@@ -49,3 +63,6 @@ private:
   VALTYPE* pVal;
 };
 
+END_INTERNAL_NAMESPACE;
+
+using namespace MiKTeX::App::AA9DF7E0B05849A3B04FB16D33E23633;

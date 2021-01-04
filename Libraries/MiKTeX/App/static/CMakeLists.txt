@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2020 Christian Schenk
+## Copyright (C) 2009-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,6 +22,14 @@ use_static_crt()
 add_library(${app_lib_name} STATIC ${app_sources})
 
 set_property(TARGET ${app_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+add_dependencies(${app_lib_name} gen-${MIKTEX_COMP_ID}-sources)
+
+set_source_files_properties(
+  ${generated_${MIKTEX_COMP_ID}_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
 
 target_compile_definitions(${app_lib_name}
   PUBLIC
@@ -48,6 +56,7 @@ endif()
 target_link_libraries(${app_lib_name}
   PUBLIC
     ${core_lib_name}
+    ${loc_lib_name}
     ${mpm_lib_name}
     ${setup_lib_name}
 )

@@ -1,0 +1,58 @@
+# German translations for MiKTeX package.
+# Copyright (C) 2021 THE MiKTeX'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the MiKTeX package.
+# Christian Schenk <cs@miktex.org>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: MiKTeX 20.12\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-04 16:57+0100\n"
+"PO-Revision-Date: 2021-01-04 17:05+0100\n"
+"Last-Translator: Christian Schenk <cs@miktex.org>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: app.cpp:148
+msgid "The current operation has been cancelled (Ctrl-C)."
+msgstr "Die Operation wurde abgebrochen."
+
+#: app.cpp:528
+msgid "running with elevated privileges"
+msgstr "wird mit erweiterten Privilegien ausgeführt"
+
+#: app.cpp:783
+msgid "The MiKTeX configuration utility (initexmf) could not be found."
+msgstr "Das MiKTeX-Konfigurationswerkzeug (initexmf) konnte nicht gefunden werden."
+
+#: app.cpp:794
+msgid "The MakeTFM utility could not be found."
+msgstr "Das MakeTFM-Werkzeug konnte nicht gefunden werden."
+
+#: app.cpp:898
+msgid "Sorry, but {0} did not succeed."
+msgstr "Entschuldigung, aber {0} schlug fehl."
+
+#: app.cpp:903
+msgid "Sorry, but {0} did not succeed for the following reason:"
+msgstr "Entschuldigung, aber {0} ist aus dem folgenden Grund fehlgeschlagen:"
+
+#: app.cpp:910
+msgid "Remedy:"
+msgstr "Abhilfe:"
+
+#: app.cpp:933
+msgid "For more information, visit:"
+msgstr "Für weitere Information, besuchen Sie:"
+
+#: app.cpp:984
+msgid "warning"
+msgstr "Warnung"
+
+#: app.cpp:990 app.cpp:993
+msgid "security risk"
+msgstr "Sicherheitsrisiko"
