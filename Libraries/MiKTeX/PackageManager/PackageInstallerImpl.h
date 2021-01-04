@@ -1,6 +1,6 @@
 /* PackageInstallerImpl.h:                              -*- C++ -*-
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -425,16 +425,6 @@ private:
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:
   void ConnectToServer();
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  void MyCoInitialize();
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  void MyCoUninitialize();
 #endif
 
 private:

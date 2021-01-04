@@ -62,14 +62,6 @@ PathName SetupService::GetDefaultPortableRoot()
   return PathName("C:/miktex-portable");
 }
 
-winSetupServiceImpl::winSetupServiceImpl()
-{
-  if (FAILED(CoInitialize(nullptr)))
-  {
-    MIKTEX_FATAL_ERROR("COM could not be initialized");
-  }
-}
-
 void winSetupServiceImpl::Initialize()
 {
   SetupServiceImpl::Initialize();

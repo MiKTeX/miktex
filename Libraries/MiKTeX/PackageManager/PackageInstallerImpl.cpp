@@ -36,9 +36,10 @@
 #include <miktex/Trace/StopWatch>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/winAutoResource>
+#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/HResult>
+#include <miktex/Core/win/winAutoResource>
 #endif
 
 #include <miktex/PackageManager/PackageManager>
@@ -115,30 +116,6 @@ void PackageInstallerImpl::NeedRepository()
     SetRepository(repository);
   }
 }
-
-#if defined(MIKTEX_WINDOWS)
-void PackageInstallerImpl::MyCoInitialize()
-{
-  HResult hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-  if (hr.Failed())
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The COM library could not be initialized."), "hr", hr.GetText());
-  }
-  ++numCoInitialize;
-}
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-void PackageInstallerImpl::MyCoUninitialize()
-{
-  if (numCoInitialize == 0)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  CoUninitialize();
-  --numCoInitialize;
-}
-#endif
 
 void PackageInstallerImpl::SetCallback(PackageInstallerCallback* callback)
 {
@@ -602,17 +579,10 @@ void PackageInstallerImpl::FindUpdatesAsync()
 
 void PackageInstallerImpl::FindUpdatesThread()
 {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  HResult hr = E_FAIL;
-#endif
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    HResult hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (hr.Failed())
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Cannot start updater thread."), "hr", hr.GetText());
-    }
+    COMInitializer comInitializer();
 #endif
     FindUpdates();
     progressInfo.ready = true;
@@ -630,12 +600,6 @@ void PackageInstallerImpl::FindUpdatesThread()
     progressInfo.numErrors += 1;
     threadMiKTeXException = e;
   }
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  if (hr.Succeeded())
-  {
-    CoUninitialize();
-  }
-#endif
 }
 
 void PackageInstallerImpl::FindUpgradesNoLock(PackageLevel packageLevel)
@@ -683,17 +647,10 @@ void PackageInstallerImpl::FindUpgradesAsync(PackageLevel packageLevel)
 
 void PackageInstallerImpl::FindUpgradesThread()
 {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  HResult hr = E_FAIL;
-#endif
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    HResult hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (hr.Failed())
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Cannot start upgrader thread."), "hr", hr.GetText());
-    }
+    COMInitializer comInitializer();
 #endif
     FindUpgrades(upgradeLevel);
     progressInfo.ready = true;
@@ -711,12 +668,6 @@ void PackageInstallerImpl::FindUpgradesThread()
     progressInfo.numErrors += 1;
     threadMiKTeXException = e;
   }
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  if (hr.Succeeded())
-  {
-    CoUninitialize();
-  }
-#endif
 }
 
 void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool silently)
@@ -1338,11 +1289,6 @@ void PackageInstallerImpl::ConnectToServer()
       bo.hwnd = GetForegroundWindow();
       bo.dwClassContext = CLSCTX_LOCAL_SERVER;
       HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
-      if (hr == CO_E_NOTINITIALIZED || hr == MK_E_SYNTAX)
-      {
-        MyCoInitialize();
-        hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
-      }
       if (hr.Failed())
       {
         MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
@@ -1869,17 +1815,10 @@ void PackageInstallerImpl::InstallRemoveAsync(Role role)
 
 void PackageInstallerImpl::InstallRemoveThread()
 {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  HResult hr = E_FAIL;
-#endif
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (hr.Failed())
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Cannot start installer thread."), "hr", hr.GetText());
-    }
+    COMInitializer comInitializer();
 #endif
     InstallRemove(currentRole);
     progressInfo.ready = true;
@@ -1897,12 +1836,6 @@ void PackageInstallerImpl::InstallRemoveThread()
     progressInfo.numErrors += 1;
     threadMiKTeXException = e;
   }
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  if (hr.Succeeded())
-  {
-    CoUninitialize();
-  }
-#endif
 }
 
 void PackageInstallerImpl::Download(const PathName& fileName, size_t expectedSize)
@@ -2014,17 +1947,10 @@ void PackageInstallerImpl::DownloadAsync()
 
 void PackageInstallerImpl::DownloadThread()
 {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  HResult hr = E_FAIL;
-#endif
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (hr.Failed())
-    {
-      MIKTEX_FATAL_ERROR_2(T_("Cannot start downloader thread."), "hr", hr.GetText());
-    }
+    COMInitializer comInitializer();
 #endif
     Download();
     progressInfo.ready = true;
@@ -2042,12 +1968,6 @@ void PackageInstallerImpl::DownloadThread()
     progressInfo.numErrors += 1;
     threadMiKTeXException = e;
   }
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-  if (hr.Succeeded())
-  {
-    CoUninitialize();
-  }
-#endif
 }
 
 void PackageInstallerImpl::CleanUpUserDatabase()
@@ -2442,12 +2362,6 @@ void PackageInstallerImpl::Dispose()
     trace_stopwatch->Close();
     trace_stopwatch.reset();
   }
-#if defined(MIKTEX_WINDOWS)
-  while (numCoInitialize > 0)
-  {
-    MyCoUninitialize();
-  }
-#endif
 }
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER

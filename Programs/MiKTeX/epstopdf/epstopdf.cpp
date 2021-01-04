@@ -49,6 +49,10 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include "epstopdf-version.h"
 
 using namespace MiKTeX::App;
@@ -1051,6 +1055,9 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   EpsToPdfApp app;
   try
   {

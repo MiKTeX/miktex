@@ -41,6 +41,10 @@
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -575,6 +579,9 @@ void MiKTeXHelp::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   MiKTeXHelp app;
   try
   {

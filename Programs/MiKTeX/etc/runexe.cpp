@@ -21,6 +21,10 @@
 #include <miktex/Core/Exceptions>
 #include <miktex/Util/StringUtil>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <string>
 #include <vector>
 
@@ -36,6 +40,9 @@ int wmain(int argc, wchar_t** argv)
 int main(int argc, char** argv)
 #endif
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   string programName = "runexe";
   Application app;
   try

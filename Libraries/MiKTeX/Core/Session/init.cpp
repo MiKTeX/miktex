@@ -205,13 +205,6 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 #endif
   }
 
-#if defined(MIKTEX_WINDOWS)
-  if (initInfo.GetOptions()[InitOption::InitializeCOM])
-  {
-    MyCoInitialize();
-  }
-#endif
-
   initialized = true;
 
   this->initInfo = initInfo;
@@ -800,20 +793,8 @@ void SessionImpl::Uninitialize()
   }
   catch (const exception&)
   {
-#if defined(MIKTEX_WINDOWS)
-    while (numCoInitialize > 0)
-    {
-      MyCoUninitialize();
-    }
-#endif
     throw;
   }
-#if defined(MIKTEX_WINDOWS)
-  while (numCoInitialize > 0)
-  {
-    MyCoUninitialize();
-  }
-#endif
 }
 
 void SessionImpl::ScheduleSystemCommand(const std::string& commandLine)

@@ -1,6 +1,6 @@
 /* StdAfx.h:                                            -*- C++ -*-
 
-   Copyright (C) 2003-2017 Christian Schenk
+   Copyright (C) 2003-2021 Christian Schenk
 
    This file is part of MTPrint.
 
@@ -43,6 +43,10 @@
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
 
 #include <iomanip>
 #include <iostream>

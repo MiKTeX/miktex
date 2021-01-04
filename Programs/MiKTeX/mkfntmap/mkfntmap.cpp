@@ -1366,6 +1366,9 @@ void MakeFontMapApp::Run()
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   MakeFontMapApp app;
   try
   {

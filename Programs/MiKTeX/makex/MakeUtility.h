@@ -41,6 +41,10 @@
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <miktex/Util/StringUtil>
 
 #define OUT__ (stdoutStderr ? std::cerr : std::cout)

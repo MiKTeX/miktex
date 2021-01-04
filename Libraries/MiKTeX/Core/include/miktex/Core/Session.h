@@ -476,10 +476,6 @@ public:
     SettingUp,
     /// Don't fix `PATH`.
     NoFixPath,
-#if defined(MIKTEX_WINDOWS)
-    /// Initialize the COM library.
-    InitializeCOM,
-#endif
     /// Start in administrator mode.
     AdminMode,
   };

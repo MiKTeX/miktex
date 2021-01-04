@@ -49,6 +49,10 @@
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer.h>
+#endif
+
 #include "mainwindow.h"
 
 using namespace MiKTeX::Core;
@@ -212,6 +216,9 @@ PathName GetExecutableDir()
 
 int main(int argc, char* argv[])
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   int ret = 0;
   bool optAdmin = false;
   bool optCheckUpdates = false;

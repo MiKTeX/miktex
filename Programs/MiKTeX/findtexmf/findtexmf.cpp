@@ -40,6 +40,10 @@
 #include <miktex/Core/Session>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -396,6 +400,9 @@ int FindTeXMF::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   FindTeXMF app;
   try
   {

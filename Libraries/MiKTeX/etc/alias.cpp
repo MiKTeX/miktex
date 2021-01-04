@@ -1,6 +1,6 @@
 /* alias.cpp: function wrapper
 
-   Copyright (C) 1999-2017 Christian Schenk
+   Copyright (C) 1999-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,6 +25,10 @@
 #include <miktex/Definitions>
 #include <miktex/Util/StringUtil>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #if !defined(FUNC)
 #  define FUNC c4pmain
 #endif
@@ -42,6 +46,7 @@ extern "C" int MIKTEXCEECALL FUNC(int argc, char* argv[]);
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
+  MiKTeX::Core::COMInitializer comInitializer();
   std::vector<std::string> utf8args;
   utf8args.reserve(argc);
 #endif

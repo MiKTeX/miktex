@@ -64,6 +64,7 @@
 
 #include "Setup-version.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
@@ -78,6 +79,8 @@
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Urls>
+#include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/HResult>
 #include <miktex/Core/win/WindowsVersion>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Setup/SetupService>

@@ -1,6 +1,6 @@
 /* internal.h:                                          -*- C++ -*-
 
-   Copyright (C) 2002-2018 Christian Schenk
+   Copyright (C) 2002-2021 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -43,6 +43,10 @@
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
 
 #include <miktex/Util/Tokenizer>
 

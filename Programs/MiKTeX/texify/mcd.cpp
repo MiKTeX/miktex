@@ -65,6 +65,10 @@
 #include <miktex/Util/inliners.h>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -2027,6 +2031,10 @@ const struct poptOption optionTable[] = {
 
 void McdApp::Run(int argc, const char** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
+
   Session::InitInfo initInfo(argv[0]);
   vector<const char*> newargv(&argv[0], &argv[argc + 1]);
   ExamineArgs(newargv, initInfo);

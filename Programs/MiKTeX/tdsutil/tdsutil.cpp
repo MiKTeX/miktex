@@ -34,6 +34,10 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/TemporaryDirectory>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer.h>
+#endif
+
 #include <miktex/Wrappers/PoptWrapper>
 
 #include "internal.h"
@@ -246,6 +250,9 @@ void TdsUtility::Run(int argc, const char ** argv)
 
 int MAIN(int argc, MAINCHAR * argv[])
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   TdsUtility app;
   try
   {

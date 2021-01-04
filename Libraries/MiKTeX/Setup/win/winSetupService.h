@@ -1,6 +1,6 @@
 /* winSetupService.h: internal definitions              -*- C++ -*-
 
-   Copyright (C) 2014-2020 Christian Schenk
+   Copyright (C) 2014-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -41,9 +41,6 @@ struct ShellLinkData
 class winSetupServiceImpl :
   public SetupServiceImpl
 {
-public:
-  winSetupServiceImpl();
-
 public:
   virtual void Initialize();
 

@@ -46,26 +46,6 @@ using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-void SessionImpl::MyCoInitialize()
-{
-  HResult hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-  if (hr.Failed())
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The COM library could not be initialized."), "hr", hr.GetText());
-  }
-  ++numCoInitialize;
-}
-
-void SessionImpl::MyCoUninitialize()
-{
-  if (numCoInitialize == 0)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  CoUninitialize();
-  --numCoInitialize;
-}
-
 #if USE_LOCAL_SERVER
 void SessionImpl::ConnectToServer()
 {
@@ -86,11 +66,6 @@ void SessionImpl::ConnectToServer()
     bo.hwnd = GetForegroundWindow();
     bo.dwClassContext = CLSCTX_LOCAL_SERVER;
     HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
-    if (hr == CO_E_NOTINITIALIZED)
-    {
-      MyCoInitialize();
-      hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
-    }
     if (hr.Failed())
     {
       MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());

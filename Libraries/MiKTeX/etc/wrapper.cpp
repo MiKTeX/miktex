@@ -31,6 +31,10 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/App/Application>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <vector>
 
 #if !defined(stringify_)
@@ -74,6 +78,9 @@ static std::string nameOfTheGame;
 
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
+#if defined(MIKTEX_WINDOWS)
+  MiKTeX::Core::COMInitializer comInitializer();
+#endif
   try
   {
 #if defined(MIKTEX_WINDOWS)

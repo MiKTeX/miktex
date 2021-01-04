@@ -1,6 +1,6 @@
 /* FileCopyPage.cpp: the actual setup process
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2021 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -460,16 +460,9 @@ UINT FileCopyPage::WorkerThread(void* fileCopyPage)
 
   This->timeOfLastProgressRefresh = 0;
 
-  bool comInit = false;
-
   try
   {
-    // initialize COM
-    if (FAILED(CoInitialize(nullptr)))
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    comInit = true;
+    COMInitializer comInitializer();
 
     SetupApp::Instance->Service->SetCallback(This);
     SetupApp::Instance->Service->Run();
@@ -481,11 +474,6 @@ UINT FileCopyPage::WorkerThread(void* fileCopyPage)
   catch (const exception& e)
   {
     This->ReportError(e);
-  }
-
-  if (comInit)
-  {
-    CoUninitialize();
   }
 
   This->sharedData.ready = true;

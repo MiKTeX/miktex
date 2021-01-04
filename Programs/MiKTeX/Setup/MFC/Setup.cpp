@@ -1,6 +1,6 @@
 /* Setup.cpp:
 
-   Copyright (C) 1999-2020 Christian Schenk
+   Copyright (C) 1999-2021 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -800,11 +800,12 @@ BOOL SetupApp::InitInstance()
     return FALSE;
   }
 
-  if (FAILED(CoInitialize(nullptr)))
+  if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
   {
     AfxMessageBox(T_(_T("The application could not be initialized (2).")), MB_ICONSTOP | MB_OK);
     return FALSE;
   }
+  MIKTEX_AUTO(CoUninitialize());
 
   AfxInitRichEdit2();
 
@@ -1029,8 +1030,6 @@ BOOL SetupApp::InitInstance()
   {
     ReportError(e);
   }
-
-  CoUninitialize();
 
   return FALSE;
 }

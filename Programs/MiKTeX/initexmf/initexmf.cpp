@@ -58,6 +58,10 @@
 #include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -680,9 +684,6 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   bool adminMode = false;
   bool forceAdminMode = false;
   Session::InitOptionSet options;
-#if defined(MIKTEX_WINDOWS)
-  options += Session::InitOption::InitializeCOM;
-#endif
   for (const char** opt = &argv[1]; *opt != nullptr; ++opt)
   {
     if ("--admin"s == *opt || "-admin"s == *opt)
@@ -2802,6 +2803,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
 int MAIN(int argc, MAINCHAR* argv[])
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   int retCode = 0;
   try
   {

@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager (cli version)
 
-   Copyright (C) 2003-2020 Christian Schenk
+   Copyright (C) 2003-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -69,6 +69,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #  include <MiKTeX/Core/Help>
+#  include <miktex/Core/win/COMInitializer>
 #endif
 
 using namespace MiKTeX::Packages;
@@ -2135,12 +2136,7 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 int MAIN(int argc, MAINCHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  HRESULT hr = CoInitialize(nullptr);
-  if (FAILED(hr))
-  {
-    cerr << T_("mpm: The COM library could not be initialized.") << endl;
-    return 1;
-  }
+  COMInitializer comInitializer();
 #endif
   int retCode = 0;
   try
@@ -2190,9 +2186,6 @@ int MAIN(int argc, MAINCHAR* argv[])
   {
     retCode = rc;
   }
-#if defined(MIKTEX_WINDOWS)
-  CoUninitialize();
-#endif
   if (logger != nullptr)
   {
     LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);

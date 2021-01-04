@@ -127,6 +127,7 @@ set(headers_no_ext
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND headers_no_ext
+    miktex/Core/win/COMInitializer
     miktex/Core/win/DllProc
     miktex/Core/win/HResult
     miktex/Core/win/Registry
@@ -222,15 +223,17 @@ set(public_headers
 
 if(MIKTEX_NATIVE_WINDOWS)
   set(public_headers_win
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/DllProc
+    ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/win/COMInitializer
+    ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/win/DllProc
+    ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/win/HResult
+    ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/win/Registry
+    ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/win/WindowsVersion
+    ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/win/winAutoResource
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/COMInitializer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/DllProc.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/HResult
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/HResult.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/Registry
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/Registry.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/WindowsVersion
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/WindowsVersion.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/winAutoResource
     ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/win/winAutoResource.h
   )
   list(APPEND public_headers ${public_headers_win})
@@ -363,6 +366,7 @@ set(misc_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND misc_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/win/COMInitializer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/DllProc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/WindowsVersion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/win.cpp

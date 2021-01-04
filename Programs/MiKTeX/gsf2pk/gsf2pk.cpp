@@ -49,6 +49,10 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
+
 #include "gsf2pk-version.h"
 
 using namespace MiKTeX::App;
@@ -1488,6 +1492,9 @@ void Converter::Main(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   Converter conv;
   try
   {

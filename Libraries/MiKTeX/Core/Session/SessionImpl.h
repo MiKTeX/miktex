@@ -1136,16 +1136,6 @@ private:
   void ConnectToServer();
 #endif
 
-#if defined(MIKTEX_WINDOWS)
-private:
-  void MyCoInitialize();
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-private:
-  void MyCoUninitialize();
-#endif
-
   // index of common data root
 private:
   unsigned commonDataRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;

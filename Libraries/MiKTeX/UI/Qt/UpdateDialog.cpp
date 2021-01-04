@@ -1,6 +1,6 @@
 /* UpdateDialog.cpp:
 
-   Copyright (C) 2008-2018 Christian Schenk
+   Copyright (C) 2008-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -28,6 +28,10 @@
 #include <QMessageBox>
 
 #include <miktex/Core/Session>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
 
 #include "internal.h"
 
@@ -61,17 +65,10 @@ int UpdateDialog::DoModal(QWidget* parent, shared_ptr<PackageManager> packageMan
 void UpdateDialogImpl::WorkerThread::run()
 {
   UpdateDialogImpl* This = reinterpret_cast<UpdateDialogImpl*>(parent());
-#if defined(MIKTEX_WINDOWS)
-  HRESULT hr = E_FAIL;
-#endif
   try
   {
 #if defined(MIKTEX_WINDOWS)
-    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (FAILED(hr))
-    {
-      MIKTEX_UNEXPECTED();
-    }
+    COMInitializer comInitializer();
 #endif
     This->packageInstaller->SetCallback(This);
     This->packageInstaller->InstallRemove(PackageInstaller::Role::Application);
@@ -85,12 +82,6 @@ void UpdateDialogImpl::WorkerThread::run()
   {
   }
   This->sharedData.ready = true;
-#if defined(MIKTEX_WINDOWS)
-  if (SUCCEEDED(hr))
-  {
-    CoUninitialize();
-  }
-#endif
   emit This->ProgressChanged();
 }
 

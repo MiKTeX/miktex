@@ -1,6 +1,6 @@
 /* miktexsetup.cpp:
 
-   Copyright (C) 2014-2020 Christian Schenk
+   Copyright (C) 2014-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -53,6 +53,10 @@
 #include <miktex/Trace/Trace>
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
@@ -1028,6 +1032,9 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+#if defined(MIKTEX_WINDOWS)
+  COMInitializer comInitializer();
+#endif
   int retCode = 0;
   try
   {
