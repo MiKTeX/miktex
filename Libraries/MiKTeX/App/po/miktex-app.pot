@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-04 16:57+0100\n"
+"POT-Creation-Date: 2021-01-05 12:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,42 +17,67 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.cpp:148
+#: app.cpp:148 app.cpp:156
 msgid "The current operation has been cancelled (Ctrl-C)."
 msgstr ""
 
-#: app.cpp:528
+#: app.cpp:528 app.cpp:524
 msgid "running with elevated privileges"
 msgstr ""
 
-#: app.cpp:783
+#: app.cpp:783 app.cpp:779
 msgid "The MiKTeX configuration utility (initexmf) could not be found."
 msgstr ""
 
-#: app.cpp:794
+#: app.cpp:794 app.cpp:790
 msgid "The MakeTFM utility could not be found."
 msgstr ""
 
-#: app.cpp:898
+#: app.cpp:898 app.cpp:894
 msgid "Sorry, but {0} did not succeed."
 msgstr ""
 
-#: app.cpp:903
+#: app.cpp:903 app.cpp:899
 msgid "Sorry, but {0} did not succeed for the following reason:"
 msgstr ""
 
-#: app.cpp:910
+#: app.cpp:910 app.cpp:906
 msgid "Remedy:"
 msgstr ""
 
-#: app.cpp:933
+#: app.cpp:933 app.cpp:929
 msgid "For more information, visit:"
 msgstr ""
 
-#: app.cpp:984
+#: app.cpp:984 app.cpp:980
 msgid "warning"
 msgstr ""
 
-#: app.cpp:990 app.cpp:993
+#: app.cpp:990 app.cpp:993 app.cpp:986 app.cpp:989
 msgid "security risk"
+msgstr ""
+
+#: app.cpp:315
+msgid "It seems that this is a fresh TeX installation.\n"
+msgstr ""
+
+#: app.cpp:316
+msgid "Please finish the setup before proceeding.\n"
+msgstr ""
+
+#: app.cpp:317
+msgid "For more information, visit:\n"
+msgstr ""
+
+#: app.cpp:733
+msgid "Unfortunately, the package {0} could not be installed."
+msgstr ""
+
+#: app.cpp:738
+msgid "Please check the log file:"
+msgstr ""
+
+#: app.cpp:919
+msgid ""
+"The log file hopefully contains the information to get MiKTeX going again:"
 msgstr ""

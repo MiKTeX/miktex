@@ -312,9 +312,9 @@ void Application::AutoMaintenance()
   {
     cerr
       << "\n"
-      << "It seems that this is a fresh TeX installation.\n"
-      << "Please finish the setup before proceeding.\n"
-      << "For more information, visit:\n"
+      << T_("It seems that this is a fresh TeX installation.\n")
+      << T_("Please finish the setup before proceeding.\n")
+      << T_("For more information, visit:\n")
 #if defined(MIKTEX_WINDOWS)
       << "https://miktex.org/howto/install-miktex-win" << "\n";
 #elif defined(__APPLE__)
@@ -730,12 +730,12 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
     LOG4CXX_FATAL(pimpl->logger, "Line: " << ex.GetSourceLine());
     cerr
       << "\n"
-      << "Unfortunately, the package " << packageId << " could not be installed." << endl;
+      << fmt::format(T_("Unfortunately, the package {0} could not be installed."), packageId) << endl;
     log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
     if (appender != nullptr)
     {
       cerr
-        << "Please check the log file:" << "\n"
+        << T_("Please check the log file:") << "\n"
         << PathName(appender->getFile()) << endl;
     }
   }
@@ -916,7 +916,7 @@ void Application::Sorry(const string& name, const string& description, const str
     {
       cerr
         << "\n"
-        << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
+        << T_("The log file hopefully contains the information to get MiKTeX going again:") << "\n"
         << "\n"
         << "  " << PathName(appender->getFile())
         << endl;
