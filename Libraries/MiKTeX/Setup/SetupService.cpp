@@ -767,7 +767,6 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
 
 void SetupServiceImpl::Initialize()
 {
-  auto xxx = T_("The PATH variable does not include the MiKTeX executables.");
   if (initialized)
   {
     return;
