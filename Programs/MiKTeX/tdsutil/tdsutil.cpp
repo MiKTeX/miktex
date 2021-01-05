@@ -36,6 +36,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer.h>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include <miktex/Wrappers/PoptWrapper>
@@ -252,6 +253,7 @@ int MAIN(int argc, MAINCHAR * argv[])
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
   TdsUtility app;
   try

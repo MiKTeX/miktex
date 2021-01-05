@@ -67,6 +67,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include <fmt/format.h>
@@ -2033,6 +2034,7 @@ void McdApp::Run(int argc, const char** argv)
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
 
   Session::InitInfo initInfo(argv[0]);

@@ -23,6 +23,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include <string>
@@ -42,6 +43,7 @@ int main(int argc, char** argv)
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
   string programName = "runperl";
   Application app;

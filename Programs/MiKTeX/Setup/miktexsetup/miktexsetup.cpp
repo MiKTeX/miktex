@@ -56,6 +56,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 using namespace MiKTeX::Core;
@@ -555,14 +556,6 @@ void Application::PrintInfo()
 
 void Application::Main(int argc, const char** argv)
 {
-#if defined(MIKTEX_WINDOWS)
-  UINT activeOutputCodePage = GetConsoleOutputCP();
-  if (activeOutputCodePage != CP_UTF8)
-  {
-    SetConsoleOutputCP(CP_UTF8);
-  }
-#endif
-
   programName = PathName(argv[0]).GetFileName().ToString();
 
   Session::InitInfo initInfo;
@@ -1034,6 +1027,7 @@ int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
   int retCode = 0;
   try

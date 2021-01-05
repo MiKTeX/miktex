@@ -42,6 +42,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include <fmt/format.h>
@@ -402,6 +403,7 @@ int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
   FindTeXMF app;
   try

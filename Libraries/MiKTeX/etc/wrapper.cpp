@@ -33,6 +33,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include <vector>
@@ -80,6 +81,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
   MiKTeX::Core::COMInitializer comInitializer();
+  MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher();
 #endif
   try
   {

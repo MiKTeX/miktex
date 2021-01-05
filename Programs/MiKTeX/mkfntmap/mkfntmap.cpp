@@ -1368,6 +1368,7 @@ int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
   MakeFontMapApp app;
   try

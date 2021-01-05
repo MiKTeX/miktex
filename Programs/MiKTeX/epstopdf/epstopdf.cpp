@@ -51,6 +51,7 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include "epstopdf-version.h"
@@ -1057,6 +1058,7 @@ int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer();
+  ConsoleCodePageSwitcher cpSwitcher();
 #endif
   EpsToPdfApp app;
   try
