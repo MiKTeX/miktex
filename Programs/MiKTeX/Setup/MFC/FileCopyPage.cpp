@@ -462,7 +462,7 @@ UINT FileCopyPage::WorkerThread(void* fileCopyPage)
 
   try
   {
-    COMInitializer comInitializer();
+    COMInitializer comInitializer;
 
     SetupApp::Instance->Service->SetCallback(This);
     SetupApp::Instance->Service->Run();

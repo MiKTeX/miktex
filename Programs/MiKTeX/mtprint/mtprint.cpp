@@ -632,8 +632,8 @@ void PrintUtility::Run(int argc, const char** argv)
 int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer();
-  ConsoleCodePageSwitcher cpSwitcher();
+  COMInitializer comInitializer;
+  ConsoleCodePageSwitcher cpSwitcher;
 #endif
   PrintUtility app;
   try

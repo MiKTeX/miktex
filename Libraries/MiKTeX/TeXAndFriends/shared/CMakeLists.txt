@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,6 +32,14 @@ endif()
 add_library(${texmf_dll_name} SHARED ${${texmf_dll_name}_sources})
 
 set_property(TARGET ${texmf_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+add_dependencies(${texmf_dll_name} gen-${MIKTEX_COMP_ID}-sources)
+
+set_source_files_properties(
+  ${generated_${MIKTEX_COMP_ID}_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
 
 add_dependencies(${texmf_dll_name} gen-defaults)
 
@@ -79,6 +87,7 @@ target_link_libraries(${texmf_dll_name}
   PUBLIC
     ${app_dll_name}
     ${core_dll_name}
+    ${loc_dll_name}
     miktex-popt-wrapper
 )
 

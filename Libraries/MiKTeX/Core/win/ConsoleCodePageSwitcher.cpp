@@ -36,7 +36,10 @@ ConsoleCodePageSwitcher::ConsoleCodePageSwitcher()
   }
   if (previousOutputCodePageID != CP_UTF8)
   {
-    SetConsoleOutputCP(CP_UTF8);
+    if (!SetConsoleOutputCP(CP_UTF8))
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR("SetConsoleOutputCP");
+    }
   }
 }
 

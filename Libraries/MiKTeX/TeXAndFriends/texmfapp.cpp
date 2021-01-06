@@ -114,8 +114,8 @@ TeXMFApp::~TeXMFApp() noexcept
 STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
 {
   clock_t clockSinceStart = clock() - clockStart;
-  trace_time->WriteLine("libtexmf", fmt::format(T_("gross execution time: {0} ms"), clockSinceStart));
-  cerr << fmt::format(T_("gross execution time: {0} ms\n"), clockSinceStart) << endl;
+  trace_time->WriteLine("libtexmf", fmt::format("gross execution time: {0} ms", clockSinceStart));
+  cerr << fmt::format("gross execution time: {0} ms\n", clockSinceStart) << endl;
 #if defined(MIKTEX_WINDOWS)
   HINSTANCE hinstKernel;
   hinstKernel = LoadLibraryW(L"kernel32.dll");
@@ -143,9 +143,9 @@ STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
   tKernel64.HighPart = ftKernel.dwHighDateTime;
   tUser = static_cast<DWORD>(tUser64.QuadPart / 10000);
   tKernel = static_cast<DWORD>(tKernel64.QuadPart / 10000);
-  trace_time->WriteLine("libtexmf", fmt::format(T_("user mode: {0} ms, kernel mode: {1} ms, total: {2}"), tUser, tKernel, tUser + tKernel));
+  trace_time->WriteLine("libtexmf", fmt::format("user mode: {0} ms, kernel mode: {1} ms, total: {2}", tUser, tKernel, tUser + tKernel));
   cerr
-    << fmt::format(T_("user mode: {0} ms, kernel mode: {1} ms, total: {2}"), tUser, tKernel, tUser + tKernel)
+    << fmt::format("user mode: {0} ms, kernel mode: {1} ms, total: {2}", tUser, tKernel, tUser + tKernel)
     << endl;
 #endif // MIKTEX_WINDOWS
 }
@@ -279,63 +279,63 @@ void TeXMFApp::AddOptions()
 
   if (IsFeatureEnabled(Feature::EightBitChars))
   {
-    AddOption(T_("enable-8bit-chars\0Make all characters printable by default."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_8BIT_CHARS);
-    AddOption(T_("disable-8bit-chars\0Make only 7-bit characters printable."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_8BIT_CHARS);
+    AddOption("enable-8bit-chars", T_("Make all characters printable by default."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_8BIT_CHARS);
+    AddOption("disable-8bit-chars", T_("Make only 7-bit characters printable."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_8BIT_CHARS);
   }
 
-  AddOption(T_("aux-directory\0Use DIR as the directory to write auxiliary files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_AUX_DIRECTORY, POPT_ARG_STRING, "DIR");
-  AddOption(T_("buf-size\0Set buf_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_BUF_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("c-style-errors\0Enable file:line:error style messages."), FIRST_OPTION_VAL + pimpl->optBase + OPT_C_STYLE_ERRORS);
-  AddOption(T_("dont-parse-first-line\0Do not parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DONT_PARSE_FIRST_LINE);
-  AddOption(T_("error-line\0Set error_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ERROR_LINE, POPT_ARG_STRING, "N");
+  AddOption("aux-directory", T_("Use DIR as the directory to write auxiliary files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_AUX_DIRECTORY, POPT_ARG_STRING, "DIR");
+  AddOption("buf-size", fmt::format(T_("Set {0} to N."), "buf_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_BUF_SIZE, POPT_ARG_STRING, "N");
+  AddOption("c-style-errors", T_("Enable file:line:error style messages."), FIRST_OPTION_VAL + pimpl->optBase + OPT_C_STYLE_ERRORS);
+  AddOption("dont-parse-first-line", T_("Do not parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DONT_PARSE_FIRST_LINE);
+  AddOption("error-line", fmt::format(T_("Set {0} to N."), "error_line"), FIRST_OPTION_VAL + pimpl->optBase + OPT_ERROR_LINE, POPT_ARG_STRING, "N");
 
   if (AmITeX())
   {
-    AddOption(T_("extra-mem-bot\0Set extra_mem_bot to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_BOT, POPT_ARG_STRING, "N");
+    AddOption("extra-mem-bot", fmt::format(T_("Set {0} to N."), "extra_mem_bot"), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_BOT, POPT_ARG_STRING, "N");
   }
 
   if (AmITeX())
   {
-    AddOption(T_("extra-mem-top\0Set extra_mem_top to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_TOP, POPT_ARG_STRING, "N");
+    AddOption("extra-mem-top", fmt::format(T_("Set {0} to N."), "extra_mem_top"), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_TOP, POPT_ARG_STRING, "N");
   }
 
-  AddOption(T_("half-error-line\0Set half_error_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HALF_ERROR_LINE, POPT_ARG_STRING, "N");
-  AddOption(T_("halt-on-error\0Stop after the first error."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HALT_ON_ERROR);
+  AddOption("half-error-line", fmt::format(T_("Set {0} to N."), "half_error_line"), FIRST_OPTION_VAL + pimpl->optBase + OPT_HALF_ERROR_LINE, POPT_ARG_STRING, "N");
+  AddOption("halt-on-error", T_("Stop after the first error."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HALT_ON_ERROR);
 
   if (!invokedAsInitProgram)
   {
-    AddOption(T_("initialize\0Be the INI variant of the program."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INITIALIZE);
+    AddOption("initialize", T_("Be the INI variant of the program."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INITIALIZE);
   }
 
-  AddOption(T_("interaction\0Set the interaction mode; MODE must be one of: batchmode, nonstopmode, scrollmode, errorstopmode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INTERACTION, POPT_ARG_STRING, "MODE");
-  AddOption(T_("job-name\0Set the job name and hence the name(s) of the output file(s)."), FIRST_OPTION_VAL + pimpl->optBase + OPT_JOB_NAME, POPT_ARG_STRING, "NAME");
-  AddOption(T_("job-time\0Set the job time.  Take FILE's timestamp as the reference."), FIRST_OPTION_VAL + pimpl->optBase + OPT_JOB_TIME, POPT_ARG_STRING, "FILE");
-  AddOption(T_("main-memory\0Set main_memory to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAIN_MEMORY, POPT_ARG_STRING, "N");
-  AddOption(T_("max-print-line\0Set max_print_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_PRINT_LINE, POPT_ARG_STRING, "N");
-  AddOption(T_("max-strings\0Set max_strings to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_STRINGS, POPT_ARG_STRING, "N");
-  AddOption(T_("no-c-style-errors\0Disable file:line:error style messages."), FIRST_OPTION_VAL + pimpl->optBase + OPT_NO_C_STYLE_ERRORS);
-  AddOption(T_("output-directory\0Use DIR as the directory to write output files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_OUTPUT_DIRECTORY, POPT_ARG_STRING, "DIR");
-  AddOption(T_("param-size\0Set param_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARAM_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("parse-first-line\0Parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARSE_FIRST_LINE, POPT_ARG_NONE);
+  AddOption("interaction", T_("Set the interaction mode; MODE must be one of: batchmode, nonstopmode, scrollmode, errorstopmode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INTERACTION, POPT_ARG_STRING, "MODE");
+  AddOption("job-name", T_("Set the job name and hence the name(s) of the output file(s)."), FIRST_OPTION_VAL + pimpl->optBase + OPT_JOB_NAME, POPT_ARG_STRING, "NAME");
+  AddOption("job-time", T_("Set the job time.  Take FILE's timestamp as the reference."), FIRST_OPTION_VAL + pimpl->optBase + OPT_JOB_TIME, POPT_ARG_STRING, "FILE");
+  AddOption("main-memory", fmt::format(T_("Set {0} to N."), "main_memory"), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAIN_MEMORY, POPT_ARG_STRING, "N");
+  AddOption("max-print-line", fmt::format(T_("Set {0} to N."), "max_print_line"), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_PRINT_LINE, POPT_ARG_STRING, "N");
+  AddOption("max-strings", fmt::format(T_("Set {0} to N."), "max_strings"), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_STRINGS, POPT_ARG_STRING, "N");
+  AddOption("no-c-style-errors", T_("Disable file:line:error style messages."), FIRST_OPTION_VAL + pimpl->optBase + OPT_NO_C_STYLE_ERRORS);
+  AddOption("output-directory", T_("Use DIR as the directory to write output files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_OUTPUT_DIRECTORY, POPT_ARG_STRING, "DIR");
+  AddOption("param-size", fmt::format(T_("Set {0} to N."), "param_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARAM_SIZE, POPT_ARG_STRING, "N");
+  AddOption("parse-first-line", T_("Parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARSE_FIRST_LINE, POPT_ARG_NONE);
 
   if (AmITeX())
   {
-    AddOption(T_("pool-free\0Set pool_free to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_FREE, POPT_ARG_STRING, "N");
+    AddOption("pool-free", fmt::format(T_("Set {0} to N."), "pool_free"), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_FREE, POPT_ARG_STRING, "N");
   }
 
-  AddOption(T_("pool-size\0Set pool_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("quiet\0Suppress all output (except errors)."), FIRST_OPTION_VAL +pimpl-> optBase + OPT_QUIET);
-  AddOption(T_("recorder\0Turn on the file name recorder to leave a trace of the files opened for input and output in a file with extension .fls."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORDER);
-  AddOption(T_("stack-size\0Set stack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STACK_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("strict\0Disable MiKTeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRICT, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN);
+  AddOption("pool-size", fmt::format(T_("Set {0} to N."), "pool_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_SIZE, POPT_ARG_STRING, "N");
+  AddOption("quiet", T_("Suppress all output (except errors)."), FIRST_OPTION_VAL +pimpl-> optBase + OPT_QUIET);
+  AddOption("recorder", T_("Turn on the file name recorder to leave a trace of the files opened for input and output in a file with extension .fls."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORDER);
+  AddOption("stack-size", fmt::format(T_("Set {0} to N."), "stack_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_STACK_SIZE, POPT_ARG_STRING, "N");
+  AddOption("strict", T_("Disable MiKTeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRICT, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN);
 
-  AddOption(T_("string-vacancies\0Set string_vacancies to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRING_VACANCIES, POPT_ARG_STRING, "N");
-  AddOption(T_("time-statistics\0Show processing time statistics."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TIME_STATISTICS);
-  AddOption(T_("undump\0Use NAME instead of program name when loading internal tables."), FIRST_OPTION_VAL + pimpl->optBase + OPT_UNDUMP, POPT_ARG_STRING, "NAME");
+  AddOption("string-vacancies", fmt::format(T_("Set {0} to N."), "string_vacancies"), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRING_VACANCIES, POPT_ARG_STRING, "N");
+  AddOption("time-statistics", T_("Show processing time statistics."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TIME_STATISTICS);
+  AddOption("undump", T_("Use NAME instead of program name when loading internal tables."), FIRST_OPTION_VAL + pimpl->optBase + OPT_UNDUMP, POPT_ARG_STRING, "NAME");
 
   if (IsFeatureEnabled(Feature::TCX))
   {
-    AddOption(T_("tcx\0Use the TCXNAME translation table to set the mapping of inputcharacters and re-mapping of output characters."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TCX, POPT_ARG_STRING, "TCXNAME");
+    AddOption("tcx", T_("Use the TCXNAME translation table to set the mapping of input characters and re-mapping of output characters."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TCX, POPT_ARG_STRING, "TCXNAME");
   }
 
   // old option names
@@ -678,7 +678,7 @@ void TeXMFApp::CheckFirstLine(const PathName& fileName)
   }
 }
 
-bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void* pBuf, size_t size, bool renew) const
+bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void* pBuf, size_t size, bool renew)
 {
   MIKTEX_ASSERT(ppFile != nullptr);
 
@@ -1117,4 +1117,42 @@ void TeXMFApp::CheckPoolPointer(int poolptr, std::size_t len) const
   {
     MIKTEX_FATAL_ERROR(MIKTEXTEXT("String pool overflow."));
   }
+}
+
+bool TeXMFApp::OpenFontFile(C4P::BufferedFile<unsigned char>* file, const string& fontName, FileType filetype, const char* generator)
+{
+  shared_ptr<Session> session = Session::Get();
+  PathName pathFont;
+  if (!session->FindFile(fontName, filetype, pathFont))
+  {
+    if (generator == nullptr || !session->GetMakeFontsFlag())
+    {
+      return false;
+    }
+    PathName generatorExecutable;
+    if (!session->FindFile(generator, FileType::EXE, generatorExecutable))
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    PathName baseName = PathName(fontName).GetFileNameWithoutExtension();
+    vector<string> arguments{ generatorExecutable.GetFileNameWithoutExtension().ToString() };
+    if (session->IsAdminMode())
+    {
+      arguments.push_back("--miktex-admin");
+    }
+    arguments.push_back("--verbose");
+    arguments.push_back(baseName.ToString());
+    int exitCode;
+    if (!(Process::Run(generatorExecutable, arguments, nullptr, &exitCode, nullptr) && exitCode == 0))
+    {
+      return false;
+    }
+    if (!session->FindFile(fontName, filetype, pathFont))
+    {
+      MIKTEX_FATAL_ERROR_2(T_("The font file could not be found."), "fileName", fontName);
+    }
+  }
+  file->Attach(session->OpenFile(pathFont, FileMode::Open, FileAccess::Read, false), true);
+  file->Read();
+  return true;
 }

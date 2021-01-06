@@ -30,6 +30,8 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/VersionNumber>
 
+#include <miktex/Locale/Translator>
+
 #if defined(MIKTEX_TEXMF_SHARED)
 #  define C4PEXPORT MIKTEXDLLEXPORT
 #else
@@ -53,6 +55,7 @@ using namespace std;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Locale;
 using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
@@ -130,7 +133,13 @@ public:
   bool isMETAFONTProgram;
 public:
   bool verbose = true;
+public:
+  static TeXMFResources resources;
+public:
+  unique_ptr<Translator> translator;
 };
+
+TeXMFResources WebApp::impl::resources;
 
 WebApp::WebApp() :
   pimpl(make_unique<impl>())
@@ -149,6 +158,7 @@ void WebApp::Init(vector<char*>& args)
   pimpl->enable8BitChars = false;
   pimpl->isTeXProgram = TheNameOfTheGame() == "TeX";
   pimpl->isMETAFONTProgram = TheNameOfTheGame() == "METAFONT";
+  pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
 }
 
 void WebApp::Finalize()
@@ -184,6 +194,11 @@ void WebApp::Finalize()
   Application::Finalize();
 }
 
+string WebApp::Translate(const char* msgId)
+{
+  return pimpl->translator->Translate(msgId);
+}
+
 void WebApp::ShowHelp(bool usageOnly) const
 {
   if (pimpl->options.empty() || usageOnly || pimpl->popt == nullptr)
@@ -200,7 +215,7 @@ void WebApp::ShowHelp(bool usageOnly) const
   }
 }
 
-void WebApp::BadUsage() const
+void WebApp::BadUsage()
 {
   cerr << T_("Invalid command-line. Try this:\n") << Utils::GetExeName() << " -help" << endl;
   throw 1;
@@ -260,20 +275,20 @@ void WebApp::AddOptions()
 {
   pimpl->options.reserve(50);
   pimpl->optBase = (int)GetOptions().size();
-  AddOption(T_("alias\0Pretend to be APP.  This affects both the format used and the search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ALIAS, POPT_ARG_STRING, T_("APP"));
-  AddOption(T_("disable-installer\0Disable the package installer.  Missing files will not be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_INSTALLER);
-  AddOption(T_("enable-installer\0Enable the package installer.  Missing files will be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_INSTALLER);
-  AddOption(T_("help\0Show this help screen and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HELP);
-  AddOption(T_("include-directory\0Prefix DIR to the input search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INCLUDE_DIRECTORY, POPT_ARG_STRING, T_("DIR"));
-  AddOption(T_("kpathsea-debug\0"), OPT_UNSUPPORTED, POPT_ARG_STRING);
-  AddOption(T_("record-package-usages\0Enable the package usage recorder.  Output is written to FILE."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORD_PACKAGE_USAGES, POPT_ARG_STRING, T_("FILE"));
-  AddOption(T_("trace\0Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   See the manual, for more information."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TRACE, POPT_ARG_STRING, T_("OPTIONS"));
-  AddOption(T_("verbose\0Turn on verbose mode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERBOSE);
-  AddOption(T_("version\0Print version information and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERSION);
+  AddOption("alias", T_("Pretend to be APP.  This affects both the format used and the search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ALIAS, POPT_ARG_STRING, T_("APP"));
+  AddOption("disable-installer", T_("Disable the package installer.  Missing files will not be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_INSTALLER);
+  AddOption("enable-installer", T_("Enable the package installer.  Missing files will be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_INSTALLER);
+  AddOption("help", T_("Show this help screen and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HELP);
+  AddOption("include-directory", T_("Prefix DIR to the input search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INCLUDE_DIRECTORY, POPT_ARG_STRING, T_("DIR"));
+  AddOption("kpathsea-debug", "", OPT_UNSUPPORTED, POPT_ARG_STRING);
+  AddOption("record-package-usages", T_("Enable the package usage recorder.  Output is written to FILE."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORD_PACKAGE_USAGES, POPT_ARG_STRING, T_("FILE"));
+  AddOption("trace", T_("Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   See the manual, for more information."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TRACE, POPT_ARG_STRING, T_("OPTIONS"));
+  AddOption("verbose", T_("Turn on verbose mode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERBOSE);
+  AddOption("version", T_("Print version information and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERSION);
 #if defined(MIKTEX_WINDOWS)
   if (GetHelpId() > 0)
   {
-    AddOption(T_("hhelp\0Show the manual page in an HTMLHelp window and exit when the window is closed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HHELP);
+    AddOption("hhelp", T_("Show the manual page in an HTMLHelp window and exit when the window is closed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HHELP);
   }
 #endif
 }
@@ -407,7 +422,7 @@ void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, co
   pimpl->version = version;
   pimpl->copyright = copyright;
   pimpl->trademarks = trademarks;
-  LogInfo(fmt::format(T_("this is MiKTeX-{0} {1} ({2})"), programName, version, Utils::GetMiKTeXBannerString()));
+  LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", programName, version, Utils::GetMiKTeXBannerString()));
 }
 
 bool WebApp::IsFeatureEnabled(Feature f) const

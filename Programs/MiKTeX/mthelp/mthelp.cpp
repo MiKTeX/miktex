@@ -581,8 +581,8 @@ void MiKTeXHelp::Run(int argc, const char** argv)
 int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer();
-  ConsoleCodePageSwitcher cpSwitcher();
+  COMInitializer comInitializer;
+  ConsoleCodePageSwitcher cpSwitcher;
 #endif
   MiKTeXHelp app;
   try

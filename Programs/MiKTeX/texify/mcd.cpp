@@ -2033,8 +2033,8 @@ const struct poptOption optionTable[] = {
 void McdApp::Run(int argc, const char** argv)
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer();
-  ConsoleCodePageSwitcher cpSwitcher();
+  COMInitializer comInitializer;
+  ConsoleCodePageSwitcher cpSwitcher;
 #endif
 
   Session::InitInfo initInfo(argv[0]);

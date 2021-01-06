@@ -1,6 +1,6 @@
 /* mfapp.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -18,6 +18,9 @@
    along with the MiKTeX TeXMF Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #if defined(MIKTEX_TEXMF_SHARED)
 #  define C4PEXPORT MIKTEXDLLEXPORT
@@ -76,9 +79,9 @@ void MetafontApp::AddOptions()
 {
   TeXMFApp::AddOptions();
   pimpl->optBase = (int)GetOptions().size();
-  AddOption(T_("bistack-size\0Set bistack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_BISTACK_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("lig-table-size\0Set lig_table_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_LIG_TABLE_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("path-size\0Set path_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PATH_SIZE, POPT_ARG_STRING, "N");
+  AddOption("bistack-size", fmt::format(T_("Set {0} to N."), "bistack_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_BISTACK_SIZE, POPT_ARG_STRING, "N");
+  AddOption("lig-table-size", fmt::format(T_("Set {0} to N."), "lig_table_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_LIG_TABLE_SIZE, POPT_ARG_STRING, "N");
+  AddOption("path-size", fmt::format(T_("Set {0} to N."), "path_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_PATH_SIZE, POPT_ARG_STRING, "N");
 }
 
 bool MetafontApp::ProcessOption(int opt, const string& optArg)

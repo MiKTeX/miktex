@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMFApp.h:                     -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -278,10 +278,13 @@ public:
   MIKTEXMFTHISAPI(int) MakeTeXString(const char* lpsz) const;
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew) const;
+  MIKTEXMFTHISAPI(bool) OpenFontFile(C4P::BufferedFile<unsigned char>* file, const std::string& fontName, MiKTeX::Core::FileType filetype, const char* generator);
 
 public:
-  template<class T> bool OpenMemoryDumpFile(T& f, bool renew = false) const
+  MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew);
+
+public:
+  template<class T> bool OpenMemoryDumpFile(T& f, bool renew = false)
   {
     FILE* file;
     if (!OpenMemoryDumpFile(GetNameOfFile(), &file, nullptr, sizeof(*f), renew))

@@ -42,8 +42,8 @@ int main(int argc, char** argv)
 #endif
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer();
-  ConsoleCodePageSwitcher cpSwitcher();
+  COMInitializer comInitializer;
+  ConsoleCodePageSwitcher cpSwitcher;
 #endif
   string programName = "runperl";
   Application app;

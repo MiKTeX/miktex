@@ -218,8 +218,8 @@ PathName GetExecutableDir()
 int main(int argc, char* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer();
-  ConsoleCodePageSwitcher cpSwitcher();
+  COMInitializer comInitializer;
+  ConsoleCodePageSwitcher cpSwitcher;
 #endif
   int ret = 0;
   bool optAdmin = false;

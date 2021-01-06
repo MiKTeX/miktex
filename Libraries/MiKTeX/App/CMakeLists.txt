@@ -77,8 +77,6 @@ set(app_sources
   ${public_headers}
 )
 
-list(APPEND l_sources app.cpp)
-
 if(INSTALL_MIKTEX_HEADERS)
   install(
     FILES
@@ -88,9 +86,7 @@ if(INSTALL_MIKTEX_HEADERS)
   )
 endif()
 
-
-
-
+list(APPEND l_sources app.cpp)
 
 add_custom_target(${MIKTEX_COMP_ID}-pot
   COMMAND
@@ -173,17 +169,6 @@ list(APPEND app_sources
    ${CMAKE_CURRENT_BINARY_DIR}/AppResources.h
   ${generated_${MIKTEX_COMP_ID}_sources}
 )
-
-
-
-
-
-
-
-
-
-
-
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)

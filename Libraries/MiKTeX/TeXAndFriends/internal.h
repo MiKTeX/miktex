@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -28,11 +28,25 @@
 #define MIKTEX_API_BEGIN(funcname) {
 #define MIKTEX_API_END(funcname) }
 
-#define T_(x) MIKTEXTEXT(x)
+#define T_(x) this->Translate(x)
 
 #define MIKTEX_UNIMPLEMENTED(x) MIKTEX_UNEXPECTED(x)
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+
+#define BEGIN_INTERNAL_NAMESPACE                        \
+namespace MiKTeX {                                      \
+  namespace TeXAndFriends {                             \
+    namespace CDA7FC807F4A47E294AF2721867074A4 {
+
+#define END_INTERNAL_NAMESPACE                  \
+    }                                           \
+  }                                             \
+}
+
+#include "TeXMFResources.h"
+
+BEGIN_INTERNAL_NAMESPACE;
 
 inline int GetC(FILE* file)
 {
@@ -44,3 +58,8 @@ inline int GetC(FILE* file)
   }
   return ch;
 }
+
+END_INTERNAL_NAMESPACE;
+
+
+using namespace MiKTeX::TeXAndFriends::CDA7FC807F4A47E294AF2721867074A4;

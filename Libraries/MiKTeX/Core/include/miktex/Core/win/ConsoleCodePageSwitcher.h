@@ -42,7 +42,7 @@ public:
 public:
   ConsoleCodePageSwitcher& operator=(ConsoleCodePageSwitcher&& other) = delete;
 
-protected:
+public:
   MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~ConsoleCodePageSwitcher() noexcept;
 
 private:

@@ -147,6 +147,9 @@ public:
   MIKTEXMFTHISAPI(bool) AmI(const std::string& name) const;
 
 protected:
+  MIKTEXMFTHISAPI(std::string) Translate(const char* msgId);
+
+protected:
   virtual MIKTEXMFTHISAPI(void) AddOptions();
 
 protected:
@@ -158,11 +161,10 @@ protected:
 protected:
   MIKTEXMFTHISAPI(void) AddOption(const std::string& name, const std::string& help, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void* arg = nullptr, char shortName = 0);
 
-  // DEPRECATED
 protected:
-  void AddOption(const char* nameAndHelp, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void * arg = nullptr, char shortName = 0)
+  void AddOption(const std::string& name, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void * arg = nullptr, char shortName = 0)
   {
-    AddOption(nameAndHelp, nameAndHelp + strlen(nameAndHelp) + 1, opt, argInfo, argDescription, arg, shortName);
+    AddOption(name, "", opt, argInfo, argDescription, arg, shortName);
   }
 
 protected:
@@ -188,7 +190,7 @@ protected:
   MIKTEXMFTHISAPI(void) ShowHelp(bool usageOnly = false) const;
 
 protected:
-  MIKTEXMFTHISAPI(void) BadUsage() const;
+  MIKTEXMFTHISAPI(void) BadUsage();
 
 protected:
   virtual std::string GetUsage() const

@@ -133,53 +133,53 @@ void TeXApp::AddOptions()
 
   pimpl->optBase = (int)GetOptions().size();
 
-  AddOption(T_("disable-write18\0Disable the \\write18{COMMAND} construct."),
+  AddOption("disable-write18", T_("Disable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_WRITE18);
 
-  AddOption(T_("enable-mltex\0Enable MLTeX extensions such as \\charsubdef."),
+  AddOption("enable-mltex", T_("Enable MLTeX extensions such as \\charsubdef."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_MLTEX);
 
-  AddOption(T_("enable-write18\0Enable the \\write18{COMMAND} construct."),
+  AddOption("enable-write18", T_("Enable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_WRITE18);
 
-  AddOption(T_("hash-extra\0Set hash_extra to N."),
+  AddOption("hash-extra", fmt::format(T_("Set {0} to N."), "hash_extra"),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_HASH_EXTRA,
     POPT_ARG_STRING,
     "N");
 
-  AddOption(T_("max-in-open\0Set max_in_open to N."),
+  AddOption("max-in-open", fmt::format(T_("Set {0} to N."), "max_in_open"),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_IN_OPEN,
     POPT_ARG_STRING,
     "N");
 
-  AddOption(T_("mem-bot\0Set mem_bot to 0 or 1."),
+  AddOption("mem-bot", T_("Set mem_bot to 0 or 1."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_MEM_BOT,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN,
     "N");
 
-  AddOption(T_("nest-size\0Set nest_size to N."),
+  AddOption("nest-size", fmt::format(T_("Set {0} to N."), "nest_size"),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_NEST_SIZE,
     POPT_ARG_STRING,
     "N");
 
-  AddOption(T_("restrict-write18\0Partially enable the \\write18{COMMAND} construct."),
+  AddOption("restrict-write18", T_("Partially enable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_RESTRICT_WRITE18);
 
-  AddOption(T_("save-size\0Set save_size to N."),
+  AddOption("save-size", fmt::format(T_("Set {0} to N."), "save_size"),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_SAVE_SIZE,
     POPT_ARG_STRING,
     "N");
 
   if (!AmI("xetex"))
   {
-    AddOption(T_("enable-enctex\0Enable EncTeX extensions such as \\mubyte."),
+    AddOption("enable-enctex", T_("Enable EncTeX extensions such as \\mubyte."),
       FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ENCTEX);
   }
 
 #if WITH_SYNCTEX
   if (AmI("xetex") || AmI("pdftex"))
   {
-    AddOption(T_("synctex\0Generate SyncTeX data for previewers if nonzero."),
+    AddOption("synctex", T_("Generate SyncTeX data for previewers if nonzero."),
       FIRST_OPTION_VAL + pimpl->optBase + OPT_SYNCTEX,
       POPT_ARG_STRING,
       "N");
@@ -187,30 +187,30 @@ void TeXApp::AddOptions()
   }
 #endif
 
-  AddOption(T_("trie-size\0Set trie_size to N."),
+  AddOption("trie-size", fmt::format(T_("Set {0} to N."), "trie_size"),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_TRIE_SIZE,
     POPT_ARG_STRING,
     "N");
 
   if (!AmI("omega"))
   {
-    AddOption(T_("font-max\0Set font_max to N."),
+    AddOption("font-max", fmt::format(T_("Set {0} to N."), "font_max"),
       FIRST_OPTION_VAL + pimpl->optBase + OPT_FONT_MAX,
       POPT_ARG_STRING,
       "N");
-    AddOption(T_("font-mem-size\0Set font_mem_size to N."),
+    AddOption("font-mem-size", fmt::format(T_("Set {0} to N."), "font_mem_size"),
       FIRST_OPTION_VAL + pimpl->optBase + OPT_FONT_MEM_SIZE,
       POPT_ARG_STRING,
       "N");
   }
 
 #if EXPERT_SRC_SPECIALS
-  AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox.")),
+  AddOption("src-specials", T_("Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_SRC_SPECIALS,
     POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL,
     "WHERE");
 #else
-  AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.")),
+  AddOption("src-specials", T_("Insert source specials in certain places of the DVI file."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_SRC_SPECIALS);
 #endif
 

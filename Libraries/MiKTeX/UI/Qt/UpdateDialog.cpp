@@ -68,7 +68,7 @@ void UpdateDialogImpl::WorkerThread::run()
   try
   {
 #if defined(MIKTEX_WINDOWS)
-    COMInitializer comInitializer();
+    COMInitializer comInitializer;
 #endif
     This->packageInstaller->SetCallback(This);
     This->packageInstaller->InstallRemove(PackageInstaller::Role::Application);

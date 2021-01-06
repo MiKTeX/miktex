@@ -80,8 +80,8 @@ static std::string nameOfTheGame;
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  MiKTeX::Core::COMInitializer comInitializer();
-  MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher();
+  MiKTeX::Core::COMInitializer comInitializer;;
+  MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
 #endif
   try
   {

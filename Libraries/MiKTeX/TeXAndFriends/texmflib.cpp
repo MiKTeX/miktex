@@ -47,49 +47,11 @@ using namespace MiKTeX::Core;
 typedef C4P_FILE_STRUCT(unsigned char) bytefile;
 typedef C4P::C4P_text alphafile;
 
-STATICFUNC(bool) OpenFontFile(bytefile* file, const string& fontName, FileType filetype, const char* generator)
-{
-  shared_ptr<Session> session = Session::Get();
-  PathName pathFont;
-  if (!session->FindFile(fontName, filetype, pathFont))
-  {
-    if (generator == nullptr || !session->GetMakeFontsFlag())
-    {
-      return false;
-    }
-    PathName generatorExecutable;
-    if (!session->FindFile(generator, FileType::EXE, generatorExecutable))
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    PathName baseName = PathName(fontName).GetFileNameWithoutExtension();
-    vector<string> arguments{ generatorExecutable.GetFileNameWithoutExtension().ToString() };
-    if (session->IsAdminMode())
-    {
-      arguments.push_back("--miktex-admin");
-    }
-    arguments.push_back("--verbose");
-    arguments.push_back(baseName.ToString());
-    int exitCode;
-    if (!(Process::Run(generatorExecutable, arguments, nullptr, &exitCode, nullptr) && exitCode == 0))
-    {
-      return false;
-    }
-    if (!session->FindFile(fontName, filetype, pathFont))
-    {
-      MIKTEX_FATAL_ERROR_2(T_("The font file could not be found."), "fileName", fontName);
-    }
-  }
-  file->Attach(session->OpenFile(pathFont, FileMode::Open, FileAccess::Read, false), true);
-  file->Read();
-  return true;
-}
-
 bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenTFMFile(void* p, const PathName& fileName)
 {
   MIKTEX_API_BEGIN("OpenTFMFile");
   MIKTEX_ASSERT_BUFFER(p, sizeof(bytefile));
-  return (OpenFontFile(reinterpret_cast<bytefile*>(p), fileName.GetData(), FileType::TFM, MIKTEX_MAKETFM_EXE));
+  return TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(p), fileName.GetData(), FileType::TFM, MIKTEX_MAKETFM_EXE);
   MIKTEX_API_END("OpenTFMFile");
 }
 
@@ -97,11 +59,11 @@ int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXFMFile(void* ptr, const PathName& 
 {
   MIKTEX_API_BEGIN("OpenXFMFile");
   MIKTEX_ASSERT_BUFFER(ptr, sizeof(bytefile));
-  if (OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::TFM, MIKTEX_MAKETFM_EXE))
+  if (TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::TFM, MIKTEX_MAKETFM_EXE))
   {
     return 1;
   }
-  if (OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::OFM, MIKTEX_MAKETFM_EXE))
+  if (TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::OFM, MIKTEX_MAKETFM_EXE))
   {
     return 2;
   }
@@ -113,7 +75,7 @@ bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenVFFile(void* ptr, const PathName& 
 {
   MIKTEX_API_BEGIN("OpenVFFile");
   MIKTEX_ASSERT_BUFFER(ptr, sizeof(bytefile));
-  return OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::VF, nullptr);
+  return TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::VF, nullptr);
   MIKTEX_API_END("OpenVFFile");
 }
 
@@ -121,8 +83,8 @@ int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXVFFile(void* ptr, const PathName& 
 {
   MIKTEX_API_BEGIN("OpenXVFFile");
   MIKTEX_ASSERT_BUFFER(ptr, sizeof(bytefile));
-  return OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::VF, nullptr)
-    || OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::OVF, nullptr);
+  return TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::VF, nullptr)
+    || TeXMFApp::GetTeXMFApp()->OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::OVF, nullptr);
   MIKTEX_API_END("OpenXVFFile");
 }
 
@@ -158,18 +120,18 @@ STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, u
 
     if (start == nullptr)
     {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+      MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
     }
 
     // get xord index (src)
     long xordidx = strtol(start, &end, 0);
     if (start == end)
     {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+      MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
     }
     else if (xordidx < 0 || xordidx > 255)
     {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+      MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
     }
 
     // make the char printable by default
@@ -185,7 +147,7 @@ STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, u
     }
     else if (xchridx < 0 || xchridx > 255)
     {
-      MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+      MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
     }
     else
     {
@@ -199,7 +161,7 @@ STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, u
       }
       else if (printable < 0 || printable > 1)
       {
-        MIKTEX_FATAL_ERROR_2(T_("Invalid tcx file."), "tcxPath", tcxPath.ToString());
+        MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
       }
     }
 

@@ -582,7 +582,7 @@ void PackageInstallerImpl::FindUpdatesThread()
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer();
+    COMInitializer comInitializer;
 #endif
     FindUpdates();
     progressInfo.ready = true;
@@ -650,7 +650,7 @@ void PackageInstallerImpl::FindUpgradesThread()
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer();
+    COMInitializer comInitializer;
 #endif
     FindUpgrades(upgradeLevel);
     progressInfo.ready = true;
@@ -1818,7 +1818,7 @@ void PackageInstallerImpl::InstallRemoveThread()
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer();
+    COMInitializer comInitializer;
 #endif
     InstallRemove(currentRole);
     progressInfo.ready = true;
@@ -1950,7 +1950,7 @@ void PackageInstallerImpl::DownloadThread()
   try
   {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer();
+    COMInitializer comInitializer;
 #endif
     Download();
     progressInfo.ready = true;

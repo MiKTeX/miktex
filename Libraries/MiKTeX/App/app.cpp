@@ -105,7 +105,7 @@ class Impl
 public:
   string Translate(const char* msgId)
   {
-    return msgId;
+    return translator->Translate(msgId);
   }
 public:
   set<string> ignoredPackages;

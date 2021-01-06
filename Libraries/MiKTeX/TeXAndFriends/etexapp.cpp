@@ -82,7 +82,7 @@ void ETeXApp::AddOptions()
 {
   TeXApp::AddOptions();
   pimpl->optBase = (int)GetOptions().size();
-  AddOption(T_("enable-etex\0Enable e-TeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ETEX);
+  AddOption("enable-etex", T_("Enable e-TeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ETEX);
   // supported Web2C options
   AddOption("etex", "enable-etex");
 }

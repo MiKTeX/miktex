@@ -42,7 +42,7 @@ public:
 public:
   COMInitializer& operator=(COMInitializer&& other) = delete;
 
-protected:
+public:
   MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~COMInitializer() noexcept;
 };
 

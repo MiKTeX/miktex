@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2009-2020 Christian Schenk
+## Copyright (C) 2009-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,6 +22,14 @@ use_static_crt()
 add_library(${texmf_lib_name} STATIC ${texmf_sources})
 
 set_property(TARGET ${texmf_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+add_dependencies(${app_lib_name} gen-${MIKTEX_COMP_ID}-sources)
+
+set_source_files_properties(
+  ${generated_${MIKTEX_COMP_ID}_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
 
 add_dependencies(${texmf_lib_name} gen-defaults)
 
@@ -63,6 +71,7 @@ target_link_libraries(${texmf_lib_name}
   PUBLIC
     ${app_lib_name}
     ${core_lib_name}
+    ${loc_lib_name}
     miktex-popt-wrapper-static
 )
 

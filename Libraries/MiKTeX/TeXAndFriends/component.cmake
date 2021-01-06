@@ -1,6 +1,6 @@
 ## component.cmake:
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2016-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -20,3 +20,4 @@
 include(version.cmake)
 
 set(MIKTEX_COMP_DESCRIPTION "MiKTeX TeXMF framework")
+set(MIKTEX_COMP_ID "miktex-texmf")
