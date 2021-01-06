@@ -1,6 +1,6 @@
 /* pdftex-miktex.h:                                     -*- C++ -*-
    
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -30,6 +30,8 @@
 
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
+#include <miktex/Locale/Translator>
+#include <miktex/Resources/ResourceRepository>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/ErrorHandlerImpl>
 #include <miktex/TeXAndFriends/FormatHandlerImpl>
@@ -200,12 +202,24 @@ public:
     OPT_OUTPUT_FORMAT,
   };
 
+private:
+  std::string Translate(const char* msgId)
+  {
+    return translator->Translate(msgId);
+  }
+
+private:
+  std::string T_(const char* msgId)
+  {
+    return Translate(msgId);
+  }
+
 public:
   void AddOptions() override
   {
     ETeXApp::AddOptions();
-    AddOption(MIKTEXTEXT("draftmode\0Switch on draft mode (generates no output)."), OPT_DRAFTMODE);
-    AddOption(MIKTEXTEXT("output-format\0Set the output format."), OPT_OUTPUT_FORMAT, POPT_ARG_STRING, "FORMAT");
+    AddOption("draftmode", T_("Switch on draft mode (generates no output)."), OPT_DRAFTMODE);
+    AddOption("output-format", T_("Set the output format."), OPT_OUTPUT_FORMAT, POPT_ARG_STRING, "FORMAT");
   }
 
 public:
@@ -230,7 +244,7 @@ public:
       }
       else
       {
-        FatalError(MIKTEXTEXT("Unkown output option value."));
+        FatalError(T_("Unkown output option value."));
       }
       break;
     default:
@@ -261,6 +275,12 @@ private:
 private:
   MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
 
+private:
+  static MiKTeX::Resources::ResourceRepository* resources;
+
+private:
+  std::unique_ptr<MiKTeX::Locale::Translator> translator;
+
 public:
   void Init(std::vector<char*>& args) override
   {
@@ -272,6 +292,7 @@ public:
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     ETeXApp::Init(args);
+    translator = std::make_unique<MiKTeX::Locale::Translator>(MIKTEX_COMP_ID, resources, GetSession());
     kpse_set_program_name(args[0], nullptr);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
 #if defined(IMPLEMENT_TCX)

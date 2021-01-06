@@ -1,0 +1,21 @@
+#pragma once
+
+#include <miktex/Resources/ResourceRepository>
+
+${resource_includes}
+
+class PdfTeXResources
+  : public MiKTeX::Resources::ResourceRepository
+{
+protected:
+  void Init() override
+  {
+    ${resource_adders}
+  }
+
+private:
+  template<std::size_t N> void R_(const char* resourceId, unsigned char const (&byteArray)[N])
+  {
+    AddResource(resourceId, { byteArray, sizeof(byteArray) });
+  }
+};

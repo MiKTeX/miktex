@@ -1,6 +1,6 @@
 /* pdftex-miktex.cpp:
    
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,7 +24,13 @@
 #include <xpdf/config.h>
 #include <zlib.h>
 
+#include "PdfTeXResources.h"
+
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Resources;
+
+static PdfTeXResources pdfTeXResources;
+ResourceRepository* PDFTEXAPPCLASS::resources = &pdfTeXResources;
 
 PDFTEXPROGCLASS::scaled& curh = PDFTEXPROG.curh;
 PDFTEXPROGCLASS::instaterecord& curinput = PDFTEXPROG.curinput;
