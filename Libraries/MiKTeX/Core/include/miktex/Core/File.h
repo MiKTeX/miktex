@@ -1,6 +1,6 @@
 /* miktex/Core/File.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,8 +38,8 @@
 #include <fstream>
 #include <vector>
 
-#include "OptionSet.h"
-#include "PathName.h"
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -96,7 +96,7 @@ enum class FileAttribute
 #endif
 };
 
-typedef OptionSet<FileAttribute> FileAttributeSet;
+typedef MiKTeX::Util::OptionSet<FileAttribute> FileAttributeSet;
 
 /// Options for opening a file.
 enum class FileOpenOption
@@ -106,7 +106,7 @@ enum class FileOpenOption
   DeleteOnClose
 };
 
-typedef OptionSet<FileOpenOption> FileOpenOptionSet;
+typedef MiKTeX::Util::OptionSet<FileOpenOption> FileOpenOptionSet;
 
 /// Options for deleting a file.
 enum class FileDeleteOption
@@ -117,7 +117,7 @@ enum class FileDeleteOption
   TryHard,
 };
 
-typedef OptionSet<FileDeleteOption> FileDeleteOptionSet;
+typedef MiKTeX::Util::OptionSet<FileDeleteOption> FileDeleteOptionSet;
 
 /// Options for renaming (moving) a file.
 enum class FileMoveOption
@@ -128,7 +128,7 @@ enum class FileMoveOption
   ReplaceExisting,
 };
 
-typedef OptionSet<FileMoveOption> FileMoveOptionSet;
+typedef MiKTeX::Util::OptionSet<FileMoveOption> FileMoveOptionSet;
 
 /// Options for copying a file.
 enum class FileCopyOption
@@ -141,7 +141,7 @@ enum class FileCopyOption
   PreserveAttributes,
 };
 
-typedef OptionSet<FileCopyOption> FileCopyOptionSet;
+typedef MiKTeX::Util::OptionSet<FileCopyOption> FileCopyOptionSet;
 
 /// Options for creating a link.
 enum class CreateLinkOption
@@ -154,7 +154,7 @@ enum class CreateLinkOption
   Symbolic,
 };
 
-typedef OptionSet<CreateLinkOption> CreateLinkOptionSet;
+typedef MiKTeX::Util::OptionSet<CreateLinkOption> CreateLinkOptionSet;
 
 /// Options for checking file existance.
 enum class FileExistsOption
@@ -163,7 +163,7 @@ enum class FileExistsOption
   SymbolicLink
 };
 
-typedef OptionSet<FileExistsOption> FileExistsOptionSet;
+typedef MiKTeX::Util::OptionSet<FileExistsOption> FileExistsOptionSet;
 
 /// File class.
 ///
@@ -192,56 +192,56 @@ public:
   /// @param path File system path to the file.
   /// @param options Options for deleting the file.
 public:
-  static MIKTEXCORECEEAPI(void) Delete(const PathName& path, FileDeleteOptionSet options);
+  static MIKTEXCORECEEAPI(void) Delete(const MiKTeX::Util::PathName& path, FileDeleteOptionSet options);
 
   /// Deletes a file.
   /// @param path File system path to the file.
 public:
-  static MIKTEXCORECEEAPI(void) Delete(const PathName& path);
+  static MIKTEXCORECEEAPI(void) Delete(const MiKTeX::Util::PathName& path);
 
   /// Tests if a file exists.
   /// @param path File system path to the file.
   /// @param options Options for checking the existance.
 public:
-  static MIKTEXCORECEEAPI(bool) Exists(const PathName& path, FileExistsOptionSet options);
+  static MIKTEXCORECEEAPI(bool) Exists(const MiKTeX::Util::PathName& path, FileExistsOptionSet options);
 
   /// Tests if a file exists.
   /// @param path File system path to the file.
 public:
-  static MIKTEXCORECEEAPI(bool) Exists(const PathName& path);
+  static MIKTEXCORECEEAPI(bool) Exists(const MiKTeX::Util::PathName& path);
 
   /// Get attributes of a file.
   /// @param path File system path to the file.
   /// @return Returns the attributes of the file.
   /// @see SetAttributes
 public:
-  static MIKTEXCORECEEAPI(FileAttributeSet) GetAttributes(const PathName& path);
+  static MIKTEXCORECEEAPI(FileAttributeSet) GetAttributes(const MiKTeX::Util::PathName& path);
 
   /// Get native (operating system) attributes of a file.
   /// @param path File system path to the file.
   /// @return Returns the native attributes of the file.
   /// @see SetNativeAttributes
 public:
-  static MIKTEXCORECEEAPI(unsigned long) GetNativeAttributes(const PathName& path);
+  static MIKTEXCORECEEAPI(unsigned long) GetNativeAttributes(const MiKTeX::Util::PathName& path);
 
   /// Gets the size of a file.
   /// @param path File system path to the file.
   /// @return Returns the size (in bytes) of the file.
 public:
-  static MIKTEXCORECEEAPI(std::size_t) GetSize(const PathName& path);
+  static MIKTEXCORECEEAPI(std::size_t) GetSize(const MiKTeX::Util::PathName& path);
 
   /// Renames (moves) a file.
   /// @param source The file system path to the source file.
   /// @param dest The file system path to the destination file.
   /// @param options Options for renaming the file.
 public:
-  static MIKTEXCORECEEAPI(void) Move(const PathName& source, const PathName& dest, FileMoveOptionSet option);
+  static MIKTEXCORECEEAPI(void) Move(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest, FileMoveOptionSet option);
 
   /// Renames (moves) a file.
   /// @param source The file system path to the source file.
   /// @param dest The file system path to the destination file.
 public:
-  static void Move(const PathName& source, const PathName& dest)
+  static void Move(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest)
   {
     Move(source, dest, {});
   }
@@ -251,13 +251,13 @@ public:
   /// @param dest The file system path to the destination file.
   /// @param options Options for copying the file.  
 public:
-  static MIKTEXCORECEEAPI(void) Copy(const PathName& source, const PathName &dest, FileCopyOptionSet options);
+  static MIKTEXCORECEEAPI(void) Copy(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName &dest, FileCopyOptionSet options);
 
   /// Copies a file.
   /// @param source The file system path to the source file.
   /// @param dest The file system path to the destination file.
 public:
-  static void Copy(const PathName& source, const PathName& dest)
+  static void Copy(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest)
   {
     Copy(source, dest, { FileCopyOption::ReplaceExisting });
   }
@@ -267,26 +267,26 @@ public:
   /// @param newName The file system path to link.
   /// @param options Options for creating the link.
 public:
-  static MIKTEXCORECEEAPI(void) CreateLink(const PathName& oldName, const PathName& newName, CreateLinkOptionSet options);
+  static MIKTEXCORECEEAPI(void) CreateLink(const MiKTeX::Util::PathName& oldName, const MiKTeX::Util::PathName& newName, CreateLinkOptionSet options);
 
   /// Tests if a file is a symbolic link.
   /// @param path The file system path to the file.
   /// @return Returns `true`, if the file is a symbolic link.
 public:
-  static MIKTEXCORECEEAPI(bool) IsSymbolicLink(const PathName& path);
+  static MIKTEXCORECEEAPI(bool) IsSymbolicLink(const MiKTeX::Util::PathName& path);
 
   /// Follows a symbolic link.
   /// @param path The file system path to the link.
   /// @return Returns the file system path to the link target.
 public:
-  static MIKTEXCORECEEAPI(PathName) ReadSymbolicLink(const PathName& path);
+  static MIKTEXCORECEEAPI(MiKTeX::Util::PathName) ReadSymbolicLink(const MiKTeX::Util::PathName& path);
 
   /// Test equality of two files.
   /// @param path1 The file system path to the first file.
   /// @param path2 The file system path to the second file.
   /// @return Returns `true`, if both files compare equal.
 public:
-  static MIKTEXCORECEEAPI(bool) Equals(const PathName& path1, const PathName& path2);
+  static MIKTEXCORECEEAPI(bool) Equals(const MiKTeX::Util::PathName& path1, const MiKTeX::Util::PathName& path2);
 
   /// Sets the maximum number of simultaneously open files.
   /// @todo To be removed
@@ -299,7 +299,7 @@ public:
   /// @param access Specifies how the file will be accessed.
   /// @return Returns the pointer to a `FILE` object.
 public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access);
+  static MIKTEXCORECEEAPI(FILE*) Open(const MiKTeX::Util::PathName& path, FileMode mode, FileAccess access);
 
   /// Opens a file.
   /// @param path The file system path to the file.
@@ -308,7 +308,7 @@ public:
   /// @param isTextFile Specifies if the file should be opened in text mode.
   /// @return Returns the pointer to a `FILE` object.
 public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile);
+  static MIKTEXCORECEEAPI(FILE*) Open(const MiKTeX::Util::PathName& path, FileMode mode, FileAccess access, bool isTextFile);
 
   /// Opens a file.
   /// @param path The file system path to the file.
@@ -318,7 +318,7 @@ public:
   /// @param options Options for opening the file.
   /// @return Returns the pointer to a `FILE` object.
 public:
-  static MIKTEXCORECEEAPI(FILE*) Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options);
+  static MIKTEXCORECEEAPI(FILE*) Open(const MiKTeX::Util::PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options);
 
   /// Opens an input stream on a file.
   /// @param path The file system path to the file.
@@ -326,13 +326,13 @@ public:
   /// @param exceptions Specifies the exceptions to be thrown if an error occurs.
   /// @return Returns an `ifstream` object.
 public:
-  static MIKTEXCORECEEAPI(std::ifstream) CreateInputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
+  static MIKTEXCORECEEAPI(std::ifstream) CreateInputStream(const MiKTeX::Util::PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
 
   /// Opens an input stream on a file.
   /// @param path The file system path to the file.
   /// @return Returns an `ifstream` object.
 public:
-  static std::ifstream CreateInputStream(const PathName& path)
+  static std::ifstream CreateInputStream(const MiKTeX::Util::PathName& path)
   {
     return CreateInputStream(path, std::ios_base::in, std::ios_base::badbit);
   }
@@ -343,14 +343,14 @@ public:
   /// @param exceptions Specifies the exceptions to be thrown if an error occurs.
   /// @return Returns an `ofstream` object.
 public:
-  static MIKTEXCORECEEAPI(std::ofstream) CreateOutputStream(const PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
+  static MIKTEXCORECEEAPI(std::ofstream) CreateOutputStream(const MiKTeX::Util::PathName& path, std::ios_base::openmode mode, std::ios_base::iostate exceptions);
 
   /// Opens an output stream on a file.
   /// @param path The file system path to the file.
   /// @param mode Specifies how the file is to open.
   /// @return Returns an `ofstream` object.
 public:
-  static std::ofstream CreateOutputStream(const PathName& path, std::ios_base::openmode mode)
+  static std::ofstream CreateOutputStream(const MiKTeX::Util::PathName& path, std::ios_base::openmode mode)
   {
     return CreateOutputStream(path, mode, std::ios_base::badbit | std::ios_base::failbit);
   }
@@ -359,7 +359,7 @@ public:
   /// @param path The file system path to the file.
   /// @return Returns an `ofstream` object.
 public:
-  static std::ofstream CreateOutputStream(const PathName& path)
+  static std::ofstream CreateOutputStream(const MiKTeX::Util::PathName& path)
   {
     return CreateOutputStream(path, std::ios_base::out, std::ios_base::badbit | std::ios_base::failbit);
   }
@@ -369,14 +369,14 @@ public:
   /// @param attributes The attributes to set.
   /// @see GetAttributes
 public:
-  static MIKTEXCORECEEAPI(void) SetAttributes(const PathName& path, FileAttributeSet attributes);
+  static MIKTEXCORECEEAPI(void) SetAttributes(const MiKTeX::Util::PathName& path, FileAttributeSet attributes);
 
   /// Sets native (OS) file attributes.
   /// @param path The file system path to the file.
   /// @param attributes The native attributes to set.
   /// @see GetNativeAttributes
 public:
-  static MIKTEXCORECEEAPI(void) SetNativeAttributes(const PathName& path, unsigned long nativeAttributes);
+  static MIKTEXCORECEEAPI(void) SetNativeAttributes(const MiKTeX::Util::PathName& path, unsigned long nativeAttributes);
 
   /// Sets file timestamps.
   /// @param fd The file descriptor.
@@ -400,7 +400,7 @@ public:
   /// @param lastAccessTime Last access timestamp.
   /// @param lastWriteTime Last modification timestamp.
 public:
-  static MIKTEXCORECEEAPI(void) SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
+  static MIKTEXCORECEEAPI(void) SetTimes(const MiKTeX::Util::PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
 
   /// Gets file timestamps.
   /// @param path The file system path to the file.
@@ -408,7 +408,7 @@ public:
   /// @param[out] lastAccessTime Last access timestamp.
   /// @param[out] lastWriteTime Last modification timestamp.
 public:
-  static MIKTEXCORECEEAPI(void) GetTimes(const PathName& path, time_t& creationTime, time_t& lastAccessTime, time_t& lastWriteTime);
+  static MIKTEXCORECEEAPI(void) GetTimes(const MiKTeX::Util::PathName& path, time_t& creationTime, time_t& lastAccessTime, time_t& lastWriteTime);
 
   /// Gets the modification timestamp of a file.
   /// @param path The file system path to the file.
@@ -416,7 +416,7 @@ public:
   /// @param[out] lastAccessTime Last access timestamp.
   /// @param[out] lastWriteTime Last modification timestamp.
 public:
-  static time_t GetLastWriteTime(const PathName& path)
+  static time_t GetLastWriteTime(const MiKTeX::Util::PathName& path)
   {
     time_t creationTime;
     time_t lastAccessTime;
@@ -429,13 +429,13 @@ public:
   /// @param path The file system path to the file.
   /// @return Returns the file contents.
 public:
-  static MIKTEXCORECEEAPI(std::vector<unsigned char>) ReadAllBytes(const PathName& path);
+  static MIKTEXCORECEEAPI(std::vector<unsigned char>) ReadAllBytes(const MiKTeX::Util::PathName& path);
 
   /// Write a file.
   /// @param path The file system path to the file.
   /// @param The file contents.
 public:
-  static MIKTEXCORECEEAPI(void) WriteBytes(const PathName& path, const std::vector<unsigned char>& data);
+  static MIKTEXCORECEEAPI(void) WriteBytes(const MiKTeX::Util::PathName& path, const std::vector<unsigned char>& data);
   
   /// File lock type.
 public:

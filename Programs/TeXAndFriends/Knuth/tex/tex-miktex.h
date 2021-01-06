@@ -87,9 +87,9 @@ public:
   }
 
 public:
-  MiKTeX::Core::PathName GetMemoryDumpFileName() const override
+  MiKTeX::Util::PathName GetMemoryDumpFileName() const override
   {
-    return MiKTeX::Core::PathName("tex.fmt");
+    return MiKTeX::Util::PathName("tex.fmt");
   }
 
 public:

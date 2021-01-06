@@ -1,6 +1,6 @@
 /* CurlWebFile.h:                                       -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -30,6 +30,7 @@
 
 #include <curl/curl.h>
 
+#include <miktex/Core/Debug>
 #include <miktex/Core/Session>
 #include <miktex/Trace/TraceStream>
 

@@ -1,6 +1,6 @@
 /* win.cpp: Windows specials
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,6 +32,7 @@
 // FIXME: must come first
 #include "core-version.h"
 
+#include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/win/HResult>

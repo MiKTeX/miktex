@@ -31,7 +31,7 @@ BEGIN_INTERNAL_NAMESPACE;
 class TarLzmaExtractor : public TarExtractor
 {
 public:
-  void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
+  void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
 };
 
 END_INTERNAL_NAMESPACE;

@@ -25,6 +25,7 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Configuration/ConfigNames>
+#include <miktex/Core/BufferSizes>
 #include <miktex/Core/Paths>
 
 #include "internal.h"

@@ -313,9 +313,9 @@ public:
   }
 
 public:
-  MiKTeX::Core::PathName GetMemoryDumpFileName() const override
+  MiKTeX::Util::PathName GetMemoryDumpFileName() const override
   {
-    return MiKTeX::Core::PathName("pdftex.fmt");
+    return MiKTeX::Util::PathName("pdftex.fmt");
   }
 
 public:
@@ -337,7 +337,7 @@ public:
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
   {
     MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();

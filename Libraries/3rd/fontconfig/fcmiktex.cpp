@@ -1,6 +1,6 @@
 /* fcmiktex.cpp:                                        -*- C++ -*-
 
-   Copyright (C) 2007-2018 Christian Schenk
+   Copyright (C) 2007-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -31,12 +31,15 @@
 #include <set>
 
 #include <miktex/Core/Exceptions>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/Utils>
+
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
+using namespace MiKTeX::Util;
 
 extern "C" const char* miktex_fontconfig_path()
 {

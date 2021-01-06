@@ -1,6 +1,6 @@
 /* miktex/Util/Tokenizer.h:                             -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -24,7 +24,7 @@
 #if !defined(B8F781CD4C5C48639A1A9A90A45F9855)
 #define B8F781CD4C5C48639A1A9A90A45F9855
 
-#include "config.h"
+#include <miktex/Util/config.h>
 
 #include <memory>
 #include <string>

@@ -78,7 +78,7 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName& directory) override
+  void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Util::PathName& directory) override
   {
     this->downloadDirectory = directory;
   }
@@ -209,7 +209,7 @@ private:
   void NeedRepository();
 
 private:
-  void UpdateFndb(const std::unordered_set<MiKTeX::Core::PathName>& installedFiles, const std::unordered_set<MiKTeX::Core::PathName>& removedFiles, const std::string& packageId);
+  void UpdateFndb(const std::unordered_set<MiKTeX::Util::PathName>& installedFiles, const std::unordered_set<MiKTeX::Util::PathName>& removedFiles, const std::string& packageId);
 
 private:
   void CalculateExpenditure(bool downloadOnly = false);
@@ -260,7 +260,7 @@ private:
   std::string repository;
 
 private:
-  MiKTeX::Core::PathName downloadDirectory;
+  MiKTeX::Util::PathName downloadDirectory;
 
 private:
   RepositoryManifest repositoryManifest;
@@ -302,7 +302,7 @@ private:
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void RegisterComponent(bool doRegister, const MiKTeX::Core::PathName& path, bool mustSucceed);
+  void RegisterComponent(bool doRegister, const MiKTeX::Util::PathName& path, bool mustSucceed);
 #endif
 
 private:
@@ -319,10 +319,10 @@ private:
   void RunIniTeXMF(const std::vector<std::string>& arguments);
 
 private:
-  std::unordered_set<MiKTeX::Core::PathName> installedFiles;
+  std::unordered_set<MiKTeX::Util::PathName> installedFiles;
 
 private:
-  std::unordered_set<MiKTeX::Core::PathName> removedFiles;
+  std::unordered_set<MiKTeX::Util::PathName> removedFiles;
 
 private:
   bool enablePostProcessing = true;
@@ -376,28 +376,28 @@ private:
   void CleanUpUserDatabase();
 
 private:
-  void Download(const std::string& url, const MiKTeX::Core::PathName& dest, std::size_t expectedSize = 0);
+  void Download(const std::string& url, const MiKTeX::Util::PathName& dest, std::size_t expectedSize = 0);
 
 private:
-  void Download(const MiKTeX::Core::PathName& fileName, std::size_t expectedSize = 0);
+  void Download(const MiKTeX::Util::PathName& fileName, std::size_t expectedSize = 0);
 
 private:
   void RemoveFiles(const std::vector<std::string>& toBeRemoved, bool silently = false);
 
 private:
-  void ExtractFiles(const MiKTeX::Core::PathName& archiveFileName, MiKTeX::Extractor::ArchiveFileType archiveFileType);
+  void ExtractFiles(const MiKTeX::Util::PathName& archiveFileName, MiKTeX::Extractor::ArchiveFileType archiveFileType);
 
 private:
-  void CopyFiles(const MiKTeX::Core::PathName& pathSourceRoot, const std::vector<std::string>& fileList);
+  void CopyFiles(const MiKTeX::Util::PathName& pathSourceRoot, const std::vector<std::string>& fileList);
 
 private:
-  void CopyPackage(const MiKTeX::Core::PathName& pathSourceRoot, const std::string& packageId);
+  void CopyPackage(const MiKTeX::Util::PathName& pathSourceRoot, const std::string& packageId);
 
 private:
-  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
+  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Util::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
 
 private:
-  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
+  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Util::PathName& directory) override;
 
 private:
   void RemovePackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
@@ -406,13 +406,13 @@ private:
   void InstallPackage(const std::string& packageId, MiKTeX::Core::Cfg& packageManifests);
 
 private:
-  void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, std::size_t& size);
+  void MyCopyFile(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest, std::size_t& size);
 
 private:
   void DownloadPackage(const std::string& packageId);
 
 private:
-  bool CheckArchiveFile(const std::string& packageId, const MiKTeX::Core::PathName& archiveFileName, bool mustBeOk);
+  bool CheckArchiveFile(const std::string& packageId, const MiKTeX::Util::PathName& archiveFileName, bool mustBeOk);
 
 private:
   void CheckDependencies(std::set<std::string>& packages, const std::string& packageId, bool force, int level);

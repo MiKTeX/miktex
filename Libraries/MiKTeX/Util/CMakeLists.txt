@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -30,22 +30,50 @@ include_directories(BEFORE
 )
 
 set(public_include_directories
+  ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+set(headers_no_ext
+  miktex/Util/CharBuffer
+  miktex/Util/DateUtil
+  miktex/Util/OptionSet
+  miktex/Util/PathName
+  miktex/Util/PathNameParser
+  miktex/Util/PathNameUtil
+  miktex/Util/StringUtil
+  miktex/Util/Tokenizer
+)
+
+foreach(h ${headers_no_ext})
+  set(_path ${CMAKE_CURRENT_BINARY_DIR}/include/${h})
+  list(APPEND public_headers_no_ext ${_path})
+  if (NOT EXISTS ${_path})
+    file(WRITE ${_path}
+      "#pragma once\n#include <${h}.h>\n"
+    )
+  endif()
+endforeach()
+
 set(public_headers
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/CharBuffer
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Util/config.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/CharBuffer.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/DateUtil
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/DateUtil.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameUtil
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/OptionSet.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathName.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameParser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/PathNameUtil.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/StringUtil
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/StringUtil.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/Tokenizer
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/Tokenizer.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/config.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/inliners.h
+  ${public_headers_no_ext}
+)
+
+set(MIKTEX_UTIL_PATHNAME_SIZE 260)
+
+configure_file(
+  include/miktex/Util/config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Util/config.h
 )
 
 configure_file(
@@ -55,6 +83,9 @@ configure_file(
 
 set(util_sources
   ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Helpers.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PathName/PathName.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PathNameParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PathNameUtil.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/StringUtil.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.cpp
@@ -64,8 +95,15 @@ set(util_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND util_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/PathName/win/winPathName.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/win/winHelpers.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winPathNameUtil.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winStringUtil.cpp
+  )
+else()
+  list(APPEND util_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/PathName/unx/unxPathName.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unx/unxHelpers.cpp
   )
 endif()
 

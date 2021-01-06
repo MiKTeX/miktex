@@ -1,6 +1,6 @@
 /* SiteWizDrive.cpp:
 
-   Copyright (C) 2008-2020 Christian Schenk
+   Copyright (C) 2008-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <miktex/Core/BufferSizes>
+
 #if defined(MIKTEX_WINDOWS)
 #  define NOMINMAX
 #  include <miktex/Core/win/winAutoResource>
@@ -31,10 +33,12 @@
 #include "SiteWizSheet.h"
 #include "SiteWizDrive.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
-using namespace std;
+using namespace MiKTeX::Util;
 
 SiteWizDrive::SiteWizDrive(shared_ptr<PackageManager> packageManager) :
   QWizardPage(nullptr),

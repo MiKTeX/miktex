@@ -35,7 +35,7 @@
 #include <vector>
 
 #include <miktex/Core/Cfg>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Trace/TraceStream>
@@ -107,7 +107,7 @@ public:
   /// @param Path to the package database.
   /// @param isArchive Indicates whether this is an archive file or an INI file.
 public:
-  virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path, bool isArchive) = 0;
+  virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Util::PathName& path, bool isArchive) = 0;
 
   /// Unloads the package database.
 public:
@@ -263,24 +263,24 @@ public:
   /// @exception MiKTeXException No local package repository is configured.
   /// @see SetLocalPackageRepository
 public:
-  static MIKTEXMPMCEEAPI(MiKTeX::Core::PathName) GetLocalPackageRepository();
+  static MIKTEXMPMCEEAPI(MiKTeX::Util::PathName) GetLocalPackageRepository();
 
   /// Gets the configured local package repository.
   /// @param[out] path The path to the local package repository.
   /// @return Returns `false`, if the local package repository is not configured.
   /// @see SetLocalPackageRepository
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetLocalPackageRepository(MiKTeX::Core::PathName& path);
+  static MIKTEXMPMCEEAPI(bool) TryGetLocalPackageRepository(MiKTeX::Util::PathName& path);
 
   /// GetMiKTeXDirectRoot
   /// @todo internal
 public:
-  static MIKTEXMPMCEEAPI(MiKTeX::Core::PathName) GetMiKTeXDirectRoot();
+  static MIKTEXMPMCEEAPI(MiKTeX::Util::PathName) GetMiKTeXDirectRoot();
 
   /// TryGetMiKTeXDirectRoot
   /// @todo internal
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetMiKTeXDirectRoot(MiKTeX::Core::PathName& path);
+  static MIKTEXMPMCEEAPI(bool) TryGetMiKTeXDirectRoot(MiKTeX::Util::PathName& path);
 
   /// Gets the configured package repository.
   /// @return Returns the configured package repository.
@@ -337,7 +337,7 @@ public:
   /// @param path Path to the local package repository.
   /// @return Returns `true`, if this is a local package repository.
 public:
-  static MIKTEXMPMCEEAPI(bool) IsLocalPackageRepository(const MiKTeX::Core::PathName& path);
+  static MIKTEXMPMCEEAPI(bool) IsLocalPackageRepository(const MiKTeX::Util::PathName& path);
 
   /// Configures the remote package repository.
   /// @param url Identifies the remote package repository.
@@ -359,26 +359,26 @@ public:
   /// @param path Path to the local package repository.
   /// @see GetLocalPackageRepository
 public:
-  static MIKTEXMPMCEEAPI(void) SetLocalPackageRepository(const MiKTeX::Core::PathName& path);
+  static MIKTEXMPMCEEAPI(void) SetLocalPackageRepository(const MiKTeX::Util::PathName& path);
 
   /// SetMiKTeXDirectRoot
   /// @todo internal
 public:
-  static MIKTEXMPMCEEAPI(void) SetMiKTeXDirectRoot(const MiKTeX::Core::PathName& path);
+  static MIKTEXMPMCEEAPI(void) SetMiKTeXDirectRoot(const MiKTeX::Util::PathName& path);
 
   /// Loads a package manifest from an INI file.
   /// @param path The path to the INI file.
   /// @param texmfPrefix The TEXMF prefix to be stripped from file names.
   /// @return Returns the parsed package manifest.
 public:
-  static MIKTEXMPMCEEAPI(PackageInfo) ReadPackageManifestFile(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix);
+  static MIKTEXMPMCEEAPI(PackageInfo) ReadPackageManifestFile(const MiKTeX::Util::PathName& path, const std::string& texmfPrefix);
 
   /// Writes a package manifest into an INI file.
   /// @param path The path to the INI file.
   /// @param packageInfo The package manifest.
   /// @param timePackaged The packaging timestamp.
 public:
-  static MIKTEXMPMCEEAPI(void) WritePackageManifestFile(const MiKTeX::Core::PathName& path, const PackageInfo& packageInfo, std::time_t timePackaged);
+  static MIKTEXMPMCEEAPI(void) WritePackageManifestFile(const MiKTeX::Util::PathName& path, const PackageInfo& packageInfo, std::time_t timePackaged);
 
   /// Adds (updates) a package manifest to (in) a `Cfg` container.
   /// @param cfg The `Cfg` instance to modify.

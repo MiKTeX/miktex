@@ -1,36 +1,41 @@
 /* unxPathName.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
-   This file is part of the MiKTeX Core Library.
+   This file is part of the MiKTeX Util Library.
 
-   The MiKTeX Core Library is free software; you can redistribute it
+   The MiKTeX Util Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
-
-   The MiKTeX Core Library is distributed in the hope that it will be
+   
+   The MiKTeX Util Library is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
+   along with the MiKTeX Util Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
-
-#include "config.h"
 
 #include <unistd.h>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Core/PathName>
+#define A7C88F5FBE5C45EB970B3796F331CD89
+#include "miktex/Util/config.h"
+
+#if defined(MIKTEX_UTIL_SHARED)
+#  define MIKTEXUTILEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXUTILEXPORT
+#endif
+
+#include "miktex/Util/PathName.h"
 
 #include "internal.h"
-
-#include "Session/SessionImpl.h"
 
 using namespace std;
 
@@ -47,7 +52,7 @@ PathName& PathName::SetToCurrentDirectory()
     }
     else
     {
-      MIKTEX_FATAL_CRT_ERROR("getcwd");
+      throw CRuntimeError("getcwd");
     }
   }
   return *this;
@@ -55,7 +60,7 @@ PathName& PathName::SetToCurrentDirectory()
 
 PathName& PathName::SetToTempDirectory()
 {
-  if (Utils::GetEnvironmentString("TMPDIR", *this) && this->IsAbsolute())
+  if (Helpers::GetEnvironmentString("TMPDIR", *this) && this->IsAbsolute())
   {
     return *this;
   }
@@ -74,14 +79,9 @@ PathName& PathName::SetToTempFile(const PathName& directory)
   int fd = mkstemp(GetData());
   if (fd < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("mkstemp");
+    throw CRuntimeError("mkstemp");
   }
   close(fd);
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_tempfile->WriteLine("core", fmt::format(T_("created temporary file {0}"), Q_(GetData())));
-  }
   return *this;
 }
 

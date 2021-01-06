@@ -1,6 +1,6 @@
 /* api.cpp: C API
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,9 +26,9 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Debug>
-#include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/c/api.h>
+#include <miktex/Util/PathName>
 
 #include "internal.h"
 
@@ -42,13 +42,13 @@ using namespace MiKTeX::Util;
 MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* fileName)
 {
   MIKTEX_ASSERT_PATH_BUFFER(fileName);
-  StringUtil::CopyString(fileName, BufferSizes::MaxPath, PathName().SetToTempFile().GetData());
+  StringUtil::CopyString(fileName, BufferSizes::MaxPath, MiKTeX::Util::PathName().SetToTempFile().GetData());
 }
 
 MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* pathIn, char* pathOut)
 {
-  PathName temp;
-  Utils::UncompressFile(PathName(pathIn), temp);
+  MiKTeX::Util::PathName temp;
+  Utils::UncompressFile(MiKTeX::Util::PathName(pathIn), temp);
   StringUtil::CopyString(pathOut, BufferSizes::MaxPath, temp.GetData());
 }
 
@@ -108,7 +108,7 @@ MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* fileNam
 
 MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* path1, const char* path2)
 {
-  return PathName::Compare(path1, path2);
+  return MiKTeX::Util::PathName::Compare(path1, path2);
 }
 
 MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)
@@ -139,7 +139,7 @@ MIKTEXCORECEEAPI(int) miktex_find_file(const char* fileName, const char* pathLis
   MIKTEX_ASSERT_STRING(fileName);
   MIKTEX_ASSERT_STRING(pathList);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(fileName, pathList, temp))
   {
     return 0;
@@ -152,7 +152,7 @@ MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* fontName, char* path)
 {
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(fontName, FileType::TFM, temp))
   {
     return 0;
@@ -165,7 +165,7 @@ MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* fontName, char* path)
 {
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(fontName, FileType::TTF, temp))
   {
     return 0;
@@ -178,7 +178,7 @@ MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* fontName, char* path)
 {
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(fontName, FileType::ENC, temp))
   {
     return 0;
@@ -191,7 +191,7 @@ MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* headerName, char* pa
 {
   MIKTEX_ASSERT_STRING(headerName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(headerName, FileType::PSHEADER, temp))
   {
     return 0;
@@ -205,7 +205,7 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* applicationName, const 
   MIKTEX_ASSERT_STRING_OR_NIL(applicationName);
   MIKTEX_ASSERT_STRING(fileName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(fileName, FileType::None, temp))
   {
     if (applicationName == nullptr)
@@ -231,7 +231,7 @@ MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* fontName, char* path)
 {
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(fontName, FileType::HBF, temp))
   {
     return 0;
@@ -244,7 +244,7 @@ MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* exeName, char* e
 {
   MIKTEX_ASSERT_STRING(exeName);
   MIKTEX_ASSERT_PATH_BUFFER(exePath);
-  PathName temp;
+  MiKTeX::Util::PathName temp;
   if (!SessionImpl::GetSession()->FindFile(exeName, FileType::EXE, temp))
   {
     return 0;
@@ -286,7 +286,7 @@ MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char* command, int* ex
 MIKTEXCORECEEAPI(void) miktex_start_process(const char* fileName, const char* commandLine, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory)
 {
   MIKTEX_ASSERT_STRING(commandLine);
-  Process::Start(PathName(fileName), Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, workingDirectory);
+  Process::Start(MiKTeX::Util::PathName(fileName), Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, workingDirectory);
 }
 
 MIKTEXCORECEEAPI(int) miktex_system(const char* commandLine)

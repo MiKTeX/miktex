@@ -1,6 +1,6 @@
 /* winDirectoryLister.h: directory lister               -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,7 +25,7 @@
 #define F05A2700545C4487889CF7A396F930A1
 
 #include <miktex/Core/DirectoryLister>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
@@ -42,13 +42,13 @@ public:
   bool MIKTEXTHISCALL GetNext(MiKTeX::Core::DirectoryEntry2& direntry2) override;
 
 public:
-  winDirectoryLister(const MiKTeX::Core::PathName& directory, const char* lpszPattern, int options);
+  winDirectoryLister(const MiKTeX::Util::PathName& directory, const char* lpszPattern, int options);
 
 public:
   virtual MIKTEXTHISCALL ~winDirectoryLister();
 
 private:
-  MiKTeX::Core::PathName directory;
+  MiKTeX::Util::PathName directory;
 
 private:
   std::string pattern;

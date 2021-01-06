@@ -1,21 +1,21 @@
-/* miktex/Core/OptionSet.h:                             -*- C++ -*-
+/* miktex/Util/OptionSet.h:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
-   This file is part of the MiKTeX Core Library.
+   This file is part of the MiKTeX Util Library.
 
-   The MiKTeX Core Library is free software; you can redistribute it
+   The MiKTeX Util Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
-   The MiKTeX Core Library is distributed in the hope that it will be
+   The MiKTeX Util Library is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
+   along with the MiKTeX Util Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
@@ -24,14 +24,14 @@
 #if !defined(DA160798149E44048A2AD243F813ACCD)
 #define DA160798149E44048A2AD243F813ACCD
 
-#include <miktex/Core/config.h>
+#include <miktex/Util/config.h>
 
 #include <cstddef>
 
 #include <bitset>
 #include <initializer_list>
 
-MIKTEX_CORE_BEGIN_NAMESPACE;
+MIKTEX_UTIL_BEGIN_NAMESPACE;
 
 template<typename EnumClass_, int Size_ = 32> class OptionSet
 {
@@ -131,6 +131,6 @@ private:
   std::bitset<Size_> bits;
 };
 
-MIKTEX_CORE_END_NAMESPACE;
+MIKTEX_UTIL_END_NAMESPACE;
 
 #endif

@@ -26,7 +26,7 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 /// @namespace MiKTeX::TeXAndFriends
 ///
@@ -40,15 +40,15 @@ MIKTEX_TEXMF_BEGIN_NAMESPACE;
 const unsigned long ICT_TCX = 1;
 const unsigned long ICT_8BIT = 2;
 
-MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const MiKTeX::Core::PathName& fileName, char* chr, char* ord, char* printable);
+MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const MiKTeX::Util::PathName& fileName, char* chr, char* ord, char* printable);
 
-MIKTEXMFCEEAPI(bool) OpenTFMFile(void* ptr, const MiKTeX::Core::PathName& fileName);
+MIKTEXMFCEEAPI(bool) OpenTFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 
-MIKTEXMFCEEAPI(bool) OpenVFFile(void* ptr, const MiKTeX::Core::PathName& fileName);
+MIKTEXMFCEEAPI(bool) OpenVFFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 
-MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Core::PathName& fileName);
+MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 
-MIKTEXMFCEEAPI(int) OpenXVFFile(void* ptr, const MiKTeX::Core::PathName& fileName);
+MIKTEXMFCEEAPI(int) OpenXVFFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 
 MIKTEX_TEXMF_END_NAMESPACE;
 

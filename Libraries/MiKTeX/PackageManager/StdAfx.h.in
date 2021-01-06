@@ -91,7 +91,7 @@
 #include <miktex/Core/FileType>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/MD5>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/PathNameParser>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>

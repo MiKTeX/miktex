@@ -74,10 +74,10 @@ public:
   static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, std::string& value);
 
 public:
-  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, MiKTeX::Core::PathName& path);
+  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName, MiKTeX::Util::PathName& path);
 
 public:
-  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, MiKTeX::Core::PathName& path);
+  static bool TryGetValue(MiKTeX::Core::ConfigurationScope scope, const std::string& keyName, const std::string& valueName, MiKTeX::Util::PathName& path);
 
 public:
   static bool TryDeleteValue(MiKTeX::Core::ConfigurationScope scope, const std::wstring& keyName, const std::wstring& valueName);

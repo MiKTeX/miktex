@@ -1,6 +1,6 @@
 /* miktex/Core/LockFile.h:                              -*- C++ -*-
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,7 +31,7 @@
 #include <chrono>
 #include <memory>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -55,7 +55,7 @@ public:
   /// @param path The file system path to the lock file.
   /// @return Returns a smart pointer to the new `LockFile` object.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<LockFile>) Create(const PathName& path);
+  static MIKTEXCORECEEAPI(std::unique_ptr<LockFile>) Create(const MiKTeX::Util::PathName& path);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

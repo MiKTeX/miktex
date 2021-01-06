@@ -24,7 +24,7 @@
 
 #include <miktex/Core/Cfg>
 #include <miktex/Configuration/HasNamedValues>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Session>
 
 #include "TDS.h"
@@ -33,7 +33,7 @@ class Recipe :
   public MiKTeX::Configuration::HasNamedValues
 {
 public:
-  Recipe(const std::string& package, const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& destDir, bool verbose) :
+  Recipe(const std::string& package, const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& destDir, bool verbose) :
     package(package),
     source(source),
     destDir(destDir),
@@ -43,7 +43,7 @@ public:
   }
 
 public:
-  void Read(const MiKTeX::Core::PathName& path)
+  void Read(const MiKTeX::Util::PathName& path)
   {
     recipe->Read(path);
   }
@@ -75,7 +75,7 @@ private:
 #if defined(CreateDirectory)
 #undef CreateDirectory
 #endif
-  void CreateDirectory(const MiKTeX::Core::PathName& path);
+  void CreateDirectory(const MiKTeX::Util::PathName& path);
 
 private:
   void SetupWorkingDirectory();
@@ -90,28 +90,28 @@ private:
   void Finalize();
 
 private:
-  void RunInsEngine(const std::string& engine, const std::vector<std::string>& options, const MiKTeX::Core::PathName& insFile, const MiKTeX::Core::PathName& outDir );
+  void RunInsEngine(const std::string& engine, const std::vector<std::string>& options, const MiKTeX::Util::PathName& insFile, const MiKTeX::Util::PathName& outDir );
 
 private:
   void RunDtxUnpacker();
 
 private:
-  void DoAction(const std::string& action, const MiKTeX::Core::PathName& actionDir);
+  void DoAction(const std::string& action, const MiKTeX::Util::PathName& actionDir);
 
 private:
-  void Unpack(const MiKTeX::Core::PathName& path);
+  void Unpack(const MiKTeX::Util::PathName& path);
 
 private:
   void WriteFiles();
   
 private:
-  void InstallFiles(const std::string& patternName, const std::vector<std::string>& defaultPatterns, const MiKTeX::Core::PathName& tdsDir);
+  void InstallFiles(const std::string& patternName, const std::vector<std::string>& defaultPatterns, const MiKTeX::Util::PathName& tdsDir);
 
 private:
   void InstallFileSets();
 
 private:
-  void Install(const std::vector<std::string>& patterns, const MiKTeX::Core::PathName& tdsDir);
+  void Install(const std::vector<std::string>& patterns, const MiKTeX::Util::PathName& tdsDir);
 
 private:
   bool MIKTEXTHISCALL TryGetValue(const std::string& valueName, std::string& value) override
@@ -147,10 +147,10 @@ private:
   std::string package;
 
 private:
-  MiKTeX::Core::PathName source;
+  MiKTeX::Util::PathName source;
 
 private:
-  MiKTeX::Core::PathName destDir;
+  MiKTeX::Util::PathName destDir;
 
 private:
   TDS tds;
@@ -171,10 +171,10 @@ private:
   std::unique_ptr<MiKTeX::Core::TemporaryDirectory> scratchDir;
 
 private:
-  MiKTeX::Core::PathName workDir;
+  MiKTeX::Util::PathName workDir;
 
 private:
-  std::unordered_set<MiKTeX::Core::PathName> initialWorkDirSnapshot;
+  std::unordered_set<MiKTeX::Util::PathName> initialWorkDirSnapshot;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

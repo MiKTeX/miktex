@@ -1,6 +1,6 @@
 /* miktex/Core/MD5.h:                                   -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,7 +32,8 @@
 #include <string>
 #include <vector>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
+
 #include "Utils.h"
 
 #include <md5.h>
@@ -47,7 +48,7 @@ class MD5 :
   /// @param lpszPath The path name of the file.
   /// @return Returns the MD5 of the file.
 public:
-  static MIKTEXCORECEEAPI(MD5) FromFile(const PathName& path);
+  static MIKTEXCORECEEAPI(MD5) FromFile(const MiKTeX::Util::PathName& path);
 
   /// Calculates the MD5 value of a char sequence.
   /// @param s The char sequence.

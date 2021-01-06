@@ -32,10 +32,12 @@
 #include "SiteWizSheet.h"
 #include "SiteWizLocal.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
-using namespace std;
+using namespace MiKTeX::Util;
 
 SiteWizLocal::SiteWizLocal(shared_ptr<PackageManager> packageManager) :
   QWizardPage(nullptr),

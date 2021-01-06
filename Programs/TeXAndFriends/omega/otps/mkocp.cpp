@@ -1,6 +1,6 @@
 /* mkocp.cpp:
 
-   Copyright (C) 2002-2020 Christian Schenk
+   Copyright (C) 2002-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -29,9 +29,12 @@
 #include <miktex/Core/FileType>
 #include <miktex/Core/Process>
 #include <miktex/Core/Session>
+#include <miktex/Core/Utils>
+
+using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace std;
+using namespace MiKTeX::Util;
 
 #define T_(x) MIKTEXTEXT(x)
 

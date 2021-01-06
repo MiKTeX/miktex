@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -27,12 +27,14 @@
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/TemporaryDirectory>
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("tempdir-1");
 

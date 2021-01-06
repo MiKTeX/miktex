@@ -1,6 +1,6 @@
 /* miktex/Core/CommandLineBuilder.h:                    -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,8 +33,9 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Util/PathName>
+
 #include "Debug.h"
-#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -154,7 +155,7 @@ public:
   MIKTEXCORETHISAPI(void) AppendArgument(const std::string& argument);
 
 public:
-  void AppendArgument(const PathName& argument)
+  void AppendArgument(const MiKTeX::Util::PathName& argument)
   {
     AppendArgument(argument.ToString());
   }
@@ -188,7 +189,7 @@ public:
   }
 
 public:
-  void AppendOption(const std::string& name, const PathName& value)
+  void AppendOption(const std::string& name, const MiKTeX::Util::PathName& value)
   {
     AppendOption(name, value.ToString());
   }
@@ -201,22 +202,22 @@ public:
   }
 
 public:
-  MIKTEXCORETHISAPI(void) AppendRedirection(const PathName& path, std::string direction);
+  MIKTEXCORETHISAPI(void) AppendRedirection(const MiKTeX::Util::PathName& path, std::string direction);
 
 public:
-  void AppendStdoutRedirection(const PathName& path, bool append)
+  void AppendStdoutRedirection(const MiKTeX::Util::PathName& path, bool append)
   {
     return AppendRedirection(path, append ? ">>" : ">");
   }
 
 public:
-  void AppendStdoutRedirection(const PathName& path)
+  void AppendStdoutRedirection(const MiKTeX::Util::PathName& path)
   {
     return AppendStdoutRedirection(path, false);
   }
 
 public:
-  void AppendStdinRedirection(const PathName& path)
+  void AppendStdinRedirection(const MiKTeX::Util::PathName& path)
   {
     return AppendRedirection(path, "<");
   }

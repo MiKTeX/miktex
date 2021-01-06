@@ -99,9 +99,6 @@ set(headers_no_ext
   miktex/Core/LzmaStream
   miktex/Core/MD5
   miktex/Core/MemoryMappedFile
-  miktex/Core/OptionSet
-  miktex/Core/PathName
-  miktex/Core/PathNameParser
   miktex/Core/Paths
   miktex/Core/Process
   miktex/Core/Quoter
@@ -187,9 +184,6 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/LzmaStream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MD5.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/MemoryMappedFile.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/OptionSet.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathName.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/PathNameParser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Process.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Quoter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/RootDirectoryInfo.h
@@ -393,24 +387,6 @@ else()
   endif()
 endif()
 
-set(pathname_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/PathName/PathName.cpp
-)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND pathname_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/PathName/win/winPathName.cpp
-  )
-else()
-  list(APPEND pathname_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/PathName/unx/unxPathName.cpp
-  )
-endif()
-
-set(pathnameparser_sources
- ${CMAKE_CURRENT_SOURCE_DIR}/PathNameParser/PathNameParser.cpp
-)
-
 set(process_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Process/Process.cpp
 )
@@ -527,8 +503,6 @@ set(core_sources
   ${md5_sources}
   ${memorymappedfile_sources}
   ${misc_sources}
-  ${pathname_sources}
-  ${pathnameparser_sources}
   ${process_sources}
   ${public_headers}
   ${session_sources}

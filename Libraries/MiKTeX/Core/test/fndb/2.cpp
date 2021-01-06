@@ -1,6 +1,6 @@
 /* 2.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -27,11 +27,13 @@
 #include <chrono>
 #include <thread>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("fndb-2");
 

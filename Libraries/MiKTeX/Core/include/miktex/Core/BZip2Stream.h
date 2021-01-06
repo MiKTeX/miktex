@@ -1,6 +1,6 @@
 /* miktex/Core/BZip2Stream.h:                           -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,7 +28,8 @@
 
 #include <memory>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
+
 #include "Stream.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -37,7 +38,7 @@ class MIKTEXNOVTABLE BZip2Stream :
   public Stream
 {
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<BZip2Stream>) Create(const PathName& path, bool reading);
+  static MIKTEXCORECEEAPI(std::unique_ptr<BZip2Stream>) Create(const MiKTeX::Util::PathName& path, bool reading);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

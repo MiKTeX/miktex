@@ -1,6 +1,6 @@
 /* miktex/Core/Process.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,8 +36,9 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Util/PathName>
+
 #include "Exceptions.h"
-#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -162,7 +163,7 @@ struct ProcessStartInfo
   {
   }
 
-  ProcessStartInfo(const PathName& fileName) :
+  ProcessStartInfo(const MiKTeX::Util::PathName& fileName) :
     FileName(fileName.ToString())
   {
   }
@@ -328,12 +329,12 @@ public:
   /// @param arguments The command-line arguments to pass when starting
   /// the process.
 public:
-  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments);
+  static MIKTEXCORECEEAPI(void) Run(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments);
 
   /// Executes a process.
   /// @param fileName The name of an executable file to run in the process.
 public:
-  static void Run(const PathName& fileName)
+  static void Run(const MiKTeX::Util::PathName& fileName)
   {
     Run(fileName, std::vector<std::string>{ fileName.ToString() });
   }
@@ -344,7 +345,7 @@ public:
   /// the process.
   /// @param callback Pointer to a callback interface.
 public:
-  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
+  static MIKTEXCORECEEAPI(void) Run(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
 
   /// Executes a process.
   /// @param fileName The name of an executable file to run in the process.
@@ -357,7 +358,7 @@ public:
   /// @return Returns `true`, if the process exited successfully, or
   /// if `exitCode` isn't `nullptr`.
 public:
-  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
+  static MIKTEXCORECEEAPI(bool) Run(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
 
   /// Executes a process.
   /// @param fileName The name of an executable file to run in the process.
@@ -370,7 +371,7 @@ public:
   /// @return Returns `true`, if the process exited successfully, or
   /// if `exitCode` isn't `nullptr`.
 public:
-  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, std::function<bool(const void*, std::size_t)> callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
+  static MIKTEXCORECEEAPI(bool) Run(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments, std::function<bool(const void*, std::size_t)> callback, int* exitCode, MiKTeXException* miktexException, const char* workingDirectory);
 
   /// Executes a process.
   /// @param fileName The name of an executable file to run in the process.
@@ -382,7 +383,7 @@ public:
   /// @return Returns `true`, if the process exited successfully, or
   /// if `exitCode` isn't `nullptr`.
 public:
-  static bool Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
+  static bool Run(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
   {
     return Run(fileName, arguments, callback, exitCode, nullptr, workingDirectory);
   }
@@ -403,12 +404,12 @@ public:
   /// @param[out] ppFileStandardError An optional pointer to the error output `FILE` for `stderr` redirection.
   /// @param workingDirectory Optional working directory for the command.
 public:
-  static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory);
+  static MIKTEXCORECEEAPI(void) Start(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory);
 
   /// Starts a process.
   /// @param fileName The name of an executable file to run in the process.
 public:
-  static void Start(const PathName& fileName)
+  static void Start(const MiKTeX::Util::PathName& fileName)
   {
     Start(fileName, std::vector<std::string>{ fileName.GetFileNameWithoutExtension().ToString() }, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
@@ -418,13 +419,13 @@ public:
   /// @param arguments The command-line arguments to pass when starting
   /// the process.
 public:
-  static void Start(const PathName& fileName, const std::vector<std::string>& arguments)
+  static void Start(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments)
   {
     Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
 public:
-  static MIKTEXCORECEEAPI(void) Overlay(const PathName& fileName, const std::vector<std::string>& arguments);
+  static MIKTEXCORECEEAPI(void) Overlay(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

@@ -16,7 +16,7 @@
 #    include <miktex/utf8wrap.h>
 #  endif
 #  include <miktex/Core/Directory>
-#  include <miktex/Core/PathName>
+#  include <miktex/Util/PathName>
 #endif
 #ifdef _WIN32
 #  undef WIN32_LEAN_AND_MEAN
@@ -100,7 +100,7 @@ GString *getCurrentDir() {
 #if defined(__EMX__)
   if (_getcwd2(buf, sizeof(buf)))
 #elif defined(MIKTEX)
-  MiKTeX::Core::PathName cwd;
+  MiKTeX::Util::PathName cwd;
   cwd.SetToCurrentDirectory();
   MiKTeX::Util::StringUtil::CopyString(buf, sizeof(buf) / sizeof(buf[0]), cwd.GetData());
   if (true)
@@ -166,7 +166,7 @@ GString *appendToPath(GString *path, const char *fileName) {
   tmp->append('/');
   tmp->append(fileName);
 #if defined(MIKTEX)
-  MiKTeX::Core::PathName absPath(tmp->getCString());
+  MiKTeX::Util::PathName absPath(tmp->getCString());
   absPath.MakeFullyQualified();
   delete tmp;
   path->clear();

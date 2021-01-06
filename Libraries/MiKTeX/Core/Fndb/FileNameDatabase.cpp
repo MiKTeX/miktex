@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,10 +35,10 @@
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/LockFile>
-#include <miktex/Core/PathNameParser>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Utils>
 #include <miktex/Trace/Trace>
+#include <miktex/Util/PathNameParser>
 #include <miktex/Util/PathNameUtil>
 #include <miktex/Util/Tokenizer>
 

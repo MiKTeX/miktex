@@ -1,6 +1,6 @@
 /* miktex/Core/Cfg.h:                                   -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -33,9 +33,10 @@
 #include <string>
 #include <vector>
 
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
+
 #include "MD5.h"
-#include "OptionSet.h"
-#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -45,7 +46,7 @@ class MIKTEXNOVTABLE IPrivateKeyProvider
   /// Gets the file system path to the private key file.
   /// @return Return the file system path to the private key file.
 public:
-  virtual PathName MIKTEXTHISCALL GetPrivateKeyFile() = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetPrivateKeyFile() = 0;
 
   /// Gets the passphrase which protects the private key.
   /// @param[out] passphrase The passphrase.
@@ -180,7 +181,7 @@ public:
   };
 
 public:
-  typedef OptionSet<Option> Options;
+  typedef MiKTeX::Util::OptionSet<Option> Options;
 
   /// Gets current INI options.
   /// @return Returns the current INI options.
@@ -261,7 +262,7 @@ public:
   /// Reads from an INI text file.
   /// @param path The path to the INI file.
 public:
-  virtual void MIKTEXTHISCALL Read(const PathName& path) = 0;
+  virtual void MIKTEXTHISCALL Read(const MiKTeX::Util::PathName& path) = 0;
 
   /// Reads from an INI text stream.
   /// @param reader The text stream.
@@ -272,7 +273,7 @@ public:
   /// @param path The path to the INI file.
   /// @param mustBeSigned Indicates whether the text file must be signed.
 public:
-  virtual void MIKTEXTHISCALL Read(const PathName& path, bool mustBeSigned) = 0;
+  virtual void MIKTEXTHISCALL Read(const MiKTeX::Util::PathName& path, bool mustBeSigned) = 0;
 
   /// Reads from an INI text stream and optionally verifies the signature.
   /// @param reader The text stream.
@@ -284,31 +285,31 @@ public:
   /// @param path The path to the INI file.
   /// @param publicKeyFile The path to the public key file
 public:
-  virtual void MIKTEXTHISCALL Read(const PathName& path, const PathName& publicKeyFile) = 0;
+  virtual void MIKTEXTHISCALL Read(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& publicKeyFile) = 0;
 
   /// Reads from an INI text stream and verifies the signature.
   /// @param reader The text stream.
   /// @param publicKeyFile The path to the public key file
 public:
-  virtual void MIKTEXTHISCALL Read(std::istream& reader, const PathName& publicKeyFile) = 0;
+  virtual void MIKTEXTHISCALL Read(std::istream& reader, const MiKTeX::Util::PathName& publicKeyFile) = 0;
 
   /// Writes this INI container into a file.
   /// @param path The path to the INIF file.
 public:
-  virtual void MIKTEXTHISCALL Write(const PathName& path) = 0;
+  virtual void MIKTEXTHISCALL Write(const MiKTeX::Util::PathName& path) = 0;
 
   /// Writes this INI container into a file.
   /// @param path The path to the INIF file.
   /// @param header The header to be written as a comment.
 public:
-  virtual void MIKTEXTHISCALL Write(const PathName& path, const std::string& header) = 0;
+  virtual void MIKTEXTHISCALL Write(const MiKTeX::Util::PathName& path, const std::string& header) = 0;
 
   /// Writes this INI container into a file and signs it.
   /// @param path The path to the INIF file.
   /// @param header The header to be written as a comment.
   /// @param privateKeyProvider The private key which is used to sign the container.
 public:
-  virtual void MIKTEXTHISCALL Write(const PathName& path, const std::string& header, IPrivateKeyProvider* privateKeyProvider) = 0;
+  virtual void MIKTEXTHISCALL Write(const MiKTeX::Util::PathName& path, const std::string& header, IPrivateKeyProvider* privateKeyProvider) = 0;
 
   /// Gets an INI section.
   /// @param keyName Identifies the section.

@@ -1,6 +1,6 @@
 /* miktex/Core/StreamReader.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,8 +26,9 @@
 
 #include <miktex/Core/config.h>
 
+#include <miktex/Util/PathName>
+
 #include "FileStream.h"
-#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -52,7 +53,7 @@ public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamReader() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamReader(const PathName& path);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamReader(const MiKTeX::Util::PathName& path);
 
 public:
   StreamReader(bool readStdin) :

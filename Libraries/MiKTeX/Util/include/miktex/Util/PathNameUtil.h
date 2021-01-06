@@ -1,6 +1,6 @@
 /* miktex/Util/PathNameUtil.h:                          -*- C++ -*-
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -24,7 +24,7 @@
 #if !defined(E3DF059408FD47B89E84E189A4C529E7)
 #define E3DF059408FD47B89E84E189A4C529E7
 
-#include "config.h"
+#include <miktex/Util/config.h>
 
 #include <string>
 

@@ -39,10 +39,10 @@ public:
   MIKTEXTHISCALL ~TarExtractor() override;
 
 public:
-  void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName& path, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
+  void MIKTEXTHISCALL Extract(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
 
 public:
-  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Core::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
+  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream* stream, const MiKTeX::Util::PathName& destDir, bool makeDirectories, IExtractCallback* callback, const std::string& prefix) override;
 
 protected:
   size_t Read(void* data, size_t numBytes)
@@ -65,7 +65,7 @@ protected:
   bool haveLongName;
 
 protected:
-  MiKTeX::Core::PathName longName;
+  MiKTeX::Util::PathName longName;
 
 protected:
   size_t totalBytesRead;

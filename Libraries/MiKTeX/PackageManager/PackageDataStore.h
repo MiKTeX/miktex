@@ -31,7 +31,7 @@
 #include <tuple>
 #include <unordered_map>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Session>
 #include <miktex/Core/equal_icase>
 #include <miktex/Core/hash_icase>
@@ -64,7 +64,7 @@ public:
   ///
   /// @param path Path to the INI file.
 public:
-  void LoadAllPackageManifests(const MiKTeX::Core::PathName& path, bool mustBeSigned);
+  void LoadAllPackageManifests(const MiKTeX::Util::PathName& path, bool mustBeSigned);
 
 public:
   PackageDataStore& Load();
@@ -186,13 +186,13 @@ public:
   /// @param path The path to the file.
   /// @return Returns reference count of the file.
 public:
-  unsigned long GetFileRefCount(const MiKTeX::Core::PathName& path);
+  unsigned long GetFileRefCount(const MiKTeX::Util::PathName& path);
 
   /// Decrements the reference count of an installed file.
   /// @param path The path to the file.
   /// @return Returns the new (decremented) reference count.
 public:
-  unsigned long DecrementFileRefCount(const MiKTeX::Core::PathName& path);
+  unsigned long DecrementFileRefCount(const MiKTeX::Util::PathName& path);
 
   /// Migrates TPM files into a single INI file.
   ///

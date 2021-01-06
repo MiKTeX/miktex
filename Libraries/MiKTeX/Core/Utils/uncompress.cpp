@@ -28,6 +28,7 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/GzipStream>
 #include <miktex/Core/LzmaStream>
+#include <miktex/Util/PathName>
 
 #include "internal.h"
 
@@ -36,6 +37,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 void Utils::UncompressFile(const PathName& pathIn, PathName& pathOut)
 {

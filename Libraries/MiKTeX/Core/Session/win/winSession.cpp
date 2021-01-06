@@ -29,6 +29,7 @@
 #include <shlobj.h>
 
 #include <miktex/Configuration/ConfigNames>
+#include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
 #include <miktex/Core/win/HResult>
@@ -587,7 +588,8 @@ bool SessionImpl::GetAcrobatFontDir(PathName& path)
 
     RemoveDirectoryDelimiter(fontDir.GetData());
 
-    acrobatFontDir = GetFullyQualifiedPath(fontDir.GetData());
+    acrobatFontDir = fontDir;
+    acrobatFontDir.Convert({ ConvertPathNameOption::MakeFullyQualified });
   }
 
   if (acrobatFontDir.GetLength() == 0)
@@ -624,7 +626,8 @@ bool SessionImpl::GetATMFontDir(PathName& path)
 
     RemoveDirectoryDelimiter(fontDir.GetData());
 
-    atmFontDir = GetFullyQualifiedPath(fontDir.GetData());
+    atmFontDir = fontDir;
+    atmFontDir.Convert({ ConvertPathNameOption::MakeFullyQualified });
   }
 
   if (atmFontDir.GetLength() == 0)

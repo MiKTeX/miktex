@@ -262,7 +262,7 @@ public:
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
   {
     MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
     Reallocate(inputOutput->nameoffile(), fileName.GetLength() + 1);
@@ -275,12 +275,12 @@ public:
   {
     const char* fileName = GetInputOutput()->nameoffile();
     MIKTEX_ASSERT_STRING(fileName);
-    MiKTeX::Core::PathName bstFileName(fileName);
+    MiKTeX::Util::PathName bstFileName(fileName);
     if (!bstFileName.HasExtension())
     {
       bstFileName.SetExtension(".bst");
     }
-    MiKTeX::Core::PathName path;
+    MiKTeX::Util::PathName path;
     if (!session->FindFile(bstFileName.ToString(), MiKTeX::Core::FileType::BST, path))
     {
       return false;
@@ -323,5 +323,5 @@ template<class T> inline bool miktexopenbstfile(T& f)
 
 inline bool miktexhasextension(const char* fileName, const char* extension)
 {
-  return MiKTeX::Core::PathName(fileName).HasExtension(extension);
+  return MiKTeX::Util::PathName(fileName).HasExtension(extension);
 }

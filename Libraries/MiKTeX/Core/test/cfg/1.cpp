@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,9 +29,11 @@
 #include <miktex/Core/Cfg>
 #include <miktex/Core/StreamWriter>
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("cfg-1");
 
@@ -98,7 +100,7 @@ BEGIN_TEST_FUNCTION(4);
   // TODO: can be enabled when we switch to EMSA3(SHA-256)
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
-  TESTX(cfg->Read(MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "sigtest.ini"));
+  TESTX(cfg->Read(MiKTeX::Util::PathName(TEST_SOURCE_DIR) / "cfg" / "sigtest.ini"));
 #endif
 }
 END_TEST_FUNCTION();
@@ -108,7 +110,7 @@ class PrivateKeyProvider : public IPrivateKeyProvider
 public:
   PathName MIKTEXTHISCALL GetPrivateKeyFile() override
   {
-    return MiKTeX::Core::PathName(TEST_SOURCE_DIR) / PathName("cfg") / PathName("test.pkcs8.pem");
+    return MiKTeX::Util::PathName(TEST_SOURCE_DIR) / PathName("cfg") / PathName("test.pkcs8.pem");
   }
 public:
   bool GetPassphrase(std::string & passphrase) override

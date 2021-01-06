@@ -23,13 +23,14 @@
 
 #include <fmt/format.h>
 
+#include <miktex/Core/BufferSizes>
 #include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Environment>
 #include <miktex/Core/FileStream>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Util/Tokenizer>
 

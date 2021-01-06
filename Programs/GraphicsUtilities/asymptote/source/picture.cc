@@ -475,7 +475,7 @@ void rmtmpdir(char *tmpdir)
 {
   if(tmpdir) {
 #if defined(MIKTEX)
-    MiKTeX::Core::Directory::Delete(MiKTeX::Core::PathName(tmpdir), true);
+    MiKTeX::Core::Directory::Delete(MiKTeX::Util::PathName(tmpdir), true);
 #else
     recursive_delete(tmpdir);
 #endif

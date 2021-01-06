@@ -1,6 +1,6 @@
 /* LanguageInfo.cpp: language information
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,6 +23,10 @@
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
+
+#include <miktex/Util/PathName>
+
+using namespace MiKTeX::Util;
 
 #include "internal.h"
 

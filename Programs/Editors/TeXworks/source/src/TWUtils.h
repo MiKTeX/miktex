@@ -34,6 +34,7 @@
 #  include <miktex/Core/Directory>
 #  include <miktex/Core/Paths>
 #  include <miktex/Core/Session>
+#  include <miktex/Core/Utils>
 #  if defined(MIKTEX_WINDOWS)
 #    include <shlobj.h>
 #  endif

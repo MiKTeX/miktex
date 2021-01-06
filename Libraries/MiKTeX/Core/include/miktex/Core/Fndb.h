@@ -1,6 +1,6 @@
 /* miktex/Core/Fndb.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,17 +29,17 @@
 #include <string>
 #include <vector>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE ICreateFndbCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL ReadDirectory(const PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) = 0;
+  virtual bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Util::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const PathName& directory) = 0;
+  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Util::PathName& directory) = 0;
 };
 
 class MIKTEXNOVTABLE Fndb
@@ -65,30 +65,30 @@ public:
 public:
   struct Record
   {
-    PathName path;
+    MiKTeX::Util::PathName path;
     std::string fileNameInfo;
   };
 
 public:
-  static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback);
+  static MIKTEXCORECEEAPI(bool) Create(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootPath, ICreateFndbCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
+  static MIKTEXCORECEEAPI(bool) Create(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Search(const PathName& fileName, const std::string& pathPattern, bool all, std::vector<Record>& result);
+  static MIKTEXCORECEEAPI(bool) Search(const MiKTeX::Util::PathName& fileName, const std::string& pathPattern, bool all, std::vector<Record>& result);
 
 public:
   static MIKTEXCORECEEAPI(void) Add(const std::vector<Record>& records);
 
 public:
-  static MIKTEXCORECEEAPI(void) Remove(const std::vector<PathName>& paths);
+  static MIKTEXCORECEEAPI(void) Remove(const std::vector<MiKTeX::Util::PathName>& paths);
 
 public:
-  static MIKTEXCORECEEAPI(bool) FileExists(const PathName& path);
+  static MIKTEXCORECEEAPI(bool) FileExists(const MiKTeX::Util::PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Refresh(const PathName& path, ICreateFndbCallback* callback);
+  static MIKTEXCORECEEAPI(bool) Refresh(const MiKTeX::Util::PathName& path, ICreateFndbCallback* callback);
 
 public:
   static MIKTEXCORECEEAPI(bool) Refresh(ICreateFndbCallback* callback);

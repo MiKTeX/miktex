@@ -1,6 +1,6 @@
 /* miktex/Core/DirectoryLister.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,7 +30,7 @@
 #include <memory>
 #include <string>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -95,14 +95,14 @@ public:
   /// @param directory File system path to the directory.
   /// @return Returns a smart pointer to the `DirectoryLister` interface.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const MiKTeX::Util::PathName& directory);
 
   /// Creates a new `DirectoryLister` instance.
   /// @param directory File system path to the directory.
   /// @param pattern The glob pattern to be used as the filter.
   /// @return Returns a smart pointer to the `DirectoryLister` interface.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* pattern);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const MiKTeX::Util::PathName& directory, const char* pattern);
 
   /// Creates a new `DirectoryLister` instance.
   /// @param directory File system path to the directory.
@@ -110,7 +110,7 @@ public:
   /// @param options Read options.
   /// @return Returns a smart pointer to the `DirectoryLister` interface.
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const PathName& directory, const char* pattern, int options);
+  static MIKTEXCORECEEAPI(std::unique_ptr<DirectoryLister>) Open(const MiKTeX::Util::PathName& directory, const char* pattern, int options);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

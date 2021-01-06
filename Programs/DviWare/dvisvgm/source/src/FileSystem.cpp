@@ -234,7 +234,7 @@ string FileSystem::tmpdir () {
 		else {
 #ifdef _WIN32
 #if defined(MIKTEX)
-          MiKTeX::Core::PathName tmpdir;
+          MiKTeX::Util::PathName tmpdir;
           tmpdir.SetToTempDirectory();
 	  basedir = tmpdir.ToString();
 #else
@@ -284,7 +284,7 @@ bool FileSystem::rmdir (const string &dirname) {
 	if (isDirectory(dirname)) {
 		ok = true;
 #if defined(MIKTEX)
-                MiKTeX::Core::Directory::Delete(MiKTeX::Core::PathName(dirname), true);
+                MiKTeX::Core::Directory::Delete(MiKTeX::Util::PathName(dirname), true);
 #else
 #ifdef _WIN32
 		string pattern = dirname + "/*";
@@ -335,7 +335,7 @@ bool FileSystem::exists (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
 
 #if defined(MIKTEX)
-                return MiKTeX::Core::File::Exists(MiKTeX::Core::PathName(fname)) || MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fname));
+                return MiKTeX::Core::File::Exists(MiKTeX::Util::PathName(fname)) || MiKTeX::Core::Directory::Exists(MiKTeX::Util::PathName(fname));
 #else
 #ifdef _WIN32
 		return GetFileAttributes(cfname) != INVALID_FILE_ATTRIBUTES;
@@ -353,7 +353,7 @@ bool FileSystem::exists (const string &fname) {
 bool FileSystem::isDirectory (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
 #if defined(MIKTEX)
-                return MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fname));
+                return MiKTeX::Core::Directory::Exists(MiKTeX::Util::PathName(fname));
 #else
 #ifdef _WIN32
 		auto attr = GetFileAttributes(cfname);
@@ -372,7 +372,7 @@ bool FileSystem::isDirectory (const string &fname) {
 bool FileSystem::isFile (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
 #if defined(MIKTEX)
-                return MiKTeX::Core::File::Exists(MiKTeX::Core::PathName(fname));
+                return MiKTeX::Core::File::Exists(MiKTeX::Util::PathName(fname));
 #else
 #ifdef _WIN32
 		ifstream ifs(cfname);
@@ -390,11 +390,11 @@ bool FileSystem::isFile (const string &fname) {
 int FileSystem::collect (const std::string &dirname, vector<string> &entries) {
 	entries.clear();
 #if defined(MIKTEX)
-        unique_ptr<MiKTeX::Core::DirectoryLister> lister = MiKTeX::Core::DirectoryLister::Open(MiKTeX::Core::PathName(dirname));
+        unique_ptr<MiKTeX::Core::DirectoryLister> lister = MiKTeX::Core::DirectoryLister::Open(MiKTeX::Util::PathName(dirname));
         MiKTeX::Core::DirectoryEntry entry;
         while (lister->GetNext(entry))
         {
-          MiKTeX::Core::PathName path(dirname);
+          MiKTeX::Util::PathName path(dirname);
           path /= entry.name;
           string typechar = isFile(path.ToString()) ? "f" : isDirectory(path.ToString()) ? "d" : "?";
           if (entry.name != "." && entry.name != "..")

@@ -25,7 +25,7 @@
 #include <memory>
 #include <string>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Session>
 
 #include <miktex/PackageManager/PackageManager>
@@ -38,13 +38,13 @@ public:
   virtual ~TpmParser() = 0;
 
 public:
-  virtual void Parse(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix) = 0;
+  virtual void Parse(const MiKTeX::Util::PathName& path, const std::string& texmfPrefix) = 0;
 
 public:
   virtual const MiKTeX::Packages::PackageInfo& GetPackageInfo() const = 0;
 
 public:
-  void Parse(const MiKTeX::Core::PathName& path);
+  void Parse(const MiKTeX::Util::PathName& path);
 
 public:
   static std::unique_ptr<TpmParser> Create();

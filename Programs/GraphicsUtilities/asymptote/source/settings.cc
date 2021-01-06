@@ -44,7 +44,7 @@
 
 #include "glrender.h"
 #if defined(MIKTEX)
-#  include <miktex/Core/PathName>
+#  include <miktex/Util/PathName>
 #  include <miktex/Core/Paths>
 #  include <miktex/Core/Session>
 #endif

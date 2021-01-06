@@ -192,23 +192,21 @@ using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_free)>
 using EVP_PKEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
 using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
 void FatalOpenSSLError();
-RSA_ptr LoadPublicKey_OpenSSL(const MiKTeX::Core::PathName& publicKeyFile);
+RSA_ptr LoadPublicKey_OpenSSL(const MiKTeX::Util::PathName& publicKeyFile);
 #endif
 
-void CreateDirectoryPath(const MiKTeX::Core::PathName& path);
+void CreateDirectoryPath(const MiKTeX::Util::PathName& path);
 
 bool FileIsOnROMedia(const char* path);
 
 bool GetCrtErrorMessage(int functionResult, std::string& errorMessage);
 
-MiKTeX::Core::PathName GetFullyQualifiedPath(const char* path);
+MiKTeX::Util::PathName GetHomeDirectory();
 
-MiKTeX::Core::PathName GetHomeDirectory();
-
-bool FixProgramSearchPath(const std::string& oldPath, const MiKTeX::Core::PathName& binDir_, bool checkCompetition, std::string& newPath, bool& competition);
+bool FixProgramSearchPath(const std::string& oldPath, const MiKTeX::Util::PathName& binDir_, bool checkCompetition, std::string& newPath, bool& competition);
 
 #if defined(MIKTEX_WINDOWS)
-bool GetUserProfileDirectory(MiKTeX::Core::PathName& path);
+bool GetUserProfileDirectory(MiKTeX::Util::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
@@ -216,11 +214,11 @@ void SetTimesInternal(HANDLE handle, time_t creationTime, time_t lastAccessTime,
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-bool GetSystemFontDirectory(MiKTeX::Core::PathName& path);
+bool GetSystemFontDirectory(MiKTeX::Util::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-bool GetUserFontDirectory(MiKTeX::Core::PathName& path);
+bool GetUserFontDirectory(MiKTeX::Util::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
@@ -243,7 +241,7 @@ bool GetEnvironmentString(const std::string& name, std::string& value);
 
 bool IsExplicitlyRelativePath(const char* path);
 
-std::string MakeSearchPath(const std::vector<MiKTeX::Core::PathName>& vec);
+std::string MakeSearchPath(const std::vector<MiKTeX::Util::PathName>& vec);
 
 void RemoveDirectoryDelimiter(char* path);
 
@@ -356,7 +354,7 @@ struct StringComparerIgnoringCase :
   }
 };
 
-inline FILE* FdOpen(const MiKTeX::Core::PathName& path, int fd, const char* mode)
+inline FILE* FdOpen(const MiKTeX::Util::PathName& path, int fd, const char* mode)
 {
 #if defined(_MSC_VER)
   FILE* stream = _fdopen(fd, mode);

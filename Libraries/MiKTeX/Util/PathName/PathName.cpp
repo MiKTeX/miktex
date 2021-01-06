@@ -1,43 +1,54 @@
 /* PathName.cpp: path name utilities
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
-   This file is part of the MiKTeX Core Library.
+   This file is part of the MiKTeX Util Library.
 
-   The MiKTeX Core Library is free software; you can redistribute it
+   The MiKTeX Util Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
-   The MiKTeX Core Library is distributed in the hope that it will be
+   The MiKTeX Util Library is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
+   along with the MiKTeX Util Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "config.h"
+#if defined(MIKTEX_WINDOWS)
+#include <direct.h>
+#endif
 
-#include <miktex/Core/PathName>
-#include <miktex/Core/PathNameParser>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#define A7C88F5FBE5C45EB970B3796F331CD89
+#include "miktex/Util/config.h"
+
+#if defined(MIKTEX_UTIL_SHARED)
+#  define MIKTEXUTILEXPORT MIKTEXDLLEXPORT
+#else
+#  define MIKTEXUTILEXPORT
+#endif
+
+#include "miktex/Util/PathName.h"
+#include "miktex/Util/PathNameParser.h"
 
 #include "internal.h"
 
-#include "Utils/inliners.h"
+constexpr auto CURRENT_DIRECTORY = ".";
+constexpr auto PARENT_DIRECTORY = "..";
 
 using namespace std;
 
-using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
 int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
 {
-  MIKTEX_ASSERT_STRING(lpszPath1);
-  MIKTEX_ASSERT_STRING(lpszPath2);
-
 #if defined(MIKTEX_WINDOWS)
   PathName path1(lpszPath1);
   path1.TransformForComparison();
@@ -58,7 +69,6 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
 
   if (cmp != 0)
   {
-    MIKTEX_ASSERT(!(*lpszPath1 == 0 && *lpszPath2 == 0));
     if (
         (*lpszPath1 == 0 && PathNameUtil::IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
         || (*lpszPath2 == 0 && PathNameUtil::IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
@@ -84,11 +94,7 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
 }
 
 int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count)
-
 {
-  MIKTEX_ASSERT_STRING(lpszPath1);
-  MIKTEX_ASSERT_STRING(lpszPath2);
-
   if (count == 0)
   {
     return 0;
@@ -114,15 +120,63 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count
   return 0;
 }
 
+PathName GetFullyQualifiedPath(const char* lpszPath)
+{
+  PathName path;
+
+  if (!PathNameUtil::IsFullyQualifiedPath(lpszPath))
+  {
+#if defined(MIKTEX_WINDOWS)
+    if (PathNameUtil::IsDosDriveLetter(lpszPath[0]) && PathNameUtil::IsDosVolumeDelimiter(lpszPath[1]) && lpszPath[2] == 0)
+    {
+      path = lpszPath;
+      path += PathNameUtil::DirectoryDelimiter;
+      return path;
+    }
+    if (PathNameUtil::IsDirectoryDelimiter(lpszPath[0]))
+    {
+      int currentDrive = _getdrive();
+      if (currentDrive == 0)
+      {
+        // TODO
+        throw Exception("unexpected");
+      }
+      // EXPECT: currentDrive >= 1 && currentDrive <= 26
+      char currentDriveLetter = 'A' + currentDrive - 1;
+      path = fmt::format("{0}{1}", currentDriveLetter, PathNameUtil::DosVolumeDelimiter);
+    }
+    else
+    {
+      path.SetToCurrentDirectory();
+    }
+#else
+    path.SetToCurrentDirectory();
+#endif
+  }
+
+  PathName fixme(lpszPath);
+  for (PathNameParser parser(fixme); parser; ++parser)
+  {
+    if (PathName::Compare(PathName(*parser), PathName(PARENT_DIRECTORY)) == 0)
+    {
+      path.CutOffLastComponent();
+    }
+    else if (PathName::Compare(PathName(*parser), PathName(CURRENT_DIRECTORY)) != 0)
+    {
+      path /= *parser;
+    }
+  }
+
+  return path;
+}
+
 PathName& PathName::Convert(ConvertPathNameOptions options)
 {
   bool toUnix = options[ConvertPathNameOption::ToUnix];
   bool toDos = options[ConvertPathNameOption::ToDos];
-  MIKTEX_ASSERT(!(toUnix && toDos));
 
   bool toUpper = options[ConvertPathNameOption::MakeUpper];
   bool toLower = options[ConvertPathNameOption::MakeLower];
-  MIKTEX_ASSERT(!(toUpper && toLower));
 
   bool makeFQ = options[ConvertPathNameOption::MakeFullyQualified];
 
@@ -144,7 +198,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 
   if (options[ConvertPathNameOption::Canonicalize])
   {
-    Utils::CanonicalizePathName(*this);
+    Helpers::CanonicalizePathName(*this);
   }
 
   if (toUnix)
@@ -161,19 +215,20 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
 
   if (toUpper || toLower)
   {
-    if (Utils::IsPureAscii(GetData()))
+    if (Helpers::IsPureAscii(GetData()))
     {
       for (char* lpsz = GetData(); *lpsz != 0; ++lpsz)
       {
-        *lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
+        *lpsz = toUpper ? Helpers::ToUpperAscii(*lpsz) : Helpers::ToLowerAscii(*lpsz);
       }
     }
     else
     {
       CharBuffer<wchar_t> wideCharBuffer(GetData());
+      locale defaultLocale;
       for (wchar_t* lpsz = wideCharBuffer.GetData(); *lpsz != 0; ++lpsz)
       {
-        *lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
+        *lpsz = toUpper ? Helpers::ToUpper(*lpsz, defaultLocale) : Helpers::ToLower(*lpsz, defaultLocale);
       }
       *this = wideCharBuffer.GetData();
     }
@@ -205,8 +260,6 @@ static bool InternalMatch(const char* lpszPattern, const char* lpszPath)
 
 bool PathName::Match(const char* lpszPattern, const char* lpszPath)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-  MIKTEX_ASSERT_STRING(lpszPattern);
   return InternalMatch(PathName(lpszPattern).TransformForComparison().GetData(), PathName(lpszPath).TransformForComparison().GetData());
 }
 
@@ -262,7 +315,7 @@ void PathName::Split(const PathName& path, string& directory, string& fileNameWi
 
 string PathName::GetExtension() const
 {
-  const char* e = GetFileNameExtension(GetData());
+  const char* e = Helpers::GetFileNameExtension(GetData());
   return e == nullptr ? string() : string(e);
 }
 
@@ -285,7 +338,7 @@ PathName& PathName::SetExtension(const char* extension, bool override)
       {
         if (n + 1 >= GetCapacity())
         {
-          BUF_TOO_SMALL();
+          throw Unexpected("buf too small");
         }
         (*this)[n] = '.';
         ++n;
@@ -310,7 +363,7 @@ PathName& PathName::AppendDirectoryDelimiter()
 // TODO: code review
 PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
 {
-  RemoveDirectoryDelimiter(GetData());
+  Helpers::RemoveDirectoryDelimiter(GetData());
   bool noCut = true;
   for (size_t end = GetLength(); noCut && end > 0; --end)
   {
@@ -349,11 +402,9 @@ size_t PathName::GetHash() const
 {
   // see http://www.isthe.com/chongo/tech/comp/fnv/index.html
 #if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
-  MIKTEX_ASSERT(sizeof(size_t) == 8);
   const size_t FNV_prime = 1099511628211;
   const size_t offset_basis = 14695981039346656037ull;
 #else
-  MIKTEX_ASSERT(sizeof(size_t) == 4);
   const size_t FNV_prime = 16777619;
   const size_t offset_basis = 2166136261;
 #endif
@@ -393,27 +444,19 @@ string PathName::ToDisplayString(DisplayPathNameOptions options) const
 
 PathName& PathName::SetToHomeDirectory()
 {
-  *this = GetHomeDirectory();
+  *this = Helpers::GetHomeDirectory();
   return *this;
 }
 
 PathName& PathName::SetToLockDirectory()
 {
-  *this = GetHomeDirectory();
+  *this = Helpers::GetHomeDirectory();
   return *this;
 }
 
 PathName& PathName::SetToTempFile()
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   PathName tmpDir;
-  if (session != nullptr)
-  {
-    tmpDir = session->GetTempDirectory();
-  }
-  else
-  {
-    tmpDir.SetToTempDirectory();
-  }
+  tmpDir.SetToTempDirectory();
   return SetToTempFile(tmpDir);
 }

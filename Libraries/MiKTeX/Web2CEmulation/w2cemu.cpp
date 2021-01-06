@@ -47,6 +47,7 @@ using namespace MiKTeX;
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
+using namespace MiKTeX::Util;
 
 namespace {
   PathName outputDirectory;

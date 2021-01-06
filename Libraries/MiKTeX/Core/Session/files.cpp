@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,7 +42,7 @@
 #include <miktex/Core/GzipStream>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/LzmaStream>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 #include "internal.h"
 
@@ -53,6 +53,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 
 const size_t PIPE_SIZE = 4096;
 

@@ -1,6 +1,6 @@
 /* runtexlua.cpp: run a texlua script
 
-   Copyright (C) 2010-2018 Christian Schenk
+   Copyright (C) 2010-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,9 +23,11 @@
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Paths>
 
+using namespace std;
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
-using namespace std;
+using namespace MiKTeX::Util;
 
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #define UT_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()

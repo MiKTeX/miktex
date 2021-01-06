@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -37,6 +37,8 @@
 
 #include <miktex/Trace/Trace>
 
+#include <miktex/Util/PathName>
+
 #include "internal.h"
 
 #include "Session/SessionImpl.h"
@@ -46,6 +48,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 
 const uint8_t null_byte = 0;
 

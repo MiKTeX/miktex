@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,9 +30,10 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
-#include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/win/WindowsVersion>
+
+#include <miktex/Util/PathName>
 
 #include "internal.h"
 
@@ -1133,33 +1134,6 @@ bool Utils::CheckPath(bool repair)
   }
 
   return repaired || (systemPathOkay && userPathOkay);
-}
-
-void Utils::CanonicalizePathName(PathName& path)
-{
-  CharBuffer<wchar_t, BufferSizes::MaxPath> fullPath;
-  bool done = false;
-  int rounds = 0;
-  do
-  {
-    DWORD n = GetFullPathNameW(path.ToWideCharString().c_str(), fullPath.GetCapacity(), fullPath.GetData(), nullptr);
-    if (n == 0)
-    {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("GetFullPathNameW", "path", path.ToString());
-    }
-    done = n < fullPath.GetCapacity();
-    if (!done)
-    {
-      if (rounds > 0)
-      {
-        BUF_TOO_SMALL();
-      }
-      fullPath.Reserve(n);
-    }
-    rounds++;
-  }
-  while (!done);
-  path = fullPath.GetData();
 }
 
 void Utils::RegisterShellFileAssoc(const string& extension, const string& progId, bool takeOwnership)

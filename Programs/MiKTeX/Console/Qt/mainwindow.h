@@ -581,7 +581,7 @@ private:
   void CreateReport();
 
 private:
-  MiKTeX::Core::PathName GetReportFileName();
+  MiKTeX::Util::PathName GetReportFileName();
 
 private:
   void SetupUiCleanup();
@@ -1075,13 +1075,13 @@ private:
   Q_OBJECT;
 
 public:
-  ChangeLinkTargetDirectoryWorker(const MiKTeX::Core::PathName& linkTargetDirectory) :
+  ChangeLinkTargetDirectoryWorker(const MiKTeX::Util::PathName& linkTargetDirectory) :
     linkTargetDirectory(linkTargetDirectory)
   {
   }
 
 private:
-  MiKTeX::Core::PathName linkTargetDirectory;
+  MiKTeX::Util::PathName linkTargetDirectory;
 
 protected:
   bool Run() override;

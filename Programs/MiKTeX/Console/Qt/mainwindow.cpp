@@ -51,7 +51,7 @@
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Fndb.h>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>

@@ -31,6 +31,7 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
+#include <miktex/Util/PathName>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"

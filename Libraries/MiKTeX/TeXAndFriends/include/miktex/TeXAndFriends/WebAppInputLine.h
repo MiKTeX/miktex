@@ -31,7 +31,7 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 #include <miktex/Util/StringUtil>
 
@@ -134,20 +134,20 @@ public:
   }
 
 public:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetFoundFile() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFile() const;
 
 public:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetFoundFileFq() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFileFq() const;
 
 public:
-  MiKTeX::Core::PathName GetNameOfFile() const
+  MiKTeX::Util::PathName GetNameOfFile() const
   {
     IInputOutput* inputOutput = GetInputOutput();
-    return MiKTeX::Core::PathName(inputOutput->nameoffile());
+    return MiKTeX::Util::PathName(inputOutput->nameoffile());
   }
 
 public:
-  virtual void SetNameOfFile(const MiKTeX::Core::PathName& fileName)
+  virtual void SetNameOfFile(const MiKTeX::Util::PathName& fileName)
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
@@ -155,31 +155,31 @@ public:
   }
 
 public:
-  MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Core::PathName & path);
+  MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Util::PathName & path);
 
 public:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetOutputDirectory() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetOutputDirectory() const;
 
 public:
-  MIKTEXMFTHISAPI(void) SetAuxDirectory(const MiKTeX::Core::PathName & path);
+  MIKTEXMFTHISAPI(void) SetAuxDirectory(const MiKTeX::Util::PathName & path);
 
 public:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetAuxDirectory() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetAuxDirectory() const;
 
 public:
   MIKTEXMFTHISAPI(bool) InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const;
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Core::PathName& fileName);
+  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Util::PathName& fileName);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName);
+  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileName);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName, bool isTextFile_deprecated, MiKTeX::Core::PathName& outPath);
+  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileName, bool isTextFile_deprecated, MiKTeX::Util::PathName& outPath);
 
 public:
-  MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput);
+  MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Util::PathName& fileName, bool forInput);
 
 protected:
   MIKTEXMFTHISAPI(void) EnableShellCommands(MiKTeX::Core::ShellCommandMode mode);
@@ -188,7 +188,7 @@ protected:
   MIKTEXMFTHISAPI(MiKTeX::Core::ShellCommandMode) GetShellCommandMode() const;
 
 protected:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetLastInputFileName() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetLastInputFileName() const;
 
 public:
   MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput* inputOutput);
@@ -230,7 +230,7 @@ template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_
 {
   // must open with read/write sharing flags
   // cf. bug 2006511
-  MiKTeX::Core::PathName outPath;
+  MiKTeX::Util::PathName outPath;
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), isTextFile_deprecated, outPath);
   if (done)
   {

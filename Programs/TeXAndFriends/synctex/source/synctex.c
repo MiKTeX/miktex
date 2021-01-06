@@ -329,7 +329,7 @@ mem[NODE+TYPE##_node_size-synchronization_field_size+1].cint
 #if defined(MIKTEX)
 #if defined(__cplusplus)
 #include <miktex/Core/File>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #endif
 #endif
 #if !defined(MIKTEX)
@@ -404,7 +404,7 @@ static int fsyscp_remove(char *name);
  *  IMPORTANT: We can say that the natural unit of .synctex files is SYNCTEX_UNIT_FACTOR sp.
  *  To retrieve the proper bp unit, we'll have to divide by 8.03.  To reduce
  *  rounding errors, we'll certainly have to add 0.5 for non negative integers
- *  and ±0.5 for negative integers.  This trick is mainly to gain speed and
+ *  and ï¿½0.5 for negative integers.  This trick is mainly to gain speed and
  *  size. A binary file would be more appropriate in that respect, but I guess
  *  that some clients like auctex would not like it very much.  we cannot use
  *  "<<13" instead of "/SYNCTEX_UNIT_FACTOR" because the integers are signed and we do not
@@ -947,8 +947,8 @@ void synctexterminate(boolean log_opened)
     if (log_opened && (tmp = SYNCTEX_GET_LOG_NAME())) {
         /* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
 #if defined(MIKTEX) && (defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX))
-      MiKTeX::Core::PathName path = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
-      path /= MiKTeX::Core::PathName(tmp).RemoveDirectorySpec();
+      MiKTeX::Util::PathName path = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
+      path /= MiKTeX::Util::PathName(tmp).RemoveDirectorySpec();
       tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
       strcpy(tmp, path.GetData());
 #endif
@@ -1012,9 +1012,9 @@ void synctexterminate(boolean log_opened)
 		/* MSVC rename() requires that the new name is not the
 		   name of an existing file */
 #if defined(__cplusplus)
-		if(MiKTeX::Core::File::Exists(MiKTeX::Core::PathName(the_real_syncname)))
+		if(MiKTeX::Core::File::Exists(MiKTeX::Util::PathName(the_real_syncname)))
 		  {
-		    MiKTeX::Core::File::Delete(MiKTeX::Core::PathName(the_real_syncname));
+		    MiKTeX::Core::File::Delete(MiKTeX::Util::PathName(the_real_syncname));
 		  }
 #else
 		if(_access(the_real_syncname, 0) == 0)

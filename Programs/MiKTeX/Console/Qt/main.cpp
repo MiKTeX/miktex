@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
   application.setApplicationDisplayName(displayName);
 #endif
   unique_ptr<MiKTeX::Core::LockFile> lockFile;
-  MiKTeX::Core::PathName lockFileName;
+  MiKTeX::Util::PathName lockFileName;
   try
   {
     lockFileName.SetToHomeDirectory();

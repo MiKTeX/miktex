@@ -50,8 +50,8 @@
 
 #include <miktex/Configuration/TriState>
 
-#include <miktex/Core/OptionSet>
-#include <miktex/Core/PathName>
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryDirectory>
 
@@ -86,7 +86,7 @@ enum class CleanupOption
   StartMenu
 };
 
-typedef MiKTeX::Core::OptionSet<CleanupOption> CleanupOptionSet;
+typedef MiKTeX::Util::OptionSet<CleanupOption> CleanupOptionSet;
 
 enum class ReportOption
 {
@@ -98,7 +98,7 @@ enum class ReportOption
   BrokenPackages
 };
 
-typedef MiKTeX::Core::OptionSet<ReportOption> ReportOptionSet;
+typedef MiKTeX::Util::OptionSet<ReportOption> ReportOptionSet;
 
 enum class IssueType
 {
@@ -175,10 +175,10 @@ public:
   MiKTeX::Core::StartupConfig Config;
 
 public:
-  MiKTeX::Core::PathName MiKTeXDirectRoot;
+  MiKTeX::Util::PathName MiKTeXDirectRoot;
 
 public:
-  MiKTeX::Core::PathName PortableRoot;
+  MiKTeX::Util::PathName PortableRoot;
 
 public:
   std::string RemotePackageRepository;
@@ -187,21 +187,21 @@ public:
   MiKTeX::Packages::PackageLevel PackageLevel = MiKTeX::Packages::PackageLevel::None;
 
 public:
-  MiKTeX::Core::PathName LocalPackageRepository;
+  MiKTeX::Util::PathName LocalPackageRepository;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  MiKTeX::Core::PathName FolderName;
+  MiKTeX::Util::PathName FolderName;
 #endif
 
 public:
   std::string PaperSize = "A4";
 
 public:
-  MiKTeX::Core::PathName CommonLinkTargetDirectory;
+  MiKTeX::Util::PathName CommonLinkTargetDirectory;
 
 public:
-  MiKTeX::Core::PathName UserLinkTargetDirectory;
+  MiKTeX::Util::PathName UserLinkTargetDirectory;
 };
 
 /// Notification enum class.
@@ -284,7 +284,7 @@ public:
   virtual void MIKTEXTHISCALL OpenLog() = 0;
 
 public:
-  virtual MiKTeX::Core::PathName MIKTEXTHISCALL CloseLog(bool cancel) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL CloseLog(bool cancel) = 0;
 
 public:
   virtual void MIKTEXCEECALL Log(const std::string& s) = 0;
@@ -296,10 +296,10 @@ public:
   virtual void MIKTEXTHISCALL ULogClose() = 0;
 
 public:
-  virtual MiKTeX::Core::PathName MIKTEXTHISCALL GetULogFileName() = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetULogFileName() = 0;
 
 public:
-  virtual void ULogAddFile(const MiKTeX::Core::PathName& path) = 0;
+  virtual void ULogAddFile(const MiKTeX::Util::PathName& path) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -317,7 +317,7 @@ public:
     std::string displayName;
 
     /// Path name of current file.
-    MiKTeX::Core::PathName fileName;
+    MiKTeX::Util::PathName fileName;
 
     /// Number of removed files.
     unsigned long cFilesRemoveCompleted = 0;
@@ -427,25 +427,25 @@ public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) CreateSandbox(MiKTeX::Core::StartupConfig& startupConfig);
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) TestLocalRepository(const MiKTeX::Core::PathName& pathRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel);
+  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) TestLocalRepository(const MiKTeX::Util::PathName& pathRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel);
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultLocalRepository();
+  static MIKTEXSETUPCEEAPI(MiKTeX::Util::PathName) GetDefaultLocalRepository();
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) SearchLocalRepository(MiKTeX::Core::PathName& localRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel, bool& prefabricated);
+  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) SearchLocalRepository(MiKTeX::Util::PathName& localRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel, bool& prefabricated);
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultCommonInstallDir();
+  static MIKTEXSETUPCEEAPI(MiKTeX::Util::PathName) GetDefaultCommonInstallDir();
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultUserInstallDir();
+  static MIKTEXSETUPCEEAPI(MiKTeX::Util::PathName) GetDefaultUserInstallDir();
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultPortableRoot();
+  static MIKTEXSETUPCEEAPI(MiKTeX::Util::PathName) GetDefaultPortableRoot();
 
 public:
-  static MIKTEXSETUPCEEAPI(bool) IsMiKTeXDirect(MiKTeX::Core::PathName& MiKTeXDirectRoot);
+  static MIKTEXSETUPCEEAPI(bool) IsMiKTeXDirect(MiKTeX::Util::PathName& MiKTeXDirectRoot);
 
 public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) ExtractFiles();

@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageInstaller.h:            -*- C++ -*-
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -32,8 +32,8 @@
 #include <string>
 #include <vector>
 
-#include <miktex/Core/OptionSet>
-#include <miktex/Core/PathName>
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 
 #include "RepositoryInfo.h"
 #include "definitions.h"
@@ -46,7 +46,7 @@ enum class UpdateDbOption
   FromCache,
 };
 
-typedef MiKTeX::Core::OptionSet<UpdateDbOption> UpdateDbOptionSet;
+typedef MiKTeX::Util::OptionSet<UpdateDbOption> UpdateDbOptionSet;
 
 /// Installer notifications.
 enum class Notification
@@ -117,7 +117,7 @@ public:
   /// Sets the download directory for this package installer.
   /// @param directory The path to the download directory.
 public:
-  virtual void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName& directory) = 0;
+  virtual void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Util::PathName& directory) = 0;
 
   /// Synchronizes the package database.
 public:
@@ -259,7 +259,7 @@ public:
     std::string displayName;
 
     /// Path name of current file.
-    MiKTeX::Core::PathName fileName;
+    MiKTeX::Util::PathName fileName;
 
     /// Number of removed files.
     unsigned long cFilesRemoveCompleted = 0;

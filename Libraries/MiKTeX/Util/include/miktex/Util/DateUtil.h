@@ -1,6 +1,6 @@
 /* miktex/Util/DateUtil.h:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2020-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "config.h"
+#include <miktex/Util/config.h>
 
 #include <ctime>
 

@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 class TDS
 {
@@ -44,123 +44,123 @@ public:
   }
 
 public:
-  MiKTeX::Core::PathName GetSourceDir() const
+  MiKTeX::Util::PathName GetSourceDir() const
   {
-    return MiKTeX::Core::PathName("source") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("source") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetTeXDir() const
+  MiKTeX::Util::PathName GetTeXDir() const
   {
-    return MiKTeX::Core::PathName("tex") / MiKTeX::Core::PathName(format) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("tex") / MiKTeX::Util::PathName(format) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetDocDir() const
+  MiKTeX::Util::PathName GetDocDir() const
   {
-    return MiKTeX::Core::PathName("doc") / MiKTeX::Core::PathName(format) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("doc") / MiKTeX::Util::PathName(format) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetBibDir() const
+  MiKTeX::Util::PathName GetBibDir() const
   {
-    return MiKTeX::Core::PathName("bibtex") / MiKTeX::Core::PathName("bib") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("bibtex") / MiKTeX::Util::PathName("bib") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetBstDir() const
+  MiKTeX::Util::PathName GetBstDir() const
   {
-    return MiKTeX::Core::PathName("bibtex") / MiKTeX::Core::PathName("bst") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("bibtex") / MiKTeX::Util::PathName("bst") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetCsfDir() const
+  MiKTeX::Util::PathName GetCsfDir() const
   {
-    return MiKTeX::Core::PathName("bibtex") / MiKTeX::Core::PathName("csf") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("bibtex") / MiKTeX::Util::PathName("csf") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetIstDir() const
+  MiKTeX::Util::PathName GetIstDir() const
   {
-    return MiKTeX::Core::PathName("makeindex") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("makeindex") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetDvipsDir() const
+  MiKTeX::Util::PathName GetDvipsDir() const
   {
-    return MiKTeX::Core::PathName("dvips") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("dvips") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetMapDir() const
+  MiKTeX::Util::PathName GetMapDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("map") / MiKTeX::Core::PathName("dvips") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("map") / MiKTeX::Util::PathName("dvips") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetEncDir() const
+  MiKTeX::Util::PathName GetEncDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("enc") / MiKTeX::Core::PathName("dvips") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("enc") / MiKTeX::Util::PathName("dvips") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetMfDir() const
+  MiKTeX::Util::PathName GetMfDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("source") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("source") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetTfmDir() const
+  MiKTeX::Util::PathName GetTfmDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("tfm") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("tfm") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetOtfDir() const
+  MiKTeX::Util::PathName GetOtfDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("opentype") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("opentype") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetTtfDir() const
+  MiKTeX::Util::PathName GetTtfDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("truetype") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("truetype") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetPfbDir() const
+  MiKTeX::Util::PathName GetPfbDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("type1") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("type1") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetVfDir() const
+  MiKTeX::Util::PathName GetVfDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("vf") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("vf") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetAfmDir() const
+  MiKTeX::Util::PathName GetAfmDir() const
   {
-    return MiKTeX::Core::PathName("fonts") / MiKTeX::Core::PathName("afm") / MiKTeX::Core::PathName(foundry) / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("fonts") / MiKTeX::Util::PathName("afm") / MiKTeX::Util::PathName(foundry) / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetMetaPostDir() const
+  MiKTeX::Util::PathName GetMetaPostDir() const
   {
-    return MiKTeX::Core::PathName("metapost") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("metapost") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetScriptDir() const
+  MiKTeX::Util::PathName GetScriptDir() const
   {
-    return MiKTeX::Core::PathName("scripts") / MiKTeX::Core::PathName(package);
+    return MiKTeX::Util::PathName("scripts") / MiKTeX::Util::PathName(package);
   }
 
 public:
-  MiKTeX::Core::PathName GetMan1Dir() const
+  MiKTeX::Util::PathName GetMan1Dir() const
   {
-    return MiKTeX::Core::PathName("doc") / MiKTeX::Core::PathName("man") / MiKTeX::Core::PathName("man1");
+    return MiKTeX::Util::PathName("doc") / MiKTeX::Util::PathName("man") / MiKTeX::Util::PathName("man1");
   }
 
 private:

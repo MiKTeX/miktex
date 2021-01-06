@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#include <miktex/Core/OptionSet>
+#include <miktex/Util/OptionSet>
 
 #include "PackageInfo.h"
 
@@ -41,7 +41,7 @@ enum class PackageFilter
   Obsolete,
 };
 
-typedef MiKTeX::Core::OptionSet<PackageFilter> PackageFilterSet;
+typedef MiKTeX::Util::OptionSet<PackageFilter> PackageFilterSet;
 
 /// Instances of this class can be used to browse the package database.
 class MIKTEXNOVTABLE PackageIterator

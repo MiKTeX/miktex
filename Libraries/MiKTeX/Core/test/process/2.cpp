@@ -1,6 +1,6 @@
 /* 2.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,13 +26,15 @@
 #include <string>
 
 #include <miktex/Core/File>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("process-2");
 

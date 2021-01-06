@@ -25,11 +25,11 @@
 #define ACBE4B57EA604A0289F0EED42F80F8B1
 
 #include <miktex/Core/config.h>
+#include <miktex/Util/PathName>
 
 #include <string>
 
 #include "FileStream.h"
-#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -54,7 +54,7 @@ public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamWriter() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const PathName& path);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const MiKTeX::Util::PathName& path);
 
 public:
   bool IsOpen() const

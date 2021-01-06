@@ -1,6 +1,6 @@
 /* TemporaryFile.cpp:
 
-   Copyright (C) 2016-2020 Christian Schenk
+   Copyright (C) 2016-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,11 +25,14 @@
 #include <miktex/Core/File>
 #include <miktex/Core/TemporaryFile>
 
+#include <miktex/Util/PathName>
+
 #include "internal.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 TemporaryFile::~TemporaryFile() noexcept
 {

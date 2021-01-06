@@ -35,8 +35,8 @@
 
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/FileType>
-#include <miktex/Core/OptionSet>
-#include <miktex/Core/PathName>
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Utils>
 
 #include <miktex/Util/StringUtil>
@@ -77,22 +77,22 @@ enum class Feature
 
 template<class FileType> inline bool miktexopentfmfile(FileType& f, const char* fileName)
 {
-  return OpenTFMFile(&f, MiKTeX::Core::PathName(fileName));
+  return OpenTFMFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenvffile(FileType& f, const char* fileName)
 {
-  return OpenVFFile(&f, MiKTeX::Core::PathName(fileName));
+  return OpenVFFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline int miktexopenxfmfile(FileType& f, const char* fileName)
 {
-  return OpenXFMFile(&f, MiKTeX::Core::PathName(fileName));
+  return OpenXFMFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenxvffile(FileType& f, const char* fileName)
 {
-  return OpenXVFFile(&f, MiKTeX::Core::PathName(fileName));
+  return OpenXVFFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline void miktexprintmiktexbanner(FileType& f)
@@ -228,10 +228,10 @@ public:
   MIKTEXMFTHISAPI(bool) AmIMETAFONT() const;
 
 public:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetTcxFileName() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetTcxFileName() const;
 
 protected:
-  MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Core::PathName& tcxFileName);
+  MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Util::PathName& tcxFileName);
 
 protected:
   MIKTEXMFTHISAPI(void) Enable8BitChars(bool enable8BitChars);

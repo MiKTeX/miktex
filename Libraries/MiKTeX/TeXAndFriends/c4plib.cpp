@@ -39,6 +39,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 #define C4P_BEGIN_NAMESPACE namespace C4P {
 #define C4P_END_NAMESPACE }

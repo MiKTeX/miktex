@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2008-2020 Christian Schenk
+   Copyright (C) 2008-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -42,10 +42,12 @@
 
 #include "InstallPackageDialog.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
-using namespace std;
+using namespace MiKTeX::Util;
 
 InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger) :
   QDialog(parent),

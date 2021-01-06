@@ -149,7 +149,7 @@ public:
   /// @param installRoot The path to the installation root directory.
   /// @return Returns `true`, if the package has been installed.
 public:
-  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& packageId, const MiKTeX::Core::PathName& trigger, MiKTeX::Core::PathName& installRoot) override;
+  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
 
   /// @brief Creates a file.
   ///
@@ -160,7 +160,7 @@ public:
   /// @param fileType The file type.
   /// @return Returns `true`, if the file has been created.
 public:
-  MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType) override;
+  MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override;
 
   /// @brief Prints an installer message.
   ///
@@ -223,7 +223,7 @@ public:
   /// @param editFileType The file type.
   /// @param transcriptFileName Path to a secondary file (usually a log file).
 public:
-  MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Core::PathName& transcriptFileName) const;
+  MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Util::PathName& editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Util::PathName& transcriptFileName) const;
 
   /// Prints a user friendly error message.
   /// @param name User friendly program name.

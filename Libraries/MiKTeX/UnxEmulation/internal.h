@@ -1,6 +1,6 @@
 /* internal.h: internal definitions			-*- C++ -*-
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2021 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -25,6 +25,7 @@
 #include "miktex/unxemu.h"
 
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/Utils>
 
 #define T_(x) MIKTEXTEXT(x)
 

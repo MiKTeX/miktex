@@ -39,13 +39,13 @@
 #include <utility>
 #include <vector>
 
+#include <miktex/Util/PathName>
+
 #include "Debug.h"
 #include "Exceptions.h"
 #include "VersionNumber.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
-
-class PathName;
 
 /// Information about an entry in a font map file.
 struct FontMapEntry
@@ -112,10 +112,10 @@ public:
   static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string& name, std::string& str);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string& name, PathName& path);
+  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string& name, MiKTeX::Util::PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) FindProgram(const std::string& programName, PathName& path);
+  static MIKTEXCORECEEAPI(bool) FindProgram(const std::string& programName, MiKTeX::Util::PathName& path);
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -151,23 +151,23 @@ public:
   static MIKTEXCORECEEAPI(bool) RunningOnAServer();
 
 public:
-  static MIKTEXCORECEEAPI(void) UncompressFile(const PathName& pathIn, PathName& pathOut);
+  static MIKTEXCORECEEAPI(void) UncompressFile(const MiKTeX::Util::PathName& pathIn, MiKTeX::Util::PathName& pathOut);
 
 public:
   // FIXME: bad interface
   static MIKTEXCORECEEAPI(const char*) GetRelativizedPath(const char* lpszPath, const char* lpszRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const PathName& path, PathName& uncRoot);
+  static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const MiKTeX::Util::PathName& path, MiKTeX::Util::PathName& uncRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName& path);
+  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const MiKTeX::Util::PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName);
+  static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const MiKTeX::Util::PathName& parentDir, const MiKTeX::Util::PathName& fileName);
 
 public:
-  static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const PathName& path);
+  static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const MiKTeX::Util::PathName& path);
 
 public:
   static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string& valueName, const std::string& value);
@@ -196,7 +196,7 @@ public:
   static MIKTEXCORECEEAPI(bool) ParseDvipsMapLine(const std::string& line, FontMapEntry& fontMapEntry);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsMiKTeXDirectRoot(const PathName& root);
+  static MIKTEXCORECEEAPI(bool) IsMiKTeXDirectRoot(const MiKTeX::Util::PathName& root);
 
 #if !HAVE_MIKTEX_USER_INFO
 public:
@@ -213,20 +213,17 @@ public:
   
 public:
 #if defined(MIKTEX_WINDOWS)
-  static MIKTEXCORECEEAPI(PathName) GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentPath);
+  static MIKTEXCORECEEAPI(MiKTeX::Util::PathName) GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentPath);
 #endif
 
 public:
   static MIKTEXCORECEEAPI(void) CheckHeap();
 
 public:
-  static MIKTEXCORECEEAPI(void) CanonicalizePathName(PathName& path);
+  static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const MiKTeX::Util::PathName& path, const MiKTeX::Util::PathName& suffix, MiKTeX::Util::PathName& prefix);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix);
-
-public:
-  static MIKTEXCOREEXPORT std::pair<bool, PathName> MIKTEXCEECALL ExpandTilde(const std::string& s);
+  static MIKTEXCOREEXPORT std::pair<bool, MiKTeX::Util::PathName> MIKTEXCEECALL ExpandTilde(const std::string& s);
 
 public:
   static bool IsPureAscii(const char* lpsz)

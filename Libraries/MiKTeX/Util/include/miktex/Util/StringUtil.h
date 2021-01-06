@@ -1,6 +1,6 @@
 /* miktex/Util/StringUtil.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -24,7 +24,7 @@
 #if !defined(F6BFCB48DCDA42E992057245151CA1D5)
 #define F6BFCB48DCDA42E992057245151CA1D5
 
-#include "config.h"
+#include <miktex/Util/config.h>
 
 #include <cstddef>
 #include <cwchar>

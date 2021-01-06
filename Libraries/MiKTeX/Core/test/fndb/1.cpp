@@ -29,7 +29,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/Fndb>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Util/StringUtil>
 

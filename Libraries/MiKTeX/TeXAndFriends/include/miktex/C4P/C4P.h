@@ -98,7 +98,7 @@ public:
   }
 
 public:
-  C4PTHISAPI(bool) Open(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool text, bool mustExist);
+  C4PTHISAPI(bool) Open(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool text, bool mustExist);
 
 public:
   void Close()
@@ -144,7 +144,7 @@ public:
   }
 
 protected:
-  MiKTeX::Core::PathName path;
+  MiKTeX::Util::PathName path;
 };
 
 template<class T> struct BufferedFile :
@@ -687,7 +687,7 @@ protected:
     bool reading = (lpszMode[0] == 'r');
     bool text = (lpszMode[1] == 0);
     return f.Open(
-      MiKTeX::Core::PathName(lpszName),
+      MiKTeX::Util::PathName(lpszName),
       (reading ? MiKTeX::Core::FileMode::Open : MiKTeX::Core::FileMode::Create),
       (reading ? MiKTeX::Core::FileAccess::Read : MiKTeX::Core::FileAccess::Write),
       text,

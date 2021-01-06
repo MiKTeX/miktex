@@ -37,8 +37,8 @@
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
-#include <miktex/Core/PathName>
-#include <miktex/Core/PathNameParser>
+#include <miktex/Util/PathName>
+#include <miktex/Util/PathNameParser>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Utils>
 #include <miktex/Util/Tokenizer>
@@ -387,57 +387,6 @@ MIKTEXINTERNALFUNC(bool) IsExplicitlyRelativePath(const char* lpszPath)
   {
     return false;
   }
-}
-
-MIKTEXINTERNALFUNC(PathName) GetFullyQualifiedPath(const char* lpszPath)
-{
-  PathName path;
-
-  if (!PathNameUtil::IsFullyQualifiedPath(lpszPath))
-  {
-#if defined(MIKTEX_WINDOWS)
-    if (PathNameUtil::IsDosDriveLetter(lpszPath[0]) && PathNameUtil::IsDosVolumeDelimiter(lpszPath[1]) && lpszPath[2] == 0)
-    {
-      path = lpszPath;
-      path += PathNameUtil::DirectoryDelimiter;
-      return path;
-    }
-    if (PathNameUtil::IsDirectoryDelimiter(lpszPath[0]))
-    {
-      MIKTEX_ASSERT(!PathNameUtil::IsDirectoryDelimiter(lpszPath[1]));
-      int currentDrive = _getdrive();
-      if (currentDrive == 0)
-      {
-        // TODO
-        MIKTEX_UNEXPECTED();
-      }
-      MIKTEX_EXPECT(currentDrive >= 1 && currentDrive <= 26);
-      char currentDriveLetter = 'A' + currentDrive - 1;
-      path = fmt::format("{0}{1}", currentDriveLetter, PathNameUtil::DosVolumeDelimiter);
-    }
-    else
-    {
-      path.SetToCurrentDirectory();
-    }
-#else
-    path.SetToCurrentDirectory();
-#endif
-  }
-
-  PathName fixme(lpszPath);
-  for (PathNameParser parser(fixme); parser; ++parser)
-  {
-    if (PathName::Compare(PathName(*parser), PathName(PARENT_DIRECTORY)) == 0)
-    {
-      path.CutOffLastComponent();
-    }
-    else if (PathName::Compare(PathName(*parser), PathName(CURRENT_DIRECTORY)) != 0)
-    {
-      path /= *parser;
-    }
-  }
-
-  return path;
 }
 
 void Utils::PrintException(const exception& e)

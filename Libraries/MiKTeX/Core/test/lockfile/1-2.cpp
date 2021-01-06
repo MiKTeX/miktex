@@ -1,6 +1,6 @@
 /* 1-1.cpp:
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,13 +29,14 @@
 
 #include <miktex/Core/File>
 #include <miktex/Core/LockFile>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 using namespace std;
 using namespace chrono_literals;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("lockfile-1-2");
 

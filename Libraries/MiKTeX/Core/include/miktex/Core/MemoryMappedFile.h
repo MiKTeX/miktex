@@ -1,6 +1,6 @@
 /* miktex/Core/MemoryMappedFile.h:                      -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,7 +28,7 @@
 
 #include <cstddef>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -44,7 +44,7 @@ public:
   /// be opened for reading and writing.
   /// @return Returns a pointer to the block of memory.
 public:
-  virtual void* MIKTEXTHISCALL Open(const PathName& path, bool readWrite) = 0;
+  virtual void* MIKTEXTHISCALL Open(const MiKTeX::Util::PathName& path, bool readWrite) = 0;
 
   /// Closes the file mapping.
 public:

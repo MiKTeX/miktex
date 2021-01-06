@@ -26,7 +26,7 @@
 #include <thread>
 #include <vector>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Process>
 
 #include "InProcPipe.h"
@@ -48,7 +48,7 @@ public:
   virtual ~PipeStream();
 
 public:
-  void Open(const MiKTeX::Core::PathName& fileName, const std::vector<std::string>& arguments);
+  void Open(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments);
 
 public:
   void Close();

@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,6 +31,7 @@
 
 #include <io.h>
 
+#include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Environment>
 #include <miktex/Core/win/winAutoResource>

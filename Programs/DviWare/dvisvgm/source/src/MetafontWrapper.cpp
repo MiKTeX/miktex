@@ -64,7 +64,7 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 	MiKTeX::Core::ProcessOutput<50000> processOutput;
 	int exitCode;
 	Message::mstream(false, Message::MC_STATE) << "\nrunning Metafont for " << _fontname << '\n';
-	MiKTeX::Core::Process::Run(MiKTeX::Core::PathName(MIKTEX_MF_EXE), {
+	MiKTeX::Core::Process::Run(MiKTeX::Util::PathName(MIKTEX_MF_EXE), {
 	  "\\mode="s + mode + ";"s,
 	  "mode_setup;"s,
 	  "mag:="s + std::to_string(mag) + ";"s,

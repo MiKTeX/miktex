@@ -31,7 +31,7 @@
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/MemoryMappedFile>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 #include "fndbmem.h"
 
@@ -40,7 +40,7 @@ CORE_INTERNAL_BEGIN_NAMESPACE;
 class FileNameDatabase
 {
 public:
-  static std::shared_ptr<FileNameDatabase> Create(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory);
+  static std::shared_ptr<FileNameDatabase> Create(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootDirectory);
 
 public:
   FileNameDatabase();
@@ -52,16 +52,16 @@ public:
   virtual ~FileNameDatabase();
 
 public:
-  bool Search(const MiKTeX::Core::PathName& relativePath, const std::string& pathPattern, bool all, std::vector<MiKTeX::Core::Fndb::Record>& result);
+  bool Search(const MiKTeX::Util::PathName& relativePath, const std::string& pathPattern, bool all, std::vector<MiKTeX::Core::Fndb::Record>& result);
 
 public:
   void Add(const std::vector<MiKTeX::Core::Fndb::Record>& records);
 
 public:
-  void Remove(const std::vector<MiKTeX::Core::PathName>& paths);
+  void Remove(const std::vector<MiKTeX::Util::PathName>& paths);
 
 public:
-  bool FileExists(const MiKTeX::Core::PathName& path);
+  bool FileExists(const MiKTeX::Util::PathName& path);
 
 public:
   std::chrono::time_point<std::chrono::high_resolution_clock> GetLastAccessTime() const
@@ -135,13 +135,13 @@ private:
   };
 
 private:
-  std::tuple<std::string, std::string> SplitPath(const MiKTeX::Core::PathName& path) const;
+  std::tuple<std::string, std::string> SplitPath(const MiKTeX::Util::PathName& path) const;
 
 private:
   std::string MakeKey(const std::string& fileName) const;
 
 private:
-  std::string MakeKey(const MiKTeX::Core::PathName& fileName) const;
+  std::string MakeKey(const MiKTeX::Util::PathName& fileName) const;
 
 private:
   void FastInsertRecord(Record&& record);
@@ -196,7 +196,7 @@ private:
   }
 
 private:
-  void Initialize(const MiKTeX::Core::PathName& fndbPath, const MiKTeX::Core::PathName& rootDirectory);
+  void Initialize(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootDirectory);
 
 private:
   void ApplyChangeFile();
@@ -205,7 +205,7 @@ private:
   FILE* OpenChangeFileExclusively();
 
 private:
-  void OpenFileNameDatabase(const MiKTeX::Core::PathName& fndbPath);
+  void OpenFileNameDatabase(const MiKTeX::Util::PathName& fndbPath);
 
 private:
   void CloseFileNameDatabase();
@@ -223,7 +223,7 @@ private:
 
   // file-system path to root directory
 private:
-  MiKTeX::Core::PathName rootDirectory;
+  MiKTeX::Util::PathName rootDirectory;
 
 private:
   typedef std::unordered_multimap<std::string, Record> FileNameHashTable;
@@ -232,7 +232,7 @@ private:
   FileNameHashTable fileNames;
 
 private:
-  MiKTeX::Core::PathName changeFile;
+  MiKTeX::Util::PathName changeFile;
   
 private:
   std::size_t changeFileSize = 0;

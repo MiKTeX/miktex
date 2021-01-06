@@ -31,7 +31,7 @@
 
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/FileType>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 #include <miktex/Util/CharBuffer>
 #include <miktex/Util/inliners.h>
@@ -250,7 +250,7 @@ inline int miktexmakesrcspecial(int fileName, int lineNo)
 
 template<class FileType> inline bool miktexopendvifile(FileType& f)
 {
-  MiKTeX::Core::PathName outPath;
+  MiKTeX::Util::PathName outPath;
   bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {
@@ -261,7 +261,7 @@ template<class FileType> inline bool miktexopendvifile(FileType& f)
 
 template<class FileType> inline bool miktexopenpdffile(FileType& f)
 {
-  MiKTeX::Core::PathName outPath;
+  MiKTeX::Util::PathName outPath;
   bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), false, outPath);
   if (done)
   {

@@ -1,6 +1,6 @@
 /* Lockfile.cpp: memory mapped files
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,7 +34,10 @@
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 
+#include <miktex/Util/PathName>
+
 #include "internal.h"
+
 #include "Session/SessionImpl.h"
 
 using namespace std;
@@ -42,6 +45,7 @@ using namespace chrono_literals;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 
 class LockFileImpl :
   public LockFile

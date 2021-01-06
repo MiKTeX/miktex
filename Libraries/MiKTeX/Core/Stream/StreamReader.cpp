@@ -1,6 +1,6 @@
 /* StreamReader.cpp:
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,12 +22,15 @@
 #include "config.h"
 
 #include <miktex/Core/StreamReader>
+#include <miktex/Core/Utils>
+#include <miktex/Util/PathName>
 
 #include "internal.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 StreamReader::StreamReader(const PathName& path) :
   stream(File::Open(path, FileMode::Open, FileAccess::Read))

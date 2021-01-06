@@ -37,7 +37,7 @@
 #endif
 
 #include <miktex/Core/Exceptions>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Process>
 #include <miktex/Core/Session>
 #include <miktex/Trace/Trace>
@@ -244,7 +244,7 @@ public:
 
       pSession = MiKTeX::Core::Session::Create(initInfo);
 
-      MiKTeX::Core::PathName xmlFileName;
+      MiKTeX::Util::PathName xmlFileName;
       if (pSession->FindFile("log4cxx.xml", "%R/miktex/config", xmlFileName))
       {
 #if defined(MIKTEX_WINDOWS)
@@ -336,14 +336,14 @@ protected:
 protected:
   bool FindFile(const char* lpszFileName, const char* lpszPathList)
   {
-    MiKTeX::Core::PathName path;
+    MiKTeX::Util::PathName path;
     return pSession->FindFile(lpszFileName, lpszPathList, path);
   }
 
 protected:
   bool RunTestCommand(const char* lpszProgramName)
   {
-  std::string commandLine = MiKTeX::Core::PathName(pSession->GetMyLocation(false), MiKTeX::Core::PathName(lpszProgramName)).ToString();
+  std::string commandLine = MiKTeX::Util::PathName(pSession->GetMyLocation(false), MiKTeX::Util::PathName(lpszProgramName)).ToString();
     for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
     {
       if (it != argv.begin())
@@ -359,7 +359,7 @@ protected:
   {
     FILE* pFile;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-    if (_wfopen_s(&pFile, MiKTeX::Core::PathName(lpszPath).ToExtendedLengthPathName().ToWideCharString().c_str(), L"wb") != 0)
+    if (_wfopen_s(&pFile, MiKTeX::Util::PathName(lpszPath).ToExtendedLengthPathName().ToWideCharString().c_str(), L"wb") != 0)
     {
       pFile = nullptr;
     }
@@ -374,7 +374,7 @@ protected:
   }
 
 protected:
-  void Touch(const MiKTeX::Core::PathName& path)
+  void Touch(const MiKTeX::Util::PathName& path)
   {
     Touch(path.GetData());
   }

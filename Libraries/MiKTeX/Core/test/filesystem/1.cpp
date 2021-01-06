@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,14 +29,18 @@
 
 #include <cstdio>
 
+#include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
-#include <miktex/Core/PathName>
+#include <miktex/Core/Utils>
+#include <miktex/Util/PathName>
+
+using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("filesystem-1");
 
@@ -78,25 +82,25 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
-  MiKTeX::Core::PathName dir;
+  MiKTeX::Util::PathName dir;
   dir.SetToCurrentDirectory();
   dir /= "d";
-  MiKTeX::Core::PathName subdir(dir);
+  MiKTeX::Util::PathName subdir(dir);
   subdir /= "dd/ddd";
   TESTX(MiKTeX::Core::Directory::Create(subdir));
   TEST(MiKTeX::Core::Directory::Exists(subdir));
   TEST(!MiKTeX::Core::File::Exists(subdir));
   MiKTeX::Core::FileAttributeSet attributes = MiKTeX::Core::File::GetAttributes(subdir);
   TEST(attributes[MiKTeX::Core::FileAttribute::Directory]);
-  MiKTeX::Core::PathName file = subdir;
+  MiKTeX::Util::PathName file = subdir;
   file /= "file.txt";
   Touch(file.GetData());
   TEST(MiKTeX::Core::File::Exists(file));
-  MiKTeX::Core::PathName dir2;
+  MiKTeX::Util::PathName dir2;
   dir2.SetToCurrentDirectory();
   dir2 /= "copy-of-d";
   TESTX(MiKTeX::Core::Directory::Copy(dir, dir2, { MiKTeX::Core::DirectoryCopyOption::CopySubDirectories }));
-  MiKTeX::Core::PathName file2 = dir2;
+  MiKTeX::Util::PathName file2 = dir2;
   file2 /= "dd/ddd";
   file2 /= "file.txt";
   TEST(MiKTeX::Core::File::Equals(file, file2));
@@ -142,7 +146,7 @@ BEGIN_TEST_FUNCTION(6);
   wchar_t szPath[BufferSizes::MaxPath];
   DWORD n = GetModuleFileNameW(nullptr, szPath, BufferSizes::MaxPath);
   TEST(n > 0 && n < MiKTeX::Core::BufferSizes::MaxPath);
-  MiKTeX::Core::PathName myself(szPath);
+  MiKTeX::Util::PathName myself(szPath);
   bool deletedMyself;
   try
   {
@@ -155,7 +159,7 @@ BEGIN_TEST_FUNCTION(6);
     deletedMyself = false;
   }
   TEST(!deletedMyself);
-  MiKTeX::Core::PathName clone(myself);
+  MiKTeX::Util::PathName clone(myself);
   clone.AppendExtension(".tmp");
   TESTX(MiKTeX::Core::File::Move(myself, clone));
   TEST(!MiKTeX::Core::File::Exists(myself));
@@ -171,10 +175,10 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(7);
 {
-  MiKTeX::Core::PathName cd;
+  MiKTeX::Util::PathName cd;
   cd.SetToCurrentDirectory();
-  MiKTeX::Core::PathName dir = cd / PathName("long-path-parent-directory");
-  MiKTeX::Core::PathName longPath(dir);
+  MiKTeX::Util::PathName dir = cd / PathName("long-path-parent-directory");
+  MiKTeX::Util::PathName longPath(dir);
   const int minLength = 900;
   for (int n = 0; longPath.GetLength() < minLength; ++n)
   {
@@ -182,7 +186,7 @@ BEGIN_TEST_FUNCTION(7);
   }
   TESTX(MiKTeX::Core::Directory::Create(longPath));
   TEST(MiKTeX::Core::Directory::Exists(longPath));
-  MiKTeX::Core::PathName file = longPath / PathName("file.txt");
+  MiKTeX::Util::PathName file = longPath / PathName("file.txt");
   Touch(file.GetData());
   TEST(MiKTeX::Core::File::Exists(file));
   TESTX(MiKTeX::Core::File::Delete(file));

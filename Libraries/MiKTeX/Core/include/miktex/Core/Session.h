@@ -41,14 +41,15 @@
 #include <miktex/Configuration/ConfigurationProvider>
 #include <miktex/Configuration/HasNamedValues>
 #include <miktex/Configuration/TriState>
+#include <miktex/Core/Text>
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Util/DateUtil>
 
 #include "Exceptions.h"
 #include "File.h"
 #include "FileType.h"
-#include "OptionSet.h"
-#include "PathName.h"
 #include "Process.h"
 #include "RootDirectoryInfo.h"
 #include "VersionNumber.h"
@@ -110,15 +111,15 @@ struct StartupConfig
 {
   /// User configuration root directory.
 public:
-  PathName userConfigRoot;
+  MiKTeX::Util::PathName userConfigRoot;
 
   /// User data root directory.
 public:
-  PathName userDataRoot;
+  MiKTeX::Util::PathName userDataRoot;
 
   /// User installation root directory.
 public:
-  PathName userInstallRoot;
+  MiKTeX::Util::PathName userInstallRoot;
 
   /// Additional TEXMF roots defined by the user.
 public:
@@ -130,15 +131,15 @@ public:
 
   /// System-wide configuration root directory.
 public:
-  PathName commonConfigRoot;
+  MiKTeX::Util::PathName commonConfigRoot;
 
   /// System-wide data root directory.
 public:
-  PathName commonDataRoot;
+  MiKTeX::Util::PathName commonDataRoot;
 
   /// System-wide installation root directory.
 public:
-  PathName commonInstallRoot;
+  MiKTeX::Util::PathName commonInstallRoot;
 
   /// Additional TEXMF root defined by the admin.
 public:
@@ -398,7 +399,7 @@ enum class ExpandOption
   PathPatterns
 };
 
-typedef OptionSet<ExpandOption> ExpandOptionSet;
+typedef MiKTeX::Util::OptionSet<ExpandOption> ExpandOptionSet;
 
 /// Root registration options.
 enum class RegisterRootDirectoriesOption
@@ -413,7 +414,7 @@ enum class RegisterRootDirectoriesOption
   Review
 };
 
-typedef OptionSet<RegisterRootDirectoriesOption> RegisterRootDirectoriesOptionSet;
+typedef MiKTeX::Util::OptionSet<RegisterRootDirectoriesOption> RegisterRootDirectoriesOptionSet;
 
 /// Shell command mode.
 enum class ShellCommandMode
@@ -437,14 +438,14 @@ class MIKTEXNOVTABLE IFindFileCallback
   /// @param[out] installRoot Installation root directory.
   /// @return Returns `true`, if the package has been installed.
 public:
-  virtual bool MIKTEXTHISCALL InstallPackage(const std::string& packageId, const PathName& trigger, PathName& installRoot) = 0;
+  virtual bool MIKTEXTHISCALL InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) = 0;
 
   /// Tries to create a file.
   /// @param fileName Name of the file to create.
   /// @param fileType Type of the file.
   /// @return Returns `true`, if the file has been created.
 public:
-  virtual bool MIKTEXTHISCALL TryCreateFile(const PathName& fileName, FileType fileType) = 0;
+  virtual bool MIKTEXTHISCALL TryCreateFile(const MiKTeX::Util::PathName& fileName, FileType fileType) = 0;
 };
 
 /// The MiKTeX session interface.
@@ -466,7 +467,7 @@ public:
   };
 
 public:
-  typedef OptionSet<FindFileOption> FindFileOptionSet;
+  typedef MiKTeX::Util::OptionSet<FindFileOption> FindFileOptionSet;
 
 public:
   /// Initialization options.
@@ -481,7 +482,7 @@ public:
   };
 
   /// Init flags enum.
-  typedef OptionSet<InitOption> InitOptionSet;
+  typedef MiKTeX::Util::OptionSet<InitOption> InitOptionSet;
 
   /// Extended initializion options.
 public:
@@ -693,13 +694,13 @@ public:
   /// @param path The file system path to the directory.
   /// @param atEnd Indicates wheter the directory shall be added at the end of the list.
 public:
-  virtual void MIKTEXTHISCALL AddInputDirectory(const PathName& path, bool atEnd) = 0;
+  virtual void MIKTEXTHISCALL AddInputDirectory(const MiKTeX::Util::PathName& path, bool atEnd) = 0;
 
   /// Gets a special file system path.
   /// @param specialPath Identifies the special path.
   /// @return Returns a path name.
 public:
-  virtual PathName MIKTEXTHISCALL GetSpecialPath(SpecialPath specialPath) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetSpecialPath(SpecialPath specialPath) = 0;
 
   /// Gets registered root directories.
   /// @return Returns the list of registered root directories.
@@ -715,7 +716,7 @@ public:
   /// @param r Identifies the root directory.
   /// @return Returns the file system path to the root directory.
 public:
-  virtual PathName MIKTEXTHISCALL GetRootDirectoryPath(unsigned r) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetRootDirectoryPath(unsigned r) = 0;
 
   /// Tests whether a root directory is registered system-wide.
   /// @param r Identifies the root directory.
@@ -732,37 +733,37 @@ public:
   /// Gets the virtual path to the MPM root directory.
   /// @return Returns the virtual path to the MPM root directory.
 public:
-  virtual PathName MIKTEXTHISCALL GetMpmRootPath() = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetMpmRootPath() = 0;
 
   /// Gets a path to the MPM file name database.
   /// @return Returns the path to the MPM file name database.
 public:
-  virtual PathName MIKTEXTHISCALL GetMpmDatabasePathName() = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetMpmDatabasePathName() = 0;
 
   /// Tries to get a root directory index from a file system path.
   /// @param path The file system path.
   /// @return Returns a root directory index (or `INVALID_ROOT_INDEX`).
 public:
-  virtual unsigned MIKTEXTHISCALL TryDeriveTEXMFRoot(const PathName& path) = 0;
+  virtual unsigned MIKTEXTHISCALL TryDeriveTEXMFRoot(const MiKTeX::Util::PathName& path) = 0;
 
   /// Get a root directory index from a file system path.
   /// @param path The file system path.
   /// @return Returns a root directory index.
 public:
-  virtual unsigned MIKTEXTHISCALL DeriveTEXMFRoot(const PathName& path) = 0;
+  virtual unsigned MIKTEXTHISCALL DeriveTEXMFRoot(const MiKTeX::Util::PathName& path) = 0;
 
   /// Finds a file name database.
   /// @param r Identifies the root directory.
   /// @param[out] path The file system path to the databsae.
   /// @return Returns `true`, if the database was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFilenameDatabase(unsigned r, PathName& path) = 0;
+  virtual bool MIKTEXTHISCALL FindFilenameDatabase(unsigned r, MiKTeX::Util::PathName& path) = 0;
 
   /// Gets the file system path to a file name database file.
   /// @param r Identifies the root directory.
   /// @return Returns the file system path to the databsae.
 public:
-  virtual PathName MIKTEXTHISCALL GetFilenameDatabasePathName(unsigned r) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetFilenameDatabasePathName(unsigned r) = 0;
 
   /// Unloads the file name database.
   /// @return Returns `true`, if the file name database could be unloaded.
@@ -783,7 +784,7 @@ public:
   /// @param[out] relative The relative path from the root directory.
   /// @return Returns the root directory index.
 public:
-  virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const PathName& path, PathName& root, PathName& relative) = 0;
+  virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const MiKTeX::Util::PathName& path, MiKTeX::Util::PathName& root, MiKTeX::Util::PathName& relative) = 0;
 
   /// Registers TEXMF root directories.
   /// @param startupConfig Specifies the root directories to register.
@@ -795,13 +796,13 @@ public:
   /// @param path The file system path to the root directory.
   /// @param other Indicates wheter the root directory is from another TeX system.
 public:
-virtual void MIKTEXTHISCALL RegisterRootDirectory(const PathName& path, bool other) = 0;
+virtual void MIKTEXTHISCALL RegisterRootDirectory(const MiKTeX::Util::PathName& path, bool other) = 0;
 
   /// Unregisters an additional root directory.
   /// @param path The file system path to the root directory.
   /// @param other Indicates wheter the root directory is from another TeX system.
 public:
-virtual void MIKTEXTHISCALL UnregisterRootDirectory(const PathName& path, bool other) = 0;
+virtual void MIKTEXTHISCALL UnregisterRootDirectory(const MiKTeX::Util::PathName& path, bool other) = 0;
 
   /// Moves a root directory up in the list.
   /// @param r Identifies the root directory.
@@ -849,7 +850,7 @@ public:
   /// @param isTextFile Specifies if the file should be opened in text mode.
   /// @return Returns the pointer to a `FILE` object.
 public:
-  virtual FILE* MIKTEXTHISCALL OpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
+  virtual FILE* MIKTEXTHISCALL OpenFile(const MiKTeX::Util::PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
 
   /// Tries to open a file.
   /// @param path The file system path to the file.
@@ -859,7 +860,7 @@ public:
   /// @return Returns the pointer to a `FILE` object. Returns `nullptr`, if
   /// the file could not be opened.
 public:
-  virtual FILE* MIKTEXTHISCALL TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
+  virtual FILE* MIKTEXTHISCALL TryOpenFile(const MiKTeX::Util::PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
 
   /// Tries to get information about an open file.
   /// @param file The pointer to the `FILE` object.
@@ -890,7 +891,7 @@ public:
   /// @param fileName Name of the file to be checked.
   /// @return Returns true, if the file has been opened.
 public:
-  virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const PathName& fileName) = 0;
+  virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const MiKTeX::Util::PathName& fileName) = 0;
 #endif
 
   /// Schedules the execution of a shell command when the application terminates.
@@ -902,7 +903,7 @@ public:
   /// Schedules the removal of a file when the application terminates.
   /// @param path The file system path to the file.
 public:
-  virtual void MIKTEXTHISCALL ScheduleFileRemoval(const PathName& path) = 0;
+  virtual void MIKTEXTHISCALL ScheduleFileRemoval(const MiKTeX::Util::PathName& path) = 0;
 #endif
 
   /// Starts recording file names
@@ -919,13 +920,13 @@ public:
   /// Sets the file name recorder log file.
   /// @param path The file system path to the log file.
 public:
-  virtual void MIKTEXTHISCALL SetRecorderPath(const PathName& path) = 0;
+  virtual void MIKTEXTHISCALL SetRecorderPath(const MiKTeX::Util::PathName& path) = 0;
 
   /// Adds a file name record to the log file.
   /// @param The file system file to the file.
   /// @param How the file is accessed.
 public:
-  virtual void MIKTEXTHISCALL RecordFileInfo(const PathName& path, FileAccess access) = 0;
+  virtual void MIKTEXTHISCALL RecordFileInfo(const MiKTeX::Util::PathName& path, FileAccess access) = 0;
 
   /// Gets the recorded file names.
   /// @return Returns the recorded file names.
@@ -936,7 +937,7 @@ public:
   /// @param fileName The file name.
   /// @return Returns the derived file type.
 public:
-  virtual FileType MIKTEXTHISCALL DeriveFileType(const PathName& fileName) = 0;
+  virtual FileType MIKTEXTHISCALL DeriveFileType(const MiKTeX::Util::PathName& fileName) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -945,7 +946,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, std::vector<PathName>& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -953,7 +954,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, std::vector<PathName>& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, std::vector<MiKTeX::Util::PathName>& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -962,7 +963,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -970,7 +971,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -979,7 +980,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, FindFileOptionSet options, std::vector<PathName>& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -987,7 +988,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, std::vector<PathName>& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, std::vector<MiKTeX::Util::PathName>& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -996,7 +997,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, FindFileOptionSet options, PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, FindFileOptionSet options, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -1004,7 +1005,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a PK font file.
   /// @param fontName The name of the font to search.
@@ -1013,7 +1014,7 @@ public:
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindPkFile(const std::string& fontName, const std::string& mfMode, int dpi, PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindPkFile(const std::string& fontName, const std::string& mfMode, int dpi, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a TFM file.
   /// @param fontName The name of the font to search.
@@ -1021,7 +1022,7 @@ public:
   /// @param create Indicates, if the TFM file should be created if it was not found.
   /// @return Return `true`, if the file was found.
 public:
-  virtual bool MIKTEXTHISCALL FindTfmFile(const std::string& fontName, PathName& result, bool create) = 0;
+  virtual bool MIKTEXTHISCALL FindTfmFile(const std::string& fontName, MiKTeX::Util::PathName& result, bool create) = 0;
 
   /// Sets the callback interface for file search.
   /// @param callback The pointer to an object which implements the interface.
@@ -1036,7 +1037,7 @@ public:
   /// @param[out] fontName The font name.
   /// @param[oit] pointSize The size of the font.
 public:
-  virtual void MIKTEXTHISCALL SplitFontPath(const PathName& fontPath, std::string* fontType, std::string* supplier, std::string* typeface, std::string* fontName, std::string* pointSize) = 0;
+  virtual void MIKTEXTHISCALL SplitFontPath(const MiKTeX::Util::PathName& fontPath, std::string* fontType, std::string* supplier, std::string* typeface, std::string* fontName, std::string* pointSize) = 0;
 
   /// Searches a font file.
   /// @param fontName The name of the font to search.
@@ -1051,7 +1052,7 @@ public:
   /// @param[out] versionNumber The Ghostscript version number
   /// @return Returns the file system path to the Ghostscript program file.
 public:
-  virtual PathName MIKTEXTHISCALL GetGhostscript(unsigned long* versionNumber) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetGhostscript(unsigned long* versionNumber) = 0;
 
   /// Gets the seach path for a file type.
   /// @param fileType The file type.
@@ -1065,7 +1066,7 @@ public:
   /// @param callback The pointer to an object implementing the `IRunProcessCallback` callback.
   /// @return Returns `true`, if the conversion was successful.
 public:
-  virtual bool MIKTEXTHISCALL ConvertToBitmapFile(const PathName& sourceFileName, PathName& destFileName, IRunProcessCallback* callback) = 0;
+  virtual bool MIKTEXTHISCALL ConvertToBitmapFile(const MiKTeX::Util::PathName& sourceFileName, MiKTeX::Util::PathName& destFileName, IRunProcessCallback* callback) = 0;
 
   /// Enables or disables automatic font file creation.
   /// @param enable Indicates whether automatic font file creation is enabled.
@@ -1087,7 +1088,7 @@ public:
   /// @param enableInstaller Indicates whether automatic package installation is allowed.
   /// @return Returns the `makepk` command-line arguments.
 public:
-  virtual std::vector<std::string> MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, MiKTeX::Configuration::TriState enableInstaller) = 0;
+  virtual std::vector<std::string> MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Util::PathName& fileName, MiKTeX::Configuration::TriState enableInstaller) = 0;
 
 #if defined(MIKTEX_WINDOWS)
   /// Executes a Windows batch script.
@@ -1193,19 +1194,19 @@ public:
   /// @param canonicalized Indicates wheter symbolic links should be followed.
   /// @return Returns the file system path to the running program file.
 public:
-  virtual PathName MIKTEXTHISCALL GetMyProgramFile(bool canonicalized) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetMyProgramFile(bool canonicalized) = 0;
 
   /// Gets the file system path to the directory of the running program file.
   /// @param canonicalized Indicates wheter symbolic links should be followed.
   /// @return Returns the file system path to the directory of running program file.
 public:
-  virtual PathName MIKTEXTHISCALL GetMyLocation(bool canonicalized) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetMyLocation(bool canonicalized) = 0;
 
   /// Gets the file system path to the prefix directory of the running program file.
   /// @param canonicalized Indicates wheter symbolic links should be followed.
   /// @return Returns the file system path to the prefix directory.
 public:
-  virtual PathName MIKTEXTHISCALL GetMyPrefix(bool canonicalized) = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetMyPrefix(bool canonicalized) = 0;
 
   /// Tests whether the program runs with elevated privileges.
   /// @return Returns `true`, if the program is running with elevated privileges.
@@ -1255,7 +1256,7 @@ public:
   /// @param The file system path to the file.
   /// @return Returns `true`, if the file has been created.
 public:
-  virtual bool MIKTEXTHISCALL TryCreateFromTemplate(const PathName& path) = 0;
+  virtual bool MIKTEXTHISCALL TryCreateFromTemplate(const MiKTeX::Util::PathName& path) = 0;
 
   /// Tests whether the current user is an administrator.
   /// @return Returns `true`, if the current user is an administrator.
@@ -1267,13 +1268,13 @@ public:
   /// @param pathOut The file system path to the destination file.
   /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathIn, const PathName& pathOut, MiKTeX::Configuration::HasNamedValues* callback = nullptr) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const MiKTeX::Util::PathName& pathIn, const MiKTeX::Util::PathName& pathOut, MiKTeX::Configuration::HasNamedValues* callback = nullptr) = 0;
 
   /// Configures a file.
   /// @param pathRel The relative file system path to the destination file.
   /// @param callback The pointer to an object which implements the `HasNamedValue` interface.
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathRel, MiKTeX::Configuration::HasNamedValues* callback = nullptr) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const MiKTeX::Util::PathName& pathRel, MiKTeX::Configuration::HasNamedValues* callback = nullptr) = 0;
 
   /// Sets the descriptive name of the running program.
   /// @param name The descriptive name.

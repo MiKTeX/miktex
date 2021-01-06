@@ -42,8 +42,8 @@ MIKTEX_WEB2C_BEGIN_NAMESPACE;
 MIKTEXW2CCEEAPI(void) ChangeRecorderFileName(const char* fileName);
 MIKTEXW2CCEEAPI(int) OpenInput(FILE** ppfile, kpse_file_format_type format, const char* modeString);
 MIKTEXW2CCEEAPI(void) RecordFileName(const char* path, MiKTeX::Core::FileAccess access);
-MIKTEXW2CCEEAPI(MiKTeX::Core::PathName) GetOutputDirectory();
-MIKTEXW2CCEEAPI(void) SetOutputDirectory(const MiKTeX::Core::PathName& path);
+MIKTEXW2CCEEAPI(MiKTeX::Util::PathName) GetOutputDirectory();
+MIKTEXW2CCEEAPI(void) SetOutputDirectory(const MiKTeX::Util::PathName& path);
 
 MIKTEX_WEB2C_END_NAMESPACE;
 #endif

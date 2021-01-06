@@ -1,6 +1,6 @@
 /* touch.cpp:
 
-   Copyright (C) 2008-2020 Christian Schenk
+   Copyright (C) 2008-2021 Christian Schenk
 
    This file is part of miktex-touch.
 
@@ -24,6 +24,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
 
@@ -34,10 +35,11 @@
 #include <iostream>
 #include <locale>
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
-using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 

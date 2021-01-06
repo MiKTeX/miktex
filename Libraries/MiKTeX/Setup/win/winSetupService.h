@@ -63,13 +63,13 @@ private:
   void UnregisterPath(bool shared) override;
 
 private:
-  void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
+  void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
 
 private:
-  bool Exists(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
+  bool Exists(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
 
 private:
-  bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
+  bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
 
 private:
   bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(std::string& path);
@@ -81,13 +81,13 @@ private:
   void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, DWORD value);
 
 private:
-  MiKTeX::Core::PathName CreateProgramFolder();
+  MiKTeX::Util::PathName CreateProgramFolder();
 
 private:
-  void CreateShellLink(const MiKTeX::Core::PathName& pathFolder, const ShellLinkData& ld);
+  void CreateShellLink(const MiKTeX::Util::PathName& pathFolder, const ShellLinkData& ld);
 
 private:
-  void CreateInternetShortcut(const MiKTeX::Core::PathName& path, const std::string& url);
+  void CreateInternetShortcut(const MiKTeX::Util::PathName& path, const std::string& url);
 
 private:
   std::vector<ShellLinkData> GetShellLinks();

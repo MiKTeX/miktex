@@ -176,9 +176,9 @@ public:
   }
 
 public:
-  MiKTeX::Core::PathName GetMemoryDumpFileName() const override
+  MiKTeX::Util::PathName GetMemoryDumpFileName() const override
   {
-    return MiKTeX::Core::PathName("mf.base");
+    return MiKTeX::Util::PathName("mf.base");
   }
 
 public:

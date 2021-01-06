@@ -35,6 +35,7 @@
 #include <cstdlib>
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 #define exit(status) throw(status)
 #define ERRBUFSIZE 512
 #define MAXPATHLEN 260

@@ -57,7 +57,7 @@ public:
   }
 
 protected:
-  void StartThread(const MiKTeX::Core::PathName& path, bool reading)
+  void StartThread(const MiKTeX::Util::PathName& path, bool reading)
   {
     thrd = std::thread(&CompressedStreamBase::UncompressThread, this, path, reading);
   }
@@ -70,7 +70,7 @@ protected:
   }
 
 protected:
-  void UncompressThread(MiKTeX::Core::PathName path, bool reading)
+  void UncompressThread(MiKTeX::Util::PathName path, bool reading)
   {
     try
     {
@@ -95,7 +95,7 @@ protected:
   }
 
 protected:
-  virtual void DoUncompress(const MiKTeX::Core::PathName& path) = 0;
+  virtual void DoUncompress(const MiKTeX::Util::PathName& path) = 0;
 
 protected:
   std::thread thrd;

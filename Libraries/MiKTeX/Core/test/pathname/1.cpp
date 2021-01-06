@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,17 +22,20 @@
 #include "config.h"
 
 #include <miktex/Core/Test>
+#include <miktex/Core/Utils>
 
-#include <miktex/Core/PathName>
-#include <miktex/Core/PathNameParser>
+#include <miktex/Util/PathName>
+#include <miktex/Util/PathNameParser>
 
 #if defined(MIKTEX_WINDOWS)
 #include <direct.h>
 #endif
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("pathname-1");
 
@@ -271,14 +274,14 @@ END_TEST_FUNCTION();
 #if defined(MIKTEX_WINDOWS)
 BEGIN_TEST_FUNCTION(14);
 {
-  TEST(MiKTeX::Core::PathName("C:/Foo/bar/FooBar.txt").ToExtendedLengthPathName() == PathName("\\\\?\\C:\\Foo\\bar\\FooBar.txt"));
+  TEST(MiKTeX::Util::PathName("C:/Foo/bar/FooBar.txt").ToExtendedLengthPathName() == PathName("\\\\?\\C:\\Foo\\bar\\FooBar.txt"));
   PathName longPathRel("rel");
   for (int n = 0; n < 100; ++n)
   {
     longPathRel /= "abcdefghij-"s + std::to_string(n);
   }
   TEST(MiKTeX::Util::PathNameUtil::IsAbsolutePath(longPathRel.ToExtendedLengthPathName().ToString()));
-  TEST(MiKTeX::Core::PathName("nul").ToExtendedLengthPathName() == PathName("\\\\.\\nul"));
+  TEST(MiKTeX::Util::PathName("nul").ToExtendedLengthPathName() == PathName("\\\\.\\nul"));
 }
 END_TEST_FUNCTION();
 #endif

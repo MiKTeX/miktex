@@ -1,6 +1,6 @@
 /* FormatDefinitionDialog.cpp:
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -24,8 +24,10 @@
 #include "FormatDefinitionDialog.h"
 #include "ui_formatdefinitiondialog.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 FormatInfo newFormat()
 {

@@ -42,7 +42,7 @@
 #    include <miktex/unxemu.h>
 #  endif
 #  include <miktex/Core/Directory>
-#  include <miktex/Core/PathName>
+#  include <miktex/Util/PathName>
 #endif
 
 #ifndef _WIN32
@@ -116,7 +116,7 @@ GooString *appendToPath(GooString *path, const char *fileName)
     tmp->append('/');
     tmp->append(fileName);
 #if defined(MIKTEX_WINDOWS)
-    MiKTeX::Core::PathName absPath(tmp->c_str());
+    MiKTeX::Util::PathName absPath(tmp->c_str());
     absPath.MakeFullyQualified();
     delete tmp;
     path->clear();
@@ -467,7 +467,7 @@ GDirEntry::GDirEntry(const char *dirPath, const char *nameA, bool doStat)
     appendToPath(fullPath, nameA);
     if (doStat) {
 #if defined(MIKTEX)
-      dir = MiKTeX::Core::Directory::Exists(MiKTeX::Core::PathName(fullPath->c_str()));
+      dir = MiKTeX::Core::Directory::Exists(MiKTeX::Util::PathName(fullPath->c_str()));
 #else
 #ifdef _WIN32
         fa = GetFileAttributesA(fullPath->c_str());

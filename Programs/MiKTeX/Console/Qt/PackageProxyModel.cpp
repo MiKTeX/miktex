@@ -1,6 +1,6 @@
 /* PackageProxyModel.cpp:
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -19,8 +19,8 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include <miktex/Core/PathName>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Util/PathName>
 
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
@@ -29,6 +29,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Util;
 
 PackageProxyModel::PackageProxyModel(QObject* parent) :
   QSortFilterProxyModel(parent)

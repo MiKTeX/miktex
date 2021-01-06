@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 {
 #if defined(MIKTEX)
   MiKTeX::Core::Session::Get()->PushAppName("asymptote");
-  MiKTeX::Core::PathName plainAsy;
+  MiKTeX::Util::PathName plainAsy;
   if (!MiKTeX::Core::Session::Get()->FindFile("plain.asy", MiKTeX::Core::FileType::PROGRAMTEXTFILE, plainAsy))
   {
     cerr

@@ -1,6 +1,6 @@
 /* 4.cpp:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,13 +26,15 @@
 #include <string>
 
 #include <miktex/Core/File>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
-using namespace std;
+using namespace MiKTeX::Util;
 
 class PipeStream
 {
@@ -42,7 +44,7 @@ public:
     Close();
   }
 public:
-  void Open(const MiKTeX::Core::PathName& fileName, const std::vector<std::string>& arguments)
+  void Open(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments)
   {
     MiKTeX::Core::ProcessStartInfo startInfo;
     startInfo.FileName = fileName.ToString();

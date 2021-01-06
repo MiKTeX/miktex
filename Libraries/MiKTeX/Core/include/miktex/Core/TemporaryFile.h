@@ -28,7 +28,7 @@
 
 #include <memory>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -41,7 +41,7 @@ public:
   virtual void MIKTEXTHISCALL Delete() = 0;
 
 public:
-  virtual PathName MIKTEXTHISCALL GetPathName() const = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetPathName() const = 0;
 
 public:
   virtual void MIKTEXTHISCALL Keep() = 0;
@@ -50,7 +50,7 @@ public:
   static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryFile>) Create();
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryFile>) Create(const PathName& path);
+  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryFile>) Create(const MiKTeX::Util::PathName& path);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

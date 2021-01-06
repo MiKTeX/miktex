@@ -1,6 +1,6 @@
 /* dvipdft.cpp: run dvipdfm-gswin32-dvipdfm
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2021 Christian Schenk
 
    This file is part of dvipdm.
 
@@ -35,11 +35,13 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/TemporaryDirectory>
 
-using namespace MiKTeX::App;
-using namespace MiKTeX::Core;
-using namespace MiKTeX;
 using namespace std;
 using namespace std::string_literals;
+
+using namespace MiKTeX;
+using namespace MiKTeX::App;
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 void FatalError(const char* lpszFormat, ...)
 {

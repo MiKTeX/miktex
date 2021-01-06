@@ -1,6 +1,6 @@
 /* TarBzip2Extractor.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -38,6 +38,7 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 
 void TarBzip2Extractor::Extract(const PathName& path, const PathName& destDir, bool makeDirectories, IExtractCallback* callback, const string& prefix)
 {

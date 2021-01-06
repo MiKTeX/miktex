@@ -34,12 +34,12 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Environment>
-#include <miktex/Core/PathNameParser>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Uri>
 #include <miktex/Core/Utils>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
+#include <miktex/Util/PathNameParser>
 
 #include "internal.h"
 #include "PackageManagerImpl.h"

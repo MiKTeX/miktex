@@ -56,7 +56,7 @@
 #include <kpathsea/kpathsea.h>
 
 #if defined(__cplusplus)
-#  include <miktex/Core/PathName>
+#  include <miktex/Util/PathName>
 #else
 #  include <miktex/Core/c/api.h>
 #endif
@@ -480,7 +480,7 @@ MIKTEXNORETURN inline void FATAL_PERROR(const char* str)
 #if defined(__cplusplus)
 inline int FILESTRCASEEQ(const char* s1, const char* s2)
 {
-  return MiKTeX::Core::PathName::Compare(s1, s2) == 0;
+  return MiKTeX::Util::PathName::Compare(s1, s2) == 0;
 }
 #else
 #define FILESTRCASEEQ(s1, s2) (miktex_pathcmp(s1, s2) == 0)

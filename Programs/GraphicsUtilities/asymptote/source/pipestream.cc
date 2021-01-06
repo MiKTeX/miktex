@@ -51,7 +51,7 @@ void iopipestream::open(const mem::vector<string> &command, const char *hint,
                         const char *application, int out_fileno)
 {
 #if defined(MIKTEX_WINDOWS)
-  pipeStream.Open(MiKTeX::Core::PathName(command[0]), command);
+  pipeStream.Open(MiKTeX::Util::PathName(command[0]), command);
 #else
   if(pipe(in) == -1) {
     ostringstream buf;

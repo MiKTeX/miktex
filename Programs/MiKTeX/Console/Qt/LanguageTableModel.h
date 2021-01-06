@@ -79,7 +79,7 @@ private:
     {
     }
     bool loaderExists = false;
-    MiKTeX::Core::PathName loaderPath;
+    MiKTeX::Util::PathName loaderPath;
     std::vector<std::string> packageNames;
   };
 

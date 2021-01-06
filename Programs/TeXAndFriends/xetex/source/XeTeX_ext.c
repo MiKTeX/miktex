@@ -2722,7 +2722,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
   if (nopdfoutput)
   {
-    MiKTeX::Core::PathName outPath;
+    MiKTeX::Util::PathName outPath;
     bool done = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(dviFile, MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), false, outPath);
     if (done)
     {
@@ -2732,7 +2732,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
   }
   else
   {
-    MiKTeX::Core::PathName dvipdfmx;
+    MiKTeX::Util::PathName dvipdfmx;
     if (!session->FindFile(dvipdfmxExecutable, MiKTeX::Core::FileType::EXE, dvipdfmx))
     {
       return 0;
@@ -2752,7 +2752,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
       break;
     }
     processStartInfo.Arguments.insert(processStartInfo.Arguments.end(), dvipdfmxArgs.begin(), dvipdfmxArgs.end());
-    MiKTeX::Core::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile();
+    MiKTeX::Util::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile();
     processStartInfo.Arguments.push_back("-o");
     processStartInfo.Arguments.push_back(outPath.ToString());
     if (papersize != nullptr)

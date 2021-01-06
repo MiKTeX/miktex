@@ -38,7 +38,7 @@ public:
   ~winMemoryMappedFile() override;
 
 public:
-  void* MIKTEXTHISCALL Open(const MiKTeX::Core::PathName& path, bool readWrite) override;
+  void* MIKTEXTHISCALL Open(const MiKTeX::Util::PathName& path, bool readWrite) override;
 
 public:
   void MIKTEXTHISCALL Close() override;
@@ -86,7 +86,7 @@ private:
   bool readWrite = false;
 
 private:
-  MiKTeX::Core::PathName path;
+  MiKTeX::Util::PathName path;
 
 private:
   std::string name;

@@ -215,9 +215,9 @@ public:
   }
 
 public:
-  MiKTeX::Core::PathName GetMemoryDumpFileName() const override
+  MiKTeX::Util::PathName GetMemoryDumpFileName() const override
   {
-    return MiKTeX::Core::PathName("xetex.fmt");
+    return MiKTeX::Util::PathName("xetex.fmt");
   }
 
 public:
@@ -239,7 +239,7 @@ public:
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
   {
     MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
@@ -429,7 +429,7 @@ inline bool eightbitp()
 inline bool miktexopentfmfile(XETEXPROGCLASS::bytefile& f, const XETEXPROGCLASS::utf8code* lpszFileName_)
 {
   const char* lpszFileName = (const char*)lpszFileName_;
-  MiKTeX::Core::PathName fileName(MiKTeX::Util::StringUtil::UTF8ToWideChar(lpszFileName));
+  MiKTeX::Util::PathName fileName(MiKTeX::Util::StringUtil::UTF8ToWideChar(lpszFileName));
   return MiKTeX::TeXAndFriends::OpenTFMFile(&f, fileName);
 }
 

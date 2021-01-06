@@ -1,6 +1,6 @@
 /* RootDirectoryInfo.h:                                 -*- C++ -*-
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,8 +26,8 @@
 
 #include <miktex/Core/config.h>
 
-#include "OptionSet.h"
-#include "PathName.h"
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -43,7 +43,7 @@ public:
   };
 
 public:
-  typedef MiKTeX::Core::OptionSet<Purpose> Purposes;
+  typedef MiKTeX::Util::OptionSet<Purpose> Purposes;
 
 public:
   enum class Attribute
@@ -54,10 +54,10 @@ public:
   };
 
 public:
-  typedef MiKTeX::Core::OptionSet<Attribute> Attributes;
+  typedef MiKTeX::Util::OptionSet<Attribute> Attributes;
 
 public:
-  MiKTeX::Core::PathName path;
+  MiKTeX::Util::PathName path;
 
 public:
   Purposes purposes;

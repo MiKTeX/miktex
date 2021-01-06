@@ -89,7 +89,7 @@ public:
   MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& packageId) override;
 
 public:
-  void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path, bool isArchive) override;
+  void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Util::PathName& path, bool isArchive) override;
 
 public:
   void MIKTEXTHISCALL UnloadDatabase() override;
@@ -128,10 +128,10 @@ public:
   bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& packageId, MiKTeX::Packages::PackageInfo& packageInfo) override;
 
 private:
-  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
+  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Util::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
 
 private:
-  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
+  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Util::PathName& directory) override;
 
 public:
   void OnProgress() override;
@@ -204,10 +204,10 @@ public:
   void ClearAll();
 
 private:
-  bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
+  bool TryGetFileDigest(const MiKTeX::Util::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
 
 private:
-  bool TryCollectFileDigests(const MiKTeX::Core::PathName& prefix, const std::vector<std::string>& files, FileDigestTable& fileDigests);
+  bool TryCollectFileDigests(const MiKTeX::Util::PathName& prefix, const std::vector<std::string>& files, FileDigestTable& fileDigests);
 
 private:
   void Dispose();

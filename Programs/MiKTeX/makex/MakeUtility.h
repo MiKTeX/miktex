@@ -35,7 +35,7 @@
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
@@ -59,7 +59,7 @@
 
 inline bool HasPrefix(const std::string& s1, const std::string& s2)
 {
-  return MiKTeX::Core::PathName::Compare(MiKTeX::Core::PathName(s1), MiKTeX::Core::PathName(s2), s2.length()) == 0;
+  return MiKTeX::Util::PathName::Compare(MiKTeX::Util::PathName(s1), MiKTeX::Util::PathName(s2), s2.length()) == 0;
 }
 
 class ProcessOutputTrash :
@@ -189,10 +189,10 @@ protected:
   }
   
 protected:
-  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments, const MiKTeX::Core::PathName& workingDirectory)
+  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments, const MiKTeX::Util::PathName& workingDirectory)
   {
     // find the executable; make sure it contains no blanks
-    MiKTeX::Core::PathName exe;
+    MiKTeX::Util::PathName exe;
     if (!session->FindFile(exeName, MiKTeX::Core::FileType::EXE, exe))
     {
       FatalError(fmt::format(T_("The application file {0} could not be found."), Q_(exeName)));
@@ -251,7 +251,7 @@ protected:
   }
 
 protected:
-  bool RunMETAFONT(const char* name, const char* mode, const char* mag, const MiKTeX::Core::PathName& workingDirectory)
+  bool RunMETAFONT(const char* name, const char* mode, const char* mag, const MiKTeX::Util::PathName& workingDirectory)
   {
     std::vector<std::string> arguments;
     arguments.push_back(fmt::format("--undump={}", "mf"));
@@ -270,7 +270,7 @@ protected:
       return true;
     }
     Verbose(T_("METAFONT failed for some reason"));
-    MiKTeX::Core::PathName pathLogFile = workingDirectory / MiKTeX::Core::PathName(name);
+    MiKTeX::Util::PathName pathLogFile = workingDirectory / MiKTeX::Util::PathName(name);
     pathLogFile.AppendExtension(".log");
     bool noError = true;
     size_t nStrangePaths = 0;
@@ -298,7 +298,7 @@ protected:
   }
   
 protected:
-  void Install(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest)
+  void Install(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest)
   {
     PrintOnly(fmt::format("cp {} {}", Q_(source), Q_(dest)));
     PrintOnly("initexmf --update-fndb");
@@ -310,9 +310,9 @@ protected:
   }
 
 protected:
-  MiKTeX::Core::PathName CreateDirectoryFromTemplate(const std::string& templ)
+  MiKTeX::Util::PathName CreateDirectoryFromTemplate(const std::string& templ)
   {
-    MiKTeX::Core::PathName path;
+    MiKTeX::Util::PathName path;
     const char* lpszTemplate = templ.c_str();
     if (lpszTemplate[0] == '%'
         && lpszTemplate[1] == 'R'
@@ -403,7 +403,7 @@ protected:
   bool stdoutStderr = true;
 
 protected:
-  MiKTeX::Core::PathName destinationDirectory;
+  MiKTeX::Util::PathName destinationDirectory;
 
 protected:
   std::string name;

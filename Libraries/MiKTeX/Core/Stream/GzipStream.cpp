@@ -26,6 +26,8 @@
 #include <miktex/Core/FileStream>
 #include <miktex/Core/GzipStream>
 
+#include <miktex/Util/PathName>
+
 #include "internal.h"
 
 #include "CompressedStreamBase.h"
@@ -34,6 +36,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 class GzipStreamImpl :
   public CompressedStreamBase<GzipStream>

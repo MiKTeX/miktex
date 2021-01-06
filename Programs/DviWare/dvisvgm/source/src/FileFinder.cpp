@@ -32,6 +32,7 @@
 	#endif
 #endif
 #if defined(MIKTEX)
+#include <miktex/Core/Utils>
 #include <miktex/Core/c/api.h>
 #endif
 

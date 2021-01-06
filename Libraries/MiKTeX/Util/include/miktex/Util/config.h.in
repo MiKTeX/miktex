@@ -52,4 +52,10 @@
     }                                           \
   }
 
+MIKTEX_UTIL_BEGIN_NAMESPACE;
+
+constexpr auto MIKTEX_UTIL_PATHNAME_SIZE = @MIKTEX_UTIL_PATHNAME_SIZE@;
+
+MIKTEX_UTIL_END_NAMESPACE;
+
 #endif

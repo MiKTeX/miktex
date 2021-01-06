@@ -168,7 +168,7 @@ void TWApp::init()
             if (session->IsMiKTeXPortable())
             {
               Tw::Settings::setDefaultFormat(QSettings::IniFormat);
-              MiKTeX::Core::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
+              MiKTeX::Util::PathName path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
               Tw::Settings::setPath(QSettings::IniFormat, QSettings::UserScope, QString::fromUtf8(path.GetData()));
             }
           }
@@ -856,7 +856,7 @@ void TWApp::setDefaultPaths()
 #if defined(MIKTEX)
           {
             auto session = MiKTeX::Core::Session::Get();
-            MiKTeX::Core::PathName d = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot) / MiKTeX::Core::PathName(MIKTEX_PATH_BIN_DIR);
+            MiKTeX::Util::PathName d = session->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot) / MiKTeX::Util::PathName(MIKTEX_PATH_BIN_DIR);
             QString dir = QString::fromUtf8(d.GetData());
             if (!binaryPaths->contains(dir))
             {

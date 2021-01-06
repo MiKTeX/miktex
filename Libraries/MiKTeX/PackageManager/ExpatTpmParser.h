@@ -27,7 +27,7 @@
 
 #include <expat.h>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Util/CharBuffer>
 
 #include <miktex/PackageManager/PackageManager>
@@ -46,7 +46,7 @@ public:
   ~ExpatTpmParser() override;
 
 public:
-  void Parse(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix) override;
+  void Parse(const MiKTeX::Util::PathName& path, const std::string& texmfPrefix) override;
 
   // get the result
 public:

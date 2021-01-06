@@ -1,6 +1,6 @@
 /* winMemoryMappedFile.cpp: memory mapped files
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/BufferSizes>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/PathNameUtil>
 
@@ -32,10 +33,11 @@
 #include "winMemoryMappedFile.h"
 #include "Utils/inliners.h"
 
+using namespace std;
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-using namespace std;
 
 MemoryMappedFile* MemoryMappedFile::Create()
 {

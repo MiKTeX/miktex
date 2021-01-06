@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 2020 Christian Schenk
+   Copyright (C) 2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,6 +30,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
+using namespace MiKTeX::Util;
 
 BEGIN_TEST_SCRIPT("exceptions-1");
 

@@ -1,6 +1,6 @@
 /* miktex/Core/TemporaryDirectory.h:                    -*- C++ -*-
 
-   Copyright (C) 2016-2018 Christian Schenk
+   Copyright (C) 2016-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,7 +28,7 @@
 
 #include <memory>
 
-#include "PathName.h"
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -41,7 +41,7 @@ public:
   virtual void MIKTEXTHISCALL Delete() = 0;
 
 public:
-  virtual PathName MIKTEXTHISCALL GetPathName() = 0;
+  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetPathName() = 0;
 
 public:
   virtual void MIKTEXTHISCALL Keep() = 0;
@@ -50,7 +50,7 @@ public:
   static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create();
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create(const PathName& path);
+  static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create(const MiKTeX::Util::PathName& path);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

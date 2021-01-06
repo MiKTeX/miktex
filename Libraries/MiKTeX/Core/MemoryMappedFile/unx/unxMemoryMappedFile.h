@@ -25,7 +25,7 @@
 #define D3F1FF54CD2C40CC99A6E4E4DB457FB4
 
 #include <miktex/Core/MemoryMappedFile>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
@@ -36,7 +36,7 @@ public:
   ~unxMemoryMappedFile() override;
 
 public:
-  void* Open(const MiKTeX::Core::PathName& path, bool readWrite) override;
+  void* Open(const MiKTeX::Util::PathName& path, bool readWrite) override;
 
 public:
   void Close() override;
@@ -84,7 +84,7 @@ private:
   bool readWrite = false;
 
 private:
-  MiKTeX::Core::PathName path;
+  MiKTeX::Util::PathName path;
 
 private:
   std::string name;

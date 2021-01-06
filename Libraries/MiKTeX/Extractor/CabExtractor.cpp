@@ -1,6 +1,6 @@
 /* CabExtractor.cpp:
 
-   Copyright (C) 2001-2020 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -43,6 +43,7 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Extractor;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 
 struct mspack_file* CabExtractor::Open(struct mspack_system* self, const char* fileName, int mode)
 {

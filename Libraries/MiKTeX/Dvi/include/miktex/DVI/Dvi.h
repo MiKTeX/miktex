@@ -49,7 +49,7 @@
 
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/Exceptions>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Session>
 
 #include <miktex/Graphics/DibChunker>
@@ -569,7 +569,7 @@ public:
   virtual int MIKTEXTHISCALL GetNumberOfPages() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetSource(const DviPosition& pos, MiKTeX::Core::PathName& fileName, int* pLineNum = 0) = 0;
+  virtual bool MIKTEXTHISCALL GetSource(const DviPosition& pos, MiKTeX::Util::PathName& fileName, int* pLineNum = 0) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL FindSource(const char* fileName, int line, DviPosition& position) = 0;

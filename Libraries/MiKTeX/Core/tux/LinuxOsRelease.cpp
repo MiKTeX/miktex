@@ -24,7 +24,7 @@
 #include <iomanip>
 
 #include <miktex/Core/Cfg>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/tux/LinuxOsRelease>
 
 #include "internal.h"

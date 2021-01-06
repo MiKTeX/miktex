@@ -22,7 +22,7 @@
 #include "texworks-version.h"
 
 #include <miktex/Core/Exceptions>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/Core/Utils>

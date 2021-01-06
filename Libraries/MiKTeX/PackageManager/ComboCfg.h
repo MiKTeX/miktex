@@ -27,7 +27,7 @@
 #include <string>
 
 #include <miktex/Core/Cfg>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Session>
 
 MPM_INTERNAL_BEGIN_NAMESPACE;
@@ -35,7 +35,7 @@ MPM_INTERNAL_BEGIN_NAMESPACE;
 class ComboCfg
 {
 public:
-  void Load(const MiKTeX::Core::PathName& fileNameUser, const MiKTeX::Core::PathName& fileNameCommon);
+  void Load(const MiKTeX::Util::PathName& fileNameUser, const MiKTeX::Util::PathName& fileNameCommon);
 
 public:
   void Clear();
@@ -62,10 +62,10 @@ public:
   std::size_t GetSize(MiKTeX::Core::ConfigurationScope scope) const;
 
 private:
-  MiKTeX::Core::PathName fileNameUser;
+  MiKTeX::Util::PathName fileNameUser;
 
 private:
-  MiKTeX::Core::PathName fileNameCommon;
+  MiKTeX::Util::PathName fileNameCommon;
 
 private:
   std::unique_ptr<MiKTeX::Core::Cfg> cfgUser;

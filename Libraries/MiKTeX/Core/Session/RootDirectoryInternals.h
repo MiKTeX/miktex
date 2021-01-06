@@ -39,20 +39,20 @@ public:
   }
 
 public:
-  RootDirectoryInternals(const MiKTeX::Core::PathName& unexpandedPath, const MiKTeX::Core::PathName& path) :
+  RootDirectoryInternals(const MiKTeX::Util::PathName& unexpandedPath, const MiKTeX::Util::PathName& path) :
     unexpandedPath(unexpandedPath)
   {
     this->path = path;
   }
 
 public:
-  const MiKTeX::Core::PathName& get_UnexpandedPath() const
+  const MiKTeX::Util::PathName& get_UnexpandedPath() const
   {
     return unexpandedPath;
   }
 
 public:
-  const MiKTeX::Core::PathName& get_Path() const
+  const MiKTeX::Util::PathName& get_Path() const
   {
     return path;
   }
@@ -121,7 +121,7 @@ public:
   }
 
 private:
-  MiKTeX::Core::PathName unexpandedPath;
+  MiKTeX::Util::PathName unexpandedPath;
 
   // associated file name database object
 private:

@@ -474,7 +474,7 @@ int TeXApp::MakeSrcSpecial(int sourceFileName, int line) const
 {
   IStringHandler* stringHandler = GetStringHandler();
   C4P::C4P_integer oldpoolptr = stringHandler->poolptr();
-  MiKTeX::Core::PathName fileName(GetTeXString(sourceFileName));
+  MiKTeX::Util::PathName fileName(GetTeXString(sourceFileName));
   const std::size_t BUFSIZE = MiKTeX::Core::BufferSizes::MaxPath + 100;
   char szBuf[BUFSIZE];
 #if _MSC_VER >= 1400

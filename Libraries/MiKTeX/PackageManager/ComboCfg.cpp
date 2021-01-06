@@ -1,6 +1,6 @@
 /* ComboCfg.cpp
 
-   Copyright (C) 2018-2019 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -28,6 +28,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 

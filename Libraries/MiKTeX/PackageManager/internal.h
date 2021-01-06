@@ -26,7 +26,7 @@
 
 #include <string>
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/Core/VersionNumber>
@@ -64,7 +64,7 @@ struct hash_path
 public:
   std::size_t operator()(const std::string& str) const
   {
-    return MiKTeX::Core::PathName(str).GetHash();
+    return MiKTeX::Util::PathName(str).GetHash();
   }
 };
 
@@ -73,7 +73,7 @@ struct equal_path
 public:
   bool operator()(const std::string& str1, const std::string& str2) const
   {
-    return MiKTeX::Core::PathName::Compare(str1, str2) == 0;
+    return MiKTeX::Util::PathName::Compare(str1, str2) == 0;
   }
 };
 
@@ -87,7 +87,7 @@ inline void DbgView(const std::string& s)
 inline bool StripPrefix(const std::string& str, const char* lpszPrefix, std::string& result)
 {
   std::size_t n = MiKTeX::Util::StrLen(lpszPrefix);
-  if (MiKTeX::Core::PathName::Compare(str.c_str(), lpszPrefix, n) != 0)
+  if (MiKTeX::Util::PathName::Compare(str.c_str(), lpszPrefix, n) != 0)
   {
     return false;
   }
@@ -109,7 +109,7 @@ inline int StrCmp(const wchar_t* lpsz1, const wchar_t* lpsz2)
   return wcscmp(lpsz1, lpsz2);
 }
 
-inline bool IsNewer(const MiKTeX::Core::PathName& path1, const MiKTeX::Core::PathName& path2)
+inline bool IsNewer(const MiKTeX::Util::PathName& path1, const MiKTeX::Util::PathName& path2)
 {
   return MiKTeX::Core::File::Exists(path1) && MiKTeX::Core::File::Exists(path2) && MiKTeX::Core::File::GetLastWriteTime(path1) > MiKTeX::Core::File::GetLastWriteTime(path2);
 }

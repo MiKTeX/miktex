@@ -1,6 +1,6 @@
 /* miktex/Core/Directory.h:                             -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,8 +28,8 @@
 
 #include <ctime>
 
-#include "OptionSet.h"
-#include "PathName.h"
+#include <miktex/Util/OptionSet>
+#include <miktex/Util/PathName>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -46,7 +46,7 @@ enum class DirectoryCopyOption
   CopySubDirectories
 };
 
-typedef OptionSet<DirectoryCopyOption> DirectoryCopyOptionSet;
+typedef MiKTeX::Util::OptionSet<DirectoryCopyOption> DirectoryCopyOptionSet;
 
 /// @brief Directory class.
 ///
@@ -74,40 +74,40 @@ public:
   /// Creates a new directory.
   /// @param path File system path to the directory.
 public:
-  static MIKTEXCORECEEAPI(void) Create(const PathName& path);
+  static MIKTEXCORECEEAPI(void) Create(const MiKTeX::Util::PathName& path);
 
   /// Gets the current (working) directory.
   /// @param Returns the current directory.
 public:
-  static MIKTEXCORECEEAPI(PathName) GetCurrent();
+  static MIKTEXCORECEEAPI(MiKTeX::Util::PathName) GetCurrent();
 
   /// Sets the current (working) directory.
   /// @param path File system path to the directory.
 public:
-  static MIKTEXCORECEEAPI(void) SetCurrent(const PathName& path);
+  static MIKTEXCORECEEAPI(void) SetCurrent(const MiKTeX::Util::PathName& path);
 
   /// Deletes a directory.
   /// @param path File system path to the directory.
 public:
-  static MIKTEXCORECEEAPI(void) Delete(const PathName& path);
+  static MIKTEXCORECEEAPI(void) Delete(const MiKTeX::Util::PathName& path);
 
   /// Deletes a directory.
   /// @param path File system path to the directory.
   /// @param recursive Indicates, whether sub-directories shall be removed.
 public:
-  static MIKTEXCORECEEAPI(void) Delete(const PathName& path, bool recursive);
+  static MIKTEXCORECEEAPI(void) Delete(const MiKTeX::Util::PathName& path, bool recursive);
 
   /// Copies a directory.
   /// @param source The file system path to the source directory.
   /// @param dest The file system path to the destination directory.
   /// @param options Copy options.
 public:
-  static MIKTEXCORECEEAPI(void) Copy(const PathName& source, const PathName& dest, DirectoryCopyOptionSet options);
+  static MIKTEXCORECEEAPI(void) Copy(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest, DirectoryCopyOptionSet options);
 
   /// Tests if a directory exists.
   /// @param File system path to the directory.
 public:
-  static MIKTEXCORECEEAPI(bool) Exists(const PathName& path);
+  static MIKTEXCORECEEAPI(bool) Exists(const MiKTeX::Util::PathName& path);
 
   /// Sets directory timestamps.
   /// @param path The file system path to the directory.
@@ -115,13 +115,13 @@ public:
   /// @param lastAccessTime Last access timestamp.
   /// @param lastWriteTime Last modification timestamp.
 public:
-  static MIKTEXCORECEEAPI(void) SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
+  static MIKTEXCORECEEAPI(void) SetTimes(const MiKTeX::Util::PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
 
   /// Renames (moves) a directory.
   /// @param source The file system path to the source directory.
   /// @param dest The file system path to the destination directory.
 public:
-  static MIKTEXCORECEEAPI(void) Move(const PathName& source, const PathName& dest);
+  static MIKTEXCORECEEAPI(void) Move(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

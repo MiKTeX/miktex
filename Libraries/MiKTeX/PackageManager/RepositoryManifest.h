@@ -27,7 +27,7 @@
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/MD5>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Utils>
 
 #include <miktex/Extractor/Extractor>
@@ -57,7 +57,7 @@ public:
   }
 
 public:
-  void Load(const MiKTeX::Core::PathName& path)
+  void Load(const MiKTeX::Util::PathName& path)
   {
 #if defined(WITH_PACKAGE_DB_SIGNING)
     bool mustBeSigned = true;

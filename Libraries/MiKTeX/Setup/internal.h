@@ -157,7 +157,7 @@ public:
   }
 
 public:
-  void Load(const MiKTeX::Core::PathName& logFileName);
+  void Load(const MiKTeX::Util::PathName& logFileName);
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -170,10 +170,10 @@ public:
 #endif
 
 private:
-  void RemoveFiles(const MiKTeX::Core::PathName& prefix);
+  void RemoveFiles(const MiKTeX::Util::PathName& prefix);
 
 private:
-  std::set<MiKTeX::Core::PathName> files;
+  std::set<MiKTeX::Util::PathName> files;
 
 #if defined(MIKTEX_WINDOWS)
 private:
@@ -216,7 +216,7 @@ public:
   void OpenLog() override;
 
 public:
-  MiKTeX::Core::PathName CloseLog(bool cancel) override;
+  MiKTeX::Util::PathName CloseLog(bool cancel) override;
 
 public:
   void MIKTEXCEECALL Log(const std::string& s) override;
@@ -228,10 +228,10 @@ public:
   void ULogClose() override;
 
 public:
-  MiKTeX::Core::PathName GetULogFileName() override;
+  MiKTeX::Util::PathName GetULogFileName() override;
 
 public:
-  void ULogAddFile(const MiKTeX::Core::PathName& path) override;
+  void ULogAddFile(const MiKTeX::Util::PathName& path) override;
 
 public:
   ProgressInfo GetProgressInfo() override;
@@ -347,7 +347,7 @@ protected:
   std::mutex logStreamMutex;
 
 protected:
-  MiKTeX::Core::PathName intermediateLogFile;
+  MiKTeX::Util::PathName intermediateLogFile;
 
 protected:
   std::ofstream uninstStream;
@@ -356,10 +356,10 @@ protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
 
 protected:
-  MiKTeX::Core::PathName GetInstallRoot() const;
+  MiKTeX::Util::PathName GetInstallRoot() const;
 
 protected:
-  MiKTeX::Core::PathName GetBinDir() const;
+  MiKTeX::Util::PathName GetBinDir() const;
 
 protected:
   void ConfigureMiKTeX();
@@ -374,13 +374,13 @@ protected:
   std::wstring& Expand(const std::string& source, std::wstring& dest);
 
 protected:
-  bool FindFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::PathName& result);
+  bool FindFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Util::PathName& result);
 
 protected:
   void RemoveFormatFiles();
 
 protected:
-  void CollectFiles(std::vector<MiKTeX::Core::PathName>& vec, const MiKTeX::Core::PathName& dir, const char* lpszExt);
+  void CollectFiles(std::vector<MiKTeX::Util::PathName>& vec, const MiKTeX::Util::PathName& dir, const char* lpszExt);
 
 protected:
   void CreateInfoFile();
@@ -392,7 +392,7 @@ protected:
   void Warning(const MiKTeX::Core::MiKTeXException& ex);
 
 protected:
-  std::vector<MiKTeX::Core::PathName> GetRoots();
+  std::vector<MiKTeX::Util::PathName> GetRoots();
 
 protected:
   void LogHeader();
@@ -459,7 +459,7 @@ protected:
   SetupServiceCallback* callback = &myCallbacks;
 };
 
-void RemoveEmptyDirectoryChain(const MiKTeX::Core::PathName& directory);
+void RemoveEmptyDirectoryChain(const MiKTeX::Util::PathName& directory);
 
 END_INTERNAL_NAMESPACE;
 

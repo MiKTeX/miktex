@@ -1,6 +1,6 @@
 /* TarExtractor.cpp:
 
-   Copyright (C) 2001-2018 Christian Schenk
+   Copyright (C) 2001-2021 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -24,6 +24,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/Debug>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileStream>
 #include <miktex/Trace/Trace>

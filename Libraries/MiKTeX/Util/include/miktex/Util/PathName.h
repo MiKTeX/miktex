@@ -1,21 +1,21 @@
-/* miktex/Core/PathName.h:                              -*- C++ -*-
+/* miktex/Util/PathName.h:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
-   This file is part of the MiKTeX Core Library.
+   This file is part of the MiKTeX Util Library.
 
-   The MiKTeX Core Library is free software; you can redistribute it
+   The MiKTeX Util Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
-   The MiKTeX Core Library is distributed in the hope that it will be
+   The MiKTeX Util Library is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
+   along with the MiKTeX Util Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
@@ -24,7 +24,7 @@
 #if !defined(CF4C28E918A44B66B3B0BEF7E88AB721)
 #define CF4C28E918A44B66B3B0BEF7E88AB721
 
-#include <miktex/Core/config.h>
+#include <miktex/Util/config.h>
 
 #include <string>
 #include <ostream>
@@ -33,12 +33,9 @@
 #include <miktex/Util/CharBuffer>
 #include <miktex/Util/PathNameUtil>
 
-#include "BufferSizes.h"
-#include "Debug.h"
 #include "OptionSet.h"
-#include "Utils.h"
 
-MIKTEX_CORE_BEGIN_NAMESPACE;
+MIKTEX_UTIL_BEGIN_NAMESPACE;
 
 /// Path name conversion option enum class.
 enum class ConvertPathNameOption
@@ -73,10 +70,10 @@ typedef OptionSet<DisplayPathNameOption> DisplayPathNameOptions;
 
 /// Instances of this class can be used to store path names.
 class PathName :
-  public MiKTeX::Util::CharBuffer<char, BufferSizes::MaxPath>
+  public MiKTeX::Util::CharBuffer<char, MIKTEX_UTIL_PATHNAME_SIZE>
 {
 protected:
-  typedef CharBuffer<char, BufferSizes::MaxPath> Base;
+  typedef CharBuffer<char, MIKTEX_UTIL_PATHNAME_SIZE> Base;
 
 public:
   PathName() = default;
@@ -184,13 +181,13 @@ public:
   /// Calculates the hash value of this PathName object.
   /// @return Returns the hash value.
 public:
-  MIKTEXCORETHISAPI(std::size_t) GetHash() const;
+  MIKTEXUTILTHISAPI(std::size_t) GetHash() const;
 
 public:
-  static MIKTEXCORECEEAPI(std::vector<std::string>) Split(const PathName& path);
+  static MIKTEXUTILCEEAPI(std::vector<std::string>) Split(const PathName& path);
 
 private:
-  static MIKTEXCORECEEAPI(void) Split(const PathName& path, std::string& directoryName, std::string& fileNameWithoutExtension, std::string& extension);
+  static MIKTEXUTILCEEAPI(void) Split(const PathName& path, std::string& directoryName, std::string& fileNameWithoutExtension, std::string& extension);
 
 public:
   PathName GetDirectoryName() const
@@ -240,39 +237,39 @@ public:
   }
   
 public:
-  MIKTEXCORETHISAPI(PathName&) SetToHomeDirectory();
+  MIKTEXUTILTHISAPI(PathName&) SetToHomeDirectory();
   
 public:
-  MIKTEXCORETHISAPI(PathName&) SetToLockDirectory();
+  MIKTEXUTILTHISAPI(PathName&) SetToLockDirectory();
 
   /// Sets this PathName object equal to the current (working) directory.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) SetToCurrentDirectory();
+  MIKTEXUTILTHISAPI(PathName&) SetToCurrentDirectory();
 
   /// Sets this PathName object equal to the temporary directory.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) SetToTempDirectory();
+  MIKTEXUTILTHISAPI(PathName&) SetToTempDirectory();
 
   /// Sets this PathName object equal to the name of a temporary file.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) SetToTempFile();
+  MIKTEXUTILTHISAPI(PathName&) SetToTempFile();
 
   /// Sets this PathName object equal to the name of a temporary file in the
   /// specified directory.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) SetToTempFile(const PathName& directory);
+  MIKTEXUTILTHISAPI(PathName&) SetToTempFile(const PathName& directory);
 
   /// Get the mount point of this PathName.
   /// @return Returns the mount point as a new PathName.
 public:
-  MIKTEXCORETHISAPI(PathName) GetMountPoint() const;
+  MIKTEXUTILTHISAPI(PathName) GetMountPoint() const;
 
 public:
-  MIKTEXCORETHISAPI(PathName&) Convert(ConvertPathNameOptions options);
+  MIKTEXUTILTHISAPI(PathName&) Convert(ConvertPathNameOptions options);
 
   /// Replaces backslashes with normal slashes.
   /// @return Returns a reference to this object.
@@ -336,7 +333,7 @@ public:
 #endif
 
 public:
-  MIKTEXCORETHISAPI(std::string) ToDisplayString(DisplayPathNameOptions options = {}) const;
+  MIKTEXUTILTHISAPI(std::string) ToDisplayString(DisplayPathNameOptions options = {}) const;
 
   /// Transform this path for comparison purposes.
   /// @return Returns a reference to this object.
@@ -405,7 +402,6 @@ public:
 public:
   bool HasExtension(const char* extension) const
   {
-    MIKTEX_ASSERT_STRING(extension);
     std::string currentExtension = GetExtension();
     if (currentExtension.empty())
     {
@@ -415,7 +411,6 @@ public:
     {
       extension += 1;
     }
-    MIKTEX_ASSERT(currentExtension[0] == '.');
     return PathName::Compare(currentExtension.substr(1), extension) == 0;
   }
 
@@ -423,7 +418,7 @@ public:
   /// @return Returns the file name extension. Returns 0, if the path name
   /// has no file name extension.
 public:
-  MIKTEXCORETHISAPI(std::string) GetExtension() const;
+  MIKTEXUTILTHISAPI(std::string) GetExtension() const;
 
   /// Sets the file name extension.
   /// @param extension The file name extension to set.
@@ -431,7 +426,7 @@ public:
   /// shall be overridden.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) SetExtension(const char* extension, bool override);
+  MIKTEXUTILTHISAPI(PathName&) SetExtension(const char* extension, bool override);
 
   /// Sets the file name extension.
   /// @param lpszExtension The file name extension to set. Can be 0,
@@ -456,7 +451,6 @@ public:
 public:
   PathName& AppendExtension(const char* extension)
   {
-    MIKTEX_ASSERT_STRING(extension);
     if (!HasExtension(extension))
     {
       if (*extension != '.')
@@ -544,7 +538,7 @@ public:
   /// Cuts off the last component from the path name.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) CutOffLastComponent(bool allowSelfCutting);
+  MIKTEXUTILTHISAPI(PathName&) CutOffLastComponent(bool allowSelfCutting);
 
   /// Cuts off the last component from the path name.
   /// @return Returns a reference to this object.
@@ -557,11 +551,11 @@ public:
   /// Makes sure that this path name ends with a directory delimiter.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName&) AppendDirectoryDelimiter();
+  MIKTEXUTILTHISAPI(PathName&) AppendDirectoryDelimiter();
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  MIKTEXCORETHISAPI(PathName&) AppendAltDirectoryDelimiter();
+  MIKTEXUTILTHISAPI(PathName&) AppendAltDirectoryDelimiter();
 #endif
 
 public:
@@ -578,7 +572,7 @@ public:
   /// @return Returns -1, if the first prefix compares lesser than the second.
   /// Returns 0, if both prefixes compare equal.
   /// Returns 1, if the first prefix compares greater than the second.
-  static MIKTEXCORECEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2, std::size_t count);
+  static MIKTEXUTILCEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2, std::size_t count);
 
 public:
   static int Compare(const PathName& path1, const PathName& path2, std::size_t count)
@@ -594,7 +588,7 @@ public:
   /// Returns 0, if both path names compare equal.
   /// Returns 1, if the first path name compares greater than the second.
 public:
-  static MIKTEXCORECEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2);
+  static MIKTEXUTILCEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2);
 
   /// Compares two path names.
   /// @param path1 The first path name.
@@ -633,7 +627,7 @@ public:
   /// @param lpszPath The path name to test.
   /// @return Returns true, if the pattern matches.
 public:
-  static MIKTEXCORECEEAPI(bool) Match(const char* lpszPattern, const char* lpszPath);
+  static MIKTEXUTILCEEAPI(bool) Match(const char* lpszPattern, const char* lpszPath);
 
 public:
   static bool Match(const char* lpszPattern, const PathName& path)
@@ -677,13 +671,13 @@ inline std::ostream& operator<<(std::ostream& os, const PathName& path)
   return os << path.ToDisplayString();
 }
 
-MIKTEX_CORE_END_NAMESPACE;
+MIKTEX_UTIL_END_NAMESPACE;
 
 namespace std
 {
-  template<> struct hash<MiKTeX::Core::PathName>
+  template<> struct hash<MiKTeX::Util::PathName>
   {
-    std::size_t operator()(const MiKTeX::Core::PathName& path) const
+    std::size_t operator()(const MiKTeX::Util::PathName& path) const
     {
       return path.GetHash();
     }

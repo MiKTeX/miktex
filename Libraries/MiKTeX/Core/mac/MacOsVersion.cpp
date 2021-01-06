@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Process>
 #include <miktex/Core/Utils>
 #include <miktex/Core/mac/MacOsVersion>

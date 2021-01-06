@@ -1,6 +1,6 @@
 /* miktex/Core/Quoter.h:                                -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,9 +29,8 @@
 #include <string>
 
 #include <miktex/Util/CharBuffer>
+#include <miktex/Util/PathName>
 #include <miktex/Util/inliners.h>
-
-#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
@@ -69,7 +68,7 @@ public:
   }
 
 public:
-  explicit Quoter(const PathName& path)
+  explicit Quoter(const MiKTeX::Util::PathName& path)
   {
     Quote(path.GetData());
   }

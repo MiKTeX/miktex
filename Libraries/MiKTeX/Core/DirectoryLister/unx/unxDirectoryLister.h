@@ -25,7 +25,7 @@
 #define F2A2B73E1341485FAFAB1FC525782032
 
 #include <miktex/Core/DirectoryLister>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
@@ -36,7 +36,7 @@ public:
   ~unxDirectoryLister() noexcept override;
 
 public:
-  unxDirectoryLister(const MiKTeX::Core::PathName& directory, const char* pattern, int options);
+  unxDirectoryLister(const MiKTeX::Util::PathName& directory, const char* pattern, int options);
 
 public:
   void Close() override;
@@ -54,7 +54,7 @@ private:
   DIR * dir = nullptr;
 
 private:
-  MiKTeX::Core::PathName directory;
+  MiKTeX::Util::PathName directory;
 
 private:
   std::string pattern;

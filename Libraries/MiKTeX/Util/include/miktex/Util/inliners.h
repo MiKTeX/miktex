@@ -1,6 +1,6 @@
 /* miktex/Util/inliners.h:                              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -24,7 +24,7 @@
 #if !defined(C0ED03A793AF458292B01CFA00749B67)
 #define C0ED03A793AF458292B01CFA00749B67
 
-#include "config.h"
+#include <miktex/Util/config.h>
 
 #include <cstring>
 #include <cwchar>

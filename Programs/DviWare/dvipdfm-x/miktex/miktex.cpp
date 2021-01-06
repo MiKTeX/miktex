@@ -20,7 +20,7 @@
 #include "dvipdfm-x.h"
 
 #include <miktex/App/Application>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
 #include <miktex/Util/StringUtil>

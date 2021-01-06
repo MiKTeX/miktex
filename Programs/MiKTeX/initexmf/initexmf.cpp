@@ -354,7 +354,7 @@ private:
   bool InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot) override;
 
 private:
-  bool TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType) override;
+  bool TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override;
 
 private:
   bool ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos) override;
@@ -894,7 +894,7 @@ bool IniTeXMFApp::InstallPackage(const string& packageId, const PathName& trigge
   return true;
 }
 
-bool IniTeXMFApp::TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType)
+bool IniTeXMFApp::TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType)
 {
   return false;
 }

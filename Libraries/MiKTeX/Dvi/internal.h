@@ -26,8 +26,11 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/BufferSizes>
+#include <miktex/Core/Debug>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/TemporaryFile>
+#include <miktex/Core/Utils>
 #include <miktex/DVI/Dvi>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Trace/Trace>

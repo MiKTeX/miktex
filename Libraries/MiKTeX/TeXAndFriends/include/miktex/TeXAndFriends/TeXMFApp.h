@@ -33,7 +33,7 @@
 #include <miktex/Core/Debug>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/FileType>
-#include <miktex/Core/PathName>
+#include <miktex/Util/PathName>
 #include <miktex/Core/Quoter>
 
 #include <miktex/Trace/TraceStream>
@@ -149,7 +149,7 @@ public:
   }
 
 protected:
-  virtual MiKTeX::Core::PathName GetMemoryDumpFileName() const
+  virtual MiKTeX::Util::PathName GetMemoryDumpFileName() const
   {
     // must be implemented in sub-classes
     MIKTEX_UNEXPECTED();
@@ -170,7 +170,7 @@ protected:
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) override
+  void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
   {
     IInputOutput* inputOutput = GetInputOutput();
     ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
@@ -221,7 +221,7 @@ public:
   MIKTEXMFTHISAPI(bool) ParseFirstLineP() const;
 
 public:
-  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetDefaultMemoryDumpFileName() const;
+  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetDefaultMemoryDumpFileName() const;
 
 public:
   MIKTEXMFTHISAPI(int) GetInteraction() const;
@@ -254,7 +254,7 @@ public:
   MIKTEXMFTHISAPI(void) InvokeEditor(int editFileName, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength) const;
 
 public:
-  void InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, const MiKTeX::Core::PathName& transcriptFileName) const
+  void InvokeEditor(const MiKTeX::Util::PathName& editFileName, int editLineNumber, const MiKTeX::Util::PathName& transcriptFileName) const
   {
     Application::InvokeEditor(editFileName, editLineNumber, GetInputFileType(), transcriptFileName);
   }
@@ -281,7 +281,7 @@ public:
   MIKTEXMFTHISAPI(bool) OpenFontFile(C4P::BufferedFile<unsigned char>* file, const std::string& fontName, MiKTeX::Core::FileType filetype, const char* generator);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew);
+  MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Util::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew);
 
 public:
   template<class T> bool OpenMemoryDumpFile(T& f, bool renew = false)
@@ -354,10 +354,10 @@ public:
   }
 
 public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::Argv) ParseFirstLine(const MiKTeX::Core::PathName& path);
+  static MIKTEXMFCEEAPI(MiKTeX::Core::Argv) ParseFirstLine(const MiKTeX::Util::PathName& path);
 
 private:
-  MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Core::PathName& fileName);
+  MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Util::PathName& fileName);
 
 public:
   static MIKTEXMFCEEAPI(void) OnKeybordInterrupt(int);

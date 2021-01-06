@@ -1,6 +1,6 @@
 /* FileTableModel.cpp:
 
-   Copyright (C) 2017-2018 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -21,8 +21,10 @@
 
 #include "FileTableModel.h"
 
-using namespace MiKTeX::Core;
 using namespace std;
+
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 FileTableModel::FileTableModel(QObject* parent, const vector<string>& files) :
   QAbstractTableModel(parent)

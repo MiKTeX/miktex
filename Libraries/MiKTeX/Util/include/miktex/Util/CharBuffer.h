@@ -1,6 +1,6 @@
 /* miktex/Util/CharBuffer.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -24,7 +24,7 @@
 #if !defined(DB7B495A23094E01B9F135FC1AAF0D71)
 #define DB7B495A23094E01B9F135FC1AAF0D71
 
-#include "config.h"
+#include <miktex/Util/config.h>
 
 #include <cstddef>
 #include <cwchar>

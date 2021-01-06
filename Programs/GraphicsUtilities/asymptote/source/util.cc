@@ -38,7 +38,7 @@
 #include "interact.h"
 #include "locate.h"
 #if defined(MIKTEX)
-#  include <miktex/Core/PathName>
+#  include <miktex/Util/PathName>
 #  include <miktex/Core/Process>
 #endif
 
@@ -103,7 +103,7 @@ char *StrdupMalloc(string s)
 string stripDir(string name)
 {
 #if defined(MIKTEX)
-  return MiKTeX::Core::PathName(name.c_str()).GetFileName().GetData();
+  return MiKTeX::Util::PathName(name.c_str()).GetFileName().GetData();
 #else
   size_t p;
 #ifdef __MSDOS__
@@ -119,7 +119,7 @@ string stripDir(string name)
 string stripFile(string name)
 {
 #if defined(MIKTEX)
-  return MiKTeX::Core::PathName(name.c_str()).GetDirectoryName().GetData();
+  return MiKTeX::Util::PathName(name.c_str()).GetDirectoryName().GetData();
 #else
   size_t p;
   bool dir=false;
