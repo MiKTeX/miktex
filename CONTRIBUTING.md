@@ -9,3 +9,8 @@ Please read:
 
 Please read:  
 [Submitting a MiKTeX feature request](https://miktex.org/howto/feature-request)
+
+## Localization
+
+Please read:  
+[Translating user interface messages](https://miktex.org/howto/l10n-messages)

@@ -131,7 +131,7 @@ foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
     "${resource_includes}#include \"${CMAKE_CURRENT_BINARY_DIR}/locale/${l}/${MIKTEX_COMP_ID}.mo.h\""
   )
   set(resource_adders
-    "${resource_adders}R_(\"/usr/share/locale/${l}/LC_MESSAGES/${MIKTEX_COMP_ID}.mo\", messages_${l});"
+    "${resource_adders}R_(\":/${l}/LC_MESSAGES/${MIKTEX_COMP_ID}.mo\", messages_${l});"
   )
 endforeach()
 

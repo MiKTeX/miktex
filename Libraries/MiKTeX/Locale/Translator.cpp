@@ -23,6 +23,7 @@
 #include <Windows.h>
 #endif
 
+#include <fstream>
 #include <locale>
 #include <mutex>
 #include <string>
@@ -111,26 +112,46 @@ static vector<char> LoadFile(ResourceRepository* resources, string const& fileNa
   {
     return vector<char>();
   }
-  if (resources == nullptr)
+  if (fileName.empty())
   {
     return vector<char>();
   }
-  const Resource& resource = resources->GetResource(fileName.c_str());
-  if (resource.data == nullptr)
+  if (fileName[0] == ':')
   {
-    return vector<char>();
+    if (resources == nullptr)
+    {
+      return vector<char>();
+    }
+    const Resource& resource = resources->GetResource(fileName.c_str());
+    if (resource.data == nullptr)
+    {
+      return vector<char>();
+    }
+    const char* data = static_cast<const char*>(resource.data);
+    return vector<char>(data, data + resource.len);
   }
-  const char* data = static_cast<const char*>(resource.data);
-  return vector<char>(data, data + resource.len);
+  ifstream file(fileName, ios::binary | ios::ate);
+  if (file)
+  {
+    streamsize size = file.tellg();
+    vector<char> buffer(size);
+    file.seekg(0, std::ios::beg);
+    file.read(buffer.data(), size);
+    return buffer;
+  }
+  return vector<char>();
 }
 
 void Translator::Init()
 {
 #if defined(WITH_BOOST_LOCALE)
   boost::locale::gnu_gettext::messages_info messagesInfo;
-  auto messagePath = pimpl->config->GetSpecialPath(SpecialPath::ConfigRoot);
-  messagePath /= "miktex/locale";
-  messagesInfo.paths.push_back(messagePath.ToString());
+  string localeDir;
+  if (pimpl->config->TryGetConfigValue("Translator", "BaseDir", localeDir))
+  {
+    messagesInfo.paths.push_back(localeDir);
+  }
+  messagesInfo.paths.push_back(":");
   messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(pimpl->domain));
   std::function<vector<char>(const string&, const string&)> callback = [this](const string& fileName, const string& encoding) { return LoadFile(pimpl->resources, fileName, encoding); };
   messagesInfo.callback = callback;
