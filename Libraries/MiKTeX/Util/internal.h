@@ -170,6 +170,7 @@ public:
   }
 };
 
+#if defined(MIKTEX_WINDOWS)
 class WindowsError :
   public Exception
 {
@@ -184,6 +185,7 @@ public:
   {
   }
 };
+#endif
 
 END_INTERNAL_NAMESPACE;
 

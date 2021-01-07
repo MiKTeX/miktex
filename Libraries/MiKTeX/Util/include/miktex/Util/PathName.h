@@ -26,8 +26,8 @@
 
 #include <miktex/Util/config.h>
 
-#include <string>
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include <miktex/Util/CharBuffer>
@@ -63,7 +63,6 @@ typedef OptionSet<ConvertPathNameOption> ConvertPathNameOptions;
 
 enum class DisplayPathNameOption
 {
-
 };
 
 typedef OptionSet<DisplayPathNameOption> DisplayPathNameOptions;

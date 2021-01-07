@@ -1,4 +1,4 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
 ## Copyright (C) 2006-2021 Christian Schenk
 ## 
@@ -70,7 +70,6 @@ set(public_headers
 )
 
 set(MIKTEX_UTIL_PATHNAME_SIZE 260)
-
 configure_file(
   include/miktex/Util/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Util/config.h
@@ -81,7 +80,7 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
 )
 
-set(util_sources
+set(component_sources
   ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Helpers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PathName/PathName.cpp
@@ -94,14 +93,14 @@ set(util_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND util_sources
+  list(APPEND component_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/PathName/win/winPathName.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winHelpers.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winPathNameUtil.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win/winStringUtil.cpp
   )
 else()
-  list(APPEND util_sources
+  list(APPEND component_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/PathName/unx/unxPathName.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unx/unxHelpers.cpp
   )

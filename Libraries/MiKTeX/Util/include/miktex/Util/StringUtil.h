@@ -30,8 +30,8 @@
 #include <cwchar>
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 /// @namespace MiKTeX::Util
 /// @brief Generic utilities.

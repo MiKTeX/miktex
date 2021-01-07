@@ -1,4 +1,4 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
 ## Copyright (C) 2006-2021 Christian Schenk
 ## 
@@ -19,7 +19,7 @@
 
 use_static_crt()
 
-add_library(${util_lib_name} STATIC ${util_sources})
+add_library(${util_lib_name} STATIC ${component_sources})
 
 set_property(TARGET ${util_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

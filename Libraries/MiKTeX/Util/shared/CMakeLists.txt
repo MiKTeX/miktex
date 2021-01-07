@@ -1,4 +1,4 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
 ## Copyright (C) 2006-2021 Christian Schenk
 ## 
@@ -22,7 +22,7 @@ include_directories(BEFORE
 )
 
 set(${util_dll_name}_sources
-  ${util_sources}
+  ${component_sources}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

@@ -71,7 +71,6 @@ inline int StringCompare(const char* lpsz1, const char* lpsz2, bool ignoreCase)
 
 inline int StringCompare(const char*  lpsz1, const char* lpsz2, size_t n, bool ignoreCase)
 {
-  // TODO: MIKTEX_ASSERT(!ignoreCase || MiKTeX::Util::Utils::IsPureAscii(lpsz1) && MiKTeX::Util::Utils::IsPureAscii(lpsz2));
 #if defined(_MSC_VER)
   return ignoreCase ? _strnicmp(lpsz1, lpsz2, n) : strncmp(lpsz1, lpsz2, n);
 #else
