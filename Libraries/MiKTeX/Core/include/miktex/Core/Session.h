@@ -210,64 +210,6 @@ public:
   bool isNew = false;
 };
 
-/// Special path names.
-enum class SpecialPath
-{
-  /// User configuration root directory.
-  UserConfigRoot,
-
-  /// User data root directory.
-  UserDataRoot,
-
-  /// User installation root directory.
-  UserInstallRoot,
-
-  /// System-wide configuration root directory.
-  CommonConfigRoot,
-
-  /// System-wide data root directory.
-  CommonDataRoot,
-
-  /// System-wide installation root directory.
-  CommonInstallRoot,
-
-  /// The portable root directory.
-  PortableRoot,
-
-  /// The portable mount directory.
-  PortableMount,
-
-  /// The root directory of the MiKTeX installation.
-  DistRoot,
-
-#if defined(MIKTEX_MACOS_BUNDLE)
-  /// The directory which contains the main application file.
-  /// Example: `/Applications/MiKTeX\ Console.app/Contents/Macos`
-  MacOsDirectory,
-#endif
-
-  /// The effective configuration root directory.
-  ConfigRoot,
-
-  /// The effective data root directory.
-  DataRoot,
-
-  /// The effective installation root directory.
-  InstallRoot,
-
-  /// The effective directory for MiKTeX binaries.
-  BinDirectory,
-
-  /// The effective directory for internal MiKTeX binaries.
-  InternalBinDirectory,
-
-  /// The effective directory in which to create symbolic links to the MiKTeX executables.
-  LinkTargetDirectory,
-
-  /// The effective directory for log files.
-  LogDirectory,
-};
-
 /// Paper size information.
 class PaperSizeInfo
 {
@@ -695,12 +637,6 @@ public:
   /// @param atEnd Indicates wheter the directory shall be added at the end of the list.
 public:
   virtual void MIKTEXTHISCALL AddInputDirectory(const MiKTeX::Util::PathName& path, bool atEnd) = 0;
-
-  /// Gets a special file system path.
-  /// @param specialPath Identifies the special path.
-  /// @return Returns a path name.
-public:
-  virtual MiKTeX::Util::PathName MIKTEXTHISCALL GetSpecialPath(SpecialPath specialPath) = 0;
 
   /// Gets registered root directories.
   /// @return Returns the list of registered root directories.

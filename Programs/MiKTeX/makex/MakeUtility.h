@@ -318,7 +318,7 @@ protected:
         && lpszTemplate[1] == 'R'
         && MiKTeX::Util::PathNameUtil::IsDirectoryDelimiter(lpszTemplate[2]))
     {
-      path = session->GetSpecialPath(MiKTeX::Core::SpecialPath::DataRoot);
+      path = session->GetSpecialPath(MiKTeX::Configuration::SpecialPath::DataRoot);
       path /= lpszTemplate + 3;
     }
     else

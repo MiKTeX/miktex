@@ -43,6 +43,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;

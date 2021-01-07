@@ -1,6 +1,6 @@
 /* miktex-texworks.cpp:
 
-   Copyright (C) 2015-2020 Christian Schenk
+   Copyright (C) 2015-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -37,6 +37,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;

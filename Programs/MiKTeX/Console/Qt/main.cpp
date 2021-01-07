@@ -56,6 +56,7 @@
 
 #include "mainwindow.h"
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Locale;
 using namespace MiKTeX::Trace;

@@ -137,7 +137,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
 #elif defined(MIKTEX_EXE_FILE_SUFFIX)
     extensions.push_back(MIKTEX_EXE_FILE_SUFFIX);
 #endif
-    PathName localBinDir = GetSpecialPath(MiKTeX::Core::SpecialPath::LinkTargetDirectory);
+    PathName localBinDir = GetSpecialPath(SpecialPath::LinkTargetDirectory);
     localBinDir.Canonicalize();
     if (std::find(searchPath.begin(), searchPath.end(), localBinDir.ToString()) == searchPath.end())
     {

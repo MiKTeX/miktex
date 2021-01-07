@@ -73,8 +73,9 @@
 #  include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
-using namespace MiKTeX::Packages;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;

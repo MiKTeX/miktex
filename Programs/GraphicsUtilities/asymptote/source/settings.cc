@@ -1551,7 +1551,7 @@ string lookup(const string& symbol)
 #if defined(MIKTEX)
   if (symbol == "TEXMFMAIN")
   {
-    return MiKTeX::Core::Session::Get()->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot).GetData();
+    return MiKTeX::Core::Session::Get()->GetSpecialPath(MiKTeX::Configuration::SpecialPath::DistRoot).GetData();
   }
   else
   {

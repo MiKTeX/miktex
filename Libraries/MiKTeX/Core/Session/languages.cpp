@@ -34,6 +34,7 @@ using namespace MiKTeX::Util;
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 
 vector<LanguageInfo> SessionImpl::GetLanguages()

@@ -167,7 +167,7 @@ public:
   void AddInputDirectory(const MiKTeX::Util::PathName& path, bool atEnd) override;
 
 public:
-  MiKTeX::Util::PathName GetSpecialPath(MiKTeX::Core::SpecialPath specialPath) override;
+  MiKTeX::Util::PathName GetSpecialPath(MiKTeX::Configuration::SpecialPath specialPath) override;
 
 public:
   std::vector<MiKTeX::Core::RootDirectoryInfo> GetRootDirectories() override;

@@ -1,6 +1,6 @@
 /* PackageDataStore.cpp
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -41,6 +41,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;

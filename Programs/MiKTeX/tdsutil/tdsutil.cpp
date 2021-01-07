@@ -46,6 +46,7 @@
 #include "Recipe.h"
 
 using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
