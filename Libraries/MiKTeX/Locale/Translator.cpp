@@ -128,7 +128,9 @@ void Translator::Init()
 {
 #if defined(WITH_BOOST_LOCALE)
   boost::locale::gnu_gettext::messages_info messagesInfo;
-  messagesInfo.paths.push_back("/usr/share/locale");
+  auto messagePath = pimpl->config->GetSpecialPath(SpecialPath::ConfigRoot);
+  messagePath /= "miktex/locale";
+  messagesInfo.paths.push_back(messagePath.ToString());
   messagesInfo.domains.push_back(boost::locale::gnu_gettext::messages_info::domain(pimpl->domain));
   std::function<vector<char>(const string&, const string&)> callback = [this](const string& fileName, const string& encoding) { return LoadFile(pimpl->resources, fileName, encoding); };
   messagesInfo.callback = callback;
