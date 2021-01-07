@@ -71,7 +71,7 @@ public:
   static bool DirectoryExists(const MiKTeX::Util::PathName& path);
 
 public:
-  static PathName Helpers::GetHomeDirectory();
+  static PathName GetHomeDirectory();
 
 public:
   static wchar_t ToLower(wchar_t ch, std::locale& loc)

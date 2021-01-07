@@ -1,6 +1,6 @@
 /* unxUtil.cpp: 
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,6 +38,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 string Utils::GetOSVersionString()
 {

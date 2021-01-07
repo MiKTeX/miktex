@@ -39,7 +39,6 @@
 
 using namespace std;
 
-using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
 PathName& PathName::SetToCurrentDirectory()
@@ -87,5 +86,5 @@ PathName& PathName::SetToTempFile(const PathName& directory)
 
 PathName PathName::GetMountPoint() const
 {
-  UNIMPLEMENTED();
+  throw Unexpected("not implemented");
 }

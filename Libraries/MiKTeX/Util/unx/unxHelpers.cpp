@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <sys/stat.h>
+
 #define A7C88F5FBE5C45EB970B3796F331CD89
 #include "miktex/Util/config.h"
 
@@ -32,8 +34,8 @@ BEGIN_INTERNAL_NAMESPACE;
 
 void Helpers::CanonicalizePathName(PathName& path)
 {
-  char resolved[PATH_MAX + 1];
-  if (realpath(path.GetData(), resolved) == nullptr)
+  char* resolved = realpath(path.GetData(), nullptr);
+  if (resolved == nullptr)
   {
     if (errno == ENOENT)
     {
@@ -42,6 +44,7 @@ void Helpers::CanonicalizePathName(PathName& path)
     throw CRuntimeError("realpath");
   }
   path = resolved;
+  free(resolved);
 }
 
 bool Helpers::GetEnvironmentString(const string& name, string& value)

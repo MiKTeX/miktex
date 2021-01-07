@@ -1,6 +1,6 @@
 /* unxSession.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -68,7 +68,8 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     }
     else if (invocationName.length() > 3 && (invocationName.substr(0, 2) == "./" || invocationName.substr(0, 3) == "../"))
     {
-      myProgramFile = GetFullyQualifiedPath(invocationName.c_str());
+      myProgramFile = invocationName;
+      myProgramFile.Convert({ ConvertPathNameOption::MakeFullyQualified });
     }
     else if (!Utils::FindProgram(invocationName, myProgramFile))
     {

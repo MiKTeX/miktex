@@ -1,6 +1,6 @@
 /* runsh.cpp: running the shell
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -28,6 +28,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 int SessionImpl::RunSh(int argc, const char** argv)
 {
