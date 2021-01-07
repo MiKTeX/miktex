@@ -216,6 +216,52 @@ PathName GetExecutableDir()
 }
 #endif
 
+void InstallTranslators(shared_ptr<Session> session)
+{
+  Translator translator("miktex-console", nullptr, session);
+  auto uiLsystemUiLanguages = translator.GetSystemUILanguages();
+  QLocale uiLocale = uiLsystemUiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLsystemUiLanguages[0]));
+  QTranslator uiLibTranslator;
+  if (uiLibTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
+  {
+    QCoreApplication::installTranslator(&uiLibTranslator);
+  }
+  QTranslator applicationTranslator;
+  if (applicationTranslator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
+  {
+    QCoreApplication::installTranslator(&applicationTranslator);
+  }
+  QTranslator uiLibTranslator2;
+  QTranslator applicationTranslator2;
+  if (!uiLsystemUiLanguages.empty())
+  {
+    string localeDir;
+    if (session->TryGetConfigValue("Translator", "BaseDir", localeDir))
+    {
+      auto fileName = PathName(localeDir) / PathName(uiLsystemUiLanguages[0]) / PathName("LC_MESSAGES") / PathName("miktex-ui.qm");
+      if (File::Exists(fileName))
+      {
+        static vector<unsigned char> qmFile;
+        qmFile = File::ReadAllBytes(fileName);
+        if (uiLibTranslator2.load(&qmFile[0], qmFile.size()))
+        {
+          QCoreApplication::installTranslator(&uiLibTranslator2);
+        }
+      }
+      fileName = PathName(localeDir) / PathName(uiLsystemUiLanguages[0]) / PathName("LC_MESSAGES") / PathName("miktex-console.qm");
+      if (File::Exists(fileName))
+      {
+        static vector<unsigned char> qmFile;
+        qmFile = File::ReadAllBytes(fileName);
+        if (applicationTranslator2.load(&qmFile[0], qmFile.size()))
+        {
+          QCoreApplication::installTranslator(&applicationTranslator2);
+        }
+      }
+    }
+  }
+}
+
 int main(int argc, char* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
@@ -348,19 +394,7 @@ int main(int argc, char* argv[])
     }
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
-    Translator translator("miktex-console", nullptr, session);
-    auto uiLanguages = translator.GetSystemUILanguages();
-    QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
-    QTranslator qtranslator;
-    if (qtranslator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
-    {
-      QCoreApplication::installTranslator(&qtranslator);
-    }
-    QTranslator uiTranslator;
-    if (uiTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
-    {
-      QCoreApplication::installTranslator(&uiTranslator);
-    }
+    InstallTranslators(session);
     bool switchToAdmin = false;
     if (optAdmin)
     {
