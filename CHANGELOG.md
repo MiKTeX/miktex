@@ -4,7 +4,7 @@
 
 ### MiKTeX Console German translation
 
-MiKTeX Console now supports localization. To begin with, the UI has been translated to German.
+MiKTeX Console now supports localization. To begin with, the user interface has been translated to German.
 
 ### Upgraded programs
 

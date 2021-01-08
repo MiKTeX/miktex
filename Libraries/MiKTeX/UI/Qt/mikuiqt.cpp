@@ -44,7 +44,6 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 static QCoreApplication* application = nullptr;
-static QTranslator* qTranslator = nullptr;
 
 #if defined(MIKTEX_MACOS_BUNDLE)
 PathName GetExecutablePath()
@@ -72,6 +71,50 @@ PathName GetExecutableDir()
   return GetExecutablePath().RemoveFileSpec();
 }
 #endif
+
+static vector<unique_ptr<QTranslator>> qTranslators;
+
+static void InstallTranslators(shared_ptr<Session> session)
+{
+  auto uiLsystemUiLanguages = Translator("miktex-console", nullptr, session).GetSystemUILanguages();
+  if (uiLsystemUiLanguages.empty())
+  {
+    return;
+  }
+  reverse(uiLsystemUiLanguages.begin(), uiLsystemUiLanguages.end());
+  vector<string> domains{ "ui" };
+  vector<PathName> searchPath{ PathName(":/i18n") };
+  string localeDir;
+  if (session->TryGetConfigValue("Translator", "BaseDir", localeDir))
+  {
+    searchPath.push_back(PathName(localeDir));
+  }
+  for (const auto& uiLang : uiLsystemUiLanguages)
+  {
+    QLocale uiLocale = QLocale(QString::fromStdString(uiLang));
+    for (const auto& domain : domains)
+    {
+      for (const auto& path : searchPath)
+      {
+        auto qTranslator = make_unique<QTranslator>();
+        if (qTranslator->load(uiLocale, QString::fromStdString(domain), "_", QString::fromStdString(path.ToString()), ".qm"))
+        {
+          QCoreApplication::installTranslator(qTranslator.get());
+          qTranslators.push_back(move(qTranslator));
+        }
+      }
+    }
+  }
+}
+
+static void RemoveTranslators()
+{
+  for (auto& t : qTranslators)
+  {
+    QCoreApplication::removeTranslator(t.get());
+  }
+  qTranslators.clear();
+}
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 {
@@ -103,14 +146,7 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   if (useGUI)
   {
     application = new QApplication(argc, argv);
-    qTranslator = new QTranslator();
-    Translator translator("miktex-ui", nullptr, session);
-    auto uiLanguages = translator.GetSystemUILanguages();
-    QLocale uiLocale = uiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLanguages[0]));
-    if (qTranslator->load(uiLocale, "ui", "_", ":/i18n", ".qm"))
-    {
-      QApplication::installTranslator(qTranslator);
-    }
+    InstallTranslators(session);
   }
   else
   {
@@ -120,13 +156,9 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
 {
+  RemoveTranslators();
   delete application;
   application = nullptr;
-  if (qTranslator != nullptr)
-  {
-    delete qTranslator;
-    qTranslator = nullptr;
-  }
 }
 
 MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessageBox(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)

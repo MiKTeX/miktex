@@ -250,7 +250,7 @@ msgstr ""
 
 #: webapp.cpp:271
 msgid "Turn on verbose mode."
-msgstr "Aktiviere ausfÜhrlichen Modus."
+msgstr "Aktiviere ausführlichen Modus."
 
 #: webapp.cpp:272
 msgid "Print version information and exit."

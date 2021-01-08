@@ -38,6 +38,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/LockFile>
 #include <miktex/Core/Paths>
@@ -51,7 +52,6 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
-#include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
 #include "mainwindow.h"
@@ -216,57 +216,54 @@ PathName GetExecutableDir()
 }
 #endif
 
+vector<unique_ptr<QTranslator>> qTranslators;
+
 void InstallTranslators(shared_ptr<Session> session)
 {
-  Translator translator("miktex-console", nullptr, session);
-  auto uiLsystemUiLanguages = translator.GetSystemUILanguages();
-  QLocale uiLocale = uiLsystemUiLanguages.empty() ? QLocale() : QLocale(QString::fromStdString(uiLsystemUiLanguages[0]));
-  QTranslator uiLibTranslator;
-  if (uiLibTranslator.load(uiLocale, "ui", "_", ":/i18n", ".qm"))
+  auto uiLsystemUiLanguages = Translator("miktex-console", nullptr, session).GetSystemUILanguages();
+  if (uiLsystemUiLanguages.empty())
   {
-    QCoreApplication::installTranslator(&uiLibTranslator);
+    return;
   }
-  QTranslator applicationTranslator;
-  if (applicationTranslator.load(uiLocale, "console", "_", ":/i18n", ".qm"))
+  reverse(uiLsystemUiLanguages.begin(), uiLsystemUiLanguages.end());
+  vector<string> domains{ "ui", "console" };
+  vector<PathName> searchPath{ PathName(":/i18n") };
+  string localeDir;
+  if (session->TryGetConfigValue("Translator", "BaseDir", localeDir))
   {
-    QCoreApplication::installTranslator(&applicationTranslator);
+    searchPath.push_back(PathName(localeDir));
   }
-  QTranslator uiLibTranslator2;
-  QTranslator applicationTranslator2;
-  if (!uiLsystemUiLanguages.empty())
+  for (const auto& uiLang : uiLsystemUiLanguages)
   {
-    string localeDir;
-    if (session->TryGetConfigValue("Translator", "BaseDir", localeDir))
+    QLocale uiLocale = QLocale(QString::fromStdString(uiLang));
+    for (const auto& domain : domains)
     {
-      auto fileName = PathName(localeDir) / PathName(uiLsystemUiLanguages[0]) / PathName("LC_MESSAGES") / PathName("miktex-ui.qm");
-      if (File::Exists(fileName))
+      for (const auto& path : searchPath)
       {
-        static vector<unsigned char> qmFile;
-        qmFile = File::ReadAllBytes(fileName);
-        if (uiLibTranslator2.load(&qmFile[0], qmFile.size()))
+        auto qTranslator = make_unique<QTranslator>();
+        if (qTranslator->load(uiLocale, QString::fromStdString(domain), "_", QString::fromStdString(path.ToString()), ".qm"))
         {
-          QCoreApplication::installTranslator(&uiLibTranslator2);
-        }
-      }
-      fileName = PathName(localeDir) / PathName(uiLsystemUiLanguages[0]) / PathName("LC_MESSAGES") / PathName("miktex-console.qm");
-      if (File::Exists(fileName))
-      {
-        static vector<unsigned char> qmFile;
-        qmFile = File::ReadAllBytes(fileName);
-        if (applicationTranslator2.load(&qmFile[0], qmFile.size()))
-        {
-          QCoreApplication::installTranslator(&applicationTranslator2);
+          QCoreApplication::installTranslator(qTranslator.get());
+          qTranslators.push_back(move(qTranslator));
         }
       }
     }
   }
 }
 
+void RemoveTranslators()
+{
+  for (auto &t : qTranslators)
+  {
+    QCoreApplication::removeTranslator(t.get());
+  }
+  qTranslators.clear();
+}
+
 int main(int argc, char* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
   COMInitializer comInitializer;
-  ConsoleCodePageSwitcher cpSwitcher;
 #endif
   int ret = 0;
   bool optAdmin = false;
@@ -395,6 +392,7 @@ int main(int argc, char* argv[])
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
     InstallTranslators(session);
+    MIKTEX_AUTO(RemoveTranslators());
     bool switchToAdmin = false;
     if (optAdmin)
     {
