@@ -1,6 +1,6 @@
 /* MacOsVersion.cpp: 
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,16 +21,17 @@
 
 #include "config.h"
 
-#include <miktex/Util/PathName>
 #include <miktex/Core/Process>
 #include <miktex/Core/Utils>
 #include <miktex/Core/mac/MacOsVersion>
+#include <miktex/Util/PathName>
 
 #include "internal.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 
 void rtrim(std::string& str)
 {
