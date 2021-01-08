@@ -170,6 +170,7 @@ Application::~Application() noexcept
     {
       Finalize();
     }
+    pimpl = nullptr;
   }
   catch (const exception&)
   {
@@ -583,6 +584,7 @@ void Application::Finalize()
   {
     pimpl->packageManager = nullptr;
   }
+  pimpl->translator = nullptr;
   pimpl->session = nullptr;
   pimpl->ignoredPackages.clear();
   if (initUiFrameworkDone)

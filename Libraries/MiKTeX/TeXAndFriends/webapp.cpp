@@ -191,6 +191,7 @@ void WebApp::Finalize()
   pimpl->version = "";
   pimpl->options.clear();
   pimpl->optionShortcuts.clear();
+  pimpl->translator = nullptr;
   Application::Finalize();
 }
 
