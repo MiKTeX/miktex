@@ -1426,7 +1426,7 @@ void MainWindow::OnUILanguageSelected(int index)
 {
   try
   {
-    session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_UI_LANGUAGES, ConfigValue(uiLanguageModel->GetData(index)));
+    session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_UI_LANGUAGES, ConfigValue({ uiLanguageModel->GetData(index) }));
     UpdateUi();
     QMessageBox msgBox;
     msgBox.setText(tr("The language change will take effect after restart."));
