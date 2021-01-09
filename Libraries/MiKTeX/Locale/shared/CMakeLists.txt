@@ -57,6 +57,13 @@ target_link_libraries(${loc_dll_name}
     ${res_dll_name}
 )
 
+if(MIKTEX_MACOS_BUNDLE)
+  target_link_libraries(${loc_dll_name}
+    PRIVATE
+      ${CoreFoundation}
+  )
+endif()
+
 if(USE_SYSTEM_BOOST)
   target_link_libraries(${loc_dll_name} PRIVATE Boost::locale)
 endif()

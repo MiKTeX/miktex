@@ -906,10 +906,6 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, string&&
         itVal->second->value.front() += std::move(value);
       }
     }
-    else if (itVal->second->IsMultiValue())
-    {
-      itVal->second->value.push_back(std::move(value));
-    }
     else
     {
       itVal->second->value.clear();

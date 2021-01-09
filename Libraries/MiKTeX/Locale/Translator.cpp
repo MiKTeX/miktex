@@ -23,6 +23,10 @@
 #include <Windows.h>
 #endif
 
+#if defined(MIKTEX_MACOS_BUNDLE)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 #include <fstream>
 #include <locale>
 #include <mutex>
@@ -324,6 +328,29 @@ vector<string> Translator::GetSystemUILanguages()
   if (!windowsUILanguages.empty() && !windowsUILanguages[0].empty())
   {
     return windowsUILanguages;
+  }
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  CFArrayRef langs = CFLocaleCopyPreferredLanguages();
+  CFIndex numLangs = CFArrayGetCount(langs);
+  vector<string> macUILanguages;
+  for (CFIndex idx = 0; idx < numLangs; ++idx)
+  {
+    CFStringRef lang = reinterpret_cast<CFStringRef>(CFArrayGetValueAtIndex(langs, idx));
+    const char* cLang = CFStringGetCStringPtr(lang, kCFStringEncodingUTF8);
+    char buffer[30];
+    if (cLang == nullptr)
+    {
+      if (!CFStringGetCString(lang, buffer, 30, kCFStringEncodingUTF8))
+      {
+        continue;
+      }
+      cLang = buffer;
+    }
+    macUILanguages.push_back(cLang);
+  }
+  if (!macUILanguages.empty() && !macUILanguages[0].empty())
+  {
+    return macUILanguages;
   }
 #endif
   string envValue;
