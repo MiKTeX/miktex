@@ -1,6 +1,6 @@
 /* UpdateTableModel.cpp:
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -51,12 +51,12 @@ int UpdateTableModel::columnCount(const QModelIndex& parent) const
 
 template<typename T> QString FormatPackageVersion(const T& packageInfo)
 {
-  QString str = QString::fromUtf8(packageInfo.version.c_str());
-  if (!str.isEmpty())
+  QString str = QDateTime::fromTime_t(packageInfo.timePackaged).date().toString(Qt::ISODate);
+  if (!packageInfo.version.empty())
   {
-    str += " / ";
+    str += " (" + QString::fromUtf8(packageInfo.version.c_str()) + ")";
   }
-  return str + QDateTime::fromTime_t(packageInfo.timePackaged).date().toString();
+  return str;
 }
 
 QVariant UpdateTableModel::data(const QModelIndex& index, int role) const

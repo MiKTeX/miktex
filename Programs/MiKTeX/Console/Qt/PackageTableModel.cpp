@@ -76,11 +76,11 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
         return static_cast<qlonglong>(packageInfo.GetSize());
 #endif
       case 3:
-        return QDateTime::fromTime_t(packageInfo.timePackaged).date();
+        return QLocale::system().toString(QDateTime::fromTime_t(packageInfo.timePackaged).date(), QLocale::ShortFormat);
       case 4:
         if (packageInfo.IsInstalled())
         {
-          return QDateTime::fromTime_t(packageInfo.GetTimeInstalled()).date();
+          return QLocale::system().toString(QDateTime::fromTime_t(packageInfo.GetTimeInstalled()).date(), QLocale::ShortFormat);
         }
         break;
       case 5:

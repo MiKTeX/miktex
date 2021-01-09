@@ -1108,7 +1108,7 @@ void MainWindow::SetupUiUpdates()
     session->IsAdminMode() ? MIKTEX_CONFIG_VALUE_LAST_ADMIN_UPDATE_CHECK : MIKTEX_CONFIG_VALUE_LAST_USER_UPDATE_CHECK,
     lastUpdateCheck))
   {
-    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));
+    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QLocale::system().toString(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date())));
   }
   else
   {
