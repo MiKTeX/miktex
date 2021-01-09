@@ -225,7 +225,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
     else
     {
       CharBuffer<wchar_t> wideCharBuffer(GetData());
-      locale defaultLocale;
+      locale defaultLocale("");
       for (wchar_t* lpsz = wideCharBuffer.GetData(); *lpsz != 0; ++lpsz)
       {
         *lpsz = toUpper ? Helpers::ToUpper(*lpsz, defaultLocale) : Helpers::ToLower(*lpsz, defaultLocale);

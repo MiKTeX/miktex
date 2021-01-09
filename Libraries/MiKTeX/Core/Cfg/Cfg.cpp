@@ -625,6 +625,9 @@ public:
   void MIKTEXTHISCALL DeleteValue(const string& keyName, const string& valueName) override;
 
 public:
+  bool MIKTEXTHISCALL ClearValue(const string& keyName, const string& valueName) override;
+
+public:
   bool MIKTEXTHISCALL IsSigned() const override
   {
     return !signature.empty();
@@ -688,9 +691,6 @@ private:
 private:
   void PutValue(const string& keyName, const string& valueName, string&& value, PutMode putMode, string&& documentation, bool commentedOut);
 
-private:
-  bool ClearValue(const string& keyName, const string& valueName);
-  
 private:
   Options options;
 

@@ -92,7 +92,7 @@
     <message>
         <location filename="../InstallPackageDialog.ui" line="30"/>
         <source>This required file is missing:</source>
-        <translation>Diese erfordeliche Datei fehlt:</translation>
+        <translation>Diese erforderliche Datei ist nicht vorhanden:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="76"/>
@@ -328,7 +328,7 @@
     <message>
         <location filename="../SiteWizLocal.cpp" line="83"/>
         <source>The specified directory does not exist.</source>
-        <translation>Das Verzeichnis existiert nicht.</translation>
+        <translation>Das angegebene Verzeichnis existiert nicht.</translation>
     </message>
     <message>
         <location filename="../SiteWizLocal.cpp" line="93"/>
@@ -346,12 +346,12 @@
     <message>
         <location filename="../SiteWizRemote.ui" line="18"/>
         <source>There are many MiKTeX package repositories around the world.</source>
-        <translation>Es gibt viele MiKTeX-Paket-Repositories rund um die Welt.</translation>
+        <translation>Rund um die Welt gibt es viele MiKTeX-Paket-Repositories.</translation>
     </message>
     <message>
         <location filename="../SiteWizRemote.ui" line="24"/>
         <source>For easy selection, the following list is sorted by network proximity. It is recommended that you select a host in your country which supports a secure transport protocol:</source>
-        <translation>Für eine einfache Auswahl ist die folgende Liste nach Netzwerknähe sortiert. Es wird empfohlen, daß Sie einen Host in Ihrem Land auswählen, der ein sicheres Transportprotokoll unterstützt:</translation>
+        <translation>Für eine einfache Auswahl ist die folgende Liste nach Netzwerknähe sortiert. Es wird empfohlen, dass Sie einen Host in Ihrem Land auswählen, der ein sicheres Transportprotokoll unterstützt:</translation>
     </message>
 </context>
 <context>

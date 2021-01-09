@@ -328,6 +328,12 @@ public:
 public:
   virtual void MIKTEXTHISCALL DeleteValue(const std::string& keyName, const std::string& valueName) = 0;
 
+  /// Clears an INI value.
+  /// @param keyName Identifies the section.
+  /// @param keyName Identifies the value within the section.
+public:
+  virtual bool MIKTEXTHISCALL ClearValue(const std::string& keyName, const std::string& valueName) = 0;
+
   /// Checks whether this INI container is signed.
   /// @return Returns `true`, if the container is signed.
 public:

@@ -59,7 +59,7 @@
     <message>
         <location filename="../formatdefinitiondialog.ui" line="102"/>
         <source>Exclude this format when updating all format files</source>
-        <translation>Schliesse dieses Format aus, wenn alle Formatdateien aktualisiert werden</translation>
+        <translation>Schließe dieses Format aus, wenn alle Formatdateien aktualisiert werden</translation>
     </message>
 </context>
 <context>
@@ -204,7 +204,7 @@
     <message>
         <location filename="../mainwindow.ui" line="413"/>
         <source>The TeX installation will be available for your private use only.</source>
-        <translation>Die TeX-Installation wird nur für die private Nutzung zur Verfügung stehen.</translation>
+        <translation>Die TeX-Installation wird nur für den privaten Einsatz zur Verfügung stehen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="420"/>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../mainwindow.ui" line="436"/>
         <source>Please wait a few moments. It doesn&apos;t take too long...</source>
-        <translation>Bitte warten Sie einen Momen. Es sollte nicht sehr lange dauern...</translation>
+        <translation>Bitte warten Sie einen Moment. Es sollte nicht sehr lange dauern...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="495"/>
@@ -259,7 +259,7 @@
     <message>
         <location filename="../mainwindow.ui" line="609"/>
         <source>You have installed MiKTeX for your private use.</source>
-        <translation>Sie haben MiKTeX für die private Benutzung installiert.</translation>
+        <translation>Sie haben MiKTeX für den privaten Einsatz installiert.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="628"/>
@@ -484,7 +484,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1728"/>
-        <source>When you issue a ticket, you should include the report as an attachement.</source>
+        <source>When you issue a ticket, you should include the report as an attachment.</source>
         <translation>Wenn Sie ein Ticket einstellen, dann sollten Sie den Bericht als Anhang hinzufügen.</translation>
     </message>
     <message>
@@ -526,7 +526,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1782"/>
-        <source>When you issue a ticket, you should include relevant log files as attachements.</source>
+        <source>When you issue a ticket, you should include relevant log files as attachments.</source>
         <translation>Wenn Sie ein Ticket einstellen, dann sollten sie relevante Log-Dateien als Anhang hinzufügen.</translation>
     </message>
     <message>
@@ -546,7 +546,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1854"/>
-        <source>To clean up your TeX installation, use one of the folllowing options.</source>
+        <source>To clean up your TeX installation, use one of the following options.</source>
         <translation>Wählen Sie eine der folgenden Optionen, um Ihre TeX-Installation zu bereinigen.</translation>
     </message>
     <message>
@@ -557,7 +557,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1864"/>
-        <source>This resets (removes) your pesonal MiKTeX configuration.</source>
+        <source>This resets (removes) your personal MiKTeX configuration.</source>
         <translation>Dies setzt ihre persönliche MiKTeX-Konfiguration zurück.</translation>
     </message>
     <message>
@@ -679,7 +679,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.ui" line="2058"/>
         <source>Adds a TEXMF root directory to the list</source>
-        <translation>Fügt ein TEXMF-Wurtelverzeichnis der Liste hinzu</translation>
+        <translation>Fügt der Liste ein TEXMF-Wurzelverzeichnis hinzu</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="2067"/>
@@ -998,7 +998,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="921"/>
         <source>Something went wrong while installing packages.</source>
-        <translation>Etwas ist schiefgegangen beim Installieren von Paketen.</translation>
+        <translation>Beim Installieren von Paketen ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="922"/>
@@ -1050,7 +1050,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="998"/>
         <source>Something went wrong while refreshing the file name database.</source>
-        <translation>Etwas ist schiefgegangen beim Aktualisieren der Dateinamendatenbank.</translation>
+        <translation>Beim Aktualisieren der Dateinamendatenbank ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1078"/>
@@ -1060,7 +1060,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="1085"/>
         <source>Something went wrong while refreshing the font map files.</source>
-        <translation>Etwas ist schiefgegangen beim Aktualisieren der Font-Map-Dateien.</translation>
+        <translation>Beim Aktualisieren der Font-Map-Dateien ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1111"/>
@@ -1103,12 +1103,12 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="1253"/>
         <source>Something went wrong while checking for updates.</source>
-        <translation>Etwas ist schiefgegangen beim Suchen nach Updates.</translation>
+        <translation>Beim Suchen nach Updates ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2549"/>
         <source>&lt;p&gt;You are about to remove the following:&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie sind im Begriff, folgendes zu entfernen:&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Sie sind im Begriff, Folgendes zu entfernen:&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2552"/>
@@ -1141,7 +1141,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="1351"/>
         <source>Something went wrong while installing package updates.</source>
-        <translation>Etwas ist schiefgegangen beim Installieren von Paket-Updates.</translation>
+        <translation>Beim Installieren von Paket-Updates ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1394"/>
@@ -1166,7 +1166,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="1728"/>
         <source>This does not look like a &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-compliant&lt;/a&gt; root directory. Are you sure you want to add it?</source>
-        <translation>Dies sieht nich wie ein &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-konformes&lt;/a&gt; Wurzelverteichnis aus. Sind Sie sich sicher, dass sie es hinzufügen möchten?</translation>
+        <translation>Das sieht nicht wie ein &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-konformes&lt;/a&gt; Wurzelverzeichnis aus. Sind Sie sich sicher, dass sie es hinzufügen möchten?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1873"/>
@@ -1181,7 +1181,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="1888"/>
         <source>Something went wrong while changing the link target directory.</source>
-        <translation>Etwas ist schiefgegangen beim Ändern des Zielverzeichnisses für Verknüpfungen.</translation>
+        <translation>Beim Ändern des Zielverzeichnisses für Verknüpfungen ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1995"/>
@@ -1201,7 +1201,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="2084"/>
         <source>Something went wrong while building formats.</source>
-        <translation>Etwas ist schiefgegangen beim Erstellen der Formate.</translation>
+        <translation>Beim Erstellen der Formate ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2307"/>
@@ -1239,7 +1239,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="2372"/>
         <source>Something went wrong while updating the package database.</source>
-        <translation>Etwas ist schiefgegangen beim Aktualisieren der Paket-Datenbank.</translation>
+        <translation>Beim Aktualisieren der Paket-Datenbank ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2548"/>
@@ -1263,7 +1263,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2584"/>
-        <source>The personal MiKTeX configuration has been resetted.
+        <source>The personal MiKTeX configuration has been reset.
 
 The application window will now be closed.</source>
         <translation>Die persönliche MiKTeX-Konfiguration wurde zurückgesetzt.
@@ -1275,7 +1275,7 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
         <source>Something went wrong while resetting your personal MiKTeX configuration.
 
 The application window will now be closed.</source>
-        <translation>Etwas ist schiefgegangen beim Zurücksetzen der MiKTeX-Konfiguration.</translation>
+        <translation>Beim Zurücksetzen der MiKTeX-Konfiguration ist etwas schiefgegangen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2642"/>
@@ -1310,7 +1310,7 @@ The application window will now be closed.</source>
 The application window will now be closed.</source>
         <translation>Die TeX-Installation wurde auf die Werkseinstellungen zurückgesetzt.
 
-Das Anwendungsfenter wird jetzt geschlossen.</translation>
+Das Anwendungsfenster wird jetzt geschlossen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2666"/>
@@ -1320,7 +1320,7 @@ Das Anwendungsfenter wird jetzt geschlossen.</translation>
 The application window will now be closed.</source>
         <translation>
 
-Das Anwendungsfenster wurd jetzt geschlossen.</translation>
+Das Anwendungsfenster wird jetzt geschlossen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2721"/>

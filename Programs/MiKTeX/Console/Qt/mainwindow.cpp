@@ -2581,7 +2581,7 @@ void MainWindow::UserReset()
       UserResetWorker* worker = (UserResetWorker*)sender();
       if (worker->GetResult())
       {
-        QMessageBox::information(this, TheNameOfTheGame, tr("The personal MiKTeX configuration has been resetted.\n\nThe application window will now be closed."));
+        QMessageBox::information(this, TheNameOfTheGame, tr("The personal MiKTeX configuration has been reset.\n\nThe application window will now be closed."));
       }
       else
       {

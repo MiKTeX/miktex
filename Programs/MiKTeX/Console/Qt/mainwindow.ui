@@ -1725,7 +1725,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <item>
                <widget class="QLabel" name="label_17x_2">
                 <property name="text">
-                 <string>When you issue a ticket, you should include the report as an attachement.</string>
+                 <string>When you issue a ticket, you should include the report as an attachment.</string>
                 </property>
                </widget>
               </item>
@@ -1779,7 +1779,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <item>
                <widget class="QLabel" name="label_17x_3">
                 <property name="text">
-                 <string>When you issue a ticket, you should include relevant log files as attachements.</string>
+                 <string>When you issue a ticket, you should include relevant log files as attachments.</string>
                 </property>
                </widget>
               </item>
@@ -1851,7 +1851,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
            <item>
             <widget class="QLabel" name="label_21">
              <property name="text">
-              <string>To clean up your TeX installation, use one of the folllowing options.</string>
+              <string>To clean up your TeX installation, use one of the following options.</string>
              </property>
             </widget>
            </item>
@@ -1861,7 +1861,7 @@ Use this option, if you want to operate on your private MiKTeX configuration.</s
               <string>Reset personal MiKTeX configuration</string>
              </property>
              <property name="description">
-              <string>This resets (removes) your pesonal MiKTeX configuration.</string>
+              <string>This resets (removes) your personal MiKTeX configuration.</string>
              </property>
             </widget>
            </item>

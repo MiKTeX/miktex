@@ -567,6 +567,7 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
   }
 #endif
 
+  cfg->ClearValue(sectionName, valueName);
   cfg->PutValue(sectionName, valueName, value.GetString());
   cfg->Write(pathConfigFile);
   if (!Fndb::FileExists(pathConfigFile))
