@@ -226,7 +226,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 {
   if (IsBackgroundWorkerActive())
   {
-    if (QMessageBox::question(this, TheNameOfTheGame, tr("A task is running in the background. Are you sure you want to quit?"))
+    if (QMessageBox::question(this, TheNameOfTheGame, tr("A task is running in the background. Are you sure you want to quit %1?").arg(TheNameOfTheGame))
       != QMessageBox::Yes)
     {
       event->ignore();
@@ -235,7 +235,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
   }
   if (updateModel->Pending() > 0)
   {
-    if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit?"))
+    if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit %1?").arg(TheNameOfTheGame))
       != QMessageBox::Yes)
     {
       event->ignore();
@@ -627,7 +627,7 @@ void MainWindow::AboutDialog()
   message += "<p>" + QString::fromUtf8(MIKTEX_COMP_COPYRIGHT_STR) + "</p>";
   message += tr("<p>%1 is free software. You are welcome to redistribute it under certain conditions.</p>").arg(TheNameOfTheGame);
   message += tr("<p>%1 comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>").arg(TheNameOfTheGame);
-  message += tr("<p>You can support the project by giving back: <a href=\"%1\">%1</a><br>Thank you!</p>").arg("https://miktex.org/giveback");
+  message += tr("<p>You can support the project:<br><a href=\"%1\">%1</a><br>Thank you!</p>").arg("https://miktex.org/giveback");
   QMessageBox::about(this, TheNameOfTheGame, message);
 }
 

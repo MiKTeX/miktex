@@ -69,7 +69,7 @@ QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
     case 0:
       if (repositoryInfo == RandomRepository())
       {
-        return tr("a random package repository on the Internet");
+        return tr("<Random package repository on the Internet>");
       }
       else if (repositoryInfo.type == RepositoryType::Remote)
       {

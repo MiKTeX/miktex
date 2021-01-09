@@ -299,7 +299,7 @@ Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten
         <location filename="../mainwindow.ui" line="734"/>
         <location filename="../mainwindow.cpp" line="346"/>
         <source>You can now check for package updates.</source>
-        <translation>Sie können jetzt nach Updats suchen.</translation>
+        <translation>Sie können jetzt nach Updates suchen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="746"/>
@@ -915,14 +915,13 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="229"/>
-        <source>A task is running in the background. Are you sure you want to quit?</source>
-        <translation>Ein Auftrag wird im Hintergrund ausgeführt. Sind Sie sicher, dass Sie beenden möchten?</translation>
+        <source>A task is running in the background. Are you sure you want to quit %1?</source>
+        <translation>Ein Auftrag wird im Hintergrund ausgeführt. Sind Sie sicher, dass Sie %1 beenden möchten?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="238"/>
-        <location filename="../mainwindow.cpp" line="640"/>
-        <source>There are pending updates. Are you sure you want to quit?</source>
-        <translation>Es gibt ausstehende Updates. Sind Sie sicher, dass Sie beenden möchten?</translation>
+        <source>There are pending updates. Are you sure you want to quit %1?</source>
+        <translation>Es gibt ausstehende Updates. Sind Sie sicher, dass Sie %1 beenden möchten?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="284"/>
@@ -947,17 +946,22 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="628"/>
         <source>&lt;p&gt;%1 is free software. You are welcome to redistribute it under certain conditions.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;%1 is freie Software. Sie können das Programm gerne unter bestimmten Bedinungen weitergeben.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;%1 is freie Software. Gerne können Sie %1 unter bestimmten Bedinungen weitergeben.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="629"/>
         <source>&lt;p&gt;%1 comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Für %1 besteht KEINERLEI GARANTIE JEGLICHER ART.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Für %1 besteht KEINERLEI GEWÄHRLEISTUNG JEGLICHER ART.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="630"/>
-        <source>&lt;p&gt;You can support the project by giving back: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Thank you!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie können das Projekt untestützen, indem Sie etwas zurückgeben: &lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Danke!&lt;/p&gt;</translation>
+        <source>&lt;p&gt;You can support the project:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Thank you!&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Sie können das Projekt untestützen:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Danke!&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="640"/>
+        <source>There are pending updates. Are you sure you want to quit?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="712"/>
@@ -1412,8 +1416,8 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
     <name>RepositoryTableModel</name>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="72"/>
-        <source>a random package repository on the Internet</source>
-        <translation>ein beliebiges Repository im Internet</translation>
+        <source>&lt;Random package repository on the Internet&gt;</source>
+        <translation>&lt;Beliebiges Repository im Internet&gt;</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="108"/>

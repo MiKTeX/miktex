@@ -68,12 +68,12 @@
 <context>
     <name>FileTableModel</name>
     <message>
-        <location filename="../FileTableModel.cpp" line="72"/>
+        <location filename="../FileTableModel.cpp" line="74"/>
         <source>File name</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="../FileTableModel.cpp" line="74"/>
+        <location filename="../FileTableModel.cpp" line="76"/>
         <source>Path</source>
         <translation>Pfad</translation>
     </message>
@@ -84,10 +84,6 @@
         <location filename="../InstallPackageDialog.ui" line="24"/>
         <source>Package Installation</source>
         <translation>Paket-Installation</translation>
-    </message>
-    <message>
-        <source>The required file</source>
-        <translation type="vanished">Die erforderliche Datei</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="30"/>
@@ -130,27 +126,27 @@
         <translation>Dieses Dialogfeld &amp;immer anzeigen</translation>
     </message>
     <message>
-        <location filename="../InstallPackageDialog.cpp" line="63"/>
+        <location filename="../InstallPackageDialog.cpp" line="66"/>
         <source>Install</source>
         <translation>Installieren</translation>
     </message>
     <message>
-        <location filename="../InstallPackageDialog.cpp" line="75"/>
+        <location filename="../InstallPackageDialog.cpp" line="78"/>
         <source>&lt;Random package repository&gt;</source>
-        <translation>&lt;Zufälliges Paket-Repository&gt;</translation>
+        <translation>&lt;Beliebiges Paket-Repository&gt;</translation>
     </message>
     <message>
-        <location filename="../InstallPackageDialog.cpp" line="83"/>
+        <location filename="../InstallPackageDialog.cpp" line="86"/>
         <source>Anyone who uses this computer (all users)</source>
         <translation>Jeder der den Computer benutzt (alle Benutzer)</translation>
     </message>
     <message>
-        <location filename="../InstallPackageDialog.cpp" line="97"/>
+        <location filename="../InstallPackageDialog.cpp" line="100"/>
         <source>Unknown user</source>
         <translation>Unbekannter Benutzer</translation>
     </message>
     <message>
-        <location filename="../InstallPackageDialog.cpp" line="112"/>
+        <location filename="../InstallPackageDialog.cpp" line="115"/>
         <source>The current user</source>
         <translation>Der aktuelle Benutzer</translation>
     </message>
@@ -287,7 +283,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SiteWizDrive.cpp" line="65"/>
+        <location filename="../SiteWizDrive.cpp" line="69"/>
         <source>No MiKTeX CD/DVD found</source>
         <translation type="unfinished"></translation>
     </message>
@@ -326,12 +322,12 @@
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie haben noch kein lokales Paket-Repository? Es ist leicht, eines einzurichten: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: set up a local package repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../SiteWizLocal.cpp" line="83"/>
+        <location filename="../SiteWizLocal.cpp" line="85"/>
         <source>The specified directory does not exist.</source>
         <translation>Das angegebene Verzeichnis existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../SiteWizLocal.cpp" line="93"/>
+        <location filename="../SiteWizLocal.cpp" line="95"/>
         <source>Not a local package repository.</source>
         <translation>Kein lokales Paket-Repository.</translation>
     </message>
@@ -468,12 +464,12 @@ Please visit http://miktex.org/kb/miktex-next, for more information.</source>
 <context>
     <name>UpdateDialogImpl</name>
     <message>
-        <location filename="../UpdateDialog.cpp" line="247"/>
+        <location filename="../UpdateDialog.cpp" line="238"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.cpp" line="300"/>
+        <location filename="../UpdateDialog.cpp" line="291"/>
         <source>The update operation will now be cancelled.</source>
         <translation>Der Update-Vorgang wird jetzt abgebrochen.</translation>
     </message>
