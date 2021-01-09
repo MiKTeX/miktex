@@ -956,7 +956,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     <message>
         <location filename="../mainwindow.cpp" line="630"/>
         <source>&lt;p&gt;You can support the project:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Thank you!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie können das Projekt untestützen:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Danke!&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Sie können das Projekt unterstützen:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Danke!&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="640"/>
