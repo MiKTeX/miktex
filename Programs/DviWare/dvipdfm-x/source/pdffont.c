@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -110,6 +110,7 @@ pdf_init_font_struct (pdf_font *font)
   font->type0.wmode      = 0;
 
   init_CIDSysInfo(&font->cid.csi);
+  font->cid.need_vmetrics  = 0;
   font->cid.usedchars_v    = NULL;
   font->cid.options.embed  = 0;
   font->cid.options.style  = FONT_STYLE_NONE;

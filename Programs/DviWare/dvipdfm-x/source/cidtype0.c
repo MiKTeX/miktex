@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -599,7 +599,7 @@ CIDFont_type0_dofont (pdf_font *font)
                  pdf_new_name("DW"), pdf_new_number(1000.0));
   } else {
     add_CIDMetrics(sfont, font->resource, CIDToGIDMap, last_cid,
-                   font->cid.usedchars_v ? 1 : 0);
+                   font->cid.need_vmetrics ? 1 : 0);
   }
 
   if (!font->cid.options.embed) {
@@ -1430,7 +1430,7 @@ CIDFont_type0_t1cdofont (pdf_font *font)
       }
     }
     add_CIDMetrics(sfont, font->resource, CIDToGIDMap, last_cid,
-                   font->cid.usedchars_v ? 1 : 0);
+                   font->cid.need_vmetrics ? 1 : 0);
     RELEASE(CIDToGIDMap);
   }
 

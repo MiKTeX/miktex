@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -932,7 +932,7 @@ CIDFont_type2_dofont (pdf_font *font)
     pdf_add_dict(font->resource, pdf_new_name("DW"), pdf_new_number(1000.0));
   } else {
     add_TTCIDHMetrics(font->resource, glyphs, used_chars, cidtogidmap, last_cid);
-    if (v_used_chars)
+    if (font->cid.need_vmetrics)
       add_TTCIDVMetrics(font->resource, glyphs, used_chars, last_cid);
   }
 

@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -117,6 +117,7 @@ struct pdf_font
   struct {
     CIDSysInfo csi;     /* Character collection */
     cid_opt    options; /* Options from map record */
+    int        need_vmetrics;
     char      *usedchars_v;
   } cid;
 };

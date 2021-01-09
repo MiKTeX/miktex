@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     This program is free software; you can redistribute it and/or modify
@@ -213,6 +213,9 @@ pdf_font_open_type0 (pdf_font *font, int cid_id, int wmode)
     sprintf(font->fontname, "%s-%s", fontname, wmode ? "Identity-V" : "Identity-H");
     font->usedchars = CIDFont_get_usedchars(cidfont);
     font->flags    |= PDF_FONT_FLAG_USEDCHAR_SHARED;
+    if (wmode) {
+      cidfont->cid.need_vmetrics = 1;
+    }
     break;
   case PDF_FONT_FONTTYPE_CIDTYPE2:
     font->fontname = NEW(strlen(fontname)+1, char);
@@ -227,6 +230,9 @@ pdf_font_open_type0 (pdf_font *font, int cid_id, int wmode)
     } else {
       font->usedchars  = wmode ? CIDFont_get_usedchars_v(cidfont) : CIDFont_get_usedchars(cidfont);
       font->flags     |= PDF_FONT_FLAG_USEDCHAR_SHARED;
+    }
+    if (wmode) {
+      cidfont->cid.need_vmetrics = 1;
     }
     break;
   }
