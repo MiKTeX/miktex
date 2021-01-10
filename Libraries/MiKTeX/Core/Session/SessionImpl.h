@@ -690,22 +690,6 @@ public:
   }
 
 public:
-  static std::locale& GetDefaultLocale()
-  {
-    auto session = TryGetSession();
-    if (session != nullptr)
-    {
-      return session->defaultLocale;
-    }
-    else
-    {
-      // FIXME
-      static std::locale defaultLocale;
-      return defaultLocale;
-    }
-  }
-
-public:
   MiKTeX::Util::PathName GetRelativeFilenameDatabasePathName(unsigned r);
 
 #if defined(HAVE_ATLBASE_H) && defined(MIKTEX_CORE_SHARED)

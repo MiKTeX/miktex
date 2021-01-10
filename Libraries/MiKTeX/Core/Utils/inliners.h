@@ -1,6 +1,6 @@
 /* inliners.h:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -21,19 +21,12 @@
 
 #pragma once
 
-#include "Session/SessionImpl.h"
+#include "internal.h"
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
-#define CTYPE_FACET \
-  std::use_facet<std::ctype<char>>(SessionImpl::GetDefaultLocale())
-
-#define CTYPE_FACET_W \
-  std::use_facet<std::ctype<wchar_t>>(SessionImpl::GetDefaultLocale())
-
-inline char ToLower(char ch)
+inline char ToLowerAscii(char ch)
 {
-  MIKTEX_ASSERT(static_cast<unsigned>(ch) < 128);
   if (ch >= 'A' && ch <= 'Z')
   {
     ch = ch - 'A' + 'a';
@@ -41,25 +34,8 @@ inline char ToLower(char ch)
   return ch;
 }
 
-inline wchar_t ToLower(wchar_t ch)
+inline char ToUpperAscii(char ch)
 {
-  if (static_cast<unsigned>(ch) < 128)
-  {
-    if (ch >= L'A' && ch <= L'Z')
-    {
-      ch = ch - L'A' + L'a';
-    }
-  }
-  else
-  {
-    ch = CTYPE_FACET_W.tolower(ch);
-  }
-  return ch;
-}
-
-inline char ToUpper(char ch)
-{
-  MIKTEX_ASSERT(static_cast<unsigned>(ch) < 128);
   if (ch >= 'a' && ch <= 'z')
   {
     ch = ch - 'a' + 'A';
@@ -67,77 +43,61 @@ inline char ToUpper(char ch)
   return ch;
 }
 
-inline wchar_t ToUpper(wchar_t ch)
+inline bool IsAlphaAscii(char ch)
 {
-  if (static_cast<unsigned>(ch) < 128)
-  {
-    if (ch >= L'a' && ch <= L'z')
-    {
-      ch = ch - L'a' + L'A';
-    }
-  }
-  else
-  {
-    ch = CTYPE_FACET_W.toupper(ch);
-  }
-  return ch;
+  return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 
-inline bool IsAlpha(char ch)
+inline bool IsDecimalDigitAscii(char ch)
 {
-  return CTYPE_FACET.is(std::ctype<char>::alpha, ch);
+  return ch >= '0' && ch <= '9';
 }
 
-inline bool IsDigit(char ch)
+inline bool IsAlphaNumericAScii(char ch)
 {
-  return CTYPE_FACET.is(std::ctype<char>::digit, ch);
+  return IsAlphaAscii(ch) || IsDecimalDigitAscii(ch);
 }
 
-inline bool IsAlNum(char ch)
+inline bool IsWhitespaceAscii(char ch)
 {
-  return CTYPE_FACET.is(std::ctype<char>::alnum, ch);
+  return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\n';
 }
 
-inline bool IsSpace(char ch)
+inline void SkipWhitespaceAscii(const char*& lpsz)
 {
-  return CTYPE_FACET.is(std::ctype<char>::space, ch);
-}
-
-inline void SkipSpace(const char * & lpsz)
-{
-  while (*lpsz != 0 && IsSpace(*lpsz))
+  while (*lpsz != 0 && IsWhitespaceAscii(*lpsz))
   {
     ++lpsz;
   }
 }
 
-inline void SkipSpace(char * & lpsz)
+inline void SkipWhitespaceAscii(char*& lpsz)
 {
-  while (*lpsz != 0 && IsSpace(*lpsz))
+  while (*lpsz != 0 && IsWhitespaceAscii(*lpsz))
   {
     ++lpsz;
   }
 }
 
-inline void SkipAlpha(const char * & lpsz)
+inline void SkipAlphaAscii(const char*& lpsz)
 {
-  while (*lpsz != 0 && IsAlpha(*lpsz))
+  while (*lpsz != 0 && IsAlphaAscii(*lpsz))
   {
     ++lpsz;
   }
 }
 
-inline void SkipNonDigit(const char * & lpsz)
+inline void SkipNonDecimalDigitAscii(const char*& lpsz)
 {
-  while (*lpsz != 0 && !IsDigit(*lpsz))
+  while (*lpsz != 0 && !IsDecimalDigitAscii(*lpsz))
   {
     ++lpsz;
   }
 }
 
-inline size_t SkipNonDigit(const std::string& s, size_t pos = 0)
+inline size_t SkipNonDecimalDigitAscii(const std::string& s, size_t pos = 0)
 {
-  while (pos < s.length() && !IsDigit(s[pos]))
+  while (pos < s.length() && !IsDecimalDigitAscii(s[pos]))
   {
     ++pos;
   }

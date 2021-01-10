@@ -263,11 +263,11 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string& name, const string& part)
 {
   for (char ch : part)
   {
-    if (IsAlpha(ch))
+    if (IsAlphaAscii(ch))
     {
-      name += ToUpper(ch);
+      name += ToUpperAscii(ch);
     }
-    else if (IsDigit(ch))
+    else if (IsDecimalDigitAscii(ch))
     {
       name += ch;
     }

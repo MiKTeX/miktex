@@ -67,15 +67,16 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
   this->readWrite = readWrite;
 
   // create a unique object name
+  PathName path2 = path;
+  path2.TransformForComparison();
   name = "";
-  name.reserve(BufferSizes::MaxPath);
-  for (size_t i = 0; path[i] != 0; ++i)
+  for (size_t i = 0; path2[i] != 0; ++i)
   {
-    if (PathNameUtil::IsDirectoryDelimiter(path[i]) || path[i] == ':')
+    if (PathNameUtil::IsDirectoryDelimiter(path2[i]) || path2[i] == ':')
     {
       continue;
     }
-    name += ToLower(path[i]);
+    name +=path2[i];
   }
 
   // try to open an existing file mapping
@@ -112,7 +113,6 @@ void* winMemoryMappedFile::Open(const PathName& path_, bool readWrite)
   else
   {
     DWORD lastError = GetLastError();
-    MIKTEX_ASSERT(lastError != ERROR_SUCCESS);
     if (lastError != ERROR_FILE_NOT_FOUND)
     {
       MIKTEX_FATAL_WINDOWS_RESULT_2("OpenFileMappingW", lastError, "path", name);

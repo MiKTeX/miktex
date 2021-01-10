@@ -1045,7 +1045,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
       }
       documentation += &line[3];
     }
-    else if ((line.length() >= 2 && line[0] == COMMENT_CHAR && (IsAlNum(line[1]) || line[1] == '.')) || IsAlNum(line[0]) || line[0] == '.')
+    else if ((line.length() >= 2 && line[0] == COMMENT_CHAR && (IsAlphaNumericAScii(line[1]) || line[1] == '.')) || IsAlphaNumericAScii(line[0]) || line[0] == '.')
     {
       if (!ignoreKey)
       {

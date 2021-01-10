@@ -139,16 +139,7 @@ shared_ptr<Session> Session::TryGet()
   return SessionImpl::TryGetSession();
 }
 
-SessionImpl::SessionImpl() :
-  // passing an empty string to the locale constructor is ok; it
-  // means: "the user's preferred locale" (cf. "The C++ Programming
-  // Language, Appendix D: Locales")
-#if !defined(__MINGW32__)
-  defaultLocale("")
-#else
-  // FIXME: work around MingW bug
-  defaultLocale()
-#endif
+SessionImpl::SessionImpl()
 {
 }
 
@@ -267,8 +258,6 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   trace_core->WriteLine("core", fmt::format(T_("current directory: {0}"), Q_(PathName().SetToCurrentDirectory())));
   trace_config->WriteLine("core", fmt::format(T_("admin mode: {0}"), IsAdminMode() ? T_("yes") : T_("no")));
   trace_config->WriteLine("core", fmt::format(T_("shared setup: {0}"), IsSharedSetup() ? T_("yes") : T_("no")));
-
-  trace_config->WriteLine("core", fmt::format(T_("session locale: {0}"), Q_(defaultLocale.name())));
 
   if (IsAdminMode() && !IsSharedSetup())
   {

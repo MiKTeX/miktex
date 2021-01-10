@@ -157,8 +157,8 @@ bool SessionImpl::FindInSpecialMap(const string& fontName, string& supplier, str
     if (!tok
       || !(fontName == *tok
         || (IsPrefixOf(*tok, fontName)
-          && (IsDigit(GetLastChar(fontName)))
-          && (!IsDigit(GetLastChar(*tok))))))
+          && (IsDecimalDigitAscii(GetLastChar(fontName)))
+          && (!IsDecimalDigitAscii(GetLastChar(*tok))))))
     {
       continue;
     }
@@ -249,7 +249,7 @@ void SessionImpl::SplitFontPath(const PathName& fontPath, string* fontType, stri
   {
     PathName fileName = fontPath.GetFileNameWithoutExtension();
     char* lpsz = fileName.GetData() + fileName.GetLength() - 1;
-    while (IsDigit(*lpsz))
+    while (IsDecimalDigitAscii(*lpsz))
     {
       --lpsz;
     }
@@ -276,7 +276,7 @@ void SessionImpl::SplitFontPath(const PathName& fontPath, string* fontType, stri
 int Comp2(const string& s1, const string& s2)
 {
   MIKTEX_ASSERT(s1.length() >= 2 && s2.length() == 2);
-  return ToLower(s1[0]) == ToLower(s2[0]) && ToLower(s1[1]) == ToLower(s2[1]);
+  return ToLowerAscii(s1[0]) == ToLowerAscii(s2[0]) && ToLowerAscii(s1[1]) == ToLowerAscii(s2[1]);
 }
 
 bool SessionImpl::GetFontInfo(const string& fontName, string& supplier, string& typeface, double* genSize)

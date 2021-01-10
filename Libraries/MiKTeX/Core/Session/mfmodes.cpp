@@ -74,28 +74,28 @@ void SessionImpl::ReadMetafontModes()
       }
       else if (mfmode.horizontalResolution == 0 && (pos = line.find("pixels_per_inch") != string::npos))
       {
-        pos = SkipNonDigit(line, pos);
+        pos = SkipNonDecimalDigitAscii(line, pos);
         mfmode.horizontalResolution = mfmode.verticalResolution = std::stoi(line.substr(pos));
       }
       else if ((pos = line.find("aspect_ratio")) != string::npos)
       {
-        pos = SkipNonDigit(line, pos);
+        pos = SkipNonDecimalDigitAscii(line, pos);
         mfmode.verticalResolution = std::stoi(line.substr(pos));
       }
     }
     else if (line.compare(0, 8, "mode_def") == 0)
     {
       const char* lpsz = line.c_str() + 8;
-      while (!IsAlpha(*lpsz) && *lpsz != '\n')
+      while (!IsAlphaAscii(*lpsz) && *lpsz != '\n')
       {
         ++lpsz;
       }
-      if (!IsAlpha(*lpsz))
+      if (!IsAlphaAscii(*lpsz))
       {
         continue;
       }
       const char* lpszModeName = lpsz;
-      SkipAlpha(lpsz);
+      SkipAlphaAscii(lpsz);
       if (*lpsz == 0)
       {
         continue;
@@ -112,7 +112,7 @@ void SessionImpl::ReadMetafontModes()
         continue;
       }
       lpsz += 3;
-      SkipSpace(lpsz);
+      SkipWhitespaceAscii(lpsz);
       if (lpsz == nullptr)
       {
         continue;

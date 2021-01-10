@@ -334,19 +334,14 @@ bool FileNameDatabase::InsertRecord(FileNameDatabase::Record&& record)
 
 string FileNameDatabase::MakeKey(const string& fileName) const
 {
-  string key = fileName;
-#if defined(MIKTEX_WINDOWS)
-  for (char& ch : key)
-  {
-    ch = ToLower(ch);
-  }
-#endif
-  return key;
+  return MakeKey(PathName(fileName));
 }
 
 string FileNameDatabase::MakeKey(const PathName& fileName) const
 {
-  return MakeKey(fileName.ToString());
+  PathName key = fileName;
+  key.TransformForComparison();
+  return key.ToString();
 }
 
 void FileNameDatabase::EraseRecord(const FileNameDatabase::Record& record)

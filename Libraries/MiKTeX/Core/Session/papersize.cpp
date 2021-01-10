@@ -109,11 +109,11 @@ MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string& unit
 
 MIKTEXSTATICFUNC(bool) ChopFloat(char*& lpsz, double& ret)
 {
-  SkipSpace(lpsz);
+  SkipWhitespaceAscii(lpsz);
   bool gotDot = false;
   char* lpszStart = lpsz;
   string str;
-  while (*lpsz != 0 && (IsDigit(*lpsz) || (*lpsz == '.' && !gotDot)))
+  while (*lpsz != 0 && (IsDecimalDigitAscii(*lpsz) || (*lpsz == '.' && !gotDot)))
   {
     str += *lpsz;
     if (*lpsz == '.')
@@ -133,10 +133,10 @@ MIKTEXSTATICFUNC(bool) ChopFloat(char*& lpsz, double& ret)
 
 MIKTEXSTATICFUNC(bool) ChopToken(char*& lpsz, string& ret)
 {
-  SkipSpace(lpsz);
+  SkipWhitespaceAscii(lpsz);
   char* lpszStart = lpsz;
   ret = "";
-  while (*lpsz != 0 && !IsSpace(*lpsz) && *lpsz != ',')
+  while (*lpsz != 0 && !IsWhitespaceAscii(*lpsz) && *lpsz != ',')
   {
     ret += *lpsz;
     *lpsz = 0;
@@ -182,7 +182,7 @@ void SessionImpl::ReadDvipsPaperSizes()
         }
         CharBuffer<char> buf(line.c_str() + 1);
         char* lpsz = buf.GetData();
-        SkipSpace(lpsz);
+        SkipWhitespaceAscii(lpsz);
         if (*lpsz == 0)
         {
           dvipsPaperSizes.clear();
