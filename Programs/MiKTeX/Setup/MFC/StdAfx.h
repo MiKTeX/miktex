@@ -79,7 +79,6 @@
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/Urls>
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/HResult>
 #include <miktex/Core/win/WindowsVersion>
 #include <miktex/PackageManager/PackageManager>

@@ -47,6 +47,14 @@
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
+#if defined(MIKTEX_WINDOWS) && 1
+#define LOCTRACE() OutputDebugString((std::string(__FILE__) + ":" + std::to_string(__LINE__)).c_str())
+#define TRACE(msg) OutputDebugString(msg)
+#else
+#define LOCTRACE()
+#define TRACE(msg)
+#endif
+
 /// @namespace MiKTeX::Packages::internal
 /// @brief Package manager internals.
 MPM_INTERNAL_BEGIN_NAMESPACE;

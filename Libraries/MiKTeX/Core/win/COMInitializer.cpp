@@ -21,7 +21,6 @@
 
 #include "config.h"
 
-#include <miktex/Core/win/HResult>
 #include <miktex/Core/win/COMInitializer>
 
 #include "internal.h"
@@ -32,14 +31,26 @@ using namespace MiKTeX::Core;
 
 COMInitializer::COMInitializer()
 {
-  HResult hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+  hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+  if (hr.Failed() && hr != RPC_E_CHANGED_MODE)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("COM library could not be initialized."), "hr", hr.ToString());
+  }
+}
+
+COMInitializer::COMInitializer(DWORD dwCoInit)
+{
+  hr = CoInitializeEx(nullptr, dwCoInit);
   if (hr.Failed())
   {
-    MIKTEX_FATAL_ERROR_2(T_("COM library could not be initialized."), "hr", hr.GetText());
+    MIKTEX_FATAL_ERROR_2(T_("COM library could not be initialized."), "hr", hr.ToString());
   }
 }
 
 COMInitializer::~COMInitializer()
 {
-  CoUninitialize();
+  if (hr.Succeeded())
+  {
+    CoUninitialize();
+  }
 }

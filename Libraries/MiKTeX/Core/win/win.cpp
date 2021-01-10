@@ -25,9 +25,10 @@
 #include <AclAPI.h>
 #include <ShlObj.h>
 
+#include <iomanip>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-
 
 // FIXME: must come first
 #include "core-version.h"
@@ -291,31 +292,26 @@ HResult::~HResult()
 
 string HResult::ToString() const
 {
-  string ret;
-  ret += std::to_string(GetSeverity());
-  ret += ':';
-  ret += std::to_string(GetFacility());
-  ret += ':';
-  ret += std::to_string(GetCode());
-  return ret;
+  stringstream s;
+  s << "0x" << std::setfill('0') << std::setw(8) << std::hex << hr;
+  return s.str();
 }
 
-const char* HResult::GetText()
+string HResult::GetText()
 {
   if (message == nullptr)
   {
-    // FIXME: use Unicode version
-    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<char*>(&message), 0, nullptr);
+    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<wchar_t*>(&message), 0, nullptr);
     if (message == nullptr)
     {
       string str = ToString();
       size_t sizeChars = str.length() + 1;
-      message = reinterpret_cast<char*>(LocalAlloc(0, sizeChars * sizeof(message[0])));
+      message = reinterpret_cast<wchar_t*>(LocalAlloc(0, sizeChars * sizeof(message[0])));
       if (message != nullptr)
       {
 	StringUtil::CopyString(message, sizeChars, str.c_str());
       }
     }
   }
-  return message;
+  return StringUtil::WideCharToUTF8(message);
 }

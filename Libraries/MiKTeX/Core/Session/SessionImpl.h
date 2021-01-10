@@ -46,6 +46,7 @@
 #include <miktex/Core/Stream>
 #include <miktex/Core/equal_icase>
 #include <miktex/Core/hash_icase>
+#include <miktex/Core/win/COMInitializer>
 
 #include "Fndb/FileNameDatabase.h"
 #include "RootDirectoryInternals.h"
@@ -1182,10 +1183,12 @@ private:
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:
-  struct
+  struct LocalServer :
+    public MiKTeX::Core::COMInitializer
   {
     ATL::CComQIPtr<MiKTeXSessionLib::ISession> pSession;
-  } localServer;
+  };
+  std::unique_ptr<LocalServer> localServer;
 #endif
 
 private:

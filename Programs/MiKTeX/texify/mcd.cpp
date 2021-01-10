@@ -66,7 +66,6 @@
 #include <miktex/Wrappers/PoptWrapper>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
@@ -2033,7 +2032,6 @@ const struct poptOption optionTable[] = {
 void McdApp::Run(int argc, const char** argv)
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer;
   ConsoleCodePageSwitcher cpSwitcher;
 #endif
 

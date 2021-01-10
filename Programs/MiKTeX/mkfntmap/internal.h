@@ -45,7 +45,6 @@
 #include <miktex/Core/Session>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 

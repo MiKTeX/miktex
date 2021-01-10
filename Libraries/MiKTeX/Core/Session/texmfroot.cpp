@@ -405,11 +405,11 @@ void SessionImpl::ReregisterRootDirectories(const string& roots, bool other)
       MIKTEX_UNEXPECTED();
     }
     ConnectToServer();
-    HResult hr = localServer.pSession->RegisterRootDirectories(_bstr_t(roots.c_str()));
+    HResult hr = localServer->pSession->RegisterRootDirectories(_bstr_t(roots.c_str()));
     if (hr.Failed())
     {
       MiKTeXSessionLib::ErrorInfo errorInfo;
-      HResult hr2 = localServer.pSession->GetErrorInfo(&errorInfo);
+      HResult hr2 = localServer->pSession->GetErrorInfo(&errorInfo);
       if (hr2.Failed())
       {
         MIKTEX_FATAL_ERROR_2(T_("sessionsvc failed for some reason."), "hr", hr.GetText());

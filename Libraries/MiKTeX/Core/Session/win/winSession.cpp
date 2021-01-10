@@ -51,7 +51,11 @@ using namespace MiKTeX::Util;
 void SessionImpl::ConnectToServer()
 {
   const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX session.");
-  if (localServer.pSession == nullptr)
+  if (localServer == nullptr)
+  {
+    localServer = make_unique<LocalServer>();
+  }
+  if (localServer->pSession == nullptr)
   {
     WCHAR wszCLSID[50];
     if (StringFromGUID2(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
@@ -66,10 +70,10 @@ void SessionImpl::ConnectToServer()
     bo.cbStruct = sizeof(bo);
     bo.hwnd = GetForegroundWindow();
     bo.dwClassContext = CLSCTX_LOCAL_SERVER;
-    HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
+    HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer->pSession));
     if (hr.Failed())
     {
-      MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
+      MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.ToString());
     }
   }
 }

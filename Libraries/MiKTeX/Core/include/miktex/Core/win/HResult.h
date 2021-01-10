@@ -1,6 +1,6 @@
 /* miktex/Core/HResult.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -100,12 +100,16 @@ public:
   }
 
 public:
-  // FIXME: use wchar_t pointer
-  MIKTEXCORETHISAPI(const char*) GetText();
+  bool operator!=(HRESULT other)
+  {
+    return hr != other;
+  }
+
+public:
+  MIKTEXCORETHISAPI(std::string) GetText();
 
 private:
-  // FIXME: use wchar_t pointer
-  char* message = nullptr;
+  wchar_t* message = nullptr;
 
 private:
   HRESULT hr = S_FALSE;

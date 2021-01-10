@@ -800,13 +800,6 @@ BOOL SetupApp::InitInstance()
     return FALSE;
   }
 
-  if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
-  {
-    AfxMessageBox(T_(_T("The application could not be initialized (2).")), MB_ICONSTOP | MB_OK);
-    return FALSE;
-  }
-  MIKTEX_AUTO(CoUninitialize());
-
   AfxInitRichEdit2();
 
   try

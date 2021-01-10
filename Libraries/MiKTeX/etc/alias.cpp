@@ -26,7 +26,6 @@
 #include <miktex/Util/StringUtil>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
@@ -47,7 +46,6 @@ extern "C" int MIKTEXCEECALL FUNC(int argc, char* argv[]);
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  MiKTeX::Core::COMInitializer comInitializer;
   MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
   std::vector<std::string> utf8args;
   utf8args.reserve(argc);

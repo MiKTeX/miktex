@@ -35,7 +35,6 @@
 #include <miktex/Core/TemporaryDirectory>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer.h>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
@@ -253,7 +252,6 @@ void TdsUtility::Run(int argc, const char ** argv)
 int MAIN(int argc, MAINCHAR * argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer;
   ConsoleCodePageSwitcher cpSwitcher;
 #endif
   TdsUtility app;

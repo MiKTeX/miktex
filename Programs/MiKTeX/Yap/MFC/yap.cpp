@@ -355,13 +355,6 @@ BOOL YapApplication::InitInstance()
 
   EnableTaskbarInteraction(FALSE);
 
-  // don't use COINIT_MULTITHREADED; see KB828643
-  if (FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)))
-  {
-    AfxMessageBox(T_(_T("The application could not be initialized (3).")), MB_ICONSTOP | MB_OK);
-    return FALSE;
-  }
-
   try
   {
     // initialize MiKTeX Library
@@ -661,8 +654,6 @@ int YapApplication::ExitInstance()
   catch (const exception&)
   {
   }
-
-  CoUninitialize();
 
   int exitCode = CWinApp::ExitInstance();
 

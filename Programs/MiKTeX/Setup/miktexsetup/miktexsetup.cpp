@@ -55,7 +55,6 @@
 #include <miktex/Wrappers/PoptWrapper>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
@@ -1026,7 +1025,6 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer;
   ConsoleCodePageSwitcher cpSwitcher;
 #endif
   int retCode = 0;

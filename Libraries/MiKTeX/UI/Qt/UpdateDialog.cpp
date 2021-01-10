@@ -29,10 +29,6 @@
 
 #include <miktex/Core/Session>
 
-#if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
-#endif
-
 #include "internal.h"
 
 #include "miktex/UI/Qt/ErrorDialog.h"
@@ -67,9 +63,6 @@ void UpdateDialogImpl::WorkerThread::run()
   UpdateDialogImpl* This = reinterpret_cast<UpdateDialogImpl*>(parent());
   try
   {
-#if defined(MIKTEX_WINDOWS)
-    COMInitializer comInitializer;
-#endif
     This->packageInstaller->SetCallback(This);
     This->packageInstaller->InstallRemove(PackageInstaller::Role::Application);
   }

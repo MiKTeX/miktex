@@ -36,7 +36,6 @@
 #include <miktex/Trace/StopWatch>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/HResult>
 #include <miktex/Core/win/winAutoResource>
@@ -581,9 +580,6 @@ void PackageInstallerImpl::FindUpdatesThread()
 {
   try
   {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer;
-#endif
     FindUpdates();
     progressInfo.ready = true;
     Notify();
@@ -649,9 +645,6 @@ void PackageInstallerImpl::FindUpgradesThread()
 {
   try
   {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer;
-#endif
     FindUpgrades(upgradeLevel);
     progressInfo.ready = true;
     Notify();
@@ -1271,9 +1264,13 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string& packageId, const 
 void PackageInstallerImpl::ConnectToServer()
 {
   const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX package manager.");
-  if (localServer.pInstaller == nullptr)
+  if (localServer == nullptr)
   {
-    if (localServer.pManager == nullptr)
+    localServer = make_unique<LocalServer>();
+  }
+  if (localServer->pInstaller == nullptr)
+  {
+    if (localServer->pManager == nullptr)
     {
       WCHAR wszCLSID[50];
       if (StringFromGUID2(__uuidof(MiKTeXPackageManagerLib::MAKE_CURVER_ID(PackageManager)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
@@ -1288,17 +1285,17 @@ void PackageInstallerImpl::ConnectToServer()
       bo.cbStruct = sizeof(bo);
       bo.hwnd = GetForegroundWindow();
       bo.dwClassContext = CLSCTX_LOCAL_SERVER;
-      HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
+      HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer->pManager));
       if (hr.Failed())
       {
-        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.ToString());
       }
     }
-    HResult hr = localServer.pManager->CreateInstaller(&localServer.pInstaller);
+    HResult hr = localServer->pManager->CreateInstaller(&localServer->pInstaller);
     if (hr.Failed())
     {
-      localServer.pManager.Release();
-      MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
+      localServer->pManager.Release();
+      MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.ToString());
     }
   }
 }
@@ -1321,7 +1318,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
   {
     if (mustSucceed)
     {
-      MIKTEX_FATAL_ERROR_2(T_("COM registration/unregistration did not succeed."), "path", path.ToString(), "hr", hr.GetText());
+      MIKTEX_FATAL_ERROR_2(T_("COM registration/unregistration did not succeed."), "path", path.ToString(), "hr", hr.ToString());
     }
     else
     {
@@ -1557,39 +1554,39 @@ void PackageInstallerImpl::InstallRemove(Role role)
     ConnectToServer();
     for (const string& p : toBeInstalled)
     {
-      hr = localServer.pInstaller->Add(_bstr_t(p.c_str()), VARIANT_TRUE);
+      hr = localServer->pInstaller->Add(_bstr_t(p.c_str()), VARIANT_TRUE);
       if (hr.Failed())
       {
-        MIKTEX_FATAL_ERROR_2(T_("Cannot communicate with mpmsvc."), "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(T_("Cannot communicate with mpmsvc."), "hr", hr.ToString());
       }
     }
     for (const string& p : toBeRemoved)
     {
-      HResult hr = localServer.pInstaller->Add(_bstr_t(p.c_str()), VARIANT_FALSE);
+      HResult hr = localServer->pInstaller->Add(_bstr_t(p.c_str()), VARIANT_FALSE);
       if (hr.Failed())
       {
-        MIKTEX_FATAL_ERROR_2(T_("Cannot communicate with mpmsvc."), "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(T_("Cannot communicate with mpmsvc."), "hr", hr.ToString());
       }
     }
-    localServer.pInstaller->SetCallback(this);
+    localServer->pInstaller->SetCallback(this);
     if (repositoryType != RepositoryType::Unknown)
     {
-      hr = localServer.pInstaller->SetRepository(_bstr_t(repository.c_str()));
+      hr = localServer->pInstaller->SetRepository(_bstr_t(repository.c_str()));
       if (hr.Failed())
       {
-        localServer.pInstaller->SetCallback(nullptr);
-        MIKTEX_FATAL_ERROR_2(T_("mpmsvc failed for some reason."), "hr", hr.GetText());
+        localServer->pInstaller->SetCallback(nullptr);
+        MIKTEX_FATAL_ERROR_2(T_("mpmsvc failed for some reason."), "hr", hr.ToString());
       }
     }
-    hr = localServer.pInstaller->InstallRemove();
-    localServer.pInstaller->SetCallback(nullptr);
+    hr = localServer->pInstaller->InstallRemove();
+    localServer->pInstaller->SetCallback(nullptr);
     if (hr.Failed())
     {
       MiKTeXPackageManagerLib::ErrorInfo errorInfo;
-      HResult hr2 = localServer.pInstaller->GetErrorInfo(&errorInfo);
+      HResult hr2 = localServer->pInstaller->GetErrorInfo(&errorInfo);
       if (hr2.Failed())
       {
-        MIKTEX_FATAL_ERROR_2(T_("mpmsvc failed for some reason."), "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(T_("mpmsvc failed for some reason."), "hr", hr.ToString());
       }
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
@@ -1817,9 +1814,6 @@ void PackageInstallerImpl::InstallRemoveThread()
 {
   try
   {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer;
-#endif
     InstallRemove(currentRole);
     progressInfo.ready = true;
     Notify();
@@ -1949,9 +1943,6 @@ void PackageInstallerImpl::DownloadThread()
 {
   try
   {
-#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
-    COMInitializer comInitializer;
-#endif
     Download();
     progressInfo.ready = true;
     Notify();
@@ -2094,15 +2085,15 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
   if (!options[UpdateDbOption::FromCache] && UseLocalServer())
   {
     ConnectToServer();
-    localServer.pInstaller->SetRepository(_bstr_t(repository.c_str()));
-    HResult hr = localServer.pInstaller->UpdateDb();
+    localServer->pInstaller->SetRepository(_bstr_t(repository.c_str()));
+    HResult hr = localServer->pInstaller->UpdateDb();
     if (hr.Failed())
     {
       MiKTeXPackageManagerLib::ErrorInfo errorInfo;
-      HResult hr2 = localServer.pInstaller->GetErrorInfo(&errorInfo);
+      HResult hr2 = localServer->pInstaller->GetErrorInfo(&errorInfo);
       if (hr2.Failed())
       {
-        MIKTEX_FATAL_ERROR_2(T_("The service failed for some reason."), "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(T_("The service failed for some reason."), "hr", hr.ToString());
       }
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);

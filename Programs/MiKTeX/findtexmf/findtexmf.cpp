@@ -41,7 +41,6 @@
 #include <miktex/Wrappers/PoptWrapper>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
@@ -402,7 +401,6 @@ int FindTeXMF::Run(int argc, const char** argv)
 int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer;
   ConsoleCodePageSwitcher cpSwitcher;
 #endif
   FindTeXMF app;

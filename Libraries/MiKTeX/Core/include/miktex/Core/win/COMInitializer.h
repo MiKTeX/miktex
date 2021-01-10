@@ -23,12 +23,17 @@
 
 #include <miktex/Core/config.h>
 
+#include "HResult.h"
+
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 class COMInitializer
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL COMInitializer();
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL COMInitializer(DWORD dwCoInit);
 
 public:
   COMInitializer(const COMInitializer& other) = delete;
@@ -44,6 +49,9 @@ public:
 
 public:
   MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~COMInitializer() noexcept;
+
+private:
+  HResult hr;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

@@ -22,7 +22,6 @@
 #include <miktex/Util/StringUtil>
 
 #if defined(MIKTEX_WINDOWS)
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
@@ -42,7 +41,6 @@ int main(int argc, char** argv)
 #endif
 {
 #if defined(MIKTEX_WINDOWS)
-  COMInitializer comInitializer;
   ConsoleCodePageSwitcher cpSwitcher;
 #endif
   string programName = "runpython";
