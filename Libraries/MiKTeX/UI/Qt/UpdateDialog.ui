@@ -5,6 +5,14 @@
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>501</width>
+    <height>356</height>
+   </rect>
+  </property>
   <property name="minimumSize">
    <size>
     <width>501</width>
@@ -27,7 +35,7 @@
       <number>3</number>
      </property>
      <item>
-      <widget class="QWidget" name="" native="true">
+      <widget class="QWidget" name="widget" native="true">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="leftMargin">
          <number>0</number>
@@ -55,9 +63,6 @@
             <horstretch>3</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
           </property>
          </widget>
         </item>
