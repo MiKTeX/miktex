@@ -31,7 +31,6 @@
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryFile>
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Extractor/Extractor>
 #include <miktex/Trace/Trace>
 
@@ -457,8 +456,7 @@ private:
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:
-  struct LocalServer :
-    public MiKTeX::Core::COMInitializer
+  struct LocalServer
   {
     ATL::CComQIPtr<MiKTeXPackageManagerLib::IPackageManager> pManager;
     ATL::CComPtr<MiKTeXPackageManagerLib::IPackageInstaller> pInstaller;
