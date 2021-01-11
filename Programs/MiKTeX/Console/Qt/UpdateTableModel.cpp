@@ -125,7 +125,7 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
       case PackageInstaller::UpdateInfo::ForceRemove:
         if (session->IsSharedSetup() && !session->IsAdminMode())
         {
-          return tr("competing installations (all users vs. private)");
+          return tr("competing installations (system vs. user)");
         }
         else
         {

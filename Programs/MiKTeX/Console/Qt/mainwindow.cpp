@@ -637,7 +637,7 @@ void MainWindow::RestartAdmin()
   {
     if (updateModel->Pending() > 0)
     {
-      if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit?"))
+      if (QMessageBox::question(this, TheNameOfTheGame, tr("There are pending updates. Are you sure you want to quit %1?").arg(TheNameOfTheGame))
         != QMessageBox::Yes)
       {
         return;

@@ -373,7 +373,7 @@
            <item>
             <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;link target directory&lt;/span&gt; with symbolic links to the MiKTeX executables. The location of this directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private TeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) TeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;It is possible to change the location of the link target directory later.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;link target directory&lt;/span&gt; with symbolic links to the MiKTeX executables. The location of this directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for an own TeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) TeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;It is possible to change the location of the link target directory later.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -410,7 +410,7 @@
               <string>Finish private setup</string>
              </property>
              <property name="description">
-              <string>The TeX installation will be available for your private use only.</string>
+              <string>The TeX installation will be available for your own use only.</string>
              </property>
             </widget>
            </item>
@@ -606,7 +606,7 @@
               <item>
                <widget class="QLabel" name="label_6">
                 <property name="text">
-                 <string>You have installed MiKTeX for your private use.</string>
+                 <string>You have installed MiKTeX for your own use.</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -653,7 +653,7 @@ Use this option, if you want to operate on the shared (system-wide) MiKTeX confi
                 </property>
                 <property name="description">
                  <string>Continue to work with MiKTeX Console in MiKTeX user mode.
-Use this option, if you want to operate on your private MiKTeX configuration.</string>
+Use this option, if you want to operate on your own MiKTeX configuration.</string>
                 </property>
                </widget>
               </item>

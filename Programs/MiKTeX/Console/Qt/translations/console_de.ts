@@ -193,8 +193,8 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="376"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;link target directory&lt;/span&gt; with symbolic links to the MiKTeX executables. The location of this directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; for a private TeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) TeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;It is possible to change the location of the link target directory later.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Danke, dass Sie MiKTeX ausprobieren!&lt;/p&gt;&lt;p&gt;Wir werden das Setup jetzt fertigstellen, indem wir das &lt;span style=&quot; font-style:italic;&quot;&gt;Zielverzeichnis für Verknüpfungen&lt;/span&gt; mit symbolischen Verknüpfungen zu den MiKTeX-Programmen auffüllen. Die Lage dieses Verzeichnisses hängt von Ihrer Entscheidung ab:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; für eine private TeX-Installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; für eine gemeinsame (System-weite) TeX-Installation. Diese Option erfordert Administratorrechte.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Es ist möglich, die Lage des Zielverzeichnisses für Verknüpfungen zu einem späteren Zeitpunkt zu ändern.&lt;/p&gt;&lt;p&gt;Weitere Informationen: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;link target directory&lt;/span&gt; with symbolic links to the MiKTeX executables. The location of this directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; for an own TeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) TeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;It is possible to change the location of the link target directory later.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Danke, dass Sie MiKTeX ausprobieren!&lt;/p&gt;&lt;p&gt;Wir werden das Setup jetzt fertigstellen, indem wir das &lt;span style=&quot; font-style:italic;&quot;&gt;Zielverzeichnis für Verknüpfungen&lt;/span&gt; mit symbolischen Verknüpfungen zu den MiKTeX-Programmen auffüllen. Die Lage dieses Verzeichnisses hängt von Ihrer Entscheidung ab:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; für eine eigene TeX-Installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; für eine gemeinsame (System-weite) TeX-Installation. Diese Option erfordert Administratorrechte.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Es ist möglich, die Lage des Zielverzeichnisses für Verknüpfungen zu einem späteren Zeitpunkt zu ändern.&lt;/p&gt;&lt;p&gt;Weitere Informationen: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="410"/>
@@ -203,8 +203,8 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="413"/>
-        <source>The TeX installation will be available for your private use only.</source>
-        <translation>Die TeX-Installation wird nur für den privaten Einsatz zur Verfügung stehen.</translation>
+        <source>The TeX installation will be available for your own use only.</source>
+        <translation>Die TeX-Installation wird nur für den eigenen Einsatz zur Verfügung stehen.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="420"/>
@@ -258,8 +258,8 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="609"/>
-        <source>You have installed MiKTeX for your private use.</source>
-        <translation>Sie haben MiKTeX für den privaten Einsatz installiert.</translation>
+        <source>You have installed MiKTeX for your own use.</source>
+        <translation>Sie haben MiKTeX für den eigenen Einsatz installiert.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="628"/>
@@ -286,9 +286,9 @@ Use this option, if you want to operate on the shared (system-wide) MiKTeX confi
     <message>
         <location filename="../mainwindow.ui" line="655"/>
         <source>Continue to work with MiKTeX Console in MiKTeX user mode.
-Use this option, if you want to operate on your private MiKTeX configuration.</source>
+Use this option, if you want to operate on your own MiKTeX configuration.</source>
         <translation>Mit MiKTeX Console im MiKTeX-Benutzermodus weiterarbeiten.
-Benutzen Sie diese Option, wenn Sie Ihre private MiKTeX-Konfiguration bearbeiten möchten.</translation>
+Benutzen Sie diese Option, wenn Sie Ihre eigene MiKTeX-Konfiguration bearbeiten möchten.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="672"/>
@@ -920,6 +920,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="238"/>
+        <location filename="../mainwindow.cpp" line="640"/>
         <source>There are pending updates. Are you sure you want to quit %1?</source>
         <translation>Es gibt ausstehende Updates. Sind Sie sicher, dass Sie %1 beenden möchten?</translation>
     </message>
@@ -957,11 +958,6 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         <location filename="../mainwindow.cpp" line="630"/>
         <source>&lt;p&gt;You can support the project:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Thank you!&lt;/p&gt;</source>
         <translation>&lt;p&gt;Sie können das Projekt unterstützen:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Danke!&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="640"/>
-        <source>There are pending updates. Are you sure you want to quit?</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="712"/>
@@ -1384,7 +1380,7 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
     <message>
         <location filename="../PackageTableModel.cpp" line="134"/>
         <source>Size</source>
-        <translation>Grösse</translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <location filename="../PackageTableModel.cpp" line="136"/>
@@ -1483,7 +1479,7 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
     <message>
         <location filename="../UpdateTableModel.cpp" line="116"/>
         <source>update not possible</source>
-        <translation>update nicht möglich</translation>
+        <translation>Update nicht möglich</translation>
     </message>
     <message>
         <location filename="../UpdateTableModel.cpp" line="118"/>
@@ -1507,8 +1503,8 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
     </message>
     <message>
         <location filename="../UpdateTableModel.cpp" line="128"/>
-        <source>competing installations (all users vs. private)</source>
-        <translation>konkurrierende Installationen (alle Benutzer versus privat)</translation>
+        <source>competing installations (system vs. user)</source>
+        <translation>konkurrierende Installationen (System gegen Benutzer)</translation>
     </message>
     <message>
         <location filename="../UpdateTableModel.cpp" line="132"/>
@@ -1565,12 +1561,12 @@ Abhilfe: entfernen Sie %1</translation>
     <message>
         <location filename="../main.cpp" line="395"/>
         <source>Administrator mode was requested (--admin), but the program is not running as Administrator.</source>
-        <translation>Administratormodus wurde angefordert (--admin), aber das Programm wird bereits als Administrator ausgeführt.</translation>
+        <translation>Administratormodus wurde angefordert (--admin), aber das Programm wird nicht als Administrator ausgeführt.</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="397"/>
         <source>Administrator mode was requested (--admin), but the program is not running as root.</source>
-        <translation>Administratormodus wurde angefordert (--admin), aber das Programm wird bereits als root ausgeführt.</translation>
+        <translation>Administratormodus wurde angefordert (--admin), aber das Programm wird nicht als root ausgeführt.</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="484"/>
