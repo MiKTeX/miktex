@@ -1212,7 +1212,7 @@ Um Überbleibsel zu vermeiden, sollten alle MiKTeX-Benutzer vorher ihre persönl
         <source>Your MiKTeX installation will now be updated:
 
 </source>
-        <translation>Ihre MiKTeX-Installation word jetzt aktualisiert:
+        <translation>Ihre MiKTeX-Installation wird jetzt aktualisiert:
 
 </translation>
     </message>
@@ -1549,12 +1549,12 @@ Das Anwendungsfenster wird jetzt geschlossen.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="297"/>
+        <location filename="../main.cpp" line="290"/>
         <source>%1 is already running.</source>
         <translation>%1 wird bereits ausgeführt.</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="306"/>
+        <location filename="../main.cpp" line="299"/>
         <source>%1 cannot be started.
 
 Remedy: remove %2</source>
@@ -1563,18 +1563,18 @@ Remedy: remove %2</source>
 Abhilfe: entfernen Sie %1</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="402"/>
+        <location filename="../main.cpp" line="395"/>
         <source>Administrator mode was requested (--admin), but the program is not running as Administrator.</source>
         <translation>Administratormodus wurde angefordert (--admin), aber das Programm wird bereits als Administrator ausgeführt.</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="404"/>
+        <location filename="../main.cpp" line="397"/>
         <source>Administrator mode was requested (--admin), but the program is not running as root.</source>
         <translation>Administratormodus wurde angefordert (--admin), aber das Programm wird bereits als root ausgeführt.</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="491"/>
-        <location filename="../main.cpp" line="510"/>
+        <location filename="../main.cpp" line="484"/>
+        <location filename="../main.cpp" line="503"/>
         <source>Sorry, but something went wrong.
 
 Do you want to see the error details?</source>

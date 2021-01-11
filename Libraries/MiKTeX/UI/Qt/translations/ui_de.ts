@@ -87,13 +87,13 @@
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="30"/>
-        <source>This required file is missing:</source>
-        <translation>Diese erforderliche Datei ist nicht vorhanden:</translation>
+        <source>This required file could not be found:</source>
+        <translation>Diese erforderliche Datei konnte nicht gefunden werden:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="76"/>
-        <source>It is a part of the following package:</source>
-        <translation>Sie ist im folgenden Paket enthalten:</translation>
+        <source>The file is a part of this package:</source>
+        <translation>Die Datei ist Bestandteil dieses Pakets:</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.ui" line="172"/>
@@ -137,18 +137,18 @@
     </message>
     <message>
         <location filename="../InstallPackageDialog.cpp" line="86"/>
-        <source>Anyone who uses this computer (all users)</source>
-        <translation>Jeder der den Computer benutzt (alle Benutzer)</translation>
+        <source>&lt;All users&gt;</source>
+        <translation>&lt;Alle Benutzer&gt;</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.cpp" line="100"/>
-        <source>Unknown user</source>
-        <translation>Unbekannter Benutzer</translation>
+        <source>&lt;Unknown user&gt;</source>
+        <translation>&lt;Unbekannter Benutzer&gt;</translation>
     </message>
     <message>
         <location filename="../InstallPackageDialog.cpp" line="115"/>
-        <source>The current user</source>
-        <translation>Der aktuelle Benutzer</translation>
+        <source>&lt;Current user&gt;</source>
+        <translation>&lt;Aktueller Benutzer&gt;</translation>
     </message>
 </context>
 <context>
@@ -421,42 +421,37 @@ Please visit http://miktex.org/kb/miktex-next, for more information.</source>
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../UpdateDialog.ui" line="47"/>
+        <location filename="../UpdateDialog.ui" line="55"/>
         <source>Downloading:</source>
         <translation>Wird heruntergeladen:</translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.ui" line="60"/>
-        <source>TextLabel</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../UpdateDialog.ui" line="80"/>
+        <location filename="../UpdateDialog.ui" line="85"/>
         <source>Total</source>
         <translation>Gesamt</translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.ui" line="102"/>
+        <location filename="../UpdateDialog.ui" line="107"/>
         <source>Packages</source>
         <translation>Pakete</translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.ui" line="141"/>
+        <location filename="../UpdateDialog.ui" line="146"/>
         <source>Files</source>
         <translation>Dateien</translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.ui" line="180"/>
+        <location filename="../UpdateDialog.ui" line="185"/>
         <source>MB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.ui" line="219"/>
+        <location filename="../UpdateDialog.ui" line="224"/>
         <source>Mbit/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.ui" line="284"/>
+        <location filename="../UpdateDialog.ui" line="289"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -464,12 +459,12 @@ Please visit http://miktex.org/kb/miktex-next, for more information.</source>
 <context>
     <name>UpdateDialogImpl</name>
     <message>
-        <location filename="../UpdateDialog.cpp" line="238"/>
+        <location filename="../UpdateDialog.cpp" line="231"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../UpdateDialog.cpp" line="291"/>
+        <location filename="../UpdateDialog.cpp" line="284"/>
         <source>The update operation will now be cancelled.</source>
         <translation>Der Update-Vorgang wird jetzt abgebrochen.</translation>
     </message>

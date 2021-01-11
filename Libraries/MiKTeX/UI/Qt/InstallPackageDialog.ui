@@ -27,7 +27,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>This required file is missing:</string>
+      <string>This required file could not be found:</string>
      </property>
     </widget>
    </item>
@@ -73,7 +73,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>It is a part of the following package:</string>
+      <string>The file is a part of this package:</string>
      </property>
     </widget>
    </item>

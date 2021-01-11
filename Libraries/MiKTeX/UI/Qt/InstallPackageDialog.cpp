@@ -64,8 +64,8 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       MIKTEX_UNEXPECTED();
     }
     okayButton->setText(tr("Install"));
-    lblPackageName->setText(QString::fromLocal8Bit(packageName.c_str()));
-    lblMissingFile->setText(QString::fromLocal8Bit(trigger.c_str()));
+    lblPackageName->setText(QString::fromStdString(packageName));
+    lblMissingFile->setText(QString::fromStdString(PathName(trigger).GetFileName().ToDisplayString()));
     PackageInfo packageInfo = packageManager->GetPackageInfo(packageName);
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
@@ -83,7 +83,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     enableCommonInstall = enableCommonInstall && Directory::Exists(commonInstallRoot);
     if (enableCommonInstall)
     {
-      cbInstallationDirectory->addItem(tr("Anyone who uses this computer (all users)"), true);
+      cbInstallationDirectory->addItem(tr("<All users>"), true);
     }
     if (!session->IsAdminMode())
     {
@@ -97,7 +97,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
       }
       else if (GetLastError() == ERROR_NOT_LOGGED_ON)
       {
-        currentUser = tr("Unknown user");
+        currentUser = tr("<Unknown user>");
       }
       else
       {
@@ -112,7 +112,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
         currentUser += ")";
       }
 #else
-      currentUser = tr("The current user");
+      currentUser = tr("<Current user>");
 #endif
       cbInstallationDirectory->addItem(currentUser, false);
     }
