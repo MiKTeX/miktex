@@ -455,11 +455,6 @@ private:
 private:
   PackageLevel upgradeLevel = PackageLevel::None;
 
-#if defined(MIKTEX_WINDOWS)
-private:
-  int numCoInitialize = 0;
-#endif
-
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:
   struct LocalServer :

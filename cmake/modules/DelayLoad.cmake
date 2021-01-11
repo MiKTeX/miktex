@@ -1,6 +1,6 @@
 ## DelayLoad.cmake
 ##
-## Copyright (C) 2007-2016 Christian Schenk
+## Copyright (C) 2007-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,7 +18,7 @@
 ## USA.
 
 macro(delay_load _target)
-  if(MIKTEX_NATIVE_WINDOWS AND MSVC)
+  if(MIKTEX_NATIVE_WINDOWS AND MSVC AND MIKTEX_ENABLE_DELAY_LOAD)
     foreach(_dll_name ${ARGN})
       add_link_flags(${_target} "/DELAYLOAD:${_dll_name}.dll")
     endforeach()
