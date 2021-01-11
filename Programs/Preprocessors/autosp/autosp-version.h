@@ -1,6 +1,6 @@
 /* autosp-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,10 +17,12 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 7376
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2020-03-11"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2021-01-07"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2014-2020 R. D. Tennent School of Computing, Queen's University"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2014-2021 R. D. Tennent School of Computing, Queen's University"
 
 #include <miktex/Version>

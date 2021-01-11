@@ -9,6 +9,7 @@ MiKTeX Console now supports localization. To begin with, the user interface has 
 ### Upgraded programs
 
 * asymptote 2.68
+* autosp 2020-07-01
 * dvipdfmx 20210109
 * dvisvgm 2.11
 * luatex 1.13.0

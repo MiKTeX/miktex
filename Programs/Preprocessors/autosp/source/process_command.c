@@ -171,7 +171,7 @@ void checkn (char *s)
 
 PRIVATE
 void filter_output (int i)
-{ /* discard \sk \bsk \Qsk \TQsk \HQsk \QQsk and \Cpause */
+{ /* discard \sk \bsk \Qsk \TQsk \HQsk \QQsk \Cp and \Cpause */
   char *s = notes[i];
   while (s < current[i])
   { char *t;
@@ -180,6 +180,7 @@ void filter_output (int i)
     if (!prefix ("\\sk", s)
      && !prefix ("\\bsk", s)
      && !prefix ("\\Cpause", s) 
+     && !prefix ("\\Cp", s) 
      && !prefix ("\\Qsk", s) 
      && !prefix ("\\HQsk", s) 
      && !prefix ("\\TQsk", s) 

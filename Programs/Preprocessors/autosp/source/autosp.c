@@ -1,6 +1,6 @@
-char version[12] = "2020-03-11";
+char version[12] = "2021-01-07";
 
-/*  Copyright (C) 2014-20 R. D. Tennent School of Computing,
+/*  Copyright (C) 2014-21 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
  *
  *  This program is free software; you can redistribute it
@@ -106,9 +106,6 @@ char version[12] = "2020-03-11";
 # define PRIVATE static
 
 # define SHORT_LEN 256
-
-bool debug;
-bool dottedbeamnotes;          /* dotted beam notes ignored?        */
 
 char infilename[SHORT_LEN];
 char *infilename_n;

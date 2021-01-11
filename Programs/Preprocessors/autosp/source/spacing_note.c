@@ -291,7 +291,8 @@ int spacing_note (int i)
       break; 
     }
     
-    if ( prefix ("\\Cpause", s) )
+    if ( prefix ("\\Cpause", s) 
+       || prefix ("\\Cp", s))
     { /* bar-centered rest */
       bar_rest[i] = true;
       spacing = MAX_SPACING;
