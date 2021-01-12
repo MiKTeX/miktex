@@ -441,25 +441,23 @@ static void read_cmap(void)
 
 static char *make_name(long platform_id, int len)
 {
-    char buf[1024];
-    char *p = buf;
+    unsigned char buf[1024];
+    unsigned char *p = buf;
     int i = 0;
 
     if (len >= sizeof(buf))
         len = sizeof(buf) - 1;
     while (i < len) {
-        *p = get_char();
+        *p = (unsigned char) get_char();
         i++;
         if (*p == 0 && platform_id == 3) {
             /* assume this is an UTF-16BE encoded string but contains english
              * text, which is the most common case; simply copy the 2nd byte.
              * Note: will not work for non-ascii text */
-            *p = get_char();
+            *p = (unsigned char) get_char();
             i++;
         }
-        /* don't copy strange characters */
-        if (!iscntrl(*p) || *p == '\r' || *p == '\n' || *p == '\t')
-            p++;
+        p++;
     }
     *p = 0;
     return xstrdup(buf);

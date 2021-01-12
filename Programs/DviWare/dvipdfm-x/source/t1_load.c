@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -89,8 +89,8 @@ t1_decrypt (unsigned short key,
 }
 /* T1CRYPT */
 
-#define MATCH_NAME(t,n) ((t) && PST_NAMETYPE((t))    && !strncmp(pst_data_ptr((t)),(n),strlen((n))))
-#define MATCH_OP(t,n)   ((t) && PST_UNKNOWNTYPE((t)) && !strncmp(pst_data_ptr((t)),(n),strlen((n))))
+#define MATCH_NAME(t,n) (PST_NAMETYPE((t))    && (pst_length_of((t)) == strlen((n))) && !memcmp(pst_data_ptr((t)),(n),strlen((n))))
+#define MATCH_OP(t,n)   (PST_UNKNOWNTYPE((t)) && (pst_length_of((t)) == strlen((n))) && !memcmp(pst_data_ptr((t)),(n),strlen((n))))
 
 #define RELEASE_TOK(t) if ((t) != NULL) {\
   pst_release_obj((t));\
