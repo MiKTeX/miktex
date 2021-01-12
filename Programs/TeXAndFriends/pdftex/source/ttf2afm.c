@@ -460,7 +460,11 @@ static char *make_name(long platform_id, int len)
         p++;
     }
     *p = 0;
+#if defined(MIKTEX)
+    return xstrdup((const char*)buf);
+#else
     return xstrdup(buf);
+#endif
 }
 
 static void read_font(void)
