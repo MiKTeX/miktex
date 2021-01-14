@@ -27,13 +27,13 @@
 <refsynopsisdiv>
 
 <cmdsynopsis>
-&miktexsetup;
+&miktexsetup_standalone;
 <arg choice="opt"><option><replaceable>options</replaceable></option></arg>
 <arg choice="plain">download</arg>
 </cmdsynopsis>
 
 <cmdsynopsis>
-&miktexsetup;
+&miktexsetup_standalone;
 <arg choice="opt"><option><replaceable>options</replaceable></option></arg>
 <arg choice="plain">install</arg>
 </cmdsynopsis>
@@ -62,16 +62,16 @@ the &MiKTeXSetupWizard;. It is suitable for unattended setup tasks.
 
 <variablelist>
 <varlistentry>
-<term>standalone</term>
+<term>standalone (&miktexsetup_standalone;)</term>
 <listitem>
 <para>The standalone variant can be downloaded from the &MiKTeX; download page.
 It is only available for Windows.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>integrated</term>
+<term>integrated (&miktexsetup;)</term>
 <listitem>
-<para>The integrated variant is a compoment of each &MiKTeX; installation.</para>
+<para>The integrated variant is a component of each &MiKTeX; installation.</para>
 </listitem>
 </varlistentry>
 </variablelist>
@@ -278,7 +278,7 @@ fully qualified path names.</para>
 
 <para>The first task is to download &MiKTeX; into a local package repository:</para>  
 
-<screen><prompt>&prompt;</prompt><userinput>miktexsetup ^
+<screen><prompt>&prompt;</prompt><userinput>miktexsetup_standalone ^
   --verbose ^
   --local-package-repository=C:\miktex-repository ^
   --package-set=complete ^
@@ -302,7 +302,7 @@ are expanded at run-time (delayed expansion).</para>
 
 <para>You can first specify <option>--print-info-only</option> in order to perform a dry run:</para>
 
-<screen><prompt>&prompt;</prompt><userinput>miktexsetup ^
+<screen><prompt>&prompt;</prompt><userinput>miktexsetup_standalone ^
   --verbose ^
   --local-package-repository=C:\miktex-repository ^
   --shared=yes ^
@@ -330,7 +330,7 @@ program folder name: "MiKTeX"</screen>
 <title>Uninstalling</title>
 
 <para>&MiKTeX; can be removed by selecting the
-<userinput>uninstall</userinput> task (only available in the integrated variant on  Windows). <option>--shared=yes</option>
+<userinput>uninstall</userinput> task (only available in the integrated variant on Windows). <option>--shared=yes</option>
 should be specified, if &MiKTeX; is installed for all users.</para>
 
 <screen><prompt>&prompt;</prompt><userinput>miktexsetup --verbose --shared=yes uninstall</userinput></screen>

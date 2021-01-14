@@ -85,6 +85,7 @@
 <!ENTITY miktexprefix "<filename>${MIKTEX_PREFIX}</filename>">
 <!ENTITY miktexrev "${MIKTEX_DISPLAY_VERSION_STR}">
 <!ENTITY miktexsetup "<command>${MIKTEX_PROG_NAME_SETUP}</command>">
+<!ENTITY miktexsetup_standalone "<command>${MIKTEX_PROG_NAME_SETUP_STANDALONE}</command>">
 <!ENTITY miktextex "<command>${MIKTEX_PREFIX}tex</command>">
 <!ENTITY miktexxetex "<command>${MIKTEX_PREFIX}xetex</command>">
 <!ENTITY mpm "<command>${MIKTEX_PROG_NAME_MPM}</command>">
