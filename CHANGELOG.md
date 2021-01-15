@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 21.1 - pending release
+## 21.1 - 2021-01-18
 
 ### MiKTeX Console German translation
 
@@ -10,7 +10,7 @@ MiKTeX Console now supports localization. To begin with, the user interface has 
 
 * asymptote 2.68
 * autosp 2020-07-01
-* dvipdfmx 20210105
+* dvipdfmx 20210115
 * dvisvgm 2.11
 * luatex 1.13.0
 
