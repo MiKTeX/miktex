@@ -168,9 +168,11 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "",IDC_STATIC,21,1,8,8
     CONTROL         "Install MiKTeX for &anyone who uses this computer (all users)",IDC_SHARED,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,15,275,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,26,275,10
     CONTROL         "Install MiKTeX only for &me",IDC_JUST_FOR_ME,"Button",BS_AUTORADIOBUTTON,21,1,275,10
     LTEXT           "",IDC_STATIC,46,55,250,8
+    LTEXT           "Almost always this is the recommended option.",IDC_STATIC,46,14,250,8
+    LTEXT           "This option usually only makes sense if you are the administrator of a multi-user system. You and and your users must be prepared to cope with an increased management effort in order to keep competing (admin vs user) installation directories in sync.",IDC_STATIC,46,39,250,32
 END
 
 IDD_TASK DIALOGEX 0, 0, 317, 143

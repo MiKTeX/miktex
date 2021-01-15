@@ -1,6 +1,6 @@
 /* SharedInstallationPage.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2021 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -27,6 +27,7 @@
 #include "SharedInstallationPage.h"
 
 BEGIN_MESSAGE_MAP(SharedInstallationPage, CPropertyPage)
+  ON_BN_CLICKED(IDC_SHARED, OnCommonUserSetup)
 END_MESSAGE_MAP();
 
 SharedInstallationPage::SharedInstallationPage() :
@@ -157,4 +158,13 @@ BOOL SharedInstallationPage::OnKillActive()
     SetupApp::Instance->Service->SetOptions(options);
   }
   return ret;
+}
+
+void SharedInstallationPage::OnCommonUserSetup()
+{
+  if (showMessageBox)
+  {
+    showMessageBox = false;
+    AfxMessageBox(T_(_T("Choosing this option is rarely a good decision. You have been warned...")), MB_ICONEXCLAMATION | MB_OK);
+  }
 }

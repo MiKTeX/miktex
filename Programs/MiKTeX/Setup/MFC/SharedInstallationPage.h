@@ -1,6 +1,6 @@
 /* SharedInstallationPage.h:                            -*- C++ -*-
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2021 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -53,6 +53,12 @@ protected:
 
 private:
   int commonUserSetup = -1;
+
+protected:
+  afx_msg void OnCommonUserSetup();
+
+private:
+  bool showMessageBox = true;
 
 private:
   class SetupWizard* sheet = nullptr;
