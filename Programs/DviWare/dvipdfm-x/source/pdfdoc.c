@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -220,7 +220,9 @@ typedef struct pdf_doc
 
   struct {
     int    outline_open_depth;
-    double annot_grow;
+    struct {
+      double x, y;
+    } annot_grow;
     int    enable_manual_thumb;
   } options;
 
@@ -2511,7 +2513,8 @@ pdf_open_document (const char *filename,
                         1, 1);
   }
 
-  p->options.annot_grow = settings.annot_grow_amount;
+  p->options.annot_grow.x = settings.annot_grow_amount.x;
+  p->options.annot_grow.y = settings.annot_grow_amount.y;
   p->options.outline_open_depth = settings.outline_open_depth;
 
   pdf_init_resources();
@@ -2807,8 +2810,9 @@ pdf_doc_end_annot (void)
 void
 pdf_doc_break_annot (void)
 {
-  pdf_doc *p = &pdoc;
-  double   g = p->options.annot_grow;
+  pdf_doc *p   = &pdoc;
+  double   g_x = p->options.annot_grow.x;
+  double   g_y = p->options.annot_grow.y;
 
   if (breaking_state.dirty) {
     pdf_obj  *annot_dict, *annot_copy;
@@ -2820,10 +2824,10 @@ pdf_doc_break_annot (void)
     pdf_merge_dict(annot_copy, breaking_state.annot_dict);
     breaking_state.annot_dict = annot_copy;
     rect = breaking_state.rect;
-    rect.llx -= g;
-    rect.lly -= g;
-    rect.urx += g;
-    rect.ury += g;
+    rect.llx -= g_x;
+    rect.lly -= g_y;
+    rect.urx += g_x;
+    rect.ury += g_y;
     pdf_doc_add_annot(pdf_doc_current_page_number(), &rect,
                       annot_dict, !breaking_state.broken);
     pdf_release_obj(annot_dict);

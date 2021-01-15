@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 2012-2015 by Khaled Hosny <khaledhosny@eglug.org>
@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #ifdef WIN32
 #include <fcntl.h>
@@ -549,9 +550,105 @@ dvi_comment (void)
 }
 
 static void
+proc_dvilua_font_record (int32_t tex_id, const char *font_name, uint32_t point_size, uint32_t design_size)
+{
+  char     *file_name, *p, *q, *endptr;
+  uint32_t  index = 0;
+  uint32_t  embolden = 0;
+  int32_t   slant = 0, extend = 0x00010000;
+
+  ASSERT(font_name[0] == '[');
+
+  /* redundant check but leave this here anyway */
+  if (num_def_fonts >= max_def_fonts) {
+    max_def_fonts += TEX_FONTS_ALLOC_SIZE;
+    def_fonts = RENEW (def_fonts, max_def_fonts, struct font_def);
+  }
+
+  file_name = NEW(strlen(font_name) + 1, char);
+  strcpy(file_name, font_name + 1);
+  endptr   = file_name + strlen(file_name);
+  q = strchr(file_name, ']');
+  if (q == NULL) {
+    ERROR("Syntax error in dvilua fnt_def: no ']' found in font name.");
+  }
+  *q = '\0';
+
+  p = q + 1;
+  if (p < endptr && *p == ':') {
+    for (p++; *p != '\0' && p < endptr; ) {
+      char *kvsep, *delim;
+
+      delim = strchr(p, ';');
+      kvsep = strchr(p, '=');
+      if (delim == NULL)
+        delim = endptr;
+      if (kvsep == NULL || kvsep >= delim) {
+        ERROR("Syntax error in dvilua fnt_def: not in key=value format: %s", font_name);
+      }
+      *kvsep = '\0';
+      if (!strcmp(p, "index")) {
+        uint32_t value = strtoul(kvsep + 1, &q, 10);
+        if (q != delim) {
+          WARN("Syntax error in dvilua fnt_def: invalid value specified for \"%s\": %s", p, font_name);
+        } else {
+          index = value;
+        }
+      } else if (!strcmp(p, "embolden")) {
+        int32_t value = strtol(kvsep + 1, &q, 10);
+        if (q != delim) {
+          WARN("Syntax error in dvilua fnt_def: invalid value specified for \"%s\": %s", p, font_name);
+        } else {
+          embolden = value;
+        }
+      } else if (!strcmp(p, "slant")) {
+        int32_t  value = strtol(kvsep + 1, &q, 10);
+        if (q != delim) {
+          WARN("Syntax error in dvilua fnt_def: invalid value specified for \"%s\": %s", p, font_name);
+        } else {
+          slant = value;
+        }
+      } else if (!strcmp(p, "extend")) {
+        int32_t  value = strtol(kvsep + 1, &q, 10);
+        if (q != delim) {
+          WARN("Syntax error in dvilua fnt_def: invalid value specified for \"%s\": %s", p, font_name);
+        } else {
+          extend = value;
+        }
+      } else {
+        WARN("Ignoring unrecognized/unsupported key \"%s\" in dvilua fnt_def: %s", p, font_name);
+      }
+      p = delim + 1;
+    }
+  }
+
+  def_fonts[num_def_fonts].tex_id      = tex_id;
+  def_fonts[num_def_fonts].font_name   = file_name;
+  def_fonts[num_def_fonts].face_index  = index;
+  def_fonts[num_def_fonts].point_size  = point_size;
+  def_fonts[num_def_fonts].design_size = design_size;
+  def_fonts[num_def_fonts].used        = 0;
+  def_fonts[num_def_fonts].native      = 1;
+
+  def_fonts[num_def_fonts].layout_dir  = 0;
+  def_fonts[num_def_fonts].rgba_color  = 0xffffffff;
+  def_fonts[num_def_fonts].rgba_used   = 0;
+  def_fonts[num_def_fonts].extend      = extend;
+  def_fonts[num_def_fonts].slant       = slant;
+  def_fonts[num_def_fonts].embolden    = embolden;
+
+  num_def_fonts++;
+
+  return;
+}
+
+#define SIG_DVILUA_FNT_DEF ('L' << 24|'u' << 16|'a' << 8|'F')
+
+static void
 read_font_record (int32_t tex_id)
 {
   int       dir_length, name_length;
+  uint32_t  checksum;
   uint32_t  point_size, design_size;
   char     *directory, *font_name;
 
@@ -559,7 +656,7 @@ read_font_record (int32_t tex_id)
     max_def_fonts += TEX_FONTS_ALLOC_SIZE;
     def_fonts = RENEW (def_fonts, max_def_fonts, struct font_def);
   }
-                get_unsigned_quad(dvi_file);
+  checksum    = get_unsigned_quad(dvi_file);
   point_size  = get_positive_quad(dvi_file, "DVI", "point_size");
   design_size = get_positive_quad(dvi_file, "DVI", "design_size");
   dir_length  = get_unsigned_byte(dvi_file);
@@ -577,6 +674,12 @@ read_font_record (int32_t tex_id)
     ERROR(invalid_signature);
   }
   font_name[name_length] = '\0';
+
+  if (checksum == SIG_DVILUA_FNT_DEF && name_length > 0 && font_name[0] == '[') {
+    proc_dvilua_font_record(tex_id, font_name, point_size, design_size);
+    RELEASE(font_name);
+    return;
+  }
   def_fonts[num_def_fonts].tex_id      = tex_id;
   def_fonts[num_def_fonts].font_name   = font_name;
   def_fonts[num_def_fonts].point_size  = point_size;
@@ -1341,8 +1444,17 @@ dvi_set (int32_t ch)
    */ 
   font  = &loaded_fonts[current_font];
 
-  width = tfm_get_fw_width(font->tfm_id, ch);
-  width = sqxfw(font->size, width);
+  if (font->type == NATIVE) {
+    if (ch >= 0 && ch < font->num_glyphs) {
+      width = font->gm[ch].advance;
+    } else {
+      WARN("Invalid char for dvilua font: %04x", ch);
+      width = 0;
+    }
+  } else {
+    width = tfm_get_fw_width(font->tfm_id, ch);
+    width = sqxfw(font->size, width);
+  }
 
   if (lr_mode >= SKIMMING) {
     lr_width += width;
@@ -1392,6 +1504,19 @@ dvi_set (int32_t ch)
       height = sqxfw(font->size, height);
       depth  = sqxfw(font->size, depth);
 
+      calc_rect(&rect, dvi_state.h, -dvi_state.v, width, height, depth);
+      pdf_doc_expand_box(&rect);
+    }
+    break;
+  case  NATIVE:
+    wbuf[0] = (ch >> 8) & 0xff;
+    wbuf[1] =  ch       & 0xff;
+    set_string(dvi_state.h, -dvi_state.v, wbuf, 2, width, font->font_id);
+    if (dvi_is_tracking_boxes()) {
+      pdf_rect rect;
+
+      height = font->gm[ch].ascent;
+      depth  = font->gm[ch].descent;
       calc_rect(&rect, dvi_state.h, -dvi_state.v, width, height, depth);
       pdf_doc_expand_box(&rect);
     }

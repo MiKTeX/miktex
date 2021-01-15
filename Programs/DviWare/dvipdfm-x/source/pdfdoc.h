@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -62,7 +62,9 @@ struct pdf_setting
 {
     int    ver_major, ver_minor;
     double media_width, media_height;
-    double annot_grow_amount;
+    struct {
+        double x, y;
+    } annot_grow_amount;
     int    outline_open_depth;
     int    check_gotos;
     int    enable_manual_thumb;
