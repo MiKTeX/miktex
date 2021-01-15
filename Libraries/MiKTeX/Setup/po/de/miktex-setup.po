@@ -1,7 +1,7 @@
 # German translations for MiKTeX package.
-# Copyright (C) 2020 THE MiKTeX'S COPYRIGHT HOLDER
+# Copyright (C) 2021 THE MiKTeX'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the MiKTeX package.
-# Christian Schenk <cs@miktex.org>, 2020.
+# Christian Schenk <cs@miktex.org>, 2021.
 #
 msgid ""
 msgstr ""
@@ -19,7 +19,7 @@ msgstr ""
 
 #: SetupService.cpp:1960
 msgid "The PATH variable does not include the MiKTeX executables."
-msgstr "Die PATH-Variable schliesst nicht die MiKTeX-Programme ein."
+msgstr "Die PATH-Variable schließt nicht die MiKTeX-Programme mit ein."
 
 #: SetupService.cpp:1961
 msgid ""
@@ -27,7 +27,7 @@ msgid ""
 "environment variable PATH."
 msgstr ""
 "Suchen Sie das Verzeichnis, dass die MiKTeX-Programme enthält, und "
-"fÜgen Sie es der Umgebungsvariablen PATH hinzu."
+"fügen Sie es der Umgebungsvariablen PATH hinzu."
 
 #: SetupService.cpp:1976 SetupService.cpp:2008
 msgid "So far, no MiKTeX administrator has checked for updates."
@@ -86,7 +86,7 @@ msgstr "Paket {0} wurde manipuliert."
 
 #: win/winSetupService.cpp:145
 msgid "MiKTeX Console helps you to manage your MiKTeX configuration."
-msgstr "MiKTeX Console hilft Ihnen die MiKTeX-Konfiguration zu managen."
+msgstr "MiKTeX Console hilft Ihnen, die MiKTeX-Konfiguration zu managen."
 
 #: win/winSetupService.cpp:162
 msgid "TeXworks is a TeX front-end program."

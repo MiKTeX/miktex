@@ -36,7 +36,7 @@ msgstr "Deaktiviere das \\write18{Kommando}-Konstrukt."
 
 #: texapp.cpp:139
 msgid "Enable MLTeX extensions such as \\charsubdef."
-msgstr "Aktviere MLTeX-Erweiterungen wie z.B. \\charsubdef."
+msgstr "Aktviere MLTeX-Erweiterungen, wie z.B. \\charsubdef."
 
 #: texapp.cpp:142
 msgid "Enable the \\write18{COMMAND} construct."
@@ -52,7 +52,7 @@ msgstr "Aktiviere das \\write18{Kommando}-Konstrukt teilweise."
 
 #: texapp.cpp:175
 msgid "Enable EncTeX extensions such as \\mubyte."
-msgstr "Aktiviere EncTeX-Erweiterungen wie z.B \\mubyte."
+msgstr "Aktiviere EncTeX-Erweiterungen, wie z.B \\mubyte."
 
 #: texapp.cpp:182
 msgid "Generate SyncTeX data for previewers if nonzero."
@@ -78,7 +78,7 @@ msgstr "Unbekanntes Source-Special."
 
 #: texmfapp.cpp:282
 msgid "Make all characters printable by default."
-msgstr "Mache standardmässig alle Zeichen druckbar."
+msgstr "Mache standardmäßig alle Zeichen druckbar."
 
 #: texmfapp.cpp:283
 msgid "Make only 7-bit characters printable."
@@ -111,10 +111,10 @@ msgstr "Sei die INI-Variante des Programms."
 
 #: texmfapp.cpp:310
 msgid ""
-"Set the interaction mode; MODE must be one of: batchmode, nonstopmode, "
+"Set the interaction mode; MODE ist einer der folgenden Werte: batchmode, nonstopmode, "
 "scrollmode, errorstopmode."
 msgstr ""
-"Setze den Interaktionsmodus. MODE muss einer der folgenden Werte sein: batchmode, "
+"Setze den Interaktionsmodus. MODE ist einer der folgenden Werte: batchmode, "
 "nonstopmode, scrollmode, errorstopmode."
 
 #: texmfapp.cpp:311
@@ -170,7 +170,7 @@ msgid ""
 "Use the TCXNAME translation table to set the mapping of input characters and "
 "re-mapping of output characters."
 msgstr ""
-"Benutze die TCXNAME-Übersetungstabelle, um die Zuordnung von Eingabezeichen und "
+"Benutze die TCXNAME-Übersetzungstabelle, um die Zuordnung von Eingabezeichen und "
 "die Neuzuordnung von Ausgabezeichen zu setzen."
 
 #: texmfapp.cpp:402
@@ -204,7 +204,7 @@ msgstr "Ungültige Kommandozeile. Versuchen Sie dies:\n"
 #: webapp.cpp:263
 msgid ""
 "Pretend to be APP.  This affects both the format used and the search path."
-msgstr "Gib vor, APP zu sein. Dies beeinflußt das zu benutzende Format und den Suchpfad."
+msgstr "Gib vor, APP zu sein. Dies beeinflusst das zu benutzende Format und den Suchpfad."
 
 #: webapp.cpp:263
 msgid "APP"
@@ -232,7 +232,7 @@ msgstr ""
 
 #: webapp.cpp:269
 msgid "Enable the package usage recorder.  Output is written to FILE."
-msgstr "AKtiviere den Paketnutzungs-Rekorder. Ausgabe wird in FILE geschrieben."
+msgstr "Aktiviere den Paketnutzungs-Rekorder. Ausgabe wird in FILE geschrieben."
 
 #: webapp.cpp:269
 msgid "FILE"

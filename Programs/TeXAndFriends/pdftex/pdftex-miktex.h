@@ -244,7 +244,7 @@ public:
       }
       else
       {
-        FatalError(T_("Unkown output option value."));
+        FatalError(T_("Unknown output format value."));
       }
       break;
     default:

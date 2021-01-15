@@ -26,5 +26,5 @@ msgid "Set the output format."
 msgstr ""
 
 #: pdftex-miktex.h:245
-msgid "Unkown output option value."
+msgid "Unknown output format value."
 msgstr ""

@@ -313,9 +313,9 @@ void Application::AutoMaintenance()
   {
     cerr
       << "\n"
-      << T_("It seems that this is a fresh TeX installation.\n")
-      << T_("Please finish the setup before proceeding.\n")
-      << T_("For more information, visit:\n")
+      << T_("It seems that this is a fresh TeX installation.") << "\n";
+      << T_("Please finish the setup before proceeding.") << "\n";
+      << T_("For more information, visit:") << "\n";
 #if defined(MIKTEX_WINDOWS)
       << "https://miktex.org/howto/install-miktex-win" << "\n";
 #elif defined(__APPLE__)
