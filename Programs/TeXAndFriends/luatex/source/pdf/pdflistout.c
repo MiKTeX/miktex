@@ -177,6 +177,7 @@ static void handle_backend_whatsit(PDF pdf, halfword p, halfword parent_box, sca
             case pdf_refobj_node:
             case pdf_end_link_node:
             case pdf_end_thread_node:
+            case pdf_link_state_node:
                 backend_out_whatsit[subtype(p)](pdf, p);
                 break;
             case pdf_annot_node:
@@ -254,8 +255,20 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     cur_s++;
     backend_out_control[backend_control_push_list](pdf,&saved_pos,&saved_loc);
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
-        if (pdf->link_stack[i].nesting_level == cur_s)
+        if (pdf->link_state == 1) {
+            /*
+                We ignore this link. This is a compatibility-with-pdftex feature needed for latex. It
+                is suboptimal in the sense that when the whatsit is set, the next box is influenced,
+                so there there can be side effects when used in the middle of a line, when using
+                vadjust, etc. But we can assume that tha macro package knows when and where this
+                mechanism is triggered, so a more sophisticated solution is not needed (and would be
+                confusing in its own anyway.)
+
+                I would not be surprised of we have some leak here but it's harmless.
+           */
+        } else if (pdf->link_stack[i].nesting_level == cur_s) {
             append_link(pdf, this_box, cur, (small_number) i);
+        }
     }
     if (synctex) {
         synctexhlist(this_box);

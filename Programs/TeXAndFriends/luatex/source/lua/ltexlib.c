@@ -2668,10 +2668,21 @@ static int tex_hashpairs(lua_State * L)
     while (cs < hash_size) {
         s = hash_text(cs);
         if (s > 0) {
+            halfword n = cs_next(cs);
             char *ss = makecstring(s);
             lua_pushstring(L, ss);
             free(ss);
             lua_rawseti(L, -2, ++nt);
+            while (n) {
+                s = cs_text(n);
+                if (s) {
+                    ss = makecstring(s);
+                    lua_pushstring(L, ss);
+                    free(ss);
+                    lua_rawseti(L, -2, ++nt);
+                }
+                n = cs_next(n);
+            }
         }
         cs++;
     }

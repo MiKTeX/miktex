@@ -28,6 +28,7 @@
 extern void push_link_level(PDF pdf, halfword p);
 extern void pop_link_level(PDF pdf);
 extern void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur);
+extern void pdf_out_link_state(PDF pdf, halfword p);
 extern void end_link(PDF pdf, halfword p);
 extern void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i);
 extern void scan_startlink(PDF pdf);

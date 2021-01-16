@@ -136,11 +136,13 @@ field_info node_fields_whatsit_pdf_end_thread[2];
 field_info node_fields_whatsit_pdf_literal[4];
 field_info node_fields_whatsit_pdf_refobj[3];
 field_info node_fields_whatsit_pdf_restore[2];
+field_info node_fields_whatsit_pdf_link_state[3];
 field_info node_fields_whatsit_pdf_save[2];
 field_info node_fields_whatsit_pdf_setmatrix[3];
 field_info node_fields_whatsit_pdf_start_link[8];
 field_info node_fields_whatsit_pdf_start_thread[8];
 field_info node_fields_whatsit_pdf_thread[8];
+
 
 /*tex The values of fields. */
 
@@ -997,6 +999,7 @@ node_info whatsit_node_data[] = {
     { pdf_setmatrix_node,    pdf_setmatrix_node_size,  NULL, node_fields_whatsit_pdf_setmatrix,    NULL, -1, 0 },
     { pdf_save_node,         pdf_save_node_size,       NULL, node_fields_whatsit_pdf_save,         NULL, -1, 0 },
     { pdf_restore_node,      pdf_restore_node_size,    NULL, node_fields_whatsit_pdf_restore,      NULL, -1, 0 },
+    { pdf_link_state_node,   pdf_link_state_node_size, NULL, node_fields_whatsit_pdf_link_state,   NULL, -1, 0 },
 
     /*tex That's it. */
 
@@ -1065,6 +1068,7 @@ void l_set_whatsit_data(void) {
     init_node_key(whatsit_node_data, pdf_setmatrix_node,   pdf_setmatrix)
     init_node_key(whatsit_node_data, pdf_save_node,        pdf_save)
     init_node_key(whatsit_node_data, pdf_restore_node,     pdf_restore)
+    init_node_key(whatsit_node_data, pdf_link_state_node,  pdf_link_state)
 
     init_node_key(node_values_pdf_destination, 0, xyz)
     init_node_key(node_values_pdf_destination, 1, fit)
@@ -1132,6 +1136,10 @@ void l_set_whatsit_data(void) {
 
     init_field_key(node_fields_whatsit_pdf_end_link, 0, attr);
     init_field_nop(node_fields_whatsit_pdf_end_link, 1);
+
+    init_field_key(node_fields_whatsit_pdf_link_state, 0, attr);
+    init_field_key(node_fields_whatsit_pdf_link_state, 1, value);
+    init_field_nop(node_fields_whatsit_pdf_link_state, 2);
 
     init_field_key(node_fields_whatsit_pdf_end_thread, 0, attr);
     init_field_nop(node_fields_whatsit_pdf_end_thread, 1);
@@ -2257,6 +2265,7 @@ void flush_node_wrapup_pdf(halfword p)
     switch(subtype(p)) {
         case pdf_save_node:
         case pdf_restore_node:
+        case pdf_link_state_node:
         case pdf_refobj_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
@@ -2559,6 +2568,7 @@ void check_node_wrapup_pdf(halfword p)
             break;
         case pdf_save_node:
         case pdf_restore_node:
+        case pdf_link_state_node:
         case pdf_refobj_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
@@ -3550,21 +3560,21 @@ void show_node_wrapup_pdf(int p)
             tprint_esc("pdfcolorstack ");
             print_int(pdf_colorstack_stack(p));
             switch (pdf_colorstack_cmd(p)) {
-            case colorstack_set:
-                tprint(" set ");
-                break;
-            case colorstack_push:
-                tprint(" push ");
-                break;
-            case colorstack_pop:
-                tprint(" pop");
-                break;
-            case colorstack_current:
-                tprint(" current");
-                break;
-            default:
-                confusion("colorstack");
-                break;
+                case colorstack_set:
+                    tprint(" set ");
+                    break;
+                case colorstack_push:
+                    tprint(" push ");
+                    break;
+                case colorstack_pop:
+                    tprint(" pop");
+                    break;
+                case colorstack_current:
+                    tprint(" current");
+                    break;
+                default:
+                    confusion("colorstack");
+                    break;
             }
             if (pdf_colorstack_cmd(p) <= colorstack_data)
                 print_mark(pdf_colorstack_data(p));
@@ -3578,6 +3588,10 @@ void show_node_wrapup_pdf(int p)
             break;
         case pdf_restore_node:
             tprint_esc("pdfrestore");
+            break;
+        case pdf_link_state_node:
+            tprint_esc("pdflinkstate ");
+            print_int(pdf_link_state(p));
             break;
         case pdf_refobj_node:
             tprint_esc("pdfrefobj");

@@ -916,12 +916,23 @@ void pdf_print_toks(PDF pdf, halfword p)
     xfree(s);
 }
 
+/*
 void pdf_add_rect_spec(PDF pdf, halfword r)
 {
     pdf_add_bp(pdf, pdf_ann_left(r));
     pdf_add_bp(pdf, pdf_ann_bottom(r));
     pdf_add_bp(pdf, pdf_ann_right(r));
     pdf_add_bp(pdf, pdf_ann_top(r));
+}
+*/
+
+void pdf_add_rect_spec(PDF pdf, halfword r)
+{
+    /* the check is now here */
+    pdf_add_bp(pdf, pdf_ann_left(r)   < pdf_ann_right(r) ? pdf_ann_left(r)   : pdf_ann_right(r));
+    pdf_add_bp(pdf, pdf_ann_bottom(r) < pdf_ann_top(r)   ? pdf_ann_bottom(r) : pdf_ann_top(r));
+    pdf_add_bp(pdf, pdf_ann_left(r)   < pdf_ann_right(r) ? pdf_ann_right(r)  : pdf_ann_left(r));
+    pdf_add_bp(pdf, pdf_ann_bottom(r) < pdf_ann_top(r)   ? pdf_ann_top(r)    : pdf_ann_bottom(r));
 }
 
 void pdf_rectangle(PDF pdf, halfword r)

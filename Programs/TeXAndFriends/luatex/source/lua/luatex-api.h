@@ -1014,6 +1014,7 @@ make_lua_key(pdf_destination);\
 make_lua_key(pdf_end_link);\
 make_lua_key(pdf_end_thread);\
 make_lua_key(pdf_link_data);\
+make_lua_key(pdf_link_state);\
 make_lua_key(pdf_literal);\
 make_lua_key(pdf_refobj);\
 make_lua_key(pdf_restore);\
@@ -1715,6 +1716,7 @@ init_lua_key(pdf_destination);\
 init_lua_key(pdf_end_link);\
 init_lua_key(pdf_end_thread);\
 init_lua_key(pdf_link_data);\
+init_lua_key(pdf_link_state);\
 init_lua_key(pdf_literal);\
 init_lua_key(pdf_refobj);\
 init_lua_key(pdf_restore);\
@@ -2483,6 +2485,7 @@ use_lua_key(pdf_destination);
 use_lua_key(pdf_end_link);
 use_lua_key(pdf_end_thread);
 use_lua_key(pdf_link_data);
+use_lua_key(pdf_link_state);
 use_lua_key(pdf_literal);
 use_lua_key(pdf_refobj);
 use_lua_key(pdf_restore);
