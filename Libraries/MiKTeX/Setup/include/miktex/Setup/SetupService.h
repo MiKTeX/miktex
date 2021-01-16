@@ -287,7 +287,7 @@ public:
   virtual MiKTeX::Util::PathName MIKTEXTHISCALL CloseLog(bool cancel) = 0;
 
 public:
-  virtual void MIKTEXCEECALL Log(const std::string& s) = 0;
+  virtual void MIKTEXTHISCALL Log(const std::string& s) = 0;
 
 public:
   virtual void MIKTEXTHISCALL ULogOpen() = 0;
