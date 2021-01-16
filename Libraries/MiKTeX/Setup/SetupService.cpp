@@ -540,7 +540,7 @@ void SetupServiceImpl::LogHeader()
   }
 }
 
-void SetupServiceImpl::Log(const string& s)
+void SetupServiceImpl::LogInternal(TraceLevel level, const string& s)
 {
 #if 0
   lock_guard<mutex> lockGuard(logStreamMutex);
@@ -555,7 +555,7 @@ void SetupServiceImpl::Log(const string& s)
   {
     if (lpsz[0] == '\n' || (lpsz[0] == '\r' && lpsz[1] == '\n'))
     {
-      traceStream->WriteLine("setup", currentLine);
+      traceStream->WriteLine("setup", level, currentLine);
       if (logStream.is_open())
       {
         logStream << currentLine << "\n";

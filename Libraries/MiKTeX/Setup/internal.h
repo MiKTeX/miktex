@@ -219,7 +219,10 @@ public:
   MiKTeX::Util::PathName CloseLog(bool cancel) override;
 
 public:
-  void MIKTEXCEECALL Log(const std::string& s) override;
+  void Log(const std::string& s) override
+  {
+    LogInternal(MiKTeX::Trace::TraceLevel::Trace, s);
+  }
 
 public:
   void ULogOpen() override;
@@ -262,6 +265,9 @@ public:
   {
     return cancelled;
   }
+
+protected:
+  void LogInternal(MiKTeX::Trace::TraceLevel level, const std::string& s);
 
 protected:
   static SetupResources resources;
