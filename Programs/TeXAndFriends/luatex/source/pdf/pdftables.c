@@ -224,8 +224,7 @@ void check_obj_type(PDF pdf, int t, int objnum)
 void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule, scaled margin)
 {
     /*tex The positions relative to cur: */
-    scaledpos ll, ur;
-    scaledpos pos_ll, pos_ur, tmp;
+    scaledpos ll, ur, pos_ll, pos_ur;
     posstructure localpos;
     localpos.dir = pdf->posstruct->dir;
     /*tex |pdf| contains current point on page: */
@@ -246,16 +245,11 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, sc
     pos_ll = localpos.pos;
     synch_pos_with_cur(&localpos, pdf->posstruct, ur);
     pos_ur = localpos.pos;
-    if (pos_ll.h > pos_ur.h) {
-        tmp.h = pos_ll.h;
-        pos_ll.h = pos_ur.h;
-        pos_ur.h = tmp.h;
-    }
-    if (pos_ll.v > pos_ur.v) {
-        tmp.v = pos_ll.v;
-        pos_ll.v = pos_ur.v;
-        pos_ur.v = tmp.v;
-    }
+    /*
+        The test for swapping has been moved to the moment we write the rectangle. This has to
+        do with the fact that we have code dealing with directions and that the |pdf_ann_*|
+        horizontal edges get recalculated in some places.
+    */
     if (global_shipping_mode == SHIPPING_PAGE && matrixused()) {
         matrixtransformrect(pos_ll.h, pos_ll.v, pos_ur.h, pos_ur.v);
         pos_ll.h = getllx();

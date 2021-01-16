@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -498,8 +498,13 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
   if (dpx_conf.verbose_level > 0)
     MESG(")");
 
-  if (id < 0)
-    WARN("pdf: image inclusion failed for \"%s\".", filename);
+  if (id < 0) {
+    if (dpx_conf.compat_mode == dpx_mode_compat_mode) {
+      WARN("Image inclusion failed for \"%s\".", filename);
+    } else {
+      ERROR("Image inclusion failed for \"%s\".", filename);
+    }
+  }
 
   return  id;
 }

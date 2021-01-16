@@ -29,6 +29,16 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 */
 
+void pdf_out_link_state(PDF pdf, halfword p)
+{
+    if (pdf_link_state(p) >= 0 && pdf_link_state(p) <= 1) {
+        pdf->link_state = pdf_link_state(p);
+    } else {
+        /* ignores so one can use them for whatever purpose */
+    }
+}
+
+
 void push_link_level(PDF pdf, halfword p)
 {
     if (pdf->link_stack_ptr >= pdf_max_link_level)

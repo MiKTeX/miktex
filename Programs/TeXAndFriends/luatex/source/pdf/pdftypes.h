@@ -375,6 +375,7 @@ typedef struct pdf_output_file_ {
     /* the pdf link stack */
     pdf_link_stack_record link_stack[(pdf_max_link_level + 1)];
     int link_stack_ptr;
+    int link_state;
     /* the thread data */
     int last_thread;            /* pointer to the last thread */
     scaled_whd thread;

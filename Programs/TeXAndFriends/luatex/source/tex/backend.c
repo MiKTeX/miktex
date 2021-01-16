@@ -45,6 +45,7 @@ static void init_pdf_backend_functions(void)
     p->whatsit_fu[pdf_setmatrix_node] = &pdf_out_setmatrix;
     p->whatsit_fu[pdf_save_node] = &pdf_out_save;
     p->whatsit_fu[pdf_restore_node] = &pdf_out_restore;
+    p->whatsit_fu[pdf_link_state_node] = &pdf_out_link_state;
     p->control_fu[backend_control_push_list] = &pdf_push_list;
     p->control_fu[backend_control_pop_list] = &pdf_pop_list;
     p->control_fu[backend_control_begin_page] = &pdf_begin_page;

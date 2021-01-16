@@ -1448,8 +1448,8 @@ dvi_set (int32_t ch)
     if (ch >= 0 && ch < font->num_glyphs) {
       width = font->gm[ch].advance;
     } else {
-      WARN("Invalid char for dvilua font: %04x", ch);
-      width = 0;
+      WARN("Invalid char for dvilua font (ignored): %04x", ch);
+      return;
     }
   } else {
     width = tfm_get_fw_width(font->tfm_id, ch);

@@ -156,6 +156,10 @@ static void do_extension_pdf(int immediate)
         new_whatsit(pdf_save_node);
     } else if (scan_keyword("restore")) {
         new_whatsit(pdf_restore_node);
+    } else if (scan_keyword("linkstate")) {
+        new_whatsit(pdf_link_state_node);
+        scan_int();
+        pdf_link_state(tail) = cur_val;
     } else if (scan_keyword("setmatrix")) {
         new_whatsit(pdf_setmatrix_node);
         scan_toks(false, true);

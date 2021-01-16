@@ -295,7 +295,8 @@ static void luatex_calledit (int baseptr, int linenumber)
   miktex_invoke_editor(makecstring(input_stack[base_ptr].name_field), linenumber);
   do_final_end();
 #else
-    char *temp, *command, *fullcmd;
+    char *temp, *command;
+    char *fullcmd = NULL; /* avoid compiler warning */
     char c;
     int sdone, ddone, i;
     char *filename = makecstring(input_stack[base_ptr].name_field);
@@ -448,7 +449,7 @@ void error(void)
         /*tex Get user's advice and |return|. */
         while (1) {
           CONTINUE:
-            /*tex  
+            /*tex
              Original reports:
 
              https://tex.stackexchange.com/questions/551313/
@@ -461,7 +462,7 @@ void error(void)
             selector from 16 to 15 in term_input, due to the lack of this check in
             recursive error() call.
             */
-            if (interaction !=error_stop_mode) 
+            if (interaction !=error_stop_mode)
                 return;
             clear_for_error_prompt();
             prompt_input("? ");
@@ -992,7 +993,7 @@ void normal_warning(const char *t, const char *p)
         new_line_char_par = 10;
         report_id = callback_defined(show_lua_error_hook_callback);
         if (report_id == 0) {
-	    if (p != NULL) 
+	    if (p != NULL)
 	      tprint(p);
             help2(
                 "The lua interpreter ran into a problem, so the",
