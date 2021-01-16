@@ -1039,7 +1039,16 @@ void EpsToPdfApp::Run(int argc, const char** argv)
   if (gsProcess != nullptr)
   {
     gsProcess->WaitForExit();
+    if (gsProcess->get_ExitStatus() != ProcessExitStatus::Exited)
+    {
+      FatalError(T_("Ghostscript exited unexpectedly."));
+    }
+    auto gsExitCode = gsProcess->get_ExitCode();
     gsProcess = nullptr;
+    if (gsExitCode != 0)
+    {
+      FatalError(fmt::format(T_("Ghostscript exited with error {0}"), gsExitCode));
+    }
   }
 
   Finalize2(0);
