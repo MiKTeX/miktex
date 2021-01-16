@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/HResult>
 
 #include "internal.h"
@@ -402,6 +403,7 @@ vector<ShellLinkData> winSetupServiceImpl::GetShellLinks()
 
 void winSetupServiceImpl::CreateProgramIcons()
 {
+  COMInitializer comInitializer;
   PathName path = CreateProgramFolder();
   for (const ShellLinkData& shlnk : GetShellLinks())
   {
