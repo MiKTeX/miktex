@@ -1,6 +1,6 @@
 /* gsinfo.cpp: getting Ghostscript information
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/Paths>
 
 #include "internal.h"
@@ -32,6 +33,7 @@
 
 using namespace std;
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
@@ -58,12 +60,19 @@ PathName SessionImpl::GetGhostscript(unsigned long* versionNumber)
   {
     bool found = false;
 #if defined(MIKTEX_WINDOWS)
-    found = FindFile(MIKTEX_GS_EXE, FileType::EXE, pathGsExe);
+    bool preferMiKTeXGhostscript = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_PREFER_MIKTEX_GHOSTSCRIPT).GetBool();
+    if (preferMiKTeXGhostscript)
+    {
+      found = FindFile(MIKTEX_GS_EXE, FileType::EXE, pathGsExe);
+    }
 #endif
     if (!found)
     {
       static constexpr const char* gsNames[] = {
 #if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS_64)
+        "gswin64c",
+#endif
         "gswin32c",
 #endif
         "gs"
@@ -77,6 +86,12 @@ PathName SessionImpl::GetGhostscript(unsigned long* versionNumber)
         }
       }
     }
+#if defined(MIKTEX_WINDOWS)
+    if (!found && !preferMiKTeXGhostscript)
+    {
+      found = FindFile(MIKTEX_GS_EXE, FileType::EXE, pathGsExe);
+    }
+#endif
     if (!found)
     {
       MIKTEX_FATAL_ERROR(T_("Ghostscript could not be not found."));

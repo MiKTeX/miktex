@@ -96,6 +96,10 @@
 	;; PK file name template.
 	${MIKTEX_CONFIG_VALUE_PK_FN_TEMPLATE} = %f.pk
 
+	;; On Windows, prefer MiKTeX Ghostscript (mgs.exe)
+	;; to the installed Ghostscript
+	${MIKTEX_CONFIG_VALUE_PREFER_MIKTEX_GHOSTSCRIPT} = true
+
 	;; Indicates whether MiKTeX is installed system-wide.
 	${MIKTEX_CONFIG_VALUE_SHARED_SETUP} = ?
 

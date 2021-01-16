@@ -994,7 +994,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
 
 #if defined(MIKTEX_WINDOWS)
   envMap["MIKTEX_GS_LIB"] = StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter);
-#else
+#endif
   auto it = envMap.find("GS_LIB");
   if (it != envMap.end())
   {
@@ -1009,7 +1009,6 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
     }
   }
   envMap["GS_LIB"] = StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter);
-#endif
 
   PathName tempDirectory = GetTempDirectory();
   for (const string& envName : vector<string>{ "TEMP", "TEMPDIR", "TMP", "TMPDIR" })
