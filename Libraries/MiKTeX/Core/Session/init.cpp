@@ -967,6 +967,9 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
   PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("ghostscript") / PathName("base");
   if (Directory::Exists(gsDir))
   {
+#if defined(MIKTEX_WINDOWS)
+    gsDir.ConvertToUnix();
+#endif
     gsDirectories.push_back(gsDir.ToString());
   }
   if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
@@ -974,12 +977,18 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
     gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("ghostscript") / PathName("base");
     if (Directory::Exists(gsDir))
     {
+#if defined(MIKTEX_WINDOWS)
+      gsDir.ConvertToUnix();
+#endif
       gsDirectories.push_back(gsDir.ToString());
     }
   }
   gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("fonts");
   if (Directory::Exists(gsDir))
   {
+#if defined(MIKTEX_WINDOWS)
+    gsDir.ConvertToUnix();
+#endif
     gsDirectories.push_back(gsDir.ToString());
   }
   if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
@@ -987,6 +996,9 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
     gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("fonts");
     if (Directory::Exists(gsDir))
     {
+#if defined(MIKTEX_WINDOWS)
+      gsDir.ConvertToUnix();
+#endif
       gsDirectories.push_back(gsDir.ToString());
     }
   }
