@@ -450,14 +450,24 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
       utf8name_failed = 0;
 #endif /* WIN32 */
 #endif
+      if (dpx_conf.compat_mode == dpx_mode_compat_mode) {
+        WARN("Image inclusion failed for \"%s\".", filename);
+      } else {
+        ERROR("Image inclusion failed for \"%s\".", filename);
+      }
       return  -1;
     }
   }
 
   fp = dpx_fopen(fullname, FOPEN_RBIN_MODE);
   if (!fp) {
-    WARN("Error opening image file \"%s\"", fullname);
-    RELEASE(fullname);
+    if (dpx_conf.compat_mode == dpx_mode_compat_mode) {
+      WARN("Error opening image file \"%s\"", fullname);
+      RELEASE(fullname);
+    } else {
+      RELEASE(fullname);
+      ERROR("Image inclusion failed for \"%s\".", filename);
+    }
     return  -1;
   }
   if (dpx_conf.verbose_level > 0) {
