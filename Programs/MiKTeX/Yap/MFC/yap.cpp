@@ -338,6 +338,7 @@ namespace {
 
 BOOL YapApplication::InitInstance()
 {
+  comInitializer = make_unique<COMInitializer>();
   INITCOMMONCONTROLSEX initCtrls;
   initCtrls.dwSize = sizeof(initCtrls);
   initCtrls.dwICC = ICC_WIN95_CLASSES;
@@ -649,6 +650,8 @@ int YapApplication::ExitInstance()
 
     // uninitialize MiKTeX Library
     session = nullptr;
+
+    comInitializer = nullptr;
   }
 
   catch (const exception&)

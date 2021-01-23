@@ -1,6 +1,6 @@
 /* yap.h: main header file for the Yap application      -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of Yap.
 
@@ -469,6 +469,9 @@ private:
 
 private:
   SplashWindow splashWindow;
+
+private:
+  unique_ptr<COMInitializer> comInitializer;
 
 public:
   unique_ptr<TraceStream> trace_yap;
