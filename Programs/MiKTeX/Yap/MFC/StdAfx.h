@@ -96,6 +96,7 @@
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
 #include <miktex/Core/win/winAutoResource>
+#include <miktex/Core/win/COMInitializer>
 #include <miktex/Core/win/HResult>
 #include <miktex/DVI/Dvi>
 #include <miktex/Graphics/DibChunker>
