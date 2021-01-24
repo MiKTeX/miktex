@@ -1,6 +1,6 @@
 /* dvisvgm-version.h: version number                    -*- C++ -*-
 
-   Copyright (C) 2015-2020 Christian Schenk
+   Copyright (C) 2015-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,11 +18,11 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 2
+#define MIKTEX_COMP_MINOR_VERSION 3
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2.11"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2.11.1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2005-2020 Martin Gieseking"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2005-2021 Martin Gieseking"
 
 #include <miktex/Version>

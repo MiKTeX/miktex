@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## pending release
+
+### Upgraded programs
+
+* dvisvgm 2.11.1
+
 ## 21.1 - 2021-01-18
 
 ### MiKTeX Console German translation

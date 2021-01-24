@@ -2,7 +2,7 @@
 ** Calculator.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -24,8 +24,8 @@
 #include <istream>
 #include <map>
 #include <string>
+#include <mpark/variant.hpp>
 #include "MessageException.hpp"
-
 
 struct CalculatorException : public MessageException {
 	explicit CalculatorException (const std::string &msg) : MessageException(msg) {}
@@ -33,22 +33,22 @@ struct CalculatorException : public MessageException {
 
 class Calculator {
 	public:
-		double eval (std::istream &is);
-		double eval (const std::string &expr);
+		double eval (std::istream &is) const;
+		double eval (const std::string &expr) const;
 		void setVariable (const std::string &name, double value) {_variables[name] = value;}
 		double getVariable (const std::string &name) const;
 
 	protected:
-		double expr (std::istream &is, bool skip);
-		double term (std::istream &is, bool skip);
-		double prim (std::istream &is, bool skip);
-		char lex (std::istream &is);
-		char lookAhead (std::istream &is);
+		double expr (std::istream &is, bool skip) const;
+		double term (std::istream &is, bool skip) const;
+		double prim (std::istream &is, bool skip) const;
+
+		using Token = mpark::variant<bool, char, double, std::string>;
+		static Token lex (std::istream &is);
+		static Token lookAhead (std::istream &is);
 
 	private:
 		std::map<std::string,double> _variables;
-		double _numValue=0;
-		std::string _strValue;
 };
 
 #endif

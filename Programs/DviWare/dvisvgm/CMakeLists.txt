@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2020 Christian Schenk
+## Copyright (C) 2015-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -49,7 +49,7 @@ if(CMAKE_CL_64)
 endif()
 
 set(HAVE_CXX11 1)
-set(VERSION "2.11")
+set(VERSION "2.11.1")
 
 configure_file(
   config.h.cmake

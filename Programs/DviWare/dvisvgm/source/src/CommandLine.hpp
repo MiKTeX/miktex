@@ -2,7 +2,7 @@
 // It is part of the dvisvgm package and published under the terms
 // of the GNU General Public License version 3, or (at your option) any later version.
 // See file COPYING for further details.
-// Copyright (C) 2016-2020 Martin Gieseking <martin.gieseking@uos.de>
+// Copyright (C) 2016-2021 Martin Gieseking <martin.gieseking@uos.de>
 
 #ifndef COMMANDLINE_HPP
 #define COMMANDLINE_HPP
@@ -20,7 +20,7 @@ class CommandLine : public CL::CommandLine {
 		CommandLine () : CL::CommandLine(
 			"This program converts DVI files, as created by TeX/LaTeX, as well as\nEPS and PDF files to the XML-based scalable vector graphics format SVG.",
 			"[options] dvifile\n--eps [options] epsfile\n--pdf [options] pdffile",
-			"Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>"
+			"Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>"
 		) {}
 
 		CommandLine (int argc, char **argv) : CommandLine() {

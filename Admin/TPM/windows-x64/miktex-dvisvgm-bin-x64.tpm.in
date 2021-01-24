@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/dvisvgm/">
     <TPM:Name>Dvisvgm win64</TPM:Name>
     <TPM:Title>Dvisvgm, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Martin Gieseking" year="2005-2020"/>
+    <TPM:Copyright owner="Martin Gieseking" year="2005-2021"/>
     <TPM:License type="gpl3"/>    
-    <TPM:Version>2.11</TPM:Version>
+    <TPM:Version>2.11.1</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

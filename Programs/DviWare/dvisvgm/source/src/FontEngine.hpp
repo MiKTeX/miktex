@@ -2,7 +2,7 @@
 ** FontEngine.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -64,7 +64,7 @@ class FontEngine {
 		std::string getGlyphName (const Character &c) const;
 		int getCharByGlyphName (const char *name) const;
 		bool setCharMap (const CharMapID &charMapID);
-		void buildCharMap (RangeMap &charmap);
+		void buildGidToCharCodeMap (RangeMap &charmap);
 		std::unique_ptr<const RangeMap> createCustomToUnicodeMap ();
 
 	protected:

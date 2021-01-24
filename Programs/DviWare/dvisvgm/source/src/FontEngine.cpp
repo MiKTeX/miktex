@@ -2,7 +2,7 @@
 ** FontEngine.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2020 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -134,37 +134,38 @@ bool FontEngine::setCharMap (const CharMapID &charMapID) {
 }
 
 
-/** Returns a character map that maps from character indexes to character codes
+/** Returns a character map that maps from glyph indexes to character codes
  *  of the current encoding.
  *  @param[out] charmap the resulting charmap */
-void FontEngine::buildCharMap (RangeMap &charmap) {
+void FontEngine::buildGidToCharCodeMap (RangeMap &charmap) {
 	charmap.clear();
-	FT_UInt glyph_index;
-	uint32_t charcode = FT_Get_First_Char(_currentFace, &glyph_index);
-	while (glyph_index) {
-		charmap.addRange(glyph_index, glyph_index, charcode);
-		charcode = FT_Get_Next_Char(_currentFace, charcode, &glyph_index);
+	FT_UInt gid;  // index of current glyph
+	uint32_t charcode = FT_Get_First_Char(_currentFace, &gid);
+	while (gid) {
+		if (!charmap.valueAt(gid))
+			charmap.addRange(gid, gid, charcode);
+		charcode = FT_Get_Next_Char(_currentFace, charcode, &gid);
 	}
 }
 
 
-/** Creates a charmap that maps from the custom character encoding to unicode.
+/** Creates a charmap that maps from the custom character encoding to Unicode.
  *  @return pointer to charmap if it could be created, 0 otherwise */
 unique_ptr<const RangeMap> FontEngine::createCustomToUnicodeMap () {
 	FT_CharMap ftcharmap = _currentFace->charmap;
 	if (FT_Select_Charmap(_currentFace, FT_ENCODING_ADOBE_CUSTOM) != 0)
 		return nullptr;
-	RangeMap index_to_source_chrcode;
-	buildCharMap(index_to_source_chrcode);
+	RangeMap gidToCharCodeMap;
+	buildGidToCharCodeMap(gidToCharCodeMap);
 	if (FT_Select_Charmap(_currentFace, FT_ENCODING_UNICODE) != 0)
 		return nullptr;
 	auto charmap = util::make_unique<RangeMap>();
-	FT_UInt glyph_index;
-	uint32_t unicode_point = FT_Get_First_Char(_currentFace, &glyph_index);
-	while (glyph_index) {
-		uint32_t custom_charcode = index_to_source_chrcode.valueAt(glyph_index);
-		charmap->addRange(custom_charcode, custom_charcode, unicode_point);
-		unicode_point = FT_Get_Next_Char(_currentFace, unicode_point, &glyph_index);
+	FT_UInt gid;  // index of current glyph
+	uint32_t ucCharcode = FT_Get_First_Char(_currentFace, &gid);  // Unicode code point
+	while (gid) {
+		uint32_t customCharcode = gidToCharCodeMap.valueAt(gid);
+		charmap->addRange(customCharcode, customCharcode, ucCharcode);
+		ucCharcode = FT_Get_Next_Char(_currentFace, ucCharcode, &gid);
 	}
 	FT_Set_Charmap(_currentFace, ftcharmap);
 	return std::move(charmap);
