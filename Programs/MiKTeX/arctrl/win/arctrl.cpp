@@ -339,7 +339,7 @@ HDDEDATA CALLBACK ArCtrl::DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hs
 }
 
 const char* const ServiceNames[] = {
-  "acroviewR15", "acroviewR11", "acroviewR10", "acroview"
+  "acroviewR20", "acroviewR19", "acroviewR18", "acroviewR17", "acroviewR15", "acroviewR11", "acroviewR10", "acroview"
 };
 
 void ArCtrl::EstablishConversation()
