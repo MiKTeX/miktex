@@ -743,7 +743,7 @@ extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, char** argv)
   {
     vector<char*> newargv{ argv, argv + argc + 1 };
     app.Init(newargv);
-    app.Run(newargv.size(), const_cast<const char**>(&newargv[0]));
+    app.Run(argc, const_cast<const char**>(&newargv[0]));
     app.Finalize2(0);
     return 0;
   }
