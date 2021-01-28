@@ -2,9 +2,17 @@
 
 ## pending release
 
+### MiKTeX Console Simplified Chinese translation
+
+The MiKTeX Console user interface has been translated to Simplified Chinese.
+
 ### Upgraded programs
 
 * dvisvgm 2.11.1
+
+### Fixed issues
+
+- [697](https://github.com/MiKTeX/miktex/issues/697): Add zh_CN translations
 
 ## 21.1 - 2021-01-18
 

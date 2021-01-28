@@ -1,0 +1,251 @@
+# Chinese translations for MiKTeX package.
+# Copyright (C) 2021 THE MiKTeX'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the MiKTeX package.
+# Christian Schenk <cs@miktex.org>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: MiKTeX 21.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-05 16:47+0100\n"
+"PO-Revision-Date: 2021-01-28 12:14+0100\n"
+"Last-Translator: Christian Schenk <cs@miktex.org>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: etexapp.cpp:85
+msgid "Enable e-TeX extensions."
+msgstr ""
+
+#: mfapp.cpp:79 mfapp.cpp:80 mfapp.cpp:81 texapp.cpp:145 texapp.cpp:150
+#: texapp.cpp:160 texapp.cpp:168 texapp.cpp:190 texapp.cpp:197 texapp.cpp:201
+#: texmfapp.cpp:287 texmfapp.cpp:290 texmfapp.cpp:294 texmfapp.cpp:299
+#: texmfapp.cpp:302 texmfapp.cpp:313 texmfapp.cpp:314 texmfapp.cpp:315
+#: texmfapp.cpp:318 texmfapp.cpp:323 texmfapp.cpp:326 texmfapp.cpp:329
+#: texmfapp.cpp:332
+msgid "Set {0} to N."
+msgstr ""
+
+#: texapp.cpp:136
+msgid "Disable the \\write18{COMMAND} construct."
+msgstr ""
+
+#: texapp.cpp:139
+msgid "Enable MLTeX extensions such as \\charsubdef."
+msgstr ""
+
+#: texapp.cpp:142
+msgid "Enable the \\write18{COMMAND} construct."
+msgstr ""
+
+#: texapp.cpp:155
+msgid "Set mem_bot to 0 or 1."
+msgstr ""
+
+#: texapp.cpp:165
+msgid "Partially enable the \\write18{COMMAND} construct."
+msgstr ""
+
+#: texapp.cpp:175
+msgid "Enable EncTeX extensions such as \\mubyte."
+msgstr ""
+
+#: texapp.cpp:182
+msgid "Generate SyncTeX data for previewers if nonzero."
+msgstr ""
+
+#: texapp.cpp:208
+msgid ""
+"Insert source specials in certain places of the DVI file.  WHERE is a comma-"
+"separated value list of: cr display hbox math par parend vbox."
+msgstr ""
+
+#: texapp.cpp:213
+msgid "Insert source specials in certain places of the DVI file."
+msgstr ""
+
+#: texapp.cpp:342
+msgid "Unknown source special."
+msgstr ""
+
+#: texmfapp.cpp:282
+msgid "Make all characters printable by default."
+msgstr ""
+
+#: texmfapp.cpp:283
+msgid "Make only 7-bit characters printable."
+msgstr ""
+
+#: texmfapp.cpp:286
+msgid "Use DIR as the directory to write auxiliary files to."
+msgstr ""
+
+#: texmfapp.cpp:288
+msgid "Enable file:line:error style messages."
+msgstr ""
+
+#: texmfapp.cpp:289
+msgid ""
+"Do not parse the first line of the input line to look for a dump name and/or "
+"extra command-line options."
+msgstr ""
+
+#: texmfapp.cpp:303
+msgid "Stop after the first error."
+msgstr ""
+
+#: texmfapp.cpp:307
+msgid "Be the INI variant of the program."
+msgstr ""
+
+#: texmfapp.cpp:310
+msgid ""
+"Set the interaction mode; MODE must be one of: batchmode, nonstopmode, "
+"scrollmode, errorstopmode."
+msgstr ""
+
+#: texmfapp.cpp:311
+msgid "Set the job name and hence the name(s) of the output file(s)."
+msgstr ""
+
+#: texmfapp.cpp:312
+msgid "Set the job time.  Take FILE's timestamp as the reference."
+msgstr ""
+
+#: texmfapp.cpp:316
+msgid "Disable file:line:error style messages."
+msgstr ""
+
+#: texmfapp.cpp:317
+msgid "Use DIR as the directory to write output files to."
+msgstr ""
+
+#: texmfapp.cpp:319
+msgid ""
+"Parse the first line of the input line to look for a dump name and/or extra "
+"command-line options."
+msgstr ""
+
+#: texmfapp.cpp:327
+msgid "Suppress all output (except errors)."
+msgstr ""
+
+#: texmfapp.cpp:328
+msgid ""
+"Turn on the file name recorder to leave a trace of the files opened for "
+"input and output in a file with extension .fls."
+msgstr ""
+
+#: texmfapp.cpp:330
+msgid "Disable MiKTeX extensions."
+msgstr ""
+
+#: texmfapp.cpp:333
+msgid "Show processing time statistics."
+msgstr ""
+
+#: texmfapp.cpp:334
+msgid "Use NAME instead of program name when loading internal tables."
+msgstr ""
+
+#: texmfapp.cpp:338
+msgid ""
+"Use the TCXNAME translation table to set the mapping of input characters and "
+"re-mapping of output characters."
+msgstr ""
+
+#: texmfapp.cpp:402
+msgid "The specified auxiliary directory does not exist."
+msgstr ""
+
+#: texmfapp.cpp:464
+msgid "Invalid interaction mode."
+msgstr ""
+
+#: texmfapp.cpp:483
+msgid "Missing timestamp."
+msgstr ""
+
+#: texmfapp.cpp:536
+msgid "The specified output directory does not exist."
+msgstr ""
+
+#: texmfapp.cpp:717
+msgid "The memory dump file could not be found."
+msgstr ""
+
+#: texmflib.cpp:80
+msgid "The font file could not be found."
+msgstr ""
+
+#: webapp.cpp:205
+msgid "Invalid command-line. Try this:\n"
+msgstr ""
+
+#: webapp.cpp:263
+msgid ""
+"Pretend to be APP.  This affects both the format used and the search path."
+msgstr ""
+
+#: webapp.cpp:263
+msgid "APP"
+msgstr ""
+
+#: webapp.cpp:264
+msgid "Disable the package installer.  Missing files will not be installed."
+msgstr ""
+
+#: webapp.cpp:265
+msgid "Enable the package installer.  Missing files will be installed."
+msgstr ""
+
+#: webapp.cpp:266
+msgid "Show this help screen and exit."
+msgstr ""
+
+#: webapp.cpp:267
+msgid "Prefix DIR to the input search path."
+msgstr ""
+
+#: webapp.cpp:267
+msgid "DIR"
+msgstr ""
+
+#: webapp.cpp:269
+msgid "Enable the package usage recorder.  Output is written to FILE."
+msgstr ""
+
+#: webapp.cpp:269
+msgid "FILE"
+msgstr ""
+
+#: webapp.cpp:270
+msgid ""
+"Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   "
+"See the manual, for more information."
+msgstr ""
+
+#: webapp.cpp:270
+msgid "OPTIONS"
+msgstr ""
+
+#: webapp.cpp:271
+msgid "Turn on verbose mode."
+msgstr ""
+
+#: webapp.cpp:272
+msgid "Print version information and exit."
+msgstr ""
+
+#: webapp.cpp:276
+msgid ""
+"Show the manual page in an HTMLHelp window and exit when the window is "
+"closed."
+msgstr ""
+
+#: webapp.cpp:380
+msgid "The command line options could not be processed."
+msgstr ""
