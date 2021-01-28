@@ -4,12 +4,12 @@
 <context>
     <name>BackgroundWorker</name>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>The MiKTeX configuration utility (initexmf) could not be found.</source>
         <translation type="unfinished">未能找到 MiKTeX 配置实用工具(initexmf)。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1049"/>
+        <location filename="../mainwindow.cpp" line="1055"/>
         <source>The MiKTeX configuration utility failed for some reason. The output has been saved to a file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -920,7 +920,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="238"/>
-        <location filename="../mainwindow.cpp" line="640"/>
+        <location filename="../mainwindow.cpp" line="646"/>
         <source>There are pending updates. Are you sure you want to quit %1?</source>
         <translation type="unfinished">有挂起的更新。您确定要退出 %1 吗？</translation>
     </message>
@@ -955,255 +955,261 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="630"/>
+        <location filename="../mainwindow.cpp" line="631"/>
+        <source>&lt;p&gt;English translation kindly contributed by Jane Doe.&lt;/p&gt;</source>
+        <extracomment>Please translate this text if you want to be included in the about dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="636"/>
         <source>&lt;p&gt;You can support the project:&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;Thank you!&lt;/p&gt;</source>
         <translation type="unfinished">&lt;p&gt;您可以支持该项目：&lt;br&gt;&lt;a href=&quot;%1&quot;&gt;%1&lt;/a&gt;&lt;br&gt;感谢！&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="712"/>
+        <location filename="../mainwindow.cpp" line="718"/>
         <source>No graphical sudo frontend is available. Please install &apos;pkexec&apos;, &apos;kdesu&apos; (KDE) or &apos;gksu&apos; (Gnome). Alternatively, you can enter &apos;sudo miktex-console %1&apos; in a terminal window.</source>
         <translation type="unfinished">没有可用的图形 sudo 前端。请安装“pkexec”、“kdesu” (KDE) 或“gksu”(Gnome)。或者，您可在终端窗口输入“sudo miktex-console %1”。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="800"/>
+        <location filename="../mainwindow.cpp" line="806"/>
         <source>Finishing the MiKTeX setup...</source>
         <translation type="unfinished">正在完成 MikTeX 安装向导...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="826"/>
+        <location filename="../mainwindow.cpp" line="832"/>
         <source>Something went wrong while finishing the MiKTeX setup.</source>
         <translation type="unfinished">完成 MikTeX 安装向导时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="856"/>
+        <location filename="../mainwindow.cpp" line="862"/>
         <source>The PATH environment variable has been successfully modified.</source>
         <translation type="unfinished">已成功修改 PATH 环境变量。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="862"/>
+        <location filename="../mainwindow.cpp" line="868"/>
         <source>The PATH environment variable could not be modified.</source>
         <translation type="unfinished">未能修改 PATH 环境变量。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="910"/>
+        <location filename="../mainwindow.cpp" line="916"/>
         <source>Installing packages...</source>
         <translation type="unfinished">正在安装宏包...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="917"/>
-        <location filename="../mainwindow.cpp" line="1338"/>
+        <location filename="../mainwindow.cpp" line="923"/>
+        <location filename="../mainwindow.cpp" line="1344"/>
         <source>Done</source>
         <translation type="unfinished">完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="921"/>
+        <location filename="../mainwindow.cpp" line="927"/>
         <source>Something went wrong while installing packages.</source>
         <translation type="unfinished">安装宏包时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="922"/>
-        <location filename="../mainwindow.cpp" line="1254"/>
-        <location filename="../mainwindow.cpp" line="1352"/>
+        <location filename="../mainwindow.cpp" line="928"/>
+        <location filename="../mainwindow.cpp" line="1260"/>
+        <location filename="../mainwindow.cpp" line="1358"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="937"/>
-        <location filename="../mainwindow.cpp" line="1373"/>
+        <location filename="../mainwindow.cpp" line="943"/>
+        <location filename="../mainwindow.cpp" line="1379"/>
         <source>we&apos;re almost done</source>
         <translation type="unfinished">即将完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="941"/>
-        <location filename="../mainwindow.cpp" line="1377"/>
+        <location filename="../mainwindow.cpp" line="947"/>
+        <location filename="../mainwindow.cpp" line="1383"/>
         <source>(updating package database)</source>
         <translation type="unfinished">(正在更新宏包数据库)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="945"/>
-        <location filename="../mainwindow.cpp" line="1381"/>
+        <location filename="../mainwindow.cpp" line="951"/>
+        <location filename="../mainwindow.cpp" line="1387"/>
         <source>(downloading: %1)</source>
         <translation type="unfinished">(正在下载：%1)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="949"/>
-        <location filename="../mainwindow.cpp" line="1385"/>
+        <location filename="../mainwindow.cpp" line="955"/>
+        <location filename="../mainwindow.cpp" line="1391"/>
         <source>(installing: %1)</source>
         <translation type="unfinished">(正在安装：%1)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="958"/>
+        <location filename="../mainwindow.cpp" line="964"/>
         <source>Upgrade in progress...</source>
         <translation type="unfinished">正在进行更新...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="960"/>
-        <location filename="../mainwindow.cpp" line="1396"/>
+        <location filename="../mainwindow.cpp" line="966"/>
+        <location filename="../mainwindow.cpp" line="1402"/>
         <source>(initializing)</source>
         <translation type="unfinished">(正在初始化)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="991"/>
+        <location filename="../mainwindow.cpp" line="997"/>
         <source>Refreshing file name database...</source>
         <translation type="unfinished">正在刷新文件名数据库...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="998"/>
+        <location filename="../mainwindow.cpp" line="1004"/>
         <source>Something went wrong while refreshing the file name database.</source>
         <translation type="unfinished">刷新文件名数据库时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1078"/>
+        <location filename="../mainwindow.cpp" line="1084"/>
         <source>Refreshing font map files...</source>
         <translation type="unfinished">正在刷新字体映射文件...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1085"/>
+        <location filename="../mainwindow.cpp" line="1091"/>
         <source>Something went wrong while refreshing the font map files.</source>
         <translation type="unfinished">刷新字体映射文件时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1111"/>
+        <location filename="../mainwindow.cpp" line="1117"/>
         <source>Last checked: %1</source>
         <translation type="unfinished">上次检查日期：%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1115"/>
+        <location filename="../mainwindow.cpp" line="1121"/>
         <source>You have not yet checked for updates.</source>
         <translation type="unfinished">您还未检查更新。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1123"/>
-        <location filename="../mainwindow.cpp" line="1234"/>
+        <location filename="../mainwindow.cpp" line="1129"/>
+        <location filename="../mainwindow.cpp" line="1240"/>
         <source>There are currently no updates available.</source>
         <translation>当前没有可用的更新。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1129"/>
+        <location filename="../mainwindow.cpp" line="1135"/>
         <source>The following updates are available:</source>
         <translation type="unfinished">下列更新可用：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1131"/>
+        <location filename="../mainwindow.cpp" line="1137"/>
         <source>Updates (%1)</source>
         <translation type="unfinished">更新(%1)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1216"/>
-        <location filename="../mainwindow.cpp" line="1266"/>
-        <location filename="../mainwindow.cpp" line="1267"/>
+        <location filename="../mainwindow.cpp" line="1222"/>
+        <location filename="../mainwindow.cpp" line="1272"/>
+        <location filename="../mainwindow.cpp" line="1273"/>
         <source>Checking for updates...</source>
         <translation>正在检查更新...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1240"/>
+        <location filename="../mainwindow.cpp" line="1246"/>
         <source>There is an update available!</source>
         <translation>有可用的更新！</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1253"/>
+        <location filename="../mainwindow.cpp" line="1259"/>
         <source>Something went wrong while checking for updates.</source>
         <translation type="unfinished">检查更新时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2549"/>
+        <location filename="../mainwindow.cpp" line="2555"/>
         <source>&lt;p&gt;You are about to remove the following:&lt;/p&gt;</source>
         <translation type="unfinished">&lt;p&gt;您即将删除下列：&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2552"/>
+        <location filename="../mainwindow.cpp" line="2558"/>
         <source>&lt;li&gt;MiKTeX registry keys under &lt;tt&gt;HKEY_CURRENT_USER&lt;/tt&gt;&lt;/li&gt;</source>
         <translation type="unfinished">&lt;li&gt;MiKTeX 在 &lt;tt&gt;HKEY_CURRENT_USER&lt;/tt&gt; 下的注册表项&lt;/li&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2720"/>
+        <location filename="../mainwindow.cpp" line="2726"/>
         <source>&lt;h3&gt;Remove MiKTeX&lt;/h3&gt;</source>
         <translation type="unfinished">&lt;h3&gt;删除 MiKTeX&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2732"/>
+        <location filename="../mainwindow.cpp" line="2738"/>
         <source>Removing MiKTeX...</source>
         <translation>正在删除  MiKTeX...</translation>
     </message>
     <message numerus="yes">
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1250"/>
         <source>There are %n updates available!</source>
         <translation type="unfinished">
             <numerusform>有 %n 可用跟新！</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1329"/>
+        <location filename="../mainwindow.cpp" line="1335"/>
         <source>Installing package updates...</source>
         <translation type="unfinished">正在安装宏包更新...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1357"/>
         <source>Something went wrong while installing package updates.</source>
         <translation type="unfinished">安装宏包更新时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1394"/>
+        <location filename="../mainwindow.cpp" line="1400"/>
         <source>Update in progress...</source>
         <translation type="unfinished">正在进行更新...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1438"/>
         <source>The language change will take effect after restart.</source>
         <translation type="unfinished">语言更改在重新地启动后才会生效。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1433"/>
+        <location filename="../mainwindow.cpp" line="1439"/>
         <source>Restart now</source>
         <translation type="unfinished">立即重新启动</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1434"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Later</source>
         <translation type="unfinished">稍后</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1728"/>
+        <location filename="../mainwindow.cpp" line="1734"/>
         <source>This does not look like a &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-compliant&lt;/a&gt; root directory. Are you sure you want to add it?</source>
         <translation type="unfinished">这似乎不是 &lt;a href=&quot;https://miktex.org/kb/tds&quot;&gt;TDS-compliant&lt;/a&gt; 根目录。您确定要添加它吗？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1873"/>
+        <location filename="../mainwindow.cpp" line="1879"/>
         <source>Change Link Target Directory</source>
         <translation type="unfinished">更改链接目标目录</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1881"/>
+        <location filename="../mainwindow.cpp" line="1887"/>
         <source>Changing link target directory...</source>
         <translation type="unfinished">正在更改链接目标目录...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1888"/>
+        <location filename="../mainwindow.cpp" line="1894"/>
         <source>Something went wrong while changing the link target directory.</source>
         <translation type="unfinished">更改链接目标目录时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1995"/>
+        <location filename="../mainwindow.cpp" line="2001"/>
         <source>Are you sure you want to remove the selected format definition?</source>
         <translation type="unfinished">您确定要删除所选格式定义？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2077"/>
+        <location filename="../mainwindow.cpp" line="2083"/>
         <source>Building format %1...</source>
         <translation type="unfinished">正在构建格式 %1...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2077"/>
+        <location filename="../mainwindow.cpp" line="2083"/>
         <source>Building formats...</source>
         <translation type="unfinished">正在构建格式...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2084"/>
+        <location filename="../mainwindow.cpp" line="2090"/>
         <source>Something went wrong while building formats.</source>
         <translation type="unfinished">构建格式时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2313"/>
         <source>Your MiKTeX installation will now be updated:
 
 </source>
@@ -1212,7 +1218,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
 </translation>
     </message>
     <message numerus="yes">
-        <location filename="../mainwindow.cpp" line="2308"/>
+        <location filename="../mainwindow.cpp" line="2314"/>
         <source>%n package(s) will be installed
 </source>
         <translation type="unfinished">
@@ -1221,44 +1227,44 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../mainwindow.cpp" line="2309"/>
+        <location filename="../mainwindow.cpp" line="2315"/>
         <source>%n package(s) will be removed</source>
         <translation type="unfinished">
             <numerusform>将删除 %n 宏包</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2365"/>
+        <location filename="../mainwindow.cpp" line="2371"/>
         <source>Updating the package database...</source>
         <translation type="unfinished">正在更新宏包数据库...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2372"/>
+        <location filename="../mainwindow.cpp" line="2378"/>
         <source>Something went wrong while updating the package database.</source>
         <translation type="unfinished">更新宏包数据库时出错。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2548"/>
+        <location filename="../mainwindow.cpp" line="2554"/>
         <source>&lt;h3&gt;Reset personal MiKTeX configuration&lt;/h3&gt;</source>
         <translation type="unfinished">&lt;h3&gt;重置个人 MiKTeX 配置&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2563"/>
+        <location filename="../mainwindow.cpp" line="2569"/>
         <source>&lt;li&gt;Directory &lt;tt&gt;%1&lt;/tt&gt;&lt;/li&gt;</source>
         <translation type="unfinished">&lt;li&gt;目录 &lt;tt&gt;%1&lt;/tt&gt;&lt;/li&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2567"/>
+        <location filename="../mainwindow.cpp" line="2573"/>
         <source>&lt;p&gt;Are you sure?&lt;/p&gt;</source>
         <translation type="unfinished">&lt;p&gt;您确定吗？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2577"/>
+        <location filename="../mainwindow.cpp" line="2583"/>
         <source>Resetting personal MiKTeX configuration...</source>
         <translation type="unfinished">正在重置个人 MiKTeX 配置...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2584"/>
+        <location filename="../mainwindow.cpp" line="2590"/>
         <source>The personal MiKTeX configuration has been reset.
 
 The application window will now be closed.</source>
@@ -1266,7 +1272,7 @@ The application window will now be closed.</source>
 应用程序窗口将立即关闭。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2588"/>
+        <location filename="../mainwindow.cpp" line="2594"/>
         <source>Something went wrong while resetting your personal MiKTeX configuration.
 
 The application window will now be closed.</source>
@@ -1274,33 +1280,33 @@ The application window will now be closed.</source>
 应用程序窗口将立即关闭。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2642"/>
+        <location filename="../mainwindow.cpp" line="2648"/>
         <source>&lt;h3&gt;Reset the TeX installation to factory defaults&lt;/h3&gt;</source>
         <translation type="unfinished">&lt;h3&gt;将 TeX 安装重置为出厂默认设置&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2643"/>
+        <location filename="../mainwindow.cpp" line="2649"/>
         <source>&lt;p&gt;You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.</source>
         <translation type="unfinished">&lt;p&gt;您即将重置您的 TeX 安装。所有的 TEXMF 根目录将被删除，您将失去所有的配置设置、日志文件、数据文件以及宏包。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2644"/>
+        <location filename="../mainwindow.cpp" line="2650"/>
         <source> In other words: your TeX installation will be restored to its original state, as when it was first installed.&lt;/p&gt;</source>
         <translation type="unfinished"> 换句话说，您的 TeX 安装将还原到它的原始状态，像首次安装一样。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2645"/>
-        <location filename="../mainwindow.cpp" line="2722"/>
+        <location filename="../mainwindow.cpp" line="2651"/>
+        <location filename="../mainwindow.cpp" line="2728"/>
         <source>Are you sure?</source>
         <translation type="unfinished">您确定吗？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2655"/>
+        <location filename="../mainwindow.cpp" line="2661"/>
         <source>Resetting the TeX installation...</source>
         <translation type="unfinished">正在重置 TeXas 安装...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2662"/>
+        <location filename="../mainwindow.cpp" line="2668"/>
         <source>The TeX installation has been restored to its initial state.
 
 The application window will now be closed.</source>
@@ -1309,8 +1315,8 @@ The application window will now be closed.</source>
 应用程序窗口将立即关闭。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2666"/>
-        <location filename="../mainwindow.cpp" line="2743"/>
+        <location filename="../mainwindow.cpp" line="2672"/>
+        <location filename="../mainwindow.cpp" line="2749"/>
         <source>
 
 The application window will now be closed.</source>
@@ -1319,12 +1325,12 @@ The application window will now be closed.</source>
 应用程序窗口将立即关闭。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2721"/>
+        <location filename="../mainwindow.cpp" line="2727"/>
         <source>&lt;p&gt;You are about to remove MiKTeX from your computer. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.&lt;/p&gt;</source>
         <translation type="unfinished">&lt;p&gt;您即将从您的计算机删除 MikTeX。所有的 TEXMF 根目录将被删除，您将失去所有的配置设置、日志文件、数据文件以及宏包。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2739"/>
+        <location filename="../mainwindow.cpp" line="2745"/>
         <source>MiKTeX has been removed from your computer.
 
 The application window will now be closed.</source>
@@ -1332,12 +1338,12 @@ The application window will now be closed.</source>
 应用程序窗口将立即关闭。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2795"/>
+        <location filename="../mainwindow.cpp" line="2801"/>
         <source>%1 needs to be closed.</source>
         <translation type="unfinished">需要关闭 %1。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2804"/>
+        <location filename="../mainwindow.cpp" line="2810"/>
         <source>%1 needs to be restarted.</source>
         <translation type="unfinished">需要重新启动 %1。</translation>
     </message>

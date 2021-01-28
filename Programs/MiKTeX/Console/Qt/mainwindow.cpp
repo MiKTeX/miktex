@@ -627,6 +627,12 @@ void MainWindow::AboutDialog()
   message += "<p>" + QString::fromUtf8(MIKTEX_COMP_COPYRIGHT_STR) + "</p>";
   message += tr("<p>%1 is free software. You are welcome to redistribute it under certain conditions.</p>").arg(TheNameOfTheGame);
   message += tr("<p>%1 comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>").arg(TheNameOfTheGame);
+  //: Please translate this text if you want to be included in the about dialog.
+  QString translationProvidedBy = tr("<p>English translation kindly contributed by Jane Doe.</p>");
+  if (translationProvidedBy != "<p>English translation kindly contributed by Jane Doe.</p>")
+  {
+    message += translationProvidedBy; 
+  }
   message += tr("<p>You can support the project:<br><a href=\"%1\">%1</a><br>Thank you!</p>").arg("https://miktex.org/giveback");
   QMessageBox::about(this, TheNameOfTheGame, message);
 }
