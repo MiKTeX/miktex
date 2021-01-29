@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -453,65 +453,11 @@ void img_free(void)
  * does not matter. 
  */
 
-#if defined(MIKTEX)
-#  undef generic_dump
-#  define generic_dump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (x))
-#  undef dumpthings
-#  define dumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (a), (n))
-#  undef generic_undump
-#  define generic_undump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (x))
-#  undef undumpthings
-#  define undumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (a), (n))
-#endif
 /* #define dumpsizet   generic_dump */
 #define dumpinteger generic_dump
 
 /* #define undumpsizet   generic_undump */
 #define undumpinteger generic_undump
-
-/* (un)dumping a string means dumping the allocation size, followed
- * by the bytes. The trailing \0 is dumped as well, because that 
- * makes the code simpler.
- */
-
-#define dumpcharptr(a)				\
-  do {						\
-    integer x;					\
-    if (a!=NULL) {				\
-      x = strlen(a)+1;				\
-      dumpinteger(x);  dumpthings(*a, x);	\
-    } else {					\
-      x = 0; dumpinteger(x);			\
-    }						\
-  } while (0)
-
-#if defined(MIKTEX)
-#define undumpcharptr(s)                        \
-  do {                                          \
-    integer x;                                  \
-    char *a;                                    \
-    undumpinteger (x);                          \
-    if (x>0) {                                  \
-      a = (char*)MIKTEX_MALLOC(x);              \
-      undumpthings(*a,x);                       \
-      s = a ;                                   \
-    } else { s = NULL; }                        \
-  } while (0)
-#else
-#define undumpcharptr(s)			\
-  do {						\
-    integer x;					\
-    char *a;					\
-    undumpinteger (x);				\
-    if (x>0) {					\
-      a = malloc(x);				\
-      undumpthings(*a,x);			\
-      s = a ;					\
-    } else { s = NULL; }			\
-  } while (0)
-#endif
-
-
 
 void dumpimagemeta(void)
 {

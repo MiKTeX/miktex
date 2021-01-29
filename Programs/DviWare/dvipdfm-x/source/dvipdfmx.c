@@ -1187,6 +1187,11 @@ main (int argc, char *argv[])
   MESG("%s -> %s\n", dvi_filename ? dvi_filename : "stdin",
                      pdf_filename ? pdf_filename : "stdout");
 
+  /* Kpathsea messages:
+   * really_quiet > 1 is actually for suppressing error messages in dvipdfmx.
+   */
+  kpse_make_tex_discard_errors = really_quiet;
+
   /* Setup Options */
   settings.ver_major = pdf_version_major;
   settings.ver_minor = pdf_version_minor;
@@ -1194,7 +1199,7 @@ main (int argc, char *argv[])
   /* PDF trailer ID. */
   if (!has_id) {
 #define PRODUCER \
-"%s-%s, Copyright 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata"
+"%s-%s, Copyright 2002-2021 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata"
     char producer[256];
     
     sprintf(producer, PRODUCER, my_name, VERSION);

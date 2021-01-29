@@ -1,5 +1,5 @@
 /*
-Copyright 2006-2019 Han The Thanh, <thanh@pdftex.org>
+Copyright 2006-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -490,4 +490,62 @@ integer write_tounicode(char **glyph_names, const char *tfmname,
                "end\n" "end\n" "%%%%EndResource\n" "%%%%EOF\n");
     pdfendstream();
     return objnum;
+}
+
+void dumptounicode(void)
+{
+    struct avl_traverser traverse;
+    integer count;
+    glyph_unicode_entry *gu;
+
+    if (glyph_unicode_tree == NULL) {
+        count = 0;
+        generic_dump(count);
+        return;
+    }
+
+    count = avl_count(glyph_unicode_tree);
+    generic_dump(count);
+
+    avl_t_init(&traverse, glyph_unicode_tree);
+#if defined(MIKTEX)
+    while (gu = reinterpret_cast<glyph_unicode_entry*>(avl_t_next(&traverse))) {
+#else
+    while (gu = avl_t_next(&traverse)) {
+#endif
+        dumpcharptr(gu->name);
+        generic_dump(gu->code);
+
+        if (gu->code == UNI_STRING)
+            dumpcharptr(gu->unicode_seq);
+    }
+}
+
+void undumptounicode(void)
+{
+    glyph_unicode_entry *tmp;
+    integer remaining;
+
+    generic_undump(remaining);
+
+    if (remaining == 0)
+        return;
+
+    assert(glyph_unicode_tree == NULL);
+    glyph_unicode_tree =
+        avl_create(comp_glyph_unicode_entry, NULL, &avl_xallocator);
+    assert(glyph_unicode_tree != NULL);
+
+    while (remaining--) {
+        void **result;
+        glyph_unicode_entry *gu = new_glyph_unicode_entry();
+        undumpcharptr(gu->name);
+        generic_undump(gu->code);
+
+        if (gu->code == UNI_STRING)
+            undumpcharptr(gu->unicode_seq);
+
+        result = avl_probe(glyph_unicode_tree, gu);
+        assert(*result == gu);
+    }
 }

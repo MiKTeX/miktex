@@ -1,5 +1,5 @@
 /* ptexlib.h: macros for pdfTeX library code.
-Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -241,6 +241,8 @@ extern boolean handle_subfont_fm(fm_entry *, int);
 extern void glyph_unicode_free(void);
 extern void deftounicode(strnumber, strnumber);
 extern integer write_tounicode(char **, const char *, const char *);
+extern void dumptounicode(void);
+extern void undumptounicode(void);
 
 /* utils.c */
 extern boolean str_eq_cstr(strnumber, char *);

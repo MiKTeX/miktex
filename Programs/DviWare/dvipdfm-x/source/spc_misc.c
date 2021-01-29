@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -335,6 +335,91 @@ spc_handler_pdfcolorstack (struct spc_env *spe, struct spc_arg *args)
   return error;
 }
 
+/* Duplicate from spc_pdfm */
+static pdf_obj *
+parse_pdf_reference (const char **start, const char *end, void *user_data)
+{
+  pdf_obj *result = NULL;
+  char    *name;
+
+  skip_white(start, end);
+  name = parse_opt_ident(start, end);
+  if (name) {
+    result = spc_lookup_reference(name);
+    if (!result) {
+      WARN("Could not find the named reference (@%s).", name);
+    }
+    RELEASE(name);
+  } else {
+    WARN("Could not find a reference name.");
+    result = NULL;
+  }
+
+  return result;
+}
+
+#include "pdffont.h"
+
+static int
+spc_handler_pdffontattr (struct spc_env *spe, struct spc_arg *args)
+{
+  pdf_obj *fontdict, *fontattr;
+  char    *ident   = NULL;
+  int      font_id = -1;
+  double   size    = 0.0;
+
+  skip_white(&args->curptr, args->endptr);
+  if (args->curptr >= args->endptr) {
+    return -1;
+  }
+
+  ident = parse_ident(&args->curptr, args->endptr);
+  if (!ident) {
+    spc_warn(spe, "Missing a font name.");
+    return -1;
+  }
+  skip_white(&args->curptr, args->endptr);
+
+  if (args->curptr < args->endptr && args->curptr[0] != '<') {
+    char *fontscale = parse_float_decimal(&args->curptr, args->endptr);
+    if (fontscale) {
+      size = atof(fontscale);
+      RELEASE(fontscale);
+      skip_white(&args->curptr, args->endptr);
+    } else {
+      spc_warn(spe, "A number expected but not found.");
+      RELEASE(ident);
+      return -1;
+    }
+  }
+
+  font_id = pdf_font_findresource(ident, size*(72.0/72.27));
+  if (font_id < 0) {
+    spc_warn(spe, "Could not find specified font resource: %s (%gpt)", ident, size);
+    RELEASE(ident);
+    return -1;
+  }
+    
+  fontdict = pdf_get_font_resource(font_id);
+  if (!fontdict) {
+    spc_warn(spe, "Specified object not exist: %s (%gpt)", ident, size);
+    RELEASE(ident);
+    return  -1;
+  }
+
+  fontattr = parse_pdf_object_extended(&args->curptr, args->endptr, NULL, parse_pdf_reference, spe);
+  if (!fontattr) {
+    spc_warn(spe, "Failed to parse a PDF dictionary object...");
+    RELEASE(ident);
+    return -1;
+  }
+
+  pdf_merge_dict(fontdict, fontattr);
+  pdf_release_obj(fontattr);
+  RELEASE(ident);
+
+  return 0;
+}
 
 int
 spc_misc_at_begin_document (void)
@@ -469,6 +554,7 @@ static struct spc_handler misc_handlers[] = {
   {"postscriptbox",     spc_handler_postscriptbox},
   {"pdfcolorstackinit", spc_handler_pdfcolorstackinit},
   {"pdfcolorstack",     spc_handler_pdfcolorstack},
+  {"pdffontattr",       spc_handler_pdffontattr},
   {"landscape",         spc_handler_null}, /* handled at bop */
   {"papersize",         spc_handler_null}, /* handled at bop */
   {"src:",              spc_handler_null}, /* simply ignore  */

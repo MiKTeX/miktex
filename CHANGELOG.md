@@ -8,6 +8,7 @@ The MiKTeX Console user interface has been translated to Simplified Chinese.
 
 ### Upgraded programs
 
+* dvipdfmx 20210124
 * dvisvgm 2.11.1
 
 ### Fixed issues

@@ -1,5 +1,5 @@
 /* ptexmac.h: common macros for pdfTeX.
-Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -20,6 +20,16 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PDFTEXMAC
 #  define PDFTEXMAC
 
+#if defined(MIKTEX)
+#  undef generic_dump
+#  define generic_dump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (x))
+#  undef dumpthings
+#  define dumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (a), (n))
+#  undef generic_undump
+#  define generic_undump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (x))
+#  undef undumpthings
+#  define undumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (a), (n))
+#endif
 #  ifdef WIN32
 /* Why relying on gmalloc() ??? */
 #    define gmalloc(n) xmalloc(n)
@@ -218,5 +228,47 @@ size_t          T##_limit
         return -1
 
 #  define str_prefix(s1, s2)  (strncmp((s1), (s2), strlen(s2)) == 0)
+
+/* (un)dumping a string means dumping the allocation size, followed
+ * by the bytes. The trailing \0 is (un)dumped as well, because that
+ * makes the code simpler.
+ */
+
+#define dumpcharptr(a)				\
+  do {						\
+    integer x;					\
+    if (a!=NULL) {				\
+      x = strlen(a)+1;				\
+      generic_dump(x);  dumpthings(*a, x);	\
+    } else {					\
+      x = 0; generic_dump(x);			\
+    }						\
+  } while (0)
+
+#if defined(MIKTEX)
+#define undumpcharptr(s)			\
+  do {						\
+    integer x;					\
+    char *a;					\
+    generic_undump (x);				\
+    if (x>0) {					\
+      a = reinterpret_cast<char*>(xmalloc(x));	\
+      undumpthings(*a,x);			\
+      s = a ;					\
+    } else { s = NULL; }			\
+  } while (0)
+#else
+#define undumpcharptr(s)			\
+  do {						\
+    integer x;					\
+    char *a;					\
+    generic_undump (x);				\
+    if (x>0) {					\
+      a = xmalloc(x);				\
+      undumpthings(*a,x);			\
+      s = a ;					\
+    } else { s = NULL; }			\
+  } while (0)
+#endif
 
 #endif                          /* PDFTEXMAC */

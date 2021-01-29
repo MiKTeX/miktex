@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -451,13 +451,23 @@ static char *make_name(long platform_id, int len)
         *p = (unsigned char) get_char();
         i++;
         if (*p == 0 && platform_id == 3) {
-            /* assume this is an UTF-16BE encoded string but contains english
-             * text, which is the most common case; simply copy the 2nd byte.
-             * Note: will not work for non-ascii text */
+            /* assume this is an UTF-16BE encoded string but contains latin
+             * chars, which is the most common case; simply copy the 2nd byte.
+             * Note: will not work for non-latin text */
             *p = (unsigned char) get_char();
             i++;
         }
-        p++;
+        /* sometime a UTF-16BE string will contain chars where the 1st
+           or 2nd byte is in range (0..32) */
+        if (*p < 32
+            && *p != '\r'
+            && *p != '\n'
+            && *p != '\t'
+           ) {
+            ttf_warn("skipping unsafe character: %i", *p);
+        } else {
+            p++;
+        }
     }
     *p = 0;
 #if defined(MIKTEX)
