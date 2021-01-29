@@ -46,7 +46,10 @@
 #include <miktex/Core/Stream>
 #include <miktex/Core/equal_icase>
 #include <miktex/Core/hash_icase>
+
+#if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/COMInitializer>
+#endif
 
 #include "Fndb/FileNameDatabase.h"
 #include "RootDirectoryInternals.h"

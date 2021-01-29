@@ -31,12 +31,15 @@
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryFile>
-#include <miktex/Core/win/COMInitializer>
 #include <miktex/Extractor/Extractor>
 #include <miktex/Trace/Trace>
 
 #include "PackageManagerImpl.h"
 #include "RepositoryManifest.h"
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/COMInitializer>
+#endif
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 #include "COM/com-internal.h"
