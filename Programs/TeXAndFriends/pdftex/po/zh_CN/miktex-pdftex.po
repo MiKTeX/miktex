@@ -17,13 +17,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: pdftex-miktex.h:219
+#, fuzzy
 msgid "Switch on draft mode (generates no output)."
-msgstr ""
+msgstr "切换到草稿模式(不生成输出)。"
 
 #: pdftex-miktex.h:220
+#, fuzzy
 msgid "Set the output format."
-msgstr ""
+msgstr "设置输出格式。"
 
 #: pdftex-miktex.h:245
+#, fuzzy
 msgid "Unknown output format value."
-msgstr ""
+msgstr "未知的输出格式值。"
