@@ -6,7 +6,7 @@
     <TPM:Title>pmxab and scor2prt, Windows x64</TPM:Title>
     <TPM:Copyright owner="Don Simmons"/>
     <TPM:License type="gpl3"/>
-    <TPM:Version>2.9.4</TPM:Version>
+    <TPM:Version>2.9.4a</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

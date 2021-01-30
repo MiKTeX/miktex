@@ -3040,7 +3040,7 @@ integer ifnodur_(integer *idur, char *dotq, ftnlen dotq_len)
 
     /* Fortran I/O blocks */
     static cilist io___164 = { 0, 6, 0, "(33H Any whole-bar rests of duratio"
-	    "n ,i3,\r                 26H/64 will not be recognized)", 0 };
+	    "n ,i3,                 26H/64 will not be recognized)", 0 };
 
 
 #line 1116 ""
