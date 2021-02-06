@@ -17,23 +17,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: SetupService.cpp:1960
+#, fuzzy
 msgid "The PATH variable does not include the MiKTeX executables."
-msgstr ""
+msgstr "PATH 变量不含有 MiKTeX 可执行文件。"
 
 #: SetupService.cpp:1961
+#, fuzzy
 msgid ""
 "Find the directory which contains the MiKTeX executables and add it to the "
 "environment variable PATH."
 msgstr ""
+"查找 MiKTeX 可执行文件所在的目录并将其添加到 PATH 环境变量。"
 
 #: SetupService.cpp:1976 SetupService.cpp:2008
+#, fuzzy
 msgid "So far, no MiKTeX administrator has checked for updates."
-msgstr ""
+msgstr "截至目前，尚未有 MikTeX 管理员检查更新。"
 
 #: SetupService.cpp:1977 SetupService.cpp:1986 SetupService.cpp:1999
 #: SetupService.cpp:2009 SetupService.cpp:2018
+#, fuzzy
 msgid "Switch to MiKTeX administrator mode and check for updates."
-msgstr ""
+msgstr "切换到 MiKTeX 管理员模式并检查更新。"
 
 #: SetupService.cpp:1985 SetupService.cpp:2017
 msgid ""
@@ -41,8 +46,9 @@ msgid ""
 msgstr ""
 
 #: SetupService.cpp:1998 SetupService.cpp:2037
+#, fuzzy
 msgid "User/administrator updates are out-of-sync."
-msgstr ""
+msgstr "用户/管理员更新未同步。"
 
 #: SetupService.cpp:2028
 msgid "So far, you have not checked for updates as a MiKTeX user."
@@ -58,37 +64,44 @@ msgid ""
 msgstr ""
 
 #: SetupService.cpp:2064
+#, fuzzy
 msgid "So far, you have not checked for MiKTeX updates."
-msgstr ""
+msgstr "截至目前，您尚未检查 MikTeX 更新。"
 
 #: SetupService.cpp:2065 SetupService.cpp:2074
+#, fuzzy
 msgid "Check for MiKTeX updates."
-msgstr ""
+msgstr "检查 MiKTeX 更新。"
 
 #: SetupService.cpp:2073
 msgid "It has been a long time since you have checked for MiKTeX updates."
 msgstr ""
 
 #: SetupService.cpp:2088
+#, fuzzy
 msgid "Root directory #{0} is covered by root directory #{1}."
-msgstr ""
+msgstr "根目录 #{0} 由根目录 #{1} 根目录涵盖。"
 
 #: SetupService.cpp:2097
+#, fuzzy
 msgid "Root directory #{0} covers root directory #{1}."
-msgstr ""
+msgstr "根目录 #{0} 涵盖根目录 #{1}。"
 
 #: SetupService.cpp:2118
 msgid "Package {0} has been tampered with."
 msgstr ""
 
 #: win/winSetupService.cpp:145
+#, fuzzy
 msgid "MiKTeX Console helps you to manage your MiKTeX configuration."
-msgstr ""
+msgstr "MiKTeX Console 帮助您管理您的 MiKTeX 配置。"
 
 #: win/winSetupService.cpp:162
+#, fuzzy
 msgid "TeXworks is a TeX front-end program."
-msgstr ""
+msgstr "TeXworks 是一个 TeX 前端程序。"
 
 #: win/winSetupService.cpp:637
+#, fuzzy
 msgid "MiKTeX is a scalable TeX distribution for Windows, Linux and macOS."
-msgstr ""
+msgstr "MiKTeX 是 Windows、Linux 和 MacOS 的一个可扩展的 TeX 发行版。"
