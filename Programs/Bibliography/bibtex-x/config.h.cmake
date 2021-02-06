@@ -6,6 +6,10 @@
 /* Define to 1 if you have the <assert.h> header file. */
 #cmakedefine HAVE_ASSERT_H 1
 
+/* Define to 1 if you have the declaration of `isascii', and to 0 if you
+   don't. */
+#cmakedefine HAVE_DECL_ISASCII 1
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #cmakedefine HAVE_DIRENT_H 1
@@ -64,9 +68,6 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
 
-/* Define to 1 if you have the `strcasecmp' function. */
-#cmakedefine HAVE_STRCASECMP 1
-
 /* Define to 1 if you have the `strchr' function. */
 #cmakedefine HAVE_STRCHR 1
 
@@ -78,12 +79,6 @@
 
 /* Define to 1 if you have the `strrchr' function. */
 #cmakedefine HAVE_STRRCHR 1
-
-/* Define to 1 if you have the `strstr' function. */
-#cmakedefine HAVE_STRSTR 1
-
-/* Define to 1 if you have the `strtol' function. */
-#cmakedefine HAVE_STRTOL 1
 
 /* Define to 1 if `st_mtim' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT_ST_MTIM 1
@@ -113,7 +108,7 @@
 #cmakedefine LT_OBJDIR
 
 /* Define to the address where bug reports for this package should be sent. */
-#cmakedefine PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT "https://miktex.org/support"
 
 /* Define to the full name of this package. */
 #cmakedefine PACKAGE_NAME
@@ -132,6 +127,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
+
+/* Define to the current TeX Live version string. */
+#define TL_VERSION "${MIKTEX_PRODUCTNAME_STR} ${MIKTEX_DISPLAY_VERSION_STR}"
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE

@@ -63,6 +63,7 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old_par == 0))
 #define is_old_mathfont(A,B) ((font_math_params(A)==0) && (font_params(A)>=(B)))
 #define do_new_math(A)       ((font_math_params(A) >0) && (font_oldmath(A) == 0) && (math_old_par == 0))
+#define protect_glyph(A)     subtype(A)=256
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
@@ -1149,6 +1150,7 @@ static pointer char_box(internal_font_number f, int c, pointer bb)
     subtype(b) = math_char_list ;
     reset_attributes(b, bb);
     p = new_glyph(f, c);
+    protect_glyph(p);
     reset_attributes(p, bb);
     list_ptr(b) = p;
     return b;
@@ -1649,13 +1651,18 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             if (same != NULL && x == c) {
                 *same = emas;
             }
+            /*tex
+                Here italic is added to width in traditional fonts which makes the delimiter get
+                the real width. An \OPENTYPE\ font already has the right width.
+            */
             b = char_box(f, c, att);
-            if (!do_new_math(f)) {
-                /*tex Italic gets added to width. */
-                width(b) += char_italic(f, c);
-            }
+            /*tex
+                There is one case where |delta| (ic) gets subtracted but only for a traditional
+                font. In that case the traditional width (which is fake width + italic) becomes
+                less and the delta is added. See (**). (On the mailing list font |ntxexx| was
+                mentioned as test case by MK.)
+            */
             if (delta != NULL) {
-                /*tex This used to be (f, x). */
                 *delta = char_italic(f, c);
             }
             if (stack != NULL)
@@ -3082,9 +3089,18 @@ static scaled make_op(pointer q, int cur_style)
                 x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta, NULL);
                 if (delta != 0) {
                     if (do_new_math(cur_f)) {
-                        /*tex we never added italic correction */
+                        /*tex
+                            As we never added italic correction we don't need to compensate. The ic
+                            is stored in a special field of the node and applied in some occasions.
+                        */
                     } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
-                        /*tex remove italic correction */
+                        /*tex
+                            Here we (selectively) remove the italic correction that always gets added
+                            in a traditional font. See (**). In \OPENTYPE\ mode we insert italic kerns,
+                            but in traditional mode it's width manipulation. This actually makes sense
+                            because those fonts have a fake width and the italic correction sets that
+                            right.
+                        */
                         width(x) -= delta;
                     }
                 }
@@ -4261,6 +4277,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
                     *delta = char_italic(cur_f, cur_c);
                 }
                 p = new_glyph(cur_f, cur_c);
+                protect_glyph(p);
                 reset_attributes(p, node_attr(nucleus(q)));
                 if (do_new_math(cur_f)) {
                     if (get_char_cat_code(cur_c) == 11) {

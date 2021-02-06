@@ -104,17 +104,20 @@ int main(int argc, char *argv[]) {
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    DPI = atof(argv[0]);
 	    done = 1;
       	    break;
+invalid:
       	 default:
       	    fatal("%s: %c invalid option\n", myname, c);
       	 }
       }
 
    if (argc < 1) {
-      msg  ("mag (ps2pk) version " PACKAGE_VERSION "\n");
-      fatal("Usage: %s [-r] [-Rdpi] size . . .\n", myname);
+      msg  ("mag (ps2pk) version " PACKAGE_VERSION " (" TL_VERSION ")\n");
+      msg  ("Usage: %s [-r] [-Rdpi] size . . .\n", myname);
+      fatal("\nEmail bug reports to %s.\n", PACKAGE_BUGREPORT);
    }
    
 #ifdef WIN32

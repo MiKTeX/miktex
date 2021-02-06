@@ -64,18 +64,21 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--;  argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
       	    C = *argv[0];
       	    done = 1; break;
       	 case 'o':
       	    if (*++argv[0] == '\0') {
       	       argc--;  ++argv;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
       	    C = atoo(argv[0]);
       	    done = 1; break;
       	 case 'H':
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
       	    h = atoi(argv[0]);
             done=1;
       	    break;
@@ -83,6 +86,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
       	    w = atoi(argv[0]);
 	    done=1;
       	    break;
@@ -92,6 +96,7 @@ int main(int argc, char *argv[])
       	 case 'h':
       	    hexmap = 1;
       	    break;
+invalid:
       	 default:
       	    printf("%s: %c invalid option\n", myname, c);
       	    exit(1);
@@ -99,9 +104,9 @@ int main(int argc, char *argv[])
    }
 
    if (argc == 0) {
-       msg  ("pk2bm (ps2pk) version " PACKAGE_VERSION "\n");
-      printf("Usage: %s [-bh] {-c char|-o octchar} [-W width -H height] pkfile\n", myname);
-      exit(1);
+       msg  ("pk2bm (ps2pk) version " PACKAGE_VERSION " (" TL_VERSION ")\n");
+       msg  ("Usage: %s [-bh] {-c char|-o octchar} [-W width -H height] pkfile\n", myname);
+       fatal("\nEmail bug reports to %s.\n", PACKAGE_BUGREPORT);
    }
 
 #ifdef WIN32

@@ -124,6 +124,7 @@ extern void print_csnames(int hstart, int hfinish);
 extern void print_file_line(void);
 
 extern void begin_diagnostic(void);
+extern void print_input_level(void);
 extern void end_diagnostic(boolean blank_line);
 extern int global_old_setting;
 

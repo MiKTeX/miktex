@@ -358,65 +358,96 @@ parse_pdf_reference (const char **start, const char *end, void *user_data)
   return result;
 }
 
+/* pdffontattr */
 #include "pdffont.h"
 
-static int
-spc_handler_pdffontattr (struct spc_env *spe, struct spc_arg *args)
-{
-  pdf_obj *fontdict, *fontattr;
-  char    *ident   = NULL;
-  int      font_id = -1;
-  double   size    = 0.0;
+struct fontattr {
+  char    *ident;
+  double   size;
+  pdf_obj *attr;
+};
 
-  skip_white(&args->curptr, args->endptr);
-  if (args->curptr >= args->endptr) {
+struct fontattr *fontattrs = NULL;
+int num_fontattrs = 0;
+int max_fontattrs = 0;
+
+static int
+process_fontattr (const char *ident, double size, pdf_obj *attr)
+{
+  int      font_id;
+  pdf_obj *fontdict;
+
+  ASSERT(ident && attr);
+
+  font_id = pdf_font_findresource(ident, size);
+  if (font_id < 0) {
+    WARN("Could not find specified font resource: %s (%gpt)", ident, size);
     return -1;
   }
 
-  ident = parse_ident(&args->curptr, args->endptr);
+  fontdict = pdf_get_font_resource(font_id);
+  if (!fontdict) {
+    WARN("Specified object not exist: %s (%gpt)", ident, size);
+    return  -1;
+  }
+  
+  pdf_merge_dict(fontdict, attr);
+
+  return 0;
+}
+
+static int
+spc_handler_pdffontattr (struct spc_env *spe, struct spc_arg *ap)
+{
+  struct fontattr *fontattr;
+  char            *ident = NULL;
+  double           size  = 0.0;
+  pdf_obj         *attr  = NULL;
+
+  skip_white(&ap->curptr, ap->endptr);
+  if (ap->curptr >= ap->endptr)
+    return -1;
+
+  ident = parse_ident(&ap->curptr, ap->endptr);
   if (!ident) {
     spc_warn(spe, "Missing a font name.");
     return -1;
   }
-  skip_white(&args->curptr, args->endptr);
+  skip_white(&ap->curptr, ap->endptr);
 
-  if (args->curptr < args->endptr && args->curptr[0] != '<') {
-    char *fontscale = parse_float_decimal(&args->curptr, args->endptr);
-    if (fontscale) {
-      size = atof(fontscale);
-      RELEASE(fontscale);
-      skip_white(&args->curptr, args->endptr);
-    } else {
-      spc_warn(spe, "A number expected but not found.");
+  if (ap->curptr < ap->endptr && ap->curptr[0] != '<') {
+    int error = dpx_util_read_length(&size, 1.0, &ap->curptr, ap->endptr);
+    if (error) {
+      spc_warn(spe, "Font size expected but not found.");
       RELEASE(ident);
       return -1;
     }
+    skip_white(&ap->curptr, ap->endptr);
   }
 
-  font_id = pdf_font_findresource(ident, size*(72.0/72.27));
-  if (font_id < 0) {
-    spc_warn(spe, "Could not find specified font resource: %s (%gpt)", ident, size);
+  attr = parse_pdf_object_extended(&ap->curptr, ap->endptr, NULL, parse_pdf_reference, spe);
+  if (!attr) {
+    spc_warn(spe, "Failed to parse a PDF dictionary object: %s", ident);
     RELEASE(ident);
     return -1;
-  }
-    
-  fontdict = pdf_get_font_resource(font_id);
-  if (!fontdict) {
-    spc_warn(spe, "Specified object not exist: %s (%gpt)", ident, size);
+  } else if (!PDF_OBJ_DICTTYPE(attr)) {
+    spc_warn(spe, "PDF dict expected but non-dict object found: %s", ident);
     RELEASE(ident);
-    return  -1;
-  }
-
-  fontattr = parse_pdf_object_extended(&args->curptr, args->endptr, NULL, parse_pdf_reference, spe);
-  if (!fontattr) {
-    spc_warn(spe, "Failed to parse a PDF dictionary object...");
-    RELEASE(ident);
+    pdf_release_obj(attr);
     return -1;
   }
+  skip_white(&ap->curptr, ap->endptr);
 
-  pdf_merge_dict(fontdict, fontattr);
-  pdf_release_obj(fontattr);
-  RELEASE(ident);
+  if (num_fontattrs >= max_fontattrs) {
+    fontattrs = RENEW(fontattrs, max_fontattrs + 256, struct fontattr);
+    max_fontattrs += 256;
+  }
+  fontattr = &fontattrs[num_fontattrs];
+  num_fontattrs += 1;
+
+  fontattr->ident = ident;
+  fontattr->size  = size;
+  fontattr->attr  = attr;
 
   return 0;
 }
@@ -425,13 +456,34 @@ int
 spc_misc_at_begin_document (void)
 {
   struct spc_stack *sd = &spc_stack;
-  return  pdfcolorstack__init(sd);
+
+  if (!fontattrs) {
+    fontattrs = NEW(256, struct fontattr);
+    num_fontattrs = 0;
+    max_fontattrs = 256;
+  }
+
+  return pdfcolorstack__init(sd);
 }
 
 int
 spc_misc_at_end_document (void)
 {
   struct spc_stack *sd = &spc_stack;
+
+  if (fontattrs) {
+    int i;
+
+    for (i = 0; i < num_fontattrs; i++) {
+      process_fontattr(fontattrs[i].ident, fontattrs[i].size, fontattrs[i].attr);
+      RELEASE(fontattrs[i].ident);
+      pdf_release_obj(fontattrs[i].attr);
+    }
+    RELEASE(fontattrs);
+    fontattrs = NULL;
+    max_fontattrs = num_fontattrs = 0;
+  }
+
   return pdfcolorstack__clean(sd);
 }
 

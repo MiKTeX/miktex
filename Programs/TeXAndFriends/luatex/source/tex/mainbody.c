@@ -237,6 +237,14 @@ int strings_free;
 int font_k;
 
 /*tex
+    putting a character in front of a macro trace (feature suggested by PO on
+    tex implementor list
+*/
+
+int level_max;
+int level_chr;
+
+/*tex
     maximum number of characters simultaneously present in current lines of open
     files and in control sequences between \.{\\csname} and \.{\\endcsname}; must
     not exceed |max_halfword|
@@ -378,6 +386,8 @@ int main_initialize(void)
     setup_bound_var(0, "hash_extra", hash_extra);
     setup_bound_var(72, "pk_dpi", pk_dpi);
     setup_bound_var(10000, "expand_depth", expand_depth);
+    setup_bound_var(0, "level_max", level_max);
+    setup_bound_var('.', "level_chr", level_chr);
     /*tex
         Check other constants against their sup and inf.
     */

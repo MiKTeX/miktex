@@ -2093,7 +2093,8 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 */
                 s = match_token + cur_chr;
                 get_token();
-                if (cur_cmd == left_brace_cmd) {
+             /* if (cur_cmd == left_brace_cmd) { */
+                if (cur_tok < left_brace_limit) {
                     hash_brace = cur_tok;
                     store_new_token(cur_tok);
                     store_new_token(end_match_token);
@@ -2101,7 +2102,10 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 }
                 if (t == nine_token) {
                     print_err("You already have nine parameters");
-                    help1("I'm going to ignore the # sign you just used.");
+                    help2(
+                        "I'm going to ignore the # sign you just used,",
+                        "as well as the token that followed it."
+                    );
                     error();
                 } else {
                     incr(t);

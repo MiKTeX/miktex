@@ -1087,7 +1087,7 @@ void parse_cmd_line (int argc, char **argv)
             case 'v':       /**************** -v, --version ************/
                 FPRINTF (TERM_OUT, "%s\n", BANNER);
                 FPRINTF (TERM_OUT, "Implementation:  %s\n", IMPLEMENTATION);
-                FPRINTF (TERM_OUT, "Release version: %s\n", VERSION);
+                FPRINTF (TERM_OUT, "Release version: %s (%s)\n", VERSION, TL_VERSION);
 #ifdef UTF_8
                 {
                     UVersionInfo icuVersion;
@@ -1573,6 +1573,7 @@ void usage (const char *printf_fmt, ...)
     FSO ("  -W  --wolfgang          same as --mstrings 30000\n");
     FSO ("  -M  --min_crossrefs ##  set min_crossrefs to ##\n");
     FSO ("      --mstrings ##       allow ## unique strings\n");
+    FSO ("\nEmail bug reports to " PACKAGE_BUGREPORT ".\n");
 
     debug_msg (DBG_MISC, "calling longjmp (Exit_Program_Flag) ... ");
     longjmp (Exit_Program_Flag, 1);

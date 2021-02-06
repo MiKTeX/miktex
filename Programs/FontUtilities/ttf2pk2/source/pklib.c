@@ -6,6 +6,9 @@
  *   Copyright 1997-1999, 2000 by
  *     Frederic Loyer <loyer@ensta.fr>
  *     Werner Lemberg <wl@gnu.org>
+ *
+ *   Trivial declaration change in 2020 by
+ *     Karl Berry <tex-live@tug.org>
  */
 
 /*
@@ -64,10 +67,7 @@
 #define PK_POST (char)245
 #define PK_NOP  (char)246
 
-#if defined(MIKTEX)
-extern
-#endif
-int dpi;
+extern int dpi; /* defined in ftlib.c, avoiding -fno-common failure */
 
 FILE *pk_file;
 

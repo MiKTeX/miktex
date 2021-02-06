@@ -119,7 +119,7 @@
 #cmakedefine LT_OBJDIR
 
 /* Define to the address where bug reports for this package should be sent. */
-#cmakedefine PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT "https://miktex.org/support"
 
 /* Define to the full name of this package. */
 #cmakedefine PACKAGE_NAME
@@ -138,6 +138,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
+
+/* Define to the current TeX Live version string. */
+#define TL_VERSION "${MIKTEX_PRODUCTNAME_STR} ${MIKTEX_DISPLAY_VERSION_STR}"
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE

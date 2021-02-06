@@ -654,7 +654,8 @@ void macro_call(void)
     if (tracing_macros_par > 0) {
         /*tex Show the text of the macro being expanded. */
         begin_diagnostic();
-        print_ln();
+        print_input_level();
+     // print_ln();
         print_cs(warning_index);
         token_show(ref_count);
         end_diagnostic(false);
@@ -894,7 +895,9 @@ void macro_call(void)
                 incr(n);
                 if (tracing_macros_par > 0) {
                     begin_diagnostic();
-                    print_nl(match_chr);
+                    print_input_level();
+                 // print_nl(match_chr);
+                    print(match_chr);
                     print_int(n);
                     tprint("<-");
                     show_token_list(pstack[n - 1], null, 1000);

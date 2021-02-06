@@ -50,8 +50,9 @@ int main (int argc, char *argv[])
       }
 
    if (argc < 1) {
-     msg  ("pfb2pfa (ps2pk) version " PACKAGE_VERSION "\n");
-     fatal("Usage: %s [-v] pfbfile [pfafile]\n", myname);
+     msg  ("pfb2pfa (ps2pk) version " PACKAGE_VERSION " (" TL_VERSION ")\n");
+     msg  ("Usage: %s [-v] pfbfile [pfafile]\n", myname);
+     fatal("\nEmail bug reports to %s.\n", PACKAGE_BUGREPORT);
    }
    
    pfbname = argv[0]; argc--; argv++;

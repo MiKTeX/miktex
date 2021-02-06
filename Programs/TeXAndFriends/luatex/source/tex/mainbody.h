@@ -68,6 +68,11 @@ in production versions of \TeX.
 #  define inf_expand_depth   100
 #  define sup_expand_depth   10000000
 
+#  define inf_level_max     0
+#  define sup_level_max   500
+
+#  define inf_level_chr     1
+#  define sup_level_chr   126
 
 #  include <stdio.h>
 
@@ -125,6 +130,8 @@ extern int error_line;
 extern int half_error_line;
 extern int max_print_line;
 extern int max_strings;
+extern int level_max;
+extern int level_chr;
 extern int strings_free;
 extern int font_k;
 extern int buf_size;

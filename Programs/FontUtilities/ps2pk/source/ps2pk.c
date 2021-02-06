@@ -2,20 +2,20 @@
  * NAME
  *	ps2pk - creates a PK font from a type1 PostScript font
  * SYNOPSIS:
- *	pk2pk [options] type1 [pkname]
+ *	ps2pk [options] type1 [pkname]
  * DESCRIPTION
  *	This program renders a given type1 PostScript font at a given
  *	pointsize (default 10.0 points) and resolution (default 300dpi)
  *      into a TeX PK font.
  *
- *      To generate the PK font pk2ps needs a valid type1 fontname (for
+ *      To generate the PK font ps2pk needs a valid type1 fontname (for
  *      example Utopia-Regular.pfa) and its corresponding AFMfile
  *	(Utopia-Regular.afm). The program accepts both the MSDOS binary
  *	type1 format (Utopia-Regula.pfb) and its UNIX ASCII equivalent
  *	(Utopia-Regula.pfa). The resulting PK font does contain all
  *	characters for which the C-code is non negative. This can be
  *	overruled by specifying an explicit <encoding> via the -e<encoding>
- *	option. Character codes in AMF files are specified as integer values
+ *	option. Character codes in AFM files are specified as integer values
  *	after the C, for example Utopia-Regular.afm provides:
  *	   C 251 ; WX 601 ; N germandbls ; B 22 -12 573 742 ;
  *	   C  -1 ; WX 380 ; N onesuperior ; B 81 272 307 680 ;
@@ -269,6 +269,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    afmname = argv[0]; 
 	    done = 1;
       	    break;
@@ -279,6 +280,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    encname = argv[0]; 
 	    add_option("-e", encname);
 	    done = 1;
@@ -287,6 +289,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    efactor = atof(argv[0]);
 	    add_option("-E", argv[0]);
 	    done = 1;
@@ -299,6 +302,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    pointsize = atof(argv[0]); 
 	    add_option("-P", argv[0]);
 	    done = 1;
@@ -307,6 +311,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    base_resolution = atoi(argv[0]); 
 	    add_option("-R", argv[0]);
 	    done = 1;
@@ -315,6 +320,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    slant = atof(argv[0]);
 	    add_option("-S", argv[0]);
 	    done = 1;
@@ -323,6 +329,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    x_resolution = atoi(argv[0]); done = 1;
 	    if (y_resolution == 0) y_resolution = x_resolution;
 	    add_option("-X", argv[0]);
@@ -331,6 +338,7 @@ int main(int argc, char *argv[])
       	    if (*++argv[0] == '\0') {
       	       argc--; argv++;
       	    }
+      	    if (argv[0] == NULL) goto invalid;
 	    y_resolution = atoi(argv[0]); done = 1;
 	    if (x_resolution == 0) x_resolution = y_resolution;
 	    add_option("-Y", argv[0]);
@@ -338,16 +346,18 @@ int main(int argc, char *argv[])
       	 case 'v':
       	    verbose = 1;
 	    break;
+invalid:
       	 default:
       	    fatal("%s: %c invalid option\n", myname, c);
       	 }
       }
 
    if (argc < 1 || argc >2) {
-      msg  ("ps2pk version " PACKAGE_VERSION " (1992-2016)\n");
+      msg  ("ps2pk version " PACKAGE_VERSION " (" TL_VERSION ")\n");
       msg  ("Usage: %s [options] type1font [pkname]\n", myname);
       msg  ("options: -d -v -e<enc> -X<xres> -E<expansion> -S<slant>\n");
-      fatal("options: -O -P<pointsize> -Y<yres> -a<AFM> -R<baseres>\n");
+      msg  ("options: -O -P<pointsize> -Y<yres> -a<AFM> -R<baseres>\n");
+      fatal("\nEmail bug reports to %s.\n", PACKAGE_BUGREPORT);
    }
 
    psname = argv[0]; argc--; argv++;

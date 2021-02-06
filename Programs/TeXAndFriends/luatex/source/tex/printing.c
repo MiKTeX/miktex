@@ -1309,6 +1309,34 @@ void end_diagnostic(boolean blank_line)
     selector = global_old_setting;
 }
 
+/*
+    Indentation (based on a suggestion by PO on tex-implementors but adapted to
+    out situation and with built-in limits and so.
+*/
+
+void print_input_level(void)
+{
+    int m = level_max;
+    if (m) {
+        int l = input_ptr;
+        int c = level_chr > 0 ? level_chr : '.';
+        if (l > m) {
+            tprint_nl("[");
+            print_int((l/m)*m);
+            print(']');
+            l = l % m;
+        } else {
+            print_ln();
+        }
+        while (l > 0) {
+           print(c);
+           l--;
+        }
+    } else {
+        print_ln();
+    }
+}
+
 /*tex
 
 Of course we had better declare another global variable, if the previous routines
