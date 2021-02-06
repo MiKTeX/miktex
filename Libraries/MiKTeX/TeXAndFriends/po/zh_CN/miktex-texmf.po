@@ -17,8 +17,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: etexapp.cpp:85
+#, fuzzy
 msgid "Enable e-TeX extensions."
-msgstr ""
+msgstr "启用 e-TeX 扩展。"
 
 #: mfapp.cpp:79 mfapp.cpp:80 mfapp.cpp:81 texapp.cpp:145 texapp.cpp:150
 #: texapp.cpp:160 texapp.cpp:168 texapp.cpp:190 texapp.cpp:197 texapp.cpp:201
@@ -26,16 +27,18 @@ msgstr ""
 #: texmfapp.cpp:302 texmfapp.cpp:313 texmfapp.cpp:314 texmfapp.cpp:315
 #: texmfapp.cpp:318 texmfapp.cpp:323 texmfapp.cpp:326 texmfapp.cpp:329
 #: texmfapp.cpp:332
+#, fuzzy
 msgid "Set {0} to N."
-msgstr ""
+msgstr "设置 {0} 为 N。"
 
 #: texapp.cpp:136
 msgid "Disable the \\write18{COMMAND} construct."
 msgstr ""
 
 #: texapp.cpp:139
+#, fuzzy
 msgid "Enable MLTeX extensions such as \\charsubdef."
-msgstr ""
+msgstr "启用 MLTeX 扩展，例如 \\charsubdef。"
 
 #: texapp.cpp:142
 msgid "Enable the \\write18{COMMAND} construct."
@@ -94,8 +97,9 @@ msgid ""
 msgstr ""
 
 #: texmfapp.cpp:303
+#, fuzzy
 msgid "Stop after the first error."
-msgstr ""
+msgstr "第一次出错后停止。"
 
 #: texmfapp.cpp:307
 msgid "Be the INI variant of the program."
@@ -140,8 +144,9 @@ msgid ""
 msgstr ""
 
 #: texmfapp.cpp:330
+#, fuzzy
 msgid "Disable MiKTeX extensions."
-msgstr ""
+msgstr "禁用 MikTeX 扩展。"
 
 #: texmfapp.cpp:333
 msgid "Show processing time statistics."
@@ -162,8 +167,9 @@ msgid "The specified auxiliary directory does not exist."
 msgstr ""
 
 #: texmfapp.cpp:464
+#, fuzzy
 msgid "Invalid interaction mode."
-msgstr ""
+msgstr "无效的交互模式。"
 
 #: texmfapp.cpp:483
 msgid "Missing timestamp."
@@ -174,16 +180,19 @@ msgid "The specified output directory does not exist."
 msgstr ""
 
 #: texmfapp.cpp:717
+#, fuzzy
 msgid "The memory dump file could not be found."
-msgstr ""
+msgstr "未能找到内存转储文件。"
 
 #: texmflib.cpp:80
+#, fuzzy
 msgid "The font file could not be found."
-msgstr ""
+msgstr "未能找到该字体文件。"
 
 #: webapp.cpp:205
+#, fuzzy
 msgid "Invalid command-line. Try this:\n"
-msgstr ""
+msgstr "无效的命令行。尝试此操作：\n"
 
 #: webapp.cpp:263
 msgid ""
@@ -203,8 +212,9 @@ msgid "Enable the package installer.  Missing files will be installed."
 msgstr ""
 
 #: webapp.cpp:266
+#, fuzzy
 msgid "Show this help screen and exit."
-msgstr ""
+msgstr "显示此帮助屏幕并退出。"
 
 #: webapp.cpp:267
 msgid "Prefix DIR to the input search path."
@@ -233,12 +243,14 @@ msgid "OPTIONS"
 msgstr ""
 
 #: webapp.cpp:271
+#, fuzzy
 msgid "Turn on verbose mode."
-msgstr ""
+msgstr "开启详细模式。"
 
 #: webapp.cpp:272
+#, fuzzy
 msgid "Print version information and exit."
-msgstr ""
+msgstr "打印版本信息并退出。"
 
 #: webapp.cpp:276
 msgid ""
@@ -247,5 +259,6 @@ msgid ""
 msgstr ""
 
 #: webapp.cpp:380
+#, fuzzy
 msgid "The command line options could not be processed."
-msgstr ""
+msgstr "无法处理命令行选项。"
