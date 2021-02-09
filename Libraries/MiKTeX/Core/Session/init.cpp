@@ -1002,7 +1002,7 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
       gsDirectories.push_back(gsDir.ToString());
     }
   }
-  MIKTEX_ASSERT(!gsDirectories.Empty());
+  MIKTEX_ASSERT(!gsDirectories.empty());
 
 #if defined(MIKTEX_WINDOWS)
   envMap["MIKTEX_GS_LIB"] = StringUtil::Flatten(gsDirectories, PathNameUtil::PathNameDelimiter);
