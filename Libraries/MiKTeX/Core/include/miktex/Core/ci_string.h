@@ -58,7 +58,7 @@ namespace std
     size_t operator()(const MiKTeX::Core::ci_string& str) const
     {
       // see http://www.isthe.com/chongo/tech/comp/fnv/index.html
-#if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
+#if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(__arch64__)
       MIKTEX_ASSERT(sizeof(size_t) == 8);
       const size_t FNV_prime = 1099511628211ULL;
       const size_t offset_basis = 14695981039346656037ULL;
