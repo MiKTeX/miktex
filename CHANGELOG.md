@@ -6,6 +6,10 @@
 
 The MiKTeX Console user interface has been translated to Simplified Chinese.
 
+### New programs
+
+- xml2pmx 2021-02-07
+
 ### Upgraded programs
 
 * dvipdfmx 20210124

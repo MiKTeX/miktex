@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2020 Christian Schenk
+## Copyright (C) 2015-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -134,6 +134,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-uriparser-bin.tpm.in
     windows-x86/miktex-web-bin.tpm.in
     windows-x86/miktex-xetex-bin.tpm.in
+    windows-x86/miktex-xml2pmx-bin.tpm.in
     windows-x86/miktex-yap-bin.tpm.in
     windows-x86/miktex-zlib-bin.tpm.in
     windows-x86/miktex-zzip-bin.tpm.in
@@ -231,6 +232,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-uriparser-bin-x64.tpm.in
     windows-x64/miktex-web-bin-x64.tpm.in
     windows-x64/miktex-xetex-bin-x64.tpm.in
+    windows-x64/miktex-xml2pmx-bin-x64.tpm.in
     windows-x64/miktex-yap-bin-x64.tpm.in
     windows-x64/miktex-zlib-bin-x64.tpm.in
     windows-x64/miktex-zzip-bin-x64.tpm.in
