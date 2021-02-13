@@ -401,7 +401,7 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
 size_t PathName::GetHash() const
 {
   // see http://www.isthe.com/chongo/tech/comp/fnv/index.html
-#if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
+#if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(__arch64__)
   const size_t FNV_prime = 1099511628211;
   const size_t offset_basis = 14695981039346656037ull;
 #else

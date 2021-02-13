@@ -326,7 +326,7 @@ bool Utils::GetUncRootFromPath(const PathName& path, PathName& uncRoot)
 
 bool Utils::GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix)
 {
-  MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(suffix));
+  MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(suffix.GetData()));
 
   PathName path_(path);
   PathName suffix_(suffix);
