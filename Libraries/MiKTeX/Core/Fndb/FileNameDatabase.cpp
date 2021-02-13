@@ -138,7 +138,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
   trace_fndb->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathpattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
 
   MIKTEX_ASSERT(result.size() == 0);
-  MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(relativePath));
+  MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(relativePath.GetData()));
   MIKTEX_ASSERT(!IsExplicitlyRelativePath(relativePath.GetData()));
 
   PathName dir = relativePath.GetDirectoryName();

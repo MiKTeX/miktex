@@ -40,7 +40,7 @@ public:
   std::size_t operator() (const std::string& str) const
   {
     // see http://www.isthe.com/chongo/tech/comp/fnv/index.html
-#if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
+#if defined(_M_AMD64) || defined(_M_X64) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(__aarch64__)
     MIKTEX_ASSERT(sizeof(std::size_t) == 8);
     const std::size_t FNV_prime = 1099511628211ULL;
     const std::size_t offset_basis = 14695981039346656037ULL;

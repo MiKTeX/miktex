@@ -599,7 +599,7 @@ void Application::Finalize()
 
 void Application::ReportLine(const string& str)
 {
-  MIKTEX_ASSERT(logger != nullptr);
+  MIKTEX_ASSERT(pimpl->logger != nullptr);
   LOG4CXX_INFO(pimpl->logger, "mpm: " << str);
   if (!GetQuietFlag())
   {

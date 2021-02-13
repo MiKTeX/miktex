@@ -1145,7 +1145,7 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
 
 bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string& value, CfgImpl::PutMode& putMode)
 {
-  MIKTEX_ASSERT(!line.empty() && (IsAlNum(line[0]) || line[0] == '.'));
+  MIKTEX_ASSERT(!line.empty() && (isalnum(line[0]) || line[0] == '.'));
 
   size_t posEqual = line.find('=');
 
