@@ -1480,7 +1480,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
-  { MIKTEX_XML2PMX_EXE, { "xml2pmx" } },
+  { MIKTEX_PREFIX "xml2pmx" MIKTEX_EXE_FILE_SUFFIX, { "xml2pmx" } },
 #if defined(WITH_RUNGS)
   { MIKTEX_RUNGS_EXE, { "rungs" } },
 #endif
