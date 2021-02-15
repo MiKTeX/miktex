@@ -1,4 +1,4 @@
-This is METAFONT, Version 2.7182818 (preloaded base=trap 2014.1.7)  7 JAN 2014 18:11
+This is METAFONT, Version 2.71828182 (preloaded base=trap 1776.7.4)  4 JUL 1776 12:00
 ** &trap  trap
 (trap.mf
 {if}
@@ -161,7 +161,7 @@ true-or-false value. I'm changing it to `false'.
                    path
 l.25 path
           p[][]p,w,qw; qw=(1,-2)..(2,-1)..(2.5,0.5)..(1,2)..(...
-After `exitif <boolean exp>' I expect to see a semicolon.
+After `exitif <boolean expr>' I expect to see a semicolon.
 I shall pretend that one was there.
 
 {pair}
@@ -1822,7 +1822,7 @@ row -2: | -4+ -3- -2+ -1-
 
 {showstats}
 Memory usage 1084&202 (749 still untouched)
-String usage 24&92 (858&11309 still untouched)
+String usage 24&92 (859&11353 still untouched)
 {addto}
 {(path)yscaled(0.01666)}
 Path at line 82, before subdivision into octants:
@@ -3046,7 +3046,7 @@ For safety's sake I'll ignore the present command.
                    substring
 l.124 ...aderbyte(48.5)substring
                                 (-9,9)of"long"; for\=0:\
-A colon should follow a headerbyte or fontinfo location.
+A colon should follow a headerbyte or fontdimen location.
 
 {-(9)}
 {((-9,9))substring("long")}
@@ -3690,9 +3690,9 @@ XPR1)+2)-(1,(EXPR1)+2)rotated90
 alpha=0.45p3~+7
 {tracingcapsules:=1}
 {showdependencies}
-xpart %CAPSULE1359=xx
-%CAPSULE1367=2yy-2
-%CAPSULE1375 = 3.3333xx+3.3333
+xpart %CAPSULE1370=xx
+%CAPSULE1378=2yy-2
+%CAPSULE1386 = 3.3333xx+3.3333
 alpha=0.45p3~+7
 {show}
 {(1/3)*((3,6))}
@@ -3752,62 +3752,62 @@ o4=0.44444o2+0.88889o1
 o5=0.44444o2+0.88889o1
 oo=1.7o2+1.6o1-18
 %CAPSULE382 = 3ooo-0.01o3
-xpart %CAPSULE1049 = 8000o2-4000o1+1000o3+9
-xpart %CAPSULE1383=xpart '
-ypart %CAPSULE1383=ypart '
+xpart %CAPSULE604 = 8000o2-4000o1+1000o3+9
+xpart %CAPSULE1394=xpart '
+ypart %CAPSULE1394=ypart '
 alpha=0.45p3~+7
 {numeric}
-### 4000o1 = -xpart %CAPSULE1049+8000o2+1000o3+9
-### -4.87383o2 = -oo-0.0004xpart %CAPSULE1049+0.39673o3-17.99643
+### 4000o1 = -xpart %CAPSULE604+8000o2+1000o3+9
+### -4.87383o2 = -oo-0.0004xpart %CAPSULE604+0.39673o3-17.99643
 #### o6=-0.00027
 ### -0.04366o3 = -o4+0.46689oo+8.40439
 ### -o4 = -o5
 ### 0.22894o5 = -%CAPSULE382+0.10689oo+3ooo+1.92412
 {begingroup}
 {pair}
-### -alfa=-xpart %CAPSULE1494
+### -alfa=-xpart %CAPSULE368
 {endgroup}
-{xpart((xpart %CAPSULE1494,0))}
-### -xpart %CAPSULE17=-%CAPSULE1176
+{xpart((xpart %CAPSULE368,0))}
+### -xpart %CAPSULE17=-%CAPSULE1376
 {endgroup}
-{(%CAPSULE382)+(%CAPSULE1176)}
-### -%CAPSULE382=-%CAPSULE1893+%CAPSULE1176
-### -%CAPSULE1893=-ypart %CAPSULE1049
+{(%CAPSULE382)+(%CAPSULE1376)}
+### -%CAPSULE382=-%CAPSULE1364+%CAPSULE1376
+### -%CAPSULE1364=-ypart %CAPSULE604
 {begingroup}
 {save}
 {(1)-(p$)}
 {restoring p}
-### p$=-ypart %CAPSULE604+1
+### p$=-ypart %CAPSULE1360+1
 {endgroup}
-{(2/3)*((-ypart %CAPSULE604+1,ypart %CAPSULE604))}
-### ypart %CAPSULE604=-xpart %CAPSULE604+1
-### -0.66667xpart %CAPSULE604=-xpart %CAPSULE1889
-{-((xpart %CAPSULE1889,-xpart %CAPSULE1889+0.66667))}
-### xpart %CAPSULE1889=-xpart %CAPSULE1172
-{((xpart %CAPSULE1049,ypart %CAPSULE1049))=((xpart %CAPSULE1172,-xpart %
-CAPSULE1172-0.66667))}
-## xpart %CAPSULE1172=-ypart %CAPSULE1049-0.66667
-## ypart %CAPSULE1049=-xpart %CAPSULE1049-0.66667
-### -xpart %CAPSULE1049=-xpart %CAPSULE1172
-{((xpart ',ypart '))=((xpart %CAPSULE1172,-xpart %CAPSULE1172-0.66667))}
-## xpart %CAPSULE1172=-ypart '-0.66667
+{(2/3)*((-ypart %CAPSULE1360+1,ypart %CAPSULE1360))}
+### ypart %CAPSULE1360=-xpart %CAPSULE1360+1
+### -0.66667xpart %CAPSULE1360=-xpart %CAPSULE1744
+{-((xpart %CAPSULE1744,-xpart %CAPSULE1744+0.66667))}
+### xpart %CAPSULE1744=-xpart %CAPSULE1675
+{((xpart %CAPSULE604,ypart %CAPSULE604))=((xpart %CAPSULE1675,-xpart %CA
+PSULE1675-0.66667))}
+## xpart %CAPSULE1675=-ypart %CAPSULE604-0.66667
+## ypart %CAPSULE604=-xpart %CAPSULE604-0.66667
+### -xpart %CAPSULE604=-xpart %CAPSULE1675
+{((xpart ',ypart '))=((xpart %CAPSULE1675,-xpart %CAPSULE1675-0.66667))}
+## xpart %CAPSULE1675=-ypart '-0.66667
 ## xpart '=-ypart '-0.66667
 {begingroup}
 {(0.5)*(ooo)}
 {begingroup}
 {numeric}
-### -ooo=-%CAPSULE1494
+### -ooo=-%CAPSULE1051
 {endgroup}
-{(%CAPSULE1494)+(1)}
-### -%CAPSULE1494=-%CAPSULE1350+1
-{(1/2)*(%CAPSULE1350)}
-### -0.5%CAPSULE1350=-%CAPSULE1367
-{-(%CAPSULE1367)}
-### %CAPSULE1367=-%CAPSULE1893
-{(2)*(%CAPSULE1893)}
-### -2%CAPSULE1893=-%CAPSULE1885
-{(-0.5%CAPSULE1885-0.5)=(%CAPSULE1885)}
-## %CAPSULE1885=-0.33333
+{(%CAPSULE1051)+(1)}
+### -%CAPSULE1051=-%CAPSULE1378+1
+{(1/2)*(%CAPSULE1378)}
+### -0.5%CAPSULE1378=-%CAPSULE1370
+{-(%CAPSULE1370)}
+### %CAPSULE1370=-%CAPSULE1362
+{(2)*(%CAPSULE1362)}
+### -2%CAPSULE1362=-%CAPSULE1354
+{(-0.5%CAPSULE1354-0.5)=(%CAPSULE1354)}
+## %CAPSULE1354=-0.33333
 {(oo)=(-0.33333)}
 ## oo=-0.33333
 {endgroup}
@@ -4232,7 +4232,7 @@ xpart '=-ypart '-0.66667
 {qq:=pen}
 {showstats}
 Memory usage 1462&588 (104 still untouched)
-String usage 41&161 (815&7634 still untouched)
+String usage 41&161 (816&7678 still untouched)
 {[repeat the loop]}
 ! A group begun on line 163 never ended.
 <to be read again> 
@@ -4248,8 +4248,8 @@ by `endgroup'. So I've inserted `endgroup' now.
 (end occurred when if on line 36 was incomplete)
 (end occurred when elseif on line 21 was incomplete) 
 Here is how much of METAFONT's memory you used:
- 68 strings out of 883
- 3752 string characters out of 11386
+ 68 strings out of 884
+ 3752 string characters out of 11430
  2897 words of memory out of 3001
  289 symbolic tokens out of 2100
  8i,43n,14r,8p,167b stack positions out of 30i,100n,300r,150p,500b

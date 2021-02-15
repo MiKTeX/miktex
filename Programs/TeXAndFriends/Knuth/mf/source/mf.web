@@ -1,6 +1,7 @@
 % This program is copyright (C) 1984 by D. E. Knuth; all rights are reserved.
-% Copying of this file is authorized only if (1) you are D. E. Knuth, or if
-% (2) you make absolutely no changes to your copy. (The WEB system provides
+% Unlimited copying and redistribution of this file are permitted as long
+% as this file is not modified. Modifications are permitted, but only if
+% the resulting file is not named mf.web. (The WEB system provides
 % for alterations via an auxiliary file; the master file should stay intact.)
 % In other words, METAFONT is under essentially the same ground rules as TeX.
 
@@ -26,6 +27,7 @@
 % Version 2.71828 suppressed autorounding in dangerous cases (June 2003).
 % Version 2.718281 was a general cleanup with minor fixes (February 2008).
 % Version 2.7182818 was similar (January 2014).
+% Version 2.71828182 was similar (January 2021).
 
 % A reward of $327.68 will be paid to the first finder of any remaining bug.
 
@@ -155,7 +157,7 @@ helping to determine whether an implementation deserves to be
 known as `\MF\kern.5pt' [cf.~Stanford Computer Science report CS1095,
 January 1986].
 
-@d banner=='This is METAFONT, Version 2.7182818' {printed when \MF\ starts}
+@d banner=='This is METAFONT, Version 2.71828182' {printed when \MF\ starts}
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -166,7 +168,7 @@ reader see how to make an appropriate interface for other systems
 if necessary. (\ph\ is Charles Hedrick's modification of a compiler
 @^Hedrick, Charles Locke@>
 for the DECsystem-10 that was originally developed at the University of
-Hamburg; cf.\ {\sl SOFTWARE---Practice \AM\ Experience \bf6} (1976),
+Hamburg; cf.\ {\sl Software---Practice and Experience \bf6} (1976),
 29--42. The \MF\ program below is intended to be adaptable, without
 extensive changes, to most other versions of \PASCAL, so it does not fully
 use the admirable features of \ph. Indeed, a conscious effort has been
@@ -830,7 +832,7 @@ representing the beginning and ending of a line of text.
 @!max_buf_stack:0..buf_size; {largest index used in |buffer|}
 
 @ The |input_ln| function brings the next line of input from the specified
-field into available positions of the buffer array and returns the value
+file into available positions of the buffer array and returns the value
 |true|, unless the file has already been entirely read, in which case it
 returns |false| and sets |last:=first|.  In general, the |ASCII_code|
 numbers that represent the next line of the file are input into
@@ -1218,7 +1220,7 @@ on the information that \.{WEB} has output while processing \MF.
 label done,exit;
 var @!k,@!l:0..255; {small indices or counters}
 @!m,@!n:text_char; {characters input from |pool_file|}
-@!g:str_number; {garbage}
+@!g:str_number; {the string just created}
 @!a:integer; {accumulator for check sum}
 @!c:boolean; {check sum has been checked}
 begin pool_ptr:=0; str_ptr:=0; max_pool_ptr:=0; max_str_ptr:=0; str_start[0]:=0;
@@ -1499,9 +1501,9 @@ end;
 
 @ Here is the very first thing that \MF\ prints: a headline that identifies
 the version number and base name. The |term_offset| variable is temporarily
-incorrect, but the discrepancy is not serious since we assume that the banner
-and base identifier together will occupy at most |max_print_line|
-character positions.
+incorrect, but the discrepancy is not serious since we assume that this
+part of the program is system dependent.
+@^system dependencies@>
 
 @<Initialize the output...@>=
 wterm(banner);
@@ -1538,7 +1540,7 @@ by all \PASCAL\ compilers.
 
 @<Basic print...@>=
 procedure print_int(@!n:integer); {prints an integer in decimal form}
-var k:0..23; {index to current digit; we assume that $|n|<10^{23}$}
+var k:0..23; {index to current digit; we assume that $\vert n\vert<10^{23}$}
 @!m:integer; {used to negate |n| in possibly dangerous cases}
 begin k:=0;
 if n<0 then
@@ -1758,7 +1760,8 @@ if error_count=100 then
 exit:end;
 
 @ @<Get user's advice...@>=
-loop@+begin continue: clear_for_error_prompt; prompt_input("? ");
+loop@+begin continue: if interaction<>error_stop_mode then return;
+  clear_for_error_prompt; prompt_input("? ");
 @.?\relax@>
   if last=first then return;
   c:=buffer[first];
@@ -1783,7 +1786,7 @@ case c of
 "0","1","2","3","4","5","6","7","8","9": if deletions_allowed then
   @<Delete |c-"0"| tokens and |goto continue|@>;
 @t\4\4@>@;@+@!debug "D":begin debug_help;goto continue;@+end;@+gubed@/
-"E": if file_ptr>0 then
+"E": if file_ptr>0 then if input_stack[file_ptr].name_field>=256 then
   begin print_nl("You want to edit file ");
 @.You want to edit file x@>
   slow_print(input_stack[file_ptr].name_field);
@@ -1804,7 +1807,8 @@ begin print("Type <return> to proceed, S to scroll future error messages,");@/
 @.Type <return> to proceed...@>
 print_nl("R to run without stopping, Q to run quietly,");@/
 print_nl("I to insert something, ");
-if file_ptr>0 then print("E to edit your file,");
+if file_ptr>0 then if input_stack[file_ptr].name_field>=256 then
+  print("E to edit your file,");
 if deletions_allowed then
   print_nl("1 or ... or 9 to ignore the next 1 to 9 tokens of input,");
 print_nl("H for help, X to quit.");
@@ -1999,7 +2003,7 @@ begin if OK_to_interrupt then
   print_err("Interruption");
 @.Interruption@>
   help3("You rang?")@/
-  ("Try to insert some instructions for me (e.g.,`I show x'),")@/
+  ("Try to insert an instruction for me (e.g., `I show x;'),")@/
   ("unless you just want to quit by typing `X'.");
   deletions_allowed:=false; error; deletions_allowed:=true;
   interrupt:=0;
@@ -2200,7 +2204,7 @@ sets |arith_error:=true|. Most of \MF's internal computations have
 been designed to avoid this sort of error.
 
 Notice that if 64-bit integer arithmetic were available,
-we could simply compute |(@t$(2^{29}$@>*p+q)div (2*q)|.
+we could simply compute |@t$(2^{29}$@>*p+q)div (2*q)|.
 But when we are restricted to \PASCAL's 32-bit arithmetic we
 must either resort to multiple-precision maneuvering
 or use a simple but slow iteration. The multiple-precision technique
@@ -4111,7 +4115,7 @@ fuss with. Every such parameter has an identifying code number, defined here.
 @d fillin=38 {extra darkness of diagonal lines}
 @d turning_check=39 {controls reorientation of clockwise paths}
 @d warning_check=40 {controls error message when variable value is large}
-@d boundary_char=41 {the right boundary character for ligatures}
+@d boundary_char=41 {the boundary character for ligatures}
 @d max_given_internal=41
 
 @<Glob...@>=
@@ -4265,17 +4269,21 @@ int_name[boundary_char]:="boundarychar";
 input and output, establishes the initial values of the date and time.
 @^system dependencies@>
 Since standard \PASCAL\ cannot provide such information, something special
-is needed. The program here simply specifies July 4, 1776, at noon; but
-users probably want a better approximation to the truth.
+is needed. The program here simply assumes that suitable values appear in
+the global variables \\{sys\_time}, \\{sys\_day}, \\{sys\_month}, and
+\\{sys\_year} (which are initialized to noon on 4 July 1776,
+in case the implementor is careless).
 
 Note that the values are |scaled| integers. Hence \MF\ can no longer
 be used after the year 32767.
 
 @p procedure fix_date_and_time;
-begin internal[time]:=12*60*unity; {minutes since midnight}
-internal[day]:=4*unity; {fourth day of the month}
-internal[month]:=7*unity; {seventh month of the year}
-internal[year]:=1776*unity; {Anno Domini}
+begin sys_time:=12*60;
+sys_day:=4; sys_month:=7; sys_year:=1776;  {self-evident truths}
+internal[time]:=sys_time*unity; {minutes since midnight}
+internal[day]:=sys_day*unity; {day of the month}
+internal[month]:=sys_month*unity; {month of the year}
+internal[year]:=sys_year*unity; {Anno Domini}
 end;
 
 @ \MF\ is occasionally supposed to print diagnostic information that
@@ -4299,11 +4307,13 @@ if blank_line then print_ln;
 selector:=old_setting;
 end;
 
-@ Of course we had better declare another global variable, if the previous
+@ Of course we had better declare a few more global variables, if the previous
 routines are going to work.
 
 @<Glob...@>=
 @!old_setting:0..max_selector;
+@!sys_time,@!sys_day,@!sys_month,@!sys_year:integer;
+    {date and time supplied by external system}
 
 @ We will occasionally use |begin_diagnostic| in connection with line-number
 printing, as follows. (The parameter |s| is typically |"Path"| or
@@ -4874,7 +4884,7 @@ else  begin print_scaled(v); c:=digit_class;
 end
 
 @ Strictly speaking, a genuine token will never have |info(p)=0|.
-But we will see later (in the |print_variable_name| routine) that
+But we will see later (in the definition of attribute nodes) that
 it is convenient to let |info(p)=0| stand for `\.{[]}'.
 
 @<Display a collective subscript@>=
@@ -5584,7 +5594,7 @@ The global variable |save_ptr| points to the top item on the save stack.
 @ @<Set init...@>=save_ptr:=null;
 
 @ The |save_variable| routine is given a hash address |q|; it salts this
-address in the save stack, together with its current equivalent,
+address away in the save stack, together with its current equivalent,
 then makes token~|q| behave as though it were brand new.
 
 Nothing is stacked when |save_ptr=null|, however; there's no way to remove
@@ -7036,9 +7046,9 @@ $$a_k'=a_k+\delta\k-\delta_k;\qquad
 Here $a\ll b$ means that $a\L b-2$, and $a\gg b$ means that $a\G b+2$.
 
 The smoothing operation is symmetric in the sense that, if $a_0\ldots a_n$
-smoothes to $a_0'\ldots a_n'$, then the reverse sequence $a_n\ldots a_0$
-smoothes to $a_n'\ldots a_0'$; also the complementary sequence
-$(m-a_0)\ldots(m-a_n)$ smoothes to $(m-a_0')\ldots(m-a_n')$.
+smooths to $a_0'\ldots a_n'$, then the reverse sequence $a_n\ldots a_0$
+smooths to $a_n'\ldots a_0'$; also the complementary sequence
+$(m-a_0)\ldots(m-a_n)$ smooths to $(m-a_0')\ldots(m-a_n')$.
 We have $a_0'+\cdots+a_n'=a_0+\cdots+a_n$ because $\delta_0=\delta_{n+1}=0$.
 
 @p procedure smooth_moves(@!b,@!t:integer);
@@ -7073,7 +7083,7 @@ represents only the nonzero edge weights, since most of the edges are
 weightless; in this way, the data storage requirements grow only linearly
 with respect to the number of pixels per point, even though two-dimensional
 data is being represented. (Well, the actual dependence on the underlying
-resolution is order $n\log n$, but the the $\log n$ factor is buried in our
+resolution is order $n\log n$, but the $\log n$ factor is buried in our
 implicit restriction on the maximum raster size.) The sum of all edge
 weights in each row should be zero.
 
@@ -10870,7 +10880,7 @@ right_type(q):=endpoint
 k:=0; w:=link(h); ww:=knil(w);
 mm0:=floor_unscaled(x_coord(p)+x_coord(w)-xy_corr[octant]);
 mm1:=floor_unscaled(x_coord(q)+x_coord(ww)-xy_corr[octant]);
-for n:=0 to n1-n0 do env_move[n]:=mm0;
+for n:=0 to n1-n0-1 do env_move[n]:=mm0;
 env_move[n1-n0]:=mm1; move_ptr:=0; m:=mm0
 
 @ At this point |n| holds the value of |move_ptr| that was current
@@ -11074,7 +11084,7 @@ the results essentially independent of where the path falls on the raster.
 For example, the exact envelope with respect to a pen of diameter~1
 blackens a pixel if and only if the path intersects a circle of diameter~1
 inscribed in that pixel; the resulting pattern has ``blots'' when the path
-is travelling diagonally in unfortunate raster positions. A much better
+is traveling diagonally in unfortunate raster positions. A much better
 result is obtained when pixels are blackened only when the path intersects
 an inscribed {\sl diamond\/} of diameter~1. Such a diamond is precisely
 the polygon that \MF\ uses in the special case of a circle whose diameter is~1.
@@ -11417,7 +11427,7 @@ if d<alpha then d:=alpha
 
 @ At this point there's a line of length |<=delta| from vertex~|p|
 to vertex~|q|, orthogonal to direction $\bigl($|right_u(p),left_v(q)|$\bigr)$;
-and there's a line of length |>=delta| from vertex~|q| to
+and there's a line of length |>=delta| from vertex~|q|
 to vertex~|r|, orthogonal to direction $\bigl($|right_u(q),left_v(r)|$\bigr)$.
 The best line to direction $(u,v)$ should replace the line from
 |p| to~|q|; this new line will have the same length as the old.
@@ -12111,7 +12121,7 @@ pretending to declare a screen buffer called |screen_pixel|. This code
 is actually commented out, but it does specify the intended effects.
 
 @<Glob...@>=
-@{@!screen_pixel:array[screen_row,screen_col] of pixel_color;@+@}
+@{@+@!screen_pixel:array[screen_row,screen_col] of pixel_color@t; @>@}
 
 @ The |blank_rectangle| routine simply whitens all pixels that lie in
 columns |left_col| through |right_col-1|, inclusive, of rows
@@ -12156,7 +12166,7 @@ program (see the commented-out code below).
   @!n:screen_col);
 var @!k:screen_col; {an index into |a|}
 @!c:screen_col; {an index into |screen_pixel|}
-begin @{ k:=0; c:=a[0];
+begin @{@+k:=0; c:=a[0];
 repeat incr(k);
   repeat screen_pixel[r,c]:=b; incr(c);
   until c=a[k];
@@ -13384,7 +13394,7 @@ list involved.
 discussion above, is a code number that explains what kind of token list
 is being scanned.
 
-\yskip\hang|name| points to the |eqtb| address of the control sequence
+\yskip\hang|name| points to the |eqtb| address of the macro
 being expanded, if the current token list is a macro not defined by
 \&{vardef}. Macros defined by \&{vardef} have |name=null|; their name
 can be deduced by looking at their first two parameters.
@@ -13405,7 +13415,7 @@ a \&{for} or \&{forsuffixes} loop;
 \indent|parameter|, if a \&{text} or \&{suffix} parameter is being scanned;
 
 \indent|backed_up|, if the token list being scanned has been inserted as
-`to be read again'.
+`to be read again';
 
 \indent|inserted|, if the token list being scanned has been inserted as
 part of error recovery;
@@ -14674,7 +14684,7 @@ if cur_exp=true_code then
 else if cur_cmd<>semicolon then
   begin missing_err(";");@/
 @.Missing `;'@>
-  help2("After `exitif <boolean exp>' I expect to see a semicolon.")@/
+  help2("After `exitif <boolean expr>' I expect to see a semicolon.")@/
   ("I shall pretend that one was there."); back_error;
   end;
 end
@@ -14790,7 +14800,7 @@ input stack, so that |get_next| will proceed to read it next.
 @t\4@>@<Declare the procedure called |print_arg|@>@;
 @t\4@>@<Declare the procedure called |scan_text_arg|@>@;
 procedure macro_call(@!def_ref,@!arg_list,@!macro_name:pointer);
-  {invokes a user-defined control sequence}
+  {invokes a user-defined sequence of commands}
 label found;
 var @!r:pointer; {current node in the macro's token list}
 @!p,@!q:pointer; {for list manipulation}
@@ -15126,7 +15136,7 @@ if_test,fi_or_else: case m of
   endcases;
 
 @ Here is a procedure that ignores text until coming to an \&{elseif},
-\&{else}, or \&{fi} at level zero of $\&{if}\ldots\&{fi}$
+\&{else}, or \&{fi} at the current level of $\&{if}\ldots\&{fi}$
 nesting. After it has acted, |cur_mod| will indicate the token that
 was found.
 
@@ -15369,8 +15379,8 @@ if cur_cmd<>colon then
 `\&{endfor}' at the end of the loop. This will come through \MF's scanner
 at the proper time to cause the loop to be repeated.
 
-(If the user tries some shenanigan like `\&{for} $\ldots$ \&{let} \&{endfor}',
-he will be foiled by the |get_symbol| routine, which keeps frozen
+(A user who tries some shenanigan like `\&{for} $\ldots$ \&{let} \&{endfor}'
+will be foiled by the |get_symbol| routine, which keeps frozen
 tokens unchanged. Furthermore the |frozen_repeat_loop| is an \&{outer}
 token, so it won't be lost accidentally.)
 
@@ -15910,13 +15920,11 @@ end
 @ @<Print the banner...@>=
 begin wlog(banner);
 slow_print(base_ident); print("  ");
-print_int(round_unscaled(internal[day])); print_char(" ");
+print_int(sys_day); print_char(" ");
 months:='JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC';
-m:=round_unscaled(internal[month]);
-for k:=3*m-2 to 3*m do wlog(months[k]);
-print_char(" "); print_int(round_unscaled(internal[year])); print_char(" ");
-m:=round_unscaled(internal[time]);
-print_dd(m div 60); print_char(":"); print_dd(m mod 60);
+for k:=3*sys_month-2 to 3*sys_month do wlog(months[k]);
+print_char(" "); print_int(sys_year); print_char(" ");
+print_dd(sys_time div 60); print_char(":"); print_dd(sys_time mod 60);
 end
 
 @ Here's an example of how these file-name-parsing routines work in practice.
@@ -15939,6 +15947,9 @@ crank up the output file.
 
 @ Let's turn now to the procedure that is used to initiate file reading
 when an `\.{input}' command is being processed.
+Beware: For historic reasons, this code foolishly conserves a tiny bit
+of string pool space; but that can confuse the interactive `\.E' option.
+@^system dependencies@>
 
 @p procedure start_input; {\MF\ will \.{input} something}
 label done;
@@ -15962,7 +15973,7 @@ if job_name=0 then
 if term_offset+length(name)>max_print_line-2 then print_ln
 else if (term_offset>0)or(file_offset>0) then print_char(" ");
 print_char("("); incr(open_parens); slow_print(name); update_terminal;
-if name=str_ptr-1 then {we can conserve string pool space now}
+if name=str_ptr-1 then {conserve string pool space (but see note above)}
   begin flush_string(name); name:=cur_name;
   end;
 @<Read the first line of the new file@>;
@@ -16066,7 +16077,7 @@ knot list. The |future_pen| option occurs only as an output of |scan_primary|
 and |scan_secondary|, not as an output of |scan_tertiary| or |scan_expression|.
 
 \smallskip\hang
-|cur_type=path_type| means that |cur_exp| points to a the first node of
+|cur_type=path_type| means that |cur_exp| points to the first node of
 a path; nobody else points to this particular path. The control points of
 the path will have been chosen.
 
@@ -16106,7 +16117,7 @@ dependency list.
 
 \smallskip\hang
 |cur_type=proto_dependent| means that |cur_exp| points to a |proto_dependent|
-capsule node . The |dep_list| field in this capsule
+capsule node. The |dep_list| field in this capsule
 points to the associated dependency list.
 
 \smallskip\hang
@@ -20847,11 +20858,11 @@ deleted if $c=0$; then we pass over $a$~characters to reach the next
 current character (which may have a ligature/kerning program of its own).
 
 If the very first instruction of the |lig_kern| array has |skip_byte=255|,
-the |next_char| byte is the so-called right boundary character of this font;
+the |next_char| byte is the so-called boundary character of this font;
 the value of |next_char| need not lie between |bc| and~|ec|.
 If the very last instruction of the |lig_kern| array has |skip_byte=255|,
-there is a special ligature/kerning program for a left boundary character,
-beginning at location |256*op_byte+remainder|.
+there is a special ligature/kerning program for a boundary character at the
+left, beginning at location |256*op_byte+remainder|.
 The interpretation is that \TeX\ puts implicit boundary characters
 before and after each consecutive string of characters from the same font.
 These implicit characters do not appear in the output, but they can affect
@@ -20868,7 +20879,7 @@ the condition
 $$\hbox{|256*op_byte+remainder<nl|.}$$
 If such an instruction is encountered during
 normal program execution, it denotes an unconditional halt; no ligature
-command is performed.
+or kerning command is performed.
 
 @d stop_flag=128+min_quarterword
   {value indicating `\.{STOP}' in a lig/kern program}
@@ -20968,8 +20979,8 @@ is kept in additional arrays called |header_byte|, |lig_kern|,
 @!nk:0..max_kerns; {the number of distinct kerns so far}
 @!exten:array[eight_bits] of four_quarters; {extensible character recipes}
 @!ne:0..256; {the number of extensible characters so far}
-@!param:array[1..max_font_dimen] of scaled; {\&{fontinfo} parameters}
-@!np:0..max_font_dimen; {the largest \&{fontinfo} parameter specified so far}
+@!param:array[1..max_font_dimen] of scaled; {\&{fontdimen} parameters}
+@!np:0..max_font_dimen; {the largest \&{fontdimen} parameter specified so far}
 @!nw,@!nh,@!nd,@!ni:0..256; {sizes of \.{TFM} subtables}
 @!skip_table:array[eight_bits] of 0..lig_table_size; {local label status}
 @!lk_started:boolean; {has there been a lig/kern step in this command yet?}
@@ -21128,7 +21139,7 @@ header_byte_code, font_dimen_code: begin c:=cur_mod; get_x_next;
     if cur_cmd<>colon then
       begin missing_err(":");
 @.Missing `:'@>
-      help1("A colon should follow a headerbyte or fontinfo location.");
+      help1("A colon should follow a headerbyte or fontdimen location.");
       back_error;
       end;
     if c=header_byte_code then @<Store a list of header bytes@>
@@ -22582,6 +22593,8 @@ macros to dump words of different types:
 @ The inverse macros are slightly more complicated, since we need to check
 the range of the values we are reading in. We say `|undump(a)(b)(x)|' to
 read an integer value |x| that is supposed to be in the range |a<=x<=b|.
+System error messages should be suppressed when undumping.
+@^system dependencies@>
 
 @d undump_wd(#)==begin get(base_file); #:=base_file^;@+end
 @d undump_int(#)==begin get(base_file); #:=base_file^.int;@+end
@@ -22881,7 +22894,8 @@ cannot produce error messages. For example, it would be a mistake to call
 might lead to an infinite loop.
 @^system dependencies@>
 
-This program doesn't bother to close the input files that may still be open.
+If |final_cleanup| is bypassed, this program doesn't bother to close
+the input files that may still be open.
 
 @<Last-minute...@>=
 procedure close_files_and_terminate;
@@ -23038,7 +23052,7 @@ if (base_ident=0)or(buffer[loc]="&") then
   while (loc<limit)and(buffer[loc]=" ") do incr(loc);
   end;
 buffer[limit]:="%";@/
-fix_date_and_time; init_randoms((internal[time] div unity)+internal[day]);@/
+fix_date_and_time; init_randoms(sys_time+sys_day*unity);@/
 @<Initialize the print |selector|...@>;
 if loc<limit then if buffer[loc]<>"\" then start_input; {\&{input} assumed}
 end
@@ -23070,14 +23084,15 @@ program below. (If |m=13|, there is an additional argument, |l|.)
 @!debug procedure debug_help; {routine to display various things}
 label breakpoint,exit;
 var @!k,@!l,@!m,@!n:integer;
-begin loop begin wake_up_terminal;
+begin clear_terminal;
+  loop begin wake_up_terminal;
   print_nl("debug # (-1 to exit):"); update_terminal;
 @.debug \#@>
   read(term_in,m);
   if m<0 then return
   else if m=0 then
-    begin goto breakpoint;@\ {go to every label at least once}
-    breakpoint: m:=0; @{'BREAKPOINT'@}@\
+    begin goto breakpoint;@/ {go to every declared label at least once}
+    breakpoint: m:=0; @{'BREAKPOINT'@}@/
     end
   else  begin read(term_in,n);
     case m of

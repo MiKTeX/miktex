@@ -1,4 +1,4 @@
-This is METAFONT, Version 2.7182818 (INIMF)
+This is METAFONT, Version 2.71828182 (INIMF)
 ** &trap  trap 
 (trap.mf
 \*//*\trap\pass2!
@@ -36,7 +36,7 @@ xpart '=-ypart '-0.66667
 {qq:=pen}
 {showstats}
 Memory usage 1462&588 (104 still untouched)
-String usage 41&161 (815&7634 still untouched)
+String usage 41&161 (816&7678 still untouched)
 {[repeat the loop]}
 ! A group begun on line 163 never ended.
 <to be read again> 

@@ -6,7 +6,7 @@
     <TPM:Title>METAFFONT, Windows x86</TPM:Title>
     <TPM:Copyright owner="D. E. Knuth" year="1984"/>
     <TPM:License type="knuth"/>
-    <TPM:Version>2.7182818</TPM:Version>
+    <TPM:Version>2.71828182</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

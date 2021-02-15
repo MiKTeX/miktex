@@ -1,6 +1,6 @@
 %% mf-miktex.ch: WEB change file for METAFONT
 %% 
-%% Copyright (C) 1991-2020 Christian Schenk
+%% Copyright (C) 1991-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -678,14 +678,14 @@ not been commented out.
 @z
 
 @x
-"E": if file_ptr>0 then
+"E": if file_ptr>0 then if input_stack[file_ptr].name_field>=256 then
   begin print_nl("You want to edit file ");
 @.You want to edit file x@>
   slow_print(input_stack[file_ptr].name_field);
   print(" at line "); print_int(line);@/
   interaction:=scroll_mode; jump_out;
 @y
-"E": if file_ptr>0 then
+"E": if file_ptr>0 then if input_stack[file_ptr].name_field>=256 then
     begin
     edit_name_start:=str_start[edit_file.name_field];
     edit_name_length:=str_start[edit_file.name_field+1] -
@@ -785,15 +785,11 @@ not been commented out.
 % _____________________________________________________________________________
 
 @x
-begin internal[time]:=12*60*unity; {minutes since midnight}
-internal[day]:=4*unity; {fourth day of the month}
-internal[month]:=7*unity; {seventh month of the year}
-internal[year]:=1776*unity; {Anno Domini}
+begin sys_time:=12*60;
+sys_day:=4; sys_month:=7; sys_year:=1776;  {self-evident truths}
 @y
-begin internal[time]:=(c4p_hour*60+c4p_minute)*unity; {minutes since midnight}
-internal[day]:=c4p_day*unity; {day of month}
-internal[month]:=c4p_month*unity; {month of year}
-internal[year]:=c4p_year*unity; {Anno Domini}
+begin sys_time:=c4p_hour*60+c4p_minute;
+sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 @z
 
 % _____________________________________________________________________________
@@ -1046,7 +1042,7 @@ wlog_ln('Calling BLANKRECTANGLE(',left_col:1,',',
 @x
 var @!k:screen_col; {an index into |a|}
 @!c:screen_col; {an index into |screen_pixel|}
-begin @{ k:=0; c:=a[0];
+begin @{@+k:=0; c:=a[0];
 repeat incr(k);
   repeat screen_pixel[r,c]:=b; incr(c);
   until c=a[k];
@@ -1588,12 +1584,12 @@ if job_name=0 then job_name:=miktex_get_job_name("mfput");
 
 @x
 slow_print(base_ident); print("  ");
-print_int(round_unscaled(internal[day])); print_char(" ");
+print_int(sys_day); print_char(" ");
 months:='JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC';
 @y
 miktex_print_miktex_banner(log_file);
 slow_print(base_ident); print("  ");
-print_int(round_unscaled(internal[day])); print_char(" ");
+print_int(sys_day); print_char(" ");
 c4p_arrcpy(months,'JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC');
 @z
 
@@ -1650,7 +1646,7 @@ print_char("("); incr(open_parens); slow_print(full_source_filename_stack[in_ope
 @z
 
 @x
-if name=str_ptr-1 then {we can conserve string pool space now}
+if name=str_ptr-1 then {conserve string pool space (but see note above)}
   begin flush_string(name); name:=cur_name;
   end;
 @y

@@ -1,6 +1,6 @@
 %% tex-miktex-pool.ch:
 %% 
-%% Copyright (C) 2010-2016 Christian Schenk
+%% Copyright (C) 2010-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -29,11 +29,11 @@
 
 @x
 @!m,@!n:text_char; {characters input from |pool_file|}
-@!g:str_number; {garbage}
+@!g:str_number; {the string just created}
 @!a:integer; {accumulator for check sum}
 @!c:boolean; {check sum has been checked}
 @y
-@!g:str_number; {garbage}
+@!g:str_number; {the string just created}
 @z
 
 % _____________________________________________________________________________

@@ -22,7 +22,7 @@
 \def\title{VP\lowercase{to}VF}
 \def\contentspagenumber{201}
 \def\topofcontents{\null
-  \def\titlepage{F} % include headline on the contents page
+  \titlefalse % include headline on the contents page
   \def\rheader{\mainfont\hfil \contentspagenumber}
   \vfill
   \centerline{\titlefont The {\ttitlefont VPtoVF} processor}
@@ -440,7 +440,7 @@ both be used within the same \.{CHARACTER} list.
 
 \yskip\noindent
 The elements of a \.{VARCHAR} property list are either \.{TOP}, \.{MID},
-\.{BOT} or \.{REP}; the values are integers, which must be zero or the number
+\.{BOT}, or \.{REP}; the values are integers, which must be zero or the number
 of a character in the font. A zero value for \.{TOP}, \.{MID}, or \.{BOT} means
 that the corresponding piece of the extensible character is absent. A nonzero
 value, or a \.{REP} value of zero, denotes the character code used to make
@@ -475,8 +475,8 @@ The slashes specify retention of the left or right original character; the
 
 \yskip\hang\.{KRN} (a one-byte value and a real value). The instruction
 `\.{(KRN} $c$ $r$\.)' means, ``If the next character is $c$, then insert
-a blank space of width $r$ between the current character character and $c$;
-otherwise go on to the next intruction.'' The value of $r$, which is in
+a blank space of width $r$ between the current character and $c$;
+otherwise go on to the next instruction.'' The value of $r$, which is in
 design units, is often negative. Character code $c$ must exist
 in the font.
 
