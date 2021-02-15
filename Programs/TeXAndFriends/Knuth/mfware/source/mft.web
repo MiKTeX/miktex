@@ -7,6 +7,7 @@
 % Version 1.0 was tuned up for the METAFONTware report (April 16, 1989).
 % Version 1.1 ditto, with input handled by Hosek's idea (April 27, 1989).
 % Version 2 has the new primitives of METAFONT 2.0 (October 16, 1989).
+% Version 2.1 corrects two of those primitives (January 20, 2021).
 
 % Here is TeX material that gets inserted after \input webmac
 \def\hang{\hangindent 3em\indent\ignorespaces}
@@ -21,17 +22,16 @@
 \mathchardef\RA="3221 % right arrow
 \mathchardef\BA="3224 % double arrow
 \def\({} % kludge for alphabetizing certain module names
-\chardef\V=`\| % vertical line in a string
 
 \def\title{MFT}
 \def\contentspagenumber{401}
 \def\topofcontents{\null
-  \def\titlepage{F} % include headline on the contents page
+  \titlefalse % include headline on the contents page
   \def\rheader{\mainfont\hfil \contentspagenumber}
   \vfill
   \centerline{\titlefont The {\ttitlefont MFT} processor}
   \vskip 15pt
-  \centerline{(Version 2.0, October 1989)}
+  \centerline{(Version 2.1, January 2021)}
   \vfill}
 \def\botofcontents{\vfill
   \centerline{\hsize 5in\baselineskip9pt
@@ -83,7 +83,7 @@ a reformatting command even to get parentheses to act like delimiters!)
 \MF\ comments, which follow a single \.\% sign, should be valid \TeX\
 input.  But \MF\ material can be included in \pb\ within a comment; this
 will be translated by \.{MFT} as if it were not in a comment. For example,
-a phrase like `\.{make} \.{\V x2r\V} \.{zero}' will be translated into
+a phrase like `\.{make} \.{\v x2r\v} \.{zero}' will be translated into
 `\.{make \$x\_\{2r\}\$ zero}'.
 
 The rules just stated apply to lines that contain one, two, or three \.\% signs
@@ -128,7 +128,7 @@ dependencies' in the index below.
 The ``banner line'' defined here should be changed whenever \.{MFT}
 is modified.
 
-@d banner=='This is MFT, Version 2.0'
+@d banner=='This is MFT, Version 2.1'
 
 @ The program begins with a fairly normal header, made up of pieces that
 @^system dependencies@>
@@ -802,9 +802,7 @@ end;
 @ @<Read from |mf_file|...@>=
 begin incr(line);
 if not input_ln(mf_file) then input_has_ended:=true
-else if limit=change_limit then
-  if buffer[0]=change_buffer[0] then
-    if change_limit>0 then check_change;
+else if change_limit>0 then check_change;
 end
 
 @ @<Read from |style_file|...@>=
@@ -840,7 +838,7 @@ had a line that didn't match any relevant line in |mf_file|.
 
 @<Check that all changes have been read@>=
 if change_limit<>0 then {|changing| is false}
-  begin for loc:=0 to change_limit do buffer[loc]:=change_buffer[loc];
+  begin for loc:=0 to change_limit-1 do buffer[loc]:=change_buffer[loc];
   limit:=change_limit; changing:=true; line:=other_line; loc:=change_limit;
   err_print('! Change file entry did not match');
 @.Change file entry did not match@>
@@ -936,7 +934,7 @@ lookup:=p;
 end;
 
 @ A simple hash code is used: If the sequence of
-ASCII codes is $c_1c_2\ldots c_m$, its hash value will be
+ASCII codes is $c_1c_2\ldots c_n$, its hash value will be
 $$(2^{n-1}c_1+2^{n-2}c_2+\cdots+c_n)\,\bmod\,|hash_size|.$$
 
 @<Compute the hash...@>=
@@ -1226,6 +1224,8 @@ pr12("t")("r")("a")("c")("i")("n")("g")
  ("s")("t")("a")("t")("s")(internal);@/
 pr13("t")("r")("a")("c")("i")("n")("g")
  ("o")("n")("l")("i")("n")("e")(internal);@/
+pr15("t")("r")("a")("c")("i")("n")("g")
+ ("r")("e")("s")("t")("o")("r")("e")("s")(internal);@/
 
 @ @<Store all the primitives@>=
 pr4("y")("e")("a")("r")(internal);@/
@@ -1233,7 +1233,7 @@ pr5("m")("o")("n")("t")("h")(internal);@/
 pr3("d")("a")("y")(internal);@/
 pr4("t")("i")("m")("e")(internal);@/
 pr8("c")("h")("a")("r")("c")("o")("d")("e")(internal);@/
-pr7("c")("h")("a")("r")("f")("a")("m")(internal);@/
+pr7("c")("h")("a")("r")("e")("x")("t")(internal);@/
 pr6("c")("h")("a")("r")("w")("d")(internal);@/
 pr6("c")("h")("a")("r")("h")("t")(internal);@/
 pr6("c")("h")("a")("r")("d")("p")(internal);@/

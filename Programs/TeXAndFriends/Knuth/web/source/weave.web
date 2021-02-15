@@ -26,6 +26,7 @@
 % Version 4.2 conforms to ANSI standard for-loop rules (September, 1990).
 % Version 4.3 catches extra } in input (Breitenlohner, September, 1991).
 % Version 4.4 corrects changed_module logic, %-overflow (January, 1992).
+% Version 4.5 corrects archaic @@z logic and empty change file (January, 2021).
 
 % Here is TeX material that gets inserted after \input webmac
 \def\hang{\hangindent 3em\indent\ignorespaces}
@@ -46,7 +47,7 @@
   \def\rheader{\mainfont Appendix D\hfil \contentspagenumber}
   \centerline{\titlefont The {\ttitlefont WEAVE} processor}
   \vskip 15pt
-  \centerline{(Version 4.4)}
+  \centerline{(Version 4.5)}
   \vfill}
 \pageno=\contentspagenumber \advance\pageno by 1
 
@@ -73,7 +74,7 @@ dependencies' in the index below.
 The ``banner line'' defined here should be changed whenever \.{WEAVE}
 is modified.
 
-@d banner=='This is WEAVE, Version 4.4'
+@d banner=='This is WEAVE, Version 4.5'
 
 @ The program begins with a fairly normal header, made up of pieces that
 @^system dependencies@>
@@ -817,7 +818,7 @@ to be treated when \PASCAL\ code is being formatted.
 @d for_like=12 {\&{for}, \&{while}, \&{with}}
 @d goto_like=13 {\&{goto}, \&{packed}}
 @d if_like=14 {\&{if}}
-@d in_like=15 {\&{in}}
+@d intercal_like=15 {not used}
 @d nil_like=16 {\&{nil}}
 @d proc_like=17 {\&{function}, \&{procedure}, \&{program}}
 @d record_like=18 {\&{record}}
@@ -831,7 +832,7 @@ to be treated when \PASCAL\ code is being formatted.
 @ The names of modules are stored in |byte_mem| together
 with the identifier names, but a hash table is not used for them because
 \.{WEAVE} needs to be able to recognize a module name when given a prefix of
-that name. A conventional binary seach tree is used to retrieve module names,
+that name. A conventional binary search tree is used to retrieve module names,
 with fields called |llink| and |rlink| in place of |link| and |ilk|. The
 root of this tree is |rlink[0]|.
 
@@ -1027,7 +1028,7 @@ id_lookup:=p;
 end;
 
 @ A simple hash code is used: If the sequence of
-ASCII codes is $c_1c_2\ldots c_m$, its hash value will be
+ASCII codes is $c_1c_2\ldots c_n$, its hash value will be
 $$(2^{n-1}c_1+2^{n-2}c_2+\cdots+c_n)\,\bmod\,|hash_size|.$$
 
 @<Compute the hash...@>=
@@ -1458,9 +1459,7 @@ end;
 @ @<Read from |web_file|...@>=
 begin incr(line);
 if not input_ln(web_file) then input_has_ended:=true
-else if limit=change_limit then
-  if buffer[0]=change_buffer[0] then
-    if change_limit>0 then check_change;
+else if change_limit>0 then check_change;
 end
 
 @ @<Read from |change_file|...@>=
@@ -1497,7 +1496,7 @@ had a line that didn't match any relevant line in |web_file|.
 
 @<Check that all changes have been read@>=
 if change_limit<>0 then {|changing| is false}
-  begin for ii:=0 to change_limit do buffer[ii]:=change_buffer[ii];
+  begin for ii:=0 to change_limit-1 do buffer[ii]:=change_buffer[ii];
   limit:=change_limit; changing:=true; line:=other_line; loc:=change_limit;
   err_print('! Change file entry did not match');
 @.Change file entry did not match@>
@@ -1951,7 +1950,8 @@ straightforward outline.
 @<Phase I: Read all the user's text and store the cross references@>=
 phase_one:=true; phase_three:=false;
 reset_input;
-module_count:=0; skip_limbo; change_exists:=false;
+module_count:=0; changed_module[0]:=false;
+skip_limbo; change_exists:=false;
 while not input_has_ended do
   @<Store cross reference data for the current module@>;
 changed_module[module_count]:=change_exists;
@@ -2330,11 +2330,9 @@ while buffer[loc]<>"@@" do
 if loc<=limit then
   begin loc:=loc+2; c:=buffer[loc-1];
   if (c=" ")or(c=tab_mark)or(c="*") then return;
-  if (c<>"z")and(c<>"Z") then
-    begin out("@@");
-    if c<>"@@" then err_print('! Double @@ required outside of sections');
+  out("@@");
+  if c<>"@@" then err_print('! Double @@ required outside of sections');
 @.Double \AT! required...@>
-    end;
   end
 
 @ The |copy_TeX| routine processes the \TeX\ code at the beginning of a
@@ -2453,7 +2451,7 @@ The combination rules are given as context-sensitive productions that are
 applied from left to right. Suppose that we are currently working on the
 sequence of scraps $s_1\,s_2\ldots s_n$. We try first to find the longest
 production that applies to an initial substring $s_1\,s_2\ldots\,$; but if
-no such productions exist, we find to find the longest production
+no such productions exist, we try to find the longest production
 applicable to the next substring $s_2\,s_3\ldots\,$; and if that fails, we
 try to match $s_3\,s_4\ldots\,$, etc.
 
@@ -3244,7 +3242,7 @@ else if cat[pp+2]=semi then
 else if cat[pp+2]=var_head then
   begin if cat[pp+3]=intro then
     begin app1(pp+1); app(math_op); app(cancel);
-    app1(pp+2); app("}"); reduce(pp+1,3,math,0)(31);
+    app1(pp+2); app("}"); reduce(pp+1,3,math,0)(33);
     end;
   end;
 end
@@ -3436,7 +3434,8 @@ function translate:text_pointer; {converts a sequence of scraps}
 label done,found;
 var i: 1..max_scraps; {index into |cat|}
 @!j:0..max_scraps; {runs through final scraps}
-@!k:0..long_buf_size; {index into |buffer|}
+@!debug@!k:0..long_buf_size; {index into |buffer|}
+gubed
 begin pp:=scrap_base; lo_ptr:=pp-1; hi_ptr:=pp;
 @<If tracing, print an indication of where we are@>;
 @<Reduce the scraps...@>;

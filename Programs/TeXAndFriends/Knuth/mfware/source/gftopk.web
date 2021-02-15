@@ -44,7 +44,7 @@
 \def\title{GFtoPK}
 \def\contentspagenumber{201}
 \def\topofcontents{\null
-  \def\titlepage{F} % include headline on the contents page
+  \titlefalse % include headline on the contents page
   \def\rheader{\mainfont\hfil \contentspagenumber}
   \vfill
   \centerline{\titlefont The {\ttitlefont GFtoPK} processor}
@@ -681,7 +681,7 @@ definitions are called flag bytes, and various fields within the byte indicate
 various things about how the character definition is encoded.  Command bytes
 have zero or more parameters, and can never appear within a character
 definition or between parameters of another command, where they would be
-interpeted as data.
+interpreted as data.
 
 A \.{PK} file consists of a preamble, followed by a sequence of one or more
 character definitions, followed by a postamble.  The preamble command must
@@ -722,7 +722,7 @@ of a keyword followed by possible parameters relevant to that keyword.
 length exceeds~255.
 
 \yskip\hang\\{pk\_xxx4} 243 |k[4]| |x[k]|.  Like |pk_xxx1|, but |k| can be
-ridiculously large; |k| musn't be negative.
+ridiculously large; |k| mustn't be negative.
 
 \yskip\hang|pk_yyy| 244 |y[4]|.  This command is undefined in general; it
 functions as a five-byte \\{no\_op} unless special \.{PK} reading programs
@@ -1281,7 +1281,7 @@ end ;
 @* Plan of attack.
 It would seem at first that converting a \.{GF} file to \.{PK} format should
 be relatively easy, since they both use a form of run-encoding.  Unfortunately,
-several idiosyncracies of the \.{GF} format make this conversion slightly
+several idiosyncrasies of the \.{GF} format make this conversion slightly
 cumbersome.
 The \.{GF} format separates the raster information from the escapement values
 and \.{TFM} widths; the \.{PK} format combines all information about a single
@@ -1458,7 +1458,7 @@ end
 
 @<Glob...@>=
 @!gf_ch : integer ; {the character we are working with}
-@!gf_ch_mod_256 : integer ; {locater pointer}
+@!gf_ch_mod_256 : integer ; {locator pointer}
 @!pred_pk_loc : integer ; {where we predict the end of the character to be.}
 @!max_n, @!min_n : integer ; {the maximum and minimum horizontal rows}
 @!max_m, @!min_m : integer ; {the maximum and minimum vertical rows}
@@ -1705,7 +1705,7 @@ end else begin
 end
 
 @ We must convert the run-count array from a row orientation to a glyph
-orientation, with repeat counts for repeated rows.  We seperate this task
+orientation, with repeat counts for repeated rows.  We separate this task
 into two smaller tasks, on a per row basis.  But first, we define a new
 macro to help us fill up this new array.  Here, we have no fear that we will
 run out of space, as the glyph representation is provably smaller than the
@@ -2152,10 +2152,10 @@ pk_byte(pk_post) ;
 while (pk_loc mod 4 <> 0) do pk_byte(pk_no_op)
 
 @ Once we are finished with the \.{GF} file, we check the status of each
-character to insure that each character that had a locater also had raster
+character to insure that each character that had a locator also had raster
 information.
 
-@<Check for un-rasterized locaters@>=
+@<Check for unrasterized locators@>=
 for i := 0 to 255 do
    if status[i] = located then
       print_ln('Character ',i:1,' missing raster information!')
@@ -2166,7 +2166,7 @@ for i := 0 to 255 do
 @p begin
   initialize ;
   convert_gf_file ;
-  @<Check for un-rasterized locaters@> ;
+  @<Check for unrasterized locators@> ;
   print_ln(gf_len:1,' bytes packed to ',pk_loc:1,' bytes.') ;
 final_end : end .
 

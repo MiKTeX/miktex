@@ -1,6 +1,6 @@
 %% tex-miktex-hyph.ch:
 %% 
-%% Copyright (C) 1991-2020 Christian Schenk
+%% Copyright (C) 1991-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -523,7 +523,7 @@ tini
 @z
 
 @x
-@!init@!trie_taken:packed array[1..trie_size] of boolean;
+@!init @!trie_taken:packed array[1..trie_size] of boolean;
 @y
 @!init@!trie_taken: ^boolean;
 @z

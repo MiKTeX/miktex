@@ -30,10 +30,10 @@
 % _____________________________________________________________________________
 
 @x
-@d banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@d banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @y
-@d TeX_banner_k=='This is mikTeX, Version 3.14159265' {printed when \TeX\ starts}
-@d TeX_banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@d TeX_banner_k=='This is mikTeX, Version 3.141592653' {printed when \TeX\ starts}
+@d TeX_banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @#
 @d banner==TeX_banner
 @d banner_k==TeX_banner_k
@@ -683,7 +683,7 @@ been commented~out.
 @z
 
 @x
-"E": if base_ptr>0 then
+"E": if base_ptr>0 then if input_stack[base_ptr].name_field>=256 then
   begin print_nl("You want to edit file ");
 @.You want to edit file x@>
   slow_print(input_stack[base_ptr].name_field);
@@ -912,15 +912,11 @@ var p:0..sup_nest_size; {index into |nest|}
 % _____________________________________________________________________________
 
 @x
-begin time:=12*60; {minutes since midnight}
-day:=4; {fourth day of the month}
-month:=7; {seventh month of the year}
-year:=1776; {Anno Domini}
+begin sys_time:=12*60;
+sys_day:=4; sys_month:=7; sys_year:=1776;  {self-evident truths}
 @y
-begin time:=c4p_hour*60+c4p_minute; {minutes since midnight}
-day:=c4p_day; {day of month}
-month:=c4p_month; {month of year}
-year:=c4p_year; {Anno Domini}
+begin sys_time:=c4p_hour*60+c4p_minute;
+sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 @z
 
 % _____________________________________________________________________________
@@ -1640,12 +1636,12 @@ else
 
 @x
 slow_print(format_ident); print("  ");
-print_int(day); print_char(" ");
+print_int(sys_day); print_char(" ");
 months:='JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC';
 @y
 miktex_print_miktex_banner(log_file);
 slow_print(format_ident); print("  ");
-print_int(day); print_char(" ");
+print_int(sys_day); print_char(" ");
 c4p_arrcpy(months,'JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC');
 @z
 
@@ -1711,7 +1707,7 @@ print_file_name(0, full_source_filename_stack[in_open], 0); update_terminal;
 @z
 
 @x
-if name=str_ptr-1 then {we can conserve string pool space now}
+if name=str_ptr-1 then {conserve string pool space (but see note above)}
   begin flush_string; name:=cur_name;
   end;
 @y

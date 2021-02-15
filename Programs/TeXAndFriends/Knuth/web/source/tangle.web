@@ -19,6 +19,7 @@
 % Version 4.3 fixes @@ bug in verbatim, catches extra } (September, 1991).
 % Version 4.4 activates debug_help on errors as advertised (February, 1993).
 % Version 4.5 prevents modno-comments from being split across lines (Dec 2002).
+% Version 4.6 fixes archaic @@z logic; is again big enough for TeX (Jan 2021).
 
 % Here is TeX material that gets inserted after \input webmac
 \def\hang{\hangindent 3em\indent\ignorespaces}
@@ -31,13 +32,13 @@
 \def\({} % kludge for alphabetizing certain module names
 
 \def\title{TANGLE}
-\def\contentspagenumber{123} % should be odd
+\def\contentspagenumber{125} % should be odd
 \def\topofcontents{\null\vfill
   \titlefalse % include headline on the contents page
   \def\rheader{\mainfont Appendix E\hfil \contentspagenumber}
   \centerline{\titlefont The {\ttitlefont TANGLE} processor}
   \vskip 15pt
-  \centerline{(Version 4.5)}
+  \centerline{(Version 4.6)}
   \vfill}
 \pageno=\contentspagenumber \advance\pageno by 1
 
@@ -66,7 +67,7 @@ dependencies' in the index below.
 The ``banner line'' defined here should be changed whenever \.{TANGLE}
 is modified.
 
-@d banner=='This is TANGLE, Version 4.5'
+@d banner=='This is TANGLE, Version 4.6'
 
 @ The program begins with a fairly normal header, made up of pieces that
 @^system dependencies@>
@@ -182,7 +183,7 @@ should be sufficient for most applications of \.{TANGLE}.
 @!buf_size=100; {maximum length of input line}
 @!max_bytes=45000; {|1/ww| times the number of bytes in identifiers,
   strings, and module names; must be less than 65536}
-@!max_toks=50000; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
+@!max_toks=65000; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
   must be less than 65536}
 @!max_names=4000; {number of identifiers, strings, module names;
   must be less than 10240}
@@ -732,7 +733,7 @@ there are programs that need more than 65536 tokens, and some programs
 even need more than 65536 bytes; \TeX\ is one of these.  To get around
 this problem, a slight complication has been added to the data structures:
 |byte_mem| and |tok_mem| are two-dimensional arrays, whose first index is
-either 0 or 1. (For generality, the first index is actually allowed to run
+either 0 or 1 or 2. (For generality, the first index is actually allowed to run
 between 0 and |ww-1| in |byte_mem|, or between 0 and |zz-1| in |tok_mem|,
 where |ww| and |zz| are set to 2 and~3; the program will work for any
 positive values of |ww| and |zz|, and it can be simplified in obvious ways
@@ -875,7 +876,7 @@ like simple identifiers, their |equiv| value points to the replacement text.
 @ The names of modules are stored in |byte_mem| together
 with the identifier names, but a hash table is not used for them because
 \.{TANGLE} needs to be able to recognize a module name when given a prefix of
-that name. A conventional binary seach tree is used to retrieve module names,
+that name. A conventional binary search tree is used to retrieve module names,
 with fields called |llink| and |rlink| in place of |link| and |ilk|. The
 root of this tree is |rlink[0]|. If |p| is a pointer to a module name,
 |equiv[p]| points to its replacement text, just as in simple and parametric
@@ -977,7 +978,7 @@ id_lookup:=p;
 end;
 
 @ A simple hash code is used: If the sequence of
-ASCII codes is $c_1c_2\ldots c_m$, its hash value will be
+ASCII codes is $c_1c_2\ldots c_n$, its hash value will be
 $$(2^{n-1}c_1+2^{n-2}c_2+\cdots+c_n)\,\bmod\,|hash_size|.$$
 
 @<Compute the hash...@>=
@@ -1311,7 +1312,7 @@ space or line breaks allowed between them (the \.{@@\&} operation of \.{WEB}).
 \hang |double_dot| denotes `\.{..}' in \PASCAL.
 
 \hang |verbatim| denotes the \.{@@=} that begins a verbatim \PASCAL\ string.
-It is also used for the end of the string.
+The \.{@@>} at the end of such a string is also denoted by |verbatim|.
 
 \hang |force_line| denotes the \.{@@\\} that forces a new line in the
 \PASCAL\ output.
@@ -1758,11 +1759,11 @@ output&|out_buf|&|out_state|&|out_sign|&|out_val|&|out_app|&|last_sign|\cr
 (&\.(&|misc|\cr
 x&\.{(x}&|num_or_id|\cr
 -&\.{(x}&|sign|&&&$-1$&$-1$\cr
-15&\.{(x}&|sign_val|&\.{"+"}&$-15$&&$-15$\cr
+15&\.{(x}&|sign_val|&\.{"+"}&$-15$&&$-1$\cr
 +&\.{(x}&|sign_val_sign|&\.{"+"}&$-15$&$+1$&$+1$\cr
 19&\.{(x}&|sign_val_val|&\.{"+"}&$-15$&$+19$&$+1$\cr
 -&\.{(x}&|sign_val_sign|&\.{"+"}&$+4$&$-1$&$-1$\cr
-2&\.{(x}&|sign_val_val|&\.{"+"}&$+4$&$-2$&$-2$\cr
+2&\.{(x}&|sign_val_val|&\.{"+"}&$+4$&$-2$&$-1$\cr
 )&\.{(x+2)}&|misc|\cr}}$$
 At each stage we have put as much into the buffer as possible without
 knowing what is coming next. Examples like `\.{x-0.1}' indicate why
@@ -2474,9 +2475,7 @@ end;
 @ @<Read from |web_file|...@>=
 begin incr(line);
 if not input_ln(web_file) then input_has_ended:=true
-else if limit=change_limit then
-  if buffer[0]=change_buffer[0] then
-    if change_limit>0 then check_change;
+else if change_limit>0 then check_change;
 end
 
 @ @<Read from |change_file|...@>=
@@ -2505,7 +2504,7 @@ had a line that didn't match any relevant line in |web_file|.
 
 @<Check that all changes have been read@>=
 if change_limit<>0 then {|changing| is false}
-  begin for ii:=0 to change_limit do buffer[ii]:=change_buffer[ii];
+  begin for ii:=0 to change_limit-1 do buffer[ii]:=change_buffer[ii];
   limit:=change_limit; changing:=true; line:=other_line; loc:=change_limit;
   err_print('! Change file entry did not match');
 @.Change file entry did not match@>
@@ -2606,7 +2605,7 @@ exit:end;
 @ @<Do special things when |c="@@"...@>=
 if c="@@" then
   begin c:=buffer[loc];
-  if (c<>" ")and(c<>tab_mark)and(c<>"*")and(c<>"z")and(c<>"Z") then incr(loc)
+  if (c<>" ")and(c<>tab_mark)and(c<>"*") then incr(loc)
   else  begin err_print('! Section ended in mid-comment');
 @.Section ended in mid-comment@>
     decr(loc); return;
@@ -2827,7 +2826,7 @@ if k>=longest_name-2 then
 
 @* Scanning a numeric definition.
 When \.{TANGLE} looks at the \PASCAL\ text following the `\.=' of a numeric
-macro definition, it calls on the precedure |scan_numeric(p)|, where |p|
+macro definition, it calls on the procedure |scan_numeric(p)|, where |p|
 points to the name that is to be defined. This procedure evaluates the
 right-hand side, which must consist entirely of integer constants and
 defined numeric macros connected with \.+ and \.- signs (no parentheses).
@@ -3105,14 +3104,14 @@ loop@+  begin continue: while next_control<=format do
   else if next_control=equivalence_sign then
     begin define_macro(simple); goto continue;
     end
-  else @<If the next text is `|(#)==|', call |define_macro|
+  else @<If the next text is `\.{(\#)==}', call |define_macro|
     and |goto continue|@>;
   err_print('! Definition flushed since it starts badly');
 @.Definition flushed...@>
   end;
 done:
 
-@ @<If the next text is `|(#)==|'...@>=
+@ @<If the next text is `\.{(\#)==}'...@>=
 if next_control="(" then
   begin next_control:=get_next;
   if next_control="#" then

@@ -1,6 +1,6 @@
 /* tex-version.h:
 
-   Copyright (C) 1991-2020 Christian Schenk
+   Copyright (C) 1991-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,10 +18,10 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 1
+#define MIKTEX_COMP_MINOR_VERSION 2
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "3.14159265"
+#define MIKTEX_COMP_ORIG_VERSION_STR "3.141592653"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "© 1982 D. E. Knuth; all rights are reserved."
 #define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society"

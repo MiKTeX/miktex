@@ -1,0 +1,89 @@
+This is TeX, Version 3.141592653 (INITEX)
+**
+Please type the name of your input file.
+**\input trip
+(trip.tex
+! Bad character code (256).
+<to be read again> 
+                   -
+l.26   \nonstopmode\lccode256-
+                              0\mathchardef\a="8000\def\a{ SC...
+! Bad mathchar (32768).
+<to be read again> 
+                   \def 
+l.26 ...\mathchardef\a="8000\def
+                                \a{ SCALED 3~2769}
+! Illegal magnification has been changed to 1000 (32769).
+<to be read again> 
+                   \skewchar 
+l.28   \skewchar
+                \rip=`B \countdef\countz % \countz will be \c...
+! Missing number, treated as zero.
+<to be read again> 
+                   \def 
+l.29   \def
+           \on{1} \toksdef\tokens=256 \show\errorstopmode
+! Bad register code (256).
+l.29 ...{1} \toksdef\tokens=256 
+                                \show\errorstopmode
+> \errorstopmode=\errorstopmode.
+l.29 ...=256 \show\errorstopmode
+                                
+> \rip .
+<recently read> \font 
+                      
+l.30   \showthe\font
+                     \showthe\pageshrink \showthe\pagegoal
+> 0.0pt.
+l.30 ...font \showthe\pageshrink
+                                 \showthe\pagegoal
+> 16383.99998pt.
+l.30 ...shrink \showthe\pagegoal
+                                
+! Illegal unit of measure (replaced by filll).
+l.32 ...fdim\hsize<\hsize\fi lll
+                                minus 0 fill
+\one \csname on line 60
+! You can't use `\badness' in vertical mode.
+l.61 ...yphenpenalty 89 \badness
+                                
+! Bad \patterns.
+l.75 ...uage256\patterns{0111 \?
+                                50AA1b3 *1AcA. bb bb1 0B2B0 b...
+! Nonletter.
+l.75 ...ge256\patterns{0111 \?50
+                                AA1b3 *1AcA. bb bb1 0B2B0 b1c...
+! Duplicate pattern.
+l.75 ...1b3 *1AcA. bb bb1 0B2B0 
+                                b1c}} % *==space
+! OK (see the transcript file).
+l.78 ...ns{q9q} -\0qq \showlists
+                                {\language\?\noboundary111}%
+! Too late for \patterns.
+l.79 ...har\rip=`-\cr}}\patterns
+                                {toolate}\showbox0}
+! OK (see the transcript file).
+<to be read again> 
+                   }
+l.79 ...terns{toolate}\showbox0}
+                                
+ )
+(see the transcript file for additional information)
+Beginning to dump on file trip.fmt
+ (preloaded format=trip 1776.7.4)
+1326 strings of total length 23633
+471 memory locations dumped; current usage is 96&278
+341 multiletter control sequences
+\font\nullfont=nullfont
+\font\rip=trip
+\font\smalltrip=trip at 5.0pt
+\font\bigtr
+p=trip at 20.0pt
+2279 words of font info for 3 preloaded fonts
+1 hyphenation exception
+Hyphenation trie of length 273 has 9 ops out of 500
+  2 for language 255
+  1 for language 98
+  6 for language 0
+No pages of output.
+Transcript written on trip.log.

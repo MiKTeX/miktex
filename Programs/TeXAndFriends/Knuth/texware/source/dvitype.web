@@ -32,7 +32,7 @@
 \def\title{DVI$\,$\lowercase{type}}
 \def\contentspagenumber{401}
 \def\topofcontents{\null
-  \def\titlepage{F} % include headline on the contents page
+  \titlefalse % include headline on the contents page
   \def\rheader{\mainfont\hfil \contentspagenumber}
   \vfill
   \centerline{\titlefont The {\ttitlefont DVItype} processor}
@@ -1245,7 +1245,7 @@ if wp>0 then for k:=width_ptr to wp-1 do
 options that the user must specify: The |out_mode| level is set to one of
 five values (|errors_only|, |terse|, |mnemonics_only|,
 |verbose|, |the_works|), giving
-different degrees of output; and the typeout can be confined to a
+different degrees of output; and the listing can be confined to a
 restricted subset of the pages by specifying the desired starting page and
 the maximum number of pages. Furthermore there is an option to specify the
 resolution of an assumed discrete output device, so that pixel-oriented
@@ -2266,7 +2266,7 @@ if k<>post then bad_dvi('byte ',q:1,' is not post');
 post_loc:=q; first_backpointer:=signed_quad
 
 @ Note that the last steps of the above code save the locations of the
-the |post| byte and the final |bop|.  We had better declare these global
+|post| byte and the final |bop|.  We had better declare these global
 variables, together with two more that we will need shortly.
 
 @<Glob...@>=

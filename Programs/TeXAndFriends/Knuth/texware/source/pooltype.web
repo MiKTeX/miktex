@@ -16,7 +16,7 @@
 \def\title{POOL\lowercase{type}}
 \def\contentspagenumber{101}
 \def\topofcontents{\null
-  \def\titlepage{F} % include headline on the contents page
+  \titlefalse % include headline on the contents page
   \def\rheader{\mainfont\hfil \contentspagenumber}
   \vfill
   \centerline{\titlefont The {\ttitlefont POOLtype} processor}
@@ -69,7 +69,7 @@ procedure initialize; {this procedure gets things started properly}
 (The following material is copied verbatim from \TeX82.
 Thus, the same system-dependent changes should be made to both programs.)
 
-In order to make \TeX\ readily portable between a wide variety of
+In order to make \TeX\ readily portable to a wide variety of
 computers, all of its input text is converted to an internal eight-bit
 code that includes standard ASCII, the ``American Standard Code for
 Information Interchange.''  This conversion is done immediately when each
@@ -87,7 +87,7 @@ know what the real position is; the program that does the actual printing from
 a particular font encoding.
 @^ASCII code@>
 
-\TeX's internal code is relevant also with respect to constants
+\TeX's internal code also defines the value of constants
 that begin with a reverse apostrophe; and it provides an index to the
 \.{\\catcode}, \.{\\mathcode}, \.{\\uccode}, \.{\\lccode}, and \.{\\delcode}
 tables.
@@ -367,7 +367,7 @@ extended character set recommended in {\sl The \TeX book\/} would, for
 example, be `|k in [0,@'10..@'12,@'14,@'15,@'33,@'177..@'377]|'.
 If character |k| cannot be printed, and |k<@'200|, then character |k+@'100| or
 |k-@'100| must be printable; moreover, ASCII codes |[@'41..@'46,
-@'60..@'71, @'141..@'146, @'160..@'171]| must be printable.
+@'60..@'71, @'136, @'141..@'146, @'160..@'171]| must be printable.
 Thus, at least 80 printable characters are needed.
 @:TeXbook}{\sl The \TeX book@>
 @^character set dependencies@>

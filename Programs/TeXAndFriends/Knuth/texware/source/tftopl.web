@@ -28,7 +28,7 @@
 \def\title{TF\lowercase{to}PL}
 \def\contentspagenumber{201}
 \def\topofcontents{\null
-  \def\titlepage{F} % include headline on the contents page
+  \titlefalse % include headline on the contents page
   \def\rheader{\mainfont\hfil \contentspagenumber}
   \vfill
   \centerline{\titlefont The {\ttitlefont TFtoPL} processor}
@@ -782,7 +782,7 @@ end
 @* Doing it.
 \TeX\ checks the information of a \.{TFM} file for validity as the
 file is being read in, so that no further checks will be needed when
-typesetting is going on. And when it finds something wrong, it justs
+typesetting is going on. And when it finds something wrong, it just
 calls the file ``bad,'' without identifying the nature of the problem,
 since \.{TFM} files are supposed to be good almost all of the time.
 
