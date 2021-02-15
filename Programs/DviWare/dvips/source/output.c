@@ -184,19 +184,19 @@ copyfile_general(const char *s, struct header_list *cur_header)
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
-#else /* VMCMS */
+#else /* ! VMCMS */
       sprintf(errbuf,
     "Couldn't find figure file %s with MVS name %s; continuing.", s, trunc_s);
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
-#endif /* VMCMS */
-#else /* VMCMS || MVSXA */
+#endif /* ! VMCMS */
+#else /*  ! (VMCMS || MVSXA) */
       sprintf(errbuf, "Could not find figure file %.500s; continuing.", s);
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
-#endif /* VMCMS || MVSXA */
+#endif /* !(VMCMS || MVSXA) */
       break;
 #ifndef VMCMS
 #ifndef MVSXA
@@ -248,9 +248,10 @@ copyfile_general(const char *s, struct header_list *cur_header)
       }
       break;
    }
-   if (f==NULL)
+   if (f==NULL) {
+      found_problems = 1; /* continue, but eventually exit unsuccessfully */
       error(errbuf);
-   else {
+   } else {
       if (! quiet) {
 #if defined(VMCMS) || defined (MVSXA)
          if (strlen(s) + prettycolumn > STDOUTSIZE) {

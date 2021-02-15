@@ -85,6 +85,7 @@ static const char *const callbacknames[] = {
     "make_extensible",
     "process_pdf_image_content",
     "provide_charproc_data",
+    "input_level_string",
     NULL
 };
 

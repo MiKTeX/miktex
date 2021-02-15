@@ -89,6 +89,7 @@ FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 /* PS fonts fully downloaded as headers */
 char *downloadedpsnames[DOWNLOADEDPSSIZE];
 
+int found_problems = 0;      /* should we exit successfully? */
 int unused_top_of_psnames;   /* unused top number of downloadedpsnames[#] */
 fontdesctype *fonthead;      /* list of all fonts mentioned so far */
 fontdesctype *curfnt;        /* the currently selected font */
@@ -1613,7 +1614,7 @@ default:
 #endif
    }
 #endif
-   return 0;
+   return found_problems ? EXIT_FAILURE : EXIT_SUCCESS;
    /*NOTREACHED*/
 }
 #ifdef VMS

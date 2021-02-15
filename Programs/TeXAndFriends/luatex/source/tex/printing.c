@@ -1316,24 +1316,39 @@ void end_diagnostic(boolean blank_line)
 
 void print_input_level(void)
 {
-    int m = level_max;
-    if (m) {
-        int l = input_ptr;
-        int c = level_chr > 0 ? level_chr : '.';
-        if (l > m) {
-            tprint_nl("[");
-            print_int((l/m)*m);
-            print(']');
-            l = l % m;
+    int callback_id = callback_defined(input_level_string_callback);
+    if (callback_id>0) {
+        char *s = NULL;
+        if (run_callback(callback_id, "d->S", input_ptr, &s)) {
+            if (s && strlen(s) > 0) {
+                tprint_nl(s);
+                free(s);
+            } else {
+                print_ln();
+            }
         } else {
             print_ln();
         }
-        while (l > 0) {
-           print(c);
-           l--;
-        }
     } else {
-        print_ln();
+        int m = level_max;
+        if (m) {
+            int l = input_ptr;
+            int c = level_chr > 0 ? level_chr : '.';
+            if (l > m) {
+                tprint_nl("[");
+                print_int((l/m)*m);
+                print(']');
+                l = l % m;
+            } else {
+                print_ln();
+            }
+            while (l > 0) {
+               print(c);
+               l--;
+            }
+        } else {
+            print_ln();
+        }
     }
 }
 

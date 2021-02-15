@@ -1,5 +1,7 @@
 #ifndef _PROTOS_H_
 
+/* see dvips.h for copyright notice */
+
 #define _PROTOS_H_
 
 /* some types need declaration before being used */
@@ -258,6 +260,7 @@ extern int pagecounter;
 #endif
 
 /* global variables from dvips.c */
+extern int found_problems;
 extern char *downloadedpsnames[];
 extern int unused_top_of_psnames;
 extern fontdesctype *fonthead;

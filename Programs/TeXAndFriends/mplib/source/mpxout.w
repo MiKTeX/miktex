@@ -574,7 +574,7 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
     if (textype == B_TEX) {
       /* put no |%| at end if it's only 1 line total, starting with |%|;
        * this covers the special case |%&format| in a single line. */
-      if (t != s || *t != '%')
+      if (t != s && *t != '%')
         fprintf(outfile,"%%");
     }
     free(res);

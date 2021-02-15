@@ -1383,7 +1383,14 @@ void dvi_right (int32_t x)
     pdf_rect rect;
     spt_t    width, height, depth;
     if (catch_phantom == 1) {
-      height = loaded_fonts[current_font].size;
+      if (current_font >= 0 && current_font < num_loaded_fonts) {
+        height = loaded_fonts[current_font].size;
+      } else {
+        if (dpx_conf.verbose_level > 0) {
+          WARN("Don't know how to calculate the box height since current font is not set...");
+        }
+        height = 0.0;
+      }
       depth  = 0.0;
     } else {
       height = phantom_height / dvi2pts;

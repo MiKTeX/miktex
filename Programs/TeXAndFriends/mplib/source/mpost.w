@@ -1134,6 +1134,7 @@ fprintf(stdout,
 "  -recorder                 enable filename recorder\n"
 "  -restricted               be secure: disable tex, makempx and editor commands\n"
 "  -troff                    set prologues:=1 and assume TEXPROGRAM is really troff\n"
+"  -T                        same as -troff\n"
 "  -s INTERNAL=\"STRING\"      set internal INTERNAL to the string value STRING\n"
 "  -s INTERNAL=NUMBER        set internal INTERNAL to the integer value NUMBER\n"
 "  -help                     display this help and exit\n"
