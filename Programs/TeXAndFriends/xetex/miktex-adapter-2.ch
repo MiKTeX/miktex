@@ -1,49 +1,9 @@
-%% miktex-adapter-2.ch:
-%% 
-%% Copyright (C) 2007-2020 Christian Schenk
-%% 
-%% This file is free software; you can redistribute it and/or modify it
-%% under the terms of the GNU General Public License as published by the
-%% Free Software Foundation; either version 2, or (at your option) any
-%% later version.
-%% 
-%% This file is distributed in the hope that it will be useful, but
-%% WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%% General Public License for more details.
-%% 
-%% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-% _____________________________________________________________________________
-%
-% [2.20]
-% _____________________________________________________________________________
-
- @x
-@!xchr: array [ASCII_code] of text_char;
-  {specifies conversion of output characters}
- @y
-xchr: array [ASCII_code] of text_char;
-   { specifies conversion of output characters }
-xprn: array [ASCII_code] of ASCII_code;
-   { non zero iff character is printable }
- @z
-
-% _____________________________________________________________________________
-%
-% [2.23]
-% _____________________________________________________________________________
-
- @x
-for i:=0 to @'37 do xchr[i]:=' ';
-for i:=@'177 to @'377 do xchr[i]:=' ';
- @y
-{Initialize |xchr| to the identity mapping.}
-for i:=0 to @'37 do xchr[i]:=i;
-for i:=@'177 to @'377 do xchr[i]:=i;
- @z
+%%% miktex-adapter-2.ch:
+%%%
+%%% Derived from:
+%%% tex.ch for C compilation with web2c, derived from various other
+%%% change files.  By Tim Morgan, UC Irvine ICS Department, and many
+%%% others.
 
 % _____________________________________________________________________________
 %
@@ -133,35 +93,6 @@ if translate_filename then begin
   wterm_ln(')');
 end;
 @z
-
-
-% _____________________________________________________________________________
-%
-% [5.75]
-% _____________________________________________________________________________
-
- @x
-if last<>first then for k:=first to last-1 do print(buffer[k]);
- @y
-k:=first; while k < last do begin print_buffer(k) end;
- @z
-
-% _____________________________________________________________________________
-%
-% [8.114]
-% _____________________________________________________________________________
-
- @x
-@d miktex_int_pars=miktex_int_base+3 {total number of \MiKTeX's integer parameters}
- @y
-@d web2c_int_pars=web2c_int_base+3 {total number of web2c's integer parameters}
- @z
-
- @x
-@d int_pars=miktex_int_pars {total number of integer parameters}
- @y
-@d int_pars=web2c_int_pars {total number of integer parameters}
- @z
 
 % _____________________________________________________________________________
 %
@@ -342,20 +273,6 @@ end;
 @y
 @!format_engine: ^text_char;
 @z
-
-% _____________________________________________________________________________
-%
-% [50.1336]
-% _____________________________________________________________________________
-
- @x
-@!w: four_quarters; {four ASCII codes}
- @y
-@!format_engine: ^text_char;
-@!dummy_xord: ASCII_code;
-@!dummy_xchr: text_char;
-@!dummy_xprn: ASCII_code;
- @z
 
 % _____________________________________________________________________________
 %

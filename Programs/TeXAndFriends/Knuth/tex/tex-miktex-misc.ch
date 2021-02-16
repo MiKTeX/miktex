@@ -1,4 +1,4 @@
-%%% tex-miktex-misc.ch: edited by Christian Schenk for MiKTeX
+%%% tex-miktex-misc.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other

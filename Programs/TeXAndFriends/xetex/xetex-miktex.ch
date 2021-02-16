@@ -1,20 +1,9 @@
-%% xetex-miktex.ch:
-%% 
-%% Copyright (C) 2007-2020 Christian Schenk
-%% 
-%% This file is free software; you can redistribute it and/or modify it
-%% under the terms of the GNU General Public License as published by the
-%% Free Software Foundation; either version 2, or (at your option) any
-%% later version.
-%% 
-%% This file is distributed in the hope that it will be useful, but
-%% WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%% General Public License for more details.
-%% 
-%% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+%%% xetex-miktex.ch:
+%%%
+%%% Derived from:
+%%% tex.ch for C compilation with web2c, derived from various other
+%%% change files.  By Tim Morgan, UC Irvine ICS Department, and many
+%%% others.
 
 % _____________________________________________________________________________
 %
@@ -179,21 +168,6 @@ if (max_font_max<min_quarterword)or(max_font_max>max_quarterword) then bad:=15;
 
 % _____________________________________________________________________________
 %
-% [17.244]
-% _____________________________________________________________________________
-
- @x
-@d web2c_int_pars=web2c_int_base+3 {total number of web2c's integer parameters}
-@#
-@d etex_int_base=web2c_int_pars {base for \eTeX's integer parameters}
- @y
-@d miktex_int_pars=miktex_int_base+3 {total number of \MiKTeX's integer parameters}
-@#
-@d etex_int_base=miktex_int_pars {base for \eTeX's integer parameters}
- @z
-
-% _____________________________________________________________________________
-%
 % [18.276]
 % _____________________________________________________________________________
 
@@ -282,13 +256,6 @@ end
 %
 % [29.554]
 % _____________________________________________________________________________
-
- @x
-var temp_str: str_number;
- @y
-var temp_str: str_number;
-k: integer;
- @z
 
 @x
   if kpse_in_name_ok(stringcast(name_of_file+1))
@@ -386,13 +353,6 @@ if miktex_open_tfm_file(tfm_file,name_of_file) then begin
 %
 % [49.1308]
 % _____________________________________________________________________________
-
- @x
-var c:0..1; {1 for \.{\\openin}, 0 for \.{\\closein}}
- @y
-var c:0..1; {1 for \.{\\openin}, 0 for \.{\\closein}}
-k:integer;
- @z
 
 @x
   if open_in_name_ok(stringcast(name_of_file+1))
