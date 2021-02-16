@@ -1,7 +1,8 @@
 /****************************************************************************\
+ $Id$
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
- Copyright (c) 2009-2012 by Jonathan Kew
+ Copyright (c) 2009-2021 by Jonathan Kew
  Copyright (c) 2012 by Khaled Hosny
 
  SIL Author(s): Jonathan Kew
@@ -427,9 +428,11 @@ for j:=1 to n do append_to_name(TEX_format_default[j]);
 
 @x [29.537] l.10338 - start_input
 var temp_str: str_number;
+v: pointer;
 begin scan_file_name; {set |cur_name| to desired file name}
 @y
 var temp_str: str_number;
+v: pointer;
 @!k:0..file_name_size; {index into |name_of_file16|}
 begin scan_file_name; {set |cur_name| to desired file name}
 @z

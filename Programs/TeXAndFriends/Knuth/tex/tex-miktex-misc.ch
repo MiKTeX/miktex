@@ -273,6 +273,35 @@ versions of the program.
 
 % _____________________________________________________________________________
 %
+% [2.20]
+% _____________________________________________________________________________
+
+@x
+@!xchr: array [ASCII_code] of text_char;
+  {specifies conversion of output characters}
+@y
+xchr: array [ASCII_code] of text_char;
+   { specifies conversion of output characters }
+xprn: array [ASCII_code] of ASCII_code;
+   { non zero iff character is printable }
+@z
+
+% _____________________________________________________________________________
+%
+% [2.23]
+% _____________________________________________________________________________
+
+@x [2.23]
+for i:=0 to @'37 do xchr[i]:=' ';
+for i:=@'177 to @'377 do xchr[i]:=' ';
+@y
+{Initialize |xchr| to the identity mapping.}
+for i:=0 to @'37 do xchr[i]:=i;
+for i:=@'177 to @'377 do xchr[i]:=i;
+@z
+
+% _____________________________________________________________________________
+%
 % [2.24]
 % _____________________________________________________________________________
 
@@ -1049,28 +1078,6 @@ full_source_filename_stack[1]:=0;
 
 % _____________________________________________________________________________
 %
-% [24.341]
-% _____________________________________________________________________________
-
-@x
-var k:0..buf_size; {an index into |buffer|}
-@y
-var k:0..sup_buf_size; {an index into |buffer|}
-@z
-
-% _____________________________________________________________________________
-%
-% [24.363]
-% _____________________________________________________________________________
-
-@x
-var k:0..buf_size; {an index into |buffer|}
-@y
-var k:0..sup_buf_size; {an index into |buffer|}
-@z
-
-% _____________________________________________________________________________
-%
 % [25.366]
 % _____________________________________________________________________________
 
@@ -1703,7 +1710,7 @@ if term_offset+length(full_source_filename_stack[in_open])>max_print_line-2
 then print_ln
 else if (term_offset>0)or(file_offset>0) then print_char(" ");
 print_char("("); incr(open_parens);
-print_file_name(0, full_source_filename_stack[in_open], 0); update_terminal;
+slow_print(full_source_filename_stack[in_open]); update_terminal;
 @z
 
 @x

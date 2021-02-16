@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,17 +36,20 @@ set(C4P_FLAGS
 )
 
 set(tex_changefiles
-  ${CMAKE_CURRENT_SOURCE_DIR}/mltex-miktex.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/enctex-miktex.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-misc.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-enctex.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-hash.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-hyph.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-pool.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-quiet.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-src.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-stat.ch
-  ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex-write18.ch
+  ${MLTEX_MIKTEX_CH}
+  ${TEX_MIKTEX_CH}
+  ${TEX_MIKTEX_HASH_CH}
+  ${TEX_MIKTEX_HYPH_CH}
+  ${TEX_MIKTEX_POOL_CH}
+  ${TEX_MIKTEX_QUIET_CH}
+  ${TEX_MIKTEX_SRC_CH}
+  ${TEX_MIKTEX_STAT_CH}
+  ${TEX_MIKTEX_WRITE18_CH}
+  ${ENCTEX1_CH}
+  ${ENCTEX_TEX_CH}
+  ${ENCTEX2_CH}
+  ${TEX_MIKTEX_ENCTEX_CH}
+  ${TEX_MIKTEX_FINISH_CH}
 )
 
 add_custom_command(

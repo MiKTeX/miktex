@@ -1,6 +1,6 @@
 %% pdftex-pre.ch:
 %% 
-%% Copyright (C) 2003-2020 Christian Schenk
+%% Copyright (C) 2003-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -28,9 +28,9 @@
 % _____________________________________________________________________________
 
 @x
-@d TeX_banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@d TeX_banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @#
 @d banner==pdfTeX_banner
 @y
-@d banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@d banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @z

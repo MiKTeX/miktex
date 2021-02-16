@@ -1,6 +1,6 @@
 %% pdftex-post.ch:
 %% 
-%% Copyright (C) 2003-2020 Christian Schenk
+%% Copyright (C) 2003-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -41,9 +41,9 @@
 % _____________________________________________________________________________
 
 @x
-@d int_pars=miktex_int_pars {total number of integer parameters}
+@d int_pars=web2c_int_pars {total number of integer parameters}
 @#
 @d pdftex_first_integer_code = tex_int_pars {base for \pdfTeX's integer parameters}
 @y
-@d pdftex_first_integer_code = miktex_int_pars {base for \pdfTeX's integer parameters}
+@d pdftex_first_integer_code = web2c_int_pars {base for \pdfTeX's integer parameters}
 @z

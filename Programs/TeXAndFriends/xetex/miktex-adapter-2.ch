@@ -21,29 +21,29 @@
 % [2.20]
 % _____________________________________________________________________________
 
-@x
+ @x
 @!xchr: array [ASCII_code] of text_char;
   {specifies conversion of output characters}
-@y
+ @y
 xchr: array [ASCII_code] of text_char;
    { specifies conversion of output characters }
 xprn: array [ASCII_code] of ASCII_code;
    { non zero iff character is printable }
-@z
+ @z
 
 % _____________________________________________________________________________
 %
 % [2.23]
 % _____________________________________________________________________________
 
-@x
+ @x
 for i:=0 to @'37 do xchr[i]:=' ';
 for i:=@'177 to @'377 do xchr[i]:=' ';
-@y
+ @y
 {Initialize |xchr| to the identity mapping.}
 for i:=0 to @'37 do xchr[i]:=i;
 for i:=@'177 to @'377 do xchr[i]:=i;
-@z
+ @z
 
 % _____________________________________________________________________________
 %
@@ -151,17 +151,17 @@ k:=first; while k < last do begin print_buffer(k) end;
 % [8.114]
 % _____________________________________________________________________________
 
-@x
+ @x
 @d miktex_int_pars=miktex_int_base+3 {total number of \MiKTeX's integer parameters}
-@y
+ @y
 @d web2c_int_pars=web2c_int_base+3 {total number of web2c's integer parameters}
-@z
+ @z
 
-@x
+ @x
 @d int_pars=miktex_int_pars {total number of integer parameters}
-@y
+ @y
 @d int_pars=web2c_int_pars {total number of integer parameters}
-@z
+ @z
 
 % _____________________________________________________________________________
 %
@@ -348,14 +348,14 @@ end;
 % [50.1336]
 % _____________________________________________________________________________
 
-@x
+ @x
 @!w: four_quarters; {four ASCII codes}
-@y
+ @y
 @!format_engine: ^text_char;
 @!dummy_xord: ASCII_code;
 @!dummy_xchr: text_char;
 @!dummy_xprn: ASCII_code;
-@z
+ @z
 
 % _____________________________________________________________________________
 %

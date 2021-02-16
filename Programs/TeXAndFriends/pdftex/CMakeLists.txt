@@ -149,9 +149,7 @@ set(miktex_synctex_changefiles ${TEX_MIKTEX_SYNCTEX_CH})
 
 set(miktex_tex_change_files
   ${MLTEX_MIKTEX_CH}
-  ${ENCTEX_MIKTEX_CH}
   ${TEX_MIKTEX_CH}
-  ${TEX_MIKTEX_ENCTEX_CH}
   ${TEX_MIKTEX_HASH_CH}
   ${TEX_MIKTEX_HYPH_CH}
   ${TEX_MIKTEX_POOL_CH}
@@ -160,6 +158,12 @@ set(miktex_tex_change_files
   ${miktex_synctex_changefiles}
   ${TEX_MIKTEX_STAT_CH}
   ${TEX_MIKTEX_WRITE18_CH}
+  ${TRACINGSTACKLEVELS_CH}
+  ${ENCTEX1_CH}
+  ${ENCTEX_PDFTEX_CH}
+  ${ENCTEX2_CH}
+  ${TEX_MIKTEX_ENCTEX_CH}
+  ${TEX_MIKTEX_FINISH_CH}
 )
 
 set(pdftex_web_file ${CMAKE_CURRENT_SOURCE_DIR}/source/pdftex.web)

@@ -20,8 +20,9 @@
 
 @x limbo l.1 - this is e-TeX
 % This program is copyright (C) 1982 by D. E. Knuth; all rights are reserved.
-% Copying of this file is authorized only if (1) you are D. E. Knuth, or if
-% (2) you make absolutely no changes to your copy. (The WEB system provides
+% Unlimited copying and redistribution of this file are permitted as long
+% as this file is not modified. Modifications are permitted, but only if
+% the resulting file is not named tex.web. (The WEB system provides
 % for alterations via an auxiliary file; the master file should stay intact.)
 % See Appendix H of the WEB manual for hints on how to install this program.
 % And see Appendix A of the TRIP manual for details about how to validate it.
@@ -189,16 +190,16 @@ known as `\eTeX'.
 @z
 %---------------------------------------
 @x [1] m.2 l.190 - e-TeX basic
-@d banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@d banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @y
 @d eTeX_version=2 { \.{\\eTeXversion} }
 @d eTeX_revision==".6" { \.{\\eTeXrevision} }
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
-@d eTeX_banner=='This is e-TeX, Version 3.14159265',eTeX_version_string
+@d eTeX_banner=='This is e-TeX, Version 3.141592653',eTeX_version_string
   {printed when \eTeX\ starts}
 @#
-@d TeX_banner=='This is TeX, Version 3.14159265' {printed when \TeX\ starts}
+@d TeX_banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
 @#
 @d banner==eTeX_banner
 @#
@@ -1490,9 +1491,9 @@ end
 @z
 %---------------------------------------
 @x [29] m.536 l.10348 - e-TeX basic
-print_two(time div 60); print_char(":"); print_two(time mod 60);
+print_two(sys_time div 60); print_char(":"); print_two(sys_time mod 60);
 @y
-print_two(time div 60); print_char(":"); print_two(time mod 60);
+print_two(sys_time div 60); print_char(":"); print_two(sys_time mod 60);
 if eTeX_ex then
   begin; wlog_cr; wlog('entering extended mode');
   end;
@@ -1947,9 +1948,9 @@ LR_save:=LR_ptr;
 @z
 %---------------------------------------
 @x [39] m.879 l.17293 - e-TeX TeXXeT
-  r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node| or |penalty_node|}
+  r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node|, or |penalty_node|}
 @y
-  r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node| or |penalty_node|}
+  r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node|, or |penalty_node|}
   if type(q)=math_node then if TeXXeT_en then
     @<Adjust \(t)the LR stack for the |post_line_break| routine@>;
 @z
@@ -3019,9 +3020,9 @@ common_ending: define(u,set_font,f); eqtb[font_id_base+f]:=eqtb[u]; font_id_text
 @z
 %---------------------------------------
 @x [49] m.1292 l.23633 - e-TeX show_groups
-  show_lists:print_esc("showlists");
+  show_lists_code:print_esc("showlists");
 @y
-  show_lists:print_esc("showlists");
+  show_lists_code:print_esc("showlists");
   @<Cases of |xray| for |print_cmd_chr|@>@;@/
 @z
 %---------------------------------------

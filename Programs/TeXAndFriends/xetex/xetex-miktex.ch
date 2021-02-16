@@ -182,15 +182,15 @@ if (max_font_max<min_quarterword)or(max_font_max>max_quarterword) then bad:=15;
 % [17.244]
 % _____________________________________________________________________________
 
-@x
+ @x
 @d web2c_int_pars=web2c_int_base+3 {total number of web2c's integer parameters}
 @#
 @d etex_int_base=web2c_int_pars {base for \eTeX's integer parameters}
-@y
+ @y
 @d miktex_int_pars=miktex_int_base+3 {total number of \MiKTeX's integer parameters}
 @#
 @d etex_int_base=miktex_int_pars {base for \eTeX's integer parameters}
-@z
+ @z
 
 % _____________________________________________________________________________
 %

@@ -79,6 +79,8 @@ set(miktex_tex_change_files
   ${TEX_MIKTEX_WRITE18_CH}
   ${TEX_MIKTEX_WEB2C_CH}
   ${TEX_MIKTEX_POOL_CH}
+  ${TRACINGSTACKLEVELS_CH}
+  ${TEX_MIKTEX_FINISH_CH}
 )
 
 set(pre_xetex_change_files

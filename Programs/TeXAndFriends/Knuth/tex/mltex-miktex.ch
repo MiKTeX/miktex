@@ -333,13 +333,14 @@ substitution definitions.
 @d int_pars=55 {total number of integer parameters}
 @y
 @d tex_int_pars=55 {total number of \TeX's integer parameters}
-@d miktex_int_base=tex_int_pars {base for \MiKTeX's integer parameters}
-@d char_sub_def_min_code=miktex_int_base {smallest value in the charsubdef list}
-@d char_sub_def_max_code=miktex_int_base+1 {largest value in the charsubdef list}
-@d tracing_char_sub_def_code=miktex_int_base+2 {traces changes to a charsubdef def}
-@d miktex_int_pars=miktex_int_base+3 {total number of \MiKTeX's integer parameters}
 @#
-@d int_pars=miktex_int_pars {total number of integer parameters}
+@d web2c_int_base=tex_int_pars {base for web2c's integer parameters}
+@d char_sub_def_min_code=web2c_int_base {smallest value in the charsubdef list}
+@d char_sub_def_max_code=web2c_int_base+1 {largest value in the charsubdef list}
+@d tracing_char_sub_def_code=web2c_int_base+2 {traces changes to a charsubdef def}
+@d web2c_int_pars=web2c_int_base+3 {total number of web2c's integer parameters}
+@#
+@d int_pars=web2c_int_pars {total number of integer parameters}
 @z
 
 @x [17] m.236 l.5016
@@ -750,20 +751,14 @@ else begin n:=cur_chr; get_r_token; p:=cur_cs; define(p,relax,256);
 @<Dump constants for consistency check@>;
 @y
 @<Dump constants for consistency check@>;
-dump_int(@"4D4C5458);  {ML\TeX's magic constant: "MLTX"}
-if mltex_p then dump_int(1)
-else dump_int(0);
+@<Dump ML\TeX-specific data@>;
 @z
 
 @x [50] m.1303 l.23694 - MLTeX: undump |mltex_enabled_p| from fmt file
 begin @<Undump constants for consistency check@>;
 @y
 begin @<Undump constants for consistency check@>;
-undump_int(x);   {check magic constant of ML\TeX}
-if x<>@"4D4C5458 then goto bad_fmt;
-undump_int(x);   {undump |mltex_p| flag into |mltex_enabled_p|}
-if x=1 then mltex_enabled_p:=true
-else if x<>0 then goto bad_fmt;
+@<Undump ML\TeX-specific data@>;
 @z
 
 @x [51] m.1337 l.24371 - MLTeX: add. MLTeX banner after loading fmt file
@@ -1035,6 +1030,24 @@ probably be changed in one of the next ML\TeX{} versions.
   dvi_out(base_c);@/
   cur_h:=cur_h+base_width;
   dvi_h:=cur_h {update of |dvi_h| is unnecessary, will be set in module 620}
+
+@ Dumping ML\TeX-related material.  This is just the flag in the
+format that tells us whether ML\TeX{} is enabled.
+
+@<Dump ML\TeX-specific data@>=
+dump_int(@"4D4C5458);  {ML\TeX's magic constant: "MLTX"}
+if mltex_p then dump_int(1)
+else dump_int(0);
+
+@ Undump ML\TeX-related material, which is just a flag in the format
+that tells us whether ML\TeX{} is enabled.
+
+@<Undump ML\TeX-specific data@>=
+undump_int(x);   {check magic constant of ML\TeX}
+if x<>@"4D4C5458 then goto bad_fmt;
+undump_int(x);   {undump |mltex_p| flag into |mltex_enabled_p|}
+if x=1 then mltex_enabled_p:=true
+else if x<>0 then goto bad_fmt;
 
  
 @* \[54] System-dependent changes.
