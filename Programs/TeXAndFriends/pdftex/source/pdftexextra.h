@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2016 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 

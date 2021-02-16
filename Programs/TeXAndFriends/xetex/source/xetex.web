@@ -1,6 +1,6 @@
 % Copyright (c) 1994-2008 by SIL International
-% Copyright (c) 2009-2012 by Jonathan Kew
-% Copyright (c) 2010-2012 by Han Han The Thanh
+% Copyright (c) 2009-2021 by Jonathan Kew
+% Copyright (c) 2010-2012 by Han The Thanh
 % Copyright (c) 2012-2013 by Khaled Hosny
 
 % SIL Author(s): Jonathan Kew
@@ -319,8 +319,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".999992" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.999992' {current \XeTeX\ version}
+@d XeTeX_revision==".999993" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.999993' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.141592653',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}

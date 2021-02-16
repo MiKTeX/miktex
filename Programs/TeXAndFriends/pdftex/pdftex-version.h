@@ -27,7 +27,7 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR PDFTEX_VERSION
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1982 D. E. Knuth, © 1996-2020 Hàn Thế Thành"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1982 D. E. Knuth, © 1996-2021 Hàn Thế Thành"
 
 #define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society."
 

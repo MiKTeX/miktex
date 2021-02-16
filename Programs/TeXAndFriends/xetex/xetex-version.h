@@ -25,7 +25,7 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR XETEX_VERSION
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1994-2008 SIL International, © 2009-2012 Jonathan Kew, © 2010-2012 Hàn Thế Thành, © 2012-2013 Khaled Hosny"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1994-2008 SIL International, © 2009-2021 Jonathan Kew, © 2010-2012 Hàn Thế Thành, © 2012-2013 Khaled Hosny"
 #define MIKTEX_COMP_TM_STR "TeX is a trademark of the American Mathematical Society"
 
 #include <miktex/Version>
