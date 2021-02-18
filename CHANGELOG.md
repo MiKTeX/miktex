@@ -15,7 +15,7 @@ The MiKTeX Console user interface has been translated to Simplified Chinese.
 * 2021 tune-up of TeX and METAFONT
 * dvipdfmx 20210212
 * dvisvgm 2.11.1
-* pdftex 1.40.21
+* pdftex 1.40.22
 * pmxab 2.9.4a
 * xetex 0.999993
 
