@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## pending release
+## 21.2 - 2021-02-22
 
 ### MiKTeX Console Simplified Chinese translation
 
