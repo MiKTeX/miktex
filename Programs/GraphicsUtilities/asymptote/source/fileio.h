@@ -88,7 +88,7 @@ protected:
   bool standard;   // Standard input/output
   bool binary;     // Read in binary mode.
 
-  bool nullfield;  // Used to detect null fields in line mode and cvs mode.
+  bool nullfield;  // Used to detect a null field in cvs mode.
   string whitespace;
   size_t index;    // Terminator index.
 
@@ -221,6 +221,15 @@ public:
   void ignoreComment(char&) {}
 
   template<class T>
+  void setDefault(T& val) {
+    val=T();
+  }
+
+  void setDefault(Int& val) {
+    val=vm::Undefined;
+  }
+
+  template<class T>
   void read(T& val) {
     if(binary) Read(val);
     else {
@@ -228,7 +237,7 @@ public:
       if(errorstream::interrupt) throw interrupted();
       else {
         ignoreComment(val);
-        val=vm::Undefined;
+        setDefault(val);
         if(!nullfield)
           Read(val);
         csv();

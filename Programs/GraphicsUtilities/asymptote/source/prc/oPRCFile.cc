@@ -63,7 +63,7 @@ namespace prc {
 #define SerializeStartHeader serializeStartHeader(out);
 #define SerializeUncompressedFiles  \
  { \
-  const uint32_t number_of_uncompressed_files = uncompressed_files.size(); \
+  const size_t number_of_uncompressed_files = uncompressed_files.size(); \
   WriteUncompressedUnsignedInteger (number_of_uncompressed_files) \
   for(PRCUncompressedFileList::const_iterator it = uncompressed_files.begin(); it != uncompressed_files.end(); it++) \
   { \
@@ -99,31 +99,31 @@ void PRCFileStructure::serializeFileStructureGlobals(PRCbitStream &out)
   // SerializeMarkupSerializationHelper
   WriteString (default_font_family_name)
 
-  const uint32_t number_of_fonts = font_keys_of_font.size();
+  const size_t number_of_fonts = font_keys_of_font.size();
   WriteUnsignedInteger (number_of_fonts)
-  for (uint32_t i=0;i<number_of_fonts;i++)
+  for (size_t i=0;i<number_of_fonts;i++)
   {
     SerializeFontKeysSameFont (font_keys_of_font[i])
   }
 
-  const uint32_t number_of_colors = colors.size();
+  const size_t number_of_colors = colors.size();
   WriteUnsignedInteger (number_of_colors)
-  for (uint32_t i=0;i<number_of_colors;i++)
+  for (size_t i=0;i<number_of_colors;i++)
       SerializeRgbColor (colors[i])
 
-  const uint32_t number_of_pictures = pictures.size();
+  const size_t number_of_pictures = pictures.size();
   WriteUnsignedInteger (number_of_pictures)
   for (uint32_t i=0;i<number_of_pictures;i++)
      SerializePicture (pictures[i])
 
-  const uint32_t number_of_texture_definitions = texture_definitions.size();
+  const size_t number_of_texture_definitions = texture_definitions.size();
   WriteUnsignedInteger (number_of_texture_definitions)
-  for (uint32_t i=0;i<number_of_texture_definitions;i++)
+  for (size_t i=0;i<number_of_texture_definitions;i++)
      SerializeTextureDefinition (texture_definitions[i])
 
-  const uint32_t number_of_materials = materials.size();
+  const size_t number_of_materials = materials.size();
   WriteUnsignedInteger (number_of_materials)
-  for (uint32_t i=0;i<number_of_materials;i++)
+  for (size_t i=0;i<number_of_materials;i++)
      SerializeMaterial (materials[i])
 
   // number of line patterns hard coded for now
@@ -131,17 +131,17 @@ void PRCFileStructure::serializeFileStructureGlobals(PRCbitStream &out)
   WriteUnsignedInteger (number_of_line_patterns)
   PRCLinePattern().serializeLinePattern(out);
 
-  const uint32_t number_of_styles = styles.size();
+  const size_t number_of_styles = styles.size();
   WriteUnsignedInteger (number_of_styles)
-  for (uint32_t i=0;i<number_of_styles;i++)
+  for (size_t i=0;i<number_of_styles;i++)
      SerializeCategory1LineStyle (styles[i])
 
-  const uint32_t number_of_fill_patterns = 0;
+  const size_t number_of_fill_patterns = 0;
   WriteUnsignedInteger (number_of_fill_patterns)
 
-  const uint32_t number_of_reference_coordinate_systems = reference_coordinate_systems.size();
+  const size_t number_of_reference_coordinate_systems = reference_coordinate_systems.size();
   WriteUnsignedInteger (number_of_reference_coordinate_systems)
-  for (uint32_t i=0;i<number_of_reference_coordinate_systems;i++)
+  for (size_t i=0;i<number_of_reference_coordinate_systems;i++)
      SerializeCoordinateSystem (reference_coordinate_systems[i])
 
   SerializeUserData
@@ -153,14 +153,14 @@ void PRCFileStructure::serializeFileStructureTree(PRCbitStream &out)
 
   SerializeEmptyContentPRCBase
 
-  const uint32_t number_of_part_definitions = part_definitions.size();
+  const size_t number_of_part_definitions = part_definitions.size();
   WriteUnsignedInteger (number_of_part_definitions)
-  for (uint32_t i=0;i<number_of_part_definitions;i++)
+  for (size_t i=0;i<number_of_part_definitions;i++)
     SerializePartDefinition (part_definitions[i])
 	
-  const uint32_t number_of_product_occurrences = product_occurrences.size();
+  const size_t number_of_product_occurrences = product_occurrences.size();
   WriteUnsignedInteger (number_of_product_occurrences)
-  for (uint32_t i=0;i<number_of_product_occurrences;i++)
+  for (size_t i=0;i<number_of_product_occurrences;i++)
   {
     product_occurrences[i]->unit_information.unit_from_CAD_file = true;
     product_occurrences[i]->unit_information.unit = unit;
@@ -172,7 +172,7 @@ void PRCFileStructure::serializeFileStructureTree(PRCbitStream &out)
   SerializeEmptyContentPRCBase
   const uint32_t next_available_index = makePRCID();
   WriteUnsignedInteger (next_available_index)
-  const uint32_t index_product_occurence = number_of_product_occurrences;  // Asymptote (oPRCFile) specific - we write the root product last
+  const size_t index_product_occurence = number_of_product_occurrences;  // Asymptote (oPRCFile) specific - we write the root product last
   WriteUnsignedInteger (index_product_occurence)
 
   SerializeUserData
@@ -183,9 +183,9 @@ void PRCFileStructure::serializeFileStructureTessellation(PRCbitStream &out)
   WriteUnsignedInteger (PRC_TYPE_ASM_FileStructureTessellation)
 
   SerializeEmptyContentPRCBase
-  const uint32_t number_of_tessellations = tessellations.size();
+  const size_t number_of_tessellations = tessellations.size();
   WriteUnsignedInteger (number_of_tessellations)
-  for (uint32_t i=0;i<number_of_tessellations;i++)
+  for (size_t i=0;i<number_of_tessellations;i++)
     tessellations[i]->serializeBaseTessData(out);
 
   SerializeUserData
@@ -196,9 +196,9 @@ void PRCFileStructure::serializeFileStructureGeometry(PRCbitStream &out)
   WriteUnsignedInteger (PRC_TYPE_ASM_FileStructureGeometry)
 
   SerializeEmptyContentPRCBase
-  const uint32_t number_of_contexts = contexts.size();
+  const size_t number_of_contexts = contexts.size();
   WriteUnsignedInteger (number_of_contexts)
-  for (uint32_t i=0;i<number_of_contexts;i++)
+  for (size_t i=0;i<number_of_contexts;i++)
     SerializeContextAndBodies (contexts[i])
 
   SerializeUserData
@@ -209,9 +209,9 @@ void PRCFileStructure::serializeFileStructureExtraGeometry(PRCbitStream &out)
   WriteUnsignedInteger (PRC_TYPE_ASM_FileStructureExtraGeometry)
 
   SerializeEmptyContentPRCBase
-  const uint32_t number_of_contexts = contexts.size();
+  const size_t number_of_contexts = contexts.size();
   WriteUnsignedInteger (number_of_contexts)
-  for (uint32_t i=0;i<number_of_contexts;i++)
+  for (size_t i=0;i<number_of_contexts;i++)
   {
      SerializeGeometrySummary (contexts[i])
      SerializeContextGraphics (contexts[i])
@@ -425,7 +425,7 @@ void oPRCFile::doGroup(PRCgroup& group)
           }
           for(PRCtesslineList::const_iterator lit=lines.begin(); lit!=lines.end(); lit++)
           {
-            tess->wire_indexes.push_back(lit->point.size());
+            tess->wire_indexes.push_back(static_cast<uint32_t>(lit->point.size()));
             for(uint32_t i=0; i<lit->point.size(); i++)
             {
               map<PRCVector3d,uint32_t>::iterator pPoint = points.find(lit->point[i]);
@@ -433,7 +433,7 @@ void oPRCFile::doGroup(PRCgroup& group)
                 tess->wire_indexes.push_back(pPoint->second);
               else
               {
-                const uint32_t point_index = tess->coordinates.size();
+                const uint32_t point_index = static_cast<uint32_t>(tess->coordinates.size());
                 points.insert(make_pair(lit->point[i],point_index));
                 tess->wire_indexes.push_back(point_index);
                 tess->coordinates.push_back(lit->point[i].x);
@@ -486,7 +486,7 @@ void oPRCFile::doGroup(PRCgroup& group)
               vertex_indices[i] =  pPoint->second;
             else
             {
-              points.insert(make_pair(rit->vertices[i],(vertex_indices[i] = tess->coordinates.size())));
+              points.insert(make_pair(rit->vertices[i],(vertex_indices[i] = static_cast<uint32_t>(tess->coordinates.size()))));
               tess->coordinates.push_back(rit->vertices[i].x);
               tess->coordinates.push_back(rit->vertices[i].y);
               tess->coordinates.push_back(rit->vertices[i].z);
@@ -572,7 +572,7 @@ void oPRCFile::doGroup(PRCgroup& group)
             vertex_indices[i] =  pPoint->second;
           else
           {
-            points.insert(make_pair(qit->vertices[i],(vertex_indices[i] = tess->coordinates.size())));
+            points.insert(make_pair(qit->vertices[i],(vertex_indices[i] = static_cast<uint32_t>(tess->coordinates.size()))));
             tess->coordinates.push_back(qit->vertices[i].x);
             tess->coordinates.push_back(qit->vertices[i].y);
             tess->coordinates.push_back(qit->vertices[i].z);
@@ -1079,11 +1079,11 @@ uint32_t PRCFileStructure::addPicture(EPRCPictureDataFormat format, uint32_t siz
     uncompressed_files.back()->file_size = size;
     uncompressed_files.back()->data = data;
     picture.format = format;
-    picture.uncompressed_file_index = uncompressed_files.size()-1;
+    picture.uncompressed_file_index = static_cast<uint32_t>(uncompressed_files.size()-1);
     picture.pixel_width = 0; // width and height are ignored for JPG and PNG pictures - but let us keep things clean
     picture.pixel_height = 0;
     pictures.push_back(picture);
-    return pictures.size()-1;
+    return static_cast<uint32_t>(pictures.size()-1);
   }
 
   switch(format)
@@ -1152,24 +1152,24 @@ uint32_t PRCFileStructure::addPicture(EPRCPictureDataFormat format, uint32_t siz
       uncompressed_files.back()->file_size = size;
       uncompressed_files.back()->data = data;
       picture.format = format;
-      picture.uncompressed_file_index = uncompressed_files.size()-1;
+      picture.uncompressed_file_index = static_cast<uint32_t>(uncompressed_files.size()-1);
       picture.pixel_width = width;
       picture.pixel_height = height;
       pictures.push_back(picture);
-      return pictures.size()-1;
+      return static_cast<uint32_t>(pictures.size()-1);
 }
 
 uint32_t PRCFileStructure::addTextureDefinition(PRCTextureDefinition*& pTextureDefinition)
 {
   texture_definitions.push_back(pTextureDefinition);
   pTextureDefinition = NULL;
-  return texture_definitions.size()-1;
+  return static_cast<uint32_t>(texture_definitions.size()-1);
 }
 
 uint32_t PRCFileStructure::addRgbColor(const PRCRgbColor &color)
 {
   colors.push_back(color);
-  return 3*(colors.size()-1);
+  return 3*static_cast<uint32_t>(colors.size()-1);
 }
 
 uint32_t PRCFileStructure::addRgbColorUnique(const PRCRgbColor &color)
@@ -1180,7 +1180,7 @@ uint32_t PRCFileStructure::addRgbColorUnique(const PRCRgbColor &color)
       return 3*i;
   }
   colors.push_back(color);
-  return 3*(colors.size()-1);
+  return 3*static_cast<uint32_t>(colors.size()-1);
 }
 
 uint32_t oPRCFile::addColor(const PRCRgbColor &color)
@@ -1820,63 +1820,63 @@ uint32_t PRCFileStructure::addMaterialGeneric(PRCMaterialGeneric*& pMaterialGene
 {
   materials.push_back(pMaterialGeneric);
   pMaterialGeneric = NULL;
-  return materials.size()-1;
+  return static_cast<uint32_t>(materials.size()-1);
 }
 
 uint32_t PRCFileStructure::addTextureApplication(PRCTextureApplication*& pTextureApplication)
 {
   materials.push_back(pTextureApplication);
   pTextureApplication = NULL;
-  return materials.size()-1;
+  return static_cast<uint32_t>(materials.size()-1);
 }
 
 uint32_t PRCFileStructure::addStyle(PRCStyle*& pStyle)
 {
   styles.push_back(pStyle);
   pStyle = NULL;
-  return styles.size()-1;
+  return static_cast<uint32_t>(styles.size()-1);
 }
 
 uint32_t PRCFileStructure::addPartDefinition(PRCPartDefinition*& pPartDefinition)
 {
   part_definitions.push_back(pPartDefinition);
   pPartDefinition = NULL;
-  return part_definitions.size()-1;
+  return static_cast<uint32_t>(part_definitions.size()-1);
 }
 
 uint32_t PRCFileStructure::addProductOccurrence(PRCProductOccurrence*& pProductOccurrence)
 {
   product_occurrences.push_back(pProductOccurrence);
   pProductOccurrence = NULL;
-  return product_occurrences.size()-1;
+  return static_cast<uint32_t>(product_occurrences.size()-1);
 }
 
 uint32_t PRCFileStructure::addTopoContext(PRCTopoContext*& pTopoContext)
 {
   contexts.push_back(pTopoContext);
   pTopoContext = NULL;
-  return contexts.size()-1;
+  return static_cast<uint32_t>(contexts.size()-1);
 }
 
 uint32_t PRCFileStructure::getTopoContext(PRCTopoContext*& pTopoContext)
 {
   pTopoContext = new PRCTopoContext;
   contexts.push_back(pTopoContext);
-  return contexts.size()-1;
+  return static_cast<uint32_t>(contexts.size()-1);
 }
 
 uint32_t PRCFileStructure::add3DTess(PRC3DTess*& p3DTess)
 {
   tessellations.push_back(p3DTess);
   p3DTess = NULL;
-  return tessellations.size()-1;
+  return static_cast<uint32_t>(tessellations.size()-1);
 }
 
 uint32_t PRCFileStructure::add3DWireTess(PRC3DWireTess*& p3DWireTess)
 {
   tessellations.push_back(p3DWireTess);
   p3DWireTess = NULL;
-  return tessellations.size()-1;
+  return static_cast<uint32_t>(tessellations.size()-1);
 }
 /*
 uint32_t PRCFileStructure::addMarkupTess(PRCMarkupTess*& pMarkupTess)
@@ -1904,7 +1904,7 @@ uint32_t PRCFileStructure::addCoordinateSystem(PRCCoordinateSystem*& pCoordinate
 {
   reference_coordinate_systems.push_back(pCoordinateSystem);
   pCoordinateSystem = NULL;
-  return reference_coordinate_systems.size()-1;
+  return static_cast<uint32_t>(reference_coordinate_systems.size()-1);
 }
 
 uint32_t PRCFileStructure::addCoordinateSystemUnique(PRCCoordinateSystem*& pCoordinateSystem)
@@ -1918,7 +1918,7 @@ uint32_t PRCFileStructure::addCoordinateSystemUnique(PRCCoordinateSystem*& pCoor
   }
   reference_coordinate_systems.push_back(pCoordinateSystem);
   pCoordinateSystem = NULL;
-  return reference_coordinate_systems.size()-1;
+  return static_cast<uint32_t>(reference_coordinate_systems.size()-1);
 }
 
 }

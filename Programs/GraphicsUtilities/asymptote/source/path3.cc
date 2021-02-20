@@ -150,10 +150,16 @@ path3 path3::subpath(Int a, Int b) const
   }
 
   if (!cycles) {
-    if (a < 0)
+    if (a < 0) {
       a = 0;
-    if (b > n-1)
+      if(b < 0)
+        b = 0;
+    }
+    if (b > n-1) {
       b = n-1;
+      if(a > b)
+        a = b;
+    }
   }
 
   Int sn = b-a+1;
@@ -217,8 +223,8 @@ path3 path3::subpath(double a, double b) const
     }
     if (b > n-1) {
       b = n-1;
-      if (a > n-1)
-        a = n-1;
+      if (a > b)
+        a = b;
     }
     aL = nodes[(Int)floor(a)];
     aR = nodes[(Int)ceil(a)];

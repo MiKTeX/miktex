@@ -95,8 +95,8 @@ void texfile::prologue()
     }
   }
 
-  if(settings::xe(texengine) && !inlinetex)
-    *out << "\\usepackage{everypage}%" << newl;
+//  if(settings::xe(texengine) && !inlinetex)
+//    *out << "\\usepackage{everypage}%" << newl;
 
   if(settings::latex(texengine)) {
     *out << "\\setlength{\\unitlength}{1pt}%" << newl;

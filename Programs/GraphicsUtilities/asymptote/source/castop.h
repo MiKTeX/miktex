@@ -146,7 +146,7 @@ void readArray(vm::stack *s, Int nx=-1, Int ny=-1, Int nz=-1)
                 }
                 cij->push(v);
                 if(f->LineMode() && f->nexteol()) {
-                  if(f->nexteol()) break2=true;
+                  if(f->nexteol() && !f->CSVMode()) break2=true;
                   break;
                 }
               }

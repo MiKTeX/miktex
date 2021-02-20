@@ -29,6 +29,8 @@ using mem::string;
 
 #define YY_NO_INPUT
 
+#define register
+
 static void yyunput(int, char *);
 void (*unused)(int,char *) = yyunput;
 
