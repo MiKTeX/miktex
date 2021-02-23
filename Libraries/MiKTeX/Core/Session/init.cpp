@@ -23,6 +23,7 @@
 
 #if defined(MIKTEX_UNIX)
 #  include <unistd.h>
+extern char** environ;
 #endif
 
 #if defined(MIKTEX_MACOS_BUNDLE)
