@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.3.2.  */
+/* A Bison parser, made by GNU Bison 3.7.5.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_GREGORIO_VOWEL_RULEFILE_VOWEL_VOWEL_RULES_Y_H_INCLUDED
 # define YY_GREGORIO_VOWEL_RULEFILE_VOWEL_VOWEL_RULES_Y_H_INCLUDED
@@ -44,25 +45,34 @@
 extern int gregorio_vowel_rulefile_debug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    LANGUAGE = 258,
-    VOWEL = 259,
-    PREFIX = 260,
-    SUFFIX = 261,
-    SECONDARY = 262,
-    ALIAS = 263,
-    SEMICOLON = 264,
-    TO = 265,
-    NAME = 266,
-    CHARACTERS = 267,
-    INVALID = 268
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    LANGUAGE = 258,                /* LANGUAGE  */
+    VOWEL = 259,                   /* VOWEL  */
+    PREFIX = 260,                  /* PREFIX  */
+    SUFFIX = 261,                  /* SUFFIX  */
+    SECONDARY = 262,               /* SECONDARY  */
+    ALIAS = 263,                   /* ALIAS  */
+    SEMICOLON = 264,               /* SEMICOLON  */
+    TO = 265,                      /* TO  */
+    NAME = 266,                    /* NAME  */
+    CHARACTERS = 267,              /* CHARACTERS  */
+    INVALID = 268                  /* INVALID  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
+/* Token kinds.  */
+#define YYEMPTY -2
+#define YYEOF 0
+#define YYerror 256
+#define YYUNDEF 257
 #define LANGUAGE 258
 #define VOWEL 259
 #define PREFIX 260

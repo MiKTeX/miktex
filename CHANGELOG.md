@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 21.3 - pending release
+
+### Upgraded programs
+
+* gregorio 6.0.0-beta2
+
 ## 21.2 - 2021-02-22
 
 ### MiKTeX Console Simplified Chinese translation

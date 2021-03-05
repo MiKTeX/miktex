@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header prototypes GregorioTeX writing data structures and entry points.
  *
- * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -70,8 +70,27 @@ typedef enum gtex_alignment {
     AT_PUNCTUM_INCLINATUM = 6,
     AT_STROPHA = 7,
     AT_FLEXUS_1 = 8,
-    AT_FLEXUS_DEMINUTUS = 9
+    AT_FLEXUS_DEMINUTUS = 9,
+    AT_VIRGULA = 10,
+    AT_DIVISIO_MINIMA = 11,
+    AT_DIVISIO_MINOR = 12,
+    AT_DIVISIO_MAIOR = 13,
+    AT_DIVISIO_DOMINICAN = 14,
+    AT_VIRGULA_PAREN = 15,
+    AT_DIVISIO_MINIMA_PAREN = 16,
+    AT_DIVISIO_FINALIS = 17,
+    AT_EMPTY_SYLLABLE = 18
 } gtex_alignment;
+
+typedef enum gtex_alteration {
+    ALT_NONE = 0,
+    ALT_FLAT = 1,
+    ALT_NATURAL = 2,
+    ALT_SHARP = 3,
+    ALT_FLAT_PAREN = 4,
+    ALT_NATURAL_PAREN = 5,
+    ALT_SHARP_PAREN = 6
+} gtex_alteration;
 
 /* Here we define a function that will determine the number of the
  * liquescentia that we will add to the glyph number. There are several types

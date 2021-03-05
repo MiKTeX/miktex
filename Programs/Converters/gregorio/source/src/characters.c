@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX.
  * This file contains functions that deal with lyrics and styles.
  *
- * Copyright (C) 2008-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -85,6 +85,9 @@ static bool read_vowel_rules(char *const lang) {
             break;
         }
     }
+    if ((strcmp(language, "Latin") == 0 || strcmp(language, "latin") == 0 || strcmp(language, "la") == 0 || strcmp(language, "lat") == 0) && status == RFPS_NOT_FOUND) {
+        gregorio_messagef("read_rules", VERBOSITY_INFO, 0, "Falling back on internal Latin vowel rules");
+    }
     if (status == RFPS_ALIASED) {
         gregorio_messagef("read_rules", VERBOSITY_WARNING, 0,
                 _("Unable to resolve alias for %s"), lang);
@@ -108,7 +111,7 @@ void gregorio_set_centering_language(char *const language)
         if (strcmp(language, "Latin") != 0 && strcmp(language, "latin") != 0 && strcmp(language, "la") != 0 && strcmp(language, "lat") != 0) {
             gregorio_messagef("gregorio_set_centering_language",
                     VERBOSITY_WARNING, 0, _("unable to read vowel files for "
-                        "%s; defaulting to Latin rules"), language);
+                        "%s; defaulting to Latin vowel rules"), language);
         }
 
         gregorio_vowel_tables_init();

@@ -3,7 +3,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the note parser.
  *
- * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -996,55 +996,55 @@ void gabc_det_notes_finish(void)
 <INITIAL>\] {
         gregorio_end_autofuse(&current_note, &notes_lloc);
     }
-<overbrace>[^\]]+ {
+<overbrace>(\$.|[^\]])+ {
         gregorio_snprintf(tempstr, sizeof tempstr,
                 "\\GreOverBrace{%s}{0pt}{0pt}{%d}",
                 gabc_notes_determination_text, char_for_brace);
-        gregorio_add_texverb_to_note(current_note, gregorio_strdup(tempstr));
+        gregorio_add_texverb_to_note(current_note, gabc_unescape(tempstr));
     }
-<underbrace>[^\]]+ {
+<underbrace>(\$.|[^\]])+ {
         gregorio_snprintf(tempstr, sizeof tempstr,
                 "\\GreUnderBrace{%s}{0pt}{0pt}{%d}",
                 gabc_notes_determination_text, char_for_brace);
-        gregorio_add_texverb_to_note(current_note, gregorio_strdup(tempstr));
+        gregorio_add_texverb_to_note(current_note, gabc_unescape(tempstr));
     }
-<overcurlybrace>[^\]]+ {
+<overcurlybrace>(\$.|[^\]])+ {
         gregorio_snprintf(tempstr, sizeof tempstr,
                 "\\GreOverCurlyBrace{%s}{0pt}{0pt}{%d}{0}",
                 gabc_notes_determination_text, char_for_brace);
-        gregorio_add_texverb_to_note(current_note, gregorio_strdup(tempstr));
+        gregorio_add_texverb_to_note(current_note, gabc_unescape(tempstr));
     }
-<overcurlyaccentusbrace>[^\]]+ {
+<overcurlyaccentusbrace>(\$.|[^\]])+ {
         gregorio_snprintf(tempstr, sizeof tempstr,
                 "\\GreOverCurlyBrace{%s}{0pt}{0pt}{%d}{1}",
                 gabc_notes_determination_text, char_for_brace);
-        gregorio_add_texverb_to_note(current_note, gregorio_strdup(tempstr));
+        gregorio_add_texverb_to_note(current_note, gabc_unescape(tempstr));
     }
-<choralsign>[^\]]+ {
+<choralsign>(\$.|[^\]])+ {
         gregorio_add_cs_to_note(&current_note,
-                gregorio_strdup(gabc_notes_determination_text), false);
+                gabc_unescape(gabc_notes_determination_text), false);
     }
-<choralnabc>[^\]]+ {
+<choralnabc>(\$.|[^\]])+ {
         gregorio_add_cs_to_note(&current_note,
-                gregorio_strdup(gabc_notes_determination_text), true);
+                gabc_unescape(gabc_notes_determination_text), true);
     }
-<texverbnote>[^\]]+ {
+<texverbnote>(\$.|[^\]])+ {
         gregorio_add_texverb_to_note(current_note,
-                gregorio_strdup(gabc_notes_determination_text));
+                gabc_unescape(gabc_notes_determination_text));
     }
-<texverbglyph>[^\]]+ {
+<texverbglyph>(\$.|[^\]])+ {
         gregorio_add_texverb_as_note(&current_note,
-                gregorio_strdup(gabc_notes_determination_text),
+                gabc_unescape(gabc_notes_determination_text),
                 GRE_TEXVERB_GLYPH, &notes_lloc);
     }
-<texverbelement>[^\]]+ {
+<texverbelement>(\$.|[^\]])+ {
         gregorio_add_texverb_as_note(&current_note,
-                gregorio_strdup(gabc_notes_determination_text),
+                gabc_unescape(gabc_notes_determination_text),
                 GRE_TEXVERB_ELEMENT, &notes_lloc);
     }
-<alt>[^\]]+ {
+<alt>(\$.|[^\]])+ {
         gregorio_add_texverb_as_note(&current_note,
-                gregorio_strdup(gabc_notes_determination_text), GRE_ALT,
+                gabc_unescape(gabc_notes_determination_text), GRE_ALT,
                 &notes_lloc);
     }
 <INITIAL>\/\[ {
@@ -1211,6 +1211,12 @@ Z-  {
 `0  {
         add_bar_as_note(B_VIRGULA_HIGH);
     }
+`\? {
+        add_bar_as_note(B_VIRGULA_PAREN);
+    }
+`0\?|`\?0 {
+        add_bar_as_note(B_VIRGULA_PAREN_HIGH);
+    }
 \^  {
         add_bar_as_note(B_DIVISIO_MINIMIS);
     }
@@ -1222,6 +1228,12 @@ Z-  {
     }
 ,0  {
         add_bar_as_note(B_DIVISIO_MINIMA_HIGH);
+    }
+,\? {
+        add_bar_as_note(B_DIVISIO_MINIMA_PAREN);
+    }
+,0\?|,\?0 {
+        add_bar_as_note(B_DIVISIO_MINIMA_PAREN_HIGH);
     }
 [,;][1-8] {
         add_bar_as_note(parse_dominican_bar(gabc_notes_determination_text[1]));
@@ -1275,14 +1287,27 @@ r8  {
         gregorio_add_special_sign(current_note, _MUSICA_FICTA_SHARP);
     }
 x   {
-        gregorio_change_shape(current_note, S_FLAT, legacy_oriscus_orientation);
+        gregorio_change_shape(current_note, S_FLAT,
+                legacy_oriscus_orientation);
+    }
+x\? {
+        gregorio_change_shape(current_note, S_FLAT_PAREN,
+                legacy_oriscus_orientation);
     }
 #   {
         gregorio_change_shape(current_note, S_SHARP,
                 legacy_oriscus_orientation);
     }
+#\? {
+        gregorio_change_shape(current_note, S_SHARP_PAREN,
+                legacy_oriscus_orientation);
+    }
 y   {
         gregorio_change_shape(current_note, S_NATURAL,
+                legacy_oriscus_orientation);
+    }
+y\? {
+        gregorio_change_shape(current_note, S_NATURAL_PAREN,
                 legacy_oriscus_orientation);
     }
 !?\/0 {

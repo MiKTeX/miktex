@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file provides functions for determining glyphs from notes.
  *
- * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -137,8 +137,11 @@ static char add_note_to_a_glyph(gregorio_glyph_type current_glyph_type,
         *end_of_glyph = DET_END_OF_BOTH;
         break;
     case S_FLAT:
+    case S_FLAT_PAREN:
     case S_SHARP:
+    case S_SHARP_PAREN:
     case S_NATURAL:
+    case S_NATURAL_PAREN:
         next_glyph_type = G_ALTERATION;
         *end_of_glyph = DET_END_OF_BOTH;
         break;

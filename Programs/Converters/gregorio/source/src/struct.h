@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header defines the Gregorio data structures and functions.
  *
- * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -122,8 +122,11 @@ ENUM(gregorio_clef, GREGORIO_CLEF);
     E(S_TRISTROPHA) \
     E(S_LINEA_PUNCTUM) \
     E(S_FLAT) \
+    E(S_FLAT_PAREN) \
     E(S_SHARP) \
+    E(S_SHARP_PAREN) \
     E(S_NATURAL) \
+    E(S_NATURAL_PAREN) \
     /* special shapes that must not appear in the final form of the score :
      * quadratum is the shape of the first note of a punctum quadratum
      * and quilisma quadratum is the shape of the first note of a pes
@@ -161,7 +164,11 @@ ENUM(gregorio_shape, GREGORIO_SHAPE);
     E(B_DIVISIO_MINIMA_HIGH) \
     E(B_DIVISIO_MAIOR_DOTTED) \
     E(B_DIVISIO_MINIMIS) \
-    L(B_DIVISIO_MINIMIS_HIGH)
+    E(B_DIVISIO_MINIMIS_HIGH) \
+    E(B_VIRGULA_PAREN) \
+    E(B_VIRGULA_PAREN_HIGH) \
+    E(B_DIVISIO_MINIMA_PAREN) \
+    L(B_DIVISIO_MINIMA_PAREN_HIGH)
 ENUM(gregorio_bar, GREGORIO_BAR);
 
 /* definition of the signs. You can notice that the values are made so

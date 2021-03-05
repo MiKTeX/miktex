@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header prototypes gabc-format handling data structures and entry points.
  *
- * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -39,6 +39,7 @@ gregorio_glyph *gabc_det_glyphs_from_notes(gregorio_note *current_note,
 void gabc_digest(const void *buf, size_t size);
 int gabc_score_determination_lex_destroy(void);
 int gabc_notes_determination_lex_destroy(void);
+char *gabc_unescape(const char *string);
 
 /* see comments on gregorio_add_note_to_a_glyph for meaning of these
  * variables */

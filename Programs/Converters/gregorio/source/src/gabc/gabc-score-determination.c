@@ -3,7 +3,7 @@
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc utilities.
- * Copyright (C) 2016-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2016-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -656,4 +656,35 @@ void gabc_determine_ledger_lines(const gregorio_score *const score)
             GRESTRUCT_ELEMENT, &v);
 
     /* stacks should be cleared by ledger_line_end_item */
+}
+
+char *gabc_unescape(const char *const string)
+{
+    /*
+     * in this context, unescape means to discard any special meaning of a
+     * character that follows a backslash.  Thus backslash-{something} is
+     * reduced to {something}
+     */
+    char *result, *to;
+    const char *from = string;
+    int len = 1;
+    result = to = (char *)gregorio_malloc(strlen(string) + 1);
+
+    for (;;) {
+        if (*from == '\0') {
+            *to = *from;
+            return (char *)gregorio_realloc(result, len);
+        } else if (*from == '$') {
+            *to = *(++ from);
+            if (*from == '\0') {
+                return (char *)gregorio_realloc(result, len);
+            }
+            ++ to;
+            ++ from;
+            ++ len;
+        } else {
+            *(to ++) = *(from ++);
+            ++len;
+        }
+    }
 }

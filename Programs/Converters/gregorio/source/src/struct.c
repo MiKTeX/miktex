@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the Gregorio data structures.
  *
- * Copyright (C) 2006-2019 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2021 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -1285,8 +1285,11 @@ static __inline signed char next_pitch_from_glyph(const gregorio_glyph *glyph,
                         note = note->next) {
                     switch (note->u.note.shape) {
                     case S_FLAT:
+                    case S_FLAT_PAREN:
                     case S_SHARP:
+                    case S_SHARP_PAREN:
                     case S_NATURAL:
+                    case S_NATURAL_PAREN:
                         if (note->u.note.pitch >= LOWEST_PITCH &&
                                 note->u.note.pitch <= MAX_PITCH) {
                             alterations[note->u.note.pitch] =

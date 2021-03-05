@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.3.2.  */
+/* A Bison parser, made by GNU Bison 3.7.5.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_GABC_SCORE_DETERMINATION_GABC_GABC_SCORE_DETERMINATION_Y_H_INCLUDED
 # define YY_GABC_SCORE_DETERMINATION_GABC_GABC_SCORE_DETERMINATION_Y_H_INCLUDED
@@ -44,74 +45,83 @@
 extern int gabc_score_determination_debug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    NAME = 258,
-    AUTHOR = 259,
-    GABC_COPYRIGHT = 260,
-    SCORE_COPYRIGHT = 261,
-    LANGUAGE = 262,
-    STAFF_LINES = 263,
-    ORISCUS_ORIENTATION = 264,
-    DEF_MACRO = 265,
-    OTHER_HEADER = 266,
-    ANNOTATION = 267,
-    MODE = 268,
-    MODE_MODIFIER = 269,
-    MODE_DIFFERENTIA = 270,
-    END_OF_DEFINITIONS = 271,
-    END_OF_FILE = 272,
-    COLON = 273,
-    SEMICOLON = 274,
-    CHARACTERS = 275,
-    NOTES = 276,
-    HYPHEN = 277,
-    ATTRIBUTE = 278,
-    OPENING_BRACKET = 279,
-    CLOSING_BRACKET = 280,
-    CLOSING_BRACKET_WITH_SPACE = 281,
-    I_BEGIN = 282,
-    I_END = 283,
-    TT_BEGIN = 284,
-    TT_END = 285,
-    UL_BEGIN = 286,
-    UL_END = 287,
-    C_BEGIN = 288,
-    C_END = 289,
-    B_BEGIN = 290,
-    B_END = 291,
-    SC_BEGIN = 292,
-    SC_END = 293,
-    SP_BEGIN = 294,
-    SP_END = 295,
-    VERB_BEGIN = 296,
-    VERB_END = 297,
-    CENTER_BEGIN = 298,
-    CENTER_END = 299,
-    ELISION_BEGIN = 300,
-    ELISION_END = 301,
-    TRANSLATION_BEGIN = 302,
-    TRANSLATION_END = 303,
-    TRANSLATION_CENTER_END = 304,
-    ALT_BEGIN = 305,
-    ALT_END = 306,
-    NLBA_B = 307,
-    NLBA_E = 308,
-    EUOUAE_B = 309,
-    EUOUAE_E = 310,
-    NABC_CUT = 311,
-    NABC_LINES = 312,
-    CLEAR = 313,
-    PROTRUSION = 314,
-    PROTRUSION_VALUE = 315,
-    PROTRUSION_END = 316,
-    PROTRUDING_PUNCTUATION = 317
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    NAME = 258,                    /* NAME  */
+    AUTHOR = 259,                  /* AUTHOR  */
+    GABC_COPYRIGHT = 260,          /* GABC_COPYRIGHT  */
+    SCORE_COPYRIGHT = 261,         /* SCORE_COPYRIGHT  */
+    LANGUAGE = 262,                /* LANGUAGE  */
+    STAFF_LINES = 263,             /* STAFF_LINES  */
+    ORISCUS_ORIENTATION = 264,     /* ORISCUS_ORIENTATION  */
+    DEF_MACRO = 265,               /* DEF_MACRO  */
+    OTHER_HEADER = 266,            /* OTHER_HEADER  */
+    ANNOTATION = 267,              /* ANNOTATION  */
+    MODE = 268,                    /* MODE  */
+    MODE_MODIFIER = 269,           /* MODE_MODIFIER  */
+    MODE_DIFFERENTIA = 270,        /* MODE_DIFFERENTIA  */
+    END_OF_DEFINITIONS = 271,      /* END_OF_DEFINITIONS  */
+    END_OF_FILE = 272,             /* END_OF_FILE  */
+    COLON = 273,                   /* COLON  */
+    SEMICOLON = 274,               /* SEMICOLON  */
+    CHARACTERS = 275,              /* CHARACTERS  */
+    NOTES = 276,                   /* NOTES  */
+    HYPHEN = 277,                  /* HYPHEN  */
+    ATTRIBUTE = 278,               /* ATTRIBUTE  */
+    OPENING_BRACKET = 279,         /* OPENING_BRACKET  */
+    CLOSING_BRACKET = 280,         /* CLOSING_BRACKET  */
+    CLOSING_BRACKET_WITH_SPACE = 281, /* CLOSING_BRACKET_WITH_SPACE  */
+    I_BEGIN = 282,                 /* I_BEGIN  */
+    I_END = 283,                   /* I_END  */
+    TT_BEGIN = 284,                /* TT_BEGIN  */
+    TT_END = 285,                  /* TT_END  */
+    UL_BEGIN = 286,                /* UL_BEGIN  */
+    UL_END = 287,                  /* UL_END  */
+    C_BEGIN = 288,                 /* C_BEGIN  */
+    C_END = 289,                   /* C_END  */
+    B_BEGIN = 290,                 /* B_BEGIN  */
+    B_END = 291,                   /* B_END  */
+    SC_BEGIN = 292,                /* SC_BEGIN  */
+    SC_END = 293,                  /* SC_END  */
+    SP_BEGIN = 294,                /* SP_BEGIN  */
+    SP_END = 295,                  /* SP_END  */
+    VERB_BEGIN = 296,              /* VERB_BEGIN  */
+    VERB_END = 297,                /* VERB_END  */
+    CENTER_BEGIN = 298,            /* CENTER_BEGIN  */
+    CENTER_END = 299,              /* CENTER_END  */
+    ELISION_BEGIN = 300,           /* ELISION_BEGIN  */
+    ELISION_END = 301,             /* ELISION_END  */
+    TRANSLATION_BEGIN = 302,       /* TRANSLATION_BEGIN  */
+    TRANSLATION_END = 303,         /* TRANSLATION_END  */
+    TRANSLATION_CENTER_END = 304,  /* TRANSLATION_CENTER_END  */
+    ALT_BEGIN = 305,               /* ALT_BEGIN  */
+    ALT_END = 306,                 /* ALT_END  */
+    NLBA_B = 307,                  /* NLBA_B  */
+    NLBA_E = 308,                  /* NLBA_E  */
+    EUOUAE_B = 309,                /* EUOUAE_B  */
+    EUOUAE_E = 310,                /* EUOUAE_E  */
+    NABC_CUT = 311,                /* NABC_CUT  */
+    NABC_LINES = 312,              /* NABC_LINES  */
+    CLEAR = 313,                   /* CLEAR  */
+    PROTRUSION = 314,              /* PROTRUSION  */
+    PROTRUSION_VALUE = 315,        /* PROTRUSION_VALUE  */
+    PROTRUSION_END = 316,          /* PROTRUSION_END  */
+    PROTRUDING_PUNCTUATION = 317   /* PROTRUDING_PUNCTUATION  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
+/* Token kinds.  */
+#define YYEMPTY -2
+#define YYEOF 0
+#define YYerror 256
+#define YYUNDEF 257
 #define NAME 258
 #define AUTHOR 259
 #define GABC_COPYRIGHT 260
