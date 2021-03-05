@@ -279,6 +279,7 @@ boolean luatex_open_output(FILE ** f_ptr, const char *fn, const_string fopen_mod
     {
       fname = xstrdup(fn);
     }
+    *f_ptr = miktex_open_output_file(fname);
 #else
     /*tex If we have an explicit output directory, use it. */
     if (output_directory && !absolute) {
@@ -286,9 +287,9 @@ boolean luatex_open_output(FILE ** f_ptr, const char *fn, const_string fopen_mod
     } else {
         fname = xstrdup(fn);
     }
-#endif
     /*tex Is the filename openable as given?  */
     *f_ptr = fopen(fname, fopen_mode);
+#endif
     if (!*f_ptr) {
         /*tex Can't open as given. Try the envvar.  */
         string texmfoutput = kpse_var_value("TEXMFOUTPUT");

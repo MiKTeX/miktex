@@ -108,6 +108,13 @@ int miktex_open_format_file(const char* fileNameArg, FILE** ppFile, int renew)
   return true;
 }
 
+FILE* miktex_open_output_file(const char* fileName)
+{
+  MIKTEX_ASSERT_STRING(fileNameArg);
+  shared_ptr<Session> session = Application::GetApplication()->GetSession();
+  return session->TryOpenFile(PathName(fileName), FileMode::Open, FileAccess::Write, false);
+}
+
 int miktex_is_output_file(const char* pathArg)
 {
   PathName path(pathArg);
