@@ -19,6 +19,8 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ptexlib.h"
 
+static int nesting = 0;
+# define max_nesting 1000
 static void scan_expr(void);
 
 /*tex
@@ -2519,7 +2521,17 @@ static void scan_expr(void)
     a = arith_error;
     b = false;
     p = null;
-    /*tex Scan and evaluate an expression |e| of type |l|. */
+    /*tex 
+     
+         Scan and evaluate an expression |e| of type |l|. 
+         To avoid an infinite recursion we set|max_nesting| as upper limit. 
+         This limit is unrelated to the expansion limit |expand_depth| and it cannot be modify at compile time.
+
+     */
+    nesting++;
+    if (nesting > max_nesting) {
+        formatted_error("tex", "\\*expr can only be nested %d deep",max_nesting);
+    }
   RESTART:
     r = expr_none;
     e = 0;
@@ -2748,4 +2760,5 @@ static void scan_expr(void)
     arith_error = a;
     cur_val = e;
     cur_val_level = l;
+    nesting--;
 }

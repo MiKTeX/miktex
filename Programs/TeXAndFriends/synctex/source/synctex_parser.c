@@ -6013,7 +6013,8 @@ synctex_scanner_p synctex_scanner_new_with_output_file(const char * output, cons
     if ((scanner->reader = synctex_reader_init_with_output_file(scanner->reader, output, build_directory))) {
         return parse? synctex_scanner_parse(scanner):scanner;
     }
-    _synctex_error("No file?");
+    // don't warn to terminal if no file is present, this is a library.
+    // _synctex_error("No file?");
     return NULL;
 }
 

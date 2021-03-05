@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* dvipdfmx 20210304
 * gregorio 6.0.0-beta2
 
 ## 21.2 - 2021-02-22

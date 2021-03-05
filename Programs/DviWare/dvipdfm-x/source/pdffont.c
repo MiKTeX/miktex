@@ -591,6 +591,7 @@ pdf_close_fonts (void)
     if ((font->flags & PDF_FONT_FLAG_IS_ALIAS) ||
         (font->flags & PDF_FONT_FLAG_IS_REENCODE) ||
         !font->reference) {
+      pdf_flush_font(font);
       pdf_clean_font_struct(font);
       continue;
     }
