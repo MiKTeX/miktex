@@ -194,7 +194,7 @@
     <message>
         <location filename="../mainwindow.ui" line="376"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;link target directory&lt;/span&gt; with symbolic links to the MiKTeX executables. The location of this directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; for an own TeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) TeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;It is possible to change the location of the link target directory later.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;欢迎试用 MiKTeX ！&lt;/p&gt;&lt;p&gt;我们将立即使用可执行文件的符号链接填充 &lt;span style=&quot; font-style:italic;&quot;&gt;链接目标目录&lt;/span&gt; 以完成安装向。此目录的位置取决于您的选择：&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; 用于自有的 TeX 安装。&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; 用于共享的(系统范围的) TeX 安装。此选项需要管理员去权限。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;可以稍后更改链接目标目录的位置。&lt;/p&gt;&lt;p&gt;更多信息： &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;欢迎试用 MiKTeX ！&lt;/p&gt;&lt;p&gt;我们将立即使用可执行文件的符号链接填充 &lt;span style=&quot; font-style:italic;&quot;&gt;链接目标目录&lt;/span&gt; 以完成安装向。此目录的位置取决于您的选择：&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;~/bin&lt;/span&gt; 用于自有的 TeX 安装。&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Courier New&apos;;&quot;&gt;/usr/local/bin&lt;/span&gt; 用于共享(系统范围)的 TeX 安装。此选项需要管理员去权限。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;可以稍后更改链接目标目录的位置。&lt;/p&gt;&lt;p&gt;更多信息： &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="410"/>
@@ -276,8 +276,8 @@
         <location filename="../mainwindow.ui" line="644"/>
         <source>Restart MiKTeX Console with elevated privileges and switch to MiKTeX administrator mode.
 Use this option, if you want to operate on the shared (system-wide) MiKTeX configuration.</source>
-        <translation type="unfinished">以提升的权限重新启动 MikTeX Console并切换到 MikTeX 管理员模式。
-如果您要对共享的(系统范围的) MikTeX 配置进行操作，请使用此选项。</translation>
+        <translation type="unfinished">以提升的权限重新启动 MikTeX Console 并切换到 MikTeX 管理员模式。
+如果您要对共享(系统范围)的 MikTeX 配置进行操作，请使用此选项。</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="652"/>
@@ -294,7 +294,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</sourc
     <message>
         <location filename="../mainwindow.ui" line="672"/>
         <source>You are a MiKTeX administrator: this tool currently operates on the shared (system-wide) MiKTeX configuration.</source>
-        <translation type="unfinished">您是 MikTeX 管理员：此工具当前对共享的(系统范围的) MikTeX 配置进行操作。</translation>
+        <translation type="unfinished">您是 MikTeX 管理员：此工具当前对共享(系统范围)的 MikTeX 配置进行操作。</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="734"/>
@@ -576,7 +576,8 @@ Use this option, if you want to operate on your own MiKTeX configuration.</sourc
         <location filename="../mainwindow.ui" line="1884"/>
         <source>This removes MiKTeX from your computer.
 To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">这会从您的计算机删除 MikTeX。
+为避免残留，所有的 MikTeX 用户需要先重置其个人 MikTeX 配置。</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1935"/>
@@ -952,7 +953,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
     <message>
         <location filename="../mainwindow.cpp" line="629"/>
         <source>&lt;p&gt;%1 comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;p&gt;%1 绝对没有任何形式的担保。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="631"/>
