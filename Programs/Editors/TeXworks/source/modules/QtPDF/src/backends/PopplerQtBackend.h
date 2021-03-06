@@ -22,7 +22,12 @@
 #define PopplerBackend_H
 
 #include "PDFBackend.h"
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <poppler-qt6.h>
+#else
 #include <poppler-qt5.h>
+#endif
 
 namespace QtPDF {
 
@@ -40,7 +45,11 @@ class Document: public Backend::Document
 
   QSharedPointer< ::Poppler::Document > _poppler_doc;
 
+#if POPPLER_HAS_OUTLINE
+  void recursiveConvertToC(QList<PDFToCItem> & items, const QVector<Poppler::OutlineItem> & popplerItems) const;
+#else
   void recursiveConvertToC(QList<PDFToCItem> & items, QDomNode node) const;
+#endif
 
 protected:
   // Poppler is not threadsafe, so some operations need to be serialized with a
@@ -67,7 +76,6 @@ public:
   bool unlock(const QString password) override;
 
   QWeakPointer<Backend::Page> page(int at) override;
-  QWeakPointer<Backend::Page> page(int at) const override;
   PDFDestination resolveDestination(const PDFDestination & namedDestination) const override;
 
   PDFToC toc() const override;
@@ -118,12 +126,7 @@ class PopplerQtBackend : public BackendInterface
   Q_OBJECT
   Q_INTERFACES(QtPDF::BackendInterface)
 public:
-  PopplerQtBackend();
-  ~PopplerQtBackend() override = default;
-
-  QSharedPointer<Backend::Document> newDocument(const QString & fileName) override {
-    return QSharedPointer<Backend::Document>(new Backend::PopplerQt::Document(fileName));
-  }
+  QSharedPointer<Backend::Document> newDocument(const QString & fileName) override;
 
   QString name() const override { return QString::fromLatin1("poppler-qt"); }
   bool canHandleFile(const QString & fileName) override { return QFileInfo(fileName).suffix() == QString::fromLatin1("pdf"); }

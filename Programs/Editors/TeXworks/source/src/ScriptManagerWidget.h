@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,8 +22,9 @@
 #ifndef ScriptManagerWidget_H
 #define ScriptManagerWidget_H
 
-#include <QDialog>
 #include "ui_ScriptManagerWidget.h"
+
+#include <QDialog>
 
 class TWScriptList;
 
@@ -40,7 +41,7 @@ protected:
 
 signals:
 	void scriptListChanged();
-	
+
 private slots:
 	void treeItemClicked(QTreeWidgetItem * item, int column);
 	void treeItemActivated(QTreeWidgetItem * item, int column);
@@ -48,15 +49,15 @@ private slots:
 
 private:
 	ScriptManagerWidget(QWidget * parent = nullptr) : QWidget(parent) { init(); }
-	
+
 	void init();
-	
+
 	void populateTree();
 	void populateTree(QTreeWidget * tree, QTreeWidgetItem * parentItem, const TWScriptList * scripts);
 	void setFolderCheckedState(QTreeWidgetItem * item);
 
 	void addDetailsRow(QString& html, const QString & label, const QString & value);
-	
+
 	static ScriptManagerWidget * gManageScriptsWindow;
 	static QRect           gGeometry;
 };

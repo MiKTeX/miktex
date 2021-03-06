@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Stefan Löffler
+ * Copyright (C) 2013-2020  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,30 +13,23 @@
  */
 #include "PDFDocumentWidget.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QApplication>
+#endif
+
 namespace QtPDF {
 
 PDFDocumentWidget::PDFDocumentWidget(QWidget * parent /* = nullptr */, const double dpi /* = -1 */)
 : PDFDocumentView(parent)
 {
-#ifdef USE_MUPDF
-  _backends.append(new MuPDFBackend());
-#endif
-#ifdef USE_POPPLERQT
-  _backends.append(new PopplerQtBackend());
-#endif
-
   if (dpi > 0)
     _dpi = dpi;
-  else
+  else {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     _dpi = QApplication::desktop()->physicalDpiX();
-}
-
-PDFDocumentWidget::~PDFDocumentWidget()
-{
-  foreach(BackendInterface * bi, _backends) {
-    if (!bi)
-      continue;
-    bi->deleteLater();
+#else
+    _dpi = screen()->physicalDotsPerInch();
+#endif
   }
 }
 
@@ -55,13 +48,7 @@ bool PDFDocumentWidget::load(const QString &filename)
     }
   }
 
-  QSharedPointer<QtPDF::Backend::Document> a_pdf_doc;
-  foreach(BackendInterface * bi, _backends) {
-    if (bi && bi->canHandleFile(filename))
-      a_pdf_doc = bi->newDocument(filename);
-    if (a_pdf_doc)
-      break;
-  }
+  QSharedPointer<QtPDF::Backend::Document> a_pdf_doc = QtPDF::Backend::Document::newDocument(filename);
 
   if (!a_pdf_doc || !a_pdf_doc->isValid())
     return false;
@@ -81,36 +68,6 @@ QWeakPointer<Backend::Document> PDFDocumentWidget::document() const
   if (!_scene)
     return QWeakPointer<Backend::Document>();
   return _scene->document();
-}
-
-QStringList PDFDocumentWidget::backends() const
-{
-  QStringList retVal;
-  foreach (BackendInterface * bi, _backends) {
-    if (bi)
-      continue;
-    retVal << bi->name();
-  }
-  return retVal;
-}
-
-QString PDFDocumentWidget::defaultBackend() const
-{
-  if (_backends.empty())
-    return QString();
-  return _backends[0]->name();
-}
-
-void PDFDocumentWidget::setDefaultBackend(const QString & backend)
-{
-  int i;
-  for (i = 0; i < _backends.size(); ++i) {
-    if (_backends[i]->name() == backend)
-      break;
-  }
-  if (i < _backends.size()) {
-    _backends.move(i, 0);
-  }
 }
 
 void PDFDocumentWidget::setResolution(const double dpi)

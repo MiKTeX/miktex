@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,10 +14,11 @@
 #ifndef PDFDocumentView_H
 #define PDFDocumentView_H
 
-#include <QtWidgets>
+#include "PDFBackend.h"
+#include "PDFDocumentTools.h"
 
-#include <PDFBackend.h>
-#include <PDFDocumentTools.h>
+#include <QtWidgets>
+#include <memory>
 
 namespace QtPDF {
 
@@ -74,7 +75,7 @@ public:
   // They are fully wired to this PDFDocumentView (e.g., clicking on entries in
   // the table of contents will change this view)
   QDockWidget * dockWidget(const Dock type, QWidget * parent = nullptr);
-  
+
   DocumentTool::AbstractTool * armedTool() const { return _armedTool; }
   void triggerContextClick(const int page, const QPointF pos) { emit contextClick(page, pos); }
 
@@ -172,10 +173,10 @@ protected:
   void mouseReleaseEvent(QMouseEvent * event) override;
   void wheelEvent(QWheelEvent * event) override;
   void changeEvent(QEvent * event) override;
-  
+
   // Maybe this will become public later on
   // Ownership of tool is transferred to PDFDocumentView
-  void registerTool(DocumentTool::AbstractTool * tool);
+  void registerTool(std::unique_ptr<DocumentTool::AbstractTool> tool);
 
   DocumentTool::AbstractTool * getToolByType(const DocumentTool::AbstractTool::Type type);
 
@@ -200,12 +201,14 @@ private:
   PageMode _pageMode{PageMode_OneColumnContinuous};
   MouseMode _mouseMode{MouseMode_Move};
   QCursor _hiddenCursor;
-  QVector<DocumentTool::AbstractTool*> _tools;
+  // Use std::vector instead of QVector as the latter can't handle non-copyable
+  // types
+  std::vector< std::unique_ptr<DocumentTool::AbstractTool> > _tools;
   DocumentTool::AbstractTool * _armedTool{nullptr};
-  QMap<uint, DocumentTool::AbstractTool*> _toolAccessors;
+  QMap<uint, DocumentTool::AbstractTool::Type> _toolAccessors;
 
   QStack<PDFDestination> _oldViewRects;
-  
+
   static QTranslator * _translator;
   static QString _translatorLanguage;
 
@@ -245,7 +248,7 @@ public:
 protected:
   void wheelEvent(QWheelEvent * event) override { event->ignore(); }
   void paintEvent(QPaintEvent * event) override;
-  
+
   QPixmap _dropShadow;
 };
 
@@ -261,8 +264,10 @@ public:
   // put into a QScrollArea instead).
 public slots:
   void setWindowTitle(const QString & windowTitle);
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 signals:
   void windowTitleChanged(const QString &);
+#endif
 protected slots:
   virtual void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) { _doc = doc; }
   virtual void retranslateUi() { }
@@ -301,7 +306,7 @@ class PDFMetaDataInfoWidget : public PDFDocumentInfoWidget
 public:
   PDFMetaDataInfoWidget(QWidget * parent);
   ~PDFMetaDataInfoWidget() override = default;
-  
+
 protected slots:
   void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) override;
   void clear() override;
@@ -330,7 +335,7 @@ class PDFFontsInfoWidget : public PDFDocumentInfoWidget
 public:
   PDFFontsInfoWidget(QWidget * parent);
   ~PDFFontsInfoWidget() override = default;
-  
+
 protected slots:
   void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) override;
   void clear() final;
@@ -351,7 +356,7 @@ class PDFPermissionsInfoWidget : public PDFDocumentInfoWidget
 public:
   PDFPermissionsInfoWidget(QWidget * parent);
   ~PDFPermissionsInfoWidget() override = default;
-  
+
 protected slots:
   void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> doc) override;
   void clear() final;
@@ -377,7 +382,7 @@ class PDFAnnotationsInfoWidget : public PDFDocumentInfoWidget
 public:
   PDFAnnotationsInfoWidget(QWidget * parent);
   ~PDFAnnotationsInfoWidget() override = default;
-    
+
 protected slots:
   void initFromDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc) override;
   void clear() override;

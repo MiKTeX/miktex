@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,21 +19,22 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "TWApp.h"
-#include "TWVersion.h"
-#include "CommandlineParser.h"
-#include "TWUtils.h"
 #include "InterProcessCommunicator.h"
+#include "TWApp.h"
+#include "utils/CommandlineParser.h"
+#include "utils/VersionInfo.h"
 
-#include <QTimer>
+#include <QFileInfo>
 #include <QTextCodec>
+#include <QTimer>
 #if defined(MIKTEX)
+#include <miktex/Core/Utils>
 #include "miktex/miktex-texworks.hpp"
 #endif
 
 #if defined(STATIC_QT5) && defined(Q_OS_WIN)
   #include <QtPlugin>
-  Q_IMPORT_PLUGIN (QWindowsIntegrationPlugin);
+  Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
 #endif
 
 struct fileToOpenStruct{
@@ -46,28 +47,35 @@ struct fileToOpenStruct{
 #endif
 int main(int argc, char *argv[])
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#	if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#	endif
+#endif
 	TWApp app(argc, argv);
 	Tw::InterProcessCommunicator IPC;
 
-	CommandlineParser clp;
+	Tw::Utils::CommandlineParser clp;
 	QList<fileToOpenStruct> filesToOpen;
 	fileToOpenStruct fileToOpen = {QString(), -1};
-	
+
 	clp.registerSwitch(QString::fromLatin1("help"), TWApp::tr("Display this message"), QString::fromLatin1("?"));
 	clp.registerOption(QString::fromLatin1("position"), TWApp::tr("Open the following file at the given position (line or page)"), QString::fromLatin1("p"));
 	clp.registerSwitch(QString::fromLatin1("version"), TWApp::tr("Display version information"), QString::fromLatin1("v"));
 
 	bool launchApp = true;
 	if (clp.parse()) {
-		int i, numArgs = 0;
+		int i{-1}, numArgs{0};
 		while ((i = clp.getNextArgument()) >= 0) {
 			++numArgs;
-			int j, pos = -1;
-			if ((j = clp.getPrevOption(QString::fromLatin1("position"), i)) >= 0) {
+			int j = clp.getPrevOption(QString::fromLatin1("position"), i);
+			int pos = -1;
+			if (j >= 0) {
 				pos = clp.at(j).value.toInt();
 				clp.at(j).processed = true;
 			}
-			CommandlineParser::CommandlineItem & item = clp.at(i);
+			Tw::Utils::CommandlineParser::CommandlineItem & item = clp.at(i);
 			item.processed = true;
 
 			fileToOpen.filename = item.value.toString();
@@ -80,18 +88,18 @@ int main(int argc, char *argv[])
 			clp.at(i).processed = true;
 			QTextStream strm(stdout);
 #if defined(MIKTEX)
-			QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()), TWUtils::gitCommitHash(), TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
+			QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()), Tw::Utils::VersionInfo::gitCommitHash(), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
 #else
-			if (TWUtils::isGitInfoAvailable())
-				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromLatin1(TW_BUILD_ID_STR), TWUtils::gitCommitHash(), TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
+			if (Tw::Utils::VersionInfo::isGitInfoAvailable())
+				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(Tw::Utils::VersionInfo::versionString(), Tw::Utils::VersionInfo::buildIdString(), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
 			else
-				strm << QString::fromUtf8("TeXworks %1 (%2)\n\n").arg(QString::fromLatin1(TEXWORKS_VERSION), QString::fromLatin1(TW_BUILD_ID_STR));
+				strm << QString::fromUtf8("TeXworks %1 (%2)\n\n").arg(Tw::Utils::VersionInfo::versionString(), Tw::Utils::VersionInfo::buildIdString());
 #endif
 			strm << QString::fromUtf8("\
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2020"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2021"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
 			strm.flush();
 		}
 		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
@@ -104,8 +112,8 @@ There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLat
 	}
 
 	if (IPC.isFirstInstance()) {
-		QObject::connect(&IPC, SIGNAL(receivedBringToFront()), &app, SLOT(bringToFront()));
-		QObject::connect(&IPC, SIGNAL(receivedOpenFile(const QString&, const int)), &app, SLOT(openFile(const QString &, const int)));
+		QObject::connect(&IPC, &Tw::InterProcessCommunicator::receivedBringToFront, &app, &TWApp::bringToFront);
+		QObject::connect(&IPC, &Tw::InterProcessCommunicator::receivedOpenFile, &app, &TWApp::openFile);
 	}
 	else {
 		IPC.sendBringToFront();

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,13 +22,12 @@
 #ifndef PrefsDialog_H
 #define PrefsDialog_H
 
-#include <QDialog>
-#include <QList>
-
 #include "Engine.h"
-
 #include "ui_PrefsDialog.h"
 #include "ui_ToolConfig.h"
+
+#include <QDialog>
+#include <QList>
 
 class QListWidgetItem;
 
@@ -43,7 +42,7 @@ public:
 
 private slots:
 	void buttonClicked(QAbstractButton *whichButton);
-	
+
 	void changedTabPanel(int index);
 
 	void updatePathButtons();
@@ -51,7 +50,7 @@ private slots:
 	void movePathDown();
 	void addPath();
 	void removePath();
-	
+
 	void updateToolButtons();
 	void moveToolUp();
 	void moveToolDown();
@@ -64,22 +63,22 @@ private:
 	void restoreDefaults();
 	void refreshDefaultTool();
 	void initPathAndToolLists();
-	
+
 	QList<Engine> engineList;
-	
+
 	bool pathsChanged;
 	bool toolsChanged;
-	
+
 	static int sCurrentTab;
 };
 
 class ToolConfig : public QDialog, private Ui::ToolConfigDialog
 {
 	Q_OBJECT
-	
+
 public:
 	explicit ToolConfig(QWidget * parent);
-	
+
 	static DialogCode doToolConfig(QWidget *parent, Engine &engine);
 
 private slots:

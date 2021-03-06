@@ -13,7 +13,8 @@
  */
 
 // NOTE: `PopplerQtBackend.h` is included via `PDFBackend.h`
-#include <PDFBackend.h>
+#include "PDFBackend.h"
+
 #include <QBitArray>
 
 #if !defined(MIKTEX)
@@ -325,16 +326,6 @@ QWeakPointer<Backend::Page> Document::page(int at)
   return _pages[at].toWeakRef();
 }
 
-QWeakPointer<Backend::Page> Document::page(int at) const
-{
-  QReadLocker docLocker(_docLock.data());
-
-  if (at < 0 || at >= _numPages || at >= _pages.size())
-    return QWeakPointer<Backend::Page>();
-
-  return QWeakPointer<Backend::Page>(_pages[at]);
-}
-
 PDFDestination Document::resolveDestination(const PDFDestination & namedDestination) const
 {
   QReadLocker docLocker(_docLock.data());
@@ -344,13 +335,40 @@ PDFDestination Document::resolveDestination(const PDFDestination & namedDestinat
   if (namedDestination.isExplicit())
     return namedDestination;
 
-  // If the destination could not be resolved, return an invalid object
+  // If the destination could not be resolved (a nullptr or an invalid page
+  // number is returned), return an invalid object
   ::Poppler::LinkDestination * dest = _poppler_doc->linkDestination(namedDestination.destinationName());
-  if (!dest)
+  if (dest == nullptr || dest->pageNumber() < 1)
     return PDFDestination();
   return toPDFDestination(_poppler_doc.data(), *dest);
 }
 
+#if POPPLER_HAS_OUTLINE
+void Document::recursiveConvertToC(QList<PDFToCItem> & items, const QVector<Poppler::OutlineItem> & popplerItems) const
+{
+  for (const Poppler::OutlineItem & popplerItem : popplerItems) {
+    PDFToCItem newItem(popplerItem.name());
+    newItem.setOpen(popplerItem.isOpen());
+    // Note: color and flags are not supported by poppler
+
+    PDFGotoAction * action = nullptr;
+    if (popplerItem.destination())
+      action = new PDFGotoAction(toPDFDestination(_poppler_doc.data(), *(popplerItem.destination())));
+
+    if (action && !popplerItem.externalFileName().isEmpty()) {
+      // Open external links in new window by default (since poppler doesn't
+      // tell us what to do)
+      action->setOpenInNewWindow(true);
+      action->setRemote();
+      action->setFilename(popplerItem.externalFileName());
+    }
+    newItem.setAction(action);
+
+    recursiveConvertToC(newItem.children(), popplerItem.children());
+    items << newItem;
+  }
+}
+#else // POPPLER_HAS_OUTLINE
 void Document::recursiveConvertToC(QList<PDFToCItem> & items, QDomNode node) const
 {
   while (!node.isNull()) {
@@ -387,6 +405,7 @@ void Document::recursiveConvertToC(QList<PDFToCItem> & items, QDomNode node) con
     node = node.nextSibling();
   }
 }
+#endif // POPPLER_HAS_OUTLINE
 
 PDFToC Document::toc() const
 {
@@ -396,11 +415,15 @@ PDFToC Document::toc() const
   if (!_poppler_doc || _isLocked())
     return retVal;
 
+#if POPPLER_HAS_OUTLINE
+  recursiveConvertToC(retVal, _poppler_doc->outline());
+#else // POPPLER_HAS_OUTLINE
   QDomDocument * toc = _poppler_doc->toc();
   if (!toc)
     return retVal;
   recursiveConvertToC(retVal, toc->firstChild());
   delete toc;
+#endif // POPPLER_HAS_OUTLINE
   return retVal;
 }
 
@@ -421,7 +444,7 @@ QList<PDFFontInfo> Document::fonts() const
     if (popplerFontInfo.isEmbedded())
       fi.setSource(PDFFontInfo::Source_Embedded);
     else
-      fi.setFileName(popplerFontInfo.file());
+      fi.setFileName(QFileInfo(popplerFontInfo.file()));
     fi.setDescriptor(PDFFontDescriptor(popplerFontInfo.name()));
 
     switch (popplerFontInfo.type()) {
@@ -784,7 +807,7 @@ QList<SearchResult> Page::search(const QString & searchText, const SearchFlags &
 {
   QList<SearchResult> results;
   SearchResult result;
-  double left, right, top, bottom;
+  double left{0}, right{0}, top{0}, bottom{0};
   ::Poppler::Page::SearchDirection searchDir = (flags.testFlag(Search_Backwards) ? ::Poppler::Page::PreviousResult : ::Poppler::Page::NextResult);
 #if POPPLER_HAS_SEARCH_FLAGS
   ::Poppler::Page::SearchFlags searchFlags = (flags.testFlag(Search_CaseInsensitive) ? ::Poppler::Page::IgnoreCase : ::Poppler::Page::SearchFlags());
@@ -804,9 +827,6 @@ QList<SearchResult> Page::search(const QString & searchText, const SearchFlags &
   if (flags & Search_Backwards) {
     left = right = pageSizeF().width();
     top = bottom = pageSizeF().height();
-  }
-  else {
-    left = top = right = bottom = 0;
   }
 
   // The Poppler search function that takes a QRectF has been marked as
@@ -1041,34 +1061,35 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
 
 } // namespace Backend
 
-// NOLINTNEXTLINE(modernize-use-equals-default)
-PopplerQtBackend::PopplerQtBackend() {
+QSharedPointer<Backend::Document> PopplerQtBackend::newDocument(const QString & fileName) {
 #if !defined(MIKTEX)
 #if defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
-  #if defined(POPPLER_HAS_GLOBALPARAMSINITER)
-    QDir dataDir{QCoreApplication::applicationDirPath()};
-    if (dataDir.cd(QStringLiteral("../poppler-data")))
-      GlobalParamsIniter::setCustomDataDir(qPrintable(dataDir.path()));
-  #else // defined(POPPLER_HAS_GLOBALPARAMSINITER)
-    static bool globalParamsInitialized = false;
-    if (!globalParamsInitialized) {
-      globalParamsInitialized = true;
+  static bool globalParamsInitialized = false;
+  if (!globalParamsInitialized) {
+    globalParamsInitialized = true;
+    #if defined(POPPLER_HAS_GLOBALPARAMSINITER)
+      QDir dataDir{QCoreApplication::applicationDirPath()};
+      if (dataDir.cd(QStringLiteral("../share/poppler"))) {
+        GlobalParamsIniter::setCustomDataDir(qPrintable(dataDir.path()));
+      }
+    #else // defined(POPPLER_HAS_GLOBALPARAMSINITER)
       // for Mac, support "local" poppler-data directory
       // (requires patched poppler-qt lib to be effective,
       // otherwise the GlobalParams gets overwritten when a
       // document is opened)
-      QDir popplerDataDir(QCoreApplication::applicationDirPath() + QLatin1String("/../poppler-data"));
-      if (popplerDataDir.exists()) {
+      QDir dataDir{QCoreApplication::applicationDirPath()};
+      if (dataDir.cd(QStringLiteral("../share/poppler"))) {
         #if defined(POPPLER_GLOBALPARAMS_IS_UNIQUE)
-          globalParams = std::move(std::unique_ptr<GlobalParams>(new GlobalParams(popplerDataDir.canonicalPath().toUtf8().data())));
+          globalParams = std::move(std::unique_ptr<GlobalParams>(new GlobalParams(qPrintable(dataDir.path()))));
         #else
-          globalParams = new GlobalParams(popplerDataDir.canonicalPath().toUtf8().data());
+          globalParams = new GlobalParams(qPrintable(dataDir.path()));
         #endif
       }
-    }
-  #endif // defined(POPPLER_HAS_GLOBALPARAMSINITER)
+    #endif // defined(POPPLER_HAS_GLOBALPARAMSINITER)
+  }
 #endif // defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
 #endif
+  return QSharedPointer<Backend::Document>(new Backend::PopplerQt::Document(fileName));
 }
 
 } // namespace QtPDF

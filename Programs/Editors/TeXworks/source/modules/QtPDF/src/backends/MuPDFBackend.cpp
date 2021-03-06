@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,7 +39,7 @@ QRectF toRectF(fz_obj * o)
 {
   if (!fz_is_array(o) || fz_array_len(o) != 4)
     return QRectF();
-  
+
   return QRectF(QPointF(fz_to_real(fz_array_get(o, 0)), fz_to_real(fz_array_get(o, 1))), \
                 QPointF(fz_to_real(fz_array_get(o, 2)), fz_to_real(fz_array_get(o, 3))));
 }
@@ -107,7 +107,7 @@ PDFDestination toPDFDestination(pdf_xref * xref, fz_obj * dest)
       return PDFDestination();
     QString type = QString::fromAscii(fz_to_name(fz_array_get(dest, 1)));
 
-    // /XYZ left top zoom 
+    // /XYZ left top zoom
     if (type == QString::fromUtf8("XYZ")) {
       float left, top, zoom;
       if (fz_array_len(dest) != 5)
@@ -297,7 +297,7 @@ void initPDFAnnotation(Annotation::AbstractAnnotation * annot, QWeakPointer<Back
 
   if (!fz_is_dict(src))
     return;
-  
+
   annot->setRect(toRectF(fz_dict_gets(src, keyRect)));
   annot->setContents(QString::fromUtf8(fz_to_str_buf(fz_dict_gets(src, keyContents))));
   annot->setName(QString::fromUtf8(fz_to_str_buf(fz_dict_gets(src, keyNM))));
@@ -610,7 +610,7 @@ PDFDestination Document::resolveDestination(const PDFDestination & namedDestinat
   MuPDFLocaleResetter lr;
 
   Q_ASSERT(_mupdf_data != NULL);
-  
+
   // TODO: Test this method
 
   // If namedDestination is not a named destination at all, simply return a copy
@@ -671,7 +671,7 @@ QList<PDFFontInfo> Document::fonts() const
 
         PDFFontDescriptor descriptor;
         PDFFontInfo fi;
-        
+
         // Parse the /FontDescriptor dictionary (if it exists)
         // If not, try to derive the font name from /BaseFont (if it exists) or
         // /Name
@@ -871,7 +871,7 @@ Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
 
   fz_free_device(dev);
   pdf_free_page(page_data);
-  
+
   loadTransitionData();
 }
 
@@ -1048,7 +1048,7 @@ QList< QSharedPointer<Annotation::AbstractAnnotation> > Page::loadAnnotations()
   if (!page)
     return _annotations;
   pdf_annot * mupdfAnnot = page->annots;
-  
+
   while (mupdfAnnot) {
     if (!fz_is_dict(mupdfAnnot->obj) || QString::fromAscii(fz_to_name(fz_dict_gets(mupdfAnnot->obj, keyType))) != QString::fromAscii("Annot")) {
       mupdfAnnot = mupdfAnnot->next;
@@ -1170,7 +1170,7 @@ QList<SearchResult> Page::search(const QString & searchText, const SearchFlags &
     else
       results << result;
 
-    // Offset `i` so we don't find the same match over and over again    
+    // Offset `i` so we don't find the same match over and over again
     i += searchText.length();
   }
 
@@ -1195,17 +1195,18 @@ void Page::loadTransitionData()
   // NOTE: That data is not available in the pdf_page struct - we need to parse
   // the fz_obj ourselves
   pdf_xref * xref = static_cast<Document*>(_parent)->_mupdf_data;
-  Q_ASSERT(xref != NULL);
+  if (Q_UNLIKELY(pdf_xref == nullptr))
+    return;
   Q_ASSERT(xref->page_len >= _n);
-  
+
   fz_obj * page = xref->page_objs[_n];
   Q_ASSERT(page != NULL);
-  
+
   if (_transition) {
     delete _transition;
     _transition = NULL;
   }
-  
+
   trans = fz_dict_gets(page, keyTrans);
   if (!trans)
     return;
@@ -1239,7 +1240,7 @@ void Page::loadTransitionData()
     _transition = new Transition::Fade();
   if (!_transition)
     return;
-  
+
   tmp = fz_dict_gets(trans, keyD);
   if (tmp)
     _transition->setDuration(fz_to_real(tmp));
@@ -1258,8 +1259,8 @@ void Page::loadTransitionData()
       _transition->setMotion(Transition::AbstractTransition::Motion_Inward);
   }
   tmp = fz_dict_gets(trans, keyDi);
-  if (tmp && (style == QString::fromAscii("Wipe") || style == QString::fromAscii("Glitter") || 
-              style == QString::fromAscii("Fly") || style == QString::fromAscii("Cover") || 
+  if (tmp && (style == QString::fromAscii("Wipe") || style == QString::fromAscii("Glitter") ||
+              style == QString::fromAscii("Fly") || style == QString::fromAscii("Cover") ||
               style == QString::fromAscii("Uncover") || style == QString::fromAscii("Push"))) {
     if (fz_is_name(tmp)) {
       // TODO: Di == /None
@@ -1276,11 +1277,11 @@ QList<Backend::Page::Box> Page::boxes()
   QList<Backend::Page::Box> retVal;
   if (!_mupdf_page)
     return retVal;
-  
+
   fz_text_span * textSpan = fz_new_text_span();
   if (!textSpan)
     return retVal;
-  
+
   // Use MuPDF transformations to get the text box coordinates right already
   // during fz_execute_display_list().
   fz_matrix render_trans = fz_identity;
@@ -1315,14 +1316,14 @@ QList<Backend::Page::Box> Page::boxes()
   }
 
   fz_free_text_span(textSpan);
-  
+
   return retVal;
 }
 
 inline bool polygonContains(const QPolygonF & poly, const QRectF & rect)
 {
   QRectF r = poly.intersected(rect).boundingRect();
-  
+
   return (qAbs(r.width() * r.height() - rect.width() * rect.height()) < 1e-6);
 }
 
@@ -1334,11 +1335,11 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
   QString retVal;
   if (!_mupdf_page)
     return retVal;
-  
+
   fz_text_span * textSpan = fz_new_text_span();
   if (!textSpan)
     return retVal;
-  
+
   fz_device * textDevice = fz_new_text_device(textSpan);
   if (!textDevice) {
     fz_free_text_span(textSpan);
@@ -1357,7 +1358,7 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
 
   fz_text_span * span = textSpan;
   Backend::Page::Box b;
-  
+
   while (span) {
     for (int i = 0; i < span->len; ++i) {
       QRectF charRect = toRectF(span->text[i].bbox);
@@ -1374,7 +1375,7 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
   }
 
   fz_free_text_span(textSpan);
-  
+
   return retVal.trimmed();
 }
 

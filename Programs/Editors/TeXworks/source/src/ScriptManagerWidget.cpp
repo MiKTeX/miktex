@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,15 +20,16 @@
 */
 
 #include "ScriptManagerWidget.h"
+
 #include "TWApp.h"
-#include "scripting/Script.h"
 #include "TWScriptableWindow.h"
+#include "scripting/Script.h"
 #include "scripting/ScriptLanguageInterface.h"
 
-#include <QLabel>
 #include <QCloseEvent>
-#include <QHeaderView>
 #include <QDesktopServices>
+#include <QHeaderView>
+#include <QLabel>
 #include <QUrl>
 
 ScriptManagerWidget * ScriptManagerWidget::gManageScriptsWindow = nullptr;
@@ -37,22 +38,22 @@ QRect           ScriptManagerWidget::gGeometry;
 void ScriptManagerWidget::init()
 {
 	setupUi(this);
-	
+
 	hookTree->header()->hide();
 	standaloneTree->header()->hide();
-	
+
 	populateTree();
-	
-	connect(scriptTabs, SIGNAL(currentChanged(int)), this, SLOT(treeSelectionChanged()));
 
-	connect(hookTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(treeItemClicked(QTreeWidgetItem *, int)));
-	connect(hookTree, SIGNAL(itemActivated(QTreeWidgetItem *, int)), this, SLOT(treeItemActivated(QTreeWidgetItem *, int)));
-	connect(hookTree, SIGNAL(itemSelectionChanged()), this, SLOT(treeSelectionChanged()));
-	connect(standaloneTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(treeItemClicked(QTreeWidgetItem *, int)));
-	connect(standaloneTree, SIGNAL(itemActivated(QTreeWidgetItem *, int)), this, SLOT(treeItemActivated(QTreeWidgetItem *, int)));
-	connect(standaloneTree, SIGNAL(itemSelectionChanged()), this, SLOT(treeSelectionChanged()));
+	connect(scriptTabs, &QTabWidget::currentChanged, this, &ScriptManagerWidget::treeSelectionChanged);
 
-	connect(this, SIGNAL(scriptListChanged()), qApp, SIGNAL(scriptListChanged()));
+	connect(hookTree, &QTreeWidget::itemClicked, this, &ScriptManagerWidget::treeItemClicked);
+	connect(hookTree, &QTreeWidget::itemActivated, this, &ScriptManagerWidget::treeItemActivated);
+	connect(hookTree, &QTreeWidget::itemSelectionChanged, this, &ScriptManagerWidget::treeSelectionChanged);
+	connect(standaloneTree, &QTreeWidget::itemClicked, this, &ScriptManagerWidget::treeItemClicked);
+	connect(standaloneTree, &QTreeWidget::itemActivated, this, &ScriptManagerWidget::treeItemActivated);
+	connect(standaloneTree, &QTreeWidget::itemSelectionChanged, this, &ScriptManagerWidget::treeSelectionChanged);
+
+	connect(this, &ScriptManagerWidget::scriptListChanged, TWApp::instance(), &TWApp::scriptListChanged);
 }
 
 void ScriptManagerWidget::closeEvent(QCloseEvent * event)
@@ -70,7 +71,7 @@ void ScriptManagerWidget::showManageScripts()
 
 	if (!gGeometry.isNull())
 		gManageScriptsWindow->setGeometry(gGeometry);
-	
+
 	gManageScriptsWindow->show();
 	gManageScriptsWindow->raise();
 	gManageScriptsWindow->activateWindow();
@@ -88,13 +89,13 @@ void ScriptManagerWidget::populateTree()
 	TWScriptManager * scriptManager = TWApp::instance()->getScriptManager();
 	TWScriptList * scripts = scriptManager->getScripts();
 	TWScriptList * hooks = scriptManager->getHookScripts();
-	
+
 	hookTree->clear();
 	standaloneTree->clear();
-	
+
 	populateTree(hookTree, nullptr, hooks);
 	populateTree(standaloneTree, nullptr, scripts);
-	
+
 	hookTree->expandAll();
 	standaloneTree->expandAll();
 }
@@ -104,21 +105,19 @@ void ScriptManagerWidget::populateTree()
 
 void ScriptManagerWidget::populateTree(QTreeWidget * tree, QTreeWidgetItem * parentItem, const TWScriptList * scripts)
 {
-	QTreeWidgetItem * item;
-
 	foreach (QObject * obj, scripts->children()) {
 		Tw::Scripting::Script * script = qobject_cast<Tw::Scripting::Script*>(obj);
 		if (script && script->getType() != Tw::Scripting::Script::ScriptUnknown) {
 			QStringList strList(script->getTitle());
-			item = parentItem ? new QTreeWidgetItem(parentItem, strList, kScriptType) : new QTreeWidgetItem(tree, strList, kScriptType);
-			item->setData(0, Qt::UserRole, qVariantFromValue(static_cast<void*>(script)));
+			QTreeWidgetItem * item = parentItem ? new QTreeWidgetItem(parentItem, strList, kScriptType) : new QTreeWidgetItem(tree, strList, kScriptType);
+			item->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(script)));
 			item->setCheckState(0, script->isEnabled() ? Qt::Checked : Qt::Unchecked);
 			continue;
 		}
 		TWScriptList * list = qobject_cast<TWScriptList*>(obj);
 		if (list) {
 			QStringList strList(list->getName());
-			item = parentItem ? new QTreeWidgetItem(parentItem, strList, kFolderType) : new QTreeWidgetItem(tree, strList, kFolderType);
+			QTreeWidgetItem * item = parentItem ? new QTreeWidgetItem(parentItem, strList, kFolderType) : new QTreeWidgetItem(tree, strList, kFolderType);
 			QFont f = item->font(0);
 			f.setBold(true);
 			item->setFont(0, f);
@@ -180,10 +179,10 @@ void ScriptManagerWidget::treeSelectionChanged()
 	QList<QTreeWidgetItem*> selection = tree->selectedItems();
 	if (selection.size() != 1)
 		return;
-	
+
 	if (selection[0]->type() != kScriptType)
 		return;
-	
+
 	Tw::Scripting::Script * s = static_cast<Tw::Scripting::Script*>(selection[0]->data(0, Qt::UserRole).value<void*>());
 	if (!s)
 		return;
@@ -196,7 +195,7 @@ void ScriptManagerWidget::treeSelectionChanged()
 	addDetailsRow(rows, tr("Version: "), s->getVersion());
 	addDetailsRow(rows, tr("Shortcut: "), s->getKeySequence().toString());
 	addDetailsRow(rows, tr("File: "), QFileInfo(s->getFilename()).fileName());
-	
+
 	const Tw::Scripting::ScriptLanguageInterface * sli = qobject_cast<Tw::Scripting::ScriptLanguageInterface*>(s->getScriptLanguagePlugin());
 	if(sli) {
 		QString url = sli->scriptLanguageURL();

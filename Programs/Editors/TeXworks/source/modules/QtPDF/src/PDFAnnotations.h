@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Stefan Löffler
+ * Copyright (C) 2013-2020  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,14 +14,14 @@
 #ifndef PDFAnnotations_H
 #define PDFAnnotations_H
 
-#include <PDFActions.h>
+#include "PDFActions.h"
 
-#include <QString>
-#include <QRectF>
-#include <QPolygonF>
+#include <QColor>
 #include <QDateTime>
 #include <QFlags>
-#include <QColor>
+#include <QPolygonF>
+#include <QRectF>
+#include <QString>
 #include <QWeakPointer>
 
 namespace QtPDF {
@@ -65,13 +65,13 @@ public:
     AnnotationTypePrinterMark, AnnotationTypeTrapNet, AnnotationTypeWatermark,
     AnnotationType3D
   };
-  
+
   AbstractAnnotation() = default;
   virtual ~AbstractAnnotation() = default;
 
   virtual AnnotationType type() const = 0;
   virtual bool isMarkup() const { return false; }
-  
+
   // Declare all the getter/setter methods virtual so derived classes can
   // override them
   virtual QRectF rect() const { return _rect; }
@@ -89,6 +89,8 @@ public:
   virtual void setName(const QString name) { _name = name; }
   virtual void setLastModified(const QDateTime lastModified) { _lastModified = lastModified; }
   virtual void setColor(const QColor color) { _color = color; }
+
+  virtual bool operator==(const AbstractAnnotation & o) const;
 
 protected:
   QRectF _rect; // required, in pdf coordinates
@@ -115,6 +117,8 @@ class Markup : public AbstractAnnotation
 public:
   Markup() : AbstractAnnotation() { }
   ~Markup() override;
+  Markup(const Markup & o);
+  Markup & operator=(const Markup & o);
 
   bool isMarkup() const override { return true; }
 
@@ -134,6 +138,8 @@ public:
   virtual void setSubject(const QString subject) { _subject = subject; }
   // Note: the Markup takes ownership of `popup`
   virtual void setPopup(Popup * popup);
+
+  bool operator==(const AbstractAnnotation & o) const override;
 
 protected:
   QString _title; // optional; since PDF 1.1; by convention identifies the annotation author
@@ -178,6 +184,8 @@ public:
   void setQuadPoints(const QPolygonF quadPoints) { _quadPoints = quadPoints; }
   // Note: Link takes ownership of PDFAction pointers
   void setActionOnActivation(PDFAction * const action);
+
+  bool operator==(const AbstractAnnotation & o) const override;
 
 private:
   // Note: the PA member of the link annotation dict is deliberately ommitted
@@ -227,9 +235,19 @@ public:
   void setParent(Markup * parent) { _parent = parent; }
   void setOpen(const bool open = true) { _open = open; }
 
+  QString contents() const override { return (_parent != nullptr ? _parent->contents() : _contents); }
+  QDateTime lastModified() const override { return (_parent != nullptr ? _parent->lastModified() : _lastModified); }
+  QColor color() const override { return (_parent != nullptr ? _parent->color() : _color); }
+  QString title() const { return (_parent != nullptr ? _parent->title() : _title); }
+
+  void setTitle(const QString & title) { _title = title; }
+
+  bool operator==(const AbstractAnnotation & o) const override;
+
 private:
-  Markup * _parent;
-  bool _open;
+  Markup * _parent{nullptr};
+  bool _open{false};
+  QString _title;
 };
 
 class Highlight : public Markup

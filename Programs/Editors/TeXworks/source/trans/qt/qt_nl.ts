@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="nl">
+<TS version="2.1" language="nl">
 <context>
     <name>MAC_APPLICATION_MENU</name>
     <message>
@@ -1232,7 +1232,7 @@ Wilt u het toch verwijderen?</translation>
     </message>
     <message>
         <source>Show </source>
-        <translation>Toon</translation>
+        <translation>Toon </translation>
     </message>
     <message>
         <source>Forward</source>
@@ -2911,7 +2911,7 @@ Kies een andere bestandsnaam.</translation>
     </message>
     <message>
         <source>&amp;Options &lt;&lt;</source>
-        <translation>&amp;Opties &lt;&lt; </translation>
+        <translation>&amp;Opties &lt;&lt;</translation>
     </message>
     <message>
         <source>Print to File (PDF)</source>
@@ -3184,7 +3184,7 @@ Kies een andere bestandsnaam.</translation>
     </message>
     <message>
         <source>invalid octal value</source>
-        <translation>Ongeldige octale waarde </translation>
+        <translation>Ongeldige octale waarde</translation>
     </message>
     <message>
         <source>missing left delim</source>
@@ -4122,7 +4122,7 @@ Kies een andere bestandsnaam.</translation>
     <message>
         <source>This is a searchable index. Enter search keywords: </source>
         <comment>text that appears at the start of nearly-obsolete web pages in the form of a &apos;searchable index&apos;</comment>
-        <translation>Deze index is te doorzoeken. Geef trefwoorden op:</translation>
+        <translation>Deze index is te doorzoeken. Geef trefwoorden op: </translation>
     </message>
     <message>
         <source>Choose File</source>
@@ -5183,7 +5183,7 @@ RL - een attribuut is atomair indien het maar één enkele waarde kan bevatten</
     </message>
     <message>
         <source>The Schema Validation Feature is not supported. Hence, %1-expressions may not be used.</source>
-        <translation>Schema Validatie faciliteit wordt niet ondersteund. Daarom mogen %1 expressies niet worden gebruikt. </translation>
+        <translation>Schema Validatie faciliteit wordt niet ondersteund. Daarom mogen %1 uitdrukkingen niet worden gebruikt.</translation>
     </message>
     <message>
         <source>None of the pragma expressions are supported. Therefore, a fallback expression must be present</source>

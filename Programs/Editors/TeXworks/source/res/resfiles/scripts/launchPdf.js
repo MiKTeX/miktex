@@ -8,9 +8,9 @@
 // Context: PDFDocument
 
 
-retVal = TW.launchFile(TW.target.fileName);
+var retVal = TW.launchFile(TW.target.fileName);
 
-if (retVal["status"] != 0)
+if (retVal["status"] !== 0)
 {
 	TW.information(TW.target, "Error", retVal["message"]);
 }

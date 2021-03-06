@@ -37,6 +37,7 @@ const int kDefault_TabWidth = 32;
 const int kDefault_LineSpacing = 100;
 const int kDefault_HideConsole = 1;
 const bool kDefault_HighlightCurrentLine = true;
+const int kDefault_CursorWidth = 1;
 const bool kDefault_AutocompleteEnabled = true;
 const bool kDefault_AutoFollowFocusEnabled = false;
 const bool kDefault_AllowScriptFileReading = false;

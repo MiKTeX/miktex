@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Stefan Löffler
+ * Copyright (C) 2013-2020  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,14 +14,12 @@
 #ifndef PDFActions_H
 #define PDFActions_H
 
-#include <QString>
-#include <QRectF>
-#include <QUrl>
-
-
 #ifdef DEBUG
   #include <QDebug>
 #endif
+#include <QRectF>
+#include <QString>
+#include <QUrl>
 
 namespace QtPDF {
 
@@ -61,8 +59,10 @@ public:
   // Params:
   //  - oldViewport: viewport in old page's coordinate system
   //  - oldZoom
-  QRectF viewport(const Backend::Document * doc, const QRectF oldViewport, const qreal oldZoom) const;
-  
+  QRectF viewport(Backend::Document * doc, const QRectF oldViewport, const qreal oldZoom) const;
+
+  bool operator==(const PDFDestination & o) const;
+
   void setPage(const int page) { _page = page; }
   void setType(const Type type) { _type = type; }
   void setZoom(const qreal zoom) { _zoom = zoom; }
@@ -95,34 +95,48 @@ public:
   };
 
   PDFAction() = default;
+  // As this is an abstract base class, ee need a virtual destructor
   virtual ~PDFAction() = default;
+
+  virtual bool operator==(const PDFAction & o) const = 0;
 
   virtual ActionType type() const = 0;
   virtual PDFAction * clone() const = 0;
+protected:
+  // Since we defined a destructor (to make it virtual), we should also define
+  // copt/move c'tor and assignment operator. They must be protected to ensure
+  // "the outside world" can't copy PDFAction instances (which would inevitably
+  // lead to slicing as PDFAction is an abstract base class), but must not be
+  // deleted to allow derived classes to be copied/moved.
+  PDFAction(const PDFAction &) = default;
+  PDFAction(PDFAction &&) = default;
+  PDFAction & operator=(const PDFAction &) = default;
+  PDFAction & operator=(PDFAction &&) = default;
 };
 
 class PDFURIAction : public PDFAction
 {
 public:
-  PDFURIAction(const QUrl url) : _url(url), _isMap(false) { }
-  PDFURIAction(const PDFURIAction & a) : _url(a._url), _isMap(a._isMap) { }
-  
+  PDFURIAction(const QUrl url) : _url(url) { }
+
   ActionType type() const override { return ActionTypeURI; }
   PDFAction * clone() const override { return new PDFURIAction(*this); }
 
   // TODO: handle _isMap (see PDF 1.7 specs)
   QUrl url() const { return _url; }
 
+  bool operator==(const PDFAction & o) const override;
+  bool operator==(const PDFURIAction & o) const;
+
 private:
   QUrl _url;
-  bool _isMap;
+  bool _isMap{false};
 };
 
 class PDFGotoAction : public PDFAction
 {
 public:
   PDFGotoAction(const PDFDestination destination = PDFDestination()) : _destination(destination) { }
-  PDFGotoAction(const PDFGotoAction & a) : _destination(a._destination), _isRemote(a._isRemote), _filename(a._filename), _openInNewWindow(a._openInNewWindow) { }
 
   ActionType type() const override { return ActionTypeGoTo; }
   PDFAction * clone() const override { return new PDFGotoAction(*this); }
@@ -136,6 +150,9 @@ public:
   void setRemote(const bool remote = true) { _isRemote = remote; }
   void setFilename(const QString filename) { _filename = filename; }
   void setOpenInNewWindow(const bool openInNewWindow = true) { _openInNewWindow = openInNewWindow; }
+
+  bool operator==(const PDFAction & o) const override;
+  bool operator==(const PDFGotoAction & o) const;
 
 private:
   PDFDestination _destination;
@@ -151,15 +168,22 @@ public:
 
   ActionType type() const override { return ActionTypeLaunch; }
   PDFAction * clone() const override { return new PDFLaunchAction(*this); }
-  
+
   QString command() const { return _command; }
   void setCommand(const QString command) { _command = command; }
+
+  bool operator==(const PDFAction & o) const override;
+  bool operator==(const PDFLaunchAction & o) const;
 
   // TODO: handle newWindow, implement OS-specific extensions
 private:
   QString _command;
   //bool _newWindow{false};
 };
+
+#ifdef DEBUG
+  QDebug operator<<(QDebug dbg, const PDFAction & action);
+#endif
 
 } // namespace QtPDF
 

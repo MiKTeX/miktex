@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019  Stefan Löffler
+	Copyright (C) 2019-2020  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,12 +27,12 @@ namespace Document {
 
 TeXDocument::TeXDocument(QObject * parent) : TextDocument(parent)
 {
-	connect(this, SIGNAL(contentsChange(int, int, int)), this, SLOT(maybeUpdateModeLines(int, int, int)));
+	connect(this, &TeXDocument::contentsChange, this, &TeXDocument::maybeUpdateModeLines);
 }
 
 TeXDocument::TeXDocument(const QString & text, QObject * parent) : TextDocument(text, parent)
 {
-	connect(this, SIGNAL(contentsChange(int, int, int)), this, SLOT(maybeUpdateModeLines(int, int, int)));
+	connect(this, &TeXDocument::contentsChange, this, &TeXDocument::maybeUpdateModeLines);
 	parseModeLines();
 }
 
@@ -90,6 +90,143 @@ void TeXDocument::maybeUpdateModeLines(int position, int charsRemoved, int chars
 
 	if (position < PeekLength)
 		parseModeLines();
+}
+
+// static
+bool TeXDocument::findNextWord(const QString & text, int index, int & start, int & end)
+{
+	// try to do a sensible "word" selection for TeX documents, taking into
+	// account the form of control sequences:
+	// given an index representing a caret,
+	// - if current char (following caret) is a letter, apostrophe, or '@',
+	//   extend in both directions
+	//   - include apostrophe if surrounded by letters
+	//   - include preceding backslash if any, unless word contains apostrophe
+	// - if preceeding char is a \, extend to include \ only
+	// - if current char is a number, extend in both directions
+	// - if current char is a space or tab, extend in both directions to include
+	//   all spaces or tabs
+	// - if current char is a \, include next char; if letter or '@', extend to
+	//   include all following letters or '@'
+	// - else select single char following index
+	// returns TRUE if the resulting selection consists of word-forming chars
+
+	start = end = index;
+
+	if (text.length() < 1) // empty
+		return false;
+	if (index >= text.length()) // end of line
+		return false;
+
+	QChar ch = text.at(index);
+
+	auto isWordForming = [](const QChar & c) { return c.isLetter() || c.isMark(); };
+
+	if (isWordForming(ch) || ch == QChar::fromLatin1('@') /* || ch == QChar::fromLatin1('\'') || ch == 0x2019 */) {
+		bool isControlSeq{false}; // becomes true if we include an @ sign or a leading backslash
+		bool includesApos{false}; // becomes true if we include an apostrophe
+		if (ch == QChar::fromLatin1('@'))
+			isControlSeq = true;
+		//else if (ch == QChar::fromLatin1('\'') || ch == 0x2019)
+		//	includesApos = true;
+		while (start > 0) {
+			--start;
+			ch = text.at(start);
+			if (isWordForming(ch))
+				continue;
+			if (!includesApos && ch == QChar::fromLatin1('@')) {
+				isControlSeq = true;
+				continue;
+			}
+			if (!isControlSeq && (ch == QChar::fromLatin1('\'') || ch == QChar(0x2019)) && start > 0 && isWordForming(text.at(start - 1))) {
+				includesApos = true;
+				continue;
+			}
+			++start;
+			break;
+		}
+		if (start > 0 && text.at(start - 1) == QChar::fromLatin1('\\')) {
+			isControlSeq = true;
+			--start;
+		}
+		while (++end < text.length()) {
+			ch = text.at(end);
+			if (isWordForming(ch))
+				continue;
+			if (!includesApos && ch == QChar::fromLatin1('@')) {
+				isControlSeq = true;
+				continue;
+			}
+			if (!isControlSeq && (ch == QChar::fromLatin1('\'') || ch == QChar(0x2019)) && end < text.length() - 1 && isWordForming(text.at(end + 1))) {
+				includesApos = true;
+				continue;
+			}
+			break;
+		}
+		return !isControlSeq;
+	}
+
+	if (index > 0 && text.at(index - 1) == QChar::fromLatin1('\\')) {
+		start = index - 1;
+		end = index + 1;
+		return false;
+	}
+
+	if (ch.isNumber()) {
+		// TODO: handle decimals, leading signs
+		while (start > 0) {
+			--start;
+			ch = text.at(start);
+			if (ch.isNumber())
+				continue;
+			++start;
+			break;
+		}
+		while (++end < text.length()) {
+			ch = text.at(end);
+			if (ch.isNumber())
+				continue;
+			break;
+		}
+		return false;
+	}
+
+	if (ch == QChar::fromLatin1(' ') || ch == QChar::fromLatin1('\t')) {
+		while (start > 0) {
+			--start;
+			ch = text.at(start);
+			if (!(ch == QChar::fromLatin1(' ') || ch == QChar::fromLatin1('\t'))) {
+				++start;
+				break;
+			}
+		}
+		while (++end < text.length()) {
+			ch = text.at(end);
+			if (!(ch == QChar::fromLatin1(' ') || ch == QChar::fromLatin1('\t')))
+				break;
+		}
+		return false;
+	}
+
+	if (ch == QChar::fromLatin1('\\')) {
+		if (++end < text.length()) {
+			ch = text.at(end);
+			if (isWordForming(ch) || ch == QChar::fromLatin1('@'))
+				while (++end < text.length()) {
+					ch = text.at(end);
+					if (isWordForming(ch) || ch == QChar::fromLatin1('@'))
+						continue;
+					break;
+				}
+			else
+				++end;
+		}
+		return false;
+	}
+
+	// else the character is selected in isolation
+	end = index + 1;
+	return false;
 }
 
 } // namespace Document

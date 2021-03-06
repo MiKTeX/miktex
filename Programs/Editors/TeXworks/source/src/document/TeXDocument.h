@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019  Stefan Löffler
+	Copyright (C) 2019-2020  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -43,6 +43,9 @@ public:
 	bool hasModeLine(const QString & key) const { return _modelines.contains(key); }
 	QMap<QString, QString> getModeLines() const { return _modelines; }
 	QString getModeLineValue(const QString & key) const { return _modelines.value(key); }
+
+	// find a "word", in TeX terms, returning whether it's a natural-language word or a control seq, punctuation, etc
+	static bool findNextWord(const QString & text, int index, int & start, int & end);
 
 signals:
 	void modelinesChanged(QStringList changedKeys, QStringList removedKeys);

@@ -18,6 +18,7 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+
 #include "Engine.h"
 #include "TWApp.h"
 
@@ -90,8 +91,7 @@ bool Engine::isAvailable() const
 //static
 QStringList Engine::binPaths()
 {
-	QStringList env = QProcess::systemEnvironment();
-	return TWApp::instance()->getBinaryPaths(env);
+	return TWApp::instance()->getBinaryPaths();
 }
 
 // static
@@ -109,7 +109,7 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	if (exeFilePath.isEmpty())
 		return nullptr;
 
-	QStringList env = QProcess::systemEnvironment();
+	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 	QProcess * process = new QProcess(parent);
 
 	QString workingDir = input.canonicalPath();
@@ -125,11 +125,26 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 
 #if !defined(Q_OS_DARWIN) // not supported on OS X yet :(
 	// Add a (customized) TEXEDIT environment variable
-	env << QString::fromLatin1("TEXEDIT=%1 --position=%d %s").arg(QCoreApplication::applicationFilePath());
+	env.insert(QStringLiteral("TEXEDIT"), QStringLiteral("%1 --position=%d %s").arg(QCoreApplication::applicationFilePath()));
 
-	#if defined(Q_OS_WIN) // MiKTeX apparently uses it's own variable
-	env << QString::fromLatin1("MIKTEX_EDITOR=%1 --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath());
-	#endif
+	// MiKTeX apparently uses it's own variable
+	env.insert(QStringLiteral("MIKTEX_EDITOR"), QStringLiteral("%1 --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath()));
+#endif
+
+#if defined(Q_OS_DARWIN)
+	// On Mac OS X, append the path to the typesetting tool to the PATH
+	// environment variable.
+	// In recent versions of Mac OS X and Qt, GUI applications (like Tw) get
+	// different values for PATH than console applications (because .bashrc etc.
+	// don't get parsed). Typesetting tools still run correctly (as they are
+	// invoked with a full path), but if they in turn try to run other tools
+	// (like epstopdf) without full path, the process will fail.
+	// Appending the path to the typesetting tool to PATH acts as a fallback and
+	// implicitly assumes that the tool itself and all tools it relies on are in
+	// the same (standard) location.
+	QStringList envPaths = env.value(QStringLiteral("PATH")).split(QStringLiteral(PATH_LIST_SEP));
+	envPaths.append(QFileInfo(exeFilePath).dir().absolutePath());
+	env.insert(QStringLiteral("PATH"), envPaths.join(QStringLiteral(PATH_LIST_SEP)));
 #endif
 
 	QStringList args = arguments();
@@ -156,7 +171,7 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 	args.replaceInStrings(QString::fromLatin1("$suffix"), input.suffix());
 	args.replaceInStrings(QString::fromLatin1("$directory"), input.absoluteDir().absolutePath());
 
-	process->setEnvironment(env);
+	process->setEnvironment(env.toStringList());
 	process->setProcessChannelMode(QProcess::MergedChannels);
 
 	process->start(exeFilePath, args);

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2020 Christian Schenk
+## Copyright (C) 2009-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -30,6 +30,8 @@ string(REGEX MATCH "([0-9]+)" TeXworks_VER_PATCH ${TeXworks_VER_PATCH})
 set(TeXworks_VERSION ${TeXworks_VER_MAJOR}.${TeXworks_VER_MINOR}.${TeXworks_VER_PATCH})
 
 set(TW_BUILD_ID "MiKTeX")
+
+set(WITH_QTSCRIPT TRUE)
 
 set(CMAKE_AUTOMOC TRUE)
 
@@ -64,84 +66,89 @@ add_definitions(
 
 set(texworks_sources
   source/src/BibTeXFile.cpp
-  source/src/BibTeXFile.h
   source/src/CitationSelectDialog.cpp
-  source/src/CitationSelectDialog.h
-  source/src/ClickableLabel.cpp
-  source/src/ClickableLabel.h
-  source/src/ClosableTabWidget.cpp
-  source/src/ClosableTabWidget.h
-  source/src/CommandlineParser.cpp
-  source/src/CommandlineParser.h
   source/src/CompletingEdit.cpp
-  source/src/CompletingEdit.h
   source/src/ConfirmDelete.cpp
+  source/src/Engine.cpp
+  source/src/FindDialog.cpp
+  source/src/HardWrapDialog.cpp
+  source/src/main.cpp
+  source/src/PDFDocumentWindow.cpp
+  source/src/PrefsDialog.cpp
+  source/src/ResourcesDialog.cpp
+  source/src/ScriptManagerWidget.cpp
+  source/src/Settings.cpp
+  source/src/TemplateDialog.cpp
+  source/src/TeXDocks.cpp
+  source/src/TeXDocumentWindow.cpp
+  source/src/TeXHighlighter.cpp
+  source/src/TWApp.cpp
+  source/src/TWScriptableWindow.cpp
+  source/src/TWScriptManager.cpp
+  source/src/TWSynchronizer.cpp
+  source/src/TWUtils.cpp
+  source/src/document/Document.cpp
+  source/src/document/SpellChecker.cpp
+  source/src/document/TextDocument.cpp
+  source/src/document/TeXDocument.cpp
+  source/src/scripting/ECMAScriptInterface.cpp
+  source/src/scripting/ECMAScript.cpp
+  source/src/scripting/ScriptAPI.cpp
+  source/src/scripting/Script.cpp
+  source/src/ui/ClickableLabel.cpp
+  source/src/ui/ClosableTabWidget.cpp
+  source/src/ui/LineNumberWidget.cpp
+  source/src/ui/ScreenCalibrationWidget.cpp
+  source/src/utils/CommandlineParser.cpp
+  source/src/utils/FileVersionDatabase.cpp
+  source/src/utils/FullscreenManager.cpp
+  source/src/utils/ResourcesLibrary.cpp
+  source/src/utils/SystemCommand.cpp
+  source/src/utils/TextCodecs.cpp
+  source/src/utils/VersionInfo.cpp
+  source/src/BibTeXFile.h
+  source/src/CitationSelectDialog.h
+  source/src/CompletingEdit.h
   source/src/ConfirmDelete.h
   source/src/DefaultPrefs.h
-  source/src/Engine.cpp
   source/src/Engine.h
-  source/src/FindDialog.cpp
   source/src/FindDialog.h
-  source/src/HardWrapDialog.cpp
   source/src/HardWrapDialog.h
-  source/src/InterProcessCommunicator.h
-  source/src/PDFDocumentWindow.cpp
   source/src/PDFDocumentWindow.h
-  source/src/PrefsDialog.cpp
   source/src/PrefsDialog.h
-  source/src/ResourcesDialog.cpp
   source/src/ResourcesDialog.h
-  source/src/ScreenCalibrationWidget.cpp
-  source/src/ScreenCalibrationWidget.h
-  source/src/ScriptManagerWidget.cpp
   source/src/ScriptManagerWidget.h
-  source/src/Settings.cpp
   source/src/Settings.h
-  source/src/TWApp.cpp
+  source/src/TemplateDialog.h
+  source/src/TeXDocks.h
+  source/src/TeXDocumentWindow.h
+  source/src/TeXHighlighter.h
   source/src/TWApp.h
-  source/src/TWScriptManager.cpp
-  source/src/TWScriptManager.h
-  source/src/TWScriptableWindow.cpp
   source/src/TWScriptableWindow.h
-  source/src/TWSynchronizer.cpp
+  source/src/TWScriptManager.h
   source/src/TWSynchronizer.h
-  source/src/TWSystemCmd.cpp
-  source/src/TWSystemCmd.h
-  source/src/TWTextCodecs.cpp
-  source/src/TWTextCodecs.h
-  source/src/TWUtils.cpp
   source/src/TWUtils.h
   source/src/TWVersion.h
-  source/src/TeXDocks.cpp
-  source/src/TeXDocks.h
-  source/src/TeXDocumentWindow.cpp
-  source/src/TeXDocumentWindow.h
-  source/src/TeXHighlighter.cpp
-  source/src/TeXHighlighter.h
-  source/src/TemplateDialog.cpp
-  source/src/TemplateDialog.h
+  source/src/InterProcessCommunicator.h
   source/src/document/Document.h
-  source/src/document/SpellChecker.cpp
   source/src/document/SpellChecker.h
-  source/src/document/TeXDocument.cpp
-  source/src/document/TeXDocument.h
-  source/src/document/TextDocument.cpp
   source/src/document/TextDocument.h
-  source/src/main.cpp
-  source/src/scripting/JSScript.cpp
-  source/src/scripting/JSScript.h
-  source/src/scripting/JSScriptInterface.cpp
-  source/src/scripting/JSScriptInterface.h
-  source/src/scripting/Script.cpp
-  source/src/scripting/Script.h
-  source/src/scripting/ScriptAPI.cpp
-  source/src/scripting/ScriptAPI.h
+  source/src/document/TeXDocument.h
   source/src/scripting/ScriptAPIInterface.h
   source/src/scripting/ScriptLanguageInterface.h
-  source/src/ui/LineNumberWidget.cpp
+  source/src/scripting/ScriptAPI.h
+  source/src/scripting/Script.h
+  source/src/ui/ClickableLabel.h
+  source/src/ui/ClosableTabWidget.h
   source/src/ui/LineNumberWidget.h
-  source/src/utils/FileVersionDatabase.cpp
+  source/src/ui/ScreenCalibrationWidget.h
+  source/src/utils/CommandlineParser.h
   source/src/utils/FileVersionDatabase.h
+  source/src/utils/FullscreenManager.h
+  source/src/utils/ResourcesLibrary.h
+  source/src/utils/SystemCommand.h
+  source/src/utils/TextCodecs.h
+  source/src/utils/VersionInfo.h
 
   miktex/miktex-texworks.cpp
   miktex/miktex-texworks.hpp
@@ -169,6 +176,17 @@ if(MIKTEX_NATIVE_WINDOWS)
     texworks.rc
   )
 endif()
+
+if(WITH_QTSCRIPT)
+  list(APPEND texworks_sources
+    source/src/scripting/JSScript.cpp
+    source/src/scripting/JSScript.h
+    source/src/scripting/JSScriptInterface.cpp
+    source/src/scripting/JSScriptInterface.h
+  )
+  add_definitions(-DWITH_QTSCRIPT)
+endif()
+
 
 set(texworks_ui_files
   source/src/CitationSelectDialog.ui
@@ -236,6 +254,7 @@ set(libs
   Qt5::Core
   Qt5::Gui
   Qt5::PrintSupport
+  Qt5::Qml
   Qt5::UiTools
   Qt5::Widgets
   Qt5::Script

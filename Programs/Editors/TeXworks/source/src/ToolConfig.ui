@@ -87,16 +87,14 @@
    <item row="2" column="3">
     <widget class="QToolButton" name="argUp">
      <property name="icon">
-      <iconset resource="../res/resources.qrc">
-       <normaloff>:/images/tango/go-up.png</normaloff>:/images/tango/go-up.png</iconset>
+      <iconset theme="go-up"/>
      </property>
     </widget>
    </item>
    <item row="2" column="4">
     <widget class="QToolButton" name="argDown">
      <property name="icon">
-      <iconset resource="../res/resources.qrc">
-       <normaloff>:/images/tango/go-down.png</normaloff>:/images/tango/go-down.png</iconset>
+      <iconset theme="go-down"/>
      </property>
     </widget>
    </item>
@@ -129,16 +127,14 @@
    <item row="4" column="3">
     <widget class="QToolButton" name="argAdd">
      <property name="icon">
-      <iconset resource="../res/resources.qrc">
-       <normaloff>:/images/tango/list-add.png</normaloff>:/images/tango/list-add.png</iconset>
+      <iconset theme="list-add"/>
      </property>
     </widget>
    </item>
    <item row="4" column="4">
     <widget class="QToolButton" name="argRemove">
      <property name="icon">
-      <iconset resource="../res/resources.qrc">
-       <normaloff>:/images/tango/list-remove.png</normaloff>:/images/tango/list-remove.png</iconset>
+      <iconset theme="list-remove"/>
      </property>
     </widget>
    </item>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Stefan Löffler
+ * Copyright (C) 2013-2020  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -11,19 +11,20 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  */
-#include <PDFActions.h>
-#include <PDFBackend.h>
+
+#include "PDFActions.h"
+#include "PDFBackend.h"
 
 namespace QtPDF {
 
-QRectF PDFDestination::viewport(const Backend::Document * doc, const QRectF oldViewport, const qreal oldZoom) const
+QRectF PDFDestination::viewport(Backend::Document * doc, const QRectF oldViewport, const qreal oldZoom) const
 {
   QRectF retVal = oldViewport;
 
   if (!isValid())
     return retVal;
   if (!isExplicit()) {
-    if (!doc)
+    if (!doc || !doc->isValid())
       return retVal;
     return doc->resolveDestination(*this).viewport(doc, oldViewport, oldZoom);
   }
@@ -48,7 +49,7 @@ QRectF PDFDestination::viewport(const Backend::Document * doc, const QRectF oldV
     case Destination_Fit:
     case Destination_FitB:
     {
-      if (!doc)
+      if (!doc || !doc->isValid())
         break;
       QSharedPointer<Backend::Page> p(doc->page(_page).toStrongRef());
       if (!p)
@@ -59,7 +60,7 @@ QRectF PDFDestination::viewport(const Backend::Document * doc, const QRectF oldV
     case Destination_FitH:
     case Destination_FitBH:
     {
-      if (!doc)
+      if (!doc || !doc->isValid())
         break;
       QSharedPointer<Backend::Page> p(doc->page(_page).toStrongRef());
       if (!p)
@@ -71,7 +72,7 @@ QRectF PDFDestination::viewport(const Backend::Document * doc, const QRectF oldV
     case Destination_FitV:
     case Destination_FitBV:
     {
-      if (!doc)
+      if (!doc || !doc->isValid())
         break;
       QSharedPointer<Backend::Page> p(doc->page(_page).toStrongRef());
       if (!p)
@@ -87,10 +88,30 @@ QRectF PDFDestination::viewport(const Backend::Document * doc, const QRectF oldV
   return retVal;
 }
 
+bool PDFDestination::operator==(const PDFDestination & o) const
+{
+  if (isValid() != o.isValid()) {
+    return false;
+  }
+  if (!isValid()) {
+    // Two invalid destinations are considered equal
+    return true;
+  }
+  if (!isExplicit() || !o.isExplicit()) {
+    // NB: a named destination does not compare equal to its resolved (explicit)
+    // variant as we have no Document handle to resolve the named destination
+    return _destinationName == o._destinationName;
+  }
+
+  return (_page == o._page && _type == o._type && _rect == o._rect && qFuzzyCompare(_zoom, o._zoom));
+}
+
 #ifdef DEBUG
   QDebug operator<<(QDebug dbg, const PDFDestination & dest)
   {
-    dbg.nospace() << "PDFDestination(";
+    bool oldSpace = dbg.autoInsertSpaces();
+    dbg.setAutoInsertSpaces(false);
+    dbg << "PDFDestination(";
     if (dest.isValid()) {
       if (dest.isExplicit()) {
         dbg << dest.page() << " ";
@@ -125,9 +146,75 @@ QRectF PDFDestination::viewport(const Backend::Document * doc, const QRectF oldV
         dbg << "name=" << dest.destinationName();
     }
     dbg << ")";
-    return dbg.space();
+    dbg.setAutoInsertSpaces(oldSpace);
+    return dbg;
   }
 #endif // defined(DEBUG)
+
+bool PDFURIAction::operator==(const PDFAction & o) const
+{
+  if (o.type() != ActionTypeURI) {
+    return false;
+  }
+  return (*this == dynamic_cast<const PDFURIAction&>(o));
+}
+
+bool PDFURIAction::operator==(const PDFURIAction & o) const
+{
+  return (o._url == _url && o._isMap == _isMap);
+}
+
+bool PDFGotoAction::operator==(const PDFAction & o) const
+{
+  if (o.type() != ActionTypeGoTo) {
+    return false;
+  }
+  return (*this == dynamic_cast<const PDFGotoAction&>(o));
+}
+
+bool PDFGotoAction::operator==(const PDFGotoAction & o) const
+{
+  return (_destination == o._destination && _filename == o._filename && _isRemote == o._isRemote && _openInNewWindow == o._openInNewWindow);
+}
+
+bool PDFLaunchAction::operator==(const PDFAction & o) const
+{
+  if (o.type() != ActionTypeLaunch) {
+    return false;
+  }
+  return (*this == dynamic_cast<const PDFLaunchAction&>(o));
+}
+
+bool PDFLaunchAction::operator==(const PDFLaunchAction & o) const
+{
+  return (_command == o._command);
+}
+
+#ifdef DEBUG
+QDebug operator<<(QDebug dbg, const PDFAction & action)
+{
+  bool oldSpace = dbg.autoInsertSpaces();
+  dbg.setAutoInsertSpaces(false);
+  switch (action.type()) {
+  case PDFAction::ActionTypeURI:
+    dbg << "PDFURIAction(" << dynamic_cast<const PDFURIAction&>(action).url() << ")";
+    break;
+  case PDFAction::ActionTypeGoTo:
+  {
+    auto a = dynamic_cast<const PDFGotoAction&>(action);
+    dbg << "PDFGotoAction(" << a.destination() << ", remote=" << a.isRemote() << ", filename=" << a.filename() << ", newWin=" << a.openInNewWindow() << ")";
+    break;
+  }
+  case PDFAction::ActionTypeLaunch:
+    dbg << "PDFLaunchAction(" << dynamic_cast<const PDFLaunchAction&>(action).command() << ")";
+    break;
+  default:
+    dbg << "PDFAction(type=" << action.type() << ")";
+  }
+  dbg.setAutoInsertSpaces(oldSpace);
+  return dbg;
+}
+#endif
 
 } // namespace QtPDF
 

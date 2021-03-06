@@ -22,20 +22,18 @@
 #ifndef TeXDocumentWindow_H
 #define TeXDocumentWindow_H
 
+#include "FindDialog.h"
 #include "TWScriptableWindow.h"
 #include "document/SpellChecker.h"
 #include "document/TeXDocument.h"
-
-#include <QList>
-#include <QRegularExpression>
-#include <QProcess>
-#include <QDateTime>
-#include <QSignalMapper>
-#include <QMouseEvent>
-
 #include "ui_TeXDocumentWindow.h"
 
-#include "FindDialog.h"
+#include <QDateTime>
+#include <QList>
+#include <QMouseEvent>
+#include <QProcess>
+#include <QRegularExpression>
+#include <QSignalMapper>
 
 class QAction;
 class QMenu;
@@ -48,7 +46,12 @@ class QTextCodec;
 class QFileSystemWatcher;
 
 class PDFDocumentWindow;
+
+namespace Tw {
+namespace UI {
 class ClickableLabel;
+} // namespace UI
+} // namespace Tw
 
 const int kTeXWindowStateVersion = 1; // increment this if we add toolbars/docks/etc
 
@@ -98,7 +101,7 @@ public:
 	int selectionLength() const { return textCursor().selectionEnd() - textCursor().selectionStart(); }
 	QString getCurrentCodecName() const { return (codec ? QString::fromUtf8(codec->name().constData()) : QString()); }
 	bool getUTF8BOM() const { return utf8BOM; }
-	
+
 	QString spellcheckLanguage() const;
 
 	PDFDocumentWindow* pdfDocument()
@@ -122,7 +125,7 @@ public:
 	Q_PROPERTY(QString spellcheckLanguage READ spellcheckLanguage WRITE setSpellcheckLanguage STORED false)
 	Q_PROPERTY(QString currentCodecName READ getCurrentCodecName STORED false)
 	Q_PROPERTY(bool writeUTF8BOM READ getUTF8BOM STORED false)
-	
+
 signals:
 	void syncFromSource(const QString& sourceFile, int lineNo, int col, bool activatePreview);
 	void activatedWindow(QWidget*);
@@ -189,7 +192,7 @@ public slots:
 	void setSmartQuotesMode(const QString& mode);
 	void setAutoIndentMode(const QString& mode);
 	void setSyntaxColoringMode(const QString& mode);
-	
+
 private slots:
 	void setLangInternal(const QString& lang);
 	void maybeEnableSaveAndRevert(bool modified);
@@ -206,7 +209,7 @@ private slots:
 	void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
 	void acceptInputLine();
 	void selectedEngine(QAction* engineAction);
-	void selectedEngine(const QString& name);
+	void selectedEngine(int idx);
 	void handleModelineChange(QStringList changedKeys, QStringList removedKeys);
 	void reloadIfChangedOnDisk();
 	void setupFileWatcher();
@@ -233,7 +236,6 @@ private:
 	bool openPdfIfAvailable(bool show);
 	void replaceSelection(const QString& newText);
 	void doHardWrap(int mode, int lineWidth, bool rewrap);
-	void zoomToLeft(QWidget *otherWindow);
 	QTextCursor doSearch(QTextDocument *theDoc, const QString& searchText, const QRegularExpression *regex,
 						 QTextDocument::FindFlags flags, int rangeStart, int rangeEnd);
 	int doReplaceAll(const QString& searchText, QRegularExpression* regex, const QString& replacement,
@@ -249,16 +251,16 @@ private:
 	void presentResults(const QList<SearchResult>& results);
 	void showLineEndingSetting();
 	void showEncodingSetting();
-	
+
 	QString selectedText() { return textCursor().selectedText().replace(QChar(QChar::ParagraphSeparator), QChar::fromLatin1('\n')); }
 	QString consoleText() { return textEdit_console->toPlainText(); }
 	QString text() { return textEdit->toPlainText(); }
-	
+
 	Tw::Document::TeXDocument * _texDoc;
 	PDFDocumentWindow * pdfDoc{nullptr};
 
 	QTextCodec * codec{nullptr};
-	// When using the UTF-8 codec, byte order marks (BOMs) are ignored during 
+	// When using the UTF-8 codec, byte order marks (BOMs) are ignored during
 	// reading and not produced when writing. To keep them in files that have
 	// them, we need to keep track of them ourselves.
 	bool utf8BOM{false};
@@ -266,13 +268,13 @@ private:
 	QString rootFilePath;
 	QDateTime lastModified;
 
-	ClickableLabel * lineNumberLabel{nullptr};
-	ClickableLabel * encodingLabel{nullptr};
-	ClickableLabel * lineEndingLabel{nullptr};
+	Tw::UI::ClickableLabel * lineNumberLabel{nullptr};
+	Tw::UI::ClickableLabel * encodingLabel{nullptr};
+	Tw::UI::ClickableLabel * lineEndingLabel{nullptr};
 
 	QActionGroup *engineActions{nullptr};
 	QString engineName;
-	
+
 	QSignalMapper dictSignalMapper;
 
 	QComboBox * engine{nullptr};
@@ -289,9 +291,6 @@ private:
 	QTextCursor	dragSavedCursor;
 
 	static QList<TeXDocumentWindow*> docList;
-#if defined(MIKTEX)
-        QAction* actionAbout_MiKTeX;
-#endif
 };
 
 #endif // !defined(TeXDocumentWindow_H)

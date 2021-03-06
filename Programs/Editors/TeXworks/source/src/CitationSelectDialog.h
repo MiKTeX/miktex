@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,13 +21,14 @@
 #ifndef __CITATION_SELECT_DIALOG_H
 #define __CITATION_SELECT_DIALOG_H
 
+#include "BibTeXFile.h"
+
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLineEdit>
-#include <QTableView>
 #include <QSet>
 #include <QSortFilterProxyModel>
-#include "BibTeXFile.h"
+#include <QTableView>
 
 class CitationModel : public QAbstractTableModel {
 	Q_OBJECT

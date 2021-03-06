@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2019  Stefan Löffler
+	Copyright (C) 2010-2020  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 #ifndef ScriptAPIInterface_H
 #define ScriptAPIInterface_H
 
+#include <QMessageBox>
 #include <QObject>
 #include <QString>
 #include <QVariant>
-#include <QMessageBox>
 
 namespace Tw {
 namespace Scripting {
@@ -40,6 +40,8 @@ public:
 	};
 
 	virtual ~ScriptAPIInterface() = default;
+
+	virtual QObject* clone() const = 0;
 
 	virtual QObject* self() = 0;
 

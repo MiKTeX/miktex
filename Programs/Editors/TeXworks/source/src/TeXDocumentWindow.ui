@@ -63,11 +63,8 @@
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
        </property>
-       <property name="tabStopWidth">
-        <number>36</number>
-       </property>
       </widget>
-      <widget class="ClosableTabWidget" name="consoleTabs">
+      <widget class="Tw::UI::ClosableTabWidget" name="consoleTabs">
        <property name="usesScrollButtons">
         <bool>true</bool>
        </property>
@@ -113,9 +110,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-           <property name="tabStopWidth">
-            <number>36</number>
            </property>
            <property name="acceptRichText">
             <bool>false</bool>
@@ -436,8 +430,7 @@
   </widget>
   <action name="actionNew">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/document-new.png</normaloff>:/images/tango/document-new.png</iconset>
+    <iconset theme="document-new"/>
    </property>
    <property name="text">
     <string>New</string>
@@ -451,8 +444,7 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/document-open.png</normaloff>:/images/tango/document-open.png</iconset>
+    <iconset theme="document-open"/>
    </property>
    <property name="text">
     <string>Open...</string>
@@ -477,8 +469,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/document-save.png</normaloff>:/images/tango/document-save.png</iconset>
+    <iconset theme="document-save"/>
    </property>
    <property name="text">
     <string>Save</string>
@@ -517,8 +508,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-undo.png</normaloff>:/images/tango/edit-undo.png</iconset>
+    <iconset theme="edit-undo"/>
    </property>
    <property name="text">
     <string>Undo</string>
@@ -535,8 +525,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-redo.png</normaloff>:/images/tango/edit-redo.png</iconset>
+    <iconset theme="edit-redo"/>
    </property>
    <property name="text">
     <string>Redo</string>
@@ -553,8 +542,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-cut.png</normaloff>:/images/tango/edit-cut.png</iconset>
+    <iconset theme="edit-cut"/>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -571,8 +559,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-copy.png</normaloff>:/images/tango/edit-copy.png</iconset>
+    <iconset theme="edit-copy"/>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -589,8 +576,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-paste.png</normaloff>:/images/tango/edit-paste.png</iconset>
+    <iconset theme="edit-paste"/>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -615,8 +601,7 @@
   </action>
   <action name="actionTypeset">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/images/runtool.png</normaloff>:/images/images/runtool.png</iconset>
+    <iconset theme="process-start"/>
    </property>
    <property name="text">
     <string>Typeset</string>
@@ -630,8 +615,7 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-find.png</normaloff>:/images/tango/edit-find.png</iconset>
+    <iconset theme="edit-find"/>
    </property>
    <property name="text">
     <string>Find...</string>
@@ -656,8 +640,7 @@
   </action>
   <action name="actionReplace">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/edit-find-replace.png</normaloff>:/images/tango/edit-find-replace.png</iconset>
+    <iconset theme="edit-find-replace"/>
    </property>
    <property name="text">
     <string>Replace...</string>
@@ -734,8 +717,7 @@
   </action>
   <action name="actionIndent">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/format-indent-more.png</normaloff>:/images/tango/format-indent-more.png</iconset>
+    <iconset theme="format-indent-more"/>
    </property>
    <property name="text">
     <string>Indent</string>
@@ -749,8 +731,7 @@
   </action>
   <action name="actionUnindent">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/format-indent-less.png</normaloff>:/images/tango/format-indent-less.png</iconset>
+    <iconset theme="format-indent-less"/>
    </property>
    <property name="text">
     <string>Unindent</string>
@@ -838,8 +819,7 @@
   </action>
   <action name="actionPreferences">
    <property name="icon">
-    <iconset resource="../res/resources.qrc">
-     <normaloff>:/images/tango/preferences-system.png</normaloff>:/images/tango/preferences-system.png</iconset>
+    <iconset theme="preferences-system"/>
    </property>
    <property name="text">
     <string>Preferences...</string>
@@ -1149,9 +1129,9 @@
    <header>CompletingEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>ClosableTabWidget</class>
+   <class>Tw::UI::ClosableTabWidget</class>
    <extends>QTabWidget</extends>
-   <header>ClosableTabWidget.h</header>
+   <header>ui/ClosableTabWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

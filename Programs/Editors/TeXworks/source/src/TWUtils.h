@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,13 +23,14 @@
 #define TWUtils_H
 
 #include <QAction>
-#include <QString>
-#include <QList>
+#include <QDateTime>
 #include <QDir>
+#include <QList>
 #include <QMap>
 #include <QPair>
 #include <QSettings>
-#include <QDateTime>
+#include <QString>
+#include <QTextCodec>
 #if defined(MIKTEX)
 #  include <miktex/Core/Directory>
 #  include <miktex/Core/Paths>
@@ -42,34 +43,20 @@
 
 #define TEXWORKS_NAME "TeXworks" /* app name, for use in menus, messages, etc */
 
-class QMainWindow;
 class QCompleter;
-class TeXDocumentWindow;
+class QMainWindow;
 class PDFDocumentWindow;
+class TeXDocumentWindow;
 
 // static utility methods
 class TWUtils
 {
 public:
-	// is the given file a PDF document? image? Postscript?
-	static bool isPDFfile(const QString& fileName);
-	static bool isImageFile(const QString& fileName);
-	static bool isPostscriptFile(const QString& fileName);
-
-	// return the path to our "library" folder for resources like templates, completion lists, etc
-	static const QString getLibraryPath(const QString& subdir, const bool updateOnDisk = true);
-	// same as getLibraryPath(), but splits the return value by PATH_LIST_SEP
-	static const QStringList getLibraryPaths(const QString& subdir, const bool updateOnDisk = true);
-	static void updateLibraryResources(const QDir& srcRootDir, const QDir& destRootDir, const QString& libPath);
-
 	static void insertHelpMenuItems(QMenu* helpMenu);
 
 	// return a sorted list of all the available text codecs
 	static QList<QTextCodec*> *findCodecs();
 
-	// get list of available translations
-	static QStringList *getTranslationList();
-	
 	// list of filename filters for the Open/Save dialogs
 	static QStringList* filterList();
 	static void setDefaultFilters();
@@ -97,13 +84,10 @@ public:
 	static void ensureOnScreen(QWidget *window);
 	static void applyToolbarOptions(QMainWindow *theWindow, int iconSize, bool showText);
 
-	// find a "word", in TeX terms, returning whether it's a natural-language word or a control seq, punctuation, etc
-	static bool findNextWord(const QString& text, int index, int& start, int& end);
-
 	static QChar closerMatching(QChar c);
 	static QChar openerMatching(QChar c);
 	static void readConfig();
-	
+
 	static int balanceDelim(const QString& text, int pos, QChar delim, int direction);
 	static int findOpeningDelim(const QString& text, int pos);
 
@@ -111,14 +95,10 @@ public:
 	static const QString& includePdfCommand();
 	static const QString& includeImageCommand();
 	static const QString& includePostscriptCommand();
-	
-	static const QString& cleanupPatterns();
-	
-	static void installCustomShortcuts(QWidget * widget, bool recursive = true, QSettings * map = nullptr);
 
-	static bool isGitInfoAvailable();
-	static QString gitCommitHash();
-	static QDateTime gitCommitDate();
+	static const QString& cleanupPatterns();
+
+	static void installCustomShortcuts(QWidget * widget, bool recursive = true, QSettings * map = nullptr);
 
 private:
 	TWUtils();
@@ -142,7 +122,7 @@ private:
 class SelWinAction : public QAction
 {
 	Q_OBJECT
-	
+
 public:
 	SelWinAction(QObject *parent, const QString & fileName, const QString &label);
 };

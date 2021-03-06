@@ -1,10 +1,10 @@
 #include <windows.h>
 
-#include "../src/TWVersion.h"
-#include "../src/GitRev.h"
+#include "@PROJECT_SOURCE_DIR@/src/TWVersion.h"
+#include "GitRev.h"
 
-IDI_ICON1	ICON	DISCARDABLE	"images/TeXworks.ico"
-IDI_ICON2	ICON	DISCARDABLE	"images/TeXworks-doc.ico"
+IDI_ICON1	ICON	DISCARDABLE	"@PROJECT_SOURCE_DIR@/res/images/TeXworks.ico"
+IDI_ICON2	ICON	DISCARDABLE	"@PROJECT_SOURCE_DIR@/res/images/TeXworks-doc.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION    	VER_MAJOR,VER_MINOR,VER_BUGFIX,0
@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription",  "TeXworks editor & previewer"
             VALUE "FileVersion",      TEXWORKS_VERSION "-r." GIT_COMMIT_HASH
             VALUE "InternalName",     "TeXworks"
-            VALUE "LegalCopyright",   "Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
+            VALUE "LegalCopyright",   "Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
             VALUE "OriginalFilename", "TeXworks.exe"
             VALUE "ProductName",      "TeXworks"
             VALUE "ProductVersion",   "TeXworks " TEXWORKS_VERSION
@@ -35,4 +35,4 @@ BEGIN
     END
 END
 
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST TeXworks.exe.manifest
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "@PROJECT_SOURCE_DIR@/res/TeXworks.exe.manifest"

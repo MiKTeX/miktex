@@ -21,8 +21,8 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include <QProcess>
 #include <QFileInfo>
+#include <QProcess>
 
 // specification of an "engine" used to process files
 class Engine

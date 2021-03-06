@@ -18,12 +18,13 @@
 	For links to further information, or to contact the authors,
 	see <http://www.tug.org/texworks/>.
 */
+
 #include "LineNumberWidget.h"
 
-#include <QPainter>
-#include <QTextBlock>
 #include <QAbstractTextDocumentLayout>
+#include <QPainter>
 #include <QScrollBar>
+#include <QTextBlock>
 
 namespace Tw {
 namespace UI {
@@ -48,7 +49,11 @@ QSize LineNumberWidget::sizeHint() const
 		}
 	}
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
 	int space = 3 + fontMetrics().width(QChar::fromLatin1('9')) * digits;
+#else
+	int space = 3 + fontMetrics().horizontalAdvance(QChar::fromLatin1('9')) * digits;
+#endif
 	return QSize(space, 0);
 }
 

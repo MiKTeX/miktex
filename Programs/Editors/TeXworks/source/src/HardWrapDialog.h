@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,8 +22,9 @@
 #ifndef HardWrapDialog_H
 #define HardWrapDialog_H
 
-#include <QDialog>
 #include "ui_HardWrapDialog.h"
+
+#include <QDialog>
 
 const int kDefault_HardWrapWidth = 64;
 const int kHardWrapMode_Window = 0;
@@ -45,9 +46,9 @@ public:
 	bool rewrap() const { // whether to re-wrap paragraphs (fill lines)
 	    return checkbox_rewrap->isChecked();
 	}
-	
+
 	int mode() const; // returns one of the kHardWrapMode_* values
-	
+
 	void saveSettings();
 
 protected:

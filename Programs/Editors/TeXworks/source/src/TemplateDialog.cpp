@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "TemplateDialog.h"
-#include "TeXHighlighter.h"
-#include "TWUtils.h"
 #include "Settings.h"
+#include "TWUtils.h"
+#include "TeXHighlighter.h"
+#include "TemplateDialog.h"
 #include "document/TeXDocument.h"
+#include "utils/ResourcesLibrary.h"
 
-#include <QDirModel>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -42,21 +42,18 @@ void TemplateDialog::init()
 	Tw::Document::TeXDocument * texDoc = new Tw::Document::TeXDocument(textEdit);
 	textEdit->setDocument(texDoc);
 
-	QString templatePath = TWUtils::getLibraryPath(QString::fromLatin1("templates"));
+	QString templatePath = Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("templates"));
 		// do this before creating the model, as getLibraryPath might initialize a new dir
-		
-	model = new QDirModel(this);
+
+	model = new QFileSystemModel(this);
+	model->setRootPath(templatePath);
 	treeView->setModel(model);
 	treeView->setRootIndex(model->index(templatePath));
-	treeView->expandAll();
-	treeView->resizeColumnToContents(0);
 	treeView->hideColumn(2);
-	treeView->collapseAll();
-	
-	connect(treeView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-			this, SLOT(selectionChanged(const QItemSelection&, const QItemSelection&)));
-	
-	connect(treeView, SIGNAL(activated(const QModelIndex&)), this, SLOT(itemActivated(const QModelIndex&)));
+
+	connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &TemplateDialog::selectionChanged);
+
+	connect(treeView, &QTreeView::activated, this, &TemplateDialog::itemActivated);
 
 	Tw::Settings settings;
 	if (settings.value(QString::fromLatin1("syntaxColoring"), true).toBool()) {
@@ -71,7 +68,7 @@ void TemplateDialog::init()
 
 void TemplateDialog::itemActivated(const QModelIndex & index)
 {
-	QDirModel * model = qobject_cast<QDirModel*>(treeView->model());
+	QFileSystemModel * model = qobject_cast<QFileSystemModel*>(treeView->model());
 	if (model && !model->isDir(index))
 		accept();
 }
@@ -109,6 +106,30 @@ QString TemplateDialog::doTemplateDialog()
 				rval = filePath;
 		}
 	}
-	
+
 	return rval;
+}
+
+void TemplateDialog::showEvent(QShowEvent * event)
+{
+	QDialog::showEvent(event);
+
+	// Resize the first column to take all available screen space. This can only
+	// be done once the dialog is fully layouted to be shown - hence here.
+
+	// Only resize columns the first time the dialog is shown. After that, keep
+	// using what the user are used to (or have even configured themselves)
+	if (!_shouldResizeColumns) {
+		return;
+	}
+	_shouldResizeColumns = false;
+
+	QHeaderView * h = treeView->header();
+	if (!h) {
+		return;
+	}
+	// Do not use the real section sizes as reference, as the last section might
+	// be expanding and is hence larger than necessary. The default section size
+	// seems to work well here.
+	h->resizeSection(0, h->length() - 2 * h->defaultSectionSize());
 }

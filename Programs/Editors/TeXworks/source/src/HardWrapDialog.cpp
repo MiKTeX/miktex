@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,14 +37,14 @@ HardWrapDialog::init()
 	spinbox_charCount->setMaximum(INT_MAX);
 	spinbox_charCount->setValue(wrapWidth);
 	spinbox_charCount->selectAll();
-	
-	connect(radio_Unwrap, SIGNAL(toggled(bool)), this, SLOT(unwrapModeToggled(bool)));
+
+	connect(radio_Unwrap, &QRadioButton::toggled, this, &HardWrapDialog::unwrapModeToggled);
 
 	int wrapMode = settings.value(QString::fromLatin1("hardWrapMode"), kHardWrapMode_Fixed).toInt();
 	radio_currentWidth->setChecked(wrapMode == kHardWrapMode_Window);
 	radio_fixedLineLength->setChecked(wrapMode == kHardWrapMode_Fixed);
 	radio_Unwrap->setChecked(wrapMode == kHardWrapMode_Unwrap);
-	
+
 	bool rewrapParagraphs = settings.value(QString::fromLatin1("hardWrapRewrap"), false).toBool();
 	checkbox_rewrap->setChecked(rewrapParagraphs);
 
@@ -71,7 +71,7 @@ HardWrapDialog::mode() const
 		return kHardWrapMode_Fixed;
 	if (radio_Unwrap->isChecked())
 		return kHardWrapMode_Unwrap;
-	
+
 	return kHardWrapMode_Fixed;
 }
 

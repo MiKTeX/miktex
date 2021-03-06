@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,13 +27,16 @@
 #include <miktex/miktex-texworks.hpp>
 #include <miktex/Trace/StopWatch>
 #endif
-#include "Settings.h"
 #include "ScriptManagerWidget.h"
+#include "Settings.h"
 #include "TWScriptManager.h"
-#include "TWUtils.h"
+#include "scripting/ECMAScriptInterface.h"
+#if WITH_QTSCRIPT
+#	include "scripting/JSScriptInterface.h"
+#endif
 #include "scripting/ScriptAPI.h"
-#include "scripting/JSScriptInterface.h"
 #include "scripting/ScriptLanguageInterface.h"
+#include "utils/ResourcesLibrary.h"
 
 #include <QDir>
 #include <QPluginLoader>
@@ -59,7 +62,7 @@ TWScriptManager::TWScriptManager()
 void
 TWScriptManager::saveDisabledList()
 {
-	QDir scriptRoot(TWUtils::getLibraryPath(QString::fromLatin1("scripts")));
+	QDir scriptRoot(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("scripts")));
 	QStringList disabled;
 
 	QList<QObject*> list = m_Scripts.findChildren<QObject*>();
@@ -84,7 +87,10 @@ TWScriptManager::saveDisabledList()
 void TWScriptManager::loadPlugins()
 {
 	// the JSScript interface isn't really a plugin, but provides the same interface
+#if WITH_QTSCRIPT
 	scriptLanguages += new Tw::Scripting::JSScriptInterface();
+#endif
+	scriptLanguages += new Tw::Scripting::ECMAScriptInterface();
 
 	// get any static plugins
 	foreach (QObject *plugin, QPluginLoader::staticInstances()) {
@@ -140,7 +146,7 @@ void TWScriptManager::reloadScripts(bool forceAll /* = false */)
 	QStringList processed;
 
 	// canonicalize the paths
-	QDir scriptsDir(TWUtils::getLibraryPath(QString::fromLatin1("scripts")));
+	QDir scriptsDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("scripts")));
 	for (int i = 0; i < disabled.size(); ++i)
 		disabled[i] = QFileInfo(scriptsDir.absoluteFilePath(disabled[i])).canonicalFilePath();
 
@@ -180,7 +186,13 @@ void TWScriptManager::reloadScriptsInList(TWScriptList * list, QStringList & pro
 					continue;
 				}
 			}
-			if (!enableScriptsPlugins && !qobject_cast<const Tw::Scripting::JSScriptInterface*>(s->getScriptLanguagePlugin())) {
+			const bool needsPlugin = (
+#if WITH_QTSCRIPT
+				qobject_cast<const Tw::Scripting::JSScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr &&
+#endif
+				qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr
+			);
+			if (needsPlugin && !enableScriptsPlugins) {
 				// the plugin necessary to execute this scripts has been disabled
 				delete s;
 				continue;
@@ -299,7 +311,13 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 			Tw::Scripting::ScriptLanguageInterface * i = qobject_cast<Tw::Scripting::ScriptLanguageInterface*>(plugin);
 			if (!i)
 				continue;
-			if (!scriptingPluginsEnabled && !qobject_cast<Tw::Scripting::JSScriptInterface*>(plugin))
+			const bool isPlugin = (
+#if WITH_QTSCRIPT
+				qobject_cast<Tw::Scripting::JSScriptInterface*>(plugin) == nullptr &&
+#endif
+				qobject_cast<Tw::Scripting::ECMAScriptInterface*>(plugin) == nullptr
+			);
+			if (isPlugin && !scriptingPluginsEnabled)
 				continue;
 			if (!i->canHandleFile(info))
 				continue;
@@ -355,8 +373,8 @@ void TWScriptManager::addScriptsInDirectory(TWScriptList *scriptList,
 		childList->setParent(nullptr);
 
 	// sort the sublists
-	qSort(childLists.begin(), childLists.end(), scriptListLessThan);
-	qSort(childScripts.begin(), childScripts.end(), scriptLessThan);
+	std::sort(childLists.begin(), childLists.end(), scriptListLessThan);
+	std::sort(childScripts.begin(), childScripts.end(), scriptLessThan);
 
 	// add the scripts again, one-by-one
 	foreach (Tw::Scripting::Script* childScript, childScripts)
@@ -390,9 +408,14 @@ TWScriptManager::runScript(QObject* script, QObject * context, QVariant & result
 	if (!s || s->getType() != scriptType)
 		return false;
 
-	if (!settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool() &&
-		!qobject_cast<const Tw::Scripting::JSScriptInterface*>(s->getScriptLanguagePlugin())
-	) return false;
+	const bool needsPlugin = (
+#if WITH_QTSCRIPT
+		qobject_cast<const Tw::Scripting::JSScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr &&
+#endif
+		qobject_cast<const Tw::Scripting::ECMAScriptInterface*>(s->getScriptLanguagePlugin()) == nullptr
+	);
+	if (needsPlugin && !settings.value(QString::fromLatin1("enableScriptingPlugins"), false).toBool())
+		return false;
 
 	if (!s->isEnabled())
 		return false;

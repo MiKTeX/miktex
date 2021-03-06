@@ -19,16 +19,6 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#if defined(MIKTEX)
-#if defined(MIKTEX_WINDOWS)
-#define MIKTEX_UTF8_WRAP_ALL 1
-#include <miktex/utf8wrap.h>
-#endif
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-#include <miktex/miktex-texworks.hpp>
-#include <miktex/Trace/StopWatch>
-#endif
 #include "scripting/JSScript.h"
 #include "Settings.h"
 
@@ -66,9 +56,6 @@ bool JSScript::execute(ScriptAPIInterface * tw) const
 	stream.setCodec(m_Codec);
 	QString contents = stream.readAll();
 	scriptFile.close();
-#if defined(MIKTEX)
-        MIKTEX_TRACE(fmt::format("loaded '{0}' ({1} bytes)", m_Filename.toUtf8().data(), contents.length()));
-#endif
 
 	QScriptEngine engine;
 	QScriptValue twObject = engine.newQObject(tw->self());
@@ -77,9 +64,6 @@ bool JSScript::execute(ScriptAPIInterface * tw) const
 	QScriptValue val;
 
 	Tw::Settings settings;
-#if defined(MIKTEX)
-        MIKTEX_TRACE(fmt::format("evaluating '{0}'...", m_Filename.toUtf8().data()));
-#endif
 	if (settings.value(QString::fromLatin1("scriptDebugger"), false).toBool()) {
 		QScriptEngineDebugger debugger;
 		debugger.attachTo(&engine);

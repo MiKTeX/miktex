@@ -19,28 +19,27 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#include "scripting/ScriptAPI.h"
-#include "TWSystemCmd.h"
-#include "TWUtils.h"
-#include "TWApp.h"
-#include "Settings.h"
+#include "DefaultPrefs.h"
 #include "Engine.h"
+#include "Settings.h"
+#include "TWApp.h"
 #include "document/SpellChecker.h"
 #include "scripting/Script.h"
-#include "DefaultPrefs.h"
+#include "scripting/ScriptAPI.h"
+#include "utils/SystemCommand.h"
 
-#include <QObject>
-#include <QString>
-#include <QVariant>
-#include <QMessageBox>
-#include <QInputDialog>
-#include <QProgressDialog>
-#include <QCoreApplication>
-#include <QUiLoader>
 #include <QBuffer>
-#include <QDir>
-#include <QUrl>
+#include <QCoreApplication>
 #include <QDesktopServices>
+#include <QDir>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QObject>
+#include <QProgressDialog>
+#include <QString>
+#include <QUiLoader>
+#include <QUrl>
+#include <QVariant>
 
 namespace Tw {
 namespace Scripting {
@@ -124,7 +123,7 @@ int ScriptAPI::critical(QWidget* parent,
 QVariant ScriptAPI::getInt(QWidget* parent, const QString& title, const QString& label,
 				int value, int min, int max, int step)
 {
-	bool ok;
+	bool ok{false};
 	int i = QInputDialog::getInt(parent, title, label, value, min, max, step, &ok);
 	return ok ? QVariant(i) : QVariant();
 }
@@ -132,7 +131,7 @@ QVariant ScriptAPI::getInt(QWidget* parent, const QString& title, const QString&
 QVariant ScriptAPI::getDouble(QWidget* parent, const QString& title, const QString& label,
 				   double value, double min, double max, int decimals)
 {
-	bool ok;
+	bool ok{false};
 	double d = QInputDialog::getDouble(parent, title, label, value, min, max, decimals, &ok);
 	return ok ? QVariant(d) : QVariant();
 }
@@ -140,7 +139,7 @@ QVariant ScriptAPI::getDouble(QWidget* parent, const QString& title, const QStri
 QVariant ScriptAPI::getItem(QWidget* parent, const QString& title, const QString& label,
 				 const QStringList& items, int current, bool editable)
 {
-	bool ok;
+	bool ok{false};
 	QString s = QInputDialog::getItem(parent, title, label, items, current, editable, &ok);
 	return ok ? QVariant(s) : QVariant();
 }
@@ -148,25 +147,25 @@ QVariant ScriptAPI::getItem(QWidget* parent, const QString& title, const QString
 QVariant ScriptAPI::getText(QWidget* parent, const QString& title, const QString& label,
 				 const QString& text)
 {
-	bool ok;
+	bool ok{false};
 	QString s = QInputDialog::getText(parent, title, label, QLineEdit::Normal, text, &ok);
 	return ok ? QVariant(s) : QVariant();
 }
-	
+
 void ScriptAPI::yield()
 {
 	QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
-	
+
 QWidget * ScriptAPI::progressDialog(QWidget * parent)
 {
 	QProgressDialog * dlg = new QProgressDialog(parent);
-	connect(this, SIGNAL(destroyed(QObject*)), dlg, SLOT(deleteLater()));
+	connect(this, &ScriptAPI::destroyed, dlg, &QProgressDialog::deleteLater);
 	dlg->setCancelButton(nullptr);
 	dlg->show();
 	return dlg;
 }
-	
+
 QWidget * ScriptAPI::createUIFromString(const QString& uiSpec, QWidget * parent)
 {
 	QByteArray ba(uiSpec.toUtf8());
@@ -198,13 +197,13 @@ QWidget * ScriptAPI::createUI(const QString& filename, QWidget * parent)
 	}
 	return widget;
 }
-	
+
 QWidget * ScriptAPI::findChildWidget(QWidget* parent, const QString& name)
 {
 	QWidget* child = parent->findChild<QWidget*>(name);
 	return child;
 }
-	
+
 bool ScriptAPI::makeConnection(QObject* sender, const QString& signal, QObject* receiver, const QString& slot)
 {
 	return QObject::connect(sender, QString::fromLatin1("2%1").arg(signal).toUtf8().data(),
@@ -228,7 +227,7 @@ QMap<QString, QVariant> ScriptAPI::system(const QString& cmdline, bool waitForRe
 	}
 
 	if (mayExecuteSystemCommand(cmdline, m_target)) {
-		TWSystemCmd *process = new TWSystemCmd(this, waitForResult, !waitForResult);
+		Tw::Utils::SystemCommand * process = new Tw::Utils::SystemCommand(this, waitForResult, !waitForResult);
 		if (waitForResult) {
 			process->setProcessChannelMode(QProcess::MergedChannels);
 			process->start(cmdline);
@@ -272,7 +271,7 @@ QMap<QString, QVariant> ScriptAPI::launchFile(const QString& fileName) const
 {
 	QFileInfo finfo(fileName);
 	QMap<QString, QVariant> retVal;
-	
+
 	retVal[QString::fromLatin1("status")] = SystemAccess_PermissionDenied;
 	retVal[QString::fromLatin1("message")] = QVariant();
 
@@ -300,13 +299,13 @@ int ScriptAPI::writeFile(const QString& filename, const QString& content) const
 
 	if (!mayWriteFile(path, m_target))
 		return ScriptAPI::SystemAccess_PermissionDenied;
-	
+
 	QFile fout(path);
 	qint64 numBytes = -1;
-	
+
 	if (!fout.open(QIODevice::WriteOnly | QIODevice::Text))
 		return ScriptAPI::SystemAccess_Failed;
-	
+
 	numBytes = fout.write(content.toUtf8());
 	fout.close();
 
@@ -319,7 +318,7 @@ QMap<QString, QVariant> ScriptAPI::readFile(const QString& filename) const
 	// relative paths are taken to be relative to the folder containing the
 	// executing script's file
 	QMap<QString, QVariant> retVal;
-	
+
 	retVal[QString::fromLatin1("status")] = SystemAccess_PermissionDenied;
 	retVal[QString::fromLatin1("result")] = QVariant();
 	retVal[QString::fromLatin1("message")] = QVariant();
@@ -332,15 +331,15 @@ QMap<QString, QVariant> ScriptAPI::readFile(const QString& filename) const
 		retVal[QString::fromLatin1("status")] = ScriptAPI::SystemAccess_PermissionDenied;
 		return retVal;
 	}
-	
+
 	QFile fin(path);
-	
+
 	if (!fin.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		retVal[QString::fromLatin1("message")] = tr("The file \"%1\" could not be opened for reading").arg(path);
 		retVal[QString::fromLatin1("status")] = ScriptAPI::SystemAccess_Failed;
 		return retVal;
 	}
-	
+
 	// with readAll, there's no way to detect an error during the actual read
 	retVal[QString::fromLatin1("result")] = QString::fromUtf8(fin.readAll().constData());
 	retVal[QString::fromLatin1("status")] = ScriptAPI::SystemAccess_OK;
@@ -359,22 +358,20 @@ int ScriptAPI::fileExists(const QString& filename) const
 	return (QFileInfo(path).exists() ? SystemAccess_OK : SystemAccess_Failed);
 }
 
-//////////////// Wrapper around selected TWUtils functions ////////////////
 Q_INVOKABLE
 QMap<QString, QVariant> ScriptAPI::getDictionaryList(const bool forceReload /* = false */)
 {
 	QMap<QString, QVariant> retVal;
-	const QHash<QString, QString> * h = Tw::Document::SpellChecker::getDictionaryList(forceReload);
-	for (QHash<QString, QString>::const_iterator it = h->begin(); it != h->end(); ++it) {
+	const QMultiHash<QString, QString> * h = Tw::Document::SpellChecker::getDictionaryList(forceReload);
+	for (QMultiHash<QString, QString>::const_iterator it = h->begin(); it != h->end(); ++it) {
 		if (!retVal.contains(it.value()))
 			retVal[it.value()] = QVariant::fromValue((QList<QVariant>() << it.key()));
 		else
 			retVal[it.value()] = (retVal[it.value()].toList() << it.key());
 	}
-	
+
 	return retVal;
 }
-//////////////// Wrapper around selected TWUtils functions ////////////////
 
 
 // Wrapper around TWApp::getEngineList()

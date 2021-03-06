@@ -1069,6 +1069,7 @@ if(WITH_UI_QT)
     Gui
     LinguistTools
     PrintSupport
+    Qml
     Script
     ScriptTools
     UiTools

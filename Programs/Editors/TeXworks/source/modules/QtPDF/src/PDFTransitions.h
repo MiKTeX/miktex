@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Stefan Löffler
+ * Copyright (C) 2013-2020  Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,8 +14,8 @@
 #ifndef PDFTransitions_H
 #define PDFTransitions_H
 
+#include <QElapsedTimer>
 #include <QImage>
-#include <QTime>
 
 namespace QtPDF {
 
@@ -41,23 +41,21 @@ public:
   // for valid values, see pdf specs (use -1 for None)
   void setDirection(const int direction) { _direction = direction; }
   void setMotion(const Motion motion) { _motion = motion; }
-  
+
   virtual void start(const QImage & imgStart, const QImage & imgEnd);
   virtual void reset() { _started = _finished = false; }
   virtual QImage getImage() = 0;
-  
-  static AbstractTransition * newTransition(const Type type);
-  
+
 protected:
   double getFracTime();
   virtual void setImages(const QImage & imgStart, const QImage & imgEnd);
-  
+
   double _duration{1};
   int _direction{0};
   Motion _motion{Motion_Inward};
   bool _started{false};
   bool _finished{false};
-  QTime _timer;
+  QElapsedTimer _timer;
   QImage _imgStart;
   QImage _imgEnd;
   // TODO: /SS and /B properties
@@ -68,12 +66,12 @@ class AbstractInPlaceTransition : public AbstractTransition
 public:
   AbstractInPlaceTransition() = default;
   ~AbstractInPlaceTransition() override = default;
-  
+
   void start(const QImage & imgStart, const QImage & imgEnd) override;
   QImage getImage() override;
 protected:
   virtual void initMask() = 0;
-  
+
   QImage _mask;
   double _spread{0.05};
 };

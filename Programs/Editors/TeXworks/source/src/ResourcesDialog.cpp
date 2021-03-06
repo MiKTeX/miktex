@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2011-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2011-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,11 @@
 */
 
 #include "ResourcesDialog.h"
+
 #include "Settings.h"
 #include "TWUtils.h"
+
+#include "utils/ResourcesLibrary.h"
 
 ResourcesDialog::ResourcesDialog(QWidget *parent)
 : QDialog(parent)
@@ -34,7 +37,7 @@ void ResourcesDialog::init()
 	Tw::Settings s;
 
 	setupUi(this);
-	
+
 #if defined(Q_OS_WIN)
 	if(Tw::Settings::defaultFormat() == QSettings::NativeFormat)
 		locationOfSettings->setText(tr("Registry (%1)").arg(s.fileName()));
@@ -44,15 +47,15 @@ void ResourcesDialog::init()
 	locationOfSettings->setText(pathToLink(s.fileName()));
 #endif
 
-	locationOfResources->setText(pathToLink(TWUtils::getLibraryPath(QString(), false)));
+	locationOfResources->setText(pathToLink(Tw::Utils::ResourcesLibrary::getLibraryPath(QString(), false)));
 
-	connect(locationOfSettings, SIGNAL(linkActivated(const QString&)), this, SLOT(openURL(const QString&)));
-	connect(locationOfResources, SIGNAL(linkActivated(const QString&)), this, SLOT(openURL(const QString&)));
+	connect(locationOfSettings, &QLabel::linkActivated, this, &ResourcesDialog::openURL);
+	connect(locationOfResources, &QLabel::linkActivated, this, &ResourcesDialog::openURL);
 
 	adjustSize();
 
 // TODO: Implement Details (e.g., files that are versioned, ...)
-//	connect(labelDetails, SIGNAL(linkActivated(const QString&)), this, SLOT(toggleDetails()));
+//	connect(labelDetails, &QLabel::linkActivated, this, &ResourcesDialog::toggleDetails);
 //	toggleDetails();
 }
 

@@ -1,0 +1,28 @@
+[Icon Theme]
+Name=tango-texworks
+Comment=Tango-based icons for the TeX editor TeXworks
+Inherits=tango-qtpdf
+Directories=actions/32x32,actions/scalable,categories/32x32,categories/scalable
+ScaledDirectories=actions/32x32@2,categories/32x32@2
+
+[actions/32x32]
+Size=32
+
+[actions/32x32@2]
+Size=32
+Scale=2
+
+[actions/scalable]
+Size=48
+Type=Scalable
+
+[categories/32x32]
+Size=32
+
+[categories/32x32@2]
+Size=32
+Scale=2
+
+[categories/scalable]
+Size=48
+Type=Scalable

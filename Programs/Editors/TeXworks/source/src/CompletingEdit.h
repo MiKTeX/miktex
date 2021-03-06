@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@
 #include "ui/LineNumberWidget.h"
 #include "ui_CompletingEdit.h"
 
-#include <QTextEdit>
-#include <QHash>
-#include <QTimer>
 #include <QDrag>
+#include <QHash>
 #include <QMimeData>
 #include <QRegularExpression>
+#include <QTextEdit>
+#include <QTimer>
 
 class QCompleter;
 class QStandardItemModel;
@@ -58,17 +58,17 @@ public:
 		return smartQuotesMode >= 0 && smartQuotesMode < smartQuotesModes().size() ?
 			smartQuotesModes().at(smartQuotesMode) : QString();
 	}
-	
+
 	// Override of QTextEdit's method to properly handle scrolling for multiline
 	// cursors
 	void setTextCursor(const QTextCursor & cursor);
 
 	// Override of QTextEdit's method to reconnect signals
 	void setDocument(QTextDocument * document);
-	
+
 	static QStringList autoIndentModes();
 	static QStringList smartQuotesModes();
-	
+
 	static void setHighlightCurrentLine(bool highlight);
 	static void setAutocompleteEnabled(bool autocomplete);
 
@@ -85,7 +85,7 @@ public slots:
 	void setFontItalic(bool italic);
 	void setFontPointSize(qreal s);
 	void setFontWeight(int weight);
-	
+
 signals:
 	void syncClick(int line, int col);
 	void rehighlight();
@@ -120,7 +120,7 @@ private slots:
 	void jumpToPdf(QTextCursor pos = {});
 	void jumpToPdfFromContextMenu();
 	void updateLineNumberArea(const QRect&, int);
-	
+
 private:
 	void updateColors();
 
@@ -143,7 +143,7 @@ private:
 
 	QTextCursor wordSelectionForPos(const QPoint& pos);
 	QTextCursor blockSelectionForPos(const QPoint& pos);
-	
+
 	enum MouseMode {
 		none,
 		ignoring,
@@ -153,17 +153,17 @@ private:
 		dragSelecting
 	};
 	MouseMode mouseMode{none};
-	
+
 	QTextCursor dragStartCursor;
 
 	int droppedOffset{-1}, droppedLength{0};
-	
+
 	QBasicTimer clickTimer;
 	QPoint clickPos;
 	int clickCount{0};
 
 	int wheelDelta{0};  // used to accumulate small steps of high-resolution mice
-	
+
 	static void loadIndentModes();
 
 	struct IndentMode {
@@ -175,7 +175,7 @@ private:
 	int prefixLength{0};
 
 	static void loadSmartQuotesModes();
-	
+
 	typedef QPair<QString,QString> QuotePair;
 	typedef QHash<QChar,QuotePair> QuoteMapping;
 	struct QuotesMode {
@@ -183,7 +183,7 @@ private:
 		QuoteMapping mappings;
 	};
 	static QList<QuotesMode> *quotesModes;
-	
+
 	int smartQuotesMode{-1};
 
 	QCompleter * c{nullptr};
@@ -202,9 +202,9 @@ private:
 	static QTextCharFormat	*currentCompletionFormat;
 	static QTextCharFormat	*braceMatchingFormat;
 	static QTextCharFormat	*currentLineFormat;
-	
+
 	static QCompleter	*sharedCompleter;
-	
+
 	static bool highlightCurrentLine;
 	static bool autocompleteEnabled;
 };

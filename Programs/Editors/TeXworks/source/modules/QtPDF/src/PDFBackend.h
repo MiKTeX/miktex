@@ -14,23 +14,26 @@
 #ifndef PDFBackend_H
 #define PDFBackend_H
 
-#include <PDFAnnotations.h>
-#include <PDFTransitions.h>
+#include "PDFAnnotations.h"
+#include "PDFFontDescriptor.h"
+#include "PDFPageTile.h"
+#include "PDFToC.h"
+#include "PDFTransitions.h"
 
-#include <QImage>
-#include <QFileInfo>
-#include <QSharedPointer>
-#include <QThread>
-#include <QStack>
 #include <QCache>
-#include <QMutex>
-#include <QReadWriteLock>
-#include <QReadLocker>
-#include <QWriteLocker>
-#include <QWaitCondition>
 #include <QEvent>
+#include <QFileInfo>
+#include <QImage>
 #include <QMap>
+#include <QMutex>
+#include <QReadLocker>
+#include <QReadWriteLock>
+#include <QSharedPointer>
+#include <QStack>
+#include <QThread>
+#include <QWaitCondition>
 #include <QWeakPointer>
+#include <QWriteLocker>
 
 namespace QtPDF {
 
@@ -44,60 +47,6 @@ class Document;
 
 // TODO: Find a better place to put this
 QDateTime fromPDFDate(QString pdfDate);
-
-class PDFFontDescriptor
-{
-public:
-  enum FontStretch { FontStretch_UltraCondensed, FontStretch_ExtraCondensed, \
-                     FontStretch_Condensed, FontStretch_SemiCondensed, \
-                     FontStretch_Normal, FontStretch_SemiExpanded, \
-                     FontStretch_Expanded, FontStretch_ExtraExpanded, \
-                     FontStretch_UltraExpanded };
-  enum Flag { Flag_FixedPitch = 0x01, Flag_Serif = 0x02, Flag_Symbolic = 0x04, \
-              Flag_Script = 0x08, Flag_Nonsymbolic = 0x20, Flag_Italic = 0x40, \
-              Flag_AllCap = 0x10000, Flag_SmallCap = 0x20000, \
-              Flag_ForceBold = 0x40000 };
-  Q_DECLARE_FLAGS(Flags, Flag)
-
-  PDFFontDescriptor(const QString & fontName = QString());
-  virtual ~PDFFontDescriptor() = default;
-
-  bool isSubset() const;
-
-  QString name() const { return _name; }
-  // pureName() removes the subset tag
-  QString pureName() const;
-
-  void setName(const QString name) { _name = name; }
-  // TODO: Accessor methods for all other properties
-
-protected:
-  // From pdf specs
-  QString _name;
-  QString _family;
-  enum FontStretch _stretch{FontStretch_Normal};
-  int _weight{400};
-  Flags _flags;
-  QRectF _bbox;
-  float _italicAngle{0};
-  float _ascent{0};
-  float _descent{0};
-  float _leading{0};
-  float _capHeight{0};
-  float _xHeight{0};
-  float _stemV{0};
-  float _stemH{0};
-  float _avgWidth{0};
-  float _maxWidth{0};
-  float _missingWidth{0};
-  QString _charSet;
-
-  // From pdf specs for CID fonts only
-  // _style
-  // _lang
-  // _fD
-  // _CIDSet
-};
 
 // Note: This is a hack, but since all the information (with the exception of
 // the type of font) we use (and that is provided by poppler) is encapsulated in
@@ -113,10 +62,10 @@ public:
                          ProgramType_TrueType, ProgramType_Type1CFF, \
                          ProgramType_CIDCFF, ProgramType_OpenType };
   enum FontSource { Source_Embedded, Source_File, Source_Builtin };
-  
+
   PDFFontInfo() = default;
   virtual ~PDFFontInfo() = default;
-  
+
   FontType fontType() const { return _fontType; }
   CIDFontType CIDType() const { return _CIDType; }
   FontProgramType fontProgramType() const { return _fontProgramType; }
@@ -133,9 +82,15 @@ public:
   void setFontType(const FontType fontType) { _fontType = fontType; }
   void setCIDType(const CIDFontType CIDType) { _CIDType = CIDType; }
   void setFontProgramType(const FontProgramType programType) { _fontProgramType = programType; }
-  void setDescriptor(const PDFFontDescriptor descriptor) { _descriptor = descriptor; }
-  void setFileName(const QFileInfo file) { _source = Source_File; _substitutionFile = file; }
+  void setDescriptor(const PDFFontDescriptor & descriptor) { _descriptor = descriptor; }
+  void setFileName(const QFileInfo & file) { _source = Source_File; _substitutionFile = file; }
   void setSource(const FontSource source) { _source = source; }
+
+  bool operator==(const PDFFontInfo & o) const {
+    return (_source == o._source && _descriptor == o._descriptor &&
+      _substitutionFile == o._substitutionFile && _fontType == o._fontType &&
+      _CIDType == o._CIDType && _fontProgramType == o._fontProgramType);
+  }
 
 protected:
   FontSource _source{Source_Builtin};
@@ -144,44 +99,6 @@ protected:
   FontType _fontType{FontType_Type1};
   CIDFontType _CIDType{CIDFont_None};
   FontProgramType _fontProgramType{ProgramType_None};
-};
-
-class PDFPageTile;
-
-// Need a hash function in order to allow `PDFPageTile` to be used as a key
-// object for a `QCache`.
-uint qHash(const PDFPageTile &tile);
-
-class PDFPageTile
-{
-public:
-  // TODO:
-  // We may want an application-wide cache instead of a document-specific cache
-  // to keep memory usage down. This may require an additional piece of
-  // information---the document that the page belongs to.
-  PDFPageTile(double xres, double yres, QRect render_box, int page_num):
-    xres(xres), yres(yres),
-    render_box(render_box),
-    page_num(page_num)
-  {}
-
-  double xres, yres;
-  QRect render_box;
-  int page_num;
-
-  bool operator==(const PDFPageTile &other) const
-  {
-    return (xres == other.xres && yres == other.yres && render_box == other.render_box && page_num == other.page_num);
-  }
-
-  bool operator <(const PDFPageTile &other) const
-  {
-    return qHash(*this) < qHash(other);
-  }
-
-#ifdef DEBUG
-  operator QString() const;
-#endif
 };
 
 // This class is thread-safe
@@ -205,7 +122,7 @@ public:
   // the insertion. If overwrite == true, this will always be image, otherwise
   // it can be different
   QSharedPointer<QImage> setImage(const PDFPageTile & tile, QImage * image, const TileStatus status, const bool overwrite = true);
-  
+
 
   void lock() const { _lock.lockForRead(); }
   void unlock() const { _lock.unlock(); }
@@ -243,7 +160,7 @@ public:
 
   Page *page;
   QObject *listener;
-  
+
   virtual bool operator==(const PageProcessingRequest & r) const;
 #ifdef DEBUG
   virtual operator QString() const = 0;
@@ -372,52 +289,10 @@ private:
   QWaitCondition _idleCondition;
   bool _quit{false};
 #ifdef DEBUG
-  QTime _renderTimer;
   static void dumpWorkStack(const QStack<PageProcessingRequest*> & ws);
 #endif
 
 };
-
-class PDFToCItem
-{
-public:
-  enum PDFToCItemFlag { Flag_Italic = 0x1, Flag_Bold = 0x2 };
-  Q_DECLARE_FLAGS(PDFToCItemFlags, PDFToCItemFlag)
-
-  PDFToCItem(const QString label = QString()) : _label(label) { }
-  PDFToCItem(const PDFToCItem & o) : _label(o._label), _isOpen(o._isOpen), _color(o._color), _children(o._children), _flags(o._flags) {
-    _action = (o._action ? o._action->clone() : nullptr);
-  }
-  virtual ~PDFToCItem() { if (_action) delete _action; }
-
-  QString label() const { return _label; }
-  bool isOpen() const { return _isOpen; }
-  PDFAction * action() const { return _action; }
-  QColor color() const { return _color; }
-  const QList<PDFToCItem> & children() const { return _children; }
-  QList<PDFToCItem> & children() { return _children; }
-  PDFToCItemFlags flags() const { return _flags; }
-  PDFToCItemFlags & flags() { return _flags; }
-  
-  void setLabel(const QString label) { _label = label; }
-  void setOpen(const bool isOpen = true) { _isOpen = isOpen; }
-  void setAction(PDFAction * action) {
-    if (_action)
-      delete _action;
-    _action = action;
-  }
-  void setColor(const QColor color) { _color = color; }
-
-protected:
-  QString _label;
-  bool _isOpen{false}; // derived from the sign of the `Count` member of the outline item dictionary
-  PDFAction * _action{nullptr}; // if the `Dest` member of the outline item dictionary is set, it must be converted to a PDFGotoAction
-  QColor _color;
-  QList<PDFToCItem> _children;
-  PDFToCItemFlags _flags;
-};
-
-typedef QList<PDFToCItem> PDFToC;
 
 enum SearchFlag { Search_WrapAround = 0x01, Search_CaseInsensitive = 0x02, Search_Backwards = 0x04};
 Q_DECLARE_FLAGS(SearchFlags, SearchFlag)
@@ -435,6 +310,10 @@ struct SearchResult
 {
   unsigned int pageNum;
   QRectF bbox;
+
+  bool operator==(const SearchResult & o) const {
+    return (pageNum == o.pageNum && bbox == o.bbox);
+  }
 };
 
 
@@ -444,7 +323,7 @@ struct SearchResult
 // documents. Having a set of abstract classes allows tools like GUI viewers to
 // be written that are agnostic to the library that provides the actual PDF
 // implementation: Poppler, MuPDF, etc.
-// TODO: Should this class be derived from QObject to emit signals (e.g., 
+// TODO: Should this class be derived from QObject to emit signals (e.g.,
 // documentChanged() after reload, unlocking, etc.)?
 
 // This class is thread-safe. See implementation for internals.
@@ -465,7 +344,11 @@ public:
                   };
   Q_DECLARE_FLAGS(Permissions, Permission)
 
-  Document(const QString fileName);
+  static QSharedPointer<Backend::Document> newDocument(const QString & fileName, const QString & backend = {});
+  static QStringList backends();
+  static QString defaultBackend();
+  static void setDefaultBackend(const QString & backend);
+
   virtual ~Document();
 
   // Uses doc-read-lock
@@ -478,9 +361,9 @@ public:
   PDFPageCache& pageCache();
 
   // Uses doc-read-lock and may use doc-write-lock
-  virtual QWeakPointer<Page> page(int at) = 0;
-  // Uses doc-read-lock
-  virtual QWeakPointer<Page> page(int at) const = 0;
+  // NB: no const variant exists as we may need to create a new Page (if it was
+  // not cached in _pages), which requires a non-const `this` pointer as parent
+  virtual QWeakPointer<Page> page(int at);
   virtual PDFDestination resolveDestination(const PDFDestination & namedDestination) const {
     return (namedDestination.isExplicit() ? namedDestination : PDFDestination());
   }
@@ -490,7 +373,7 @@ public:
   Permissions permissions() const { QReadLocker docLocker(_docLock.data()); return _permissions; }
   // Uses doc-read-lock
   Permissions& permissions() { QReadLocker docLocker(_docLock.data()); return _permissions; }
-  
+
   // Uses doc-read-lock
   virtual bool isValid() const = 0;
   // Uses doc-read-lock
@@ -498,7 +381,7 @@ public:
   // Uses doc-write-lock
   virtual void reload() = 0;
 
-  // Returns `true` if unlocking was successful and `false` otherwise.  
+  // Returns `true` if unlocking was successful and `false` otherwise.
   // Uses doc-read-lock and may use doc-write-lock
   virtual bool unlock(const QString password) = 0;
 
@@ -534,6 +417,8 @@ public:
   virtual QList<SearchResult> search(const QString & searchText, const SearchFlags & flags, const int startPage = 0);
 
 protected:
+  Document(const QString fileName);
+
   void clearPages();
   virtual void clearMetaData();
 
@@ -591,8 +476,12 @@ public:
   public:
     QRectF boundingBox;
     QList<Box> subBoxes;
+
+    bool operator==(const Box & o) const {
+      return (boundingBox == o.boundingBox && subBoxes == o.subBoxes);
+    }
   };
-  
+
   virtual ~Page() = default;
 
   Document * document() { QReadLocker pageLocker(_pageLock); return _parent; }
@@ -604,7 +493,7 @@ public:
   virtual QList< QSharedPointer<Annotation::Link> > loadLinks() = 0;
   // Uses doc-read-lock and page-read-lock.
   virtual void asyncLoadLinks(QObject *listener);
-  
+
   // Returns a list of boxes (e.g., for the purpose of selecting text)
   // Box rectangles are in pdf coordinates (i.e., bp)
   // The backend may return big boxes comprised of subboxes (e.g., words made up

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@
 #ifndef LuaScript_H
 #define LuaScript_H
 
+#include "LuaScriptInterface.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptAPIInterface.h"
-#include "LuaScriptInterface.h"
 
 #include <QMetaMethod>
 #include <QMetaProperty>
@@ -38,7 +38,7 @@ class LuaScript : public Script
 {
 	Q_OBJECT
 	Q_INTERFACES(Tw::Scripting::Script)
-		
+
 public:
 	/** \brief Constructor
 	 *
@@ -46,7 +46,7 @@ public:
 	 * \param	lua	pointer to the plugin that holds the lua state to operate on
 	 */
 	LuaScript(LuaScriptInterface * lua, const QString& fileName) : Script(lua, fileName), m_LuaPlugin(lua) { }
-	
+
 	/** \brief Parse the script header
 	 *
 	 * \return	\c true if successful, \c false if not (e.g. because the file
@@ -62,7 +62,7 @@ protected:
 	 * \return	\c true on success, \c false if an error occured
 	 */
 	bool execute(ScriptAPIInterface *tw) const override;
-	
+
 	/** \brief Convenience function to wrap a QObject and push it onto the stack
 	 *
 	 * \param	L	the lua state to operate on
@@ -100,7 +100,7 @@ protected:
 	 * \return	the QVariant
 	 */
 	static QVariant getLuaStackValue(lua_State * L, int idx, const bool throwError = true);
-	
+
 	/** \brief Handler for property requests on QObjects
 	 *
 	 * On success, the value of the property is pushed onto the stack

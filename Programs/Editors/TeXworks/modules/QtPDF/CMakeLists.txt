@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2019 Christian Schenk
+## Copyright (C) 2008-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -26,21 +26,27 @@ set(qtpdf_sources
   ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.cpp
   ${projdir}/source/modules/QtPDF/src/PDFDocumentView.cpp
   ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFPageTile.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFToC.cpp
   ${projdir}/source/modules/QtPDF/src/PDFTransitions.cpp
   ${projdir}/source/modules/QtPDF/src/PaperSizes.cpp
-  ${projdir}/source/modules/QtPDF/src/PaperSizes.h
 
   ${projdir}/source/modules/QtPDF/src/backends/PopplerQtBackend.cpp
 )
 
 set(qtpdf_headers
-  ${projdir}/source/modules/QtPDF/src/PDFDocumentView.h
-  ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.h
-  ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.h
-  ${projdir}/source/modules/QtPDF/src/PDFBackend.h
-  ${projdir}/source/modules/QtPDF/src/PDFTransitions.h
   ${projdir}/source/modules/QtPDF/src/PDFActions.h
   ${projdir}/source/modules/QtPDF/src/PDFAnnotations.h
+  ${projdir}/source/modules/QtPDF/src/PDFBackend.h
+  ${projdir}/source/modules/QtPDF/src/PDFDocumentTools.h
+  ${projdir}/source/modules/QtPDF/src/PDFDocumentView.h
+  ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.h
+  ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.h
+  ${projdir}/source/modules/QtPDF/src/PDFPageTile.h
+  ${projdir}/source/modules/QtPDF/src/PDFToC.h
+  ${projdir}/source/modules/QtPDF/src/PDFTransitions.h
+  ${projdir}/source/modules/QtPDF/src/PaperSizes.h
 
   ${projdir}/source/modules/QtPDF/src/backends/PopplerQtBackend.h
 )
@@ -68,6 +74,8 @@ set(qtpdf_ts_files
   ${projdir}/source/modules/QtPDF/trans/QtPDF_zh_CN.ts
 )
 
+add_definitions(-DUSE_POPPLERQT)
+
 qt5_add_translation(qtpdf_qm_sources ${qtpdf_ts_files})
   
 configure_file(QtPDF_trans.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/QtPDF_trans.qrc)
@@ -86,6 +94,11 @@ add_library(qtpdf-static STATIC
 )
 
 set_property(TARGET qtpdf-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_compile_definitions(qtpdf-static
+  PUBLIC
+    USE_POPPLERQT
+)
 
 target_include_directories(qtpdf-static
   PUBLIC

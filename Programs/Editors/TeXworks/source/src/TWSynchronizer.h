@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2019  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2020  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,10 +22,13 @@
 #ifndef TW_SYNCHRONIZER_H
 #define TW_SYNCHRONIZER_H
 
-#include <QString>
+#include "document/TeXDocument.h"
+#include "../modules/QtPDF/src/PDFBackend.h"
+
 #include <QList>
 #include <QRectF>
-
+#include <QString>
+#include <functional>
 
 namespace SyncTeX {
   #include <synctex_parser.h>
@@ -44,11 +47,33 @@ public:
     int line;
     int col;
     int len;
+
+    bool operator==(const TeXSyncPoint & o) const {
+      return (filename == o.filename && line == o.line && col == o.col && len == o.len);
+    }
   };
   struct PDFSyncPoint {
     QString filename;
     int page;
     QList<QRectF> rects;
+
+    bool operator==(const PDFSyncPoint & o) const {
+      if (filename != o.filename || page != o.page || rects.size() != o.rects.size()) {
+        return false;
+      }
+      // Explicitly use float qFuzzyCompare as SyncTeX internally uses float
+      // which may not be converted to double in the same way on all platforms
+      // (issues have occured with MXE compilations for Windows with GCC 5.5)
+      for (int i = 0; i < rects.size(); ++i) {
+        const QRectF & a = rects[i];
+        const QRectF & b = o.rects[i];
+        if (!qFuzzyCompare(static_cast<float>(a.top()), static_cast<float>(b.top()))) return false;
+        if (!qFuzzyCompare(static_cast<float>(a.left()), static_cast<float>(b.left()))) return false;
+        if (!qFuzzyCompare(static_cast<float>(a.width()), static_cast<float>(b.width()))) return false;
+        if (!qFuzzyCompare(static_cast<float>(a.height()), static_cast<float>(b.height()))) return false;
+      }
+      return true;
+    }
   };
 
   TWSynchronizer() = default;
@@ -61,7 +86,10 @@ public:
 class TWSyncTeXSynchronizer : public TWSynchronizer
 {
 public:
-  explicit TWSyncTeXSynchronizer(const QString & filename);
+  using TeXLoader = std::function<const Tw::Document::TeXDocument*(const QString &)>;
+  using PDFLoader = std::function<const QSharedPointer<QtPDF::Backend::Document>(const QString &)>;
+
+  explicit TWSyncTeXSynchronizer(const QString & filename, TeXLoader texLoader, PDFLoader pdfLoader);
   ~TWSyncTeXSynchronizer() override;
 
   bool isValid() const;
@@ -79,6 +107,8 @@ protected:
   static int _findCorrespondingPosition(const QString & srcContext, const QString & destContext, const int col, bool & unique);
 
   SyncTeX::synctex_scanner_p _scanner;
+  TeXLoader m_TeXLoader;
+  PDFLoader m_PDFLoader;
 };
 
 #endif // !defined(TW_SYNCHRONIZER_H)

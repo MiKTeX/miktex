@@ -1,0 +1,37 @@
+[Icon Theme]
+Name=tango-qtpdf
+Comment=Tango-based icons for the PDF viewer library QtPDF
+Directories=actions/32x32,actions/scalable,status/48x48,status/scalable,apps/512x512,apps/scalable,cursors/32x32
+ScaledDirectories=actions/32x32@2,status/48x48@2
+
+[actions/32x32]
+Size=32
+
+[actions/32x32@2]
+Size=32
+Scale=2
+
+[actions/scalable]
+Size=48
+Type=Scalable
+
+[status/48x48]
+Size=48
+
+[status/48x48@2]
+Size=48
+Scale=2
+
+[status/scalable]
+Size=48
+Type=Scalable
+
+[apps/512x512]
+Size=512
+
+[apps/scalable]
+Size=128
+Type=Scalable
+
+[cursors/32x32]
+Size=32

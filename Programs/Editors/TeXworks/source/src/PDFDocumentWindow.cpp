@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,37 +20,39 @@
 */
 
 #include "PDFDocumentWindow.h"
-#include "TeXDocumentWindow.h"
+
+#include "FindDialog.h"
+#include "Settings.h"
 #include "TWApp.h"
 #include "TWUtils.h"
-#include "Settings.h"
-#include "FindDialog.h"
-#include "ClickableLabel.h"
+#include "TeXDocumentWindow.h"
 
-#include <QDockWidget>
 #include <QCloseEvent>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QStatusBar>
-#include <QPainter>
-#include <QPaintEngine>
-#include <QLabel>
-#include <QScrollArea>
-#include <QStyle>
-#include <QDesktopWidget>
-#include <QScrollBar>
-#include <QRegion>
-#include <QVector>
-#include <QList>
-#include <QStack>
-#include <QInputDialog>
 #include <QDesktopServices>
-#include <QUrl>
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#include <QDesktopWidget>
+#endif
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QLabel>
+#include <QList>
+#include <QMessageBox>
+#include <QPaintEngine>
+#include <QPainter>
+#include <QRegion>
+#include <QScrollArea>
+#include <QScrollBar>
 #include <QShortcut>
-#include <QToolTip>
 #include <QSignalMapper>
-
+#include <QStack>
+#include <QStatusBar>
+#include <QStyle>
+#include <QToolTip>
+#include <QUrl>
+#include <QVector>
 #include <cmath>
+
 
 #define SYNCTEX_GZ_EXT	".synctex.gz"
 #define SYNCTEX_EXT		".synctex"
@@ -94,11 +96,15 @@ PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow 
 
 	if (properties.contains(QString::fromLatin1("state")))
 		restoreState(properties.value(QString::fromLatin1("state")).toByteArray(), kPDFWindowStateVersion);
-	
+
 	if (properties.contains(QString::fromLatin1("pdfPageMode")))
 		setPageMode(properties.value(QString::fromLatin1("pdfPageMode"), -1).toInt());
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
 	QTimer::singleShot(100, this, SLOT(setDefaultScale()));
+#else
+	QTimer::singleShot(100, this, &PDFDocumentWindow::setDefaultScale);
+#endif
 
 	if (texDoc) {
 		stackUnder(texDoc);
@@ -111,6 +117,10 @@ PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow 
 PDFDocumentWindow::~PDFDocumentWindow()
 {
 	docList.removeAll(this);
+#if defined(Q_OS_DARWIN)
+	// Work around QTBUG-17941
+	QTimer::singleShot(0, TWApp::instance(), &TWApp::recreateSpecialMenuItems);
+#endif // defined(Q_OS_DARWIN)
 }
 
 void PDFDocumentWindow::init()
@@ -120,7 +130,6 @@ void PDFDocumentWindow::init()
 	setupUi(this);
 
 	setAttribute(Qt::WA_DeleteOnClose, true);
-	setAttribute(Qt::WA_MacNoClickThrough, true);
 
 	QIcon winIcon;
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
@@ -138,109 +147,116 @@ void PDFDocumentWindow::init()
 	_searchResultHighlightBrush = QColor(255, 255, 0, 63);
 	setCentralWidget(pdfWidget);
 
-	connect(pdfWidget, SIGNAL(changedPage(int)), this, SLOT(updateStatusBar()));
-	connect(pdfWidget, SIGNAL(changedZoom(qreal)), this, SLOT(updateStatusBar()));
-	connect(pdfWidget, SIGNAL(changedDocument(const QWeakPointer<QtPDF::Backend::Document>)), this, SLOT(changedDocument(const QWeakPointer<QtPDF::Backend::Document> &)));
-	connect(pdfWidget, SIGNAL(searchResultHighlighted(const int, const QList<QPolygonF>)), this, SLOT(searchResultHighlighted(const int, const QList<QPolygonF> &)));
-	connect(pdfWidget, SIGNAL(changedPageMode(QtPDF::PDFDocumentView::PageMode)), this, SLOT(updatePageMode(QtPDF::PDFDocumentView::PageMode)));
-	connect(pdfWidget, SIGNAL(requestOpenPdf(QString,QtPDF::PDFDestination,bool)), this, SLOT(maybeOpenPdf(const QString&, const QtPDF::PDFDestination&, bool)));
-	connect(pdfWidget, SIGNAL(requestOpenUrl(QUrl)), this, SLOT(maybeOpenUrl(const QUrl &)));
-	connect(pdfWidget, SIGNAL(textSelectionChanged(bool)), this, SLOT(maybeEnableCopyCommand(bool)));
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedPage, this, &PDFDocumentWindow::updateStatusBar);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedZoom, this, &PDFDocumentWindow::updateStatusBar);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedDocument, this, &PDFDocumentWindow::changedDocument);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::searchResultHighlighted, this, &PDFDocumentWindow::searchResultHighlighted);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedPageMode, this, &PDFDocumentWindow::updatePageMode);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::requestOpenPdf, this, &PDFDocumentWindow::maybeOpenPdf);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::requestOpenUrl, this, &PDFDocumentWindow::maybeOpenUrl);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::textSelectionChanged, this, &PDFDocumentWindow::maybeEnableCopyCommand);
 
 	toolButtonGroup = new QButtonGroup(toolBar);
 	toolButtonGroup->addButton(qobject_cast<QAbstractButton*>(toolBar->widgetForAction(actionMagnify)), QtPDF::PDFDocumentView::MouseMode_MagnifyingGlass);
 	toolButtonGroup->addButton(qobject_cast<QAbstractButton*>(toolBar->widgetForAction(actionScroll)), QtPDF::PDFDocumentView::MouseMode_Move);
 	toolButtonGroup->addButton(qobject_cast<QAbstractButton*>(toolBar->widgetForAction(actionSelect_Text)), QtPDF::PDFDocumentView::MouseMode_Select);
-//	toolButtonGroup->addButton(qobject_cast<QAbstractButton*>(toolBar->widgetForAction(actionSelect_Image)), kSelectImage);
-	connect(toolButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(setMouseMode(int)));
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+	connect(toolButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &PDFDocumentWindow::setMouseMode);
+#else
+	connect(toolButtonGroup, &QButtonGroup::idClicked, this, &PDFDocumentWindow::setMouseMode);
+#endif
 	pdfWidget->setMouseModeMagnifyingGlass();
 
-	scaleLabel = new ClickableLabel();
+	scaleLabel = new Tw::UI::ClickableLabel();
 	statusBar()->addPermanentWidget(scaleLabel);
 	scaleLabel->setFrameStyle(QFrame::StyledPanel);
 	scaleLabel->setFont(statusBar()->font());
-	connect(scaleLabel, SIGNAL(mouseLeftClick(QMouseEvent*)), this, SLOT(scaleLabelClick(QMouseEvent*)));
-	
-	pageLabel = new ClickableLabel();
+	connect(scaleLabel, &Tw::UI::ClickableLabel::mouseLeftClick, this, &PDFDocumentWindow::scaleLabelClick);
+
+	pageLabel = new Tw::UI::ClickableLabel();
 	statusBar()->addPermanentWidget(pageLabel);
 	pageLabel->setFrameStyle(QFrame::StyledPanel);
 	pageLabel->setFont(statusBar()->font());
-	connect(pageLabel, SIGNAL(mouseLeftClick(QMouseEvent*)), this, SLOT(doPageDialog()));
+	connect(pageLabel, &Tw::UI::ClickableLabel::mouseLeftClick, this, &PDFDocumentWindow::doPageDialog);
 
-	connect(actionAbout_TW, SIGNAL(triggered()), qApp, SLOT(about()));
-	connect(actionSettings_and_Resources, SIGNAL(triggered()), qApp, SLOT(doResourcesDialog()));
-	connect(actionGoToHomePage, SIGNAL(triggered()), qApp, SLOT(goToHomePage()));
-	connect(actionWriteToMailingList, SIGNAL(triggered()), qApp, SLOT(writeToMailingList()));
+	connect(actionAbout_TW, &QAction::triggered, TWApp::instance(), &TWApp::about);
+	connect(actionSettings_and_Resources, &QAction::triggered, TWApp::instance(), &TWApp::doResourcesDialog);
+	connect(actionGoToHomePage, &QAction::triggered, TWApp::instance(), &TWApp::goToHomePage);
+	connect(actionWriteToMailingList, &QAction::triggered, TWApp::instance(), &TWApp::writeToMailingList);
 
-	connect(actionNew, SIGNAL(triggered()), qApp, SLOT(newFile()));
-	connect(actionNew_from_Template, SIGNAL(triggered()), qApp, SLOT(newFromTemplate()));
-	connect(actionOpen, SIGNAL(triggered()), qApp, SLOT(open()));
-	connect(actionPrintPdf, SIGNAL(triggered()), this, SLOT(print()));
+	connect(actionNew, &QAction::triggered, TWApp::instance(), &TWApp::newFile);
+	connect(actionNew_from_Template, &QAction::triggered, TWApp::instance(), &TWApp::newFromTemplate);
+	connect(actionOpen, &QAction::triggered, TWApp::instance(), &TWApp::open);
+	connect(actionPrintPdf, &QAction::triggered, this, &PDFDocumentWindow::print);
 
-	connect(actionQuit_TeXworks, SIGNAL(triggered()), TWApp::instance(), SLOT(maybeQuit()));
+	connect(actionQuit_TeXworks, &QAction::triggered, TWApp::instance(), &TWApp::maybeQuit);
 
-	connect(actionCopy, SIGNAL(triggered(bool)), this, SLOT(copySelectedTextToClipboard()));
+	connect(actionCopy, &QAction::triggered, this, &PDFDocumentWindow::copySelectedTextToClipboard);
 
-	connect(actionFind, SIGNAL(triggered()), this, SLOT(doFindDialog()));
+	connect(actionFind, &QAction::triggered, this, &PDFDocumentWindow::doFindDialog);
 
-	connect(actionFirst_Page, SIGNAL(triggered()), pdfWidget, SLOT(goFirst()));
-	connect(actionPrevious_Page, SIGNAL(triggered()), pdfWidget, SLOT(goPrev()));
-	connect(actionNext_Page, SIGNAL(triggered()), pdfWidget, SLOT(goNext()));
-	connect(actionLast_Page, SIGNAL(triggered()), pdfWidget, SLOT(goLast()));
-	connect(actionGo_to_Page, SIGNAL(triggered()), this, SLOT(doPageDialog()));
+	connect(actionFirst_Page, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::goFirst);
+	connect(actionPrevious_Page, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::goPrev);
+	connect(actionNext_Page, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::goNext);
+	connect(actionLast_Page, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::goLast);
+	connect(actionGo_to_Page, &QAction::triggered, this, &PDFDocumentWindow::doPageDialog);
 	addAction(actionPrevious_ViewRect);
-	connect(actionPrevious_ViewRect, SIGNAL(triggered()), pdfWidget, SLOT(goPrevViewRect()));
-	connect(pdfWidget, SIGNAL(changedPage(int)), this, SLOT(enablePageActions(int)));
+	connect(actionPrevious_ViewRect, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::goPrevViewRect);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedPage, this, &PDFDocumentWindow::enablePageActions);
 
-	connect(actionActual_Size, SIGNAL(triggered()), pdfWidget, SLOT(zoom100()));
-	connect(actionFit_to_Width, SIGNAL(triggered()), pdfWidget, SLOT(zoomFitWidth()));
-	connect(actionFit_to_Window, SIGNAL(triggered()), pdfWidget, SLOT(zoomFitWindow()));
-	connect(actionFit_to_Content_Width, SIGNAL(triggered()), pdfWidget, SLOT(zoomFitContentWidth()));
-	connect(actionZoom_In, SIGNAL(triggered()), pdfWidget, SLOT(zoomIn()));
-	connect(actionZoom_Out, SIGNAL(triggered()), pdfWidget, SLOT(zoomOut()));
-	connect(actionFull_Screen, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
-	connect(pdfWidget, SIGNAL(contextClick(int, const QPointF&)), this, SLOT(syncClick(int, const QPointF&)));
+	connect(actionActual_Size, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::zoom100);
+	connect(actionFit_to_Width, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitWidth);
+	connect(actionFit_to_Window, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitWindow);
+	connect(actionFit_to_Content_Width, &QAction::triggered, pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitContentWidth);
+	connect(actionZoom_In, &QAction::triggered, pdfWidget, [=]() { pdfWidget->zoomIn(); });
+	connect(actionZoom_Out, &QAction::triggered, pdfWidget, [=]() { pdfWidget->zoomOut(); });
+	connect(actionFull_Screen, &QAction::triggered, this, &PDFDocumentWindow::toggleFullScreen);
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::contextClick, this, &PDFDocumentWindow::syncClick);
 	pageModeSignalMapper.setMapping(actionPageMode_Single, QtPDF::PDFDocumentView::PageMode_SinglePage);
 	pageModeSignalMapper.setMapping(actionPageMode_Continuous, QtPDF::PDFDocumentView::PageMode_OneColumnContinuous);
 	pageModeSignalMapper.setMapping(actionPageMode_TwoPagesContinuous, QtPDF::PDFDocumentView::PageMode_TwoColumnContinuous);
-	connect(actionPageMode_Single, SIGNAL(triggered()), &pageModeSignalMapper, SLOT(map()));
-	connect(actionPageMode_Continuous, SIGNAL(triggered()), &pageModeSignalMapper, SLOT(map()));
-	connect(actionPageMode_TwoPagesContinuous, SIGNAL(triggered()), &pageModeSignalMapper, SLOT(map()));
-	connect(&pageModeSignalMapper, SIGNAL(mapped(int)), this, SLOT(setPageMode(int)));
+	connect(actionPageMode_Single, &QAction::triggered, &pageModeSignalMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+	connect(actionPageMode_Continuous, &QAction::triggered, &pageModeSignalMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+	connect(actionPageMode_TwoPagesContinuous, &QAction::triggered, &pageModeSignalMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+	connect(&pageModeSignalMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this, &PDFDocumentWindow::setPageMode);
+#else
+	connect(&pageModeSignalMapper, &QSignalMapper::mappedInt, this, &PDFDocumentWindow::setPageMode);
+#endif
 
 	if (actionZoom_In->shortcut() == QKeySequence(tr("Ctrl++")))
 		new QShortcut(QKeySequence(tr("Ctrl+=")), pdfWidget, SLOT(zoomIn()));
-	
-	connect(actionTypeset, SIGNAL(triggered()), this, SLOT(retypeset()));
-	
-	connect(actionStack, SIGNAL(triggered()), qApp, SLOT(stackWindows()));
-	connect(actionTile, SIGNAL(triggered()), qApp, SLOT(tileWindows()));
-	connect(actionSide_by_Side, SIGNAL(triggered()), this, SLOT(sideBySide()));
-	connect(actionPlace_on_Left, SIGNAL(triggered()), this, SLOT(placeOnLeft()));
-	connect(actionPlace_on_Right, SIGNAL(triggered()), this, SLOT(placeOnRight()));
-	connect(actionGo_to_Source, SIGNAL(triggered()), this, SLOT(goToSource()));
-	
-	connect(actionFind_Again, SIGNAL(triggered()), this, SLOT(doFindAgain()));
+
+	connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::retypeset);
+
+	connect(actionStack, &QAction::triggered, TWApp::instance(), &TWApp::stackWindows);
+	connect(actionTile, &QAction::triggered, TWApp::instance(), &TWApp::tileWindows);
+	connect(actionSide_by_Side, &QAction::triggered, this, &PDFDocumentWindow::sideBySide);
+	connect(actionPlace_on_Left, &QAction::triggered, this, &PDFDocumentWindow::placeOnLeft);
+	connect(actionPlace_on_Right, &QAction::triggered, this, &PDFDocumentWindow::placeOnRight);
+	connect(actionGo_to_Source, &QAction::triggered, this, &PDFDocumentWindow::goToSource);
+
+	connect(actionFind_Again, &QAction::triggered, this, &PDFDocumentWindow::doFindAgain);
 
 	updateRecentFileActions();
-	connect(qApp, SIGNAL(recentFileActionsChanged()), this, SLOT(updateRecentFileActions()));
-	connect(qApp, SIGNAL(windowListChanged()), this, SLOT(updateWindowMenu()));
-	connect(actionClear_Recent_Files, SIGNAL(triggered()), TWApp::instance(), SLOT(clearRecentFiles()));
+	connect(TWApp::instance(), &TWApp::recentFileActionsChanged, this, &PDFDocumentWindow::updateRecentFileActions);
+	connect(TWApp::instance(), &TWApp::windowListChanged, this, &PDFDocumentWindow::updateWindowMenu);
+	connect(actionClear_Recent_Files, &QAction::triggered, TWApp::instance(), &TWApp::clearRecentFiles);
 
-	connect(qApp, SIGNAL(hideFloatersExcept(QWidget*)), this, SLOT(hideFloatersUnlessThis(QWidget*)));
-	connect(this, SIGNAL(activatedWindow(QWidget*)), qApp, SLOT(activatedWindow(QWidget*)));
+	connect(TWApp::instance(), &TWApp::hideFloatersExcept, this, &PDFDocumentWindow::hideFloatersUnlessThis);
+	connect(this, &PDFDocumentWindow::activatedWindow, TWApp::instance(), &TWApp::activatedWindow);
 
-	connect(actionPreferences, SIGNAL(triggered()), qApp, SLOT(preferences()));
+	connect(actionPreferences, &QAction::triggered, TWApp::instance(), &TWApp::preferences);
 
-	connect(this, SIGNAL(destroyed()), qApp, SLOT(updateWindowMenus()));
+	connect(this, &PDFDocumentWindow::destroyed, TWApp::instance(), &TWApp::updateWindowMenus);
 
-	connect(qApp, SIGNAL(syncPdf(const QString&, int, int, bool)), this, SLOT(syncFromSource(const QString&, int, int, bool)));
+	connect(TWApp::instance(), &TWApp::syncPdf, this, &PDFDocumentWindow::syncFromSource);
 
 	_syncHighlightRemover.setSingleShot(true);
-	connect(&_syncHighlightRemover, SIGNAL(timeout()), this, SLOT(clearSyncHighlight()));
+	connect(&_syncHighlightRemover, &QTimer::timeout, this, &PDFDocumentWindow::clearSyncHighlight);
 
 	_searchResultHighlightRemover.setSingleShot(true);
-	connect(&_searchResultHighlightRemover, SIGNAL(timeout()), this, SLOT(clearSearchResultHighlight()));
+	connect(&_searchResultHighlightRemover, &QTimer::timeout, this, &PDFDocumentWindow::clearSearchResultHighlight);
 
 	menuShow->addAction(toolBar->toggleViewAction());
 	menuShow->addSeparator();
@@ -269,7 +285,7 @@ void PDFDocumentWindow::init()
 	dw->hide();
 	addDockWidget(Qt::LeftDockWidgetArea, dw);
 	menuShow->addAction(dw->toggleViewAction());
-	
+
 	Tw::Settings settings;
 	switch(settings.value(QString::fromLatin1("pdfPageMode"), kDefault_PDFPageMode).toInt()) {
 		case 0:
@@ -287,16 +303,21 @@ void PDFDocumentWindow::init()
 	}
 	resetMagnifier();
 
-	if (settings.contains(QString::fromLatin1("previewResolution")))
+	if (settings.contains(QString::fromLatin1("previewResolution"))) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 		pdfWidget->setResolution(settings.value(QString::fromLatin1("previewResolution"), QApplication::desktop()->logicalDpiX()).toInt());
+#else
+		pdfWidget->setResolution(settings.value(QString::fromLatin1("previewResolution"), screen()->logicalDotsPerInch()).toInt());
+#endif
+	}
 
 	TWUtils::applyToolbarOptions(this, settings.value(QString::fromLatin1("toolBarIconSize"), 2).toInt(), settings.value(QString::fromLatin1("toolBarShowText"), false).toBool());
 
 	TWApp::instance()->updateWindowMenus();
-	
+
 	initScriptable(menuScripts, actionAbout_Scripts, actionManage_Scripts,
 				   actionUpdate_Scripts, actionShow_Scripts_Folder);
-	
+
 	TWUtils::insertHelpMenuItems(menuHelp);
 #if defined(MIKTEX)
         actionAbout_MiKTeX = new QAction(this);
@@ -311,10 +332,10 @@ void PDFDocumentWindow::init()
 	TWUtils::installCustomShortcuts(this);
 
 	pdfWidget->setMouseTracking(true);
-	_fullScreenManager = new FullscreenManager(this);
+	_fullScreenManager = new Tw::Utils::FullscreenManager(this);
 	_fullScreenManager->addShortcut(actionFull_Screen, SLOT(toggleFullScreen()));
-	connect(_fullScreenManager, SIGNAL(fullscreenChanged(bool)), actionFull_Screen, SLOT(setChecked(bool)));
-	connect(_fullScreenManager, SIGNAL(fullscreenChanged(bool)), this, SLOT(maybeZoomToWindow(bool)), Qt::QueuedConnection);
+	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, actionFull_Screen, &QAction::setChecked);
+	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, this, &PDFDocumentWindow::maybeZoomToWindow, Qt::QueuedConnection);
 }
 
 void PDFDocumentWindow::changeEvent(QEvent *event)
@@ -457,7 +478,14 @@ void PDFDocumentWindow::loadSyncData()
 		delete _synchronizer;
 		_synchronizer = nullptr;
 	}
-	_synchronizer = new TWSyncTeXSynchronizer(curFile);
+	_synchronizer = new TWSyncTeXSynchronizer(curFile, [](const QString & filename) {
+			const TeXDocumentWindow * win = TeXDocumentWindow::openDocument(filename, false, false);
+			return (win ? win->textDoc() : nullptr);
+		}, [](const QString & filename) {
+			PDFDocumentWindow * pdfWin = PDFDocumentWindow::findDocument(filename);
+			return (pdfWin && pdfWin->widget() ? pdfWin->widget()->document().toStrongRef() : QSharedPointer<QtPDF::Backend::Document>());
+		}
+	);
 	if (!_synchronizer)
 		statusBar()->showMessage(tr("Error initializing SyncTeX"), kStatusMessageDuration);
 	else if (!_synchronizer->isValid())
@@ -469,7 +497,7 @@ void PDFDocumentWindow::loadSyncData()
 void PDFDocumentWindow::syncClick(int pageIndex, const QPointF& pos)
 {
 	Tw::Settings settings;
-	TWSynchronizer::Resolution res;
+	TWSynchronizer::Resolution res{TWSynchronizer::kDefault_Resolution_ToPDF};
 	switch (settings.value(QString::fromLatin1("syncResolutionToTeX"), TWSynchronizer::kDefault_Resolution_ToTeX).toInt()) {
 		case 0:
 			res = TWSynchronizer::CharacterResolution;
@@ -480,8 +508,6 @@ void PDFDocumentWindow::syncClick(int pageIndex, const QPointF& pos)
 		case 2:
 			res = TWSynchronizer::LineResolution;
 			break;
-		default:
-			res = TWSynchronizer::kDefault_Resolution_ToPDF;
 	}
 
 	syncRange(pageIndex, pos, pos, res);
@@ -579,7 +605,7 @@ void PDFDocumentWindow::syncFromSource(const QString& sourceFile, int lineNo, in
 		return;
 
 	Tw::Settings settings;
-	TWSynchronizer::Resolution res;
+	TWSynchronizer::Resolution res{TWSynchronizer::kDefault_Resolution_ToPDF};
 	switch (settings.value(QString::fromLatin1("syncResolutionToPDF"), TWSynchronizer::kDefault_Resolution_ToPDF).toInt()) {
 		case 0:
 			res = TWSynchronizer::CharacterResolution;
@@ -590,8 +616,6 @@ void PDFDocumentWindow::syncFromSource(const QString& sourceFile, int lineNo, in
 		case 2:
 			res = TWSynchronizer::LineResolution;
 			break;
-		default:
-			res = TWSynchronizer::kDefault_Resolution_ToPDF;
 	}
 
 	TWSynchronizer::TeXSyncPoint src;
@@ -683,7 +707,7 @@ void PDFDocumentWindow::setCurrentFile(const QString &fileName)
 	setWindowTitle(tr("%1[*] - %2").arg(TWUtils::strippedName(curFile), tr(TEXWORKS_NAME)));
 	TWApp::instance()->updateWindowMenus();
 }
- 
+
 PDFDocumentWindow *PDFDocumentWindow::findDocument(const QString &fileName)
 {
 	QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
@@ -694,17 +718,6 @@ PDFDocumentWindow *PDFDocumentWindow::findDocument(const QString &fileName)
 			return theDoc;
 	}
 	return nullptr;
-}
-
-void PDFDocumentWindow::zoomToRight(QWidget *otherWindow)
-{
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect screenRect = desktop->availableGeometry(otherWindow ? otherWindow : this);
-	screenRect.setTop(screenRect.top() + 22);
-	screenRect.setLeft((screenRect.left() + screenRect.right()) / 2 + 1);
-	screenRect.setBottom(screenRect.bottom() - 1);
-	screenRect.setRight(screenRect.right() - 1);
-	setGeometry(screenRect);
 }
 
 void PDFDocumentWindow::showPage(int page)
@@ -816,17 +829,17 @@ void PDFDocumentWindow::enableTypesetAction(bool enabled)
 void PDFDocumentWindow::updateTypesettingAction(bool processRunning)
 {
 	if (processRunning) {
-		disconnect(actionTypeset, SIGNAL(triggered()), this, SLOT(retypeset()));
-		actionTypeset->setIcon(QIcon(QString::fromLatin1(":/images/tango/process-stop.png")));
+		disconnect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::retypeset);
+		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		actionTypeset->setText(tr("Abort typesetting"));
-		connect(actionTypeset, SIGNAL(triggered()), this, SLOT(interrupt()));
+		connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::interrupt);
 		enableTypesetAction(true);
 	}
 	else {
-		disconnect(actionTypeset, SIGNAL(triggered()), this, SLOT(interrupt()));
-		actionTypeset->setIcon(QIcon(QString::fromLatin1(":/images/images/runtool.png")));
+		disconnect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::interrupt);
+		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-start")));
 		actionTypeset->setText(tr("Typeset"));
-		connect(actionTypeset, SIGNAL(triggered()), this, SLOT(retypeset()));
+		connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::retypeset);
 	}
 }
 
@@ -860,6 +873,14 @@ void PDFDocumentWindow::dropEvent(QDropEvent *event)
 void PDFDocumentWindow::contextMenuEvent(QContextMenuEvent *event)
 {
 	Q_ASSERT(pdfWidget);
+
+	// If initiated with the mouse, only show the context menu if the user
+	// clicked inside the pdfWidget area
+	if (event->reason() == QContextMenuEvent::Mouse && !pdfWidget->rect().contains(pdfWidget->mapFrom(this, event->pos()))) {
+		TWScriptableWindow::contextMenuEvent(event);
+		return;
+	}
+
 	QMenu menu(this);
 
 	// Disarm the active tool (if any) as the menu will be highjacking all
@@ -870,16 +891,24 @@ void PDFDocumentWindow::contextMenuEvent(QContextMenuEvent *event)
 	if (_synchronizer && _synchronizer->isValid()) {
 		QAction *act = new QAction(tr("Jump to Source"), &menu);
 		act->setData(QVariant(event->pos()));
-		connect(act, SIGNAL(triggered()), this, SLOT(jumpToSource()));
+		connect(act, &QAction::triggered, this, &PDFDocumentWindow::jumpToSource);
 		menu.addAction(act);
 		menu.addSeparator();
 	}
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
 	menu.addAction(tr("Zoom In"), pdfWidget, SLOT(zoomIn()));
 	menu.addAction(tr("Zoom Out"), pdfWidget, SLOT(zoomOut()));
 	menu.addAction(tr("Actual Size"), pdfWidget, SLOT(zoom100()));
 	menu.addAction(tr("Fit to Width"), pdfWidget, SLOT(zoomFitWidth()));
 	menu.addAction(tr("Fit to Window"), pdfWidget, SLOT(zoomFitWindow()));
+#else
+	menu.addAction(tr("Zoom In"), pdfWidget, [=]() { pdfWidget->zoomIn(); });
+	menu.addAction(tr("Zoom Out"), pdfWidget, [=]() { pdfWidget->zoomOut(); });
+	menu.addAction(tr("Actual Size"), pdfWidget, &QtPDF::PDFDocumentWidget::zoom100);
+	menu.addAction(tr("Fit to Width"), pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitWidth);
+	menu.addAction(tr("Fit to Window"), pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitWindow);
+#endif
 
 	menu.exec(event->globalPos());
 }
@@ -1021,7 +1050,17 @@ void PDFDocumentWindow::maybeOpenPdf(const QString & filename, const QtPDF::PDFD
 	// PDFDocument (e.g., in the TeXDocument associated with it) to notify the
 	// other parts of the code that a completely new and unrelated document is
 	// loaded here now.
-	PDFDocumentWindow * pdf = qobject_cast<PDFDocumentWindow*>(TWApp::instance()->openFile(filename));
+	// NB: TWApp::openFile() requires an absolute filename. Therefore, we have
+	// to make it absolute (using the current file's folder as base) if it isn't
+	// already
+	PDFDocumentWindow * pdf = qobject_cast<PDFDocumentWindow*>(TWApp::instance()->openFile([this] (const QString & filename) {
+			const QFileInfo fi(filename);
+			if (fi.isAbsolute()) {
+				return filename;
+			}
+			return QFileInfo(this->fileName()).dir().filePath(filename);
+		}(filename)
+	));
 	if (!pdf || !pdf->widget())
 		return;
 	pdf->widget()->goToPDFDestination(destination, false);
@@ -1032,11 +1071,11 @@ void PDFDocumentWindow::print()
 {
 	// Currently, printing is not supported in a reliable, cross-platform way
 	// Instead, offer to open the document in the system's default viewer
-	
+
 	QString msg = tr("Unfortunately, this version of %1 is unable to print PDF documents due to various technical reasons.\n").arg(QString::fromLatin1(TEXWORKS_NAME));
 	msg += tr("Do you want to open the file in the default viewer for printing instead?");
 	msg += tr(" (remember to close it again to avoid access problems)");
-	
+
 	if(QMessageBox::information(this,
 		tr("Print PDF..."), msg,
 		QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes
@@ -1048,41 +1087,45 @@ void PDFDocumentWindow::print()
 void PDFDocumentWindow::showScaleContextMenu(const QPoint pos)
 {
 	static QMenu * contextMenu = nullptr;
-	
+
 	if (!contextMenu) {
 		contextMenu = new QMenu(this);
 		static QSignalMapper * contextMenuMapper = new QSignalMapper(this);
-		QAction * a;
-		
+		QAction * a{nullptr};
+
 		contextMenu->addAction(actionFit_to_Width);
 		contextMenu->addAction(actionFit_to_Window);
 		contextMenu->addSeparator();
-		
+
 		a = contextMenu->addAction(tr("Custom..."));
-		connect(a, SIGNAL(triggered()), this, SLOT(doScaleDialog()));
+		connect(a, &QAction::triggered, this, &PDFDocumentWindow::doScaleDialog);
 
 		a = contextMenu->addAction(tr("200%"));
-		connect(a, SIGNAL(triggered()), contextMenuMapper, SLOT(map()));
+		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1("2"));
 		a = contextMenu->addAction(tr("150%"));
-		connect(a, SIGNAL(triggered()), contextMenuMapper, SLOT(map()));
+		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1("1.5"));
 		// "100%" corresponds to "Actual Size", but we keep the numeric value
 		// here for consistency
 		a = contextMenu->addAction(tr("100%"));
 		a->setShortcut(actionActual_Size->shortcut());
-		connect(a, SIGNAL(triggered()), contextMenuMapper, SLOT(map()));
+		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1("1"));
 		a = contextMenu->addAction(tr("75%"));
-		connect(a, SIGNAL(triggered()), contextMenuMapper, SLOT(map()));
+		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1(".75"));
 		a = contextMenu->addAction(tr("50%"));
-		connect(a, SIGNAL(triggered()), contextMenuMapper, SLOT(map()));
+		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1(".5"));
-		
-		connect(contextMenuMapper, SIGNAL(mapped(const QString&)), this, SLOT(setScaleFromContextMenu(const QString&)));
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+		connect(contextMenuMapper, static_cast<void (QSignalMapper::*)(const QString&)>(&QSignalMapper::mapped), this, &PDFDocumentWindow::setScaleFromContextMenu);
+#else
+		connect(contextMenuMapper, &QSignalMapper::mappedString, this, &PDFDocumentWindow::setScaleFromContextMenu);
+#endif
 	}
-	
+
 	contextMenu->popup(scaleLabel->mapToGlobal(pos));
 }
 
@@ -1114,8 +1157,8 @@ void PDFDocumentWindow::setMouseMode(const int newMode)
 
 void PDFDocumentWindow::doPageDialog()
 {
-	bool ok;
 	Q_ASSERT(pdfWidget);
+	bool ok{false};
 
 	int pageNo = QInputDialog::getInt(this, tr("Go to Page"),
 									tr("Page number:"), pdfWidget->currentPage() + 1,
@@ -1126,172 +1169,10 @@ void PDFDocumentWindow::doPageDialog()
 
 void PDFDocumentWindow::doScaleDialog()
 {
-	bool ok;
 	Q_ASSERT(pdfWidget);
+	bool ok{false};
 
 	double newScale = QInputDialog::getDouble(this, tr("Set Zoom"), tr("Zoom level:"), 100 * pdfWidget->zoomLevel(), 0, 2147483647, 0, &ok);
 	if (ok)
 		pdfWidget->setZoomLevel(newScale / 100);
-}
-
-FullscreenManager::FullscreenManager(QMainWindow * parent)
-	: _parent(parent)
-{
-	addShortcut(Qt::Key_Escape, SLOT(toggleFullScreen()));
-	_menuBarTimer.setSingleShot(true);
-	_menuBarTimer.setInterval(500);
-	connect(&_menuBarTimer, SIGNAL(timeout()), this, SLOT(showMenuBar()));
-}
-
-//virtual
-FullscreenManager::~FullscreenManager()
-{
-	foreach (const shortcut_info & sci, _shortcuts)
-		delete sci.shortcut;
-}
-
-void FullscreenManager::setFullscreen(const bool fullscreen /* = true */)
-{
-	if (!_parent) return;
-	if (fullscreen == isFullscreen()) return;
-
-	if (fullscreen) {
-		// entering full-screen mode
-
-		// store the visibilities of important widgets such as the menu bar
-		// before hiding them (so we can restore them when exiting fullscreen
-		// mode)
-		_normalVisibility.clear();
-		if (_parent->menuBar()) {
-			_normalVisibility[_parent->menuBar()] = _parent->menuBar()->isVisible();
-			hideMenuBar();
-		}
-		if (_parent->statusBar()) {
-			_normalVisibility[_parent->statusBar()] = _parent->statusBar()->isVisible();
-			_parent->statusBar()->hide();
-		}
-		foreach (QToolBar * tb, _parent->findChildren<QToolBar*>()) {
-			_normalVisibility[tb] = tb->isVisible();
-			tb->hide();
-		}
-
-		_parent->showFullScreen();
-
-		// Enable custom shortcuts
-		foreach (const shortcut_info & sci, _shortcuts) {
-			// Skip shortcuts that are associated with a menu QAction; those are
-			// enabled/disabled when the menubar is hidden/shown
-			if (sci.action) continue;
-			sci.shortcut->setEnabled(fullscreen);
-		}
-	}
-	else if (!fullscreen) {
-		// exiting full-screen mode
-		// stop the timer, just in case
-		_menuBarTimer.stop();
-
-		_parent->showNormal();
-
-		// restore visibilities
-		foreach (QWidget * w, _normalVisibility.keys())
-			w->setVisible(_normalVisibility[w]);
-
-		// Disable custom shortcuts
-		foreach (const shortcut_info & sci, _shortcuts)
-			sci.shortcut->setEnabled(false);
-	}
-
-	// Enable/disable mouse tracking (which is required for getting mouse move
-	// events when no mouse button is pressed) to be able to show/hide the
-	// menu bar depending on the mouse position
-	_parent->setMouseTracking(fullscreen);
-
-	emit fullscreenChanged(fullscreen);
-}
-
-bool FullscreenManager::isFullscreen() const
-{
-	if (!_parent) return false;
-	return _parent->windowState().testFlag(Qt::WindowFullScreen);
-}
-
-void FullscreenManager::toggleFullscreen()
-{
-	setFullscreen(!isFullscreen());
-}
-
-void FullscreenManager::mouseMoveEvent(QMouseEvent * event)
-{
-	if (!_parent || !_parent->menuBar() || !isFullscreen()) return;
-	const int thresholdHeight = 10;
-
-	// The menu bar is shown when the mouse stays within thresholdHeight
-	// from the top of the screen for _menuBarTimer.interval()
-	// When the mouse moves in(to) that area and the timer is not running,
-	// start it
-	if (!_parent->menuBar()->isVisible()) {
-		if (event->pos().y() <= thresholdHeight && !_menuBarTimer.isActive()) _menuBarTimer.start();
-		// When the mouse moves out(side) of that area and the timer is running,
-		// stop it
-		else if (event->pos().y() > thresholdHeight && _menuBarTimer.isActive()) _menuBarTimer.stop();
-	}
-	// The menu bar is hidden whenever the mouse moves off of the menu bar
-	// (Note: when opening a menu, that menu intercepts all mouse events so we
-	// don't need to worry about the menu bar disappearing while the user
-	// browses through the menus.
-	else if (event->pos().y() > _parent->menuBar()->height())
-		hideMenuBar();
-}
-
-void FullscreenManager::addShortcut(QAction * action, const char * member)
-{
-	addShortcut(action->shortcut(), member, action);
-}
-
-void FullscreenManager::addShortcut(const QKeySequence & key, const char * member, QAction * action /* = nullptr */)
-{
-	shortcut_info sci;
-	sci.shortcut = new QShortcut(key, _parent, member);
-	sci.shortcut->setEnabled(false);
-	sci.action = action;
-	if (action)
-		connect(action, SIGNAL(destroyed(QObject*)), this, SLOT(actionDeleted(QObject*)));
-	_shortcuts << sci;
-}
-
-void FullscreenManager::actionDeleted(QObject * obj)
-{
-	QAction * a = qobject_cast<QAction *>(obj);
-	if (!a) return;
-	for (int i = 0; i < _shortcuts.size(); ) {
-		if (_shortcuts[i].action == a) {
-			delete _shortcuts[i].shortcut;
-			_shortcuts.removeAt(i);
-		}
-		else
-			++i;
-	}
-}
-
-void FullscreenManager::setMenuBarVisible(const bool visible /* = true */)
-{
-	if (!_parent || !_parent->menuBar()) return;
-	if (visible == _parent->menuBar()->isVisible()) return;
-
-	_parent->menuBar()->setVisible(visible);
-
-	// Enable our shortcut overrides when the menubar is hidden (to ensure that
-	// the most important shortcuts are available even when the corresponding
-	// QActions are hidden and disabled)
-	foreach (const shortcut_info & sci, _shortcuts) {
-		// Skip shortcuts that are not associated with any menu QAction
-		if (!sci.action) continue;
-
-		// If the shortcut gets enabled and corresponds to a valid, named
-		// QAction, update it to the QAction's key sequence (in case that
-		// got changed in the meantime)
-		if (!visible)
-			sci.shortcut->setKey(sci.action->shortcut());
-		sci.shortcut->setEnabled(!visible);
-	}
 }

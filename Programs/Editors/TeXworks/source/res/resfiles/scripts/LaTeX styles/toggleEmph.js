@@ -15,7 +15,7 @@ function addOrRemove(prefix, suffix) {
   var pos = TW.target.selectionStart;
   if (pos >= prefix.length) {
     TW.target.selectRange(pos - prefix.length, wrapped.length);
-    if (TW.target.selection == wrapped) {
+    if (TW.target.selection === wrapped) {
       TW.target.insertText(txt);
       TW.target.selectRange(pos - prefix.length, len);
       return;
@@ -25,6 +25,6 @@ function addOrRemove(prefix, suffix) {
   TW.target.insertText(wrapped);
   TW.target.selectRange(pos + prefix.length, len);
   return;
-};
+}
 
 addOrRemove("\\emph{", "}");

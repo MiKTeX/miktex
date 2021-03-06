@@ -14,9 +14,11 @@
 #ifndef __PAPER_SIZES_H
 #define __PAPER_SIZES_H
 
-#include <QString>
-#include <QSizeF>
 #include <QCoreApplication>
+#include <QSizeF>
+#include <QString>
+
+namespace QtPDF {
 
 class PaperSize
 {
@@ -44,5 +46,7 @@ protected:
   bool _landscape;
   LengthUnit _lengthUnit;
 };
+
+} // namespace QtPDF
 
 #endif // !defined(__PAPER_SIZES_H)

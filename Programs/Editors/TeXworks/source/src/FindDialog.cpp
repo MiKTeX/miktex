@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,18 +20,18 @@
 */
 
 #include "FindDialog.h"
-#include "TeXDocumentWindow.h"
 #include "PDFDocumentWindow.h"
-#include "TWApp.h"
 #include "Settings.h"
+#include "TWApp.h"
+#include "TeXDocumentWindow.h"
 
-#include <QPushButton>
-#include <QTableWidget>
-#include <QHeaderView>
-#include <QTextBlock>
 #include <QFileInfo>
+#include <QHeaderView>
 #include <QKeyEvent>
+#include <QPushButton>
 #include <QShortcut>
+#include <QTableWidget>
+#include <QTextBlock>
 #include <QTextBoundaryFinder>
 
 const int kMaxRecentStrings = 10;
@@ -68,10 +68,10 @@ void RecentStringsKeyFilter::setRecentString(QObject *obj, int dir)
 	QLineEdit *lineEdit = qobject_cast<QLineEdit*>(obj);
 	if (!lineEdit)
 		return;
-	
+
 	if (strings.empty())
 		return;
-	
+
 	int index = strings.indexOf(lineEdit->text());
 	if (index == -1)
 		index = (dir == 1) ? 0 : strings.size() - 1;
@@ -82,7 +82,7 @@ void RecentStringsKeyFilter::setRecentString(QObject *obj, int dir)
 		else if (index >= strings.size())
 			index = 0;
 	}
-	
+
 	lineEdit->setText(strings[index]);
 	lineEdit->selectAll();
 }
@@ -93,11 +93,11 @@ void FindDialog::init(QTextEdit *document)
 
 	buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Find"));
 
-	connect(checkBox_allFiles, SIGNAL(toggled(bool)), this, SLOT(toggledAllFilesOption(bool)));
-	connect(checkBox_findAll, SIGNAL(toggled(bool)), this, SLOT(toggledFindAllOption(bool)));
-	connect(checkBox_regex, SIGNAL(toggled(bool)), this, SLOT(toggledRegexOption(bool)));
-	connect(checkBox_selection, SIGNAL(toggled(bool)), this, SLOT(toggledSelectionOption(bool)));
-	connect(searchText, SIGNAL(textChanged(const QString&)), this, SLOT(checkRegex(const QString&)));
+	connect(checkBox_allFiles, &QCheckBox::toggled, this, &FindDialog::toggledAllFilesOption);
+	connect(checkBox_findAll, &QCheckBox::toggled, this, &FindDialog::toggledFindAllOption);
+	connect(checkBox_regex, &QCheckBox::toggled, this, &FindDialog::toggledRegexOption);
+	connect(checkBox_selection, &QCheckBox::toggled, this, &FindDialog::toggledSelectionOption);
+	connect(searchText, &QLineEdit::textChanged, this, &FindDialog::checkRegex);
 
 	Tw::Settings settings;
 	QString	str = settings.value(QString::fromLatin1("searchText")).toString();
@@ -110,7 +110,7 @@ void FindDialog::init(QTextEdit *document)
 
 	bool findAll = settings.value(QString::fromLatin1("searchFindAll")).toBool();
 	checkBox_findAll->setChecked(findAll);
-	
+
 	bool allFiles = settings.value(QString::fromLatin1("searchAllFiles")).toBool();
 	checkBox_allFiles->setEnabled(TeXDocumentWindow::documentList().count() > 1);
 	checkBox_allFiles->setChecked(allFiles && checkBox_allFiles->isEnabled());
@@ -128,14 +128,14 @@ void FindDialog::init(QTextEdit *document)
 	checkBox_words->setChecked((flags & QTextDocument::FindWholeWords) != 0);
 	checkBox_backwards->setChecked((flags & QTextDocument::FindBackward) != 0);
 	checkBox_backwards->setEnabled(!findAll);
-	
+
 	QMenu *recentItemsMenu = new QMenu(this);
 	QStringList recentStrings = settings.value(QString::fromLatin1("recentSearchStrings")).toStringList();
 	if (recentStrings.empty())
 		recentItemsMenu->addAction(tr("No recent search strings"))->setEnabled(false);
 	else {
 		foreach (const QString& str, recentStrings)
-			connect(recentItemsMenu->addAction(str), SIGNAL(triggered()), this, SLOT(setSearchText()));
+			connect(recentItemsMenu->addAction(str), &QAction::triggered, this, &FindDialog::setSearchText);
 	}
 	recentSearches->setMenu(recentItemsMenu);
 	searchText->installEventFilter(new RecentStringsKeyFilter(this, recentStrings));
@@ -198,12 +198,12 @@ QDialog::DialogCode FindDialog::doFindDialog(QTextEdit *document)
 
 	dlg.show();
 	DialogCode result = static_cast<DialogCode>(dlg.exec());
-	
+
 	if (result == Accepted) {
 		Tw::Settings settings;
 		QString str = dlg.searchText->text();
 		settings.setValue(QString::fromLatin1("searchText"), str);
-		
+
 		QStringList recentStrings = settings.value(QString::fromLatin1("recentSearchStrings")).toStringList();
 		recentStrings.removeAll(str);
 		recentStrings.prepend(str);
@@ -240,19 +240,19 @@ void ReplaceDialog::init(QTextEdit *document)
 {
 	setupUi(this);
 
-	connect(checkBox_allFiles, SIGNAL(toggled(bool)), this, SLOT(toggledAllFilesOption(bool)));
-	connect(checkBox_regex, SIGNAL(toggled(bool)), this, SLOT(toggledRegexOption(bool)));
-	connect(checkBox_selection, SIGNAL(toggled(bool)), this, SLOT(toggledSelectionOption(bool)));
-	connect(searchText, SIGNAL(textChanged(const QString&)), this, SLOT(checkRegex(const QString&)));
+	connect(checkBox_allFiles, &QCheckBox::toggled, this, &ReplaceDialog::toggledAllFilesOption);
+	connect(checkBox_regex, &QCheckBox::toggled, this, &ReplaceDialog::toggledRegexOption);
+	connect(checkBox_selection, &QCheckBox::toggled, this, &ReplaceDialog::toggledSelectionOption);
+	connect(searchText, &QLineEdit::textChanged, this, &ReplaceDialog::checkRegex);
 
 	// using "standard" buttons then changing the labels means that Qt can reorder them appropriately for the platform
 	// whereas if we just put our own named buttons in place manually, they'd always stay in the same order
 	buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Replace"));
-	connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(clickedReplace()));
+	connect(buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &ReplaceDialog::clickedReplace);
 	buttonBox->button(QDialogButtonBox::SaveAll)->setText(tr("Replace All"));
-	connect(buttonBox->button(QDialogButtonBox::SaveAll), SIGNAL(clicked()), this, SLOT(clickedReplaceAll()));
+	connect(buttonBox->button(QDialogButtonBox::SaveAll), &QPushButton::clicked, this, &ReplaceDialog::clickedReplaceAll);
 	buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
-	connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+	connect(buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &ReplaceDialog::reject);
 
 	Tw::Settings settings;
 	QString	str = settings.value(QString::fromLatin1("searchText")).toString();
@@ -288,7 +288,7 @@ void ReplaceDialog::init(QTextEdit *document)
 		recentItemsMenu->addAction(tr("No recent search strings"))->setEnabled(false);
 	else {
 		foreach (const QString& str, recentStrings)
-			connect(recentItemsMenu->addAction(str), SIGNAL(triggered()), this, SLOT(setSearchText()));
+			connect(recentItemsMenu->addAction(str), &QAction::triggered, this, &ReplaceDialog::setSearchText);
 	}
 	recentSearches->setMenu(recentItemsMenu);
 	searchText->installEventFilter(new RecentStringsKeyFilter(this, recentStrings));
@@ -299,7 +299,7 @@ void ReplaceDialog::init(QTextEdit *document)
 		recentItemsMenu->addAction(tr("No recent replacement strings"))->setEnabled(false);
 	else {
 		foreach (const QString& str, recentStrings)
-			connect(recentItemsMenu->addAction(str), SIGNAL(triggered()), this, SLOT(setReplaceText()));
+			connect(recentItemsMenu->addAction(str), &QAction::triggered, this, &ReplaceDialog::setReplaceText);
 	}
 	recentReplacements->setMenu(recentItemsMenu);
 	replaceText->installEventFilter(new RecentStringsKeyFilter(this, recentStrings));
@@ -421,13 +421,12 @@ SearchResults::SearchResults(QWidget* parent)
 {
 	setupUi(this);
 	setFocusProxy(parent);
-	connect(table, SIGNAL(itemSelectionChanged()), this, SLOT(showSelectedEntry()));
-	connect(table, SIGNAL(itemPressed(QTableWidgetItem*)), this, SLOT(showEntry(QTableWidgetItem*)));
-	connect(table, SIGNAL(itemActivated(QTableWidgetItem*)), this, SLOT(goToSource()));
-	QShortcut *sc;
-	sc = new QShortcut(Qt::Key_Escape, table);
+	connect(table, &QTableWidget::itemSelectionChanged, this, &SearchResults::showSelectedEntry);
+	connect(table, &QTableWidget::itemPressed, this, &SearchResults::showEntry);
+	connect(table, &QTableWidget::itemActivated, this, &SearchResults::goToSource);
+	QShortcut * sc = new QShortcut(Qt::Key_Escape, table);
 	sc->setContext(Qt::WidgetShortcut);
-	connect(sc, SIGNAL(activated()), this, SLOT(goToSourceAndClose()));
+	connect(sc, &QShortcut::activated, this, &SearchResults::goToSourceAndClose);
 }
 
 void SearchResults::goToSource()
@@ -441,7 +440,7 @@ void SearchResults::goToSource()
 	if (!item)
 		return;
 	fileName = item->toolTip();
-	
+
 	if (!fileName.isEmpty()) {
 		QWidget *theDoc = TeXDocumentWindow::openDocument(fileName);
 		if (theDoc) {
@@ -490,10 +489,9 @@ void SearchResults::presentResults(const QString& searchText,
 		// Only show a limited number of characters before and after the
 		// specified search string to keep the results clear
 		bool truncateStart = true, truncateEnd = true;
-		int iStart, iEnd;
 		QString text = result.doc->getLineText(result.lineNo);
-		iStart = result.selStart - MAXIMUM_CHARACTERS_BEFORE_SEARCH_RESULT;
-		iEnd = result.selEnd + MAXIMUM_CHARACTERS_AFTER_SEARCH_RESULT;
+		int iStart = result.selStart - MAXIMUM_CHARACTERS_BEFORE_SEARCH_RESULT;
+		int iEnd = result.selEnd + MAXIMUM_CHARACTERS_AFTER_SEARCH_RESULT;
 		if (iStart < 0) {
 			iStart = 0;
 			truncateStart = false;
@@ -551,7 +549,7 @@ void SearchResults::presentResults(const QString& searchText,
 		resultsWindow->setParent(nullptr);
 		resultsWindow->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
 	}
-	
+
 	resultsWindow->show();
 }
 
@@ -597,17 +595,17 @@ void PDFFindDialog::init(PDFDocumentWindow *document)
 
 	buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Find"));
 /*
-	connect(checkBox_allFiles, SIGNAL(toggled(bool)), this, SLOT(toggledAllFilesOption(bool)));
-	connect(checkBox_findAll, SIGNAL(toggled(bool)), this, SLOT(toggledFindAllOption(bool)));
-	connect(checkBox_regex, SIGNAL(toggled(bool)), this, SLOT(toggledRegexOption(bool)));
-	connect(checkBox_selection, SIGNAL(toggled(bool)), this, SLOT(toggledSelectionOption(bool)));
-	connect(searchText, SIGNAL(textChanged(const QString&)), this, SLOT(checkRegex(const QString&)));
+	connect(checkBox_allFiles, &QCheckBox::toggled, this, &PDFFindDialog::toggledAllFilesOption);
+	connect(checkBox_findAll, &QCheckBox::toggled, this, &PDFFindDialog::toggledFindAllOption);
+	connect(checkBox_regex, &QCheckBox::toggled, this, &PDFFindDialog::toggledRegexOption);
+	connect(checkBox_selection, &QCheckBox::toggled, this, &PDFFindDialog::toggledSelectionOption);
+	connect(searchText, &QLineEdit::textChanged, this, &PDFFindDialog::checkRegex);
 */
 	Tw::Settings settings;
 	QString	str = settings.value(QString::fromLatin1("searchText")).toString();
 	searchText->setText(str);
 	searchText->selectAll();
-	
+
 	// if findAll is enabled, revisit the saving of settings in
 	// PDFFindDialog::doFindDialog (and enable saving findAll if it's reasonable
 	// to override the setting (also for searches in the editor))
@@ -630,17 +628,17 @@ void PDFFindDialog::init(PDFDocumentWindow *document)
 	// Searching backwards currently doesn't work
 	// Might be a bug in Poppler
 	checkBox_backwards->setEnabled(false);
-	
+
 	checkBox_sync->setChecked(settings.value(QString::fromLatin1("searchPdfSync")).toBool());
 	checkBox_sync->setEnabled(document->hasSyncData());
-	
+
 	QMenu *recentItemsMenu = new QMenu(this);
 	QStringList recentStrings = settings.value(QString::fromLatin1("recentSearchStrings")).toStringList();
 	if (recentStrings.empty())
 		recentItemsMenu->addAction(tr("No recent search strings"))->setEnabled(false);
 	else {
 		foreach (const QString& str, recentStrings)
-			connect(recentItemsMenu->addAction(str), SIGNAL(triggered()), this, SLOT(setSearchText()));
+			connect(recentItemsMenu->addAction(str), &QAction::triggered, this, &PDFFindDialog::setSearchText);
 	}
 	recentSearches->setMenu(recentItemsMenu);
 	searchText->installEventFilter(new RecentStringsKeyFilter(this, recentStrings));
@@ -657,7 +655,7 @@ QDialog::DialogCode PDFFindDialog::doFindDialog(PDFDocumentWindow *document)
 		Tw::Settings settings;
 		QString str = dlg.searchText->text();
 		settings.setValue(QString::fromLatin1("searchText"), str);
-		
+
 		QStringList recentStrings = settings.value(QString::fromLatin1("recentSearchStrings")).toStringList();
 		recentStrings.removeAll(str);
 		recentStrings.prepend(str);

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,12 +24,11 @@
 
 #include "document/SpellChecker.h"
 
+#include <QRegularExpression>
 #include <QSyntaxHighlighter>
-
+#include <QTextCharFormat>
 #include <QTextDocument>
 #include <QTextLayout>
-#include <QTextCharFormat>
-#include <QRegularExpression>
 #include <QTimer>
 
 namespace Tw {
@@ -97,7 +96,7 @@ private:
 	QVector<range> _dirtyRanges;
 
 	QTextBlock _currentBlock;
-	QList<QTextLayout::FormatRange> _currentFormatRanges;
+	QVector<QTextLayout::FormatRange> _currentFormatRanges;
 };
 
 class TeXHighlighter : public NonblockingSyntaxHighlighter

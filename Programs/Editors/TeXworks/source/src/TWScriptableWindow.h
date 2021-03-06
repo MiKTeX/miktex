@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,11 +25,11 @@
 #include "TWScriptManager.h"
 #include "scripting/Script.h"
 
-#include <QMainWindow>
 #include <QList>
+#include <QMainWindow>
 
-class QMenu;
 class QAction;
+class QMenu;
 class QSignalMapper;
 
 // parent class for document windows (i.e. both the source and PDF window types);
@@ -41,12 +41,12 @@ class TWScriptableWindow : public QMainWindow
 public:
 	TWScriptableWindow() = default;
 	~TWScriptableWindow() override = default;
-	
+
 public slots:
 	void updateScriptsMenu();
 	void runScript(QObject * script, Tw::Scripting::Script::ScriptType scriptType = Tw::Scripting::Script::ScriptStandalone);
 	void runHooks(const QString& hookName);
-	
+
 	void selectWindow(bool activate = true);
 	void placeOnLeft();
 	void placeOnRight();
@@ -54,12 +54,13 @@ public slots:
 private slots:
 	void doManageScripts();
 	void doAboutScripts();
-	
+
+protected slots:
 	void hideFloatersUnlessThis(QWidget* currWindow);
-	
+
 protected slots:
 	void scriptDeleted(QObject * obj);
-	
+
 protected:
 	void initScriptable(QMenu* scriptsMenu,
 						QAction* aboutScriptsAction,

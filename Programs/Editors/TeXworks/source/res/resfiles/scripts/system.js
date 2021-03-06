@@ -8,9 +8,9 @@
 // Context: TeXDocument
 
 var cmd = TW.target.selection;
-if (cmd != "") {
+if (cmd !== "") {
   var result = TW.system(cmd);
-  if (result.status == 0) {
+  if (result.status === 0) {
     TW.target.insertText(result.output);
   }
   else {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -12,16 +12,79 @@
  * more details.
  */
 
-#include <PDFBackend.h>
-#include <QPainter>
+#include "PDFBackend.h"
+
 #include <QApplication>
-#if defined(MIKTEX)
+#include <QElapsedTimer>
+#include <QPainter>
 #include <QPainterPath>
-#endif
+#include <algorithm>
+#include <memory>
+#include <list>
 
 namespace QtPDF {
 
 namespace Backend {
+
+class BackendManager
+{
+  std::list< std::unique_ptr<BackendInterface> > m_backendInterfaces;
+public:
+  BackendManager() {
+#ifdef USE_POPPLERQT
+    m_backendInterfaces.push_back(std::unique_ptr<BackendInterface>(new PopplerQtBackend));
+#endif
+#ifdef USE_MUPDF
+    m_backendInterfaces.push_back(std::unique_ptr<BackendInterface>(new MuPDFBackend));
+#endif
+  }
+  BackendInterface * backend(const QString & name = {})
+  {
+    if (!name.isEmpty()) {
+      for (const std::unique_ptr<BackendInterface> & b : m_backendInterfaces) {
+        if (b && b->name() == name)
+          return b.get();
+      }
+    }
+    return (m_backendInterfaces.empty() ? nullptr : m_backendInterfaces.front().get());
+  }
+  QStringList backendNames() const
+  {
+    QStringList rv;
+    for (const std::unique_ptr<BackendInterface> & bi : m_backendInterfaces) {
+      if (!bi) {
+        continue;
+      }
+      rv.append(bi->name());
+    }
+    return rv;
+  }
+  QString defaultBackendName() const
+  {
+    return (m_backendInterfaces.empty() ? QString() : m_backendInterfaces.front()->name());
+  }
+  void setDefaultBackend(const QString & name)
+  {
+    auto it = std::find_if(m_backendInterfaces.begin(), m_backendInterfaces.end(),
+      [name](const std::unique_ptr<BackendInterface> & bi) { return (bi && bi->name() == name); });
+    if (it == m_backendInterfaces.end()) {
+      // No such backend found
+      return;
+    }
+    if (it == m_backendInterfaces.begin()) {
+      // It's already the default
+      return;
+    }
+    std::unique_ptr<BackendInterface> placeholder;
+    // Swap backend into placeholder
+    std::swap(placeholder, *it);
+    // Erase the (now empty) entry in the list
+    m_backendInterfaces.erase(it);
+    // Insert the placeholder back in the front
+    m_backendInterfaces.insert(m_backendInterfaces.begin(), std::move(placeholder));
+  }
+};
+static BackendManager backendManager;
 
 // TODO: Find a better place to put this
 static QBrush * pageDummyBrush = nullptr;
@@ -31,9 +94,10 @@ QDateTime fromPDFDate(QString pdfDate)
   QDate date;
   QTime time;
   QString format;
-  int sign = 0;
-  int hourOffset, minuteOffset = 0;
-  bool ok;
+  int sign{0};
+  // QDateTime::addSecs() uses qint64, so use that type from the start
+  qint64 hourOffset{0}, minuteOffset{0};
+  bool ok{false};
 
   // "D:" prefix is strongly recommended, but optional; we don't need it here
   if (pdfDate.startsWith(QString::fromUtf8("D:")))
@@ -81,21 +145,20 @@ QDateTime fromPDFDate(QString pdfDate)
   pdfDate.remove(0, 1);
   if (pdfDate.length() < 3 || pdfDate[2] != QChar::fromLatin1('\''))
     return QDateTime(date, time);
-  hourOffset = pdfDate.leftRef(2).toInt(&ok);
+  hourOffset = pdfDate.left(2).toInt(&ok);
   if (!ok)
     return QDateTime(date, time);
   pdfDate.remove(0, 3);
   if (pdfDate.length() >= 2)
-    minuteOffset = pdfDate.leftRef(2).toInt();
+    minuteOffset = pdfDate.left(2).toInt();
   return QDateTime(date, time, Qt::UTC).addSecs(sign * (hourOffset * 3600 + minuteOffset * 60)).toLocalTime();
 }
 
 #ifdef DEBUG
 void PDFPageProcessingThread::dumpWorkStack(const QStack<PageProcessingRequest*> & ws)
 {
-  int i;
   QStringList strList;
-  for (i = 0; i < ws.size(); ++i) {
+  for (int i = 0; i < ws.size(); ++i) {
     PageProcessingRequest * request = ws[i];
     if (!request)
       strList << QString::fromUtf8("NULL");
@@ -106,37 +169,6 @@ void PDFPageProcessingThread::dumpWorkStack(const QStack<PageProcessingRequest*>
   qDebug() << strList;
 }
 #endif
-
-
-
-
-// Fonts
-// =================
-
-PDFFontDescriptor::PDFFontDescriptor(const QString & fontName /* = QString() */) :
-  _name(fontName)
-{
-}
-
-bool PDFFontDescriptor::isSubset() const
-{
-  // Subset fonts have a tag of 6 upper-case letters, followed by a '+',
-  // prefixed to the font name
-  if (_name.length() < 7 || _name[6] != QChar::fromLatin1('+'))
-    return false;
-  for (int i = 0; i < 6; ++i) {
-    if (!_name[i].isUpper())
-      return false;
-  }
-  return true;
-}
-
-QString PDFFontDescriptor::pureName() const
-{
-  if (!isSubset())
-    return _name;
-  return _name.mid(7);
-}
 
 
 // Backend Rendering
@@ -197,19 +229,18 @@ void PDFPageProcessingThread::addPageProcessingRequest(PageProcessingRequest * r
 
 void PDFPageProcessingThread::run()
 {
-  PageProcessingRequest * workItem;
-
   _mutex.lock();
   _idle = false;
   while (!_quit) {
     // mutex must be locked at start of loop
     if (!_workStack.empty()) {
-      workItem = _workStack.pop();
+      PageProcessingRequest * workItem = _workStack.pop();
       _mutex.unlock();
 
 #ifdef DEBUG
       qDebug() << "processing work item" << *workItem << "; remaining items:" << _workStack.size();
-      _renderTimer.start();
+      QElapsedTimer timer;
+      timer.start();
 #endif
       workItem->execute();
 #ifdef DEBUG
@@ -222,7 +253,7 @@ void PDFPageProcessingThread::run()
           jobDesc = QString::fromUtf8("rendering page");
           break;
       }
-      qDebug() << "finished " << jobDesc << "for page" << workItem->page->pageNum() << ". Time elapsed: " << _renderTimer.elapsed() << " ms.";
+      qDebug() << "finished " << jobDesc << "for page" << workItem->page->pageNum() << ". Time elapsed: " << timer.elapsed() << " ms.";
 #endif
 
       // Delete the work item as it has fulfilled its purpose
@@ -336,58 +367,6 @@ PageProcessingLoadLinksRequest::operator QString() const
 }
 #endif
 
-#ifdef DEBUG
-PDFPageTile::operator QString() const
-{
-  return QString::fromUtf8("p%1,%2x%3,r%4|%5x%6|%7").arg(page_num).arg(xres).arg(yres).arg(render_box.x()).arg(render_box.y()).arg(render_box.width()).arg(render_box.height());
-}
-#endif
-
-// Taken from Qt 4.7.2 sources (<Qt>/src/corelib/tools/qhash.cpp)
-static uint hash(const uchar *p, int n)
-{
-  uint h = 0;
-
-  while (n--) {
-    h = (h << 4) + *p++;
-    h ^= (h & 0xf0000000) >> 23;
-    h &= 0x0fffffff;
-  }
-  return h;
-}
-
-inline uint qHash(const QRect &key) {
-  return qHash(
-        QPair< QPair< int, int >, QPair< int, int > >(
-          QPair< int, int >(key.x(), key.y()),
-          QPair< int, int >(key.width(), key.height())
-        )
-        );
-}
-
-inline uint qHash(const double &d)
-{
-  // We interpret the double as an array of bytes and use the hash() function on
-  // it.
-  // NOTE: Due to rounding errors, this is not 100% reliable - two doubles that
-  // _look_ the same may actually differ in their bit representations (e.g., if
-  // the same value was calculated in two different ways). So this function may
-  // report different hashes for doubles that look the same (which should not be
-  // a problem in our case, however).
-  // Note also that the QDataStream approach used previously also works on the
-  // binary representation of doubles internally and so the same problem would
-  // occur there as well.
-  return hash(reinterpret_cast<const uchar*>(&d), sizeof(d));
-}
-
-// ### Cache for Rendered Images
-inline uint qHash(const PDFPageTile &tile)
-{
-  uint h1 = qHash(QPair<uint, uint>(qHash(tile.xres), qHash(tile.yres)));
-  uint h2 = qHash(QPair<uint,int>(qHash(tile.render_box), tile.page_num));
-  return qHash(QPair<uint, uint>(h1, h2));
-}
-
 QSharedPointer<QImage> PDFPageCache::getImage(const PDFPageTile & tile) const
 {
   _lock.lockForRead();
@@ -418,7 +397,14 @@ QSharedPointer<QImage> PDFPageCache::setImage(const PDFPageTile & tile, QImage *
   // image but leave the pointer intact as that can be held/used elsewhere
   if (!retVal) {
     QSharedPointer<QImage> * toInsert = new QSharedPointer<QImage>(image);
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
     insert(tile, toInsert, (image ? image->byteCount() : 0));
+#else
+    // No image (1024x124x4 bytes by default) should ever come even close to the
+    // 2 GB mark corresponding to INT_MAX; note that Document::Document() sets
+    // the cache's max-size to 1 GB total
+    insert(tile, toInsert, (image ? static_cast<int>(image->sizeInBytes()) : 0));
+#endif
     _tileStatus.insert(tile, status);
     retVal = *toInsert;
   }
@@ -478,6 +464,29 @@ Document::Document(QString fileName):
   _pageCache.setMaxSize(1024 * 1024 * 1024);
 }
 
+// FIXME: Consider porting Document to a PIMPL design in which we could just
+// call the constructor to construct a document
+QSharedPointer<Document> Document::newDocument(const QString & fileName, const QString & backend)
+{
+  BackendInterface * bi = backendManager.backend(backend);
+  return (bi ? bi->newDocument(fileName) : QSharedPointer<Document>());
+}
+
+QStringList Document::backends()
+{
+  return backendManager.backendNames();
+}
+
+QString Document::defaultBackend()
+{
+  return backendManager.defaultBackendName();
+}
+
+void Document::setDefaultBackend(const QString & backend)
+{
+  backendManager.setDefaultBackend(backend);
+}
+
 Document::~Document()
 {
 #ifdef DEBUG
@@ -490,17 +499,24 @@ int Document::numPages() { QReadLocker docLocker(_docLock.data()); return _numPa
 PDFPageProcessingThread &Document::processingThread() { QReadLocker docLocker(_docLock.data()); return _processingThread; }
 PDFPageCache &Document::pageCache() { QReadLocker docLocker(_docLock.data()); return _pageCache; }
 
+QWeakPointer<Page> Document::page(int at)
+{
+  QReadLocker l(_docLock.data());
+  if (at < 0 || at >= _pages.size()) {
+    return QWeakPointer<Page>();
+  }
+  return _pages[at];
+}
+
 QList<SearchResult> Document::search(const QString & searchText, const SearchFlags & flags, const int startPage)
 {
   QReadLocker docLocker(_docLock.data());
   QList<SearchResult> results;
-  int i, start, end, step;
+  int start = startPage;
+  int end = (flags.testFlag(Search_Backwards) ? -1 : _numPages);
+  int step = (flags.testFlag(Search_Backwards) ? -1 : +1);
 
-  start = startPage;
-  end = (flags.testFlag(Search_Backwards) ? -1 : _numPages);
-  step = (flags.testFlag(Search_Backwards) ? -1 : +1);
-
-  for (i = start; i != end; i += step) {
+  for (int i = start; i != end; i += step) {
     QSharedPointer<Page> page(_pages[i]);
     if (!page)
       continue;
@@ -510,7 +526,7 @@ QList<SearchResult> Document::search(const QString & searchText, const SearchFla
   if (flags.testFlag(Search_WrapAround)) {
     start = ((flags & Search_Backwards) ? _numPages - 1 : 0);
     end = startPage;
-    for (i = start; i != end; i += step) {
+    for (int i = start; i != end; i += step) {
       QSharedPointer<Page> page(_pages[i]);
       if (!page)
         continue;
@@ -618,6 +634,9 @@ QRectF Page::getContentBoundingBox() const
   // estimating the content bounding box to about 1% of the page size)
   QImage img = renderToImage(100. * 72 / pageSize.width(), 100. * 72 / pageSize.height());
 
+  if (img.isNull())
+    return QRectF();
+
   // Make sure the image is in a format we can handle here
   switch (img.format()) {
     case QImage::Format_ARGB32:
@@ -698,7 +717,7 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
   // 1) it is current
   // 2) it is a placeholder (in this case, it is currently rendering in the
   // background and we don't need to do anything)
-  PDFPageCache::TileStatus status;
+  PDFPageCache::TileStatus status{PDFPageCache::UNKNOWN};
   QSharedPointer<QImage> retVal = getCachedImage(xres, yres, render_box, &status);
   if (retVal && (status == PDFPageCache::CURRENT || status == PDFPageCache::PLACEHOLDER))
     return retVal;
@@ -741,7 +760,7 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
           ++it;
         }
         // Sort the remaining tiles by size, high-res first
-        qSort(tiles.begin(), tiles.end(), higherResolutionThan);
+        std::sort(tiles.begin(), tiles.end(), higherResolutionThan);
         // Finally, crop, scale and paint each image until the whole area is
         // filled or no images are left in the list
         QPainterPath clipPath;

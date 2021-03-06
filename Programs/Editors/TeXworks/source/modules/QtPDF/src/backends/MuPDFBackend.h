@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2019  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -103,7 +103,7 @@ class Page: public Backend::Page
   QList< QSharedPointer<Annotation::Link> > _links;
   bool _annotationsLoaded;
   bool _linksLoaded;
-  
+
   // requires a doc-lock and a page-write-lock
   void loadTransitionData();
 

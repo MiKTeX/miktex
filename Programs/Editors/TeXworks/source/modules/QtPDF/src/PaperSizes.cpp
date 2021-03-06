@@ -14,6 +14,8 @@
 #include "PaperSizes.h"
 #include <QList>
 
+namespace QtPDF {
+
 class StandardPaperSizes : public QList<PaperSize>
 {
 public:
@@ -228,7 +230,7 @@ PaperSize PaperSize::findForMillimeter(const QSizeF & paperSize)
   PaperSize ps(QString(), QSizeF(w, h));
   ps.setLandscape(ls);
 
-  int idx = standardPaperSizes.indexOf(ps);
+  auto idx = standardPaperSizes.indexOf(ps);
   if (idx < 0) return ps;
 
   ps = standardPaperSizes[idx];
@@ -282,3 +284,5 @@ bool PaperSize::operator ==(const PaperSize & other) const
 
   return false;
 }
+
+} // namespace QtPDF

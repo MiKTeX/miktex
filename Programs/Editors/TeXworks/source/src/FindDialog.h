@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@
 #include <QList>
 
 #include "ui_Find.h"
+#include "ui_PDFFind.h"
 #include "ui_Replace.h"
 #include "ui_SearchResults.h"
-#include "ui_PDFFind.h"
 
 class TeXDocumentWindow;
 class QTextEdit;
@@ -38,14 +38,14 @@ class PDFDocumentWindow;
 class RecentStringsKeyFilter : public QObject
 {
 	Q_OBJECT
-	
+
 public:
 	RecentStringsKeyFilter(QObject *parent, const QStringList& stringList)
 		: QObject(parent), strings(stringList)
 			{}
-	
+
 	~RecentStringsKeyFilter() override = default;
-	
+
 protected:
 	bool eventFilter(QObject *obj, QEvent *event) override;
 	void setRecentString(QObject *obj, int dir);
@@ -98,13 +98,13 @@ class ReplaceDialog : public QDialog, private Ui::ReplaceDialog
 
 public:
 	explicit ReplaceDialog(QTextEdit * parent);
-	
+
 	typedef enum {
 		Cancel,
 		ReplaceOne,
 		ReplaceAll
 	} DialogCode;
-	
+
 	static DialogCode doReplaceDialog(QTextEdit *document);
 
 private slots:
@@ -139,7 +139,7 @@ public:
 	PDFSearchResult(const PDFDocumentWindow* pdfdoc = nullptr, int page = -1, QRectF rect = QRectF())
 		: doc(pdfdoc), pageIdx(page), selRect(rect)
 		{ }
-		
+
 	const PDFDocumentWindow* doc;
 	int pageIdx;
 	QRectF selRect;
@@ -148,11 +148,11 @@ public:
 class SearchResults : public QDockWidget, private Ui::SearchResults
 {
 	Q_OBJECT
-	
+
 public:
 	static void presentResults(const QString& searchText, const QList<SearchResult>& results,
 							   QMainWindow* parent, bool singleFile);
-	
+
 	explicit SearchResults(QWidget * parent);
 
 private slots:

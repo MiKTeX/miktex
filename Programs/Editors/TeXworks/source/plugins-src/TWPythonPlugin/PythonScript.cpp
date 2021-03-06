@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,12 +31,12 @@
 #endif
 #define slots Q_SLOTS
 
-#include <QMetaObject>
 #include <QMetaMethod>
+#include <QMetaObject>
 #include <QMetaProperty>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
-#include <QRegularExpression>
 
 namespace Tw {
 namespace Scripting {
@@ -88,12 +88,12 @@ static PyTypeObject pyQObjectMethodType;
 
 static void QObjectDealloc(pyQObject * self) {
 	Py_XDECREF(self->_TWcontext);
-	((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+	_PyObject_CAST(self)->ob_type->tp_free(self);
 }
 static void QObjectMethodDealloc(pyQObjectMethodObject * self) {
 	Py_XDECREF(self->_TWcontext);
 	Py_XDECREF(self->_methodName);
-	((PyObject*)self)->ob_type->tp_free((PyObject*)self);
+	_PyObject_CAST(self)->ob_type->tp_free(self);
 }
 
 bool PythonScript::execute(ScriptAPIInterface * tw) const
@@ -124,10 +124,8 @@ bool PythonScript::execute(ScriptAPIInterface * tw) const
 		PyThreadState_Swap(origThreadState);
 		return false;
 	}
-	
-	pyQObject *TW;
-	
-	TW = (pyQObject*)QObjectToPython(tw->self());
+
+	pyQObject * TW = (pyQObject*)QObjectToPython(tw->self());
 	if (!TW) {
 		tw->SetResult(tr("Could not create TW"));
 		Py_EndInterpreter(interpreter);
@@ -135,22 +133,21 @@ bool PythonScript::execute(ScriptAPIInterface * tw) const
 		PyThreadState_Swap(origThreadState);
 		return false;
 	}
-	
+
 	// Run the script
-	PyObject * globals, * locals;
-	globals = PyDict_New();
-	locals = PyDict_New();
-	
+	PyObject * globals = PyDict_New();
+	PyObject * locals = PyDict_New();
+
 	// Create a dictionary of global variables
 	// without the __builtins__ module, nothing would work!
 	PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
-	PyDict_SetItemString(globals, "TW", (PyObject*)TW);
+	PyDict_SetItemString(globals, "TW", _PyObject_CAST(TW));
 
 	PyObject * ret = nullptr;
-	
+
 	if (globals && locals)
 		ret = PyRun_String(qPrintable(contents), Py_file_input, globals, locals);
-	
+
 	Py_XDECREF(globals);
 	Py_XDECREF(locals);
 	Py_XDECREF(ret);
@@ -158,9 +155,9 @@ bool PythonScript::execute(ScriptAPIInterface * tw) const
 
 	// Check for exceptions
 	if (PyErr_Occurred()) {
-		PyObject * errType, * errValue, * errTraceback;
+		PyObject * errType{nullptr}, * errValue{nullptr}, * errTraceback{nullptr};
 		PyErr_Fetch(&errType, &errValue, &errTraceback);
-		
+
 		PyObject * tmp = PyObject_Str(errValue);
 		QString errString;
 		if (!asQString(tmp, errString)) {
@@ -170,7 +167,7 @@ bool PythonScript::execute(ScriptAPIInterface * tw) const
 		}
 		Py_XDECREF(tmp);
 		tw->SetResult(errString);
-		
+
 		/////////////////////DEBUG
 		// This prints the python error in the usual python way to stdout
 		// Simply comment this block to prevent this behavior
@@ -180,7 +177,7 @@ bool PythonScript::execute(ScriptAPIInterface * tw) const
 		PyErr_Restore(errType, errValue, errTraceback);
 		PyErr_Print();
 		/////////////////////DEBUG
-		
+
 		Py_XDECREF(errType);
 		Py_XDECREF(errValue);
 		Py_XDECREF(errTraceback);
@@ -209,7 +206,7 @@ bool PythonScript::registerPythonTypes(QVariant & errMsg) const
 	pyQObjectType.tp_doc = "QObject wrapper";
 	pyQObjectType.tp_getattro = PythonScript::getAttribute;
 	pyQObjectType.tp_setattro = PythonScript::setAttribute;
-	
+
 	if (PyType_Ready(&pyQObjectType) < 0) {
 		errMsg = "Could not register QObject wrapper";
 		return false;
@@ -222,8 +219,7 @@ bool PythonScript::registerPythonTypes(QVariant & errMsg) const
 	pyQObjectMethodType.tp_flags = Py_TPFLAGS_DEFAULT;
 	pyQObjectMethodType.tp_doc = "QObject method wrapper";
 	pyQObjectMethodType.tp_call = PythonScript::callMethod;
-	
-	
+
 	if (PyType_Ready(&pyQObjectMethodType) < 0) {
 		errMsg = "Could not register QObject method wrapper";
 		return false;
@@ -234,23 +230,20 @@ bool PythonScript::registerPythonTypes(QVariant & errMsg) const
 /*static*/
 PyObject * PythonScript::QObjectToPython(QObject * o)
 {
-	pyQObject * obj;
-	obj = PyObject_New(pyQObject, &pyQObjectType);
-	
+	pyQObject * obj = PyObject_New(pyQObject, &pyQObjectType);
+
 	if (!obj) return nullptr;
-	
-	obj = (pyQObject*)PyObject_Init((PyObject*)obj, &pyQObjectType);
+
+	obj = (pyQObject*)PyObject_Init(_PyObject_CAST(obj), &pyQObjectType);
 	obj->_TWcontext = ENCAPSULATE_C_POINTER(o);
-	return (PyObject*)obj;
+	return _PyObject_CAST(obj);
 }
 
 /*static*/
 PyObject* PythonScript::getAttribute(PyObject * o, PyObject * attr_name)
 {
-	QObject * obj;
 	QString propName;
 	QVariant result;
-	pyQObjectMethodObject * pyMethod;
 
 	// Get the QObject* we operate on
 	if (!PyObject_TypeCheck(o, &pyQObjectType)) {
@@ -261,16 +254,16 @@ PyObject* PythonScript::getAttribute(PyObject * o, PyObject * attr_name)
 		PyErr_SetString(PyExc_TypeError, qPrintable(tr("getattr: not a valid TW object")));
 		return nullptr;
 	}
-	obj = (QObject*)GET_ENCAPSULATED_C_POINTER((PyObject*)(((pyQObject*)o)->_TWcontext));
-	
+	QObject * obj = (QObject*)GET_ENCAPSULATED_C_POINTER((PyObject*)(((pyQObject*)o)->_TWcontext));
+
 	if (!asQString(attr_name, propName)) {
 		PyErr_SetString(PyExc_TypeError, qPrintable(tr("getattr: invalid property name")));
 		return nullptr;
 	}
-	
+
 	if (propName.length() > 1 && propName.endsWith(QChar('_')))
 		propName.chop(1);
-	
+
 	switch (doGetProperty(obj, propName, result)) {
 		case Property_DoesNotExist:
 			PyErr_Format(PyExc_AttributeError, qPrintable(tr("getattr: object doesn't have property/method %s")), qPrintable(propName));
@@ -279,13 +272,15 @@ PyObject* PythonScript::getAttribute(PyObject * o, PyObject * attr_name)
 			PyErr_Format(PyExc_AttributeError, qPrintable(tr("getattr: property %s is not readable")), qPrintable(propName));
 			return nullptr;
 		case Property_Method:
-			pyMethod = PyObject_New(pyQObjectMethodObject, &pyQObjectMethodType);
-			pyMethod = (pyQObjectMethodObject*)PyObject_Init((PyObject*)pyMethod, &pyQObjectMethodType);
+		{
+			pyQObjectMethodObject * pyMethod = PyObject_New(pyQObjectMethodObject, &pyQObjectMethodType);
+			pyMethod = (pyQObjectMethodObject*)PyObject_Init(_PyObject_CAST(pyMethod), &pyQObjectMethodType);
 			Py_INCREF(pyMethod);
 			pyMethod->_TWcontext = ENCAPSULATE_C_POINTER(obj);
 			Py_XINCREF(attr_name);
-			pyMethod->_methodName = (PyObject*)attr_name;
-			return (PyObject*)pyMethod;
+			pyMethod->_methodName = _PyObject_CAST(attr_name);
+			return _PyObject_CAST(pyMethod);
+		}
 		case Property_OK:
 			return PythonScript::VariantToPython(result);
 		default:
@@ -298,7 +293,6 @@ PyObject* PythonScript::getAttribute(PyObject * o, PyObject * attr_name)
 /*static*/
 int PythonScript::setAttribute(PyObject * o, PyObject * attr_name, PyObject * v)
 {
-	QObject * obj;
 	QString propName;
 	QMetaProperty prop;
 
@@ -311,7 +305,7 @@ int PythonScript::setAttribute(PyObject * o, PyObject * attr_name, PyObject * v)
 		PyErr_SetString(PyExc_TypeError, qPrintable(tr("setattr: not a valid TW object")));
 		return -1;
 	}
-	obj = (QObject*)GET_ENCAPSULATED_C_POINTER((PyObject*)(((pyQObject*)o)->_TWcontext));
+	QObject * obj = (QObject*)GET_ENCAPSULATED_C_POINTER((PyObject*)(((pyQObject*)o)->_TWcontext));
 
 	// Get the parameters
 	if (!asQString(attr_name, propName)) {
@@ -339,21 +333,19 @@ int PythonScript::setAttribute(PyObject * o, PyObject * attr_name, PyObject * v)
 PyObject * PythonScript::callMethod(PyObject * o, PyObject * pyArgs, PyObject * kw)
 {
 	Q_UNUSED(kw)
-	QObject * obj;
 	QString methodName;
 	QVariantList args;
 	QVariant result;
-	int i;
-	
+
 	// Get the QObject* we operate on
-	obj = (QObject*)GET_ENCAPSULATED_C_POINTER((PyObject*)(((pyQObjectMethodObject*)o)->_TWcontext));
+	QObject * obj = (QObject*)GET_ENCAPSULATED_C_POINTER((PyObject*)(((pyQObjectMethodObject*)o)->_TWcontext));
 
 	if (!asQString((PyObject*)(((pyQObjectMethodObject*)o)->_methodName), methodName)) {
 		PyErr_SetString(PyExc_TypeError, qPrintable(tr("call: invalid method name")));
 		return nullptr;
 	}
-	
-	for (i = 0; i < PyTuple_Size(pyArgs); ++i) {
+
+	for (int i = 0; i < PyTuple_Size(pyArgs); ++i) {
 		args.append(PythonScript::PythonToVariant(PyTuple_GetItem(pyArgs, i)));
 	}
 	if (methodName.length() > 1 && methodName.endsWith(QChar('_')))
@@ -373,7 +365,7 @@ PyObject * PythonScript::callMethod(PyObject * o, PyObject * pyArgs, PyObject * 
 		default:
 			break;
 	}
-	
+
 	// we should never reach this point
 	return nullptr;
 }
@@ -382,15 +374,6 @@ PyObject * PythonScript::callMethod(PyObject * o, PyObject * pyArgs, PyObject * 
 /*static*/
 PyObject * PythonScript::VariantToPython(const QVariant & v)
 {
-	int i;
-	QVariantList::const_iterator iList;
-	QVariantList list;
-	QVariantHash::const_iterator iHash;
-	QVariantHash hash;
-	QVariantMap::const_iterator iMap;
-	QVariantMap map;
-	PyObject * pyList, * pyDict;
-
 	if (v.isNull()) Py_RETURN_NONE;
 
 	switch (static_cast<int>(v.type())) {
@@ -419,29 +402,36 @@ PyObject * PythonScript::VariantToPython(const QVariant & v)
 #endif
 		case QVariant::List:
 		case QVariant::StringList:
-			list = v.toList();
+		{
+			QVariantList list = v.toList();
 
-			pyList = PyList_New(list.size());
-			for (i = 0, iList = list.begin(); iList != list.end(); ++iList, ++i) {
+			PyObject * pyList = PyList_New(list.size());
+			int i{0};
+			for (QVariantList::const_iterator iList = list.begin(); iList != list.end(); ++iList, ++i) {
 				PyList_SetItem(pyList, i, PythonScript::VariantToPython(*iList));
 			}
 			return pyList;
+		}
 		case QVariant::Hash:
-			hash = v.toHash();
-			
-			pyDict = PyDict_New();
-			for (iHash = hash.begin(); iHash != hash.end(); ++iHash) {
+		{
+			QVariantHash hash = v.toHash();
+
+			PyObject * pyDict = PyDict_New();
+			for (QVariantHash::const_iterator iHash = hash.begin(); iHash != hash.end(); ++iHash) {
 				PyDict_SetItemString(pyDict, qPrintable(iHash.key()), PythonScript::VariantToPython(iHash.value()));
 			}
 			return pyDict;
+		}
 		case QVariant::Map:
-			map = v.toMap();
-			
-			pyDict = PyDict_New();
-			for (iMap = map.begin(); iMap != map.end(); ++iMap) {
+		{
+			QVariantMap map = v.toMap();
+
+			PyObject * pyDict = PyDict_New();
+			for (QVariantMap::const_iterator iMap = map.begin(); iMap != map.end(); ++iMap) {
 				PyDict_SetItemString(pyDict, qPrintable(iMap.key()), PythonScript::VariantToPython(iMap.value()));
 			}
 			return pyDict;
+		}
 		case QMetaType::QObjectStar:
 			return PythonScript::QObjectToPython(v.value<QObject*>());
 		default:
@@ -456,8 +446,7 @@ QVariant PythonScript::PythonToVariant(PyObject * o)
 {
 	QVariantList list;
 	QVariantMap map;
-	PyObject * key, * value;
-	Py_ssize_t i = 0;
+	Py_ssize_t i{0};
 	QString str;
 
 	if (o == Py_None)
@@ -483,6 +472,7 @@ QVariant PythonScript::PythonToVariant(PyObject * o)
 		return list;
 	}
 	if (PyDict_Check(o)) {
+		PyObject * key{nullptr}, * value{nullptr};
 		while (PyDict_Next(o, &i, &key, &value)) {
 			map.insert(PythonScript::PythonToVariant(key).toString(), PythonScript::PythonToVariant(value));
 		}

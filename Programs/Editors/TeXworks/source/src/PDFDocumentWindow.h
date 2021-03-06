@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,22 +22,22 @@
 #ifndef PDFDocument_H
 #define PDFDocument_H
 
+#include "../modules/QtPDF/src/PDFDocumentWidget.h"
+#include "FindDialog.h"
 #include "TWScriptableWindow.h"
+#include "TWSynchronizer.h"
+#include "ui/ClickableLabel.h"
+#include "ui_PDFDocumentWindow.h"
+#include "utils/FullscreenManager.h"
 
-#include <QImage>
-#include <QLabel>
-#include <QList>
-#include <QCursor>
 #include <QButtonGroup>
+#include <QCursor>
+#include <QImage>
+#include <QList>
+#include <QMouseEvent>
 #include <QPainterPath>
 #include <QTimer>
-#include <QMouseEvent>
 
-#include "FindDialog.h"
-#include "../modules/QtPDF/src/PDFDocumentWidget.h"
-#include "TWSynchronizer.h"
-
-#include "ui_PDFDocumentWindow.h"
 
 const int kDefault_MagnifierSize = 2;
 const bool kDefault_CircularMagnifier = true;
@@ -53,43 +53,6 @@ class QToolBar;
 class QScrollArea;
 class TeXDocumentWindow;
 class QShortcut;
-
-class FullscreenManager : public QObject
-{
-	Q_OBJECT
-public:
-	FullscreenManager(QMainWindow * parent);
-	~FullscreenManager() override;
-
-	void setFullscreen(const bool fullscreen = true);
-	bool isFullscreen() const;
-	void toggleFullscreen();
-	void mouseMoveEvent(QMouseEvent * event);
-
-	void addShortcut(QAction * action, const char * member);
-	void addShortcut(const QKeySequence & key, const char * member, QAction * action = nullptr);
-
-signals:
-	void fullscreenChanged(bool fullscreen);
-
-private slots:
-	void showMenuBar() { setMenuBarVisible(true); }
-	void hideMenuBar() { setMenuBarVisible(false); }
-	void actionDeleted(QObject * obj);
-
-protected:
-	void setMenuBarVisible(const bool visible = true);
-
-	struct shortcut_info {
-		QShortcut * shortcut;
-		QAction * action;
-	};
-
-	QList<shortcut_info> _shortcuts;
-	QMap<QWidget*, bool> _normalVisibility;
-	QMainWindow * _parent;
-	QTimer _menuBarTimer;
-};
 
 class PDFDocumentWindow : public TWScriptableWindow, private Ui::PDFDocumentWindow
 {
@@ -109,7 +72,6 @@ public:
 	QString fileName() const
 		{ return curFile; }
 
-	void zoomToRight(QWidget *otherWindow);
 	void showScale(qreal scale);
 	void showPage(int page);
 	void setResolution(const double res);
@@ -191,12 +153,12 @@ private:
 	QScrollArea	*scrollArea;
 	QButtonGroup	*toolButtonGroup;
 
-	QLinkedList<TeXDocumentWindow*> sourceDocList;
+	QList<TeXDocumentWindow*> sourceDocList;
 
-	QLabel *pageLabel;
-	QLabel *scaleLabel;
+	Tw::UI::ClickableLabel *pageLabel;
+	Tw::UI::ClickableLabel *scaleLabel;
 	QList<QAction*> recentFileActions;
-	FullscreenManager * _fullScreenManager;
+	Tw::Utils::FullscreenManager * _fullScreenManager;
 	QSignalMapper pageModeSignalMapper;
 
 	QGraphicsItem * _syncHighlight;
@@ -206,7 +168,7 @@ private:
 	QTimer _searchResultHighlightRemover;
 
 	bool openedManually;
-	
+
 	static QList<PDFDocumentWindow*> docList;
 
 	TWSyncTeXSynchronizer * _synchronizer;

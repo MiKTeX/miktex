@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019  Stefan Löffler
+	Copyright (C) 2019-2020  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,8 +48,8 @@ FileVersionDatabase FileVersionDatabase::load(const QString & path)
 
 		rec.version = line.section(QChar::fromLatin1(' '), 0, 0);
 		rec.hash = QByteArray::fromHex(line.section(QChar::fromLatin1(' '), 1, 1).toLatin1());
-		rec.filePath = line.section(QChar::fromLatin1(' '), 2).trimmed();
-		rec.filePath = rootDir.absoluteFilePath(rec.filePath.filePath());
+		rec.filePath = QFileInfo(line.section(QChar::fromLatin1(' '), 2).trimmed());
+		rec.filePath = QFileInfo(rootDir.absoluteFilePath(rec.filePath.filePath()));
 		retVal.m_records.append(rec);
 	}
 
@@ -60,6 +60,9 @@ FileVersionDatabase FileVersionDatabase::load(const QString & path)
 
 bool FileVersionDatabase::save(const QString & path) const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	using Qt::endl;
+#endif
 	QFile fout(path);
 	QDir rootDir(QFileInfo(path).absoluteDir());
 

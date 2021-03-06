@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 
 #include "ConfirmDelete.h"
 
-#include <QPushButton>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPushButton>
 
 ConfirmDelete::ConfirmDelete(QWidget *parent)
 	: QDialog(parent)
@@ -36,11 +36,11 @@ void ConfirmDelete::init()
 {
 	setupUi(this);
 	buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Delete"));
-	connect(selectAll, SIGNAL(clicked()), this, SLOT(doSelectAll()));
-	connect(selectNone, SIGNAL(clicked()), this, SLOT(doSelectNone()));
-	connect(toggleSelection, SIGNAL(clicked()), this, SLOT(doToggleSelection()));
-	connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(doToggleItemSelection(QListWidgetItem*)));
-	connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setDeleteButtonEnabledStatus()));
+	connect(selectAll, &QPushButton::clicked, this, &ConfirmDelete::doSelectAll);
+	connect(selectNone, &QPushButton::clicked, this, &ConfirmDelete::doSelectNone);
+	connect(toggleSelection, &QPushButton::clicked, this, &ConfirmDelete::doToggleSelection);
+	connect(listWidget, &QListWidget::itemClicked, this, &ConfirmDelete::doToggleItemSelection);
+	connect(listWidget, &QListWidget::itemClicked, this, &ConfirmDelete::setDeleteButtonEnabledStatus);
 }
 
 void ConfirmDelete::doConfirmDelete(const QDir& dir, const QStringList& fileList)

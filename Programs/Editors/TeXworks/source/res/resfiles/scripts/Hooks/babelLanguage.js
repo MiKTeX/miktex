@@ -45,16 +45,18 @@ var dicts = TW.getDictionaryList();
 
 function startsWith(haystack, needle)
 {
-  if (needle.length > haystack.length)
+  if (needle.length > haystack.length) {
     return false;
-  return haystack.substr(0, needle.length) === needle
+  }
+  return haystack.substr(0, needle.length) === needle;
 }
 
 function trySetSpellcheckLanguage(lang)
 {
   // See if we have any entry for this in our list
-  if (spellingDict[lang] === undefined)
+  if (spellingDict[lang] === undefined) {
     return false;
+  }
   // map the babel code to an ISO language code
   lang = spellingDict[lang];
   // If we have a matching dict, set it
@@ -65,7 +67,7 @@ function trySetSpellcheckLanguage(lang)
   }
   // Otherwise, see if we have a specialized dict (e.g., de_DE_frami when de_DE
   // is requested).
-  for (d in dicts) {
+  for (var d in dicts) {
     if (startsWith(d, lang)) {
       TW.target.setSpellcheckLanguage(d);
       TW.result = "Set spell-check language to " + d;
@@ -80,21 +82,25 @@ var txt = TW.target.text;
 var lines = txt.split('\n');
 
 // look for a babel line...
-for (i = 0; i < lines.length; ++i) {
+for (var i = 0; i < lines.length; ++i) {
   var line = lines[i];
   // If we have a "%!TeX spellcheck" modline, we don't override it (after all,
   // the user has probably put it there for a reason)
-  if (spellcheckModlineRE.test(line)) 
+  if (spellcheckModlineRE.test(line)) {
     break;
+  }
   var matched = babelRE.exec(line);
   if (matched) {
-    if (trySetSpellcheckLanguage(matched[1]))
+    if (trySetSpellcheckLanguage(matched[1])) {
       break;
+    }
   }
   // ...but give up at the end of the preamble
-  if (line.match("\\\\begin\\{document\\}"))
+  if (line.match("\\\\begin\\{document\\}")) {
     break;
-  if (line.match("\\\\starttext")) // oops, seems to be ConTeXt!
+  }
+  if (line.match("\\\\starttext")) { // oops, seems to be ConTeXt!
     break;
+  }
 }
 undefined;

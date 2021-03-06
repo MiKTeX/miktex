@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,14 +20,15 @@
 */
 
 #include "LuaScriptInterface.h"
+
 #include "LuaScript.h"
 
-#include <lua.hpp>
-
-#include <QTextStream>
-#include <QtPlugin>
 #include <QMetaObject>
 #include <QStringList>
+#include <QTextStream>
+#include <QtPlugin>
+
+#include <lua.hpp>
 
 namespace Tw {
 namespace Scripting {

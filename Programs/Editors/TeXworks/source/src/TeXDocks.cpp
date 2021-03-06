@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,14 +23,14 @@
 
 #include "TeXDocumentWindow.h"
 
-#include <QTreeWidget>
 #include <QHeaderView>
 #include <QScrollBar>
+#include <QTreeWidget>
 
 TeXDock::TeXDock(const QString & title, TeXDocumentWindow * doc)
 	: QDockWidget(title, doc), document(doc), filled(false)
 {
-	connect(this, SIGNAL(visibilityChanged(bool)), SLOT(myVisibilityChanged(bool)));
+	connect(this, &TeXDock::visibilityChanged, this, &TeXDock::myVisibilityChanged);
 }
 
 void TeXDock::myVisibilityChanged(bool visible)
@@ -52,15 +52,15 @@ TagsDock::TagsDock(TeXDocumentWindow * doc)
 	tree->header()->hide();
 	tree->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setWidget(tree);
-	connect(doc->textDoc(), SIGNAL(tagsChanged()), this, SLOT(listChanged()));
+	connect(doc->textDoc(), &Tw::Document::TeXDocument::tagsChanged, this, &TagsDock::listChanged);
 	saveScrollValue = 0;
 }
 
 void TagsDock::fillInfo()
 {
-	disconnect(tree, SIGNAL(itemSelectionChanged()), this, SLOT(followTagSelection()));
-	disconnect(tree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(followTagSelection()));
-	disconnect(tree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(followTagSelection()));
+	disconnect(tree, &QTreeWidget::itemSelectionChanged, this, &TagsDock::followTagSelection);
+	disconnect(tree, &QTreeWidget::itemActivated, this, &TagsDock::followTagSelection);
+	disconnect(tree, &QTreeWidget::itemClicked, this, &TagsDock::followTagSelection);
 	tree->clear();
 	const QList<Tw::Document::TextDocument::Tag> & tags = document->textDoc()->getTags();
 	if (!tags.empty()) {
@@ -102,9 +102,9 @@ void TagsDock::fillInfo()
 			tree->verticalScrollBar()->setValue(saveScrollValue);
 			saveScrollValue = 0;
 		}
-		connect(tree, SIGNAL(itemSelectionChanged()), this, SLOT(followTagSelection()));
-		connect(tree, SIGNAL(itemActivated(QTreeWidgetItem*, int)), this, SLOT(followTagSelection()));
-		connect(tree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(followTagSelection()));
+		connect(tree, &QTreeWidget::itemSelectionChanged, this, &TagsDock::followTagSelection);
+		connect(tree, &QTreeWidget::itemActivated, this, &TagsDock::followTagSelection);
+		connect(tree, &QTreeWidget::itemClicked, this, &TagsDock::followTagSelection);
 	} else {
 		QTreeWidgetItem *item = new QTreeWidgetItem();
 		item->setText(0, tr("No tags"));

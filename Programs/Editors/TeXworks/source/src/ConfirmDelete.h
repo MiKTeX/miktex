@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,11 +22,11 @@
 #ifndef ConfirmDelete_H
 #define ConfirmDelete_H
 
-#include <QDialog>
-#include <QStringList>
-#include <QDir>
-
 #include "ui_ConfirmDelete.h"
+
+#include <QDialog>
+#include <QDir>
+#include <QStringList>
 
 class ConfirmDelete : public QDialog, private Ui::ConfirmDelete
 {

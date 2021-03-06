@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,17 +19,12 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#if defined(MIKTEX)
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-#include <miktex/miktex-texworks.hpp>
-#endif
-#include <QTextCursor>
-
 #include "TeXHighlighter.h"
 #include "TWUtils.h"
 #include "document/TeXDocument.h"
+#include "utils/ResourcesLibrary.h"
 
+#include <QTextCursor>
 #include <climits> // for INT_MAX
 
 QList<TeXHighlighter::HighlightingSpec> *TeXHighlighter::syntaxRules = nullptr;
@@ -43,17 +38,21 @@ TeXHighlighter::TeXHighlighter(Tw::Document::TeXDocument * parent)
 	, texDoc(parent)
 {
 	loadPatterns();
-	// TODO: We should use QTextCharFormat::SpellCheckUnderline here, but that
-	// causes problems for some fonts/font sizes in Qt 5 (QTBUG-50499)
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+	// Using QTextCharFormat::SpellCheckUnderline causes problems for some
+	// fonts/font sizes (QTBUG-50499)
 	spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+#else
+	spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+#endif
 	spellFormat.setUnderlineColor(Qt::red);
 }
 
 void TeXHighlighter::spellCheckRange(const QString &text, int index, int limit, const QTextCharFormat &spellFormat)
 {
 	while (index < limit) {
-		int start, end;
-		if (TWUtils::findNextWord(text, index, start, end)) {
+		int start{0}, end{0};
+		if (Tw::Document::TeXDocument::findNextWord(text, index, start, end)) {
 			if (start < index)
 				start = index;
 			if (end > limit)
@@ -76,7 +75,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		while (charPos < text.length()) {
 			// ... and find the highlight pattern that matches closest to the
 			// current character index
-			int firstIndex = INT_MAX, len;
+			int firstIndex{INT_MAX}, len{0};
 			const HighlightingRule* firstRule = nullptr;
 			QRegularExpressionMatch firstMatch;
 			for (int i = 0; i < highlightingRules.size(); ++i) {
@@ -111,7 +110,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 		if (isTagging) {
 			int index = 0;
 			while (index < text.length()) {
-				int firstIndex = INT_MAX, len;
+				int firstIndex{INT_MAX}, len{0};
 				TagPattern* firstPatt = nullptr;
 				QRegularExpressionMatch firstMatch;
 				for (int i = 0; i < tagPatterns->count(); ++i) {
@@ -151,9 +150,6 @@ void TeXHighlighter::setActiveIndex(int index)
 void TeXHighlighter::setSpellChecker(Tw::Document::SpellChecker::Dictionary * dictionary)
 {
 	if (_dictionary != dictionary) {
-#if defined(MIKTEX)
-          MIKTEX_INFO(fmt::format("setting spell checker: {0}", dictionary->getLanguage().toUtf8().data()));
-#endif
 		_dictionary = dictionary;
 		QTimer::singleShot(1, this, SLOT(rehighlight()));
 	}
@@ -172,10 +168,15 @@ QStringList TeXHighlighter::syntaxOptions()
 
 void TeXHighlighter::loadPatterns()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+	constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
+#else
+	constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
+#endif
 	if (syntaxRules)
 		return;
 
-	QDir configDir(TWUtils::getLibraryPath(QString::fromLatin1("configuration")));
+	QDir configDir(Tw::Utils::ResourcesLibrary::getLibraryPath(QStringLiteral("configuration")));
 	QRegularExpression whitespace(QStringLiteral("\\s+"));
 
 	if (!syntaxRules) {
@@ -200,7 +201,7 @@ void TeXHighlighter::loadPatterns()
 					spec.name = sectionMatch.captured(1);
 					continue;
 				}
-				QStringList parts = line.split(whitespace, QString::SkipEmptyParts);
+				QStringList parts = line.split(whitespace, SkipEmptyParts);
 				if (parts.size() != 3)
 					continue;
 				QStringList styles = parts[0].split(QChar::fromLatin1(';'));
@@ -227,9 +228,13 @@ void TeXHighlighter::loadPatterns()
 				if (parts[1].compare(QChar::fromLatin1('Y'), Qt::CaseInsensitive) == 0) {
 					rule.spellCheck = true;
 					rule.spellFormat = rule.format;
-					// TODO: We should use QTextCharFormat::SpellCheckUnderline here, but that
-					// causes problems for some fonts/font sizes in Qt 5 (QTBUG-50499)
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+					// Using QTextCharFormat::SpellCheckUnderline causes
+					// problems for some fonts/font sizes (QTBUG-50499)
 					rule.spellFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+#else
+					rule.spellFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+#endif
 					rule.spellFormat.setUnderlineColor(Qt::red);
 				}
 				else
@@ -255,11 +260,11 @@ void TeXHighlighter::loadPatterns()
 				if (ba[0] == '#' || ba[0] == '\n')
 					continue;
 				QString line = QString::fromUtf8(ba.data(), ba.size());
-				QStringList parts = line.split(whitespace, QString::SkipEmptyParts);
+				QStringList parts = line.split(whitespace, SkipEmptyParts);
 				if (parts.size() != 2)
 					continue;
 				TagPattern patt;
-				bool ok;
+				bool ok{false};
 				patt.level = parts[0].toUInt(&ok);
 				if (ok) {
 					patt.pattern = QRegularExpression(parts[1]);
@@ -283,8 +288,8 @@ void NonblockingSyntaxHighlighter::setDocument(QTextDocument * doc)
 	_highlightRanges.clear();
 	_dirtyRanges.clear();
 	if (_parent) {
-		connect(_parent, SIGNAL(destroyed(QObject*)), this, SLOT(unlinkFromDocument()));
-		connect(_parent, SIGNAL(contentsChange(int,int,int)), this, SLOT(maybeRehighlightText(int, int, int)));
+		connect(_parent, &QTextDocument::destroyed, this, &NonblockingSyntaxHighlighter::unlinkFromDocument);
+		connect(_parent, &QTextDocument::contentsChange, this, &NonblockingSyntaxHighlighter::maybeRehighlightText);
 		rehighlight();
 	}
 }
@@ -390,7 +395,11 @@ void NonblockingSyntaxHighlighter::process()
 			_currentFormatRanges.clear();
 			highlightBlock(block.text());
 
-			block.layout()->setAdditionalFormats(_currentFormatRanges);
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+			block.layout()->setAdditionalFormats(_currentFormatRanges.toList());
+#else
+			block.layout()->setFormats(_currentFormatRanges);
+#endif
 
 			// If the userState has changed, make sure the next block is rehighlighted
 			// as well
@@ -416,7 +425,7 @@ void NonblockingSyntaxHighlighter::pushHighlightBlock(const QTextBlock & block)
 
 void NonblockingSyntaxHighlighter::pushHighlightRange(const int from, const int to)
 {
-	int i;
+	int i{0};
 	range r;
 	r.from = from;
 	r.to = to;
