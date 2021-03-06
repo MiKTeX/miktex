@@ -80,9 +80,9 @@
 */
 
 #define NAME "axohelp"
-#define VERSIONDATE "2019 Aug 28"
+#define VERSIONDATE "2021 Mar 5"
 #define VERSION 1
-#define SUBVERSION 3
+#define SUBVERSION 4
 
 #define COMMENTCHAR '%'
 #define TERMCHAR ';'
@@ -692,6 +692,11 @@ double *ReadArray(char *inbuf, int *num1, int *num2)
             if ( argsize == 0 ) newsize = 20;
             else newsize = 2*argsize;
             newargs = (double *)malloc(sizeof(double)*newsize);
+            if (! newargs ) {
+                fprintf(stderr,"%s: Memory allocation error while reading file %s\n",axohelp,inname);
+                free(args);
+                return(0);
+            }
             if ( args == 0 ) { args = newargs; argsize = newsize; }
             else {
                 for ( i = 0; i < argsize; i++ ) newargs[i] = args[i];
@@ -711,6 +716,11 @@ double *ReadArray(char *inbuf, int *num1, int *num2)
         }
         if ( num+*num2 > argsize ) {
             newargs = (double *)malloc(sizeof(double)*(num+*num2));
+            if (! newargs ) {
+                fprintf(stderr,"%s: Memory allocation error while reading file %s\n",axohelp,inname);
+                free(args);
+                return(0);
+            }
             for ( i = 0; i < num; i++ ) newargs[i] = args[i];
             free(args);
             args = newargs;
@@ -746,6 +756,10 @@ double *ReadTail(char *buff,int *number)
         else s++;
     }
     outargs = (double *)malloc(num*sizeof(double));
+    if (! outargs ) {
+         fprintf(stderr,"%s: Memory allocation error while reading file %s\n",axohelp,inname);
+         return(0);
+    }
     s = buff;
     for ( i = 0; i < num; i++ ) {
         while ( *s == 0 ) s++;
@@ -919,7 +933,7 @@ long ScanForObjects(char *buffer)
             if ( inputallocations == 0 ) { newnum = 100; }
             else { newnum = 2*inputallocations; }
             if ( ( newadd = (char **)malloc(newnum*sizeof(char *)) ) == 0 ) {
-                fprintf(stderr,"%s: memory error reading file %s\n",axohelp,inname);
+                fprintf(stderr,"%s: Memory allocation error while reading file %s\n",axohelp,inname);
                 return(-1);
             }
             for ( i = 0; i < inputallocations; i++ ) { newadd[i] = inputs[i]; }
@@ -929,10 +943,10 @@ long ScanForObjects(char *buffer)
         }
         inputs[numinputs++] = s;
 /*
-        Now scan for the first comment character. That is the end of the object.
+        Now scan for the first termination character. That is the end of the object.
 */
         while ( *t && ( *t != TERMCHAR || ( *t == TERMCHAR && t[-1] == '\\' ) )
-        && *t != '[' ) t++;
+            && *t != '[' ) t++;
         if ( *t != '[' ) {
             while ( t[-1] == ' ' || t[-1] == '\n' ) t--;
             *t++ = 0;
@@ -962,8 +976,8 @@ char *ReadInput(char *filename)
         fprintf(stderr,"%s: File error in file %s\n",axohelp,filename);
         exit(1);
     }
-    if ( ( buffer = malloc((filesize+1)*sizeof(char)) ) == 0 ) {
-        fprintf(stderr,"%s: Error allocating %ld bytes of memory",axohelp,filesize+1);
+    if ( ( buffer = (char*)malloc((filesize+1)*sizeof(char)) ) == 0 ) {
+        fprintf(stderr,"%s: Error allocating %ld chars of memory",axohelp,filesize+1);
         exit(1);
     }
 /*
@@ -1065,13 +1079,23 @@ void sendClean( char* str ) {
 
 int DoOneObject(char *cinput)
 {
-    // Single point for exit, to ensure proper clean up.
+    // OBSERVE: Single point for exit, to ensure proper clean up.
     int num, i, num1, num2, retcode;
     char *s, *t;
     double *argbuf = 0;
+    char *curline = 0;
     retcode = -1;
     SetDefaults();
 
+    // Store current line here for diagnostics, since parsing is destructive
+    // of input buffer.
+    curline = (char *)malloc( (1+strlen(cinput)) * sizeof(char) + 1 );
+    if (! curline) {
+        fprintf(stderr,"%s: Memory allocation error while reading file %s\n",axohelp,inname);
+        goto EXIT;
+    }
+    strcpy( curline, cinput );
+    
     // Locate number of object:
     s = cinput; while ( *s != '[' ) s++;
     s++; t = s; while ( *t != ']' ) t++;
@@ -1097,7 +1121,7 @@ int DoOneObject(char *cinput)
             goto SUCCESS;
         }
         else {
-            fprintf(stderr,"%s: Illegal request in identification string [0]: %s\n"
+            fprintf(stderr,"%s: Illegal object name in identification string [0]: %s\n"
                         ,axohelp,nameobject);
             goto EXIT; 
         }
@@ -1216,8 +1240,14 @@ int DoOneObject(char *cinput)
  SUCCESS:
     retcode = 0;
  EXIT:
-    if (argbuf) { free(argbuf); }
     fprintf(outfile,"}\n");
+    if (retcode) {
+        fprintf( stderr, "Line in file '%s' causing error is\n  '%.75s'\n",
+                 inname, curline );
+        if ( strlen(curline) > 75 ) { fprintf( stderr, "  (Truncated)\n" ); }
+    }
+    if (argbuf) { free(argbuf); }
+    if (curline) { free(curline); }
     return(retcode);
 }
 
@@ -1325,8 +1355,14 @@ int main(int argc,char **argv)
 */
     s = *argv;
     length = strlen(s);
-    inname  = strcpy(malloc((length+5)*sizeof(char)),s);
-    outname = strcpy(malloc((length+5)*sizeof(char)),s);
+    inname  = (char*)malloc((length+5)*sizeof(char));
+    inname  = strcpy(inname,s);
+    outname  = (char*)malloc((length+5)*sizeof(char));
+    outname = strcpy(outname,s);
+    if ( (!inname) || (!outname) ) {
+        fprintf(stderr,"%s: Memory allocation error in startup\n",axohelp);
+        exit(1);
+    }
     if ( (length > 4) && (strcmp(s+length-4, ".ax1") == 0) ) {
         outname[length-1] = '2';
     }
@@ -1348,6 +1384,7 @@ int main(int argc,char **argv)
     if ( error > 0 ) {
         fprintf(stderr,"%s: %d objects in %s were not translated correctly.\n",
             axohelp,error,inname);
+        fprintf( stderr, "  Erroneous data in input file normally corresponds to erroneous arguments\n  for an axodraw object in the .tex file.\n" );
         return(1);
     }
     return(0);

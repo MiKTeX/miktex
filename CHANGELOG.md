@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* axohelp 1.4
 * dvipdfmx 20210304
 * gregorio 6.0.0-beta2
 
