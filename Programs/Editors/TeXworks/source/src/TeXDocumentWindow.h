@@ -291,6 +291,9 @@ private:
 	QTextCursor	dragSavedCursor;
 
 	static QList<TeXDocumentWindow*> docList;
+#if defined(MIKTEX)
+        QAction* actionAbout_MiKTeX;
+#endif
 };
 
 #endif // !defined(TeXDocumentWindow_H)

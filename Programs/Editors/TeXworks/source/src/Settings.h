@@ -29,7 +29,11 @@ class Settings : public QSettings
 {
 	Q_OBJECT
 public:
+#if defined(MIKTEX)
+	Settings();
+#else
 	Settings() = default;
+#endif
 
 	using QSettings::defaultFormat;
 	using QSettings::setDefaultFormat;

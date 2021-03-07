@@ -25,6 +25,7 @@
 #include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/win/Registry>
 #include <miktex/Core/Utils>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/StringUtil>
@@ -34,6 +35,9 @@
 #include <log4cxx/rollingfileappender.h>
 
 #include "miktex-texworks.hpp"
+
+#include "Settings.h"
+#include "TWUtils.h"
 
 using namespace std;
 
@@ -207,5 +211,18 @@ void Wrapper::Sorry(string reason)
   MessageBoxW(nullptr, StringUtil::UTF8ToWideChar(serr.str()).c_str(), L"MiKTeX TeXworks", MB_ICONERROR);
 #else
   // TODO: cerr << serrstr() << endl;
+#endif
+}
+
+namespace Tw {
+#if defined(MIKTEX_WINDOWS)
+  Settings::Settings() :
+    QSettings("\\HKEY_CURRENT_USER\\" MIKTEX_REGPATH_SERIES "\\" TEXWORKS_NAME, QSettings::NativeFormat)
+  {
+  }
+#else
+  Settings::Settings()
+  {
+  }
 #endif
 }
