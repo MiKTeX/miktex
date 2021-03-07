@@ -19,6 +19,12 @@
 	see <http://www.tug.org/texworks/>.
 */
 
+#if defined(MIKTEX)
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <miktex/Core/AutoResource>
+#include <miktex/miktex-texworks.hpp>
+#endif
 #include "document/SpellChecker.h"
 
 #include "TWUtils.h" // for TWUtils::getLibraryPath
@@ -52,6 +58,24 @@ QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceR
 				dictionaryList->insert(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
 		}
 	}
+#if defined(MIKTEX)
+        {
+          std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+          for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
+          {
+            MiKTeX::Util::PathName dicPath = session->GetRootDirectoryPath(r) / MiKTeX::Util::PathName(MIKTEX_PATH_HUNSPELL_DICT_DIR);
+            QDir dicDir(QString::fromUtf8(dicPath.GetData()));
+            for(const auto& dicFileInfo : dicDir.entryInfoList({ QStringLiteral("*.dic") }, QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
+            {
+              QFileInfo affFileInfo(dicFileInfo.dir(), dicFileInfo.completeBaseName() + QStringLiteral(".aff"));
+              if (affFileInfo.isReadable())
+              {
+                dictionaryList->insertMulti(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
+              }
+            }
+          }
+        }
+#endif
 
 	emit SpellChecker::instance()->dictionaryListChanged();
 	return dictionaryList;
@@ -74,12 +98,39 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 		QFileInfo affFile(dicDir, language + QLatin1String(".aff"));
 		QFileInfo dicFile(dicDir, language + QLatin1String(".dic"));
 		if (affFile.isReadable() && dicFile.isReadable()) {
+#if defined(MIKTEX)
+                  MIKTEX_INFO(fmt::format("loading dictionary: {0}", language.toUtf8().data()));
+#endif
+#if defined(MIKTEX_WINDOWS)
+                  Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
+#else
 			Hunhandle * h = Hunspell_create(affFile.canonicalFilePath().toLocal8Bit().data(),
 								dicFile.canonicalFilePath().toLocal8Bit().data());
+#endif
 			dictionaries->insert(language, new Dictionary(language, h));
 			return dictionaries->value(language);
 		}
 	}
+#if defined(MIKTEX)
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  MIKTEX_AUTO(session->UnloadFilenameDatabase());
+  for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
+  {
+    MiKTeX::Util::PathName dicPath = session->GetRootDirectoryPath(r) / MiKTeX::Util::PathName(MIKTEX_PATH_HUNSPELL_DICT_DIR);
+    const QString dictPath = QString::fromStdWString(dicPath.ToWideCharString());
+    QFileInfo affFile(dictPath + "/" + language + ".aff");
+    QFileInfo dicFile(dictPath + "/" + language + ".dic");
+    if (affFile.isReadable() && dicFile.isReadable())
+    {
+#if defined(MIKTEX)
+      MIKTEX_INFO(fmt::format("loading dictionary: {0}", language.toUtf8().data()));
+#endif
+      Hunhandle* h = Hunspell_create(affFile.canonicalFilePath().toUtf8().data(), dicFile.canonicalFilePath().toUtf8().data());
+      dictionaries->insert(language, new Dictionary(language, h));
+      return dictionaries->value(language);
+    }
+  }
+#endif
 	return nullptr;
 }
 

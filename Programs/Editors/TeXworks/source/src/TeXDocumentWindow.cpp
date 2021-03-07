@@ -413,6 +413,16 @@ void TeXDocumentWindow::init()
 				   actionUpdate_Scripts, actionShow_Scripts_Folder);
 
 	TWUtils::insertHelpMenuItems(menuHelp);
+#if defined(MIKTEX)
+        actionAbout_MiKTeX = new QAction(this);
+        actionAbout_MiKTeX->setIcon(QIcon(QStringLiteral(":/MiKTeX/miktex16x16.png")));
+        actionAbout_MiKTeX->setObjectName(QStringLiteral("actionAbout_MiKTeX"));
+        actionAbout_MiKTeX->setText(QApplication::translate("TeXDocument", "Apropos MiKTeX..."));
+        connect(actionAbout_MiKTeX, SIGNAL(triggered()), qApp, SLOT(aboutMiKTeX()));
+#if 1
+        menuHelp->addAction(actionAbout_MiKTeX);
+#endif
+#endif
 	TWUtils::installCustomShortcuts(this);
 	delayedInit();
 }
