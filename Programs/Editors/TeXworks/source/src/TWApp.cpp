@@ -257,7 +257,7 @@ void TWApp::init()
 	actionOpen = new QAction(tr("Open..."), this);
 	actionOpen->setIcon(QIcon::fromTheme(QStringLiteral("document-open")));
 	menuFile->addAction(actionOpen);
-	connect(actionOpen, &QAction::triggered, this, &TWApp::open);
+	connect(actionOpen, &QAction::triggered, [=]() { this->open(); });
 
 	menuRecent = new QMenu(tr("Open Recent"));
 	actionClear_Recent_Files = menuRecent->addAction(tr("Clear Recent Files"));
@@ -772,10 +772,10 @@ QString TWApp::getOpenFileName(QString selectedFilter)
 	                                    filters.join(QLatin1String(";;")), &selectedFilter, options);
 }
 
-void TWApp::open()
+void TWApp::open(const QString & defaultFilter /* = {} */)
 {
 	Tw::Settings settings;
-	QStringList files = getOpenFileNames();
+	QStringList files = getOpenFileNames(defaultFilter);
 	foreach (QString fileName, files) {
 		if (!fileName.isEmpty()) {
 			QFileInfo info(fileName);

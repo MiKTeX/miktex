@@ -186,7 +186,7 @@ void PDFDocumentWindow::init()
 
 	connect(actionNew, &QAction::triggered, TWApp::instance(), &TWApp::newFile);
 	connect(actionNew_from_Template, &QAction::triggered, TWApp::instance(), &TWApp::newFromTemplate);
-	connect(actionOpen, &QAction::triggered, TWApp::instance(), &TWApp::open);
+	connect(actionOpen, &QAction::triggered, []() { TWApp::instance()->open(TWUtils::chooseDefaultFilter(QStringLiteral("a.pdf"), *TWUtils::filterList())); });
 	connect(actionPrintPdf, &QAction::triggered, this, &PDFDocumentWindow::print);
 
 	connect(actionQuit_TeXworks, &QAction::triggered, TWApp::instance(), &TWApp::maybeQuit);

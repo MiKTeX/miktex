@@ -198,7 +198,7 @@ public slots:
 	void doResourcesDialog() const;
 	QObject * newFile() const;
 	QObject * newFromTemplate() const;
-	void open();
+	void open(const QString & defaultFilter = {});
 	void stackWindows();
 	void tileWindows();
 
