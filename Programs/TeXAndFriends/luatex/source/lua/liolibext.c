@@ -583,7 +583,7 @@ static int readinteger3_s_le(lua_State *L) {
 
 static int readinteger4(lua_State *L) {
     FILE *f = tofile(L);
-    int a = getc(f);
+    lua_Integer a = getc(f);
     int b = getc(f);
     int c = getc(f);
     int d = getc(f);
@@ -600,7 +600,7 @@ static int readinteger4_le(lua_State *L) {
     int d = getc(f);
     int c = getc(f);
     int b = getc(f);
-    int a = getc(f);
+    lua_Integer a = getc(f);
     if (a == EOF)
         lua_pushnil(L);
     else if (a >= 0x80)
@@ -617,7 +617,7 @@ static int readinteger4_s(lua_State *L) {
     if (p+3 >= l) {
         lua_pushnil(L);
     } else {
-        int a = uchar(s[p++]);
+        lua_Integer a = uchar(s[p++]);
         int b = uchar(s[p++]);
         int c = uchar(s[p++]);
         int d = uchar(s[p]);
@@ -638,7 +638,7 @@ static int readinteger4_s_le(lua_State *L) {
         int d = uchar(s[p++]);
         int c = uchar(s[p++]);
         int b = uchar(s[p++]);
-        int a = uchar(s[p]);
+        lua_Integer a = uchar(s[p]);
         if (a >= 0x80)
             lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d - 0x100000000);
         else
@@ -698,7 +698,7 @@ static int readintegertable(lua_State *L) {
             break;
         case 4:
             for (i=1;i<=n;i++) {
-                int a = getc(f);
+                lua_Integer a = getc(f);
                 int b = getc(f);
                 int c = getc(f);
                 int d = getc(f);
@@ -781,7 +781,7 @@ static int readintegertable_s(lua_State *L) {
                     if (p+3 >= l) {
                         break;
                     } else {
-                        int a = uchar(s[p++]);
+                        lua_Integer a = uchar(s[p++]);
                         int b = uchar(s[p++]);
                         int c = uchar(s[p++]);
                         int d = uchar(s[p++]);
