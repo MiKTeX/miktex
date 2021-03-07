@@ -1,6 +1,6 @@
 /* xetex-miktex.cpp:
    
-   Copyright (C) 2007-2020 Christian Schenk
+   Copyright (C) 2007-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,10 +19,13 @@
 
 #include "miktex-first.h"
 
+// order matters: conflicting boolean type definitions
+#include <miktex/KPSE/Emulation>
+#include <jpeglib.h>
+
 #include <pplib.h>
 #include <hb-icu.h>
 #include <graphite2/Font.h>
-#include <jpeglib.h>
 #include <png.h>
 #include <TECkit_Engine.h>
 #include <zlib.h>
