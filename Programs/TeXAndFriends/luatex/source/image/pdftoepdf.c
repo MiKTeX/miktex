@@ -873,7 +873,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         copy selected items in Page dictionary
     */
     for (i = 0; pagedictkeys[i] != NULL; i++) {
-        obj = ppdict_rget_obj(pageDict, pagedictkeys[i]);
+        obj = ppdict_get_obj(pageDict, pagedictkeys[i]);
         if (obj != NULL) {
             pdf_add_name(pdf, pagedictkeys[i]);
             /*
