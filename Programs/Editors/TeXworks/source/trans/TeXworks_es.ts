@@ -100,7 +100,7 @@
     <message>
         <location filename="../src/CompletingEdit.cpp" line="1128"/>
         <source>No suggestions</source>
-        <translation>No hay sugerencias</translation>
+        <translation>Sin sugerencias</translation>
     </message>
     <message>
         <location filename="../src/CompletingEdit.cpp" line="1149"/>
@@ -123,7 +123,7 @@
     <message>
         <location filename="../src/ConfirmDelete.cpp" line="68"/>
         <source>Some of the auxiliary files could not be removed. Perhaps you don&apos;t have permission to delete them.</source>
-        <translation>Algunos archivos auxiliares no se puedieron eliminar. Probablemente no cuenta con los permisos requeridos.</translation>
+        <translation>Algunos archivos auxiliares no se puedieron eliminar. Probablemente no cuenta con los permisos necesarios.</translation>
     </message>
     <message>
         <location filename="../src/ConfirmDelete.ui" line="17"/>
@@ -297,7 +297,7 @@
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1066"/>
         <source>Do you want to open the file in the default viewer for printing instead?</source>
-        <translation>¿Prefiere utilizar el programa lector de PDF predeterminado para imprimir este archivo?</translation>
+        <translation>¿Prefiere utilizar su programa lector de PDF predeterminado para imprimir este archivo?</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.cpp" line="1067"/>
@@ -887,7 +887,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PDFFind.ui" line="78"/>
         <source>Find &amp;backwards</source>
-        <translation>Buscar &amp;hacia atrás</translation>
+        <translation>Buscar &amp;hacia arriba</translation>
     </message>
     <message>
         <location filename="../src/PDFFind.ui" line="85"/>
@@ -897,7 +897,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PDFFind.ui" line="92"/>
         <source>&amp;Case sensitive</source>
-        <translation>&amp;Diferenciar mayúsculas/minúsculas</translation>
+        <translation>&amp;Diferenciar mayúsculas y minúsculas</translation>
     </message>
     <message>
         <location filename="../src/PDFFind.ui" line="99"/>
@@ -926,7 +926,7 @@ Do you want to continue?</source>
         <location filename="../src/PrefsDialog.cpp" line="546"/>
         <source>%1 (%2)</source>
         <extracomment>Language (%1) and Country (%2) for TeXworks translations (ex. &quot;Portuguese (Brazil)&quot;)</extracomment>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="345"/>
@@ -1051,7 +1051,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PrefsDialog.ui" line="557"/>
         <source>Cursor Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ancho del cursor:</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="618"/>
@@ -1163,7 +1163,7 @@ Do you want to continue?</source>
         <location filename="../src/PrefsDialog.ui" line="1174"/>
         <source>Allow scripts to read all files (script and document files are always readable)</source>
         <translation>Permitir a los scripts leer todos los archivos 
-	(que tanto el script como el documento se puedan leer)</translation>
+	(que tanto el script como el documento puedan leerse)</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="1181"/>
@@ -3046,7 +3046,10 @@ Ofrecemos disculpas por las molestias ocasionadas.</translation>
 
 Stack trace:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Volcado de pila:
+</translation>
     </message>
 </context>
 <context>
@@ -3054,38 +3057,38 @@ Stack trace:
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
         <source>Internal error</source>
-        <translation type="unfinished">Error interno</translation>
+        <translation>Error interno</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
         <source>Failed to execute system command: %1</source>
-        <translation type="unfinished">Falla en la ejecución del comando de sistema: %1</translation>
+        <translation>Falla en la ejecución de este comando del sistema: %1</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
         <source>Error executing system command: %1</source>
-        <translation type="unfinished">Error de ejecución del comando de sistema: %1</translation>
+        <translation>Error de ejecución de este comando del sistema: %1</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
         <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation type="unfinished">La ejecución de comandos del sistema deshabilitada (véase Preferencias)</translation>
+        <translation>Ejecución de comandos del sistema deshabilitada (ver Preferencias)</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation type="unfinished">&quot;%1&quot; no se puede abrir.</translation>
+        <translation>&quot;%1&quot; no se puede abrir.</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation type="unfinished">Lectura de archivos deshabilitada (véase Preferencias)</translation>
+        <translation>Lectura de archivos deshabilitada (ver Preferencias)</translation>
     </message>
     <message>
         <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation type="unfinished">El archivo &quot;%1&quot; no se puede abrir para lectura</translation>
+        <translation>El archivo &quot;%1&quot; no puede abrirse para lectura</translation>
     </message>
 </context>
 <context>
@@ -3095,39 +3098,41 @@ Stack trace:
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation type="unfinished">Arrastre la regla o cambie los valores para hacerlos coincidir con las longitudes reales.
-Los tamaños de papel más comunes aparecen marcados (puede que deba cambiar el tamaño de la ventana de diálogo para verlos).
+        <translation>Arrastre la regla o cambie los valores hasta que coincidan con las longitudes reales.
+Los tamaños más comunes aparecen marcados (puede que deba cambiar el tamaño de la ventana de diálogo para verlos).
 Utilice el menú contextual para modificar las unidades.</translation>
     </message>
     <message>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation type="unfinished"> dpi</translation>
+        <translatorcomment>Puntos por pulgada</translatorcomment>
+        <translation> .dpi</translation>
     </message>
     <message>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
         <source>DIN A4</source>
-        <translation type="unfinished">DIN A4</translation>
+        <translation>DIN A4</translation>
     </message>
     <message>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
         <source>Letter</source>
-        <translation type="unfinished">Tamaño carta</translation>
+        <translation>Tamaño carta</translation>
     </message>
     <message>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>cm</translation>
     </message>
     <message>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
         <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>in</translatorcomment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3135,12 +3140,12 @@ Utilice el menú contextual para modificar las unidades.</translation>
     <message>
         <location filename="../src/utils/SystemCommand.cpp" line="61"/>
         <source>ERROR: failure code %1</source>
-        <translation type="unfinished">ERROR: falla en el código de %1</translation>
+        <translation>ERROR: falla en el código de %1</translation>
     </message>
     <message>
         <location filename="../src/utils/SystemCommand.cpp" line="78"/>
         <source>ERROR: exit code %1</source>
-        <translation type="unfinished">ERROR: salida del código de %1</translation>
+        <translation>ERROR: salida del código de %1</translation>
     </message>
 </context>
 </TS>
