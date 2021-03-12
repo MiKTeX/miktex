@@ -154,12 +154,11 @@
 <context>
     <name>ECMAScript</name>
     <message>
-        <location filename="../src/scripting/ECMAScript.cpp" line="55"/>
         <source>
 
 Stack trace:
 </source>
-        <translation>
+        <translation type="vanished">
 
 Stabelspor:
 </translation>
@@ -1499,84 +1498,68 @@ Er du sikker på at du vil halda fram?</translation>
 <context>
     <name>ScreenCalibrationWidget</name>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="50"/>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation>Dra linjalen eller endra verdien slik at han svarar til fysisk lengd.
+        <translation type="vanished">Dra linjalen eller endra verdien slik at han svarar til fysisk lengd.
 Vanlege papirstorleikar er òg markerte. (Det kan vera du må endra storleiken på vindauget for å sjå dei).
 Bruk kontekstmenyen for å endra einingane.</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation> p.p.t.</translation>
+        <translation type="vanished"> p.p.t.</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
         <source>DIN A4</source>
-        <translation>A4</translation>
+        <translation type="vanished">A4</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
         <source>Letter</source>
         <translatorcomment>skip-rule: unormert
 </translatorcomment>
-        <translation>Letter</translation>
+        <translation type="vanished">Letter</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation>cm</translation>
+        <translation type="vanished">cm</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation>tommar</translation>
+        <translation type="vanished">tommar</translation>
     </message>
 </context>
 <context>
     <name>ScriptAPI</name>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
         <source>Internal error</source>
-        <translation>Intern feil</translation>
+        <translation type="vanished">Intern feil</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
         <source>Failed to execute system command: %1</source>
-        <translation>Klarte ikkje køyra systemkommando: %1</translation>
+        <translation type="vanished">Klarte ikkje køyra systemkommando: %1</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
         <source>Error executing system command: %1</source>
-        <translation>Feil ved køyring av systemkommando: %1</translation>
+        <translation type="vanished">Feil ved køyring av systemkommando: %1</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation>Køyring av systemkommandoar er slått av (sjå innstillingane)</translation>
+        <translation type="vanished">Køyring av systemkommandoar er slått av (sjå innstillingane)</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation>Klarte ikkje opna «%1».</translation>
+        <translation type="vanished">Klarte ikkje opna «%1».</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation>Lesing av alle filer er slått av (sjå innstillingane)</translation>
+        <translation type="vanished">Lesing av alle filer er slått av (sjå innstillingane)</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation>Klarte ikkje opna fila «%1» for lesing</translation>
+        <translation type="vanished">Klarte ikkje opna fila «%1» for lesing</translation>
     </message>
 </context>
 <context>
@@ -3064,6 +3047,101 @@ Do you want to discard your current changes, and reload the file from disk with 
         <location filename="../src/ToolConfig.ui" line="60"/>
         <source>Browse...</source>
         <translation>Bla gjennom&#xa0;…</translation>
+    </message>
+</context>
+<context>
+    <name>Tw::Scripting::ECMAScript</name>
+    <message>
+        <location filename="../src/scripting/ECMAScript.cpp" line="55"/>
+        <source>
+
+Stack trace:
+</source>
+        <translation type="unfinished">
+
+Stabelspor:
+</translation>
+    </message>
+</context>
+<context>
+    <name>Tw::Scripting::ScriptAPI</name>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
+        <source>Internal error</source>
+        <translation type="unfinished">Intern feil</translation>
+    </message>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
+        <source>Failed to execute system command: %1</source>
+        <translation type="unfinished">Klarte ikkje køyra systemkommando: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
+        <source>Error executing system command: %1</source>
+        <translation type="unfinished">Feil ved køyring av systemkommando: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
+        <source>System command execution is disabled (see Preferences)</source>
+        <translation type="unfinished">Køyring av systemkommandoar er slått av (sjå innstillingane)</translation>
+    </message>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
+        <source>&quot;%1&quot; could not be opened.</source>
+        <translation type="unfinished">Klarte ikkje opna «%1».</translation>
+    </message>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
+        <source>Reading all files is disabled (see Preferences)</source>
+        <translation type="unfinished">Lesing av alle filer er slått av (sjå innstillingane)</translation>
+    </message>
+    <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
+        <source>The file &quot;%1&quot; could not be opened for reading</source>
+        <translation type="unfinished">Klarte ikkje opna fila «%1» for lesing</translation>
+    </message>
+</context>
+<context>
+    <name>Tw::UI::ScreenCalibrationWidget</name>
+    <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="50"/>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation type="unfinished">Dra linjalen eller endra verdien slik at han svarar til fysisk lengd.
+Vanlege papirstorleikar er òg markerte. (Det kan vera du må endra storleiken på vindauget for å sjå dei).
+Bruk kontekstmenyen for å endra einingane.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation type="unfinished"> p.p.t.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
+        <source>DIN A4</source>
+        <translation type="unfinished">A4</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
+        <source>Letter</source>
+        <translation type="unfinished">Letter</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation type="unfinished">cm</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation type="unfinished">tommar</translation>
     </message>
 </context>
 <context>

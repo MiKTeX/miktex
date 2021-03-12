@@ -7,7 +7,7 @@
 * axohelp 1.4
 * dvipdfmx 20210304
 * gregorio 6.0.0-beta2
-* texworks 0.7.0
+* texworks 0.6.6
 
 ## 21.2 - 2021-02-22
 

@@ -158,12 +158,11 @@
 <context>
     <name>ECMAScript</name>
     <message>
-        <location filename="../src/scripting/ECMAScript.cpp" line="55"/>
         <source>
 
 Stack trace:
 </source>
-        <translation>
+        <translation type="vanished">
 
 Трассировка стека</translation>
     </message>
@@ -1521,82 +1520,66 @@ Do you want to continue?</source>
 <context>
     <name>ScreenCalibrationWidget</name>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="50"/>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation>Передвиньте линейку или измените значение, чтобы задать масштаб.
+        <translation type="vanished">Передвиньте линейку или измените значение, чтобы задать масштаб.
 Общепринятые размеры страниц также указаны на линейке (чтобы их увидеть измените размер окна).
 Используйте контекстное меню чтобы изменить единицы измерения.</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation> дпи</translation>
+        <translation type="vanished"> дпи</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
         <source>DIN A4</source>
-        <translation>Размер A4</translation>
+        <translation type="vanished">Размер A4</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
         <source>Letter</source>
-        <translation>Размер Letter</translation>
+        <translation type="vanished">Размер Letter</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation>см</translation>
+        <translation type="vanished">см</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation>дюйм</translation>
+        <translation type="vanished">дюйм</translation>
     </message>
 </context>
 <context>
     <name>ScriptAPI</name>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
         <source>Internal error</source>
-        <translation>Внутренняя ошибка</translation>
+        <translation type="vanished">Внутренняя ошибка</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
         <source>Failed to execute system command: %1</source>
-        <translation>Не удалось выполнить системную команду: %1</translation>
+        <translation type="vanished">Не удалось выполнить системную команду: %1</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
         <source>Error executing system command: %1</source>
-        <translation>Ошибка при выполнении системной команды: %1</translation>
+        <translation type="vanished">Ошибка при выполнении системной команды: %1</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation>Запуск системных команд отключён (см. Настройки)</translation>
+        <translation type="vanished">Запуск системных команд отключён (см. Настройки)</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation>Невозможно открыть «%1».</translation>
+        <translation type="vanished">Невозможно открыть «%1».</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation>Доступ на чтение всех файлов отключён (см. Настройка)</translation>
+        <translation type="vanished">Доступ на чтение всех файлов отключён (см. Настройка)</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation>Невозможно открыть файл «%1» для чтения</translation>
+        <translation type="vanished">Невозможно открыть файл «%1» для чтения</translation>
     </message>
 </context>
 <context>
@@ -3094,68 +3077,97 @@ We are sorry for the inconvenience.</source>
     </message>
 </context>
 <context>
+    <name>Tw::Scripting::ECMAScript</name>
+    <message>
+        <location filename="../src/scripting/ECMAScript.cpp" line="55"/>
+        <source>
+
+Stack trace:
+</source>
+        <translation type="unfinished">
+
+Трассировка стека</translation>
+    </message>
+</context>
+<context>
     <name>Tw::Scripting::ScriptAPI</name>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
         <source>Internal error</source>
-        <translation type="obsolete">Внутренняя ошибка</translation>
+        <translation type="unfinished">Внутренняя ошибка</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
         <source>Failed to execute system command: %1</source>
-        <translation type="obsolete">Не удалось выполнить системную команду: %1</translation>
+        <translation type="unfinished">Не удалось выполнить системную команду: %1</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
         <source>Error executing system command: %1</source>
-        <translation type="obsolete">Ошибка при выполнении системной команды: %1</translation>
+        <translation type="unfinished">Ошибка при выполнении системной команды: %1</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation type="obsolete">Запуск системных команд отключён (см. Настройки)</translation>
+        <translation type="unfinished">Запуск системных команд отключён (см. Настройки)</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation type="obsolete">Невозможно открыть «%1».</translation>
+        <translation type="unfinished">Невозможно открыть «%1».</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation type="obsolete">Доступ на чтение всех файлов отключён (см. Настройка)</translation>
+        <translation type="unfinished">Доступ на чтение всех файлов отключён (см. Настройка)</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation type="obsolete">Невозможно открыть файл «%1» для чтения</translation>
+        <translation type="unfinished">Невозможно открыть файл «%1» для чтения</translation>
     </message>
 </context>
 <context>
     <name>Tw::UI::ScreenCalibrationWidget</name>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="50"/>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation type="obsolete">Передвиньте линейку или измените значение, чтобы задать масштаб.
+        <translation type="unfinished">Передвиньте линейку или измените значение, чтобы задать масштаб.
 Общепринятые размеры страниц также указаны на линейке (чтобы их увидеть измените размер окна).
 Используйте контекстное меню чтобы изменить единицы измерения.</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation type="obsolete"> дпи</translation>
+        <translation type="unfinished"> дпи</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
         <source>DIN A4</source>
-        <translation type="obsolete">Размер A4</translation>
+        <translation type="unfinished">Размер A4</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
         <source>Letter</source>
-        <translation type="obsolete">Размер Letter</translation>
+        <translation type="unfinished">Размер Letter</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation type="obsolete">см</translation>
+        <translation type="unfinished">см</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation type="obsolete">дюйм</translation>
+        <translation type="unfinished">дюйм</translation>
     </message>
 </context>
 <context>

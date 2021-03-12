@@ -732,37 +732,37 @@
 <context>
     <name>QtPDF::PDFDocumentScene</name>
     <message>
-        <location filename="../src/PDFBackend.cpp" line="611"/>
+        <location filename="../src/PDFBackend.cpp" line="612"/>
         <source>rendering page</source>
         <translation>отрисовка страницы</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2017"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2019"/>
         <source>Unlock PDF</source>
         <translation>Разблокировать PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2017"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2019"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>Пожайлуста введите пароль чтобы разблокировать PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2033"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
         <source>Incorrect password</source>
         <translation>Неправильный пароль</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2033"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
         <source>The password you entered was incorrect.</source>
         <translation>Вы ввели неправильный пароль.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2039"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2041"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>Этот документ заблокирован. Чтобы его открыть необходим пароль.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2040"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2042"/>
         <source>Unlock</source>
         <translation>Разблокировать</translation>
     </message>
@@ -770,325 +770,325 @@
 <context>
     <name>QtPDF::PDFDocumentView</name>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
         <source>Insufficient permission</source>
         <translation>Недостаточно прав</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentTools.cpp" line="978"/>
+        <location filename="../src/PDFDocumentTools.cpp" line="976"/>
         <source>Text extraction is not allowed for this document.</source>
         <translation>Для этого документа запрещено извлечение текста.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2585"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2587"/>
         <source>Goto page %1</source>
         <translation>Перейти к странице %1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2597"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2599"/>
         <source>Execute `%1`</source>
         <translation>Выполнить `%1`</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2843"/>
-        <location filename="../src/PDFDocumentView.cpp" line="2860"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2845"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2862"/>
         <source>Table of Contents</source>
         <translation>Содержание</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2952"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3159"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2954"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
         <source>Meta Data</source>
         <translation>Метаданные</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3008"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3169"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3010"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3171"/>
         <source>Processing</source>
         <translation>Обработка</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3040"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3176"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3042"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3178"/>
         <source>Other</source>
         <translation>Другое</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3103"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3105"/>
         <source>Yes</source>
         <translation>Да</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3106"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3108"/>
         <source>No</source>
         <translation>Нет</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3109"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3146"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3111"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3148"/>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
         <source>Document</source>
         <translation>Документ</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3162"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
         <source>Title:</source>
         <translation>Название:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
         <source>Author:</source>
         <translation>Автор:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
         <source>Subject:</source>
         <translation>Тема:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3167"/>
         <source>Keywords:</source>
         <translation>Ключевые слова:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3170"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3172"/>
         <source>Creator:</source>
         <translation>Создатель:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3171"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3173"/>
         <source>Producer:</source>
         <translation>Производитель:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3172"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3174"/>
         <source>Creation date:</source>
         <translation>Время создания:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3173"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3175"/>
         <source>Modification date:</source>
         <translation>Время изменения:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3174"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3176"/>
         <source>Trapped:</source>
         <translatorcomment>Термин</translatorcomment>
         <translation>Треппинг:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3185"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3279"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3187"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3281"/>
         <source>Fonts</source>
         <translation>Шрифты</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3235"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3237"/>
         <source>Type 0</source>
         <translation>Тип 0</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3238"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3240"/>
         <source>Type 1</source>
         <translation>Тип 1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3241"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3243"/>
         <source>Type 1 (multiple master)</source>
         <translatorcomment>Термин</translatorcomment>
         <translation>Тип 1 (multiple master)</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3244"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3246"/>
         <source>Type 3</source>
         <translation>Тип 3</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3247"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3249"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3250"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3252"/>
         <source>yes</source>
         <translation>да</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3250"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3252"/>
         <source>no</source>
         <translation>нет</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3253"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3255"/>
         <source>[embedded]</source>
         <translation>[вставленный]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3256"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3258"/>
         <source>[builtin]</source>
         <translation>[встроенный]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
         <source>Type</source>
         <translation>Гарнитура</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
         <source>Subset</source>
         <translation>Подмножество</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
         <source>Source</source>
         <translation>Источник</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3288"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3383"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3290"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3385"/>
         <source>Permissions</source>
         <translation>Разрешения</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3337"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3346"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3355"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3362"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3339"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3348"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3357"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3364"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
         <source>Allowed</source>
         <translation>Позволено</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3339"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3341"/>
         <source>Low resolution only</source>
         <translation>Только низкое разрешение</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3342"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3352"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3364"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3374"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3375"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3344"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3354"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3366"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3371"/>
         <location filename="../src/PDFDocumentView.cpp" line="3376"/>
         <location filename="../src/PDFDocumentView.cpp" line="3377"/>
         <location filename="../src/PDFDocumentView.cpp" line="3378"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3380"/>
         <source>Denied</source>
         <translation>Запрещено</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3348"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3350"/>
         <source>Assembling only</source>
         <translation>Только компоновка</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>Вставлять, вращать или удалять страницы и создавать закладки или эскизы</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3357"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
         <source>Accessibility support only</source>
         <translation>Только поддержка специальных возможностей</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3385"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3387"/>
         <source>Printing:</source>
         <translation>Печать:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3386"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3388"/>
         <source>Modifications:</source>
         <translation>Изменения:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3387"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
         <source>Extraction:</source>
         <translation>Извлечение:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3388"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3390"/>
         <source>Annotation:</source>
         <translation>Примечание:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3391"/>
         <source>Filling forms:</source>
         <translation>Заполнение форм:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3397"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3489"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3399"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3491"/>
         <source>Annotations</source>
         <translation>Примечания</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3490"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
         <source>Page</source>
         <translation>Страница</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3490"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
         <source>Subject</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3490"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
         <source>Author</source>
         <translation>Автор</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3490"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
         <source>Contents</source>
         <translation>Содержание</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3065"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3067"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation>Б</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3067"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3069"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation>кБ</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3069"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3071"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation>МБ</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3071"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3073"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation>ГБ</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3073"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3075"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation>ТБ</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3168"/>
         <source>Page size:</source>
         <translation>Размер страницы:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3167"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3169"/>
         <source>File size:</source>
         <translation>Размер файла:</translation>
     </message>

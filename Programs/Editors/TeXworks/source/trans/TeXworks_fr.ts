@@ -768,7 +768,7 @@ Do you want to continue?</source>
     </message>
     <message>
         <source>Select Image</source>
-        <translation>Sélection d&apos;image</translation>
+        <translation type="vanished">Sélection d&apos;image</translation>
     </message>
     <message>
         <location filename="../src/PDFDocumentWindow.ui" line="596"/>
@@ -922,7 +922,7 @@ Do you want to continue?</source>
     <message>
         <source> (%1)</source>
         <extracomment>Country suffix for TeXworks translations (ex. &quot;Portuguese (Brazil)&quot;)</extracomment>
-        <translation> (%1)</translation>
+        <translation type="vanished"> (%1)</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="345"/>
@@ -1494,63 +1494,63 @@ Do you want to continue?</source>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation>Glissez la règle ou changez la valeur pour correspondre à la longueur réelle des mots.
+        <translation type="vanished">Glissez la règle ou changez la valeur pour correspondre à la longueur réelle des mots.
 Les dimensions usuelles du papier sont également indiquées (vous pourriez avoir besoin de redimensionner la fenêtre de dialogue pour les voir.)
 Utilisez le menu contextuel pour changer les unités.</translation>
     </message>
     <message>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation> dpi (points par pouce)</translation>
+        <translation type="vanished"> dpi (points par pouce)</translation>
     </message>
     <message>
         <source>DIN A4</source>
-        <translation>DINA A4</translation>
+        <translation type="vanished">DINA A4</translation>
     </message>
     <message>
         <source>Letter</source>
-        <translation>letter</translation>
+        <translation type="vanished">letter</translation>
     </message>
     <message>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation>cm</translation>
+        <translation type="vanished">cm</translation>
     </message>
     <message>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation>in (pouces)</translation>
+        <translation type="vanished">in (pouces)</translation>
     </message>
 </context>
 <context>
     <name>ScriptAPI</name>
     <message>
         <source>Internal error</source>
-        <translation>Erreur interne</translation>
+        <translation type="vanished">Erreur interne</translation>
     </message>
     <message>
         <source>Failed to execute system command: %1</source>
-        <translation>Échec de l&apos;exécution de la commande système : %1</translation>
+        <translation type="vanished">Échec de l&apos;exécution de la commande système : %1</translation>
     </message>
     <message>
         <source>Error executing system command: %1</source>
-        <translation>Erreur lors de de l&apos;exécution de la commande système : %1</translation>
+        <translation type="vanished">Erreur lors de de l&apos;exécution de la commande système : %1</translation>
     </message>
     <message>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation>Exécution des commandes système inactivée (voir Préférences)</translation>
+        <translation type="vanished">Exécution des commandes système inactivée (voir Préférences)</translation>
     </message>
     <message>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation>&quot;%1&quot; n&apos;a pu être ouvert.</translation>
+        <translation type="vanished">&quot;%1&quot; n&apos;a pu être ouvert.</translation>
     </message>
     <message>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation>Lecture de tous les fichiers inactivée (voir Préférences)</translation>
+        <translation type="vanished">Lecture de tous les fichiers inactivée (voir Préférences)</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation>Le fichier &quot;%1&quot; n&apos;a pu être ouvert en lecture</translation>
+        <translation type="vanished">Le fichier &quot;%1&quot; n&apos;a pu être ouvert en lecture</translation>
     </message>
 </context>
 <context>
@@ -1933,11 +1933,11 @@ Utilisez le menu contextuel pour changer les unités.</translation>
     <name>TWSystemCmd</name>
     <message>
         <source>ERROR: failure code %1</source>
-        <translation>ERREUR : échec de code %1</translation>
+        <translation type="vanished">ERREUR : échec de code %1</translation>
     </message>
     <message>
         <source>ERROR: exit code %1</source>
-        <translation>ERREUR : code de sortie %1</translation>
+        <translation type="vanished">ERREUR : code de sortie %1</translation>
     </message>
 </context>
 <context>

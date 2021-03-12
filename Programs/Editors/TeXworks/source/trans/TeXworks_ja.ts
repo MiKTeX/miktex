@@ -154,12 +154,11 @@
 <context>
     <name>ECMAScript</name>
     <message>
-        <location filename="../src/scripting/ECMAScript.cpp" line="55"/>
         <source>
 
 Stack trace:
 </source>
-        <translation>
+        <translation type="vanished">
 
 スタックトレース: 
 </translation>
@@ -1503,82 +1502,66 @@ Do you want to continue?</source>
 <context>
     <name>ScreenCalibrationWidget</name>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="50"/>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation>実際の長さと合うようにルーラーをドラッグするか、値を入力してください。
+        <translation type="vanished">実際の長さと合うようにルーラーをドラッグするか、値を入力してください。
 一般的な用紙サイズはあらかじめ設定済みです（確認するにはダイアログウィンドウのサイズを変更しなければならないかもしれません）。
 長さの単位はコンテキストメニューで変更可能です。</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation> dpi</translation>
+        <translation type="vanished"> dpi</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
         <source>DIN A4</source>
-        <translation>A4</translation>
+        <translation type="vanished">A4</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
         <source>Letter</source>
-        <translation>レター</translation>
+        <translation type="vanished">レター</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation>cm</translation>
+        <translation type="vanished">cm</translation>
     </message>
     <message>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
-        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation>in</translation>
+        <translation type="vanished">in</translation>
     </message>
 </context>
 <context>
     <name>ScriptAPI</name>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
         <source>Internal error</source>
-        <translation>内部エラー</translation>
+        <translation type="vanished">内部エラー</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
         <source>Failed to execute system command: %1</source>
-        <translation>システムコマンド %1 を実行できませんでした</translation>
+        <translation type="vanished">システムコマンド %1 を実行できませんでした</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
         <source>Error executing system command: %1</source>
-        <translation>システムコマンド %1 の実行時エラー</translation>
+        <translation type="vanished">システムコマンド %1 の実行時エラー</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation>システムコマンドの実行は許可されていません (設定を確認してください)</translation>
+        <translation type="vanished">システムコマンドの実行は許可されていません (設定を確認してください)</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation>&quot;%1&quot; が開けません</translation>
+        <translation type="vanished">&quot;%1&quot; が開けません</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation>全てのファイルの読み込み許可がありません (設定を確認してください)</translation>
+        <translation type="vanished">全てのファイルの読み込み許可がありません (設定を確認してください)</translation>
     </message>
     <message>
-        <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation>ファイル &quot;%1&quot; を読み込むことができません</translation>
+        <translation type="vanished">ファイル &quot;%1&quot; を読み込むことができません</translation>
     </message>
 </context>
 <context>
@@ -3065,68 +3048,98 @@ We are sorry for the inconvenience.</source>
     </message>
 </context>
 <context>
+    <name>Tw::Scripting::ECMAScript</name>
+    <message>
+        <location filename="../src/scripting/ECMAScript.cpp" line="55"/>
+        <source>
+
+Stack trace:
+</source>
+        <translation type="unfinished">
+
+スタックトレース: 
+</translation>
+    </message>
+</context>
+<context>
     <name>Tw::Scripting::ScriptAPI</name>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="225"/>
         <source>Internal error</source>
-        <translation type="obsolete">内部エラー</translation>
+        <translation type="unfinished">内部エラー</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="240"/>
         <source>Failed to execute system command: %1</source>
-        <translation type="obsolete">システムコマンド %1 を実行できませんでした</translation>
+        <translation type="unfinished">システムコマンド %1 を実行できませんでした</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="249"/>
         <source>Error executing system command: %1</source>
-        <translation type="obsolete">システムコマンド %1 の実行時エラー</translation>
+        <translation type="unfinished">システムコマンド %1 の実行時エラー</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="266"/>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="288"/>
         <source>System command execution is disabled (see Preferences)</source>
-        <translation type="obsolete">システムコマンドの実行は許可されていません (設定を確認してください)</translation>
+        <translation type="unfinished">システムコマンドの実行は許可されていません (設定を確認してください)</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="284"/>
         <source>&quot;%1&quot; could not be opened.</source>
-        <translation type="obsolete">&quot;%1&quot; が開けません</translation>
+        <translation type="unfinished">&quot;%1&quot; が開けません</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="330"/>
         <source>Reading all files is disabled (see Preferences)</source>
-        <translation type="obsolete">全てのファイルの読み込み許可がありません (設定を確認してください)</translation>
+        <translation type="unfinished">全てのファイルの読み込み許可がありません (設定を確認してください)</translation>
     </message>
     <message>
+        <location filename="../src/scripting/ScriptAPI.cpp" line="338"/>
         <source>The file &quot;%1&quot; could not be opened for reading</source>
-        <translation type="obsolete">ファイル &quot;%1&quot; を読み込むことができません</translation>
+        <translation type="unfinished">ファイル &quot;%1&quot; を読み込むことができません</translation>
     </message>
 </context>
 <context>
     <name>Tw::UI::ScreenCalibrationWidget</name>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="50"/>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation type="obsolete">実際の長さと合うようにルーラーをドラッグするか、値を入力してください。
+        <translation type="unfinished">実際の長さと合うようにルーラーをドラッグするか、値を入力してください。
 一般的な用紙サイズはあらかじめ設定済みです（確認するにはダイアログウィンドウのサイズを変更しなければならないかもしれません）。
 長さの単位はコンテキストメニューで変更可能です。</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="82"/>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation type="obsolete"> dpi</translation>
+        <translation type="unfinished"> dpi</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="85"/>
         <source>DIN A4</source>
-        <translation type="obsolete">A4</translation>
+        <translation type="unfinished">A4</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="86"/>
         <source>Letter</source>
-        <translation type="obsolete">レター</translation>
+        <translation type="unfinished">レター</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="90"/>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="96"/>
         <source>cm</source>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation type="obsolete">cm</translation>
+        <translation type="unfinished">cm</translation>
     </message>
     <message>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="92"/>
+        <location filename="../src/ui/ScreenCalibrationWidget.cpp" line="102"/>
         <source>in</source>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation type="obsolete">in</translation>
+        <translation type="unfinished">in</translation>
     </message>
 </context>
 <context>
