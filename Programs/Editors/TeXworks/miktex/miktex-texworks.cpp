@@ -25,10 +25,13 @@
 #include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
-#include <miktex/Core/win/Registry>
 #include <miktex/Core/Utils>
 #include <miktex/Trace/Trace>
 #include <miktex/Util/StringUtil>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/Registry>
+#endif
 
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
