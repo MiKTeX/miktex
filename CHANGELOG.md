@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 21.3 - pending release
+## 21.3 - 2021-03-15
 
 ### Upgraded programs
 
