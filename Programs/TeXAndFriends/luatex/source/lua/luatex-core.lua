@@ -198,6 +198,9 @@ if saferoption == 1 or shellescape ~= 1 then
     package.searchers[4] = nil
     package.searchers[3] = nil
 
+    if os.setenv then
+        os.setenv = function(...) end
+    end
     ffi = require('ffi')
 
     if ffi then
