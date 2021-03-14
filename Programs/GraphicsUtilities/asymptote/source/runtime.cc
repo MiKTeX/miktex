@@ -1552,11 +1552,12 @@ void gen_runtime115(stack *Stack)
   tKernel64.HighPart = ftKernel.dwHighDateTime;
   tUser = static_cast<DWORD>(tUser64.QuadPart / 10000);
   tKernel = static_cast<DWORD>(tKernel64.QuadPart / 10000);
-  array *t = new array(4);
+  array *t = new array(5);
   (*t)[0] = tUser;
   (*t)[1] = tKernel;
   (*t)[2] = 0;
   (*t)[3] = 0;
+  (*t)[4] = utils::totalseconds();
   {Stack->push<realarray*>(t); return; }
 #else
 #line 1036 "runtime.in"
