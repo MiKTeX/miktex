@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 21.3 - 2021-03-15
+## 21.3 - 2021-03-16
 
 ### Upgraded programs
 
@@ -8,6 +8,12 @@
 * dvipdfmx 20210304
 * gregorio 6.0.0-beta2
 * texworks 0.6.6
+
+### Fixed issues
+
+- [698](https://github.com/MiKTeX/miktex/issues/698): Unable to update to MikTeX 21.1 on Fedora 33
+- [732](https://github.com/MiKTeX/miktex/issues/732): texify --clean has trouble with .aux files using luatex engine
+- [740](https://github.com/MiKTeX/miktex/issues/740): Asymptote fails to startup
 
 ## 21.2 - 2021-02-22
 
