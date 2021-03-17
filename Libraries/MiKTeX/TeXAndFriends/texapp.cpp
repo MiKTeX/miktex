@@ -397,7 +397,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   case ShellCommandMode::Query:
     // TODO
   case ShellCommandMode::Restricted:
-    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe || command.find_first_of('|') != string::npos)
     {
       LogError(fmt::format("command not allowed: {0}", command));
       return Write18Result::Disallowed;
