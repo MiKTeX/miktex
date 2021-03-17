@@ -1420,7 +1420,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_DVISVGM_EXE, { "dvisvgm" } },
   { MIKTEX_DVITYPE_EXE, { "dvitype" } },
   { MIKTEX_EPSFFIT_EXE, { "epsffit" } },
-  { MIKTEX_EPSTOPDF_EXE,{ "epstopdf" } },
+  { MIKTEX_EPSTOPDF_EXE,{ "epstopdf", "repstopdf", MIKTEX_PREFIX "epstopdf-unrestricted" } },
   { MIKTEX_EXTCONV_EXE, { "extconv" } },
   { MIKTEX_FRIBIDIXETEX_EXE, { "fribidixetex" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },

@@ -18,7 +18,7 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 1
+#define MIKTEX_COMP_MINOR_VERSION 2
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_COPYRIGHT_STR "© 1998-2001 by Sebastian Rahtz et al. © 2000-2021 Christian Schenk"

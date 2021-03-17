@@ -37,11 +37,14 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include "epstopdf-version.h"
+
 #include <miktex/App/Application>
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
 #include <miktex/Trace/Trace>
@@ -52,8 +55,6 @@
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
-
-#include "epstopdf-version.h"
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -142,6 +143,9 @@ private:
   void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const vector<string>& gsExtra, const PathName& outFile);
 
 private:
+  bool IsSafeGhostscriptOption(const string& o);
+
+private:
   unique_ptr<Process> gsProcess;
 
 private:
@@ -179,6 +183,107 @@ private:
 
 private:
   const regex fontmap_regex{ "/([A-Za-z0-9_\\-]+)\\s+([\\(/A-Za-z0-9_\\.\\)\\-]+)\\s*;" };
+
+private:
+  const regex gsopt_regex{ R"rgx(^-[dD]([A-Za-z0-9]+)(=(.*))?$)rgx" };
+
+private:
+  map<string, regex> safeGhostscriptOptions = {
+    {
+      { "AlignToPixels", regex(R"rgx(^0|1$)rgx") },
+      { "AntiAliasColorImages", regex(R"rgx(^true|false$)rgx") },
+      { "AntiAliasGrayImages", regex(R"rgx(^true|false$)rgx") },
+      { "AntiAliasMonoImages", regex(R"rgx(^true|false$)rgx") },
+      { "ASCII85EncodePages", regex(R"rgx(^true|false$)rgx") },
+      { "AutoFilterColorImages", regex(R"rgx(^true|false$)rgx") },
+      { "AutoFilterGrayImages", regex(R"rgx(^true|false$)rgx") },
+      { "AutoPositionEPSFiles", regex(R"rgx(^true|false$)rgx") },
+      { "AutoRotatePages", regex(R"rgx(^/(None|All|PageByPage)$)rgx") },
+      { "BATCH", regex(R"rgx(^true$)rgx") },
+      { "Binding", regex(R"rgx(^/(Left|Right)$)rgx") },
+      { "CannotEmbedFontPolicy", regex(R"rgx(^/(OK|Warning|Error)$)rgx") },
+      { "ColorConversionStrategy", regex(R"rgx(^/(LeaveColorUnchanged|UseDeviceIndependentColor|UseDeviceIndependendColorForImages|sRGB|CMYK)$)rgx") },
+      { "ColorImageDepth", regex(R"rgx(^-1|1|2|4|8$)rgx") },
+      { "ColorImageDownsampleThreshold", regex(R"rgx(^10(.0*)?|\d(.\d*)|\.\d+$)rgx") },
+      { "ColorImageDownsampleType", regex(R"rgx(^/(Average|Bicubic|Subsample|None)$)rgx") },
+      { "ColorImageFilter", regex(R"rgx(^/(DCTEncode|FlateEncode|JPXEncode)$)rgx") },
+      { "ColorImageResolution", regex(R"rgx(^\d+$)rgx") },
+      { "COLORSCREEN", regex(R"rgx(^true|0|false$)rgx") },
+      { "CompatibilityLevel", regex(R"rgx(^1\.[0-7]$)rgx") },
+      { "CompressFonts", regex(R"rgx(^true|false$)rgx") },
+      { "CompressPages", regex(R"rgx(^true|false$)rgx") },
+      { "ConvertCMYKImagesToRGB", regex(R"rgx(^true|false$)rgx") },
+      { "ConvertImagesToIndexed", regex(R"rgx(^true|false$)rgx") },
+      { "DefaultRenderingIntent", regex(R"rgx(^/(Default|Perceptual|Saturation|AbsoluteColorimetric|RelativeColorimetric)$)rgx") },
+      { "DetectBlends", regex(R"rgx(^true|false$)rgx") },
+      { "DetectDuplicateImages", regex(R"rgx(^true|false$)rgx") },
+      { "DITHERPPI", regex(R"rgx(^\d+$)rgx") },
+      { "DOINTERPOLATE", regex(R"rgx(^true$)rgx") },
+      { "DoThumbnails", regex(R"rgx(^true|false$)rgx") },
+      { "DownsampleColorImages", regex(R"rgx(^true|false$)rgx") },
+      { "DownsampleGrayImages", regex(R"rgx(^true|false$)rgx") },
+      { "DownsampleMonoImages", regex(R"rgx(^true|false$)rgx") },
+      { "EmbedAllFonts", regex(R"rgx(^true|false$)rgx") },
+      { "EmitDSCWarnings", regex(R"rgx(^true|false$)rgx") },
+      { "EncodeColorImages", regex(R"rgx(^true|false$)rgx") },
+      { "EncodeGrayImages", regex(R"rgx(^true|false$)rgx") },
+      { "EncodeMonoImages", regex(R"rgx(^true|false$)rgx") },
+      { "EndPage", regex(R"rgx(^-?\d+$)rgx") },
+      { "FIXEDRESOLUTION", regex(R"rgx(^true$)rgx") },
+      { "GraphicsAlphaBits", regex(R"rgx(^1|2|4$)rgx") },
+      { "GrayImageDepth", regex(R"rgx(^-1|1|2|4|8$)rgx") },
+      { "GrayImageDownsampleThreshold", regex(R"rgx(^\d+\.?\d*|\.\d+$)rgx") },
+      { "GrayImageDownsampleType", regex(R"rgx(^/(Average|Bicubic)$)rgx") },
+      { "GrayImageFilter", regex(R"rgx(^/(DCTEncode|FlateEncode|JPXEncode)$)rgx") },
+      { "GrayImageResolution", regex(R"rgx(^\d+$)rgx") },
+      { "GridFitTT", regex(R"rgx(^0|1|2|3$)rgx") },
+      { "HaveTransparency", regex(R"rgx(^true|false$)rgx") },
+      { "HaveTrueTypes", regex(R"rgx(^true|false$)rgx") },
+      { "ImageMemory", regex(R"rgx(^\d+$)rgx") },
+      { "LockDistillerParams", regex(R"rgx(^true|false$)rgx") },
+      { "LZWEncodePages", regex(R"rgx(^true|false$)rgx") },
+      { "MaxSubsetPct", regex(R"rgx(^100|[1-9][0-9]?$)rgx") },
+      { "MaxClipPathSize", regex(R"rgx(^\d+$)rgx") },
+      { "MaxInlineImageSize", regex(R"rgx(^\d+$)rgx") },
+      { "MaxShadingBitmapSize", regex(R"rgx(^\d+$)rgx") },
+      { "MonoImageDepth", regex(R"rgx(^-1|1|2|4|8$)rgx") },
+      { "MonoImageDownsampleThreshold ", regex(R"rgx(^\d+\.?\d*|\.\d+$)rgx") },
+      { "MonoImageDownsampleType", regex(R"rgx(^/(Average|Bicubic|Subsample|None)$)rgx") },
+      { "MonoImageFilter", regex(R"rgx(^/(CCITTFaxEncode|FlateEncode|RunLengthEncode)$)rgx") },
+      { "MonoImageResolution", regex(R"rgx(^\d+$)rgx") },
+      { "NOCIE", regex(R"rgx(^true$)rgx") },
+      { "NODISPLAY", regex(R"rgx(^true$)rgx") },
+      { "NOEPS", regex(R"rgx(^true$)rgx") },
+      { "NOINTERPOLATE", regex(R"rgx(^true$)rgx") },
+      { "NOPSICC", regex(R"rgx(^true$)rgx") },
+      { "NOSUBSTDEVICECOLORS", regex(R"rgx(^true|false$)rgx") },
+      { "NOTRANSPARENCY", regex(R"rgx(^true$)rgx") },
+      { "OPM", regex(R"rgx(^0|1$)rgx") },
+      { "Optimize", regex(R"rgx(^true|false$)rgx") },
+      { "ParseDSCComments", regex(R"rgx(^true|false$)rgx") },
+      { "ParseDSCCommentsForDocInfo", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveCopyPage", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveEPSInfo", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveHalftoneInfo", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveOPIComments", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveOverprintSettings", regex(R"rgx(^true|false$)rgx") },
+      { "StartPage", regex(R"rgx(^-?\d+$)rgx") },
+      { "PatternImagemask", regex(R"rgx(^true|false$)rgx") },
+      { "PDFSETTINGS", regex(R"rgx(^/(screen|ebook|printer|prepress|default)$)rgx") },
+      { "PDFX", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveDeviceN", regex(R"rgx(^true|false$)rgx") },
+      { "PreserveSeparation", regex(R"rgx(^true|false$)rgx") },
+      { "QUIET", regex(R"rgx(^true$)rgx") },
+      { "SHORTERRORS", regex(R"rgx(^true$)rgx") },
+      { "SubsetFonts", regex(R"rgx(^true|false$)rgx") },
+      { "TextAlphaBits", regex(R"rgx(^1|2|4$)rgx") },
+      { "TransferFunctionInfo", regex(R"rgx(^/(Preserve|Remove|Apply)$)rgx") },
+      { "UCRandBGInfo", regex(R"rgx(^/(Preserve|Remove)$)rgx") },
+      { "UseCIEColor", regex(R"rgx(^true|false$)rgx") },
+      { "UseFlateCompression", regex(R"rgx(^true|false$)rgx") },
+      { "UsePrologue", regex(R"rgx(^true|false$)rgx") },
+    }
+  };
 
 private:
   unique_ptr<TraceStream> traceStream;
@@ -786,6 +891,23 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
   }
 }
 
+bool EpsToPdfApp::IsSafeGhostscriptOption(const string& o)
+{
+  smatch m;
+  if (!regex_match(o, m, gsopt_regex))
+  {
+    return false;
+  }
+  string name = m[1];
+  string value = m[3];
+  const auto& it = safeGhostscriptOptions.find(name);
+  if (it == safeGhostscriptOptions.end())
+  {
+    return false;
+  }
+  return regex_match(value, it->second);
+}
+
 void EpsToPdfApp::Run(int argc, const char** argv)
 {
   Session::InitInfo initInfo(argv[0]);
@@ -798,8 +920,11 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   int option;
 
+  PathName invocationName = PathName(argv[0]).GetFileNameWithoutExtension();
+
   bool antiAliasing = false;
   bool doCompress = true;
+  bool restricted = (invocationName != PathName("epstopdf") && invocationName != PathName(MIKTEX_PREFIX "epstopdf-unrestricted"));
 
   vector<string> gsOptions;
 
@@ -901,6 +1026,17 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     FatalError(msg);
   }
 
+  if (restricted)
+  {
+    for (const auto& o : gsOptions)
+    {
+      if (!IsSafeGhostscriptOption(o))
+      {
+        FatalError(fmt::format(T_("Option not allowed in restricted mode: --gsopt {0}"), o));
+      }
+    }
+  }
+
   Init(initInfo);
   session = GetSession();
 
@@ -938,11 +1074,15 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     {
       FatalError(T_("Too many input files."));
     }
+    if (restricted && !Utils::IsSafeFileName(PathName(leftovers[0])))
+    {
+      FatalError(fmt::format(T_("Input file name not allowed in restricted mode: {0}"), leftovers[0]));
+    }
     if (!session->FindFile(leftovers[0], ".", inputFile))
     {
       FatalError(T_("The input file does not exist."));
     }
-    MyTrace(fmt::format(T_("Input filename: {0}"), inputFile.GetData()));
+    MyTrace(fmt::format(T_("Input file name: {0}"), inputFile.GetData()));
   }
 
   if (runAsFilter && verbose)
@@ -975,12 +1115,18 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     boundingBoxName = "%%ExactBoundingBox:";
   }
 
-  if (outFile.GetLength() > 0 && runAsFilter)
+  if (!outFile.Empty())
   {
-    FatalError(T_("Input file cannot be specified together with --filter option."));
+    if (runAsFilter)
+    {
+      FatalError(T_("Output file cannot be specified together with --filter option."));
+    }
+    if (restricted && !Utils::IsSafeFileName(outFile))
+    {
+      FatalError(fmt::format(T_("Output file name not allowed in restricted mode: {0}"), outFile));
+    }
   }
-
-  if (outFile.Empty())
+  else
   {
     outFile = inputFile;
     if (runGhostscript)
