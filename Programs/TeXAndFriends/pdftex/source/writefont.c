@@ -1,5 +1,5 @@
 /* writefont.c: font descriptors and writing Type 1 fonts.
-Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -552,7 +552,9 @@ static void write_fontdictionary(fo_entry * fo)
             fo->tounicode_objnum =
                 write_tounicode(fo->fe->glyph_names, fo->fm->tfm_name, fo->fe->name);
         } else if (is_type1(fo->fm)) {
-            assert(fo->fd->builtin_glyph_names != NULL);
+            if (fo->fd->builtin_glyph_names==NULL) {
+              pdftex_fail("builtin glyph names is empty");
+            }
             fo->tounicode_objnum =
                 write_tounicode(fo->fd->builtin_glyph_names, fo->fm->tfm_name, NULL);
         }

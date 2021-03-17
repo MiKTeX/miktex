@@ -633,8 +633,19 @@ do_args_second_pass (int argc, char *argv[], const char *source, int unsafe)
 
     case 'i':
     {
+/*
+ -i ./foo.cfg, -i /usr/abc/foo.cfg, etc. are not allowed for
+ security reason.
+*/
+      char *dir1, *dir2;
       int optind_save= optind;
-      read_config_file(optarg);
+      dir1 = strrchr(optarg, '/');
+      dir2 = strrchr(optarg, '\\');
+      if (dir1 || dir2) {
+        WARN("%s is not allowed. Default configuration file is used.", optarg);
+      } else {
+        read_config_file(optarg);
+      }
       optind = optind_save;
       break;
     }

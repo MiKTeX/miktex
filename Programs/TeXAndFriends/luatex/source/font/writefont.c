@@ -634,6 +634,9 @@ static void write_fontdictionary(PDF pdf, fo_entry * fo)
         if (fo->fe != NULL) {
             fo->tounicode_objnum = write_tounicode(pdf, fo->fe->glyph_names, fo->fe->name);
         } else if (is_type1(fo->fm)) {
+            if (fo->fd->builtin_glyph_names==NULL) {
+              normal_error("font", "builtin glyph names is empty");
+            }
             fo->tounicode_objnum = write_tounicode(pdf, fo->fd->builtin_glyph_names, fo->fm->tfm_name);
         }
     }
