@@ -1084,6 +1084,6 @@ tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCom
     {
       return make_tuple(ExamineCommandLineResult::SyntaxError, "", "");
     }
-    return make_tuple(examineResult, argv[0], safeCommandLine);
   }
+  return make_tuple(examineResult, argv[0], safeCommandLine);
 }
