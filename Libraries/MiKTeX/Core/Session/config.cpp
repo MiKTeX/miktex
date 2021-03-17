@@ -943,6 +943,123 @@ vector<string> SessionImpl::GetAllowedShellCommands()
   return GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS).GetStringArray();
 }
 
+// ToSafeCommandLine converts a command-line into a "safe" command line.
+// Derived from TL shell_cmd_is_allowed():
+// https://github.com/TeX-Live/texlive-source/blob/96aef212879b9af02dc9d256507e9ab71c601bfc/texk/web2c/lib/texmfmp.c#L355
+string ToSafeCommandLine(const string& unsafeCommandLine)
+{
+#if defined(MIKTEX_WINDOWS)
+  const char quoteChar = '"';
+#else
+  const char quoteChar = '\'';
+#endif
+
+  /* make a safe command line *safecmd */
+  const char* s = unsafeCommandLine.c_str();
+  while (IsWhitespaceAscii(*s))
+  {
+    s++;
+  }
+  string safeCommandLine;
+  while (!IsWhitespaceAscii(*s) && *s != '\0')
+  {
+    safeCommandLine += *s++;
+  }
+
+  bool previousIsWhitespace = true;
+  while (*s != '\0')
+  {
+    /* Quotation given by a user.  " should always be used; we
+       transform it below.  If ' is used, simply immediately
+       return a quotation error.  */
+    if (*s == '\'')
+    {
+      return "";
+    }
+
+    if (*s == '"')
+    {
+      /* All arguments are quoted as 'foo' (Unix) or "foo" (Windows)
+         before calling system(). Therefore closing QUOTE is necessary
+         if the previous character is not a white space.
+         example:
+         --format="other text files" becomes
+         '--format=''other text files' (Unix)
+         "--format"="other text files" (Windows) */
+
+      if (!previousIsWhitespace)
+      {
+#if defined(MIKTEX_WINDOWS)
+        if (s[-1] == '=')
+        {
+          safeCommandLine[safeCommandLine.length() - 1] = quoteChar;
+          safeCommandLine += '=';
+        }
+        else
+        {
+          safeCommandLine += quoteChar;
+        }
+#else
+        safeCommandLine += quoteChar;
+#endif
+      }
+      previousIsWhitespace = false;
+      /* output the quotation mark for the quoted argument */
+      safeCommandLine += quoteChar;
+      s++;
+
+      while (*s != '"')
+      {
+        /* Illegal use of ', or closing quotation mark is missing */
+        if (*s == '\'' || *s == '\0')
+        {
+          return "";
+        }
+        safeCommandLine += *s++;
+      }
+
+      /* Closing quotation mark will be output afterwards, so
+         we do nothing here */
+      s++;
+
+      /* The character after the closing quotation mark
+         should be a white space or NULL */
+      if (!IsWhitespaceAscii(*s) && *s != '\0')
+      {
+        return "";
+      }
+
+      /* Beginning of a usual argument */
+    }
+    else if (previousIsWhitespace && !IsWhitespaceAscii(*s))
+    {
+      previousIsWhitespace = false;
+      safeCommandLine += quoteChar;
+      safeCommandLine += *s++;
+      /* Ending of a usual argument */
+
+    }
+    else if (!previousIsWhitespace && IsWhitespaceAscii(*s))
+    {
+      previousIsWhitespace = true;
+      /* Closing quotation mark */
+      safeCommandLine += quoteChar;
+      safeCommandLine += *s++;
+    }
+    else
+    {
+      /* Copy a character from cmd to *safecmd. */
+      safeCommandLine += *s++;
+    }
+  }
+  /* End of the command line */
+  if (!previousIsWhitespace)
+  {
+    safeCommandLine += quoteChar;
+  }
+  return safeCommandLine;
+}
+
 tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCommandLine(const string& commandLine)
 {
   Argv argv(commandLine);
@@ -962,17 +1079,11 @@ tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCom
   string safeCommandLine;
   if (examineResult == ExamineCommandLineResult::ProbablySafe)
   {
-#if defined(MIKTEX_WINDOWS)
-    const char quoteChar = '"';
-#else
-    const char quoteChar = '\'';
-#endif
-    MIKTEX_ASSERT(string(argv[0]).find_first_of("\"' \t") == string::npos);
-    safeCommandLine = argv[0];
-    for (int idx = 1; idx < argv.GetArgc(); ++idx)
+    safeCommandLine = ToSafeCommandLine(commandLine);
+    if (safeCommandLine.empty())
     {
-      safeCommandLine += fmt::format(" {0}{1}{0}", quoteChar, argv[idx]);
+      return make_tuple(ExamineCommandLineResult::SyntaxError, "", "");
     }
+    return make_tuple(examineResult, argv[0], safeCommandLine);
   }
-  return make_tuple(examineResult, argv[0], safeCommandLine);
 }
