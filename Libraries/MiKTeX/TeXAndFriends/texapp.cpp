@@ -415,9 +415,6 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   {
     LogWarn(fmt::format("executing unrestricted write18 shell command: {0}", toBeExecuted));
   }
-#if defined(MIKTEX_WINDOWS)
-  std::replace(toBeExecuted.begin(), toBeExecuted.end(), '\'', '"');
-#endif
   Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
   LogInfo(fmt::format("write18 exit code: {0}", exitCode));
   return examineResult == Session::ExamineCommandLineResult::ProbablySafe ? Write18Result::ExecutedAllowed : Write18Result::Executed;
