@@ -23,6 +23,7 @@
 
 #include <miktex/Core/Test>
 
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/File>
 #include <miktex/Util/PathName>
 #include <miktex/Core/Paths>
@@ -102,12 +103,36 @@ BEGIN_TEST_FUNCTION(4);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(5);
+{
+  {
+    Argv argv("program.exe \"hello there.txt\"");
+    auto argvec = argv.ToStringVector();
+    TEST(argvec[0] == "program.exe");
+    TEST(argvec[1] == "hello there.txt");
+  }
+  {
+    Argv argv("program.exe \"hello\\\"there\"");
+    auto argvec = argv.ToStringVector();
+    TEST(argvec[0] == "program.exe");
+    TEST(argvec[1] == "hello\"there");
+  }
+  {
+    Argv argv("program.exe \"hello\\\\\"");
+    auto argvec = argv.ToStringVector();
+    TEST(argvec[0] == "program.exe");
+    TEST(argvec[1] == "hello\\");
+  }
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
   CALL_TEST_FUNCTION(3);
   CALL_TEST_FUNCTION(4);
+  CALL_TEST_FUNCTION(5);
 }
 END_TEST_PROGRAM();
 
