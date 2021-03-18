@@ -106,22 +106,30 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(5);
 {
   {
-    Argv argv("program.exe \"hello there.txt\"");
+    Argv argv(R"q(program.exe "hello there.txt")q");
     auto argvec = argv.ToStringVector();
     TEST(argvec[0] == "program.exe");
     TEST(argvec[1] == "hello there.txt");
   }
+#if defined(MIKTEX_WINDOWS)
   {
-    Argv argv("program.exe \"hello\\\"there\"");
+    Argv argv(R"q(program.exe "C:\hello there.txt")q");
     auto argvec = argv.ToStringVector();
     TEST(argvec[0] == "program.exe");
-    TEST(argvec[1] == "hello\"there");
+    TEST(argvec[1] == R"q(C:\hello there.txt)q");
+  }
+#endif
+  {
+    Argv argv(R"q(program.exe "hello\"there")q");
+    auto argvec = argv.ToStringVector();
+    TEST(argvec[0] == "program.exe");
+    TEST(argvec[1] == R"q(hello"there)q");
   }
   {
-    Argv argv("program.exe \"hello\\\\\"");
+    Argv argv(R"q(program.exe "hello\\")q");
     auto argvec = argv.ToStringVector();
     TEST(argvec[0] == "program.exe");
-    TEST(argvec[1] == "hello\\");
+    TEST(argvec[1] == R"q(hello\)q");
   }
 }
 END_TEST_FUNCTION();
