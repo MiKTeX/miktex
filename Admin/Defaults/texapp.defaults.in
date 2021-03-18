@@ -6,7 +6,7 @@ max_in_open = 50
 nest_size = 500
 
 ;; Space for saving values outside current group.
-save_size = 200000
+save_size = 80000
 
 ;; Space for hyphenation patterns.
 trie_size = 1000000
