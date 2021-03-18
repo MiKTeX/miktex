@@ -1112,6 +1112,7 @@ main (int argc, char *argv[])
     dpx_conf.compat_mode = dpx_mode_compat_mode;
     return extractbb (argc, argv);
   } else if (FILESTRCASEEQ (base, "dvipdfm")) {
+    my_name = "dvipdfm";
     dpx_conf.compat_mode = dpx_mode_compat_mode;
   } else if (FILESTRCASEEQ (base, "dvipdfmx")) {
     my_name = "dvipdfmx";
