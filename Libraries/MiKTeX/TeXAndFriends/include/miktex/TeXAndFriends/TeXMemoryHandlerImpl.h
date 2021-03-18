@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMemoryHandlerImpl.h:         -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -57,6 +57,8 @@ public:
     this->program.nestsize = this->GetCheckedParameter("nest_size", this->program.infnestsize, this->program.supnestsize, userParams, texapp::texapp::nest_size());
     this->program.savesize = this->GetCheckedParameter("save_size", this->program.infsavesize, this->program.supsavesize, userParams, texapp::texapp::save_size());
     this->program.triesize = this->GetCheckedParameter("trie_size", this->program.inftriesize, this->program.suptriesize, userParams, texapp::texapp::trie_size());
+
+    this->program.expanddepth = this->GetCheckedParameter("expand_depth", this->program.infexpanddepth, this->program.supexpanddepth, userParams, texapp::texapp::expand_depth());
 
     this->program.hashextra = this->GetParameter("hash_extra", userParams, texapp::texapp::hash_extra());
 

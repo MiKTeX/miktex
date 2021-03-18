@@ -5017,7 +5017,10 @@ var a,@!b:boolean; {saved values of |arith_error|}
 @!p:pointer; {top of expression stack}
 @!q:pointer; {for stack manipulations}
 begin l:=cur_val_level; a:=arith_error; b:=false; p:=null;
+incr(expand_depth_count);
+if expand_depth_count>=expand_depth then overflow("expansion depth",expand_depth);
 @<Scan and evaluate an expression |e| of type |l|@>;
+decr(expand_depth_count);
 if b then
   begin print_err("Arithmetic overflow");
 @.Arithmetic overflow@>

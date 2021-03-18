@@ -251,6 +251,14 @@ versions of the program.
 @!file_name_size=9999999; {file names shouldn't be longer than this}
 @z
 
+@x
+@!pool_name='TeXformats:TEX.POOL                     ';
+  {string of length |file_name_size|; tells where the string pool appears}
+@y
+@!inf_expand_depth = 10;
+@!sup_expand_depth = 10000000;
+@z
+
 % _____________________________________________________________________________
 %
 % [1.12]
@@ -1086,6 +1094,23 @@ full_source_filename_stack[1]:=0;
 @y
 @!j:0..sup_buf_size; {index into |buffer|}
 @z
+
+@x
+begin cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+@y
+begin
+incr(expand_depth_count);
+if expand_depth_count>=expand_depth then overflow("expansion depth",expand_depth);
+cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+@z
+
+@x
+cur_order:=co_backup; link(backup_head):=backup_backup;
+@y
+cur_order:=co_backup; link(backup_head):=backup_backup;
+decr(expand_depth_count);
+@z
+
 
 % _____________________________________________________________________________
 %
@@ -2677,12 +2702,15 @@ function miktex_make_full_name_string : str_number; forward;@t\2@>@/
 @!string_vacancies:integer; {the minimum number of characters that should be
   available for the user's control sequences and font names,
   after \TeX's own error messages are stored}
+@!expand_depth:integer; {limits recursive calls to the |expand| procedure}
+expand_depth_count:integer;
 
 @ Initialize \MiKTeX\ variables.
 
 @<Set init...@>=
 edit_name_start:=0;
 stop_at_space:=true;
+expand_depth_count:=0;
 
 @ Dumping the |xord|, |xchr|, and |xprn| arrays.  We dump these always
 in the format, so a TCX file loaded during format creation can set a

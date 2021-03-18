@@ -27,3 +27,8 @@ hyph_size = 8191
 
 ;; Size of the output buffer; must be a multiple of 8.
 dvi_buf_size = 8192
+
+;; Limit on recursive expansion calls so TeX has a chance to quit nicely
+;; before stack space runs out. The default is 10000. Normally there is no
+;; reason to change it. The web2c manual has a bit more about this.
+expand_depth = 10000
