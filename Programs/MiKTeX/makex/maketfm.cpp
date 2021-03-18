@@ -146,7 +146,7 @@ bool MakeTfm::MakeFromHBF(const char* name, const PathName& workingDirectory)
   arguments.push_back("-g");
   arguments.push_back(name);
   arguments.push_back(std::to_string(300));
-  if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments, workingDirectory))
+  if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments))
   {
     return false;
   }
@@ -155,7 +155,7 @@ bool MakeTfm::MakeFromHBF(const char* name, const PathName& workingDirectory)
   arguments.clear();
   arguments.push_back(PathName(name).AppendExtension(".pl").ToString());
   arguments.push_back(PathName(name).AppendExtension(".tfm").ToString());
-  if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments, workingDirectory))
+  if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments))
   {
     FatalError(fmt::format(T_("PLtoTF failed on {0}."), Q_(name)));
   }
@@ -213,7 +213,7 @@ void MakeTfm::Run(int argc, const char** argv)
       arguments.push_back("--print-only");
     }
     arguments.push_back(name);
-    if (!RunProcess(MIKTEX_MAKEMF_EXE, arguments, wrkDir->GetPathName()))
+    if (!RunProcess(MIKTEX_MAKEMF_EXE, arguments))
     {
       // no METAFONT input file; try to make from HBF file
       if (!MakeFromHBF(name.c_str(), wrkDir->GetPathName()))

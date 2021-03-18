@@ -162,7 +162,7 @@ void MakeBase::Run(int argc, const char** argv)
   {
     arguments.push_back(name);
   }
-  if (!RunProcess(MIKTEX_MF_EXE, arguments, wrkDir->GetPathName()))
+  if (!RunProcess(MIKTEX_MF_EXE, arguments))
   {
     FatalError(fmt::format(T_("METAFONT failed on {0}."), Q_(name)));
   }

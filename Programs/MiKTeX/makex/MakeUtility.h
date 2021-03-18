@@ -188,7 +188,7 @@ protected:
   }
   
 protected:
-  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments, const MiKTeX::Util::PathName& workingDirectory)
+  bool RunProcess(const char* exeName, const std::vector<std::string>& arguments)
   {
     // find the executable; make sure it contains no blanks
     MiKTeX::Util::PathName exe;
@@ -240,7 +240,7 @@ protected:
         {
           callback = &toStderr;
         }
-      if (!MiKTeX::Core::Process::Run(exe, allArgs, callback, &exitCode, workingDirectory.GetData()))
+      if (!MiKTeX::Core::Process::Run(exe, allArgs, callback, &exitCode, nullptr))
       {
         FatalError(fmt::format(T_("The application file {0} could not be started."), Q_(exeName)));
       }
@@ -264,7 +264,7 @@ protected:
       arguments.push_back("nonstopmode;");
     }
     arguments.push_back(fmt::format("input {}", name));
-    if (RunProcess(MIKTEX_MF_EXE, arguments, workingDirectory))
+    if (RunProcess(MIKTEX_MF_EXE, arguments))
     {
       return true;
     }

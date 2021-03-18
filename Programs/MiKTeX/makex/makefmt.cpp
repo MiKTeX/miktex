@@ -466,7 +466,7 @@ void MakeFmt::Run(int argc, const char** argv)
   }
 
   // run the engine
-  bool done = RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName());
+  bool done = RunProcess(GetEngineExeName(), arguments);
 
   // install log file
   if (File::Exists(wrkDir->GetPathName() / logFile))
