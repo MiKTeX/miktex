@@ -6,27 +6,27 @@ max_in_open = 50
 nest_size = 500
 
 ;; Space for saving values outside current group.
-save_size = 50000
+save_size = 200000
 
 ;; Space for hyphenation patterns.
-trie_size = 700000
+trie_size = 1000000
 
 ;; Total number of fonts.
 font_max = 9000
 
 ;; Words of font info for TeX (total size of all TFM files,
 ;; approximately).
-font_mem_size = 3000000
+font_mem_size = 8000000
 
 ;; Extra space for the hash table of control sequences (which allows
 ;; 10K names as distributed).
-hash_extra = 200000
+hash_extra = 600000
 
 ;; Prime number of hyphenation exceptions.
 hyph_size = 8191
 
 ;; Size of the output buffer; must be a multiple of 8.
-dvi_buf_size = 8192
+dvi_buf_size = 16384
 
 ;; Limit on recursive expansion calls so TeX has a chance to quit nicely
 ;; before stack space runs out. The default is 10000. Normally there is no
