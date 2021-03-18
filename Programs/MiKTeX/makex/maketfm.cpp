@@ -174,8 +174,9 @@ void MakeTfm::Run(int argc, const char** argv)
   }
   name = argv[optionIndex];
 
-  // create a temporary working directory
+  // change to a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
+  wrkDir->SetCurrent();
 
   // create destination directory
   CreateDestinationDirectory();

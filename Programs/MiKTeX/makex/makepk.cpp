@@ -463,8 +463,9 @@ void MakePk::Run(int argc, const char** argv)
   // validate command-line arguments
   CheckOptions(&bdpi, dpi, mfMode);
 
-  // create a temporary working directory
+  // change to a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
+  wrkDir->SetCurrent();
 
   string gfName = fmt::format("{}.{}gf", name, dpi);
 
