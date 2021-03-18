@@ -129,7 +129,11 @@ BEGIN_TEST_FUNCTION(5);
     Argv argv(R"q(program.exe "hello\\")q");
     auto argvec = argv.ToStringVector();
     TEST(argvec[0] == "program.exe");
+#if defined(MIKTEX_WINDOWS)
     TEST(argvec[1] == R"q(hello\)q");
+#else
+    TEST(argvec[1] == R"q(hello\\)q");
+#endif
   }
 }
 END_TEST_FUNCTION();
