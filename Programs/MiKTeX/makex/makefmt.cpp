@@ -426,9 +426,8 @@ void MakeFmt::Run(int argc, const char** argv)
 
   Verbose(fmt::format(T_("Creating the {0} format file..."), Q_(destinationName)));
 
-  // change to a temporary working directory
+  // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
-  wrkDir->SetCurrent();
 
   // make command line
   vector<string> arguments;
@@ -466,7 +465,7 @@ void MakeFmt::Run(int argc, const char** argv)
   }
 
   // run the engine
-  bool done = RunProcess(GetEngineExeName(), arguments);
+  bool done = RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName());
 
   // install log file
   if (File::Exists(wrkDir->GetPathName() / logFile))

@@ -144,9 +144,8 @@ void MakeBase::Run(int argc, const char** argv)
 
   Verbose(fmt::format(T_("Creating the {0} base file..."), Q_(destinationName)));
 
-  // change to a temporary working directory
+  // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
-  wrkDir->SetCurrent();
 
   // invoke METAFONT to make the base file
   vector<string> arguments;
@@ -162,7 +161,7 @@ void MakeBase::Run(int argc, const char** argv)
   {
     arguments.push_back(name);
   }
-  if (!RunProcess(MIKTEX_MF_EXE, arguments))
+  if (!RunProcess(MIKTEX_MF_EXE, arguments, wrkDir->GetPathName()))
   {
     FatalError(fmt::format(T_("METAFONT failed on {0}."), Q_(name)));
   }

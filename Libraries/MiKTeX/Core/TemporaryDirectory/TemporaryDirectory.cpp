@@ -88,11 +88,6 @@ public:
   {
     try
     {
-      if (!cameFrom.Empty())
-      {
-        Directory::SetCurrent(cameFrom);
-        cameFrom = "";
-      }
       if (!path.Empty())
       {
         Delete();
@@ -106,10 +101,6 @@ public:
 public:
   void MIKTEXTHISCALL Delete() override
   {
-    if (!cameFrom.Empty())
-    {
-      MIKTEX_UNEXPECTED();
-    }
     Directory::Delete(path, true);
     path = "";
   }
@@ -126,17 +117,6 @@ public:
     path = "";
   }
 
-public:
-  void MIKTEXTHISCALL SetCurrent() override
-  {
-    if (!cameFrom.Empty())
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    cameFrom.SetToCurrentDirectory();
-    Directory::SetCurrent(path);
-  }
-
 private:
   static bool NameExists(const PathName& name)
   {
@@ -148,9 +128,6 @@ private:
     return stat(name.GetData(), &statbuf) == 0;
 #endif
   }
-
-private:
-  PathName cameFrom;
 
 private:
   PathName path;

@@ -146,7 +146,7 @@ bool MakeTfm::MakeFromHBF(const char* name, const PathName& workingDirectory)
   arguments.push_back("-g");
   arguments.push_back(name);
   arguments.push_back(std::to_string(300));
-  if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments))
+  if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments, workingDirectory))
   {
     return false;
   }
@@ -155,7 +155,7 @@ bool MakeTfm::MakeFromHBF(const char* name, const PathName& workingDirectory)
   arguments.clear();
   arguments.push_back(PathName(name).AppendExtension(".pl").ToString());
   arguments.push_back(PathName(name).AppendExtension(".tfm").ToString());
-  if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments))
+  if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments, workingDirectory))
   {
     FatalError(fmt::format(T_("PLtoTF failed on {0}."), Q_(name)));
   }
@@ -174,9 +174,8 @@ void MakeTfm::Run(int argc, const char** argv)
   }
   name = argv[optionIndex];
 
-  // change to a temporary working directory
+  // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
-  wrkDir->SetCurrent();
 
   // create destination directory
   CreateDestinationDirectory();
@@ -213,7 +212,7 @@ void MakeTfm::Run(int argc, const char** argv)
       arguments.push_back("--print-only");
     }
     arguments.push_back(name);
-    if (!RunProcess(MIKTEX_MAKEMF_EXE, arguments))
+    if (!RunProcess(MIKTEX_MAKEMF_EXE, arguments, wrkDir->GetPathName()))
     {
       // no METAFONT input file; try to make from HBF file
       if (!MakeFromHBF(name.c_str(), wrkDir->GetPathName()))

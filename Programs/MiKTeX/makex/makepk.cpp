@@ -305,7 +305,7 @@ void MakePk::RunGSF2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi
   arguments.push_back(mapEntry.fontFile);
   arguments.push_back(std::to_string(dpi));
   arguments.push_back(pkName);
-  if (!RunProcess(MIKTEX_GSF2PK_EXE, arguments))
+  if (!RunProcess(MIKTEX_GSF2PK_EXE, arguments, workingDirectory))
   {
     FatalError(fmt::format(T_("GSF2PK failed on {0}."), Q_(mapEntry.fontFile)));
   }
@@ -335,7 +335,7 @@ void MakePk::RunPS2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi,
 
   arguments.push_back(pkName);
 
-  if (!RunProcess(MIKTEX_PS2PK_EXE, arguments))
+  if (!RunProcess(MIKTEX_PS2PK_EXE, arguments, workingDirectory))
   {
     FatalError(fmt::format(T_("PS2PK failed on {0}."), Q_(mapEntry.fontFile)));
   }
@@ -463,9 +463,8 @@ void MakePk::Run(int argc, const char** argv)
   // validate command-line arguments
   CheckOptions(&bdpi, dpi, mfMode);
 
-  // change to a temporary working directory
+  // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
-  wrkDir->SetCurrent();
 
   string gfName = fmt::format("{}.{}gf", name, dpi);
 
@@ -501,7 +500,7 @@ void MakePk::Run(int argc, const char** argv)
       arguments.push_back("--print-only");
     }
     arguments.push_back(name);
-    if (RunProcess(MIKTEX_MAKEMF_EXE, arguments))
+    if (RunProcess(MIKTEX_MAKEMF_EXE, arguments, wrkDir->GetPathName()))
     {
       haveSource = true;
     }
@@ -510,7 +509,7 @@ void MakePk::Run(int argc, const char** argv)
   // try to convert a TTF file
   if (!haveSource)
   {
-    if (RunProcess(MIKTEX_TTF2PK_EXE, { "-q", "-t", name }))
+    if (RunProcess(MIKTEX_TTF2PK_EXE, { "-q", "-t", name }, wrkDir->GetPathName()))
     {
       vector<string> arguments;
       if (!debug)
@@ -520,7 +519,7 @@ void MakePk::Run(int argc, const char** argv)
       arguments.push_back("-n"); // only use '.pk' as extension
       arguments.push_back(name);
       arguments.push_back(std::to_string(dpi));
-      if (RunProcess(MIKTEX_TTF2PK_EXE, arguments))
+      if (RunProcess(MIKTEX_TTF2PK_EXE, arguments, wrkDir->GetPathName()))
       {
         isTTF = true;
         modeless = true;
@@ -540,7 +539,7 @@ void MakePk::Run(int argc, const char** argv)
     arguments.push_back("-p");
     arguments.push_back(name);
     arguments.push_back(std::to_string(dpi));
-    if (RunProcess(MIKTEX_HBF2GF_EXE, arguments))
+    if (RunProcess(MIKTEX_HBF2GF_EXE, arguments, wrkDir->GetPathName()))
     {
       isHBF = true;
       modeless = true;
@@ -592,7 +591,7 @@ void MakePk::Run(int argc, const char** argv)
     else if (isHBF)
     {
       // convert GF file into PK file
-      if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }))
+      if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }, wrkDir->GetPathName()))
       {
         FatalError(fmt::format(T_("GFtoPK failed on {0}."), Q_(gfName)));
       }
@@ -622,7 +621,7 @@ void MakePk::Run(int argc, const char** argv)
     {
       FatalError(fmt::format(T_("METAFONT failed on {0}."), Q_(name)));
     }
-    if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }))
+    if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }, wrkDir->GetPathName()))
     {
       FatalError(fmt::format(T_("GFtoPK failed on {0}."), Q_(gfName)));
     }

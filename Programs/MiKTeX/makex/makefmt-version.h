@@ -1,6 +1,6 @@
 /* makefmt-version.h: version number                    -*- C++ -*-
 
-   Copyright (C) 1998-2021 Christian Schenk
+   Copyright (C) 1998-2020 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -20,7 +20,7 @@
    USA. */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 2
+#define MIKTEX_COMP_MINOR_VERSION 1
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_COPYRIGHT_STR "© 1998-2020 Christian Schenk"
