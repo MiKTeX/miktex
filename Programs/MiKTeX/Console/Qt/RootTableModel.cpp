@@ -1,6 +1,6 @@
 /* RootTableModel.cpp:
 
-   Copyright (C) 2018-2020 Christian Schenk
+   Copyright (C) 2018-2021 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -170,10 +170,19 @@ void RootTableModel::MoveDown(const QModelIndex& index)
 bool RootTableModel::CanRemove(const QModelIndex& index)
 {
   const RootDirectoryInfo& root = roots[index.row()];
-  bool canRemove = !root.IsManaged();
-  canRemove = canRemove && (!session->IsAdminMode() || root.IsCommon());
-  canRemove = canRemove && (session->IsAdminMode() || !root.IsCommon());
-  return canRemove;
+  if (root.IsManaged())
+  {
+    return false;
+  }
+  if (!session->IsAdminMode() && !session->IsMiKTeXPortable() && root.IsCommon())
+  {
+    return false;
+  }
+  if (session->IsAdminMode() && !root.IsCommon())
+  {
+    return false;
+  }
+  return true;
 }
 
 void RootTableModel::Remove(const QModelIndex& index)

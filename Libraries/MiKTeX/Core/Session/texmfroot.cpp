@@ -485,7 +485,7 @@ void SessionImpl::UnregisterRootDirectory(const PathName& path, bool other)
     const RootDirectoryInternals& root = rootDirectories[r];
     bool skipit = (other && !root.IsOther()) || (!other && root.IsOther());
     skipit = skipit || (IsAdminMode() && !root.IsCommon());
-    skipit = skipit || (!IsAdminMode() && root.IsCommon());
+    skipit = skipit || (!IsAdminMode() && !IsMiKTeXPortable() && root.IsCommon());
     skipit = skipit || root.IsManaged();
     if (!skipit)
     {
