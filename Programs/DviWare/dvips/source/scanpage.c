@@ -227,6 +227,11 @@ dochar:
                   curfnt = NULL;
                else if (!preselectfont(ffont0->desc))
                   goto outofmem;
+               --frp;
+               curfnt = frp->curf;
+               ffont = frp->ff;
+               curlim = frp->curl;
+               curpos = frp->curp;
             } else {
                curpos = cd->packptr + 2;
                curlim = curpos + (256*(long)(*cd->packptr)+(*(cd->packptr+1)));

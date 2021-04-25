@@ -71,12 +71,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 2.00" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 2.01" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "2.00"
+#define metapost_version "2.01"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -4383,6 +4383,9 @@ Note that the values are |scaled| integers. Hence \MP\ can no longer
 be used after the year 32767.
 
 @c
+#if defined(_MSC_VER)
+#define strtoull _strtoui64
+#endif
 static void mp_fix_date_and_time (MP mp) {
   char *source_date_epoch;
   time_t epoch;

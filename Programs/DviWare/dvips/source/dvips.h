@@ -1,5 +1,5 @@
 /*   $Id$
- *   Copyright 1986-2020 Tomas Rokicki.
+ *   Copyright 1986-2021 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -14,8 +14,14 @@
 #define VF_MEM_UNIT 0x10000
 #define CD_IDX(i)  ((i>=MAX_2BYTES_CODE ? MAX_2BYTES_CODE : i))
 
+#if defined(MIKTEX)
+#include "dvips-version.h"
 #define BANNER \
-"This is dvips(k) 2020.1 Copyright 2020 Radical Eye Software"
+"This is dvips(k) " MIKTEX_COMP_ORIG_VERSION_STR " (" MIKTEX_PRODUCTNAME_STR MIKTEX_VERSION_STR ")  Copyright 2021 Radical Eye Software"
+#else
+#define BANNER \
+"This is dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2021 Radical Eye Software"
+#endif
 #define BANNER2 "(www.radicaleye.com)"
 #if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)

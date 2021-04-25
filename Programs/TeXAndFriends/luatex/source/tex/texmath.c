@@ -2554,8 +2554,12 @@ void after_math(void)
     }
     if (mode == -m) {
         /*tex end of equation number */
+      RECHECK:
         if (cur_cmd == math_shift_cmd) {
             check_second_math_shift();
+        } else if (suppress_mathpar_error_par && cur_cmd == par_end_cmd) {
+            get_x_token();
+            goto RECHECK;
         } else {
             check_display_math_end();
         }
@@ -2690,8 +2694,12 @@ void after_math(void)
 void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
 {
     do_assignments();
+  RECHECK:
     if (cur_cmd == math_shift_cmd) {
         check_second_math_shift();
+    } else if (suppress_mathpar_error_par && cur_cmd == par_end_cmd) {
+        get_x_token();
+        goto RECHECK;
     } else {
         check_display_math_end();
     }

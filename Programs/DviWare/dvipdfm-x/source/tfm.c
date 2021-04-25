@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -870,8 +870,8 @@ tfm_open (const char *tfm_name, int must_exist)
    char *ofm_name, *suffix;
 
    suffix = strrchr(tfm_name, '.');
-   if (!suffix || (strcmp(suffix, ".tfm") != 0 &&
-		   strcmp(suffix, ".ofm") != 0)) {
+   if (!suffix || (strcasecmp(suffix, ".tfm") != 0 &&
+                   strcasecmp(suffix, ".ofm") != 0)) {
      ofm_name = NEW(strlen(tfm_name) + strlen(".ofm") + 1, char);
      strcpy(ofm_name, tfm_name);
      strcat(ofm_name, ".ofm");
@@ -882,11 +882,15 @@ tfm_open (const char *tfm_name, int must_exist)
        (file_name = kpse_find_file(ofm_name, kpse_ofm_format, 0)) != NULL) {
      format = OFM_FORMAT;
    } else if ((file_name =
-	       kpse_find_file(tfm_name, kpse_tfm_format, 0)) != NULL) {
+               kpse_find_file(tfm_name, kpse_tfm_format, 0)) != NULL) {
      format = TFM_FORMAT;
    } else if ((file_name =
-	       kpse_find_file(tfm_name, kpse_ofm_format, 0)) != NULL) {
-     format = OFM_FORMAT;
+               kpse_find_file(tfm_name, kpse_ofm_format, 0)) != NULL) {
+     suffix = strrchr(file_name, '.');
+     if (suffix && strcasecmp(suffix, ".ofm") == 0)
+       format = OFM_FORMAT;
+     else
+       format = TFM_FORMAT;
    }
    if (ofm_name)
      RELEASE(ofm_name);

@@ -147,6 +147,11 @@ dochar:
                   curfnt = NULL;
                else
                   ppreselectfont(ffont0->desc);
+               --frp;
+               curfnt = frp->curf;
+               ffont = frp->ff;
+               curlim = frp->curl;
+               curpos = frp->curp;
             } else {
                curpos = cd->packptr + 2;
                curlim = curpos + (256*(long)(*cd->packptr)+(*(cd->packptr+1)));

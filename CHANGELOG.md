@@ -2,6 +2,11 @@
 
 ## 21.5 - pending release
 
+### Upgraded programs
+
+* luatex 1.14.0
+* metapost 2.01
+
 ### Fixed issues
 
 - [780](https://github.com/MiKTeX/miktex/issues/780): [MikTeX Portable] Can't remove local texmf directory

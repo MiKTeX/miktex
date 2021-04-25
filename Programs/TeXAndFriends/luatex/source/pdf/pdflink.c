@@ -106,7 +106,16 @@ void end_link(PDF pdf, halfword p)
                     pdf_ann_right(q) = pos.h + pdf_link_margin;
                     break;
                 case dir_TRT:
-                    pdf_ann_left(q) = pos.h - pdf_link_margin;
+                    /*tex 
+                       In version 1.13.0 the test for swapping was moved
+                       to the moment we write the rectangle, but it did not
+                       consider this case.
+                    */ 
+                    if (pdf_ann_left(q)<pdf_ann_right(q)) {
+                      pdf_ann_left(q) = pos.h - pdf_link_margin;
+                    } else {
+                      pdf_ann_right(q) = pos.h - pdf_link_margin;
+                    } 
                     break;
                 case dir_LTL:
                 case dir_RTT:
