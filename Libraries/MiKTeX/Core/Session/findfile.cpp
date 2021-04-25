@@ -375,6 +375,11 @@ bool SessionImpl::FindFile(const string& fileName, const string& pathList, FindF
   {
     found = FindFileInternal(fileName, SplitSearchPath(pathList), options[FindFileOption::All], false, true, result);
   }
+  if (found)
+  {
+    sort(result.begin(), result.end());
+    result.erase(unique(result.begin(), result.end()), result.end());
+  }
   return found;
 }
 
@@ -392,7 +397,13 @@ bool SessionImpl::FindFile(const string& fileName, const string& pathList, FindF
 
 bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, vector<PathName>& result)
 {
-  return FindFileInternal(fileName, fileType, options[FindFileOption::All], options[FindFileOption::SearchFileSystem], options[FindFileOption::Create], options[FindFileOption::Renew], result);
+  bool found = FindFileInternal(fileName, fileType, options[FindFileOption::All], options[FindFileOption::SearchFileSystem], options[FindFileOption::Create], options[FindFileOption::Renew], result);
+  if (found)
+  {
+    sort(result.begin(), result.end());
+    result.erase(unique(result.begin(), result.end()), result.end());
+  }
+  return found;
 }
 
 bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, PathName& result)
