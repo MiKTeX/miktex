@@ -67,7 +67,9 @@ public:
     /// Read directory entries only.
     DirectoriesOnly = 1,
     /// Read file entries only.
-    FilesOnly = 2
+    FilesOnly = 2,
+    /// Include . and .. in result.
+    IncludeDotAndDotDot = 4
   };
 
 public:

@@ -1,6 +1,6 @@
 /* unxemu.cpp:
 
-   Copyright (C) 2007-2020 Christian Schenk
+   Copyright (C) 2007-2021 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -42,7 +42,7 @@ struct DIR_
   PathName path;
   DIR_(const char* path) :
     path(path),
-    directoryLister(DirectoryLister::Open(PathName(path)))
+    directoryLister(DirectoryLister::Open(PathName(path), nullptr, static_cast<int>(DirectoryLister::Options::IncludeDotAndDotDot)))
   {
   }
 };
@@ -54,7 +54,7 @@ struct WDIR_
   PathName path;
   WDIR_(const wchar_t* path) :
     path(path),
-    directoryLister(DirectoryLister::Open(PathName(path)))
+    directoryLister(DirectoryLister::Open(PathName(path), nullptr, static_cast<int>(DirectoryLister::Options::IncludeDotAndDotDot)))
   {
   }
 };

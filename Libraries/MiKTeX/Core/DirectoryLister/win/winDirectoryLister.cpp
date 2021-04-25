@@ -149,7 +149,7 @@ bool winDirectoryLister::GetNext(DirectoryEntry2& direntry2)
         return false;
       }
     }
-  } while ((((ffdat.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) && IsDotDirectory(ffdat.cFileName))
+  } while ((((ffdat.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) && IsDotDirectory(ffdat.cFileName) && ((options & (int)Options::IncludeDotAndDotDot) == 0))
     || (((options & (int)Options::DirectoriesOnly) != 0) && ((ffdat.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0))
     || (((options & (int)Options::FilesOnly) != 0) && ((ffdat.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)));
   direntry2.wname = ffdat.cFileName;

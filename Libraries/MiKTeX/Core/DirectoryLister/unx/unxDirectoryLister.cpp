@@ -144,7 +144,7 @@ bool unxDirectoryLister::GetNext(DirectoryEntry2& direntry2, bool simple)
       UNIMPLEMENTED();
     }
 #endif
-  } while (IsDotDirectory(dent->d_name)
+  } while ((IsDotDirectory(dent->d_name) && ((options & (int)Options::IncludeDotAndDotDot) == 0))
            || (!pattern.empty() && !PathName::Match(pattern.c_str(), dent->d_name))
            || ((options & (int)Options::DirectoriesOnly) != 0 && !isDirectory)
            || ((options & (int)Options::FilesOnly) != 0 && isDirectory));
