@@ -497,12 +497,12 @@ Use this option, if you want to operate on your own MiKTeX configuration.</sourc
         <location filename="../mainwindow.ui" line="1403"/>
         <location filename="../mainwindow.ui" line="1594"/>
         <source>Retrieve from:</source>
-        <translation type="unfinished">检索来源：</translation>
+        <translation type="unfinished">检索源：</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="993"/>
         <source>Packages are retrieved from:</source>
-        <translation type="unfinished">宏包检索来源：</translation>
+        <translation type="unfinished">宏包检索源：</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1119"/>
