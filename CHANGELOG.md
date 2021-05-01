@@ -9,6 +9,7 @@
 
 ### Fixed issues
 
+- [754](https://github.com/MiKTeX/miktex/issues/754): search path of automatic format creation
 - [762](https://github.com/MiKTeX/miktex/issues/762): output of lfs.dir in luatex
 - [768](https://github.com/MiKTeX/miktex/issues/768): kpsewhich with option --all
 - [780](https://github.com/MiKTeX/miktex/issues/780): [MikTeX Portable] Can't remove local texmf directory

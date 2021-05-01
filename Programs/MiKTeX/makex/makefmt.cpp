@@ -426,8 +426,9 @@ void MakeFmt::Run(int argc, const char** argv)
 
   Verbose(fmt::format(T_("Creating the {0} format file..."), Q_(destinationName)));
 
-  // create a temporary working directory
+  // change to a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
+  wrkDir->SetCurrent();
 
   // make command line
   vector<string> arguments;

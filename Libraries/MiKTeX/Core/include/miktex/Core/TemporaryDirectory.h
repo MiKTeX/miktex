@@ -47,6 +47,9 @@ public:
   virtual void MIKTEXTHISCALL Keep() = 0;
 
 public:
+  virtual void MIKTEXTHISCALL SetCurrent() = 0;
+
+public:
   static MIKTEXCORECEEAPI(std::unique_ptr<TemporaryDirectory>) Create();
 
 public:
