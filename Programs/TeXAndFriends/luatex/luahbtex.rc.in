@@ -19,7 +19,7 @@
 
 #include "luatex-version.h"
 
-#define VER_FILEDESCRIPTION_STR "LuaHBTeX - a TeX enginge with embedded HarfBuzz and Lua"
+#define VER_FILEDESCRIPTION_STR "LuaHBTeX - a TeX engine with embedded HarfBuzz and Lua"
 #define VER_INTERNALNAME_STR "luahbtex"
 #define VER_ORIGINALFILENAME_STR "miktex-luahbtex.exe"
 
