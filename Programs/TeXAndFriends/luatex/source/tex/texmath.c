@@ -1577,11 +1577,17 @@ static void scan_delimiter(pointer p, int r)
     return;
 }
 
+/*tex
+    Because \LATEX\ expect some different defaults, we now have |math_defaults_mode_par| controlling
+    the style. By using a variable we can remain downward compatible.
+*/
+
 void math_radical(void)
 {
     halfword q;
     int chr_code = cur_chr;
     halfword options = 0;
+    halfword used_style = cramped_style(m_style);
     tail_append(new_node(radical_noad, chr_code));
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
@@ -1600,32 +1606,42 @@ void math_radical(void)
         }
     }
     radicaloptions(tail) = options;
-    if (chr_code == 0)
+    if (chr_code == 0) {
         /*tex \.{\\radical} */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
-    else if (chr_code == 1)
+    } else if (chr_code == 1) {
         /*tex \.{\\Uradical} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else if (chr_code == 2)
+    } else if (chr_code == 2) {
         /*tex \.{\\Uroot} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else if (chr_code == 3)
+    } else if (chr_code == 3) {
         /*tex \.{\\Uunderdelimiter} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else if (chr_code == 4)
+        if (math_defaults_mode_par > 0) {
+            used_style = sub_style(m_style);
+        }
+    } else if (chr_code == 4) {
         /*tex \.{\\Uoverdelimiter} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else if (chr_code == 5)
+        if (math_defaults_mode_par > 0) {
+            used_style = sup_style(m_style);
+        }
+    } else if (chr_code == 5) {
         /*tex \.{\\Udelimiterunder} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else if (chr_code == 6)
+        if (math_defaults_mode_par > 0) {
+            used_style = m_style;
+        }
+    } else if (chr_code == 6) {
         /*tex \.{\\Udelimiterover} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else if (chr_code == 7)
+    } else if (chr_code == 7) {
         /*tex \.{\\Uhextensible} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
-    else
+    } else {
         confusion("math_radical");
+    }
     if (chr_code == 7) {
         /*tex type will change */
         q = new_node(sub_box_node, 0);
@@ -1645,12 +1661,12 @@ void math_radical(void)
             vlink(degree(tail)) = null;
             q = new_node(math_char_node, 0);
             nucleus(tail) = q;
-            (void) scan_math(nucleus(tail), cramped_style(m_style));
+            (void) scan_math(nucleus(tail), used_style);
         }
     } else {
         q = new_node(math_char_node, 0);
         nucleus(tail) = q;
-        (void) scan_math(nucleus(tail), cramped_style(m_style));
+        (void) scan_math(nucleus(tail), used_style);
     }
 }
 

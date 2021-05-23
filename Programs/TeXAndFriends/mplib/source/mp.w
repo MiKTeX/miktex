@@ -18144,10 +18144,12 @@ new level (having, initially, the same properties as the old).
 @d push_input  { /* enter a new input level, save the old */
   if ( mp->input_ptr>mp->max_in_stack ) {
     mp->max_in_stack=mp->input_ptr;
-    if ( mp->input_ptr==mp->stack_size ) {
-      int l = (mp->stack_size+(mp->stack_size/4));
-      XREALLOC(mp->input_stack, l, in_state_record);
-      mp->stack_size = l;
+    if ( mp->input_ptr==mp->stack_size ) { 
+        int l = (mp->stack_size+(mp->stack_size/4));
+        /* The mp->stack_size < 1001 condition is necessary to prevent C stack overflow due infinite recursion. */
+        if (l>1000) {fprintf(stderr, "input stack overflow\n");exit(EXIT_FAILURE);}
+        XREALLOC(mp->input_stack, l, in_state_record);
+        mp->stack_size = l;
     }
   }
   mp->input_stack[mp->input_ptr]=mp->cur_input; /* stack the record */

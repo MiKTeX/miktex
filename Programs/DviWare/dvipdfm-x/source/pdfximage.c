@@ -1102,7 +1102,11 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
   FILE  *fp;
   int    error = 0;
   struct stat stat_o, stat_t;
-
+#if defined(_WIN32)
+  char *utf8temp;
+  wchar_t *wtemp;
+  char *ftest;
+#endif
   if (!distiller_template) {
     WARN("No image converter available for converting file \"%s\" to PDF format.", filename);
     WARN(">> Please check if you have 'D' option in config file.");
@@ -1128,8 +1132,8 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
 #endif
 
 #if !defined(MIKTEX) && defined(_WIN32)
-/* temp is always ASCII only. So fsyscp_stat() is not necessary for
- * temp. However, filename can be non-ASCII UTF-8.
+/* temp is always win32_codepage only. So fsyscp_stat() is not
+ * necessary for temp. However, filename can be non-ASCII UTF-8.
  */
   if (dpx_conf.file.keep_cache != -1 &&
       stat(temp, &stat_t)==0 &&
@@ -1152,16 +1156,39 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
       MESG("pdf_image>>   %s\n", distiller_template);
       MESG("pdf_image>> ...");
     }
+
+/* Support non-ascii TEMP and TMP on Windows to call Ghostscript */
+#if !defined(MIKTEX) && defined(_WIN32)
+    ftest = dpx_find_file(filename, "_pic_", "");
+    if (ftest) {
+       wtemp = get_wstring_from_mbstring(win32_codepage,
+               temp, wtemp = NULL);
+       utf8temp = get_mbstring_from_wstring(file_system_codepage,
+                  wtemp, utf8temp = NULL);
+       error = dpx_file_apply_filter(distiller_template, filename,
+               utf8temp, pdf_get_version());
+    } else {
+       utf8name_failed = 1;
+       error = dpx_file_apply_filter(distiller_template, filename,
+               temp, pdf_get_version());
+       utf8name_failed = 0;
+    }
+#else
     error = dpx_file_apply_filter(distiller_template, filename, temp,
       pdf_get_version());
+#endif
     if (error) {
       WARN("Image format conversion for \"%s\" failed...", filename);
       dpx_delete_temp_file(temp, true);
       return  error;
     }
   }
-
+#if !defined(MIKTEX) && defined(_WIN32)
+/* Use a simple fopen() since temp is in win32_codepage */
+  fp = fopen(temp, FOPEN_RBIN_MODE);
+#else
   fp = MFOPEN(temp, FOPEN_RBIN_MODE);
+#endif
   if (!fp) {
     WARN("Could not open conversion result \"%s\" for image \"%s\". Why?", temp, filename);
     dpx_delete_temp_file(temp, true);
@@ -1172,7 +1199,13 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
   MFCLOSE(fp);
 
   /* See pdf_close_images for why we cannot delete temporary files here. */
-
+#if !defined(MIKTEX) && defined(_WIN32)
+  if (ftest) {
+    RELEASE(utf8temp);
+    RELEASE(wtemp);
+    RELEASE(ftest);
+  }
+#endif
   RELEASE(temp);
 
   if (error) {

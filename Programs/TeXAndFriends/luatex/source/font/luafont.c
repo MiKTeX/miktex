@@ -2223,6 +2223,22 @@ static halfword handle_lig_nest(halfword root, halfword cur)
     return root;
 }
 
+/*tex
+    Because \LATEX\ dev wants to support more complex select sequences we get a
+    compatibility issue. For that reason we now can block select discs in so
+    called \quote {base} mode (the traditional \TEX\ font handling). By
+    completely blocking select discs (which actually were just implemented for
+    the rare case of having multiple hyphenation points in a three character
+    ligature) we simplify handling and possible side effects of patches in the
+    line break routines (which then becomes more complex). Because the \CONTEXT\
+    font handler doesn't inject select discretionaries we don't expect side
+    effects there. The control parameter |\discretionaryligaturemode| defaults to
+    the value 0. A value of 1 reflects \quotation {lazy ligaturing} i.e.\ |f-f-i|
+    becomes |f-fi|, and a value of 2 turns |f-f-i| into |ff-i|. This mechanism is
+    backport of \LUAMETATEX\ where select discs had been abandoned already and
+    where lazy ligatures is one of the possible glyph properties.
+*/
+
 static halfword handle_lig_word(halfword cur)
 {
     halfword right = null;
@@ -2403,34 +2419,62 @@ static halfword handle_lig_word(halfword cur)
                         && type(next) == glyph_node
                         && ((tlink_post_break(cur) != null && test_ligature(&lig, tlink_post_break(cur), next)) ||
                             (tlink_no_break  (cur) != null && test_ligature(&lig, tlink_no_break  (cur), next)))) {
-                        /*tex Building an |init_disc| followed by a |select_disc|: |{a-}{b}{AB} {-}{}{} c| */
+                        /*tex Optionally building an |init_disc| followed by a |select_disc|: |{a-}{b}{AB} {-}{}{} c| */
   		        halfword last1 = vlink(next), tail;
                         uncouple_node(next);
                         try_couple_nodes(fwd, last1);
-                        /*tex |{a-}{b}{AB} {-}{c}{}| */
-                        nesting_append(post_break(fwd), copy_node(next));
-                        /*tex |{a-}{b}{AB} {-}{c}{-}| */
-                        if (vlink_no_break(cur) != null) {
-                            nesting_prepend(no_break(fwd), copy_node(vlink_pre_break(fwd)));
+                        /* the modes are ported from luametatex (not one-to-one, so they need checking) */
+                        if (discretionary_ligature_mode_par == 1) {
+                            /*tex f-f-i -> f-fi */
+                            halfword tail = tlink_no_break(cur);
+                            nesting_append(no_break(cur), copy_node(next));
+                            handle_lig_nest(no_break(cur), tail);
+                            tail = tlink_post_break(cur);
+                            nesting_append(post_break(cur), next);
+                            handle_lig_nest(post_break(cur), tail);
+                            try_couple_nodes(alink(fwd), vlink(fwd));
+                            flush_node(fwd);
+                        } else if (discretionary_ligature_mode_par == 2) {
+                            /*tex f-f-i -> ff-i : |{a-}{b}{AB} {-}{c}{}| => |{AB-}{c}{ABc}| */
+                            nesting_append(post_break(fwd), copy_node(next));
+                            if (vlink_no_break(cur)) {
+                                halfword tail;
+                                nesting_prepend_list(no_break(fwd), copy_node_list(vlink_no_break(cur)));
+                                tail = tlink_no_break(fwd);
+                                nesting_append(no_break(fwd), next);
+                                handle_lig_nest(no_break(fwd), tail);
+                                nesting_prepend_list(pre_break(fwd), copy_node_list(vlink_no_break(cur)));
+                            }
+                            try_couple_nodes(alink(cur), vlink(cur));
+                            flush_node(cur);
+                            cur = fwd;
+                        } else {
+                            /*tex |{a-}{b}{AB} {-}{c}{}| */
+                            nesting_append(post_break(fwd), copy_node(next));
+                            /*tex |{a-}{b}{AB} {-}{c}{-}| */
+                            if (vlink_no_break(cur) != null) {
+                                nesting_prepend(no_break(fwd), copy_node(vlink_pre_break(fwd)));
+                            }
+                            /*tex |{a-}{b}{AB} {b-}{c}{-}| */
+                            if (vlink_post_break(cur) != null)
+                                nesting_prepend_list(pre_break(fwd), copy_node_list(vlink_post_break(cur)));
+                            /*tex |{a-}{b}{AB} {b-}{c}{AB-}| */
+                            if (vlink_no_break(cur) != null) {
+                                nesting_prepend_list(no_break(fwd), copy_node_list(vlink_no_break(cur)));
+                            }
+                            /*tex |{a-}{b}{ABC} {b-}{c}{AB-}| */
+                            tail = tlink_no_break(cur);
+                            nesting_append(no_break(cur), copy_node(next));
+                            handle_lig_nest(no_break(cur), tail);
+                            /*tex |{a-}{BC}{ABC} {b-}{c}{AB-}| */
+                            tail = tlink_post_break(cur);
+                            nesting_append(post_break(cur), next);
+                            handle_lig_nest(post_break(cur), tail);
+                            /*tex Set the subtypes: */
+                            subtype(cur) = init_disc;
+                            subtype(fwd) = select_disc;
                         }
-                        /*tex |{a-}{b}{AB} {b-}{c}{-}| */
-                        if (vlink_post_break(cur) != null)
-                            nesting_prepend_list(pre_break(fwd), copy_node_list(vlink_post_break(cur)));
-                        /*tex |{a-}{b}{AB} {b-}{c}{AB-}| */
-                        if (vlink_no_break(cur) != null) {
-                            nesting_prepend_list(no_break(fwd), copy_node_list(vlink_no_break(cur)));
-                        }
-                        /*tex |{a-}{b}{ABC} {b-}{c}{AB-}| */
-                        tail = tlink_no_break(cur);
-                        nesting_append(no_break(cur), copy_node(next));
-                        handle_lig_nest(no_break(cur), tail);
-                        /*tex |{a-}{BC}{ABC} {b-}{c}{AB-}| */
-                        tail = tlink_post_break(cur);
-                        nesting_append(post_break(cur), next);
-                        handle_lig_nest(post_break(cur), tail);
-                        /*tex Set the subtypes: */
-                        subtype(cur) = init_disc;
-                        subtype(fwd) = select_disc;
+
                     }
                 }
             }

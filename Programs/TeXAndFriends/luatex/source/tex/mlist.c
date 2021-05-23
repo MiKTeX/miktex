@@ -2385,7 +2385,10 @@ static void make_over_delimiter(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, delta, wd;
     boolean stack;
-    x = clean_box(nucleus(q), sub_style(cur_style), cur_style, math_nucleus_list);
+    if (math_defaults_mode_par > 0)
+	    x = clean_box(nucleus(q), sup_style(cur_style), cur_style, math_nucleus_list);
+	else 
+	    x = clean_box(nucleus(q), sub_style(cur_style), cur_style, math_nucleus_list);
     check_widths(q,x);
     y = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
@@ -2416,7 +2419,10 @@ static void make_under_delimiter(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, delta, wd;
     boolean stack;
-    y = clean_box(nucleus(q), sup_style(cur_style), cur_style, math_nucleus_list);
+    if (math_defaults_mode_par > 0)
+	    y = clean_box(nucleus(q), sub_style(cur_style), cur_style, math_nucleus_list);
+	else
+        y = clean_box(nucleus(q), sup_style(cur_style), cur_style, math_nucleus_list);
     check_widths(q,y);
     x = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
@@ -2447,7 +2453,10 @@ static void make_delimiter_over(pointer q, int cur_style)
     pointer x, y, v;
     scaled shift_up, shift_down, clr, actual, wd;
     boolean stack;
-    y = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
+    if (math_defaults_mode_par > 0)
+        y = clean_box(nucleus(q), cramped_style(cur_style), cur_style, math_nucleus_list);
+    else
+        y = clean_box(nucleus(q), cur_style, cur_style, math_nucleus_list);
     check_widths(q,y);
     x = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
