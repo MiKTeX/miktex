@@ -345,8 +345,7 @@ private:
   VALTYPE value;
 };
 
-struct StringComparerIgnoringCase :
-  public std::binary_function<std::string, std::string, bool>
+struct StringComparerIgnoringCase
 {
   bool operator()(const std::string& lhs, const std::string& rhs) const
   {

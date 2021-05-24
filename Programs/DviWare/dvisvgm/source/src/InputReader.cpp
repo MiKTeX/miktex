@@ -365,7 +365,11 @@ string InputReader::getLine () {
 	while (!eof() && peek() > 0 && peek() != '\n')
 		ret += char(get());
 	// trim trailing whitespace
+#if defined(MIKTEX) && __cplusplus >= 201703L || _MSVC_LANG >= 201703L
+	ret.erase(std::find_if(ret.rbegin(), ret.rend(), not_fn(isspace)).base(), ret.end());
+#else
 	ret.erase(std::find_if(ret.rbegin(), ret.rend(), not1(ptr_fun<int, int>(isspace))).base(), ret.end());
+#endif
 	return ret;
 }
 

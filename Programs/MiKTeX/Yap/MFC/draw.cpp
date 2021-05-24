@@ -1,6 +1,6 @@
 /* draw.cpp: DVI drawing routines
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of Yap.
 
@@ -187,7 +187,7 @@ void DviView::DrawPage(CDC* pDC, int pageIdx)
     pWaitCursor = new CWaitCursor;
   }
 
-  auto_ptr<CWaitCursor> autoWaitCursor(pWaitCursor);
+  unique_ptr<CWaitCursor> autoWaitCursor(pWaitCursor);
 
   // draw page edges
   if (!pDoc->IsPrintContext())

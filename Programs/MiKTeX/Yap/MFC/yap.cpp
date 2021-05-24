@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of Yap.
 
@@ -432,7 +432,7 @@ BOOL YapApplication::InitInstance()
     LoadStdProfileSettings();
 
     // read Yap configuration settings
-    g_pYapConfig = auto_ptr<YapConfig>(new YapConfig());
+    g_pYapConfig = unique_ptr<YapConfig>(new YapConfig());
 
     // now we are initialized
     initialized = true;
