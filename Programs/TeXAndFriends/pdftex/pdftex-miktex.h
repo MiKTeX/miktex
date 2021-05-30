@@ -300,6 +300,13 @@ public:
 #endif
   }
 
+ public:
+   void Finalize() override
+   {
+     translator = nullptr;
+     ETeXApp::Finalize();
+   }
+
 public:
   void AllocateMemory() override
   {
