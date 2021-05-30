@@ -1136,7 +1136,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
         <location filename="../mainwindow.cpp" line="1250"/>
         <source>There are %n updates available!</source>
         <translation type="unfinished">
-            <numerusform>有 %n 可用跟新！</numerusform>
+            <numerusform>有 %n 可用更新！</numerusform>
         </translation>
     </message>
     <message>
