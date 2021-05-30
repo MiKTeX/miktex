@@ -1,6 +1,11 @@
 # MiKTeX Change Log
 
-## 21.5 - pending release
+## 21.6 - pending release
+
+### Breaking changes
+
+Non-secure package repository URLs (schemes `ftp` and `http`) are deprecated. The package repository
+picker (`<Random package repository on the Internet>`) always chooses a secure URL (scheme `https`).
 
 ### Upgraded programs
 
@@ -13,6 +18,7 @@
 - [762](https://github.com/MiKTeX/miktex/issues/762): output of lfs.dir in luatex
 - [768](https://github.com/MiKTeX/miktex/issues/768): kpsewhich with option --all
 - [780](https://github.com/MiKTeX/miktex/issues/780): [MikTeX Portable] Can't remove local texmf directory
+- [833](https://github.com/MiKTeX/miktex/issues/833): Package downloader chooses insecure random mirrors
 
 ## 21.3 - 2021-03-16
 

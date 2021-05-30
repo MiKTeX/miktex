@@ -231,7 +231,7 @@ vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState
 string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryReleaseState)
 {
   SayHello();
-  unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState), "orderBy=ranking", "take=1" })));
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState), "orderBy=ranking", "take=1", "onlySecure=true" })));
   char buf[1024];
   size_t n;
   stringstream response;
