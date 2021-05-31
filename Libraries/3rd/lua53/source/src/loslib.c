@@ -389,7 +389,11 @@ static int os_exit (lua_State *L) {
     status = (int)luaL_optinteger(L, 1, EXIT_SUCCESS);
   if (lua_toboolean(L, 2))
     lua_close(L);
+#if defined(MIKTEX)
+  if (L) miktex_exit(status);
+#else
   if (L) exit(status);  /* 'if' to avoid warnings for unreachable 'return' */
+#endif
   return 0;
 }
 
