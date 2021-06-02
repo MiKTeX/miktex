@@ -403,9 +403,6 @@
 	${MIKTEX_CONFIG_VALUE_EXTENSIONS} = .texluc
 	${MIKTEX_CONFIG_VALUE_EXTENSIONS} = .tlu
 
-	;; Environment variables to be used for searching Lua files.
-	${MIKTEX_CONFIG_VALUE_ENVVARS} = LUAINPUTS
-
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.map]
 
 	;; Search path for font map files.
