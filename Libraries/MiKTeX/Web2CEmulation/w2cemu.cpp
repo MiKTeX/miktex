@@ -103,6 +103,7 @@ static FILE* TryFOpen(const char* path, const char* modeString)
 
 int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* modeString)
 {
+  MIKTEX_ASSERT(WebAppInputLine::GetWebAppInputLine() != nullptr);
   PathName fileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
   char* path = miktex_kpathsea_find_file(kpse_def, fileName.GetData(), format, 0);
   if (path == nullptr)
@@ -120,6 +121,7 @@ int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* mo
   }
   if (*ppfile != nullptr)
   {
+    MIKTEX_ASSERT(WebAppInputLine::GetWebAppInputLine() != nullptr);
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(PathName(path));
   }
   MIKTEX_FREE(path);
@@ -177,6 +179,12 @@ void Web2C::SetOutputDirectory(const PathName& path)
   }
 #endif
   session->AddInputDirectory(outputDirectory, true);
+  auto app = WebAppInputLine::GetWebAppInputLine();
+  if (app == nullptr)
+  {
+    return;
+  }
+  app->SetOutputDirectory(outputDirectory);
 }
 
 void miktex_web2c_set_output_directory(const char* path)
@@ -186,12 +194,23 @@ void miktex_web2c_set_output_directory(const char* path)
 
 PathName Web2C::GetOutputDirectory()
 {
-  return outputDirectory;
+  auto dir = miktex_web2c_get_output_directory();
+  if (dir == nullptr)
+  {
+    return PathName();
+  }
+  return PathName(dir);
 }
 
 const char* miktex_web2c_get_output_directory()
 {
-  return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
+  auto app = WebAppInputLine::GetWebAppInputLine();
+  if (app == nullptr)
+  {
+    return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
+  }
+  auto outDir = app->GetOutputDirectory();
+  return  outDir.Empty() ? nullptr : outDir.GetData();;
 }
 
 void Web2C::GetSecondsAndMicros(int* seconds, int* micros)
@@ -306,6 +325,7 @@ void miktex_usagehelp(const char** lines, const char* bugEmail)
 
 char* Web2C::GetCurrentFileName()
 {
+  MIKTEX_ASSERT(WebAppInputLine::GetWebAppInputLine() != nullptr);
   return xstrdup(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData());
 }
 

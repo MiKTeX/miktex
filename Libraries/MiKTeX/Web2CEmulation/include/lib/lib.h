@@ -1,6 +1,6 @@
 /* lib/lib.h:                                           -*- C++ -*-
 
-   Copyright (C) 2013-2020 Christian Schenk
+   Copyright (C) 2013-2021 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -117,11 +117,7 @@ static inline void recorder_record_output(const char* fname)
 }
 #endif
 
-#if defined(__cplusplus)
-#  define output_directory (MiKTeX::Web2C::GetOutputDirectory().Empty() ? nullptr : MiKTeX::Web2C::GetOutputDirectory().GetData())
-#else
-#  define output_directory miktex_web2c_get_output_directory()
-#endif
+#define output_directory miktex_web2c_get_output_directory()
 
 #if defined(__cplusplus)
 #else

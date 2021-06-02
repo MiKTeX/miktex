@@ -421,7 +421,7 @@ static int fsyscp_remove(char *name);
 #   include "zlib.h"
 
 #if defined(MIKTEX)
-#  include <miktex/W2C/Emulation.h> /* output_directory */
+#include <miktex/W2C/Emulation.h> /* output_directory */
 #endif
 typedef void (*synctex_recorder_t) (halfword);  /* recorders know how to record a node */
 typedef int (*synctex_fprintf_t) (void *, const char *, ...);   /* print formatted to either FILE * or gzFile */
@@ -946,12 +946,6 @@ void synctexterminate(boolean log_opened)
 #   endif
     if (log_opened && (tmp = SYNCTEX_GET_LOG_NAME())) {
         /* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
-#if defined(MIKTEX) && (defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX))
-      MiKTeX::Util::PathName path = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
-      path /= MiKTeX::Util::PathName(tmp).RemoveDirectorySpec();
-      tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
-      strcpy(tmp, path.GetData());
-#endif
 #if defined(MIKTEX) && defined(__cplusplus)
         /* C++: typecast needed */
         the_real_syncname = (char*)

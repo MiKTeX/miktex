@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -97,8 +97,7 @@ public:
 public:
   static WebAppInputLine* GetWebAppInputLine()
   {
-    MIKTEX_ASSERT(dynamic_cast<WebAppInputLine*>(Application::GetApplication()) != nullptr);
-    return (WebAppInputLine*)Application::GetApplication();
+    return dynamic_cast<WebAppInputLine*>(Application::GetApplication());
   }
 
 public:

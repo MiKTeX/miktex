@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MiKTeX 21.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-06 11:42+0100\n"
+"POT-Creation-Date: 2021-06-02 19:35+0200\n"
 "PO-Revision-Date: 2021-01-28 12:18+0100\n"
 "Last-Translator: Christian Schenk <cs@miktex.org>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -16,17 +16,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: pdftex-miktex.h:219
+#: pdftex-miktex.h:219 pdftex-miktex.h:221
 #, fuzzy
 msgid "Switch on draft mode (generates no output)."
 msgstr "切换到草稿模式(不生成输出)。"
 
-#: pdftex-miktex.h:220
+#: pdftex-miktex.h:220 pdftex-miktex.h:222
 #, fuzzy
 msgid "Set the output format."
 msgstr "设置输出格式。"
 
-#: pdftex-miktex.h:245
+#: pdftex-miktex.h:245 pdftex-miktex.h:247
 #, fuzzy
 msgid "Unknown output format value."
 msgstr "未知的输出格式值。"
