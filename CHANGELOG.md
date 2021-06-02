@@ -19,6 +19,7 @@ picker (`<Random package repository on the Internet>`) always chooses a secure U
 - [765](https://github.com/MiKTeX/miktex/issues/765): MiKTeX 21.3 / pdflatex crashes sometimes after compiling LaTeX documents
 - [768](https://github.com/MiKTeX/miktex/issues/768): kpsewhich with option --all
 - [780](https://github.com/MiKTeX/miktex/issues/780): [MikTeX Portable] Can't remove local texmf directory
+- [825](https://github.com/MiKTeX/miktex/issues/825): wrong search path for lua files with lualatex-dev
 - [833](https://github.com/MiKTeX/miktex/issues/833): Package downloader chooses insecure random mirrors
 
 ## 21.3 - 2021-03-16
