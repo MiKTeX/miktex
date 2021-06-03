@@ -480,7 +480,12 @@ static void jit_test(void) {
 #endif
 
 /* xmain_exit -- exit after program has finished */
+#if defined(MIKTEX)
+/* Avoid ill-formed program: xmain_exit() was not declared with noreturn attribute. */
+void xmain_exit(int status) {
+#else
 void NORETURN xmain_exit(int status) {
+#endif
 #ifdef OBXDEB
      debug_break(NULL, NULL, NULL, "exit");
 #endif
@@ -492,7 +497,12 @@ void NORETURN xmain_exit(int status) {
 }
 
 /* error_exit -- exit after fatal error */
+#if defined(MIKTEX)
+/* Avoid ill-formed program: error_exit() was not declared with noreturn attribute. */
+void error_exit(int status) {
+#else
 void NORETURN error_exit(int status) {
+#endif
 #ifdef OBXDEB
      debug_message("quit");
 #endif
