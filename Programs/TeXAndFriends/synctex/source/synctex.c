@@ -947,6 +947,19 @@ void synctexterminate(boolean log_opened)
     if (log_opened && (tmp = SYNCTEX_GET_LOG_NAME())) {
         /* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
 #if defined(MIKTEX)
+        if (output_directory != 0)
+        {
+            /* Make sure that 'tmp' is a output directory file name. The log file might have been created
+             * in another directory, if --aux-directory was specified.
+             */
+            const char* logFileName = miktex_xbasename(tmp);
+            char* newTmp = (char*)xmalloc(strlen(output_directory) + strlen(logFileName) + 2);
+            sprintf(newTmp, "%s/%s", output_directory, logFileName);
+            free(tmp);
+            tmp = newTmp;
+        }
+#endif
+#if defined(MIKTEX)
         /* C++: typecast needed */
         the_real_syncname = (char*)
         xmalloc((unsigned)(strlen(tmp)
