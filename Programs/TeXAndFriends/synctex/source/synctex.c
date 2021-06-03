@@ -946,7 +946,7 @@ void synctexterminate(boolean log_opened)
 #   endif
     if (log_opened && (tmp = SYNCTEX_GET_LOG_NAME())) {
         /* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
-#if defined(MIKTEX) && defined(__cplusplus)
+#if defined(MIKTEX)
         /* C++: typecast needed */
         the_real_syncname = (char*)
         xmalloc((unsigned)(strlen(tmp)
@@ -1001,22 +1001,13 @@ void synctexterminate(boolean log_opened)
                     gzclose((gzFile) SYNCTEX_FILE);
                 }
                 SYNCTEX_FILE = NULL;
-#if defined(MIKTEX)
-#  if defined(_MSC_VER)
-		/* MSVC rename() requires that the new name is not the
-		   name of an existing file */
-#if defined(__cplusplus)
-		if(MiKTeX::Core::File::Exists(MiKTeX::Util::PathName(the_real_syncname)))
-		  {
-		    MiKTeX::Core::File::Delete(MiKTeX::Util::PathName(the_real_syncname));
-		  }
-#else
-		if(_access(the_real_syncname, 0) == 0)
-		{
-		  _unlink (the_real_syncname);
-		}
-#endif
-#  endif
+#if defined(MIKTEX_WINDOWS)
+                /* Windows: rename() requires that the new name is not the
+                   name of an existing file. */
+                if (_access(the_real_syncname, 0) == 0)
+                {
+                    _unlink(the_real_syncname);
+                }
 #endif
                 /*  renaming the working synctex file */
                 if (0 == rename(synctex_ctxt.busy_name, the_real_syncname)) {
