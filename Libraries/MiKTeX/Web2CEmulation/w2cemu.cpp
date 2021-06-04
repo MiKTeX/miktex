@@ -158,6 +158,11 @@ void miktex_web2c_change_recorder_file_name(const char* path)
 
 void Web2C::SetOutputDirectory(const PathName& path)
 {
+  miktex_web2c_set_output_directory(path.GetData());
+}
+
+void miktex_web2c_set_output_directory(const char* path)
+{
   shared_ptr<Session> session = Session::Get();
   outputDirectory = path;
   outputDirectory.MakeFullyQualified();
@@ -187,11 +192,6 @@ void Web2C::SetOutputDirectory(const PathName& path)
   app->SetOutputDirectory(outputDirectory);
 }
 
-void miktex_web2c_set_output_directory(const char* path)
-{
-  Web2C::SetOutputDirectory(PathName(path));
-}
-
 PathName Web2C::GetOutputDirectory()
 {
   auto dir = miktex_web2c_get_output_directory();
@@ -205,12 +205,11 @@ PathName Web2C::GetOutputDirectory()
 const char* miktex_web2c_get_output_directory()
 {
   auto app = WebAppInputLine::GetWebAppInputLine();
-  if (app == nullptr)
+  if (app != nullptr)
   {
-    return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
+    outputDirectory = app->GetOutputDirectory();
   }
-  auto outDir = app->GetOutputDirectory();
-  return  outDir.Empty() ? nullptr : outDir.GetData();
+  return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
 }
 
 void Web2C::GetSecondsAndMicros(int* seconds, int* micros)
