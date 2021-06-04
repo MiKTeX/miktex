@@ -681,12 +681,8 @@ static void *synctex_dot_open(void)
             /*  jobname was set by the \jobname command on the *TeX side  */
 #if defined(MIKTEX)
             /* C++: typecast needed */
-            char *the_busy_name = (char*)xmalloc((size_t)
-                ( len
-                 + strlen(synctex_suffix)
-                 + strlen(synctex_suffix_busy)
-                 + 1
-                 + (output_directory?strlen(output_directory) + strlen(DIR_SEP_STRING):0)));
+            char *the_busy_name = (char *)xmalloc(
+                len + strlen(synctex_suffix) + strlen(synctex_suffix_busy) + 1 + (output_directory ? strlen(output_directory) + strlen(DIR_SEP_STRING) : 0));
 #else
             char *the_busy_name = xmalloc((size_t)
                 ( len
@@ -961,11 +957,8 @@ void synctexterminate(boolean log_opened)
 #endif
 #if defined(MIKTEX)
         /* C++: typecast needed */
-        the_real_syncname = (char*)
-        xmalloc((unsigned)(strlen(tmp)
-                           + strlen(synctex_suffix)
-                           + strlen(synctex_suffix_gz)
-                           + 1));
+        the_real_syncname = (char *)
+            xmalloc(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + 1);
 #else
         the_real_syncname =
         xmalloc((unsigned)(strlen(tmp)
@@ -1044,13 +1037,13 @@ void synctexterminate(boolean log_opened)
                         }
 #else
 #if defined(MIKTEX)
-                        if (termoffset > 0)
-                        {
-                          printf("\n");
-                        }
-                        printf((synctex_ctxt.flags.quoted ? "SyncTeX written on \"%s\"\n" : "SyncTeX written on %s.\n"),
-                          tmp);
-                        termoffset = 0;
+                            if (termoffset > 0)
+                            {
+                                printf("\n");
+                            }
+                            printf((synctex_ctxt.flags.quoted ? "SyncTeX written on \"%s\"\n" : "SyncTeX written on %s.\n"),
+                                   tmp);
+                            termoffset = 0;
 #else
 #ifndef SYNCTEX_PRE_NL
 #   define SYNCTEX_PRE_NL "\n"
