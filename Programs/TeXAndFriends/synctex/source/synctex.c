@@ -1007,14 +1007,6 @@ void synctexterminate(boolean log_opened)
                     gzclose((gzFile) SYNCTEX_FILE);
                 }
                 SYNCTEX_FILE = NULL;
-#if defined(MIKTEX_WINDOWS)
-                /* Windows: rename() requires that the new name is not the
-                   name of an existing file. */
-                if (_access(the_real_syncname, 0) == 0)
-                {
-                    _unlink(the_real_syncname);
-                }
-#endif
                 /*  renaming the working synctex file */
                 if (0 == rename(synctex_ctxt.busy_name, the_real_syncname)) {
                     if (log_opened) {
