@@ -210,7 +210,7 @@ const char* miktex_web2c_get_output_directory()
     return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
   }
   auto outDir = app->GetOutputDirectory();
-  return  outDir.Empty() ? nullptr : outDir.GetData();;
+  return  outDir.Empty() ? nullptr : outDir.GetData();
 }
 
 void Web2C::GetSecondsAndMicros(int* seconds, int* micros)
