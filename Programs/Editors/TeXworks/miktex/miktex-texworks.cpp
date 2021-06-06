@@ -36,6 +36,9 @@
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/rollingfileappender.h>
+#if defined(LOG4CXX_INFO_FMT)
+#  define MIKTEX_LOG4CXX_12 1
+#endif
 
 #include "miktex-texworks.hpp"
 
@@ -198,14 +201,19 @@ void Wrapper::Sorry(string reason)
       << " for the following reason:" << "\n" << "\n"
       << "  " << reason << "\n";
   }
-  log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-  if (appender != nullptr)
+#if defined(MIKTEX_LOG4CXX_12)
+  log4cxx::AppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+  log4cxx::FileAppenderPtr fileAppender = log4cxx::cast<log4cxx::FileAppender>(appender);
+#else
+  log4cxx::FileAppenderPtr fileAppender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+#endif
+  if (fileAppender != nullptr)
   {
     serr
       << endl
       << "The log file hopefully contains the information to get MiKTeX TeXworks going again:" << endl
       << endl
-      << "  " << PathName(appender->getFile()).ToUnix() << endl;
+      << "  " << PathName(fileAppender->getFile()).ToUnix() << endl;
   }
   serr
     << endl

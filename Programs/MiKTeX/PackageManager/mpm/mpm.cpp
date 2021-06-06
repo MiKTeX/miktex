@@ -46,6 +46,9 @@
 #include <log4cxx/logger.h>
 #include <log4cxx/rollingfileappender.h>
 #include <log4cxx/xml/domconfigurator.h>
+#if defined(LOG4CXX_INFO_FMT)
+#  define MIKTEX_LOG4CXX_12 1
+#endif
 
 #include "mpm-version.h"
 
@@ -780,14 +783,19 @@ void Application::Sorry(const string& description, const string& remedy, const s
   }
   if (isLog4cxxConfigured)
   {
-    log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-    if (appender != nullptr)
+#if defined(MIKTEX_LOG4CXX_12)
+    log4cxx::AppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+    log4cxx::FileAppenderPtr fileAppender = log4cxx::cast<log4cxx::FileAppender>(appender);
+#else
+    log4cxx::FileAppenderPtr fileAppender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+#endif
+    if (fileAppender != nullptr)
     {
       cerr
         << "\n"
         << "The log file hopefully contains the information to get MiKTeX going again:" << "\n"
         << "\n"
-        << "  " << PathName(appender->getFile()) << endl;
+        << "  " << PathName(fileAppender->getFile()) << endl;
     }
   }
   if (!url.empty())
