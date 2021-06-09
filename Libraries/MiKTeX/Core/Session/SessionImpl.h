@@ -1,4 +1,4 @@
-/* SessionImpl.h: Session impl class                    -*- C++ -*-
+/* SessionImpl.h: Session impl class
 
    Copyright (C) 1996-2021 Christian Schenk
 
@@ -67,35 +67,30 @@ namespace MiKTeXSessionLib = MAKE_CURVER_ID(MiKTeXSession);
 struct FormatInfo_ :
   public MiKTeX::Core::FormatInfo
 {
-public:
   FormatInfo_()
   {
   }
 
-public:
   FormatInfo_(const MiKTeX::Core::FormatInfo& other) :
     MiKTeX::Core::FormatInfo(other)
   {
   }
 
-public:
   MiKTeX::Util::PathName cfgFile;
 };
 
-struct LanguageInfo_ : public MiKTeX::Core::LanguageInfo
+struct LanguageInfo_ :
+  public MiKTeX::Core::LanguageInfo
 {
-public:
   LanguageInfo_()
   {
   }
 
-public:
-  LanguageInfo_(const MiKTeX::Core::LanguageInfo& other) :
+  LanguageInfo_(const MiKTeX::Core::LanguageInfo &other) :
     MiKTeX::Core::LanguageInfo(other)
   {
   }
 
-public:
   MiKTeX::Util::PathName cfgFile;
 };
 
@@ -115,36 +110,33 @@ inline bool operator<(const LanguageInfo_& lhs, const LanguageInfo_& rhs)
 struct InternalFileTypeInfo :
   public MiKTeX::Core::FileTypeInfo
 {
-public:
   std::vector<MiKTeX::Util::PathName> searchVec;
 };
 
-class DvipsPaperSizeInfo : public MiKTeX::Core::PaperSizeInfo
+struct DvipsPaperSizeInfo :
+  public MiKTeX::Core::PaperSizeInfo
 {
-public:
   std::vector<std::string> definition;
 };
 
 struct VersionedStartupConfig :
   public MiKTeX::Core::StartupConfig
 {
-public:
   VersionedStartupConfig()
   {
   }
 
-public:
   VersionedStartupConfig(const MiKTeX::Core::StartupConfig& parent) :
     StartupConfig(parent)
   {
   }
   
   /// MiKTeX setup version.
-public:
   MiKTeX::Core::VersionNumber setupVersion;
 };
 
-class SessionImpl : public MiKTeX::Core::Session
+class SessionImpl :
+  public MiKTeX::Core::Session
 {
 public:
   SessionImpl();
@@ -768,7 +760,6 @@ private:
 private:
   bool InternalGetFontInfo(const std::string& fontName, std::string& supplier, std::string& typeface);
 
-
 private:
   bool MakePkFileName(MiKTeX::Util::PathName& pkFileName, const std::string& fontName, int dpi);
 
@@ -1008,34 +999,34 @@ private:
     std::unique_ptr<MiKTeX::Core::Process> process;
   };
 
-  // caching open files
 private:
+  // caching open files
   std::map<const FILE*, InternalOpenFileInfo> openFilesMap;
 
-  // caching path patterns
 private:
+  // caching path patterns
   typedef std::unordered_map<std::string, std::vector<MiKTeX::Util::PathName>> SearchPathDictionary;
 
 private:
   SearchPathDictionary expandedPathPatterns;
 
-  // file access history
 private:
+  // file access history
   std::vector<MiKTeX::Core::FileInfoRecord> fileInfoRecords;
 
-  // true, if we record a file history
 private:
+  // true, if we record a file history
   bool recordingFileNames = false;
 
-  // true, if we record a package history
 private:
+  // true, if we record a package history
   bool recordingPackageNames = false;
 
 private:
   std::ofstream fileNameRecorderStream;
 
-  // package history file
 private:
+  // package history file
   std::string packageHistoryFile;
 
 private:
@@ -1057,6 +1048,7 @@ private:
   VersionedStartupConfig initStartupConfig;
 
 private:
+  // session initialization options provided by caller
   MiKTeX::Core::Session::InitInfo initInfo;
 
 private:
@@ -1104,8 +1096,8 @@ public:
     return engine;
   }
 
-  // registered root directories
 private:
+  // registered root directories
   std::vector<RootDirectoryInternals> rootDirectories;
 
 private:
@@ -1124,28 +1116,28 @@ private:
   void ConnectToServer();
 #endif
 
-  // index of common data root
 private:
+  // index of common data root
   unsigned commonDataRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;
 
-  // index of user data root
 private:
+  // index of user data root
   unsigned userDataRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;
 
-  // index of common install root
 private:
+  // index of common install root
   unsigned commonInstallRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;
 
-  // index of user install root
 private:
+  // index of user install root
   unsigned userInstallRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;
 
-  // index of common config root
 private:
+  // index of common config root
   unsigned commonConfigRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;
 
-  // index of user config root
 private:
+  // index of user config root
   unsigned userConfigRootIndex = MiKTeX::Core::INVALID_ROOT_INDEX;
 
 private:
@@ -1154,15 +1146,15 @@ private:
 private:
   std::set<std::string> valuesBeingExpanded;
 
+private:
   // the MiKTeXDirect flag:
   // TriState::True if running from a MiKTeXDirect medium
   // TriState::False if not running from a MiKTeXDirect medium
   // TriState::Undetermined otherwise
-private:
  MiKTeX::Configuration::TriState triMiKTeXDirect = MiKTeX::Configuration::TriState::Undetermined;
 
-  // fully qualified path to the running application file
 private:
+  // fully qualified path to the running application file
   MiKTeX::Util::PathName myProgramFile;
   MiKTeX::Util::PathName myProgramFileCanon;
 
@@ -1177,6 +1169,7 @@ private:
   void StartFinishScript(int delay);
 
 private:
+  // indicates whether the session has been initialized
   bool initialized = false;
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER

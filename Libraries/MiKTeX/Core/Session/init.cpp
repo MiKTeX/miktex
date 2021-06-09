@@ -285,7 +285,7 @@ void SessionImpl::InitializeStartupConfig()
     initStartupConfig.setupVersion = VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_PATCH_VERSION, 0);
   }
 
-  // evaluate init info
+  // evaluate startup config given by caller
   MergeStartupConfig(initStartupConfig, initInfo.GetStartupConfig());
 
   PathName commonPrefix;
@@ -353,7 +353,7 @@ void SessionImpl::InitializeStartupConfig()
   #endif
   }
 
-  // merge in the default settings
+  // merge in the default startup config
   MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, commonPrefix, userPrefix));
 }
 
