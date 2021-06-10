@@ -414,6 +414,7 @@ set(temporaryfile_sources
 set(session_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/RootDirectoryInternals.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/SessionImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/StartupConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/appnames.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/config.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/error.cpp
@@ -440,11 +441,13 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND session_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Session/win/runbat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Session/win/winSession.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Session/win/winStartupConfig.cpp
   )
 else()
   list(APPEND session_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Session/unx/runsh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Session/unx/unxSession.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Session/unx/unxStartupConfig.cpp
   )
 endif()
 
