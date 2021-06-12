@@ -346,12 +346,16 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
     }
     else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE).GetBool())
     {
-      PathName pathPackagesIniC(GetSpecialPath(SpecialPath::CommonInstallRoot), PathName(MIKTEX_PATH_PACKAGES_INI));
-      bool renew = IsNewer(pathPackagesIniC, result[0]);
-      if (!renew && !IsAdminMode() && GetUserConfigRoot() != GetCommonConfigRoot())
+      bool renew = false;
+      if (IsSharedSetup())
       {
-        PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), PathName(MIKTEX_PATH_PACKAGES_INI));
-        renew = IsNewer(pathPackagesIniU, result[0]);
+        PathName pathPackagesIni(GetSpecialPath(SpecialPath::CommonInstallRoot), PathName(MIKTEX_PATH_PACKAGES_INI));
+        renew = IsNewer(pathPackagesIni, result[0]);
+      }
+      if (!renew && !IsAdminMode() && (!IsSharedSetup() || GetUserConfigRoot() != GetCommonConfigRoot()))
+      {
+        PathName pathPackagesIni(GetSpecialPath(SpecialPath::UserInstallRoot), PathName(MIKTEX_PATH_PACKAGES_INI));
+        renew = IsNewer(pathPackagesIni, result[0]);
       }
       if (renew)
       {

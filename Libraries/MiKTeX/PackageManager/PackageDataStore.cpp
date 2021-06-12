@@ -244,11 +244,14 @@ PackageDataStore& PackageDataStore::Load()
       cfg->Read(userPath);
     }
   }
-  PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
-  if ((session->IsAdminMode() || session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize() != session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize()) && File::Exists(commonPath))
+  if (session->IsAdminMode() || session->IsSharedSetup() && session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize() != session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize())
   {
-    cfg->SetOptions({ Cfg::Option::NoOverwriteKeys });
-    cfg->Read(commonPath);
+    PathName commonPath = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI);
+    if (File::Exists(commonPath))
+    {
+      cfg->SetOptions({ Cfg::Option::NoOverwriteKeys });
+      cfg->Read(commonPath);
+    }
   }
   Load(*cfg);
   loadedAllPackageManifests = true;
@@ -383,7 +386,7 @@ void PackageDataStore::LoadVarData()
   {
     comboCfg.Load(
       session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI),
-      session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI));
+      session->IsSharedSetup() ? session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_PACKAGES_INI) : PathName());
   }
 }
 
@@ -440,7 +443,7 @@ bool PackageDataStore::IsRemovable(const string& packageId)
   else
   {
     // user can remove private packages
-    if (session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize() == session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize())
+    if (session->IsSharedSetup() && session->GetSpecialPath(SpecialPath::CommonInstallRoot).Canonicalize() == session->GetSpecialPath(SpecialPath::UserInstallRoot).Canonicalize())
     {
       ret = IsValidTimeT(GetTimeInstalled(packageId));
     }

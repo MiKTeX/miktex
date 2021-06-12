@@ -439,17 +439,9 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
 #endif
 
   vector<string> gsDirectories;
-  PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("ghostscript") / PathName("base");
-  if (Directory::Exists(gsDir))
+  if (IsSharedSetup())
   {
-#if defined(MIKTEX_WINDOWS)
-    gsDir.ConvertToUnix();
-#endif
-    gsDirectories.push_back(gsDir.ToString());
-  }
-  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
-  {
-    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("ghostscript") / PathName("base");
+    PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("ghostscript") / PathName("base");
     if (Directory::Exists(gsDir))
     {
 #if defined(MIKTEX_WINDOWS)
@@ -458,17 +450,31 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
       gsDirectories.push_back(gsDir.ToString());
     }
   }
-  gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("fonts");
-  if (Directory::Exists(gsDir))
+  if (!IsAdminMode() && (!IsSharedSetup() || GetUserInstallRoot() != GetCommonInstallRoot()))
   {
+    PathName gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("ghostscript") / PathName("base");
+    if (Directory::Exists(gsDir))
+    {
 #if defined(MIKTEX_WINDOWS)
-    gsDir.ConvertToUnix();
+      gsDir.ConvertToUnix();
 #endif
-    gsDirectories.push_back(gsDir.ToString());
+      gsDirectories.push_back(gsDir.ToString());
+    }
   }
-  if (!IsAdminMode() && GetUserInstallRoot() != GetCommonInstallRoot())
+  if (IsSharedSetup())
   {
-    gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("fonts");
+    PathName gsDir = GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName("fonts");
+    if (Directory::Exists(gsDir))
+    {
+#if defined(MIKTEX_WINDOWS)
+      gsDir.ConvertToUnix();
+#endif
+      gsDirectories.push_back(gsDir.ToString());
+    }
+  }
+  if (!IsAdminMode() && (!IsSharedSetup() || GetUserInstallRoot() != GetCommonInstallRoot()))
+  {
+    PathName gsDir = GetSpecialPath(SpecialPath::UserInstallRoot) / PathName("fonts");
     if (Directory::Exists(gsDir))
     {
 #if defined(MIKTEX_WINDOWS)

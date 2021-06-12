@@ -182,25 +182,29 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
   try
   {
     CreateSession();
-    _bstr_t version = UW_(MIKTEX_LEGACY_MAJOR_MINOR_STR);
-    _bstr_t binDirectory = UW_(session->GetSpecialPath(SpecialPath::BinDirectory).ToWideCharString());
-    _bstr_t installRoot = UW_(session->GetSpecialPath(SpecialPath::InstallRoot).ToWideCharString());
-    _bstr_t commonConfigRoot;
-    _bstr_t commonDataRoot;
-    commonConfigRoot = UW_(session->GetSpecialPath(SpecialPath::CommonConfigRoot).ToWideCharString());
-    commonDataRoot = UW_(session->GetSpecialPath(SpecialPath::CommonDataRoot).ToWideCharString());
-    _bstr_t userConfigRoot = UW_(session->GetSpecialPath(SpecialPath::UserConfigRoot).ToWideCharString());
-    _bstr_t userDataRoot = UW_(session->GetSpecialPath(SpecialPath::UserDataRoot).ToWideCharString());
-    setupInfo->sharedSetup = TriState::Undetermined == TriState::True ? VARIANT_TRUE : VARIANT_FALSE;
+    if (!session->IsAdminMode())
+    {
+      _bstr_t userConfigRoot = UW_(session->GetSpecialPath(SpecialPath::UserConfigRoot).ToWideCharString());
+      _bstr_t userDataRoot = UW_(session->GetSpecialPath(SpecialPath::UserDataRoot).ToWideCharString());
+      setupInfo->userConfigRoot = userConfigRoot.Detach();
+      setupInfo->userDataRoot = userDataRoot.Detach();
+    }
+    if (session->IsSharedSetup())
+    {
+      _bstr_t commonConfigRoot = UW_(session->GetSpecialPath(SpecialPath::CommonConfigRoot).ToWideCharString());
+      _bstr_t commonDataRoot = UW_(session->GetSpecialPath(SpecialPath::CommonDataRoot).ToWideCharString());
+      setupInfo->commonConfigRoot = commonConfigRoot.Detach();
+      setupInfo->commonDataRoot = commonDataRoot.Detach();
+    }
+    setupInfo->sharedSetup = session->IsSharedSetup() ? VARIANT_TRUE : VARIANT_FALSE;
     setupInfo->series = MIKTEX_MAJOR_MINOR_INT;
     setupInfo->numRoots = session->GetNumberOfTEXMFRoots();
+    _bstr_t version = UW_(MIKTEX_LEGACY_MAJOR_MINOR_STR);
     setupInfo->version = version.Detach();
+    _bstr_t binDirectory = UW_(session->GetSpecialPath(SpecialPath::BinDirectory).ToWideCharString());
     setupInfo->binDirectory = binDirectory.Detach();
+    _bstr_t installRoot = UW_(session->GetSpecialPath(SpecialPath::InstallRoot).ToWideCharString());
     setupInfo->installRoot = installRoot.Detach();
-    setupInfo->commonConfigRoot = commonConfigRoot.Detach();
-    setupInfo->commonDataRoot = commonDataRoot.Detach();
-    setupInfo->userConfigRoot = userConfigRoot.Detach();
-    setupInfo->userDataRoot = userDataRoot.Detach();
     return S_OK;
 
   }

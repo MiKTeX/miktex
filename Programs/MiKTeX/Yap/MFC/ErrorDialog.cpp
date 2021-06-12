@@ -237,15 +237,18 @@ string ErrorDialogImpl::CreateReport()
       s << "UserData: "
         << pSession->GetSpecialPath(SpecialPath::UserDataRoot).GetData()
         << endl;
-      s << "CommonInstall: "
-        << pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData()
-        << endl;
-      s << "CommonConfig: "
-        << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData())
-        << endl;
-      s << "CommonData: "
-        << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
-        << endl;
+      if (pSession->IsSharedSetup())
+      {
+        s << "CommonInstall: "
+          << pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData()
+          << endl;
+        s << "CommonConfig: "
+          << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData())
+          << endl;
+        s << "CommonData: "
+          << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
+          << endl;
+      }
     }
     catch (const exception&)
     {

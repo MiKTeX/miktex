@@ -34,19 +34,22 @@ using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;
 
 void ComboCfg::Load(const PathName& fileNameUser_, const PathName& fileNameCommon_)
 {
-  fileNameUser = fileNameUser_;
-  fileNameCommon = fileNameCommon_;
   if (!session->IsAdminMode())
   {
+    fileNameUser = fileNameUser_;
     fileNameUser.Canonicalize();
   }
-  fileNameCommon.Canonicalize();
-  cfgCommon = Cfg::Create();
-  if (File::Exists(fileNameCommon))
+  if (session->IsSharedSetup())
   {
-    cfgCommon->Read(fileNameCommon);
+    fileNameCommon = fileNameCommon_;
+    fileNameCommon.Canonicalize();
+    cfgCommon = Cfg::Create();
+    if (File::Exists(fileNameCommon))
+    {
+      cfgCommon->Read(fileNameCommon);
+    }
+    cfgCommon->SetModified(false);
   }
-  cfgCommon->SetModified(false);
   if (!session->IsAdminMode() && fileNameCommon != fileNameUser)
   {
     cfgUser = Cfg::Create();

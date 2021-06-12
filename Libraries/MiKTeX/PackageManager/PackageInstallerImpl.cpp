@@ -298,15 +298,22 @@ void PackageInstallerImpl::InstallRepositoryManifest(bool fromCache)
   if (fromCache && !session->IsAdminMode())
   {
     // find the newest mpm.ini
-    PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
-      / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-      / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX);
     PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
       / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
       / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX);
-    cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), userCacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME))
-      ? commonCacheDirectory
-      : userCacheDirectory;
+    if (session->IsSharedSetup())
+    {
+      PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
+        / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
+        / PathName(MIKTEX_REPOSITORY_MANIFEST_ARCHIVE_FILE_NAME_NO_SUFFIX);
+      cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME), userCacheDirectory / PathName(MIKTEX_MPM_INI_FILENAME))
+        ? commonCacheDirectory
+        : userCacheDirectory;
+    }
+    else
+    {
+      cacheDirectory = userCacheDirectory;
+    }
   }
   else
   {
@@ -1963,8 +1970,8 @@ void PackageInstallerImpl::DownloadThread()
 
 void PackageInstallerImpl::CleanUpUserDatabase()
 {
-  MIKTEX_ASSERT(!session->IsAdminMode());
-  
+  MIKTEX_ASSERT(session->IsSharedSetup() && !session->IsAdminMode());
+
   PathName userManifestsPath(session->GetSpecialPath(SpecialPath::UserInstallRoot), PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI));
   PathName commonManifestsPath(session->GetSpecialPath(SpecialPath::CommonInstallRoot), PathName(MIKTEX_PATH_PACKAGE_MANIFESTS_INI));
 
@@ -2122,15 +2129,22 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
   if (options[UpdateDbOption::FromCache] && !session->IsAdminMode())
   {
     // find the newest package-manifests.ini
-    PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
-      / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
-      / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX);
     PathName userCacheDirectory = session->GetSpecialPath(SpecialPath::UserDataRoot)
       / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
       / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX);
-    cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME), userCacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME))
-      ? commonCacheDirectory
-      : userCacheDirectory;
+    if (session->IsSharedSetup())
+    {
+      PathName commonCacheDirectory = session->GetSpecialPath(SpecialPath::CommonDataRoot)
+        / PathName(MIKTEX_PATH_MIKTEX_PACKAGE_CACHE_DIR)
+        / PathName(MIKTEX_PACKAGE_MANIFESTS_ARCHIVE_FILE_NAME_NO_SUFFIX);
+      cacheDirectory = !Directory::Exists(userCacheDirectory) || IsNewer(commonCacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME), userCacheDirectory / PathName(MIKTEX_PACKAGE_MANIFESTS_INI_FILENAME))
+        ? commonCacheDirectory
+        : userCacheDirectory;
+    }
+    else
+    {
+      cacheDirectory = userCacheDirectory;
+    }
   }
   else
   {
@@ -2206,7 +2220,7 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
     bool knownPackage;
     PackageInfo existingPackage;
     tie(knownPackage, existingPackage) = packageDataStore->TryGetPackage(packageId);
-    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() || session->GetSpecialPath(SpecialPath::CommonInstallRoot) == session->GetSpecialPath(SpecialPath::UserInstallRoot) ? existingPackage.IsInstalled(ConfigurationScope::Common) : existingPackage.IsInstalled(ConfigurationScope::User)))
+    if (!IsPureContainer(packageId) && knownPackage && (session->IsAdminMode() || session->IsSharedSetup() && session->GetSpecialPath(SpecialPath::CommonInstallRoot) == session->GetSpecialPath(SpecialPath::UserInstallRoot) ? existingPackage.IsInstalled(ConfigurationScope::Common) : existingPackage.IsInstalled(ConfigurationScope::User)))
     {
       continue;
     }
@@ -2233,7 +2247,7 @@ void PackageInstallerImpl::UpdateDbNoLock(UpdateDbOptionSet options)
   ReportLine(fmt::format(T_("installed {0} package manifests"), count));
 
   // clean up the user database
-  if (!session->IsAdminMode())
+  if (session->IsSharedSetup() && !session->IsAdminMode())
   {
     CleanUpUserDatabase();
   }

@@ -179,31 +179,34 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
     }
   }
 
-  // CommonConfig
-  if (!startupConfig.commonConfigRoot.Empty())
+  if (startupConfig.isSharedSetup == TriState::True)
   {
-    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, RootDirectoryInfo::Purpose::Config, ConfigurationScope::Common, false, review);
-  }
-
-  // CommonData
-  if (!startupConfig.commonDataRoot.Empty())
-  {
-    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, RootDirectoryInfo::Purpose::Data, ConfigurationScope::Common, false, review);
-  }
-
-  // CommonRoots
-  for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathNameUtil::PathNameDelimiter))
-  {
-    if (!root.empty())
+    // CommonConfig
+    if (!startupConfig.commonConfigRoot.Empty())
     {
-      RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
+      commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, RootDirectoryInfo::Purpose::Config, ConfigurationScope::Common, false, review);
     }
-  }
 
-  // CommonInstall
-  if (!startupConfig.commonInstallRoot.Empty())
-  {
-    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, ConfigurationScope::Common, false, review);
+    // CommonData
+    if (!startupConfig.commonDataRoot.Empty())
+    {
+      commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, RootDirectoryInfo::Purpose::Data, ConfigurationScope::Common, false, review);
+    }
+
+    // CommonRoots
+    for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathNameUtil::PathNameDelimiter))
+    {
+      if (!root.empty())
+      {
+        RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, false, review);
+      }
+    }
+
+    // CommonInstall
+    if (!startupConfig.commonInstallRoot.Empty())
+    {
+      commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, RootDirectoryInfo::Purpose::Install, ConfigurationScope::Common, false, review);
+    }
   }
 
   if (!IsAdminMode())
@@ -218,12 +221,15 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
     }
   }
 
-  // OtherCommonRoots
-  for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathNameUtil::PathNameDelimiter))
+  if (startupConfig.isSharedSetup == TriState::True)
   {
-    if (!root.empty())
+    // OtherCommonRoots
+    for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathNameUtil::PathNameDelimiter))
     {
-      RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
+      if (!root.empty())
+      {
+        RegisterRootDirectory(PathName(root), RootDirectoryInfo::Purpose::Generic, ConfigurationScope::Common, true, review);
+      }
     }
   }
 
@@ -248,19 +254,22 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
     }
   }
 
-  if (commonDataRootIndex == INVALID_ROOT_INDEX)
+  if (startupConfig.isSharedSetup == TriState::True)
   {
-    commonDataRootIndex = 0;
-  }
-  
-  if (commonConfigRootIndex == INVALID_ROOT_INDEX)
-  {
-    commonConfigRootIndex = commonDataRootIndex;
-  }
+    if (commonDataRootIndex == INVALID_ROOT_INDEX)
+    {
+      commonDataRootIndex = 0;
+    }
+    
+    if (commonConfigRootIndex == INVALID_ROOT_INDEX)
+    {
+      commonConfigRootIndex = commonDataRootIndex;
+    }
 
-  if (commonInstallRootIndex == INVALID_ROOT_INDEX)
-  {
-    commonInstallRootIndex = commonConfigRootIndex;
+    if (commonInstallRootIndex == INVALID_ROOT_INDEX)
+    {
+      commonInstallRootIndex = commonConfigRootIndex;
+    }
   }
 
   RegisterRootDirectory(PathName(MPM_ROOT_PATH), RootDirectoryInfo::Purpose::Generic, IsAdminMode() ? ConfigurationScope::Common : ConfigurationScope::User, false, false);
@@ -272,9 +281,12 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
     trace_config->WriteLine("core", fmt::format("UserInstall: {}", GetRootDirectoryPath(userInstallRootIndex)));
   }
 
-  trace_config->WriteLine("core", fmt::format("CommonData: {}", GetRootDirectoryPath(commonDataRootIndex)));
-  trace_config->WriteLine("core", fmt::format("CommonConfig: {}", GetRootDirectoryPath(commonConfigRootIndex)));
-  trace_config->WriteLine("core", fmt::format("CommonInstall: {}", GetRootDirectoryPath(commonInstallRootIndex)));
+  if (startupConfig.isSharedSetup == TriState::True)
+  {
+    trace_config->WriteLine("core", fmt::format("CommonData: {}", GetRootDirectoryPath(commonDataRootIndex)));
+    trace_config->WriteLine("core", fmt::format("CommonConfig: {}", GetRootDirectoryPath(commonConfigRootIndex)));
+    trace_config->WriteLine("core", fmt::format("CommonInstall: {}", GetRootDirectoryPath(commonInstallRootIndex)));
+  }
 }
 
 vector<RootDirectoryInfo> SessionImpl::GetRootDirectories()
@@ -1018,13 +1030,12 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathN
 
 bool SessionImpl::IsManagedRoot(unsigned root)
 {
-  return
-    root == GetUserInstallRoot() ||
-    root == GetUserConfigRoot() ||
-    root == GetUserDataRoot() ||
-    root == GetCommonInstallRoot() ||
-    root == GetCommonConfigRoot() ||
-    root == GetCommonDataRoot();
+  return root == GetUserInstallRoot() ||
+         root == GetUserConfigRoot() ||
+         root == GetUserDataRoot() ||
+         initStartupConfig.isSharedSetup == TriState::True && (root == GetCommonInstallRoot() ||
+                                                               root == GetCommonConfigRoot() ||
+                                                               root == GetCommonDataRoot());
 }
 
 bool SessionImpl::IsMpmFile(const char* lpszPath)

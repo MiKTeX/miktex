@@ -77,7 +77,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
     {
       leInstallationSource->setText(tr("<Random package repository>"));
     }
-    PathName commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+    PathName commonInstallRoot = session->IsSharedSetup() ? session->GetSpecialPath(SpecialPath::CommonInstallRoot) : PathName();
     PathName userInstallRoot = session->IsAdminMode() ? PathName() : session->GetSpecialPath(SpecialPath::UserInstallRoot);
     bool enableCommonInstall = session->IsSharedSetup() && (session->IsAdminMode() || session->IsUserAnAdministrator());
     enableCommonInstall = enableCommonInstall && Directory::Exists(commonInstallRoot);

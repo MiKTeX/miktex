@@ -804,15 +804,21 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   }
   else if (varName == "TEXMFSYSCONFIG")
   {
-    path = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-    varValue = path.ToUnix().ToString();
-    result = true;
+    if (session->IsSharedSetup())
+    {
+      path = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
+      varValue = path.ToUnix().ToString();
+      result = true;
+    }
   }
   else if (varName == "TEXMFSYSVAR")
   {
-    path = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-    varValue = path.ToUnix().ToString();
-    result = true;
+    if (session->IsSharedSetup())
+    {
+      path = session->GetSpecialPath(SpecialPath::CommonDataRoot);
+      varValue = path.ToUnix().ToString();
+      result = true;
+    }
   }
   else if (varName == "TEXMFVAR")
   {

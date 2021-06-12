@@ -154,12 +154,15 @@ void SessionImpl::RegisterFileType(FileType fileType)
         searchPath.push_back(userBinDir.ToString());
       }
     }
-    PathName commonBinDir = GetSpecialPath(SpecialPath::CommonInstallRoot);
-    commonBinDir /= MIKTEX_PATH_BIN_DIR;
-    commonBinDir.Canonicalize();
-    if (std::find(searchPath.begin(), searchPath.end(), commonBinDir.ToString()) == searchPath.end())
+    if (IsSharedSetup())
     {
-      searchPath.push_back(commonBinDir.ToString());
+      PathName commonBinDir = GetSpecialPath(SpecialPath::CommonInstallRoot);
+      commonBinDir /= MIKTEX_PATH_BIN_DIR;
+      commonBinDir.Canonicalize();
+      if (std::find(searchPath.begin(), searchPath.end(), commonBinDir.ToString()) == searchPath.end())
+      {
+        searchPath.push_back(commonBinDir.ToString());
+      }
     }
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, str))

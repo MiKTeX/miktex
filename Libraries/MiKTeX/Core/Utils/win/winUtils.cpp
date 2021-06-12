@@ -1064,11 +1064,16 @@ bool Utils::CheckPath(bool repair)
     }
   }
 
-  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
-
+  PathName commonBinDir;
   string repairedSystemPath;
-  bool systemPathCompetition;
-  bool systemPathOkay = !Directory::Exists(commonBinDir) || !FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
+  bool systemPathCompetition = false;
+  bool systemPathOkay = true;
+
+  if (session->IsSharedSetup())
+  {
+    commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot) / PathName(MIKTEX_PATH_BIN_DIR);
+    systemPathOkay = !Directory::Exists(commonBinDir) || !FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
+  }
 
   bool repaired = false;
   bool userPathOkay = true;

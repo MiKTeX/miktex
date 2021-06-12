@@ -798,10 +798,13 @@ bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
     userBinDir.AppendDirectoryDelimiter();
     binDirectories.push_back(userBinDir);
   }
-  PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-  commonBinDir /= MIKTEX_PATH_BIN_DIR;
-  commonBinDir.AppendDirectoryDelimiter();
-  binDirectories.push_back(commonBinDir);
+  if (session->IsSharedSetup())
+  {
+    PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+    commonBinDir /= MIKTEX_PATH_BIN_DIR;
+    commonBinDir.AppendDirectoryDelimiter();
+    binDirectories.push_back(commonBinDir);
+  }
   for (const string& entry : StringUtil::Split(path, PathNameUtil::PathNameDelimiter))
   {
     PathName dir(entry);

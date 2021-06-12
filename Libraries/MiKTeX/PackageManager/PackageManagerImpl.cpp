@@ -1139,7 +1139,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackageNoLock(const string& packageId
     prefix = session->GetSpecialPath(SpecialPath::UserInstallRoot);
   }
 
-  if (prefix.Empty())
+  if (prefix.Empty() && session->IsSharedSetup())
   {
     prefix = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   }

@@ -681,14 +681,17 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
   if (options.Task == SetupTask::CleanUp)
   {
-    options.Config.commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    options.Config.commonConfigRoot = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-    options.Config.commonDataRoot = session->GetSpecialPath(SpecialPath::CommonDataRoot);
     if (!session->IsAdminMode())
     {
       options.Config.userInstallRoot = session->GetSpecialPath(SpecialPath::UserInstallRoot);
       options.Config.userConfigRoot = session->GetSpecialPath(SpecialPath::UserConfigRoot);
       options.Config.userDataRoot = session->GetSpecialPath(SpecialPath::UserDataRoot);
+    }
+    if (session->IsSharedSetup())
+    {
+      options.Config.commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+      options.Config.commonConfigRoot = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
+      options.Config.commonDataRoot = session->GetSpecialPath(SpecialPath::CommonDataRoot);
     }
     return;
   }
@@ -1885,9 +1888,12 @@ void SetupServiceImpl::WriteReport(ostream& s, ReportOptionSet options)
         << "UserConfig: " << session->GetSpecialPath(SpecialPath::UserConfigRoot) << "\n"
         << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << "\n";
     }
-    s <<"CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
-      << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
-      << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
+    if (session->IsSharedSetup())
+    {
+      s << "CommonInstall: " << session->GetSpecialPath(SpecialPath::CommonInstallRoot) << "\n"
+        << "CommonConfig: " << session->GetSpecialPath(SpecialPath::CommonConfigRoot) << "\n"
+        << "CommonData: " << session->GetSpecialPath(SpecialPath::CommonDataRoot) << "\n";
+    }
   }
   if (options[ReportOption::Processes])
   {
