@@ -120,5 +120,13 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
     ret.commonDataRoot = system_miktex_texmfs / PathName("data");
     ret.commonInstallRoot = system_miktex_texmfs / PathName("install");
   }
+
+  PathName myLoc = GetMyLocation(true);
+#if defined(MIKTEX_MACOS_BUNDLE)
+  ret.isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/Applications"), myLoc) ? TriState::True : TriState::False;
+#else
+  ret.isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/opt"), myLoc) ? TriState::True : TriState::False;
+#endif
+
   return ret;
 }

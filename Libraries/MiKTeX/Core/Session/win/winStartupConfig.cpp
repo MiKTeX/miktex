@@ -201,6 +201,7 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
     }
     ret.userInstallRoot = ret.userConfigRoot;
   }
+  ret.isSharedSetup = TriState::False;
   return ret;
 }
 
@@ -214,6 +215,14 @@ InternalStartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
 
   if (scope == ConfigurationScope::Common)
   {
+    if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, str))
+    {
+      ret.isSharedSetup = ConfigValue(str).GetTriState();
+    }
+    if (ret.isSharedSetup == TriState::Undetermined && winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, str))
+    {
+        ret.isSharedSetup = TriState::True;
+    }
     if (winRegistry::TryGetValue(ConfigurationScope::Common, MIKTEX_CONFIG_SECTION_SETUP, MIKTEX_CONFIG_VALUE_VERSION, str))
     {
       ret.setupVersion = VersionNumber::Parse(str);

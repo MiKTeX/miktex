@@ -131,6 +131,9 @@ struct InternalStartupConfig :
   {
   }
   
+  /// Indicates whether the installation is shared by all users.
+  MiKTeX::Configuration::TriState isSharedSetup = MiKTeX::Configuration::TriState::Undetermined;
+
   /// MiKTeX setup version.
   MiKTeX::Core::VersionNumber setupVersion;
 };
@@ -849,6 +852,9 @@ private:
 
 private:
   InternalStartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Util::PathName& path);
+
+private:
+  InternalStartupConfig ReadMiKTeXConfig(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Util::PathName& path);
 
 private:
   MiKTeX::Util::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber version);

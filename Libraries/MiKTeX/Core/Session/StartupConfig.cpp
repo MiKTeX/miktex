@@ -156,6 +156,12 @@ void SessionImpl::InitializeStartupConfig()
       MergeStartupConfig(initStartupConfig, ReadStartupConfigFile(ConfigurationScope::User, userStartupConfigFile));
     }
 
+    PathName miKTeXConfig;
+    if (FindBinRelative(PathName(MIKTEX_PATH_MIKTEX_INI), miKTeXConfig))
+    {
+      MergeStartupConfig(initStartupConfig, ReadMiKTeXConfig(ConfigurationScope::Common, miKTeXConfig));
+    }
+
   #if USE_WINDOWS_REGISTRY
     if (initStartupConfig.config != MiKTeXConfiguration::Portable)
     {
@@ -430,6 +436,31 @@ InternalStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scop
   return ret;
 }
 
+InternalStartupConfig SessionImpl::ReadMiKTeXConfig(ConfigurationScope scope, const PathName& path)
+{
+  InternalStartupConfig ret;
+
+  unique_ptr<Cfg> cfg(Cfg::Create());
+
+  cfg->Read(path);
+
+  string str;
+
+  if (cfg->TryGetValueAsString(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, str))
+  {
+    ret.isSharedSetup = ConfigValue(str).GetTriState();
+  }
+  
+  if (ret.isSharedSetup == TriState::Undetermined && cfg->TryGetValueAsString(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, str))
+  {
+    ret.isSharedSetup = TriState::True;
+  }
+
+  cfg = nullptr;
+
+  return ret;
+}
+
 void SessionImpl::SaveStartupConfig(const InternalStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
   trace_core->WriteLine("core", TraceLevel::Info, fmt::format(T_("saving startup configuration; setupVersion={0}"), startupConfig.setupVersion));
@@ -609,6 +640,10 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Interna
 
 void SessionImpl::MergeStartupConfig(InternalStartupConfig& startupConfig, const InternalStartupConfig& defaults)
 {
+  if (startupConfig.isSharedSetup == TriState::Undetermined)
+  {
+    startupConfig.isSharedSetup = defaults.isSharedSetup;
+  }
   if (startupConfig.setupVersion == VersionNumber())
   {
     startupConfig.setupVersion = defaults.setupVersion;

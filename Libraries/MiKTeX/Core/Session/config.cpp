@@ -525,29 +525,7 @@ bool SessionImpl::IsAdminMode()
 
 bool SessionImpl::IsSharedSetup()
 {
-  if (isSharedSetup == TriState::Undetermined)
-  {
-    isSharedSetup = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHARED_SETUP, ConfigValue(TriState::Undetermined)).GetTriState();
-    if (isSharedSetup == TriState::Undetermined)
-    {
-      string value;
-      isSharedSetup = TryGetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
-      if (isSharedSetup == TriState::Undetermined)
-      {
-#if defined(MIKTEX_WINDOWS)
-        isSharedSetup = TriState::False;
-#else
-        PathName myLoc = GetMyLocation(true);
-#if defined(MIKTEX_MACOS_BUNDLE)
-        isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/Applications"), myLoc) ? TriState::True : TriState::False;
-#else
-        isSharedSetup = Utils::IsParentDirectoryOf(PathName("/usr"), myLoc) || Utils::IsParentDirectoryOf(PathName("/opt"), myLoc) ? TriState::True : TriState::False;
-#endif
-#endif
-      }
-    }
-  }
-  return isSharedSetup == TriState::True;
+  return initStartupConfig.isSharedSetup == TriState::True;
 }
 
 void SessionImpl::ConfigureFile(const PathName& pathRel, HasNamedValues* callback)
