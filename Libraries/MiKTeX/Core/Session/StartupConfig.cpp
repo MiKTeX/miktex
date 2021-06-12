@@ -176,6 +176,36 @@ void SessionImpl::InitializeStartupConfig()
   MergeStartupConfig(initStartupConfig, DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, commonPrefix, userPrefix));
 }
 
+bool SessionImpl::FindBinRelative(const PathName& relPath, PathName& path)
+{
+  // try the prefix of the internal bin directory
+  PathName myloc = GetMyLocation(true);
+  RemoveDirectoryDelimiter(myloc.GetData());
+  PathName internalBindir(MIKTEX_PATH_INTERNAL_BIN_DIR);
+  RemoveDirectoryDelimiter(internalBindir.GetData());
+  PathName prefix;
+  if (Utils::GetPathNamePrefix(myloc, internalBindir, prefix))
+  {
+    path = prefix / relPath;
+    if (File::Exists(path))
+    {
+      return true;
+    }
+  }
+  // try the prefix of the bin directory
+  PathName bindir(MIKTEX_PATH_BIN_DIR);
+  RemoveDirectoryDelimiter(bindir.GetData());
+  if (Utils::GetPathNamePrefix(myloc, bindir, prefix))
+  {
+    path = prefix / relPath;
+    if (File::Exists(path))
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path)
 {
   string str;
@@ -202,30 +232,9 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
 
   if (scope == ConfigurationScope::Common)
   {
-    // try the prefix of the internal bin directory
-    PathName myloc = GetMyLocation(true);
-    RemoveDirectoryDelimiter(myloc.GetData());
-    PathName internalBindir(MIKTEX_PATH_INTERNAL_BIN_DIR);
-    RemoveDirectoryDelimiter(internalBindir.GetData());
-    PathName prefix;
-    if (Utils::GetPathNamePrefix(myloc, internalBindir, prefix))
+    if (FindBinRelative(PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE), path))
     {
-      path = prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
-      if (File::Exists(path))
-      {
-        return true;
-      }
-    }
-    // try the prefix of the bin directory
-    PathName bindir(MIKTEX_PATH_BIN_DIR);
-    RemoveDirectoryDelimiter(bindir.GetData());
-    if (Utils::GetPathNamePrefix(myloc, bindir, prefix))
-    {
-      path = prefix / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
-      if (File::Exists(path))
-      {
-        return true;
-      }
+      return true;
     }
     // try /var/lib/miktex-texmf/miktex/config/miktexstartup.ini
     path = defaultStartupConfig.commonConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
@@ -257,11 +266,11 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
   return false;
 }
 
-VersionedStartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
+InternalStartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  VersionedStartupConfig ret;
+  InternalStartupConfig ret;
 
   string str;
 
@@ -315,9 +324,9 @@ VersionedStartupConfig SessionImpl::ReadEnvironment(ConfigurationScope scope)
   return ret;
 }
 
-VersionedStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
+InternalStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scope, const PathName& path)
 {
-  VersionedStartupConfig ret;
+  InternalStartupConfig ret;
 
   unique_ptr<Cfg> cfg(Cfg::Create());
 
@@ -421,7 +430,7 @@ VersionedStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope sco
   return ret;
 }
 
-void SessionImpl::SaveStartupConfig(const VersionedStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
+void SessionImpl::SaveStartupConfig(const InternalStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
   trace_core->WriteLine("core", TraceLevel::Info, fmt::format(T_("saving startup configuration; setupVersion={0}"), startupConfig.setupVersion));
 #if defined(MIKTEX_WINDOWS)
@@ -536,11 +545,11 @@ void PutPathValue(Cfg* cfg, const string& valueName, const string& pathValue, co
   }
 }
 
-void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const VersionedStartupConfig& startupConfig)
+void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const InternalStartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  VersionedStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
+  InternalStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
 
   PathName userStartupConfigFile = GetStartupConfigFile(ConfigurationScope::User, startupConfig.config, startupConfig.setupVersion);
   PathName commonStartupConfigFile = GetStartupConfigFile(ConfigurationScope::Common, startupConfig.config, startupConfig.setupVersion);
@@ -598,7 +607,7 @@ void SessionImpl::WriteStartupConfigFile(ConfigurationScope scope, const Version
   cfg->Write(scope == ConfigurationScope::Common ? commonStartupConfigFile : userStartupConfigFile, T_("MiKTeX startup information"));
 }
 
-void SessionImpl::MergeStartupConfig(VersionedStartupConfig& startupConfig, const VersionedStartupConfig& defaults)
+void SessionImpl::MergeStartupConfig(InternalStartupConfig& startupConfig, const InternalStartupConfig& defaults)
 {
   if (startupConfig.setupVersion == VersionNumber())
   {

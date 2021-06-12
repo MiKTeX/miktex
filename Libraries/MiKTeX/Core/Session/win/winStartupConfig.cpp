@@ -46,9 +46,9 @@ using namespace MiKTeX::Util;
  * CommonData:    C:\ProgramData\MiKTeX
  * CommonInstall: C:\Program Files\MiKTeX
  */
-VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
+InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
-  VersionedStartupConfig ret;
+  InternalStartupConfig ret;
   if (config == MiKTeXConfiguration::None)
   {
     config = MiKTeXConfiguration::Regular;
@@ -204,11 +204,11 @@ VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ve
   return ret;
 }
 
-VersionedStartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
+InternalStartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  VersionedStartupConfig ret;
+  InternalStartupConfig ret;
 
   string str;
 
@@ -270,11 +270,11 @@ VersionedStartupConfig SessionImpl::ReadRegistry(ConfigurationScope scope)
   return ret;
 }
 
-void SessionImpl::WriteRegistry(ConfigurationScope scope, const VersionedStartupConfig& startupConfig)
+void SessionImpl::WriteRegistry(ConfigurationScope scope, const InternalStartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
-  VersionedStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
+  InternalStartupConfig defaultConfig = DefaultConfig(startupConfig.config, startupConfig.setupVersion, PathName(), PathName());
 
   // remove registry values
   if (scope == ConfigurationScope::Common)

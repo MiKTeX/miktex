@@ -119,14 +119,14 @@ struct DvipsPaperSizeInfo :
   std::vector<std::string> definition;
 };
 
-struct VersionedStartupConfig :
+struct InternalStartupConfig :
   public MiKTeX::Core::StartupConfig
 {
-  VersionedStartupConfig()
+  InternalStartupConfig()
   {
   }
 
-  VersionedStartupConfig(const MiKTeX::Core::StartupConfig& parent) :
+  InternalStartupConfig(const MiKTeX::Core::StartupConfig& parent) :
     StartupConfig(parent)
   {
   }
@@ -842,35 +842,38 @@ private:
   unsigned RegisterRootDirectory(const MiKTeX::Util::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, MiKTeX::Core::ConfigurationScope scope, bool other, bool review);
 
 private:
+  bool FindBinRelative(const MiKTeX::Util::PathName& relPath, MiKTeX::Util::PathName& path);
+
+private:
   bool FindStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Util::PathName& path);
 
 private:
-  VersionedStartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Util::PathName& path);
+  InternalStartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Util::PathName& path);
 
 private:
   MiKTeX::Util::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber version);
 
 private:
-  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const VersionedStartupConfig& startupConfig);
+  void WriteStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const InternalStartupConfig& startupConfig);
 
 private:
-  VersionedStartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
+  InternalStartupConfig ReadEnvironment(MiKTeX::Core::ConfigurationScope scope);
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  VersionedStartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
+  InternalStartupConfig ReadRegistry(MiKTeX::Core::ConfigurationScope scope);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const VersionedStartupConfig& startupConfig);
+  void WriteRegistry(MiKTeX::Core::ConfigurationScope scope, const InternalStartupConfig& startupConfig);
 #endif
 
 private:
-  VersionedStartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber setupVersion, const MiKTeX::Util::PathName& commonPrefix, const MiKTeX::Util::PathName& userPrefix);
+  InternalStartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber setupVersion, const MiKTeX::Util::PathName& commonPrefix, const MiKTeX::Util::PathName& userPrefix);
 
 private:
-  VersionedStartupConfig DefaultConfig()
+  InternalStartupConfig DefaultConfig()
   {
     return DefaultConfig(initStartupConfig.config, initStartupConfig.setupVersion, MiKTeX::Util::PathName(), MiKTeX::Util::PathName());
   }
@@ -879,13 +882,13 @@ private:
   void InitializeStartupConfig();
 
 private:
-  void MergeStartupConfig(VersionedStartupConfig& startupConfig, const VersionedStartupConfig& defaults);
+  void MergeStartupConfig(InternalStartupConfig& startupConfig, const InternalStartupConfig& defaults);
 
 private:
-  void InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review);
+  void InitializeRootDirectories(const InternalStartupConfig& startupConfig, bool review);
 
 private:
-  void SaveStartupConfig(const VersionedStartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
+  void SaveStartupConfig(const InternalStartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options);
 
 private:
   bool IsTeXMFReadOnly(unsigned r);
@@ -1045,7 +1048,7 @@ private:
   std::vector<LanguageInfo_> languages;
 
 private:
-  VersionedStartupConfig initStartupConfig;
+  InternalStartupConfig initStartupConfig;
 
 private:
   // session initialization options provided by caller

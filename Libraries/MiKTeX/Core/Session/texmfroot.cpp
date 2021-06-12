@@ -138,7 +138,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
   return idx;
 }
 
-void SessionImpl::InitializeRootDirectories(const VersionedStartupConfig& startupConfig, bool review)
+void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startupConfig, bool review)
 {
   rootDirectories.clear();
 
@@ -517,7 +517,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
   // clear the search path cache
   ClearSearchVectors();
 
-  VersionedStartupConfig startupConfig = partialStartupConfig;
+  InternalStartupConfig startupConfig = partialStartupConfig;
   startupConfig.config = initStartupConfig.config;
   startupConfig.setupVersion = initStartupConfig.setupVersion;
   auto setupConfig = GetSetupConfig();

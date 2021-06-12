@@ -48,9 +48,9 @@ using namespace MiKTeX::Util;
  * CommonInstall: /usr/local/share/miktex-texmf   (DEB,RPM,TGZ)
  *             or /opt/miktex/texmfs/install      (self-contained)
  */
-VersionedStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
+InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, VersionNumber setupVersion, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
-  VersionedStartupConfig ret;
+  InternalStartupConfig ret;
   if (config == MiKTeXConfiguration::None)
   {
     config = MiKTeXConfiguration::Regular;
