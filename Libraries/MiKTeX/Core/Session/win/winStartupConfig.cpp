@@ -55,6 +55,12 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
   }
   ret.config = config;
   ret.setupVersion = setupVersion;
+  wchar_t szProgramFiles[MAX_PATH];
+  PathName programFiles;
+  if (SHGetFolderPathW(nullptr, CSIDL_PROGRAM_FILES, nullptr, SHGFP_TYPE_CURRENT, szProgramFiles) == S_OK)
+  {
+    programFiles = szProgramFiles;
+  }
   if (config == MiKTeXConfiguration::Portable)
   {
     PathName commonPrefix(commonPrefixArg);
@@ -158,10 +164,9 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
     else
     {
       product = "MiKTeX";
-      wchar_t szProgramFiles[MAX_PATH];
-      if (SHGetFolderPathW(nullptr, CSIDL_PROGRAM_FILES, nullptr, SHGFP_TYPE_CURRENT, szProgramFiles) == S_OK)
+      if (!programFiles.Empty())
       {
-        ret.commonInstallRoot = szProgramFiles;
+        ret.commonInstallRoot = programFiles;
         ret.commonInstallRoot /= product;
         if (isLegacy)
         {
@@ -201,7 +206,11 @@ InternalStartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, Ver
     }
     ret.userInstallRoot = ret.userConfigRoot;
   }
-  ret.isSharedSetup = TriState::False;
+  if (!programFiles.Empty())
+  {
+    PathName myLoc = GetMyLocation(true);
+    ret.isSharedSetup = Utils::IsParentDirectoryOf(programFiles, myLoc) ? TriState::True : TriState::False;
+  }
   return ret;
 }
 
