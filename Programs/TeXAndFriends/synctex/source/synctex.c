@@ -945,7 +945,7 @@ void synctexterminate(boolean log_opened)
 #if defined(MIKTEX)
         if (output_directory != 0)
         {
-            /* Make sure that 'tmp' is a output directory file name. The log file might have been created
+            /* Make sure that 'tmp' is an output directory file name. The log file might have been created
              * in another directory, if --aux-directory was specified.
              */
             const char* logFileName = miktex_xbasename(tmp);
