@@ -179,7 +179,7 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
     }
   }
 
-  if (startupConfig.isSharedSetup == TriState::True)
+  if (startupConfig.isSharedSetup == TriState::True || startupConfig.config == MiKTeXConfiguration::Portable)
   {
     // CommonConfig
     if (!startupConfig.commonConfigRoot.Empty())
@@ -221,7 +221,7 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
     }
   }
 
-  if (startupConfig.isSharedSetup == TriState::True)
+  if (startupConfig.isSharedSetup == TriState::True || startupConfig.config == MiKTeXConfiguration::Portable)
   {
     // OtherCommonRoots
     for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathNameUtil::PathNameDelimiter))
