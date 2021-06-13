@@ -250,7 +250,7 @@ bool SessionImpl::FindStartupConfigFile(ConfigurationScope scope, PathName& path
     }
 #if defined(MIKTEX_UNIX) && !defined(MIKTEX_MACOS_BUNDLE)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
-    prefix = GetMyPrefix(true);
+    auto prefix = GetMyPrefix(true);
     path = prefix / PathName(MIKTEX_INSTALL_DIR) / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
     if (File::Exists(path))
     {
