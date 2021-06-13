@@ -159,7 +159,7 @@ void SessionImpl::InitializeStartupConfig()
     PathName miKTeXConfig;
     if (FindBinRelative(PathName(MIKTEX_PATH_MIKTEX_INI), miKTeXConfig))
     {
-      MergeStartupConfig(initStartupConfig, ReadMiKTeXConfig(ConfigurationScope::Common, miKTeXConfig));
+      MergeStartupConfig(initStartupConfig, ReadMiKTeXConfig(miKTeXConfig));
     }
 
   #if USE_WINDOWS_REGISTRY
@@ -436,7 +436,7 @@ InternalStartupConfig SessionImpl::ReadStartupConfigFile(ConfigurationScope scop
   return ret;
 }
 
-InternalStartupConfig SessionImpl::ReadMiKTeXConfig(ConfigurationScope scope, const PathName& path)
+InternalStartupConfig SessionImpl::ReadMiKTeXConfig(const PathName& path)
 {
   InternalStartupConfig ret;
 

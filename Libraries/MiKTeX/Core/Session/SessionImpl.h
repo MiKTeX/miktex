@@ -854,7 +854,7 @@ private:
   InternalStartupConfig ReadStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Util::PathName& path);
 
 private:
-  InternalStartupConfig ReadMiKTeXConfig(MiKTeX::Core::ConfigurationScope scope, const MiKTeX::Util::PathName& path);
+  InternalStartupConfig ReadMiKTeXConfig(const MiKTeX::Util::PathName& path);
 
 private:
   MiKTeX::Util::PathName GetStartupConfigFile(MiKTeX::Core::ConfigurationScope scope, MiKTeX::Core::MiKTeXConfiguration config, MiKTeX::Core::VersionNumber version);
