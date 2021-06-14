@@ -1,6 +1,6 @@
 /* unxProcess.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -71,18 +71,6 @@ using namespace MiKTeX::Util;
 const int filenoStdin = 0;
 const int filenoStdout = 1;
 const int filenoStderr = 2;
-
-#if defined(HAVE_FORK)
-#  define FORK fork
-#else
-#  error this system does not have a working fork() function
-#endif
-
-#if defined(HAVE_VFORK)
-#  define VFORK vfork
-#else
-#  define VFORK fork
-#endif
 
 MIKTEXSTATICFUNC(int) Dup(int fd)
 {
@@ -295,18 +283,7 @@ void unxProcess::Create()
   {
     session->trace_process->WriteLine("core", TraceLevel::Info, "forking...");
   }
-  if (pipeStdout.GetReadEnd() >= 0
-    || pipeStderr.GetReadEnd() >= 0
-    || pipeStdin.GetReadEnd() >= 0
-    || fdChildStdin >= 0
-    || fdChildStderr >= 0)
-  {
-    pid = FORK();
-  }
-  else
-  {
-    pid = VFORK();
-  }
+  pid = fork();
   if (pid < 0)
   {
     MIKTEX_FATAL_CRT_ERROR("fork");
