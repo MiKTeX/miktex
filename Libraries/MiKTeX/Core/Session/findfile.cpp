@@ -186,7 +186,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName
 #if FIND_FILE_DONT_TRIGGER_INSTALLER_IF_ALL
       if (found && all && IsMpmFile(it->GetData()))
       {
-        // don't trigger the package installer if we have found a file and if all occurences are requested
+        // don't trigger the package installer if we have found a file and if all occurrences are requested
         continue;
       }
 #endif
