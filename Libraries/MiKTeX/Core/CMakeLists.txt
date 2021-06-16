@@ -89,6 +89,7 @@ set(headers_no_ext
   miktex/Core/Exceptions
   miktex/Core/File
   miktex/Core/FileStream
+  miktex/Core/FileSystemWatcher
   miktex/Core/FileType
   miktex/Core/Fndb
   miktex/Core/GzipStream
@@ -319,6 +320,27 @@ else()
   )
 endif()
 
+set(filesystemwatcher_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/FileSystemWatcher.cpp
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND filesystemwatcher_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/win/winFileSystemWatcher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/win/winFileSystemWatcher.h
+  )
+elseif(APPLE)
+  list(APPEND filesystemwatcher_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/mac/macFileSystemWatcher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/mac/macFileSystemWatcher.h
+  )
+else()
+  list(APPEND filesystemwatcher_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/unx/unxFileSystemWatcher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/unx/unxFileSystemWatcher.h
+  )
+endif()
+
 set(fndb_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Fndb/FileNameDatabase.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Fndb/FileNameDatabase.h
@@ -501,6 +523,7 @@ set(core_sources
   ${directory_sources}
   ${directorylister_sources}
   ${file_sources}
+  ${filesystemwatcher_sources}
   ${fndb_sources}
   ${lockfile_sources}
   ${md5_sources}
