@@ -135,7 +135,7 @@ bool FileNameDatabase::Search(const PathName& relativePath, const string& pathPa
 
   ApplyChangeFile();
 
-  trace_fndb->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathpattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
+  trace_fndb->WriteLine("core", fmt::format(T_("fndb search: rootDirectory={0}, relativePath={1}, pathPattern={2}"), Q_(rootDirectory), Q_(relativePath), Q_(pathPattern)));
 
   MIKTEX_ASSERT(result.size() == 0);
   MIKTEX_ASSERT(!PathNameUtil::IsAbsolutePath(relativePath.GetData()));
@@ -222,7 +222,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 #if 1
   // TODO: File::Sync API
 #if defined(MIKTEX_WINDOWS)
-  if (!FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(fileno(writer.GetFile())))))
+  if (!FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(writer.GetFile())))))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("FlushFileBuffers");
   }
@@ -255,7 +255,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
 #if 1
   // TODO: File::Sync API
 #if defined(MIKTEX_WINDOWS)
-  if (!FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(fileno(writer.GetFile())))))
+  if (!FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(writer.GetFile())))))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("FlushFileBuffers");
   }
@@ -434,7 +434,7 @@ void FileNameDatabase::ApplyChangeFile()
   }
   if (changeFileSize > 0)
   {
-    reader.Seek(changeFileSize, SeekOrigin::Begin);
+    reader.Seek(static_cast<long>(changeFileSize), SeekOrigin::Begin);
   }
   for (string line; Utils::ReadLine(line, reader.GetFile(), false); )
   {

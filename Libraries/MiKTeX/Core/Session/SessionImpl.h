@@ -110,7 +110,7 @@ inline bool operator<(const LanguageInfo_& lhs, const LanguageInfo_& rhs)
 struct InternalFileTypeInfo :
   public MiKTeX::Core::FileTypeInfo
 {
-  std::vector<MiKTeX::Util::PathName> searchVec;
+  std::vector<MiKTeX::Util::PathName> pathPatterns;
 };
 
 struct DvipsPaperSizeInfo :
@@ -324,21 +324,21 @@ public:
   MiKTeX::Core::FileType DeriveFileType(const MiKTeX::Util::PathName& fileName) override;
 
 public:
-  bool FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) override;
+  bool FindFile(const std::string& fileName, const std::string& searchPath, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) override;
 
 public:
-  bool FindFile(const std::string& fileName, const std::string& pathList, std::vector<MiKTeX::Util::PathName>& result) override
+  bool FindFile(const std::string& fileName, const std::string& searchPath, std::vector<MiKTeX::Util::PathName>& result) override
   {
-    return FindFile(fileName, pathList, { FindFileOption::All }, result);
+    return FindFile(fileName, searchPath, { FindFileOption::All }, result);
   }
 
 public:
-  bool FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, MiKTeX::Util::PathName& result) override;
+  bool FindFile(const std::string& fileName, const std::string& searchPath, FindFileOptionSet options, MiKTeX::Util::PathName& result) override;
 
 public:
-  bool FindFile(const std::string& fileName, const std::string& pathList, MiKTeX::Util::PathName& result) override
+  bool FindFile(const std::string& fileName, const std::string& searchPath, MiKTeX::Util::PathName& result) override
   {
-    return FindFile(fileName, pathList, {}, result);
+    return FindFile(fileName, searchPath, {}, result);
   }
 
 public:
@@ -740,10 +740,10 @@ private:
   bool GetWorkingDirectory(unsigned n, MiKTeX::Util::PathName& path);
 
 private:
-  std::vector<MiKTeX::Util::PathName> ConstructSearchVector(MiKTeX::Core::FileType fileType);
+  std::vector<MiKTeX::Util::PathName> GetDirectoryPatterns(MiKTeX::Core::FileType fileType);
 
 private:
-  void TraceSearchVector(const char* key, const std::vector<MiKTeX::Util::PathName>& pathvec);
+  void TraceDirectoryPatterns(const std::string& fileType, const std::vector<MiKTeX::Util::PathName>& pathPatterns);
 
 private:
   void RegisterLibraryTraceStreams();
@@ -767,10 +767,10 @@ private:
   bool MakePkFileName(MiKTeX::Util::PathName& pkFileName, const std::string& fontName, int dpi);
 
 private:
-  bool FindFileInternal(const std::string& fileName, const std::vector<MiKTeX::Util::PathName>& vec, bool all, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Util::PathName>& result);
+  bool FindFileInDirectories(const std::string& fileName, const std::vector<MiKTeX::Util::PathName>& pathPatterns, bool all, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Util::PathName>& result);
 
 private:
-  bool FindFileInternal(const std::string& fileName, MiKTeX::Core::FileType fileType, bool all, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Util::PathName>& result);
+  bool FindFileByType(const std::string& fileName, MiKTeX::Core::FileType fileType, bool all, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Util::PathName>& result);
 
 private:
   bool SearchFileSystem(const std::string& fileName, const char* dirPath, bool all, std::vector<MiKTeX::Util::PathName>& result);

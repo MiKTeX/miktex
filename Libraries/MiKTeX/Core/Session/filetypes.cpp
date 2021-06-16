@@ -297,6 +297,6 @@ void SessionImpl::ClearSearchVectors()
 {
   for (InternalFileTypeInfo& info : fileTypes)
   {
-    info.searchVec.clear();
+    info.pathPatterns.clear();
   }
 }

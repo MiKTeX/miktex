@@ -770,33 +770,33 @@ public:
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
-  /// @param pathList The search path.
+  /// @param searchPath The search path.
   /// @param options Search options.
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& searchPath, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
-  /// @param pathList The search path.
+  /// @param searchPath The search path.
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, std::vector<MiKTeX::Util::PathName>& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& searchPath, std::vector<MiKTeX::Util::PathName>& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
-  /// @param pathList The search path.
+  /// @param searchPath The search path.
   /// @param options Search options.
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, MiKTeX::Util::PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& searchPath, FindFileOptionSet options, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
-  /// @param pathList The search path.
+  /// @param searchPath The search path.
   /// @param[out] result The result of the search.
   /// @return Return `true`, if the file was found.
-  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, MiKTeX::Util::PathName& result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& searchPath, MiKTeX::Util::PathName& result) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
