@@ -40,7 +40,8 @@ unique_ptr<FileSystemWatcher> FileSystemWatcher::Start(const PathName& path, Fil
     return make_unique<winFileSystemWatcher>(path, callback);
 }
 
-winFileSystemWatcher::winFileSystemWatcher(const PathName& path, FileSystemWatcherCallback* callback)
+winFileSystemWatcher::winFileSystemWatcher(const PathName& path, FileSystemWatcherCallback* callback) :
+  callback(callback)
 {
   if (Directory::Exists(path))
   {
@@ -48,8 +49,17 @@ winFileSystemWatcher::winFileSystemWatcher(const PathName& path, FileSystemWatch
   }
   else
   {
-    // TODO
-    MIKTEX_FATAL_ERROR_2(T_("Directory does not exist."), "path", path.ToString());
+    directory = path.GetDirectoryName();
+    if (directory.Empty() || !Directory::Exists(directory))
+    {
+      MIKTEX_FATAL_ERROR_2(T_("Directory does not exist."), "path", path.ToString());
+    }
+    fileName = path.GetFileName().ToString();
+  }
+  cancelEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+  if (cancelEvent == nullptr)
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateEventW", "path", directory.ToString());
   }
   watchDirectoryThread = std::thread(&winFileSystemWatcher::WatchDirectoryThreadFunction, this);
 }
@@ -58,6 +68,7 @@ winFileSystemWatcher::~winFileSystemWatcher()
 {
   try
   {
+    MIKTEX_AUTO(CloseHandle(cancelEvent));
     Stop();
   }
   catch (const exception&)
@@ -69,7 +80,15 @@ void winFileSystemWatcher::Stop()
 {
   if (watchDirectoryThread.joinable())
   {
+    if (!SetEvent(cancelEvent))
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR_2("SetEvent", "path", directory.ToString());
+    }
     watchDirectoryThread.join();
+  }
+  if (failure)
+  {
+    throw threadMiKTeXException;
   }
 }
 
@@ -79,11 +98,15 @@ void winFileSystemWatcher::WatchDirectoryThreadFunction()
   {
     WatchDirectory();
   }
-  catch (const MiKTeX::Core::MiKTeXException&)
+  catch (const MiKTeX::Core::MiKTeXException& e)
   {
+    threadMiKTeXException = e;
+    failure = true;
   }
-  catch (const std::exception&)
+  catch (const std::exception& e)
   {
+    threadMiKTeXException = MiKTeX::Core::MiKTeXException(e.what());
+    failure = true;
   }
 }
 
@@ -106,6 +129,16 @@ void winFileSystemWatcher::WatchDirectory()
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateEventW", "path", directory.ToString());
   }
   MIKTEX_AUTO(CloseHandle(overlapped.hEvent));
+  vector<HANDLE> handles = { overlapped.hEvent, cancelEvent };
+  bool mustCancelIo = false;
+  AutoFunc cleanUp([&](){
+    if (mustCancelIo)
+    {
+      CancelIo(directoryHandle);
+      DWORD bytesReturned = 0;
+      GetOverlappedResult(directoryHandle, &overlapped, &bytesReturned, TRUE);
+    }
+  });
   while (true)
   {
     const DWORD notifyFilter = 0 |
@@ -119,5 +152,44 @@ void winFileSystemWatcher::WatchDirectory()
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("ReadDirectoryChangesW", "path", directory.ToString());
     }
+    mustCancelIo = true;
+    switch (WaitForMultipleObjects(handles.size(), &handles[0], FALSE, INFINITE))
+    {
+      case WAIT_OBJECT_0:
+        mustCancelIo = false;
+        if (!GetOverlappedResult(directoryHandle, &overlapped, &bytesReturned, TRUE))
+        {
+          MIKTEX_FATAL_WINDOWS_ERROR_2("GetOverlappedResult", "path", directory.ToString());
+        }
+        if (bytesReturned == 0)
+        {
+          return;
+        }
+        HandleDirectoryChanges(reinterpret_cast<FILE_NOTIFY_INFORMATION*>(&buffer[0]));
+        break;
+      case WAIT_OBJECT_0 + 1:
+        return;
+      case WAIT_FAILED:
+        MIKTEX_FATAL_WINDOWS_ERROR_2("WaitForMultipleObjects", "path", directory.ToString());
+    }
+  }
+}
+
+void winFileSystemWatcher::HandleDirectoryChanges(const FILE_NOTIFY_INFORMATION* fni)
+{
+  while (true)
+  {
+    string fileName = StringUtil::WideCharToUTF8(wstring(fni->FileName, fni->FileNameLength));
+    if (this->fileName.empty() || PathName::Compare(this->fileName, fileName) == 0)
+    {
+      FileSystemChangeEvent ev;
+      ev.fileName = fileName;
+      callback->OnChange(ev);
+    }
+    if (fni->NextEntryOffset == 0)
+    {
+      return;
+    }
+    fni = reinterpret_cast<const FILE_NOTIFY_INFORMATION*>(reinterpret_cast<const unsigned char*>(fni) + fni->NextEntryOffset);
   }
 }

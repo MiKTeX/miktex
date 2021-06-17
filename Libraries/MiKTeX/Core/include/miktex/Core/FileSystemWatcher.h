@@ -29,10 +29,15 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
+struct FileSystemChangeEvent
+{
+  string fileName;
+};
+
 class MIKTEXNOVTABLE FileSystemWatcherCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL OnEvent() = 0;
+  virtual void MIKTEXTHISCALL OnChange(const FileSystemChangeEvent& ev) = 0;
 };
 
 class MIKTEXNOVTABLE FileSystemWatcher

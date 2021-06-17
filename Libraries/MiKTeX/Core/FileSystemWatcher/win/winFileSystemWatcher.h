@@ -46,10 +46,28 @@ private:
   void WatchDirectory();
 
 private:
-   MiKTeX::Util::PathName directory;
+  void HandleDirectoryChanges(const FILE_NOTIFY_INFORMATION* fni);
+
+private:
+  MiKTeX::Util::PathName directory;
+
+private:
+  std::string fileName;
+
+private:
+  MiKTeX::Core::FileSystemWatcherCallback* callback;
+
+private:
+  HANDLE cancelEvent;
 
 private:
   std::thread watchDirectoryThread;
+
+private:
+  MiKTeX::Core::MiKTeXException threadMiKTeXException;
+
+private:
+  bool failure;  
 };
 
 CORE_INTERNAL_END_NAMESPACE;
