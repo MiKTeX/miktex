@@ -24,6 +24,7 @@
 #include <miktex/Core/config.h>
 
 #include <memory>
+#include <string>
 
 #include <miktex/Util/PathName>
 
@@ -31,7 +32,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 
 struct FileSystemChangeEvent
 {
-  string fileName;
+  std::string fileName;
 };
 
 class MIKTEXNOVTABLE FileSystemWatcherCallback
