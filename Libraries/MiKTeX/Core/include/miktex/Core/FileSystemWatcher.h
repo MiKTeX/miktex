@@ -32,7 +32,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 
 struct FileSystemChangeEvent
 {
-  std::string fileName;
+  MiKTeX::Util::PathName fileName;
 };
 
 class MIKTEXNOVTABLE FileSystemWatcherCallback
@@ -47,10 +47,16 @@ public:
   virtual MIKTEXTHISCALL ~FileSystemWatcher() noexcept = 0;
 
 public:
+  virtual void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL Start() = 0;
+
+public:
   virtual void MIKTEXTHISCALL Stop() = 0;
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<FileSystemWatcher>) Start(const MiKTeX::Util::PathName& path, FileSystemWatcherCallback* callback);
+  static MIKTEXCORECEEAPI(std::unique_ptr<FileSystemWatcher>) Create(FileSystemWatcherCallback* callback);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

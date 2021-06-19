@@ -27,12 +27,16 @@
 #  include <Windows.h>
 #endif
 
+#include <chrono>
+#include <thread>
+
 #include <cstdio>
 
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
+#include <miktex/Core/FileSystemWatcher>
 #include <miktex/Core/Utils>
 #include <miktex/Util/PathName>
 
@@ -196,6 +200,35 @@ BEGIN_TEST_FUNCTION(7);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(8);
+{
+  class ChangeHandler : public FileSystemWatcherCallback
+  {
+  public:
+    void OnChange(const FileSystemChangeEvent &ev) override{
+      events.push_back(ev);
+    };
+    vector<FileSystemChangeEvent> events;
+  };
+  ChangeHandler handler;
+  auto watcher = FileSystemWatcher::Create(&handler);
+  PathName dir;
+  dir.SetToCurrentDirectory();
+  watcher->AddDirectory(dir);
+  dir.SetToTempDirectory();
+  watcher->AddDirectory(dir);
+  TESTX(watcher->Start());
+  this_thread::sleep_for(chrono::seconds(1));
+  Touch("8.txt");
+  this_thread::sleep_for(chrono::seconds(1));
+  File::Delete(PathName("8.txt"));
+  this_thread::sleep_for(chrono::seconds(1));
+  TESTX(watcher->Stop());
+  TESTX(watcher = nullptr);
+  TEST(!handler.events.empty());
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -207,6 +240,9 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(6);
 #endif
   CALL_TEST_FUNCTION(7);
+#if defined(MIKTEX_WINDOWS)
+  CALL_TEST_FUNCTION(8);
+#endif
 }
 END_TEST_PROGRAM();
 
