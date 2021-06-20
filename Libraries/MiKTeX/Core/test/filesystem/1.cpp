@@ -238,7 +238,9 @@ BEGIN_TEST_FUNCTION(8);
   this_thread::sleep_for(chrono::seconds(1));
   TESTX(watcher->Stop());
   TESTX(watcher = nullptr);
-  TEST(handler.added && handler.modified && handler.removed);
+  TEST(handler.added);
+  TEST(handler.modified);
+  TEST(handler.removed);
 }
 END_TEST_FUNCTION();
 
