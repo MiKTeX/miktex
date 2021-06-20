@@ -228,7 +228,7 @@ BEGIN_TEST_FUNCTION(8);
   dir.SetToCurrentDirectory();
   watcher->AddDirectory(dir);
   dir.SetToTempDirectory();
-  watcher->AddDirectory(dir);
+  //watcher->AddDirectory(dir);
   this_thread::sleep_for(chrono::seconds(1));
   Touch("8.txt");
   this_thread::sleep_for(chrono::seconds(1));
@@ -238,7 +238,7 @@ BEGIN_TEST_FUNCTION(8);
   this_thread::sleep_for(chrono::seconds(1));
   TESTX(watcher->Stop());
   TESTX(watcher = nullptr);
-  //TEST(handler.added);
+  TEST(handler.added);
   TEST(handler.modified);
   TEST(handler.removed);
 }
