@@ -32,6 +32,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/LockFile>
@@ -62,10 +63,10 @@ void MIKTEXNORETURN ThrowFndbDamaged(const string& description, const MiKTeXExce
   Session::FatalMiKTeXError(T_("The file name database is damaged."), description, T_("Delete the file name database files. Then run 'initexmf -u' to recreate the FNDB."), "fndb-damaged", info, sourceLocation);
 }
 
-shared_ptr<FileNameDatabase> FileNameDatabase::Create(const PathName& fndbPath, const PathName& rootDirectory)
+shared_ptr<FileNameDatabase> FileNameDatabase::Create(const PathName& fndbPath, const PathName& rootDirectory, shared_ptr<FileSystemWatcher> fsWatcher)
 {
   shared_ptr<FileNameDatabase> fndb = make_shared<FileNameDatabase>();
-  fndb->Initialize(fndbPath, rootDirectory);
+  fndb->Initialize(fndbPath, rootDirectory, fsWatcher);
   return fndb;
 }
 
@@ -388,6 +389,11 @@ void FileNameDatabase::ReadFileNames(const FileNameDatabaseRecord* table)
 
 void FileNameDatabase::Finalize()
 {
+  if (fsWatcher != nullptr)
+  {
+    fsWatcher->Unsubscribe(this);
+    fsWatcher = nullptr;
+  }
   if (trace_fndb != nullptr)
   {
     trace_fndb->WriteLine("core", fmt::format(T_("unloading fndb {0}"), Q_(this->rootDirectory)));
@@ -400,9 +406,13 @@ void FileNameDatabase::Finalize()
   }
 }
 
-void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& rootDirectory)
+void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& rootDirectory, shared_ptr<FileSystemWatcher> fsWatcher)
 {
   this->rootDirectory = rootDirectory;
+
+  this->fsWatcher = fsWatcher;
+  fsWatcher->Subscribe(this);
+  fsWatcher->AddDirectory(fndbPath.GetDirectoryName());
 
   OpenFileNameDatabase(fndbPath);
   ReadFileNames();
@@ -410,12 +420,26 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
   changeFile = fndbPath;
   changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
   
+  changeFileModified = true;
   ApplyChangeFile();
+}
+
+void FileNameDatabase::OnChange(const MiKTeX::Core::FileSystemChangeEvent& ev)
+{
+  if (ev.fileName == changeFile && ev.action == FileSystemChangeAction::Modified)
+  {
+    changeFileModified = true;
+  }
 }
 
 void FileNameDatabase::ApplyChangeFile()
 {
   lastAccessTime = chrono::high_resolution_clock::now();
+  if (!changeFileModified)
+  {
+    return;
+  }
+  MIKTEX_AUTO(changeFileModified = false);
   if (!File::Exists(changeFile))
   {
     return;

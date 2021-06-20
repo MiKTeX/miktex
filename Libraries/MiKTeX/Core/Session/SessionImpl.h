@@ -42,6 +42,7 @@
 #include "core-version.h"
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/FileSystemWatcher>
 #include <miktex/Core/Session>
 #include <miktex/Core/Stream>
 #include <miktex/Core/equal_icase>
@@ -1176,6 +1177,9 @@ private:
 
 private:
   void StartFinishScript(int delay);
+
+private:
+  std::shared_ptr<MiKTeX::Core::FileSystemWatcher> fsWatcher;
 
 private:
   // indicates whether the session has been initialized

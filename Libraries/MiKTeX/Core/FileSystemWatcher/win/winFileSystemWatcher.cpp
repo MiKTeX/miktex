@@ -35,15 +35,45 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-unique_ptr<FileSystemWatcher> FileSystemWatcher::Create(FileSystemWatcherCallback* callback)
+unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
 {
-    return make_unique<winFileSystemWatcher>(callback);
+    return make_unique<winFileSystemWatcher>();
 }
 
-winFileSystemWatcher::winFileSystemWatcher(FileSystemWatcherCallback* callback) :
-  callback(callback),
-  failure(false)
+void winFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName &dir)
 {
+  lock_guard l(mutex);
+  for (auto& d : directories)
+  {
+    if (d.path == dir)
+    {
+      return;
+    }
+  }
+  directories.push_back(dir);
+  if (restartEvent != nullptr)
+  {
+    if (!SetEvent(restartEvent))
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR("SetEvent");
+    }
+  }
+}
+
+void winFileSystemWatcher::Subscribe(MiKTeX::Core::FileSystemWatcherCallback *callback)
+{
+  lock_guard l(mutex);
+  callbacks.insert(callback);
+}
+
+void winFileSystemWatcher::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback *callback)
+{
+  lock_guard l(mutex);
+  auto it = callbacks.find(callback);
+  if (it != callbacks.end())
+  {
+    callbacks.erase(it);
+  }
 }
 
 winFileSystemWatcher::~winFileSystemWatcher()
@@ -58,24 +88,28 @@ winFileSystemWatcher::~winFileSystemWatcher()
         MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
       }
     }
+    if (restartEvent != nullptr)
+    {
+      if (!CloseHandle(restartEvent))
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
+      }
+    }
   }
   catch (const exception&)
   {
   }
 }
 
-void winFileSystemWatcher::AddDirectory(const PathName& dir)
-{
-  directories.push_back(dir);
-}
-
 void winFileSystemWatcher::Start()
 {
+  lock_guard l(mutex);
   cancelEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
   if (cancelEvent == nullptr)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
   }
+  restartEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
   watchDirectoriesThread = std::thread(&winFileSystemWatcher::WatchDirectoriesThreadFunction, this);
 }
 
@@ -118,16 +152,13 @@ void winFileSystemWatcher::WatchDirectories()
   while (true)
   {
     const DWORD notifyFilter = 0 |
-                               FILE_NOTIFY_CHANGE_ATTRIBUTES |
                                FILE_NOTIFY_CHANGE_CREATION |
                                FILE_NOTIFY_CHANGE_DIR_NAME |
                                FILE_NOTIFY_CHANGE_FILE_NAME |
-                               FILE_NOTIFY_CHANGE_LAST_ACCESS |
                                FILE_NOTIFY_CHANGE_LAST_WRITE |
-                               FILE_NOTIFY_CHANGE_SECURITY |
-                               FILE_NOTIFY_CHANGE_SIZE |
                                0;
-    vector<HANDLE> handles = { cancelEvent };
+    vector<HANDLE> handles = { cancelEvent, restartEvent };
+    unique_lock l(mutex);
     for (auto& dwi : directories)
     {
       handles.push_back(dwi.overlapped.hEvent);
@@ -140,16 +171,22 @@ void winFileSystemWatcher::WatchDirectories()
         dwi.pending = true;
       }
     }
+    l.unlock();
     auto ev = WaitForMultipleObjects(static_cast<DWORD>(handles.size()), handles.data(), FALSE, INFINITE);
     if (ev == WAIT_OBJECT_0)
     {
       return;
     }
+    else if (ev == WAIT_OBJECT_0 + 1)
+    {
+      continue;
+    }
     else if (ev == WAIT_FAILED)
     {
       MIKTEX_FATAL_WINDOWS_ERROR("WaitForMultipleObjects");
     }
-    auto idx = ev - WAIT_OBJECT_0 - 1;
+    auto idx = ev - WAIT_OBJECT_0 - 2;
+    l.lock();
     auto& dwi = directories[idx];
     dwi.pending = false;
     DWORD bytesReturned = 0;
@@ -163,7 +200,9 @@ void winFileSystemWatcher::WatchDirectories()
     }
     else
     {
-      HandleDirectoryChanges(dwi.path, reinterpret_cast<FILE_NOTIFY_INFORMATION*>(dwi.buffer));
+      FILE_NOTIFY_INFORMATION* fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(dwi.buffer);
+      l.unlock();
+      HandleDirectoryChanges(dwi.path, fni);
     }
   }
 }
@@ -172,15 +211,106 @@ void winFileSystemWatcher::HandleDirectoryChanges(const PathName& dir, const FIL
 {
   while (true)
   {
-    string fileName = StringUtil::WideCharToUTF8(wstring(fni->FileName, fni->FileNameLength));
-    FileSystemChangeEvent ev;
-    ev.fileName = dir;
-    ev.fileName /= fileName;
-    callback->OnChange(ev);
+    HandleDirectoryChange(dir, fni);
     if (fni->NextEntryOffset == 0)
     {
       return;
     }
     fni = reinterpret_cast<const FILE_NOTIFY_INFORMATION*>(reinterpret_cast<const unsigned char*>(fni) + fni->NextEntryOffset);
+  }
+}
+
+void winFileSystemWatcher::HandleDirectoryChange(const PathName& dir, const FILE_NOTIFY_INFORMATION* fni)
+{
+    FileSystemChangeEvent ev;
+    switch (fni->Action)
+    {
+      case FILE_ACTION_ADDED: ev.action = FileSystemChangeAction::Added; break;
+      case FILE_ACTION_MODIFIED: ev.action = FileSystemChangeAction::Modified; break;
+      case FILE_ACTION_REMOVED: ev.action = FileSystemChangeAction::Removed; break;
+      default:
+        return;
+    }
+    string fileName = StringUtil::WideCharToUTF8(wstring(fni->FileName, fni->FileNameLength));
+    ev.fileName = dir;
+    ev.fileName /= fileName;
+    shared_lock l(mutex);
+    for (auto& c : callbacks)
+    {
+      c->OnChange(ev);
+    }
+}
+
+winFileSystemWatcher::DirectoryWatchInfo::DirectoryWatchInfo(DirectoryWatchInfo&& other)
+{
+  buffer = other.buffer;
+  other.buffer = nullptr;
+  directoryHandle = other.directoryHandle;
+  other.directoryHandle = INVALID_HANDLE_VALUE;
+  overlapped = other.overlapped;
+  other.overlapped.hEvent = nullptr;
+  path = std::move(other.path);
+  pending = other.pending;
+  other.pending = false;
+}
+
+winFileSystemWatcher::DirectoryWatchInfo &winFileSystemWatcher::DirectoryWatchInfo::operator=(winFileSystemWatcher::DirectoryWatchInfo &&other)
+{
+  if (this != &other)
+  {
+    buffer = other.buffer;
+    other.buffer = nullptr;
+    directoryHandle = other.directoryHandle;
+    other.directoryHandle = INVALID_HANDLE_VALUE;
+    overlapped = other.overlapped;
+    other.overlapped.hEvent = nullptr;
+    path = std::move(other.path);
+    pending = other.pending;
+    other.pending = false;
+  }
+  return *this;
+}
+
+winFileSystemWatcher::DirectoryWatchInfo::DirectoryWatchInfo(const PathName& path) :
+  buffer(malloc(bufferSize)),
+  path(path),
+  pending(false)
+{
+  memset(&overlapped, 0, sizeof(overlapped));
+  overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+  if (overlapped.hEvent == nullptr)
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
+  }
+  DWORD desiredAccess = FILE_LIST_DIRECTORY;
+  DWORD shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+  DWORD flagsAndAttributes = FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED;
+  directoryHandle = CreateFileW(path.ToWideCharString().c_str(), desiredAccess, shareMode, nullptr, OPEN_EXISTING, flagsAndAttributes, nullptr);
+  if (directoryHandle == INVALID_HANDLE_VALUE)
+  {
+    CloseHandle(overlapped.hEvent);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString());
+  }
+}
+
+winFileSystemWatcher::DirectoryWatchInfo::~DirectoryWatchInfo()
+{
+  if (pending)
+  {
+    CancelIo(directoryHandle);
+    DWORD bytesReturned = 0;
+    GetOverlappedResult(directoryHandle, &overlapped, &bytesReturned, TRUE);
+  }
+  if (directoryHandle != INVALID_HANDLE_VALUE)
+  {
+    CloseHandle(directoryHandle);
+  }
+  if (overlapped.hEvent != nullptr)
+  {
+    CloseHandle(overlapped.hEvent);
+  }
+  if (buffer != nullptr)
+  {
+    free(buffer);
   }
 }

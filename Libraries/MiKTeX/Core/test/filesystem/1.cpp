@@ -205,19 +205,32 @@ BEGIN_TEST_FUNCTION(8);
   class ChangeHandler : public FileSystemWatcherCallback
   {
   public:
-    void OnChange(const FileSystemChangeEvent &ev) override{
-      events.push_back(ev);
+    void OnChange(const FileSystemChangeEvent &ev) override {
+      if (ev.fileName.GetFileName() == PathName("8.txt"))
+      {
+        switch (ev.action)
+        {
+          case FileSystemChangeAction::Added: added = true; break;
+          case FileSystemChangeAction::Modified: modified = true; break;
+          case FileSystemChangeAction::Removed: removed = true; break;
+        }
+      }
     };
-    vector<FileSystemChangeEvent> events;
+    bool added = false;
+    bool modified = false;
+    bool removed = false;
   };
   ChangeHandler handler;
-  auto watcher = FileSystemWatcher::Create(&handler);
+  auto watcher = FileSystemWatcher::Create();
+  TESTX(watcher->Start());
+  watcher->Subscribe(&handler);
   PathName dir;
   dir.SetToCurrentDirectory();
   watcher->AddDirectory(dir);
   dir.SetToTempDirectory();
   watcher->AddDirectory(dir);
-  TESTX(watcher->Start());
+  this_thread::sleep_for(chrono::seconds(1));
+  Touch("8.txt");
   this_thread::sleep_for(chrono::seconds(1));
   Touch("8.txt");
   this_thread::sleep_for(chrono::seconds(1));
@@ -225,7 +238,7 @@ BEGIN_TEST_FUNCTION(8);
   this_thread::sleep_for(chrono::seconds(1));
   TESTX(watcher->Stop());
   TESTX(watcher = nullptr);
-  TEST(!handler.events.empty());
+  TEST(handler.added && handler.modified && handler.removed);
 }
 END_TEST_FUNCTION();
 

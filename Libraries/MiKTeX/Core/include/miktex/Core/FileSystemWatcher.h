@@ -30,8 +30,16 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
+enum class FileSystemChangeAction
+{
+  Added,
+  Modified,
+  Removed,
+};
+
 struct FileSystemChangeEvent
 {
+  FileSystemChangeAction action;
   MiKTeX::Util::PathName fileName;
 };
 
@@ -56,7 +64,13 @@ public:
   virtual void MIKTEXTHISCALL Stop() = 0;
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<FileSystemWatcher>) Create(FileSystemWatcherCallback* callback);
+  virtual void MIKTEXTHISCALL Subscribe(FileSystemWatcherCallback* callback) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL Unsubscribe(FileSystemWatcherCallback* callback) = 0;
+
+public:
+  static MIKTEXCORECEEAPI(std::unique_ptr<FileSystemWatcher>) Create();
 };
 
 MIKTEX_CORE_END_NAMESPACE;

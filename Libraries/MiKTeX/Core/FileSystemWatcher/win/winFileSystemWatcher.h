@@ -22,6 +22,8 @@
 #pragma once
 
 #include <thread>
+#include <set>
+#include <shared_mutex>
 #include <vector>
 
 #include <miktex/Core/FileSystemWatcher>
@@ -35,13 +37,16 @@ public:
   void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
 
 public:
+  void MIKTEXTHISCALL Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
+
+public:
+  void MIKTEXTHISCALL Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
+
+public:
   void MIKTEXTHISCALL Start() override;
 
 public:
   void MIKTEXTHISCALL Stop() override;
-
-public:
-  winFileSystemWatcher(MiKTeX::Core::FileSystemWatcherCallback* callback);
 
 public:
   virtual MIKTEXTHISCALL ~winFileSystemWatcher();
@@ -56,82 +61,19 @@ private:
   void HandleDirectoryChanges(const MiKTeX::Util::PathName& dir, const FILE_NOTIFY_INFORMATION* fni);
 
 private:
+  void HandleDirectoryChange(const MiKTeX::Util::PathName& dir, const FILE_NOTIFY_INFORMATION* fni);
+
+private:
   struct DirectoryWatchInfo
   {
     const size_t bufferSize = 1024 * 64;
     DirectoryWatchInfo() = delete;
     DirectoryWatchInfo(const DirectoryWatchInfo& other) = delete;
-    DirectoryWatchInfo(DirectoryWatchInfo&& other)
-    {
-      buffer = other.buffer;
-      other.buffer = nullptr;
-      directoryHandle = other.directoryHandle;
-      other.directoryHandle = INVALID_HANDLE_VALUE;
-      overlapped = other.overlapped;
-      other.overlapped.hEvent = nullptr;
-      path = std::move(other.path);
-      pending = other.pending;
-      other.pending = false;
-    }
+    DirectoryWatchInfo(DirectoryWatchInfo&& other);
     DirectoryWatchInfo& operator=(const DirectoryWatchInfo& other) = delete;
-    DirectoryWatchInfo& operator=(DirectoryWatchInfo&& other)
-    {
-      if (this != &other)
-      {
-        buffer = other.buffer;
-        other.buffer = nullptr;
-        directoryHandle = other.directoryHandle;
-        other.directoryHandle = INVALID_HANDLE_VALUE;
-        overlapped = other.overlapped;
-        other.overlapped.hEvent = nullptr;
-        path = std::move(other.path);
-        pending = other.pending;
-        other.pending = false;
-      }
-      return *this;
-    }
-    DirectoryWatchInfo(const MiKTeX::Util::PathName& path) :
-      buffer(malloc(bufferSize)),
-      path(path),
-      pending(false)
-    {
-      memset(&overlapped, 0, sizeof(overlapped));
-      overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-      if (overlapped.hEvent == nullptr)
-      {
-        MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
-      }
-      DWORD desiredAccess = FILE_LIST_DIRECTORY;
-      DWORD shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-      DWORD flagsAndAttributes = FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED;
-      directoryHandle = CreateFileW(path.ToWideCharString().c_str(), desiredAccess, shareMode, nullptr, OPEN_EXISTING, flagsAndAttributes, nullptr);
-      if (directoryHandle == INVALID_HANDLE_VALUE)
-      {
-        CloseHandle(overlapped.hEvent);
-        MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString());
-      }
-    }
-    virtual ~DirectoryWatchInfo()
-    {
-      if (pending)
-      {
-        CancelIo(directoryHandle);
-        DWORD bytesReturned = 0;
-        GetOverlappedResult(directoryHandle, &overlapped, &bytesReturned, TRUE);
-      }
-      if (directoryHandle != INVALID_HANDLE_VALUE)
-      {
-        CloseHandle(directoryHandle);
-      }
-      if (overlapped.hEvent != nullptr)
-      {
-        CloseHandle(overlapped.hEvent);
-      }
-      if (buffer != nullptr)
-      {
-        free(buffer);
-      }
-    }
+    DirectoryWatchInfo& operator=(DirectoryWatchInfo&& other);
+    DirectoryWatchInfo(const MiKTeX::Util::PathName& path);
+    virtual ~DirectoryWatchInfo();
     void* buffer;
     HANDLE directoryHandle;
     OVERLAPPED overlapped;
@@ -140,22 +82,14 @@ private:
   };
 
 private:
+  std::set<MiKTeX::Core::FileSystemWatcherCallback*> callbacks;
+  HANDLE cancelEvent = nullptr;
   std::vector<DirectoryWatchInfo> directories;
-
-private:
-  MiKTeX::Core::FileSystemWatcherCallback* callback;
-
-private:
-  HANDLE cancelEvent;
-
-private:
-  std::thread watchDirectoriesThread;
-
-private:
+  bool failure = false;
+  std::shared_mutex mutex;
+  HANDLE restartEvent = nullptr;
   MiKTeX::Core::MiKTeXException threadMiKTeXException;
-
-private:
-  bool failure;  
+  std::thread watchDirectoriesThread;
 };
 
 CORE_INTERNAL_END_NAMESPACE;

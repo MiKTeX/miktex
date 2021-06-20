@@ -866,7 +866,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
 
   trace_fndb->WriteLine("core", fmt::format(T_("loading fndb: {0}"), fqFndbFileName));
 
-  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path());
+  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path(), fsWatcher);
 
   root.SetFndb(pFndb);
 

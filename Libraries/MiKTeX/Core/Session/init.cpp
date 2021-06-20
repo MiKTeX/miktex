@@ -147,6 +147,8 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 
   initialized = true;
 
+  fsWatcher = FileSystemWatcher::Create();
+
   this->initInfo = initInfo;
 
   theNameOfTheGame = initInfo.GetTheNameOfTheGame();

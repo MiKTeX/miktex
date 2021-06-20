@@ -1,6 +1,6 @@
 /* FileNameDatabase.h: file name database                 -*- C++ -*-
 
-   Copyright (C) 1996-2019 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,11 +24,13 @@
 #if !defined(BA15DC038D4549859111D4B075360D81)
 #define BA15DC038D4549859111D4B075360D81
 
+#include <atomic>
 #include <chrono>
 #include <tuple>
 
 #include <miktex/Core/Debug>
 #include <miktex/Core/DirectoryLister>
+#include <miktex/Core/FileSystemWatcher>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/MemoryMappedFile>
 #include <miktex/Util/PathName>
@@ -37,10 +39,11 @@
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
-class FileNameDatabase
+class FileNameDatabase :
+  MiKTeX::Core::FileSystemWatcherCallback
 {
 public:
-  static std::shared_ptr<FileNameDatabase> Create(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootDirectory);
+  static std::shared_ptr<FileNameDatabase> Create(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootDirectory, std::shared_ptr<MiKTeX::Core::FileSystemWatcher> fsWatcher);
 
 public:
   FileNameDatabase();
@@ -50,6 +53,9 @@ public:
 
 public:
   virtual ~FileNameDatabase();
+
+public:
+  void OnChange(const MiKTeX::Core::FileSystemChangeEvent& ev) override;
 
 public:
   bool Search(const MiKTeX::Util::PathName& relativePath, const std::string& pathPattern, bool all, std::vector<MiKTeX::Core::Fndb::Record>& result);
@@ -196,7 +202,7 @@ private:
   }
 
 private:
-  void Initialize(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootDirectory);
+  void Initialize(const MiKTeX::Util::PathName& fndbPath, const MiKTeX::Util::PathName& rootDirectory, std::shared_ptr<MiKTeX::Core::FileSystemWatcher> fsWatcher);
 
 private:
   void ApplyChangeFile();
@@ -230,6 +236,12 @@ private:
 
 private:
   FileNameHashTable fileNames;
+
+private:
+  std::shared_ptr<MiKTeX::Core::FileSystemWatcher> fsWatcher;
+
+private:
+  std::atomic_bool changeFileModified;
 
 private:
   MiKTeX::Util::PathName changeFile;
