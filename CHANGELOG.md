@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## pending release
+
+### Fixed issues
+
+- [844](https://github.com/MiKTeX/miktex/issues/844): Documentation not found
+
 ## 21.6 - 2021-06-07
 
 ### Breaking changes

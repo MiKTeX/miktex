@@ -215,16 +215,21 @@ bool MiKTeXHelp::SkipTeXMFPrefix(const string& str, string& result)
 void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, map<string, vector<string>>& filesByExtension)
 {
   PackageInfo pi;
-  if (!pManager->TryGetPackageInfo(packageName, pi))
+  string searchPath = MIKTEX_PATH_TEXMF_PLACEHOLDER;
+  if (!pManager->TryGetPackageInfo(packageName + "__doc", pi))
   {
-    return;
+    if (!pManager->TryGetPackageInfo(packageName, pi))
+    {
+      return;
+    }
+    searchPath = MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM;
   }
   for (const string& fileName : pi.docFiles)
   {
     string extension = PathName(fileName).GetExtension();
     string file;
     PathName path;
-    if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file, MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM, path))
+    if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file, searchPath, path))
     {
       vector<string>& files = filesByExtension[extension];
       files.push_back(path.ToString());
@@ -603,7 +608,6 @@ int MAIN(int argc, MAINCHAR** argv)
     }
     newargv.push_back(nullptr);
     app.Init(Session::InitInfo(newargv[0]), newargv);
-    app.EnableInstaller(TriState::False);
     app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize2(0);
     return 0;
