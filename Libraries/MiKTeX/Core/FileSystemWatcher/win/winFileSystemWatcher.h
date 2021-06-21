@@ -21,26 +21,17 @@
 
 #pragma once
 
-#include <thread>
-#include <set>
-#include <shared_mutex>
 #include <vector>
 
-#include <miktex/Core/FileSystemWatcher>
+#include "../FileSystemWatcherBase.h"
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class winFileSystemWatcher :
-  public MiKTeX::Core::FileSystemWatcher
+  public FileSystemWatcherBase
 {
 public:
   void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
-
-public:
-  void MIKTEXTHISCALL Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
-
-public:
-  void MIKTEXTHISCALL Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
 
 public:
   void MIKTEXTHISCALL Start() override;
@@ -52,10 +43,7 @@ public:
   virtual MIKTEXTHISCALL ~winFileSystemWatcher();
 
 private:
-  void WatchDirectoriesThreadFunction();
-
-private:
-  void WatchDirectories();
+  void MIKTEXTHISCALL WatchDirectories() override;
 
 private:
   void HandleDirectoryChanges(const MiKTeX::Util::PathName& dir, const FILE_NOTIFY_INFORMATION* fni);
@@ -82,14 +70,9 @@ private:
   };
 
 private:
-  std::set<MiKTeX::Core::FileSystemWatcherCallback*> callbacks;
   HANDLE cancelEvent = nullptr;
   std::vector<DirectoryWatchInfo> directories;
-  bool failure = false;
-  std::shared_mutex mutex;
   HANDLE restartEvent = nullptr;
-  MiKTeX::Core::MiKTeXException threadMiKTeXException;
-  std::thread watchDirectoriesThread;
 };
 
 CORE_INTERNAL_END_NAMESPACE;

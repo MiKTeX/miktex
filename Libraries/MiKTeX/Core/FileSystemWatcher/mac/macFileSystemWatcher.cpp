@@ -49,14 +49,6 @@ void macFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
 {
 }
 
-void macFileSystemWatcher::Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
-{
-}
-
-void macFileSystemWatcher::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
-{
-}
-
 void macFileSystemWatcher::Start()
 {
 }

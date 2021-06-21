@@ -322,6 +322,8 @@ endif()
 
 set(filesystemwatcher_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/FileSystemWatcher.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/FileSystemWatcherBase.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/FileSystemWatcher/FileSystemWatcherBase.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

@@ -49,14 +49,6 @@ void unxFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
 {
 }
 
-void unxFileSystemWatcher::Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
-{
-}
-
-void unxFileSystemWatcher::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
-{
-}
-
 void unxFileSystemWatcher::Start()
 {
 }

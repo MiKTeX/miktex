@@ -21,21 +21,15 @@
 
 #pragma once
 
-#include <miktex/Core/FileSystemWatcher>
+#include "../FileSystemWatcherBase.h"
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class unxFileSystemWatcher :
-  public MiKTeX::Core::FileSystemWatcher
+  public FileSystemWatcherBase
 {
 public:
   void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
-
-public:
-  void MIKTEXTHISCALL Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
-
-public:
-  void MIKTEXTHISCALL Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
 
 public:
   void MIKTEXTHISCALL Start() override;

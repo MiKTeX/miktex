@@ -60,22 +60,6 @@ void winFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName &dir)
   }
 }
 
-void winFileSystemWatcher::Subscribe(MiKTeX::Core::FileSystemWatcherCallback *callback)
-{
-  lock_guard l(mutex);
-  callbacks.insert(callback);
-}
-
-void winFileSystemWatcher::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback *callback)
-{
-  lock_guard l(mutex);
-  auto it = callbacks.find(callback);
-  if (it != callbacks.end())
-  {
-    callbacks.erase(it);
-  }
-}
-
 winFileSystemWatcher::~winFileSystemWatcher()
 {
   try
@@ -110,11 +94,14 @@ void winFileSystemWatcher::Start()
     MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
   }
   restartEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+  notifyThread = std::thread(&winFileSystemWatcher::NotifyThreadFunction, this);
   watchDirectoriesThread = std::thread(&winFileSystemWatcher::WatchDirectoriesThreadFunction, this);
 }
 
 void winFileSystemWatcher::Stop()
 {
+  done = true;
+  notifyCondition.notify_one();
   if (watchDirectoriesThread.joinable())
   {
     if (!SetEvent(cancelEvent))
@@ -123,27 +110,13 @@ void winFileSystemWatcher::Stop()
     }
     watchDirectoriesThread.join();
   }
+  if (notifyThread.joinable())
+  {
+    notifyThread.join();
+  }
   if (failure)
   {
     throw threadMiKTeXException;
-  }
-}
-
-void winFileSystemWatcher::WatchDirectoriesThreadFunction()
-{
-  try
-  {
-    WatchDirectories();
-  }
-  catch (const MiKTeX::Core::MiKTeXException& e)
-  {
-    threadMiKTeXException = e;
-    failure = true;
-  }
-  catch (const std::exception& e)
-  {
-    threadMiKTeXException = MiKTeX::Core::MiKTeXException(e.what());
-    failure = true;
   }
 }
 
@@ -203,12 +176,14 @@ void winFileSystemWatcher::WatchDirectories()
       FILE_NOTIFY_INFORMATION* fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(dwi.buffer);
       l.unlock();
       HandleDirectoryChanges(dwi.path, fni);
+      notifyCondition.notify_one();
     }
   }
 }
 
 void winFileSystemWatcher::HandleDirectoryChanges(const PathName& dir, const FILE_NOTIFY_INFORMATION* fni)
 {
+  lock_guard l(notifyMutex);
   while (true)
   {
     HandleDirectoryChange(dir, fni);
@@ -234,11 +209,7 @@ void winFileSystemWatcher::HandleDirectoryChange(const PathName& dir, const FILE
     string fileName = StringUtil::WideCharToUTF8(wstring(fni->FileName, fni->FileNameLength));
     ev.fileName = dir;
     ev.fileName /= fileName;
-    shared_lock l(mutex);
-    for (auto& c : callbacks)
-    {
-      c->OnChange(ev);
-    }
+    pendingNotifications.push_back(ev);
 }
 
 winFileSystemWatcher::DirectoryWatchInfo::DirectoryWatchInfo(DirectoryWatchInfo&& other)
