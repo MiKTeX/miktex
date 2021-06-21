@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include "internal.h"
+
 #include "macFileSystemWatcher.h"
 
 using namespace std;
@@ -28,24 +30,35 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-unique_ptr<FileSystemWatcher> FileSystemWatcher::Start(const PathName& path, FileSystemWatcherCallback* callback)
+unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
 {
-    return make_unique<macFileSystemWatcher>(path, callback);
-}
-
-macFileSystemWatcher::macFileSystemWatcher(const PathName& path, FileSystemWatcherCallback* callback)
-{
+  return make_unique<macFileSystemWatcher>();
 }
 
 macFileSystemWatcher::~macFileSystemWatcher()
 {
   try
   {
-     // TODO
   }
   catch (const exception&)
   {
   }
+}
+
+void macFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
+{
+}
+
+void macFileSystemWatcher::Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
+{
+}
+
+void macFileSystemWatcher::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
+{
+}
+
+void macFileSystemWatcher::Start()
+{
 }
 
 void macFileSystemWatcher::Stop()

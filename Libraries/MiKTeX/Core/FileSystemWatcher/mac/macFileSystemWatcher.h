@@ -29,10 +29,19 @@ class macFileSystemWatcher :
   public MiKTeX::Core::FileSystemWatcher
 {
 public:
-  void MIKTEXTHISCALL Stop() override;
+  void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
 
 public:
-  macFileSystemWatcher(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileSystemWatcherCallback* callback);
+  void MIKTEXTHISCALL Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
+
+public:
+  void MIKTEXTHISCALL Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback) override;
+
+public:
+  void MIKTEXTHISCALL Start() override;
+
+public:
+  void MIKTEXTHISCALL Stop() override;
 
 public:
   virtual MIKTEXTHISCALL ~macFileSystemWatcher();
