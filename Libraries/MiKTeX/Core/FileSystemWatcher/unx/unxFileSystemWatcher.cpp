@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include "internal.h"
 
 #include "unxFileSystemWatcher.h"
 
@@ -29,24 +30,35 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-unique_ptr<FileSystemWatcher> FileSystemWatcher::Start(const PathName& path, FileSystemWatcherCallback* callback)
+unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
 {
-    return make_unique<unxFileSystemWatcher>(path, callback);
-}
-
-unxFileSystemWatcher::unxFileSystemWatcher(const PathName& path, FileSystemWatcherCallback* callback)
-{
+  return make_unique<unxFileSystemWatcher>();
 }
 
 unxFileSystemWatcher::~unxFileSystemWatcher()
 {
   try
   {
-     // TODO
   }
   catch (const exception&)
   {
   }
+}
+
+void unxFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
+{
+}
+
+void unxFileSystemWatcher::Subscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
+{
+}
+
+void unxFileSystemWatcher::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback* callback)
+{
+}
+
+void unxFileSystemWatcher::Start()
+{
 }
 
 void unxFileSystemWatcher::Stop()
