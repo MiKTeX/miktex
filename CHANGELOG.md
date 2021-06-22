@@ -5,7 +5,8 @@
 ### Fixed issues
 
 - [844](https://github.com/MiKTeX/miktex/issues/844): Documentation not found
-
+- [846](https://github.com/MiKTeX/miktex/issues/846): miktex update causes issues “go to source/pdf” in TeXstudio
+  
 ## 21.6 - 2021-06-07
 
 ### Breaking changes
