@@ -35,16 +35,6 @@ unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
   return make_unique<macFileSystemWatcher>();
 }
 
-macFileSystemWatcher::~macFileSystemWatcher()
-{
-  try
-  {
-  }
-  catch (const exception&)
-  {
-  }
-}
-
 void macFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
 {
 }

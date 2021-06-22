@@ -35,16 +35,6 @@ unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
   return make_unique<unxFileSystemWatcher>();
 }
 
-unxFileSystemWatcher::~unxFileSystemWatcher()
-{
-  try
-  {
-  }
-  catch (const exception&)
-  {
-  }
-}
-
 void unxFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
 {
 }

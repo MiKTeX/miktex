@@ -36,9 +36,6 @@ public:
 
 public:
   void MIKTEXTHISCALL Stop() override;
-
-public:
-  virtual MIKTEXTHISCALL ~unxFileSystemWatcher();
 };
 
 CORE_INTERNAL_END_NAMESPACE;

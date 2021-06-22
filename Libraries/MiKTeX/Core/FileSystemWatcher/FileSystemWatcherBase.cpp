@@ -51,6 +51,30 @@ void FileSystemWatcherBase::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback 
   }
 }
 
+void FileSystemWatcherBase::StartThreads()
+{
+  notifyThread = std::thread(&FileSystemWatcherBase::NotifyThreadFunction, this);
+  watchDirectoriesThread = std::thread(&FileSystemWatcherBase::WatchDirectoriesThreadFunction, this);
+}
+
+void FileSystemWatcherBase::StopThreads()
+{
+  done = true;
+  notifyCondition.notify_all();
+  if (notifyThread.joinable())
+  {
+    notifyThread.join();
+  }
+  if (watchDirectoriesThread.joinable())
+  {
+    watchDirectoriesThread.join();
+  }
+  if (failure)
+  {
+    throw threadMiKTeXException;
+  }
+}
+
 void FileSystemWatcherBase::NotifyThreadFunction()
 {
   try

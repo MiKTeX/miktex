@@ -51,6 +51,12 @@ protected:
   void WatchDirectoriesThreadFunction();
 
 protected:
+  void StartThreads();
+
+protected:
+  void StopThreads();
+
+protected:
   virtual void MIKTEXTHISCALL WatchDirectories() = 0;
 
 protected:

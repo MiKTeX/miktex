@@ -31,6 +31,9 @@ class winFileSystemWatcher :
   public FileSystemWatcherBase
 {
 public:
+  virtual MIKTEXTHISCALL ~winFileSystemWatcher();
+
+public:
   void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
 
 public:
@@ -38,9 +41,6 @@ public:
 
 public:
   void MIKTEXTHISCALL Stop() override;
-
-public:
-  virtual MIKTEXTHISCALL ~winFileSystemWatcher();
 
 private:
   void MIKTEXTHISCALL WatchDirectories() override;

@@ -40,6 +40,17 @@ unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
     return make_unique<winFileSystemWatcher>();
 }
 
+winFileSystemWatcher::~winFileSystemWatcher()
+{
+  try
+  {
+    Stop();
+  }
+  catch (const exception&)
+  {
+  }
+}
+
 void winFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName &dir)
 {
   lock_guard l(mutex);
@@ -60,63 +71,46 @@ void winFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName &dir)
   }
 }
 
-winFileSystemWatcher::~winFileSystemWatcher()
-{
-  try
-  {
-    Stop();
-    if (cancelEvent != nullptr)
-    {
-      if (!CloseHandle(cancelEvent))
-      {
-        MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
-      }
-    }
-    if (restartEvent != nullptr)
-    {
-      if (!CloseHandle(restartEvent))
-      {
-        MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
-      }
-    }
-  }
-  catch (const exception&)
-  {
-  }
-}
-
 void winFileSystemWatcher::Start()
 {
-  lock_guard l(mutex);
   cancelEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
   if (cancelEvent == nullptr)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
   }
   restartEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-  notifyThread = std::thread(&winFileSystemWatcher::NotifyThreadFunction, this);
-  watchDirectoriesThread = std::thread(&winFileSystemWatcher::WatchDirectoriesThreadFunction, this);
+  if (restartEvent == nullptr)
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("CreateEventW");
+  }
+  StartThreads();
 }
 
 void winFileSystemWatcher::Stop()
 {
-  done = true;
-  notifyCondition.notify_one();
-  if (watchDirectoriesThread.joinable())
+  if (cancelEvent != nullptr)
   {
     if (!SetEvent(cancelEvent))
     {
       MIKTEX_FATAL_WINDOWS_ERROR("SetEvent");
     }
-    watchDirectoriesThread.join();
   }
-  if (notifyThread.joinable())
+  StopThreads();
+  if (cancelEvent != nullptr)
   {
-    notifyThread.join();
+    if (!CloseHandle(cancelEvent))
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
+    }
+    cancelEvent = nullptr;
   }
-  if (failure)
+  if (restartEvent != nullptr)
   {
-    throw threadMiKTeXException;
+    if (!CloseHandle(restartEvent))
+    {
+      MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
+    }
+    restartEvent = nullptr;
   }
 }
 
@@ -176,7 +170,7 @@ void winFileSystemWatcher::WatchDirectories()
       FILE_NOTIFY_INFORMATION* fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(dwi.buffer);
       l.unlock();
       HandleDirectoryChanges(dwi.path, fni);
-      notifyCondition.notify_one();
+      notifyCondition.notify_all();
     }
   }
 }
