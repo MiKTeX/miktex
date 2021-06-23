@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <vector>
 
 #include <miktex/Core/AutoResource>
@@ -61,6 +64,7 @@ void winFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName &dir)
       return;
     }
   }
+  trace_files->WriteLine("core", fmt::format("watching directory: {0}", dir));
   directories.push_back(dir);
   if (restartEvent != nullptr)
   {
@@ -163,6 +167,7 @@ void winFileSystemWatcher::WatchDirectories()
     }
     if (bytesReturned == 0)
     {
+      trace_error->WriteLine("core", MiKTeX::Trace::TraceLevel::Error, fmt::format("event buffer overflow while watching: {0}", dwi.path));
       directories.erase(directories.begin() + idx);
     }
     else

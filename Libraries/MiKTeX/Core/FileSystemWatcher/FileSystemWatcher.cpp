@@ -21,9 +21,6 @@
 
 #include "config.h"
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
 #include <miktex/Core/FileSystemWatcher>
 
 #include "internal.h"

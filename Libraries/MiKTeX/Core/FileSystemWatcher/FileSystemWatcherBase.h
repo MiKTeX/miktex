@@ -29,6 +29,8 @@
 #include <shared_mutex>
 
 #include <miktex/Core/FileSystemWatcher>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
@@ -69,6 +71,8 @@ protected:
   std::thread notifyThread;
   std::vector<MiKTeX::Core::FileSystemChangeEvent> pendingNotifications;
   MiKTeX::Core::MiKTeXException threadMiKTeXException;
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_error = MiKTeX::Trace::TraceStream::Open(MIKTEX_TRACE_ERROR);
+  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_files = MiKTeX::Trace::TraceStream::Open(MIKTEX_TRACE_FILES);
   std::thread watchDirectoriesThread;
 };
 
