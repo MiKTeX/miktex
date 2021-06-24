@@ -152,7 +152,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QLabel" name="label_8">
+        <widget class="QLabel" name="lbRunFiles">
          <property name="text">
           <string>Run-time:</string>
          </property>
@@ -166,7 +166,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="lbDocFiles">
          <property name="text">
           <string>Documentation:</string>
          </property>

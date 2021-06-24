@@ -1,6 +1,6 @@
 /* PackageInfoDialog.cpp:
 
-   Copyright (C) 2017-2019 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -62,11 +62,26 @@ PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo&
   runProxyModel->setSourceModel(runFiles);
   ui->tvRunFiles->setModel(runProxyModel);
   ui->tvRunFiles->sortByColumn(0, Qt::AscendingOrder);
+  if (packageInfo.runFiles.empty())
+  {
+    ui->lbRunFiles->hide();
+    ui->tvRunFiles->hide();
+  }
   FileTableModel* docFiles = new FileTableModel(parent, packageInfo.docFiles);
   QSortFilterProxyModel* docProxyModel = new QSortFilterProxyModel(this);
   docProxyModel->setSourceModel(docFiles);
   ui->tvDocFiles->setModel(docProxyModel);
   ui->tvDocFiles->sortByColumn(0, Qt::AscendingOrder);
+  if (packageInfo.docFiles.empty())
+  {
+    ui->lbDocFiles->hide();
+    ui->tvDocFiles->hide();
+  }
+
+  if (packageInfo.runFiles.empty() && packageInfo.docFiles.empty())
+  {
+    ui->tabWidget->removeTab(1);
+  }
 }
 
 PackageInfoDialogImpl::~PackageInfoDialogImpl()
