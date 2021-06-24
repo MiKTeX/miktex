@@ -112,7 +112,7 @@ bool LockFileImpl::TryLock(chrono::milliseconds timeout)
   trace_lockfile->WriteLine("core", fmt::format(T_("trying to create lock file {0}"), Q_(path)));
   if (locked)
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR_2(T_("File is locked: {0}"), "path", path.ToString());
   }
   chrono::time_point<chrono::high_resolution_clock> tryUntil = chrono::high_resolution_clock::now() + timeout;
   bool tryAgain;
@@ -174,7 +174,7 @@ void MIKTEXTHISCALL LockFileImpl::Unlock()
   trace_lockfile->WriteLine("core", fmt::format(T_("removing lock file {0}"), Q_(path)));
   if (!locked)
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR_2(T_("File is not locked: {0}"), "path", path.ToString());
   }
   locked = false;
   File::Delete(path);
