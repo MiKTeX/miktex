@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## pending release
+## 21.6.28 - 2021-06-28
 
 ### Fixed issues
 
