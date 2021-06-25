@@ -465,8 +465,6 @@ protected:
   SetupServiceCallback* callback = &myCallbacks;
 };
 
-void RemoveEmptyDirectoryChain(const MiKTeX::Util::PathName& directory);
-
 END_INTERNAL_NAMESPACE;
 
 using namespace MiKTeX::Setup::B3CB81AE1C634DFBB208D80FA1A264AE;

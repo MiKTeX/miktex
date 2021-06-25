@@ -68,33 +68,6 @@ SETUPSTATICFUNC(int) ComparePaths(const PathName& path1, const PathName& path2, 
 
 BEGIN_INTERNAL_NAMESPACE;
 
-void RemoveEmptyDirectoryChain(const PathName& directory)
-{
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(directory);
-  DirectoryEntry dirEntry;
-  bool empty = !lister->GetNext(dirEntry);
-  lister->Close();
-  if (!empty)
-  {
-    return;
-  }
-  FileAttributeSet attributes = File::GetAttributes(directory);
-  if (attributes[FileAttribute::ReadOnly])
-  {
-    attributes -= FileAttribute::ReadOnly;
-    File::SetAttributes(directory, attributes);
-  }
-  Directory::Delete(directory);
-  PathName parentDir(directory);
-  parentDir.CutOffLastComponent();
-  if (parentDir == directory)
-  {
-    return;
-  }
-  // RECURSION
-  RemoveEmptyDirectoryChain(parentDir);
-}
-
 bool Contains(const vector<PathName>& vec, const PathName& pathName)
 {
   for (const PathName& p : vec)
@@ -1187,7 +1160,7 @@ void SetupServiceImpl::DoCleanUp()
         parent.CutOffLastComponent();
         if (Directory::Exists(parent))
         {
-          RemoveEmptyDirectoryChain(parent);
+          Directory::RemoveEmptyDirectoryChain(parent);
         }
       }
       if (!session->IsAdminMode())
@@ -1196,13 +1169,13 @@ void SetupServiceImpl::DoCleanUp()
         parent.CutOffLastComponent();
         if (Directory::Exists(parent))
         {
-          RemoveEmptyDirectoryChain(parent);
+          Directory::RemoveEmptyDirectoryChain(parent);
         }
         parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
         parent.CutOffLastComponent();
         if (Directory::Exists(parent))
         {
-          RemoveEmptyDirectoryChain(parent);
+          Directory::RemoveEmptyDirectoryChain(parent);
         }
       }
       if (session->IsAdminMode())
@@ -1211,13 +1184,13 @@ void SetupServiceImpl::DoCleanUp()
         parent.CutOffLastComponent();
         if (Directory::Exists(parent))
         {
-          RemoveEmptyDirectoryChain(parent);
+          Directory::RemoveEmptyDirectoryChain(parent);
         }
         parent = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
         parent.CutOffLastComponent();
         if (Directory::Exists(parent))
         {
-          RemoveEmptyDirectoryChain(parent);
+          Directory::RemoveEmptyDirectoryChain(parent);
         }
       }
     }

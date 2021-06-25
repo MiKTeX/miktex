@@ -134,3 +134,31 @@ void Directory::Copy(const PathName& source, const PathName& dest, DirectoryCopy
     }
   }
 }
+
+void Directory::RemoveEmptyDirectoryChain(const PathName& path)
+{
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(path);
+  DirectoryEntry dirEntry;
+  bool empty = !lister->GetNext(dirEntry);
+  lister->Close();
+  if (!empty)
+  {
+    return;
+  }
+  FileAttributeSet attributes = File::GetAttributes(path);
+  if (attributes[FileAttribute::ReadOnly])
+  {
+    attributes -= FileAttribute::ReadOnly;
+    File::SetAttributes(path, attributes);
+  }
+  Directory::Delete(path);
+  PathName parentDir(path);
+  parentDir.CutOffLastComponent();
+  if (parentDir == path)
+  {
+    return;
+  }
+  // RECURSION
+  RemoveEmptyDirectoryChain(parentDir);
+}
+

@@ -122,6 +122,9 @@ public:
   /// @param dest The file system path to the destination directory.
 public:
   static MIKTEXCORECEEAPI(void) Move(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest);
+
+public:
+  static MIKTEXCORECEEAPI(void) RemoveEmptyDirectoryChain(const MiKTeX::Util::PathName& path);
 };
 
 MIKTEX_CORE_END_NAMESPACE;
