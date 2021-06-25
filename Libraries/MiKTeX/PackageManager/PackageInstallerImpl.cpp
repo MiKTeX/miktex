@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <set>
 #include <unordered_set>
 
 #include <fmt/format.h>
@@ -672,6 +673,7 @@ void PackageInstallerImpl::FindUpgradesThread()
 
 void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool silently)
 {
+  set<PathName> directories;
   for (const string& f : toBeRemoved)
   {
     Notify(Notification::RemoveFileStart);
@@ -709,6 +711,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
       {
         File::Delete(path, { FileDeleteOption::TryHard });
         removedFiles.insert(path);
+        directories.insert(path.GetDirectoryName());
         done = true;
       }
       catch (const MiKTeXException& e)
@@ -731,6 +734,14 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     {
       lock_guard<mutex> lockGuard(progressIndicatorMutex);
       progressInfo.cFilesRemoveCompleted += 1;
+    }
+
+    for (const PathName& d : directories)
+    {
+      if (Directory::Exists(d))
+      {
+        Directory::RemoveEmptyDirectoryChain(d);
+      }
     }
 
     // notify client

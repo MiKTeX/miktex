@@ -4,6 +4,7 @@
 
 ### Fixed issues
 
+- [841](https://github.com/MiKTeX/miktex/issues/841): When a package have been uninstalled, its directories are not removed
 - [844](https://github.com/MiKTeX/miktex/issues/844): Documentation not found
 - [846](https://github.com/MiKTeX/miktex/issues/846): miktex update causes issues “go to source/pdf” in TeXstudio
   
