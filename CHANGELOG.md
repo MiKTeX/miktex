@@ -2,6 +2,17 @@
 
 ## 21.6.28 - 2021-06-28
 
+### Breaking changes
+
+#### Common TEXMF root directories in a private (current user) installation
+
+In the past, common TEXMF root directories (e.g., `C:\Program Files\MiKTeX`)
+were in the input search path, even if MiKTeX was installed for the current user only.
+As of 21.6.28, common TEXMF root directories are excluded from the input search path.
+
+This should have no impact for most users, because these directories usually
+do not exist when MiKTeX is installed for the current user.
+
 ### Fixed issues
 
 - [841](https://github.com/MiKTeX/miktex/issues/841): When a package have been uninstalled, its directories are not removed
