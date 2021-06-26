@@ -1,6 +1,6 @@
 /* LogFile.cpp:
 
-   Copyright (C) 2000-2020 Christian Schenk
+   Copyright (C) 2000-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -190,7 +190,7 @@ void LogFile::RemoveFiles(const PathName& prefix)
     }
     if (Directory::Exists(dir))
     {
-      RemoveEmptyDirectoryChain(dir);
+      Directory::RemoveEmptyDirectoryChain(dir);
     }
   }
 }
