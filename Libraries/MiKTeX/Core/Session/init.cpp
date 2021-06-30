@@ -148,6 +148,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   initialized = true;
 
   fsWatcher = FileSystemWatcher::Create();
+  fsWatcher->Start();
 
   this->initInfo = initInfo;
 
@@ -251,6 +252,11 @@ void SessionImpl::Uninitialize()
     StartFinishScript(10);
     initialized = false;
     trace_core->WriteLine("core", T_("uninitializing core library"));
+    if (fsWatcher != nullpr)
+    {
+      fsWatcher->Stop();
+      fsWatcher = nullptr;
+    }
     CheckOpenFiles();
     WritePackageHistory();
     inputDirectories.clear();
