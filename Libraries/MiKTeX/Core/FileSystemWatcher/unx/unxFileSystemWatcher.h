@@ -21,6 +21,10 @@
 
 #pragma once
 
+#include <sys/inotify.h>
+
+#include <unordered_map>
+
 #include "../FileSystemWatcherBase.h"
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
@@ -29,6 +33,9 @@ class unxFileSystemWatcher :
   public FileSystemWatcherBase
 {
 public:
+  virtual MIKTEXTHISCALL ~unxFileSystemWatcher();
+
+public:
   void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
 
 public:
@@ -36,6 +43,18 @@ public:
 
 public:
   void MIKTEXTHISCALL Stop() override;
+
+private:
+  void MIKTEXTHISCALL WatchDirectories() override;
+
+private:
+  void HandleDirectoryChange(const struct inotify_event* evt);
+
+private:
+  int cancelEventPipe[2] = { -1 };
+  std::unordered_map<int, MiKTeX::Util::PathName> directories;
+  int restartEventPipe[2] = { -1 };
+  int watchFd = -1;
 };
 
 CORE_INTERNAL_END_NAMESPACE;
