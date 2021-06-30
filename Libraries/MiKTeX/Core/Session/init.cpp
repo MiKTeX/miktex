@@ -252,7 +252,7 @@ void SessionImpl::Uninitialize()
     StartFinishScript(10);
     initialized = false;
     trace_core->WriteLine("core", T_("uninitializing core library"));
-    if (fsWatcher != nullpr)
+    if (fsWatcher != nullptr)
     {
       fsWatcher->Stop();
       fsWatcher = nullptr;
