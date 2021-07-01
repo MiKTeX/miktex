@@ -147,7 +147,7 @@ void unxFileSystemWatcher::Stop()
 void unxFileSystemWatcher::WatchDirectories()
 {
   vector<unsigned char> buffer;
-  buffer.reserve(4096);
+  buffer.resize(4096);
   while (true)
   {
     int maxFd = -1;
@@ -203,5 +203,33 @@ void unxFileSystemWatcher::WatchDirectories()
 
 void unxFileSystemWatcher::HandleDirectoryChange(const inotify_event* evt)
 {
-  // TODO
+  FileSystemChangeEvent ev;
+  if ((evt->mask & IN_CREATE) != 0)
+  {
+    ev.action = FileSystemChangeAction::Added;
+  }
+  else if ((evt->mask & IN_DELETE) != 0)
+  {
+    ev.action = FileSystemChangeAction::Removed;
+  }
+  else if ((evt->mask & IN_MODIFY) != 0)
+  {
+    ev.action = FileSystemChangeAction::Modified;
+  }
+  else
+  {
+    return;
+  }
+  unique_lock l(mutex);
+  const auto& it = directories.find(evt->wd);
+  if (it == directories.end())
+  {
+    return;
+  }
+  PathName dir = it->second;
+  l.unlock();
+  ev.fileName = dir;
+  ev.fileName /= evt->name;
+  lock_guard l2(notifyMutex);
+  pendingNotifications.push_back(ev);
 }
