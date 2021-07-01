@@ -157,7 +157,7 @@ void SessionImpl::InitializeStartupConfig()
     }
 
     PathName miKTeXConfig;
-    miKTeXConfig = DefaultConfig().userConfigRoot / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);
+    miKTeXConfig = DefaultConfig().userConfigRoot / PathName(MIKTEX_PATH_MIKTEX_INI);
     if (File::Exists(miKTeXConfig))
     {
       MergeStartupConfig(initStartupConfig, ReadMiKTeXConfig(miKTeXConfig));
