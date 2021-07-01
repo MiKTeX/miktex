@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -40,8 +40,7 @@
 #include "pdfencoding.h"
 
 static int      is_similar_charset (char **encoding, const char **encoding2);
-static pdf_obj *make_encoding_differences (char **encoding, char **baseenc,
-					   const char *is_used);
+static pdf_obj *make_encoding_differences (char **encoding, const char **baseenc, const char *is_used);
 
 static const char *MacRomanEncoding[256];
 static const char *MacExpertEncoding[256];
@@ -67,24 +66,19 @@ static const char *ISOLatin1Encoding[256];
 
 typedef struct pdf_encoding
 {
-  char     *ident;
+  char    *ident;
 
-  char     *enc_name;
-  int       flags;
-  char     *glyphs[256];     /* ".notdef" must be represented as NULL */
-  char      is_used[256];
+  char    *enc_name;
+  int      flags;
+  char    *glyphs[256];  /* ".notdef" must be represented as NULL */
+  char     is_used[256];
 
-  struct pdf_encoding *baseenc;
-  pdf_obj  *tounicode;
+  pdf_obj *tounicode;
 
-  pdf_obj  *resource;
+  pdf_obj *resource;
 } pdf_encoding;
 
-static int      pdf_encoding_new_encoding (const char *enc_name,
-					   const char *ident,
-					   const char **encoding_vec,
-					   const char *baseenc_name,
-					   int flags);
+static int pdf_encoding_new_encoding (const char *enc_name, const char *ident, const char **encoding_vec, int flags);
 
 static void
 pdf_init_encoding_struct (pdf_encoding *encoding)
@@ -98,35 +92,36 @@ pdf_init_encoding_struct (pdf_encoding *encoding)
   memset(encoding->glyphs,  0, 256*sizeof(char *));
   memset(encoding->is_used, 0, 256);
 
-  encoding->tounicode = NULL;
+  encoding->tounicode    = NULL;
 
-  encoding->baseenc   = NULL;
-  encoding->resource  = NULL;
+  encoding->resource     = NULL;
 
-  encoding->flags     = 0;
+  encoding->flags        = 0;
 
   return;
 }
 
-/* Creates the PDF Encoding entry for the encoding.
- * If baseenc is non-null, it is used as BaseEncoding entry.
- */
+/* Creates the PDF Encoding entry for the encoding. */
 static pdf_obj *
-create_encoding_resource (pdf_encoding *encoding, pdf_encoding *baseenc)
+create_encoding_resource (char **enc_vec, const char *baseenc_name, const char **baseenc_vec, char *is_used)
 {
   pdf_obj *differences;
-  ASSERT(encoding);
-  ASSERT(!encoding->resource);
 
-  differences = make_encoding_differences(encoding->glyphs,
-					  baseenc ? baseenc->glyphs : NULL,
-					  encoding->is_used);
-  
+  ASSERT(enc_vec);
+
+  if (baseenc_name) {
+    if (strcmp(baseenc_name, "MacRomanEncoding") &&
+        strcmp(baseenc_name, "MacExpertEncoding") &&
+        strcmp(baseenc_name, "WinAnsiEncoding")) {
+      ERROR("Invalid encoding name for BaseEncoding: %s", baseenc_name);
+    }
+  }
+
+  differences = make_encoding_differences(enc_vec, baseenc_vec, is_used);  
   if (differences) {
     pdf_obj *resource = pdf_new_dict();
-    if (baseenc)
-      pdf_add_dict(resource, pdf_new_name("BaseEncoding"),
-		   pdf_link_obj(baseenc->resource));
+    if (baseenc_name)
+      pdf_add_dict(resource, pdf_new_name("BaseEncoding"), pdf_new_name(baseenc_name));
     pdf_add_dict(resource, pdf_new_name("Differences"),  differences);
     return resource; 
   } else {
@@ -141,7 +136,7 @@ create_encoding_resource (pdf_encoding *encoding, pdf_encoding *baseenc)
      *
      * Actually these fonts will be ignored in pdffont.c.
      */
-    return baseenc ? pdf_link_obj(baseenc->resource) : NULL;
+    return baseenc_name ? pdf_new_name(baseenc_name) : NULL;
   }
 }
 
@@ -212,8 +207,7 @@ is_similar_charset (char **enc_vec, const char **enc_vec2)
   int   code, same = 0;
 
   for (code = 0; code < 256; code++)
-    if (!(enc_vec[code] && strcmp(enc_vec[code], enc_vec2[code]))
-	&& ++same >= 64)
+    if (!(enc_vec[code] && strcmp(enc_vec[code], enc_vec2[code])) && ++same >= 64)
       /* is 64 a good level? */
       return 1;
 
@@ -225,7 +219,7 @@ is_similar_charset (char **enc_vec, const char **enc_vec2)
  * are actually used in the document are considered.
  */
 static pdf_obj *
-make_encoding_differences (char **enc_vec, char **baseenc, const char *is_used)
+make_encoding_differences (char **enc_vec, const char **baseenc, const char *is_used)
 {
   pdf_obj *differences = NULL;
   int      code, count = 0;
@@ -329,8 +323,7 @@ load_encoding_file (const char *filename)
   for (code = 0; code < 256; code++) {
     enc_vec[code] = pdf_name_value(pdf_get_array(encoding_array, code));
   }
-  enc_id = pdf_encoding_new_encoding(enc_name ? pdf_name_value(enc_name) : NULL,
-				     filename, enc_vec, NULL, 0);
+  enc_id = pdf_encoding_new_encoding(enc_name ? pdf_name_value(enc_name) : NULL, filename, enc_vec, 0);
 
   if (enc_name) {
     if (dpx_conf.verbose_level > 1)
@@ -370,12 +363,9 @@ pdf_init_encodings (void)
   /*
    * PDF Predefined Encodings
    */
-  pdf_encoding_new_encoding("WinAnsiEncoding", "WinAnsiEncoding",
-			    WinAnsiEncoding, NULL, FLAG_IS_PREDEFINED);
-  pdf_encoding_new_encoding("MacRomanEncoding", "MacRomanEncoding",
-			    MacRomanEncoding, NULL, FLAG_IS_PREDEFINED);
-  pdf_encoding_new_encoding("MacExpertEncoding", "MacExpertEncoding",
-			    MacExpertEncoding, NULL, FLAG_IS_PREDEFINED);
+  pdf_encoding_new_encoding("WinAnsiEncoding", "WinAnsiEncoding", WinAnsiEncoding, FLAG_IS_PREDEFINED);
+  pdf_encoding_new_encoding("MacRomanEncoding", "MacRomanEncoding", MacRomanEncoding, FLAG_IS_PREDEFINED);
+  pdf_encoding_new_encoding("MacExpertEncoding", "MacExpertEncoding", MacExpertEncoding, FLAG_IS_PREDEFINED);
 
   return;
 }
@@ -394,12 +384,10 @@ pdf_init_encodings (void)
  */
 
 static int
-pdf_encoding_new_encoding (const char *enc_name, const char *ident,
-			   const char **encoding_vec,
-			   const char *baseenc_name, int flags)
+pdf_encoding_new_encoding (const char *enc_name, const char *ident, const char **encoding_vec, int flags)
 {
-  int      enc_id, code;
-
+  int           enc_id;
+  int           code;
   pdf_encoding *encoding;
 
   enc_id   = enc_cache.count;
@@ -419,25 +407,11 @@ pdf_encoding_new_encoding (const char *enc_name, const char *ident,
 
   encoding->flags = flags;
 
-  for (code = 0; code < 256; code++)
+  for (code = 0; code < 256; code++) {
     if (encoding_vec[code] && strcmp(encoding_vec[code], ".notdef")) {
       encoding->glyphs[code] = NEW(strlen(encoding_vec[code])+1, char);
       strcpy(encoding->glyphs[code], encoding_vec[code]);
     }
-
-  if (!baseenc_name && !(flags & FLAG_IS_PREDEFINED)
-      && is_similar_charset(encoding->glyphs, WinAnsiEncoding)) {
-    /* Dvipdfmx default setting. */
-    baseenc_name = "WinAnsiEncoding";
-  }
-
-  /* TODO: make base encoding configurable */
-  if (baseenc_name) {
-    int baseenc_id = pdf_encoding_findresource(baseenc_name);
-    if (baseenc_id < 0 || !pdf_encoding_is_predefined(baseenc_id))
-      ERROR("Illegal base encoding %s for encoding %s\n",
-	    baseenc_name, encoding->enc_name);
-    encoding->baseenc = &enc_cache.encodings[baseenc_id];
   }
 
   if (flags & FLAG_IS_PREDEFINED)
@@ -455,22 +429,30 @@ void pdf_encoding_complete (void)
 
   for (enc_id = 0; enc_id < enc_cache.count; enc_id++) {
     if (!pdf_encoding_is_predefined(enc_id)) {
-      pdf_encoding *encoding = &enc_cache.encodings[enc_id];
+      pdf_encoding  *encoding     = &enc_cache.encodings[enc_id];
+      const char    *baseenc_name = NULL;
+      const char   **baseenc_vec  = NULL;
       /* Section 5.5.4 of the PDF 1.5 reference says that the encoding
        * of a Type 3 font must be completely described by a Differences
        * array, but implementation note 56 explains that this is rather
        * an incorrect implementation in Acrobat 4 and earlier. Hence,
        * we do use a base encodings for PDF versions >= 1.3.
        */
-      int with_base = !(encoding->flags & FLAG_USED_BY_TYPE3)
-	              || pdf_check_version(1, 4) >= 0;
+      int with_base = (!(encoding->flags & FLAG_USED_BY_TYPE3) || pdf_check_version(1, 4) >= 0);
+      
       ASSERT(!encoding->resource);
-      encoding->resource = create_encoding_resource(encoding,
-						    with_base ? encoding->baseenc : NULL);
       ASSERT(!encoding->tounicode);
-      encoding->tounicode = pdf_create_ToUnicode_CMap(encoding->enc_name,
-						      encoding->glyphs,
-						      encoding->is_used);
+
+      /* Currently possible values are WinAnsiEncoding or NULL for BaseEncoding */
+      if (!(encoding->flags & FLAG_IS_PREDEFINED) && with_base) {
+        if (is_similar_charset(encoding->glyphs, WinAnsiEncoding)) {
+          /* Dvipdfmx default setting. */
+          baseenc_name = "WinAnsiEncoding";
+          baseenc_vec  = WinAnsiEncoding;
+        }
+      }
+      encoding->resource  = create_encoding_resource(encoding->glyphs, baseenc_name, baseenc_vec, encoding->is_used);
+      encoding->tounicode = pdf_create_ToUnicode_CMap(encoding->enc_name, encoding->glyphs, encoding->is_used);
     }
   }
 }

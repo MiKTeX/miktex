@@ -307,8 +307,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="22" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.22' {current \pdfTeX\ version}
+@d pdftex_revision=="23" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.23' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.141592653',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -17641,12 +17641,17 @@ begin
     if scan_keyword("nolig") then
         set_no_ligatures(k); {disable ligatures for letter-spaced fonts}
     nw := height_base[k] - width_base[k];
+
+    if (quad(k) = 0) and (quad(f) > 0) then
+        quad(k) := quad(f);
+    if quad(k) = 0 then
+        pdf_warning("\letterspacefont", "font has zero em size (\fontdimen6)", true, true);
+
     for i := 0 to nw - 1 do
         font_info[width_base[k] + i].sc :=
             font_info[width_base[k] + i].sc + round_xn_over_d(quad(k), e, 1000);
 
     {append, e.g., '+100ls' to font name}
-    flush_str(font_name[k]);
     str_room(length(font_name[k]) + 7); {|abs(e) <= 1000|}
     old_setting := selector;
     selector := new_string;

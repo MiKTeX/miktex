@@ -100,7 +100,7 @@ typedef struct {
 
 typedef struct {
     char *name;                 /* glyph name */
-    long code;                  /* -1 = undefined; -2 = multiple codes, stored
+    integer code;               /* -1 = undefined; -2 = multiple codes, stored
                                    as string in unicode_seq; otherwise unicode value */
     char *unicode_seq;          /* multiple unicode sequence */
 } glyph_unicode_entry;

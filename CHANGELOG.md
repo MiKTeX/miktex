@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## pending release
+
+### Upgraded programs
+
+* dvipdfmx 20210609
+* pdftex 1.40.23
+
 ## 21.6.28 - 2021-06-28
 
 ### Breaking changes

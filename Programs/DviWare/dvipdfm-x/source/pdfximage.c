@@ -354,8 +354,8 @@ load_image (const char *ident, const char *filename, const char *fullname, int f
     I->subtype  = PDF_XOBJECT_TYPE_FORM;
     break;
 /*
-  case  IMAGE_TYPE_EPS:
-*/
+ * case  IMAGE_TYPE_EPS:
+ */
   default:
     if (dpx_conf.verbose_level > 0)
       MESG(format == IMAGE_TYPE_EPS ? "[PS]" : "[UNKNOWN]");
@@ -451,9 +451,9 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
 #endif /* WIN32 */
 #endif
       if (dpx_conf.compat_mode == dpx_mode_compat_mode) {
-        WARN("Image inclusion failed for \"%s\".", filename);
+        WARN("Image inclusion failed. Could not find file: %s", filename);
       } else {
-        ERROR("Image inclusion failed for \"%s\".", filename);
+        ERROR("Image inclusion failed. Could not find file: %s", filename);
       }
       return  -1;
     }
@@ -466,7 +466,7 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
       RELEASE(fullname);
     } else {
       RELEASE(fullname);
-      ERROR("Image inclusion failed for \"%s\".", filename);
+      ERROR("Error opening image file \"%s\".", filename);
     }
     return  -1;
   }
@@ -510,9 +510,17 @@ pdf_ximage_load_image (const char *ident, const char *filename, load_options opt
 
   if (id < 0) {
     if (dpx_conf.compat_mode == dpx_mode_compat_mode) {
-      WARN("Image inclusion failed for \"%s\".", filename);
+      if (format == IMAGE_TYPE_PDF || format == IMAGE_TYPE_EPS) {
+        WARN("Image inclusion failed for \"%s\" (page=%d).", filename, options.page_no);
+      } else {
+        WARN("Image inclusion failed for \"%s\"", filename);
+      }
     } else {
-      ERROR("Image inclusion failed for \"%s\".", filename);
+      if (format == IMAGE_TYPE_PDF || format == IMAGE_TYPE_EPS) {
+        ERROR("Image inclusion failed for \"%s\" (page=%d).", filename, options.page_no);
+      } else {
+        ERROR("Image inclusion failed for \"%s\"", filename);
+      }
     }
   }
 
