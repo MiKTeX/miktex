@@ -123,7 +123,6 @@ void winFileSystemWatcher::WatchDirectories()
   while (true)
   {
     const DWORD notifyFilter = 0 |
-                               FILE_NOTIFY_CHANGE_CREATION |
                                FILE_NOTIFY_CHANGE_DIR_NAME |
                                FILE_NOTIFY_CHANGE_FILE_NAME |
                                FILE_NOTIFY_CHANGE_LAST_WRITE |
@@ -168,15 +167,12 @@ void winFileSystemWatcher::WatchDirectories()
     if (bytesReturned == 0)
     {
       trace_error->WriteLine("core", MiKTeX::Trace::TraceLevel::Error, fmt::format("event buffer overflow while watching: {0}", dwi.path));
-      directories.erase(directories.begin() + idx);
+      continue;
     }
-    else
-    {
-      FILE_NOTIFY_INFORMATION* fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(dwi.buffer);
-      l.unlock();
-      HandleDirectoryChanges(dwi.path, fni);
-      notifyCondition.notify_all();
-    }
+    FILE_NOTIFY_INFORMATION* fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(dwi.buffer);
+    l.unlock();
+    HandleDirectoryChanges(dwi.path, fni);
+    notifyCondition.notify_all();
   }
 }
 
