@@ -53,6 +53,7 @@ void FileSystemWatcherBase::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback 
 
 void FileSystemWatcherBase::StartThreads()
 {
+  done = false;
   notifyThread = std::thread(&FileSystemWatcherBase::NotifyThreadFunction, this);
   watchDirectoriesThread = std::thread(&FileSystemWatcherBase::WatchDirectoriesThreadFunction, this);
 }

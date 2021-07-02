@@ -70,6 +70,7 @@ protected:
   std::mutex notifyMutex;
   std::thread notifyThread;
   std::vector<MiKTeX::Core::FileSystemChangeEvent> pendingNotifications;
+  std::atomic_bool running{ false };
   MiKTeX::Core::MiKTeXException threadMiKTeXException;
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_error = MiKTeX::Trace::TraceStream::Open(MIKTEX_TRACE_ERROR);
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_files = MiKTeX::Trace::TraceStream::Open(MIKTEX_TRACE_FILES);

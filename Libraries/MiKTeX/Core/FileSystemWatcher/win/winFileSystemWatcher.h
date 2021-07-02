@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <unordered_map>
 #include <vector>
 
 #include "../FileSystemWatcherBase.h"
@@ -33,14 +34,14 @@ class winFileSystemWatcher :
 public:
   virtual MIKTEXTHISCALL ~winFileSystemWatcher();
 
-public:
-  void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
+private:
+  void MIKTEXTHISCALL AddDirectories(const std::vector<MiKTeX::Util::PathName>& directories) override;
 
-public:
-  void MIKTEXTHISCALL Start() override;
+private:
+  bool MIKTEXTHISCALL Start() override;
 
-public:
-  void MIKTEXTHISCALL Stop() override;
+private:
+  bool MIKTEXTHISCALL Stop() override;
 
 private:
   void MIKTEXTHISCALL WatchDirectories() override;
@@ -62,9 +63,10 @@ private:
     DirectoryWatchInfo& operator=(DirectoryWatchInfo&& other);
     DirectoryWatchInfo(const MiKTeX::Util::PathName& path);
     virtual ~DirectoryWatchInfo();
+    void CancelIo();
     void* buffer;
     HANDLE directoryHandle;
-    OVERLAPPED overlapped;
+    OVERLAPPED* overlapped = nullptr;
     MiKTeX::Util::PathName path;
     bool pending;
   };
@@ -72,7 +74,6 @@ private:
 private:
   HANDLE cancelEvent = nullptr;
   std::vector<DirectoryWatchInfo> directories;
-  HANDLE restartEvent = nullptr;
 };
 
 CORE_INTERNAL_END_NAMESPACE;

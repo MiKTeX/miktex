@@ -412,7 +412,7 @@ void FileNameDatabase::Initialize(const PathName& fndbPath, const PathName& root
 
   this->fsWatcher = fsWatcher;
   fsWatcher->Subscribe(this);
-  fsWatcher->AddDirectory(fndbPath.GetDirectoryName());
+  fsWatcher->AddDirectories({fndbPath.GetDirectoryName()});
 
   OpenFileNameDatabase(fndbPath);
   ReadFileNames();

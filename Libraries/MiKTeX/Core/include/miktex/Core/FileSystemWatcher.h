@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <miktex/Util/PathName>
 
@@ -55,13 +56,13 @@ public:
   virtual MIKTEXTHISCALL ~FileSystemWatcher() noexcept = 0;
 
 public:
-  virtual void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) = 0;
+  virtual void MIKTEXTHISCALL AddDirectories(const std::vector<MiKTeX::Util::PathName>& directories) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Start() = 0;
+  virtual bool MIKTEXTHISCALL Start() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Stop() = 0;
+  virtual bool MIKTEXTHISCALL Stop() = 0;
 
 public:
   virtual void MIKTEXTHISCALL Subscribe(FileSystemWatcherCallback* callback) = 0;
