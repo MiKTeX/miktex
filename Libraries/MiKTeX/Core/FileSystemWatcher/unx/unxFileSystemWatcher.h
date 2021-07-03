@@ -33,16 +33,19 @@ class unxFileSystemWatcher :
   public FileSystemWatcherBase
 {
 public:
+  unxFileSystemWatcher();
+    
+public:
   virtual MIKTEXTHISCALL ~unxFileSystemWatcher();
 
-public:
-  void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
+private:
+  void MIKTEXTHISCALL AddDirectories(const std::vector<MiKTeX::Util::PathName>& directories) override;
 
-public:
-  void MIKTEXTHISCALL Start() override;
+private:
+  bool MIKTEXTHISCALL Start() override;
 
-public:
-  void MIKTEXTHISCALL Stop() override;
+private:
+  bool MIKTEXTHISCALL Stop() override;
 
 private:
   void MIKTEXTHISCALL WatchDirectories() override;
@@ -51,10 +54,9 @@ private:
   void HandleDirectoryChange(const struct inotify_event* evt);
 
 private:
-  int cancelEventPipe[2] = { -1 };
+  int cancelEventPipe[2];
   std::unordered_map<int, MiKTeX::Util::PathName> directories;
-  int restartEventPipe[2] = { -1 };
-  int watchFd = -1;
+  int watchFd;
 };
 
 CORE_INTERNAL_END_NAMESPACE;

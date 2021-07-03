@@ -41,106 +41,84 @@ unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
   return make_unique<unxFileSystemWatcher>();
 }
 
-unxFileSystemWatcher::~unxFileSystemWatcher()
-{
-  try
-  {
-    Stop();
-  }
-  catch (const exception&)
-  {
-  }
-}
-
-void unxFileSystemWatcher::AddDirectory(const MiKTeX::Util::PathName& dir)
-{
-  lock_guard l(mutex);
-  for (auto& d : directories)
-  {
-    if (d.second == dir)
-    {
-      return;
-    }
-  }
-  if (watchFd < 0)
-  {
-    MIKTEX_FATAL_ERROR("File system watcher is not running.");
-  }
-  int wd = inotify_add_watch(watchFd, dir.GetData(), IN_ALL_EVENTS);
-  if (wd < 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("inotify_add_Watch", "path", dir.ToString());
-  }
-  trace_files->WriteLine("core", fmt::format("watching directory: {0}", dir));
-  directories[wd] = dir;
-  if (restartEventPipe[1] >= 0)
-  {
-    char buf[1];
-    if (write(restartEventPipe[1], buf, 1) < 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("write");
-    }
-  }
-}
-
-void unxFileSystemWatcher::Start()
+unxFileSystemWatcher::unxFileSystemWatcher()
 {
   watchFd = inotify_init();
   if (watchFd < 0)
   {
     MIKTEX_FATAL_CRT_ERROR("inotify_init");
   }
-  if (pipe(cancelEventPipe) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("pipe");
-  }
-  if (pipe(restartEventPipe) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("pipe");
-  }
-  StartThreads();
 }
 
-void unxFileSystemWatcher::Stop()
+unxFileSystemWatcher::~unxFileSystemWatcher()
 {
-  if (cancelEventPipe[1] >= 0)
+  try
   {
-    char buf[1];
-    if (write(cancelEventPipe[1], buf, 1) < 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("write");
-    }
-  }
-  StopThreads();
-  if (watchFd >= 0)
-  {
+    Stop();
     if (close(watchFd) < 0)
     {
       MIKTEX_FATAL_CRT_ERROR("close");
     }
-    watchFd = -1;
   }
-  if (cancelEventPipe[1] >= 0)
+  catch (const exception&)
   {
-    if (close(cancelEventPipe[0]) < 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("clode");
-    }
-    if (close(cancelEventPipe[1]) < 0)
-    {
-      MIKTEX_FATAL_CRT_ERROR("clode");
-    }
   }
-  if (restartEventPipe[1] >= 0)
+}
+
+void unxFileSystemWatcher::AddDirectories(const vector<PathName>& directories)
+{
+  unique_lock l(mutex);
+  for (const auto& dir : directories)
   {
-    if (close(restartEventPipe[0]) < 0)
+    int wd = inotify_add_watch(watchFd, dir.GetData(), IN_ALL_EVENTS);
+    if (wd < 0)
     {
-      MIKTEX_FATAL_CRT_ERROR("clode");
+      MIKTEX_FATAL_CRT_ERROR_2("inotify_add_Watch", "path", dir.ToString());
     }
-    if (close(restartEventPipe[1]) < 0)
+    if (this->directories.find(wd) != this->directories.end())
     {
-      MIKTEX_FATAL_CRT_ERROR("clode");
+      continue;
     }
+    trace_files->WriteLine("core", fmt::format("watching directory: {0}", dir));
+    this->directories[wd] = dir;
+  }
+}
+
+bool unxFileSystemWatcher::Start()
+{
+  bool runningExpected = false;
+  if (!running.compare_exchange_strong(runningExpected, true))
+  {
+    return false;
+  }
+  if (pipe(cancelEventPipe) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("pipe");
+  }
+  StartThreads();
+  return true;
+}
+
+bool unxFileSystemWatcher::Stop()
+{
+  bool runningExpected = true;
+  if (!running.compare_exchange_strong(runningExpected, false))
+  {
+    return false;
+  }
+  char buf[1];
+  if (write(cancelEventPipe[1], buf, 1) < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("write");
+  }
+  StopThreads();
+  if (close(cancelEventPipe[0]) < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("clode");
+  }
+  if (close(cancelEventPipe[1]) < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("clode");
   }
 }
 
@@ -157,11 +135,6 @@ void unxFileSystemWatcher::WatchDirectories()
     if (cancelEventPipe[0] > maxFd)
     {
       maxFd = cancelEventPipe[0];
-    }
-    FD_SET(restartEventPipe[0], &readfds);
-    if (restartEventPipe[0] > maxFd)
-    {
-      maxFd = restartEventPipe[0];
     }
     FD_SET(watchFd, &readfds);
     if (watchFd > maxFd)
@@ -190,13 +163,6 @@ void unxFileSystemWatcher::WatchDirectories()
     if (FD_ISSET(cancelEventPipe[0], &readfds))
     {
       return;
-    }
-    if (FD_ISSET(restartEventPipe[0], &readfds))
-    {
-      if (read(restartEventPipe[0], &buffer[0], buffer.size()) < 0)
-      {
-	MIKTEX_FATAL_CRT_ERROR("read");
-      }
     }
   }
 }
