@@ -1,6 +1,6 @@
 ## ExecutableNames.cmake
 ##
-## Copyright (C) 2018-2019 Christian Schenk
+## Copyright (C) 2018-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -49,6 +49,7 @@ define_executable(makefmt)
 define_executable(makemf)
 define_executable(makepk)
 define_executable(maketfm)
+define_executable(miktex miktex)
 define_executable(mkfntmap mkfntmap)
 define_executable(mpm mpm)
 define_executable(mthelp mthelp)

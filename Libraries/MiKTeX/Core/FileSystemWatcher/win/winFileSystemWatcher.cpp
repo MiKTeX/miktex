@@ -215,7 +215,7 @@ void winFileSystemWatcher::HandleDirectoryChange(const PathName& dir, const FILE
   default:
     return;
   }
-  string fileName = StringUtil::WideCharToUTF8(wstring(fni->FileName, fni->FileNameLength));
+  string fileName = StringUtil::WideCharToUTF8(wstring(fni->FileName, fni->FileNameLength / sizeof(WCHAR)));
   ev.fileName = dir;
   ev.fileName /= fileName;
   pendingNotifications.push_back(ev);
