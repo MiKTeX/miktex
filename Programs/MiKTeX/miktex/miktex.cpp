@@ -427,7 +427,7 @@ int MiKTeXApp::Run(const vector<string>& args)
         BadUsage(T_("missing topic"));
         return 1;
     }
-    auto& it = topics.find(args[0]);
+    auto it = topics.find(args[0]);
     if (it == topics.end())
     {
         BadUsage(fmt::format(T_("unknown topic: {0}"), args[0]));
