@@ -165,7 +165,7 @@ void winFileSystemWatcher::WatchDirectories()
     }
     auto idx = ev - WAIT_OBJECT_0 - 1;
     l.lock();
-    auto &dwi = directories[idx];
+    auto& dwi = directories[idx];
     dwi.pending = false;
     DWORD bytesReturned = 0;
     if (!GetOverlappedResult(dwi.directoryHandle, dwi.overlapped, &bytesReturned, TRUE))
@@ -221,7 +221,7 @@ void winFileSystemWatcher::HandleDirectoryChange(const PathName& dir, const FILE
   pendingNotifications.push_back(ev);
 }
 
-winFileSystemWatcher::DirectoryWatchInfo::DirectoryWatchInfo(DirectoryWatchInfo &&other)
+winFileSystemWatcher::DirectoryWatchInfo::DirectoryWatchInfo(DirectoryWatchInfo&& other)
 {
   buffer = other.buffer;
   other.buffer = nullptr;
