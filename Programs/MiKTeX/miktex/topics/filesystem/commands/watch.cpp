@@ -66,7 +66,7 @@ int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<st
                     case FileSystemChangeAction::Removed: action = "removed"; break;
                     default: action = "-"; break;
                 }
-                ctx.ui->Output(fmt::format("{0}: {1}\n"));
+                ctx.ui->Output(fmt::format("{0}: {1}"));
             }
         private:
             OneMiKTeXUtility::ApplicationContext& ctx;

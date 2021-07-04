@@ -383,7 +383,7 @@ MIKTEXNORETURN void MiKTeXApp::FatalError(const string& s)
 
 void MiKTeXApp::BadUsage(const string& s)
 {
-    cerr << T_("Bad usage: ") << s << endl;
+    cerr << T_("bad usage: ") << s << endl;
 }
 
 void MiKTeXApp::ShowUsage()

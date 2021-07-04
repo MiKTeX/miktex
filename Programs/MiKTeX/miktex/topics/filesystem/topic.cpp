@@ -57,7 +57,7 @@ private:
 private:
     string BadUsage(const std::string s)
     {
-        return fmt::format(T_("Bad usage: {0}"), s);
+        return fmt::format(T_("bad filesystem usage: {0}"), s);
     }
 };
 
@@ -70,17 +70,20 @@ int FileSystemTopic::Execute(ApplicationContext& ctx, const vector<string>& argu
 {
     if (arguments.size() < 2)
     {
-        ctx.ui->Error(BadUsage(T_("missing command")));
+        ctx.ui->Error(BadUsage(T_("missing command; try help")));
         return 1;
     }
     if (arguments[1] == "help")
     {
+        ctx.ui->Output("filesystem commands:");
+        ctx.ui->Output("  help         show help");
+        ctx.ui->Output("  watch DIR    watch for directory changes");
         return 0;
     }
     if (arguments[1] == "watch")
     {
         return Commands::Watch(ctx, arguments);
     }
-    ctx.ui->Error(BadUsage(fmt::format(T_("unknown filesystem command: {0}"), arguments[0])));
+    ctx.ui->Error(BadUsage(fmt::format(T_("unknown command: {0}"), arguments[0])));
     return 1;
 }
