@@ -48,6 +48,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 set(miktex_sources
+  internal.h
   miktex.cpp
   topics/Topic.cpp
   topics/Topic.h

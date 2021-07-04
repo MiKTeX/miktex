@@ -26,6 +26,8 @@
 #include <vector>
 #include <map>
 
+#include <csignal>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -55,9 +57,9 @@
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
-#include <topics/Topic.h>
-
-#include <topics/filesystem/topic.h>
+#include "internal.h"
+#include "topics/Topic.h"
+#include "topics/filesystem/topic.h"
 
 using namespace std;
 
@@ -65,6 +67,8 @@ using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
+
+using namespace OneMiKTeXUtility;
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 #define T_(x) MIKTEXTEXT(x)
@@ -75,6 +79,37 @@ const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGNAME));
 static bool isLog4cxxConfigured = false;
+
+static std::atomic<bool> canceled;
+
+static void MIKTEXCEECALL SignalHandler(int signalToBeHandled)
+{
+  switch (signalToBeHandled)
+  {
+  case SIGINT:
+  case SIGTERM:
+    signal(SIGINT, SIG_IGN);
+    canceled = true;
+    break;
+  }
+}
+
+void InstallSignalHandler(int sig)
+{
+  void(*oldHandlerFunc) (int);
+  oldHandlerFunc = signal(sig, SignalHandler);
+  if (oldHandlerFunc == SIG_ERR)
+  {
+    MIKTEX_FATAL_CRT_ERROR("signal");
+  }
+  if (oldHandlerFunc != SIG_DFL)
+  {
+    if (signal(sig, oldHandlerFunc) == SIG_ERR)
+    {
+      MIKTEX_FATAL_CRT_ERROR("signal");
+    }
+  }
+}
 
 static void Sorry(const string& description, const string& remedy, const string& url)
 {
@@ -133,7 +168,9 @@ static void Sorry()
 }
 
 class MiKTeXApp :
-    public TraceCallback
+    public TraceCallback,
+    public OneMiKTeXUtility::Controller,
+    public OneMiKTeXUtility::UI
 {
 public:
     int Init(std::vector<std::string>& args);
@@ -143,6 +180,12 @@ public:
 
 public:
     int Run(const std::vector<std::string>& args);
+
+private:
+    bool Canceled() override
+    {
+        return canceled;
+    }
 
 private:
     void RegisterTopic(unique_ptr<Topics::Topic> t)
@@ -170,6 +213,15 @@ private:
     void ShowUsage();
 
 private:
+    void ShowVersion();
+
+private:
+    void Output(const std::string& s) override;
+
+private:
+    void Error(const std::string& s) override;
+
+private:
     void Warning(const std::string& s);
 
 private:
@@ -191,6 +243,7 @@ private:
     void LogTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
 private:
+    ApplicationContext ctx;
     std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
     bool quiet;
     std::shared_ptr<MiKTeX::Core::Session> session;
@@ -209,7 +262,7 @@ void MiKTeXApp::PushTraceMessage(const TraceCallback::TraceMessage& traceMessage
 
 void MiKTeXApp::PushTraceMessage(const string& message)
 {
-    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", TraceLevel::Trace, message));
+    PushTraceMessage(TraceCallback::TraceMessage("miktex", "miktex", TraceLevel::Trace, message));
 }
 
 bool MiKTeXApp::Trace(const TraceCallback::TraceMessage& traceMessage)
@@ -243,7 +296,7 @@ void MiKTeXApp::FlushPendingTraceMessages()
 void MiKTeXApp::LogTraceMessage(const TraceCallback::TraceMessage& traceMessage)
 {
     MIKTEX_ASSERT(isLog4cxxConfigured);
-    log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.initexmf.") + traceMessage.facility);
+    log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.miktex.") + traceMessage.facility);
     switch (traceMessage.level)
     {
     case TraceLevel::Fatal:
@@ -272,8 +325,22 @@ void MiKTeXApp::Verbose(const string& s)
 {
     if (verbose)
     {
-        cout << s << endl;
+        Output(s);
     }
+}
+
+void MiKTeXApp::Output(const string& s)
+{
+    cout << s << endl;
+}
+
+void MiKTeXApp::Error(const string& s)
+{
+    if (isLog4cxxConfigured)
+    {
+        LOG4CXX_ERROR(logger, s);
+    }
+    cerr << PROGNAME << ": " << T_("error") << ": " << s << endl;
 }
 
 void MiKTeXApp::Warning(const string& s)
@@ -325,12 +392,26 @@ void MiKTeXApp::ShowUsage()
          << T_("Topics:") << endl;
     for (auto& t : topics)
     {
-        cout << t.second->Name() << endl;
+        cout << fmt::format("  {0}  {1}", t.second->Name(), t.second->Description()) << endl;
     }
+}
+
+void MiKTeXApp::ShowVersion()
+{
+    cout
+      << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+      << "\n"
+      << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+      << "\n"
+      << "This is free software; see the source for copying conditions.  There is NO" << "\n"
+      << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
 int MiKTeXApp::Init(vector<string>& args)
 {
+    ctx.controller = this;
+    ctx.ui = this;
+    RegisterTopics();
     bool adminMode = false;
     bool forceAdminMode = false;
     Session::InitOptionSet options;
@@ -346,12 +427,17 @@ int MiKTeXApp::Init(vector<string>& args)
         else if (opt == "--help" || opt == "-help")
         {
             ShowUsage();
-            return 0;
+            return -1;
         }
         else if (opt == "--principal=setup" || opt == "-principal=setup")
         {
             options += Session::InitOption::SettingUp;
             forceAdminMode = true;
+        }
+        else if (opt == "--version" || opt == "-version")
+        {
+            ShowVersion();
+            return -1;
         }
         else
         {
@@ -410,8 +496,9 @@ int MiKTeXApp::Init(vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(args));
     FlushPendingTraceMessages();
-    RegisterTopics();
     args.erase(args.begin(), args.begin() + idx);
+    InstallSignalHandler(SIGINT);
+    InstallSignalHandler(SIGTERM);
     return 0;
 }
 
@@ -433,7 +520,7 @@ int MiKTeXApp::Run(const vector<string>& args)
         BadUsage(fmt::format(T_("unknown topic: {0}"), args[0]));
         return 1;
     }
-    return it->second->Execute(args);
+    return it->second->Execute(ctx, args);
 }
 
 #if defined(_UNICODE)
@@ -465,12 +552,16 @@ int MAIN(int argc, MAINCHAR* argv[])
 #endif
         }
         MiKTeXApp app;
-        retCode = app.Init(utf8args);
-        if (retCode == 0)
+        auto initSuccess = app.Init(utf8args);
+        if (initSuccess == 0)
         {
             retCode = app.Run(utf8args);
+            app.Finalize();
         }
-        app.Finalize();
+        else if (initSuccess > 0)
+        {
+            retCode = initSuccess;
+        }
     }
     catch (const MiKTeXException& e)
     {
@@ -509,7 +600,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     {
         retCode = exitCode;
     }
-    if (logger != nullptr)
+    if (logger != nullptr && isLog4cxxConfigured)
     {
         LOG4CXX_INFO(logger, "this process (" << Process::GetCurrentProcess()->GetSystemId() << ") finishes with exit code " << retCode);
         logger = nullptr;

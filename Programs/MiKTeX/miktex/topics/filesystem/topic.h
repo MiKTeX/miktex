@@ -19,12 +19,10 @@
 
 #include <memory>
 
-#include <topics/Topic.h>
+#include "internal.h"
+#include "topics/Topic.h"
 
-namespace Topics
+namespace OneMiKTeXUtility::Topics::FileSystem
 {
-    namespace FileSystem
-    {
-        std::unique_ptr<Topics::Topic> Create();
-    }
+    std::unique_ptr<Topics::Topic> Create();
 }

@@ -22,16 +22,17 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "commands/commands.h"
-#include "topic.h"
-
 #include <miktex/Core/Text>
+
+#include "commands/commands.h"
+#include "internal.h"
+#include "topic.h"
 
 using namespace std;
 
-using namespace Topics;
-using namespace Topics::FileSystem;
-using namespace Topics::FileSystem::Commands;
+using namespace OneMiKTeXUtility;
+using namespace OneMiKTeXUtility::Topics;
+using namespace OneMiKTeXUtility::Topics::FileSystem;
 
 #define T_(x) MIKTEXTEXT(x)
 
@@ -45,7 +46,7 @@ private:
     }
 
 private:
-    int MIKTEXTHISCALL Execute(const std::vector<std::string>& arguments) override;
+    int MIKTEXTHISCALL Execute(ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
 private:
     std::string Name() override
@@ -54,22 +55,22 @@ private:
     }
 
 private:
-    void BadUsage(const std::string s)
+    string BadUsage(const std::string s)
     {
-        cerr << fmt::format(T_("Bad usage: {0}"), s) << endl;
+        return fmt::format(T_("Bad usage: {0}"), s);
     }
 };
 
-unique_ptr<Topic> Topics::FileSystem::Create()
+unique_ptr<Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
 {
     return make_unique<FileSystemTopic>();
 }
 
-int FileSystemTopic::Execute(const vector<string>& arguments)
+int FileSystemTopic::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() < 2)
     {
-        BadUsage(T_("missing command"));
+        ctx.ui->Error(BadUsage(T_("missing command")));
         return 1;
     }
     if (arguments[1] == "help")
@@ -78,8 +79,8 @@ int FileSystemTopic::Execute(const vector<string>& arguments)
     }
     if (arguments[1] == "watch")
     {
-        return Watch(arguments);
+        return Commands::Watch(ctx, arguments);
     }
-    BadUsage(fmt::format(T_("unknown filesystem command: {0}"), arguments[0]));
+    ctx.ui->Error(BadUsage(fmt::format(T_("unknown filesystem command: {0}"), arguments[0])));
     return 1;
 }

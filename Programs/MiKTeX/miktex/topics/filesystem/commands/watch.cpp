@@ -17,7 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <iostream>
+#include <thread>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -28,6 +28,7 @@
 #include <miktex/Util/PathName>
 
 #include "commands.h"
+#include "internal.h"
 
 #define T_(x) MIKTEXTEXT(x)
 
@@ -36,30 +37,47 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-int Topics::FileSystem::Commands::Watch(const vector<string>& arguments)
+using namespace OneMiKTeXUtility;
+
+int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() != 3)
     {
-        cerr << fmt::format(T_("Usage: {0} {1} DIR"), arguments[0], arguments[1]) << endl;
+        ctx.ui->Error(fmt::format(T_("Usage: {0} {1} DIR"), arguments[0], arguments[1]));
         return 1;
     }
     PathName dir(arguments[2]);
     if (!Directory::Exists(dir))
     {
-        cerr << fmt::format(T_("no such directory: {0}"), dir);
+        ctx.ui->Error(fmt::format(T_("no such directory: {0}"), dir));
         return 1;
     }
     auto fsWatcher = FileSystemWatcher::Create();
     class Callback : public FileSystemWatcherCallback{
+        public:
+            Callback(OneMiKTeXUtility::ApplicationContext& ctx) : ctx(ctx) {}
         private :
             void OnChange(const FileSystemChangeEvent& ev) override {
-                cout << ev.fileName << endl;
+                string action;
+                switch (ev.action)
+                {
+                    case FileSystemChangeAction::Added: action = "added"; break;
+                    case FileSystemChangeAction::Modified: action = "modified"; break;
+                    case FileSystemChangeAction::Removed: action = "removed"; break;
+                    default: action = "-"; break;
+                }
+                ctx.ui->Output(fmt::format("{0}: {1}\n"));
             }
+        private:
+            OneMiKTeXUtility::ApplicationContext& ctx;
     };
-    Callback callback;
+    Callback callback(ctx);
     fsWatcher->AddDirectories({dir});
     fsWatcher->Subscribe(&callback);
     fsWatcher->Start();
-    // TODO: wait SIGINT
+    while (!ctx.controller->Canceled())
+    {
+        this_thread::sleep_for(2000ms);
+    }
     return 0;
 }

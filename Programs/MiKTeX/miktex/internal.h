@@ -1,4 +1,4 @@
-/* topics/Topic.cpp:
+/* internal.h:
 
    Copyright (C) 2021 Christian Schenk
 
@@ -17,10 +17,28 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include "Topic.h"
+#pragma once
 
-using namespace OneMiKTeXUtility::Topics;
+#include <miktex/Definitions>
 
-Topic::~Topic() noexcept
+namespace OneMiKTeXUtility
 {
+    class MIKTEXNOVTABLE Controller
+    {
+    public:
+        virtual bool Canceled() = 0;
+    };
+
+    class MIKTEXNOVTABLE UI
+    {
+    public:
+        virtual void Error(const std::string& s) = 0;
+        virtual void Output(const std::string& s) = 0;
+    };
+
+    struct ApplicationContext
+    {
+        Controller* controller;
+        UI* ui;
+    };
 }

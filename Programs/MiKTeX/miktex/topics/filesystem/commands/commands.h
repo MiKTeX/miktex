@@ -20,13 +20,9 @@
 #include <string>
 #include <vector>
 
-namespace Topics
+#include "internal.h"
+
+namespace OneMiKTeXUtility::Topics::FileSystem::Commands
 {
-    namespace FileSystem
-    {
-        namespace Commands
-        {
-            int Watch(const std::vector<std::string>& arguments);
-        }
-    }
+    int Watch(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
 }

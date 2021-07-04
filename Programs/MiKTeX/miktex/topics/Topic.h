@@ -26,7 +26,9 @@
 
 #include <miktex/Definitions>
 
-namespace Topics {
+#include "internal.h"
+
+namespace OneMiKTeXUtility::Topics {
     class MIKTEXNOVTABLE Topic
     {
     public:
@@ -36,7 +38,7 @@ namespace Topics {
         virtual std::string Description() = 0;
 
     public:
-        virtual int MIKTEXTHISCALL Execute(const std::vector<std::string>& arguments) = 0;
+        virtual int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) = 0;
 
     public:
         virtual std::string Name() = 0;
