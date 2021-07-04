@@ -17,6 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
+#include <iostream>
 #include <thread>
 
 #include <fmt/format.h>
@@ -66,7 +67,7 @@ int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<st
                     case FileSystemChangeAction::Removed: action = "removed"; break;
                     default: action = "-"; break;
                 }
-                ctx.ui->Output(fmt::format("{0}: {1}"));
+                ctx.ui->Output(fmt::format("{0}: {1}", action, ev.fileName));
             }
         private:
             OneMiKTeXUtility::ApplicationContext& ctx;
@@ -77,7 +78,7 @@ int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<st
     fsWatcher->Start();
     while (!ctx.controller->Canceled())
     {
-        this_thread::sleep_for(2000ms);
+        this_thread::sleep_for(200ms);
     }
     return 0;
 }

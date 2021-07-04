@@ -114,12 +114,13 @@ bool unxFileSystemWatcher::Stop()
   StopThreads();
   if (close(cancelEventPipe[0]) < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("clode");
+    MIKTEX_FATAL_CRT_ERROR("close");
   }
   if (close(cancelEventPipe[1]) < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR("clode");
+    MIKTEX_FATAL_CRT_ERROR("close");
   }
+  return true;
 }
 
 void unxFileSystemWatcher::WatchDirectories()
