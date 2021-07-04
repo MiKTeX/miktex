@@ -21,6 +21,7 @@
 #  include <config.h>
 #endif
 
+#include <atomic>
 #include <iostream>
 #include <string>
 #include <vector>
