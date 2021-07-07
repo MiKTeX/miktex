@@ -7,6 +7,10 @@
 * dvipdfmx 20210609
 * pdftex 1.40.23
 
+### Fixed issues
+
+- [863](https://github.com/MiKTeX/miktex/issues/863): Auto-Install package__doc by file name
+
 ## 21.6.28 - 2021-06-28
 
 ### Breaking changes

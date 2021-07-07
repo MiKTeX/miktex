@@ -270,7 +270,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, vector<string>
 void MiKTeXHelp::FindDocFilesByName(const string& name, vector<string>& files)
 {
   vector<string> extensions = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE_FILETYPES + ".TeX system documentation"s, MIKTEX_CONFIG_VALUE_EXTENSIONS).GetStringArray();
-  string searchSpec = MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM;
+  string searchSpec = MIKTEX_PATH_TEXMF_PLACEHOLDER;
   searchSpec += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
   searchSpec += MIKTEX_PATH_DOC_DIR;
   searchSpec += MIKTEX_PATH_RECURSION_INDICATOR;
