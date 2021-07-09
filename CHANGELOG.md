@@ -10,6 +10,7 @@
 ### Fixed issues
 
 - [863](https://github.com/MiKTeX/miktex/issues/863): Auto-Install package__doc by file name
+- [867](https://github.com/MiKTeX/miktex/issues/867): MiKTeX console crash while changing remote package repository
 
 ## 21.6.28 - 2021-06-28
 

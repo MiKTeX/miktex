@@ -84,7 +84,7 @@ void ComboCfg::Save()
 bool ComboCfg::TryGetValueAsString(const string& keyName, const string& valueName, string& value)
 {
   return (!session->IsAdminMode() && cfgUser != nullptr && cfgUser->TryGetValueAsString(keyName, valueName, value))
-    || cfgCommon->TryGetValueAsString(keyName, valueName, value);
+    || cfgCommon != nullptr && cfgCommon->TryGetValueAsString(keyName, valueName, value);
 }
 
 bool ComboCfg::TryGetValueAsString(ConfigurationScope scope, const string& keyName, const string& valueName, string& value)
