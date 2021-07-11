@@ -271,12 +271,20 @@ void unxProcess::Create()
     pipeStdin.Create();
   }
 
+  tmpFile = TemporaryFile::Create();
+
+  unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
+  envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
+  char* environmentStrings;
+  char** environmentPointers;
+  tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
+  MIKTEX_AUTO(delete[]environmentStrings);
+  MIKTEX_AUTO(delete[]environmentPointers);
+
   if (session != nullptr)
   {
     session->UnloadFilenameDatabase();
   }
-
-  tmpFile = TemporaryFile::Create();
 
   // fork
   if (session != nullptr)
@@ -338,13 +346,7 @@ void unxProcess::Create()
           }
         }
         session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
-        unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
-        envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
-        char* environmentStrings;
-        char** environmentPointers;
-        tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
-        MIKTEX_AUTO(delete[]environmentStrings);
-        MIKTEX_AUTO(delete[]environmentPointers);
+
         if (!startinfo.WorkingDirectory.empty())
         {
           Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
