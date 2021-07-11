@@ -155,6 +155,9 @@ private:
   void Uninitialize();
 
 public:
+  void Close() override;
+
+public:
   void Reset() override;
 
 public:

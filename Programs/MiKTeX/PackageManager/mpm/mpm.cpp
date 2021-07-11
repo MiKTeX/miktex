@@ -1608,6 +1608,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_HHELP:
     {
       session->ShowManualPageAndWait(0, MIKTEXHELP_MPMCON);
+      session->Close();
       session = nullptr;
       return;
     }
@@ -2107,6 +2108,7 @@ void Application::Main(int argc, const char** argv)
   }
 
   packageManager = nullptr;
+  session->Close();
   session = nullptr;
 }
 

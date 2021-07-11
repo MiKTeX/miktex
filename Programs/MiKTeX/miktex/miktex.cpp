@@ -506,6 +506,8 @@ int MiKTeXApp::Init(vector<string>& args)
 void MiKTeXApp::Finalize()
 {
     FlushPendingTraceMessages();
+    session->Close();
+    session = nullptr;
 }
 
 int MiKTeXApp::Run(const vector<string>& args)

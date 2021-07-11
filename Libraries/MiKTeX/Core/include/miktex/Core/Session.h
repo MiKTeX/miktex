@@ -555,6 +555,9 @@ public:
 
   virtual MIKTEXTHISCALL ~Session() noexcept = 0;
 
+  /// Closes this session object.
+  virtual void MIKTEXTHISCALL Close() = 0;
+
   /// Resets this session object.
   virtual void MIKTEXTHISCALL Reset() = 0;
 

@@ -588,6 +588,7 @@ void Application::Finalize()
     pimpl->packageManager = nullptr;
   }
   pimpl->translator = nullptr;
+  pimpl->session->Close();
   pimpl->session = nullptr;
   pimpl->ignoredPackages.clear();
   if (initUiFrameworkDone)

@@ -462,6 +462,7 @@ int main(int argc, char* argv[])
     {
       LOG4CXX_WARN(logger, "session.use_count() == " << session.use_count());
     }
+    session->Close();
     session = nullptr;
     if (isLog4cxxConfigured && !fastExit)
     {

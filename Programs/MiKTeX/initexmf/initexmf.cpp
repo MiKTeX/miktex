@@ -767,6 +767,7 @@ void IniTeXMFApp::Finalize(bool keepSession)
   packageManager = nullptr;
   if (!keepSession)
   {
+    session->Close();
     session = nullptr;
   }
 }

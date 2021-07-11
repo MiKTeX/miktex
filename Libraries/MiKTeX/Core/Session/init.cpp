@@ -96,7 +96,7 @@ SessionImpl::~SessionImpl()
 {
   try
   {
-    Uninitialize();
+    Close();
   }
   catch (const MiKTeXException& ex)
   {
@@ -241,32 +241,25 @@ void SessionImpl::RecordMaintenance()
   }
 }
 
-void SessionImpl::Uninitialize()
+void SessionImpl::Close()
 {
   if (!initialized)
   {
     return;
   }
-  try
+  StartFinishScript(10);
+  initialized = false;
+  trace_core->WriteLine("core", T_("uninitializing core library"));
+  if (fsWatcher != nullptr)
   {
-    StartFinishScript(10);
-    initialized = false;
-    trace_core->WriteLine("core", T_("uninitializing core library"));
-    if (fsWatcher != nullptr)
-    {
-      fsWatcher->Stop();
-      fsWatcher = nullptr;
-    }
-    CheckOpenFiles();
-    WritePackageHistory();
-    inputDirectories.clear();
-    UnregisterLibraryTraceStreams();
-    configurationSettings.clear();
+    fsWatcher->Stop();
+    fsWatcher = nullptr;
   }
-  catch (const exception&)
-  {
-    throw;
-  }
+  CheckOpenFiles();
+  WritePackageHistory();
+  inputDirectories.clear();
+  UnregisterLibraryTraceStreams();
+  configurationSettings.clear();
 }
 
 void SessionImpl::ScheduleSystemCommand(const std::string& commandLine)
@@ -383,6 +376,7 @@ void SessionImpl::Reset()
 {
   vector<string> onFinishScript = move(this->onFinishScript);
   InitInfo initInfo = this->initInfo;
+  this->Close();
   this->~SessionImpl();
   new (this) SessionImpl();
   Initialize(initInfo);

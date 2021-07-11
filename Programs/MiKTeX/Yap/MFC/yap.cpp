@@ -406,6 +406,7 @@ BOOL YapApplication::InitInstance()
     {
       trace_yap->Close();
       trace_error->Close();
+      session->Close();
       session = nullptr;
       return FALSE;
     }
@@ -649,6 +650,7 @@ int YapApplication::ExitInstance()
     }
 
     // uninitialize MiKTeX Library
+    session->Close();
     session = nullptr;
 
     comInitializer = nullptr;
