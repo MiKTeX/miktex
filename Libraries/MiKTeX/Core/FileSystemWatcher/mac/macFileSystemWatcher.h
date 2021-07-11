@@ -21,6 +21,12 @@
 
 #pragma once
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+
+#include <CoreServices/CoreServices.h>
+
 #include "../FileSystemWatcherBase.h"
 
 CORE_INTERNAL_BEGIN_NAMESPACE;
@@ -29,13 +35,34 @@ class macFileSystemWatcher :
   public FileSystemWatcherBase
 {
 public:
-  void MIKTEXTHISCALL AddDirectory(const MiKTeX::Util::PathName& dir) override;
+    virtual MIKTEXTHISCALL ~macFileSystemWatcher();
 
-public:
-  void MIKTEXTHISCALL Start() override;
+private:
+    void MIKTEXTHISCALL AddDirectories(const std::vector<MiKTeX::Util::PathName>& directories) override;
 
-public:
-  void MIKTEXTHISCALL Stop() override;
+private:
+    bool MIKTEXTHISCALL Start() override;
+
+private:
+    bool MIKTEXTHISCALL Stop() override;
+
+private:
+    void MIKTEXTHISCALL WatchDirectories() override;
+
+private:
+    static void Callback(ConstFSEventStreamRef streamRef, void* clientCallBackInfo, size_t numEvents, void* eventPaths, const FSEventStreamEventFlags* eventFlags, const FSEventStreamEventId* eventIds);
+
+private:
+    void HandleDirectoryChange(const char* path, FSEventStreamEventFlags flags);
+
+private:
+    FSEventStreamContext context;
+    std::vector<CFStringRef> directories;
+    std::condition_variable runLoopCondition;
+    std::mutex runLoopMutex;
+    bool runLoopRunning = false;
+    CFRunLoopRef runLoop = nullptr;
+    FSEventStreamRef stream = nullptr;
 };
 
 CORE_INTERNAL_END_NAMESPACE;

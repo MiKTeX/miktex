@@ -102,6 +102,13 @@ if(MIKTEX_NATIVE_WINDOWS)
   endif()
 endif()
 
+if(MIKTEX_MACOS_BUNDLE)
+  target_link_libraries(${core_lib_name}
+    PUBLIC
+      "-framework CoreServices"
+  )
+endif()
+
 if(MIKTEX_FREEBSD)
   target_link_libraries(${core_lib_name}
     PUBLIC

@@ -136,6 +136,13 @@ if(MIKTEX_NATIVE_WINDOWS)
   endif()
 endif()
 
+if(MIKTEX_MACOS_BUNDLE)
+  target_link_libraries(${core_dll_name}
+    PRIVATE
+      "-framework CoreServices"
+  )
+endif()
+
 if(MIKTEX_FREEBSD)
   target_link_libraries(${core_dll_name}
     PRIVATE
