@@ -21,8 +21,7 @@
 
 #include "config.h"
 
-#include <miktex/Core/File>
-#include <miktex/Core/Paths>
+#include <unistd.h>
 
 #include "internal.h"
 
@@ -31,7 +30,6 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
-using namespace MiKTeX::Util;
 
 bool SessionImpl::GetPsFontDirs(string& psFontDirs)
 {

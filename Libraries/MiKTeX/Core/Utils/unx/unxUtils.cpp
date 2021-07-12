@@ -182,6 +182,6 @@ string Utils::GetExeName()
     }
     return buf.GetData();
 #else
-    return File::ReadSymbolicLink("/proc/self/exe");
+    return File::ReadSymbolicLink(PathName("/proc/self/exe")).ToString();
 #endif
 }
