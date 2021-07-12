@@ -44,6 +44,7 @@
 
 #include "miktexsetup-version.h"
 
+#include <miktex/Configuration/TriState>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Quoter>
@@ -58,6 +59,7 @@
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
+using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
@@ -560,7 +562,7 @@ void Application::Main(int argc, const char** argv)
   Session::InitInfo initInfo;
   initInfo.SetProgramInvocationName(argv[0]);
 
-  bool optShared = false;
+  TriState optShared = TriState::Undetermined;
 #if defined(MIKTEX_WINDOWS)
   bool optModifyPath = true;
 #else
@@ -665,7 +667,7 @@ void Application::Main(int argc, const char** argv)
       }
       break;
     case OPT_PORTABLE:
-      if (optShared)
+      if (optShared == TriState::True)
       {
         Error(T_("--portable conficts with --shared."));
       }
@@ -698,7 +700,7 @@ void Application::Main(int argc, const char** argv)
       {
         Error(T_("--portable conflicts with --shared."));
       }
-      optShared = (optArg.empty() || Utils::EqualsIgnoreCase("yes", optArg));
+      optShared = (optArg.empty() || Utils::EqualsIgnoreCase("yes", optArg)) ? TriState::True : TriState::False;
       break;
     case OPT_TRACE:
       if (optArg.empty())
@@ -845,7 +847,7 @@ void Application::Main(int argc, const char** argv)
 
   session = Session::Create(initInfo);
 
-  if (optShared)
+  if (optShared == TriState::True)
   {
     session->SetAdminMode(true, true);
   }
@@ -877,9 +879,9 @@ void Application::Main(int argc, const char** argv)
   setupOptions.Task = task;
   setupOptions.CleanupOptions = cleanupOptions;
 
-  if (optShared)
+  if (optShared != TriState::Undetermined)
   {
-    setupOptions.IsCommonSetup = true;
+    setupOptions.IsCommonSetup = optShared == TriState::True ? true : false;
   }
 
   if (optPortable)
