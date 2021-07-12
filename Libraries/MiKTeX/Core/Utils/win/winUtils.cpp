@@ -1282,7 +1282,7 @@ bool Utils::SupportsHardLinks(const PathName& path)
   }
 }
 
-string Utils::GetExeName()
+PathName Utils::GetExe()
 {
     const size_t bufSize = 1024;
     wchar_t path[bufSize];
@@ -1295,5 +1295,5 @@ string Utils::GetExeName()
     {
         BUF_TOO_SMALL();
     }
-    return StringUtil::WideCharToUTF8(path);
+    return PathName(path);
 }

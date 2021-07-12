@@ -167,7 +167,7 @@ bool Utils::CheckPath(bool repair)
   return repaired || pathOkay;
 }
 
-string Utils::GetExeName()
+PathName Utils::GetExe()
 {
 #if defined(__APPLE__)
     CharBuffer<char> buf;
@@ -180,8 +180,8 @@ string Utils::GetExeName()
             MIKTEX_UNEXPECTED();
         }
     }
-    return buf.GetData();
+    return buf;
 #else
-    return File::ReadSymbolicLink(PathName("/proc/self/exe")).ToString();
+    return File::ReadSymbolicLink(PathName("/proc/self/exe"));
 #endif
 }

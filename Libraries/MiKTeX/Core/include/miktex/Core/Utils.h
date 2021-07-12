@@ -123,6 +123,9 @@ public:
 #endif
 
 public:
+  static MIKTEXCORECEEAPI(MiKTeX::Util::PathName) GetExe();
+
+public:
   static MIKTEXCORECEEAPI(std::string) GetExeName();
 
   /// Gets the MiKTeX version information as a string.
