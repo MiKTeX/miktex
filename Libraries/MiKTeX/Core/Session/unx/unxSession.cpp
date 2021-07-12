@@ -21,12 +21,6 @@
 
 #include "config.h"
 
-#include <unistd.h>
-
-#if defined(__APPLE__)
-#  include <mach-o/dyld.h>
-#endif
-
 #include <miktex/Core/File>
 #include <miktex/Core/Paths>
 
@@ -38,56 +32,6 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-
-PathName SessionImpl::GetMyProgramFile(bool canonicalized)
-{
-  // we do this once
-  if (myProgramFile.Empty())
-  {
-#if defined(__APPLE__)
-    CharBuffer<char> buf;
-    uint32_t bufsize = buf.GetCapacity();
-    if (_NSGetExecutablePath(buf.GetData(), &bufsize) < 0)
-    {
-      buf.Reserve(bufsize);
-      if (_NSGetExecutablePath(buf.GetData(), &bufsize) != 0)
-      {
-        MIKTEX_UNEXPECTED();
-      }
-    }
-    myProgramFile = buf.GetData();
-#else
-    string invocationName = initInfo.GetProgramInvocationName();
-    if (invocationName.empty())
-    {
-      MIKTEX_FATAL_ERROR(T_("No invocation name has been set."));
-    }
-    if (PathName(invocationName).IsAbsolute())
-    {
-      myProgramFile = invocationName;
-    }
-    else if (invocationName.length() > 3 && (invocationName.substr(0, 2) == "./" || invocationName.substr(0, 3) == "../"))
-    {
-      myProgramFile = invocationName;
-      myProgramFile.Convert({ ConvertPathNameOption::MakeFullyQualified });
-    }
-    else if (!Utils::FindProgram(invocationName, myProgramFile))
-    {
-      MIKTEX_FATAL_ERROR_2(T_("The invoked program could not be found in the PATH."), "invocationName", invocationName);
-    }
-#endif
-    myProgramFileCanon = myProgramFile;
-    myProgramFileCanon.Canonicalize();
-  }
-  if (canonicalized)
-  {
-    return myProgramFileCanon;
-  }
-  else
-  {
-    return myProgramFile;
-  }
-}
 
 bool SessionImpl::GetPsFontDirs(string& psFontDirs)
 {

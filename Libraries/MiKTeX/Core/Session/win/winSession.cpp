@@ -154,35 +154,6 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD reason, LPVOID lpReser
 
 #endif
 
-PathName SessionImpl::GetMyProgramFile(bool canonicalized)
-{
-  // we do this once
-  if (myProgramFile.Empty())
-  {
-    wchar_t szPath[BufferSizes::MaxPath];
-    DWORD n = GetModuleFileNameW(nullptr, szPath, BufferSizes::MaxPath);
-    if (n == 0)
-    {
-      MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
-    }
-    if (n == BufferSizes::MaxPath)
-    {
-      BUF_TOO_SMALL();
-    }
-    myProgramFile = szPath;
-    myProgramFileCanon = myProgramFile;
-    myProgramFileCanon.Canonicalize();
-  }
-  if (canonicalized)
-  {
-    return myProgramFileCanon;
-  }
-  else
-  {
-    return myProgramFile;
-  }
-}
-
 #if defined(MIKTEX_CORE_SHARED)
 PathName SessionImpl::GetDllPathName(bool canonicalized)
 {

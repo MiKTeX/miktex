@@ -21,6 +21,12 @@
 
 #include "config.h"
 
+#include <unistd.h>
+
+#if defined(__APPLE__)
+#  include <mach-o/dyld.h>
+#endif
+
 #if defined(HAVE_SYS_UTSNAME_H)
 #  include <sys/utsname.h>
 #endif
@@ -29,6 +35,7 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
+#include <miktex/Core/File>
 #include <miktex/Util/PathName>
 
 #include "internal.h"
@@ -158,4 +165,23 @@ bool Utils::CheckPath(bool repair)
     repaired = true;
   }
   return repaired || pathOkay;
+}
+
+string Utils::GetExeName()
+{
+#if defined(__APPLE__)
+    CharBuffer<char> buf;
+    uint32_t bufSize = buf.GetCapacity();
+    if (_NSGetExecutablePath(buf.GetData(), &bufSize) < 0)
+    {
+        buf.Reserve(bufSize);
+        if (_NSGetExecutablePath(buf.GetData(), &bufSize) != 0)
+        {
+            MIKTEX_UNEXPECTED();
+        }
+    }
+    return buf.GetData();
+#else
+    return File::ReadSymbolicLink("/proc/self/exe");
+#endif
 }

@@ -698,3 +698,22 @@ bool SessionImpl::GetWorkingDirectory(unsigned n, PathName& path)
   path = n == 0 ? startDirectory : inputDirectories[n - 1];
   return true;
 }
+
+PathName SessionImpl::GetMyProgramFile(bool canonicalized)
+{
+  // we do this once
+  if (myProgramFile.Empty())
+  {
+    myProgramFile = Utils::GetExeName();
+    myProgramFileCanon = myProgramFile;
+    myProgramFileCanon.Canonicalize();
+  }
+  if (canonicalized)
+  {
+    return myProgramFileCanon;
+  }
+  else
+  {
+    return myProgramFile;
+  }
+}

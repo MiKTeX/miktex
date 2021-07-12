@@ -460,17 +460,6 @@ void Utils::PrintException(const MiKTeXException& e)
   }
 }
 
-string Utils::GetExeName()
-{
-  auto session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    return SessionImpl::GetSession()->GetMyProgramFile(false).GetFileNameWithoutExtension().ToString();
-  }
-  // TODO
-  return "miktex";
-}
-
 #if !HAVE_MIKTEX_USER_INFO
 bool Utils::IsRegisteredMiKTeXUser()
 {

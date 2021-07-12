@@ -1281,3 +1281,19 @@ bool Utils::SupportsHardLinks(const PathName& path)
     return _wcsicmp(fileSystemName, L"NTFS") == 0;
   }
 }
+
+string Utils::GetExeName()
+{
+    const size_t bufSize = 1024;
+    wchar_t path[bufSize];
+    DWORD n = GetModuleFileNameW(nullptr, path, bufSize);
+    if (n == 0)
+    {
+        MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
+    }
+    if (n == bufSize)
+    {
+        BUF_TOO_SMALL();
+    }
+    return StringUtil::WideCharToUTF8(path);
+}
