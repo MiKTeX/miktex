@@ -704,7 +704,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
   // we do this once
   if (myProgramFile.Empty())
   {
-    myProgramFile = Utils::GetExeName();
+    myProgramFile = Utils::GetExe();
     myProgramFileCanon = myProgramFile;
     myProgramFileCanon.Canonicalize();
   }
