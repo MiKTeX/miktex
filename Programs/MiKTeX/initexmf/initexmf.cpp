@@ -765,7 +765,7 @@ void IniTeXMFApp::Finalize(bool keepSession)
   FlushPendingTraceMessages();
   packageInstaller = nullptr;
   packageManager = nullptr;
-  if (!keepSession)
+  if (session != nullptr && !keepSession)
   {
     session->Close();
     session = nullptr;
