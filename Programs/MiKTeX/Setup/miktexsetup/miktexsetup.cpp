@@ -669,7 +669,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_PORTABLE:
       if (optShared == TriState::True)
       {
-        Error(T_("--portable conficts with --shared."));
+        Error(T_("--portable conflicts with --shared."));
       }
       optPortable = true;
       optPortableRoot = optArg;
