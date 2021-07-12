@@ -24,8 +24,6 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <miktex/Core/Session>
-
 #include "internal.h"
 
 #include "macFileSystemWatcher.h"
@@ -83,7 +81,7 @@ bool macFileSystemWatcher::Start()
                                      kFSEventStreamCreateFlagFileEvents |
                                      kFSEventStreamCreateFlagNoDefer |
                                      0;
-    CFTimeInterval latency = 0;
+    CFTimeInterval latency = 0.3;
     unique_lock l(mutex);
     if (directories.size() == 0)
     {
@@ -149,16 +147,17 @@ void macFileSystemWatcher::WatchDirectories()
 void macFileSystemWatcher::Callback(ConstFSEventStreamRef streamRef, void* clientCallBackInfo, size_t numEvents, void* eventPaths, const FSEventStreamEventFlags* eventFlags, const FSEventStreamEventId* eventIds)
 {
     macFileSystemWatcher* This = reinterpret_cast<macFileSystemWatcher*>(clientCallBackInfo);
-    lock_guard l(This->notifyMutex);
+    unique_lock l(This->notifyMutex);
     for (size_t idx = 0; idx < numEvents; ++idx)
     {
         This->HandleDirectoryChange(reinterpret_cast<const char**>(eventPaths)[idx], eventFlags[idx]);
     }
+    l.unlock();
+    This->notifyCondition.notify_all();
 }
 
 void macFileSystemWatcher::HandleDirectoryChange(const char* path, FSEventStreamEventFlags flags)
 {
-    //trace_files->WriteLine("core", fmt::format("{0}:{1:#x}", path, flags));
     FileSystemChangeEvent ev;
     if ((flags & kFSEventStreamEventFlagItemRemoved) != 0)
     {
