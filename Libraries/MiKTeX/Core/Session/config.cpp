@@ -502,9 +502,13 @@ void SessionImpl::SetAdminMode(bool adminMode, bool force)
   {
     return;
   }
-  if (adminMode && !force && !IsSharedSetup())
+  if (adminMode && initStartupConfig.isSharedSetup != TriState::True)
   {
-    MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
+    if (!force)
+    {
+      MIKTEX_FATAL_ERROR(T_("Administrator mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
+    }
+    initStartupConfig.isSharedSetup = TriState::True;
   }
   trace_config->WriteLine("core", TraceLevel::Info, fmt::format(T_("turning {0} administrator mode"), (adminMode ? "on" : "off")));
   // reinitialize

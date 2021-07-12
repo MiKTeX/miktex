@@ -531,6 +531,7 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& partialStartupCon
 
   InternalStartupConfig startupConfig = partialStartupConfig;
   startupConfig.config = initStartupConfig.config;
+  startupConfig.isSharedSetup = initStartupConfig.isSharedSetup;
   startupConfig.setupVersion = initStartupConfig.setupVersion;
   auto setupConfig = GetSetupConfig();
   if (setupConfig.isNew)
