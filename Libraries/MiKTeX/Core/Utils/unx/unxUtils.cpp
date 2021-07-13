@@ -181,7 +181,7 @@ PathName Utils::GetExe()
             MIKTEX_UNEXPECTED();
         }
     }
-    return buf;
+    return PathName(buf.GetData());
 #else
     return File::ReadSymbolicLink(PathName("/proc/self/exe"));
 #endif
