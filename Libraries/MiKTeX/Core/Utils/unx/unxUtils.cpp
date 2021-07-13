@@ -192,13 +192,14 @@ string Utils::GetExeName()
 #if defined(__APPLE__)
     return GetExe().GetFileNameWithoutExtension().ToString();
 #else
-    StreamReader reader("/proc/self/cmdline");
-    string line;
-    while (reader.ReadLine(line))
+    ifstream cmdline = File::CreateInputStream(PathName("/proc/self/comm"));
+    string argv0;
+    char ch;
+    while (cmdline.get(ch) && ch != '\n' && ch != 0)
     {
-        const char* argv0 = line.c_str();
-        return PathName(argv0).GetFileNameWithoutExtension().ToString();
+        argv0 += ch;
     }
-    MIKTEX_UNEXPECTED();
+    cmdline.close();
+    return PathName(argv0).GetFileNameWithoutExtension().ToString();
 #endif
 }
