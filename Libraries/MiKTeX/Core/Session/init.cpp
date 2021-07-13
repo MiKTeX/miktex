@@ -559,6 +559,12 @@ unordered_map<string, string> SessionImpl::CreateChildEnvironment(bool changeDir
       envPath = newEnvPath;
     }
 #endif
+    PathName linkTargetDirectory = GetSpecialPath(SpecialPath::LinkTargetDirectory);
+    if (Directory::Exists(linkTargetDirectory) && FixProgramSearchPath(envPath, linkTargetDirectory, false, newEnvPath, competition))
+    {
+      envMap["PATH"] = newEnvPath;
+      envPath = newEnvPath;
+    }
   }
 
   return envMap;
