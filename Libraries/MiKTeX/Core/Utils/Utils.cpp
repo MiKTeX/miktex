@@ -460,11 +460,6 @@ void Utils::PrintException(const MiKTeXException& e)
   }
 }
 
-string Utils::GetExeName()
-{
-    return GetExe().GetFileNameWithoutExtension().ToString();
-}
-
 #if !HAVE_MIKTEX_USER_INFO
 bool Utils::IsRegisteredMiKTeXUser()
 {

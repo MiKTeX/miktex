@@ -37,6 +37,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Util/PathName>
+#include <miktex/Util/StringUtil>
 
 #include "internal.h"
 
@@ -183,5 +184,21 @@ PathName Utils::GetExe()
     return buf;
 #else
     return File::ReadSymbolicLink(PathName("/proc/self/exe"));
+#endif
+}
+
+string Utils::GetExeName()
+{
+#if defined(__APPLE__)
+    return GetExe().GetFileNameWithoutExtension().ToString();
+#else
+    StreamReader reader("/proc/self/cmdline");
+    string line;
+    while (reader.ReadLine(line))
+    {
+        const char* argv0 = line.c_str();
+        return PathName(argv0).GetFileNameWithoutExtension().ToString();
+    }
+    MIKTEX_UNEXPECTED();
 #endif
 }

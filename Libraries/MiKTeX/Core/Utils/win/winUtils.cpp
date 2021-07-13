@@ -1297,3 +1297,8 @@ PathName Utils::GetExe()
     }
     return PathName(path);
 }
+
+string Utils::GetExeName()
+{
+    return GetExe().GetFileNameWithoutExtension().ToString();
+}
