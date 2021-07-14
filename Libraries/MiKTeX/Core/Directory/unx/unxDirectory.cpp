@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include <miktex/Core/Directory.h?
+#include <miktex/Core/Directory.h>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 

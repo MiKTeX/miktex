@@ -1183,7 +1183,10 @@ MIKTEX_CORE_END_NAMESPACE;
 #define MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, ...) \
   MiKTeX::Core::Session::FatalMiKTeXError(message, description, remedy, tag, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
 
-#define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR(MIKTEXTEXT("MiKTeX encountered an internal error."))
+#define MIKTEX_STRINGIFY_(x) #x
+#define MIKTEX_STRINGIFY(x) MIKTEX_STRINGIFY_(x)
+
+#define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR(__FILE__ ":" MIKTEX_STRINGIFY(__LINE__) ": internal error")
 
 #define MIKTEX_UNEXPECTED() MIKTEX_INTERNAL_ERROR()
 
