@@ -78,10 +78,6 @@ Session::~Session() noexcept
 {
 }
 
-shared_ptr<Session> Session::Get()
-{
-  return SESSION_IMPL();
-}
 
 shared_ptr<Session> Session::TryGet()
 {

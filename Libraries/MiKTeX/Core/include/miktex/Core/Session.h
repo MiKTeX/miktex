@@ -54,6 +54,19 @@
 #include "RootDirectoryInfo.h"
 #include "VersionNumber.h"
 
+/// Gets the current session object.
+/// @return Returns a smart pointer to the current session object.
+#define MIKTEX_SESSION() ([]()                      \
+{                                                   \
+    auto session = MiKTeX::Core::Session::TryGet(); \
+    if (session == nullptr)                         \
+    {                                               \
+        MIKTEX_UNEXPECTED();                        \
+    }                                               \
+    return session;                                 \
+}                                                   \
+())
+
 /// @namespace MiKTeX::Core
 /// @brief The core namespace.
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -539,12 +552,6 @@ public:
     FileMode mode = FileMode::Open;
     FileAccess access = FileAccess::None;
   };
-
-  /// Gets the current session object.
-  /// @return Returns a smart pointer to the current session object.
-  static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Get();
-
-  #define MIKTEX_SESSION() ([](){ auto session = MiKTeX::Core::Session::TryGet(); if (session == nullptr) { MIKTEX_UNEXPECTED(); } return session; }())
 
   /// Tries to get the current session object.
   /// @return Returns a smart pointer to the current session object. Can be `nullptr`.
