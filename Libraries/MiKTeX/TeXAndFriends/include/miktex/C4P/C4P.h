@@ -108,7 +108,7 @@ public:
     this->file = nullptr;
     if ((flags & NotOwner) != 0)
     {
-      std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+      std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
       session->CloseFile(file);
     }
   }

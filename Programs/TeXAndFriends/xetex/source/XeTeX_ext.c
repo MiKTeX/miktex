@@ -2643,7 +2643,7 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
     bool isCommand = false;
     if (rval)
     {
-      auto info = MiKTeX::Core::Session::Get()->TryGetOpenFileInfo((*f)->f);
+      auto info = MIKTEX_SESSION()->TryGetOpenFileInfo((*f)->f);
       isCommand = info.first && info.second.mode == MiKTeX::Core::FileMode::Command;
     }
 #else
@@ -2697,7 +2697,7 @@ u_close_inout(unicodefile* f)
 {
     if (f != 0) {
 #if defined(MIKTEX)
-        MiKTeX::Core::Session::Get()->CloseFile((*f)->f);
+        MIKTEX_SESSION()->CloseFile((*f)->f);
 #else
         fclose((*f)->f);
 #endif
@@ -2722,7 +2722,7 @@ Isspace(char c)
 #if defined(MIKTEX)
 boolean open_dvi_output(C4P::FileRoot& dviFile)
 {
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
   if (nopdfoutput)
   {
     MiKTeX::Util::PathName outPath;

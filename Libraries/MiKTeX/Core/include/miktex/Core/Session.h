@@ -544,6 +544,8 @@ public:
   /// @return Returns a smart pointer to the current session object.
   static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Get();
 
+  #define MIKTEX_SESSION() ([](){ auto session = MiKTeX::Core::Session::TryGet(); if (session == nullptr) { MIKTEX_UNEXPECTED(); } return session; }())
+
   /// Tries to get the current session object.
   /// @return Returns a smart pointer to the current session object. Can be `nullptr`.
   static MIKTEXCORECEEAPI(std::shared_ptr<Session>) TryGet();

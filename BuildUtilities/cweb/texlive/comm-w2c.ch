@@ -183,7 +183,7 @@ if ((found_filename=kpse_find_cweb(web_file_name))==NULL ||
 #if defined(MIKTEX)
   MiKTeX::Util::PathName sourceDir (web_file_name);
   sourceDir.RemoveFileSpec ();
-  MiKTeX::Core::Session::Get()->AddInputDirectory(sourceDir, true);
+  MIKTEX_SESSION()->AddInputDirectory(sourceDir, true);
 #endif
 }
 @z

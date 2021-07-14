@@ -60,7 +60,7 @@ QMultiHash<QString, QString> * SpellChecker::getDictionaryList(const bool forceR
 	}
 #if defined(MIKTEX)
         {
-          std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+          std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
           for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
           {
             MiKTeX::Util::PathName dicPath = session->GetRootDirectoryPath(r) / MiKTeX::Util::PathName(MIKTEX_PATH_HUNSPELL_DICT_DIR);
@@ -112,7 +112,7 @@ SpellChecker::Dictionary * SpellChecker::getDictionary(const QString& language)
 		}
 	}
 #if defined(MIKTEX)
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
   MIKTEX_AUTO(session->UnloadFilenameDatabase());
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
   {

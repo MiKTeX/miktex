@@ -1040,7 +1040,7 @@ bool Utils::CheckPath(bool repair)
   constexpr wchar_t REGSTR_KEY_ENVIRONMENT_COMMON[] = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
   constexpr wchar_t REGSTR_KEY_ENVIRONMENT_USER[] = L"Environment";
 
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   wstring systemPath;
   DWORD systemPathType;
@@ -1143,7 +1143,7 @@ bool Utils::CheckPath(bool repair)
 
 void Utils::RegisterShellFileAssoc(const string& extension, const string& progId, bool takeOwnership)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName regPath("Software\\Classes");
   regPath /= extension;
   string otherProgId;
@@ -1178,7 +1178,7 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
 
 void Utils::UnregisterShellFileAssoc(const string& extension, const string& progId)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= extension;
@@ -1208,7 +1208,7 @@ void Utils::UnregisterShellFileAssoc(const string& extension, const string& prog
 
 void Utils::RegisterShellFileType(const string& progId, const string& userFriendlyName, const string& iconPath)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;
@@ -1226,7 +1226,7 @@ void Utils::RegisterShellFileType(const string& progId, const string& userFriend
 
 void Utils::UnregisterShellFileType(const string& progId)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;
@@ -1235,7 +1235,7 @@ void Utils::UnregisterShellFileType(const string& progId)
 
 void Utils::RegisterShellVerb(const string& progId, const string& verb, const string& command, const string& ddeExec)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;

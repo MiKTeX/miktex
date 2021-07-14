@@ -136,7 +136,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea kpseInstance, const c
     return nullptr;
   }
   PathName path;
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (!session->FindPkFile(fontName, kpse_mode, dpi, path))
   {
     Application* app = Application::GetApplication();
@@ -249,7 +249,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_file(kpathsea kpseInstance, const ch
   MIKTEX_ASSERT(fileName != nullptr);
   bool found = false;
   PathName result;
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   FileType ft = ToFileType(format);
   Session::FindFileOptionSet options;
   if (mustExist)
@@ -283,7 +283,7 @@ MIKTEXKPSCEEAPI(char**) miktex_kpathsea_find_file_generic(kpathsea kpseInstance,
     options += Session::FindFileOption::Create;
     options += Session::FindFileOption::SearchFileSystem;
   }
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   found = session->FindFile(fileName, fileType, options, result);
   if (!found)
   {
@@ -359,7 +359,7 @@ MIKTEXSTATICFUNC(void) TranslateModeString(const char* modeString, FileMode& mod
 
 MIKTEXSTATICFUNC(FILE*) FOpen(const char* fileName, const char* modeString)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   FileMode mode(FileMode::Open);
   FileAccess access(FileAccess::Read);
   bool isTextFile;
@@ -514,7 +514,7 @@ MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE* file, const char* path)
 
 MIKTEXKPSCEEAPI(void) miktex_xfclose(FILE* file, const char* path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   session->CloseFile(file);
 }
 
@@ -595,7 +595,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_init_prog(kpathsea pKpathseaInstance, cons
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpseInstance, const char* argv0_, const char* programName_)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (kpseInstance->invocation_name != nullptr)
   {
     MIKTEX_FREE(kpseInstance->invocation_name);
@@ -687,7 +687,7 @@ MIKTEXKPSCEEAPI(char*) miktex_remove_suffix(const char* path)
 
 MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
   std::string result;
@@ -708,7 +708,7 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
 
 MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValue)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName path;
   bool result = false;
   // read-only values
@@ -895,7 +895,7 @@ public:
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_expand(kpathsea kpseInstance, const char* source)
 {
   VarExpand varExpand;
-  return xstrdup(Session::Get()->Expand(source, &varExpand).c_str());
+  return xstrdup(MIKTEX_SESSION()->Expand(source, &varExpand).c_str());
 }
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char* varName, const char* value)
@@ -905,7 +905,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea kpseInstance, const char*
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
+  int ret = MIKTEX_SESSION()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
     : 0;
   if (ret == 0 && silent == 0)
@@ -918,7 +918,7 @@ MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea kpseInstance, const cha
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea kpseInstance, const char* fileName, int silent)
 {
-  int ret = Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
+  int ret = MIKTEX_SESSION()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(PathName(fileName))
     ? 1
     : 0;
   if (ret == 0 && silent == 0)
@@ -994,7 +994,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_finish(kpathsea kpseInstance)
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_brace_expand(kpathsea kpseInstance, const char* path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   VarExpand expander;
   std::string result = session->Expand(path, { ExpandOption::Values, ExpandOption::Braces }, &expander);
   return xstrdup(result.c_str());
@@ -1002,7 +1002,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_brace_expand(kpathsea kpseInstance, const
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpseInstance, const char* path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   VarExpand expander;
   std::string result = session->Expand(path, { ExpandOption::Values, ExpandOption::Braces, ExpandOption::PathPatterns }, &expander);
   return xstrdup(result.c_str());
@@ -1022,7 +1022,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpseInstance, cons
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpseInstance, const char* path, const char* fileName, boolean mustExist)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName result;
   Session::FindFileOptionSet options;
   if (mustExist)
@@ -1039,7 +1039,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpseInstance, const 
 
 MIKTEXKPSCEEAPI(char**) miktex_kpathsea_all_path_search(kpathsea kpseInstance, const char* path, const char* fileName)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   vector<PathName> result;
   Session::FindFileOptionSet options;
   options += Session::FindFileOption::All;
@@ -1066,7 +1066,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_maketex_option(kpathsea kpseInstance, cons
 
 MIKTEXKPSCEEAPI(char*) miktex_kpathsea_selfdir(kpathsea kpseInstance, const char* argv0)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   return xstrdup(session->GetMyLocation(false).GetData());
 }
 
@@ -1094,7 +1094,7 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea kpseInstance, 
   kpse_format_info_type& formatInfo = kpseInstance->format_info[format];
   if (formatInfo.path == nullptr)
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     FileType ft = ToFileType(format);
     FileTypeInfo fti = session->GetFileTypeInfo(ft);
     VarExpand expander;
@@ -1114,7 +1114,7 @@ MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_dir_p(kpathsea kpseInstance, ::string f
 #if WITH_CONTEXT_SUPPORT
 MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName texmfcnfdir = session->GetSpecialPath(SpecialPath::UserConfigRoot);
   texmfcnfdir += MIKTEX_PATH_WEB2C_DIR;
   PathName texmfcnf = texmfcnfdir;

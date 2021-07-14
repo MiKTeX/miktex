@@ -135,7 +135,7 @@ void
 makefont(char *name, int dpi, int bdpi)
 {
 #if defined(MIKTEX)
-  std::shared_ptr<Session> session = Session::Get();
+  std::shared_ptr<Session> session = MIKTEX_SESSION();
   if (!quiet)
   {
     fprintf(stderr, "- makepkfont (%s, %d, %d, %s)\n", name, dpi, bdpi, mfmode == nullptr ? "<null>" : mfmode);

@@ -854,7 +854,7 @@ void TeXMFApp::InitializeBuffer() const
   int fileNameArgIdx = -1;
   PathName fileName;
 
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   auto argc = GetProgram()->GetArgC();
   auto argv = GetProgram()->GetArgV();
@@ -1121,7 +1121,7 @@ void TeXMFApp::CheckPoolPointer(int poolptr, std::size_t len) const
 
 bool TeXMFApp::OpenFontFile(C4P::BufferedFile<unsigned char>* file, const string& fontName, FileType filetype, const char* generator)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName pathFont;
   if (!session->FindFile(fontName, filetype, pathFont))
   {

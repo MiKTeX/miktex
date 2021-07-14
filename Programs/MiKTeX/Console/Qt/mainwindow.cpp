@@ -768,7 +768,7 @@ bool FinishSetupWorker::Run()
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishSetup;
@@ -1025,7 +1025,7 @@ string Timestamp()
 
 void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName initexmf;
   if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
@@ -1845,7 +1845,7 @@ bool ChangeLinkTargetDirectoryWorker::Run()
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     RunIniTeXMF({ "--remove-links" });
     if (session->IsSharedSetup())
     {
@@ -2049,7 +2049,7 @@ bool BuildFormatsWorker::Run()
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     for (const string& key : formats)
     {
       FormatInfo formatInfo = session->GetFormatInfo(key);
@@ -2527,7 +2527,7 @@ bool UserResetWorker::Run()
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::CleanUp;
@@ -2621,7 +2621,7 @@ bool FactoryResetWorker::Run()
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::CleanUp;
@@ -2699,7 +2699,7 @@ bool UninstallWorker::Run()
   bool result = false;
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::CleanUp;

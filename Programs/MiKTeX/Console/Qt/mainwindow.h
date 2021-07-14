@@ -665,7 +665,7 @@ private slots:
   void UnloadFileNameDatabase();
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;

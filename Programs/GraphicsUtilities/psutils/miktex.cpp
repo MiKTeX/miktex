@@ -26,7 +26,7 @@ MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
 int paper_size(const char* paper_name, double* width, double* height)
 {
-  std::shared_ptr<Session> session = Session::Get();
+  std::shared_ptr<Session> session = MIKTEX_SESSION();
   PaperSizeInfo paperSize;
   if (paper_name == nullptr)
   {
@@ -52,7 +52,7 @@ char* program_name;
 
 void set_program_name(const char* argv0)
 {
-  std::shared_ptr<Session> session = Session::Get();
+  std::shared_ptr<Session> session = MIKTEX_SESSION();
   program_name = strdup(argv0);
   session->PushAppName("psutils");
 }

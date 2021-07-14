@@ -196,7 +196,7 @@ void TWApp::init()
 #if defined(MIKTEX)
         else
         {
-          auto session = MiKTeX::Core::Session::Get();
+          auto session = MIKTEX_SESSION();
           if (!session->IsAdminMode())
           {
             if (session->IsMiKTeXPortable())
@@ -925,7 +925,7 @@ void TWApp::setDefaultPaths()
 	if (!defaultBinPaths) {
 #if defined(MIKTEX)
           {
-            auto session = MiKTeX::Core::Session::Get();
+            auto session = MIKTEX_SESSION();
             MiKTeX::Util::PathName d = session->GetSpecialPath(MiKTeX::Configuration::SpecialPath::InstallRoot) / MiKTeX::Util::PathName(MIKTEX_PATH_BIN_DIR);
             QString dir = QString::fromUtf8(d.GetData());
             if (!binaryPaths->contains(dir))
@@ -1484,7 +1484,7 @@ void TWApp::aboutMiKTeX()
 
 void TWApp::UnloadFileNameDatabase()
 {
-  auto session = MiKTeX::Core::Session::Get();
+  auto session = MIKTEX_SESSION();
   session->UnloadFilenameDatabase(std::chrono::seconds(1));
 }
 #endif

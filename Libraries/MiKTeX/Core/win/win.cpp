@@ -253,7 +253,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 
 #if SET_SECURITY
   // create the directory itself
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (session->IsAdminMode()
     && (session->GetSpecialPath(SpecialPath::CommonConfigRoot) == path || session->GetSpecialPath(SpecialPath::CommonDataRoot) == path)
     && session->RunningAsAdministrator())

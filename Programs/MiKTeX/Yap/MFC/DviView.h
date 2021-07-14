@@ -526,7 +526,7 @@ private:
   static vector<double> gammaTable;
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 };
 
 inline const DviDoc* DviView::GetDocument() const

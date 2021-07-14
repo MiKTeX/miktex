@@ -206,7 +206,7 @@ search(kpse_file_format_type format, const char *file, const char *mode)
         && ((len > 2 && FILESTRCASEEQ (found_name + len - 2, ".Z"))
             || (len > 3 && FILESTRCASEEQ (found_name + len - 3, ".gz")))) {
 #if defined(MIKTEX)
-      std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+      std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
       char* command = concat3("zcat \"", found_name, "\"");
       ret = session->TryOpenFile(MiKTeX::Util::PathName(command), MiKTeX::Core::FileMode::Command, MiKTeX::Core::FileAccess::Read, false);
       free(command);
@@ -395,7 +395,7 @@ case USE_FCLOSE:  return fclose(f);
 #if defined(MIKTEX)
    case USE_MIKTEX_CLOSE_FILE:
    {
-     std::shared_ptr<MiKTeX::Core::Session> session = Session::Get();
+     std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
      session->CloseFile(f);
      return 0;
    }

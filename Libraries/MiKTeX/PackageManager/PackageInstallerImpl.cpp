@@ -88,7 +88,7 @@ MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& packageId)
 
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager, const InitInfo& initInfo) :
   enablePostProcessing(initInfo.enablePostProcessing),
-  session(Session::Get()),
+  session(MIKTEX_SESSION()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
   trace_stopwatch(TraceStream::Open(MIKTEX_TRACE_STOPWATCH)),

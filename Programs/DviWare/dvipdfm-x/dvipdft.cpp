@@ -68,7 +68,7 @@ void BadUsage()
 
 void dvipdft(int argc, char** argv)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   // must have at least one argument: the DVI file name
   if (argc == 1)

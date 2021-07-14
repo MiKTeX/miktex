@@ -93,7 +93,7 @@ static void TranslateModeString(const char* modeString, FileMode& mode, FileAcce
 
 static FILE* TryFOpen(const char* path, const char* modeString)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   FileMode mode(FileMode::Open);
   FileAccess access(FileAccess::Read);
   bool isTextFile;
@@ -130,7 +130,7 @@ int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* mo
 
 void Web2C::RecordFileName(const char* path, FileAccess access)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (miktex_web2c_recorder_enabled)
   {
     session->StartFileInfoRecorder();
@@ -145,7 +145,7 @@ void miktex_web2c_record_file_name(const char* path, int reading)
 
 void Web2C::ChangeRecorderFileName(const char* fileName)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName path(GetOutputDirectory(), PathName(fileName));
   path.AppendExtension(".fls");
   session->SetRecorderPath(path);
@@ -163,7 +163,7 @@ void Web2C::SetOutputDirectory(const PathName& path)
 
 void miktex_web2c_set_output_directory(const char* path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   outputDirectory = path;
   outputDirectory.MakeFullyQualified();
   if (!Directory::Exists(outputDirectory))
@@ -295,7 +295,7 @@ void miktex_uexit(int status)
 
 void miktex_setupboundvariable(integer* var, const char* varName, integer dflt)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   int ret = session->GetConfigValue(MIKTEX_CONFIG_SECTION_NONE, varName, ConfigValue(dflt)).GetInt();
   if (ret >= 0)
   {

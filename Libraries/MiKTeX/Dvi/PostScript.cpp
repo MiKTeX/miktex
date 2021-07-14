@@ -178,7 +178,7 @@ FILE* PostScript::ConvertToEPS(const char* fileName)
 
 void PostScript::SendHeader(const char* headerName)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   PathName fileName;
   if (!session->FindFile(headerName, FileType::PSHEADER, fileName))

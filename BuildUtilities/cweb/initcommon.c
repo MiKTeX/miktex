@@ -547,7 +547,7 @@ free(found_filename);
 #if defined(MIKTEX)
 MiKTeX::Util::PathName sourceDir(web_file_name);
 sourceDir.RemoveFileSpec();
-MiKTeX::Core::Session::Get()->AddInputDirectory(sourceDir,true);
+MIKTEX_SESSION()->AddInputDirectory(sourceDir,true);
 #endif
 }
 

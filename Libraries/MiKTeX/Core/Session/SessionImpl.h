@@ -685,12 +685,6 @@ public:
 #define SESSION_IMPL() (MiKTeX::ABF3880A6239B84E87DC7E727A8BBFD4::SessionImpl::theSession.expired() ? (MIKTEX_UNEXPECTED(), nullptr) : MiKTeX::ABF3880A6239B84E87DC7E727A8BBFD4::SessionImpl::theSession.lock())
 
 public:
-  static std::shared_ptr<SessionImpl> GetSession()
-  {
-    return SESSION_IMPL();
-  }
-
-public:
   MiKTeX::Util::PathName GetRelativeFilenameDatabasePathName(unsigned r);
 
 #if defined(HAVE_ATLBASE_H) && defined(MIKTEX_CORE_SHARED)

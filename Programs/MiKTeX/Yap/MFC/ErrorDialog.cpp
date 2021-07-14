@@ -199,7 +199,7 @@ string ErrorDialogImpl::CreateReport()
       << T_("Source: ") << miktexException.GetSourceFile() << endl
       << T_("Line: ") << miktexException.GetSourceLine() << endl;
   }
-  auto session = Session::Get();
+  auto session = MIKTEX_SESSION();
   try
   {
     vector<string> invokerNames = Process::GetInvokerNames();

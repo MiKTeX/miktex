@@ -144,7 +144,7 @@ bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, bool
 {
   this->path = path;
   FILE* file;
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (mustExist)
   {
     file = session->OpenFile(path, mode, access, text);

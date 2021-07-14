@@ -140,7 +140,7 @@ SetupServiceImpl::SetupServiceImpl()
 {
   traceStream = TraceStream::Open("setup");
   packageManager = PackageManager::Create();
-  session = Session::Get();
+  session = MIKTEX_SESSION();
   logFile.SetCallback(this);
   options.IsCommonSetup = session->RunningAsAdministrator();
   translator = make_unique<Translator>(MIKTEX_COMP_ID, &resources, session);
@@ -190,7 +190,7 @@ PathName SetupService::GetDefaultLocalRepository()
 {
   PathName ret;
   string val;
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, val))
   {
     ret = val;
@@ -227,7 +227,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
   }
 
   // try my directory
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   localRepository = session->GetMyLocation(false);
   packageLevel_ = SetupService::TestLocalRepository(localRepository, requestedPackageLevel);
   if (packageLevel_ != PackageLevel::None)
@@ -305,7 +305,7 @@ PackageLevel SetupService::TestLocalRepository(const PathName& pathRepository, P
 bool SetupService::IsMiKTeXDirect(PathName& root)
 {
   // check ..\texmf\miktex\config\miktexstartup.ini
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   root = session->GetMyLocation(false) / PathName("..");
   root.MakeFullyQualified();
   PathName pathStartupConfig = root / PathName("texmf") / PathName(MIKTEX_PATH_STARTUP_CONFIG_FILE);

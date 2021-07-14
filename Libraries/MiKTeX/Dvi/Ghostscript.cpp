@@ -48,7 +48,7 @@ Ghostscript::~Ghostscript()
 
 void Ghostscript::Start()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   // find Ghostscript
   unsigned long version;

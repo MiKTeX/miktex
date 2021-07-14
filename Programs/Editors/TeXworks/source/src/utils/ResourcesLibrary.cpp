@@ -53,7 +53,7 @@ const QString ResourcesLibrary::getLibraryRootPath()
 {
 #if defined(MIKTEX)
   {
-    std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+    std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
     MiKTeX::Util::PathName dir = session->GetSpecialPath(MiKTeX::Configuration::SpecialPath::DataRoot) /
       MiKTeX::Util::PathName(TEXWORKS_NAME) /
       MiKTeX::Util::PathName(std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR));

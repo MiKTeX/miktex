@@ -177,7 +177,7 @@ private:
   std::unordered_set<MiKTeX::Util::PathName> initialWorkDirSnapshot;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
 
 private:
   const std::string standardFormat = "latex";

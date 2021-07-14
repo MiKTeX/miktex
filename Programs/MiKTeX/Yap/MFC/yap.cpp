@@ -105,7 +105,7 @@ namespace {
 
 void ParseYapCommandLine(const char* lpszArguments, YapCommandLineInfo& cmdInfo)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   cmdInfo.m_nShellCommand = CCommandLineInfo::FileNothing;
 
@@ -562,7 +562,7 @@ protected:
   afx_msg void OnClickRegisterMiKTeX();
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 };
 
 void AboutDialog::DoDataExchange(CDataExchange* pDX)
@@ -952,7 +952,7 @@ bool YapApplication::GotoHyperLabel(const char* lpszLabel)
 
 void StartEditor(const char* lpszFileName, const char* lpszDocDir, int line)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   // find the source file
   PathName path;

@@ -116,7 +116,7 @@ void LogFile::RemoveStartMenu()
   {
     return;
   }
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   int cidl = (session->IsAdminMode() ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS);
   PathName prefix = Utils::GetFolderPath(cidl, cidl, true);
   RemoveFiles(prefix);

@@ -124,7 +124,7 @@ bool Utils::CheckPath(bool repair)
   }
 #endif
   
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   string envPath;
   if (!Utils::GetEnvironmentString("PATH", envPath))

@@ -487,7 +487,7 @@ string Utils::GetMiKTeXBannerString()
 #if defined(MIKTEX_WINDOWS_32)
   banner += " 32-bit";
 #endif
-  if (Session::Get()->IsMiKTeXPortable())
+  if (MIKTEX_SESSION()->IsMiKTeXPortable())
   {
     banner += " Portable";
   }
@@ -831,7 +831,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
         ProcessOutput<80> pdfTeXOutput;
         bool isOtherPdfTeX = true;
         vector<string> args{ "pdftex", "--miktex-disable-installer", "--miktex-disable-maintenance", "--miktex-disable-diagnose", "--version" };
-        if (Session::Get()->IsAdminMode())
+        if (MIKTEX_SESSION()->IsAdminMode())
         {
           args.push_back("--miktex-admin");
         }
@@ -883,7 +883,7 @@ pair<bool, bool> Utils::CheckPath()
   {
     return make_pair(false, false);
   }
-  PathName linkTargetDirectory = Session::Get()->GetSpecialPath(SpecialPath::LinkTargetDirectory);
+  PathName linkTargetDirectory = MIKTEX_SESSION()->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   string repairedPath;
   bool pathCompetition;
   bool pathOkay = !Directory::Exists(linkTargetDirectory) || !FixProgramSearchPath(envPath, linkTargetDirectory, true, repairedPath, pathCompetition);

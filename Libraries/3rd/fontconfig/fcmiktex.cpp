@@ -46,7 +46,7 @@ extern "C" const char* miktex_fontconfig_path()
 {
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     static PathName path;
     if (path.Empty())
     {
@@ -71,7 +71,7 @@ extern "C" const char* miktex_fc_cachedir()
 {
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     static PathName path;
     if (path.Empty())
     {
@@ -142,7 +142,7 @@ extern "C" int miktex_get_fontconfig_config_dirs(char** pPaths, int nPaths)
 {
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     unsigned nConfigDirs = session->GetNumberOfTEXMFRoots();
     if (pPaths != nullptr)
     {

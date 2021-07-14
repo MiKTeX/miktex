@@ -250,9 +250,9 @@ int main(int argc, char *argv[])
 #endif
 {
 #if defined(MIKTEX)
-  MiKTeX::Core::Session::Get()->PushAppName("asymptote");
+  MIKTEX_SESSION()->PushAppName("asymptote");
   MiKTeX::Util::PathName plainAsy;
-  if (!MiKTeX::Core::Session::Get()->FindFile("plain.asy", MiKTeX::Core::FileType::PROGRAMTEXTFILE, plainAsy))
+  if (!MIKTEX_SESSION()->FindFile("plain.asy", MiKTeX::Core::FileType::PROGRAMTEXTFILE, plainAsy))
   {
     cerr
       << "warning: package 'asymptote' is not installed\n"
