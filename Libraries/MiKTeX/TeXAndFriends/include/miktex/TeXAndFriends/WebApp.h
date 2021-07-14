@@ -312,14 +312,14 @@ public:
 #if defined(MIKTEX_COMP_TM_STR)
     componentTrademark = MIKTEX_COMP_TM_STR;
 #endif
-    app.SetProgram(&prog, progName, componentVersion, componentCopyright, componentTrademark);
-    prog.SetParent(&app);
     try
     {
       MIKTEX_ASSERT(argv != nullptr && argv[argc] == nullptr);
       std::vector<char*> newargv(argv, argv + argc + 1);
       app.Init(newargv);
       MIKTEX_ASSERT(!newargv.empty() && newargv.back() == nullptr);
+      app.SetProgram(&prog, progName, componentVersion, componentCopyright, componentTrademark);
+      prog.SetParent(&app);
       int exitCode = prog.Run(newargv.size() - 1, &newargv[0]);
       app.Finalize2(exitCode);
       return exitCode;
