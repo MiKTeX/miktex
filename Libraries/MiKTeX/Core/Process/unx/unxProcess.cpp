@@ -224,7 +224,7 @@ void unxProcess::Create()
 
   auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
 
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
 
   PathName fileName;
 
@@ -845,7 +845,7 @@ void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
   {
     trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
   }
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   unordered_map<string, string> envMap = session->CreateChildEnvironment(false);
   char* environmentStrings;
   char** environmentPointers;

@@ -1081,13 +1081,13 @@ bool Utils::CheckPath(bool repair)
   {
     if (!systemPathOkay && !repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, WU_(systemPath));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the system PATH:"));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, WU_(systemPath));
     }
     else if (!systemPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
       systemPath = UW_(repairedSystemPath);
       winRegistry::SetValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
       systemPathOkay = true;
@@ -1103,8 +1103,8 @@ bool Utils::CheckPath(bool repair)
       systemPathOkay = !FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
-        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
-        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
+        SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+        SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
         userPath = UW_(repairedUserPath);
         winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
         systemPathOkay = true;
@@ -1117,8 +1117,8 @@ bool Utils::CheckPath(bool repair)
     userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
       userPath = UW_(repairedUserPath);
       winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
       userPathOkay = true;

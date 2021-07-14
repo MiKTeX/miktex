@@ -312,7 +312,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // try special values, part 2
   if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_BINDIR))
   {
-    value = SessionImpl::GetSession()->GetSpecialPath(SpecialPath::BinDirectory).ToString();
+    value = SESSION_IMPL()->GetSpecialPath(SpecialPath::BinDirectory).ToString();
     haveValue = true;
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
@@ -336,13 +336,13 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 #endif
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_LOCALFONTDIRS))
   {
-    value = StringUtil::Flatten(SessionImpl::GetSession()->GetFontDirectories(), PathNameUtil::PathNameDelimiter);
+    value = StringUtil::Flatten(SESSION_IMPL()->GetFontDirectories(), PathNameUtil::PathNameDelimiter);
     haveValue = true;
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PSFONTDIRS))
   {
     string psFontDirs;
-    if (SessionImpl::GetSession()->GetPsFontDirs(psFontDirs))
+    if (SESSION_IMPL()->GetPsFontDirs(psFontDirs))
     {
       value = psFontDirs;
       haveValue = true;
@@ -351,7 +351,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_TTFDIRS))
   {
     string ttfDirs;
-    if (SessionImpl::GetSession()->GetTTFDirs(ttfDirs))
+    if (SESSION_IMPL()->GetTTFDirs(ttfDirs))
     {
       value = ttfDirs;
       haveValue = true;
@@ -360,7 +360,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_OTFDIRS))
   {
     string otfDirs;
-    if (SessionImpl::GetSession()->GetOTFDirs(otfDirs))
+    if (SESSION_IMPL()->GetOTFDirs(otfDirs))
     {
       value = otfDirs;
       haveValue = true;

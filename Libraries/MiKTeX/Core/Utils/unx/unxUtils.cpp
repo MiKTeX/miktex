@@ -143,13 +143,13 @@ bool Utils::CheckPath(bool repair)
 
   if (!pathOkay && !repair)
   {
-    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
-    SessionImpl::GetSession()->trace_error->WriteLine("core", envPath.c_str());
+    SESSION_IMPL()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
+    SESSION_IMPL()->trace_error->WriteLine("core", envPath.c_str());
   }
   else if (!pathOkay && repair)
   {
-    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new PATH:"));
-    SessionImpl::GetSession()->trace_error->WriteLine("core", repairedPath.c_str());
+    SESSION_IMPL()->trace_error->WriteLine("core", T_("Setting new PATH:"));
+    SESSION_IMPL()->trace_error->WriteLine("core", repairedPath.c_str());
     envPath = repairedPath;
     if (session->IsAdminMode())
     {

@@ -307,7 +307,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (options[FileMoveOption::UpdateFndb])
   {
-    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
       Fndb::Remove({ source });
@@ -378,7 +378,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   }
   if (options[FileCopyOption::UpdateFndb])
   {
-    shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
+    shared_ptr<SessionImpl> session = SESSION_IMPL(); 
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
       Fndb::Add({ { dest } });
@@ -415,7 +415,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
   if (options[CreateLinkOption::UpdateFndb])
   {
-    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
     if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
       Fndb::Add({ { newName } });

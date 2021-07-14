@@ -43,7 +43,7 @@ using namespace MiKTeX::Util;
 wstring MakeRegistryPath(const wstring& keyName)
 {
 
-  return fmt::format(L"{}\\{}", SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES), keyName);
+  return fmt::format(L"{}\\{}", SESSION_IMPL()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES), keyName);
 }
 
 HKEY ToHkey(ConfigurationScope scope)
@@ -197,7 +197,7 @@ bool winRegistry::TryDeleteValue(HKEY hkeyParent, const string& path, const stri
 
 void winRegistry::SetValue(HKEY hkeyParent, const wstring& path, const wstring& valueName, const BYTE* value, size_t valueSize, DWORD valueType)
 {
-  SessionImpl::GetSession()->trace_config->WriteLine("core", fmt::format("RegCreateKeyExW({0}, \"{1}\")", reinterpret_cast<void*>(hkeyParent), WU_(path)));
+  SESSION_IMPL()->trace_config->WriteLine("core", fmt::format("RegCreateKeyExW({0}, \"{1}\")", reinterpret_cast<void*>(hkeyParent), WU_(path)));
   HKEY hkey;
   DWORD disp;
   long result = RegCreateKeyExW(hkeyParent, path.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey, &disp);
@@ -225,7 +225,7 @@ void winRegistry::SetValue(HKEY hkeyParent, const string& path, const string& va
 
 bool winRegistry::TryGetValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, wstring& value)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   if (scope == ConfigurationScope::None)
   {
     // RECURSION
@@ -271,7 +271,7 @@ bool winRegistry::TryGetValue(ConfigurationScope scope, const string& keyName, c
 
 bool winRegistry::TryDeleteValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   if (scope == ConfigurationScope::None)
   {
     // RECURSION
@@ -290,7 +290,7 @@ bool winRegistry::TryDeleteValue(ConfigurationScope scope, const string& keyName
 
 void winRegistry::SetValue(ConfigurationScope scope, const wstring& keyName, const wstring& valueName, const wstring& value)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   if (scope == ConfigurationScope::None)
   {
     // RECURSION

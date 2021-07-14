@@ -53,7 +53,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
 {
   if (options[FileDeleteOption::UpdateFndb])
   {
-    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
     if (session->IsTEXMFFile(path) && Fndb::FileExists(path))
     {
       Fndb::Remove({ path });
@@ -110,7 +110,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
       old.AppendExtension(string(".") + std::to_string(dist(gen)) + MIKTEX_TO_BE_DELETED_FILE_SUFFIX);
     }
     File::Move(path, old, { FileMoveOption::ReplaceExisting });
-    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
     session->ScheduleFileRemoval(old);
   }
 #endif

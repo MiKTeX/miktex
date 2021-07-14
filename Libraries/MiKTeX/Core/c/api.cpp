@@ -140,7 +140,7 @@ MIKTEXCORECEEAPI(int) miktex_find_file(const char* fileName, const char* pathLis
   MIKTEX_ASSERT_STRING(pathList);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(fileName, pathList, temp))
+  if (!SESSION_IMPL()->FindFile(fileName, pathList, temp))
   {
     return 0;
   }
@@ -153,7 +153,7 @@ MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* fontName, char* path)
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::TFM, temp))
+  if (!SESSION_IMPL()->FindFile(fontName, FileType::TFM, temp))
   {
     return 0;
   }
@@ -166,7 +166,7 @@ MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* fontName, char* path)
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::TTF, temp))
+  if (!SESSION_IMPL()->FindFile(fontName, FileType::TTF, temp))
   {
     return 0;
   }
@@ -179,7 +179,7 @@ MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* fontName, char* path)
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::ENC, temp))
+  if (!SESSION_IMPL()->FindFile(fontName, FileType::ENC, temp))
   {
     return 0;
   }
@@ -192,7 +192,7 @@ MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* headerName, char* pa
   MIKTEX_ASSERT_STRING(headerName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(headerName, FileType::PSHEADER, temp))
+  if (!SESSION_IMPL()->FindFile(headerName, FileType::PSHEADER, temp))
   {
     return 0;
   }
@@ -206,7 +206,7 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* applicationName, const 
   MIKTEX_ASSERT_STRING(fileName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(fileName, FileType::None, temp))
+  if (!SESSION_IMPL()->FindFile(fileName, FileType::None, temp))
   {
     if (applicationName == nullptr)
     {
@@ -218,7 +218,7 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* applicationName, const 
     searchPath += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
     searchPath += applicationName;
     searchPath += RECURSION_INDICATOR;
-    if (!SessionImpl::GetSession()->FindFile(fileName, searchPath, temp))
+    if (!SESSION_IMPL()->FindFile(fileName, searchPath, temp))
     {
       return 0;
     }
@@ -232,7 +232,7 @@ MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* fontName, char* path)
   MIKTEX_ASSERT_STRING(fontName);
   MIKTEX_ASSERT_PATH_BUFFER(path);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(fontName, FileType::HBF, temp))
+  if (!SESSION_IMPL()->FindFile(fontName, FileType::HBF, temp))
   {
     return 0;
   }
@@ -245,7 +245,7 @@ MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* exeName, char* e
   MIKTEX_ASSERT_STRING(exeName);
   MIKTEX_ASSERT_PATH_BUFFER(exePath);
   MiKTeX::Util::PathName temp;
-  if (!SessionImpl::GetSession()->FindFile(exeName, FileType::EXE, temp))
+  if (!SESSION_IMPL()->FindFile(exeName, FileType::EXE, temp))
   {
     return 0;
   }
@@ -255,13 +255,13 @@ MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* exeName, char* e
 
 MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots()
 {
-  return SessionImpl::GetSession()->GetNumberOfTEXMFRoots();
+  return SESSION_IMPL()->GetNumberOfTEXMFRoots();
 }
 
 MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* path)
 {
   MIKTEX_ASSERT_PATH_BUFFER(path);
-  StringUtil::CopyString(path, BufferSizes::MaxPath, SessionImpl::GetSession()->GetRootDirectoryPath(r).GetData());
+  StringUtil::CopyString(path, BufferSizes::MaxPath, SESSION_IMPL()->GetRootDirectoryPath(r).GetData());
   return path;
 }
 

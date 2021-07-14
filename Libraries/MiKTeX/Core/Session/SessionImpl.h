@@ -682,14 +682,12 @@ public:
     return theSession.lock();
   }
 
+#define SESSION_IMPL() (MiKTeX::ABF3880A6239B84E87DC7E727A8BBFD4::SessionImpl::theSession.expired() ? (MIKTEX_UNEXPECTED(), nullptr) : MiKTeX::ABF3880A6239B84E87DC7E727A8BBFD4::SessionImpl::theSession.lock())
+
 public:
   static std::shared_ptr<SessionImpl> GetSession()
   {
-    if (theSession.expired())
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    return theSession.lock();
+    return SESSION_IMPL();
   }
 
 public:

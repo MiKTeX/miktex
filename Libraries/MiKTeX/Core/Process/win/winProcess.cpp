@@ -276,7 +276,7 @@ void winProcess::Create()
     // start child process
     trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
 
-    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
 
     // create environment map
     unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
