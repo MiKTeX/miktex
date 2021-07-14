@@ -38,6 +38,8 @@
 #include <miktex/Core/File>
 #include <miktex/Util/PathName>
 #include <miktex/Util/StringUtil>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -47,6 +49,7 @@ using namespace std;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 string Utils::GetOSVersionString()
@@ -79,11 +82,8 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   {
     return;
   }
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
-  }
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG);
+  trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
   if (setenv(valueName.c_str(), value.c_str(), 1) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("setenv", "name", valueName);
@@ -92,11 +92,8 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
 
 void Utils::RemoveEnvironmentString(const string& valueName)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("unsetting env {0}"), valueName));
-  }
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG);
+  trace_config->WriteLine("core", fmt::format(T_("unsetting env {0}"), valueName));
   if (unsetenv(valueName.c_str()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("unsetenv", "name", valueName);

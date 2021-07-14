@@ -37,15 +37,17 @@
 #include <miktex/Core/AutoResource>
 #include <miktex/Core/CsvList>
 #include <miktex/Core/Directory>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Session>
+#include <miktex/Core/Utils>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 #include <miktex/Util/PathName>
 #include <miktex/Util/PathNameParser>
-#include <miktex/Core/Paths>
-#include <miktex/Core/Utils>
 #include <miktex/Util/Tokenizer>
 
 #include "internal.h"
 
-#include "Session/SessionImpl.h"
 #include "inliners.h"
 
 using namespace std;
@@ -485,8 +487,7 @@ string Utils::GetMiKTeXBannerString()
 #if defined(MIKTEX_WINDOWS_32)
   banner += " 32-bit";
 #endif
-  auto session = SessionImpl::TryGetSession();
-  if (session != nullptr && session->IsMiKTeXPortable())
+  if (Session::Get()->IsMiKTeXPortable())
   {
     banner += " Portable";
   }
@@ -523,14 +524,7 @@ string Utils::MakeProgramVersionString(const string& programName, const VersionN
 
 bool Utils::GetEnvironmentString(const string& name, string& str)
 {
-  bool haveValue = ::GetEnvironmentString(name, str);
-  if (SessionImpl::TryGetSession() != nullptr
-    && SessionImpl::GetSession()->trace_env.get() != nullptr
-    && SessionImpl::GetSession()->trace_env->IsEnabled("core", TraceLevel::Trace))
-  {
-    SessionImpl::GetSession()->trace_env->WriteLine("core", TraceLevel::Trace, fmt::format("{0} => {1}", name, (haveValue ? str : "null")));
-  }
-  return haveValue;
+  return ::GetEnvironmentString(name, str);
 }
 
 bool Utils::GetEnvironmentString(const string& name, PathName& path)
@@ -837,8 +831,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
         ProcessOutput<80> pdfTeXOutput;
         bool isOtherPdfTeX = true;
         vector<string> args{ "pdftex", "--miktex-disable-installer", "--miktex-disable-maintenance", "--miktex-disable-diagnose", "--version" };
-        shared_ptr<Session> session = Session::Get();
-        if (session->IsAdminMode())
+        if (Session::Get()->IsAdminMode())
         {
           args.push_back("--miktex-admin");
         }
@@ -885,20 +878,20 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
 
 pair<bool, bool> Utils::CheckPath()
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   string envPath;
   if (!Utils::GetEnvironmentString("PATH", envPath))
   {
     return make_pair(false, false);
   }
-  PathName linkTargetDirectory = session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
+  PathName linkTargetDirectory = Session::Get()->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   string repairedPath;
   bool pathCompetition;
   bool pathOkay = !Directory::Exists(linkTargetDirectory) || !FixProgramSearchPath(envPath, linkTargetDirectory, true, repairedPath, pathCompetition);
   if (!pathOkay)
   {
-    session->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the PATH:"));
-    session->trace_error->WriteLine("core", TraceLevel::Error, envPath);
+    auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+    trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the PATH:"));
+    trace_error->WriteLine("core", TraceLevel::Error, envPath);
   }
   return make_pair(pathOkay, pathCompetition);
 }
@@ -959,7 +952,8 @@ pair<bool, PathName> Utils::ExpandTilde(const string& s)
     PathName pathFQ = GetHomeDirectory();
     if (!pathFQ.IsAbsolute())
     {
-      TraceError(fmt::format(T_("cannot expand ~: {0} is not fully qualified"), Q_(pathFQ)));
+      auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+      trace_error->WriteLine("core", TraceLevel::Error, fmt::format(T_("cannot expand ~: {0} is not fully qualified"), Q_(pathFQ)));
       return make_pair(false , PathName());
     }
     if (s[1] != 0 && PathNameUtil::IsDirectoryDelimiter(s[1]) && s[2] != 0)

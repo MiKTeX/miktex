@@ -26,6 +26,8 @@
 
 #include <miktex/Core/win/Registry>
 #include <miktex/Core/win/winAutoResource>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -35,6 +37,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 wstring MakeRegistryPath(const wstring& keyName)
@@ -99,7 +102,8 @@ bool winRegistry::TryGetValue(HKEY hkeyParent, const wstring& path, const wstrin
     return true;
   }
   default:
-    TraceError(fmt::format(T_("ignoring value {0} of type {1}"), Q_(WU_(valueName)), valueType));
+    auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+    trace_error->WriteLine("core", TraceLevel::Error, fmt::format(T_("ignoring value {0} of type {1}"), Q_(WU_(valueName)), valueType));
     return false;
   }
 }

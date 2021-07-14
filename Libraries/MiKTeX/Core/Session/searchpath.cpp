@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,6 +25,8 @@
 #include <fmt/ostream.h>
 
 #include <miktex/Core/Directory>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -111,7 +113,8 @@ void SessionImpl::PushBackPath(vector<PathName>& pathNames, const PathName& path
     {
       if (!pathFQ.IsAbsolute())
       {
-        TraceError(fmt::format(T_("{0} is not fully qualified"), Q_(pathFQ)));
+        auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+        trace_error->WriteLine("core", TraceLevel::Error, fmt::format(T_("{0} is not fully qualified"), Q_(pathFQ)));
         continue;
       }
       if (PathName::Compare(path, PathName(CURRENT_DIRECTORY)) != 0)

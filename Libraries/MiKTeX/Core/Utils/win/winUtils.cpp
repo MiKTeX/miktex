@@ -32,6 +32,8 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
 #include <miktex/Core/win/WindowsVersion>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include <miktex/Util/PathName>
 
@@ -711,11 +713,8 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   {
     return;
   }
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
-  }
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG);
+  trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
 #if defined(_MSC_VER) || defined(__MINGW32__)
   if (_wputenv_s(UW_(valueName), UW_(value)) != 0)
   {

@@ -27,15 +27,16 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+#include <miktex/Core/Directory.h?
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
+
 #include "internal.h"
-
-#include "miktex/Core/Directory.h"
-
-#include "Session/SessionImpl.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 PathName Directory::GetCurrent()
@@ -55,16 +56,13 @@ void Directory::SetCurrent(const PathName& path)
 
 bool Directory::Exists(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_access = TraceStream::Open(MIKTEX_TRACE_ACCESS);
   struct stat statbuf;
   if (stat(path.GetData(), &statbuf) == 0)
   {
     if (S_ISDIR(statbuf.st_mode) == 0)
     {
-      if (session != nullptr)
-      {
-        session->trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
-      }
+      trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
       return false;
     }
     return true;
@@ -79,11 +77,8 @@ bool Directory::Exists(const PathName& path)
 
 void Directory::Delete(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
   if (rmdir(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("rmdir", "path", path.ToString());

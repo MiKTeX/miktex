@@ -856,12 +856,6 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
 
   if (!fndbFileExists)
   {
-#if 0
-    TraceError(fmt::format(T_("there is no fndb file for {0}"), Q_(root.get_Path())));
-#endif
-#if 0
-    root.set_NoFndb(true);
-#endif
     return nullptr;
   }
 

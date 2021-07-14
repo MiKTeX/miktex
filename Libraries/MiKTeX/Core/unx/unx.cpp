@@ -31,6 +31,8 @@
 #endif
 
 #include <miktex/Core/Directory>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -39,6 +41,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* lpszPath)
@@ -85,12 +88,9 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t 
     return;
   }
 
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_PROCESS);
 
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("creating directory {0}..."), Q_(path)));
-  }
+  trace_config->WriteLine("core", fmt::format(T_("creating directory {0}..."), Q_(path)));
 
   // create the directory itself
   if (mkdir(path.GetData(), mode) != 0)

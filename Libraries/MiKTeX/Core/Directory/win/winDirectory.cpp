@@ -26,14 +26,15 @@
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/win/winAutoResource>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
-
-#include "Session/SessionImpl.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 PathName Directory::GetCurrent()
@@ -64,22 +65,16 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
 
 bool Directory::Exists(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_access = TraceStream::Open(MIKTEX_TRACE_ACCESS);
   unsigned long attributes = GetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
   {
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
     {
-      if (session != nullptr)
-      {
-        session->trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
-      }
+      trace_access->WriteLine("core", fmt::format(T_("{0} is not a directory"), Q_(path)));
       return false;
     }
-    if (session != nullptr)
-    {
-      session->trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: OK"), Q_(path)));
-    }
+    trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: OK"), Q_(path)));
     return true;
   }
   unsigned long error = ::GetLastError();
@@ -98,20 +93,14 @@ bool Directory::Exists(const PathName& path)
       T_("MiKTeX cannot retrieve attributes for the directory '{path}'."),
       "path", path.ToDisplayString());
   }
-  if (session != nullptr)
-  {
-    session->trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: NOK"), Q_(path)));
-  }
+  trace_access->WriteLine("core", fmt::format(T_("accessing directory {0}: NOK"), Q_(path)));
   return false;
 }
 
 void Directory::Delete(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("deleting directory {0}"), Q_(path)));
   if (!RemoveDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("RemoveDirectoryW", "path", path.ToString());

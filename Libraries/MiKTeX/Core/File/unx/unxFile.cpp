@@ -39,6 +39,8 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -47,6 +49,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 mode_t GetFileCreationMask()
@@ -63,7 +66,7 @@ mode_t GetFileCreationMask()
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_access = TraceStream::Open(MIKTEX_TRACE_ACCESS);
   struct stat statbuf;
   int statret;
   if (options[FileExistsOption::SymbolicLink])
@@ -78,16 +81,10 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   {
     if (S_ISDIR(statbuf.st_mode) != 0)
     {
-      if (session != nullptr)
-      {
-        session->trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
-      }
+      trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
       return false;
     }
-    if (session != nullptr)
-    {
-      session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: OK"), Q_(path)));
-    }
+    trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: OK"), Q_(path)));
     return true;
   }
   int error = errno;
@@ -95,10 +92,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", path.ToString());
   }
-  if (session != nullptr)
-  {
-    session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: NOK"), Q_(path)));
-  }
+  trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: NOK"), Q_(path)));
   return false;
 }
 
@@ -162,11 +156,8 @@ void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 
 void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttributes)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
   if (chmod(path.GetData(), static_cast<mode_t>(nativeAttributes)) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("chmod", "path", path.ToString());
@@ -255,11 +246,8 @@ void File::GetTimes(const PathName& path, time_t& creationTime, time_t& lastAcce
 
 void File::Delete(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
   if (remove(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("remove", "path", path.ToString());
@@ -268,11 +256,8 @@ void File::Delete(const PathName& path)
 
 void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
   struct stat sourceStat;
   if (stat(source.GetData(), &sourceStat) != 0)
   {
@@ -322,7 +307,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (options[FileMoveOption::UpdateFndb])
   {
-    MIKTEX_EXPECT(session != nullptr);
+    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
       Fndb::Remove({ source });
@@ -336,11 +321,8 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
 
 void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession(); 
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
   struct stat sourceStat;
   if (options[FileCopyOption::PreserveAttributes])
   {
@@ -396,7 +378,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   }
   if (options[FileCopyOption::UpdateFndb])
   {
-    MIKTEX_EXPECT(session != nullptr);
+    shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
     if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
       Fndb::Add({ { dest } });
@@ -415,11 +397,8 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
     }
     File::Delete(newName, deleteOptions);
   }
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName)));
   if (options[CreateLinkOption::Symbolic])
   {
     if (symlink(oldName.GetData(), newName.GetData()) != 0)
@@ -436,7 +415,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
   if (options[CreateLinkOption::UpdateFndb])
   {
-    MIKTEX_EXPECT(session != nullptr);
+    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
     if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
       Fndb::Add({ { newName } });
@@ -480,12 +459,9 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
 {
   UNUSED_ALWAYS(isTextFile);
 
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
 
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} {2} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile)));
-  }
+  trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} {2} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(isTextFile)));
 
   int flags = 0;
   string strFlags;

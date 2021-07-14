@@ -52,6 +52,8 @@
 #include <miktex/Core/Environment>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/StreamReader>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include <miktex/Util/PathNameUtil>
 #include <miktex/Util/Tokenizer>
@@ -220,11 +222,13 @@ void unxProcess::Create()
 {
   MIKTEX_EXPECT(!startinfo.FileName.empty());
 
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
+
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
 
   PathName fileName;
 
-  if (PathNameUtil::IsAbsolutePath(startinfo.FileName) || session == nullptr || !session->FindFile(startinfo.FileName, FileType::EXE, fileName))
+  if (PathNameUtil::IsAbsolutePath(startinfo.FileName) || !session->FindFile(startinfo.FileName, FileType::EXE, fileName))
   {
     fileName = startinfo.FileName;
   }
@@ -281,16 +285,10 @@ void unxProcess::Create()
   MIKTEX_AUTO(delete[]environmentStrings);
   MIKTEX_AUTO(delete[]environmentPointers);
 
-  if (session != nullptr)
-  {
-    session->UnloadFilenameDatabase();
-  }
+  session->UnloadFilenameDatabase();
 
   // fork
-  if (session != nullptr)
-  {
-    session->trace_process->WriteLine("core", TraceLevel::Info, "forking...");
-  }
+  trace_process->WriteLine("core", TraceLevel::Info, "forking...");
   pid = fork();
   if (pid < 0)
   {
@@ -334,33 +332,21 @@ void unxProcess::Create()
           MIKTEX_FATAL_CRT_ERROR("setsid");
         }
       }
-      if (session != nullptr)
+      string args;
+      for (int idx = 0; argv[idx] != nullptr; ++idx)
       {
-        string args;
-        for (int idx = 0; argv[idx] != nullptr; ++idx)
+        args += fmt::format("\"{0}\"", argv[idx]);
+        if (argv[idx + 1] != nullptr)
         {
-          args += fmt::format("\"{0}\"", argv[idx]);
-          if (argv[idx + 1] != nullptr)
-          {
-            args += ", ";
-          }
+          args += ", ";
         }
-        session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
-
-        if (!startinfo.WorkingDirectory.empty())
-        {
-          Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
-        }
-        execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
       }
-      else
+      trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
+      if (!startinfo.WorkingDirectory.empty())
       {
-        if (!startinfo.WorkingDirectory.empty())
-        {
-          Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
-        }
-        execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
+        Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
       }
+      execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
       perror("execve failed");
     }
     catch (const exception&)
@@ -487,8 +473,8 @@ void unxProcess::WaitForExit()
 {
   if (this->pid > 0)
   {
-    auto session = SessionImpl::GetSession();
-    session->trace_process->WriteLine("core", fmt::format("waiting for process {0}", this->pid));
+    auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
+    trace_process->WriteLine("core", fmt::format("waiting for process {0}", this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
     while (waitpid(pid, &status, 0) <= 0)
@@ -500,11 +486,11 @@ void unxProcess::WaitForExit()
     }
     if (WIFEXITED(status) != 0)
     {
-      session->trace_process->WriteLine("core", fmt::format("process {0} exited with status {1}", pid, WEXITSTATUS(status)));
+      trace_process->WriteLine("core", fmt::format("process {0} exited with status {1}", pid, WEXITSTATUS(status)));
     }
     else if (WIFSIGNALED(status) != 0)
     {
-      session->trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status)));
+      trace_process->WriteLine("core", fmt::format("process {0} terminated due to signal {1}", pid, WTERMSIG(status)));
     }
   }
 }
@@ -853,27 +839,21 @@ void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
 
   Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
 
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
+  auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
+  session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execve: {0}", fileName));
+  for (int idx = 0; argv[idx] != nullptr; ++idx)
   {
-    session->UnloadFilenameDatabase();
-    session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execve: {0}", fileName));
-    for (int idx = 0; argv[idx] != nullptr; ++idx)
-    {
-      session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
-    }
-    unordered_map<string, string> envMap = session->CreateChildEnvironment(false);
-    char* environmentStrings;
-    char** environmentPointers;
-    tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
-    MIKTEX_AUTO(delete[]environmentStrings);
-    MIKTEX_AUTO(delete[]environmentPointers);
-    execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));
   }
-  else
-  {
-    execv(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()));
-  }
+  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  unordered_map<string, string> envMap = session->CreateChildEnvironment(false);
+  char* environmentStrings;
+  char** environmentPointers;
+  tie(environmentStrings, environmentPointers) = CreateEnvironmentBlock(envMap);
+  MIKTEX_AUTO(delete[]environmentStrings);
+  MIKTEX_AUTO(delete[]environmentPointers);
+  session->UnloadFilenameDatabase();
+  execve(fileName.GetData(), const_cast<char*const*>(argv.GetArgv()), const_cast<char*const*>(environmentPointers));
 
   MIKTEX_UNEXPECTED();
 }

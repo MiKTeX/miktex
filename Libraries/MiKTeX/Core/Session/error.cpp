@@ -24,24 +24,19 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "internal.h"
+#include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 
-#include "Session/SessionImpl.h"
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
+
+#include "internal.h"
 
 using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
-
-MIKTEXINTERNALFUNC(void) TraceError(const string& msg)
-{
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_error->WriteLine("core", TraceLevel::Error, msg);
-  }
-}
 
 SourceLocation::SourceLocation(const string& functionName, const string& fileName, int lineNo) :
   functionName(functionName),
@@ -56,25 +51,16 @@ SourceLocation::SourceLocation(const string& functionName, const string& fileNam
 
 void Session::FatalMiKTeXError(const string& message, const string& description, const string& remedy, const string& tag, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
-  string programInvocationName;
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr && session->trace_error != nullptr)
-  {
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, message);
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Data: {0}", info));
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Source: {0}:{1}", sourceLocation.fileName, sourceLocation.lineNo));
-  }
-  if (session != nullptr)
-  {
-    programInvocationName = session->initInfo.GetProgramInvocationName();
-  }
-#if 1
+  string programInvocationName = Utils::GetExeName();
+  auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+  trace_error->WriteLine("core", TraceLevel::Fatal, message);
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Data: {0}", info));
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Source: {0}:{1}", sourceLocation.fileName, sourceLocation.lineNo));
   string env;
   if (Utils::GetEnvironmentString("MIKTEX_DEBUG_BREAK", env) && env == "1")
   {
     DEBUG_BREAK();
   }
-#endif
   throw MiKTeXException(programInvocationName, message, description, remedy, tag, info, sourceLocation);
 }
 
@@ -106,24 +92,18 @@ void Session::FatalCrtError(const string& functionName, int errorCode, const MiK
   {
     errorMessage += ": " + infoString;
   }
-  string programInvocationName;
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, errorMessage);
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Function: {0}"), functionName));
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Result: {0}"), errorCode));
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Data: {0}"), infoString.empty() ? "<no data>" : infoString));
-    session->trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Source: {0}"), sourceLocation));
-    programInvocationName = session->initInfo.GetProgramInvocationName();
-  }
-#if 1
+  string programInvocationName = Utils::GetExeName();
+  auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+  trace_error->WriteLine("core", TraceLevel::Fatal, errorMessage);
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Function: {0}"), functionName));
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Result: {0}"), errorCode));
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Data: {0}"), infoString.empty() ? "<no data>" : infoString));
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Source: {0}"), sourceLocation));
   string env;
   if (Utils::GetEnvironmentString("MIKTEX_DEBUG_BREAK", env) && env == "1")
   {
     DEBUG_BREAK();
   }
-#endif
   switch (errorCode)
   {
   case EACCES:

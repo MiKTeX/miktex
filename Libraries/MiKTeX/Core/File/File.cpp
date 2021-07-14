@@ -30,6 +30,8 @@
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Paths>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 #include <miktex/Util/PathName>
 
 #include "internal.h"
@@ -39,6 +41,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 bool File::Exists(const PathName& path)
@@ -48,14 +51,9 @@ bool File::Exists(const PathName& path)
 
 void File::Delete(const PathName& path, FileDeleteOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-
   if (options[FileDeleteOption::UpdateFndb])
   {
-    if (session == nullptr)
-    {
-      MIKTEX_UNEXPECTED();
-    }
+    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
     if (session->IsTEXMFFile(path) && Fndb::FileExists(path))
     {
       Fndb::Remove({ path });
@@ -88,10 +86,8 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     {
       throw;
     }
-    if (session != nullptr)
-    {
-      session->trace_files->WriteLine("core", fmt::format(T_("file {0} is in use"), Q_(path)));
-    }
+    auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+    trace_files->WriteLine("core", fmt::format(T_("file {0} is in use"), Q_(path)));
     done = false;
 #else
     throw;
@@ -114,6 +110,7 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
       old.AppendExtension(string(".") + std::to_string(dist(gen)) + MIKTEX_TO_BE_DELETED_FILE_SUFFIX);
     }
     File::Move(path, old, { FileMoveOption::ReplaceExisting });
+    shared_ptr<SessionImpl> session = SessionImpl::GetSession();
     session->ScheduleFileRemoval(old);
   }
 #endif
