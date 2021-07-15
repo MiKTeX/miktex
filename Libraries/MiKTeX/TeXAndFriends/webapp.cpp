@@ -159,6 +159,7 @@ void WebApp::Init(vector<char*>& args)
   pimpl->isTeXProgram = TheNameOfTheGame() == "TeX";
   pimpl->isMETAFONTProgram = TheNameOfTheGame() == "METAFONT";
   pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
+  LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", pimpl->programName, pimpl->version, Utils::GetMiKTeXBannerString()));
 }
 
 void WebApp::Finalize()
@@ -423,7 +424,6 @@ void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, co
   pimpl->version = version;
   pimpl->copyright = copyright;
   pimpl->trademarks = trademarks;
-  LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", programName, version, Utils::GetMiKTeXBannerString()));
 }
 
 bool WebApp::IsFeatureEnabled(Feature f) const
