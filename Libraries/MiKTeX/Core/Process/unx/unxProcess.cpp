@@ -332,16 +332,6 @@ void unxProcess::Create()
           MIKTEX_FATAL_CRT_ERROR("setsid");
         }
       }
-      string args;
-      for (int idx = 0; argv[idx] != nullptr; ++idx)
-      {
-        args += fmt::format("\"{0}\"", argv[idx]);
-        if (argv[idx + 1] != nullptr)
-        {
-          args += ", ";
-        }
-      }
-      trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execv: \"{0}\", [ {1} ]", fileName, args));
       if (!startinfo.WorkingDirectory.empty())
       {
         Directory::SetCurrent(PathName(startinfo.WorkingDirectory));
