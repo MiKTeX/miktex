@@ -9,6 +9,7 @@
 
 ### Fixed issues
 
+- [847](https://github.com/MiKTeX/miktex/issues/847): Shared vs not-shared?
 - [863](https://github.com/MiKTeX/miktex/issues/863): Auto-Install package__doc by file name
 - [867](https://github.com/MiKTeX/miktex/issues/867): MiKTeX console crash while changing remote package repository
 - [869](https://github.com/MiKTeX/miktex/issues/869): MiKTeX setup utility encounters internal error during installation
