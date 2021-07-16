@@ -12,6 +12,7 @@
 - [863](https://github.com/MiKTeX/miktex/issues/863): Auto-Install package__doc by file name
 - [867](https://github.com/MiKTeX/miktex/issues/867): MiKTeX console crash while changing remote package repository
 - [869](https://github.com/MiKTeX/miktex/issues/869): MiKTeX setup utility encounters internal error during installation
+- [871](https://github.com/MiKTeX/miktex/issues/871): TeXstudio stopped working - could not find perl.exe
 
 ## 21.6.28 - 2021-06-28
 

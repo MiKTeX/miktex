@@ -68,19 +68,15 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 
   PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
-  PathName engine;
-  PathName scriptEngineWithExeSuffix(scriptEngine);
-#if defined(MIKTEX_WINDOWS)
-  scriptEngineWithExeSuffix.SetExtension(MIKTEX_EXE_FILE_SUFFIX, false);
-#endif
-  if (!Utils::FindProgram(scriptEngineWithExeSuffix.ToString(), engine))
+  PathName scriptEnginePath;
+  if (!Utils::FindProgram(scriptEngine, scriptEnginePath))
   {
     MIKTEX_FATAL_ERROR_5(
       T_("The script engine could not be found."),
       T_("MiKTeX could not find the script engine '{scriptEngine}' which is required to execute '{scriptName}'."),
       T_("Make sure '{scriptEngine}' is installed on your system."),
       "script-engine-not-found",
-      "scriptEngine", scriptEngineWithExeSuffix.ToString(),
+      "scriptEngine", scriptEngine,
       "scriptName", name.ToString());
   }
 
@@ -88,7 +84,17 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   vector<string> scriptEngineOptions;
   tie(scriptPath, scriptEngineOptions) = GetScript(scriptEngine, name.ToString());
 
-  vector<string> args{ scriptEngine };
+#if defined(MIKTEX_WINDOWS)
+  bool isCmd = scriptEnginePath.HasExtension(".bat") || scriptEnginePath.HasExtension(".cmd");
+#endif
+
+  vector<string> args;
+
+#if defined(MIKTEX_WINDOWS)
+  args.push_back(isCmd ? scriptEnginePath.ToString() : scriptEngine);
+#else
+  args.push_back(scriptEngine);
+#endif
 
   if (!scriptEngineOptions.empty())
   {
@@ -109,7 +115,18 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 
   int exitCode;
 
-  Process::Run(engine, args, nullptr, &exitCode, nullptr);
+#if defined(MIKTEX_WINDOWS)
+  if (isCmd)
+  {
+    CommandLineBuilder commandLine;
+    commandLine.SetQuotingConvention(QuotingConvention::Bat);
+    commandLine.AppendArguments(args);
+    Process::ExecuteSystemCommand(commandLine.ToString(), &exitCode);
+    return exitCode;
+  }
+#endif
+
+  Process::Run(scriptEnginePath, args, nullptr, &exitCode, nullptr);
 
   return exitCode;
 }
