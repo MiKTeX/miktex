@@ -67,7 +67,7 @@ unxFileSystemWatcher::~unxFileSystemWatcher()
 
 void unxFileSystemWatcher::AddDirectories(const vector<PathName>& directories)
 {
-  unique_lock l(mutex);
+  unique_lock<shared_mutex> l(mutex);
   for (const auto& dir : directories)
   {
     int wd = inotify_add_watch(watchFd, dir.GetData(), IN_ALL_EVENTS);
@@ -187,7 +187,7 @@ void unxFileSystemWatcher::HandleDirectoryChange(const inotify_event* evt)
   {
     return;
   }
-  unique_lock l(mutex);
+  unique_lock<shared_mutex> l(mutex);
   const auto& it = directories.find(evt->wd);
   if (it == directories.end())
   {
@@ -197,6 +197,6 @@ void unxFileSystemWatcher::HandleDirectoryChange(const inotify_event* evt)
   l.unlock();
   ev.fileName = dir;
   ev.fileName /= evt->name;
-  lock_guard l2(notifyMutex);
+  lock_guard<std::mutex> l2(notifyMutex);
   pendingNotifications.push_back(ev);
 }
