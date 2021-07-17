@@ -22,8 +22,10 @@
 #include "config.h"
 
 #include <Windows.h>
+
 #include <AclAPI.h>
 #include <ShlObj.h>
+#include <Shlwapi.h>
 
 #include <iomanip>
 
@@ -36,6 +38,8 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 #include <miktex/Core/win/HResult>
 #include <miktex/Core/win/winAutoResource>
 #include <miktex/Trace/Trace>
@@ -43,7 +47,6 @@
 
 #include "internal.h"
 
-#include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 
 using namespace std;
@@ -253,23 +256,20 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 
 #if SET_SECURITY
   // create the directory itself
-  shared_ptr<Session> session = MIKTEX_SESSION();
-  if (session->IsAdminMode()
+  shared_ptr<Session> session = Session::TryGet();
+  if (session != nullptr
+    && session->IsAdminMode()
     && (session->GetSpecialPath(SpecialPath::CommonConfigRoot) == path || session->GetSpecialPath(SpecialPath::CommonDataRoot) == path)
     && session->RunningAsAdministrator())
   {
     CreateDirectoryForEveryone(path.GetData());
+    return;
   }
-  else if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
-  }
-#else
+#endif
   if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }
-#endif
 }
 
 HResult::~HResult()
