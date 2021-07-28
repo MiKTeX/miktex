@@ -417,6 +417,7 @@ int MiKTeXApp::Init(vector<string>& args)
     bool forceAdminMode = false;
     Session::InitOptionSet options;
     MIKTEX_ASSERT(args.size() > 0);
+    bool optVersion = false;
     size_t idx = 1;
     for (; idx < args.size() && args[idx].length() > 0 && args[idx][0] == '-'; ++idx)
     {
@@ -437,8 +438,7 @@ int MiKTeXApp::Init(vector<string>& args)
         }
         else if (opt == "--version" || opt == "-version")
         {
-            ShowVersion();
-            return -1;
+            optVersion = true;
         }
         else
         {
@@ -450,6 +450,13 @@ int MiKTeXApp::Init(vector<string>& args)
     initInfo.SetOptions(options);
     initInfo.SetTraceCallback(this);
     session = Session::Create(initInfo);
+    if (optVersion)
+    {
+        ShowVersion();
+        session->Close();
+        session = nullptr;
+        return -1;
+    }
     if (adminMode)
     {
         if (!forceAdminMode && !session->IsSharedSetup())
