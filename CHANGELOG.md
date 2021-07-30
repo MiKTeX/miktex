@@ -1,5 +1,15 @@
 # MiKTeX Change Log
 
+# pending release
+
+### Documentation browser
+
+MiKTeX Console now provides a user interface which makes it easier to find and view package documentation.
+
+### Fixed issues
+
+- [338](https://github.com/MiKTeX/miktex/issues/338): MikTeX Console : direkt link to open package documentation
+- 
 # 21.7 - 2021-07-19
 
 ### Upgraded programs

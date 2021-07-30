@@ -138,6 +138,7 @@ MainWindow::MainWindow(QWidget* parent, MainWindow::Pages startPage, bool dontFi
   SetupUiUserInterface();
   SetupUiPackageInstallation();
   SetupUiPackages();
+  documentationPage = make_unique<DocumentationPage>(this, ui, this, this, session, packageManager);
   SetupUiDiagnose();
   SetupUiCleanup();
 
@@ -327,6 +328,7 @@ void MainWindow::UpdateUi()
     ui->buttonSettings->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonUpdates->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonPackages->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
+    ui->buttonDocumentation->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonDiagnose->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonCleanup->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
@@ -378,6 +380,7 @@ void MainWindow::UpdateUi()
     UpdateUiLanguages();
     UpdateUiUpdates();
     UpdateUiPackages();
+    documentationPage->UpdateUi();
     UpdateUiDiagnose();
     UpdateUiCleanup();
   }
@@ -405,6 +408,7 @@ void MainWindow::UpdateActions()
     UpdateActionsLanguages();
     UpdateActionsUpdates();
     UpdateActionsPackages();
+    documentationPage->UpdateActions();
     UpdateActionsDiagnose();
     UpdateActionsCleanup();
   }
@@ -535,6 +539,10 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
         CriticalError(e);
       }
     }
+    break;
+  case Pages::Documentation:
+    ui->buttonDocumentation->setChecked(true);
+    documentationPage->Activate();
     break;
   case Pages::Diagnose:
     ui->buttonDiagnose->setChecked(true);

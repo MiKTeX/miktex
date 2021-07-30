@@ -186,6 +186,34 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="buttonDocumentation">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>Documentation</string>
+         </property>
+         <property name="text">
+          <string>Documentation</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="buttonDiagnose">
          <property name="minimumSize">
           <size>
@@ -337,7 +365,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>5</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -936,7 +964,7 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -1657,6 +1685,59 @@ Use this option, if you want to operate on your own MiKTeX configuration.</strin
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="documentation">
+          <layout class="QVBoxLayout" name="_22adsdoc">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_ixxxxxx">
+             <property name="text">
+              <string>&lt;h2&gt;Documentation&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_6xxx">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="vboxDocumentation">
+             <item>
+              <layout class="QHBoxLayout" name="hboxDocumentationToolBar"/>
+             </item>
+             <item>
+              <widget class="QTreeView" name="treeViewDocumentation">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::ExtendedSelection</enum>
+               </property>
+               <property name="rootIsDecorated">
+                <bool>false</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
+               </property>
+               <property name="allColumnsShowFocus">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="diagnose">
           <layout class="QVBoxLayout" name="_22ads">
            <property name="leftMargin">
@@ -2121,6 +2202,36 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
     <string>Checks for MiKTeX package updates</string>
    </property>
   </action>
+  <action name="actionInstallDocumentation">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-add-16x16.png</normaloff>:/Icons/list-add-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Install documentation</string>
+   </property>
+   <property name="toolTip">
+    <string>Install</string>
+   </property>
+   <property name="statusTip">
+    <string>Installs the selected package.</string>
+   </property>
+  </action>
+  <action name="actionViewDocument">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/document-preview-16x16.png</normaloff>:/Icons/document-preview-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>View document</string>
+   </property>
+   <property name="toolTip">
+    <string>View</string>
+   </property>
+   <property name="statusTip">
+    <string>Installs the selected package.</string>
+   </property>
+  </action>
   <action name="actionInstallPackage">
    <property name="icon">
     <iconset resource="console.qrc">
@@ -2164,6 +2275,21 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
    </property>
    <property name="statusTip">
     <string>Shows package information.</string>
+   </property>
+  </action>
+  <action name="actionFilterDocumentation">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/filter-16x16.png</normaloff>:/Icons/filter-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Filter documentation</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply the documentation filter</string>
+   </property>
+   <property name="statusTip">
+    <string>Applies the filter on the documentation list view.</string>
    </property>
   </action>
   <action name="actionFilterPackages">
