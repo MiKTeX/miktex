@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2020 Christian Schenk
+## Copyright (C) 2008-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -80,6 +80,8 @@ set(miktex_tex_change_files
   ${TEX_MIKTEX_WEB2C_CH}
   ${TEX_MIKTEX_POOL_CH}
   ${TRACINGSTACKLEVELS_CH}
+  ${PARTOKEN_102_CH}
+  ${PARTOKEN_CH}
   ${TEX_MIKTEX_FINISH_CH}
 )
 
