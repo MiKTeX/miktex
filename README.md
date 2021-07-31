@@ -12,6 +12,8 @@ MiKTeX is also a scalable TeX distribution (["Just enough TeX"](https://miktex.o
 - in the course of authoring your documents, only necessary LaTeX packages, fonts etc.
   will be downloaded and installed
 
+## Building
+
 MiKTeX can be built on Windows and Unix-like (including macOS)
 systems.  Please consult these HOWTOs for platform-specific build
 instructions:
@@ -26,3 +28,7 @@ In addition, you can try one of the Dockerized build environments to build MiKTe
 - [Debian](https://github.com/MiKTeX/docker-miktex-build-debian)
 - [Fedora](https://github.com/MiKTeX/docker-miktex-build-fedora)
 - [openSUSE](https://github.com/MiKTeX/docker-miktex-build-opensuse)
+
+## Deep diving
+
+If you want to understand the MiKTeX source code, have a look at at [HACKING.md](HACKING.md).
