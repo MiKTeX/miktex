@@ -383,6 +383,20 @@ public:
   virtual bool MIKTEXTHISCALL TryCreateFile(const MiKTeX::Util::PathName& fileName, FileType fileType) = 0;
 };
 
+struct LocateOptions {
+  bool all = false;
+  IFindFileCallback* callback = nullptr;
+  FileType fileType = FileType::None;
+  bool create = false;
+  bool renew = false;
+  bool searchFileSystem = false;
+  std::string searchPath;
+};
+
+struct LocateResult {
+  std::vector<MiKTeX::Util::PathName> pathNames;
+};
+
 /// The MiKTeX session interface.
 class MIKTEXNOVTABLE Session :
   public MiKTeX::Configuration::ConfigurationProvider
@@ -779,6 +793,12 @@ public:
   /// @param fileName The file name.
   /// @return Returns the derived file type.
   virtual FileType MIKTEXTHISCALL DeriveFileType(const MiKTeX::Util::PathName& fileName) = 0;
+
+  /// Searches a file.
+  /// @param fileName The name of the file to search.
+  /// @param options Search options.
+  /// @return Return the result of the search.
+  virtual LocateResult MIKTEXTHISCALL Locate(const std::string& fileName, const LocateOptions& options) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.

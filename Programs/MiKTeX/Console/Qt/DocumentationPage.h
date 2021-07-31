@@ -43,7 +43,9 @@ namespace Ui
 }
 
 class DocumentationPage :
-    public QObject
+    public QObject,
+    public MiKTeX::Core::IFindFileCallback,
+    public MiKTeX::Packages::PackageInstallerCallback
 {
 private:
     Q_OBJECT;
@@ -69,6 +71,24 @@ private slots:
 private slots:
     void ViewDocument();
 
+private slots:
+    void OpenDocumentationDirectory();
+
+private:
+    bool InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
+
+private:
+    bool TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override;
+
+private:
+    void ReportLine(const std::string& str) override;
+
+private:
+    bool OnRetryableError(const std::string& message) override;
+  
+private:
+    bool OnProgress(MiKTeX::Packages::Notification nf) override;
+
 private:
     QMenu* contextMenuDocumentation = nullptr;
 
@@ -82,8 +102,10 @@ private:
     BackgroundWorkerChecker* backgroundWorkerChecker = nullptr;
     DocumentationTableModel* documentationModel = nullptr;
     DocumentationProxyModel* documentationProxyModel = nullptr;
+    bool enableInstaller = true;
     ErrorReporter* errorReporter = nullptr;
     QLineEdit* lineEditDocumentationFilter = nullptr;
+    std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
     std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
     QWidget* parent = nullptr;
     std::shared_ptr<MiKTeX::Core::Session> session;

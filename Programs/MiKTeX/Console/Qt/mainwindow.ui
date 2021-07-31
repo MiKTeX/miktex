@@ -2208,13 +2208,13 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
      <normaloff>:/Icons/list-add-16x16.png</normaloff>:/Icons/list-add-16x16.png</iconset>
    </property>
    <property name="text">
-    <string>Install documentation</string>
-   </property>
-   <property name="toolTip">
     <string>Install</string>
    </property>
+   <property name="toolTip">
+    <string>Install documentation</string>
+   </property>
    <property name="statusTip">
-    <string>Installs the selected package.</string>
+    <string>Installs the selected documentation package.</string>
    </property>
   </action>
   <action name="actionViewDocument">
@@ -2223,13 +2223,13 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
      <normaloff>:/Icons/document-preview-16x16.png</normaloff>:/Icons/document-preview-16x16.png</iconset>
    </property>
    <property name="text">
-    <string>View document</string>
-   </property>
-   <property name="toolTip">
     <string>View</string>
    </property>
+   <property name="toolTip">
+    <string>View main document</string>
+   </property>
    <property name="statusTip">
-    <string>Installs the selected package.</string>
+    <string>Open the main document in the viewer.</string>
    </property>
   </action>
   <action name="actionInstallPackage">
@@ -2245,6 +2245,21 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
    </property>
    <property name="statusTip">
     <string>Installs the selected packages.</string>
+   </property>
+  </action>
+  <action name="actionDocumentationDirectoryOpen">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/file-browser-16x16.png</normaloff>:/Icons/file-browser-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open directory</string>
+   </property>
+   <property name="toolTip">
+    <string>Open documentation directory</string>
+   </property>
+   <property name="statusTip">
+    <string>Opens the documentation directory in the system file browser.</string>
    </property>
   </action>
   <action name="actionUninstallPackage">

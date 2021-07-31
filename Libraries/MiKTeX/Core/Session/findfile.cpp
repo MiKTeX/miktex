@@ -45,14 +45,14 @@ void SessionImpl::SetFindFileCallback(IFindFileCallback* callback)
   findFileCallback = callback;
 }
 
-bool SessionImpl::CheckCandidate(PathName& path, const char* fileInfo)
+bool SessionImpl::CheckCandidate(PathName& path, const char* fileInfo, IFindFileCallback* callback)
 {
   bool found = false;
   if (IsMpmFile(path.GetData()))
   {
     PathName trigger(Utils::GetRelativizedPath(path.GetData(), MPM_ROOT_PATH));
     PathName installRoot;
-    if (fileInfo != nullptr && findFileCallback != nullptr && findFileCallback->InstallPackage(fileInfo, trigger, installRoot))
+    if (fileInfo != nullptr && callback != nullptr && callback->InstallPackage(fileInfo, trigger, installRoot))
     {
       PathName temp = installRoot;
       temp /= path.GetData() + MPM_ROOT_PATH_LEN;
@@ -71,7 +71,7 @@ bool SessionImpl::CheckCandidate(PathName& path, const char* fileInfo)
   return found;
 }
 
-bool SessionImpl::SearchFileSystem(const string& fileName, const char* pathPattern, bool all, vector<PathName>& result)
+bool SessionImpl::SearchFileSystem(const string& fileName, const char* pathPattern, bool all, vector<PathName>& result, IFindFileCallback* callback)
 {
   MIKTEX_ASSERT(result.empty());
 
@@ -104,7 +104,7 @@ bool SessionImpl::SearchFileSystem(const string& fileName, const char* pathPatte
   for (vector<PathName>::const_iterator it = directories.begin(); (!found || all) && it != directories.end(); ++it)
   {
     PathName path(*it, PathName(fileName));
-    if (CheckCandidate(path, nullptr))
+    if (CheckCandidate(path, nullptr, callback))
     {
       found = true;
       result.push_back(path);
@@ -114,7 +114,7 @@ bool SessionImpl::SearchFileSystem(const string& fileName, const char* pathPatte
   return found;
 }
 
-bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<PathName>& pathPatterns, bool all, bool useFndb, bool searchFileSystem, vector<PathName>& result)
+bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<PathName>& pathPatterns, bool all, bool useFndb, bool searchFileSystem, vector<PathName>& result, IFindFileCallback* callback)
 {
   CoreStopWatch stopWatch(fmt::format("find file {}", Q_(fileName)));
 
@@ -122,12 +122,17 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
 
   bool found = false;
 
+  if (callback == nullptr)
+  {
+    callback = findFileCallback;
+  }
+
   // if a fully qualified path name is given, then don't look out any
   // further
   if (PathNameUtil::IsAbsolutePath(fileName))
   {
     PathName path(fileName);
-    found = CheckCandidate(path, nullptr);
+    found = CheckCandidate(path, nullptr, callback);
     if (found)
     {
       result.push_back(path);
@@ -144,7 +149,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
     {
       PathName path = pathWD / PathName(fileName);
       path.MakeFullyQualified();
-      if (CheckCandidate(path, nullptr))
+      if (CheckCandidate(path, nullptr, callback))
       {
         found = true;
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
@@ -168,7 +173,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
     auto p = Utils::ExpandTilde(fileName);
     if (p.first)
     {
-      found = CheckCandidate(p.second, nullptr);
+      found = CheckCandidate(p.second, nullptr, callback);
       if (found)
       {
         result.push_back(p.second);
@@ -202,7 +207,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
         {
           for (int idx = 0; idx < records.size(); ++idx)
           {
-            if (CheckCandidate(records[idx].path, records[idx].fileNameInfo.c_str()))
+            if (CheckCandidate(records[idx].path, records[idx].fileNameInfo.c_str(), callback))
             {
               found = true;
               result.push_back(records[idx].path);
@@ -215,7 +220,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
         // search the file system because the FNDB does not exist
         trace_filesearch->WriteLine("core", fmt::format(T_("no FNDB found, so going to continue on disk: filename={0}, directory={1}"), Q_(fileName), Q_(*it)));
         vector<PathName> paths;
-        if (SearchFileSystem(fileName, it->GetData(), all, paths))
+        if (SearchFileSystem(fileName, it->GetData(), all, paths, callback))
         {
           found = true;
           result.insert(result.end(), paths.begin(), paths.end());
@@ -252,7 +257,7 @@ bool SessionImpl::FindFileInDirectories(const string& fileName, const vector<Pat
     }
     fndb = nullptr;
     vector<PathName> paths;
-    if (SearchFileSystem(fileName, it->GetData(), all, paths))
+    if (SearchFileSystem(fileName, it->GetData(), all, paths, callback))
     {
       found = true;
       result.insert(result.end(), paths.begin(), paths.end());
@@ -267,9 +272,14 @@ inline bool IsNewer(const PathName& path1, const PathName& path2)
   return File::Exists(path1) && File::Exists(path2) && File::GetLastWriteTime(path1) > File::GetLastWriteTime(path2);
 }
 
-bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool all, bool searchFileSystem, bool create, bool renew, vector<PathName>& result)
+bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool all, bool searchFileSystem, bool create, bool renew, vector<PathName>& result, IFindFileCallback* callback)
 {
   MIKTEX_ASSERT(result.empty());
+
+  if (callback == nullptr)
+  {
+    callback = findFileCallback;
+  }
 
   // try to derive the file type
   if (fileType == FileType::None)
@@ -282,7 +292,7 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
     }
   }
 
-  if (renew && (findFileCallback == nullptr || !findFileCallback->TryCreateFile(PathName(fileName), fileType)))
+  if (renew && (callback == nullptr || !callback->TryCreateFile(PathName(fileName), fileType)))
   {
     return false;
   }
@@ -317,7 +327,7 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
   // first round: use the fndb
   for (const PathName& fn : fileNamesToTry)
   {
-    if (FindFileInDirectories(fn.ToString(), pathPatterns, all, true, false, result) && !all)
+    if (FindFileInDirectories(fn.ToString(), pathPatterns, all, true, false, result, callback) && !all)
     {
       return true;
     }
@@ -328,7 +338,7 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
   {
     for (const PathName& fn : fileNamesToTry)
     {
-      if (FindFileInDirectories(fn.ToString(), pathPatterns, all, false, true, result) && !all)
+      if (FindFileInDirectories(fn.ToString(), pathPatterns, all, false, true, result, callback) && !all)
       {
         return true;
       }
@@ -339,12 +349,12 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
   {
     if (result.empty())
     {
-      if (findFileCallback != nullptr && findFileCallback->TryCreateFile(PathName(fileName), fileType))
+      if (callback != nullptr && callback->TryCreateFile(PathName(fileName), fileType))
       {
-        FindFileInDirectories(fileName, pathPatterns, all, true, false, result);
+        FindFileInDirectories(fileName, pathPatterns, all, true, false, result, callback);
       }
     }
-    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && findFileCallback != nullptr && GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE).GetBool())
+    else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && callback != nullptr && GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE).GetBool())
     {
       bool renew = false;
       if (IsSharedSetup())
@@ -360,10 +370,10 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
       if (renew)
       {
         trace_filesearch->WriteLine("core", fmt::format(T_("going to renew {0} after update"), result[0]));
-        if (findFileCallback->TryCreateFile(PathName(fileName), fileType))
+        if (callback->TryCreateFile(PathName(fileName), fileType))
         {
           result.clear();
-          FindFileInDirectories(fileName, pathPatterns, all, true, false, result);
+          FindFileInDirectories(fileName, pathPatterns, all, true, false, result, callback);
         }
       }
     }
@@ -372,54 +382,88 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
   return !result.empty();
 }
 
+LocateResult MIKTEXTHISCALL SessionImpl::Locate(const string& fileName, const LocateOptions& options)
+{
+  bool found = false;
+  vector<PathName> pathNames;
+  if (options.fileType == FileType::None)
+  {
+    auto pathPatterns = SplitSearchPath(options.searchPath.empty() ? MIKTEX_PATH_TEXMF_PLACEHOLDER : options.searchPath);
+    found = FindFileInDirectories(fileName, pathPatterns, options.all, true, false, pathNames, options.callback);
+    if (!found && options.searchFileSystem)
+    {
+      found = FindFileInDirectories(fileName, pathPatterns, options.all, false, true, pathNames, options.callback);
+    }
+  }
+  else
+  {
+    found = FindFileByType(fileName, options.fileType, options.all, options.searchFileSystem, options.create, options.renew, pathNames, options.callback);
+  }
+  if (!found)
+  {
+    return {};
+  }
+  // Eliminate duplicates.
+  sort(pathNames.begin(), pathNames.end());
+  pathNames.erase(unique(pathNames.begin(), pathNames.end()), pathNames.end());
+  return { pathNames };
+}
+
 bool SessionImpl::FindFile(const string& fileName, const string& searchPath, FindFileOptionSet options, vector<PathName>& result)
 {
-  bool found = FindFileInDirectories(fileName, SplitSearchPath(searchPath), options[FindFileOption::All], true, false, result);
-  if (!found && options[FindFileOption::SearchFileSystem])
-  {
-    found = FindFileInDirectories(fileName, SplitSearchPath(searchPath), options[FindFileOption::All], false, true, result);
-  }
-  if (found)
-  {
-    sort(result.begin(), result.end());
-    result.erase(unique(result.begin(), result.end()), result.end());
-  }
-  return found;
+  LocateOptions locateOptions;
+  locateOptions.all = options[FindFileOption::All];
+  locateOptions.create = options[FindFileOption::Create];
+  locateOptions.renew = options[FindFileOption::Renew];
+  locateOptions.searchFileSystem = options[FindFileOption::SearchFileSystem];
+  locateOptions.searchPath = searchPath;
+  result = Locate(fileName, locateOptions).pathNames;
+  return !result.empty();
 }
 
 bool SessionImpl::FindFile(const string& fileName, const string& searchPath, FindFileOptionSet options, PathName& result)
 {
   MIKTEX_ASSERT(!options[FindFileOption::All]);
-  vector<PathName> paths;
-  bool found = FindFile(fileName, searchPath, options, paths);
-  if (found)
+  LocateOptions locateOptions;
+  locateOptions.create = options[FindFileOption::Create];
+  locateOptions.renew = options[FindFileOption::Renew];
+  locateOptions.searchFileSystem = options[FindFileOption::SearchFileSystem];
+  locateOptions.searchPath = searchPath;
+  if (auto locateResult = Locate(fileName, locateOptions); !locateResult.pathNames.empty())
   {
-    result = paths[0];
+    result = locateResult.pathNames[0];
+    return true;
   }
-  return found;
+  return false;
 }
 
 bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, vector<PathName>& result)
 {
-  bool found = FindFileByType(fileName, fileType, options[FindFileOption::All], options[FindFileOption::SearchFileSystem], options[FindFileOption::Create], options[FindFileOption::Renew], result);
-  if (found)
-  {
-    sort(result.begin(), result.end());
-    result.erase(unique(result.begin(), result.end()), result.end());
-  }
-  return found;
+  LocateOptions locateOptions;
+  locateOptions.all = options[FindFileOption::All];
+  locateOptions.create = options[FindFileOption::Create];
+  locateOptions.fileType = fileType;
+  locateOptions.renew = options[FindFileOption::Renew];
+  locateOptions.searchFileSystem = options[FindFileOption::SearchFileSystem];
+  result = Locate(fileName, locateOptions).pathNames;
+  return !result.empty();
 }
 
 bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, PathName& result)
 {
   MIKTEX_ASSERT(!options[FindFileOption::All]);
-  vector<PathName> paths;
-  bool found = FindFile(fileName, fileType, options, paths);
-  if (found)
+  MIKTEX_ASSERT(!options[FindFileOption::All]);
+  LocateOptions locateOptions;
+  locateOptions.create = options[FindFileOption::Create];
+  locateOptions.fileType = fileType;
+  locateOptions.renew = options[FindFileOption::Renew];
+  locateOptions.searchFileSystem = options[FindFileOption::SearchFileSystem];
+  if (auto locateResult = Locate(fileName, locateOptions); !locateResult.pathNames.empty())
   {
-    result = paths[0];
+    result = locateResult.pathNames[0];
+    return true;
   }
-  return found;
+  return false;
 }
 
 static const string DEFAULT_PK_NAME_TEMPLATE = "%f.pk";
@@ -538,13 +582,20 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
     }
   }
 
-  bool found = FindFile(pkFileName.GetData(), searchPath, result);
+  LocateOptions locateOptions;
+  locateOptions.searchPath = searchPath;
 
-  if (!found && (mfMode.empty() || StringCompare(mfMode.c_str(), "modeless", true) != 0))
+  if (auto locateResult = Locate(pkFileName.ToString(), locateOptions); !locateResult.pathNames.empty())
   {
-    // RECURSION
-    found = FindPkFile(fontName, "modeless", dpi, result);
+    result = locateResult.pathNames[0];
+    return true;
   }
 
-  return found;
+  if (mfMode.empty() || StringCompare(mfMode.c_str(), "modeless", true) != 0)
+  {
+    // RECURSION
+    return FindPkFile(fontName, "modeless", dpi, result);
+  }
+
+  return false;
 }

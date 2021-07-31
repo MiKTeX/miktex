@@ -236,6 +236,7 @@ void FileNameDatabase::Add(const vector<Fndb::Record>& records)
 #endif
   File::Unlock(writer.GetFile());
   writer.Close();
+  changeFileModified = true;
 }
 
 void FileNameDatabase::Remove(const vector<PathName>& paths)
@@ -269,6 +270,7 @@ void FileNameDatabase::Remove(const vector<PathName>& paths)
 #endif
   File::Unlock(writer.GetFile());
   writer.Close();
+  changeFileModified = true;
 }
 
 bool FileNameDatabase::FileExists(const PathName& path)

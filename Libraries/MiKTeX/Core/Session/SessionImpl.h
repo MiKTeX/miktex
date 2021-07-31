@@ -328,12 +328,19 @@ public:
   MiKTeX::Core::FileType DeriveFileType(const MiKTeX::Util::PathName& fileName) override;
 
 public:
+  MiKTeX::Core::LocateResult MIKTEXTHISCALL Locate(const std::string& fileName, const MiKTeX::Core::LocateOptions& options) override;
+
+public:
   bool FindFile(const std::string& fileName, const std::string& searchPath, FindFileOptionSet options, std::vector<MiKTeX::Util::PathName>& result) override;
 
 public:
   bool FindFile(const std::string& fileName, const std::string& searchPath, std::vector<MiKTeX::Util::PathName>& result) override
   {
-    return FindFile(fileName, searchPath, { FindFileOption::All }, result);
+    MiKTeX::Core::LocateOptions locateOptions;
+    locateOptions.all = true;
+    locateOptions.searchPath = searchPath;
+    result = Locate(fileName, locateOptions).pathNames;
+    return !result.empty();
   }
 
 public:
@@ -342,7 +349,14 @@ public:
 public:
   bool FindFile(const std::string& fileName, const std::string& searchPath, MiKTeX::Util::PathName& result) override
   {
-    return FindFile(fileName, searchPath, {}, result);
+    MiKTeX::Core::LocateOptions locateOptions;
+    locateOptions.searchPath = searchPath;
+    if (auto locateResult = Locate(fileName, locateOptions); !locateResult.pathNames.empty())
+    {
+      result = locateResult.pathNames[0];
+      return true;
+    }
+    return false;
   }
 
 public:
@@ -351,7 +365,11 @@ public:
 public:
   bool FindFile(const std::string& fileName, MiKTeX::Core::FileType fileType, std::vector<MiKTeX::Util::PathName>& result) override
   {
-    return FindFile(fileName, fileType, { FindFileOption::All }, result);
+    MiKTeX::Core::LocateOptions locateOptions;
+    locateOptions.all = true;
+    locateOptions.fileType = fileType;
+    result = Locate(fileName, locateOptions).pathNames;
+    return !result.empty();
   }
 
 public:
@@ -360,7 +378,14 @@ public:
 public:
   bool FindFile(const std::string& fileName, MiKTeX::Core::FileType fileType, MiKTeX::Util::PathName& result) override
   {
-    return FindFile(fileName, fileType, {}, result);
+    MiKTeX::Core::LocateOptions locateOptions;
+    locateOptions.fileType = fileType;
+    if (auto locateResult = Locate(fileName, locateOptions); !locateResult.pathNames.empty())
+    {
+      result = locateResult.pathNames[0];
+      return true;
+    }
+    return false;
   }
 
 public:
@@ -369,7 +394,15 @@ public:
 public:
   bool FindTfmFile(const std::string& fontName, MiKTeX::Util::PathName& result, bool create) override
   {
-    return FindFile(fontName, MiKTeX::Core::FileType::TFM, (create ? FindFileOptionSet({ FindFileOption::Create }) : FindFileOptionSet()), result);
+    MiKTeX::Core::LocateOptions locateOptions;
+    locateOptions.create = create;
+    locateOptions.fileType = MiKTeX::Core::FileType::TFM;
+    if (auto locateResult = Locate(fontName, locateOptions); !locateResult.pathNames.empty())
+    {
+      result = locateResult.pathNames[0];
+      return true;
+    }
+    return false;
   }
 
 public:
@@ -763,16 +796,16 @@ private:
   bool MakePkFileName(MiKTeX::Util::PathName& pkFileName, const std::string& fontName, int dpi);
 
 private:
-  bool FindFileInDirectories(const std::string& fileName, const std::vector<MiKTeX::Util::PathName>& pathPatterns, bool all, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Util::PathName>& result);
+  bool FindFileInDirectories(const std::string& fileName, const std::vector<MiKTeX::Util::PathName>& pathPatterns, bool all, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Util::PathName>& result, MiKTeX::Core::IFindFileCallback* callback);
 
 private:
-  bool FindFileByType(const std::string& fileName, MiKTeX::Core::FileType fileType, bool all, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Util::PathName>& result);
+  bool FindFileByType(const std::string& fileName, MiKTeX::Core::FileType fileType, bool all, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Util::PathName>& result, MiKTeX::Core::IFindFileCallback* callback);
 
 private:
-  bool SearchFileSystem(const std::string& fileName, const char* dirPath, bool all, std::vector<MiKTeX::Util::PathName>& result);
+  bool SearchFileSystem(const std::string& fileName, const char* dirPath, bool all, std::vector<MiKTeX::Util::PathName>& result, MiKTeX::Core::IFindFileCallback* callback);
 
 private:
-  bool CheckCandidate(MiKTeX::Util::PathName& path, const char* fileInfo);
+  bool CheckCandidate(MiKTeX::Util::PathName& path, const char* fileInfo, MiKTeX::Core::IFindFileCallback* callback);
 
 private:
   bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, MiKTeX::Configuration::HasNamedValues* callback);

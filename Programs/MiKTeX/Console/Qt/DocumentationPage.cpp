@@ -55,6 +55,7 @@ DocumentationPage::DocumentationPage(QWidget* parent, Ui::MainWindow* ui, ErrorR
     toolBarDocumentation = new QToolBar(parent);
     toolBarDocumentation->setIconSize(QSize(16, 16));
     toolBarDocumentation->addAction(ui->actionViewDocument);
+    toolBarDocumentation->addAction(ui->actionDocumentationDirectoryOpen);
     toolBarDocumentation->addAction(ui->actionInstallDocumentation);
     toolBarDocumentation->addSeparator();
     lineEditDocumentationFilter = new QLineEdit(toolBarDocumentation);
@@ -74,6 +75,7 @@ DocumentationPage::DocumentationPage(QWidget* parent, Ui::MainWindow* ui, ErrorR
     contextMenuDocumentationBackground->addAction(ui->actionUpdatePackageDatabase);
     contextMenuDocumentation = new QMenu(ui->treeViewDocumentation);
     contextMenuDocumentation->addAction(ui->actionViewDocument);
+    contextMenuDocumentation->addAction(ui->actionDocumentationDirectoryOpen);
     contextMenuDocumentation->addAction(ui->actionInstallDocumentation);
     ui->treeViewDocumentation->setContextMenuPolicy(Qt::CustomContextMenu);
     (void)connect(ui->treeViewDocumentation, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuDocumentation(const QPoint&)));
@@ -93,6 +95,10 @@ DocumentationPage::DocumentationPage(QWidget* parent, Ui::MainWindow* ui, ErrorR
         SIGNAL(triggered()),
         this,
         SLOT(ViewDocument()));
+    (void)connect(ui->actionDocumentationDirectoryOpen,
+        SIGNAL(triggered()),
+        this,
+        SLOT(OpenDocumentationDirectory()));
     connect(ui->treeViewDocumentation, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(ViewDocument()));
 }
 
@@ -107,11 +113,12 @@ void DocumentationPage::UpdateActions()
         ui->actionFilterDocumentation->setEnabled(!backgroundWorkerChecker->IsBackgroundWorkerActive());
         QModelIndexList selectedRows = ui->treeViewDocumentation->selectionModel()->selectedRows();
         bool enableInstall = (selectedRows.count() > 0);
+        bool enableOpenDocumentDirectory = (selectedRows.count() > 0);
         if (session->IsMiKTeXDirect())
         {
             enableInstall = false;
         }
-        for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end() && enableInstall; ++it)
+        for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end() && enableInstall && enableOpenDocumentDirectory; ++it)
         {
             PackageInfo packageInfo;
             if (!documentationModel->TryGetPackageInfo(documentationProxyModel->mapToSource(*it), packageInfo))
@@ -122,17 +129,29 @@ void DocumentationPage::UpdateActions()
             {
                 enableInstall = false;
             }
+            else if (!enableInstaller)
+            {
+                enableOpenDocumentDirectory = false;
+            }
         }
         ui->actionInstallDocumentation->setEnabled(!backgroundWorkerChecker->IsBackgroundWorkerActive() && enableInstall);
+        ui->actionDocumentationDirectoryOpen->setEnabled(!backgroundWorkerChecker->IsBackgroundWorkerActive() && enableOpenDocumentDirectory);
         bool enableView = false;
         if (selectedRows.count() == 1)
         {
-            PackageInfo packageInfo;
-            if (!documentationModel->TryGetPackageInfo(documentationProxyModel->mapToSource(selectedRows[0]), packageInfo))
+            if (enableInstaller)
             {
-                MIKTEX_UNEXPECTED();
+                enableView = true;
             }
-            enableView = packageInfo.IsInstalled();
+            else
+            {
+                PackageInfo packageInfo;
+                if (!documentationModel->TryGetPackageInfo(documentationProxyModel->mapToSource(selectedRows[0]), packageInfo))
+                {
+                    MIKTEX_UNEXPECTED();
+                }
+                enableView = packageInfo.IsInstalled();
+            }
         }
         ui->actionViewDocument->setEnabled(enableView);
     }
@@ -234,17 +253,74 @@ void DocumentationPage::ViewDocument()
     {
         return;
     }
-    PackageInfo packageInfo;
-    if (!documentationModel->TryGetPackageInfo(documentationProxyModel->mapToSource(selectedRows[0]), packageInfo))
+    try
     {
-        MIKTEX_UNEXPECTED();
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        MIKTEX_AUTO(QApplication::restoreOverrideCursor());
+        PackageInfo packageInfo;
+        if (!documentationModel->TryGetPackageInfo(documentationProxyModel->mapToSource(selectedRows[0]), packageInfo))
+        {
+            MIKTEX_UNEXPECTED();
+        }
+        MIKTEX_ASSERT(!packageInfo.docFiles.empty());
+        string fileName = packageInfo.docFiles[0];
+        string file;
+        if (!SkipTeXMFPrefix(fileName, file))
+        {
+            return;
+        }
+        LocateOptions locateOptions;
+        locateOptions.callback = this;
+        if (auto locateResult = session->Locate(file, locateOptions); !locateResult.pathNames.empty())
+        {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromUtf8(locateResult.pathNames[0].GetData())));
+        }
     }
-    string fileName = packageInfo.docFiles[0];
-    string file;
-    PathName path;
-    if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file, MIKTEX_PATH_TEXMF_PLACEHOLDER, path))
+    catch (const MiKTeXException& e)
     {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(path.GetData()));
+        errorReporter->CriticalError(e);
+    }
+    catch (const exception& e)
+    {
+        errorReporter->CriticalError(e);
+    }
+}
+
+void DocumentationPage::OpenDocumentationDirectory()
+{
+    try
+    {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        MIKTEX_AUTO(QApplication::restoreOverrideCursor());
+        for (const QModelIndex& index : ui->treeViewDocumentation->selectionModel()->selectedRows())
+        {
+            PackageInfo packageInfo;
+            if (!documentationModel->TryGetPackageInfo(documentationProxyModel->mapToSource(index), packageInfo))
+            {
+                MIKTEX_UNEXPECTED();
+            }
+            MIKTEX_ASSERT(!packageInfo.docFiles.empty());
+            string fileName = packageInfo.docFiles[0];
+            string file;
+            if (!SkipTeXMFPrefix(fileName, file))
+            {
+                continue;
+            }
+            LocateOptions locateOptions;
+            locateOptions.callback = this;
+            if (auto locateResult = session->Locate(file, locateOptions); !locateResult.pathNames.empty())
+            {
+                QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromUtf8(locateResult.pathNames[0].GetDirectoryName().GetData())));
+            }
+        }
+    }
+    catch (const MiKTeXException& e)
+    {
+        errorReporter->CriticalError(e);
+    }
+    catch (const exception& e)
+    {
+        errorReporter->CriticalError(e);
     }
 }
 
@@ -259,4 +335,41 @@ void DocumentationPage::OnContextMenuDocumentation(const QPoint& pos)
     {
         contextMenuDocumentationBackground->exec(ui->treeViewDocumentation->mapToGlobal(pos));
     }
+}
+
+bool DocumentationPage::InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot)
+{
+    if (!enableInstaller)
+    {
+        return false;
+    }
+    if (packageInstaller == nullptr)
+    {
+        packageInstaller = packageManager->CreateInstaller({ this, true, false });
+    }
+    packageInstaller->SetFileLists({ packageId }, {});
+    packageInstaller->InstallRemove(PackageInstaller::Role::Application);
+    installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
+    documentationModel->Reload();
+    return true;
+}
+
+bool DocumentationPage::TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType)
+{
+    return false;
+}
+
+
+void DocumentationPage::ReportLine(const string& str)
+{
+}
+
+bool DocumentationPage::OnRetryableError(const string& message)
+{
+    return false;
+}
+
+bool DocumentationPage::OnProgress(MiKTeX::Packages::Notification nf)
+{
+    return true;
 }
