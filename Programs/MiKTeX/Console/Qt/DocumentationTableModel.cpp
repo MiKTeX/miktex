@@ -37,7 +37,11 @@ using namespace MiKTeX::Util;
 
 struct DocumentSorter
 {
-    DocumentSorter(const std::string& packageId) : packageId(packageId) {}
+    DocumentSorter(const std::string& packageId)
+        : packageId(packageId)
+    {
+        preferredNames[0] = packageId;
+    }
     bool operator() (const std::string& l, const std::string& r)
     {
         MiKTeX::Util::PathName left(l);
@@ -55,21 +59,36 @@ struct DocumentSorter
                 return false;
             }
         }
-        auto leftName = left.GetFileNameWithoutExtension();
-        auto rightName = right.GetFileNameWithoutExtension();
-        if (leftName.ToString() == packageId && rightName.ToString() != packageId)
+        auto leftName = left.GetFileNameWithoutExtension().ToString();
+        auto rightName = right.GetFileNameWithoutExtension().ToString();
+        for (const auto& n : preferredNames)
         {
-            return true;
-        }
-        if (leftName.ToString() != packageId && rightName.ToString() == packageId)
-        {
-            return false;
+            if (leftName == n && rightName != n)
+            {
+                return true;
+            }
+            if (leftName != n && rightName == n)
+            {
+                return false;
+            }
         }
         return leftName < rightName;
     }
 private:
-    const std::vector<std::string> preferredExtensions = { ".pdf", ".html", ".txt" };
     std::string packageId;
+    std::vector<std::string> preferredNames = {
+        "",
+        "README",
+    };
+    std::vector<std::string> preferredExtensions = {
+        ".pdf",
+        ".dvi",
+        ".html",
+        ".htm",
+        ".txt",
+        ".md",
+        ".tex",
+    };
 };
 
 DocumentationTableModel::DocumentationTableModel(shared_ptr<Session> session, shared_ptr<PackageManager> packageManager, QObject* parent) :
