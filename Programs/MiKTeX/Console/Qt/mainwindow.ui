@@ -102,34 +102,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="buttonSettings">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
-         </property>
-         <property name="statusTip">
-          <string>Check and modify MiKTeX configuration settings</string>
-         </property>
-         <property name="text">
-          <string>Settings</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoExclusive">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="buttonUpdates">
          <property name="minimumSize">
           <size>
@@ -158,34 +130,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="buttonPackages">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
-         </property>
-         <property name="statusTip">
-          <string>MiKTeX package management</string>
-         </property>
-         <property name="text">
-          <string>Packages</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoExclusive">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="buttonDocumentation">
          <property name="minimumSize">
           <size>
@@ -201,6 +145,34 @@
          </property>
          <property name="text">
           <string>Documentation</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonPackages">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>MiKTeX package management</string>
+         </property>
+         <property name="text">
+          <string>Packages</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -266,6 +238,34 @@
          </property>
          <property name="autoRepeatDelay">
           <number>292</number>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonSettings">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>Check and modify MiKTeX configuration settings</string>
+         </property>
+         <property name="text">
+          <string>Settings</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
          </property>
          <property name="flat">
           <bool>true</bool>
@@ -2214,7 +2214,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
     <string>Install documentation</string>
    </property>
    <property name="statusTip">
-    <string>Installs the selected documentation package.</string>
+    <string>Installs the selected documentation.</string>
    </property>
   </action>
   <action name="actionViewDocument">
