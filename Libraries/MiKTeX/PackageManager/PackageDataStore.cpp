@@ -307,7 +307,7 @@ void PackageDataStore::Load(Cfg& cfg)
       PackageDefinitionTable::iterator it3 = packageTable.find(req);
       if (it3 == packageTable.end())
       {
-        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.id));
+        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Warning, fmt::format(T_("dependency problem: {0} is required by {1}"), req, pkg.id));
       }
       else
       {
