@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-# pending release
+# 21.8 - 2021-08-06
 
 ### Documentation browser
 
