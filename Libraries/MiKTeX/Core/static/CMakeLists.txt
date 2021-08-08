@@ -114,6 +114,7 @@ if(MIKTEX_FREEBSD)
     PUBLIC
       kvm
       procstat
+      ${Inotify_LIBRARIES}
   )
 endif()
 

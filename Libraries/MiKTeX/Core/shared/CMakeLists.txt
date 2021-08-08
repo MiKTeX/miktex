@@ -148,6 +148,7 @@ if(MIKTEX_FREEBSD)
     PRIVATE
       kvm
       procstat
+      ${Inotify_LIBRARIES}
   )
 endif()
 
