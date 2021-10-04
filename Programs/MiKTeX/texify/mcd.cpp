@@ -2043,6 +2043,8 @@ void McdApp::Run(int argc, const char** argv)
 
   int option;
 
+  bool optVersion = false;
+
   while ((option = popt.GetNextOpt()) >= 0)
   {
     string optArg = popt.GetOptArg();
@@ -2117,8 +2119,8 @@ void McdApp::Run(int argc, const char** argv)
       break;
 #endif
     case OPT_VERSION:
-      Version();
-      return;
+      optVersion = true;
+      break;
     case OPT_VERBOSE:
       options.verbose = true;
       break;
@@ -2198,7 +2200,7 @@ void McdApp::Run(int argc, const char** argv)
 
   vector<string> leftovers = popt.GetLeftovers();
 
-  if (leftovers.empty())
+  if (leftovers.empty() && !optVersion)
   {
     FatalError(T_("Missing file argument."));
   }
@@ -2209,6 +2211,12 @@ void McdApp::Run(int argc, const char** argv)
   }
 
   Init(initInfo);
+
+  if (optVersion)
+  {
+    Version();
+    return;
+  }
 
   for (const string& fileName : leftovers)
   {
