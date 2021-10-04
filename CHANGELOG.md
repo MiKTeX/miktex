@@ -8,6 +8,7 @@
 - [921](https://github.com/MiKTeX/miktex/issues/921): Epstopdf Crashes
 - [923](https://github.com/MiKTeX/miktex/issues/923): Handle competing fontconfig installation
 - [933](https://github.com/MiKTeX/miktex/issues/933): "texify.exe" crashes on Windows in 21.6 when invoked with incorrect usage
+- [940](https://github.com/MiKTeX/miktex/issues/940): remove type1 font directories from localfonts.conf
 
 # 21.8 - 2021-08-06
 
