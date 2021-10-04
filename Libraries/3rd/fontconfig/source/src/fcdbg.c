@@ -568,6 +568,7 @@ int FcDebugVal;
 void
 FcInitDebug (void)
 {
+#if !defined(MIKTEX)
     if (!FcDebugVal) {
 	char    *e;
 
@@ -580,6 +581,7 @@ FcInitDebug (void)
 		FcDebugVal = 0;
 	}
     }
+#endif
 }
 #define __fcdbg__
 #include "fcaliastail.h"

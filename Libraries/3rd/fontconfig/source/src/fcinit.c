@@ -107,11 +107,13 @@ FcInitLoadOwnConfig (FcConfig *config)
 	FcBool have_own = FcFalse;
 	char *env_file, *env_path;
 
+#if !defined(MIKTEX)
 	env_file = getenv ("FONTCONFIG_FILE");
 	env_path = getenv ("FONTCONFIG_PATH");
 	if ((env_file != NULL && env_file[0] != 0) ||
 	    (env_path != NULL && env_path[0] != 0))
 	    have_own = FcTrue;
+#endif
 
 	if (!have_own)
 	{
