@@ -361,9 +361,9 @@ If any array overflows, please report to tex-k@tug.org.
 
 #if !defined(MIKTEX)
 #if USE_KPATHSEA
-#define VERSION       "version 2.15 [TeX Live " TEX_LIVE_VERSION "] (kpathsea + Thai support)"
+#define VERSION       "version 2.16 [TeX Live " TEX_LIVE_VERSION "] (kpathsea + Thai support)"
 #else
-#define VERSION       "version 2.15 [20-Nov-2007] (with Thai support)"
+#define VERSION       "version 2.16 [19-Sep-2021] (with Thai support)"
 #endif
 #endif
 
@@ -373,7 +373,7 @@ If any array overflows, please report to tex-k@tug.org.
         char miktexBanner[200];                                                                 \
         miktex_get_miktex_banner(miktexBanner, sizeof(miktexBanner) / sizeof(miktexBanner[0])); \
         MESSAGE1("This is %s, ", pgm_fn);                                                       \
-        MESSAGE1("version 2.15 [%s].\n", miktexBanner);                                         \
+        MESSAGE1("version 2.16 [%s].\n", miktexBanner);                                         \
         need_version = FALSE;                                                                   \
     }
 #else
@@ -458,6 +458,7 @@ extern char idx_escape;
 
 extern char page_comp[ARRAY_MAX];
 extern int page_offset[PAGETYPE_MAX];
+extern char page_prec[ARRAY_MAX];
 
 extern char preamble[ARRAY_MAX];
 extern char postamble[ARRAY_MAX];

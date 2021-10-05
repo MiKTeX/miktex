@@ -436,26 +436,28 @@ scan_no(char no[], int npg[], short *count, short *type)
 	if (!scan_arabic(no, npg, count))
 	    return (FALSE);
 	/* simple heuristic to determine if a letter is Roman or Alpha */
-    } else if (IS_ROMAN_LOWER(no[0]) && (!IS_COMPOSITOR)) {
+    } else if (IS_ROMAN_LOWER(no[0]) && strchr(page_prec,ROMAN_LOWER) &&
+	       (!strchr(page_prec,ALPHA_LOWER) || (!IS_COMPOSITOR))) {
 	*type = ROML;
 	if (!scan_roman_lower(no, npg, count))
 	    return (FALSE);
 	/* simple heuristic to determine if a letter is Roman or Alpha */
-    } else if (IS_ROMAN_UPPER(no[0]) &&
-	       ((no[0] == ROMAN_I) || (!IS_COMPOSITOR))) {
+    } else if (IS_ROMAN_UPPER(no[0]) && strchr(page_prec,ROMAN_UPPER) &&
+	       (!strchr(page_prec,ALPHA_UPPER) || (!IS_COMPOSITOR))) {
 	*type = ROMU;
 	if (!scan_roman_upper(no, npg, count))
 	    return (FALSE);
-    } else if (IS_ALPHA_LOWER(no[0])) {
+    } else if (IS_ALPHA_LOWER(no[0]) && strchr(page_prec,ALPHA_LOWER)) {
 	*type = ALPL;
 	if (!scan_alpha_lower(no, npg, count))
 	    return (FALSE);
-    } else if (IS_ALPHA_UPPER(no[0])) {
+    } else if (IS_ALPHA_UPPER(no[0]) && strchr(page_prec,ALPHA_UPPER)) {
 	*type = ALPU;
 	if (!scan_alpha_upper(no, npg, count))
 	    return (FALSE);
     } else {
-	IDX_ERROR1("Illegal page number %s.\n", no);
+	IDX_ERROR2("Illegal page number %s or page_precedence %s.\n",
+		   no, page_prec);
 	return (FALSE);
     }
     return (TRUE);

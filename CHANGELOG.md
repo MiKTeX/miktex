@@ -1,6 +1,13 @@
 # MiKTeX Change Log
 
-# 21.10 - 2021-10-05
+## pending release
+
+### Upgraded programs
+
+* dvipdfmx 20210609
+* makeindex 2.16
+
+## 21.10 - 2021-10-05
 
 ### Fixed issues
 
@@ -10,7 +17,7 @@
 - [933](https://github.com/MiKTeX/miktex/issues/933): "texify.exe" crashes on Windows in 21.6 when invoked with incorrect usage
 - [940](https://github.com/MiKTeX/miktex/issues/940): remove type1 font directories from localfonts.conf
 
-# 21.8 - 2021-08-06
+## 21.8 - 2021-08-06
 
 ### Documentation browser
 
@@ -20,7 +27,7 @@ MiKTeX Console now provides a user interface which makes it easier to find and v
 
 - [338](https://github.com/MiKTeX/miktex/issues/338): MikTeX Console : direkt link to open package documentation
 
-# 21.7 - 2021-07-19
+## 21.7 - 2021-07-19
 
 ### Upgraded programs
 

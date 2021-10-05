@@ -4983,11 +4983,17 @@ be pushed onto |nest| if necessary.
 @!shown_mode:-mmode..mmode; {most recent mode shown by \.{\\tracingcommands}}
 @!save_tail: pointer; {save |tail| so we can examine whether we have an auto
                        kern before a glue}
+@!prev_tail: pointer; {value of |tail| before the last call to |tail_append|}
 
 @ Here is a common way to make the current list grow:
 
-@d tail_append(#)==begin link(tail):=#; tail:=link(tail);
+@d tail_append(#)==begin prev_tail:=tail; link(tail):=#; tail:=link(tail);
   end
+@d insert_before_tail(#) == begin
+    link(prev_tail) := #;
+    link(#) := tail;
+    prev_tail := #;
+end
 
 @ We will see later that the vertical list at the bottom semantic level is split
 into two parts; the ``current page'' runs from |page_head| to |page_tail|,
@@ -17241,7 +17247,7 @@ var kn, st, sh: scaled;
     f: internal_font_number;
 begin
     if not (not is_char_node(g) and type(g) = glue_node) then begin
-        pdf_warning("adjust_interword_glue", "g is not a glue", false, false);
+        pdf_warning("adjust_interword_glue", "g is not a glue", true, true);
         return;
     end;
 
@@ -17604,8 +17610,7 @@ begin
     end
     else begin
         if (pdf_font_type[f] <> new_font_type) and (pdf_font_type[f] <> virtual_font_type) then
-            pdf_warning("font expansion", "font should be expanded before its first use",
-                        true, true);
+            pdf_warning("font expansion", "font should be expanded before its first use", true, true);
         set_expand_params(f, auto_expand, stretch_limit, shrink_limit, font_step, 0);
         if pdf_font_type[f] = virtual_font_type then
             vf_expand_local_fonts(f);
@@ -19871,7 +19876,7 @@ PDF browsers, so we need to fix them.
 begin
     if obj_dest_ptr(k) <> null then
         return;
-    pdf_warning("dest", "", false, false);
+    pdf_warning("dest", "", true, false);
     if obj_info(k) < 0 then begin
         print("name{");
         print(-obj_info(k));
@@ -19900,7 +19905,7 @@ end
 @ @<Check for non-existing pages@>=
 k := head_tab[obj_type_page];
 while obj_aux(k) = 0 do begin
-    pdf_warning("dest", "Page ", false, false);
+    pdf_warning("dest", "Page ", true, false);
     print_int(obj_info(k));
     print(" has been referenced but does not exist!");
     print_ln; print_ln;
@@ -19943,7 +19948,7 @@ for k := font_base + 1 to font_ptr do
             pdf_font_attr[k] := pdf_font_attr[i]
         else if (length(pdf_font_attr[i]) <> 0) and (length(pdf_font_attr[k]) <> 0) and
            not str_eq_str(pdf_font_attr[i], pdf_font_attr[k]) then begin
-           pdf_warning("\pdffontattr", "fonts ", false, false);
+           pdf_warning("\pdffontattr", "fonts ", true, false);
            print_font_identifier(i);
            print(" and ");
            print_font_identifier(k);
@@ -24389,7 +24394,8 @@ distinguishable by the condition |cur_p=null|.
             (replace_count(#) = 0)) {an empty |disc_node|}
         or ((type(#) = math_node) and (width(#) = 0))
         or ((type(#) = kern_node) and
-            ((width(#) = 0) or (subtype(#) = normal)))
+            ((width(#) = 0) or (subtype(#) = normal)
+             or (subtype(#) = auto_kern)))
         or ((type(#) = glue_node) and (glue_ptr(#) = zero_glue))
         or ((type(#) = hlist_node) and (width(#) = 0) and (height(#) = 0) and
             (depth(#) = 0) and (list_ptr(#) = null))
@@ -28824,9 +28830,20 @@ goto main_lig_loop+1
 
 @ @<If |tmp_k1| is not null then append that kern@>=
 if tmp_k1 <> null then begin
-    wrapup(rt_hit);
+    wrapup(rt_hit); {Note: |wrapup| might insert a null discretionary}
     save_tail := tail;
-    tail_append(tmp_k1);
+    {insert auto-kern before a null discretionary inserted by |wrapup| if appropriate}
+    if (not is_char_node(tail))
+        and (type(tail) = disc_node)
+        and (replace_count(tail) = 0)
+        and (pre_break(tail) = null)
+        and (post_break(tail) = null)
+        and (link(prev_tail) = tail) then
+    begin
+        insert_before_tail(tmp_k1);
+    end
+    else
+        tail_append(tmp_k1);
     goto main_loop_move;
 end
 
@@ -30044,10 +30061,27 @@ but it starts out as 1000 in the subsidiary lists.
 @<Declare act...@>=
 procedure append_discretionary;
 var c:integer; {hyphen character}
+    app_kern, pre_kern, p, c_node: pointer;
 begin tail_append(new_disc);
 if cur_chr=1 then
   begin c:=hyphen_char[cur_font];
-  if c>=0 then if c<256 then pre_break(tail):=new_character(cur_font,c);
+  if c>=0 then if c<256 then begin
+    pre_kern := get_auto_kern(cur_font, non_char, c);
+    app_kern := get_auto_kern(cur_font, c, non_char);
+    c_node := new_character(cur_font,c);
+    if (app_kern = null) and (pre_kern = null) then {no auto-kern}
+        pre_break(tail) := c_node
+    else begin
+        if pre_kern = null then
+            pre_break(tail) := c_node
+        else begin
+            pre_break(tail) := pre_kern;
+            link(pre_kern) := c_node;
+        end;
+        if app_kern <> null then
+            link(c_node) := app_kern;
+    end;
+  end;
   end
 else  begin incr(save_ptr); saved(-1):=0; new_save_level(disc_group);
   scan_left_brace; push_nest; mode:=-hmode; space_factor:=1000;
@@ -34760,7 +34794,7 @@ procedure warn_dest_dup(id: integer; byname: small_number; s1, s2: str_number);
 begin
     if pdf_suppress_warning_dup_dest > 0 then
         return;
-    pdf_warning(s1, "destination with the same identifier (", false, false);
+    pdf_warning(s1, "destination with the same identifier (", true, false);
     if byname > 0 then begin
         print("name");
         print_mark(id);
@@ -35172,7 +35206,7 @@ end;
 procedure pdf_fix_thread(thread: integer);
 var a: pointer;
 begin
-    pdf_warning("thread", "destination ", false, false);
+    pdf_warning("thread", "destination ", true, false);
     if obj_info(thread) < 0 then begin
         print("name{");
         print(-obj_info(thread));

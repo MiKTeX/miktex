@@ -405,7 +405,7 @@ static int mplib_script_error_function(lua_State * L)
     return 0;
 }
 
-static char *mplib_run_script(MP mp, const char *str)
+static char *mplib_run_script(MP mp, const char *str, size_t len)
 {
     lua_State *L = (lua_State *)mp_userdata(mp);
     lua_checkstack(L, 1);
@@ -413,7 +413,7 @@ static char *mplib_run_script(MP mp, const char *str)
     if (lua_isfunction(L, -1)) {
         char *s = NULL;
         const char *x = NULL;
-        lua_pushstring(L, str);
+        lua_pushlstring(L, str, len);
         if (lua_pcall(L, 1, 1, 0) != 0) {
             fprintf(stdout,"mplib warning: error in script: %s\n",lua_tostring(L, -1));
             return NULL;
@@ -441,7 +441,7 @@ static int mplib_run_script_function(lua_State * L)
     return 0;
 }
 
-static char *mplib_make_text(MP mp, const char *str, int mode)
+static char *mplib_make_text(MP mp, const char *str, size_t len, int mode)
 {
     lua_State *L = (lua_State *)mp_userdata(mp);
     lua_checkstack(L, 1);
@@ -449,7 +449,7 @@ static char *mplib_make_text(MP mp, const char *str, int mode)
     if (lua_isfunction(L, -1)) {
         char *s = NULL;
         const char *x = NULL;
-        lua_pushstring(L, str);
+        lua_pushlstring(L, str, len);
         lua_pushinteger(L, mode);
         if (lua_pcall(L, 2, 1, 0) != 0) {
             mplib_script_error(mp, lua_tostring(L, -1));
@@ -1869,7 +1869,7 @@ static void mplib_stroked(lua_State * L, struct mp_stroked_object *h)
 static void mplib_text(lua_State * L, struct mp_text_object *h)
 {
     if (FIELD(text)) {
-        lua_pushstring(L, h->text_p);
+        lua_pushlstring(L, h->text_p, h->text_l);
     } else if (FIELD(dsize)) {
         mplib_push_number(L, (h->font_dsize / 16));
     } else if (FIELD(font)) {

@@ -101,7 +101,7 @@ ROMAN_LOWER_OFFSET + ARABIC_OFFSET,
 ROMAN_LOWER_OFFSET + ARABIC_OFFSET + ALPHA_LOWER_OFFSET,
 ROMAN_LOWER_OFFSET + ARABIC_OFFSET + ALPHA_LOWER_OFFSET + ROMAN_UPPER_OFFSET
 };
-static char page_prec[ARRAY_MAX] = PRECEDENCE_DEF;
+char    page_prec[ARRAY_MAX] = PRECEDENCE_DEF;
 
 static int put_dot;
 
@@ -228,7 +228,6 @@ scan_sty(void)
 	    /* page precedence */
 	} else if (STREQ(spec, PRECEDENCE)) {
 	    (void) scan_string(page_prec);
-	    (void) process_precedence();
 	    /* index input format */
 	} else if (STREQ(spec, KEYWORD))
 	    (void) scan_string(idx_keyword);
@@ -260,6 +259,8 @@ scan_sty(void)
 	    STY_DOT;
 	}
     }
+    /* page precedence */
+    (void) process_precedence();
 
     /* check if quote and escape are distinct */
     if (idx_quote == idx_escape) {

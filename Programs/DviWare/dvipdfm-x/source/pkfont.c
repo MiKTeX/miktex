@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -87,6 +87,15 @@ dpx_open_pk_font_at (const char *ident, unsigned dpi)
   char  *fqpn;
   kpse_glyph_file_type kpse_file_info;
 
+/* 
+   If pdftex.map is used, there are cases for example ident is like
+   cmr10.pfb. Because of the suffix .pfb here, mktexpk does not
+   work right. So we remove the suffix .pfb, if it exists.
+*/
+  fqpn = strrchr(ident, '.');
+  if (fqpn && strcasecmp(fqpn, ".pfb") == 0) {
+    *fqpn = '\0';
+  }
   fqpn = kpse_find_glyph(ident, dpi, kpse_pk_format, &kpse_file_info);
   if (!fqpn)
     return  NULL;
