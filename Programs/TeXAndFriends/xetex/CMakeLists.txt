@@ -32,8 +32,8 @@ include_directories(
 )
   
 add_definitions(
-  -DHAVE_C4P_PRE_H
   -DHAVE_C4P_POST_H
+  -DHAVE_C4P_PRE_H
   -DLE_USE_CMEMORY
   -DSYNCTEX_ENGINE_H="synctex-xetex.h"
   -DTeX
@@ -151,18 +151,18 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.ch
     ${MIKTEX_PREFIX}tie
     ${pre_xetex2_web_file}
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.ch
     ${xetex_post_ch_synctex}
   VERBATIM
 )
 
-file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 file(READ ${MIKTEX_DYN_ETEX_SCRIPT} etex_dyn_sed_contents)
+file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${tex_dyn_sed_contents}")
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${etex_dyn_sed_contents}")
+file(WRITE  ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${etex_dyn_sed_contents}")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${tex_dyn_sed_contents}")
 
 set_source_files_properties(
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex.c
@@ -246,8 +246,8 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    inipool
     ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
+    inipool
 )
 
 set_source_files_properties(
@@ -351,8 +351,8 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.web
+    web-n
   VERBATIM
 )
 
@@ -366,8 +366,8 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${pre_xetex1_web_file}
+    web-n
   VERBATIM
 )
 
@@ -381,8 +381,8 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${pre_xetex2_web_file}
+    web-n
   VERBATIM
 )
 
@@ -396,17 +396,17 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${xetex_web_file}
+    web-n
   VERBATIM
 )
 
 add_custom_target(xetex-dev ALL
   DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
     ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
     ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
     ${CMAKE_CURRENT_BINARY_DIR}/xetex-final-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
 )
 
 set_property(TARGET xetex-dev PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
