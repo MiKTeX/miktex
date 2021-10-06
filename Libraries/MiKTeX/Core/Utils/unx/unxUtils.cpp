@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <unistd.h>
+#include <miktex/Core/StreamReader.h>
 
 #if defined(__APPLE__)
 #  include <mach-o/dyld.h>
