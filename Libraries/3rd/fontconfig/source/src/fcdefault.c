@@ -58,7 +58,11 @@ retry:
 
 	result = FcStrSetCreate ();
 
+#if defined(MIKTEX)
+	langs = (char*)0;
+#else
 	langs = getenv ("FC_LANG");
+#endif
 	if (!langs || !langs[0])
 	    langs = getenv ("LC_ALL");
 	if (!langs || !langs[0])

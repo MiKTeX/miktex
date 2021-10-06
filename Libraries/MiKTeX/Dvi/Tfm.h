@@ -54,5 +54,5 @@ private:
   unique_ptr<TraceStream> trace_tfm;
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 };

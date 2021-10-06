@@ -34,6 +34,10 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 
+#include "DocumentationPage.h"
+
+#include "common.h"
+
 class QLineEdit;
 
 class FormatTableModel;
@@ -45,15 +49,10 @@ class RootTableModel;
 class UILanguageTableModel;
 class UpdateTableModel;
 
-namespace Ui
-{
-  class MainWindow;
-}
-
-constexpr auto TheNameOfTheGame = "MiKTeX Console";
-
 class MainWindow :
-  public QMainWindow
+  public QMainWindow,
+  public BackgroundWorkerChecker,
+  public ErrorReporter
 {
   Q_OBJECT;
 
@@ -68,8 +67,9 @@ public:
     Settings = 2,
     Updates = 3,
     Packages = 4,
-    Diagnose = 5,
-    Cleanup = 6
+    Documentation = 5,
+    Diagnose = 6,
+    Cleanup = 7
   };
 
 public:
@@ -85,16 +85,16 @@ private:
   void setVisible(bool visible) override;
 
 private:
-  void CriticalError(const QString& shortText, const MiKTeX::Core::MiKTeXException& e);
+  void CriticalError(const QString& shortText, const MiKTeX::Core::MiKTeXException& e) override;
 
 private:
-  void CriticalError(const MiKTeX::Core::MiKTeXException& e)
+  void CriticalError(const MiKTeX::Core::MiKTeXException& e) override
   {
     CriticalError(tr("Sorry, something went wrong."), e);
   }
 
 private:
-  void CriticalError(const std::exception& e)
+  void CriticalError(const std::exception& e) override
   {
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
@@ -205,6 +205,12 @@ private slots:
   void on_buttonPackages_clicked()
   {
     SetCurrentPage(Pages::Packages);
+  }
+
+private slots:
+  void on_buttonDocumentation_clicked()
+  {
+    SetCurrentPage(Pages::Documentation);
   }
 
 private slots:
@@ -650,7 +656,7 @@ private:
   std::atomic_int backgroundWorkers{ 0 };
 
 private:
-  bool IsBackgroundWorkerActive()
+  bool IsBackgroundWorkerActive() override
   {
     return backgroundWorkers > 0;
   }
@@ -665,10 +671,13 @@ private slots:
   void UnloadFileNameDatabase();
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+
+private:
+  std::unique_ptr<DocumentationPage> documentationPage;
 };
 
 class PackageInstallerCallbackImpl :

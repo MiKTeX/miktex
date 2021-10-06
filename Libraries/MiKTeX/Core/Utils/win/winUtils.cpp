@@ -32,6 +32,8 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/Paths>
 #include <miktex/Core/win/WindowsVersion>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include <miktex/Util/PathName>
 
@@ -711,11 +713,8 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   {
     return;
   }
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
-  }
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG);
+  trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
 #if defined(_MSC_VER) || defined(__MINGW32__)
   if (_wputenv_s(UW_(valueName), UW_(value)) != 0)
   {
@@ -1041,7 +1040,7 @@ bool Utils::CheckPath(bool repair)
   constexpr wchar_t REGSTR_KEY_ENVIRONMENT_COMMON[] = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
   constexpr wchar_t REGSTR_KEY_ENVIRONMENT_USER[] = L"Environment";
 
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   wstring systemPath;
   DWORD systemPathType;
@@ -1082,13 +1081,13 @@ bool Utils::CheckPath(bool repair)
   {
     if (!systemPathOkay && !repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, WU_(systemPath));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Something is wrong with the system PATH:"));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, WU_(systemPath));
     }
     else if (!systemPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new system PATH:"));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, repairedSystemPath);
       systemPath = UW_(repairedSystemPath);
       winRegistry::SetValue(HKEY_LOCAL_MACHINE, REGSTR_KEY_ENVIRONMENT_COMMON, L"Path", systemPath, systemPathType);
       systemPathOkay = true;
@@ -1104,8 +1103,8 @@ bool Utils::CheckPath(bool repair)
       systemPathOkay = !FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
-        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
-        SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
+        SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+        SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
         userPath = UW_(repairedUserPath);
         winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
         systemPathOkay = true;
@@ -1118,8 +1117,8 @@ bool Utils::CheckPath(bool repair)
     userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
-      SessionImpl::GetSession()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, T_("Setting new user PATH:"));
+      SESSION_IMPL()->trace_error->WriteLine("core", TraceLevel::Error, repairedUserPath);
       userPath = UW_(repairedUserPath);
       winRegistry::SetValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
       userPathOkay = true;
@@ -1144,7 +1143,7 @@ bool Utils::CheckPath(bool repair)
 
 void Utils::RegisterShellFileAssoc(const string& extension, const string& progId, bool takeOwnership)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName regPath("Software\\Classes");
   regPath /= extension;
   string otherProgId;
@@ -1179,7 +1178,7 @@ void Utils::RegisterShellFileAssoc(const string& extension, const string& progId
 
 void Utils::UnregisterShellFileAssoc(const string& extension, const string& progId)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= extension;
@@ -1209,7 +1208,7 @@ void Utils::UnregisterShellFileAssoc(const string& extension, const string& prog
 
 void Utils::RegisterShellFileType(const string& progId, const string& userFriendlyName, const string& iconPath)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;
@@ -1227,7 +1226,7 @@ void Utils::RegisterShellFileType(const string& progId, const string& userFriend
 
 void Utils::UnregisterShellFileType(const string& progId)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;
@@ -1236,7 +1235,7 @@ void Utils::UnregisterShellFileType(const string& progId)
 
 void Utils::RegisterShellVerb(const string& progId, const string& verb, const string& command, const string& ddeExec)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= progId;

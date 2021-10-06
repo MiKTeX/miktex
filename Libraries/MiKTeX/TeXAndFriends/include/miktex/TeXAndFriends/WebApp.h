@@ -329,13 +329,18 @@ public:
       app.Sorry(argv[0], ex);
       app.Finalize2(1);
       ex.Save();
-      return 1;
+      return EXIT_FAILURE;
     }
     catch (const std::exception& ex)
     {
       app.Sorry(argv[0], ex);
       app.Finalize2(1);
-      return 1;
+      return EXIT_FAILURE;
+    }
+    catch (int exitCode)
+    {
+      app.Finalize2(exitCode);
+      return exitCode;
     }
   }
 };

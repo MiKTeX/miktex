@@ -67,5 +67,5 @@ private:
   class SetupWizard* sheet = nullptr;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> session = Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
 };

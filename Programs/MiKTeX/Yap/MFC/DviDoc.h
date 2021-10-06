@@ -237,7 +237,7 @@ private:
   ProgressDialog* pProgressDialog = nullptr;
 
 private:
-  shared_ptr<Session> pSession = Session::Get();
+  shared_ptr<Session> pSession = MIKTEX_SESSION();
 
 protected:
   DECLARE_MESSAGE_MAP();

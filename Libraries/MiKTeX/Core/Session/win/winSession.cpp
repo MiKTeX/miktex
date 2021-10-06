@@ -382,13 +382,8 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
 
 void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const std::string& description_, const string& remedy_, const string& tag_, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
-  string programInvocationName;
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    TraceWindowsError(functionName.c_str(), errorCode, info.ToString().c_str(), sourceLocation.fileName.c_str(), sourceLocation.lineNo);
-    programInvocationName = session->initInfo.GetProgramInvocationName();
-  }
+  string programInvocationName = Utils::GetExeName();
+  TraceWindowsError(functionName.c_str(), errorCode, info.ToString().c_str(), sourceLocation.fileName.c_str(), sourceLocation.lineNo);
   string errorMessage = T_("Windows API error ") + std::to_string(errorCode);
   string windowsErrorMessage;
   if (GetWindowsErrorMessage(errorCode, windowsErrorMessage))
@@ -400,13 +395,11 @@ void Session::FatalWindowsError(const string& functionName, unsigned long errorC
   {
     errorMessage += '.';
   }
-#if 1
   string env;
   if (Utils::GetEnvironmentString("MIKTEX_DEBUG_BREAK", env) && env == "1")
   {
     DEBUG_BREAK();
   }
-#endif
   string description = description_;
   string remedy = remedy_;
   string tag = tag_;

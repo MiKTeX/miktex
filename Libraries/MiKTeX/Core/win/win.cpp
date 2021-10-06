@@ -22,8 +22,10 @@
 #include "config.h"
 
 #include <Windows.h>
+
 #include <AclAPI.h>
 #include <ShlObj.h>
+#include <Shlwapi.h>
 
 #include <iomanip>
 
@@ -36,12 +38,15 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 #include <miktex/Core/win/HResult>
 #include <miktex/Core/win/winAutoResource>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
-#include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 
 using namespace std;
@@ -113,7 +118,8 @@ MIKTEXINTERNALFUNC(bool) GetWindowsErrorMessage(unsigned long functionResult, st
   unsigned long len = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0, functionResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<wchar_t *>(&messageBuffer), 0, 0);
   if (len == 0)
   {
-    TraceError(T_("FormatMessageW() failed for some reason"));
+    auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+    trace_error->WriteLine("core", TraceLevel::Error, T_("FormatMessageW() failed for some reason"));
     return false;
   }
   AutoLocalMemory autoFree(messageBuffer);
@@ -128,19 +134,15 @@ MIKTEXINTERNALFUNC(void) TraceWindowsError(const char* windowsFunction, unsigned
   {
     return;
   }
-  shared_ptr<SessionImpl> pSession = SessionImpl::TryGetSession();
-  if (pSession == nullptr || pSession->trace_error == nullptr)
-  {
-    return;
-  }
-  pSession->trace_error->WriteLine("core", TraceLevel::Error, errorMessage);
-  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Function: {0}", windowsFunction));
-  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Result: {0}", functionResult));
+  auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+  trace_error->WriteLine("core", TraceLevel::Error, errorMessage);
+  trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Function: {0}", windowsFunction));
+  trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Result: {0}", functionResult));
   if (info != nullptr)
   {
-    pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Data: {0}", info));
+    trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Data: {0}", info));
   }
-  pSession->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Source: {0}:{1}", GetShortSourceFile(sourceFile), sourceLine));
+  trace_error->WriteLine("core", TraceLevel::Error, fmt::format("Source: {0}:{1}", GetShortSourceFile(sourceFile), sourceLine));
 }
 
 MIKTEXSTATICFUNC(unsigned int) GetMediaType(const char* path)
@@ -248,31 +250,26 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
     return;
   }
 
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
 
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("creating directory {0}"), Q_(path)));
-  }
+  trace_files->WriteLine("core", fmt::format(T_("creating directory {0}"), Q_(path)));
 
 #if SET_SECURITY
   // create the directory itself
-  if (session != nullptr && session->IsAdminMode()
+  shared_ptr<Session> session = Session::TryGet();
+  if (session != nullptr
+    && session->IsAdminMode()
     && (session->GetSpecialPath(SpecialPath::CommonConfigRoot) == path || session->GetSpecialPath(SpecialPath::CommonDataRoot) == path)
     && session->RunningAsAdministrator())
   {
     CreateDirectoryForEveryone(path.GetData());
+    return;
   }
-  else if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
-  {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
-  }
-#else
+#endif
   if (!CreateDirectoryW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), nullptr))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }
-#endif
 }
 
 HResult::~HResult()

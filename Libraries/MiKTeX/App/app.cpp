@@ -108,6 +108,10 @@ class Impl
 public:
   string Translate(const char* msgId)
   {
+    if (translator == nullptr)
+    {
+      return msgId;
+    }
     return translator->Translate(msgId);
   }
 public:

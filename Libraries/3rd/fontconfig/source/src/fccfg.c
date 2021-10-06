@@ -1997,7 +1997,9 @@ static FcChar8 **
 FcConfigGetPath (void)
 {
     FcChar8    **path;
+#if !defined(MIKTEX)
     FcChar8    *env, *e, *colon;
+#endif
     FcChar8    *dir;
     int	    npath;
     int	    i;
@@ -2005,7 +2007,7 @@ FcConfigGetPath (void)
     npath = 2;	/* default dir + null */
 #if defined(MIKTEX)
     npath += miktex_get_fontconfig_config_dirs(0, 0);
-#endif
+#else
     env = (FcChar8 *) getenv ("FONTCONFIG_PATH");
     if (env)
     {
@@ -2015,11 +2017,13 @@ FcConfigGetPath (void)
 	    if (*e++ == FC_SEARCH_PATH_SEPARATOR)
 		npath++;
     }
+#endif
     path = calloc (npath, sizeof (FcChar8 *));
     if (!path)
 	goto bail0;
     i = 0;
 
+#if !defined(MIKTEX)
     if (env)
     {
 	e = env;
@@ -2040,6 +2044,7 @@ FcConfigGetPath (void)
 	    i++;
 	}
     }
+#endif
 
 #if defined(MIKTEX)
     i += miktex_get_fontconfig_config_dirs((char**)path, i);
@@ -2200,7 +2205,9 @@ FcConfigFilename (const FcChar8 *url)
 
     if (!url || !*url)
     {
+#if !defined(MIKTEX)
 	url = (FcChar8 *) getenv ("FONTCONFIG_FILE");
+#endif
 	if (!url)
 	    url = (FcChar8 *) FONTCONFIG_FILE;
     }
@@ -2478,7 +2485,11 @@ FcConfigGetSysRoot (const FcConfig *config)
     if (config->sysRoot)
         return config->sysRoot;
 
+#if defined(MIKTEX)
+	return (FcChar8*)0;
+#else
     return (FcChar8 *) getenv ("FONTCONFIG_SYSROOT");
+#endif
 }
 
 void

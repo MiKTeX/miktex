@@ -75,5 +75,5 @@ private:
   std::vector<UILanguage> uiLanguages;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
 };

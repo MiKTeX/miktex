@@ -39,6 +39,8 @@
 #include <miktex/Core/File>
 #include <miktex/Util/PathName>
 #include <miktex/Util/StringUtil>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -48,6 +50,7 @@ using namespace std;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 string Utils::GetOSVersionString()
@@ -80,11 +83,8 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
   {
     return;
   }
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
-  }
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG);
+  trace_config->WriteLine("core", fmt::format(T_("setting env {0}={1}"), valueName, value));
   if (setenv(valueName.c_str(), value.c_str(), 1) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("setenv", "name", valueName);
@@ -93,11 +93,8 @@ void Utils::SetEnvironmentString(const string& valueName, const string& value)
 
 void Utils::RemoveEnvironmentString(const string& valueName)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_config->WriteLine("core", fmt::format(T_("unsetting env {0}"), valueName));
-  }
+  auto trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG);
+  trace_config->WriteLine("core", fmt::format(T_("unsetting env {0}"), valueName));
   if (unsetenv(valueName.c_str()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("unsetenv", "name", valueName);
@@ -128,7 +125,7 @@ bool Utils::CheckPath(bool repair)
   }
 #endif
   
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   string envPath;
   if (!Utils::GetEnvironmentString("PATH", envPath))
@@ -147,13 +144,13 @@ bool Utils::CheckPath(bool repair)
 
   if (!pathOkay && !repair)
   {
-    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
-    SessionImpl::GetSession()->trace_error->WriteLine("core", envPath.c_str());
+    SESSION_IMPL()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
+    SESSION_IMPL()->trace_error->WriteLine("core", envPath.c_str());
   }
   else if (!pathOkay && repair)
   {
-    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new PATH:"));
-    SessionImpl::GetSession()->trace_error->WriteLine("core", repairedPath.c_str());
+    SESSION_IMPL()->trace_error->WriteLine("core", T_("Setting new PATH:"));
+    SESSION_IMPL()->trace_error->WriteLine("core", repairedPath.c_str());
     envPath = repairedPath;
     if (session->IsAdminMode())
     {
@@ -182,7 +179,7 @@ PathName Utils::GetExe()
             MIKTEX_UNEXPECTED();
         }
     }
-    return buf;
+    return PathName(buf.GetData());
 #else
     return File::ReadSymbolicLink(PathName("/proc/self/exe"));
 #endif
@@ -193,13 +190,14 @@ string Utils::GetExeName()
 #if defined(__APPLE__)
     return GetExe().GetFileNameWithoutExtension().ToString();
 #else
-    StreamReader reader("/proc/self/cmdline");
-    string line;
-    while (reader.ReadLine(line))
+    ifstream cmdline = File::CreateInputStream(PathName("/proc/self/comm"));
+    string argv0;
+    char ch;
+    while (cmdline.get(ch) && ch != '\n' && ch != 0)
     {
-        const char* argv0 = line.c_str();
-        return PathName(argv0).GetFileNameWithoutExtension().ToString();
+        argv0 += ch;
     }
-    MIKTEX_UNEXPECTED();
+    cmdline.close();
+    return PathName(argv0).GetFileNameWithoutExtension().ToString();
 #endif
 }

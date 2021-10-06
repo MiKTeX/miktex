@@ -54,6 +54,19 @@
 #include "RootDirectoryInfo.h"
 #include "VersionNumber.h"
 
+/// Gets the current session object.
+/// @return Returns a smart pointer to the current session object.
+#define MIKTEX_SESSION() ([]()                      \
+{                                                   \
+    auto session = MiKTeX::Core::Session::TryGet(); \
+    if (session == nullptr)                         \
+    {                                               \
+        MIKTEX_UNEXPECTED();                        \
+    }                                               \
+    return session;                                 \
+}                                                   \
+())
+
 /// @namespace MiKTeX::Core
 /// @brief The core namespace.
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -370,6 +383,20 @@ public:
   virtual bool MIKTEXTHISCALL TryCreateFile(const MiKTeX::Util::PathName& fileName, FileType fileType) = 0;
 };
 
+struct LocateOptions {
+  bool all = false;
+  IFindFileCallback* callback = nullptr;
+  FileType fileType = FileType::None;
+  bool create = false;
+  bool renew = false;
+  bool searchFileSystem = false;
+  std::string searchPath;
+};
+
+struct LocateResult {
+  std::vector<MiKTeX::Util::PathName> pathNames;
+};
+
 /// The MiKTeX session interface.
 class MIKTEXNOVTABLE Session :
   public MiKTeX::Configuration::ConfigurationProvider
@@ -539,10 +566,6 @@ public:
     FileMode mode = FileMode::Open;
     FileAccess access = FileAccess::None;
   };
-
-  /// Gets the current session object.
-  /// @return Returns a smart pointer to the current session object.
-  static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Get();
 
   /// Tries to get the current session object.
   /// @return Returns a smart pointer to the current session object. Can be `nullptr`.
@@ -770,6 +793,12 @@ public:
   /// @param fileName The file name.
   /// @return Returns the derived file type.
   virtual FileType MIKTEXTHISCALL DeriveFileType(const MiKTeX::Util::PathName& fileName) = 0;
+
+  /// Searches a file.
+  /// @param fileName The name of the file to search.
+  /// @param options Search options.
+  /// @return Return the result of the search.
+  virtual LocateResult MIKTEXTHISCALL Locate(const std::string& fileName, const LocateOptions& options) = 0;
 
   /// Searches a file.
   /// @param fileName The name of the file to search.
@@ -1183,7 +1212,10 @@ MIKTEX_CORE_END_NAMESPACE;
 #define MIKTEX_FATAL_ERROR_5(message, description, remedy, tag, ...) \
   MiKTeX::Core::Session::FatalMiKTeXError(message, description, remedy, tag, MiKTeX::Core::MiKTeXException::KVMAP(__VA_ARGS__), MIKTEX_SOURCE_LOCATION())
 
-#define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR(MIKTEXTEXT("MiKTeX encountered an internal error."))
+#define MIKTEX_STRINGIFY_(x) #x
+#define MIKTEX_STRINGIFY(x) MIKTEX_STRINGIFY_(x)
+
+#define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR(__FILE__ ":" MIKTEX_STRINGIFY(__LINE__) ": internal error")
 
 #define MIKTEX_UNEXPECTED() MIKTEX_INTERNAL_ERROR()
 

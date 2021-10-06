@@ -6,12 +6,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="1032"/>
         <source>The MiKTeX configuration utility (initexmf) could not be found.</source>
-        <translation type="unfinished">未能找到 MiKTeX 配置实用工具(initexmf)。</translation>
+        <translation type="unfinished">找不到 MiKTeX 配置工具(initexmf)。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1055"/>
         <source>The MiKTeX configuration utility failed for some reason. The output has been saved to a file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">由于某些原因，MiKTeX 配置工具出现故障。输出已保存到文件。</translation>
     </message>
 </context>
 <context>
@@ -77,7 +77,7 @@
     <message>
         <location filename="../FormatTableModel.cpp" line="91"/>
         <source>Attributes</source>
-        <translation type="unfinished">特性</translation>
+        <translation type="unfinished">属性</translation>
     </message>
 </context>
 <context>
@@ -957,7 +957,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="631"/>
-        <source>&lt;p&gt;English translation kindly contributed by Jane Doe.&lt;/p&gt;</source>
+        <source>&lt;p&gt;简体中文翻译由 Sun Zhizhou 提供。&lt;/p&gt;</source>
         <extracomment>Please translate this text if you want to be included in the about dialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -1360,14 +1360,14 @@ The application window will now be closed.</source>
         <location filename="../PackageTableModel.cpp" line="89"/>
         <location filename="../PackageTableModel.cpp" line="93"/>
         <source>Admin</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">管理员</translation>
     </message>
     <message>
         <location filename="../PackageTableModel.cpp" line="89"/>
         <location filename="../PackageTableModel.cpp" line="93"/>
         <location filename="../PackageTableModel.cpp" line="97"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">用户</translation>
     </message>
     <message>
         <location filename="../PackageTableModel.cpp" line="130"/>
@@ -1415,7 +1415,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="72"/>
         <source>&lt;Random package repository on the Internet&gt;</source>
-        <translation type="unfinished">&lt;互联网上的随机宏包存储库&gt;</translation>
+        <translation type="unfinished">&lt;互联网上随机的宏包存储库&gt;</translation>
     </message>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="108"/>
@@ -1425,7 +1425,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../RepositoryTableModel.cpp" line="110"/>
         <source>Release State</source>
-        <translation type="unfinished">发布状态</translation>
+        <translation type="unfinished">版本状态</translation>
     </message>
 </context>
 <context>
@@ -1443,7 +1443,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../RootTableModel.cpp" line="125"/>
         <source>Attributes</source>
-        <translation type="unfinished">特性</translation>
+        <translation type="unfinished">属性</translation>
     </message>
 </context>
 <context>
@@ -1521,7 +1521,7 @@ The application window will now be closed.</source>
     <message>
         <location filename="../UpdateTableModel.cpp" line="137"/>
         <source>release state change</source>
-        <translation type="unfinished">发布状态变更</translation>
+        <translation type="unfinished">版本状态变更</translation>
     </message>
     <message>
         <location filename="../UpdateTableModel.cpp" line="197"/>

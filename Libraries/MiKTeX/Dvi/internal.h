@@ -820,7 +820,7 @@ private:
   void DoGraphicsSpecials(int shrinkFactor);
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
 private:
   unique_ptr<TraceStream> tracePage;
@@ -1200,7 +1200,7 @@ private:
   void PageLoader();
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
 private:
   HANDLE hByeByeEvent;

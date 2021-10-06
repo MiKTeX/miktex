@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -248,8 +248,6 @@ void RemoveDirectoryDelimiter(char* path);
 #if defined(MIKTEX_WINDOWS) && REPORT_EVENTS
 bool ReportMiKTeXEvent(unsigned short eventType, unsigned long eventId, ...);
 #endif
-
-void TraceError(const std::string& msg);
 
 #if defined(MIKTEX_WINDOWS)
 void TraceWindowsError(const char* windowsFunction, unsigned long functionResult, const char* info, const char* sourceFileName, int sourceLine);

@@ -77,6 +77,12 @@
     ((C == ROMAN_I) || (C == ROMAN_V) || (C == ROMAN_X) || \
      (C == ROMAN_L) || (C == ROMAN_C) || (C == ROMAN_D) || (C == ROMAN_M))
 
+#define ROMAN_LOWER        'r'
+#define ROMAN_UPPER        'R'
+#define ARABIC             'n'
+#define ALPHA_LOWER        'a'
+#define ALPHA_UPPER        'A'
+
 #define ALPHA_VAL(C) \
     ((('A' <= C) && (C <= 'Z')) ? C - 'A' : \
      (('a' <= C) && (C <= 'z')) ? C - 'a' : 0)

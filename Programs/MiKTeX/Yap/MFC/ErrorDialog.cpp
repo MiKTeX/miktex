@@ -199,61 +199,57 @@ string ErrorDialogImpl::CreateReport()
       << T_("Source: ") << miktexException.GetSourceFile() << endl
       << T_("Line: ") << miktexException.GetSourceLine() << endl;
   }
-  shared_ptr<Session> pSession = Session::TryGet();
-  if (pSession != nullptr)
+  auto session = MIKTEX_SESSION();
+  try
   {
-    try
+    vector<string> invokerNames = Process::GetInvokerNames();
+    s << "MiKTeX: "
+      << Utils::GetMiKTeXVersionString() << endl
+      << "OS: " << Utils::GetOSVersionString() << endl;
+    s << "Invokers: ";
+    for (vector<string>::const_iterator it = invokerNames.begin(); it != invokerNames.end(); ++it)
     {
-      vector<string> invokerNames = Process::GetInvokerNames();
-      s << "MiKTeX: "
-        << Utils::GetMiKTeXVersionString() << endl
-        << "OS: " << Utils::GetOSVersionString() << endl;
-      s << "Invokers: ";
-      for (vector<string>::const_iterator it = invokerNames.begin(); it != invokerNames.end(); ++it)
+      if (it != invokerNames.begin())
       {
-        if (it != invokerNames.begin())
-        {
-          s << "/";
-        }
-        s << *it;
+        s << "/";
       }
-      s << endl;
-      s << "SystemAdmin: " << (pSession->RunningAsAdministrator()
-        ? T_("yes")
-        : T_("no"))
-        << endl;
-      for (unsigned idx = 0; idx < pSession->GetNumberOfTEXMFRoots(); ++idx)
-      {
-        PathName absFileName;
-        PathName root = pSession->GetRootDirectoryPath(idx);
-        s << "Root" << idx << ": " << root.GetData() << endl;
-      }
-      s << "UserInstall: "
-        << pSession->GetSpecialPath(SpecialPath::UserInstallRoot).GetData()
-        << endl;
-      s << "UserConfig: "
-        << pSession->GetSpecialPath(SpecialPath::UserConfigRoot).GetData()
-        << endl;
-      s << "UserData: "
-        << pSession->GetSpecialPath(SpecialPath::UserDataRoot).GetData()
-        << endl;
-      if (pSession->IsSharedSetup())
-      {
-        s << "CommonInstall: "
-          << pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData()
-          << endl;
-        s << "CommonConfig: "
-          << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData())
-          << endl;
-        s << "CommonData: "
-          << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
-          << endl;
-      }
+      s << *it;
     }
-    catch (const exception&)
+    s << endl;
+    s << "SystemAdmin: " << (session->RunningAsAdministrator()
+      ? T_("yes")
+      : T_("no"))
+      << endl;
+    for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
     {
-      pSession = nullptr;
+      PathName absFileName;
+      PathName root = session->GetRootDirectoryPath(idx);
+      s << "Root" << idx << ": " << root.GetData() << endl;
     }
+    s << "UserInstall: "
+      << session->GetSpecialPath(SpecialPath::UserInstallRoot).GetData()
+      << endl;
+    s << "UserConfig: "
+      << session->GetSpecialPath(SpecialPath::UserConfigRoot).GetData()
+      << endl;
+    s << "UserData: "
+      << session->GetSpecialPath(SpecialPath::UserDataRoot).GetData()
+      << endl;
+    if (session->IsSharedSetup())
+    {
+      s << "CommonInstall: "
+        << session->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData()
+        << endl;
+      s << "CommonConfig: "
+        << (session->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData())
+        << endl;
+      s << "CommonData: "
+        << session->GetSpecialPath(SpecialPath::CommonDataRoot).GetData()
+        << endl;
+    }
+  }
+  catch (const exception&)
+  {
   }
   return s.str();
 }

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017-2020 Christian Schenk
+## Copyright (C) 2017-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -28,6 +28,12 @@ include_directories(BEFORE
 
 set(console_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
+  DocumentationPage.cpp
+  DocumentationPage.h
+  DocumentationProxyModel.cpp
+  DocumentationProxyModel.h
+  DocumentationTableModel.cpp
+  DocumentationTableModel.h
   FormatDefinitionDialog.cpp
   FormatDefinitionDialog.h
   FormatTableModel.cpp
@@ -46,6 +52,7 @@ set(console_sources
   UILanguageTableModel.h
   UpdateTableModel.cpp
   UpdateTableModel.h
+  common.h
   console-version.h
   main.cpp
   mainwindow.cpp
@@ -78,6 +85,9 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 set(console_moc_sources
+  DocumentationPage.h
+  DocumentationProxyModel.h
+  DocumentationTableModel.h
   FormatDefinitionDialog.h
   FormatTableModel.h
   LanguageTableModel.h

@@ -730,7 +730,7 @@ main(int argc, char **argv)
    checkenv(0);
 #if defined(MIKTEX)
    {
-     std::shared_ptr<Session> session = Session::Get();
+     std::shared_ptr<Session> session = MIKTEX_SESSION();
      int old_miktex_allow_all_paths = miktex_allow_all_paths;
      miktex_allow_all_paths = 1;
      std::vector<PathName> configFiles;

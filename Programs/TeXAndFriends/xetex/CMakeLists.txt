@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2020 Christian Schenk
+## Copyright (C) 2008-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,8 +32,8 @@ include_directories(
 )
   
 add_definitions(
-  -DHAVE_C4P_PRE_H
   -DHAVE_C4P_POST_H
+  -DHAVE_C4P_PRE_H
   -DLE_USE_CMEMORY
   -DSYNCTEX_ENGINE_H="synctex-xetex.h"
   -DTeX
@@ -55,16 +55,16 @@ set(C4P_FLAGS
 )
 
 set(xetex_ch_synctex
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-xe-def.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-mem.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-e-mem.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-e-mem.ch1
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-rec.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-e-rec.ch0
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-xe-def.ch0
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-mem.ch0
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-e-mem.ch0
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-e-mem.ch1
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-rec.ch0
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-e-rec.ch0
 )
 
 set(xetex_post_ch_synctex
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-xe-rec.ch3
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-xe-rec.ch3
 )
 
 set(miktex_tex_change_files
@@ -80,18 +80,19 @@ set(miktex_tex_change_files
   ${TEX_MIKTEX_WEB2C_CH}
   ${TEX_MIKTEX_POOL_CH}
   ${TRACINGSTACKLEVELS_CH}
+  ${PARTOKEN_102_CH}
+  ${PARTOKEN_CH}
   ${TEX_MIKTEX_FINISH_CH}
 )
 
-set(pre_xetex_change_files
+set(pre_xetex1_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1.web)
+set(pre_xetex1_change_files
   ${xetex_ch_synctex}
   ${ETEX_MIKTEX_PRE_CH}
   ${ETEX_MIKTEX_CH}
   ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-0.ch
   ${miktex_tex_change_files}
 )
-
-set(pre_xetex1_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex1.web)
 
 add_custom_command(
   OUTPUT
@@ -100,18 +101,21 @@ add_custom_command(
     ${MIKTEX_PREFIX}tie
     -m ${pre_xetex1_web_file}
     ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.web
-    ${pre_xetex_change_files}
+    ${pre_xetex1_change_files}
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/xetex.web
   DEPENDS
     ${MIKTEX_PREFIX}tie
-    ${pre_xetex_change_files}
+    ${pre_xetex1_change_files}
   VERBATIM
 )
 
-set(pre_xetex2_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex2.web)
+set(pre_xetex2_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2.web)
+set(pre_xetex2_change_files
+  ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-2.ch
+)
 
 add_custom_command(
   OUTPUT
@@ -120,19 +124,17 @@ add_custom_command(
     ${MIKTEX_PREFIX}tie
     -m ${pre_xetex2_web_file}
     ${pre_xetex1_web_file}
-    ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-1.ch
-    ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-2.ch
+    ${pre_xetex2_change_files}
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${MIKTEX_PREFIX}tie
     ${pre_xetex1_web_file}
-    ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-1.ch
-    ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-2.ch
+    ${pre_xetex2_change_files}
   VERBATIM
 )
 
-set(xetex_web_file ${CMAKE_CURRENT_BINARY_DIR}/xetex.web)
+set(xetex_web_file ${CMAKE_CURRENT_BINARY_DIR}/xetex-final.web)
 set(xetex_change_file ${CMAKE_CURRENT_SOURCE_DIR}/xetex-miktex.ch)
 
 set(xetex_header_file ${CMAKE_CURRENT_BINARY_DIR}/xetexd.h)
@@ -149,21 +151,21 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.ch
     ${MIKTEX_PREFIX}tie
     ${pre_xetex2_web_file}
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.ch
     ${xetex_post_ch_synctex}
   VERBATIM
 )
 
-file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 file(READ ${MIKTEX_DYN_ETEX_SCRIPT} etex_dyn_sed_contents)
+file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${tex_dyn_sed_contents}")
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${etex_dyn_sed_contents}")
+file(WRITE  ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${etex_dyn_sed_contents}")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed "${tex_dyn_sed_contents}")
 
 set_source_files_properties(
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.c
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex.c
   source/XeTeX_ext.c
   source/XeTeX_pic.c
   source/image/bmpimage.c
@@ -179,10 +181,10 @@ set(xetex_target_name xetex)
 
 set(${xetex_target_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-common.h
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-xetex.h
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.c
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.h
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-common.h
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-xetex.h
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex.c
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex.h
   c4p_pre.h
   miktex-first.h
   source/XeTeXFontInst.cpp
@@ -244,8 +246,8 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    inipool
     ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
+    inipool
 )
 
 set_source_files_properties(
@@ -349,38 +351,38 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.web
+    web-n
   VERBATIM
 )
 
 add_custom_command(
   OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex1-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
   COMMAND
     web-n
     < ${pre_xetex1_web_file}
-    > ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex1-n.web
+    > ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${pre_xetex1_web_file}
+    web-n
   VERBATIM
 )
 
 add_custom_command(
   OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex2-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
   COMMAND
     web-n
     < ${pre_xetex2_web_file}
-    > ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex2-n.web
+    > ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${pre_xetex2_web_file}
+    web-n
   VERBATIM
 )
 
@@ -394,17 +396,17 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
-    web-n
     ${xetex_web_file}
+    web-n
   VERBATIM
 )
 
 add_custom_target(xetex-dev ALL
   DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex1-n.web
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex2-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
     ${CMAKE_CURRENT_BINARY_DIR}/xetex-final-n.web
+    ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
 )
 
 set_property(TARGET xetex-dev PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})

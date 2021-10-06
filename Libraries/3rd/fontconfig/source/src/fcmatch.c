@@ -788,9 +788,12 @@ FcFontSetMatchInternal (FcFontSet   **sets,
     }
     if (FcDebug () & FC_DBG_MATCH2)
     {
+#if !defined(MIKTEX)
 	char *env = getenv ("FC_DBG_MATCH_FILTER");
+#endif
 	FcObjectSet *os = NULL;
 
+#if !defined(MIKTEX)
 	if (env)
 	{
 	    char *ss, *s;
@@ -825,6 +828,7 @@ FcFontSetMatchInternal (FcFontSet   **sets,
 	    }
 	    free (ss);
 	}
+#endif
 	FcPatternPrint2 (p, best, os);
 	if (os)
 	    FcObjectSetDestroy (os);

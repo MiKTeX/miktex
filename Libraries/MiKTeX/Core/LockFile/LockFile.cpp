@@ -38,8 +38,6 @@
 
 #include "internal.h"
 
-#include "Session/SessionImpl.h"
-
 using namespace std;
 using namespace chrono_literals;
 
@@ -78,9 +76,7 @@ public:
   LockFileImpl(const PathName& path) :
     path(path)
   {
-    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-    TraceCallback* callback = session == nullptr ? nullptr : session->GetInitInfo().GetTraceCallback();
-    trace_lockfile = TraceStream::Open(MIKTEX_TRACE_LOCKFILE, callback);
+    trace_lockfile = TraceStream::Open(MIKTEX_TRACE_LOCKFILE);
   }
 public:
   bool MIKTEXTHISCALL TryLock(chrono::milliseconds timeout) override;

@@ -319,7 +319,7 @@ private:
   unique_ptr<Cfg> pCfg;
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 };
 
 #if defined(MIKTEX_WINDOWS)

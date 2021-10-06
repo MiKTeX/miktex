@@ -27,10 +27,10 @@
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Process>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
-
-#include "Session/SessionImpl.h"
 
 using namespace std;
 
@@ -88,7 +88,8 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
 {
   MIKTEX_ASSERT_STRING_OR_NIL(workingDirectory);
 
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
+  auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
 
   ProcessStartInfo startinfo;
 
@@ -105,19 +106,11 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
     startinfo.WorkingDirectory = workingDirectory;
   }
 
-  if (session != nullptr)
-  {
-    session->UnloadFilenameDatabase();
-  }
-
   unique_ptr<Process> process(Process::Start(startinfo));
 
   if (callback)
   {
-    if (session != nullptr)
-    {
-      session->trace_process->WriteLine("core", "start reading the pipe");
-    }
+    trace_process->WriteLine("core", "start reading the pipe");
     const size_t CHUNK_SIZE = 64;
     char buf[CHUNK_SIZE];
     bool cancelled = false;
@@ -135,10 +128,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
       total += n;
       cancelled = !callback(buf, n);
     }
-    if (session != nullptr)
-    {
-      session->trace_process->WriteLine("core", fmt::format("read {0} bytes from the pipe", total));
-    }
+    trace_process->WriteLine("core", fmt::format("read {0} bytes from the pipe", total));
   }
 
   // wait for the process to finish
@@ -180,20 +170,17 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, fun
   }
   else
   {
-    if (session != nullptr)
+    if (exitStatus == ProcessExitStatus::Exited)
     {
-      if (exitStatus == ProcessExitStatus::Exited)
-      {
-        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(fileName), processExitCode));
-      }
-      else if (exitStatus == ProcessExitStatus::Signaled)
-      {
-        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was killed by a signal", Q_(fileName)));
-      }
-      else
-      {
-        session->trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} exited abnormmally", Q_(fileName)));
-      }
+      trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} returned with exit code {1}", Q_(fileName), processExitCode));
+    }
+    else if (exitStatus == ProcessExitStatus::Signaled)
+    {
+      trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} was killed by a signal", Q_(fileName)));
+    }
+    else
+    {
+      trace_error->WriteLine("core", TraceLevel::Error, fmt::format("{0} exited abnormally", Q_(fileName)));
     }
     return false;
   }

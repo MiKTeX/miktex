@@ -33,7 +33,10 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/Fndb>
 #include <miktex/Core/win/winAutoResource>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -42,6 +45,7 @@
 using namespace std;
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 static std::unordered_map<DWORD, bool> expectedErrors = {
@@ -58,7 +62,7 @@ static std::unordered_map<DWORD, bool> expectedErrors = {
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_access = TraceStream::Open(MIKTEX_TRACE_FILES);
   if (options[FileExistsOption::SymbolicLink])
   {
     UNIMPLEMENTED();
@@ -75,10 +79,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
     {
       exists = false;
-      if (session != nullptr)
-      {
-        session->trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
-      }
+      trace_access->WriteLine("core", fmt::format(T_("{0} is a directory"), Q_(path)));
     }
   }
   else
@@ -94,10 +95,7 @@ bool File::Exists(const PathName& path, FileExistsOptionSet options)
       MIKTEX_FATAL_WINDOWS_RESULT_3("GetFileAttributesW", error, T_("MiKTeX cannot retrieve attributes for the file '{path}'."), "path", path.ToDisplayString());
     }
   }
-  if (session != nullptr)
-  {
-    session->trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: {1}"), Q_(path), exists ? "OK" : "NOK"));
-  }
+  trace_access->WriteLine("core", fmt::format(T_("accessing file {0}: {1}"), Q_(path), exists ? "OK" : "NOK"));
   return exists;
 }
 
@@ -171,12 +169,9 @@ void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 
 void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttributes)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
 
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
-  }
+  trace_files->WriteLine("core", fmt::format(T_("setting new attributes ({0:x}) on {1}"), nativeAttributes, Q_(path)));
 
   if (!SetFileAttributesW(path.ToExtendedLengthPathName().ToWideCharString().c_str(), static_cast<DWORD>(nativeAttributes)))
   {
@@ -316,11 +311,8 @@ void File::GetTimes(const PathName& path, time_t& creationTime, time_t& lastAcce
 
 void File::Delete(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("deleting {0}"), Q_(path)));
   if (!DeleteFileW(path.ToExtendedLengthPathName().ToWideCharString().c_str()))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_3("DeleteFileW",
@@ -331,11 +323,8 @@ void File::Delete(const PathName& path)
 
 void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("renaming {0} to {1}"), Q_(source), Q_(dest)));
   DWORD flags = MOVEFILE_COPY_ALLOWED | MOVEFILE_WRITE_THROUGH;
   if (options[FileMoveOption::ReplaceExisting])
   {
@@ -350,7 +339,7 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
   }
   if (options[FileMoveOption::UpdateFndb])
   {
-    MIKTEX_EXPECT(session != nullptr);
+    auto session = SESSION_IMPL();
     if (session->IsTEXMFFile(source) && Fndb::FileExists(source))
     {
       Fndb::Remove({ source });
@@ -364,11 +353,8 @@ void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet 
 
 void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
   if (options[FileCopyOption::ReplaceExisting] && File::Exists(dest))
   {
     unsigned long destAttributes = GetNativeAttributes(dest);
@@ -391,8 +377,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   }
   if (options[FileCopyOption::UpdateFndb])
   {
-    MIKTEX_EXPECT(session != nullptr);
-    if (session->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
+    if (SESSION_IMPL()->IsTEXMFFile(dest) && !Fndb::FileExists(dest))
     {
       Fndb::Add({ {dest} });
     }
@@ -410,11 +395,8 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
     }
     File::Delete(newName, deleteOptions);
   }
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard", Q_(newName), Q_(oldName)));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  trace_files->WriteLine("core", fmt::format(T_("creating {0} link from {1} to {2}"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard", Q_(newName), Q_(oldName)));
   if (options[CreateLinkOption::Symbolic])
   {
     UNIMPLEMENTED();
@@ -425,8 +407,7 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
   if (options[CreateLinkOption::UpdateFndb])
   {
-    MIKTEX_EXPECT(session != nullptr);
-    if (session->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
+    if (SESSION_IMPL()->IsTEXMFFile(newName) && !Fndb::FileExists(newName))
     {
       Fndb::Add({ {newName} });
     }
@@ -453,11 +434,8 @@ size_t File::SetMaxOpen(size_t newMax)
   }
   else
   {
-    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-    if (session != nullptr)
-    {
-      session->trace_files->WriteLine("core", fmt::format(T_("increasing maximum number of simultaneously open files (oldmax={0}, newmax={1})"), oldMax, newMax));
-    }
+    auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+    trace_files->WriteLine("core", fmt::format(T_("increasing maximum number of simultaneously open files (oldmax={0}, newmax={1})"), oldMax, newMax));
     if (_setmaxstdio(static_cast<int>(newMax)) < 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("_setmaxstdio", "newmax", std::to_string(newMax));
@@ -468,11 +446,9 @@ size_t File::SetMaxOpen(size_t newMax)
 
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileOpenOptionSet options)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-  if (session != nullptr)
-  {
-    session->trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} 0x{2:x} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), isTextFile));
-  }
+  auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
+  
+  trace_files->WriteLine("core", fmt::format(T_("opening file {0} ({1} 0x{2:x} {3})"), Q_(path), static_cast<int>(mode), static_cast<int>(access), isTextFile));
 
   int flags = 0;
   string strFlags;

@@ -217,7 +217,7 @@ PackageInfo PackageManagerImpl::GetPackageInfo(const string& packageId)
 
 bool PackageManager::TryGetRemotePackageRepository(string& url, RepositoryReleaseState& repositoryReleaseState)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   repositoryReleaseState = RepositoryReleaseState::Unknown;
   if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, url))
   {
@@ -251,14 +251,14 @@ string PackageManager::GetRemotePackageRepository(RepositoryReleaseState& reposi
 
 void PackageManager::SetRemotePackageRepository(const string& url, RepositoryReleaseState repositoryReleaseState)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REMOTE_REPOSITORY, ConfigValue(url));
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REPOSITORY_RELEASE_STATE, ConfigValue(repositoryReleaseState == RepositoryReleaseState::Stable ? "stable" : (repositoryReleaseState == RepositoryReleaseState::Next ? "next" : "unknown")));
 }
 
 bool PackageManager::TryGetLocalPackageRepository(PathName& path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   string str;
   if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, str))
   {
@@ -293,12 +293,12 @@ void PackageManager::SetLocalPackageRepository(const PathName& path)
   {
     fqPath.MakeFullyQualified();
   }
-  Session::Get()->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(fqPath.ToString()));
+  MIKTEX_SESSION()->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_LOCAL_REPOSITORY, ConfigValue(fqPath.ToString()));
 }
 
 bool PackageManager::TryGetMiKTeXDirectRoot(PathName& path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   string str;
   if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_MIKTEXDIRECT_ROOT, str))
   {
@@ -328,14 +328,14 @@ PathName PackageManager::GetMiKTeXDirectRoot()
 
 void PackageManager::SetMiKTeXDirectRoot(const PathName& path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_MIKTEXDIRECT_ROOT, ConfigValue(path.ToString()));
 }
 
 RepositoryInfo PackageManager::GetDefaultPackageRepository()
 {
   RepositoryInfo result;
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   string str;
   if (session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_REPOSITORY_TYPE, str))
   {
@@ -382,7 +382,7 @@ bool PackageManager::TryGetDefaultPackageRepository(RepositoryType& repositoryTy
 
 void PackageManager::SetDefaultPackageRepository(const RepositoryInfo& repository)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   string repositoryTypeStr;
   switch (repository.type)
   {
@@ -406,7 +406,7 @@ void PackageManager::SetDefaultPackageRepository(const RepositoryInfo& repositor
 
 void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   RepositoryInfo repository;
   repository.type = repositoryType != RepositoryType::Unknown ? repositoryType : PackageRepositoryDataStore::DetermineRepositoryType(urlOrPath);
   repository.releaseState = repositoryReleaseState;
@@ -436,7 +436,7 @@ namespace {
 
 MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const string& packageId)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   string unprefixed;
 
@@ -1051,7 +1051,7 @@ bool PackageManager::StripTeXMFPrefix(const string& str, string& result)
 
 void PackageManager::SetProxy(const ProxySettings& proxySettings)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_USE_PROXY, ConfigValue(proxySettings.useProxy));
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_HOST, ConfigValue(proxySettings.proxy));
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_PORT, ConfigValue(proxySettings.port));
@@ -1062,7 +1062,7 @@ void PackageManager::SetProxy(const ProxySettings& proxySettings)
 
 bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings)
 {
-  shared_ptr<Session> session = Session::Get(); 
+  shared_ptr<Session> session = MIKTEX_SESSION(); 
   proxySettings.useProxy = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_USE_PROXY, ConfigValue(false)).GetBool();
   if (!proxySettings.useProxy || !session->TryGetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_PROXY_HOST, proxySettings.proxy))
   {

@@ -90,7 +90,7 @@ template<class Enum> Enum StringToEnum(const char* lpsz, const EnumAndString<Enu
 
 bool SetMetafontMode(const char* lpszMnemonic, unsigned long& metafontModeIdx)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   MIKTEXMFMODE metafontMode;
   for (unsigned long idx = 0; session->GetMETAFONTMode(idx, metafontMode); ++idx)
   {
@@ -115,7 +115,7 @@ bool YapConfig::SetPrinterMetafontMode(const char* lpszMnemonic)
 
 static string DefaultInverseSearchTemplate()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   string inverseSearchTemplate;
   PathName texworks;
   if (session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, texworks))

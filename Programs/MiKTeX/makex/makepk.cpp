@@ -666,25 +666,28 @@ int MAIN(int argc, MAINCHAR** argv)
     newargv.push_back(nullptr);
     app.Init(Session::InitInfo(newargv[0]), newargv);
     app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize2(0);
+    app.Finalize2(EXIT_SUCCESS);
     logger = nullptr;
-    return 0;
+    return EXIT_SUCCESS;
   }
   catch (const MiKTeXException& ex)
   {
-    app.Sorry("makepk", ex);
-    logger = nullptr;
     ex.Save();
-    return 1;
+    app.Sorry("makepk", ex);
+    app.Finalize2(EXIT_FAILURE);
+    logger = nullptr;
+    return EXIT_FAILURE;
   }
   catch (const exception& ex)
   {
     app.Sorry("makepk", ex);
+    app.Finalize2(EXIT_FAILURE);
     logger = nullptr;
-    return 1;
+    return EXIT_FAILURE;
   }
   catch (int exitCode)
   {
+    app.Finalize2(exitCode);
     logger = nullptr;
     return exitCode;
   }

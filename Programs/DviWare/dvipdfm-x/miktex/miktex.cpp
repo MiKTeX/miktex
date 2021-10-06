@@ -98,7 +98,7 @@ extern "C" void miktex_log_warn_va(const char* format, va_list args)
 
 extern "C" void miktex_read_config_files()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   vector<PathName> configFiles;
   if (session->FindFile(MIKTEX_PATH_DVIPDFMX_CONFIG, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, configFiles))
   {

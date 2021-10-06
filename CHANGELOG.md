@@ -5,13 +5,42 @@
 ### Upgraded programs
 
 * dvipdfmx 20210609
+* makeindex 2.16
+
+## 21.10 - 2021-10-05
+
+### Fixed issues
+
+- [899](https://github.com/MiKTeX/miktex/issues/899): Texify: Getting version leads to internal error
+- [921](https://github.com/MiKTeX/miktex/issues/921): Epstopdf Crashes
+- [923](https://github.com/MiKTeX/miktex/issues/923): Handle competing fontconfig installation
+- [933](https://github.com/MiKTeX/miktex/issues/933): "texify.exe" crashes on Windows in 21.6 when invoked with incorrect usage
+- [940](https://github.com/MiKTeX/miktex/issues/940): remove type1 font directories from localfonts.conf
+
+## 21.8 - 2021-08-06
+
+### Documentation browser
+
+MiKTeX Console now provides a user interface which makes it easier to find and view package documentation.
+
+### Fixed issues
+
+- [338](https://github.com/MiKTeX/miktex/issues/338): MikTeX Console : direkt link to open package documentation
+
+## 21.7 - 2021-07-19
+
+### Upgraded programs
+
+* dvipdfmx 20210609
 * pdftex 1.40.23
 
 ### Fixed issues
 
+- [847](https://github.com/MiKTeX/miktex/issues/847): Shared vs not-shared?
 - [863](https://github.com/MiKTeX/miktex/issues/863): Auto-Install package__doc by file name
 - [867](https://github.com/MiKTeX/miktex/issues/867): MiKTeX console crash while changing remote package repository
 - [869](https://github.com/MiKTeX/miktex/issues/869): MiKTeX setup utility encounters internal error during installation
+- [871](https://github.com/MiKTeX/miktex/issues/871): TeXstudio stopped working - could not find perl.exe
 
 ## 21.6.28 - 2021-06-28
 

@@ -66,7 +66,7 @@ inline int defaultFramework()
       defaultGUIFramework = (int)Framework::Qt;
     }
 #endif
-    cached = MiKTeX::Core::Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_GUI_FRAMEWORK, MiKTeX::Configuration::ConfigValue(defaultGUIFramework)).GetInt();
+    cached = MIKTEX_SESSION()->GetConfigValue(MIKTEX_CONFIG_SECTION_GENERAL, MIKTEX_CONFIG_VALUE_GUI_FRAMEWORK, MiKTeX::Configuration::ConfigValue(defaultGUIFramework)).GetInt();
   }
   return cached;
 }

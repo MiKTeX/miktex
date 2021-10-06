@@ -57,7 +57,7 @@ InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageMa
   setupUi(this);
   try
   {
-    shared_ptr<Session> session = Session::Get();
+    shared_ptr<Session> session = MIKTEX_SESSION();
     QPushButton* okayButton = buttonBox->button(QDialogButtonBox::Ok);
     if (okayButton == nullptr)
     {

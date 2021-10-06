@@ -41,7 +41,7 @@ public:
   RestRemoteService(const std::string& endpoint, const MiKTeX::Packages::ProxySettings& proxySettings) :
     endpointBaseUrl(endpoint),
     proxySettings(proxySettings),
-    session(MiKTeX::Core::Session::Get()),
+    session(MIKTEX_SESSION()),
     webSession(WebSession::Create(nullptr))
   {
     Initialize();

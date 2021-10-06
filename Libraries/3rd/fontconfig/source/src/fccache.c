@@ -255,12 +255,16 @@ FcCacheIsMmapSafe (int fd)
 
     if (status == MMAP_NOT_INITIALIZED)
     {
+#if defined(MIKTEX)
+    status = MMAP_CHECK_FS;
+#else
 	const char *env = getenv ("FONTCONFIG_USE_MMAP");
 	FcBool use;
 	if (env && FcNameBool ((const FcChar8 *) env, &use))
 	    status =  use ? MMAP_USE : MMAP_DONT_USE;
 	else
 	    status = MMAP_CHECK_FS;
+#endif
 	(void) fc_atomic_ptr_cmpexch (&static_status, NULL, (void *) status);
     }
 

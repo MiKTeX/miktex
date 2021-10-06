@@ -708,7 +708,7 @@ void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const string& valueN
 
 void winSetupServiceImpl::UnregisterShellFileTypes()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName initexmfExe;
   if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmfExe))
   {
@@ -787,7 +787,7 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
 
 bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   bool removed = false;
   vector<string> newPath;
   vector<PathName> binDirectories;
@@ -827,7 +827,7 @@ bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(string& path)
 
 void winSetupServiceImpl::RemoveRegistryKeys()
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   if (session->IsAdminMode() && Exists(HKEY_LOCAL_MACHINE, PathName(MIKTEX_REGPATH_SERIES)))
   {

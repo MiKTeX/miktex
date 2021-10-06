@@ -205,7 +205,7 @@ void VFont::ReadFontDef(InputStream& inputStream, short fntDefX)
 
   DviFont* pFont;
   PathName fileName;
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   if (session->FindFile(szName, FileType::VF, fileName))
   {
     trace_vfont->WriteLine("libdvi", fmt::format(T_("found vf file {0}"), Q_(fileName)));

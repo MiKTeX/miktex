@@ -331,7 +331,7 @@ PaperSizeInfo PaperSizeInfo::Parse(const string& spec)
 
   PaperSizeInfo paperSizeInfo;
 
-  for (int idx = 0; SessionImpl::GetSession()->GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
+  for (int idx = 0; SESSION_IMPL()->GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
   {
     if (paperSizeInfo.width == width && paperSizeInfo.height == height)
     {

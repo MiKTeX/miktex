@@ -37,13 +37,13 @@ using namespace MiKTeX::Util;
 
 void FileSystemWatcherBase::Subscribe(MiKTeX::Core::FileSystemWatcherCallback *callback)
 {
-  lock_guard l(mutex);
+  lock_guard<shared_mutex> l(mutex);
   callbacks.insert(callback);
 }
 
 void FileSystemWatcherBase::Unsubscribe(MiKTeX::Core::FileSystemWatcherCallback *callback)
 {
-  lock_guard l(mutex);
+  lock_guard<shared_mutex> l(mutex);
   auto it = callbacks.find(callback);
   if (it != callbacks.end())
   {
@@ -116,7 +116,7 @@ void FileSystemWatcherBase::NotifySubscribers()
 {
   while (!done)
   {
-    unique_lock l(notifyMutex);
+    unique_lock<std::mutex> l(notifyMutex);
     notifyCondition.wait(l, [this] { return done || !pendingNotifications.empty(); });
     vector<FileSystemChangeEvent> notifications;
     std::swap(notifications, pendingNotifications);

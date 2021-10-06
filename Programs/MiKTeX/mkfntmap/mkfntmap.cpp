@@ -1137,7 +1137,10 @@ void MakeFontMapApp::CopyFiles()
 }
 
 static const char* const topDirs[] = {
+#if 0
+  // See: https://github.com/MiKTeX/miktex/issues/940
   "fonts" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "type1",
+#endif
   "fonts" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "opentype",
   "fonts" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "truetype",
 };

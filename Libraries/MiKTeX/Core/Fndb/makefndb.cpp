@@ -393,7 +393,7 @@ void FndbManager::CollectFiles(const PathName& parentPath, const PathName& folde
 bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
 {
   trace_fndb->WriteLine("core", fmt::format(T_("creating fndb file {0}..."), Q_(fndbPath)));
-  unsigned rootIdx = SessionImpl::GetSession()->DeriveTEXMFRoot(rootPath);
+  unsigned rootIdx = SESSION_IMPL()->DeriveTEXMFRoot(rootPath);
   this->rootPath = rootPath;
   this->enableStringPooling = enableStringPooling;
   this->storeFileNameInfo = storeFileNameInfo;
@@ -434,7 +434,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
     bool unloaded = false;
     for (size_t i = 0; !unloaded && i < 100; ++i)
     {
-      unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx, chrono::seconds(0));
+      unloaded = SESSION_IMPL()->UnloadFilenameDatabaseInternal(rootIdx, chrono::seconds(0));
       if (!unloaded)
       {
         trace_fndb->WriteLine("core", "sleep for 1ms");
@@ -468,7 +468,7 @@ bool FndbManager::Create(const PathName& fndbPath, const PathName& rootPath, ICr
       File::Delete(changeFile);
     }
     trace_fndb->WriteLine("core", T_("fndb creation completed"));
-    SessionImpl::GetSession()->RecordMaintenance();
+    SESSION_IMPL()->RecordMaintenance();
     return true;
   }
   catch (const OperationCancelledException&)
@@ -501,14 +501,14 @@ bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFnd
 
 bool Fndb::Refresh(const PathName& path, ICreateFndbCallback* callback)
 {
-  unsigned root = SessionImpl::GetSession()->DeriveTEXMFRoot(path);
-  PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(root);
-  return Fndb::Create(pathFndbPath, SessionImpl::GetSession()->GetRootDirectoryPath(root), callback);
+  unsigned root = SESSION_IMPL()->DeriveTEXMFRoot(path);
+  PathName pathFndbPath = SESSION_IMPL()->GetFilenameDatabasePathName(root);
+  return Fndb::Create(pathFndbPath, SESSION_IMPL()->GetRootDirectoryPath(root), callback);
 }
 
 bool Fndb::Refresh(ICreateFndbCallback* callback)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   unsigned n = session->GetNumberOfTEXMFRoots();
   for (unsigned ord = 0; ord < n; ++ord)
   {

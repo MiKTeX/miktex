@@ -35,6 +35,8 @@
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Environment>
 #include <miktex/Core/win/winAutoResource>
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceStream>
 
 #include "internal.h"
 
@@ -117,18 +119,15 @@ void winProcess::Create()
   HANDLE hChildStdout = INVALID_HANDLE_VALUE;
   HANDLE hChildStderr = INVALID_HANDLE_VALUE;
 
+  auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
+
   try
   {
-    shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
-
     // redirect stdout (and possibly stderr)
     if (startinfo.StandardOutput != nullptr)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "redirecting stdout to a stream");
-      }
+      trace_process->WriteLine("core", "redirecting stdout to a stream");
 #endif
       int fd = _fileno(startinfo.StandardOutput);
       if (fd < 0)
@@ -148,10 +147,7 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardOutput)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "redirecting stdout to a pipe");
-      }
+      trace_process->WriteLine("core", "redirecting stdout to a pipe");
 #endif
       // create stdout pipe
       AutoHANDLE hStdoutRd;
@@ -170,10 +166,7 @@ void winProcess::Create()
     if (startinfo.StandardError != nullptr)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "redirecting stderr to a stream");
-      }
+      trace_process->WriteLine("core", "redirecting stderr to a stream");
 #endif
       int fd = _fileno(startinfo.StandardError);
       if (fd < 0)
@@ -193,10 +186,7 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardError)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "redirecting stderr to a pipe");
-      }
+      trace_process->WriteLine("core", "redirecting stderr to a pipe");
 #endif
       // create child stderr pipe
       AutoHANDLE hStderrRd;
@@ -214,10 +204,7 @@ void winProcess::Create()
     else if (hChildStdout != INVALID_HANDLE_VALUE)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "make child stderr = child stdout");
-      }
+      trace_process->WriteLine("core", "make child stderr = child stdout");
 #endif
       // make child stderr = child stdout
       if (!DuplicateHandle(hCurrentProcess, hChildStdout, hCurrentProcess, &hChildStderr, 0, TRUE, DUPLICATE_SAME_ACCESS))
@@ -231,10 +218,7 @@ void winProcess::Create()
     if (startinfo.StandardInput != nullptr)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "redirecting stdin to a stream");
-      }
+      trace_process->WriteLine("core", "redirecting stdin to a stream");
 #endif
       int fd = _fileno(startinfo.StandardInput);
       if (fd < 0)
@@ -254,10 +238,7 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardInput)
     {
 #if TRACEREDIR
-      if (session != nullptr)
-      {
-        session->trace_process->WriteLine("core", "redirecting stdin to a pipe");
-      }
+      trace_process->WriteLine("core", "redirecting stdin to a pipe");
 #endif
       // create child stdin pipe
       AutoHANDLE hStdinWr;
@@ -287,23 +268,18 @@ void winProcess::Create()
     DWORD creationFlags = CREATE_UNICODE_ENVIRONMENT;
 
     // don't open a window if both stdout & stderr are redirected or if we are shutting down
-    if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE || session == nullptr)
+    if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE)
     {
       creationFlags |= CREATE_NO_WINDOW;
     }
 
     // start child process
-    if (session != nullptr)
-    {
-      session->trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
-    }
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
+
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
 
     // create environment map
-    unordered_map<string, string> envMap;
-    if (session != nullptr)
-    {
-      envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
-    }
+    unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
 
     tmpFile = TemporaryFile::Create();
     envMap[MIKTEX_ENV_EXCEPTION_PATH] = tmpFile->GetPathName().ToString();
@@ -326,7 +302,9 @@ void winProcess::Create()
     }
     environmentStrings[stringIdx] = wchar_t();
 
-    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, session != nullptr ? environmentStrings : nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
+    session->UnloadFilenameDatabase();
+
+    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, environmentStrings, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine.ToString());
     }

@@ -116,7 +116,7 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 #if defined(MIKTEX)
         // TODO: code review
         QDir helpDir;
-        std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+        std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
         MiKTeX::Util::PathName path = session->GetSpecialPath(MiKTeX::Configuration::SpecialPath::DistRoot) / MiKTeX::Util::PathName("doc/texworks/help");
         if (MiKTeX::Core::Directory::Exists(path))
         {

@@ -78,5 +78,5 @@ private:
   CString m_strPrinterName;
 
 private:
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 };

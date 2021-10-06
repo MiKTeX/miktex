@@ -924,6 +924,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   bool antiAliasing = false;
   bool doCompress = true;
+  bool optVersion = false;
   bool restricted = (invocationName != PathName("epstopdf") && invocationName != PathName(MIKTEX_PREFIX "epstopdf-unrestricted"));
 
   vector<string> gsOptions;
@@ -1007,14 +1008,8 @@ void EpsToPdfApp::Run(int argc, const char** argv)
       verbose = true;
       break;
     case OPT_VERSION:
-      cout
-        << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
-	<< endl
-        << MIKTEX_COMP_COPYRIGHT_STR << endl
-	<< endl
-        << "This is free software; see the source for copying conditions.  There is NO" << endl
-        << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
-      return;
+      optVersion = true;
+      break;
     }
   }
 
@@ -1039,6 +1034,19 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   Init(initInfo);
   session = GetSession();
+
+  if (optVersion)
+  {
+    cout
+      << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+      << "\n"
+      << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+      << "\n"
+      << "This is free software; see the source for copying conditions.  There is NO" << "\n"
+      << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+    return;
+
+  }
 
   PathName inputFile;
 

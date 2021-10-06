@@ -1,6 +1,6 @@
 /* mcd-version.h: version number                        -*- C++ -*-
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,8 +19,8 @@
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
 #define MIKTEX_COMP_MINOR_VERSION 0
-#define MIKTEX_COMP_PATCH_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 1
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1992-1999, 2001-2005 Free Software Foundation, Inc. © 1998-2020 Christian Schenk"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1992-1999, 2001-2005 Free Software Foundation, Inc. © 1998-2021 Christian Schenk"
 
 #include <miktex/Version>

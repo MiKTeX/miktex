@@ -41,7 +41,7 @@ using namespace MiKTeX::Util;
 
 void Utils::UncompressFile(const PathName& pathIn, PathName& pathOut)
 {
-  SessionImpl::GetSession()->trace_process->WriteLine("core", fmt::format(T_("uncompressing {0}..."), Q_(pathIn)));
+  SESSION_IMPL()->trace_process->WriteLine("core", fmt::format(T_("uncompressing {0}..."), Q_(pathIn)));
   if (!File::Exists(pathIn))
   {
     MIKTEX_FATAL_ERROR_2(T_("The file could not be found."), "path", pathIn.ToString());

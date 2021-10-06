@@ -93,7 +93,7 @@ STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, u
 {
   PathName tcxPath;
 
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   if (!session->FindFile(lpszFileName, FileType::TCX, tcxPath))
   {
@@ -231,7 +231,7 @@ STATICFUNC(bool) OpenAlphaFile(void* p, const char* lpszFileName, FileType fileT
   MIKTEX_ASSERT(p != nullptr);
   MIKTEX_ASSERT_BUFFER(p, sizeof(alphafile));
   MIKTEX_ASSERT_STRING(lpszFileName);
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PathName fileName(lpszFileName);
   if (!fileName.HasExtension() && lpszExtension != nullptr)
   {

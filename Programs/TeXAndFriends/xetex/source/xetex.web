@@ -5392,7 +5392,7 @@ locations for control sequences that are perpetually defined
 @d end_write=frozen_control_sequence+8 {permanent `\.{\\endwrite}'}
 @d frozen_dont_expand=frozen_control_sequence+9
   {permanent `\.{\\notexpanded:}'}
-@d prim_size=500 {maximum number of primitives }
+@d prim_size=2100 {maximum number of primitives }
 @d frozen_null_font=frozen_control_sequence+10
   {permanent `\.{\\nullfont}'}
 @d frozen_primitive=frozen_control_sequence+11
@@ -6455,7 +6455,7 @@ A global boolean variable called |no_new_control_sequence| is set to
 
 @ Primitive support needs a few extra variables and definitions
 
-@d prim_prime=431 {about 85\pct! of |primitive_size|}
+@d prim_prime=1777 {about 85\pct! of |primitive_size|}
 @d prim_base=1
 @d prim_next(#) == prim[#].lh {link for coalesced lists}
 @d prim_text(#) == prim[#].rh {string number for control sequence name, plus one}

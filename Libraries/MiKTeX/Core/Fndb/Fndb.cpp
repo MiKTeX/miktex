@@ -33,7 +33,7 @@ using namespace MiKTeX::Util;
 
 bool Fndb::Search(const PathName& fileName, const string& pathPattern, bool all, vector<Fndb::Record>& result)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   unsigned root = session->DeriveTEXMFRoot(PathName(pathPattern));
   shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
   if (fndb == nullptr)
@@ -49,7 +49,7 @@ void Fndb::Add(const vector<Fndb::Record>& records)
   {
     MIKTEX_UNEXPECTED();
   }
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   // TODO: parse/split records
   unsigned root = session->DeriveTEXMFRoot(records[0].path);
   PathName pathFqFndbFileName;
@@ -82,7 +82,7 @@ void Fndb::Remove(const vector<PathName>& paths)
   {
     MIKTEX_UNEXPECTED();
   }
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   // TODO: parse/split records
   unsigned root = session->DeriveTEXMFRoot(paths[0]);
   shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
@@ -95,7 +95,7 @@ void Fndb::Remove(const vector<PathName>& paths)
 
 bool Fndb::FileExists(const PathName& path)
 {
-  shared_ptr<SessionImpl> session = SessionImpl::GetSession();
+  shared_ptr<SessionImpl> session = SESSION_IMPL();
   unsigned root = session->DeriveTEXMFRoot(path);
   shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root);
   if (fndb == nullptr)

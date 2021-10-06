@@ -922,8 +922,8 @@ enum mp_filetype {
   mp_filetype_text              /* first text file for readfrom and writeto primitives */
 };
 typedef char *(*mp_file_finder) (MP, const char *, const char *, int);
-typedef char *(*mp_script_runner) (MP, const char *);
-typedef char *(*mp_text_maker) (MP, const char *, int mode);
+typedef char *(*mp_script_runner) (MP, const char *, size_t);
+typedef char *(*mp_text_maker) (MP, const char *, size_t, int);
 typedef void *(*mp_file_opener) (MP, const char *, const char *, int);
 typedef char *(*mp_file_reader) (MP, void *, size_t *);
 typedef void (*mp_binfile_reader) (MP, void *, void **, size_t *);
@@ -960,25 +960,23 @@ static char *mp_find_file (MP mp, const char *fname, const char *fmode,
 }
 
 @ @c
-static char *mp_run_script (MP mp, const char *str) {
+static char *mp_run_script (MP mp, const char *str, size_t len) {
   (void) mp;
-  return mp_strdup (str);
+  return mp_strldup (str, len);
 }
 
 @ @c
-static char *mp_make_text (MP mp, const char *str, int mode) {
+static char *mp_make_text (MP mp, const char *str, size_t len, int mode) {
   (void) mp;
-  return mp_strdup (str);
+  return mp_strldup (str, len);
 }
 
 @ Because |mp_find_file| is used so early, it has to be in the helpers
 section.
 
 @<Declarations@>=
-static char *mp_find_file (MP mp, const char *fname, const char *fmode,
-                           int ftype);
-static void *mp_open_file (MP mp, const char *fname, const char *fmode,
-                           int ftype);
+static char *mp_find_file (MP mp, const char *fname, const char *fmode, int ftype);
+static void *mp_open_file (MP mp, const char *fname, const char *fmode, int ftype);
 static char *mp_read_ascii_file (MP mp, void *f, size_t * size);
 static void mp_read_binary_file (MP mp, void *f, void **d, size_t * size);
 static void mp_close_file (MP mp, void *f);
@@ -986,8 +984,8 @@ static int mp_eof_file (MP mp, void *f);
 static void mp_flush_file (MP mp, void *f);
 static void mp_write_ascii_file (MP mp, void *f, const char *s);
 static void mp_write_binary_file (MP mp, void *f, void *s, size_t t);
-static char *mp_run_script (MP mp, const char *str);
-static char *mp_make_text (MP mp, const char *str, int mode);
+static char *mp_run_script (MP mp, const char *str, size_t len);
+static char *mp_make_text (MP mp, const char *str, size_t len, int mode);
 
 @ The function to open files can now be very short.
 
@@ -15863,7 +15861,7 @@ CONTINUE:
     	 set_number_from_scaled (mp->cur_tt, 1);
          goto NOT_FOUND;
     }
-  
+
     if (number_to_scaled (mp->delx) - mp->tol <=
         number_to_scaled (stack_max (x_packet (mp->xy))) - number_to_scaled (stack_min (u_packet (mp->uv))))
       if (number_to_scaled (mp->delx) + mp->tol >=
@@ -18144,7 +18142,7 @@ new level (having, initially, the same properties as the old).
 @d push_input  { /* enter a new input level, save the old */
   if ( mp->input_ptr>mp->max_in_stack ) {
     mp->max_in_stack=mp->input_ptr;
-    if ( mp->input_ptr==mp->stack_size ) { 
+    if ( mp->input_ptr==mp->stack_size ) {
         int l = (mp->stack_size+(mp->stack_size/4));
         /* The mp->stack_size < 1001 condition is necessary to prevent C stack overflow due infinite recursion. */
         if (l>1000) {fprintf(stderr, "input stack overflow\n");exit(EXIT_FAILURE);}
@@ -20012,7 +20010,7 @@ if (s != NULL) {
     } else {
         mp_back_input (mp);
         if (cur_exp_str ()->len > 0) {
-            char *s = mp->run_script(mp,(const char*) cur_exp_str()->str) ;
+            char *s = mp->run_script(mp,(const char*) cur_exp_str()->str, cur_exp_str()->len) ;
             @<Run a script@>
             free(s);
         }
@@ -20158,7 +20156,7 @@ line and preceded by a space or at the beginning of a line.
         }
         /* action */
         {
-            char *s = mp->make_text(mp,ptr,verb) ;
+            char *s = mp->make_text(mp,ptr,size,verb) ;
             @<Run a script@>
             free(s);
         }
@@ -20209,7 +20207,7 @@ line and preceded by a space or at the beginning of a line.
     } else {
         mp_back_input (mp);
         if (cur_exp_str ()->len > 0) {
-            char *s = mp->make_text(mp,(const char*) cur_exp_str()->str,0) ;
+            char *s = mp->make_text(mp,(const char*) cur_exp_str()->str,cur_exp_str()->len,0) ;
             @<Run a script@>
             free(s);
         }

@@ -1157,7 +1157,7 @@ change_font:
 
 Dvi* Dvi::Create(const char* fileName, const char* metafontMode, int resolution, int shrinkFactor, DviAccess dviAccess, IDviCallback* dviCallback, TraceCallback* traceCallback)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
   PaperSizeInfo defaultPaperSizeInfo;
   if (!session->GetPaperSizeInfo(-1, defaultPaperSizeInfo))
   {

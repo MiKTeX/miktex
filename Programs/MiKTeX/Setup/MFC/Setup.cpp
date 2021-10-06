@@ -365,7 +365,7 @@ void CheckStartupConfig(StartupConfig& startupConfig)
 
 void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
 {
-  shared_ptr<Session> session = Session::Get();
+  shared_ptr<Session> session = MIKTEX_SESSION();
 
   int iOptIdx = 0;
   int c;
@@ -566,7 +566,7 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
 
 bool FindFile(const PathName& fileName, PathName& result)
 {
-  std::shared_ptr<Session> session = Session::Get();
+  std::shared_ptr<Session> session = MIKTEX_SESSION();
 
   // try my directory
   result = session->GetMyLocation(false);
@@ -624,7 +624,7 @@ SetupApp::SetupApp()
 
 void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
 {
-  std::shared_ptr<Session> session = Session::Get();
+  std::shared_ptr<Session> session = MIKTEX_SESSION();
 
   SetupOptions options = SetupApp::Instance->Service->GetOptions();
 
