@@ -1,8 +1,8 @@
 {2:}{4:}{$c-,a+,d-}{[$c+,d+]}
 {:4}program tangle(webfile,changefile,pascalfile,pool);label 9999;
 const{8:}bufsize=5000;maxbytes=65535;maxtoks=65535;maxnames=10000;
-maxtexts=10000;hashsize=353;longestname=2000;linelength=72;
-outbufsize=144;stacksize=1000;maxidlength=64;unambiglength=64;
+maxtexts=10000;hashsize=353;longestname=2000;linelength=130;
+outbufsize=260;stacksize=1000;maxidlength=64;unambiglength=64;
 maxnumeric=1073741823;{:8}type{11:}asciicode=0..255;
 {:11}{12:}textfile=packed file of char;{:12}{37:}eightbits=0..255;
 sixteenbits=0..maxnumeric;{:37}{39:}namepointer=0..maxnames;

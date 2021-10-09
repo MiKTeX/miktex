@@ -1,6 +1,6 @@
 %% tangle-miktex.ch: WEB change file for TANGLE
 %% 
-%% Copyright (C) 1991-2016 Christian Schenk
+%% Copyright (C) 1991-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -65,8 +65,8 @@
 @!max_texts=10000; {number of replacement texts, must be less than 10240}
 @!hash_size=353; {should be prime}
 @!longest_name=2000; {module names shouldn't be longer than this}
-@!line_length=72; {lines of \PASCAL\ output have at most this many characters}
-@!out_buf_size=144; {length of output buffer, should be twice |line_length|}
+@!line_length=130; {lines of \PASCAL\ output have at most this many characters}
+@!out_buf_size=260; {length of output buffer, should be twice |line_length|}
 @!stack_size=1000; {number of simultaneous levels of macro expansion}
 @!max_id_length=64; {long identifiers are chopped to this length, which must
   not exceed |line_length|}
