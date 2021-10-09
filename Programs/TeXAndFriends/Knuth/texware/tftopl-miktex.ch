@@ -1,6 +1,6 @@
 %% tftopl-miktex.ch: WEB change file for TFtoPL
 %%
-%% Copyright (C) 1991-2019 Christian Schenk
+%% Copyright (C) 1991-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -91,6 +91,20 @@ c4p_fopen(pl_file,c4p_argv[2],c4p_w_mode,true); rewrite(pl_file);
 
 % _____________________________________________________________________________
 %
+% [4.27]
+% _____________________________________________________________________________
+
+@x
+@!ASCII_04,@!ASCII_10,@!ASCII_14: packed array [1..32] of char;
+  {strings for output in the user's external character set}
+@y
+@!ASCII_04,@!ASCII_10,@!ASCII_14: packed array [1..32] of char;
+  {strings for output in the user's external character set}
+@!ASCII_all: packed array[0..256] of char;
+@z
+
+% _____________________________________________________________________________
+%
 % [4.28]
 % _____________________________________________________________________________
 
@@ -100,10 +114,44 @@ ASCII_10:='@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_';@/
 ASCII_14:='`abcdefghijklmnopqrstuvwxyz{|}~ ';@/
 MBL_string:='MBL'; RI_string:='RI '; RCE_string:='RCE';
 @y
-c4p_arrcpy(ASCII_04,' !"#$%&''()*+,-./0123456789:;<=>?');@/
-c4p_arrcpy(ASCII_10,'@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_');@/
-c4p_arrcpy(ASCII_14,'`abcdefghijklmnopqrstuvwxyz{|}~ ');@/
+c4p_arrcpy(ASCII_04,'  !"#$%&''()*+,-./0123456789:;<=>?');@/
+c4p_arrcpy(ASCII_10,' @@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_');@/
+c4p_arrcpy(ASCII_14,' `abcdefghijklmnopqrstuvwxyz{|}~ ');@/
+c4p_arrcpy(ASCII_all,'  !"#$%&''()*+,-./0123456789:;<=>?@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~');@/
 c4p_arrcpy(MBL_string,'MBL'); c4p_arrcpy(RI_string,'RI '); c4p_arrcpy(RCE_string,'RCE');
+@z
+
+% _____________________________________________________________________________
+%
+% [4.38]
+% _____________________________________________________________________________
+
+@x
+begin if font_type>vanilla then
+  begin tfm[0]:=c; out_octal(0,1)
+  end
+else if (c>="0")and(c<="9") then
+  out(' C ',c-"0":1)
+else if (c>="A")and(c<="Z") then
+  out(' C ',ASCII_10[c-"A"+2])
+else if (c>="a")and(c<="z") then
+  out(' C ',ASCII_14[c-"a"+2])
+else  begin tfm[0]:=c; out_octal(0,1);
+@y
+begin if (font_type > vanilla) or (charcode_format = charcode_octal) then
+  begin tfm[0]:=c; out_octal(0,1)
+  end
+else if (charcode_format = charcode_ascii) and (c > " ") and (c <= "~")
+        and (c <> "(") and (c <> ")") then
+  out(' C ', ASCII_all[c - " " + 1])
+{default case, use \.C only for letters and digits}
+else if (c>="0")and(c<="9") then
+  out(' C ',c-"0":1)
+else if (c>="A")and(c<="Z") then
+  out(' C ',ASCII_10[c-"A"+2])
+else if (c>="a")and(c<="z") then
+  out(' C ',ASCII_14[c-"a"+2])
+else  begin tfm[0]:=c; out_octal(0,1);
 @z
 
 % _____________________________________________________________________________
@@ -125,4 +173,40 @@ final_end:end.
 final_end:
 c4p_end_try_block(final_end);
 end.
+@z
+
+% _____________________________________________________________________________
+%
+% [8.100] System-dependent changes
+% _____________________________________________________________________________
+
+@x
+@* System-dependent changes.
+This section should be replaced, if necessary, by changes to the program
+that are necessary to make \.{TFtoPL} work at a particular installation.
+It is usually best to design your change file so that all changes to
+previous sections preserve the section numbering; then everybody's version
+will be consistent with the printed program. More extensive changes,
+which introduce new sections, can be inserted here; then only the index
+itself will get a new section number.
+@^system dependencies@>
+@y
+@ We use an ``enumerated'' type to store the information.
+
+@<Type...@> =
+@!charcode_format_type = charcode_ascii..charcode_default;
+
+@ @<Const...@> =
+@!charcode_ascii = 0;
+@!charcode_octal = 1;
+@!charcode_default = 2;
+
+@ @<Global...@> =
+@!charcode_format: charcode_format_type;
+
+@ It starts off as the default, that is, we output letters and digits as
+ASCII characters, everything else in octal.
+
+@<Set initial values@> =
+charcode_format := charcode_default;
 @z
