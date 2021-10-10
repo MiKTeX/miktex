@@ -31,6 +31,7 @@
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/WebAppInputLine>
+#include <miktex/W2C/Emulation>
 
 #if !defined(MIKTEXHELP_BIBTEX)
 #  include <miktex/Core/Help>

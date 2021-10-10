@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,3 +37,14 @@ set_source_files_properties(
   PROPERTIES
     GENERATED TRUE
 )
+
+if(LINK_EVERYTHING_STATICALLY)
+  target_link_libraries(${MIKTEX_PREFIX}bibtex
+    ${w2cemu_lib_name}
+  )
+else()
+  target_link_libraries(bibtex
+    PRIVATE
+      ${w2cemu_dll_name}
+  )
+endif()

@@ -450,33 +450,15 @@ miktex_bibtex_realloc('sv_buffer', sv_buffer, buf_size);
 % _____________________________________________________________________________
 
 @x
-function input_ln(var f:alpha_file) : boolean;
-                                {inputs the next line or returns |false|}
-label loop_exit;
-begin
-last:=0;
-if (eof(f)) then input_ln:=false
-else
-  begin
-  while (not eoln(f)) do
-    begin
-    if (last >= buf_size) then
-        buffer_overflow;
     buffer[last]:=xord[f^];
     get(f); incr(last);
     end;
   get(f);
-  while (last > 0) do           {remove trailing |white_space|}
-    if (lex_class[buffer[last-1]] = white_space) then
-      decr(last)
-     else
-      goto loop_exit;
-loop_exit:
-  input_ln:=true;
-  end;
-end;
 @y
-function input_ln(var f:alpha_file) : boolean; forward;
+    buffer[last] := xord[getc (f)];
+    incr (last);
+    end;
+  vgetc (f); {skip the eol}
 @z
 
 % _____________________________________________________________________________
