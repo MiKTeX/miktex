@@ -1,0 +1,19 @@
+@x tex.web l.12394
+  @<Record void list {\sl Sync\TeX} information@>;
+@y
+  if type(p)<>dir_node then
+    @<Record void list {\sl Sync\TeX} information@>;
+@z
+
+@x tex.web l.12533
+save_loc:=dvi_offset+dvi_ptr; left_edge:=cur_h;
+@y
+left_edge:=cur_h;
+@z
+
+@x tex.web l.12569
+  @<Record void list {\sl Sync\TeX} information@>;
+@y
+  if type(p)<>dir_node then
+    @<Record void list {\sl Sync\TeX} information@>;
+@z

@@ -1,0 +1,23 @@
+@x tex.web l.2897
+@d box_node_size=7+synctex_field_size {number of words to allocate for a box node}
+@y
+@d box_node_size=8+synctex_field_size {number of words to allocate for a box node}
+@z
+
+@x tex.web l.4912 + synctex-mem.ch0
+@d REMOVE ME IF synctex_code is properly defined
+@y
+@z
+
+@x tex.web l.4960 + tex.ch
+@d etex_int_base=web2c_int_pars {base for \eTeX's integer parameters}
+@y
+@d synctex_code=web2c_int_pars
+@d etex_int_base=synctex_code+1 {base for \eTeX's integer parameters}
+@z
+
+@x tex.web l. 24956
+@* \[54] System-dependent changes.
+@y
+@* \[54/\pTeX] System-dependent changes for \pTeX.
+@z

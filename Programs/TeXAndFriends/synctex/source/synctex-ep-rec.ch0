@@ -1,0 +1,13 @@
+@x srcdir/etex.ch l.536
+@/@<synctex case for |print_param|@>@/
+othercases print("[unknown integer parameter!]")
+@y
+othercases print("[unknown integer parameter!]")
+@z
+
+@x
+@ @<synctex case for |print_param|@>=
+synctex_code:    print_esc("synctex");
+
+@y
+@z
