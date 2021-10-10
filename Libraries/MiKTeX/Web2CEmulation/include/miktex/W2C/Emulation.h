@@ -200,6 +200,8 @@ typedef double real;
 
 #define ustringcast(x) ((unsigned char*)(x))
 
+#define cinttype int
+
 /// @}
 
 /* _________________________________________________________________________ */
