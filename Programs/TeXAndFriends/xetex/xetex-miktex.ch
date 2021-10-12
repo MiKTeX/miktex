@@ -121,18 +121,18 @@ end;
 % _____________________________________________________________________________
 
 @x
-if (max_font_max<min_halfhalfword)or(max_font_max>max_halfhalfword) then bad:=15;
+if (max_font_max<min_halfword)or(max_font_max>max_halfword) then bad:=15;
 @y
 if (max_font_max<min_quarterword)or(max_font_max>max_quarterword) then bad:=15;
 @z
 
 % _____________________________________________________________________________
 %
-% [8.117]
+% [8.135]
 % _____________________________________________________________________________
 
 @x
-@!halfhalfword  = min_halfhalfword..max_halfhalfword; {1/2 of a halfword}
+@!halfhalfword = min_halfhalfword..max_halfhalfword;
 @y
 @z
 

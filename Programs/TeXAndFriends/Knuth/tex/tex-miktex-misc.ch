@@ -1614,6 +1614,29 @@ if name=str_ptr-1 then {conserve string pool space (but see note above)}
 
 % _____________________________________________________________________________
 %
+% [30.552]
+% _____________________________________________________________________________
+
+@x
+font_ptr:=null_font; fmem_ptr:=7;
+font_name[null_font]:="nullfont"; font_area[null_font]:="";
+hyphen_char[null_font]:="-"; skew_char[null_font]:=-1;
+bchar_label[null_font]:=non_address;
+font_bchar[null_font]:=non_char; font_false_bchar[null_font]:=non_char;
+font_bc[null_font]:=1; font_ec[null_font]:=0;
+font_size[null_font]:=0; font_dsize[null_font]:=0;
+char_base[null_font]:=0; width_base[null_font]:=0;
+height_base[null_font]:=0; depth_base[null_font]:=0;
+italic_base[null_font]:=0; lig_kern_base[null_font]:=0;
+kern_base[null_font]:=0; exten_base[null_font]:=0;
+font_glue[null_font]:=null; font_params[null_font]:=7;
+param_base[null_font]:=-1;
+for k:=0 to 6 do font_info[k].sc:=0;
+@y
+@z
+
+% _____________________________________________________________________________
+%
 % [30.563]
 % _____________________________________________________________________________
 
@@ -2351,6 +2374,35 @@ end;
 % _____________________________________________________________________________
 
 @x
+fix_date_and_time;@/
+@y
+fix_date_and_time;@/
+
+@!init
+if trie_not_ready then begin {initex without format loaded}
+  trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
+
+  font_ptr:=null_font; fmem_ptr:=7;
+  font_name[null_font]:="nullfont"; font_area[null_font]:="";
+  hyphen_char[null_font]:="-"; skew_char[null_font]:=-1;
+  bchar_label[null_font]:=non_address;
+  font_bchar[null_font]:=non_char; font_false_bchar[null_font]:=non_char;
+  font_bc[null_font]:=1; font_ec[null_font]:=0;
+  font_size[null_font]:=0; font_dsize[null_font]:=0;
+  char_base[null_font]:=0; width_base[null_font]:=0;
+  height_base[null_font]:=0; depth_base[null_font]:=0;
+  italic_base[null_font]:=0; lig_kern_base[null_font]:=0;
+  kern_base[null_font]:=0; exten_base[null_font]:=0;
+  font_glue[null_font]:=null; font_params[null_font]:=7;
+  param_base[null_font]:=-1;
+  for font_k:=0 to 6 do font_info[font_k].sc:=0;
+  end;
+  tini@/
+
+  for font_k:=font_base to font_max do font_used[font_k]:=false;
+@z
+
+@x
 @<Initialize the print |selector|...@>;
 @y
 if miktex_get_interaction >= 0 then
@@ -2360,7 +2412,7 @@ if miktex_get_interaction >= 0 then
 
 % _____________________________________________________________________________
 %
-% [51.1337]
+% [51.1348]
 % _____________________________________________________________________________
 
 @x
@@ -2506,6 +2558,7 @@ function miktex_make_full_name_string : str_number; forward;@t\2@>@/
 @!error_line:integer; {width of context lines on terminal error messages}
 @!extra_mem_bot:integer; {|mem_min:=mem_bot-extra_mem_bot| except in \.{INITEX}}
 @!extra_mem_top:integer; {|mem_max:=mem_top+extra_mem_top| except in \.{INITEX}}
+@!font_k:integer; {loop variable for initialization}
 @!font_max:integer; {maximum internal font number; must not exceed |max_quarterword|
   and must be at most |font_base+256|}
 @!font_mem_size:integer; {number of words of |font_info| for all fonts}
