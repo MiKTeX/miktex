@@ -37,6 +37,7 @@ set(C4P_FLAGS
 
 set(tex_changefiles
   ${MLTEX_MIKTEX_CH}
+  ${TEX_MIKTEX_CONSTANTS_CH}
   ${TEX_MIKTEX_CH}
   ${TEX_MIKTEX_HASH_CH}
   ${TEX_MIKTEX_HYPH_CH}

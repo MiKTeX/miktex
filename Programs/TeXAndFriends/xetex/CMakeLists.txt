@@ -69,6 +69,7 @@ set(xetex_post_ch_synctex
 
 set(miktex_tex_change_files
   ${MLTEX_MIKTEX_CH}
+  ${TEX_MIKTEX_CONSTANTS_CH}
   ${TEX_MIKTEX_CH}
   ${TEX_MIKTEX_HASH_CH}
   ${TEX_MIKTEX_HYPH_CH}

@@ -97,190 +97,6 @@ versions of the program.
 
 % _____________________________________________________________________________
 %
-% [1.11]
-% _____________________________________________________________________________
-
-@x
-@<Constants...@>=
-@y
-@d max_font_max=9000 {maximum number of internal fonts; this can be
-                      increased, but |hash_size+max_font_max|
-                      should not exceed 29000.}
-@d font_base=0 {smallest internal font number; must be
-                |>= min_quarterword|; do not change this without
-                modifying the dynamic definition of the font arrays.}
-
-@<Constants...@>=
-{marker:constants}
-@z
-
-@x
-@!mem_max=30000; {greatest index in \TeX's internal |mem| array;
-  must be strictly less than |max_halfword|;
-  must be equal to |mem_top| in \.{INITEX}, otherwise |>=mem_top|}
-@y
-@z
-
-@x
-@!mem_min=0; {smallest index in \TeX's internal |mem| array;
-  must be |min_halfword| or more;
-  must be equal to |mem_bot| in \.{INITEX}, otherwise |<=mem_bot|}
-@y
-@z
-
-@x
-@!buf_size=500; {maximum number of characters simultaneously present in
-  current lines of open files and in control sequences between
-  \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword|}
-@y
-@!inf_buf_size = 500;
-@!sup_buf_size = 30000000;
-@z
-
-@x
-@!error_line=72; {width of context lines on terminal error messages}
-@y
-@!inf_error_line=40;
-@!sup_error_line=65535;
-@z
-
-@x
-@!half_error_line=42; {width of first lines of contexts in terminal
-  error messages; should be between 30 and |error_line-15|}
-@y
-@!inf_half_error_line=30;
-@!sup_half_error_line=65535;
-@z
-
-@x
-@!max_print_line=79; {width of longest text lines output; should be at least 60}
-@y
-@!inf_max_print_line=40;
-@!sup_max_print_line=65535;
-@z
-
-@x
-@!stack_size=200; {maximum number of simultaneous input sources}
-@y
-@!inf_stack_size=30;
-@!sup_stack_size=65535;
-@z
-
-@x
-@!max_in_open=6; {maximum number of input files and error insertions that
-  can be going on simultaneously}
-@y
-@!inf_max_in_open=6;
-@!sup_max_in_open=127;
-@z
-
-@x
-@!font_max=75; {maximum internal font number; must not exceed |max_quarterword|
-  and must be at most |font_base+256|}
-@y
-@z
-
-@x
-@!font_mem_size=20000; {number of words of |font_info| for all fonts}
-@y
-@!inf_font_mem_size=20000;
-@!sup_font_mem_size=147483647;
-@z
-
-@x
-@!param_size=60; {maximum number of simultaneous macro parameters}
-@y
-@!inf_param_size=60;
-@!sup_param_size=600000;
-@z
-
-@x
-@!nest_size=40; {maximum number of semantic levels simultaneously active}
-@y
-@!inf_nest_size=40;
-@!sup_nest_size=4000;
-@z
-
-@x
-@!max_strings=3000; {maximum number of strings; must not exceed |max_halfword|}
-@y
-@!inf_max_strings=3000;
-@!sup_max_strings=2097151;
-@!inf_strings_free=100;
-@!sup_strings_free=262143;
-@z
-
-@x
-@!string_vacancies=8000; {the minimum number of characters that should be
-  available for the user's control sequences and font names,
-  after \TeX's own error messages are stored}
-@y
-@!inf_string_vacancies=8000;
-@!sup_string_vacancies=40000000;
-@z
-
-@x
-@!pool_size=32000; {maximum number of characters in strings, including all
-  error messages and help texts, and the names of all fonts and
-  control sequences; must exceed |string_vacancies| by the total
-  length of \TeX's own strings, which is currently about 23000}
-@y
-@!inf_pool_size=32000;
-@!sup_pool_size=40000000;
-@!inf_pool_free=1000;
-@!sup_pool_free=40000000;
-@z
-
-@x
-@!save_size=600; {space for saving values outside of current group; must be
-  at most |max_halfword|}
-@y
-@!inf_save_size=600;
-@!sup_save_size=80000;
-@z
-
-@x
-@!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
-@y
-@!dvi_buf_size=8192; {size of the output buffer; must be a multiple of 8}
-@z
-
-@x
-@!file_name_size=40; {file names shouldn't be longer than this}
-@y
-@!file_name_size=9999999; {file names shouldn't be longer than this}
-@z
-
-@x
-@!pool_name='TeXformats:TEX.POOL                     ';
-  {string of length |file_name_size|; tells where the string pool appears}
-@y
-@!inf_expand_depth = 10;
-@!sup_expand_depth = 10000000;
-@z
-
-% _____________________________________________________________________________
-%
-% [1.12]
-% _____________________________________________________________________________
-
-@x
-@d mem_bot=0 {smallest index in the |mem| array dumped by \.{INITEX};
-  must not be less than |mem_min|}
-@d mem_top==30000 {largest index in the |mem| array dumped by \.{INITEX};
-  must be substantially larger than |mem_bot|
-  and not greater than |mem_max|}
-@y
-@z
-
-@x
-@d font_base=0 {smallest internal font number; must not be less
-  than |min_quarterword|}
-@y
-@z
-
-% _____________________________________________________________________________
-%
 % [2.20]
 % _____________________________________________________________________________
 
@@ -592,11 +408,11 @@ loop@+begin
   {the number of characters on the current file line}
 @!trick_buf:array[0..error_line] of ASCII_code; {circular buffer for
 @y
-@!term_offset : 0..sup_max_print_line;
+@!term_offset : integer;
   {the number of characters on the current terminal line}
-@!file_offset : 0..sup_max_print_line;
+@!file_offset : integer;
   {the number of characters on the current file line}
-@!trick_buf:array[0..sup_error_line] of ASCII_code; {circular buffer for
+@!trick_buf:array[0..ssup_error_line] of ASCII_code; {circular buffer for
 @z
 
 % _____________________________________________________________________________
@@ -1053,9 +869,9 @@ sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 @y
 @!i:0..sup_buf_size; {index into |buffer|}
 @!j:0..sup_buf_size; {end of current line in |buffer|}
-@!l:0..sup_half_error_line; {length of descriptive information on line 1}
+@!l:0..ssup_error_line; {length of descriptive information on line 1}
 @!m:integer; {context information gathered for line 2}
-@!n:0..sup_error_line; {length of line 1}
+@!n:0..ssup_error_line; {length of line 1}
 @z
 
 % _____________________________________________________________________________
@@ -1812,6 +1628,17 @@ if not miktex_open_tfm_file(tfm_file,name_of_file) then abort;
 
 % _____________________________________________________________________________
 %
+% [32.594]
+% _____________________________________________________________________________
+
+@x
+@!dvi_index=0..dvi_buf_size; {an index into the output buffer}
+@y
+@!dvi_index=0..sup_dvi_buf_size; {an index into the output buffer}
+@z
+
+% _____________________________________________________________________________
+%
 % [32.597]
 % _____________________________________________________________________________
 
@@ -2422,6 +2249,7 @@ c4p_begin_try_block(end_of_TEX);
 miktex_on_texmf_start_job;
 miktex_process_command_line_options;
 miktex_allocate_memory;
+if error_line > ssup_error_line then error_line := ssup_error_line;
 @z
 
 @x

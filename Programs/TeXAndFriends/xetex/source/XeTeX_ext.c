@@ -1264,17 +1264,13 @@ findnativefont(unsigned char* uname, integer scaled_size)
             if (varString != NULL)
                 namelength += strlen(varString) + 1;
 #if defined(MIKTEX)
-            if (namelength >= filenamesize)
-            {
-              fprintf(stderr, "\n! Internal error: internal buffer too small\n");
-              throw 3;
-            }
+            MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::Util::PathName(fullName));
 #else
             free(nameoffile);
             nameoffile = xmalloc(namelength + 4); /* +2 would be correct: initial space, final NUL */
             nameoffile[0] = ' ';
-#endif
             strcpy((char*)nameoffile + 1, fullName);
+#endif
 
             if (scaled_size < 0) {
                 font = createFont(fontRef, scaled_size);

@@ -149,6 +149,7 @@ set(miktex_synctex_changefiles ${TEX_MIKTEX_SYNCTEX_CH})
 
 set(miktex_tex_change_files
   ${MLTEX_MIKTEX_CH}
+  ${TEX_MIKTEX_CONSTANTS_CH}
   ${TEX_MIKTEX_CH}
   ${TEX_MIKTEX_HASH_CH}
   ${TEX_MIKTEX_HYPH_CH}

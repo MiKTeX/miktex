@@ -7,47 +7,6 @@
 
 % _____________________________________________________________________________
 %
-% [1.11]
-% _____________________________________________________________________________
-
-@x
-{marker:constants}
-@y
-{marker:constants}
-@!hash_offset=514; {smallest index in hash array, i.e., |hash_base| }
-  {Use |hash_offset=0| for compilers which cannot decrement pointers.}
-@z
-
-@x
-@!sup_strings_free=262143;
-@y
-@!sup_strings_free=262143;
-
-@!sup_hash_extra = sup_max_strings;
-@!inf_hash_extra = 0;
-@z
-
-% _____________________________________________________________________________
-%
-% [1.12]
-% _____________________________________________________________________________
-
-@x
-@d hash_size=2100 {maximum number of control sequences; it should be at most
-  about |(mem_max-mem_min)/10|}
-@y
-@d hash_size=15000 {maximum number of control sequences; it should be at most
-  about |(mem_max-mem_min)/10|; see also |font_max|}
-@z
-
-@x
-@d hash_prime=1777 {a prime number equal to about 85\pct! of |hash_size|}
-@y
-@d hash_prime=8501 {a prime number equal to about 85\pct! of |hash_size|}
-@z
-
-% _____________________________________________________________________________
-%
 % [17.222]
 % _____________________________________________________________________________
 

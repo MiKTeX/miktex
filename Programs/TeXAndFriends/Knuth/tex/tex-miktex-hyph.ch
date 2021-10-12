@@ -7,47 +7,6 @@
 
 % _____________________________________________________________________________
 %
-% [1.11]
-% _____________________________________________________________________________
-
-@x
-{marker:constants}
-@y
-{marker:constants}
-@!inf_hyph_size=610; {Must be not less than |hyph_prime|!}
-@!sup_hyph_size=65535;
-@z
-
-@x
-@!trie_size=8000; {space for hyphenation patterns; should be larger for
-  \.{INITEX} than it is in production versions of \TeX}
-@y
-@!inf_trie_size=8000;
-@!sup_trie_size=@"3FFFFF;
-@z
-
-@x
-@!trie_op_size=500; {space for ``opcodes'' in the hyphenation patterns}
-@y
-@!trie_op_size=35111; {space for ``opcodes'' in the hyphenation patterns}
-@!min_trie_op=0; {first possible trie op code for any language}
-@!max_trie_op=65535; {largest possible trie opcode for any language}
-@z
-
-% _____________________________________________________________________________
-%
-% [1.12]
-% _____________________________________________________________________________
-
-@x
-@d hyph_size=307 {another prime; the number of \.{\\hyphenation} exceptions}
-@y
-@d hyph_prime=607 {another prime for hashing \.{\\hyphenation} exceptions;
-                if you change this, you should also change |iinf_hyphen_size|.}
-@z
-
-% _____________________________________________________________________________
-%
 % [42.920]
 % _____________________________________________________________________________
 

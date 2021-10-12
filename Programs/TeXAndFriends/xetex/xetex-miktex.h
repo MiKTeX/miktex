@@ -1,6 +1,6 @@
 /* xetex-miktex.h:                                      -*- C++ -*-
    
-   Copyright (C) 2007-2020 Christian Schenk
+   Copyright (C) 2007-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -265,8 +265,6 @@ using memoryword = XETEXPROGCLASS::memoryword;
 using scaled = XETEXPROGCLASS::scaled;
 using strnumber = XETEXPROGCLASS::strnumber;
 
-constexpr auto filenamesize = XETEXPROGCLASS::filenamesize;
-
 extern XETEXPROGCLASS::unicodescalar*& buffer;
 extern C4P::C4P_integer& bufsize;
 extern XETEXPROGCLASS::scaled& curh;
@@ -302,7 +300,7 @@ extern XETEXPROGCLASS::scaled& rulewd;
 extern XETEXPROGCLASS::packedutf16code*& strpool;
 extern C4P::C4P_integer& synctexoffset;
 extern C4P::C4P_integer& synctexoption;
-extern C4P::C4P_unsigned16& termoffset;
+extern C4P::C4P_integer& termoffset;
 extern XETEXPROGCLASS::strnumber& texmflogname;
 extern C4P::C4P_integer& totalpages;
 extern char*& xdvbuffer;

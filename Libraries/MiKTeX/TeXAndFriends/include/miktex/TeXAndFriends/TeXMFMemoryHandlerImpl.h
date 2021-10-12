@@ -131,14 +131,14 @@ public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
     program.bufsize = GetCheckedParameter("buf_size", program.infbufsize, program.supbufsize, userParams, texmfapp::texmfapp::buf_size());
-    program.errorline = GetCheckedParameter("error_line", program.inferrorline, program.superrorline, userParams, texmfapp::texmfapp::error_line());
+    program.errorline = GetParameter("error_line", userParams, texmfapp::texmfapp::error_line());
 #if defined(HAVE_EXTRA_MEM_BOT)
     program.extramembot = GetParameter("extra_mem_bot", userParams, texmfapp::texmfapp::extra_mem_bot());
 #endif
 #if defined(HAVE_EXTRA_MEM_TOP)
     program.extramemtop = GetParameter("extra_mem_top", userParams, texmfapp::texmfapp::extra_mem_top());
 #endif
-    program.halferrorline = GetCheckedParameter("half_error_line", program.infhalferrorline, program.suphalferrorline, userParams, texmfapp::texmfapp::half_error_line());
+    program.halferrorline = GetParameter("half_error_line", userParams, texmfapp::texmfapp::half_error_line());
 #if defined(HAVE_MAIN_MEMORY)
 #  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX) || defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX)
     const int infmainmemory = 3000;
@@ -149,7 +149,7 @@ public:
 #  endif
     program.mainmemory = GetCheckedParameter("main_memory", infmainmemory, supmainmemory, userParams, texmfapp::texmfapp::main_memory());
 #endif
-    program.maxprintline = GetCheckedParameter("max_print_line", program.infmaxprintline, program.supmaxprintline, userParams, texmfapp::texmfapp::max_print_line());
+    program.maxprintline = GetParameter("max_print_line", userParams, texmfapp::texmfapp::max_print_line());
     program.maxstrings = GetCheckedParameter("max_strings", program.infmaxstrings, program.supmaxstrings, userParams, texmfapp::texmfapp::max_strings());
 #if defined(MIKTEX_METAFONT)
     const int infparamsize = 60;
