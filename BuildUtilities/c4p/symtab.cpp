@@ -1,6 +1,6 @@
 /* symtab.c: symbol table                               -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2021 Christian Schenk
 
    This file is part of C4P.
 
@@ -34,7 +34,6 @@ using namespace std;
 
 void new_keyword(const char *, unsigned);
 void new_variable(const char *, const char *);
-void new_constant(const char *, const char *, C4P_integer);
 void new_function(const char *, const char *);
 void new_procedure(const char *);
 void new_build_in(const char *, unsigned);
@@ -442,6 +441,16 @@ void new_constant(const char * constant_name, const char * type, C4P_integer iva
   sym->s_kind = CONSTANT_IDENTIFIER;
   sym->s_type = tsym->s_type;
   sym->s_value.ivalue = ivalue;
+  sym->s_flags |= S_PREDEFINED;
+}
+
+void new_string_constant(const char* name, const char* value)
+{
+  symbol_t* sym = new_symbol_instance(name);
+  sym->s_block_level = 0;
+  sym->s_kind = CONSTANT_IDENTIFIER;
+  sym->s_type = STRING_TYPE;
+  sym->s_value.ivalue = new_string(value);
   sym->s_flags |= S_PREDEFINED;
 }
 

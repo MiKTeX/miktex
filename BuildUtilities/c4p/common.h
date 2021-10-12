@@ -1,6 +1,6 @@
 /* common.h: common definitions for C4P                 -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2021 Christian Schenk
 
    This file is part of C4P.
 
@@ -229,6 +229,9 @@ void declare_fast_var_macro(unsigned);
 void forget_fast_vars();
 void remember_fast_var(const char *);
 void new_type(const char *, pascal_type, void *, const char *);
+void new_constant(const char* name, const char* type, C4P_integer value);
+void new_string_constant(const char* name, const char* value);
+std::pair<std::string, std::string> ParseNameValue(const std::string& s);
 
 extern symbol_t * prog_symbol;
 extern unsigned curly_brace_level;

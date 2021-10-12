@@ -1,6 +1,6 @@
 /* main.c: Pascal-to-C Translator                       -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2021 Christian Schenk
 
    This file is part of C4P.
 
@@ -125,6 +125,7 @@ Options:\n\
   --chars-are-unsigned\n\
   --class=CLASS\n\
   --class-include=FILENAME\n\
+  --constant NAME=VALUE\n\
   --emit-optimize-pragmas\n\
   --entry-name=NAME\n\
   --declare-c-type=NAME\n\
@@ -160,6 +161,7 @@ Options:\n\
 #define OPT_DECLARE_C_TYPE 15
 #define OPT_NAMESPACE 16
 #define OPT_EMIT_OPTIMIZE_PRAGMAS 17
+#define OPT_CONSTANT 18
 
 namespace {
   const struct option longopts[] =
@@ -171,6 +173,7 @@ namespace {
     "class-include", required_argument, nullptr, OPT_CLASS_INCLUDE,
     "c-plus-plus", no_argument, nullptr, 'C',
     "declare-c-type", required_argument, nullptr, OPT_DECLARE_C_TYPE,
+    "constant", required_argument, nullptr, OPT_CONSTANT,
     "def-filename", required_argument, nullptr, OPT_DEF_FILENAME,
     "dll", no_argument, nullptr, OPT_DLL,
     "emit-optimize-pragmas", no_argument, nullptr, OPT_EMIT_OPTIMIZE_PRAGMAS,
@@ -236,6 +239,28 @@ void option_handler(int argc, char ** argv)
     case OPT_DECLARE_C_TYPE:
       new_type(optarg, UNKNOWN_TYPE, nullptr, nullptr);
       break;
+    case OPT_CONSTANT:
+      {
+        auto nv = ParseNameValue(optarg);
+        if (nv.second.empty())
+        {
+          fprintf(stderr, T_("%s: missing constant value\n"), myname.c_str());
+          exit(1);
+        }
+        if (nv.second[0] == '"')
+        {
+          if (nv.second.length() < 2 || nv.second.back() != '"')
+          {
+            fprintf(stderr, T_("%s: bad string value\n"), myname.c_str());
+            exit(1);
+          }
+          new_string_constant(strdup(nv.first.c_str()), strdup(nv.second.substr(1, nv.second.length() - 2).c_str()));
+        }
+        else
+        {
+          new_constant(strdup(nv.first.c_str()), "integer", std::stoi(nv.second));
+        }
+      }
     case OPT_DLL:
       dll_flag = true;
       break;

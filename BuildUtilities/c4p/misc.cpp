@@ -1,6 +1,6 @@
 /* misc.c: C4P utilities                                -*- C++ -*-
 
-   Copyright (C) 1991-2018 Christian Schenk
+   Copyright (C) 1991-2021 Christian Schenk
 
    This file is part of C4P.
 
@@ -372,4 +372,12 @@ char * strcpye(char * s1, const char * s2)
     ;
   }
   return --s1;
+}
+
+pair<string, string> ParseNameValue(const string& s)
+{
+  auto pos = s.find("=");
+  auto name = s.substr(0, pos);
+  auto value = s.substr(pos + 1);
+  return make_pair(name, value);
 }
