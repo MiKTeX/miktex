@@ -2535,6 +2535,7 @@ function miktex_c_style_error_messages_p : boolean; forward;@t\2@>@/
 function miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
 function miktex_get_interaction : integer; forward;@t\2@>@/
 function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
+function miktex_have_tcx_file_name : boolean; forward;@t\2@>@/
 function miktex_is_init_program : boolean; forward;@t\2@>@/
 function miktex_is_compatible : boolean; forward;@t\2@>@/
 function miktex_make_full_name_string : str_number; forward;@t\2@>@/

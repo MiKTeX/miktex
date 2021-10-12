@@ -52,7 +52,6 @@
 @ Declare system-dependent enctex functions.
 @<Declare \MiKTeX\ functions@>=
 function miktex_enctex_p : boolean; forward;
-function miktex_have_tcx_file_name : boolean; forward;
 @z
 
 % _____________________________________________________________________________
