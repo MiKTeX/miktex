@@ -1634,6 +1634,7 @@ if not miktex_open_tfm_file(tfm_file,name_of_file) then abort;
 @x
 @!c,@!f:quarterword; {character and font in current |char_node|}
 @y
+ {character and font in current |char_node|}
 @!c:quarterword;
 @!f:internal_font_number;
 @z
