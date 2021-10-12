@@ -584,13 +584,9 @@ end
 % _____________________________________________________________________________
 
 @x
-@d min_quarterword=0 {smallest allowable value in a |quarterword|}
-@d max_quarterword=255 {largest allowable value in a |quarterword|}
 @d min_halfword==0 {smallest allowable value in a |halfword|}
 @d max_halfword==65535 {largest allowable value in a |halfword|}
 @y
-@d min_quarterword=0 {smallest allowable value in a |quarterword|}
-@d max_quarterword==255 {largest allowable value in a |quarterword|}
 @d min_halfhalfword==-@"8000
 @d max_halfhalfword==@"7FFF
 @d min_halfword==-@"FFFFFFF {smallest allowable value in a |halfword|}
@@ -603,19 +599,24 @@ end
 % _____________________________________________________________________________
 
 @x
+if (mem_min<min_halfword)or(mem_max>=max_halfword)or@|
+  (mem_bot-mem_min>max_halfword+1) then bad:=14;
+@y
+if (mem_bot-sup_main_memory<min_halfword)or@|
+  (mem_top+sup_main_memory>=max_halfword) then bad:=14;
+@z
+
+@x
 if (font_base<min_quarterword)or(font_max>max_quarterword) then bad:=15;
 if font_max>font_base+256 then bad:=16;
 @y
-if (max_font_max<min_halfhalfword)or(max_font_max>max_halfhalfword) then bad:=15;
+if (max_font_max<min_halfword)or(max_font_max>max_halfword) then bad:=15;
 if font_max>font_base+max_font_max then bad:=16;
 @z
 
 % _____________________________________________________________________________
 %
 % [8.112]
-%
-% The original definitions of qi and qo do not work well with the MLTeX
-% extensions.
 %
 % _____________________________________________________________________________
 
@@ -636,6 +637,11 @@ macros are simplified in the obvious way when |min_quarterword=0|.
 So they have been simplified here in the obvious way.
 @^inner loop@>@^system dependencies@>
 
+The \.{WEB} source for \TeX\ defines |hi(#)==#+min_halfword| which can be
+simplified when |min_halfword=0|.  The Web2C implementation of \TeX\ can use
+|hi(#)==#| together with |min_halfword<0| as long as |max_halfword| is
+sufficiently large.
+
 @d qi(#)==# {to put an |eight_bits| item into a quarterword}
 @d qo(#)==# {to take an |eight_bits| item from a quarterword}
 @d hi(#)==# {to put a sixteen-bit item into a halfword}
@@ -649,9 +655,15 @@ So they have been simplified here in the obvious way.
 
 @x
 @!quarterword = min_quarterword..max_quarterword; {1/4 of a word}
+@!halfword=min_halfword..max_halfword; {1/2 of a word}
+@!two_choices = 1..2; {used when there are two variants in a record}
+@!four_choices = 1..4; {used when there are four variants in a record}
 @y
-@!quarterword = min_quarterword..max_quarterword; {1/4 of a word}
-@!halfhalfword  = min_halfhalfword..max_halfhalfword; {1/2 of a halfword}
+@!quarterword = min_quarterword..max_quarterword;
+@!halfhalfword = min_halfhalfword..max_halfhalfword;
+@!halfword = min_halfword..max_halfword;
+@!two_choices = 1..2; {used when there are two variants in a record}
+@!four_choices = 1..4; {used when there are four variants in a record}
 @z
 
 @x

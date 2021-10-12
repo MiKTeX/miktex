@@ -100,7 +100,7 @@ end;
 % _____________________________________________________________________________
 
 @x
-@d max_quarterword==255 {largest allowable value in a |quarterword|}
+@d max_quarterword=255 {largest allowable value in a |quarterword|}
 @y
 @d max_quarterword=@"FFFF {largest allowable value in a |quarterword|}
 @z
