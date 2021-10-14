@@ -180,22 +180,22 @@ add_custom_command(
     ${MIKTEX_PREFIX}tie
     -c ${pdftex_change_file}
     ${pdftex_web_file}
-    ${pdftex_ch_synctex}
-    ${ETEX_MIKTEX_ADAPTER_CH}
+    ${MIKTEX_ETEX_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
     ${miktex_tex_change_files}
-    ${MIKTEX_ETEX_CH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
+    ${pdftex_ch_synctex}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-miktex.ch
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${MIKTEX_PREFIX}tie
+  MAIN_DEPENDENCY
     ${pdftex_web_file}
-    ${ETEX_MIKTEX_ADAPTER_CH}
-    ${miktex_tex_change_files}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
+  DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-miktex.ch
+    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
+    ${MIKTEX_ETEX_CH}
+    ${MIKTEX_PREFIX}tie
+    ${miktex_tex_change_files}
+    ${pdftex_ch_synctex}
 )
 
 file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
@@ -483,44 +483,3 @@ if(NOT LINK_EVERYTHING_STATICALLY)
     ${regex_dll_name}
   )
 endif()
-
-## dev targets
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied.web
-    ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied-n.web
-  COMMAND
-    ${MIKTEX_PREFIX}tie
-    -m ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied.web
-    ${pdftex_web_file}
-    ${pdftex_ch_synctex}
-    ${ETEX_MIKTEX_ADAPTER_CH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
-    ${miktex_tex_change_files}
-    ${MIKTEX_ETEX_CH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
-  COMMAND
-    web-n
-    < ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied.web
-    > ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied-n.web
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${MIKTEX_PREFIX}tie
-    web-n
-    ${pdftex_web_file}
-    ${ETEX_MIKTEX_ADAPTER_CH}
-    ${miktex_tex_change_files}
-    #${ETEX_MIKTEX_ADAPTER_CH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
-  VERBATIM
-)
-
-add_custom_target(pdftex-dev ALL
-  DEPENDS
-    ${pdftex_change_file}
-    ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied-n.web
-)
-
-set_property(TARGET pdftex-dev PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})

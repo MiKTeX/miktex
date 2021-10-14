@@ -55,6 +55,12 @@ for i:=0 to @'176 do xord[xchr[i]]:=i;
 @d int_base=math_code_base+256 {beginning of region 5}
 @z
 
+@x [17.236] l.4960 - first web2c, then e-TeX additional integer parameters
+@d tex_int_pars=55 {total number of \TeX's integer parameters}
+@y
+@d int_pars=55 {total number of integer parameters}
+@z
+
 % _____________________________________________________________________________
 %
 % [29.541]

@@ -5,6 +5,14 @@
 %%% change files.  By Tim Morgan, UC Irvine ICS Department, and many
 %%% others.
 
+@x [1] m.2 l.188 - banner
+@d banner==TeX_banner
+@d banner_k==TeX_banner_k
+@y
+@d banner==pdfTeX_banner
+@d banner_k==pdfTeX_banner
+@z
+
 % _____________________________________________________________________________
 %
 % [1.4]
@@ -39,6 +47,14 @@ program PDFTEX; {all file names are defined dynamically}
 @y
 @d frozen_null_font=frozen_control_sequence+12+prim_size
   {permanent `\.{\\nullfont}'}
+@z
+
+@x [17.236] l.4960 - first web2c, then e-TeX additional integer parameters
+@d int_pars=web2c_int_pars {total number of integer parameters}
+@#
+@d etex_int_base=tex_int_pars {base for \eTeX's integer parameters}
+@y
+@d pdftex_first_integer_code = web2c_int_pars {base for \pdfTeX's integer parameters}
 @z
 
 % _____________________________________________________________________________

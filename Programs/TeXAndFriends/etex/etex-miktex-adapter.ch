@@ -17,6 +17,14 @@
 %% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 @x
+@d TeX_banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
+@#
+@d banner==eTeX_banner
+@y
+@d banner=='This is TeX, Version 3.141592653' {printed when \TeX\ starts}
+@z
+
+@x
 @d tex_int_pars=55 {total number of \TeX's integer parameters}
 @y
 @d int_pars=55 {total number of integer parameters}
