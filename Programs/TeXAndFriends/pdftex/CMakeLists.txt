@@ -181,11 +181,10 @@ add_custom_command(
     -c ${pdftex_change_file}
     ${pdftex_web_file}
     ${pdftex_ch_synctex}
-    ${ETEX_MIKTEX_PRE_CH}
+    ${ETEX_MIKTEX_ADAPTER_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
     ${miktex_tex_change_files}
-    #${ETEX_MIKTEX_POST_CH}
-    ${ETEX_MIKTEX_CH}
+    ${MIKTEX_ETEX_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-miktex.ch
   WORKING_DIRECTORY
@@ -193,9 +192,8 @@ add_custom_command(
   DEPENDS
     ${MIKTEX_PREFIX}tie
     ${pdftex_web_file}
-    ${ETEX_MIKTEX_PRE_CH}
+    ${ETEX_MIKTEX_ADAPTER_CH}
     ${miktex_tex_change_files}
-    #${ETEX_MIKTEX_POST_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-miktex.ch
 )
@@ -497,11 +495,10 @@ add_custom_command(
     -m ${CMAKE_CURRENT_BINARY_DIR}/pdftex-tied.web
     ${pdftex_web_file}
     ${pdftex_ch_synctex}
-    ${ETEX_MIKTEX_PRE_CH}
+    ${ETEX_MIKTEX_ADAPTER_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-pre.ch
     ${miktex_tex_change_files}
-    #${ETEX_MIKTEX_POST_CH}
-    ${ETEX_MIKTEX_CH}
+    ${MIKTEX_ETEX_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
   COMMAND
     web-n
@@ -513,9 +510,9 @@ add_custom_command(
     ${MIKTEX_PREFIX}tie
     web-n
     ${pdftex_web_file}
-    ${ETEX_MIKTEX_PRE_CH}
+    ${ETEX_MIKTEX_ADAPTER_CH}
     ${miktex_tex_change_files}
-    #${ETEX_MIKTEX_PRE_CH}
+    #${ETEX_MIKTEX_ADAPTER_CH}
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-post.ch
   VERBATIM
 )

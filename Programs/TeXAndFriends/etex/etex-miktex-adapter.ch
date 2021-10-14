@@ -1,6 +1,6 @@
-%% etex-miktex-pre.ch:
+%% etex-miktex-adapter.ch: etex.ch to {p,pdf,xe}tex-miktex.web adapter
 %% 
-%% Copyright (C) 1998-2016 Christian Schenk
+%% Copyright (C) 1998-2021 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -15,12 +15,6 @@
 %% You should have received a copy of the GNU General Public License
 %% along with This file; if not, write to the Free Software Foundation,
 %% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-%% ////////////////////////////////////////////////////////////////////////////
-%% //                                                                        //
-%% //                      INSPIRED BY WEB2C'S TEX.CH                        //
-%% //                                                                        //
-%% ////////////////////////////////////////////////////////////////////////////
 
 @x
 @d tex_int_pars=55 {total number of \TeX's integer parameters}

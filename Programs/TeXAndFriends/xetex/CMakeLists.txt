@@ -89,8 +89,8 @@ set(miktex_tex_change_files
 set(pre_xetex1_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1.web)
 set(pre_xetex1_change_files
   ${xetex_ch_synctex}
-  ${ETEX_MIKTEX_PRE_CH}
-  ${ETEX_MIKTEX_CH}
+  ${ETEX_MIKTEX_ADAPTER_CH}
+  ${MIKTEX_ETEX_CH}
   ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-0.ch
   ${miktex_tex_change_files}
 )

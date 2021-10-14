@@ -1,6 +1,6 @@
-%% etex-miktex.ch:
+%% miktex-etex.ch: MiKTeX changes to e-TeX
 %% 
-%% Copyright (C) 1998-2007 Christian
+%% Copyright (C) 1998-2021 Christian
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
