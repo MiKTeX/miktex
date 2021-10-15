@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "bibtex-miktex-config.h"
+#include "miktex-bibtex-config.h"
 
 #include "bibtex-version.h"
 

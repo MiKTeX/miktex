@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "patgen-miktex-config.h"
+#include "miktex-patgen-config.h"
 
 #include "patgen-version.h"
 

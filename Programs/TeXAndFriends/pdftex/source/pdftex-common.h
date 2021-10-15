@@ -25,7 +25,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #  define PDFTEX_COMMON_H
 
 #if defined(MIKTEX)
-#include "pdftex-miktex.h"
+#include "miktex-pdftex.h"
 #else
 /* Declarations generated from pdftex.web are included in ptexlib.h via pdftexd.h,
    we repeat them here for pdftoepdf.cc and as consistency check.

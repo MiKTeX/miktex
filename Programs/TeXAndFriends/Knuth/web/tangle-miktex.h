@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "tangle-miktex-config.h"
+#include "miktex-tangle-config.h"
 
 #include <miktex/TeXAndFriends/WebApp>
 

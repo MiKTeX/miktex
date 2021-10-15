@@ -48,7 +48,7 @@ I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
 
 #if defined(MIKTEX)
 #  define C4PEXTERN extern
-#  include "pdftex-miktex.h"
+#  include "miktex-pdftex.h"
 #else
 #    include "pdftexd.h"
 #endif

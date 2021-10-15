@@ -1,4 +1,4 @@
-/* pdftex-version.h:
+/* miktex-pdftex-version.h:
 
    Copyright (C) 1996-2021 Christian Schenk
 

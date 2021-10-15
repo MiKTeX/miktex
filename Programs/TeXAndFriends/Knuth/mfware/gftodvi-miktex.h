@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gftodvi-miktex-config.h"
+#include "miktex-gftodvi-config.h"
 
 #include <miktex/TeXAndFriends/WebApp>
 

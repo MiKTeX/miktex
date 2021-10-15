@@ -1,4 +1,4 @@
-/* pdftex-miktex.cpp:
+/* miktex-pdftex.cpp:
    
    Copyright (C) 1998-2021 Christian Schenk
 
@@ -17,7 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include "pdftex-miktex.h"
+#include "miktex-pdftex.h"
 
 #include <jpeglib.h>
 #include <png.h>

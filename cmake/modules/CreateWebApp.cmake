@@ -1,6 +1,6 @@
 ## CreateWebApp.cmake
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -59,7 +59,10 @@ macro(create_web_app _name)
   endif()
 
   if(NOT ${_short_name_l}_change_file)
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.ch)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.ch)
+      set(${_short_name_l}_change_file
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.ch)
+    elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.ch) # DEPRECATED
       set(${_short_name_l}_change_file
         ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.ch)
     else()
@@ -73,12 +76,15 @@ macro(create_web_app _name)
   endif()
 
   if(NOT ${_short_name_l}_include_file)
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.h)
+      set(${_short_name_l}_include_file
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.h)
+    elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h) # DEPRECATED
       set(${_short_name_l}_include_file
         ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h)
     else()
       set(${_short_name_l}_include_file
-        ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex.h)
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-${_short_name_l}.h)
       if(NOT EXISTS ${${_short_name_l}_include_file})
         file(WRITE ${${_short_name_l}_include_file}
           "#include <miktex/TeXAndFriends/WebApp>
@@ -103,8 +109,8 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
     )
   endif()
 
-  if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h)
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h
+  if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/miktex-${_short_name_l}-config.h)
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/miktex-${_short_name_l}-config.h
       "#pragma once
 #define MIKTEX_${_name_u}
 #define MIKTEX_${_short_name_u}
@@ -126,19 +132,27 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
 
   list(APPEND ${_lib_name}_sources
     ${${_short_name_l}_header_file}
-    ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-${_short_name_l}-config.h
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.cc
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}defs.h
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}main.cpp
   )
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.h)
+    list(APPEND ${_lib_name}_sources
+      ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.h
+    )
+  elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h) # DEPRECATED
     list(APPEND ${_lib_name}_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h
     )
   endif() 
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-version.h)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}-version.h)
+    list(APPEND ${_lib_name}_sources
+      ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}-version.h
+    )
+  elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-version.h) # DEPRECATED
     list(APPEND ${_lib_name}_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-version.h
     )

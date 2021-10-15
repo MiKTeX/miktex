@@ -17,14 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: pdftex-miktex.h:219 pdftex-miktex.h:221
+#: miktex-pdftex.h:219 miktex-pdftex.h:221
 msgid "Switch on draft mode (generates no output)."
 msgstr ""
 
-#: pdftex-miktex.h:220 pdftex-miktex.h:222
+#: miktex-pdftex.h:220 miktex-pdftex.h:222
 msgid "Set the output format."
 msgstr ""
 
-#: pdftex-miktex.h:245 pdftex-miktex.h:247
+#: miktex-pdftex.h:245 miktex-pdftex.h:247
 msgid "Unknown output format value."
 msgstr ""

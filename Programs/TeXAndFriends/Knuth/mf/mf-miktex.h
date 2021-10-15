@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "mf-miktex-config.h"
+#include "miktex-mf-config.h"
 
 #include "mf-version.h"
 

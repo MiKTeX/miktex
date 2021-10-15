@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "xetex-miktex-config.h"
+#include "miktex-xetex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1

@@ -212,7 +212,6 @@ set(ENCTEX_MIKTEX_CH            "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/encte
 set(ENCTEX_PDFTEX_CH            "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ENCTEX_DIR}/source/enctex-pdftex.ch")
 set(ENCTEX_TEX_CH               "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ENCTEX_DIR}/source/enctex-tex.ch")
 set(ETEX_MIKTEX_ADAPTER_CH      "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/etex-miktex-adapter.ch")
-set(MIKTEX_ETEX_CH              "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch")
 set(MLTEX_MIKTEX_CH             "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/mltex-miktex.ch")
 set(PARTOKEN_102_CH             "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2c/source/partoken-102.ch")
 set(PARTOKEN_CH                 "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2c/source/partoken.ch")

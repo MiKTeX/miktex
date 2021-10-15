@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "tex-miktex-config.h"
+#include "miktex-tex-config.h"
 
 #include "tex-version.h"
 

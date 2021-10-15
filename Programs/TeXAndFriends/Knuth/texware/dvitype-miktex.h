@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "dvitype-miktex-config.h"
+#include "miktex-dvitype-config.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "dvitype.rc"

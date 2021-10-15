@@ -1,6 +1,6 @@
-/* pdftex.rc:
+/* miktex-first.h:
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,12 +17,11 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#pragma code_page(65001)
+#pragma once
 
-#include "pdftex-version.h"
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 
-#define VER_FILEDESCRIPTION_STR "pdfTeX - an extension of Knuth's typesetting program TeX"
-#define VER_INTERNALNAME_STR "pdftex"
-#define VER_ORIGINALFILENAME_STR "miktex-pdftex.exe"
-
-#include "miktex/win/version.rc"
+#include "miktex-pdftex-version.h"

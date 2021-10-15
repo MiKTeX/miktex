@@ -1,4 +1,4 @@
-/* pdftex-miktex.h:                                     -*- C++ -*-
+/* miktex-pdftex.h:                                     -*- C++ -*-
    
    Copyright (C) 1998-2021 Christian Schenk
 
@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include "pdftex-miktex-config.h"
+#include "miktex-pdftex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
 
-#include "pdftex-version.h"
+#include "miktex-pdftex-version.h"
 
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>

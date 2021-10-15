@@ -19,7 +19,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if defined(MIKTEX)
 #include "miktex-first.h"
-#include "pdftex-version.h"
+#include "miktex-pdftex-version.h"
 #endif
 #include <w2c/config.h>		/* for large file support */
 #include <sys/types.h>

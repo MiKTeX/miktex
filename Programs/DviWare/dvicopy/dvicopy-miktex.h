@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "dvicopy-miktex-config.h"
+#include "miktex-dvicopy-config.h"
 
 #include "dvicopy-version.h"
 

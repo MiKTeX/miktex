@@ -495,13 +495,23 @@ procedure flush_str(s: str_number); {flush a string if possible}
 
 % _____________________________________________________________________________
 %
-% [54.1426]
+% [54.1451]
 % _____________________________________________________________________________
 
 @x
 @!init if (etex_p or(buffer[loc]="*"))and(format_ident=" (INITEX)") then
 @y
-@!Init if (miktex_etex_p or (buffer[loc]="*"))and(format_ident=" (INITEX)") then
+@!init if (miktex_etex_p or (buffer[loc]="*"))and(format_ident=" (INITEX)") then
+@z
+
+% _____________________________________________________________________________
+%
+% [56.1462]
+% _____________________________________________________________________________
+
+@x
+@!etex_p: boolean; {was the -etex option specified}
+@y
 @z
 
 % _____________________________________________________________________________
