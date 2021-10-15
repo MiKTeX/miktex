@@ -49,7 +49,7 @@ Thu Jun 19 09:39:21 UTC 2008
 
 #if defined(MIKTEX)
 #  define C4PEXTERN extern
-#  include "xetex-miktex.h"
+#  include "miktex-xetex.h"
 #else
 #  include "xetexd.h"
 #endif

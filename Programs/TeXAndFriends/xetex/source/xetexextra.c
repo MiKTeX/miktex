@@ -3,7 +3,7 @@
    This file is public domain.  */
 
 #if defined(MIKTEX)
-#include "xetex-miktex.h"
+#include "miktex-xetex.h"
 using namespace MiKTeX::TeXAndFriends;
 #else
 #define	EXTERN /* Instantiate data from xetexd.h here.  */

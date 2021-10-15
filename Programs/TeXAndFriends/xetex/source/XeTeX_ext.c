@@ -64,7 +64,7 @@ authorization from the copyright holders.
 
 #if defined(MIKTEX)
 #define C4PEXTERN extern
-#include "xetex-miktex.h"
+#include "miktex-xetex.h"
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Process>

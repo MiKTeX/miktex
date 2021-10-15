@@ -54,109 +54,10 @@ set(C4P_FLAGS
   --emit-optimize-pragmas
 )
 
-set(xetex_ch_synctex
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-xe-def.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-mem.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-e-mem.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-e-mem.ch1
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-rec.ch0
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-e-rec.ch0
-)
-
-set(xetex_post_ch_synctex
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_SOURCE_DIR}/synctex-xe-rec.ch3
-)
-
-set(miktex_tex_change_files
-  ${MLTEX_MIKTEX_CH}
-  ${TEX_MIKTEX_CONSTANTS_CH}
-  ${TEX_MIKTEX_CH}
-  ${TEX_MIKTEX_HASH_CH}
-  ${TEX_MIKTEX_HYPH_CH}
-  ${TEX_MIKTEX_QUIET_CH}
-  ${TEX_MIKTEX_SRC_CH}
-  ${TEX_MIKTEX_SYNCTEX_CH}
-  ${TEX_MIKTEX_STAT_CH}
-  ${TEX_MIKTEX_WRITE18_CH}
-  ${TEX_MIKTEX_WEB2C_CH}
-  ${TEX_MIKTEX_POOL_CH}
-  ${TRACINGSTACKLEVELS_CH}
-  ${PARTOKEN_102_CH}
-  ${PARTOKEN_CH}
-  ${TEX_MIKTEX_FINISH_CH}
-)
-
-set(pre_xetex1_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1.web)
-set(pre_xetex1_change_files
-  ${ETEX_MIKTEX_ADAPTER_CH}
-  ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-0.ch
-  ${miktex_tex_change_files}
-  ${xetex_ch_synctex}
-)
-
-add_custom_command(
-  OUTPUT
-    ${pre_xetex1_web_file}
-  COMMAND
-    ${MIKTEX_PREFIX}tie
-    -m ${pre_xetex1_web_file}
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.web
-    ${pre_xetex1_change_files}
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  MAIN_DEPENDENCY
-    source/xetex.web
-  DEPENDS
-    ${MIKTEX_PREFIX}tie
-    ${pre_xetex1_change_files}
-  VERBATIM
-)
-
-set(pre_xetex2_web_file ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2.web)
-set(pre_xetex2_change_files
-  ${CMAKE_CURRENT_SOURCE_DIR}/miktex-adapter-2.ch
-)
-
-add_custom_command(
-  OUTPUT
-    ${pre_xetex2_web_file}
-  COMMAND
-    ${MIKTEX_PREFIX}tie
-    -m ${pre_xetex2_web_file}
-    ${pre_xetex1_web_file}
-    ${pre_xetex2_change_files}
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${MIKTEX_PREFIX}tie
-    ${pre_xetex1_web_file}
-    ${pre_xetex2_change_files}
-  VERBATIM
-)
+include(webify.cmake)
 
 set(xetex_web_file ${CMAKE_CURRENT_BINARY_DIR}/xetex-final.web)
-set(xetex_change_file ${CMAKE_CURRENT_SOURCE_DIR}/xetex-miktex.ch)
-
 set(xetex_header_file ${CMAKE_CURRENT_BINARY_DIR}/xetexd.h)
-
-add_custom_command(
-  OUTPUT
-    ${xetex_web_file}
-  COMMAND
-    ${MIKTEX_PREFIX}tie
-    -m ${xetex_web_file}
-    ${pre_xetex2_web_file}
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.ch
-    ${xetex_post_ch_synctex}
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.ch
-    ${MIKTEX_PREFIX}tie
-    ${pre_xetex2_web_file}
-    ${xetex_post_ch_synctex}
-  VERBATIM
-)
 
 file(READ ${MIKTEX_DYN_ETEX_SCRIPT} etex_dyn_sed_contents)
 file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
@@ -217,9 +118,9 @@ set(${xetex_target_name}_sources
   source/xetex_version.h
   source/xetexextra.c
   source/xetexextra.h
-  xetex-miktex.cpp
-  xetex-miktex.h
-  xetex-version.h
+  miktex-xetex-version.h
+  miktex-xetex.cpp
+  miktex-xetex.h
 )
 
 set_source_files_properties(source/xetexextra.c PROPERTIES LANGUAGE CXX)
@@ -239,7 +140,7 @@ add_custom_command(
   COMMAND
     inipool
     ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
-    xetex-miktex.h
+    miktex-xetex.h
     ${xetex_progclass}
     ${xetex_prog}
     > ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
@@ -248,11 +149,6 @@ add_custom_command(
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
     inipool
-)
-
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/xetex.cc
-  PROPERTIES COMPILE_FLAGS "-DCOMPILING_XETEX_CC"
 )
 
 set_source_files_properties(
@@ -338,75 +234,3 @@ delay_load(${xetex_target_name}
   ${unxemu_dll_name}
   ${w2cemu_dll_name}
 )
-
-## dev targets
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
-  COMMAND
-    web-n
-    < ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.web
-    > ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/xetex.web
-    web-n
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
-  COMMAND
-    web-n
-    < ${pre_xetex1_web_file}
-    > ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${pre_xetex1_web_file}
-    web-n
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
-  COMMAND
-    web-n
-    < ${pre_xetex2_web_file}
-    > ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${pre_xetex2_web_file}
-    web-n
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex-final-n.web
-  COMMAND
-    web-n
-    < ${xetex_web_file}
-    > ${CMAKE_CURRENT_BINARY_DIR}/xetex-final-n.web
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${xetex_web_file}
-    web-n
-  VERBATIM
-)
-
-add_custom_target(xetex-dev ALL
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-1-n.web
-    ${CMAKE_CURRENT_BINARY_DIR}/pre-xetex-2-n.web
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex-final-n.web
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex-n.web
-)
-
-set_property(TARGET xetex-dev PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})

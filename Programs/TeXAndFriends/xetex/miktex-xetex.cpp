@@ -1,4 +1,4 @@
-/* xetex-miktex.cpp:
+/* miktex-xetex.cpp:
    
    Copyright (C) 2007-2021 Christian Schenk
 
@@ -30,7 +30,7 @@
 #include <TECkit_Engine.h>
 #include <zlib.h>
 
-#include "xetex-miktex.h"
+#include "miktex-xetex.h"
 
 using namespace MiKTeX::Core;
 

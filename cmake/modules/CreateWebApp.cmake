@@ -265,11 +265,21 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
   endif()
 
   if(MIKTEX_NATIVE_WINDOWS)
-    if(EXISTS ${_short_name_l}.rc)
+    if(EXISTS miktex-${_short_name_l}.rc)
+      list(APPEND ${_short_name_l}_program_sources
+        miktex-${_short_name_l}.rc)
+    elseif(EXISTS ${_short_name_l}.rc) # DEPRECATED
       list(APPEND ${_short_name_l}_program_sources
         ${_short_name_l}.rc)
     endif()
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.rc.in)
+      configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-${_short_name_l}.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-${_short_name_l}.rc
+      )
+      list(APPEND ${_short_name_l}_program_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-${_short_name_l}.rc)
+    elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in) # DEPRECATED
       configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc

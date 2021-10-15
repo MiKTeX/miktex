@@ -1,4 +1,4 @@
-/* xetex-miktex.h:                                      -*- C++ -*-
+/* miktex-xetex.h:                                      -*- C++ -*-
    
    Copyright (C) 2007-2021 Christian Schenk
 
@@ -26,7 +26,7 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
-#include "xetex-version.h"
+#include "miktex-xetex-version.h"
 
 #include <miktex/Core/FileType>
 #include <miktex/Core/MD5>
@@ -53,7 +53,7 @@ namespace xetex {
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-#  include "xetex.rc"
+#  include "miktex-xetex.rc"
 #endif
 
 #if !defined(MIKTEXHELP_XETEX)

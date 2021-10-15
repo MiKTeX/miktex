@@ -1,4 +1,4 @@
-/* xetex.rc:
+/* miktex-xetex.rc:
 
    Copyright (C) 1998-2020 Christian Schenk
 
@@ -19,7 +19,7 @@
 
 #pragma code_page(65001)
 
-#include "xetex-version.h"
+#include "miktex-xetex-version.h"
 
 #define VER_FILEDESCRIPTION_STR "XeTeX - a TeX typesetting engine using Unicode and supporting modern font technologies"
 #define VER_INTERNALNAME_STR "xetex"

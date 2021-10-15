@@ -36,7 +36,7 @@ authorization from the copyright holders.
 #include <w2c/config.h>
 #if defined(MIKTEX)
 #define C4PEXTERN extern
-#include "xetex-miktex.h"
+#include "miktex-xetex.h"
 #endif
 
 #include "XeTeX_web.h"

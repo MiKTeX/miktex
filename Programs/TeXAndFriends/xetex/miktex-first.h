@@ -1,6 +1,6 @@
 /* miktex-first.h:
 
-   Copyright (C) 1998-2018 Christian Schenk
+   Copyright (C) 1998-2021 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,4 +24,4 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
-#include "xetex-version.h"
+#include "miktex-xetex-version.h"

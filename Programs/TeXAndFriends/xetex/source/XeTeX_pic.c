@@ -38,7 +38,7 @@ XeTeX_pic.c
 
 #if defined(MIKTEX)
 #define C4PEXTERN extern
-#include "xetex-miktex.h"
+#include "miktex-xetex.h"
 #else
 #define EXTERN extern
 #include "xetexd.h"

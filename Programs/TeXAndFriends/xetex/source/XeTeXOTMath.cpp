@@ -39,7 +39,7 @@ authorization from the copyright holders.
 #include <assert.h>
 #include <algorithm>
 #if defined(MIKTEX)
-#include "xetex-miktex.h"
+#include "miktex-xetex.h"
 #endif
 
 #include "XeTeXOTMath.h"
