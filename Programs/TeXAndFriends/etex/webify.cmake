@@ -45,7 +45,7 @@ add_custom_command(
                 ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch0
                 ${miktex_tex_change_files}
                 ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch1
-                ${CMAKE_CURRENT_SOURCE_DIR}/miktex-texech-adapter.ch
+                ${CMAKE_CURRENT_SOURCE_DIR}/miktex-w2c-adapter.ch
                 ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ech
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
@@ -53,7 +53,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/source/tex.web
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/etex-miktex-adapter.ch
-        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-texech-adapter.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-w2c-adapter.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch0
         ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch1
