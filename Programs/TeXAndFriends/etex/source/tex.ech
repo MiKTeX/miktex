@@ -1,0 +1,118 @@
+% This is `tex.ech' in text format as of Aug 3, 2005,
+% for web2c-7.5 and e-TeX Version 2.1 as of Jul 19, 2004,
+% made by B. Raichle and P. Breitenlohner.
+% Public domain.
+ 
+% Note: This file, etexdir/tex.ech, contains the web2c changes for the
+% e-TeX specific part of etex.web (defined in etexdir/etex.ch) and is
+% used as follows to construct the web2c change file for e-TeX:
+%
+%	etexdir/tex.ch0		)
+%	   +			)
+%	tex.ch			)
+%	   +			)   =>   tie -c ...   =>   etex.ch
+%	etexdir/tex.ch1		)
+%	   +			)
+%	etexdir/tex.ech		)
+%
+% In addition, this file is used to construct the web2c change file
+% for pdfeTeX:
+%
+%	pdfetexdir/tex.ch0	)
+%	   +			)
+%	tex.ch			)
+%	   +			)
+%	etexdir/tex.ch1		)
+%	   +			)   =>   tie -c ...   =>   pdfetex.ch
+%	etexdir/tex.ech		)
+%	   +			)
+%	pdfetexdir/tex.ch1	)
+%	   +			)
+%	pdftexdir/tex.pch	)
+%
+% where the four (small) files {,pdf}etexdir/tex.ch[01] take care
+% of interferences between web2c, e-Tex, pdfTeX changes.
+% Consequently, changes in all these files have to be coordinated.
+
+@x [1] m.2 l.188 - Web2C: extensions imply we're not e-TeX
+@d eTeX_banner=='This is e-TeX, Version 3.141592653',eTeX_version_string
+@y
+@d eTeX_banner_k=='This is e-TeXk, Version 3.141592653',eTeX_version_string
+@d eTeX_banner=='This is e-TeX, Version 3.141592653',eTeX_version_string
+@z
+
+@x [16.215] - e-TeX last_node_type
+last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
+@y
+last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
+last_node_type:=-1;
+@z
+
+@x [51.1332] l.24203 (ca.) texarray
+  line_stack:=xmalloc_array (integer, max_in_open);
+@y
+  line_stack:=xmalloc_array (integer, max_in_open);
+  eof_seen:=xmalloc_array (boolean, max_in_open);
+  grp_stack:=xmalloc_array (save_pointer, max_in_open);
+  if_stack:=xmalloc_array (pointer, max_in_open);
+@z
+
+@x [51.1337] l.24371 (ca.) texarray
+  trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
+@y
+  trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
+  hyph_root:=0; hyph_start:=0;
+@z
+
+@x [53a.1379] l.??? -etex command line switch
+@!init if (buffer[loc]="*")and(format_ident=" (INITEX)") then
+@y
+@!init if (etex_p or(buffer[loc]="*"))and(format_ident=" (INITEX)") then
+@z
+
+@x [53a.1379] l.??? -etex command line switch
+  incr(loc); eTeX_mode:=1; {enter extended mode}
+@y
+  if (buffer[loc]="*") then incr(loc);
+  eTeX_mode:=1; {enter extended mode}
+@z
+
+@x [53a.1383] l.??? -etex command line switch
+@!eTeX_mode: 0..1; {identifies compatibility and extended mode}
+@y
+@!eTeX_mode: 0..1; {identifies compatibility and extended mode}
+@!etex_p: boolean; {was the -etex option specified}
+@z
+
+@x [53a.1391] l.??? texarray
+@!eof_seen : array[1..max_in_open] of boolean; {has eof been seen?}
+@y
+@!eof_seen : ^boolean; {has eof been seen?}
+@z
+
+@x [53a.1506] l.??? texarray
+@!grp_stack : array[0..max_in_open] of save_pointer; {initial |cur_boundary|}
+@!if_stack : array[0..max_in_open] of pointer; {initial |cond_ptr|}
+@y
+@!grp_stack : ^save_pointer; {initial |cur_boundary|}
+@!if_stack : ^pointer; {initial |cond_ptr|}
+@z
+
+@x [53a.1587] l.??? texarray
+hyph_root:=0; hyph_start:=0;
+@y
+@z
+
+@x [54/web2c.???] l.??? needed earlier
+replacement, but always existing character |font_bc[f]|.
+@^inner loop@>
+
+@<Declare additional functions for ML\TeX@>=
+function effective_char(@!err_p:boolean;
+@y
+replacement, but always existing character |font_bc[f]|.
+@^inner loop@>
+
+@<Declare \eTeX\ procedures for sc...@>=
+function effective_char(@!err_p:boolean;
+@z

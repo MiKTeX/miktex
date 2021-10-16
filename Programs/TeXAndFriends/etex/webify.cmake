@@ -35,26 +35,51 @@ set(miktex_tex_change_files
 
 add_custom_command(
     OUTPUT
-        ${CMAKE_CURRENT_BINARY_DIR}/etex-final.web
+        ${CMAKE_CURRENT_BINARY_DIR}/etex-1.web
     COMMAND
         ${MIKTEX_PREFIX}tie
-            -m ${CMAKE_CURRENT_BINARY_DIR}/etex-final.web
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/source/tex.web
-            ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch
-            ${CMAKE_CURRENT_SOURCE_DIR}/etex-miktex-adapter.ch
-            ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch0
-            ${miktex_tex_change_files}
-            ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch1
+            -m ${CMAKE_CURRENT_BINARY_DIR}/etex-1.web
+                ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/source/tex.web
+                ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch
+                ${CMAKE_CURRENT_SOURCE_DIR}/etex-miktex-adapter.ch
+                ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch0
+                ${miktex_tex_change_files}
+                ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch1
+                ${CMAKE_CURRENT_SOURCE_DIR}/miktex-texech-adapter.ch
+                ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ech
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/source/tex.web
     DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/etex-miktex-adapter-2.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/etex-miktex-adapter.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-texech-adapter.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/etex.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch0
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ch1
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.ech
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/source/tex.web
         ${MIKTEX_PREFIX}tie
         ${miktex_tex_change_files}
+)
+
+list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/etex-1.web)
+
+add_custom_command(
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/etex-final.web
+    COMMAND
+        ${MIKTEX_PREFIX}tie
+            -m ${CMAKE_CURRENT_BINARY_DIR}/etex-final.web
+                ${CMAKE_CURRENT_BINARY_DIR}/etex-1.web
+                ${CMAKE_CURRENT_SOURCE_DIR}/miktex-etex.ch
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    MAIN_DEPENDENCY
+        ${CMAKE_CURRENT_BINARY_DIR}/etex-1.web
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/miktex-etex.ch
+        ${MIKTEX_PREFIX}tie
 )
 
 list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/etex-final.web)
