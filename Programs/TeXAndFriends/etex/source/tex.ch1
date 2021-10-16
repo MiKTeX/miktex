@@ -1,0 +1,19 @@
+% Change file to assist in creating the web2c-specific change file.
+% This one resolves inconsistencies between tex.ch and tex.ech.
+% Public domain.
+
+@x [1] m.2 l.188 - banner
+@d banner==TeX_banner
+@d banner_k==TeX_banner_k
+@y
+@d banner==eTeX_banner
+@d banner_k==eTeX_banner_k
+@z
+
+@x [17.236] l.4960 - first web2c, then e-TeX additional integer parameters
+@d int_pars=web2c_int_pars {total number of integer parameters}
+@#
+@d etex_int_base=tex_int_pars {base for \eTeX's integer parameters}
+@y
+@d etex_int_base=web2c_int_pars {base for \eTeX's integer parameters}
+@z
