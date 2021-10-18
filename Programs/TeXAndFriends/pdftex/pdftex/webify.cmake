@@ -113,8 +113,8 @@ add_custom_command(
     MAIN_DEPENDENCY
         ${CMAKE_CURRENT_BINARY_DIR}/pdftex-2.web
     DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-miktex.ch
         ${MIKTEX_PREFIX}tie
+        ${projdir}/source/pdftex.ch
 )
 
 list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/pdftex-final.web)
@@ -131,8 +131,9 @@ foreach(_path ${web_files})
             web-n < ${_path} > ${_out}
         WORKING_DIRECTORY
             ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS
+        MAIN_DEPENDENCY
             ${_path}
+        DEPENDS
             web-n
         VERBATIM
     )
