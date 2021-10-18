@@ -143,9 +143,13 @@ endif()
 ###############################################################################
 ## macOS: bundle vs Homebrew detection
 
-string(SUBSTRING ${CMAKE_INSTALL_PREFIX} 0 17 homebrew_cellar)
-if(homebrew_cellar STREQUAL "/usr/local/Cellar")
-  set(MIKTEX_HOMEBREW TRUE)
+
+string(LENGTH ${CMAKE_INSTALL_PREFIX} INSTALL_LEN)
+if(INSTALL_LEN GREATER_EQUAL 17)
+  string(SUBSTRING ${CMAKE_INSTALL_PREFIX} 0 17 homebrew_cellar)
+  if(homebrew_cellar STREQUAL "/usr/local/Cellar")
+    set(MIKTEX_HOMEBREW TRUE)
+  endif()
 endif()
 
 if(APPLE AND NOT MIKTEX_HOMEBREW)
