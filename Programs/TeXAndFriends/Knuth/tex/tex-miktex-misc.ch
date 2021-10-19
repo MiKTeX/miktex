@@ -587,10 +587,10 @@ end
 @d min_halfword==0 {smallest allowable value in a |halfword|}
 @d max_halfword==65535 {largest allowable value in a |halfword|}
 @y
-@d min_halfhalfword==-@"8000
-@d max_halfhalfword==@"7FFF
 @d min_halfword==-@"FFFFFFF {smallest allowable value in a |halfword|}
 @d max_halfword==@"FFFFFFF {largest allowable value in a |halfword|}
+@d min_halfhalfword==-@"8000
+@d max_halfhalfword==@"7FFF
 @z
 
 % _____________________________________________________________________________
