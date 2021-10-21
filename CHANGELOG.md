@@ -2,10 +2,18 @@
 
 ## pending release
 
+### (e-)(u)pTeX
+
+MiKTeX now includes the four TeX engines of the "Japanese TeX processing tools" suite.
+
 ### Upgraded programs
 
 * dvipdfmx 20210609
 * makeindex 2.16
+
+### Fixed issues
+
+- [858](https://github.com/MiKTeX/miktex/issues/858): Hope MiKTeX can support upTeX series (upTeX/upLaTeX/eupTex...) engine
 
 ## 21.10 - 2021-10-05
 
