@@ -213,6 +213,54 @@
 	description = plain pdfTeX
 	input = pdftex.ini
 
+[ptex]
+
+	compiler = ptex
+	description = plain pTeX 
+	input = ptex.ini
+
+[eptex]
+
+	compiler = eptex
+	description = plain e-pTeX 
+	input = eptex.ini
+
+[euptex]
+
+	compiler = euptex
+	description = plain e-upTeX 
+	input = euptex.ini
+
+[uptex]
+
+	compiler = uptex
+	description = plain upTeX 
+	input = uptex.ini
+
+[platex]
+
+	compiler = eptex
+	description = pLaTeX
+	input = platex.ini
+
+[platex-dev]
+
+	compiler = eptex
+	description = pLaTeX dev
+	input = platex.ini
+
+[uplatex]
+
+	compiler = euptex
+	description = uplatex
+	input = uplatex.ini
+
+[uplatex-dev]
+
+	compiler = euptex
+	description = uplatex
+	input = uplatex.ini
+
 [tex]
 
 	compiler = tex

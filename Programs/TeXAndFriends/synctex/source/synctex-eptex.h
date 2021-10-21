@@ -48,7 +48,12 @@ Thu Jun 30 11:00:00 UTC 2011
 
 */
 
+#if defined(MIKTEX)
+#define C4PEXTERN extern
+#include "miktex-eptex.h"
+#else
 #include "eptexd.h"
+#endif
 
 #define box_node_size (8+synchronization_field_size)
 

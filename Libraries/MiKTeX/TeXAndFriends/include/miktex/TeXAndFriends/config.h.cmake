@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/config.h:                       -*- C++ -*-
 
-   Copyright (C) 2009-2020 Christian Schenk
+   Copyright (C) 2009-2021 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -73,6 +73,11 @@
 #endif
 
 #if defined(MIKTEX_PDFTEX)
+#  define MIKTEX_TEX_COMPILER 1
+#endif
+
+#if defined(MIKTEX_PTEX) || defined(MIKTEX_EPTEX) || defined(MIKTEX_UPTEX) || defined(MIKTEX_EUPTEX)
+#  define MIKTEX_PTEX_FAMILY 1
 #  define MIKTEX_TEX_COMPILER 1
 #endif
 

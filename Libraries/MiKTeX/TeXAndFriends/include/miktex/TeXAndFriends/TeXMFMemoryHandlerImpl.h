@@ -140,7 +140,7 @@ public:
 #endif
     program.halferrorline = GetParameter("half_error_line", userParams, texmfapp::texmfapp::half_error_line());
 #if defined(HAVE_MAIN_MEMORY)
-#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX) || defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX)
+#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX) || defined(MIKTEX_PDFTEX) || defined(MIKTEX_PTEX_FAMILY) || defined(MIKTEX_XETEX)
     const int infmainmemory = 3000;
     const int supmainmemory = 256000000;
 #  else

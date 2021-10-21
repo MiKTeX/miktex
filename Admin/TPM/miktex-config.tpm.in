@@ -60,6 +60,7 @@ texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxlatex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxmltex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxtex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/platex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ptex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/t4ht.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/tex.ini
 texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/tex4ht.ini
