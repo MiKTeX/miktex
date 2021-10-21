@@ -1,6 +1,6 @@
 /* miktex/C4P/C4P.h:                                    -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -234,6 +234,38 @@ public:
     }
 
     return false;
+  }
+
+public:
+  bool Eoln()
+  {
+    if (feof(file) != 0)
+    {
+      return true;
+    }
+
+    if (IsPascalFileIO())
+    {
+      return currentElement == '\r' || currentElement == '\n';
+    }
+
+    int lookAhead = getc(file);
+
+    if (lookAhead == EOF)
+    {
+      if (ferror(file) != 0)
+      {
+        MIKTEX_FATAL_CRT_ERROR_2("getc", "path", path.ToString());
+      }
+      return true;
+    }
+
+    if (ungetc(lookAhead, file) != lookAhead)
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("ungetc", "path", path.ToString());
+    }
+
+    return lookAhead == '\r' || lookAhead == '\n';
   }
 
 protected:
@@ -774,7 +806,7 @@ protected:
   template<class T>
   C4P_boolean eoln(T& f)
   {
-    return *f == '\n';
+    return f.Eoln();
   };
 
 protected:
