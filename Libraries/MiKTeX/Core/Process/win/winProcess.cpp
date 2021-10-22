@@ -268,7 +268,7 @@ void winProcess::Create()
     DWORD creationFlags = CREATE_UNICODE_ENVIRONMENT;
 
     // don't open a window if both stdout & stderr are redirected or if we are shutting down
-    if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE)
+    if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE || SessionImpl::TryGetSession() == nullptr)
     {
       creationFlags |= CREATE_NO_WINDOW;
     }
