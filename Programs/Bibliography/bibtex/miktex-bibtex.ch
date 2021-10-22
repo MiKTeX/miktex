@@ -1,4 +1,4 @@
-%%% bibtex-miktex.ch: WEB change file for MiKTeX-BibTeX
+%%% miktex-bibtex.ch: WEB change file for MiKTeX-BibTeX
 %%% 
 %%% Derived from:
 %%% web2c/bibtex.ch, originally by Howard Trickey.
@@ -298,13 +298,23 @@ if (glob_str_size > buf_size) then              bad:=100*bad+11;
 
 % _____________________________________________________________________________
 %
-% [3.24]
+% [3.23]
 % _____________________________________________________________________________
 
 @x
-@!xord: array [text_char] of ASCII_code;
+@d text_char == char    {the data type of characters in text files}
+@d first_text_char=0    {ordinal number of the smallest element of |text_char|}
+@d last_text_char=127   {ordinal number of the largest element of |text_char|}
+
+@<Local variables for initialization@>=
+i:0..last_text_char;    {this is the first one declared}
 @y
-@!xord: array [0..255] of ASCII_code;
+@d text_char == char    {the data type of characters in text files}
+@d first_text_char=0    {ordinal number of the smallest element of |text_char|}
+@d last_text_char=255   {ordinal number of the largest element of |text_char|}
+
+@<Local variables for initialization@>=
+i:integer;
 @z
 
 % _____________________________________________________________________________
@@ -359,6 +369,17 @@ lex_class[13] := white_space;
 for i:=0 to @'177 do id_class[i] := legal_id_char;
 @y
 for i:=0 to @'377 do id_class[i] := legal_id_char;
+@z
+
+% _____________________________________________________________________________
+%
+% [4.36] Input and output
+% _____________________________________________________________________________
+
+@x
+@!alpha_file=packed file of text_char;  {files that contain textual data}
+@y
+@!alpha_file=text;  {files that contain textual data}
 @z
 
 % _____________________________________________________________________________

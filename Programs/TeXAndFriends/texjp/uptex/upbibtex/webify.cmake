@@ -24,14 +24,14 @@ add_custom_command(
         ${MIKTEX_PREFIX}tie
             -m ${CMAKE_CURRENT_BINARY_DIR}/miktex-bibtex.web
                 ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_BIBTEX_DIR}/source/bibtex.web
-                ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_BIBTEX_DIR}/bibtex-miktex.ch
+                ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_BIBTEX_DIR}/miktex-bibtex.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_BIBTEX_DIR}/source/bibtex.web
     DEPENDS
         ${MIKTEX_PREFIX}tie
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_BIBTEX_DIR}/bibtex-miktex.ch
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_BIBTEX_DIR}/miktex-bibtex.ch
     VERBATIM
 )
 

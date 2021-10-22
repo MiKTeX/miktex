@@ -19,6 +19,12 @@
 
 set(MIKTEX_CURRENT_FOLDER ${MIKTEX_CURRENT_FOLDER}/pBibTeX)
 
+default_char_type_is_unsigned()
+
+list(APPEND C4P_FLAGS
+  --chars-are-unsigned
+)
+
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}

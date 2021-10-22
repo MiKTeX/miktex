@@ -1,4 +1,4 @@
-/* bibtex-miktex.h:                                     -*- C++ -*-
+/* miktex-bibtex.h:                                     -*- C++ -*-
 
    Copyright (C) 1996-2021 Christian Schenk
 
@@ -21,7 +21,7 @@
 
 #include "miktex-bibtex-config.h"
 
-#include "bibtex-version.h"
+#include "miktex-bibtex-version.h"
 
 #define IMPLEMENT_TCX 1
 
