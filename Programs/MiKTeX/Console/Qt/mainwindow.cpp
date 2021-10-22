@@ -30,6 +30,7 @@
 #include <log4cxx/logger.h>
 
 #include "FormatDefinitionDialog.h"
+#include "FormatProxyModel.h"
 #include "FormatTableModel.h"
 #include "LanguageTableModel.h"
 #include "PackageProxyModel.h"
@@ -1926,6 +1927,9 @@ void MainWindow::ChangeLinkTargetDirectory()
 void MainWindow::SetupUiFormats()
 {
   formatModel = new FormatTableModel(this);
+  formatProxyModel = new FormatProxyModel(this);
+  formatProxyModel->setSourceModel(formatModel);
+  formatProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
   toolBarFormats = new QToolBar(this);
   toolBarFormats->setIconSize(QSize(16, 16));
   toolBarFormats->addAction(ui->actionAddFormat);
@@ -1935,7 +1939,8 @@ void MainWindow::SetupUiFormats()
   toolBarFormats->addSeparator();
   toolBarFormats->addAction(ui->actionFormatProperties);
   ui->vboxTreeViewFormats->insertWidget(0, toolBarFormats);
-  ui->treeViewFormats->setModel(formatModel);
+  ui->treeViewFormats->setModel(formatProxyModel);
+  ui->treeViewFormats->sortByColumn(0, Qt::AscendingOrder);
   contextMenuFormatsBackground = new QMenu(ui->treeViewFormats);
   contextMenuFormatsBackground->addAction(ui->actionAddFormat);
   contextMenuFormat = new QMenu(ui->treeViewFormats);
@@ -1972,7 +1977,7 @@ void MainWindow::UpdateActionsFormats()
   bool enableRemove = selectedCount > 0;
   for (const QModelIndex& index : ui->treeViewFormats->selectionModel()->selectedRows())
   {
-    enableRemove = enableRemove && formatModel->CanRemove(index);
+    enableRemove = enableRemove && formatModel->CanRemove(formatProxyModel->mapToSource(index));
   }
   ui->actionAddFormat->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
   ui->actionRemoveFormat->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
@@ -2012,7 +2017,7 @@ void MainWindow::RemoveFormat()
     }
     for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
     {
-      session->DeleteFormatInfo(formatModel->GetFormatInfo(ind).key);
+      session->DeleteFormatInfo(formatModel->GetFormatInfo(formatProxyModel->mapToSource(ind)).key);
     }
     UpdateUi();
     UpdateActions();
@@ -2033,7 +2038,7 @@ void MainWindow::FormatPropertyDialog()
   {
     for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
     {
-      FormatDefinitionDialog dlg(this, formatModel->GetFormatInfo(ind));
+      FormatDefinitionDialog dlg(this, formatModel->GetFormatInfo(formatProxyModel->mapToSource(ind)));
       if (dlg.exec() == QDialog::Accepted)
       {
         session->SetFormatInfo(dlg.GetFormatInfo());
@@ -2083,7 +2088,7 @@ void MainWindow::BuildFormat()
     vector<string> formats;
     for (const QModelIndex& ind : ui->treeViewFormats->selectionModel()->selectedRows())
     {
-      formats.push_back(formatModel->GetFormatInfo(ind).key);
+      formats.push_back(formatModel->GetFormatInfo(formatProxyModel->mapToSource(ind)).key);
     }
     QThread* thread = new QThread;
     BuildFormatsWorker* worker = new BuildFormatsWorker(formats);

@@ -36,6 +36,8 @@ set(console_sources
   DocumentationTableModel.h
   FormatDefinitionDialog.cpp
   FormatDefinitionDialog.h
+  FormatProxyModel.cpp
+  FormatProxyModel.h
   FormatTableModel.cpp
   FormatTableModel.h
   LanguageTableModel.cpp
@@ -89,6 +91,7 @@ set(console_moc_sources
   DocumentationProxyModel.h
   DocumentationTableModel.h
   FormatDefinitionDialog.h
+  FormatProxyModel.h
   FormatTableModel.h
   LanguageTableModel.h
   PackageProxyModel.h

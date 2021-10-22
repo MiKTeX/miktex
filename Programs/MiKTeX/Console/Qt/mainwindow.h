@@ -40,6 +40,7 @@
 
 class QLineEdit;
 
+class FormatProxyModel;
 class FormatTableModel;
 class LanguageTableModel;
 class PackageProxyModel;
@@ -479,6 +480,9 @@ private:
 
 private slots:
   void UpdateActionsFormats();
+
+private:
+  FormatProxyModel* formatProxyModel = nullptr;
 
 private:
   FormatTableModel* formatModel = nullptr;
