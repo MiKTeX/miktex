@@ -32,6 +32,13 @@ else
 @y
 @z
 
+@x
+  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
+@y
+  miktex_print_enc_string(term_out);
+  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
+@z
+
 % _____________________________________________________________________________
 %
 % [24.349]
@@ -88,6 +95,14 @@ else
   wlog(conststringcast(get_enc_string));
   wlog(')');
 @y
+@z
+
+@x
+miktex_print_miktex_banner(log_file);
+@y
+wlog(banner_k);
+miktex_print_enc_string(log_file);
+miktex_print_miktex_banner(log_file);
 @z
 
 % _____________________________________________________________________________

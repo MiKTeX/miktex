@@ -26,6 +26,8 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
+#include <iostream>
+
 #include "miktex-euptex-version.h"
 
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
@@ -58,7 +60,7 @@ public:
 public:
     void Allocate(const std::unordered_map<std::string, int>& userParams) override
     {
-        TeXMemoryHandlerImpl<EUPTEXPROGCLASS>::Allocate(userParams);
+        ETeXMemoryHandlerImpl<EUPTEXPROGCLASS>::Allocate(userParams);
         MIKTEX_ASSERT(program.constfontbase == 0);
         size_t nFonts = program.fontmax - program.constfontbase;
         AllocateArray("fontdir", program.fontdir, nFonts);
@@ -69,7 +71,7 @@ public:
 public:
     void Free() override
     {
-        TeXMemoryHandlerImpl<EUPTEXPROGCLASS>::Free();
+        ETeXMemoryHandlerImpl<EUPTEXPROGCLASS>::Free();
         FreeArray("fontdir", program.fontdir);
         FreeArray("fontnumext", program.fontnumext);
         FreeArray("ctypebase", program.ctypebase);
@@ -78,7 +80,7 @@ public:
 public:
     void Check() override
     {
-        TeXMemoryHandlerImpl<EUPTEXPROGCLASS>::Check();
+        ETeXMemoryHandlerImpl<EUPTEXPROGCLASS>::Check();
         MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontdir);
         MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontnumext);
         MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ctypebase);
@@ -138,13 +140,15 @@ public:
         case OPT_KANJI:
             if (!set_enc_string (optArg.c_str(), nullptr))
             {
-                BadUsage();
+                std::cerr << MIKTEXTEXT("Unknown encoding: ") << optArg << std::endl;
+                throw 1;
             }
             break;
         case OPT_KANJI_INTERNAL:
             if (!set_enc_string (nullptr, optArg.c_str()))
             {
-                BadUsage();
+                std::cerr << MIKTEXTEXT("Unknown encoding: ") << optArg << std::endl;
+                throw 1;
             }
             break;
         default:
@@ -164,7 +168,7 @@ public:
         SetInputOutput(&inputOutput);
         SetStringHandler(&stringHandler);
         SetTeXMFMemoryHandler(&memoryHandler);
-        TeXApp::Init(args);
+        ETeXApp::Init(args);
         initkanji();
         kpse_set_program_name(args[0], nullptr);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
@@ -176,13 +180,13 @@ public:
 public:
     void AllocateMemory() override
     {
-        TeXApp::AllocateMemory();
+        ETeXApp::AllocateMemory();
     }
 
 public:
     void FreeMemory() override
     {
-        TeXApp::FreeMemory();
+        ETeXApp::FreeMemory();
     }
 
 public:

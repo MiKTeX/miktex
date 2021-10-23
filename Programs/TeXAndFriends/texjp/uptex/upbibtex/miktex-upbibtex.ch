@@ -29,9 +29,21 @@ init_kanji;
 @z
 
 @x
+  miktex_print_miktex_banner(output);
+  print_newline;
   print (banner);
   print (' (', conststringcast(get_enc_string), ')');
 @y
+  miktex_print_enc_string(output);
+  miktex_print_miktex_banner(output);
+  print_newline;
+@z
+
+@x
+  miktex_print_miktex_banner(log_file);
+@y
+  miktex_print_enc_string(log_file);
+  miktex_print_miktex_banner(log_file);
 @z
 
 % _____________________________________________________________________________

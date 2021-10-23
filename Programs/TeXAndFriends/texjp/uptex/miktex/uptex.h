@@ -37,3 +37,8 @@
 #define tobuff toBUFF
 #define todvi toDVI
 #define toucs toUCS
+
+template<class FileType> inline void miktexprintencstring(FileType& f)
+{
+  fprintf(f, " (%s)", get_enc_string());
+}

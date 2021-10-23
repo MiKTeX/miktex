@@ -30,3 +30,36 @@ REMOVE_THIS_BEGIN
 REMOVE_THIS_END
 @y
 @z
+
+% _____________________________________________________________________________
+%
+% [54.1379] \[53a] The extended features of \eTeX
+% _____________________________________________________________________________
+
+@x
+@!init if (etex_p or(buffer[loc]="*"))and(format_ident=" (INITEX)") then
+@y
+@!init if (miktex_etex_p or(buffer[loc]="*"))and(format_ident=" (INITEX)") then
+@z
+
+% _____________________________________________________________________________
+%
+% [61.1383]
+% _____________________________________________________________________________
+
+@x
+@!etex_p: boolean; {was the -etex option specified}
+@y
+@z
+
+% _____________________________________________________________________________
+%
+% [55.1603]
+% _____________________________________________________________________________
+
+@x
+function miktex_write18_p : boolean; forward;@t\2@>@/
+@y
+function miktex_etex_p: boolean; forward;@t\2@>@/
+function miktex_write18_p : boolean; forward;@t\2@>@/
+@z

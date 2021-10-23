@@ -21,6 +21,8 @@
 
 #include "miktex-updvitype-config.h"
 
+#include <iostream>
+
 #include <miktex/TeXAndFriends/WebApp>
 
 #include <miktex/uptex.h>
@@ -77,7 +79,8 @@ public:
             set_prior_file_enc();
             if (!set_enc_string(optArg.c_str(), optArg.c_str()))
             {
-                BadUsage();
+                std::cerr << MIKTEXTEXT("Unknown encoding: ") << optArg << std::endl;
+                throw 1;
             }
             break;
         case OPT_MAX_PAGES:

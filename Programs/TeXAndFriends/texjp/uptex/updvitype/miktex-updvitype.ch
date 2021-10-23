@@ -35,6 +35,7 @@
   print_ln (version_string);
   REMOVE_THIS_END;
 @y
+  miktex_print_enc_string(output);
 @z
 
 % _____________________________________________________________________________

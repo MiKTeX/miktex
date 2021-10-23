@@ -21,6 +21,8 @@
 
 #include "miktex-pbibtex-config.h"
 
+#include <iostream>
+
 #define IMPLEMENT_TCX 1
 
 #include <miktex/Configuration/ConfigNames>
@@ -231,7 +233,8 @@ public:
             set_prior_file_enc();
             if (!set_enc_string(optArg.c_str(), optArg.c_str()))
             {
-                BadUsage();
+                std::cerr << MIKTEXTEXT("Unknown encoding: ") << optArg << std::endl;
+                throw 1;
             }
             break;
         case OPT_MIN_CROSSREFS:

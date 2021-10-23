@@ -40,6 +40,13 @@ function miktex_get_verbose_flag : boolean; forward;
 @y
 @z
 
+@x
+  miktex_print_miktex_banner(output);
+@y
+  miktex_print_enc_string(output);
+  miktex_print_miktex_banner(output);
+@z
+
 % _____________________________________________________________________________
 %
 % [2.6]

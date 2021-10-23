@@ -32,6 +32,13 @@ else
 @y
 @z
 
+@x
+  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
+@y
+  miktex_print_enc_string(term_out);
+  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
+@z
+
 % _____________________________________________________________________________
 %
 % [25.371]
@@ -70,6 +77,14 @@ else
   wlog(conststringcast(get_enc_string));
   wlog(')');
 @y
+@z
+
+@x
+miktex_print_miktex_banner(log_file);
+@y
+wlog(banner_k);
+miktex_print_enc_string(log_file);
+miktex_print_miktex_banner(log_file);
 @z
 
 % _____________________________________________________________________________
@@ -160,12 +175,6 @@ char_base:=xmalloc_array(integer, font_max);
   font_check:=xmalloc_array(four_quarters, font_max);
   ctype_base:=xmalloc_array(integer, font_max);
   char_base:=xmalloc_array(integer, font_max);
-REMOVE_THIS_BEGIN
-  line_stack:=xmalloc_array (integer, max_in_open);
-  eof_seen:=xmalloc_array (boolean, max_in_open);
-  grp_stack:=xmalloc_array (save_pointer, max_in_open);
-  if_stack:=xmalloc_array (pointer, max_in_open);
-REMOVE_THIS_END
 @y
 @z
 

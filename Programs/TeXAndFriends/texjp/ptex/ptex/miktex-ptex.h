@@ -26,6 +26,8 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
+#include <iostream>
+
 #include "miktex-ptex-version.h"
 
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
@@ -138,13 +140,15 @@ public:
         case OPT_KANJI:
             if (!set_enc_string (optArg.c_str(), nullptr))
             {
-                BadUsage();
+                std::cerr << T_("Unknown encoding: ") << optArg << std::endl;
+                throw 1;
             }
             break;
         case OPT_KANJI_INTERNAL:
             if (!set_enc_string (nullptr, optArg.c_str()))
             {
-                BadUsage();
+                std::cerr << T_("Unknown encoding: ") << optArg << std::endl;
+                throw 1;
             }
             break;
         default:

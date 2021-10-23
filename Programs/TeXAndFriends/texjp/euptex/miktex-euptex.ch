@@ -30,21 +30,6 @@ procedure scan_something_internal(@!level:small_number;@!negative:boolean);
 
 % _____________________________________________________________________________
 %
-% [52.1373]
-% _____________________________________________________________________________
-
-@x
-REMOVE_THIS_BEGIN
-  line_stack:=xmalloc_array (integer, max_in_open);
-  eof_seen:=xmalloc_array (boolean, max_in_open);
-  grp_stack:=xmalloc_array (save_pointer, max_in_open);
-  if_stack:=xmalloc_array (pointer, max_in_open);
-REMOVE_THIS_END
-@y
-@z
-
-% _____________________________________________________________________________
-%
 % [54.1419]
 % _____________________________________________________________________________
 

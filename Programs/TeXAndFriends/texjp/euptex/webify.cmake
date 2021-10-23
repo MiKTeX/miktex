@@ -101,6 +101,7 @@ add_custom_command(
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-post.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/char-warning-eptex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/uptex/miktex-uptex.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
@@ -117,6 +118,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/etex.ch1
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/fam256.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/pdfutils.ch
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptex-base.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UPTEX_DIR}/source/uptex-m.ch
