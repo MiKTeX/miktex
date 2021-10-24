@@ -48,6 +48,19 @@ static boolean prior_file_enc = false;
 # endif
 # define NOFILE OPEN_MAX
 #endif
+#if defined(MIKTEX)
+inline int filenoCheck(FILE* f)
+{
+    int fd = fileno(f);
+    if (fd >= NOFILE)
+    {
+        fprintf(stderr, "too many open files\n");
+        miktex_exit(1);
+    }
+    return fd;
+}
+#define fileno filenoCheck
+#endif
 
 const char *ptexenc_version_string = PTEXENCVERSION;
 #if !defined(MIKTEX) && defined(WIN32)
