@@ -169,6 +169,9 @@ public:
   MIKTEXMFTHISAPI(bool) InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const;
 
 public:
+  virtual MIKTEXMFTHISAPI(size_t) InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const;
+
+public:
   MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Util::PathName& fileName);
 
 public:

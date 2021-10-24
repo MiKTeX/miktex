@@ -178,6 +178,12 @@ public:
     }
 
 public:
+    size_t InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
+    {
+        return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
+    }
+
+public:
     void AllocateMemory() override
     {
         ETeXApp::AllocateMemory();

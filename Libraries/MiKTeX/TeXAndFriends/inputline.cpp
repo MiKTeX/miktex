@@ -133,6 +133,8 @@ public:
 public:
   PathName foundFileFq;
 public:
+  bool isPTeX = false;
+public:
   ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
 public:
   PathName lastInputFileName;
@@ -157,6 +159,7 @@ void WebAppInputLine::Init(vector<char*>& args)
 {
   WebApp::Init(args);
   pimpl->shellCommandMode = ShellCommandMode::Forbidden;
+  pimpl->isPTeX = AmI("ptex") || AmI("eptex") || AmI("uptex") || AmI("euptex");
 }
 
 void WebAppInputLine::Finalize()
@@ -603,106 +606,93 @@ void WebAppInputLine::BufferSizeExceeded() const
   }
 }
 
+size_t WebAppInputLine::InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const
+{
+  do
+  {
+    errno = 0;
+    while (bufferPosition < bufferSize && (lastChar = GetC(f)) != EOF && lastChar != '\n' && lastChar != '\r')
+    {
+      buffer[bufferPosition++] = lastChar;
+    }
+  } while (lastChar == EOF && errno == EINTR);
+  return bufferPosition;
+}
+
+/**
+ * @brief Read a line of input.
+ * 
+ * This is a refactored implementation derived from TL's input_line function (see texmfmp.c).
+ * 
+ * @param f 
+ * @param bypassEndOfLine 
+ * @return true 
+ * @return false 
+ */
 bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const
 {
   f.AssertValid();
 
-  if (AmI("xetex"))
+  if (f.IsPascalFileIO())
   {
-    MIKTEX_UNEXPECTED();
-  }
-
-  if (!f.IsPascalFileIO())
-  {
-    // this seems to be console input after TeX's ** prompt
+    // this seems to be console input
   }
 
   IInputOutput* inputOutput = GetInputOutput();
 
-  const C4P::C4P_signed32 first = inputOutput->first();
-  C4P::C4P_signed32& last = inputOutput->last();
-  C4P::C4P_signed32 bufsize = inputOutput->bufsize();
-
+  const auto first = inputOutput->first();
+  auto& last = inputOutput->last();
+  auto bufsize = inputOutput->bufsize();
   const char* xord = GetCharacterConverter()->xord();
+  char* buffer = inputOutput->buffer();
+  int lastChar;
 
-  char *buffer = inputOutput->buffer();
+  last = static_cast<C4P::C4P_signed32>(InputLineInternal(f, buffer, bufsize, first, lastChar));
 
-  last = first;
-
-  if (feof(f) != 0)
+  if (lastChar == EOF && last == first)
   {
     return false;
   }
 
-  int ch = GetC(f);
-  if (ch == EOF)
+  if (lastChar != EOF && lastChar != '\n' && lastChar != '\r')
   {
-    return false;
-  }
-  if (ch == '\r')
-  {
-    ch = GetC(f);
-    if (ch == EOF)
-    {
-      return false;
-    }
-    if (ch != '\n')
-    {
-      ungetc(ch, f);
-      ch = '\n';
-    }
+    MIKTEX_FATAL_ERROR("Unable to read an entire line.");
   }
 
-  if (ch == '\n')
+  buffer[last] = ' ';
+
+  if (last >= inputOutput->maxbufstack())
   {
-    return true;
+    inputOutput->maxbufstack() = last;
   }
 
-  buffer[last] = xord[ch & 0xff];
-  last += 1;
-
-  while ((ch = GetC(f)) != EOF)
+  if (lastChar == '\r')
   {
-    if (last >= bufsize)
+    while ((lastChar = GetC(f)) == EOF && errno == EINTR)
     {
-      BufferSizeExceeded();
-      bufsize = inputOutput->bufsize();
-      buffer = inputOutput->buffer();
     }
-    if (ch == '\r')
+    if (lastChar != '\n')
     {
-      ch = GetC(f);
-      if (ch == EOF)
-      {
-        break;
-      }
-      if (ch != '\n')
-      {
-        ungetc(ch, f);
-        ch = '\n';
-      }
-    }
-    if (ch == '\n')
-    {
-      break;
-    }
-    buffer[last] = xord[ch & 0xff];
-    last += 1;
-  }
-
-  if (!AmI("bibtex") && last >= inputOutput->maxbufstack())
-  {
-    inputOutput->maxbufstack() = last + 1;
-    if (inputOutput->maxbufstack() >= bufsize)
-    {
-      BufferSizeExceeded();
-      bufsize = inputOutput->bufsize();
+      ungetc(lastChar, f);
     }
   }
 
-  while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\r'))
+  while (last > first && buffer[last - 1] == ' ')
   {
-    last -= 1;
+    last--;
+  }
+
+  for (int i = first; i <= last; i++)
+  {
+    buffer[i] = xord[buffer[i]&0xff];
+  }
+
+  if (pimpl->isPTeX)
+  {
+    for (int i = last + 1; (i < last + 5 && i < bufsize); i++)
+    {
+      buffer[i] = 0;
+    }
   }
 
   return true;
