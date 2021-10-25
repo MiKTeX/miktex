@@ -27,6 +27,7 @@
 #endif
 
 #include <iostream>
+#include <unordered_set>
 
 #include "miktex-eptex-version.h"
 
@@ -181,6 +182,58 @@ public:
     size_t InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
     {
         return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
+    }
+
+private:
+    std::unordered_set<const FILE*> inputFiles;
+
+public:
+    FILE* OpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access) override
+    {
+        if (mode == MiKTeX::Core::FileMode::Command || access != MiKTeX::Core::FileAccess::Read)
+        {
+            return ETeXApp::OpenFileInternal(path, mode, access);
+        }
+        FILE* f = nkf_open(path.GetData(), "rb");
+        if (f != nullptr)
+        {
+            inputFiles.insert(f);
+        }
+        return f;
+    }
+
+public:
+    FILE* TryOpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access) override
+    {
+        if (mode == MiKTeX::Core::FileMode::Command || access != MiKTeX::Core::FileAccess::Read)
+        {
+            return ETeXApp::TryOpenFileInternal(path, mode, access);
+        }
+        FILE* f = nkf_open(path.GetData(), "rb");
+        if (f != nullptr)
+        {
+            inputFiles.insert(f);
+        }
+        return f;
+    }
+
+public:
+    void CloseFileInternal(FILE* f)
+    {
+        std::unordered_set<const FILE*>::iterator it = inputFiles.find(f);
+        if (it == inputFiles.end())
+        {
+            ETeXApp::CloseFileInternal(f);
+            return;
+        }
+        inputFiles.erase(it);
+        nkf_close(f);
+    }
+
+public:
+    MiKTeX::Util::PathName DecodeFileName(const MiKTeX::Util::PathName& fileNameInternalEncoding) override
+    {
+        return MiKTeX::Util::PathName(reinterpret_cast<char*>(ptenc_from_internal_enc_string_to_utf8(reinterpret_cast<const unsigned char*>(fileNameInternalEncoding.GetData()))));
     }
 
 public:

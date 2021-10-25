@@ -894,9 +894,8 @@ void TeXMFApp::InitializeBuffer() const
     }
   }
 
-  //MIKTEX_ASSERT(inout->first() == 1);
   C4P::C4P_signed32& last = inout->last();
-  last = 1;
+  last = inout->first();
   char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
   char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
   for (int idx = 1; idx < argc; ++idx)
@@ -944,8 +943,7 @@ void TeXMFApp::InitializeBuffer() const
 void TeXMFApp::TouchJobOutputFile(FILE* file) const
 {
   MIKTEX_ASSERT(file != nullptr);
-  shared_ptr<Session> session = GetSession();
-  if (pimpl->setJobTime && session->IsOutputFile(file))
+  if (pimpl->setJobTime)
   {
     time_t time = GetProgram()->GetStartUpTime();
     File::SetTimes(file, time, time, time);

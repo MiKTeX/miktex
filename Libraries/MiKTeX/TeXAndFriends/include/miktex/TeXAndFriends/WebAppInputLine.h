@@ -125,12 +125,16 @@ private:
   virtual MIKTEXMFTHISAPI(void) BufferSizeExceeded() const;
 
 public:
-  template<class FileType> void CloseFile(FileType& f)
-  {
-    f.AssertValid();
-    TouchJobOutputFile(f);
-    GetSession()->CloseFile(f);
-  }
+  MIKTEXMFTHISAPI(void) CloseFile(C4P::FileRoot& f);
+
+public:
+  virtual MIKTEXMFTHISAPI(FILE*) OpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);
+
+public:
+  virtual MIKTEXMFTHISAPI(FILE*) TryOpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);
+
+public:
+  virtual MIKTEXMFTHISAPI(void) CloseFileInternal(FILE* f);
 
 public:
   MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFile() const;
@@ -172,13 +176,16 @@ public:
   virtual MIKTEXMFTHISAPI(size_t) InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const;
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Util::PathName& fileName);
+  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Util::PathName& fileNameInternalEncoding);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileName);
+  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileNameInternalEncoding);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileName, bool isTextFile_deprecated, MiKTeX::Util::PathName& outPath);
+  virtual MIKTEXMFTHISAPI(MiKTeX::Util::PathName) DecodeFileName(const MiKTeX::Util::PathName& fileNameInternalEncoding);
+
+public:
+  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileNameInternalEncoding, bool isTextFile_deprecated, MiKTeX::Util::PathName& outPath);
 
 public:
   MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Util::PathName& fileName, bool forInput);

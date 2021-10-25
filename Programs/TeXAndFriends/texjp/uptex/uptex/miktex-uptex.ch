@@ -79,24 +79,6 @@ else
 
 % _____________________________________________________________________________
 %
-% [26.423]
-% _____________________________________________________________________________
-
-@x
-procedure scan_something_internal(@!level:small_number;@!negative:boolean);
-@y
-procedure scan_something_internal(@!level:small_number;@!negative:boolean);
-label exit;
-@z
-
-@x
-end;
-@y
-exit: end;
-@z
-
-% _____________________________________________________________________________
-%
 % [29.526]
 % _____________________________________________________________________________
 
@@ -234,40 +216,4 @@ function restrictedshell : boolean; forward;@t\2@>@/
 @y
 function restrictedshell : boolean; forward;@t\2@>@/
 function isinternalUPTEX : boolean; forward;@t\2@>@/
-@z
-
-% _____________________________________________________________________________
-%
-% [58.1426] \[55/\pTeX] System-dependent changes for \pTeX
-% _____________________________________________________________________________
-
-@x
-function get_jfm_pos(@!kcode:KANJI_code;@!f:internal_font_number):eight_bits;
-@y
-function get_jfm_pos(@!kcode:KANJI_code;@!f:internal_font_number):eight_bits;
-label exit;
-@z
-
-@x
-end;
-@y
-exit: end;
-@z
-
-% _____________________________________________________________________________
-%
-% [58.1436]
-% _____________________________________________________________________________
-
-@x
-procedure print_kansuji(@!n:integer);
-@y
-procedure print_kansuji(@!n:integer);
-label exit;
-@z
-
-@x
-end;
-@y
-exit: end;
 @z

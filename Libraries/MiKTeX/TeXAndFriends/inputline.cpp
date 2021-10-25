@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include <unordered_map>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -120,6 +122,13 @@ int CheckBom(FILE* file)
   return 0;
 }
 
+struct OpenFileInfo
+{
+  FileAccess access;
+  FileMode mode;
+  PathName path;
+};
+
 class WebAppInputLine::impl
 {
 public:
@@ -144,6 +153,8 @@ public:
   TriState allowInput = TriState::Undetermined;
 public:
   TriState allowOutput = TriState::Undetermined;
+public:
+  unordered_map<const FILE*, OpenFileInfo> openFiles;
 };
 
 WebAppInputLine::WebAppInputLine() :
@@ -230,22 +241,14 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   return Utils::IsSafeFileName(fileName);
 }
 
-bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, bool isTextFile_deprecated, PathName& outPath)
+bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileNameInternalEncoding, bool isTextFile_deprecated, PathName& outPath)
 {
-  const char* lpszPath = fileName.GetData();
-#if defined(MIKTEX_WINDOWS)
-  string utf8Path;
-  if (!Utils::IsUTF8(lpszPath))
-  {
-    utf8Path = StringUtil::AnsiToUTF8(lpszPath);
-    lpszPath = utf8Path.c_str();
-  }
-#endif
+  auto fileName = DecodeFileName(fileNameInternalEncoding);
   shared_ptr<Session> session = GetSession();
   FILE* file = nullptr;
-  if (lpszPath[0] == '|')
+  if (fileName[0] == '|')
   {
-    string command = lpszPath + 1;
+    string command = fileName.GetData() + 1;
 #if defined(MIKTEX_WINDOWS)
     std::replace(command.begin(), command.end(), '\'', '"');
 #endif
@@ -298,26 +301,28 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     {
       LogWarn(fmt::format("executing unrestricted output pipe: {0}", toBeExecuted));
     }
-    file = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Write, false);
+    file = OpenFileInternal(PathName(toBeExecuted), FileMode::Command, FileAccess::Write);
+    pimpl->openFiles[file] = OpenFileInfo{FileAccess::Write, FileMode::Command, PathName(toBeExecuted) };
   }
   else
   {
-    bool isAuxFile = !IsOutputFile(PathName(lpszPath));
+    bool isAuxFile = !IsOutputFile(fileName);
     PathName path;
     if (isAuxFile && !pimpl->auxDirectory.Empty())
     {
-      path = pimpl->auxDirectory / PathName(lpszPath);
-      lpszPath = path.GetData();
+      path = pimpl->auxDirectory / fileName;
+      fileName = path.GetData();
     }
     else if (!pimpl->outputDirectory.Empty())
     {
-      path = pimpl->outputDirectory / PathName(lpszPath);
-      lpszPath = path.GetData();
+      path = pimpl->outputDirectory / fileName;
+      fileName = path.GetData();
     }
-    file = session->TryOpenFile(PathName(lpszPath), FileMode::Create, FileAccess::Write, false);
+    file = TryOpenFileInternal(fileName, FileMode::Create, FileAccess::Write);
     if (file != nullptr)
     {
-      outPath = lpszPath;
+      outPath = fileName;
+      pimpl->openFiles[file] = OpenFileInfo{FileAccess::Write,  FileMode::Create, outPath };
     }
   }
   if (file == nullptr)
@@ -328,26 +333,29 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   return true;
 }
 
-bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
+MiKTeX::Util::PathName WebAppInputLine::DecodeFileName(const PathName& fileNameInternalEncoding)
 {
-  const char* lpszFileName = fileName.GetData();
-
 #if defined(MIKTEX_WINDOWS)
-  string utf8FileName;
-  if (!Utils::IsUTF8(lpszFileName))
+  if (!Utils::IsUTF8(fileNameInternalEncoding.GetData()))
   {
     LogWarn("converting ANSI file name");
-    utf8FileName = StringUtil::AnsiToUTF8(lpszFileName);
-    LogWarn("conversion succeeded: " + utf8FileName);
-    lpszFileName = utf8FileName.c_str();
+    auto fileName = StringUtil::AnsiToUTF8(fileNameInternalEncoding.GetData());
+    LogWarn("conversion succeeded: " + fileName);
+    return PathName(fileName);
   }
 #endif
+  return fileNameInternalEncoding;
+}
+
+bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileNameInternalEncoding)
+{
+  auto fileName = DecodeFileName(fileNameInternalEncoding);
 
   shared_ptr<Session> session = GetSession();
 
-  if (lpszFileName[0] == '|')
+  if (fileName[0] == '|')
   {
-    string command = lpszFileName + 1;
+    string command = fileName.GetData() + 1;
 #if defined(MIKTEX_WINDOWS)
     std::replace(command.begin(), command.end(), '\'', '"');
 #endif
@@ -386,13 +394,14 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       MIKTEX_UNEXPECTED();
     }
     LogInfo("executing input pipe: " + toBeExecuted);
-    *ppFile = session->OpenFile(PathName(toBeExecuted), FileMode::Command, FileAccess::Read, false);
+    *ppFile = OpenFileInternal(PathName(toBeExecuted), FileMode::Command, FileAccess::Read);
+    pimpl->openFiles[*ppFile] = OpenFileInfo{FileAccess::Read,  FileMode::Command, PathName(toBeExecuted) };
     pimpl->foundFile.Clear();
     pimpl->foundFileFq.Clear();
   }
   else
   {
-    if (!session->FindFile(lpszFileName, GetInputFileType(), pimpl->foundFile))
+    if (!session->FindFile(fileName.GetData(), GetInputFileType(), pimpl->foundFile))
     {
       return false;
     }
@@ -414,23 +423,27 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       {
         CommandLineBuilder cmd("zcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
+        *ppFile = OpenFileInternal(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read);
+        pimpl->openFiles[*ppFile] = OpenFileInfo{FileAccess::Read, FileMode::Command, PathName(cmd.ToString()) };
       }
       else if (pimpl->foundFile.HasExtension(".bz2"))
       {
         CommandLineBuilder cmd("bzcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
+        *ppFile = OpenFileInternal(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read);
+        pimpl->openFiles[*ppFile] = OpenFileInfo{FileAccess::Read, FileMode::Command, PathName(cmd.ToString()) };
       }
       else if (pimpl->foundFile.HasExtension(".xz") || pimpl->foundFile.HasExtension(".lzma"))
       {
         CommandLineBuilder cmd("xzcat");
         cmd.AppendArgument(pimpl->foundFile);
-        *ppFile = session->OpenFile(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read, false);
+        *ppFile = OpenFileInternal(PathName(cmd.ToString()), FileMode::Command, FileAccess::Read);
+        pimpl->openFiles[*ppFile] = OpenFileInfo{FileAccess::Read, FileMode::Command, PathName(cmd.ToString()) };
       }
       else
       {
-        *ppFile = session->OpenFile(pimpl->foundFile, FileMode::Open, FileAccess::Read, false);
+        *ppFile = OpenFileInternal(pimpl->foundFile, FileMode::Open, FileAccess::Read);
+        pimpl->openFiles[*ppFile] = OpenFileInfo{FileAccess::Read, FileMode::Open, pimpl->foundFile };
       }
     }
 #if defined(MIKTEX_WINDOWS)
@@ -472,16 +485,16 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     }
   }
 
-  pimpl->lastInputFileName = lpszFileName;
+  pimpl->lastInputFileName = fileName;
 
   return true;
 }
 
-bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
+bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileNameInternalEncoding)
 {
   FILE* file = nullptr;
 
-  if (!OpenInputFile(&file, fileName))
+  if (!OpenInputFile(&file, fileNameInternalEncoding))
   {
     return false;
   }
@@ -492,9 +505,26 @@ bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
   MIKTEX_UNIMPLEMENTED();
 #endif
 
-  pimpl->lastInputFileName = fileName;
-
   return true;
+}
+
+void WebAppInputLine::CloseFile(C4P::FileRoot& f)
+{
+  f.AssertValid();
+  unordered_map<const FILE*, OpenFileInfo>::iterator it = pimpl->openFiles.find(f);
+  bool isCommand = false;
+  bool isOutput = false;
+  if (it != pimpl->openFiles.end())
+  {
+    isCommand = (it->second.mode == FileMode::Command);
+    isOutput = (it->second.access == FileAccess::Write);
+    pimpl->openFiles.erase(it);
+  }
+  if (isOutput)
+  {
+    TouchJobOutputFile(f);
+  }
+  CloseFileInternal(f);
 }
 
 void WebAppInputLine::TouchJobOutputFile(FILE *) const
@@ -696,4 +726,19 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
   }
 
   return true;
+}
+
+FILE* WebAppInputLine::OpenFileInternal(const PathName& path, FileMode mode, FileAccess access)
+{
+  return GetSession()->OpenFile(path, mode, access, false);
+}
+
+FILE* WebAppInputLine::TryOpenFileInternal(const PathName& path, FileMode mode, FileAccess access)
+{
+  return GetSession()->TryOpenFile(path, mode, access, false);
+}
+
+void WebAppInputLine::CloseFileInternal(FILE* f)
+{
+  GetSession()->CloseFile(f);
 }

@@ -1116,19 +1116,24 @@ private:
 public:
   std::string GetEngineName() override
   {
-    std::string engine = theNameOfTheGame;
-    if (engine.empty())
+    std::string s = theNameOfTheGame;
+    if (s.empty())
     {
-      if (!GetEnvironmentString("engine", engine))
+      if (!GetEnvironmentString("engine", s))
       {
-        engine = "engine-not-set";
+        return "engine-not-set";
       }
     }
-    for(char& ch : engine)
+    std::string engine;
+    for(const char& ch : s)
     {
       if (ch >= 'A' && ch <= 'Z')
       {
-        ch = ch - 'A' + 'a';
+        engine += ch - 'A' + 'a';
+      }
+      else if (ch >= 'a' && ch <= 'z')
+      {
+        engine += ch;
       }
     }
     return engine;

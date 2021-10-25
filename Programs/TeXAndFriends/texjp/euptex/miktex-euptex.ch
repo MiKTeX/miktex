@@ -18,18 +18,6 @@
 
 % _____________________________________________________________________________
 %
-% [27.449]
-% _____________________________________________________________________________
-
-@x
-procedure scan_something_internal(@!level:small_number;@!negative:boolean);
-label exit;
-@y
-procedure scan_something_internal(@!level:small_number;@!negative:boolean);
-@z
-
-% _____________________________________________________________________________
-%
 % [54.1419]
 % _____________________________________________________________________________
 
@@ -37,8 +25,8 @@ procedure scan_something_internal(@!level:small_number;@!negative:boolean);
     if j>=0 then k:=setinfileenc(input_file[j],stringcast(name_of_file+1))
     else k:=setstdinenc(stringcast(name_of_file+1));
 @y
-    if j>=0 then k:=setinfileenc(input_file[j],stringcast(name_of_file))
-    else k:=setstdinenc(stringcast(name_of_file));
+    if j>=0 then k:=setinfileenc(input_file[j],name_of_file)
+    else k:=setstdinenc(name_of_file);
 @z
 
 @x

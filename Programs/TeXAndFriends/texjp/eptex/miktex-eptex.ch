@@ -187,8 +187,8 @@ char_base:=xmalloc_array(integer, font_max);
     if j>=0 then k:=setinfileenc(input_file[j],stringcast(name_of_file+1))
     else k:=setstdinenc(stringcast(name_of_file+1));
 @y
-    if j>=0 then k:=setinfileenc(input_file[j],stringcast(name_of_file))
-    else k:=setstdinenc(stringcast(name_of_file));
+    if j>=0 then k:=setinfileenc(input_file[j],name_of_file)
+    else k:=setstdinenc(name_of_file);
 @z
 
 @x
@@ -201,42 +201,6 @@ char_base:=xmalloc_array(integer, font_max);
         wlog(name_of_file); end;
       log_only:  wlog(name_of_file);
       term_only: wterm(name_of_file);
-@z
-
-% _____________________________________________________________________________
-%
-% [61.1715] \[54/\pTeX] System-dependent changes for \pTeX
-% _____________________________________________________________________________
-
-@x
-function get_jfm_pos(@!kcode:KANJI_code;@!f:internal_font_number):eight_bits;
-@y
-function get_jfm_pos(@!kcode:KANJI_code;@!f:internal_font_number):eight_bits;
-label exit;
-@z
-
-@x
-end;
-@y
-exit: end;
-@z
-
-% _____________________________________________________________________________
-%
-% [61.1725]
-% _____________________________________________________________________________
-
-@x
-procedure print_kansuji(@!n:integer);
-@y
-procedure print_kansuji(@!n:integer);
-label exit;
-@z
-
-@x
-end;
-@y
-exit: end;
 @z
 
 % _____________________________________________________________________________
