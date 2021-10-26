@@ -124,6 +124,10 @@ if translate_filename then begin
   wterm_ln('" ignored)');
 end;
 @y
+if miktex_have_tcx_file_name then begin
+  wterm(' (WARNING: translate-file "');
+  wterm_ln('" ignored)');
+end;
 @z
 
 % _____________________________________________________________________________

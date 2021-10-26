@@ -91,13 +91,11 @@ is considered an output file the file variable is |term_out|.
 % _____________________________________________________________________________
 
 @x
-  if format_ident=0 then print_ln {\MiKTeX: eliminate misleading `(no format preloaded)'.}
-  else  begin slow_print(format_ident); print_ln;
-    end;
+if miktex_have_tcx_file_name then begin
+  miktex_print_tcx_file_name(term_out);
+  print_ln;
+end;
 @y
-  if format_ident=0 then print_ln {\MiKTeX: eliminate misleading `(no format preloaded)'.}
-  else  begin slow_print(format_ident); print_ln;
-    end;
 if translate_filename then begin
   wterm(' (');
   fputs(translate_filename, stdout);

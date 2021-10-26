@@ -36,14 +36,14 @@
 
 @x
 @<Initialize the output...@>=
-if (not miktex_get_quiet_flag) then begin
+if not miktex_get_quiet_flag then begin
 @y
 @<Initialize the output...@>=
 if src_specials_p or file_line_error_style_p or parse_first_line_p then
   wterm(banner_k)
 else
   wterm(banner);
-if (not miktex_get_quiet_flag) then begin
+if not miktex_get_quiet_flag then begin
 @z
 
 % _____________________________________________________________________________

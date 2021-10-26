@@ -12,24 +12,16 @@
 
 @x
 if not miktex_is_compatible then
-  wterm(banner_k);
-else
-  wterm(banner);
-miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
-if format_ident=0 then print_ln {\MiKTeX: eliminate misleading `(no format preloaded)'.}
-else  begin slow_print(format_ident); print_ln;
-  end;
 @y
-if (not miktex_get_quiet_flag) then begin
-  if not miktex_is_compatible then
-    wterm(banner_k)
-  else
-    wterm(banner);
-  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
-  if format_ident=0 then print_ln {\MiKTeX: eliminate misleading `(no format preloaded)'.}
-  else  begin slow_print(format_ident); print_ln;
-    end;
+if not miktex_get_quiet_flag then begin
+if not miktex_is_compatible then
+@z
+
+@x
+update_terminal;
+@y
 end;
+update_terminal;
 @z
 
 % _____________________________________________________________________________

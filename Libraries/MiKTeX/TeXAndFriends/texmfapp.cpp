@@ -895,7 +895,8 @@ void TeXMFApp::InitializeBuffer() const
   }
 
   C4P::C4P_signed32& last = inout->last();
-  last = inout->first();
+  auto first = inout->first();
+  last = first;
   char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
   char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
   for (int idx = 1; idx < argc; ++idx)
@@ -933,6 +934,20 @@ void TeXMFApp::InitializeBuffer() const
       {
         buffer[last++] = *lpsz;
       }
+    }
+  }
+
+  for (last--; last >= first && (buffer[last] == ' ' || buffer[last] == '\r' || buffer[last] == '\n'); last++)
+  {
+  }
+  last++;
+
+  if (!AmI("xetex"))
+  {
+    const char* xord = GetCharacterConverter()->xord();
+    for (int i = first; i < last; i++)
+    {
+      buffer[i] = xord[buffer[i]&0xff];
     }
   }
 

@@ -30,6 +30,7 @@ set(miktex_tex_change_files
     ${TEX_MIKTEX_WRITE18_CH}
     ${TRACINGSTACKLEVELS_CH}
     ${PARTOKEN_CH}
+    ${TEX_MIKTEX_WEB2C_CH}
     ${TEX_MIKTEX_FINISH_CH}
 )
 

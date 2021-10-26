@@ -33,10 +33,10 @@ else
 @z
 
 @x
-  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
+miktex_print_miktex_banner(term_out);
 @y
-  miktex_print_enc_string(term_out);
-  miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
+miktex_print_enc_string(term_out);
+miktex_print_miktex_banner(term_out);
 @z
 
 % _____________________________________________________________________________

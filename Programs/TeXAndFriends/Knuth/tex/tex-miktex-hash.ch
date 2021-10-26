@@ -30,11 +30,6 @@ else if (n<glue_base) or ((n>eqtb_size)and(n<=eqtb_top)) then
   @<Show equivalent |n|, in region 1 or 2@>
 @z
 
-% _____________________________________________________________________________
-%
-% [17.252]
-% _____________________________________________________________________________
-
 @x
 @!eqtb:array[active_base..eqtb_size] of memory_word;
 @y
@@ -125,6 +120,12 @@ else if p>=undefined_control_sequence then print_esc("IMPOSSIBLE.")
 @y
 else if ((p>=undefined_control_sequence)and(p<=eqtb_size))or(p>eqtb_top) then
   print_esc("IMPOSSIBLE.")
+@z
+
+@x
+else if (text(p)<0)or(text(p)>=str_ptr) then print_esc("NONEXISTENT.")
+@y
+else if (text(p)>=str_ptr) then print_esc("NONEXISTENT.")
 @z
 
 % _____________________________________________________________________________

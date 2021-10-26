@@ -300,14 +300,22 @@ inline int miktexgetsynchronizationoptions()
   return TeXApp::GetTeXApp()->GetSynchronizationOptions();
 }
 
+// web2c shim
 inline bool restrictedshell()
 {
   return TeXApp::GetTeXApp()->GetWrite18Mode() == MiKTeX::Core::ShellCommandMode::Restricted || TeXApp::GetTeXApp()->GetWrite18Mode() == MiKTeX::Core::ShellCommandMode::Query;
 }
 
+// web2c shim
 inline bool shellenabledp()
 {
   return miktexwrite18p();
+}
+
+// web2c shim
+inline bool srcspecialsp()
+{
+  return TeXApp::GetTeXApp()->SourceSpecialsP();
 }
 
 inline bool miktexiscompatible()

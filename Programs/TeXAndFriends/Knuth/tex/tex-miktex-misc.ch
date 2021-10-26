@@ -14,7 +14,6 @@
 \def\MiKTeX{MiK\TeX}
 @z
 
-%% WEAVE: print changes only.
 @x
   \def\?##1]{\hbox to 1in{\hfil##1.\ }}
   }
@@ -274,8 +273,8 @@ else  begin last_nonblank:=first;
   end;
 end;
 @y
-@p function input_ln(var f:alpha_file;@!bypass_eoln:boolean):boolean;
-  forward;@t\2@>@/
+@p function input_ln(var f:alpha_file;@!bypass_eoln:boolean):boolean; forward;@t\2@>@/
+@{ @<Report overflow of the input buffer, and abort@> @}
 @z
 
 % _____________________________________________________________________________
@@ -332,10 +331,17 @@ some instruction to the operating system.
 % _____________________________________________________________________________
 
 @x
+@<Report overflow of the input buffer, and abort@>=
+if format_ident=0 then
   begin write_ln(term_out,'Buffer size exceeded!'); goto final_end;
+@.Buffer size exceeded@>
+  end
+else begin cur_input.loc_field:=first; cur_input.limit_field:=last-1;
 @y
-  begin write_ln(term_out,'Buffer size exceeded!');
-  goto_final_end; {\MiKTeX: throw a \Cplusplus\ exception}
+Routine is implemented in C; part of module is, however, needed for e-TeX.
+
+@<Report overflow of the input buffer, and abort@>=
+  begin cur_input.loc_field:=first; cur_input.limit_field:=last-1;
 @z
 
 % _____________________________________________________________________________
@@ -344,30 +350,38 @@ some instruction to the operating system.
 % _____________________________________________________________________________
 
 @x
+@ The following program does the required initialization
+without retrieving a possible command line.
+It should be clear how to modify this routine to deal with command lines,
 if the system permits them.
 @^system dependencies@>
+
+@p function init_terminal:boolean; {gets the terminal input started}
+label exit;
+begin t_open_in;
 @y
-if the system permits them.
+@ The following program does the required initialization.
+If anything has been specified on the command line, then we
+use the routine |miktex_initialize_buffer| to get the
+first input line which returns with |last > first|.
 @^system dependencies@>
 
-\MiKTeX: we possibly use the routine |miktex_initialize_buffer| to get the
-first input line.
-@z
-
-@x
-loop@+begin wake_up_terminal; write(term_out,'**'); update_terminal;
-@y
-loop@+begin
-  if (c4p_plen > 0) then miktex_initialize_buffer
-  else begin
-    wake_up_terminal; write(term_out,'**'); update_terminal;
-@z
-
-@x
-  loc:=first;
-@y
+@p function init_terminal:boolean; {gets the terminal input started}
+label exit;
+begin t_open_in;
+if c4p_plen > 0 then
+  begin miktex_initialize_buffer; loc := first;
+  while (loc < last) and (buffer[loc]=' ') do incr(loc);
+  if loc < last then
+    begin init_terminal := true; goto exit;
     end;
-  loc:=first;
+  end;
+@z
+
+@x
+    write(term_out,'! End of file on the terminal... why?');
+@y
+    write_ln(term_out,'! End of file on the terminal... why?');
 @z
 
 % _____________________________________________________________________________
@@ -424,7 +438,7 @@ loop@+begin
 wterm(banner);
 @y
 if not miktex_is_compatible then
-  wterm(banner_k);
+  wterm(banner_k)
 else
   wterm(banner);
 @z
@@ -434,10 +448,24 @@ if format_ident=0 then wterm_ln(' (no format preloaded)')
 else  begin slow_print(format_ident); print_ln;
   end;
 @y
-miktex_print_miktex_banner(term_out); {\MiKTeX: append the \MiKTeX\ version information}
-if format_ident=0 then print_ln {\MiKTeX: eliminate misleading `(no format preloaded)'.}
+miktex_print_miktex_banner(term_out);
+if format_ident=0 then wterm_ln(' (preloaded format=',TEX_format_default,')')
 else  begin slow_print(format_ident); print_ln;
   end;
+if shellenabledp then begin
+  wterm(' ');
+  if restrictedshell then begin
+    wterm('restricted ');
+  end;
+  wterm_ln('\write18 enabled.');
+end;
+if src_specials_p then begin
+  wterm_ln(' Source specials enabled.')
+end;
+if miktex_have_tcx_file_name then begin
+  miktex_print_tcx_file_name(term_out);
+  print_ln;
+end;
 @z
 
 % _____________________________________________________________________________
@@ -451,6 +479,13 @@ var k:0..buf_size; {index into |buffer|}
 var k:0..sup_buf_size; {index into |buffer|}
 @z
 
+@x
+if not input_ln(term_in,true) then fatal_error("End of file on the terminal!");
+@y
+if not input_ln(term_in,true) then begin
+  limit:=0; fatal_error("End of file on the terminal!"); end;
+@z
+
 % _____________________________________________________________________________
 %
 % [6.73]
@@ -459,8 +494,8 @@ var k:0..sup_buf_size; {index into |buffer|}
 @x
   print_nl("! "); print(#);
 @y
-  if (miktex_c_style_error_messages_p and not terminal_input) then
-    print_c_style_error_message (#)
+  if miktex_c_style_error_messages_p and not terminal_input then
+    print_c_style_error_message(#)
   else begin print_nl("! "); print(#) end;
 @z
 
@@ -690,20 +725,42 @@ sufficiently large.
 % [10.144]
 % _____________________________________________________________________________
 
-% font numbers can be > 255
-
 @x
 @p function new_ligature(@!f,@!c:quarterword; @!q:pointer):pointer;
 @y
 @p function new_ligature(@!f:internal_font_number; @!c:quarterword;
                          @!q:pointer):pointer;
 @z
+
+% _____________________________________________________________________________
+%
+% [12.174]
+% _____________________________________________________________________________
+
+@x
+        begin if (font(p)<font_base)or(font(p)>font_max) then
+@y
+        begin if (font(p)>font_max) then
+@z
+
+% _____________________________________________________________________________
+%
+% [12.176]
+% _____________________________________________________________________________
+
+@x
+@p procedure print_font_and_char(@!p:integer); {prints |char_node| data}
+begin if p>mem_end then print_esc("CLOBBERED.")
+else  begin if (font(p)<font_base)or(font(p)>font_max) then print_char("*")
+@y
+@p procedure print_font_and_char(@!p:integer); {prints |char_node| data}
+begin if p>mem_end then print_esc("CLOBBERED.")
+else  begin if (font(p)>font_max) then print_char("*")
+@z
+
 % _____________________________________________________________________________
 %
 % [12.186]
-%
-% Don't worry about strange floating point values.
-%
 % _____________________________________________________________________________
 
 @x
@@ -716,6 +773,57 @@ sufficiently large.
   |if abs(mem[p+glue_offset].int)<@'4000000 then print('?.?')|
   |else| }
   if fabs(g)>float_constant(20000) then
+@z
+
+% _____________________________________________________________________________
+%
+% [16.211] \[16] The semantic nest
+% _____________________________________________________________________________
+
+@x
+begin if m>0 then
+  case m div (max_command+1) of
+  0:print("vertical");
+  1:print("horizontal");
+  2:print("display math");
+  end
+else if m=0 then print("no")
+else  case (-m) div (max_command+1) of
+  0:print("internal vertical");
+  1:print("restricted horizontal");
+  2:print("math");
+  end;
+print(" mode");
+end;
+@y
+begin if m>0 then
+  case m div (max_command+1) of
+  0:print("vertical mode");
+  1:print("horizontal mode");
+  2:print("display math mode");
+  end
+else if m=0 then print("no mode")
+else  case (-m) div (max_command+1) of
+  0:print("internal vertical mode");
+  1:print("restricted horizontal mode");
+  2:print("math mode");
+  end;
+end;
+
+procedure print_in_mode(@!m:integer); {prints the mode represented by |m|}
+begin if m>0 then
+  case m div (max_command+1) of
+  0:print("' in vertical mode");
+  1:print("' in horizontal mode");
+  2:print("' in display math mode");
+  end
+else if m=0 then print("' in no mode")
+else  case (-m) div (max_command+1) of
+  0:print("' in internal vertical mode");
+  1:print("' in restricted horizontal mode");
+  2:print("' in math mode");
+  end;
+end;
 @z
 
 % _____________________________________________________________________________
@@ -843,6 +951,39 @@ sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 
 % _____________________________________________________________________________
 %
+% [22.306]
+% _____________________________________________________________________________
+
+@x
+  begin print_nl("Runaway ");
+@.Runaway...@>
+  case scanner_status of
+  defining: begin print("definition"); p:=def_ref;
+    end;
+  matching: begin print("argument"); p:=temp_head;
+    end;
+  aligning: begin print("preamble"); p:=hold_head;
+    end;
+  absorbing: begin print("text"); p:=def_ref;
+    end;
+  end; {there are no other cases}
+@y
+  begin
+@.Runaway...@>
+  case scanner_status of
+  defining: begin print_nl("Runaway definition"); p:=def_ref;
+    end;
+  matching: begin print_nl("Runaway argument"); p:=temp_head;
+    end;
+  aligning: begin print_nl("Runaway preamble"); p:=hold_head;
+    end;
+  absorbing: begin print_nl("Runaway text"); p:=def_ref;
+    end;
+  end; {there are no other cases}
+@z
+
+% _____________________________________________________________________________
+%
 % [22.308]
 % _____________________________________________________________________________
 
@@ -892,11 +1033,10 @@ sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 % _____________________________________________________________________________
 
 @x
-line_stack[index]:=line; start:=first; state:=mid_line;
+incr(in_open); push_input; index:=in_open;
 @y
-source_filename_stack[index]:=0;
-full_source_filename_stack[index]:=0;
-line_stack[index]:=line; start:=first; state:=mid_line;
+incr(in_open); push_input; index:=in_open;
+source_filename_stack[index]:=0;full_source_filename_stack[index]:=0;
 @z
 
 % _____________________________________________________________________________
@@ -905,11 +1045,47 @@ line_stack[index]:=line; start:=first; state:=mid_line;
 % _____________________________________________________________________________
 
 @x
-state:=new_line; start:=1; index:=0; line:=0; name:=0;
+begin input_ptr:=0; max_in_stack:=0;
 @y
-state:=new_line; start:=1; index:=0; line:=0; name:=0;
-source_filename_stack[1]:=0;
-full_source_filename_stack[1]:=0;
+begin input_ptr:=0; max_in_stack:=0;
+source_filename_stack[0]:=0;full_source_filename_stack[0]:=0;
+@z
+
+% _____________________________________________________________________________
+%
+% [24.338]
+% _____________________________________________________________________________
+
+@x
+print(" while scanning ");
+@y
+@z
+
+% _____________________________________________________________________________
+%
+% [24.339]
+% _____________________________________________________________________________
+
+@x
+defining:begin print("definition"); info(p):=right_brace_token+"}";
+  end;
+matching:begin print("use"); info(p):=par_token; long_state:=outer_call;
+  end;
+aligning:begin print("preamble"); info(p):=right_brace_token+"}"; q:=p;
+  p:=get_avail; link(p):=q; info(p):=cs_token_flag+frozen_cr;
+  align_state:=-1000000;
+  end;
+absorbing:begin print("text"); info(p):=right_brace_token+"}";
+@y
+defining:begin print(" while scanning definition"); info(p):=right_brace_token+"}";
+  end;
+matching:begin print(" while scanning use"); info(p):=par_token; long_state:=outer_call;
+  end;
+aligning:begin print(" while scanning preamble"); info(p):=right_brace_token+"}"; q:=p;
+  p:=get_avail; link(p):=q; info(p):=cs_token_flag+frozen_cr;
+  align_state:=-1000000;
+  end;
+absorbing:begin print(" while scanning text"); info(p):=right_brace_token+"}";
 @z
 
 % _____________________________________________________________________________
@@ -939,7 +1115,6 @@ cur_order:=co_backup; link(backup_head):=backup_backup;
 decr(expand_depth_count);
 @z
 
-
 % _____________________________________________________________________________
 %
 % [26.413]
@@ -949,6 +1124,20 @@ decr(expand_depth_count);
 @!p:0..nest_size; {index into |nest|}
 @y
 @!p:0..sup_nest_size; {index into |nest|}
+@z
+
+% _____________________________________________________________________________
+%
+% [27.484]
+% _____________________________________________________________________________
+
+@x
+else fatal_error("*** (cannot \read from terminal in nonstop modes)")
+@y
+else begin
+  limit:=0;
+  fatal_error("*** (cannot \read from terminal in nonstop modes)");
+  end
 @z
 
 % _____________________________________________________________________________
@@ -1174,7 +1363,7 @@ if ext_delimiter=0 then
 % [29.518]
 % _____________________________________________________________________________
 
-@x [29.518] l.10042 - print_file_name: quote if spaces in names.
+@x
 some operating systems put the file area last instead of first.)
 @^system dependencies@>
 @y
@@ -1440,12 +1629,39 @@ end;
 var k:0..buf_size; {index into |buffer|}
 @y
 var k:0..sup_buf_size; {index into |buffer|}
+@!saved_cur_name:str_number; {to catch empty terminal input}
+@!saved_cur_ext:str_number; {to catch empty terminal input}
+@!saved_cur_area:str_number; {to catch empty terminal input}
 @z
 
 @x
 if e=".tex" then show_context;
 @y
 if (e=".tex") or (e="") then show_context;
+print_ln; print("(Press Enter to retry, or Control-C to exit");
+if (e<>"") then
+  begin
+    print("; default file extension is `"); print(e); print("'");
+  end;
+print(")"); print_ln;
+@z
+
+@x
+clear_terminal; prompt_input(": "); @<Scan file name in the buffer@>;
+if cur_ext="" then cur_ext:=e;
+@y
+saved_cur_name:=cur_name;
+saved_cur_ext:=cur_ext;
+saved_cur_area:=cur_area;
+clear_terminal; prompt_input(": "); @<Scan file name in the buffer@>;
+if (length(cur_name)=0) and (cur_ext="") and (cur_area="") then
+  begin
+    cur_name:=saved_cur_name;
+    cur_ext:=saved_cur_ext;
+    cur_area:=saved_cur_area;
+  end
+else
+  if cur_ext="" then cur_ext:=e;
 @z
 
 % _____________________________________________________________________________
@@ -1503,6 +1719,35 @@ miktex_print_miktex_banner(log_file);
 slow_print(format_ident); print("  ");
 print_int(sys_day); print_char(" ");
 c4p_arrcpy(months,'JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC');
+@z
+
+@x
+end
+@y
+if shellenabledp then begin
+  wlog_cr;
+  wlog(' ');
+  if restrictedshell then begin
+    wlog('restricted ');
+  end;
+  wlog('\write18 enabled.')
+  end;
+if src_specials_p then begin
+  wlog_cr;
+  wlog(' Source specials enabled.')
+  end;
+if miktex_c_style_error_messages_p then begin
+  wlog_cr;
+  wlog(' file:line:error style messages enabled.')
+  end;
+if miktex_parse_first_line_p then begin
+  wlog_cr;
+  wlog(' %&-line parsing enabled.');
+  end;
+if miktex_have_tcx_file_name then begin
+  miktex_print_tcx_file_name(log_file);
+  end;
+end
 @z
 
 % _____________________________________________________________________________
@@ -2539,6 +2784,7 @@ function miktex_have_tcx_file_name : boolean; forward;@t\2@>@/
 function miktex_is_init_program : boolean; forward;@t\2@>@/
 function miktex_is_compatible : boolean; forward;@t\2@>@/
 function miktex_make_full_name_string : str_number; forward;@t\2@>@/
+function miktex_parse_first_line_p : boolean; forward;@t\2@>@/
 
 @ Define \MiKTeX\ constants.
 

@@ -50,6 +50,7 @@ set(tex_changefiles
   ${ENCTEX_TEX_CH}
   ${ENCTEX2_CH}
   ${TEX_MIKTEX_ENCTEX_CH}
+  ${TEX_MIKTEX_WEB2C_CH}
   ${TEX_MIKTEX_FINISH_CH}
 )
 

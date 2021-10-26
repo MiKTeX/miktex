@@ -285,6 +285,11 @@ inline bool miktexhavetcxfilename()
   return !WebApp::GetWebApp()->GetTcxFileName().Empty();
 }
 
+inline void miktexprinttcxfilename(FILE* f)
+{
+  fprintf(f, " (%s)", WebApp::GetWebApp()->GetTcxFileName().GetData());
+}
+
 inline bool miktexenableeightbitcharsp()
 {
   return WebApp::GetWebApp()->Enable8BitCharsP();

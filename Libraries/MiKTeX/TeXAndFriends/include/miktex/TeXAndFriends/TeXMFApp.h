@@ -396,6 +396,11 @@ inline bool miktexcstyleerrormessagesp()
   return TeXMFApp::GetTeXMFApp()->CStyleErrorMessagesP();
 }
 
+inline bool miktexparsefirstlinep()
+{
+  return TeXMFApp::GetTeXMFApp()->ParseFirstLineP();
+}
+
 inline void miktexgetdefaultdumpfilename(char* dest)
 {
   MiKTeX::Util::StringUtil::CopyString(dest, MiKTeX::Core::BufferSizes::MaxPath, TeXMFApp::GetTeXMFApp()->GetDefaultMemoryDumpFileName().GetData());
