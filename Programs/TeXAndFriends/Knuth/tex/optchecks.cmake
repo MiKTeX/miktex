@@ -8,7 +8,7 @@ foreach(func RANGE 1 ${function_count})
     ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
   )
   set(tex${func}_web_file ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.web)
-  set(tex${func}_include_file ${CMAKE_CURRENT_SOURCE_DIR}/tex-miktex.h)
+  set(tex${func}_include_file ${CMAKE_CURRENT_SOURCE_DIR}/miktex-tex.h)
   set(tex${func}_change_file ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.ch)
   create_web_app(TeX${func})
   target_compile_definitions(${tex${func}_dll_name}

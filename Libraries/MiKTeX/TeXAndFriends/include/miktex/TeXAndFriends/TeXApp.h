@@ -300,6 +300,16 @@ inline int miktexgetsynchronizationoptions()
   return TeXApp::GetTeXApp()->GetSynchronizationOptions();
 }
 
+inline bool miktexsourcespecialsp()
+{
+  return TeXApp::GetTeXApp()->SourceSpecialsP();
+}
+
+inline bool miktexiscompatible()
+{
+  return !TeXApp::GetTeXApp()->SourceSpecialsP() && !TeXApp::GetTeXApp()->CStyleErrorMessagesP() && !TeXApp::GetTeXApp()->ParseFirstLineP();
+}
+
 // web2c shim
 inline bool restrictedshell()
 {
@@ -316,11 +326,6 @@ inline bool shellenabledp()
 inline bool srcspecialsp()
 {
   return TeXApp::GetTeXApp()->SourceSpecialsP();
-}
-
-inline bool miktexiscompatible()
-{
-  return !TeXApp::GetTeXApp()->SourceSpecialsP() && !TeXApp::GetTeXApp()->CStyleErrorMessagesP() && !TeXApp::GetTeXApp()->ParseFirstLineP();
 }
 
 MIKTEX_TEXMF_END_NAMESPACE;

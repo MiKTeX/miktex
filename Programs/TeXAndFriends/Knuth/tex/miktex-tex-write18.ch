@@ -1,4 +1,4 @@
-%%% tex-miktex-write18.ch:
+%%% miktex-tex-write18.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other
@@ -13,7 +13,7 @@
 @x
   else if cur_val>15 then cur_val:=16;
 @y
-  else if cur_val>15 and cur_val<> 18 then cur_val:=16;
+  else if (cur_val>15) and (cur_val <> 18) then cur_val:=16;
 @z
 
 % _____________________________________________________________________________
@@ -22,14 +22,12 @@
 % _____________________________________________________________________________
 
 @x
-procedure write_out(@!p:pointer);
-var old_setting:0..max_selector; {holds print |selector|}
+begin @<Expand macros in the token list
 @y
-procedure write_out(@!p:pointer);
-var old_setting:0..max_selector; {holds print |selector|}
-@!d:integer;
-@!clobbered:boolean;
-@!runsystem_ret:integer;
+@!d:integer; {number of characters in incomplete current string}
+@!clobbered:boolean; {system string is ok?}
+@!runsystem_ret:integer; {return value from |runsystem|}
+begin @<Expand macros in the token list
 @z
 
 @x
@@ -56,7 +54,7 @@ if j=18 then
     print(so(str_pool[str_start[str_ptr]+d])); {N.B.: not |print_char|}
     end;
   print(")...");
-  if shellenabledp then begin
+  if miktex_write18_p then begin
     str_room(1); append_char(0); {Append a null byte to the expansion.}
     clobbered:=false;
     for d:=0 to cur_length-1 do {Convert to external character set.}
@@ -75,7 +73,7 @@ if j=18 then
       if runsystem_ret = -1 then print("quotation error in system command")
       else if runsystem_ret = 0 then print("disabled (restricted)")
       else if runsystem_ret = 1 then print("executed")
-      else if runsystem_ret = 2 then print("executed (allowed)")
+      else if runsystem_ret = 2 then print("executed safely (allowed)")
     end;
   end else begin
     print("disabled"); {|shellenabledp| false}
@@ -84,39 +82,4 @@ if j=18 then
   pool_ptr:=str_start[str_ptr];  {erase the string}
 end;
 selector:=old_setting;
-@z
-
-% _____________________________________________________________________________
-%
-% [54.1379]
-% _____________________________________________________________________________
-
-@x
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
-@y
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
-
-@ Forward declaration of \MiKTeX\ functions.
-
-@<Declare \MiKTeX\ functions@>=
-
-function miktex_write18_p : boolean; forward;@t\2@>@/
-function shellenabledp : boolean; forward;@t\2@>@/
-function restrictedshell : boolean; forward;@t\2@>@/
-
-@ To be able to determine whether \.{\\write18} is enabled from within
-\TeX\ we also implement \.{\\eof18}.  We sort of cheat by having an
-additional route |scan_four_bit_int_or_18| which is the same as
-|scan_four_bit_int| except it also accepts the value 18.
-
-@<Declare procedures that scan restricted classes of integers@>=
-procedure scan_four_bit_int_or_18;
-begin scan_int;
-if (cur_val<0)or((cur_val>15)and(cur_val<>18)) then
-  begin print_err("Bad number");
-@.Bad number@>
-  help2("Since I expected to read a number between 0 and 15,")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
-  end;
-end;
 @z

@@ -1,4 +1,4 @@
-%%% tex-miktex-hyph.ch:
+%%% miktex-tex-hyph.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other
@@ -378,6 +378,14 @@ var h:-trie_op_size..trie_op_size; {trial hash location}
 @z
 
 @x
+begin h:=abs(n+313*d+361*v+1009*cur_lang) mod (trie_op_size+trie_op_size)
+  - trie_op_size;
+@y
+begin h:=abs(n+313*d+361*v+1009*cur_lang) mod (trie_op_size-neg_trie_op_size)
+  + neg_trie_op_size;
+@z
+
+@x
     if u=max_quarterword then
       overflow("pattern memory ops per language",
         max_quarterword-min_quarterword);
@@ -466,8 +474,20 @@ tini
 
 @x
 @!init @!trie_taken:packed array[1..trie_size] of boolean;
+  {does a family start here?}
+@t\hskip10pt@>@!trie_min:array[ASCII_code] of trie_pointer;
+  {the first possible slot for each character}
+@t\hskip10pt@>@!trie_max:trie_pointer; {largest location used in |trie|}
+@t\hskip10pt@>@!trie_not_ready:boolean; {is the trie still in linked form?}
+tini
 @y
-@!init@!trie_taken: ^boolean;
+@!init @!trie_taken: ^boolean;
+  {does a family start here?}
+@t\hskip10pt@>@!trie_min:array[ASCII_code] of trie_pointer;
+  {the first possible slot for each character}
+@t\hskip10pt@>@!trie_max:trie_pointer; {largest location used in |trie|}
+@t\hskip10pt@>@!trie_not_ready:boolean; {is the trie still in linked form?}
+tini
 @z
 
 % _____________________________________________________________________________
@@ -574,7 +594,7 @@ dump_int(hyph_prime);
 
 % _____________________________________________________________________________
 %
-% [54.1307]
+% [54.1308]
 % _____________________________________________________________________________
 
 @x
@@ -605,6 +625,15 @@ for k:=0 to hyph_size do if hyph_word[k]<>0 then
 @z
 
 @x
+print_ln; print_int(hyph_count); print(" hyphenation exception");
+if hyph_count<>1 then print_char("s");
+@y
+print_ln; print_int(hyph_count);
+if hyph_count<>1 then print(" hyphenation exceptions")
+else print(" hyphenation exception");
+@z
+
+@x
 for k:=0 to trie_max do dump_hh(trie[k]);
 @y
 dump_things(trie_trl[0], trie_max+1);
@@ -622,6 +651,15 @@ for k:=1 to trie_op_ptr do
 dump_things(hyf_distance[1], trie_op_ptr);
 dump_things(hyf_num[1], trie_op_ptr);
 dump_things(hyf_next[1], trie_op_ptr);
+@z
+
+@x
+print(" has "); print_int(trie_op_ptr); print(" op");
+if trie_op_ptr<>1 then print_char("s");
+@y
+print(" has "); print_int(trie_op_ptr);
+if trie_op_ptr<>1 then print(" ops")
+else print(" op");
 @z
 
 % _____________________________________________________________________________
@@ -697,22 +735,4 @@ if trie_not_ready then begin {initex without format loaded}
   trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
 end;
 tini@/
-@z
-
-% _____________________________________________________________________________
-%
-% [54.1379]
-% _____________________________________________________________________________
-
-@x
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
-@y
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
-
-@ Define \MiKTeX\ variables.
-
-@<Global variables@>=
-@!hyph_size : integer; {maximun number of hyphen exceptions}
-@!trie_size : integer; {space for hyphenation patterns; should be larger for
-  \.{INITEX} than it is in production versions of \TeX}
 @z

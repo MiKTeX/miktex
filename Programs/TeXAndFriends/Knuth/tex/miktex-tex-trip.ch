@@ -1,4 +1,4 @@
-%%% tex-miktex-trip.ch:
+%%% miktex-tex-trip.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other

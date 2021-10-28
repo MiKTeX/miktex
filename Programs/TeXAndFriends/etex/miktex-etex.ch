@@ -58,8 +58,8 @@ REMOVE_THIS_END
 % _____________________________________________________________________________
 
 @x
-function miktex_write18_p : boolean; forward;@t\2@>@/
+function@?miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
 @y
-function miktex_etex_p: boolean; forward;@t\2@>@/
-function miktex_write18_p : boolean; forward;@t\2@>@/
+function@?miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
+function@?miktex_etex_p: boolean; forward;@t\2@>@/
 @z

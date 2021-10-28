@@ -212,8 +212,8 @@ char_base:=xmalloc_array(integer, font_max);
 % _____________________________________________________________________________
 
 @x
-function restrictedshell : boolean; forward;@t\2@>@/
+function@?insert_src_special_auto : boolean; forward;@t\2@>@/
 @y
-function restrictedshell : boolean; forward;@t\2@>@/
-function isinternalUPTEX : boolean; forward;@t\2@>@/
+function@?insert_src_special_auto : boolean; forward;@t\2@>@/
+function@?isinternalUPTEX : boolean; forward;@t\2@>@/
 @z

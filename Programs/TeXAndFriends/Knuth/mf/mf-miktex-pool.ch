@@ -1,4 +1,4 @@
-%% tex-miktex-pool.ch:
+%% mf-miktex-pool.ch:
 %% 
 %% Copyright (C) 2010-2021 Christian Schenk
 %% 

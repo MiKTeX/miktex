@@ -49,7 +49,7 @@ add_custom_command(
   COMMAND
     inipool
     ${CMAKE_CURRENT_BINARY_DIR}/triptex.pool
-    tex-miktex.h
+    miktex-tex.h
     > ${CMAKE_CURRENT_BINARY_DIR}/triptex_pool.cpp
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}

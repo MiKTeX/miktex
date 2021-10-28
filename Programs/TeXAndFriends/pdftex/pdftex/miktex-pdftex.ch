@@ -389,15 +389,15 @@ font_ptr:=null_font; fmem_ptr:=7;
 
 % _____________________________________________________________________________
 %
-% [62.1864] \[54/\MiKTeX] System-dependent changes for \MiKTeX
+% [65.1888] \[54/ML\TeX] System-dependent changes for ML\TeX
 % _____________________________________________________________________________
 
 @x
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
+@* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @y
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
+@* \[54/miktex] System-dependent changes for \MiKTeX-pdf\TeX.
 
-@<Set init...@>=
+@ @<Set init...@>=
 
 for font_k := font_base to font_max do begin
     for k := 0 to 31 do begin
@@ -425,17 +425,8 @@ for font_k := font_base to font_max do begin
     pdf_font_kn_ac_base[font_k] := 0;
     pdf_font_nobuiltin_tounicode[font_k] := false;
 end;
-@z
 
-% _____________________________________________________________________________
-%
-% [63.1865]
-% _____________________________________________________________________________
-
-@x
-@<Declare \MiKTeX\ functions@>=
-@y
-@<Declare \MiKTeX\ functions@>=
+@ @<Declare \MiKTeX\ functions@>=
 
 function get_nullstr: str_number;
 begin
@@ -454,11 +445,14 @@ function matrixused: boolean; forward;@t\2@>@/
 function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
 function miktex_ptr_equal:boolean; forward;@t\2@>@/
 function packet_byte : eight_bits; forward;@t\2@>@/
+
+
+@* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @z
 
 % _____________________________________________________________________________
 %
-% [65.1893]
+% [65.1894]
 % _____________________________________________________________________________
 
 % TODO: TL sync

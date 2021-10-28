@@ -1,4 +1,4 @@
-%%% tex-miktex-constants.ch:
+%%% miktex-tex-constants.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other
@@ -129,7 +129,7 @@
 @!inf_pool_free = 1000;
 @!sup_pool_free = sup_pool_size;
 @!inf_string_vacancies = 8000;
-@!sup_string_vacancies = 39977000; {sup_pool_size - 23000}
+@!sup_string_vacancies = 39977000; {|sup_pool_size - 23000|}
 
 @!sup_hash_extra = sup_max_strings;
 @!inf_hash_extra = 0;

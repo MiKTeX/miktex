@@ -1,4 +1,4 @@
-%%% tex-miktex-pool.ch:
+%%% miktex-tex-pool.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other

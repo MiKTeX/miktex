@@ -1,4 +1,4 @@
-%%% tex-miktex-enctex.ch:
+%%% miktex-tex-enctex.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other

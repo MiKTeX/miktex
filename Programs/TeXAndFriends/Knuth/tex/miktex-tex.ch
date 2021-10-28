@@ -1,4 +1,4 @@
-%%% tex-miktex-misc.ch:
+%%% miktex-tex.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other
@@ -452,14 +452,14 @@ miktex_print_miktex_banner(term_out);
 if format_ident=0 then wterm_ln(' (preloaded format=',TEX_format_default,')')
 else  begin slow_print(format_ident); print_ln;
   end;
-if shellenabledp then begin
+if miktex_write18_p then begin
   wterm(' ');
   if restrictedshell then begin
     wterm('restricted ');
   end;
   wterm_ln('\write18 enabled.');
 end;
-if src_specials_p then begin
+if miktex_source_specials_p then begin
   wterm_ln(' Source specials enabled.')
 end;
 if miktex_have_tcx_file_name then begin
@@ -494,9 +494,9 @@ if not input_ln(term_in,true) then begin
 @x
   print_nl("! "); print(#);
 @y
-  if miktex_c_style_error_messages_p and not terminal_input then
-    print_c_style_error_message(#)
-  else begin print_nl("! "); print(#) end;
+  if miktex_c_style_error_messages_p then print_file_line
+  else print_nl("! ");
+  print(#);
 @z
 
 % _____________________________________________________________________________
@@ -1592,8 +1592,8 @@ begin
   warning_index := cur_cs; {store |cur_cs| here to remember until later}
   @<Get the next non-blank non-relax non-call...@>; {here the program expands
     tokens and removes spaces and \.{\\relax}es from the input. The \.{\\relax}
-    removal follows LuaTeX''s implementation, but I wonder if for compatibility
-    the relax should be left there...}
+    removal follows LuaTeX''s implementation, and other cases of
+    balanced text scanning.}
   back_input; {return the last token to be read by either code path}
   if cur_cmd=left_brace then
     scan_file_name_braced
@@ -1724,7 +1724,7 @@ c4p_arrcpy(months,'JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC');
 @x
 end
 @y
-if shellenabledp then begin
+if miktex_write18_p then begin
   wlog_cr;
   wlog(' ');
   if restrictedshell then begin
@@ -1732,7 +1732,7 @@ if shellenabledp then begin
   end;
   wlog('\write18 enabled.')
   end;
-if src_specials_p then begin
+if miktex_source_specials_p then begin
   wlog_cr;
   wlog(' Source specials enabled.')
   end;
@@ -1758,17 +1758,21 @@ end
 @x
 begin scan_file_name; {set |cur_name| to desired file name}
 if cur_ext="" then cur_ext:=".tex";
-@y
-var temp_str: str_number;
-begin scan_file_name; {set |cur_name| to desired file name}
-@z
-
-@x
+pack_cur_name;
+loop@+  begin begin_file_reading; {set up |cur_file| and new level of input}
+  if a_open_in(cur_file) then goto done;
   if cur_area="" then
     begin pack_file_name(cur_name,TEX_area,cur_ext);
     if a_open_in(cur_file) then goto done;
     end;
 @y
+var temp_str: str_number;
+begin scan_file_name; {set |cur_name| to desired file name}
+pack_cur_name;
+loop@+begin
+  begin_file_reading; {set up |cur_file| and new level of input}
+  if a_open_in(cur_file) then
+    goto done;
 @z
 
 @x
@@ -1792,10 +1796,8 @@ if name=str_ptr-1 then {we can try to conserve string pool space now}
 @z
 
 @x
-if job_name=0 then
   begin job_name:=cur_name; open_log_file;
 @y
-if job_name=0 then
   begin job_name:=miktex_get_job_name(cur_name); open_log_file;
 @z
 
@@ -1859,6 +1861,16 @@ if name=str_ptr-1 then {conserve string pool space (but see note above)}
 
 % _____________________________________________________________________________
 %
+% [30.551]
+% _____________________________________________________________________________
+
+@x
+for k:=font_base to font_max do font_used[k]:=false;
+@y
+@z
+
+% _____________________________________________________________________________
+%
 % [30.552]
 % _____________________________________________________________________________
 
@@ -1882,15 +1894,45 @@ for k:=0 to 6 do font_info[k].sc:=0;
 
 % _____________________________________________________________________________
 %
+% [30.560]
+% _____________________________________________________________________________
+
+@x
+@!file_opened:boolean; {was |tfm_file| successfully opened?}
+@y
+@!name_too_long:boolean; {|nom| or |aire| exceeds 255 bytes?}
+@!file_opened:boolean; {was |tfm_file| successfully opened?}
+@z
+
+% _____________________________________________________________________________
+%
+% [30.561]
+% _____________________________________________________________________________
+
+@x
+else print(" not loadable: Metric (TFM) file not found");
+@y
+else if name_too_long then print(" not loadable: Metric (TFM) file name too long")
+else print(" not loadable: Metric (TFM) file not found");
+@z
+
+% _____________________________________________________________________________
+%
 % [30.563]
 % _____________________________________________________________________________
 
 @x
 if aire="" then pack_file_name(nom,TEX_font_area,".tfm")
 else pack_file_name(nom,aire,".tfm");
+@y
+name_too_long:=(length(nom)>255)or(length(aire)>255);
+if name_too_long then abort;
+pack_file_name(nom,aire,"");
+@z
+
+@x
 if not b_open_in(tfm_file) then abort;
 @y
-pack_file_name(nom,aire,"");
 if not miktex_open_tfm_file(tfm_file,name_of_file) then abort;
 @z
 
@@ -1932,8 +1974,44 @@ begin c4p_buf_write(dvi_file,c4p_ptr(dvi_buf[a]),b-a+1);
 
 % _____________________________________________________________________________
 %
+% [32.601]
+% _____________________________________________________________________________
+
+@x
+each time, we use the macro |dvi_out|.
+@y
+each time, we use the macro |dvi_out|.
+
+The length of |dvi_file| should not exceed |@"7FFFFFFF|; we set |cur_s:=-2|
+to prevent further \.{DVI} output causing infinite recursion.
+@z
+
+@x
+begin if dvi_limit=dvi_buf_size then
+@y
+begin if dvi_ptr>(@"7FFFFFFF-dvi_offset) then
+  begin cur_s:=-2;
+  fatal_error("dvi length exceeds ""7FFFFFFF");
+@.dvi length exceeds...@>
+  end;
+if dvi_limit=dvi_buf_size then
+@z
+
+% _____________________________________________________________________________
+%
 % [32.602]
 % _____________________________________________________________________________
+
+@x
+if dvi_ptr>0 then write_dvi(0,dvi_ptr-1)
+@y
+if dvi_ptr>(@"7FFFFFFF-dvi_offset) then
+  begin cur_s:=-2;
+  fatal_error("dvi length exceeds ""7FFFFFFF");
+@.dvi length exceeds...@>
+  end;
+if dvi_ptr>0 then write_dvi(0,dvi_ptr-1)
+@z
 
 @x
 begin dvi_out(fnt_def1);
@@ -1948,6 +2026,13 @@ else begin dvi_out(fnt_def1+1);
   dvi_out((f-font_base-1) mod @'400);
   end;
 @z
+
+% _____________________________________________________________________________
+%
+% [32.617]
+%
+% TODO: set output comment
+% _____________________________________________________________________________
 
 % _____________________________________________________________________________
 %
@@ -1973,6 +2058,13 @@ else begin dvi_out(fnt1+1);
 % _____________________________________________________________________________
 
 @x
+else  begin dvi_out(post); {beginning of the postamble}
+@y
+else if cur_s<>-2 then
+  begin dvi_out(post); {beginning of the postamble}
+@z
+
+@x
   print_nl("Output written on "); slow_print(output_file_name);
 @y
   print_nl("Output written on "); print_file_name(0, output_file_name, 0);
@@ -1982,7 +2074,7 @@ else begin dvi_out(fnt1+1);
   print(" ("); print_int(total_pages); print(" page");
   if total_pages<>1 then print_char("s");
 @y
-  print(" ("); print_int(total_pages); 
+  print(" ("); print_int(total_pages);
   if total_pages<>1 then print(" pages")
   else print(" page");
 @z
@@ -1996,12 +2088,25 @@ else begin dvi_out(fnt1+1);
 % _____________________________________________________________________________
 %
 % [40.891]
+%
+% FIXME: is this necessary?
 % _____________________________________________________________________________
 
 @x
 begin @!init if trie_not_ready then init_trie;@+tini@;@/
 @y
 begin @!Init if trie_not_ready then init_trie;@+Tini@;@/
+@z
+
+% _____________________________________________________________________________
+%
+% [46.1049]
+% _____________________________________________________________________________
+
+@x
+print("' in "); print_mode(mode);
+@y
+print_in_mode(mode);
 @z
 
 % _____________________________________________________________________________
@@ -2062,7 +2167,12 @@ flushable_string:=str_ptr-1;
 
 @x
   if cur_ext="" then cur_ext:=".tex";
+  pack_cur_name;
+  if a_open_in(read_file[n]) then read_open[n]:=just_open;
 @y
+  pack_cur_name;
+  if a_open_in(read_file[n]) then
+    read_open[n]:=just_open;
 @z
 
 % _____________________________________________________________________________
@@ -2074,6 +2184,17 @@ flushable_string:=str_ptr-1;
 format_ident:=" (INITEX)";
 @y
 if miktex_is_init_program then format_ident:=" (INITEX)";
+@z
+
+% _____________________________________________________________________________
+%
+% [50.1302]
+% _____________________________________________________________________________
+
+@x
+@!w: four_quarters; {four ASCII codes}
+@y
+@!format_engine: ^text_char;
 @z
 
 % _____________________________________________________________________________
@@ -2110,10 +2231,10 @@ start_loading:
 bad_fmt: wake_up_terminal;
 @y
 bad_fmt:
-  if (allow_makefmt) then begin
+  if allow_makefmt then begin
     allow_makefmt := false;
-    w_close (fmt_file);
-    if (miktex_open_format_file(fmt_file, true)) then goto start_loading;
+    w_close(fmt_file);
+    if miktex_open_format_file(fmt_file, true) then goto start_loading;
   end
   wake_up_terminal;
 @z
@@ -2318,6 +2439,15 @@ dump_int(font_ptr);
 @<Dump the array info for internal font number |k|@>;
 @z
 
+@x
+print_int(font_ptr-font_base); print(" preloaded font");
+if font_ptr<>font_base+1 then print_char("s")
+@y
+print_int(font_ptr-font_base);
+if font_ptr<>font_base+1 then print(" preloaded fonts")
+else print(" preloaded font")
+@z
+
 % _____________________________________________________________________________
 %
 % [50.1321]
@@ -2511,9 +2641,16 @@ dump_int(format_ident); dump_int(69069);
 % _____________________________________________________________________________
 
 @x
+undump(batch_mode)(error_stop_mode)(interaction);
+@y
+undump(batch_mode)(error_stop_mode)(interaction);
+if miktex_get_interaction>=0 then interaction:=miktex_get_interaction;
+@z
+
+@x
 if (x<>69069)or eof(fmt_file) then goto bad_fmt
 @y
-if (x<>69069)or not eof(fmt_file) then goto bad_fmt
+if x<>69069 then goto bad_fmt
 @z
 
 % _____________________________________________________________________________
@@ -2657,6 +2794,22 @@ if miktex_get_interaction >= 0 then
 
 % _____________________________________________________________________________
 %
+% [52.1339]
+% _____________________________________________________________________________
+
+@x
+5: print_word(font_info[n]);
+@y 24397
+5: begin print_scaled(font_info[n].sc); print_char(" ");@/
+  print_int(font_info[n].qqqq.b0); print_char(":");@/
+  print_int(font_info[n].qqqq.b1); print_char(":");@/
+  print_int(font_info[n].qqqq.b2); print_char(":");@/
+  print_int(font_info[n].qqqq.b3);
+  end;
+@z
+
+% _____________________________________________________________________________
+%
 % [51.1348]
 % _____________________________________________________________________________
 
@@ -2688,6 +2841,15 @@ var j:small_number; {write stream number}
 % _____________________________________________________________________________
 
 @x
+  else  begin if write_open[j] then a_close(write_file[j]);
+    if subtype(p)=close_node then write_open[j]:=false
+@y
+  else  begin if write_open[j] then begin a_close(write_file[j]);
+                                          write_open[j]:=false; end;
+    if subtype(p)=close_node then do_nothing {already closed}
+@z
+
+@x
       while not a_open_out(write_file[j]) do
         prompt_file_name("output file name",".tex");
       write_open[j]:=true;
@@ -2713,14 +2875,37 @@ var j:small_number; {write stream number}
 
 % _____________________________________________________________________________
 %
-% [54.1379]
+% [54.1379] \[54] System-dependent changes
 % _____________________________________________________________________________
 
 @x
 @* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @y
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
-@^<system dependencies@>
+@* \[54/miktex] System-dependent changes for \MiKTeX.
+Here are extra variables for \MiKTeX.  (This numbering of the
+system-dependent section allows easy integration of \MiKTeX\ and e-\TeX, etc.)
+@^system dependencies@>
+
+@<Glob...@>=
+@!edit_name_start: pool_pointer; {where the filename to switch to starts}
+@!edit_name_length,@!edit_line: integer; {what line to start editing at}
+@!stop_at_space: boolean; {whether |more_name| returns false for space}
+
+@ The |edit_name_start| will be set to point into |str_pool| somewhere after
+its beginning if \TeX\ is supposed to switch to an editor on exit.
+
+@<Set init...@>=
+edit_name_start:=0;
+stop_at_space:=true;
+
+@ These are used when we regenerate the representation of the first 256
+strings.
+
+@<Global...@> =
+@!save_str_ptr: str_number;
+@!save_pool_ptr: pool_pointer;
+@!output_comment: ^char;
+@!k,l: 0..255; {used by `Make the first 256 strings', etc.}
 
 @ When debugging a macro package, it can be useful to see the exact
 control sequence names in the format file.  For example, if ten new
@@ -2749,109 +2934,43 @@ end;
 @<Glob...@> =
 @!debug_format_file: boolean;
 
-@ Print an error message like a C compiler would do.
 
-@<Error handling procedures@>=
+@ A helper for printing file:line:error style messages.  Look for a
+filename in |full_source_filename_stack|, and if we fail to find
+one fall back on the non-file:line:error style.
 
-procedure print_c_style_error_message (@!s:str_number);
-  var k : integer;
-      old_interaction : batch_mode..error_stop_mode;
+@<Basic print...@>=
+procedure print_file_line;
+var level: 0..sup_max_in_open;
 begin
-  old_interaction := interaction;
-  interaction := nonstop_mode;
-  @<Initialize the print |selector| based on |interaction|@>;
-  if log_opened then selector:=selector+2;
-  print_nl ("");
-  print (full_source_filename_stack[in_open]);
-  print (":");
-  print_int (line);
-  print (": ");
-  print (s);
-  interaction := old_interaction;
-  @<Initialize the print |selector| based on |interaction|@>;
-  if log_opened then selector:=selector+2;
+  level:=in_open;
+  while (level>0) and (full_source_filename_stack[level]=0) do
+    decr(level);
+  if level=0 then
+    print_nl("! ")
+  else begin
+    print_nl (""); print (full_source_filename_stack[level]); print (":");
+    if level=in_open then print_int (line)
+    else print_int (line_stack[level+1]);
+    print (": ");
+  end;
 end;
 
-@ Forward declaration of \MiKTeX\ functions.
+@ To be able to determine whether \.{\\write18} is enabled from within
+\TeX\ we also implement \.{\\eof18}.  We sort of cheat by having an
+additional route |scan_four_bit_int_or_18| which is the same as
+|scan_four_bit_int| except it also accepts the value 18.
 
-@<Declare \MiKTeX\ functions@>=
-
-function miktex_c_style_error_messages_p : boolean; forward;@t\2@>@/
-function miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
-function miktex_get_interaction : integer; forward;@t\2@>@/
-function miktex_halt_on_error_p : boolean; forward;@t\2@>@/
-function miktex_have_tcx_file_name : boolean; forward;@t\2@>@/
-function miktex_is_init_program : boolean; forward;@t\2@>@/
-function miktex_is_compatible : boolean; forward;@t\2@>@/
-function miktex_make_full_name_string : str_number; forward;@t\2@>@/
-function miktex_parse_first_line_p : boolean; forward;@t\2@>@/
-
-@ Define \MiKTeX\ constants.
-
-@<Constants in the outer block@>=
-
-@!const_font_base=font_base;
-
-@ Define \MiKTeX\ variables.
-
-@<Global variables@>=
-
-@!buf_size:integer; {maximum number of characters simultaneously present in
-  current lines of open files and in control sequences between
-  \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword|}
-@!edit_line:integer; {what line to start editing at}
-@!edit_name_length:integer;
-@!edit_name_start:pool_pointer; {where the filename to switch to starts}
-@!error_line:integer; {width of context lines on terminal error messages}
-@!extra_mem_bot:integer; {|mem_min:=mem_bot-extra_mem_bot| except in \.{INITEX}}
-@!extra_mem_top:integer; {|mem_max:=mem_top+extra_mem_top| except in \.{INITEX}}
-@!font_k:integer; {loop variable for initialization}
-@!font_max:integer; {maximum internal font number; must not exceed |max_quarterword|
-  and must be at most |font_base+256|}
-@!font_mem_size:integer; {number of words of |font_info| for all fonts}
-@!half_error_line:integer; {width of first lines of contexts in te
-  error messages; should be between 30 and |error_line-15|}
-@!max_in_open:integer; {maximum number of input files and error insertions that
-  can be going on simultaneously}
-@!main_memory:integer; {total memory words allocated in initex}
-@!max_print_line:integer; {width of longest text lines output; should be at least 60}
-@!max_strings:integer; {maximum number of strings; must not exceed |max_halfword|}
-@!mem_bot:integer;{smallest index in the |mem| array dumped by \.{INITEX};
-  must not be less than |mem_min|}
-@!mem_max:integer; {greatest index in \TeX's internal |mem| array;
-  must be strictly less than |max_halfword|;
-  must be equal to |mem_top| in \.{INITEX}, otherwise |>=mem_top|}
-@!mem_min:integer; {smallest index in \TeX's internal |mem| array;
-  must be |min_halfword| or more;
-  must be equal to |mem_bot| in \.{INITEX}, otherwise |<=mem_bot|}
-@!mem_top:integer; {largest index in the |mem| array dumped by \.{INITEX};
-  must be substantially larger than |mem_bot|,
-  equal to |mem_max| in \.{INITEX}, else not greater than |mem_max|}
-@!nest_size:integer; {maximum number of semantic levels simultaneously active}
-@!param_size:integer; {maximum number of simultaneous macro parameters}
-@!pool_free:integer;{pool space free after format loaded}
-@!pool_size:integer; {maximum number of characters in strings, including all
-  error messages and help texts, and the names of all fonts and
-  control sequences; must exceed |string_vacancies| by the total
-  length of \TeX's own strings, which is currently about 23000}
-@!quoted_filename:boolean;
-@!save_size:integer; {space for saving values outside of current group; must be
-  at most |max_halfword|}
-@!stack_size:integer; {maximum number of simultaneous input sources}
-@!stop_at_space:boolean; {whether |more_name| returns false for space}
-@!strings_free:integer; {strings available after format loaded}
-@!string_vacancies:integer; {the minimum number of characters that should be
-  available for the user's control sequences and font names,
-  after \TeX's own error messages are stored}
-@!expand_depth:integer; {limits recursive calls to the |expand| procedure}
-expand_depth_count:integer;
-
-@ Initialize \MiKTeX\ variables.
-
-@<Set init...@>=
-edit_name_start:=0;
-stop_at_space:=true;
-expand_depth_count:=0;
+@<Declare procedures that scan restricted classes of integers@>=
+procedure scan_four_bit_int_or_18;
+begin scan_int;
+if (cur_val<0)or((cur_val>15)and(cur_val<>18)) then
+  begin print_err("Bad number");
+@.Bad number@>
+  help2("Since I expected to read a number between 0 and 15,")@/
+    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  end;
+end;
 
 @ Dumping the |xord|, |xchr|, and |xprn| arrays.  We dump these always
 in the format, so a TCX file loaded during format creation can set a
@@ -2885,11 +3004,11 @@ else begin
 end;
 
 
-@* \[54/MiKTeX-string] The string recycling routines.  \TeX{} uses 2
-upto 4 {\it new\/} strings when scanning a filename in an \.{\\input},
-\.{\\openin}, or \.{\\openout} operation.  These strings are normally
-lost because the reference to them are not saved after finishing the
-operation.  |search_string| searches through the string pool for the
+@* \[54/miktex-string] The string recycling routines.
+\TeX{} uses 2 upto 4 {\it new\/} strings when scanning a filename in an
+\.{\\input}, \.{\\openin}, or \.{\\openout} operation.  These strings are
+normally lost because the reference to them are not saved after finishing
+the operation.  |search_string| searches through the string pool for the
 given string and returns either 0 or the found string number.
 
 @<Declare additional routines for string recycling@>=
@@ -2932,7 +3051,28 @@ if s>0 then
 slow_make_string:=t;
 exit:end;
 
-@* \[54/\MiKTeX-more] More changes for \MiKTeX.
+
+@* \[54/miktex] More changes for \MiKTeX.
+% Related to [25.366] expansion depth check
+Sometimes, recursive calls to the |expand| routine may
+cause exhaustion of the run-time calling stack, resulting in
+forced execution stops by the operating system. To diminish the chance
+of this happening, a counter is used to keep track of the recursion
+depth, in conjunction with a constant called |expand_depth|.
+
+This does not catch all possible infinite recursion loops, just the ones
+that exhaust the application calling stack. The actual maximum value of
+|expand_depth| is outside of our control, but the initial setting of
+|10000| should be enough to prevent problems.
+@^system dependencies@>
+
+@<Global...@>=
+expand_depth_count:integer;
+
+@ @<Set init...@>=
+expand_depth_count:=0;
+
+@ % Related to [29.526] expansion depth check
 When |scan_file_name| starts it looks for a |left_brace|
 (skipping \.{\\relax}es, as other \.{\\toks}-like primitives).
 If a |left_brace| is found, then the procedure scans a file
@@ -2980,6 +3120,75 @@ begin save_scanner_status := scanner_status; {|scan_toks| sets |scanner_status| 
     dummy := more_name(str_pool[i]); {add each read character to the current file name}
   stop_at_space := save_stop_at_space; {restore |stop_at_space|}
 end;
+
+
+@* \[54/miktex] Even more changes for \MiKTeX.
+
+@ @<Declare \MiKTeX\ functions@>=
+function@?miktex_c_style_error_messages_p : boolean; forward;@t\2@>@/
+function@?miktex_enable_eightbit_chars_p : boolean; forward;@t\2@>@/
+function@?miktex_get_interaction : integer; forward;@t\2@>@/
+function@?miktex_get_quiet_flag : boolean; forward;@t\2@>@/
+function@?miktex_halt_on_error_p : boolean; forward;@t\2@>@/
+function@?miktex_have_tcx_file_name : boolean; forward;@t\2@>@/
+function@?miktex_is_compatible : boolean; forward;@t\2@>@/
+function@?miktex_is_init_program : boolean; forward;@t\2@>@/
+function@?miktex_make_full_name_string : str_number; forward;@t\2@>@/
+function@?miktex_parse_first_line_p : boolean; forward;@t\2@>@/
+function@?miktex_source_specials_p : boolean; forward;@t\2@>@/
+function@?miktex_write18_p : boolean; forward;@t\2@>@/
+
+@ @<Constants in the outer block@>=
+@!const_font_base=font_base;
+
+@ @<Global variables@>=
+@!hyph_size : integer; {maximun number of hyphen exceptions}
+@!trie_size : integer; {space for hyphenation patterns; should be larger for
+  \.{INITEX} than it is in production versions of \TeX}
+@!buf_size:integer; {maximum number of characters simultaneously present in
+  current lines of open files and in control sequences between
+  \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword|}
+@!error_line:integer; {width of context lines on terminal error messages}
+@!extra_mem_bot:integer; {|mem_min:=mem_bot-extra_mem_bot| except in \.{INITEX}}
+@!extra_mem_top:integer; {|mem_max:=mem_top+extra_mem_top| except in \.{INITEX}}
+@!font_k:integer; {loop variable for initialization}
+@!font_max:integer; {maximum internal font number; must not exceed |max_quarterword|
+  and must be at most |font_base+256|}
+@!font_mem_size:integer; {number of words of |font_info| for all fonts}
+@!half_error_line:integer; {width of first lines of contexts in te
+  error messages; should be between 30 and |error_line-15|}
+@!max_in_open:integer; {maximum number of input files and error insertions that
+  can be going on simultaneously}
+@!main_memory:integer; {total memory words allocated in initex}
+@!max_print_line:integer; {width of longest text lines output; should be at least 60}
+@!max_strings:integer; {maximum number of strings; must not exceed |max_halfword|}
+@!mem_bot:integer;{smallest index in the |mem| array dumped by \.{INITEX};
+  must not be less than |mem_min|}
+@!mem_max:integer; {greatest index in \TeX's internal |mem| array;
+  must be strictly less than |max_halfword|;
+  must be equal to |mem_top| in \.{INITEX}, otherwise |>=mem_top|}
+@!mem_min:integer; {smallest index in \TeX's internal |mem| array;
+  must be |min_halfword| or more;
+  must be equal to |mem_bot| in \.{INITEX}, otherwise |<=mem_bot|}
+@!mem_top:integer; {largest index in the |mem| array dumped by \.{INITEX};
+  must be substantially larger than |mem_bot|,
+  equal to |mem_max| in \.{INITEX}, else not greater than |mem_max|}
+@!nest_size:integer; {maximum number of semantic levels simultaneously active}
+@!param_size:integer; {maximum number of simultaneous macro parameters}
+@!pool_free:integer;{pool space free after format loaded}
+@!pool_size:integer; {maximum number of characters in strings, including all
+  error messages and help texts, and the names of all fonts and
+  control sequences; must exceed |string_vacancies| by the total
+  length of \TeX's own strings, which is currently about 23000}
+@!quoted_filename:boolean;
+@!save_size:integer; {space for saving values outside of current group; must be
+  at most |max_halfword|}
+@!stack_size:integer; {maximum number of simultaneous input sources}
+@!strings_free:integer; {strings available after format loaded}
+@!string_vacancies:integer; {the minimum number of characters that should be
+  available for the user's control sequences and font names,
+  after \TeX's own error messages are stored}
+@!expand_depth:integer; {limits recursive calls to the |expand| procedure}
 
 
 @* \[54/ML\TeX] System-dependent changes for ML\TeX.

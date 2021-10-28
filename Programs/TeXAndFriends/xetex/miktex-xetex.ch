@@ -263,8 +263,12 @@ if translate_filename then begin
   fputs(translate_filename, log_file);
   wlog('" ignored)');
   end;
-end
 @y
+if miktex_have_tcx_file_name then begin
+  wlog_cr;
+  wlog(' (WARNING: translate-file "');
+  wlog('" ignored)');
+  end;
 @z
 
 % _____________________________________________________________________________
@@ -531,26 +535,24 @@ procedure flush_str(s: str_number); {flush a string if possible}
 
 % _____________________________________________________________________________
 %
-% [56.1689]
+% [62.1700] \[54/ML\TeX] System-dependent changes for ML\TeX
 % _____________________________________________________________________________
 
 @x
-@ Define Web2C compatibility functions.
+@* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @y
-@ Define XeTeX compatibility functions.
-
-@<Declare \MiKTeX\ functions@>=
-
+@ @<Declare \MiKTeX\ functions@>=
 function cast_to_integer : integer; forward;@t\2@>@/
 function cast_to_ptr : void_pointer; forward;@t\2@>@/
 function cast_to_ushort : integer; forward;@t\2@>@/
+function count_pdf_file_pages : integer; forward;@t\2@>@/
 function is_null_ptr : boolean; forward;@t\2@>@/
 function linebreak_next : integer; forward;@t\2@>@/
+function load_tfm_font_mapping : void_pointer; forward;@t\2@>@/
 function miktex_etex_p: boolean; forward;@t\2@>@/
 function null_ptr : void_pointer; forward;@t\2@>@/
 function xmalloc_char_array : void_pointer; forward;@t\2@>@/
-function count_pdf_file_pages : integer; forward;@t\2@>@/
-function load_tfm_font_mapping : void_pointer; forward;@t\2@>@/
 
-@ Define Web2C compatibility functions.
+
+@* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @z

@@ -202,22 +202,16 @@ else  begin
 % _____________________________________________________________________________
 
 @x
-if eTeX_ex then
-  begin; wlog_cr; wlog('entering extended mode');
+if miktex_have_tcx_file_name then begin
+  miktex_print_tcx_file_name(log_file);
   end;
-end
 @y
-if eTeX_ex then
-  begin; wlog_cr; wlog('entering extended mode');
-  end;
-end
 if translate_filename then begin
   wlog_cr;
   wlog(' (');
   fputs(translate_filename, log_file);
   wlog(')');
   end;
-end
 @z
 
 % _____________________________________________________________________________
@@ -226,7 +220,8 @@ end
 % _____________________________________________________________________________
 
 @x
-  if a_open_in(cur_file) then goto done;
+  if a_open_in(cur_file) then
+    goto done;
 @y
   if kpse_in_name_ok(stringcast(name_of_file+1))
      and a_open_in(cur_file, kpse_tex_format) then
@@ -261,7 +256,7 @@ if not b_open_in(tfm_file) then abort;
 % _____________________________________________________________________________
 
 @x
-  if (miktex_insert_src_special_auto) then append_src_special;
+  if miktex_insert_src_special_auto then append_src_special;
 @y
   if (insert_src_special_auto) then append_src_special;
 @z
@@ -295,22 +290,12 @@ end;
 % _____________________________________________________________________________
 
 @x
-  if a_open_in(read_file[n]) then read_open[n]:=just_open;
+  if a_open_in(read_file[n]) then
+    read_open[n]:=just_open;
 @y
   if open_in_name_ok(stringcast(name_of_file+1))
      and a_open_in(read_file[n], kpse_tex_format) then
     read_open[n]:=just_open;
-@z
-
-% _____________________________________________________________________________
-%
-% [49.1335]
-% _____________________________________________________________________________
-
-@x
-@!w: four_quarters; {four ASCII codes}
-@y
-@!format_engine: ^text_char;
 @z
 
 % _____________________________________________________________________________
@@ -361,13 +346,13 @@ font_ec:=xmalloc_array(eight_bits, font_max);
 % [50.1360]
 % _____________________________________________________________________________
 
-@x
+ @x
 undump_int(x);
 if (x<>69069)or not eof(fmt_file) then goto bad_fmt
-@y
+ @y
 undump_int(x);
 if (x<>69069)or feof(fmt_file) then goto bad_fmt
-@z
+ @z
 
 % _____________________________________________________________________________
 %

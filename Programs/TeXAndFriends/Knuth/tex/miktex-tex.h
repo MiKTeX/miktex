@@ -1,4 +1,4 @@
-/* tex-miktex.h:                                        -*- C++ -*-
+/* miktex-tex.h:                                        -*- C++ -*-
 
    Copyright (C) 1991-2020 Christian Schenk
 
@@ -21,7 +21,7 @@
 
 #include "miktex-tex-config.h"
 
-#include "tex-version.h"
+#include "miktex-tex-version.h"
 
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/ErrorHandlerImpl>
@@ -36,7 +36,7 @@
 #include "tex.h"
 
 #if defined(MIKTEX_WINDOWS)
-#  include "tex.rc"
+#  include "miktex-tex.rc"
 #endif
 
 #if !defined(MIKTEXHELP_TEX)

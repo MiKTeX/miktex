@@ -114,7 +114,7 @@ public:
 
     if (this->texmfapp.IsInitProgram())
     {
-      // memory allocated in tex-miktex-hash.ch
+      // memory allocated in miktex-tex-finish.ch
       this->program.yhash = nullptr;
       this->program.zeqtb = nullptr;
     }

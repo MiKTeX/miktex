@@ -1,4 +1,4 @@
-%%% tex-miktex-finish.ch:
+%%% miktex-tex-finish.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other
@@ -41,16 +41,20 @@ var k:0..sup_buf_size; {an index into |buffer|}
 
 % _____________________________________________________________________________
 %
-% [50.1303]
+% [54.1379] \[54] System-dependent changes
 % _____________________________________________________________________________
 
 @x
-@!x: integer; {something undumped}
-@!w: four_quarters; {four ASCII codes}
+@* \[54] System-dependent changes.
+This section should be replaced, if necessary, by any special
+modifications of the program
+that are necessary to make \TeX\ work at a particular installation.
+It is usually best to design your change file so that all changes to
+previous sections preserve the section numbering; then everybody's version
+will be consistent with the published program. More extensive changes,
+which introduce new sections, can be inserted here; then only the index
+itself will get a new section number.
+@^system dependencies@>
 @y
-@!x: integer; {something undumped}
-@!format_engine: ^text_char;
-@!dummy_xord: ASCII_code;
-@!dummy_xchr: text_char;
-@!dummy_xprn: ASCII_code;
+@* \[54] System-dependent changes.
 @z

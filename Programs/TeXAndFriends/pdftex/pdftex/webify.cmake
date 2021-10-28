@@ -33,25 +33,26 @@ set(miktex_synctex_changefiles
 )
 
 set(miktex_tex_change_files
-    ${MLTEX_MIKTEX_CH}
-    ${TEX_MIKTEX_CONSTANTS_CH}
-    ${TEX_MIKTEX_CH}
-    ${TEX_MIKTEX_HASH_CH}
-    ${TEX_MIKTEX_HYPH_CH}
-    ${TEX_MIKTEX_POOL_CH}
-    ${TEX_MIKTEX_QUIET_CH}
-    ${TEX_MIKTEX_SRC_CH}
+    ${MIKTEX_TEX_MLTEX_CH}
+    ${MIKTEX_TEX_CONSTANTS_CH}
+    ${MIKTEX_TEX_CH}
+    ${MIKTEX_TEX_HASH_CH}
+    ${MIKTEX_TEX_HYPH_CH}
+    ${MIKTEX_TEX_POOL_CH}
+    ${MIKTEX_TEX_QUIET_CH}
+    ${MIKTEX_TEX_SRC_CH}
     ${miktex_synctex_changefiles}
-    ${TEX_MIKTEX_STAT_CH}
-    ${TEX_MIKTEX_WRITE18_CH}
+    ${MIKTEX_TEX_STAT_CH}
+    ${MIKTEX_TEX_WRITE18_CH}
     ${TRACINGSTACKLEVELS_CH}
     ${PARTOKEN_102_CH}
     ${PARTOKEN_CH}
     ${ENCTEX1_CH}
     ${ENCTEX_PDFTEX_CH}
     ${ENCTEX2_CH}
-    ${TEX_MIKTEX_ENCTEX_CH}
-    ${TEX_MIKTEX_FINISH_CH}
+    ${MIKTEX_TEX_ENCTEX_CH}
+    ${MIKTEX_TEX_WEB2C_CH}
+    ${MIKTEX_TEX_FINISH_CH}
 )
 
 list(APPEND web_files ${projdir}/source/pdftex.web)

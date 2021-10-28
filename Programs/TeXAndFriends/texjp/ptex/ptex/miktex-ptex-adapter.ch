@@ -97,7 +97,7 @@ if src_specials_p or file_line_error_style_p or parse_first_line_p
 % _____________________________________________________________________________
 
 @x
-  if (miktex_insert_src_special_auto) then append_src_special;
+  if miktex_insert_src_special_auto then append_src_special;
 @y
   if (insert_src_special_auto) then append_src_special;
 @z

@@ -60,9 +60,9 @@
   strings, and module names; must be less than 65536}
 @!max_toks=65535; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
   must be less than 65536}
-@!max_names=10000; {number of identifiers, strings, module names;
+@!max_names=10239; {number of identifiers, strings, module names;
   must be less than 10240}
-@!max_texts=10000; {number of replacement texts, must be less than 10240}
+@!max_texts=10239; {number of replacement texts, must be less than 10240}
 @!hash_size=353; {should be prime}
 @!longest_name=2000; {module names shouldn't be longer than this}
 @!line_length=130; {lines of \PASCAL\ output have at most this many characters}

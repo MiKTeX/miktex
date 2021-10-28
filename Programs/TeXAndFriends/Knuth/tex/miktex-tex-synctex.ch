@@ -1,4 +1,4 @@
-%%% tex-miktex-synctex.ch:
+%%% miktex-tex-synctex.ch:
 %%%
 %%% Derived from:
 %%% tex.ch for C compilation with web2c, derived from various other
@@ -11,13 +11,14 @@
 % _____________________________________________________________________________
 
 @x
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
+@* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @y
-@* \[54/\MiKTeX] System-dependent changes for \MiKTeX.
-
 @ @<Set init...@>=
 synctexoption := miktex_get_synchronization_options;
 
 @ @<Declare \MiKTeX\ functions@>=
-function miktex_get_synchronization_options : integer; forward;@t\2@>@/
+function@?miktex_get_synchronization_options : integer; forward;@t\2@>@/
+
+
+@* \[54/ML\TeX] System-dependent changes for ML\TeX.
 @z
