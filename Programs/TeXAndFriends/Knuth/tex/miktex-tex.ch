@@ -44,6 +44,15 @@
 % _____________________________________________________________________________
 
 @x
+Actually the heading shown here is not quite normal: The |program| line
+does not mention any |output| file, because \ph\ would ask the \TeX\ user
+to specify a file name if |output| were specified here.
+@:PASCAL H}{\ph@>
+@^system dependencies@>
+@y
+@z
+
+@x
 procedure initialize; {this procedure gets things started properly}
 @y
 @t\4@>@<Declare \MiKTeX\ functions@>@/
@@ -153,11 +162,33 @@ miktex_initialize_char_tables;
 % _____________________________________________________________________________
 
 @x
-|name_of_file| could be opened.
-@y
+@ The \ph\ compiler with which the present version of \TeX\ was prepared has
+extended the rules of \PASCAL\ in a very convenient way. To open file~|f|,
+we can write
+$$\vbox{\halign{#\hfil\qquad&#\hfil\cr
+|reset(f,@t\\{name}@>,'/O')|&for input;\cr
+|rewrite(f,@t\\{name}@>,'/O')|&for output.\cr}}$$
+The `\\{name}' parameter, which is of type `{\bf packed array
+$[\langle\\{any}\rangle]$ of \\{char}}', stands for the name of
+the external file that is being opened for input or output.
+Blank spaces that might appear in \\{name} are ignored.
+
+The `\.{/O}' parameter tells the operating system not to issue its own
+error messages if something goes wrong. If a file of the specified name
+cannot be found, or if such a file cannot be opened for some other reason
+(e.g., someone may already be trying to write the same file), we will have
+|@!erstat(f)<>0| after an unsuccessful |reset| or |rewrite|.  This allows
+\TeX\ to undertake appropriate corrective action.
+@:PASCAL H}{\ph@>
+@^system dependencies@>
+
+\TeX's file-opening procedures return |false| if no file identified by
 |name_of_file| could be opened.
 
-\MiKTeX: we use our own functions to open files.
+@d reset_OK(#)==erstat(#)=0
+@d rewrite_OK(#)==erstat(#)=0
+@y
+@ We use \MiKTEX\ functions to open and close files.
 @z
 
 @x
@@ -242,16 +273,6 @@ begin miktex_close_file(f);
 % _____________________________________________________________________________
 
 @x
-finer tuning is often possible at well-developed \PASCAL\ sites.
-@^inner loop@>
-@y
-finer tuning is often possible at well-developed \PASCAL\ sites.
-@^inner loop@>
-
-\MiKTeX: we use our own line-reader.
-@z
-
-@x
 @p function input_ln(var f:alpha_file;@!bypass_eoln:boolean):boolean;
   {inputs the next line or returns |false|}
 var last_nonblank:0..buf_size; {|last| with trailing blanks removed}
@@ -273,6 +294,10 @@ else  begin last_nonblank:=first;
   end;
 end;
 @y
+We define |input_ln| in C, for efficiency. Nevertheless we quote the module
+`Report overflow of the input buffer, and abort' here in order to make
+\.{WEAVE} happy, since part of that module is needed by e-TeX.
+
 @p function input_ln(var f:alpha_file;@!bypass_eoln:boolean):boolean; forward;@t\2@>@/
 @{ @<Report overflow of the input buffer, and abort@> @}
 @z
@@ -283,22 +308,16 @@ end;
 % _____________________________________________________________________________
 
 @x
-in \ph. The `\.{/I}' switch suppresses the first |get|.
-@:PASCAL H}{\ph@>
-@^system dependencies@>
-@y
+@ Here is how to open the terminal files
 in \ph. The `\.{/I}' switch suppresses the first |get|.
 @:PASCAL H}{\ph@>
 @^system dependencies@>
 
-\MiKTeX: standard input and output streams were prepared
-by the \CfourP\ runtime library.
-@z
-
-@x
 @d t_open_in==reset(term_in,'TTY:','/O/I') {open the terminal for text input}
 @d t_open_out==rewrite(term_out,'TTY:','/O') {open the terminal for text output}
 @y
+@ Here is how to open the terminal files.
+
 @d t_open_in==term_in:=i@&nput
 @d t_open_out==term_out:=output
 @z
@@ -315,7 +334,6 @@ these operations can be specified in \ph:
 @^system dependencies@>
 @y
 some instruction to the operating system.
-@:PASCAL H}{\ph@>
 @^system dependencies@>
 @z
 
