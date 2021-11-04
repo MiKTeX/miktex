@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/e-pTeX")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_CURRENT_FOLDER}/e-pTeX")
 
 if(LINK_EVERYTHING_STATICALLY)
   use_static_crt()

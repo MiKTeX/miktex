@@ -46,56 +46,13 @@
 
 #include <miktex/ptex.h>
 
+#include <miktex/TeXjp/common.h>
+
 extern PTEXPROGCLASS PTEXPROG;
 
-class MemoryHandlerImpl :
-    public MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<PTEXPROGCLASS>
-{
-public:
-    MemoryHandlerImpl(PTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
-        TeXMemoryHandlerImpl<PTEXPROGCLASS>(program, texmfapp)
-    {
-    }
-
-public:
-    void Allocate(const std::unordered_map<std::string, int>& userParams) override
-    {
-        TeXMemoryHandlerImpl<PTEXPROGCLASS>::Allocate(userParams);
-        MIKTEX_ASSERT(program.constfontbase == 0);
-        size_t nFonts = program.fontmax - program.constfontbase;
-        AllocateArray("fontdir", program.fontdir, nFonts);
-        AllocateArray("fontnumext", program.fontnumext, nFonts);
-        AllocateArray("ctypebase", program.ctypebase, nFonts);
-    }
-
-public:
-    void Free() override
-    {
-        TeXMemoryHandlerImpl<PTEXPROGCLASS>::Free();
-        FreeArray("fontdir", program.fontdir);
-        FreeArray("fontnumext", program.fontnumext);
-        FreeArray("ctypebase", program.ctypebase);
-    }
-
-public:
-    void Check() override
-    {
-        TeXMemoryHandlerImpl<PTEXPROGCLASS>::Check();
-        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontdir);
-        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontnumext);
-        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ctypebase);
-    }
-};
-
 class PTEXAPPCLASS :
-    public MiKTeX::TeXAndFriends::TeXApp
+    public MiKTeX::TeXjp::WebAppInputLine<MiKTeX::TeXAndFriends::TeXApp>
 {
-public:
-    enum {
-        OPT_KANJI = 10000,
-        OPT_KANJI_INTERNAL,
-    };
-
 private:
     MiKTeX::TeXAndFriends::CharacterConverterImpl<PTEXPROGCLASS> charConv{ PTEXPROG };
 
@@ -115,48 +72,7 @@ private:
     MiKTeX::TeXAndFriends::StringHandlerImpl<PTEXPROGCLASS> stringHandler{ PTEXPROG };
 
 private:
-    MemoryHandlerImpl memoryHandler{ PTEXPROG, *this };
-
-private:
-    std::string T_(const char* msgId)
-    {
-        return msgId;
-    }
-
-public:
-    void AddOptions() override
-    {
-        TeXApp::AddOptions();
-        AddOption("kanji", T_("set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
-        AddOption("kanji-internal", T_("set Japanese internal encoding (ENC=euc|sjis)."), OPT_KANJI_INTERNAL, POPT_ARG_STRING, "ENC");
-    }
-
-public:
-    bool ProcessOption(int opt, const std::string& optArg) override
-    {
-        bool done = true;
-        switch (opt)
-        {
-        case OPT_KANJI:
-            if (!set_enc_string (optArg.c_str(), nullptr))
-            {
-                std::cerr << T_("Unknown encoding: ") << optArg << std::endl;
-                throw 1;
-            }
-            break;
-        case OPT_KANJI_INTERNAL:
-            if (!set_enc_string (nullptr, optArg.c_str()))
-            {
-                std::cerr << T_("Unknown encoding: ") << optArg << std::endl;
-                throw 1;
-            }
-            break;
-        default:
-            done = TeXApp::ProcessOption(opt, optArg);
-            break;
-        }
-        return done;
-    }
+    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<PTEXPROGCLASS>, PTEXPROGCLASS> memoryHandler{ PTEXPROG, *this };
 
 public:
     void Init(std::vector<char*>& args) override
@@ -175,12 +91,6 @@ public:
 #if defined(IMPLEMENT_TCX)
         EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
-    }
-
-public:
-    size_t InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
-    {
-        return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
     }
 
 public:
