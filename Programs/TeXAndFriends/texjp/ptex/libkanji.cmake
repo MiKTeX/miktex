@@ -40,8 +40,13 @@ target_link_libraries(texjp-kanji
     PUBLIC
         ${ptexenc_dll_name}
         ${w2cemu_dll_name}
-        ${zlib_dll_name}
 )
+
+if(USE_SYSTEM_ZLIB)
+    target_link_libraries(texjp-kanji PUBLIC MiKTeX::Imported::ZLIB)
+else()
+    target_link_libraries(texjp-kanji PUBLIC ${zlib_dll_name})
+endif()
 
 target_link_libraries(texjp-kanji
     PRIVATE

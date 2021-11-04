@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 #if defined(MIKTEX)
-#include <miktex/Core/C/api.h>
+#include <miktex/Core/c/api.h>
 #if !defined(PATH_MAX)
 #define PATH_MAX 260
 #endif

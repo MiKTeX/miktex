@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,10 +36,14 @@ target_include_directories(${kpsemu_lib_name}
 target_link_libraries(${kpsemu_lib_name}
   PUBLIC
     ${app_lib_name}
-    ${core_lib_name}
     ${texmf_lib_name}
   INTERFACE
     ${getopt_lib_name}
+)
+
+target_link_libraries(${kpsemu_lib_name}
+  INTERFACE
+    ${core_lib_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

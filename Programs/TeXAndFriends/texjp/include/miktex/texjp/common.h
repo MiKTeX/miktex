@@ -100,7 +100,7 @@ namespace MiKTeX
             }
 
         public:
-            void CloseFileInternal(FILE* f)
+            void CloseFileInternal(FILE* f) override
             {
                 std::unordered_set<const FILE*>::iterator it = inputFiles.find(f);
                 if (it == inputFiles.end())
