@@ -76,13 +76,13 @@ else
   wlog(' (');
   wlog(conststringcast(get_enc_string));
   wlog(')');
-@y
-@z
-
-@x
 miktex_print_miktex_banner(log_file);
 @y
-wlog(banner_k);
+if not miktex_is_compatible
+then
+  wlog(banner_k)
+else
+  wlog(banner);
 miktex_print_enc_string(log_file);
 miktex_print_miktex_banner(log_file);
 @z

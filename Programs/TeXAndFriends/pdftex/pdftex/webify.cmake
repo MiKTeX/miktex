@@ -109,12 +109,14 @@ add_custom_command(
             -m ${CMAKE_CURRENT_BINARY_DIR}/pdftex-final.web
             ${CMAKE_CURRENT_BINARY_DIR}/pdftex-2.web
             ${projdir}/source/pdftex.ch
+            ${projdir}/source/char-warning-pdftex.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
         ${CMAKE_CURRENT_BINARY_DIR}/pdftex-2.web
     DEPENDS
         ${MIKTEX_PREFIX}tie
+        ${projdir}/source/char-warning-pdftex.ch
         ${projdir}/source/pdftex.ch
 )
 

@@ -543,7 +543,7 @@ protected:
   void c4p_write_s(Vt v, Ft& f)
   {
     f.AssertValid();
-    if (fputs(v, f) == EOF)
+    if (fputs(reinterpret_cast<const char*>(v), f) == EOF)
     {
       MIKTEX_FATAL_CRT_ERROR("fputs");
     }

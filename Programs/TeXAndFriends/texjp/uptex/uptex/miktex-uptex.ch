@@ -48,22 +48,8 @@ miktex_print_miktex_banner(term_out);
 @d min_halfhalfword==-@"8000
 @d max_halfhalfword==@"7FFF
 @y
-@z
-
-% _____________________________________________________________________________
-%
-% [8.116]
-% _____________________________________________________________________________
-
-@x
-@!halfhalfword = min_halfhalfword..max_halfhalfword;
-@y
-@z
-
-@x
-  2: (@!b0:halfhalfword; @!b1:halfhalfword);
-@y
-  2: (@!b0:quarterword; @!b1:quarterword);
+@d min_halfhalfword==0
+@d max_halfhalfword==@"FFFF
 @z
 
 % _____________________________________________________________________________
@@ -103,13 +89,13 @@ else
   wlog(' (');
   wlog(conststringcast(get_enc_string));
   wlog(')');
-@y
-@z
-
-@x
 miktex_print_miktex_banner(log_file);
 @y
-wlog(banner_k);
+if not miktex_is_compatible
+then
+  wlog(banner_k)
+else
+  wlog(banner);
 miktex_print_enc_string(log_file);
 miktex_print_miktex_banner(log_file);
 @z

@@ -53,17 +53,6 @@ if translate_filename then read_tcx_file;
 
 % _____________________________________________________________________________
 %
-% [3.30]
-% _____________________________________________________________________________
-
-@x
-@!buffer:array[0..sup_buf_size] of ASCII_code; {lines of characters being read}
-@y
-@!buffer:^ASCII_code; {lines of characters being read}
-@z
-
-% _____________________________________________________________________________
-%
 % [3.32]
 % _____________________________________________________________________________
 
@@ -123,17 +112,6 @@ end;
 @!j:0..sup_buf_size; {index into |buffer|}
 @y
 @!j:0..buf_size; {index into |buffer|}
-@z
-
-% _____________________________________________________________________________
-%
-% [22.316]
-% _____________________________________________________________________________
-
-@x
-@!input_file : array[1..sup_max_in_open] of alpha_file;
-@y
-@!input_file : ^alpha_file;
 @z
 
 % _____________________________________________________________________________
@@ -317,15 +295,19 @@ dump_int(@$);@/
 
 @x
 undump_int(x);
+format_debug('format magic number')(x);
 if x<>@"4D694B54 then goto bad_fmt; {not a format file}
 undump_int(x);
-if x<>@$ then goto bad_fmt; {check that strings are the same}
+format_debug('string pool checksum')(x);
+if x<>@$ then begin {check that strings are the same}
 @y
 undump_int(x);
+format_debug('format magic number')(x);
 if x<>@"4D694B54 then goto bad_fmt; {not a format file}
 format_engine:=xmalloc_array(text_char, x);
 undump_int(x);
-if x<>@$ then goto bad_fmt; {check that strings are the same}
+format_debug('string pool checksum')(x);
+if x<>@$ then begin {check that strings are the same}
 @z
 
 % _____________________________________________________________________________

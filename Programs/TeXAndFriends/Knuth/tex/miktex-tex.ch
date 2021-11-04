@@ -261,7 +261,7 @@ begin miktex_close_file(f);
 @!last:0..buf_size; {end of the line just input to |buffer|}
 @!max_buf_stack:0..buf_size; {largest index used in |buffer|}
 @y
-@!buffer:array[0..sup_buf_size] of ASCII_code; {lines of characters being read}
+@!buffer:^ASCII_code; {lines of characters being read}
 @!first:0..sup_buf_size; {the first unused position in |buffer|}
 @!last:0..sup_buf_size; {end of the line just input to |buffer|}
 @!max_buf_stack:0..sup_buf_size; {largest index used in |buffer|}
@@ -596,7 +596,7 @@ been commented~out.
   print(" at line "); print_int(line);
   interaction:=scroll_mode; jump_out;
 @y
-"E": if base_ptr>0 then
+"E": if base_ptr>0 then if input_stack[base_ptr].name_field>=256 then
     begin edit_name_start:=str_start[edit_file.name_field];
     edit_name_length:=str_start[edit_file.name_field+1] -
                       str_start[edit_file.name_field];
@@ -691,7 +691,7 @@ So they have been simplified here in the obvious way.
 @^inner loop@>@^system dependencies@>
 
 The \.{WEB} source for \TeX\ defines |hi(#)==#+min_halfword| which can be
-simplified when |min_halfword=0|.  The Web2C implementation of \TeX\ can use
+simplified when |min_halfword=0|.  The \MiKTeX\ implementation of \TeX\ can use
 |hi(#)==#| together with |min_halfword<0| as long as |max_halfword| is
 sufficiently large.
 
@@ -854,7 +854,7 @@ end;
 @!nest_ptr:0..nest_size; {first unused location of |nest|}
 @!max_nest_stack:0..nest_size; {maximum of |nest_ptr| when pushing}
 @y
-@!nest:array[0..sup_nest_size] of list_state_record;
+@!nest:^list_state_record;
 @!nest_ptr:0..sup_nest_size; {first unused location of |nest|}
 @!max_nest_stack:0..sup_nest_size; {maximum of |nest_ptr| when pushing}
 @z
@@ -903,9 +903,28 @@ var p:0..sup_nest_size; {index into |nest|}
 % _____________________________________________________________________________
 
 @x
+@ The following procedure, which is called just before \TeX\ initializes its
+input and output, establishes the initial values of the date and time.
+@^system dependencies@>
+Since standard \PASCAL\ cannot provide such information, something special
+is needed. The program here simply assumes that suitable values appear in
+the global variables \\{sys\_time}, \\{sys\_day}, \\{sys\_month}, and
+\\{sys\_year} (which are initialized to noon on 4 July 1776,
+in case the implementor is careless).
+
+@p procedure fix_date_and_time;
 begin sys_time:=12*60;
 sys_day:=4; sys_month:=7; sys_year:=1776;  {self-evident truths}
 @y
+@ The following procedure, which is called just before \TeX\ initializes
+its input and output, establishes the initial values of the date and
+time. It calls \CfourP\ functions.
+
+We have to initialize the |sys_| variables because that is what gets
+output on the first line of the log file. (New in 2021.)
+@^system dependencies@>
+
+@p procedure fix_date_and_time;
 begin sys_time:=c4p_hour*60+c4p_minute;
 sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 @z
@@ -941,7 +960,7 @@ sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 @!input_ptr : 0..stack_size; {first unused location of |input_stack|}
 @!max_in_stack: 0..stack_size; {largest value of |input_ptr| when pushing}
 @y
-@!input_stack : array[0..sup_stack_size] of in_state_record;
+@!input_stack : ^in_state_record;
 @!input_ptr : 0..sup_stack_size; {first unused location of |input_stack|}
 @!max_in_stack: 0..sup_stack_size; {largest value of |input_ptr| when pushing}
 @z
@@ -960,11 +979,11 @@ sys_day:=c4p_day; sys_month:=c4p_month; sys_year:=c4p_year;
 @y
 @!in_open : 0..sup_max_in_open; {the number of lines in the buffer, less one}
 @!open_parens : 0..sup_max_in_open; {the number of open text files}
-@!input_file : array[1..sup_max_in_open] of alpha_file;
+@!input_file : ^alpha_file;
 @!line : integer; {current line number in the current source file}
-@!line_stack : array[1..sup_max_in_open] of integer;
-@!source_filename_stack : array[1..sup_max_in_open] of str_number;
-@!full_source_filename_stack : array[1..sup_max_in_open] of str_number;
+@!line_stack : ^integer;
+@!source_filename_stack : ^str_number;
+@!full_source_filename_stack : ^str_number;
 @z
 
 % _____________________________________________________________________________
@@ -2295,15 +2314,31 @@ bad_fmt:
 @d undump_qqqq(#)==miktex_undump(fmt_file, #)
 @z
 
+@x
+@d undump_size_end_end(#)==too_small(#)@+else undump_end_end
+@y
+@d format_debug_end(#)==
+    write_ln (c4p_error_output, ' = ', #);
+  end;
+@d format_debug(#)==
+  if debug_format_file then begin
+    write (c4p_error_output, 'fmtdebug:', #);
+    format_debug_end
+@d undump_size_end_end(#)==
+  too_small(#)@+else format_debug (#)(x); undump_end_end
+@z
+
 % _____________________________________________________________________________
 %
 % [50.1307]
+%
+% TODO: Dump engine name.
 % _____________________________________________________________________________
 
 @x
 dump_int(@$);@/
 @y
-dump_int(@"4D694B54); {"TKiM"}
+dump_int(@"4D694B54);  {\MiKTeX's magic constant: "TKiM"}
 dump_int(@$);@/
 @<Dump |xord|, |xchr|, and |xprn|@>;
 dump_int(max_halfword);@/
@@ -2312,6 +2347,8 @@ dump_int(max_halfword);@/
 % _____________________________________________________________________________
 %
 % [50.1308]
+%
+% TODO: Undump/check engine name.
 % _____________________________________________________________________________
 
 
@@ -2320,9 +2357,16 @@ x:=fmt_file^.int;
 if x<>@$ then goto bad_fmt; {check that strings are the same}
 @y
 undump_int(x);
+format_debug('format magic number')(x);
 if x<>@"4D694B54 then goto bad_fmt; {not a format file}
 undump_int(x);
-if x<>@$ then goto bad_fmt; {check that strings are the same}
+format_debug('string pool checksum')(x);
+if x<>@$ then begin {check that strings are the same}
+  wake_up_terminal;
+  wterm_ln('---! ', name_of_file,
+           ' made by different executable version, strings are different');
+  goto bad_fmt;
+end;
 @<Undump |xord|, |xchr|, and |xprn|@>;
 undump_int(x);
 if x<>max_halfword then goto bad_fmt; {check |max_halfword|}
@@ -2334,9 +2378,9 @@ if x<>mem_bot then goto bad_fmt;
 undump_int(x);
 if x<>mem_top then goto bad_fmt;
 @y
-undump_int(x);
+undump_int(x); format_debug ('mem_bot')(x);
 if x<>mem_bot then goto bad_fmt;
-undump_int(mem_top);
+undump_int(mem_top); format_debug ('mem_top')(mem_top);
 if mem_bot+1100>mem_top then goto bad_fmt;
 
 
@@ -2346,7 +2390,7 @@ head:=contrib_head; tail:=contrib_head;
 mem_min := mem_bot - extra_mem_bot;
 mem_max := mem_top + extra_mem_top;
 
-yzmem:=miktex_reallocate(yzmem, mem_max - mem_min + 2);
+yzmem:=miktex_reallocate(yzmem, mem_max - mem_min + 1);
 zmem := yzmem - mem_min;
 mem := zmem;
 @z
@@ -3160,7 +3204,7 @@ function@?miktex_write18_p : boolean; forward;@t\2@>@/
 @!const_font_base=font_base;
 
 @ @<Global variables@>=
-@!hyph_size : integer; {maximun number of hyphen exceptions}
+@!hyph_size : integer; {maximum number of hyphen exceptions}
 @!trie_size : integer; {space for hyphenation patterns; should be larger for
   \.{INITEX} than it is in production versions of \TeX}
 @!buf_size:integer; {maximum number of characters simultaneously present in

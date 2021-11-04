@@ -41,6 +41,19 @@ miktex_print_miktex_banner(term_out);
 
 % _____________________________________________________________________________
 %
+% [9.131] \[8] Packed data
+% _____________________________________________________________________________
+
+@x
+@d min_halfhalfword==-@"8000
+@d max_halfhalfword==@"7FFF
+@y
+@d min_halfhalfword==0
+@d max_halfhalfword==@"FFFF
+@z
+
+% _____________________________________________________________________________
+%
 % [25.371]
 % _____________________________________________________________________________
 
@@ -76,13 +89,13 @@ else
   wlog(' (');
   wlog(conststringcast(get_enc_string));
   wlog(')');
-@y
-@z
-
-@x
 miktex_print_miktex_banner(log_file);
 @y
-wlog(banner_k);
+if not miktex_is_compatible
+then
+  wlog(banner_k)
+else
+  wlog(banner);
 miktex_print_enc_string(log_file);
 miktex_print_miktex_banner(log_file);
 @z

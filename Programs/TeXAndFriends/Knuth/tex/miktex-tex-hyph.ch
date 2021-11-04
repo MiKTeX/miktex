@@ -62,7 +62,7 @@ and |v:=hyf_next[v]|; repeat, if necessary, until |v=min_trie_op|.
 @ For more than 255 trie op codes, the three fields |trie_link|, |trie_char|,
 and |trie_op| will no longer fit into one memory word; thus using \MiKTeX\
 we define |trie| as three array instead of an array of records.
-The variant will be implented by reusing the opcode field later on with
+The variant will be implemented by reusing the opcode field later on with
 another macro.
 
 @d trie_link(#)==trie_trl[#] {``downward'' link in a trie}
@@ -616,7 +616,7 @@ for k:=0 to hyph_size do if hyph_word[k]<>0 then
 @y
 dump_int(hyph_count);
 if hyph_next <= hyph_prime then hyph_next:=hyph_size;
-dump_int(hyph_next);{minumum value of |hyphen_size| needed}
+dump_int(hyph_next);{minimum value of |hyphen_size| needed}
 for k:=0 to hyph_size do if hyph_word[k]<>0 then
   begin dump_int(k+65536*hyph_link[k]);
         {assumes number of hyphen exceptions does not exceed 65535}

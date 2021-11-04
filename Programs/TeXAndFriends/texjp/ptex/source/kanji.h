@@ -8,8 +8,8 @@
 #ifdef epTeX
 #include <ptexenc/unicode.h>
 #if defined(MIKTEX)
-#define getintone(w) ((w).c4p_P2.c4p_int)
-#define setintone(w,a) ((w).c4p_P2.c4p_int=(a))
+#define getintone(w) ((w).c4p_P2.hh.c4p_P1.lh)
+#define setintone(w,a) ((w).c4p_P2.hh.c4p_P1.lh=(a))
 #else
 #define getintone(w) ((w).cint1)
 #define setintone(w,a) ((w).cint1=(a))
