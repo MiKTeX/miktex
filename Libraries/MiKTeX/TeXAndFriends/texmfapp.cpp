@@ -937,8 +937,17 @@ void TeXMFApp::InitializeBuffer() const
     }
   }
 
-  for (last--; last >= first && (buffer[last] == ' ' || buffer[last] == '\r' || buffer[last] == '\n'); last++)
+  if (AmI("xetex"))
   {
+    for (last--; last >= first && (buffer32[last] == U' ' || buffer32[last] == U'\r' || buffer32[last] == U'\n'); last++)
+    {
+    }
+  }
+  else
+  {
+    for (last--; last >= first && (buffer[last] == ' ' || buffer[last] == '\r' || buffer[last] == '\n'); last++)
+    {
+    }
   }
   last++;
 
