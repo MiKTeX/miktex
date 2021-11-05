@@ -253,6 +253,7 @@ public:
 #else
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.mem);
 #endif
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.paramstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.strpool);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trickbuf);

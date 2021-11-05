@@ -131,7 +131,6 @@ public:
     TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Free();
 
     this->FreeArray("linestack", this->program.linestack);
-    this->FreeArray("inputstack", this->program.inputstack);
     this->FreeArray("inputfile", this->program.inputfile);
     this->FreeArray("fullsourcefilenamestack", this->program.fullsourcefilenamestack);
     this->FreeArray("sourcefilenamestack", this->program.sourcefilenamestack);
@@ -185,7 +184,6 @@ public:
     TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Check();
 
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.linestack);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.inputstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.inputfile);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.fullsourcefilenamestack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.sourcefilenamestack);
