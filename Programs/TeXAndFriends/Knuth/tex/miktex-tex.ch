@@ -142,8 +142,7 @@ codes below @'40 in case there is a coincidence.
 @y
 codes below @'40 in case there is a coincidence.
 
-\MiKTeX: we use the routine |miktex_initialize_char_tables| to initialize
-|xord|.
+We use |miktex_initialize_char_tables| to initialize |xchr|, |xord| and |xprn|.
 @z
 
 @x
