@@ -2,6 +2,35 @@
 
 #include <unordered_set>
 
+#include <miktex/TeXAndFriends/TeXMFApp>
+
+#include <kanji.h>
+
+#define byte1 BYTE1
+#define byte2 BYTE2
+#define byte3 BYTE3
+#define byte4 BYTE4
+#define frombuff fromBUFF
+#define fromdvi fromDVI
+#define fromeuc fromEUC
+#define fromjis fromJIS
+#define fromkuten fromKUTEN
+#define fromsjis fromSJIS
+#define fromucs fromUCS
+#define hi Hi
+#define isinternaleuc is_internalEUC
+#define isinternaluptex is_internalUPTEX
+#define lo Lo
+#define tobuff toBUFF
+#define todvi toDVI
+#define toucs toUCS
+#define ucstoutf8 UCStoUTF8
+
+template<class FileType> inline void miktexprintencstring(FileType& f)
+{
+  fprintf(f, " (%s)", get_enc_string());
+}
+
 namespace MiKTeX
 {
     namespace TeXjp
@@ -132,32 +161,30 @@ namespace MiKTeX
             void Allocate(const std::unordered_map<std::string, int>& userParams) override
             {
                 BASE::Allocate(userParams);
-                MIKTEX_ASSERT(program.constfontbase == 0);
-                size_t nFonts = program.fontmax - program.constfontbase;
-                AllocateArray("fontdir", program.fontdir, nFonts);
-                AllocateArray("fontnumext", program.fontnumext, nFonts);
-                AllocateArray("ctypebase", program.ctypebase, nFonts);
+                MIKTEX_ASSERT(BASE::program.constfontbase == 0);
+                size_t nFonts = BASE::program.fontmax - BASE::program.constfontbase;
+                AllocateArray("fontdir", BASE::program.fontdir, nFonts);
+                AllocateArray("fontnumext", BASE::program.fontnumext, nFonts);
+                AllocateArray("ctypebase", BASE::program.ctypebase, nFonts);
             }
 
         public:
             void Free() override
             {
                 BASE::Free();
-                FreeArray("fontdir", program.fontdir);
-                FreeArray("fontnumext", program.fontnumext);
-                FreeArray("ctypebase", program.ctypebase);
+                FreeArray("fontdir", BASE::program.fontdir);
+                FreeArray("fontnumext", BASE::program.fontnumext);
+                FreeArray("ctypebase", BASE::program.ctypebase);
             }
 
         public:
             void Check() override
             {
                 BASE::Check();
-                MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontdir);
-                MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontnumext);
-                MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ctypebase);
+                MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(BASE::program.fontdir);
+                MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(BASE::program.fontnumext);
+                MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(BASE::program.ctypebase);
             }
         };
-
-
     }
 }

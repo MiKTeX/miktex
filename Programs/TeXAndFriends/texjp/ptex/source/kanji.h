@@ -47,14 +47,18 @@ extern integer kcatcodekey (integer c);
 
 extern void init_kanji (const_string file_str, const_string internal_str);
 extern void init_default_kanji (const_string file_str, const_string internal_str);
+#if defined(MIKTEX)
+#define initkanji() init_default_kanji(NULL, "euc")
+#else
 #ifdef PBIBTEX
 /* pBibTeX is EUC only */
 #define initkanji() init_default_kanji(NULL, "euc")
-#elif !defined(MIKTEX) && defined(WIN32)
+#elif defined(WIN32)
 /* for pTeX, e-pTeX, pDVItype, pPLtoTF, and pTFtoPL */
 #define initkanji() init_default_kanji(NULL, "sjis")
 #else
 #define initkanji() init_default_kanji(NULL, "euc")
+#endif
 #endif
 /* for pDVItype */
 #define setpriorfileenc() set_prior_file_enc()
@@ -69,13 +73,20 @@ extern void init_default_kanji (const_string file_str, const_string internal_str
 #define fputs(c,fp) fputs2(c,fp)
 #endif /* !PRESERVE_FPUTS */
 
+#if defined(MIKTEX)
+inline long inputline2(FILE* f, unsigned char* buffer, long pos, const long bufferSize, int* lastChar = nullptr)
+{
+   return input_line2(f, buffer, pos, bufferSize, lastChar);
+}
+#else
 #ifdef PBIBTEX
 #define inputline2(fp,buff,pos,size,ptr) input_line2(fp,buff,pos,size,ptr)
 #else
 #define inputline2(fp,buff,pos,size) input_line2(fp,buff,pos,size,NULL)
 #endif
+#endif
 
-#if defined(MIKTEX) && !defined(FMT_COMPRESS)
+#if defined(MIKTEX)
 extern void dump_kanji(FILE* fp);
 extern void undump_kanji(FILE* fp);
 #else

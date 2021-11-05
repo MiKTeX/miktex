@@ -44,8 +44,6 @@
 
 #include "texmfmp.h"
 
-#include <miktex/eptex.h>
-
 #include <miktex/TeXjp/common.h>
 
 extern EPTEXPROGCLASS EPTEXPROG;

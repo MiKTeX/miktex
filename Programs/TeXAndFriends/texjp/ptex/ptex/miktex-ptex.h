@@ -44,8 +44,6 @@
 
 #include "texmfmp.h"
 
-#include <miktex/ptex.h>
-
 #include <miktex/TeXjp/common.h>
 
 extern PTEXPROGCLASS PTEXPROG;

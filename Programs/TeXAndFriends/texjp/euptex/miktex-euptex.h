@@ -44,8 +44,6 @@
 
 #include "texmfmp.h"
 
-#include <miktex/euptex.h>
-
 #include <miktex/TeXjp/common.h>
 
 extern EUPTEXPROGCLASS EUPTEXPROG;

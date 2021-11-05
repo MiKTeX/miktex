@@ -44,8 +44,6 @@
 
 #include "texmfmp.h"
 
-#include <miktex/uptex.h>
-
 #include <miktex/TeXjp/common.h>
 
 extern UPTEXPROGCLASS UPTEXPROG;

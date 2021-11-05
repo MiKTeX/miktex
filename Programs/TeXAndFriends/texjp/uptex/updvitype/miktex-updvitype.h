@@ -25,7 +25,7 @@
 
 #include <miktex/TeXAndFriends/WebApp>
 
-#include <miktex/uptex.h>
+#include <miktex/TeXjp/common.h>
 
 #define OPT_KANJI 1000
 #define OPT_MAX_PAGES 1001

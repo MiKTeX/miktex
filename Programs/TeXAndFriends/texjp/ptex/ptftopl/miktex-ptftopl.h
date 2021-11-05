@@ -25,7 +25,7 @@
 
 #include <miktex/TeXAndFriends/WebApp>
 
-#include <miktex/ptex.h>
+#include <miktex/TeXjp/common.h>
 
 #define OPT_KANJI 1000
 

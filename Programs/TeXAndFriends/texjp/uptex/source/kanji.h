@@ -63,14 +63,21 @@ extern void init_default_kanji_select (void);
 #define fputs(c,fp) fputs2(c,fp)
 #endif /* !PRESERVE_FPUTS */
 
+#if defined(MIKTEX)
+inline long inputline2(FILE* f, unsigned char* buffer, long pos, const long bufferSize, int* lastChar = nullptr)
+{
+   return input_line2(f, buffer, pos, bufferSize, lastChar);
+}
+#else
 #ifdef UPBIBTEX
 #define inputline2(fp,buff,pos,size,ptr) input_line2(fp,buff,pos,size,ptr)
 #else
 #define inputline2(fp,buff,pos,size) input_line2(fp,buff,pos,size,NULL)
 #endif
+#endif
 
 extern void init_kanji (const_string file_str, const_string internal_str);
-#if defined(MIKTEX) && !defined(FMT_COMPRESS)
+#if defined(MIKTEX)
 extern void dump_kanji(FILE* fp);
 extern void undump_kanji(FILE* fp);
 #else
