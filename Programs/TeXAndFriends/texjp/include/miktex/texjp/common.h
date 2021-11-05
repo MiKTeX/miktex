@@ -54,8 +54,8 @@ namespace MiKTeX
             void AddOptions() override
             {
                 BASE::AddOptions();
-                AddOption("kanji", T_("set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
-                AddOption("kanji-internal", T_("set Japanese internal encoding (ENC=euc|sjis)."), OPT_KANJI_INTERNAL, POPT_ARG_STRING, "ENC");
+                BASE::AddOption("kanji", T_("set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
+                BASE::AddOption("kanji-internal", T_("set Japanese internal encoding (ENC=euc|sjis)."), OPT_KANJI_INTERNAL, POPT_ARG_STRING, "ENC");
             }
 
         public:
@@ -163,18 +163,18 @@ namespace MiKTeX
                 BASE::Allocate(userParams);
                 MIKTEX_ASSERT(BASE::program.constfontbase == 0);
                 size_t nFonts = BASE::program.fontmax - BASE::program.constfontbase;
-                AllocateArray("fontdir", BASE::program.fontdir, nFonts);
-                AllocateArray("fontnumext", BASE::program.fontnumext, nFonts);
-                AllocateArray("ctypebase", BASE::program.ctypebase, nFonts);
+                BASE::AllocateArray("fontdir", BASE::program.fontdir, nFonts);
+                BASE::AllocateArray("fontnumext", BASE::program.fontnumext, nFonts);
+                BASE::AllocateArray("ctypebase", BASE::program.ctypebase, nFonts);
             }
 
         public:
             void Free() override
             {
                 BASE::Free();
-                FreeArray("fontdir", BASE::program.fontdir);
-                FreeArray("fontnumext", BASE::program.fontnumext);
-                FreeArray("ctypebase", BASE::program.ctypebase);
+                BASE::FreeArray("fontdir", BASE::program.fontdir);
+                BASE::FreeArray("fontnumext", BASE::program.fontnumext);
+                BASE::FreeArray("ctypebase", BASE::program.ctypebase);
             }
 
         public:
