@@ -675,7 +675,7 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
   auto bufsize = inputOutput->bufsize();
   const char* xord = GetCharacterConverter()->xord();
   char* buffer = inputOutput->buffer();
-  int lastChar;
+  int lastChar = EOF;
 
   last = static_cast<C4P::C4P_signed32>(InputLineInternal(f, buffer, bufsize, first, lastChar));
 
