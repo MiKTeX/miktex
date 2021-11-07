@@ -215,50 +215,58 @@
 
 [ptex]
 
+	attributes = exclude
 	compiler = ptex
 	description = plain pTeX 
 	input = ptex.ini
 
 [eptex]
 
+	attributes = exclude
 	compiler = eptex
 	description = plain e-pTeX 
 	input = eptex.ini
 
 [euptex]
 
+	attributes = exclude
 	compiler = euptex
 	description = plain e-upTeX 
 	input = euptex.ini
 
 [uptex]
 
+	attributes = exclude
 	compiler = uptex
 	description = plain upTeX 
 	input = uptex.ini
 
 [platex]
 
+	attributes = exclude
 	compiler = eptex
 	description = pLaTeX
 	input = platex.ini
 
 [platex-dev]
 
+	attributes = exclude
 	compiler = eptex
 	description = pLaTeX dev
 	input = platex.ini
 
 [uplatex]
 
+	attributes = exclude
 	compiler = euptex
-	description = uplatex
+	description = upLaTeX
 	input = uplatex.ini
 
 [uplatex-dev]
 
+	attributes = exclude
 	compiler = euptex
-	description = uplatex
+	description = upLaTeX dev
 	input = uplatex.ini
 
 [tex]
