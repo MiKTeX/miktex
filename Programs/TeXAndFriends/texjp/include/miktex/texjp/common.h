@@ -144,7 +144,15 @@ namespace MiKTeX
         public:
             MiKTeX::Util::PathName DecodeFileName(const MiKTeX::Util::PathName& fileNameInternalEncoding) override
             {
-                return MiKTeX::Util::PathName(reinterpret_cast<char*>(ptenc_from_internal_enc_string_to_utf8(reinterpret_cast<const unsigned char*>(fileNameInternalEncoding.GetData()))));
+                auto decoded = ptenc_from_internal_enc_string_to_utf8(reinterpret_cast<const unsigned char*>(fileNameInternalEncoding.GetData()));
+                if (decoded == nullptr)
+                {
+                    return fileNameInternalEncoding;
+                }
+                MiKTeX::Util::PathName result(reinterpret_cast<char*>(decoded));
+                // FIXME: should be xfree
+                free(decoded);
+                return result;
             }
         };
 
