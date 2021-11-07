@@ -18,29 +18,6 @@
 
 % _____________________________________________________________________________
 %
-% [5.63]
-% _____________________________________________________________________________
-
-@x
-if src_specials_p or file_line_error_style_p or parse_first_line_p then
-  wterm(banner_k)
-else
-  wterm(banner);
-  wterm(' (');
-  wterm(conststringcast(get_enc_string));
-  wterm(')');
-@y
-@z
-
-@x
-miktex_print_miktex_banner(term_out);
-@y
-miktex_print_enc_string(term_out);
-miktex_print_miktex_banner(term_out);
-@z
-
-% _____________________________________________________________________________
-%
 % [9.131] \[8] Packed data
 % _____________________________________________________________________________
 
@@ -54,141 +31,13 @@ miktex_print_miktex_banner(term_out);
 
 % _____________________________________________________________________________
 %
-% [25.371]
+% [49.1200]
 % _____________________________________________________________________________
 
 @x
-@!l:0..buf_size; {temporary index into |buffer|}
+procedure scan_delimiter(@!p:pointer;@!r:boolean);
 @y
-@!l:0..sup_buf_size; {temporary index into |buffer|}
-@z
-
-% _____________________________________________________________________________
-%
-% [30.553]
-% _____________________________________________________________________________
-
-@x
-  if (IS_DIR_SEP(c)and(not_kanji_char_seq(prev_char,c))) then
-@y
-  if ((c="/")or(c="\")and(not_kanji_char_seq(prev_char,c))) then
-@z
-
-
-% _____________________________________________________________________________
-%
-% [30.573]
-% _____________________________________________________________________________
-
-@x
-if src_specials_p or file_line_error_style_p or parse_first_line_p
-then
-  wlog(banner_k)
-else
-  wlog(banner);
-  wlog(' (');
-  wlog(conststringcast(get_enc_string));
-  wlog(')');
-miktex_print_miktex_banner(log_file);
-@y
-if not miktex_is_compatible
-then
-  wlog(banner_k)
-else
-  wlog(banner);
-miktex_print_enc_string(log_file);
-miktex_print_miktex_banner(log_file);
-@z
-
-% _____________________________________________________________________________
-%
-% [31.591]
-% _____________________________________________________________________________
-
-@x
-@d kchar_type_end(#)==#].hh.lhfield
-@y
-@d kchar_type_end(#)==#].hh.lh
-@z
-
-% _____________________________________________________________________________
-%
-% [31.606]
-% _____________________________________________________________________________
-
-@x
-    fget; cx:=fbyte; font_info[k].hh.lhfield:=tonum(cx); {|kchar_type|}
-@y
-    fget; cx:=fbyte; font_info[k].hh.lh:=tonum(cx); {|kchar_type|}
-@z
-
-% _____________________________________________________________________________
-%
-% [47.1073]
-% _____________________________________________________________________________
-
-@x
-  if (insert_src_special_auto) then append_src_special;
-@y
-  if (miktex_insert_src_special_auto) then append_src_special;
-@z
-
-% _____________________________________________________________________________
-%
-% [51.1348]
-% _____________________________________________________________________________
-
-@x
-libc_free(format_engine);@/
-@y
-@z
-
-% _____________________________________________________________________________
-%
-% [51.1349]
-% _____________________________________________________________________________
-
-@x
-libc_free(format_engine);
-@y
-@z
-
-% _____________________________________________________________________________
-%
-% [51.1362]
-% _____________________________________________________________________________
-
-@x
-font_info:=xmalloc_array(memory_word, font_mem_size);
-@y
-@z
-
-% _____________________________________________________________________________
-%
-% [51.1364]
-% _____________________________________________________________________________
-
-@x
-font_dir:=xmalloc_array(eight_bits, font_max);
-font_num_ext:=xmalloc_array(integer, font_max);
-ctype_base:=xmalloc_array(integer, font_max);
-char_base:=xmalloc_array(integer, font_max);
-@y
-@z
-
-% _____________________________________________________________________________
-%
-% [52.1373]
-% _____________________________________________________________________________
-
-@x
-  font_info:=xmalloc_array (memory_word, font_mem_size);
-  font_dir:=xmalloc_array(eight_bits, font_max);
-  font_num_ext:=xmalloc_array(integer, font_max);
-  font_check:=xmalloc_array(four_quarters, font_max);
-  ctype_base:=xmalloc_array(integer, font_max);
-  char_base:=xmalloc_array(integer, font_max);
-@y
+procedure scan_delimiter(@!p:pointer;@!r:integer);
 @z
 
 % _____________________________________________________________________________

@@ -117,11 +117,13 @@ add_custom_command(
             ${CMAKE_CURRENT_BINARY_DIR}/pre-uptex.web
             ${projdir}/source/uptex-m.ch
             ${uptex_ch_synctex}
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
         ${CMAKE_CURRENT_BINARY_DIR}/pre-uptex.web
     DEPENDS
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
         ${MIKTEX_PREFIX}tie
         ${projdir}/source/uptex-m.ch
         ${uptex_ch_synctex}

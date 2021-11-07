@@ -116,6 +116,7 @@ add_custom_command(
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/char-warning-eptex.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
@@ -130,6 +131,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfutils.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/miktex-etex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex-adapter.ch
+        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptex/miktex-ptex.ch
         ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptex-base.ch
         ${MIKTEX_PREFIX}tie
         ${eptex_ch_synctex}
