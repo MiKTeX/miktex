@@ -1,6 +1,6 @@
 /* miktex/Core/IntegerTypes.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 1996-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,7 +42,7 @@
 
 #if defined(_MSC_VER)
 
-typedef __int8 MIKTEX_INT8;
+typedef signed __int8 MIKTEX_INT8;
 typedef __int16 MIKTEX_INT16;
 typedef __int32 MIKTEX_INT32;
 typedef __int64 MIKTEX_INT64;
