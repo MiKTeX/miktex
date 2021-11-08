@@ -3134,7 +3134,7 @@ BEGIN
 END
 
 /*
-This fonction is for transform Unicode string to up case. 23/sep/2009
+This function is for transform Unicode string to up case. 23/sep/2009
 */
 
 int32_t icu_strToUpper(UChar * tarup, int32_t tucap, UChar * target, int32_t tarlen)

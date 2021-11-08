@@ -6,7 +6,6 @@
 #include "qsort.h"
 
 #include "exkana.h"
-#include "ktable.h"
 #include "exvar.h"
 
 #include "kp.h"
@@ -24,8 +23,6 @@ static struct dictionary *dictable,*envdic;
 static int dlines=0,elines=0;
 
 static int dicvalread(const char *filename, struct dictionary *dicval, int line);
-
-#define is_alpha_numeric(a)  (((a)>=ALPHATOP && (a)<=ALPHAEND) || (a)==YENSIGN)
 
 UChar * u_xstrdup (const UChar *string)
 {
@@ -210,75 +207,66 @@ int convert(UChar *buff1, UChar *buff2)
 				i++;
 			}
 
-			else if (buff1[i]<0x80) {
+			else if (buff1[i]<0x20 && buff1[i]!='\t') { /* ignore control characters */
+				i++;
+			}
+
+			else if (buff1[i]<0x7F) {
 				buff2[j]=buff1[i];
 				i++;
 				j++;
 			}
 
+			else if (buff1[i]<0xA0) { /* ignore control characters */
+				i++;
+			}
+
 			else if (is_latin(buff3)||is_cyrillic(buff3)||is_greek(buff3)
 				 ||is_jpn_kana(buff3)||is_kor_hngl(buff3)||is_zhuyin(buff3)
-					||is_comb_diacritical_mark(buff3)) {
+				 ||is_numeric(buff3)==1||is_type_symbol(buff3)==1
+				 ||is_devanagari(buff3)||is_thai(buff3)
+					||is_type_mark_or_punct(buff3)) {
 				buff2[j]=buff3[0];
 				if (wclen==2) buff2[j+1]=buff3[1];
 				i+=wclen;
 				j+=wclen;
 			}
 
-			else if (buff1[i]>=0x80) {
-				if (is_alpha_numeric(buff3[0])) {
-/*   alpha-numeric,symbols   */
-					for (k=0;k<u_strlen(symboltable);k++) {
-						if (buff3[0]==symboltable[k]) {
-							buff2[j]=k+0x20;
-							if ((buff2[j]>='a')&&(buff2[j]<='z')) buff2[j]-=32;
-							i++;
-							j+=wclen;
-							break;
-						}
-					}
-					if (k==u_strlen(symboltable)) {
-						i++;
-						buff2[j++]=buff3[0];
+			else {
+				for (k=0;k<dlines;k++) {
+/*   dictionary table   */
+					if (u_strncmp(dictable[k].dic[0],&buff1[i],u_strlen(dictable[k].dic[0]))==0) {
+						u_strncpy(&buff2[j],dictable[k].dic[1],u_strlen(dictable[k].dic[1]));
+						i+=u_strlen(dictable[k].dic[0]);
+						j+=u_strlen(dictable[k].dic[1]);
+						break;
 					}
 				}
-
-				else {
-					for (k=0;k<dlines;k++) {
-/*   dictionary table   */
-						if (u_strncmp(dictable[k].dic[0],&buff1[i],u_strlen(dictable[k].dic[0]))==0) {
-							u_strncpy(&buff2[j],dictable[k].dic[1],u_strlen(dictable[k].dic[1]));
+				if ((k==dlines)&&(elines!=0)) {
+/*   environment dictionary table   */
+					for (k=0;k<elines;k++) {
+						if (u_strncmp(envdic[k].dic[0],&buff1[i],u_strlen(envdic[k].dic[0]))==0) {
+							u_strncpy(&buff2[j],envdic[k].dic[1],u_strlen(envdic[k].dic[1]));
 							i+=u_strlen(dictable[k].dic[0]);
-							j+=u_strlen(dictable[k].dic[1]);
+							j+=u_strlen(envdic[k].dic[1]);
 							break;
 						}
 					}
-					if ((k==dlines)&&(elines!=0)) {
-/*   environment dictionary table   */
-						for (k=0;k<elines;k++) {
-							if (u_strncmp(envdic[k].dic[0],&buff1[i],u_strlen(envdic[k].dic[0]))==0) {
-								u_strncpy(&buff2[j],envdic[k].dic[1],u_strlen(envdic[k].dic[1]));
-								i+=u_strlen(dictable[k].dic[0]);
-								j+=u_strlen(envdic[k].dic[1]);
-								break;
-							}
-						}
-					}
-					if (((k==dlines)&&(elines==0))||((k==elines)&&(elines!=0))) {
-						if (is_hanzi(buff3) || force==1) {
+				}
+				if (((k==dlines)&&(elines==0))||((k==elines)&&(elines!=0))) {
+					if (is_hanzi(buff3) || is_numeric(buff3) || is_type_symbol(buff3) || force==1) {
 /*   forced convert   */
-							buff2[j]=buff3[0];
-							if (wclen==2) buff2[j+1]=buff3[1];
-							i+=wclen;
-							j+=wclen;
-						}
-						else {
-							widechar_to_multibyte(errbuff,BUFFERLEN2,&buff1[i]);
-							snprintf(errbuff2,BUFFERLEN3,"\nError: %s is no entry in dictionary file ",errbuff);
-							fputs(errbuff2,efp);
-							if (efp!=stderr) fputs(errbuff2,stderr);
-							return -1;
-						}
+						buff2[j]=buff3[0];
+						if (wclen==2) buff2[j+1]=buff3[1];
+						i+=wclen;
+						j+=wclen;
+					}
+					else {
+						widechar_to_multibyte(errbuff,BUFFERLEN2,&buff1[i]);
+						snprintf(errbuff2,BUFFERLEN3,"\nError: %s is no entry in dictionary file ",errbuff);
+						fputs(errbuff2,efp);
+						if (efp!=stderr) fputs(errbuff2,stderr);
+						return -1;
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2020 Christian Schenk
+## Copyright (C) 2020-2021 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -67,7 +67,6 @@ set(upmendex_sources
   source/kana.h
   source/kp.c
   source/kp.h
-  source/ktable.h
   source/main.c
   source/mendex.h
   source/pageread.c

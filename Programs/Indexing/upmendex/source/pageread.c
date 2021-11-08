@@ -39,7 +39,7 @@ int lastpage(const char *filename)
 		fp=NULL;
 	if (fp==NULL) {
 		fprintf(stderr,"No log file, %s.\n",logfile);
-		exit(0);
+		exit(255);
 	}
 
 	while (1) {

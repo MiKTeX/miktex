@@ -97,7 +97,6 @@
 #include "unicode/uchar.h"
 #include "unicode/ustdio.h"
 #include "unicode/ustring.h"
-#include "unicode/ucnv.h"
 #include "unicode/ucol.h"
 int32_t                 icu_toUChars (BufType_T buf,
                                       BufPointer_T bf_ptr,
@@ -116,6 +115,7 @@ int32_t                 icu_strToUpper (UChar * tarup,
                                 int32_t tucap,
                                 UChar * target,
                                 int32_t tarlen);
+#define  utf8len(a)  ((a)<0x80 ? 1 : ((a)<0xc2 ? -2 : ((a)<0xe0 ? 2 : ((a)<0xf0 ? 3 : ((a)<0xf5 ? 4 : -1)))))
 #endif
 void                    a_close (const AlphaFile_T file_pointer);
 Boolean_T               a_open_in (AlphaFile_T *file_pointer,

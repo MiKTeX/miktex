@@ -4,7 +4,7 @@ FILE *efp;
 
 int lines,idxcount,acc=0,reject=0;
 int prange=1,fsti=0,lorder=0,bcomp=0,force=0,fpage=0,gflg=0,verb=1,debug=0;
-int warn=0,scount=0,pattr[3]={0,0,0};
+int warn=0,scount=0,pattr[PAGE_COMPOSIT_DEPTH]={0};
 /* static char roman[]={"ivxlcdm"},Roman[]={"IVXLCDM"}; */
 
 struct index *ind;
@@ -27,14 +27,15 @@ int line_max=72;
 char indent_space[STYBUFSIZE]={"\t\t"};
 int indent_length=16;
 int priority=0;
-char symbol[STYBUFSIZE]={""};
+char symhead[STYBUFSIZE]={""},numhead[STYBUFSIZE]={""};
 char symhead_positive[STYBUFSIZE]={"Symbols"},symhead_negative[STYBUFSIZE]={"symbols"};
 char numhead_positive[STYBUFSIZE]={"Numbers"},numhead_negative[STYBUFSIZE]={"numbers"};
 int symbol_flag=1;
 int letter_head=1;
-UChar atama[STYBUFSIZE],tumunja[STYBUFSIZE],hanzi_head[STYBUFSIZE]={L'\0'};
+UChar atama[STYBUFSIZE],hangul_head[STYBUFSIZE],hanzi_head[STYBUFSIZE]={L'\0'},kana_head[STYBUFSIZE]={L'\0'};
+UChar devanagari_head[STYBUFSIZE],thai_head[STYBUFSIZE];
 char page_compositor[STYBUFSIZE]={"-"},page_precedence[STYBUFSIZE]={"rnaRA"};
-char character_order[STYBUFSIZE]={"SNLGCJKH"};
+char character_order[STYBUFSIZE]={"SNLGCJKHDT"};
 char icu_locale[STYBUFSIZE]={"root"},icu_rules[STYBUFSIZE]={""};
 int icu_attributes[UCOL_ATTRIBUTE_COUNT];
 

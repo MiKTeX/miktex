@@ -1133,11 +1133,6 @@ main (int argc, char *argv[])
 
   pdf_init_fontmaps(); /* This must come before parsing options... */
 
-#if defined(MIKTEX)
-  miktex_read_config_files();
-  kpse_init_prog("", font_dpi, NULL, NULL);
-  kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
-#else
   read_config_file(DPX_CONFIG_FILE);
 
   /* Current implementation seems to be assuming that paper size read from config
@@ -1146,12 +1141,6 @@ main (int argc, char *argv[])
    */
   has_paper_option = 0;
 
-#ifndef MIKTEX
-  kpse_init_prog("", font_dpi, NULL, NULL);
-  kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
-#endif
-#endif
-  pdf_font_set_dpi(font_dpi);
   if (!dvi_filename) {
     if (verbose)
       MESG("No dvi filename specified, reading standard input.\n");
@@ -1192,6 +1181,19 @@ main (int argc, char *argv[])
       get_enc_password(oplain, uplain);
     }
   }
+
+#if defined(MIKTEX)
+  miktex_read_config_files();
+  kpse_init_prog("", font_dpi, NULL, NULL);
+  kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
+#else
+  /* moved to here because -r option was not effective */
+#ifndef MIKTEX
+  kpse_init_prog("", font_dpi, NULL, NULL);
+  kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
+#endif
+#endif
+  pdf_font_set_dpi(font_dpi);
 
   /* moved to here because image caching was not effective */
   dpx_delete_old_cache(image_cache_life);

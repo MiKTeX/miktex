@@ -9,7 +9,7 @@
 
 #include "kp.h"
 
-char *styfile,*idxfile[256],*indfile,*dicfile,*logfile;
+char *styfile[64],*idxfile[256],*indfile,*dicfile,*logfile;
 
 /* default paths */
 #ifndef DEFAULT_INDEXSTYLES
@@ -22,7 +22,7 @@ KpathseaSupportInfo kp_ist,kp_dict;
 
 int main(int argc, char **argv)
 {
-	int i,j,cc=0,startpagenum=-1,ecount=0,chkopt=1;
+	int i,j,k,cc=0,startpagenum=-1,ecount=0,chkopt=1;
 	const char *envbuff;
 	UVersionInfo icuVersion;
 	char icu_version[U_MAX_VERSION_STRING_LENGTH] = "";
@@ -35,6 +35,8 @@ int main(int argc, char **argv)
 #endif
 #endif
 	kpse_set_program_name(argv[0], "upmendex");
+	u_getVersion(icuVersion);
+	u_versionToString(icuVersion, icu_version);
 
 #if !defined(MIKTEX)
 #ifdef WIN32
@@ -58,7 +60,7 @@ int main(int argc, char **argv)
 
 /*   check options   */
 
-	for (i=1,j=0;i<argc && j<256;i++) {
+	for (i=1,j=k=0;i<argc && j<256;i++) {
 		if ((argv[i][0]=='-')&&(strlen(argv[i])>=2)&&chkopt) {
 			switch (argv[i][1]) {
 			case 'c':
@@ -139,12 +141,17 @@ int main(int argc, char **argv)
 				break;
 
 			case 's':
+				if (k==64) {
+					fprintf (stderr, "Too many style files.\n");
+					exit(255);
+				}
 				if ((argv[i][2]=='\0')&&(i+1<argc)) {
-					styfile=xstrdup(argv[++i]);
+					styfile[k]=xstrdup(argv[++i]);
 				}
 				else {
-					styfile=xstrdup(&argv[i][2]);
+					styfile[k]=xstrdup(&argv[i][2]);
 				}
+				k++;
 				break;
 
 			case 'v':
@@ -156,10 +163,8 @@ int main(int argc, char **argv)
 				if (strcmp(argv[i],"--help")!=0) break;
 
 			default:
-				u_getVersion(icuVersion);
-				u_versionToString(icuVersion, icu_version);
 				fprintf(stderr,"upmendex - index processor, %s (%s).\n",VERSION, TL_VERSION);
-				fprintf(stderr," Copyright 2009 ASCII MEDIA WORKS, 2015-2020 TANAKA Takuji\n");
+				fprintf(stderr," Copyright 2009 ASCII MEDIA WORKS, 2015-2021 TANAKA Takuji\n");
 				fprintf(stderr," using ICU version %s\n",icu_version);
 				fprintf(stderr,"usage:\n");
 				fprintf(stderr,"%% upmendex [-ilqrcgf] [-s sty] [-d dic] [-o ind] [-t log] [-p no] [--] [idx0 idx1 ...]\n");
@@ -194,10 +199,10 @@ int main(int argc, char **argv)
 
 	if (idxcount==0) idxcount=fsti=1;
 
-	if (styfile==NULL) {
+	if (styfile[0]==NULL) {
 		envbuff=kpse_var_value("INDEXDEFAULTSTYLE");
 		if (envbuff!=NULL) {
-			styfile=xstrdup(envbuff);
+			styfile[0]=xstrdup(envbuff);
 		}
 	}
 
@@ -231,24 +236,29 @@ int main(int argc, char **argv)
 		logfile=xstrdup("stderr");
 	}
 
-/*   init hangul tumunja table   */
-	u_strcpy(tumunja,GANADA);
-	if (styfile!=NULL) styread(styfile);
-
-	set_icu_attributes();
-
 	if (strcmp(argv[0],"makeindex")==0) {
-		verb_printf(efp,"This is Not `MAKEINDEX\', But `UPMENDEX\' %s (%s).\n",
-			    VERSION, TL_VERSION);
+		verb_printf(efp,"This is Not `MAKEINDEX\', But `UPMENDEX\' %s [ICU %s] (%s).\n",
+			    VERSION, icu_version, TL_VERSION);
 	}
 	else {
-		verb_printf(efp,"This is upmendex %s (%s).\n",
-			    VERSION, TL_VERSION);
+		verb_printf(efp,"This is upmendex %s [ICU %s] (%s).\n",
+			    VERSION, icu_version, TL_VERSION);
 	}
 
 /*   init kanatable   */
 
 	initkanatable();
+
+/*   init hangul,devanagari,thai *_head table   */
+	u_strcpy(hangul_head,GANADA);
+	u_strcpy(devanagari_head,DVNG_HEAD);
+	u_strcpy(thai_head,THAI_HEAD);
+
+	for (k=0;styfile[k]!=NULL;k++) {
+		styread(styfile[k]);
+	}
+
+	set_icu_attributes();
 
 /*   read dictionary   */
 
@@ -277,6 +287,7 @@ int main(int argc, char **argv)
 	default:
 		break;
 	}
+	if (u_strlen(kana_head)>0) u_strcpy(atama,kana_head);
 
 /*   read idx file   */
 

@@ -47,8 +47,9 @@ void styread(const char *filename)
 		fp=NULL;
 	if (fp==NULL) {
 		fprintf(stderr,"%s does not exist.\n",filename);
-		exit(0);
+		exit(255);
 	}
+	verb_printf(efp,"Scanning style file %s.",filename);
 
 	for (i=0;;i++) {
 		if (fgets(buff,4095,fp)==NULL) break;
@@ -64,6 +65,8 @@ void styread(const char *filename)
 		if (getparachar(buff,"escape",&escape)) continue;
 		if (getparam(buff,"preamble",preamble)) continue;
 		if (getparam(buff,"postamble",postamble)) continue;
+		if (getparam(buff,"setpage_prefix",setpage_prefix)) continue;
+		if (getparam(buff,"setpage_suffix",setpage_suffix)) continue;
 		if (getparam(buff,"group_skip",group_skip)) continue;
 		if (getparam(buff,"lethead_prefix",lethead_prefix)) continue;
 		if (getparam(buff,"heading_prefix",lethead_prefix)) continue;
@@ -73,13 +76,9 @@ void styread(const char *filename)
 		if (getparam(buff,"symhead_negative",symhead_negative)) continue;
 		if (getparam(buff,"numhead_positive",numhead_positive)) continue;
 		if (getparam(buff,"numhead_negative",numhead_negative)) continue;
-		cc=scompare(buff,"lethead_flag");
-		if (cc!= -1) {
-			lethead_flag=atoi(&buff[cc]);
-			continue;
-		}
-		cc=scompare(buff,"heading_flag");
-		if (cc!= -1) {
+		if ( (cc=scompare(buff,"lethead_flag")) != -1 ||
+		     (cc=scompare(buff,"heading_flag")) != -1 ||
+		     (cc=scompare(buff,"headings_flag")) != -1 ) {
 			lethead_flag=atoi(&buff[cc]);
 			continue;
 		}
@@ -90,7 +89,6 @@ void styread(const char *filename)
 		}
 		if (getparam(buff,"item_0",item_0)) continue;
 		if (getparam(buff,"item_1",item_1)) continue;
-		if (getparam(buff,"item_2",item_2)) continue;
 		if (getparam(buff,"item_2",item_2)) continue;
 		if (getparam(buff,"item_01",item_01)) continue;
 		if (getparam(buff,"item_x1",item_x1)) continue;
@@ -119,7 +117,7 @@ void styread(const char *filename)
 			indent_length=atoi(&buff[cc]);
 			continue;
 		}
-		if (getparam(buff,"symbol",symbol)) continue;
+		if (getparam(buff,"symbol",symhead)) continue;
 		cc=scompare(buff,"symbol_flag");
 		if (cc!= -1) {
 			symbol_flag=atoi(&buff[cc]);
@@ -130,16 +128,24 @@ void styread(const char *filename)
 			letter_head=atoi(&buff[cc]);
 			continue;
 		}
-		if (getparam(buff,"atama",tmp)) {
-			multibyte_to_widechar(atama,STYBUFSIZE,tmp);
+		if (getparam(buff,"kana_head",tmp)) {
+			multibyte_to_widechar(kana_head,STYBUFSIZE,tmp);
 			continue;
 		}
-		if (getparam(buff,"tumunja",tmp)) {
-			multibyte_to_widechar(tumunja,STYBUFSIZE,tmp);
+		if (getparam(buff,"hangul_head",tmp) || getparam(buff,"tumunja",tmp)) {
+			multibyte_to_widechar(hangul_head,STYBUFSIZE,tmp);
 			continue;
 		}
 		if (getparam(buff,"hanzi_head",tmp)) {
 			multibyte_to_widechar(hanzi_head,STYBUFSIZE,tmp);
+			continue;
+		}
+		if (getparam(buff,"thai_head",tmp)) {
+			multibyte_to_widechar(thai_head,STYBUFSIZE,tmp);
+			continue;
+		}
+		if (getparam(buff,"devanagari_head",tmp)) {
+			multibyte_to_widechar(devanagari_head,STYBUFSIZE,tmp);
 			continue;
 		}
 		if (getparam(buff,"page_compositor",page_compositor)) continue;
@@ -154,8 +160,17 @@ void styread(const char *filename)
 			continue;
 		}
 		if (getparam(buff,"icu_attributes", icu_attr_str   )) continue;
+
+		cc=strcspn(buff," \t\r\n");
+		if (cc>0) buff[cc]='\0';
+		if (buff[0]=='%' || buff[0]=='\n') continue;
+		if (strlen(buff)>0) {
+			verb_printf(efp,"\nWarning: Unknown specifier (%s).", buff);
+		}
 	}
 	fclose(fp);
+
+	verb_printf(efp,"...done.\n");
 }
 
 /*   analize string parameter of style file   */
@@ -164,6 +179,10 @@ static void convline(char *buff1, int start, char *buff2)
 	int i,j,cc;
 
 	for (i=start,j=cc=0;;i++) {
+		if (j==STYBUFSIZE-1) {
+			buff2[j]='\0';
+			break;
+		}
 		if (buff1[i]=='\"') {
 			if (cc==0) {
 				cc=1;
@@ -190,6 +209,10 @@ static void convline(char *buff1, int start, char *buff2)
 				if (len<0) {
 					verb_printf(efp,"\nWarning: Illegal input of lead byte 0x%x in UTF-8.", (unsigned char)buff1[i]);
 					continue;
+				}
+				else if (j+len>STYBUFSIZE-1) {
+					buff2[j]='\0';
+					break;
 				}
 				while(len--) {
 					buff2[j++]=buff1[i++];
@@ -296,48 +319,62 @@ static int sstrncmp(const char *s1, const char *s2, size_t len)
 void set_icu_attributes(void)
 {
 	int i,attr;
-	char *pos, *tmp;
+	char *pos, *head, *tmp;
 
 	for (i=0;i<UCOL_ATTRIBUTE_COUNT;i++) icu_attributes[i]=UCOL_DEFAULT;
 	tmp=icu_attr_str;
-	if ((pos=strstr(tmp,"alternate:"))>0) {
+	head=strtok(tmp, " \t\r\n");
+	while (head!=NULL) {
+	    pos=head;
+	    if (strncmp(pos,"alternate:",10)==0) {
 		pos+=10;  attr=UCOL_ALTERNATE_HANDLING;
-		if      (strstr(pos,"shifted"))       icu_attributes[attr]=UCOL_SHIFTED;
-		else if (strstr(pos,"non-ignorable")) icu_attributes[attr]=UCOL_NON_IGNORABLE;
-		else	verb_printf(efp,"\nWarning: Illegal input for icu_attributes (alternate).");
-	}
-	if ((pos=strstr(tmp,"strength:"))>0) {
+		if      (strcmp(pos,"shifted")==0)       icu_attributes[attr]=UCOL_SHIFTED;
+		else if (strcmp(pos,"non-ignorable")==0) icu_attributes[attr]=UCOL_NON_IGNORABLE;
+		else	goto illegal;
+	    } else
+	    if (strncmp(pos,"strength:",9)==0) {
 		pos+=9;   attr=UCOL_STRENGTH;
-		if      (strstr(pos,"primary"))       icu_attributes[attr]=UCOL_PRIMARY;
-		else if (strstr(pos,"secondary"))     icu_attributes[attr]=UCOL_SECONDARY;
-		else if (strstr(pos,"tertiary"))      icu_attributes[attr]=UCOL_TERTIARY;
-		else if (strstr(pos,"quaternary"))    icu_attributes[attr]=UCOL_QUATERNARY;
-		else if (strstr(pos,"identical"))     icu_attributes[attr]=UCOL_IDENTICAL;
-		else	verb_printf(efp,"\nWarning: Illegal input for icu_attributes (strength).");
-	}
-	if ((pos=strstr(tmp,"french-collation:"))>0) {
+		if      (strcmp(pos,"primary")==0)       icu_attributes[attr]=UCOL_PRIMARY;
+		else if (strcmp(pos,"secondary")==0)     icu_attributes[attr]=UCOL_SECONDARY;
+		else if (strcmp(pos,"tertiary")==0)      icu_attributes[attr]=UCOL_TERTIARY;
+		else if (strcmp(pos,"quaternary")==0)    icu_attributes[attr]=UCOL_QUATERNARY;
+		else if (strcmp(pos,"identical")==0)     icu_attributes[attr]=UCOL_IDENTICAL;
+		else	goto illegal;
+	    } else
+	      if (strncmp(pos,"french-collation:",17)==0) {
 		pos+=17;  attr=UCOL_FRENCH_COLLATION;
-		if      (strstr(pos,"on"))            icu_attributes[attr]=UCOL_ON;
-		else if (strstr(pos,"off"))           icu_attributes[attr]=UCOL_OFF;
-		else	verb_printf(efp,"\nWarning: Illegal input for icu_attributes (french-collation).");
-	}
-	if ((pos=strstr(tmp,"case-first:"))>0) {
+		if      (strcmp(pos,"on")==0)            icu_attributes[attr]=UCOL_ON;
+		else if (strcmp(pos,"off")==0)           icu_attributes[attr]=UCOL_OFF;
+		else	goto illegal;
+	    } else
+	    if (strncmp(pos,"case-first:",11)==0) {
 		pos+=11;  attr=UCOL_CASE_FIRST;
-		if      (strstr(pos,"off"))           icu_attributes[attr]=UCOL_OFF;
-		else if (strstr(pos,"upper-first"))   icu_attributes[attr]=UCOL_UPPER_FIRST;
-		else if (strstr(pos,"lower-first"))   icu_attributes[attr]=UCOL_LOWER_FIRST;
-		else	verb_printf(efp,"\nWarning: Illegal input for icu_attributes (case-first).");
-	}
-	if ((pos=strstr(tmp,"case-level:"))>0) {
+		if      (strcmp(pos,"off")==0)           icu_attributes[attr]=UCOL_OFF;
+		else if (strcmp(pos,"upper-first")==0)   icu_attributes[attr]=UCOL_UPPER_FIRST;
+		else if (strcmp(pos,"lower-first")==0)   icu_attributes[attr]=UCOL_LOWER_FIRST;
+		else	goto illegal;
+	    } else
+	    if (strncmp(pos,"case-level:",11)==0) {
 		pos+=11;  attr=UCOL_CASE_LEVEL;
-		if      (strstr(pos,"on"))            icu_attributes[attr]=UCOL_ON;
-		else if (strstr(pos,"off"))           icu_attributes[attr]=UCOL_OFF;
-		else	verb_printf(efp,"\nWarning: Illegal input for icu_attributes (case-level).");
-	}
-	if ((pos=strstr(tmp,"normalization-mode:"))>0) {
+		if      (strcmp(pos,"on")==0)            icu_attributes[attr]=UCOL_ON;
+		else if (strcmp(pos,"off")==0)           icu_attributes[attr]=UCOL_OFF;
+		else	goto illegal;
+	    } else
+	    if (strncmp(pos,"normalization-mode:",19)==0) {
 		pos+=19;  attr=UCOL_NORMALIZATION_MODE;
-		if      (strstr(pos,"on"))            icu_attributes[attr]=UCOL_ON;
-		else if (strstr(pos,"off"))           icu_attributes[attr]=UCOL_OFF;
-		else	verb_printf(efp,"\nWarning: Illegal input for icu_attributes (normalization-mode).");
+		if      (strcmp(pos,"on")==0)            icu_attributes[attr]=UCOL_ON;
+		else if (strcmp(pos,"off")==0)           icu_attributes[attr]=UCOL_OFF;
+		else	goto illegal;
+	    } else
+	    if (strncmp(pos,"numeric-ordering:",17)==0) {
+		pos+=17;  attr=UCOL_NUMERIC_COLLATION;
+		if      (strcmp(pos,"on")==0)            icu_attributes[attr]=UCOL_ON;
+		else if (strcmp(pos,"off")==0)           icu_attributes[attr]=UCOL_OFF;
+		else	goto illegal;
+	    } else {
+	illegal:
+		verb_printf(efp,"\nWarning: Illegal input for icu_attributes (%s).",head);
+	    }
+	    head=strtok(NULL, " \t\r\n");
 	}
 }

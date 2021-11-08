@@ -2928,22 +2928,21 @@ Boolean_T         less_than (CiteNumber_T arg1, CiteNumber_T arg2)
 BEGIN
   StrEntLoc_T		ptr1,
 			ptr2;
+  Boolean_T		less_than;
 #ifdef UTF_8
 /*
-We use ICU libs to processing UTF-8. First, we have to transform UTF-8 to 
-Unicode/UChar with the fonction icu_UCHars. Then we use the UCollator 
-in the ICU libs to conparer the Unicode. There is an option "location", 
-we use "-o" to indicate the rule of conpare.             23/sep/2009
+We use ICU Collator ucol_strcollUTF8() to compare the Unicode in UTF-8.
+There is a command line option "-o", "--location" to set the rule of collation.
 */
   Integer_T lenk1, lenk2;
-  UChar uch1[BUF_SIZE+1], uch2[BUF_SIZE+1];
-  UBool u_less;
-  UCollator * ucol1;
-  int32_t ucap = BUF_SIZE+1;
-  int32_t uchlen1, uchlen2;
+  UBool u_cmp;
   UErrorCode err1 = U_ZERO_ERROR;
+#if defined(MIKTEX)
+  const
+#endif
+  char *eos1, *eos2;
+  const char *ustr1, *ustr2;
 #else
-  Boolean_T		less_than;
   Integer_T		char_ptr;
   ASCIICode_T		char1,
 			char2;
@@ -2956,60 +2955,39 @@ we use "-o" to indicate the rule of conpare.             23/sep/2009
   ptr1 = (arg1 * num_ent_strs) + sort_key_num;
   ptr2 = (arg2 * num_ent_strs) + sort_key_num;
 #ifdef UTF_8
-  lenk1 = strlen((char *)&ENTRY_STRS(ptr1, 0));
-  lenk2 = strlen((char *)&ENTRY_STRS(ptr2, 0));
+  ustr1 = (const char *)&ENTRY_STRS(ptr1, 0);
+  ustr2 = (const char *)&ENTRY_STRS(ptr2, 0);
+  eos1 = strchr(ustr1, END_OF_STRING);
+  eos2 = strchr(ustr2, END_OF_STRING);
+  lenk1 = eos1 ? eos1-ustr1 : strlen(ustr1);
+  lenk2 = eos2 ? eos2-ustr2 : strlen(ustr2);
 
-/*
-icu_toUChars() seems not working here, using u_strFromUTF8 instead. (04/mar/2019)
-*/
-
-/*
-Use u_strFromUTF8WithSub() with a substitution character 0xfffd,
-instead of u_strFromUTF8(). (05/mar/2019)
-If err1 != U_ZERO_ERROR, the original functions are used. (06/mar/2019)
-*/
-
-/*
-  uchlen1 = icu_toUChars(entry_strs, (ptr1 * (ENT_STR_SIZE+1)), lenk1, uch1, ucap);
-  uchlen2 = icu_toUChars(entry_strs, (ptr2 * (ENT_STR_SIZE+1)), lenk2, uch2, ucap);
-*/
-
-  u_strFromUTF8WithSub(uch1, ucap, &uchlen1, (char *)&ENTRY_STRS(ptr1, 0), lenk1, 0xfffd, NULL, &err1);
-  if (!U_SUCCESS(err1)) {
-    printf("Error in u_strFromUTF8WithSub 1.\n");
-#ifdef TRACE
-    if (Flag_trace)
-      TRACE_PR_LN ("Error in u_strFromUTF8WithSub 1");
-#endif                      			/* TRACE */
-    uchlen1 = icu_toUChars(entry_strs, (ptr1 * (ENT_STR_SIZE+1)), lenk1, uch1, ucap);
-    err1 = U_ZERO_ERROR;
-  }
-
-  u_strFromUTF8WithSub(uch2, ucap, &uchlen2, (char *)&ENTRY_STRS(ptr2, 0), lenk2, 0xfffd, NULL, &err1);
-  if (!U_SUCCESS(err1)) {
-    printf("Error in u_strFromUTF8WithSub 2.\n");
-#ifdef TRACE
-    if (Flag_trace)
-      TRACE_PR_LN ("Error in u_strFromUTF8WithSub 2");
-#endif                      			/* TRACE */
-    uchlen2 = icu_toUChars(entry_strs, (ptr2 * (ENT_STR_SIZE+1)), lenk2, uch2, ucap);
-    err1 = U_ZERO_ERROR;
-  }
-
-  if(Flag_location)
-    ucol1 = ucol_open(Str_location, &err1);
-  else
-    ucol1 = ucol_open(NULL, &err1);
+  u_cmp = ucol_strcollUTF8(u_coll, ustr1, lenk1, ustr2, lenk2, &err1);
   if (!U_SUCCESS(err1))
-    printf("Error in opening a ucol in less_than.\n");
-  u_less = !ucol_greaterOrEqual(ucol1, uch1, uchlen1, uch2, uchlen2);
+  BEGIN
+	printf("Error in ucol_strcollUTF8.\n");
 #ifdef TRACE
-  if (Flag_trace)
-    TRACE_PR_LN2 ("... first is smaller than second? -- %s (ICU)", (u_less?"T":"F"));
+	if (Flag_trace)
+		TRACE_PR_LN ("Error in ucol_strcollUTF8");
 #endif                      			/* TRACE */
+  END
 
-  ucol_close(ucol1);
-  return u_less;
+  if (u_cmp==UCOL_EQUAL)
+      BEGIN
+        if (arg1 < arg2)
+        BEGIN
+	  COMPARE_RETURN (TRUE);
+	END
+        else if (arg1 > arg2)
+        BEGIN
+	  COMPARE_RETURN (FALSE);
+        END
+        else
+        BEGIN
+          CONFUSION ("Duplicate sort key");
+        END
+      END
+  less_than = u_cmp==UCOL_LESS;
 #else
   char_ptr = 0;
   LOOP
@@ -3052,13 +3030,13 @@ If err1 != U_ZERO_ERROR, the original functions are used. (06/mar/2019)
     END
     INCR (char_ptr);
   END
+#endif
 Exit_Label:
 #ifdef TRACE
   if (Flag_trace)
     TRACE_PR_LN2 ("... first is smaller than second? -- %s", (less_than?"T":"F"));
 #endif                      			/* TRACE */
   return (less_than);
-#endif
 END
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 301 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
 
@@ -3100,10 +3078,10 @@ END
 
 #ifdef UTF_8
 /*
-"lower_case_uni" is the fonction for processing the characters, actually the UTF-8.
+"lower_case_uni" is the function for processing the characters, actually the UTF-8.
 We transform UTF-8 to Unicode, then to low case, then back to UTF-8 for output.
 When we transform the character, the length have been changed. So we have do 
-some job for the length. And the output of this fonction we should be careful 
+some job for the length. And the output of this function we should be careful 
 to the length.                                                   23/sep/2009
 */
 BufPointer_T       lower_case_uni (BufType_T buf, BufPointer_T bf_ptr,
@@ -3156,18 +3134,14 @@ END
 
 
 /*
-This fonction is for transform UTF-8 to Unicode with ICU libs.		 23/sep/2009
+This function is for transform UTF-8 to Unicode with ICU libs. 23/sep/2009
 */
 int32_t icu_toUChars(BufType_T buf, BufPointer_T bf_ptr,BufPointer_T len,UChar * target, int32_t tarcap)
 BEGIN
-	UConverter * ucon1;
 	UErrorCode err1 = U_ZERO_ERROR;
-	ucon1 = ucnv_open(NULL, &err1);
-	if (!U_SUCCESS(err1))
-	BEGIN
-		printf("Error in opening a ucnv in icu_toUChars.\n");
-	END
-	ucnv_toUChars(ucon1, target, tarcap, (char *)&buf[bf_ptr], len, &err1);
+	int32_t tulen;
+
+	u_strFromUTF8WithSub(target, tarcap, &tulen, (char *)&buf[bf_ptr], len, 0xfffd, NULL, &err1);
 	if (!U_SUCCESS(err1))
 	BEGIN
 		printf("Error in icu_toUChars.\n");
@@ -3176,22 +3150,17 @@ BEGIN
 			TRACE_PR_LN ("Error in icu_toUChars");
 #endif                      			/* TRACE */
 	END
-	ucnv_close(ucon1);
 	
-	return len;
+	return tulen;
 END
 
 /*
-This fonction is for transform Unicode string to low case. 23/sep/2009
+This function is for transform Unicode string to low case. 23/sep/2009
 */
 int32_t icu_strToLower(UChar * tarlow, int32_t tlcap, UChar * target, int32_t tarlen)
 BEGIN
 	int32_t tllen;
 	UErrorCode err1 = U_ZERO_ERROR;
-	if (!U_SUCCESS(err1))
-	BEGIN
-		printf("Error in icu_strToLower?\n");
-	END
 	if (Flag_language)
 	{
 		tllen=u_strToLower(tarlow,tlcap, target,tarlen,Str_language,&err1);
@@ -3225,19 +3194,14 @@ END
 
 
 /*
-This fonction is for transform Unicode to UTF-8. 23/sep/2009
+This function is for transform Unicode to UTF-8. 23/sep/2009
 */
 int32_t icu_fromUChars(unsigned char * dest, int32_t destcap, const UChar * src, int32_t srclen)
 BEGIN
-	UConverter * ucon2;
 	UErrorCode err2 = U_ZERO_ERROR;
 	int32_t tblen;
-	ucon2 = ucnv_open(NULL, &err2);
-	if (!U_SUCCESS(err2))
-	BEGIN
-		printf("Error in opening a ucnv in icu_fromUChars.\n");
-	END
-	tblen=ucnv_fromUChars(ucon2, (char *)dest, destcap, src, srclen, &err2);
+
+	u_strToUTF8WithSub((char *)dest, destcap, &tblen, src, srclen, 0xfffd, NULL, &err2);
 	if (!U_SUCCESS(err2))
 	BEGIN
 		printf("Error in icu_fromUChars.\n");

@@ -307,8 +307,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="23" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.23' {current \pdfTeX\ version}
+@d pdftex_revision=="24" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.24' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.141592653',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -16437,10 +16437,11 @@ well.
 @d obj_type_font                == 3 {index of linked list of Fonts objects}
 @d obj_type_outline             == 4 {index of linked list of outline objects}
 @d obj_type_dest                == 5 {index of linked list of destination objects}
-@d obj_type_obj                 == 6 {index of linked list of raw objects}
-@d obj_type_xform               == 7 {index of linked list of XObject forms}
-@d obj_type_ximage              == 8 {index of linked list of XObject image}
-@d obj_type_thread              == 9 {index of linked list of num article threads}
+@d obj_type_struct_dest         == 6 {index of linked list of structure destination objects}
+@d obj_type_obj                 == 7 {index of linked list of raw objects}
+@d obj_type_xform               == 8 {index of linked list of XObject forms}
+@d obj_type_ximage              == 9 {index of linked list of XObject image}
+@d obj_type_thread              == 10 {index of linked list of num article threads}
 @d head_tab_max                 == obj_type_thread {max index of |head_tab|}
 
 @# {max number of kids for balanced trees}
@@ -16558,7 +16559,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @d pdf_action_user         == 3 {user-defined action}
 
 @# {data structure of actions}
-@d pdf_action_size         == 3 {size of action structure in |mem|}
+@d pdf_action_size         == 4 {size of action structure in |mem|}
 @d pdf_action_type         == type {action type}
 @d pdf_action_named_id     == subtype {identifier is type of name}
 @d pdf_action_id           == link {destination/thread name identifier}
@@ -16567,6 +16568,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @d pdf_action_page_tokens(#) == info(# + 2) {specification of GoTo page action}
 @d pdf_action_user_tokens(#) == info(# + 2) {user-defined action string}
 @d pdf_action_refcount(#)  == link(# + 2) {counter of references to this action}
+@d pdf_action_struct_id(#) == link(# + 3) {structure destination identifier}
 
 @# {data structure of outlines; it's not able to write out outline entries
 before all outline entries are defined, so memory allocated for outline
@@ -16597,7 +16599,7 @@ action}
 @d pdf_dest_fitbv           == 6
 @d pdf_dest_fitr            == 7
 
-@# {data structure of destinations}
+@# {data structure of structure and regular destinations}
 @d obj_dest_ptr             == obj_aux {pointer to |pdf_dest_node|}
 @d pdf_dest_node_size       == 7 {size of whatsit node for destination;
 words |1..4| hold dest dimensions, word |6| identifier type, subtype
@@ -19518,13 +19520,18 @@ if pdf_dest_list <> null then begin
                 "destination has been already written (this shouldn't happen)")
         else begin
             i := obj_dest_ptr(info(k));
-            if pdf_dest_named_id(i) > 0 then begin
+            if (pdf_dest_named_id(i) > 0) and (pdf_dest_objnum(i) = null) then begin
                 pdf_begin_dict(info(k), 1);
                 pdf_print("/D ");
             end
             else
                 pdf_begin_obj(info(k), 1);
-            pdf_out("["); pdf_print_int(pdf_last_page); pdf_print(" 0 R ");
+            pdf_out("[");
+            if pdf_dest_objnum(i) = null then
+              pdf_print_int(pdf_last_page)
+            else
+              pdf_print_int(pdf_dest_objnum(i));
+            pdf_print(" 0 R ");
             case pdf_dest_type(i) of
             pdf_dest_xyz: begin
                 pdf_print("/XYZ ");
@@ -19565,7 +19572,7 @@ if pdf_dest_list <> null then begin
             othercases pdf_error("ext5", "unknown dest type");
             endcases;
             pdf_print_ln("]");
-            if pdf_dest_named_id(i) > 0 then
+            if (pdf_dest_named_id(i) > 0) and (pdf_dest_objnum(i) = null) then
                 pdf_end_dict
             else
                 pdf_end_obj;
@@ -19838,6 +19845,7 @@ else begin
         @<Check for non-existing pages@>;
         @<Reverse the linked list of Page and Pages objects@>;
         @<Check for non-existing destinations@>;
+        @<Check for non-existing structure destinations@>;
         @<Output fonts definition@>;
         @<Output pages tree@>;
         @<Output outlines@>;
@@ -19899,6 +19907,39 @@ end;
 k := head_tab[obj_type_dest];
 while k <> 0 do begin
     pdf_fix_dest(k);
+    k := obj_link(k);
+end
+
+@ The same for structure destinations, except that there is no sensible default
+object to point to.
+
+@p procedure pdf_fix_struct_dest(k: integer);
+begin
+    if obj_dest_ptr(k) <> null then
+        return;
+    pdf_warning("structure dest", "", false, false);
+    if obj_info(k) < 0 then begin
+        print("name{");
+        print(-obj_info(k));
+        print("}");
+    end
+    else begin
+        print("num");
+        print_int(obj_info(k));
+    end;
+    print(" has been referenced but does not exist");
+    print_ln; print_ln;
+    @{pdf_begin_obj(k, 1);
+    pdf_out("[");
+    pdf_print_int(head_tab[obj_type_page]);
+    pdf_print_ln(" 0 R /Fit]");
+    pdf_end_obj;@}
+end;
+
+@ @<Check for non-existing structure destinations@>=
+k := head_tab[obj_type_struct_dest];
+while k <> 0 do begin
+    pdf_fix_struct_dest(k);
     k := obj_link(k);
 end
 
@@ -33931,8 +33972,10 @@ begin
                 delete_token_ref(pdf_action_file(#));
             if pdf_action_type(#) = pdf_action_page then
                 delete_token_ref(pdf_action_page_tokens(#))
-            else if pdf_action_named_id(#) > 0 then
+            else if (pdf_action_named_id(#) and 1) = 1 then
                 delete_token_ref(pdf_action_id(#));
+            if (pdf_action_named_id(#) and 2) = 2 then
+                delete_token_ref(pdf_action_struct_id(#));
         end;
         free_node(#, pdf_action_size);
     end
@@ -34528,7 +34571,7 @@ begin
         else
             pdf_create_obj(t, i);
         r := obj_ptr;
-        if t = obj_type_dest then
+        if (t = obj_type_dest) or (t = obj_type_struct_dest) then
             obj_dest_ptr(r) := null;
     end;
     if s <> 0 then
@@ -34570,10 +34613,35 @@ begin
         pdf_action_user_tokens(p) := def_ref;
         return;
     end;
+    pdf_action_named_id(p) := 0;
     if scan_keyword("file") then begin
         scan_pdf_ext_toks;
         pdf_action_file(p) := def_ref;
     end;
+    if scan_keyword("struct") then begin
+        if pdf_action_type(p) <> pdf_action_goto then
+            pdf_error("ext1", "only GoTo action can be used with `struct'");
+        if pdf_action_file(p) <> null then begin
+            scan_pdf_ext_toks;
+            pdf_action_named_id(p) := pdf_action_named_id(p) + 2;
+            pdf_action_struct_id(p) := def_ref;
+        end
+        else if scan_keyword("name") then begin
+            scan_pdf_ext_toks;
+            pdf_action_named_id(p) := pdf_action_named_id(p) + 2;
+            pdf_action_struct_id(p) := def_ref;
+        end
+        else if scan_keyword("num") then begin
+            scan_int;
+            if cur_val <= 0 then
+                pdf_error("ext1", "num identifier must be positive");
+            pdf_action_struct_id(p) := cur_val;
+        end
+        else
+            pdf_error("ext1", "identifier type missing");
+    end
+    else
+        pdf_action_struct_id(p) := null;
     if scan_keyword("page") then begin
         if pdf_action_type(p) <> pdf_action_goto then
             pdf_error("ext1", "only GoTo action can be used with `page'");
@@ -34582,13 +34650,12 @@ begin
         if cur_val <= 0 then
             pdf_error("ext1", "page number must be positive");
         pdf_action_id(p) := cur_val;
-        pdf_action_named_id(p) := 0;
         scan_pdf_ext_toks;
         pdf_action_page_tokens(p) := def_ref;
     end
     else if scan_keyword("name") then begin
         scan_pdf_ext_toks;
-        pdf_action_named_id(p) := 1;
+        pdf_action_named_id(p) := pdf_action_named_id(p) + 1;
         pdf_action_id(p) := def_ref;
     end
     else if scan_keyword("num") then begin
@@ -34599,7 +34666,6 @@ begin
         scan_int;
         if cur_val <= 0 then
             pdf_error("ext1", "num identifier must be positive");
-        pdf_action_named_id(p) := 0;
         pdf_action_id(p) := cur_val;
     end
     else
@@ -34819,6 +34885,16 @@ begin
     check_pdfoutput("\pdfdest", true);
     q := tail;
     new_whatsit(pdf_dest_node, pdf_dest_node_size);
+    if scan_keyword("struct") then begin
+        scan_int;
+        if cur_val <= 0 then
+            pdf_error("ext1", "struct identifier must be positive");
+        pdf_dest_objnum(tail) := cur_val;
+        j := obj_type_struct_dest;
+    end else begin
+        pdf_dest_objnum(tail) := null;
+        j := obj_type_dest;
+    end;
     if scan_keyword("num") then begin
         scan_int;
         if cur_val <= 0 then
@@ -34871,11 +34947,11 @@ begin
     end;
     if pdf_dest_named_id(tail) <> 0 then begin
         i := tokens_to_string(pdf_dest_id(tail));
-        k := find_obj(obj_type_dest, i, true);
+        k := find_obj(j, i, true);
         flush_str(i);
     end
     else
-        k := find_obj(obj_type_dest, pdf_dest_id(tail), false);
+        k := find_obj(j, pdf_dest_id(tail), false);
     if (k <> 0) and (obj_dest_ptr(k) <> null) then begin
         warn_dest_dup(pdf_dest_id(tail), pdf_dest_named_id(tail),
                       "ext4", "has been already used, duplicate ignored");
@@ -35410,7 +35486,7 @@ pdf_start_link_node: begin
         end;
         case pdf_action_type(pdf_link_action(p)) of
         pdf_action_goto: begin
-            if pdf_action_named_id(pdf_link_action(p)) > 0 then begin
+            if (pdf_action_named_id(pdf_link_action(p)) mod 2) = 1 then begin
                 print(" goto name");
                 print_mark(pdf_action_id(pdf_link_action(p)));
             end
@@ -35425,7 +35501,7 @@ pdf_start_link_node: begin
             print_mark(pdf_action_page_tokens(pdf_link_action(p)));
         end;
         pdf_action_thread: begin
-            if pdf_action_named_id(pdf_link_action(p)) > 0 then begin
+            if (pdf_action_named_id(pdf_link_action(p)) mod 2) = 1 then begin
                 print(" thread name");
                 print_mark(pdf_action_id(pdf_link_action(p)));
             end
@@ -36102,11 +36178,11 @@ begin
         if pdf_action_file(p) = null then begin
             pdf_print("/S /GoTo ");
             d := get_obj(obj_type_dest, pdf_action_id(p),
-                         pdf_action_named_id(p));
+                         pdf_action_named_id(p) mod 2);
         end
         else
             pdf_print("/S /GoToR ");
-        if pdf_action_named_id(p) > 0 then begin
+        if (pdf_action_named_id(p) mod 2) = 1 then begin
             pdf_str_entry("D", tokens_to_string(pdf_action_id(p)));
             flush_str(last_tokens_string);
         end
@@ -36119,8 +36195,8 @@ begin
         pdf_print("/S /Thread ");
         if pdf_action_file(p) = null then
             d := get_obj(obj_type_thread, pdf_action_id(p),
-                         pdf_action_named_id(p));
-        if pdf_action_named_id(p) > 0 then begin
+                         pdf_action_named_id(p) mod 2);
+        if (pdf_action_named_id(p) mod 2) = 1 then begin
             pdf_str_entry("D", tokens_to_string(pdf_action_id(p)));
             flush_str(last_tokens_string);
         end
@@ -36130,6 +36206,18 @@ begin
             pdf_int_entry("D", pdf_action_id(p));
     end;
     endcases;
+    if pdf_action_struct_id(p) <> null then begin
+        pdf_out(" ");
+        if pdf_action_file(p) = null then
+            pdf_indirect("SD", get_obj(obj_type_struct_dest,
+                                       pdf_action_struct_id(p),
+                                       (pdf_action_named_id(p) div 2) mod 2))
+        else begin
+            pdf_print("/SD ");
+            pdf_print(tokens_to_string(pdf_action_struct_id(p)));
+            flush_str(last_tokens_string);
+        end;
+    end;
     pdf_print_ln(" >>");
 end;
 
@@ -36410,7 +36498,10 @@ begin
         pdf_error("ext4", "destinations cannot be inside an XForm");
     if doing_leaders then
         return;
-    k := get_obj(obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
+    if pdf_dest_objnum(p) = null then
+        k := get_obj(obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p))
+    else
+        k := get_obj(obj_type_struct_dest, pdf_dest_id(p), pdf_dest_named_id(p));
     if obj_dest_ptr(k) <> null then begin
         warn_dest_dup(pdf_dest_id(p), pdf_dest_named_id(p),
                       "ext4", "has been already used, duplicate ignored");

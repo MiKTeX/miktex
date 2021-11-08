@@ -218,7 +218,7 @@ __EXTERN__ HashLoc_T                    fn_loc;
 __EXTERN__ Integer_T                    glob_chr_ptr;
 
 __EXTERN__ Boolean_T                    hash_found;
-__EXTERN__ Integer16_T		        hash_used;
+__EXTERN__ Integer16_T                  hash_used;
 __EXTERN__ Integer8_T                   history;
 
 __EXTERN__ Integer_T                    impl_fn_num;
@@ -376,7 +376,7 @@ __EXTERN__ ASCIICode_T                  xord[LAST_TEXT_CHAR + 1];
 */
 __EXTERN__ unsigned char                c8upcase[LAST_TEXT_CHAR + 1];
 __EXTERN__ unsigned char                c8lowcase[LAST_TEXT_CHAR + 1];
-__EXTERN__ int 			        c8order[LAST_TEXT_CHAR + 1];
+__EXTERN__ int                          c8order[LAST_TEXT_CHAR + 1];
 #endif                          /* SUPPORT_8BIT */
 
 
@@ -427,6 +427,7 @@ __EXTERN__ Boolean_T                    Flag_language;
 __EXTERN__ char                        *Str_language;
 __EXTERN__ Boolean_T                    Flag_location;
 __EXTERN__ char                        *Str_location;
+__EXTERN__ UCollator                   *u_coll;
 #endif
 __EXTERN__ Boolean_T                    Flag_7bit;
 __EXTERN__ Boolean_T                    Flag_8bit;

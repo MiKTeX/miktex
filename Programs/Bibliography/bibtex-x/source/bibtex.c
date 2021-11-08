@@ -285,9 +285,19 @@ BEGIN
         {
             UVersionInfo icuVersion;
             char icu_version[U_MAX_VERSION_STRING_LENGTH] = "";
+            UErrorCode err1 = U_ZERO_ERROR;
             u_getVersion(icuVersion);
             u_versionToString(icuVersion, icu_version);
             FPRINTF (log_file, "Compiled with:   ICU version %s\n", icu_version);
+
+            if (Flag_location)
+                u_coll = ucol_open(Str_location, &err1);
+            else
+                u_coll = ucol_open(NULL, &err1);
+            if (!U_SUCCESS(err1)) {
+                FPRINTF (log_file, "Error in opening ICU collator.\n");
+                exit(FATAL_EXIT_STATUS);
+            }
         }
 #endif
         FPRINTF (log_file, "\n");
@@ -382,6 +392,9 @@ Aux_Done_Label:
       END
       get_bst_command_and_process ();
     END
+#ifdef UTF_8
+    ucol_close(u_coll);
+#endif
 Bst_Done_Label:
     a_close (bst_file);
 No_Bst_File_Label:

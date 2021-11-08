@@ -6,7 +6,7 @@
     <TPM:Title>pdfTeX, Windows x64</TPM:Title>
     <TPM:Copyright owner="Hàn Thế Thành" year="1996-2021"/>
     <TPM:License type="gpl"/>
-    <TPM:Version>1.40.23</TPM:Version>
+    <TPM:Version>1.40.24</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

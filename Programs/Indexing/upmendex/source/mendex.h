@@ -18,15 +18,17 @@
 #include <unicode/uchar.h>
 #include <unicode/ucol.h>
 
+#define PAGE_COMPOSIT_DEPTH 10
+
 struct page {
 	char *page;
 	char *enc;
-	char attr[3];
+	int attr[PAGE_COMPOSIT_DEPTH];
 };
 
 struct index {
 	int num;
-	char words;
+	unsigned char words;
 	UChar *dic[3];
 	UChar *org[3];
 	UChar *idx[3];
@@ -54,7 +56,6 @@ int lastpage(const char *filename);
 /* sort.c */
 void wsort(struct index *ind, int num);
 void pagesort(struct index *ind, int num);
-int is_alphanumeric(UChar *c);
 int is_latin(UChar *c);
 int is_numeric(UChar *c);
 int is_jpn_kana(UChar *c);
@@ -63,7 +64,10 @@ int is_hanzi(UChar *c);
 int is_zhuyin(UChar *c);
 int is_cyrillic(UChar *c);
 int is_greek(UChar *c);
-int is_comb_diacritical_mark(UChar *c);
+int is_devanagari(UChar *c);
+int is_thai(UChar *c);
+int is_type_mark_or_punct(UChar *c);
+int is_type_symbol(UChar *c);
 int chkcontinue(struct page *p, int num);
 int ss_comp(UChar *s1, UChar *s2);
 
@@ -74,8 +78,11 @@ int ss_comp(UChar *s1, UChar *s2);
 #define CH_KANA         4
 #define CH_HANGUL       5
 #define CH_HANZI        6
+#define CH_DEVANAGARI   7
+#define CH_THAI         8
 #define CH_SYMBOL   0x100
 #define CH_NUMERIC  0x101
+#define  is_any_script(a)  ((CH_LATIN<=(a) && (a)<=CH_THAI))
 
 /* sort.c */
 int charset(UChar *c);

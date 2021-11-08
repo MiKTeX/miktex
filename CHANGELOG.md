@@ -8,8 +8,10 @@ MiKTeX now includes the four TeX engines of the "Japanese TeX processing tools" 
 
 ### Upgraded programs
 
-* dvipdfmx 20210609
+* dvipdfmx 20211029
 * makeindex 2.16
+* pdftex 1.40.24
+* upmendex 0.60
 
 ### Fixed issues
 
