@@ -1133,7 +1133,11 @@ main (int argc, char *argv[])
 
   pdf_init_fontmaps(); /* This must come before parsing options... */
 
+#if defined(MIKTEX)
+  miktex_read_config_files();
+#else
   read_config_file(DPX_CONFIG_FILE);
+#endif
 
   /* Current implementation seems to be assuming that paper size read from config
    * is for "default" and explicitly specified one via command-line option must be
@@ -1183,7 +1187,6 @@ main (int argc, char *argv[])
   }
 
 #if defined(MIKTEX)
-  miktex_read_config_files();
   kpse_init_prog("", font_dpi, NULL, NULL);
   kpse_set_program_enabled(kpse_pk_format, true, kpse_src_texmf_cnf);
 #else
