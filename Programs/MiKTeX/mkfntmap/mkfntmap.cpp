@@ -289,6 +289,9 @@ private:
     bool optEnableInstaller = false;
 
 private:
+    bool optVersion = false;
+
+private:
     bool force = false;
 
 private:
@@ -365,8 +368,7 @@ void MakeFontMapApp::ProcessOptions(int argc, const char** argv)
             verbosityLevel++;
             break;
         case OPT_VERSION:
-            ShowVersion();
-            throw 0;
+            optVersion = true;
             break;
         }
     }
@@ -562,6 +564,11 @@ void MakeFontMapApp::MyInit(int argc, const char** argv)
     }
     Application::Init(initInfo);
     session = GetSession();
+    if (optVersion)
+    {
+        ShowVersion();
+        throw 0;
+    }
     if (optAdminMode)
     {
         Verbose(T_("Entering administrator mode..."));
