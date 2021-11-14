@@ -250,10 +250,20 @@ private:
     NamingConvention namingConvention = NamingConvention::URWkb;
 
 private:
+    std::string jaEmbed = "haranoaji";
+    std::string scEmbed = "arphic";
+    std::string tcEmbed = "arphic";
+    std::string koEmbed = "baekmuk";
+    std::string jaVariant = "-04";
+
+private:
     set<string> mapFiles;
 
 private:
     set<string> mixedMapFiles;
+
+private:
+    std::set<std::string> kanjiMapFiles;
 
 private:
     int verbosityLevel = 0;
@@ -489,6 +499,26 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
         {
             dvipsPreferOutline = ToBool(param);
         }
+        else if (Utils::EqualsIgnoreCase(directive, "jaEmbed"))
+        {
+            jaEmbed = param;
+        }
+        else if (Utils::EqualsIgnoreCase(directive, "scEmbed"))
+        {
+            scEmbed = param;
+        }
+        else if (Utils::EqualsIgnoreCase(directive, "tcEmbed"))
+        {
+            tcEmbed = param;
+        }
+        else if (Utils::EqualsIgnoreCase(directive, "koEmbed"))
+        {
+            koEmbed = param;
+        }
+        else if (Utils::EqualsIgnoreCase(directive, "jaVariant"))
+        {
+            jaVariant = param;
+        }
         else if (Utils::EqualsIgnoreCase(directive, "LW35"))
         {
             if (param.empty())
@@ -543,6 +573,14 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
                 CfgError(T_("missing map file name"));
             }
             mixedMapFiles.insert(param);
+        }
+        else if (Utils::EqualsIgnoreCase(directive, "KanjiMap"))
+        {
+            if (param.empty())
+            {
+                CfgError(T_("missing map file name"));
+            }
+            kanjiMapFiles.insert(param);
         }
         else
         {
