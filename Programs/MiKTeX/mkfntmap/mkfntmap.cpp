@@ -1,39 +1,28 @@
-/* mkfntmap.cpp:
-
-   Copyright (C) 2002-2021 Christian Schenk
-
-   This file is part of MkFntMap.
-
-   MkFntMap is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   MkFntMap is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with MkFntMap; if not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
-
-/* This program is based on the updmap shell script:
-   (C) 2002 Thomas Esser
-   licensed under the following agreement:
-   Anyone may freely use, modify, and/or distribute this file... */
+/**
+ * @file mkfntmap.cpp
+ * @author Christian Schenk
+ * @brief MiKTeX Fontmap Maintenance Utility
+ *
+ * @copyright Copyright © 2002-2021 Christian Schenk
+ *
+ * This file is part of MiKTeX Fontmap Maintenance Utility.
+ *
+ * MiKTeX Fontmap Maintenance Utility is licensed under GNU General Public
+ * License version 2 or any later version.
+ *
+ * MiKTeX Fontmap Maintenance Utility is based on the updmap Perl script
+ * (updmap.pl):
+ *
+ * @code {.unparsed}
+ * # Copyright 2011-2021 Norbert Preining
+ * # This file is licensed under the GNU General Public License version 2
+ * # or any later version.
+ * @endcode
+ */
 
 //#undef NDEBUG
 #include "config.h"
 #include "internal.h"
-
-using namespace std;
-
-using namespace MiKTeX::App;
-using namespace MiKTeX::Configuration;
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Util;
-using namespace MiKTeX::Wrappers;
 
 #define PROGRAM_NAME "mkfntmap"
 
@@ -118,126 +107,91 @@ const struct poptOption aoption[] = {
 
 struct FileContext
 {
-    PathName path;
+    MiKTeX::Util::PathName path;
     int line = 0;
 };
 
 class MakeFontMapApp :
-    public Application,
-    public IRunProcessCallback
+    public MiKTeX::App::Application,
+    public MiKTeX::Core::IRunProcessCallback
 {
 public:
-    void MyInit(int argc, const char** argv);
 
-public:
+    void MyInit(int argc, const char** argv);
     void Run();
 
 private:
+
     void ProcessOptions(int argc, const char** argv);
 
-private:
     void ShowVersion();
 
-private:
-    bool ToBool(const string& param);
+    bool ToBool(const std::string& param);
 
-private:
-    bool ScanConfigLine(const string& line, string& directive, string& param);
+    bool ScanConfigLine(const std::string& line, std::string& directive, std::string& param);
 
-private:
-    void ParseConfigFile(const PathName& path);
+    void ParseConfigFile(const MiKTeX::Util::PathName& path);
 
-private:
-    bool LocateMap(const string& fileName, PathName& path, bool mustExist);
+    bool LocateMap(const std::string& fileName, MiKTeX::Util::PathName& path, bool mustExist);
 
-private:
-    void ReadMap(const string& fileName, set<FontMapEntry>& fontMapEntries, bool mustExist);
+    void ReadDvipsMap(const std::string& fileName, std::set<MiKTeX::Core::FontMapEntry>& fontMapEntries, bool mustExist);
 
-private:
-    void WriteHeader(ostream& writer, const PathName& fileName);
+    void WriteHeader(std::ostream& writer, const MiKTeX::Util::PathName& fileName);
 
-private:
-    PathName CreateOutputDir(const string& relPath);
+    MiKTeX::Util::PathName CreateOutputDir(const std::string& relPath);
 
-private:
-    PathName GetDvipsOutputDir()
+    MiKTeX::Util::PathName GetDvipsOutputDir()
     {
         return CreateOutputDir(MIKTEX_PATH_DVIPS_CONFIG_DIR);
     }
 
-private:
-    PathName GetDvipdfmxOutputDir()
+    MiKTeX::Util::PathName GetDvipdfmxOutputDir()
     {
         return CreateOutputDir(MIKTEX_PATH_DVIPDFMX_CONFIG_DIR);
     }
 
-private:
-    PathName GetPdfTeXOutputDir()
+    MiKTeX::Util::PathName GetPdfTeXOutputDir()
     {
         return CreateOutputDir(MIKTEX_PATH_PDFTEX_CONFIG_DIR);
     }
 
-private:
-    void WriteMap(ostream& writer, const set<FontMapEntry>& set1);
+    void WriteMap(std::ostream& writer, const std::set<MiKTeX::Core::FontMapEntry>& set1);
 
-private:
-    void WriteDvipsMapFile(const PathName& fileName, const set<FontMapEntry>& set1, const set<FontMapEntry>& set2, const set<FontMapEntry>& set3);
+    void WriteDvipsMapFile(const MiKTeX::Util::PathName& path, const std::set<MiKTeX::Core::FontMapEntry>& set1, const std::set<MiKTeX::Core::FontMapEntry>& set2, const std::set<MiKTeX::Core::FontMapEntry>& set3);
 
-private:
-    void WritePdfTeXMapFile(const PathName& fileName, const set<FontMapEntry>& set1, const set<FontMapEntry>& set2, const set<FontMapEntry>& set3);
+    std::set<MiKTeX::Core::FontMapEntry> CatDvipsMaps(const std::set<std::string>& fileNames);
 
-private:
-    set<FontMapEntry> CatMaps(const set<string>& fileNames);
+    std::set<MiKTeX::Core::FontMapEntry> TranslateLW35(const std::set<MiKTeX::Core::FontMapEntry>& set1);
 
-private:
-    set<FontMapEntry> TranslateLW35(const set<FontMapEntry>& set1);
+    void TranslateFontFile(const std::map<std::string, std::string>& transMap, MiKTeX::Core::FontMapEntry& fontMapEntry);
 
-private:
-    void TranslateFontFile(const map<string, string>& transMap, FontMapEntry& fontMapEntry);
+    void TranslatePSName(const  std::map< std::string,  std::string>& files, MiKTeX::Core::FontMapEntry& fontMapEntry);
 
-private:
-    void TranslatePSName(const map<string, string>& files, FontMapEntry& fontMapEntry);
+    void CopyFile(const MiKTeX::Util::PathName& pathSrc, const MiKTeX::Util::PathName& pathDest);
 
-private:
-    void CopyFile(const PathName& pathSrc, const PathName& pathDest);
-
-private:
     void CopyFiles();
 
-private:
     void BuildFontconfigCache();
 
-private:
     void CreateFontconfigLocalfontsConf();
 
-private:
-    void Verbose(int level, const string& s);
+    void Verbose(int level, const  std::string& s);
 
-private:
-    void Verbose(const string& s)
+    void Verbose(const  std::string& s)
     {
         Verbose(1, s);
     }
 
-private:
-    MIKTEXNORETURN void CfgError(const string& s);
+    MIKTEXNORETURN void CfgError(const  std::string& s);
 
-private:
-    MIKTEXNORETURN void MapError(const string& s);
+    MIKTEXNORETURN void MapError(const  std::string& s);
 
-private:
-    void ParseDvipsMapFile(const PathName& mapFile, set<FontMapEntry>& fontMapEntries);
+    void ParseDvipsMapFile(const MiKTeX::Util::PathName& mapFile,  std::set<MiKTeX::Core::FontMapEntry>& fontMapEntries);
 
-private:
     bool dvipsDownloadBase35 = false;
-
-private:
     bool dvipsPreferOutline = true;
-
-private:
     bool pdftexDownloadBase14 = true;
 
-private:
     enum class NamingConvention
     {
         URW,
@@ -246,92 +200,84 @@ private:
         ADOBEkb
     };
 
-private:
     NamingConvention namingConvention = NamingConvention::URWkb;
 
-private:
     std::string jaEmbed = "haranoaji";
     std::string scEmbed = "arphic";
     std::string tcEmbed = "arphic";
     std::string koEmbed = "baekmuk";
     std::string jaVariant = "-04";
 
-private:
-    set<string> mapFiles;
-
-private:
-    set<string> mixedMapFiles;
-
-private:
+    std::set<std::string> mapFiles;
+    std::set<std::string> mixedMapFiles;
     std::set<std::string> kanjiMapFiles;
-
-private:
     int verbosityLevel = 0;
 
-    // transform file names from URWkb (berry names) to URW (vendor
-    // names)
-private:
-    static map<string, string> fileURW;
+    /**
+     * @brief Transform file names from URWkb (berry names) to URW (vendor names).
+     * 
+     */
+    static std::map<std::string, std::string> fileURW;
 
-    // transform file names from URWkb (berry names) to ADOBE (vendor
-    // names)
-private:
-    static map<string, string> fileADOBE;
+    /**
+     * @brief Transform file names from URWkb (berry names) to ADOBE (vendor names).
+     * 
+     */
+    static std::map<std::string, std::string> fileADOBE;
 
-    // transform file names from URW to ADOBE (both berry names)
-private:
-    static map<string, string> fileADOBEkb;
+    /**
+     * @brief Transform file names from URW to ADOBE (both berry names).
+     * 
+     */
+    static std::map<std::string, std::string> fileADOBEkb;
 
-    // transform font names from URW to Adobe
-private:
-    static map<string, string> psADOBE;
+    /**
+     * @brief Transform font names from URW to Adobe.
+     * 
+     */
+    static std::map<std::string, std::string> psADOBE;
 
-private:
-    string outputDirectory;
+    std::string outputDirectory;
 
-private:
     bool optAdminMode = false;
 
-private:
     bool optDisableleInstaller = false;
 
-private:
     bool optEnableInstaller = false;
 
-private:
     bool optVersion = false;
 
-private:
     bool force = false;
 
-private:
     FileContext cfgContext;
 
-private:
     FileContext mapContext;
 
-private:
     bool disableInstaller = false;
 
-private:
-    bool InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot) override
+    bool InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override
     {
         if (disableInstaller)
         {
             return false;
         }
-        return Application::InstallPackage(packageId, trigger, installRoot);
+        return MiKTeX::App::Application::InstallPackage(packageId, trigger, installRoot);
     }
 
-private:
     bool OnProcessOutput(const void* output, size_t n) override;
 
-private:
-    string currentProcessOutputLine;
+    std::string currentProcessOutputLine;
 
-private:
-    shared_ptr<Session> session;
+    std::shared_ptr<MiKTeX::Core::Session> session;
 };
+
+using namespace std;
+
+using namespace MiKTeX::App;
+using namespace MiKTeX::Configuration;
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 map<string, string> MakeFontMapApp::fileURW;
 map<string, string> MakeFontMapApp::fileADOBE;
@@ -341,11 +287,11 @@ map<string, string> MakeFontMapApp::psADOBE;
 void MakeFontMapApp::ShowVersion()
 {
     cout
-        << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
-        << endl
-        << MIKTEX_COMP_COPYRIGHT_STR << endl
-        << endl
-        << "This is free software; see the source for copying conditions.  There is NO" << endl
+        << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+        << "\n"
+        << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+        << "\n"
+        << "This is free software; see the source for copying conditions.  There is NO" << "\n"
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
@@ -851,29 +797,8 @@ PathName MakeFontMapApp::CreateOutputDir(const string& relPath)
     return path;
 }
 
-void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontMapEntry>& set1, const set<FontMapEntry>& set2, const set<FontMapEntry>& set3)
+void MakeFontMapApp::WriteDvipsMapFile(const PathName& path, const set<FontMapEntry>& set1, const set<FontMapEntry>& set2, const set<FontMapEntry>& set3)
 {
-    PathName path(GetDvipsOutputDir());
-    path /= fileName;
-    Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
-    // TODO: backup old file
-    ofstream writer = File::CreateOutputStream(path, ios_base::binary);
-    WriteHeader(writer, path);
-    set<FontMapEntry> setAll = set1;
-    setAll.insert(set2.begin(), set2.end());
-    setAll.insert(set3.begin(), set3.end());
-    WriteMap(writer, setAll);
-    writer.close();
-    if (!Fndb::FileExists(path))
-    {
-        Fndb::Add({ {path} });
-    }
-}
-
-void MakeFontMapApp::WritePdfTeXMapFile(const PathName& fileName, const set<FontMapEntry>& set1, const set<FontMapEntry>& set2, const set<FontMapEntry>& set3)
-{
-    PathName path(GetPdfTeXOutputDir());
-    path /= fileName;
     Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
     // TODO: backup old file
     ofstream writer = File::CreateOutputStream(path, ios_base::binary);
@@ -947,7 +872,7 @@ bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* output, size_t n
     return true;
 }
 
-void MakeFontMapApp::ReadMap(const string& fileName, set<FontMapEntry>& result, bool mustExist)
+void MakeFontMapApp::ReadDvipsMap(const string& fileName, set<FontMapEntry>& result, bool mustExist)
 {
     PathName path;
     if (!LocateMap(fileName, path, mustExist))
@@ -957,12 +882,12 @@ void MakeFontMapApp::ReadMap(const string& fileName, set<FontMapEntry>& result, 
     ParseDvipsMapFile(path, result);
 }
 
-set<FontMapEntry> MakeFontMapApp::CatMaps(const set<string>& fileNames)
+set<FontMapEntry> MakeFontMapApp::CatDvipsMaps(const set<string>& fileNames)
 {
     set<FontMapEntry> result;
     for (const string& fn : fileNames)
     {
-        ReadMap(fn, result, false);
+        ReadDvipsMap(fn, result, false);
     }
     return result;
 }
@@ -1193,11 +1118,11 @@ bool HasPaintType(const FontMapEntry& fontMapEntry)
 void MakeFontMapApp::Run()
 {
     set<FontMapEntry> dvips35;
-    ReadMap("dvips35.map", dvips35, true);
+    ReadDvipsMap("dvips35.map", dvips35, true);
     set<FontMapEntry> pdftex35;
-    ReadMap("pdftex35.map", pdftex35, true);
+    ReadDvipsMap("pdftex35.map", pdftex35, true);
     set<FontMapEntry> ps2pk35;
-    ReadMap("ps2pk35.map", ps2pk35, true);
+    ReadDvipsMap("ps2pk35.map", ps2pk35, true);
 
     set<FontMapEntry> transLW35_ps2pk35(TranslateLW35(ps2pk35));
 
@@ -1205,23 +1130,23 @@ void MakeFontMapApp::Run()
 
     set<FontMapEntry> transLW35_pdftex35(TranslateLW35(pdftex35));
 
-    set<FontMapEntry> tmp1(CatMaps(mixedMapFiles));
+    set<FontMapEntry> tmp1(CatDvipsMaps(mixedMapFiles));
 
-    set<FontMapEntry> tmp2(CatMaps(mapFiles));
+    set<FontMapEntry> tmp2(CatDvipsMaps(mapFiles));
 
-    WriteDvipsMapFile(PathName("ps2pk.map"), transLW35_ps2pk35, tmp1, tmp2);
+    WriteDvipsMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, tmp1, tmp2);
 
     set<FontMapEntry> empty;
 
-    WriteDvipsMapFile(PathName("download35.map"), transLW35_ps2pk35, empty, empty);
+    WriteDvipsMapFile(GetDvipsOutputDir() / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
 
-    WriteDvipsMapFile(PathName("builtin35.map"), transLW35_dvips35, empty, empty);
+    WriteDvipsMapFile(GetDvipsOutputDir() / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
 
     set<FontMapEntry> transLW35_dftdvips(TranslateLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
 
-    WriteDvipsMapFile(PathName("psfonts_t1.map"), transLW35_dftdvips, tmp1, tmp2);
+    WriteDvipsMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, tmp1, tmp2);
 
-    WriteDvipsMapFile(PathName("psfonts_pk.map"), transLW35_dftdvips, empty, tmp2);
+    WriteDvipsMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, tmp2);
 
     set<FontMapEntry> tmp3 = transLW35_pdftex35;
     tmp3.insert(tmp1.begin(), tmp1.end());
@@ -1255,8 +1180,8 @@ void MakeFontMapApp::Run()
         }
     }
 
-    WritePdfTeXMapFile(PathName("pdftex_ndl14.map"), tmp3, empty, empty);
-    WritePdfTeXMapFile(PathName("pdftex_dl14.map"), tmp7, empty, empty);
+    WriteDvipsMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), tmp3, empty, empty);
+    WriteDvipsMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), tmp7, empty, empty);
 
     CopyFiles();
 
