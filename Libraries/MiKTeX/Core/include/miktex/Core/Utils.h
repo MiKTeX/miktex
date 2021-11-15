@@ -47,8 +47,8 @@
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
-/// Information about an entry in a font map file.
-struct FontMapEntry
+/// Information about an entry in a Dvips font map file.
+struct DvipsFontMapEntry
 {
   /// Name of the TeX font.
   std::string texName;
@@ -64,7 +64,7 @@ struct FontMapEntry
   std::string headerList;
 };
 
-inline bool operator<(const FontMapEntry& lhs, const FontMapEntry& rhs)
+inline bool operator<(const DvipsFontMapEntry& lhs, const DvipsFontMapEntry& rhs)
 {
   return lhs.texName < rhs.texName;
 }
@@ -196,7 +196,7 @@ public:
   static MIKTEXCORECEEAPI(std::string) Hexify(const void* pv, std::size_t nBytes);
 
 public:
-  static MIKTEXCORECEEAPI(bool) ParseDvipsMapLine(const std::string& line, FontMapEntry& fontMapEntry);
+  static MIKTEXCORECEEAPI(bool) ParseDvipsFontMapLine(const std::string& line, DvipsFontMapEntry& fontMapEntry);
 
 public:
   static MIKTEXCORECEEAPI(bool) IsMiKTeXDirectRoot(const MiKTeX::Util::PathName& root);

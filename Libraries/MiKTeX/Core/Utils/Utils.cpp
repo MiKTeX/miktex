@@ -538,7 +538,7 @@ bool Utils::GetEnvironmentString(const string& name, PathName& path)
   return result;
 }
 
-bool Utils::ParseDvipsMapLine(const string& line, FontMapEntry& mapEntry)
+bool Utils::ParseDvipsFontMapLine(const string& line, DvipsFontMapEntry& mapEntry)
 {
   mapEntry.texName = "";
   mapEntry.psName = "";

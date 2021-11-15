@@ -68,19 +68,19 @@ private:
   void CheckOptions(int* baseDpi, int dpi, const string& mode);
 
 private:
-  void ExtraPS2PKOptions(const FontMapEntry& mapEntry, vector<string>& arguments);
+  void ExtraPS2PKOptions(const DvipsFontMapEntry& mapEntry, vector<string>& arguments);
 
 private:
-  void RunGSF2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory);
+  void RunGSF2PK(const DvipsFontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory);
 
 private:
-  void RunPS2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory);
+  void RunPS2PK(const DvipsFontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory);
 
 private:
-  bool FindFontMapping(const char* texFontName, const char* mapFileName, FontMapEntry& mapEntry);
+  bool FindFontMapping(const char* texFontName, const char* mapFileName, DvipsFontMapEntry& mapEntry);
 
 private:
-  bool SearchPostScriptFont(const char* texFontName, FontMapEntry& mapEntry);
+  bool SearchPostScriptFont(const char* texFontName, DvipsFontMapEntry& mapEntry);
 
 private:
   bool IsHbf(const char* name);
@@ -272,7 +272,7 @@ bool GetInstructionParam(const string& str, const string& instruction, string& p
   return false;
 }
 
-void MakePk::ExtraPS2PKOptions(const FontMapEntry& mapEntry, vector<string>& arguments)
+void MakePk::ExtraPS2PKOptions(const DvipsFontMapEntry& mapEntry, vector<string>& arguments)
 {
   if (!mapEntry.encFile.empty())
   {
@@ -295,7 +295,7 @@ void MakePk::ExtraPS2PKOptions(const FontMapEntry& mapEntry, vector<string>& arg
   }
 }
 
-void MakePk::RunGSF2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory)
+void MakePk::RunGSF2PK(const DvipsFontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory)
 {
   vector<string> arguments;
   arguments.push_back(mapEntry.texName);
@@ -311,7 +311,7 @@ void MakePk::RunGSF2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi
   }
 }
 
-void MakePk::RunPS2PK(const FontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory)
+void MakePk::RunPS2PK(const DvipsFontMapEntry& mapEntry, const char* pkName, int dpi, const PathName& workingDirectory)
 {
   bool oldFonts = false;        // FIXME
 
@@ -372,7 +372,7 @@ void MakePk::CheckOptions(int* baseDpi, int dpi, const string& mode)
   }
 }
 
-bool MakePk::FindFontMapping(const char* texFontName, const char* mapFileName, FontMapEntry& mapEntry)
+bool MakePk::FindFontMapping(const char* texFontName, const char* mapFileName, DvipsFontMapEntry& mapEntry)
 {
   // locate the map file
   PathName mapFile;
@@ -389,7 +389,7 @@ bool MakePk::FindFontMapping(const char* texFontName, const char* mapFileName, F
   string line;
   while (!found && std::getline(stream, line))
   {
-    if (Utils::ParseDvipsMapLine(line, mapEntry) && mapEntry.texName == texFontName)
+    if (Utils::ParseDvipsFontMapLine(line, mapEntry) && mapEntry.texName == texFontName)
     {
       found = true;
     }
@@ -400,7 +400,7 @@ bool MakePk::FindFontMapping(const char* texFontName, const char* mapFileName, F
   return found;
 }
 
-bool MakePk::SearchPostScriptFont(const char* texFontName, FontMapEntry& mapEntry)
+bool MakePk::SearchPostScriptFont(const char* texFontName, DvipsFontMapEntry& mapEntry)
 {
   // search via "ps2pk.map" (also used for gsf2pk)
   if (FindFontMapping(texFontName, "ps2pk.map", mapEntry))
@@ -468,7 +468,7 @@ void MakePk::Run(int argc, const char** argv)
 
   string gfName = fmt::format("{}.{}gf", name, dpi);
 
-  FontMapEntry mapEntry;
+  DvipsFontMapEntry mapEntry;
 
   modeless = false;
 
