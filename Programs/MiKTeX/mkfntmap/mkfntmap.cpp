@@ -161,11 +161,11 @@ private:
 
     std::set<MiKTeX::Core::DvipsFontMapEntry> CatDvipsFontMaps(const std::set<std::string>& fileNames);
 
-    std::set<MiKTeX::Core::DvipsFontMapEntry> TranslateLW35(const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
+    std::set<MiKTeX::Core::DvipsFontMapEntry> TransformLW35(const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
 
-    void TranslateFontFile(const std::map<std::string, std::string>& transMap, MiKTeX::Core::DvipsFontMapEntry& fontMapEntry);
+    void TransformFontFileName(const std::map<std::string, std::string>& transMap, MiKTeX::Core::DvipsFontMapEntry& fontMapEntry);
 
-    void TranslatePSName(const  std::map< std::string,  std::string>& files, MiKTeX::Core::DvipsFontMapEntry& fontMapEntry);
+    void TransformPSName(const  std::map< std::string,  std::string>& files, MiKTeX::Core::DvipsFontMapEntry& fontMapEntry);
 
     void CopyFile(const MiKTeX::Util::PathName& pathSrc, const MiKTeX::Util::PathName& pathDest);
 
@@ -892,7 +892,7 @@ set<DvipsFontMapEntry> MakeFontMapApp::CatDvipsFontMaps(const set<string>& fileN
     return result;
 }
 
-void MakeFontMapApp::TranslateFontFile(const map<string, string>& transMap, DvipsFontMapEntry& fontMapEntry)
+void MakeFontMapApp::TransformFontFileName(const map<string, string>& transMap, DvipsFontMapEntry& fontMapEntry)
 {
     map<string, string>::const_iterator it = transMap.find(fontMapEntry.fontFile);
     if (it != transMap.end())
@@ -925,7 +925,7 @@ void MakeFontMapApp::TranslateFontFile(const map<string, string>& transMap, Dvip
     }
 }
 
-void MakeFontMapApp::TranslatePSName(const map<string, string>& names, DvipsFontMapEntry& fontMapEntry)
+void MakeFontMapApp::TransformPSName(const map<string, string>& names, DvipsFontMapEntry& fontMapEntry)
 {
     map<string, string>::const_iterator it = names.find(fontMapEntry.psName);
     if (it != names.end())
@@ -934,7 +934,13 @@ void MakeFontMapApp::TranslatePSName(const map<string, string>& names, DvipsFont
     }
 }
 
-set<DvipsFontMapEntry> MakeFontMapApp::TranslateLW35(const set<DvipsFontMapEntry>& set1)
+/**
+ * @brief Transform font name and file names according to transformation specified by naming convention.
+ * 
+ * @param set1 
+ * @return set<DvipsFontMapEntry> 
+ */
+set<DvipsFontMapEntry> MakeFontMapApp::TransformLW35(const set<DvipsFontMapEntry>& set1)
 {
     set<DvipsFontMapEntry> result;
     for (const DvipsFontMapEntry& fme : set1)
@@ -945,15 +951,15 @@ set<DvipsFontMapEntry> MakeFontMapApp::TranslateLW35(const set<DvipsFontMapEntry
         case NamingConvention::URWkb:
             break;
         case NamingConvention::URW:
-            TranslateFontFile(fileURW, fontMapEntry);
+            TransformFontFileName(fileURW, fontMapEntry);
             break;
         case NamingConvention::ADOBE:
-            TranslatePSName(psADOBE, fontMapEntry);
-            TranslateFontFile(fileADOBE, fontMapEntry);
+            TransformPSName(psADOBE, fontMapEntry);
+            TransformFontFileName(fileADOBE, fontMapEntry);
             break;
         case NamingConvention::ADOBEkb:
-            TranslatePSName(psADOBE, fontMapEntry);
-            TranslateFontFile(fileADOBEkb, fontMapEntry);
+            TransformPSName(psADOBE, fontMapEntry);
+            TransformFontFileName(fileADOBEkb, fontMapEntry);
             break;
         }
         result.insert(fontMapEntry);
@@ -1115,42 +1121,11 @@ bool HasPaintType(const DvipsFontMapEntry& fontMapEntry)
     return fontMapEntry.specialInstructions.find("PaintType") != string::npos;
 }
 
-void MakeFontMapApp::Run()
+set<DvipsFontMapEntry> GeneratePdfTeXFontMap(const set<DvipsFontMapEntry>& transLW35, const set<DvipsFontMapEntry>& mixedMapFonts, const set<DvipsFontMapEntry>& nonMixedMapFonts)
 {
-    set<DvipsFontMapEntry> dvips35;
-    ReadDvipsFontMapFile("dvips35.map", dvips35, true);
-    set<DvipsFontMapEntry> pdftex35;
-    ReadDvipsFontMapFile("pdftex35.map", pdftex35, true);
-    set<DvipsFontMapEntry> ps2pk35;
-    ReadDvipsFontMapFile("ps2pk35.map", ps2pk35, true);
-
-    set<DvipsFontMapEntry> transLW35_ps2pk35(TranslateLW35(ps2pk35));
-
-    set<DvipsFontMapEntry> transLW35_dvips35(TranslateLW35(dvips35));
-
-    set<DvipsFontMapEntry> transLW35_pdftex35(TranslateLW35(pdftex35));
-
-    set<DvipsFontMapEntry> tmp1(CatDvipsFontMaps(mixedMapFiles));
-
-    set<DvipsFontMapEntry> tmp2(CatDvipsFontMaps(mapFiles));
-
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, tmp1, tmp2);
-
-    set<DvipsFontMapEntry> empty;
-
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
-
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
-
-    set<DvipsFontMapEntry> transLW35_dftdvips(TranslateLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
-
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, tmp1, tmp2);
-
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, tmp2);
-
-    set<DvipsFontMapEntry> tmp3 = transLW35_pdftex35;
-    tmp3.insert(tmp1.begin(), tmp1.end());
-    tmp3.insert(tmp2.begin(), tmp2.end());
+    set<DvipsFontMapEntry> tmp3 = transLW35;
+    tmp3.insert(mixedMapFonts.begin(), mixedMapFonts.end());
+    tmp3.insert(nonMixedMapFonts.begin(), nonMixedMapFonts.end());
     set<DvipsFontMapEntry>::iterator it = tmp3.begin();
     while (it != tmp3.end())
     {
@@ -1163,25 +1138,38 @@ void MakeFontMapApp::Run()
             ++it;
         }
     }
+    return tmp3;
+}
 
-    set<DvipsFontMapEntry> tmp7 = transLW35_ps2pk35;
-    tmp7.insert(tmp1.begin(), tmp1.end());
-    tmp7.insert(tmp2.begin(), tmp2.end());
-    it = tmp7.begin();
-    while (it != tmp7.end())
-    {
-        if (HasPaintType(*it))
-        {
-            it = tmp7.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
+void MakeFontMapApp::Run()
+{
+    set<DvipsFontMapEntry> dvips35;
+    ReadDvipsFontMapFile("dvips35.map", dvips35, true);
 
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), tmp3, empty, empty);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), tmp7, empty, empty);
+    set<DvipsFontMapEntry> pdftex35;
+    ReadDvipsFontMapFile("pdftex35.map", pdftex35, true);
+
+    set<DvipsFontMapEntry> ps2pk35;
+    ReadDvipsFontMapFile("ps2pk35.map", ps2pk35, true);
+
+    set<DvipsFontMapEntry> transLW35_dvips35(TransformLW35(dvips35));
+    set<DvipsFontMapEntry> transLW35_pdftex35(TransformLW35(pdftex35));
+    set<DvipsFontMapEntry> transLW35_ps2pk35(TransformLW35(ps2pk35));
+
+    set<DvipsFontMapEntry> mixedMapFonts(CatDvipsFontMaps(mixedMapFiles));
+    set<DvipsFontMapEntry> nonMixedMapFonts(CatDvipsFontMaps(mapFiles));
+
+    set<DvipsFontMapEntry> transLW35_dftdvips(TransformLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
+
+    set<DvipsFontMapEntry> empty;
+
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMapFonts, nonMixedMapFonts);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMapFonts);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMapFonts, nonMixedMapFonts);
+    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMapFonts, nonMixedMapFonts), empty, empty);
+    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMapFonts, nonMixedMapFonts), empty, empty);
 
     CopyFiles();
 
