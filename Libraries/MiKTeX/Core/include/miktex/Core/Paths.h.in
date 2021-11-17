@@ -147,11 +147,11 @@
   MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
   "index.html"
 
-#define MIKTEX_PATH_DVIPDFM_DIR                 \
-  "dvipdfm"
+#define MIKTEX_PATH_DVIPDFMX_DIR                \
+  "dvipdfmx"
 
 #define MIKTEX_PATH_DVIPDFMX_CONFIG_DIR         \
-  MIKTEX_PATH_DVIPDFM_DIR                       \
+  MIKTEX_PATH_DVIPDFMX_DIR                      \
   MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
   "config"
 

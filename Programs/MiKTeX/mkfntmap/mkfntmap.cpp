@@ -155,22 +155,7 @@ private:
 
     void WriteHeader(std::ostream& writer, const MiKTeX::Util::PathName& fileName);
 
-    MiKTeX::Util::PathName CreateOutputDir(const std::string& relPath);
-
-    MiKTeX::Util::PathName GetDvipsOutputDir()
-    {
-        return CreateOutputDir(MIKTEX_PATH_DVIPS_CONFIG_DIR);
-    }
-
-    MiKTeX::Util::PathName GetDvipdfmxOutputDir()
-    {
-        return CreateOutputDir(MIKTEX_PATH_DVIPDFMX_CONFIG_DIR);
-    }
-
-    MiKTeX::Util::PathName GetPdfTeXOutputDir()
-    {
-        return CreateOutputDir(MIKTEX_PATH_PDFTEX_CONFIG_DIR);
-    }
+    MiKTeX::Util::PathName FontMapDirectory(const std::string& relPath);
 
     void WriteDvipsFontMap(std::ostream& writer, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
 
@@ -836,7 +821,7 @@ void MakeFontMapApp::WriteDvipdfmxFontMap(ostream& writer, const set<DvipdfmxFon
     }
 }
 
-PathName MakeFontMapApp::CreateOutputDir(const string& relPath)
+PathName MakeFontMapApp::FontMapDirectory(const string& relPath)
 {
     PathName path;
     if (!outputDirectory.empty())
@@ -845,7 +830,7 @@ PathName MakeFontMapApp::CreateOutputDir(const string& relPath)
     }
     else
     {
-        path = session->GetSpecialPath(SpecialPath::DataRoot) / PathName(relPath);
+        path = session->GetSpecialPath(SpecialPath::DataRoot) / PathName("fonts") / PathName("map") / PathName(relPath);
     }
     if (!Directory::Exists(path))
     {
@@ -1208,8 +1193,8 @@ void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
 
 void MakeFontMapApp::SymlinkOrCopyFiles()
 {
-    PathName dvipsOutputDir(GetDvipsOutputDir());
-    PathName pdftexOutputDir(GetPdfTeXOutputDir());
+    PathName dvipsOutputDir(FontMapDirectory("dvips"));
+    PathName pdftexOutputDir(FontMapDirectory("pdftex"));
 
     PathName pathSrc;
 
@@ -1400,14 +1385,14 @@ void MakeFontMapApp::Run()
 
     set<DvipsFontMapEntry> empty;
 
-    WriteDvipdfmxFontMapFile(GetDvipdfmxOutputDir() / PathName("kanjix.map"), kanjiMaps);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMaps, nonMixedMaps);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMaps);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMaps, nonMixedMaps);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty);
+    WriteDvipdfmxFontMapFile(FontMapDirectory("dvipdfmx") / PathName("kanjix.map"), kanjiMaps);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMaps, nonMixedMaps);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMaps);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMaps, nonMixedMaps);
+    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty);
 
     SymlinkOrCopyFiles();
 

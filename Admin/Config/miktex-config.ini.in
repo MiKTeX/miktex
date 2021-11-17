@@ -260,10 +260,6 @@
 	;; Search path for encoding vector files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/enc//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/miktex/config//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvips//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pdftex//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvipdfm//
 
 	;; Environment variables to be used for searching encoding
 	;; vector files.
@@ -408,10 +404,6 @@
 	;; Search path for font map files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/map/{$progname,pdftex,dvips,}//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/miktex/config//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvips//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pdftex//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvipdfm//
 
 	;; Environment variables to be used for searching font map
 	;; files.
@@ -680,14 +672,7 @@
 
 	;; Search path for downloadable PostScript files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/miktex/config//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvips//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pdftex//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvipdfm//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/enc//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/type1//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/type42//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/type3//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/{dvips,fonts/{enc,type1,type42,type3}}//
 	${MIKTEX_CONFIG_VALUE_PATHS} = $psfontdirs
 
 	;; Environment variables to be used for searching downloadable
