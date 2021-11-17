@@ -111,6 +111,21 @@ struct FileContext
     int line = 0;
 };
 
+struct DvipdfmxFontMapEntry
+{
+    std::string texName;
+    std::string encName;
+    std::string fontFileName;
+    std::string options;
+    std::string psName;
+    std::string fallbackName;
+};
+
+inline bool operator<(const DvipdfmxFontMapEntry& lhs, const DvipdfmxFontMapEntry& rhs)
+{
+  return lhs.texName < rhs.texName;
+}
+
 class MakeFontMapApp :
     public MiKTeX::App::Application,
     public MiKTeX::Core::IRunProcessCallback
@@ -136,6 +151,8 @@ private:
 
     void ReadDvipsFontMapFile(const std::string& fileName, std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries, bool mustExist);
 
+    void ReadDvipdfmxFontMapFile(const std::string& fileName, std::set<DvipdfmxFontMapEntry>& fontMapEntries, bool mustExist);
+
     void WriteHeader(std::ostream& writer, const MiKTeX::Util::PathName& fileName);
 
     MiKTeX::Util::PathName CreateOutputDir(const std::string& relPath);
@@ -157,9 +174,15 @@ private:
 
     void WriteDvipsFontMap(std::ostream& writer, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
 
+    void WriteDvipdfmxFontMap(std::ostream& writer, const std::set<DvipdfmxFontMapEntry>& fontMapEntries);
+
     void WriteDvipsFontMapFile(const MiKTeX::Util::PathName& path, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set2, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set3);
 
+    void WriteDvipdfmxFontMapFile(const MiKTeX::Util::PathName& path, const std::set<DvipdfmxFontMapEntry>& fontMapEntries);
+
     std::set<MiKTeX::Core::DvipsFontMapEntry> CatDvipsFontMaps(const std::set<std::string>& fileNames);
+
+    std::set<DvipdfmxFontMapEntry> CatDvipdfmxFontMaps(const std::set<std::string>& fileNames);
 
     std::set<MiKTeX::Core::DvipsFontMapEntry> TransformLW35(const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
 
@@ -186,7 +209,11 @@ private:
 
     MIKTEXNORETURN void MapError(const  std::string& s);
 
-    void ParseDvipsMapFile(const MiKTeX::Util::PathName& mapFile,  std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries);
+    void ParseDvipsFontMapFile(const MiKTeX::Util::PathName& mapFile,  std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries);
+
+    void ParseDvipdfmxFontMapFile(const MiKTeX::Util::PathName& mapFile,  std::set<DvipdfmxFontMapEntry>& fontMapEntries);
+
+    bool ParseDvipdfmxFontMapLine(const std::string& line,  DvipdfmxFontMapEntry& fontMapEntry);
 
     bool dvipsDownloadBase35 = false;
     bool dvipsPreferOutline = true;
@@ -737,8 +764,25 @@ void MakeFontMapApp::MyInit(int argc, const char** argv)
     psADOBE["Dingbats"] = "ZapfDingbats";
 }
 
-bool MakeFontMapApp::LocateFontMapFile(const string& fileName, PathName& path, bool mustExist)
+void Replace(string& s, const string& s2, const string& s3)
 {
+    auto p = s.find(s2);
+    if(p == string::npos)
+    {
+        return;
+    }
+    s.replace(p, s2.length(), s3);
+}
+
+bool MakeFontMapApp::LocateFontMapFile(const string& fileNameTemplate, PathName& path, bool mustExist)
+{
+    string fileName;
+    fileName = fileNameTemplate;
+    Replace(fileName, "@jaEmbed@", jaEmbed);
+    Replace(fileName, "@jaVariant@", jaVariant);
+    Replace(fileName, "@scEmbed@", scEmbed);
+    Replace(fileName, "@tcEmbed@", tcEmbed);
+    Replace(fileName, "@koEmbed@", koEmbed);
     disableInstaller = !mustExist;
     bool found = session->FindFile(fileName, FileType::MAP, path);
     disableInstaller = false;
@@ -779,6 +823,19 @@ void MakeFontMapApp::WriteDvipsFontMap(ostream& writer, const set<DvipsFontMapEn
     }
 }
 
+void MakeFontMapApp::WriteDvipdfmxFontMap(ostream& writer, const set<DvipdfmxFontMapEntry>& fontMapEntries)
+{
+    for (const DvipdfmxFontMapEntry& fme : fontMapEntries)
+    {
+        writer << fmt::format("{} {} {}", fme.texName, fme.encName, fme.fontFileName);
+        if (!fme.options.empty())
+        {
+            writer << fmt::format(" {}", fme.options);
+        }
+        writer << endl;
+    }
+}
+
 PathName MakeFontMapApp::CreateOutputDir(const string& relPath)
 {
     PathName path;
@@ -814,7 +871,21 @@ void MakeFontMapApp::WriteDvipsFontMapFile(const PathName& path, const set<Dvips
     }
 }
 
-void MakeFontMapApp::ParseDvipsMapFile(const PathName& path, set<DvipsFontMapEntry>& fontMapEntries)
+void MakeFontMapApp::WriteDvipdfmxFontMapFile(const PathName& path, const set<DvipdfmxFontMapEntry>& fontMapEntries)
+{
+    Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
+    // TODO: backup old file
+    ofstream writer = File::CreateOutputStream(path, ios_base::binary);
+    WriteHeader(writer, path);
+    WriteDvipdfmxFontMap(writer, fontMapEntries);
+    writer.close();
+    if (!Fndb::FileExists(path))
+    {
+        Fndb::Add({ {path} });
+    }
+}
+
+void MakeFontMapApp::ParseDvipsFontMapFile(const PathName& path, set<DvipsFontMapEntry>& fontMapEntries)
 {
     Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(path)));
 
@@ -843,6 +914,143 @@ void MakeFontMapApp::ParseDvipsMapFile(const PathName& path, set<DvipsFontMapEnt
     }
 
     reader.Close();
+}
+
+void MakeFontMapApp::ParseDvipdfmxFontMapFile(const PathName& path, set<DvipdfmxFontMapEntry>& fontMapEntries)
+{
+    Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(path)));
+
+    StreamReader reader(path);
+
+    string line;
+
+    mapContext.path = path;
+    mapContext.line = 0;
+
+    while (reader.ReadLine(line))
+    {
+        ++mapContext.line;
+        DvipdfmxFontMapEntry fontMapEntry;
+        try
+        {
+            if (ParseDvipdfmxFontMapLine(line, fontMapEntry))
+            {
+                fontMapEntries.insert(fontMapEntry);
+            }
+        }
+        catch (const MiKTeXException& e)
+        {
+            MapError(e.GetErrorMessage());
+        }
+    }
+
+    reader.Close();
+}
+
+void TrimLeft(string& s)
+{
+    auto p = s.find_first_not_of(" \t");
+    if (p == string::npos)
+    {
+        return;
+    }
+    s = s.substr(p);
+}
+
+void TrimRight(string& s)
+{
+    auto p = s.find_last_not_of(" \t");
+    if (p == string::npos)
+    {
+        return;
+    }
+    s = s.substr(0, p + 1);
+}
+
+string ParseIdentifier(string& s)
+{
+    TrimLeft(s);
+    const auto p = s.find_first_of(" \t%");
+    string id = s.substr(0, p);
+    if (p == string::npos)
+    {
+        s = "";
+    }
+    else
+    {
+        s = s.substr(p);
+    }
+    return id;
+}
+
+string ParseOptions(string& s)
+{
+    TrimLeft(s);
+    const auto p = s.find_first_of("%");
+    string options = s.substr(0, p);
+    if (p == string::npos)
+    {
+        s = "";
+    }
+    else
+    {
+        s = s.substr(p);
+    }
+    TrimRight(options);
+    return options;
+}
+
+bool ParseSomething(string& s, const string& something)
+{
+    auto p = s.rfind(something, 0);
+    if (p != 0)
+    {
+        return false;
+    }
+    s = s.substr(something.length() + 1);
+    return true;
+}
+
+bool MakeFontMapApp::ParseDvipdfmxFontMapLine(const string& line,  DvipdfmxFontMapEntry& fontMapEntry)
+{
+    if (line.empty()
+        || line[0] <= ' '
+        || line[0] == '*'
+        || line[0] == '#'
+        || line[0] == ';'
+        || line[0] == '%'
+        )
+    {
+        return false;
+    }
+    string remainder = line;
+    TrimLeft(remainder);
+    fontMapEntry.texName = ParseIdentifier(remainder);
+    if (fontMapEntry.texName.empty())
+    {
+        return false;
+    }
+    fontMapEntry.encName = ParseIdentifier(remainder);
+    if (fontMapEntry.encName.empty())
+    {
+        return false;
+    }
+    fontMapEntry.fontFileName = ParseIdentifier(remainder);
+    if (fontMapEntry.fontFileName.empty())
+    {
+        return false;
+    }
+    fontMapEntry.options = ParseOptions(remainder);
+    TrimLeft(remainder);
+    if (ParseSomething(remainder, "%!DVIPSFB"))
+    {
+        fontMapEntry.fallbackName = ParseIdentifier(remainder);
+    }
+    else if (ParseSomething(remainder, "%!PS"))
+    {
+        fontMapEntry.psName = ParseIdentifier(remainder);
+    }
+    return true;
 }
 
 bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* output, size_t n)
@@ -879,7 +1087,7 @@ void MakeFontMapApp::ReadDvipsFontMapFile(const string& fileName, set<DvipsFontM
     {
         return;
     }
-    ParseDvipsMapFile(path, result);
+    ParseDvipsFontMapFile(path, result);
 }
 
 set<DvipsFontMapEntry> MakeFontMapApp::CatDvipsFontMaps(const set<string>& fileNames)
@@ -888,6 +1096,26 @@ set<DvipsFontMapEntry> MakeFontMapApp::CatDvipsFontMaps(const set<string>& fileN
     for (const string& fn : fileNames)
     {
         ReadDvipsFontMapFile(fn, result, false);
+    }
+    return result;
+}
+
+void MakeFontMapApp::ReadDvipdfmxFontMapFile(const string& fileName, set<DvipdfmxFontMapEntry>& result, bool mustExist)
+{
+    PathName path;
+    if (!LocateFontMapFile(fileName, path, mustExist))
+    {
+        return;
+    }
+    ParseDvipdfmxFontMapFile(path, result);
+}
+
+set<DvipdfmxFontMapEntry> MakeFontMapApp::CatDvipdfmxFontMaps(const set<string>& fileNames)
+{
+    set<DvipdfmxFontMapEntry> result;
+    for (const string& fn : fileNames)
+    {
+        ReadDvipdfmxFontMapFile(fn, result, false);
     }
     return result;
 }
@@ -1164,20 +1392,22 @@ void MakeFontMapApp::Run()
     set<DvipsFontMapEntry> transLW35_pdftex35(TransformLW35(pdftex35));
     set<DvipsFontMapEntry> transLW35_ps2pk35(TransformLW35(ps2pk35));
 
-    set<DvipsFontMapEntry> mixedMap(CatDvipsFontMaps(mixedMapFiles));
-    set<DvipsFontMapEntry> nonMixedMap(CatDvipsFontMaps(mapFiles));
+    set<DvipsFontMapEntry> mixedMaps(CatDvipsFontMaps(mixedMapFiles));
+    set<DvipsFontMapEntry> nonMixedMaps(CatDvipsFontMaps(mapFiles));
+    set<DvipdfmxFontMapEntry> kanjiMaps(CatDvipdfmxFontMaps(kanjiMapFiles));
 
     set<DvipsFontMapEntry> transLW35_dftdvips(TransformLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
 
     set<DvipsFontMapEntry> empty;
 
+    WriteDvipdfmxFontMapFile(GetDvipdfmxOutputDir() / PathName("kanjix.map"), kanjiMaps);
     WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
     WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMap, nonMixedMap);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMap);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMap, nonMixedMap);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMap, nonMixedMap), empty, empty);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMap, nonMixedMap), empty, empty);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMaps, nonMixedMaps);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMaps);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMaps, nonMixedMaps);
+    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty);
+    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty);
 
     SymlinkOrCopyFiles();
 
