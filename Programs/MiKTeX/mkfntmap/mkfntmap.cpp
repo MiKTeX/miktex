@@ -169,7 +169,7 @@ private:
 
     void CopyFile(const MiKTeX::Util::PathName& pathSrc, const MiKTeX::Util::PathName& pathDest);
 
-    void CopyFiles();
+    void SymlinkOrCopyFiles();
 
     void BuildFontconfigCache();
 
@@ -978,7 +978,7 @@ void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
     }
 }
 
-void MakeFontMapApp::CopyFiles()
+void MakeFontMapApp::SymlinkOrCopyFiles()
 {
     PathName dvipsOutputDir(GetDvipsOutputDir());
     PathName pdftexOutputDir(GetPdfTeXOutputDir());
@@ -1121,24 +1121,32 @@ bool HasPaintType(const DvipsFontMapEntry& fontMapEntry)
     return fontMapEntry.specialInstructions.find("PaintType") != string::npos;
 }
 
-set<DvipsFontMapEntry> GeneratePdfTeXFontMap(const set<DvipsFontMapEntry>& transLW35, const set<DvipsFontMapEntry>& mixedMapFonts, const set<DvipsFontMapEntry>& nonMixedMapFonts)
+/**
+ * @brief Remove PaintType due to Sebastian's request.
+ * 
+ * @param transLW35 
+ * @param mixedMapFonts 
+ * @param nonMixedMapFonts 
+ * @return set<DvipsFontMapEntry> 
+ */
+set<DvipsFontMapEntry> GeneratePdfTeXFontMap(const set<DvipsFontMapEntry>& transLW35, const set<DvipsFontMapEntry>& mixedMap, const set<DvipsFontMapEntry>& nonMixedMap)
 {
-    set<DvipsFontMapEntry> tmp3 = transLW35;
-    tmp3.insert(mixedMapFonts.begin(), mixedMapFonts.end());
-    tmp3.insert(nonMixedMapFonts.begin(), nonMixedMapFonts.end());
-    set<DvipsFontMapEntry>::iterator it = tmp3.begin();
-    while (it != tmp3.end())
+    set<DvipsFontMapEntry> result = transLW35;
+    result.insert(mixedMap.begin(), mixedMap.end());
+    result.insert(nonMixedMap.begin(), nonMixedMap.end());
+    set<DvipsFontMapEntry>::iterator it = result.begin();
+    while (it != result.end())
     {
         if (HasPaintType(*it))
         {
-            it = tmp3.erase(it);
+            it = result.erase(it);
         }
         else
         {
             ++it;
         }
     }
-    return tmp3;
+    return result;
 }
 
 void MakeFontMapApp::Run()
@@ -1156,8 +1164,8 @@ void MakeFontMapApp::Run()
     set<DvipsFontMapEntry> transLW35_pdftex35(TransformLW35(pdftex35));
     set<DvipsFontMapEntry> transLW35_ps2pk35(TransformLW35(ps2pk35));
 
-    set<DvipsFontMapEntry> mixedMapFonts(CatDvipsFontMaps(mixedMapFiles));
-    set<DvipsFontMapEntry> nonMixedMapFonts(CatDvipsFontMaps(mapFiles));
+    set<DvipsFontMapEntry> mixedMap(CatDvipsFontMaps(mixedMapFiles));
+    set<DvipsFontMapEntry> nonMixedMap(CatDvipsFontMaps(mapFiles));
 
     set<DvipsFontMapEntry> transLW35_dftdvips(TransformLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
 
@@ -1165,13 +1173,13 @@ void MakeFontMapApp::Run()
 
     WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
     WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMapFonts, nonMixedMapFonts);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMapFonts);
-    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMapFonts, nonMixedMapFonts);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMapFonts, nonMixedMapFonts), empty, empty);
-    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMapFonts, nonMixedMapFonts), empty, empty);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMap, nonMixedMap);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMap);
+    WriteDvipsFontMapFile(GetDvipsOutputDir() / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMap, nonMixedMap);
+    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMap, nonMixedMap), empty, empty);
+    WriteDvipsFontMapFile(GetPdfTeXOutputDir() / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMap, nonMixedMap), empty, empty);
 
-    CopyFiles();
+    SymlinkOrCopyFiles();
 
     BuildFontconfigCache();
 }
