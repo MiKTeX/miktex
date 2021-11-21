@@ -157,11 +157,11 @@ private:
 
     MiKTeX::Util::PathName FontMapDirectory(const std::string& relPath);
 
-    void WriteDvipsFontMap(std::ostream& writer, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
+    void WriteDvipsFontMap(std::ostream& writer, const std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries);
 
     void WriteDvipdfmxFontMap(std::ostream& writer, const std::set<DvipdfmxFontMapEntry>& fontMapEntries);
 
-    void WriteDvipsFontMapFile(const MiKTeX::Util::PathName& path, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set2, const std::set<MiKTeX::Core::DvipsFontMapEntry>& set3);
+    void WriteDvipsFontMapFile(const MiKTeX::Util::PathName& path, const std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries1, const std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries2, const std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries3, const std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries4);
 
     void WriteDvipdfmxFontMapFile(const MiKTeX::Util::PathName& path, const std::set<DvipdfmxFontMapEntry>& fontMapEntries);
 
@@ -169,7 +169,9 @@ private:
 
     std::set<DvipdfmxFontMapEntry> CatDvipdfmxFontMaps(const std::set<std::string>& fileNames);
 
-    std::set<MiKTeX::Core::DvipsFontMapEntry> TransformLW35(const std::set<MiKTeX::Core::DvipsFontMapEntry>& set1);
+    std::set<MiKTeX::Core::DvipsFontMapEntry> TransformLW35(const std::set<MiKTeX::Core::DvipsFontMapEntry>& fontMapEntries);
+
+    std::set<MiKTeX::Core::DvipsFontMapEntry> DvipdfmxToDvips(const std::set<DvipdfmxFontMapEntry>& dvipdfmxFontMapEntries);
 
     void TransformFontFileName(const std::map<std::string, std::string>& transMap, MiKTeX::Core::DvipsFontMapEntry& fontMapEntry);
 
@@ -749,14 +751,15 @@ void MakeFontMapApp::MyInit(int argc, const char** argv)
     psADOBE["Dingbats"] = "ZapfDingbats";
 }
 
-void Replace(string& s, const string& s2, const string& s3)
+bool Replace(string& s, const string& s2, const string& s3)
 {
     auto p = s.find(s2);
     if(p == string::npos)
     {
-        return;
+        return false;
     }
     s.replace(p, s2.length(), s3);
+    return true;
 }
 
 bool MakeFontMapApp::LocateFontMapFile(const string& fileNameTemplate, PathName& path, bool mustExist)
@@ -791,9 +794,9 @@ void MakeFontMapApp::WriteHeader(ostream& writer, const PathName& fileName)
         << "%%%   initexmf --edit-config-file updmap" << endl;
 }
 
-void MakeFontMapApp::WriteDvipsFontMap(ostream& writer, const set<DvipsFontMapEntry>& set1)
+void MakeFontMapApp::WriteDvipsFontMap(ostream& writer, const set<DvipsFontMapEntry>& fontMapEntries)
 {
-    for (const DvipsFontMapEntry& fme : set1)
+    for (const DvipsFontMapEntry& fme : fontMapEntries)
     {
         writer << fmt::format("{} {}", fme.texName, fme.psName);
         if (!fme.specialInstructions.empty())
@@ -839,16 +842,17 @@ PathName MakeFontMapApp::FontMapDirectory(const string& relPath)
     return path;
 }
 
-void MakeFontMapApp::WriteDvipsFontMapFile(const PathName& path, const set<DvipsFontMapEntry>& set1, const set<DvipsFontMapEntry>& set2, const set<DvipsFontMapEntry>& set3)
+void MakeFontMapApp::WriteDvipsFontMapFile(const PathName& path, const set<DvipsFontMapEntry>& fontMapEntries1, const set<DvipsFontMapEntry>& fontMapEntries2, const set<DvipsFontMapEntry>& fontMapEntries3, const set<DvipsFontMapEntry>& fontMapEntries4)
 {
     Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
     // TODO: backup old file
     ofstream writer = File::CreateOutputStream(path, ios_base::binary);
     WriteHeader(writer, path);
-    set<DvipsFontMapEntry> setAll = set1;
-    setAll.insert(set2.begin(), set2.end());
-    setAll.insert(set3.begin(), set3.end());
-    WriteDvipsFontMap(writer, setAll);
+    set<DvipsFontMapEntry> fontMapEntries = fontMapEntries1;
+    fontMapEntries.insert(fontMapEntries2.begin(), fontMapEntries2.end());
+    fontMapEntries.insert(fontMapEntries3.begin(), fontMapEntries3.end());
+    fontMapEntries.insert(fontMapEntries4.begin(), fontMapEntries4.end());
+    WriteDvipsFontMap(writer, fontMapEntries);
     writer.close();
     if (!Fndb::FileExists(path))
     {
@@ -1150,13 +1154,13 @@ void MakeFontMapApp::TransformPSName(const map<string, string>& names, DvipsFont
 /**
  * @brief Transform font name and file names according to transformation specified by naming convention.
  * 
- * @param set1 
+ * @param fontMapEntries 
  * @return set<DvipsFontMapEntry> 
  */
-set<DvipsFontMapEntry> MakeFontMapApp::TransformLW35(const set<DvipsFontMapEntry>& set1)
+set<DvipsFontMapEntry> MakeFontMapApp::TransformLW35(const set<DvipsFontMapEntry>& fontMapEntries)
 {
     set<DvipsFontMapEntry> result;
-    for (const DvipsFontMapEntry& fme : set1)
+    for (const DvipsFontMapEntry& fme : fontMapEntries)
     {
         DvipsFontMapEntry fontMapEntry = fme;
         switch (namingConvention)
@@ -1176,6 +1180,99 @@ set<DvipsFontMapEntry> MakeFontMapApp::TransformLW35(const set<DvipsFontMapEntry
             break;
         }
         result.insert(fontMapEntry);
+    }
+    return result;
+}
+
+/**
+ * @brief Transform Dvipdfmx font map entries into Dvips font map entries.
+ * 
+ * @param fontMapEntries 
+ * @return set<DvipsFontMapEntry> 
+ */
+set<DvipsFontMapEntry> MakeFontMapApp::DvipdfmxToDvips(const set<DvipdfmxFontMapEntry>& dvipdfmxFontMapEntries)
+{
+    set<DvipsFontMapEntry> result;
+    for (const DvipdfmxFontMapEntry& dvipdfmxFME : dvipdfmxFontMapEntries)
+    {
+        DvipsFontMapEntry dvipsFME;
+        dvipsFME.texName = dvipdfmxFME.texName;
+        // Special case for pre-defined fallback from Unicode encoded font.
+        if (!dvipdfmxFME.fallbackName.empty())
+        {
+            dvipsFME.psName = dvipdfmxFME.fallbackName;
+            if (dvipsFME.psName[0] == '!')
+            {
+                dvipsFME.psName.erase(0, 1);
+            }
+            Replace(dvipsFME.psName, ",Bold", "");
+            if (!dvipsFME.psName.empty())
+            {
+                result.insert(dvipsFME);
+            }
+            continue;            
+        }
+        // Unicode encoded fonts are not supported unless a fallback font was specified (see above).
+        if (dvipdfmxFME.encName == "unicode")
+        {
+            continue;
+        }
+        string fname = dvipdfmxFME.fontFileName;
+        // Replace supported ",SOMETHING" constructs.
+        double italicMax = 0.0;
+        if (Replace(fname, ",BoldItalic", ""))
+        {
+            italicMax = 0.3;
+        }
+        Replace(fname, ",Bold", "");
+        if (Replace(fname, ",Italic", ""))
+        {
+            italicMax = 0.3;
+        }
+        // Replace supported "/AJ16" and co. for ptex-fontmaps CID emulation.
+        auto p = fname.find('/');
+        if (p != string::npos)
+        {
+            fname.erase(p);
+        }
+        // Break out if unsupported constructs are found: @ / ,
+        if (fname.find_first_of("@/,") != string::npos)
+        {
+            continue;
+        }
+        // Remove extension.
+        p = fname.find('.');
+        if (p != string::npos)
+        {
+            fname.erase(p);
+        }
+        // Remove leading '!'.
+        if (!fname.empty() && fname[0] == '!')
+        {
+            fname.erase(0, 1);
+        }
+        // Remove leading :<number>:
+        if (!fname.empty() && fname[0] == ':')
+        {
+            auto end = fname.find(':', 1);
+            if (end == string::npos)
+            {
+                // TODO: error
+                continue;
+            }
+            fname.erase(0, end);
+        }
+        dvipsFME.psName = dvipdfmxFME.psName;
+        if (dvipsFME.psName.empty())
+        {
+            dvipsFME.psName = fname;
+        }
+        dvipsFME.psName += "-" + dvipdfmxFME.encName;
+        if (italicMax > 0.0)
+        {
+            dvipsFME.specialInstructions = fmt::format("\"{0} SlantFont\"", italicMax);
+        }
+        result.insert(dvipsFME);
     }
     return result;
 }
@@ -1383,16 +1480,18 @@ void MakeFontMapApp::Run()
 
     set<DvipsFontMapEntry> transLW35_dftdvips(TransformLW35(dvipsDownloadBase35 ? ps2pk35 : dvips35));
 
+    set<DvipsFontMapEntry> fromKanji(DvipdfmxToDvips(kanjiMaps));
+
     set<DvipsFontMapEntry> empty;
 
     WriteDvipdfmxFontMapFile(FontMapDirectory("dvipdfmx") / PathName("kanjix.map"), kanjiMaps);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("builtin35.map"), transLW35_dvips35, empty, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("download35.map"), transLW35_ps2pk35, empty, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMaps, nonMixedMaps);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMaps);
-    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMaps, nonMixedMaps);
-    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty);
-    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("builtin35.map"), transLW35_dvips35, empty, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("download35.map"), transLW35_ps2pk35, empty, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("ps2pk.map"), transLW35_ps2pk35, mixedMaps, nonMixedMaps, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_pk.map"), transLW35_dftdvips, empty, nonMixedMaps, fromKanji);
+    WriteDvipsFontMapFile(FontMapDirectory("dvips") / PathName("psfonts_t1.map"), transLW35_dftdvips, mixedMaps, nonMixedMaps, fromKanji);
+    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_dl14.map"), GeneratePdfTeXFontMap(transLW35_ps2pk35, mixedMaps, nonMixedMaps), empty, empty, empty);
+    WriteDvipsFontMapFile(FontMapDirectory("pdftex") / PathName("pdftex_ndl14.map"), GeneratePdfTeXFontMap(transLW35_pdftex35, mixedMaps, nonMixedMaps), empty, empty, empty);
 
     SymlinkOrCopyFiles();
 
