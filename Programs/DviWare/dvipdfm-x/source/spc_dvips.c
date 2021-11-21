@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2021 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -530,12 +530,12 @@ check_next_obj(const unsigned char * buffer)
 static int
 spc_handler_ps_tricks_parse_path (struct spc_env *spe, struct spc_arg *args)
 {
-  FILE* fp;
+  FILE* fp; FILE* fi;
   int k;
   pdf_tmatrix M;
   char *gs_out;
   const char *clip;
-  int error;
+  int error, c;
 
   if (!distiller_template)
     distiller_template = get_distiller_template();
@@ -548,13 +548,26 @@ spc_handler_ps_tricks_parse_path (struct spc_env *spe, struct spc_arg *args)
       return  -1;
     }
     fp = fopen(gs_in, "wb");
-    for (k = 0; k < num_ps_headers; k++)
-      fprintf(fp, "(%s) run\n", ps_headers[k]);
+    for (k = 0; k < num_ps_headers; k++) {
+      fi = fopen(ps_headers[k], "rb");
+      while((c = getc(fi)) != EOF)
+        putc(c, fp);
+      putc('\n', fp);
+      fclose(fi);
+    }
     fprintf(fp, "[%f %f %f %f %f %f] concat %f %f translate 0 0 moveto\n", M.a, M.b, M.c, M.d, M.e, M.f, spe->x_user, spe->y_user);
-    fprintf(fp, "(%s) run\n", global_defs);
-    if (page_defs != 0)
-      fprintf(fp, "(%s) run\n", page_defs);
-
+    fi = fopen(global_defs, "rb");
+    while((c = getc(fi)) != EOF)
+      putc(c, fp);
+    putc('\n', fp);
+    fclose(fi);
+    if (page_defs != 0) {
+      fi = fopen(page_defs, "rb");
+      while((c = getc(fi)) != EOF)
+        putc(c, fp);
+      putc('\n', fp);
+      fclose(fi);
+    }
 #if 0
     fprintf(fp, "/clip {stroke} def\n");
     fwrite(args->curptr, 1, args->endptr - args->curptr, fp);
@@ -634,8 +647,8 @@ spc_handler_ps_tricks_parse_path (struct spc_env *spe, struct spc_arg *args)
 static int
 spc_handler_ps_tricks_render (struct spc_env *spe, struct spc_arg *args)
 {
-  FILE        *fp;
-  int k;
+  FILE *fp, *fi;
+  int k, c;
   pdf_tmatrix M;
   load_options options = {1, 0, NULL};
 
@@ -650,12 +663,26 @@ spc_handler_ps_tricks_render (struct spc_env *spe, struct spc_arg *args)
       return  -1;
     }
     fp = fopen(gs_in, "wb");
-    for (k = 0; k < num_ps_headers; k++)
-      fprintf(fp, "(%s) run\n", ps_headers[k]);
+    for (k = 0; k < num_ps_headers; k++) {
+      fi = fopen(ps_headers[k], "rb");
+      while((c = getc(fi)) != EOF)
+        putc(c, fp);
+      putc('\n', fp);
+      fclose(fi);
+    }
     fprintf(fp, "[%f %f %f %f %f %f] concat %f %f translate 0 0 moveto\n", M.a, M.b, M.c, M.d, M.e, M.f, spe->x_user, spe->y_user);
-    fprintf(fp, "(%s) run\n", global_defs);
-    if (page_defs != 0)
-      fprintf(fp, "(%s) run\n", page_defs);
+    fi = fopen(global_defs, "rb");
+    while((c = getc(fi)) != EOF)
+      putc(c, fp);
+    putc('\n', fp);
+    fclose(fi);
+    if (page_defs != 0) {
+      fi = fopen(page_defs, "rb");
+      while ((c = getc(fi)) != EOF)
+        putc(c, fp);
+      putc('\n', fp);
+      fclose(fi);
+    }
   } else
     fp = fopen(gs_in, "ab");
 
@@ -1020,11 +1047,11 @@ spc_dvips_setup_handler (struct spc_handler *handle,
 }
 
 #ifdef __EMX__
-#define GS_CALCULATOR "gsos2 -q -dALLOWPSTRANSPARENCY -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "gsos2 -q -dALLOWPSTRANSPARENCY -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #elif defined(WIN32)
-#define GS_CALCULATOR "rungs -q -dALLOWPSTRANSPARENCY -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "rungs -q -dALLOWPSTRANSPARENCY -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #else
-#define GS_CALCULATOR "gs -q -dALLOWPSTRANSPARENCY -dDELAYSAFER -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
+#define GS_CALCULATOR "gs -q -dALLOWPSTRANSPARENCY -dNOPAUSE -dBATCH -sDEVICE=nullpage -f "
 #endif
 
 static
@@ -1032,7 +1059,8 @@ int calculate_PS (char *strptr, int length, double *res1, double *res2, double *
   char *formula, *cmd;
   FILE *fp, *coord;
   int k;
-
+  FILE *fi;
+  int c;
   if (res1 == 0 && res2 == 0)
     return -1;
   formula = dpx_create_temp_file();
@@ -1042,14 +1070,33 @@ int calculate_PS (char *strptr, int length, double *res1, double *res2, double *
   }
 
   fp = fopen(formula, "wb");
-  for (k = 0; k < num_ps_headers; k++)
-    fprintf(fp, "(%s) run\n", ps_headers[k]);
+  for (k = 0; k < num_ps_headers; k++) {
+    fi = fopen(ps_headers[k], "rb");
+    while((c = getc(fi)) != EOF)
+      putc(c, fp);
+    putc('\n', fp);
+    fclose(fi);
+  }
   fprintf(fp, "0 0 moveto\n");
-  fprintf(fp, "(%s) run\n", global_defs);
-  if (page_defs != 0)
-    fprintf(fp, "(%s) run\n", page_defs);
-  if (temporary_defs)
-    fprintf(fp, "(%s) run\n", temporary_defs);
+  fi = fopen(global_defs, "rb");
+  while((c = getc(fi)) != EOF)
+    putc(c, fp);
+  putc('\n', fp);
+  fclose(fi);
+  if (page_defs != 0) {
+    fi = fopen(page_defs, "rb");
+    while((c = getc(fi)) != EOF)
+      putc(c, fp);
+    putc('\n', fp);
+    fclose(fi);
+  }
+  if (temporary_defs) {
+    fi = fopen(temporary_defs, "rb");
+    while ((c = getc(fi)) != EOF)
+      putc(c, fp);
+    putc('\n', fp);
+    fclose(fi);
+  }
   fwrite(strptr, 1, length, fp);
   fclose(fp);
 #ifdef MIKTEX

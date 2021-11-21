@@ -161,6 +161,43 @@ void styread(const char *filename)
 		}
 		if (getparam(buff,"icu_attributes", icu_attr_str   )) continue;
 
+		cc=scompare(buff,"script_preamble");
+		if (cc!= -1) {
+			strcpy(tmp,buff+strlen("script_preamble"));
+			if (getparam(tmp,"latin",     script_preamble[CH_LATIN]      )) continue;
+			if (getparam(tmp,"cyrillic",  script_preamble[CH_CYRILLIC]   )) continue;
+			if (getparam(tmp,"greek",     script_preamble[CH_GREEK]      )) continue;
+			if (getparam(tmp,"kana",      script_preamble[CH_KANA]       )) continue;
+			if (getparam(tmp,"hangul",    script_preamble[CH_HANGUL]     )) continue;
+			if (getparam(tmp,"hanzi",     script_preamble[CH_HANZI]      )) continue;
+			if (getparam(tmp,"devanagari",script_preamble[CH_DEVANAGARI] )) continue;
+			if (getparam(tmp,"thai",      script_preamble[CH_THAI]       )) continue;
+			if (getparam(tmp,"arabic",    script_preamble[CH_ARABIC]     )) continue;
+			if (getparam(tmp,"hebrew",    script_preamble[CH_HEBREW]     )) continue;
+			if (strlen(tmp)>0) {
+				verb_printf(efp,"\nWarning: Unknown script for specifier \"script_preamble\" (%s).", tmp);
+			}
+			continue;
+		}
+		cc=scompare(buff,"script_postamble");
+		if (cc!= -1) {
+			strcpy(tmp,buff+strlen("script_postamble"));
+			if (getparam(tmp,"latin",     script_postamble[CH_LATIN]      )) continue;
+			if (getparam(tmp,"cyrillic",  script_postamble[CH_CYRILLIC]   )) continue;
+			if (getparam(tmp,"greek",     script_postamble[CH_GREEK]      )) continue;
+			if (getparam(tmp,"kana",      script_postamble[CH_KANA]       )) continue;
+			if (getparam(tmp,"hangul",    script_postamble[CH_HANGUL]     )) continue;
+			if (getparam(tmp,"hanzi",     script_postamble[CH_HANZI]      )) continue;
+			if (getparam(tmp,"devanagari",script_postamble[CH_DEVANAGARI] )) continue;
+			if (getparam(tmp,"thai",      script_postamble[CH_THAI]       )) continue;
+			if (getparam(tmp,"arabic",    script_postamble[CH_ARABIC]     )) continue;
+			if (getparam(tmp,"hebrew",    script_postamble[CH_HEBREW]     )) continue;
+			if (strlen(tmp)>0) {
+				verb_printf(efp,"\nWarning: Unknown script for specifier \"script_postamble\" (%s).", tmp);
+			}
+			continue;
+		}
+
 		cc=strcspn(buff," \t\r\n");
 		if (cc>0) buff[cc]='\0';
 		if (buff[0]=='%' || buff[0]=='\n') continue;

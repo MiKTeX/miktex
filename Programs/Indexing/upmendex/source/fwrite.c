@@ -168,7 +168,7 @@ static int pnumconv2(struct page *p)
 /*   write ind file   */
 void indwrite(char *filename, struct index *ind, int pagenum)
 {
-	int i,j,hpoint=0,tpoint=0,ipoint=0,jpoint=0;
+	int i,j,hpoint=0,tpoint=0,ipoint=0,jpoint=0,block_open=0;
 	char lbuff[BUFFERLEN],obuff[BUFFERLEN];
 	UChar datama[256],initial[INITIALLENGTH],initial_prev[INITIALLENGTH];
 	int chset,chset_prev;
@@ -214,7 +214,11 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 	for (i=line_length=0;i<lines;i++) {
 		index_normalize(ind[i].dic[0], initial, &chset);
 		if (i==0) {
-			if ((CH_LATIN<=chset&&chset<=CH_GREEK) || chset==CH_HANZI) {
+			if (is_any_script(chset) && strlen(script_preamble[chset])) {
+				fputs(script_preamble[chset],fp);
+				block_open=chset;
+			}
+			if ((CH_LATIN<=chset&&chset<=CH_GREEK) || chset==CH_HANZI || (CH_ARABIC<=chset&&chset<=CH_HEBREW)) {
 				if (lethead_flag!=0) {
 					fputs(lethead_prefix,fp);
 					fprint_uchar(fp,initial,lethead_flag,-1);
@@ -354,7 +358,19 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 		}
 		else {
 			index_normalize(ind[i-1].dic[0], initial_prev, &chset_prev);
-			if ((CH_LATIN<=chset&&chset<=CH_GREEK) || chset==CH_HANZI) {
+			if (chset!=chset_prev && is_any_script(chset_prev) && block_open) {
+				if (strlen(script_postamble[chset_prev])) {
+					fputs(script_postamble[chset_prev],fp);
+				}
+				block_open=0;
+			}
+			if (chset!=chset_prev && is_any_script(chset)) {
+				if (strlen(script_preamble[chset])) {
+					fputs(script_preamble[chset],fp);
+					block_open=chset;
+				}
+			}
+			if ((CH_LATIN<=chset&&chset<=CH_GREEK) || chset==CH_HANZI || (CH_ARABIC<=chset&&chset<=CH_HEBREW)) {
 				if (chset!=chset_prev || ss_comp(initial,initial_prev)) {
 					fputs(group_skip,fp);
 					if (lethead_flag!=0) {
@@ -506,6 +522,9 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 			}
 			printpage(ind,fp,i,lbuff);
 		}
+	}
+	if (is_any_script(chset) && strlen(script_postamble[chset]) && block_open) {
+		fputs(script_postamble[chset],fp);
 	}
 	fputs(postamble,fp);
 
@@ -888,13 +907,21 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 		u_strcpy(ini,hz_index[lo-1].idx);
 		return;
 	}
-	else if (is_devanagari(&ch)||is_thai(&ch)) {
-		if (ch==0x929||0x931||0x934||(0x958<=ch&&ch<=0x95F)) {
+	else if (is_devanagari(&ch)||is_thai(&ch)||is_arabic(&ch)||is_hebrew(&ch)) {
+		if (ch==0x929||ch==0x931||ch==0x934||(0x958<=ch&&ch<=0x95F) /* Devanagary */
+			||(0x622<=ch&&ch<=0x626)||ch==0x6C0||ch==0x6C2||ch==0x6D3 /* Arabic */
+			||(0xFB50<=ch&&ch<=0xFDFF) /* Arabic Presentation Forms-A */
+			||(0xFE70<=ch&&ch<=0xFEFF) /* Arabic Presentation Forms-B */
+			||(0xFB1D<=ch&&ch<=0xFB4F) /* Hebrew presentation forms */
+		   ) {
 			src[0]=ch;  src[1]=0x00;
 			perr=U_ZERO_ERROR;
 			unorm2_normalize(unormalizer_NFD, src, 1, dest, 8, &perr);
 			if (U_SUCCESS(perr))
 				ch=dest[0];                         /* without modifier */
+		}
+		else if (ch==0x5DA||ch==0x5DD||ch==0x05DF||ch==0x5E3||ch==0x05E5) { /* Hebrew letter final */
+			ch++;
 		}
 		ini[0]=ch;
 		return;

@@ -216,6 +216,7 @@ show_usage (void)
   printf ("  -f filename\tLoad additional font map filename[.map]\n");
   printf ("  -g dimension\tAnnotation \"grow\" amount [0.0in]\n");
   printf ("  -h | --help \tShow this help message and exit\n");
+  printf ("  -i cfgfile\tRead additional configuration file\t\n");
   printf ("  -l \t\tLandscape mode\n");
   printf ("  -m number\tSet additional magnification [1.0]\n");
   printf ("  --mvorigin\tTranslate the origin for MP inclusion\n");
@@ -264,7 +265,7 @@ show_usage (void)
   printf ("Papersize is specified by paper format (e.g., \"a4\")\n");
   printf ("\tor by w<unit>,h<unit> (e.g., \"20cm,30cm\").\n");
   printf ("\n");
-  printf ("Email bug reports to dvipdfmx@tug.org.\n");
+  printf ("Package home page: https://ctan.org/pkg/dvipdfmx\n");
 }
 
 static void

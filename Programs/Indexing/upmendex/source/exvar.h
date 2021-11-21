@@ -35,6 +35,7 @@ extern UChar atama[],hangul_head[],hanzi_head[],kana_head[];
 extern UChar devanagari_head[],thai_head[];
 extern char page_compositor[],page_precedence[];
 extern char character_order[];
+extern char script_preamble[][STYBUFSIZE],script_postamble[][STYBUFSIZE];
 extern char icu_locale[],icu_rules[];
 extern int icu_attributes[];
 

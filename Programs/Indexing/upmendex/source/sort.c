@@ -20,7 +20,7 @@
 	zh@collation=zhuyin  28880
 */
 
-int sym,nmbr,ltn,kana,hngl,hnz,cyr,grk,dvng,thai;
+int sym,nmbr,ltn,kana,hngl,hnz,cyr,grk,dvng,thai,arab,hbrw;
 
 static int wcomp(const void *p, const void *q);
 static int pcomp(const void *p, const void *q);
@@ -83,6 +83,14 @@ void wsort(struct index *ind, int num)
 			thai=order++;
 			break;
 
+		case 'a':
+			arab=order++;
+			break;
+
+		case 'h':
+			hbrw=order++;
+			break;
+
 		default:
 			verb_printf(efp,"\nWarning: Illegal input for character_order (%c).",character_order[i]);
 			break;
@@ -101,6 +109,8 @@ BREAK:
 	if (grk==0) grk=order++;
 	if (dvng==0) dvng=order++;
 	if (thai==0) thai=order++;
+	if (arab==0) arab=order++;
+	if (hbrw==0) hbrw=order++;
 
 	status = U_ZERO_ERROR;
 	if (strlen(icu_rules)>0) {
@@ -307,6 +317,8 @@ static int ordering(UChar *c)
 		else if (is_numeric(c))  return nmbr;
 		else if (is_devanagari(c)) return dvng;
 		else if (is_thai(c))     return thai;
+		else if (is_arabic(c))   return arab;
+		else if (is_hebrew(c))   return hbrw;
 		else                     return sym;
 	}
 }
@@ -330,6 +342,8 @@ int charset(UChar *c)
 		else if (is_numeric(c))  return CH_NUMERIC;
 		else if (is_devanagari(c)) return CH_DEVANAGARI;
 		else if (is_thai(c))     return CH_THAI;
+		else if (is_arabic(c))   return CH_ARABIC;
+		else if (is_hebrew(c))   return CH_HEBREW;
 		else                     return CH_SYMBOL;
 	}
 }
@@ -401,6 +415,8 @@ static int unescape(const unsigned char *src, UChar *dest)
 
 int is_latin(UChar *c)
 {
+	UChar32 c32;
+
 	if (((*c>=L'A')&&(*c<=L'Z'))||((*c>=L'a')&&(*c<=L'z'))) return 1;
 	else if ((*c==0x00AA)||(*c==0x00BA)) return 1; /* Latin-1 Supplement */
 	else if ((*c>=0x00C0)&&(*c<=0x00D6)) return 1;
@@ -416,9 +432,15 @@ int is_latin(UChar *c)
 	else if ((*c>=0xFF21)&&(*c<=0xFF3A)) return 1; /* Fullwidth Latin Capital Letter */
 	else if ((*c>=0xFF41)&&(*c<=0xFF5A)) return 1; /* Fullwidth Latin Small Letter */
 		/* Property of followings is "Common, So (other symbol)", but seem to be treated as Latin by ICU collator */
-	else if ((*c>=0x24B6)&&(*c<=0x24CF)) return 1; /* CIRCLED LATIN CAPITAL LETTER */
-	else if ((*c>=0x24D0)&&(*c<=0x24E9)) return 1; /* CIRCLED LATIN SMALL LETTER */
-	else return 0;
+	else if ((*c>=0x24B6)                          /* CIRCLED LATIN CAPITAL LETTER */
+	                     &&(*c<=0x24E9)) return 1; /* CIRCLED LATIN SMALL LETTER */
+
+	if (is_surrogate_pair(c)) {
+		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
+		if      ((c32>=0x10780) && (c32<=0x107BF)) return 2; /* Latin Extended-F */
+		else if ((c32>=0x1DF00) && (c32<=0x1DFFF)) return 2; /* Latin Extended-G */
+	}
+	return 0;
 }
 
 int is_numeric(UChar *c)
@@ -487,11 +509,11 @@ int is_hanzi(UChar *c)
 {
 	UChar32 c32;
 
-	if      ((*c>=0x2E80)&&(*c<=0x2EFF)) return 1; /* CJK Radicals Supplement */
-	else if ((*c>=0x2F00)&&(*c<=0x2FDF)) return 1; /* Kangxi Radicals */
+	if      ((*c>=0x2E80)                          /* CJK Radicals Supplement */
+	                     &&(*c<=0x2FDF)) return 1; /* Kangxi Radicals */
 	else if ((*c>=0x31C0)&&(*c<=0x31EF)) return 1; /* CJK Strokes */
-	else if ((*c>=0x3300)&&(*c<=0x33FF)) return 1; /* CJK Compatibility */
-	else if ((*c>=0x3400)&&(*c<=0x4DBF)) return 1; /* CJK Unified Ideographs Extension A */
+	else if ((*c>=0x3300)                          /* CJK Compatibility */
+	                     &&(*c<=0x4DBF)) return 1; /* CJK Unified Ideographs Extension A */
 	else if ((*c>=0x4E00)&&(*c<=0x9FFF)) return 1; /* CJK Unified Ideographs */
 	else if ((*c>=0xF900)&&(*c<=0xFAFF)) return 1; /* CJK Compatibility Ideographs */
 
@@ -513,7 +535,9 @@ int is_zhuyin(UChar *c)
 
 int is_cyrillic(UChar *c)
 {
-	if      ((*c>=0x0400)&&(*c<=0x052F)) return 1; /* Cyrillic, Cyrillic Supplement */
+	if      ((*c==0x0482))               return 0; /* Cyrillic Thousands Sign */
+	else if ((*c>=0x0400)                          /* Cyrillic */
+	                     &&(*c<=0x052F)) return 1; /* Cyrillic Supplement */
 	else if ((*c>=0x1C80)&&(*c<=0x1C8F)) return 1; /* Cyrillic Extended-C */
 	else if ((*c>=0x2DE0)&&(*c<=0x2DFF)) return 1; /* Cyrillic Extended-A */
 	else if ((*c>=0xA640)&&(*c<=0xA69F)) return 1; /* Cyrillic Extended-B */
@@ -522,15 +546,16 @@ int is_cyrillic(UChar *c)
 
 int is_greek(UChar *c)
 {
-	if      ((*c>=0x0370)&&(*c<=0x03FF)) return 1; /* Greek */
+	if      ((*c==0x03F6))               return 0; /* Greek Reversed Lunate Epsilon Symbol */
+	else if ((*c>=0x0370)&&(*c<=0x03FF)) return 1; /* Greek */
 	else if ((*c>=0x1F00)&&(*c<=0x1FFF)) return 1; /* Greek Extended */
 	else return 0;
 }
 
 int is_devanagari(UChar *c)
 {
-	if      ((*c>=0x0964)&&(*c<=0x0965)) return 0; /* Generic punctuation for scripts of India */
-	else if ((*c>=0x0966)&&(*c<=0x096F)) return 0; /* Devanagari Digit */
+	if      ((*c>=0x0964)                          /* Generic punctuation for scripts of India */
+	                     &&(*c<=0x096F)) return 0; /* Devanagari Digit */
 	else if ((*c>=0x0900)&&(*c<=0x097F)) return 1; /* Devanagari */
 	else if ((*c>=0xA8E0)&&(*c<=0xA8FF)) return 1; /* Devanagari Extended */
 	else return 0;
@@ -541,6 +566,48 @@ int is_thai(UChar *c)
 	if      ((*c==0x0E3F))               return 0; /* Thai Currency Symbol Baht */
 	else if ((*c>=0x0E50)&&(*c<=0x0E59)) return 0; /* Thai Digit */
 	else if ((*c>=0x0E00)&&(*c<=0x0E7F)) return 1; /* Thai */
+	else return 0;
+}
+
+int is_arabic(UChar *c)
+{
+	if      ((*c>=0x0600)                          /* ARABIC NUMBER SIGN..ARABIC SIGN SAMVAT */
+	                                               /* ARABIC NUMBER MARK ABOVE */
+	                     &&(*c<=0x0608)) return 0; /* ARABIC-INDIC CUBE ROOT..ARABIC RAY */
+	else if ((*c==0x060B))               return 0; /* AFGHANI SIGN */
+	else if ((*c==0x060C))               return 0; /* ARABIC COMMA */
+	else if ((*c>=0x060E)&&(*c<=0x060F)) return 0; /* ARABIC POETIC VERSE SIGN..ARABIC SIGN MISRA */
+	else if ((*c>=0x0660)&&(*c<=0x0669)) return 0; /* ARABIC-INDIC DIGIT ZERO..ARABIC-INDIC DIGIT NINE */
+	else if ((*c==0x061B))               return 0; /* ARABIC SEMICOLON */
+	else if ((*c==0x061C))               return 0; /* ARABIC LETTER MARK */
+	else if ((*c==0x061F))               return 0; /* ARABIC QUESTION MARK */
+	else if ((*c==0x0640))               return 0; /* ARABIC TATWEEL */
+	else if ((*c==0x06DD))               return 0; /* ARABIC END OF AYAH */
+	else if ((*c==0x06DE))               return 0; /* ARABIC START OF RUB EL HIZB */
+	else if ((*c==0x06E9))               return 0; /* ARABIC PLACE OF SAJDAH */
+	else if ((*c>=0x06F0)&&(*c<=0x06F9)) return 0; /* EXTENDED ARABIC-INDIC DIGIT ZERO..EXTENDED ARABIC-INDIC DIGIT NINE */
+	else if ((*c>=0x06FD)&&(*c<=0x06FE)) return 0; /* ARABIC SIGN SINDHI AMPERSAND..ARABIC SIGN SINDHI POSTPOSITION MEN */
+	else if ((*c==0x08E2))               return 0; /* ARABIC DISPUTED END OF AYAH */
+	else if ((*c>=0x0890)&&(*c<=0x0891)) return 0; /* ARABIC POUND MARK ABOVE..ARABIC PIASTRE MARK ABOVE */
+	else if ((*c>=0xFD40)&&(*c<=0xFD4F)) return 0; /* ARABIC LIGATURE RAHIMAHU ALLAAH..ARABIC LIGATURE RAHIMAHUM ALLAAH */
+	else if ((*c==0xFDCF))               return 0; /* ARABIC LIGATURE SALAAMUHU ALAYNAA */
+	else if ((*c==0xFDFC))               return 0; /* RIAL SIGH */
+	else if ((*c>=0xFDFD)&&(*c<=0xFDFF)) return 0; /* ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM..ARABIC LIGATURE AZZA WA JALL */
+
+	else if ((*c>=0x0600)&&(*c<=0x06FF)) return 1; /* Arabic */
+	else if ((*c>=0x0750)&&(*c<=0x077F)) return 1; /* Arabic Supplement */
+	else if ((*c>=0x0870)                          /* Arabic Extended-B */
+	                     &&(*c<=0x08FF)) return 1; /* Arabic Extended-A */
+	else if ((*c>=0xFB50)&&(*c<=0xFDFF)) return 1; /* Arabic Presentation Forms-A */
+	else if ((*c>=0xFE70)&&(*c<=0xFEFF)) return 1; /* Arabic Presentation Forms-B */
+	else return 0;
+}
+
+int is_hebrew(UChar *c)
+{
+	if      ((*c==0xFB29))               return 0; /* Hebrew Letter Alternative Plus Sign */
+	else if ((*c>=0x0590)&&(*c<=0x05FF)) return 1; /* Hebrew */
+	else if ((*c>=0xFB1D)&&(*c<=0xFB4F)) return 1; /* Hebrew presentation forms */
 	else return 0;
 }
 
@@ -558,6 +625,7 @@ int is_type_mark_or_punct(UChar *c)
 	case U_CONNECTOR_PUNCTUATION: case U_OTHER_PUNCTUATION:
 	case U_INITIAL_PUNCTUATION: case U_FINAL_PUNCTUATION:
 	case U_NON_SPACING_MARK: case U_ENCLOSING_MARK: case U_COMBINING_SPACING_MARK:
+	case U_FORMAT_CHAR:
 		return 1;
 	default:
 		return 0;

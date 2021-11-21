@@ -66,6 +66,8 @@ int is_cyrillic(UChar *c);
 int is_greek(UChar *c);
 int is_devanagari(UChar *c);
 int is_thai(UChar *c);
+int is_arabic(UChar *c);
+int is_hebrew(UChar *c);
 int is_type_mark_or_punct(UChar *c);
 int is_type_symbol(UChar *c);
 int chkcontinue(struct page *p, int num);
@@ -80,9 +82,11 @@ int ss_comp(UChar *s1, UChar *s2);
 #define CH_HANZI        6
 #define CH_DEVANAGARI   7
 #define CH_THAI         8
+#define CH_ARABIC       9
+#define CH_HEBREW      10
 #define CH_SYMBOL   0x100
 #define CH_NUMERIC  0x101
-#define  is_any_script(a)  ((CH_LATIN<=(a) && (a)<=CH_THAI))
+#define  is_any_script(a)  ((CH_LATIN<=(a) && (a)<=CH_HEBREW))
 
 /* sort.c */
 int charset(UChar *c);

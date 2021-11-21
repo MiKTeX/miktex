@@ -5,7 +5,7 @@
     <TPM:Name>upmendex win32</TPM:Name>
     <TPM:Title>upmendex, Windows x86</TPM:Title>
     <TPM:License type="pd"/>
-    <TPM:Version>0.60</TPM:Version>
+    <TPM:Version>1.00</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
