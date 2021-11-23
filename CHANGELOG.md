@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## pending release
+## 21.11 - 2021-11-29
 
 ### (e-)(u)pTeX
 
