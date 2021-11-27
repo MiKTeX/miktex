@@ -47,6 +47,7 @@ set(miktex_tex_change_files
     ${TRACINGSTACKLEVELS_CH}
     ${PARTOKEN_102_CH}
     ${PARTOKEN_CH}
+    ${SHOWSTREAM_CH}
     ${ENCTEX1_CH}
     ${ENCTEX_PDFTEX_CH}
     ${ENCTEX2_CH}

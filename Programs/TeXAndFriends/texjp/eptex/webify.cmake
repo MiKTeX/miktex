@@ -30,6 +30,7 @@ set(miktex_tex_change_files
     ${MIKTEX_TEX_WRITE18_CH}
     ${TRACINGSTACKLEVELS_CH}
     ${PARTOKEN_CH}
+    ${SHOWSTREAM_CH}
     ${MIKTEX_TEX_WEB2C_CH}
     ${MIKTEX_TEX_FINISH_CH}
 )

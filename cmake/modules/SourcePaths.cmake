@@ -232,6 +232,7 @@ set(MIKTEX_TEX_POOL_CH          "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/mikte
 set(MIKTEX_TEX_QUIET_CH         "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-quiet.ch")
 set(MIKTEX_TEX_SRC_CH           "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-src.ch")
 set(MIKTEX_TEX_STAT_CH          "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-stat.ch")
+set(SHOWSTREAM_CH               "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2c/source/showstream.ch")
 set(TEX_MIKTEX_SYNCTEX_CH       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-synctex.ch")
 set(MIKTEX_TEX_WRITE18_CH       "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-write18.ch")
 set(MIKTEX_TEX_WEB2C_CH         "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_TEX_DIR}/miktex-tex-web2c.ch")
