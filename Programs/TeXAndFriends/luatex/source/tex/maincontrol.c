@@ -3968,10 +3968,6 @@ void show_whatever(void)
     int m;      /* upper bound on |fi_or_else| codes */
     int l;      /* line where that conditional began */
     int n;      /* level of \.{\\if...\\fi} nesting */
-    int saved_selector; /* previous selector. Must be distinct from the global err_old_setting. */
-    saved_selector = selector;
-    if (file_can_be_written(show_stream_par))
-        selector = show_stream_par;
     switch (cur_chr) {
     case show_lists:
         begin_diagnostic();
@@ -4066,10 +4062,6 @@ void show_whatever(void)
         }
     }
   COMMON_ENDING:
-    if (valid_write_file(selector)) {
-        selector = saved_selector;
-        return;
-    }
     if (interaction < error_stop_mode) {
         help0();
         decr(error_count);
