@@ -199,7 +199,11 @@ static int get_bytecode(lua_State * L)
 #else
                  "bytecode", NULL)) {
 #endif
+#if defined(MIKTEX)
+                return luaL_error(L, "bad bytecode register: %d", k);
+#else
                 return luaL_error(L, "bad bytecode register");
+#endif
             } else {
                 lua_pushvalue(L, -1);
                 bytecode_register_shadow_set(L, k);
