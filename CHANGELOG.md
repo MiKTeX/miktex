@@ -16,6 +16,7 @@ MiKTeX now includes the four TeX engines of the "Japanese TeX processing tools" 
 ### Fixed issues
 
 - [858](https://github.com/MiKTeX/miktex/issues/858): Hope MiKTeX can support upTeX series (upTeX/upLaTeX/eupTex...) engine
+- [983](https://github.com/MiKTeX/miktex/issues/983): dvisvgm: unexpected error in conjunction with raw SVG elements
 
 ## 21.10 - 2021-10-05
 

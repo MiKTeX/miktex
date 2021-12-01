@@ -367,8 +367,8 @@ string InputReader::getLine () {
 	// trim trailing whitespace
 #if defined(MIKTEX)
 	// Because ptr_fun has been removed from std namespace.
-	const auto retEnd = ret.find_last_not_of(" \t");
-    return ret.substr(0, retEnd);
+	const auto retEnd = ret.find_last_not_of(" \f\r\n\t\v");
+    return ret.substr(0, retEnd + 1);
 #else
 	ret.erase(std::find_if(ret.rbegin(), ret.rend(), not1(ptr_fun<int, int>(isspace))).base(), ret.end());
 	return ret;
