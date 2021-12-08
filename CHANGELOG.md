@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## Next
+
+### Fixed issues
+
+- [984](https://github.com/MiKTeX/miktex/issues/984): xelatex crashes if fonts are called by name and the open type renderer is used
+
 ## 21.12 - 2021-12-07
 
 ### (e-)(u)pTeX

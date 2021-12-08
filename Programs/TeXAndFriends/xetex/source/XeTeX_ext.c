@@ -1258,14 +1258,12 @@ findnativefont(unsigned char* uname, integer scaled_size)
         if (fontRef != 0) {
             /* update nameoffile to the full name of the font, for error messages during font loading */
             const char* fullName = getFullName(fontRef);
+#if !defined(MIKTEX)
             namelength = strlen(fullName);
             if (featString != NULL)
                 namelength += strlen(featString) + 1;
             if (varString != NULL)
                 namelength += strlen(varString) + 1;
-#if defined(MIKTEX)
-            MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::Util::PathName(fullName));
-#else
             free(nameoffile);
             nameoffile = xmalloc(namelength + 4); /* +2 would be correct: initial space, final NUL */
             nameoffile[0] = ' ';
@@ -1311,6 +1309,20 @@ findnativefont(unsigned char* uname, integer scaled_size)
 #endif
             }
 
+#if defined(MIKTEX)
+            std::string fileName = fullName;
+            if (varString != nullptr && *varString != 0)
+            {
+                fileName += "/";
+                fileName += varString;
+            }
+            if (featString != nullptr && *featString != 0)
+            {
+                fileName += ":";
+                fileName += featString;
+            }
+            MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::Util::PathName(fileName));
+#else
             /* append the style and feature strings, so that \show\fontID will give a full result */
             if (varString != NULL && *varString != 0) {
                 strcat((char*)nameoffile + 1, "/");
@@ -1321,6 +1333,7 @@ findnativefont(unsigned char* uname, integer scaled_size)
                 strcat((char*)nameoffile + 1, featString);
             }
             namelength = strlen((char*)nameoffile + 1);
+#endif
         }
     }
 
