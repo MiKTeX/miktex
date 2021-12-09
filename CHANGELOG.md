@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## Next
+## 21.12.10 - 2021-12-10
 
 ### Fixed issues
 
