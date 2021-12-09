@@ -2,6 +2,10 @@
 
 ## 21.12.10 - 2021-12-10
 
+### Upgraded programs
+
+* bibsort 2.3
+
 ### Fixed issues
 
 - [984](https://github.com/MiKTeX/miktex/issues/984): xelatex crashes if fonts are called by name and the open type renderer is used
