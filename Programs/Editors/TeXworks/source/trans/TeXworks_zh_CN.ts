@@ -1036,7 +1036,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PrefsDialog.ui" line="557"/>
         <source>Cursor Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>光标宽度：</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="618"/>
@@ -1287,7 +1287,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../src/PrefsDialog.ui" line="836"/>
         <source>Synchronization Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>同步分辨率</translation>
     </message>
     <message>
         <location filename="../src/PrefsDialog.ui" line="842"/>
@@ -2862,7 +2862,7 @@ We are sorry for the inconvenience.</source>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1118"/>
         <source>Insert Citations...</source>
-        <translation type="unfinished"></translation>
+        <translation>插入引用...</translation>
     </message>
     <message>
         <location filename="../src/TeXDocumentWindow.ui" line="1121"/>
