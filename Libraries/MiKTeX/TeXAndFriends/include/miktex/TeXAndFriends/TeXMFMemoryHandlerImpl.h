@@ -104,7 +104,12 @@ protected:
     }
     if (result < minValue || result > maxValue)
     {
-      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."), "parameterName", parameterName);
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."),
+        "maxValue", std::to_string(maxValue),
+        "minValue", std::to_string(minValue),
+        "parameterName", parameterName,
+        "value", std::to_string(result)
+      );
     }
     if (trace_mem->IsEnabled("libtexmf", MiKTeX::Trace::TraceLevel::Trace))
     {
