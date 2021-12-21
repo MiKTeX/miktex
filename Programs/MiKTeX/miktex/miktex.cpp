@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published
    by the Free Software Foundation; either version 2, or (at your
    option) any later version.
-   
+
    This file is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this file; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
@@ -85,82 +85,82 @@ static std::atomic<bool> canceled;
 
 static void MIKTEXCEECALL SignalHandler(int signalToBeHandled)
 {
-  switch (signalToBeHandled)
-  {
-  case SIGINT:
-  case SIGTERM:
-    signal(SIGINT, SIG_IGN);
-    canceled = true;
-    break;
-  }
+    switch (signalToBeHandled)
+    {
+    case SIGINT:
+    case SIGTERM:
+        signal(SIGINT, SIG_IGN);
+        canceled = true;
+        break;
+    }
 }
 
 void InstallSignalHandler(int sig)
 {
-  void(*oldHandlerFunc) (int);
-  oldHandlerFunc = signal(sig, SignalHandler);
-  if (oldHandlerFunc == SIG_ERR)
-  {
-    MIKTEX_FATAL_CRT_ERROR("signal");
-  }
-  if (oldHandlerFunc != SIG_DFL)
-  {
-    if (signal(sig, oldHandlerFunc) == SIG_ERR)
+    void(*oldHandlerFunc) (int);
+    oldHandlerFunc = signal(sig, SignalHandler);
+    if (oldHandlerFunc == SIG_ERR)
     {
-      MIKTEX_FATAL_CRT_ERROR("signal");
+        MIKTEX_FATAL_CRT_ERROR("signal");
     }
-  }
+    if (oldHandlerFunc != SIG_DFL)
+    {
+        if (signal(sig, oldHandlerFunc) == SIG_ERR)
+        {
+            MIKTEX_FATAL_CRT_ERROR("signal");
+        }
+    }
 }
 
 static void Sorry(const string& description, const string& remedy, const string& url)
 {
-  if (cerr.fail())
-  {
-    return;
-  }
-  cerr << endl;
-  if (description.empty())
-  {
-    cerr << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(TheNameOfTheGame)) << endl;
-  }
-  else
-  {
-    cerr
-      << fmt::format(T_("Sorry, but {0} did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
-      << "\n"
-      << "  " << description << endl;
-    if (!remedy.empty())
+    if (cerr.fail())
     {
-      cerr
-        << "\n"
-        << T_("Remedy:") << "\n"
-        << "\n"
-        << "  " << remedy << endl;
+        return;
     }
-  }
-  if (isLog4cxxConfigured)
-  {
+    cerr << endl;
+    if (description.empty())
+    {
+        cerr << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(TheNameOfTheGame)) << endl;
+    }
+    else
+    {
+        cerr
+            << fmt::format(T_("Sorry, but {0} did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
+            << "\n"
+            << "  " << description << endl;
+        if (!remedy.empty())
+        {
+            cerr
+                << "\n"
+                << T_("Remedy:") << "\n"
+                << "\n"
+                << "  " << remedy << endl;
+        }
+    }
+    if (isLog4cxxConfigured)
+    {
 #if defined(MIKTEX_LOG4CXX_12)
-    log4cxx::AppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-    log4cxx::FileAppenderPtr fileAppender = log4cxx::cast<log4cxx::FileAppender>(appender);
+        log4cxx::AppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+        log4cxx::FileAppenderPtr fileAppender = log4cxx::cast<log4cxx::FileAppender>(appender);
 #else
-    log4cxx::FileAppenderPtr fileAppender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
+        log4cxx::FileAppenderPtr fileAppender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
 #endif
-    if (fileAppender != nullptr)
-    {
-      cerr
-        << "\n"
-        << T_("The log file hopefully contains the information to get MiKTeX going again:") << "\n"
-        << "\n"
-        << "  " << PathName(fileAppender->getFile()) << endl;
+        if (fileAppender != nullptr)
+        {
+            cerr
+                << "\n"
+                << T_("The log file hopefully contains the information to get MiKTeX going again:") << "\n"
+                << "\n"
+                << "  " << PathName(fileAppender->getFile()) << endl;
+        }
     }
-  }
-  if (!url.empty())
-  {
-    cerr
-      << "\n"
-      << T_("For more information, visit:") << " " << url << endl;
-  }
+    if (!url.empty())
+    {
+        cerr
+            << "\n"
+            << T_("For more information, visit:") << " " << url << endl;
+    }
 }
 
 static void Sorry()
@@ -233,7 +233,7 @@ private:
 
 private:
     void PushTraceMessage(const std::string& message);
-  
+
 private:
     bool Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
 
@@ -390,7 +390,7 @@ void MiKTeXApp::BadUsage(const string& s)
 void MiKTeXApp::ShowUsage()
 {
     cout << T_("Usage: miktex [options] topic command") << "\n"
-         << T_("Topics:") << endl;
+        << T_("Topics:") << endl;
     for (auto& t : topics)
     {
         cout << fmt::format("  {0}  {1}", t.second->Name(), t.second->Description()) << endl;
@@ -400,12 +400,12 @@ void MiKTeXApp::ShowUsage()
 void MiKTeXApp::ShowVersion()
 {
     cout
-      << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
-      << "\n"
-      << MIKTEX_COMP_COPYRIGHT_STR << "\n"
-      << "\n"
-      << "This is free software; see the source for copying conditions.  There is NO" << "\n"
-      << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+        << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << "\n"
+        << "\n"
+        << MIKTEX_COMP_COPYRIGHT_STR << "\n"
+        << "\n"
+        << "This is free software; see the source for copying conditions.  There is NO" << "\n"
+        << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
 int MiKTeXApp::Init(vector<string>& args)
@@ -482,7 +482,7 @@ int MiKTeXApp::Init(vector<string>& args)
         {
             logName += MIKTEX_ADMIN_SUFFIX;
         }
-        Utils::SetEnvironmentString("MIKTEX_LOG_NAME",logName);
+        Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
         log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     }
     else
@@ -585,9 +585,9 @@ int MAIN(int argc, MAINCHAR* argv[])
         else
         {
             cerr << e.GetErrorMessage() << endl
-                 << "Info: " << e.GetInfo() << endl
-                 << "Source: " << e.GetSourceFile() << endl
-                 << "Line: " << e.GetSourceLine() << endl;
+                << "Info: " << e.GetInfo() << endl
+                << "Source: " << e.GetSourceFile() << endl
+                << "Line: " << e.GetSourceLine() << endl;
         }
         Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
         e.Save();
