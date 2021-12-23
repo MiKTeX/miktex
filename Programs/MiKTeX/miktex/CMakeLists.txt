@@ -50,12 +50,20 @@ endif()
 set(miktex_sources
   internal.h
   miktex.cpp
+  shims/mkfntmap.cpp
+  shims/mkfntmap.h
+  shims/updmap.cpp
+  shims/updmap.h
   topics/Topic.cpp
   topics/Topic.h
   topics/filesystem/topic.cpp
   topics/filesystem/topic.h
   topics/filesystem/commands/commands.h
   topics/filesystem/commands/watch.cpp
+  topics/fontmaps/topic.cpp
+  topics/fontmaps/topic.h
+  topics/fontmaps/commands/commands.h
+  topics/fontmaps/commands/update.cpp
 )
 
 list(APPEND miktex_sources
