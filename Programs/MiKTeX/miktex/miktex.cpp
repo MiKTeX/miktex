@@ -60,7 +60,12 @@
 
 #include "internal.h"
 #include "topics/Topic.h"
+
+#include "shims/mkfntmap.h"
+#include "shims/updmap.h"
+
 #include "topics/filesystem/topic.h"
+#include "topics/fontmaps/topic.h"
 
 using namespace std;
 
@@ -189,7 +194,7 @@ private:
     }
 
 private:
-    void RegisterTopic(unique_ptr<Topics::Topic> t)
+    void RegisterTopic(unique_ptr<Topics::Topic> t, vector<string> aliases)
     {
         string name = t->Name();
         topics[name] = std::move(t);
@@ -198,11 +203,18 @@ private:
 private:
     void RegisterTopics()
     {
-        RegisterTopic(Topics::FileSystem::Create());
+        RegisterTopic(Topics::FileSystem::Create(), {});
+        RegisterTopic(Topics::FontMaps::Create(), {"mkfntmap", "updmap"});
     }
 
 private:
-    void Verbose(const std::string& s);
+    void Verbose(int level, const std::string& s) override;
+
+private:
+    void Verbose(const  std::string& s)
+    {
+        Verbose(1, s);
+    }
 
 private:
     MIKTEXNORETURN void FatalError(const std::string& s);
@@ -249,7 +261,7 @@ private:
     bool quiet;
     std::shared_ptr<MiKTeX::Core::Session> session;
     std::map<std::string, std::unique_ptr<Topics::Topic>> topics;
-    bool verbose = false;
+    int verbosityLevel = 0;
 };
 
 void MiKTeXApp::PushTraceMessage(const TraceCallback::TraceMessage& traceMessage)
@@ -322,9 +334,21 @@ void MiKTeXApp::LogTraceMessage(const TraceCallback::TraceMessage& traceMessage)
     }
 }
 
-void MiKTeXApp::Verbose(const string& s)
+void MiKTeXApp::Verbose(int level, const string& s)
 {
-    if (verbose)
+    if (level >= 4)
+    {
+        LOG4CXX_TRACE(logger, s);
+    }
+    else if (level >= 2)
+    {
+        LOG4CXX_DEBUG(logger, s);
+    }
+    else
+    {
+        LOG4CXX_INFO(logger, s);
+    }
+    if (verbosityLevel >= level)
     {
         Output(s);
     }
@@ -411,6 +435,7 @@ void MiKTeXApp::ShowVersion()
 int MiKTeXApp::Init(vector<string>& args)
 {
     ctx.controller = this;
+    ctx.session = this->session;
     ctx.ui = this;
     RegisterTopics();
     bool adminMode = false;
@@ -504,7 +529,16 @@ int MiKTeXApp::Init(vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(args));
     FlushPendingTraceMessages();
+    auto arg0 = args[0];
     args.erase(args.begin(), args.begin() + idx);
+    if (arg0 == "mkfntmap")
+    {
+        Shims::mkfntmap(args);
+    }
+    else if (arg0 == "updmap")
+    {
+        Shims::updmap(args);
+    }
     InstallSignalHandler(SIGINT);
     InstallSignalHandler(SIGTERM);
     return 0;

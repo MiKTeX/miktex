@@ -19,7 +19,12 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include <miktex/Definitions>
+
+#include <miktex/Core/Session>
 
 namespace OneMiKTeXUtility
 {
@@ -34,11 +39,13 @@ namespace OneMiKTeXUtility
     public:
         virtual void Error(const std::string& s) = 0;
         virtual void Output(const std::string& s) = 0;
+        virtual void Verbose(int level, const std::string& s) = 0;
     };
 
     struct ApplicationContext
     {
         Controller* controller;
+        std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;
     };
 }
