@@ -176,6 +176,7 @@ static void Sorry()
 class MiKTeXApp :
     public TraceCallback,
     public OneMiKTeXUtility::Controller,
+    public OneMiKTeXUtility::Logger,
     public OneMiKTeXUtility::UI
 {
 public:
@@ -211,13 +212,31 @@ private:
     void Verbose(int level, const std::string& s) override;
 
 private:
-    void Verbose(const  std::string& s)
+    void Verbose(const std::string& s)
     {
         Verbose(1, s);
     }
 
 private:
-    MIKTEXNORETURN void FatalError(const std::string& s);
+    int VerbosityLevel() override
+    {
+        return this->verbosityLevel;
+    }
+
+private:
+    void LogFatal(const std::string& message)
+    {
+        LOG4CXX_FATAL(logger, message);
+    }
+
+private:
+    void LogInfo(const std::string& message)
+    {
+        LOG4CXX_INFO(logger, message);
+    }
+
+private:
+    MIKTEXNORETURN void FatalError(const std::string& s) override;
 
 private:
     void BadUsage(const std::string& s);
@@ -432,9 +451,15 @@ void MiKTeXApp::ShowVersion()
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
+bool IsOption(const string& s, const string& optionName)
+{
+    return s == "-"s + optionName || s == "--"s + optionName;
+}
+
 int MiKTeXApp::Init(vector<string>& args)
 {
     ctx.controller = this;
+    ctx.logger = this;
     ctx.session = this->session;
     ctx.ui = this;
     RegisterTopics();
@@ -442,26 +467,35 @@ int MiKTeXApp::Init(vector<string>& args)
     bool forceAdminMode = false;
     Session::InitOptionSet options;
     MIKTEX_ASSERT(args.size() > 0);
+    auto arg0 = args[0];
+    if (arg0 == "mkfntmap")
+    {
+        Shims::mkfntmap(args);
+    }
+    else if (arg0 == "updmap")
+    {
+        Shims::updmap(args);
+    }
     bool optVersion = false;
     size_t idx = 1;
     for (; idx < args.size() && args[idx].length() > 0 && args[idx][0] == '-'; ++idx)
     {
         const string& opt = args[idx];
-        if (opt == "--admin" || opt == "-admin")
+        if (IsOption(opt, "admin"))
         {
             adminMode = true;
         }
-        else if (opt == "--help" || opt == "-help")
+        else if (IsOption(opt, "help"))
         {
             ShowUsage();
             return -1;
         }
-        else if (opt == "--principal=setup" || opt == "-principal=setup")
+        else if (IsOption(opt, "principal=setup"))
         {
             options += Session::InitOption::SettingUp;
             forceAdminMode = true;
         }
-        else if (opt == "--version" || opt == "-version")
+        else if (IsOption(opt, "version"))
         {
             optVersion = true;
         }
@@ -529,16 +563,7 @@ int MiKTeXApp::Init(vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(args));
     FlushPendingTraceMessages();
-    auto arg0 = args[0];
     args.erase(args.begin(), args.begin() + idx);
-    if (arg0 == "mkfntmap")
-    {
-        Shims::mkfntmap(args);
-    }
-    else if (arg0 == "updmap")
-    {
-        Shims::updmap(args);
-    }
     InstallSignalHandler(SIGINT);
     InstallSignalHandler(SIGTERM);
     return 0;

@@ -34,17 +34,27 @@ namespace OneMiKTeXUtility
         virtual bool Canceled() = 0;
     };
 
+    class MIKTEXNOVTABLE Logger
+    {
+    public:
+        virtual void LogFatal(const std::string& message) = 0;
+        virtual void LogInfo(const std::string& message) = 0;
+    };
+
     class MIKTEXNOVTABLE UI
     {
     public:
         virtual void Error(const std::string& s) = 0;
+        virtual MIKTEXNORETURN void FatalError(const std::string& s) = 0;
         virtual void Output(const std::string& s) = 0;
         virtual void Verbose(int level, const std::string& s) = 0;
+        virtual int VerbosityLevel() = 0;
     };
 
     struct ApplicationContext
     {
         Controller* controller;
+        Logger* logger;
         std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;
     };
