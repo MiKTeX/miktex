@@ -33,7 +33,7 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-tuple<PathName, vector<string>> SessionImpl::GetScript(const string& scriptEngine, const string& name)
+tuple<PathName, vector<string>, vector<string>> SessionImpl::GetScript(const string& scriptEngine, const string& name)
 {
   PathName scriptsIni;
   if (!FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
@@ -59,7 +59,12 @@ tuple<PathName, vector<string>> SessionImpl::GetScript(const string& scriptEngin
   {
     scriptEngineOptions.clear();
   }
-  return make_tuple(scriptPath, scriptEngineOptions);
+  vector<string> scriptOptions;
+  if (!config->TryGetValueAsStringVector(scriptEngine, name + "." + "options" + "[]", scriptOptions))
+  {
+    scriptOptions.clear();
+  }
+  return make_tuple(scriptPath, scriptEngineOptions, scriptOptions);
 }
 
 int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngineArgument, int argc, const char** argv)
@@ -82,7 +87,8 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 
   PathName scriptPath;
   vector<string> scriptEngineOptions;
-  tie(scriptPath, scriptEngineOptions) = GetScript(scriptEngine, name.ToString());
+  vector<string> scriptOptions;
+  tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript(scriptEngine, name.ToString());
 
 #if defined(MIKTEX_WINDOWS)
   bool isCmd = scriptEnginePath.HasExtension(".bat") || scriptEnginePath.HasExtension(".cmd");
@@ -107,6 +113,11 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   }
 
   args.push_back(scriptPath.ToString());
+
+  if (!scriptOptions.empty())
+  {
+    args.insert(args.end(), scriptOptions.begin(), scriptOptions.end());
+  }
 
   if (argc > 1)
   {

@@ -1,6 +1,6 @@
 /* runexe.cpp: running executables
 
-   Copyright (C) 2019-2020 Christian Schenk
+   Copyright (C) 2019-2021 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -37,8 +37,9 @@ int SessionImpl::RunExe(int argc, const char** argv)
   PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   PathName executablePath;
-  vector<string> executableOptions;
-  tie(executablePath, executableOptions) = GetScript("exe", name.ToString());
+  vector<string> scriptEngineOptions;
+  vector<string> scriptOptions;
+  tie(executablePath, scriptEngineOptions, scriptOptions) = GetScript("exe", name.ToString());
 
 #if !defined(MIKTEX_WINDOWS)
   if (!File::GetAttributes(executablePath)[FileAttribute::Executable])

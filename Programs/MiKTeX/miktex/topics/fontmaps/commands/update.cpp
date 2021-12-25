@@ -1,31 +1,31 @@
-/* topics/fontmaps/commands/update.cpp:
-
-   Copyright (C) 2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-   
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA.  */
+/**
+ * @file update.cpp
+ * @author Christian Schenk
+ * @brief Update TeX font map files
+ *
+ * @copyright Copyright © 2002-2021 Christian Schenk
+ *
+ * This file is part of One MiKTeX Utility.
+ *
+ * One MiKTeX Utility is licensed under GNU General Public
+ * License version 2 or any later version.
+ *
+ * The code in this file is based on the updmap Perl script
+ * (updmap.pl):
+ *
+ * @code {.unparsed}
+ * # Copyright 2011-2021 Norbert Preining
+ * # This file is licensed under the GNU General Public License version 2
+ * # or any later version.
+ * @endcode
+ */
 
 #include <iostream>
 #include <map>
 #include <set>
-#include <thread>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-
-#include <miktex/Wrappers/PoptWrapper>
 
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
@@ -38,52 +38,20 @@
 #include <miktex/Core/StreamWriter>
 #include <miktex/Core/Text>
 #include <miktex/Core/Utils>
+
 #include <miktex/Util/PathName>
 #include <miktex/Util/Tokenizer>
 
-#include "commands.h"
+#include <miktex/Wrappers/PoptWrapper>
+
 #include "internal.h"
+
+#include "commands.h"
 
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define BOOLSTR(b) ((b) ? "true" : "false")
-
-using namespace std;
-
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Util;
-
-using namespace OneMiKTeXUtility;
-
-enum Option
-{
-    OPT_AAA = 1,
-    OPT_FORCE,
-    OPT_OUTPUT_DIRECTORY,
-};
-
-const struct poptOption aoption[] = {
-    {
-        "force", 0,
-        POPT_ARG_NONE, nullptr,
-        OPT_FORCE,
-        T_("Force re-generation of apparently up-to-date fontconfig cache files, overriding the timestamp checking."),
-        nullptr,
-    },
-
-    {
-        "output-directory", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_OUTPUT_DIRECTORY,
-        T_("Set the output directory."),
-        "DIR"
-    },
-
-    POPT_AUTOHELP
-    POPT_TABLEEND
-};
-
 
 struct FileContext
 {
@@ -106,7 +74,7 @@ inline bool operator<(const DvipdfmxFontMapEntry& lhs, const DvipdfmxFontMapEntr
   return lhs.texName < rhs.texName;
 }
 
-class MakeFontMapApp :
+class FontMapsUpdater :
     public MiKTeX::Core::IRunProcessCallback
 {
 public:
@@ -116,7 +84,7 @@ public:
 
 private:
 
-    void ProcessOptions(const vector<string>& arguments);
+    void ProcessOptions(const std::vector<std::string>& arguments);
 
     bool ToBool(const std::string& param);
 
@@ -243,6 +211,15 @@ private:
     bool OnProcessOutput(const void* output, size_t n) override;
 
     std::string currentProcessOutputLine;
+
+    enum Option
+    {
+        OPT_AAA = 1,
+        OPT_FORCE,
+        OPT_OUTPUT_DIRECTORY,
+    };
+
+    static const struct poptOption aoption[];
 };
 
 using namespace std;
@@ -252,12 +229,34 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 
-map<string, string> MakeFontMapApp::fileURW;
-map<string, string> MakeFontMapApp::fileADOBE;
-map<string, string> MakeFontMapApp::fileADOBEkb;
-map<string, string> MakeFontMapApp::psADOBE;
+using namespace OneMiKTeXUtility;
 
-void MakeFontMapApp::ProcessOptions(const std::vector<std::string>& arguments)
+map<string, string> FontMapsUpdater::fileURW;
+map<string, string> FontMapsUpdater::fileADOBE;
+map<string, string> FontMapsUpdater::fileADOBEkb;
+map<string, string> FontMapsUpdater::psADOBE;
+
+const struct poptOption FontMapsUpdater::aoption[] =
+{
+    {
+        "force", 0,
+        POPT_ARG_NONE, nullptr,
+        FontMapsUpdater::OPT_FORCE,
+        T_("Force re-generation of apparently up-to-date fontconfig cache files, overriding the timestamp checking."),
+        nullptr,
+    },
+    {
+        "output-directory", 0,
+        POPT_ARG_STRING, nullptr,
+        FontMapsUpdater::OPT_OUTPUT_DIRECTORY,
+        T_("Set the output directory."),
+        "DIR"
+    },
+    POPT_AUTOHELP
+    POPT_TABLEEND
+};
+
+void FontMapsUpdater::ProcessOptions(const std::vector<std::string>& arguments)
 {
     vector<const char*> argv;
     argv.reserve(arguments.size() + 1);
@@ -267,7 +266,7 @@ void MakeFontMapApp::ProcessOptions(const std::vector<std::string>& arguments)
     }
     argv.push_back(nullptr);
 
-    PoptWrapper popt(arguments.size(), &argv[0], aoption);
+    PoptWrapper popt(static_cast<int>(arguments.size()), &argv[0], this->aoption);
 
     int option;
 
@@ -294,11 +293,11 @@ void MakeFontMapApp::ProcessOptions(const std::vector<std::string>& arguments)
 
     if (!popt.GetLeftovers().empty())
     {
-        this->ctx->ui->FatalError(T_("This utility does not accept non-option arguments."));
+        this->ctx->ui->FatalError(T_("This command does not accept non-option arguments."));
     }
 }
 
-MIKTEXNORETURN void MakeFontMapApp::CfgError(const string& s)
+MIKTEXNORETURN void FontMapsUpdater::CfgError(const string& s)
 {
     this->ctx->logger->LogFatal(s);
     this->ctx->logger->LogFatal(fmt::format("cfg file: {0}", cfgContext.path));
@@ -306,7 +305,7 @@ MIKTEXNORETURN void MakeFontMapApp::CfgError(const string& s)
     this->ctx->ui->FatalError(T_("Configuration error."));
 }
 
-MIKTEXNORETURN void MakeFontMapApp::MapError(const string& s)
+MIKTEXNORETURN void FontMapsUpdater::MapError(const string& s)
 {
     this->ctx->logger->LogFatal(s);
     this->ctx->logger->LogFatal(fmt::format("map file: {0}",  mapContext.path));
@@ -314,7 +313,7 @@ MIKTEXNORETURN void MakeFontMapApp::MapError(const string& s)
     this->ctx->ui->FatalError(T_("Map file error."));
 }
 
-bool MakeFontMapApp::ToBool(const string& param)
+bool FontMapsUpdater::ToBool(const string& param)
 {
     if (param.empty())
     {
@@ -334,7 +333,7 @@ bool MakeFontMapApp::ToBool(const string& param)
     }
 }
 
-bool MakeFontMapApp::ParseConfigLine(const string& line, string& directive, string& param)
+bool FontMapsUpdater::ParseConfigLine(const string& line, string& directive, string& param)
 {
     if (line.empty() || string("*#;%").find_first_of(line[0]) != string::npos)
     {
@@ -358,7 +357,7 @@ bool MakeFontMapApp::ParseConfigLine(const string& line, string& directive, stri
     return true;
 }
 
-void MakeFontMapApp::ParseConfigFile(const PathName& path)
+void FontMapsUpdater::ParseConfigFile(const PathName& path)
 {
     Verbose(fmt::format(T_("Parsing config file {0}..."), Q_(path)));
     StreamReader reader(path);
@@ -469,7 +468,7 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
     reader.Close();
 }
 
-void MakeFontMapApp::Init(ApplicationContext& ctx, const vector<string>& arguments)
+void FontMapsUpdater::Init(ApplicationContext& ctx, const vector<string>& arguments)
 {
     this->ctx = &ctx;
 
@@ -657,7 +656,7 @@ bool Replace(string& s, const string& s2, const string& s3)
     return true;
 }
 
-bool MakeFontMapApp::LocateFontMapFile(const string& fileNameTemplate, PathName& path, bool mustExist)
+bool FontMapsUpdater::LocateFontMapFile(const string& fileNameTemplate, PathName& path, bool mustExist)
 {
     string fileName;
     fileName = fileNameTemplate;
@@ -680,7 +679,7 @@ bool MakeFontMapApp::LocateFontMapFile(const string& fileNameTemplate, PathName&
     return found;
 }
 
-void MakeFontMapApp::WriteHeader(ostream& writer, const PathName& fileName)
+void FontMapsUpdater::WriteHeader(ostream& writer, const PathName& fileName)
 {
     writer
         << "%%% " << T_("DO NOT EDIT THIS FILE! It will be replaced when MiKTeX is updated.") << "\n"
@@ -688,7 +687,7 @@ void MakeFontMapApp::WriteHeader(ostream& writer, const PathName& fileName)
         << "%%%   initexmf --edit-config-file updmap" << endl;
 }
 
-void MakeFontMapApp::WriteDvipsFontMap(ostream& writer, const set<DvipsFontMapEntry>& fontMapEntries)
+void FontMapsUpdater::WriteDvipsFontMap(ostream& writer, const set<DvipsFontMapEntry>& fontMapEntries)
 {
     for (const DvipsFontMapEntry& fme : fontMapEntries)
     {
@@ -705,7 +704,7 @@ void MakeFontMapApp::WriteDvipsFontMap(ostream& writer, const set<DvipsFontMapEn
     }
 }
 
-void MakeFontMapApp::WriteDvipdfmxFontMap(ostream& writer, const set<DvipdfmxFontMapEntry>& fontMapEntries)
+void FontMapsUpdater::WriteDvipdfmxFontMap(ostream& writer, const set<DvipdfmxFontMapEntry>& fontMapEntries)
 {
     for (const DvipdfmxFontMapEntry& fme : fontMapEntries)
     {
@@ -718,7 +717,7 @@ void MakeFontMapApp::WriteDvipdfmxFontMap(ostream& writer, const set<DvipdfmxFon
     }
 }
 
-PathName MakeFontMapApp::FontMapDirectory(const string& relPath)
+PathName FontMapsUpdater::FontMapDirectory(const string& relPath)
 {
     PathName path;
     if (!outputDirectory.empty())
@@ -736,7 +735,7 @@ PathName MakeFontMapApp::FontMapDirectory(const string& relPath)
     return path;
 }
 
-void MakeFontMapApp::WriteDvipsFontMapFile(const PathName& path, const set<DvipsFontMapEntry>& fontMapEntries1, const set<DvipsFontMapEntry>& fontMapEntries2, const set<DvipsFontMapEntry>& fontMapEntries3, const set<DvipsFontMapEntry>& fontMapEntries4)
+void FontMapsUpdater::WriteDvipsFontMapFile(const PathName& path, const set<DvipsFontMapEntry>& fontMapEntries1, const set<DvipsFontMapEntry>& fontMapEntries2, const set<DvipsFontMapEntry>& fontMapEntries3, const set<DvipsFontMapEntry>& fontMapEntries4)
 {
     Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
     // TODO: backup old file
@@ -754,7 +753,7 @@ void MakeFontMapApp::WriteDvipsFontMapFile(const PathName& path, const set<Dvips
     }
 }
 
-void MakeFontMapApp::WriteDvipdfmxFontMapFile(const PathName& path, const set<DvipdfmxFontMapEntry>& fontMapEntries)
+void FontMapsUpdater::WriteDvipdfmxFontMapFile(const PathName& path, const set<DvipdfmxFontMapEntry>& fontMapEntries)
 {
     Verbose(fmt::format(T_("Writing {0}..."), Q_(path)));
     // TODO: backup old file
@@ -768,7 +767,7 @@ void MakeFontMapApp::WriteDvipdfmxFontMapFile(const PathName& path, const set<Dv
     }
 }
 
-void MakeFontMapApp::ParseDvipsFontMapFile(const PathName& path, set<DvipsFontMapEntry>& fontMapEntries)
+void FontMapsUpdater::ParseDvipsFontMapFile(const PathName& path, set<DvipsFontMapEntry>& fontMapEntries)
 {
     Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(path)));
 
@@ -799,7 +798,7 @@ void MakeFontMapApp::ParseDvipsFontMapFile(const PathName& path, set<DvipsFontMa
     reader.Close();
 }
 
-void MakeFontMapApp::ParseDvipdfmxFontMapFile(const PathName& path, set<DvipdfmxFontMapEntry>& fontMapEntries)
+void FontMapsUpdater::ParseDvipdfmxFontMapFile(const PathName& path, set<DvipdfmxFontMapEntry>& fontMapEntries)
 {
     Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(path)));
 
@@ -894,7 +893,7 @@ bool ParseSomething(string& s, const string& something)
     return true;
 }
 
-bool MakeFontMapApp::ParseDvipdfmxFontMapLine(const string& line,  DvipdfmxFontMapEntry& fontMapEntry)
+bool FontMapsUpdater::ParseDvipdfmxFontMapLine(const string& line,  DvipdfmxFontMapEntry& fontMapEntry)
 {
     if (line.empty()
         || line[0] <= ' '
@@ -936,7 +935,7 @@ bool MakeFontMapApp::ParseDvipdfmxFontMapLine(const string& line,  DvipdfmxFontM
     return true;
 }
 
-bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* output, size_t n)
+bool MIKTEXTHISCALL FontMapsUpdater::OnProcessOutput(const void* output, size_t n)
 {
     const char* text = (const char*)output;
     for (size_t idx = 0; idx < n; ++idx)
@@ -963,7 +962,7 @@ bool MIKTEXTHISCALL MakeFontMapApp::OnProcessOutput(const void* output, size_t n
     return true;
 }
 
-void MakeFontMapApp::ReadDvipsFontMapFile(const string& fileName, set<DvipsFontMapEntry>& result, bool mustExist)
+void FontMapsUpdater::ReadDvipsFontMapFile(const string& fileName, set<DvipsFontMapEntry>& result, bool mustExist)
 {
     PathName path;
     if (!LocateFontMapFile(fileName, path, mustExist))
@@ -973,7 +972,7 @@ void MakeFontMapApp::ReadDvipsFontMapFile(const string& fileName, set<DvipsFontM
     ParseDvipsFontMapFile(path, result);
 }
 
-set<DvipsFontMapEntry> MakeFontMapApp::CatDvipsFontMaps(const set<string>& fileNames)
+set<DvipsFontMapEntry> FontMapsUpdater::CatDvipsFontMaps(const set<string>& fileNames)
 {
     set<DvipsFontMapEntry> result;
     for (const string& fn : fileNames)
@@ -983,7 +982,7 @@ set<DvipsFontMapEntry> MakeFontMapApp::CatDvipsFontMaps(const set<string>& fileN
     return result;
 }
 
-void MakeFontMapApp::ReadDvipdfmxFontMapFile(const string& fileName, set<DvipdfmxFontMapEntry>& result, bool mustExist)
+void FontMapsUpdater::ReadDvipdfmxFontMapFile(const string& fileName, set<DvipdfmxFontMapEntry>& result, bool mustExist)
 {
     PathName path;
     if (!LocateFontMapFile(fileName, path, mustExist))
@@ -993,7 +992,7 @@ void MakeFontMapApp::ReadDvipdfmxFontMapFile(const string& fileName, set<Dvipdfm
     ParseDvipdfmxFontMapFile(path, result);
 }
 
-set<DvipdfmxFontMapEntry> MakeFontMapApp::CatDvipdfmxFontMaps(const set<string>& fileNames)
+set<DvipdfmxFontMapEntry> FontMapsUpdater::CatDvipdfmxFontMaps(const set<string>& fileNames)
 {
     set<DvipdfmxFontMapEntry> result;
     for (const string& fn : fileNames)
@@ -1003,7 +1002,7 @@ set<DvipdfmxFontMapEntry> MakeFontMapApp::CatDvipdfmxFontMaps(const set<string>&
     return result;
 }
 
-void MakeFontMapApp::TransformFontFileName(const map<string, string>& transMap, DvipsFontMapEntry& fontMapEntry)
+void FontMapsUpdater::TransformFontFileName(const map<string, string>& transMap, DvipsFontMapEntry& fontMapEntry)
 {
     map<string, string>::const_iterator it = transMap.find(fontMapEntry.fontFile);
     if (it != transMap.end())
@@ -1036,7 +1035,7 @@ void MakeFontMapApp::TransformFontFileName(const map<string, string>& transMap, 
     }
 }
 
-void MakeFontMapApp::TransformPSName(const map<string, string>& names, DvipsFontMapEntry& fontMapEntry)
+void FontMapsUpdater::TransformPSName(const map<string, string>& names, DvipsFontMapEntry& fontMapEntry)
 {
     map<string, string>::const_iterator it = names.find(fontMapEntry.psName);
     if (it != names.end())
@@ -1051,7 +1050,7 @@ void MakeFontMapApp::TransformPSName(const map<string, string>& names, DvipsFont
  * @param fontMapEntries 
  * @return set<DvipsFontMapEntry> 
  */
-set<DvipsFontMapEntry> MakeFontMapApp::TransformLW35(const set<DvipsFontMapEntry>& fontMapEntries)
+set<DvipsFontMapEntry> FontMapsUpdater::TransformLW35(const set<DvipsFontMapEntry>& fontMapEntries)
 {
     set<DvipsFontMapEntry> result;
     for (const DvipsFontMapEntry& fme : fontMapEntries)
@@ -1084,7 +1083,7 @@ set<DvipsFontMapEntry> MakeFontMapApp::TransformLW35(const set<DvipsFontMapEntry
  * @param fontMapEntries 
  * @return set<DvipsFontMapEntry> 
  */
-set<DvipsFontMapEntry> MakeFontMapApp::DvipdfmxToDvips(const set<DvipdfmxFontMapEntry>& dvipdfmxFontMapEntries)
+set<DvipsFontMapEntry> FontMapsUpdater::DvipdfmxToDvips(const set<DvipdfmxFontMapEntry>& dvipdfmxFontMapEntries)
 {
     set<DvipsFontMapEntry> result;
     for (const DvipdfmxFontMapEntry& dvipdfmxFME : dvipdfmxFontMapEntries)
@@ -1171,7 +1170,7 @@ set<DvipsFontMapEntry> MakeFontMapApp::DvipdfmxToDvips(const set<DvipdfmxFontMap
     return result;
 }
 
-void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
+void FontMapsUpdater::CopyFile(const PathName& pathSrc, const PathName& pathDest)
 {
     Verbose(fmt::format(T_("Copying {0}"), Q_(pathSrc)));
     Verbose(fmt::format(T_("     to {0}..."), Q_(pathDest)));
@@ -1182,7 +1181,7 @@ void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
     }
 }
 
-void MakeFontMapApp::SymlinkOrCopyFiles()
+void FontMapsUpdater::SymlinkOrCopyFiles()
 {
     PathName dvipsOutputDir(FontMapDirectory("dvips"));
     PathName pdftexOutputDir(FontMapDirectory("pdftex"));
@@ -1207,7 +1206,7 @@ static const char* const topDirs[] = {
     "fonts" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "truetype",
 };
 
-void MakeFontMapApp::BuildFontconfigCache()
+void FontMapsUpdater::BuildFontconfigCache()
 {
 #if !defined(USE_SYSTEM_FONTCONFIG)
     this->ctx->session->ConfigureFile(PathName(MIKTEX_PATH_FONTCONFIG_CONFIG_FILE));
@@ -1250,7 +1249,7 @@ void MakeFontMapApp::BuildFontconfigCache()
     Process::Run(fcCacheExe, arguments, this);
 }
 
-void MakeFontMapApp::CreateFontconfigLocalfontsConf()
+void FontMapsUpdater::CreateFontconfigLocalfontsConf()
 {
     PathName configFile(this->ctx->session->GetSpecialPath(SpecialPath::ConfigRoot));
     configFile /= MIKTEX_PATH_FONTCONFIG_LOCALFONTS_FILE;
@@ -1295,7 +1294,7 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
     writer.WriteLine("</fontconfig>");
     writer.Close();
 #if defined(USE_SYSTEM_FONTCONFIG)
-    if (optAdminMode)
+    if (this->ctx->session->IsAdminMode())
     {
         PathName confd(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
         File::CreateLink(configFile, confd / PathName("09-miktex.conf"), { CreateLinkOption::ReplaceExisting, CreateLinkOption::Symbolic });
@@ -1353,7 +1352,7 @@ set<DvipsFontMapEntry> GeneratePdfTeXFontMap(const set<DvipsFontMapEntry>& trans
     return result;
 }
 
-void MakeFontMapApp::Run()
+void FontMapsUpdater::Run()
 {
     set<DvipsFontMapEntry> dvips35;
     ReadDvipsFontMapFile("dvips35.map", dvips35, true);
@@ -1394,8 +1393,8 @@ void MakeFontMapApp::Run()
 
 int Topics::FontMaps::Commands::Update(ApplicationContext& ctx, const vector<string>& arguments)
 {
-    MakeFontMapApp app;
-    app.Init(ctx, arguments);
-    app.Run();
+    FontMapsUpdater updmap;
+    updmap.Init(ctx, arguments);
+    updmap.Run();
     return 0;
 }

@@ -38,7 +38,8 @@ int SessionImpl::RunSh(int argc, const char** argv)
 
   PathName scriptPath;
   vector<string> scriptEngineOptions;
-  tie(scriptPath, scriptEngineOptions) = GetScript("sh", name.ToString());
+  vector<string> scriptOptions;
+  tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript("sh", name.ToString());
 
   if (!File::GetAttributes(scriptPath)[FileAttribute::Executable])
   {

@@ -1445,6 +1445,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_MAKEINDEX_EXE, { "makeindex" } },
   { MIKTEX_MAKEPK_EXE, { "makepk" } },
   { MIKTEX_MAKETFM_EXE, { "maketfm" } },
+  { MIKTEX_MIKTEX_EXE, { "mkfntmap" } },
   { MIKTEX_MFT_EXE, { "mft" } },
   { MIKTEX_MF_EXE, { "mf", "inimf", "virmf" } },
   { MIKTEX_MKOCP_EXE, { "mkocp" } },
@@ -1526,7 +1527,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_INITEXMF_EXE, { "texlinks" }, LinkType::Copy },
 #endif
 #if defined(WITH_UPDMAP)
-  { "mkfntmap" MIKTEX_EXE_FILE_SUFFIX, { "updmap" } },
+  { MIKTEX_MIKTEX_EXE, { "updmap" } },
 #endif
 #if defined(WITH_TEXDOC)
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
@@ -1853,11 +1854,11 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
 void IniTeXMFApp::MakeMaps(bool force)
 {
   PathName pathMkfontmap;
-  if (!session->FindFile("mkfntmap", FileType::EXE, pathMkfontmap))
+  if (!session->FindFile("miktex", FileType::EXE, pathMkfontmap))
   {
-    FatalError(T_("The mkfntmap executable could not be found."));
+    FatalError(T_("The miktex executable could not be found."));
   }
-  vector<string> arguments{ "mkfntmap" };
+  vector<string> arguments{ "miktex" };
   if (verbose)
   {
     arguments.push_back("--verbose");
@@ -1865,10 +1866,6 @@ void IniTeXMFApp::MakeMaps(bool force)
   if (session->IsAdminMode())
   {
     arguments.push_back("--admin");
-  }
-  if (force)
-  {
-    arguments.push_back("--force");
   }
   switch (enableInstaller)
   {
@@ -1881,8 +1878,17 @@ void IniTeXMFApp::MakeMaps(bool force)
   default:
     break;
   }
+#if 0
+  // TODO: remove
   arguments.push_back("--miktex-disable-maintenance");
   arguments.push_back("--miktex-disable-diagnose");
+#endif
+  arguments.push_back("fontmaps");
+  arguments.push_back("update");
+  if (force)
+  {
+    arguments.push_back("--force");
+  }
   if (printOnly)
   {
     PrintOnly(CommandLineBuilder(arguments).ToString());

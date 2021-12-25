@@ -40,7 +40,8 @@ int SessionImpl::RunBatch(int argc, const char** argv)
 
   PathName scriptPath;
   vector<string> scriptEngineOptions;
-  tie(scriptPath, scriptEngineOptions) = GetScript("bat", name.ToString());
+  vector<string> scriptOptions;
+  tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript("bat", name.ToString());
 
   CommandLineBuilder commandLine;
   commandLine.SetQuotingConvention(QuotingConvention::Bat);

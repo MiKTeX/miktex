@@ -663,7 +663,7 @@ private:
 #endif
 
 private:
-  std::tuple<MiKTeX::Util::PathName, std::vector<std::string>> GetScript(const std::string& scriptEngine, const std::string& name);
+  std::tuple<MiKTeX::Util::PathName, std::vector<std::string>, std::vector<std::string>> GetScript(const std::string& scriptEngine, const std::string& name);
 
 private:
   int RunScript(const std::string& scriptEngine, const std::string& scriptEngineArgument, int argc, const char** argv);
