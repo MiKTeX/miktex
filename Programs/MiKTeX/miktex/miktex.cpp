@@ -42,6 +42,7 @@
 
 #include "miktex-version.h"
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Paths>
@@ -50,6 +51,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/Text>
 #include <miktex/Core/Utils>
+#include <miktex/PackageManager/PackageManager>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/StringUtil>
@@ -71,6 +73,7 @@ using namespace std;
 
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
@@ -174,8 +177,11 @@ static void Sorry()
 }
 
 class MiKTeXApp :
-    public TraceCallback,
+    public MiKTeX::Core::IFindFileCallback,
+    public MiKTeX::Packages::PackageInstallerCallback,
+    public MiKTeX::Trace::TraceCallback,
     public OneMiKTeXUtility::Controller,
+    public OneMiKTeXUtility::Installer,
     public OneMiKTeXUtility::Logger,
     public OneMiKTeXUtility::UI
 {
@@ -195,7 +201,49 @@ private:
     }
 
 private:
-    void RegisterTopic(unique_ptr<Topics::Topic> t, vector<string> aliases)
+    void EnableInstaller(bool b) override
+    {
+        this->enableInstaller2 = b;
+    }
+
+private:
+    void EnsureInstaller()
+    {
+        if (this->packageInstaller == nullptr)
+        {
+            this->packageInstaller = this->packageManager->CreateInstaller({ this, true, false });
+        }
+    }
+
+private:
+    bool InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
+
+private:
+    void ReportLine(const std::string& str) override
+    {
+        Verbose(str);
+    }
+
+private:
+    bool OnRetryableError(const std::string& message) override
+    {
+        return false;
+    }
+
+private:
+    bool OnProgress(MiKTeX::Packages::Notification nf) override
+    {
+        return true;
+    }
+
+private:
+    bool TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override
+    {
+        return false;
+    }
+
+private:
+    void RegisterTopic(unique_ptr<Topics::Topic> t)
     {
         string name = t->Name();
         topics[name] = std::move(t);
@@ -204,8 +252,8 @@ private:
 private:
     void RegisterTopics()
     {
-        RegisterTopic(Topics::FileSystem::Create(), {});
-        RegisterTopic(Topics::FontMaps::Create(), {"mkfntmap", "updmap"});
+        RegisterTopic(Topics::FileSystem::Create());
+        RegisterTopic(Topics::FontMaps::Create());
     }
 
 private:
@@ -224,13 +272,13 @@ private:
     }
 
 private:
-    void LogFatal(const std::string& message)
+    void LogFatal(const std::string& message) override
     {
         LOG4CXX_FATAL(logger, message);
     }
 
 private:
-    void LogInfo(const std::string& message)
+    void LogInfo(const std::string& message) override
     {
         LOG4CXX_INFO(logger, message);
     }
@@ -276,6 +324,10 @@ private:
 
 private:
     ApplicationContext ctx;
+    TriState enableInstaller = TriState::Undetermined;
+    bool enableInstaller2 = true;
+    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+    std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
     std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
     bool quiet;
     std::shared_ptr<MiKTeX::Core::Session> session;
@@ -451,7 +503,22 @@ void MiKTeXApp::ShowVersion()
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
-bool IsOption(const string& s, const string& optionName)
+bool MiKTeXApp::InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot)
+{
+  if (this->enableInstaller != TriState::True || !this->enableInstaller2)
+  {
+    return false;
+  }
+  LOG4CXX_INFO(logger, "installing package " << packageId << " triggered by " << trigger.ToString());
+  Verbose(fmt::format(T_("Installing package {0}..."), packageId));
+  EnsureInstaller();
+  packageInstaller->SetFileLists({ packageId }, {});
+  packageInstaller->InstallRemove(PackageInstaller::Role::Application);
+  installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
+  return true;
+}
+
+bool IsGlobalOption(const string& s, const string& optionName)
 {
     return s == "-"s + optionName || s == "--"s + optionName;
 }
@@ -459,6 +526,7 @@ bool IsOption(const string& s, const string& optionName)
 int MiKTeXApp::Init(vector<string>& args)
 {
     ctx.controller = this;
+    ctx.installer = this;
     ctx.logger = this;
     ctx.session = this->session;
     ctx.ui = this;
@@ -466,49 +534,66 @@ int MiKTeXApp::Init(vector<string>& args)
     bool adminMode = false;
     bool forceAdminMode = false;
     Session::InitOptionSet options;
+    bool optVersion = false;
+    vector<string> newargs;
+    bool processingGlobalOptions = true;
     MIKTEX_ASSERT(args.size() > 0);
     auto arg0 = args[0];
-    if (arg0 == "mkfntmap")
+    for (size_t idx = 1; idx < args.size(); ++idx)
     {
-        Shims::mkfntmap(args);
+        const string& arg = args[idx];
+        bool isGlobalOption = arg.length() > 0 && arg[0] == '-';
+        if (!isGlobalOption)
+        {
+            processingGlobalOptions = false;
+        }
+        if (processingGlobalOptions)
+        {
+            if (IsGlobalOption(arg, "admin"))
+            {
+                adminMode = true;
+            }
+            else if (IsGlobalOption(arg, "disable-installer"))
+            {
+                this->enableInstaller = TriState::False;
+            }
+            else if (IsGlobalOption(arg, "enable-installer"))
+            {
+                this->enableInstaller = TriState::True;
+            }
+            else if (IsGlobalOption(arg, "help"))
+            {
+                ShowUsage();
+                return -1;
+            }
+            else if (IsGlobalOption(arg, "principal=setup"))
+            {
+                options += Session::InitOption::SettingUp;
+                forceAdminMode = true;
+            }
+            else if (IsGlobalOption(arg, "verbose"))
+            {
+                this->verbosityLevel++;
+            }
+            else if (IsGlobalOption(arg, "version"))
+            {
+                optVersion = true;
+            }
+            else
+            {
+                isGlobalOption = false;
+            }
+        }
+        if (!isGlobalOption)
+        {
+            newargs.push_back(arg);
+        }
     }
-    else if (arg0 == "updmap")
-    {
-        Shims::updmap(args);
-    }
-    bool optVersion = false;
-    size_t idx = 1;
-    for (; idx < args.size() && args[idx].length() > 0 && args[idx][0] == '-'; ++idx)
-    {
-        const string& opt = args[idx];
-        if (IsOption(opt, "admin"))
-        {
-            adminMode = true;
-        }
-        else if (IsOption(opt, "help"))
-        {
-            ShowUsage();
-            return -1;
-        }
-        else if (IsOption(opt, "principal=setup"))
-        {
-            options += Session::InitOption::SettingUp;
-            forceAdminMode = true;
-        }
-        else if (IsOption(opt, "version"))
-        {
-            optVersion = true;
-        }
-        else
-        {
-            BadUsage(fmt::format(T_("unknown option: {0}"), opt));
-            return 1;
-        }
-    }
-    Session::InitInfo initInfo(args[0]);
+    Session::InitInfo initInfo(arg0);
     initInfo.SetOptions(options);
     initInfo.SetTraceCallback(this);
-    session = Session::Create(initInfo);
+    this->session = Session::Create(initInfo);
+    this->packageManager = PackageManager::Create(PackageManager::InitInfo(this));
     if (optVersion)
     {
         ShowVersion();
@@ -531,6 +616,10 @@ int MiKTeXApp::Init(vector<string>& args)
     if (session->RunningAsAdministrator() && !session->IsAdminMode())
     {
         SecurityRisk(T_("running with elevated privileges"));
+    }
+    if (this->enableInstaller == TriState::Undetermined)
+    {
+        this->enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
     }
     PathName xmlFileName;
     if (session->FindFile("miktex." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName) || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
@@ -563,7 +652,15 @@ int MiKTeXApp::Init(vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(args));
     FlushPendingTraceMessages();
-    args.erase(args.begin(), args.begin() + idx);
+        if (arg0 == "mkfntmap")
+    {
+        Shims::mkfntmap(newargs);
+    }
+    else if (arg0 == "updmap")
+    {
+        Shims::updmap(newargs);
+    }
+    args = newargs;
     InstallSignalHandler(SIGINT);
     InstallSignalHandler(SIGTERM);
     return 0;

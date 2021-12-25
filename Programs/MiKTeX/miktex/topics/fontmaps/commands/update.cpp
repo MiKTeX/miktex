@@ -666,9 +666,9 @@ bool MakeFontMapApp::LocateFontMapFile(const string& fileNameTemplate, PathName&
     Replace(fileName, "@scEmbed@", scEmbed);
     Replace(fileName, "@tcEmbed@", tcEmbed);
     Replace(fileName, "@koEmbed@", koEmbed);
-    disableInstaller = !mustExist;
+    ctx->installer->EnableInstaller(mustExist);
     bool found = this->ctx->session->FindFile(fileName, FileType::MAP, path);
-    disableInstaller = false;
+    ctx->installer->EnableInstaller(true);
     if (!found && mustExist)
     {
         this->ctx->ui->FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(fileName)));

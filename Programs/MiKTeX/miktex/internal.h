@@ -34,6 +34,12 @@ namespace OneMiKTeXUtility
         virtual bool Canceled() = 0;
     };
 
+    class MIKTEXNOVTABLE Installer
+    {
+    public:
+        virtual void EnableInstaller(bool b) = 0;
+    };
+
     class MIKTEXNOVTABLE Logger
     {
     public:
@@ -54,6 +60,7 @@ namespace OneMiKTeXUtility
     struct ApplicationContext
     {
         Controller* controller;
+        Installer* installer;
         Logger* logger;
         std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;
