@@ -49,8 +49,7 @@ int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<st
     PathName dir(arguments[2]);
     if (!Directory::Exists(dir))
     {
-        ctx.ui->Error(fmt::format(T_("{0}: directory does not exist"), dir));
-        return 1;
+        ctx.ui->FatalError(fmt::format(T_("{0}: directory does not exist"), dir));
     }
     auto fsWatcher = FileSystemWatcher::Create();
     class Callback : public FileSystemWatcherCallback{

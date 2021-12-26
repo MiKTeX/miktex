@@ -226,12 +226,12 @@ const map<string, string> FontMapManager::psADOBE =
 
 MIKTEXNORETURN void FontMapManager::CfgError(const string& message)
 {
-    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), cfgContext.path, cfgContext.line));
+    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), cfgContext.path, cfgContext.line, message));
 }
 
 MIKTEXNORETURN void FontMapManager::MapError(const string& message)
 {
-    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), mapContext.path, mapContext.line));
+    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), mapContext.path, mapContext.line, message));
 }
 
 std::string FontMapManager::Option(const std::string& optionName)
@@ -277,10 +277,7 @@ bool FontMapManager::ToBool(const string& value)
     {
         return true;
     }
-    else
-    {
-        this->ctx->ui->FatalError(fmt::format(T_("{0}: invalid bool value"), value));
-    }
+    this->ctx->ui->FatalError(fmt::format(T_("{0}: invalid bool value"), value));
 }
 
 NamingConvention FontMapManager::ToNamingConvention(const string& value)
@@ -301,10 +298,7 @@ NamingConvention FontMapManager::ToNamingConvention(const string& value)
     {
         return NamingConvention::ADOBEkb;
     }
-    else
-    {
-        this->ctx->ui->FatalError(fmt::format(T_("{0}: invalid LW35 value"), value));
-    }
+    this->ctx->ui->FatalError(fmt::format(T_("{0}: invalid LW35 value"), value));
 }
 
 bool FontMapManager::ParseConfigLine(const string& line, string& directive, string& param)
@@ -387,7 +381,7 @@ Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuratio
         }
         else
         {
-            CfgError(fmt::format(T_("{0}: invalid configuration directive", directive)));
+            CfgError(fmt::format(T_("{0}: invalid configuration directive"), directive));
         }
     }
     reader.Close();
@@ -1015,7 +1009,7 @@ void FontMapManager::BuildFontconfigCache(bool force)
 #if !defined(USE_SYSTEM_FONTCONFIG)
     if (!this->ctx->session->FindFile(MIKTEX_FC_CACHE_EXE, FileType::EXE, fcCacheExe))
     {
-        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found", MIKTEX_FC_CACHE_EXE)));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found"), MIKTEX_FC_CACHE_EXE));
     }
 #else
     if (!Utils::FindProgram("fc-cache", fcCacheExe))

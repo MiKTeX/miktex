@@ -101,11 +101,11 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
         case OPT_SYS:
             if (!ctx->session->IsSharedSetup())
             {
-                ctx->ui->FatalError(T_("Option --sys only makes sense for a shared MiKTeX setup."));
+                ctx->ui->FatalError(T_("option --sys only makes sense for a shared MiKTeX setup"));
             }
             if (!ctx->session->RunningAsAdministrator())
             {
-               ctx->ui->Warning(T_("Option --sys may require administrator privileges"));
+               ctx->ui->Warning(T_("option --sys may require administrator privileges"));
             }
             ctx->session->SetAdminMode(true, false);
             break;
@@ -133,7 +133,7 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
     {
         if (leftovers.empty())
         {
-            ctx->ui->FatalError(fmt::format(T_("Missing value for option {0}."), optionName));
+            ctx->ui->BadUsage(fmt::format(T_("missing value for option {0}"), optionName), "");
         }
         arguments = {"fontmaps", "set-option", optionName, leftovers[0]};
     }

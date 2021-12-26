@@ -80,9 +80,7 @@ using namespace OneMiKTeXUtility;
 
 const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
 
-#define PROGNAME "miktex"
-
-static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGNAME));
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("miktex"));
 static bool isLog4cxxConfigured = false;
 
 static std::atomic<bool> canceled;
@@ -123,22 +121,17 @@ static void Sorry(const string& message, const string& description, const string
         return;
     }
     cerr << endl;
-    cerr
-        << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(TheNameOfTheGame)) << "\n"
-        << "\n"
-        << message << endl;
+    cerr << fmt::format(T_("Sorry: {0}"), message) << endl;
     if (!description.empty())
     {
         cerr
             << "\n"
-            << description << endl;
+            << description << "\n"
+            << endl;
     }
     if (!remedy.empty())
     {
-        cerr
-            << "\n"
-            << "\n"
-            << remedy << endl;
+        cerr << fmt::format(T_("Remedy: {0}"), remedy) << endl;
     }
     if (isLog4cxxConfigured)
     {
@@ -150,18 +143,12 @@ static void Sorry(const string& message, const string& description, const string
 #endif
         if (fileAppender != nullptr)
         {
-            cerr
-                << "\n"
-                << T_("The log file hopefully contains the information to get MiKTeX going again:") << "\n"
-                << "\n"
-                << "  " << PathName(fileAppender->getFile()) << endl;
+            cerr << fmt::format(T_("Log file: {0}"), PathName(fileAppender->getFile())) << endl;
         }
     }
     if (!url.empty())
     {
-        cerr
-            << "\n"
-            << fmt::format(T_("For more information, visit: {0}", url)) << endl;
+        cerr << fmt::format(T_("For more information, visit: {0}"), url) << endl;
     }
 }
 
@@ -294,9 +281,6 @@ private:
     void Output(const std::string& s) override;
 
 private:
-    void Error(const std::string& s) override;
-
-private:
     void Warning(const std::string& s) override;
 
 private:
@@ -426,36 +410,27 @@ void MiKTeXApp::Output(const string& s)
     cout << s << endl;
 }
 
-void MiKTeXApp::Error(const string& message)
+void MiKTeXApp::Warning(const string& message)
 {
     if (isLog4cxxConfigured)
     {
-        LOG4CXX_ERROR(logger, message);
-    }
-    cerr << PROGNAME << ": " << T_("error") << ": " << message << endl;
-}
-
-void MiKTeXApp::Warning(const string& s)
-{
-    if (isLog4cxxConfigured)
-    {
-        LOG4CXX_WARN(logger, s);
+        LOG4CXX_WARN(logger, message);
     }
     if (!quiet)
     {
-        cerr << PROGNAME << ": " << T_("warning") << ": " << s << endl;
+        cerr << fmt::format(T_("warning: {0}"), message) << endl;
     }
 }
 
-void MiKTeXApp::SecurityRisk(const string& s)
+void MiKTeXApp::SecurityRisk(const string& message)
 {
     if (isLog4cxxConfigured)
     {
-        LOG4CXX_WARN(logger, T_("security risk") << ": " << s);
+        LOG4CXX_WARN(logger, fmt::format(T_("security risk: {0}"), message));
     }
     if (!quiet)
     {
-        cerr << PROGNAME << ": " << T_("security risk") << ": " << s << endl;
+        cerr << fmt::format(T_("security risk: {0}"), message) << endl;
     }
 }
 
@@ -608,11 +583,11 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     {
         if (!forceAdminMode && !session->IsSharedSetup())
         {
-            FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
+            FatalError(T_("option --admin only makes sense for a shared MiKTeX setup"));
         }
         if (!session->RunningAsAdministrator())
         {
-            Warning(T_("Option --admin may require administrator privileges"));
+            Warning(T_("option --admin may require administrator privileges"));
         }
         session->SetAdminMode(true, forceAdminMode);
     }
@@ -655,11 +630,17 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(args));
     FlushPendingTraceMessages();
-    if (arg0 == "mkfntmap")
+    string programName;
+#if defined(MIKTEX_WINDOWS)
+    programName = PathName(arg0).GetFileNameWithoutExtension().ToString();
+#else
+    programName = PathName(arg0).GetFileName().ToString();
+#endif
+    if (programName == "mkfntmap")
     {
         Shims::mkfntmap(newargs);
     }
-    else if (arg0 == "updmap")
+    else if (programName == "updmap")
     {
         Shims::updmap(&ctx, newargs);
     }
