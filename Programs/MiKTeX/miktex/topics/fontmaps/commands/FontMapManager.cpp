@@ -32,11 +32,9 @@
 #include <miktex/Core/Fndb>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
-#include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
 #include <miktex/Core/StreamReader>
 #include <miktex/Core/StreamWriter>
-#include <miktex/Core/Text>
 #include <miktex/Core/Utils>
 
 #include <miktex/Util/PathName>
@@ -44,12 +42,7 @@
 
 #include "internal.h"
 
-#include "commands.h"
-
 #include "FontMapManager.h"
-
-#define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define BOOLSTR(b) ((b) ? "true" : "false")
 
@@ -231,20 +224,14 @@ const map<string, string> FontMapManager::psADOBE =
     {"Dingbats", "ZapfDingbats"},
 };
 
-MIKTEXNORETURN void FontMapManager::CfgError(const string& s)
+MIKTEXNORETURN void FontMapManager::CfgError(const string& message)
 {
-    this->ctx->logger->LogFatal(s);
-    this->ctx->logger->LogFatal(fmt::format("cfg file: {0}", cfgContext.path));
-    this->ctx->logger->LogFatal(fmt::format("line: {0}", cfgContext.line));
-    this->ctx->ui->FatalError(T_("Configuration error."));
+    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), cfgContext.path, cfgContext.line));
 }
 
-MIKTEXNORETURN void FontMapManager::MapError(const string& s)
+MIKTEXNORETURN void FontMapManager::MapError(const string& message)
 {
-    this->ctx->logger->LogFatal(s);
-    this->ctx->logger->LogFatal(fmt::format("map file: {0}",  mapContext.path));
-    this->ctx->logger->LogFatal(fmt::format("line: {0}", mapContext.line));
-    this->ctx->ui->FatalError(T_("Map file error."));
+    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), mapContext.path, mapContext.line));
 }
 
 std::string FontMapManager::Option(const std::string& optionName)
@@ -252,7 +239,7 @@ std::string FontMapManager::Option(const std::string& optionName)
     auto it = this->config.options.find(optionName);
     if (it == this->config.options.end())
     {
-        this->ctx->ui->FatalError(fmt::format(T_("Unknown configuration option: {0}"), optionName));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: unknown configuration option"), optionName));
     }
     return it->second;
 }
@@ -262,7 +249,7 @@ void FontMapManager::SetOption(const std::string& optionName, const std::string&
     auto it = this->config.options.find(optionName);
     if (it == this->config.options.end())
     {
-        this->ctx->ui->FatalError(fmt::format(T_("Unknown configuration option: {0}"), optionName));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: unknown configuration option"), optionName));
     }
     it->second = value;
     auto configFile = this->ctx->session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "updmap.cfg");
@@ -280,51 +267,43 @@ void FontMapManager::SetOption(const std::string& optionName, const std::string&
     this->WriteConfigFile(configFile, partialConfiguration);
 }
 
-bool FontMapManager::ToBool(const string& param)
+bool FontMapManager::ToBool(const string& value)
 {
-    if (param.empty())
-    {
-        CfgError(T_("missing bool value"));
-    }
-    if (Utils::EqualsIgnoreCase(param, BOOLSTR(false)))
+    if (Utils::EqualsIgnoreCase(value, BOOLSTR(false)))
     {
         return false;
     }
-    else if (Utils::EqualsIgnoreCase(param, BOOLSTR(true)))
+    else if (Utils::EqualsIgnoreCase(value, BOOLSTR(true)))
     {
         return true;
     }
     else
     {
-        CfgError(T_("invalid bool value"));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: invalid bool value"), value));
     }
 }
 
-NamingConvention FontMapManager::ToNamingConvention(const string& param)
+NamingConvention FontMapManager::ToNamingConvention(const string& value)
 {
-    if (param.empty())
-    {
-        CfgError(T_("Missing LW35 value"));
-    }
-    if (Utils::EqualsIgnoreCase(param, "URW"))
+    if (Utils::EqualsIgnoreCase(value, "URW"))
     {
         return NamingConvention::URW;
     }
-    else if (Utils::EqualsIgnoreCase(param, "URWkb"))
+    else if (Utils::EqualsIgnoreCase(value, "URWkb"))
     {
         return NamingConvention::URWkb;
     }
-    else if (Utils::EqualsIgnoreCase(param, "ADOBE"))
+    else if (Utils::EqualsIgnoreCase(value, "ADOBE"))
     {
         return NamingConvention::ADOBE;
     }
-    else if (Utils::EqualsIgnoreCase(param, "ADOBEkb"))
+    else if (Utils::EqualsIgnoreCase(value, "ADOBEkb"))
     {
         return NamingConvention::ADOBEkb;
     }
     else
     {
-        CfgError(fmt::format(T_("Invalid LW35 value: {0}"), param));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: invalid LW35 value"), value));
     }
 }
 
@@ -354,7 +333,7 @@ bool FontMapManager::ParseConfigLine(const string& line, string& directive, stri
 
 Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuration& mergedConfig)
 {
-    Verbose(fmt::format(T_("Parsing config file {0}..."), Q_(path)));
+    Verbose(fmt::format(T_("Parsing configuration file {0}..."), Q_(path)));
     StreamReader reader(path);
     cfgContext.path = path;
     cfgContext.line = 0;
@@ -372,6 +351,10 @@ Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuratio
         auto it = mergedConfig.options.find(directive);
         if (it != mergedConfig.options.end())
         {
+            if (param.empty())
+            {
+                CfgError(fmt::format(T_("missing value for option {0}"), directive));
+            }
             it->second = param;
             partialConfig.options[directive] = param;
         }
@@ -379,7 +362,7 @@ Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuratio
         {
             if (param.empty())
             {
-                CfgError(T_("missing map file name"));
+                CfgError(T_("missing file name"));
             }
             mergedConfig.mapFiles.insert(param);
             partialConfig.mapFiles.insert(param);
@@ -388,7 +371,7 @@ Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuratio
         {
             if (param.empty())
             {
-                CfgError(T_("missing map file name"));
+                CfgError(T_("missing file name"));
             }
            mergedConfig.mixedMapFiles.insert(param);
            partialConfig.mixedMapFiles.insert(param);
@@ -397,14 +380,14 @@ Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuratio
         {
             if (param.empty())
             {
-                CfgError(T_("missing map file name"));
+                CfgError(T_("missing file name"));
             }
             mergedConfig.kanjiMapFiles.insert(param);
             partialConfig.kanjiMapFiles.insert(param);
         }
         else
         {
-            CfgError(T_("invalid configuration setting"));
+            CfgError(fmt::format(T_("{0}: invalid configuration directive", directive)));
         }
     }
     reader.Close();
@@ -457,7 +440,7 @@ void FontMapManager::Init(ApplicationContext& ctx)
     }
     if (this->config.mapFiles.empty())
     {
-        this->ctx->ui->FatalError(T_("Empty font map configuration."));
+        this->ctx->ui->FatalError(T_("empty configuration"));
     }
 }
 
@@ -486,11 +469,11 @@ bool FontMapManager::LocateFontMapFile(const string& fileNameTemplate, PathName&
     ctx->installer->EnableInstaller(true);
     if (!found && mustExist)
     {
-        this->ctx->ui->FatalError(fmt::format(T_("Font map file {0} could not be found."), Q_(fileName)));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found"), Q_(fileName)));
     }
     if (!found)
     {
-        Verbose(3, fmt::format(T_("Not using map file {0}"), Q_(fileName)));
+        Verbose(3, fmt::format(T_("Not using font map file {0}"), Q_(fileName)));
     }
     return found;
 }
@@ -585,7 +568,7 @@ void FontMapManager::WriteDvipdfmxFontMapFile(const PathName& path, const set<Dv
 
 void FontMapManager::ParseDvipsFontMapFile(const PathName& path, set<DvipsFontMapEntry>& fontMapEntries)
 {
-    Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(path)));
+    Verbose(2, fmt::format(T_("Parsing Dvips font map file {0}..."), Q_(path)));
 
     StreamReader reader(path);
 
@@ -616,7 +599,7 @@ void FontMapManager::ParseDvipsFontMapFile(const PathName& path, set<DvipsFontMa
 
 void FontMapManager::ParseDvipdfmxFontMapFile(const PathName& path, set<DvipdfmxFontMapEntry>& fontMapEntries)
 {
-    Verbose(2, fmt::format(T_("Parsing {0}..."), Q_(path)));
+    Verbose(2, fmt::format(T_("Parsing Dvipdfmx font map file {0}..."), Q_(path)));
 
     StreamReader reader(path);
 
@@ -1032,12 +1015,12 @@ void FontMapManager::BuildFontconfigCache(bool force)
 #if !defined(USE_SYSTEM_FONTCONFIG)
     if (!this->ctx->session->FindFile(MIKTEX_FC_CACHE_EXE, FileType::EXE, fcCacheExe))
     {
-        this->ctx->ui->FatalError(T_("The fc-cache executable could not be found."));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found", MIKTEX_FC_CACHE_EXE)));
     }
 #else
     if (!Utils::FindProgram("fc-cache", fcCacheExe))
     {
-        this->ctx->ui->FatalError(T_("The fc-cache executable could not be found."));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found", "fc-cache")));
     }
 #endif
     vector<string> arguments{ fcCacheExe.GetFileNameWithoutExtension().ToString() };

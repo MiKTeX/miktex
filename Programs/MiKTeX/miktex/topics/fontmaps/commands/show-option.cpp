@@ -20,6 +20,12 @@
  * @endcode
  */
 
+#include <string>
+#include <vector>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "internal.h"
 
 #include "commands.h"
@@ -34,8 +40,7 @@ int Topics::FontMaps::Commands::ShowOption(ApplicationContext& ctx, const vector
 {
     if (arguments.size() != 3)
     {
-        ctx.ui->Error(fmt::format(T_("Usage: {0} {1} OPTION"), arguments[0], arguments[1]));
-        return 1;
+        ctx.ui->BadUsage(T_("expected one argument: OPTION"), "");
     }
     FontMapManager updmap;
     updmap.Init(ctx);

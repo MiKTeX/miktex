@@ -70,12 +70,11 @@ int FontMapsTopic::Execute(ApplicationContext& ctx, const vector<string>& argume
 {
     if (arguments.size() < 2)
     {
-        ctx.ui->Error(BadUsage(T_("missing command; try help")));
-        return 1;
+        ctx.ui->BadUsage(T_("missing command; try help"), "");
     }
     if (arguments[1] == "help")
     {
-        ctx.ui->Output("fontmaps commands:");
+        ctx.ui->Output("Commands:");
         ctx.ui->Output("  help                     show help");
         ctx.ui->Output("  set-option OPTION VALUE  set OPTION to VALUE");
         ctx.ui->Output("  show-option OPTION       show the current setting of OPTION");
@@ -94,6 +93,5 @@ int FontMapsTopic::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         return Commands::Update(ctx, arguments);
     }
-    ctx.ui->Error(BadUsage(fmt::format(T_("unknown command: {0}"), arguments[0])));
-    return 1;
+    ctx.ui->BadUsage(fmt::format(T_("{0}: unknown command"), arguments[1]), "");
 }

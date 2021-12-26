@@ -44,13 +44,12 @@ int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<st
 {
     if (arguments.size() != 3)
     {
-        ctx.ui->Error(fmt::format(T_("Usage: {0} {1} DIR"), arguments[0], arguments[1]));
-        return 1;
+        ctx.ui->BadUsage(T_("expected one argument: DIRECTORY"), "");
     }
     PathName dir(arguments[2]);
     if (!Directory::Exists(dir))
     {
-        ctx.ui->Error(fmt::format(T_("no such directory: {0}"), dir));
+        ctx.ui->Error(fmt::format(T_("{0}: directory does not exist"), dir));
         return 1;
     }
     auto fsWatcher = FileSystemWatcher::Create();
@@ -76,7 +75,7 @@ int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<st
     fsWatcher->AddDirectories({dir});
     fsWatcher->Subscribe(&callback);
     fsWatcher->Start();
-    while (!ctx.controller->Canceled())
+    while (!ctx.program->Canceled())
     {
         this_thread::sleep_for(200ms);
     }

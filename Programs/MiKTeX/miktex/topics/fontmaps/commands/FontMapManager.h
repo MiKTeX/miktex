@@ -24,32 +24,11 @@
 #include <map>
 #include <set>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
-#include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/Directory>
-#include <miktex/Core/Fndb>
-#include <miktex/Core/Paths>
-#include <miktex/Core/Process>
-#include <miktex/Core/Quoter>
-#include <miktex/Core/Session>
-#include <miktex/Core/StreamReader>
-#include <miktex/Core/StreamWriter>
-#include <miktex/Core/Text>
 #include <miktex/Core/Utils>
 
 #include <miktex/Util/PathName>
-#include <miktex/Util/Tokenizer>
 
 #include "internal.h"
-
-#include "commands.h"
-
-#define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
-
-#define BOOLSTR(b) ((b) ? "true" : "false")
 
 struct FileContext
 {

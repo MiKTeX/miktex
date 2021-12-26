@@ -24,6 +24,7 @@
 #include <atomic>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <vector>
 #include <map>
 
@@ -47,9 +48,7 @@
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
-#include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
-#include <miktex/Core/Text>
 #include <miktex/Core/Utils>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Trace/Trace>
@@ -78,9 +77,6 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 using namespace OneMiKTeXUtility;
-
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
-#define T_(x) MIKTEXTEXT(x)
 
 const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
 
@@ -120,31 +116,29 @@ void InstallSignalHandler(int sig)
     }
 }
 
-static void Sorry(const string& description, const string& remedy, const string& url)
+static void Sorry(const string& message, const string& description, const string& remedy, const string& url)
 {
     if (cerr.fail())
     {
         return;
     }
     cerr << endl;
-    if (description.empty())
-    {
-        cerr << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(TheNameOfTheGame)) << endl;
-    }
-    else
+    cerr
+        << fmt::format(T_("Sorry, but {0} did not succeed."), Q_(TheNameOfTheGame)) << "\n"
+        << "\n"
+        << message << endl;
+    if (!description.empty())
     {
         cerr
-            << fmt::format(T_("Sorry, but {0} did not succeed for the following reason:"), Q_(TheNameOfTheGame)) << "\n"
             << "\n"
-            << "  " << description << endl;
-        if (!remedy.empty())
-        {
-            cerr
-                << "\n"
-                << T_("Remedy:") << "\n"
-                << "\n"
-                << "  " << remedy << endl;
-        }
+            << description << endl;
+    }
+    if (!remedy.empty())
+    {
+        cerr
+            << "\n"
+            << "\n"
+            << remedy << endl;
     }
     if (isLog4cxxConfigured)
     {
@@ -167,32 +161,33 @@ static void Sorry(const string& description, const string& remedy, const string&
     {
         cerr
             << "\n"
-            << T_("For more information, visit:") << " " << url << endl;
+            << fmt::format(T_("For more information, visit: {0}", url)) << endl;
     }
-}
-
-static void Sorry()
-{
-    Sorry("", "", "");
 }
 
 class MiKTeXApp :
     public MiKTeX::Core::IFindFileCallback,
     public MiKTeX::Packages::PackageInstallerCallback,
     public MiKTeX::Trace::TraceCallback,
-    public OneMiKTeXUtility::Controller,
     public OneMiKTeXUtility::Installer,
     public OneMiKTeXUtility::Logger,
+    public OneMiKTeXUtility::Program,
     public OneMiKTeXUtility::UI
 {
 public:
-    int Init(std::vector<std::string>& args);
+    std::tuple<int, std::vector<std::string>> Init(const std::vector<std::string>& args);
 
 public:
     void Finalize();
 
 public:
     int Run(const std::vector<std::string>& args);
+
+private:
+    std::string InvocationName() override
+    {
+        return this->args[0];
+    }
 
 private:
     bool Canceled() override
@@ -284,10 +279,10 @@ private:
     }
 
 private:
-    MIKTEXNORETURN void FatalError(const std::string& s) override;
+    MIKTEXNORETURN void FatalError(const std::string& message) override;
 
 private:
-    void BadUsage(const std::string& s);
+    MIKTEXNORETURN void BadUsage(const std::string& message, const std::string& usageSyntax) override;
 
 private:
     void ShowUsage();
@@ -323,6 +318,7 @@ private:
     void LogTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
 private:
+    std::vector<std::string> args;
     ApplicationContext ctx;
     TriState enableInstaller = TriState::Undetermined;
     bool enableInstaller2 = true;
@@ -430,13 +426,13 @@ void MiKTeXApp::Output(const string& s)
     cout << s << endl;
 }
 
-void MiKTeXApp::Error(const string& s)
+void MiKTeXApp::Error(const string& message)
 {
     if (isLog4cxxConfigured)
     {
-        LOG4CXX_ERROR(logger, s);
+        LOG4CXX_ERROR(logger, message);
     }
-    cerr << PROGNAME << ": " << T_("error") << ": " << s << endl;
+    cerr << PROGNAME << ": " << T_("error") << ": " << message << endl;
 }
 
 void MiKTeXApp::Warning(const string& s)
@@ -463,28 +459,34 @@ void MiKTeXApp::SecurityRisk(const string& s)
     }
 }
 
-MIKTEXNORETURN void MiKTeXApp::FatalError(const string& s)
+MIKTEXNORETURN void MiKTeXApp::FatalError(const string& message)
 {
     if (isLog4cxxConfigured)
     {
-        LOG4CXX_FATAL(logger, s);
+        LOG4CXX_FATAL(logger, message);
     }
-    else
-    {
-        cerr << s << endl;
-    }
-    Sorry(s, "", "");
+    Sorry(message, "", "", "");
     throw 1;
 }
 
-void MiKTeXApp::BadUsage(const string& s)
+MIKTEXNORETURN void MiKTeXApp::BadUsage(const string& message, const string& usageSyntax)
 {
-    cerr << T_("bad usage: ") << s << endl;
+    if (isLog4cxxConfigured)
+    {
+        LOG4CXX_FATAL(logger, message);
+    }
+    cerr << fmt::format(T_("Incorrect usage: {0}"), message) << endl;
+    if (!usageSyntax.empty())
+    {
+        cerr << fmt::format(T_("Usage: {0}"), usageSyntax) << endl;
+    }
+    throw 1;
 }
 
 void MiKTeXApp::ShowUsage()
 {
-    cout << T_("Usage: miktex [options] topic command") << "\n"
+    cout
+        << fmt::format(T_("Usage: {0} [OPTION...] TOPIC COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
         << T_("Topics:") << endl;
     for (auto& t : topics)
     {
@@ -523,11 +525,12 @@ bool IsGlobalOption(const string& s, const string& optionName)
     return s == "-"s + optionName || s == "--"s + optionName;
 }
 
-int MiKTeXApp::Init(vector<string>& args)
+tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
 {
-    ctx.controller = this;
+    this->args = args;
     ctx.installer = this;
     ctx.logger = this;
+    ctx.program = this;
     ctx.session = this->session;
     ctx.ui = this;
     RegisterTopics();
@@ -564,7 +567,7 @@ int MiKTeXApp::Init(vector<string>& args)
             else if (IsGlobalOption(arg, "help"))
             {
                 ShowUsage();
-                return -1;
+                return {-1, vector<string>()};
             }
             else if (IsGlobalOption(arg, "principal=setup"))
             {
@@ -599,7 +602,7 @@ int MiKTeXApp::Init(vector<string>& args)
         ShowVersion();
         session->Close();
         session = nullptr;
-        return -1;
+        return {-1, vector<string>()};
     }
     if (adminMode)
     {
@@ -660,10 +663,9 @@ int MiKTeXApp::Init(vector<string>& args)
     {
         Shims::updmap(&ctx, newargs);
     }
-    args = newargs;
     InstallSignalHandler(SIGINT);
     InstallSignalHandler(SIGTERM);
-    return 0;
+    return {0, newargs};
 }
 
 void MiKTeXApp::Finalize()
@@ -677,14 +679,12 @@ int MiKTeXApp::Run(const vector<string>& args)
 {
     if (args.size() == 0)
     {
-        BadUsage(T_("missing topic"));
-        return 1;
+        BadUsage(T_("missing topic; try help"), "");
     }
     auto it = topics.find(args[0]);
     if (it == topics.end())
     {
-        BadUsage(fmt::format(T_("unknown topic: {0}"), args[0]));
-        return 1;
+        BadUsage(fmt::format(T_("{0}: unknown topic"), args[0]), "");
     }
     return it->second->Execute(ctx, args);
 }
@@ -705,23 +705,23 @@ int MAIN(int argc, MAINCHAR* argv[])
     int retCode = 0;
     try
     {
-        vector<string> utf8args;
-        utf8args.reserve(argc);
+        vector<string> args;
+        args.reserve(argc);
         for (int idx = 0; idx < argc; ++idx)
         {
 #if defined(_UNICODE)
-            utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+            args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
 #elif defined(MIKTEX_WINDOWS)
-            utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+            args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
 #else
-            utf8args.push_back(argv[idx]);
+            args.push_back(argv[idx]);
 #endif
         }
         MiKTeXApp app;
-        auto initSuccess = app.Init(utf8args);
+        auto [initSuccess, runArgs] = app.Init(args);
         if (initSuccess == 0)
         {
-            retCode = app.Run(utf8args);
+            retCode = app.Run(runArgs);
             app.Finalize();
         }
         else if (initSuccess > 0)
@@ -738,14 +738,7 @@ int MAIN(int argc, MAINCHAR* argv[])
             LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
             LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
         }
-        else
-        {
-            cerr << e.GetErrorMessage() << endl
-                << "Info: " << e.GetInfo() << endl
-                << "Source: " << e.GetSourceFile() << endl
-                << "Line: " << e.GetSourceLine() << endl;
-        }
-        Sorry(e.GetDescription(), e.GetRemedy(), e.GetUrl());
+        Sorry(e.GetErrorMessage(), e.GetDescription(), e.GetRemedy(), e.GetUrl());
         e.Save();
         retCode = 1;
     }
@@ -755,11 +748,7 @@ int MAIN(int argc, MAINCHAR* argv[])
         {
             LOG4CXX_FATAL(logger, e.what());
         }
-        else
-        {
-            cerr << e.what() << endl;
-        }
-        Sorry();
+        Sorry(e.what(), "", "",  "");
         retCode = 1;
     }
     catch (int exitCode)

@@ -24,14 +24,19 @@
 
 #include <miktex/Definitions>
 
+#include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
+
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
+#define T_(x) MIKTEXTEXT(x)
 
 namespace OneMiKTeXUtility
 {
-    class MIKTEXNOVTABLE Controller
+    class MIKTEXNOVTABLE Program
     {
     public:
         virtual bool Canceled() = 0;
+        virtual std::string InvocationName() = 0;
     };
 
     class MIKTEXNOVTABLE Installer
@@ -50,19 +55,20 @@ namespace OneMiKTeXUtility
     class MIKTEXNOVTABLE UI
     {
     public:
-        virtual void Error(const std::string& s) = 0;
-        virtual MIKTEXNORETURN void FatalError(const std::string& s) = 0;
+        virtual MIKTEXNORETURN void BadUsage(const std::string& message, const std::string& usageSyntax) = 0;
+        virtual void Error(const std::string& message) = 0;
+        virtual MIKTEXNORETURN void FatalError(const std::string& message) = 0;
         virtual void Output(const std::string& s) = 0;
-        virtual void Verbose(int level, const std::string& s) = 0;
+        virtual void Verbose(int level, const std::string& message) = 0;
         virtual int VerbosityLevel() = 0;
-        virtual void Warning(const std::string& s) = 0;
+        virtual void Warning(const std::string& message) = 0;
     };
 
     struct ApplicationContext
     {
-        Controller* controller;
         Installer* installer;
         Logger* logger;
+        Program* program;
         std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;
     };

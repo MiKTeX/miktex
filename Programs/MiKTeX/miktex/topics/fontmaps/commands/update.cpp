@@ -98,12 +98,12 @@ int Topics::FontMaps::Commands::Update(ApplicationContext& ctx, const vector<str
         string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
         msg += ": ";
         msg += popt.Strerror(option);
-        ctx.ui->FatalError(msg);
+        ctx.ui->BadUsage(msg, "");
     }
 
     if (!popt.GetLeftovers().empty())
     {
-        ctx.ui->FatalError(T_("This command does not accept non-option arguments."));
+        ctx.ui->BadUsage(T_("unexpected command arguments"), "");
     }
 
     FontMapManager updmap;
