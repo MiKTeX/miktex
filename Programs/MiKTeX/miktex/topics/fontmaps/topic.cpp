@@ -76,11 +76,21 @@ int FontMapsTopic::Execute(ApplicationContext& ctx, const vector<string>& argume
     if (arguments[1] == "help")
     {
         ctx.ui->Output("fontmaps commands:");
-        ctx.ui->Output("  help         show help");
-        ctx.ui->Output("  update       update TeX font map files");
+        ctx.ui->Output("  help                     show help");
+        ctx.ui->Output("  set-option OPTION VALUE  set OPTION to VALUE");
+        ctx.ui->Output("  show-option OPTION       show the current setting of OPTION");
+        ctx.ui->Output("  update                   update TeX font map files");
         return 0;
     }
-    if (arguments[1] == "update")
+    if (arguments[1] == "set-option")
+    {
+        return Commands::SetOption(ctx, arguments);
+    }
+    else if (arguments[1] == "show-option")
+    {
+        return Commands::ShowOption(ctx, arguments);
+    }
+    else if (arguments[1] == "update")
     {
         return Commands::Update(ctx, arguments);
     }

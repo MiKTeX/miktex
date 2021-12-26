@@ -24,5 +24,5 @@
 
 namespace OneMiKTeXUtility::Shims
 {
-    void updmap(std::vector<std::string>& arguments);
+    void updmap(OneMiKTeXUtility::ApplicationContext* ctx, std::vector<std::string>& arguments);
 }

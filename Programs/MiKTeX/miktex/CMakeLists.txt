@@ -62,7 +62,11 @@ set(miktex_sources
   topics/filesystem/commands/watch.cpp
   topics/fontmaps/topic.cpp
   topics/fontmaps/topic.h
+  topics/fontmaps/commands/FontMapManager.cpp
+  topics/fontmaps/commands/FontMapManager.h
   topics/fontmaps/commands/commands.h
+  topics/fontmaps/commands/set-option.cpp
+  topics/fontmaps/commands/show-option.cpp
   topics/fontmaps/commands/update.cpp
 )
 

@@ -302,7 +302,7 @@ private:
     void Error(const std::string& s) override;
 
 private:
-    void Warning(const std::string& s);
+    void Warning(const std::string& s) override;
 
 private:
     void SecurityRisk(const std::string& s);
@@ -652,13 +652,13 @@ int MiKTeXApp::Init(vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(args));
     FlushPendingTraceMessages();
-        if (arg0 == "mkfntmap")
+    if (arg0 == "mkfntmap")
     {
         Shims::mkfntmap(newargs);
     }
     else if (arg0 == "updmap")
     {
-        Shims::updmap(newargs);
+        Shims::updmap(&ctx, newargs);
     }
     args = newargs;
     InstallSignalHandler(SIGINT);

@@ -55,6 +55,7 @@ namespace OneMiKTeXUtility
         virtual void Output(const std::string& s) = 0;
         virtual void Verbose(int level, const std::string& s) = 0;
         virtual int VerbosityLevel() = 0;
+        virtual void Warning(const std::string& s) = 0;
     };
 
     struct ApplicationContext

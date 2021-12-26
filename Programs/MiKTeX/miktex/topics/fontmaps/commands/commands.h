@@ -24,5 +24,7 @@
 
 namespace OneMiKTeXUtility::Topics::FontMaps::Commands
 {
+    int SetOption(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
+    int ShowOption(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
     int Update(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
 }
