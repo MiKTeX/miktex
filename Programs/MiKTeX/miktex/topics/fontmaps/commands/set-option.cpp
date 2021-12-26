@@ -40,6 +40,5 @@ int Topics::FontMaps::Commands::SetOption(ApplicationContext& ctx, const vector<
     FontMapManager updmap;
     updmap.Init(ctx);
     updmap.SetOption(arguments[2], arguments[3]);
-    updmap.WriteConfigurationFile();
     return 0;
 }

@@ -80,6 +80,14 @@ enum class NamingConvention
     ADOBEkb
 };
 
+struct Configuration
+{
+    std::set<std::string> mapFiles;
+    std::set<std::string> kanjiMapFiles;
+    std::set<std::string> mixedMapFiles;
+    std::map<std::string, std::string> options;
+};
+
 class FontMapManager :
     public MiKTeX::Core::IRunProcessCallback
 {
@@ -88,7 +96,6 @@ public:
     void Init(OneMiKTeXUtility::ApplicationContext& ctx);
     std::string Option(const std::string& optionName);
     void SetOption(const std::string& optionName, const std::string& value);
-    void WriteConfigurationFile();
     void WriteMapFiles(bool force, const std::string& outputDirectory);
 
 private:
@@ -99,7 +106,9 @@ private:
 
     bool ParseConfigLine(const std::string& line, std::string& directive, std::string& param);
 
-    void ParseConfigFile(const MiKTeX::Util::PathName& path);
+    Configuration ParseConfigFile(const MiKTeX::Util::PathName& path, Configuration& config);
+
+    void WriteConfigFile(const MiKTeX::Util::PathName& path, const Configuration& config);
 
     bool LocateFontMapFile(const std::string& fileName, MiKTeX::Util::PathName& path, bool mustExist);
 
@@ -161,18 +170,9 @@ private:
 
     OneMiKTeXUtility::ApplicationContext* ctx;
 
-    std::map<std::string, std::string> options =
-    {
-        {"LW35", "URWkb"},
-        {"dvipsDownloadBase35", "false"},
-        {"dvipsPreferOutline", "true"},
-        {"jaEmbed", "haranoaji"},
-        {"jaVariant", "-04"},
-        {"koEmbed", "baekmuk"},
-        {"pdftexDownloadBase14", "true"},
-        {"scEmbed", "arphic"},
-        {"tcEmbed", "arphic"},
-    };
+    static const std::map<std::string, std::string> optionDefaults;
+
+    Configuration config;
 
     bool BoolOption(const std::string& optionName)
     {
@@ -184,33 +184,29 @@ private:
         return this->ToNamingConvention(this->Option(optionName));
     }
 
-    std::set<std::string> mapFiles;
-    std::set<std::string> mixedMapFiles;
-    std::set<std::string> kanjiMapFiles;
-
     /**
      * @brief Transform file names from URWkb (berry names) to URW (vendor names).
      * 
      */
-    static std::map<std::string, std::string> fileURW;
+    static const std::map<std::string, std::string> fileURW;
 
     /**
      * @brief Transform file names from URWkb (berry names) to ADOBE (vendor names).
      * 
      */
-    static std::map<std::string, std::string> fileADOBE;
+    static const std::map<std::string, std::string> fileADOBE;
 
     /**
      * @brief Transform file names from URW to ADOBE (both berry names).
      * 
      */
-    static std::map<std::string, std::string> fileADOBEkb;
+    static const std::map<std::string, std::string> fileADOBEkb;
 
     /**
      * @brief Transform font names from URW to Adobe.
      * 
      */
-    static std::map<std::string, std::string> psADOBE;
+    static const std::map<std::string, std::string> psADOBE;
 
     std::string outputDirectory;
 

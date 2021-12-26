@@ -61,10 +61,175 @@ using namespace MiKTeX::Util;
 
 using namespace OneMiKTeXUtility;
 
-map<string, string> FontMapManager::fileURW;
-map<string, string> FontMapManager::fileADOBE;
-map<string, string> FontMapManager::fileADOBEkb;
-map<string, string> FontMapManager::psADOBE;
+const map<string, string> FontMapManager::optionDefaults =
+{
+    {"LW35", "URWkb"},
+    {"dvipdfmDownloadBase14", "true"},
+    {"dvipsDownloadBase35", "false"},
+    {"dvipsPreferOutline", "true"},
+    {"jaEmbed", "haranoaji"},
+    {"jaVariant", "-04"},
+    {"koEmbed", "baekmuk"},
+    {"pdftexDownloadBase14", "true"},
+    {"scEmbed", "arphic"},
+    {"tcEmbed", "arphic"},
+};
+
+const map<string, string> FontMapManager::fileURW =
+{
+    {"uagd8a.pfb", "a010015l.pfb"},
+    {"uagdo8a.pfb", "a010035l.pfb"},
+    {"uagk8a.pfb", "a010013l.pfb"},
+    {"uagko8a.pfb", "a010033l.pfb"},
+    {"ubkd8a.pfb", "b018015l.pfb"},
+    {"ubkdi8a.pfb", "b018035l.pfb"},
+    {"ubkl8a.pfb", "b018012l.pfb"},
+    {"ubkli8a.pfb", "b018032l.pfb"},
+    {"ucrb8a.pfb", "n022004l.pfb"},
+    {"ucrbo8a.pfb", "n022024l.pfb"},
+    {"ucrr8a.pfb", "n022003l.pfb"},
+    {"ucrro8a.pfb", "n022023l.pfb"},
+    {"uhvb8a.pfb", "n019004l.pfb"},
+    {"uhvb8ac.pfb", "n019044l.pfb"},
+    {"uhvbo8a.pfb", "n019024l.pfb"},
+    {"uhvbo8ac.pfb", "n019064l.pfb"},
+    {"uhvr8a.pfb", "n019003l.pfb"},
+    {"uhvr8ac.pfb", "n019043l.pfb"},
+    {"uhvro8a.pfb", "n019023l.pfb"},
+    {"uhvro8ac.pfb", "n019063l.pfb"},
+    {"uncb8a.pfb", "c059016l.pfb"},
+    {"uncbi8a.pfb", "c059036l.pfb"},
+    {"uncr8a.pfb", "c059013l.pfb"},
+    {"uncri8a.pfb", "c059033l.pfb"},
+    {"uplb8a.pfb", "p052004l.pfb"},
+    {"uplbi8a.pfb", "p052024l.pfb"},
+    {"uplr8a.pfb", "p052003l.pfb"},
+    {"uplri8a.pfb", "p052023l.pfb"},
+    {"usyr.pfb", "s050000l.pfb"},
+    {"utmb8a.pfb", "n021004l.pfb"},
+    {"utmbi8a.pfb", "n021024l.pfb"},
+    {"utmr8a.pfb", "n021003l.pfb"},
+    {"utmri8a.pfb", "n021023l.pfb"},
+    {"uzcmi8a.pfb", "z003034l.pfb"},
+    {"uzdr.pfb", "d050000l.pfb"},
+};
+
+const map<string, string> FontMapManager::fileADOBE =
+{
+    {"uagd8a.pfb", "agd_____.pfb"},
+    {"uagdo8a.pfb", "agdo____.pfb"},
+    {"uagk8a.pfb", "agw_____.pfb"},
+    {"uagko8a.pfb", "agwo____.pfb"},
+    {"ubkd8a.pfb", "bkd_____.pfb"},
+    {"ubkdi8a.pfb", "bkdi____.pfb"},
+    {"ubkl8a.pfb", "bkl_____.pfb"},
+    {"ubkli8a.pfb", "bkli____.pfb"},
+    {"ucrb8a.pfb", "cob_____.pfb"},
+    {"ucrbo8a.pfb", "cobo____.pfb"},
+    {"ucrr8a.pfb", "com_____.pfb"},
+    {"ucrro8a.pfb", "coo_____.pfb"},
+    {"uhvb8a.pfb", "hvb_____.pfb"},
+    {"uhvb8ac.pfb", "hvnb____.pfb"},
+    {"uhvbo8a.pfb", "hvbo____.pfb"},
+    {"uhvbo8ac.pfb", "hvnbo___.pfb"},
+    {"uhvr8a.pfb", "hv______.pfb"},
+    {"uhvr8ac.pfb", "hvn_____.pfb"},
+    {"uhvro8a.pfb", "hvo_____.pfb"},
+    {"uhvro8ac.pfb", "hvno____.pfb"},
+    {"uncb8a.pfb", "ncb_____.pfb"},
+    {"uncbi8a.pfb", "ncbi____.pfb"},
+    {"uncr8a.pfb", "ncr_____.pfb"},
+    {"uncri8a.pfb", "nci_____.pfb"},
+    {"uplb8a.pfb", "pob_____.pfb"},
+    {"uplbi8a.pfb", "pobi____.pfb"},
+    {"uplr8a.pfb", "por_____.pfb"},
+    {"uplri8a.pfb", "poi_____.pfb"},
+    {"usyr.pfb", "sy______.pfb"},
+    {"utmb8a.pfb", "tib_____.pfb"},
+    {"utmbi8a.pfb", "tibi____.pfb"},
+    {"utmr8a.pfb", "tir_____.pfb"},
+    {"utmri8a.pfb", "tii_____.pfb"},
+    {"uzcmi8a.pfb", "zcmi____.pfb"},
+    {"uzdr.pfb", "zd______.pfb"},
+};
+
+const map<string, string> FontMapManager::fileADOBEkb =
+{
+    {"uagd8a.pfb", "pagd8a.pfb"},
+    {"uagdo8a.pfb", "pagdo8a.pfb"},
+    {"uagk8a.pfb", "pagk8a.pfb"},
+    {"uagko8a.pfb", "pagko8a.pfb"},
+    {"ubkd8a.pfb", "pbkd8a.pfb"},
+    {"ubkdi8a.pfb", "pbkdi8a.pfb"},
+    {"ubkl8a.pfb", "pbkl8a.pfb"},
+    {"ubkli8a.pfb", "pbkli8a.pfb"},
+    {"ucrb8a.pfb", "pcrb8a.pfb"},
+    {"ucrbo8a.pfb", "pcrbo8a.pfb"},
+    {"ucrr8a.pfb", "pcrr8a.pfb"},
+    {"ucrro8a.pfb", "pcrro8a.pfb"},
+    {"uhvb8a.pfb", "phvb8a.pfb"},
+    {"uhvb8ac.pfb", "phvb8an.pfb"},
+    {"uhvbo8a.pfb", "phvbo8a.pfb"},
+    {"uhvbo8ac.pfb", "phvbo8an.pfb"},
+    {"uhvr8a.pfb", "phvr8a.pfb"},
+    {"uhvr8ac.pfb", "phvr8an.pfb"},
+    {"uhvro8a.pfb", "phvro8a.pfb"},
+    {"uhvro8ac.pfb", "phvro8an.pfb"},
+    {"uncb8a.pfb", "pncb8a.pfb"},
+    {"uncbi8a.pfb", "pncbi8a.pfb"},
+    {"uncr8a.pfb", "pncr8a.pfb"},
+    {"uncri8a.pfb", "pncri8a.pfb"},
+    {"uplb8a.pfb", "pplb8a.pfb"},
+    {"uplbi8a.pfb", "pplbi8a.pfb"},
+    {"uplr8a.pfb", "pplr8a.pfb"},
+    {"uplri8a.pfb", "pplri8a.pfb"},
+    {"usyr.pfb", "psyr.pfb"},
+    {"utmb8a.pfb", "ptmb8a.pfb"},
+    {"utmbi8a.pfb", "ptmbi8a.pfb"},
+    {"utmr8a.pfb", "ptmr8a.pfb"},
+    {"utmri8a.pfb", "ptmri8a.pfb"},
+    {"uzcmi8a.pfb", "pzcmi8a.pfb"},
+    {"uzdr.pfb", "pzdr.pfb"},
+};
+
+const map<string, string> FontMapManager::psADOBE =
+{
+    {"URWGothicL-Demi", "AvantGarde-Demi"},
+    {"URWGothicL-DemiObli", "AvantGarde-DemiOblique"},
+    {"URWGothicL-Book", "AvantGarde-Book"},
+    {"URWGothicL-BookObli", "AvantGarde-BookOblique"},
+    {"URWBookmanL-DemiBold", "Bookman-Demi"},
+    {"URWBookmanL-DemiBoldItal", "Bookman-DemiItalic"},
+    {"URWBookmanL-Ligh", "Bookman-Light"},
+    {"URWBookmanL-LighItal", "Bookman-LightItalic"},
+    {"NimbusMonL-Bold", "Courier-Bold"},
+    {"NimbusMonL-BoldObli", "Courier-BoldOblique"},
+    {"NimbusMonL-Regu", "Courier"},
+    {"NimbusMonL-ReguObli", "Courier-Oblique"},
+    {"NimbusSanL-Bold", "Helvetica-Bold"},
+    {"NimbusSanL-BoldCond", "Helvetica-Narrow-Bold"},
+    {"NimbusSanL-BoldItal", "Helvetica-BoldOblique"},
+    {"NimbusSanL-BoldCondItal", "Helvetica-Narrow-BoldOblique"},
+    {"NimbusSanL-Regu", "Helvetica"},
+    {"NimbusSanL-ReguCond", "Helvetica-Narrow"},
+    {"NimbusSanL-ReguItal", "Helvetica-Oblique"},
+    {"NimbusSanL-ReguCondItal", "Helvetica-Narrow-Oblique"},
+    {"CenturySchL-Bold", "NewCenturySchlbk-Bold"},
+    {"CenturySchL-BoldItal", "NewCenturySchlbk-BoldItalic"},
+    {"CenturySchL-Roma", "NewCenturySchlbk-Roman"},
+    {"CenturySchL-Ital", "NewCenturySchlbk-Italic"},
+    {"URWPalladioL-Bold", "Palatino-Bold"},
+    {"URWPalladioL-BoldItal", "Palatino-BoldItalic"},
+    {"URWPalladioL-Roma", "Palatino-Roman"},
+    {"URWPalladioL-Ital", "Palatino-Italic"},
+    {"StandardSymL", "Symbol"},
+    {"NimbusRomNo9L-Medi", "Times-Bold"},
+    {"NimbusRomNo9L-MediItal", "Times-BoldItalic"},
+    {"NimbusRomNo9L-Regu", "Times-Roman"},
+    {"NimbusRomNo9L-ReguItal", "Times-Italic"},
+    {"URWChanceryL-MediItal", "ZapfChancery-MediumItalic"},
+    {"Dingbats", "ZapfDingbats"},
+};
 
 MIKTEXNORETURN void FontMapManager::CfgError(const string& s)
 {
@@ -84,8 +249,8 @@ MIKTEXNORETURN void FontMapManager::MapError(const string& s)
 
 std::string FontMapManager::Option(const std::string& optionName)
 {
-    auto it = this->options.find(optionName);
-    if (it == this->options.end())
+    auto it = this->config.options.find(optionName);
+    if (it == this->config.options.end())
     {
         this->ctx->ui->FatalError(fmt::format(T_("Unknown configuration option: {0}"), optionName));
     }
@@ -94,12 +259,25 @@ std::string FontMapManager::Option(const std::string& optionName)
 
 void FontMapManager::SetOption(const std::string& optionName, const std::string& value)
 {
-    auto it = this->options.find(optionName);
-    if (it == this->options.end())
+    auto it = this->config.options.find(optionName);
+    if (it == this->config.options.end())
     {
         this->ctx->ui->FatalError(fmt::format(T_("Unknown configuration option: {0}"), optionName));
     }
     it->second = value;
+    auto configFile = this->ctx->session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_MIKTEX_CONFIG_DIR MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "updmap.cfg");
+    Configuration partialConfiguration;
+    if (File::Exists(configFile))
+    {
+        Configuration dummy = this->config;
+        partialConfiguration = this->ParseConfigFile(configFile, dummy);
+        if (partialConfiguration.options[optionName] == value)
+        {
+            return;
+        }
+    }
+    partialConfiguration.options[optionName] = value;
+    this->WriteConfigFile(configFile, partialConfiguration);
 }
 
 bool FontMapManager::ToBool(const string& param)
@@ -174,13 +352,14 @@ bool FontMapManager::ParseConfigLine(const string& line, string& directive, stri
     return true;
 }
 
-void FontMapManager::ParseConfigFile(const PathName& path)
+Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuration& mergedConfig)
 {
     Verbose(fmt::format(T_("Parsing config file {0}..."), Q_(path)));
     StreamReader reader(path);
     cfgContext.path = path;
     cfgContext.line = 0;
     string line;
+    Configuration partialConfig;
     while (reader.ReadLine(line))
     {
         ++cfgContext.line;
@@ -190,10 +369,11 @@ void FontMapManager::ParseConfigFile(const PathName& path)
         {
             continue;
         }
-        auto it = this->options.find(directive);
-        if (it != this->options.end())
+        auto it = mergedConfig.options.find(directive);
+        if (it != mergedConfig.options.end())
         {
             it->second = param;
+            partialConfig.options[directive] = param;
         }
         else if (Utils::EqualsIgnoreCase(directive, "Map"))
         {
@@ -201,7 +381,8 @@ void FontMapManager::ParseConfigFile(const PathName& path)
             {
                 CfgError(T_("missing map file name"));
             }
-            mapFiles.insert(param);
+            mergedConfig.mapFiles.insert(param);
+            partialConfig.mapFiles.insert(param);
         }
         else if (Utils::EqualsIgnoreCase(directive, "MixedMap"))
         {
@@ -209,7 +390,8 @@ void FontMapManager::ParseConfigFile(const PathName& path)
             {
                 CfgError(T_("missing map file name"));
             }
-            mixedMapFiles.insert(param);
+           mergedConfig.mixedMapFiles.insert(param);
+           partialConfig.mixedMapFiles.insert(param);
         }
         else if (Utils::EqualsIgnoreCase(directive, "KanjiMap"))
         {
@@ -217,7 +399,8 @@ void FontMapManager::ParseConfigFile(const PathName& path)
             {
                 CfgError(T_("missing map file name"));
             }
-            kanjiMapFiles.insert(param);
+            mergedConfig.kanjiMapFiles.insert(param);
+            partialConfig.kanjiMapFiles.insert(param);
         }
         else
         {
@@ -225,20 +408,42 @@ void FontMapManager::ParseConfigFile(const PathName& path)
         }
     }
     reader.Close();
+    return partialConfig;
+}
+
+void FontMapManager::WriteConfigFile(const PathName& path, const Configuration& config)
+{
+    Verbose(fmt::format(T_("Writing configuration file {0}..."), Q_(path)));
+    ofstream writer = File::CreateOutputStream(path, ios_base::binary);
+    for (auto o : config.options)
+    {
+        writer << fmt::format("{0} {1}", o.first, o.second) << endl;
+    }
+    for (auto f : config.kanjiMapFiles)
+    {
+        writer << fmt::format("KanjiMap {0}", f) << endl;
+    }
+    for (auto f : config.mapFiles)
+    {
+        writer << fmt::format("Map {0}", f) << endl;
+    }
+    for (auto f : config.mixedMapFiles)
+    {
+        writer << fmt::format("MixedMap {0}", f) << endl;
+    }
+    writer.close();
 }
 
 void FontMapManager::Init(ApplicationContext& ctx)
 {
     this->ctx = &ctx;
-
-    bool parsedConfig = false;
-
-    static vector<string> configFiles = {
+    this->config = Configuration();
+    this->config.options = this->optionDefaults;
+    static const vector<string> configFiles = {
       MIKTEX_PATH_MKFNTMAP_CFG,
       MIKTEX_PATH_MIKTEX_CONFIG_DIR MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "updmap.cfg",
       MIKTEX_PATH_WEB2C_DIR MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "updmap.cfg"
     };
-
     for (const string& cfgFile : configFiles)
     {
         vector<PathName> cfgFiles;
@@ -246,160 +451,14 @@ void FontMapManager::Init(ApplicationContext& ctx)
         {
             for (vector<PathName>::const_reverse_iterator it = cfgFiles.rbegin(); it != cfgFiles.rend(); ++it)
             {
-                ParseConfigFile(*it);
-                parsedConfig = true;
+                ParseConfigFile(*it, this->config);
             }
         }
     }
-
-    if (!parsedConfig)
+    if (this->config.mapFiles.empty())
     {
-        this->ctx->ui->FatalError(T_("The config file could not be found."));
+        this->ctx->ui->FatalError(T_("Empty font map configuration."));
     }
-
-    fileURW["uagd8a.pfb"] = "a010015l.pfb";
-    fileURW["uagdo8a.pfb"] = "a010035l.pfb";
-    fileURW["uagk8a.pfb"] = "a010013l.pfb";
-    fileURW["uagko8a.pfb"] = "a010033l.pfb";
-    fileURW["ubkd8a.pfb"] = "b018015l.pfb";
-    fileURW["ubkdi8a.pfb"] = "b018035l.pfb";
-    fileURW["ubkl8a.pfb"] = "b018012l.pfb";
-    fileURW["ubkli8a.pfb"] = "b018032l.pfb";
-    fileURW["ucrb8a.pfb"] = "n022004l.pfb";
-    fileURW["ucrbo8a.pfb"] = "n022024l.pfb";
-    fileURW["ucrr8a.pfb"] = "n022003l.pfb";
-    fileURW["ucrro8a.pfb"] = "n022023l.pfb";
-    fileURW["uhvb8a.pfb"] = "n019004l.pfb";
-    fileURW["uhvb8ac.pfb"] = "n019044l.pfb";
-    fileURW["uhvbo8a.pfb"] = "n019024l.pfb";
-    fileURW["uhvbo8ac.pfb"] = "n019064l.pfb";
-    fileURW["uhvr8a.pfb"] = "n019003l.pfb";
-    fileURW["uhvr8ac.pfb"] = "n019043l.pfb";
-    fileURW["uhvro8a.pfb"] = "n019023l.pfb";
-    fileURW["uhvro8ac.pfb"] = "n019063l.pfb";
-    fileURW["uncb8a.pfb"] = "c059016l.pfb";
-    fileURW["uncbi8a.pfb"] = "c059036l.pfb";
-    fileURW["uncr8a.pfb"] = "c059013l.pfb";
-    fileURW["uncri8a.pfb"] = "c059033l.pfb";
-    fileURW["uplb8a.pfb"] = "p052004l.pfb";
-    fileURW["uplbi8a.pfb"] = "p052024l.pfb";
-    fileURW["uplr8a.pfb"] = "p052003l.pfb";
-    fileURW["uplri8a.pfb"] = "p052023l.pfb";
-    fileURW["usyr.pfb"] = "s050000l.pfb";
-    fileURW["utmb8a.pfb"] = "n021004l.pfb";
-    fileURW["utmbi8a.pfb"] = "n021024l.pfb";
-    fileURW["utmr8a.pfb"] = "n021003l.pfb";
-    fileURW["utmri8a.pfb"] = "n021023l.pfb";
-    fileURW["uzcmi8a.pfb"] = "z003034l.pfb";
-    fileURW["uzdr.pfb"] = "d050000l.pfb";
-
-    fileADOBE["uagd8a.pfb"] = "agd_____.pfb";
-    fileADOBE["uagdo8a.pfb"] = "agdo____.pfb";
-    fileADOBE["uagk8a.pfb"] = "agw_____.pfb";
-    fileADOBE["uagko8a.pfb"] = "agwo____.pfb";
-    fileADOBE["ubkd8a.pfb"] = "bkd_____.pfb";
-    fileADOBE["ubkdi8a.pfb"] = "bkdi____.pfb";
-    fileADOBE["ubkl8a.pfb"] = "bkl_____.pfb";
-    fileADOBE["ubkli8a.pfb"] = "bkli____.pfb";
-    fileADOBE["ucrb8a.pfb"] = "cob_____.pfb";
-    fileADOBE["ucrbo8a.pfb"] = "cobo____.pfb";
-    fileADOBE["ucrr8a.pfb"] = "com_____.pfb";
-    fileADOBE["ucrro8a.pfb"] = "coo_____.pfb";
-    fileADOBE["uhvb8a.pfb"] = "hvb_____.pfb";
-    fileADOBE["uhvb8ac.pfb"] = "hvnb____.pfb";
-    fileADOBE["uhvbo8a.pfb"] = "hvbo____.pfb";
-    fileADOBE["uhvbo8ac.pfb"] = "hvnbo___.pfb";
-    fileADOBE["uhvr8a.pfb"] = "hv______.pfb";
-    fileADOBE["uhvr8ac.pfb"] = "hvn_____.pfb";
-    fileADOBE["uhvro8a.pfb"] = "hvo_____.pfb";
-    fileADOBE["uhvro8ac.pfb"] = "hvno____.pfb";
-    fileADOBE["uncb8a.pfb"] = "ncb_____.pfb";
-    fileADOBE["uncbi8a.pfb"] = "ncbi____.pfb";
-    fileADOBE["uncr8a.pfb"] = "ncr_____.pfb";
-    fileADOBE["uncri8a.pfb"] = "nci_____.pfb";
-    fileADOBE["uplb8a.pfb"] = "pob_____.pfb";
-    fileADOBE["uplbi8a.pfb"] = "pobi____.pfb";
-    fileADOBE["uplr8a.pfb"] = "por_____.pfb";
-    fileADOBE["uplri8a.pfb"] = "poi_____.pfb";
-    fileADOBE["usyr.pfb"] = "sy______.pfb";
-    fileADOBE["utmb8a.pfb"] = "tib_____.pfb";
-    fileADOBE["utmbi8a.pfb"] = "tibi____.pfb";
-    fileADOBE["utmr8a.pfb"] = "tir_____.pfb";
-    fileADOBE["utmri8a.pfb"] = "tii_____.pfb";
-    fileADOBE["uzcmi8a.pfb"] = "zcmi____.pfb";
-    fileADOBE["uzdr.pfb"] = "zd______.pfb";
-
-    fileADOBEkb["uagd8a.pfb"] = "pagd8a.pfb";
-    fileADOBEkb["uagdo8a.pfb"] = "pagdo8a.pfb";
-    fileADOBEkb["uagk8a.pfb"] = "pagk8a.pfb";
-    fileADOBEkb["uagko8a.pfb"] = "pagko8a.pfb";
-    fileADOBEkb["ubkd8a.pfb"] = "pbkd8a.pfb";
-    fileADOBEkb["ubkdi8a.pfb"] = "pbkdi8a.pfb";
-    fileADOBEkb["ubkl8a.pfb"] = "pbkl8a.pfb";
-    fileADOBEkb["ubkli8a.pfb"] = "pbkli8a.pfb";
-    fileADOBEkb["ucrb8a.pfb"] = "pcrb8a.pfb";
-    fileADOBEkb["ucrbo8a.pfb"] = "pcrbo8a.pfb";
-    fileADOBEkb["ucrr8a.pfb"] = "pcrr8a.pfb";
-    fileADOBEkb["ucrro8a.pfb"] = "pcrro8a.pfb";
-    fileADOBEkb["uhvb8a.pfb"] = "phvb8a.pfb";
-    fileADOBEkb["uhvb8ac.pfb"] = "phvb8an.pfb";
-    fileADOBEkb["uhvbo8a.pfb"] = "phvbo8a.pfb";
-    fileADOBEkb["uhvbo8ac.pfb"] = "phvbo8an.pfb";
-    fileADOBEkb["uhvr8a.pfb"] = "phvr8a.pfb";
-    fileADOBEkb["uhvr8ac.pfb"] = "phvr8an.pfb";
-    fileADOBEkb["uhvro8a.pfb"] = "phvro8a.pfb";
-    fileADOBEkb["uhvro8ac.pfb"] = "phvro8an.pfb";
-    fileADOBEkb["uncb8a.pfb"] = "pncb8a.pfb";
-    fileADOBEkb["uncbi8a.pfb"] = "pncbi8a.pfb";
-    fileADOBEkb["uncr8a.pfb"] = "pncr8a.pfb";
-    fileADOBEkb["uncri8a.pfb"] = "pncri8a.pfb";
-    fileADOBEkb["uplb8a.pfb"] = "pplb8a.pfb";
-    fileADOBEkb["uplbi8a.pfb"] = "pplbi8a.pfb";
-    fileADOBEkb["uplr8a.pfb"] = "pplr8a.pfb";
-    fileADOBEkb["uplri8a.pfb"] = "pplri8a.pfb";
-    fileADOBEkb["usyr.pfb"] = "psyr.pfb";
-    fileADOBEkb["utmb8a.pfb"] = "ptmb8a.pfb";
-    fileADOBEkb["utmbi8a.pfb"] = "ptmbi8a.pfb";
-    fileADOBEkb["utmr8a.pfb"] = "ptmr8a.pfb";
-    fileADOBEkb["utmri8a.pfb"] = "ptmri8a.pfb";
-    fileADOBEkb["uzcmi8a.pfb"] = "pzcmi8a.pfb";
-    fileADOBEkb["uzdr.pfb"] = "pzdr.pfb";
-
-    psADOBE["URWGothicL-Demi"] = "AvantGarde-Demi";
-    psADOBE["URWGothicL-DemiObli"] = "AvantGarde-DemiOblique";
-    psADOBE["URWGothicL-Book"] = "AvantGarde-Book";
-    psADOBE["URWGothicL-BookObli"] = "AvantGarde-BookOblique";
-    psADOBE["URWBookmanL-DemiBold"] = "Bookman-Demi";
-    psADOBE["URWBookmanL-DemiBoldItal"] = "Bookman-DemiItalic";
-    psADOBE["URWBookmanL-Ligh"] = "Bookman-Light";
-    psADOBE["URWBookmanL-LighItal"] = "Bookman-LightItalic";
-    psADOBE["NimbusMonL-Bold"] = "Courier-Bold";
-    psADOBE["NimbusMonL-BoldObli"] = "Courier-BoldOblique";
-    psADOBE["NimbusMonL-Regu"] = "Courier";
-    psADOBE["NimbusMonL-ReguObli"] = "Courier-Oblique";
-    psADOBE["NimbusSanL-Bold"] = "Helvetica-Bold";
-    psADOBE["NimbusSanL-BoldCond"] = "Helvetica-Narrow-Bold";
-    psADOBE["NimbusSanL-BoldItal"] = "Helvetica-BoldOblique";
-    psADOBE["NimbusSanL-BoldCondItal"] = "Helvetica-Narrow-BoldOblique";
-    psADOBE["NimbusSanL-Regu"] = "Helvetica";
-    psADOBE["NimbusSanL-ReguCond"] = "Helvetica-Narrow";
-    psADOBE["NimbusSanL-ReguItal"] = "Helvetica-Oblique";
-    psADOBE["NimbusSanL-ReguCondItal"] = "Helvetica-Narrow-Oblique";
-    psADOBE["CenturySchL-Bold"] = "NewCenturySchlbk-Bold";
-    psADOBE["CenturySchL-BoldItal"] = "NewCenturySchlbk-BoldItalic";
-    psADOBE["CenturySchL-Roma"] = "NewCenturySchlbk-Roman";
-    psADOBE["CenturySchL-Ital"] = "NewCenturySchlbk-Italic";
-    psADOBE["URWPalladioL-Bold"] = "Palatino-Bold";
-    psADOBE["URWPalladioL-BoldItal"] = "Palatino-BoldItalic";
-    psADOBE["URWPalladioL-Roma"] = "Palatino-Roman";
-    psADOBE["URWPalladioL-Ital"] = "Palatino-Italic";
-    psADOBE["StandardSymL"] = "Symbol";
-    psADOBE["NimbusRomNo9L-Medi"] = "Times-Bold";
-    psADOBE["NimbusRomNo9L-MediItal"] = "Times-BoldItalic";
-    psADOBE["NimbusRomNo9L-Regu"] = "Times-Roman";
-    psADOBE["NimbusRomNo9L-ReguItal"] = "Times-Italic";
-    psADOBE["URWChanceryL-MediItal"] = "ZapfChancery-MediumItalic";
-    psADOBE["Dingbats"] = "ZapfDingbats";
 }
 
 bool Replace(string& s, const string& s2, const string& s3)
@@ -1126,9 +1185,9 @@ void FontMapManager::WriteMapFiles(bool force, const string& outputDirectory)
     set<DvipsFontMapEntry> transLW35_pdftex35(TransformLW35(pdftex35));
     set<DvipsFontMapEntry> transLW35_ps2pk35(TransformLW35(ps2pk35));
 
-    set<DvipsFontMapEntry> mixedMaps(CatDvipsFontMaps(mixedMapFiles));
-    set<DvipsFontMapEntry> nonMixedMaps(CatDvipsFontMaps(mapFiles));
-    set<DvipdfmxFontMapEntry> kanjiMaps(CatDvipdfmxFontMaps(kanjiMapFiles));
+    set<DvipsFontMapEntry> mixedMaps(CatDvipsFontMaps(this->config.mixedMapFiles));
+    set<DvipsFontMapEntry> nonMixedMaps(CatDvipsFontMaps(this->config.mapFiles));
+    set<DvipdfmxFontMapEntry> kanjiMaps(CatDvipdfmxFontMaps(this->config.kanjiMapFiles));
 
     set<DvipsFontMapEntry> transLW35_dftdvips(TransformLW35(this->ToBool(this->Option("dvipsDownloadBase35")) ? ps2pk35 : dvips35));
 
@@ -1148,9 +1207,4 @@ void FontMapManager::WriteMapFiles(bool force, const string& outputDirectory)
     SymlinkOrCopyFiles();
 
     BuildFontconfigCache(force);
-}
-
-void FontMapManager::WriteConfigurationFile()
-{
-    // TODO
 }
