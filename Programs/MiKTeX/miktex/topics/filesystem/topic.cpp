@@ -26,13 +26,8 @@
 
 #include "topic.h"
 
-using namespace std;
-
-using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
-
 class FileSystemTopic :
-    public TopicBase
+    public OneMiKTeXUtility::Topics::TopicBase
 {
     std::string Description() override
     {
@@ -46,11 +41,11 @@ class FileSystemTopic :
 
     void RegisterCommands() override
     {
-        this->RegisterCommand(FileSystem::Commands::Watch());
+        this->RegisterCommand(OneMiKTeXUtility::Topics::FileSystem::Commands::Watch());
     }
 };
 
-unique_ptr<Topic> FileSystem::Create()
+std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
 {
-    return make_unique<FileSystemTopic>();
+    return std::make_unique<FileSystemTopic>();
 }

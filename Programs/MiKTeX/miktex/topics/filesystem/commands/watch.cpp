@@ -17,8 +17,10 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <iostream>
+#include <memory>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>

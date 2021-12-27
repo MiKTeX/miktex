@@ -17,14 +17,15 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <string>
-#include <vector>
+#include <memory>
 
 #include "internal.h"
 
+#include "topics/Command.h"
+
 namespace OneMiKTeXUtility::Topics::FontMaps::Commands
 {
-    int SetOption(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
-    int ShowOption(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
-    int Update(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> SetOption();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> ShowOption();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
 }

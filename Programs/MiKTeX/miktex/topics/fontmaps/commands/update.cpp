@@ -20,6 +20,13 @@
  * @endcode
  */
 
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <miktex/Wrappers/PoptWrapper>
 
 #include "internal.h"
@@ -28,16 +35,45 @@
 
 #include "FontMapManager.h"
 
+class UpdateCommand :
+    public OneMiKTeXUtility::Topics::Command
+{
+    std::string Description() override
+    {
+        return T_("Update TeX font map files");
+    }
+
+    int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+
+    std::string Name() override
+    {
+        return "update";
+    }
+
+    std::string Synopsis() override
+    {
+        return "update [--force] [--help] [--output-directory=DIR]";
+    }
+};
+
 using namespace std;
 
 using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
+using namespace OneMiKTeXUtility::Topics;
+using namespace OneMiKTeXUtility::Topics::FontMaps;
+
+unique_ptr<Command> Commands::Update()
+{
+    return make_unique<UpdateCommand>();
+}
 
 enum Option
 {
     OPT_AAA = 1,
     OPT_FORCE,
+    OPT_HELP,
     OPT_OUTPUT_DIRECTORY,
 };
 
@@ -61,7 +97,7 @@ static const struct poptOption update_options[] =
     POPT_TABLEEND
 };
 
-int Topics::FontMaps::Commands::Update(ApplicationContext& ctx, const vector<string>& arguments)
+int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     vector<const char*> argv;
     argv.reserve(arguments.size() + 1);

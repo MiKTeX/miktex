@@ -20,6 +20,7 @@
  * @endcode
  */
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,11 +33,39 @@
 
 #include "FontMapManager.h"
 
+class SetOptionCommand :
+    public OneMiKTeXUtility::Topics::Command
+{
+    std::string Description() override
+    {
+        return T_("Set OPTION to value");
+    }
+
+    int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+
+    std::string Name() override
+    {
+        return "set-option";
+    }
+
+    std::string Synopsis() override
+    {
+        return "set-option OPTION VALUE";
+    }
+};
+
 using namespace std;
 
 using namespace OneMiKTeXUtility;
+using namespace OneMiKTeXUtility::Topics;
+using namespace OneMiKTeXUtility::Topics::FontMaps;
 
-int Topics::FontMaps::Commands::SetOption(ApplicationContext& ctx, const vector<string>& arguments)
+unique_ptr<Command> Commands::SetOption()
+{
+    return make_unique<SetOptionCommand>();
+}
+
+int SetOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() != 4)
     {
