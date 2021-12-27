@@ -17,65 +17,40 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <iostream>
+#include <string>
+#include <memory>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
-#include <miktex/Core/Text>
+#include "internal.h"
 
 #include "commands/commands.h"
-#include "internal.h"
+
 #include "topic.h"
 
 using namespace std;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::FileSystem;
-
-#define T_(x) MIKTEXTEXT(x)
 
 class FileSystemTopic :
-    public Topic
+    public TopicBase
 {
-private:
     std::string Description() override
     {
-        return T_("Commands for watching the file system.");
+        return T_("Commands for watching the file system");
     }
 
-private:
-    int MIKTEXTHISCALL Execute(ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
-
-private:
     std::string Name() override
     {
         return "filesystem";
     }
+
+    void RegisterCommands() override
+    {
+        this->RegisterCommand(FileSystem::Commands::Watch());
+    }
 };
 
-unique_ptr<Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
+unique_ptr<Topic> FileSystem::Create()
 {
     return make_unique<FileSystemTopic>();
-}
-
-int FileSystemTopic::Execute(ApplicationContext& ctx, const vector<string>& arguments)
-{
-    if (arguments.size() < 2)
-    {
-        ctx.ui->BadUsage(T_("missing command; try help"), "");
-    }
-    if (arguments[1] == "help")
-    {
-        ctx.ui->Output("Commands:");
-        ctx.ui->Output("  help             show help");
-        ctx.ui->Output("  watch DIRECTORY  watch for DIRECTORY changes");
-        return 0;
-    }
-    if (arguments[1] == "watch")
-    {
-        return Commands::Watch(ctx, arguments);
-    }
-    ctx.ui->BadUsage(fmt::format(T_("{0}: unknown command"), arguments[1]), "");
 }

@@ -24,8 +24,9 @@
 
 #include <miktex/Core/Text>
 
-#include "commands/commands.h"
 #include "internal.h"
+
+#include "commands/commands.h"
 #include "topic.h"
 
 using namespace std;
@@ -33,8 +34,6 @@ using namespace std;
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::FontMaps;
-
-#define T_(x) MIKTEXTEXT(x)
 
 class FontMapsTopic :
     public Topic
@@ -52,12 +51,6 @@ private:
     std::string Name() override
     {
         return "fontmaps";
-    }
-
-private:
-    string BadUsage(const std::string s)
-    {
-        return fmt::format(T_("bad fontmaps usage: {0}"), s);
     }
 };
 

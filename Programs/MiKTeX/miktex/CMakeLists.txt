@@ -54,6 +54,8 @@ set(miktex_sources
   shims/mkfntmap.h
   shims/updmap.cpp
   shims/updmap.h
+  topics/Command.cpp
+  topics/Command.h
   topics/Topic.cpp
   topics/Topic.h
   topics/filesystem/topic.cpp

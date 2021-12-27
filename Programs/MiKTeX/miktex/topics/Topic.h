@@ -2,8 +2,6 @@
 
    Copyright (C) 2021 Christian Schenk
 
-   Copyright (C) 2021 Christian Schenk
-
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
    by the Free Software Foundation; either version 2, or (at your
@@ -22,25 +20,37 @@
 #pragma once
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include <miktex/Definitions>
 
 #include "internal.h"
 
-namespace OneMiKTeXUtility::Topics {
+#include "Command.h"
+
+namespace OneMiKTeXUtility::Topics
+{
     class MIKTEXNOVTABLE Topic
     {
     public:
         virtual MIKTEXTHISCALL ~Topic() noexcept = 0;
-
-    public:
         virtual std::string Description() = 0;
-
-    public:
         virtual int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) = 0;
-
-    public:
         virtual std::string Name() = 0;
+    };
+
+    class TopicBase :
+        public Topic
+    {
+    protected:
+        int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+        void RegisterCommand(std::unique_ptr<OneMiKTeXUtility::Topics::Command> c)
+        {
+            auto name = c->Name();
+            this->commands[name] = std::move(c);
+        }
+        virtual void RegisterCommands() = 0;
+        std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Topics::Command>> commands;
     };
 }

@@ -1,4 +1,4 @@
-/* topics/fontmaps/topic.h:
+/* topics/Command.cpp:
 
    Copyright (C) 2021 Christian Schenk
 
@@ -17,13 +17,10 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <memory>
+#include "Command.h"
 
-#include "internal.h"
+using namespace OneMiKTeXUtility::Topics;
 
-#include "topics/Topic.h"
-
-namespace OneMiKTeXUtility::Topics::FontMaps
+Command::~Command() noexcept
 {
-    std::unique_ptr<Topics::Topic> Create();
 }

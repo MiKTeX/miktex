@@ -17,6 +17,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
+#include <string>
+#include <vector>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -25,8 +28,6 @@
 #include "internal.h"
 
 #include "updmap.h"
-
-#define T_(x) MIKTEXTEXT(x)
 
 using namespace std;
 
@@ -127,13 +128,17 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
 
     if (optShowOption)
     {
+        if (!leftovers.empty())
+        {
+            ctx->ui->BadUsage(T_("unexpected leftover arguments"), "");
+        }
         arguments = {"fontmaps", "show-option", optionName};
     }
     else if (optSetOption)
     {
-        if (leftovers.empty())
+        if (leftovers.size() != 1)
         {
-            ctx->ui->BadUsage(fmt::format(T_("missing value for option {0}"), optionName), "");
+            ctx->ui->BadUsage(T_("expected arguments: OPTION VALUE"), "");
         }
         arguments = {"fontmaps", "set-option", optionName, leftovers[0]};
     }

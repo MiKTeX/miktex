@@ -225,17 +225,17 @@ private:
     }
 
 private:
-    void RegisterTopic(unique_ptr<Topics::Topic> t)
+    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Topics::Topic> t)
     {
-        string name = t->Name();
-        topics[name] = std::move(t);
+        auto name = t->Name();
+        this->topics[name] = std::move(t);
     }
 
 private:
     void RegisterTopics()
     {
-        RegisterTopic(Topics::FileSystem::Create());
-        RegisterTopic(Topics::FontMaps::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
     }
 
 private:

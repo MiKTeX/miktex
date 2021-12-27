@@ -17,12 +17,13 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <string>
-#include <vector>
+#include <memory>
 
 #include "internal.h"
 
+#include "topics/Command.h"
+
 namespace OneMiKTeXUtility::Topics::FileSystem::Commands
 {
-    int Watch(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments);
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Watch();
 }

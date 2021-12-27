@@ -1,4 +1,4 @@
-/* topics/fontmaps/topic.h:
+/* topics/Command.h:
 
    Copyright (C) 2021 Christian Schenk
 
@@ -17,13 +17,24 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#include <memory>
+#pragma once
+
+#include <string>
+#include <vector>
+
+#include <miktex/Definitions>
 
 #include "internal.h"
 
-#include "topics/Topic.h"
-
-namespace OneMiKTeXUtility::Topics::FontMaps
+namespace OneMiKTeXUtility::Topics
 {
-    std::unique_ptr<Topics::Topic> Create();
+    class MIKTEXNOVTABLE Command
+    {
+    public:
+        virtual MIKTEXTHISCALL ~Command() noexcept = 0;
+        virtual std::string Description() = 0;
+        virtual int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) = 0;
+        virtual std::string Name() = 0;
+        virtual std::string Synopsis() = 0;
+    };
 }

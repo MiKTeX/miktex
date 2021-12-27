@@ -25,13 +25,32 @@
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileSystemWatcher>
-#include <miktex/Core/Text>
 #include <miktex/Util/PathName>
 
-#include "commands.h"
 #include "internal.h"
 
-#define T_(x) MIKTEXTEXT(x)
+#include "commands.h"
+
+class WatchCommand :
+    public OneMiKTeXUtility::Topics::Command
+{
+    std::string Description() override
+    {
+        return T_("Watch for DIRECTORY changes");
+    }
+
+    int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+
+    std::string Name() override
+    {
+        return "watch";
+    }
+
+    std::string Synopsis() override
+    {
+        return "watch DIRECTORY";
+    }
+};
 
 using namespace std;
 
@@ -39,8 +58,15 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
 using namespace OneMiKTeXUtility;
+using namespace OneMiKTeXUtility::Topics;
+using namespace OneMiKTeXUtility::Topics::FileSystem;
 
-int Topics::FileSystem::Commands::Watch(ApplicationContext& ctx, const vector<string>& arguments)
+unique_ptr<Command> Commands::Watch()
+{
+    return make_unique<WatchCommand>();
+}
+
+int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() != 3)
     {
