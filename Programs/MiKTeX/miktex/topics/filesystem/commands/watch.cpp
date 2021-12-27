@@ -72,7 +72,7 @@ int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
 {
     if (arguments.size() != 3)
     {
-        ctx.ui->BadUsage(T_("expected one argument: DIRECTORY"), "");
+        ctx.ui->IncorrectUsage(T_("expected one argument: DIRECTORY"));
     }
     PathName dir(arguments[2]);
     if (!Directory::Exists(dir))

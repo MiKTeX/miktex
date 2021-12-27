@@ -55,8 +55,8 @@ namespace OneMiKTeXUtility
     class MIKTEXNOVTABLE UI
     {
     public:
-        virtual MIKTEXNORETURN void BadUsage(const std::string& message, const std::string& usageSyntax) = 0;
         virtual MIKTEXNORETURN void FatalError(const std::string& message) = 0;
+        virtual MIKTEXNORETURN void IncorrectUsage(const std::string& message) = 0;
         virtual void Output(const std::string& s) = 0;
         virtual void Verbose(int level, const std::string& message) = 0;
         virtual int VerbosityLevel() = 0;

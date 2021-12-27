@@ -38,7 +38,7 @@ class SetOptionCommand :
 {
     std::string Description() override
     {
-        return T_("Set OPTION to value");
+        return T_("Set OPTION to VALUE");
     }
 
     int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
@@ -69,7 +69,7 @@ int SetOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& arg
 {
     if (arguments.size() != 4)
     {
-        ctx.ui->BadUsage(T_("expected two arguments: OPTION VALUE"), "");
+        ctx.ui->IncorrectUsage(T_("expected two arguments: OPTION VALUE"));
     }
     FontMapManager updmap;
     updmap.Init(ctx);

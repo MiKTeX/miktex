@@ -52,7 +52,7 @@ class UpdateCommand :
 
     std::string Synopsis() override
     {
-        return "update [--force] [--help] [--output-directory=DIR]";
+        return "update [--force] [--output-directory=DIR]";
     }
 };
 
@@ -73,7 +73,6 @@ enum Option
 {
     OPT_AAA = 1,
     OPT_FORCE,
-    OPT_HELP,
     OPT_OUTPUT_DIRECTORY,
 };
 
@@ -134,12 +133,12 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
         string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
         msg += ": ";
         msg += popt.Strerror(option);
-        ctx.ui->BadUsage(msg, "");
+        ctx.ui->IncorrectUsage(msg);
     }
 
     if (!popt.GetLeftovers().empty())
     {
-        ctx.ui->BadUsage(T_("unexpected command arguments"), "");
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
 
     FontMapManager updmap;

@@ -69,7 +69,7 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
 {
     if (arguments.size() != 3)
     {
-        ctx.ui->BadUsage(T_("expected one argument: OPTION"), "");
+        ctx.ui->IncorrectUsage(T_("expected one argument: OPTION"));
     }
     FontMapManager updmap;
     updmap.Init(ctx);

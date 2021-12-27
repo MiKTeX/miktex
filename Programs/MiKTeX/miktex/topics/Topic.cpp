@@ -40,7 +40,7 @@ int TopicBase::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() < 2)
     {
-        ctx.ui->BadUsage(T_("missing command; try help"), "");
+        ctx.ui->IncorrectUsage(T_("missing command; try help"));
     }
     if (this->commands.empty())
     {
@@ -58,7 +58,7 @@ int TopicBase::Execute(ApplicationContext& ctx, const vector<string>& arguments)
     auto& cmd = this->commands[arguments[1]];
     if (cmd == nullptr)
     {
-        ctx.ui->BadUsage(fmt::format(T_("{0}: unknown command"), arguments[1]), "");
+        ctx.ui->IncorrectUsage(fmt::format(T_("{0}: unknown command"), arguments[1]));
     }
-    cmd->Execute(ctx, arguments);
+    return cmd->Execute(ctx, arguments);
 }

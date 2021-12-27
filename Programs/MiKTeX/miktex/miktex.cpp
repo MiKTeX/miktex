@@ -23,10 +23,10 @@
 
 #include <atomic>
 #include <iostream>
+#include <map>
 #include <string>
 #include <tuple>
 #include <vector>
-#include <map>
 
 #include <csignal>
 
@@ -60,13 +60,155 @@
 #endif
 
 #include "internal.h"
-#include "topics/Topic.h"
 
 #include "shims/mkfntmap.h"
 #include "shims/updmap.h"
 
+#include "topics/Topic.h"
 #include "topics/filesystem/topic.h"
 #include "topics/fontmaps/topic.h"
+
+const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
+
+static std::atomic<bool> canceled;
+
+static bool isLog4cxxConfigured = false;
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("miktex"));
+
+class MiKTeXApp :
+    public MiKTeX::Core::IFindFileCallback,
+    public MiKTeX::Packages::PackageInstallerCallback,
+    public MiKTeX::Trace::TraceCallback,
+    public OneMiKTeXUtility::Installer,
+    public OneMiKTeXUtility::Logger,
+    public OneMiKTeXUtility::Program,
+    public OneMiKTeXUtility::UI
+{
+public:
+
+    std::tuple<int, std::vector<std::string>> Init(const std::vector<std::string>& args);
+
+    void Finalize();
+
+    int Run(const std::vector<std::string>& args);
+
+private:
+
+    void RegisterTopics()
+    {
+        RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
+    }
+
+    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Topics::Topic> t)
+    {
+        auto name = t->Name();
+        this->topics[name] = std::move(t);
+    }
+
+    std::string InvocationName() override
+    {
+        return this->args[0];
+    }
+
+    bool Canceled() override
+    {
+        return canceled;
+    }
+
+    void EnableInstaller(bool b) override
+    {
+        this->enableInstaller2 = b;
+    }
+
+    void EnsureInstaller()
+    {
+        if (this->packageInstaller == nullptr)
+        {
+            this->packageInstaller = this->packageManager->CreateInstaller({ this, true, false });
+        }
+    }
+
+    bool InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
+
+    void ReportLine(const std::string& str) override
+    {
+        Verbose(str);
+    }
+
+    bool OnRetryableError(const std::string& message) override
+    {
+        return false;
+    }
+
+    bool OnProgress(MiKTeX::Packages::Notification nf) override
+    {
+        return true;
+    }
+
+    bool TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override
+    {
+        return false;
+    }
+
+    void Verbose(int level, const std::string& s) override;
+
+    void Verbose(const std::string& s)
+    {
+        Verbose(1, s);
+    }
+
+    int VerbosityLevel() override
+    {
+        return this->verbosityLevel;
+    }
+
+    void LogFatal(const std::string& message) override
+    {
+        LOG4CXX_FATAL(logger, message);
+    }
+
+    void LogInfo(const std::string& message) override
+    {
+        LOG4CXX_INFO(logger, message);
+    }
+
+    MIKTEXNORETURN void FatalError(const std::string& message) override;
+
+    MIKTEXNORETURN void IncorrectUsage(const std::string& message) override;
+
+    void ShowUsage();
+
+    void ShowVersion();
+
+    void Output(const std::string& s) override;
+
+    void Warning(const std::string& s) override;
+
+    void SecurityRisk(const std::string& s);
+
+    void PushTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
+
+    void PushTraceMessage(const std::string& message);
+
+    bool Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
+
+    void FlushPendingTraceMessages();
+
+    void LogTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
+
+    std::vector<std::string> args;
+    OneMiKTeXUtility::ApplicationContext ctx;
+    MiKTeX::Configuration::TriState enableInstaller = MiKTeX::Configuration::TriState::Undetermined;
+    bool enableInstaller2 = true;
+    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+    std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
+    std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
+    bool quiet;
+    std::shared_ptr<MiKTeX::Core::Session> session;
+    std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Topics::Topic>> topics;
+    int verbosityLevel = 0;
+};
 
 using namespace std;
 
@@ -77,13 +219,6 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 
 using namespace OneMiKTeXUtility;
-
-const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
-
-static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("miktex"));
-static bool isLog4cxxConfigured = false;
-
-static std::atomic<bool> canceled;
 
 static void MIKTEXCEECALL SignalHandler(int signalToBeHandled)
 {
@@ -152,168 +287,6 @@ static void Sorry(const string& message, const string& description, const string
     }
 }
 
-class MiKTeXApp :
-    public MiKTeX::Core::IFindFileCallback,
-    public MiKTeX::Packages::PackageInstallerCallback,
-    public MiKTeX::Trace::TraceCallback,
-    public OneMiKTeXUtility::Installer,
-    public OneMiKTeXUtility::Logger,
-    public OneMiKTeXUtility::Program,
-    public OneMiKTeXUtility::UI
-{
-public:
-    std::tuple<int, std::vector<std::string>> Init(const std::vector<std::string>& args);
-
-public:
-    void Finalize();
-
-public:
-    int Run(const std::vector<std::string>& args);
-
-private:
-    std::string InvocationName() override
-    {
-        return this->args[0];
-    }
-
-private:
-    bool Canceled() override
-    {
-        return canceled;
-    }
-
-private:
-    void EnableInstaller(bool b) override
-    {
-        this->enableInstaller2 = b;
-    }
-
-private:
-    void EnsureInstaller()
-    {
-        if (this->packageInstaller == nullptr)
-        {
-            this->packageInstaller = this->packageManager->CreateInstaller({ this, true, false });
-        }
-    }
-
-private:
-    bool InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
-
-private:
-    void ReportLine(const std::string& str) override
-    {
-        Verbose(str);
-    }
-
-private:
-    bool OnRetryableError(const std::string& message) override
-    {
-        return false;
-    }
-
-private:
-    bool OnProgress(MiKTeX::Packages::Notification nf) override
-    {
-        return true;
-    }
-
-private:
-    bool TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override
-    {
-        return false;
-    }
-
-private:
-    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Topics::Topic> t)
-    {
-        auto name = t->Name();
-        this->topics[name] = std::move(t);
-    }
-
-private:
-    void RegisterTopics()
-    {
-        RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
-        RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
-    }
-
-private:
-    void Verbose(int level, const std::string& s) override;
-
-private:
-    void Verbose(const std::string& s)
-    {
-        Verbose(1, s);
-    }
-
-private:
-    int VerbosityLevel() override
-    {
-        return this->verbosityLevel;
-    }
-
-private:
-    void LogFatal(const std::string& message) override
-    {
-        LOG4CXX_FATAL(logger, message);
-    }
-
-private:
-    void LogInfo(const std::string& message) override
-    {
-        LOG4CXX_INFO(logger, message);
-    }
-
-private:
-    MIKTEXNORETURN void FatalError(const std::string& message) override;
-
-private:
-    MIKTEXNORETURN void BadUsage(const std::string& message, const std::string& usageSyntax) override;
-
-private:
-    void ShowUsage();
-
-private:
-    void ShowVersion();
-
-private:
-    void Output(const std::string& s) override;
-
-private:
-    void Warning(const std::string& s) override;
-
-private:
-    void SecurityRisk(const std::string& s);
-
-private:
-    void PushTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
-
-private:
-    void PushTraceMessage(const std::string& message);
-
-private:
-    bool Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override;
-
-private:
-    void FlushPendingTraceMessages();
-
-private:
-    void LogTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
-
-private:
-    std::vector<std::string> args;
-    ApplicationContext ctx;
-    TriState enableInstaller = TriState::Undetermined;
-    bool enableInstaller2 = true;
-    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
-    std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
-    std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
-    bool quiet;
-    std::shared_ptr<MiKTeX::Core::Session> session;
-    std::map<std::string, std::unique_ptr<Topics::Topic>> topics;
-    int verbosityLevel = 0;
-};
 
 void MiKTeXApp::PushTraceMessage(const TraceCallback::TraceMessage& traceMessage)
 {
@@ -444,17 +417,13 @@ MIKTEXNORETURN void MiKTeXApp::FatalError(const string& message)
     throw 1;
 }
 
-MIKTEXNORETURN void MiKTeXApp::BadUsage(const string& message, const string& usageSyntax)
+MIKTEXNORETURN void MiKTeXApp::IncorrectUsage(const string& message)
 {
     if (isLog4cxxConfigured)
     {
         LOG4CXX_FATAL(logger, message);
     }
     cerr << fmt::format(T_("Incorrect usage: {0}"), message) << endl;
-    if (!usageSyntax.empty())
-    {
-        cerr << fmt::format(T_("Usage: {0}"), usageSyntax) << endl;
-    }
     throw 1;
 }
 
@@ -660,12 +629,12 @@ int MiKTeXApp::Run(const vector<string>& args)
 {
     if (args.size() == 0)
     {
-        BadUsage(T_("missing topic; try help"), "");
+        IncorrectUsage(fmt::format(T_("missing topic; try {0} --help"), this->InvocationName()));
     }
     auto it = topics.find(args[0]);
     if (it == topics.end())
     {
-        BadUsage(fmt::format(T_("{0}: unknown topic"), args[0]), "");
+        IncorrectUsage(fmt::format(T_("{0}: unknown topic"), args[0]));
     }
     return it->second->Execute(ctx, args);
 }
