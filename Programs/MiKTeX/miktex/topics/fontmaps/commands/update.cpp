@@ -99,14 +99,14 @@ static const struct poptOption update_options[] =
 int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     vector<const char*> argv;
-    argv.reserve(arguments.size() + 1);
-    for (int idx = 0; idx < arguments.size(); ++idx)
+    argv.reserve(arguments.size() - 1 + 1);
+    for (int idx = 1; idx < arguments.size(); ++idx)
     {
         argv.push_back(arguments[idx].c_str());
     }
     argv.push_back(nullptr);
 
-    PoptWrapper popt(static_cast<int>(arguments.size()), &argv[0], update_options);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], update_options);
 
     int option;
 
@@ -136,7 +136,8 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
         ctx.ui->IncorrectUsage(msg);
     }
 
-    if (!popt.GetLeftovers().empty())
+    auto leftovers = popt.GetLeftovers();
+    if (!leftovers.empty())
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
