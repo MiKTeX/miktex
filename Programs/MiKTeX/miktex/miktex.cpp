@@ -475,7 +475,6 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     ctx.installer = this;
     ctx.logger = this;
     ctx.program = this;
-    ctx.session = this->session;
     ctx.ui = this;
     RegisterTopics();
     bool adminMode = false;
@@ -540,6 +539,7 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     initInfo.SetOptions(options);
     initInfo.SetTraceCallback(this);
     this->session = Session::Create(initInfo);
+    ctx.session = this->session;
     this->packageManager = PackageManager::Create(PackageManager::InitInfo(this));
     if (optVersion)
     {
