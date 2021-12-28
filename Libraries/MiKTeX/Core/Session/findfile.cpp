@@ -404,9 +404,18 @@ LocateResult MIKTEXTHISCALL SessionImpl::Locate(const string& fileName, const Lo
     return {};
   }
   // Eliminate duplicates.
-  sort(pathNames.begin(), pathNames.end());
-  pathNames.erase(unique(pathNames.begin(), pathNames.end()), pathNames.end());
-  return { pathNames };
+  vector<PathName> result;
+  set<PathName> resultSet;
+  for (auto& p : pathNames)
+  {
+    if (resultSet.find(p) != resultSet.end())
+    {
+      continue;
+    }
+    result.push_back(p);
+    resultSet.insert(p);
+  }
+  return { result };
 }
 
 bool SessionImpl::FindFile(const string& fileName, const string& searchPath, FindFileOptionSet options, vector<PathName>& result)
