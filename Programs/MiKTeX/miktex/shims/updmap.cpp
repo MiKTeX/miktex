@@ -63,14 +63,15 @@ static const struct poptOption aoption[] =
 void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& arguments)
 {
     vector<const char*> argv;
-    argv.reserve(arguments.size() + 1);
+    argv.reserve(arguments.size() + 2);
+    argv.push_back("updmap");
     for (int idx = 0; idx < arguments.size(); ++idx)
     {
         argv.push_back(arguments[idx].c_str());
     }
     argv.push_back(nullptr);
 
-    PoptWrapper popt(static_cast<int>(arguments.size()), &argv[0], aoption);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], aoption);
 
     int option;
 
@@ -118,10 +119,7 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
 
     if (option != -1)
     {
-        string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
-        msg += ": ";
-        msg += popt.Strerror(option);
-        ctx->ui->FatalError(msg);
+        ctx->ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
 
     auto leftovers = popt.GetLeftovers();

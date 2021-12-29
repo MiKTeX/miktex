@@ -73,6 +73,6 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     }
     FontMapManager updmap;
     updmap.Init(ctx);
-    ctx.ui->Output(updmap.Option(arguments[2]));
+    ctx.ui->Output(fmt::format("{0}={1}", arguments[2], updmap.Option(arguments[2])));
     return 0;
 }
