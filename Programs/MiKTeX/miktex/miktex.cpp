@@ -256,7 +256,7 @@ static void Sorry(const string& message, const string& description, const string
         return;
     }
     cerr << endl;
-    cerr << fmt::format(T_("Sorry: {0}"), message) << endl;
+    cerr << fmt::format(T_("Sorry, but: {0}"), message) << endl;
     if (!description.empty())
     {
         cerr

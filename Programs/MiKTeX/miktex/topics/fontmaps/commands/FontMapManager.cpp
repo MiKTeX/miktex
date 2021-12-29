@@ -258,7 +258,8 @@ void FontMapManager::SetOption(const std::string& optionName, const std::string&
     {
         Configuration dummy = this->config;
         partialConfiguration = this->ParseConfigFile(configFile, dummy);
-        if (partialConfiguration.options[optionName] == value)
+        auto& v = partialConfiguration.options.find(optionName);
+        if (v != partialConfiguration.options.end() && v->second == value)
         {
             return;
         }
@@ -345,10 +346,6 @@ Configuration FontMapManager::ParseConfigFile(const PathName& path, Configuratio
         auto it = mergedConfig.options.find(directive);
         if (it != mergedConfig.options.end())
         {
-            if (param.empty())
-            {
-                CfgError(fmt::format(T_("missing value for option {0}"), directive));
-            }
             it->second = param;
             partialConfig.options[directive] = param;
         }
