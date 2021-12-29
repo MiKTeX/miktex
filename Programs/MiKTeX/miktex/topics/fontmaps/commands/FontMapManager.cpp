@@ -1,5 +1,5 @@
 /**
- * @file FontMapManager.cpp
+ * @file topic/fontmaps/commands/FontMapManager.cpp
  * @author Christian Schenk
  * @brief Update TeX font map files
  *

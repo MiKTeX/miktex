@@ -1,23 +1,14 @@
 /**
- * @file update.cpp
+ * @file topics/fontmaps/commands/update.cpp
  * @author Christian Schenk
- * @brief Update TeX font map files
+ * @brief fontmaps update
  *
- * @copyright Copyright © 2002-2021 Christian Schenk
+ * @copyright Copyright © 2021 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
  * One MiKTeX Utility is licensed under GNU General Public
  * License version 2 or any later version.
- *
- * The code in this file is based on the updmap Perl script
- * (updmap.pl):
- *
- * @code {.unparsed}
- * # Copyright 2011-2021 Norbert Preining
- * # This file is licensed under the GNU General Public License version 2
- * # or any later version.
- * @endcode
  */
 
 #include <memory>

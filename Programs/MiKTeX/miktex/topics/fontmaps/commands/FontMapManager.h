@@ -1,5 +1,5 @@
 /**
- * @file FontMapManager.h
+ * @file topic/fontmaps/commands/FontMapManager.h
  * @author Christian Schenk
  * @brief Update TeX font map files
  *
