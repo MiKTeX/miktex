@@ -740,7 +740,9 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     invokerName = "unknown process";
   }
   LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
-  LOG4CXX_INFO(logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << CommandLineBuilder(argc, argv));
+  PathName cwd;
+  cwd.SetToCurrentDirectory();
+  LOG4CXX_INFO(logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), CommandLineBuilder(argc, argv)));
   FlushPendingTraceMessages();
   if (session->IsAdminMode())
   {

@@ -504,7 +504,9 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   }
   else
   {
-    LOG4CXX_INFO(pimpl->logger, "this process (" << thisProcess->GetSystemId() << ") started by '" << invokerName << "' with command line: " << pimpl->commandLine);
+    PathName cwd;
+    cwd.SetToCurrentDirectory();
+    LOG4CXX_INFO(pimpl->logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), pimpl->commandLine));
   }
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
