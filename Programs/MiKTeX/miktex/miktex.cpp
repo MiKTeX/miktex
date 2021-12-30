@@ -62,6 +62,7 @@
 #include "topics/filesystem/topic.h"
 #include "topics/fontmaps/topic.h"
 #include "topics/languages/topic.h"
+#include "topics/links/topic.h"
 
 #if defined(MIKTEX_WINDOWS)
 #include "topics/filetypes/topic.h"
@@ -98,6 +99,7 @@ private:
         RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Links::Create());
 #if defined(MIKTEX_WINDOWS)
         RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
 #endif
@@ -174,6 +176,16 @@ private:
     void LogInfo(const std::string& message) override
     {
         LOG4CXX_INFO(logger, message);
+    }
+
+    void LogTrace(const std::string& message) override
+    {
+        LOG4CXX_TRACE(logger, message);
+    }
+
+    void LogWarn(const std::string& message) override
+    {
+        LOG4CXX_WARN(logger, message);
     }
 
     MIKTEXNORETURN void FatalError(const std::string& message) override;

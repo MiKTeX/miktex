@@ -44,6 +44,8 @@ namespace OneMiKTeXUtility
     public:
         virtual void LogFatal(const std::string& message) = 0;
         virtual void LogInfo(const std::string& message) = 0;
+        virtual void LogTrace(const std::string& message) = 0;
+        virtual void LogWarn(const std::string& message) = 0;
     };
 
     class MIKTEXNOVTABLE UI
@@ -65,4 +67,10 @@ namespace OneMiKTeXUtility
         std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;
     };
+
+    inline bool EndsWith(const std::string& s, const std::string& suffix)
+    {
+        return s.length() >= suffix.length() &&
+            s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+    }
 }

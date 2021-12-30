@@ -173,38 +173,6 @@ executables.</para>
 </indexterm>
 <para>Create all possible links.</para></listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--mklinks=<replaceable>category</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--mklinks=category</primary>
-</indexterm>
-<para>Create links for the specified <replaceable>category</replaceable>, which must be one of:</para>
-<variablelist>
-<varlistentry>
-<term><option>formats</option></term>
-<listitem><para>Create links from format names to &TeX; engines.  For
-example, <filename>latex&EXESUFFIX;</filename> will become a link to
-<filename>&MIKTEX_PREFIX;tex&EXESUFFIX;</filename> and invoking
-<filename>latex&EXESUFFIX;</filename> will cause &TeX; to load the
-format file <filename>latex.fmt</filename>. </para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>miktex</option></term>
-<listitem><para>Create links from standard program names to &miktexprefix;
-executables.  For example, <filename>tex&EXESUFFIX;</filename> will
-become a link to
-<filename>&MIKTEX_PREFIX;tex&EXESUFFIX;</filename>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>scripts</option></term>
-<listitem><para>Create executable links from script names to script
-wrappers.  For example, <filename>latexmk&EXESUFFIX;</filename> will
-become a link to the internal &Perl; wrapper
-<filename>runperl&EXESUFFIX;</filename> and invoking
-<filename>latexmk&EXESUFFIX;</filename> will eventually execute the
-&Perl; script <filename>latexmk.pl</filename>.</para></listitem>
-</varlistentry>
 </variablelist>
 </listitem>
 </varlistentry>

@@ -63,6 +63,13 @@ set(miktex_sources
   topics/languages/topic.h
   topics/languages/commands/commands.h
   topics/languages/commands/update.cpp
+  topics/links/topic.cpp
+  topics/links/topic.h
+  topics/links/commands/LinksManager.cpp
+  topics/links/commands/LinksManager.h
+  topics/links/commands/commands.h
+  topics/links/commands/remove.cpp
+  topics/links/commands/update.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

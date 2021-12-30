@@ -170,10 +170,10 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "mklinks", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_MKLINKS,
     T_("Create links for formats, scripts and miktex- executables."),
-    T_("CATEGORY")
+    nullptr
   },
 
   {
