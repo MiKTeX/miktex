@@ -283,14 +283,6 @@ const struct poptOption IniTeXMFApp::options[] = {
   },
 
   {
-    "rmfndb", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_RMFNDB,
-    T_("Remove file name database files."),
-    nullptr
-  },
-
-  {
     "set-config-value", 0,
     POPT_ARG_STRING, nullptr,
     OPT_SET_CONFIG_VALUE,
@@ -316,10 +308,10 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "update-fndb", 'u',
-    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_UPDATE_FNDB,
     T_("Update the file name database."),
-    T_("ROOT")
+    nullptr
   },
 
   {

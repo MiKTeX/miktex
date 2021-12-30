@@ -300,7 +300,7 @@ protected:
   void Install(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest)
   {
     PrintOnly(fmt::format("cp {} {}", Q_(source), Q_(dest)));
-    PrintOnly("initexmf --update-fndb");
+    PrintOnly("miktex fndb update");
     if (!printOnly)
     {
       Verbose(fmt::format(T_("Installing {0}..."), Q_(dest)));

@@ -168,12 +168,6 @@ private:
   MIKTEXNORETURN void FatalError(const string& s);
 
 private:
-  void UpdateFilenameDatabase(const PathName& root);
-
-private:
-  void UpdateFilenameDatabase(unsigned root);
-
-private:
   void ListFormats();
 
 private:
@@ -181,9 +175,6 @@ private:
 
 private:
   void Clean();
-
-private:
-  void RemoveFndb();
 
 private:
   void SetTeXMFRootDirectories(RegisterRootDirectoriesOptionSet options);
@@ -400,9 +391,6 @@ private:
   bool printOnly = false;
 
 private:
-  bool removeFndb = false;
-
-private:
   StartupConfig startupConfig;
 
 private:
@@ -489,7 +477,6 @@ enum Option
   OPT_NO_REGISTRY,              // <internal/>
 #endif
   OPT_PORTABLE,                 // <internal/>
-  OPT_RMFNDB,                   // <internal/>
   OPT_USER_CONFIG,              // <internal/>
   OPT_USER_DATA,                // <internal/>
   OPT_USER_INSTALL,             // <internal/>
@@ -848,38 +835,6 @@ bool IniTeXMFApp::OnProgress(unsigned level, const PathName& directory)
   return true;
 }
 
-void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
-{
-  // unload the file name database
-  if (!printOnly && !session->UnloadFilenameDatabase())
-  {
-    FatalError(T_("The file name database could not be unloaded."));
-  }
-
-  unsigned rootIdx = session->DeriveTEXMFRoot(root);
-
-  // create the FNDB file
-  PathName fndbPath = session->GetFilenameDatabasePathName(rootIdx);
-  if (session->IsCommonRootDirectory(rootIdx))
-  {
-    Verbose(fmt::format(T_("Creating fndb for common root directory ({0})..."), Q_(root)));
-  }
-  else
-  {
-    Verbose(fmt::format(T_("Creating fndb for user root directory ({0})..."), Q_(root)));
-  }
-  PrintOnly(fmt::format("fndbcreate {} {}", Q_(fndbPath), Q_(root)));
-  if (!printOnly)
-  {
-    Fndb::Create(fndbPath, root, this);
-  }
-}
-
-void IniTeXMFApp::UpdateFilenameDatabase(unsigned root)
-{
-  UpdateFilenameDatabase(session->GetRootDirectoryPath(root));
-}
-
 void IniTeXMFApp::ListFormats()
 {
   for (const FormatInfo& formatInfo : session->GetFormats())
@@ -908,30 +863,6 @@ void IniTeXMFApp::Clean()
   if (Directory::Exists(dataRoot))
   {
     Directory::Delete(dataRoot, true);
-  }
-}
-
-void IniTeXMFApp::RemoveFndb()
-{
-  session->UnloadFilenameDatabase();
-  size_t nRoots = session->GetNumberOfTEXMFRoots();
-  for (unsigned r = 0; r < nRoots; ++r)
-  {
-    PathName path = session->GetFilenameDatabasePathName(r);
-    PrintOnly(fmt::format("rm {}", Q_(path)));
-    if (!printOnly && File::Exists(path))
-    {
-      Verbose(fmt::format(T_("Removing fndb ({0})..."), Q_(path)));
-      File::Delete(path, { FileDeleteOption::TryHard });
-    }
-    PathName changeFile = path;
-    changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
-    PrintOnly(fmt::format("rm {}", Q_(changeFile)));
-    if (!printOnly && File::Exists(changeFile))
-    {
-      Verbose(fmt::format(T_("Removing fndb change file ({0})..."), Q_(changeFile)));
-      File::Delete(changeFile, { FileDeleteOption::TryHard });
-    }
   }
 }
 
@@ -1122,10 +1053,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool 
   }
   if (reg)
   {
-    for (const PathName& r : roots)
-    {
-      UpdateFilenameDatabase(r);
-    }
+    RunOneMiKTeXUtility({"fndb", "update"});
   }
 }
 
@@ -1485,7 +1413,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   vector<string> formats;
   vector<string> formatsByName;
   vector<string> removeFiles;
-  vector<string> updateRoots;
   vector<PathName> registerRoots;
   vector<PathName> unregisterRoots;
   string defaultPaperSize;
@@ -1722,11 +1649,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       optReport = true;
       break;
 
-    case OPT_RMFNDB:
-
-      removeFndb = true;
-      break;
-
     case OPT_SET_CONFIG_VALUE:
 
       setConfigValues.push_back(optArg);
@@ -1763,10 +1685,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_UPDATE_FNDB:
 
       optUpdateFilenameDatabase = true;
-      if (!optArg.empty())
-      {
-        updateRoots.push_back(optArg);
-      }
       break;
 
     case OPT_VERBOSE:
@@ -1927,11 +1845,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     Fndb::Remove(paths);
   }
 
-  if (removeFndb)
-  {
-    RemoveFndb();
-  }
-
   if (!unregisterRoots.empty())
   {
     RegisterRoots(unregisterRoots, false, false);
@@ -1944,61 +1857,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (optUpdateFilenameDatabase)
   {
-    if (updateRoots.empty())
-    {
-      unsigned nRoots = session->GetNumberOfTEXMFRoots();
-      for (unsigned r = 0; r < nRoots; ++r)
-      {
-        if (session->IsAdminMode())
-        {
-          if (session->IsCommonRootDirectory(r))
-          {
-            UpdateFilenameDatabase(r);
-          }
-          else
-          {
-            Verbose(fmt::format(T_("Skipping user root directory ({0})..."), Q_(session->GetRootDirectoryPath(r))));
-          }
-        }
-        else
-        {
-          if (!session->IsCommonRootDirectory(r) || session->IsMiKTeXPortable())
-          {
-            UpdateFilenameDatabase(r);
-          }
-          else
-          {
-            Verbose(fmt::format(T_("Skipping common root directory ({0})..."), Q_(session->GetRootDirectoryPath(r))));
-          }
-        }
-      }
-      PackageInfo test;
-      bool havePackageDatabase = packageManager->TryGetPackageInfo("miktex-tex", test);
-      if (!havePackageDatabase)
-      {
-        if (enableInstaller == TriState::True)
-        {
-          EnsureInstaller();
-          packageInstaller->UpdateDb({});
-        }
-        else
-        {
-          Warning(T_("The local package database does not exist."));
-        }
-      }
-      else
-      {
-        Verbose(T_("Creating fndb for MPM..."));
-        packageManager->CreateMpmFndb();
-      }
-    }
-    else
-    {
-      for (const string& r : updateRoots)
-      {
-        UpdateFilenameDatabase(PathName(r));
-      }
-    }
+    RunOneMiKTeXUtility({"fndb", "update"});
   }
 
   for (const string& fileName : createConfigFiles)

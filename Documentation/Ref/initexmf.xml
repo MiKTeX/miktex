@@ -173,9 +173,6 @@ executables.</para>
 </indexterm>
 <para>Create all possible links.</para></listitem>
 </varlistentry>
-</variablelist>
-</listitem>
-</varlistentry>
 <varlistentry>
 <term><option>--mkmaps</option></term>
 <listitem>
@@ -274,11 +271,6 @@ executables.</para>
 <secondary>refreshing</secondary>
 </indexterm>
 <para>Refresh the whole file name database.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update-fndb=<replaceable>dir</replaceable></option></term>
-<listitem><para>Refresh the file name database for a specific
-&TEXMF; tree.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--user-roots=<replaceable>directories</replaceable></option></term>

@@ -47,6 +47,14 @@ list(APPEND miktex_sources
 )
 
 list(APPEND miktex_sources
+    topics/fndb/topic.cpp
+    topics/fndb/topic.h
+    topics/fndb/commands/commands.h
+    topics/fndb/commands/remove.cpp
+    topics/fndb/commands/update.cpp
+)
+
+list(APPEND miktex_sources
     topics/fontmaps/topic.cpp
     topics/fontmaps/topic.h
     topics/fontmaps/commands/FontMapManager.cpp

@@ -20,6 +20,7 @@
 
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
+#include <miktex/PackageManager/PackageManager>
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 #define T_(x) MIKTEXTEXT(x)
@@ -37,6 +38,7 @@ namespace OneMiKTeXUtility
     {
     public:
         virtual void EnableInstaller(bool b) = 0;
+        virtual bool IsInstallerEnabled() = 0;
     };
 
     class MIKTEXNOVTABLE Logger
@@ -63,6 +65,8 @@ namespace OneMiKTeXUtility
     {
         Installer* installer;
         Logger* logger;
+        std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
+        std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
         Program* program;
         std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;

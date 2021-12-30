@@ -126,6 +126,11 @@ private:
         this->enableInstaller2 = b;
     }
 
+    bool IsInstallerEnabled() override
+    {
+        return this->enableInstaller == MiKTeX::Configuration::TriState::True && this->enableInstaller2;
+    }
+
     void EnsureInstaller()
     {
         if (this->packageInstaller == nullptr)
@@ -466,7 +471,7 @@ void MiKTeXApp::ShowVersion()
 
 bool MiKTeXApp::InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot)
 {
-  if (this->enableInstaller != TriState::True || !this->enableInstaller2)
+  if (!this->IsInstallerEnabled())
   {
     return false;
   }
@@ -556,6 +561,9 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     this->session = Session::Create(initInfo);
     ctx.session = this->session;
     this->packageManager = PackageManager::Create(PackageManager::InitInfo(this));
+    ctx.packageManager = this->packageManager;
+    this->packageInstaller = this->packageManager->CreateInstaller({ this, true, false });
+    ctx.packageInstaller = this->packageInstaller;
     if (optVersion)
     {
         ShowVersion();

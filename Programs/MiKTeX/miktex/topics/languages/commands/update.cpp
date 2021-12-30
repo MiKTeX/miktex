@@ -1,7 +1,7 @@
 /**
  * @file topics/languages/commands/update.cpp
  * @author Christian Schenk
- * @brief filetypes register
+ * @brief languages update
  *
  * @copyright Copyright © 2021 Christian Schenk
  *

@@ -1032,7 +1032,7 @@ void SetupServiceImpl::DoFinishUpdate()
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
 #endif
-  RunIniTeXMF({ "--update-fndb" }, false);
+  RunOneMiKTeXUtility({ "fndb", "update" }, false);
   if (!session->IsSharedSetup() || session->IsAdminMode())
   {
     RunIniTeXMF({ "--force", "--mklinks" }, false);
@@ -1376,7 +1376,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
     if (options.Task != SetupTask::FinishSetup)
     {
-      RunIniTeXMF({ "--rmfndb" }, false);
+      RunOneMiKTeXUtility({ "fndb", "remove" }, false);
     }
 
     // register components, configure files
@@ -1388,7 +1388,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 #endif
 
     // create file name database files
-    RunIniTeXMF({ "--update-fndb" }, false);
+    RunOneMiKTeXUtility({ "fndb", "update" }, false);
     if (cancelled)
     {
       return;
@@ -1402,7 +1402,8 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 
     // create font map files and language.dat
-    RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
+    RunOneMiKTeXUtility({ "fontmaps", "update" }, false);
+    RunOneMiKTeXUtility({ "languages", "update" }, false);
 
     if (cancelled)
     {
@@ -1426,7 +1427,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // refresh file name database again
-    RunIniTeXMF({ "--update-fndb" }, false);
+    RunOneMiKTeXUtility({ "fndb", "update" }, false);
     if (cancelled)
     {
       return;
