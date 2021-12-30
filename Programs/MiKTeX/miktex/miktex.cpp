@@ -61,6 +61,7 @@
 #include "topics/Topic.h"
 #include "topics/filesystem/topic.h"
 #include "topics/fontmaps/topic.h"
+#include "topics/languages/topic.h"
 
 #if defined(MIKTEX_WINDOWS)
 #include "topics/filetypes/topic.h"
@@ -96,6 +97,7 @@ private:
     {
         RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
 #if defined(MIKTEX_WINDOWS)
         RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
 #endif

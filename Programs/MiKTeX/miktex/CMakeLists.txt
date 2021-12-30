@@ -59,6 +59,10 @@ set(miktex_sources
   topics/fontmaps/commands/set-option.cpp
   topics/fontmaps/commands/show-option.cpp
   topics/fontmaps/commands/update.cpp
+  topics/languages/topic.cpp
+  topics/languages/topic.h
+  topics/languages/commands/commands.h
+  topics/languages/commands/update.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

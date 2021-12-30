@@ -278,6 +278,9 @@ private:
   void RunMakeTeX(const string& makeProg, const vector<string>& arguments);
 
 private:
+  void RunOneMiKTeXUtility(const vector<string>& arguments);
+
+private:
   void MakeFormatFile(const string& formatKey);
 
 private:
@@ -1689,131 +1692,64 @@ void IniTeXMFApp::MakeFilesExecutable()
 }
 #endif
 
-void IniTeXMFApp::MakeLanguageDat(bool force)
+void IniTeXMFApp::RunOneMiKTeXUtility(const vector<string>& arguments)
 {
-  Verbose(T_("Creating language.dat, language.dat.lua and language.def..."));
-
-  if (printOnly)
-  {
-    return;
-  }
-
-  PathName languageDatPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT);
-  ofstream languageDat = File::CreateOutputStream(languageDatPath);
-
-  PathName languageDatLuaPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DAT_LUA);
-  ofstream languageDatLua = File::CreateOutputStream(languageDatLuaPath);
-
-  PathName languageDefPath = session->GetSpecialPath(SpecialPath::ConfigRoot) / PathName(MIKTEX_PATH_LANGUAGE_DEF);
-  ofstream languageDef = File::CreateOutputStream(languageDefPath);
-
-  languageDatLua << "return {" << "\n";
-  languageDef << "%% e-TeX V2.2" << "\n";
-
-  for (const LanguageInfo& languageInfo : session->GetLanguages())
-  {
-    if (languageInfo.exclude)
-    {
-      continue;
-    }
-
-    PathName loaderPath;
-    if (!session->FindFile(languageInfo.loader, "%r/tex//", loaderPath))
-    {
-      continue;
-    }
-
-    // language.dat
-    languageDat << languageInfo.key << " " << languageInfo.loader << "\n";
-    for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
-    {
-      languageDat << "=" << synonym << "\n";
-    }
-
-    // language.def
-    languageDef << "\\addlanguage{" << languageInfo.key << "}{" << languageInfo.loader << "}{}{" << languageInfo.lefthyphenmin << "}{" << languageInfo.righthyphenmin << "}" << "\n";
-
-    // language.dat.lua
-    languageDatLua << "\t['" << languageInfo.key << "'] = {" << "\n";
-    languageDatLua << "\t\tloader='" << languageInfo.loader << "'," << "\n";
-    languageDatLua << "\t\tlefthyphenmin=" << languageInfo.lefthyphenmin << "," << "\n";
-    languageDatLua << "\t\trighthyphenmin=" << languageInfo.righthyphenmin << "," << "\n";
-    languageDatLua << "\t\tsynonyms={ ";
-    int nSyn = 0;
-    for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
-    {
-      languageDatLua << (nSyn > 0 ? "," : "") << "'" << synonym << "'";
-      nSyn++;
-    }
-    languageDatLua << " }," << "\n";
-    languageDatLua << "\t\tpatterns='" << languageInfo.patterns << "'," << "\n";
-    languageDatLua << "\t\thyphenation='" << languageInfo.hyphenation << "'," << "\n";
-    if (!languageInfo.luaspecial.empty())
-    {
-      languageDatLua << "\t\tspecial='" << languageInfo.luaspecial << "'," << "\n";
-    }
-    languageDatLua << "\t}," << "\n";
-  }
-
-  languageDatLua << "}" << "\n";
-
-  languageDatLua.close();
-  Fndb::Add({ {languageDatLuaPath} });
-
-  languageDef.close();
-  Fndb::Add({ {languageDefPath} });
-
-  languageDat.close();
-  Fndb::Add({ {languageDatPath} });
-}
-
-void IniTeXMFApp::MakeMaps(bool force)
-{
-  PathName pathMkfontmap;
-  if (!session->FindFile("miktex", FileType::EXE, pathMkfontmap))
+  PathName oneMiKTeXUtility;
+  if (!session->FindFile("miktex", FileType::EXE, oneMiKTeXUtility))
   {
     FatalError(T_("The miktex executable could not be found."));
   }
-  vector<string> arguments{ "miktex" };
+  vector<string> allArguments{ "miktex" };
   if (verbose)
   {
-    arguments.push_back("--verbose");
+    allArguments.push_back("--verbose");
   }
   if (session->IsAdminMode())
   {
-    arguments.push_back("--admin");
+    allArguments.push_back("--admin");
   }
   switch (enableInstaller)
   {
   case TriState::True:
-    arguments.push_back("--enable-installer");
+    allArguments.push_back("--enable-installer");
     break;
   case TriState::False:
-    arguments.push_back("--disable-installer");
+    allArguments.push_back("--disable-installer");
     break;
   default:
     break;
   }
 #if 0
   // TODO: remove
-  arguments.push_back("--miktex-disable-maintenance");
-  arguments.push_back("--miktex-disable-diagnose");
+  allArguments.push_back("--miktex-disable-maintenance");
+  allArguments.push_back("--miktex-disable-diagnose");
 #endif
-  arguments.push_back("fontmaps");
-  arguments.push_back("update");
+  allArguments.insert(allArguments.end(), arguments.begin(), arguments.end());
+  if (printOnly)
+  {
+    PrintOnly(CommandLineBuilder(allArguments).ToString());
+  }
+  else
+  {
+    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(allArguments));
+    RunProcess(oneMiKTeXUtility, allArguments);
+  }
+}
+
+void IniTeXMFApp::MakeLanguageDat(bool force)
+{
+  vector<string> arguments{"languages", "update"};
+  RunOneMiKTeXUtility(arguments);
+}
+
+void IniTeXMFApp::MakeMaps(bool force)
+{
+  vector<string> arguments{"fontmaps", "update"};
   if (force)
   {
     arguments.push_back("--force");
   }
-  if (printOnly)
-  {
-    PrintOnly(CommandLineBuilder(arguments).ToString());
-  }
-  else
-  {
-    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments));
-    RunProcess(pathMkfontmap, arguments);
-  }
+  RunOneMiKTeXUtility(arguments);
 }
 
 void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
