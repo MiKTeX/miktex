@@ -10,16 +10,6 @@ include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/miktex")
 
-configure_file(
-    config.h.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/config.h
-)
-
-configure_file(
-    miktex-version.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex-version.h
-)
-
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -36,7 +26,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     )
 endif()
 
-set(miktex_sources
+list(APPEND miktex_sources
     internal.h
     miktex.cpp
     shims/mkfntmap.cpp
@@ -47,10 +37,16 @@ set(miktex_sources
     topics/Command.h
     topics/Topic.cpp
     topics/Topic.h
+)
+
+list(APPEND miktex_sources
     topics/filesystem/topic.cpp
     topics/filesystem/topic.h
     topics/filesystem/commands/commands.h
     topics/filesystem/commands/watch.cpp
+)
+
+list(APPEND miktex_sources
     topics/fontmaps/topic.cpp
     topics/fontmaps/topic.h
     topics/fontmaps/commands/FontMapManager.cpp
@@ -59,10 +55,16 @@ set(miktex_sources
     topics/fontmaps/commands/set-option.cpp
     topics/fontmaps/commands/show-option.cpp
     topics/fontmaps/commands/update.cpp
+)
+
+list(APPEND miktex_sources
     topics/languages/topic.cpp
     topics/languages/topic.h
     topics/languages/commands/commands.h
     topics/languages/commands/update.cpp
+)
+
+list(APPEND miktex_sources
     topics/links/topic.cpp
     topics/links/topic.h
     topics/links/commands/LinksManager.cpp
@@ -83,6 +85,20 @@ if(MIKTEX_NATIVE_WINDOWS)
         topics/filetypes/commands/unregister.cpp
     )
 endif()
+
+configure_file(
+    config.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+list(APPEND miktex_sources
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
+    miktex-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-version.h
+)
 
 list(APPEND miktex_sources
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-version.h
