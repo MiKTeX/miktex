@@ -62,6 +62,10 @@
 #include "topics/filesystem/topic.h"
 #include "topics/fontmaps/topic.h"
 
+#if defined(MIKTEX_WINDOWS)
+#include "topics/filetypes/topic.h"
+#endif
+
 const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
 
 static std::atomic<bool> canceled;
@@ -92,6 +96,9 @@ private:
     {
         RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
+#if defined(MIKTEX_WINDOWS)
+        RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
+#endif
     }
 
     void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Topics::Topic> t)

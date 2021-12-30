@@ -17,8 +17,8 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 8
+#define MIKTEX_COMP_MAJOR_VERSION 5
+#define MIKTEX_COMP_MINOR_VERSION 0
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_COPYRIGHT_STR "© 1996-2021 Christian Schenk"

@@ -258,16 +258,6 @@ const struct poptOption IniTeXMFApp::options[] = {
     T_("DIR"),
   },
 
-#if defined(MIKTEX_WINDOWS)
-  {
-    "register-shell-file-types", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_REGISTER_SHELL_FILE_TYPES,
-    T_("Register shell file types."),
-    nullptr
-  },
-#endif
-
   {
     "remove-file", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
@@ -323,16 +313,6 @@ const struct poptOption IniTeXMFApp::options[] = {
     T_("Unegister a TEXMF root directory."),
     T_("DIR"),
   },
-
-#if defined(MIKTEX_WINDOWS)
-  {
-    "unregister-shell-file-types", 0,
-    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_UNREGISTER_SHELL_FILE_TYPES,
-    T_("Unregister shell file types."),
-    nullptr
-  },
-#endif
 
   {
     "update-fndb", 'u',

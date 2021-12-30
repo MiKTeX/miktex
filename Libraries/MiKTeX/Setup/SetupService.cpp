@@ -1041,7 +1041,7 @@ void SetupServiceImpl::DoFinishUpdate()
   if (!options.IsPortable && (!session->IsSharedSetup() || session->IsAdminMode()))
   {
 #if defined(MIKTEX_WINDOWS)
-    RunIniTeXMF({ "--register-shell-file-types" }, false);
+    RunOneMiKTeXUtility({ "filetypes", "register" }, false);
     CreateProgramIcons();
     RegisterUninstaller();
 #endif
@@ -1436,7 +1436,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
   if (!options.IsPortable)
   {
 #if defined(MIKTEX_WINDOWS)
-    RunIniTeXMF({ "--register-shell-file-types" }, false);
+    RunOneMiKTeXUtility({ "filetypes", "register" }, false);
 #endif
   }
 
@@ -1501,6 +1501,49 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   allArgs.push_back("--verbose");
 
   // run initexmf.exe
+  if (!options.IsDryRun)
+  {
+    Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
+    ULogClose();
+    // FIXME: only need to unload when building the FNDB
+    session->UnloadFilenameDatabase();
+    int exitCode;
+    MiKTeXException miktexException;
+    if (!Process::Run(exePath, allArgs, this, &exitCode, &miktexException, nullptr) || exitCode != 0)
+    {
+      if (mustSucceed)
+      {
+        throw miktexException;
+      }
+      else
+      {
+        Warning(miktexException);
+      }
+    }
+    ULogOpen();
+  }
+}
+
+void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool mustSucceed)
+{
+  // make absolute exe path name
+  PathName exePath = GetBinDir() / PathName(MIKTEX_MIKTEX_EXE);
+
+  // make command line
+  vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
+  if (options.IsCommonSetup && session->IsAdminMode())
+  {
+    allArgs.push_back("--admin");
+  }
+  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate && options.Task != SetupTask::CleanUp)
+  {
+    allArgs.push_back("--log-file=" + GetULogFileName().ToString());
+  }
+  allArgs.push_back("--disable-installer");
+  allArgs.push_back("--verbose");
+
+  // run One MiKTeX Utility
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));

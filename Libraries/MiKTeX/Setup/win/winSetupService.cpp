@@ -709,17 +709,19 @@ void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const string& valueN
 void winSetupServiceImpl::UnregisterShellFileTypes()
 {
   shared_ptr<Session> session = MIKTEX_SESSION();
-  PathName initexmfExe;
-  if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmfExe))
+  PathName oneMiKTeXUtility;
+  if (!session->FindFile(MIKTEX_MIKTEX_EXE, FileType::EXE, oneMiKTeXUtility))
   {
     MIKTEX_UNEXPECTED();
   }
-  vector<string> args{ initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" };
+  vector<string> args{ oneMiKTeXUtility.GetFileNameWithoutExtension().ToString() };
   if (session->IsAdminMode())
   {
     args.push_back("--admin");
   }
-  Process::Run(initexmfExe, args);
+  args.push_back("filetypes");
+  args.push_back("unregister");
+  Process::Run(oneMiKTeXUtility, args);
 }
 
 void winSetupServiceImpl::UnregisterPath(bool shared)

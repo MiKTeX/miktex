@@ -374,6 +374,9 @@ protected:
   void RunIniTeXMF(const std::vector<std::string>& args, bool mustSucceed);
 
 protected:
+  void RunOneMiKTeXUtility(const std::vector<std::string>& args, bool mustSucceed);
+
+protected:
   void RunMpm(const std::vector<std::string>& args);
 
 protected:

@@ -315,11 +315,6 @@ private:
 private:
   void RegisterRoots(const vector<PathName>& roots, bool other, bool reg);
 
-#if defined(MIKTEX_WINDOWS)
-private:
-  void RegisterShellFileTypes(bool reg);
-#endif
-
 private:
   void ModifyPath();
 
@@ -554,11 +549,9 @@ enum Option
   OPT_MODIFY_PATH,              // <experimental/>
   OPT_RECURSIVE,                // <experimental/>
   OPT_REGISTER_OTHER_ROOTS,     // <experimental/>
-  OPT_REGISTER_SHELL_FILE_TYPES,        // <experimental/>
   OPT_REMOVE_FILE,              // <experimental/>
   OPT_SET_CONFIG_VALUE,         // <experimental/>
   OPT_SHOW_CONFIG_VALUE,                // <experimental/>
-  OPT_UNREGISTER_SHELL_FILE_TYPES,      // <experimental/>
 
   OPT_COMMON_CONFIG,            // <internal/>
   OPT_COMMON_DATA,              // <internal/>
@@ -1306,85 +1299,6 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool 
     }
   }
 }
-
-#if defined(MIKTEX_WINDOWS)
-struct ShellFileType {
-  const char* lpszComponent;
-  const char* lpszExtension;
-  const char* lpszUserFriendlyName;
-  const char* lpszExecutable;
-  int iconIndex;
-  bool takeOwnership;
-  const char* lpszVerb;
-  const char* lpszCommandArgs;
-  const char* lpszDdeArgs;
-} const shellFileTypes[] = {
-  "asy", ".asy", "Asymptote File", MIKTEX_ASY_EXE, -2, false, "open", "-cd \"%w\" \"%1\"", nullptr,
-  "bib", ".bib", "BibTeX Database", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
-  "cls", ".cls", "LaTeX Class", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
-  "dtx", ".dtx", "LaTeX Macros", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
-  "dvi", ".dvi", "DVI File", MIKTEX_YAP_EXE, 1, false, "open", "/dde", "[open(\"%1\")]",
-  "dvi", nullptr, nullptr, MIKTEX_YAP_EXE, INT_MAX, false, "print", "/dde", "[print(\"%1\")]",
-  "dvi", nullptr, nullptr, MIKTEX_YAP_EXE, INT_MAX, false, "printto", "/dde", "[printto(\"%1\",\"%2\",\"%3\",\"%4\")]",
-  "ltx", ".ltx", "LaTeX Document", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
-  "pdf", ".pdf", "PDF File", MIKTEX_TEXWORKS_EXE, INT_MAX, false, "open", "\"%1\"", nullptr,
-  "sty", ".sty", "LaTeX Style", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
-  "tex", ".tex", "TeX Document", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
-};
-
-void IniTeXMFApp::RegisterShellFileTypes(bool reg)
-{
-  for (const ShellFileType& sft : shellFileTypes)
-  {
-    string progId = Utils::MakeProgId(sft.lpszComponent);
-    if (reg)
-    {
-      PathName exe;
-      if (sft.lpszExecutable != nullptr && !session->FindFile(sft.lpszExecutable, FileType::EXE, exe))
-      {
-        FatalError(fmt::format(T_("Could not find {0}."), sft.lpszExecutable));
-      }
-      string command;
-      if (sft.lpszExecutable != nullptr && sft.lpszCommandArgs != nullptr)
-      {
-        command = '\"';
-        command += exe.ToDos().ToString();
-        command += "\" ";
-        command += sft.lpszCommandArgs;
-      }
-      string iconPath;
-      if (sft.lpszExecutable != nullptr && sft.iconIndex != INT_MAX)
-      {
-        iconPath += exe.ToDos().ToString();
-        iconPath += ",";
-        iconPath += std::to_string(sft.iconIndex);
-      }
-      if (sft.lpszUserFriendlyName != nullptr || !iconPath.empty())
-      {
-        Utils::RegisterShellFileType(progId, sft.lpszUserFriendlyName == nullptr ? "" : sft.lpszUserFriendlyName, iconPath);
-      }
-      if (sft.lpszVerb != nullptr && (!command.empty() || sft.lpszDdeArgs != nullptr))
-      {
-          Utils::RegisterShellVerb(progId, sft.lpszVerb, command, sft.lpszDdeArgs == nullptr ? "" : sft.lpszDdeArgs);
-      }
-      if (sft.lpszExtension != nullptr)
-      {
-        LOG4CXX_INFO(logger, "registering file extension: " << sft.lpszExtension);
-        Utils::RegisterShellFileAssoc(sft.lpszExtension, progId, sft.takeOwnership);
-      }
-    }
-    else
-    {
-      Utils::UnregisterShellFileType(progId);
-      if (sft.lpszExtension != nullptr)
-      {
-        LOG4CXX_INFO(logger, "unregistering file extension: " << sft.lpszExtension);
-        Utils::UnregisterShellFileAssoc(sft.lpszExtension, progId);
-      }
-    }
-  }
-}
-#endif
 
 void IniTeXMFApp::ModifyPath()
 {
@@ -2207,11 +2121,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 #endif
   bool optPortable = false;
   bool optRegisterOtherRoots = false;
-  bool optRegisterShellFileTypes = false;
   bool optRemoveLinks = false;
   bool optModifyPath = false;
   bool optReport = false;
-  bool optUnRegisterShellFileTypes = false;
   bool optUpdateFilenameDatabase = isMktexlsrMode;
   bool optVersion = false;
 
@@ -2423,11 +2335,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       optRegisterOtherRoots = true;
       break;
 
-    case OPT_REGISTER_SHELL_FILE_TYPES:
-
-      optRegisterShellFileTypes = true;
-      break;
-
     case OPT_REGISTER_ROOT:
 
       registerRoots.push_back(PathName(optArg));
@@ -2485,11 +2392,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_UNREGISTER_ROOT:
 
       unregisterRoots.push_back(PathName(optArg));
-      break;
-
-    case OPT_UNREGISTER_SHELL_FILE_TYPES:
-
-      optUnRegisterShellFileTypes = true;
       break;
 
     case OPT_UPDATE_FNDB:
@@ -2584,20 +2486,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   {
     MakeFormatFilesByName(formatsByName, engine);
   }
-
-#if defined(MIKTEX_WINDOWS)
-  if (optRegisterShellFileTypes)
-  {
-    RegisterShellFileTypes(true);
-  }
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-  if (optUnRegisterShellFileTypes)
-  {
-    RegisterShellFileTypes(false);
-  }
-#endif
 
   if (optModifyPath)
   {

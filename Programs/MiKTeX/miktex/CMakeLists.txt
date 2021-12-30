@@ -61,6 +61,18 @@ set(miktex_sources
   topics/fontmaps/commands/update.cpp
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND miktex_sources
+    topics/filetypes/topic.cpp
+    topics/filetypes/topic.h
+    topics/filetypes/commands/FileTypeManager.cpp
+    topics/filetypes/commands/FileTypeManager.h
+    topics/filetypes/commands/commands.h
+    topics/filetypes/commands/register.cpp
+    topics/filetypes/commands/unregister.cpp
+  )
+endif()
+
 list(APPEND miktex_sources
   ${CMAKE_CURRENT_BINARY_DIR}/miktex-version.h
 )
