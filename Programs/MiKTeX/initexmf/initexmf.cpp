@@ -168,9 +168,6 @@ private:
   MIKTEXNORETURN void FatalError(const string& s);
 
 private:
-  void ListFormats();
-
-private:
   void ListMetafontModes();
 
 private:
@@ -829,14 +826,6 @@ bool IniTeXMFApp::OnProgress(unsigned level, const PathName& directory)
   return true;
 }
 
-void IniTeXMFApp::ListFormats()
-{
-  for (const FormatInfo& formatInfo : session->GetFormats())
-  {
-    cout << fmt::format("{} ({})", formatInfo.key, formatInfo.description) << endl;
-  }
-}
-
 void IniTeXMFApp::ListMetafontModes()
 {
   MIKTEXMFMODE mode;
@@ -994,6 +983,10 @@ void IniTeXMFApp::RunOneMiKTeXUtility(const vector<string>& arguments)
 void IniTeXMFApp::MakeLanguageDat(bool force)
 {
   vector<string> arguments{"languages", "update"};
+  if (force)
+  {
+    arguments.push_back("--force");
+  }
   RunOneMiKTeXUtility(arguments);
 }
 
@@ -1757,7 +1750,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (optListFormats)
   {
-    ListFormats();
+    RunOneMiKTeXUtility({ "formats", "list" });
   }
 
   if (optListModes)
