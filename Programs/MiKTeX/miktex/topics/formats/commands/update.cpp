@@ -1,7 +1,7 @@
 /**
- * @file topics/fontmaps/commands/update.cpp
+ * @file topics/formats/commands/update.cpp
  * @author Christian Schenk
- * @brief fontmaps update
+ * @brief formats update
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -24,7 +24,7 @@
 
 #include "commands.h"
 
-#include "FontMapManager.h"
+#include "FormatsManager.h"
 
 namespace
 {
@@ -33,7 +33,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Update TeX font map files");
+            return T_("Update format files");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
@@ -45,7 +45,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "update [--force] [--output-directory=DIR]";
+            return "update [--name=NAME]";
         }
     };
 }
@@ -56,7 +56,7 @@ using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::FontMaps;
+using namespace OneMiKTeXUtility::Topics::Formats;
 
 unique_ptr<Command> Commands::Update()
 {
@@ -66,24 +66,16 @@ unique_ptr<Command> Commands::Update()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_FORCE,
-    OPT_OUTPUT_DIRECTORY,
+    OPT_NAME,
 };
 
 static const struct poptOption options[] =
 {
     {
-        "force", 0,
-        POPT_ARG_NONE, nullptr,
-        OPT_FORCE,
-        T_("Force re-generation of apparently up-to-date fontconfig cache files, overriding the timestamp checking."),
-        nullptr,
-    },
-    {
-        "output-directory", 0,
+        "name", 0,
         POPT_ARG_STRING, nullptr,
-        OPT_OUTPUT_DIRECTORY,
-        T_("Set the output directory."),
+        OPT_NAME,
+        T_("Specify the format name."),
         "DIR"
     },
     POPT_AUTOHELP
@@ -95,17 +87,13 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    bool force = false;
-    string outputDirectory;
+    string name;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
-        case OPT_FORCE:
-            force = true;
-            break;
-        case OPT_OUTPUT_DIRECTORY:
-            outputDirectory = popt.GetOptArg();
+        case OPT_NAME:
+            name = popt.GetOptArg();
             break;
         }
     }
@@ -117,8 +105,15 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    FontMapManager mgr;
+    FormatsManager mgr;
     mgr.Init(ctx);
-    mgr.WriteMapFiles(force, outputDirectory);
+    if (name.empty())
+    {
+
+    }
+    else
+    {
+        
+    }
     return 0;
 }

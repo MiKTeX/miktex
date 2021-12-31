@@ -66,6 +66,16 @@ list(APPEND miktex_sources
 )
 
 list(APPEND miktex_sources
+    topics/formats/topic.cpp
+    topics/formats/topic.h
+    topics/formats/commands/FormatsManager.cpp
+    topics/formats/commands/FormatsManager.h
+    topics/formats/commands/commands.h
+    topics/formats/commands/list.cpp
+    topics/formats/commands/update.cpp
+)
+
+list(APPEND miktex_sources
     topics/languages/topic.cpp
     topics/languages/topic.h
     topics/languages/commands/commands.h

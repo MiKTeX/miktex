@@ -60,7 +60,9 @@
 
 #include "topics/Topic.h"
 #include "topics/filesystem/topic.h"
+#include "topics/fndb/topic.h"
 #include "topics/fontmaps/topic.h"
+#include "topics/formats/topic.h"
 #include "topics/languages/topic.h"
 #include "topics/links/topic.h"
 
@@ -97,7 +99,9 @@ private:
     void RegisterTopics()
     {
         RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FNDB::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Formats::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Links::Create());
 #if defined(MIKTEX_WINDOWS)
