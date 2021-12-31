@@ -200,13 +200,7 @@ private:
   }
 
 private:
-  void RunMakeTeX(const string& makeProg, const vector<string>& arguments);
-
-private:
   void RunOneMiKTeXUtility(const vector<string>& arguments);
-
-private:
-  void MakeFormatFile(const string& formatKey);
 
 private:
   void MakeFormatFiles(const vector<string>& formats);
@@ -879,134 +873,16 @@ void IniTeXMFApp::SetTeXMFRootDirectories(RegisterRootDirectoriesOptionSet optio
   }
 }
 
-void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& arguments)
-{
-  PathName exe;
-
-  if (!session->FindFile(makeProg, FileType::EXE, exe))
-  {
-    FatalError(fmt::format(T_("The {0} executable could not be found."), Q_(makeProg)));
-  }
-
-  vector<string> xArguments{ makeProg };
-
-  xArguments.insert(xArguments.end(), arguments.begin(), arguments.end());
-
-  if (printOnly)
-  {
-    xArguments.push_back("--print-only");
-  }
-
-  if (verbose)
-  {
-    xArguments.push_back("--verbose");
-  }
-
-  if (quiet)
-  {
-    xArguments.push_back("--quiet");
-  }
-
-  if (session->IsAdminMode())
-  {
-    xArguments.push_back("--admin");
-  }
-
-  switch (enableInstaller)
-  {
-  case TriState::True:
-    xArguments.push_back("--enable-installer");
-    break;
-  case TriState::False:
-    xArguments.push_back("--disable-installer");
-    break;
-  default:
-    break;
-  }
-
-  xArguments.push_back("--miktex-disable-maintenance");
-  xArguments.push_back("--miktex-disable-diagnose");
-
-  LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(xArguments));
-  RunProcess(exe, xArguments);
-}
-
-void IniTeXMFApp::MakeFormatFile(const string& formatKey)
-{
-  if (find(formatsMade.begin(), formatsMade.end(), formatKey) != formatsMade.end())
-  {
-    return;
-  }
-
-  FormatInfo formatInfo;
-  if (!session->TryGetFormatInfo(formatKey, formatInfo))
-  {
-    FatalError(fmt::format(T_("Unknown format: {0}"), Q_(formatKey)));
-  }
-
-  string maker;
-
-  vector<string> arguments;
-
-  if (formatInfo.compiler == "mf")
-  {
-    maker = MIKTEX_MAKEBASE_EXE;
-  }
-  else
-  {
-    maker = MIKTEX_MAKEFMT_EXE;
-    arguments.push_back("--engine="s + formatInfo.compiler);
-  }
-
-  arguments.push_back("--dest-name="s + formatInfo.name);
-
-  if (!formatInfo.preloaded.empty())
-  {
-    if (PathName::Compare(formatInfo.preloaded, formatKey) == 0)
-    {
-      LOG4CXX_FATAL(logger, T_("Rule recursion detected for: ") << formatKey);
-      FatalError(fmt::format(T_("Format '{0}' cannot be built."), formatKey));
-    }
-    // RECURSION
-    MakeFormatFile(formatInfo.preloaded);
-    arguments.push_back("--preload="s + formatInfo.preloaded);
-  }
-
-  if (PathName(formatInfo.inputFile).HasExtension(".ini"))
-  {
-    arguments.push_back("--no-dump");
-  }
-
-  arguments.push_back(formatInfo.inputFile);
-
-  if (!formatInfo.arguments.empty())
-  {
-    arguments.push_back("--engine-option="s + formatInfo.arguments);
-  }
-
-  RunMakeTeX(maker, arguments);
-
-  formatsMade.push_back(formatKey);
-}
-
 void IniTeXMFApp::MakeFormatFiles(const vector<string>& formats)
 {
   if (formats.empty())
   {
-    for (const FormatInfo& formatInfo : session->GetFormats())
-    {
-      if (!formatInfo.exclude)
-      {
-        MakeFormatFile(formatInfo.key);
-      }
-    }
+    RunOneMiKTeXUtility({ "formats", "update" });
+    return;
   }
-  else
+  for (const string& fmt : formats)
   {
-    for (const string& fmt : formats)
-    {
-      MakeFormatFile(fmt);
-    }
+    RunOneMiKTeXUtility({ "formats", "update", "--name", fmt });
   }
 }
 
@@ -1014,27 +890,13 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, con
 {
   for (const string& name : formatsByName)
   {
-    bool done = false;
-    for (const FormatInfo& formatInfo : session->GetFormats())
+    vector<string> args{ "formats", "update", "--name", name };
+    if (!engine.empty())
     {
-      if (PathName::Compare(formatInfo.name, name) == 0 && (engine.empty()
-        || (Utils::EqualsIgnoreCase(formatInfo.compiler, engine))))
-      {
-        MakeFormatFile(formatInfo.key);
-        done = true;
-      }
+      args.push_back("--engine");
+      args.push_back(engine);
     }
-    if (!done)
-    {
-      if (engine.empty())
-      {
-        FatalError(fmt::format(T_("Unknown format name: {0}"), Q_(name)));
-      }
-      else
-      {
-        FatalError(fmt::format(T_("Unknown format name/engine: {0}/{1}"), Q_(name), engine));
-      }
-    }
+    RunOneMiKTeXUtility(args);
   }
 }
 
