@@ -67,7 +67,7 @@ enum Option
     OPT_OUTPUT_DIRECTORY,
 };
 
-static const struct poptOption update_options[] =
+static const struct poptOption options[] =
 {
     {
         "force", 0,
@@ -89,23 +89,11 @@ static const struct poptOption update_options[] =
 
 int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
-    vector<const char*> argv;
-    argv.reserve(arguments.size() - 1 + 1);
-    for (int idx = 1; idx < arguments.size(); ++idx)
-    {
-        argv.push_back(arguments[idx].c_str());
-    }
-    argv.push_back(nullptr);
-
-    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], update_options);
-
+    auto argv = MakeArgv(arguments);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-
     bool force = false;
     string outputDirectory;
-
-    vector<string> newargs;
-
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
@@ -118,24 +106,16 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
             break;
         }
     }
-
     if (option != -1)
     {
-        string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
-        msg += ": ";
-        msg += popt.Strerror(option);
-        ctx.ui->IncorrectUsage(msg);
+        ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-
-    auto leftovers = popt.GetLeftovers();
-    if (!leftovers.empty())
+    if (!popt.GetLeftovers().empty())
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-
-    FontMapManager updmap;
-    updmap.Init(ctx);
-    updmap.WriteMapFiles(force, outputDirectory);
-
+    FontMapManager mgr;
+    mgr.Init(ctx);
+    mgr.WriteMapFiles(force, outputDirectory);
     return 0;
 }

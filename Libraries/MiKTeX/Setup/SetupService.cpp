@@ -1035,9 +1035,10 @@ void SetupServiceImpl::DoFinishUpdate()
   RunOneMiKTeXUtility({ "fndb", "update" }, false);
   if (!session->IsSharedSetup() || session->IsAdminMode())
   {
-    RunIniTeXMF({ "--force", "--mklinks" }, false);
+    RunOneMiKTeXUtility({ "links", "update", "--force" }, false);
   }
-  RunIniTeXMF({ "--mkmaps", "--mklangs" }, false);
+  RunOneMiKTeXUtility({ "fontmaps", "update" }, false);
+  RunOneMiKTeXUtility({ "languages", "update" }, false);
   if (!options.IsPortable && (!session->IsSharedSetup() || session->IsAdminMode()))
   {
 #if defined(MIKTEX_WINDOWS)
@@ -1059,7 +1060,7 @@ void SetupServiceImpl::DoCleanUp()
     ReportLine("removing links...");
     try
     {
-      RunIniTeXMF({ "--force", "--remove-links" }, false);
+      RunOneMiKTeXUtility({ "links", "remove" }, false);
     }
     catch (const MiKTeXException& e)
     {
@@ -1395,7 +1396,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 
     // create latex.exe, ...
-    RunIniTeXMF({ "--force", "--mklinks" }, false);
+    RunOneMiKTeXUtility({ "links", "update", "--force" }, false);
     if (cancelled)
     {
       return;

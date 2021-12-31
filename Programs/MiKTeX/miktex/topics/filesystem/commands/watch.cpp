@@ -27,26 +27,29 @@
 
 #include "commands.h"
 
-class WatchCommand :
-    public OneMiKTeXUtility::Topics::Command
+namespace
 {
-    std::string Description() override
+    class WatchCommand :
+        public OneMiKTeXUtility::Topics::Command
     {
-        return T_("Watch for DIRECTORY changes");
-    }
+        std::string Description() override
+        {
+            return T_("Watch for DIRECTORY changes");
+        }
 
-    int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+        int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
-    std::string Name() override
-    {
-        return "watch";
-    }
+        std::string Name() override
+        {
+            return "watch";
+        }
 
-    std::string Synopsis() override
-    {
-        return "watch DIRECTORY";
-    }
-};
+        std::string Synopsis() override
+        {
+            return "watch DIRECTORY";
+        }
+    };
+}
 
 using namespace std;
 

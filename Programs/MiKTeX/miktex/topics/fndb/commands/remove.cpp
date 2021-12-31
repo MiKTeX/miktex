@@ -73,20 +73,20 @@ int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
 {
     if (arguments.size() != 2)
     {
-        ctx.ui->IncorrectUsage(T_("expected no arguments"));
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
     ctx.session->UnloadFilenameDatabase();
     size_t nRoots = ctx.session->GetNumberOfTEXMFRoots();
     for (unsigned r = 0; r < nRoots; ++r)
     {
         PathName path = ctx.session->GetFilenameDatabasePathName(r);
-        ctx.ui->Verbose(1, fmt::format(T_("Removing fndb ({0})..."), Q_(path)));
+        ctx.ui->Verbose(1, fmt::format(T_("Removing FNDB ({0})..."), Q_(path)));
         File::Delete(path, { FileDeleteOption::TryHard });
         PathName changeFile = path;
         changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
         if (File::Exists(changeFile))
         {
-            ctx.ui->Verbose(1, fmt::format(T_("Removing fndb change file ({0})..."), Q_(changeFile)));
+            ctx.ui->Verbose(1, fmt::format(T_("Removing FNDB change file ({0})..."), Q_(changeFile)));
             File::Delete(changeFile, { FileDeleteOption::TryHard });
         }
     }

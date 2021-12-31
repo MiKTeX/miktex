@@ -18,6 +18,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Wrappers/PoptWrapper>
+
 #include "internal.h"
 
 #include "commands.h"
@@ -31,7 +33,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Update all links");
+            return T_("Update links from formats and scripts to executables");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
@@ -43,12 +45,14 @@ namespace
 
         std::string Synopsis() override
         {
-            return "update";
+            return "update [--force]";
         }
     };
 }
 
 using namespace std;
+
+using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
@@ -59,15 +63,50 @@ unique_ptr<Command> Commands::Update()
     return make_unique<UpdateCommand>();
 }
 
+enum Option
+{
+    OPT_AAA = 1,
+    OPT_FORCE,
+};
+
+static const struct poptOption update_options[] =
+{
+    {
+        "force", 0,
+        POPT_ARG_NONE, nullptr,
+        OPT_FORCE,
+        T_("Overwrite existing files."),
+        nullptr,
+    },
+    POPT_AUTOHELP
+    POPT_TABLEEND
+};
+
 int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
-    if (arguments.size() != 2)
+    auto argv = MakeArgv(arguments);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], update_options);
+    int option;
+    bool force = false;
+    while ((option = popt.GetNextOpt()) >= 0)
     {
-        ctx.ui->IncorrectUsage(T_("expected no arguments"));
+        switch (option)
+        {
+        case OPT_FORCE:
+            force = true;
+            break;
+        }
+    }
+    if (option != -1)
+    {
+        ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
+    }
+    if (!popt.GetLeftovers().empty())
+    {
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
     LinksManager mgr;
     mgr.Init(ctx);
-    bool force = true; // TODO
     mgr.Update(force);
     return 0;
 }

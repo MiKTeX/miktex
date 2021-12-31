@@ -224,7 +224,7 @@ private:
     std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
     std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
     std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
-    bool quiet;
+    bool quiet = false;
     std::shared_ptr<MiKTeX::Core::Session> session;
     std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Topics::Topic>> topics;
     int verbosityLevel = 0;
@@ -392,7 +392,7 @@ void MiKTeXApp::Verbose(int level, const string& s)
     {
         LOG4CXX_INFO(logger, s);
     }
-    if (verbosityLevel >= level)
+    if (!this->quiet && this->verbosityLevel >= level)
     {
         Output(s);
     }
@@ -409,7 +409,7 @@ void MiKTeXApp::Warning(const string& message)
     {
         LOG4CXX_WARN(logger, message);
     }
-    if (!quiet)
+    if (!this->quiet)
     {
         cerr << fmt::format(T_("warning: {0}"), message) << endl;
     }
@@ -421,7 +421,7 @@ void MiKTeXApp::SecurityRisk(const string& message)
     {
         LOG4CXX_WARN(logger, fmt::format(T_("security risk: {0}"), message));
     }
-    if (!quiet)
+    if (!this->quiet)
     {
         cerr << fmt::format(T_("security risk: {0}"), message) << endl;
     }
@@ -531,6 +531,10 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
             {
                 ShowUsage();
                 return {-1, vector<string>()};
+            }
+            else if (IsGlobalOption(arg, "quiet"))
+            {
+                this->quiet = true;
             }
             else if (IsGlobalOption(arg, "principal=setup"))
             {

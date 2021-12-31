@@ -20,25 +20,28 @@
 
 #include "topic.h"
 
-class FileTypesTopic :
-    public OneMiKTeXUtility::Topics::TopicBase
+namespace
 {
-    std::string Description() override
+    class FileTypesTopic :
+        public OneMiKTeXUtility::Topics::TopicBase
     {
-        return T_("Commands for managing Windows shell file types");
-    }
+        std::string Description() override
+        {
+            return T_("Commands for managing Windows shell file types");
+        }
 
-    std::string Name() override
-    {
-        return "filetypes";
-    }
+        std::string Name() override
+        {
+            return "filetypes";
+        }
 
-    void RegisterCommands() override
-    {
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Register());
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Unregister());
-    }
-};
+        void RegisterCommands() override
+        {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Register());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Unregister());
+        }
+    };
+}
 
 std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileTypes::Create()
 {

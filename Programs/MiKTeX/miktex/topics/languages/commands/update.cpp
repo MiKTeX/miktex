@@ -71,7 +71,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
 {
     if (arguments.size() != 2)
     {
-        ctx.ui->IncorrectUsage(T_("expected no arguments"));
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
 
     ctx.ui->Verbose(1, T_("Creating language.dat, language.dat.lua and language.def..."));
@@ -143,5 +143,6 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
 
     languageDat.close();
     Fndb::Add({ {languageDatPath} });
+    
     return 0;
 }

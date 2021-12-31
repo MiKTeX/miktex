@@ -20,24 +20,27 @@
 
 #include "topic.h"
 
-class FileSystemTopic :
-    public OneMiKTeXUtility::Topics::TopicBase
+namespace
 {
-    std::string Description() override
+    class FileSystemTopic :
+        public OneMiKTeXUtility::Topics::TopicBase
     {
-        return T_("Commands for watching the file system");
-    }
+        std::string Description() override
+        {
+            return T_("Commands for watching the file system");
+        }
 
-    std::string Name() override
-    {
-        return "filesystem";
-    }
+        std::string Name() override
+        {
+            return "filesystem";
+        }
 
-    void RegisterCommands() override
-    {
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FileSystem::Commands::Watch());
-    }
-};
+        void RegisterCommands() override
+        {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileSystem::Commands::Watch());
+        }
+    };
+}
 
 std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
 {

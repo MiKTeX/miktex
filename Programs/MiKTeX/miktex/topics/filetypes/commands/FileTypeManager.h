@@ -13,16 +13,17 @@
 
 #include "internal.h"
 
-struct ShellFileType {
-  const char* lpszComponent;
-  const char* lpszExtension;
-  const char* lpszUserFriendlyName;
-  const char* lpszExecutable;
-  int iconIndex;
-  bool takeOwnership;
-  const char* lpszVerb;
-  const char* lpszCommandArgs;
-  const char* lpszDdeArgs;
+struct ShellFileType
+{
+    const char* lpszComponent;
+    const char* lpszExtension;
+    const char* lpszUserFriendlyName;
+    const char* lpszExecutable;
+    int iconIndex;
+    bool takeOwnership;
+    const char* lpszVerb;
+    const char* lpszCommandArgs;
+    const char* lpszDdeArgs;
 };
 
 class FileTypeManager

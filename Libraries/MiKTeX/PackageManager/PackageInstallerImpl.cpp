@@ -1512,24 +1512,22 @@ bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* output, si
   return true;
 }
 
-void PackageInstallerImpl::RunIniTeXMF(const vector<string>& extraArguments)
+void PackageInstallerImpl::RunOneMiKTeXUtility(const vector<string>& extraArguments)
 {
-  // find initexmf
-  PathName initexmf;
-  if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+  PathName oneMiKTeXUtility;
+  if (!session->FindFile(MIKTEX_MIKTEX_EXE, FileType::EXE, oneMiKTeXUtility))
   {
     MIKTEX_UNEXPECTED();
   }
 
-  // run initexmf
-  vector<string> arguments{ "initexmf" };
+  vector<string> arguments{ "miktex" };
   if (session->IsAdminMode())
   {
     arguments.push_back("--admin");
   }
   arguments.insert(arguments.end(), extraArguments.begin(), extraArguments.end());
   // TODO: propagate --enable-installer
-  Process::Run(initexmf, arguments, this);
+  Process::Run(oneMiKTeXUtility, arguments, this);
 }
 
 void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string& packageId, bool force, int level)
@@ -1776,10 +1774,10 @@ void PackageInstallerImpl::InstallRemove(Role role)
 
   if (enablePostProcessing)
   {
-    vector<string> args = { "--mkmaps" };
+    RunOneMiKTeXUtility({"fontmaps", "update"});
     if (session->IsAdminMode())
     {
-      args.push_back("--mklinks");
+      RunOneMiKTeXUtility({"links", "update"});
     }
     else
     {
@@ -1818,7 +1816,6 @@ void PackageInstallerImpl::InstallRemove(Role role)
       }
 #endif
     }
-    RunIniTeXMF(args);
   }
 }
 

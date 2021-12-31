@@ -63,7 +63,7 @@ int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
 {
     if (arguments.size() != 2)
     {
-        ctx.ui->IncorrectUsage(T_("expected no arguments"));
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
     LinksManager mgr;
     mgr.Init(ctx);

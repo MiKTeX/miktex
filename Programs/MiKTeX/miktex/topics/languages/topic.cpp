@@ -20,24 +20,27 @@
 
 #include "topic.h"
 
-class LanguagesTopic :
-    public OneMiKTeXUtility::Topics::TopicBase
+namespace
 {
-    std::string Description() override
+    class LanguagesTopic :
+        public OneMiKTeXUtility::Topics::TopicBase
     {
-        return T_("Commands for managing TeX languages");
-    }
+        std::string Description() override
+        {
+            return T_("Commands for managing TeX languages");
+        }
 
-    std::string Name() override
-    {
-        return "languages";
-    }
+        std::string Name() override
+        {
+            return "languages";
+        }
 
-    void RegisterCommands() override
-    {
-        this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Update());
-    }
-};
+        void RegisterCommands() override
+        {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Update());
+        }
+    };
+}
 
 std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Languages::Create()
 {

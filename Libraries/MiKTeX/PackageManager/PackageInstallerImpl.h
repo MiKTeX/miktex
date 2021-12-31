@@ -320,7 +320,7 @@ private:
   }
 
 private:
-  void RunIniTeXMF(const std::vector<std::string>& arguments);
+  void RunOneMiKTeXUtility(const std::vector<std::string>& arguments);
 
 private:
   std::unordered_set<MiKTeX::Util::PathName> installedFiles;

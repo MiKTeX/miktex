@@ -18,34 +18,41 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Wrappers/PoptWrapper>
+
 #include "internal.h"
 
 #include "commands.h"
 
 #include "FontMapManager.h"
 
-class ShowOptionCommand :
-    public OneMiKTeXUtility::Topics::Command
+namespace
 {
-    std::string Description() override
+    class ShowOptionCommand :
+        public OneMiKTeXUtility::Topics::Command
     {
-        return T_("Show value of OPTION");
-    }
+        std::string Description() override
+        {
+            return T_("Show an option value");
+        }
 
-    int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+        int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
-    std::string Name() override
-    {
-        return "show-option";
-    }
+        std::string Name() override
+        {
+            return "show-option";
+        }
 
-    std::string Synopsis() override
-    {
-        return "show-option OPTION";
-    }
-};
+        std::string Synopsis() override
+        {
+            return "show-option --name=NAME";
+        }
+    };
+}
 
 using namespace std;
+
+using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
@@ -56,14 +63,54 @@ unique_ptr<Command> Commands::ShowOption()
     return make_unique<ShowOptionCommand>();
 }
 
+enum Option
+{
+    OPT_AAA = 1,
+    OPT_NAME,
+};
+
+static const struct poptOption options[] =
+{
+    {
+        "name", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_NAME,
+        T_("Specify the option name."),
+        "NAME"
+    },
+    POPT_AUTOHELP
+    POPT_TABLEEND
+};
+
 int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
-    if (arguments.size() != 3)
+    auto argv = MakeArgv(arguments);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
+    int option;
+    string name;
+    while ((option = popt.GetNextOpt()) >= 0)
     {
-        ctx.ui->IncorrectUsage(T_("expected one argument: OPTION"));
+        switch (option)
+        {
+        case OPT_NAME:
+            name = popt.GetOptArg();
+            break;
+        }
     }
-    FontMapManager updmap;
-    updmap.Init(ctx);
-    ctx.ui->Output(fmt::format("{0}={1}", arguments[2], updmap.Option(arguments[2])));
+    if (option != -1)
+    {
+        ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
+    }
+    if (!popt.GetLeftovers().empty())
+    {
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+    }
+    if (name.empty())
+    {
+        ctx.ui->IncorrectUsage(T_("expected --name=NAME"));
+    }
+    FontMapManager mgr;
+    mgr.Init(ctx);
+    ctx.ui->Output(fmt::format("{0}={1}", name, mgr.Option(name)));
     return 0;
 }

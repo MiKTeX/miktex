@@ -77,4 +77,16 @@ namespace OneMiKTeXUtility
         return s.length() >= suffix.length() &&
             s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
     }
+
+    inline std::vector<const char*> MakeArgv(const std::vector<std::string>& arguments)
+    {
+        std::vector<const char*> argv;
+        argv.reserve(arguments.size() - 1 + 1);
+        for (int idx = 1; idx < arguments.size(); ++idx)
+        {
+            argv.push_back(arguments[idx].c_str());
+        }
+        argv.push_back(nullptr);
+        return argv;
+    }
 }

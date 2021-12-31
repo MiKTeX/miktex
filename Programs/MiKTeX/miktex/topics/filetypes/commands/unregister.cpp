@@ -24,26 +24,29 @@
 
 #include "FileTypeManager.h"
 
-class UnegisterCommand :
-    public OneMiKTeXUtility::Topics::Command
+namespace
 {
-    std::string Description() override
+    class UnegisterCommand :
+        public OneMiKTeXUtility::Topics::Command
     {
-        return T_("Unregister shell file types");
-    }
+        std::string Description() override
+        {
+            return T_("Unregister shell file types");
+        }
 
-    int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
+        int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
-    std::string Name() override
-    {
-        return "unregister";
-    }
+        std::string Name() override
+        {
+            return "unregister";
+        }
 
-    std::string Synopsis() override
-    {
-        return "unregister";
-    }
-};
+        std::string Synopsis() override
+        {
+            return "unregister";
+        }
+    };
+}
 
 using namespace std;
 
@@ -60,7 +63,7 @@ int UnegisterCommand::Execute(ApplicationContext& ctx, const vector<string>& arg
 {
     if (arguments.size() != 2)
     {
-        ctx.ui->IncorrectUsage(T_("expected no arguments"));
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
     FileTypeManager mgr;
     mgr.Init(ctx);

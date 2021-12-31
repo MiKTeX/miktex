@@ -92,7 +92,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
 {
     if (arguments.size() != 2)
     {
-        ctx.ui->IncorrectUsage(T_("expected no arguments"));
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
     unsigned nRoots = ctx.session->GetNumberOfTEXMFRoots();
     for (unsigned r = 0; r < nRoots; ++r)

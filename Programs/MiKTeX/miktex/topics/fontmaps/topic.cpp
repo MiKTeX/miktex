@@ -20,26 +20,29 @@
 
 #include "topic.h"
 
-class FontMapsTopic :
-    public OneMiKTeXUtility::Topics::TopicBase
+namespace
 {
-    std::string Description() override
+    class FontMapsTopic :
+        public OneMiKTeXUtility::Topics::TopicBase
     {
-        return T_("Commands for managing TeX font map files");
-    }
+        std::string Description() override
+        {
+            return T_("Commands for managing TeX font map files");
+        }
 
-    std::string Name() override
-    {
-        return "fontmaps";
-    }
+        std::string Name() override
+        {
+            return "fontmaps";
+        }
 
-    void RegisterCommands() override
-    {
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::SetOption());
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::ShowOption());
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Update());
-    }
-};
+        void RegisterCommands() override
+        {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::SetOption());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::ShowOption());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Update());
+        }
+    };
+}
 
 std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FontMaps::Create()
 {

@@ -56,23 +56,12 @@ static const struct poptOption aoption[] =
 
 void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& arguments)
 {
-    vector<const char*> argv;
-    argv.reserve(arguments.size() + 2);
-    argv.push_back("updmap");
-    for (int idx = 0; idx < arguments.size(); ++idx)
-    {
-        argv.push_back(arguments[idx].c_str());
-    }
-    argv.push_back(nullptr);
-
+    auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], aoption);
-
     int option;
-
     bool optSetOption = false;
     bool optShowOption = false;
     string optionName;
-
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
@@ -110,21 +99,18 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
             break;
         }
     }
-
     if (option != -1)
     {
         ctx->ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-
     auto leftovers = popt.GetLeftovers();
-
     if (optShowOption)
     {
         if (!leftovers.empty())
         {
             ctx->ui->IncorrectUsage(T_("unexpected leftover arguments"));
         }
-        arguments = {"fontmaps", "show-option", optionName};
+        arguments = { "fontmaps", "show-option", "--name", optionName };
     }
     else if (optSetOption)
     {
@@ -132,10 +118,10 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
         {
             ctx->ui->IncorrectUsage(T_("expected arguments: OPTION VALUE"));
         }
-        arguments = {"fontmaps", "set-option", optionName, leftovers[0]};
+        arguments = { "fontmaps", "set-option", "--name", optionName, "--value", leftovers[0] };
     }
     else
     {
-        arguments = {"fontmaps", "update"};
+        arguments = { "fontmaps", "update" };
     }
 }

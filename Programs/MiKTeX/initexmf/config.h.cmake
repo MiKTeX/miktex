@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2021 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -19,14 +19,6 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 #cmakedefine WITH_BOOTSTRAPPING 1
-
-#cmakedefine WITH_KPSEWHICH 1
-#cmakedefine WITH_MKTEXLSR 1
-#cmakedefine WITH_RUNGS 1
-#cmakedefine WITH_TEXDOC 1
-#cmakedefine WITH_TEXHASH 1
-#cmakedefine WITH_TEXLINKS 1
-#cmakedefine WITH_UPDMAP 1
 
 #define MIKTEX_BOOTSTRAPPING_PACKAGES "${MIKTEX_BOOTSTRAPPING_PACKAGES}"
 

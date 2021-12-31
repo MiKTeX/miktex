@@ -20,25 +20,28 @@
 
 #include "topic.h"
 
-class LinksTopic :
-    public OneMiKTeXUtility::Topics::TopicBase
+namespace
 {
-    std::string Description() override
+    class LinksTopic :
+        public OneMiKTeXUtility::Topics::TopicBase
     {
-        return T_("Commands for managing TeX links");
-    }
+        std::string Description() override
+        {
+            return T_("Commands for managing links to MiKTeX executables");
+        }
 
-    std::string Name() override
-    {
-        return "links";
-    }
+        std::string Name() override
+        {
+            return "links";
+        }
 
-    void RegisterCommands() override
-    {
-        this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Remove());
-        this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Update());
-    }
-};
+        void RegisterCommands() override
+        {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Remove());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Update());
+        }
+    };
+}
 
 std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Links::Create()
 {

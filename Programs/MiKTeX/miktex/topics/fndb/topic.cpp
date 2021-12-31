@@ -20,25 +20,28 @@
 
 #include "topic.h"
 
-class FNDBTopic :
-    public OneMiKTeXUtility::Topics::TopicBase
+namespace
 {
-    std::string Description() override
+    class FNDBTopic :
+        public OneMiKTeXUtility::Topics::TopicBase
     {
-        return T_("Commands for file name databases");
-    }
+        std::string Description() override
+        {
+            return T_("Commands for managing the file name databases");
+        }
 
-    std::string Name() override
-    {
-        return "fndb";
-    }
+        std::string Name() override
+        {
+            return "fndb";
+        }
 
-    void RegisterCommands() override
-    {
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Remove());
-        this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Update());
-    }
-};
+        void RegisterCommands() override
+        {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Remove());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Update());
+        }
+    };
+}
 
 std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FNDB::Create()
 {

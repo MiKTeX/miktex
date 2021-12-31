@@ -1069,7 +1069,20 @@ void IniTeXMFApp::ModifyPath()
 
 void IniTeXMFApp::ManageLinks(bool remove, bool force)
 {
-  RunOneMiKTeXUtility({"links", "update"});
+  vector<string> args{"links"};
+  if (remove)
+  {
+    args.push_back("remove");
+  }
+  else
+  {
+    args.push_back("update");
+    if (force)
+    {
+      args.push_back("--force");
+    }
+  }
+  RunOneMiKTeXUtility(args);
 }
 
 void IniTeXMFApp::RunOneMiKTeXUtility(const vector<string>& arguments)
