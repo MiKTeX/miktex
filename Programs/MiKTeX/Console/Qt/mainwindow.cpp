@@ -1032,40 +1032,6 @@ string Timestamp()
   return s.str();
 }
 
-void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
-{
-  shared_ptr<Session> session = MIKTEX_SESSION();
-  PathName initexmf;
-  if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
-  {
-    MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility (initexmf) could not be found.").toStdString());
-  }
-  vector<string> allArgs{
-    initexmf.GetFileNameWithoutExtension().ToString(),
-  };
-  if (session->IsAdminMode())
-  {
-    allArgs.push_back("--admin");
-  }
-  allArgs.insert(allArgs.end(), args.begin(), args.end());
-  ProcessOutput<4096> output;
-  int exitCode;
-  Process::Run(initexmf, allArgs, &output, &exitCode, nullptr);
-  if (exitCode != 0)
-  {
-    auto outputBytes = output.GetStandardOutput();
-    PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
-    outfile += "_";
-    outfile += Timestamp().c_str();
-    outfile.SetExtension(".out");
-    FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
-    outstream.Write(&outputBytes[0], outputBytes.size());
-    outstream.Close();
-    MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The output has been saved to a file.").toStdString(),
-      "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
-  }
-}
-
 void BackgroundWorker::RunOneMiKTeXUtility(const std::vector<std::string>& args)
 {
   shared_ptr<Session> session = MIKTEX_SESSION();
@@ -1105,7 +1071,7 @@ bool RefreshFontMapsWorker::Run()
   bool result = false;
   try
   {
-    RunIniTeXMF({ "--mkmaps" });
+    RunOneMiKTeXUtility({ "fontmaps", "update" });
     result = true;
   }
   catch (const MiKTeXException& e)
