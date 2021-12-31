@@ -45,7 +45,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "update [--name=NAME]";
+            return "update [--engine=ENGINE] [--name=NAME]";
         }
     };
 }
@@ -66,11 +66,19 @@ unique_ptr<Command> Commands::Update()
 enum Option
 {
     OPT_AAA = 1,
+    OPT_ENGINE,
     OPT_NAME,
 };
 
 static const struct poptOption options[] =
 {
+    {
+        "engine", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_ENGINE,
+        T_("Engine to be used."),
+        T_("ENGINE")
+    },
     {
         "name", 0,
         POPT_ARG_STRING, nullptr,
@@ -87,11 +95,15 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
+    string engine;
     string name;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
+        case OPT_ENGINE:
+            engine = popt.GetOptArg();
+            break;
         case OPT_NAME:
             name = popt.GetOptArg();
             break;
@@ -109,11 +121,26 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     mgr.Init(ctx);
     if (name.empty())
     {
-
+        for (auto& f : mgr.Formats())
+        {
+            if (!engine.empty() && engine != f.compiler)
+            {
+                continue;
+            }
+            mgr.Update(f.key);
+        }
     }
     else
     {
-        
+        if (!engine.empty())
+        {
+            auto formatInfo = mgr.Format(name);
+            if (engine != formatInfo.compiler)
+            {
+                ctx.ui->FatalError(fmt::format(T_("{0}: cannot be built by {1}"), name, engine));
+            }
+        }
+        mgr.Update(name);
     }
     return 0;
 }

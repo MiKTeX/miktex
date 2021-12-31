@@ -21,12 +21,19 @@
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Util/PathName>
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 #define T_(x) MIKTEXTEXT(x)
 
 namespace OneMiKTeXUtility
 {
+    class MIKTEXNOVTABLE ProcessRunner
+    {
+    public:
+        virtual void RunProcess(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments) = 0;
+    };
+
     class MIKTEXNOVTABLE Program
     {
     public:
@@ -53,6 +60,7 @@ namespace OneMiKTeXUtility
     class MIKTEXNOVTABLE UI
     {
     public:
+        virtual bool BeingQuiet() = 0;
         virtual MIKTEXNORETURN void FatalError(const std::string& message) = 0;
         virtual MIKTEXNORETURN void IncorrectUsage(const std::string& message) = 0;
         virtual void Output(const std::string& s) = 0;
@@ -67,6 +75,7 @@ namespace OneMiKTeXUtility
         Logger* logger;
         std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
         std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+        ProcessRunner* processRunner;
         Program* program;
         std::shared_ptr<MiKTeX::Core::Session> session;
         UI* ui;

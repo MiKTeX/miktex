@@ -16,6 +16,7 @@
 #endif
 
 #include <atomic>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <string>
@@ -83,6 +84,7 @@ class MiKTeXApp :
     public MiKTeX::Trace::TraceCallback,
     public OneMiKTeXUtility::Installer,
     public OneMiKTeXUtility::Logger,
+    public OneMiKTeXUtility::ProcessRunner,
     public OneMiKTeXUtility::Program,
     public OneMiKTeXUtility::UI
 {
@@ -177,6 +179,11 @@ private:
         return this->verbosityLevel;
     }
 
+    bool BeingQuiet() override
+    {
+        return this->quiet;
+    }
+
     void LogFatal(const std::string& message) override
     {
         LOG4CXX_FATAL(logger, message);
@@ -220,6 +227,8 @@ private:
     void FlushPendingTraceMessages();
 
     void LogTraceMessage(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
+
+    void RunProcess(const MiKTeX::Util::PathName& fileName, const std::vector<std::string>& arguments) override;
 
     std::vector<std::string> args;
     OneMiKTeXUtility::ApplicationContext ctx;
@@ -382,6 +391,33 @@ void MiKTeXApp::LogTraceMessage(const TraceCallback::TraceMessage& traceMessage)
     }
 }
 
+string Timestamp()
+{
+  auto now = time(nullptr);
+  stringstream s;
+  s << std::put_time(localtime(&now), "%Y-%m-%d-%H%M%S");
+  return s.str();
+}
+
+void MiKTeXApp::RunProcess(const PathName& fileName, const vector<string>& arguments)
+{
+    ProcessOutput<4096> output;
+    int exitCode;
+    MiKTeXException miktexException;
+    if (!Process::Run(fileName, arguments, &output, &exitCode, &miktexException, nullptr) || exitCode != 0)
+    {
+        auto outputBytes = output.GetStandardOutput();
+        PathName outfile = this->session->GetSpecialPath(SpecialPath::LogDirectory) / fileName.GetFileNameWithoutExtension();
+        outfile += "_";
+        outfile += Timestamp().c_str();
+        outfile.SetExtension(".out");
+        File::WriteBytes(outfile, outputBytes);
+        MIKTEX_ASSERT(isLog4cxxConfigured);
+        LOG4CXX_ERROR(logger, "sub-process error output has been saved to '" << outfile.ToDisplayString() << "'");
+        throw miktexException;
+    }
+}
+
 void MiKTeXApp::Verbose(int level, const string& s)
 {
     if (level >= 4)
@@ -498,6 +534,7 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     this->args = args;
     ctx.installer = this;
     ctx.logger = this;
+    ctx.processRunner = this;
     ctx.program = this;
     ctx.ui = this;
     RegisterTopics();

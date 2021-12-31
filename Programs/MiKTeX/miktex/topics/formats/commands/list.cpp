@@ -93,5 +93,9 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     }
     FormatsManager mgr;
     mgr.Init(ctx);
+    for (auto& f : mgr.Formats())
+    {
+        ctx.ui->Output(fmt::format("{0} ({1})", f.key, f.description));
+    }
     return 0;
 }
