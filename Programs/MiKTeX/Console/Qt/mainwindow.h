@@ -756,6 +756,9 @@ protected:
 protected:
   void RunIniTeXMF(const std::vector<std::string>& args);
 
+protected:
+  void RunOneMiKTeXUtility(const std::vector<std::string>& args);
+
 public:
   MiKTeX::Core::MiKTeXException GetMiKTeXException() const
   {

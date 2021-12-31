@@ -61,6 +61,10 @@ unique_ptr<Command> Commands::Remove()
 
 int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
+    if (ctx.session->IsSharedSetup() && !ctx.session->IsAdminMode())
+    {
+        ctx.ui->FatalError(T_("this command must be run in admin mode"));
+    }
     if (arguments.size() != 2)
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));

@@ -357,8 +357,8 @@ void Application::AutoMaintenance()
     mustUpdateDb = File::Exists(userPackageManifestsIni) && lastAdminUpdateDb > File::GetLastWriteTime(userPackageManifestsIni);
   }
 
-  PathName initexmf;
-  if ((mustRefreshFndb || mustRefreshUserLanguageDat || mustUpdateDb) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+  PathName oneMiKTeXUtility;
+  if ((mustRefreshFndb || mustRefreshUserLanguageDat || mustUpdateDb) && pimpl->session->FindFile(MIKTEX_MIKTEX_EXE, FileType::EXE, oneMiKTeXUtility))
   {
     unique_ptr<MiKTeX::Core::LockFile> lockFile = LockFile::Create(pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / PathName(MIKTEX_PATH_AUTO_MAINTENANCE_LOCK));
     if (!lockFile->TryLock(0ms))
@@ -382,7 +382,7 @@ void Application::AutoMaintenance()
       pimpl->installer->SetCallback(this);
       pimpl->installer->UpdateDb({ UpdateDbOption::FromCache });
     }
-    vector<string> commonArgs{ initexmf.GetFileNameWithoutExtension().ToString() };
+    vector<string> commonArgs{ oneMiKTeXUtility.GetFileNameWithoutExtension().ToString() };
     switch (pimpl->enableInstaller)
     {
     case TriState::False:
@@ -403,33 +403,33 @@ void Application::AutoMaintenance()
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
-      args.push_back("--update-fndb");
-      LOG4CXX_INFO(pimpl->logger, "running 'initexmf' to refresh the file name database");
+      args.insert(args.end(), { "fndb", "update" });
+      LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to refresh the file name database");
       pimpl->session->UnloadFilenameDatabase();
-      if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
+      if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
       {
-        LOG4CXX_ERROR(pimpl->logger, "initexmf exited with code " << exitCode);
+        LOG4CXX_ERROR(pimpl->logger, "One MiKTEX Utility exited with code " << exitCode);
       }
     }
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
-      args.push_back("--mkmaps");
-      LOG4CXX_INFO(pimpl->logger, "running 'initexmf' to create font map files");
-      if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
+      args.insert(args.end(), { "fontmaps", "update" });
+      LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to create font map files");
+      if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
       {
-        LOG4CXX_ERROR(pimpl->logger, "initexmf exited with code " << exitCode);
+        LOG4CXX_ERROR(pimpl->logger, "One MiKTEX Utility exited with code " << exitCode);
       }
     }
     if (mustRefreshUserLanguageDat)
     {
       MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
       vector<string> args = commonArgs;
-      args.push_back("--mklangs");
-      LOG4CXX_INFO(pimpl->logger, "running 'initexmf' to refresh language.dat");
-      if (!Process::Run(initexmf, args, nullptr, &exitCode, nullptr))
+      args.insert(args.end(), { "languages", "update" });
+      LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to refresh language.dat");
+      if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
       {
-        LOG4CXX_ERROR(pimpl->logger, "initexmf exited with code " << exitCode);
+        LOG4CXX_ERROR(pimpl->logger, "One MiKTeX Utility exited with code " << exitCode);
       }
     }
   }
@@ -791,14 +791,14 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
   {
   case FileType::BASE:
   case FileType::FMT:
-    if (!pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, makeUtility))
+    if (!pimpl->session->FindFile(MIKTEX_MIKTEX_EXE, FileType::EXE, makeUtility))
     {
-      MIKTEX_FATAL_ERROR(T_("The MiKTeX configuration utility (initexmf) could not be found."));
+      MIKTEX_FATAL_ERROR(T_("One MiKTeX Utility could not be found."));
     }
-    args.push_back("--dump-by-name="s + baseName.ToString());
+    args.insert(args.end(), { "formats", "update", "--name", baseName.ToString() });
     if (fileType == FileType::FMT)
     {
-      args.push_back("--engine="s + pimpl->session->GetEngineName());
+      args.insert(args.end(), { "--engine", pimpl->session->GetEngineName() });
     }
     break;
   case FileType::TFM:

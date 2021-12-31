@@ -1066,6 +1066,40 @@ void BackgroundWorker::RunIniTeXMF(const std::vector<std::string>& args)
   }
 }
 
+void BackgroundWorker::RunOneMiKTeXUtility(const std::vector<std::string>& args)
+{
+  shared_ptr<Session> session = MIKTEX_SESSION();
+  PathName oneMiKTeXUtility;
+  if (!session->FindFile(MIKTEX_MIKTEX_EXE, FileType::EXE, oneMiKTeXUtility))
+  {
+    MIKTEX_FATAL_ERROR(tr("One MiKTeX Utility could not be found.").toStdString());
+  }
+  vector<string> allArgs{
+    oneMiKTeXUtility.GetFileNameWithoutExtension().ToString(),
+  };
+  if (session->IsAdminMode())
+  {
+    allArgs.push_back("--admin");
+  }
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
+  ProcessOutput<4096> output;
+  int exitCode;
+  Process::Run(oneMiKTeXUtility, allArgs, &output, &exitCode, nullptr);
+  if (exitCode != 0)
+  {
+    auto outputBytes = output.GetStandardOutput();
+    PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / oneMiKTeXUtility.GetFileNameWithoutExtension();
+    outfile += "_";
+    outfile += Timestamp().c_str();
+    outfile.SetExtension(".out");
+    FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
+    outstream.Write(&outputBytes[0], outputBytes.size());
+    outstream.Close();
+    MIKTEX_FATAL_ERROR_2(tr("One MiKTeX Utility failed for some reason. The output has been saved to a file.").toStdString(),
+      "fileName", oneMiKTeXUtility.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+  }
+}
+
 bool RefreshFontMapsWorker::Run()
 {
   bool result = false;
@@ -1855,7 +1889,7 @@ bool ChangeLinkTargetDirectoryWorker::Run()
   try
   {
     shared_ptr<Session> session = MIKTEX_SESSION();
-    RunIniTeXMF({ "--remove-links" });
+    RunOneMiKTeXUtility({ "links", "remove" });
     if (session->IsSharedSetup())
     {
       session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
@@ -1864,7 +1898,7 @@ bool ChangeLinkTargetDirectoryWorker::Run()
     {
       session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
-    RunIniTeXMF({ "--mklinks" });
+    RunOneMiKTeXUtility({ "links", "update" });
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -2066,7 +2100,7 @@ bool BuildFormatsWorker::Run()
     for (const string& key : formats)
     {
       FormatInfo formatInfo = session->GetFormatInfo(key);
-      RunIniTeXMF({ "--dump="s + formatInfo.key });
+      RunOneMiKTeXUtility({ "formats", "update", "--name=", formatInfo.key });
     }
     result = true;
   }

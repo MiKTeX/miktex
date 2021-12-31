@@ -84,6 +84,10 @@ static const struct poptOption update_options[] =
 
 int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
+    if (ctx.session->IsSharedSetup() && !ctx.session->IsAdminMode())
+    {
+        ctx.ui->FatalError(T_("this command must be run in admin mode"));
+    }
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], update_options);
     int option;

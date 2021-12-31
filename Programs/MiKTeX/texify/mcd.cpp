@@ -1414,12 +1414,12 @@ void Driver::InstallProgram(const char* program)
 {
   ALWAYS_UNUSED(program);
   PathName pathExe;
-  if (!session->FindFile("initexmf", FileType::EXE, pathExe))
+  if (!session->FindFile("miktex", FileType::EXE, pathExe))
   {
-    FatalUtilityError("initexmf");
+    FatalUtilityError("miktex");
   }
   ProcessOutputTrash trash;
-  Process::Run(pathExe, vector<string>{ "initexmf", "--mklinks" }, (options->quiet ? &trash : nullptr));
+  Process::Run(pathExe, vector<string>{ "miktex", "links", "update" }, (options->quiet ? &trash : nullptr));
 }
 
 PathName Driver::GetTeXEnginePath(string& exeName)
