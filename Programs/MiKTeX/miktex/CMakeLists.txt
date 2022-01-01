@@ -90,8 +90,8 @@ list(APPEND miktex_sources
     topics/links/commands/LinksManager.cpp
     topics/links/commands/LinksManager.h
     topics/links/commands/commands.h
-    topics/links/commands/remove.cpp
-    topics/links/commands/update.cpp
+    topics/links/commands/install.cpp
+    topics/links/commands/uninstall.cpp
     topics/links/topic.cpp
     topics/links/topic.h
 )
