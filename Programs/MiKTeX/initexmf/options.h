@@ -82,18 +82,18 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "dump", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
+    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_DUMP,
-    T_("Create memory dump files."),
-    T_("KEY")
+    nullptr,
+    nullptr
   },
 
   {
     "dump-by-name", 0,
-    POPT_ARG_STRING, nullptr,
+    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_DUMP_BY_NAME,
-    T_("Create a memory dump file by name."),
-    T_("NAME")
+    nullptr,
+    nullptr
   },
 
   {
@@ -114,10 +114,10 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "engine", 0,
-    POPT_ARG_STRING, nullptr,
+    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_ENGINE,
-    T_("Engine to be used."),
-    T_("ENGINE")
+    nullptr,
+    nullptr
   },
 
   {
