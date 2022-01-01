@@ -795,7 +795,7 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
     {
       MIKTEX_FATAL_ERROR(T_("One MiKTeX Utility could not be found."));
     }
-    args.insert(args.end(), { "formats", "update", "--name", baseName.ToString() });
+    args.insert(args.end(), { "formats", "build", "--name", baseName.ToString() });
     if (fileType == FileType::FMT)
     {
       args.insert(args.end(), { "--engine", pimpl->session->GetEngineName() });

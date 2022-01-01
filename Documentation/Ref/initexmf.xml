@@ -98,14 +98,6 @@ must be <option>a4</option> or
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
 <varlistentry>
-<term><option>--list-formats</option></term>
-<listitem>
-<indexterm>
-<primary>--list-formats</primary>
-</indexterm>
-<para>List all known formats.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--list-modes</option></term>
 <listitem>
 <indexterm>

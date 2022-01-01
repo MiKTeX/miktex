@@ -770,12 +770,12 @@ void IniTeXMFApp::MakeFormatFiles(const vector<string>& formats)
 {
   if (formats.empty())
   {
-    RunOneMiKTeXUtility({ "formats", "update" });
+    RunOneMiKTeXUtility({ "formats", "build" });
     return;
   }
   for (const string& fmt : formats)
   {
-    RunOneMiKTeXUtility({ "formats", "update", "--name", fmt });
+    RunOneMiKTeXUtility({ "formats", "build", "--name", fmt });
   }
 }
 
@@ -783,7 +783,7 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, con
 {
   for (const string& name : formatsByName)
   {
-    vector<string> args{ "formats", "update", "--name", name };
+    vector<string> args{ "formats", "build", "--name", name };
     if (!engine.empty())
     {
       args.push_back("--engine");

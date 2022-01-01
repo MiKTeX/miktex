@@ -122,7 +122,7 @@ invoke the utility as follows:</para>
 
 <varlistentry>
 <term><citerefentry><refentrytitle>miktex-formats</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
-<listitem><para>Commands for managing the &TeX; formats.</para></listitem>
+<listitem><para>Commands for managing &TeX; formats.</para></listitem>
 </varlistentry>
 
 <varlistentry>

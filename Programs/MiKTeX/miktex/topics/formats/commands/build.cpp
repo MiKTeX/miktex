@@ -1,7 +1,7 @@
 /**
- * @file topics/formats/commands/update.cpp
+ * @file topics/formats/commands/build.cpp
  * @author Christian Schenk
- * @brief formats update
+ * @brief formats build
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -28,24 +28,24 @@
 
 namespace
 {
-    class UpdateCommand :
+    class BuildCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Update format files");
+            return T_("Build TeX format files");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "update";
+            return "build";
         }
 
         std::string Synopsis() override
         {
-            return "update [--engine=ENGINE] [--name=NAME]";
+            return "build [--engine=ENGINE] [--name=NAME]";
         }
     };
 }
@@ -58,9 +58,9 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Formats;
 
-unique_ptr<Command> Commands::Update()
+unique_ptr<Command> Commands::Build()
 {
-    return make_unique<UpdateCommand>();
+    return make_unique<BuildCommand>();
 }
 
 enum Option
@@ -90,7 +90,7 @@ static const struct poptOption options[] =
     POPT_TABLEEND
 };
 
-int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
@@ -127,7 +127,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
             {
                 continue;
             }
-            mgr.Update(f.key);
+            mgr.Build(f.key);
         }
     }
     else
@@ -140,7 +140,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
                 ctx.ui->FatalError(fmt::format(T_("{0}: cannot be built by {1}"), name, engine));
             }
         }
-        mgr.Update(name);
+        mgr.Build(name);
     }
     return 0;
 }

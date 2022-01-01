@@ -27,7 +27,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing format files");
+            return T_("Commands for managing TeX format files");
         }
 
         std::string Name() override
@@ -37,8 +37,8 @@ namespace
 
         void RegisterCommands() override
         {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::Build());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::List());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::Update());
         }
     };
 }

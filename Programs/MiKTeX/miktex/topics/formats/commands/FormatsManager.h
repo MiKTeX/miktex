@@ -1,7 +1,7 @@
 /**
  * @file topic/formats/commands/FormatsManager.h
  * @author Christian Schenk
- * @brief Update format files
+ * @brief Build TeX format files
  *
  * @copyright Copyright © 2002-2021 Christian Schenk
  *
@@ -9,9 +9,6 @@
  *
  * One MiKTeX Utility is licensed under GNU General Public
  * License version 2 or any later version.
- *
- * The code in this file is based on the updmap Perl script
- * (updmap.pl):
  */
 
 #include <string>
@@ -27,8 +24,8 @@ public:
 
     MiKTeX::Core::FormatInfo Format(const std::string& formatKey);
     std::vector<MiKTeX::Core::FormatInfo> Formats();
+    void Build(const std::string& formatKey);
     void Init(OneMiKTeXUtility::ApplicationContext& ctx);
-    void Update(const std::string& formatKey);
 
 private:
 

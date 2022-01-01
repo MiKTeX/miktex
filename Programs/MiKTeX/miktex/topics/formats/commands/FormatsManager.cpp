@@ -1,7 +1,7 @@
 /**
  * @file topic/formats/commands/FormatsManager.cpp
  * @author Christian Schenk
- * @brief Update format files
+ * @brief Build TeX format files
  *
  * @copyright Copyright © 2002-2021 Christian Schenk
  *
@@ -9,9 +9,6 @@
  *
  * One MiKTeX Utility is licensed under GNU General Public
  * License version 2 or any later version.
- *
- * The code in this file is based on the updmap Perl script
- * (updmap.pl):
  */
 
 #include <string>
@@ -42,7 +39,7 @@ void FormatsManager::Init(ApplicationContext& ctx)
     this->ctx = &ctx;
 }
 
-void FormatsManager::Update(const string& formatKey)
+void FormatsManager::Build(const string& formatKey)
 {
   if (find(this->formatsMade.begin(), this->formatsMade.end(), formatKey) != this->formatsMade.end())
   {
@@ -74,7 +71,7 @@ void FormatsManager::Update(const string& formatKey)
       this->ctx->ui->FatalError(fmt::format(T_("{0}: rule recursion"), formatKey));
     }
     // RECURSION
-    this->Update(formatInfo.preloaded);
+    this->Build(formatInfo.preloaded);
     arguments.push_back("--preload="s + formatInfo.preloaded);
   }
 

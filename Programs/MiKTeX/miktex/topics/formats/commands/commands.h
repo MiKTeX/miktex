@@ -19,6 +19,6 @@
 
 namespace OneMiKTeXUtility::Topics::Formats::Commands
 {
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Build();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
 }

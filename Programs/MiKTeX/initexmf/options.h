@@ -138,10 +138,10 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "list-formats", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_LIST_FORMATS,
-    T_("List formats."),
-    0
+    nullptr,
+    nullptr
   },
 
   {

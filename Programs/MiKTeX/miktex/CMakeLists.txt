@@ -44,67 +44,67 @@ list(APPEND miktex_sources
 )
 
 list(APPEND miktex_sources
-    topics/filesystem/topic.cpp
-    topics/filesystem/topic.h
     topics/filesystem/commands/commands.h
     topics/filesystem/commands/watch.cpp
+    topics/filesystem/topic.cpp
+    topics/filesystem/topic.h
 )
 
 list(APPEND miktex_sources
-    topics/fndb/topic.cpp
-    topics/fndb/topic.h
     topics/fndb/commands/commands.h
     topics/fndb/commands/remove.cpp
     topics/fndb/commands/update.cpp
+    topics/fndb/topic.cpp
+    topics/fndb/topic.h
 )
 
 list(APPEND miktex_sources
-    topics/fontmaps/topic.cpp
-    topics/fontmaps/topic.h
     topics/fontmaps/commands/FontMapManager.cpp
     topics/fontmaps/commands/FontMapManager.h
     topics/fontmaps/commands/commands.h
     topics/fontmaps/commands/set-option.cpp
     topics/fontmaps/commands/show-option.cpp
     topics/fontmaps/commands/update.cpp
+    topics/fontmaps/topic.cpp
+    topics/fontmaps/topic.h
 )
 
 list(APPEND miktex_sources
-    topics/formats/topic.cpp
-    topics/formats/topic.h
     topics/formats/commands/FormatsManager.cpp
     topics/formats/commands/FormatsManager.h
     topics/formats/commands/commands.h
+    topics/formats/commands/build.cpp
     topics/formats/commands/list.cpp
-    topics/formats/commands/update.cpp
+    topics/formats/topic.cpp
+    topics/formats/topic.h
 )
 
 list(APPEND miktex_sources
-    topics/languages/topic.cpp
-    topics/languages/topic.h
     topics/languages/commands/commands.h
     topics/languages/commands/update.cpp
+    topics/languages/topic.cpp
+    topics/languages/topic.h
 )
 
 list(APPEND miktex_sources
-    topics/links/topic.cpp
-    topics/links/topic.h
     topics/links/commands/LinksManager.cpp
     topics/links/commands/LinksManager.h
     topics/links/commands/commands.h
     topics/links/commands/remove.cpp
     topics/links/commands/update.cpp
+    topics/links/topic.cpp
+    topics/links/topic.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND miktex_sources
-        topics/filetypes/topic.cpp
-        topics/filetypes/topic.h
         topics/filetypes/commands/FileTypeManager.cpp
         topics/filetypes/commands/FileTypeManager.h
         topics/filetypes/commands/commands.h
         topics/filetypes/commands/register.cpp
         topics/filetypes/commands/unregister.cpp
+        topics/filetypes/topic.cpp
+        topics/filetypes/topic.h
     )
 endif()
 
