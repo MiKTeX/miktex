@@ -1,5 +1,5 @@
 /**
- * @file topics/formats/commands/list.cpp
+ * @file utilities/formats/commands/list.cpp
  * @author Christian Schenk
  * @brief formats list
  *

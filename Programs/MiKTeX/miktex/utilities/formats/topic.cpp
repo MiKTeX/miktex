@@ -1,5 +1,5 @@
 /**
- * @file topics/formats/topic.cpp
+ * @file utilities/formats/topic.cpp
  * @author Christian Schenk
  * @brief formats topic
  *

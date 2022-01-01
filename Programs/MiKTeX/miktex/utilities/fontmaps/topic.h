@@ -1,5 +1,5 @@
 /**
- * @file topics/fontmaps/topic.h
+ * @file utilities/fontmaps/topic.h
  * @author Christian Schenk
  * @brief fontmaps topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::FontMaps
 {

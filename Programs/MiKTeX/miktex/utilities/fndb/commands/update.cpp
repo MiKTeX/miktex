@@ -1,5 +1,5 @@
 /**
- * @file topics/fndb/commands/update.cpp
+ * @file utilities/fndb/commands/update.cpp
  * @author Christian Schenk
  * @brief fndb update
  *

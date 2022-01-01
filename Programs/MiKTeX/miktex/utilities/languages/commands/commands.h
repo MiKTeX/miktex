@@ -1,5 +1,5 @@
 /**
- * @file topics/languages/commands/commands.h
+ * @file utilities/languages/commands/commands.h
  * @author Christian Schenk
  * @brief languages commands
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Command.h"
+#include "utilities/Command.h"
 
 namespace OneMiKTeXUtility::Topics::Languages::Commands
 {

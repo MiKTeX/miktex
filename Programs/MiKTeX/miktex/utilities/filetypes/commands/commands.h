@@ -1,5 +1,5 @@
 /**
- * @file topics/filetypes/commands/commands.h
+ * @file utilities/filetypes/commands/commands.h
  * @author Christian Schenk
  * @brief filetypes commands
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Command.h"
+#include "utilities/Command.h"
 
 namespace OneMiKTeXUtility::Topics::FileTypes::Commands
 {

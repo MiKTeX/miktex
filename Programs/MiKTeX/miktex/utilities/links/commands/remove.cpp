@@ -1,5 +1,5 @@
 /**
- * @file topics/links/commands/remove.cpp
+ * @file utilities/links/commands/remove.cpp
  * @author Christian Schenk
  * @brief links remove
  *

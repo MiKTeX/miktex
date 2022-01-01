@@ -1,5 +1,5 @@
 /**
- * @file topics/fndb/commands/commands.h
+ * @file utilities/fndb/commands/commands.h
  * @author Christian Schenk
  * @brief fndb commands
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Command.h"
+#include "utilities/Command.h"
 
 namespace OneMiKTeXUtility::Topics::FNDB::Commands
 {

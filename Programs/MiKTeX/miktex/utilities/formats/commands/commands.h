@@ -1,5 +1,5 @@
 /**
- * @file topics/formats/commands/commands.h
+ * @file utilities/formats/commands/commands.h
  * @author Christian Schenk
  * @brief formats commands
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Command.h"
+#include "utilities/Command.h"
 
 namespace OneMiKTeXUtility::Topics::Formats::Commands
 {

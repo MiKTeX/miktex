@@ -1,5 +1,5 @@
 /**
- * @file topics/fndb/commands/remove.cpp
+ * @file utilities/fndb/commands/remove.cpp
  * @author Christian Schenk
  * @brief fndb remove
  *

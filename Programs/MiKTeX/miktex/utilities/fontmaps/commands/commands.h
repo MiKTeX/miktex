@@ -1,5 +1,5 @@
 /**
- * @file topics/fontmaps/commands/commands.h
+ * @file utilities/fontmaps/commands/commands.h
  * @author Christian Schenk
  * @brief fontmaps commands
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Command.h"
+#include "utilities/Command.h"
 
 namespace OneMiKTeXUtility::Topics::FontMaps::Commands
 {

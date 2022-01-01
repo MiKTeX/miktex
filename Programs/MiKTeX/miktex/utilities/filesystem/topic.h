@@ -1,5 +1,5 @@
 /**
- * @file topics/filesystem/topic.h
+ * @file utilities/filesystem/topic.h
  * @author Christian Schenk
  * @brief filesystem topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::FileSystem
 {

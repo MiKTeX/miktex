@@ -1,5 +1,5 @@
 /**
- * @file topics/languages/topic.h
+ * @file utilities/languages/topic.h
  * @author Christian Schenk
  * @brief languages topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::Languages
 {

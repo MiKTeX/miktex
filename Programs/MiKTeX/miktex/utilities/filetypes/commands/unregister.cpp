@@ -1,5 +1,5 @@
 /**
- * @file topics/filetypes/commands/unregister.cpp
+ * @file utilities/filetypes/commands/unregister.cpp
  * @author Christian Schenk
  * @brief filetypes register
  *

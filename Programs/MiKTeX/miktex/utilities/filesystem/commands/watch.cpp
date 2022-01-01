@@ -1,5 +1,5 @@
 /**
- * @file topics/filesystem/commands/watch.cpp
+ * @file utilities/filesystem/commands/watch.cpp
  * @author Christian Schenk
  * @brief filesystem watch
  *

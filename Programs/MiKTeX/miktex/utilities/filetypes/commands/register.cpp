@@ -1,5 +1,5 @@
 /**
- * @file topics/filetypes/commands/register.cpp
+ * @file utilities/filetypes/commands/register.cpp
  * @author Christian Schenk
  * @brief filetypes register
  *

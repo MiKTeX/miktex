@@ -1,5 +1,5 @@
 /**
- * @file topics/formats/topic.h
+ * @file utilities/formats/topic.h
  * @author Christian Schenk
  * @brief formats topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::Formats
 {

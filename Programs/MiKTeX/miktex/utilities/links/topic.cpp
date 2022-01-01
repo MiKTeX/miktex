@@ -1,5 +1,5 @@
 /**
- * @file topics/links/topic.cpp
+ * @file utilities/links/topic.cpp
  * @author Christian Schenk
  * @brief links topic
  *

@@ -1,5 +1,5 @@
 /**
- * @file topics/fontmaps/topic.cpp
+ * @file utilities/fontmaps/topic.cpp
  * @author Christian Schenk
  * @brief fontmaps topic
  *

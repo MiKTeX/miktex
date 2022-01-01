@@ -1,5 +1,5 @@
 /**
- * @file topics/links/topic.h
+ * @file utilities/links/topic.h
  * @author Christian Schenk
  * @brief links topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::Links
 {

@@ -61,16 +61,16 @@
 #include "shims/texlinks.h"
 #include "shims/updmap.h"
 
-#include "topics/Topic.h"
-#include "topics/filesystem/topic.h"
-#include "topics/fndb/topic.h"
-#include "topics/fontmaps/topic.h"
-#include "topics/formats/topic.h"
-#include "topics/languages/topic.h"
-#include "topics/links/topic.h"
+#include "utilities/Topic.h"
+#include "utilities/filesystem/topic.h"
+#include "utilities/fndb/topic.h"
+#include "utilities/fontmaps/topic.h"
+#include "utilities/formats/topic.h"
+#include "utilities/languages/topic.h"
+#include "utilities/links/topic.h"
 
 #if defined(MIKTEX_WINDOWS)
-#include "topics/filetypes/topic.h"
+#include "utilities/filetypes/topic.h"
 #endif
 
 const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
@@ -492,8 +492,8 @@ MIKTEXNORETURN void MiKTeXApp::IncorrectUsage(const string& message)
 void MiKTeXApp::ShowUsage()
 {
     cout
-        << fmt::format(T_("Usage: {0} [OPTION...] TOPIC COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
-        << T_("Topics:") << endl;
+        << fmt::format(T_("Usage: {0} [COMMON-OPTION...] UTILITY COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
+        << T_("Utilities:") << endl;
     for (auto& t : topics)
     {
         cout << fmt::format("  {0}  {1}", t.second->Name(), t.second->Description()) << endl;

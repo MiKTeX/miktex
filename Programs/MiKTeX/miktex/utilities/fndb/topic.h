@@ -1,5 +1,5 @@
 /**
- * @file topics/fndb/topic.h
+ * @file utilities/fndb/topic.h
  * @author Christian Schenk
  * @brief langufndbages topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::FNDB
 {

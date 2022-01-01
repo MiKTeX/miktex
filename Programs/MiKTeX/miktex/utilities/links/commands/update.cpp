@@ -1,5 +1,5 @@
 /**
- * @file topics/links/commands/update.cpp
+ * @file utilities/links/commands/update.cpp
  * @author Christian Schenk
  * @brief links update
  *

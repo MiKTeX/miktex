@@ -1,5 +1,5 @@
 /**
- * @file topics/fndb/topic.cpp
+ * @file utilities/fndb/topic.cpp
  * @author Christian Schenk
  * @brief dnsb topic
  *

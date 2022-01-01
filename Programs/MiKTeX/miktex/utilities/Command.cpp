@@ -1,5 +1,5 @@
 /**
- * @file topics/Command.cpp
+ * @file utilities/Command.cpp
  * @author Christian Schenk
  * @brief Command interface
  *

@@ -1,5 +1,5 @@
 /**
- * @file topics/fontmaps/commands/set-option.cpp
+ * @file utilities/fontmaps/commands/set-option.cpp
  * @author Christian Schenk
  * @brief fontmaps set-option
  *

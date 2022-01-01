@@ -1,5 +1,5 @@
 /**
- * @file topics/languages/commands/update.cpp
+ * @file utilities/languages/commands/update.cpp
  * @author Christian Schenk
  * @brief languages update
  *

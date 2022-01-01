@@ -1,5 +1,5 @@
 /**
- * @file topics/filetypes/topic.h
+ * @file utilities/filetypes/topic.h
  * @author Christian Schenk
  * @brief filetypes topic
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Topic.h"
+#include "utilities/Topic.h"
 
 namespace OneMiKTeXUtility::Topics::FileTypes
 {

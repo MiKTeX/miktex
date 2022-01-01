@@ -1,5 +1,5 @@
 /**
- * @file topics/Topic.cpp
+ * @file utilities/Topic.cpp
  * @author Christian Schenk
  * @brief Topic interface
  *

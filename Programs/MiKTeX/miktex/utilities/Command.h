@@ -1,5 +1,5 @@
 /**
- * @file topics/Command.h
+ * @file utilities/Command.h
  * @author Christian Schenk
  * @brief Command interface
  *

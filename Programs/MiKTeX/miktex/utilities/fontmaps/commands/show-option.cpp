@@ -1,5 +1,5 @@
 /**
- * @file topics/fontmaps/commands/show-option.cpp
+ * @file utilities/fontmaps/commands/show-option.cpp
  * @author Christian Schenk
  * @brief fontmaps show-option
  *

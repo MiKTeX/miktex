@@ -1,5 +1,5 @@
 /**
- * @file topics/links/commands/commands.h
+ * @file utilities/links/commands/commands.h
  * @author Christian Schenk
  * @brief links commands
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "topics/Command.h"
+#include "utilities/Command.h"
 
 namespace OneMiKTeXUtility::Topics::Links::Commands
 {
