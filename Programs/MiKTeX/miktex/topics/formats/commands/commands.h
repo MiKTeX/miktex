@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief formats commands
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *

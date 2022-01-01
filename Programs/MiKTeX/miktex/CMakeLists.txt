@@ -52,8 +52,8 @@ list(APPEND miktex_sources
 
 list(APPEND miktex_sources
     topics/fndb/commands/commands.h
+    topics/fndb/commands/refresh.cpp
     topics/fndb/commands/remove.cpp
-    topics/fndb/commands/update.cpp
     topics/fndb/topic.cpp
     topics/fndb/topic.h
 )

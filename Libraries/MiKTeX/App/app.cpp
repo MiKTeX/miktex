@@ -1,6 +1,6 @@
 /* app.cpp:
 
-   Copyright (C) 2005-2021 Christian Schenk
+   Copyright (C) 2005-2022 Christian Schenk
  
    This file is part of the MiKTeX App Library.
 
@@ -795,7 +795,8 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
     {
       MIKTEX_FATAL_ERROR(T_("One MiKTeX Utility could not be found."));
     }
-    args.insert(args.end(), { "formats", "build", "--name", baseName.ToString() });
+    // ASSUME: format key and name are the same
+    args.insert(args.end(), { "formats", "build", "--key", baseName.ToString() });
     if (fileType == FileType::FMT)
     {
       args.insert(args.end(), { "--engine", pimpl->session->GetEngineName() });

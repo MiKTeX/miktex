@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Build TeX format files
  *
- * @copyright Copyright © 2002-2021 Christian Schenk
+ * @copyright Copyright © 2002-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *

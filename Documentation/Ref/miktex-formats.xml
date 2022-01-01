@@ -48,21 +48,21 @@
 
 <variablelist>
 <varlistentry>
-<term><command>build</command> <optional><option>--engine=<replaceable>ENGINE</replaceable></option></optional> <optional><option>--name=<replaceable>NAME</replaceable></option></optional></term>
+<term><command>build</command> <optional><option>--engine=<replaceable>ENGINE</replaceable></option></optional> <optional><option>--key=<replaceable>KEY</replaceable></option></optional></term>
 <listitem>
 <indexterm>
 <primary>--dump</primary>
 </indexterm>
 <indexterm>
 <primary>format files</primary>
-<secondary>creating</secondary>
+<secondary>build</secondary>
 </indexterm>
 <para>Build &TeX; format files.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><command>list</command></term>
 <listitem>
-<para>List all formats.</para></listitem>
+<para>List &TeX; formats.</para></listitem>
 </varlistentry>
 </variablelist>
 

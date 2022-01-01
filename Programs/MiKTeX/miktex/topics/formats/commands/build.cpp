@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief formats build
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -45,7 +45,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "build [--engine=ENGINE] [--name=NAME]";
+            return "build [--engine=ENGINE] [--key=KEY]";
         }
     };
 }
@@ -67,7 +67,7 @@ enum Option
 {
     OPT_AAA = 1,
     OPT_ENGINE,
-    OPT_NAME,
+    OPT_KEY,
 };
 
 static const struct poptOption options[] =
@@ -80,11 +80,11 @@ static const struct poptOption options[] =
         T_("ENGINE")
     },
     {
-        "name", 0,
+        "key", 0,
         POPT_ARG_STRING, nullptr,
-        OPT_NAME,
-        T_("Specify the format name."),
-        "DIR"
+        OPT_KEY,
+        T_("Specify the format key."),
+        "KEY"
     },
     POPT_AUTOHELP
     POPT_TABLEEND
@@ -96,7 +96,7 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string engine;
-    string name;
+    string key;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
@@ -104,8 +104,8 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
         case OPT_ENGINE:
             engine = popt.GetOptArg();
             break;
-        case OPT_NAME:
-            name = popt.GetOptArg();
+        case OPT_KEY:
+            key = popt.GetOptArg();
             break;
         }
     }
@@ -119,7 +119,7 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     }
     FormatsManager mgr;
     mgr.Init(ctx);
-    if (name.empty())
+    if (key.empty())
     {
         for (auto& f : mgr.Formats())
         {
@@ -134,13 +134,13 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     {
         if (!engine.empty())
         {
-            auto formatInfo = mgr.Format(name);
+            auto formatInfo = mgr.Format(key);
             if (engine != formatInfo.compiler)
             {
-                ctx.ui->FatalError(fmt::format(T_("{0}: cannot be built by {1}"), name, engine));
+                ctx.ui->FatalError(fmt::format(T_("{0}: cannot be built by {1}"), key, engine));
             }
         }
-        mgr.Build(name);
+        mgr.Build(key);
     }
     return 0;
 }
