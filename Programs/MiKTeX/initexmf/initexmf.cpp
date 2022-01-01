@@ -896,7 +896,7 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
 
 void IniTeXMFApp::MakeMaps(bool force)
 {
-  vector<string> arguments{"fontmaps", "update"};
+  vector<string> arguments{"fontmaps", "refresh"};
   if (force)
   {
     arguments.push_back("--force");

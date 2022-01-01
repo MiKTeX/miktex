@@ -414,7 +414,7 @@ void Application::AutoMaintenance()
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
-      args.insert(args.end(), { "fontmaps", "update" });
+      args.insert(args.end(), { "fontmaps", "refresh" });
       LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to create font map files");
       if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
       {

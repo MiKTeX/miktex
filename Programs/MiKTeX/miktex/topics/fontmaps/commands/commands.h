@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief fontmaps commands
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -19,7 +19,7 @@
 
 namespace OneMiKTeXUtility::Topics::FontMaps::Commands
 {
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Refresh();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> SetOption();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> ShowOption();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
 }

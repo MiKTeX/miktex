@@ -1,9 +1,9 @@
 /**
- * @file topics/fontmaps/commands/update.cpp
+ * @file topics/fontmaps/commands/refresh.cpp
  * @author Christian Schenk
- * @brief fontmaps update
+ * @brief fontmaps refresh
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -28,24 +28,24 @@
 
 namespace
 {
-    class UpdateCommand :
+    class RefreshCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Update TeX font map files");
+            return T_("Refresh TeX font map files");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "update";
+            return "refresh";
         }
 
         std::string Synopsis() override
         {
-            return "update [--force] [--output-directory=DIR]";
+            return "refresh [--force] [--output-directory=DIR]";
         }
     };
 }
@@ -58,9 +58,9 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::FontMaps;
 
-unique_ptr<Command> Commands::Update()
+unique_ptr<Command> Commands::Refresh()
 {
-    return make_unique<UpdateCommand>();
+    return make_unique<RefreshCommand>();
 }
 
 enum Option
@@ -90,7 +90,7 @@ static const struct poptOption options[] =
     POPT_TABLEEND
 };
 
-int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int RefreshCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);

@@ -1071,7 +1071,7 @@ bool RefreshFontMapsWorker::Run()
   bool result = false;
   try
   {
-    RunOneMiKTeXUtility({ "fontmaps", "update" });
+    RunOneMiKTeXUtility({ "fontmaps", "refresh" });
     result = true;
   }
   catch (const MiKTeXException& e)

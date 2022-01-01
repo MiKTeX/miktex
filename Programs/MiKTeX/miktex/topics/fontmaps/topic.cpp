@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief fontmaps topic
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -37,9 +37,9 @@ namespace
 
         void RegisterCommands() override
         {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Refresh());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::SetOption());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::ShowOption());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Update());
         }
     };
 }

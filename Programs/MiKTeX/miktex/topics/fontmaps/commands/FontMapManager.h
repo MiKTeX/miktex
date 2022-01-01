@@ -1,9 +1,9 @@
 /**
  * @file topic/fontmaps/commands/FontMapManager.h
  * @author Christian Schenk
- * @brief Update TeX font map files
+ * @brief Refresh TeX font map files
  *
- * @copyright Copyright © 2002-2021 Christian Schenk
+ * @copyright Copyright © 2002-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *

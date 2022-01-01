@@ -122,6 +122,6 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
     }
     else
     {
-        arguments = { "fontmaps", "update" };
+        arguments = { "fontmaps", "refresh" };
     }
 }

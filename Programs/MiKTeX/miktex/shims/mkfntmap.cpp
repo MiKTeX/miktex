@@ -24,5 +24,5 @@ using namespace OneMiKTeXUtility;
 
 void Shims::mkfntmap(vector<string>& arguments)
 {
-    arguments.insert(arguments.begin(), { "fontmaps", "update" });
+    arguments.insert(arguments.begin(), { "fontmaps", "refresh" });
 }
