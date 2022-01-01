@@ -391,12 +391,6 @@ private:
   ofstream logStream;
 
 private:
-  bool isMktexlsrMode = false;
-
-private:
-  bool isTexlinksMode = false;
-  
-private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
@@ -410,12 +404,6 @@ private:
 
 private:
   static const struct poptOption options[];
-
-private:
-  static const struct poptOption options_mktexlsr[];
-
-private:
-  static const struct poptOption options_texlinks[];
 };
 
 enum Option
@@ -474,88 +462,6 @@ enum Option
 };
 
 #include "options.h"
-
-const struct poptOption IniTeXMFApp::options_mktexlsr[] = {
-  {
-    "dry-run", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_PRINT_ONLY,
-    T_("Print what would be done."),
-    nullptr
-  },
-
-  {
-    "quiet", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_QUIET,
-    T_("Suppress screen output."),
-    nullptr
-  },
-
-  {
-    "silent", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_QUIET,
-    T_("Same as --quiet."),
-    nullptr
-  },
-
-  {
-    "verbose", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_VERBOSE,
-    T_("Print information on what is being done."),
-    nullptr
-  },
-
-  {
-    "version", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_VERSION,
-    T_("Print version information and exit."),
-    nullptr
-  },
-
-  POPT_AUTOHELP
-  POPT_TABLEEND
-};
-
-const struct poptOption IniTeXMFApp::options_texlinks[] = {
-  {
-    "quiet", 'q',
-    POPT_ARG_NONE, nullptr,
-    OPT_QUIET,
-    T_("Suppress screen output."),
-    nullptr
-  },
-
-  {
-    "silent", 's',
-    POPT_ARG_NONE, nullptr,
-    OPT_QUIET,
-    T_("Same as --quiet."),
-    nullptr
-  },
-
-  {
-    "verbose", 'v',
-    POPT_ARG_NONE, nullptr,
-    OPT_VERBOSE,
-    T_("Print information on what is being done."),
-    nullptr
-  },
-
-  {
-    "version", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_VERSION,
-    T_("Print version information and exit."),
-    nullptr
-  },
-
-  POPT_AUTOHELP
-  POPT_TABLEEND
-};
 
 IniTeXMFApp::IniTeXMFApp()
 {
@@ -650,8 +556,6 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
   }
   PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
-  isMktexlsrMode = myName == PathName("mktexlsr") || myName == PathName("texhash");
-  isTexlinksMode = myName == PathName("texlinks");
   session->SetFindFileCallback(this);
 }
 
@@ -1297,7 +1201,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   bool optMakeMaps = false;
   bool optListFormats = false;
   bool optListModes = false;
-  bool optMakeLinks = isTexlinksMode;
+  bool optMakeLinks = false;
 #if defined(MIKTEX_WINDOWS)
   bool optNoRegistry = false;
 #endif
@@ -1306,23 +1210,12 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   bool optRemoveLinks = false;
   bool optModifyPath = false;
   bool optReport = false;
-  bool optUpdateFilenameDatabase = isMktexlsrMode;
+  bool optUpdateFilenameDatabase = false;
   bool optVersion = false;
 
   const struct poptOption* aoptions;
 
-  if (isMktexlsrMode)
-  {
-    aoptions = options_mktexlsr;
-  }
-  else if (isTexlinksMode)
-  {
-    aoptions = options_texlinks;
-  }
-  else
-  {
-    aoptions = options;
-  }
+  aoptions = options;
 
   PoptWrapper popt(argc, argv, aoptions);
 

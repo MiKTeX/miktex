@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Links manager
  *
- * @copyright Copyright © 2002-2021 Christian Schenk
+ * @copyright Copyright © 2002-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -434,16 +434,16 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { "miktexsetup" MIKTEX_EXE_FILE_SUFFIX, { "miktexsetup" MIKTEX_EXE_FILE_SUFFIX } },
 #endif
 #if defined(WITH_MKTEXLSR)
-  { MIKTEX_INITEXMF_EXE, { "mktexlsr" }, LinkType::Copy },
+  { MIKTEX_MIKTEX_EXE, { "mktexlsr" }, LinkType::Copy },
 #endif
 #if defined(WITH_TEXHASH)
-  { MIKTEX_INITEXMF_EXE, { "texhash" }, LinkType::Copy },
+  { MIKTEX_MIKTEX_EXE, { "texhash" }, LinkType::Copy },
 #endif
 #if defined(WITH_TEXLINKS)
-  { MIKTEX_INITEXMF_EXE, { "texlinks" }, LinkType::Copy },
+  { MIKTEX_MIKTEX_EXE, { "texlinks" }, LinkType::Copy },
 #endif
 #if defined(WITH_UPDMAP)
-  { MIKTEX_MIKTEX_EXE, { "updmap" } },
+  { MIKTEX_MIKTEX_EXE, { "updmap" }, LinkType::Copy },
 #endif
 #if defined(WITH_TEXDOC)
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },

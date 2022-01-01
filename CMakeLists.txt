@@ -1,6 +1,6 @@
 ## CMakeLists.txt: top-level CMake file for building MiKTeX
 ##
-## Copyright (C) 2006-2021 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -560,32 +560,32 @@ option(
 
 option(
   WITH_MKTEXLSR
-  ""
-  ${WIN32}
+  "Create mktexlsr, a symbolic link to One MiKTeX Utility."
+  TRUE
 )
 
 option(
   WITH_TEXHASH
-  ""
-  ${WIN32}
+  "Create texhash, a symbolic link to One MiKTeX Utility."
+  TRUE
 )
 
 option(
   WITH_TEXLINKS
-  ""
-  ${WIN32}
+  "Create texlinks, a symbolic link to One MiKTeX Utility."
+  TRUE
 )
 
 option(
   WITH_TEXDOC
-  ""
-  ${WIN32}
+  "Create texdoc, a symbolic link to MiKTeX Help Utility."
+  TRUE
 )
 
 option(
   WITH_UPDMAP
-  ""
-  ${WIN32}
+  "Create updmap, a symbolic link to One MiKTeX Utility."
+  TRUE
 )
 
 if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)

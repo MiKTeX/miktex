@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Main program
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -57,6 +57,8 @@
 #include "internal.h"
 
 #include "shims/mkfntmap.h"
+#include "shims/mktexlsr.h"
+#include "shims/texlinks.h"
 #include "shims/updmap.h"
 
 #include "topics/Topic.h"
@@ -678,6 +680,18 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     if (programName == "mkfntmap")
     {
         Shims::mkfntmap(newargs);
+    }
+    else if (programName == "mktexlsr")
+    {
+        Shims::mktexlsr(&ctx, newargs);
+    }
+    else if (programName == "texhash")
+    {
+        Shims::mktexlsr(&ctx, newargs);
+    }
+    else if (programName == "texlinks")
+    {
+        Shims::texlinks(&ctx, newargs);
     }
     else if (programName == "updmap")
     {

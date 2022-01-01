@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2021 Christian Schenk
+## Copyright (C) 2021-2022 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -31,6 +31,10 @@ list(APPEND miktex_sources
     miktex.cpp
     shims/mkfntmap.cpp
     shims/mkfntmap.h
+    shims/mktexlsr.cpp
+    shims/mktexlsr.h
+    shims/texlinks.cpp
+    shims/texlinks.h
     shims/updmap.cpp
     shims/updmap.h
     topics/Command.cpp
