@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -136,10 +136,12 @@ set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-bibtex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvicopy.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvips.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-fndb.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-gftodvi.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-luatex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-mf.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-mpost.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-pdftex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-tex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-xetex.xml
@@ -406,6 +408,7 @@ set(generated_man1_pages
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}bibtex.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvips.1
+  ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}fndb.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}gftodvi.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}luatex.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mf.1
@@ -415,6 +418,7 @@ set(generated_man1_pages
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}xetex.1
   ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.1
   ${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
+  ${CMAKE_CURRENT_BINARY_DIR}/miktex.1
   ${CMAKE_CURRENT_BINARY_DIR}/mpm.1
   ${CMAKE_CURRENT_BINARY_DIR}/mthelp.1
   ${CMAKE_CURRENT_BINARY_DIR}/texify.1

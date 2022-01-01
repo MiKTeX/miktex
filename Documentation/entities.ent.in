@@ -39,6 +39,7 @@
 <!ENTITY MiKTeXconfigurationdatastore "&MiKTeX; configuration data store">
 <!ENTITY MiKTeXpdfTeX "<application>MiKTeX-pdfTeX</application>">
 <!ENTITY Omega "<application>Omega</application>">
+<!ENTITY OneMiKTeXUtility "<application>One MiKTeX Utility</application>">
 <!ENTITY PACKAGE_NAME "${PACKAGE_NAME}">
 <!ENTITY PDF "<acronym>PDF</acronym>">
 <!ENTITY PNG "<acronym>PNG</acronym>">
@@ -76,6 +77,7 @@
 <!ENTITY initexmf "<command>${MIKTEX_PROG_NAME_INITEXMF}</command>">
 <!ENTITY macOS "<application>macOS</application>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
+<!ENTITY miktex "<command>miktex</command>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
 <!ENTITY miktexgftodvi "<command>${MIKTEX_PREFIX}gftodvi</command>">
 <!ENTITY miktexmf "<command>${MIKTEX_PREFIX}mf</command>">

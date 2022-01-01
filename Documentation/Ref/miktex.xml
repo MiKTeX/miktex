@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<refentry id="miktex">
+
+<?dbhh topicname="MIKTEXHELP_MIKTEX" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex</refname>
+<refpurpose>&OneMiKTeXUtility;</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&miktex;
+<arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
+<arg choice="plain"><replaceable>utility</replaceable></arg>
+<arg choice="plain"><replaceable>command</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&miktex; combines multiple &MiKTeX; utilities into a single program.</para>
+
+</refsect1>
+
+<refsect1>
+<title>User mode vs. administrator mode</title>
+
+<para>This program can be run in two modes:</para>
+
+<variablelist>
+<varlistentry>
+<term>User mode (default)</term>
+<listitem>
+<para>&MiKTeX; operates on user-scoped configuration and data files.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Administrator mode</term>
+<listitem>
+<para>Only system-wide &MiKTeX; configuration and data files are
+modified, assuming that the &MiKTeX; setup is shared by all users.
+The program must be run with administrator privileges.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>By default, the program runs in user mode.  You can turn on
+administrator mode with the <option>--admin</option> option.  For
+example, if you want to update the system-wide file name database, you
+invoke the program as follows:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>miktex --admin fndb update</userinput></screen>
+
+</refsect1>
+
+<refsect1>
+
+<title>Common options</title>
+
+<variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
+<varlistentry>
+<term><option>--quiet</option></term>
+<listitem>
+<indexterm>
+<primary>--quiet</primary>
+</indexterm>
+<para>Suppress screen output.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--verbose</option></term>
+<listitem>
+<indexterm>
+<primary>--verbose</primary>
+</indexterm>
+<para>Increase the verbosity level.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--version</option></term>
+<listitem>
+<indexterm>
+<primary>--version</primary>
+</indexterm>
+<para>Print the version number and exit.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Utilities</title>
+
+<variablelist>
+
+<varlistentry>
+<term><citerefentry><refentrytitle>miktex-fndb</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Manage the &MiKTeX; file name database.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex.ini</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
+</simplelist>
+
+</refsect1>
+
+</refentry>

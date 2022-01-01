@@ -62,11 +62,7 @@ The utility must be run with administrator privileges.</para>
 </variablelist>
 
 <para>By default, the utility runs in user mode.  You can turn on
-administrator mode with the <option>--admin</option> option.  For
-example, if you want to update the system-wide file name database, you
-invoke the utility as follows:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>initexmf --admin --update-fndb</userinput></screen>
+administrator mode with the <option>--admin</option> option.</para>
 
 </refsect1>
 
@@ -259,18 +255,6 @@ executables.</para>
 </indexterm>
 <para>Unregister a &TEXMF; root directory.</para>
 </listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update-fndb</option></term>
-<listitem>
-<indexterm>
-<primary>--update-fndb</primary>
-</indexterm>
-<indexterm>
-<primary>file name datasbase</primary>
-<secondary>refreshing</secondary>
-</indexterm>
-<para>Refresh the whole file name database.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--user-roots=<replaceable>directories</replaceable></option></term>
