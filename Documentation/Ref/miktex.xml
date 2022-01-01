@@ -120,6 +120,11 @@ invoke the utility as follows:</para>
 <listitem><para>Commands for managing the &MiKTeX; file name database.</para></listitem>
 </varlistentry>
 
+<varlistentry>
+<term><citerefentry><refentrytitle>miktex-links</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing links from scripts and formats to exectuables.</para></listitem>
+</varlistentry>
+
 </variablelist>
 
 </refsect1>

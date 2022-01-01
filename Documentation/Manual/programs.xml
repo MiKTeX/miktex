@@ -16,6 +16,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-gftodvi.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/initexmf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-fndb.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-links.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-luatex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-mf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-mpost.xml" />

@@ -122,16 +122,6 @@ must be <option>a4</option> or
 <listitem><para>Engine to be used when generating format files.</para></listitem>  
 </varlistentry>
 <varlistentry>
-<term><option>--force</option></term>
-<listitem>
-<indexterm>
-<primary>--force</primary>
-</indexterm>
-<para>Force <option>--mklinks</option> to overwrite existing
-executables.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--list-formats</option></term>
 <listitem>
 <indexterm>
@@ -160,14 +150,6 @@ executables.</para>
 <para>Create <filename>language.dat</filename>,
 <filename>language.dat.lua</filename> and
 <filename>language.def</filename>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--mklinks</option></term>
-<listitem>
-<indexterm>
-<primary>--mklinks</primary>
-</indexterm>
-<para>Create all possible links.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--mkmaps</option></term>

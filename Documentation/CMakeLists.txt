@@ -138,6 +138,7 @@ set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvips.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-fndb.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-gftodvi.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-links.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-luatex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-mf.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-mpost.xml
@@ -410,6 +411,7 @@ set(generated_man1_pages
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvips.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}fndb.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}gftodvi.1
+  ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}links.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}luatex.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mf.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mpost.1
