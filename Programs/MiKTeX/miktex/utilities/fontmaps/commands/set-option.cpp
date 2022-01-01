@@ -29,7 +29,7 @@
 namespace
 {
     class SetOptionCommand :
-        public OneMiKTeXUtility::Topics::Command
+        public OneMiKTeXUtility::Utilities::Command
     {
         std::string Description() override
         {
@@ -55,8 +55,8 @@ using namespace std;
 using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::FontMaps;
+using namespace OneMiKTeXUtility::Utilities;
+using namespace OneMiKTeXUtility::Utilities::FontMaps;
 
 unique_ptr<Command> Commands::SetOption()
 {

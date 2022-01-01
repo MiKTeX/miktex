@@ -17,7 +17,7 @@
 
 #include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::Languages
+namespace OneMiKTeXUtility::Utilities::Languages
 {
-    std::unique_ptr<Topics::Topic> Create();
+    std::unique_ptr<Utilities::Utility> Create();
 }

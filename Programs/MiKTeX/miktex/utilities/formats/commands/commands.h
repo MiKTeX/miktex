@@ -17,8 +17,8 @@
 
 #include "utilities/Command.h"
 
-namespace OneMiKTeXUtility::Topics::Formats::Commands
+namespace OneMiKTeXUtility::Utilities::Formats::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> List();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Update();
 }

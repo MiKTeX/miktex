@@ -30,7 +30,7 @@
 namespace
 {
     class WatchCommand :
-        public OneMiKTeXUtility::Topics::Command
+        public OneMiKTeXUtility::Utilities::Command
     {
         std::string Description() override
         {
@@ -57,8 +57,8 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
 using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::FileSystem;
+using namespace OneMiKTeXUtility::Utilities;
+using namespace OneMiKTeXUtility::Utilities::FileSystem;
 
 unique_ptr<Command> Commands::Watch()
 {

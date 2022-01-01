@@ -27,7 +27,7 @@
 namespace
 {
     class RemoveCommand :
-        public OneMiKTeXUtility::Topics::Command
+        public OneMiKTeXUtility::Utilities::Command
     {
         std::string Description() override
         {
@@ -51,8 +51,8 @@ namespace
 using namespace std;
 
 using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::Links;
+using namespace OneMiKTeXUtility::Utilities;
+using namespace OneMiKTeXUtility::Utilities::Links;
 
 unique_ptr<Command> Commands::Remove()
 {

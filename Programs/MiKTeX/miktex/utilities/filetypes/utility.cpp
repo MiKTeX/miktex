@@ -22,8 +22,8 @@
 
 namespace
 {
-    class FileTypesTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class FileTypesUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,13 +37,13 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Register());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Unregister());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FileTypes::Commands::Register());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FileTypes::Commands::Unregister());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileTypes::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::FileTypes::Create()
 {
-    return std::make_unique<FileTypesTopic>();
+    return std::make_unique<FileTypesUtility>();
 }

@@ -32,7 +32,7 @@
 namespace
 {
     class UpdateCommand :
-        public OneMiKTeXUtility::Topics::Command
+        public OneMiKTeXUtility::Utilities::Command
     {
         std::string Description() override
         {
@@ -61,8 +61,8 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::Util;
 
 using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::FNDB;
+using namespace OneMiKTeXUtility::Utilities;
+using namespace OneMiKTeXUtility::Utilities::FNDB;
 
 unique_ptr<Command> Commands::Update()
 {

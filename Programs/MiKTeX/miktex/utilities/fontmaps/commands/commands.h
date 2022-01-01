@@ -17,9 +17,9 @@
 
 #include "utilities/Command.h"
 
-namespace OneMiKTeXUtility::Topics::FontMaps::Commands
+namespace OneMiKTeXUtility::Utilities::FontMaps::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> SetOption();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> ShowOption();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> SetOption();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> ShowOption();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Update();
 }

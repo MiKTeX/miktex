@@ -22,8 +22,8 @@
 
 namespace
 {
-    class FontMapsTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class FontMapsUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,14 +37,14 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::SetOption());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::ShowOption());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FontMaps::Commands::SetOption());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FontMaps::Commands::ShowOption());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FontMaps::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FontMaps::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::FontMaps::Create()
 {
-    return std::make_unique<FontMapsTopic>();
+    return std::make_unique<FontMapsUtility>();
 }

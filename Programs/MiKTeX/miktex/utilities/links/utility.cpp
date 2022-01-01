@@ -22,8 +22,8 @@
 
 namespace
 {
-    class LinksTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class LinksUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,13 +37,13 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Remove());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::Links::Commands::Remove());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::Links::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Links::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::Links::Create()
 {
-    return std::make_unique<LinksTopic>();
+    return std::make_unique<LinksUtility>();
 }

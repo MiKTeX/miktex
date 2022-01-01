@@ -17,7 +17,7 @@
 
 #include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::FileSystem
+namespace OneMiKTeXUtility::Utilities::FileSystem
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Topic> Create();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> Create();
 }

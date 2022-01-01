@@ -22,8 +22,8 @@
 
 namespace
 {
-    class LanguagesTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class LanguagesUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,12 +37,12 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::Languages::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Languages::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::Languages::Create()
 {
-    return std::make_unique<LanguagesTopic>();
+    return std::make_unique<LanguagesUtility>();
 }

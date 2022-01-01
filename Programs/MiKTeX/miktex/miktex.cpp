@@ -102,18 +102,18 @@ private:
 
     void RegisterTopics()
     {
-        RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
-        RegisterTopic(OneMiKTeXUtility::Topics::FNDB::Create());
-        RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
-        RegisterTopic(OneMiKTeXUtility::Topics::Formats::Create());
-        RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
-        RegisterTopic(OneMiKTeXUtility::Topics::Links::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::FileSystem::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::FNDB::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::FontMaps::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::Formats::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::Languages::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::Links::Create());
 #if defined(MIKTEX_WINDOWS)
-        RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
+        RegisterTopic(OneMiKTeXUtility::Utilities::FileTypes::Create());
 #endif
     }
 
-    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Topics::Topic> t)
+    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> t)
     {
         auto name = t->Name();
         this->topics[name] = std::move(t);
@@ -241,7 +241,7 @@ private:
     std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
     bool quiet = false;
     std::shared_ptr<MiKTeX::Core::Session> session;
-    std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Topics::Topic>> topics;
+    std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Utilities::Utility>> topics;
     int verbosityLevel = 0;
 };
 

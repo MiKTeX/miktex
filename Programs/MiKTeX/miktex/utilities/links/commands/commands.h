@@ -17,8 +17,8 @@
 
 #include "utilities/Command.h"
 
-namespace OneMiKTeXUtility::Topics::Links::Commands
+namespace OneMiKTeXUtility::Utilities::Links::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Remove();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Remove();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Update();
 }

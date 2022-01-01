@@ -17,7 +17,7 @@
 
 #include "utilities/Command.h"
 
-namespace OneMiKTeXUtility::Topics::Languages::Commands
+namespace OneMiKTeXUtility::Utilities::Languages::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Update();
 }

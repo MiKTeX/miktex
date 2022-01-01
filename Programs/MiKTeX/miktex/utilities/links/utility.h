@@ -17,7 +17,7 @@
 
 #include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::Links
+namespace OneMiKTeXUtility::Utilities::Links
 {
-    std::unique_ptr<Topics::Topic> Create();
+    std::unique_ptr<Utilities::Utility> Create();
 }

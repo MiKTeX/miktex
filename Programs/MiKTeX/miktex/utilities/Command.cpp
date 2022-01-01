@@ -13,7 +13,7 @@
 
 #include "Command.h"
 
-using namespace OneMiKTeXUtility::Topics;
+using namespace OneMiKTeXUtility::Utilities;
 
 Command::~Command() noexcept
 {

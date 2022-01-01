@@ -17,8 +17,8 @@
 
 #include "utilities/Command.h"
 
-namespace OneMiKTeXUtility::Topics::FileTypes::Commands
+namespace OneMiKTeXUtility::Utilities::FileTypes::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Register();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Unregister();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Register();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Unregister();
 }

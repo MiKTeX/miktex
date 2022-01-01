@@ -29,7 +29,7 @@
 namespace
 {
     class UpdateCommand :
-        public OneMiKTeXUtility::Topics::Command
+        public OneMiKTeXUtility::Utilities::Command
     {
         std::string Description() override
         {
@@ -55,8 +55,8 @@ using namespace std;
 using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::Links;
+using namespace OneMiKTeXUtility::Utilities;
+using namespace OneMiKTeXUtility::Utilities::Links;
 
 unique_ptr<Command> Commands::Update()
 {

@@ -22,8 +22,8 @@
 
 namespace
 {
-    class FileSystemTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class FileSystemUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,12 +37,12 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FileSystem::Commands::Watch());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FileSystem::Commands::Watch());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::FileSystem::Create()
 {
-    return std::make_unique<FileSystemTopic>();
+    return std::make_unique<FileSystemUtility>();
 }

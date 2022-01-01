@@ -20,7 +20,7 @@
 
 #include "internal.h"
 
-namespace OneMiKTeXUtility::Topics
+namespace OneMiKTeXUtility::Utilities
 {
     class MIKTEXNOVTABLE Command
     {

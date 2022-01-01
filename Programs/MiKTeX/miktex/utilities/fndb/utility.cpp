@@ -22,8 +22,8 @@
 
 namespace
 {
-    class FNDBTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class FNDBUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,13 +37,13 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Remove());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FNDB::Commands::Remove());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::FNDB::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FNDB::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::FNDB::Create()
 {
-    return std::make_unique<FNDBTopic>();
+    return std::make_unique<FNDBUtility>();
 }

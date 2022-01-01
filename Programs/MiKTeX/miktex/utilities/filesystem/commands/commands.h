@@ -17,7 +17,7 @@
 
 #include "utilities/Command.h"
 
-namespace OneMiKTeXUtility::Topics::FileSystem::Commands
+namespace OneMiKTeXUtility::Utilities::FileSystem::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Watch();
+    std::unique_ptr<OneMiKTeXUtility::Utilities::Command> Watch();
 }

@@ -1,7 +1,7 @@
 /**
- * @file utilities/Topic.cpp
+ * @file utilities/Utility.cpp
  * @author Christian Schenk
- * @brief Topic interface
+ * @brief Utility interface
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -23,28 +23,28 @@
 
 #include "Command.h"
 
-namespace OneMiKTeXUtility::Topics
+namespace OneMiKTeXUtility::Utilities
 {
-    class MIKTEXNOVTABLE Topic
+    class MIKTEXNOVTABLE Utility
     {
     public:
-        virtual MIKTEXTHISCALL ~Topic() noexcept = 0;
+        virtual MIKTEXTHISCALL ~Utility() noexcept = 0;
         virtual std::string Description() = 0;
         virtual int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) = 0;
         virtual std::string Name() = 0;
     };
 
-    class TopicBase :
-        public Topic
+    class UtilityBase :
+        public Utility
     {
     protected:
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
-        void RegisterCommand(std::unique_ptr<OneMiKTeXUtility::Topics::Command> c)
+        void RegisterCommand(std::unique_ptr<OneMiKTeXUtility::Utilities::Command> c)
         {
             auto name = c->Name();
             this->commands[name] = std::move(c);
         }
         virtual void RegisterCommands() = 0;
-        std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Topics::Command>> commands;
+        std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Utilities::Command>> commands;
     };
 }

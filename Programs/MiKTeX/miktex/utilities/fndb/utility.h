@@ -17,7 +17,7 @@
 
 #include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::FNDB
+namespace OneMiKTeXUtility::Utilities::FNDB
 {
-    std::unique_ptr<Topics::Topic> Create();
+    std::unique_ptr<Utilities::Utility> Create();
 }

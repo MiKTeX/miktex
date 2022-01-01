@@ -22,8 +22,8 @@
 
 namespace
 {
-    class FormatsTopic :
-        public OneMiKTeXUtility::Topics::TopicBase
+    class FormatsUtility :
+        public OneMiKTeXUtility::Utilities::UtilityBase
     {
         std::string Description() override
         {
@@ -37,13 +37,13 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::List());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::Formats::Commands::List());
+            this->RegisterCommand(OneMiKTeXUtility::Utilities::Formats::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Formats::Create()
+std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> OneMiKTeXUtility::Utilities::Formats::Create()
 {
-    return std::make_unique<FormatsTopic>();
+    return std::make_unique<FormatsUtility>();
 }

@@ -1,7 +1,7 @@
 /**
- * @file utilities/Topic.cpp
+ * @file utilities/Utility.cpp
  * @author Christian Schenk
- * @brief Topic interface
+ * @brief Utility interface
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -24,13 +24,13 @@
 using namespace std;
 
 using namespace OneMiKTeXUtility;
-using namespace OneMiKTeXUtility::Topics;
+using namespace OneMiKTeXUtility::Utilities;
 
-Topic::~Topic() noexcept
+Utility::~Utility() noexcept
 {
 }
 
-int TopicBase::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int UtilityBase::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() < 2)
     {
