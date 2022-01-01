@@ -61,16 +61,16 @@
 #include "shims/texlinks.h"
 #include "shims/updmap.h"
 
-#include "utilities/Utility.h"
-#include "utilities/filesystem/utility.h"
-#include "utilities/fndb/utility.h"
-#include "utilities/fontmaps/utility.h"
-#include "utilities/formats/utility.h"
-#include "utilities/languages/utility.h"
-#include "utilities/links/utility.h"
+#include "topics/Topic.h"
+#include "topics/filesystem/topic.h"
+#include "topics/fndb/topic.h"
+#include "topics/fontmaps/topic.h"
+#include "topics/formats/topic.h"
+#include "topics/languages/topic.h"
+#include "topics/links/topic.h"
 
 #if defined(MIKTEX_WINDOWS)
-#include "utilities/filetypes/utility.h"
+#include "topics/filetypes/topic.h"
 #endif
 
 const char* const TheNameOfTheGame = T_("One MiKTeX Utility");
@@ -102,18 +102,18 @@ private:
 
     void RegisterTopics()
     {
-        RegisterTopic(OneMiKTeXUtility::Utilities::FileSystem::Create());
-        RegisterTopic(OneMiKTeXUtility::Utilities::FNDB::Create());
-        RegisterTopic(OneMiKTeXUtility::Utilities::FontMaps::Create());
-        RegisterTopic(OneMiKTeXUtility::Utilities::Formats::Create());
-        RegisterTopic(OneMiKTeXUtility::Utilities::Languages::Create());
-        RegisterTopic(OneMiKTeXUtility::Utilities::Links::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FileSystem::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FNDB::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FontMaps::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Formats::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Links::Create());
 #if defined(MIKTEX_WINDOWS)
-        RegisterTopic(OneMiKTeXUtility::Utilities::FileTypes::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
 #endif
     }
 
-    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Utilities::Utility> t)
+    void RegisterTopic(std::unique_ptr<OneMiKTeXUtility::Topics::Topic> t)
     {
         auto name = t->Name();
         this->topics[name] = std::move(t);
@@ -241,7 +241,7 @@ private:
     std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
     bool quiet = false;
     std::shared_ptr<MiKTeX::Core::Session> session;
-    std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Utilities::Utility>> topics;
+    std::map<std::string, std::unique_ptr<OneMiKTeXUtility::Topics::Topic>> topics;
     int verbosityLevel = 0;
 };
 
@@ -492,8 +492,8 @@ MIKTEXNORETURN void MiKTeXApp::IncorrectUsage(const string& message)
 void MiKTeXApp::ShowUsage()
 {
     cout
-        << fmt::format(T_("Usage: {0} [COMMON-OPTION...] UTILITY COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
-        << T_("Utilities:") << endl;
+        << fmt::format(T_("Usage: {0} [OPTION...] TOPIC COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
+        << T_("Topics:") << endl;
     for (auto& t : topics)
     {
         cout << fmt::format("  {0}  {1}", t.second->Name(), t.second->Description()) << endl;

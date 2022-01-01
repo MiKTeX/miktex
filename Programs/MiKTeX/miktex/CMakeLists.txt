@@ -37,74 +37,74 @@ list(APPEND miktex_sources
     shims/texlinks.h
     shims/updmap.cpp
     shims/updmap.h
-    utilities/Command.cpp
-    utilities/Command.h
-    utilities/Utility.cpp
-    utilities/Utility.h
+    topics/Command.cpp
+    topics/Command.h
+    topics/Topic.cpp
+    topics/Topic.h
 )
 
 list(APPEND miktex_sources
-    utilities/filesystem/commands/commands.h
-    utilities/filesystem/commands/watch.cpp
-    utilities/filesystem/utility.cpp
-    utilities/filesystem/utility.h
+    topics/filesystem/topic.cpp
+    topics/filesystem/topic.h
+    topics/filesystem/commands/commands.h
+    topics/filesystem/commands/watch.cpp
 )
 
 list(APPEND miktex_sources
-    utilities/fndb/commands/commands.h
-    utilities/fndb/commands/remove.cpp
-    utilities/fndb/commands/update.cpp
-    utilities/fndb/utility.cpp
-    utilities/fndb/utility.h
+    topics/fndb/topic.cpp
+    topics/fndb/topic.h
+    topics/fndb/commands/commands.h
+    topics/fndb/commands/remove.cpp
+    topics/fndb/commands/update.cpp
 )
 
 list(APPEND miktex_sources
-    utilities/fontmaps/commands/FontMapManager.cpp
-    utilities/fontmaps/commands/FontMapManager.h
-    utilities/fontmaps/commands/commands.h
-    utilities/fontmaps/commands/set-option.cpp
-    utilities/fontmaps/commands/show-option.cpp
-    utilities/fontmaps/commands/update.cpp
-    utilities/fontmaps/utility.cpp
-    utilities/fontmaps/utility.h
+    topics/fontmaps/topic.cpp
+    topics/fontmaps/topic.h
+    topics/fontmaps/commands/FontMapManager.cpp
+    topics/fontmaps/commands/FontMapManager.h
+    topics/fontmaps/commands/commands.h
+    topics/fontmaps/commands/set-option.cpp
+    topics/fontmaps/commands/show-option.cpp
+    topics/fontmaps/commands/update.cpp
 )
 
 list(APPEND miktex_sources
-    utilities/formats/commands/FormatsManager.cpp
-    utilities/formats/commands/FormatsManager.h
-    utilities/formats/commands/commands.h
-    utilities/formats/commands/list.cpp
-    utilities/formats/commands/update.cpp
-    utilities/formats/utility.cpp
-    utilities/formats/utility.h
+    topics/formats/topic.cpp
+    topics/formats/topic.h
+    topics/formats/commands/FormatsManager.cpp
+    topics/formats/commands/FormatsManager.h
+    topics/formats/commands/commands.h
+    topics/formats/commands/list.cpp
+    topics/formats/commands/update.cpp
 )
 
 list(APPEND miktex_sources
-    utilities/languages/commands/commands.h
-    utilities/languages/commands/update.cpp
-    utilities/languages/utility.cpp
-    utilities/languages/utility.h
+    topics/languages/topic.cpp
+    topics/languages/topic.h
+    topics/languages/commands/commands.h
+    topics/languages/commands/update.cpp
 )
 
 list(APPEND miktex_sources
-    utilities/links/commands/LinksManager.cpp
-    utilities/links/commands/LinksManager.h
-    utilities/links/commands/commands.h
-    utilities/links/commands/remove.cpp
-    utilities/links/commands/update.cpp
-    utilities/links/utility.cpp
-    utilities/links/utility.h
+    topics/links/topic.cpp
+    topics/links/topic.h
+    topics/links/commands/LinksManager.cpp
+    topics/links/commands/LinksManager.h
+    topics/links/commands/commands.h
+    topics/links/commands/remove.cpp
+    topics/links/commands/update.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND miktex_sources
-        utilities/filetypes/commands/FileTypeManager.cpp
-        utilities/filetypes/commands/FileTypeManager.h
-        utilities/filetypes/commands/commands.h
-        utilities/filetypes/commands/register.cpp
-        utilities/filetypes/commands/unregister.cpp
-        utilities/filetypes/utility.cpp
-        utilities/filetypes/utility.h
+        topics/filetypes/topic.cpp
+        topics/filetypes/topic.h
+        topics/filetypes/commands/FileTypeManager.cpp
+        topics/filetypes/commands/FileTypeManager.h
+        topics/filetypes/commands/commands.h
+        topics/filetypes/commands/register.cpp
+        topics/filetypes/commands/unregister.cpp
     )
 endif()
 
