@@ -308,7 +308,7 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "update-fndb", 'u',
-    POPT_ARG_STRING, nullptr,
+    POPT_ARG_NONE, nullptr,
     OPT_UPDATE_FNDB,
     T_("Update the file name database."),
     nullptr
