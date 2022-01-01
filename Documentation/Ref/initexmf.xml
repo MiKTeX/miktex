@@ -88,26 +88,6 @@ must be <option>a4</option> or
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
 <varlistentry>
-<term><option>--dump</option></term>
-<listitem>
-<indexterm>
-<primary>--dump</primary>
-</indexterm>
-<indexterm>
-<primary>format files</primary>
-<secondary>creating</secondary>
-</indexterm>
-<indexterm>
-<primary>memory dump files</primary>
-<secondary>creating</secondary>
-</indexterm>
-<para>Create all memory dump files.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--dump=<replaceable>name</replaceable></option></term>
-<listitem><para>Dump the specified memory dump file.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--edit-config-file=<replaceable>configfile</replaceable></option></term>
 <listitem>
 <indexterm>
@@ -117,10 +97,6 @@ must be <option>a4</option> or
 </listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
-<varlistentry>
-<term><option>--engine=<replaceable>engine</replaceable></option></term>
-<listitem><para>Engine to be used when generating format files.</para></listitem>  
-</varlistentry>
 <varlistentry>
 <term><option>--list-formats</option></term>
 <listitem>

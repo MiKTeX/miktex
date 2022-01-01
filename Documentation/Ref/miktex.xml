@@ -121,6 +121,11 @@ invoke the utility as follows:</para>
 </varlistentry>
 
 <varlistentry>
+<term><citerefentry><refentrytitle>miktex-formats</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing the &TeX; formats.</para></listitem>
+</varlistentry>
+
+<varlistentry>
 <term><citerefentry><refentrytitle>miktex-links</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
 <listitem><para>Commands for managing links from scripts and formats to exectuables.</para></listitem>
 </varlistentry>
