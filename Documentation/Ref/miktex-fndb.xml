@@ -47,7 +47,7 @@
 
 <variablelist>
 <varlistentry>
-<term><option>update</option></term>
+<term><command>update</command></term>
 <listitem>
 <indexterm>
 <primary>--update-fndb</primary>

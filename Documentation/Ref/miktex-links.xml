@@ -48,12 +48,20 @@
 
 <variablelist>
 <varlistentry>
-<term><option>update</option></term>
+<term><command>remove</command></term>
+<listitem>
+<indexterm>
+<primary>--remove-links</primary>
+</indexterm>
+<para>Remove all generated links.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>update</command> <optional><option>--force</option></optional></term>
 <listitem>
 <indexterm>
 <primary>--mklinks</primary>
 </indexterm>
-<para>Generate all links.</para></listitem>
+<para>Generate all links. Existing links will be overwritten, if <option>--force</option> is specified.</para></listitem>
 </varlistentry>
 </variablelist>
 

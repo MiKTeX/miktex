@@ -193,14 +193,6 @@ must be <option>a4</option> or
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--remove-links</option></term>
-<listitem>
-<indexterm>
-<primary>--remove-links</primary>
-</indexterm>
-<para>Remove the links which were created by <option>--mklinks</option>.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--report</option></term>
 <listitem>
 <indexterm>
