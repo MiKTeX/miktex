@@ -27,7 +27,7 @@
 <cmdsynopsis>
 &miktex;
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
-<arg choice="plain"><replaceable>utility</replaceable></arg>
+<arg choice="plain"><replaceable>topic</replaceable></arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
 <arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
 </cmdsynopsis>
@@ -38,14 +38,14 @@
 
 <title>Description</title>
 
-<para>&miktex; combines multiple &MiKTeX; utilities into a single program.</para>
+<para>&miktex; is the utility to configure and maintain a &MiKTeX; installation.</para>
 
 </refsect1>
 
 <refsect1>
 <title>User mode vs. administrator mode</title>
 
-<para>This program can be run in two modes:</para>
+<para>This utility can be run in two modes:</para>
 
 <variablelist>
 <varlistentry>
@@ -59,15 +59,15 @@
 <listitem>
 <para>Only system-wide &MiKTeX; configuration and data files are
 modified, assuming that the &MiKTeX; setup is shared by all users.
-The program must be run with administrator privileges.</para>
+The utility must be run with administrator privileges.</para>
 </listitem>
 </varlistentry>
 </variablelist>
 
-<para>By default, the program runs in user mode.  You can turn on
+<para>By default, the utility runs in user mode.  You can turn on
 administrator mode with the <option>--admin</option> option.  For
 example, if you want to update the system-wide file name database, you
-invoke the program as follows:</para>
+invoke the utility as follows:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>miktex --admin fndb update</userinput></screen>
 
@@ -111,13 +111,13 @@ invoke the program as follows:</para>
 
 <refsect1>
 
-<title>Utilities</title>
+<title>Topics</title>
 
 <variablelist>
 
 <varlistentry>
 <term><citerefentry><refentrytitle>miktex-fndb</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
-<listitem><para>Manage the &MiKTeX; file name database.</para></listitem>
+<listitem><para>Commands for managing the &MiKTeX; file name database.</para></listitem>
 </varlistentry>
 
 </variablelist>
