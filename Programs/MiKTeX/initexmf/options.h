@@ -130,9 +130,9 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "force", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_FORCE,
-    T_("Force --mklinks to overwrite existing files."),
+    nullptr,
     nullptr
   },
 
@@ -170,9 +170,9 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "mklinks", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_MKLINKS,
-    T_("Create links for formats, scripts and miktex- executables."),
+    nullptr,
     nullptr
   },
 
@@ -268,9 +268,9 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "remove-links", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_REMOVE_LINKS,
-    T_("Remove linked executables."),
+    nullptr,
     nullptr
   },
 
