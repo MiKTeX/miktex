@@ -1,7 +1,7 @@
 /**
- * @file utilities/fontmaps/topic.cpp
+ * @file utilities/filetypes/topic.cpp
  * @author Christian Schenk
- * @brief fontmaps topic
+ * @brief filetypes utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -18,33 +18,32 @@
 
 #include "commands/commands.h"
 
-#include "topic.h"
+#include "utility.h"
 
 namespace
 {
-    class FontMapsTopic :
+    class FileTypesTopic :
         public OneMiKTeXUtility::Topics::TopicBase
     {
         std::string Description() override
         {
-            return T_("Commands for managing TeX font map files");
+            return T_("Commands for managing Windows shell file types");
         }
 
         std::string Name() override
         {
-            return "fontmaps";
+            return "filetypes";
         }
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::SetOption());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::ShowOption());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Register());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Unregister());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FontMaps::Create()
+std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileTypes::Create()
 {
-    return std::make_unique<FontMapsTopic>();
+    return std::make_unique<FileTypesTopic>();
 }

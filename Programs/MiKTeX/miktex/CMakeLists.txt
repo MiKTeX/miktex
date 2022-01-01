@@ -39,72 +39,72 @@ list(APPEND miktex_sources
     shims/updmap.h
     utilities/Command.cpp
     utilities/Command.h
-    utilities/Topic.cpp
-    utilities/Topic.h
+    utilities/Utility.cpp
+    utilities/Utility.h
 )
 
 list(APPEND miktex_sources
-    utilities/filesystem/topic.cpp
-    utilities/filesystem/topic.h
     utilities/filesystem/commands/commands.h
     utilities/filesystem/commands/watch.cpp
+    utilities/filesystem/utility.cpp
+    utilities/filesystem/utility.h
 )
 
 list(APPEND miktex_sources
-    utilities/fndb/topic.cpp
-    utilities/fndb/topic.h
     utilities/fndb/commands/commands.h
     utilities/fndb/commands/remove.cpp
     utilities/fndb/commands/update.cpp
+    utilities/fndb/utility.cpp
+    utilities/fndb/utility.h
 )
 
 list(APPEND miktex_sources
-    utilities/fontmaps/topic.cpp
-    utilities/fontmaps/topic.h
     utilities/fontmaps/commands/FontMapManager.cpp
     utilities/fontmaps/commands/FontMapManager.h
     utilities/fontmaps/commands/commands.h
     utilities/fontmaps/commands/set-option.cpp
     utilities/fontmaps/commands/show-option.cpp
     utilities/fontmaps/commands/update.cpp
+    utilities/fontmaps/utility.cpp
+    utilities/fontmaps/utility.h
 )
 
 list(APPEND miktex_sources
-    utilities/formats/topic.cpp
-    utilities/formats/topic.h
     utilities/formats/commands/FormatsManager.cpp
     utilities/formats/commands/FormatsManager.h
     utilities/formats/commands/commands.h
     utilities/formats/commands/list.cpp
     utilities/formats/commands/update.cpp
+    utilities/formats/utility.cpp
+    utilities/formats/utility.h
 )
 
 list(APPEND miktex_sources
-    utilities/languages/topic.cpp
-    utilities/languages/topic.h
     utilities/languages/commands/commands.h
     utilities/languages/commands/update.cpp
+    utilities/languages/utility.cpp
+    utilities/languages/utility.h
 )
 
 list(APPEND miktex_sources
-    utilities/links/topic.cpp
-    utilities/links/topic.h
     utilities/links/commands/LinksManager.cpp
     utilities/links/commands/LinksManager.h
     utilities/links/commands/commands.h
     utilities/links/commands/remove.cpp
     utilities/links/commands/update.cpp
+    utilities/links/utility.cpp
+    utilities/links/utility.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND miktex_sources
-        utilities/filetypes/topic.cpp
-        utilities/filetypes/topic.h
         utilities/filetypes/commands/FileTypeManager.cpp
         utilities/filetypes/commands/FileTypeManager.h
         utilities/filetypes/commands/commands.h
         utilities/filetypes/commands/register.cpp
         utilities/filetypes/commands/unregister.cpp
+        utilities/filetypes/utility.cpp
+        utilities/filetypes/utility.h
     )
 endif()
 

@@ -19,7 +19,7 @@
 
 #include "internal.h"
 
-#include "Topic.h"
+#include "Utility.h"
 
 using namespace std;
 

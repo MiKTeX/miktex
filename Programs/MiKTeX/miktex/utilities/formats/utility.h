@@ -1,7 +1,7 @@
 /**
- * @file utilities/languages/topic.h
+ * @file utilities/formats/topic.h
  * @author Christian Schenk
- * @brief languages topic
+ * @brief formats utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -15,9 +15,9 @@
 
 #include "internal.h"
 
-#include "utilities/Topic.h"
+#include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::Languages
+namespace OneMiKTeXUtility::Topics::Formats
 {
     std::unique_ptr<Topics::Topic> Create();
 }

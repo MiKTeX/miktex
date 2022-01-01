@@ -1,7 +1,7 @@
 /**
- * @file utilities/fndb/topic.cpp
+ * @file utilities/filesystem/topic.cpp
  * @author Christian Schenk
- * @brief dnsb topic
+ * @brief filesystem utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -18,32 +18,31 @@
 
 #include "commands/commands.h"
 
-#include "topic.h"
+#include "utility.h"
 
 namespace
 {
-    class FNDBTopic :
+    class FileSystemTopic :
         public OneMiKTeXUtility::Topics::TopicBase
     {
         std::string Description() override
         {
-            return T_("Commands for managing the file name databases");
+            return T_("Commands for watching the file system");
         }
 
         std::string Name() override
         {
-            return "fndb";
+            return "filesystem";
         }
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Remove());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileSystem::Commands::Watch());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FNDB::Create()
+std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
 {
-    return std::make_unique<FNDBTopic>();
+    return std::make_unique<FileSystemTopic>();
 }

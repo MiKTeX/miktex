@@ -1,7 +1,7 @@
 /**
- * @file utilities/languages/topic.cpp
+ * @file utilities/links/topic.cpp
  * @author Christian Schenk
- * @brief languages topic
+ * @brief links utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -18,31 +18,32 @@
 
 #include "commands/commands.h"
 
-#include "topic.h"
+#include "utility.h"
 
 namespace
 {
-    class LanguagesTopic :
+    class LinksTopic :
         public OneMiKTeXUtility::Topics::TopicBase
     {
         std::string Description() override
         {
-            return T_("Commands for managing TeX languages");
+            return T_("Commands for managing links to MiKTeX executables");
         }
 
         std::string Name() override
         {
-            return "languages";
+            return "links";
         }
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Remove());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Languages::Create()
+std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Links::Create()
 {
-    return std::make_unique<LanguagesTopic>();
+    return std::make_unique<LinksTopic>();
 }

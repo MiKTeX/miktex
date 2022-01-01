@@ -1,7 +1,7 @@
 /**
- * @file utilities/filesystem/topic.h
+ * @file utilities/fontmaps/topic.h
  * @author Christian Schenk
- * @brief filesystem topic
+ * @brief fontmaps utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -15,9 +15,9 @@
 
 #include "internal.h"
 
-#include "utilities/Topic.h"
+#include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::FileSystem
+namespace OneMiKTeXUtility::Topics::FontMaps
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Topic> Create();
+    std::unique_ptr<Topics::Topic> Create();
 }

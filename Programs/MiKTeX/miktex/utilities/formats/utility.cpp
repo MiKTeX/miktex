@@ -1,7 +1,7 @@
 /**
- * @file utilities/filesystem/topic.cpp
+ * @file utilities/formats/topic.cpp
  * @author Christian Schenk
- * @brief filesystem topic
+ * @brief formats utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -18,31 +18,32 @@
 
 #include "commands/commands.h"
 
-#include "topic.h"
+#include "utility.h"
 
 namespace
 {
-    class FileSystemTopic :
+    class FormatsTopic :
         public OneMiKTeXUtility::Topics::TopicBase
     {
         std::string Description() override
         {
-            return T_("Commands for watching the file system");
+            return T_("Commands for managing format files");
         }
 
         std::string Name() override
         {
-            return "filesystem";
+            return "formats";
         }
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FileSystem::Commands::Watch());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::List());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Formats::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileSystem::Create()
+std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::Formats::Create()
 {
-    return std::make_unique<FileSystemTopic>();
+    return std::make_unique<FormatsTopic>();
 }

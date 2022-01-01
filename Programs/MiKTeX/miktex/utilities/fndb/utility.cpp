@@ -1,7 +1,7 @@
 /**
- * @file utilities/filetypes/topic.cpp
+ * @file utilities/fndb/topic.cpp
  * @author Christian Schenk
- * @brief filetypes topic
+ * @brief fndb utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -18,32 +18,32 @@
 
 #include "commands/commands.h"
 
-#include "topic.h"
+#include "utility.h"
 
 namespace
 {
-    class FileTypesTopic :
+    class FNDBTopic :
         public OneMiKTeXUtility::Topics::TopicBase
     {
         std::string Description() override
         {
-            return T_("Commands for managing Windows shell file types");
+            return T_("Commands for managing the file name databases");
         }
 
         std::string Name() override
         {
-            return "filetypes";
+            return "fndb";
         }
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Register());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Unregister());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Remove());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Update());
         }
     };
 }
 
-std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FileTypes::Create()
+std::unique_ptr<OneMiKTeXUtility::Topics::Topic> OneMiKTeXUtility::Topics::FNDB::Create()
 {
-    return std::make_unique<FileTypesTopic>();
+    return std::make_unique<FNDBTopic>();
 }

@@ -1,7 +1,7 @@
 /**
  * @file utilities/links/topic.h
  * @author Christian Schenk
- * @brief links topic
+ * @brief links utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -15,7 +15,7 @@
 
 #include "internal.h"
 
-#include "utilities/Topic.h"
+#include "utilities/Utility.h"
 
 namespace OneMiKTeXUtility::Topics::Links
 {

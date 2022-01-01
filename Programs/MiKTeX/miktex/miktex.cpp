@@ -61,16 +61,16 @@
 #include "shims/texlinks.h"
 #include "shims/updmap.h"
 
-#include "utilities/Topic.h"
-#include "utilities/filesystem/topic.h"
-#include "utilities/fndb/topic.h"
-#include "utilities/fontmaps/topic.h"
-#include "utilities/formats/topic.h"
-#include "utilities/languages/topic.h"
-#include "utilities/links/topic.h"
+#include "utilities/Utility.h"
+#include "utilities/filesystem/utility.h"
+#include "utilities/fndb/utility.h"
+#include "utilities/fontmaps/utility.h"
+#include "utilities/formats/utility.h"
+#include "utilities/languages/utility.h"
+#include "utilities/links/utility.h"
 
 #if defined(MIKTEX_WINDOWS)
-#include "utilities/filetypes/topic.h"
+#include "utilities/filetypes/utility.h"
 #endif
 
 const char* const TheNameOfTheGame = T_("One MiKTeX Utility");

@@ -1,7 +1,7 @@
 /**
- * @file utilities/filetypes/topic.h
+ * @file utilities/fndb/topic.h
  * @author Christian Schenk
- * @brief filetypes topic
+ * @brief fndb utility
  *
  * @copyright Copyright © 2021 Christian Schenk
  *
@@ -15,9 +15,9 @@
 
 #include "internal.h"
 
-#include "utilities/Topic.h"
+#include "utilities/Utility.h"
 
-namespace OneMiKTeXUtility::Topics::FileTypes
+namespace OneMiKTeXUtility::Topics::FNDB
 {
     std::unique_ptr<Topics::Topic> Create();
 }
