@@ -1032,7 +1032,7 @@ void SetupServiceImpl::DoFinishUpdate()
 #if defined(MIKTEX_WINDOWS)
   RunMpm({ "--register-components" });
 #endif
-  RunOneMiKTeXUtility({ "fndb", "update" }, false);
+  RunOneMiKTeXUtility({ "fndb", "refresh" }, false);
   if (!session->IsSharedSetup() || session->IsAdminMode())
   {
     RunOneMiKTeXUtility({ "links", "update", "--force" }, false);
@@ -1389,7 +1389,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 #endif
 
     // create file name database files
-    RunOneMiKTeXUtility({ "fndb", "update" }, false);
+    RunOneMiKTeXUtility({ "fndb", "refresh" }, false);
     if (cancelled)
     {
       return;
@@ -1428,7 +1428,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // refresh file name database again
-    RunOneMiKTeXUtility({ "fndb", "update" }, false);
+    RunOneMiKTeXUtility({ "fndb", "refresh" }, false);
     if (cancelled)
     {
       return;

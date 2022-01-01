@@ -808,7 +808,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool 
   }
   if (reg)
   {
-    RunOneMiKTeXUtility({"fndb", "update"});
+    RunOneMiKTeXUtility({"fndb", "refresh"});
   }
 }
 
@@ -1608,7 +1608,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (optUpdateFilenameDatabase)
   {
-    RunOneMiKTeXUtility({"fndb", "update"});
+    RunOneMiKTeXUtility({"fndb", "refresh"});
   }
 
   for (const string& fileName : createConfigFiles)

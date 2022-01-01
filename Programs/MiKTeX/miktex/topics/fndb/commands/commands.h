@@ -19,6 +19,6 @@
 
 namespace OneMiKTeXUtility::Topics::FNDB::Commands
 {
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Refresh();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Remove();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
 }

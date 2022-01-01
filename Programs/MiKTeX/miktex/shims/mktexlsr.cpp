@@ -56,5 +56,5 @@ void Shims::mktexlsr(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& 
     {
         ctx->ui->IncorrectUsage(T_("unexpected leftover arguments"));
     }
-    arguments = { "fndb", "update" };
+    arguments = { "fndb", "refresh" };
 }

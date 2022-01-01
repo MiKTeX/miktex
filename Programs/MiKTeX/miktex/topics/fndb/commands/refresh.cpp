@@ -1,9 +1,9 @@
 /**
- * @file topics/fndb/commands/update.cpp
+ * @file topics/fndb/commands/refresh.cpp
  * @author Christian Schenk
- * @brief fndb update
+ * @brief fndb refresh
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -31,24 +31,24 @@
 
 namespace
 {
-    class UpdateCommand :
+    class RefreshCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Update the file name database");
+            return T_("refresh the file name database");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "update";
+            return "refresh";
         }
 
         std::string Synopsis() override
         {
-            return "update";
+            return "refresh";
         }
     };
 }
@@ -64,12 +64,12 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::FNDB;
 
-unique_ptr<Command> Commands::Update()
+unique_ptr<Command> Commands::Refresh()
 {
-    return make_unique<UpdateCommand>();
+    return make_unique<RefreshCommand>();
 }
 
-void UpdateFilenameDatabase(ApplicationContext& ctx, const PathName& root)
+void RefreshFilenameDatabase(ApplicationContext& ctx, const PathName& root)
 {
     if (!ctx.session->UnloadFilenameDatabase())
     {
@@ -88,7 +88,7 @@ void UpdateFilenameDatabase(ApplicationContext& ctx, const PathName& root)
     Fndb::Create(fndbPath, root, nullptr);
 }
 
-int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int RefreshCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() != 2)
     {
@@ -101,7 +101,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
         {
             if (ctx.session->IsCommonRootDirectory(r))
             {
-                UpdateFilenameDatabase(ctx, ctx.session->GetRootDirectoryPath(r));
+                RefreshFilenameDatabase(ctx, ctx.session->GetRootDirectoryPath(r));
             }
             else
             {
@@ -112,7 +112,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
         {
             if (!ctx.session->IsCommonRootDirectory(r) || ctx.session->IsMiKTeXPortable())
             {
-                UpdateFilenameDatabase(ctx, ctx.session->GetRootDirectoryPath(r));
+                RefreshFilenameDatabase(ctx, ctx.session->GetRootDirectoryPath(r));
             }
             else
             {
@@ -135,7 +135,7 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     }
     else
     {
-        ctx.ui->Verbose(1, T_("Creating FNDB for MPM..."));
+        ctx.ui->Verbose(1, T_("Refreshing FNDB for MPM..."));
         ctx.packageManager->CreateMpmFndb();
     }
 }

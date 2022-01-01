@@ -127,7 +127,7 @@ invoke the utility as follows:</para>
 
 <varlistentry>
 <term><citerefentry><refentrytitle>miktex-links</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
-<listitem><para>Commands for managing links from scripts and formats to exectuables.</para></listitem>
+<listitem><para>Commands for managing links from scripts and formats to executables.</para></listitem>
 </varlistentry>
 
 </variablelist>

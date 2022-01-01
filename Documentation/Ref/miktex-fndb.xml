@@ -48,16 +48,13 @@
 
 <variablelist>
 <varlistentry>
-<term><command>update</command></term>
+<term><command>refresh</command></term>
 <listitem>
-<indexterm>
-<primary>--update-fndb</primary>
-</indexterm>
 <indexterm>
 <primary>file name datasbase</primary>
 <secondary>refreshing</secondary>
 </indexterm>
-<para>Generate the file name database.</para></listitem>
+<para>Refresh the &MiKTeX; file name database.</para></listitem>
 </varlistentry>
 </variablelist>
 

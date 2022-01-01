@@ -37,8 +37,8 @@ namespace
 
         void RegisterCommands() override
         {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Refresh());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Remove());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FNDB::Commands::Update());
         }
     };
 }

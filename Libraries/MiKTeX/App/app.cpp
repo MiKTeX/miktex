@@ -403,7 +403,7 @@ void Application::AutoMaintenance()
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
-      args.insert(args.end(), { "fndb", "update" });
+      args.insert(args.end(), { "fndb", "refresh" });
       LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to refresh the file name database");
       pimpl->session->UnloadFilenameDatabase();
       if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
