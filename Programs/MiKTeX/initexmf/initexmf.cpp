@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -1647,16 +1647,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   if (optMakeLanguageDat)
   {
     MakeLanguageDat(optForce);
-  }
-
-  if (optMakeLinks && session->IsSharedSetup() && !session->IsAdminMode())
-  {
-      FatalError(T_("Option --mklinks requires admin mode (--admin)."));
-  }
-
-  if (optRemoveLinks && session->IsSharedSetup() && !session->IsAdminMode())
-  {
-      FatalError(T_("Option --rmlinks requires admin mode (--admin)."));
   }
 
   if (optMakeLinks || optRemoveLinks)
