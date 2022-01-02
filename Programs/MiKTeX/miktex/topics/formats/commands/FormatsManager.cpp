@@ -48,6 +48,8 @@ void FormatsManager::Build(const string& formatKey)
 
   auto formatInfo = this->Format(formatKey);
 
+  this->ctx->ui->Verbose(1, fmt::format(T_("Building '{0}' with '{1}'..."), formatInfo.key, formatInfo.compiler));
+
   string maker;
 
   vector<string> arguments;

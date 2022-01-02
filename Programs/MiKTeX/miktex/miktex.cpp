@@ -313,7 +313,7 @@ static void Sorry(const string& message, const string& description, const string
 #endif
         if (fileAppender != nullptr)
         {
-            cerr << fmt::format(T_("Log file: {0}"), PathName(fileAppender->getFile())) << endl;
+            cerr << fmt::format(T_("More info: {0}"), PathName(fileAppender->getFile())) << endl;
         }
     }
     if (!url.empty())
@@ -526,7 +526,7 @@ bool MiKTeXApp::InstallPackage(const string& packageId, const PathName& trigger,
   return true;
 }
 
-bool IsGlobalOption(const string& s, const string& optionName)
+bool IsCommonOption(const string& s, const string& optionName)
 {
     return s == "-"s + optionName || s == "--"s + optionName;
 }
@@ -545,59 +545,59 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     Session::InitOptionSet options;
     bool optVersion = false;
     vector<string> newargs;
-    bool processingGlobalOptions = true;
+    bool processingCommonOptions = true;
     MIKTEX_ASSERT(args.size() > 0);
     auto arg0 = args[0];
     for (size_t idx = 1; idx < args.size(); ++idx)
     {
         const string& arg = args[idx];
-        bool isGlobalOption = arg.length() > 0 && arg[0] == '-';
-        if (!isGlobalOption)
+        bool isCommonOption = arg.length() > 0 && arg[0] == '-';
+        if (!isCommonOption)
         {
-            processingGlobalOptions = false;
+            processingCommonOptions = false;
         }
-        if (processingGlobalOptions)
+        if (processingCommonOptions)
         {
-            if (IsGlobalOption(arg, "admin"))
+            if (IsCommonOption(arg, "admin"))
             {
                 adminMode = true;
             }
-            else if (IsGlobalOption(arg, "disable-installer"))
+            else if (IsCommonOption(arg, "disable-installer"))
             {
                 this->enableInstaller = TriState::False;
             }
-            else if (IsGlobalOption(arg, "enable-installer"))
+            else if (IsCommonOption(arg, "enable-installer"))
             {
                 this->enableInstaller = TriState::True;
             }
-            else if (IsGlobalOption(arg, "help"))
+            else if (IsCommonOption(arg, "help"))
             {
                 ShowUsage();
                 return {-1, vector<string>()};
             }
-            else if (IsGlobalOption(arg, "quiet"))
+            else if (IsCommonOption(arg, "quiet"))
             {
                 this->quiet = true;
             }
-            else if (IsGlobalOption(arg, "principal=setup"))
+            else if (IsCommonOption(arg, "principal=setup"))
             {
                 options += Session::InitOption::SettingUp;
                 forceAdminMode = true;
             }
-            else if (IsGlobalOption(arg, "verbose"))
+            else if (IsCommonOption(arg, "verbose"))
             {
                 this->verbosityLevel++;
             }
-            else if (IsGlobalOption(arg, "version"))
+            else if (IsCommonOption(arg, "version"))
             {
                 optVersion = true;
             }
             else
             {
-                isGlobalOption = false;
+                isCommonOption = false;
             }
         }
-        if (!isGlobalOption)
+        if (!processingCommonOptions)
         {
             newargs.push_back(arg);
         }
