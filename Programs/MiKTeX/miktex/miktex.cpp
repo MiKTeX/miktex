@@ -492,11 +492,11 @@ MIKTEXNORETURN void MiKTeXApp::IncorrectUsage(const string& message)
 void MiKTeXApp::ShowUsage()
 {
     cout
-        << fmt::format(T_("Usage: {0} [OPTION...] TOPIC COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
+        << fmt::format(T_("Usage: {0} [COMMON-OPTION...] TOPIC COMMAND [COMMAND-OPTION...]"), this->InvocationName()) << "\n"
         << T_("Topics:") << endl;
     for (auto& t : topics)
     {
-        cout << fmt::format("  {0}  {1}", t.second->Name(), t.second->Description()) << endl;
+        cout << fmt::format("  {0} - {1}", t.second->Name(), t.second->Description()) << endl;
     }
 }
 

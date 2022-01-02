@@ -33,8 +33,8 @@ you manually install &TeX;/&LaTeX;-related files in a user-managed
 
 <para>You can update the file name database with the help of <ulink
 url="&hqbaseurl;howto/miktex-console">&MiKTeXConsole;</ulink>. If you
-prefer the command-line, you can use the &MiKTeXConfigurationUtility;
-(see <xref linkend="initexmf"/>).</para>
+prefer the command-line, you can use &OneMiKTeXUtility;
+(see <xref linkend="miktex"/>).</para>
 
 </section>
 

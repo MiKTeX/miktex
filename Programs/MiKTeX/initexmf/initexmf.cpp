@@ -886,7 +886,7 @@ void IniTeXMFApp::RunOneMiKTeXUtility(const vector<string>& arguments)
 
 void IniTeXMFApp::MakeLanguageDat(bool force)
 {
-  vector<string> arguments{"languages", "update"};
+  vector<string> arguments{"languages", "configure"};
   if (force)
   {
     arguments.push_back("--force");
@@ -896,7 +896,7 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
 
 void IniTeXMFApp::MakeMaps(bool force)
 {
-  vector<string> arguments{"fontmaps", "refresh"};
+  vector<string> arguments{"fontmaps", "configure"};
   if (force)
   {
     arguments.push_back("--force");

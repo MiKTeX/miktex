@@ -26,8 +26,8 @@ automatically.  It can be manually created by
 <primary>psfonts.map</primary>
 <secondary>creating</secondary>
 </indexterm>
-running <userinput>initexmf --mkmaps</userinput> (see
-<citerefentry><refentrytitle>initexmf</refentrytitle><manvolnum>1</manvolnum></citerefentry>).</para>
+running <userinput>miktex fontmaps configure</userinput> (see
+<citerefentry><refentrytitle>miktex</refentrytitle><manvolnum>1</manvolnum></citerefentry>).</para>
 
 <para><filename>psfonts.map</filename> depends on the file
 <filename>updmap.cfg</filename>.  This configuration file contains
@@ -49,7 +49,7 @@ the font map file <filename>xyz.map</filename>:</para>
 <step><para>Insert the following line at the end of the file:</para>
 <programlisting>Map xyz.map</programlisting></step>
 <step><para>Save the file and close the editor.</para></step>
-<step><para>Run <userinput>initexmf --mkmaps</userinput> to rebuild
+<step><para>Run <userinput>miktex fontmaps configure</userinput> to rebuild
 the font map files.</para></step>
 </procedure>
 

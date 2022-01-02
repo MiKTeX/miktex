@@ -1037,8 +1037,8 @@ void SetupServiceImpl::DoFinishUpdate()
   {
     RunOneMiKTeXUtility({ "links", "install", "--force" }, false);
   }
-  RunOneMiKTeXUtility({ "fontmaps", "refresh" }, false);
-  RunOneMiKTeXUtility({ "languages", "update" }, false);
+  RunOneMiKTeXUtility({ "fontmaps", "configure" }, false);
+  RunOneMiKTeXUtility({ "languages", "configure" }, false);
   if (!options.IsPortable && (!session->IsSharedSetup() || session->IsAdminMode()))
   {
 #if defined(MIKTEX_WINDOWS)
@@ -1403,8 +1403,8 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 
     // create font map files and language.dat
-    RunOneMiKTeXUtility({ "fontmaps", "refresh" }, false);
-    RunOneMiKTeXUtility({ "languages", "update" }, false);
+    RunOneMiKTeXUtility({ "fontmaps", "configure" }, false);
+    RunOneMiKTeXUtility({ "languages", "configure" }, false);
 
     if (cancelled)
     {

@@ -5,12 +5,12 @@
 %entities.ent;
 ]>
 
-<refentry id="miktex-fontmaps">
+<refentry id="miktex-languages">
 
-<?dbhh topicname="MIKTEXHELP_MIKTEX_FONTMAPS" topicid="0"?>
+<?dbhh topicname="MIKTEXHELP_MIKTEX_LANGUAGES" topicid="0"?>
 
 <refmeta>
-<refentrytitle>miktex-fontmaps</refentrytitle>
+<refentrytitle>miktex-languages</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -18,8 +18,8 @@
 </refmeta>
 
 <refnamediv>
-<refname>miktex-fontmaps</refname>
-<refpurpose>manage &PDF;/&PostScript; font maps</refpurpose>
+<refname>miktex-languages</refname>
+<refpurpose>manage &LaTeX; language definitions</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -27,7 +27,7 @@
 <cmdsynopsis>
 &miktex;
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
-<arg choice="plain">fontmaps</arg>
+<arg choice="plain">languages</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
 <arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
 </cmdsynopsis>
@@ -38,7 +38,7 @@
 
 <title>Description</title>
 
-<para>Commands for managing &PDF;/&PostScript; font maps.</para>
+<para>Commands for managing &LaTeX; language definitions.</para>
 
 </refsect1>
 
@@ -51,20 +51,10 @@
 <term><command>configure</command></term>
 <listitem>
 <indexterm>
-<primary>&PDF;/&PostScript; font map files</primary>
+<primary>&LaTeX; language definition files</primary>
 <secondary>configuring</secondary>
 </indexterm>
-<para>Configure font map files for &PDF;/&PostScript; output drivers.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><command>set-option</command> <option>--name=<replaceable>name</replaceable></option> <optional><option>--value=<replaceable>value</replaceable></option></optional></term>
-<listitem>
-<para>Set a configuration option.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><command>show-option</command> <option>--name=<replaceable>name</replaceable></option></term>
-<listitem>
-<para>Show a configuration option.</para></listitem>
+<para>Configure &LaTeX; language definition files.</para></listitem>
 </varlistentry>
 </variablelist>
 

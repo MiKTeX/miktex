@@ -27,7 +27,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing TeX font map files");
+            return T_("Commands for managing PDF/PostScript font maps");
         }
 
         std::string Name() override
@@ -37,7 +37,7 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Refresh());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::Configure());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::SetOption());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FontMaps::Commands::ShowOption());
         }

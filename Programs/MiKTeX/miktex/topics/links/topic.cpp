@@ -27,7 +27,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing links to MiKTeX executables");
+            return T_("Commands for managing links from scripts and formats to executables");
         }
 
         std::string Name() override

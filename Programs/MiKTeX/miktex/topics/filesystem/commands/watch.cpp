@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief filesystem watch
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -34,7 +34,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Watch for DIRECTORY changes");
+            return T_("Watch for changes in a directory");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;

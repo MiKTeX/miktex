@@ -69,7 +69,7 @@ administrator mode with the <option>--admin</option> option.  For
 example, if you want to update the system-wide file name database, you
 invoke the utility as follows:</para>
 
-<screen><prompt>&prompt;</prompt><userinput>miktex --admin fndb update</userinput></screen>
+<screen><prompt>&prompt;</prompt><userinput>miktex --admin fndb refresh</userinput></screen>
 
 </refsect1>
 
@@ -121,8 +121,18 @@ invoke the utility as follows:</para>
 </varlistentry>
 
 <varlistentry>
+<term><citerefentry><refentrytitle>miktex-fontmaps</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing &PDF;/&PostScript; font maps.</para></listitem>
+</varlistentry>
+
+<varlistentry>
 <term><citerefentry><refentrytitle>miktex-formats</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
-<listitem><para>Commands for managing &TeX; formats.</para></listitem>
+<listitem><para>Commands for managing &TeX; formats and &METAFONT; bases.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><citerefentry><refentrytitle>miktex-languages</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing &LaTeX; language definitions.</para></listitem>
 </varlistentry>
 
 <varlistentry>

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief languages commands
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -19,5 +19,5 @@
 
 namespace OneMiKTeXUtility::Topics::Languages::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Configure();
 }

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Topic interface
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -45,7 +45,8 @@ int TopicBase::Execute(ApplicationContext& ctx, const vector<string>& arguments)
         ctx.ui->Output("Commands:");
         for (auto& c : this->commands)
         {
-            ctx.ui->Output(fmt::format("  {0} {1}", c.second->Synopsis(), c.second->Description()));
+            ctx.ui->Output(fmt::format("  {0}", c.second->Synopsis()));
+            ctx.ui->Output(fmt::format("    {0}", c.second->Description()));
         }
         return 0;
     }

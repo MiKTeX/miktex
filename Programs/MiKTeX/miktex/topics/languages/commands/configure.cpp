@@ -1,9 +1,9 @@
 /**
- * @file topics/languages/commands/update.cpp
+ * @file topics/languages/commands/configure.cpp
  * @author Christian Schenk
- * @brief languages update
+ * @brief languages configure
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -30,24 +30,24 @@
 
 namespace
 {
-    class UpdateCommand :
+    class ConfigureCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Update language.dat, language.dat.lua and language.def");
+            return T_("Configure LaTeX language definition files");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "update";
+            return "configure";
         }
 
         std::string Synopsis() override
         {
-            return "update";
+            return "configure";
         }
     };
 }
@@ -62,12 +62,12 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Languages;
 
-unique_ptr<Command> Commands::Update()
+unique_ptr<Command> Commands::Configure()
 {
-    return make_unique<UpdateCommand>();
+    return make_unique<ConfigureCommand>();
 }
 
-int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int ConfigureCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (arguments.size() != 2)
     {

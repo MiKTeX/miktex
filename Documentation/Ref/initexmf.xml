@@ -110,16 +110,6 @@ must be <option>a4</option> or
 <para>List all known &METAFONT; modes.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--mklangs</option></term>
-<listitem>
-<indexterm>
-<primary>--mklangs</primary>
-</indexterm>
-<para>Create <filename>language.dat</filename>,
-<filename>language.dat.lua</filename> and
-<filename>language.def</filename>.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--print-only</option></term>
 <listitem>
 <indexterm>
@@ -215,6 +205,7 @@ must be <option>a4</option> or
 <title>See also</title>
 
 <simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
 <member><citerefentry><refentrytitle>miktex.ini</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
 </simplelist>
 

@@ -414,7 +414,7 @@ void Application::AutoMaintenance()
     if (mustRefreshFndb)
     {
       vector<string> args = commonArgs;
-      args.insert(args.end(), { "fontmaps", "refresh" });
+      args.insert(args.end(), { "fontmaps", "configure" });
       LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to create font map files");
       if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
       {
@@ -425,7 +425,7 @@ void Application::AutoMaintenance()
     {
       MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
       vector<string> args = commonArgs;
-      args.insert(args.end(), { "languages", "update" });
+      args.insert(args.end(), { "languages", "configure" });
       LOG4CXX_INFO(pimpl->logger, "running One MiKTeX Utility to refresh language.dat");
       if (!Process::Run(oneMiKTeXUtility, args, nullptr, &exitCode, nullptr))
       {

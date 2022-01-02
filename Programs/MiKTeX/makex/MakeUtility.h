@@ -1,6 +1,6 @@
 /* MakeUtility.h:                                       -*- C++ -*-
 
-   Copyright (C) 1998-2021 Christian Schenk
+   Copyright (C) 1998-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -300,7 +300,7 @@ protected:
   void Install(const MiKTeX::Util::PathName& source, const MiKTeX::Util::PathName& dest)
   {
     PrintOnly(fmt::format("cp {} {}", Q_(source), Q_(dest)));
-    PrintOnly("miktex fndb update");
+    PrintOnly("miktex fndb refresh");
     if (!printOnly)
     {
       Verbose(fmt::format(T_("Installing {0}..."), Q_(dest)));

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief dnsb topic
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -27,7 +27,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing the file name databases");
+            return T_("Commands for managing the file name database");
         }
 
         std::string Name() override

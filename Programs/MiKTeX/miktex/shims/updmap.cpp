@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief updmap shim
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -122,6 +122,6 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
     }
     else
     {
-        arguments = { "fontmaps", "refresh" };
+        arguments = { "fontmaps", "configure" };
     }
 }

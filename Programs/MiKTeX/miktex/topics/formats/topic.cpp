@@ -27,7 +27,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing TeX format files");
+            return T_("Commands for managing TeX formats and METAFONT bases");
         }
 
         std::string Name() override

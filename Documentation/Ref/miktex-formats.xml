@@ -38,7 +38,7 @@
 
 <title>Description</title>
 
-<para>Commands for managing &TeX; formats.</para>
+<para>Commands for managing &TeX; formats and &METAFONT; bases.</para>
 
 </refsect1>
 
@@ -48,7 +48,7 @@
 
 <variablelist>
 <varlistentry>
-<term><command>build</command> <optional><option>--engine=<replaceable>ENGINE</replaceable></option></optional> <optional><option>--key=<replaceable>KEY</replaceable></option></optional></term>
+<term><command>build</command> <optional><option>--engine=<replaceable>engine</replaceable></option></optional> <optional><option>--key=<replaceable>key</replaceable></option></optional></term>
 <listitem>
 <indexterm>
 <primary>--dump</primary>

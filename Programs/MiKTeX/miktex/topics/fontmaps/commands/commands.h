@@ -19,7 +19,7 @@
 
 namespace OneMiKTeXUtility::Topics::FontMaps::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Refresh();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Configure();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> SetOption();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> ShowOption();
 }

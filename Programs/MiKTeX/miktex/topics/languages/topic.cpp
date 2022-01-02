@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief languages topic
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -27,7 +27,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing TeX languages");
+            return T_("Commands for managing LaTeX language definitions");
         }
 
         std::string Name() override
@@ -37,7 +37,7 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Configure());
         }
     };
 }

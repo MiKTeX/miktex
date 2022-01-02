@@ -33,7 +33,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("List format files");
+            return T_("List TeX formats");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;

@@ -19,6 +19,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-fontmaps.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-formats.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-links.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-languages.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-luatex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-mf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-mpost.xml" />

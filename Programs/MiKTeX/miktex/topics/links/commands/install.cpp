@@ -33,7 +33,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Install links from formats and scripts to executables");
+            return T_("Install links from scripts and formats to executables");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;

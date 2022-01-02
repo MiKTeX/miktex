@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief mkfntmap shim
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -24,5 +24,5 @@ using namespace OneMiKTeXUtility;
 
 void Shims::mkfntmap(vector<string>& arguments)
 {
-    arguments.insert(arguments.begin(), { "fontmaps", "refresh" });
+    arguments.insert(arguments.begin(), { "fontmaps", "configure" });
 }

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief fontmaps set-option
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -33,7 +33,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Set an option value");
+            return T_("Set a configuration option");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;

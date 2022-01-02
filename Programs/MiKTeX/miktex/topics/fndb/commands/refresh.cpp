@@ -36,7 +36,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("refresh the file name database");
+            return T_("Refresh the file name database");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
