@@ -178,9 +178,9 @@ const struct poptOption IniTeXMFApp::options[] = {
 
   {
     "mkmaps", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_MKMAPS,
-    T_("Create font map files."),
+    nullptr,
     nullptr
   },
 

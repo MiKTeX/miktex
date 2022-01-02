@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief links commands
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -19,6 +19,6 @@
 
 namespace OneMiKTeXUtility::Topics::Links::Commands
 {
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Remove();
-    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Install();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Uninstall();
 }

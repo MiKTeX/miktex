@@ -120,18 +120,6 @@ must be <option>a4</option> or
 <filename>language.def</filename>.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--mkmaps</option></term>
-<listitem>
-<indexterm>
-<primary>--mkmaps</primary>
-</indexterm>
-<indexterm>
-<primary>psfonts.map</primary>
-<secondary>creating</secondary>
-</indexterm>
-<para>Build the font map files.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--print-only</option></term>
 <listitem>
 <indexterm>

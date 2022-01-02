@@ -1035,7 +1035,7 @@ void SetupServiceImpl::DoFinishUpdate()
   RunOneMiKTeXUtility({ "fndb", "refresh" }, false);
   if (!session->IsSharedSetup() || session->IsAdminMode())
   {
-    RunOneMiKTeXUtility({ "links", "update", "--force" }, false);
+    RunOneMiKTeXUtility({ "links", "install", "--force" }, false);
   }
   RunOneMiKTeXUtility({ "fontmaps", "refresh" }, false);
   RunOneMiKTeXUtility({ "languages", "update" }, false);
@@ -1060,7 +1060,7 @@ void SetupServiceImpl::DoCleanUp()
     ReportLine("removing links...");
     try
     {
-      RunOneMiKTeXUtility({ "links", "remove" }, false);
+      RunOneMiKTeXUtility({ "links", "uninstall" }, false);
     }
     catch (const MiKTeXException& e)
     {
@@ -1396,7 +1396,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 
     // create latex.exe, ...
-    RunOneMiKTeXUtility({ "links", "update", "--force" }, false);
+    RunOneMiKTeXUtility({ "links", "install", "--force" }, false);
     if (cancelled)
     {
       return;

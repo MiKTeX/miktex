@@ -741,7 +741,7 @@ void IniTeXMFApp::ListMetafontModes()
 
 void IniTeXMFApp::Clean()
 {
-  RunOneMiKTeXUtility({"links", "remove"});
+  RunOneMiKTeXUtility({"links", "uninstall"});
   session->UnloadFilenameDatabase();
   Finalize(true);
   isLog4cxxConfigured = false;

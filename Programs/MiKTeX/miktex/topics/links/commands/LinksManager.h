@@ -61,14 +61,14 @@ class LinksManager
 public:
 
     void Init(OneMiKTeXUtility::ApplicationContext& ctx);
-    void Remove();
-    void Update(bool force);
+    void Install(bool force);
+    void Uninstall();
 
 private:
 
     std::vector<FileLink> CollectLinks(LinkCategoryOptions linkCategories);
 
-    void ManageLinks(LinkCategoryOptions linkCategories, bool remove, bool force);
+    void ManageLinks(LinkCategoryOptions linkCategories, bool uninstall, bool force);
 
     void ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool isRemoveRequested, bool allowOverwrite);
 

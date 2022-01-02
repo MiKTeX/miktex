@@ -1855,7 +1855,7 @@ bool ChangeLinkTargetDirectoryWorker::Run()
   try
   {
     shared_ptr<Session> session = MIKTEX_SESSION();
-    RunOneMiKTeXUtility({ "links", "remove" });
+    RunOneMiKTeXUtility({ "links", "uninstall" });
     if (session->IsSharedSetup())
     {
       session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
@@ -1864,7 +1864,7 @@ bool ChangeLinkTargetDirectoryWorker::Run()
     {
       session->SetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, ConfigValue(linkTargetDirectory.ToString()));
     }
-    RunOneMiKTeXUtility({ "links", "update" });
+    RunOneMiKTeXUtility({ "links", "install" });
     result = true;
   }
   catch (const MiKTeXException& e)

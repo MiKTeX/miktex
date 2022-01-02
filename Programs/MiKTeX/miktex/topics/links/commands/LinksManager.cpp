@@ -41,14 +41,14 @@ void LinksManager::Init(ApplicationContext& ctx)
     this->ctx = &ctx;
 }
 
-void LinksManager::Remove()
+void LinksManager::Uninstall()
 {
     LinkCategoryOptions linkCategories;
     linkCategories.Set();
     this->ManageLinks(linkCategories, true, true);
 }
 
-void LinksManager::Update(bool force)
+void LinksManager::Install(bool force)
 {
     LinkCategoryOptions linkCategories;
     linkCategories.Set();
@@ -58,7 +58,7 @@ void LinksManager::Update(bool force)
 #endif
 }
 
-void LinksManager::ManageLinks(LinkCategoryOptions linkCategories, bool remove, bool force)
+void LinksManager::ManageLinks(LinkCategoryOptions linkCategories, bool uninstall, bool force)
 {
   PathName pathBinDir = this->ctx->session->GetSpecialPath(SpecialPath::BinDirectory);
   PathName internalBinDir = this->ctx->session->GetSpecialPath(SpecialPath::InternalBinDirectory);
@@ -67,14 +67,14 @@ void LinksManager::ManageLinks(LinkCategoryOptions linkCategories, bool remove, 
 
   bool supportsHardLinks = Utils::SupportsHardLinks(pathBinDir);
 
-  if (!remove && !Directory::Exists(pathBinDir))
+  if (!uninstall && !Directory::Exists(pathBinDir))
   {
     Directory::Create(pathBinDir);
   }
 
   for (const FileLink& fileLink : CollectLinks(linkCategories))
   {
-    ManageLink(fileLink, supportsHardLinks, remove, force);
+    ManageLink(fileLink, supportsHardLinks, uninstall, force);
   }
 }
 

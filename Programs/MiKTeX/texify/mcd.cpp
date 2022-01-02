@@ -1419,7 +1419,7 @@ void Driver::InstallProgram(const char* program)
     FatalUtilityError("miktex");
   }
   ProcessOutputTrash trash;
-  Process::Run(pathExe, vector<string>{ "miktex", "links", "update" }, (options->quiet ? &trash : nullptr));
+  Process::Run(pathExe, vector<string>{ "miktex", "links", "install" }, (options->quiet ? &trash : nullptr));
 }
 
 PathName Driver::GetTeXEnginePath(string& exeName)

@@ -5,12 +5,12 @@
 %entities.ent;
 ]>
 
-<refentry id="miktex-links">
+<refentry id="miktex-fontmaps">
 
-<?dbhh topicname="MIKTEXHELP_MIKTEX_LINKS" topicid="0"?>
+<?dbhh topicname="MIKTEXHELP_MIKTEX_FONTMAPS" topicid="0"?>
 
 <refmeta>
-<refentrytitle>miktex-links</refentrytitle>
+<refentrytitle>miktex-fontmaps</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -18,8 +18,8 @@
 </refmeta>
 
 <refnamediv>
-<refname>miktex-links</refname>
-<refpurpose>manage links from scripts and formats to executables</refpurpose>
+<refname>miktex-fontmaps</refname>
+<refpurpose>manage &TeX; font map files</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -27,7 +27,7 @@
 <cmdsynopsis>
 &miktex;
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
-<arg choice="plain">links</arg>
+<arg choice="plain">fontmaps</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
 <arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
 </cmdsynopsis>
@@ -38,7 +38,7 @@
 
 <title>Description</title>
 
-<para>Commands for managing links from scripts and formats to executables.</para>
+<para>Commands for managing the &TeX; font map files.</para>
 
 </refsect1>
 
@@ -48,14 +48,13 @@
 
 <variablelist>
 <varlistentry>
-<term><command>install</command> <optional><option>--force</option></optional></term>
+<term><command>refresh</command></term>
 <listitem>
-<para>Install all links. Existing links will be overwritten, if <option>--force</option> is specified.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><command>uninstall</command></term>
-<listitem>
-<para>Uninstall all links.</para></listitem>
+<indexterm>
+<primary>&TeX; font map files</primary>
+<secondary>refreshing</secondary>
+</indexterm>
+<para>Refresh &MiKTeX; font map files.</para></listitem>
 </varlistentry>
 </variablelist>
 

@@ -1777,7 +1777,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
     RunOneMiKTeXUtility({"fontmaps", "refresh"});
     if (session->IsAdminMode())
     {
-      RunOneMiKTeXUtility({"links", "update"});
+      RunOneMiKTeXUtility({"links", "install"});
     }
     else
     {

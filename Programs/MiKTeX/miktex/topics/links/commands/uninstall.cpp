@@ -1,9 +1,9 @@
 /**
- * @file topics/links/commands/remove.cpp
+ * @file topics/links/commands/uninstall.cpp
  * @author Christian Schenk
- * @brief links remove
+ * @brief links uninstall
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -26,24 +26,24 @@
 
 namespace
 {
-    class RemoveCommand :
+    class UninstallCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Remove all links");
+            return T_("Uninstall all links");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "remove";
+            return "uninstall";
         }
 
         std::string Synopsis() override
         {
-            return "remove";
+            return "uninstall";
         }
     };
 }
@@ -54,12 +54,12 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Links;
 
-unique_ptr<Command> Commands::Remove()
+unique_ptr<Command> Commands::Uninstall()
 {
-    return make_unique<RemoveCommand>();
+    return make_unique<UninstallCommand>();
 }
 
-int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int UninstallCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (ctx.session->IsSharedSetup() && !ctx.session->IsAdminMode())
     {
@@ -71,6 +71,6 @@ int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     }
     LinksManager mgr;
     mgr.Init(ctx);
-    mgr.Remove();
+    mgr.Uninstall();
     return 0;
 }

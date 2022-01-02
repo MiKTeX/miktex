@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief links topic
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -37,8 +37,8 @@ namespace
 
         void RegisterCommands() override
         {
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Remove());
-            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Install());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Uninstall());
         }
     };
 }

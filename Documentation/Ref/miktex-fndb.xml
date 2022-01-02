@@ -48,6 +48,11 @@
 
 <variablelist>
 <varlistentry>
+<term><command>remove</command></term>
+<listitem>
+<para>Remove the &MiKTeX; file name database.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><command>refresh</command></term>
 <listitem>
 <indexterm>

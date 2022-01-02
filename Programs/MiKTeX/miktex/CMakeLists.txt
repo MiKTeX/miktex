@@ -62,7 +62,7 @@ list(APPEND miktex_sources
     topics/fontmaps/commands/FontMapManager.cpp
     topics/fontmaps/commands/FontMapManager.h
     topics/fontmaps/commands/commands.h
-    topics/fontmaps/commands/refresh.cpp
+    topics/fontmaps/commands/configure.cpp
     topics/fontmaps/commands/set-option.cpp
     topics/fontmaps/commands/show-option.cpp
     topics/fontmaps/topic.cpp
@@ -81,7 +81,7 @@ list(APPEND miktex_sources
 
 list(APPEND miktex_sources
     topics/languages/commands/commands.h
-    topics/languages/commands/update.cpp
+    topics/languages/commands/configure.cpp
     topics/languages/topic.cpp
     topics/languages/topic.h
 )

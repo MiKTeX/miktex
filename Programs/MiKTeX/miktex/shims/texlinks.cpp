@@ -56,5 +56,5 @@ void Shims::texlinks(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& 
     {
         ctx->ui->IncorrectUsage(T_("unexpected leftover arguments"));
     }
-    arguments = { "links", "update" };
+    arguments = { "links", "install" };
 }

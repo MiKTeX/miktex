@@ -1,9 +1,9 @@
 /**
- * @file topics/links/commands/update.cpp
+ * @file topics/links/commands/install.cpp
  * @author Christian Schenk
- * @brief links update
+ * @brief links install
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -28,24 +28,24 @@
 
 namespace
 {
-    class UpdateCommand :
+    class InstallCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Update links from formats and scripts to executables");
+            return T_("Install links from formats and scripts to executables");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "update";
+            return "install";
         }
 
         std::string Synopsis() override
         {
-            return "update [--force]";
+            return "install [--force]";
         }
     };
 }
@@ -58,9 +58,9 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Links;
 
-unique_ptr<Command> Commands::Update()
+unique_ptr<Command> Commands::Install()
 {
-    return make_unique<UpdateCommand>();
+    return make_unique<InstallCommand>();
 }
 
 enum Option
@@ -69,7 +69,7 @@ enum Option
     OPT_FORCE,
 };
 
-static const struct poptOption update_options[] =
+static const struct poptOption install_options[] =
 {
     {
         "force", 0,
@@ -82,14 +82,14 @@ static const struct poptOption update_options[] =
     POPT_TABLEEND
 };
 
-int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int InstallCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     if (ctx.session->IsSharedSetup() && !ctx.session->IsAdminMode())
     {
         ctx.ui->FatalError(T_("this command must be run in admin mode"));
     }
     auto argv = MakeArgv(arguments);
-    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], update_options);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], install_options);
     int option;
     bool force = false;
     while ((option = popt.GetNextOpt()) >= 0)
@@ -111,6 +111,6 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     }
     LinksManager mgr;
     mgr.Init(ctx);
-    mgr.Update(force);
+    mgr.Install(force);
     return 0;
 }

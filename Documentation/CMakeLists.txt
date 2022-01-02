@@ -137,6 +137,7 @@ set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvicopy.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvips.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-fndb.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-fontmaps.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-formats.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-gftodvi.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-links.xml
@@ -411,6 +412,7 @@ set(generated_man1_pages
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvips.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}fndb.1
+  ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}fontmaps.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}formats.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}gftodvi.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}links.1
