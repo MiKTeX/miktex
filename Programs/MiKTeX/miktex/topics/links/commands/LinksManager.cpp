@@ -11,6 +11,8 @@
  * License version 2 or any later version.
  */
 
+#include <config.h>
+
 #include <string>
 
 #include <fmt/format.h>
@@ -43,6 +45,8 @@ void LinksManager::Init(ApplicationContext& ctx)
 
 void LinksManager::Uninstall()
 {
+    PathName linkTargetDirectory = this->ctx->session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
+    this->ctx->ui->Verbose(1, fmt::format(T_("Removing links from target directory {0}..."), Q_(linkTargetDirectory.ToDisplayString())));
     LinkCategoryOptions linkCategories;
     linkCategories.Set();
     this->ManageLinks(linkCategories, true, true);
@@ -50,6 +54,8 @@ void LinksManager::Uninstall()
 
 void LinksManager::Install(bool force)
 {
+    PathName linkTargetDirectory = this->ctx->session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
+    this->ctx->ui->Verbose(1, fmt::format(T_("Installing links in target directory {0}..."), Q_(linkTargetDirectory.ToDisplayString())));
     LinkCategoryOptions linkCategories;
     linkCategories.Set();
     this->ManageLinks(linkCategories, false, force);
@@ -156,6 +162,7 @@ void LinksManager::ManageLink(const FileLink& fileLink, bool supportsHardLinks, 
                 }
             }
 #endif
+            this->ctx->ui->Verbose(2, fmt::format(T_("Removing {0}..."), PathName(linkName).ToDisplayString()));
             File::Delete(PathName(linkName), { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
         }
         if (isRemoveRequested)
@@ -177,13 +184,16 @@ void LinksManager::ManageLink(const FileLink& fileLink, bool supportsHardLinks, 
             {
                 target = fileLink.target.c_str();
             }
+            this->ctx->ui->Verbose(2, fmt::format(T_("Creating symbolic link: {0} -> {1}..."), Q_(PathName(linkName).ToDisplayString()), Q_(PathName(fileLink.target).ToDisplayString())));
             File::CreateLink(PathName(target), PathName(linkName), { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
             break;
         }
         case LinkType::Hard:
+            this->ctx->ui->Verbose(2, fmt::format(T_("Creating hard link: {0} -> {1}..."), Q_(PathName(linkName).ToDisplayString()), Q_(PathName(fileLink.target).ToDisplayString())));
             File::CreateLink(PathName(fileLink.target), PathName(linkName), { CreateLinkOption::UpdateFndb });
             break;
         case LinkType::Copy:
+            this->ctx->ui->Verbose(2, fmt::format(T_("Copying: {0} -> {1}..."), Q_(PathName(linkName).ToDisplayString()), Q_(PathName(fileLink.target).ToDisplayString())));
             File::Copy(PathName(fileLink.target), PathName(linkName), { FileCopyOption::UpdateFndb });
             break;
         default:
@@ -197,8 +207,6 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
   vector<FileLink> result;
   PathName linkTargetDirectory = this->ctx->session->GetSpecialPath(SpecialPath::LinkTargetDirectory);
   PathName pathBinDir = this->ctx->session->GetSpecialPath(SpecialPath::BinDirectory);
-
-  this->ctx->ui->Verbose(1, fmt::format(T_("Collecting linked executables in target directory {0}..."), Q_(linkTargetDirectory)));
 
   if (linkCategories[LinkCategory::MiKTeX])
   {
@@ -257,7 +265,7 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
       PathName enginePath;
       if (!this->ctx->session->FindFile(string(MIKTEX_PREFIX) + engine, FileType::EXE, enginePath))
       {
-        this->ctx->ui->Warning(fmt::format(T_("{0}: engine not be found"), engine));
+        this->ctx->ui->Warning(fmt::format(T_("{0}: engine '{1}' not found"), formatInfo.key, engine));
         continue;
       }
       PathName exePath(linkTargetDirectory, PathName(formatInfo.name));

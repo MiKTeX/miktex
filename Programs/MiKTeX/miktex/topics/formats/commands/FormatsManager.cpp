@@ -11,6 +11,8 @@
  * License version 2 or any later version.
  */
 
+#include <config.h>
+
 #include <string>
 #include <vector>
 
@@ -48,7 +50,7 @@ void FormatsManager::Build(const string& formatKey)
 
   auto formatInfo = this->Format(formatKey);
 
-  this->ctx->ui->Verbose(1, fmt::format(T_("Building '{0}' with '{1}'..."), formatInfo.key, formatInfo.compiler));
+  this->ctx->ui->Verbose(1, fmt::format(T_("Building format '{0}' with engine '{1}'..."), formatInfo.key, formatInfo.compiler));
 
   string maker;
 

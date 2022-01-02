@@ -827,11 +827,11 @@ void IniTeXMFApp::ManageLinks(bool remove, bool force)
   vector<string> args{"links"};
   if (remove)
   {
-    args.push_back("remove");
+    args.push_back("uninstall");
   }
   else
   {
-    args.push_back("update");
+    args.push_back("install");
     if (force)
     {
       args.push_back("--force");

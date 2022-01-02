@@ -20,6 +20,8 @@
  * @endcode
  */
 
+#include <config.h>
+
 #include <iostream>
 #include <map>
 #include <set>

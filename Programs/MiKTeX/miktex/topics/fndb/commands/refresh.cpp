@@ -11,6 +11,8 @@
  * License version 2 or any later version.
  */
 
+#include <config.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -79,11 +81,11 @@ void RefreshFilenameDatabase(ApplicationContext& ctx, const PathName& root)
     PathName fndbPath = ctx.session->GetFilenameDatabasePathName(rootIdx);
     if (ctx.session->IsCommonRootDirectory(rootIdx))
     {
-        ctx.ui->Verbose(1, fmt::format(T_("Creating FNDB for common root directory ({0})..."), Q_(root)));
+        ctx.ui->Verbose(1, fmt::format(T_("Creating FNDB for common root directory ({0})..."), Q_(root.ToDisplayString())));
     }
     else
     {
-        ctx.ui->Verbose(1, fmt::format(T_("Creating FNDB for user root directory ({0})..."), Q_(root)));
+        ctx.ui->Verbose(1, fmt::format(T_("Creating FNDB for user root directory ({0})..."), Q_(root.ToDisplayString())));
     }
     Fndb::Create(fndbPath, root, nullptr);
 }
@@ -105,7 +107,7 @@ int RefreshCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
             }
             else
             {
-                ctx.ui->Verbose(1, fmt::format(T_("Skipping user root directory ({0})..."), Q_(ctx.session->GetRootDirectoryPath(r))));
+                ctx.ui->Verbose(1, fmt::format(T_("Skipping user root directory ({0})..."), Q_(ctx.session->GetRootDirectoryPath(r).ToDisplayString())));
             }
         }
         else
@@ -116,7 +118,7 @@ int RefreshCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
             }
             else
             {
-                ctx.ui->Verbose(1, fmt::format(T_("Skipping common root directory ({0})..."), Q_(ctx.session->GetRootDirectoryPath(r))));
+                ctx.ui->Verbose(1, fmt::format(T_("Skipping common root directory ({0})..."), Q_(ctx.session->GetRootDirectoryPath(r).ToDisplayString())));
             }
         }
     }
@@ -138,4 +140,5 @@ int RefreshCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
         ctx.ui->Verbose(1, T_("Refreshing FNDB for MPM..."));
         ctx.packageManager->CreateMpmFndb();
     }
+    return 0;
 }

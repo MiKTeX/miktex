@@ -3,13 +3,15 @@
  * @author Christian Schenk
  * @brief fndb remove
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
  * One MiKTeX Utility is licensed under GNU General Public
  * License version 2 or any later version.
  */
+
+#include <config.h>
 
 #include <memory>
 #include <string>
@@ -80,14 +82,15 @@ int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     for (unsigned r = 0; r < nRoots; ++r)
     {
         PathName path = ctx.session->GetFilenameDatabasePathName(r);
-        ctx.ui->Verbose(1, fmt::format(T_("Removing FNDB ({0})..."), Q_(path)));
+        ctx.ui->Verbose(1, fmt::format(T_("Removing {0}..."), Q_(path.ToDisplayString())));
         File::Delete(path, { FileDeleteOption::TryHard });
         PathName changeFile = path;
         changeFile.SetExtension(MIKTEX_FNDB_CHANGE_FILE_SUFFIX);
         if (File::Exists(changeFile))
         {
-            ctx.ui->Verbose(1, fmt::format(T_("Removing FNDB change file ({0})..."), Q_(changeFile)));
+            ctx.ui->Verbose(1, fmt::format(T_("Removing {0}..."), Q_(changeFile.ToDisplayString())));
             File::Delete(changeFile, { FileDeleteOption::TryHard });
         }
     }
+    return 0;
 }

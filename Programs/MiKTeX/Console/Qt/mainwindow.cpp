@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017-2021 Christian Schenk
+   Copyright (C) 2017-2022 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -2066,7 +2066,7 @@ bool BuildFormatsWorker::Run()
     for (const string& key : formats)
     {
       FormatInfo formatInfo = session->GetFormatInfo(key);
-      RunOneMiKTeXUtility({ "formats", "build", "--name=", formatInfo.key });
+      RunOneMiKTeXUtility({ "formats", "build", "--key", formatInfo.key });
     }
     result = true;
   }

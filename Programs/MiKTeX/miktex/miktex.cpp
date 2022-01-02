@@ -11,9 +11,7 @@
  * License version 2 or any later version.
  */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#include <config.h>
 
 #include <atomic>
 #include <iomanip>

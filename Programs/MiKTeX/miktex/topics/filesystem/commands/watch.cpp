@@ -11,6 +11,8 @@
  * License version 2 or any later version.
  */
 
+#include <config.h>
+
 #include <memory>
 #include <string>
 #include <thread>
