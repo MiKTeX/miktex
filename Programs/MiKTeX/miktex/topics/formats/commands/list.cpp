@@ -49,6 +49,8 @@ namespace
         {
             return "list";
         }
+
+        const std::string listFormat = "{key} ({description})";
     };
 }
 
@@ -97,7 +99,11 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     mgr.Init(ctx);
     for (auto& f : mgr.Formats())
     {
-        ctx.ui->Output(fmt::format("{0} ({1})", f.key, f.description));
+        ctx.ui->Output(fmt::format(this->listFormat,
+            fmt::arg("key", f.key),
+            fmt::arg("description", f.description),
+            fmt::arg("engine", f.compiler)
+        ));
     }
     return 0;
 }
