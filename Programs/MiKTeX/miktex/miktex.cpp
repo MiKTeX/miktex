@@ -301,19 +301,6 @@ static void Sorry(const string& message, const string& description, const string
     {
         cerr << fmt::format(T_("Remedy: {0}"), remedy) << endl;
     }
-    if (isLog4cxxConfigured)
-    {
-#if defined(MIKTEX_LOG4CXX_12)
-        log4cxx::AppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-        log4cxx::FileAppenderPtr fileAppender = log4cxx::cast<log4cxx::FileAppender>(appender);
-#else
-        log4cxx::FileAppenderPtr fileAppender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-#endif
-        if (fileAppender != nullptr)
-        {
-            cerr << fmt::format(T_("More info: {0}"), PathName(fileAppender->getFile())) << endl;
-        }
-    }
     if (!url.empty())
     {
         cerr << fmt::format(T_("For more information, visit: {0}"), url) << endl;
@@ -697,6 +684,7 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     }
     InstallSignalHandler(SIGINT);
     InstallSignalHandler(SIGTERM);
+    session->SetFindFileCallback(this);
     return {0, newargs};
 }
 

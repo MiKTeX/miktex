@@ -62,7 +62,7 @@
 <para>Set a configuration option.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>show-option</command> <option>--name=<replaceable>name</replaceable></option></term>
+<term><command>show-option</command> <optional><option>--format=<replaceable>format</replaceable></option></optional> <option>--name=<replaceable>name</replaceable></option></term>
 <listitem>
 <para>Show a configuration option.</para></listitem>
 </varlistentry>

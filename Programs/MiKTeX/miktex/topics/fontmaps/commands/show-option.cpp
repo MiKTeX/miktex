@@ -47,8 +47,10 @@ namespace
 
         std::string Synopsis() override
         {
-            return "show-option --name=NAME";
+            return "show-option [--format=FORMAT] --name=NAME";
         }
+
+        const std::string defaultFormatTemplate = "{value}";
     };
 }
 
@@ -68,11 +70,19 @@ unique_ptr<Command> Commands::ShowOption()
 enum Option
 {
     OPT_AAA = 1,
+    OPT_FORMAT,
     OPT_NAME,
 };
 
 static const struct poptOption options[] =
 {
+    {
+        "format", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_FORMAT,
+        T_("Specify output format template."),
+        "FORMAT"
+    },
     {
         "name", 0,
         POPT_ARG_STRING, nullptr,
@@ -89,11 +99,15 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
+    string formatTemplate = this->defaultFormatTemplate;
     string name;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
+        case OPT_FORMAT:
+            formatTemplate = popt.GetOptArg();
+            break;
         case OPT_NAME:
             name = popt.GetOptArg();
             break;
@@ -113,6 +127,8 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     }
     FontMapManager mgr;
     mgr.Init(ctx);
-    ctx.ui->Output(fmt::format("{0}={1}", name, mgr.Option(name)));
+    ctx.ui->Output(fmt::format(formatTemplate,
+        fmt::arg("name", name),
+        fmt::arg("value", mgr.Option(name))));
     return 0;
 }
