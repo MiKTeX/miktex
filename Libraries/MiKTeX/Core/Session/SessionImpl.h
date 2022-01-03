@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -666,7 +666,7 @@ private:
   std::tuple<MiKTeX::Util::PathName, std::vector<std::string>, std::vector<std::string>> GetScript(const std::string& scriptEngine, const std::string& name);
 
 private:
-  int RunScript(const std::string& scriptEngine, const std::string& scriptEngineArgument, int argc, const char** argv);
+  int RunScript(const std::string& scriptEngine, const std::vector<std::string>& lastScriptEngineOptions, int argc, const char** argv);
 
 public:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_access;

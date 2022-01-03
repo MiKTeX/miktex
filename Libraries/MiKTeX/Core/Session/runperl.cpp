@@ -1,6 +1,6 @@
 /* runperl.cpp: running scripts
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Paths>
@@ -67,7 +70,7 @@ tuple<PathName, vector<string>, vector<string>> SessionImpl::GetScript(const str
   return make_tuple(scriptPath, scriptEngineOptions, scriptOptions);
 }
 
-int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngineArgument, int argc, const char** argv)
+int SessionImpl::RunScript(const string& scriptEngine, const vector<string>& lastScriptEngineOptions, int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 
@@ -107,12 +110,12 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
     args.insert(args.end(), scriptEngineOptions.begin(), scriptEngineOptions.end());
   }
 
-  if (!scriptEngineArgument.empty())
+  if (!lastScriptEngineOptions.empty())
   {
-    args.push_back(scriptEngineArgument);
+    args.insert(args.end(), lastScriptEngineOptions.begin(), lastScriptEngineOptions.end());
   }
 
-  args.push_back(scriptPath.ToString());
+  args.push_back(scriptPath.ToUnix().ToString());
 
   if (!scriptOptions.empty())
   {
@@ -144,15 +147,21 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
 
 int SessionImpl::RunPerl(int argc, const char** argv)
 {
-  return RunScript("perl", "", argc, argv);
+  MIKTEX_ASSERT(argc > 0);
+  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
+  PathName scriptPath;
+  vector<string> scriptEngineOptions;
+  vector<string> scriptOptions;
+  tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript("perl", name.ToString());
+  return RunScript("perl", { fmt::format("-I{0}", scriptPath.GetDirectoryName().ToUnix().ToString()) }, argc, argv);
 }
 
 int SessionImpl::RunPython(int argc, const char** argv)
 {
-  return RunScript("python", "", argc, argv);
+  return RunScript("python", {}, argc, argv);
 }
 
 int SessionImpl::RunJava(int argc, const char** argv)
 {
-  return RunScript("java", "-jar", argc, argv);
+  return RunScript("java", { "-jar" }, argc, argv);
 }
