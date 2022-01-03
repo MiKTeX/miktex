@@ -19,6 +19,22 @@ add_definitions(
     -DHAVE_CONFIG_H=1
 )
 
+add_definitions(
+    -DWITH_LCDF_TYPETOOLS=1
+)
+
+if(NOT USE_SYSTEM_POPPLER)
+    add_definitions(
+        -DWITH_POPPLER_UTILS=1
+    )
+endif()
+
+if(NOT USE_SYSTEM_FONTCONFIG)
+    add_definitions(
+        -DWITH_FONTCONFIG_UTILS=1
+    )
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
     add_definitions(
         -DUNICODE

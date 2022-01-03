@@ -50,7 +50,7 @@ namespace
             return "show-option [--format=FORMAT] --name=NAME";
         }
 
-        const std::string defaultFormatTemplate = "{value}";
+        const std::string defaultTemplate = "{value}";
     };
 }
 
@@ -81,7 +81,7 @@ static const struct poptOption options[] =
         POPT_ARG_STRING, nullptr,
         OPT_FORMAT,
         T_("Specify output format template."),
-        "FORMAT"
+        "TEMPLATE"
     },
     {
         "name", 0,
@@ -99,7 +99,7 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    string formatTemplate = this->defaultFormatTemplate;
+    string formatTemplate = this->defaultTemplate;
     string name;
     while ((option = popt.GetNextOpt()) >= 0)
     {

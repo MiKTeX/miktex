@@ -47,10 +47,10 @@ namespace
 
         std::string Synopsis() override
         {
-            return "list";
+            return "list [--format=TEMPLATE]";
         }
 
-        const std::string listFormat = "{key} ({description})";
+        const std::string defaultTemplate = "{key}";
     };
 }
 
@@ -70,10 +70,18 @@ unique_ptr<Command> Commands::List()
 enum Option
 {
     OPT_AAA = 1,
+    OPT_FORMAT,
 };
 
 static const struct poptOption options[] =
 {
+    {
+        "format", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_FORMAT,
+        T_("Specify output format template."),
+        "TEMPLATE"
+    },
     POPT_AUTOHELP
     POPT_TABLEEND
 };
@@ -83,9 +91,15 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    string name;
+    string formatTemplate = this->defaultTemplate;
     while ((option = popt.GetNextOpt()) >= 0)
     {
+        switch (option)
+        {
+        case OPT_FORMAT:
+            formatTemplate = popt.GetOptArg();
+            break;
+        }
     }
     if (option != -1)
     {
@@ -99,10 +113,18 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     mgr.Init(ctx);
     for (auto& f : mgr.Formats())
     {
-        ctx.ui->Output(fmt::format(this->listFormat,
-            fmt::arg("key", f.key),
+        ctx.ui->Output(fmt::format(formatTemplate,
+            fmt::arg("arguments", f.arguments),
+            fmt::arg("compiler", f.compiler),
+            fmt::arg("custom", f.custom),
             fmt::arg("description", f.description),
-            fmt::arg("engine", f.compiler)
+            fmt::arg("exclude", f.exclude),
+            fmt::arg("inputFile", f.inputFile),
+            fmt::arg("key", f.key),
+            fmt::arg("name", f.name),
+            fmt::arg("noExecutable", f.noExecutable),
+            fmt::arg("outputFile", f.outputFile),
+            fmt::arg("preloaded", f.preloaded)
         ));
     }
     return 0;
