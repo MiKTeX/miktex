@@ -1,5 +1,7 @@
 # MiKTeX Change Log
 
+## 22.1 - next release
+
 ## 21.12.10 - 2021-12-10
 
 ### Upgraded programs

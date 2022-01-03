@@ -1,6 +1,6 @@
 ## miktex-version.cmake: define the MiKTeX version number
 ##
-## Copyright (C) 2006-2021 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify it
 ## under the terms of the GNU General Public License as published by
@@ -17,11 +17,11 @@
 ## 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 ## date based version
-set(MIKTEX_YEAR_VERSION 2021)
-set(MIKTEX_MONTH_VERSION 12)
-set(MIKTEX_DAY_VERSION 10)
+set(MIKTEX_YEAR_VERSION 2022)
+set(MIKTEX_MONTH_VERSION 1)
+set(MIKTEX_DAY_VERSION 17)
 
-set(MIKTEX_DAY_VERSION_IS_PATCH_VERSION TRUE)
+set(MIKTEX_DAY_VERSION_IS_PATCH_VERSION FALSE)
 
 ## internal major/minor/patch version
 math(EXPR
