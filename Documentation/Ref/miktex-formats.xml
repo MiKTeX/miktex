@@ -60,7 +60,7 @@
 <para>Build &TeX; format files.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>list <optional><option>--format=<replaceable>template</replaceable></option></optional></command></term>
+<term><command>list <optional><option>--template=<replaceable>template</replaceable></option></optional></command></term>
 <listitem>
 <para>List &TeX; formats.</para></listitem>
 </varlistentry>

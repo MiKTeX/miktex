@@ -24,6 +24,7 @@
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileSystemWatcher>
 #include <miktex/Util/PathName>
+#include <miktex/Wrappers/PoptWrapper>
 
 #include "internal.h"
 
@@ -48,7 +49,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "watch DIRECTORY";
+            return "watch --directroy-DIR";
         }
     };
 }
@@ -57,6 +58,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
@@ -67,13 +69,48 @@ unique_ptr<Command> Commands::Watch()
     return make_unique<WatchCommand>();
 }
 
+enum Option
+{
+    OPT_AAA = 1,
+    OPT_DIRECTORY,
+};
+
+static const struct poptOption options[] =
+{
+    {
+        "directory", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_DIRECTORY,
+        T_("Specify the directory to watch."),
+        "DIR"
+    },
+    POPT_AUTOHELP
+    POPT_TABLEEND
+};
+
 int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
-    if (arguments.size() != 3)
+    auto argv = MakeArgv(arguments);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
+    int option;
+    PathName dir;
+    while ((option = popt.GetNextOpt()) >= 0)
     {
-        ctx.ui->IncorrectUsage(T_("expected one argument: DIRECTORY"));
+        switch (option)
+        {
+        case OPT_DIRECTORY:
+            dir = popt.GetOptArg();
+            break;
+        }
     }
-    PathName dir(arguments[2]);
+    if (option != -1)
+    {
+        ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
+    }
+    if (!popt.GetLeftovers().empty())
+    {
+        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+    }
     if (!Directory::Exists(dir))
     {
         ctx.ui->FatalError(fmt::format(T_("{0}: directory does not exist"), dir));

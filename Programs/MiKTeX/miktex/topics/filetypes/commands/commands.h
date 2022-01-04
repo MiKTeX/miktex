@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief filetypes commands
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -19,6 +19,7 @@
 
 namespace OneMiKTeXUtility::Topics::FileTypes::Commands
 {
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Register();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Unregister();
 }

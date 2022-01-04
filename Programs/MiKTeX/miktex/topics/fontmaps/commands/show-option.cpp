@@ -47,7 +47,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "show-option [--format=FORMAT] --name=NAME";
+            return "show-option --name=NAME [--template=TEMPLATE]";
         }
 
         const std::string defaultTemplate = "{value}";
@@ -70,25 +70,25 @@ unique_ptr<Command> Commands::ShowOption()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_FORMAT,
     OPT_NAME,
+    OPT_TEMPLATE,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "format", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_FORMAT,
-        T_("Specify output format template."),
-        "TEMPLATE"
-    },
     {
         "name", 0,
         POPT_ARG_STRING, nullptr,
         OPT_NAME,
         T_("Specify the option name."),
         "NAME"
+    },
+    {
+        "template", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_TEMPLATE,
+        T_("Specify the output template."),
+        "TEMPLATE"
     },
     POPT_AUTOHELP
     POPT_TABLEEND
@@ -99,17 +99,17 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    string formatTemplate = this->defaultTemplate;
+    string outputTemplate = this->defaultTemplate;
     string name;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
-        case OPT_FORMAT:
-            formatTemplate = popt.GetOptArg();
-            break;
         case OPT_NAME:
             name = popt.GetOptArg();
+            break;
+        case OPT_TEMPLATE:
+            outputTemplate = popt.GetOptArg();
             break;
         }
     }
@@ -127,7 +127,7 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     }
     FontMapManager mgr;
     mgr.Init(ctx);
-    ctx.ui->Output(fmt::format(formatTemplate,
+    ctx.ui->Output(fmt::format(outputTemplate,
         fmt::arg("name", name),
         fmt::arg("value", mgr.Option(name))));
     return 0;

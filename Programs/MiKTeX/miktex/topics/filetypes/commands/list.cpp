@@ -1,7 +1,7 @@
 /**
- * @file topics/formats/commands/list.cpp
+ * @file topics/filetypes/commands/list.cpp
  * @author Christian Schenk
- * @brief formats list
+ * @brief filetypes list
  *
  * @copyright Copyright © 2021-2022 Christian Schenk
  *
@@ -26,7 +26,7 @@
 
 #include "commands.h"
 
-#include "FormatsManager.h"
+#include "FileTypeManager.h"
 
 namespace
 {
@@ -35,7 +35,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("List TeX formats");
+            return T_("List shell file types");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
@@ -50,7 +50,7 @@ namespace
             return "list [--template=TEMPLATE]";
         }
 
-        const std::string defaultTemplate = "{key}";
+        const std::string defaultTemplate = "{component} (*{extension}) {verb} {executable} {commandArgs} {ddeArgs}";
     };
 }
 
@@ -60,7 +60,7 @@ using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
-using namespace OneMiKTeXUtility::Topics::Formats;
+using namespace OneMiKTeXUtility::Topics::FileTypes;
 
 unique_ptr<Command> Commands::List()
 {
@@ -109,22 +109,20 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    FormatsManager mgr;
+    FileTypeManager mgr;
     mgr.Init(ctx);
-    for (auto& f : mgr.Formats())
+    for (const auto& f : mgr.ShellFileTypes())
     {
         ctx.ui->Output(fmt::format(outputTemplate,
-            fmt::arg("arguments", f.arguments),
-            fmt::arg("compiler", f.compiler),
-            fmt::arg("custom", f.custom),
-            fmt::arg("description", f.description),
-            fmt::arg("exclude", f.exclude),
-            fmt::arg("inputFile", f.inputFile),
-            fmt::arg("key", f.key),
-            fmt::arg("name", f.name),
-            fmt::arg("noExecutable", f.noExecutable),
-            fmt::arg("outputFile", f.outputFile),
-            fmt::arg("preloaded", f.preloaded)
+            fmt::arg("commandArgs", f.commandArgs),
+            fmt::arg("component", f.component),
+            fmt::arg("ddeArgs", f.ddeArgs),
+            fmt::arg("displayName", f.displayName),
+            fmt::arg("executable", f.executable),
+            fmt::arg("extension", f.extension),
+            fmt::arg("iconIndex", f.iconIndex),
+            fmt::arg("takeOwnership", f.takeOwnership),
+            fmt::arg("verb", f.verb)
         ));
     }
     return 0;

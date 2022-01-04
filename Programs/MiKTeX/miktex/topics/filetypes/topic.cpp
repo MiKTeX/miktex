@@ -39,6 +39,7 @@ namespace
 
         void RegisterCommands() override
         {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::List());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Register());
             this->RegisterCommand(OneMiKTeXUtility::Topics::FileTypes::Commands::Unregister());
         }

@@ -117,6 +117,7 @@ if(MIKTEX_NATIVE_WINDOWS)
         topics/filetypes/commands/FileTypeManager.cpp
         topics/filetypes/commands/FileTypeManager.h
         topics/filetypes/commands/commands.h
+        topics/filetypes/commands/list.cpp
         topics/filetypes/commands/register.cpp
         topics/filetypes/commands/unregister.cpp
         topics/filetypes/topic.cpp
