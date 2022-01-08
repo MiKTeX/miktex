@@ -40,6 +40,7 @@ namespace
         void RegisterCommands() override
         {
             this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Install());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::List());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Links::Commands::Uninstall());
         }
     };

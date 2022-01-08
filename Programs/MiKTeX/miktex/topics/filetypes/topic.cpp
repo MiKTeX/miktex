@@ -29,7 +29,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Commands for managing Windows shell file types");
+            return T_("Commands for managing Windows file types");
         }
 
         std::string Name() override

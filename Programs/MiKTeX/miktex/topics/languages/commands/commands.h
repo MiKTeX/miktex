@@ -20,4 +20,5 @@
 namespace OneMiKTeXUtility::Topics::Languages::Commands
 {
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Configure();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();
 }

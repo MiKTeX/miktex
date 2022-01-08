@@ -5,12 +5,12 @@
 %entities.ent;
 ]>
 
-<refentry id="miktex-formats">
+<refentry id="miktex-filetypes">
 
-<?dbhh topicname="MIKTEXHELP_MIKTEX_FORMATS" topicid="0"?>
+<?dbhh topicname="MIKTEXHELP_MIKTEX_FILETYPES" topicid="0"?>
 
 <refmeta>
-<refentrytitle>miktex-formats</refentrytitle>
+<refentrytitle>miktex-filetypes</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -18,8 +18,8 @@
 </refmeta>
 
 <refnamediv>
-<refname>miktex-formats</refname>
-<refpurpose>manage &TeX; formats</refpurpose>
+<refname>miktex-filetypes</refname>
+<refpurpose>manage Windows filetypes</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -27,7 +27,7 @@
 <cmdsynopsis>
 &miktex;
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
-<arg choice="plain">formats</arg>
+<arg choice="plain">filetypes</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
 <arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
 </cmdsynopsis>
@@ -38,7 +38,7 @@
 
 <title>Description</title>
 
-<para>Commands for managing &TeX; formats and &METAFONT; bases.</para>
+<para>Commands for managing Windows file types.</para>
 
 </refsect1>
 
@@ -48,69 +48,59 @@
 
 <variablelist>
 <varlistentry>
-<term><command>build</command> <optional><option>--engine=<replaceable>engine</replaceable></option></optional> <optional><option>--key=<replaceable>key</replaceable></option></optional></term>
-<listitem>
-<indexterm>
-<primary>--dump</primary>
-</indexterm>
-<indexterm>
-<primary>format files</primary>
-<secondary>build</secondary>
-</indexterm>
-<para>Build &TeX; format files.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><command>list</command> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
 <listitem>
-<para>List &TeX; formats.</para>
+<para>List Windows file types.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
 <variablelist>
 <varlistentry>
-<term><code>{arguments}</code></term>
+<term><code>{commandArgs}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{compiler}</code></term>
+<term><code>{ddeArgs}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{custom}</code></term>
+<term><code>{displayName}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{description}</code></term>
+<term><code>{executable}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{exclude}</code></term>
+<term><code>{extension}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{inputFile}</code></term>
+<term><code>{iconIndex}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{key}</code></term>
+<term><code>{progID}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{name}</code></term>
+<term><code>{takeOwnership}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><code>{noExecutable}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{outputFile}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{preloaded}</code></term>
+<term><code>{verb}</code></term>
 <listitem><para></para></listitem>
 </varlistentry>
 </variablelist></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>register</command></term>
+<listitem>
+<para>Register Windows file types.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>unregister</command></term>
+<listitem>
+<para>Unregister Windows file types.</para></listitem>
 </varlistentry>
 </variablelist>
 

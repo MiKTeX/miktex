@@ -98,6 +98,7 @@ list(APPEND miktex_sources
 list(APPEND miktex_sources
     topics/languages/commands/commands.h
     topics/languages/commands/configure.cpp
+    topics/languages/commands/list.cpp
     topics/languages/topic.cpp
     topics/languages/topic.h
 )
@@ -107,6 +108,7 @@ list(APPEND miktex_sources
     topics/links/commands/LinksManager.h
     topics/links/commands/commands.h
     topics/links/commands/install.cpp
+    topics/links/commands/list.cpp
     topics/links/commands/uninstall.cpp
     topics/links/topic.cpp
     topics/links/topic.h

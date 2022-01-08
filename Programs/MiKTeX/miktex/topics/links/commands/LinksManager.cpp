@@ -64,6 +64,13 @@ void LinksManager::Install(bool force)
 #endif
 }
 
+vector<FileLink> LinksManager::Links()
+{
+  LinkCategoryOptions linkCategories;
+  linkCategories.Set();
+  return CollectLinks(linkCategories);
+}
+
 void LinksManager::ManageLinks(LinkCategoryOptions linkCategories, bool uninstall, bool force)
 {
   PathName pathBinDir = this->ctx->session->GetSpecialPath(SpecialPath::BinDirectory);

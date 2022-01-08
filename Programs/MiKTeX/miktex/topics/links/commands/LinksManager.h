@@ -11,6 +11,7 @@
  * License version 2 or any later version.
  */
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,18 @@ enum class LinkType
   Hard,
   Symbolic,
 };
+
+inline std::ostream& operator<<(std::ostream& os, const LinkType& t)
+{
+  std::string s;
+  switch (t)
+  {
+    case LinkType::Copy: s = "copy"; break;
+    case LinkType::Hard: s = "hard-link"; break;
+    case LinkType::Symbolic: s = "symlink"; break;
+  }
+  return os << s;
+}
 
 struct FileLink
 {
@@ -62,6 +75,7 @@ public:
 
     void Init(OneMiKTeXUtility::ApplicationContext& ctx);
     void Install(bool force);
+    std::vector<FileLink> Links();
     void Uninstall();
 
 private:

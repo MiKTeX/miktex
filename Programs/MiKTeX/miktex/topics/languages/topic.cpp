@@ -40,6 +40,7 @@ namespace
         void RegisterCommands() override
         {
             this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::Configure());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Languages::Commands::List());
         }
     };
 }

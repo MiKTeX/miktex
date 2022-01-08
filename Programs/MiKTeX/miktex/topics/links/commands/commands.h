@@ -20,5 +20,6 @@
 namespace OneMiKTeXUtility::Topics::Links::Commands
 {
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Install();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Uninstall();
 }

@@ -33,7 +33,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Register shell file types");
+            return T_("Register Windows file types");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;

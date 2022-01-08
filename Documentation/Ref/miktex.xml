@@ -116,6 +116,16 @@ invoke the utility as follows:</para>
 <variablelist>
 
 <varlistentry>
+<term><citerefentry><refentrytitle>miktex-filesystem</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for watching the file system.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><citerefentry><refentrytitle>miktex-filetypes</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing Windows file types.</para></listitem>
+</varlistentry>
+
+<varlistentry>
 <term><citerefentry><refentrytitle>miktex-fndb</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
 <listitem><para>Commands for managing the &MiKTeX; file name database.</para></listitem>
 </varlistentry>

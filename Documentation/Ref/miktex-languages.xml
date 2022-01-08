@@ -56,6 +56,59 @@
 </indexterm>
 <para>Configure &LaTeX; language definition files.</para></listitem>
 </varlistentry>
+<varlistentry>
+<term><command>list <optional><option>--template=<replaceable>template</replaceable></option></optional></command></term>
+<listitem>
+<para>List &LaTeX; language definitions.</para>
+<para><replaceable>template</replaceable> controls the output of each record.
+It can contain the following placeholders:</para>
+<variablelist>
+<varlistentry>
+<term><code>{custom}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{exclude}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{hyphenation}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{key}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{lefthyphenmin}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{righthyphenmin}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{loader}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{luaspecial}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{patterns}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{righthyphenmin}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><code>{synonyms}</code></term>
+<listitem><para></para></listitem>
+</varlistentry>
+</variablelist></listitem>
+</varlistentry>
 </variablelist>
 
 </refsect1>

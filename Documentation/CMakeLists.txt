@@ -136,6 +136,8 @@ set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-bibtex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvicopy.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-dvips.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-filesystem.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-filetypes.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-fndb.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-fontmaps.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-formats.xml
@@ -412,6 +414,8 @@ set(generated_man1_pages
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}bibtex.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvips.1
+  ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}filesystem.1
+  ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}filetypes.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}fndb.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}fontmaps.1
   ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}formats.1

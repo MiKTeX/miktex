@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<refentry id="miktex-filesystem">
+
+<?dbhh topicname="MIKTEXHELP_MIKTEX_FILESYSTEM" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex-filesystem</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex-filesystem</refname>
+<refpurpose>watch the file system</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&miktex;
+<arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
+<arg choice="plain">filesystem</arg>
+<arg choice="plain"><replaceable>command</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>Commands for watching the file system.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Commands</title>
+
+<variablelist>
+<varlistentry>
+<term><command>watch</command> <option>--directory=<replaceable>dir</replaceable></option></term>
+<listitem>
+<para>Watch for changes in a directory.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
+
+</refsect1>
+
+</refentry>
