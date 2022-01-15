@@ -1,6 +1,6 @@
 /* findfile.cpp: finding files
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -382,8 +382,9 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
   return !result.empty();
 }
 
-LocateResult MIKTEXTHISCALL SessionImpl::Locate(const string& fileName, const LocateOptions& options)
+LocateResult MIKTEXTHISCALL SessionImpl::Locate(const string& givenFileName, const LocateOptions& options)
 {
+  string fileName = this->ExpandValues(givenFileName, nullptr);
   bool found = false;
   vector<PathName> pathNames;
   if (options.fileType == FileType::None)

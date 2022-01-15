@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,6 +30,7 @@
 #include <miktex/Core/File>
 #include <miktex/Core/Fndb>
 #include <miktex/Core/Paths>
+#include <miktex/Core/Utils>
 #include <miktex/Util/PathName>
 #include <miktex/Util/StringUtil>
 
@@ -107,11 +108,24 @@ BEGIN_TEST_FUNCTION(3);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(4);
+{
+  vector<PathName> paths;
+  MiKTeX::Core::Utils::SetEnvironmentString("ABRAKADABRA", "xyz");
+  TEST(pSession->FindFile("$ABRAKADABRA.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathNameUtil::PathNameDelimiter), paths));
+  TEST(!paths.empty());
+  paths.clear();
+  TEST(pSession->FindFile("${ABRAKADABRA}.txt", StringUtil::Flatten({ "%R/ab//", "%R/jk//" }, PathNameUtil::PathNameDelimiter), paths));
+  TEST(!paths.empty());
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
   CALL_TEST_FUNCTION(3);
+  CALL_TEST_FUNCTION(4);
 }
 END_TEST_PROGRAM();
 

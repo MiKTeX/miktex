@@ -2,6 +2,10 @@
 
 ## 22.1 - next release
 
+### Fixed issues
+
+- [1022](https://github.com/MiKTeX/miktex/issues/1022): expand variables when locating files
+
 ## 21.12.10 - 2021-12-10
 
 ### Upgraded programs
