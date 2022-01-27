@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2021 Christian Schenk
+   Copyright (C) 2013-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -1533,7 +1533,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
-  allArgs.insert(allArgs.end(), args.begin(), args.end());
   if (options.IsCommonSetup && session->IsAdminMode())
   {
     allArgs.push_back("--admin");
@@ -1544,6 +1543,7 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
   }
   allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
 
   // run One MiKTeX Utility
   if (!options.IsDryRun)
