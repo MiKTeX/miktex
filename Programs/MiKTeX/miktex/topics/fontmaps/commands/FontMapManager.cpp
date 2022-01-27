@@ -260,7 +260,7 @@ void FontMapManager::SetOption(const std::string& optionName, const std::string&
     {
         Configuration dummy = this->config;
         partialConfiguration = this->ParseConfigFile(configFile, dummy);
-        auto& v = partialConfiguration.options.find(optionName);
+        auto v = partialConfiguration.options.find(optionName);
         if (v != partialConfiguration.options.end() && v->second == value)
         {
             return;

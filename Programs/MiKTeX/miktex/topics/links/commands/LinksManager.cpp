@@ -164,7 +164,7 @@ void LinksManager::ManageLink(const FileLink& fileLink, bool supportsHardLinks, 
                     }
                     else
                     {
-                        this->ctx->logger->LogTrace("{0} is symlinked to non-existing {1}", Q_(linkName), Q_(linkTarget));
+                        this->ctx->logger->LogTrace(fmt::format("{0} is symlinked to non-existing {1}", Q_(linkName), Q_(linkTarget)));
                     }
                 }
             }
@@ -220,7 +220,7 @@ vector<FileLink> LinksManager::CollectLinks(LinkCategoryOptions linkCategories)
     vector<FileLink> links = miktexFileLinks;
     links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
 #if defined(MIKTEX_MACOS_BUNDLE)
-    PathName console(session->GetSpecialPath(SpecialPath::MacOsDirectory) / PathName(MIKTEX_MACOS_BUNDLE_NAME));
+    PathName console(ctx->session->GetSpecialPath(SpecialPath::MacOsDirectory) / PathName(MIKTEX_MACOS_BUNDLE_NAME));
     links.push_back(FileLink(console.ToString(), { MIKTEX_CONSOLE_EXE }, LinkType::Symbolic));
 #endif
     for (const FileLink& fileLink : links)
