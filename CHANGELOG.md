@@ -1,9 +1,10 @@
 # MiKTeX Change Log
 
-## 22.1 - next release
+## 22.1 - 2022-01-31
 
 ### Fixed issues
 
+- [995](https://github.com/MiKTeX/miktex/issues/995): Support for Fedora 35
 - [1022](https://github.com/MiKTeX/miktex/issues/1022): expand variables when locating files
 
 ## 21.12.10 - 2021-12-10
