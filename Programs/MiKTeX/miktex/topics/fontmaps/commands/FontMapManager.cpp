@@ -1013,7 +1013,7 @@ void FontMapManager::BuildFontconfigCache(bool force)
 #else
     if (!Utils::FindProgram("fc-cache", fcCacheExe))
     {
-        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found", "fc-cache")));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found"), "fc-cache"));
     }
 #endif
     vector<string> arguments{ fcCacheExe.GetFileNameWithoutExtension().ToString() };
