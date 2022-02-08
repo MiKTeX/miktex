@@ -30,7 +30,7 @@ ostream& operator<< (ostream& out, const position& pos)
   string filename=pos.file->name();
 
   if(filename != "-" && !settings::getSetting<bool>("quiet")) {
-    std::ifstream fin(pos.file->name().c_str());
+    std::ifstream fin(filename.c_str());
     string s;
     size_t count=pos.line;
     while(count > 0 && getline(fin,s)) {

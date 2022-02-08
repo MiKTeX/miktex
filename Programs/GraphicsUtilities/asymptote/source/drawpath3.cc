@@ -36,7 +36,7 @@ bool drawPath3::write(prcfile *out, unsigned int *, double, groupsmap&)
   return true;
 }
 
-bool drawPath3::write(jsfile *out)
+bool drawPath3::write(abs3Doutfile *out)
 {
 #ifdef HAVE_LIBGLM
   if(invisible)
@@ -47,7 +47,7 @@ bool drawPath3::write(jsfile *out)
     drawElement::centerIndex=centerIndex;
   } else drawElement::centerIndex=0;
 
-  setcolors(false,diffuse,emissive,specular,shininess,metallic,fresnel0,out);
+  setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
 
   if(straight)
     out->addCurve(g.point((Int) 0),g.point((Int) 1),Min,Max);
@@ -64,7 +64,7 @@ void drawPath3::render(double size2, const triple& b, const triple& B,
 #ifdef HAVE_GL
   if(invisible) return;
 
-  setcolors(false,diffuse,emissive,specular,shininess,metallic,fresnel0);
+  setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0);
 
   setMaterial(material1Data,drawMaterial1);
 
@@ -222,14 +222,14 @@ bool drawPixel::write(prcfile *out, unsigned int *, double, groupsmap&)
   return true;
 }
 
-bool drawPixel::write(jsfile *out)
+bool drawPixel::write(abs3Doutfile *out)
 {
 #ifdef HAVE_LIBGLM
   if(invisible)
     return true;
 
   RGBAColour Black(0.0,0.0,0.0,color.A);
-  setcolors(false,color,color,Black,1.0,0.0,0.04,out);
+  setcolors(color,color,Black,1.0,0.0,0.04,out);
 
   out->addPixel(v,width,Min,Max);
 #endif
@@ -243,7 +243,7 @@ void drawPixel::render(double size2, const triple& b, const triple& B,
   if(invisible) return;
 
   RGBAColour Black(0.0,0.0,0.0,color.A);
-  setcolors(false,color,color,Black,1.0,0.0,0.04);
+  setcolors(color,color,Black,1.0,0.0,0.04);
 
   setMaterial(material0Data,drawMaterial0);
 

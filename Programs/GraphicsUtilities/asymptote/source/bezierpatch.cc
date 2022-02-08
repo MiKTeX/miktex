@@ -13,259 +13,12 @@ namespace camp {
 using ::orient2d;
 using ::orient3d;
 
-#ifdef HAVE_GL
+#ifdef HAVE_LIBGLM
 
 int MaterialIndex;
-
-//std::vector<GLuint>& I=transparentData.Indices;
-//std::vector<VertexData>& V=transparentData.Vertices;
 bool colors;
 
-std::vector<GLfloat> zbuffer;
-std::vector<GLfloat> xbuffer;
-std::vector<GLfloat> ybuffer;
-
-//std::vector<GLfloat> xmin,ymin,zmin;
-//std::vector<GLfloat> xmax,ymax,zmax;
-std::vector<GLfloat> zsum;
-
-inline double min(double a, double b, double c)
-{
-  return min(min(a,b),c);
-}
-
-inline double max(double a, double b, double c)
-{
-  return max(max(a,b),c);
-}
-
-struct iz {
-  unsigned i;
-  double z;
-  iz() {}
-  void minimum(unsigned i, const std::vector<GLuint>& I) {
-    this->i=i;
-    unsigned i3=3*i;
-    z=min(zbuffer[I[i3]],zbuffer[I[i3+1]],zbuffer[I[i3+2]]);
-  }
-};
-
-std::vector<iz> IZ;
-
 const double FillFactor=0.1;
-
-inline int sgn1(double x)
-{
-  return x >= 0.0 ? 1 : -1;
-}
-
-inline int sgn(double x)
-{
-  return (x > 0.0 ? 1 : (x < 0.0 ? -1 : 0));
-}
-
-bool sameside(const double *a, const double *b, int s0, const double *A,
-              const double *B, const double *C)
-{
-  if(sgn(orient2d(a,b,A)) == s0) return true;
-  if(sgn(orient2d(a,b,B)) == s0) return true;
-  if(sgn(orient2d(a,b,C)) == s0) return true;
-  return false;
-}
-
-// returns true iff 2D triangles abc and ABC intersect
-bool intersect2D(const double *a, const double *b, const double *c,
-                 const double *A, const double *B, const double *C)
-{
-  int s0=sgn(orient2d(a,b,c)); // Optimize away
-  int S0=sgn(orient2d(A,B,C)); // Optimize away
-  return
-    sameside(a,b,s0,A,B,C) &&
-    sameside(b,c,s0,A,B,C) &&
-    sameside(c,a,s0,A,B,C) &&
-    sameside(A,B,S0,a,b,c) &&
-    sameside(B,C,S0,a,b,c) &&
-    sameside(C,A,S0,a,b,c);
-}
-
-// returns true iff triangle abc is pierced by line segment AB.
-bool pierce(const double *a, const double *b, const double *c, const double *A, const double *B)
-{
-  int sa=sgn(orient3d(A,b,c,B));
-  int sb=sgn(orient3d(A,c,a,B));
-  int sc=sgn(orient3d(A,a,b,B));
-  return sa == sb && sb == sc;
-}
-
-// returns true iff triangle abc is pierced by an edge of triangle ABC
-bool intersect0(const double *a, const double *b, const double *c,
-                const double *A, const double *B, const double *C,
-                int sA, int sB, int sC)
-{
-  if(sA != sB) {
-    if(pierce(a,b,c,A,B)) return true;
-    if(sC != sA) {
-      if(pierce(a,b,c,C,A)) return true;
-    } else {
-      if(pierce(a,b,c,B,C)) return true;
-    }
-  } else {
-    if(pierce(a,b,c,B,C)) return true;
-    if(pierce(a,b,c,C,A)) return true;
-  }
-  return false;
-}
-
-// returns true iff triangle abc intersects triangle ABC
-bool intersect3D(const double *a, const double *b, const double *c,
-                 const double *A, const double *B, const double *C)
-{
-  int sA=sgn(orient3d(a,b,c,A));
-  int sB=sgn(orient3d(a,b,c,B));
-  int sC=sgn(orient3d(a,b,c,C));
-  if(sA == sB && sB == sC) return false;
-
-  int sa=sgn(orient3d(A,B,C,a));
-  int sb=sgn(orient3d(A,B,C,b));
-  int sc=sgn(orient3d(A,B,C,c));
-  if(sa == sb && sb == sc) return false;
-
-  return intersect0(a,b,c,A,B,C,sA,sB,sC) || intersect0(A,B,C,a,b,c,sa,sb,sc);
-}
-
-// Return the intersection time of the extension of the line segment PQ
-// with the plane perpendicular to n and passing through Z.
-inline double intersect(const double *P, const double *Q, const double *n,
-                        const double *Z)
-{
-  double d=n[0]*Z[0]+n[1]*Z[1]+n[2]*Z[2];
-  double denom=n[0]*(Q[0]-P[0])+n[1]*(Q[1]-P[1])+n[2]*(Q[2]-P[2]);
-  return denom == 0 ? DBL_MAX : (d-n[0]*P[0]-n[1]*P[1]-n[2]*P[2])/denom;
-}
-
-inline triple interp(const double *a, const double *b, double t)
-{
-  return triple(a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),a[2]+t*(b[2]-a[2]));
-}
-
-inline void interp(GLfloat *dest,
-                   const GLfloat *a, const GLfloat *b, double t)
-{
-  double onemt=1.0-t;
-  for(size_t i=0; i < 4; ++i)
-    dest[i]=onemt*a[i]+t*b[i];
-}
-
-inline triple interp(const triple& a, const triple& b, double t)
-{
-  return a+(b-a)*t;
-}
-
-unsigned n;
-unsigned int count;
-
-// Sort nonintersecting triangles by depth.
-int compare(const void *p, const void *P)
-{
-  unsigned Ia=((GLuint *) p)[0];
-  unsigned Ib=((GLuint *) p)[1];
-  unsigned Ic=((GLuint *) p)[2];
-
-  unsigned IA=((GLuint *) P)[0];
-  unsigned IB=((GLuint *) P)[1];
-  unsigned IC=((GLuint *) P)[2];
-
-  return zbuffer[Ia]+zbuffer[Ib]+zbuffer[Ic] <
-    zbuffer[IA]+zbuffer[IB]+zbuffer[IC] ? -1 : 1;
-
-  /*
-    double a[]={xbuffer[Ia],ybuffer[Ia],zbuffer[Ia]};
-    double b[]={xbuffer[Ib],ybuffer[Ib],zbuffer[Ib]};
-    double c[]={xbuffer[Ic],ybuffer[Ic],zbuffer[Ic]};
-
-    double A[]={xbuffer[IA],ybuffer[IA],zbuffer[IA]};
-    double B[]={xbuffer[IB],ybuffer[IB],zbuffer[IB]};
-    double C[]={xbuffer[IC],ybuffer[IC],zbuffer[IC]};
-
-    double viewpoint[]={0,0,100000};
-
-    double sa=-orient3d(A,B,C,a);
-    double sb=-orient3d(A,B,C,b);
-    double sc=-orient3d(A,B,C,c);
-    double s=min(sa,sb,sc);
-    double S=max(sa,sb,sc);
-    double eps=1000;
-
-    if(s < -eps && S > eps) { //swap
-    double sA=-orient3d(a,b,c,A);
-    double sB=-orient3d(a,b,c,B);
-    double sC=-orient3d(a,b,c,C);
-    double s=min(sA,sB,sC);
-    double S=max(sA,sB,sC);
-    if(S < -s) S=s;
-    int sz=sgn1(orient3d(a,b,c,viewpoint));
-    if(S < -eps) return -sz;
-    if(S > eps) return sz;
-    }
-    if(S < -s) S=s;
-    int sz=sgn1(orient3d(A,B,C,viewpoint));
-    if(S < -eps) return sz;
-    if(S > eps) return -sz;
-    return a[2]+b[2]+c[2] < A[2]+B[2]+C[2] ? -1 : 1;
-  */
-}
-
-#if 0
-void split(unsigned i3, GLuint ia, GLuint ib, GLuint ic,
-           double *a, double *b, double *c, double *N, double *A) {
-  double td=intersect(a,b,N,A);
-  double te=intersect(a,c,N,A);
-
-  triple d=interp(a,b,td);
-  triple e=interp(a,c,te);
-
-  GLuint Ia=tstride*ia;
-  GLuint Ib=tstride*ib;
-  GLuint Ic=tstride*ic;
-
-  triple na=triple(V[Ia+3],V[Ia+4],V[Ia+5]);
-  triple nb=triple(V[Ib+3],V[Ib+4],V[Ib+5]);
-  triple nc=triple(V[Ic+3],V[Ic+4],V[Ic+5]);
-
-  triple nd=interp(na,nb,td);
-  triple ne=interp(na,nc,te);
-
-  GLuint id,ie;
-
-  if(colors) {
-    GLfloat *ca=&V[Ia+6];
-    GLfloat *cb=&V[Ib+6];
-    GLfloat *cc=&V[Ic+6];
-
-    GLfloat cd[4],ce[4];
-    interp(cd,ca,cb,td);
-    interp(ce,ca,cc,te);
-
-    id=data.Vertex(d,nd,cd);
-    ie=data.Vertex(e,ne,ce);
-  } else {
-    id=data.Vertex(d,nd);
-    ie=data.Vertex(e,ne);
-  }
-
-  I[i3]=ia;
-  I[i3+1]=id;
-  I[i3+2]=ie;
-
-  I.push_back(id);
-  I.push_back(ib);
-  I.push_back(ie);
-
-  I.push_back(ie);
-  I.push_back(ib);
-  I.push_back(ic);
-}
-#endif
 
 void BezierPatch::init(double res)
 {
@@ -979,11 +732,11 @@ void BezierTriangle::render(const triple *p,
   }
 }
 
+std::vector<GLfloat> zbuffer;
+
 void transform(const std::vector<VertexData>& b)
 {
   unsigned n=b.size();
-//  xbuffer.resize(n);
-//  ybuffer.resize(n);
   zbuffer.resize(n);
 
   double Tz0=gl::dView[2];
@@ -995,61 +748,25 @@ void transform(const std::vector<VertexData>& b)
   }
 }
 
-#if 0
-// precompute min and max bounds of each triangle
-void bounds(const std::vector<GLuint>& I)
+// Sort nonintersecting triangles by depth.
+int compare(const void *p, const void *P)
 {
-  unsigned n=I.size()/3;
-/*
-  xmin.resize(n);
-  xmax.resize(n);
-  ymin.resize(n);
-  ymax.resize(n);
-*/
+  unsigned Ia=((GLuint *) p)[0];
+  unsigned Ib=((GLuint *) p)[1];
+  unsigned Ic=((GLuint *) p)[2];
 
-  zmin.resize(n);
-  zmax.resize(n);
+  unsigned IA=((GLuint *) P)[0];
+  unsigned IB=((GLuint *) P)[1];
+  unsigned IC=((GLuint *) P)[2];
 
-  for(unsigned i=0; i < n; ++i) {
-    unsigned i3=3*i;
-    unsigned Ia=I[i3];
-    unsigned Ib=I[i3+1];
-    unsigned Ic=I[i3+2];
-
-
-    /*
-      double xa=xbuffer[Ia];
-      double xb=xbuffer[Ib];
-      double xc=xbuffer[Ic];
-
-      double ya=ybuffer[Ia];
-      double yb=ybuffer[Ib];
-      double yc=ybuffer[Ic];
-    */
-
-    double za=zbuffer[Ia];
-    double zb=zbuffer[Ib];
-    double zc=zbuffer[Ic];
-
-    /*
-      xmin[i]=min(xa,xb,xc);
-      xmax[i]=max(xa,xb,xc);
-
-      ymin[i]=min(ya,yb,yc);
-      ymax[i]=max(ya,yb,yc);
-    */
-
-    zmin[i]=min(za,zb,zc);
-    zmax[i]=max(za,zb,zc);
-  }
+  return zbuffer[Ia]+zbuffer[Ib]+zbuffer[Ic] <
+    zbuffer[IA]+zbuffer[IB]+zbuffer[IC] ? -1 : 1;
 }
-#endif
 
 void sortTriangles()
 {
   if(!transparentData.indices.empty()) {
     transform(transparentData.Vertices);
-//    bounds(tIndices);
     qsort(&transparentData.indices[0],transparentData.indices.size()/3,
           3*sizeof(GLuint),compare);
   }

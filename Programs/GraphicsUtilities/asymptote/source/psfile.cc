@@ -61,8 +61,7 @@ static const char *rectangular="matrix is not rectangular";
 void psfile::writefromRGB(unsigned char r, unsigned char g, unsigned char b,
                           ColorSpace colorspace, size_t ncomponents)
 {
-  static const double factor=1.0/255.0;
-  pen p(r*factor,g*factor,b*factor);
+  pen p(byteinv(r),byteinv(g),byteinv(b));
   p.convert();
   if(!p.promote(colorspace))
     reportError(inconsistent);
@@ -206,6 +205,14 @@ void psfile::setcolor(const pen& p, const string& begin="",
   }
 }
 
+bool psfile::transparentFormat(string outputformat)
+{
+  return
+    outputformat == "pdf" || outputformat == "html" ||
+    outputformat == "svg" || outputformat == "png" ||
+    outputformat == "v3d";
+}
+
 void psfile::setopacity(const pen& p)
 {
   if(p.blend() != lastpen.blend()) {
@@ -214,8 +221,7 @@ void psfile::setopacity(const pen& p)
 
   string outputformat=settings::getSetting<string>("outformat");
   if(p.opacity() != lastpen.opacity() &&
-     (pdf || outputformat == "pdf" || outputformat == "html" ||
-      outputformat == "svg")) {
+  ((pdftex() && outputformat == "") || transparentFormat(outputformat))) {
     *out << p.opacity() << " .setfillconstantalpha" << newl
          << p.opacity() << " .setstrokeconstantalpha" << newl;
   }

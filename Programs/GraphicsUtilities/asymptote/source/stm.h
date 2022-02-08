@@ -57,18 +57,19 @@ public:
   blockStm(position pos, block *base)
     : stm(pos), base(base) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e) {
+  void trans(coenv &e) override {
     return base->trans(e);
   }
 
   // A block is guaranteed to return iff its last statement is
   // guaranteed to return.
-  bool returns() {
+  bool returns() override {
     return base->returns();
   }
 
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 // A statement that consist of a single expression to evaluate.
@@ -79,14 +80,15 @@ public:
   expStm(position pos, exp *body)
     : stm(pos), body(body) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
 
   // Should be called when running an expStm at the interactive prompt.
   // The code will "write" the value of the expression at the prompt if
   // possible.
-  void interactiveTrans(coenv &e);
+  void interactiveTrans(coenv &e) override;
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 class ifStm : public stm {
@@ -98,17 +100,19 @@ public:
   ifStm(position pos, exp *test, stm* onTrue, stm* onFalse = 0)
     : stm(pos), test(test), onTrue(onTrue), onFalse(onFalse) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
 
   // An if statement is guaranteed to return iff both its pieces are
   // guaranteed to return.
-  bool returns() {
+  bool returns() override {
     if (onTrue == 0 || onFalse == 0)
       return false;
     return onTrue->returns() && onFalse->returns();
   }
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 class whileStm : public stm {
@@ -119,9 +123,12 @@ public:
   whileStm(position pos, exp *test, stm *body)
     : stm(pos), test(test), body(body) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+
+  void trans(coenv &e) override;
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 class doStm : public stm {
@@ -132,9 +139,11 @@ public:
   doStm(position pos, stm *body, exp *test)
     : stm(pos), body(body), test(test) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 class forStm : public stm {
@@ -147,9 +156,11 @@ public:
   forStm(position pos, runnable *init, exp *test, runnable *update, stm *body)
     : stm(pos), init(init), test(test), update(update), body(body) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 class extendedForStm : public stm {
@@ -163,9 +174,11 @@ public:
   extendedForStm(position pos, ty *start, symbol var, exp *set, stm *body)
     : stm(pos), start(start), var(var), set(set), body(body) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 
-  void trans(coenv &e);
+  void prettyprint(ostream &out, Int indent) override;
+
+  void trans(coenv &e) override;
 };
 
 
@@ -174,9 +187,9 @@ public:
   breakStm(position pos)
     : stm(pos) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
 };
 
 class continueStm : public stm {
@@ -184,9 +197,9 @@ public:
   continueStm(position pos)
     : stm(pos) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
 };
 
 class returnStm : public stm {
@@ -196,14 +209,16 @@ public:
   returnStm(position pos, exp *value = 0)
     : stm(pos), value(value) {}
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
 
   // A return statement is, of course, guaranteed to return.
-  bool returns() {
+  bool returns() override {
     return true;
   }
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 

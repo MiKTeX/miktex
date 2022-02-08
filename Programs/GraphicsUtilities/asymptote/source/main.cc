@@ -53,6 +53,10 @@
 #include "interact.h"
 #include "fileio.h"
 
+#ifdef HAVE_LSP
+#include "lspserv.h"
+#endif
+
 #include "stack.h"
 
 using namespace settings;
@@ -96,7 +100,7 @@ int sigsegv_handler (void *, int emergency)
 }
 #endif
 
-void setsignal(RETSIGTYPE (*handler)(int))
+void setsignal(void (*handler)(int))
 {
 #ifdef HAVE_LIBSIGSEGV
   char mystack[16384];
@@ -139,6 +143,11 @@ struct Args
   Args(int argc, char **argv) : argc(argc), argv(argv) {}
 };
 
+int returnCode()
+{
+  return em.processStatus() || interact::interactive ? 0 : 1;
+}
+
 void *asymain(void *A)
 {
   setsignal(signalHandler);
@@ -147,11 +156,32 @@ void *asymain(void *A)
 
   if(interactive) {
     Signal(SIGINT,interruptHandler);
-    processPrompt();
+#ifdef HAVE_LSP
+    if (getSetting<bool>("lsp")) {
+      AsymptoteLsp::LspLog log;
+      auto jsonHandler=std::make_shared<lsp::ProtocolJsonHandler>();
+      auto endpoint=std::make_shared<GenericEndpoint>(log);
+
+      unique_ptr<AsymptoteLsp::AsymptoteLspServer> asylsp;
+
+      if(getSetting<string>("lspport") != "") {
+        asylsp=make_unique<AsymptoteLsp::TCPAsymptoteLSPServer>(
+          (std::string)getSetting<string>("lsphost").c_str(),
+          (std::string)getSetting<string>("lspport").c_str(),
+          jsonHandler, endpoint, log);
+      } else {
+        asylsp=make_unique<AsymptoteLsp::AsymptoteLspServer>(jsonHandler,
+                                                                  endpoint,
+                                                                  log);
+      }
+      asylsp->start();
+    } else
+#endif
+      processPrompt();
   } else if (getSetting<bool>("listvariables") && numArgs()==0) {
     try {
       doUnrestrictedList();
-    } catch(handled_error) {
+    } catch(handled_error const&) {
       em.statusError();
     }
   } else {
@@ -171,18 +201,24 @@ void *asymain(void *A)
         processFile("-",true);
         try {
           setOptions(args->argc,args->argv);
-        } catch(handled_error) {
+        } catch(handled_error const&) {
           em.statusError();
         }
         if(inpipe < 0) break;
       }
     } else {
       for(int ind=0; ind < n; ind++) {
-        processFile(string(getArg(ind)),n > 1);
+        string name=(getArg(ind));
+        if(name == stripExt(name)+".v3d") {
+          interact::uptodate=false;
+          runString("import v3d; defaultfilename=\""+stripDir(name)+
+                    "\"; importv3d(\""+name+"\");");
+        } else
+          processFile(name,n > 1);
         try {
           if(ind < n-1)
             setOptions(args->argc,args->argv);
-        } catch(handled_error) {
+        } catch(handled_error const&) {
           em.statusError();
         }
       }
@@ -218,7 +254,7 @@ void *asymain(void *A)
   }
 #endif
 #endif
-  exit(em.processStatus() || interact::interactive ? 0 : 1);
+  exit(returnCode());
 }
 #if defined(MIKTEX)
 void BackgroundThread(void* ptr)
@@ -240,7 +276,7 @@ void BackgroundThread(void* ptr)
 
 void exitHandler(int)
 {
-  exit(0);
+  exit(returnCode());
 }
 
 #if defined(MIKTEX)
@@ -267,7 +303,7 @@ int main(int argc, char *argv[])
 
   try {
     setOptions(argc,argv);
-  } catch(handled_error) {
+  } catch(handled_error const&) {
     em.statusError();
   }
 

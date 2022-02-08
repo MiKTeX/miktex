@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 22.2 - to be released
+
+### Upgraded programs
+
+* asymptote 2.78
+
 ## 22.1 - 2022-01-31
 
 ### Fixed issues

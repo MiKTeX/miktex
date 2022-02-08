@@ -19,8 +19,8 @@
 #include "bbox.h"
 
 inline double Intcap(double t) {
-  if(t <= Int_MIN) return Int_MIN;
-  if(t >= Int_MAX) return Int_MAX;
+  if(t <= (double) Int_MIN) return (double) Int_MIN;
+  if(t >= (double) Int_MAX) return (double) Int_MAX;
   return t;
 }
 

@@ -63,7 +63,6 @@ bool warn(const string& s);
 extern string systemDir;
 extern string docdir;
 extern const string dirsep;
-extern string tempdir;
 
 extern bool safe;
 
@@ -121,6 +120,7 @@ bool context(const string& texengine);
 string nativeformat();
 string defaultformat();
 
+const char *newpage(const string& texengine);
 const char *beginlabel(const string& texengine);
 const char *endlabel(const string& texengine);
 const char *rawpostscript(const string& texengine);

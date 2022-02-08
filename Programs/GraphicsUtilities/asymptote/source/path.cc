@@ -552,18 +552,6 @@ bbox path::internalbounds(const bbox& padding) const
 
   // Check interior nodes.
   Int len=length();
-  for (Int i = 1; i < len; i++) {
-    pair pre=point(i)-precontrol(i);
-    pair post=postcontrol(i)-point(i);
-
-    // Check node x coordinate
-    if((pre.getx() >= 0.0) ^ (post.getx() >= 0))
-      add(box,point(i),padding.left,padding.right);
-
-    // Check node y coordinate
-    if((pre.gety() >= 0.0) ^ (post.gety() >= 0))
-      add(box,point(i),pair(0,padding.bottom),pair(0,padding.top));
-  }
 
   // Check interior segments.
   for (Int i = 0; i < len; i++) {

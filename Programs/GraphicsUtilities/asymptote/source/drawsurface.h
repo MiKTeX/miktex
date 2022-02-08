@@ -40,9 +40,9 @@ protected:
   double metallic;
   double fresnel0;
   bool invisible;
+  size_t centerIndex;
   Interaction interaction;
   bool billboard;
-  size_t centerIndex;
 
   triple Min,Max;
   int digits;
@@ -60,15 +60,11 @@ public:
   }
 
   void init() {
-#ifdef HAVE_LIBOSMESA
-    billboard=false;
-#else
     billboard=interaction == BILLBOARD;
-#endif
     centerIndex=0;
   }
 
-  drawSurface(const vm::array& g, size_t ncontrols, triple center,
+  drawSurface(const vm::array& g, size_t ncontrols, const triple& center,
               bool straight, const vm::array&p, double opacity,
               double shininess, double metallic, double fresnel0,
               const vm::array &pens, Interaction interaction, int digits,
@@ -125,6 +121,19 @@ public:
     center=t*s->center;
   }
 
+  double renderResolution() {
+    double prerender=settings::getSetting<double>("prerender");
+    if(prerender <= 0.0) return 0.0;
+    prerender=1.0/prerender;
+    double perspective=gl::orthographic ? 0.0 : 1.0/gl::Zmax;
+    double s=perspective ? Min.getz()*perspective : 1.0; // Move to glrender
+    triple b(gl::Xmin,gl::Ymin,gl::Zmin);
+    triple B(gl::Xmax,gl::Ymax,gl::Zmax);
+    pair size3(s*(B.getx()-b.getx()),s*(B.gety()-b.gety()));
+    pair size2(gl::fullWidth,gl::fullHeight);
+    return prerender*size3.length()/size2.length();
+  }
+
   virtual ~drawSurface() {}
 
   bool is3D() {return true;}
@@ -132,11 +141,11 @@ public:
 
 class drawBezierPatch : public drawSurface {
 public:
-#ifdef HAVE_GL
+#ifdef HAVE_LIBGLM
   BezierPatch S;
 #endif
 
-  drawBezierPatch(const vm::array& g, triple center, bool straight,
+  drawBezierPatch(const vm::array& g, const triple& center, bool straight,
                   const vm::array&p, double opacity, double shininess,
                   double metallic, double fresnel0, const vm::array &pens,
                   Interaction interaction, int digits, bool primitive) :
@@ -157,7 +166,7 @@ public:
   }
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out);
 
   void render(double, const triple& b, const triple& B,
               double perspective, bool remesh);
@@ -166,11 +175,11 @@ public:
 
 class drawBezierTriangle : public drawSurface {
 public:
-#ifdef HAVE_GL
+#ifdef HAVE_LIBGLM
   BezierTriangle S;
 #endif
 
-  drawBezierTriangle(const vm::array& g, triple center, bool straight,
+  drawBezierTriangle(const vm::array& g, const triple& center, bool straight,
                      const vm::array&p, double opacity, double shininess,
                      double metallic, double fresnel0, const vm::array &pens,
                      Interaction interaction, int digits, bool primitive) :
@@ -191,7 +200,7 @@ public:
   }
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out);
 
   void render(double, const triple& b, const triple& B,
               double perspective, bool remesh);
@@ -382,11 +391,11 @@ public:
 
   virtual void P(triple& t, double x, double y, double z);
 
-  virtual bool write(prcfile *out, unsigned int *, double, groupsmap&) {
+  virtual bool write(prcfile *out, unsigned int *, double, groupsmap&) override {
     return true;
   }
 
-  virtual bool write(jsfile *out) {return true;}
+  virtual bool write(abs3Doutfile *out) override {return true;}
 
   virtual void transformedbounds(const double*, bbox3&) {}
   virtual void transformedratio(const double*, pair&,
@@ -409,7 +418,7 @@ public:
   void P(triple& t, double x, double y, double z);
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out);
 
   drawElement *transformed(const double* t) {
     return new drawSphere(t,this);
@@ -428,10 +437,10 @@ public:
   drawCylinder(const double* t, const drawCylinder *s) :
     drawPRC(t,s), core(s->core) {}
 
-  bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(prcfile *out, unsigned int *, double, groupsmap&) override;
+  bool write(abs3Doutfile *out) override;
 
-  drawElement *transformed(const double* t) {
+  drawElement *transformed(const double* t) override {
     return new drawCylinder(t,this);
   }
 };
@@ -446,10 +455,10 @@ public:
   drawDisk(const double* t, const drawDisk *s) :
     drawPRC(t,s) {}
 
-  bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(prcfile *out, unsigned int *, double, groupsmap&) override;
+  bool write(abs3Doutfile *out) override;
 
-  drawElement *transformed(const double* t) {
+  drawElement *transformed(const double* t) override {
     return new drawDisk(t,this);
   }
 };
@@ -483,9 +492,9 @@ public:
       g[i]=t*s->g[i];
   }
 
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out) override;
 
-  drawElement *transformed(const double* t) {
+  drawElement *transformed(const double* t) override {
     return new drawTube(t,this);
   }
 };
@@ -493,19 +502,24 @@ public:
 
 class drawBaseTriangles : public drawElement {
 protected:
-#ifdef HAVE_GL
+#ifdef HAVE_LIBGLM
   Triangles R;
   bool transparent;
 #endif
 
+public:
+  bool billboard;
   size_t nP;
   triple* P;
+  triple center;
   size_t nN;
   triple* N;
   size_t nI;
   size_t Ni;
   uint32_t (*PI)[3];
   uint32_t (*NI)[3];
+  size_t centerIndex;
+  Interaction interaction;
 
   triple Min,Max;
 
@@ -513,8 +527,17 @@ protected:
   static const string outofrange;
 
 public:
+  void init() {
+    billboard=interaction == BILLBOARD;
+    centerIndex=0;
+  }
+
   drawBaseTriangles(const vm::array& v, const vm::array& vi,
-                    const vm::array& n, const vm::array& ni) {
+                    const triple& center,
+                    const vm::array& n, const vm::array& ni,
+                    Interaction interaction) : center(center),
+                                               interaction(interaction) {
+    init();
     nP=checkArray(&v);
     P=new(UseGC) triple[nP];
     for(size_t i=0; i < nP; ++i)
@@ -560,8 +583,45 @@ public:
     } else Ni=0;
   }
 
+#ifdef HAVE_LIBGLM
+  drawBaseTriangles(const vertexBuffer& vb, const triple& center,
+                    Interaction interaction, bool isColor,
+                    const triple& Min, const triple& Max) :
+    transparent(false),
+    nP(isColor ? vb.Vertices.size() : vb.vertices.size()), center(center),
+    nN(nP), nI(vb.indices.size()/3), Ni(0),
+    interaction(interaction), Min(Min), Max(Max) {
+    init();
+    assert(vb.indices.size() % 3 == 0);
+    P=new(UseGC) triple[nP];
+    N=new(UseGC) triple[nN];
+    if(!isColor) {
+      for (size_t i=0; i < vb.vertices.size(); ++i) {
+        P[i]=triple(vb.vertices[i].position[0], vb.vertices[i].position[1], vb.vertices[i].position[2]);
+        N[i]=triple(vb.vertices[i].normal[0], vb.vertices[i].normal[1], vb.vertices[i].normal[2]);
+      }
+    }
+    else {
+      for (size_t i=0; i < vb.Vertices.size(); ++i) {
+        P[i]=triple(vb.Vertices[i].position[0], vb.Vertices[i].position[1], vb.Vertices[i].position[2]);
+        N[i]=triple(vb.Vertices[i].normal[0], vb.Vertices[i].normal[1], vb.Vertices[i].normal[2]);
+      }
+    }
+
+    PI=new(UseGC) uint32_t[nI][3];
+    for (size_t i=0; i < nI; ++i) {
+      PI[i][0]=vb.indices[3 * i];
+      PI[i][1]=vb.indices[3 * i + 1];
+      PI[i][2]=vb.indices[3 * i + 2];
+    }
+    NI=PI;
+  }
+#endif
+
   drawBaseTriangles(const double* t, const drawBaseTriangles *s) :
-    drawElement(s->KEY), nP(s->nP), nN(s->nN), nI(s->nI), Ni(s->Ni) {
+    drawElement(s->KEY),
+    nP(s->nP), nN(s->nN), nI(s->nI), Ni(s->Ni), interaction(s->interaction) {
+    init();
     P=new(UseGC) triple[nP];
     for(size_t i=0; i < nP; i++)
       P[i]=t*s->P[i];
@@ -573,6 +633,8 @@ public:
       for(size_t j=0; j < 3; ++j)
         PIi[j]=sPIi[j];
     }
+
+    center=t*s->center;
 
     if(nN) {
       N=new(UseGC) triple[nN];
@@ -609,6 +671,11 @@ public:
   void ratio(const double* t, pair &b, double (*m)(double, double),
              double fuzz, bool &first);
 
+  void meshinit() {
+    if(billboard)
+      centerIndex=centerindex(center);
+  }
+
   virtual ~drawBaseTriangles() {}
 
   drawElement *transformed(const double* t) {
@@ -633,13 +700,14 @@ class drawTriangles : public drawBaseTriangles {
   bool invisible;
 
 public:
-  drawTriangles(const vm::array& v, const vm::array& vi,
+  drawTriangles(const vm::array& v, const vm::array& vi, const triple& center,
                 const vm::array& n, const vm::array& ni,
                 const vm::array&p, double opacity, double shininess,
                 double metallic, double fresnel0,
-                const vm::array& c, const vm::array& ci) :
-    drawBaseTriangles(v,vi,n,ni), opacity(opacity), shininess(shininess),
-    metallic(metallic), fresnel0(fresnel0) {
+                const vm::array& c, const vm::array& ci,
+                Interaction interaction) :
+    drawBaseTriangles(v,vi,center,n,ni,interaction), opacity(opacity),
+    shininess(shininess), metallic(metallic), fresnel0(fresnel0) {
 
     if(checkArray(&p) != 3)
       reportError(need3pens);
@@ -680,6 +748,36 @@ public:
     specular=rgba(vm::read<camp::pen>(p,2));
   }
 
+#ifdef HAVE_LIBGLM
+  drawTriangles(vertexBuffer const& vb, const triple &center, bool isColor,
+                prc::RGBAColour diffuse,
+                prc::RGBAColour emissive,
+                prc::RGBAColour specular,
+                double opacity,
+                double shininess,
+                double metallic,
+                double fresnel0, Interaction interaction,
+                bool invisible,
+                const triple& Min, const triple& Max) :
+    drawBaseTriangles(vb,center,interaction,isColor,Min,Max),
+    nC(isColor ? vb.Vertices.size() : 0), C(nullptr),
+    CI(isColor ? PI : nullptr),
+    Ci(isColor ? Ni : 0),
+    diffuse(diffuse), emissive(emissive), specular(specular),
+    opacity(opacity), shininess(shininess),
+    metallic(metallic), fresnel0(fresnel0), invisible(invisible) {
+    if(isColor) {
+      C=new(UseGC) prc::RGBAColour[nC];
+      for(size_t i=0; i < nC; ++i) {
+        C[i].Set(vb.Vertices[i].color[0],
+                 vb.Vertices[i].color[1],
+                 vb.Vertices[i].color[2],
+                 vb.Vertices[i].color[3]);
+      }
+    }
+  }
+#endif
+
   drawTriangles(const double* t, const drawTriangles *s) :
     drawBaseTriangles(t,s), nC(s->nC),
     diffuse(s->diffuse), emissive(s->emissive),
@@ -707,7 +805,7 @@ public:
               double perspective, bool remesh);
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out);
 
   drawElement *transformed(const double* t) {
     return new drawTriangles(t,this);

@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/asymptote/">
     <TPM:Name>asymptote win64</TPM:Name>
     <TPM:Title>asymptote, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Andy Ham­mer­lindl, John Bow­man and Tom Prince" year="2004–2021"/>
+    <TPM:Copyright owner="Andy Ham­mer­lindl, John Bow­man and Tom Prince" year="2004–2022"/>
     <TPM:License type="gpl3"/>
-    <TPM:Version>2.69</TPM:Version>
+    <TPM:Version>2.78</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

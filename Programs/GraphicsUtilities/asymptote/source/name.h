@@ -15,6 +15,9 @@
 #include "types.h"
 #include "frame.h"
 #include "access.h"
+#if defined(MIKTEX)
+#include "errormsg.h"
+#endif
 
 namespace trans {
 class coenv;
@@ -87,7 +90,11 @@ public:
     out << "<base name>";
   }
 
-  virtual symbol getName() = 0;
+  [[nodiscard]]
+  virtual symbol getName() const = 0;
+
+  [[nodiscard]]
+  virtual AsymptoteLsp::SymbolLit getLit() const = 0;
 };
 
 inline ostream& operator<< (ostream& out, const name& n) {
@@ -102,25 +109,30 @@ public:
   simpleName(position pos, symbol id)
     : name(pos), id(id) {}
 
-  trans::varEntry *getVarEntry(coenv &e);
+  trans::varEntry *getVarEntry(coenv &e) override;
 
   // As a variable:
-  void varTrans(action act, coenv &e, types::ty *target);
-  types::ty *varGetType(coenv &);
-  trans::varEntry *getCallee(coenv &e, types::signature *sig);
+  void varTrans(action act, coenv &e, types::ty *target) override;
+  types::ty *varGetType(coenv &) override;
+  trans::varEntry *getCallee(coenv &e, types::signature *sig) override;
 
   // As a type:
-  types::ty *typeTrans(coenv &e, bool tacit = false);
-  virtual trans::tyEntry *tyEntryTrans(coenv &e);
-  trans::frame *tyFrameTrans(coenv &e);
+  types::ty *typeTrans(coenv &e, bool tacit = false) override;
+  virtual trans::tyEntry *tyEntryTrans(coenv &e) override;
+  trans::frame *tyFrameTrans(coenv &e) override;
 
-  void prettyprint(ostream &out, Int indent);
-  void print(ostream& out) const {
+  void prettyprint(ostream &out, Int indent) override;
+  void print(ostream& out) const override {
     out << id;
   }
-  symbol getName() {
+
+  [[nodiscard]]
+  symbol getName() const override {
     return id;
   }
+
+  [[nodiscard]]
+  AsymptoteLsp::SymbolLit getLit() const override;
 };
 
 
@@ -144,25 +156,30 @@ public:
   qualifiedName(position pos, name *qualifier, symbol id)
     : name(pos), qualifier(qualifier), id(id) {}
 
-  trans::varEntry *getVarEntry(coenv &e);
+  trans::varEntry *getVarEntry(coenv &e) override;
 
   // As a variable:
-  void varTrans(action act, coenv &, types::ty *target);
-  types::ty *varGetType(coenv &);
-  trans::varEntry *getCallee(coenv &e, types::signature *sig);
+  void varTrans(action act, coenv &, types::ty *target) override;
+  types::ty *varGetType(coenv &) override;
+  trans::varEntry *getCallee(coenv &e, types::signature *sig) override;
 
   // As a type:
-  types::ty *typeTrans(coenv &e, bool tacit = false);
-  trans::tyEntry *tyEntryTrans(coenv &e);
-  trans::frame *tyFrameTrans(coenv &e);
+  types::ty *typeTrans(coenv &e, bool tacit = false) override;
+  trans::tyEntry *tyEntryTrans(coenv &e) override;
+  trans::frame *tyFrameTrans(coenv &e) override;
 
-  void prettyprint(ostream &out, Int indent);
-  void print(ostream& out) const {
+  void prettyprint(ostream &out, Int indent) override;
+  void print(ostream& out) const override {
     out << *qualifier << "." << id;
   }
-  symbol getName() {
+
+  [[nodiscard]]
+  symbol getName() const override {
     return id;
   }
+
+  [[nodiscard]]
+  AsymptoteLsp::SymbolLit getLit() const override;
 };
 
 } // namespace absyntax

@@ -22,6 +22,10 @@
 #include "common.h"
 #include "angle.h"
 
+#ifdef HAVE_RPC_RPC_H
+#include "xstream.h"
+#endif
+
 namespace camp {
 
 class jsofstream : public std::ofstream {
@@ -230,6 +234,14 @@ public:
     out << "[" << z.x << "," << z.y << "]";
     return out;
   }
+
+#ifdef HAVE_RPC_RPC_H
+  friend xdr::oxstream& operator << (xdr::oxstream& out, pair const& v)
+  {
+      out << v.x << v.y;
+      return out;
+  }
+#endif
 
   friend class box;
 };

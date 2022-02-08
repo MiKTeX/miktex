@@ -49,7 +49,7 @@ struct BezierCurve
     data.clear();
     notRendered();
     Onscreen=true;
-    init(pixel*ratio);
+    init(pixelResolution*ratio);
     render(g,straight);
   }
 

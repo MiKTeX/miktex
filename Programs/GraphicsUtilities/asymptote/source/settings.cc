@@ -103,6 +103,7 @@ string systemDir=ASYMPTOTE_SYSDIR;
 #endif
 string defaultPSdriver="ps2write";
 string defaultEPSdriver="eps2write";
+string defaultPNGdriver="png16m"; // pngalpha has issues at high resolutions
 string defaultAsyGL="https://vectorgraphics.github.io/asymptote/base/webgl/asygl-"+
   string(AsyGLVersion)+".js";
 
@@ -267,6 +268,7 @@ char *argv0;
 
 // The verbosity setting, a global variable.
 Int verbose;
+bool quiet=false;
 
 // Conserve memory at the expense of speed.
 bool compact;
@@ -292,7 +294,6 @@ const string guisuffix="gui";
 const string standardprefix="out";
 
 string initdir;
-string tempdir;
 string historyname;
 
 // Local versions of the argument list.
@@ -989,14 +990,17 @@ struct versionOption : public option {
 
     bool glm=false;
     bool gl=false;
+    bool ssbo=false;
     bool gsl=false;
     bool fftw3=false;
     bool xdr=false;
     bool curl=false;
+    bool lsp=false;
     bool readline=false;
     bool editline=false;
     bool sigsegv=false;
     bool usegc=false;
+    bool usethreads=false;
 
 #if HAVE_LIBGLM
     glm=true;
@@ -1004,6 +1008,10 @@ struct versionOption : public option {
 
 #ifdef HAVE_GL
     gl=true;
+#endif
+
+#ifdef HAVE_SSBO
+    ssbo=true;
 #endif
 
 #ifdef HAVE_LIBGSL
@@ -1020,6 +1028,10 @@ struct versionOption : public option {
 
 #ifdef HAVE_LIBCURL
     curl=true;
+#endif
+
+#ifdef HAVE_LSP
+    lsp=true;
 #endif
 
 #ifdef HAVE_LIBCURSES
@@ -1040,18 +1052,30 @@ struct versionOption : public option {
     usegc=true;
 #endif
 
+#ifdef HAVE_PTHREAD
+    usethreads=true;
+#endif
+
+    feature("V3D      3D vector graphics output",glm && xdr);
     feature("WebGL    3D HTML rendering",glm);
+#ifdef HAVE_LIBOSMESA
+    feature("OpenGL   3D OSMesa offscreen rendering",gl);
+#else
     feature("OpenGL   3D OpenGL rendering",gl);
+#endif
+    feature("SSBO     GLSL shader storage buffer objects",ssbo);
     feature("GSL      GNU Scientific Library (special functions)",gsl);
     feature("FFTW3    Fast Fourier transforms",fftw3);
-    feature("XDR      external data representation (portable binary file format)",xdr);
+    feature("XDR      External Data Representation (portable binary file format for V3D)",xdr);
     feature("CURL     URL support",curl);
-    feature("Readline interactive history and editing",readline);
+    feature("LSP      Language Server Protocol",lsp);
+    feature("Readline Interactive history and editing",readline);
     if(!readline)
       feature("Editline interactive editing (if Readline is unavailable)",editline);
-    feature("Sigsegv  distinguish stack overflows from segmentation faults",
+    feature("Sigsegv  Distinguish stack overflows from segmentation faults",
             sigsegv);
     feature("GC       Boehm garbage collector",usegc);
+    feature("threads  Render OpenGL in separate thread",usethreads);
   }
 
   bool getOption() {
@@ -1242,15 +1266,16 @@ void initSettings() {
   addOption(new boolSetting("svgemulation", 0,
                             "Emulate unimplemented SVG shading", true));
   addOption(new boolSetting("prc", 0,
-                            "Embed 3D PRC graphics in PDF output", true));
+                            "Embed 3D PRC graphics in PDF output", false));
   addOption(new boolSetting("toolbar", 0,
                             "Show 3D toolbar in PDF output", true));
   addOption(new boolSetting("axes3", 0,
                             "Show 3D axes in PDF output", true));
-  addOption(new boolSetting("envmap", 0,
-                            "Enable environment map image-based lighting (Experimental)", false));
-
-
+  addOption(new boolSetting("ibl", 0,
+                            "Enable environment map image-based lighting", false));
+  addOption(new stringSetting("image", 0,"string","Environment image name","snowyField"));
+  addOption(new stringSetting("imageDir", 0,"string","Environment image library directory","ibl"));
+  addOption(new stringSetting("imageURL", 0,"string","Environment image library URL","https://vectorgraphics.gitlab.io/asymptote/ibl"));
   addOption(new realSetting("render", 0, "n",
                             "Render 3D graphics using n pixels per bp (-1=auto)",
                             havegl ? -1.0 : 0.0));
@@ -1262,6 +1287,11 @@ void initSettings() {
   addOption(new boolSetting("twosided", 0,
                             "Use two-sided 3D lighting model for rendering",
                             true));
+  addOption(new boolSetting("GPUindexing", 0,
+                            "Compute indexing partial sums on GPU", true));
+  addOption(new boolSetting("GPUinterlock", 0,
+                            "Use fragment shader interlock", true));
+
   addOption(new pairSetting("position", 0, "pair",
                             "Initial 3D rendering screen position"));
   addOption(new pairSetting("maxviewport", 0, "pair",
@@ -1269,6 +1299,8 @@ void initSettings() {
   addOption(new pairSetting("viewportmargin", 0, "pair",
                             "Horizontal and vertical 3D viewport margin",
                             pair(0.5,0.5)));
+  addOption(new boolSetting("webgl2", 0,
+                            "Use webgl2 if available", false));
   addOption(new boolSetting("absolute", 0,
                             "Use absolute WebGL dimensions", false));
   addOption(new pairSetting("maxtile", 0, "pair",
@@ -1337,6 +1369,10 @@ void initSettings() {
                             "Show translated virtual machine code"));
   addOption(new boolSetting("tabcompletion", 0,
                             "Interactive prompt auto-completion", true));
+  addOption(new realSetting("prerender", 0, "resolution",
+                            "Prerender V3D objects (0 implies vector output)", 0));
+  addOption(new boolSetting("lossy", 0,
+                            "Use single precision for V3D reals", false));
   addOption(new boolSetting("listvariables", 'l',
                             "List available global functions and variables"));
   addOption(new boolSetting("where", 0,
@@ -1385,7 +1421,11 @@ void initSettings() {
   addOption(new boolSetting("multiline", 0,
                             "Input code over multiple lines at the prompt"));
   addOption(new boolSetting("xasy", 0,
-                            "Special interactive mode for xasy"));
+                            "Interactive mode for xasy"));
+  addOption(new boolSetting("lsp", 0, "Interactive mode for the Language Server Protocol"));
+  addOption(new boolSetting("wsl", 0, "Run asy under the Windows Subsystem for Linux."));
+  addOption(new envSetting("lspport", ""));
+  addOption(new envSetting("lsphost", "127.0.0.1"));
 
   addOption(new boolSetting("wait", 0,
                             "Wait for child processes to finish before exiting"));
@@ -1456,6 +1496,8 @@ void initSettings() {
 
   addOption(new stringSetting("dvipsOptions", 0, "string", ""));
   addOption(new stringSetting("dvisvgmOptions", 0, "string", ""));
+  addOption(new boolSetting("dvisvgmMultipleFiles", 0,
+                            "dvisvgm supports multiple files", false));
   addOption(new stringSetting("convertOptions", 0, "string", ""));
   addOption(new stringSetting("gsOptions", 0, "string", ""));
   addOption(new stringSetting("htmlviewerOptions", 0, "string", ""));
@@ -1474,6 +1516,7 @@ void initSettings() {
   addOption(new envSetting("libgs", defaultGhostscriptLibrary));
   addOption(new envSetting("epsdriver", defaultEPSdriver));
   addOption(new envSetting("psdriver", defaultPSdriver));
+  addOption(new envSetting("pngdriver", defaultPNGdriver));
   addOption(new envSetting("asygl", defaultAsyGL));
   addOption(new envSetting("texpath", ""));
   addOption(new envSetting("texcommand", ""));
@@ -1500,9 +1543,15 @@ char *getArg(int n) { return argList[n]; }
 
 void setInteractive()
 {
+  bool xasy=getSetting<bool>("xasy");
+  if(xasy && getSetting<Int>("outpipe") < 0) {
+    cerr << "Missing outpipe." << endl;
+    exit(-1);
+  }
+
   if(numArgs() == 0 && !getSetting<bool>("listvariables") &&
      getSetting<string>("command").empty() &&
-     (isatty(STDIN_FILENO) || getSetting<Int>("xasy")))
+     (isatty(STDIN_FILENO) || xasy || getSetting<Int>("lsp")))
     interact::interactive=true;
 
   if(getSetting<bool>("localhistory"))
@@ -1517,7 +1566,7 @@ void setInteractive()
 #endif
     historyname=initdir+"/history";
   }
-  if(verbose > 1)
+  if(!quiet && verbose > 1)
     cerr << "Using history " << historyname << endl;
 }
 
@@ -1601,12 +1650,9 @@ void initDir() {
   mask=umask(0);
   if(mask == 0) mask=0027;
   umask(mask);
-  tempdir=Getenv("TEMP",true);
-#else
-  tempdir="/tmp";
 #endif
   if(access(initdir.c_str(),F_OK) == 0) {
-    if(verbose > 1)
+    if(!quiet && verbose > 1)
       cerr << "Using configuration directory " << initdir << endl;
   }
 }
@@ -1746,6 +1792,17 @@ const char *endpicture(const string& texengine)
     return "\\endpicture%";
 }
 
+// TeX macro to begin new page.
+const char *newpage(const string& texengine)
+{
+  if(latex(texengine))
+    return "\\newpage";
+  else if(context(texengine))
+    return "}\\page\\hbox{%";
+  else
+    return "\\eject";
+}
+
 // Begin TeX special command.
 const char *beginspecial(const string& texengine)
 {
@@ -1819,8 +1876,11 @@ void setOptions(int argc, char *argv[])
   // Build settings module.
   initSettings();
 
-  // Read command-line options initially to obtain config, dir, sysdir, verbose.
+  // Read command-line options initially to obtain config, dir, sysdir,
+  // verbose, and quiet.
   getOptions(argc,argv);
+
+  quiet=getSetting<bool>("quiet");
 
   // Make configuration and history directory
   initDir();
@@ -1836,7 +1896,7 @@ void setOptions(int argc, char *argv[])
   if(!filename.empty()) {
     string file=locateFile(filename);
     if(!file.empty()) {
-      if(Verbose > 1)
+      if(!quiet && Verbose > 1)
         cerr << "Loading " << filename << " from " << file << endl;
       doConfig(file);
     }

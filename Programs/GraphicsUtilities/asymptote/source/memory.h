@@ -187,6 +187,7 @@ typedef std::basic_ostringstream<char,std::char_traits<char>,
 typedef std::basic_stringbuf<char,std::char_traits<char>,
                              gc_allocator<char> > stringbuf;
 inline void compact(int x) {GC_set_dont_expand(x);}
+inline std::string stdString(string s) {return std::string(s.c_str());}
 #else
 inline void compact(int x) {}
 typedef std::string string;
@@ -194,6 +195,7 @@ typedef std::stringstream stringstream;
 typedef std::istringstream istringstream;
 typedef std::ostringstream ostringstream;
 typedef std::stringbuf stringbuf;
+inline std::string stdString(string s) {return s;}
 #endif // USEGC
 
 } // namespace mem

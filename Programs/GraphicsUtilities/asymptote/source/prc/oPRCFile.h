@@ -40,13 +40,18 @@
 #include "PRCbitStream.h"
 #include "writePRC.h"
 
+
+#ifdef HAVE_RPC_RPC_H
+#include "xstream.h"
+#endif
+
 namespace prc {
 
 class oPRCFile;
 class PRCFileStructure;
 
 // Map [0,1] to [0,255]
-inline uint8_t byte(double r) 
+inline uint8_t byte(double r)
 {
   if(r < 0.0) r=0.0;
   else if(r > 1.0) r=1.0;
@@ -61,7 +66,7 @@ struct RGBAColour
     R(r), G(g), B(b), A(a) {}
   double R,G,B,A;
 
-  void Set(double r, double g, double b, double a=1.0) 
+  void Set(double r, double g, double b, double a=1.0)
   {
     R = r; G = g; B = b; A = a;
   }
@@ -83,10 +88,19 @@ struct RGBAColour
       return (B<c.B);
     return (A<c.A);
   }
+
   friend RGBAColour operator * (const RGBAColour& a, const double d)
   { return RGBAColour(a.R*d,a.G*d,a.B*d,a.A*d); }
   friend RGBAColour operator * (const double d, const RGBAColour& a)
   { return RGBAColour(a.R*d,a.G*d,a.B*d,a.A*d); }
+
+#ifdef HAVE_RPC_RPC_H
+  friend xdr::oxstream& operator<<(xdr::oxstream& out, RGBAColour const& col)
+  {
+    out << (float) col.R << (float) col.G << (float) col.B << (float) col.A;
+    return out;
+  }
+#endif
 
 };
 typedef std::map<RGBAColour,uint32_t> PRCcolourMap;
@@ -200,7 +214,7 @@ typedef std::map<PRCmaterial,uint32_t> PRCmaterialMap;
 
 struct PRCpicture
 {
-  PRCpicture() : 
+  PRCpicture() :
       data(NULL), format(KEPRCPicture_BITMAP_RGB_BYTE),
       width(0), height(0), size(0) {}
   PRCpicture(const uint8_t* pic, EPRCPictureDataFormat picf,
@@ -290,7 +304,7 @@ typedef std::map<PRCmaterialgeneric,uint32_t> PRCmaterialgenericMap;
 
 struct PRCtexturedefinition
 {
-  PRCtexturedefinition() : 
+  PRCtexturedefinition() :
       picture_index(m1), picture_replace(false), picture_repeat(false) {}
   PRCtexturedefinition(uint32_t picindex, bool picreplace=false, bool picrepeat=false) :
       picture_index(picindex), picture_replace(picreplace), picture_repeat(picrepeat) {}
@@ -320,7 +334,7 @@ typedef std::map<PRCtexturedefinition,uint32_t> PRCtexturedefinitionMap;
 
 struct PRCtextureapplication
 {
-  PRCtextureapplication() : 
+  PRCtextureapplication() :
       material_generic_index(m1), texture_definition_index(m1) {}
   PRCtextureapplication(uint32_t matindex, uint32_t texindex) :
       material_generic_index(matindex), texture_definition_index(texindex) {}
@@ -345,7 +359,7 @@ typedef std::map<PRCtextureapplication,uint32_t> PRCtextureapplicationMap;
 
 struct PRCstyle
 {
-  PRCstyle() : 
+  PRCstyle() :
       line_width(0), alpha(1), is_material(false), color_material_index(m1) {}
   PRCstyle(double linewidth, double alph, bool ismat, uint32_t colindex=m1) :
       line_width(linewidth), alpha(alph), is_material(ismat), color_material_index(colindex) {}
@@ -390,7 +404,7 @@ typedef std::vector<PRCtessquad> PRCtessquadList;
 /*
 struct PRCtesstriangle // textured triangle
 {
-  PRCtesstriangle() : 
+  PRCtesstriangle() :
   style(m1) {}
   PRCVector3d vertices[3];
 // PRCVector3d normals[3];
@@ -459,9 +473,9 @@ public:
 class PRCgroup
 {
  public:
-  PRCgroup() : 
+  PRCgroup() :
     product_occurrence(NULL), parent_product_occurrence(NULL), part_definition(NULL), parent_part_definition(NULL), transform(NULL) {}
-  PRCgroup(const std::string& name) : 
+  PRCgroup(const std::string& name) :
     product_occurrence(NULL), parent_product_occurrence(NULL), part_definition(NULL), parent_part_definition(NULL), transform(NULL), name(name) {}
   PRCProductOccurrence *product_occurrence, *parent_product_occurrence;
   PRCPartDefinition *part_definition, *parent_part_definition;
@@ -717,7 +731,7 @@ class oPRCFile
     std::string lastgroupname;
     std::vector<std::string> lastgroupnames;
     std::string calculate_unique_name(const ContentPRCBase *prc_entity,const ContentPRCBase *prc_occurence);
-    
+
     bool finish();
     uint32_t getSize();
 
@@ -793,7 +807,7 @@ template<class V>
                else
                  return createTriangleMesh(nP, P, nI, PI, style, nN, N, NI, nT, T, TI, nC, C, CI, 0, NULL, NULL, ca);
             }
-  
+
 template<class V>
 uint32_t createTriangleMesh(uint32_t nP, const V P[], uint32_t nI, const uint32_t PI[][3], const uint32_t style_index,
 uint32_t nN, const V N[],  const uint32_t NI[][3],
@@ -939,7 +953,7 @@ uint32_t nN, const V N[],  const uint32_t NI[][3],
 #define PRCCARTRANSFORM const double origin[3], const double x_axis[3], const double y_axis[3], double scale
 #define PRCGENTRANSFORM const double* t=NULL
 #define PRCNOMATERIALINDEX m1
-  
+
 #define ADDWIRE(curvtype)                                 \
   PRCgroup &group = findGroup();                          \
   group.wires.push_back(PRCwire());                       \
@@ -975,7 +989,7 @@ inline bool isid(const double* t)
          t[8]==0 && t[9]==0 && t[10]==1 && t[11]==0 &&
          t[12]==0 && t[13]==0 && t[14]==0 && t[15]==1);
 }
-  
+
 #define SETTRANSF \
   if(t&&!isid(t))                                                             \
     face.transform = new PRCGeneralTransformation3d(t);                       \
@@ -1007,7 +1021,7 @@ inline bool isid(const double* t)
            { useLines(tess_index,addLineMaterial(c,w),origin, x_axis, y_axis, scale); }
 
 //  void addTriangle(const double P[][3], const double T[][2], uint32_t style_index);
-  
+
 template<class V>
 void addLine(uint32_t n, const V P[], const RGBAColour &c, double w=1.0)
 {
@@ -1179,7 +1193,7 @@ void addPatch(const V cP[], const PRCmaterial &m)
   }
 }
 
-template<class V>  
+template<class V>
 void addSurface(uint32_t dU, uint32_t dV, uint32_t nU, uint32_t nV,
                 const V cP[], const double *kU,
                 const double *kV, const PRCmaterial &m,

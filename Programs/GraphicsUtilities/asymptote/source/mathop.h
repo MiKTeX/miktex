@@ -104,7 +104,7 @@ struct divide<camp::triple> {
 };
 
 inline bool validInt(double x) {
-  return x > Int_MIN-0.5 && x < Int_MAX+0.5;
+  return x > (double) Int_MIN-0.5 && x < (double) Int_MAX+0.5;
 }
 
 inline void checkInt(double x, size_t i)

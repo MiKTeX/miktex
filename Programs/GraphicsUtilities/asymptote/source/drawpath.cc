@@ -72,7 +72,8 @@ pen adjustdash(pen& p, double arclength, bool cyclic)
 }
 
 // Account for square or extended pen cap contributions to bounding box.
-void cap(bbox& b, double t, path p, pen pentype) {
+void cap(bbox& b, double t, path p, pen pentype)
+{
   transform T=pentype.getTransform();
 
   double h=0.5*pentype.width();
@@ -81,20 +82,25 @@ void cap(bbox& b, double t, path p, pen pentype) {
   double xx=S.getxx(), xy=S.getxy();
   double yx=S.getyx(), yy=S.getyy();
   double y=hypot(yx,yy);
-  if(y == 0) return;
+  if(y == 0.0) return;
   double numer=xx*yx+xy*yy;
   double x=numer/y;
   pair z=shift(T)*p.point(t);
 
   switch(pentype.cap()) {
-    case 0:
+    case SquareCap:
     {
       pair d=rotate(v)*pair(x,y)*h;
       b += z+d;
       b += z-d;
       break;
     }
-    case 2:
+    case RoundCap:
+    {
+      b += pad(z,pentype.bounds());
+      break;
+    }
+    case ExtendedCap:
     {
       transform R=rotate(v);
       double w=(xx*yy-xy*yx)/y;
@@ -109,22 +115,78 @@ void cap(bbox& b, double t, path p, pen pentype) {
   }
 }
 
+// Account for square or extended pen cap contributions to bounding box.
+void join(bbox& b, double t, path p, pen pentype)
+{
+  transform T=pentype.getTransform();
+
+  double h=0.5*pentype.width();
+  pair v=p.dir(t);
+  transform S=rotate(conj(v))*shiftless(T);
+  double xx=S.getxx(), xy=S.getxy();
+  double yx=S.getyx(), yy=S.getyy();
+  double y=hypot(yx,yy);
+  if(y == 0.0) return;
+  double numer=xx*yx+xy*yy;
+  double x=numer/y;
+  pair z=shift(T)*p.point(t);
+
+  switch(pentype.join()) {
+    case MiterJoin:
+    {
+      double phi=angle(-p.predir(t),false)-angle(p.postdir(t),false);
+      static const double twopi=2.0*pi;
+      if(phi > pi) phi -= twopi;
+      if(phi < -pi) phi += twopi;
+      double s=sin(0.5*phi);
+      if(s != 0.0) {
+        double factor=1.0/s;
+        if(abs(factor) < pentype.miter()) {
+          b += z-rotate(v)*pair(x,y)*h*factor;
+          break;
+        }
+      }
+      // Fall through
+    }
+    case BevelJoin:
+    {
+      pair Z=pair(x,y)*h;
+      pair d=rotate(p.predir(t))*Z;
+      b += z+d;
+      b += z-d;
+      pair D=rotate(p.postdir(t))*Z;
+      b += z+D;
+      b += z-D;
+      break;
+    }
+    case RoundJoin:
+    {
+      b += pad(z,pentype.bounds());
+      break;
+    }
+  }
+}
+
 void drawPathPenBase::strokebounds(bbox& b, const path& p)
 {
   Int l=p.length();
   if(l < 0) return;
 
-  bbox penbounds=pentype.bounds();
+  b += p.internalbounds(pentype.bounds());
 
-  if(cyclic() || pentype.cap() == 1) {
-    b += pad(p.bounds(),penbounds);
-    return;
+  unsigned int n=p.size();
+  if(p.cyclic())
+    join(b,0,p,pentype);
+
+  for(unsigned int i=1; i < n-1; ++i)
+    join(b,i,p,pentype);
+
+  if(p.cyclic()) {
+    join(b,n-1,p,pentype);
+  } else {
+    cap(b,0,p,pentype);
+    cap(b,l,p,pentype);
   }
-
-  b += p.internalbounds(penbounds);
-
-  cap(b,0,p,pentype);
-  cap(b,l,p,pentype);
 }
 
 bool drawPath::draw(psfile *out)

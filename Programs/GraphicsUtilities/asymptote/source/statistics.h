@@ -1,8 +1,6 @@
 #ifndef __statistics_h__
 #define __statistics_h__ 1
 
-#include <math.h>
-
 namespace utils {
 
 class statistics {
@@ -11,7 +9,8 @@ class statistics {
   double varL;
   double varH;
 public:
-  statistics() : N(0), A(0.0), varL(0.0), varH(0.0) {}
+  statistics() {clear();}
+  void clear() {N=0; A=varL=varH=0.0;}
   double count() {return N;}
   double mean() {return A;}
   void add(double t) {

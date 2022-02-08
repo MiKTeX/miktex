@@ -74,7 +74,7 @@ function *realRealFunction();
   static const char *rectangular="matrix must be rectangular";
 #else
 static const char *installFFTW=
-  "Please install fftw3, run ./configure, and recompile";
+  "Please install fftw3, then ./configure; make";
 #endif
 
 using namespace camp;

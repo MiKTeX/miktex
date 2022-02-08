@@ -196,7 +196,7 @@ array *readpath(const string& psname, bool keep,
     PP->push(P);
 
     while(!buf.eof()) {
-      char c;
+      char c='>';
       buf >> c;
       if(c == '>') break;
 

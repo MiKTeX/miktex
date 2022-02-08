@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <zlib.h>
 
 #include "common.h"
 
@@ -44,13 +45,13 @@ namespace camp {
 extern string tab;
 extern string newline;
 
-enum Mode {NOMODE,INPUT,OUTPUT,UPDATE,BINPUT,BOUTPUT,BUPDATE,XINPUT,XOUTPUT,
-           XUPDATE,OPIPE};
+enum Mode {NOMODE,INPUT,OUTPUT,UPDATE,BINPUT,BOUTPUT,BUPDATE,XINPUT,XINPUTGZ,
+           XOUTPUT,XUPDATE,OPIPE};
 
 static const string FileModes[]=
 {"none","input","output","output(update)",
  "input(binary)","output(binary)","output(binary,update)",
- "input(xdr)","output(xdr)","output(xdr,update)","output(pipe)"};
+ "input(xdr)","input(xdrgz)","output(xdr)","output(xdr,update)","output(pipe)"};
 
 extern FILE *pipeout;
 
@@ -225,9 +226,11 @@ public:
     val=T();
   }
 
+#if COMPACT
   void setDefault(Int& val) {
     val=vm::Undefined;
   }
+#endif
 
   template<class T>
   void read(T& val) {
@@ -652,21 +655,21 @@ public:
 
 class ixfile : public file {
 protected:
-  xdr::ioxstream *fstream;
+  xdr::ixstream *fstream;
   xdr::xios::open_mode mode;
 public:
   ixfile(const string& name, bool check=true, Mode type=XINPUT,
          xdr::xios::open_mode mode=xdr::xios::in) :
     file(name,check,type,true), fstream(NULL), mode(mode) {}
 
-  void open() {
+  void open() override {
     name=locatefile(inpath(name));
-    fstream=new xdr::ioxstream(name.c_str(),mode);
+    fstream=new xdr::ixstream(name.c_str(),mode);
     index=processData().ixfile.add(fstream);
     if(check) Check();
   }
 
-  void close() {
+  void close() override {
     if(fstream) {
       fstream->close();
       closed=true;
@@ -678,26 +681,26 @@ public:
 
   ~ixfile() {close();}
 
-  bool eof() {return fstream ? fstream->eof() : true;}
-  bool error() {return fstream ? fstream->fail() : true;}
+  bool eof() override {return fstream ? fstream->eof() : true;}
+  bool error() override {return fstream ? fstream->fail() : true;}
 
-  void clear() {if(fstream) fstream->clear();}
+  void clear() override {if(fstream) fstream->clear();}
 
-  void seek(Int pos, bool begin=true) {
+  void seek(Int pos, bool begin=true) override {
     if(!standard && fstream) {
       clear();
       fstream->seek(pos,begin ? xdr::xios::beg : xdr::xios::end);
     }
   }
 
-  size_t tell() {
+  size_t tell() override {
     if(fstream)
       return fstream->tell();
     else
       return 0;
   }
 
-  void Read(Int& val) {
+  void Read(Int& val) override {
     if(signedint) {
       if(singleint) {int ival=0; *fstream >> ival; val=ival;}
       else {val=0; *fstream >> val;}
@@ -706,20 +709,20 @@ public:
       else {unsignedInt ival=0; *fstream >> ival; val=Intcast(ival);}
     }
   }
-  void Read(double& val) {
+  void Read(double& val) override {
     if(singlereal) {float fval=0.0; *fstream >> fval; val=fval;}
     else {
       val=0.0;
       *fstream >> val;
     }
   }
-  void Read(pair& val) {
+  void Read(pair& val) override {
     double x,y;
     Read(x);
     Read(y);
     val=pair(x,y);
   }
-  void Read(triple& val) {
+  void Read(triple& val) override {
     double x,y,z;
     Read(x);
     Read(y);
@@ -728,35 +731,93 @@ public:
   }
 };
 
-class ioxfile : public ixfile {
+class igzxfile : public ixfile {
+protected:
+  std::vector<char> readData;
+  size_t const readSize;
+  gzFile gzfile;
 public:
-  ioxfile(const string& name) : ixfile(outpath(name),true,XUPDATE,
-                                       xdr::xios::out) {}
+  igzxfile(const string& name, bool check=true, Mode type=XINPUT,
+         xdr::xios::open_mode mode=xdr::xios::in, size_t readSize=32768) :
+         ixfile(name,check,type,mode), readSize(readSize){}
 
-  void flush() {if(fstream) fstream->flush();}
+  bool error() override {return !gzfile;}
 
-  void write(Int val) {
-    if(signedint) {
-      if(singleint) *fstream << intcast(val);
-      else *fstream << val;
-    } else {
-      if(singleint) *fstream << unsignedcast(val);
-      else *fstream << unsignedIntcast(val);
+  void open() override {
+    name=locatefile(inpath(name));
+    gzfile=gzopen(name.c_str(),"rb");
+    Check();
+
+    while(!gzeof(gzfile)) {
+      std::vector<char> tmpBuf(readSize);
+      auto filSz = gzread(gzfile,tmpBuf.data(),readSize);
+      std::copy(tmpBuf.begin(),tmpBuf.begin()+filSz,std::back_inserter(readData));
+    }
+    gzclose(gzfile);
+
+    fstream=new xdr::memixstream(readData);
+    index=processData().ixfile.add(fstream);
+  }
+
+  void close() override {
+    closeFile();
+  }
+
+  ~igzxfile() override {closeFile();}
+
+
+protected:
+  void closeFile()
+  {
+    if(fstream) {
+      fstream->close();
+      closed=true;
+      delete fstream;
+      processData().ixfile.remove(index);
     }
   }
-  void write(double val) {
-    if(singlereal) *fstream << (float) val;
-    else *fstream << val;
+};
+
+class ioxfile : public ixfile {
+public:
+  ioxfile(const string& name) :
+    ixfile(outpath(name),true,XUPDATE,xdr::xios::out) {}
+
+   void open() override {
+    name=locatefile(inpath(name));
+    ioxfstreamRef=new xdr::ioxstream(name.c_str(),mode);
+    fstream=static_cast<xdr::ixstream*>(ioxfstreamRef);
+    index=processData().ixfile.add(fstream);
+    if(check) Check();
   }
-  void write(const pair& val) {
+
+  void flush() override {if(fstream) ioxfstreamRef->flush();}
+
+  void write(Int val) override{
+    if(signedint) {
+      if(singleint) *ioxfstreamRef << intcast(val);
+      else *ioxfstreamRef << val;
+    } else {
+      if(singleint) *ioxfstreamRef << unsignedcast(val);
+      else *ioxfstreamRef << unsignedIntcast(val);
+    }
+  }
+  void write(double val) override {
+    if(singlereal) *ioxfstreamRef << (float) val;
+    else *ioxfstreamRef << val;
+  }
+  void write(const pair& val) override {
     write(val.getx());
     write(val.gety());
   }
-  void write(const triple& val) {
+  void write(const triple& val) override {
     write(val.getx());
     write(val.gety());
     write(val.getz());
   }
+
+private:
+  xdr::ioxstream* ioxfstreamRef;
 };
 
 class oxfile : public file {

@@ -42,7 +42,7 @@ void reportFatal(const string& desc)
   em.statusError();
   try {
     throw quit();
-  } catch(handled_error) {
+  } catch(handled_error const&) {
   }
 }
 

@@ -137,9 +137,13 @@ protected:
   std::ostream *out;
 
 public:
+  bool pdftex() {return settings::pdf(settings::getSetting<string>("tex"));}
+
   psfile(const string& filename, bool pdfformat);
 
-  psfile() {pdf=settings::pdf(settings::getSetting<string>("tex"));}
+  psfile() {pdf=pdftex();}
+
+  bool transparentFormat(string outputformat);
 
   virtual ~psfile();
 

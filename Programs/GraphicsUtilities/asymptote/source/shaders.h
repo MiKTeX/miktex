@@ -18,18 +18,18 @@
 
 #include <string>
 
+extern int GLSLversion;
+
 typedef std::pair<std::string, int> ShaderfileModePair;
 
 GLuint compileAndLinkShader(
-  std::vector<ShaderfileModePair> const& shaders, size_t NLights,
-  size_t NMaterials, std::vector<std::string> const& defineflags);
+  std::vector<ShaderfileModePair> const& shaders,
+  std::vector<std::string> const& defineflags, bool ssbo=true,
+  bool interlock=false, bool compute=false);
 
-GLuint createShaders(GLchar const *src, int shaderType,
-                     std::string const& filename);
-
-GLuint createShaderFile(std::string file, int shaderType, size_t Nlights,
-                        size_t Nmaterials,
-                        std::vector<std::string> const& constflags);
+GLuint createShaderFile(std::string file, int shaderType,
+                        std::vector<std::string> const& constflags,
+                        bool ssbo, bool interlock, bool compute);
 
 enum attrib {positionAttrib=0,normalAttrib,materialAttrib,colorAttrib,
              widthAttrib};

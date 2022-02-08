@@ -21,6 +21,14 @@
 
 #include <miktex/ExitThrows>
 
+#if !defined(and)
+#define and &&
+#endif
+
+#if !defined(or)
+#define or ||
+#endif
+
 #if !defined(MIKTEX_BEGIN_NS)
 #define MIKTEX_BEGIN_NS                         \
 namespace MiKTeX {                              \

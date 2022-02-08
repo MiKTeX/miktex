@@ -18,13 +18,14 @@
 #include "texfile.h"
 #include "prcfile.h"
 #include "jsfile.h"
+#include "v3dfile.h"
 #include "glrender.h"
 #include "arrayop.h"
 #include "material.h"
 
 namespace camp {
 
-static const double pixel=1.0; // Adaptive rendering constant.
+static const double pixelResolution=1.0; // Adaptive rendering constant.
 
 enum Interaction {EMBEDDED=0,BILLBOARD};
 
@@ -147,6 +148,15 @@ typedef mem::list<bbox> bboxlist;
 
 typedef mem::map<CONST string,unsigned> groupmap;
 typedef mem::vector<groupmap> groupsmap;
+typedef mem::map<CONST triple, int> centerMap;
+
+inline bool operator < (const triple& a, const triple& b) {
+  return a.getx() < b.getx() ||
+                 (a.getx() == b.getx() &&
+                  (a.gety() < b.gety() ||
+                   (a.gety() == b.gety() &&
+                    (a.getz() < b.getz()))));
+}
 
 class drawElement : public gc
 {
@@ -158,10 +168,9 @@ public:
 
   virtual ~drawElement() {}
 
-  static mem::vector<triple> center;
+  static mem::vector<triple> centers;
+  static centerMap centermap;
   static size_t centerIndex;
-  static triple lastcenter;
-  static size_t lastcenterIndex;
 
   static pen lastpen;
   static const triple zero;
@@ -240,8 +249,8 @@ public:
     return false;
   }
 
-  // Output to a JS file
-  virtual bool write(jsfile *out) {
+  // Output to a WebGL or v3d file
+  virtual bool write(abs3Doutfile *out) {
     return false;
   }
 
@@ -256,12 +265,13 @@ public:
   virtual void meshinit() {}
 
   size_t centerindex(const triple& center) {
-    if(drawElement::center.empty() || center != drawElement::lastcenter) {
-      drawElement::lastcenter=center;
-      drawElement::center.push_back(center);
-      drawElement::lastcenterIndex=drawElement::center.size();
+    centerMap::iterator p=centermap.find(center);
+    if(p != centermap.end()) centerIndex=p->second;
+    else {
+      centers.push_back(center);
+      centermap[center]=centerIndex=centers.size();
     }
-    return drawElement::lastcenterIndex;
+    return centerIndex;
   }
 
   // Transform as part of a picture.
@@ -452,11 +462,9 @@ public:
 };
 
 #ifdef HAVE_LIBGLM
-void setcolors(bool colors,
-               const prc::RGBAColour& diffuse,
-               const prc::RGBAColour& emissive,
+void setcolors(const prc::RGBAColour& diffuse, const prc::RGBAColour& emissive,
                const prc::RGBAColour& specular, double shininess,
-               double metallic, double fresnel0, jsfile *out=NULL);
+               double metallic, double fresnel0, abs3Doutfile *out=NULL);
 #endif
 
 

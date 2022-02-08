@@ -6,4 +6,6 @@
 #include "fftw++.h"
 #include "fftw++.cc"
 
+extern "C" double __log_finite(double x) {return log(x);}
+
 #endif

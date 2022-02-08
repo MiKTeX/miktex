@@ -336,8 +336,10 @@ void stack::runWithOrWithoutClosure(lambda *l, vars_t vars, vars_t parent)
 
   /* start the new function */
   program::label ip = l->code->begin();
-  position& topPos=processData().topPos;
-  string& fileName=processData().fileName;
+  processDataStruct& P=processData();
+  position& topPos=P.topPos;
+  string& fileName=P.fileName;
+  unsigned int offset=P.xmapCount;
 
   try {
     for (;;) {
@@ -345,7 +347,7 @@ void stack::runWithOrWithoutClosure(lambda *l, vars_t vars, vars_t parent)
       curPos = i.pos;
 
       if(curPos.filename() == fileName)
-        topPos=curPos;
+        topPos=curPos.shift(offset);
 
 #ifdef PROFILE
       prof.recordInstruction();

@@ -363,7 +363,7 @@
   Two_Two_Sum(_j, _1, _l, _2, x5, x4, x3, x2)
 
 /* 2^(-p), where p=DBL_MANT_DIG.  Used to estimate roundoff errors.          */
-static const REAL epsilon=0.5*DBL_EPSILON; 
+static const REAL epsilon=0.5*DBL_EPSILON;
 
 /* 2^ceiling(p/2) + 1.  Used to split floats in half. */
 static const REAL splitter=sqrt((DBL_MANT_DIG % 2 ? 2.0 : 1.0)/epsilon)+1.0;
@@ -373,7 +373,7 @@ const REAL resulterrbound=(3.0 + 8.0 * epsilon) * epsilon;
 const REAL ccwerrboundA=(3.0 + 16.0 * epsilon) * epsilon;
 const REAL ccwerrboundB=(2.0 + 12.0 * epsilon) * epsilon;
 const REAL ccwerrboundC=(9.0 + 64.0 * epsilon) * epsilon * epsilon;
-const REAL o3derrboundA=(7.0 + 56.0 * epsilon) * epsilon; 
+const REAL o3derrboundA=(7.0 + 56.0 * epsilon) * epsilon;
 const REAL o3derrboundB=(3.0 + 28.0 * epsilon) * epsilon;
 const REAL o3derrboundC=(26.0 + 288.0 * epsilon) * epsilon * epsilon;
 const REAL iccerrboundA=(10.0 + 96.0 * epsilon) * epsilon;
@@ -663,7 +663,7 @@ static float uniformfloatrand()
 /*                                                                           */
 /*****************************************************************************/
 
-static int fast_expansion_sum_zeroelim(int elen, const REAL *e, 
+static int fast_expansion_sum_zeroelim(int elen, const REAL *e,
 				       int flen, const REAL *f, REAL *h)
      /* h cannot be e or f. */
 {
@@ -998,7 +998,7 @@ REAL orient2d(const REAL ax, const REAL ay, const REAL bx, const REAL by,
   REAL pa[]={ax,ay};
   REAL pb[]={bx,by};
   REAL pc[]={cx,cy};
-  
+
   orient = orient2dadapt(pa, pb, pc, detsum);
   FPU_RESTORE;
   return orient;
@@ -1033,7 +1033,7 @@ REAL orient2d(const REAL ax, const REAL ay, const REAL bx, const REAL by,
 /*                                                                           */
 /*****************************************************************************/
 
-static REAL orient3dadapt(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd, 
+static REAL orient3dadapt(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd,
 			  REAL permanent)
 {
   INEXACT REAL adx, bdx, cdx, ady, bdy, cdy, adz, bdz, cdz;
@@ -1463,7 +1463,7 @@ REAL orient3d(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd)
   adxbdy = adx * bdy;
   bdxady = bdx * ady;
 
-  det = adz * (bdxcdy - cdxbdy) 
+  det = adz * (bdxcdy - cdxbdy)
       + bdz * (cdxady - adxcdy)
       + cdz * (adxbdy - bdxady);
 
@@ -1507,7 +1507,7 @@ REAL orient3d(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd)
 /*                                                                           */
 /*****************************************************************************/
 
-static REAL incircleadapt(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd, 
+static REAL incircleadapt(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd,
 			  REAL permanent)
 {
   INEXACT REAL adx, bdx, cdx, ady, bdy, cdy;
@@ -2089,7 +2089,7 @@ REAL incircle(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd)
   REAL inc;
 
   FPU_ROUND_DOUBLE;
-  
+
   adx = pa[0] - pd[0];
   bdx = pb[0] - pd[0];
   cdx = pc[0] - pd[0];
@@ -2138,7 +2138,7 @@ REAL incircle(REAL ax, REAL ay, REAL bx, REAL by, REAL cx, REAL cy, REAL dx,
   REAL inc;
 
   FPU_ROUND_DOUBLE;
-  
+
   adx = ax - dx;
   bdx = bx - dx;
   cdx = cx - dx;
@@ -2175,7 +2175,7 @@ REAL incircle(REAL ax, REAL ay, REAL bx, REAL by, REAL cx, REAL cy, REAL dx,
   REAL pb[]={bx,by};
   REAL pc[]={cx,cy};
   REAL pd[]={dx,dy};
-  
+
   inc = incircleadapt(pa, pb, pc, pd, permanent);
   FPU_RESTORE;
   return inc;
@@ -2460,7 +2460,7 @@ static REAL insphereexact(const REAL *pa, const REAL *pb, const REAL *pc, const 
   return deter[deterlen - 1];
 }
 
-static REAL insphereadapt(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd, const REAL *pe, 
+static REAL insphereadapt(const REAL *pa, const REAL *pb, const REAL *pc, const REAL *pd, const REAL *pe,
 			  REAL permanent)
 {
   INEXACT REAL aex, bex, cex, dex, aey, bey, cey, dey, aez, bez, cez, dez;

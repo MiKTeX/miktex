@@ -22,7 +22,8 @@ void prettyindent(ostream &out, Int indent)
 {
   for (Int i = 0; i < indent; i++) out << " ";
 }
-void prettyname(ostream &out, string name, Int indent) {
+void prettyname(ostream &out, string name, Int indent, position pos) {
+  pos.print(out);
   prettyindent(out,indent);
   out << name << "\n";
 }

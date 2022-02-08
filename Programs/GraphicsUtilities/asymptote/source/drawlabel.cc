@@ -246,9 +246,8 @@ void drawLabelPath::bounds(bbox& b, iopipestream& tex, boxvector&, bboxlist&)
 
 bool drawLabelPath::write(texfile *out, const bbox&)
 {
-  bbox b=Box;
-  double Hoffset=getSetting<bool>("inlinetex") ? b.right : b.left;
-  b.shift(pair(-Hoffset,-b.bottom));
+  double Hoffset=getSetting<bool>("inlinetex") ? Box.right : Box.left;
+  Box=Box.shift(pair(-Hoffset,-Box.bottom));
 
   checkbounds();
   if(drawLabel::pentype.invisible()) return true;

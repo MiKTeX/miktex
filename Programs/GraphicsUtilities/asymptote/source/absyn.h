@@ -10,6 +10,7 @@
 #define ABSYN_H
 
 #include "common.h"
+#include "symbolmaps.h"
 #include "errormsg.h" // For position
 
 // Forward declaration for markPos.
@@ -37,13 +38,14 @@ public:
   }
 
   virtual void prettyprint(ostream &out, Int indent) = 0;
+  virtual void createSymMap(AsymptoteLsp::SymbolContext* symContext) {}
 private:  // Non-copyable
   void operator=(const absyn&);
   absyn(const absyn&);
 };
 
 void prettyindent(ostream &out, Int indent);
-void prettyname(ostream &out, string name, Int indent);
+void prettyname(ostream &out, string name, Int indent, position pos);
 
 class name;
 class ty;

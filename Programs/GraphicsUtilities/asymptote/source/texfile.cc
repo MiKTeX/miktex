@@ -24,6 +24,7 @@ texfile::texfile(const string& texname, const bbox& box, bool pipe)
   : box(box)
 {
   texengine=getSetting<string>("tex");
+  pdf=settings::pdf(texengine);
   inlinetex=getSetting<bool>("inlinetex");
   Hoffset=inlinetex ? box.right : box.left;
   out=new ofstream(texname.c_str());
@@ -60,7 +61,7 @@ void texfile::miniprologue()
   } else *out << "\\nopagenumbers" << newl;
 }
 
-void texfile::prologue()
+void texfile::prologue(bool deconstruct)
 {
   if(inlinetex) {
     string prename=buildname(settings::outname(),"pre");
@@ -77,7 +78,7 @@ void texfile::prologue()
       *out << "\\definepapersize[asy][width=" << width << "bp,height="
            << height << "bp]" << newl
            << "\\setuppapersize[asy][asy]" << newl;
-    } else if(settings::pdf(texengine)) {
+    } else if(pdf) {
       if(width > 0)
         *out << "\\pdfpagewidth=" << width << "bp" << newl;
       *out << "\\ifx\\pdfhorigin\\undefined" << newl
@@ -104,7 +105,7 @@ void texfile::prologue()
       *out << "\\pagestyle{empty}" << newl
            << "\\textheight=" << height+18.0 << "bp" << newl
            << "\\textwidth=" << width+18.0 << "bp" << newl;
-      if(settings::pdf(texengine))
+      if(pdf)
         *out << "\\parindent=0pt" << newl
              << "\\oddsidemargin=0pt" << newl
              << "\\evensidemargin=\\oddsidemargin" << newl
@@ -126,9 +127,13 @@ void texfile::prologue()
              << "\\starttext\\hbox{%" << newl;
       } else {
         *out << "\\footline={}" << newl;
-        if(settings::pdf(texengine)) {
-          *out << "\\hoffset=-20pt" << newl
-               << "\\voffset=0pt" << newl;
+        if(pdf) {
+          if(settings::lua(texengine))
+            *out << "\\hoffset=-92bp" << newl
+                 << "\\voffset=-1in" << newl;
+          else
+            *out << "\\hoffset=-20pt" << newl
+                 << "\\voffset=0pt" << newl;
         } else {
           *out << "\\hoffset=36.6pt" << newl
                << "\\voffset=54.0pt" << newl;
@@ -136,8 +141,8 @@ void texfile::prologue()
       }
     }
   }
-
-  beginpage();
+  if(!deconstruct)
+    beginpage();
 }
 
 void texfile::beginlayer(const string& psname, bool postscript)
@@ -149,7 +154,6 @@ void texfile::beginlayer(const string& psname, bool postscript)
       else {
         *out << "{\\catcode`\"=12%" << newl
              << "\\includegraphics";
-        bool pdf=settings::pdf(texengine);
         string name=stripExt(psname);
         if(inlinetex) {
           size_t pos=name.rfind("-");
@@ -185,31 +189,6 @@ void texfile::writeshifted(path p, bool newPath)
   write(p.transformed(shift(pair(-Hoffset,-box.bottom))),newPath);
 }
 
-void texfile::setlatexcolor(pen p)
-{
-  if(p.cmyk() && (!lastpen.cmyk() ||
-                  (p.cyan() != lastpen.cyan() ||
-                   p.magenta() != lastpen.magenta() ||
-                   p.yellow() != lastpen.yellow() ||
-                   p.black() != lastpen.black()))) {
-    *out << "\\definecolor{ASYcolor}{cmyk}{"
-         << p.cyan() << "," << p.magenta() << "," << p.yellow() << ","
-         << p.black() << "}\\color{ASYcolor}%" << newl;
-  } else if(p.rgb() && (!lastpen.rgb() ||
-                        (p.red() != lastpen.red() ||
-                         p.green() != lastpen.green() ||
-                         p.blue() != lastpen.blue()))) {
-    *out << "\\definecolor{ASYcolor}{rgb}{"
-         << p.red() << "," << p.green() << "," << p.blue()
-         << "}\\color{ASYcolor}%" << newl;
-  } else if(p.grayscale() && (!lastpen.grayscale() ||
-                              p.gray() != lastpen.gray())) {
-    *out << "\\definecolor{ASYcolor}{gray}{"
-         << p.gray()
-         << "}\\color{ASYcolor}%" << newl;
-  }
-}
-
 void texfile::setfont(pen p)
 {
   bool latex=settings::latex(texengine);
@@ -222,13 +201,10 @@ void texfile::setfont(pen p)
 
 void texfile::setpen(pen p)
 {
-  bool latex=settings::latex(texengine);
-
   p.convert();
   if(p == lastpen) return;
 
-  if(latex) setlatexcolor(p);
-  else setcolor(p,settings::beginspecial(texengine),settings::endspecial());
+  setcolor(p,settings::beginspecial(texengine),settings::endspecial());
 
   setfont(p);
 }
@@ -248,13 +224,18 @@ void texfile::beginpicture(const bbox& b)
   verbatimline("%");
 }
 
-void texfile::endpicture(const bbox& b)
+void texfile::endpicture(const bbox& b, bool newPage)
 {
   verbatimline(settings::endpicture(texengine));
-  verbatim("\\kern");
-  double width=b.right-b.left;
-  write(-width*ps2tex);
-  verbatimline("pt%");
+  if(newPage) {
+    texfile::newpage(b);
+    BBox(b);
+  } else {
+    verbatim("\\kern");
+    double width=b.right-b.left;
+    write(-width*ps2tex);
+    verbatimline("pt%");
+  }
 }
 
 void texfile::gsave(bool)
@@ -281,6 +262,11 @@ void texfile::endspecial()
   *out << settings::endspecial() << newl;
 }
 
+void texfile::special(const string& s)
+{
+  *out << "\\special{" << s << "}%" << newl;
+}
+
 void texfile::beginraw()
 {
   *out << "\\ASYraw{" << newl;
@@ -294,7 +280,7 @@ void texfile::endraw()
 void texfile::put(const string& label, const transform& T, const pair& z,
                   const pair& align)
 {
-  double sign=settings::pdf(texengine) ? 1.0 : -1.0;
+  double sign=pdf ? 1.0 : -1.0;
 
   if(label.empty()) return;
 

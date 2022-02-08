@@ -131,9 +131,11 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
   bool latex=settings::latex(texengine);
   bool inlinetex=settings::getSetting<bool>("inlinetex");
   if(pipe || !inlinetex) {
+    bool lua=settings::lua(texengine);
     if(latex) {
-      if(texengine == "lualatex") {
-        out << "\\ifx\\pdfpagewidth\\undefined\\let\\pdfpagewidth\\paperwidth"
+      if(lua) {
+        out << "\\edef\\pdfpageattr{\\pdfvariable pageattr}" << newl
+            << "\\ifx\\pdfpagewidth\\undefined\\let\\pdfpagewidth\\paperwidth"
             << "\\fi" << newl
             << "\\ifx\\pdfpageheight\\undefined\\let\\pdfpageheight"
             << "\\paperheight"
@@ -144,6 +146,15 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
             << newl
             << "\\usepackage{graphicx}" << newl
             << "\\let\\paperwidth\\paperwidthsave" << newl;
+      }
+    } else {
+      if(lua) {
+        out << "\\edef\\pdfpageattr{\\pdfvariable pageattr}" << newl
+            << "\\ifx\\pdfpagewidth\\undefined\\let\\pdfpagewidth\\pagewidth"
+            << "\\fi" << newl
+            << "\\ifx\\pdfpageheight\\undefined\\let\\pdfpageheight"
+            << "\\pageheight"
+            << "\\fi" << newl;
       }
     }
     texpreamble(out,preamble,pipe);
@@ -168,7 +179,6 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
   if(latex) {
     if(!inlinetex) {
       dvipsfix(out);
-      out << "\\usepackage{color}" << newl;
     }
     if(pipe) {
       out << "\\begin{document}" << newl;
@@ -224,6 +234,7 @@ protected:
   bool inlinetex;
   double Hoffset;
   int level;
+  bool pdf;
 
 public:
   string texengine;
@@ -231,13 +242,12 @@ public:
   texfile(const string& texname, const bbox& box, bool pipe=false);
   virtual ~texfile();
 
-  void prologue();
+  void prologue(bool deconstruct=false);
   virtual void beginpage() {}
 
   void epilogue(bool pipe=false);
   virtual void endpage() {}
 
-  void setlatexcolor(pen p);
   void setpen(pen p);
 
   void setfont(pen p);
@@ -250,6 +260,8 @@ public:
 
   void endspecial();
 
+  void special(const string &s);
+
   void beginraw();
 
   void endraw();
@@ -260,8 +272,34 @@ public:
 
   bool toplevel() {return level == 0;}
 
-  void beginpicture(const bbox& b);
-  void endpicture(const bbox& b);
+  virtual void beginpicture(const bbox& b);
+  void endpicture(const bbox& b, bool newPage=false);
+
+  virtual void newpage(const bbox&) {
+    verbatimline(settings::newpage(texengine));
+  }
+
+  void BBox(const bbox& b) {
+    bbox B=b.shift(pair(-hoffset(),-voffset()));
+    if(pdf) {
+      if(settings::xe(texengine))
+        *out << "\\special{pdf: put @thispage <</MediaBox [" << B << "]>>}%"
+             << newl;
+      else
+        if(settings::context(texengine)) {
+          double width=B.right-B.left;
+          double height=B.top-B.bottom;
+          *out << "\\definepapersize[asy]["
+               << "width=" << width << "bp,"
+               << "height=" << height << "bp]%" << newl
+               << "\\setuppapersize[asy][asy]%" << newl
+               << "\\setuplayout["
+               << "backspace=" << -B.left << "bp,"
+               << "topspace=" << B.top-(box.top-box.bottom) << "bp]%" << newl;
+        } else
+          *out << "\\pdfpageattr{/MediaBox [" << B << "]}%" << newl;
+    }
+  }
 
   void writepair(pair z) {
     *out << z;
@@ -279,6 +317,8 @@ public:
 
   void beginlayer(const string& psname, bool postscript);
   void endlayer();
+
+  virtual void Offset(const bbox& box, bool special=false) {};
 };
 
 class svgtexfile : public texfile {
@@ -290,20 +330,56 @@ class svgtexfile : public texfile {
   bool inspecial;
   static string nl;
   pair offset;
+  bool first;
+  bool deconstruct;
 public:
-  svgtexfile(const string& texname, const bbox& box, bool pipe=false) :
-    texfile(texname,box,pipe) {
-    clipcount=0;
-    gradientcount=0;
-    gouraudcount=0;
-    tensorcount=0;
+  svgtexfile(const string& texname, const bbox& box, bool pipe=false,
+             bool deconstruct=false) :
+    texfile(texname,box,pipe), deconstruct(deconstruct) {
     inspecial=false;
 
     *out << "\\catcode`\\%=12" << newl
          << "\\def\\percent{%}" << newl
          << "\\catcode`\\%=14" << newl;
 
+    first=true;
+    Offset(box);
+  }
+
+  void Offset(const bbox& b, bool special=false) {
+    box=b;
+    if(special) {
+      texfile::beginpicture(b);
+      pair bboxshift=pair(-2*b.left,b.top-b.bottom);
+      bbox b0=svgbbox(b,bboxshift);
+      *out << "\\special{dvisvgm:bbox f "
+           << b0.left << "bp "
+           << b0.bottom << "bp "
+           << b0.right << "bp "
+           << b0.top << "bp}%" << newl;
+    }
+
+    Hoffset=inlinetex ? box.right : box.left;
     offset=pair(box.left,box.top);
+    clipstack=mem::stack<size_t>();
+    clipcount=0;
+    gradientcount=0;
+    gouraudcount=0;
+    tensorcount=0;
+  }
+
+  void beginpicture(const bbox& b) {
+    Offset(b,true);
+  }
+
+  void newpage(const bbox& b) {
+    if(deconstruct) {
+      if(first)
+        first=false;
+      else
+        endpicture(b,true);
+      beginpicture(b);
+    }
   }
 
   void writeclip(path p, bool newPath=true) {
@@ -325,7 +401,6 @@ public:
   void beginspecial(bool def=false);
   void endspecial();
 
-  // Prevent unwanted page breaks.
   void beginpage() {
     beginpicture(box);
   }

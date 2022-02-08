@@ -9,20 +9,23 @@
 #define ERRORMSG_H
 
 #include <iostream>
+#include <exception>
 #include "common.h"
 #include "settings.h"
+#include "symbolmaps.h"
 
 using std::ostream;
 
-struct handled_error {}; // Exception to process next file.
-struct interrupted {};   // Exception to interrupt execution.
-struct quit {};          // Exception to quit current operation.
+struct handled_error : std::exception {}; // Exception to process next file.
+struct interrupted : std::exception {};   // Exception to interrupt execution.
+struct quit : std::exception {};          // Exception to quit current operation.
 #if defined(MIKTEX)
-struct eof_exception
+struct eof_exception :
+    std::exception
 {
 };
 #else
-struct eof {};           // Exception to exit interactive mode.
+struct eof : std::exception {};           // Exception to exit interactive mode.
 #endif
 
 class fileinfo : public gc {
@@ -87,19 +90,22 @@ public:
     }
   }
 
-  string filename() const
-  {
+  string filename() const {
     return file ? file->name() : "";
   }
 
-  size_t Line() const
-  {
+  size_t Line() const {
     return line;
   }
 
-  size_t Column() const
-  {
+  size_t Column() const {
     return column;
+  }
+
+  position shift(unsigned int offset) const {
+    position P=*this;
+    P.line -= offset;
+    return P;
   }
 
   std::pair<size_t,size_t>LineColumn() const {
@@ -124,6 +130,21 @@ public:
   }
 
   friend ostream& operator << (ostream& out, const position& pos);
+
+  typedef std::pair<size_t, size_t> posInFile;
+  typedef std::pair<std::string, posInFile> filePos;
+
+  explicit operator AsymptoteLsp::filePos()
+  {
+    return std::make_pair((std::string) file->name().c_str(),LineColumn());
+  }
+
+  void print(ostream& out) const
+  {
+    if (file) {
+      out << file->name() << ":" << line << "." << column;
+    }
+  }
 
   // Write out just the module name and line number.
   void printTerse(ostream& out) const

@@ -21,19 +21,35 @@ public:
   bool islayer() {return true;}
 };
 
-class drawNewPage : public drawLayer {
+class drawBBox : public drawLayer {
+protected:
+  bbox box;
 public:
-  drawNewPage() {}
+  drawBBox() : box() {}
+  drawBBox(const bbox& box) : box(box) {}
+
+  bool islayer() {return false;}
+  virtual ~drawBBox() {}
+
+  bool write(texfile *out, const bbox& b) {
+    out->BBox(box.empty ? b : box);
+    return true;
+  }
+};
+
+class drawNewPage : public drawBBox {
+public:
+  drawNewPage() : drawBBox() {}
+  drawNewPage(const bbox& box) : drawBBox(box) {}
 
   virtual ~drawNewPage() {}
 
+  bool islayer() {return true;}
   bool islabel() {return true;}
   bool isnewpage() {return true;}
 
-  bool write(texfile *out, const bbox&) {
-    out->verbatimline(settings::latex(out->texengine) ? "\\newpage" :
-                      settings::context(out->texengine) ? "}\\page\\hbox{%" :
-                      "\\eject");
+  bool write(texfile *out, const bbox& b) {
+    out->newpage(box.empty ? b : box);
     return true;
   }
 };
@@ -41,5 +57,7 @@ public:
 }
 
 GC_DECLARE_PTRFREE(camp::drawLayer);
+GC_DECLARE_PTRFREE(camp::drawBBox);
+GC_DECLARE_PTRFREE(camp::drawNewPage);
 
 #endif

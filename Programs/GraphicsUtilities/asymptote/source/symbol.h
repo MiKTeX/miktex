@@ -29,6 +29,9 @@ struct GCInit {
     GC_set_free_space_divisor(2);
     mem::compact(0);
     GC_INIT();
+#ifdef HAVE_PTHREAD
+    GC_allow_register_threads();
+#endif
 #endif
 
     // Put the symbol table into a state where symbols can be translated.
@@ -111,6 +114,10 @@ struct symbol {
   operator bool () const { return this->hashplus != 0; }
 
   operator string () const;
+
+#ifdef USEGC
+  explicit operator std::string() const;
+#endif
 
   friend ostream& operator<< (ostream& out, const symbol sym);
 };

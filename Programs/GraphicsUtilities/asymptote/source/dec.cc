@@ -16,6 +16,7 @@
 #include "exp.h"
 #include "modifier.h"
 #include "runtime.h"
+#include "locate.h"
 #include "parser.h"
 
 namespace absyntax {
@@ -33,7 +34,7 @@ trans::tyEntry *ty::transAsTyEntry(coenv &e, record *where)
 
 void nameTy::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "nameTy",indent);
+  prettyname(out, "nameTy",indent, getPos());
 
   id->prettyprint(out, indent+1);
 }
@@ -48,6 +49,10 @@ trans::tyEntry *nameTy::transAsTyEntry(coenv &e, record *)
   return id->tyEntryTrans(e);
 }
 
+nameTy::operator string() const
+{
+  return static_cast<string>(id->getName());
+}
 
 void dimensions::prettyprint(ostream &out, Int indent)
 {
@@ -74,7 +79,7 @@ types::array *dimensions::truetype(types::ty *base)
 
 void arrayTy::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "arrayTy",indent);
+  prettyname(out, "arrayTy",indent, getPos());
 
   cell->prettyprint(out, indent+1);
   dims->prettyprint(out, indent+1);
@@ -110,6 +115,17 @@ types::ty *arrayTy::trans(coenv &e, bool tacit)
   return t;
 }
 
+arrayTy::operator string() const
+{
+  stringstream ss;
+  ss << static_cast<string>(*cell);
+  for (size_t i = 0; i < dims->size(); i++)
+  {
+    ss << "[]";
+  }
+  return ss.str();
+}
+
 tyEntryTy::tyEntryTy(position pos, types::ty *t)
   : ty(pos), ent(new trans::tyEntry(t, 0, 0, position()))
 {
@@ -125,6 +141,10 @@ types::ty *tyEntryTy::trans(coenv &, bool) {
   return ent->t;
 }
 
+tyEntryTy::operator string() const
+{
+  return "<unknown-type>";
+}
 
 vm::lambda *runnable::transAsCodelet(coenv &e)
 {
@@ -143,7 +163,7 @@ void block::prettystms(ostream &out, Int indent)
 
 void block::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out,"block",indent);
+  prettyname(out,"block",indent,getPos());
   prettystms(out, indent+1);
 }
 
@@ -224,10 +244,18 @@ vardec *block::asVardec()
   return var;
 }
 
+void block::createSymMap(AsymptoteLsp::SymbolContext* symContext) {
+#ifdef HAVE_LSP
+  for (auto const& p : stms)
+  {
+    p->createSymMap(symContext);
+  }
+#endif
+}
 
 void dec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "dec", indent);
+  prettyname(out, "dec", indent, getPos());
 }
 
 
@@ -300,7 +328,7 @@ permission modifierList::getPermission()
 
 void modifiedRunnable::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "modifierRunnable",indent);
+  prettyname(out, "modifierRunnable",indent, getPos());
 
   mods->prettyprint(out, indent+1);
   body->prettyprint(out, indent+1);
@@ -364,8 +392,52 @@ void decidstart::addOps(types::ty *base, coenv &e, record *r)
   }
 }
 
+void decidstart::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  std::string name(static_cast<std::string>(getName()));
+  AsymptoteLsp::posInFile pos(getPos().LineColumn());
+  if (auto decCtx=dynamic_cast<AsymptoteLsp::AddDeclContexts*>(symContext))
+  {
+    decCtx->additionalDecs.emplace(std::piecewise_construct,
+            std::forward_as_tuple(name), std::forward_as_tuple(name, pos));
+  }
+  else
+  {
+    symContext->symMap.varDec[name] = AsymptoteLsp::SymbolInfo(name, pos);
+  }
+#endif
+}
 
-void fundecidstart::prettyprint(ostream &out, Int indent)
+void decidstart::createSymMapWType(AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base)
+{
+#ifdef HAVE_LSP
+  std::string name(static_cast<std::string>(getName()));
+  AsymptoteLsp::posInFile pos(getPos().LineColumn());
+  if (auto decCtx=dynamic_cast<AsymptoteLsp::AddDeclContexts*>(symContext))
+  {
+    if (base == nullptr)
+    {
+      decCtx->additionalDecs.emplace(std::piecewise_construct, std::forward_as_tuple(name),
+                                     std::forward_as_tuple(name, pos));
+    }
+    else
+    {
+      decCtx->additionalDecs.emplace(std::piecewise_construct, std::forward_as_tuple(name),
+                                     std::forward_as_tuple(name, static_cast<std::string>(*base), pos));
+    }
+  }
+  else
+  {
+    symContext->symMap.varDec[name] = base == nullptr ?
+            AsymptoteLsp::SymbolInfo(name, pos) :
+            AsymptoteLsp::SymbolInfo(name, static_cast<std::string>(*base), pos);
+  }
+#endif
+}
+
+
+  void fundecidstart::prettyprint(ostream &out, Int indent)
 {
   prettyindent(out, indent);
   out << "fundecidstart '" << id << "'\n";
@@ -412,7 +484,7 @@ void fundecidstart::addOps(types::ty *base, coenv &e, record *r)
 
 void decid::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "decid",indent);
+  prettyname(out, "decid",indent, getPos());
 
   start->prettyprint(out, indent+1);
   if (init)
@@ -556,10 +628,32 @@ void decid::transAsTypedefField(coenv &e, trans::tyEntry *base, record *r)
   addTypeWithPermission(e, r, ent, start->getName());
 }
 
+void decid::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  start->createSymMap(symContext);
+  if (init)
+  {
+    init->createSymMap(symContext);
+  }
+#endif
+}
+
+void decid::createSymMapWType(AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base)
+{
+#ifdef HAVE_LSP
+  start->createSymMapWType(symContext, base);
+  if (init)
+  {
+    init->createSymMap(symContext);
+  }
+#endif
+}
+
 
 void decidlist::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "decidlist",indent);
+  prettyname(out, "decidlist",indent, getPos());
 
   for (list<decid *>::iterator p = decs.begin(); p != decs.end(); ++p)
     (*p)->prettyprint(out, indent+1);
@@ -577,10 +671,28 @@ void decidlist::transAsTypedefField(coenv &e, trans::tyEntry *base, record *r)
     (*p)->transAsTypedefField(e, base, r);
 }
 
+void decidlist::createSymMap(AsymptoteLsp::SymbolContext* symContext) {
+#ifdef HAVE_LSP
+  for (auto const& p : decs)
+  {
+    p->createSymMap(symContext);
+  }
+#endif
+}
 
-void vardec::prettyprint(ostream &out, Int indent)
+void decidlist::createSymMapWType(AsymptoteLsp::SymbolContext* symContext, absyntax::ty* base) {
+#ifdef HAVE_LSP
+  for (auto const& p : decs)
+  {
+    p->createSymMapWType(symContext, base);
+  }
+#endif
+}
+
+
+  void vardec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "vardec",indent);
+  prettyname(out, "vardec",indent, getPos());
 
   base->prettyprint(out, indent+1);
   decs->prettyprint(out, indent+1);
@@ -608,6 +720,13 @@ types::ty *vardec::singleGetType(coenv &e)
   return did->getStart()->getType(base->trans(e), e);
 }
 
+void vardec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  decs->createSymMapWType(symContext, base);
+#endif
+}
+
 
 // Helper class for imports.  This essentially evaluates to the run::loadModule
 // function.  However, that function returns different types of records
@@ -622,7 +741,7 @@ public:
     : exp(pos) {ft=new function(imp,primString());}
 
   void prettyprint(ostream &out, Int indent) {
-    prettyname(out, "loadModuleExp", indent);
+    prettyname(out, "loadModuleExp", indent, getPos());
   }
 
   types::ty *trans(coenv &) {
@@ -700,6 +819,34 @@ void idpair::transAsUnravel(coenv &e, record *r,
   }
 }
 
+void idpair::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  if (valid)
+  {
+    string fullSrc(settings::locateFile(src, true));
+    if (not AsymptoteLsp::isVirtualFile((std::string)(fullSrc.c_str())))
+    {
+      if (not fullSrc.empty())
+      {
+        symContext->addEmptyExtRef((std::string)(fullSrc.c_str()));
+      }
+
+      // add (dest, source) to reference map.
+      auto s = symContext->extRefs.fileIdPair.emplace(dest, (std::string) fullSrc.c_str());
+      auto it=std::get<0>(s);
+      auto success=std::get<1>(s);
+      if (not success)
+      {
+        it->second = (std::string)(fullSrc.c_str());
+      }
+
+      symContext->extRefs.addAccessVal(static_cast<std::string>(dest));
+    }
+  }
+#endif
+}
+
 
 void idpairlist::prettyprint(ostream &out, Int indent)
 {
@@ -726,18 +873,35 @@ void idpairlist::transAsUnravel(coenv &e, record *r,
     (*p)->transAsUnravel(e,r,source,qualifier);
 }
 
-idpairlist * const WILDCARD = 0;
+void idpairlist::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  for (auto& idp : base)
+  {
+    idp->createSymMap(symContext);
+  }
+#endif
+}
+
+  idpairlist * const WILDCARD = 0;
 
 void accessdec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "accessdec", indent);
+  prettyname(out, "accessdec", indent, getPos());
   base->prettyprint(out, indent+1);
+}
+
+void accessdec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  base->createSymMap(symContext);
+#endif
 }
 
 
 void fromdec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "fromdec", indent);
+  prettyname(out, "fromdec", indent, getPos());
   fields->prettyprint(out, indent+1);
 }
 
@@ -758,7 +922,7 @@ void fromdec::transAsField(coenv &e, record *r)
 
 void unraveldec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "unraveldec", indent);
+  prettyname(out, "unraveldec", indent, getPos());
   id->prettyprint(out, indent+1);
   idpairlist *f=this->fields;
   if(f) f->prettyprint(out, indent+1);
@@ -774,6 +938,17 @@ fromdec::qualifier unraveldec::getQualifier(coenv &e, record *)
   }
 
   return qualifier(qt,id->getVarEntry(e));
+}
+
+void unraveldec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  std::string fileName = static_cast<std::string>(id->getName());
+  if (not AsymptoteLsp::isVirtualFile(fileName))
+  {
+    symContext->extRefs.addUnravelVal(fileName);
+  }
+#endif
 }
 
 void fromaccessdec::prettyprint(ostream &out, Int indent)
@@ -799,10 +974,39 @@ fromdec::qualifier fromaccessdec::getQualifier(coenv &e, record *r)
     return qualifier(0,0);
 }
 
+void fromaccessdec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  // filename is id;
+  std::string idStr(id);
+  symContext->extRefs.addEmptyExtRef(idStr);
+
+  auto* f=this->fields;
+  if (f)
+  {
+    // add [dest] -> [src, filename] to fromAccessDecls;
+    f->processListFn(
+            [&symContext, &idStr](symbol const& src, symbol const& dest)
+            {
+              std::string srcId(src);
+              std::string destId(dest);
+              symContext->extRefs.addFromAccessVal(idStr, srcId, destId);
+            });
+  }
+#endif
+}
+
 void importdec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "importdec", indent);
+  prettyname(out, "importdec", indent, getPos());
   base.prettyprint(out, indent+1);
+}
+
+void importdec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  base.createSymMap(symContext);
+#endif
 }
 
 void includedec::prettyprint(ostream &out, Int indent)
@@ -828,10 +1032,22 @@ void includedec::transAsField(coenv &e, record *r)
   ast->transAsField(e, r);
 }
 
+void includedec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  std::string fullname((std::string) settings::locateFile(filename, true).c_str());
+  if (not AsymptoteLsp::isVirtualFile(fullname))
+  {
+    symContext->addEmptyExtRef(fullname);
+    symContext->extRefs.includeVals.emplace(fullname);
+  }
+#endif
+}
+
 
 void typedec::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "typedec",indent);
+  prettyname(out, "typedec",indent, getPos());
 
   body->prettyprint(out, indent+1);
 }
@@ -893,6 +1109,24 @@ void recorddec::transAsField(coenv &e, record *parent)
   // the enclosing environment.  These are the implicit constructors defined by
   // "operator init".
   addPostRecordEnvironment(e, r, parent);
+}
+
+void recorddec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  auto* newCtx = symContext->newContext(getPos().LineColumn());
+  auto* structTyInfo = symContext->newTypeDec<AsymptoteLsp::StructDecs>(
+          static_cast<std::string>(id), getPos().LineColumn());
+  if (structTyInfo != nullptr)
+  {
+    structTyInfo->ctx = newCtx;
+    body->createSymMap(newCtx);
+  }
+  else
+  {
+    cerr << "Cannot create new struct context" << endl;
+  }
+#endif
 }
 
 runnable *autoplainRunnable() {

@@ -10,11 +10,26 @@
 #undef NDEBUG
 
 #include <iostream>
+#include <memory>
 #include <climits>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef HAVE_LSP
+#include <boost/optional.hpp>
+#include <boost/none.hpp>
+using boost::optional;
+using boost::make_optional;
+#else
+#include "optional.hpp"
+#define boost nonstd
+using nonstd::optional;
+using nonstd::nullopt;
+#endif
+
+using std::make_pair;
 
 #if !defined(FOR_SHARED) &&                                             \
   ((defined(HAVE_LIBGL) && defined(HAVE_LIBGLUT) && defined(HAVE_LIBGLM)) || \
@@ -87,6 +102,10 @@ using mem::stringstream;
 using mem::istringstream;
 using mem::ostringstream;
 using mem::stringbuf;
+
+using std::shared_ptr;
+using std::unique_ptr;
+using std::make_shared;
 
 static const struct ws_t {} ws={};
 

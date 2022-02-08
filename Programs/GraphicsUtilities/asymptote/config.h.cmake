@@ -9,6 +9,9 @@
 /* System directory for global .asy files */
 #cmakedefine ASYMPTOTE_SYSDIR
 
+/* Define to 1 if you have GLSL compute shaders. */
+#cmakedefine HAVE_COMPUTE_SHADER 1
+
 /* Define to 1 if you have the <curses.h> header file. */
 #cmakedefine HAVE_CURSES_H 1
 
@@ -105,6 +108,9 @@
 /* Define to 1 if the system has the type `long long'. */
 #cmakedefine HAVE_LONG_LONG 1
 
+/* Define to 1 if you have Language server protocol. */
+#cmakedefine HAVE_LSP 1
+
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1
 
@@ -135,6 +141,9 @@
 /* Define to 1 if you have a working <tirpc/rpc/rpc.h> header. */
 #cmakedefine HAVE_RPC_RPC_H 1
 
+/* Define to 1 if you have GLSL shader storage buffer objects. */
+#cmakedefine HAVE_SSBO 1
+
 /* Define to 1 if you have the <stddef.h> header file. */
 #cmakedefine HAVE_STDDEF_H 1
 
@@ -155,6 +164,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
+
+/* Define to 1 if you have the `strnlen' function. */
+#cmakedefine HAVE_STRNLEN 1
 
 /* Define to 1 if you have the `strptime' function. */
 #cmakedefine HAVE_STRPTIME 1
@@ -213,9 +225,6 @@
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
 #cmakedefine PTHREAD_CREATE_JOINABLE
-
-/* Define as the return type of signal handlers (`int' or `void'). */
-#cmakedefine RETSIGTYPE ${RETSIGTYPE}
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1

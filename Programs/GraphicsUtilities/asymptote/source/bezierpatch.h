@@ -12,12 +12,11 @@
 
 namespace camp {
 
-#ifdef HAVE_GL
+#ifdef HAVE_LIBGLM
 
 struct BezierPatch
 {
   vertexBuffer data;
-
   bool transparent;
   bool color;
   double epsilon;
@@ -30,6 +29,12 @@ struct BezierPatch
   bool Onscreen;
 
   void init(double res);
+
+  void init(double res, GLfloat *colors) {
+    transparent=false;
+    color=colors;
+    init(res);
+  }
 
   triple normal(triple left3, triple left2, triple left1, triple middle,
                 triple right1, triple right2, triple right3) {
@@ -159,7 +164,7 @@ struct BezierPatch
     transparent=Transparent;
     color=colors;
     notRendered();
-    init(pixel*ratio);
+    init(pixelResolution*ratio);
     render(g,straight,colors);
   }
 

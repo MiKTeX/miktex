@@ -35,11 +35,7 @@ public:
   BezierCurve R;
 #endif
   void init() {
-#ifdef HAVE_LIBOSMESA
-    billboard=false;
-#else
     billboard=interaction == BILLBOARD;
-#endif
     centerIndex=0;
   }
 
@@ -105,7 +101,7 @@ public:
   }
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out);
 
   void render(double, const triple&, const triple&, double,
               bool remesh);
@@ -234,7 +230,7 @@ public:
               double perspective, bool remesh);
 
   bool write(prcfile *out, unsigned int *, double, groupsmap&);
-  bool write(jsfile *out);
+  bool write(abs3Doutfile *out);
 
   drawElement *transformed(const double* t);
 };

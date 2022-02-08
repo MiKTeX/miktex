@@ -76,7 +76,7 @@ void transConstructorBody(position pos, coenv &e, record *r, varEntry *init)
   v->encode(READ, pos, e.c);
 
   // Call the 'operator init' field of the object.
-  init->encode(CALL, pos, e.c, v->getLevel());
+  init->encode(action::CALL, pos, e.c, v->getLevel());
 
   // Push the object again.
   v->encode(READ, pos, e.c);

@@ -27,7 +27,7 @@ public:
     : absyn(pos), base(base), start(start), Explicit(Explicit),
       defval(defval), keywordOnly(keywordOnly) {}
 
-  virtual void prettyprint(ostream &out, Int indent);
+  virtual void prettyprint(ostream &out, Int indent) override;
 
   // Build the corresponding types::formal to put into a signature.
   types::formal trans(coenv &e, bool encodeDefVal, bool tacit=false);
@@ -55,6 +55,9 @@ public:
   bool isKeywordOnly() {
     return keywordOnly;
   }
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
+  std::pair<std::string, optional<std::string>> fnInfo() const;
 };
 
 class formals : public absyn {
@@ -74,7 +77,7 @@ public:
 
   virtual ~formals() {}
 
-  virtual void prettyprint(ostream &out, Int indent);
+  virtual void prettyprint(ostream &out, Int indent) override;
 
   virtual void add(formal *f) {
     if (f->isKeywordOnly()) {
@@ -122,6 +125,9 @@ public:
   // Add the formal parameters to the environment to prepare for the
   // function body's translation.
   virtual void trans(coenv &e);
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
+  void addArgumentsToFnInfo(AsymptoteLsp::FunctionInfo& fnInfo);
 };
 
 class fundef : public exp {
@@ -139,17 +145,20 @@ public:
   fundef(position pos, ty *result, formals *params, stm *body)
     : exp(pos), result(result), params(params), body(body), id() {}
 
-  virtual void prettyprint(ostream &out, Int indent);
+  virtual void prettyprint(ostream &out, Int indent) override;
 
   varinit *makeVarInit(types::function *ft);
   virtual void baseTrans(coenv &e, types::function *ft);
-  virtual types::ty *trans(coenv &e);
+  virtual types::ty *trans(coenv &e) override;
 
   virtual types::function *transType(coenv &e, bool tacit);
   virtual types::function *transTypeAndAddOps(coenv &e, record *r, bool tacit);
-  virtual types::ty *getType(coenv &e) {
+  virtual types::ty *getType(coenv &e) override {
     return transType(e, true);
   }
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
+  void addArgumentsToFnInfo(AsymptoteLsp::FunctionInfo& fnInfo);
 };
 
 class fundec : public dec {
@@ -161,11 +170,13 @@ public:
     : dec(pos), id(id), fun(pos, result, params, body)
   { fun.id = id; }
 
-  void prettyprint(ostream &out, Int indent);
+  void prettyprint(ostream &out, Int indent) override;
 
-  void trans(coenv &e);
+  void trans(coenv &e) override;
 
-  void transAsField(coenv &e, record *r);
+  void transAsField(coenv &e, record *r) override;
+
+  void createSymMap(AsymptoteLsp::SymbolContext* symContext) override;
 };
 
 } // namespace absyntax

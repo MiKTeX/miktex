@@ -37,11 +37,7 @@
 
 // The lexical analysis and parsing functions used by parseFile.
 void setlexer(size_t (*input) (char* bif, size_t max_size), string filename);
-#if defined(MIKTEX)
 extern int yyparse(void);
-#else
-extern bool yyparse(void);
-#endif
 extern int yydebug;
 extern int yy_flex_debug;
 extern bool lexerEOF();

@@ -18,6 +18,10 @@
 #include "common.h"
 #include "angle.h"
 #include "pair.h"
+
+#ifdef HAVE_RPC_RPC_H
+#include "xstream.h"
+#endif
 #if defined(MIKTEX)
 #  include <algorithm>
 #endif
@@ -329,6 +333,15 @@ public:
     out << "[" << v.x << "," << v.y << "," << v.z << "]";
     return out;
   }
+
+
+#ifdef HAVE_RPC_RPC_H
+  friend xdr::oxstream& operator << (xdr::oxstream& out, triple const& v)
+  {
+    out << v.x << v.y << v.z;
+    return out;
+  }
+#endif
 
 };
 

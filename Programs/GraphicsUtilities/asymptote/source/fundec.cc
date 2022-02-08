@@ -22,7 +22,7 @@ varinit *Default=new definit(nullPos);
 
 void formal::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, keywordOnly ? "formal (keyword only)" : "formal", indent);
+  prettyname(out, keywordOnly ? "formal (keyword only)" : "formal", indent, getPos());
 
   base->prettyprint(out, indent+1);
   if (start) start->prettyprint(out, indent+1);
@@ -56,7 +56,7 @@ void formal::addOps(coenv &e, record *r) {
 
 void formals::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out, "formals",indent);
+  prettyname(out, "formals",indent, getPos());
 
   for (list<formal *>::iterator p = fields.begin(); p != fields.end(); ++p)
     (*p)->prettyprint(out, indent+1);
@@ -125,7 +125,7 @@ public:
     : exp(pos), dest(dest), value(value) {}
 
   void prettyprint(ostream &out, Int indent) {
-    prettyname(out, "basicAssignExp", indent);
+    prettyname(out, "basicAssignExp", indent, getPos());
   }
 
   types::ty *getType(coenv &) {
@@ -179,6 +179,26 @@ void formal::transAsVar(coenv &e, Int index) {
   }
 }
 
+void formal::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  if (start)
+  {
+    start->createSymMap(symContext);
+  }
+#endif
+}
+
+#ifdef HAVE_LSP
+std::pair<std::string, optional<std::string>> formal::fnInfo() const
+{
+  std::string typeName(static_cast<std::string>(*base));
+  return start != nullptr ?
+    std::make_pair(typeName, boost::make_optional(static_cast<std::string>(start->getName()))) :
+    std::make_pair(typeName, nullopt);
+}
+#endif
+
 void formals::trans(coenv &e)
 {
   Int index = 0;
@@ -192,6 +212,37 @@ void formals::trans(coenv &e)
     rest->transAsVar(e, index);
     ++index;
   }
+}
+
+void formals::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  for (auto& field: fields)
+  {
+    field->createSymMap(symContext);
+  }
+
+  if (rest)
+  {
+    rest->createSymMap(symContext);
+  }
+#endif
+}
+
+void formals::addArgumentsToFnInfo(AsymptoteLsp::FunctionInfo& fnInfo)
+{
+#ifdef HAVE_LSP
+  for (auto const& field: fields)
+  {
+    fnInfo.arguments.emplace_back(field->fnInfo());
+  }
+
+  if (rest)
+  {
+    fnInfo.restArgs=rest->fnInfo();
+  }
+  // handle rest case as well
+#endif
 }
 
 void fundef::prettyprint(ostream &out, Int indent)
@@ -218,6 +269,14 @@ function *fundef::transTypeAndAddOps(coenv &e, record *r, bool tacit) {
   return ft;
 }
 
+void fundef::addArgumentsToFnInfo(AsymptoteLsp::FunctionInfo& fnInfo)
+{
+#ifdef HAVE_LSP
+  params->addArgumentsToFnInfo(fnInfo);
+  // handle rest case as well
+#endif
+}
+
 varinit *fundef::makeVarInit(function *ft) {
   struct initializer : public varinit {
     fundef *f;
@@ -227,7 +286,7 @@ varinit *fundef::makeVarInit(function *ft) {
       : varinit(f->getPos()), f(f), ft(ft) {}
 
     void prettyprint(ostream &out, Int indent) {
-      prettyname(out, "initializer", indent);
+      prettyname(out, "initializer", indent, getPos());
     }
 
     void transToType(coenv &e, types::ty *target) {
@@ -294,6 +353,15 @@ types::ty *fundef::trans(coenv &e) {
   return ft;
 }
 
+void fundef::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  auto* declCtx(symContext->newContext<AsymptoteLsp::AddDeclContexts>(getPos().LineColumn()));
+  params->createSymMap(declCtx);
+  body->createSymMap(declCtx);
+#endif
+}
+
 void fundec::prettyprint(ostream &out, Int indent)
 {
   prettyindent(out, indent);
@@ -313,6 +381,17 @@ void fundec::transAsField(coenv &e, record *r)
   assert(ft);
 
   createVar(getPos(), e, r, id, ft, fun.makeVarInit(ft));
+}
+
+void fundec::createSymMap(AsymptoteLsp::SymbolContext* symContext)
+{
+#ifdef HAVE_LSP
+  AsymptoteLsp::FunctionInfo& fnInfo=symContext->symMap.addFunDef(static_cast<std::string>(id),
+                                              getPos().LineColumn(),
+                                              static_cast<std::string>(*fun.result));
+  fun.addArgumentsToFnInfo(fnInfo);
+  fun.createSymMap(symContext);
+#endif
 }
 
 } // namespace absyntax

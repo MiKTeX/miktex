@@ -31,7 +31,7 @@ void ifile::open()
   } else {
     if(mode & std::ios::out)
       name=outpath(name);
-    else {
+    if(mode & std::ios::in) {
 #ifdef HAVE_LIBCURL
       if(parser::isURL(name)) {
         parser::readURL(buf,name);

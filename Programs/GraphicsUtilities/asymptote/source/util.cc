@@ -446,62 +446,6 @@ const char *setPath(const char *s, bool quiet)
   return p;
 }
 
-void fatal(const char *msg, const char *s=NULL)
-{
-  ostringstream buf;
-  buf << msg;
-  if(s) {
-    buf << " " << getPath();
-    if(*s) buf << "/";
-    buf << s;
-  }
-  buf << ": " << strerror(errno) << endl;
-  camp::reportError(buf);
-}
-
-#if !defined(MIKTEX)
-void empty_current_dir()
-{
-  static struct stat buf;
-  DIR *dir=opendir(".");
-  if(dir == NULL) fatal("Cannot open directory","");
-  dirent *p;
-  while((p=readdir(dir)) != NULL) {
-    if(strcmp(p->d_name,".") == 0 || strcmp(p->d_name,"..") == 0) continue;
-    if(lstat(p->d_name,&buf) == 0) {
-      if(S_ISDIR(buf.st_mode)) {
-        if(chdir(p->d_name)) fatal("Cannot change directory to",p->d_name);
-        empty_current_dir();
-        if(chdir(".."))
-          fatal("Cannot change to parent directory of",p->d_name);
-        if(rmdir(p->d_name))
-          fatal("Cannot remove directory",p->d_name);
-      } else {
-        if(unlink(p->d_name)) fatal("Cannot remove file",p->d_name);
-      }
-    }
-  }
-  if(closedir(dir)) fatal("Invalid current directory stream descriptor");
-}
-#endif
-
-#if !defined(MIKTEX)
-void recursive_delete(char *name)
-{
-  static struct stat buf;
-  if(lstat(name,&buf) == 0) {
-    if(S_ISDIR(buf.st_mode)) {
-      const char *path=getPath();
-      if(chdir(name)) fatal("Cannot change directory to",name);
-      empty_current_dir();
-      if(chdir(path)) fatal("Cannot change to directory","");
-      if(rmdir(name)) fatal("Cannot remove directory", name);
-    }
-    else unlink(name);
-  }
-}
-#endif
-
 void push_command(mem::vector<string>& a, const string& s)
 {
   a.push_back(s);

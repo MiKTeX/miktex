@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017-2020 Christian Schenk
+## Copyright (C) 2017-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -42,6 +42,8 @@ endif()
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/source
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/LspCpp/include
   ${CMAKE_CURRENT_SOURCE_DIR}/symbol-headers
 )
 
@@ -65,7 +67,7 @@ set(HAVE_LIBCURL TRUE)
 set(HAVE_LIBGL TRUE)
 set(HAVE_LIBGLM TRUE)
 set(HAVE_LIBGLUT TRUE)
-set(HAVE_TGAMMA TRUE)
+set(HAVE_TGAMMA TRUE) 
 set(HAVE_UNORDERED_MAP TRUE)
 set(PACKAGE_BUGREPORT "")
 set(PACKAGE_NAME "miktex-asy")
@@ -146,6 +148,8 @@ set(core_sources
   ${prc_sources}
   ${symbol_source_files}
   source/Delaunay.cc
+  source/EXRFiles.cc
+  source/GLTextures.cc
   source/absyn.cc
   source/access.cc
   source/application.cc
@@ -171,6 +175,7 @@ set(core_sources
   source/jsfile.cc
   source/lex.yy.cc
   source/locate.cc
+  source/lspserv.cc
   source/name.cc
   source/newexp.cc
   source/parser.cc
@@ -184,13 +189,19 @@ set(core_sources
   source/stack.cc
   source/stm.cc
   source/symbol.cc
+  source/symbolmaps.cc
+  source/tinyexr.cc
   source/tr.cc
+  source/v3dfile.cc
   source/varinit.cc
   source/virtualfieldaccess.cc
 )
 
 set(core_headers
   source/Delaunay.h
+  source/EXRFiles.h
+  source/GLTextures.h
+  source/abs3doutfile.h
   source/absyn.h
   source/access.h
   source/align.h
@@ -247,6 +258,8 @@ set(core_headers
   source/knot.h
   source/lexical.h
   source/locate.h
+  source/lspserv.h
+  source/makeUnique.h
   source/material.h
   source/mathop.h
   source/memory.h
@@ -294,6 +307,7 @@ set(core_headers
   source/statistics.h
   source/stm.h
   source/symbol.h
+  source/symbolmaps.h
   source/table.h
   source/texfile.h
   source/tr.h
@@ -301,6 +315,9 @@ set(core_headers
   source/triple.h
   source/types.h
   source/util.h
+  source/v3dfile.h
+  source/v3dheadertypes.h
+  source/v3dtypes.h
   source/varinit.h
   source/virtualfieldaccess.h
   source/vm.h

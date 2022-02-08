@@ -58,7 +58,7 @@ fftw_plan Planner(fftw *F, Complex *in, Complex *out)
   LoadWisdom();
   fftw::effort |= FFTW_WISDOM_ONLY;
   fftw_plan plan=F->Plan(in,out);
-  fftw::effort &= !FFTW_WISDOM_ONLY;
+  fftw::effort &= ~FFTW_WISDOM_ONLY;
   if(!plan) {
     plan=F->Plan(in,out);
     SaveWisdom();

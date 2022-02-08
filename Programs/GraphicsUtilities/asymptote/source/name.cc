@@ -145,6 +145,10 @@ void simpleName::prettyprint(ostream &out, Int indent)
   out << "simpleName '" << id << "'\n";
 }
 
+AsymptoteLsp::SymbolLit simpleName::getLit() const
+{
+  return AsymptoteLsp::SymbolLit(static_cast<std::string>(id));
+}
 
 record *qualifiedName::castToRecord(types::ty *t, bool tacit)
 {
@@ -321,6 +325,21 @@ void qualifiedName::prettyprint(ostream &out, Int indent)
   out << "qualifiedName '" << id << "'\n";
 
   qualifier->prettyprint(out, indent+1);
+}
+
+AsymptoteLsp::SymbolLit qualifiedName::getLit() const
+{
+  std::vector<std::string> accessors;
+  name const* currentScope = this->qualifier;
+
+  while (auto* qn = dynamic_cast<qualifiedName const*>(currentScope))
+  {
+    accessors.push_back(static_cast<std::string>(qn->getName()));
+    currentScope = qn->qualifier;
+  }
+  accessors.push_back(static_cast<std::string>(currentScope->getName()));
+
+  return AsymptoteLsp::SymbolLit(static_cast<std::string>(id), std::move(accessors));
 }
 
 } // namespace absyntax

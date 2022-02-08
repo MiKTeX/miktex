@@ -86,6 +86,9 @@ extern const size_t ColorComponents[];
 extern const char* ColorDeviceSuffix[];
 extern const unsigned nColorSpace;
 
+enum LineCap {SquareCap,RoundCap,ExtendedCap};
+enum LineJoin {MiterJoin,RoundJoin,BevelJoin};
+
 inline bool operator == (const vm::array& a, const vm::array& b)
 {
   size_t asize=a.size();
@@ -136,14 +139,18 @@ inline bool operator == (const Transparency& a, const Transparency& b) {
 extern const char* BlendMode[];
 extern const Int nBlendMode;
 
-const double bytescale=256.0*(1.0-DBL_EPSILON);
-
-// Map [0,1] to [0,255]
+// Map [0,1] to [0,255] uniformly, with 0.5 mapping to 128.
 inline unsigned int byte(double r)
 {
   if(r < 0.0) r=0.0;
-  else if(r > 1.0) r=1.0;
-  return (int)(bytescale*r);
+  unsigned int c=(unsigned int)(r*256);
+  return c < 255 ? c : 255;
+}
+
+inline double byteinv(unsigned char i)
+{
+  if(i == 255) return 1.0;
+  return i/256.0;
 }
 
 class pen;
@@ -412,7 +419,7 @@ public:
     font("<invalid>"), fontsize(-1.0), lineskip(-1.0), color(INVISIBLE),
     r(0.0), g(0.0), b(0.0), grey(0.0),
     pattern(DEFPAT), fillrule(DEFFILL), baseline(NOBASEALIGN),
-    transparency(),linecap(-2), linejoin(-2), miterlimit(-1.0),
+    transparency("",-1.0),linecap(-2), linejoin(-2), miterlimit(-1.0),
     overwrite(DEFWRITE), t(nullTransform) {}
 
   double width() const {

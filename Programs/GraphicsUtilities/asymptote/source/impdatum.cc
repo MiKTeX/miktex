@@ -38,7 +38,7 @@ public:
 
   void prettyprint(ostream &out, Int indent)
   {
-    absyntax::prettyname(out, "errorExp", indent);
+    absyntax::prettyname(out, "errorExp", indent, getPos());
   }
 
   void complain() {

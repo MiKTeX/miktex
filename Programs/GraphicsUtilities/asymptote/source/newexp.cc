@@ -31,7 +31,7 @@ void printFrame(frame *f) {
 }
 
 void newRecordExp::prettyprint(ostream &out, Int indent) {
-  prettyname(out, "newRecordExp", indent);
+  prettyname(out, "newRecordExp", indent, getPos());
 }
 
 bool newRecordExp::encodeLevel(position pos, coenv &e, trans::tyEntry *ent)
@@ -113,7 +113,7 @@ types::ty *newRecordExp::getType(coenv &e)
 
 void newArrayExp::prettyprint(ostream &out, Int indent)
 {
-  prettyname(out,"newArrayExp",indent);
+  prettyname(out,"newArrayExp",indent, getPos());
 
   celltype->prettyprint(out, indent+1);
   if (dimexps) dimexps->prettyprint(out, indent+1);
