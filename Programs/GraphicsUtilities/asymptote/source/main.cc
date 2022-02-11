@@ -367,4 +367,3 @@ GC_API void GC_CALL GC_throw_bad_alloc() {
 #include "types.h"
 const types::signature::OPEN_t types::signature::OPEN;
 #endif
-
