@@ -554,6 +554,13 @@ case 'O' :
          p = was_inline + 1;
          handlepapersize(p, &hoff, &voff);
          break;
+case 'l':
+         p = was_inline + 1 ;
+         if (strncmp(p, "andscaperotate", 14) != 0)
+            error("! in config file line starting with l was not landscaperotate") ;
+         p += 14 ;
+         landscaperotate = (*p != '0') ;
+         break ;
 #ifdef FONTLIB
 case 'L' :
          {

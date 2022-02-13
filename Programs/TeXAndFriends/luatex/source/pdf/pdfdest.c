@@ -70,6 +70,16 @@ static void warn_dest_dup(int id, small_number byname)
     }
 }
 
+/*tex
+
+    In |do_dest|, structure destinations and regular destinations use separate object
+    types for |pdf_get_obj| but share an object type for |addto_page_resources|.
+    This allows |write_out_pdf_mark_destinations| to handle both kinds of destinations
+    in a uniform way, while still allowing to use the same name for both kinds of
+    destinations. This is a useful feature since it's rather common to have both kinds
+    of destinations for the same object and therefore they will often have the same name.
+
+*/
 void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaledpos pos = pdf->posstruct->pos;
@@ -79,7 +89,9 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         normal_error("pdf backend", "destinations cannot be inside an xform");
     if (doing_leaders)
         return;
-    k = pdf_get_obj(pdf, obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
+    k = pdf_get_obj(pdf,
+            pdf_dest_objnum(p) == null ? obj_type_dest : obj_type_struct_dest,
+            pdf_dest_id(p), pdf_dest_named_id(p));
     if (obj_dest_ptr(pdf, k) != null) {
         warn_dest_dup(pdf_dest_id(p), (small_number) pdf_dest_named_id(p));
         return;
@@ -133,14 +145,16 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 normal_error("pdf backend","destination has been already written (this shouldn't happen)");
             } else {
                 int i;
+                int objnum;
                 i = obj_dest_ptr(pdf, k->info);
+                objnum = pdf_dest_objnum(i);
                 pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
-                if (pdf_dest_named_id(i) > 0) {
+                if (pdf_dest_named_id(i) > 0 && objnum == null) {
                     pdf_begin_dict(pdf);
                     pdf_add_name(pdf, "D");
                 }
                 pdf_begin_array(pdf);
-                pdf_add_ref(pdf, pdf->last_page);
+                pdf_add_ref(pdf, objnum == null ? pdf->last_page : objnum);
                 switch (pdf_dest_type(i)) {
                     case pdf_dest_xyz:
                         pdf_add_name(pdf, "XYZ");
@@ -187,7 +201,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                         break;
                 }
                 pdf_end_array(pdf);
-                if (pdf_dest_named_id(i) > 0)
+                if (pdf_dest_named_id(i) > 0 && objnum == null)
                     pdf_end_dict(pdf);
                 pdf_end_obj(pdf);
             }
@@ -200,10 +214,21 @@ void scan_pdfdest(PDF pdf)
 {
     halfword q;
     int k;
+    int obj_type;
     str_number i;
     scaled_whd alt_rule;
     q = cur_list.tail_field;
     new_whatsit(pdf_dest_node);
+    if (scan_keyword("struct")) {
+        scan_int();
+        if (cur_val <= 0)
+            normal_error("pdf backend", "struct identifier must be positive");
+        pdf_dest_objnum(cur_list.tail_field) = cur_val;
+        obj_type = obj_type_struct_dest;
+    } else {
+        pdf_dest_objnum(cur_list.tail_field) = null;
+        obj_type = obj_type_dest;
+    }
     if (scan_keyword("num")) {
         scan_int();
         if (cur_val <= 0)
@@ -258,10 +283,10 @@ void scan_pdfdest(PDF pdf)
     }
     if (pdf_dest_named_id(cur_list.tail_field) != 0) {
         i = tokens_to_string(pdf_dest_id(cur_list.tail_field));
-        k = find_obj(pdf, obj_type_dest, i, true);
+        k = find_obj(pdf, obj_type, i, true);
         flush_str(i);
     } else {
-        k = find_obj(pdf, obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
+        k = find_obj(pdf, obj_type, pdf_dest_id(cur_list.tail_field), false);
     }
     if ((k != 0) && (obj_dest_ptr(pdf, k) != null)) {
         warn_dest_dup(pdf_dest_id(cur_list.tail_field),(small_number) pdf_dest_named_id(cur_list.tail_field));

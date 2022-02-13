@@ -840,6 +840,18 @@ static int uname(struct utsname *uts)
     sprintf(uts->release, "build %ld", osver.dwBuildNumber & 0xFFFF);
 
     switch (sysinfo.wProcessorArchitecture) {
+    case PROCESSOR_ARCHITECTURE_AMD64:
+        strcpy(uts->machine, "amd64");
+        break;
+    case PROCESSOR_ARCHITECTURE_ARM:
+        strcpy(uts->machine, "arm");
+        break;
+    case PROCESSOR_ARCHITECTURE_ARM64:
+        strcpy(uts->machine, "arm64");
+        break;
+    case PROCESSOR_ARCHITECTURE_IA64:
+        strcpy(uts->machine, "ia64");
+        break;
     case PROCESSOR_ARCHITECTURE_PPC:
         strcpy(uts->machine, "ppc");
         break;

@@ -96,6 +96,7 @@ fontdesctype *curfnt;        /* the currently selected font */
 sectiontype *sections;       /* sections to process document in */
 Boolean partialdownload = 1; /* turn on partial downloading */
 Boolean manualfeed;          /* manual feed? */
+Boolean landscaperotate = 0; /* when picking paper sizes allow rotated media */
 Boolean compressed;          /* compressed? */
 Boolean downloadpspk;        /* use PK for downloaded PS fonts? */
 Boolean safetyenclose;       /* enclose in save/restore for stupid spoolers? */
@@ -310,6 +311,7 @@ static const char *helparr[] = {
 "-j*  Download fonts partially",
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
 "-l # Last page                       -L*  Last special papersize wins",
+"-landscaperotate*  Allow landscape to print rotated on portrait papersizes",
 "-m*  Manual feed                     -M*  Don't make fonts",
 "-mode s Metafont device name",
 "-n # Maximum number of pages         -N*  No structured comments",
@@ -784,7 +786,7 @@ main(int argc, char **argv)
 #else
                puts (kpathsea_version_string);
 #endif
-               puts ("Copyright 2020 Radical Eye Software.\n\
+               puts ("Copyright 2022 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
@@ -1012,27 +1014,38 @@ default:
                notfirst = 1;
                break;
 case 'l':
-               if (*p == 0 && argv[i+1])
-                  p = argv[++i];
-               if (*p == '=') {
-                  abspage = 1;
-                  p++;
-               }
+               if (strncmp(p, "andscaperotate", 14) == 0) {
+                  p += 14 ;
+                  if (*p == 0 || *p == '1') {
+                     landscaperotate = 1 ;
+                  } else if (*p == '0') {
+                     landscaperotate = 0 ;
+                  } else {
+                     error("! -landscaperotate command ended with junk") ;
+                  }
+               } else {
+                  if (*p == 0 && argv[i+1])
+                     p = argv[++i];
+                  if (*p == '=') {
+                     abspage = 1;
+                     p++;
+                  }
 #ifdef SHORTINT
-               switch(sscanf(p, "%ld.%ld", &lastpage, &lastseq)) {
+                  switch(sscanf(p, "%ld.%ld", &lastpage, &lastseq)) {
 #else        /* ~SHORTINT */
-               switch(sscanf(p, "%d.%d", &lastpage, &lastseq)) {
+                  switch(sscanf(p, "%d.%d", &lastpage, &lastseq)) {
 #endif        /* ~SHORTINT */
-case 1:           lastseq = 0;
-case 2:           break;
+case 1:              lastseq = 0;
+case 2:              break;
 default:
 #ifdef KPATHSEA
-                  error(concat3 ("! Bad last page option (-l ", p, ")."));
+                     error(concat3 ("! Bad last page option (-l ", p, ")."));
 #else
-                  error("! Bad last page option (-l).");
+                     error("! Bad last page option (-l).");
 #endif
+                  }
+                  notlast = 1;
                }
-               notlast = 1;
                break;
 case 'A':
                oddpages = 1;

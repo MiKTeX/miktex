@@ -949,12 +949,13 @@ typedef enum {
 #  define pdf_action_size           6
 
 #  define pdf_action_type(a)        vlink((a)+2) /* enum pdf_action_type */
-#  define pdf_action_named_id(a)    vinfo((a)+2) /* boolean */
+#  define pdf_action_named_id(a)    vinfo((a)+2) /* bitset of two booleans */
 #  define pdf_action_id(a)          vlink((a)+3) /* number or toks */
 #  define pdf_action_file(a)        vinfo((a)+3) /* toks */
 #  define pdf_action_new_window(a)  vlink((a)+4) /* enum pdf_window_type */
 #  define pdf_action_tokens(a)      vinfo((a)+4) /* toks */
 #  define pdf_action_refcount(a)    vlink((a)+5) /* number */
+#  define pdf_action_struct_id(a)   vinfo((a)+5) /* number or toks */
 
 typedef enum {
     colorstack_set = 0,

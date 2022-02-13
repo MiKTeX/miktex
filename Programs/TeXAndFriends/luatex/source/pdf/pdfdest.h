@@ -44,6 +44,7 @@ typedef enum {
 #  define obj_dest_ptr              obj_aux     /* pointer to |pdf_dest_node| */
 #  define set_obj_dest_ptr(pdf,A,B) obj_dest_ptr(pdf,A)=B
 
+#  define set_pdf_dest_struct_id(A,B)pdf_dest_struct_id(A)=B
 #  define set_pdf_dest_id(A,B)       pdf_dest_id(A)=B
 #  define set_pdf_dest_named_id(A,B) pdf_dest_named_id(A)=B
 #  define set_pdf_dest_type(A,B)     pdf_dest_type(A)=B

@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/dvips/">
     <TPM:Name>Dvips win32</TPM:Name>
     <TPM:Title>Dvips, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Radical Eye Software" year="2020"/>
+    <TPM:Copyright owner="Radical Eye Software" year="2022"/>
     <TPM:License type="gpl"/>    
-    <TPM:Version>2020.1</TPM:Version>
+    <TPM:Version>2022.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

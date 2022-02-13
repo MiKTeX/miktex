@@ -70,6 +70,7 @@ command_item command_names[] = {
     { ignore_spaces_cmd,        NULL, 0},
     { after_assignment_cmd,     NULL, 0},
     { after_group_cmd,          NULL, 0},
+    { partoken_name_cmd,        NULL, 0},
     { break_penalty_cmd,        NULL, 0},
     { start_par_cmd,            NULL, 0},
     { ital_corr_cmd,            NULL, 0},
@@ -235,6 +236,7 @@ void l_set_token_data(void)
     init_token_key(command_names, ignore_spaces_cmd,        ignore_spaces);
     init_token_key(command_names, after_assignment_cmd,     after_assignment);
     init_token_key(command_names, after_group_cmd,          after_group);
+    init_token_key(command_names, partoken_name_cmd,        partoken_name);
     init_token_key(command_names, break_penalty_cmd,        break_penalty);
     init_token_key(command_names, start_par_cmd,            start_par);
     init_token_key(command_names, ital_corr_cmd,            ital_corr);

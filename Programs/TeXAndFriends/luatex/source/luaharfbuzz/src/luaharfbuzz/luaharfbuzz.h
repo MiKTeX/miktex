@@ -18,6 +18,7 @@ typedef hb_tag_t Tag;
 typedef hb_script_t Script;
 typedef hb_direction_t Direction;
 typedef hb_language_t Language;
+typedef hb_variation_t Variation;
 
 typedef struct luahb_constant_t {
   const char *name;
@@ -35,6 +36,7 @@ int register_tag(lua_State *L);
 int register_script(lua_State *L);
 int register_direction(lua_State *L);
 int register_language(lua_State *L);
+int register_variation(lua_State *L);
 int register_ot(lua_State *L);
 int register_unicode(lua_State *L);
 

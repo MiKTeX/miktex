@@ -659,8 +659,11 @@ void term_input(void)
     int k;
     /*tex Now the user sees the prompt for sure: */
     update_terminal();
-    if (!input_ln(term_in, true))
+    if (!input_ln(term_in, true)) {
+        /*tex  initialize limit to avoid printing some garbage. */
+        ilimit=0;
         fatal_error("End of file on the terminal!");
+    }
     /*tex The user's line ended with \.{<return>}: */
     term_offset = 0;
     /*tex Prepare to echo the input. */

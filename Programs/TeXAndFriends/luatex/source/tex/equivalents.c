@@ -922,7 +922,7 @@ algorithms into low-level languages that do not support recursion.
 
 In general, |cur_cmd| is the current command as set by |get_next|, while
 |cur_chr| is the operand of the current command. The control sequence found here
-is registsred in |cur_cs| and is zero if none found. The |cur_tok| variable
+is registered in |cur_cs| and is zero if none found. The |cur_tok| variable
 contains the packed representative of |cur_cmd| and |cur_chr| and like the other
 ones is global.
 

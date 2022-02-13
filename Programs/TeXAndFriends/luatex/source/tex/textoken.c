@@ -1905,6 +1905,9 @@ static next_line_retval next_line(void)
             }
             force_eof = false;
             /*tex \LUA\ input or \.{\\scantextokens} */
+            if (tracing_scan_tokens_par > 0 && (iname == 20 || iname == 19)) {
+                print_char(')');
+            }
             if (iname == 21 || iname == 19) {
                 end_file_reading();
             } else {
@@ -3475,6 +3478,8 @@ void read_toks(int n, halfword r, halfword j)
                     n = -1;
                 }
             } else {
+                /*tex  initialize limit to avoid printing some garbage. */
+                ilimit=0;
                 fatal_error
                     ("*** (cannot \\read from terminal in nonstop modes)");
             }

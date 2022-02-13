@@ -110,6 +110,11 @@ inline static double my_fmax(double x, double y) { return (x < y) ? y : x; }
 #endif
 */
 
+#ifdef WIN32
+#   include <kpathsea/progname.h>
+#endif
+
+
 #if SYNCTEX_DEBUG
 #   ifdef WIN32
 #       include <direct.h>

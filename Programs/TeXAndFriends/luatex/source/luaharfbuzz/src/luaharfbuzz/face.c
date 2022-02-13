@@ -1,5 +1,20 @@
 #include "luaharfbuzz.h"
 
+#ifdef LuajitTeX
+
+static int lua_absindex (lua_State *L, int i) {
+  if (i < 0 && i > LUA_REGISTRYINDEX)
+    i += lua_gettop(L) + 1;
+  return i;
+}
+static void lua_seti (lua_State *L, int index, lua_Integer i) {
+  index = lua_absindex(L, index);
+  lua_pushinteger(L, i);
+  lua_insert(L, -2);
+  lua_settable(L, index);
+}
+#endif
+
 /* Size of static arrays we use to avoid heap allocating memory when reading
  * data from HarfBuzz. */
 #define STATIC_ARRAY_SIZE 128
@@ -423,6 +438,179 @@ static int face_ot_color_glyph_get_svg(lua_State *L) {
   return 1;
 }
 
+static int face_var_has_data(lua_State *L) {
+  Face *f = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+
+  lua_pushboolean(L, hb_ot_var_has_data(*f));
+  return 1;
+}
+
+static int push_axis_info(lua_State *L, const hb_ot_var_axis_info_t *info) {
+  lua_createtable(L, 0, 7);
+
+  lua_pushinteger(L, info->axis_index + 1);
+  lua_setfield(L, -2, "axis_index");
+
+  Tag *tp = (Tag *)lua_newuserdata(L, sizeof(*tp));
+  luaL_getmetatable(L, "harfbuzz.Tag");
+  lua_setmetatable(L, -2);
+  *tp = info->tag;
+  lua_setfield(L, -2, "tag");
+
+  lua_pushinteger(L, info->name_id);
+  lua_setfield(L, -2, "name_id");
+
+  lua_pushinteger(L, info->flags);
+  lua_setfield(L, -2, "flags");
+
+  lua_pushnumber(L, info->min_value);
+  lua_setfield(L, -2, "min_value");
+
+  lua_pushnumber(L, info->default_value);
+  lua_setfield(L, -2, "default_value");
+
+  lua_pushnumber(L, info->max_value);
+  lua_setfield(L, -2, "max_value");
+
+  return 1;
+}
+
+static int face_var_find_axis_info(lua_State *L) {
+  Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  Tag *tag = (Tag *)luaL_checkudata(L, 2, "harfbuzz.Tag");
+  hb_ot_var_axis_info_t axis_info;
+
+  if (hb_ot_var_find_axis_info(*face, *tag, &axis_info))
+    push_axis_info(L, &axis_info);
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
+static int face_var_get_axis_infos(lua_State *L) {
+  Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  lua_Integer start = luaL_optinteger(L, 2, 1) - 1;
+  lua_Integer stop = luaL_optinteger(L, 2, -1);
+  if (start < -1)
+    start += hb_ot_var_get_axis_count(*face) + 1;
+  if (stop < 0)
+    stop += hb_ot_var_get_axis_count(*face) + 1;
+
+  if (start < 0 || stop - start > STATIC_ARRAY_SIZE)
+    lua_pushnil(L);
+  else if (stop <= start)
+    lua_createtable(L, 0, 0);
+  else {
+    unsigned int count = stop - start;
+    hb_ot_var_axis_info_t axis_infos[STATIC_ARRAY_SIZE];
+
+    hb_ot_var_get_axis_infos(*face, start, &count, axis_infos);
+
+    lua_createtable(L, count, 0);
+    for (int i = 0; i != count; i++) {
+      push_axis_info(L, axis_infos + i);
+      lua_seti(L, -2, i + 1);
+    }
+  }
+  return 1;
+}
+
+static int face_var_named_instance_get_infos(lua_State *L) {
+  Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  lua_Integer start = luaL_optinteger(L, 2, 1) - 1;
+  lua_Integer stop = luaL_optinteger(L, 2, -1);
+
+  unsigned int total = hb_ot_var_get_named_instance_count(*face);
+
+  if (start < -1)
+    start += total + 1;
+  if (stop < 0)
+    stop += total + 1;
+  if (stop > total)
+    stop = total;
+
+  if (start < 0)
+    lua_pushnil(L);
+  else if (stop <= start)
+    lua_createtable(L, 0, 0);
+  else {
+    lua_createtable(L, stop - start, 0);
+    for (int i = start; i != stop; i++) {
+      lua_createtable(L, 0, 3);
+
+      lua_pushinteger(L, i + 1);
+      lua_setfield(L, -2, "index");
+
+      lua_pushinteger(L, hb_ot_var_named_instance_get_subfamily_name_id(*face, i));
+      lua_setfield(L, -2, "subfamily_name_id");
+
+      lua_pushinteger(L, hb_ot_var_named_instance_get_subfamily_name_id(*face, i));
+      lua_setfield(L, -2, "subfamily_name_id");
+
+      lua_pushinteger(L, hb_ot_var_named_instance_get_postscript_name_id(*face, i));
+      lua_setfield(L, -2, "postscript_name_id");
+
+      lua_seti(L, -2, i - start + 1);
+    }
+  }
+  return 1;
+}
+
+static int face_var_named_instance_get_design_coords(lua_State *L) {
+  Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  lua_Integer index = luaL_checkinteger(L, 2) - 1;
+
+  float coords[STATIC_ARRAY_SIZE];
+  unsigned int count = STATIC_ARRAY_SIZE;
+  count = hb_ot_var_named_instance_get_design_coords(*face, index, &count, coords);
+
+  for (int i = 0; i != count; i++) {
+    lua_pushnumber(L, coords[i]);
+  }
+  return count;
+}
+
+static int face_var_normalize_variations(lua_State *L) {
+  Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  unsigned int count = lua_gettop(L)-1;
+  if (count > STATIC_ARRAY_SIZE) {
+    return 0;
+  }
+
+  Variation variations[STATIC_ARRAY_SIZE];
+  for (unsigned int i = 0; i != count; i++)
+    variations[i] = *(Variation *)luaL_checkudata(L, i+2, "harfbuzz.Variation");
+
+  unsigned int coord_count = hb_ot_var_get_axis_count(*face);
+  int normalized[STATIC_ARRAY_SIZE];
+  hb_ot_var_normalize_variations(*face, variations, count, normalized, coord_count);
+
+  for (int i = 0; i != coord_count; i++) {
+    lua_pushinteger(L, normalized[i]);
+  }
+  return coord_count;
+}
+
+static int face_var_normalize_coords(lua_State *L) {
+  Face *face = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
+  unsigned int count = lua_gettop(L)-1;
+  if (count > STATIC_ARRAY_SIZE) {
+    return 0;
+  }
+
+  float coords[STATIC_ARRAY_SIZE];
+  for (unsigned int i = 0; i != count; i++)
+    coords[i] = luaL_checknumber(L, i+2);
+
+  int normalized[STATIC_ARRAY_SIZE];
+  hb_ot_var_normalize_coords(*face, count, coords, normalized);
+
+  for (int i = 0; i != count; i++) {
+    lua_pushinteger(L, normalized[i]);
+  }
+  return count;
+}
+
 static int face_destroy(lua_State *L) {
   Face *f = (Face *)luaL_checkudata(L, 1, "harfbuzz.Face");
 
@@ -452,6 +640,13 @@ static const struct luaL_Reg face_methods[] = {
   { "ot_layout_find_script", face_ot_layout_find_script },
   { "ot_layout_find_language", face_ot_layout_find_language },
   { "ot_layout_find_feature", face_ot_layout_find_feature },
+  { "ot_var_has_data", face_var_has_data },
+  { "ot_var_find_axis_info", face_var_find_axis_info },
+  { "ot_var_get_axis_infos", face_var_get_axis_infos },
+  { "ot_var_named_instance_get_infos", face_var_named_instance_get_infos },
+  { "ot_var_named_instance_get_design_coords", face_var_named_instance_get_design_coords },
+  { "ot_var_normalize_variations", face_var_normalize_variations },
+  { "ot_var_normalize_coords", face_var_normalize_coords },
   { NULL, NULL }
 };
 

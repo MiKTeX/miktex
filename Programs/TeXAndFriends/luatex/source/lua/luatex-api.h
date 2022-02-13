@@ -565,6 +565,7 @@ make_lua_key(advance);\
 make_lua_key(after_assignment);\
 make_lua_key(after_display);\
 make_lua_key(after_group);\
+make_lua_key(partoken_name);\
 make_lua_key(after_output);\
 make_lua_key(afterdisplaypenalty);\
 make_lua_key(align);\
@@ -1141,6 +1142,7 @@ make_lua_key(streamprovider);\
 make_lua_key(stretch);\
 make_lua_key(stretch_order);\
 make_lua_key(string);\
+make_lua_key(struct_id);\
 make_lua_key(style);\
 make_lua_key(sub);\
 make_lua_key(subfont);\
@@ -1276,6 +1278,7 @@ init_lua_key(advance);\
 init_lua_key(after_assignment);\
 init_lua_key(after_display);\
 init_lua_key(after_group);\
+init_lua_key(partoken_name);\
 init_lua_key(after_output);\
 init_lua_key(afterdisplaypenalty);\
 init_lua_key(align);\
@@ -1839,6 +1842,7 @@ init_lua_key(streamprovider);\
 init_lua_key(stretch);\
 init_lua_key(stretch_order);\
 init_lua_key(string);\
+init_lua_key(struct_id);\
 init_lua_key(style);\
 init_lua_key(sub);\
 init_lua_key(subfont);\
@@ -2036,6 +2040,7 @@ use_lua_key(advance);
 use_lua_key(after_assignment);
 use_lua_key(after_display);
 use_lua_key(after_group);
+use_lua_key(partoken_name);
 use_lua_key(after_output);
 use_lua_key(afterdisplaypenalty);
 use_lua_key(align);
@@ -2612,6 +2617,7 @@ use_lua_key(streamprovider);
 use_lua_key(stretch);
 use_lua_key(stretch_order);
 use_lua_key(string);
+use_lua_key(struct_id);
 use_lua_key(style);
 use_lua_key(sub);
 use_lua_key(subfont);

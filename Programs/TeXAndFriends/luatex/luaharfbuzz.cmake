@@ -1,6 +1,6 @@
 ## luaharfbuzz.cmake
 ##
-## Copyright (C) 2019 Christian Schenk
+## Copyright (C) 2019-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -32,6 +32,7 @@ set(luaharfbuzz_sources
   source/luaharfbuzz/src/luaharfbuzz/script.c
   source/luaharfbuzz/src/luaharfbuzz/tag.c
   source/luaharfbuzz/src/luaharfbuzz/unicode.c
+  source/luaharfbuzz/src/luaharfbuzz/variation.c
 )
 
 add_library(luahbtex-luaharfbuzz-objects OBJECT ${luaharfbuzz_sources})

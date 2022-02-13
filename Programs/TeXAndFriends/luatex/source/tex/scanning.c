@@ -1818,9 +1818,10 @@ void set_font_dimen(void)
             font_param_error(f);
         } else {
             /*tex Increase the number of parameters in the font. */
-            do {
-                set_font_param(f, (font_params(f) + 1), 0);
-            } while (n != font_params(f));
+         // do {
+         //     set_font_param(f, (font_params(f) + 1), 0);
+         // } while (n != font_params(f));
+            set_font_params(f, n);
         }
     }
     scan_optional_equals();
@@ -1848,9 +1849,10 @@ void get_font_dimen(void)
             goto EXIT;
         } else {
             /*tex Increase the number of parameters in the font. */
-            do {
-                set_font_param(f, (font_params(f) + 1), 0);
-            } while (n != font_params(f));
+         // do {
+         //     set_font_param(f, (font_params(f) + 1), 0);
+         // } while (n != font_params(f));
+            set_font_params(f, n);
         }
     }
     cur_val = font_param(f, n);
@@ -2521,10 +2523,10 @@ static void scan_expr(void)
     a = arith_error;
     b = false;
     p = null;
-    /*tex 
-     
-         Scan and evaluate an expression |e| of type |l|. 
-         To avoid an infinite recursion we set|max_nesting| as upper limit. 
+    /*tex
+
+         Scan and evaluate an expression |e| of type |l|.
+         To avoid an infinite recursion we set|max_nesting| as upper limit.
          This limit is unrelated to the expansion limit |expand_depth| and it cannot be modify at compile time.
 
      */

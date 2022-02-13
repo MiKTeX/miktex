@@ -268,6 +268,7 @@ extern fontdesctype *curfnt;
 extern sectiontype *sections;
 extern Boolean partialdownload;
 extern Boolean manualfeed;
+extern Boolean landscaperotate;
 extern Boolean compressed;
 extern Boolean downloadpspk;
 extern Boolean safetyenclose;

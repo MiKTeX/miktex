@@ -22,7 +22,7 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #include "ptexlib.h"
 
 const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] = {
-    "font", "outline", "dest", "obj", "xform", "ximage", "thread",
+    "font", "outline", "dest", "struct dest", "obj", "xform", "ximage", "thread",
     "pagestream", "page", "pages", "catalog", "info", "link", "annot", "annots",
     "bead", "beads", "objstm", "others"
 };

@@ -582,7 +582,7 @@ and most of it was essentially an inverse to the |primitive| routine that enters
 a \TeX\ primitive into |eqtb|.
 
 Thanks to |prim_data|, there is no need for all that tediousness. What is left of
-|primt_cnd_chr| are just the exceptions to the general rule that the
+|print_cmd_chr| are just the exceptions to the general rule that the
 |cmd,chr_code| pair represents in a single primitive command.
 
 */

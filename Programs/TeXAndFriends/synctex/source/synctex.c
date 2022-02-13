@@ -343,13 +343,34 @@ static int fsyscp_remove(char *name);
 #endif /* _WIN32 */
 #endif
 
+#if defined(pTeX) || defined(upTeX) || defined(epTeX) || defined(eupTeX)
+#define IS_pTeX 1
+#else
+#define IS_pTeX 0
+#endif
+
 /*  This macro layer was added to take luatex into account as suggested by T. Hoekwater. */
+# if IS_pTeX && !defined(_WIN32)
+char *SYNCTEX_GET_JOB_NAME()
+{
+   char *tmp = gettexstring(jobname);
+   char *tmpa = ptenc_from_internal_enc_string_to_utf8(tmp);
+   if (tmpa) { SYNCTEX_FREE(tmp); return tmpa; } else return tmp;
+}
+char *SYNCTEX_GET_LOG_NAME()
+{
+   char *tmp = gettexstring(texmflogname);
+   char *tmpa = ptenc_from_internal_enc_string_to_utf8(tmp);
+   if (tmpa) { SYNCTEX_FREE(tmp); return tmpa; } else return tmp;
+}
+# else
 #   if !defined(SYNCTEX_GET_JOB_NAME)
 #       define SYNCTEX_GET_JOB_NAME() (gettexstring(jobname))
 #   endif
 #   if !defined(SYNCTEX_GET_LOG_NAME)
 #       define SYNCTEX_GET_LOG_NAME() (gettexstring(texmflogname))
 #   endif
+# endif
 #   if !defined(SYNCTEX_CURRENT_TAG)
 #       define SYNCTEX_CURRENT_TAG (curinput.synctextagfield)
 #   endif
@@ -404,7 +425,7 @@ static int fsyscp_remove(char *name);
  *  IMPORTANT: We can say that the natural unit of .synctex files is SYNCTEX_UNIT_FACTOR sp.
  *  To retrieve the proper bp unit, we'll have to divide by 8.03.  To reduce
  *  rounding errors, we'll certainly have to add 0.5 for non negative integers
- *  and �0.5 for negative integers.  This trick is mainly to gain speed and
+ *  and ±0.5 for negative integers.  This trick is mainly to gain speed and
  *  size. A binary file would be more appropriate in that respect, but I guess
  *  that some clients like auctex would not like it very much.  we cannot use
  *  "<<13" instead of "/SYNCTEX_UNIT_FACTOR" because the integers are signed and we do not

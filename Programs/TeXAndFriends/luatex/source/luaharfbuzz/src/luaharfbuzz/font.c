@@ -192,6 +192,62 @@ static int font_ot_color_glyph_get_png(lua_State *L) {
   return 1;
 }
 
+static int font_set_variations(lua_State *L) {
+  Font *f = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
+  unsigned int count = lua_gettop(L) - 1;
+  if (count > 128)
+    count = 128;
+  Variation variations[128];
+  for (int i = 0; i != count; i++)
+    variations[i] = *(Variation *)luaL_checkudata(L, i + 2, "harfbuzz.Variation");
+
+  hb_font_set_variations(*f, variations, count);
+  return 0;
+}
+
+static int font_set_var_coords_design(lua_State *L) {
+  Font *f = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
+  unsigned int count = lua_gettop(L) - 1;
+  if (count > 128)
+    count = 128;
+  float coords[128];
+  for (int i = 0; i != count; i++)
+    coords[i] = luaL_checknumber(L, i + 2);
+
+  hb_font_set_var_coords_design(*f, coords, count);
+  return 0;
+}
+
+static int font_set_var_coords_normalized(lua_State *L) {
+  Font *f = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
+  unsigned int count = lua_gettop(L) - 1;
+  if (count > 128)
+    count = 128;
+  int coords[128];
+  for (int i = 0; i != count; i++)
+    coords[i] = luaL_checkinteger(L, i + 2);
+
+  hb_font_set_var_coords_normalized(*f, coords, count);
+  return 0;
+}
+
+static int font_set_var_named_instance(lua_State *L) {
+  Font *f = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
+  unsigned int instance = luaL_checkinteger(L, 2);
+
+  hb_font_set_var_named_instance(*f, instance - 1);
+  return 0;
+}
+
+static int font_get_var_coords_normalized(lua_State *L) {
+  Font *f = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
+  unsigned int count;
+  const int *coords = hb_font_get_var_coords_normalized(*f, &count);
+  for (int i = 0; i != count; i++)
+    lua_pushinteger(L, coords[i]);
+  return count;
+}
+
 static const struct luaL_Reg font_methods[] = {
   { "__gc", font_destroy },
   { "set_scale", font_set_scale },
@@ -205,6 +261,11 @@ static const struct luaL_Reg font_methods[] = {
   { "get_glyph_v_advance", font_get_glyph_v_advance },
   { "get_nominal_glyph", font_get_nominal_glyph },
   { "ot_color_glyph_get_png", font_ot_color_glyph_get_png },
+  { "set_variations", font_set_variations },
+  { "set_var_coords_design", font_set_var_coords_design },
+  { "set_var_coords_normalized", font_set_var_coords_normalized },
+  { "set_var_named_instance", font_set_var_named_instance },
+  { "get_var_coords_normalized", font_get_var_coords_normalized },
   { NULL, NULL }
 };
 

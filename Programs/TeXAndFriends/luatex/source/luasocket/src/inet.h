@@ -47,8 +47,10 @@ int inet_aton(const char *cp, struct in_addr *inp);
 #endif
 
 #ifdef LUASOCKET_INET_PTON
+#if (_WIN32_WINNT < 0x0600)
 const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt);
 int inet_pton(int af, const char *src, void *dst);
+#endif
 #endif
 
 #endif /* INET_H */

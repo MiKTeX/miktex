@@ -163,7 +163,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g, fd_entry * fd)
     int tex_font = fd->tex_font;
     int streamprovider = 0;
     int callback_id = 0 ;
-    if ((tex_font > 0) && (font_streamprovider(tex_font) == 2)) {
+    if ((tex_font > 0) && (font_streamprovider(tex_font) == 2 || font_streamprovider(tex_font) == 3)) {
         streamprovider = font_streamprovider(tex_font);
         callback_id = callback_defined(glyph_stream_provider_callback);
     }
@@ -230,14 +230,24 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g, fd_entry * fd)
             formatted_error("ttf","invalid glyph index (gid %u)", gid);
         loc = location[gid];
         len = location[gid + 1] - loc;
-        g->gd[i].advw = hmtx[gid].advance;
-        g->gd[i].lsb = hmtx[gid].sideBearing;
-        if (vmtx) {
-            g->gd[i].advh = vmtx[gid].advance;
-            g->gd[i].tsb = vmtx[gid].sideBearing;
+        if (callback_id > 0 && streamprovider == 3) {
+            int advw, lsb, advh, tsb;
+            run_callback(callback_id, "dddd->dddd", tex_font, g->gd[i].gid,
+                streamprovider, gid, &advw, &lsb, &advh, &tsb);
+            g->gd[i].advw = advw;
+            g->gd[i].lsb = lsb;
+            g->gd[i].advh = advh;
+            g->gd[i].tsb = tsb;
         } else {
-            g->gd[i].advh = g->default_advh;
-            g->gd[i].tsb = g->default_tsb;
+            g->gd[i].advw = hmtx[gid].advance;
+            g->gd[i].lsb = hmtx[gid].sideBearing;
+            if (vmtx) {
+                g->gd[i].advh = vmtx[gid].advance;
+                g->gd[i].tsb = vmtx[gid].sideBearing;
+            } else {
+                g->gd[i].advh = g->default_advh;
+                g->gd[i].tsb = g->default_tsb;
+            }
         }
         g->gd[i].length = len;
         g->gd[i].data = NULL;
@@ -402,7 +412,14 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g, fd_entry * fd)
             if (callback_id > 0) {
                 lstring * result;
                 long size = 0;
-                run_callback(callback_id, "ddd->L", tex_font, g->gd[i].gid, streamprovider, &result);
+                /*tex
+
+                    The streamprovider here is always 2, even when we actually have streamprovider == 3,
+                    to differentiate this call which behaves exactly like the call in the
+                    streamprovider == 2 case from the streamprovider == 3 specific call earlier.
+
+                */
+                run_callback(callback_id, "ddd->L", tex_font, g->gd[i].gid, 2, &result);
                 padlen = (int) ((result->l % 4) ? (4 - (result->l % 4)) : 0);
                 size = (size_t) result->l + (ULONG) padlen;
                 if (glyf_table_used + size >= glyf_table_size) {

@@ -463,8 +463,16 @@ static void run_start_par (void) {
 }
 
 static void run_new_graf (void) {
-   back_input();
-   new_graf(true);
+    /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+    if (cur_cmd == valign_cmd && partoken_context_code_par > 0 && mode == hmode) {
+        back_input();
+        cur_tok = par_token;
+        back_input();
+        token_type = inserted;
+    } else {
+       back_input();
+       new_graf(true);
+    }
 }
 
 /*tex
@@ -605,6 +613,14 @@ static void run_after_assignment (void) {
 static void run_after_group (void) {
     get_token();
     save_for_after(cur_tok);
+}
+
+static void run_par_token (void) {
+    get_token();
+    if (cur_cs > 0) {
+        par_loc = cur_cs;
+        par_token = cur_tok;
+    }
 }
 
 static void run_extension (void) {
@@ -976,6 +992,7 @@ static void init_main_control (void) {
     any_mode(set_interaction_cmd, prefixed_command);
     any_mode(after_assignment_cmd,run_after_assignment);
     any_mode(after_group_cmd,run_after_group);
+    any_mode(partoken_name_cmd,run_par_token);
     any_mode(in_stream_cmd,open_or_close_in);
     any_mode(message_cmd,issue_message);
     any_mode(case_shift_cmd, shift_case);
@@ -1272,7 +1289,7 @@ void report_illegal_case(void)
     you_cant();
     help4(
         "Sorry, but I'm not programmed to handle this case;",
-        "I'll just pretend that you didn''t ask for it.",
+        "I'll just pretend that you didn't ask for it.",
         "If you're in the wrong mode, you might be able to",
         "return to the right one by typing `I}' or `I$' or `I\\par'."
     );
@@ -1459,10 +1476,14 @@ deal with such errors.
 
 void handle_right_brace(void)
 {
-    halfword p, q;              /* for short-term use */
-    scaled d;                   /* holds |split_max_depth| in |insert_group| */
-    int f;                      /* holds |floating_penalty| in |insert_group| */
+    halfword p, q; /* for short-term use */
+    scaled d;      /* holds |split_max_depth| in |insert_group| */
+    int f;         /* holds |floating_penalty| in |insert_group| */
     p = null;
+    /*
+        The |partoken_context_code_par| branch is taken from pdftex as-is. We could save some lines
+        by first testing for hmode and the parameter but in the end it's not cleaner.
+    */
     switch (cur_group) {
         case simple_group:
             fixup_directions();
@@ -1502,57 +1523,89 @@ void handle_right_brace(void)
             package(0);
             break;
         case vbox_group:
-            end_graf(vbox_group);
-            package(0);
+            /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+            if (partoken_context_code_par > 0 && mode == hmode) {
+                back_input();
+                cur_tok = par_token;
+                back_input();
+                token_type = inserted;
+            } else {
+                end_graf(vbox_group);
+                package(0);
+            }
             break;
         case vtop_group:
-            end_graf(vtop_group);
-            package(vtop_code);
+            /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+            if (partoken_context_code_par > 0 && mode == hmode) {
+                back_input();
+                cur_tok = par_token;
+                back_input();
+                token_type = inserted;
+            } else {
+                end_graf(vtop_group);
+                package(vtop_code);
+            }
             break;
         case insert_group:
-            end_graf(insert_group);
-            q = new_glue(split_top_skip_par);
-            d = split_max_depth_par;
-            f = floating_penalty_par;
-            unsave();
-            save_ptr--;
-            /*tex
-                Now |saved_value(0)| is the insertion number, or the |vadjust| subtype.
-            */
-            p = vpack(vlink(head), 0, additional, -1);
-            pop_nest();
-            if (saved_type(0) == saved_insert) {
-                tail_append(new_node(ins_node, saved_value(0)));
-                height(tail) = height(p) + depth(p);
-                ins_ptr(tail) = list_ptr(p);
-                split_top_ptr(tail) = q;
-                depth(tail) = d;
-                float_cost(tail) = f;
-            } else if (saved_type(0) == saved_adjust) {
-                tail_append(new_node(adjust_node, saved_value(0)));
-                adjust_ptr(tail) = list_ptr(p);
-                flush_node(q);
+            /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+            if (partoken_context_code_par > 1 && mode == hmode) {
+                back_input();
+                cur_tok = par_token;
+                back_input();
+                token_type = inserted;
             } else {
-                confusion("insert_group");
-            }
-            list_ptr(p) = null;
-            flush_node(p);
-            if (nest_ptr == 0) {
-                checked_page_filter(insert);
-                build_page();
+                end_graf(insert_group);
+                q = new_glue(split_top_skip_par);
+                d = split_max_depth_par;
+                f = floating_penalty_par;
+                unsave();
+                save_ptr--;
+                /*tex
+                    Now |saved_value(0)| is the insertion number, or the |vadjust| subtype.
+                */
+                p = vpack(vlink(head), 0, additional, -1);
+                pop_nest();
+                if (saved_type(0) == saved_insert) {
+                    tail_append(new_node(ins_node, saved_value(0)));
+                    height(tail) = height(p) + depth(p);
+                    ins_ptr(tail) = list_ptr(p);
+                    split_top_ptr(tail) = q;
+                    depth(tail) = d;
+                    float_cost(tail) = f;
+                } else if (saved_type(0) == saved_adjust) {
+                    tail_append(new_node(adjust_node, saved_value(0)));
+                    adjust_ptr(tail) = list_ptr(p);
+                    flush_node(q);
+                } else {
+                    confusion("insert_group");
+                }
+                list_ptr(p) = null;
+                flush_node(p);
+                if (nest_ptr == 0) {
+                    checked_page_filter(insert);
+                    build_page();
+                }
             }
             break;
         case output_group:
-            /*tex
-                this is needed in case the \.{\\output} executes a \.{\\textdir} command.
-            */
-            if (dir_level(text_dir_ptr) == cur_level) {
-                /*tex Remove from |text_dir_ptr| */
-                halfword text_dir_tmp = vlink(text_dir_ptr);
-                flush_node(text_dir_ptr);
-                text_dir_ptr = text_dir_tmp;
+            /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+            if (partoken_context_code_par > 1 && mode == hmode) {
+                back_input();
+                cur_tok = par_token;
+                back_input();
+                token_type = inserted;
+            } else {
+                /*tex
+                    this is needed in case the \.{\\output} executes a \.{\\textdir} command.
+                */
+                if (dir_level(text_dir_ptr) == cur_level) {
+                    /*tex Remove from |text_dir_ptr| */
+                    halfword text_dir_tmp = vlink(text_dir_ptr);
+                    flush_node(text_dir_ptr);
+                    text_dir_ptr = text_dir_tmp;
+                }
+                resume_after_output();
             }
-            resume_after_output();
             break;
         case disc_group:
             build_discretionary();
@@ -1570,13 +1623,29 @@ void handle_right_brace(void)
             ins_error();
             break;
         case no_align_group:
-            end_graf(no_align_group);
-            unsave();
-            align_peek();
+            /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+            if (partoken_context_code_par > 1 && mode == hmode) {
+                back_input();
+                cur_tok = par_token;
+                back_input();
+                token_type = inserted;
+            } else {
+                end_graf(no_align_group);
+                unsave();
+                align_peek();
+            }
             break;
         case vcenter_group:
-            end_graf(vcenter_group);
-            finish_vcenter();
+            /* the |partoken_context_code_par| branch is taken from pdftex as-is: */
+            if (partoken_context_code_par > 0 && mode == hmode) {
+                back_input();
+                cur_tok = par_token;
+                back_input();
+                token_type = inserted;
+            } else {
+                end_graf(vcenter_group);
+                finish_vcenter();
+            }
             break;
         case math_choice_group:
             build_choices();
@@ -1873,13 +1942,29 @@ displays.
 
 */
 
+static int only_dirs(halfword n)
+{
+    while (n) {
+        if (type(n) == local_par_node || type(n) == dir_node) {
+            n = vlink(n);
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void end_graf(int line_break_context)
 {
     if (mode == hmode) {
-        if ((head == tail) || (vlink(head) == tail)) {
-            if (vlink(head) == tail)
-                flush_node(vlink(head));
-            /*tex |null| paragraphs are ignored, all contain a |local_paragraph| node */
+        /*tex
+            We ignore |null| paragraphs, that is those that only have a local par node
+            and possibly a few dir nodes injected automatically.
+        */
+        if (head == tail) {
+            pop_nest();
+        } else if (only_dirs(vlink(head))) {
+            flush_node(vlink(head));
             pop_nest();
         } else {
             line_break(false, line_break_context);
@@ -2620,7 +2705,7 @@ void prefixed_command(void)
             get_x_token();
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
-        if (cur_cmd <= max_non_prefixed_command) {
+        if (cur_cmd <= max_non_prefixed_command || cur_cmd == combine_toks_cmd) {
             /*tex
                 Discard erroneous prefixes and |return|
             */
@@ -3968,18 +4053,18 @@ void show_whatever(void)
     int m;      /* upper bound on |fi_or_else| codes */
     int l;      /* line where that conditional began */
     int n;      /* level of \.{\\if...\\fi} nesting */
-    int saved_selector; /* previous selector. Must be distinct from the global err_old_setting. */
-    saved_selector = selector;
-    if (file_can_be_written(show_stream_par))
-        selector = show_stream_par;
     switch (cur_chr) {
     case show_lists:
+        if (file_can_be_written(show_stream_par))
+            selector = show_stream_par;
         begin_diagnostic();
         show_activities();
         break;
     case show_box_code:
         /*tex Show the current contents of a box. */
         scan_register_num();
+        if (file_can_be_written(show_stream_par))
+            selector = show_stream_par;
         begin_diagnostic();
         tprint_nl("> \\box");
         print_int(cur_val);
@@ -3992,7 +4077,9 @@ void show_whatever(void)
     case show_code:
         /*tex Show the current meaning of a token, then |goto common_ending|. */
         get_token();
-        if (interaction == error_stop_mode)
+        if (file_can_be_written(show_stream_par))
+            selector = show_stream_par;
+        else if (interaction == error_stop_mode)
             wake_up_terminal();
         tprint_nl("> ");
         if (cur_cs != 0) {
@@ -4004,10 +4091,14 @@ void show_whatever(void)
         break;
         /*tex Cases for |show_whatever| */
     case show_groups:
+        if (file_can_be_written(show_stream_par))
+            selector = show_stream_par;
         begin_diagnostic();
         show_save_groups();
         break;
     case show_ifs:
+        if (file_can_be_written(show_stream_par))
+            selector = show_stream_par;
         begin_diagnostic();
         tprint_nl("");
         print_ln();
@@ -4047,7 +4138,9 @@ void show_whatever(void)
             common_ending|.
         */
         p = the_toks();
-        if (interaction == error_stop_mode)
+        if (file_can_be_written(show_stream_par))
+            selector = show_stream_par;
+        else if (interaction == error_stop_mode)
             wake_up_terminal();
         tprint_nl("> ");
         token_show(temp_token_head);
@@ -4067,7 +4160,7 @@ void show_whatever(void)
     }
   COMMON_ENDING:
     if (valid_write_file(selector)) {
-        selector = saved_selector;
+        fixup_selector(log_opened_global);
         return;
     }
     if (interaction < error_stop_mode) {

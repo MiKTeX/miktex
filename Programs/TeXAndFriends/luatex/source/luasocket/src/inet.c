@@ -519,6 +519,7 @@ int inet_aton(const char *cp, struct in_addr *inp)
 #endif
 
 #ifdef LUASOCKET_INET_PTON
+#if (_WIN32_WINNT < 0x0600)
 int inet_pton(int af, const char *src, void *dst)
 {
     struct addrinfo hints, *res;
@@ -540,4 +541,5 @@ int inet_pton(int af, const char *src, void *dst)
     return ret;
 }
 
+#endif
 #endif

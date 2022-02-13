@@ -1200,16 +1200,18 @@ findpapersize(void) {
             fps = 0;
          mindiff = 0x7fffffff;
          if (fps == 0) {
-            for (ps=papsizes; ps; ps = ps->next) {
-               iv = ps->ysize-hpapersize;
-               ih = ps->xsize-vpapersize;
-               if (ih < 0) ih = -ih;
-               if (iv < 0) iv = -iv;
-               it = ih;
-               if (it < iv) it = iv;
-               if (it < mindiff) {
-                  mindiff = it;
-                  fps = ps;
+            if (landscaperotate) {
+               for (ps=papsizes; ps; ps = ps->next) {
+                  iv = ps->ysize-hpapersize;
+                  ih = ps->xsize-vpapersize;
+                  if (ih < 0) ih = -ih;
+                  if (iv < 0) iv = -iv;
+                  it = ih;
+                  if (it < iv) it = iv;
+                  if (it < mindiff) {
+                     mindiff = it;
+                     fps = ps;
+                  }
                }
             }
             if (indelta(mindiff))

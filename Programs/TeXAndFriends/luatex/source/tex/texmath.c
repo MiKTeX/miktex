@@ -241,10 +241,35 @@ static void unsave_math_fam_data(int gl)
 
 static sa_tree math_param_head = NULL;
 
+// void def_math_param(int param_id, int style_id, scaled value, int lvl)
+// {
+//     int n = param_id + (256 * style_id);
+//     sa_tree_item sa_value = { 0 };
+//     sa_value.int_value = (int) value;
+//     set_sa_item(math_param_head, n, sa_value, lvl);
+//     if (tracing_assigns_par > 1) {
+//         begin_diagnostic();
+//         tprint("{assigning");
+//         print_char(' ');
+//         print_cmd_chr(set_math_param_cmd, param_id);
+//         print_cmd_chr(math_style_cmd, style_id);
+//         print_char('=');
+//         print_int(value);
+//         print_char('}');
+//         end_diagnostic(false);
+//     }
+// }
+
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
     int n = param_id + (256 * style_id);
     sa_tree_item sa_value = { 0 };
+    if (param_id >= math_param_ord_ord_spacing && param_id <= math_param_inner_inner_spacing) {
+        sa_tree_item ti = get_sa_item(math_param_head, n);
+        if (ti.int_value > thick_mu_skip_code && valid_node(ti.int_value)) {
+            free_node(ti.int_value, glue_spec_size);
+        }
+    }
     sa_value.int_value = (int) value;
     set_sa_item(math_param_head, n, sa_value, lvl);
     if (tracing_assigns_par > 1) {
@@ -266,6 +291,36 @@ scaled get_math_param(int param_id, int style_id)
     return (scaled) get_sa_item(math_param_head, n).int_value;
 }
 
+// static void unsave_math_param_data(int gl)
+// {
+//     sa_stack_item st;
+//     if (math_param_head->stack == NULL)
+//         return;
+//     while (math_param_head->stack_ptr > 0 &&
+//            abs(math_param_head->stack[math_param_head->stack_ptr].level)
+//            >= (int) gl) {
+//         st = math_param_head->stack[math_param_head->stack_ptr];
+//         if (st.level > 0) {
+//             rawset_sa_item(math_param_head, st.code, st.value);
+//             /*tex Do a trace message, if requested. */
+//             if (tracing_restores_par > 1) {
+//                 int param_id = st.code % 256;
+//                 int style_id = st.code / 256;
+//                 begin_diagnostic();
+//                 tprint("{restoring");
+//                 print_char(' ');
+//                 print_cmd_chr(set_math_param_cmd, param_id);
+//                 print_cmd_chr(math_style_cmd, style_id);
+//                 print_char('=');
+//                 print_int(get_math_param(param_id, style_id));
+//                 print_char('}');
+//                 end_diagnostic(false);
+//             }
+//         }
+//         (math_param_head->stack_ptr)--;
+//     }
+// }
+
 static void unsave_math_param_data(int gl)
 {
     sa_stack_item st;
@@ -276,11 +331,17 @@ static void unsave_math_param_data(int gl)
            >= (int) gl) {
         st = math_param_head->stack[math_param_head->stack_ptr];
         if (st.level > 0) {
+            int param_id = st.code % 256;
+            int style_id = st.code / 256;
+            if (param_id >= math_param_ord_ord_spacing && param_id <= math_param_inner_inner_spacing) {
+                sa_tree_item ti = get_sa_item(math_param_head, st.code);
+                if (ti.int_value > thick_mu_skip_code && valid_node(ti.int_value)) {
+                    free_node(ti.int_value, glue_spec_size);
+                }
+            }
             rawset_sa_item(math_param_head, st.code, st.value);
             /*tex Do a trace message, if requested. */
             if (tracing_restores_par > 1) {
-                int param_id = st.code % 256;
-                int style_id = st.code / 256;
                 begin_diagnostic();
                 tprint("{restoring");
                 print_char(' ');
@@ -2437,13 +2498,31 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                     d = 0;
     }
     tail_append(new_penalty(pre_display_penalty_par,after_display_penalty));
-    if ((d + line_s <= pre_display_size_par) || l) {
+   
+    /* tex
+       By default the short skip detection is not adapted to r2l typesetting and that
+      hasn't been the case since the start of the project. Changing it could break
+      hacks that users came up with but when you set \.{\\matheqdirmode} to a positive
+      value direction will be taken into account.
+    */
+    if (math_eq_dir_mode_par<=0) { /* old behavior */
+       if ((d + line_s <= pre_display_size_par) || l) {
         /*tex not enough clearance */
         g1 = above_display_skip_code;
         g2 = below_display_skip_code;
-    } else {
+       } else {
         g1 = above_display_short_skip_code;
         g2 = below_display_short_skip_code;
+       }
+    } else { 
+      if ((d + line_s <= pre_display_size_par) || ((! dir_math_save && l) || (dir_math_save && ! l))) {
+        /*tex not enough clearance */
+        g1 = above_display_skip_code;
+        g2 = below_display_skip_code;
+      } else {
+        g1 = above_display_short_skip_code;
+        g2 = below_display_short_skip_code;
+      }
     }
     /*tex
 

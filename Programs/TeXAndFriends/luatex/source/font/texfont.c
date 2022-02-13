@@ -1037,14 +1037,12 @@ void set_font_params(internal_font_number f, int b)
     int i;
     i = font_params(f);
     if (i != b) {
-        font_bytes +=
-            (int) ((b - (int) font_params(f) + 1) * (int) sizeof(scaled));
+        font_bytes += (int) ((b - (int) font_params(f) + 1) * (int) sizeof(scaled));
         do_realloc(param_base(f), (b + 2), int);
         font_params(f) = b;
         if (b > i) {
             while (i < b) {
-                i++;
-                set_font_param(f, i, 0);
+                font_param(f, ++i) = 0;
             }
         }
     }
@@ -1055,18 +1053,17 @@ void set_font_math_params(internal_font_number f, int b)
     int i;
     i = font_math_params(f);
     if (i != b) {
-        font_bytes +=
-            ((b - (int) font_math_params(f) + 1) * (int) sizeof(scaled));
+        font_bytes += ((b - (int) font_math_params(f) + 1) * (int) sizeof(scaled));
         do_realloc(math_param_base(f), (b + 2), int);
         font_math_params(f) = b;
         if (b > i) {
             while (i < b) {
-                i++;
-                set_font_math_param(f, i, undefined_math_parameter);
+                font_math_param(f,++i) = undefined_math_parameter;
             }
         }
     }
 }
+
 
 int copy_font(int f)
 {

@@ -4548,7 +4548,7 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
         } else if (lua_key_eq(s, named_id)) {
             lua_pushinteger(L, pdf_action_named_id(n));
         } else if (lua_key_eq(s, action_id)) {
-            if (pdf_action_named_id(n) == 1) {
+            if (pdf_action_named_id(n) & 1) {
                 tokenlist_to_luastring(L, pdf_action_id(n));
             } else {
                 lua_pushinteger(L, pdf_action_id(n));
@@ -4559,6 +4559,14 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
             lua_pushinteger(L, pdf_action_new_window(n));
         } else if (lua_key_eq(s, data)) {
             tokenlist_to_luastring(L, pdf_action_tokens(n));
+        } else if (lua_key_eq(s, struct_id)) {
+            if (pdf_action_struct_id(n) == null) {
+               lua_pushnil(L);
+            } else if (pdf_action_named_id(n) & 2) {
+                tokenlist_to_luastring(L, pdf_action_struct_id(n));
+            } else {
+                lua_pushinteger(L, pdf_action_struct_id(n));
+            }
         } else {
             lua_pushnil(L);
         }
@@ -5320,7 +5328,7 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
         } else if (lua_key_eq(s, named_id)) {
             lua_pushinteger(L, pdf_action_named_id(n));
         } else if (lua_key_eq(s, action_id)) {
-            if (pdf_action_named_id(n) == 1) {
+            if (pdf_action_named_id(n) & 1) {
                 tokenlist_to_luastring(L, pdf_action_id(n));
             } else {
                 lua_pushinteger(L, pdf_action_id(n));
@@ -5331,6 +5339,14 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
             lua_pushinteger(L, pdf_action_new_window(n));
         } else if (lua_key_eq(s, data)) {
             tokenlist_to_luastring(L, pdf_action_tokens(n));
+        } else if (lua_key_eq(s, struct_id)) {
+            if (pdf_action_struct_id(n) == null) {
+               lua_pushnil(L);
+            } else if (pdf_action_named_id(n) & 2) {
+                tokenlist_to_luastring(L, pdf_action_struct_id(n));
+            } else {
+                lua_pushinteger(L, pdf_action_struct_id(n));
+            }
         } else {
             lua_pushnil(L);
         }
@@ -6714,7 +6730,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
         } else if (lua_key_eq(s, named_id)) {
             pdf_action_named_id(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, action_id)) {
-            if (pdf_action_named_id(n) == 1) {
+            if (pdf_action_named_id(n) & 1) {
                 pdf_action_id(n) = nodelib_gettoks(L, 3);
             } else {
                 pdf_action_id(n) = (halfword) lua_tointeger(L, 3);
@@ -6725,6 +6741,14 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
             pdf_action_new_window(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, data)) {
             pdf_action_tokens(n) = nodelib_gettoks(L, 3);
+        } else if (lua_key_eq(s, struct_id)) {
+            if (lua_isnil(L, 3)) {
+               pdf_action_struct_id(n) = null;
+            } else if (pdf_action_named_id(n) & 2) {
+                pdf_action_struct_id(n) = nodelib_gettoks(L, 3);
+            } else {
+                pdf_action_struct_id(n) = (halfword) lua_tointeger(L, 3);
+            }
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -7461,7 +7485,7 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
         } else if (lua_key_eq(s, named_id)) {
             pdf_action_named_id(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, action_id)) {
-            if (pdf_action_named_id(n) == 1) {
+            if (pdf_action_named_id(n) & 1) {
                 pdf_action_id(n) = nodelib_gettoks(L, 3);
             } else {
                 pdf_action_id(n) = (halfword) lua_tointeger(L, 3);
@@ -7472,6 +7496,14 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
             pdf_action_new_window(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, data)) {
             pdf_action_tokens(n) = nodelib_gettoks(L, 3);
+        } else if (lua_key_eq(s, struct_id)) {
+            if (lua_isnil(L, 3)) {
+               pdf_action_struct_id(n) = null;
+            } else if (pdf_action_named_id(n) & 2) {
+                pdf_action_struct_id(n) = nodelib_gettoks(L, 3);
+            } else {
+                pdf_action_struct_id(n) = (halfword) lua_tointeger(L, 3);
+            }
         } else {
             return nodelib_cantset(L, n, s);
         }

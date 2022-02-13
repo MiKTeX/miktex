@@ -382,7 +382,8 @@ void print_nlp(void)
 {
     if (new_string_line > 0) {
         print_char(new_string_line);
-    } else if (((term_offset > 0) && (odd(selector))) ||
+    } else if ((selector < no_print) ||
+               ((term_offset > 0) && (odd(selector))) ||
                ((file_offset > 0) && (selector >= log_only))) {
         print_ln();
     }
@@ -470,6 +471,7 @@ void tprint(const char *sss)
 #else
         buffer = xmalloc(strlen(sss)*3);
 #endif
+        buffer[0] = '\0';
         /*tex The |wrapup_run| callback acts when the log file is already closed.*/
         if (dolog && log_opened_global) {
             const unsigned char *ss = (const unsigned char *) sss;

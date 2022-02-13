@@ -103,6 +103,9 @@ int luaopen_luaharfbuzz (lua_State *L) {
   register_language(L);
   lua_setfield(L, -2, "Language");
 
+  register_variation(L);
+  lua_setfield(L, -2, "Variation");
+
   register_ot(L);
   lua_setfield(L, -2, "ot");
 

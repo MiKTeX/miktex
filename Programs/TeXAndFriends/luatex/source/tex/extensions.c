@@ -365,8 +365,8 @@ static void new_write_whatsit(int w, int check)
 
 void do_extension(int immediate)
 {
-    /*tex An all-purpose pointer. */
-    halfword p;
+    /*tex All-purpose pointers. */
+    halfword k,p;
     if (cur_cmd == extension_cmd) {
         /*tex These have their own range starting at 0. */
         switch (cur_chr) {
@@ -403,9 +403,10 @@ void do_extension(int immediate)
                     be expanded later when this token list is rescanned.
 
                 */
+                k = cur_cs;
                 p = tail;
-                new_write_whatsit(write_node_size,0);
-                cur_cs = write_stream(tail);
+                new_write_whatsit(write_node_size,0); // this can modify cur_cs
+                cur_cs = k;                           // so we restore the prev. cur_cs, as in pdftex
                 scan_toks(false, false);
                 write_tokens(tail) = def_ref;
                 if (immediate) {

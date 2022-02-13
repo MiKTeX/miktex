@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/luatex/">
     <TPM:Name>LuaTeX LuaHBTeX win64</TPM:Name>
     <TPM:Title>LuaTeX and LuaHBTeX, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Taco Hoekwater and the LuaTeX Team" year="2021"/>
+    <TPM:Copyright owner="Taco Hoekwater and the LuaTeX Team" year="2022"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>1.14.0</TPM:Version>
+    <TPM:Version>1.15.0</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

@@ -40,10 +40,33 @@ halfword scan_action(PDF pdf)
         set_pdf_action_tokens(p, def_ref);
         return p;
     }
+    pdf_action_named_id(p) = 0;
     if (scan_keyword("file")) {
         scan_toks(false, true);
         set_pdf_action_file(p, def_ref);
     }
+    if (scan_keyword("struct")) {
+        if (pdf_action_type(p) != pdf_action_goto)
+            normal_error("pdf backend", "only GoTo action can be used with `struct'");
+        if (pdf_action_file(p) != null) {
+            scan_toks(false, true);
+            pdf_action_named_id(p) |= 2;
+            pdf_action_struct_id(p) = def_ref;
+        } else if (scan_keyword("name")) {
+            scan_toks(false, true);
+            pdf_action_named_id(p) |= 2;
+            pdf_action_struct_id(p) = def_ref;
+        }
+        else if (scan_keyword("num")) {
+            scan_int();
+            if (cur_val <= 0)
+                normal_error("pdf backend", "num identifier must be positive");
+            pdf_action_struct_id(p) = cur_val;
+        }
+        else
+            normal_error("pdf backend", "identifier type missing");
+    } else
+        pdf_action_struct_id(p) = null;
     if (scan_keyword("page")) {
         if (pdf_action_type(p) != pdf_action_goto)
             normal_error("pdf backend", "only GoTo action can be used with 'page'");
@@ -52,12 +75,11 @@ halfword scan_action(PDF pdf)
         if (cur_val <= 0)
             normal_error("pdf backend", "page number must be positive");
         set_pdf_action_id(p, cur_val);
-        set_pdf_action_named_id(p, 0);
         scan_toks(false, true);
         set_pdf_action_tokens(p, def_ref);
     } else if (scan_keyword("name")) {
         scan_toks(false, true);
-        set_pdf_action_named_id(p, 1);
+        pdf_action_named_id(p) |= 1;
         set_pdf_action_id(p, def_ref);
     } else if (scan_keyword("num")) {
         if ((pdf_action_type(p) == pdf_action_goto) &&
@@ -66,7 +88,6 @@ halfword scan_action(PDF pdf)
         scan_int();
         if (cur_val <= 0)
             normal_error("pdf backend", "num identifier must be positive");
-        set_pdf_action_named_id(p, 0);
         set_pdf_action_id(p, cur_val);
     } else {
         normal_error("pdf backend", "identifier type missing");
@@ -143,10 +164,10 @@ void write_action(PDF pdf, halfword p)
         case pdf_action_goto:
             if (pdf_action_file(p) == null) {
                 pdf_dict_add_name(pdf, "S", "GoTo");
-                d = pdf_get_obj(pdf, obj_type_dest, pdf_action_id(p), pdf_action_named_id(p));
+                d = pdf_get_obj(pdf, obj_type_dest, pdf_action_id(p), (pdf_action_named_id(p) & 1) == 1);
             } else
                 pdf_dict_add_name(pdf, "S", "GoToR");
-            if (pdf_action_named_id(p) > 0) {
+            if (pdf_action_named_id(p) & 1) {
                 char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
                 pdf_dict_add_string(pdf, "D", tokstr);
                 xfree(tokstr);
@@ -159,8 +180,8 @@ void write_action(PDF pdf, halfword p)
         case pdf_action_thread:
             pdf_dict_add_name(pdf, "S", "Thread");
             if (pdf_action_file(p) == null) {
-                d = pdf_get_obj(pdf, obj_type_thread, pdf_action_id(p), pdf_action_named_id(p));
-                if (pdf_action_named_id(p) > 0) {
+                d = pdf_get_obj(pdf, obj_type_thread, pdf_action_id(p), (pdf_action_named_id(p) & 1) == 1);
+                if (pdf_action_named_id(p) & 1) {
                     char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
                     pdf_dict_add_string(pdf, "D", tokstr);
                     xfree(tokstr);
@@ -171,6 +192,15 @@ void write_action(PDF pdf, halfword p)
                 }
             }
             break;
+    }
+    if (pdf_action_struct_id(p) != null) {
+        if (pdf_action_file(p) == null) {
+            d = pdf_get_obj(pdf, obj_type_struct_dest, pdf_action_struct_id(p), (pdf_action_named_id(p) & 2) == 2);
+            pdf_dict_add_ref(pdf, "SD", d);
+        } else {
+            pdf_add_name(pdf, "SD");
+            pdf_print_toks(pdf, pdf_action_struct_id(p));
+        }
     }
     pdf_end_dict(pdf);
 }

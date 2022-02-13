@@ -488,13 +488,13 @@ void write_png(PDF pdf, image_dict * idict)
         png_copy = false;
     }
     /*tex alpha channel support */
-    if (pdf->minor_version < 4
+    if ((pdf->major_version == 1 && pdf->minor_version < 4)
         && png_get_color_type(png_p, info_p) | PNG_COLOR_MASK_ALPHA) {
         png_set_strip_alpha(png_p);
         png_copy = false;
     }
     /*tex 16 bit depth support */
-    if (pdf->minor_version < 5)
+    if (pdf->major_version == 1 && pdf->minor_version < 5)
         pdf->image_hicolor = 0;
     if ((png_get_bit_depth(png_p, info_p) == 16) && (pdf->image_hicolor == 0)) {
         png_set_strip_16(png_p);
@@ -556,7 +556,7 @@ void write_png(PDF pdf, image_dict * idict)
         }
     }
     if (png_copy
-        && pdf->minor_version > 1
+        && (pdf->major_version > 1 || pdf->minor_version > 1)
         && png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE
         && (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY
          || png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)
@@ -575,7 +575,7 @@ void write_png(PDF pdf, image_dict * idict)
         if (img_errorlevel(idict) > 1) {
             if (!png_copy)
                 normal_warning("pngcopy","failed");
-            if (!(pdf->minor_version > 1))
+            if (!(pdf->major_version == 1 && pdf->minor_version > 1))
                 formatted_warning("pngcopy","skipped because minorversion is '%d'", pdf->minor_version);
             if (!(png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE))
                 normal_warning("pngcopy","skipped because of interlacing");
@@ -610,13 +610,13 @@ void write_png(PDF pdf, image_dict * idict)
                 write_png_gray(pdf, idict);
                 break;
             case PNG_COLOR_TYPE_GRAY_ALPHA:
-                if (pdf->minor_version >= 4) {
+                if (pdf->major_version > 1 || pdf->minor_version >= 4) {
                     write_png_gray_alpha(pdf, idict);
                 } else
                     write_png_gray(pdf, idict);
                 break;
             case PNG_COLOR_TYPE_RGB_ALPHA:
-                if (pdf->minor_version >= 4) {
+                if (pdf->major_version > 1 || pdf->minor_version >= 4) {
                     write_png_rgb_alpha(pdf, idict);
                 } else
                     write_png_gray(pdf, idict);

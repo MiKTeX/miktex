@@ -2067,6 +2067,38 @@ static void check_nonexisting_destinations(PDF pdf)
     }
 }
 
+/*tex
+
+    For structure destinations we don't have a fallback structure element to use when
+    they are not defined, so we insert "null" instead
+    referenced but don't exists have |obj_dest_ptr=null|. Leaving them undefined
+    might cause troubles for PDF browsers, so we need to fix them; they point to
+    the last page.
+
+*/
+
+static void check_nonexisting_structure_destinations(PDF pdf)
+{
+    int k;
+    for (k = pdf->head_tab[obj_type_struct_dest]; k != 0; k = obj_link(pdf, k)) {
+        if (obj_dest_ptr(pdf, k) == null) {
+            if (obj_info(pdf, k) < 0) {
+                char *ss = makecstring(-obj_info(pdf, k));
+                formatted_warning("pdf backend", "unreferenced structure destination with name '%s'",ss);
+            } else {
+                formatted_warning("pdf backend", "unreferenced structure destination with num '%d'",obj_info(pdf,k));
+            }
+
+            pdf_begin_obj(pdf, k, OBJSTM_ALWAYS);
+            pdf_begin_array(pdf);
+            pdf_add_null(pdf);
+            pdf_add_name(pdf, "Fit");
+            pdf_end_array(pdf);
+            pdf_end_obj(pdf);
+        }
+    }
+}
+
 static void check_nonexisting_pages(PDF pdf)
 {
     struct avl_traverser t;
@@ -2228,6 +2260,7 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
                 if (total_pages > 0) {
                     check_nonexisting_pages(pdf);
                     check_nonexisting_destinations(pdf);
+                    check_nonexisting_structure_destinations(pdf);
                 }
                 /*tex
                     Output fonts definition.
