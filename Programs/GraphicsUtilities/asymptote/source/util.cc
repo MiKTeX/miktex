@@ -6,8 +6,8 @@
  *****/
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #ifdef __CYGWIN__
 #define _POSIX_C_SOURCE 200809L
@@ -38,8 +38,8 @@
 #include "interact.h"
 #include "locate.h"
 #if defined(MIKTEX)
-#  include <miktex/Util/PathName>
-#  include <miktex/Core/Process>
+#include <miktex/Util/PathName>
+#include <miktex/Core/Process>
 #endif
 
 using namespace settings;

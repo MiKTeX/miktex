@@ -39,7 +39,7 @@
 
 #include "common.h"
 #if defined(MIKTEX)
-#  include <miktex/Core/Session>
+#include <miktex/Core/Session>
 #endif
 
 #ifdef HAVE_LIBSIGSEGV

@@ -14,6 +14,9 @@
 #ifndef PAIR_H
 #define PAIR_H
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#endif
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -31,8 +34,13 @@ namespace camp {
 class jsofstream : public std::ofstream {
 public:
   jsofstream() {}
+#if defined(MIKTEX_WINDOWS)
+  jsofstream(const string& name) : std::ofstream(MiKTeX::Util::CharBuffer<wchar_t>(name).GetData()) {}
+  void open(const string& name) {std::ofstream::open(MiKTeX::Util::CharBuffer<wchar_t>(name).GetData());}
+#else
   jsofstream(const string& name) : std::ofstream(name.c_str()) {}
   void open(const string& name) {std::ofstream::open(name.c_str());}
+#endif
 
   template<class T>
   jsofstream& operator << (const T& x) {

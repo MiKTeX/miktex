@@ -40,9 +40,6 @@
 #include "triple.h"
 #include "callable.h"
 #include "opsymbols.h"
-#if defined(MIKTEX_WINDOWS)
-//#  include <Windows.h>
-#endif
 
 using vm::stack;
 using vm::error;

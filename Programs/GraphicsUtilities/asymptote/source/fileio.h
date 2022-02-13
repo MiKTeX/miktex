@@ -33,7 +33,6 @@
 #include "parser.h"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
 namespace vm {
@@ -475,7 +474,7 @@ public:
     } else {
       name=outpath(name);
 #if defined(MIKTEX_WINDOWS)
-      stream = fstream = new std::ofstream(UW_(name), mode | std::ios::trunc);
+      stream = fstream = new std::ofstream(MiKTeX::Util::CharBuffer<wchar_t>(name).GetData(), mode | std::ios::trunc);
 #else
       stream=fstream=new std::ofstream(name.c_str(),mode | std::ios::trunc);
 #endif

@@ -6,6 +6,10 @@
  * Allows identification and removal of redundant commands.
  *****/
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 #include <ctime>
 #include <iomanip>
 #include <sstream>
@@ -16,9 +20,6 @@
 #include "errormsg.h"
 #include "array.h"
 #include "stack.h"
-#if defined(MIKTEX_WINDOWS) && defined(__MSDOS__)
-#  include <io.h>
-#endif
 
 using std::ofstream;
 using std::setw;
@@ -49,7 +50,11 @@ psfile::psfile(const string& filename, bool pdfformat)
     buffer(NULL), out(NULL)
 {
   if(filename.empty()) out=&cout;
+#if defined(MIKTEX_WINDOWS)
+  else out=new ofstream(UW_(filename));
+#else
   else out=new ofstream(filename.c_str());
+#endif
   out->setf(std::ios::boolalpha);
   if(!out || !*out)
     reportError("Cannot write to "+filename);

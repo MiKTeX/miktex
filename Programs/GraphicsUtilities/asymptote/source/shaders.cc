@@ -1,6 +1,10 @@
 // shader handling
 // Author: Supakorn "Jamie" Rassameemasmuang
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 #include "common.h"
 
 #ifdef HAVE_GL
@@ -89,7 +93,11 @@ GLuint createShaderFile(std::string file, int shaderType,
                         bool ssbo, bool interlock, bool compute)
 {
   std::ifstream shaderFile;
+#if defined(MIKTEX_WINDOWS)
+  shaderFile.open(UW_(file));
+#else
   shaderFile.open(file.c_str());
+#endif
   std::stringstream shaderSrc;
 
   shaderSrc << "#version " << GLSLversion << "\n";

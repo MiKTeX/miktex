@@ -20,8 +20,10 @@
 
 #line 1 "runtimebase.in"
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 #include "stack.h"
 #include "types.h"
@@ -378,7 +380,11 @@ void gen_runlabel3(stack *Stack)
       pdfname2=auxname(prefix+"_","pdf");
       psname2=auxname(prefix+"_","ps");
       if(!fs::exists(pdfname)) {Stack->push<patharray2*>(new array(n)); return;}
+#if defined(MIKTEX_WINDOWS)
+      std::ofstream ps(UW_(psname), std::ios::binary);
+#else
       std::ofstream ps(psname.c_str(),std::ios::binary);
+#endif
       if(!ps) cannotwrite(psname);
 
       showpath(ps);
@@ -407,7 +413,11 @@ void gen_runlabel3(stack *Stack)
         cmd.push_back(pdfname2);
         status=System(cmd,0,true,"gs");
 
+#if defined(MIKTEX_WINDOWS)
+        std::ifstream in(UW_(psname2));
+#else
         std::ifstream in(psname2.c_str());
+#endif
         ps << in.rdbuf();
         ps.close();
       }
@@ -461,7 +471,11 @@ void gen_runlabel4(stack *Stack)
   string outputname=auxname(prefix,getSetting<string>("textoutformat"));
 
   string textname=auxname(prefix,getSetting<string>("textextension"));
+#if defined(MIKTEX_WINDOWS)
+  std::ofstream text(UW_(textname));
+#else
   std::ofstream text(textname.c_str());
+#endif
 
   if(!text) cannotwrite(textname);
 
@@ -474,7 +488,11 @@ void gen_runlabel4(stack *Stack)
   text.close();
 
   string psname=auxname(prefix,"ps");
+#if defined(MIKTEX_WINDOWS)
+  std::ofstream ps(UW_(psname));
+#else
   std::ofstream ps(psname.c_str());
+#endif
   if(!ps) cannotwrite(psname);
 
   showpath(ps);

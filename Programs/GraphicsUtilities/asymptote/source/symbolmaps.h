@@ -1,8 +1,5 @@
 #pragma once
 
-#if defined(MIKTEX)
-#include <miktex/asy-first.h>
-#endif
 #include <unordered_map>
 #include <unordered_set>
 #include <tuple>

@@ -2,9 +2,9 @@
 #include <miktex/ExitThrows>
 #endif
 #if defined(MIKTEX_WINDOWS)
-#  define eof eof_hidden
-#  include <io.h>
-#  undef eof
+#define eof eof_hidden
+#include <io.h>
+#undef eof
 #endif
 #line 1 "lex.yy.cc"
 

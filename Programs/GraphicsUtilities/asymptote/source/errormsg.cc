@@ -6,6 +6,10 @@
  *****/
 
 #if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 #include <miktex/ExitThrows>
 #endif
 #include <cstdio>
@@ -30,7 +34,11 @@ ostream& operator<< (ostream& out, const position& pos)
   string filename=pos.file->name();
 
   if(filename != "-" && !settings::getSetting<bool>("quiet")) {
+#if defined(MIKTEX_WINDOWS)
+    std::ifstream fin(UW_(filename));
+#else
     std::ifstream fin(filename.c_str());
+#endif
     string s;
     size_t count=pos.line;
     while(count > 0 && getline(fin,s)) {

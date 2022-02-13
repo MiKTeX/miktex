@@ -9,8 +9,8 @@
 #include <miktex/ExitThrows>
 #endif
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include <iostream>
 #include <iomanip>
@@ -44,9 +44,9 @@
 
 #include "glrender.h"
 #if defined(MIKTEX)
-#  include <miktex/Util/PathName>
-#  include <miktex/Core/Paths>
-#  include <miktex/Core/Session>
+#include <miktex/Util/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Session>
 #endif
 
 #ifdef HAVE_LIBCURSES

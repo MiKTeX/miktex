@@ -42,7 +42,6 @@ endif()
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/source
   ${CMAKE_CURRENT_SOURCE_DIR}/source/LspCpp/include
   ${CMAKE_CURRENT_SOURCE_DIR}/symbol-headers
 )
@@ -383,6 +382,11 @@ endif()
 add_executable(${MIKTEX_PREFIX}asy ${asy_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}asy PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_compile_options(${MIKTEX_PREFIX}asy
+  PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/permissive->
+)
 
 target_link_libraries(${MIKTEX_PREFIX}asy
   PUBLIC

@@ -1,3 +1,7 @@
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 #include "jsfile.h"
 
 #include "settings.h"
@@ -40,7 +44,11 @@ void jsfile::close()
 
 void jsfile::copy(string name, bool header)
 {
+#if defined(MIKTEX_WINDOWS)
+  std::ifstream fin(UW_(locateFile(name)));
+#else
   std::ifstream fin(locateFile(name).c_str());
+#endif
   string s;
   if(header) getline(fin,s);
   while(getline(fin,s))

@@ -1,6 +1,6 @@
 /* miktex/asy-first.h:
 
-   Copyright (C) 2018 Christian Schenk
+   Copyright (C) 2018-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,14 +20,6 @@
 #pragma once
 
 #include <miktex/ExitThrows>
-
-#if !defined(and)
-#define and &&
-#endif
-
-#if !defined(or)
-#define or ||
-#endif
 
 #if !defined(MIKTEX_BEGIN_NS)
 #define MIKTEX_BEGIN_NS                         \

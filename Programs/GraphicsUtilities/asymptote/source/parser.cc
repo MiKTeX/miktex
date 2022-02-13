@@ -5,8 +5,8 @@
  *****/
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include <fstream>
 #include <sstream>
@@ -25,9 +25,9 @@
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-#  include <miktex/unxemu.h>
-#  include <miktex/Util/CharBuffer>
-#  define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#include <miktex/unxemu.h>
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 #include "interact.h"
 #include "locate.h"

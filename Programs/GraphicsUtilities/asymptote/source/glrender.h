@@ -6,9 +6,6 @@
 #ifndef GLRENDER_H
 #define GLRENDER_H
 
-#if defined(MIKTEX_WINDOWS)
-//#include <Windows.h>
-#endif
 #include "common.h"
 #include "triple.h"
 #include "pen.h"

@@ -5,6 +5,10 @@
  * Encapsulates the writing of commands to a TeX file.
  *****/
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 #include <ctime>
 #include <cfloat>
 
@@ -27,7 +31,11 @@ texfile::texfile(const string& texname, const bbox& box, bool pipe)
   pdf=settings::pdf(texengine);
   inlinetex=getSetting<bool>("inlinetex");
   Hoffset=inlinetex ? box.right : box.left;
+#if defined(MIKTEX_WINDOWS)
+  out=new ofstream(UW_(texname));
+#else
   out=new ofstream(texname.c_str());
+#endif
   if(!out || !*out)
     reportError("Cannot write to "+texname);
   out->setf(std::ios::fixed);
@@ -65,7 +73,11 @@ void texfile::prologue(bool deconstruct)
 {
   if(inlinetex) {
     string prename=buildname(settings::outname(),"pre");
+#if defined(MIKTEX_WINDOWS)
+    std::ofstream *outpreamble=new std::ofstream(UW_(prename));
+#else
     std::ofstream *outpreamble=new std::ofstream(prename.c_str());
+#endif
     texpreamble(*outpreamble,processData().TeXpreamble,false,false);
     outpreamble->close();
   }

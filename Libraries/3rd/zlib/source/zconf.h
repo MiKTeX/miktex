@@ -387,6 +387,9 @@
 #  define ZEXPORTVA
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+#undef FAR
+#endif
 #ifndef FAR
 #  define FAR
 #endif

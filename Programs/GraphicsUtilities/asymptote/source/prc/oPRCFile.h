@@ -22,6 +22,9 @@
 #ifndef __O_PRC_FILE_H
 #define __O_PRC_FILE_H
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#endif
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -689,8 +692,13 @@ class oPRCFile
       fileStructures(new PRCFileStructure*[n]),
       unit(u),
       modelFile_data(NULL),modelFile_out(modelFile_data,0),
+#if defined(MIKTEX_WINDOWS)
+      fout(new std::ofstream(MiKTeX::Util::CharBuffer<wchar_t>(name).GetData(), std::ios::out|std::ios::binary|std::ios::trunc)),
+
+#else
       fout(new std::ofstream(name.c_str(),
                              std::ios::out|std::ios::binary|std::ios::trunc)),
+#endif
       output(*fout)
       {
         for(uint32_t i = 0; i < number_of_file_structures; ++i)

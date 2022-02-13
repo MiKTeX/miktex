@@ -8,8 +8,10 @@
 
 #if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 #include <miktex/Core/Directory>
 #include <miktex/Core/TemporaryDirectory>
@@ -373,7 +375,11 @@ void texinit()
   if(!context) logname=dir;
   logname += "texput.log";
   const char *cname=logname.c_str();
+#if defined(MIKTEX_WINDOWS)
+  ofstream writeable(UW_(cname));
+#else
   ofstream writeable(cname);
+#endif
   if(!writeable)
     reportError("Cannot write to "+logname);
   else
@@ -491,7 +497,11 @@ bool picture::texprocess(const string& texname, const string& outname,
   int status=1;
   ifstream outfile;
 
+#if defined(MIKTEX_WINDOWS)
+  outfile.open(UW_(texname));
+#else
   outfile.open(texname.c_str());
+#endif
   bool keep=getSetting<bool>("keep");
 
   if(outfile) {
@@ -556,7 +566,11 @@ bool picture::texprocess(const string& texname, const string& outname,
           cmd.push_back(dviname);
           status=System(cmd,0,true,"dvips");
           if(status == 0) {
+#if defined(MIKTEX_WINDOWS)
+            ifstream fin(UW_(psname));
+#else
             ifstream fin(psname.c_str());
+#endif
             psfile fout(outname,false);
 
             string s;

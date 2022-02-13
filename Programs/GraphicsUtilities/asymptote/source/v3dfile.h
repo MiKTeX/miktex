@@ -9,7 +9,11 @@
 #ifndef V3DFILE_H
 #define V3DFILE_H
 
+#if defined(MIKTEX)
+#include "prc/oPRCFile.h"
+#else
 #include <prc/oPRCFile.h>
+#endif
 #include <zlib.h>
 
 #include "common.h"
