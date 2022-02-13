@@ -1,6 +1,6 @@
 /* inputline.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -636,8 +636,9 @@ void WebAppInputLine::BufferSizeExceeded() const
   }
 }
 
-size_t WebAppInputLine::InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const
+size_t WebAppInputLine::InputLineInternal(FILE* f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const
 {
+  MIKTEX_ASSERT(buffer2 == nullptr);
   do
   {
     errno = 0;
@@ -675,9 +676,10 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
   auto bufsize = inputOutput->bufsize();
   const char* xord = GetCharacterConverter()->xord();
   char* buffer = inputOutput->buffer();
+  char* buffer2 = inputOutput->buffer2();
   int lastChar = EOF;
 
-  last = static_cast<C4P::C4P_signed32>(InputLineInternal(f, buffer, bufsize, first, lastChar));
+  last = static_cast<C4P::C4P_signed32>(InputLineInternal(f, buffer, buffer2, bufsize, first, lastChar));
 
   if (lastChar == EOF && last == first)
   {

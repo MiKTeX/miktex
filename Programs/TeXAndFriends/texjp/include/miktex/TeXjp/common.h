@@ -92,9 +92,9 @@ namespace MiKTeX
             public WebApp<BASE>
         {
         public:
-            size_t InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
+            size_t InputLineInternal(FILE* f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
             {
-                return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), nullptr, static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
+                return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), reinterpret_cast<unsigned char*>(buffer2), static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
             }
 
         private:
@@ -155,6 +155,22 @@ namespace MiKTeX
                 // FIXME: should be xfree
                 free(decoded);
                 return result;
+            }
+        };
+
+        template<class BASE, class PROGRAM_CLASS> class PTeXInputOutputImpl :
+            public BASE
+        {
+        public:
+            PTeXInputOutputImpl(PROGRAM_CLASS& program) :
+                BASE(program)
+            {                
+            }
+
+        public:
+            char* buffer2() override
+            {
+                return reinterpret_cast<char*>(BASE::program.buffer2);
             }
         };
 

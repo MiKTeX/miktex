@@ -1,6 +1,6 @@
 ## version.cmake:
 ##
-## Copyright (C) 2016-2021 Christian Schenk
+## Copyright (C) 2016-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,8 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_INTERFACE_VERSION 7)
+set(MIKTEX_COMP_INTERFACE_VERSION 8)
 
 set(MIKTEX_COMP_MAJOR_VERSION 4)
-set(MIKTEX_COMP_MINOR_VERSION 6)
+set(MIKTEX_COMP_MINOR_VERSION 7)
 set(MIKTEX_COMP_PATCH_VERSION 0)

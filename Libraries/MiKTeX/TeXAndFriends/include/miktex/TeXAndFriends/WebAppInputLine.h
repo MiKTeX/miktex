@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -65,6 +65,8 @@ public:
   virtual C4P::C4P_signed32& namelength() = 0;
 public:
   virtual char* buffer() = 0;
+public:
+  virtual char* buffer2() = 0;
 public:
   virtual char32_t* buffer32() = 0;
 public:
@@ -173,7 +175,7 @@ public:
   MIKTEXMFTHISAPI(bool) InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const;
 
 public:
-  virtual MIKTEXMFTHISAPI(size_t) InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const;
+  virtual MIKTEXMFTHISAPI(size_t) InputLineInternal(FILE* f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const;
 
 public:
   MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Util::PathName& fileNameInternalEncoding);

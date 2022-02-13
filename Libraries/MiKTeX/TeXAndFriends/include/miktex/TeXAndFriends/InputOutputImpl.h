@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/InputOutputImpl.h:              -*- C++ -*-
 
-   Copyright (C) 2017-2020 Christian Schenk
+   Copyright (C) 2017-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -37,7 +37,7 @@ public:
   {
   }
 
-private:
+protected:
   PROGRAM_CLASS& program;
 
 public:
@@ -104,6 +104,12 @@ public:
     MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char));
     return (char*)program.buffer;
 #endif
+  }
+
+public:
+  char* buffer2() override
+  {
+    return nullptr;
   }
 
 public:

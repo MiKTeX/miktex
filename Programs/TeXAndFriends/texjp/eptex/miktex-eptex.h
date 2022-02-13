@@ -1,6 +1,6 @@
 /* miktex-eptex.h:
 
-   Copyright (C) 2021 Christian Schenk
+   Copyright (C) 2021-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -64,7 +64,7 @@ private:
     MiKTeX::TeXAndFriends::InitFinalizeImpl<EPTEXPROGCLASS> initFinalize{ EPTEXPROG };
 
 private:
-    MiKTeX::TeXAndFriends::InputOutputImpl<EPTEXPROGCLASS> inputOutput{ EPTEXPROG };
+    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<EPTEXPROGCLASS>, EPTEXPROGCLASS> inputOutput{ EPTEXPROG };
 
 private:
     MiKTeX::TeXAndFriends::StringHandlerImpl<EPTEXPROGCLASS> stringHandler{ EPTEXPROG };

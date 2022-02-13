@@ -1,6 +1,6 @@
 /* miktex-euptex.h:
 
-   Copyright (C) 2021 Christian Schenk
+   Copyright (C) 2021-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -64,7 +64,7 @@ private:
     MiKTeX::TeXAndFriends::InitFinalizeImpl<EUPTEXPROGCLASS> initFinalize{ EUPTEXPROG };
 
 private:
-    MiKTeX::TeXAndFriends::InputOutputImpl<EUPTEXPROGCLASS> inputOutput{ EUPTEXPROG };
+    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<EUPTEXPROGCLASS>, EUPTEXPROGCLASS> inputOutput{ EUPTEXPROG };
 
 private:
     MiKTeX::TeXAndFriends::StringHandlerImpl<EUPTEXPROGCLASS> stringHandler{ EUPTEXPROG };
