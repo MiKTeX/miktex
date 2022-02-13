@@ -35,6 +35,7 @@ extern PTENCDLL int infile_enc_auto;
 /* enable/disable UPTEX */
 extern PTENCDLL void enable_UPTEX (boolean enable);
 extern PTENCDLL void set_prior_file_enc(void);
+extern PTENCDLL void ptenc_ptex_mode(const boolean enable);
 
 /* get/set Kanji encoding by string */
 extern PTENCDLL const_string get_enc_string(void);
@@ -54,6 +55,9 @@ extern PTENCDLL boolean  is_internalUPTEX(void);
 #define isinternalEUC   is_internalEUC
 #define isinternalUPTEX is_internalUPTEX
 
+extern PTENCDLL boolean  is_terminalUTF8(void);
+#define isterminalUTF8 is_terminalUTF8
+
 /* check char range */
 extern PTENCDLL boolean ismultichr (int length, int nth, int c);
 extern PTENCDLL boolean iskanji1(int c);
@@ -61,9 +65,14 @@ extern PTENCDLL boolean iskanji2(int c);
 
 /* internal (EUC/SJIS/UPTEX) from/to buffer (EUC/SJIS/UTF-8) code conversion */
 extern PTENCDLL int multistrlen(unsigned char *s, int len, int pos);
+extern PTENCDLL int multistrlenshort(unsigned short *s, int len, int pos);
 extern PTENCDLL int multibytelen (int first_byte);
 extern PTENCDLL long fromBUFF(unsigned char *s, int len, int pos);
+extern PTENCDLL long fromBUFFshort(unsigned short *s, int len, int pos);
 extern PTENCDLL long toBUFF(long inter);
+
+/* for outputting filename (*s) to the terminal */
+extern PTENCDLL int multistrlenfilename(unsigned short *s, int len, int pos);
 
 /* internal (EUC/SJIS/UPTEX) from/to DVI (JIS/UCS) code conversion */
 extern PTENCDLL long toDVI (long kcode);
@@ -84,8 +93,8 @@ extern PTENCDLL int putc2(int c, FILE *fp);
 extern PTENCDLL int fputs2(const char *s, FILE *fp);
 
 /* input line with encoding conversion */
-extern PTENCDLL long input_line2(FILE *fp, unsigned char *buff, long pos,
-				const long buffsize, int *lastchar);
+extern PTENCDLL long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
+                                long pos, const long buffsize, int *lastchar);
 
 /* set current encoding */
 extern PTENCDLL boolean setinfileenc(FILE *fp, const char *str);

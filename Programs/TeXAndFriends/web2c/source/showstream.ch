@@ -1,3 +1,7 @@
+% $Id$
+% Implementation of |\showstream|.
+% Public domain. Originally written by Marcel Kr\"uger, 2021.
+
 Since we redirect content which is normally written to the terminal/log
 to a write stream, print_nl will sometimes get called while selector is a write
 stream. Therefore we adapt print_nl to handle that case properly.
@@ -9,7 +13,7 @@ print(s);
 end;
 @y
 procedure print_nl(@!s:str_number); {prints string |s| at beginning of line}
-begin if (selector<log_only)or((term_offset>0)and(odd(selector)))or@|
+begin if (selector<no_print)or((term_offset>0)and(odd(selector)))or@|
   ((file_offset>0)and(selector>=log_only)) then print_ln;
 print(s);
 end;
@@ -57,36 +61,24 @@ del_code("."):=0; {this null delimiter is used in error recovery}
 show_stream:=-1;
 @z
 
-Then do the actual change: In |show_whatever| we save the old selector
-and then replace it based on |show_stream|. We don't need any changes
+Then do the actual change: In all cases of |show_whatever| we adjust the selector
+if |show_stream| is set. We don't need any changes
 to |begin/end_diagnostic| since they don't do anything interesting if
 |selector| isn't |term_and_log|.
+
+For |show_lists_code| this is done directly in |show_whatever|:
 @x
-procedure show_whatever;
-label common_ending;
-var p:pointer; {tail of a token list to show}
-@!t:small_number; {type of conditional being shown}
-@!m:normal..or_code; {upper bound on |fi_or_else| codes}
-@!l:integer; {line where that conditional began}
-@!n:integer; {level of \.{\\if...\\fi} nesting}
-begin case cur_chr of
+show_lists_code: begin begin_diagnostic; show_activities;
+  end;
 @y
-procedure show_whatever;
-label common_ending;
-var p:pointer; {tail of a token list to show}
-@!t:small_number; {type of conditional being shown}
-@!m:normal..or_code; {upper bound on |fi_or_else| codes}
-@!l:integer; {line where that conditional began}
-@!n:integer; {level of \.{\\if...\\fi} nesting}
-@!saved_selector:0..max_selector; {previous selector, separate from the global |old_setting|}
-begin saved_selector:=selector;
-if (show_stream>=0) and (show_stream<no_print) and write_open[show_stream] then
-  selector:=show_stream;
-case cur_chr of
+show_lists_code:
+  begin @<Adjust |selector| based on |show_stream|@>
+  begin_diagnostic; show_activities;
+  end;
 @z
 
 The ending gets skipped if we changed the selector,
-but we have to restore |selector|.
+but we have to reset the |selector| based on the current interaction setting.
 @x
 @<Complete a potentially long \.{\\show} command@>;
 common_ending: if interaction<error_stop_mode then
@@ -111,7 +103,8 @@ end;
 @<Complete a potentially long \.{\\show} command@>;
 common_ending: if selector<no_print then
   begin print_ln;
-  selector:=saved_selector
+  @<Initialize the print |selector| based on |interaction|@>;
+  if log_opened then selector:=selector+2;
   end
 else begin if interaction<error_stop_mode then
     begin help0; decr(error_count);
@@ -132,4 +125,51 @@ else begin if interaction<error_stop_mode then
   error;
   end;
 end;
+@z
+
+While the other cases have separate blocks
+@x
+@ @<Show the current meaning of a token...@>=
+begin get_token;
+@y
+@ @<Adjust |selector| based on |show_stream|@>=
+if (show_stream>=0) and (show_stream<no_print) and write_open[show_stream] then
+  selector:=show_stream;
+
+@ @<Show the current meaning of a token...@>=
+begin get_token;
+  @<Adjust |selector| based on |show_stream|@>
+@z
+
+@x
+@ @<Show the current contents of a box@>=
+begin scan_register_num; fetch_box(p); begin_diagnostic;
+@y
+@ @<Show the current contents of a box@>=
+begin scan_register_num; fetch_box(p);
+@<Adjust |selector| based on |show_stream|@>
+begin_diagnostic;
+@z
+
+@x
+@ @<Show the current value of some parameter...@>=
+begin p:=the_toks;
+@y
+@ @<Show the current value of some parameter...@>=
+begin p:=the_toks;
+@<Adjust |selector| based on |show_stream|@>
+@z
+
+@x
+show_groups: begin begin_diagnostic; show_save_groups;
+@y
+show_groups: begin @<Adjust |selector| based on |show_stream|@>
+  begin_diagnostic; show_save_groups;
+@z
+
+@x
+show_ifs: begin begin_diagnostic; print_nl(""); print_ln;
+@y
+show_ifs: begin @<Adjust |selector| based on |show_stream|@>
+  begin_diagnostic; print_nl(""); print_ln;
 @z

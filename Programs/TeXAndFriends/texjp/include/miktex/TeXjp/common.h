@@ -11,6 +11,7 @@
 #define byte3 BYTE3
 #define byte4 BYTE4
 #define frombuff fromBUFF
+#define frombuffshort fromBUFFshort
 #define fromdvi fromDVI
 #define fromeuc fromEUC
 #define fromjis fromJIS
@@ -20,6 +21,7 @@
 #define hi Hi
 #define isinternaleuc is_internalEUC
 #define isinternaluptex is_internalUPTEX
+#define isterminalutf8 is_terminalUTF8
 #define lo Lo
 #define tobuff toBUFF
 #define todvi toDVI
@@ -92,7 +94,7 @@ namespace MiKTeX
         public:
             size_t InputLineInternal(FILE* f, char* buffer, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
             {
-                return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
+                return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), nullptr, static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
             }
 
         private:
@@ -169,6 +171,7 @@ namespace MiKTeX
             void Allocate(const std::unordered_map<std::string, int>& userParams) override
             {
                 BASE::Allocate(userParams);
+                BASE::AllocateArray("buffer2", BASE::program.buffer2, BASE::program.bufsize);
                 MIKTEX_ASSERT(BASE::program.constfontbase == 0);
                 size_t nFonts = BASE::program.fontmax - BASE::program.constfontbase;
                 BASE::AllocateArray("fontdir", BASE::program.fontdir, nFonts);
@@ -180,6 +183,7 @@ namespace MiKTeX
             void Free() override
             {
                 BASE::Free();
+                BASE::FreeArray("buffer2", BASE::program.buffer2);
                 BASE::FreeArray("fontdir", BASE::program.fontdir);
                 BASE::FreeArray("fontnumext", BASE::program.fontnumext);
                 BASE::FreeArray("ctypebase", BASE::program.ctypebase);

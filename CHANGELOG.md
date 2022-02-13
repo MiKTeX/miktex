@@ -7,6 +7,7 @@
 * asymptote 2.78
 * dvips 2022.1
 * luatex 1.15.0
+* ptex 4.0.0
 * xetex 0.999994
 
 ## 22.1 - 2022-01-31

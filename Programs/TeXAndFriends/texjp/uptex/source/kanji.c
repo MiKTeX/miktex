@@ -4,8 +4,8 @@
  */
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include "kanji.h"
 
@@ -60,8 +60,8 @@ integer calc_pos(integer c)
 }
 
 /* Ref. http://www.unicode.org/Public/UNIDATA/Blocks.txt */
-/* # Blocks-13.0.0.txt                                   */
-/* # Date: 2019-07-10, 19:06:00 GMT [KW]                 */
+/* # Blocks-14.0.0.txt                                   */
+/* # Date: 2021-01-22, 23:29:00 GMT [KW]                 */
 static long ucs_range[]={
       0x0000, /* Basic Latin					     */ /* 0x00 */
       0x0080, /* Latin-1 Supplement				     */
@@ -83,6 +83,7 @@ static long ucs_range[]={
       0x0800, /* Samaritan					     */
       0x0840, /* Mandaic					     */
       0x0860, /* Syriac Supplement				     */
+      0x0870, /* Arabic Extended-B				     */
       0x08A0, /* Arabic Extended-A				     */
       0x0900, /* Devanagari					     */
       0x0980, /* Bengali					     */
@@ -94,8 +95,8 @@ static long ucs_range[]={
       0x0C80, /* Kannada					     */
       0x0D00, /* Malayalam					     */
       0x0D80, /* Sinhala					     */
-      0x0E00, /* Thai						     */
-      0x0E80, /* Lao						     */ /* 0x20 */
+      0x0E00, /* Thai						     */ /* 0x20 */
+      0x0E80, /* Lao						     */
       0x0F00, /* Tibetan					     */
       0x1000, /* Myanmar					     */
       0x10A0, /* Georgian					     */
@@ -110,8 +111,8 @@ static long ucs_range[]={
       0x1720, /* Hanunoo					     */
       0x1740, /* Buhid						     */
       0x1760, /* Tagbanwa					     */
-      0x1780, /* Khmer						     */
-      0x1800, /* Mongolian					     */ /* 0x30 */
+      0x1780, /* Khmer						     */ /* 0x30 */
+      0x1800, /* Mongolian					     */
       0x18B0, /* Unified Canadian Aboriginal Syllabics Extended      */
       0x1900, /* Limbu						     */
       0x1950, /* Tai Le					     */
@@ -126,8 +127,8 @@ static long ucs_range[]={
       0x1C00, /* Lepcha					     */
       0x1C50, /* Ol Chiki					     */
       0x1C80, /* Cyrillic Extended-C				     */
-      0x1C90, /* Georgian Extended				     */
-      0x1CC0, /* Sundanese Supplement				     */ /* 0x40 */
+      0x1C90, /* Georgian Extended				     */ /* 0x40 */
+      0x1CC0, /* Sundanese Supplement				     */
       0x1CD0, /* Vedic Extensions				     */
       0x1D00, /* Phonetic Extensions				     */
       0x1D80, /* Phonetic Extensions Supplement		     */
@@ -142,8 +143,8 @@ static long ucs_range[]={
       0x2150, /* Number Forms					     */
       0x2190, /* Arrows					     */
       0x2200, /* Mathematical Operators			     */
-      0x2300, /* Miscellaneous Technical			     */
-      0x2400, /* Control Pictures				     */ /* 0x50 */
+      0x2300, /* Miscellaneous Technical			     */ /* 0x50 */
+      0x2400, /* Control Pictures				     */
       0x2440, /* Optical Character Recognition			     */
       0x2460, /* Enclosed Alphanumerics			     */
       0x2500, /* Box Drawing					     */
@@ -158,8 +159,8 @@ static long ucs_range[]={
       0x2980, /* Miscellaneous Mathematical Symbols-B		     */
       0x2A00, /* Supplemental Mathematical Operators		     */
       0x2B00, /* Miscellaneous Symbols and Arrows		     */
-      0x2C00, /* Glagolitic					     */
-      0x2C60, /* Latin Extended-C				     */ /* 0x60 */
+      0x2C00, /* Glagolitic					     */ /* 0x60 */
+      0x2C60, /* Latin Extended-C				     */
       0x2C80, /* Coptic					     */
       0x2D00, /* Georgian Supplement				     */
       0x2D30, /* Tifinagh					     */
@@ -174,8 +175,8 @@ static long ucs_range[]={
       0x30A0, /* Katakana					     */
       0x3100, /* Bopomofo					     */
       0x3130, /* Hangul Compatibility Jamo			     */
-      0x3190, /* Kanbun					     */
-      0x31A0, /* Bopomofo Extended				     */ /* 0x70 */
+      0x3190, /* Kanbun					     */ /* 0x70 */
+      0x31A0, /* Bopomofo Extended				     */
       0x31C0, /* CJK Strokes					     */
       0x31F0, /* Katakana Phonetic Extensions			     */
       0x3200, /* Enclosed CJK Letters and Months		     */
@@ -190,8 +191,8 @@ static long ucs_range[]={
       0xA640, /* Cyrillic Extended-B				     */
       0xA6A0, /* Bamum						     */
       0xA700, /* Modifier Tone Letters				     */
-      0xA720, /* Latin Extended-D				     */
-      0xA800, /* Syloti Nagri					     */ /* 0x80 */
+      0xA720, /* Latin Extended-D				     */ /* 0x80 */
+      0xA800, /* Syloti Nagri					     */
       0xA830, /* Common Indic Number Forms			     */
       0xA840, /* Phags-pa					     */
       0xA880, /* Saurashtra					     */
@@ -206,8 +207,8 @@ static long ucs_range[]={
       0xAA80, /* Tai Viet					     */
       0xAAE0, /* Meetei Mayek Extensions			     */
       0xAB00, /* Ethiopic Extended-A				     */
-      0xAB30, /* Latin Extended-E				     */
-      0xAB70, /* Cherokee Supplement				     */ /* 0x90 */
+      0xAB30, /* Latin Extended-E				     */ /* 0x90 */
+      0xAB70, /* Cherokee Supplement				     */
       0xABC0, /* Meetei Mayek					     */
       0xAC00, /* Hangul Syllables				     */
       0xD7B0, /* Hangul Jamo Extended-B			     */
@@ -222,8 +223,8 @@ static long ucs_range[]={
       0xFE10, /* Vertical Forms				     */
       0xFE20, /* Combining Half Marks				     */
       0xFE30, /* CJK Compatibility Forms			     */
-      0xFE50, /* Small Form Variants				     */
-      0xFE70, /* Arabic Presentation Forms-B			     */ /* 0xa0 */
+      0xFE50, /* Small Form Variants				     */ /* 0xa0 */
+      0xFE70, /* Arabic Presentation Forms-B			     */
       0xFF00, /* Halfwidth and Fullwidth Forms			     */
       0xFFF0, /* Specials					     */
       0x10000, /* Linear B Syllabary				     */
@@ -238,24 +239,26 @@ static long ucs_range[]={
       0x10300, /* Old Italic					     */
       0x10330, /* Gothic					     */
       0x10350, /* Old Permic					     */
-      0x10380, /* Ugaritic					     */
-      0x103A0, /* Old Persian					     */ /* 0xb0 */
+      0x10380, /* Ugaritic					     */ /* 0xb0 */
+      0x103A0, /* Old Persian					     */
       0x10400, /* Deseret					     */
       0x10450, /* Shavian					     */
       0x10480, /* Osmanya					     */
       0x104B0, /* Osage					     */
       0x10500, /* Elbasan					     */
       0x10530, /* Caucasian Albanian				     */
+      0x10570, /* Vithkuqi					     */
       0x10600, /* Linear A					     */
+      0x10780, /* Latin Extended-F				     */
       0x10800, /* Cypriot Syllabary				     */
       0x10840, /* Imperial Aramaic				     */
       0x10860, /* Palmyrene					     */
       0x10880, /* Nabataean					     */
       0x108E0, /* Hatran					     */
-      0x10900, /* Phoenician					     */
+      0x10900, /* Phoenician					     */ /* 0xc0 */
       0x10920, /* Lydian					     */
       0x10980, /* Meroitic Hieroglyphs				     */
-      0x109A0, /* Meroitic Cursive				     */ /* 0xc0 */
+      0x109A0, /* Meroitic Cursive				     */
       0x10A00, /* Kharoshthi					     */
       0x10A60, /* Old South Arabian				     */
       0x10A80, /* Old North Arabian				     */
@@ -268,10 +271,11 @@ static long ucs_range[]={
       0x10C80, /* Old Hungarian				     */
       0x10D00, /* Hanifi Rohingya				     */
       0x10E60, /* Rumi Numeral Symbols				     */
-      0x10E80, /* Yezidi					     */
+      0x10E80, /* Yezidi					     */ /* 0xd0 */
       0x10F00, /* Old Sogdian					     */
       0x10F30, /* Sogdian					     */
-      0x10FB0, /* Chorasmian					     */ /* 0xd0 */
+      0x10F70, /* Old Uyghur					     */
+      0x10FB0, /* Chorasmian					     */
       0x10FE0, /* Elymaic					     */
       0x11000, /* Brahmi					     */
       0x11080, /* Kaithi					     */
@@ -283,11 +287,11 @@ static long ucs_range[]={
       0x11200, /* Khojki					     */
       0x11280, /* Multani					     */
       0x112B0, /* Khudawadi					     */
-      0x11300, /* Grantha					     */
+      0x11300, /* Grantha					     */ /* 0xe0 */
       0x11400, /* Newa						     */
       0x11480, /* Tirhuta					     */
       0x11580, /* Siddham					     */
-      0x11600, /* Modi						     */ /* 0xe0 */
+      0x11600, /* Modi						     */
       0x11660, /* Mongolian Supplement				     */
       0x11680, /* Takri					     */
       0x11700, /* Ahom						     */
@@ -297,37 +301,42 @@ static long ucs_range[]={
       0x119A0, /* Nandinagari					     */
       0x11A00, /* Zanabazar Square				     */
       0x11A50, /* Soyombo					     */
+      0x11AB0, /* Unified Canadian Aboriginal Syllabics Extended-A   */
       0x11AC0, /* Pau Cin Hau					     */
-      0x11C00, /* Bhaiksuki					     */
+      0x11C00, /* Bhaiksuki					     */ /* 0xf0 */
       0x11C70, /* Marchen					     */
       0x11D00, /* Masaram Gondi				     */
       0x11D60, /* Gunjala Gondi				     */
       0x11EE0, /* Makasar					     */
-      0x11FB0, /* Lisu Supplement				     */ /* 0xf0 */
+      0x11FB0, /* Lisu Supplement				     */
       0x11FC0, /* Tamil Supplement				     */
       0x12000, /* Cuneiform					     */
       0x12400, /* Cuneiform Numbers and Punctuation		     */
       0x12480, /* Early Dynastic Cuneiform			     */
+      0x12F90, /* Cypro-Minoan					     */
       0x13000, /* Egyptian Hieroglyphs				     */
       0x13430, /* Egyptian Hieroglyph Format Controls		     */
       0x14400, /* Anatolian Hieroglyphs			     */
       0x16800, /* Bamum Supplement				     */
       0x16A40, /* Mro						     */
+      0x16A70, /* Tangsa					     */ /* 0x100 */
       0x16AD0, /* Bassa Vah					     */
       0x16B00, /* Pahawh Hmong					     */
       0x16E40, /* Medefaidrin					     */
       0x16F00, /* Miao						     */
       0x16FE0, /* Ideographic Symbols and Punctuation		     */
       0x17000, /* Tangut					     */
-      0x18800, /* Tangut Components				     */ /* 0x100 */
+      0x18800, /* Tangut Components				     */
       0x18B00, /* Khitan Small Script				     */
       0x18D00, /* Tangut Supplement				     */
+      0x1AFF0, /* Kana Extended-B				     */
       0x1B000, /* Kana Supplement				     */
       0x1B100, /* Kana Extended-A				     */
       0x1B130, /* Small Kana Extension				     */
       0x1B170, /* Nushu					     */
       0x1BC00, /* Duployan					     */
-      0x1BCA0, /* Shorthand Format Controls			     */
+      0x1BCA0, /* Shorthand Format Controls			     */ /* 0x110 */
+      0x1CF00, /* Znamenny Musical Notation			     */
       0x1D000, /* Byzantine Musical Symbols			     */
       0x1D100, /* Musical Symbols				     */
       0x1D200, /* Ancient Greek Musical Notation		     */
@@ -335,11 +344,14 @@ static long ucs_range[]={
       0x1D300, /* Tai Xuan Jing Symbols			     */
       0x1D360, /* Counting Rod Numerals			     */
       0x1D400, /* Mathematical Alphanumeric Symbols		     */
-      0x1D800, /* Sutton SignWriting				     */ /* 0x110 */
+      0x1D800, /* Sutton SignWriting				     */
+      0x1DF00, /* Latin Extended-G				     */
       0x1E000, /* Glagolitic Supplement			     */
       0x1E100, /* Nyiakeng Puachue Hmong			     */
+      0x1E290, /* Toto						     */
       0x1E2C0, /* Wancho					     */
-      0x1E800, /* Mende Kikakui				     */
+      0x1E7E0, /* Ethiopic Extended-B				     */
+      0x1E800, /* Mende Kikakui				     */ /* 0x120 */
       0x1E900, /* Adlam					     */
       0x1EC70, /* Indic Siyaq Numbers				     */
       0x1ED00, /* Ottoman Siyaq Numbers			     */
@@ -351,11 +363,11 @@ static long ucs_range[]={
       0x1F200, /* Enclosed Ideographic Supplement		     */
       0x1F300, /* Miscellaneous Symbols and Pictographs	     */
       0x1F600, /* Emoticons					     */
-      0x1F650, /* Ornamental Dingbats				     */ /* 0x120 */
+      0x1F650, /* Ornamental Dingbats				     */
       0x1F680, /* Transport and Map Symbols			     */
       0x1F700, /* Alchemical Symbols				     */
       0x1F780, /* Geometric Shapes Extended			     */
-      0x1F800, /* Supplemental Arrows-C			     */
+      0x1F800, /* Supplemental Arrows-C			     */ /* 0x130 */
       0x1F900, /* Supplemental Symbols and Pictographs		     */
       0x1FA00, /* Chess Symbols				     */
       0x1FA70, /* Symbols and Pictographs Extended-A		     */
@@ -367,11 +379,11 @@ static long ucs_range[]={
       0x2CEB0, /* CJK Unified Ideographs Extension F		     */
       0x2F800, /* CJK Compatibility Ideographs Supplement	     */
       0x30000, /* CJK Unified Ideographs Extension G		     */
-      0x31350, /* reserved					     */ /* 0x130 */
+      0x31350, /* reserved					     */
       0x40000, /* reserved					     */
       0x50000, /* reserved					     */
       0x60000, /* reserved					     */
-      0x70000, /* reserved					     */
+      0x70000, /* reserved					     */ /* 0x140 */
       0x80000, /* reserved					     */
       0x90000, /* reserved					     */
       0xA0000, /* reserved					     */
@@ -385,11 +397,11 @@ static long ucs_range[]={
   /* Value over 0x10FFFF is illegal under Unicode,
      They are for some special use.  *** experimental ***  */
       0x110000, /* Reserved					     */
-      0x120000, /* Reserved					     */ /* 0x140 */
+      0x120000, /* Reserved					     */
       0x130000, /* Reserved					     */
       0x140000, /* Reserved					     */
       0x150000, /* Reserved					     */
-      0x160000, /* Reserved					     */
+      0x160000, /* Reserved					     */ /* 0x150 */
       0x170000, /* Reserved					     */
       0x180000, /* Reserved					     */
       0x190000, /* Reserved					     */
@@ -401,7 +413,7 @@ static long ucs_range[]={
       0x1F0000, /* Reserved					     */
       0x200000, /* Reserved					     */
       0x210000, /* Reserved					     */
-      0x220000, /* Reserved					     */ /* 0x150 */
+      0x220000, /* Reserved					     */ /* 0x15c */
       CJK_CHAR_LIMIT
 };
 
@@ -447,7 +459,7 @@ integer kcatcodekey(integer c)
     integer block;
     if (is_internalUPTEX()) {
         block = binary_search((long)c, ucs_range, 0, NUCS_RANGE-1);
-        if (block==0x01) {
+        if (block==0x01) { /* Block : Latin-1 Supplement */
             /* Latin-1 Letters */
             if (   FEMININE_ORDINAL_INDICATOR ==c
                ||  MASCULINE_ORDINAL_INDICATOR==c
@@ -456,7 +468,7 @@ integer kcatcodekey(integer c)
                || (LATIN_SMALL_LETTER_O_WITH_STROKE  <=c && c<=LATIN_SMALL_LETTER_Y_WITH_DIAERESIS  ) )
             return 0x1FD;
         }
-        if (block==0xa1) {
+        if (block==0xa2) { /* Block : Halfwidth and Fullwidth Forms */
             /* Fullwidth ASCII variants  except for U+FF01..FF0F, U+FF1A..FF20, U+FF3B..FF40, U+FF5B..FF5E */
             if (  (FULLWIDTH_DIGIT_0  <=c && c<=FULLWIDTH_DIGIT_9  )
                || (FULLWIDTH_CAPITAL_A<=c && c<=FULLWIDTH_CAPITAL_Z)

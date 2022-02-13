@@ -67,19 +67,23 @@ if j=1 then
 @z
 
 @x e-pTeX: ifcsname l.28620
-    begin buffer[m]:=Hi(info(p)); incr(m);
-    end;
+    begin buffer[m]:=Hi(info(p)); buffer2[m]:=1; incr(m); buffer2[m]:=1;
+    end
+  else buffer2[m]:=0;
   buffer[m]:=Lo(info(p)); incr(m); p:=link(p);
 @y
     begin
-    if BYTE1(toBUFF(info(p) mod max_cjk_val))<>0 then begin buffer[m]:=BYTE1(toBUFF(info(p) mod max_cjk_val)); incr(m); end;
-    if BYTE2(toBUFF(info(p) mod max_cjk_val))<>0 then begin buffer[m]:=BYTE2(toBUFF(info(p) mod max_cjk_val)); incr(m); end;
-    if BYTE3(toBUFF(info(p) mod max_cjk_val))<>0 then begin buffer[m]:=BYTE3(toBUFF(info(p) mod max_cjk_val)); incr(m); end;
-                              buffer[m]:=BYTE4(toBUFF(info(p) mod max_cjk_val)); incr(m);
+    if BYTE1(toBUFF(info(p) mod max_cjk_val))<>0 then
+      begin buffer[m]:=BYTE1(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
+    if BYTE2(toBUFF(info(p) mod max_cjk_val))<>0 then
+      begin buffer[m]:=BYTE2(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
+    if BYTE3(toBUFF(info(p) mod max_cjk_val))<>0 then
+      begin buffer[m]:=BYTE3(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m); end;
+    buffer[m]:=BYTE4(toBUFF(info(p) mod max_cjk_val)); buffer2[m]:=1; incr(m);
     p:=link(p);
     end
   else
-    begin buffer[m]:=info(p) mod max_char_val; incr(m); p:=link(p);
+    begin buffer[m]:=info(p) mod max_char_val; buffer2[m]:=0; incr(m); p:=link(p);
     end;
 @z
 

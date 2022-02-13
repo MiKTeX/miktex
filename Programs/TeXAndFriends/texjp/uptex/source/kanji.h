@@ -66,13 +66,13 @@ extern void init_default_kanji_select (void);
 #if defined(MIKTEX)
 inline long inputline2(FILE* f, unsigned char* buffer, long pos, const long bufferSize, int* lastChar = nullptr)
 {
-   return input_line2(f, buffer, pos, bufferSize, lastChar);
+   return input_line2(f, buffer, nullptr, pos, bufferSize, lastChar);
 }
 #else
 #ifdef UPBIBTEX
-#define inputline2(fp,buff,pos,size,ptr) input_line2(fp,buff,pos,size,ptr)
+#define inputline2(fp,buff,pos,size,ptr) input_line2(fp,buff,NULL,pos,size,ptr)
 #else
-#define inputline2(fp,buff,pos,size) input_line2(fp,buff,pos,size,NULL)
+#define inputline2(fp,buff,pos,size) input_line2(fp,buff,NULL,pos,size,NULL)
 #endif
 #endif
 

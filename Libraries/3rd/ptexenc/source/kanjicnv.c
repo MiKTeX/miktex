@@ -3,8 +3,8 @@
  */
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include <ptexenc/c-auto.h>
 #include <ptexenc/kanjicnv.h>
@@ -48,7 +48,7 @@ boolean isSJISkanji2(int c)
 /* EUC <=> JIS X 0208 code conversion */
 int EUCtoJIS(int kcode)
 {
-    if ((kcode<=0 || kcode>0x10000)) return 0;
+    if ((kcode<=0 || kcode>=0x10000)) return 0;
     if (!isEUCkanji1(HI(kcode))) return 0;
     if (!isEUCkanji2(LO(kcode))) return 0;
     return (kcode & 0x7f7f);
@@ -56,7 +56,7 @@ int EUCtoJIS(int kcode)
 
 int JIStoEUC(int kcode)
 {
-    if ((kcode<=0 || kcode>0x10000)) return 0;
+    if ((kcode<=0 || kcode>=0x10000)) return 0;
     if (!isJISkanji1(HI(kcode))) return 0;
     if (!isJISkanji2(LO(kcode))) return 0;
     return (kcode | 0x8080);
@@ -67,7 +67,7 @@ int SJIStoJIS(int kcode)
 {
     int byte1, byte2;
 
-    if ((kcode<=0 || kcode>0x10000)) return 0;
+    if ((kcode<=0 || kcode>=0x10000)) return 0;
     byte1 = HI(kcode); if (!isSJISkanji1(byte1)) return 0;
     byte2 = LO(kcode); if (!isSJISkanji2(byte2)) return 0;
     byte1 -= ( byte1>=0xa0 ) ? 0xc1 : 0x81;
@@ -86,7 +86,7 @@ int JIStoSJIS(int kcode)
     int high, low;
     int nh,   nl;
 
-    if ((kcode<=0 || kcode>0x10000)) return 0;
+    if ((kcode<=0 || kcode>=0x10000)) return 0;
     high = HI(kcode); if (!isJISkanji1(high)) return 0;
     low  = LO(kcode); if (!isJISkanji2(low)) return 0;
     nh = ((high-0x21)>>1) + 0x81;

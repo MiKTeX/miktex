@@ -1,6 +1,6 @@
 %% miktex-ptex.ch:
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -61,6 +61,29 @@ miktex_print_miktex_banner(term_out);
   if ((c="/")or(c="\")and(not_kanji_char_seq(prev_char,c))) then
 @z
 
+% _____________________________________________________________________________
+%
+% [29.529]
+% _____________________________________________________________________________
+
+@x
+miktex_reallocate_name_of_file(length(a) + length(n) + length(e) + 1);
+name_of_file:= xmalloc_array (ASCII_code, (length(a)+length(n)+length(e))*4+1);
+@y
+miktex_reallocate_name_of_file((length(a) + length(n) + length(e)) * 4 + 1);
+@z
+
+% _____________________________________________________________________________
+%
+% [29.533]
+% _____________________________________________________________________________
+
+@x
+miktex_reallocate_name_of_file(n + (b - a + 1) + format_ext_length + 1);
+name_of_file := xmalloc_array (ASCII_code, (n+(b-a+1)+format_ext_length)*4+1);
+@y
+miktex_reallocate_name_of_file((n + (b - a + 1) + format_ext_length) * 4 + 1);
+@z
 
 % _____________________________________________________________________________
 %
@@ -180,6 +203,8 @@ char_base:=xmalloc_array(integer, font_max);
 % _____________________________________________________________________________
 
 @x
+  buffer:=xmalloc_array (ASCII_code, buf_size);
+  buffer2:=xmalloc_array (ASCII_code, buf_size);
   font_info:=xmalloc_array (memory_word, font_mem_size);
   font_dir:=xmalloc_array(eight_bits, font_max);
   font_num_ext:=xmalloc_array(integer, font_max);
@@ -187,4 +212,40 @@ char_base:=xmalloc_array(integer, font_max);
   ctype_base:=xmalloc_array(integer, font_max);
   char_base:=xmalloc_array(integer, font_max);
 @y
+@z
+
+% _____________________________________________________________________________
+%
+% [53.1382]
+% _____________________________________________________________________________
+
+@x
+      if name_of_file then libc_free(name_of_file);
+      name_of_file := xmalloc(cur_length*4+1);
+@y
+      miktex_reallocate_name_of_file(cur_length * 4 + 1);
+@z
+
+% _____________________________________________________________________________
+%
+% [54.1400]
+% _____________________________________________________________________________
+
+@x
+  if eight_bit_p then
+@y
+  if miktex_enable_eightbit_chars_p then
+@z
+
+% _____________________________________________________________________________
+%
+% [54.1412]
+% _____________________________________________________________________________
+
+@x
+function@?insert_src_special_auto : boolean; forward;@t\2@>@/
+@y
+function@?insert_src_special_auto : boolean; forward;@t\2@>@/
+function@?isinternalUPTEX : boolean; forward;@t\2@>@/
+function@?isterminalUTF8 : boolean; forward;@t\2@>@/
 @z

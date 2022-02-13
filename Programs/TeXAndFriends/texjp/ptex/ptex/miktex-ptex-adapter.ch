@@ -1,6 +1,6 @@
 %% miktex-ptex-adapter.ch: tex-miktex.web to ptex-base.ch adapter
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -55,6 +55,30 @@ if not miktex_get_quiet_flag then begin
   if (c="/")or(c="\") then
 @y
   if IS_DIR_SEP(c) then
+@z
+
+% _____________________________________________________________________________
+%
+% [29.519]
+% _____________________________________________________________________________
+
+@x
+miktex_reallocate_name_of_file(length(a) + length(n) + length(e) + 1);
+@y
+miktex_reallocate_name_of_file(length(a) + length(n) + length(e) + 1);
+name_of_file:= xmalloc_array (ASCII_code, length(a)+length(n)+length(e)+1);
+@z
+
+% _____________________________________________________________________________
+%
+% [29.523]
+% _____________________________________________________________________________
+
+@x
+miktex_reallocate_name_of_file(n + (b - a + 1) + format_ext_length + 1);
+@y
+miktex_reallocate_name_of_file(n + (b - a + 1) + format_ext_length + 1);
+name_of_file := xmalloc_array (ASCII_code, n+(b-a+1)+format_ext_length+1);
 @z
 
 % _____________________________________________________________________________
@@ -159,7 +183,19 @@ char_base:=xmalloc_array(integer, font_max);
 miktex_allocate_memory;
 @y
 miktex_allocate_memory;
+  buffer:=xmalloc_array (ASCII_code, buf_size);
   font_info:=xmalloc_array (fmemory_word, font_mem_size);
   font_check:=xmalloc_array(four_quarters, font_max);
   char_base:=xmalloc_array(integer, font_max);
+@z
+
+% _____________________________________________________________________________
+%
+% [54.1387]
+% _____________________________________________________________________________
+
+@x
+  if miktex_enable_eightbit_chars_p then
+@y
+  if eight_bit_p then
 @z

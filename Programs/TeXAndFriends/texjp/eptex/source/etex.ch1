@@ -21,6 +21,14 @@ last_node_type:=-1; last_node_subtype:=-1;
 @d etex_int_base=web2c_int_pars {base for \eTeX's integer parameters}
 @z
 
+@x [18]
+  for j:=0 to l-1 do begin
+    buffer[j]:=Lo(so(str_pool[k+j])); buffer2[j]:=Hi(so(str_pool[k+j])); end;
+@y
+  for j:=0 to l-1 do begin
+    buffer[first+j]:=Lo(so(str_pool[k+j])); buffer2[first+j]:=Hi(so(str_pool[k+j])); end;
+@z
+
 @x
 @d eTeX_int=badness_code+1 {first of \eTeX\ codes for integers}
 @y

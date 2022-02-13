@@ -32,8 +32,8 @@
 @y
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
-@d epTeX_version_string=='-210701'
-@d epTeX_version_number==210701
+@d epTeX_version_string=='-211207'
+@d epTeX_version_number==211207
 @z
 
 @x e-pTeX: banner
@@ -472,12 +472,7 @@ begin
     if k = false then
       begin begin_diagnostic;
       print_nl("Unknown encoding `");
-      case selector of
-      term_and_log: begin wterm(stringcast(name_of_file + 1));
-        wlog(stringcast(name_of_file + 1)); end;
-      log_only:  wlog(stringcast(name_of_file + 1));
-      term_only: wterm(stringcast(name_of_file + 1));
-      endcases;
+      slow_print(cur_area); slow_print(cur_name); slow_print(cur_ext);
       print("'"); end_diagnostic(false);
       end
     end
@@ -649,6 +644,16 @@ othercases goto next_p
     add_glue_ref(space_ptr(r)); add_glue_ref(xspace_ptr(r));
 @z
 
+@x e-pTeX: pseudo file
+    buffer[last]:=w.b0; buffer[last+1]:=w.b1;
+    buffer[last+2]:=w.b2; buffer[last+3]:=w.b3;
+@y
+    buffer[last]:=w.b0 mod @"100; buffer[last+1]:=w.b1 mod @"100;
+    buffer[last+2]:=w.b2 mod @"100; buffer[last+3]:=w.b3 mod @"100;@/
+    buffer2[last]:=0; buffer2[last+1]:=0;
+    buffer2[last+2]:=0; buffer2[last+3]:=0;
+@z
+
 @x e-pTeX: \readline
 @ @<Handle \.{\\readline} and |goto done|@>=
 if j=1 then
@@ -672,8 +677,9 @@ if j=1 then
   buffer[m]:=info(p) mod @'400; incr(m); p:=link(p);
 @y
   if check_kanji(info(p)) then {|wchar_token|}
-    begin buffer[m]:=Hi(info(p)); incr(m);
-    end;
+    begin buffer[m]:=Hi(info(p)); buffer2[m]:=1; incr(m); buffer2[m]:=1;
+    end
+  else buffer2[m]:=0;
   buffer[m]:=Lo(info(p)); incr(m); p:=link(p);
 @z
 
@@ -700,6 +706,16 @@ if_font_char_code:begin scan_font_ident; n:=cur_val;
     else b:=false;
     end;
   end;
+@z
+
+@x e-pTeX: pTeX has \showmode, follow showstream.ch r61589
+@<Show the current japanese processing mode@>=
+begin print_nl("> ");
+@y
+@<Show the current japanese processing mode@>=
+begin
+  @<Adjust |selector| based on |show_stream|@>
+  print_nl("> ");
 @z
 
 @x

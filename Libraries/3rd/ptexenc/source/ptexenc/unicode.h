@@ -17,6 +17,7 @@ extern boolean isUTF8(int length, int nth, int c);
 
 extern int UTF8length(int first_byte);
 extern int UTF8Slength(unsigned char *buff, int buff_len);
+extern int UTF8Slengthshort(unsigned short *buff, int buff_len);
 extern long UTF8StoUCS(unsigned char *s);
 extern long PTENCDLL UCStoUTF8(long ucs);
 

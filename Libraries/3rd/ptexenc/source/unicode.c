@@ -4,8 +4,8 @@
 */
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include <ptexenc/c-auto.h>
 #include <ptexenc/unicode.h>
@@ -47,18 +47,21 @@ int UTF8length(int first_byte)
 
 
 /* with strict range check */
-int UTF8Slength(unsigned char *buff, int buff_len)
-{
-    int i, len;
-
-    len = UTF8length(buff[0]);
-    if (len < 0) return -2; /* illegal */
-    if (len > buff_len) return -3; /* overflow */
-    for (i=0; i<len; i++) {
-        if (!isUTF8(len, 1+i, buff[i])) return -1; /* not UTF-8 */
-    }
-    return len;
+#define DEFINE_UTF8SLENGTH(SUFF,TYPE) \
+int UTF8Slength ## SUFF(TYPE *buff, int buff_len) \
+{ \
+    int i, len; \
+    len = UTF8length(buff[0]); \
+    if (len < 0) return -2; /* illegal */ \
+    if (len > buff_len) return -3; /* overflow */ \
+    for (i=0; i<len; i++) { \
+        if (!isUTF8(len, 1+i, buff[i])) return -1; /* not UTF-8 */ \
+    } \
+    return len; \
 }
+
+DEFINE_UTF8SLENGTH(, unsigned char)
+DEFINE_UTF8SLENGTH(short, unsigned short)
 
 
 /* WITHOUT strict range check */

@@ -1,6 +1,6 @@
 %% miktex-euptex.ch:
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -38,18 +38,6 @@ procedure scan_delimiter(@!p:pointer;@!r:integer);
 @y
     if j>=0 then k:=setinfileenc(input_file[j],name_of_file)
     else k:=setstdinenc(name_of_file);
-@z
-
-@x
-      term_and_log: begin wterm(stringcast(name_of_file + 1));
-        wlog(stringcast(name_of_file + 1)); end;
-      log_only:  wlog(stringcast(name_of_file + 1));
-      term_only: wterm(stringcast(name_of_file + 1));
-@y
-      term_and_log: begin wterm(name_of_file);
-        wlog(name_of_file); end;
-      log_only:  wlog(name_of_file);
-      term_only: wterm(name_of_file);
 @z
 
 % _____________________________________________________________________________

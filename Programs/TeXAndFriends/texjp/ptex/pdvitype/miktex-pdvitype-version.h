@@ -1,6 +1,6 @@
 /* miktex-pdvitype-version.h:
 
-   Copyright (C) 2021 Christian Schenk
+   Copyright (C) 2021-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,7 +18,7 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 1
-#define MIKTEX_COMP_MINOR_VERSION 0
+#define MIKTEX_COMP_MINOR_VERSION 1
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ID "miktex-pdvitype"

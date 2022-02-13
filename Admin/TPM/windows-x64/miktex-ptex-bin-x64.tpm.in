@@ -7,7 +7,7 @@
     <TPM:Copyright owner="ASCII MEDIA WORKS" year="2010"/>
     <TPM:Copyright owner="Japanese TEX Development Community" year="2016"/>
     <TPM:License type="bsd3"/>
-    <TPM:Version>3.10.0</TPM:Version>
+    <TPM:Version>4.0.0</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
