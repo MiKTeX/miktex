@@ -1,9 +1,9 @@
 @x
 @d my_name=='pbibtex'
-@d banner=='This is pBibTeX, Version 0.99d-j0.33'
+@d banner=='This is pBibTeX, Version 0.99d-j0.34'
 @y
 @d my_name=='upbibtex'
-@d banner=='This is upBibTeX, Version 0.99d-j0.33-u1.28'
+@d banner=='This is upBibTeX, Version 0.99d-j0.34-u1.28'
 @z
 
 @x

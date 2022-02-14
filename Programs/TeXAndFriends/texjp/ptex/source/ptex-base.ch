@@ -2868,7 +2868,7 @@ if #<>0 then
 
 @d append_to_name(#)==begin c:=#; if not (c="""") then append_to_name_char(c); end
 
-@d append_to_name_str_pool(#)==begin
+@d append_to_name_escape(#)==begin
   if (#)>=@"100 then begin
     c:=(#)-@"100;
     append_to_name_char(c);
@@ -2879,10 +2879,12 @@ if #<>0 then
       append_to_name_char("^");
       append_to_name_hex(c div 16);
       append_to_name_hex(c mod 16);
-    end else if not (c="""") then
+    end else
       append_to_name_char(c);
   end
 end
+
+@d append_to_name_str_pool(#)==if not ((#)="""") then append_to_name_escape(#)
 @z
 
 @x l.10389
@@ -6743,7 +6745,7 @@ end
       name_of_file := xmalloc(cur_length*4+1);
       k := 0;
       for d:=0 to cur_length-1 do
-        append_to_name_char(str_pool[str_start[str_ptr]+d]); {do not remove quote}
+        append_to_name_escape(str_pool[str_start[str_ptr]+d]); {do not remove quote}
       name_of_file[k+1] := 0;
       runsystem_ret := runsystem(conststringcast(name_of_file+1));
 @z

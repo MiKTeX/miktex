@@ -23,7 +23,7 @@
 
 #define MIKTEX_COMP_ID "miktex-pbibtex"
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "0.99d-j0.33"
+#define MIKTEX_COMP_ORIG_VERSION_STR "0.99d-j0.34"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
 

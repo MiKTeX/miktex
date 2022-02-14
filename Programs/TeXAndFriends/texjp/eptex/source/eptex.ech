@@ -32,8 +32,8 @@
 @y
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
-@d epTeX_version_string=='-211207'
-@d epTeX_version_number==211207
+@d epTeX_version_string=='-220214'
+@d epTeX_version_number==220214
 @z
 
 @x e-pTeX: banner
@@ -92,6 +92,13 @@ In \epTeX\ the |subtype| field is |qi(16*box_lr+box_dir)|.
 @d read_papersize_special==int_par(read_papersize_special_code)
 @z
 
+@x [26.???] prepare for |scan_font_ident| to recognize \lastnodefont
+@p procedure@?scan_int; forward; {scans an integer value}
+@y
+@p procedure@?scan_int; forward; {scans an integer value}
+procedure@?scan_something_internal_ident; forward;
+@z
+
 @x [26.413] l.8343 - e-pTeX: scan_something_internal
 var m:halfword; {|chr_code| part of the operand token}
 @y
@@ -99,14 +106,26 @@ label exit;
 var m:halfword; {|chr_code| part of the operand token}
 @z
 
+@x [26.???] add |scan_something_internal_ident| (used in |scan_font_ident|)
+@<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
+end;
+@y
+@<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
+end;
+
+@ @p procedure scan_something_internal_ident;
+  begin scan_something_internal(ident_val,false); end;
+@z
+
 @x
 @d input_line_no_code=glue_val+2 {code for \.{\\inputlineno}}
 @d badness_code=glue_val+2 {code for \.{\\badness}}
 @y
-@d last_node_char_code=glue_val+2 {code for \.{\\lastnodechar}}
-@d last_node_subtype_code=glue_val+3 {code for \.{\\lastnodesubtype}}
-@d input_line_no_code=glue_val+4 {code for \.{\\inputlineno}}
-@d badness_code=glue_val+5 {code for \.{\\badness}}
+@d last_node_subtype_code=glue_val+2 {code for \.{\\lastnodesubtype}}
+@d last_node_char_code=glue_val+3 {code for \.{\\lastnodechar}}
+@d last_node_font_code=glue_val+4 {code for \.{\\lastnodefont}}
+@d input_line_no_code=glue_val+5 {code for \.{\\inputlineno}}
+@d badness_code=glue_val+6 {code for \.{\\badness}}
 @z
 
 @x
@@ -192,14 +211,6 @@ else if (type(tx)=kern_node) and (subtype(tx)=normal) then
     end;
   if ((type(r)=penalty_node) and (subtype(r)=kinsoku_pena)) then tx:=last_jchr else tx:=r;
   end;
-if not is_char_node(tx) then
-  begin if type(tx)=ligature_node then
-    begin r:=lig_ptr(tx);
-    while link(r)<>null do r:=link(r);
-    cur_val:=qo(character(r));
-    end
-  end
-else find_last_char;
 end
 @z
 
@@ -224,14 +235,19 @@ end
   else if cur_chr=last_node_char_code then
     begin cur_val_level:=int_val; cur_val:=-1;
     end
+  else if cur_chr=last_node_font_code then
+    begin cur_val_level:=ident_val; cur_val:=null_font+font_id_base;
+    end
   else cur_val_level:=cur_chr;
-  if (cur_chr=last_node_char_code)and(is_char_node(tx))and(tx<>head) then
-  { |tx| might be ``second node'' of a KANJI character; so we need to look the node before |tx| }
-  begin r:=head; q:=head;
-    while q<>tx do begin r:=q; q:=link(q); end; { |r| is the node just before |tx| }
-    if (r<>head)and is_char_node(r) then if font_dir[font(r)]<>dir_default then tx:=r;
-    find_last_char;
-    end;
+  if (cur_chr=last_node_char_code)or(cur_chr=last_node_font_code) then
+    if is_char_node(tx)and(tx<>head) then begin
+      { |tx| might be ``second node'' of a KANJI character; so we need to look the node before |tx| }
+      r:=head; q:=head;
+      while q<>tx do begin r:=q; q:=link(q); end; { |r| is the node just before |tx| }
+      if (r<>head)and is_char_node(r) then if font_dir[font(r)]<>dir_default then tx:=r;
+      if cur_chr=last_node_char_code then find_last_char
+      else cur_val:=font(tx)+font_id_base;
+      end;
 @z
 
 @x [26.424] e-pTeX: node types
@@ -249,12 +265,31 @@ end
         { non-math nodes }
       else begin
         cur_val:=type(tx);
-	if cur_val<unset_node+4 then cur_val:=cur_val-unset_node-1
-	  { |style_noad|, |choice_noad|, |ord_noad| }
+        if cur_val<unset_node+4 then cur_val:=cur_val-unset_node-1
+          { |style_noad|, |choice_noad|, |ord_noad| }
         else if cur_val=unset_node+4 then cur_val:=cur_val-unset_node-1+subtype(tx)
-	else cur_val:=cur_val-unset_node+1;
+        else cur_val:=cur_val-unset_node+1;
       end;
-    last_node_char_code: ignore_font_kerning;
+    last_node_char_code: begin
+      ignore_font_kerning;
+      if is_char_node(tx) then
+        find_last_char
+      else if type(tx)=ligature_node then
+        {decompose a ligature to original characters}
+        begin r:=lig_ptr(tx);
+        while link(r)<>null do r:=link(r);
+        cur_val:=qo(character(r));
+        end
+      {else: already -1}
+      end;
+    last_node_font_code: begin
+      ignore_font_kerning;
+      if is_char_node(tx) then
+        cur_val:=font(tx)+font_id_base
+      else if type(tx)=ligature_node then
+        cur_val:=font(lig_char(tx))+font_id_base
+      {else: already nullfont}
+      end;
 @z
 
 @x
@@ -268,6 +303,15 @@ end
 @d if_tdir_code=if_case_code+1 { `\.{\\iftdir}' }
 @y
 @d if_tdir_code=if_case_code+4 { `\.{\\iftdir}' }
+@z
+
+@x [30.???] |scan_font_ident|: recognize \lastnodefont
+else  begin print_err("Missing font identifier");
+@y
+else if (cur_cmd=last_item)and(cur_chr=last_node_font_code) then
+  begin scan_something_internal_ident; f:=cur_val-font_id_base;
+  end
+else  begin print_err("Missing font identifier");
 @z
 
 @x
@@ -499,18 +543,21 @@ primitive("lastnodetype",last_item,last_node_type_code);
 @y
 primitive("lastnodetype",last_item,last_node_type_code);
 @!@:last_node_type_}{\.{\\lastnodetype} primitive@>
-primitive("lastnodechar",last_item,last_node_char_code);
-@!@:last_node_char_}{\.{\\lastnodechar} primitive@>
 primitive("lastnodesubtype",last_item,last_node_subtype_code);
 @!@:last_node_subtype_}{\.{\\lastnodesubtype} primitive@>
+primitive("lastnodechar",last_item,last_node_char_code);
+@!@:last_node_char_}{\.{\\lastnodechar} primitive@>
+primitive("lastnodefont",last_item,last_node_font_code);
+@!@:last_node_font_}{\.{\\lastnodefont} primitive@>
 @z
 
 @x
 last_node_type_code: print_esc("lastnodetype");
 @y
 last_node_type_code: print_esc("lastnodetype");
-last_node_char_code: print_esc("lastnodechar");
 last_node_subtype_code: print_esc("lastnodesubtype");
+last_node_char_code: print_esc("lastnodechar");
+last_node_font_code: print_esc("lastnodefont");
 @z
 
 @x

@@ -19,13 +19,20 @@
 % 10/30/92      last update for JBibTeX 0.31 for bug fix by Shouichi Matsui
 % 11/02/94      Version 0.32 for use with web2c 6.1, by Takafumi Sakurai
 %
+% 2002          Version 0.33 add kanji option by ASCII Corporation
+%
 % 2009          pTeXenc, pbibtex N. Tsuchimura
+% 2010          Version 0.99d of BibTeX for TeX Live
+%
+% 2022-02-08    Version 0.34 by H. Yamashita
+%               Do not break at white space after Japanese, to preserve spacing
+%               within BIB entry spacing to BBL for subsequent pTeX line-end operations
 
 @x [0] only print chnages
 \def\title{\BibTeX\ }
 @y
 \let\maybe=\iffalse
-\def\title{J\BibTeX\ 0.33 Changes for C Version \BibTeX\ }
+\def\title{J\BibTeX\ 0.34 Changes for C Version \BibTeX\ }
 @z
 
 @x
@@ -35,7 +42,7 @@
 @y
  \def\titlepage{F}
  \centerline{\:\titlefont The {\:\ttitlefont J\BibTeX} preprocessor}
- \vskip 15pt \centerline{(Version 0.33 based on C Version \BibTeX 0.99d---\today)} \vfill}
+ \vskip 15pt \centerline{(Version 0.99d-j0.34---\today)} \vfill}
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,7 +53,7 @@
 @d banner=='This is BibTeX, Version 0.99d' {printed when the program starts}
 @y
 @d my_name=='pbibtex'
-@d banner=='This is pBibTeX, Version 0.99d-j0.33'
+@d banner=='This is pBibTeX, Version 0.99d-j0.34'
   {printed when the program starts}
 @z
 
@@ -231,6 +238,25 @@ parse_arguments;
 @y
 init_kanji;
 parse_arguments;
+@z
+
+% pBibTeX: do not break at |white_space| after Japanese characters
+@x "Break that line"
+while ((lex_class[out_buf[out_buf_ptr]] <> white_space) and
+                                        (out_buf_ptr >= min_print_line)) do
+    decr(out_buf_ptr);
+@y
+while (((lex_class[out_buf[out_buf_ptr]] <> white_space) or
+       (out_buf[out_buf_ptr-1] > 127)) and (out_buf_ptr >= min_print_line)) do
+    decr(out_buf_ptr);
+@z
+@x "Break that unbreakably long line"
+    if (lex_class[out_buf[out_buf_ptr]] <> white_space) then
+        incr(out_buf_ptr)
+@y
+    if (lex_class[out_buf[out_buf_ptr]] <> white_space) or
+      (out_buf[out_buf_ptr-1] > 127) then
+        incr(out_buf_ptr)
 @z
 
 @x Changes for JBibTeX by Shouichi Matsui [332]
