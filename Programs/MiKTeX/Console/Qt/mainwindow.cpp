@@ -598,7 +598,7 @@ void MainWindow::StartTerminal()
 #elif defined(MIKTEX_MACOS_BUNDLE)
     cmd = session->GetMyLocation(true) / PathName("..") / PathName("Resources") / PathName("Terminal");
 #else
-    const static string terminals[] = { "konsole", "gnome-terminal", "xterm" };
+    const static string terminals[] = { "x-terminal-emulator", "konsole", "gnome-terminal", "xterm" };
     for (const string& term : terminals)
     {
       if (session->FindFile(term, newPath, cmd))
