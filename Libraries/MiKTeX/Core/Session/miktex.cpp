@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -20,6 +20,9 @@
    02111-1307, USA. */
 
 #include "config.h"
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 // FIXME: must come first
 #include "core-version.h"
@@ -281,6 +284,7 @@ MIKTEXINTERNALFUNC(PathName) GetHomeDirectory()
   return result;
 }
 
+// Borrowed from TL texk/kpathsea/magstep.c 
 MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
 {
   double t;
@@ -319,6 +323,39 @@ MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
   }
 }
 
+static int myabs(int expr)
+{
+  return expr < 0 ? -expr : expr;
+}
+
+// Borrowed from TL texk/kpathsea/magstep.c 
+static unsigned magstep_fix (unsigned dpi, unsigned bdpi, int* m_ret)
+{
+  int mdpi = -1;
+  unsigned real_dpi = 0;
+  int sign = dpi < bdpi ? -1 : 1;
+  constexpr int MAGSTEP_MAX = 40;
+  int m;
+  for (m = 0; real_dpi == 0 && m < MAGSTEP_MAX; m++)
+  {
+    mdpi = magstep(m * sign, bdpi);
+    if (myabs(mdpi - (int)dpi) <= 1)
+    {
+      real_dpi = mdpi;
+    }
+    else if ((mdpi - static_cast<int>(dpi)) * sign > 0)
+    {
+      real_dpi = dpi;
+    }
+  }
+  if (m_ret != nullptr)
+  {
+    *m_ret = real_dpi == static_cast<unsigned>(mdpi != 0 ? (m - 1) * sign : 0);
+  }
+  return real_dpi ? real_dpi : dpi;
+}
+
+
 vector<string> SessionImpl::MakeMakePkCommandLine(const string& fontName, int dpi, int baseDpi, const string& mfMode, PathName& fileName, TriState enableInstaller)
 {
   MIKTEX_ASSERT(baseDpi != 0);
@@ -328,72 +365,47 @@ vector<string> SessionImpl::MakeMakePkCommandLine(const string& fontName, int dp
     MIKTEX_UNEXPECTED();
   }
 
-  int m = 0;
-  int n;
-
-  if (dpi < baseDpi)
-  {
-    for (;;)
-    {
-      --m;
-      n = magstep(m, baseDpi);
-      if (n == dpi)
-      {
-        break;
-      }
-      if (n < dpi || m < -40)
-      {
-        m = 9999;
-        break;
-      }
-    }
-  }
-  else if (dpi > baseDpi)
-  {
-    for (;;)
-    {
-      ++m;
-      n = magstep(m, baseDpi);
-      if (n == dpi)
-      {
-        break;
-      }
-      if (n > dpi || m > 40)
-      {
-        m = 9999;
-        break;
-      }
-    }
-  }
-
   string strMagStep;
 
-  if (m == 9999)
+  // Borrowed from TL texk/kpathsea/tex-make.c
+  int m;
+  magstep_fix(dpi, baseDpi, &m);
+  if (m == 0)
   {
-    // a+b/c
-    strMagStep = std::to_string(dpi / baseDpi);
-    strMagStep += '+';
-    strMagStep += std::to_string(dpi % baseDpi);
-    strMagStep += '/';
-    strMagStep += std::to_string(baseDpi);
-  }
-  else if (m >= 0)
-  {
-    // magstep(a.b)
-    strMagStep = "magstep(";
-    strMagStep += std::to_string(m / 2);
-    strMagStep += '.';
-    strMagStep += std::to_string((m & 1) * 5);
-    strMagStep += ')';
+    if (baseDpi <= 4000)
+    {
+      strMagStep = fmt::format("{}+{}/{}", dpi / baseDpi, dpi % baseDpi, baseDpi);
+    }
+    else
+    {
+      unsigned f = baseDpi / 4000;
+      unsigned r = baseDpi % 4000;
+      if (f > 1)
+      {
+        if (r > 0)
+        {
+          strMagStep = fmt::format("{}+{}/({}*{}+{})", dpi / baseDpi, dpi % baseDpi, f, (baseDpi - r) / f, r);
+        }
+        else
+        {
+          strMagStep = fmt::format("{}+{}/({}*{})", dpi / baseDpi, dpi % baseDpi, f, baseDpi / f);
+        }
+      }
+      else
+      {
+        strMagStep = fmt::format("{}+{}/(4000+{})", dpi / baseDpi, dpi % baseDpi, r);
+      }
+    }
   }
   else
   {
-    // magstep(-a.b)
-    strMagStep = "magstep(-";
-    strMagStep += std::to_string((-m) / 2);
-    strMagStep += '.';
-    strMagStep += std::to_string((m & 1) * 5);
-    strMagStep += ')';
+    string sign;
+    if (m < 0)
+    {
+      m *= -1;
+      sign = "-";
+    }
+    strMagStep = fmt::format("magstep({}{}.{})", sign, m / 2, (m & 1) * 5);
   }
 
   vector<string> args{ fileName.GetFileNameWithoutExtension().ToString() };

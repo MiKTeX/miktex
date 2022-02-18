@@ -10,6 +10,10 @@
 * ptex 4.0.0
 * xetex 0.999994
 
+### Fixed issues
+
+- [1055](https://github.com/MiKTeX/miktex/issues/1055): GFtoPK crashes in supre mode for fonts in certain optical sizes
+
 ## 22.1 - 2022-01-31
 
 ### Fixed issues
