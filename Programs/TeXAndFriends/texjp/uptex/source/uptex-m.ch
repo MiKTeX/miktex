@@ -421,12 +421,15 @@ if ((kcp mod @'10)>0)and(nrestmultichr(kcp)>0) then p:=p-(kcp mod @'10);
 @z
 
 @x
-all_jcode(skip_blanks),all_jcode(new_line),all_jcode(mid_line):
+all_jcode(skip_blanks),all_jcode(skip_blanks_kanji),all_jcode(new_line),
+all_jcode(mid_line):
   state:=mid_kanji;
 @y
-all_jcode(skip_blanks),all_jcode(new_line),all_jcode(mid_line):
+all_jcode(skip_blanks),all_jcode(skip_blanks_kanji),all_jcode(new_line),
+all_jcode(mid_line):
   state:=mid_kanji;
-hangul_code(skip_blanks),hangul_code(new_line),hangul_code(mid_kanji):
+hangul_code(skip_blanks),hangul_code(skip_blanks_kanji),hangul_code(new_line),
+hangul_code(mid_kanji):
   state:=mid_line;
 @z
 
@@ -440,7 +443,7 @@ else  begin k:=loc; cur_chr:=buffer[k]; incr(k);
     end
   else cat:=cat_code(cur_chr);
 start_cs:
-  if (cat=letter)or(cat=kanji)or(cat=kana) then state:=skip_blanks
+  if cat=letter then state:=skip_blanks
 @y
 else  begin k:=loc;
   cur_chr:=fromBUFF(ustringcast(buffer), limit+1, k);
@@ -456,7 +459,7 @@ else  begin k:=loc;
     incr(k);
   end;
 start_cs:
-  if (cat=letter)or(cat=kanji)or(cat=kana)or(cat=hangul) then state:=skip_blanks
+  if (cat=letter)or(cat=hangul) then state:=skip_blanks
 @z
 
 @x
@@ -478,6 +481,9 @@ begin repeat cur_chr:=buffer[k]; incr(k);
     for l:=k-1 to k-2+multistrlen(ustringcast(buffer), limit+1, k-1) do
       buffer2[l]:=1;
     incr(k);
+    if (cat=kanji)or(cat=kana) then
+      begin if (ptex_lineend mod 2)=0 then state:=skip_blanks_kanji
+      else state:=skip_blanks end;
     end
   else cat:=cat_code(cur_chr);
 @y
@@ -488,7 +494,12 @@ begin repeat
     if (cat=not_cjk) then cat:=other_kchar;
     for l:=k to k-1+multistrlen(ustringcast(buffer), limit+1, k) do
       buffer2[l]:=1;
-    k:=k+multistrlen(ustringcast(buffer), limit+1, k) end
+    k:=k+multistrlen(ustringcast(buffer), limit+1, k);
+    if (cat=kanji)or(cat=kana) then
+      begin if (ptex_lineend mod 2)=0 then state:=skip_blanks_kanji
+      else state:=skip_blanks end
+    else if cat=hangul then state:=skip_blanks;
+    end
   else begin {not multi-byte char}
     cur_chr:=buffer[k];
     cat:=cat_code(cur_chr);

@@ -1435,7 +1435,8 @@ if n<math_code_base then
 @d text_baseline_shift_factor_code=57
 @d script_baseline_shift_factor_code=58
 @d scriptscript_baseline_shift_factor_code=59
-@d tex_int_pars=60 {total number of \TeX's integer parameters}
+@d ptex_lineend_code=60
+@d tex_int_pars=61 {total number of \TeX's integer parameters}
 @z
 
 @x [17.236] l.5167 - pTeX: cur_jfam, |jchr_widow_penalty|
@@ -1449,6 +1450,7 @@ if n<math_code_base then
 @d text_baseline_shift_factor==int_par(text_baseline_shift_factor_code)
 @d script_baseline_shift_factor==int_par(script_baseline_shift_factor_code)
 @d scriptscript_baseline_shift_factor==int_par(scriptscript_baseline_shift_factor_code)
+@d ptex_lineend==int_par(ptex_lineend_code)
 @z
 
 @x [17.237] l.5244 - pTeX: cur_jfam_code, jchr_window_penalty_code
@@ -1460,6 +1462,7 @@ jchr_widow_penalty_code:print_esc("jcharwidowpenalty");
 text_baseline_shift_factor_code:print_esc("textbaselineshiftfactor");
 script_baseline_shift_factor_code:print_esc("scriptbaselineshiftfactor");
 scriptscript_baseline_shift_factor_code:print_esc("scriptscriptbaselineshiftfactor");
+ptex_lineend_code:print_esc("ptexlineendmode");
 @z
 
 @x [17.238] l.5365 - pTeX: cur_jfam_code, jchr_window_penalty_code
@@ -1478,6 +1481,8 @@ primitive("scriptbaselineshiftfactor",assign_int,int_base+script_baseline_shift_
 @!@:script_baseline_shift_factor}{\.{\\scriptbaselineshiftfactor} primitive@>
 primitive("scriptscriptbaselineshiftfactor",assign_int,int_base+scriptscript_baseline_shift_factor_code);@/
 @!@:scriptscript_baseline_shift_factor}{\.{\\scriptscriptbaselineshiftfactor} primitive@>
+primitive("ptexlineendmode",assign_int,int_base+ptex_lineend_code);@/
+@!@:ptex_lineend_mode_}{\.{\\ptexlineendmode} primitive@>
 @z
 
 @x [17.247] l.5490 - pTeX: kinsoku, t_baseline_shift, y_baseline_shift
@@ -1691,7 +1696,22 @@ kanji,kana,other_kchar: begin print("kanji character ");
 1) |state=mid_line| is the normal state.\cr
 2) |state=mid_kanji| is like |mid_line|, and internal KANJI string.\cr
 3) |state=skip_blanks| is like |mid_line|, but blanks are ignored.\cr
-4) |state=new_line| is the state at the beginning of a line.\cr}}$$
+4) |state=skip_blanks_kanji| is like |mid_kanji|, but blanks are ignored.\cr
+5) |state=new_line| is the state at the beginning of a line.\cr}}$$
+@z
+
+@x
+ignored; after this case is processed, the next value of |state| will
+be |skip_blanks|.
+@y
+ignored; after this case is processed, the next value of |state| will
+be |skip_blanks|.
+
+If \.{\\ptexlineendmode} is odd, the |state| become |skip_blanks_kanji|
+after a control word which ends with a Japanese character. This is
+similar to |skip_blanks|, but the |state| will be |mid_kanji| after
+|skip_blanks_kanji+left_brace| and |skip_blanks_kanji+right_brace|,
+instead of |mid_line|.
 @z
 
 @x [22.303] l.6736 - pTeX: state mid_kanji
@@ -1702,7 +1722,9 @@ kanji,kana,other_kchar: begin print("kanji character ");
 @d mid_line=1 {|state| code when scanning a line of characters}
 @d mid_kanji=2+max_char_code {|state| code when scanning a line of characters}
 @d skip_blanks=3+max_char_code+max_char_code {|state| code when ignoring blanks}
-@d new_line=4+max_char_code+max_char_code+max_char_code
+@d skip_blanks_kanji=4+max_char_code+max_char_code+max_char_code
+   {|state| code when ignoring blanks}
+@d new_line=5+max_char_code+max_char_code+max_char_code+max_char_code
    {|state| code at start of line}
 @z
 
@@ -1846,7 +1868,16 @@ begin switch: if loc<=limit then {current line not yet finished}
 @x [24.344] l.7535 - pTeX: ASCII-KANJI space handling
 @d any_state_plus(#) == mid_line+#,skip_blanks+#,new_line+#
 @y
-@d any_state_plus(#) == mid_line+#,mid_kanji+#,skip_blanks+#,new_line+#
+@d any_state_plus(#) ==
+  mid_line+#,mid_kanji+#,skip_blanks+#,skip_blanks_kanji+#,new_line+#
+@z
+
+@x
+@ @<Cases where character is ignored@>=
+any_state_plus(ignore),skip_blanks+spacer,new_line+spacer
+@y
+@ @<Cases where character is ignored@>=
+any_state_plus(ignore),skip_blanks+spacer,skip_blanks_kanji+spacer,new_line+spacer
 @z
 
 @x [24.347] l.7569 - pTeX: scaner
@@ -1878,20 +1909,34 @@ mid_kanji+spacer,mid_line+spacer:@<Enter |skip_blanks| state, emit a space@>;
 mid_line+car_ret:@<Finish line, emit a space@>;
 mid_kanji+car_ret: if skip_mode then @<Finish line, |goto switch|@>
   else @<Finish line, emit a space@>;
-skip_blanks+car_ret,any_state_plus(comment):
+skip_blanks+car_ret,skip_blanks_kanji+car_ret,any_state_plus(comment):
   @<Finish line, |goto switch|@>;
 new_line+car_ret:@<Finish line, emit a \.{\\par}@>;
-mid_line+left_brace,mid_kanji+left_brace: incr(align_state);
+mid_line+left_brace: incr(align_state);
+mid_kanji+left_brace: begin incr(align_state);
+  if ((ptex_lineend div 4) mod 2)=1 then state:=mid_line;
+  end;
 skip_blanks+left_brace,new_line+left_brace: begin
   state:=mid_line; incr(align_state);
   end;
-mid_line+right_brace,mid_kanji+right_brace: decr(align_state);
+skip_blanks_kanji+left_brace: begin
+  state:=mid_kanji; incr(align_state);
+  end;
+mid_line+right_brace: decr(align_state);
+mid_kanji+right_brace: begin decr(align_state);
+  if ((ptex_lineend div 4) mod 2)=1 then state:=mid_line;
+  end;
 skip_blanks+right_brace,new_line+right_brace: begin
   state:=mid_line; decr(align_state);
   end;
-add_delims_to(skip_blanks),add_delims_to(new_line),add_delims_to(mid_kanji):
+skip_blanks_kanji+right_brace: begin
+  state:=mid_kanji; decr(align_state);
+  end;
+add_delims_to(skip_blanks),add_delims_to(skip_blanks_kanji),
+add_delims_to(new_line),add_delims_to(mid_kanji):
   state:=mid_line;
-all_jcode(skip_blanks),all_jcode(new_line),all_jcode(mid_line):
+all_jcode(skip_blanks),all_jcode(skip_blanks_kanji),all_jcode(new_line),
+all_jcode(mid_line):
   state:=mid_kanji;
 
 @ @<Global...@>=
@@ -1933,9 +1978,14 @@ else  begin k:=loc; cur_chr:=buffer[k]; incr(k);
     end
   else cat:=cat_code(cur_chr);
 start_cs:
-  if (cat=letter)or(cat=kanji)or(cat=kana) then state:=skip_blanks
+  if cat=letter then state:=skip_blanks
+  else if (cat=kanji)or(cat=kana) then
+    begin if (ptex_lineend mod 2)=0 then state:=skip_blanks_kanji
+    else state:=skip_blanks end
   else if cat=spacer then state:=skip_blanks
-  else if cat=other_kchar then state:=mid_kanji
+  else if cat=other_kchar then
+    begin if ((ptex_lineend div 2) mod 2)=0 then state:=mid_kanji
+    else state:=mid_line end
   else state:=mid_line;
   if cat=other_kchar then
     begin cur_cs:=id_lookup(loc,k-loc); loc:=k; goto found;
@@ -2022,6 +2072,9 @@ begin repeat cur_chr:=buffer[k]; incr(k);
     for l:=k-1 to k-2+multistrlen(ustringcast(buffer), limit+1, k-1) do
       buffer2[l]:=1;
     incr(k);
+    if (cat=kanji)or(cat=kana) then
+      begin if (ptex_lineend mod 2)=0 then state:=skip_blanks_kanji
+      else state:=skip_blanks end;
     end
   else cat:=cat_code(cur_chr);
   while (buffer[k]=cur_chr)and(cat=sup_mark)and(k<limit) do
@@ -2046,6 +2099,7 @@ begin repeat cur_chr:=buffer[k]; incr(k);
         end;
       end;
     end;
+  if cat=letter then state:=skip_blanks;
 until not((cat=letter)or(cat=kanji)or(cat=kana))or(k>limit);
 {@@<If an expanded...@@>;}
 if not((cat=letter)or(cat=kanji)or(cat=kana)) then decr(k);
