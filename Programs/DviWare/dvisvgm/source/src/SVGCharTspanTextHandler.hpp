@@ -2,7 +2,7 @@
 ** SVGCharTspanTextHandler.hpp                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -29,15 +29,15 @@ class SVGCharTspanTextHandler : public SVGCharTextHandler {
 		void notifyXAdjusted () override {_xchanged = true;}
 		void notifyYAdjusted()  override {_ychanged = true;}
 		void appendChar (uint32_t c, double x, double y) override;
-		void setInitialContextNode (XMLElement *node) override;
+		void setInitialContextNode (SVGElement *node) override;
 
 	protected:
 		void resetContextNode () override;
 
 	private:
 		bool _xchanged, _ychanged;
-		XMLElement *_textNode;
-		XMLElement *_tspanNode;
+		SVGElement *_textNode;
+		SVGElement *_tspanNode;
 };
 
 #endif

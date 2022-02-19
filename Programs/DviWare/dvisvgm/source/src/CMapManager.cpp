@@ -2,7 +2,7 @@
 ** CMapManager.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -119,7 +119,7 @@ const CMap* CMapManager::findCompatibleBaseFontMap (const PhysicalFont *font, co
 
 
 	// try to find a compatible encoding CMap
-	const bool is_unicode_map = bool(dynamic_cast<const UnicodeCMap*>(cmap));
+	const bool is_unicode_map = cmap->mapsToUnicode();
 	const string ro = cmap->getROString();
 	for (const CharMapIDToEncName &enc : encodings) {
 		for (const CharMapID &id : charmapIDs) {

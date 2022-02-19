@@ -2,7 +2,7 @@
 ** DVIToSVGActions.hpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -49,6 +49,8 @@ class DVIToSVGActions : public DVIActions, public SpecialActions {
 		void setBgColor (const Color &color) override;
 		void setColor (const Color &color) override             {_svg.setColor(color);}
 		void setMatrix (const Matrix &m) override               {_svg.setMatrix(m);}
+		void setOpacity (const Opacity &opacity) override       {_svg.setOpacity(opacity);}
+		const Opacity& getOpacity () const override             {return _svg.getOpacity();}
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
 		Matrix getPageTransformation () const override          {return _dvireader->getPageTransformation();}
 		Color getColor () const override                        {return _svg.getColor();}

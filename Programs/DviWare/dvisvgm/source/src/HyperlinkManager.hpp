@@ -2,7 +2,7 @@
 ** HyperlinkManager.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -52,7 +52,7 @@ class HyperlinkManager {
 		void checkNewLine (SpecialActions &actions);
 		void createLink (std::string uri, SpecialActions &actions);
 		void createViews (unsigned pageno, SpecialActions &actions);
-		void setBaseUrl (std::string &base) {_base = base;}
+		void setBaseUrl (const std::string &base) {_base = base;}
 		void setLineWidth (double w) {_linewidth = w;}
 		static HyperlinkManager& instance ();
 		static bool setLinkMarker (const std::string &marker);

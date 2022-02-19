@@ -2,7 +2,7 @@
 ** dvisvgm.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -247,7 +247,7 @@ class VersionInfo {
 
 	protected:
 		void append (const string &name, const string &version) {
-			_versionPairs.emplace_back(pair<string,string>(name, version));
+			_versionPairs.emplace_back(name, version);
 		}
 
 	private:
@@ -352,7 +352,8 @@ static void set_variables (const CommandLine &cmdline) {
 		string msg = "unknown font format '"+cmdline.fontFormatOpt.value()+"' (supported formats: ";
 		for (const string &format : FontWriter::supportedFormats())
 			msg += format + ", ";
-		msg.erase(msg.end()-2);
+		msg.erase(msg.end()-2, msg.end());
+		msg += ")";
 		throw CL::CommandLineException(msg);
 	}
 	SVGTree::CREATE_USE_ELEMENTS = cmdline.noFontsOpt.value() < 1;
@@ -407,6 +408,44 @@ static void timer_message (double start_time, const pair<int,int> *pageinfo) {
 }
 
 
+static void convert_file (size_t fnameIndex, const CommandLine &cmdline) {
+	const char *suffix = cmdline.epsOpt.given() ? "eps" : cmdline.pdfOpt.given() ? "pdf" : "dvi";
+	string inputfile = ensure_suffix(cmdline.filenames()[fnameIndex], suffix);
+	SourceInput srcin(inputfile);
+	if (!srcin.getInputStream(true))
+		throw MessageException("can't open file '" + srcin.getMessageFileName() + "' for reading");
+
+	double start_time = System::time();
+	set_variables(cmdline);
+	SVGOutput out(cmdline.stdoutOpt.given() ? "" : srcin.getFileName(),
+					  cmdline.outputOpt.value(),
+					  cmdline.zipOpt.given() ? cmdline.zipOpt.value() : 0);
+	out.setFileNumbers(fnameIndex+1, cmdline.filenames().size());
+	pair<int,int> pageinfo;
+	if (cmdline.epsOpt.given() || cmdline.pdfOpt.given()) {
+		auto img2svg = unique_ptr<ImageToSVG>(
+				cmdline.epsOpt.given()
+				? static_cast<ImageToSVG*>(new EPSToSVG(srcin.getFilePath(), out))
+				: static_cast<ImageToSVG*>(new PDFToSVG(srcin.getFilePath(), out)));
+		img2svg->setPageTransformation(get_transformation_string(cmdline));
+		img2svg->convert(cmdline.pageOpt.value(), &pageinfo);
+		timer_message(start_time, img2svg->isSinglePageFormat() ? nullptr : &pageinfo);
+	}
+	else {
+		init_fontmap(cmdline);
+		DVIToSVG dvi2svg(srcin.getInputStream(), out);
+		if (!list_page_hashes(cmdline, dvi2svg)) {
+			const char *ignore_specials = nullptr;
+			if (cmdline.noSpecialsOpt.given())
+				ignore_specials = cmdline.noSpecialsOpt.value().empty() ? "*" : cmdline.noSpecialsOpt.value().c_str();
+			dvi2svg.setProcessSpecials(ignore_specials, true);
+			dvi2svg.setPageTransformation(get_transformation_string(cmdline));
+			dvi2svg.setPageSize(cmdline.bboxOpt.value());
+			dvi2svg.convert(cmdline.pageOpt.value(), &pageinfo);
+			timer_message(start_time, &pageinfo);
+		}
+	}
+}
 #if defined(MIKTEX)
 int MIKTEXCEECALL Main(int argc, char **argv) {
 #else
@@ -448,42 +487,9 @@ int main (int argc, char *argv[]) {
 			throw MessageException("no input file given");
 
 		SignalHandler::instance().start();
-		string inputfile = ensure_suffix(cmdline.filenames()[0],
-			cmdline.epsOpt.given() ? "eps" : cmdline.pdfOpt.given() ? "pdf" : "dvi");
-		SourceInput srcin(inputfile);
-		if (!srcin.getInputStream(true))
-			throw MessageException("can't open file '" + srcin.getMessageFileName() + "' for reading");
-
-		double start_time = System::time();
-		set_variables(cmdline);
-		SVGOutput out(cmdline.stdoutOpt.given() ? "" : srcin.getFileName(),
-			cmdline.outputOpt.value(),
-			cmdline.zipOpt.given() ? cmdline.zipOpt.value() : 0);
-		pair<int,int> pageinfo;
-		if (cmdline.epsOpt.given() || cmdline.pdfOpt.given()) {
-			auto img2svg = unique_ptr<ImageToSVG>(
-				cmdline.epsOpt.given()
-				? static_cast<ImageToSVG*>(new EPSToSVG(srcin.getFilePath(), out))
-				: static_cast<ImageToSVG*>(new PDFToSVG(srcin.getFilePath(), out)));
-			img2svg->setPageTransformation(get_transformation_string(cmdline));
-			img2svg->convert(cmdline.pageOpt.value(), &pageinfo);
-			timer_message(start_time, img2svg->isSinglePageFormat() ? nullptr : &pageinfo);
-		}
-		else {
-			init_fontmap(cmdline);
-			DVIToSVG dvi2svg(srcin.getInputStream(), out);
-			if (list_page_hashes(cmdline, dvi2svg))
-				return 0;
-			const char *ignore_specials=nullptr;
-			if (cmdline.noSpecialsOpt.given())
-				ignore_specials = cmdline.noSpecialsOpt.value().empty() ? "*" : cmdline.noSpecialsOpt.value().c_str();
-			dvi2svg.setProcessSpecials(ignore_specials, true);
-			dvi2svg.setPageTransformation(get_transformation_string(cmdline));
-			dvi2svg.setPageSize(cmdline.bboxOpt.value());
-
-			dvi2svg.convert(cmdline.pageOpt.value(), &pageinfo);
-			timer_message(start_time, &pageinfo);
-		}
+		size_t numFiles = cmdline.epsOpt.given() ? cmdline.filenames().size() : 1;
+		for (size_t i=0; i < numFiles; i++)
+			convert_file(i, cmdline);
 	}
 	catch (DVIException &e) {
 		Message::estream() << "\nDVI error: " << e.what() << '\n';

@@ -2,7 +2,7 @@
 ** XMLNode.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -27,10 +27,6 @@
 #include "utility.hpp"
 #include "XMLNode.hpp"
 #include "XMLString.hpp"
-#if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/PathNameUtil>
-#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
-#endif
 
 using namespace std;
 
@@ -111,7 +107,7 @@ void XMLElement::addAttribute (const string &name, const string &value) {
 	if (Attribute *attr = getAttribute(name))
 		attr->value = value;
 	else
-		_attributes.emplace_back(Attribute(name, value));
+		_attributes.emplace_back(name, value);
 }
 
 
@@ -373,11 +369,7 @@ ostream& XMLElement::write (ostream &os) const {
 			else {
 				os << attrib.value.substr(0, pos+7);
 				string fname = attrib.value.substr(pos+7);
-#if defined(MIKTEX_WINDOWS)
-				ifstream ifs(EXPATH_(fname), ios::binary);
-#else
 				ifstream ifs(fname, ios::binary);
-#endif
 				if (ifs) {
 					os << '\n';
 					util::base64_copy(ifs, os, 200);
@@ -395,12 +387,12 @@ ostream& XMLElement::write (ostream &os) const {
 		os << '>';
 		// Insert newlines around children except text nodes. According to the
 		// SVG specification, pure whitespace nodes are ignored by the SVG renderer.
-		if (WRITE_NEWLINES && !_firstChild->toText())
+		if (WRITE_NEWLINES && name() != "text" && !_firstChild->toText())
 			os << '\n';
 		for (XMLNode *child = _firstChild.get(); child; child = child->next()) {
 			child->write(os);
 			if (!child->toText()) {
-				if (WRITE_NEWLINES && (!child->next() || !child->next()->toText()))
+				if (WRITE_NEWLINES && name() != "text" && (!child->next() || !child->next()->toText()))
 					os << '\n';
 			}
 		}

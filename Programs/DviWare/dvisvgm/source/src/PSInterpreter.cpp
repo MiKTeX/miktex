@@ -2,7 +2,7 @@
 ** PSInterpreter.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -62,8 +62,10 @@ void PSInterpreter::init () {
 			// in conjunction with -dDELAYBIND and -dWRITESYSTEMDICT.
 			// Thus, -dDELAYSAFER (or -dNOSAFER) must be added.
 			// https://www.ghostscript.com/doc/9.50/Use.htm#Safer
-			if (gsrev >= 950)
+			if (gsrev >= 950) {
 				gsargs.emplace_back("-dDELAYSAFER");
+				gsargs.emplace_back("-dALLOWPSTRANSPARENCY");
+			}
 		}
 		_gs.init(gsargs.size(), gsargs.data(), this);
 		_gs.set_stdio(input, output, error);
@@ -133,7 +135,7 @@ bool PSInterpreter::execute (const char *str, size_t len, bool flush) {
 	// feed Ghostscript with code chunks that are not larger than 64KB
 	// => see documentation of gsapi_run_string_foo()
 	const char *p=str;
-	while (PS_RUNNING && len > 0) {
+	while (_mode == PS_RUNNING && len > 0) {
 		SignalHandler::instance().check();
 		size_t chunksize = min(len, (size_t)0xffff);
 		_gs.run_string_continue(p, chunksize, 0, &status);
@@ -282,6 +284,7 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"rotate",                 { 1, &PSActions::rotate}},
 		{"save",                   { 1, &PSActions::save}},
 		{"scale",                  { 2, &PSActions::scale}},
+		{"setalphaisshape",        { 1, &PSActions::setalphaisshape}},
 		{"setblendmode",           { 1, &PSActions::setblendmode}},
 		{"setcolorspace",          { 1, &PSActions::setcolorspace}},
 		{"setcmykcolor",           { 4, &PSActions::setcmykcolor}},
@@ -289,7 +292,6 @@ void PSInterpreter::callActions (InputReader &in) {
 		{"setfillconstantalpha",   { 1, &PSActions::setfillconstantalpha}},
 		{"setgray",                { 1, &PSActions::setgray}},
 		{"sethsbcolor",            { 3, &PSActions::sethsbcolor}},
-		{"setisshapealpha",        { 1, &PSActions::setisshapealpha}},
 		{"setlinecap",             { 1, &PSActions::setlinecap}},
 		{"setlinejoin",            { 1, &PSActions::setlinejoin}},
 		{"setlinewidth",           { 1, &PSActions::setlinewidth}},
@@ -312,7 +314,7 @@ void PSInterpreter::callActions (InputReader &in) {
 				_rawData.clear();
 				in.skipSpace();
 				while (!in.eof()) {
-					_rawData.emplace_back(in.getString());
+					_rawData.push_back(in.getString());
 					in.skipSpace();
 				}
 			}
@@ -323,14 +325,14 @@ void PSInterpreter::callActions (InputReader &in) {
 				if (pcount < 0) {       // variable number of parameters?
 					in.skipSpace();
 					while (!in.eof()) {  // read all available parameters
-						params.emplace_back(in.getString());
+						params.push_back(in.getString());
 						in.skipSpace();
 					}
 				}
 				else {   // fix number of parameters
 					for (int i=0; i < pcount; i++) {
 						in.skipSpace();
-						params.emplace_back(in.getString());
+						params.push_back(in.getString());
 					}
 				}
 				// convert parameter strings to doubles
@@ -418,7 +420,7 @@ bool PSInterpreter::imageDeviceKnown (string deviceStr) {
 		return false;
 	deviceStr = deviceStr.substr(0, deviceStr.find(':'));  // strip optional argument
 	auto infos = getImageDeviceInfos();
-	auto it = find_if(infos.begin(), infos.end(), [&](PSDeviceInfo &info) {
+	auto it = find_if(infos.begin(), infos.end(), [&](const PSDeviceInfo &info) {
 		return info.name == deviceStr;
 	});
 	return it != infos.end();

@@ -2,7 +2,7 @@
 ** DVIToSVG.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -74,13 +74,10 @@ bool DVIToSVG::COMPUTE_PROGRESS = false;
 DVIToSVG::HashSettings DVIToSVG::PAGE_HASH_SETTINGS;
 
 
-DVIToSVG::DVIToSVG (istream &is, SVGOutputBase &out) : DVIReader(is), _out(out)
+DVIToSVG::DVIToSVG (istream &is, SVGOutputBase &out)
+	: DVIReader(is), _out(out), _prevWritingMode(WritingMode::LR)
 {
-	_pageHeight = _pageWidth = 0;
-	_tx = _ty = 0;    // no cursor translation
-	_pageByte = 0;
 	_prevXPos = _prevYPos = numeric_limits<double>::min();
-	_prevWritingMode = WritingMode::LR;
 	_actions = util::make_unique<DVIToSVGActions>(*this, _svg);
 }
 
@@ -362,7 +359,7 @@ void DVIToSVG::embedFonts (XMLElement *svgElement) {
 	unordered_set<const Font*> tracedFonts;  // collect unique fonts already traced
 	for (const auto &fontchar : usedCharsMap) {
 		const Font *font = fontchar.first;
-		if (auto ph_font = dynamic_cast<const PhysicalFont*>(font)) {
+		if (auto ph_font = font_cast<const PhysicalFont*>(font)) {
 			// Check if glyphs should be traced. Only trace the glyphs of unique fonts, i.e.
 			// avoid retracing the same glyphs again if they are referenced in various sizes.
 			if (TRACE_MODE != 0 && tracedFonts.find(ph_font->uniqueFont()) == tracedFonts.end()) {
@@ -481,7 +478,7 @@ void DVIToSVG::dviEop () {
 
 
 void DVIToSVG::dviSetChar0 (uint32_t c, const Font *font) {
-	if (_actions && !dynamic_cast<const VirtualFont*>(font))
+	if (_actions && !font_cast<const VirtualFont*>(font))
 		_actions->setChar(dviState().h+_tx, dviState().v+_ty, c, dviState().d != WritingMode::LR, *font);
 }
 
@@ -520,7 +517,7 @@ void DVIToSVG::dviPop () {
 
 
 void DVIToSVG::dviFontNum (uint32_t fontnum, SetFontMode, const Font *font) {
-	if (_actions && font && !dynamic_cast<const VirtualFont*>(font))
+	if (_actions && font && !font_cast<const VirtualFont*>(font))
 		_actions->setFont(FontManager::instance().fontID(fontnum), *font);  // all fonts get a recomputed ID
 }
 
@@ -572,16 +569,18 @@ void DVIToSVG::HashSettings::setParameters (const string &paramstr) {
 		auto it = paramMap.find(name);
 		if (it != paramMap.end())
 			_params.insert(it->second);
-		else if (_algo.empty() && HashFunction::isSupportedAlgorithm(name))
-			_algo = name;
-		else if (!name.empty()) {
-			string msg = "invalid hash parameter '"+name+"' (supported algorithms: ";
-			for (string str : HashFunction::supportedAlgorithms())
-				msg += str + ", ";
-			msg.pop_back();
-			msg.pop_back();
-			msg += ')';
-			throw MessageException(msg);
+		else if (_algo.empty()) {
+			if (HashFunction::isSupportedAlgorithm(name))
+				_algo = name;
+			else if (!name.empty()) {
+				string msg = "invalid hash parameter '" + name + "' (supported algorithms: ";
+				for (string str: HashFunction::supportedAlgorithms())
+					msg += str + ", ";
+				msg.pop_back();
+				msg.pop_back();
+				msg += ')';
+				throw MessageException(msg);
+			}
 		}
 	}
 	// set default hash algorithm if none is given

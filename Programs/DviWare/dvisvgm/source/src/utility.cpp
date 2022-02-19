@@ -2,7 +2,7 @@
 ** utility.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -138,17 +138,17 @@ string util::replace (string str, const string &find, const string &repl) {
 vector<string> util::split (const string &str, const string &sep) {
 	vector<string> parts;
 	if (str.empty() || sep.empty())
-		parts.emplace_back(str);
+		parts.push_back(str);
 	else {
 		size_t left=0;
 		while (left <= str.length()) {
 			size_t right = str.find(sep, left);
 			if (right == string::npos) {
-				parts.emplace_back(str.substr(left));
+				parts.push_back(str.substr(left));
 				left = string::npos;
 			}
 			else {
-				parts.emplace_back(str.substr(left, right-left));
+				parts.push_back(str.substr(left, right-left));
 				left = right+sep.length();
 			}
 		}

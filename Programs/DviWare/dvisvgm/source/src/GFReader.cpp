@@ -2,7 +2,7 @@
 ** GFReader.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -92,7 +92,7 @@ int GFReader::executeCommand () {
 	if (opcode < 0)  // at end of file?
 		throw GFException("unexpected end of file");
 
-	if (opcode >= 0 && opcode <= 63)
+	if (opcode <= 63)
 		cmdPaint0(opcode);
 	else if (opcode >= 74 && opcode <= 238)
 		cmdNewRow(opcode-74);

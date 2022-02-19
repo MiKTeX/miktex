@@ -2,7 +2,7 @@
 ** SVGCharHandler.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,12 +26,15 @@
 #include "Color.hpp"
 #include "Font.hpp"
 #include "Matrix.hpp"
+#include "Opacity.hpp"
 
 
 template <typename T>
 class CharProperty {
 	public:
+		CharProperty () =default;
 		CharProperty (const T &v) : _value(v) {}
+		CharProperty (T &&v) : _value(std::move(v)) {}
 
 		void set (const T &v) {
 			if (v != _value) {
@@ -40,10 +43,11 @@ class CharProperty {
 			}
 		}
 
-		const T& get () const      {return _value;}
-		operator const T& () const {return _value;}
-		bool changed () const      {return _changed;}
-		void changed (bool c)      {_changed = c;}
+		const T& get () const         {return _value;}
+		const T* operator -> () const {return &_value;}
+		operator const T& () const    {return _value;}
+		bool changed () const         {return _changed;}
+		void changed (bool c)         {_changed = c;}
 
 	private:
 		T _value;
@@ -51,7 +55,7 @@ class CharProperty {
 };
 
 
-class XMLElement;
+class SVGElement;
 
 
 /** Base class for all character handlers. These handlers create SVG representations
@@ -60,36 +64,39 @@ class SVGCharHandler {
 	public:
 		SVGCharHandler () : _matrix(1) {}
 		virtual ~SVGCharHandler() =default;
-		virtual void setInitialContextNode (XMLElement *node);
+		virtual void setInitialContextNode (SVGElement *node);
 		virtual void appendChar (uint32_t c, double x, double y) =0;
 		virtual void notifyXAdjusted () {}
 		virtual void notifyYAdjusted () {}
-		void setColor (const Color &color)      {_color.set(color);}
-		void setFont (const Font &font, int id) {_font.set(&font); _fontnum = id;}
-		void setMatrix (const Matrix &matrix)   {_matrix.set(matrix);}
-		void setVertical (bool vertical)        {_vertical.set(vertical);}
-		Color getColor () const                 {return _color.get();}
-		const Font* getFont () const            {return _font.get();}
-		const Matrix& getMatrix () const        {return _matrix.get();}
+		void setColor (const Color &color)       {_color.set(color);}
+		void setOpacity (const Opacity &opacity) {_opacity.set(opacity);}
+		void setFont (const Font &font, int id)  {_font.set(&font); _fontnum = id;}
+		void setMatrix (const Matrix &matrix)    {_matrix.set(matrix);}
+		void setVertical (bool vertical)         {_vertical.set(vertical);}
+		Color getColor () const                  {return _color.get();}
+		const Opacity& getOpacity () const       {return _opacity.get();}
+		const Font* getFont () const             {return _font.get();}
+		const Matrix& getMatrix () const         {return _matrix.get();}
 
 	protected:
 		virtual void resetContextNode ();
-		XMLElement* pushContextNode (std::unique_ptr<XMLElement> node);
+		SVGElement* pushContextNode (std::unique_ptr<SVGElement> node);
 		void popContextNode ();
 
-		XMLElement* contextNode () const {
+		SVGElement* contextNode () const {
 			return _contextNodeStack.empty() ? _initialContextNode : _contextNodeStack.top();
 		}
 
 		CharProperty<Color> _color=Color::BLACK;   ///< current color
+		CharProperty<Opacity> _opacity;            ///< current opacity values
 		CharProperty<const Font*> _font=0;         ///< current font
 		int _fontnum=0;                            ///< current font ID
 		CharProperty<Matrix> _matrix;              ///< current transformation
 		CharProperty<bool> _vertical=false;        ///< current writing mode
 
 	private:
-		XMLElement *_initialContextNode= nullptr;  ///< SVG element the generated character nodes are attached to
-		std::stack<XMLElement*> _contextNodeStack;
+		SVGElement *_initialContextNode= nullptr;  ///< SVG element the generated character nodes are attached to
+		std::stack<SVGElement*> _contextNodeStack;
 };
 
 
@@ -99,7 +106,7 @@ class SVGCharTextHandler : public SVGCharHandler {
 		explicit SVGCharTextHandler (bool selectFontByClass) : _selectFontByClass(selectFontByClass) {}
 
 	protected:
-		std::unique_ptr<XMLElement> createTextNode (double x, double y) const;
+		std::unique_ptr<SVGElement> createTextNode (double x, double y) const;
 
 	private:
 		bool _selectFontByClass;

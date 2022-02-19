@@ -2,7 +2,7 @@
 ** TextSimplifier.cpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -39,7 +39,7 @@ static XMLElement::Attributes common_inheritable_attributes (const vector<XMLEle
 		if (commonAttribs.empty()) {
 			if (intersected)
 				break;
-			for (const auto attrib : elem->attributes()) {
+			for (const auto &attrib : elem->attributes()) {
 				if (AttributeExtractor::inheritable(attrib))
 					commonAttribs.push_back(attrib);
 			}
@@ -94,11 +94,11 @@ void TextSimplifier::execute (XMLElement *context) {
 		vector<XMLElement::Attribute> attribs = common_inheritable_attributes(tspans);
 		if (!tspans.empty() && !attribs.empty()) {
 			// move all common tspan attributes to the parent text element
-			for (const XMLElement::Attribute &attr : attribs)
+			for (const auto &attr : attribs)
 				context->addAttribute(attr.name, attr.value);
 			// remove all common attributes from the tspan elements
 			for (XMLElement *tspan : tspans) {
-				for (const XMLElement::Attribute &attr : attribs)
+				for (const auto &attr : attribs)
 					tspan->removeAttribute(attr.name);
 				// unwrap the tspan if there are no remaining attributes
 				if (tspan->attributes().empty())

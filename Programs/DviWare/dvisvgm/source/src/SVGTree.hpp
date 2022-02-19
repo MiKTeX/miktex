@@ -2,7 +2,7 @@
 ** SVGTree.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -31,13 +31,14 @@
 #include "GFGlyphTracer.hpp"
 #include "Matrix.hpp"
 #include "SVGCharHandler.hpp"
+#include "SVGElement.hpp"
 #include "XMLDocument.hpp"
-#include "XMLNode.hpp"
 
 class BoundingBox;
 class Color;
 class Font;
 class Matrix;
+class Opacity;
 class PhysicalFont;
 
 class SVGTree {
@@ -54,24 +55,26 @@ class SVGTree {
 		void appendChar (int c, double x, double y) {_charHandler->appendChar(c, x, y);}
 		void appendFontStyles (const std::unordered_set<const Font*> &fonts);
 		void append (const PhysicalFont &font, const std::set<int> &chars, GFGlyphTracer::Callback *callback=nullptr);
-		void pushDefsContext (std::unique_ptr<XMLElement> node);
+		void pushDefsContext (std::unique_ptr<SVGElement> node);
 		void popDefsContext ();
-		void pushPageContext (std::unique_ptr<XMLElement> node);
+		void pushPageContext (std::unique_ptr<SVGElement> node);
 		void popPageContext ();
 		void setBBox (const BoundingBox &bbox);
 		void setFont (int id, const Font &font);
 		static bool setFontFormat (std::string formatstr);
-		void setX (double x)              {_charHandler->notifyXAdjusted();}
-		void setY (double y)              {_charHandler->notifyYAdjusted();}
-		void setMatrix (const Matrix &m)  {_charHandler->setMatrix(m);}
+		void setX (double x)                {_charHandler->notifyXAdjusted();}
+		void setY (double y)                {_charHandler->notifyYAdjusted();}
+		void setMatrix (const Matrix &m)    {_charHandler->setMatrix(m);}
 		void setColor (const Color &c);
-		void setVertical (bool state)     {_charHandler->setVertical(state);}
+		void setOpacity (const Opacity &op) {_charHandler->setOpacity(op);}
+		void setVertical (bool state)       {_charHandler->setVertical(state);}
 		void transformPage (const Matrix &m);
-		Color getColor () const           {return _charHandler->getColor();}
-		const Matrix& getMatrix () const  {return _charHandler->getMatrix();}
-		XMLElement* rootNode () const     {return _root;}
-		XMLElement* defsNode () const     {return _defs;}
-		XMLElement* pageNode () const     {return _page;}
+		Color getColor () const             {return _charHandler->getColor();}
+		const Opacity& getOpacity () const  {return _charHandler->getOpacity();}
+		const Matrix& getMatrix () const    {return _charHandler->getMatrix();}
+		XMLElement* rootNode () const       {return _root;}
+		XMLElement* defsNode () const       {return _defs;}
+		XMLElement* pageNode () const       {return _page;}
 
 	protected:
 		XMLCData* styleCDataNode ();
@@ -88,11 +91,11 @@ class SVGTree {
 
 	private:
 		XMLDocument _doc;
-		XMLElement *_root, *_page, *_defs;
+		SVGElement *_root, *_page, *_defs;
 		XMLCData *_styleCDataNode;
 		std::unique_ptr<SVGCharHandler> _charHandler;
-		std::stack<XMLElement*> _defsContextStack;
-		std::stack<XMLElement*> _pageContextStack;
+		std::stack<SVGElement*> _defsContextStack;
+		std::stack<SVGElement*> _pageContextStack;
 };
 
 #endif

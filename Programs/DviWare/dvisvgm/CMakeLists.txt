@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2021 Christian Schenk
+## Copyright (C) 2015-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -413,6 +413,8 @@ set(libdvisvgm_sources
   source/src/NoPsSpecialHandler.cpp
   source/src/NoPsSpecialHandler.hpp
   source/src/NumericRanges.hpp
+  source/src/Opacity.cpp
+  source/src/Opacity.hpp
   source/src/PDFParser.cpp
   source/src/PDFParser.hpp
   source/src/PDFToSVG.hpp
@@ -448,6 +450,8 @@ set(libdvisvgm_sources
   source/src/SVGCharPathHandler.hpp
   source/src/SVGCharTspanTextHandler.cpp
   source/src/SVGCharTspanTextHandler.hpp
+  source/src/SVGElement.cpp
+  source/src/SVGElement.hpp
   source/src/SVGOutput.cpp
   source/src/SVGOutput.hpp
   source/src/SVGSingleCharTextHandler.cpp

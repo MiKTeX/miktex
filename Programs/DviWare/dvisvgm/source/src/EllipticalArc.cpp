@@ -2,7 +2,7 @@
 ** EllipticalArc.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -177,7 +177,7 @@ vector<Bezier> EllipticalArc::approximate () const {
 		if (isStraightLine()) {
 			DPair dir = (_endPoint - _startPoint);
 			dir /= dir.length()/3.0;
-			beziers.emplace_back(Bezier(_startPoint, _startPoint+dir, _endPoint-dir, _endPoint));
+			beziers.emplace_back(_startPoint, _startPoint+dir, _endPoint-dir, _endPoint);
 		}
 		else {
 			CenterParams cparams = getCenterParams();
@@ -190,11 +190,11 @@ vector<Bezier> EllipticalArc::approximate () const {
 			if (numCurves > 0) {
 				double c = cos(_rotationAngle);
 				double s = sin(_rotationAngle);
-				Matrix ellipse = {_rx*c, -_ry*s, cparams.center.x(), _rx*s, _ry*c, cparams.center.y()};
+				Matrix ellipse{_rx*c, -_ry*s, cparams.center.x(), _rx*s, _ry*c, cparams.center.y()};
 				double angle = cparams.startAngle;
 				double diff = cparams.deltaAngle/numCurves;
 				while (numCurves-- > 0) {
-					beziers.emplace_back(approx_unit_arc(angle, diff).transform(ellipse));
+					beziers.push_back(approx_unit_arc(angle, diff).transform(ellipse));
 					angle += diff;
 				}
 			}

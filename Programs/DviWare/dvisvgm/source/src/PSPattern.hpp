@@ -2,7 +2,7 @@
 ** PSPattern.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -40,6 +40,8 @@ class PSPattern {
 		virtual int psID () const {return _id;}
 		virtual std::string svgID () const;
 		virtual void apply (SpecialActions &actions);
+		virtual void setColor (Color color) {}
+		virtual bool tiled () const =0;
 
 	protected:
 		explicit PSPattern (int id) : _id(id) {}
@@ -54,6 +56,8 @@ class PSTilingPattern : public PSPattern {
 	public:
 		virtual XMLElement* getContainerNode ()     {return _groupNode.get();}
 		void apply (SpecialActions &actions) override;
+		bool tiled () const override {return true;}
+
 
 	protected:
 		PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
@@ -82,7 +86,7 @@ class PSUncoloredTilingPattern final : public PSTilingPattern {
 	public:
 		PSUncoloredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
 		std::string svgID () const override;
-		void setColor (Color color) {_currentColor = color;}
+		void setColor (Color color) override {_currentColor = color;}
 		void apply (SpecialActions &actions) override;
 
 	protected:

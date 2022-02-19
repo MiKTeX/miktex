@@ -2,7 +2,7 @@
 ** PSPattern.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -106,9 +106,9 @@ unique_ptr<XMLElement> PSTilingPattern::createClipNode() const {
  *  define the pattern graphic. */
 unique_ptr<XMLElement> PSTilingPattern::createGroupNode () const {
 	// add all succeeding path elements to this group
-	auto group = util::make_unique<XMLElement>("g");
-	group->addAttribute("clip-path", XMLString("url(#pc")+XMLString(psID())+")");
-	return group;
+	auto group = util::make_unique<SVGElement>("g");
+	group->setClipPathUrl("pc"+XMLString(psID()));
+	return std::move(group);
 }
 
 

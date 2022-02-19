@@ -2,7 +2,7 @@
 ** FontWriter.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -66,7 +66,7 @@ const FontWriter::FontFormatInfo* FontWriter::fontFormatInfo (FontFormat format)
 vector<string> FontWriter::supportedFormats () {
 	vector<string> formats;
 	for (const FontFormatInfo &info : _formatInfos)
-		formats.emplace_back(info.formatstr_short);
+		formats.push_back(info.formatstr_short);
 	return formats;
 }
 

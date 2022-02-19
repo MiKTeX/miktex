@@ -2,7 +2,7 @@
 ** Ghostscript.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -78,8 +78,8 @@ class Ghostscript
 		~Ghostscript ();
 		bool init (int argc, const char **argv, void *caller=nullptr);
 		bool available ();
-		bool revision (gsapi_revision_t *r);
-		int revision ();
+		bool revision (gsapi_revision_t *r) const;
+		int revision () const;
 		std::string revisionstr ();
 		int set_stdio (Stdin in, Stdout out, Stderr err);
 		int run_string_begin (int user_errors, int *pexit_code);

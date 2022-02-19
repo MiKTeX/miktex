@@ -2,7 +2,7 @@
 ** Font.cpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -624,14 +624,14 @@ double NativeFont::italicCorr(int c) const {
 double NativeFont::charHeight (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
-	return upem ? (scaledSize()*FontEngine::instance().getAscender()/upem) : 0;
+	return upem ? (scaledSize()*FontEngine::instance().getHeight(Character(Character::INDEX, c))/upem) : 0;
 }
 
 
 double NativeFont::charDepth (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
-	return upem ? (scaledSize()*FontEngine::instance().getDescender()/upem) : 0;
+	return upem ? (scaledSize()*FontEngine::instance().getDepth(Character(Character::INDEX, c))/upem) : 0;
 }
 
 
@@ -682,3 +682,11 @@ const vector<uint8_t>* VirtualFontImpl::getDVI (int c) const {
 	return (it == _charDefs.end() ? nullptr : &it->second);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+void PhysicalFont::visit (FontVisitor &visitor) {visitor.visited(this);}
+void VirtualFont::visit (FontVisitor &visitor) {visitor.visited(this);}
+void NativeFont::visit (FontVisitor &visitor) {visitor.visited(this);}
+void PhysicalFont::visit (FontVisitor &visitor) const {visitor.visited(this);}
+void VirtualFont::visit (FontVisitor &visitor) const {visitor.visited(this);}
+void NativeFont::visit (FontVisitor &visitor) const {visitor.visited(this);}

@@ -2,7 +2,7 @@
 ** SVGOutput.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -60,6 +60,7 @@ class SVGOutput : public SVGOutputBase {
 		std::ostream& getPageStream (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
 		FilePath filepath (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
 		bool ignoresHashes () const override;
+		void setFileNumbers (int fileNumber, int fileCount) {_fileNumber = fileNumber; _fileCount = fileCount;}
 
 	protected:
 		std::string expandFormatString (std::string str, int page, int numPages, const HashTriple &hashes) const;
@@ -69,6 +70,8 @@ class SVGOutput : public SVGOutputBase {
 		std::string _pattern;
 		bool _stdout=true;    ///< write to STDOUT?
 		int _zipLevel=0;      ///< compression level
+		int _fileNumber=1;    ///< current number of file in sequence of files
+		int _fileCount=1;     ///< number of files in sequence
 		mutable int _page=-1; ///< number of current page being written
 		mutable std::unique_ptr<std::ostream> _osptr;
 };

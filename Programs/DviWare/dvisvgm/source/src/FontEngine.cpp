@@ -2,7 +2,7 @@
 ** FontEngine.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -106,7 +106,7 @@ bool FontEngine::setFont (const Font &font) {
 		return true;
 
 	if (const char *path=font.path()) {
-		auto pf = dynamic_cast<const PhysicalFont*>(&font);
+		auto pf = font_cast<const PhysicalFont*>(&font);
 		if (setFont(path, font.fontIndex(), pf ? pf->getCharMapID() : CharMapID())) {
 			_currentFont = &font;
 			return true;
@@ -242,6 +242,33 @@ int FontEngine::getVAdvance (const Character &c) const {
 }
 
 
+int FontEngine::getWidth (const Character &c) const {
+	if (_currentFace) {
+		FT_Load_Glyph(_currentFace, charIndex(c), FT_LOAD_NO_SCALE);
+		return _currentFace->glyph->metrics.width;
+	}
+	return 0;
+}
+
+
+int FontEngine::getHeight (const Character &c) const {
+	if (_currentFace) {
+		FT_Load_Glyph(_currentFace, charIndex(c), FT_LOAD_NO_SCALE);
+		return _currentFace->glyph->metrics.horiBearingY;
+	}
+	return 0;
+}
+
+
+int FontEngine::getDepth (const Character &c) const {
+	if (_currentFace) {
+		FT_Load_Glyph(_currentFace, charIndex(c), FT_LOAD_NO_SCALE);
+		return _currentFace->glyph->metrics.height - _currentFace->glyph->metrics.horiBearingY;
+	}
+	return 0;
+}
+
+
 int FontEngine::charIndex (const Character &c) const {
 	if (!_currentFace || !_currentFace->charmap)
 		return c.type() == Character::NAME ? 0 : c.number();
@@ -311,7 +338,7 @@ int FontEngine::getCharMapIDs (vector<CharMapID> &charmapIDs) const {
 	if (_currentFace) {
 		for (int i=0; i < _currentFace->num_charmaps; i++) {
 			FT_CharMap charmap = _currentFace->charmaps[i];
-			charmapIDs.emplace_back(CharMapID(charmap->platform_id, charmap->encoding_id));
+			charmapIDs.emplace_back(charmap->platform_id, charmap->encoding_id);
 		}
 	}
 	return charmapIDs.size();

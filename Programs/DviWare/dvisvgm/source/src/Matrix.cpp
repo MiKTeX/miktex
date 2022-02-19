@@ -2,7 +2,7 @@
 ** Matrix.cpp                                                           **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -520,7 +520,7 @@ Matrix Matrix::parseSVGTransform (const string &transform) {
 		vector<double> params;
 		if (parse_transform_cmd(iss, "matrix", 6, 6, params)) {
 			if (ne(params[0], 1) || ne(params[1], 0) || ne(params[2], 0) || ne(params[3], 1) || ne(params[4], 0) || ne(params[5], 0))
-				matrix.rmultiply({params[0], params[2], params[4], params[1], params[3], params[5]});
+				matrix.rmultiply(Matrix{params[0], params[2], params[4], params[1], params[3], params[5]});
 		}
 		else if (parse_transform_cmd(iss, "rotate", 1, 3, params)) {
 			if (params.size() == 1) {

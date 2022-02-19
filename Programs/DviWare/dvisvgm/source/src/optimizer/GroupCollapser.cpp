@@ -2,7 +2,7 @@
 ** GroupCollapser.cpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -24,10 +24,12 @@
 #include <vector>
 #include "AttributeExtractor.hpp"
 #include "GroupCollapser.hpp"
+#include "TransformSimplifier.hpp"
 #include "../XMLNode.hpp"
 
 using namespace std;
 
+bool GroupCollapser::COMBINE_TRANSFORMS = true;
 
 const char* GroupCollapser::info () const {
 	return "join nested group elements";
@@ -70,8 +72,9 @@ static void remove_ws_nodes (XMLElement *elem) {
 
 /** Recursively removes all redundant group elements from the given context element
  *  and moves their attributes to the corresponding parent elements.
- *  @param[in] context root of the subtree to process */
-void GroupCollapser::execute (XMLElement *context) {
+ *  @param[in] context root of the subtree to process
+ *  @param[in] depth depth of tree node being processed (0 = root of local tree) */
+void GroupCollapser::execute (XMLElement *context, int depth) {
 	if (!context)
 		return;
 
@@ -79,7 +82,7 @@ void GroupCollapser::execute (XMLElement *context) {
 	while (child) {
 		XMLNode *next=child->next();
 		if (XMLElement *childElement = child->toElement()) {
-			execute(childElement);
+			execute(childElement, depth+1);
 			// check for groups without attributes and remove them
 			if (childElement->name() == "g" && childElement->attributes().empty()) {
 				remove_ws_nodes(childElement);
@@ -97,6 +100,10 @@ void GroupCollapser::execute (XMLElement *context) {
 			}
 		}
 	}
+	if (depth == 0 && COMBINE_TRANSFORMS && _transformCombined) {
+		TransformSimplifier().execute(context);
+		_transformCombined = false;
+	}
 }
 
 
@@ -107,13 +114,16 @@ void GroupCollapser::execute (XMLElement *context) {
  *  @return true if all attributes have been moved */
 bool GroupCollapser::moveAttributes (XMLElement &source, XMLElement &dest) {
 	vector<string> movedAttributes;
-	for (const XMLElement::Attribute &attr : source.attributes()) {
+	for (const auto &attr : source.attributes()) {
 		if (attr.name == "transform") {
 			string transform;
-			if (const char *destvalue = dest.getAttributeValue("transform"))
+			if (const char *destvalue = dest.getAttributeValue("transform")) {
 				transform = destvalue+attr.value;
-			else
+				_transformCombined = true;
+			}
+			else {
 				transform = attr.value;
+			}
 			dest.addAttribute("transform", transform);
 			movedAttributes.emplace_back("transform");
 		}

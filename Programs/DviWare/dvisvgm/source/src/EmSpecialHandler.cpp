@@ -2,7 +2,7 @@
 ** EmSpecialHandler.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -24,9 +24,8 @@
 #include "InputReader.hpp"
 #include "Length.hpp"
 #include "SpecialActions.hpp"
+#include "SVGElement.hpp"
 #include "SVGTree.hpp"
-#include "XMLNode.hpp"
-#include "XMLString.hpp"
 
 using namespace std;
 
@@ -77,17 +76,19 @@ static DPair cut_vector (char cuttype, const DPair &linedir, double linewidth) {
 static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, double lw, SpecialActions &actions) {
 	if (actions.outputLocked())
 		return;
-	unique_ptr<XMLElement> node;
+	unique_ptr<SVGElement> node;
 	DPair dir = p2-p1;
 	if (dir.x() == 0 || dir.y() == 0 || (c1 == 'p' && c2 == 'p')) {
 		// draw regular line
-		node = util::make_unique<XMLElement>("line");
+		node = util::make_unique<SVGElement>("line");
 		node->addAttribute("x1", p1.x());
 		node->addAttribute("y1", p1.y());
 		node->addAttribute("x2", p2.x());
 		node->addAttribute("y2", p2.y());
-		node->addAttribute("stroke-width", lw);
-		node->addAttribute("stroke", actions.getColor().svgColorString());
+		node->setStrokeWidth(lw);
+		node->setStrokeColor(actions.getColor());
+		node->setStrokeOpacity(actions.getOpacity());
+
 		// update bounding box
 		DPair cv = cut_vector('p', dir, lw);
 		actions.embed(p1+cv);
@@ -97,24 +98,24 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 	}
 	else {
 		// draw polygon
+		vector<DPair> points;
 		DPair cv1 = cut_vector(c1, dir, lw);
 		DPair cv2 = cut_vector(c2, dir, lw);
-		DPair q11 = p1+cv1, q12 = p1-cv1;
-		DPair q21 = p2+cv2, q22 = p2-cv2;
-		ostringstream oss;
-		oss << XMLString(q11.x()) << ',' << XMLString(q11.y()) << ' '
-			 << XMLString(q12.x()) << ',' << XMLString(q12.y()) << ' '
-			 << XMLString(q22.x()) << ',' << XMLString(q22.y()) << ' '
-			 << XMLString(q21.x()) << ',' << XMLString(q21.y());
-		node = util::make_unique<XMLElement>("polygon");
-		node->addAttribute("points", oss.str());
-		if (actions.getColor() != Color::BLACK)
-			node->addAttribute("fill", actions.getColor().svgColorString());
+		points.push_back(p1+cv1);
+		points.push_back(p1-cv1);
+		points.push_back(p2-cv2);
+		points.push_back(p2+cv2);
+
+		node = util::make_unique<SVGElement>("polygon");
+		node->setPoints(points);
+		node->setFillColor(actions.getColor());
+		node->setFillOpacity(actions.getOpacity());
+
 		// update bounding box
-		actions.embed(q11);
-		actions.embed(q12);
-		actions.embed(q21);
-		actions.embed(q22);
+		actions.embed(points[0]);
+		actions.embed(points[1]);
+		actions.embed(points[2]);
+		actions.embed(points[3]);
 	}
 	actions.svgTree().appendToPage(std::move(node));
 }
@@ -236,7 +237,7 @@ void EmSpecialHandler::line (InputReader &ir, SpecialActions& actions) {
 		// Line endpoints don't necessarily have to be defined before
 		// a line definition. If a point isn't defined yet, we put the line
 		// in a wait list and process the lines at the end of the page.
-		_lines.emplace_back(Line(pointnum1, pointnum2, char(cut1), char(cut2), linewidth));
+		_lines.emplace_back(pointnum1, pointnum2, char(cut1), char(cut2), linewidth);
 	}
 }
 

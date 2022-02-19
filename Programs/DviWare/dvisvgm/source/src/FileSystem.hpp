@@ -2,7 +2,7 @@
 ** FileSystem.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -48,6 +48,9 @@ class FileSystem {
 		static uint64_t filesize (const std::string &fname);
 		static std::string ensureForwardSlashes (std::string path);
 		static std::string getcwd ();
+#ifdef _WIN32
+		static std::string getcwd (char drive);
+#endif
 		static std::string tmpdir ();
 		static bool chdir (const std::string &dir);
 		static bool exists (const std::string &fname);

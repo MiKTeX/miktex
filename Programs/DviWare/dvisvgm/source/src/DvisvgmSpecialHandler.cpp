@@ -2,7 +2,7 @@
 ** DvisvgmSpecialHandler.cpp                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -81,8 +81,7 @@ void DvisvgmSpecialHandler::preprocessRawSet (InputReader &ir) {
 		_currentMacro = _macros.end();
 		throw SpecialException("redefinition of SVG fragment '" + id + "'");
 	}
-	pair<string, StringVector> entry(id, StringVector());
-	pair<MacroMap::iterator, bool> state = _macros.emplace(move(entry));
+	pair<MacroMap::iterator, bool> state = _macros.emplace(id, StringVector());
 	_currentMacro = state.first;
 }
 
@@ -194,7 +193,7 @@ static void expand_constants (string &str, SpecialActions &actions) {
 /** Evaluates substrings of the form {?(expr)} where 'expr' is a math expression,
  *  and replaces the substring by the computed value.
  *  @param[in,out] str string to scan for expressions */
-static void evaluate_expressions (string &str, SpecialActions &actions) {
+static void evaluate_expressions (string &str, const SpecialActions &actions) {
 	size_t left = str.find("{?(");             // start position of expression macro
 	while (left != string::npos) {
 		size_t right = str.find(")}", left+2);  // end position of expression macro
@@ -243,6 +242,7 @@ void DvisvgmSpecialHandler::processRawDef (InputReader &ir, SpecialActions &acti
 	if (_nestingLevel == 0) {
 		string xml = ir.getLine();
 		if (!xml.empty()) {
+			evaluate_expressions(xml, actions);
 			expand_constants(xml, actions);
 			_defsParser.parse(xml, actions);
 		}
@@ -386,14 +386,13 @@ void DvisvgmSpecialHandler::processImg (InputReader &ir, SpecialActions &actions
 		Length h = read_length(ir);
 		string f = ir.getString();
 		update_bbox(w, h, Length(0), false, actions);
-		auto img = util::make_unique<XMLElement>("image");
+		auto img = util::make_unique<SVGElement>("image");
 		img->addAttribute("x", actions.getX());
 		img->addAttribute("y", actions.getY());
 		img->addAttribute("width", w.bp());
 		img->addAttribute("height", h.bp());
 		img->addAttribute("xlink:href", f);
-		if (!actions.getMatrix().isIdentity())
-			img->addAttribute("transform", actions.getMatrix().toSVG());
+		img->setTransform(actions.getMatrix());
 		actions.svgTree().appendToPage(std::move(img));
 	}
 	catch (const UnitException &e) {
@@ -448,10 +447,10 @@ void DvisvgmSpecialHandler::XMLParser::parse (const string &xml, SpecialActions 
 	// collect/extract an XML fragment that only contains complete tags
 	// incomplete tags are held back
 	_xmlbuf += xml;
-	size_t left=0, right;
+	size_t left=0;
 	try {
 		while (left != string::npos) {
-			right = _xmlbuf.find('<', left);
+			size_t right = _xmlbuf.find('<', left);
 			if (left < right && left < _xmlbuf.length())  // plain text found?
 				(actions.svgTree().*_append)(util::make_unique<XMLText>(_xmlbuf.substr(left, right-left)));
 			if (right != string::npos) {
@@ -523,7 +522,7 @@ void DvisvgmSpecialHandler::XMLParser::openElement (const string &tag, SpecialAc
 	BufferInputReader ir(ib);
 	string name = ir.getString("/ \t\n\r");
 	ir.skipSpace();
-	auto elemNode = util::make_unique<XMLElement>(name);
+	auto elemNode = util::make_unique<SVGElement>(name);
 	map<string, string> attribs;
 	if (ir.parseAttributes(attribs, true, "\"'")) {
 		for (const auto &attrpair : attribs)

@@ -2,7 +2,7 @@
 ** TriangularPatch.cpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -31,7 +31,9 @@ TriangularPatch::TriangularPatch (const PointVec &points, const ColorVec &colors
 
 
 void TriangularPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) {
-	auto triangularPatch = dynamic_cast<TriangularPatch*>(patch);
+	TriangularPatch *triangularPatch = nullptr;
+	if (patch && patch->psShadingType() == psShadingType())
+		triangularPatch = static_cast<TriangularPatch*>(patch);
 	if (edgeflag > 0 && !triangularPatch)
 		throw ShadingException("missing preceding data in definition of triangular patch");
 	if ((edgeflag == 0 && points.size() != 3) || (edgeflag > 0 && points.size() != 1))
@@ -62,7 +64,9 @@ void TriangularPatch::setPoints (const DPair &p1, const DPair &p2, const DPair &
 
 
 void TriangularPatch::setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) {
-	auto triangularPatch = dynamic_cast<TriangularPatch*>(patch);
+	TriangularPatch *triangularPatch = nullptr;
+	if (patch && patch->psShadingType() == psShadingType())
+		triangularPatch = static_cast<TriangularPatch*>(patch);
 	if (edgeflag > 0 && !triangularPatch)
 		throw ShadingException("missing preceding data in definition of triangular patch");
 	if ((edgeflag == 0 && colors.size() != 3) || (edgeflag > 0 && colors.size() != 1))

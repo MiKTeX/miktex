@@ -2,7 +2,7 @@
 ** TensorProductPatch.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -63,7 +63,9 @@ void TensorProductPatch::setFirstMatrixColumn (DPair source[4][4], int col, bool
  *  @param[in] edgeflag defines how to connect this patch with another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void TensorProductPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) {
-	auto tpPatch = dynamic_cast<TensorProductPatch*>(patch);
+	TensorProductPatch *tpPatch = nullptr;
+	if (patch && patch->psShadingType() == psShadingType())
+		tpPatch = static_cast<TensorProductPatch*>(patch);
 	if (edgeflag > 0 && !tpPatch)
 		throw ShadingException("missing preceding data in definition of tensor-product patch");
 	if ((edgeflag == 0 && points.size() != 16) || (edgeflag > 0 && points.size() != 12))
@@ -107,7 +109,9 @@ void TensorProductPatch::setPoints (const PointVec &points, int edgeflag, Shadin
  *  @param[in] edgeflag defines how to connect this patch with another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void TensorProductPatch::setColors(const ColorVec &colors, int edgeflag, ShadingPatch* patch) {
-	auto tpPatch = dynamic_cast<TensorProductPatch*>(patch);
+	TensorProductPatch *tpPatch = nullptr;
+	if (patch && patch->psShadingType() == psShadingType())
+		tpPatch = static_cast<TensorProductPatch*>(patch);
 	if (edgeflag > 0 && !tpPatch)
 		throw ShadingException("missing preceding data in definition of tensor-product patch");
 	if ((edgeflag == 0 && colors.size() != 4) || (edgeflag > 0 && colors.size() != 2))
@@ -492,7 +496,9 @@ DPair CoonsPatch::valueAt (double u, double v) const {
  *  @param[in] edgeflag defines how to connect this patch to another one
  *  @param[in] patch reference patch required if edgeflag > 0 */
 void CoonsPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *patch) {
-	auto coonsPatch = dynamic_cast<CoonsPatch*>(patch);
+	CoonsPatch *coonsPatch = nullptr;
+	if (patch && patch->psShadingType() == psShadingType())
+		coonsPatch = static_cast<CoonsPatch*>(patch);
 	if (edgeflag > 0 && !coonsPatch)
 		throw ShadingException("missing preceding data in definition of relative Coons patch");
 	if ((edgeflag == 0 && points.size() != 12) || (edgeflag > 0 && points.size() != 8))
@@ -529,7 +535,9 @@ void CoonsPatch::setPoints (const PointVec &points, int edgeflag, ShadingPatch *
 
 
 void CoonsPatch::setColors (const ColorVec &colors, int edgeflag, ShadingPatch *patch) {
-	auto coonsPatch = dynamic_cast<CoonsPatch*>(patch);
+	CoonsPatch *coonsPatch = nullptr;
+	if (patch && patch->psShadingType() == psShadingType())
+		coonsPatch = static_cast<CoonsPatch*>(patch);
 	if (edgeflag > 0 && !coonsPatch)
 		throw ShadingException("missing preceding data in definition of relative Coons patch");
 	if ((edgeflag == 0 && colors.size() != 4) || (edgeflag > 0 && colors.size() != 2))

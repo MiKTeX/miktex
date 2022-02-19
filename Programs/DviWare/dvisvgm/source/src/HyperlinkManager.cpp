@@ -2,7 +2,7 @@
 ** HyperlinkManager.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -106,7 +106,7 @@ void HyperlinkManager::createLink (string uri, SpecialActions &actions) {
 			uri = "/" + uri;
 		uri = _base + uri;
 	}
-	auto anchorNode = util::make_unique<XMLElement>("a");
+	auto anchorNode = util::make_unique<SVGElement>("a");
 	anchorNode->addAttribute("xlink:href", uri);
 	anchorNode->addAttribute("xlink:title", XMLString(name.empty() ? uri : name, false));
 	actions.svgTree().pushPageContext(std::move(anchorNode));
@@ -148,14 +148,14 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 	if (bbox.width() > 0 && bbox.height() > 0) {  // does the bounding box extend in both dimensions?
 		if (MARKER_TYPE != MarkerType::NONE) {
 			const double linewidth = _linewidth >= 0 ? _linewidth : min(0.5, bbox.height()/15);
-			auto rect = util::make_unique<XMLElement>("rect");
+			auto rect = util::make_unique<SVGElement>("rect");
 			double x = bbox.minX();
 			double y = bbox.maxY()+linewidth;
 			double w = bbox.width();
 			double h = linewidth;
 			const Color linecolor = COLORSOURCE == ColorSource::DEFAULT ? actions.getColor() : LINK_LINECOLOR;
 			if (MARKER_TYPE == MarkerType::LINE)
-				rect->addAttribute("fill", linecolor.svgColorString());
+				rect->setFillColor(linecolor);
 			else {
 				const double offset = _linewidth < 0 ? linewidth : 0 ;
 				x -= offset;
@@ -163,16 +163,16 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 				w += 2*offset;
 				h += bbox.height()+offset;
 				if (MARKER_TYPE == MarkerType::BGCOLOR) {
-					rect->addAttribute("fill", LINK_BGCOLOR.svgColorString());
+					rect->setFillColor(LINK_BGCOLOR);
 					if (COLORSOURCE != ColorSource::DEFAULT) {
-						rect->addAttribute("stroke", linecolor.svgColorString());
-						rect->addAttribute("stroke-width", linewidth);
+						rect->setStrokeColor(linecolor);
+						rect->setStrokeWidth(linewidth);
 					}
 				}
 				else {  // LM_BOX
-					rect->addAttribute("fill", "none");
-					rect->addAttribute("stroke", linecolor.svgColorString());
-					rect->addAttribute("stroke-width", linewidth);
+					rect->setNoFillColor();
+					rect->setStrokeColor(linecolor);
+					rect->setStrokeWidth(linewidth);
 				}
 			}
 			rect->addAttribute("x", x);
@@ -192,13 +192,13 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 		// Create an invisible rectangle around the linked area so that it's easier to access.
 		// This is only necessary when using paths rather than real text elements together with fonts.
 		if (!SVGTree::USE_FONTS) {
-			auto rect = util::make_unique<XMLElement>("rect");
+			auto rect = util::make_unique<SVGElement>("rect");
 			rect->addAttribute("x", bbox.minX());
 			rect->addAttribute("y", bbox.minY());
 			rect->addAttribute("width", bbox.width());
 			rect->addAttribute("height", bbox.height());
-			rect->addAttribute("fill", "white");
-			rect->addAttribute("fill-opacity", 0);
+			rect->setFillColor(Color::WHITE);
+			rect->setFillOpacity(OpacityAlpha(0, 0));
 			actions.svgTree().appendToPage(std::move(rect));
 		}
 	}

@@ -2,7 +2,7 @@
 ** FilePath.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -37,34 +37,24 @@ static string& single_slashes (string &str) {
 
 
 #ifdef _WIN32
+/** Returns the drive letter of a given path string or 0 if there's none. */
+static char drive_letter (const string &path) {
+	if (path.length() >= 2 && path[1] == ':' && isalpha(path[0]))
+		return tolower(path[0]);
+	return '\0';
+}
+
+/** Removes the drive letter and following colon from a given path string if present.
+ *  @param[in] path path to strip drive letter from
+ *  @return drive letter or 0 if there was none */
 static char strip_drive_letter (string &path) {
-	char letter = 0;
+	char letter = '\0';
 	if (path.length() >= 2 && path[1] == ':' && isalpha(path[0])) {
 		letter = path[0];
 		path.erase(0, 2);
 	}
-	return letter;
+	return tolower(letter);
 }
-
-
-static char adapt_current_path (string &path, char target_drive) {
-	if (char current_drive = strip_drive_letter(path)) {
-		if (target_drive != current_drive) {
-			if (target_drive == 0)
-				target_drive = current_drive;
-			if (path.empty() || path[0] != '/') {
-				if (FileSystem::chdir(string(1, target_drive) + ":")) {
-					path.insert(0, FileSystem::getcwd()+"/");
-					strip_drive_letter(path);
-				}
-				else
-					throw MessageException("drive " + string(1, target_drive) + ": not accessible");
-			}
-		}
-	}
-	return target_drive;
-}
-
 #endif
 
 
@@ -99,7 +89,7 @@ void FilePath::set (const string &path) {
  *  @param[in] path absolute or relative path to a file or directory
  *  @param[in] isfile true if 'path' references a file, false if a directory is referenced */
 void FilePath::set (const string &path, bool isfile) {
-	init(path, isfile, FileSystem::getcwd());
+	init(path, isfile, "");
 }
 
 
@@ -121,47 +111,42 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 	_fname.clear();
 	single_slashes(path);
 	single_slashes(current_dir);
-#ifdef _WIN32
-	path = FileSystem::ensureForwardSlashes(path);
+#ifndef _WIN32
+	if (current_dir.empty())
+		current_dir = FileSystem::getcwd();
+#else
 	_drive = strip_drive_letter(path);
+	if (current_dir.empty() || drive_letter(current_dir) != _drive)
+		current_dir = FileSystem::getcwd(_drive);
+	if (!_drive)
+		_drive = drive_letter(current_dir);
+	strip_drive_letter(current_dir);
+	path = FileSystem::ensureForwardSlashes(path);
 #endif
 	if (isfile) {
 		size_t pos = path.rfind('/');
 		_fname = path.substr((pos == string::npos) ? 0 : pos+1);
-		if (pos != string::npos)
+		// remove filename from path
+		if (pos == 0 && _fname.length() > 1)  // file in root directory?
+			path.erase(1);
+		else if (pos != string::npos)
 			path.erase(pos);
 		else
 			path.clear();
 	}
-	if (current_dir.empty())
-		current_dir = FileSystem::getcwd();
-#ifdef _WIN32
-	_drive = adapt_current_path(current_dir, _drive);
-#endif
-	if (!path.empty()) {
-		if (path[0] == '/')
-			current_dir.clear();
-		else if (current_dir[0] != '/')
-			current_dir = "/";
-		else {
-			FilePath curr(current_dir, false, "/");
-			current_dir = curr.absolute();
-#ifdef _WIN32
-			adapt_current_path(current_dir, _drive);
-#endif
-		}
-	}
-	path.insert(0, current_dir + "/");
+	if ((path.empty() || path[0] != '/') && !current_dir.empty())
+		path.insert(0, current_dir + "/");
 	string elem;
 	for (char c : path) {
 		if (c != '/')
 			elem += c;
-		else {
+		else if (!elem.empty()){
 			add(elem);
 			elem.clear();
 		}
 	}
-	add(elem);
+	if (!elem.empty())
+		add(elem);
 }
 
 
@@ -169,7 +154,7 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 void FilePath::add (const string &dir) {
 	if (dir == ".." && !_dirs.empty())
 		_dirs.pop_back();
-	else if (dir.length() > 0 && dir != ".")
+	else if (!dir.empty() && dir != ".")
 		_dirs.emplace_back(dir);
 }
 
@@ -223,16 +208,16 @@ string FilePath::basename () const {
  *  @return the absolute path string */
 string FilePath::absolute (bool with_filename) const {
 	string path;
+#ifdef _WIN32
+	if (_drive)
+		path = string(1, _drive) + ":";
+#endif
 	for (const Directory &dir : _dirs)
 		path += "/" + string(dir);
 	if (path.empty())
 		path = "/";
 	if (with_filename && !_fname.empty())
 		path += "/"+_fname;
-#ifdef _WIN32
-	if (_drive)
-		path.insert(0, string(1, _drive) + ":");
-#endif
 	return single_slashes(path);
 }
 
@@ -245,28 +230,32 @@ string FilePath::absolute (bool with_filename) const {
  *  @param[in] with_filename if false, the filename is omitted
  *  @return the relative path string */
 string FilePath::relative (string reldir, bool with_filename) const {
+#ifdef _WIN32
+	char reldrive = drive_letter(reldir);
+	if (reldir.empty()) {
+		reldir = FileSystem::getcwd(_drive);
+		reldrive = drive_letter(FileSystem::getcwd());
+	}
+	bool isAbsolute = (reldir[0] == '/')
+		|| (reldir.length() >= 3 && isalpha(reldir[0]) && reldir[1] == ':' && reldir[2] == '/');
+#else
 	if (reldir.empty())
 		reldir = FileSystem::getcwd();
-#ifdef _WIN32
-	adapt_current_path(reldir, _drive);
+	bool isAbsolute = (reldir[0] == '/');
 #endif
-	if (reldir[0] != '/')
+	if (!isAbsolute)
 		return absolute();
-	FilePath rel(reldir, false);
+	FilePath relpath(reldir, false);
 	string path;
-#ifdef _WIN32
-	if (rel._drive && _drive && tolower(rel._drive) != tolower(_drive))
-		path += string(1, _drive) + ":";
-#endif
 	auto it1 = _dirs.begin();
-	auto it2 = rel._dirs.begin();
-	while (it1 != _dirs.end() && it2 != rel._dirs.end() && *it1 == *it2)
+	auto it2 = relpath._dirs.begin();
+	while (it1 != _dirs.end() && it2 != relpath._dirs.end() && *it1 == *it2)
 		++it1, ++it2;
-	for (; it2 != rel._dirs.end(); ++it2)
+	for (; it2 != relpath._dirs.end(); ++it2)
 		path += "../";
 	for (; it1 != _dirs.end(); ++it1)
 		path += string(*it1) + "/";
-	if (!path.empty())
+	if (!path.empty() && path.back() == '/')
 		path.erase(path.length()-1, 1);  // remove trailing slash
 	if (with_filename && !_fname.empty()) {
 		if (!path.empty() && path != "/")
@@ -275,6 +264,10 @@ string FilePath::relative (string reldir, bool with_filename) const {
 	}
 	if (path.empty())
 		path = ".";
+#ifdef _WIN32
+	if (relpath._drive && _drive && _drive != reldrive)
+		path.insert(0, string(1, _drive) + ":");
+#endif
 	return single_slashes(path);
 }
 

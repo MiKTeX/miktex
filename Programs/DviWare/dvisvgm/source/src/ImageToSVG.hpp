@@ -2,7 +2,7 @@
 ** ImageToSVG.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -57,9 +57,11 @@ class ImageToSVG : protected SpecialActions {
 		void setY (double y) override                           {_y = y; _svg.setY(y);}
 		void finishLine () override                             {}
 		void setColor (const Color &color) override             {_svg.setColor(color);}
+		void setOpacity (const Opacity &opacity) override       {_svg.setOpacity(opacity);}
 		Color getColor () const override                        {return _svg.getColor();}
 		void setMatrix (const Matrix &m) override               {_svg.setMatrix(m);}
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
+		const Opacity& getOpacity () const override             {return _svg.getOpacity();}
 		const SVGTree& svgTree () const override                {return _svg;}
 		void setBgColor (const Color &color) override           {}
 		void embed (const BoundingBox &bbox) override           {_bbox.embed(bbox);}

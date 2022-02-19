@@ -2,7 +2,7 @@
 ** VectorIterator.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -93,7 +93,7 @@ class VectorIterator {
 		bool operator >= (const VectorIterator &it) const {return _pos >= it._pos;}
 		bool operator < (const VectorIterator &it) const  {return _pos < it._pos;}
 		bool operator > (const VectorIterator &it) const  {return _pos > it._pos;}
-		bool valid () const {return _pos >= 0 && _pos < _vector.size();}
+		bool valid () const {return _pos < _vector.size();}
 		void invalidate ()  {_pos = _vector.size();}
 		void reset ()       {_pos = 0;}
 

@@ -2,7 +2,7 @@
 ** FontManager.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -221,16 +221,14 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 		}
 		_name2id[name] = newid;
 	}
-	_fonts.emplace_back(std::move(newfont));
+	_fonts.push_back(std::move(newfont));
 	if (_vfStack.empty())  // register font referenced in dvi file?
 		_num2id[fontnum] = newid;
 	else {  // register font referenced in vf file
 		const VirtualFont *vf = _vfStack.top();
 		_vfnum2id[vf][fontnum] = newid;
-		if (_vfFirstFontNumMap.find(vf) == _vfFirstFontNumMap.end()) { // first fontdef of VF?
-			_vfFirstFontNumMap.emplace(vf, fontnum);
-			_vfFirstFontMap.emplace(vf, _fonts.back().get());
-		}
+		_vfFirstFontNumMap.emplace(vf, fontnum);
+		_vfFirstFontMap.emplace(vf, _fonts.back().get());
 	}
 	return newid;
 }
@@ -269,7 +267,7 @@ int FontManager::registerFont (uint32_t fontnum, string filename, int fontIndex,
 	const int newid = _fonts.size();   // the new font gets this ID
 	auto it = _name2id.find(fontname);
 	if (it != _name2id.end()) {  // font with same name already registered?
-		if (auto font = dynamic_cast<NativeFont*>(_fonts[it->second].get()))
+		if (auto font = font_cast<NativeFont*>(_fonts[it->second].get()))
 			newfont = font->clone(ptsize, style, color);
 	}
 	else {
@@ -291,7 +289,7 @@ int FontManager::registerFont (uint32_t fontnum, string filename, int fontIndex,
 		}
 		_name2id[fontname] = newid;
 	}
-	_fonts.emplace_back(std::move(newfont));
+	_fonts.push_back(std::move(newfont));
 	_num2id[fontnum] = newid;
 	return newid;
 }
@@ -330,7 +328,7 @@ ostream& FontManager::write (ostream &os, Font *font, int level) {
 			if (_fonts[i] == font)
 				id = i;
 
-		VirtualFont *vf = dynamic_cast<VirtualFont*>(font);
+		VirtualFont *vf = font_cast<VirtualFont*>(font);
 		for (int j=0; j < level+1; j++)
 			os << "  ";
 		os << "id " << id

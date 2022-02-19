@@ -2,7 +2,7 @@
 ** FileSystem.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -43,8 +43,6 @@
 #endif
 #endif
 
-using namespace std;
-
 #ifdef _WIN32
 	#include <direct.h>
 	#include "windows.hpp"
@@ -62,6 +60,8 @@ using namespace std;
 	const char FileSystem::PATHSEP = '/';
 #endif
 
+
+using namespace std;
 
 string FileSystem::TMPDIR;
 FileSystem::TemporaryDirectory FileSystem::_tmpdir;
@@ -167,18 +167,40 @@ string FileSystem::ensureForwardSlashes (string path) {
 }
 
 
+/** Returns the absolute path of the current working directory. */
 string FileSystem::getcwd () {
 	char buf[1024];
 #ifdef _WIN32
 #if defined(MIKTEX_UTF8_WRAP__GETCWD)
         return ensureForwardSlashes(miktex_utf8__getcwd(buf, 1024));
 #else
-	return ensureForwardSlashes(_getcwd(buf, 1024));
+	GetCurrentDirectoryA(1024, buf);
+	return ensureForwardSlashes(buf);
 #endif
 #else
 	return ::getcwd(buf, 1024);
 #endif
 }
+
+
+#ifdef _WIN32
+/** Returns the absolute path of the current directory of a given drive.
+ *  Windows keeps a current directory for every drive, i.e. when accessing a drive
+ *  without specifying a path (e.g. with "cd z:"), the current directory of that
+ *  drive is used.
+ *  @param[in] drive letter of drive to get the current directory from
+ *  @return absolute path of the directory */
+string FileSystem::getcwd (char drive) {
+	string cwd = getcwd();
+	if (cwd.length() > 1 && cwd[1] == ':' && tolower(cwd[0]) != tolower(drive)) {
+		chdir(string(1, drive)+":");
+		string cwd2 = cwd;
+		cwd = getcwd();
+		chdir(string(1, cwd2[0])+":");
+	}
+	return cwd;
+}
+#endif
 
 
 /** Changes the work directory.

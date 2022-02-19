@@ -2,7 +2,7 @@
 ** SVGSingleCharTextHandler.cpp                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #include "SVGSingleCharTextHandler.hpp"
-#include "XMLNode.hpp"
+#include "SVGElement.hpp"
 
 using namespace std;
 
@@ -29,9 +29,11 @@ void SVGSingleCharTextHandler::appendChar (uint32_t c, double x, double y) {
 	textNode->append(XMLString(font->unicode(c), false));
 	// Apply color changes only if the color differs from black and if the font color itself is black.
 	// Glyphs from non-black fonts (e.g. defined in a XeTeX document) can't change their color.
-	if (_color.get() != Color::BLACK && font->color() == Color::BLACK) {
-		textNode->addAttribute("fill", _color.get().svgColorString());
-		_color.changed(false);
-	}
+	if (_color.get() != Color::BLACK && font->color() == Color::BLACK)
+		textNode->setFillColor(_color);
+	_color.changed(false);
+	if (!_opacity->isFillDefault())
+		textNode->setFillOpacity(_opacity);
+	_opacity.changed(false);
 	contextNode()->append(std::move(textNode));
 }

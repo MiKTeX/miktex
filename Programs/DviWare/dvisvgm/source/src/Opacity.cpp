@@ -1,5 +1,5 @@
 /*************************************************************************
-** CharMapID.cpp                                                        **
+** Opacity.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
 ** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
@@ -18,19 +18,42 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "CharMapID.hpp"
+#include "Opacity.hpp"
 
-const CharMapID CharMapID::NONE(0, 0);
-const CharMapID CharMapID::WIN_SYMBOL(3, 0);
-const CharMapID CharMapID::WIN_UCS2(3, 1);
-const CharMapID CharMapID::WIN_SHIFTJIS(3, 2);
-const CharMapID CharMapID::WIN_PRC(3, 3);
-const CharMapID CharMapID::WIN_BIG5(3, 4);
-const CharMapID CharMapID::WIN_WANSUNG(3, 5);
-const CharMapID CharMapID::WIN_JOHAB(3, 6);
-const CharMapID CharMapID::WIN_UCS4(3, 10);
+using namespace std;
 
-const CharMapID CharMapID::MAC_JAPANESE(1, 1);
-const CharMapID CharMapID::MAC_TRADCHINESE(1, 2);
-const CharMapID CharMapID::MAC_KOREAN(1, 3);
-const CharMapID CharMapID::MAC_SIMPLCHINESE(1, 25);
+string Opacity::cssBlendMode (BlendMode bm) {
+	switch (bm) {
+		case BM_NORMAL    : return "normal";
+		case BM_MULTIPLY  : return "multiply";
+		case BM_SCREEN    : return "screen";
+		case BM_OVERLAY   : return "overlay";
+		case BM_SOFTLIGHT : return "soft-light";
+		case BM_HARDLIGHT : return "hard-light";
+		case BM_COLORDODGE: return "color-dodge";
+		case BM_COLORBURN : return "color-burn";
+		case BM_DARKEN    : return "darken";
+		case BM_LIGHTEN   : return "lighten";
+		case BM_DIFFERENCE: return "difference";
+		case BM_EXCLUSION : return "exclusion";
+		case BM_HUE       : return "hue";
+		case BM_SATURATION: return "saturation";
+		case BM_COLOR     : return "color";
+		case BM_LUMINOSITY: return "luminosity";
+	}
+	return "";
+}
+
+
+bool Opacity::operator == (const Opacity &opacity) const {
+	return opacity._fillalpha == _fillalpha
+		&& opacity._strokealpha == _strokealpha
+		&& opacity._blendMode == _blendMode;
+}
+
+
+bool Opacity::operator != (const Opacity &opacity) const {
+	return opacity._fillalpha != _fillalpha
+		|| opacity._strokealpha != _strokealpha
+		|| opacity._blendMode != _blendMode;
+}

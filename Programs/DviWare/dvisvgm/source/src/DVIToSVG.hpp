@@ -2,7 +2,7 @@
 ** DVIToSVG.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -101,13 +101,13 @@ class DVIToSVG : public DVIReader {
 		SVGTree _svg;
 		SVGOutputBase &_out;
 		std::unique_ptr<DVIActions> _actions;
-		std::string _bboxFormatString;  ///< bounding box size/format set by the user
-		std::string _transCmds;         ///< page transformation commands set by the user
-		double _pageHeight, _pageWidth; ///< global page height and width stored in the postamble
-		double _tx, _ty;                ///< translation of cursor position
-		double _prevXPos, _prevYPos;    ///< previous cursor position
-		WritingMode _prevWritingMode;   ///< previous writing mode
-		std::streampos _pageByte;       ///< position of the stream pointer relative to the preceding bop (in bytes)
+		std::string _bboxFormatString;      ///< bounding box size/format set by the user
+		std::string _transCmds;             ///< page transformation commands set by the user
+		double _pageHeight=0, _pageWidth=0; ///< global page height and width stored in the postamble
+		double _tx=0, _ty=0;                ///< translation of cursor position
+		double _prevXPos, _prevYPos;        ///< previous cursor position
+		WritingMode _prevWritingMode;       ///< previous writing mode
+		std::streampos _pageByte=0;         ///< position of the stream pointer relative to the preceding bop (in bytes)
 };
 
 #endif

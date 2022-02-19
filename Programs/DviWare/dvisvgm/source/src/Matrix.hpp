@@ -2,7 +2,7 @@
 ** Matrix.hpp                                                           **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -40,11 +40,12 @@ class Matrix {
 	friend double det (const Matrix &m, int row, int col);
 
 	public:
+		Matrix () {set(0);}
+		Matrix (double d);
 		Matrix (const std::string &cmds, Calculator &calc);
-		Matrix (double d=0);
 		explicit Matrix (const double *v, unsigned size=9);
 		explicit Matrix (const std::vector<double> &v, int start=0);
-		Matrix (std::initializer_list<double> initlist);
+		explicit Matrix (std::initializer_list<double> initlist);
 		Matrix& set (double d);
 		Matrix& set (const double *v, unsigned size);
 		Matrix& set (const std::vector<double> &v, int start=0);

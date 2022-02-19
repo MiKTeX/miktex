@@ -2,7 +2,7 @@
 ** PSInterpreter.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -62,6 +62,7 @@ struct PSActions {
 	virtual void rotate (std::vector<double> &p) =0;
 	virtual void save (std::vector<double> &p) =0;
 	virtual void scale (std::vector<double> &p) =0;
+	virtual void setalphaisshape (std::vector<double> &p) =0;
 	virtual void setblendmode (std::vector<double> &p) =0;
 	virtual void setcolorspace (std::vector<double> &p) =0;
 	virtual void setcmykcolor (std::vector<double> &cmyk) =0;
@@ -69,7 +70,6 @@ struct PSActions {
 	virtual void setfillconstantalpha (std::vector<double> &p) =0;
 	virtual void setgray (std::vector<double> &p) =0;
 	virtual void sethsbcolor (std::vector<double> &hsb) =0;
-	virtual void setisshapealpha (std::vector<double> &p) =0;
 	virtual void setlinecap (std::vector<double> &p) =0;
 	virtual void setlinejoin (std::vector<double> &p) =0;
 	virtual void setlinewidth (std::vector<double> &p) =0;
@@ -114,6 +114,7 @@ class PSInterpreter {
 		BoundingBox pdfPageBox (const std::string &fname, int pageno);
 		const std::vector<std::string>& rawData () const {return _rawData;}
 		bool setImageDevice (const std::string &deviceStr);
+		bool hasFullOpacitySupport () const {return _gs.revision() >= 952;}
 		static std::vector<PSDeviceInfo> getImageDeviceInfos ();
 		static void listImageDeviceInfos (std::ostream &os);
 		static bool imageDeviceKnown (std::string deviceStr);

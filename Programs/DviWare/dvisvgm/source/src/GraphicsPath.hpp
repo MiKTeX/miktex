@@ -2,7 +2,7 @@
 ** GraphicsPath.hpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cctype>
 #include <cmath>
@@ -662,24 +663,14 @@ class GraphicsPath {
 		bool operator == (const GraphicsPath &path) const {
 			if (size() != path.size())
 				return false;
-			auto it = _commands.begin();
-			for (const auto &cmd : path._commands) {
-				if (*it++ != cmd)
-					return false;
-			}
-			return true;
+			return std::equal(_commands.begin(), _commands.end(), path._commands.begin());
 		}
 
 		/** Returns true if this path differs from another one (command-wise). */
 		bool operator != (const GraphicsPath &path) const {
 			if (size() != path.size())
 				return true;
-			auto it = _commands.begin();
-			for (const auto &cmd : path._commands) {
-				if (*it++ != cmd)
-					return true;
-			}
-			return false;
+			return !std::equal(_commands.begin(), _commands.end(), path._commands.begin());
 		}
 
 		/** Iterates over all commands defining this path and calls the corresponding template methods.

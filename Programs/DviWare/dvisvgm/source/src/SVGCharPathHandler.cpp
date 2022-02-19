@@ -2,7 +2,7 @@
 ** SVGCharPathHandler.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,7 +23,7 @@
 #include "FontManager.hpp"
 #include "SVGCharPathHandler.hpp"
 #include "utility.hpp"
-#include "XMLNode.hpp"
+#include "SVGElement.hpp"
 
 using namespace std;
 
@@ -61,22 +61,23 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 	// Glyphs of non-black fonts (e.g. defined in a XeTeX document) can't change their color.
 	CharProperty<Color> &color = (_fontColor.get() != Color::BLACK) ? _fontColor : _color;
 	bool applyColor = color.get() != Color::BLACK;
-	bool applyMatrix = !_matrix.get().isIdentity();
+	bool applyMatrix = !_matrix->isIdentity();
+	bool applyOpacity = !_opacity->isFillDefault();
 	if (!_groupNode) {
 		color.changed(applyColor);
 		_matrix.changed(applyMatrix);
 	}
-	if (color.changed() || _matrix.changed()) {
+	if (color.changed() || _matrix.changed() || _opacity.changed()) {
 		resetContextNode();
-		if (applyColor || applyMatrix) {
-			_groupNode = pushContextNode(util::make_unique<XMLElement>("g"));
-			if (applyColor)
-				contextNode()->addAttribute("fill", color.get().svgColorString());
-			if (applyMatrix)
-				contextNode()->addAttribute("transform", _matrix.get().toSVG());
+		if (applyColor || applyMatrix || applyOpacity) {
+			_groupNode = pushContextNode(util::make_unique<SVGElement>("g"));
+			contextNode()->setFillColor(color);
+			contextNode()->setFillOpacity(_opacity->fillalpha());
+			contextNode()->setTransform(_matrix);
 		}
 		color.changed(false);
 		_matrix.changed(false);
+		_opacity.changed(false);
 	}
 	const Font *font = _font.get();
 	if (font->verticalLayout()) {
@@ -84,12 +85,12 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 		GlyphMetrics metrics;
 		font->getGlyphMetrics(c, _vertical, metrics);
 		x -= metrics.wl;
-		if (auto pf = dynamic_cast<const PhysicalFont*>(font)) {
+		if (auto pf = font_cast<const PhysicalFont*>(font)) {
 			// Center glyph between top and bottom border of the TFM box.
 			// This is just an approximation used until I find a way to compute
 			// the exact location in vertical mode.
 			GlyphMetrics exact_metrics;
-			pf->getExactGlyphBox(c, exact_metrics, false);
+			pf->getExactGlyphBox(c, exact_metrics, false, nullptr);
 			y += exact_metrics.h+(metrics.d-exact_metrics.h-exact_metrics.d)/2;
 		}
 		else
@@ -109,28 +110,27 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 
 void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) {
 	string id = "#g" + to_string(FontManager::instance().fontID(_font)) + "-" + to_string(c);
-	auto useNode = util::make_unique<XMLElement>("use");
-	useNode->addAttribute("x", XMLString(x));
-	useNode->addAttribute("y", XMLString(y));
+	auto useNode = util::make_unique<SVGElement>("use");
+	useNode->addAttribute("x", x);
+	useNode->addAttribute("y", y);
 	useNode->addAttribute("xlink:href", id);
-	if (!matrix.isIdentity())
-		useNode->addAttribute("transform", matrix.toSVG());
+	useNode->setFillOpacity(_opacity->blendMode()); // add blend mode style here because it's not inheritable
+	useNode->setTransform(matrix);
 	contextNode()->append(std::move(useNode));
 }
 
 
 void SVGCharPathHandler::appendPathElement (uint32_t c, double x, double y, const Matrix &matrix) {
 	Glyph glyph;
-	auto pf = dynamic_cast<const PhysicalFont*>(_font.get());
-	if (pf && pf->getGlyph(c, glyph)) {
+	auto pf = font_cast<const PhysicalFont*>(_font.get());
+	if (pf && pf->getGlyph(c, glyph, nullptr)) {
 		double sx = pf->scaledSize()/pf->unitsPerEm();
 		double sy = -sx;
 		ostringstream oss;
 		glyph.writeSVG(oss, _relativePathCommands, sx, sy, x, y);
-		auto glyphNode = util::make_unique<XMLElement>("path");
+		auto glyphNode = util::make_unique<SVGElement>("path");
 		glyphNode->addAttribute("d", oss.str());
-		if (!matrix.isIdentity())
-			glyphNode->addAttribute("transform", matrix.toSVG());
+		glyphNode->setTransform(matrix);
 		contextNode()->append(std::move(glyphNode));
 	}
 }

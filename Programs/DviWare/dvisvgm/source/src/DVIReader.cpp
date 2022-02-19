@@ -2,7 +2,7 @@
 ** DVIReader.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,7 +26,6 @@
 #include "Font.hpp"
 #include "FontManager.hpp"
 #include "HashFunction.hpp"
-#include "JFM.hpp"
 #include "utility.hpp"
 #include "VectorStream.hpp"
 #if defined(MIKTEX_WINDOWS)
@@ -207,11 +206,11 @@ void DVIReader::cmdPop (int) {
  *  @param[in] font current font (corresponding to _currFontNum)
  *  @param[in] c character to typeset */
 void DVIReader::putVFChar (Font *font, uint32_t c) {
-	if (auto vf = dynamic_cast<VirtualFont*>(font)) { // is current font a virtual font?
+	if (auto vf = font_cast<VirtualFont*>(font)) { // is current font a virtual font?
 		FontManager &fm = FontManager::instance();
 		const vector<uint8_t> *dvi = vf->getDVI(c);    // try to get DVI snippet that represents character c
 		Font *firstFont = fm.vfFirstFont(vf);
-		if (!dvi && (!firstFont || !dynamic_cast<const JFM*>(firstFont->getMetrics())))
+		if (!dvi && (!firstFont || !firstFont->getMetrics()->isJFM()))
 			return;
 		fm.enterVF(vf);                              // enter VF font number context
 		int savedFontNum = _currFontNum;             // save current font number
@@ -489,7 +488,7 @@ const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_
 		else {  // TFM-based font specified by name
 			int id = fm.registerFont(fontnum, name, cs, dsize, ssize);
 			font = fm.getFontById(id);
-			if (auto vf = dynamic_cast<VirtualFont*>(font)) {
+			if (auto vf = font_cast<VirtualFont*>(font)) {
 				// read vf file, register its font and character definitions
 				fm.enterVF(vf);
 #if defined(MIKTEX_WINDOWS)
@@ -600,7 +599,7 @@ void DVIReader::cmdXFontDef (int) {
 		FontManager::instance().registerFont(fontnum, fontname, fontIndex, ptsize, style, color);
 		font = FontManager::instance().getFont(fontnum);
 	}
-	dviXFontDef(fontnum, dynamic_cast<const NativeFont*>(font));
+	dviXFontDef(fontnum, font_cast<const NativeFont*>(font));
 }
 
 

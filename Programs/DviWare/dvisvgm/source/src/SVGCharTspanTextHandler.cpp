@@ -2,7 +2,7 @@
 ** SVGCharTspanTextHandler.cpp                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -20,7 +20,7 @@
 
 #include "SVGCharTspanTextHandler.hpp"
 #include "utility.hpp"
-#include "XMLNode.hpp"
+#include "SVGElement.hpp"
 
 using namespace std;
 
@@ -36,9 +36,10 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 	if (!_textNode || _font.changed() || _matrix.changed() || _vertical.changed()) {
 		resetContextNode();
 		_textNode = pushContextNode(createTextNode(x, y));
-		_color.changed(true);  // force creating tspan with color attribute if current color differs from font color
+		_color.changed(true);   // force creating tspan with color attribute if current color differs from font color
+		_opacity.changed(true); // dito for opacity properties
 	}
-	if (_tspanNode && (_xchanged || _ychanged || _color.changed())) {
+	if (_tspanNode && (_xchanged || _ychanged || _color.changed() || _opacity.changed())) {
 		// if drawing position or color was explicitly changed, finish current tspan element
 		popContextNode();
 		_tspanNode = nullptr;
@@ -46,15 +47,18 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 	// Apply text color changes only if the color of the entire font is black.
 	// Glyphs of non-black fonts (e.g. defined in a XeTeX document) can't change their color.
 	bool applyColor = _color.get() != Color::BLACK && _font.get()->color() == Color::BLACK;
-	if (_xchanged || _ychanged || (_color.changed() && applyColor)) {
-		_tspanNode = pushContextNode(util::make_unique<XMLElement>("tspan"));
+	bool applyOpacity = !_opacity->isFillDefault();
+	if (_xchanged || _ychanged || (_color.changed() && applyColor) || (_opacity.changed() && applyOpacity)) {
+		_tspanNode = pushContextNode(util::make_unique<SVGElement>("tspan"));
 		if (applyColor)
-			_tspanNode->addAttribute("fill", _color.get().svgColorString());
+			_tspanNode->setFillColor(_color);
 		_color.changed(false);
+		_tspanNode->setFillOpacity(_opacity);
+		_opacity.changed(false);
 		if (_xchanged) {
 			if (_vertical) {
 				// align glyphs designed for horizontal layout properly
-				if (auto pf = dynamic_cast<const PhysicalFont*>(_font.get()))
+				if (auto pf = font_cast<const PhysicalFont*>(_font.get()))
 					if (!pf->getMetrics()->verticalLayout())
 						x += pf->scaledAscent()/2.5; // move vertical baseline to the right by strikethrough offset
 			}
@@ -70,7 +74,7 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 }
 
 
-void SVGCharTspanTextHandler::setInitialContextNode (XMLElement *node) {
+void SVGCharTspanTextHandler::setInitialContextNode (SVGElement *node) {
 	SVGCharHandler::setInitialContextNode(node);
 	_textNode = _tspanNode = nullptr;
 	_xchanged = _ychanged = false;

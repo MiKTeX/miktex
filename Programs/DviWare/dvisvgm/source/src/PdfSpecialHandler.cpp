@@ -2,7 +2,7 @@
 ** PdfSpecialHandler.cpp                                                **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2021 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -95,7 +95,7 @@ static char prepare_mode (InputReader &ir) {
 void PdfSpecialHandler::preprocessPagesize (StreamInputReader &ir, SpecialActions &actions) {
 	// add page sizes to collection of paper sizes in order to handle them equally
 	SpecialHandler *handler = SpecialManager::instance().findHandlerByName("papersize");
-	if (auto papersizeHandler = dynamic_cast<PapersizeSpecialHandler*>(handler)) {
+	if (auto papersizeHandler = static_cast<PapersizeSpecialHandler*>(handler)) {
 		try {
 			Length width, height;
 			// parse parameter sequence of the form (name length)+
