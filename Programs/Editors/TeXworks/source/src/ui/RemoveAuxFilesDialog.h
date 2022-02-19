@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2022  Stefan Löffler, Jonathan Kew
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,34 +19,31 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#ifndef ConfirmDelete_H
-#define ConfirmDelete_H
+#ifndef RemoveAuxFilesDialog_H
+#define RemoveAuxFilesDialog_H
 
-#include "ui_ConfirmDelete.h"
+#include "ListSelectDialog.h"
 
-#include <QDialog>
 #include <QDir>
 #include <QStringList>
 
-class ConfirmDelete : public QDialog, private Ui::ConfirmDelete
+namespace Tw {
+namespace UI {
+
+class RemoveAuxFilesDialog : public ListSelectDialog
 {
 	Q_OBJECT
 
 public:
-	ConfirmDelete(QWidget *parent = nullptr);
-	~ConfirmDelete() override = default;
+	RemoveAuxFilesDialog(QWidget * parent = nullptr);
 
 	static void doConfirmDelete(const QDir& dir, const QStringList& fileList);
 
 private slots:
-	void doSelectAll();
-	void doSelectNone();
-	void doToggleSelection();
-	void doToggleItemSelection(QListWidgetItem * item);
 	void setDeleteButtonEnabledStatus();
-
-private:
-	void init();
 };
+
+} // namespace UI
+} // namespace Tw
 
 #endif

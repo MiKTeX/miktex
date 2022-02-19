@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,6 @@
 #include <memory>
 #endif
 #endif
-
 
 // Comparison operator for QSizeF needed to use QSizeF as keys in a QMap
 // NB: Must be in the global namespace
@@ -803,7 +802,7 @@ QList< QSharedPointer<Annotation::AbstractAnnotation> > Page::loadAnnotations()
   return _annotations;
 }
 
-QList<SearchResult> Page::search(const QString & searchText, const SearchFlags & flags)
+QList<SearchResult> Page::search(const QString & searchText, const SearchFlags & flags) const
 {
   QList<SearchResult> results;
   SearchResult result;
@@ -928,7 +927,7 @@ void Page::loadTransitionData()
   }
 }
 
-QList< Backend::Page::Box > Page::boxes()
+QList< Backend::Page::Box > Page::boxes() const
 {
   QReadLocker pageLocker(_pageLock);
   Q_ASSERT(_poppler_page != nullptr);
@@ -949,7 +948,7 @@ QList< Backend::Page::Box > Page::boxes()
   return retVal;
 }
 
-QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes /* = nullptr */, QMap<int, QRectF> * charBoxes /* = nullptr */, const bool onlyFullyEnclosed /* = false */)
+QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes /* = nullptr */, QMap<int, QRectF> * charBoxes /* = nullptr */, const bool onlyFullyEnclosed /* = false */) const
 {
   QReadLocker pageLocker(_pageLock);
   Q_ASSERT(_poppler_page != nullptr);
@@ -1063,7 +1062,18 @@ QString Page::selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF>
 
 QSharedPointer<Backend::Document> PopplerQtBackend::newDocument(const QString & fileName) {
 #if !defined(MIKTEX)
-#if defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
+#if defined Q_OS_DARWIN
+  // Use bundled fonts.conf (if it exists and the user has not overriden
+  // FONTCONFIG_PATH
+  if (!qEnvironmentVariableIsSet("FONTCONFIG_PATH")) {
+    QDir confPath{QCoreApplication::applicationDirPath()};
+    if (confPath.cd("../etc/fonts")) {
+      if (confPath.exists("fonts.conf")) {
+        qputenv("FONTCONFIG_PATH", confPath.path().toLocal8Bit());
+      }
+    }
+  }
+#if defined(HAVE_POPPLER_XPDF_HEADERS)
   static bool globalParamsInitialized = false;
   if (!globalParamsInitialized) {
     globalParamsInitialized = true;
@@ -1087,7 +1097,8 @@ QSharedPointer<Backend::Document> PopplerQtBackend::newDocument(const QString & 
       }
     #endif // defined(POPPLER_HAS_GLOBALPARAMSINITER)
   }
-#endif // defined(HAVE_POPPLER_XPDF_HEADERS) && defined(Q_OS_DARWIN)
+#endif // defined(HAVE_POPPLER_XPDF_HEADERS)
+#endif // defined(Q_OS_DARWIN)
 #endif
   return QSharedPointer<Backend::Document>(new Backend::PopplerQt::Document(fileName));
 }

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2021 Christian Schenk
+## Copyright (C) 2009-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -68,7 +68,6 @@ set(texworks_sources
   source/src/BibTeXFile.cpp
   source/src/CitationSelectDialog.cpp
   source/src/CompletingEdit.cpp
-  source/src/ConfirmDelete.cpp
   source/src/Engine.cpp
   source/src/FindDialog.cpp
   source/src/HardWrapDialog.cpp
@@ -98,6 +97,8 @@ set(texworks_sources
   source/src/ui/ClickableLabel.cpp
   source/src/ui/ClosableTabWidget.cpp
   source/src/ui/LineNumberWidget.cpp
+  source/src/ui/ListSelectDialog.cpp
+  source/src/ui/RemoveAuxFilesDialog.cpp
   source/src/ui/ScreenCalibrationWidget.cpp
   source/src/utils/CommandlineParser.cpp
   source/src/utils/FileVersionDatabase.cpp
@@ -105,11 +106,11 @@ set(texworks_sources
   source/src/utils/ResourcesLibrary.cpp
   source/src/utils/SystemCommand.cpp
   source/src/utils/TextCodecs.cpp
+  source/src/utils/TypesetManager.cpp
   source/src/utils/VersionInfo.cpp
   source/src/BibTeXFile.h
   source/src/CitationSelectDialog.h
   source/src/CompletingEdit.h
-  source/src/ConfirmDelete.h
   source/src/DefaultPrefs.h
   source/src/Engine.h
   source/src/FindDialog.h
@@ -141,6 +142,8 @@ set(texworks_sources
   source/src/ui/ClickableLabel.h
   source/src/ui/ClosableTabWidget.h
   source/src/ui/LineNumberWidget.h
+  source/src/ui/ListSelectDialog.h
+  source/src/ui/RemoveAuxFilesDialog.h
   source/src/ui/ScreenCalibrationWidget.h
   source/src/utils/CommandlineParser.h
   source/src/utils/FileVersionDatabase.h
@@ -148,6 +151,7 @@ set(texworks_sources
   source/src/utils/ResourcesLibrary.h
   source/src/utils/SystemCommand.h
   source/src/utils/TextCodecs.h
+  source/src/utils/TypesetManager.h
   source/src/utils/VersionInfo.h
 
   miktex/miktex-texworks.cpp
@@ -191,7 +195,6 @@ endif()
 set(texworks_ui_files
   source/src/CitationSelectDialog.ui
   source/src/CompletingEdit.ui
-  source/src/ConfirmDelete.ui
   source/src/Find.ui
   source/src/HardWrapDialog.ui
   source/src/PDFDocumentWindow.ui
@@ -204,6 +207,7 @@ set(texworks_ui_files
   source/src/TeXDocumentWindow.ui
   source/src/TemplateDialog.ui
   source/src/ToolConfig.ui
+  source/src/ui/ListSelectDialog.ui
 )
 
 qt5_wrap_ui(texworks_ui_headers ${texworks_ui_files})

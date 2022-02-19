@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2021 Christian Schenk
+## Copyright (C) 2008-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,7 +19,12 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_EDITORS_FOLDER}/TeXworks/QtPDF")
 
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 set(qtpdf_sources
+  ${projdir}/source/modules/QtPDF/src/GuidelineEditDialog.cpp
   ${projdir}/source/modules/QtPDF/src/PDFActions.cpp
   ${projdir}/source/modules/QtPDF/src/PDFAnnotations.cpp
   ${projdir}/source/modules/QtPDF/src/PDFBackend.cpp
@@ -27,7 +32,9 @@ set(qtpdf_sources
   ${projdir}/source/modules/QtPDF/src/PDFDocumentView.cpp
   ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.cpp
   ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFGuideline.cpp
   ${projdir}/source/modules/QtPDF/src/PDFPageTile.cpp
+  ${projdir}/source/modules/QtPDF/src/PDFRuler.cpp
   ${projdir}/source/modules/QtPDF/src/PDFToC.cpp
   ${projdir}/source/modules/QtPDF/src/PDFTransitions.cpp
   ${projdir}/source/modules/QtPDF/src/PaperSizes.cpp
@@ -36,6 +43,7 @@ set(qtpdf_sources
 )
 
 set(qtpdf_headers
+  ${projdir}/source/modules/QtPDF/src/GuidelineEditDialog.h
   ${projdir}/source/modules/QtPDF/src/PDFActions.h
   ${projdir}/source/modules/QtPDF/src/PDFAnnotations.h
   ${projdir}/source/modules/QtPDF/src/PDFBackend.h
@@ -43,13 +51,21 @@ set(qtpdf_headers
   ${projdir}/source/modules/QtPDF/src/PDFDocumentView.h
   ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.h
   ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.h
+  ${projdir}/source/modules/QtPDF/src/PDFGuideline.h
   ${projdir}/source/modules/QtPDF/src/PDFPageTile.h
+  ${projdir}/source/modules/QtPDF/src/PDFRuler.h
   ${projdir}/source/modules/QtPDF/src/PDFToC.h
   ${projdir}/source/modules/QtPDF/src/PDFTransitions.h
   ${projdir}/source/modules/QtPDF/src/PaperSizes.h
 
   ${projdir}/source/modules/QtPDF/src/backends/PopplerQtBackend.h
 )
+
+set(qtpdf_ui_files
+  ${projdir}/source/modules/QtPDF/src/GuidelineEditDialog.ui
+)
+
+qt5_wrap_ui(qtpdf_ui_headers ${qtpdf_ui_files})
 
 set(qtpdf_ts_files
   ${projdir}/source/modules/QtPDF/trans/QtPDF_af.ts
@@ -89,6 +105,7 @@ qt5_add_resources(qtpdf_rcc_sources ${qtpdf_qrc_files})
 
 add_library(qtpdf-static STATIC
   ${qtpdf_headers}
+  ${qtpdf_ui_headers}
   ${qtpdf_rcc_sources}
   ${qtpdf_sources}
 )

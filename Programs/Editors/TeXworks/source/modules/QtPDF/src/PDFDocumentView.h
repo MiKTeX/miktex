@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2022  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,6 +16,7 @@
 
 #include "PDFBackend.h"
 #include "PDFDocumentTools.h"
+#include "PDFRuler.h"
 
 #include <QtWidgets>
 #include <memory>
@@ -48,6 +49,7 @@ class PDFDocumentView : public QGraphicsView {
   int _currentSearchResult{-1};
   QBrush _searchResultHighlightBrush;
   QBrush _currentSearchResultHighlightBrush;
+  PDFRuler _ruler{this};
   bool _useGrayScale{false};
 
   friend class DocumentTool::AbstractTool;
@@ -96,6 +98,9 @@ public:
   void setCurrentSearchResultHighlightBrush(const QBrush & brush);
 
   bool canGoPrevViewRects() const { return !_oldViewRects.empty(); }
+
+  bool isRulerVisible() const { return _ruler.isVisibleTo(this); }
+  PDFRuler * ruler() { return &_ruler; }
 
 public slots:
   void goPrev();
@@ -146,6 +151,8 @@ public slots:
   void armTool(const DocumentTool::AbstractTool::Type toolType);
   void disarmTool();
 
+  void showRuler(const bool show = true);
+
 signals:
   void changedPage(int pageNum);
   void changedZoom(qreal zoomLevel);
@@ -153,6 +160,8 @@ signals:
   // emitted, e.g., if a new document was loaded, or if the existing document
   // has changed (e.g., if it was unlocked)
   void changedDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc);
+
+  void updated();
 
   void searchProgressChanged(int percent, int occurrences);
   void searchResultHighlighted(const int pageNum, const QList<QPolygonF> region);
@@ -173,6 +182,7 @@ protected:
   void mouseReleaseEvent(QMouseEvent * event) override;
   void wheelEvent(QWheelEvent * event) override;
   void changeEvent(QEvent * event) override;
+  void resizeEvent(QResizeEvent * event) override;
 
   // Maybe this will become public later on
   // Ownership of tool is transferred to PDFDocumentView
@@ -193,7 +203,6 @@ protected slots:
   void goToPage(const PDFPageGraphicsItem * page, const QPointF anchor, const int alignment = Qt::AlignHCenter | Qt::AlignVCenter);
   void searchResultReady(int index);
   void searchProgressValueChanged(int progressValue);
-  void switchInterfaceLocale(const QLocale & newLocale);
   void reinitializeFromScene();
   void notifyTextSelectionChanged();
 
@@ -208,9 +217,6 @@ private:
   QMap<uint, DocumentTool::AbstractTool::Type> _toolAccessors;
 
   QStack<PDFDestination> _oldViewRects;
-
-  static QTranslator * _translator;
-  static QString _translatorLanguage;
 
   // Never try to set a vanilla QGraphicsScene, always use a PDFGraphicsScene.
   void setScene(QGraphicsScene *scene);
@@ -466,8 +472,8 @@ public:
   QWeakPointer<Backend::Document> document();
   QList<QGraphicsItem*> pages();
   QList<QGraphicsItem*> pages(const QPolygonF &polygon);
-  QGraphicsItem* pageAt(const int idx);
-  QGraphicsItem* pageAt(const QPointF &pt);
+  QGraphicsItem* pageAt(const int idx) const;
+  QGraphicsItem* pageAt(const QPointF &pt) const;
   int pageNumAt(const QPolygonF &polygon);
   int pageNumAt(const QPointF &pt);
   int pageNumFor(const PDFPageGraphicsItem * const graphicsItem) const;

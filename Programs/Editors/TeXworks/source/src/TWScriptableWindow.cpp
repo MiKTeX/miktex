@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -149,10 +149,7 @@ TWScriptableWindow::runScript(QObject* script, Tw::Scripting::Script::ScriptType
 	bool success = sm->runScript(script, this, result, scriptType);
 
 	if (success) {
-#if defined(MIKTEX_WINDOWS)
-#  define and &&
-#endif
-		if (!result.isNull() and !result.toString().isEmpty()) {
+		if (!result.isNull() && !result.toString().isEmpty()) {
 			if (scriptType == Tw::Scripting::Script::ScriptHook)
 				statusBar()->showMessage(tr("Script \"%1\": %2").arg(s->getTitle(), result.toString()), kStatusMessageDuration);
 			else

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ConfirmDelete</class>
- <widget class="QDialog" name="ConfirmDelete">
+ <class>ListSelectDialog</class>
+ <widget class="QDialog" name="ListSelectDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Confirm file deletion</string>
+   <string>Select items</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -23,7 +23,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Auxiliary files to be deleted:</string>
+      <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" rowspan="2">
@@ -45,21 +45,21 @@
       <item row="0" column="1">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QPushButton" name="selectAll">
+         <widget class="QPushButton" name="bSelectAll">
           <property name="text">
            <string>Select All</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="selectNone">
+         <widget class="QPushButton" name="bSelectNone">
           <property name="text">
            <string>Select None</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="toggleSelection">
+         <widget class="QPushButton" name="bToggleSelection">
           <property name="text">
            <string>Toggle</string>
           </property>
@@ -100,7 +100,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ConfirmDelete</receiver>
+   <receiver>ListSelectDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -116,7 +116,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ConfirmDelete</receiver>
+   <receiver>ListSelectDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -90,6 +90,7 @@
     <addaction name="actionPageMode_TwoPagesContinuous"/>
     <addaction name="separator"/>
     <addaction name="actionFull_Screen"/>
+    <addaction name="actionRuler"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -743,6 +744,14 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionRuler">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ruler</string>
    </property>
   </action>
   <actiongroup name="actionPageModes">

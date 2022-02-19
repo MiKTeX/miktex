@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 Copyright (C) %1  %2\n\
 License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2021"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2022"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
 			strm.flush();
 		}
 		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {

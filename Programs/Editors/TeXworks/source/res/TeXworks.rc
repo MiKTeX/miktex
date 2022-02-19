@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription",  "TeXworks editor & previewer"
             VALUE "FileVersion",      TEXWORKS_VERSION "-r." GIT_COMMIT_HASH
             VALUE "InternalName",     "TeXworks"
-            VALUE "LegalCopyright",   "Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
+            VALUE "LegalCopyright",   "Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
             VALUE "OriginalFilename", "TeXworks.exe"
             VALUE "ProductName",      "TeXworks"
             VALUE "ProductVersion",   "TeXworks " TEXWORKS_VERSION
@@ -35,4 +35,8 @@ BEGIN
     END
 END
 
+// Required by MinGW but breaks MSVC; configured by CMake
+#cmakedefine01 CREATE_MANIFEST
+#if CREATE_MANIFEST
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "@PROJECT_SOURCE_DIR@/res/TeXworks.exe.manifest"
+#endif

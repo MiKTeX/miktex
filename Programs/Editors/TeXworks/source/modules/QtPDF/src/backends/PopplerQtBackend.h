@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -111,10 +111,10 @@ public:
 
   QList< QSharedPointer<Annotation::Link> > loadLinks() override;
   QList< QSharedPointer<Annotation::AbstractAnnotation> > loadAnnotations() override;
-  QList< Backend::Page::Box > boxes() override;
-  QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) override;
+  QList< Backend::Page::Box > boxes() const override;
+  QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) const override;
 
-  QList<Backend::SearchResult> search(const QString & searchText, const SearchFlags & flags) override;
+  QList<Backend::SearchResult> search(const QString & searchText, const SearchFlags & flags) const override;
 };
 
 } // namespace PopplerQt

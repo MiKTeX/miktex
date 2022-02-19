@@ -19,10 +19,6 @@
 	see <http://www.tug.org/texworks/>.
 */
 
-#if defined(MIKTEX)
-#include <miktex/Core/Session>
-#include "TWVersion.h"
-#endif
 #include "utils/ResourcesLibrary.h"
 
 #include "TWApp.h" // for PATH_LIST_SEP
@@ -51,20 +47,10 @@ QString ResourcesLibrary::m_portableLibPath;
 // static
 const QString ResourcesLibrary::getLibraryRootPath()
 {
-#if defined(MIKTEX)
-  {
-    std::shared_ptr<MiKTeX::Core::Session> session = MIKTEX_SESSION();
-    MiKTeX::Util::PathName dir = session->GetSpecialPath(MiKTeX::Configuration::SpecialPath::DataRoot) /
-      MiKTeX::Util::PathName(TEXWORKS_NAME) /
-      MiKTeX::Util::PathName(std::to_string(VER_MAJOR) + "." + std::to_string(VER_MINOR));
-    return QString::fromUtf8(dir.GetData());
-  }
-#else
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 	return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 #else
 	return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-#endif
 #endif
 }
 

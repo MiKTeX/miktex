@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #include "TeXDocumentWindow.h"
 
 #include "CitationSelectDialog.h"
-#include "ConfirmDelete.h"
 #include "DefaultPrefs.h"
 #include "Engine.h"
 #include "FindDialog.h"
@@ -36,6 +35,7 @@
 #include "TemplateDialog.h"
 #include "scripting/ScriptAPI.h"
 #include "ui/ClickableLabel.h"
+#include "ui/RemoveAuxFilesDialog.h"
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -225,6 +225,11 @@ void TeXDocumentWindow::init()
 
 	connect(TWApp::instance(), &TWApp::hideFloatersExcept, this, &TeXDocumentWindow::hideFloatersUnlessThis);
 	connect(this, &TeXDocumentWindow::activatedWindow, TWApp::instance(), &TWApp::activatedWindow);
+
+	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &TeXDocumentWindow::updateTypesettingAction);
+	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &TeXDocumentWindow::updateTypesettingAction);
+	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
+	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &TeXDocumentWindow::conditionallyEnableRemoveAuxFiles);
 
 	connect(actionStack, &QAction::triggered, TWApp::instance(), &TWApp::stackWindows);
 	connect(actionTile, &QAction::triggered, TWApp::instance(), &TWApp::tileWindows);
@@ -611,7 +616,7 @@ void TeXDocumentWindow::newFromTemplate()
 void TeXDocumentWindow::makeUntitled()
 {
 	setCurrentFile({});
-	actionRemove_Aux_Files->setEnabled(false);
+	conditionallyEnableRemoveAuxFiles();
 }
 
 void TeXDocumentWindow::open()
@@ -1063,7 +1068,7 @@ void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bo
 
 	if (fileContents.isNull())
 		return;
-	bool identicalContent{fileContents == textEdit->toPlainText()};
+	bool identicalContent{fileContents == textEdit->text()};
 
 	// Only re-set the content if it has actually changed. Setting the content
 	// has many side effects, e.g., destroying the undo/redo stack.
@@ -1106,13 +1111,20 @@ void TeXDocumentWindow::loadFile(const QFileInfo & fileInfo, bool asTemplate, bo
 				// (also a rehighlight). Note that layouting only works sensibly
 				// once show() was called, or else there is no valid widget geometry
 				// to act as bounding box.
+#if QT_VERSION < QT_VERSION_CHECK(5, 9, 0)
 				doc->setPlainText(doc->toPlainText());
+#else
+				doc->setPlainText(doc->toRawText());
+#endif
 				QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 			}
 			if (tries >= 10) {
-				QMessageBox::warning(this, tr("Layout Problem"), tr("A problem occured while laying out the loaded document in the editor. This is caused by an issue in the underlying Qt framework and can cause TeXworks to crash under certain circumstances. The symptoms of this problem are hidden or overlapping lines. To work around this, please try one of the following:\n -) Turn syntax highlighting off and on\n -) Turn line numbers off and on\n -) Resize the window\n\nWe are sorry for the inconvenience."));
+				QMessageBox::warning(this, tr("Layout Problem"), tr("A problem occurred while laying out the loaded document in the editor. This is caused by an issue in the underlying Qt framework and can cause TeXworks to crash under certain circumstances. The symptoms of this problem are hidden or overlapping lines. To work around this, please try one of the following:\n -) Turn syntax highlighting off and on\n -) Turn line numbers off and on\n -) Resize the window\n\nWe are sorry for the inconvenience."));
 			}
 		}
+
+		// Reset the line spacing as setPlainText() clears all text formatting
+		setLineSpacing(m_lineSpacing);
 
 		QApplication::restoreOverrideCursor();
 	}
@@ -1413,15 +1425,15 @@ bool TeXDocumentWindow::saveFile(const QFileInfo & fileInfo)
 		}
 	}
 
-	QString theText = textEdit->toPlainText();
+	QString theText = textEdit->text();
 	switch (lineEndings & kLineEnd_Mask) {
 		case kLineEnd_CR:
-		    theText.replace(QChar::fromLatin1('\n'), QChar::fromLatin1('\r'));
+			theText.replace(QChar::fromLatin1('\n'), QChar::fromLatin1('\r'));
 			break;
 		case kLineEnd_LF:
 			break;
 		case kLineEnd_CRLF:
-		    theText.replace(QChar::fromLatin1('\n'), QLatin1String("\r\n"));
+			theText.replace(QChar::fromLatin1('\n'), QLatin1String("\r\n"));
 			break;
 	}
 
@@ -1530,7 +1542,7 @@ void TeXDocumentWindow::setCurrentFile(const QFileInfo & fileInfo)
 	//: Format for the window title (ex. "file.tex[*] - TeXworks")
 	setWindowTitle(tr("%1[*] - %2").arg(textDoc()->getFileInfo().fileName(), tr(TEXWORKS_NAME)));
 
-	actionRemove_Aux_Files->setEnabled(!untitled());
+	conditionallyEnableRemoveAuxFiles();
 
 	TWApp::instance()->updateWindowMenus();
 }
@@ -1734,7 +1746,6 @@ void TeXDocumentWindow::encodingPopup(const QPoint loc)
 			}
 			clearFileWatcher(); // stop watching until next save or reload
 			loadFile(textDoc()->getFileInfo(), false, true, true, codec);
-			; // FIXME
 		}
 		else if (result == BOMAction) {
 			utf8BOM = BOMAction->isChecked();
@@ -1947,7 +1958,7 @@ void TeXDocumentWindow::setWindowModified(bool modified)
 
 void TeXDocumentWindow::balanceDelimiters()
 {
-	const QString text = textEdit->toPlainText();
+	const QString text = textEdit->text();
 	QTextCursor cursor = textEdit->textCursor();
 	int openPos = TWUtils::findOpeningDelim(text, cursor.selectionStart());
 	if (openPos >= 0 && openPos < text.length() - 1) {
@@ -2205,6 +2216,8 @@ void TeXDocumentWindow::setLineSpacing(qreal percent)
 
 	Q_ASSERT(textDoc() != nullptr);
 
+	m_lineSpacing = percent;
+
 	QTextBlockFormat fmt;
 	fmt.setLineHeight(percent, QTextBlockFormat::ProportionalHeight);
 
@@ -2316,7 +2329,7 @@ void TeXDocumentWindow::doFindAgain(bool fromDialog)
 			int rangeStart = 0;
 			int rangeEnd = curs.position();
 			while (true) {
-				curs = doSearch(theDoc->textDoc(), searchText, regex, flags, rangeStart, rangeEnd);
+				curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 				if (curs.isNull())
 					break;
 				int blockStart = curs.block().position();
@@ -2356,26 +2369,26 @@ void TeXDocumentWindow::doFindAgain(bool fromDialog)
 		if (settings.value(QString::fromLatin1("searchSelection")).toBool() && curs.hasSelection()) {
 			int rangeStart = curs.selectionStart();
 			int rangeEnd = curs.selectionEnd();
-			curs = doSearch(textEdit->document(), searchText, regex, flags, rangeStart, rangeEnd);
+			curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 		}
 		else {
 			if ((flags & QTextDocument::FindBackward) != 0) {
 				int rangeStart = 0;
 				int rangeEnd = curs.selectionStart();
-				curs = doSearch(textEdit->document(), searchText, regex, flags, rangeStart, rangeEnd);
+				curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 				if (curs.isNull() && settings.value(QString::fromLatin1("searchWrap")).toBool()) {
 					curs = QTextCursor(textEdit->document());
 					curs.movePosition(QTextCursor::End);
-					curs = doSearch(textEdit->document(), searchText, regex, flags, 0, curs.position());
+					curs = doSearch(searchText, regex, flags, 0, curs.position());
 				}
 			}
 			else {
 				int rangeStart = curs.selectionEnd();
 				curs.movePosition(QTextCursor::End);
 				int rangeEnd = curs.position();
-				curs = doSearch(textEdit->document(), searchText, regex, flags, rangeStart, rangeEnd);
+				curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 				if (curs.isNull() && settings.value(QString::fromLatin1("searchWrap")).toBool())
-					curs = doSearch(textEdit->document(), searchText, regex, flags, 0, rangeEnd);
+					curs = doSearch(searchText, regex, flags, 0, rangeEnd);
 			}
 		}
 
@@ -2481,7 +2494,7 @@ void TeXDocumentWindow::doReplace(ReplaceDialog::DialogCode mode)
 	}
 
 	if (mode == ReplaceDialog::ReplaceOne) {
-		QTextCursor curs = doSearch(textEdit->document(), searchText, regex, flags, rangeStart, rangeEnd);
+		QTextCursor curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 		if (curs.isNull() && searchWrap) {
 			// If we haven't found anything and wrapping is enabled, try again
 			// with a "wrapped" search range
@@ -2494,7 +2507,7 @@ void TeXDocumentWindow::doReplace(ReplaceDialog::DialogCode mode)
 				rangeEnd = rangeStart;
 				rangeStart = 0;
 			}
-			curs = doSearch(textEdit->document(), searchText, regex, flags, rangeStart, rangeEnd);
+			curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 		}
 		if (curs.isNull()) {
 			qApp->beep();
@@ -2504,8 +2517,7 @@ void TeXDocumentWindow::doReplace(ReplaceDialog::DialogCode mode)
 			// do replacement
 			QString target;
 			if (regex)
-				target = textEdit->document()->toPlainText()
-							.mid(curs.selectionStart(), curs.selectionEnd() - curs.selectionStart()).replace(*regex, replacement);
+				target = textEdit->text().mid(curs.selectionStart(), curs.selectionEnd() - curs.selectionStart()).replace(*regex, replacement);
 			else
 				target = replacement;
 			curs.insertText(target);
@@ -2551,7 +2563,7 @@ int TeXDocumentWindow::doReplaceAll(const QString& searchText, QRegularExpressio
 	int replacements = 0;
 	bool first = true;
 	while (true) {
-		QTextCursor curs = doSearch(textEdit->document(), searchText, regex, flags, rangeStart, rangeEnd);
+		QTextCursor curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 		if (curs.isNull()) {
 			if (!first)
 				searchRange.endEditBlock();
@@ -2564,7 +2576,7 @@ int TeXDocumentWindow::doReplaceAll(const QString& searchText, QRegularExpressio
 		QString target;
 		int oldLen = curs.selectionEnd() - curs.selectionStart();
 		if (regex)
-			target = textEdit->document()->toPlainText().mid(curs.selectionStart(), oldLen).replace(*regex, replacement);
+			target = textEdit->text().mid(curs.selectionStart(), oldLen).replace(*regex, replacement);
 		else
 			target = replacement;
 		int newLen = target.length();
@@ -2586,10 +2598,11 @@ int TeXDocumentWindow::doReplaceAll(const QString& searchText, QRegularExpressio
 	return replacements;
 }
 
-QTextCursor TeXDocumentWindow::doSearch(QTextDocument *theDoc, const QString& searchText, const QRegularExpression * regex, QTextDocument::FindFlags flags, int s, int e)
+QTextCursor TeXDocumentWindow::doSearch(const QString& searchText, const QRegularExpression * regex, QTextDocument::FindFlags flags, int s, int e)
 {
 	QTextCursor curs;
-	const QString& docText = theDoc->toPlainText();
+	QTextDocument * theDoc = textEdit->document();
+	const QString& docText = textEdit->text();
 
 	if ((flags & QTextDocument::FindBackward) != 0) {
 		if (regex) {
@@ -2613,7 +2626,7 @@ QTextCursor TeXDocumentWindow::doSearch(QTextDocument *theDoc, const QString& se
 #endif
 			}
 			if (offset >= s) {
-				curs = QTextCursor(theDoc);
+				curs = QTextCursor(textEdit->document());
 				curs.setPosition(m.capturedStart());
 				curs.setPosition(m.capturedEnd(), QTextCursor::KeepAnchor);
 			}
@@ -2742,6 +2755,14 @@ void TeXDocumentWindow::typeset()
 		return;
 	}
 
+	if (!TWApp::instance()->typesetManager().startTypesetting(fileInfo.canonicalFilePath(), this)) {
+		statusBar()->showMessage(tr("%1 is already being processed").arg(rootFilePath), kStatusMessageDuration);
+		updateTypesettingAction();
+		return;
+	}
+	// NB: TypesetManager::startTypesetting implicitly calls
+	// updateTypesettingAction() via signal-slot-connections
+
 	QString pdfName;
 	if (getPreviewFileName(pdfName))
 		oldPdfTime = QFileInfo(pdfName).lastModified();
@@ -2754,8 +2775,6 @@ void TeXDocumentWindow::typeset()
 		pdfDoc->widget()->setWatchForDocumentChangesOnDisk(false);
 
 	process = e.run(fileInfo, this);
-
-	updateTypesettingAction();
 
 	if (process) {
 		textEdit_console->clear();
@@ -2788,6 +2807,8 @@ void TeXDocumentWindow::typeset()
 		if (pdfDoc && pdfDoc->widget())
 			pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
 
+		TWApp::instance()->typesetManager().stopTypesetting(this);
+
 		QMessageBox msgBox(QMessageBox::Critical, tr("Unable to execute %1").arg(e.name()),
 		                      QLatin1String("<p>") + tr("The program \"%1\" was not found.").arg(e.program()) + QLatin1String("</p>") +
 #if defined(Q_OS_WIN)
@@ -2816,27 +2837,69 @@ void TeXDocumentWindow::interrupt()
 		// Start watching for changes in the pdf (again)
 		if (pdfDoc && pdfDoc->widget())
 			pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
+
+		// Don't notify the TypesetManager that typesetting was stopped; this is
+		// delegated to processError() which will be called after process->kill()
+		// and which takes care of resetting the process before notifying the
+		// TypesetManager. This ensures that subsequent calls to isTypesetting()
+		// return the correct value
+	}
+}
+
+void TeXDocumentWindow::goToTypesettingWindow()
+{
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(getRootFilePath()));
+	if (owner) {
+		owner->raise();
+		owner->activateWindow();
 	}
 }
 
 void TeXDocumentWindow::updateTypesettingAction()
 {
-	if (!process) {
-		disconnect(actionTypeset, &QAction::triggered, this, &TeXDocumentWindow::interrupt);
-		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-start")));
-		actionTypeset->setText(tr("Typeset"));
-		connect(actionTypeset, &QAction::triggered, this, &TeXDocumentWindow::typeset);
-		if (pdfDoc)
-			pdfDoc->updateTypesettingAction(false);
-	}
-	else {
-		disconnect(actionTypeset, &QAction::triggered, this, &TeXDocumentWindow::typeset);
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(getRootFilePath()));
+
+	disconnect(actionTypeset, &QAction::triggered, this, nullptr);
+	if (isTypesetting()) {
+		// We are currently running a typesetting process
+		// The button should allow the user to stop it
 		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		actionTypeset->setText(tr("Abort typesetting"));
 		connect(actionTypeset, &QAction::triggered, this, &TeXDocumentWindow::interrupt);
-		if (pdfDoc)
-			pdfDoc->updateTypesettingAction(true);
 	}
+	else if (owner != nullptr) {
+		// Someone else is typesetting "our" (root) document
+		// The button should take the user to the window from which the process
+		// was run
+		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("go-jump")));
+		actionTypeset->setText(tr("Go to typesetting"));
+		connect(actionTypeset, &QAction::triggered, this, &TeXDocumentWindow::goToTypesettingWindow);
+	}
+	else {
+		// No process is currently running (for "our" root document)
+		// The button should allow the user to start one
+		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-start")));
+		actionTypeset->setText(tr("Typeset"));
+		connect(actionTypeset, &QAction::triggered, this, &TeXDocumentWindow::typeset);
+	}
+}
+
+void TeXDocumentWindow::conditionallyEnableRemoveAuxFiles()
+{
+	// In the following cases, we want to disable "Remove Aux Files"
+	// 1) There cannot be any aux files (as there is no root file; i.e., the
+	//    file has never been saved)
+	// 2) A typesetting process is running for "our" root file which may be
+	//    accessing the aux files
+	const bool enable = [&](){
+		QFileInfo rootFileInfo{getRootFilePath()};
+		if (!rootFileInfo.exists())
+			return false;
+		if (TWApp::instance()->typesetManager().isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
+			return false;
+		return true;
+	}();
+	actionRemove_Aux_Files->setEnabled(enable);
 }
 
 void TeXDocumentWindow::processStandardOutput()
@@ -2859,11 +2922,12 @@ void TeXDocumentWindow::processError(QProcess::ProcessError /*error*/)
 	process->deleteLater();
 	process = nullptr;
 	inputLine->hide();
-	updateTypesettingAction();
 
 	// Start watching for changes in the pdf (again)
 	if (pdfDoc && pdfDoc->widget())
 		pdfDoc->widget()->setWatchForDocumentChangesOnDisk(true);
+
+	TWApp::instance()->typesetManager().stopTypesetting(this);
 }
 
 void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -2925,7 +2989,8 @@ void TeXDocumentWindow::processFinished(int exitCode, QProcess::ExitStatus exitS
 	if (process)
 		process->deleteLater();
 	process = nullptr;
-	updateTypesettingAction();
+
+	TWApp::instance()->typesetManager().stopTypesetting(this);
 }
 
 void TeXDocumentWindow::executeAfterTypesetHooks()
@@ -3122,6 +3187,11 @@ void TeXDocumentWindow::goToTag(int index)
 	}
 }
 
+bool TeXDocumentWindow::isTypesetting() const
+{
+	return (process != nullptr || TWApp::instance()->typesetManager().getOwnerForRootFile(rootFilePath) == this);
+}
+
 void TeXDocumentWindow::removeAuxFiles()
 {
 	findRootFilePath();
@@ -3141,7 +3211,7 @@ void TeXDocumentWindow::removeAuxFiles()
 	dir.setNameFilters(filterList);
 	QStringList auxFileList = dir.entryList(QDir::Files | QDir::CaseSensitive, QDir::Name);
 	if (auxFileList.count() > 0)
-		ConfirmDelete::doConfirmDelete(dir, auxFileList);
+		Tw::UI::RemoveAuxFilesDialog::doConfirmDelete(dir, auxFileList);
 	else
 		(void)QMessageBox::information(this, tr("No files found"),
 									   tr("No auxiliary files associated with this document at the moment."));

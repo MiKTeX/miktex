@@ -110,7 +110,7 @@
 #include <locale.h>
 #endif
 
-/* Mark unused paramters, so that there will be no compile warnings. */
+/* Mark unused parameters, so that there will be no compile warnings. */
 #ifdef __DARWIN_UNIX03
 #   define SYNCTEX_UNUSED(x) SYNCTEX_PRAGMA(unused(x))
 #   define SYNCTEX_PRAGMA(x) _Pragma ( #x )
@@ -440,7 +440,7 @@ DEFINE_SYNCTEX_TREE_RESET(WHAT)
 /*
  *  _synctex_tree_set_... methods return the old value.
  *  The return value of _synctex_tree_set_child and 
- *  _synctex_tree_set_sibling must be released somehown.
+ *  _synctex_tree_set_sibling must be released somehow.
  */
 DEFINE_SYNCTEX_TREE__GETSETRESET(sibling)
 DEFINE_SYNCTEX_TREE_GETSETRESET(parent)
@@ -473,7 +473,7 @@ DEFINE_SYNCTEX_TREE_GETSETRESET(target)
 #endif
 
 #define SYNCTEX_HAS_CHILDREN(NODE) (NODE && _synctex_tree_child(NODE))
-#	ifdef	_X_SYNCTEX_WORK__
+#	ifdef	__SYNCTEX_WORK__
 #		include "/usr/include/zlib.h"
 #	else
 #		include <zlib.h>
@@ -652,12 +652,12 @@ static synctex_open_s __synctex_open_v2(const char * output, synctex_io_mode_t i
             quoteless_synctex_name = NULL;
         }
     }
-    /*  The operation is successfull, return the arguments by value.    */
+    /*  The operation is successful, return the arguments by value.    */
     open.status = SYNCTEX_STATUS_OK;
     return open;
 }
 
-/*	Opens the ouput file, taking into account the eventual build_directory.
+/*	Opens the output file, taking into account the eventual build_directory.
  *	- returns: an open structure which status is
  *      SYNCTEX_STATUS_OK on success,
  *      SYNCTEX_STATUS_ERROR on failure.
@@ -5155,7 +5155,7 @@ main_loop:
     /* At least 1 more character */
     zs = _synctex_buffer_get_available_size(scanner,1);
     if (zs.size == 0){
-        _synctex_error("Uncomplete synctex file, postamble missing.");
+        _synctex_error("Incomplete synctex file, postamble missing.");
         SYNCTEX_RETURN(SYNCTEX_STATUS_ERROR);
     }
     goto main_loop;
@@ -5172,13 +5172,13 @@ ignore_loop:
             --ignored_form_depth;
         }
         if (_synctex_next_line(scanner)<SYNCTEX_STATUS_OK) {
-            _synctex_error("Uncomplete container.");
+            _synctex_error("Incomplete container.");
             SYNCTEX_RETURN(SYNCTEX_STATUS_ERROR);
         }
     } else {
         zs = _synctex_buffer_get_available_size(scanner,1);
         if (zs.size == 0){
-            _synctex_error("Uncomplete synctex file, postamble missing.");
+            _synctex_error("Incomplete synctex file, postamble missing.");
             SYNCTEX_RETURN(SYNCTEX_STATUS_ERROR);
         }
     }
@@ -5254,7 +5254,7 @@ content_loop:
                 synctex_node_log(child);
 #   endif
                 if (_synctex_next_line(scanner)<SYNCTEX_STATUS_OK) {
-                    _synctex_error("Uncomplete container.");
+                    _synctex_error("Incomplete container.");
                     SYNCTEX_RETURN(SYNCTEX_STATUS_ERROR);
                 }
                 last_k = last_g = NULL;
@@ -5363,7 +5363,7 @@ content_loop:
                     sibling = _synctex_tree_child(parent);
                     _synctex_data_set_point(sibling,_synctex_data_point_V(parent));
                     if (last_k && last_g && (child = synctex_node_child(parent))) {
-                        /* Find the node preceeding last_k */
+                        /* Find the node preceding last_k */
                         synctex_node_p next;
                         while ((next = __synctex_tree_sibling(child))) {
                             if (next == last_k) {
@@ -5387,7 +5387,7 @@ content_loop:
 #   endif
                 }
                 if (_synctex_next_line(scanner)<SYNCTEX_STATUS_OK) {
-                    _synctex_error("Uncomplete container.");
+                    _synctex_error("Incomplete container.");
                     SYNCTEX_RETURN(SYNCTEX_STATUS_ERROR);
                 }
                 last_k = last_g = NULL;
@@ -5668,7 +5668,7 @@ _synctex_make_hbox_contain_box(parent,_synctex_data_box(child));
     }
     zs = _synctex_buffer_get_available_size(scanner,1);
     if (zs.size == 0){
-        _synctex_error("Uncomplete synctex file, postamble missing.");
+        _synctex_error("Incomplete synctex file, postamble missing.");
         SYNCTEX_RETURN(SYNCTEX_STATUS_ERROR);
     }
     last_k = last_g = NULL;
@@ -5946,7 +5946,7 @@ content_not_found:
         return status;
     }
     if (_synctex_next_line(scanner)<SYNCTEX_STATUS_OK) {
-        _synctex_error("Uncomplete Content.");
+        _synctex_error("Incomplete Content.");
         return SYNCTEX_STATUS_ERROR;
     }
     if (status == SYNCTEX_STATUS_NOT_OK) {
@@ -6013,7 +6013,8 @@ synctex_scanner_p synctex_scanner_new_with_output_file(const char * output, cons
     if ((scanner->reader = synctex_reader_init_with_output_file(scanner->reader, output, build_directory))) {
         return parse? synctex_scanner_parse(scanner):scanner;
     }
-    _synctex_error("No file?");
+    // don't warn to terminal if no file is present, this is a library.
+    // _synctex_error("No file?");
     return NULL;
 }
 
@@ -6052,8 +6053,8 @@ synctex_scanner_p synctex_scanner_parse(synctex_scanner_p scanner) {
     scanner->pre_magnification = 1000;
     scanner->pre_unit = 8192;
     scanner->pre_x_offset = scanner->pre_y_offset = 578;
-    /*  initialize the offset with a fake unprobable value,
-     *  If there is a post scriptum section, this value will be overriden by the real life value */
+    /*  initialize the offset with a fake improbable value,
+     *  If there is a post scriptum section, this value will be overridden by the real life value */
     scanner->x_offset = scanner->y_offset = 6.027e23f;
     scanner->reader->line_number = 1;
     
@@ -7603,7 +7604,7 @@ static synctex_nd_s _synctex_point_h_ordered_distance_v2
                 width = _synctex_data_width(node);
                 min = _synctex_data_h(node);
                 max = min + (width>0?width:-width);
-                /*  We allways have min <= max */
+                /*  We always have min <= max */
                 if (hit->h<min) {
                     nd.distance = min - hit->h; /*  regions 1+4+7, result is > 0 */
                 } else if (hit->h>max) {
@@ -7617,7 +7618,7 @@ static synctex_nd_s _synctex_point_h_ordered_distance_v2
                 width = synctex_node_width(node);
                 min = synctex_node_h(node);
                 max = min + (width>0?width:-width);
-                /*  We allways have min <= max */
+                /*  We always have min <= max */
                 if (hit->h<min) {
                     nd.distance = min - hit->h; /*  regions 1+4+7, result is > 0 */
                 } else if (hit->h>max) {
@@ -7632,7 +7633,7 @@ static synctex_nd_s _synctex_point_h_ordered_distance_v2
                 width = synctex_node_hbox_width(node);
                 min = synctex_node_hbox_h(node);
                 max = min + (width>0?width:-width);
-                /*  We allways have min <= max */
+                /*  We always have min <= max */
                 if (hit->h<min) {
                     nd.distance = min - hit->h; /*  regions 1+4+7, result is > 0 */
                 } else if (hit->h>max) {
@@ -7744,7 +7745,7 @@ static synctex_nd_s _synctex_point_v_ordered_distance_v2
             min = synctex_node_v(node);
             max = min + _synctex_abs(_synctex_data_depth(node));
             min -= _synctex_abs(_synctex_data_height(node));
-            /*  We allways have min <= max */
+            /*  We always have min <= max */
             if (hit->v<min) {
                 nd.distance = min - hit->v; /*  regions 1+2+3, result is > 0 */
             } else if (hit->v>max) {
@@ -7758,7 +7759,7 @@ static synctex_nd_s _synctex_point_v_ordered_distance_v2
             min = synctex_node_v(node);
             max = min + _synctex_abs(synctex_node_depth(node));
             min -= _synctex_abs(synctex_node_height(node));
-            /*  We allways have min <= max */
+            /*  We always have min <= max */
             if (hit->v<min) {
                 nd.distance = min - hit->v; /*  regions 1+2+3, result is > 0 */
             } else if (hit->v>max) {
@@ -7775,7 +7776,7 @@ static synctex_nd_s _synctex_point_v_ordered_distance_v2
             max = min + (depth>0?depth:-depth);
             height = synctex_node_hbox_height(node);
             min -= (height>0?height:-height);
-            /*  We allways have min <= max */
+            /*  We always have min <= max */
             if (hit->v<min) {
                 nd.distance = min - hit->v; /*  regions 1+2+3, result is > 0 */
             } else if (hit->v>max) {
@@ -7791,7 +7792,7 @@ static synctex_nd_s _synctex_point_v_ordered_distance_v2
             min = _synctex_data_v(node);
             max = min + _synctex_abs(_synctex_data_depth(_synctex_tree_parent(node)));
             min -= _synctex_abs(_synctex_data_height(_synctex_tree_parent(node)));
-            /*  We allways have min <= max */
+            /*  We always have min <= max */
             if (hit->v<min) {
                 nd.distance = min - hit->v; /*  regions 1+2+3, result is > 0 */
             } else if (hit->v>max) {
@@ -8384,10 +8385,10 @@ typedef union {
     gzFile as_gzFile;
     FILE * as_FILE_p;
     void * as_ptr;
-} syncex_file_u;
+} synctex_file_u;
 
 struct synctex_updater_t {
-    syncex_file_u file;
+    synctex_file_u file;
     synctex_print_f print;
     synctex_close_f close;
     int length;             /*  the number of chars appended */

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -124,11 +124,12 @@ private:
 
 class SearchResult {
 public:
-	SearchResult(const TeXDocumentWindow* texdoc, int line, int start, int end)
+	SearchResult(TeXDocumentWindow * texdoc, int line, int start, int end)
 		: doc(texdoc), lineNo(line), selStart(start), selEnd(end)
 		{ }
 
-	const TeXDocumentWindow* doc;
+	// NB: doc cannot be a const * as we need to store it in a QVariant<QPointer>
+	TeXDocumentWindow* doc;
 	int lineNo;
 	int selStart;
 	int selEnd;
@@ -156,8 +157,8 @@ public:
 	explicit SearchResults(QWidget * parent);
 
 private slots:
-	void showSelectedEntry();
-	void showEntry(QTableWidgetItem * item);
+	TeXDocumentWindow * showSelectedEntry();
+	TeXDocumentWindow * showEntry(QTableWidgetItem * item);
 	void goToSource();
 	void goToSourceAndClose();
 };

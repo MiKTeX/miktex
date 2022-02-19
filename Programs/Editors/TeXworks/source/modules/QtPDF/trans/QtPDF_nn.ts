@@ -2,6 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nn_NO">
 <context>
+    <name>GuidelineEditDialog</name>
+    <message>
+        <location filename="../src/GuidelineEditDialog.ui" line="14"/>
+        <source>Edit guideline...</source>
+        <translation>Rediger hjelpelinje&#xa0;…</translation>
+    </message>
+    <message>
+        <location filename="../src/GuidelineEditDialog.ui" line="22"/>
+        <source>Page:</source>
+        <translation>Side:</translation>
+    </message>
+    <message>
+        <location filename="../src/GuidelineEditDialog.ui" line="36"/>
+        <source>Position:</source>
+        <translation>Posisjon:</translation>
+    </message>
+    <message>
+        <location filename="../src/GuidelineEditDialog.ui" line="53"/>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <location filename="../src/GuidelineEditDialog.ui" line="58"/>
+        <source>in</source>
+        <translation>tommar</translation>
+    </message>
+    <message>
+        <location filename="../src/GuidelineEditDialog.ui" line="63"/>
+        <source>bp</source>
+        <translation>bp</translation>
+    </message>
+</context>
+<context>
     <name>PaperSize</name>
     <message>
         <location filename="../src/PaperSizes.cpp" line="24"/>
@@ -725,12 +758,12 @@
 <context>
     <name>QtPDF</name>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="1269"/>
+        <location filename="../src/PDFDocumentView.cpp" line="33"/>
         <source>[language name]</source>
         <translation>Norsk (nynorsk)</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="1270"/>
+        <location filename="../src/PDFDocumentView.cpp" line="34"/>
         <source>[translator&apos;s name/email]</source>
         <translation>Karl Ove Hufthammer &lt;karl@huftis.org&gt;</translation>
     </message>
@@ -743,32 +776,32 @@
         <translation>teiknar opp side</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2019"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
         <source>Unlock PDF</source>
         <translation>Lås opp PDF</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2019"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation>Skriv inn passordet for å låsa opp PDF-en</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2045"/>
         <source>Incorrect password</source>
         <translation>Feil passord</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2045"/>
         <source>The password you entered was incorrect.</source>
         <translation>Du skreiv inn feil passord.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2041"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2051"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation>Dokumentet er låst. Du treng eit passord for å opna det.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2042"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2052"/>
         <source>Unlock</source>
         <translation>Lås opp</translation>
     </message>
@@ -786,284 +819,284 @@
         <translation>Uthenting av tekst er ikkje tillate for dette dokumentet.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2587"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2597"/>
         <source>Goto page %1</source>
         <translation>Gå til side %1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2599"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2609"/>
         <source>Execute `%1`</source>
         <translation>Køyr «%1»</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2845"/>
-        <location filename="../src/PDFDocumentView.cpp" line="2862"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2855"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2872"/>
         <source>Table of Contents</source>
         <translation>Innhaldsliste</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2954"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2964"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3171"/>
         <source>Meta Data</source>
         <translation>Metadata</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3010"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3171"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3020"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3181"/>
         <source>Processing</source>
         <translation>Handsamar</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3042"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3178"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3052"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3188"/>
         <source>Other</source>
         <translation>Anna</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3105"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3115"/>
         <source>Yes</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3108"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3118"/>
         <source>No</source>
         <translation>Nei</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3111"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3148"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3121"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3158"/>
         <source>Unknown</source>
         <translation>Ukjend</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3173"/>
         <source>Document</source>
         <translation>Dokument</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3174"/>
         <source>Title:</source>
         <translation>Tittel:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3175"/>
         <source>Author:</source>
         <translation>Forfattar:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3176"/>
         <source>Subject:</source>
         <translation>Emne:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3167"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3177"/>
         <source>Keywords:</source>
         <translation>Nøkkelord:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3172"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3182"/>
         <source>Creator:</source>
         <translation>Opphavsprogram:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3173"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3183"/>
         <source>Producer:</source>
         <translation>Produsent:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3174"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3184"/>
         <source>Creation date:</source>
         <translation>Oppretta:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3175"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3185"/>
         <source>Modification date:</source>
         <translation>Sist endra:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3176"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3186"/>
         <source>Trapped:</source>
         <translation>Fanga:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3187"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3281"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3197"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3291"/>
         <source>Fonts</source>
         <translation>Skrifter</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3237"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3247"/>
         <source>Type 0</source>
         <translation>Type 0</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3240"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3250"/>
         <source>Type 1</source>
         <translation>Type 1</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3243"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3253"/>
         <source>Type 1 (multiple master)</source>
         <translation>Type 1 (Multiple Master)</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3246"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3256"/>
         <source>Type 3</source>
         <translation>Type 3</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3249"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3259"/>
         <source>TrueType</source>
         <translation>TrueType</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3252"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3262"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3252"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3262"/>
         <source>no</source>
         <translation>nei</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3255"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3265"/>
         <source>[embedded]</source>
         <translation>[innebygd]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3258"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3268"/>
         <source>[builtin]</source>
         <translation>[systemskrift]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
         <source>Name</source>
         <translation>Namn</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
         <source>Subset</source>
         <translation>Delmengd</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3282"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
         <source>Source</source>
         <translation>Kjelde</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3290"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3385"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3300"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3395"/>
         <source>Permissions</source>
         <translation>Løyve</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3339"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3348"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3357"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3364"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3358"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3374"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
         <source>Allowed</source>
         <translation>Tillate</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3341"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
         <source>Low resolution only</source>
         <translation>Berre låg oppløysing</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3344"/>
         <location filename="../src/PDFDocumentView.cpp" line="3354"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3366"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3364"/>
         <location filename="../src/PDFDocumentView.cpp" line="3371"/>
         <location filename="../src/PDFDocumentView.cpp" line="3376"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3377"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3378"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3380"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3381"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3386"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3387"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3388"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3390"/>
         <source>Denied</source>
         <translation>Nekta</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3350"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3360"/>
         <source>Assembling only</source>
         <translation>Berre samansetjing</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation>Set inn, roter eller slett sider og lag bokmerke eller miniatyrbilete av sider</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
         <source>Accessibility support only</source>
         <translation>Berre tilgjengestøtte</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3387"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3397"/>
         <source>Printing:</source>
         <translation>Utskrift:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3388"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3398"/>
         <source>Modifications:</source>
         <translation>Endringar:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3399"/>
         <source>Extraction:</source>
         <translation>Tekstuthenting:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3390"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3400"/>
         <source>Annotation:</source>
         <translation>Merknadar:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3391"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3401"/>
         <source>Filling forms:</source>
         <translation>Skjemautfylling:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3399"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3491"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3409"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3501"/>
         <source>Annotations</source>
         <translation>Merknadar</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
         <source>Page</source>
         <translation>Side</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
         <source>Subject</source>
         <translation>Emne</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
         <source>Author</source>
         <translation>Forfattar</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3492"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
         <source>Contents</source>
         <translation>Innhald</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3067"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3077"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3069"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3079"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translatorcomment>Har sjekka at det er snakk om 1 000 byte.
@@ -1071,7 +1104,7 @@
         <translation>kB</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3071"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3081"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translatorcomment>skip-rule: einingmb
@@ -1080,7 +1113,7 @@ Har sjekka at det er snakk om 1 000² byte.
         <translation>MB</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3073"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3083"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translatorcomment>Har sjekka at det er snakk om 1 000³ byte.
@@ -1088,7 +1121,7 @@ Har sjekka at det er snakk om 1 000² byte.
         <translation>GB</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3075"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3085"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translatorcomment>Har sjekka at det er snakk om 1 000⁴ byte.
@@ -1096,12 +1129,12 @@ Har sjekka at det er snakk om 1 000² byte.
         <translation>TB</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3168"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3178"/>
         <source>Page size:</source>
         <translation>Sidestorleik:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3169"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3179"/>
         <source>File size:</source>
         <translation>Filstorleik:</translation>
     </message>

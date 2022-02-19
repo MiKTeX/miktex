@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -64,12 +64,14 @@ public:
 	explicit BibTeXFile(const QString & filename) : BibTeXFile() { load(filename); }
 
 	unsigned int numEntries() const;
+	QMap<QString, QString> strings() const;
 	const Entry & entry(const unsigned int idx) const;
 
 	bool load(const QString & filename);
 protected:
 	static int readEntry(Entry & e, const QByteArray & content, int curPos, const QTextCodec * codec);
 	static void parseEntry(Entry & e, const QString & block);
+	static void parseFields(Entry & e, const QString & block, int pos = 0);
 
 	QList<Entry> _entries;
 };

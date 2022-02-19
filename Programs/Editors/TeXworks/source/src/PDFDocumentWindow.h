@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@ const bool kDefault_CircularMagnifier = true;
 const int kDefault_PreviewScaleOption = 1;
 const int kDefault_PreviewScale = 200;
 const QtPDF::PDFDocumentView::PageMode kDefault_PDFPageMode = QtPDF::PDFDocumentView::PageMode_OneColumnContinuous;
+const bool kDefault_PreviewRulerShow = false;
+const int kDefault_PreviewRulerUnits = QtPDF::Physical::Length::Centimeters;
 
 const int kPDFWindowStateVersion = 1;
 
@@ -77,7 +79,6 @@ public:
 	void setResolution(const double res);
 	void resetMagnifier();
 	void enableTypesetAction(bool enabled);
-	void updateTypesettingAction(bool processRunning);
 	void linkToSource(TeXDocumentWindow *texDoc);
 	bool hasSyncData() const { return _synchronizer != nullptr; }
 
@@ -112,6 +113,7 @@ public slots:
 	void clearSyncHighlight();
 	void clearSearchResultHighlight();
 	void copySelectedTextToClipboard();
+	void updateTypesettingAction();
 
 private slots:
 	void changedDocument(const QWeakPointer<QtPDF::Backend::Document> & newDoc);
@@ -157,6 +159,7 @@ private:
 
 	Tw::UI::ClickableLabel *pageLabel;
 	Tw::UI::ClickableLabel *scaleLabel;
+	QMenu * scaleContextMenu{nullptr};
 	QList<QAction*> recentFileActions;
 	Tw::Utils::FullscreenManager * _fullScreenManager;
 	QSignalMapper pageModeSignalMapper;

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -266,6 +266,13 @@ QString TWUtils::strippedName(const QString &fullFileName, const unsigned int di
 {
 	QDir dir(QFileInfo(fullFileName).dir());
 	for (unsigned int i = 0; i < dirComponents; ++i) {
+		if (dir.exists() && QDir(dir.canonicalPath()).isRoot()) {
+			// If we moved up to the root directory, there is no point in going
+			// any further; particularly on Windows, going further may produce
+			// invalid paths (such as C:\.. which make no sense and can result
+			// in infinite loops in constructUniqueFileLabels()
+			return fullFileName;
+		}
 		// NB: dir.cdUp() would be more logical, but fails if the resulting
 		// path does not exist
 		dir.setPath(dir.path() + QString::fromLatin1("/.."));
@@ -277,22 +284,30 @@ QStringList TWUtils::constructUniqueFileLabels(const QStringList & fileList)
 {
 	QStringList labelList;
 
-	Q_FOREACH (QString file, fileList)
+	for (const QString & file : fileList) {
 		labelList.append(strippedName(file));
+	}
 
 	// Make label list unique, i.e. while labels are not unique, add
 	// directory components
-	for (unsigned int dirComponents = 1; ; ++dirComponents) {
+	bool done{false};
+	for (unsigned int dirComponents = 1; !done; ++dirComponents) {
 		QList<bool> isDuplicate;
-		Q_FOREACH(QString label, labelList)
+		for (const QString & label : labelList) {
 			isDuplicate.append(labelList.count(label) > 1);
+		}
 		if (!isDuplicate.contains(true))
 			break;
 
+		done = true;
 		for (int i = 0; i < labelList.size(); ++i) {
 			if (!isDuplicate[i])
 				continue;
-			labelList[i] = strippedName(fileList[i], dirComponents);
+			const QString newName = strippedName(fileList[i], dirComponents);
+			if (labelList[i] != newName) {
+				labelList[i] = newName;
+				done = false;
+			}
 		}
 	}
 	return labelList;
@@ -352,10 +367,12 @@ void TWUtils::updateRecentFileActions(QObject *parent, QList<QAction*> &actions,
 		// a "&" inside a menu label is considered a mnemonic, thus, we need to escape them
 		labelList[i].replace(QString::fromLatin1("&"), QString::fromLatin1("&&"));
 
-		actions[i]->setText(labelList[i]);
+		actions[i]->setText(QDir::toNativeSeparators(labelList[i]));
 		actions[i]->setData(fileList[i]);
+		actions[i]->setToolTip(QDir::toNativeSeparators(fileList[i]));
 		actions[i]->setVisible(true);
 	}
+	menu->setToolTipsVisible(true);
 
 	if (numRecentFiles > 0)
 		menu->insertSeparator(clearAction);
@@ -400,7 +417,10 @@ void TWUtils::updateWindowMenu(QWidget *window, QMenu *menu) /* static */
 			selWin->setCheckable(true);
 			selWin->setChecked(true);
 		}
-		QObject::connect(selWin, &SelWinAction::triggered, texDoc, &TeXDocumentWindow::selectWindow);
+		// Don't use a direct connection as triggered has a boolean argument
+		// (checked) which would get forwarded to selectWindow's "activate",
+		// which doesn't make sense.
+		QObject::connect(selWin, &SelWinAction::triggered, texDoc, [texDoc](){ texDoc->selectWindow(); });
 		menu->addAction(selWin);
 	}
 

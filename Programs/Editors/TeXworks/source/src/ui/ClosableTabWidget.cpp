@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2012-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2012-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ ClosableTabWidget::ClosableTabWidget(QWidget * parent /* = nullptr */)
 {
 	_closeButton = new QToolButton(this);
 	Q_ASSERT(_closeButton);
+	_closeButton->setObjectName(QStringLiteral("closeButton"));
 	_closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 	_closeButton->setCursor(Qt::ArrowCursor);
 //	_closeButton->setStyleSheet(QString::fromUtf8("QToolButton { border: none; padding: 0px; }"));

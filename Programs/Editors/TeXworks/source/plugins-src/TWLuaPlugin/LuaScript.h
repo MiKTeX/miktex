@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ protected:
 	 *
 	 * \param	tw	the TW interface object, exposed to the script as the TW global
 	 *
-	 * \return	\c true on success, \c false if an error occured
+	 * \return	\c true on success, \c false if an error occurred
 	 */
 	bool execute(ScriptAPIInterface *tw) const override;
 

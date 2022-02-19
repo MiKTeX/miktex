@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -211,6 +211,7 @@ void PDFDocumentWindow::init()
 	connect(actionZoom_In, &QAction::triggered, pdfWidget, [=]() { pdfWidget->zoomIn(); });
 	connect(actionZoom_Out, &QAction::triggered, pdfWidget, [=]() { pdfWidget->zoomOut(); });
 	connect(actionFull_Screen, &QAction::triggered, this, &PDFDocumentWindow::toggleFullScreen);
+	connect(actionRuler, &QAction::toggled, pdfWidget, &QtPDF::PDFDocumentView::showRuler);
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::contextClick, this, &PDFDocumentWindow::syncClick);
 	pageModeSignalMapper.setMapping(actionPageMode_Single, QtPDF::PDFDocumentView::PageMode_SinglePage);
 	pageModeSignalMapper.setMapping(actionPageMode_Continuous, QtPDF::PDFDocumentView::PageMode_OneColumnContinuous);
@@ -301,6 +302,15 @@ void PDFDocumentWindow::init()
 			setPageMode(kDefault_PDFPageMode);
 			break;
 	}
+
+	const int pdfRulerUnits = settings.value(QStringLiteral("pdfRulerUnits"), kDefault_PreviewRulerUnits).toInt();
+	switch (pdfRulerUnits) {
+		case 0: pdfWidget->ruler()->setUnit(QtPDF::Physical::Length::Centimeters); break;
+		case 1: pdfWidget->ruler()->setUnit(QtPDF::Physical::Length::Inches); break;
+		case 2: pdfWidget->ruler()->setUnit(QtPDF::Physical::Length::Bigpoints); break;
+	}
+	actionRuler->setChecked(settings.value(QStringLiteral("pdfRulerShow"), kDefault_PreviewRulerShow).toBool());
+
 	resetMagnifier();
 
 	if (settings.contains(QString::fromLatin1("previewResolution"))) {
@@ -336,6 +346,9 @@ void PDFDocumentWindow::init()
 	_fullScreenManager->addShortcut(actionFull_Screen, SLOT(toggleFullScreen()));
 	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, actionFull_Screen, &QAction::setChecked);
 	connect(_fullScreenManager, &Tw::Utils::FullscreenManager::fullscreenChanged, this, &PDFDocumentWindow::maybeZoomToWindow, Qt::QueuedConnection);
+
+	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStarted, this, &PDFDocumentWindow::updateTypesettingAction);
+	connect(&(TWApp::instance()->typesetManager()), &Tw::Utils::TypesetManager::typesettingStopped, this, &PDFDocumentWindow::updateTypesettingAction);
 }
 
 void PDFDocumentWindow::changeEvent(QEvent *event)
@@ -738,8 +751,11 @@ void PDFDocumentWindow::retypeset()
 
 void PDFDocumentWindow::interrupt()
 {
-	if (sourceDocList.count() > 0)
-		sourceDocList.first()->interrupt();
+	Q_FOREACH(TeXDocumentWindow * win, sourceDocList) {
+		if (win->isTypesetting()) {
+			win->interrupt();
+		}
+	}
 }
 
 void PDFDocumentWindow::goToSource()
@@ -826,17 +842,24 @@ void PDFDocumentWindow::enableTypesetAction(bool enabled)
 	actionTypeset->setEnabled(enabled);
 }
 
-void PDFDocumentWindow::updateTypesettingAction(bool processRunning)
+void PDFDocumentWindow::updateTypesettingAction()
 {
-	if (processRunning) {
-		disconnect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::retypeset);
+	const bool isSourceTypesetting = [&]() {
+		Q_FOREACH(TeXDocumentWindow * const win, sourceDocList) {
+			if (win->isTypesetting()) {
+				return true;
+			}
+		}
+		return false;
+	}();
+
+	disconnect(actionTypeset, &QAction::triggered, this, nullptr);
+	if (isSourceTypesetting) {
 		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		actionTypeset->setText(tr("Abort typesetting"));
 		connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::interrupt);
-		enableTypesetAction(true);
 	}
 	else {
-		disconnect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::interrupt);
 		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-start")));
 		actionTypeset->setText(tr("Typeset"));
 		connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::retypeset);
@@ -896,19 +919,12 @@ void PDFDocumentWindow::contextMenuEvent(QContextMenuEvent *event)
 		menu.addSeparator();
 	}
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-	menu.addAction(tr("Zoom In"), pdfWidget, SLOT(zoomIn()));
-	menu.addAction(tr("Zoom Out"), pdfWidget, SLOT(zoomOut()));
-	menu.addAction(tr("Actual Size"), pdfWidget, SLOT(zoom100()));
-	menu.addAction(tr("Fit to Width"), pdfWidget, SLOT(zoomFitWidth()));
-	menu.addAction(tr("Fit to Window"), pdfWidget, SLOT(zoomFitWindow()));
-#else
-	menu.addAction(tr("Zoom In"), pdfWidget, [=]() { pdfWidget->zoomIn(); });
-	menu.addAction(tr("Zoom Out"), pdfWidget, [=]() { pdfWidget->zoomOut(); });
-	menu.addAction(tr("Actual Size"), pdfWidget, &QtPDF::PDFDocumentWidget::zoom100);
-	menu.addAction(tr("Fit to Width"), pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitWidth);
-	menu.addAction(tr("Fit to Window"), pdfWidget, &QtPDF::PDFDocumentWidget::zoomFitWindow);
-#endif
+	menu.addAction(actionZoom_In);
+	menu.addAction(actionZoom_Out);
+	menu.addAction(actionActual_Size);
+	menu.addAction(actionFit_to_Width);
+	menu.addAction(actionFit_to_Window);
+	menu.addAction(actionFit_to_Content_Width);
 
 	menu.exec(event->globalPos());
 }
@@ -988,10 +1004,11 @@ void PDFDocumentWindow::searchResultHighlighted(const int pageNum, const QList<Q
 		// coordinates (i.e., (0,0) in the upper left). Hence we need to convert
 		// the coordinates
 		QList<QPolygonF> region;
-		foreach (QPolygonF pdfPolygon, pdfRegion) {
+		foreach (const QPolygonF & pdfPolygon, pdfRegion) {
 			QPolygonF polygon;
-			foreach (QPointF p, pdfPolygon)
+			foreach (const QPointF & p, pdfPolygon) {
 				polygon << QPointF(p.x(), page->pageSizeF().height() - p.y());
+			}
 			region << polygon;
 		}
 
@@ -1024,6 +1041,9 @@ void PDFDocumentWindow::setDefaultScale() {
 		case 4:
 		    pdfWidget->setZoomLevel(settings.value(QString::fromLatin1("previewScale"), kDefault_PreviewScale).toFloat() / 100.);
 			break;
+		case 5:
+			pdfWidget->zoomFitContentWidth();
+			break;
 		default:
 			pdfWidget->zoom100();
 			break;
@@ -1035,7 +1055,7 @@ void PDFDocumentWindow::maybeOpenUrl(const QUrl & url)
 	// Opening URLs could be a security risk, so ask the user (but make "yes,
 	// proceed the default option - after all the user typically clicked on the
 	// link deliberately)
-	if (QMessageBox::question(this, tr("Open URL"), tr("You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.\nDo you want to continue?").arg(url.toString()),
+	if (QMessageBox::question(this, tr("Open URL"), tr("You are in the process of opening the URL %1. Opening unknown or untrusted web addresses can be a security risk.\nDo you want to continue?").arg(url.toString()),
 	                          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
 		QDesktopServices::openUrl(url);
 }
@@ -1086,36 +1106,35 @@ void PDFDocumentWindow::print()
 
 void PDFDocumentWindow::showScaleContextMenu(const QPoint pos)
 {
-	static QMenu * contextMenu = nullptr;
-
-	if (!contextMenu) {
-		contextMenu = new QMenu(this);
-		static QSignalMapper * contextMenuMapper = new QSignalMapper(this);
+	if (!scaleContextMenu) {
+		scaleContextMenu = new QMenu(this);
+		QSignalMapper * contextMenuMapper = new QSignalMapper(scaleContextMenu);
 		QAction * a{nullptr};
 
-		contextMenu->addAction(actionFit_to_Width);
-		contextMenu->addAction(actionFit_to_Window);
-		contextMenu->addSeparator();
+		scaleContextMenu->addAction(actionFit_to_Width);
+		scaleContextMenu->addAction(actionFit_to_Window);
+		scaleContextMenu->addAction(actionFit_to_Content_Width);
+		scaleContextMenu->addSeparator();
 
-		a = contextMenu->addAction(tr("Custom..."));
+		a = scaleContextMenu->addAction(tr("Custom..."));
 		connect(a, &QAction::triggered, this, &PDFDocumentWindow::doScaleDialog);
 
-		a = contextMenu->addAction(tr("200%"));
+		a = scaleContextMenu->addAction(tr("200%"));
 		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1("2"));
-		a = contextMenu->addAction(tr("150%"));
+		a = scaleContextMenu->addAction(tr("150%"));
 		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1("1.5"));
 		// "100%" corresponds to "Actual Size", but we keep the numeric value
 		// here for consistency
-		a = contextMenu->addAction(tr("100%"));
+		a = scaleContextMenu->addAction(tr("100%"));
 		a->setShortcut(actionActual_Size->shortcut());
 		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1("1"));
-		a = contextMenu->addAction(tr("75%"));
+		a = scaleContextMenu->addAction(tr("75%"));
 		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1(".75"));
-		a = contextMenu->addAction(tr("50%"));
+		a = scaleContextMenu->addAction(tr("50%"));
 		connect(a, &QAction::triggered, contextMenuMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 		contextMenuMapper->setMapping(a, QString::fromLatin1(".5"));
 
@@ -1126,7 +1145,7 @@ void PDFDocumentWindow::showScaleContextMenu(const QPoint pos)
 #endif
 	}
 
-	contextMenu->popup(scaleLabel->mapToGlobal(pos));
+	scaleContextMenu->popup(scaleLabel->mapToGlobal(pos));
 }
 
 void PDFDocumentWindow::setScaleFromContextMenu(const QString & strZoom)

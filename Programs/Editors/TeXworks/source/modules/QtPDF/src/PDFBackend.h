@@ -352,7 +352,7 @@ public:
   virtual ~Document();
 
   // Uses doc-read-lock
-  int numPages();
+  int numPages() const;
   // Uses doc-read-lock
   QString fileName() const { QReadLocker docLocker(_docLock.data()); return _fileName; }
   // Uses doc-read-lock
@@ -485,10 +485,10 @@ public:
   virtual ~Page() = default;
 
   Document * document() { QReadLocker pageLocker(_pageLock); return _parent; }
-  int pageNum();
+  int pageNum() const;
   virtual QSizeF pageSizeF() const = 0;
   virtual QRectF getContentBoundingBox() const;
-  Transition::AbstractTransition * transition() { QReadLocker pageLocker(_pageLock); return _transition; }
+  Transition::AbstractTransition * transition() const { QReadLocker pageLocker(_pageLock); return _transition; }
 
   virtual QList< QSharedPointer<Annotation::Link> > loadLinks() = 0;
   // Uses doc-read-lock and page-read-lock.
@@ -500,7 +500,7 @@ public:
   // of characters) to speed up hit calculations. Only one level of subboxes is
   // currently supported. The big box boundingBox must completely encompass all
   // subBoxes' boundingBoxes.
-  virtual QList<Box> boxes() { return QList<Box>(); }
+  virtual QList<Box> boxes() const { return QList<Box>(); }
   // Return selected text
   // The returned text should contain all characters inside (at least) one of
   // the `selection` polygons.
@@ -508,7 +508,7 @@ public:
   // Optionally, the function can also return wordBoxes and/or charBoxes for
   // each character (i.e., a rect enclosing the word the character is part of
   // and/or a rect enclosing the actual character)
-  virtual QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) {
+  virtual QString selectedText(const QList<QPolygonF> & selection, QMap<int, QRectF> * wordBoxes = nullptr, QMap<int, QRectF> * charBoxes = nullptr, const bool onlyFullyEnclosed = false) const {
     Q_UNUSED(selection)
     Q_UNUSED(onlyFullyEnclosed)
     if (wordBoxes) wordBoxes->clear();
@@ -542,7 +542,7 @@ public:
   //
   // This is very tricky to do in C++. God I miss Python and its `itertools`
   // library.
-  virtual QList<SearchResult> search(const QString & searchText, const SearchFlags & flags) = 0;
+  virtual QList<SearchResult> search(const QString & searchText, const SearchFlags & flags) const = 0;
   static QList<SearchResult> executeSearch(SearchRequest request);
 };
 

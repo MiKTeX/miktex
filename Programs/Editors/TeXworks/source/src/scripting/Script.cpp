@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -310,8 +310,9 @@ Script::MethodResult Script::doCallMethod(QObject * obj, const QString& name,
 				genericArgs.append(QGenericArgument(strTypeName, &myNullPtr));
 				continue;
 			}
-			// \TODO	handle failure during conversion
-			else { }
+			else {
+				// \TODO	handle failure during conversion
+			}
 
 			// Note: This line is a hack!
 			// QVariant::data() is undocumented; QGenericArgument should not be

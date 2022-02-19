@@ -495,7 +495,7 @@ Document::~Document()
   clearPages();
 }
 
-int Document::numPages() { QReadLocker docLocker(_docLock.data()); return _numPages; }
+int Document::numPages() const { QReadLocker docLocker(_docLock.data()); return _numPages; }
 PDFPageProcessingThread &Document::processingThread() { QReadLocker docLocker(_docLock.data()); return _processingThread; }
 PDFPageCache &Document::pageCache() { QReadLocker docLocker(_docLock.data()); return _pageCache; }
 
@@ -619,7 +619,7 @@ Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
   }
 }
 
-int Page::pageNum() { QReadLocker pageLocker(_pageLock); return _n; }
+int Page::pageNum() const { QReadLocker pageLocker(_pageLock); return _n; }
 
 void Page::detachFromParent()
 {

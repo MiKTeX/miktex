@@ -71,11 +71,7 @@ void SystemCommand::processFinished(int exitCode, QProcess::ExitStatus exitStatu
 		if (exitStatus == QProcess::NormalExit) {
 			if (bytesAvailable() > 0) {
 				QByteArray ba = readAllStandardOutput();
-#if defined(MIKTEX_WINDOWS)
-				result += QString::fromUtf8(ba.constData());
-#else
 				result += QString::fromLocal8Bit(ba.constData());
-#endif
 			}
 		}
 		else {
@@ -90,11 +86,7 @@ void SystemCommand::processOutput()
 {
 	if (wantOutput && bytesAvailable() > 0) {
 		QByteArray ba = readAllStandardOutput();
-#if defined(MIKTEX_WINDOWS)
-		result += QString::fromUtf8(ba.constData());
-#else
 		result += QString::fromLocal8Bit(ba.constData());
-#endif
 	}
 }
 

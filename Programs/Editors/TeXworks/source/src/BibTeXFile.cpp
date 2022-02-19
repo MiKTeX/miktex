@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -170,7 +170,7 @@ int BibTeXFile::readEntry(Entry & e, const QByteArray & content, int curPos, con
 		break;
 	case Entry::STRING:
 		// FIXME
-		e._key = codec->toUnicode(block);
+		parseFields(e, codec->toUnicode(block));
 		break;
 	case Entry::NORMAL:
 		parseEntry(e, codec->toUnicode(block));
@@ -187,13 +187,18 @@ void BibTeXFile::parseEntry(Entry & e, const QString & block)
 	e._key = block.mid(0, pos).trimmed();
 	if (pos == -1) return;
 
+	parseFields(e, block, pos + 1);
+}
+
+void BibTeXFile::parseFields(BibTeXFile::Entry & e, const QString & block, int pos)
+{
 	QChar startDelim, endDelim;
 
 	do {
-		int start = pos + 1;
+		int start{pos};
 		pos = block.indexOf(QChar::fromLatin1('='), start);
 		if (pos < 0) break;
-		QString key = block.mid(start, pos - start).trimmed();
+		const QString key = block.mid(start, pos - start).trimmed();
 		QString val;
 		int i{pos + 1};
 
@@ -205,7 +210,11 @@ void BibTeXFile::parseEntry(Entry & e, const QString & block)
 		}
 
 		for (i = start; i < block.size(); ++i) {
-			if (block[i] == QChar::fromLatin1(',')) break;
+			if (block[i] == QChar::fromLatin1(',')) {
+				// Skip ',' and break out of the loop
+				++i;
+				break;
+			}
 			if (block[i] == QChar::fromLatin1('{')) {
 				startDelim = QChar::fromLatin1('{');
 				endDelim = QChar::fromLatin1('}');
@@ -242,6 +251,22 @@ unsigned int BibTeXFile::numEntries() const
 		if (_entries[i].type() == Entry::NORMAL) ++retVal;
 	}
 	return retVal;
+}
+
+QMap<QString, QString> BibTeXFile::strings() const
+{
+	QMap<QString, QString> rv;
+
+	for (const Entry & e : _entries) {
+		if (e.type() == Entry::STRING) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+			rv.unite(e._fields);
+#else
+			rv.insert(e._fields);
+#endif
+		}
+	}
+	return rv;
 }
 
 const BibTeXFile::Entry & BibTeXFile::entry(const unsigned int idx) const

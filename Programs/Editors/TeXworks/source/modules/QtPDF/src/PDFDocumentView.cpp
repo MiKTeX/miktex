@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2022  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,11 +14,9 @@
 
 #include "PaperSizes.h"
 #include "PDFDocumentView.h"
+#include "PDFGuideline.h"
 
 #include <QtConcurrent>
-#if defined(MIKTEX) && defined(_MSC_VER)
-#  include <ciso646>
-#endif
 
 // This has to be outside the namespace (according to Qt docs)
 static void initResources()
@@ -28,6 +26,13 @@ static void initResources()
 }
 
 namespace QtPDF {
+
+void trStrings() {
+  // The language and translator are currently not used but are accessed here so
+  // they show up in the .ts files.
+  Q_UNUSED(QT_TRANSLATE_NOOP("QtPDF", "[language name]"))
+  Q_UNUSED(QT_TRANSLATE_NOOP("QtPDF", "[translator's name/email]"))
+}
 
 // In static builds, we need to explicitly initialize the resources
 // (translations).
@@ -51,8 +56,6 @@ static bool isPageItem(const QGraphicsItem *item) { return ( item->type() == PDF
 
 // PDFDocumentView
 // ===============
-QTranslator * PDFDocumentView::_translator = nullptr;
-QString PDFDocumentView::_translatorLanguage;
 
 // This class descends from `QGraphicsView` and is responsible for controlling
 // and displaying the contents of a `Document` using a `QGraphicsScene`.
@@ -60,10 +63,6 @@ PDFDocumentView::PDFDocumentView(QWidget *parent /* = nullptr */):
   Super(parent)
 {
   initResources();
-  // FIXME: Allow to initialize with a specific language (in case the
-  // application uses a custom locale and switchInterfaceLocale() has not been
-  // called, yet (e.g., this is the first instance of PDFDocumentView that is
-  // created))
   setBackgroundRole(QPalette::Dark);
   setAlignment(Qt::AlignCenter);
   setFocusPolicy(Qt::StrongFocus);
@@ -101,6 +100,27 @@ PDFDocumentView::PDFDocumentView(QWidget *parent /* = nullptr */):
 
   connect(&_searchResultWatcher, &QFutureWatcher< QList<Backend::SearchResult> >::resultReadyAt, this, &PDFDocumentView::searchResultReady);
   connect(&_searchResultWatcher, &QFutureWatcher< QList<Backend::SearchResult> >::progressValueChanged, this, &PDFDocumentView::searchProgressValueChanged);
+
+  showRuler(false);
+  connect(&_ruler, &PDFRuler::dragStart, this, [this](QPoint pos, Qt::Edge origin) {
+    const Qt::Orientation orientation = [](Qt::Edge origin) {
+      switch (origin) {
+        case Qt::TopEdge:
+        case Qt::BottomEdge:
+          return Qt::Horizontal;
+        case Qt::LeftEdge:
+        case Qt::RightEdge:
+          return Qt::Vertical;
+      }
+      return Qt::Horizontal;
+    }(origin);
+    PDFGuideline * line = new PDFGuideline(this, pos, orientation);
+    connect(&_ruler, &PDFRuler::dragMove, line, &PDFGuideline::dragMove);
+    connect(&_ruler, &PDFRuler::dragStop, line, [this,line](const QPoint p){
+      disconnect(&_ruler, nullptr, line, nullptr);
+      line->dragStop(p);
+    });
+  });
 }
 
 PDFDocumentView::~PDFDocumentView()
@@ -113,8 +133,6 @@ PDFDocumentView::~PDFDocumentView()
 // ---------
 void PDFDocumentView::setScene(QSharedPointer<PDFDocumentScene> a_scene)
 {
-  // FIXME: Make setScene(QGraphicsScene*) (from parent class) invisible to the
-  // outside world
   Super::setScene(a_scene.data());
 
   // disconnect us from the old scene (if any)
@@ -780,7 +798,7 @@ void PDFDocumentView::setMagnifierSize(const int size)
 
 void PDFDocumentView::search(QString searchText, Backend::SearchFlags flags /* = Backend::Search_CaseInsensitive */)
 {
-  if ( not _pdf_scene )
+  if (!_pdf_scene)
     return;
 
   // If `searchText` is the same as for the last search, focus on the next
@@ -834,7 +852,7 @@ void PDFDocumentView::search(QString searchText, Backend::SearchFlags flags /* =
 
 void PDFDocumentView::nextSearchResult()
 {
-  if ( not _pdf_scene || _searchResults.empty() )
+  if (!_pdf_scene || _searchResults.empty())
     return;
 
   // Note: _currentSearchResult is initially -1 if no result is selected
@@ -868,7 +886,7 @@ void PDFDocumentView::nextSearchResult()
 
 void PDFDocumentView::previousSearchResult()
 {
-  if ( not _pdf_scene || _searchResults.empty() )
+  if (!_pdf_scene || _searchResults.empty())
     return;
 
   if (_currentSearchResult >= 0 && _searchResults[_currentSearchResult])
@@ -901,7 +919,7 @@ void PDFDocumentView::previousSearchResult()
 
 void PDFDocumentView::clearSearchResults()
 {
-  if ( not _pdf_scene || _searchResults.empty() )
+  if (!_pdf_scene || _searchResults.empty())
     return;
 
   foreach( QGraphicsItem *item, _searchResults )
@@ -1241,38 +1259,6 @@ void PDFDocumentView::pdfActionTriggered(const PDFAction * action)
   }
 }
 
-void PDFDocumentView::switchInterfaceLocale(const QLocale & newLocale)
-{
-  // TODO: Allow for a custom directory for .qm files (i.e., one in the
-  // filesystem, instead of the embedded resources)
-  // Avoid (re-)installing the same translator multiple times (e.g., if several
-  // PDFDocumentView objects are used in the same application simultaneously
-  if (_translatorLanguage == newLocale.name())
-    return;
-
-  // Remove the old translator (if any)
-  if (_translator) {
-    QCoreApplication::removeTranslator(_translator);
-    _translator->deleteLater();
-    _translator = nullptr;
-  }
-
-  _translatorLanguage = newLocale.name();
-
-  _translator = new QTranslator();
-  if (_translator->load(QString::fromUtf8("QtPDF_%1").arg(newLocale.name()), QString::fromUtf8(":/resfiles/translations")))
-    QCoreApplication::installTranslator(_translator);
-  else {
-    _translator->deleteLater();
-    _translator = nullptr;
-  }
-
-  // The language and translator are currently not used but are accessed here so
-  // they show up in the .ts files.
-  QString lang = QString::fromUtf8(QT_TRANSLATE_NOOP("QtPDF", "[language name]"));
-  QString translator = QString::fromUtf8(QT_TRANSLATE_NOOP("QtPDF", "[translator's name/email]"));
-}
-
 void PDFDocumentView::reinitializeFromScene()
 {
   if (_pdf_scene) {
@@ -1369,6 +1355,8 @@ void PDFDocumentView::paintEvent(QPaintEvent *event)
 
   if (_armedTool)
     _armedTool->paintEvent(event);
+
+  emit updated();
 }
 
 void PDFDocumentView::keyPressEvent(QKeyEvent *event)
@@ -1561,6 +1549,12 @@ void PDFDocumentView::changeEvent(QEvent * event)
   Super::changeEvent(event);
 }
 
+void PDFDocumentView::resizeEvent(QResizeEvent * event)
+{
+  _ruler.resize(size());
+  Super::resizeEvent(event);
+}
+
 void PDFDocumentView::armTool(const DocumentTool::AbstractTool::Type toolType)
 {
   armTool(getToolByType(toolType));
@@ -1583,6 +1577,18 @@ void PDFDocumentView::disarmTool()
     return;
   _armedTool->disarm();
   _armedTool = nullptr;
+}
+
+void PDFDocumentView::showRuler(const bool show)
+{
+  if (show) {
+    _ruler.show();
+    setViewportMargins(PDFRuler::rulerSize, PDFRuler::rulerSize, 0, 0);
+  }
+  else {
+    _ruler.hide();
+    setViewportMargins(0, 0, 0, 0);
+  }
 }
 
 
@@ -1628,6 +1634,7 @@ void PDFDocumentMagnifierView::prepareToShow()
   // Ensure we have enough padding at the border that we can display the
   // magnifier even beyond the edge
   setSceneRect(_parent_view->sceneRect().adjusted(-width() / _zoomLevel, -height() / _zoomLevel, width() / _zoomLevel, height() / _zoomLevel));
+  raise();
 }
 
 void PDFDocumentMagnifierView::setZoomFactor(const qreal zoomFactor)
@@ -1940,7 +1947,7 @@ QList<QGraphicsItem*> PDFDocumentScene::pages(const QPolygonF &polygon)
 
 // Convenience function to avoid moving the complete list of pages around
 // between functions if only one page is needed
-QGraphicsItem* PDFDocumentScene::pageAt(const int idx)
+QGraphicsItem* PDFDocumentScene::pageAt(const int idx) const
 {
   if (idx < 0 || idx >= _pages.size())
     return nullptr;
@@ -1950,7 +1957,7 @@ QGraphicsItem* PDFDocumentScene::pageAt(const int idx)
 // Overloaded method that returns all page objects at a given point. First,
 // `items` is used to grab all items at the point. This list is then filtered by
 // item type so that it contains only references to `PDFPageGraphicsItem` objects.
-QGraphicsItem* PDFDocumentScene::pageAt(const QPointF &pt)
+QGraphicsItem* PDFDocumentScene::pageAt(const QPointF &pt) const
 {
   QList<QGraphicsItem*> pageList = items(pt);
   QtConcurrent::blockingFilter(pageList, isPageItem);
@@ -2269,7 +2276,7 @@ void PDFPageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
   // If this is the first time this `PDFPageGraphicsItem` has come into view,
   // `_linksLoaded` will be `false`. We then load all of the links on the page.
-  if ( not _linksLoaded )
+  if (!_linksLoaded)
   {
     page->asyncLoadLinks(this);
     _linksLoaded = true;
@@ -2647,7 +2654,7 @@ void PDFLinkGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   // Check that this link was "activated" (mouse press occurred within the link
   // bounding box) and that the mouse release also occurred within the bounding
   // box.
-  if ( (not _activated) || (not contains(event->pos())) )
+  if (!_activated || !contains(event->pos()))
   {
     _activated = false;
     Super::mouseReleaseEvent(event);

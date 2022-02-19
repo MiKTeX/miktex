@@ -379,7 +379,7 @@ void TWApp::about()
 {
 	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(QString::fromLatin1(TEXWORKS_NAME));
 	aboutText += QLatin1String("<small>");
-	aboutText += QLatin1String("<p>&#xA9; 2007-2021  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
+  aboutText += QLatin1String("<p>&#xA9; 2007-2022  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
 #if defined(MIKTEX)
 	aboutText += tr("<br>Version %1 (%2) [r.%3, %4]").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
 #else

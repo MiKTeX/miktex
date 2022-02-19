@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QKeyEvent>
+#include <QPointer>
 #include <QPushButton>
 #include <QShortcut>
 #include <QTableWidget>
@@ -431,23 +432,11 @@ SearchResults::SearchResults(QWidget* parent)
 
 void SearchResults::goToSource()
 {
-	QList<QTableWidgetSelectionRange> ranges = table->selectedRanges();
-	if (ranges.count() == 0)
-		return;
-	int row = ranges.first().topRow();
-	QString fileName;
-	QTableWidgetItem* item = table->item(row, 0);
-	if (!item)
-		return;
-	fileName = item->toolTip();
-
-	if (!fileName.isEmpty()) {
-		QWidget *theDoc = TeXDocumentWindow::openDocument(fileName);
-		if (theDoc) {
-			QTextEdit *editor = theDoc->findChild<QTextEdit*>(QString::fromLatin1("textEdit"));
-			if (editor)
-				editor->setFocus();
-		}
+	TeXDocumentWindow * theDoc = showSelectedEntry();
+	if (theDoc) {
+		QTextEdit * editor = theDoc->findChild<QTextEdit*>(QString::fromLatin1("textEdit"));
+		if (editor)
+			editor->setFocus();
 	}
 }
 
@@ -479,8 +468,18 @@ void SearchResults::presentResults(const QString& searchText,
 	resultsWindow->table->setRowCount(results.count());
 	int i = 0;
 	foreach (const SearchResult &result, results) {
-		QTableWidgetItem *item = new QTableWidgetItem(QFileInfo(result.doc->fileName()).fileName());
+		QTableWidgetItem * item = new QTableWidgetItem();
+		if (result.doc->untitled()) {
+			item->setText(QFileInfo(result.doc->fileName()).fileName() + QStringLiteral("*"));
+			QFont f = item->font();
+			f.setItalic(true);
+			item->setFont(f);
+		}
+		else {
+			item->setText(QFileInfo(result.doc->fileName()).fileName());
+		}
 		item->setToolTip(result.doc->fileName());
+		item->setData(Qt::UserRole, QVariant::fromValue(QPointer<TeXDocumentWindow>(result.doc)));
 		resultsWindow->table->setItem(i, 0, item);
 		resultsWindow->table->setItem(i, 1, new QTableWidgetItem(QString::number(result.lineNo)));
 		resultsWindow->table->setItem(i, 2, new QTableWidgetItem(QString::number(result.selStart)));
@@ -553,13 +552,14 @@ void SearchResults::presentResults(const QString& searchText,
 	resultsWindow->show();
 }
 
-void SearchResults::showEntry(QTableWidgetItem * item)
+TeXDocumentWindow * SearchResults::showEntry(QTableWidgetItem * item)
 {
 	if (!item)
-		return;
+		return nullptr;
 	int row = item->row();
 	item = table->item(row, 0);
 	QString fileName = item->toolTip();
+	QPointer<TeXDocumentWindow> texDoc = item->data(Qt::UserRole).value< QPointer<TeXDocumentWindow> >();
 	item = table->item(row, 1);
 	int lineNo = item->text().toInt();
 	item = table->item(row, 2);
@@ -567,20 +567,28 @@ void SearchResults::showEntry(QTableWidgetItem * item)
 	item = table->item(row, 3);
 	int selEnd = item->text().toInt();
 
+	if (texDoc) {
+		texDoc->show();
+		texDoc->raise();
+		if (texDoc->isMinimized()) {
+			texDoc->showNormal();
+		}
+		texDoc->goToLine(lineNo, selStart, selEnd);
+		return texDoc;
+	}
 	if (!fileName.isEmpty())
-		TeXDocumentWindow::openDocument(fileName, false, true, lineNo, selStart, selEnd);
+		return TeXDocumentWindow::openDocument(fileName, false, true, lineNo, selStart, selEnd);
+	return nullptr;
 }
 
-void SearchResults::showSelectedEntry()
+TeXDocumentWindow * SearchResults::showSelectedEntry()
 {
 	QList<QTableWidgetSelectionRange> ranges = table->selectedRanges();
 	if (ranges.count() == 0)
-		return;
+		return nullptr;
 	int row = ranges.first().topRow();
 	QTableWidgetItem* item = table->item(row, 0);
-	if (!item)
-		return;
-	showEntry(item);
+	return showEntry(item);
 }
 
 PDFFindDialog::PDFFindDialog(PDFDocumentWindow *document)

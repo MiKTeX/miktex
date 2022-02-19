@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2016-2020  Stefan Löffler
+	Copyright (C) 2016-2021  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ ScreenCalibrationWidget::ScreenCalibrationWidget(QWidget * parent)
 	: QWidget(parent)
 	, _contextMenuActionGroup(this)
 {
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	_sbDPI = new QDoubleSpinBox(this);
 	_sbDPI->setRange(0, 9999);
 	_sbDPI->setValue(physicalDpiX());
@@ -71,7 +72,6 @@ void ScreenCalibrationWidget::recalculateSizes()
 	_hSpace = style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
 	if (_hSpace < 0)
 		_hSpace = style()->layoutSpacing(QSizePolicy::SpinBox, QSizePolicy::DefaultType, Qt::Horizontal);
-	setMinimumHeight(static_cast<int>(_paperTickHeight) + qRound(0.2 * fontMetrics().lineSpacing()));
 }
 
 void ScreenCalibrationWidget::retranslate()
@@ -148,6 +148,14 @@ double ScreenCalibrationWidget::dpi() const
 	return _sbDPI->value();
 }
 
+QSize ScreenCalibrationWidget::minimumSizeHint() const
+{
+	Q_ASSERT(_sbDPI);
+
+	const int vSpace = qRound(0.2 * fontMetrics().lineSpacing());
+	return {100 + _hSpace + _sbDPI->minimumSizeHint().width(), qMax(_sbDPI->minimumSizeHint().height(), _paperTickHeight + vSpace)};
+}
+
 void ScreenCalibrationWidget::setDpi(const double dpi)
 {
 	Q_ASSERT(_sbDPI);
@@ -175,7 +183,7 @@ void ScreenCalibrationWidget::paintEvent(QPaintEvent * event)
 	QPainter painter(this);
 
 	// Draw ruler
-	painter.fillRect(_rulerRect, Qt::white);
+	painter.fillRect(_rulerRect, palette().color(QPalette::Base));
 	painter.drawRect(_rulerRect);
 	painter.setClipRect(_rulerRect);
 

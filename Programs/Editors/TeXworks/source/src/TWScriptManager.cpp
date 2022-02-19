@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -200,7 +200,8 @@ void TWScriptManager::reloadScriptsInList(TWScriptList * list, QStringList & pro
 			processed << s->getFilename();
 		}
 		else {
-		} // should never happen
+			 // should never happen
+		}
 	}
 }
 

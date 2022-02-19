@@ -300,7 +300,7 @@ protected:
 // Text selection tool
 // Supports:
 // - "line based" selection (i.e., selects all boxes from the box the mouse
-//   press event occured over to the closest box to the mouse when it was
+//   press event occurred over to the closest box to the mouse when it was
 //   released (or the current position if the mouse button is still pressed);
 //   relies on the ordering of boxes in the pdf file
 // - marquee selection (selects all boxes inside a rectangle drawn by the user

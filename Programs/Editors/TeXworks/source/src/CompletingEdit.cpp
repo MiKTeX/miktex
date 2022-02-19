@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -806,6 +806,11 @@ void CompletingEdit::maybeSmartenQuote(int offset)
 		replacement = iter.value().first;
 	}
 	else {
+		// If the quotes are directly preceded by a \, leave them as is as they
+		// are likely part of a command such as an umlaut (e.g., \"a).
+		if (text[offset - 1] == QChar::fromLatin1('\\'))
+			return;
+
 		if (text[offset - 1].isSpace())
 			replacement = iter.value().first;
 
@@ -1277,6 +1282,38 @@ bool CompletingEdit::getLineNumbersVisible() const
 	return lineNumberArea->isVisible();
 }
 
+QString CompletingEdit::text() const
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 9, 0)
+	return toPlainText();
+#else
+	if (document() == nullptr) {
+		return {};
+	}
+	// Raw text leaves certain unicode characters intact, most notably
+	// non-breaking spaces
+	QString rv{document()->toRawText()};
+
+	// Modeled after QTextDocument::toPlainText()
+	QChar *uc = rv.data();
+	QChar *e = uc + rv.size();
+
+	for ( ; uc != e; ++uc) {
+		switch (uc->unicode()) {
+			case 0xfdd0: // QTextBeginningOfFrame
+			case 0xfdd1: // QTextEndOfFrame
+			case QChar::ParagraphSeparator:
+			case QChar::LineSeparator:
+				*uc = QLatin1Char('\n');
+				break;
+			default:
+				;
+		}
+	}
+	return rv;
+#endif
+}
+
 void CompletingEdit::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
 	if (lineNumberArea->isVisible()) {
@@ -1363,8 +1400,12 @@ bool CompletingEdit::event(QEvent *e)
 	}
 	// Alternatively, we could use QEvent::ApplicationPaletteChange if we'd
 	// derive the colors from the application's palette
-	if (e->type() == QEvent::PaletteChange)
+	if (e->type() == QEvent::PaletteChange) {
 		updateColors();
+		// reset the extra selections so they (highlight current line & auto-
+		// completion) actually use the updated colors right away)
+		resetExtraSelections();
+	}
 	if (e->type() == QEvent::ShortcutOverride) {
 		auto ke = reinterpret_cast<QKeyEvent*>(e);
 		QKeySequence seq(static_cast<int>(ke->modifiers()) | ke->key());

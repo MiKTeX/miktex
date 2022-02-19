@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GuidelineEditDialog</class>
+ <widget class="QDialog" name="GuidelineEditDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>250</width>
+    <height>126</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edit guideline...</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Page:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="cPage">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Position:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QDoubleSpinBox" name="cPosition">
+         <property name="decimals">
+          <number>4</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cPositionUnit">
+         <item>
+          <property name="text">
+           <string>cm</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>in</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>bp</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="cButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>cButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>GuidelineEditDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>188</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>144</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>GuidelineEditDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>188</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>144</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2020  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2021  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ public:
       }
       // Explicitly use float qFuzzyCompare as SyncTeX internally uses float
       // which may not be converted to double in the same way on all platforms
-      // (issues have occured with MXE compilations for Windows with GCC 5.5)
+      // (issues have occurred with MXE compilations for Windows with GCC 5.5)
       for (int i = 0; i < rects.size(); ++i) {
         const QRectF & a = rects[i];
         const QRectF & b = o.rects[i];

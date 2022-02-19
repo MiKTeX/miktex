@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -165,7 +165,7 @@ public:
 	 * \param	result	variable to receive the result of the script execution;
 	 * 					in the case of an error, this typically contains an
 	 * 					error description
-	 * \return	\c true on success, \c false if an error occured
+	 * \return	\c true on success, \c false if an error occurred
 	 */
 	bool run(Tw::Scripting::ScriptAPIInterface & api);
 

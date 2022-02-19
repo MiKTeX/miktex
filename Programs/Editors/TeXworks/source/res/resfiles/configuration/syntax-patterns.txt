@@ -33,49 +33,49 @@
 
 [LaTeX]
 # special characters
-darkred		N	[$#^_{}&]
+red		N	[$#^_{}&]
 
 # LaTeX environments
-darkgreen	N	\\(?:begin|end)\s*\{[^\}]*\}
+olive	N	\\(?:begin|end)\s*\{[^\}]*\}
 
 # LaTeX packages
-darkblue	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
+mediumorchid	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
 
 # control sequences
-blue		N	\\(?:[\p{L}@]+|.)
+royalblue	N	\\(?:[\p{L}@]+|.)
 
 # comments
-red		Y	%.*
+gray		Y	%.*
 
 [ConTeXt]
 # special characters
-darkred		N	[$#{}&]
+red		N	[$#{}&]
 
 # 'other' special characters
-darkblue	N	[=\[\]]
+sienna	N	[=\[\]]
 
 # mathematical operations
-gray		N	[\-+/^_]
+orange		N	[\-+/^_]
 
 # start/stop
-darkgreen;B	N	\\(?:start|stop)[A-Za-z]+
+olive;B	N	\\(?:start|stop)[A-Za-z]+
 
 # control sequences
-blue;B		N	\\(?:[\p{L}@]+|.)
+royalblue;B		N	\\(?:[\p{L}@]+|.)
 
 # comments
-red		Y	%.*
+gray		Y	%.*
 
 [BibTeX]
 
 # entries
-darkgreen	N	@[^{]+
+olive	N	@[^{]+
 
 # comments
-red		Y	%.*
+gray		Y	%.*
 
 # keys
-blue	N	[a-zA-Z]+(?=\s*=)
+royalblue	N	[a-zA-Z]+(?=\s*=)
 
 [LaTeX DTX]
 
@@ -102,26 +102,25 @@ gray		N	^%
 green		N	\\(?:begin|end)\{macrocode\}
 
 # LaTeX environments
-darkgreen	N	\\(?:begin|end)\s*\{[^}]*\}
+olive	N	\\(?:begin|end)\s*\{[^}]*\}
 
 # control sequences
-blue		N	\\(?:[\p{L}@:_]+|.)
+royalblue		N	\\(?:[\p{L}@:_]+|.)
 
 [Lua]
 
 # Comments (single line only)
-red		Y	--.*
+gray		Y	--.*
 
 # Strings
-green		N	(?:\"(?:[^\"\\]|\\[\s\S])*(?:\"|$)|\'(?:[^\'\\]|\\[\s\S])*(?:\'|$))
-green		N	\[(=*)\[[\s\S]*(?:\]\1\]|$)
+olive		N	(?:\"(?:[^\"\\]|\\[\s\S])*(?:\"|$)|\'(?:[^\'\\]|\\[\s\S])*(?:\'|$))
+olive		N	\[(=*)\[[\s\S]*(?:\]\1\]|$)
 
 # Keywords
-blue;B		N	
-\b(?:and|break|do|else|elseif|end|false|for|function|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b
+royalblue;B		N	\b(?:and|break|do|else|elseif|end|false|for|function|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b
 
 # Numbers
-darkblue	N	[+-]?(?:0x[\da-f]+|(?:(?:\.\d+|\d+(?:\.\d*)?)(?:e[+\-]?\d+)?))
+mediumorchid	N	[+-]?(?:0x[\da-f]+|(?:(?:\.\d+|\d+(?:\.\d*)?)(?:e[+\-]?\d+)?))
 
 # other possibilities to be added....
 # [Metapost]

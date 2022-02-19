@@ -15,6 +15,7 @@
 		<file>icons/tango-texworks/actions/32x32/format-indent-more.png</file>
 		<file>icons/tango-texworks/actions/32x32/go-down.png</file>
 		<file>icons/tango-texworks/actions/32x32/go-first.png</file>
+		<file>icons/tango-texworks/actions/32x32/go-jump.png</file>
 		<file>icons/tango-texworks/actions/32x32/go-last.png</file>
 		<file>icons/tango-texworks/actions/32x32/go-next.png</file>
 		<file>icons/tango-texworks/actions/32x32/go-previous.png</file>
@@ -37,6 +38,7 @@
 		<file>icons/tango-texworks/actions/32x32@2/format-indent-more.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/go-down.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/go-first.png</file>
+		<file>icons/tango-texworks/actions/32x32@2/go-jump.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/go-last.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/go-next.png</file>
 		<file>icons/tango-texworks/actions/32x32@2/go-previous.png</file>

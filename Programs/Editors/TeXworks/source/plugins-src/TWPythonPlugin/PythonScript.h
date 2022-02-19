@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ protected:
 	 *
 	 * \param	tw	the TW interface object, exposed to the script as the TW global
      *
-	 * \return	\c true on success, \c false if an error occured
+	 * \return	\c true on success, \c false if an error occurred
 	 */
 	bool execute(ScriptAPIInterface *tw) const override;
 
@@ -70,7 +70,7 @@ protected:
 	 *
 	 * \param	o			the pyQObject of which to retrieve the attribute value
 	 * \param	attr_name	the name of the attribute
-	 * \return	the python value on success, \c nullptr if an error occured
+	 * \return	the python value on success, \c nullptr if an error occurred
 	 */
 	static PyObject* getAttribute(PyObject * o, PyObject * attr_name);
 
@@ -79,7 +79,7 @@ protected:
 	 * \param	o			the pyQObject for which to set the attribute value
 	 * \param	attr_name	the name of the attribute
 	 * \param	v			the new value
-	 * \return	0 on success, -1 if an error occured
+	 * \return	0 on success, -1 if an error occurred
 	 */
 	static int setAttribute(PyObject * o, PyObject * attr_name, PyObject * v);
 
@@ -90,7 +90,7 @@ protected:
 	 * \param	pyArgs	python tuple of arguments
 	 * \param	kw		dictionary of key-value argument pairs (not supported)
 	 * \return	the return value of the method (PyNone for void functions) on
-	 * 			success, \c nullptr if an error occured
+	 * 			success, \c nullptr if an error occurred
 	 */
 	static PyObject * callMethod(PyObject * o, PyObject * pyArgs, PyObject * kw);
 
@@ -108,7 +108,7 @@ protected:
 	 * 			python lists. If the value can't be converted, an error is
 	 * 			raised and \c nullptr is returned.
 	 * \param	v	the QVariant to convert to a python value
-	 * \return	the python object on success, \c nullptr if an error occured
+	 * \return	the python object on success, \c nullptr if an error occurred
 	 */
 	static PyObject * VariantToPython(const QVariant & v);
 
