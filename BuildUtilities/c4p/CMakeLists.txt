@@ -8,10 +8,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
-add_definitions(
-    -Dalloca=_alloca
-)
-
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
