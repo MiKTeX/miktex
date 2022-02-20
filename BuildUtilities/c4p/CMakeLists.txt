@@ -70,5 +70,11 @@ add_executable(c4p ${c4p_sources})
 set_property(TARGET c4p PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(NOT HAVE_GETOPT_LONG)
-    target_link_libraries(c4p ${getopt_lib_name})
+    target_link_libraries(c4p ${getopt_dll_name})
+endif()
+
+if (USE_SYSTEM_FMT)
+    target_link_libraries(c4p MiKTeX::Imported::FMT)
+else()
+    target_link_libraries(c4p ${fmt_dll_name})
 endif()

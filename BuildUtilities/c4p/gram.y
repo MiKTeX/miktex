@@ -17,6 +17,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "common.h"
 #include "output.h"
 
@@ -281,7 +284,7 @@ function_head:
     {
         if ($2->s_kind != FUNCTION_IDENTIFIER)
         {
-            c4p_error("`%s' is not a function name", $2->s_repr);
+            c4p_error(fmt::format("`{0}' is not a function name", $2->s_repr));
         }
         $$ = $2->s_type_ptr;
     }
@@ -296,11 +299,11 @@ function_head:
         {
             if ($2->s_kind != UNDEFINED_IDENTIFIER)
             {
-                c4p_error("`%s' already defined", $2->s_repr);
+                c4p_error(fmt::format("`{0}' already defined", $2->s_repr));
             }
             if ($5->s_kind != TYPE_IDENTIFIER)
             {
-                c4p_error("`%s' is not a type identifier", $5->s_repr);
+                c4p_error(fmt::format("`{0}' is not a type identifier", $5->s_repr));
             }
             $$ = new_type_node(PROTOTYPE_NODE, $2, $3, $5);
             $2->s_kind = FUNCTION_IDENTIFIER;
@@ -362,7 +365,7 @@ procedure_head:
         {
             if ($2->s_kind != UNDEFINED_IDENTIFIER)
             {
-                c4p_error("`%s' already declared", $2->s_repr);
+                c4p_error(fmt::format("`{0}' already declared", $2->s_repr));
             }
             $$ = new_type_node(PROTOTYPE_NODE, $2, $3, 0);
             $2->s_kind = PROCEDURE_IDENTIFIER;
@@ -413,7 +416,7 @@ parameter_group:
         parameter_node* par = reinterpret_cast<parameter_node*>($1);
         if ($3->s_kind != TYPE_IDENTIFIER)
         {
-            c4p_error("`%s' is not a type identifier", $3->s_repr);
+            c4p_error(fmt::format("`{0}' is not a type identifier", $3->s_repr));
         }
         while (par != nullptr)
         {
@@ -568,7 +571,7 @@ constant:
     {
         if ($1->s_kind != CONSTANT_IDENTIFIER)
         {
-            c4p_error("`%s' is not a constant identifier", $1->s_repr);
+            c4p_error(fmt::format("`{0}' is not a constant identifier", $1->s_repr));
         }
         last_value = $1->s_value;
         last_type = $1->s_type;
@@ -578,7 +581,7 @@ constant:
     {
         if ($2->s_kind != CONSTANT_IDENTIFIER)
         {
-            c4p_error("`%s' is not a constant identifier", $2->s_repr);
+            c4p_error(fmt::format("`{0}' is not a constant identifier", $2->s_repr));
         }
         last_value = $2->s_value;
         last_type = $2->s_type;
@@ -588,7 +591,7 @@ constant:
     {
         if ($2->s_kind != CONSTANT_IDENTIFIER)
         {
-            c4p_error("`%s' is not a constant identifier", $2->s_repr);
+            c4p_error(fmt::format("`{0}' is not a constant identifier", $2->s_repr));
         }
         /* fixme: suspicious: */
         last_value.ivalue = - $2->s_value.ivalue;
@@ -627,7 +630,7 @@ bound:
     {
         if ($1->s_kind != CONSTANT_IDENTIFIER)
         {
-            c4p_error("`%s' is not a constant identifier", $1->s_repr);
+            c4p_error(fmt::format("`{0}' is not a constant identifier", $1->s_repr));
         }
         $$ = $1->s_value.ivalue;
     }
@@ -635,7 +638,7 @@ bound:
     {
         if ($2->s_kind != CONSTANT_IDENTIFIER)
         {
-            c4p_error("`%s' is not a constant identifier", $2->s_repr);
+            c4p_error(fmt::format("`{0}' is not a constant identifier", $2->s_repr));
         }
         $$ = $2->s_value.ivalue;
     }
@@ -643,7 +646,7 @@ bound:
     {
         if ($2->s_kind != CONSTANT_IDENTIFIER)
         {
-            c4p_error("`%s' is not a constant identifier", $2->s_repr);
+            c4p_error(fmt::format("`{0}' is not a constant identifier", $2->s_repr));
         }
         $$ = - $2->s_value.ivalue;
     }
@@ -677,7 +680,7 @@ type_denoter:
     {
         if ($1->s_kind != TYPE_IDENTIFIER)
         {
-            c4p_error ("`%s' is not a type identifier", $1->s_repr);
+            c4p_error(fmt::format("`{0}' is not a type identifier", $1->s_repr));
         }
         last_type = NAMED_TYPE_NODE;
         $$ = new_type_node(NAMED_TYPE_NODE, $1);
@@ -779,7 +782,7 @@ index_type:
         C4P_integer ubound;
         if ($1->s_kind != TYPE_IDENTIFIER)
         {
-            c4p_error("`%s' is not a type identifier", $1->s_repr);
+            c4p_error(fmt::format("`{0}' is not a type identifier", $1->s_repr));
         }
         if ($1->s_type == CHARACTER_TYPE)
         {
@@ -801,7 +804,7 @@ index_type:
         }
         else if ($1->s_type != SUBRANGE_NODE)
         {
-            c4p_error("`%s' is not a subrange type identifier", $1->s_repr);
+            c4p_error(fmt::format("`{0}' is not a subrange type identifier", $1->s_repr));
         }
         else
         {
@@ -1090,7 +1093,7 @@ procedure_statement:
     {
         if ($1->s_kind != PROCEDURE_IDENTIFIER)
         {
-            c4p_warning("`%s' is not a procedure identifier", $1->s_repr);
+            c4p_warning(fmt::format("`{0}' is not a procedure identifier", $1->s_repr));
         }
         cppout.out_s(std::string($1->s_repr) + " (");
         push_parameter_node (last_parameter);
@@ -1283,7 +1286,7 @@ write_expression:
                     cppout.out_buf_over(buf_mark, "s ", 2);
                     break;
                 default:
-                    c4p_error("internal error: unknown write type: %u", last_type);
+                    c4p_error(fmt::format("internal error: unknown write type: {0}", last_type));
                 }
             }
         }
@@ -1308,7 +1311,7 @@ write_expression:
             cppout.out_buf_over(buf_mark, "s1", 2);
             break;
         default:
-            c4p_error("internal error: unkown write type: %u", last_type);
+            c4p_error(fmt::format("internal error: unkown write type: {0}", last_type));
         }
         cppout.out_s(", ");
     }
@@ -1632,7 +1635,7 @@ variable_identifier:
                 last_type_ptr = $1->s_type_ptr;
                 break;
             default:
-                c4p_error("`%s' isn't defined", $1->s_repr);
+                c4p_error(fmt::format("`{0}' isn't defined", $1->s_repr));
                 break;
         }
     }
@@ -1958,11 +1961,11 @@ factor:
     {
         if ($1->s_kind != FUNCTION_IDENTIFIER)
         {
-            c4p_warning("`%s' is not a function identifier", $1->s_repr);
+            c4p_warning(fmt::format("`{0}' is not a function identifier", $1->s_repr));
         }
         else if ($1->s_type != PROTOTYPE_NODE)
         {
-            c4p_error("internal error: `%1' has no type", $1->s_repr);
+            c4p_error(fmt::format("internal error: `{0}' has no type", $1->s_repr));
         }
         cppout.out_s(std::string($1->s_repr) + " (");
         push_parameter_node(last_parameter);

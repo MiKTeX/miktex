@@ -182,12 +182,12 @@ struct record_node
     field_list_node* field_list;
 };
 
-void c4p_error(const char*, ...);
-void c4p_warning(const char*, ...);
+void c4p_error(const std::string& msg);
+void c4p_warning(const std::string& msg);
 char* strcpye(char*, const char*);
 void* new_type_node(pascal_type, ...);
 void declare_var_list(declarator_node *, unsigned, unsigned, pascal_type, void*);
-void define_type(symbol_t *, unsigned, pascal_type, void*);
+void define_type(symbol_t*, unsigned, pascal_type, void*);
 pascal_type translate_field_name(const char*, record_node *, void**);
 void generate_routine_head(prototype_node *);
 void mark_type_table();

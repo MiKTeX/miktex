@@ -46,7 +46,7 @@ void open_name_file()
 #if 0
     if ((name_file = fopen(name_file_name, "w")) == 0)
     {
-        c4p_error("can't open manifest file %s", name_file_name);
+        c4p_error(fmt::format("can't open manifest file {0}", name_file_name));
     }
 #endif
 }

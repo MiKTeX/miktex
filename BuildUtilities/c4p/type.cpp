@@ -16,6 +16,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "common.h"
 #include "gram.h"
 #include "output.h"
@@ -175,7 +178,7 @@ void* new_type_node(pascal_type what_kind, ...)
         FIL->type_ptr = va_arg(ap, void*);
         break;
     default:
-        c4p_error("internal error: new_type_node: unknown node type: %u", what_kind);
+        c4p_error(fmt::format("internal error: new_type_node: unknown node type: {0}", what_kind));
         break;
     }
     va_end(ap);
@@ -200,7 +203,7 @@ pascal_type flatten_type(pascal_type type, void* type_ptr, void** type_ptr_ptr)
     {
         if (NT->name->s_kind != TYPE_IDENTIFIER)
         {
-            c4p_error("`%s' is not a type identifier", NT->name->s_repr);
+            c4p_error(fmt::format("`{0}' is not a type identifier", NT->name->s_repr));
         }
         flattened_type = NT->name->s_type;
         if (type_ptr_ptr != nullptr)
@@ -348,7 +351,7 @@ const char* translate_type(pascal_type type, const void* type_ptr)
         FIL->type = flatten_type(FIL->type, FIL->type_ptr, &FIL->type_ptr);
         break;
     default:
-        c4p_error("internal error: translate_type: unknown node type: %u", type);
+        c4p_error(fmt::format("internal error: translate_type: unknown node type: {0}", type));
     }
     return ret;
 }
@@ -356,29 +359,37 @@ const char* translate_type(pascal_type type, const void* type_ptr)
 void generate_routine_head(prototype_node* proto)
 {
     cppout.out_s("\n");
-    cppout.out_s(std::string((!class_name_scope.empty()
-        && proto->result_type != nullptr
-        && !(proto->result_type->s_flags & S_PREDEFINED))
-        ? class_name_scope.c_str()
-        : "") +
-        std::string(proto->result_type == nullptr
-            ? "void"
-            : (proto->result_type->s_translated_type
-                ? proto->result_type->s_translated_type
-                : proto->result_type->s_repr)) +
-        "\n" +
-        class_name_scope +
-        std::string(proto->name->s_repr) +
-        " (");
+    if ((!class_name_scope.empty() && proto->result_type != nullptr && !(proto->result_type->s_flags & S_PREDEFINED)))
+    {
+        cppout.out_s(class_name_scope);
+    }
+    if (proto->result_type == nullptr)
+    {
+        cppout.out_s("void");
+    }
+    else if (proto->result_type->s_translated_type != nullptr)
+    {
+        cppout.out_s(proto->result_type->s_translated_type);
+    }
+    else
+    {
+        cppout.out_s(proto->result_type->s_repr);
+    }
+    cppout.out_s(fmt::format(" {0}{1}(", class_name_scope, proto->name->s_repr));
     cppout.redir_file(H_FILE_NUM);
-    cppout.out_s(std::string(proto->result_type == nullptr
-        ? "void"
-        : (proto->result_type->s_translated_type
-            ? proto->result_type->s_translated_type
-            : proto->result_type->s_repr)) +
-        " " +
-        std::string(proto->name->s_repr) +
-        " (");
+    if (proto->result_type == nullptr)
+    {
+        cppout.out_s("void");
+    }
+    else if (proto->result_type->s_translated_type != nullptr)
+    {
+        cppout.out_s(proto->result_type->s_translated_type);
+    }
+    else
+    {
+        cppout.out_s(proto->result_type->s_repr);
+    }
+    cppout.out_s(fmt::format(" {0}(", proto->name->s_repr));
     cppout.redir_file(C_FILE_NUM);
     parameter_node* par = proto->formal_parameter;
     if (par == nullptr)
@@ -400,19 +411,15 @@ void generate_routine_head(prototype_node* proto)
         param_symbol->s_type = type_symbol->s_type;
         param_symbol->s_type_ptr = type_symbol->s_type_ptr;
         param_symbol->s_type = flatten_type(param_symbol->s_type, param_symbol->s_type_ptr, &param_symbol->s_type_ptr);
-        cppout.out_s(std::string(type_symbol->s_translated_type != nullptr
-            ? type_symbol->s_translated_type
-            : type_symbol->s_repr) +
-            " " +
-            std::string(par->by_reference ? "& " : "") +
-            std::string(par->name));
+        cppout.out_s(fmt::format("{0}{1}{2}",
+            type_symbol->s_translated_type != nullptr ? type_symbol->s_translated_type : type_symbol->s_repr,
+            par->by_reference ? "& " : " ",
+            par->name));
         cppout.redir_file(H_FILE_NUM);
-        cppout.out_s(std::string(type_symbol->s_translated_type != nullptr
-            ? type_symbol->s_translated_type
-            : type_symbol->s_repr) +
-            " " +
-            std::string(par->by_reference ? "& " : "") +
-            std::string(par->name));
+        cppout.out_s(fmt::format("{0}{1}{2}",
+            type_symbol->s_translated_type != nullptr ? type_symbol->s_translated_type : type_symbol->s_repr,
+            par->by_reference ? "& " : " ",
+            par->name));
         cppout.redir_file(C_FILE_NUM);
         if (par->by_reference)
         {
@@ -421,13 +428,13 @@ void generate_routine_head(prototype_node* proto)
         par = par->next;
         if (par != nullptr)
         {
-            cppout.out_s(",  ");
+            cppout.out_s(", ");
             cppout.redir_file(H_FILE_NUM);
-            cppout.out_s(",  ");
+            cppout.out_s(", ");
             cppout.redir_file(C_FILE_NUM);
         }
     }
-    cppout.out_s(")\n");
+    cppout.out_s(")");
     cppout.redir_file(H_FILE_NUM);
     cppout.out_s(");\n");
     cppout.redir_file(C_FILE_NUM);
@@ -450,7 +457,7 @@ void declare_var_list(declarator_node* vars, unsigned kind, unsigned block_level
         }
         if (block_level == 0 && kind == VARIABLE_IDENTIFIER)
         {
-            cppout.out_s(var_name_prefix.c_str());
+            cppout.out_s(var_name_prefix);
         }
         cppout.out_s(vars->name->s_repr);
         if (type == ARRAY_NODE)
@@ -492,7 +499,7 @@ void define_type(symbol_t* type_symbol, unsigned block_level, pascal_type type, 
     {
         if (NT->name->s_kind != TYPE_IDENTIFIER)
         {
-            c4p_error("`%s' is no a type identifier", NT->name->s_repr);
+            c4p_error(fmt::format("`{0}' is no a type identifier", NT->name->s_repr));
         }
         type = NT->name->s_type;
         type_ptr = NT->name->s_type_ptr;
@@ -590,7 +597,7 @@ symbol_t* search_field_name(const char* name, pascal_type type, void* type_ptr, 
 
     default:
         // RECURSION
-        c4p_error("internal error: search_field_name: unknown type: %u", type);
+        c4p_error(fmt::format("internal error: search_field_name: unknown type: {0}", type));
         return nullptr;
     }
 }
@@ -602,7 +609,7 @@ pascal_type translate_field_name(const char* name, record_node* rec, void** fiel
     symbol_t* sym = search_field_name(name, FIELD_LIST_NODE, rec->field_list, prefix);
     if (sym == nullptr)
     {
-        c4p_error("`%s' is not a field identifier", name);
+        c4p_error(fmt::format("`{0}' is not a field identifier", name));
     }
     *field_type_ptr_ptr = sym->s_type_ptr;
     cppout.out_s(std::string(prefix) + "." + std::string(name));
@@ -676,9 +683,9 @@ pascal_type coerce(pascal_type type_1, pascal_type type_2)
         return INTEGER_TYPE;
     }
 #if 0
-    c4p_error("can't coerce type %u to type %u", t1, t2);
+    c4p_error(fmt::format("can't coerce type {0} to type {1}", t1, t2));
 #else
-    c4p_warning("can't coerce type %u to type %u", t1, t2);
+    c4p_warning(fmt::format("can't coerce type {0} to type {1}", t1, t2));
     return UNKNOWN_TYPE;
 #endif
 }

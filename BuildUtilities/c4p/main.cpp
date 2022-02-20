@@ -11,11 +11,15 @@
  * version.
  */
 
+#include <iostream>
+
 #include <climits>
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #include <getopt.h>
 
@@ -76,67 +80,58 @@ int yywrap()
 
 void yyerror(const char* unused)
 {
-    fprintf(stderr, T_("%s:%d: parse error before `%s'\n"), pascal_file_name.c_str(), yylineno, yytext);
+    cerr << fmt::format(T_("{0}:{1}: parse error before `{2}'"), pascal_file_name, yylineno, yytext) << endl;
     exit(1);
 }
 
-void c4p_error(const char* fmt, ...)
+void c4p_error(const string& msg)
 {
-    fprintf(stderr, "%s:%d: ", pascal_file_name.c_str(), yylineno);
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    fputc('\n', stderr);
+    cerr << fmt::format("{0}:{1}: {2}", pascal_file_name, yylineno, msg) << endl;
     exit(2);
 }
 
-void c4p_warning(const char* fmt, ...)
+void c4p_warning(const string& msg)
 {
-    if (verbose_flag)
+    if (!verbose_flag)
     {
-        fprintf(stderr, T_("\n%s:%d: warning: "), pascal_file_name.c_str(), yylineno);
-        va_list ap;
-        va_start(ap, fmt);
-        vfprintf(stderr, fmt, ap);
-        va_end(ap);
-        fputc('\n', stderr);
+        return;
     }
+    cerr << "\n" << fmt::format("{0}:{1}: warning: {2}", pascal_file_name, yylineno, msg) << endl;
 }
 
 void banner()
 {
-    printf(T_("This is C4P version %s\n"), MIKTEX_COMPONENT_VERSION_STR);
+    cout <<  fmt::format(T_("This is C4P version {0}"), MIKTEX_COMPONENT_VERSION_STR) << endl;
 }
 
 void usage()
 {
-    puts(T_("\
-Usage: c4p [options] filename\n\
-Options:\n\
-  -1 FILENAME, --one FILENAME\n\
-  --auto-exit-label=NUM\n\
-  --base-class=CLASS\n\
-  --chars-are-unsigned\n\
-  --class=CLASS\n\
-  --class-include=FILENAME\n\
-  --constant NAME=VALUE\n\
-  --emit-optimize-pragmas\n\
-  --entry-name=NAME\n\
-  --declare-c-type=NAME\n\
-  --var-name-prefix=PREFIX\n\
-  --var-struct=NAME\n\
-  --var-struct-base-class=NAME\n\
-  --var-struct-class=NAME\n\
-  -C, --c-plus-plus\n\
-  --header-file FILE\n\
-  -h, --help\n\
-  -i, --include-filename FILENAME\n\
-  -l NUM, --lines NUM\n\
-  -p FILENAME, --output-prefix FILENAME\n\
-  -r NAME, --rename NAME\n\
-  -f VAR, --fast-var VAR\n\
-  -V, --version"));
+    cout
+        << T_("Usage: c4p [options] filename") << "\n"
+        << T_("Options:") << "\n"
+        << "  -1 FILENAME, --one FILENAME" << "\n"
+        << "  --auto-exit-label=NUM" << "\n"
+        << "  --base-class=CLASS" << "\n"
+        << "  --chars-are-unsigned" << "\n"
+        << "  --class=CLASS" << "\n"
+        << "  --class-include=FILENAME" << "\n"
+        << "  --constant NAME=VALUE" << "\n"
+        << "  --emit-optimize-pragmas" << "\n"
+        << "  --entry-name=NAME" << "\n"
+        << "  --declare-c-type=NAME" << "\n"
+        << "  --var-name-prefix=PREFIX" << "\n"
+        << "  --var-struct=NAME" << "\n"
+        << "  --var-struct-base-class=NAME" << "\n"
+        << "  --var-struct-class=NAME" << "\n"
+        << "  -C, --c-plus-plus" << "\n"
+        << "  --header-file FILE" << "\n"
+        << "  -h, --help" << "\n"
+        << "  -i, --include-filename FILENAME" << "\n"
+        << "  -l NUM, --lines NUM" << "\n"
+        << "  -p FILENAME, --output-prefix FILENAME" << "\n"
+        << "  -r NAME, --rename NAME" << "\n"
+        << "  -f VAR, --fast-var VAR" << "\n"
+        << "  -V, --version" << endl;
 }
 
 #define OPT_DLL 1
@@ -240,14 +235,14 @@ void option_handler(int argc, char** argv)
             auto nv = ParseNameValue(optarg);
             if (nv.second.empty())
             {
-                fprintf(stderr, T_("%s: missing constant value\n"), myname.c_str());
+                cerr << fmt::format(T_("{0}: missing constant value"), myname) << endl;
                 exit(1);
             }
             if (nv.second[0] == '"')
             {
                 if (nv.second.length() < 2 || nv.second.back() != '"')
                 {
-                    fprintf(stderr, T_("%s: bad string value\n"), myname.c_str());
+                    cerr << fmt::format(T_("{0}: bad string value"), myname) << endl;
                     exit(1);
                 }
                 new_string_constant(strdup(nv.first.c_str()), strdup(nv.second.substr(1, nv.second.length() - 2).c_str()));
@@ -358,13 +353,13 @@ int main(int argc, char** argv)
 
     if (pascal_file_name.empty())
     {
-        fprintf(stderr, T_("%s: no input file specified\n"), myname.c_str());
+        cerr << fmt::format(T_("{0}: no input file specified"), myname) << endl;
         exit(4);
     }
 
     if (freopen(pascal_file_name.c_str(), "r", stdin) == nullptr)
     {
-        fprintf(stderr, T_("%s: can't open %s\n"), myname.c_str(), pascal_file_name.c_str());
+        cerr << fmt::format(T_("{0}: can't open {1}"), myname, pascal_file_name) << endl;
         exit(5);
     }
 

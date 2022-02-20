@@ -19,6 +19,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "common.h"
 #include "gram.h"
 #include "output.h"
@@ -461,7 +464,7 @@ symbol_t* define_symbol(symbol_t* sym, unsigned kind, unsigned block_level, pasc
     {
         if (block_level == sym->s_block_level && sym->s_kind != FIELD_IDENTIFIER)
         {
-            c4p_error("`%s' already defined", sym->s_repr);
+            c4p_error(fmt::format("`{0}' already defined", sym->s_repr));
         }
         if (sym->s_kind == CONSTANT_IDENTIFIER)
         {
