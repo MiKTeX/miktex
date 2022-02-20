@@ -270,7 +270,7 @@ void symtab_init()
     new_mapping("void", "c4p_void");
     new_mapping("volatile", "c4p_volatile");
 
-    /* hide ambigous names */
+    /* hide ambiguous names */
     new_mapping("byte", "c4p_byte");
     new_mapping("link", "c4p_link");
     new_mapping("index", "c4p_index");
