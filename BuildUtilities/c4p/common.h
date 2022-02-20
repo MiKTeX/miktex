@@ -84,7 +84,6 @@ struct symbol_t
     SYMBOL_PTR s_next;
     unsigned s_flags;
 #define S_BY_REFERENCE 0x0001
-#define S_FAST 0x0002
 #define S_PREDEFINED 0x0004
 };
 
@@ -215,11 +214,7 @@ STRING_PTR new_string(const char* s);
 const char* get_string(STRING_PTR);
 symbol_t* new_pseudo_symbol();
 symbol_t* define_symbol(symbol_t *, unsigned, unsigned, pascal_type, void*, value_t *);
-bool is_fast_var(const char*);
-void new_fast_var(const char*);
 const char* subrange(C4P_integer, C4P_integer);
-void declare_fast_var_macro(unsigned);
-void forget_fast_vars();
 void remember_fast_var(const char*);
 void new_type(const char*, pascal_type, void*, const char*);
 void new_constant(const char* name, const char* type, C4P_integer value);
@@ -229,7 +224,6 @@ std::pair<std::string, std::string> ParseNameValue(const std::string& s);
 extern symbol_t* prog_symbol;
 extern unsigned curly_brace_level;
 extern unsigned block_level;
-extern int n_fast_vars;
 extern unsigned extra_indent;
 extern unsigned c_file_line_count;
 extern unsigned max_lines_per_c_file;

@@ -180,7 +180,6 @@ program_block:
                 begin_new_c_file(prog_symbol->s_repr, 1);
             }
             routine_handle = 0;
-            forget_fast_vars();
             if (class_name.empty())
             {
                 if (dll_flag)
@@ -205,10 +204,6 @@ program_block:
         }
     statement_part
         {
-            if (n_fast_vars)
-            {
-                declare_fast_var_macro(routine_handle);
-            }
             cppout.close_file(C_FILE_NUM);
             close_header_file();
             if (!def_filename.empty())
@@ -1010,10 +1005,6 @@ compound_statement:
         curly_brace_level += 1;
         if (routine_handle == 0 && curly_brace_level == 1)
         {
-            if (n_fast_vars)
-            {
-                cppout.out_s("C4P_FAST_VARS_0\n");
-            }
             cppout.out_s("C4P_BEGIN_PROGRAM(\"" + std::string(prog_symbol->s_repr) + "\", argc, argv);\n");
         }
     }
@@ -1612,23 +1603,15 @@ variable_identifier:
             case CONSTANT_IDENTIFIER:
                 last_type = $1->s_type;
                 last_type_ptr = $1 ->s_type_ptr;
-                if ($1->s_flags & S_FAST)
+                if ($1->s_block_level == 0 && $1->s_kind == VARIABLE_IDENTIFIER && ! ($1->s_flags & S_PREDEFINED))
                 {
-                    cppout.out_s("c4p_fast_" + std::string($1->s_repr) + "_" + std::to_string(routine_handle));
-                    remember_fast_var($1->s_repr);
-                }
-                else
-                {
-                    if ($1->s_block_level == 0 && $1->s_kind == VARIABLE_IDENTIFIER && ! ($1->s_flags & S_PREDEFINED))
+                    if (!var_struct_name.empty())
                     {
-                        if (!var_struct_name.empty())
-                        {
-                            cppout.out_s(var_struct_name + ".");
-                        }
-                        cppout.out_s(var_name_prefix.c_str());
+                        cppout.out_s(var_struct_name + ".");
                     }
-                    cppout.out_s($1->s_repr);
+                    cppout.out_s(var_name_prefix.c_str());
                 }
+                cppout.out_s($1->s_repr);
                 break;
             case FUNCTION_IDENTIFIER:
                 last_type = FUNCTION_TYPE;

@@ -29,7 +29,6 @@ namespace
     unsigned c_file_count;
     unsigned c_file_number;
     FILE* name_file;
-    std::string current_fast_vars;
 }
 
 const size_t MY_PATH_MAX = 8192;
@@ -255,49 +254,6 @@ void check_c_file_size()
     }
 }
 
-void forget_fast_vars()
-{
-    current_fast_vars = "";
-}
-
-void remember_fast_var(const char* s)
-{
-    if (strstr(current_fast_vars.c_str(), s) == nullptr)
-    {
-        current_fast_vars += ' ';
-        current_fast_vars += s;
-    }
-}
-
-void declare_fast_var_macro(unsigned routine_handle)
-{
-    unique_ptr<char[]> buf(new char[current_fast_vars.length() + 1]);
-    strcpy(buf.get(), current_fast_vars.c_str());
-    char* v = strtok(buf.get(), " ");
-    cppout.redir_file(H_FILE_NUM);
-    cppout.out_s("\n#define C4P_FAST_VARS_" + std::to_string(routine_handle) + " ");
-    macroizing = true;
-    while (v != nullptr)
-    {
-        symbol_t* sym = lookup(v);
-        if (sym != nullptr)
-        {
-            cppout.out_s("register " +
-                std::string(sym->s_translated_type ? sym->s_translated_type : "FIXME") +
-                std::string(" ") +
-                std::string(sym->s_type == ARRAY_NODE ? "*" : "") +
-                std::string("_c4p_fast_") + std::string(sym->s_repr) +
-                std::string("_") + std::to_string(routine_handle) +
-                std::string(" = ") + std::string(sym->s_repr) +
-                std::string(";\n"));
-        }
-        v = strtok(nullptr, " ");
-    }
-    macroizing = false;
-    cppout.out_s("\n");
-    cppout.redir_file(C_FILE_NUM);
-}
-
 void begin_routine(prototype_node* proto, unsigned handle)
 {
     cppout.redir_file(DEF_FILE_NUM);
@@ -325,11 +281,6 @@ void begin_routine(prototype_node* proto, unsigned handle)
     cppout.out_s("\n");
     cppout.out_s("{\n");
     ++curly_brace_level;
-    if (n_fast_vars)
-    {
-        cppout.out_s("C4P_FAST_VARS_" + std::to_string(handle) + "\n");
-        forget_fast_vars();
-    }
 #if 0
     fprintf(name_file, "%u %s\n", handle, proto->name->s_repr);
 #endif
@@ -349,10 +300,6 @@ void end_routine(unsigned handle)
         auto_exit_label_flag = false;
     }
     cppout.out_s("}\n");
-    if (n_fast_vars)
-    {
-        declare_fast_var_macro(handle);
-    }
     if (emit_optimize_pragmas)
     {
         cppout.out_s("#pragma optimize (\"\", on)\n");

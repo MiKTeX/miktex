@@ -41,7 +41,6 @@ bool macroizing;
 bool one_c_file;
 bool verbose_flag;
 int auto_exit_label;
-int n_fast_vars;
 string base_class_name;
 string c_ext;
 string c_file_name;
@@ -130,7 +129,6 @@ void usage()
         << "  -l NUM, --lines NUM" << "\n"
         << "  -p FILENAME, --output-prefix FILENAME" << "\n"
         << "  -r NAME, --rename NAME" << "\n"
-        << "  -f VAR, --fast-var VAR" << "\n"
         << "  -V, --version" << endl;
 }
 
@@ -169,7 +167,6 @@ namespace
       "dll", no_argument, nullptr, OPT_DLL,
       "emit-optimize-pragmas", no_argument, nullptr, OPT_EMIT_OPTIMIZE_PRAGMAS,
       "entry-name", required_argument, nullptr, OPT_ENTRY_NAME,
-      "fast-var", required_argument, nullptr, 'f',
       "header-file", required_argument, nullptr, OPT_HEADER_FILE,
       "help", no_argument, nullptr, 'h',
       "include-filename", required_argument, nullptr, 'i',
@@ -298,9 +295,6 @@ void option_handler(int argc, char** argv)
             new_name = "c4p_";
             new_name += optarg;
             new_mapping(optarg, new_name.c_str());
-            break;
-        case 'f':
-            new_fast_var(optarg);
             break;
         case 'p':
             c_file_name = optarg;

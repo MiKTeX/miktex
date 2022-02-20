@@ -46,7 +46,6 @@ namespace
     SYMBOL_PTR symbol_ptr;
     SYMBOL_PTR symbol_mark;
     unsigned long counter;
-    vector<string> fast_vars;
 }
 
 STRING_PTR new_string(const char* s)
@@ -483,22 +482,4 @@ symbol_t* define_symbol(symbol_t* sym, unsigned kind, unsigned block_level, pasc
         sym->s_value = *value;
     }
     return sym;
-}
-
-void new_fast_var(const char* name)
-{
-    fast_vars.push_back(name);
-    n_fast_vars += 1;
-}
-
-bool is_fast_var(const char* name)
-{
-    for (int i = 0; i < n_fast_vars; ++i)
-    {
-        if (strcmp(fast_vars[i].c_str(), name) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
 }

@@ -447,10 +447,6 @@ void declare_var_list(declarator_node* vars, unsigned kind, unsigned block_level
     cppout.out_s(" ");
     while (vars != nullptr)
     {
-        if (is_fast_var(vars->name->s_repr))
-        {
-            vars->name->s_flags |= S_FAST;
-        }
         if (type == POINTER_NODE)
         {
             cppout.out_s("*");
