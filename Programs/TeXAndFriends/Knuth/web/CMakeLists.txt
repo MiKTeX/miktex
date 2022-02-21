@@ -59,11 +59,19 @@ set(inittangle_sources
 
 add_executable(inittangle ${inittangle_sources})
 
-set_source_files_properties(
-    ${CMAKE_CURRENT_BINARY_DIR}/inittanglewrapper.cpp
-    PROPERTIES COMPILE_FLAGS
-    "-DFUNC=MiKTeX_INITTANGLE -D_UNICODE"
-)
+if(MIKTEX_NATIVE_WINDOWS)
+    set_source_files_properties(
+        ${CMAKE_CURRENT_BINARY_DIR}/inittanglewrapper.cpp
+        PROPERTIES COMPILE_FLAGS
+        "-DFUNC=MiKTeX_INITTANGLE -D_UNICODE"
+    )
+else()
+    set_source_files_properties(
+        ${CMAKE_CURRENT_BINARY_DIR}/inittanglewrapper.cpp
+        PROPERTIES COMPILE_FLAGS
+        "-DFUNC=MiKTeX_INITTANGLE"
+    )
+endif()
 
 target_link_libraries(inittangle
     PUBLIC
@@ -142,11 +150,19 @@ endif()
 
 add_executable(${MIKTEX_PREFIX}tangle ${tangle_sources})
 
-set_source_files_properties(
-    ${CMAKE_CURRENT_BINARY_DIR}/tanglewrapper.cpp
-    PROPERTIES COMPILE_FLAGS
-    "-DFUNC=MiKTeX_TANGLE -D_UNICODE"
-)
+if(MIKTEX_NATIVE_WINDOWS)
+    set_source_files_properties(
+        ${CMAKE_CURRENT_BINARY_DIR}/tanglewrapper.cpp
+        PROPERTIES COMPILE_FLAGS
+        "-DFUNC=MiKTeX_TANGLE -D_UNICODE"
+    )
+else()
+    set_source_files_properties(
+        ${CMAKE_CURRENT_BINARY_DIR}/tanglewrapper.cpp
+        PROPERTIES COMPILE_FLAGS
+        "-DFUNC=MiKTeX_TANGLE"
+    )
+endif()
 
 target_link_libraries(${MIKTEX_PREFIX}tangle
     PUBLIC
