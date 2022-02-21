@@ -350,17 +350,25 @@ static int fsyscp_remove(char *name);
 #endif
 
 /*  This macro layer was added to take luatex into account as suggested by T. Hoekwater. */
-# if IS_pTeX && !defined(_WIN32)
+# if IS_pTeX && (defined(MIKTEX) || !defined(_WIN32))
 char *SYNCTEX_GET_JOB_NAME()
 {
    char *tmp = gettexstring(jobname);
+#if defined(MIKTEX)
+   char *tmpa = reinterpret_cast<char*>(ptenc_from_internal_enc_string_to_utf8(reinterpret_cast<unsigned char*>(tmp)));
+#else
    char *tmpa = ptenc_from_internal_enc_string_to_utf8(tmp);
+#endif
    if (tmpa) { SYNCTEX_FREE(tmp); return tmpa; } else return tmp;
 }
 char *SYNCTEX_GET_LOG_NAME()
 {
    char *tmp = gettexstring(texmflogname);
+#if defined(MIKTEX)
+   char *tmpa = reinterpret_cast<char*>(ptenc_from_internal_enc_string_to_utf8(reinterpret_cast<unsigned char*>(tmp)));
+#else
    char *tmpa = ptenc_from_internal_enc_string_to_utf8(tmp);
+#endif
    if (tmpa) { SYNCTEX_FREE(tmp); return tmpa; } else return tmp;
 }
 # else
