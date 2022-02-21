@@ -85,7 +85,7 @@ add_custom_command(
     COMMAND
         initctangle
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ctangle.w
-        ${CMAKE_CURRENT_SOURCE_DIR}/texlive/ctang-w2c.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/ctang-w2c.ch
         ${CMAKE_CURRENT_BINARY_DIR}/ctangle.c
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
@@ -93,8 +93,8 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ctangle.w
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/source/common.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/ctang-w2c.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ctangle.w
-        ${CMAKE_CURRENT_SOURCE_DIR}/texlive/ctang-w2c.ch
         initctangle
     VERBATIM
 )
@@ -106,15 +106,15 @@ add_custom_command(
     COMMAND
         initctangle
         ${CMAKE_CURRENT_SOURCE_DIR}/source/common.w
-        ${CMAKE_CURRENT_SOURCE_DIR}/texlive/comm-w2c.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/comm-w2c.ch
         ${CMAKE_CURRENT_BINARY_DIR}/common.c
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
         ${CMAKE_CURRENT_SOURCE_DIR}/source/common.w
     DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/comm-w2c.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/common.w
-        ${CMAKE_CURRENT_SOURCE_DIR}/texlive/comm-w2c.ch
         initctangle
     VERBATIM
 )
@@ -157,7 +157,7 @@ add_custom_command(
     COMMAND
         ${MIKTEX_PREFIX}ctangle
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
-        ${CMAKE_CURRENT_SOURCE_DIR}/texlive/cweav-w2c.ch
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/cweav-w2c.ch
         ${CMAKE_CURRENT_BINARY_DIR}/cweave.c
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -165,9 +165,9 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/source/common.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/cweav-w2c.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
         ${CMAKE_CURRENT_SOURCE_DIR}/source/prod.w
-        ${CMAKE_CURRENT_SOURCE_DIR}/texlive/cweav-w2c.ch
         ${MIKTEX_PREFIX}ctangle
     VERBATIM
 )
