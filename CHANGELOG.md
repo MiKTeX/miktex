@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * asymptote 2.78
+* cweb 4.7
 * dvips 2022.1
 * dvisvgm 2.13.1
 * luatex 1.15.0

@@ -1,294 +1,251 @@
-% Kpathsea changes for CWEB by Wlodek Bzyl and Olaf Weber
-% Copyright 2002 Wlodek Bzyl and Olaf Weber
-% This file is in the Public Domain.
+@q Changes for CWEB in TeX Live from numerous contributors.              @>
+@q This file is in the Public Domain.                                    @>
 
-@x l.20
-\def\title{Common code for CTANGLE and CWEAVE (Version 3.64)}
-\def\topofcontents{\null\vfill
-  \centerline{\titlefont Common code for {\ttitlefont CTANGLE} and
-    {\ttitlefont CWEAVE}}
-  \vskip 15pt
-  \centerline{(Version 3.64)}
-  \vfill}
+@q Most of the original Kpathsea changes by Wlodek Bzyl and Olaf Weber   @>
+@q were merged with the set of change files of the CWEBbin project;      @>
+@q see https://github.com/ascherer/cwebbin for the original parts.       @>
+
+@q This stripped change file {comm,ctang,cweav,ctwill,cwebman}-w2c.ch    @>
+@q has been created from the elaborate set of change files               @>
+@q {comm,ctang,cweav,cwebman}-patch.ch,                                  @>
+@q {comm,cweav,cwebman}-extensions.ch, {comm,ctang,cweav}-output.ch,     @>
+@q {comm,ctang,cweav}-i18n.ch, and cweav-twill.ch for CTWILL, and        @>
+@q {comm,ctang,cweav,ctwill,cwebman}-texlive.ch with the 'tie' processor @>
+@q and is used as a monolithic changefile for {common,ctangle,cweave}.w  @>
+@q and cwebman.tex in TeX Live.                                          @>
+
+@q Please send comments, suggestions, etc. to tex-k@@tug.org.            @>
+
+@x
+\def\title{Common code for CTANGLE and CWEAVE (Version 4.7)}
 @y
-\def\Kpathsea/{{\mc KPATHSEA\spacefactor1000}}
-\def\title{Common code for CTANGLE and CWEAVE (Version 3.64k)}
-\def\topofcontents{\null\vfill
-  \centerline{\titlefont Common code for {\ttitlefont CTANGLE} and
-    {\ttitlefont CWEAVE}}
-  \vskip 15pt
-  \centerline{(Version 3.64k)}
-  \vfill}
+\def\Kpathsea/{{\mc KPATHSEA\spacefactor1000}} \ifacro\sanitizecommand\Kpathsea{KPATHSEA}\fi
+\def\title{Common code for CTANGLE and CWEAVE (4.7 [\TeX~Live])}
 @z
 
-This change can not be applied when `tie' is  used
-(TOC file can not be typeset).
-
-%@x l.42
-%\let\maybe=\iftrue
-%@y
-%\let\maybe=\iffalse % print only changed modules
-%@z
-
-Section 1.
-
-@x l.63
-@<Predeclaration of procedures@>@/
+@x
+  \centerline{(Version 4.7)}
 @y
-#include "cweb.h"
-@<Predeclaration of procedures@>@/
+  \centerline{(Version 4.7 [\TeX~Live])}
 @z
 
-Section 2. 
-We use the definition from `kpathsea/types.h':
-
-  typedef enum { false = 0, true = 1 } boolean;
-
-Note that this definition also occurs in common.h.
-@x l.74
-typedef short boolean;
+@x
+\def\botofcontents{\vfill
 @y
+\def\covernote{\vbox{%
 @z
 
-
-Section 4.
-
-@x l.91
-common_init()
+@x
+}
 @y
-common_init (void)
+}}\datecontentspage
 @z
 
-@x l.93
-  @<Initialize pointers@>;
+@x
+to both \.{CTANGLE} and \.{CWEAVE}, which roughly concerns the following
 @y
-  @<Initialize pointers@>;
-  @<Set up |PROGNAME| feature and initialize the search path mechanism@>;
+to \.{CTANGLE}, \.{CWEAVE}, and \.{CTWILL},
+which roughly concerns the following
 @z
 
-Section 5.
-
-@x l.103
-#include <ctype.h>
+@x
+sometimes use \.{CWEB} to refer to either of the two component
 @y
-#if !defined(MIKTEX)
-#define CWEB
-#endif
-#include "cpascal.h"
-#include <ctype.h>
-#if defined(MIKTEX)
-#define register
-#endif
+sometimes use \.{CWEB} to refer to any of the three component
 @z
 
-Section 7.
-
-@x l.153
-@d buf_size 100 /* for \.{CWEAVE} and \.{CTANGLE} */
+@x
+@i common.h
 @y
-@d buf_size 1000 /* for \.{CWEAVE} and \.{CTANGLE} */
+@i comm-w2c.h
 @z
 
-@x l.156
-@d xisspace(c) (isspace(c)&&((unsigned char)c<0200))
-@d xisupper(c) (isupper(c)&&((unsigned char)c<0200))
+@x
+|program|.
 @y
-@d xisspace(c) (isspace((unsigned char)c)&&((unsigned char)c<0200))
-@d xisupper(c) (isupper((unsigned char)c)&&((unsigned char)c<0200))
+|program|. And \.{CTWILL} adds some extra twists.
 @z
 
-Section 9.
-
-@x l.173
-int input_ln(fp) /* copies a line into |buffer| or returns 0 */
-FILE *fp; /* what file to read from */
+@x
+boolean program; /* \.{CWEAVE} or \.{CTANGLE}? */
 @y
-int input_ln (FILE *fp) /* copies a line into |buffer| or returns 0 */
+cweb program; /* \.{CTANGLE} or \.{CWEAVE} or \.{CTWILL}? */
 @z
 
-@x l.181
+@x
+  @<Initialize pointers@>@;
+@y
+  @<Initialize pointers@>@;
+  @<Set up |PROGNAME| feature and initialize the search path mechanism@>@;
+@z
+
+@x
+  @<Set the default options common to \.{CTANGLE} and \.{CWEAVE}@>@;
+@y
+  @<Set locale and bind language catalogs@>@;
+  @<Set the default options common to \.{CTANGLE} and \.{CWEAVE}@>@;
+@z
+
+@x
     if ((*(k++) = c) != ' ') limit = k;
 @y
-    if ((*(k++) = c) != ' ' && c!='\r') limit = k;
+    if ((*(k++) = c) != ' ' && c != '\r') limit = k;
 @z
 
-Section 10.
-
-@x l.207 - max_file_name_length is way too small.
-@d max_file_name_length 60
+@x
+      ungetc(c,fp); loc=buffer; err_print("! Input line too long");
 @y
-@d max_file_name_length 1024
+      ungetc(c,fp); loc=buffer; err_print(_("! Input line too long"));
 @z
 
-@x l.221 - no alt_web_file_name needed.
-char alt_web_file_name[max_file_name_length]; /* alternate name to try */
+@x
+static char alt_web_file_name[max_file_name_length]; /* alternate name to try */
 @y
 @z
 
-Section 12.
-
-@x l.252
-void
-prime_the_change_buffer()
+@x
+    err_print("! Missing @@x in change file");
 @y
-static void
-prime_the_change_buffer (void)
+    err_print(_("! Missing @@x in change file"));
 @z
 
-@x l.271
-  if (xisupper(buffer[1])) buffer[1]=tolower(buffer[1]);
+@x
+    err_print("! Change file ended after @@x");
 @y
-  if (xisupper(buffer[1])) buffer[1]=tolower((unsigned char)buffer[1]);
+    err_print(_("! Change file ended after @@x"));
 @z
 
-Section 16.
-
-@x l.321
-void
-check_change() /* switches to |change_file| if the buffers match */
+@x
+      err_print("! Change file ended before @@y");
 @y
-static void
-check_change (void) /* switches to |change_file| if the buffers match */
+      err_print(_("! Change file ended before @@y"));
 @z
 
-@x l.340
-      char xyz_code=xisupper(buffer[1])? tolower(buffer[1]): buffer[1];
+@x
+        err_print("! CWEB file ended during a change");
 @y
-      char xyz_code=xisupper(buffer[1])? tolower((unsigned char)buffer[1]): buffer[1];
+        err_print(_("! CWEB file ended during a change"));
 @z
 
-Section 18.
-
-@x l.380
-reset_input()
+@x
+  loc=buffer+2; err_print("! Where is the matching @@y?");
 @y
-reset_input (void)
+  loc=buffer+2; err_print(_("! Where is the matching @@y?"));
 @z
 
-Section 19.
+@x
+    err_print("of the preceding lines failed to match");
+@y
+    err_print(_("of the preceding lines failed to match"));
+@z
 
-@x l.394
+@x
 if ((web_file=fopen(web_file_name,"r"))==NULL) {
   strcpy(web_file_name,alt_web_file_name);
   if ((web_file=fopen(web_file_name,"r"))==NULL)
        fatal("! Cannot open input file ", web_file_name);
 }
 @y
-if ((found_filename=kpse_find_cweb(web_file_name))==NULL ||
-    (web_file=fopen(found_filename,"r"))==NULL) {
-  fatal("! Cannot open input file ", web_file_name);
-} else if (strlen(found_filename) < max_file_name_length) {
-  strcpy(web_file_name, found_filename);
+if ((found_filename=kpse_find_cweb(web_file_name))==NULL @|
+    || (web_file=fopen(found_filename,"r"))==NULL)
+  fatal(_("! Cannot open input file "), web_file_name);
+else if (strlen(found_filename) < max_file_name_length) {
+  /* Copy name for \#\&{line} directives. */
+  if (strcmp(web_file_name, found_filename))
+    strcpy(web_file_name, found_filename +
+      ((strncmp(found_filename,"./",2)==0) ? 2 : 0));
   free(found_filename);
 #if defined(MIKTEX)
   MiKTeX::Util::PathName sourceDir (web_file_name);
   sourceDir.RemoveFileSpec ();
   MIKTEX_SESSION()->AddInputDirectory(sourceDir, true);
 #endif
-}
+} else fatal(_("! Filename too long\n"), found_filename);
 @z
 
-@x l.402
+@x
 if ((change_file=fopen(change_file_name,"r"))==NULL)
        fatal("! Cannot open change file ", change_file_name);
 @y
-if ((found_filename=kpse_find_cweb(change_file_name))==NULL ||
-    (change_file=fopen(found_filename,"r"))==NULL) {
-  fatal("! Cannot open change file ", change_file_name);
-} else if (strlen(found_filename) < max_file_name_length) {
-  strcpy(change_file_name, found_filename);
+if ((found_filename=kpse_find_cweb(change_file_name))==NULL @|
+    || (change_file=fopen(found_filename,"r"))==NULL)
+  fatal(_("! Cannot open change file "), change_file_name);
+else if (strlen(found_filename) < max_file_name_length) {
+  /* Copy name for \#\&{line} directives. */
+  if (strcmp(change_file_name, found_filename))
+    strcpy(change_file_name, found_filename +
+      ((strncmp(found_filename,"./",2)==0) ? 2 : 0));
   free(found_filename);
-}
+} else fatal(_("! Filename too long\n"), found_filename);
 @z
 
-@x l.415
-@d max_sections 2000 /* number of identifiers, strings, section names;
+@x
+      err_print("! Include file name not given");
 @y
-@d max_sections 10239 /* number of identifiers, strings, section names;
+      err_print(_("! Include file name not given"));
 @z
 
-Section 21.
-
-@x l.427
-int get_line() /* inputs the next line */
+@x
+      err_print("! Too many nested includes");
 @y
-int get_line (void) /* inputs the next line */
+      err_print(_("! Too many nested includes"));
 @z
 
-Section 22.
-
-@x l.472
-#include <stdlib.h> /* declaration of |getenv| and |exit| */
+@x
+@ When an \.{@@i} line is found in the |cur_file|, we must temporarily
+stop reading it and start reading from the named include file.  The
+\.{@@i} line should give a complete file name with or without
+double quotes.
+If the environment variable \.{CWEBINPUTS} is set, or if the compiler flag
+of the same name was defined at compile time,
+\.{CWEB} will look for include files in the directory thus named, if
+it cannot find them in the current directory.
+(Colon-separated paths are not supported.)
+The remainder of the \.{@@i} line after the file name is ignored.
 @y
-#include <kpathsea/kpathsea.h> /* include every \Kpathsea/ header */
-#include <stdlib.h> /* declaration of |getenv| and |exit| */
-#include "help.h"
-
-@ The \.{ctangle} and \.{cweave} programs from the original \.{CWEB}
-package use the compile-time default directory or the value of the
-environment variable \.{CWEBINPUTS} as an alternative place to be
-searched for files, if they could not be found in the current
-directory.
-
-This version uses the \Kpathsea/ mechanism for searching files. 
-The directories to be searched for come from three sources:
-
- (a)~a user-set environment variable \.{CWEBINPUTS}
-    (overriden by \.{CWEBINPUTS\_cweb});\par
- (b)~a line in \Kpathsea/ configuration file \.{texmf.cnf},\hfil\break
-    e.g. \.{CWEBINPUTS=.:$TEXMF/texmf/cweb//}
-    or \.{CWEBINPUTS.cweb=.:$TEXMF/texmf/cweb//};\hangindent=2\parindent\par
- (c)~compile-time default directories \.{.:$TEXMF/texmf/cweb//}
-    (specified in \.{texmf.in}).
-
-
-@d kpse_find_cweb(name) kpse_find_file(name,kpse_cweb_format,true)
-
-@ The simple file searching is replaced by `path searching' mechanism
-that \Kpathsea/ library provides.
-
-We set |kpse_program_name| to a |"cweb"|.  This means if the
-variable |CWEBINPUTS.cweb| is present in \.{texmf.cnf} (or |CWEBINPUTS_cweb|
-in the environment) its value will be used as the search path for
-filenames.  This allows different flavors of \.{CWEB} to have
-different search paths.
-
-FIXME: Not sure this is the best way to go about this.
-
-@<Set up |PROGNAME| feature and initialize the search path mechanism@>=
-kpse_set_program_name(argv[0], "cweb"); 
+@ When an \.{@@i} line is found in the |cur_file|, we must temporarily
+stop reading it and start reading from the named include file.  The
+\.{@@i} line should give a complete file name with or without
+double quotes.
+The actual file lookup is done with the help of the \Kpathsea/ library;
+see section~\X93:File lookup with \Kpathsea/\X~for details. % FIXME
+The remainder of the \.{@@i} line after the file name is ignored.
+@^system dependencies@> @.CWEBINPUTS@>
 @z
 
+@x
+        err_print("! Include file name too long"); goto restart;}
+@y
+        err_print(_("! Include file name too long")); goto restart;}
+@z
 
-Section 23.
-
-@x l.475
+@x
   char temp_file_name[max_file_name_length];
   char *cur_file_name_end=cur_file_name+max_file_name_length-1;
-  char *k=cur_file_name, *kk;
-  int l; /* length of file name */
+  char *kk, *k=cur_file_name;
+  size_t l; /* length of file name */
 @y
   char *cur_file_name_end=cur_file_name+max_file_name_length-1;
   char *k=cur_file_name;
 @z
 
-@x l.489
+@x
   if ((cur_file=fopen(cur_file_name,"r"))!=NULL) {
 @y
-  if ((found_filename=kpse_find_cweb(cur_file_name))!=NULL &&
-      (cur_file=fopen(found_filename,"r"))!=NULL) {
-    /* Copy name for #line directives. */
+  if ((found_filename=kpse_find_cweb(cur_file_name))!=NULL @|
+      && (cur_file=fopen(found_filename,"r"))!=NULL) {
+    /* Copy name for \#\&{line} directives. */
     if (strlen(found_filename) < max_file_name_length) {
-      strcpy(cur_file_name, found_filename);
+      if (strcmp(cur_file_name, found_filename))
+        strcpy(cur_file_name, found_filename +
+          ((strncmp(found_filename,"./",2)==0) ? 2 : 0));
       free(found_filename);
-    }
+    } else fatal(_("! Filename too long\n"), found_filename);
 @z
 
-Replaced by Kpathsea `kpse_find_file'
-
-@x l.493
-  kk=getenv("CWEBINPUTS");
-  if (kk!=NULL) {
+@x
+  if ((kk=getenv("CWEBINPUTS"))!=NULL) {
+@.CWEBINPUTS@>
     if ((l=strlen(kk))>max_file_name_length-2) too_long();
     strcpy(temp_file_name,kk);
   }
@@ -301,420 +258,303 @@ Replaced by Kpathsea `kpse_find_file'
 #endif /* |CWEBINPUTS| */
   }
   if (l>0) {
-    if (k+l+2>=cur_file_name_end)  too_long();
+    if (k+l+2>=cur_file_name_end) too_long();
 @.Include file name ...@>
-    for (; k>= cur_file_name; k--) *(k+l+1)=*k;
+    for (; k>=cur_file_name; k--) *(k+l+1)=*k;
     strcpy(cur_file_name,temp_file_name);
     cur_file_name[l]='/'; /* \UNIX/ pathname separator */
     if ((cur_file=fopen(cur_file_name,"r"))!=NULL) {
-      cur_line=0; print_where=1;
+      cur_line=0; print_where=true;
       goto restart; /* success */
     }
   }
+  include_depth--; err_print("! Cannot open include file"); goto restart;
 @y
+  include_depth--; err_print(_("! Cannot open include file")); goto restart;
 @z
 
-Section 26.
-
-@x l.553
-      if (xisupper(buffer[1])) buffer[1]=tolower(buffer[1]);
+@x
+    err_print("! Change file ended without @@z");
 @y
-      if (xisupper(buffer[1])) buffer[1]=tolower((unsigned char)buffer[1]);
+    err_print(_("! Change file ended without @@z"));
 @z
 
-@x l.571
-check_complete(){
+@x
+        err_print("! Where is the matching @@z?");
 @y
-check_complete (void) {
+        err_print(_("! Where is the matching @@z?"));
 @z
 
-@x l.589
-@d max_bytes 90000 /* the number of bytes in identifiers,
+@x
+    err_print("! Change file entry did not match");
 @y
-@d max_bytes 1000000 /* the number of bytes in identifiers,
+    err_print(_("! Change file entry did not match"));
 @z
 
-@x l.591
-@d max_names 4000 /* number of identifiers, strings, section names;
-@y
-@d max_names 10239 /* number of identifiers, strings, section names;
-@z
-
-@x l.642
+@x
 @d hash_size 353 /* should be prime */
 @y
 @d hash_size 8501 /* should be prime */
 @z
 
-Section 33.
-
-@x l.650
-@ @<Predec...@>=
-extern int names_match();
+@x
+  if (byte_ptr+l>byte_mem_end) overflow("byte memory");
+  if (name_ptr>=name_dir_end) overflow("name");
 @y
-@ @<External functions@>=
-extern int names_match (name_pointer, const char*, int, char);
+  if (byte_ptr+l>byte_mem_end) overflow(_("byte memory"));
+  if (name_ptr>=name_dir_end) overflow(_("name"));
 @z
 
-Section 35.
-
-@x l.661
-id_lookup(first,last,t) /* looks up a string in the identifier table */
-char *first; /* first character of string */
-char *last; /* last character of string plus one */
-char t; /* the |ilk|; used by \.{CWEAVE} only */
+@x
+  if (s+name_len>byte_mem_end) overflow("byte memory");
+  if (name_ptr+1>=name_dir_end) overflow("name");
 @y
-/* looks up a string in the identifier table */
-id_lookup (const char *first, const char *last, char t)
+  if (s+name_len>byte_mem_end) overflow(_("byte memory"));
+  if (name_ptr+1>=name_dir_end) overflow(_("name"));
 @z
 
-@x l.667
-  char *i=first; /* position in |buffer| */
+@x
+  if (name_ptr>=name_dir_end) overflow("name");
 @y
-  const char *i=first; /* position in |buffer| */
+  if (name_ptr>=name_dir_end) overflow(_("name"));
 @z
 
-@x l.668 - rename local var, not to shadow global
-  int h; /* hash code */
+@x
+  if (s+name_len>byte_mem_end) overflow("byte memory");
 @y
-  int h; /* hash code */
+  if (s+name_len>byte_mem_end) overflow(_("byte memory"));
 @z
 
-Section 36.
-
-@x l.684 - use renamed local var
-h=(unsigned char)*i;
-while (++i<last) h=(h+h+(int)((unsigned char)*i)) % hash_size;
+@x
+      fputs("\n! Ambiguous prefix: matches <",stdout);
 @y
-h=(unsigned char)*i;
-while (++i<last) h=(h+h+(int)((unsigned char)*i)) % hash_size;
+      fputs(_("\n! Ambiguous prefix: matches <"),stdout);
 @z
 
-Section 37.
-
-@x l.692 - use renamed local var
-p=hash[h];
+@x
+      fputs(">\n and <",stdout);
 @y
-p=hash[h];
+      fputs(_(">\n and <"),stdout);
 @z
 
-@x l.696 - use renamed local var
-  p->link=hash[h]; hash[h]=p; /* insert |p| at beginning of hash list */
+@x
+      fputs("\n! New name is a prefix of <",stdout);
 @y
-  p->link=hash[h]; hash[h]=p; /* insert |p| at beginning of hash list */
+      fputs(_("\n! New name is a prefix of <"),stdout);
 @z
 
-Section 38.
-
-@x l.703
-@<Pred...@>=
-void init_p();
+@x
+      fputs("\n! New name extends <",stdout);
 @y
-@<External functions@>=
-extern void init_p (name_pointer p, char t);
+      fputs(_("\n! New name extends <"),stdout);
 @z
 
-Section 42.
-
-@x l.766
-print_section_name(p)
-name_pointer p;
+@x
+    fputs("\n! Section name incompatible with <",stdout);
 @y
-print_section_name (name_pointer p)
+    fputs(_("\n! Section name incompatible with <"),stdout);
 @z
 
-Section 43.
-
-@x l.785
-sprint_section_name(dest,p)
-  char*dest;
-  name_pointer p;
+@x
+    fputs(">,\n which abbreviates <",stdout);
 @y
-sprint_section_name (char *dest, name_pointer p)
+    fputs(_(">,\n which abbreviates <"),stdout);
 @z
 
-Section 44.
-
-@x l.805
-void
-print_prefix_name(p)
-name_pointer p;
+@x
+  printf(". (l. %d of change file)\n", change_line);
+else if (include_depth==0) printf(". (l. %d)\n", cur_line);
+  else printf(". (l. %d of include file %s)\n", cur_line, cur_file_name);
 @y
-static void
-print_prefix_name (name_pointer p)
+  printf(_(". (l. %d of change file)\n"), change_line);
+else if (include_depth==0) printf(_(". (l. %d)\n"), cur_line);
+  else printf(_(". (l. %d of include file %s)\n"), cur_line, cur_file_name);
 @z
 
-Section 45.
-
-@x l.826
-int web_strcmp(j,j_len,k,k_len) /* fuller comparison than |strcmp| */
-  char *j, *k; /* beginning of first and second strings */
-  int j_len, k_len; /* length of strings */
+@x
+Some implementations may wish to pass the |history| value to the
+operating system so that it can be used to govern whether or not other
+programs are started. Here, for instance, we pass the operating system
+a status of |EXIT_SUCCESS| if and only if only harmless messages were printed.
+@^system dependencies@>
 @y
-/* fuller comparison than |strcmp| */
-static int
-web_strcmp (char *j, int j_len, char *k, int k_len)
+On multi-tasking systems like the {\mc AMIGA} it is very convenient to
+know a little bit more about the reasons why a program failed.  The four
+levels of return indicated by the |history| value are very suitable for
+this purpose.  Here, for instance, we pass the operating system a status
+of~0 if and only if the run was a complete success.  Any warning or error
+message will result in a higher return value, so that {\mc AREXX} scripts
+can be made sensitive to these conditions.
+@^system dependencies@>
+
+@d RETURN_OK     0 /* No problems, success */
+@d RETURN_WARN   5 /* A warning only */
+@d RETURN_ERROR 10 /* Something wrong */
+@d RETURN_FAIL  20 /* Complete or severe failure */
 @z
 
-@x l.830 -- rename local vars, not to shadow math function
-  char *j1=j+j_len, *k1=k+k_len;
-  while (k<k1 && j<j1 && *j==*k) k++, j++;
-  if (k==k1) if (j==j1) return equal;
-    else return extension;
-  else if (j==j1) return prefix;
+@x
+  @<Print the job |history|@>@;
 @y
-  char *j1=j+j_len, *k1=k+k_len;
-  while (k<k1 && j<j1 && *j==*k) k++, j++;
-  if (k==k1) if (j==j1) return equal;
-    else return extension;
-  else if (j==j1) return prefix;
+  @<Print the job |history|@>@;
+  @<Remove the temporary file if not already done@>@;
 @z
 
-Section 46.
-
-@x l.852
-@<Prede...@>=
-extern void init_node();
+@x
+  if (history > harmless_message) return EXIT_FAILURE;
+  else return EXIT_SUCCESS;
 @y
-@<External functions@>=
-extern void init_node (name_pointer node);
+  switch(history) {
+  case spotless: return RETURN_OK;
+  case harmless_message: return RETURN_WARN;
+  case error_message: return RETURN_ERROR;
+  case fatal_message: default: return RETURN_FAIL;
+  }
 @z
 
-Section 47.
-
-@x l.856
-name_pointer
-add_section_name(par,c,first,last,ispref) /* install a new node in the tree */
-name_pointer par; /* parent of new node */
-int c; /* right or left? */
-char *first; /* first character of section name */
-char *last; /* last character of section name, plus one */
-int ispref; /* are we adding a prefix or a full name? */
+@x
+case spotless:
+  if (show_happiness) puts("(No errors were found.)"); break;
+case harmless_message:
+  puts("(Did you see the warning message above?)"); break;
+case error_message:
+  puts("(Pardon me, but I think I spotted something wrong.)"); break;
+case fatal_message: default:
+  puts("(That was a fatal error, my friend.)");
 @y
-static name_pointer
-add_section_name (name_pointer par, int c, char *first, char *last,
-                  int ispref)  /* install a new node in the tree */
+case spotless:
+  if (show_happiness) puts(_("(No errors were found.)")); break;
+case harmless_message:
+  puts(_("(Did you see the warning message above?)")); break;
+case error_message:
+  puts(_("(Pardon me, but I think I spotted something wrong.)")); break;
+case fatal_message: default:
+  puts(_("(That was a fatal error, my friend.)"));
 @z
 
-Section 48.
-
-@x l.885
-void
-extend_section_name(p,first,last,ispref)
-name_pointer p; /* name to be extended */
-char *first; /* beginning of extension text */
-char *last; /* one beyond end of extension text */
-int ispref; /* are we adding a prefix or a full name? */
+@x
+  printf("\n! Sorry, %s capacity exceeded",t); fatal("","");
 @y
-static void
-extend_section_name (name_pointer p, char *first, char *last, int ispref)
+  printf(_("\n! Sorry, %s capacity exceeded"),t); fatal("","");
 @z
 
-Section 49.
-
-@x l.914
-section_lookup(first,last,ispref) /* find or install section name in tree */
-char *first, *last; /* first and last characters of new name */
-int ispref; /* is the new name a prefix or a full name? */
+@x
+or flags to be turned on (beginning with |"+"|).
 @y
-/* find or install section name in tree */
-section_lookup (char *first, char *last, int ispref)
+or flags to be turned on (beginning with |"+"|).
+\TeX~Live's \.{CWEB} executables accept several ``long options'' as well;
+see section |@<Handle flag arg...@>| for details.
 @z
 
-Section 53.
-
-@x l.1018
-int section_name_cmp();
+@x
+char scn_file_name[max_file_name_length]; /* name of |scn_file| */
 @y
-static int section_name_cmp (char**, int, name_pointer);
+char scn_file_name[max_file_name_length]; /* name of |scn_file| */
+char check_file_name[max_file_name_length]; /* name of |check_file| */
 @z
 
-Section 54.
-
-@x l.1021
-int section_name_cmp(pfirst,len,r)
-char **pfirst; /* pointer to beginning of comparison string */
-int len; /* length of string */
-name_pointer r; /* section name being compared */
+@x
+show_banner=show_happiness=show_progress=make_xrefs=true;
 @y
-static int
-section_name_cmp (char **pfirst, int len, name_pointer r)
+make_xrefs=true;
 @z
 
-Section 57.
-
-@x l.1092
-@<Predecl...@>=
-void  err_print();
+@x
+file.  It may have an extension, or it may omit the extension to get |".w"| or
+|".web"| added.  The \TEX/ output file name is formed by replacing the \.{CWEB}
 @y
-@<External functions@>=
-extern void  err_print (const char*);
+file.  It may have an extension, or it may omit the extension to get |".w"|
+added.  The \TEX/ output file name is formed by replacing the \.{CWEB}
 @z
 
-Section 58.
-
-@x l.1098
-err_print(s) /* prints `\..' and location of error message */
-char *s;
+@x
+An omitted change file argument means that |"/dev/null"| should be used,
+when no changes are desired.
 @y
-err_print (const char *s) /* prints `\..' and location of error message */
+An omitted change file argument means that |"/dev/null"| or---on non-\UNIX/
+systems the contents of the compile-time variable |DEV_NULL| (\TeX~Live) or
+|_DEV_NULL| (Amiga)---should be used, when no changes are desired.
 @z
 
-Section 60.
-
-@x l.1140
-@<Prede...@>=
-int wrap_up();
-extern void print_stats();
+@x
+  strcpy(change_file_name,"/dev/null");
 @y
-@<External functions@>=
-extern int wrap_up (void);
-extern void print_stats (void);
+  strcpy(change_file_name,"/dev/null");
+#if defined DEV_NULL
+  strncpy(change_file_name,DEV_NULL,max_file_name_length-2);
+  change_file_name[max_file_name_length-2]='\0';
+#elif defined _DEV_NULL
+  strncpy(change_file_name,_DEV_NULL,max_file_name_length-2);
+  change_file_name[max_file_name_length-2]='\0';
+#endif
+@^system dependencies@>
 @z
 
-Section 61.
-
-@x l.1151
-int wrap_up() {
+@x
+      while (*s)
+        if (*s=='.') dot_pos=s++;
+        else if (*s=='/') dot_pos=NULL,name_pos=++s;
+        else s++;
 @y
-int wrap_up (void) {
+      while (*s)
+        if (*s=='.') dot_pos=s++;
+        else if (*s==DIR_SEPARATOR || *s==DEVICE_SEPARATOR || *s=='/')
+          dot_pos=NULL,name_pos=++s;
+        else s++;
+@^system dependencies@>
 @z
 
-Section 63.
-
-@x l.1173
-@<Predec...@>=
-void fatal(), overflow();
+@x
+@ We use all of |*argv| for the |web_file_name| if there is a |'.'| in it,
+otherwise we add |".w"|. If this file can't be opened, we prepare an
+|alt_web_file_name| by adding |"web"| after the dot.
 @y
-@<External functions@>=
-extern void fatal (const char*, const char*);
-extern void overflow (const char*);
+@ We use all of |*argv| for the |web_file_name| if there is a |'.'| in it,
+otherwise we add |".w"|.
 @z
 
-Section 64.
-
-@x l.1180
-fatal(s,t)
-  char *s,*t;
-@y
-fatal (const char *s, const char *t)
-@z
-
-Section 65.
-
-@x l.1191
-overflow(t)
-  char *t;
-@y
-overflow (const char *t)
-@z
-
-Section 67.
-
-@x l.1212
-the names of those files. Most of the 128 flags are undefined but available
-for future extensions.
-@y
-the names of those files. Most of the 128 flags are undefined but available
-for future extensions.
-
-We use `kpathsea' library functions to find literate sources and
-NLS configuration files. When the files you expect are not
-being found, the thing to do is to enable `kpathsea' runtime
-debugging by assigning to |kpathsea_debug| variable a small number
-via `\.{-d}' option. The meaning of number is shown below. To set
-more than one debugging options sum the corresponding numbers.
-$$\halign{\hskip5em\tt\hfil#&&\qquad\tt#\cr
- 1&report `\.{stat}' calls\cr
- 2&report lookups in all hash tables\cr
- 4&report file openings and closings\cr
- 8&report path information\cr
-16&report directory list\cr
-32&report on each file search\cr
-64&report values of variables being looked up\cr}$$
-Debugging output is always written to |stderr|, and begins with the string
-`\.{kdebug:}'.
-@z
-
-@x l.1218
-@d show_happiness flags['h'] /* should lack of errors be announced? */
-@y
-@d show_happiness flags['h'] /* should lack of errors be announced? */
-@d show_kpathsea_debug flags['d']
-  /* should results of file searching be shown? */
-@z
-
-@x l.1234
-show_banner=show_happiness=show_progress=1;
-@y
-show_banner=show_happiness=show_progress=1;
-@z
-
-Section 69.
-
-@x l.1252
-void scan_args();
-@y
-static void scan_args (void);
-@z
-
-
-Section 70.
-
-@x l.1255
-void
-scan_args()
-@y
-static void
-scan_args (void)
-@z
-
-
-Section 71.
-
-@x l.1282 - use a define for /dev/null
-  if (found_change<=0) strcpy(change_file_name,"/dev/null");
-@y
-  if (found_change<=0) strcpy(change_file_name,DEV_NULL);
-@z
-
-@x l.1302 - no alt_web_file_name
+@x
   sprintf(alt_web_file_name,"%s.web",*argv);
 @y
 @z
 
-
-Section 74.
-
-@x l.1344
-@ @<Handle flag...@>=
-{
+@x
+for(dot_pos=*argv+1;*dot_pos>'\0';dot_pos++)
+  flags[(eight_bits)*dot_pos]=flag_change;
 @y
-@ @<Handle flag...@>=
 {
   if (strcmp("-help",*argv)==0 || strcmp("--help",*argv)==0)
-    @<Display help message and exit@>;
+@.--help@>
+    @<Display help message and |exit|@>@;
   if (strcmp("-version",*argv)==0 || strcmp("--version",*argv)==0)
-    @<Display version information and exit@>;
+@.--version@>
+    @<Display version information and |exit|@>@;
+  if (strcmp("-verbose",*argv)==0 || strcmp("--verbose",*argv)==0)
+@.--verbose@>
+    strcpy(*argv,"-v");
+  if (strcmp("-quiet",*argv)==0 || strcmp("--quiet",*argv)==0)
+@.--quiet@>
+      strcpy(*argv,"-q");
+  for(dot_pos=*argv+1;*dot_pos>'\0';dot_pos++) {
+    switch (*dot_pos) {
+    case 'v': show_banner=show_progress=show_happiness=true; continue;
+    case 'q': show_banner=show_progress=show_happiness=false; continue;
+    case 'd':
+      if (sscanf(++dot_pos,"%u",&kpathsea_debug)!=1) @<Print usage error...@>@;
+      while (isdigit(*dot_pos)) dot_pos++; /* skip numeric part */
+      dot_pos--; /* reset to final digit */
+      continue;
+    case 'l': use_language=++dot_pos; break; /* from |switch| */
+    default: flags[(eight_bits)*dot_pos]=flag_change; continue;
+    }
+    break; /* from |for| loop */
+  }
+}
 @z
 
-@x l.1347
-  else flag_change=1;
-@y
-  else flag_change=1;
-  if (*(*argv+1)=='d')
-    if (sscanf(*argv+2,"%u",&kpathsea_debug)!=1) @<Print usage error...@>;
-@z
-
-@x l.1349
-    flags[*dot_pos]=flag_change;
-@y
-    flags[(unsigned char)*dot_pos]=flag_change;
-@z
-
-Section 75.
-
-@x l.1354
+@x
+@ @<Print usage error message and quit@>=
+{
 if (program==ctangle)
   fatal(
 "! Usage: ctangle [options] webfile[.w] [{changefile[.ch]|-} [outfile[.c]]]\n"
@@ -723,119 +563,335 @@ if (program==ctangle)
 else fatal(
 "! Usage: cweave [options] webfile[.w] [{changefile[.ch]|-} [outfile[.tex]]]\n"
    ,"");
-@y
-if (program==ctangle) {
-  fprintf(stderr, "ctangle: Need one to three file arguments.\n");
-#if defined(MIKTEX)
-  throw (1);
-#else
-  usage("ctangle");
-#endif
-} else {
-  fprintf(stderr, "cweave: Need one to three file arguments.\n");
-#if defined(MIKTEX)
-  throw (1);
-#else
-  usage("cweave");
-#endif
 }
+@y
+@ @<Print usage error message and quit@>=
+cb_usage(program==ctangle ? "ctangle" : program==cweave ? "cweave" : "ctwill");
+@.Usage:@>
 @z
 
-Section 77.
+@x
+@ @<Complain about arg...@>= fatal("! Filename too long\n", *argv);
+@y
+@ @<Complain about arg...@>= fatal(_("! Filename too long\n"), *argv);
+@z
 
-@x l.1375
+@x
+FILE *scn_file; /* where list of sections from \.{CWEAVE} goes */
+@y
+FILE *scn_file; /* where list of sections from \.{CWEAVE} goes */
+FILE *check_file; /* temporary output file */
+@z
+
+@x
 FILE *active_file; /* currently active file for \.{CWEAVE} output */
 @y
 FILE *active_file; /* currently active file for \.{CWEAVE} output */
 char *found_filename; /* filename found by |kpse_find_file| */
 @z
 
-Section 78.
-
-@x l.1380 Use binary mode for output files
-  if ((C_file=fopen(C_file_name,"w"))==NULL)
-@y
+@x
+@ @<Scan arguments and open output files@>=
+scan_args();
+if (program==ctangle) {
   if ((C_file=fopen(C_file_name,"wb"))==NULL)
-@z
-
-@x l.1386 Use binary mode for output files
-  if ((tex_file=fopen(tex_file_name,"w"))==NULL)
-@y
+    fatal("! Cannot open output file ", C_file_name);
+@.Cannot open output file@>
+}
+else {
   if ((tex_file=fopen(tex_file_name,"wb"))==NULL)
-@z
-
-
-Section 81. (reused)
-
-@x l.1403
-@ We predeclare several standard system functions here instead of including
-their system header files, because the names of the header files are not as
-standard as the names of the functions. (For example, some \CEE/ environments
-have \.{<string.h>} where others have \.{<strings.h>}.)
-
-@<Predecl...@>=
-extern int strlen(); /* length of string */
-extern int strcmp(); /* compare strings lexicographically */
-extern char* strcpy(); /* copy one string to another */
-extern int strncmp(); /* compare up to $n$ string characters */
-extern char* strncpy(); /* copy up to $n$ string characters */
+    fatal("! Cannot open output file ", tex_file_name);
+}
 @y
-@ We declare some more prototypes for exported function in cases where this
-could not be done easily without changing section numbers.
-
-@<External functions@>=
-extern void common_init (void);
-extern int input_ln (FILE *fp);
-extern void reset_input (void);
-extern int get_line (void);
-extern void check_complete (void);
-extern name_pointer id_lookup (const char *first, const char *last, char t);
-extern void print_section_name (name_pointer p);
-extern void sprint_section_name (char *dest, name_pointer p);
-extern name_pointer section_lookup (char *first, char *last, int ispref);
+@ @<Scan arguments and open output files@>=
+scan_args();
+if (program==ctangle) {
+  if (check_for_change) @<Open intermediate \CEE/ output file@>@;
+  else if ((C_file=fopen(C_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "), C_file_name);
+@.Cannot open output file@>
+}
+else {
+  if (check_for_change) @<Open intermediate \TEX/ output file@>@;
+  else if ((tex_file=fopen(tex_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "), tex_file_name);
+}
 @z
 
 @x
 @** Index.
 @y
-@** External functions.  In order to allow for type checking we create a
-header file \.{cweb.h} containing the declaration of all functions defined
-in \.{common.w} and used in \.{ctangle.w} and \.{cweave.w} or vice versa.
+@** Extensions to {\tentex CWEB}.  The following sections introduce new or
+improved features that have been created by numerous contributors over the
+course of a quarter century.
 
-@(cweb.h@>=
-@=/* Prototypes for functions, either@>
-@= * declared in common.w and used in ctangle.w and cweave.w, or@>
-@= * used in common.w and declared in ctangle.w and cweave.w.  */@>
-@<External functions@>@;
-#if !defined(MIKTEX)
-extern const char *versionstring;
+Care has been taken to keep the original section numbering intact, so this new
+material should nicely integrate with the original ``\&{85.~Index}.''
+
+@* Language setting.  This global variable is set by the argument of the
+`\.{+l}' (or `\.{-l}') command-line option.
+
+@<Global var...@>=
+const char *use_language=""; /* prefix of \.{cwebmac.tex} in \TEX/ output */
+
+
+@* User communication.  The |scan_args| and |cb_show_banner| routines and the
+|bindtextdomain| argument string need a few extra variables.
+
+@d max_banner 50
+
+@d PATH_SEPARATOR   separators[0]
+@d DIR_SEPARATOR    separators[1]
+@d DEVICE_SEPARATOR separators[2]
+
+@<Global var...@>=
+char cb_banner[max_banner];@/
+string texmf_locale;@/
+#ifndef SEPARATORS
+#define SEPARATORS "://"
 #endif
+char separators[]=SEPARATORS;
 
-@** System dependent changes.
+@* Temporary file output. Most \CEE/ projects are controlled by a \.{Makefile}
+that automatically takes care of the temporal dependecies between the different
+source modules. It may be convenient that \.{CWEB} doesn't create new output
+for all existing files, when there are only changes to some of them. Thus the
+\.{make} process will only recompile those modules where necessary. You can
+activate this feature with the `\.{+c}' command-line option. The idea and basic
+implementation of this mechanism can be found in the program \.{NUWEB} by
+Preston Briggs, to whom credit is due.
 
-@ Modules for dealing with help messages and version info.
+@<Open intermediate \CEE/ output file@>= {
+  if ((C_file=fopen(C_file_name,"a"))==NULL)
+    fatal(_("! Cannot open output file "), C_file_name);
+@.Cannot open output file@>
+  else fclose(C_file); /* Test accessability */
+  strcpy(check_file_name,C_file_name);
+  if(check_file_name[0]!='\0') {
+    char *dot_pos=strrchr(check_file_name,'.');
+    if(dot_pos==NULL) strcat(check_file_name,".ttp");
+    else strcpy(dot_pos,".ttp");
+  }
+  if ((C_file=fopen(check_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "), check_file_name);
+}
 
-@<Display help message and exit@>=
-#if defined(MIKTEX)
-throw (0);
-#else
-usagehelp(program==ctangle ? CTANGLEHELP : CWEAVEHELP, NULL);
+@ @<Open intermediate \TEX/ output file@>= {
+  if ((tex_file=fopen(tex_file_name,"a"))==NULL)
+    fatal(_("! Cannot open output file "), tex_file_name);
+@.Cannot open output file@>
+  else fclose(tex_file); /* Test accessability */
+  strcpy(check_file_name,tex_file_name);
+  if(check_file_name[0]!='\0') {
+    char *dot_pos=strrchr(check_file_name,'.');
+    if(dot_pos==NULL) strcat(check_file_name,".wtp");
+    else strcpy(dot_pos,".wtp");
+  }
+  if ((tex_file=fopen(check_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "), check_file_name);
+}
+
+@ Before we leave the program we have to make
+sure that the output files are correctly written.
+
+@<Remove the temporary file...@>=
+if(C_file) fclose(C_file);
+if(tex_file) fclose(tex_file);
+if(check_file) fclose(check_file);
+if(strlen(check_file_name)) /* Delete the temporary file in case of a break */
+   remove(check_file_name);
+
+@* Internationalization.  If translation catalogs for your personal
+\.{LANGUAGE} are installed at the appropriate place, \.{CTANGLE} and \.{CWEAVE}
+will talk to you in your favorite language.  Catalog \.{cweb} contains all
+strings from ``plain \.{CWEB},'' catalog \.{cweb-tl} contains a few extra
+strings specific to the \TeX~Live interface, and catalog \.{web2c-help}
+contains the ``\.{--help}'' texts for \.{CTANGLE} and \.{CWEAVE}.
+@.cweb.mo@>
+@.cweb-tl.mo@>
+@.web2c-help.mo@>
 @.--help@>
-#endif
 
-@ Will have to change these if the version numbers change (ouch).
+If such translation files are not available, you may want to improve this
+system by checking out the sources and translating the strings in files
+\.{cweb.pot}, \.{cweb-tl.pot}, and \.{web2c-help.pot}, and submitting the
+resulting \.{*.po} files to the maintainers at \.{tex-k@@tug.org}.
 
-@d ctangle_banner "This is CTANGLE, Version 3.64"
-@d cweave_banner "This is CWEAVE, Version 3.64"
+\medskip \noindent \&{Note to maintainers:} \.{CWEB} in \TeX~Live generally
+does \\{not} set |HAVE_GETTEXT| at build-time, so \.{i18n} is ``off'' by
+default.  If you want to create \.{CWEB} executables with NLS support, you
+have to recompile the \TeX~Live sources with a positive value for
+|HAVE_GETTEXT| in \.{comm-w2c.h}.  Also you have to ``compile'' the NLS
+catalogs provided for \.{CWEB} in the source tree with \.{msgfmt} and store the
+resulting \.{.mo} files at an appropriate place in the file system.
 
-@<Display version information and exit@>=
-#if defined(MIKTEX)
-  throw (0); // todo
+Plans for \TeX~Live are to store NLS catalogs inside the ``\TeX\ Directory
+Structure'' (TDS) and look them up with the help of the configuration variable
+``|TEXMFLOCALEDIR|,'' which should contain a single absolute path definition.
+Below we use the \Kpathsea/ function |kpse_var_expand| to evaluate this
+variable from various origins and redirect the ``GNU~gettext utilities''
+to a possibly different location than the canonical \.{/usr/share/locale}.
+
+There are several ways to set |TEXMFLOCALEDIR|:
+\smallskip
+{\parindent5em
+\item{(a)} a user-set environment variable \.{TEXMFLOCALEDIR}\hfil\break
+    (overridden by \.{TEXMFLOCALEDIR\_cweb});
+\item{(b)} a line in \Kpathsea/ configuration file \.{texmf.cnf},\hfil\break
+    e.g., \.{TEXMFLOCALEDIR=\$TEXMFMAIN/locale}\hfil\break
+    or \.{TEXMFLOCALEDIR.cweb=\$TEXMFMAIN/locale}.\par}
+
+@<Include files@>=
+#if HAVE_GETTEXT
+#include <locale.h> /* |@!LC_MESSAGES|, |@!LC_CTYPE| */
 #else
-printversionandexit((program==ctangle ? ctangle_banner : cweave_banner),
-  "Silvio Levy and Donald E. Knuth", NULL, NULL);
-@.--version@>
+#define setlocale(a,b) ""
+#define bindtextdomain(a,b) ""
+#define textdomain(a) ""
 #endif
+
+@ @<Set locale...@>=
+setlocale(LC_MESSAGES, setlocale(LC_CTYPE, ""));
+texmf_locale = kpse_var_expand ("${TEXMFLOCALEDIR}");
+
+bindtextdomain("cweb",
+  bindtextdomain("cweb-tl",
+    bindtextdomain("web2c-help", @|
+      strcmp(texmf_locale, "") ?
+        texmf_locale : "/usr/share/locale")));
+
+free(texmf_locale);
+textdomain("cweb"); /* the majority of |"strings"| come from ``plain \.{CWEB}'' */
+@.cweb.mo@>
+
+@* File lookup with \Kpathsea/.  The \.{CTANGLE} and \.{CWEAVE} programs from
+the original \.{CWEB} package use the compile-time default directory or the
+value of the environment variable \.{CWEBINPUTS} as an alternative place to be
+searched for files, if they could not be found in the current directory.
+
+This version uses the \Kpathsea/ mechanism for searching files.
+The directories to be searched for come from three sources:
+\smallskip
+{\parindent5em
+\item{(a)} a user-set environment variable \.{CWEBINPUTS}
+    (overridden by \.{CWEBINPUTS\_cweb});
+\item{(b)} a line in \Kpathsea/ configuration file \.{texmf.cnf},\hfil\break
+    e.g., \.{CWEBINPUTS=\$TEXMFDOTDIR:\$TEXMF/texmf/cweb//}\hfil\break
+    or \.{CWEBINPUTS.cweb=\$TEXMFDOTDIR:\$TEXMF/texmf/cweb//};
+\item{(c)} compile-time default directories (specified in
+    \.{texmf.in}),\hfil\break
+    i.e., \.{\$TEXMFDOTDIR:\$TEXMF/texmf/cweb//}.\par}
+@.CWEBINPUTS@>
+
+@s const_string int
+@s string int
+
+@d kpse_find_cweb(name) kpse_find_file(name,kpse_cweb_format,true)
+
+@<Include files@>=
+#include <kpathsea/kpathsea.h> /* include every \Kpathsea/ header;
+  |@!kpathsea_debug|, |@!const_string|, |@!string| */
+#include <w2c/config.h> /* \&{integer} */
+#include <lib/lib.h> /* |@!versionstring| */
+
+@ We set |kpse_program_name| to `\.{cweb}'.  This means if the variable
+\.{CWEBINPUTS.cweb} is present in \.{texmf.cnf} (or \.{CWEBINPUTS\_cweb}
+in the environment) its value will be used as the search path for filenames.
+This allows different flavors of \.{CWEB} to have different search paths.
+@.CWEBINPUTS@>
+
+@<Set up |PROGNAME| feature and initialize the search path mechanism@>=
+kpse_set_program_name(argv[0], "cweb");
+
+@ When the files you expect are not found, the thing to do is to enable
+\Kpathsea/ runtime debugging by assigning to the |kpathsea_debug| variable a
+small number via the `\.{-d}' option. The meaning of this number is shown
+below. To set more than one debugging option, simply sum the corresponding
+numbers.
+\medskip
+\halign{\hskip5em\tt\hfil#&&\qquad\rm#\hfil\cr
+ 1&report `\.{stat}' calls\cr
+ 2&report lookups in all hash tables\cr
+ 4&report file openings and closings\cr
+ 8&report path information\cr
+16&report directory list\cr
+32&report on each file search\cr
+64&report values of variables being looked up\cr}
+\medskip
+Debugging output is always written to |stderr|, and begins with the string
+`\.{kdebug:}'.
+
+@* System dependent changes. The most volatile stuff comes at the very end.
+
+Modules for dealing with help messages and version info.
+
+@<Include files@>=
+#define CWEB
+#include "help.h" /* |@!CTANGLEHELP|, |@!CWEAVEHELP|, |@!CTWILLHELP| */
+
+@ @<Display help message and |exit|@>=
+cb_usagehelp(program==ctangle ? CTANGLEHELP :
+  program==cweave ? CWEAVEHELP : CTWILLHELP);
+@.--help@>
+
+@ Special variants from Web2c's `\.{lib/usage.c}', adapted for
+\.{i18n}/\.{t10n}.  We simply filter the strings through the catalogs
+(if available).
+
+@<Predecl...@>=
+static void cb_usage (const_string str);@/
+static void cb_usagehelp (const_string *message);@/
+
+@ @c
+static void cb_usage (const_string str)
+{
+  textdomain("cweb-tl");
+@.cweb-tl.mo@>
+  fprintf(stderr, _("%s: Need one to three file arguments.\n"), str);
+  fprintf(stderr, _("Try `%s --help' for more information.\n"), str);
+@.--help@>
+  textdomain("cweb");
+@.cweb.mo@>
+  history=fatal_message; exit(wrap_up());
+}
+
+static void cb_usagehelp (const_string *message)
+{
+  textdomain("web2c-help");
+@.web2c-help.mo@>
+  while (*message) {
+    /* empty string \.{""} has special meaning for |gettext| */
+    printf("%s\n", strcmp("", *message) ? _(*message) : *message);
+    ++message;
+  }
+  textdomain("cweb-tl");
+@.cweb-tl.mo@>
+  printf(_("\nPackage home page: %s.\n"), "https://ctan.org/pkg/cweb");
+  textdomain("cweb");
+@.cweb.mo@>
+  history=spotless; exit(wrap_up());
+}
+
+@ The version information will not be translated, it uses a generic text
+template in English.
+
+@<Display version information and |exit|@>=
+printversionandexit(cb_banner,
+  program == ctwill ? "Donald E. Knuth" : "Silvio Levy and Donald E. Knuth",
+  NULL, "Contemporary development on https://github.com/ascherer/cweb.\n");
+@.--version@>
+
+@ But the ``banner'' is, at least the first part.
+
+@c
+void cb_show_banner (void)
+{
+  textdomain("cweb-tl");
+@.cweb-tl.mo@>
+  printf("%s%s\n", _(cb_banner), versionstring);
+  textdomain("cweb");
+@.cweb.mo@>
+}
 
 @** Index.
 @z

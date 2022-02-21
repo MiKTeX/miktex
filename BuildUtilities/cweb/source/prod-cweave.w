@@ -13,7 +13,7 @@ have different |mathness|.  In this way we never get double {\tt\$\$}.
 % are "\outer" control sequences that cannot be used in skipped text!
 \fi \newcount\prodno \newdimen\midcol \let\+\relax \ifon
 
-\def\v{\char'174} 
+\def\v{\char'174}
 \mathchardef\RA="3221 % right arrow
 \mathchardef\BA="3224 % double arrow
 
@@ -55,7 +55,7 @@ We use \\{in}, \\{out}, \\{back}, \\{bsp}, and \\{din} as shorthands for
 \+& \altt\\{any} {\\{any} \\{any}} {\\{any} \\{any} \\{any}}
 |insert| & \altt\\{any} {\\{any} \\{any}} {\\{any} \\{any} \\{any}}
 & stmt; \4\4 \C{comment}\cr
-\+& |exp| \altt|lbrace| |int_like| |decl|
+\+\dagit& |exp| \altt|lbrace| |int_like| |decl|
     & |fn_decl| \altt|lbrace| |int_like| |decl| \hfill $F=E^*\,\\{din}$
     & \malt {\\{main}(\,) $\{$}
             {$\\{main}(\\{ac},\\{av}){}$ \&{int} \\{ac};} \cr
@@ -117,13 +117,13 @@ We use \\{in}, \\{out}, \\{back}, \\{bsp}, and \\{din} as shorthands for
      $D=D$\alt $B$ $C$ \unskip $E$
     & \malt {\&{int} $f(\&{int}\ x=2)$} {\&{int} $b$ : 1} \cr
 \+& |decl_head| |cast| & |decl_head| & \&{int} $f$(\&{int})\cr
-\+& |decl_head| \altt|int_like| |lbrace| |decl| & |fn_decl|
+\+\dagit& |decl_head| \altt|int_like| |lbrace| |decl| & |fn_decl|
                    \altt|int_like| |lbrace| |decl| \hfill $F=D\,\\{din}$
     & \&{long} \\{time}(\,) $\{$\cr
 \+& |decl_head| |semi| & |decl| & \&{int} $n$;\cr
 \+& |decl| |decl| & |decl| \hfill $D_1\,|force|\,D_2$
     & \&{int} $n$; \&{double} $x$;\cr
-\+& |decl| \alt|stmt| |function| & \alt|stmt| |function|
+\+\dagit& |decl| \alt|stmt| |function| & \alt|stmt| |function|
         \hfill $D\,|big_force|\,$\alt $S$ $F$ \unskip
     & \&{extern} $n$; \\{main}(\,) $\{\,\}$\cr
 \+& |base| \alt |int_like| |exp| |comma| & |base| \hfill
@@ -148,7 +148,7 @@ We use \\{in}, \\{out}, \\{back}, \\{bsp}, and \\{din} as shorthands for
     & \&{class} \&C $\{\,\}$\cr
 \+& |fn_decl| |decl| & |fn_decl| \hfill $F\,|force|\,D$
     & $f(z)$ \&{double} $z$; \cr
-\+& |fn_decl| |stmt| & |function| \hfill $F\,|out|\,|out|\,|force|\,S$
+\+\dagit& |fn_decl| |stmt| & |function| \hfill $F\,|out|\,|out|\,|force|\,S$
     & \\{main}() {\dots}\cr
 \+& |function| \altt|stmt| |decl| |function| & \altt |stmt| |decl| |function|
    \hfill $F\,|big_force|\,$\altt $S$ $D$ $F$ \unskip & outer block\cr
@@ -192,7 +192,7 @@ We use \\{in}, \\{out}, \\{back}, \\{bsp}, and \\{din} as shorthands for
 \+& |case_like| |semi| & |stmt| & |return;|\cr
 \+& |case_like| |colon| & |tag| & |default:|\cr
 \+& |case_like| |exp| & |exp| \hfill $C\.\ E$ & |return 0|\cr
-\+& |catch_like| \alt|cast| |exp| & |fn_decl| \hfill
+\+\dagit& |catch_like| \alt|cast| |exp| & |fn_decl| \hfill
     $C$\alt $C$ $E$ \unskip \\{din} & |catch (...)|\cr
 \+& |tag| |tag| & |tag| \hfill $T_1\,\\{bsp}\,T_2$ & |case 0: case 1:|\cr
 \+& |tag| \altt|stmt| |decl| |function| & \altt|stmt| |decl| |function|
@@ -265,7 +265,7 @@ We use \\{in}, \\{out}, \\{back}, \\{bsp}, and \\{din} as shorthands for
 \+& |typedef_like| |comma| & |typedef_like| \hfill $TC\.\ $ &
     \&{typedef} \&{int} \&x,\cr
 \+& |typedef_like| |semi| & |decl| & \&{typedef} \&{int} $\&x,\&y$;\cr
-\+& |typedef_like| |ubinop| \alt |cast| |ubinop| & 
+\+& |typedef_like| |ubinop| \alt |cast| |ubinop| &
     |typedef_like| \alt |cast| |ubinop| \hfill
     \alt $C=\.\{U\.\}C$ $U_2=\.\{U_1\.\}U_2$ \unskip &
     \&{typedef} |*|{}|*|(\&{CPtr})\cr
@@ -327,15 +327,24 @@ We use \\{in}, \\{out}, \\{back}, \\{bsp}, and \\{din} as shorthands for
 \+& |alignas_like| |cast| & |attr| & |alignas(int)| \cr
 \vfill\break
 \parindent=0pt
+\everypar={\hangindent=2em}
 \dag{\bf Notes}
 \yskip
+Rules 1, 38, 52, and 73: The \\{din}s and \\{out}s are suppressed if
+\.{CWEAVE} has been invoked with the \.{-i} option.
+
 Rule 35: The |exp| must not be immediately followed by |lpar|, |lbrack|,
 |exp|, or~|cast|.
+
+Rule 41: The |big_force| becomes |force| if \.{CWEAVE} has been invoked with the
+\.{-o} option.
 
 Rule 48: The |exp| or |int_like| must not be immediately followed by |base|.
 
 Rule 76: The |force| in the |stmt| line becomes \\{bsp} if \.{CWEAVE} has
-been invoked with the \.{-f} option.
+been invoked with the \.{-f} option, and the |big_force| in the |decl| and
+|function| lines becomes |force| if \.{CWEAVE} has been invoked with the
+\.{-o} option.
 
 Rule 78: The |define_like| case calls |make_underlined| on the following scrap.
 

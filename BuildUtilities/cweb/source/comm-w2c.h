@@ -29,26 +29,49 @@ First comes general stuff:
 
 @i iso_types.w
 
-@d ctangle false
-@d cweave true
 
+@s boolean bool
 @<Common code...@>=
-typedef bool boolean;
 typedef uint8_t eight_bits;
 typedef uint16_t sixteen_bits;
-extern boolean program; /* \.{CWEAVE} or \.{CTANGLE}? */
+typedef enum {
+  @!ctangle, @!cweave, @!ctwill
+} cweb;
+extern cweb program; /* \.{CTANGLE} or \.{CWEAVE} or \.{CTWILL}? */
 extern int phase; /* which phase are we in? */
 
-@ Interface to the standard \CEE/ library:
+@ You may have noticed that almost all \.{"strings"} in the \.{CWEB} sources
+are placed in the context of the `|_|'~macro.  This is just a shortcut for the
+`|@!gettext|' function from the ``GNU~gettext utilities.'' For systems that do
+not have this library installed, we wrap things for neutral behavior without
+internationalization.
+For backward compatibility with pre-{\mc ANSI} compilers, we replace the
+``standard'' header file `\.{stdbool.h}' with the
+{\mc KPATHSEA\spacefactor1000} interface `\.{simpletypes.h}'.
+
+@d _(s) gettext(s)
 
 @<Include files@>=
+#if defined(MIKTEX)
+#include <miktex/ExitThrows>
+#endif
 #include <ctype.h> /* definition of |@!isalpha|, |@!isdigit| and so on */
-#include <stdbool.h> /* definition of |@!bool|, |@!true| and |@!false| */
+#include <kpathsea/simpletypes.h> /* |@!boolean|, |@!true| and |@!false| */
 #include <stddef.h> /* definition of |@!ptrdiff_t| */
 #include <stdint.h> /* definition of |@!uint8_t| and |@!uint16_t| */
 #include <stdio.h> /* definition of |@!printf| and friends */
 #include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
 #include <string.h> /* definition of |@!strlen|, |@!strcmp| and so on */
+@#
+#ifndef HAVE_GETTEXT
+#define HAVE_GETTEXT 0
+#endif
+@#
+#if HAVE_GETTEXT
+#include <libintl.h>
+#else
+#define gettext(a) a
+#endif
 
 @ Code related to the character set:
 @^ASCII code dependencies@>
@@ -99,7 +122,7 @@ extern char *limit; /* points to the last character in the buffer */
 @f line x /* make |line| an unreserved word */
 @d max_include_depth 10 /* maximum number of source files open
   simultaneously, not counting the change file */
-@d max_file_name_length 60
+@d max_file_name_length 1024
 @d cur_file file[include_depth] /* current file */
 @d cur_file_name file_name[include_depth] /* current file name */
 @d cur_line line[include_depth] /* number of current line in current file */
@@ -113,6 +136,7 @@ extern FILE *change_file; /* change file */
 extern char file_name[][max_file_name_length];
   /* stack of non-change file names */
 extern char change_file_name[]; /* name of change file */
+extern char check_file_name[]; /* name of |check_file| */
 extern int line[]; /* number of current line in the stacked files */
 extern int change_line; /* number of current line in change file */
 extern int change_depth; /* where \.{@@y} originated during a change */
@@ -181,7 +205,7 @@ extern void sprint_section_name(char *,name_pointer);
 @d fatal_message 3 /* |history| value when we had to stop prematurely */
 @d mark_harmless if (history==spotless) history=harmless_message
 @d mark_error history=error_message
-@d confusion(s) fatal("! This can't happen: ",s)
+@d confusion(s) fatal(_("! This can't happen: "),s)
 @.This can't happen@>
 
 @<Common code...@>=
@@ -199,6 +223,7 @@ extern void overflow(const char *); /* succumb because a table has overflowed */
 @d show_happiness flags['h'] /* should lack of errors be announced? */
 @d show_stats flags['s'] /* should statistics be printed at end of run? */
 @d make_xrefs flags['x'] /* should cross references be output? */
+@d check_for_change flags['c'] /* check temporary output for changes */
 
 @<Common code...@>=
 extern int argc; /* copy of |ac| parameter to |main| */
@@ -208,6 +233,7 @@ extern char tex_file_name[]; /* name of |tex_file| */
 extern char idx_file_name[]; /* name of |idx_file| */
 extern char scn_file_name[]; /* name of |scn_file| */
 extern boolean flags[]; /* an option for each 7-bit code */
+extern const char *use_language; /* prefix to \.{cwebmac.tex} in \TEX/ output */
 
 @ Code related to output:
 @d update_terminal fflush(stdout) /* empty the terminal output buffer */
@@ -220,23 +246,25 @@ extern FILE *tex_file; /* where output of \.{CWEAVE} goes */
 extern FILE *idx_file; /* where index from \.{CWEAVE} goes */
 extern FILE *scn_file; /* where list of sections from \.{CWEAVE} goes */
 extern FILE *active_file; /* currently active file for \.{CWEAVE} output */
+extern FILE *check_file; /* temporary output file */
 
 @ The procedure that gets everything rolling:
 @<Predecl...@>=
 extern void common_init(void);@/
-extern void print_stats(void);
+extern void print_stats(void);@/
+extern void cb_show_banner(void);
 
 @ The following parameters are sufficient to handle \TEX/ (converted to
 \.{CWEB}), so they should be sufficient for most applications of \.{CWEB}.
 
-@d buf_size 200 /* maximum length of input line, plus one */
+@d buf_size 1000 /* maximum length of input line, plus one */
 @d longest_name 10000 /* file names, section names, and section texts
    shouldn't be longer than this */
 @d long_buf_size (buf_size+longest_name) /* for \.{CWEAVE} */
-@d max_bytes 100000 /* the number of bytes in identifiers,
+@d max_bytes 1000000 /* the number of bytes in identifiers,
   index entries, and section names; must be less than $2^{24}$ */
-@d max_names 5000 /* number of identifiers, strings, section names;
+@d max_names 10239 /* number of identifiers, strings, section names;
   must be less than 10240 */
-@d max_sections 2000 /* greater than the total number of sections */
+@d max_sections 4000 /* greater than the total number of sections */
 
 @ End of \.{COMMON} interface.
