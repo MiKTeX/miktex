@@ -1,0 +1,19 @@
+/**
+ * @file miktex-tangle.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 1991-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-tangle-version.h"
+
+#define VER_FILEDESCRIPTION_STR "Tangle - convert a Web file to a Pascal file"
+#define VER_INTERNALNAME_STR "tangle"
+#define VER_ORIGINALFILENAME_STR "miktex-tangle.exe"
+
+#include "miktex/win/version.rc"

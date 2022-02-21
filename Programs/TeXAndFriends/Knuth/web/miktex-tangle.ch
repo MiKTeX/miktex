@@ -1,20 +1,10 @@
-%% tangle-miktex.ch: WEB change file for TANGLE
+%% miktex-tangle.ch
+%%
+%% Copyright (C) 1991-2022 Christian Schenk
 %% 
-%% Copyright (C) 1991-2021 Christian Schenk
-%% 
-%% This file is free software; you can redistribute it and/or modify it
-%% under the terms of the GNU General Public License as published by the
-%% Free Software Foundation; either version 2, or (at your option) any
-%% later version.
-%% 
-%% This file is distributed in the hope that it will be useful, but
-%% WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%% General Public License for more details.
-%% 
-%% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+%% This file is free software; the copyright holder gives
+%% unlimited permission to copy and/or distribute it, with or
+%% without modifications, as long as this notice is preserved.
 
 % _____________________________________________________________________________
 %
@@ -40,7 +30,7 @@
 @!buf_size=100; {maximum length of input line}
 @!max_bytes=45000; {|1/ww| times the number of bytes in identifiers,
   strings, and module names; must be less than 65536}
-@!max_toks=50000; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
+@!max_toks=65000; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
   must be less than 65536}
 @!max_names=4000; {number of identifiers, strings, module names;
   must be less than 10240}
