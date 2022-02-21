@@ -145,7 +145,10 @@ if(MIKTEX_NATIVE_WINDOWS)
         ${CMAKE_CURRENT_SOURCE_DIR}/miktex-tangle.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/miktex-tangle.rc
     )
-    list(APPEND tangle_sources ${CMAKE_CURRENT_BINARY_DIR}/miktex-tangle.rc)
+    list(APPEND tangle_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-tangle.rc
+        ${MIKTEX_COMMON_MANIFEST}
+    )
 endif()
 
 add_executable(${MIKTEX_PREFIX}tangle ${tangle_sources})
@@ -170,6 +173,13 @@ target_link_libraries(${MIKTEX_PREFIX}tangle
         ${core_dll_name}
         ${texmf_dll_name}
         miktex-popt-wrapper
+)
+
+install(
+    TARGETS
+        ${MIKTEX_PREFIX}tangle
+    DESTINATION
+        "${MIKTEX_BINARY_DESTINATION_DIR}"
 )
 
 set_property(TARGET ${MIKTEX_PREFIX}tangle PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
