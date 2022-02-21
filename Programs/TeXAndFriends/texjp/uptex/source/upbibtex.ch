@@ -232,42 +232,58 @@ var i:0..last_text_char;    {this is the first one declared}
 @z
 
 @x
-{ 2 bytes Kanji code break check }
-tps:=str_start[pop_lit3];
-while (tps < sp_ptr) do begin
-    if str_pool[tps] > 127
-    then tps := tps + 2
-    else incr(tps);
-end;
-tpe:=tps;
-while (tpe < sp_end) do begin
-    if str_pool[tpe] > 127
-    then tpe := tpe+2
-    else incr(tpe);
-end;
-if tps<>sp_ptr then begin
-    if tps>str_start[pop_lit3]
-    then decr(sp_ptr)
-    else incr(sp_ptr);
-end;
-if tpe<>sp_end then begin
-    if tpe<str_start[pop_lit3+1]
-    then incr(sp_end)
-    else decr(sp_end);
-end;
+@!pop_lit2_saved: integer;
 @y
-{ |2..4| bytes Kanji code break check }
+@!pop_lit2_saved,@!mbl_tpe: integer;
+@z
+
+@x
+{ 2 bytes Kanji code break check }
 tps:=str_start[pop_lit3];
 tpe:=tps;
 while tpe < str_start[pop_lit3+1] do begin
-    if multibytelen(str_pool[tpe])<0
-        or (str_start[pop_lit3+1] < tpe+multibytelen(str_pool[tpe])) then
-        break;
-    tpe := tpe + multibytelen(str_pool[tpe]);
+    if str_pool[tpe] > 127 then begin
+        if str_start[pop_lit3+1] < tpe+2 then
+            break;
+        tpe := tpe + 2;
+        end
+    else begin
+        if str_start[pop_lit3+1] < tpe+1 then
+            break;
+        tpe := tpe + 1;
+        end;
     if tpe<=sp_ptr then
         tps := tpe;
     if sp_end<=tpe then break;
 end;
+if (pop_lit2_saved > 1) and (tps = str_start[pop_lit3])
+    then tps := tps + 2; {truncate at least one}
+if (pop_lit2_saved < -1) and (tpe = str_start[pop_lit3+1])
+    then tpe := tpe - 2; {truncate at least one}
+if tps > tpe then tpe := tps;
+sp_ptr := tps;
+sp_end := tpe;
+@y
+{ |2..4| bytes Kanji code break check }
+tps:=str_start[pop_lit3];
+tpe:=tps;
+mbl_tpe:=0;
+while tpe < str_start[pop_lit3+1] do begin
+    if multibytelen(str_pool[tpe])<0 {just in case}
+        or (str_start[pop_lit3+1] < tpe+multibytelen(str_pool[tpe])) then
+        break;
+    mbl_tpe := multibytelen(str_pool[tpe]);
+    tpe := tpe + mbl_tpe;
+    if tpe<=sp_ptr then
+        tps := tpe;
+    if sp_end<=tpe then break;
+end;
+if (pop_lit2_saved > 1) and (tps = str_start[pop_lit3]) then
+    if multibytelen(str_pool[tps])>=0 then {just in case}
+        tps := tps + multibytelen(str_pool[tps]); {truncate at least one}
+if (pop_lit2_saved < -1) and (tpe = str_start[pop_lit3+1]) then
+    tpe := tpe - mbl_tpe; {truncate at least one}
+if tps > tpe then tpe := tps;
 sp_ptr := tps;
 sp_end := tpe;
 @z

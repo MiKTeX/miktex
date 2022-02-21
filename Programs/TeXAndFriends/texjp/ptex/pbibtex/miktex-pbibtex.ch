@@ -1,6 +1,6 @@
 %% miktex-pbibtex.ch:
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -66,6 +66,29 @@ init_kanji;
 init_kanji;
 parse_arguments;
 @y
+@z
+
+% _____________________________________________________________________________
+%
+% [14.438]
+% _____________________________________________________________________________
+
+@x
+            break;
+@y
+            c4p_break_loop;
+@z
+
+@x
+            break;
+@y
+            c4p_break_loop;
+@z
+
+@x
+    if sp_end<=tpe then break;
+@y
+    if sp_end<=tpe then c4p_break_loop;
 @z
 
 % _____________________________________________________________________________
