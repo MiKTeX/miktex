@@ -2,6 +2,10 @@
 
 ## 22.2 - to be released
 
+### HiTeX
+
+MiKTeX now includes the HiTeX engine.
+
 ### Upgraded programs
 
 * asymptote 2.78

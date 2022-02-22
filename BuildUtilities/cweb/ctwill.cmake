@@ -41,7 +41,6 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/source/comm-w2c.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ctwill-w2c.ch
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
         ${CMAKE_CURRENT_SOURCE_DIR}/source/prod-twill.w
         ${MIKTEX_PREFIX}ctangle
     VERBATIM

@@ -47,7 +47,6 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/source/comm-w2c.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ctang-w2c.ch
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/ctangle.w
         initctangle
     VERBATIM
 )

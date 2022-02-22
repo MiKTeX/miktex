@@ -38,7 +38,6 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/twinx.w
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/source/twinx.ch
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/twinx.w
         ${MIKTEX_PREFIX}ctangle
     VERBATIM
 )

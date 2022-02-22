@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2021 Christian Schenk
+## Copyright (C) 2015-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -87,6 +87,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-gregorio-bin.tpm.in
     windows-x86/miktex-gsf2pk-bin.tpm.in
     windows-x86/miktex-harfbuzz-bin.tpm.in
+    windows-x86/miktex-hitex-bin.tpm.in
     windows-x86/miktex-hunspell-bin.tpm.in
     windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
@@ -185,6 +186,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-gregorio-bin-x64.tpm.in
     windows-x64/miktex-gsf2pk-bin-x64.tpm.in
     windows-x64/miktex-harfbuzz-bin-x64.tpm.in
+    windows-x64/miktex-hitex-bin-x64.tpm.in
     windows-x64/miktex-hunspell-bin-x64.tpm.in
     windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in

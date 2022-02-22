@@ -19,6 +19,13 @@ add_definitions(
     -Dmain=Main
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+    add_definitions(
+        -DUNICODE
+        -D_UNICODE
+    )
+endif()
+
 include(initctangle.cmake)
 include(ctangle.cmake)
 include(ctwill.cmake)

@@ -38,7 +38,6 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/source/refsort.w
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/source/refsort.ch
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/refsort.w
         ${MIKTEX_PREFIX}ctangle
     VERBATIM
 )
