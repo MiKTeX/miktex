@@ -52,12 +52,9 @@ For backward compatibility with pre-{\mc ANSI} compilers, we replace the
 @d _(s) gettext(s)
 
 @<Include files@>=
-#if defined(MIKTEX)
-#if defined(MIKTEX_WINDIWS)
+#if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
-#endif
-#include <miktex/ExitThrows>
 #endif
 #include <ctype.h> /* definition of |@!isalpha|, |@!isdigit| and so on */
 #include <kpathsea/simpletypes.h> /* |@!boolean|, |@!true| and |@!false| */

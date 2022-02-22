@@ -793,6 +793,11 @@ The directories to be searched for come from three sources:
   |@!kpathsea_debug|, |@!const_string|, |@!string| */
 #include <w2c/config.h> /* \&{integer} */
 #include <lib/lib.h> /* |@!versionstring| */
+#if defined(MIKTEX)
+#include <cstdlib>
+#undef exit
+#define exit(exitCode) throw(exitCode)
+#endif
 
 @ We set |kpse_program_name| to `\.{cweb}'.  This means if the variable
 \.{CWEBINPUTS.cweb} is present in \.{texmf.cnf} (or \.{CWEBINPUTS\_cweb}
