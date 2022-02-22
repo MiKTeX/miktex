@@ -24,7 +24,11 @@ This file is not copyrighted and can be used freely.
 @x declare return type
 main()
 @y
+#if defined(MIKTEX)
+int main(int, char**)
+#else
 int main()
+#endif
 @z
 
 @x variable not used

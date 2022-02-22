@@ -43,7 +43,7 @@ add_custom_command(
     VERBATIM
 )
 
-add_executable(${MIKTEX_PREFIX}ctwill-refsort ${ctwill_sources})
+add_executable(${MIKTEX_PREFIX}ctwill-refsort ${ctwill_refsort_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}ctwill-refsort PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

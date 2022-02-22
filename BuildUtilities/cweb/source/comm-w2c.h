@@ -53,6 +53,10 @@ For backward compatibility with pre-{\mc ANSI} compilers, we replace the
 
 @<Include files@>=
 #if defined(MIKTEX)
+#if defined(MIKTEX_WINDIWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <miktex/ExitThrows>
 #endif
 #include <ctype.h> /* definition of |@!isalpha|, |@!isdigit| and so on */

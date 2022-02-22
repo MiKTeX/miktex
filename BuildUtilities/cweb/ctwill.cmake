@@ -9,7 +9,6 @@
 set(ctwill_sources
     ${CMAKE_CURRENT_BINARY_DIR}/common.c
     ${CMAKE_CURRENT_BINARY_DIR}/ctwill.c
-    ${CMAKE_CURRENT_BINARY_DIR}/cweb.h
     ${MIKTEX_LIBRARY_WRAPPER}
     miktex-ctwill-version.h
     texlive/help.h
@@ -40,7 +39,7 @@ add_custom_command(
     MAIN_DEPENDENCY
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
     DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/common.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/comm-w2c.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ctwill-w2c.ch
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
         ${CMAKE_CURRENT_SOURCE_DIR}/source/prod-twill.w
@@ -58,6 +57,10 @@ target_link_libraries(${MIKTEX_PREFIX}ctwill
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${MIKTEX_PREFIX}ctwill ${utf8wrap_dll_name})
+endif()
 
 install(
     TARGETS

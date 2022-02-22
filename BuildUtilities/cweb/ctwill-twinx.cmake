@@ -6,7 +6,7 @@
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(ctwill_twill_sources
+set(ctwill_twinx_sources
     ${CMAKE_CURRENT_BINARY_DIR}/ctwill-twinx.c
     ${MIKTEX_LIBRARY_WRAPPER}
     miktex-ctwill-twinx-version.h
@@ -18,7 +18,7 @@ set_source_files_properties(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-    list(APPEND ctwill_twill_sources
+    list(APPEND ctwill_twinx_sources
         ${MIKTEX_COMMON_MANIFEST}
         miktex-ctwill-twinx.rc
     )
@@ -43,7 +43,7 @@ add_custom_command(
     VERBATIM
 )
 
-add_executable(${MIKTEX_PREFIX}ctwill-twinx ${ctwill_sources})
+add_executable(${MIKTEX_PREFIX}ctwill-twinx ${ctwill_twinx_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}ctwill-twinx PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
@@ -53,6 +53,10 @@ target_link_libraries(${MIKTEX_PREFIX}ctwill-twinx
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${MIKTEX_PREFIX}ctwill-twinx ${utf8wrap_dll_name})
+endif()
 
 install(
     TARGETS

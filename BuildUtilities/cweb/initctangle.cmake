@@ -10,8 +10,8 @@ set(initctangle_sources
     ${MIKTEX_LIBRARY_WRAPPER}
     init/initcommon.c
     init/initctangle.c
-    init/initcweb.h
     miktex-ctangle-version.h
+    source/comm-w2c.h
     texlive/help.h
 )
 
@@ -31,3 +31,7 @@ target_link_libraries(initctangle
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(initctangle ${utf8wrap_dll_name})
+endif()

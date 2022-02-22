@@ -19,6 +19,10 @@ Section 1.
 @x l.10 Standard C interface.
 #include <stdio.h>
 @y
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,9 +34,13 @@ main(argc,argv)
   int argc;
   char *argv[];
 @y
+#if defined(MIKTEX)
+int main(int argc, char** argv)
+#else
 int main(
   int argc,
   char *argv[])
+#endif
 @z
 
 @x l.21
