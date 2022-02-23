@@ -10,7 +10,7 @@
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-    HiTeX is a modied version of TeX that replaces the DVI (device independent)
+    HiTeX is a modified version of TeX that replaces the DVI (device independent)
 output format by the HINT format.
     </TPM:Description>
     <TPM:RunFiles>
