@@ -4,10 +4,11 @@
 /*3:*/
 #line 54 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
-#if defined(MIKTEX)
-#include <miktex/ExitThrows> 
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h> 
 #endif
-#line 58 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 59 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 #include <ctype.h>  
 #include <kpathsea/simpletypes.h>  
 #include <stddef.h>  
@@ -19,15 +20,15 @@
 #ifndef HAVE_GETTEXT
 #define HAVE_GETTEXT 0
 #endif
-#line 69 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 70 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 #if HAVE_GETTEXT
 #include <libintl.h> 
 #else
-#line 73 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 74 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 #define gettext(a) a
 #endif
-#line 75 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 76 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 /*:3*//*91:*/
 #line 744 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
@@ -49,9 +50,15 @@
 
 #include <w2c/config.h>  
 #include <lib/lib.h>  
+#if defined(MIKTEX)
+#include <cstdlib> 
+#undef exit
+#define exit(exitCode) throw(exitCode)
+#endif
+#line 801 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 /*:93*//*96:*/
-#line 828 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 833 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 #define CWEB
 #include "help.h" 
@@ -193,7 +200,7 @@ extern cweb program;
 extern int phase;
 
 /*:2*//*4:*/
-#line 97 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 98 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern char section_text[];
 extern char*section_text_end;
@@ -201,7 +208,7 @@ extern char*id_first;
 extern char*id_loc;
 
 /*:4*//*5:*/
-#line 115 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 116 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern char buffer[];
 extern char*buffer_end;
@@ -209,7 +216,7 @@ extern char*loc;
 extern char*limit;
 
 /*:5*//*6:*/
-#line 132 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 133 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern int include_depth;
 extern FILE*file[];
@@ -226,7 +233,7 @@ extern boolean changing;
 extern boolean web_file_open;
 
 /*:6*//*8:*/
-#line 153 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 154 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern sixteen_bits section_count;
 extern boolean changed_section[];
@@ -234,7 +241,7 @@ extern boolean change_pending;
 extern boolean print_where;
 
 /*:8*//*9:*/
-#line 167 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 168 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 typedef struct name_info{
 char*byte_start;
@@ -259,12 +266,12 @@ extern hash_pointer hash_end;
 extern hash_pointer h;
 
 /*:9*//*11:*/
-#line 211 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 212 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern int history;
 
 /*:11*//*13:*/
-#line 228 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 229 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern int argc;
 extern char**argv;
@@ -276,7 +283,7 @@ extern boolean flags[];
 extern const char*use_language;
 
 /*:13*//*14:*/
-#line 243 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 244 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern FILE*C_file;
 extern FILE*tex_file;
@@ -424,14 +431,14 @@ string texmf_locale;
 #line 66 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/common.w"
 
 /*7:*/
-#line 147 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 148 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern boolean get_line(void);
 extern void check_complete(void);
 extern void reset_input(void);
 
 /*:7*//*10:*/
-#line 190 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 191 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern boolean names_match(name_pointer,const char*,size_t,eight_bits);
 extern name_pointer id_lookup(const char*,const char*,eight_bits);
@@ -444,7 +451,7 @@ extern void print_section_name(name_pointer);
 extern void sprint_section_name(char*,name_pointer);
 
 /*:10*//*12:*/
-#line 214 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 215 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern int wrap_up(void);
 extern void err_print(const char*);
@@ -452,7 +459,7 @@ extern void fatal(const char*,const char*);
 extern void overflow(const char*);
 
 /*:12*//*15:*/
-#line 252 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
+#line 253 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.h"
 
 extern void common_init(void);
 extern void print_stats(void);
@@ -487,7 +494,7 @@ static void scan_args(void);
 
 #line 512 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 /*:76*//*98:*/
-#line 841 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 846 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 static void cb_usage(const_string str);
 static void cb_usagehelp(const_string*message);
@@ -520,7 +527,7 @@ for(h= hash;h<=hash_end;*h++= NULL);
 #line 78 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 /*94:*/
-#line 803 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 808 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 kpse_set_program_name(argv[0],"cweb");
 
@@ -1448,7 +1455,7 @@ if((**(++argv)=='-'||**argv=='+')&&*(*argv+1))/*80:*/
 if(strcmp("-help",*argv)==0||strcmp("--help",*argv)==0)
 
 /*97:*/
-#line 832 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 837 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 cb_usagehelp(program==ctangle?CTANGLEHELP:
 program==cweave?CWEAVEHELP:CTWILLHELP);
@@ -1460,7 +1467,7 @@ program==cweave?CWEAVEHELP:CTWILLHELP);
 if(strcmp("-version",*argv)==0||strcmp("--version",*argv)==0)
 
 /*100:*/
-#line 878 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 883 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 printversionandexit(cb_banner,
 program==ctwill?"Donald E. Knuth":"Silvio Levy and Donald E. Knuth",
@@ -1634,7 +1641,7 @@ cb_usage(program==ctangle?"ctangle":program==cweave?"cweave":"ctwill");
 }
 
 /*:75*//*99:*/
-#line 845 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 850 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 static void cb_usage(const_string str)
 {
@@ -1666,7 +1673,7 @@ history= spotless;exit(wrap_up());
 }
 
 /*:99*//*101:*/
-#line 886 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
+#line 891 "C:/work3/MiKTeX/miktex/BuildUtilities/cweb/source/comm-w2c.ch"
 
 void cb_show_banner(void)
 {
