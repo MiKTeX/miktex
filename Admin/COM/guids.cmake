@@ -1,3 +1,11 @@
+## CMakeLists.txt
+##
+## Copyright (C) 2022 Christian Schenk
+## 
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
+
 set(guid_MiKTeX_Package_Manager_206 "E4EC6D80-9E3A-47B7-ADA7-C0621C298527")
 set(guid_MiKTeX_Package_Manager_TLB_206 "42542DAE-9AAF-41A0-A2FC-7F3CEEA9A5CB")
 set(guid_MiKTeX_Session_206 "DE6D4D25-4E98-488D-91B2-E97CC319764B")
