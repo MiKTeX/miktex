@@ -111,8 +111,13 @@ target_link_libraries(${MIKTEX_PREFIX}hitex
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
-    ${zlib_dll_name}
 )
+
+if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${MIKTEX_PREFIX}hitex MiKTeX::Imported::ZLIB)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}hitex ${zlib_dll_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${MIKTEX_PREFIX}hitex ${utf8wrap_dll_name})
@@ -145,8 +150,13 @@ target_link_libraries(${MIKTEX_PREFIX}histretch
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
-    ${zlib_dll_name}
 )
+
+if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${MIKTEX_PREFIX}histretch MiKTeX::Imported::ZLIB)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}histretch ${zlib_dll_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${MIKTEX_PREFIX}histretch ${utf8wrap_dll_name})
@@ -187,8 +197,13 @@ target_link_libraries(${MIKTEX_PREFIX}hishrink
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
-    ${zlib_dll_name}
 )
+
+if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${MIKTEX_PREFIX}hishrink MiKTeX::Imported::ZLIB)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}hishrink ${zlib_dll_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${MIKTEX_PREFIX}hishrink ${utf8wrap_dll_name})
