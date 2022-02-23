@@ -1,47 +1,36 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}/Tie")
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/source
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
 )
 
 set(tie_sources ${CMAKE_CURRENT_BINARY_DIR}/tie.c)
 
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tie.c
-  COMMAND
-    ${MIKTEX_PREFIX}ctangle
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/tie.w
-    ${CMAKE_CURRENT_SOURCE_DIR}/tie-miktex.ch 
-    ${CMAKE_CURRENT_BINARY_DIR}/tie.c
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}
-  MAIN_DEPENDENCY
-    source/tie.w
-  DEPENDS
-    ${MIKTEX_PREFIX}ctangle
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/tie.w
-    ${CMAKE_CURRENT_SOURCE_DIR}/tie-miktex.ch
-  VERBATIM
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/tie.c
+    COMMAND
+        ${MIKTEX_PREFIX}ctangle
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/tie.w
+        ${CMAKE_CURRENT_SOURCE_DIR}/tie-miktex.ch 
+        ${CMAKE_CURRENT_BINARY_DIR}/tie.c
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    MAIN_DEPENDENCY
+        source/tie.w
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/tie-miktex.ch
+        ${MIKTEX_PREFIX}ctangle
+    VERBATIM
 )
 
 add_executable(${MIKTEX_PREFIX}tie ${tie_sources})

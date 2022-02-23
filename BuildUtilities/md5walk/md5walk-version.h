@@ -1,22 +1,16 @@
-/* md5walk-version.h: version number                    -*- C++ -*-
+/**
+ * @file md5walk-version.h
+ * @author Christian Schenk
+ * @brief Version number
+ *
+ * @copyright Copyright © 2005-2022 Christian Schenk
+ *
+ * This file is part of Cfg.
+ *
+ * Cfg is licensed under GNU General Public License version 2 or any later
+ * version.
+ */
 
-   Copyright (C) 1996-2018 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-   
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA.  */
-
-#define MIKTEX_COMP_J2000_VERSION 6881
-
-#include <miktex/Version>
+#define MIKTEX_COMP_MAJOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 0

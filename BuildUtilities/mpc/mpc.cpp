@@ -1,22 +1,15 @@
-/* mpc.cpp: creating MiKTeX packages
-
-   Copyright (C) 2001-2020 Christian Schenk
-
-   This file is part of MPC.
-
-   MPC is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-   
-   MPC is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-   License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with MPC; if not, write to the Free Software Foundation, 59
-   Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+/**
+ * @file mpc.cpp
+ * @author Christian Schenk
+ * @brief Creating MiKTeX packages
+ *
+ * @copyright Copyright © 2006-2022 Christian Schenk
+ *
+ * This file is part of MPC.
+ *
+ * MPC is licensed under GNU General Public License version 2 or any later
+ * version.
+ */
 
 #define SUPPORT_LEGACY_EXTERNALNAME
 
@@ -76,77 +69,77 @@ const char* const TheNameOfTheGame = T_("MiKTeX Package Creator");
 
 enum class ArchiveFileType
 {
-  None,
-  MSCab,
-  TarBzip2,
-  Zip,
-  Tar,
-  TarLzma
+    None,
+    MSCab,
+    TarBzip2,
+    Zip,
+    Tar,
+    TarLzma
 };
 
 class PrivateKeyProvider :
-  public IPrivateKeyProvider
+    public IPrivateKeyProvider
 {
 public:
-  PathName MIKTEXTHISCALL GetPrivateKeyFile() override
-  {
-    return privateKeyFile;
-  }
+    PathName MIKTEXTHISCALL GetPrivateKeyFile() override
+    {
+        return privateKeyFile;
+    }
 
 public:
-  bool GetPassphrase(string& passphrase) override
-  {
-    passphrase = string(reinterpret_cast<const char*>(&this->passphrase[0]), this->passphrase.size());
-    return true;
-  }
+    bool GetPassphrase(string& passphrase) override
+    {
+        passphrase = string(reinterpret_cast<const char*>(&this->passphrase[0]), this->passphrase.size());
+        return true;
+    }
 
 public:
-  void SetPrivateKeyFile(const PathName& privateKeyFile)
-  {
-    this->privateKeyFile = privateKeyFile;
-  }
+    void SetPrivateKeyFile(const PathName& privateKeyFile)
+    {
+        this->privateKeyFile = privateKeyFile;
+    }
 
 public:
-  void SetPassphrase(const vector<uint8_t>& passphrase)
-  {
-    this->passphrase = passphrase;
-  }
+    void SetPassphrase(const vector<uint8_t>& passphrase)
+    {
+        this->passphrase = passphrase;
+    }
 
 private:
-  PathName privateKeyFile;
+    PathName privateKeyFile;
 
 private:
-  vector<uint8_t> passphrase;
+    vector<uint8_t> passphrase;
 };
 
 class RestoreCurrentDirectory
 {
 public:
-  RestoreCurrentDirectory(const PathName& path)
-  {
-    oldPath.SetToCurrentDirectory();
-    Directory::SetCurrent(path);
-  }
+    RestoreCurrentDirectory(const PathName& path)
+    {
+        oldPath.SetToCurrentDirectory();
+        Directory::SetCurrent(path);
+    }
 public:
-  virtual ~RestoreCurrentDirectory()
-  {
-    try
+    virtual ~RestoreCurrentDirectory()
     {
-      Directory::SetCurrent(oldPath);
+        try
+        {
+            Directory::SetCurrent(oldPath);
+        }
+        catch (const exception&)
+        {
+        }
     }
-    catch (const exception&)
-    {
-    }
-  }
 private:
-  PathName oldPath;
+    PathName oldPath;
 };
 
 struct PackageSpec
 {
-  string id; // package id
-  char level = '\0';     // one of: '-', 'S', 'M', 'L', 'T'
-  ArchiveFileType archiveFileType = ArchiveFileType::None;
+    string id; // package id
+    char level = '\0';     // one of: '-', 'S', 'M', 'L', 'T'
+    ArchiveFileType archiveFileType = ArchiveFileType::None;
 };
 
 typedef map<string, MD5, less_icase_dos> FileDigestTable;
@@ -177,602 +170,602 @@ enum Option
 };
 
 struct MpcPackageInfo :
-  public PackageInfo
+    public PackageInfo
 {
-  MD5 archiveFileDigest;
-  PathName path;
-  MpcPackageInfo()
-  {
-  }
-  MpcPackageInfo(const PackageInfo& packageInfo) :
-    PackageInfo(packageInfo)
-  {
-  }
+    MD5 archiveFileDigest;
+    PathName path;
+    MpcPackageInfo()
+    {
+    }
+    MpcPackageInfo(const PackageInfo& packageInfo) :
+        PackageInfo(packageInfo)
+    {
+    }
 };
 
 class PackagedOnReversed
 {
 public:
-  bool operator()(const MpcPackageInfo& pi1, const MpcPackageInfo& pi2) const
-  {
-    return pi1.timePackaged >= pi2.timePackaged;
-  }
+    bool operator()(const MpcPackageInfo& pi1, const MpcPackageInfo& pi2) const
+    {
+        return pi1.timePackaged >= pi2.timePackaged;
+    }
 };
 
 bool StartsWith(const string& s, const string& prefix)
 {
-  return s.compare(0, prefix.length(), prefix) == 0;
+    return s.compare(0, prefix.length(), prefix) == 0;
 }
 
 class PackageCreator :
-  public IRunProcessCallback
+    public IRunProcessCallback
 
 {
 public:
-  void Init(const char* argv0);
+    void Init(const char* argv0);
 
 public:
-  void Finalize();
+    void Finalize();
 
 public:
-  void Run(int argc, const char** argv);
+    void Run(int argc, const char** argv);
 
 protected:
-  ArchiveFileType GetDbArchiveFileType();
+    ArchiveFileType GetDbArchiveFileType();
 
 protected:
-  PathName GetDbFileName(int id, const VersionNumber& versionNumber);
+    PathName GetDbFileName(int id, const VersionNumber& versionNumber);
 
 protected:
-  PathName GetRepositoryManifestArchiveFileName();
+    PathName GetRepositoryManifestArchiveFileName();
 
 protected:
-  PathName GetTpmArchiveFileName();
+    PathName GetTpmArchiveFileName();
 
 protected:
-  PathName GetPackageManifestsArchiveFileName();
+    PathName GetPackageManifestsArchiveFileName();
 
 protected:
-  void Verbose(const string& s);
+    void Verbose(const string& s);
 
 protected:
-  void FatalError(const string& s);
+    void FatalError(const string& s);
 
 protected:
-  void Warning(const string& s);
+    void Warning(const string& s);
 
 protected:
-  MD5 GetTdsDigest(const FileDigestTable& fileDigests);
+    MD5 GetTdsDigest(const FileDigestTable& fileDigests);
 
 protected:
-  MD5 MD5CopyFile(const PathName& source, const PathName& dest);
+    MD5 MD5CopyFile(const PathName& source, const PathName& dest);
 
 protected:
-  void MD5WildCopy(const PathName& sourceTemplate, const PathName& destDir, const PathName& prefix, FileDigestTable& fileDigests);
+    void MD5WildCopy(const PathName& sourceTemplate, const PathName& destDir, const PathName& prefix, FileDigestTable& fileDigests);
 
 protected:
-  void MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSupDir, FileDigestTable& fileDigests);
+    void MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSupDir, FileDigestTable& fileDigests);
 
 protected:
-  void WriteDescriptionFile(const string& description, const PathName& stagingDir);
+    void WriteDescriptionFile(const string& description, const PathName& stagingDir);
 
 protected:
-  void InitializeStagingDirectory(const PathName& stagingDir, const PackageInfo& packageInfo, const FileDigestTable& fileDigests, const MD5& digest);
+    void InitializeStagingDirectory(const PathName& stagingDir, const PackageInfo& packageInfo, const FileDigestTable& fileDigests, const MD5& digest);
 
 protected:
-  void CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir);
+    void CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir);
 
 protected:
-  void ReadDescriptionFile(const char* stagingDir, string& description);
+    void ReadDescriptionFile(const char* stagingDir, string& description);
 
 protected:
-  MpcPackageInfo InitializePackageInfo(const char* stagingDir);
+    MpcPackageInfo InitializePackageInfo(const char* stagingDir);
 
 protected:
-  char GetPackageLevel(const MpcPackageInfo& packageInfo) const;
+    char GetPackageLevel(const MpcPackageInfo& packageInfo) const;
 
 protected:
-  ArchiveFileType GetPackageArchiveFileType(const MpcPackageInfo& packageInfo);
+    ArchiveFileType GetPackageArchiveFileType(const MpcPackageInfo& packageInfo);
 
 public:
-  static const char* GetFileNameExtension(ArchiveFileType archiveFileType)
-  {
-    switch (archiveFileType)
+    static const char* GetFileNameExtension(ArchiveFileType archiveFileType)
     {
-    case ArchiveFileType::MSCab:
-      return MIKTEX_CABINET_FILE_SUFFIX;
-    case ArchiveFileType::TarBzip2:
-      return MIKTEX_TARBZIP2_FILE_SUFFIX;
-    case ArchiveFileType::TarLzma:
-      return MIKTEX_TARLZMA_FILE_SUFFIX;
-    case ArchiveFileType::Zip:
-      return MIKTEX_ZIP_FILE_SUFFIX;
-    case ArchiveFileType::Tar:
-      return MIKTEX_TAR_FILE_SUFFIX;
-    default:
-      MIKTEX_FATAL_CRT_ERROR(T_("Unknown archive file type."));
+        switch (archiveFileType)
+        {
+        case ArchiveFileType::MSCab:
+            return MIKTEX_CABINET_FILE_SUFFIX;
+        case ArchiveFileType::TarBzip2:
+            return MIKTEX_TARBZIP2_FILE_SUFFIX;
+        case ArchiveFileType::TarLzma:
+            return MIKTEX_TARLZMA_FILE_SUFFIX;
+        case ArchiveFileType::Zip:
+            return MIKTEX_ZIP_FILE_SUFFIX;
+        case ArchiveFileType::Tar:
+            return MIKTEX_TAR_FILE_SUFFIX;
+        default:
+            MIKTEX_FATAL_CRT_ERROR(T_("Unknown archive file type."));
+        }
     }
-  }
 
 protected:
-  bool IsToBeIgnored(const MpcPackageInfo& packageInfo) const;
+    bool IsToBeIgnored(const MpcPackageInfo& packageInfo) const;
 
 protected:
-  bool IsPureContainerPackage(const MpcPackageInfo& packageInfo) const;
+    bool IsPureContainerPackage(const MpcPackageInfo& packageInfo) const;
 
 protected:
-  bool IsInTeXMFDirectory(const PathName& relPath, const char* dir);
+    bool IsInTeXMFDirectory(const PathName& relPath, const char* dir);
 
 protected:
-  void CollectFiles(const PathName& rootDir, const PathName& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
+    void CollectFiles(const PathName& rootDir, const PathName& subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
 
 protected:
-  void CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
+    void CollectSubTree(const PathName& path, const char* subDir, vector<string>& runFiles, size_t& sizeRunFiles, vector<string>& docFiles, size_t& sizeDocFiles, vector<string>& sourceFiles, size_t& sizeSourceFiles);
 
 protected:
-  void CollectPackage(MpcPackageInfo& packageInfo);
+    void CollectPackage(MpcPackageInfo& packageInfo);
 
 protected:
-  void CollectPackages(const PathName& stagingRoot, map<string, MpcPackageInfo>& packageTable);
+    void CollectPackages(const PathName& stagingRoot, map<string, MpcPackageInfo>& packageTable);
 
 protected:
-  void BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
+    void BuildTDS(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
 
 protected:
-  void WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
+    void WritePackageManifestFiles(const map<string, MpcPackageInfo>& packageTable, const PathName& destDir, Cfg& repositoryManifest);
 
 protected:
-  void DumpPackageManifests(const map<string, MpcPackageInfo>& packageTable, const PathName& path, Cfg& repositoryManifest);
+    void DumpPackageManifests(const map<string, MpcPackageInfo>& packageTable, const PathName& path, Cfg& repositoryManifest);
 
 protected:
-  void ExecuteSystemCommand(const char* command, const PathName& workingDirectory);
+    void ExecuteSystemCommand(const char* command, const PathName& workingDirectory);
 
 protected:
-  void ExecuteSystemCommand(const char* command)
-  {
-    ExecuteSystemCommand(command, PathName());
-  }
-  
-protected:
-  void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter);
+    void ExecuteSystemCommand(const char* command)
+    {
+        ExecuteSystemCommand(command, PathName());
+    }
 
 protected:
-  void CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable);
+    void RunArchiver(ArchiveFileType archiveFileType, const PathName& archiveFile, const char* filter);
 
 protected:
-  void CreateFileListFile(const map<string, MpcPackageInfo>& packageTable, const PathName& repository);
+    void CreateRepositoryInformationFile(const PathName& repository, Cfg& repositoryManifest, const map<string, MpcPackageInfo>& packageTable);
 
 protected:
-  void CleanUp(const PathName& repository);
+    void CreateFileListFile(const map<string, MpcPackageInfo>& packageTable, const PathName& repository);
 
 protected:
-  void WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteSections, Cfg& repositoryManifest);
+    void CleanUp(const PathName& repository);
 
 protected:
-  void Extract(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& outDir);
+    void WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteSections, Cfg& repositoryManifest);
 
 protected:
-  void ExtractFile(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& toBeExtracted, const PathName& outFile);
+    void Extract(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& outDir);
 
 protected:
-  void CompressArchive(const PathName& toBeCompressed, ArchiveFileType archiveFileType, const PathName& outFile);
+    void ExtractFile(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& toBeExtracted, const PathName& outFile);
 
 protected:
-  ArchiveFileType CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest);
+    void CompressArchive(const PathName& toBeCompressed, ArchiveFileType archiveFileType, const PathName& outFile);
 
 protected:
-  bool HavePackageArchiveFile(const PathName& repository, const string& id, PathName& archiveFile, ArchiveFileType& archiveFileType);
+    ArchiveFileType CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest);
 
 protected:
-  unique_ptr<Cfg> LoadRepositoryManifest(const PathName& repository);
+    bool HavePackageArchiveFile(const PathName& repository, const string& id, PathName& archiveFile, ArchiveFileType& archiveFileType);
 
 protected:
-  map<string, MpcPackageInfo> LoadPackageManifests(const PathName& repository);
+    unique_ptr<Cfg> LoadRepositoryManifest(const PathName& repository);
 
 protected:
-  void UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& repositoryManifest);
+    map<string, MpcPackageInfo> LoadPackageManifests(const PathName& repository);
 
 protected:
-  void ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList);
+    void UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& repositoryManifest);
 
 protected:
-  void ReadList(const PathName& path, set<string>& packageList);
+    void ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList);
 
 protected:
-  void DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir);
+    void ReadList(const PathName& path, set<string>& packageList);
 
 protected:
-  PathName FindLzma();
+    void DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir);
+
+protected:
+    PathName FindLzma();
 
 private:
-  bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override;
+    bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override;
 
 private:
-  shared_ptr<Session> session;
+    shared_ptr<Session> session;
 
 private:
-  // verbosity flag
-  bool optVerbose = false;
+    // verbosity flag
+    bool optVerbose = false;
 
 private:
-  // value of "TPM:TimePackaged"
-  time_t programStartTime = static_cast<time_t>(-1);
+    // value of "TPM:TimePackaged"
+    time_t programStartTime = static_cast<time_t>(-1);
 
 private:
-  string texmfPrefix = "texmf";
+    string texmfPrefix = "texmf";
 
 private:
-  // accumulated --package-list contents
-  map<string, PackageSpec> packageList;
+    // accumulated --package-list contents
+    map<string, PackageSpec> packageList;
 
 private:
-  // default package level
-  char defaultLevel = 'T';
+    // default package level
+    char defaultLevel = 'T';
 
 private:
-  // default MiKTeX major/minor version
-  VersionNumber majorMinorVersion = VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR);
+    // default MiKTeX major/minor version
+    VersionNumber majorMinorVersion = VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR);
 
 private:
-  string releaseState = "stable";
+    string releaseState = "stable";
 
 private:
-  // default archive file type
-  ArchiveFileType defaultArchiveFileType = ArchiveFileType::TarLzma;
+    // default archive file type
+    ArchiveFileType defaultArchiveFileType = ArchiveFileType::TarLzma;
 
 private:
-  PathName lzmaExe;
+    PathName lzmaExe;
 
 private:
-  CharBuffer<char, 512> processOutput;
+    CharBuffer<char, 512> processOutput;
 
 private:
-  // command-line options
-  static const struct poptOption options[];
+    // command-line options
+    static const struct poptOption options[];
 
 private:
-  PrivateKeyProvider privateKeyProvider;
+    PrivateKeyProvider privateKeyProvider;
 };
 
-const struct poptOption PackageCreator::options[] = {
+const struct poptOption PackageCreator::options[] =
+{
+    {
+        "build-tds", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_BUILD_TDS, T_("Create a TDS hierarchy."), nullptr
+    },
 
-  {
-    "build-tds", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_BUILD_TDS, T_("Create a TDS hierarchy."), nullptr
-  },
+    {
+        "create-package", 0, POPT_ARG_NONE, 0, OPT_CREATE_PACKAGE, T_("Create a package archive file and update the database."), nullptr
+    },
 
-  {
-    "create-package", 0, POPT_ARG_NONE, 0, OPT_CREATE_PACKAGE, T_("Create a package archive file and update the database."), nullptr
-  },
+    {
+        "default-level", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_DEFAULT_LEVEL, T_("Specify the default package level (one of: S, M, L, T)."), T_("LEVEL")
+    },
 
-  {
-    "default-level", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_DEFAULT_LEVEL, T_("Specify the default package level (one of: S, M, L, T)."), T_("LEVEL")
-  },
+    {
+        "disassemble-package", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_DISASSEMBLE_PACKAGE, T_("Create a staging directory."), nullptr
+    },
 
-  {
-    "disassemble-package", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_DISASSEMBLE_PACKAGE, T_("Create a staging directory."), nullptr
-  },
+    {
+        // TODO: "miktex-major-minor"
+        "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version."), T_("MAJOR.MINOR")
+    },
 
-  {
-    // TODO: "miktex-major-minor"
-    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version."), T_("MAJOR.MINOR")
-  },
+    {
+        "package-list", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_PACKAGE_LIST, T_("Specify the package list file."), T_("FILE")
+    },
 
-  {
-    "package-list", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_PACKAGE_LIST, T_("Specify the package list file."), T_("FILE")
-  },
+    {
+        "passphrase-file", 0, POPT_ARG_STRING, nullptr, OPT_PASSPHRASE_FILE,
+        T_("The file containing the passphrase for the private key."), T_("FILE"),
+    },
 
-  {
-    "passphrase-file", 0, POPT_ARG_STRING, nullptr, OPT_PASSPHRASE_FILE,
-    T_("The file containing the passphrase for the private key."), T_("FILE"),
-  },
+    {
+        "private-key-file", 0, POPT_ARG_STRING, nullptr, OPT_PRIVATE_KEY_FILE,
+        T_("The private key file used for signing."), T_("FILE"),
+    },
 
-  {
-    "private-key-file", 0, POPT_ARG_STRING, nullptr, OPT_PRIVATE_KEY_FILE,
-    T_("The private key file used for signing."), T_("FILE"),
-  },
+    {
+        "release-state", 0, POPT_ARG_STRING, 0, OPT_RELEASE_STATE, T_("Set the release state (one of: stable, next)."), T_("STATE")
+    },
 
-  {
-    "release-state", 0, POPT_ARG_STRING, 0, OPT_RELEASE_STATE, T_("Set the release state (one of: stable, next)."), T_("STATE")
-  },
+    {
+        "repository", 0, POPT_ARG_STRING, 0, OPT_REPOSITORY, T_("Specify the location of the local package repository."), T_("DIR")
+    },
 
-  {
-    "repository", 0, POPT_ARG_STRING, 0, OPT_REPOSITORY, T_("Specify the location of the local package repository."), T_("DIR")
-  },
+    {
+        "staging-roots", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_STAGING_ROOTS, T_("Specify the staging root directories."), T_("DIRS")
+    },
 
-  {
-    "staging-roots", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_STAGING_ROOTS, T_("Specify the staging root directories."), T_("DIRS")
-  },
+    {
+        "staging-dir", 0, POPT_ARG_STRING, 0, OPT_STAGING_DIR, T_("Specify the staging directory."), T_("DIR")
+    },
 
-  {
-    "staging-dir", 0, POPT_ARG_STRING, 0, OPT_STAGING_DIR, T_("Specify the staging directory."), T_("DIR")
-  },
+    {
+        "texmf-parent", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TEXMF_PARENT, T_("Specify the TEXMF parent directory."), T_("DIR")
+    },
 
-  {
-    "texmf-parent", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TEXMF_PARENT, T_("Specify the TEXMF parent directory."), T_("DIR")
-  },
+    {
+        "texmf-prefix", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TEXMF_PREFIX, T_("Specify the TEXMF prefix."), T_("PREFIX")
+    },
 
-  {
-    "texmf-prefix", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TEXMF_PREFIX, T_("Specify the TEXMF prefix."), T_("PREFIX")
-  },
+    {
+        "time-packaged", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TIME_PACKAGED, T_("Specify the package time-stamp (in seconds since 1970)."), T_("TIME")
+    },
 
-  {
-    "time-packaged", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TIME_PACKAGED, T_("Specify the package time-stamp (in seconds since 1970)."), T_("TIME")
-  },
+    {
+        "tpm-dir", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_DIR, T_("Specify the destination directory for package manifest files."), T_("DIR")
+    },
 
-  {
-    "tpm-dir", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_DIR, T_("Specify the destination directory for package manifest files."), T_("DIR")
-  },
+    {
+        "tpm-file", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_FILE, T_("Specify the name of a package manifest file."), T_("FILE")
+    },
 
-  {
-    "tpm-file", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_TPM_FILE, T_("Specify the name of a package manifest file."), T_("FILE")
-  },
+    {
+        "update-repository", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_UPDATE_REPOSITORY, T_("Update the package repository."), nullptr
+    },
 
-  {
-    "update-repository", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_UPDATE_REPOSITORY, T_("Update the package repository."), nullptr
-  },
+    {
+        "verbose", 0, POPT_ARG_NONE, 0, OPT_VERBOSE, T_("Turn on verbose mode."), nullptr
+    },
 
-  {
-    "verbose", 0, POPT_ARG_NONE, 0, OPT_VERBOSE, T_("Turn on verbose mode."), nullptr
-  },
+    {
+        "version", 0, POPT_ARG_NONE, 0, OPT_VERSION, T_("Print version information and exit."), nullptr
+    },
 
-  {
-    "version", 0, POPT_ARG_NONE, 0, OPT_VERSION, T_("Print version information and exit."), nullptr
-  },
-
-  POPT_AUTOHELP
-  POPT_TABLEEND
+    POPT_AUTOHELP
+    POPT_TABLEEND
 };
 
 void PackageCreator::Init(const char* argv0)
 {
-  Session::InitInfo initInfo;
-  initInfo.SetProgramInvocationName(argv0);
-  session = Session::Create(initInfo);
-  lzmaExe = FindLzma();
+    Session::InitInfo initInfo;
+    initInfo.SetProgramInvocationName(argv0);
+    session = Session::Create(initInfo);
+    lzmaExe = FindLzma();
 }
 
 void PackageCreator::Finalize()
 {
-  session = nullptr;
+    session = nullptr;
 }
 
 PathName PackageCreator::FindLzma()
 {
-  PathName lzmaExe;
-  string path;
-  if (!Utils::GetEnvironmentString("PATH", path))
-  {
-    FatalError(T_("PATH is not set."));
-  }
-  if (!(session->FindFile("lzma_alone" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe) || session->FindFile("lzma" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe)))
-  {
-    FatalError(T_("The lzma utility could not be found."));
-  }
-  return lzmaExe;
+    PathName lzmaExe;
+    string path;
+    if (!Utils::GetEnvironmentString("PATH", path))
+    {
+        FatalError(T_("PATH is not set."));
+    }
+    if (!(session->FindFile("lzma_alone" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe) || session->FindFile("lzma" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe)))
+    {
+        FatalError(T_("The lzma utility could not be found."));
+    }
+    return lzmaExe;
 }
 
 ArchiveFileType PackageCreator::GetDbArchiveFileType()
 {
-  if (majorMinorVersion < VersionNumber("2.7"))
-  {
-    return ArchiveFileType::TarBzip2;
-  }
-  else
-  {
-    return ArchiveFileType::TarLzma;
-  }
+    if (majorMinorVersion < VersionNumber("2.7"))
+    {
+        return ArchiveFileType::TarBzip2;
+    }
+    else
+    {
+        return ArchiveFileType::TarLzma;
+    }
 }
 
 PathName PackageCreator::GetDbFileName(int id, const VersionNumber& versionNumber)
 {
-  PathName ret("miktex-zzdb");
-  ret.Append(std::to_string(id), false);
-  ret.Append("-", false);
-  ret.Append(versionNumber.ToString(), false);
-  ret.AppendExtension(PackageCreator::GetFileNameExtension(GetDbArchiveFileType()));
-  return ret;
+    PathName ret("miktex-zzdb");
+    ret.Append(std::to_string(id), false);
+    ret.Append("-", false);
+    ret.Append(versionNumber.ToString(), false);
+    ret.AppendExtension(PackageCreator::GetFileNameExtension(GetDbArchiveFileType()));
+    return ret;
 }
 
 PathName PackageCreator::GetRepositoryManifestArchiveFileName()
 {
-  return GetDbFileName(1, majorMinorVersion);
+    return GetDbFileName(1, majorMinorVersion);
 }
 
 PathName PackageCreator::GetTpmArchiveFileName()
 {
-  return GetDbFileName(2, majorMinorVersion);
+    return GetDbFileName(2, majorMinorVersion);
 }
 
 PathName PackageCreator::GetPackageManifestsArchiveFileName()
 {
-  return GetDbFileName(3, majorMinorVersion);
+    return GetDbFileName(3, majorMinorVersion);
 }
 
 void PackageCreator::Verbose(const string& s)
 {
-  if (optVerbose)
-  {
-    cout << s << endl;
-  }
+    if (optVerbose)
+    {
+        cout << s << endl;
+    }
 }
 
 void PackageCreator::FatalError(const string& s)
 {
-  cerr << PROGNAME << ": " << s << endl;
-  throw 1;
+    cerr << PROGNAME << ": " << s << endl;
+    throw 1;
 }
 
 void PackageCreator::Warning(const string& s)
 {
-  cerr << PROGNAME << T_(": warning: ") << s << endl;
+    cerr << PROGNAME << T_(": warning: ") << s << endl;
 }
 
 MD5 PackageCreator::GetTdsDigest(const FileDigestTable& fileDigests)
 {
-  MD5Builder md5Builder;
-  for (const pair<string, MD5>& p : fileDigests)
-  {
-    PathName path(p.first);
-    // we must dosify the path name for backward compatibility
-    path.ConvertToDos();
-    md5Builder.Update(path.GetData(), path.GetLength());
-    md5Builder.Update(p.second.data(), p.second.size());
-  }
-  return md5Builder.Final();
+    MD5Builder md5Builder;
+    for (const pair<string, MD5>& p : fileDigests)
+    {
+        PathName path(p.first);
+        // we must dosify the path name for backward compatibility
+        path.ConvertToDos();
+        md5Builder.Update(path.GetData(), path.GetLength());
+        md5Builder.Update(p.second.data(), p.second.size());
+    }
+    return md5Builder.Final();
 }
 
 MD5 PackageCreator::MD5CopyFile(const PathName& source, const PathName& dest)
 {
-  FileStream fromStream(File::Open(source, FileMode::Open, FileAccess::Read, false));
-  FileStream toStream(File::Open(dest, FileMode::Create, FileAccess::Write, false));
-  char buf[4096];
-  size_t n;
-  MD5Builder md5Builder;
-  while ((n = fromStream.Read(buf, 4096)) > 0)
-  {
-    toStream.Write(buf, n);
-    md5Builder.Update(buf, n);
-  }
-  toStream.Close();
-  fromStream.Close();
-  time_t creationTime;
-  time_t lastAccessTime;
-  time_t lastWriteTime;
-  File::GetTimes(source, creationTime, lastAccessTime, lastWriteTime);
-  File::SetTimes(dest, creationTime, lastAccessTime, lastWriteTime);
-  return md5Builder.Final();
+    FileStream fromStream(File::Open(source, FileMode::Open, FileAccess::Read, false));
+    FileStream toStream(File::Open(dest, FileMode::Create, FileAccess::Write, false));
+    char buf[4096];
+    size_t n;
+    MD5Builder md5Builder;
+    while ((n = fromStream.Read(buf, 4096)) > 0)
+    {
+        toStream.Write(buf, n);
+        md5Builder.Update(buf, n);
+    }
+    toStream.Close();
+    fromStream.Close();
+    time_t creationTime;
+    time_t lastAccessTime;
+    time_t lastWriteTime;
+    File::GetTimes(source, creationTime, lastAccessTime, lastWriteTime);
+    File::SetTimes(dest, creationTime, lastAccessTime, lastWriteTime);
+    return md5Builder.Final();
 }
 
 void PackageCreator::MD5WildCopy(const PathName& sourceTemplate, const PathName& destDir, const PathName& prefix, FileDigestTable& fileDigests)
 {
-  PathName sourceDir(sourceTemplate);
-  sourceDir.RemoveFileSpec();
+    PathName sourceDir(sourceTemplate);
+    sourceDir.RemoveFileSpec();
 
-  if (!Directory::Exists(sourceDir))
-  {
-    return;
-  }
-
-  PathName pattern(sourceTemplate);
-  pattern.RemoveDirectorySpec();
-
-  // create destination directory
-  Directory::Create(destDir);
-
-  DirectoryEntry direntry;
-
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(sourceDir, pattern.GetData());
-
-  bool haveSomething = false;
-
-  while (lister->GetNext(direntry))
-  {
-    haveSomething = true;
-
-    // don't recurse
-    if (direntry.isDirectory)
+    if (!Directory::Exists(sourceDir))
     {
-      continue;
+        return;
     }
 
-    // path to source file
-    PathName sourcePath(sourceDir, PathName(direntry.name));
+    PathName pattern(sourceTemplate);
+    pattern.RemoveDirectorySpec();
 
-    // path to destination file
-    PathName destPath(destDir, PathName(direntry.name));
+    // create destination directory
+    Directory::Create(destDir);
 
-    // copy file and calculate its digest
-    MD5 digest = MD5CopyFile(sourcePath, destPath);
+    DirectoryEntry direntry;
 
-    // package manifest files do not contribute to the TDS digest
-    if (sourcePath.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
+    unique_ptr<DirectoryLister> lister = DirectoryLister::Open(sourceDir, pattern.GetData());
+
+    bool haveSomething = false;
+
+    while (lister->GetNext(direntry))
     {
-      continue;
+        haveSomething = true;
+
+        // don't recurse
+        if (direntry.isDirectory)
+        {
+            continue;
+        }
+
+        // path to source file
+        PathName sourcePath(sourceDir, PathName(direntry.name));
+
+        // path to destination file
+        PathName destPath(destDir, PathName(direntry.name));
+
+        // copy file and calculate its digest
+        MD5 digest = MD5CopyFile(sourcePath, destPath);
+
+        // package manifest files do not contribute to the TDS digest
+        if (sourcePath.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
+        {
+            continue;
+        }
+
+        // relativize file name
+        const char* lpszRelPath = Utils::GetRelativizedPath(destPath.GetData(), prefix.GetData());
+
+        // remember digest
+        fileDigests[lpszRelPath] = digest;
     }
 
-    // relativize file name
-    const char* lpszRelPath = Utils::GetRelativizedPath(destPath.GetData(), prefix.GetData());
+    lister->Close();
+    lister = nullptr;
 
-    // remember digest
-    fileDigests[lpszRelPath] = digest;
-  }
-
-  lister->Close();
-  lister = nullptr;
-
-  if (!haveSomething)
-  {
-    FatalError(fmt::format(T_("No match for {0}"), Q_(sourceTemplate)));
-  }
+    if (!haveSomething)
+    {
+        FatalError(fmt::format(T_("No match for {0}"), Q_(sourceTemplate)));
+    }
 }
 
 void PackageCreator::MD5CopyFiles(const vector<string>& files, const PathName& sourceDir, const char* sourceSubDir, const PathName& destDir, const char* destSubDir, FileDigestTable& fileDigests)
 {
-  // path to source root directory
-  PathName sourceRootDir(sourceDir, PathName(sourceSubDir));
+    // path to source root directory
+    PathName sourceRootDir(sourceDir, PathName(sourceSubDir));
 
-  // path to destination root directory
-  PathName destRootDir(destDir, PathName(destSubDir));
+    // path to destination root directory
+    PathName destRootDir(destDir, PathName(destSubDir));
 
-  for (const string& fileName : files)
-  {
-    // source template
-    PathName sourceTemplate(sourceRootDir, PathName(fileName));
+    for (const string& fileName : files)
+    {
+        // source template
+        PathName sourceTemplate(sourceRootDir, PathName(fileName));
 
-    // path to destination directory
-    PathName destDir(destRootDir, PathName(fileName));
-    destDir.RemoveFileSpec();
+        // path to destination directory
+        PathName destDir(destRootDir, PathName(fileName));
+        destDir.RemoveFileSpec();
 
-    // copy file
-    MD5WildCopy(sourceTemplate, destDir, destRootDir, fileDigests);
-  }
+        // copy file
+        MD5WildCopy(sourceTemplate, destDir, destRootDir, fileDigests);
+    }
 }
 
 void PackageCreator::WriteDescriptionFile(const string& description, const PathName& stagingDir)
 {
-  ofstream stream = File::CreateOutputStream(stagingDir / PathName("Description"));
-  stream << description;
-  stream.close();
+    ofstream stream = File::CreateOutputStream(stagingDir / PathName("Description"));
+    stream << description;
+    stream.close();
 }
 
 void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, const PackageInfo& packageInfo, const FileDigestTable& fileDigests, const MD5& digest)
 {
-  ofstream stream;
+    ofstream stream;
 
-  // write package.ini
-  stream = File::CreateOutputStream(stagingDir / PathName("package.ini"));
-  stream
-    << "id=" << packageInfo.id << "\n"
-    << "name=" << packageInfo.displayName << "\n"
-    << "creator=" << packageInfo.creator << "\n"
-    << "title=" << packageInfo.title << "\n"
-    << "version=" << packageInfo.version << "\n"
-    << "targetsystem=" << packageInfo.targetSystem << "\n"
-    << "md5=" << digest << "\n"
-    << "ctan_path=" << packageInfo.ctanPath << "\n"
-    << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
-    << "copyright_year=" << packageInfo.copyrightYear << "\n"
-    << "license_type=" << packageInfo.licenseType << "\n";
-  stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
+    // write package.ini
+    stream = File::CreateOutputStream(stagingDir / PathName("package.ini"));
+    stream
+        << "id=" << packageInfo.id << "\n"
+        << "name=" << packageInfo.displayName << "\n"
+        << "creator=" << packageInfo.creator << "\n"
+        << "title=" << packageInfo.title << "\n"
+        << "version=" << packageInfo.version << "\n"
+        << "targetsystem=" << packageInfo.targetSystem << "\n"
+        << "md5=" << digest << "\n"
+        << "ctan_path=" << packageInfo.ctanPath << "\n"
+        << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
+        << "copyright_year=" << packageInfo.copyrightYear << "\n"
+        << "license_type=" << packageInfo.licenseType << "\n";
+    stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
 #if defined(SUPPORT_LEGACY_EXTERNALNAME)
-  stream
-    << "externalname=" << packageInfo.id << "\n";
+    stream
+        << "externalname=" << packageInfo.id << "\n";
 #endif
-  stream.close();
+    stream.close();
 
-  // write md5sums.txt
-  stream = File::CreateOutputStream(stagingDir / PathName("md5sums.txt"));
-  for (const pair<string, MD5>& p : fileDigests)
-  {
-    stream << p.second << " " << PathName(p.first).ToUnix() << "\n";
-  }
-  stream.close();
+    // write md5sums.txt
+    stream = File::CreateOutputStream(stagingDir / PathName("md5sums.txt"));
+    for (const pair<string, MD5>& p : fileDigests)
+    {
+        stream << p.second << " " << PathName(p.first).ToUnix() << "\n";
+    }
+    stream.close();
 
-  // write Description
-  if (!packageInfo.description.empty())
-  {
-    WriteDescriptionFile(packageInfo.description, stagingDir);
-  }
+    // write Description
+    if (!packageInfo.description.empty())
+    {
+        WriteDescriptionFile(packageInfo.description, stagingDir);
+    }
 }
 
 void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir)
@@ -1372,1001 +1365,1001 @@ void PackageCreator::CleanUp(const PathName& repository)
   DirectoryEntry2 dirEntry;
   while (lister->GetNext(dirEntry))
   {
-    PathName path(repository);
-    path /= dirEntry.name;
-    PathName path2;
-    if (path.HasExtension(".cab"))
-    {
-      path2 = path;
-      path2.AppendExtension(".tar.bz2");
-      if (File::Exists(path2))
+      PathName path(repository);
+      path /= dirEntry.name;
+      PathName path2;
+      if (path.HasExtension(".cab"))
       {
-        toBeDeleted.push_back(path.ToString());
+          path2 = path;
+          path2.AppendExtension(".tar.bz2");
+          if (File::Exists(path2))
+          {
+              toBeDeleted.push_back(path.ToString());
+          }
+          path2 = path;
+          path2.AppendExtension(".tar.lzma");
+          if (File::Exists(path2))
+          {
+              toBeDeleted.push_back(path.ToString());
+          }
       }
-      path2 = path;
-      path2.AppendExtension(".tar.lzma");
-      if (File::Exists(path2))
+      else if (path.HasExtension(".bz2"))
       {
-        toBeDeleted.push_back(path.ToString());
+          path2 = path;
+          path2.AppendExtension(".lzma");
+          if (File::Exists(path2))
+          {
+              toBeDeleted.push_back(path.ToString());
+          }
       }
-    }
-    else if (path.HasExtension(".bz2"))
-    {
-      path2 = path;
-      path2.AppendExtension(".lzma");
-      if (File::Exists(path2))
-      {
-        toBeDeleted.push_back(path.ToString());
-      }
-    }
   }
   for (const string& fileName : toBeDeleted)
   {
-    Verbose(fmt::format("Removing {0}...", Q_(fileName)));
-    File::Delete(PathName(fileName));
+      Verbose(fmt::format("Removing {0}...", Q_(fileName)));
+      File::Delete(PathName(fileName));
   }
 }
 
 void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo>& packageTable, const PathName& repository, bool removeObsoleteSections, Cfg& repositoryManifest)
 {
-  // create repository
-  Directory::Create(repository);
+    // create repository
+    Directory::Create(repository);
 
-  // change into repository
-  Directory::SetCurrent(repository);
+    // change into repository
+    Directory::SetCurrent(repository);
 
-  if (removeObsoleteSections)
-  {
-    // find obsolete package sections
-    vector<string> obsoletePackages;
-    for (const shared_ptr<Cfg::Key>& key : repositoryManifest)
+    if (removeObsoleteSections)
     {
-      map<string, MpcPackageInfo>::const_iterator it = packageTable.find(key->GetName());
-      if (it == packageTable.end() || IsToBeIgnored(it->second))
-      {
-        obsoletePackages.push_back(key->GetName());
-      }
+        // find obsolete package sections
+        vector<string> obsoletePackages;
+        for (const shared_ptr<Cfg::Key>& key : repositoryManifest)
+        {
+            map<string, MpcPackageInfo>::const_iterator it = packageTable.find(key->GetName());
+            if (it == packageTable.end() || IsToBeIgnored(it->second))
+            {
+                obsoletePackages.push_back(key->GetName());
+            }
+        }
+
+        // remove obsolete package sections
+        for (const string& fileName : obsoletePackages)
+        {
+            repositoryManifest.DeleteKey(fileName);
+        }
     }
 
-    // remove obsolete package sections
-    for (const string& fileName : obsoletePackages)
+    // create temporary mpm.ini
+    unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, PathName(MIKTEX_MPM_INI_FILENAME)));
+    if (privateKeyProvider.GetPrivateKeyFile().Empty())
     {
-      repositoryManifest.DeleteKey(fileName);
+        repositoryManifest.Write(tempIni->GetPathName());
     }
-  }
+    else
+    {
+        repositoryManifest.Write(tempIni->GetPathName(), "", &privateKeyProvider);
+    }
 
-  // create temporary mpm.ini
-  unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, PathName(MIKTEX_MPM_INI_FILENAME)));
-  if (privateKeyProvider.GetPrivateKeyFile().Empty())
-  {
-    repositoryManifest.Write(tempIni->GetPathName());
-  }
-  else
-  {
-    repositoryManifest.Write(tempIni->GetPathName(), "", &privateKeyProvider);
-  }
+    // create repository manifest archive
+    PathName dbPath1 = GetRepositoryManifestArchiveFileName();
+    RunArchiver(GetDbArchiveFileType(), dbPath1, MIKTEX_MPM_INI_FILENAME);
 
-  // create repository manifest archive
-  PathName dbPath1 = GetRepositoryManifestArchiveFileName();
-  RunArchiver(GetDbArchiveFileType(), dbPath1, MIKTEX_MPM_INI_FILENAME);
+    // delete temporary mpm.ini
+    tempIni = nullptr;
 
-  // delete temporary mpm.ini
-  tempIni = nullptr;
+    // create temporary package manifest directory
+    unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, PathName(texmfPrefix)));
+    PathName packageManifestDir = tempDir->GetPathName();
+    packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+    Directory::Create(packageManifestDir);
 
-  // create temporary package manifest directory
-  unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, PathName(texmfPrefix)));
-  PathName packageManifestDir = tempDir->GetPathName();
-  packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  Directory::Create(packageManifestDir);
+    // write all package manifest files
+    WritePackageManifestFiles(packageTable, packageManifestDir, repositoryManifest);
 
-  // write all package manifest files
-  WritePackageManifestFiles(packageTable, packageManifestDir, repositoryManifest);
+    // create TPM archive
+    PathName dbPath2 = GetTpmArchiveFileName();
+    RunArchiver(GetDbArchiveFileType(), dbPath2, texmfPrefix.c_str());
 
-  // create TPM archive
-  PathName dbPath2 = GetTpmArchiveFileName();
-  RunArchiver(GetDbArchiveFileType(), dbPath2, texmfPrefix.c_str());
+    // delete package manifest files
+    tempDir = nullptr;
 
-  // delete package manifest files
-  tempDir = nullptr;
+    // create temporary package-manifests.ini
+    tempIni = TemporaryFile::Create(PathName(repository, PathName("package-manifests.ini")));
+    DumpPackageManifests(packageTable, tempIni->GetPathName(), repositoryManifest);
 
-  // create temporary package-manifests.ini
-  tempIni = TemporaryFile::Create(PathName(repository, PathName("package-manifests.ini")));
-  DumpPackageManifests(packageTable, tempIni->GetPathName(), repositoryManifest);
+    // create package-manifests.ini archive
+    PathName dbPath3 = GetPackageManifestsArchiveFileName();
+    RunArchiver(GetDbArchiveFileType(), dbPath3, "package-manifests.ini");
 
-  // create package-manifests.ini archive
-  PathName dbPath3 = GetPackageManifestsArchiveFileName();
-  RunArchiver(GetDbArchiveFileType(), dbPath3, "package-manifests.ini");
+    // delete temporary package-manifests.ini
+    tempIni = nullptr;
 
-  // delete temporary package-manifests.ini
-  tempIni = nullptr;
+    CreateFileListFile(packageTable, repository);
 
-  CreateFileListFile(packageTable, repository);
+    CleanUp(repository);
 
-  CleanUp(repository);
-
-  // create pr.ini
-  CreateRepositoryInformationFile(repository, repositoryManifest, packageTable);
+    // create pr.ini
+    CreateRepositoryInformationFile(repository, repositoryManifest, packageTable);
 }
 
 void PackageCreator::Extract(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& outDir)
 {
-  string command;
-  switch (archiveFileType)
-  {
-  case ArchiveFileType::MSCab:
-    command = "cabextract ";
-    command += Q_(archiveFile);
-    break;
-  case ArchiveFileType::TarBzip2:
-    command = "tar --force-local -xjf ";
-    command += Q_(archiveFile);
-    break;
-  case ArchiveFileType::TarLzma:
-    command = Q_(lzmaExe);
-    command += " d ";
-    command += Q_(archiveFile);
-    command += " -so | tar --force-local -xf -";
-    break;
-  default:
-    FatalError(T_("Unsupported archive file type."));
-  }
-  ExecuteSystemCommand(command.c_str(), outDir);
+    string command;
+    switch (archiveFileType)
+    {
+    case ArchiveFileType::MSCab:
+        command = "cabextract ";
+        command += Q_(archiveFile);
+        break;
+    case ArchiveFileType::TarBzip2:
+        command = "tar --force-local -xjf ";
+        command += Q_(archiveFile);
+        break;
+    case ArchiveFileType::TarLzma:
+        command = Q_(lzmaExe);
+        command += " d ";
+        command += Q_(archiveFile);
+        command += " -so | tar --force-local -xf -";
+        break;
+    default:
+        FatalError(T_("Unsupported archive file type."));
+    }
+    ExecuteSystemCommand(command.c_str(), outDir);
 }
 
 void PackageCreator::ExtractFile(const PathName& archiveFile, ArchiveFileType archiveFileType, const PathName& toBeExtracted, const PathName& outFile)
 {
-  string command;
-  switch (archiveFileType)
-  {
-  case ArchiveFileType::MSCab:
-    command = "cabextract --filter ";
-    command += Q_(toBeExtracted);
-    command += " --pipe ";
-    command += Q_(archiveFile);
-    command += " > ";
-    command += Q_(outFile);
-    break;
-  case ArchiveFileType::TarBzip2:
-    command = "tar --force-local --to-stdout -xjf ";
-    command += Q_(archiveFile);
-    command += " ";
-    command += Q_(toBeExtracted);
-    command += " > ";
-    command += Q_(outFile);
-    break;
-  case ArchiveFileType::TarLzma:
-    command = Q_(lzmaExe);
-    command += " d ";
-    command += Q_(archiveFile);
-    command += " -so | tar --force-local --to-stdout -xf - ";
-    command += Q_(toBeExtracted);
-    command += " > ";
-    command += Q_(outFile);
-    break;
-  default:
-    FatalError(T_("Unsupported archive file type."));
-  }
-  ExecuteSystemCommand(command.c_str());
+    string command;
+    switch (archiveFileType)
+    {
+    case ArchiveFileType::MSCab:
+        command = "cabextract --filter ";
+        command += Q_(toBeExtracted);
+        command += " --pipe ";
+        command += Q_(archiveFile);
+        command += " > ";
+        command += Q_(outFile);
+        break;
+    case ArchiveFileType::TarBzip2:
+        command = "tar --force-local --to-stdout -xjf ";
+        command += Q_(archiveFile);
+        command += " ";
+        command += Q_(toBeExtracted);
+        command += " > ";
+        command += Q_(outFile);
+        break;
+    case ArchiveFileType::TarLzma:
+        command = Q_(lzmaExe);
+        command += " d ";
+        command += Q_(archiveFile);
+        command += " -so | tar --force-local --to-stdout -xf - ";
+        command += Q_(toBeExtracted);
+        command += " > ";
+        command += Q_(outFile);
+        break;
+    default:
+        FatalError(T_("Unsupported archive file type."));
+    }
+    ExecuteSystemCommand(command.c_str());
 }
 
 void PackageCreator::CompressArchive(const PathName& toBeCompressed, ArchiveFileType archiveFileType, const PathName& outFile)
 {
-  string command;
-  switch (archiveFileType)
-  {
-  case ArchiveFileType::TarBzip2:
-    command = "bzip2 --keep --compress --stdout ";
-    command += Q_(toBeCompressed);
-    command += " > ";
-    command += Q_(outFile);
-    break;
-  case ArchiveFileType::TarLzma:
-    command = Q_(lzmaExe);
-    command += " e ";
-    command += Q_(toBeCompressed);
-    command += " ";
-    command += Q_(outFile);
-    break;
-  default:
-    FatalError(T_("Unsupported archive file type."));
-  }
-  ExecuteSystemCommand(command.c_str());
-  File::Delete(toBeCompressed);
+    string command;
+    switch (archiveFileType)
+    {
+    case ArchiveFileType::TarBzip2:
+        command = "bzip2 --keep --compress --stdout ";
+        command += Q_(toBeCompressed);
+        command += " > ";
+        command += Q_(outFile);
+        break;
+    case ArchiveFileType::TarLzma:
+        command = Q_(lzmaExe);
+        command += " e ";
+        command += Q_(toBeCompressed);
+        command += " ";
+        command += Q_(outFile);
+        break;
+    default:
+        FatalError(T_("Unsupported archive file type."));
+    }
+    ExecuteSystemCommand(command.c_str());
+    File::Delete(toBeCompressed);
 }
 
 bool PackageCreator::HavePackageArchiveFile(const PathName& repository, const string& packageId, PathName& archiveFile, ArchiveFileType& archiveFileType)
 {
-  PathName archiveFile2;
+    PathName archiveFile2;
 
-  archiveFileType = ArchiveFileType::None;
+    archiveFileType = ArchiveFileType::None;
 
-  // check to see whether a cabinet file exists
-  archiveFile2 = repository / PathName(packageId);
-  archiveFile2.AppendExtension(MIKTEX_CABINET_FILE_SUFFIX);
-  if (File::Exists(archiveFile2))
-  {
-    archiveFile = archiveFile2;
-    archiveFileType = ArchiveFileType::MSCab;
-  }
+    // check to see whether a cabinet file exists
+    archiveFile2 = repository / PathName(packageId);
+    archiveFile2.AppendExtension(MIKTEX_CABINET_FILE_SUFFIX);
+    if (File::Exists(archiveFile2))
+    {
+        archiveFile = archiveFile2;
+        archiveFileType = ArchiveFileType::MSCab;
+    }
 
-  // check to see whether a .tar.bz2 file exists
-  archiveFile2 = repository / PathName(packageId);
-  archiveFile2.AppendExtension(MIKTEX_TARBZIP2_FILE_SUFFIX);
-  if (File::Exists(archiveFile2))
-  {
-    archiveFile = archiveFile2;
-    archiveFileType = ArchiveFileType::TarBzip2;
-  }
+    // check to see whether a .tar.bz2 file exists
+    archiveFile2 = repository / PathName(packageId);
+    archiveFile2.AppendExtension(MIKTEX_TARBZIP2_FILE_SUFFIX);
+    if (File::Exists(archiveFile2))
+    {
+        archiveFile = archiveFile2;
+        archiveFileType = ArchiveFileType::TarBzip2;
+    }
 
-  // check to see whether a .tar.lzma file exists
-  archiveFile2 = repository / PathName(packageId);
-  archiveFile2.AppendExtension(MIKTEX_TARLZMA_FILE_SUFFIX);
-  if (File::Exists(archiveFile2))
-  {
-    archiveFile = archiveFile2;
-    archiveFileType = ArchiveFileType::TarLzma;
-  }
+    // check to see whether a .tar.lzma file exists
+    archiveFile2 = repository / PathName(packageId);
+    archiveFile2.AppendExtension(MIKTEX_TARLZMA_FILE_SUFFIX);
+    if (File::Exists(archiveFile2))
+    {
+        archiveFile = archiveFile2;
+        archiveFileType = ArchiveFileType::TarLzma;
+    }
 
-  return archiveFileType != ArchiveFileType::None;
+    return archiveFileType != ArchiveFileType::None;
 }
 
 ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, const PathName& repository, Cfg& repositoryManifest)
 {
-  PathName archiveFile;
-  ArchiveFileType archiveFileType(ArchiveFileType::None);
+    PathName archiveFile;
+    ArchiveFileType archiveFileType(ArchiveFileType::None);
 
-  bool reuseExisting = false;
+    bool reuseExisting = false;
 
-  if (HavePackageArchiveFile(repository, packageInfo.id, archiveFile, archiveFileType))
-  {
+    if (HavePackageArchiveFile(repository, packageInfo.id, archiveFile, archiveFileType))
+    {
 #if 0
-    Verbose(fmt::format(T_("Checking {0}..."), Q_(archiveFile)));
+        Verbose(fmt::format(T_("Checking {0}..."), Q_(archiveFile)));
 #endif
 
-    // don't remake archive file if there are no changes
-    string strMD5;
-    string strTimePackaged;
-    if (repositoryManifest.TryGetValueAsString(packageInfo.id, "MD5", strMD5)
-      && MD5::Parse(strMD5.c_str()) == packageInfo.digest
-      && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
-    {
-      packageInfo.timePackaged = Utils::ToTimeT(strTimePackaged);
-      reuseExisting = true;
-    }
+        // don't remake archive file if there are no changes
+        string strMD5;
+        string strTimePackaged;
+        if (repositoryManifest.TryGetValueAsString(packageInfo.id, "MD5", strMD5)
+            && MD5::Parse(strMD5.c_str()) == packageInfo.digest
+            && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
+        {
+            packageInfo.timePackaged = Utils::ToTimeT(strTimePackaged);
+            reuseExisting = true;
+        }
 #if 1
-    else
-    {
-      // extract the package manifest file
-      PathName filter(texmfPrefix);
-      filter /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-      filter /= packageInfo.id;
-      filter.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+        else
+        {
+            // extract the package manifest file
+            PathName filter(texmfPrefix);
+            filter /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+            filter /= packageInfo.id;
+            filter.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 #if defined(MIKTEX_WINDOWS)
-      filter.ConvertToUnix();
+            filter.ConvertToUnix();
 #endif
-      unique_ptr<TemporaryFile> packageManifestFile = TemporaryFile::Create();
-      ExtractFile(archiveFile, archiveFileType, filter, packageManifestFile->GetPathName());
+            unique_ptr<TemporaryFile> packageManifestFile = TemporaryFile::Create();
+            ExtractFile(archiveFile, archiveFileType, filter, packageManifestFile->GetPathName());
 
-      // read the package manifest file
-      PackageInfo existingPackageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile->GetPathName(), texmfPrefix);
+            // read the package manifest file
+            PackageInfo existingPackageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile->GetPathName(), texmfPrefix);
 
-      // check to see whether we can keep the existing file
-      if (packageInfo.digest == existingPackageInfo.digest)
-      {
-        reuseExisting = true;
-        packageInfo.timePackaged = existingPackageInfo.timePackaged;
-      }
-      else
-      {
-        archiveFileType = ArchiveFileType::None;
-      }
+            // check to see whether we can keep the existing file
+            if (packageInfo.digest == existingPackageInfo.digest)
+            {
+                reuseExisting = true;
+                packageInfo.timePackaged = existingPackageInfo.timePackaged;
+            }
+            else
+            {
+                archiveFileType = ArchiveFileType::None;
+            }
+        }
+#endif
     }
-#endif
-  }
 
-  if (!reuseExisting)
-  {
+    if (!reuseExisting)
+    {
 #if 1
-    archiveFileType = defaultArchiveFileType;
+        archiveFileType = defaultArchiveFileType;
 #else
-    archiveFileType = GetPackageArchiveFileType(packageInfo);
+        archiveFileType = GetPackageArchiveFileType(packageInfo);
 #endif
 
-    PathName packageArchiveFile(packageInfo.id);
-    packageArchiveFile.AppendExtension
-    (PackageCreator::GetFileNameExtension(archiveFileType));
+        PathName packageArchiveFile(packageInfo.id);
+        packageArchiveFile.AppendExtension
+        (PackageCreator::GetFileNameExtension(archiveFileType));
 
-    Verbose(fmt::format(T_("Creating {0}..."), Q_(packageArchiveFile)));
+        Verbose(fmt::format(T_("Creating {0}..."), Q_(packageArchiveFile)));
 
-    // create destination directory
-    Directory::Create(repository);
+        // create destination directory
+        Directory::Create(repository);
 
-    // change into package directory, e.g.:
-    // /mypackages/a0poster/
-    Directory::SetCurrent(packageInfo.path);
+        // change into package directory, e.g.:
+        // /mypackages/a0poster/
+        Directory::SetCurrent(packageInfo.path);
 
-    // path to package manifest directory, e.g.:
-    // /mypackages/a0poster/Files/texmf/tpm/packages/
-    PathName packageManifestDir(packageInfo.path);
-    packageManifestDir /= "Files";
-    packageManifestDir /= texmfPrefix;
-    packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+        // path to package manifest directory, e.g.:
+        // /mypackages/a0poster/Files/texmf/tpm/packages/
+        PathName packageManifestDir(packageInfo.path);
+        packageManifestDir /= "Files";
+        packageManifestDir /= texmfPrefix;
+        packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
 
-    // create package manifest directory
-    Directory::Create(packageManifestDir);
+        // create package manifest directory
+        Directory::Create(packageManifestDir);
 
-    // path to package manifest file, e.g.:
-    // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
-    PathName packageManifestFile(packageManifestDir, PathName(packageInfo.id));
-    packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+        // path to package manifest file, e.g.:
+        // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
+        PathName packageManifestFile(packageManifestDir, PathName(packageInfo.id));
+        packageManifestFile.AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
 
 #if 1
-    // keep the time-stamp, if possible
-    string strMD5;
-    string strTimePackaged;
-    if (repositoryManifest.TryGetValueAsString(packageInfo.id, "MD5", strMD5)
-      && MD5::Parse(strMD5.c_str()) == packageInfo.digest
-      && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
-    {
-      packageInfo.timePackaged = Utils::ToTimeT(strTimePackaged);
-    }
-    else
-    {
-      packageInfo.timePackaged = programStartTime;
-    }
+        // keep the time-stamp, if possible
+        string strMD5;
+        string strTimePackaged;
+        if (repositoryManifest.TryGetValueAsString(packageInfo.id, "MD5", strMD5)
+            && MD5::Parse(strMD5.c_str()) == packageInfo.digest
+            && repositoryManifest.TryGetValueAsString(packageInfo.id, "TimePackaged", strTimePackaged))
+        {
+            packageInfo.timePackaged = Utils::ToTimeT(strTimePackaged);
+        }
+        else
+        {
+            packageInfo.timePackaged = programStartTime;
+        }
 #endif
 
-    // create the package manifest file
-    PackageManager::WritePackageManifestFile(packageManifestFile, packageInfo, packageInfo.timePackaged);
+        // create the package manifest file
+        PackageManager::WritePackageManifestFile(packageManifestFile, packageInfo, packageInfo.timePackaged);
 
-    string command;
+        string command;
 
-    // path to .tar file
-    PathName tarFile(repository, PathName(packageInfo.id));
-    tarFile.AppendExtension(MIKTEX_TAR_FILE_SUFFIX);
+        // path to .tar file
+        PathName tarFile(repository, PathName(packageInfo.id));
+        tarFile.AppendExtension(MIKTEX_TAR_FILE_SUFFIX);
 
-    // path to compressed .tar file
-    archiveFile = repository / PathName(packageInfo.id);
-    archiveFile.AppendExtension(PackageCreator::GetFileNameExtension(archiveFileType));
+        // path to compressed .tar file
+        archiveFile = repository / PathName(packageInfo.id);
+        archiveFile.AppendExtension(PackageCreator::GetFileNameExtension(archiveFileType));
 
 #if defined(MIKTEX_WINDOWS)
-    tarFile.ConvertToUnix();
-    archiveFile.ConvertToUnix();
+        tarFile.ConvertToUnix();
+        archiveFile.ConvertToUnix();
 #endif
 
-    // create the .tar file
-    command = "tar --force-local -cf ";
-    command += tarFile.ToString();
+        // create the .tar file
+        command = "tar --force-local -cf ";
+        command += tarFile.ToString();
 #if defined(MIKTEX_WINDOWS) && 0
-    command += " --files-from=nul";
+        command += " --files-from=nul";
 #else
-    command += " --files-from=/dev/null";
+        command += " --files-from=/dev/null";
 #endif
-    ExecuteSystemCommand(command.c_str());
-    if (Directory::Exists(PathName("Files")))
-    {
-      RestoreCurrentDirectory restoreCurrentDirectory(PathName("Files"));
-      command = "tar --force-local -rf ";
-      command += tarFile.ToString();
-      command += " ";
-      command += texmfPrefix;
-      ExecuteSystemCommand(command.c_str());
+        ExecuteSystemCommand(command.c_str());
+        if (Directory::Exists(PathName("Files")))
+        {
+            RestoreCurrentDirectory restoreCurrentDirectory(PathName("Files"));
+            command = "tar --force-local -rf ";
+            command += tarFile.ToString();
+            command += " ";
+            command += texmfPrefix;
+            ExecuteSystemCommand(command.c_str());
+        }
+
+        // compress the tar file
+        {
+            RestoreCurrentDirectory restoreCurrentDirectory(repository);
+            if (File::Exists(archiveFile))
+            {
+                File::Delete(archiveFile);
+            }
+            CompressArchive(tarFile, archiveFileType, archiveFile);
+        }
     }
 
-    // compress the tar file
-    {
-      RestoreCurrentDirectory restoreCurrentDirectory(repository);
-      if (File::Exists(archiveFile))
-      {
-        File::Delete(archiveFile);
-      }
-      CompressArchive(tarFile, archiveFileType, archiveFile);
-    }
-  }
+    // get size of archive file
+    packageInfo.archiveFileSize = File::GetSize(archiveFile);
 
-  // get size of archive file
-  packageInfo.archiveFileSize = File::GetSize(archiveFile);
+    // get MD5 of archive file
+    packageInfo.archiveFileDigest = MD5::FromFile(archiveFile);
 
-  // get MD5 of archive file
-  packageInfo.archiveFileDigest = MD5::FromFile(archiveFile);
+    // touch the new archive file
+    File::SetTimes(archiveFile, reuseExisting ? static_cast<time_t>(-1) : programStartTime, static_cast<time_t>(-1), packageInfo.timePackaged);
 
-  // touch the new archive file
-  File::SetTimes(archiveFile, reuseExisting ? static_cast<time_t>(-1) : programStartTime, static_cast<time_t>(-1), packageInfo.timePackaged);
-
-  return archiveFileType;
+    return archiveFileType;
 }
 
 unique_ptr<Cfg> PackageCreator::LoadRepositoryManifest(const PathName& repository)
 {
-  // path to the repository manifest archive file
-  PathName pathRepositoryManifestArchive = repository;
-  pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName();
+    // path to the repository manifest archive file
+    PathName pathRepositoryManifestArchive = repository;
+    pathRepositoryManifestArchive /= GetRepositoryManifestArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
-  pathRepositoryManifestArchive.ConvertToUnix();
+    pathRepositoryManifestArchive.ConvertToUnix();
 #endif
 
-  // check to see if the archive file exists
-  if (!File::Exists(pathRepositoryManifestArchive))
-  {
-    FatalError("The repository manifest archive file does not exist.");
-  }
+    // check to see if the archive file exists
+    if (!File::Exists(pathRepositoryManifestArchive))
+    {
+        FatalError("The repository manifest archive file does not exist.");
+    }
 
-  // create a temporary file
-  unique_ptr<TemporaryFile> tempFile = TemporaryFile::Create();
+    // create a temporary file
+    unique_ptr<TemporaryFile> tempFile = TemporaryFile::Create();
 
-  // extract mpm.ini:
-  ExtractFile(pathRepositoryManifestArchive, GetDbArchiveFileType(), PathName(MIKTEX_MPM_INI_FILENAME), tempFile->GetPathName());
+    // extract mpm.ini:
+    ExtractFile(pathRepositoryManifestArchive, GetDbArchiveFileType(), PathName(MIKTEX_MPM_INI_FILENAME), tempFile->GetPathName());
 
-  // parse mpm.ini
-  unique_ptr<Cfg> repositoryManifest(Cfg::Create());
-  repositoryManifest->Read(tempFile->GetPathName());
+    // parse mpm.ini
+    unique_ptr<Cfg> repositoryManifest(Cfg::Create());
+    repositoryManifest->Read(tempFile->GetPathName());
 
-  return repositoryManifest;
+    return repositoryManifest;
 }
 
 map<string, MpcPackageInfo> PackageCreator::LoadPackageManifests(const PathName& repository)
 {
-  map<string, MpcPackageInfo> packageTable;
+    map<string, MpcPackageInfo> packageTable;
 
-  // path to the TPM archive file
-  PathName pathTpmArchive = repository;
-  pathTpmArchive /= GetTpmArchiveFileName();
+    // path to the TPM archive file
+    PathName pathTpmArchive = repository;
+    pathTpmArchive /= GetTpmArchiveFileName();
 #if defined(MIKTEX_WINDOWS)
-  pathTpmArchive.ConvertToUnix();
+    pathTpmArchive.ConvertToUnix();
 #endif
 
-  // check to see if the archive file exists
-  if (!File::Exists(pathTpmArchive))
-  {
-    FatalError("The TPM archive file does not exist.");
-  }
+    // check to see if the archive file exists
+    if (!File::Exists(pathTpmArchive))
+    {
+        FatalError("The TPM archive file does not exist.");
+    }
 
-  // create a temporary directory
-  unique_ptr<TemporaryDirectory> tempDir;
+    // create a temporary directory
+    unique_ptr<TemporaryDirectory> tempDir;
 
-  // extract all package manifest files
-  Extract(pathTpmArchive, GetDbArchiveFileType(), tempDir->GetPathName());
+    // extract all package manifest files
+    Extract(pathTpmArchive, GetDbArchiveFileType(), tempDir->GetPathName());
 
-  // parse all package manifest files
-  PathName directory = tempDir->GetPathName() / PathName(texmfPrefix) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
-  DirectoryEntry direntry;
-  while (pLister->GetNext(direntry))
-  {
-    PathName packageManifestFile(directory);
-    packageManifestFile /= direntry.name;
-    PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
-    packageInfo.id = packageManifestFile.GetFileNameWithoutExtension().ToString();
-    packageTable[packageInfo.id] = packageInfo;
-  }
+    // parse all package manifest files
+    PathName directory = tempDir->GetPathName() / PathName(texmfPrefix) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
+    unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory, "*" MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX);
+    DirectoryEntry direntry;
+    while (pLister->GetNext(direntry))
+    {
+        PathName packageManifestFile(directory);
+        packageManifestFile /= direntry.name;
+        PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
+        packageInfo.id = packageManifestFile.GetFileNameWithoutExtension().ToString();
+        packageTable[packageInfo.id] = packageInfo;
+    }
 
-  return packageTable;
+    return packageTable;
 }
 
 void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable, const PathName& repository, Cfg& repositoryManifest)
 {
-  for (pair<const string, MpcPackageInfo>& p : packageTable)
-  {
-    if (IsToBeIgnored(p.second) || IsPureContainerPackage(p.second))
+    for (pair<const string, MpcPackageInfo>& p : packageTable)
     {
-      continue;
-    }
+        if (IsToBeIgnored(p.second) || IsPureContainerPackage(p.second))
+        {
+            continue;
+        }
 
-    // update level field
-    string level;
-    level = GetPackageLevel(p.second);
-    repositoryManifest.PutValue(p.second.id, "Level", level);
+        // update level field
+        string level;
+        level = GetPackageLevel(p.second);
+        repositoryManifest.PutValue(p.second.id, "Level", level);
 
 #if 0
-    // get TDS digest of already existing package
-    string str;
-    if (repositoryManifest.TryGetValueAsString(it->second.packageId, "MD5", str))
-    {
-      // don't remake archive file if there are no changes
-      PathName archiveFile;
-      ArchiveFileType archiveFileType(ArchiveFileType::None);
-      if (MD5::Parse(str.c_str()) == it->second.digest
-        && HavePackageArchiveFile(repository, it->second.packageId, archiveFile, archiveFileType))
-      {
+        // get TDS digest of already existing package
+        string str;
+        if (repositoryManifest.TryGetValueAsString(it->second.packageId, "MD5", str))
+        {
+            // don't remake archive file if there are no changes
+            PathName archiveFile;
+            ArchiveFileType archiveFileType(ArchiveFileType::None);
+            if (MD5::Parse(str.c_str()) == it->second.digest
+                && HavePackageArchiveFile(repository, it->second.packageId, archiveFile, archiveFileType))
+            {
 #if 0
-        Verbose(fmt::format(T_("{0} hasn't changed => skipping"), Q_(it->second.packageId)));
+                Verbose(fmt::format(T_("{0} hasn't changed => skipping"), Q_(it->second.packageId)));
 #endif
-        continue;
-      }
-    }
+                continue;
+            }
+        }
 #endif
 
-    // create the archive file
-    ArchiveFileType archiveFileType = CreateArchiveFile(p.second, repository, repositoryManifest);
+        // create the archive file
+        ArchiveFileType archiveFileType = CreateArchiveFile(p.second, repository, repositoryManifest);
 
-    // update repository manifest
-    repositoryManifest.PutValue(p.second.id, "MD5", p.second.digest.ToString());
-    repositoryManifest.PutValue(p.second.id, "TimePackaged", std::to_string(p.second.timePackaged));
-    repositoryManifest.PutValue(p.second.id, "CabSize", std::to_string(static_cast<int>(p.second.archiveFileSize)));
-    repositoryManifest.PutValue(p.second.id, "CabMD5", p.second.archiveFileDigest.ToString());
-    repositoryManifest.PutValue(p.second.id, "Type",
-      (archiveFileType == ArchiveFileType::MSCab ? "MSCab"
-        : (archiveFileType == ArchiveFileType::TarBzip2 ? "TarBzip2"
-          : (archiveFileType == ArchiveFileType::TarLzma ? "TarLzma"
-            : "unknown"))));
+        // update repository manifest
+        repositoryManifest.PutValue(p.second.id, "MD5", p.second.digest.ToString());
+        repositoryManifest.PutValue(p.second.id, "TimePackaged", std::to_string(p.second.timePackaged));
+        repositoryManifest.PutValue(p.second.id, "CabSize", std::to_string(static_cast<int>(p.second.archiveFileSize)));
+        repositoryManifest.PutValue(p.second.id, "CabMD5", p.second.archiveFileDigest.ToString());
+        repositoryManifest.PutValue(p.second.id, "Type",
+            (archiveFileType == ArchiveFileType::MSCab ? "MSCab"
+                : (archiveFileType == ArchiveFileType::TarBzip2 ? "TarBzip2"
+                    : (archiveFileType == ArchiveFileType::TarLzma ? "TarLzma"
+                        : "unknown"))));
 
-    if (p.second.version.empty())
-    {
-      string oldVersion;
-      if (repositoryManifest.TryGetValueAsString(p.second.id, "Version", oldVersion))
-      {
-        repositoryManifest.DeleteValue(p.second.id, "Version");
-      }
+        if (p.second.version.empty())
+        {
+            string oldVersion;
+            if (repositoryManifest.TryGetValueAsString(p.second.id, "Version", oldVersion))
+            {
+                repositoryManifest.DeleteValue(p.second.id, "Version");
+            }
+        }
+        else
+        {
+            repositoryManifest.PutValue(p.second.id, "Version", p.second.version);
+        }
+        if (p.second.targetSystem.empty())
+        {
+            string oldTargetSystem;
+            if (repositoryManifest.TryGetValueAsString(p.second.id, "TargetSystem", oldTargetSystem))
+            {
+                repositoryManifest.DeleteValue(p.second.id, "TargetSystem");
+            }
+        }
+        else
+        {
+            repositoryManifest.PutValue(p.second.id, "TargetSystem", p.second.targetSystem);
+        }
     }
-    else
-    {
-      repositoryManifest.PutValue(p.second.id, "Version", p.second.version);
-    }
-    if (p.second.targetSystem.empty())
-    {
-      string oldTargetSystem;
-      if (repositoryManifest.TryGetValueAsString(p.second.id, "TargetSystem", oldTargetSystem))
-      {
-        repositoryManifest.DeleteValue(p.second.id, "TargetSystem");
-      }
-    }
-    else
-    {
-      repositoryManifest.PutValue(p.second.id, "TargetSystem", p.second.targetSystem);
-    }
-  }
 }
 
 void PackageCreator::ReadList(const PathName& path, map<string, PackageSpec>& mapPackageList)
 {
-  ifstream reader = File::CreateInputStream(path);
-  string line;
-  while (std::getline(reader, line))
-  {
-    if (line.empty())
+    ifstream reader = File::CreateInputStream(path);
+    string line;
+    while (std::getline(reader, line))
     {
-      continue;
+        if (line.empty())
+        {
+            continue;
+        }
+        char ch = line[0];
+        const char* lpsz = line.c_str() + 1;
+        while (*lpsz != 0 && (*lpsz == ' ' || *lpsz == '\t'))
+        {
+            ++lpsz;
+        }
+        if (*lpsz == 0)
+        {
+            continue;
+        }
+        if (ch == '@')
+        {
+            ReadList(PathName(lpsz), mapPackageList);
+            continue;
+        }
+        if (ch != 'S' && ch != 'M' && ch != 'L' && ch != 'T' && ch != '-')
+        {
+            continue;
+        }
+        Tokenizer tok(lpsz, ";");
+        string packageId = *tok;
+        auto it = mapPackageList.find(packageId);
+        if (it != mapPackageList.end())
+        {
+            Warning(fmt::format(T_("ignoring '{0} {1}': already marked as '{2}'"), ch, Q_(packageId), it->second.level));
+            continue;
+        }
+        PackageSpec pkgspec;
+        pkgspec.id = packageId;
+        pkgspec.level = ch;
+        ArchiveFileType archiveFileType = defaultArchiveFileType;
+        ++tok;
+        if (tok)
+        {
+            if (*tok == "MSCab")
+            {
+                archiveFileType = ArchiveFileType::MSCab;
+            }
+            else if (*tok == "TarBzip2")
+            {
+                archiveFileType = ArchiveFileType::TarBzip2;
+            }
+            else if (*tok == "TarLzma")
+            {
+                archiveFileType = ArchiveFileType::TarLzma;
+            }
+            else
+            {
+                FatalError("Invalid package list file.");
+            }
+        }
+        pkgspec.archiveFileType = archiveFileType;
+        mapPackageList[pkgspec.id] = pkgspec;
     }
-    char ch = line[0];
-    const char* lpsz = line.c_str() + 1;
-    while (*lpsz != 0 && (*lpsz == ' ' || *lpsz == '\t'))
-    {
-      ++lpsz;
-    }
-    if (*lpsz == 0)
-    {
-      continue;
-    }
-    if (ch == '@')
-    {
-      ReadList(PathName(lpsz), mapPackageList);
-      continue;
-    }
-    if (ch != 'S' && ch != 'M' && ch != 'L' && ch != 'T' && ch != '-')
-    {
-      continue;
-    }
-    Tokenizer tok(lpsz, ";");
-    string packageId = *tok;
-    auto it = mapPackageList.find(packageId);
-    if (it != mapPackageList.end())
-    {
-      Warning(fmt::format(T_("ignoring '{0} {1}': already marked as '{2}'"), ch, Q_(packageId), it->second.level));
-      continue;
-    }
-    PackageSpec pkgspec;
-    pkgspec.id = packageId;
-    pkgspec.level = ch;
-    ArchiveFileType archiveFileType = defaultArchiveFileType;
-    ++tok;
-    if (tok)
-    {
-      if (*tok == "MSCab")
-      {
-        archiveFileType = ArchiveFileType::MSCab;
-      }
-      else if (*tok == "TarBzip2")
-      {
-        archiveFileType = ArchiveFileType::TarBzip2;
-      }
-      else if (*tok == "TarLzma")
-      {
-        archiveFileType = ArchiveFileType::TarLzma;
-      }
-      else
-      {
-        FatalError("Invalid package list file.");
-      }
-    }
-    pkgspec.archiveFileType = archiveFileType;
-    mapPackageList[pkgspec.id] = pkgspec;
-  }
-  reader.close();
+    reader.close();
 }
 
 void PackageCreator::ReadList(const PathName& path, set<string>& packageList)
 {
-  ifstream stream = File::CreateInputStream(path);
-  string line;
-  while (std::getline(stream, line))
-  {
-    size_t l = line.length();
-    if (l == 0)
+    ifstream stream = File::CreateInputStream(path);
+    string line;
+    while (std::getline(stream, line))
     {
-      continue;
+        size_t l = line.length();
+        if (l == 0)
+        {
+            continue;
+        }
+        if (line[l - 1] == '\n')
+        {
+            --l;
+            line.erase(l);
+        }
+        if (l == 0)
+        {
+            continue;
+        }
+        packageList.insert(line);
     }
-    if (line[l - 1] == '\n')
-    {
-      --l;
-      line.erase(l);
-    }
-    if (l == 0)
-    {
-      continue;
-    }
-    packageList.insert(line);
-  }
-  stream.close();
+    stream.close();
 }
 
 void PackageCreator::DisassemblePackage(const PathName& packageManifestFile, const PathName& sourceDir, const PathName& stagingDir)
 {
-  // parse the package manifest file
-  Verbose(fmt::format(T_("Parsing {0}..."), Q_(packageManifestFile)));
-  PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
+    // parse the package manifest file
+    Verbose(fmt::format(T_("Parsing {0}..."), Q_(packageManifestFile)));
+    PackageInfo packageInfo = PackageManager::ReadPackageManifestFile(packageManifestFile, texmfPrefix);
 
-  // remove the package manifest file from the RunFiles list
-  const char* lpszRelPath = Utils::GetRelativizedPath(packageManifestFile.GetData(), sourceDir.GetData());
-  if (lpszRelPath != nullptr)
-  {
-    vector<string>::iterator it;
-    for (it = packageInfo.runFiles.begin(); it != packageInfo.runFiles.end(); ++it)
+    // remove the package manifest file from the RunFiles list
+    const char* lpszRelPath = Utils::GetRelativizedPath(packageManifestFile.GetData(), sourceDir.GetData());
+    if (lpszRelPath != nullptr)
     {
-      if (PathName::Compare(it->c_str(), lpszRelPath) == 0)
-      {
-        break;
-      }
+        vector<string>::iterator it;
+        for (it = packageInfo.runFiles.begin(); it != packageInfo.runFiles.end(); ++it)
+        {
+            if (PathName::Compare(it->c_str(), lpszRelPath) == 0)
+            {
+                break;
+            }
+        }
+        if (it != packageInfo.runFiles.end())
+        {
+            packageInfo.runFiles.erase(it);
+        }
     }
-    if (it != packageInfo.runFiles.end())
-    {
-      packageInfo.runFiles.erase(it);
-    }
-  }
 
-  // determine the package ID, e.g.:
-  // a0poster
-  packageInfo.id = packageManifestFile.GetFileNameWithoutExtension().ToString();
+    // determine the package ID, e.g.:
+    // a0poster
+    packageInfo.id = packageManifestFile.GetFileNameWithoutExtension().ToString();
 
-  Verbose(fmt::format(" {0} ({1} files)...", packageInfo.id, packageInfo.GetNumFiles()));
+    Verbose(fmt::format(" {0} ({1} files)...", packageInfo.id, packageInfo.GetNumFiles()));
 
-  // copy files and calculate checksums; the package manifest file
-  // has been removed from the RunFiles list
-  FileDigestTable fileDigests;
-  MD5CopyFiles(packageInfo.runFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
-  MD5CopyFiles(packageInfo.docFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
-  MD5CopyFiles(packageInfo.sourceFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
+    // copy files and calculate checksums; the package manifest file
+    // has been removed from the RunFiles list
+    FileDigestTable fileDigests;
+    MD5CopyFiles(packageInfo.runFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
+    MD5CopyFiles(packageInfo.docFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
+    MD5CopyFiles(packageInfo.sourceFiles, sourceDir, nullptr, stagingDir, "Files", fileDigests);
 
-  // calculate TDS digest
-  MD5 tdsDigest = GetTdsDigest(fileDigests);
+    // calculate TDS digest
+    MD5 tdsDigest = GetTdsDigest(fileDigests);
 
-  // write package.ini, md5sums.txt and Description, e.g.:
-  // /mypackages/a0poster/package.ini
-  // /mypackages/a0poster/md5sums.txt
-  // /mypackages/a0poster/Description
-  InitializeStagingDirectory(stagingDir, packageInfo, fileDigests, tdsDigest);
+    // write package.ini, md5sums.txt and Description, e.g.:
+    // /mypackages/a0poster/package.ini
+    // /mypackages/a0poster/md5sums.txt
+    // /mypackages/a0poster/Description
+    InitializeStagingDirectory(stagingDir, packageInfo, fileDigests, tdsDigest);
 
-  // write new package manifest file, e.g.:
-  // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
-  MpcPackageInfo mpcPackageInfo(packageInfo);
-  mpcPackageInfo.digest = tdsDigest;
-  mpcPackageInfo.path = stagingDir;
-  CollectPackage(mpcPackageInfo);
-  PathName packageManifestDir(stagingDir);
-  packageManifestDir /= "Files";
-  packageManifestDir /= texmfPrefix;
-  packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
-  Directory::Create(packageManifestDir);
-  PackageManager::WritePackageManifestFile(PathName(packageManifestDir, PathName(packageInfo.id)).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
+    // write new package manifest file, e.g.:
+    // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
+    MpcPackageInfo mpcPackageInfo(packageInfo);
+    mpcPackageInfo.digest = tdsDigest;
+    mpcPackageInfo.path = stagingDir;
+    CollectPackage(mpcPackageInfo);
+    PathName packageManifestDir(stagingDir);
+    packageManifestDir /= "Files";
+    packageManifestDir /= texmfPrefix;
+    packageManifestDir /= MIKTEX_PATH_PACKAGE_MANIFEST_DIR;
+    Directory::Create(packageManifestDir);
+    PackageManager::WritePackageManifestFile(PathName(packageManifestDir, PathName(packageInfo.id)).AppendExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX), mpcPackageInfo, 0);
 }
 
 void PackageCreator::Run(int argc, const char** argv)
 {
-  vector<string> stagingRoots;
+    vector<string> stagingRoots;
 
-  PathName packageManifestFile;
-  PathName repository;
-  PathName stagingDir;
-  PathName texmfParent;
-  PathName tpmDir;
+    PathName packageManifestFile;
+    PathName repository;
+    PathName stagingDir;
+    PathName texmfParent;
+    PathName tpmDir;
 
-  bool optBuildTDS = false;
-  bool optCreatePackage = false;
-  bool optDisassemblePackage = false;
-  bool optUpdateRepository = false;
-  bool optVersion = false;
+    bool optBuildTDS = false;
+    bool optCreatePackage = false;
+    bool optDisassemblePackage = false;
+    bool optUpdateRepository = false;
+    bool optVersion = false;
 
-  optVerbose = false;
-  programStartTime = time(nullptr);
+    optVerbose = false;
+    programStartTime = time(nullptr);
 
-  PoptWrapper popt(argc, argv, options);
+    PoptWrapper popt(argc, argv, options);
 
-  int option;
+    int option;
 
-  while ((option = popt.GetNextOpt()) >= 0)
-  {
-    string optArg = popt.GetOptArg();
-    switch (option)
+    while ((option = popt.GetNextOpt()) >= 0)
     {
-    case OPT_BUILD_TDS:
-      optBuildTDS = true;
-      break;
-    case OPT_CREATE_PACKAGE:
-      optCreatePackage = true;
-      break;
-    case OPT_DEFAULT_LEVEL:
-      if (optArg.empty())
-      {
-        FatalError(T_("Missing package level."));
-      }
-      defaultLevel = optArg[0];
-      break;
-    case OPT_DISASSEMBLE_PACKAGE:
-      optDisassemblePackage = true;
-      break;
-    case OPT_MIKTEX_MAJOR_MINOR:
-      majorMinorVersion = VersionNumber(optArg);
-      if (majorMinorVersion.CompareTo(VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR)) > 0)
-      {
-        FatalError(T_("Unsupported MiKTeX major/minor version."));
-      }
-      break;
-    case OPT_PACKAGE_LIST:
-      ReadList(PathName(optArg), packageList);
-      break;
-    case OPT_PASSPHRASE_FILE:
-      privateKeyProvider.SetPassphrase(File::ReadAllBytes(PathName(optArg)));
-      break;
-    case OPT_PRIVATE_KEY_FILE:
-      privateKeyProvider.SetPrivateKeyFile(PathName(optArg));
-      break;
-    case OPT_RELEASE_STATE:
-      releaseState = optArg;
-      break;
-    case OPT_REPOSITORY:
-      repository = optArg;
-      break;
-    case OPT_STAGING_DIR:
-      stagingDir = optArg;
-      break;
-    case OPT_STAGING_ROOTS:
-    {
-      for (const string& dir : StringUtil::Split(optArg, PathNameUtil::PathNameDelimiter))
-      {
-        stagingRoots.push_back(dir);
-      }
-      break;
-    }
-    case OPT_TEXMF_PARENT:
-      texmfParent = optArg;
-      break;
-    case OPT_TEXMF_PREFIX:
-      texmfPrefix = optArg;
-      break;
-    case OPT_TIME_PACKAGED:
-      programStartTime = Utils::ToTimeT(optArg);
-      break;
-    case OPT_TPM_DIR:
-      tpmDir = optArg;
-      break;
-    case OPT_TPM_FILE:
-      packageManifestFile = optArg;
-      break;
-    case OPT_UPDATE_REPOSITORY:
-      optUpdateRepository = true;
-      break;
-    case OPT_VERBOSE:
-      optVerbose = true;
-      break;
-    case OPT_VERSION:
-      optVersion = true;
-      break;
-    }
-  }
-
-  if (option != -1)
-  {
-    string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
-    msg += ": ";
-    msg += popt.Strerror(option);
-    FatalError(msg);
-  }
-
-  if (optVersion)
-  {
-    cout
-      << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1996-2020 Christian Schenk" << endl
-      << "This is free software; see the source for copying conditions.  There is NO" << endl
-      << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
-  }
-  else if (optCreatePackage)
-  {
-    if (stagingDir.Empty())
-    {
-      stagingDir.SetToCurrentDirectory();
-    }
-    if (repository.Empty())
-    {
-      FatalError(T_("No repository location was specified."));
-    }
-    Verbose(fmt::format(T_("Loading repository manifest from {0}..."), Q_(repository)));
-    unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
-    map<string, MpcPackageInfo> packageTable = LoadPackageManifests(repository);
-    Verbose(fmt::format(T_("Reading staging directory {0}..."), Q_(stagingDir)));
-    MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
-    CollectPackage(packageInfo);
-    packageTable[packageInfo.id] = packageInfo;
-    UpdateRepository(packageTable, repository, *repositoryManifest);
-    Verbose(fmt::format(T_("Writing database to {0}..."), Q_(repository)));
-    WriteDatabase(packageTable, repository, false, *repositoryManifest);
-  }
-  else if (optDisassemblePackage)
-  {
-    if (packageManifestFile.Empty())
-    {
-      FatalError(T_("No package manifest file has been specified."));
-    }
-    if (texmfParent.Empty())
-    {
-      FatalError(T_("No TEXMF parent directory has been specified."));
-    }
-    if (stagingDir.Empty())
-    {
-      FatalError(T_("No staging directory has been specified."));
-    }
-    DisassemblePackage(packageManifestFile, texmfParent, stagingDir);
-  }
-  else if (optUpdateRepository || optBuildTDS)
-  {
-    if (stagingRoots.empty())
-    {
-      FatalError(T_("No staging roots were specified."));
-    }
-
-    // collect the packages
-    map<string, MpcPackageInfo> packageTable;
-    for (const string& r : stagingRoots)
-    {
-      CollectPackages(PathName(r), packageTable);
-    }
-
-    if (packageTable.empty())
-    {
-      FatalError(T_("No staging directories were found."));
-    }
-
-    if (optBuildTDS)
-    {
-      // create a TeX directory structure
-      if (texmfParent.Empty())
-      {
-        FatalError(T_("No TEXMF parent directory has been specified."));
-      }
-      unique_ptr<Cfg> repositoryManifest(Cfg::Create());
-      BuildTDS(packageTable, texmfParent, *repositoryManifest);
-      if (!tpmDir.Empty())
-      {
-        WritePackageManifestFiles(packageTable, tpmDir, *repositoryManifest);
-      }
-      // write mpm.ini
-      PathName iniFile(texmfParent);
-      iniFile /= texmfPrefix;
-      iniFile /= MIKTEX_PATH_MPM_INI;
-      if (privateKeyProvider.GetPrivateKeyFile().Empty())
-      {
-        repositoryManifest->Write(iniFile);
-      }
-      else
-      {
-        repositoryManifest->Write(iniFile, "", &privateKeyProvider);
-      }
-    }
-    else if (optUpdateRepository)
-    {
-      if (repository.Empty())
-      {
-        FatalError(T_("No repository location was specified."));
-      }
-      // load repository manifest archive
-      unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
-#if 1
-      bool autoCategorize = true;
-      if (autoCategorize)
-      {
-        // determine dependencies
-        for (auto& pkg : packageTable)
+        string optArg = popt.GetOptArg();
+        switch (option)
         {
-          for (const string& req : pkg.second.requiredPackages)
-          {
-            auto it3 = packageTable.find(req);
-            if (it3 == packageTable.end())
+        case OPT_BUILD_TDS:
+            optBuildTDS = true;
+            break;
+        case OPT_CREATE_PACKAGE:
+            optCreatePackage = true;
+            break;
+        case OPT_DEFAULT_LEVEL:
+            if (optArg.empty())
             {
-              Warning(fmt::format(T_("dependancy problem: {0} is required by {1}"), req, pkg.second.id));
+                FatalError(T_("Missing package level."));
+            }
+            defaultLevel = optArg[0];
+            break;
+        case OPT_DISASSEMBLE_PACKAGE:
+            optDisassemblePackage = true;
+            break;
+        case OPT_MIKTEX_MAJOR_MINOR:
+            majorMinorVersion = VersionNumber(optArg);
+            if (majorMinorVersion.CompareTo(VersionNumber(MIKTEX_PACKAGES_MAJOR_MINOR_STR)) > 0)
+            {
+                FatalError(T_("Unsupported MiKTeX major/minor version."));
+            }
+            break;
+        case OPT_PACKAGE_LIST:
+            ReadList(PathName(optArg), packageList);
+            break;
+        case OPT_PASSPHRASE_FILE:
+            privateKeyProvider.SetPassphrase(File::ReadAllBytes(PathName(optArg)));
+            break;
+        case OPT_PRIVATE_KEY_FILE:
+            privateKeyProvider.SetPrivateKeyFile(PathName(optArg));
+            break;
+        case OPT_RELEASE_STATE:
+            releaseState = optArg;
+            break;
+        case OPT_REPOSITORY:
+            repository = optArg;
+            break;
+        case OPT_STAGING_DIR:
+            stagingDir = optArg;
+            break;
+        case OPT_STAGING_ROOTS:
+        {
+            for (const string& dir : StringUtil::Split(optArg, PathNameUtil::PathNameDelimiter))
+            {
+                stagingRoots.push_back(dir);
+            }
+            break;
+        }
+        case OPT_TEXMF_PARENT:
+            texmfParent = optArg;
+            break;
+        case OPT_TEXMF_PREFIX:
+            texmfPrefix = optArg;
+            break;
+        case OPT_TIME_PACKAGED:
+            programStartTime = Utils::ToTimeT(optArg);
+            break;
+        case OPT_TPM_DIR:
+            tpmDir = optArg;
+            break;
+        case OPT_TPM_FILE:
+            packageManifestFile = optArg;
+            break;
+        case OPT_UPDATE_REPOSITORY:
+            optUpdateRepository = true;
+            break;
+        case OPT_VERBOSE:
+            optVerbose = true;
+            break;
+        case OPT_VERSION:
+            optVersion = true;
+            break;
+        }
+    }
+
+    if (option != -1)
+    {
+        string msg = popt.BadOption(POPT_BADOPTION_NOALIAS);
+        msg += ": ";
+        msg += popt.Strerror(option);
+        FatalError(msg);
+    }
+
+    if (optVersion)
+    {
+        cout
+            << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMP_MAJOR_VERSION, MIKTEX_COMP_MINOR_VERSION, MIKTEX_COMP_PATCH_VERSION, 0)) << endl
+            << "Copyright (C) 2006-2022 Christian Schenk" << endl
+            << "This is free software; see the source for copying conditions.  There is NO" << endl
+            << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
+    }
+    else if (optCreatePackage)
+    {
+        if (stagingDir.Empty())
+        {
+            stagingDir.SetToCurrentDirectory();
+        }
+        if (repository.Empty())
+        {
+            FatalError(T_("No repository location was specified."));
+        }
+        Verbose(fmt::format(T_("Loading repository manifest from {0}..."), Q_(repository)));
+        unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
+        map<string, MpcPackageInfo> packageTable = LoadPackageManifests(repository);
+        Verbose(fmt::format(T_("Reading staging directory {0}..."), Q_(stagingDir)));
+        MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
+        CollectPackage(packageInfo);
+        packageTable[packageInfo.id] = packageInfo;
+        UpdateRepository(packageTable, repository, *repositoryManifest);
+        Verbose(fmt::format(T_("Writing database to {0}..."), Q_(repository)));
+        WriteDatabase(packageTable, repository, false, *repositoryManifest);
+    }
+    else if (optDisassemblePackage)
+    {
+        if (packageManifestFile.Empty())
+        {
+            FatalError(T_("No package manifest file has been specified."));
+        }
+        if (texmfParent.Empty())
+        {
+            FatalError(T_("No TEXMF parent directory has been specified."));
+        }
+        if (stagingDir.Empty())
+        {
+            FatalError(T_("No staging directory has been specified."));
+        }
+        DisassemblePackage(packageManifestFile, texmfParent, stagingDir);
+    }
+    else if (optUpdateRepository || optBuildTDS)
+    {
+        if (stagingRoots.empty())
+        {
+            FatalError(T_("No staging roots were specified."));
+        }
+
+        // collect the packages
+        map<string, MpcPackageInfo> packageTable;
+        for (const string& r : stagingRoots)
+        {
+            CollectPackages(PathName(r), packageTable);
+        }
+
+        if (packageTable.empty())
+        {
+            FatalError(T_("No staging directories were found."));
+        }
+
+        if (optBuildTDS)
+        {
+            // create a TeX directory structure
+            if (texmfParent.Empty())
+            {
+                FatalError(T_("No TEXMF parent directory has been specified."));
+            }
+            unique_ptr<Cfg> repositoryManifest(Cfg::Create());
+            BuildTDS(packageTable, texmfParent, *repositoryManifest);
+            if (!tpmDir.Empty())
+            {
+                WritePackageManifestFiles(packageTable, tpmDir, *repositoryManifest);
+            }
+            // write mpm.ini
+            PathName iniFile(texmfParent);
+            iniFile /= texmfPrefix;
+            iniFile /= MIKTEX_PATH_MPM_INI;
+            if (privateKeyProvider.GetPrivateKeyFile().Empty())
+            {
+                repositoryManifest->Write(iniFile);
             }
             else
             {
-              it3->second.requiredBy.push_back(pkg.second.id);
+                repositoryManifest->Write(iniFile, "", &privateKeyProvider);
             }
-          }
         }
-        // categorize
-        auto latex = packageTable.find("_miktex-latex-packages");
-        auto outlineFonts = packageTable.find("_miktex-fonts-type1");
-        auto isOutlineFont = [](const string& s)
+        else if (optUpdateRepository)
         {
-          return Utils::IsParentDirectoryOf(PathName("texmf/fonts/type1"), PathName(s)) || Utils::IsParentDirectoryOf(PathName("texmf/fonts/truetype"), PathName(s));
-        };
-        for (auto& pkg : packageTable)
-        {
-          const auto& ctanPath = pkg.second.ctanPath;
-          const auto& runFiles = pkg.second.runFiles;
-          if (pkg.second.requiredBy.empty())
-          {
-            if (latex != packageTable.end() && StartsWith(ctanPath, "/macros/latex/contrib/"))
+            if (repository.Empty())
             {
-              pkg.second.requiredBy.push_back(latex->second.id);
-              latex->second.requiredPackages.push_back(pkg.second.id);
+                FatalError(T_("No repository location was specified."));
             }
-            else if (outlineFonts != packageTable.end()
-              && StartsWith(ctanPath, "/fonts/")
-              && std::any_of(runFiles.begin(), runFiles.end(), isOutlineFont))
+            // load repository manifest archive
+            unique_ptr<Cfg> repositoryManifest(LoadRepositoryManifest(repository));
+#if 1
+            bool autoCategorize = true;
+            if (autoCategorize)
             {
-              pkg.second.requiredBy.push_back(outlineFonts->second.id);
-              outlineFonts->second.requiredPackages.push_back(pkg.second.id);
+                // determine dependencies
+                for (auto& pkg : packageTable)
+                {
+                    for (const string& req : pkg.second.requiredPackages)
+                    {
+                        auto it3 = packageTable.find(req);
+                        if (it3 == packageTable.end())
+                        {
+                            Warning(fmt::format(T_("dependency problem: {0} is required by {1}"), req, pkg.second.id));
+                        }
+                        else
+                        {
+                            it3->second.requiredBy.push_back(pkg.second.id);
+                        }
+                    }
+                }
+                // categorize
+                auto latex = packageTable.find("_miktex-latex-packages");
+                auto outlineFonts = packageTable.find("_miktex-fonts-type1");
+                auto isOutlineFont = [](const string& s)
+                {
+                    return Utils::IsParentDirectoryOf(PathName("texmf/fonts/type1"), PathName(s)) || Utils::IsParentDirectoryOf(PathName("texmf/fonts/truetype"), PathName(s));
+                };
+                for (auto& pkg : packageTable)
+                {
+                    const auto& ctanPath = pkg.second.ctanPath;
+                    const auto& runFiles = pkg.second.runFiles;
+                    if (pkg.second.requiredBy.empty())
+                    {
+                        if (latex != packageTable.end() && StartsWith(ctanPath, "/macros/latex/contrib/"))
+                        {
+                            pkg.second.requiredBy.push_back(latex->second.id);
+                            latex->second.requiredPackages.push_back(pkg.second.id);
+                        }
+                        else if (outlineFonts != packageTable.end()
+                            && StartsWith(ctanPath, "/fonts/")
+                            && std::any_of(runFiles.begin(), runFiles.end(), isOutlineFont))
+                        {
+                            pkg.second.requiredBy.push_back(outlineFonts->second.id);
+                            outlineFonts->second.requiredPackages.push_back(pkg.second.id);
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
 #endif
-      UpdateRepository(packageTable, repository, *repositoryManifest);
-      WriteDatabase(packageTable, repository, true, *repositoryManifest);
+            UpdateRepository(packageTable, repository, *repositoryManifest);
+            WriteDatabase(packageTable, repository, true, *repositoryManifest);
+        }
     }
-  }
-  else
-  {
-    FatalError(T_("No task was specified."));
-  }
+    else
+    {
+        FatalError(T_("No task was specified."));
+    }
 }
 
 int main(int argc, const char** argv)
 {
-  int result;
+    int result;
 
-  try
-  {
-    PackageCreator app;
-    app.Init(argv[0]);
-    app.Run(argc, argv);
-    app.Finalize();
-    result = 0;
-  }
+    try
+    {
+        PackageCreator app;
+        app.Init(argv[0]);
+        app.Run(argc, argv);
+        app.Finalize();
+        result = 0;
+    }
 
-  catch (const MiKTeXException& e)
-  {
-    Utils::PrintException(e);
-    result = 1;
-  }
+    catch (const MiKTeXException& e)
+    {
+        Utils::PrintException(e);
+        result = 1;
+    }
 
-  catch (const exception& e)
-  {
-    Utils::PrintException(e);
-    result = 1;
-  }
+    catch (const exception& e)
+    {
+        Utils::PrintException(e);
+        result = 1;
+    }
 
-  catch (int i)
-  {
-    result = i;
-  }
+    catch (int i)
+    {
+        result = i;
+    }
 
-  return result;
+    return result;
 }

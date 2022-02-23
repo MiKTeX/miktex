@@ -1,21 +1,14 @@
-/* bintoc.cpp: make a C char array from a binary file
-
-   Copyright (C) 2000-2019 Christian Schenk
-
-   This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2, or (at
-   your option) any later version.
-
-   This program is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file bintoc.cpp
+ * @author Christian Schenk
+ * @brief Make a C char array from a binary file
+ *
+ * @copyright Copyright © 2000-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #include <cstdio>
 #include <cstring>
@@ -36,75 +29,75 @@ using namespace std;
 
 void OpenArray(const string& arrayName)
 {
-  cout << "unsigned char const " << arrayName << "[] = {";
-  totalBytes = 0;
-  remainingBytesOnLine = 0;
+    cout << "unsigned char const " << arrayName << "[] = {";
+    totalBytes = 0;
+    remainingBytesOnLine = 0;
 }
 
 void CloseArray()
 {
-  cout << "\n};\n";
+    cout << "\n};\n";
 }
 
 void CloseLine()
 {
-  cout << "\n";
+    cout << "\n";
 }
 
 void AddByte(unsigned char byt)
 {
-  if (remainingBytesOnLine == 0)
-  {
-    CloseLine();
-    remainingBytesOnLine = 8;
-    cout << " ";
-  }
-  cout << " 0x" << setw(2) << setfill('0') << hex << static_cast<unsigned>(byt) << ",";
-  ++totalBytes;
-  --remainingBytesOnLine;
+    if (remainingBytesOnLine == 0)
+    {
+        CloseLine();
+        remainingBytesOnLine = 8;
+        cout << " ";
+    }
+    cout << " 0x" << setw(2) << setfill('0') << hex << static_cast<unsigned>(byt) << ",";
+    ++totalBytes;
+    --remainingBytesOnLine;
 }
 
 unsigned char buf[4096 * 16];
 
 int main(int argc, char** argv)
 {
-  if (argc < 2 || argc > 3)
-  {
-    return 1;
-  }
+    if (argc < 2 || argc > 3)
+    {
+        return 1;
+    }
 
-  bool appendNul = argc > 2 && strcmp(argv[2], "true") == 0;
+    bool appendNul = argc > 2 && strcmp(argv[2], "true") == 0;
 
 #if defined(_MSC_VER) && defined(_WIN32)
-  if (_setmode(_fileno(stdin), _O_BINARY) == -1)
-  {
-    return 1;
-  }
+    if (_setmode(_fileno(stdin), _O_BINARY) == -1)
+    {
+        return 1;
+    }
 #elif defined(__CYGWIN__)
-  if (setmode(fileno(stdin), O_BINARY) == -1)
-  {
-    return 1;
-  }
+    if (setmode(fileno(stdin), O_BINARY) == -1)
+    {
+        return 1;
+    }
 #endif
 
-  OpenArray(argv[1]);
+    OpenArray(argv[1]);
 
-  size_t n;
+    size_t n;
 
-  while ((n = fread(buf, 1, sizeof(buf), stdin)) > 0)
-  {
-    for (size_t i = 0; i < n; ++i)
+    while ((n = fread(buf, 1, sizeof(buf), stdin)) > 0)
     {
-      AddByte(buf[i]);
+        for (size_t i = 0; i < n; ++i)
+        {
+            AddByte(buf[i]);
+        }
     }
-  }
 
-  if (appendNul)
-  {
-    AddByte(0);
-  }
+    if (appendNul)
+    {
+        AddByte(0);
+    }
 
-  CloseArray();
+    CloseArray();
 
-  return 0;
+    return 0;
 }
