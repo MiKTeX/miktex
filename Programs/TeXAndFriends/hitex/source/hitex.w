@@ -3776,7 +3776,8 @@ documentation.
 @p @<Declare procedures needed for displaying the elements of mlists@>@;
 @<Declare the procedure called |print_skip_param|@>@;
 static void print_xdimen(pointer p)
-{ print_scaled(xdimen_width(p));
+{ if (p==null) { print_scaled(0); return; }
+  print_scaled(xdimen_width(p));
   if (xdimen_hfactor(p)!=0)
   { print_char('+');print_scaled(xdimen_hfactor(p));print("*hsize");}
   if (xdimen_vfactor(p)!=0)
@@ -4056,7 +4057,8 @@ specification is being withdrawn.
 @p static void delete_glue_ref(pointer @!p) /*|p| points to a glue specification*/
 fast_delete_glue_ref(p)
 static void delete_xdimen_ref(pointer @!p) /*|p| points to a xdimen specification*/
-{@+if (xdimen_ref_count(p)==null) free_node(p, xdimen_node_size);
+{@+if (p==null) return;
+  if (xdimen_ref_count(p)==null) free_node(p, xdimen_node_size);
   else decr(xdimen_ref_count(p));
 }
 
@@ -4121,7 +4123,7 @@ to break \TeX\ by overflowing a reference count. But who would want to do that?)
 
 @d add_token_ref(A) incr(token_ref_count(A)) /*new reference to a token list*/
 @d add_glue_ref(A) incr(glue_ref_count(A)) /*new reference to a glue spec*/
-@d add_xdimen_ref(A) incr(xdimen_ref_count(A)) /*new reference to an xdimen*/
+@d add_xdimen_ref(A) if (A!=null) incr(xdimen_ref_count(A)) /*new reference to an xdimen*/
 
 @ The copying procedure copies words en masse without bothering
 to look at their individual fields. If the node format changes---for
@@ -8968,7 +8970,8 @@ if (abs(mode)!=m)
   if (level!=tok_val) scanned_result(0, dimen_val)@;
   else scanned_result(0, int_val);
   }
-else if (m==vmode) scanned_result(prev_depth, dimen_val)@;
+else if (m==vmode)
+  scanned_result(prev_depth==unknown_depth?0:prev_depth, dimen_val)@;
 else scanned_result(space_factor, int_val)
 
 @ @<Fetch the |dead_cycles| or the |insert_penalties|@>=
@@ -13831,8 +13834,7 @@ baselineskip calculation is handled by the |append_to_vlist| routine.
 @p static void append_to_vlist(pointer @!b)@t\2\2@>@/
 { bool height_known;@t\1@>@/
   height_known=(type(b)==hlist_node || type(b)==vlist_node ||@|
-	   (type(b)==whatsit_node && subtype(b)==hset_node) ||@|
-	   (type(b)==whatsit_node && subtype(b)==image_node));@/
+	   (type(b)==whatsit_node && subtype(b)==hset_node));@/
   if (prev_depth > ignore_depth && height_known)@/
   {@+scaled d;@t\1@> /*deficiency of space between baselines*/
     pointer @!p; /*a new glue node*/
@@ -13849,8 +13851,10 @@ baselineskip calculation is handled by the |append_to_vlist| routine.
     link(tail)= p;tail= p;
   }
   link(tail)=b;tail=b;
-  if (height_known)
-	prev_depth=depth(b);  /* then also depth is known */
+  if (height_known ||
+       (type(b)==whatsit_node &&
+          (subtype(b)==hpack_node || subtype(b)==vpack_node)))
+	prev_depth=depth(b);  /* then also depth is (probably) known */
   else
 	prev_depth=unknown_depth;
 }
@@ -25412,21 +25416,21 @@ to hold the string numbers for name, area, and extension.
 @d open_ext(A) link(A+2) /*string number of file extension for |open_name|*/  @#
 
 @d hitex_ext save_pos_code+1
-@d par_node         hitex_ext /*|subtype| that records the change of a parameter*/
-@d par_node_size 3 /* number of memory words in a |par_node| */
-@d par_type(A) type(A+1) /* type of parameter */
+@d param_node         hitex_ext /*|subtype| that records the change of a parameter*/
+@d param_node_size 3 /* number of memory words in a |param_node| */
+@d param_type(A) type(A+1) /* type of parameter */
 @d int_type   0 /* type of an |int_par| node */
 @d dimen_type  1 /* type of an |dimen_par| node */
 @d glue_type  2 /* type of an |glue_par| node */
-@d par_number(A) subtype(A+1) /* the parameter number */
-@d par_value(A)  mem[A+2] /* the parameter value */@#
+@d param_no(A) subtype(A+1) /* the parameter number */
+@d param_value(A)  mem[A+2] /* the parameter value */@#
 
-@d graf_node        hitex_ext+1 /*|subtype|  that records a paragraph*/
-@d graf_node_size 5 /* number of memory words in a |graf_node| */
-@d graf_penalty(A)  mem[A+1].i /* the final penalty */
-@d graf_extent(A)   link(A+3) /* the extent */@#
-@d graf_params(A)   info(A+4) /* list of parameter nodes */
-@d graf_list(A)     link(A+4) /* list of content nodes */
+@d par_node        hitex_ext+1 /*|subtype|  that records a paragraph*/
+@d par_node_size 5 /* number of memory words in a |par_node| */
+@d par_penalty(A)  mem[A+1].i /* the final penalty */
+@d par_extent(A)   link(A+3) /* the extent */@#
+@d par_params(A)   info(A+4) /* list of parameter nodes */
+@d par_list(A)     link(A+4) /* list of content nodes */
 
 @d disp_node           hitex_ext+2 /*|subtype| that records a math display*/
 @d disp_node_size    3 /* number of memory words in a |disp_node| */
@@ -25440,19 +25444,15 @@ to hold the string numbers for name, area, and extension.
 @d baseline_node_size small_node_size /* This is 2; we will convert baseline nodes to glue nodes */
 @d baseline_node_no(A) mem[A+1].i /* baseline reference */@#
 
-@d image_node    hitex_ext+4 /*|subtype| that records an image */
-@d image_node_size 9  /* width, depth, height, |shift_amount| like a hbox */
-@d image_width(A)  width(A)  /*width of image */
-@d image_height(A) height(A) /*height of image */
-@d image_depth(A)  depth(A) /* depth of image==zero */
-@d image_no(A)     mem[A+4].i   /* the section number */
-@d image_stretch(A) mem[A+5].sc  /*stretchability of image */
-@d image_shrink(A) mem[A+6].sc  /*shrinkability of image */
-@d image_stretch_order(A) stretch_order(A+7)
-@d image_shrink_order(A) shrink_order(A+7)
-@d image_name(A)   link(A+7) /*string number of file name */
-@d image_area(A)   info(A+8) /*string number of file area */
-@d image_ext(A)    link(A+8) /*string number of file extension */@#
+@d image_node    hitex_ext+4  /*|subtype| that records an image */
+@d image_node_size 5 /* number of memory words in an |image_node| */
+@d image_xwidth(A)  link(A+1)  /*extended width of image */
+@d image_xheight(A) info(A+1)  /*extended height of image */
+@d image_no(A)     link(A+2)  /* the section number */
+@d image_name(A)   info(A+2)  /*string number of file name */
+@d image_area(A)   info(A+3)  /*string number of file area */
+@d image_ext(A)    link(A+3)  /*string number of file extension */
+@d image_alt(A)    link(A+4)  /* alternative image description text */@#
 
 @d hpack_node         hitex_ext+5 /* a hlist that needs to go to hpack */
 @d vpack_node         hitex_ext+6 /* a vlist that needs to go to vpackage */
@@ -25628,8 +25628,8 @@ case extension: switch (chr_code) {
   case write_node: print_esc("write");@+break;
   case close_node: print_esc("closeout");@+break;
   case special_node: print_esc("special");@+break;
-  case par_node: print("parameter");@+break;
-  case graf_node: print("paragraf");@+break;
+  case param_node: print("parameter");@+break;
+  case par_node: print("paragraf");@+break;
   case disp_node: print("display");@+break;
   case baseline_node: print("baselineskip");@+break;
   case hpack_node: print("hpack");@+break;
@@ -25669,8 +25669,8 @@ case open_node: @<Implement \.{\\openout}@>@;@+break;
 case write_node: @<Implement \.{\\write}@>@;@+break;
 case close_node: @<Implement \.{\\closeout}@>@;@+break;
 case special_node: @<Implement \.{\\special}@>@;@+break;
+case param_node:
 case par_node:
-case graf_node:
 case disp_node:
 case baseline_node:
 case hpack_node:
@@ -25685,21 +25685,12 @@ case image_node:@/
   p=new_image_node(cur_name,cur_area,cur_ext);
   loop {
     if (scan_keyword("width"))
-    {@+scan_normal_dimen;@+image_width(p)=cur_val;}
+    {@+scan_normal_dimen; image_xwidth(p)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
     else if (scan_keyword("height"))
-    {@+scan_normal_dimen;image_height(p)=cur_val; }
-    else if (scan_keyword("plus"))
-    { scan_dimen(false, true, false);
-      image_stretch(p)=cur_val;image_stretch_order(p)=cur_order;
-    }
-    else if (scan_keyword("minus"))
-    { scan_dimen(false, true, false);
-      image_shrink(p)=cur_val;image_shrink_order(p)=cur_order;
-    }
+    {@+scan_normal_dimen; image_xheight(p)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
     else
       break;
   }
-  hget_image_information(p);
   if (abs(mode)==vmode)
     append_to_vlist(p); /* image nodes have height, width, and depth like boxes */
   else
@@ -25753,9 +25744,11 @@ case setpage_node:
     if (scan_keyword("priority"))
     {@+scan_eight_bit_int();setpage_priority(t)=cur_val; }
     else if (scan_keyword("width"))
-    {@+scan_normal_dimen; setpage_width(t)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
+    {@+scan_normal_dimen; delete_xdimen_ref(setpage_width(t));
+      setpage_width(t)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
     else if (scan_keyword("height"))
-    {@+scan_normal_dimen; setpage_height(t)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
+    {@+scan_normal_dimen;  delete_xdimen_ref(setpage_height(t));
+     setpage_height(t)=new_xdimen(cur_val,cur_hfactor,cur_vfactor); }
     else
       break;
   }
@@ -25936,17 +25929,17 @@ case language_node: {@+print_esc("setlanguage");
   print_int(what_rhm(p));print_char(')');
   } @+break;
 @/@<Cases for displaying the |whatsit| node@>@/
-case par_node: print_esc("parameter ");
-  print_int(par_type(p));print_char(',');print_int(par_number(p));
-  print_char(':');print_int(par_value(p).i);
+case param_node: print_esc("parameter ");
+  print_int(param_type(p));print_char(',');print_int(param_no(p));
+  print_char(':');print_int(param_value(p).i);
   break;
-case graf_node: print_esc("paragraf(");
-  print_xdimen(graf_extent(p));
+case par_node: print_esc("paragraf(");
+  print_xdimen(par_extent(p));
   print(", ");
-  print_int(graf_penalty(p));
+  print_int(par_penalty(p));
   print_char(')');
-  node_list_display(graf_params(p));
-  node_list_display(graf_list(p));
+  node_list_display(par_params(p));
+  node_list_display(par_list(p));
   break;
 case disp_node: print_esc("display ");
   node_list_display(display_eqno(p));
@@ -25987,12 +25980,9 @@ case hpack_node: case vpack_node:
   break;
 case image_node:
   print_esc("HINTimage(");
-  print_char('(');print_scaled(image_height(p));
-   print_char('+'); print_scaled(image_depth(p));
-   print(")x"); print_scaled(image_width(p));
-  if (image_stretch(p)!=0) { print(" plus ");print_glue(image_stretch(p), image_stretch_order(p),"pt"); }
-  if (image_shrink(p)!=0) { print(" minus ");print_glue(image_shrink(p), image_shrink_order(p), "pt"); }
-  print(", section ");print_int(image_no(p));
+  print("width ");print_xdimen(image_xheight(p));
+  print(" height "); print_xdimen(image_xwidth(p));
+  print("), section ");print_int(image_no(p));
   if (image_name(p)!=0) {print(", "); printn(image_name(p));}
   break;
 case align_node:
@@ -26079,17 +26069,17 @@ case close_node: case language_node: {@+r=get_node(small_node_size);
   words=small_node_size;
   } @+break;
 @/@<Cases for making a partial copy of the whatsit node@>@/
+case param_node:
+{@+r=get_node(param_node_size);
+  if (param_type(p)==glue_type) add_glue_ref(param_value(p).i);
+  words=param_node_size;
+  } @+break;
 case par_node:
 {@+r=get_node(par_node_size);
-  if (par_type(p)==glue_type) add_glue_ref(par_value(p).i);
-  words=par_node_size;
-  } @+break;
-case graf_node:
-{@+r=get_node(graf_node_size);
-  add_xdimen_ref(graf_extent(p));
-  graf_params(r)=copy_node_list(graf_params(p));
-  graf_list(r)=copy_node_list(graf_list(p));
-  words=graf_node_size-1;
+  add_xdimen_ref(par_extent(p));
+  par_params(r)=copy_node_list(par_params(p));
+  par_list(r)=copy_node_list(par_list(p));
+  words=par_node_size-1;
   } @+break;
 case disp_node:
 {@+r=get_node(disp_node_size);
@@ -26120,7 +26110,9 @@ case hset_node: case vset_node:
   } @+break;
 case image_node:
     r=get_node(image_node_size);
-    words=image_node_size;
+    add_xdimen_ref(image_xheight(p));add_xdimen_ref(image_xwidth(p));
+    image_alt(r)=copy_node_list(image_alt(p));
+    words=image_node_size-1;
     break;
 case align_node:
   {@+r=get_node(align_node_size);
@@ -26193,14 +26185,14 @@ case write_node: case special_node: {@+delete_token_ref(write_tokens(p));
   free_node(p, write_node_size);goto done;
   }
 case close_node: case language_node: free_node(p, small_node_size);@+break;
+case param_node:
+  if (param_type(p)==glue_type) fast_delete_glue_ref(param_value(p).i);
+  free_node(p, param_node_size);@+break;
 case par_node:
-  if (par_type(p)==glue_type) fast_delete_glue_ref(par_value(p).i);
+  delete_xdimen_ref(par_extent(p));
+  flush_node_list(par_params(p));
+  flush_node_list(par_list(p));
   free_node(p, par_node_size);@+break;
-case graf_node:
-  delete_xdimen_ref(graf_extent(p));
-  flush_node_list(graf_params(p));
-  flush_node_list(graf_list(p));
-  free_node(p, graf_node_size);@+break;
 case disp_node:
   flush_node_list(display_eqno(p));
   flush_node_list(display_formula(p));
@@ -26217,6 +26209,8 @@ case  hset_node: case  vset_node:
   flush_node_list(list_ptr(p));
   free_node(p, set_node_size);@+break;
 case image_node:
+  delete_xdimen_ref(image_xwidth(p)); delete_xdimen_ref(image_xheight(p));
+  flush_node_list(image_alt(p));
   free_node(p,image_node_size);@+break;
 case align_node:
   delete_xdimen_ref(align_extent(p));
@@ -30111,7 +30105,6 @@ static pointer new_setstream_node(eight_bits n);
 static pointer new_setpage_node(eight_bits k, str_number n);
 static pointer new_disp_node(void);
 static pointer new_image_node(str_number n, char *a, char *e);
-static void hget_image_information(pointer p);
 static void new_param_node(eight_bits t, eight_bits n, int v);
 
 
@@ -30146,13 +30139,15 @@ The following functions create nodes for paragraphs, displayed equations, baseli
 hpack nodes, vpack nodes, hset nodes, vset nodes, and image nodes.
 
 @<Hi\TeX\ routines@>=
-static pointer new_graf_node(void)
+static pointer new_par_node(void)
 { @+ pointer p;
-  p=get_node(graf_node_size);
+  p=get_node(par_node_size);
   type(p)=whatsit_node;
-  subtype(p)=graf_node;
-  graf_params(p)=null;
-  graf_list(p)=null;
+  subtype(p)=par_node;
+  par_params(p)=null;
+  par_list(p)=null;
+  par_extent(p)=null;
+  depth(p)=0;
   return p;
 }
 
@@ -30184,6 +30179,7 @@ static pointer new_pack_node(void)
   subtype(p)=hpack_node;
   width(p)=depth(p)=height(p)=shift_amount(p)=0;
   pack_limit(p)=max_dimen;
+  pack_extent(p)=null;
   list_ptr(p)=null;
   return p;
 }
@@ -30193,7 +30189,8 @@ static pointer new_set_node(void)
   p=get_node(set_node_size);
   type(p)=whatsit_node;
   subtype(p)=hset_node;
-  width(p)=depth(p)=height(p)=shift_amount(p)=set_stretch(p)=set_shrink(p)=set_extent(p)=0;
+  width(p)=depth(p)=height(p)=shift_amount(p)=set_stretch(p)=set_shrink(p)=0;
+  set_extent(p)=null;
   list_ptr(p)=null;
   return p;
 }
@@ -30206,7 +30203,6 @@ static pointer new_image_node( str_number n, char *a, char *e)
   int i;
   char *fn;
   int l;
-
   p=get_node(image_node_size);type(p)=whatsit_node;subtype(p)=image_node;
   image_name(p)=n;
   image_area(p)=s_no(a);
@@ -30220,8 +30216,7 @@ static pointer new_image_node( str_number n, char *a, char *e)
   free(fn);
 #endif
   image_no(p)=i;
-  image_width(p)=image_height(p)=image_stretch(p)=image_shrink(p)=0;
-  image_shrink_order(p)=image_stretch_order(p)=normal;@/
+  image_xwidth(p)=image_xheight(p)=image_alt(p)=null;
   return p;
 }
 
@@ -30234,19 +30229,19 @@ some time when setting and restoring them later.
 There is probably not much savings in memory space, because
 most of the times a reference number is found for the parameter list.
 @<Create the parameter node@>=
-  p=get_node(par_node_size);
+  p=get_node(param_node_size);
   type(p)=whatsit_node;
-  subtype(p)=par_node;
-  par_type(p)=t;
-  par_number(p)=n;
+  subtype(p)=param_node;
+  param_type(p)=t;
+  param_no(p)=n;
 
 @ @<Initialize the parameter node@>=
-  if (t==int_type) par_value(p).i=v;
-  else if (t==dimen_type) par_value(p).sc=v;
+  if (t==int_type) param_value(p).i=v;
+  else if (t==dimen_type) param_value(p).sc=v;
   else  if (t==glue_type)
-  {@+ par_value(p).i=v;add_glue_ref(par_value(p).i); @+}
+  {@+ param_value(p).i=v;add_glue_ref(param_value(p).i); @+}
   else
-  { free_node(p, par_node_size);
+  { free_node(p, param_node_size);
     QUIT("Undefined parameter type %d",t);
   }
 
@@ -30292,6 +30287,7 @@ static void hline_break(int final_widow_penalty)
 {@+ bool auto_breaking; /*is node |cur_p| outside a formula?*/
   pointer r, s ; /*miscellaneous nodes of temporary interest*/
   pointer pp;
+  scaled par_max_depth=0;
   bool par_shape_fix=false;
   if (DBGTEX&debugflags)
   { print_ln();print("Before hline_break:\n");
@@ -30304,10 +30300,10 @@ static void hline_break(int final_widow_penalty)
     return;
   }
   /* Get ready to start line breaking */
-  pp=new_graf_node();
-  graf_penalty(pp)=final_widow_penalty;
+  pp=new_par_node();
+  par_penalty(pp)=final_widow_penalty;
   if(par_shape_ptr==null)
-    graf_extent(pp)=new_xdimen(dimen_par(hsize_code),
+    par_extent(pp)=new_xdimen(dimen_par(hsize_code),
       dimen_par_hfactor(hsize_code),dimen_par_vfactor(hsize_code));
   else
     @<fix the use of parshape = 1 indent length@>@;
@@ -30358,8 +30354,10 @@ static void hline_break(int final_widow_penalty)
   { /*Call |try_break| if |cur_p| is a legal breakpoint...*/
     if (is_char_node(cur_p))
 	{ /* Advance |cur_p| to the node following the present string...*/
-      do {
-        cur_p=link(cur_p);
+      do { int f=font(cur_p);
+           scaled d = char_depth(f,height_depth(char_info(f,character(cur_p))));
+           if (d>par_max_depth) par_max_depth=d;
+           cur_p=link(cur_p);
       } while (is_char_node(cur_p));
 	  if (cur_p==null) goto done5; /* mr: no glue and penalty at the end */
     }
@@ -30382,8 +30380,11 @@ static void hline_break(int final_widow_penalty)
           cur_p=s;
 		goto done5;
 	  case math_node:
-		auto_breaking=(subtype(cur_p)==after);
-        break;
+	   auto_breaking=(subtype(cur_p)==after);
+           break;
+          case hlist_node: case vlist_node:
+           if (depth(cur_p)>par_max_depth) par_max_depth=depth(cur_p);
+           break;
 	  default:
 		break;
 	}
@@ -30396,7 +30397,8 @@ done5:;
     depth_threshold=200;
     show_node_list(link(temp_head));print_ln();
   }
-  graf_list(pp)=link(temp_head);
+  depth(pp)=par_max_depth;
+  par_list(pp)=link(temp_head);
   /* adding parameter nodes */
   link(temp_head)=null;
 
@@ -30435,7 +30437,7 @@ done5:;
 
 
   /* |par_shape| is not yet supported */
-  graf_params(pp)=link(temp_head);
+  par_params(pp)=link(temp_head);
   link(temp_head)=null;
   append_to_vlist(pp);
 }
@@ -30454,243 +30456,12 @@ of the normal {\tt \BS hsize} and the given length.
   second_width= mem[par_shape_ptr+2*(last_special_line+1)].sc;
   second_indent= mem[par_shape_ptr+2*last_special_line+1].sc;
 
-  graf_extent(pp)=new_xdimen(second_indent+second_width,
+  par_extent(pp)=new_xdimen(second_indent+second_width,
                              par_shape_hfactor,par_shape_vfactor);
   second_width=second_width+ round((double)par_shape_hfactor*hhsize/unity
                +(double)par_shape_vfactor*hvsize/unity);
   par_shape_fix=true;
 }
-
-@*1 Images.
-The handling of images is an integral part of Hi\TeX.
-The {\tt image} primitive requires a filename for the image and
-allows the specification, of width, height, stretch and shrink of an
-image. If either width or height is not given, Hi\TeX\ tries to
-extract this information from the image file itself calling the
-function |hget_image_information| with the pointer |p| to the image
-node as parameter.
-
-@<Hi\TeX\ routines@>=
-static void hget_image_information(pointer p)
-{ char *fn;
-  FILE *f;
-  if (image_width(p)!=0 && image_height(p)!=0) return;
-  fn=dir[image_no(p)].file_name;
-  f=fopen(fn,"rb");
-  if (f==NULL) QUIT("Unable to open image file %s.", fn);
-  MESSAGE("(%s",fn);
-  img_buf_size=0;
-  if (!get_BMP_info(f,fn,p)&&!get_PNG_info(f,fn,p)&&!get_JPG_info(f,fn,p))
-    QUIT("Unable to obtain width and height information for image %s",fn);
-  fclose(f);
-  MESSAGE(" width= %fpt height= %fpt)",image_width(p)/(double)ONE,image_height(p)/(double)ONE);
-}
-
-@ When we have found the width and height of the stored image, we can
-supplement the information given in the \TeX\ file. Occasionaly, the
-image file will not specify the absolute dimensions of the image. In
-this case, we can still compute the aspect ratio and supplement either
-the width based on the height or vice versa.  This is accomplished by
-calling the |set_image_dimensions| function. It returns true on
-success and false otherwise.
-
-@<Hi\TeX\ auxiliar routines@>=
-static bool set_image_dimensions(pointer p, double w, double h, bool absolute)
-{ if (image_width(p)!=0)
-  { double aspect=h/w;
-    image_height(p)=round(image_width(p)*aspect);
-  }
-  else if (image_height(p)!=0)
-  { double aspect=w/h;
-     image_width(p)=round(image_height(p)*aspect);
-  }
-  else
-  { if (!absolute) return false;
-    image_width(p)=round(unity*w);
-    image_height(p)=round(unity*h);
-  }
-  return true;
-}
-
-@ We call the following routines with the image buffer partly filled
-with the start of the image file.
-
-@<Hi\TeX\ auxiliar routines@>=
-#define IMG_BUF_MAX 54
-#define IMG_HEAD_MAX 2
-static unsigned char img_buf[IMG_BUF_MAX];
-static size_t img_buf_size;
-#define @[LittleEndian32(X)@]   (img_buf[(X)]+(img_buf[(X)+1]<<8)+\
-                                (img_buf[(X)+2]<<16)+(img_buf[(X)+3]<<24))
-
-#define @[BigEndian16(X)@]   (img_buf[(X)+1]+(img_buf[(X)]<<8))
-
-#define @[BigEndian32(X)@]   (img_buf[(X)+3]+(img_buf[(X)+2]<<8)+\
-                                (img_buf[(X)+1]<<16)+(img_buf[(X)]<<24))
-
-#define Match2(X,A,B)  ((img_buf[(X)]==(A)) && (img_buf[(X)+1]==(B)))
-#define Match4(X,A,B,C,D)  (Match2(X,A,B)&&Match2((X)+2,C,D))
-
-#define @[GET_IMG_BUF(X)@] \
-if (img_buf_size<X) \
-  { size_t i=fread(img_buf+img_buf_size,1,(X)-img_buf_size,f); \
-    if (i<0) QUIT("Unable to read image %s",fn); \
-    else if (i==0) QUIT("Unable to read image header %s",fn); \
-    else img_buf_size+=i; \
-  }
-
-@ Considering the different image formats, we start with Windows Bitmaps. A Windows bitmap file usually has the extension {\tt .bmp}
-but the better way to check for a Windows bitmap file ist to examine the first two byte
-of the file: the ASCII codes for `B' and `M'.
-Once we have verified the file type, we find the width and height of the bitmap in pixels
-at offsets |0x12| and |0x16| stored as little-endian 32 bit integers. At offsets |0x26| and |0x2A|,
-we find the horizontal and vertical resolution in pixel per meter stored in the same format.
-This is sufficient to compute the true width and height of the image in scaled points.
-If either the width or the height was given in the \TeX\ file, we just compute the aspect ratio
-and compute the missing value.
-
-The Windows Bitmap format is easy to process but not very efficient. So the support for this
-format in Hi\TeX\ is deprecated and will disappear. You should use one of the formats described next.
-
-@<Hi\TeX\ auxiliar routines@>=
-static bool get_BMP_info(FILE *f, char *fn, pointer p)
-{ double w,h;
-  double xppm,yppm;
-  GET_IMG_BUF(2);
-  if (!Match2(0,'B','M')) return false;
-  GET_IMG_BUF(0x2E);
-  w=(double)LittleEndian32(0x12); /*width in pixel*/
-  h=(double)LittleEndian32(0x16); /*height in pixel*/
-  xppm=(double)LittleEndian32(0x26); /* horizontal pixel per meter*/
-  yppm=(double)LittleEndian32(0x2A); /* vertical pixel per meter*/
-  return set_image_dimensions(p,(72.27*1000.0/25.4)*w/xppm,(72.27*1000.0/25.4)*h/yppm,true);
-}
-
-@ Now we repeat this process for image files using the Portable Network Graphics file format. This file format is well suited to simple graphics that do not use color gradients.
-These images usually have the extension {\tt .png} and start with an eight byte signature:
-|0x89| followed by the ASCII Codes `P', `N', `G', followd by a carriage return (|0x0D| and line feed (|0x0A|),
-an DOS end-of-file character (|0x1A|) and final line feed (|0x0A|).
-After the signature follows a list of chunks. The first chunk is the image header chunk.
-Each chunk starts with the size of the chunk stored as big-endian 32 bit integer, followed by the chunk name
-stored as four ASCII codes  followed by the chunk data and a CRC.
-The size, as stored in the chunk,
-does not include the size itself, nor the name, and neither the CRC.
-The first chunk is the IHDR chunk.
-The chunk data of the IHDR chunk starts with the width and the height of the image in pixels
-stored as 32 bit big-endian integers.
-
-Finding the image resolution takes some more effort. The image resolution is stored in an optional chunk
-named ``pHYs'' for the physical pixel dimensions.
-All we know is that this chunk, if it exists, will appear after the IHDR
-chunk and before the (required) IDAT chunk. The pHYs chunk contains two 32 bit big-endian integers,
-giving the horizontal and vertical pixels per unit, and a one byte unit specifier, which is either 0
-for an undefined unit or 1 for the meter as unit. With an undefined unit, only the aspect ratio
-of the pixels and hence the aspect ratio of the image can be determined.
-
-
-@<Hi\TeX\ auxiliar routines@>=
-
-static bool get_PNG_info(FILE *f, char *fn, pointer p)
-{ int pos, size;
-  double w,h;
-  double xppu,yppu;
-  int unit;
-  GET_IMG_BUF(24);
-  if (!Match4(0, 0x89, 'P', 'N', 'G') ||
-      !Match4(4, 0x0D, 0x0A, 0x1A, 0x0A)) return false;
-  size=BigEndian32(8);
-  if (!Match4(12,'I', 'H', 'D', 'R')) return false;
-  w=(double)BigEndian32(16);
-  h=(double)BigEndian32(20);
-  pos=20+size;
-  while (true)
-  { if (fseek(f,pos,SEEK_SET)!=0) return false;
-    img_buf_size=0;
-    GET_IMG_BUF(17);
-    size=BigEndian32(0);
-    if (Match4(4,'p', 'H', 'Y', 's'))
-    { xppu =(double)BigEndian32(8);
-      yppu =(double)BigEndian32(12);
-      unit=img_buf[16];
-      if (unit==0)
-        return set_image_dimensions(p,w/xppu,h/yppu,false);
-      else if (unit==1)
-        return set_image_dimensions(p,(72.27/0.0254)*w/xppu,(72.27/0.0254)*h/yppu,true);
-      else
-        return false;
-    }
-    else if  (Match4(4,'I', 'D', 'A', 'T'))
-      return set_image_dimensions(p,w,h,false);
-    else
-      pos=pos+12+size;
-  }
-  return false;
-}
-
-@ For photographs, the JPEG File Interchange Format (JFIF) is more appropriate.
-JPEG files come with all sorts of file extensions like {\tt .jpg}, {\tt .jpeg}, or {\tt .jfif}.
-We check the file siganture: it starts with the the SOI (Start of Image) marker |0xFF|, |0xD8|
-followed by the JIFI-Tag. The JIFI-Tag starts with the segment marker APP0 (|0xFF|, |0xE0|) followed by the
-2 byte segment size, followed by the ASCII codes `J', `F', `I', `F' followed by a zero byte.
-Next is a two byte version number which we do not read.
-Before the resolution proper there is a resolution unit indicator byte (0 = no units,
-1 = dots per inch, 2 = dots per cm) and then comes the horizontal and vertical resolution both
-as 16 Bit big-endian integers.
-To find the actual width and height, we have to search for a start of frame marker (|0xFF|, |0xC0|+$n$ with $0\le n\le 15$). Which is followed by the 2 byte segment size, the 1 byte sample precission, the
-2 byte height and the 2 byte width.
-
-
-@<Hi\TeX\ auxiliar routines@>=
-
-static bool get_JPG_info(FILE *f, char *fn, pointer p)
-{ int pos, size;
-  double w,h;
-  double xppu,yppu;
-  int unit;
-  GET_IMG_BUF(18);
-
-  if (!Match4(0, 0xFF,0xD8, 0xFF, 0xE0)) return false;
-  size=BigEndian16(4);
-  if (!Match4(6,'J', 'F', 'I', 'F')) return false;
-  if (img_buf[10] != 0) return false;
-  unit=img_buf[13];
-  xppu=(double)BigEndian16(14);
-  yppu=(double)BigEndian16(16);
-  pos=4+size;
-  while (true)
-  { if (fseek(f,pos,SEEK_SET)!=0) return false;
-    img_buf_size=0;
-    GET_IMG_BUF(10);
-    if (img_buf[0] != 0xFF) return false; /* Not the start of a segment */
-    if ( (img_buf[1]&0xF0) == 0xC0) /* Start of Frame */
-    { h =(double)BigEndian16(5);
-      w =(double)BigEndian16(7);
-      if (unit==0)
-        return set_image_dimensions(p,w/xppu,h/yppu,false);
-      else if (unit==1)
-        return set_image_dimensions(p,72.27*w/xppu,72.27*h/yppu,true);
-      else if (unit==2)
-        return set_image_dimensions(p,(72.27/2.54)*w/xppu,(72.27/2.54)*h/yppu,true);
-      else
-        return false;
-    }
-    else
-    { size=  BigEndian16(2);
-      pos=pos+2+size;
-    }
-  }
-  return false;
-}
-@ There is still one image format missing: scalable vector graphics.
-In the moment, I tend not to include a further image format into
-the definition of the \HINT\ file format but instead use the
-PostScript subset that is used for Type 1 fonts to encode
-vector graphics. Any \HINT\ viewer must support Type 1
-PostScript fonts and hence it has already the necessary interpreter.
-So it seems reasonable to put the burden of converting vector graphics
-into a Type 1 PostScript font on the generator of \HINT\ files
-and keep the \HINT\ viewer as small and simple as possible.
-
 
 @*1 Links, Labels, and Outlines.
 The \HINT\ format knows about labels, links, and outlines.
@@ -30948,7 +30719,7 @@ if (page_contents<box_there)
     if (subtype(p)==baseline_node) goto recycle_p;
     else if (subtype(p)!=hset_node && subtype(p)!=vset_node &&
 	subtype(p)!=hpack_node && subtype(p)!=vpack_node &&
-        subtype(p)!=graf_node &&  subtype(p)!=disp_node &&
+        subtype(p)!=par_node &&  subtype(p)!=disp_node &&
 	subtype(p)!=image_node && subtype(p)!=align_node)
         break; /* else fall through */
     case hlist_node: case vlist_node: case rule_node:
@@ -31037,8 +30808,8 @@ static bool is_visible(pointer p)
       else if (subtype(p)==hset_node || subtype(p)==vset_node ||
 	       subtype(p)==hpack_node || subtype(p)==vpack_node)
         return list_ptr(p)!=null;
-      else if (subtype(p)==graf_node)
-        return graf_list(p)!=null;
+      else if (subtype(p)==par_node)
+        return par_list(p)!=null;
       else
         return false;
     default: return true;
@@ -31135,7 +30906,7 @@ if (!is_char_node(*p))
           if (*p==null) return q;
         }
           break;
-        case graf_node: q=collect_output(&graf_list(r),q);
+        case par_node: q=collect_output(&par_list(r),q);
           break;
         case disp_node:
           if (display_left(r)) q=collect_output(&display_eqno(r),q);
@@ -31209,7 +30980,7 @@ if (!is_char_node(p))
       { case open_node: case write_node: case close_node:
           out_what(p);
           break;
-        case graf_node: execute_output(graf_list(p));
+        case par_node: execute_output(par_list(p));
           break;
         case disp_node:
           if (display_left(p)) execute_output(display_eqno(p));
@@ -31370,7 +31141,7 @@ should be only inside |graph_node|s.
 
 @<Incorporate the various extended boxes into an hbox@>=
 switch (subtype(p))
-{ case graf_node:  break;
+{ case par_node: if (depth(p)> d) d=depth(p); break;
   case disp_node:  break;
   case vpack_node:
   case hpack_node:
@@ -31380,10 +31151,18 @@ switch (subtype(p))
     repack=true; break;
   case stream_node: repack=true; break; /* streams are for page templates only */
   case image_node:
-    if (image_height(p)> h) h= image_height(p);
-    x= x+image_width(p);
-    o= image_stretch_order(p);total_stretch[o]= total_stretch[o]+image_stretch(p);
-    o= image_shrink_order(p);total_shrink[o]= total_shrink[o]+image_shrink(p);
+    if (image_xheight(p)!=null)
+    { pointer r=image_xheight(p);
+      if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
+      { if (xdimen_width(r)> h) h= xdimen_width(r);}
+      else { repack=true; break;}
+    }
+    if (image_xwidth(p)!=null)
+    { pointer r=image_xwidth(p);
+      if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
+        x = x+ xdimen_width(r);
+      else { repack=true; break;}
+    }
     break;
   default: break;
 }
@@ -31418,8 +31197,9 @@ static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number 
           case unset_set_node: case unset_pack_node:
               goto repack;
           case whatsit_node:
-            if (subtype(p)==graf_node)
-			  goto repack;
+            if (subtype(p)==par_node)
+                          { if (depth(p) > d) d=depth(p);
+			    goto repack; }
 			else if (subtype(p)==disp_node )
 			  goto repack;
 			else if (subtype(p)==vpack_node )
@@ -31433,11 +31213,18 @@ static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number 
 			else if (subtype(p)==stream_node )
 			  goto repack;
 			else if (subtype(p)==image_node)
-			{ glue_ord o;
-			  if (image_width(p)> w) w= image_width(p);
-			  x= x+d+image_height(p);d=0;
-			  o= image_stretch_order(p);total_stretch[o]= total_stretch[o]+image_stretch(p);
-	          o= image_shrink_order(p);total_shrink[o]= total_shrink[o]+image_shrink(p);
+			{ if (image_xwidth(p)!=null)
+                          { pointer r=image_xwidth(p);
+                            if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
+                            { if (xdimen_width(r)> w) w= xdimen_width(r); }
+                            else goto repack;
+                          }
+                          if (image_xheight(p)!=null)
+                          { pointer r=image_xheight(p);
+                            if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
+			    {  x= x+d+xdimen_width(p);d=0;}
+                            else goto repack;
+                          }
 			}
              break;
           case glue_node:
@@ -32234,12 +32021,10 @@ scaled w,h,v; } xdimen_defined[0x100];
     xdimen_defined[i].h = ONE*xdimen_defaults[i].h;
     xdimen_defined[i].v = ONE*xdimen_defaults[i].v;
   }
+
 @ To obtain a reference number for an extended dimension, we search the
 array and if no match was found, we allocate a new entry,
 reallocating the array if needed.
-We use the variable |rover| to mark the place where the
-last entry was inserted, because
-quite often we repeatedly search for the same values.
 
 @<Hi\TeX\ auxiliar routines@>=
 int hget_xdimen_no(pointer p)
@@ -33449,20 +33234,20 @@ To determine whether ther is a reference number for the parameter list,
 the function |hout_param_list| is writing the parameter list to the output.
 \noindent
 @<cases to output whatsit content nodes@>=
-case graf_node:
+case par_node:
       { uint32_t pos, xpos, xsize;
         List l;
         pointer q;
         int n,m;
         Info i=b000;
-        q=graf_extent(p);
+        q=par_extent(p);
         n=hget_xdimen_no(q);
         if (n>=0) HPUT8(n);
 	else
         { xpos=hpos-hstart; hout_xdimen_node(p); xsize=(hpos-hstart)-xpos; i|=b100; }
         pos=hpos-hstart;
         l.k=param_kind;
-	m=hout_param_list(graf_params(p),pos,&l);
+	m=hout_param_list(par_params(p),pos,&l);
         if (m>=0)
         { if (i&b100)
           { HPUTX(1);
@@ -33474,9 +33259,7 @@ case graf_node:
             HPUT8(m);
         }
         else i|=b010;
-        pos=hpos-hstart;
-        l.k=list_kind;
-        hout_list_node(graf_list(p),pos,&l);
+        hout_list_node2(par_list(p));
         tag=TAG(par_kind,i);
       }
     break;
@@ -33505,9 +33288,7 @@ case graf_node:
           if (n>=0) HPUT8(n); else i|=b100;
           if (display_eqno(p)!=null && display_left(p))
 	  { hout_node(display_eqno(p)); i|=b010; }
-          pos=hpos-hstart;
-          l.k=list_kind;
-          hout_list_node(display_formula(p),pos,&l);
+          hout_list_node2(display_formula(p));
           if (display_eqno(p)!=null && !display_left(p))
 	  { hout_node(display_eqno(p)); i|=b001; }
           tag=TAG(math_kind,i);
@@ -33733,7 +33514,7 @@ static int hout_param_list(pointer p, uint32_t pos, List *l)
   HPUT8(0); /* space for the size boundary byte*/
   l->p=hpos-hstart;
   while(p> mem_min)
-  { hdef_param_node(par_type(p),par_number(p),par_value(p).i);
+  { hdef_param_node(param_type(p),param_no(p),param_value(p).i);
     p=link(p);
   }
   l->s=(hpos-hstart)-l->p;
@@ -33777,15 +33558,21 @@ case outline_node: hpos--; new_outline(p);  return;
 \indent
 @<cases to output whatsit content nodes@>=
      case image_node:
-        { Image i;
-          i.n=image_no(p);
-          i.w=image_width(p);
-	  i.h=image_height(p);
-	  i.p.f=image_stretch(p)/(double)ONE;
-	  i.p.o=image_stretch_order(p);
-	  i.m.f=image_shrink(p)/(double)ONE;
-	  i.m.o=image_shrink_order(p);
-          tag=hput_image(&i);
+        { Xdimen w={0},h={0}; List d; uint32_t pos;
+          if (image_xwidth(p)!=null)
+          { pointer r=image_xwidth(p);
+            w.w=xdimen_width(r);
+            w.h=xdimen_hfactor(r)/(double)ONE;
+            w.v=xdimen_vfactor(r)/(double)ONE;
+          }
+          if (image_xheight(p)!=null)
+          { pointer r=image_xheight(p);
+            h.w=xdimen_width(r);
+            h.h=xdimen_hfactor(r)/(double)ONE;
+            h.v=xdimen_vfactor(r)/(double)ONE;
+          }
+          tag=TAG(image_kind,hput_image_spec(image_no(p),0.0,0,&w,0,&h));
+          hout_list_node2(image_alt(p)); /* should eventually become  a text */
 	}
         break;
 @*1 Text.
@@ -34749,8 +34536,8 @@ It sets the variable |start_time| and returns a pointer to a |tm| structure
 to be used later in |fix_date_and_time|.
 
 To support reproducible output, the environment variable |SOURCE_DATE_EPOCH|
-needs to be checked. If it is set, it is an \ASCII\ representation of
-a \UNIX\ timestamp, defined as the number
+needs to be checked. If it is set, it is an ASCII representation of
+a UNIX timestamp, defined as the number
 of seconds, excluding leap seconds, since 01 Jan 1970 00:00:00 UTC.
 Its value is then used to initialize the |start_time| variable.
 

@@ -39,7 +39,7 @@
 # define YY_YY_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -117,26 +117,28 @@ extern int yydebug;
     TABLE = 318,                   /* "table"  */
     ITEM = 319,                    /* "item"  */
     IMAGE = 320,                   /* "image"  */
-    LABEL = 321,                   /* "label"  */
-    BOT = 322,                     /* "bot"  */
-    MID = 323,                     /* "mid"  */
-    LINK = 324,                    /* "link"  */
-    OUTLINE = 325,                 /* "outline"  */
-    STREAM = 326,                  /* "stream"  */
-    STREAMDEF = 327,               /* "stream (definition)"  */
-    FIRST = 328,                   /* "first"  */
-    LAST = 329,                    /* "last"  */
-    TOP = 330,                     /* "top"  */
-    NOREFERENCE = 331,             /* "*"  */
-    PAGE = 332,                    /* "page"  */
-    RANGE = 333,                   /* "range"  */
-    DIRECTORY = 334,               /* "directory"  */
-    SECTION = 335,                 /* "entry"  */
-    DEFINITIONS = 336,             /* "definitions"  */
-    MAX = 337,                     /* "max"  */
-    PARAM = 338,                   /* "param"  */
-    FONT = 339,                    /* "font"  */
-    CONTENT = 340                  /* "content"  */
+    WIDTH = 321,                   /* "width"  */
+    HEIGHT = 322,                  /* "height"  */
+    LABEL = 323,                   /* "label"  */
+    BOT = 324,                     /* "bot"  */
+    MID = 325,                     /* "mid"  */
+    LINK = 326,                    /* "link"  */
+    OUTLINE = 327,                 /* "outline"  */
+    STREAM = 328,                  /* "stream"  */
+    STREAMDEF = 329,               /* "stream (definition)"  */
+    FIRST = 330,                   /* "first"  */
+    LAST = 331,                    /* "last"  */
+    TOP = 332,                     /* "top"  */
+    NOREFERENCE = 333,             /* "*"  */
+    PAGE = 334,                    /* "page"  */
+    RANGE = 335,                   /* "range"  */
+    DIRECTORY = 336,               /* "directory"  */
+    SECTION = 337,                 /* "entry"  */
+    DEFINITIONS = 338,             /* "definitions"  */
+    MAX = 339,                     /* "max"  */
+    PARAM = 340,                   /* "param"  */
+    FONT = 341,                    /* "font"  */
+    CONTENT = 342                  /* "content"  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -147,7 +149,7 @@ union YYSTYPE
 {
 #line 79 "parser.y"
 
-	#line 10341 "format.w"
+	#line 10788 "format.w"
 	uint32_t u;  int32_t i;  char *s;  float64_t f;  Glyph c;
 	Dimen d;Stretch st;Xdimen xd;Kern kt;
 	Rule r;Glue g;Image x;
@@ -155,7 +157,7 @@ union YYSTYPE
 	Ref rf;Info info;Order o;bool b;
 	
 
-#line 159 "hiparser.h"
+#line 161 "hiparser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

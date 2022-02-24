@@ -47,9 +47,9 @@
 
 
 \def\setrevision$#1: #2 ${\gdef\lastrevision{#2}}
-\setrevision$Revision: 2655 $
+\setrevision$Revision: 2696 $
 \def\setdate$#1(#2) ${\gdef\lastdate{#2}}
-\setdate$Date: 2022-01-24 09:01:21 +0100 (Mon, 24 Jan 2022) $
+\setdate$Date: 2022-02-24 10:59:11 +0100 (Thu, 24 Feb 2022) $
 
 \null
 
@@ -85,7 +85,7 @@
 {
   \baselineskip=1cm\parindent=0pt
   {\largetitlefont\raggedright HINT: The File Format}\par
-  \leftline{\smalltitlefont Version 1.3}
+  \leftline{\smalltitlefont Version 1.4}
   \vskip 10pt plus 0.5fill
   \leftline{\smalltitlefont Reflowable} 
   \vskip-3pt
@@ -334,20 +334,25 @@ to the internal representation of the glyph and finally to a short format descri
 
 
 \subsection{Scanning the Long Format}
-First, \.{shrink} reads the input file and extracts a sequence of tokens. This is called ``scanning''\index{scanning}.
-We generate the procedure to do the scanning using the program \.{flex}\cite{JL:flexbison}\index{flex+{\tt flex}} which is the 
-GNU version of the common UNIX tool \.{lex}\cite{JL:lexyacc}\index{lex+{\tt lex}}.
+First, \.{shrink} reads the input file and extracts a sequence of
+tokens. This is called ``scanning''\index{scanning}.  We generate the
+procedure to do the scanning using the program
+\.{flex}\cite{JL:flexbison}\index{flex+{\tt flex}} which is the GNU
+version of the common UNIX tool \.{lex}\cite{JL:lexyacc}\index{lex+{\tt lex}}.
 
-The input to \.{flex} is a list of pattern/\kern -1pt action rules where the pattern is a regular
-expression and the action is a piece of \CEE\ code. 
-Most of the time, the \CEE\ code is very simple: it just returns the right token\index{token} number
-to the parser which we consider shortly.
+The input to \.{flex} is a list of pattern/\kern -1pt action rules
+where the pattern is a regular expression and the action is a piece of
+\CEE\ code.  Most of the time, the \CEE\ code is very simple: it just
+returns the right token\index{token} number to the parser which we
+consider shortly.
 
-The code that defines the tokens will be marked with a line ending in ``\redsymbol''.
-This symbol\index{symbol} stands for ``{\it Reading the long format\/}''. 
-These code sequences define the syntactical elements of the long format and at the same time
-implement the reading process. All sections where that happens are preceded by a similar heading
-and for reference they are conveniently listed together starting on page~\pageref{codeindex}.
+The code that defines the tokens will be marked with a line ending in
+``\redsymbol''.  This symbol\index{symbol} stands for ``{\it Reading
+the long format\/}''.  These code sequences define the syntactical
+elements of the long format and at the same time implement the reading
+process. All sections where that happens are preceded by a similar
+heading and for reference they are conveniently listed together
+starting on page~\pageref{codeindex}.
 
 \codesection{\redsymbol}{Reading the Long Format}\redindex{1}{2}{Glyphs}
 @s START symbol
@@ -1269,8 +1274,9 @@ void hput_utf8(uint32_t c)
 @
 
 \subsection{Floating Point Numbers}
-You know a floating point numbers\index{floating point number} when you see it because it features a radix\index{radix point} point.
-The optional exponent\index{exponent} allows you to ``float'' the point.
+You know a floating point numbers\index{floating point number} when
+you see it because it features a radix\index{radix point} point.  The
+optional exponent\index{exponent} allows you to ``float'' the point.
 
 \readcode
 @s FPNUM symbol
@@ -1285,7 +1291,8 @@ The optional exponent\index{exponent} allows you to ``float'' the point.
 @
 
 The layout of floating point variables of type |double| 
-or |float| typically follows the IEEE754\index{IEEE754} standard\cite{IEEE754-1985}\cite{IEEE754-2008}. 
+or |float| typically follows the IEEE754\index{IEEE754} 
+standard\cite{IEEE754-1985}\cite{IEEE754-2008}. 
 We use the following definitions:
 
 \index{float32 t+\&{float32\_t}}
@@ -1306,26 +1313,25 @@ We use the following definitions:
 @s float32_t int
 @s float64_t int
 
-We expect a variable of type |float64_t| to have a binary representation using 64 bit.
-The most significant bit is the sign bit, then follow $|DBL_E_BITS|=11$ bits for
-the exponent\index{exponent}, and  $|DBL_M_BITS|=52$ bits for the mantissa\index{mantissa}.
-The sign\index{sign bit} bit is 1 for a negative number and 0 for a positive number.
-A floating point number is stored in normalized\index{normalization} form which means that
-the mantissa is shifted such that it has exactly 52+1 bit not counting leading zeros.
-The leading bit is then always 1 and there is no need to store it. So 52 bits suffice.
-To store the exponent, the excess $q=1023$ is added and the result is stored as an
-unsigned 11 bit number.
-For example if we regard the exponent bits and the mantissa bits as unsigned binary numbers 
-$e$ and $m$ then the absolute value of such a floating point number can be expressed 
-as $(1+m*2^{-52})\cdot2^{e-1023}$.
-We make similar assumptions about variables of type |float32_t| using the constants as defined above.
+We expect a variable of type |float64_t| to have a binary
+representation using 64 bit.  The most significant bit is the sign
+bit, then follow $|DBL_E_BITS|=11$ bits for the
+exponent\index{exponent}, and $|DBL_M_BITS|=52$ bits for the
+mantissa\index{mantissa}.  The sign\index{sign bit} bit is 1 for a
+negative number and 0 for a positive number.  A floating point number
+is stored in normalized\index{normalization} form which means that the
+mantissa is shifted such that it has exactly 52+1 bit not counting
+leading zeros.  The leading bit is then always 1 and there is no need
+to store it. So 52 bits suffice.  To store the exponent, the excess
+$q=1023$ is added and the result is stored as an unsigned 11 bit
+number.  For example if we regard the exponent bits and the mantissa
+bits as unsigned binary numbers $e$ and $m$ then the absolute value of
+such a floating point number can be expressed as
+$(1+m*2^{-52})\cdot2^{e-1023}$.  We make similar assumptions about
+variables of type |float32_t| using the constants as defined above.
 
-
-
-
-
-To convert the decimal representation of a floating point number to binary values of type |float64_t|,
-we use a \CEE\ library function.
+To convert the decimal representation of a floating point number to
+binary values of type |float64_t|, we use a \CEE\ library function.
 
 @<scanning macros@>=
 #define SCAN_DECFLOAT       @[yylval.f=atof(yytext)@]
@@ -1339,17 +1345,21 @@ an integer number will do as well.
 number: UNSIGNED {$$=(float64_t)$1; } | SIGNED {$$=(float64_t)$1; } | FPNUM;
 @
 
-Unfortunately the decimal representation is not optimal for floating point numbers
-since even simple numbers in decimal notation like $0.1$ do not have an exact 
-representation as a binary floating point number.
-So if we want a notation that allows an exact representation
-of binary floating point numbers, we must use a hexadecimal\index{hexadecimal} representation.
-Hexadecimal floating point numbers start with an optional sign, then as usual the two characters ``{\tt 0x}'',
-then follows a sequence of hex digits, a radix point, more hex digits, and an optional exponent.
-The optional exponent starts with the character ``{\tt x}'', followed by an optional sign, and some more
-hex digits. The hexadecimal exponent is given as a base 16 number and it is interpreted as an exponent
-with the base 16. As an example an exponent of ``{\tt x10}'', would multiply the mantissa by $16^{16}$.
-In other words it would shift any mantissa 16 hexadecimal digits to the left. Here are the exact rules:
+Unfortunately the decimal representation is not optimal for floating
+point numbers since even simple numbers in decimal notation like $0.1$
+do not have an exact representation as a binary floating point number.
+So if we want a notation that allows an exact representation of binary
+floating point numbers, we must use a hexadecimal\index{hexadecimal}
+representation.  Hexadecimal floating point numbers start with an
+optional sign, then as usual the two characters ``{\tt 0x}'', then
+follows a sequence of hex digits, a radix point, more hex digits, and
+an optional exponent.  The optional exponent starts with the character
+``{\tt x}'', followed by an optional sign, and some more hex
+digits. The hexadecimal exponent is given as a base 16 number and it
+is interpreted as an exponent with the base 16. As an example an
+exponent of ``{\tt x10}'', would multiply the mantissa by $16^{16}$.
+In other words it would shift any mantissa 16 hexadecimal digits to
+the left. Here are the exact rules:
 
 @<scanning rules@>=
 ::@=[+-]?0x{HEX}+\.{HEX}+(x[+-]?{HEX}+)?@>  :< SCAN_HEXFLOAT; return FPNUM;  >:
@@ -1609,12 +1619,16 @@ float32_t hget_float32(void)
 @
 
 \subsection{Fixed Point Numbers}
-\TeX\ internally represents most real numbers as fixed\index{fixed point number} point numbers or ``scaled integers''\index{scaled integer}.
-The type {\bf Scaled} is defined as a signed 32 bit integer, but we consider it as a fixed point number
-with the binary radix point just in the middle with sixteen bits before and sixteen bits after it.
-To convert an integer into a scaled number, we multiply it by |ONE|; to convert a floating point number
-into a scaled number, we multiply it by |ONE| and |ROUND| the result to the nearest integer; 
-to convert a scaled number to a floating point number we divide it by |(float64_t)ONE|.
+\TeX\ internally represents most real numbers as fixed\index{fixed
+point number} point numbers or ``scaled integers''\index{scaled
+integer}.  The type {\bf Scaled} is defined as a signed 32 bit
+integer, but we consider it as a fixed point number with the binary
+radix point just in the middle with sixteen bits before and sixteen
+bits after it.  To convert an integer into a scaled number, we
+multiply it by |ONE|; to convert a floating point number into a scaled
+number, we multiply it by |ONE| and |ROUND| the result to the nearest
+integer; to convert a scaled number to a floating point number we
+divide it by |(float64_t)ONE|.
 
 \noindent
 @<hint basic types@>=
@@ -1764,8 +1778,6 @@ xdimen: dimension number H number V { $$.w=$1; @+$$.h=$2; @+$$.v=$4; }
       | dimension number V          { $$.w=$1; @+$$.h=0.0; @+$$.v=$2; }
       | dimension                   { $$.w=$1; @+$$.h=0.0; @+$$.v=0.0; };
 
-
-
 xdimen_node: start XDIMEN xdimen END { hput_tags($1,hput_xdimen(&($3))); };
 @
 
@@ -1810,7 +1822,8 @@ void hget_xdimen(uint8_t a, Xdimen *x)
 Note that the info value |b000|, usually indicating a reference,
 is not supported for extended dimensions.
 Most nodes that need an extended dimension offer the opportunity to give
-a reference directly without the start and end byte. An exception is the glue node,
+a reference directly without the start and end byte. 
+An exception is the glue node,
 but glue nodes that need an extended width are rare.
 
 @<get functions@>=
@@ -3733,7 +3746,7 @@ case TAG(vpack_kind,b111): HGET_PACK(vpack_kind,b111); @+ break;
 if ((I)&b010)  { Dimen a; @+HGET32(a); hwritef(" shifted"); @+hwrite_dimension(a);@+}\
  { Stretch p; @+HGET_STRETCH(p);@+hwrite_plus(&p);@+}\
  { Stretch m; @+HGET_STRETCH(m);@+hwrite_minus(&m);@+}\
- if ((I)&b100) {Xdimen x;@+ hget_xdimen_node(&x); @+hwrite_xdimen_node(&x);@+} else HGET_REF(xdimen_kind)@;\
+ if ((I)&b100) {Xdimen x;@+ hget_xdimen_node(&x); @+hwrite_xdimen_node(&x);@+} else HGET_REF(xdimen_kind);\
  { List l; @+hget_list(&l);@+ hwrite_list(&l); @+} 
 @#
 
@@ -4258,12 +4271,14 @@ can be embedded in the node (info bit |b010|) or again it is given by a referenc
 @
 
 
-The following parsing rules are slightly more complicated than I would like them to be, but it seems more important
-to achieve a regular layout of the short format nodes where all sub nodes are located at the end of a node.
-In this case, I want to put a |param_ref| before an |xdimen| node, but otherwise have
-the |xdimen_ref| before a |param_list|.
-The |par_dimen| rule is introduced only to avoid a reduce/reduce conflict in the parser.
-The parsing of |empty_param_list| and |non_empty_param_list| is explained in
+The following parsing rules are slightly more complicated than I would
+like them to be, but it seems more important to achieve a regular
+layout of the short format nodes where all sub nodes are located at
+the end of a node.  In this case, I want to put a |param_ref| before
+an |xdimen| node, but otherwise have the |xdimen_ref| before a
+|param_list|.  The |par_dimen| rule is introduced only to avoid a
+reduce/reduce conflict in the parser.  The parsing of
+|empty_param_list| and |non_empty_param_list| is explained in
 section~\secref{paramlist}.
 
 @<parsing rules@>=
@@ -4588,28 +4603,64 @@ Info hput_span_count(uint32_t n)
 \section{Extensions to \TeX}\hascode
 
 \subsection{Images}
-Images behave pretty much like glue\index{glue}. They can stretch (or shrink)
-together with the surrounding glue to fill a horizontal or vertical box.
-Like glue, they stretch in the horizontal direction when filling an horizontal box
-and they stretch in the vertical direction as part of a vertical box.
-Stretchability and shrinkability are optional parts of an image node.
+In the first implementation attempt, images behaved pretty much
+like glue\index{glue}. They could stretch (or shrink) together with
+the surrounding glue to fill a horizontal or vertical box.  While I
+thought this would be in line with \TeX's concepts, it proved to be a
+bad decission because images, as opposed to glue, would stretch or
+shrink horizontaly {\it and} vertically at the same time.
+This would require a two pass algorithm to pack boxes: first to
+determine the glue setting and a secondf pass to determine the proper
+image dimensions. Otherwise incorrect width or height values would
+propagate all the way through a sequence of nested boxes. Even worse
+so, this two pass algorithm would be needed in the viewer if images
+were contained in boxes that had extended dimensions.
 
-Unlike glue, images have both a width and a height.
-The relation of height to width, the aspect ratio, is preserved by stretching and shrinking.
+The new design described below allows images with extended dimensions.
+This covers the case of stretchable or shrinkable images inside of
+extended boxes.  The given extended dimensions are considered maximum
+values. The stretching or shrinking of images will always preserve the
+relation of width${}/{}$height, the aspect ratio.
 
-While glue often has a zero width, images usually have a nonzero natural size and making
-them much smaller is undesirable. 
-The natural width and height of an image are optional parts of an image node;
-typically this information is contained in the image data.
+For convenience, we allow missing values in the long format, for
+example the aspect ratio, if they can be determined from the image
+data.  In the short format, the necessary information for a correct
+layout must be available without using the image data.
 
-The only required part of an image node is the number of the auxiliary section 
-where the image data can be found. 
+In the long format, the only required parts of an image node are the
+number of the auxiliary section where the image data can be found and
+the descriptive text which is there to make the document more
+accessible.  The section number is followed by the optional aspect
+ratio, width, and height of the image.  If some of these values are
+missing, it must be possible to determine them from the image
+data. The node ends with the description.
+
+The short format, starts with the section number of the image data and
+ends with the description. Missing values for aspect ratio, width, and
+height are only allowed if they can be recomputed from the given data.
+A missing width or height is represented by a reference to the zero
+extended dimension.  If the |b100| bit is set, the aspect ratio is
+present as a 32 bit floating point value followed by extended
+dimensions for width and height.  The info value |b100| indicates a
+width reference followed by a height reference; the value |b111|
+indicates a width node followed by a height node; the value |b110|
+indicates a height reference followed by a width node; and the value
+|b101| indicates a width reference followed by a height node.  The
+last two rules reflect the requirement that subnodes are always
+located at the end of a node.
+
+The remaining info values are used as follows:
+The value |b000| is used for a reference to an image.
+The value |b011| indicates an immediate width and an immediate height.
+The value |b010| indicates an aspect ratio and an immediate width.
+The value |b001| indicates an aspect ratio and an immediate height.
 
 @<hint types@>=
 typedef struct {@+
 uint16_t n;@+
-Dimen w,h;@+
-Stretch p,m;@+
+float32_t a;@+
+Xdimen w,h;@+
+uint8_t wr,hr;@+
 } Image;
 @
 
@@ -4617,63 +4668,451 @@ Stretch p,m;@+
 \readcode
 @s IMAGE symbol
 @s image symbol
-@s image_dimen symbol
+@s image_aspect symbol
+@s image_aspect symbol
+@s image_width symbol
+@s image_height symbol
+@s image_spec symbol
 @<symbols@>=
 %token IMAGE "image"
-%type <x> image image_dimen
+%token WIDTH "width"
+%token HEIGHT "height"
+%type <xd> image_width image_height
+%type <f> image_aspect
+%type <info> image_spec image
 @
 
 @<scanning rules@>=
 ::@=image@>       :< return IMAGE; >:
+::@=width@>       :< return WIDTH; >:
+::@=height@>       :< return HEIGHT; >:
 @
 
 @<parsing rules@>=
-image_dimen: dimension dimension {$$.w=$1; $$.h=$2;} | {$$.w=$$.h=0; };
-image: UNSIGNED image_dimen plus minus { $$.w=$2.w; $$.h=$2.h; $$.p=$3; $$.m=$4;  RNG("Section number",$1,3,max_section_no);$$.n=$1; };
-content_node: start IMAGE image END { hput_tags($1,hput_image(&($3)));}
+image_aspect: number {$$=$1;} | {$$=0.0;};
+image_width: WIDTH xdimen { $$=$2;}
+           | { $$=xdimen_defaults[zero_xdimen_no];};
+image_height: HEIGHT xdimen { $$=$2; }
+           | { $$=xdimen_defaults[zero_xdimen_no];};
+
+image_spec: UNSIGNED image_aspect image_width image_height 
+            {$$=hput_image_spec($1,$2,0,&($3),0,&($4));}
+          | UNSIGNED image_aspect WIDTH REFERENCE image_height 
+            {$$=hput_image_spec($1,$2,$4,NULL,0,&($5));}
+          | UNSIGNED image_aspect image_width HEIGHT REFERENCE 
+            {$$=hput_image_spec($1,$2,0,&($3),$5,NULL);}
+          | UNSIGNED image_aspect WIDTH REFERENCE HEIGHT REFERENCE 
+            {$$=hput_image_spec($1,$2,$4,NULL,$6,NULL);};
+  
+image: image_spec list {$$=$1;};
+
+content_node: start IMAGE image END { hput_tags($1,TAG(image_kind,$3));};
 @
 
 \writecode
 @<write functions@>=
 void hwrite_image(Image *x)
-{ hwritef(" %u",x->n);
-  if (x->w!=0 ||x->h!=0) { hwrite_dimension(x->w); hwrite_dimension(x->h);@+}
-  hwrite_plus(&x->p);
-  hwrite_minus(&x->m);
+{ RNG("Section number",x->n,3,max_section_no); hwritef(" %u",x->n);
+  if (x->a!=0.0) hwrite_float64(x->a);
+  if (x->wr!=0) hwritef(" width *%u",x->wr);
+  else if (x->w.w!=0 ||x->w.h!=0.0 || x->w.v!=0.0)
+  { hwritef(" width"); hwrite_xdimen(&x->w); }
+  if (x->hr!=0) hwritef(" height *%u",x->hr);
+  else if (x->h.w!=0 || x->h.h!=0.0 || x->h.v!=0.0)
+  { hwritef(" height"); hwrite_xdimen(&x->h); }
 }
 @
 
 \getcode
 @<cases to get content@>=
 @t\1\kern1em@>
-case TAG(image_kind,b100): @+ { Image x;@+HGET_IMAGE(b100,x);@+}@+break;
-case TAG(image_kind,b101): @+ { Image x;@+HGET_IMAGE(b101,x);@+}@+break;
-case TAG(image_kind,b110): @+ { Image x;@+HGET_IMAGE(b110,x);@+}@+break;
-case TAG(image_kind,b111): @+ { Image x;@+HGET_IMAGE(b111,x);@+}@+break;
+case TAG(image_kind,b001): @+ HGET_IMAGE(b001);@+break;
+case TAG(image_kind,b010): @+ HGET_IMAGE(b010);@+break;
+case TAG(image_kind,b011): @+ HGET_IMAGE(b011);@+break;
+case TAG(image_kind,b100): @+ HGET_IMAGE(b100);@+break;
+case TAG(image_kind,b101): @+ HGET_IMAGE(b101);@+break;
+case TAG(image_kind,b110): @+ HGET_IMAGE(b110);@+break;
+case TAG(image_kind,b111): @+ HGET_IMAGE(b111);@+break;
 @
 
 @<get macros@>=
-#define @[HGET_IMAGE(I,X)@] @/\
-HGET16((X).n);RNG("Section number",(X).n,3,max_section_no);  \
-if (I&b010) {HGET32((X).w);HGET32((X).h);@+} \
-else (X).w=(X).h=0;\
-if (I&b001) {HGET_STRETCH((X).p);HGET_STRETCH((X).m);@+}\
-else { (X).p.f=(X).m.f=0.0; (X).p.o=(X).m.o=normal_o;@+}\
-hwrite_image(&(X));
+#define @[HGET_IMAGE(I)@] @/\
+{ Image x={0};\
+HGET16(x.n);\
+if ((I)&b100) { x.a=hget_float32();\
+ if ((I)==b111) {hget_xdimen_node(&x.w);hget_xdimen_node(&x.h);}\
+ else if ((I)==b110) {x.hr=HGET8;hget_xdimen_node(&x.w);}\
+ else if ((I)==b101) {x.wr=HGET8;hget_xdimen_node(&x.h);}\
+ else  {x.wr=HGET8;x.hr=HGET8;}}\
+else if((I)==b011) {HGET32(x.w.w);HGET32(x.h.w);} \
+else if((I)==b010) { x.a=hget_float32(); HGET32(x.w.w);}\
+else if((I)==b001){ x.a=hget_float32(); HGET32(x.h.w);}\
+hwrite_image(&x);\
+{List d;  hget_list(&d);hwrite_list(&d);}}@/
 @
 
+
+
+Because the long format can omit part of the image specification
+which is required for the short format if the necessary information 
+is contained in the image data, we have to implement the extraction
+of image information before we can implement the |hput_image_spec|
+function.
 
 \putcode
 @<put functions@>=
-uint8_t hput_image(Image *x)
-{ Info i=b100;
-  HPUT16(x->n);
-  if (x->w!=0 || x->h!=0)@+  {HPUT32(x->w); HPUT32(x->h); i|=b010;@+ }
-  if (x->p.f!=0.0 || x->m.f!=0.0)@+  {hput_stretch(&x->p); hput_stretch(&x->m); i|=b001;@+ }
-  return TAG(image_kind,i);
+@<image functions@>@;
+Info hput_image_spec(uint32_t n, float32_t a, 
+                     uint32_t wr, Xdimen *w, uint32_t hr, Xdimen *h)
+{ HPUT16(n);
+  if (w!=NULL && h!=NULL)
+  { if (w->h==0.0 && w->v==0.0 && h->h==0.0 && h->v==0.0)
+     return hput_image_dimens(n,a,w->w,h->w);
+    else
+    { hput_image_aspect(n,a);
+      hput_xdimen_node(w);hput_xdimen_node(h);
+      return b111;
+    }
+  }
+  else if (w!=NULL && h==NULL)
+  { if (w->h==0.0 && w->v==0.0 && hr==zero_xdimen_no)
+     return hput_image_dimens(n,a,w->w,0);
+    else
+    { hput_image_aspect(n,a);
+      HPUT8(hr);hput_xdimen_node(w);
+      return b110;
+    }
+  } 
+  else if (w==NULL && h!=NULL)
+  { if (wr==zero_xdimen_no && h->h==0.0 && h->v==0.0)
+     return hput_image_dimens(n,a,0,h->w);
+    else
+    { hput_image_aspect(n,a);
+      HPUT8(wr);hput_xdimen_node(h);
+      return b101;
+    }
+  }
+  else
+  { if (wr==zero_xdimen_no && hr==zero_xdimen_no)
+     return hput_image_dimens(n,a,0,0);
+    else
+    { hput_image_aspect(n,a);
+      HPUT8(wr);HPUT8(hr);
+      return b100;
+    }
+  }
 }
 @
 
+If no extended dimensions are involved in an image specification,
+we use |hput_image_dimen|.
+
+@<image functions@>=
+@<auxiliar image functions@>@;
+static Info hput_image_dimens(int n,float32_t a, Dimen w, Dimen h)
+{ Dimen iw,ih;
+  double ia;
+  hget_image_dimens(n,&ia,&iw,&ih);
+  @<merge stored image dimensions with dimensions given@>@;
+  if (w!=0 && h!=0)
+  { HPUT32(iw); HPUT32(ih); return b011; }
+  else if (a!=0.0)
+  { if (h!=0)
+    { hput_float32((float32_t)ia); HPUT32(ih); return b001; }
+    else
+    { hput_float32((float32_t)ia); HPUT32(iw); return b010; }
+  }
+  else 
+  { HPUT32(iw); HPUT32(ih); return b011; }
+}
+@
+
+If extended dimensions are involved, we need |hput_image_aspect|.
+@<image functions@>=
+static void hput_image_aspect(int n,double a)
+{ 
+  if (a==0.0) {Dimen w,h; hget_image_dimens(n,&a,&w,&h);}
+  if (a!=0.0) hput_float32(a);
+  else  QUIT("Unable to determine aspect ratio of image %d",n);
+}
+@
+
+
+When we have found the width, height or aspect ratio of the stored
+image, we can merge this information with the information given by the
+user.  Note that from width and height the aspect ratio can always be
+determined.  The user might very well specify different values than
+stored in the image.  In this case the user given dimensions are
+interpreted as maximum dimensions and the aspect ratio as given in the
+image file takes precedence over an user specified value.  This is
+accomplished by the following:
+
+@<merge stored image dimensions with dimensions given@>=
+{ if (ia==0.0)
+  { if (a!=0.0) ia=a;
+    else if(w!=0 && h!=0) ia=(double)w/(double)h;
+    else QUIT("Unable to determine dimensions of image %d",n);
+  }
+  if (w==0 && h==0)
+  { if (iw==0) iw=round(ih * ia);
+    else if (ih==0) ih=round(iw/ia);
+  }
+  else if (h==0) 
+  { iw=w; ih=round(w/ia); }
+  else if (w==0) 
+  { ih=h; iw=round(h*ia);}
+  else 
+  { Dimen x;
+    x =  round(h*ia);
+    if (w>x) w = x;
+    x =  round(w/ia);
+    if (h>x) h=x;
+    ih = h;
+    iw = w;
+  }
+}
+@
+
+We define a few macros and variables for the reading of image files.
+
+@<auxiliar image functions@>=
+#define IMG_BUF_MAX 54
+#define IMG_HEAD_MAX 2
+static unsigned char img_buf[IMG_BUF_MAX];
+static size_t img_buf_size;
+#define @[LittleEndian32(X)@]   (img_buf[(X)]+(img_buf[(X)+1]<<8)+\
+                                (img_buf[(X)+2]<<16)+(img_buf[(X)+3]<<24))
+
+#define @[BigEndian16(X)@]   (img_buf[(X)+1]+(img_buf[(X)]<<8))
+
+#define @[BigEndian32(X)@]   (img_buf[(X)+3]+(img_buf[(X)+2]<<8)+\
+                                (img_buf[(X)+1]<<16)+(img_buf[(X)]<<24))
+
+#define Match2(X,A,B)  ((img_buf[(X)]==(A)) && (img_buf[(X)+1]==(B)))
+#define Match4(X,A,B,C,D)  (Match2(X,A,B)&&Match2((X)+2,C,D))
+
+#define @[GET_IMG_BUF(X)@] \
+if (img_buf_size<X) \
+  { size_t i=fread(img_buf+img_buf_size,1,(X)-img_buf_size,f); \
+    if (i<0) QUIT("Unable to read image %s",fn); \
+    else if (i==0) QUIT("Unable to read image header %s",fn); \
+    else img_buf_size+=i; \
+  }
+@
+
+Considering the different image formats, we start with Windows
+Bitmaps.  A Windows bitmap file usually has the extension {\tt .bmp}
+but the better way to check for a Windows bitmap file ist to examine
+the first two byte of the file: the ASCII codes for `B' and `M'.  Once
+we have verified the file type, we find the width and height of the
+bitmap in pixels at offsets |0x12| and |0x16| stored as little-endian
+32 bit integers. At offsets |0x26| and |0x2A|, we find the horizontal
+and vertical resolution in pixel per meter stored in the same format.
+This is sufficient to compute the true width and height of the image
+in scaled points.  If either the width or the height is already known,
+we just use the aspect ratio and compute the missing value.
+
+The Windows Bitmap format is easy to process but not very
+efficient. So the support for this format in the \HINT\ format is
+deprecated and will disappear.  You should use one of the formats
+described next.
+
+@<auxiliar image functions@>=
+static bool get_BMP_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
+{ double wpx,hpx;
+  double xppm,yppm;
+  GET_IMG_BUF(2);
+  if (!Match2(0,'B','M')) return false;
+  GET_IMG_BUF(0x2E);
+  wpx=(double)LittleEndian32(0x12); /*width in pixel*/
+  hpx=(double)LittleEndian32(0x16); /*height in pixel*/
+  xppm=(double)LittleEndian32(0x26); /* horizontal pixel per meter*/
+  yppm=(double)LittleEndian32(0x2A); /* vertical pixel per meter*/
+  *w= floor(0.5+ONE*(72.00*1000.0/25.4)*wpx/xppm);
+  *h= floor(0.5+ONE*(72.00*1000.0/25.4)*hpx/yppm);
+  *a = (wpx/xppm)/(hpx/yppm);
+  return true;
+}
+@ 
+
+Now we repeat this process for image files using the Portable Network
+Graphics file format. This file format is well suited to simple
+graphics that do not use color gradients.  These images usually have
+the extension {\tt .png} and start with an eight byte signature:
+|0x89| followed by the ASCII Codes `P', `N', `G', followd by a
+carriage return (|0x0D| and line feed (|0x0A|), an DOS end-of-file
+character (|0x1A|) and final line feed (|0x0A|).  After the signature
+follows a list of chunks. The first chunk is the image header chunk.
+Each chunk starts with the size of the chunk stored as big-endian 32
+bit integer, followed by the chunk name stored as four ASCII codes
+followed by the chunk data and a CRC.  The size, as stored in the
+chunk, does not include the size itself, nor the name, and neither the
+CRC.  The first chunk is the IHDR chunk.  The chunk data of the IHDR
+chunk starts with the width and the height of the image in pixels
+stored as 32 bit big-endian integers.
+
+Finding the image resolution takes some more effort. The image
+resolution is stored in an optional chunk named ``pHYs'' for the
+physical pixel dimensions.  All we know is that this chunk, if it
+exists, will appear after the IHDR chunk and before the (required)
+IDAT chunk. The pHYs chunk contains two 32 bit big-endian integers,
+giving the horizontal and vertical pixels per unit, and a one byte
+unit specifier, which is either 0 for an undefined unit or 1 for the
+meter as unit. With an undefined unit, only the aspect ratio of the
+pixels and hence the aspect ratio of the image can be determined.
+
+
+@<auxiliar image functions@>=
+static bool get_PNG_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
+{ int pos, size;
+  double wpx,hpx;
+  double xppu,yppu;
+  int unit;
+  GET_IMG_BUF(24);
+  if (!Match4(0, 0x89, 'P', 'N', 'G') ||
+      !Match4(4, 0x0D, 0x0A, 0x1A, 0x0A)) return false;
+  size=BigEndian32(8);
+  if (!Match4(12,'I', 'H', 'D', 'R')) return false;
+  wpx=(double)BigEndian32(16);
+  hpx=(double)BigEndian32(20);
+  pos=20+size;
+  while (true)
+  { if (fseek(f,pos,SEEK_SET)!=0) return false;
+    img_buf_size=0;
+    GET_IMG_BUF(17);
+    size=BigEndian32(0);
+    if (Match4(4,'p', 'H', 'Y', 's'))
+    { xppu =(double)BigEndian32(8);  
+      yppu =(double)BigEndian32(12);
+      unit=img_buf[16];
+      if (unit==0)
+      { *a =(wpx/xppu)/(hpx/yppu);
+        return true;
+      }
+      else if (unit==1)
+      {
+        *w=floor(0.5+ONE*(72.00/0.0254)*wpx/xppu);
+        *h=floor(0.5+ONE*(72.00/0.0254)*hpx/yppu);
+        *a = (wpx/xppu)/(hpx/yppu);
+        return true;
+      }
+      else
+        return false;
+    }
+    else if  (Match4(4,'I', 'D', 'A', 'T'))
+      return false;
+    else
+      pos=pos+12+size;
+  }
+  return false;
+}
+@ 
+
+For photographs, the JPEG File Interchange Format (JFIF) is more
+appropriate.  JPEG files come with all sorts of file extensions like
+{\tt .jpg}, {\tt .jpeg}, or {\tt .jfif}.  We check the file siganture:
+it starts with the the SOI (Start of Image) marker |0xFF|, |0xD8|
+followed by the JIFI-Tag. The JIFI-Tag starts with the segment marker
+APP0 (|0xFF|, |0xE0|) followed by the 2 byte segment size, followed by
+the ASCII codes `J', `F', `I', `F' followed by a zero byte.  Next is a
+two byte version number which we do not read.  Before the resolution
+proper there is a resolution unit indicator byte (0 = no units, 1 =
+dots per inch, 2 = dots per cm) and then comes the horizontal and
+vertical resolution both as 16 Bit big-endian integers.  To find the
+actual width and height, we have to search for a start of frame marker
+(|0xFF|, |0xC0|+$n$ with $0\le n\le 15$). Which is followed by the 2
+byte segment size, the 1 byte sample precission, the 2 byte height and
+the 2 byte width.
+
+
+@<auxiliar image functions@>=
+static bool get_JPG_info(FILE *f, char *fn,  double *a, Dimen *w, Dimen *h)
+{ int pos, size;
+  double wpx,hpx;
+  double xppu,yppu;
+  int unit;
+  GET_IMG_BUF(18);
+
+  if (!Match4(0, 0xFF,0xD8, 0xFF, 0xE0)) return false;
+  size=BigEndian16(4);
+  if (!Match4(6,'J', 'F', 'I', 'F')) return false;
+  if (img_buf[10] != 0) return false; 
+  unit=img_buf[13];
+  xppu=(double)BigEndian16(14);
+  yppu=(double)BigEndian16(16);
+  pos=4+size;
+  while (true)
+  { if (fseek(f,pos,SEEK_SET)!=0) return false;
+    img_buf_size=0;
+    GET_IMG_BUF(10);
+    if (img_buf[0] != 0xFF) return false; /* Not the start of a segment */
+    if ( (img_buf[1]&0xF0) == 0xC0) /* Start of Frame */
+    { hpx =(double)BigEndian16(5);  
+      wpx =(double)BigEndian16(7);
+      if (unit==0)
+      { *a = (wpx/xppu)/(hpx/yppu);
+        return true;
+      }
+      else if (unit==1)
+      { *w = floor(0.5+ONE*72.00*wpx/xppu);
+        *h = floor(0.5+ONE*72.00*hpx/yppu);
+        *a = (wpx/xppu)/(hpx/yppu);
+        return true;
+      }
+      else if (unit==2)
+      { *w = floor(0.5+ONE*(72.00/2.54)*wpx/xppu);
+        *h = floor(0.5+ONE*(72.00/2.54)*hpx/yppu);
+        *a = (wpx/xppu)/(hpx/yppu);
+        return true;
+      }
+      else
+        return false;
+    }
+    else
+    { size=  BigEndian16(2);
+      pos=pos+2+size;
+    }
+  }
+  return false;
+}
+@ 
+
+There is still one image format missing: scalable vector graphics.
+In the moment, I tend not to include a further image format into
+the definition of the \HINT\ file format but instead use the
+PostScript subset that is used for Type 1 fonts to encode
+vector graphics. Any \HINT\ viewer must support Type 1
+PostScript fonts and hence it has already the necessary interpreter.
+So it seems reasonable to put the burden of converting vector graphics
+into a Type 1 PostScript font on the generator of \HINT\ files
+and keep the \HINT\ viewer as small and simple as possible.
+Now we determine width, height
+and aspect ratio  based on an image file.
+
+
+We combine all three functions into the |hget_image_dimens|
+function.
+
+@<auxiliar image functions@>=
+static void hget_image_dimens(int n, double *a, Dimen *w, Dimen *h)
+{ char *fn;
+  FILE *f;
+  *a=0.0;
+  *w=*h=0;
+  fn=dir[n].file_name;
+  f=fopen(fn,"rb");
+  if (f!=NULL)
+  { img_buf_size=0;
+    if (!get_BMP_info(f,fn,a,w,h) &&
+      !get_PNG_info(f,fn,a,w,h) &&
+      !get_JPG_info(f,fn,a,w,h))
+    DBG(DBGDEF,"Unknown image type %s",fn);
+    fclose(f); 
+    DBG(DBGDEF,"image %d: width= %fpt height= %fpt\n",
+             n,*w/(double)ONE,*h/(double)ONE);
+  }
+}
+@
 
 \subsection{Positions, Outlines, Links, and Labels}\label{labels}
 \index{position}\index{outline}\index{link}\index{label}
@@ -7670,7 +8109,7 @@ def_node:
 | start BASELINE ref baseline END  @| { DEF($$,baseline_kind,$3);@+hput_tags($1,TAG(baseline_kind, $4));@+} 
 | start LIGATURE ref ligature END  @| { DEF($$,ligature_kind,$3);@+hput_tags($1,hput_ligature(&($4)));} 
 | start DISC ref disc END      @| { DEF($$,disc_kind,$3);@+  hput_tags($1,hput_disc(&($4)));} 
-| start IMAGE  ref image END       @| { DEF($$,image_kind,$3);@+   hput_tags($1,hput_image(&($4)));}
+| start IMAGE  ref image END       @| { DEF($$,image_kind,$3);@+   hput_tags($1,TAG(image_kind,$4));}
 | start PARAM  ref parameters END  @| { DEF($$,param_kind,$3);@+   hput_tags($1,hput_list($1+2,&($4)));} 
 | start PAGE   ref page END        @| { DEF($$,page_kind,$3);@+    hput_tags($1,TAG(page_kind,0));}; 
 @
@@ -7985,7 +8424,7 @@ font_param: @/
 | start GLUE    fref glue END       { hput_tags($1,hput_glue(&($4)));} 
 | start LANGUAGE fref string END    { hput_string($4);hput_tags($1,TAG(language_kind,0));}
 | start RULE    fref rule END       { hput_tags($1,hput_rule(&($4)));}
-| start IMAGE   fref image END      { hput_tags($1,hput_image(&($4)));};
+| start IMAGE   fref image END      { hput_tags($1,TAG(image_kind,$4));};
 
 fref: ref @/{ RNG("Font parameter",$1,0,MAX_FONT_PARAMS); };
 @
@@ -8780,8 +9219,7 @@ should go while the other files are opened.
 It inherits its name from the input file name.
 
 @<open the log file@> =
-#ifdef DEBUG
-  if (option_log)
+if (option_log)
   { 
     strcat(stem_name,".log");
     hlog=freopen(stem_name,"w",stderr);
@@ -8791,11 +9229,8 @@ It inherits its name from the input file name.
     }
     stem_name[stem_length]=0;
   }
-  else
-    hlog=stderr;
-#else
-    hlog=stderr; 
-#endif
+else
+  hlog=stderr;
 @
 
 Once we have established logging, we can try to open the other files.
@@ -8883,7 +9318,7 @@ For portability, we first define the output specifier for expressions of type |s
 #ifdef DEBUG
 #define @[DBG(FLAGS,...)@] ((debugflags & (FLAGS))?LOG(__VA_ARGS__):0)
 #else
-#define @[DBG(FLAGS,...)@] 0
+#define @[DBG(FLAGS,...)@] (void)0
 #endif
 #define @[DBGTAG(A,P)@] @[DBG(DBGTAGS,@["tag [%s,%d] at " SIZE_F "\n"@],@|NAME(A),INFO(A),(P)-hstart)@]
 
@@ -9285,13 +9720,16 @@ hnode_size[TAG(item_kind,6)] = I_T(2,1);
 @
 
 \subsection{Images}\index{image}
-If not given by a reference, images contain a section reference and optional dimensions, stretch, and shrink.
+If not given by a reference, images contain a section reference and optional dimensions and a descriptive list.
 @<initialize the  |hnode_size| array@>=
 hnode_size[TAG(image_kind,b000)] = 1+1+1;
-hnode_size[TAG(image_kind,b100)] = 1+2+1;
-hnode_size[TAG(image_kind,b101)] = 1+2+4+4+1;
-hnode_size[TAG(image_kind,b110)] = 1+2+4+4+1;
-hnode_size[TAG(image_kind,b111)] = 1+2+4+4+4+4+1;
+hnode_size[TAG(image_kind,b001)] = I_T(1+2+4+4,1);
+hnode_size[TAG(image_kind,b010)] = I_T(1+2+4+4,1);
+hnode_size[TAG(image_kind,b011)] = I_T(1+2+4+4,1);
+hnode_size[TAG(image_kind,b100)] = I_T(1+2+4+1+1,1);
+hnode_size[TAG(image_kind,b101)] = I_T(1+2+4+1,2);
+hnode_size[TAG(image_kind,b110)] = I_T(1+2+4+1,2);
+hnode_size[TAG(image_kind,b111)] = I_T(1+2+4,3);
 @
 
 \subsection{Links}\index{link}
@@ -9789,19 +10227,29 @@ case TAG(math_kind,b111): @+ break;
 \subsection{Images}\index{image}
 \noindent
 @<skip macros@>=
-#define @[HTEG_IMAGE(I,X)@] @/\
-if (I&b001) {HTEG_STRETCH((X).m);HTEG_STRETCH((X).p);@+}\
-else { (X).p.f=(X).m.f=0.0; (X).p.o=(X).m.o=normal_o;@+}\
-if (I&b010) {HTEG32((X).h);HTEG32((X).w);@+} \
-else (X).w=(X).h=0;\
-HTEG16((X).n);
+#define @[HTEG_IMAGE(I)@] @/\
+{ Image x={0}; List d; hteg_list(&d);\
+if ((I)&b100) {\
+ if ((I)==b111) {hteg_xdimen_node(&x.h);hteg_xdimen_node(&x.w);}\
+ else if ((I)==b110) {hteg_xdimen_node(&x.w);x.hr=HTEG8;}\
+ else if ((I)==b101) {hteg_xdimen_node(&x.h);x.wr=HTEG8;}\
+ else  {x.hr=HTEG8;x.wr=HTEG8;}\
+x.a=hteg_float32();}\
+else if((I)==b011) {HTEG32(x.h.w);HTEG32(x.w.w);} \
+else if((I)==b010) { HTEG32(x.w.w); x.a=hteg_float32();}\
+else if((I)==b001){ HTEG32(x.h.w); x.a=hteg_float32();}\
+HTEG16(x.n);}
 @
 
 @<cases to skip content@>=
-@t\1\kern1em@>case TAG(image_kind,b100): @+ { Image x;@+HTEG_IMAGE(b100,x);@+}@+break;
-case TAG(image_kind,b101): @+ { Image x;@+HTEG_IMAGE(b101,x);@+}@+break;
-case TAG(image_kind,b110): @+ { Image x;@+HTEG_IMAGE(b110,x);@+}@+break;
-case TAG(image_kind,b111): @+ { Image x;@+HTEG_IMAGE(b111,x);@+}@+break;
+@t\1\kern1em@>
+case TAG(image_kind,b001): @+ HTEG_IMAGE(b001);@+break;
+case TAG(image_kind,b010): @+ HTEG_IMAGE(b010);@+break;
+case TAG(image_kind,b011): @+ HTEG_IMAGE(b011);@+break;
+case TAG(image_kind,b100): @+ HTEG_IMAGE(b100);@+break;
+case TAG(image_kind,b101): @+ HTEG_IMAGE(b101);@+break;
+case TAG(image_kind,b110): @+ HTEG_IMAGE(b110);@+break;
+case TAG(image_kind,b111): @+ HTEG_IMAGE(b111);@+break;
 @
 
 \subsection{Links and Labels}
@@ -9993,11 +10441,9 @@ typedef double float64_t;
 #error  @=float64 type must have size 8@>
 #endif
 #define HINT_VERSION 1
-#define HINT_SUB_VERSION 3
+#define HINT_SUB_VERSION 4
 #endif
 @
-
-
 
 \subsection{{\tt format.h}}\index{format.h+{\tt format.h}}
 The \.{format.h} file contains definitions of types, macros, variables and functions
@@ -10241,7 +10687,7 @@ extern void hput_utf8(uint32_t c);
 extern uint8_t hput_ligature(Lig *l);
 extern uint8_t hput_disc(Disc *h);
 extern Info hput_span_count(uint32_t n);
-extern uint8_t hput_image(Image *x);
+extern Info hput_image_spec(uint32_t n, float32_t a, uint32_t wr, Xdimen *w, uint32_t hr, Xdimen *h);
 extern void hput_string(char *str);
 extern void hput_range(uint8_t pg, bool on);
 extern void hput_max_definitions(void);
@@ -10266,6 +10712,7 @@ extern int hcompress_depth(int n, int c);
 #include "hibasetypes.h"
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <zlib.h>
@@ -10378,6 +10825,7 @@ extern int yylex(void);
 #include <miktex/utf8wrap.h>
 #endif
 #include "hibasetypes.h"
+#include <math.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -10390,6 +10838,8 @@ extern int yylex(void);
 #include "hierror.h"
 #include "hiformat.h"
 #include "hiput.h"
+
+@<enable bison debugging@>@;
 #include "hiparser.h"
 
 extern void yyset_debug(int lex_debug);
