@@ -67,16 +67,6 @@
 #include <miktex/Core/win/ConsoleCodePageSwitcher>
 #endif
 
-using namespace std;
-
-using namespace MiKTeX::Configuration;
-using namespace MiKTeX::Core;
-using namespace MiKTeX::Packages;
-using namespace MiKTeX::Setup;
-using namespace MiKTeX::Trace;
-using namespace MiKTeX::Util;
-using namespace MiKTeX::Wrappers;
-
 #include "internal.h"
 
 #if !defined(THE_NAME_OF_THE_GAME)
@@ -93,15 +83,6 @@ const char PATH_DELIMITER = ';';
 const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
-
-vector<string> DEFAULT_TRACE_OPTIONS =
-{
-    TraceStream::MakeOption("", "", TraceLevel::Info),
-    TraceStream::MakeOption(MIKTEX_TRACE_MPM, "", TraceLevel::Trace),
-};
-
-static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mpmcli"));
-static bool isLog4cxxConfigured = false;
 
 enum class OutputFormat
 {
@@ -122,13 +103,13 @@ enum class SortKey
 class PackageInfoComparer
 {
 public:
-    bool operator() (const PackageInfo& pi1, const PackageInfo& pi2) const
+    bool operator() (const MiKTeX::Packages::PackageInfo& pi1, const MiKTeX::Packages::PackageInfo& pi2) const
     {
         bool cmp;
         switch (sortKey)
         {
         case SortKey::PackageId:
-            cmp = (PathName::Compare(pi1.id, pi2.id) < 0);
+            cmp = (MiKTeX::Util::PathName::Compare(pi1.id, pi2.id) < 0);
             break;
         case SortKey::InstalledOn:
             cmp = (pi1.GetTimeInstalled() < pi2.GetTimeInstalled());
@@ -155,24 +136,24 @@ bool PackageInfoComparer::reverse = false;
 class UpdateInfoComparer
 {
 public:
-    bool operator() (const PackageInstaller::UpdateInfo& ui1, const PackageInstaller::UpdateInfo& ui2) const
+    bool operator() (const MiKTeX::Packages::PackageInstaller::UpdateInfo& ui1, const MiKTeX::Packages::PackageInstaller::UpdateInfo& ui2) const
     {
-        return PathName::Compare(ui1.packageId, ui2.packageId) < 0;
+        return MiKTeX::Util::PathName::Compare(ui1.packageId, ui2.packageId) < 0;
     }
 };
 
 class UpgradeInfoComparer
 {
 public:
-    bool operator() (const PackageInstaller::UpgradeInfo& upg1, const PackageInstaller::UpgradeInfo& upg2) const
+    bool operator() (const  MiKTeX::Packages::PackageInstaller::UpgradeInfo& upg1, const  MiKTeX::Packages::PackageInstaller::UpgradeInfo& upg2) const
     {
-        return PathName::Compare(upg1.packageId, upg2.packageId) < 0;
+        return MiKTeX::Util::PathName::Compare(upg1.packageId, upg2.packageId) < 0;
     }
 };
 
 class Application :
-    public PackageInstallerCallback,
-    public TraceCallback
+    public MiKTeX::Packages::PackageInstallerCallback,
+    public MiKTeX::Trace::TraceCallback
 {
 public:
 
@@ -181,28 +162,14 @@ public:
         InstallSignalHandler(SIGINT);
         InstallSignalHandler(SIGTERM);
     }
-    void MIKTEXTHISCALL ReportLine(const string& str) override;
-    bool MIKTEXTHISCALL OnRetryableError(const string& message) override;
+
+    void MIKTEXTHISCALL ReportLine(const std::string& str) override;
+    bool MIKTEXTHISCALL OnRetryableError(const std::string& message) override;
     bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf) override;
+    bool MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override;
     void Main(int argc, const char** argv);
 
-    bool MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override
-    {
-        if (!isLog4cxxConfigured)
-        {
-            if (pendingTraceMessages.size() > 100)
-            {
-                pendingTraceMessages.clear();
-            }
-            pendingTraceMessages.push_back(traceMessage);
-            return true;
-        }
-        FlushPendingTraceMessages();
-        TraceInternal(traceMessage);
-        return true;
-    }
-
-    static void Sorry(const string& description, const string& remedy, const string& url);
+    static void Sorry(const std::string& description, const std::string& remedy, const std::string& url);
 
     static void Sorry()
     {
@@ -228,29 +195,29 @@ private:
         }
     }
 
-    void Verbose(const string& s);
-    void Warn(const string& s);
-    void SecurityRisk(const string& s);
-    void Message(const string& s);
-    MIKTEXNORETURN void Error(const string& s);
+    void Verbose(const std::string& s);
+    void Warn(const std::string& s);
+    void SecurityRisk(const std::string& s);
+    void Message(const std::string& s);
+    MIKTEXNORETURN void Error(const std::string& s);
     void UpdateDb();
-    void Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved);
-    void Verify(const vector<string>& toBeVerified);
+    void Install(const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved);
+    void Verify(const std::vector<std::string>& toBeVerified);
     void VerifyMiKTeX();
     void FindConflicts();
-    void ImportPackage(const string& packageId, vector<string>& toBeinstalled);
-    void ImportPackages(vector<string>& toBeinstalled);
+    void ImportPackage(const std::string& packageId, std::vector<std::string>& toBeinstalled);
+    void ImportPackages(std::vector<std::string>& toBeinstalled);
     void FindUpdates();
-    void Update(const vector<string>& updates);
-    void FindUpgrades(PackageLevel packageLevel);
-    void Upgrade(PackageLevel packageLevel);
-    string GetDirectories(const string& packageId);
+    void Update(const std::vector<std::string>& updates);
+    void FindUpgrades(MiKTeX::Packages::PackageLevel packageLevel);
+    void Upgrade(MiKTeX::Packages::PackageLevel packageLevel);
+    std::string GetDirectories(const std::string& packageId);
     void List(OutputFormat outputFormat, int maxCount);
     void ListRepositories(OutputFormat outputFormat);
     void CheckRepositories();
     void PickRepositoryUrl();
-    void PrintFiles(const vector<string>& files);
-    void PrintPackageInfo(const string& packageId);
+    void PrintFiles(const std::vector<std::string>& files);
+    void PrintPackageInfo(const std::string& packageId);
     void RestartWindowed();
 
     void FlushPendingTraceMessages()
@@ -264,25 +231,25 @@ private:
 
     void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
     {
-        log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.mpmcli.") + traceMessage.facility);
+        log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(std::string("trace.mpmcli.") + traceMessage.facility);
         switch (traceMessage.level)
         {
-        case TraceLevel::Fatal:
+        case MiKTeX::Trace::TraceLevel::Fatal:
             LOG4CXX_FATAL(logger, traceMessage.message);
             break;
-        case TraceLevel::Error:
+        case MiKTeX::Trace::TraceLevel::Error:
             LOG4CXX_ERROR(logger, traceMessage.message);
             break;
-        case TraceLevel::Warning:
+        case MiKTeX::Trace::TraceLevel::Warning:
             LOG4CXX_WARN(logger, traceMessage.message);
             break;
-        case TraceLevel::Info:
+        case MiKTeX::Trace::TraceLevel::Info:
             LOG4CXX_INFO(logger, traceMessage.message);
             break;
-        case TraceLevel::Trace:
+        case MiKTeX::Trace::TraceLevel::Trace:
             LOG4CXX_TRACE(logger, traceMessage.message);
             break;
-        case TraceLevel::Debug:
+        case MiKTeX::Trace::TraceLevel::Debug:
         default:
             LOG4CXX_DEBUG(logger, traceMessage.message);
             break;
@@ -295,16 +262,35 @@ private:
 
     static void SignalHandler(int sig);
 
-    shared_ptr<PackageManager> packageManager;
-    shared_ptr<Session> session;
+    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+    std::shared_ptr<MiKTeX::Core::Session> session;
     bool verbose = false;
     bool quiet = false;
-    string repository;
-    vector<TraceCallback::TraceMessage> pendingTraceMessages;
+    std::string repository;
+    std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
     static const struct poptOption aoption[];
     static volatile sig_atomic_t interrupted;
 };
+
+using namespace std;
+
+using namespace MiKTeX::Configuration;
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Packages;
+using namespace MiKTeX::Setup;
+using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
+
+vector<string> DEFAULT_TRACE_OPTIONS =
+{
+    TraceStream::MakeOption("", "", TraceLevel::Info),
+    TraceStream::MakeOption(MIKTEX_TRACE_MPM, "", TraceLevel::Trace),
+};
+
+static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("mpmcli"));
+static bool isLog4cxxConfigured = false;
 
 enum Option
 {
@@ -357,273 +343,273 @@ enum Option
 const struct poptOption Application::aoption[] = {
 
   {
-    "admin", 0, POPT_ARG_NONE, 0, OPT_ADMIN,
-    T_("Run in administrator mode."),
-    nullptr,
+        "admin", 0, POPT_ARG_NONE, 0, OPT_ADMIN,
+        T_("Run in administrator mode."),
+        nullptr,
   },
 
   {
-      // EXPERIMENTAL
-      "check-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_REPOSITORIES,
-      nullptr,
-      nullptr
+        // EXPERIMENTAL
+        "check-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_REPOSITORIES,
+        nullptr,
+        nullptr
     },
 
     {                             // deprecated
-      "csv", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CSV,
-      T_("Output comma-separated value lists."),
-      nullptr,
+        "csv", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CSV,
+        T_("Output comma-separated value lists."),
+        nullptr,
     },
 
     {                             // internal
-      "find-conflicts", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FIND_CONFLICTS,
-      T_("Find file conflicts."),
-      nullptr,
+        "find-conflicts", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FIND_CONFLICTS,
+        T_("Find file conflicts."),
+        nullptr,
     },
 
     {
-      "find-updates", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPDATES,
-      T_("Test the package repository for updates, then print the list of updateable packages."),
-      nullptr,
+        "find-updates", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPDATES,
+        T_("Test the package repository for updates, then print the list of updateable packages."),
+        nullptr,
     },
 
     {
-      "find-upgrades", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPGRADES,
-      T_("Search for packages that must be installed in order to complete the setup.  Works in conjunction with --package-level."),
-      nullptr,
+        "find-upgrades", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPGRADES,
+        T_("Search for packages that must be installed in order to complete the setup.  Works in conjunction with --package-level."),
+        nullptr,
     },
 
   #if defined(MIKTEX_WINDOWS)
     {
-      "hhelp", 0, POPT_ARG_NONE, nullptr, OPT_HHELP,
-      T_("Show the manual page in an HTMLHelp window and exit when the window is closed."),
-      nullptr
+        "hhelp", 0, POPT_ARG_NONE, nullptr, OPT_HHELP,
+        T_("Show the manual page in an HTMLHelp window and exit when the window is closed."),
+        nullptr
     },
   #endif
 
     {
-      "import", 0, POPT_ARG_STRING, nullptr, OPT_IMPORT,
-      T_("Import the specified package from another MiKTeX installation."),
-      T_("PACKAGE")
+        "import", 0, POPT_ARG_STRING, nullptr, OPT_IMPORT,
+        T_("Import the specified package from another MiKTeX installation."),
+        T_("PACKAGE")
     },
 
     {
-      "import-all", 0, POPT_ARG_NONE, nullptr, OPT_IMPORT_ALL,
-      T_("Import all installed packages from another MiKTeX installation."),
-      nullptr
+        "import-all", 0, POPT_ARG_NONE, nullptr, OPT_IMPORT_ALL,
+        T_("Import all installed packages from another MiKTeX installation."),
+        nullptr
     },
 
     {
-      "install", 0, POPT_ARG_STRING, nullptr, OPT_INSTALL,
-      T_("Install the specified packages."),
-      T_("[@]PACKAGELIST")
+        "install", 0, POPT_ARG_STRING, nullptr, OPT_INSTALL,
+        T_("Install the specified packages."),
+        T_("[@]PACKAGELIST")
     },
 
   #if ENABLE_OPT_INSTALL_SOME
     {                             // deprecated
-      "install-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_INSTALL_SOME,
-      nullptr,
-      nullptr
+        "install-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_INSTALL_SOME,
+        nullptr,
+        nullptr
     },
   #endif
 
     {
-      "list", 0, POPT_ARG_NONE, nullptr, OPT_LIST,
-      T_("List the contents of the package database: for each package, print the installation status, the number of files, the size, and the name."),
-      nullptr
+        "list", 0, POPT_ARG_NONE, nullptr, OPT_LIST,
+        T_("List the contents of the package database: for each package, print the installation status, the number of files, the size, and the name."),
+        nullptr
     },
 
     {
-      "list-package-names", 0, POPT_ARG_NONE, nullptr, OPT_LIST_PACKAGE_NAMES,
-      T_("List the package names."),
-      nullptr
+        "list-package-names", 0, POPT_ARG_NONE, nullptr, OPT_LIST_PACKAGE_NAMES,
+        T_("List the package names."),
+        nullptr
     },
 
     {
-      "list-repositories", 0, POPT_ARG_NONE, nullptr, OPT_LIST_REPOSITORIES,
-      T_("Download the list of known package repository URLs from the MiKTeX project server, then print the list."),
-      nullptr
+        "list-repositories", 0, POPT_ARG_NONE, nullptr, OPT_LIST_REPOSITORIES,
+        T_("Download the list of known package repository URLs from the MiKTeX project server, then print the list."),
+        nullptr
     },
 
     {
-      "max-count", 0, POPT_ARG_STRING, nullptr, OPT_MAX_COUNT,
-      T_("Stop after NUM packages."),
-      T_("NUM")
+        "max-count", 0, POPT_ARG_STRING, nullptr, OPT_MAX_COUNT,
+        T_("Stop after NUM packages."),
+        T_("NUM")
     },
 
     {                             // experimental
-      "output-format", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_OUTPUT_FORMAT,
-      T_("Set the output format."),
-      T_("FORMAT"),
+        "output-format", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_OUTPUT_FORMAT,
+        T_("Set the output format."),
+        T_("FORMAT"),
     },
 
     {
-      "package-level", 0, POPT_ARG_STRING, nullptr, OPT_PACKAGE_LEVEL,
-      T_("Use the specified package level when doing an upgrade.  Level must be one of: essential, basic, complete."),
-      T_("LEVEL")
+        "package-level", 0, POPT_ARG_STRING, nullptr, OPT_PACKAGE_LEVEL,
+        T_("Use the specified package level when doing an upgrade.  Level must be one of: essential, basic, complete."),
+        T_("LEVEL")
     },
 
     {
-      "pick-repository-url", 0, POPT_ARG_NONE, nullptr, OPT_PICK_REPOSITORY_URL,
-      T_("Pick a suitable package repository URL and print it."),
-      nullptr
+        "pick-repository-url", 0, POPT_ARG_NONE, nullptr, OPT_PICK_REPOSITORY_URL,
+        T_("Pick a suitable package repository URL and print it."),
+        nullptr
     },
 
     {
-      "print-package-info", 0, POPT_ARG_STRING, nullptr, OPT_PRINT_PACKAGE_INFO,
-      T_("Print detailed information about the specified package."),
-      T_("PACKAGE")
+        "print-package-info", 0, POPT_ARG_STRING, nullptr, OPT_PRINT_PACKAGE_INFO,
+        T_("Print detailed information about the specified package."),
+        T_("PACKAGE")
     },
 
     {                             // experimental
-      "proxy", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY,
-      T_("Use the specified proxy host[:port]."),
-      T_("HOST[:PORT]")
+        "proxy", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY,
+        T_("Use the specified proxy host[:port]."),
+        T_("HOST[:PORT]")
     },
 
     {                             // experimental
-      "proxy-password", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY_PASSWORD,
-      T_("Use the specified password for proxy authentication."),
-      T_("PASSWORD")
+        "proxy-password", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY_PASSWORD,
+        T_("Use the specified password for proxy authentication."),
+        T_("PASSWORD")
     },
 
     {                             // experimental
-      "proxy-user", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY_USER,
-      T_("Use the specified user for proxy authentication."),
-      T_("USER")
+        "proxy-user", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY_USER,
+        T_("Use the specified user for proxy authentication."),
+        T_("USER")
     },
 
     {                             // experimental
-      "sort", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_SORT,
-      T_("Sort the package list."),
-      T_("KEY")
+        "sort", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_SORT,
+        T_("Sort the package list."),
+        T_("KEY")
     },
 
     {
-      "quiet", 0, POPT_ARG_NONE, nullptr, OPT_QUIET,
-      T_("Suppress all output (except errors)."),
-      nullptr
+        "quiet", 0, POPT_ARG_NONE, nullptr, OPT_QUIET,
+        T_("Suppress all output (except errors)."),
+        nullptr
     },
 
   #if defined(MIKTEX_WINDOWS)
     {
-      "register-components", 0, POPT_ARG_NONE, nullptr, OPT_REGISTER_COMPONENTS,
-      T_("Register COMponents."),
-      nullptr
+        "register-components", 0, POPT_ARG_NONE, nullptr, OPT_REGISTER_COMPONENTS,
+        T_("Register COMponents."),
+        nullptr
     },
   #endif
 
     {
-      "repository", 0, POPT_ARG_STRING, nullptr, OPT_REPOSITORY,
-      T_("Use the specified location as the package repository.  The location can be either a fully qualified path name (a local package repository) or an URL (a remote package repository)."),
-      T_("LOCATION")
+        "repository", 0, POPT_ARG_STRING, nullptr, OPT_REPOSITORY,
+        T_("Use the specified location as the package repository.  The location can be either a fully qualified path name (a local package repository) or an URL (a remote package repository)."),
+        T_("LOCATION")
     },
 
     {
-      "repository-release-state", 0, POPT_ARG_STRING, nullptr, OPT_REPOSITORY_RELEASE_STATE,
-      T_("Select the repository release state (one of: stable, next)."),
-      T_("STATE")
+        "repository-release-state", 0, POPT_ARG_STRING, nullptr, OPT_REPOSITORY_RELEASE_STATE,
+        T_("Select the repository release state (one of: stable, next)."),
+        T_("STATE")
     },
 
     {
-      "require", 0, POPT_ARG_STRING, nullptr, OPT_REQUIRE,
-      T_("Make sure that the specified packages are installed."),
-      T_("[@]PACKAGELIST")
+        "require", 0, POPT_ARG_STRING, nullptr, OPT_REQUIRE,
+        T_("Make sure that the specified packages are installed."),
+        T_("[@]PACKAGELIST")
     },
 
     {
-      "reverse", 0, POPT_ARG_NONE, nullptr, OPT_REVERSE,
-      T_("Reverse the result of comparisons."),
-      nullptr
+        "reverse", 0, POPT_ARG_NONE, nullptr, OPT_REVERSE,
+        T_("Reverse the result of comparisons."),
+        nullptr
     },
 
     {
-      "set-repository", 0, POPT_ARG_STRING, nullptr, OPT_SET_REPOSITORY,
-      T_("Register the location of the default package repository.  The location can be either a fully qualified path name (a local package repository) or an URL (a remote package repository)."),
-      T_("LOCATION")
+        "set-repository", 0, POPT_ARG_STRING, nullptr, OPT_SET_REPOSITORY,
+        T_("Register the location of the default package repository.  The location can be either a fully qualified path name (a local package repository) or an URL (a remote package repository)."),
+        T_("LOCATION")
     },
 
     {
-      "trace", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_TRACE,
-      T_("Turn on tracing.  TRACESTREAMS, if specified, is a comma-separated list of trace stream names (see the MiKTeX manual)."),
-      T_("TRACESTREAMS")
+        "trace", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_TRACE,
+        T_("Turn on tracing.  TRACESTREAMS, if specified, is a comma-separated list of trace stream names (see the MiKTeX manual)."),
+        T_("TRACESTREAMS")
     },
 
     {
-      "uninstall", 0, POPT_ARG_STRING, nullptr, OPT_UNINSTALL,
-      T_("Uninstall the specified packages."),
-      T_("[@]PACKAGELIST")
+        "uninstall", 0, POPT_ARG_STRING, nullptr, OPT_UNINSTALL,
+        T_("Uninstall the specified packages."),
+        T_("[@]PACKAGELIST")
     },
 
   #if defined(MIKTEX_WINDOWS)
     {
-      "unregister-components", 0, POPT_ARG_NONE, nullptr,
-      OPT_UNREGISTER_COMPONENTS,
-      T_("Unregister COMponents."),
-      nullptr
+        "unregister-components", 0, POPT_ARG_NONE, nullptr,
+        OPT_UNREGISTER_COMPONENTS,
+        T_("Unregister COMponents."),
+        nullptr
     },
   #endif
 
     {
-      "update", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_UPDATE,
-      T_("Update specified packages, if an updated version is available in the package repository.  Install all updateable packages, if the package list is omitted."),
-      T_("[@]PACKAGELIST")
+        "update", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_UPDATE,
+        T_("Update specified packages, if an updated version is available in the package repository.  Install all updateable packages, if the package list is omitted."),
+        T_("[@]PACKAGELIST")
     },
 
     {                             // experimental
-      "update-all", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_ALL,
-      T_("Test the package repository for updates, then install all updateable packages."),
-      nullptr,
+        "update-all", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_ALL,
+        T_("Test the package repository for updates, then install all updateable packages."),
+        nullptr,
     },
 
     {
-      "update-db", 0, POPT_ARG_NONE, nullptr, OPT_UPDATE_DB,
-      T_("Synchronize the local package database with the package repository."),
-      nullptr
+        "update-db", 0, POPT_ARG_NONE, nullptr, OPT_UPDATE_DB,
+        T_("Synchronize the local package database with the package repository."),
+        nullptr
     },
 
     {                             // experimental
-      "update-fndb", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_FNDB,
-      T_("Update mpm.fndb."),
-      nullptr
+        "update-fndb", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_FNDB,
+        T_("Update mpm.fndb."),
+        nullptr
     },
 
   #if ENABLE_OPT_UPDATE_SOME
     {                             // deprecated
-      "update-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_SOME,
-      nullptr,
-      nullptr
+        "update-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_SOME,
+        nullptr,
+        nullptr
     },
   #endif
 
     {
-      "upgrade", 0, POPT_ARG_NONE, nullptr, OPT_UPGRADE,
-      T_("Upgrade the MiKTeX setup to a package level (works in conjunction with --package-level)."),
-      nullptr
+        "upgrade", 0, POPT_ARG_NONE, nullptr, OPT_UPGRADE,
+        T_("Upgrade the MiKTeX setup to a package level (works in conjunction with --package-level)."),
+        nullptr
     },
 
     {
-      "verbose", 0, POPT_ARG_NONE, nullptr, OPT_VERBOSE,
-      T_("Turn on verbose output mode."),
-      nullptr
+        "verbose", 0, POPT_ARG_NONE, nullptr, OPT_VERBOSE,
+        T_("Turn on verbose output mode."),
+        nullptr
     },
 
     {
-      "verify", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_VERIFY,
-      T_("Verify the integrity of the installed packages."),
-      T_("[@]PACKAGELIST")
+        "verify", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_VERIFY,
+        T_("Verify the integrity of the installed packages."),
+        T_("[@]PACKAGELIST")
     },
 
     {                             // experimental
-      "verify-miktex", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_VERIFY_MIKTEX,
-      T_("Verify the integrity of the installed MiKTeX packages."),
-      nullptr
+        "verify-miktex", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_VERIFY_MIKTEX,
+        T_("Verify the integrity of the installed MiKTeX packages."),
+        nullptr
     },
 
     {
-      "version", 0, POPT_ARG_NONE, nullptr, OPT_VERSION,
-      T_("Show version information and exit."),
-      nullptr
+        "version", 0, POPT_ARG_NONE, nullptr, OPT_VERSION,
+        T_("Show version information and exit."),
+        nullptr
     },
 
     POPT_AUTOHELP
@@ -2030,6 +2016,22 @@ void Application::Main(int argc, const char** argv)
     packageManager = nullptr;
     session->Close();
     session = nullptr;
+}
+
+bool Application::Trace(const TraceCallback::TraceMessage& traceMessage)
+{
+    if (!isLog4cxxConfigured)
+    {
+        if (pendingTraceMessages.size() > 100)
+        {
+            pendingTraceMessages.clear();
+        }
+        pendingTraceMessages.push_back(traceMessage);
+        return true;
+    }
+    FlushPendingTraceMessages();
+    TraceInternal(traceMessage);
+    return true;
 }
 
 extern "C" void Application::SignalHandler(int signalToBeHandled)
