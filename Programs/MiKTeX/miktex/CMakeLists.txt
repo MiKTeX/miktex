@@ -114,6 +114,13 @@ list(APPEND miktex_sources
     topics/links/topic.h
 )
 
+list(APPEND miktex_sources
+    topics/packages/commands/commands.h
+    topics/packages/commands/list.cpp
+    topics/packages/topic.cpp
+    topics/packages/topic.h
+)
+
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND miktex_sources
         topics/filetypes/commands/FileTypeManager.cpp

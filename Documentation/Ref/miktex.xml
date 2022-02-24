@@ -150,6 +150,11 @@ invoke the utility as follows:</para>
 <listitem><para>Commands for managing links from scripts and formats to executables.</para></listitem>
 </varlistentry>
 
+<varlistentry>
+<term><citerefentry><refentrytitle>miktex-packages</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing &MiKTeX; packages.</para></listitem>
+</varlistentry>
+
 </variablelist>
 
 </refsect1>

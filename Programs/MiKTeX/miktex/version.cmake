@@ -7,5 +7,5 @@
 ## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_COMP_MAJOR_VERSION 1)
-set(MIKTEX_COMP_MINOR_VERSION 1)
+set(MIKTEX_COMP_MINOR_VERSION 2)
 set(MIKTEX_COMP_PATCH_VERSION 0)
