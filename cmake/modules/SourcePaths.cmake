@@ -1,21 +1,10 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2021 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 # component directories
 set(MIKTEX_REL_APP_DIR                  "Libraries/MiKTeX/App")
@@ -240,16 +229,16 @@ set(TRACINGSTACKLEVELS_CH       "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2
 
 # library address file
 if(WIN32)
-  if(CMAKE_CL_64)
-    set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs-x64.txt")
-  else()
-    set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs.txt")
-  endif()
+    if(CMAKE_CL_64)
+        set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs-x64.txt")
+    else()
+        set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs.txt")
+    endif()
 endif()
 
 # build utilities
 if(MIKTEX_NATIVE_WINDOWS) 
-  set(HHC_EXECUTABLE_WRAPPER "${CMAKE_BINARY_DIR}/${MIKTEX_REL_BUILD_TOOLS_ETC_DIR}/hhc.cmd")
+    set(HHC_EXECUTABLE_WRAPPER "${CMAKE_BINARY_DIR}/${MIKTEX_REL_BUILD_TOOLS_ETC_DIR}/hhc.cmd")
 endif()
 
 # generated Git info
