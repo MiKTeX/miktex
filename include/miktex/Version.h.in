@@ -1,21 +1,14 @@
-/* miktex/Version.h: MiKTeX version information         -*- C++ -*-
-
-   Copyright (C) 1996-2020 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex/Version.h
+ * @author Christian Schenk
+ * @brief MiKTeX version information
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives
+ * unlimited permission to copy and/or distribute it, with or
+ * without modifications, as long as this notice is preserved.
+ */
 
 #pragma once
 
@@ -37,23 +30,23 @@
 #define MIKTEX_VERSION_STR "@MIKTEX_VERSION_STR@"
 
 #if !defined(MIKTEX_COMP_COMPANY_STR)
-#define MIKTEX_COMP_COMPANY_STR "MiKTeX.org"
+#   define MIKTEX_COMP_COMPANY_STR "MiKTeX.org"
 #endif
 
 #if !defined(MIKTEX_COMP_COPYRIGHT_STR)
-#define MIKTEX_COMP_COPYRIGHT_STR "© @MIKTEX_YEAR_VERSION@ Christian Schenk"
+#   define MIKTEX_COMP_COPYRIGHT_STR "© @MIKTEX_YEAR_VERSION@ Christian Schenk"
 #endif
 
 #if !defined(MIKTEX_COMP_TM_STR)
-#define MIKTEX_COMP_TM_STR ""
+#   define MIKTEX_COMP_TM_STR ""
 #endif
 
 #if !defined(MIKTEX_BUILD_COMMENT_STR)
-#define MIKTEX_BUILD_COMMENT_STR ""
+#   define MIKTEX_BUILD_COMMENT_STR ""
 #endif
 
 #if !defined(MIKTEX_BUILD_SPECIAL_STR)
-#define MIKTEX_BUILD_SPECIAL_STR ""
+#   define MIKTEX_BUILD_SPECIAL_STR ""
 #endif
 
 #define MIKTEX_LEGACY_MAJOR_VERSION @MIKTEX_LEGACY_MAJOR_VERSION@
@@ -61,41 +54,41 @@
 #define MIKTEX_LEGACY_MAJOR_MINOR_STR "@MIKTEX_LEGACY_MAJOR_MINOR_STR@"
 
 #if defined(MIKTEX_WINDOWS)
-#define MIKTEX_COM_MAJOR_MINOR_STR "@MIKTEX_COM_MAJOR_MINOR_STR@"
-#define MAKE_CURVER_ID(prefix) prefix ## @MIKTEX_COM_MAJOR_MINOR_ID_STR@
+#   define MIKTEX_COM_MAJOR_MINOR_STR "@MIKTEX_COM_MAJOR_MINOR_STR@"
+#   define MAKE_CURVER_ID(prefix) prefix ## @MIKTEX_COM_MAJOR_MINOR_ID_STR@
 #endif
 
 #if !defined(stringify_)
-#define stringify__(x) #x
-#define stringify_(x) stringify__(x)
+#   define stringify__(x) #x
+#   define stringify_(x) stringify__(x)
 #endif
 
 #if defined(MIKTEX_COMP_MAJOR_VERSION)
-#  if !defined(MIKTEX_COMP_MINOR_VERSION)
-#    error MIKTEX_COMP_MINOR_VERSION not defined
-#  endif
-#  if !defined(MIKTEX_COMP_PATCH_VERSION)
-#    error MIKTEX_COMP_PATCH_VERSION not defined
-#  endif
-#  if !defined(MIKTEX_COMPONENT_VERSION_STR)
-#    if defined(MIKTEX_COMP_ORIG_VERSION_STR)
-#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
-         stringify_(MIKTEX_COMP_MAJOR_VERSION) "." stringify_(MIKTEX_COMP_MINOR_VERSION) "." stringify_(MIKTEX_COMP_PATCH_VERSION)   \
-         " (" MIKTEX_COMP_ORIG_VERSION_STR ")"
-#    else
-#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
-         stringify_(MIKTEX_COMP_MAJOR_VERSION) "." stringify_(MIKTEX_COMP_MINOR_VERSION) "." stringify_(MIKTEX_COMP_PATCH_VERSION)
-#    endif
-#  endif
+#   if !defined(MIKTEX_COMP_MINOR_VERSION)
+#       error MIKTEX_COMP_MINOR_VERSION not defined
+#   endif
+#   if !defined(MIKTEX_COMP_PATCH_VERSION)
+#       error MIKTEX_COMP_PATCH_VERSION not defined
+#   endif
+#   if !defined(MIKTEX_COMPONENT_VERSION_STR)
+#       if defined(MIKTEX_COMP_ORIG_VERSION_STR)
+#           define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
+                stringify_(MIKTEX_COMP_MAJOR_VERSION) "." stringify_(MIKTEX_COMP_MINOR_VERSION) "." stringify_(MIKTEX_COMP_PATCH_VERSION) \
+                " (" MIKTEX_COMP_ORIG_VERSION_STR ")"
+#       else
+#           define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
+                stringify_(MIKTEX_COMP_MAJOR_VERSION) "." stringify_(MIKTEX_COMP_MINOR_VERSION) "." stringify_(MIKTEX_COMP_PATCH_VERSION)
+#       endif
+#   endif
 #elif defined(MIKTEX_COMP_J2000_VERSION)
-#  if !defined(MIKTEX_COMPONENT_VERSION_STR)
-#    if defined(MIKTEX_COMP_ORIG_VERSION_STR)
-#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
-         "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)                                                 \
-         " (" MIKTEX_COMP_ORIG_VERSION_STR ")"
-#    else
-#      define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
-         "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)
-#    endif
-#  endif
+#   if !defined(MIKTEX_COMPONENT_VERSION_STR)
+#       if defined(MIKTEX_COMP_ORIG_VERSION_STR)
+#           define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
+                "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)                                               \
+                " (" MIKTEX_COMP_ORIG_VERSION_STR ")"
+#       else
+#           define MIKTEX_COMPONENT_VERSION_STR                                                                                           \
+                "@MIKTEX_LEGACY_MAJOR_MINOR_STR@" "." stringify_(MIKTEX_COMP_J2000_VERSION)
+#       endif
+#   endif
 #endif

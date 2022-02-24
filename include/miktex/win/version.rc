@@ -1,28 +1,21 @@
-/* miktex/win/version.rc: generic MiKTeX version resource
-
-   Copyright (C) 1996-2020 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-   
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex/win/version.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives
+ * unlimited permission to copy and/or distribute it, with or
+ * without modifications, as long as this notice is preserved.
+ */
 
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
 
 #if !defined(VS_FF_DEBUG)
-#  include <winver.h>
+#   include <winver.h>
 #endif
 
 #include <miktex/Version>
@@ -32,59 +25,59 @@
 #define VER_PRODUCTVERSION_STR MIKTEX_VERSION_STR
 
 #define VER_PRODUCTVERSION \
-  MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_PATCH_VERSION,0
+    MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_PATCH_VERSION,0
 
 #if !defined(VER_FILEVERSION)
-#  if defined(MIKTEX_COMP_MAJOR_VERSION)
-#    define VER_FILEVERSION \
-       MIKTEX_COMP_MAJOR_VERSION,MIKTEX_COMP_MINOR_VERSION,MIKTEX_COMP_PATCH_VERSION,0
-#  else
-#    define VER_FILEVERSION \
-       MIKTEX_LEGACY_MAJOR_VERSION,MIKTEX_LEGACY_MINOR_VERSION,MIKTEX_COMP_J2000_VERSION,0
-#  endif
-#  if !defined(VER_FILEVERSION_STR)
-#    define VER_FILEVERSION_STR MIKTEX_COMPONENT_VERSION_STR
-#  endif
+#   if defined(MIKTEX_COMP_MAJOR_VERSION)
+#       define VER_FILEVERSION \
+            MIKTEX_COMP_MAJOR_VERSION,MIKTEX_COMP_MINOR_VERSION,MIKTEX_COMP_PATCH_VERSION,0
+#   else
+#       define VER_FILEVERSION \
+            MIKTEX_LEGACY_MAJOR_VERSION,MIKTEX_LEGACY_MINOR_VERSION,MIKTEX_COMP_J2000_VERSION,0
+#   endif
+#   if !defined(VER_FILEVERSION_STR)
+#       define VER_FILEVERSION_STR MIKTEX_COMPONENT_VERSION_STR
+#   endif
 #endif
 
 #if !defined(VER_LEGALCOPYRIGHT_STR) && defined(MIKTEX_COMP_COPYRIGHT_STR)
-#  define VER_LEGALCOPYRIGHT_STR MIKTEX_COMP_COPYRIGHT_STR
+#   define VER_LEGALCOPYRIGHT_STR MIKTEX_COMP_COPYRIGHT_STR
 #endif
 
 #if !defined(VER_LEGALTRADEMARKS_STR) && defined(MIKTEX_COMP_TM_STR)
-#  define VER_LEGALTRADEMARKS_STR MIKTEX_COMP_TM_STR
+#   define VER_LEGALTRADEMARKS_STR MIKTEX_COMP_TM_STR
 #endif
 
 #if !defined(VER_COMPANYNAME_STR)
-#  define VER_COMPANYNAME_STR MIKTEX_COMP_COMPANY_STR
+#define VER_COMPANYNAME_STR MIKTEX_COMP_COMPANY_STR
 #endif
 
 #if !defined(VER_COMMENT_STR)
-#  define VER_COMMENT_STR MIKTEX_BUILD_COMMENT_STR
+#   define VER_COMMENT_STR MIKTEX_BUILD_COMMENT_STR
 #endif
 
 #if !defined(VER_FILETYPE)
-#  define VER_FILETYPE VFT_APP
+#   define VER_FILETYPE VFT_APP
 #endif
 
 #define VER_FILESUBTYPE VFT2_UNKNOWN
 
 #if MIKTEX_RELEASE_STATE == 4
-#  define VER_DEBUG 0
+#   define VER_DEBUG 0
 #else
-#  define VER_DEBUG VS_FF_DEBUG
+#   define VER_DEBUG VS_FF_DEBUG
 #endif
 
 #if MIKTEX_RELEASE_STATE == 4
-#  define VER_PRIVATEBUILD VS_FF_PRIVATEBUILD
+#   define VER_PRIVATEBUILD VS_FF_PRIVATEBUILD
 #else
-#  define VER_PRIVATEBUILD 0
+#   define VER_PRIVATEBUILD 0
 #endif
 
 #if MIKTEX_RELEASE_STATE > 0
-#  define VER_PRERELEASE VS_FF_PRERELEASE
+#   define VER_PRERELEASE VS_FF_PRERELEASE
 #else
-#  define VER_PRERELEASE 0
+#   define VER_PRERELEASE 0
 #endif
 
 #define VER_FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
@@ -104,33 +97,33 @@ FILETYPE                VER_FILETYPE
 FILESUBTYPE             VER_FILESUBTYPE
 
 BEGIN
-  BLOCK "StringFileInfo"
-  BEGIN
-    BLOCK "040904B0"
+    BLOCK "StringFileInfo"
     BEGIN
+        BLOCK "040904B0"
+        BEGIN
 #if defined(VER_COMMENT_STR)
-        VALUE "Comment",                VER_COMMENT_STR
+            VALUE "Comment",                VER_COMMENT_STR
 #endif
-        VALUE "CompanyName",            VER_COMPANYNAME_STR
-        VALUE "FileDescription",        VER_FILEDESCRIPTION_STR
-        VALUE "FileVersion",            VER_FILEVERSION_STR
-        VALUE "InternalName",           VER_INTERNALNAME_STR
-        VALUE "LegalCopyright",         VER_LEGALCOPYRIGHT_STR
+            VALUE "CompanyName",            VER_COMPANYNAME_STR
+            VALUE "FileDescription",        VER_FILEDESCRIPTION_STR
+            VALUE "FileVersion",            VER_FILEVERSION_STR
+            VALUE "InternalName",           VER_INTERNALNAME_STR
+            VALUE "LegalCopyright",         VER_LEGALCOPYRIGHT_STR
 #if defined(VER_LEGALTRADEMARKS_STR)
-        VALUE "LegalTrademarks",        VER_LEGALTRADEMARKS_STR
+            VALUE "LegalTrademarks",        VER_LEGALTRADEMARKS_STR
 #endif
-        VALUE "OriginalFilename",       VER_ORIGINALFILENAME_STR
+            VALUE "OriginalFilename",       VER_ORIGINALFILENAME_STR
 #if MIKTEX_RELEASE_STATE == 4
-        VALUE "PrivateBuild",           "Debug build; do not distribute!"
+            VALUE "PrivateBuild",           "Debug build; do not distribute!"
 #endif
-        VALUE "ProductName",            VER_PRODUCTNAME_STR
-        VALUE "ProductVersion",         VER_PRODUCTVERSION_STR
+            VALUE "ProductName",            VER_PRODUCTNAME_STR
+            VALUE "ProductVersion",         VER_PRODUCTVERSION_STR
+        END
     END
-  END
-  BLOCK "VarFileInfo"
-  BEGIN
-        VALUE "Translation",            0x409, 1200
-  END
+    BLOCK "VarFileInfo"
+    BEGIN
+            VALUE "Translation",            0x409, 1200
+    END
 END
 
 #endif
