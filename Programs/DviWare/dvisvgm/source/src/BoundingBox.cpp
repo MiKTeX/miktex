@@ -246,7 +246,7 @@ void BoundingBox::transform (const Matrix &tm) {
 }
 
 
-string BoundingBox::toSVGViewBox () const {
+string BoundingBox::svgViewBoxString () const {
 	ostringstream oss;
 	oss << XMLString(_ulx) << ' ' << XMLString(_uly) << ' ' << XMLString(width()) << ' ' << XMLString(height());
 	return oss.str();

@@ -72,7 +72,7 @@ void SVGTree::setBBox (const BoundingBox &bbox) {
 		_root->addAttribute("width", XMLString(bbox.width()*ZOOM_FACTOR)+"pt");
 		_root->addAttribute("height", XMLString(bbox.height()*ZOOM_FACTOR)+"pt");
 	}
-	_root->addAttribute("viewBox", bbox.toSVGViewBox());
+	_root->addAttribute("viewBox", bbox.svgViewBoxString());
 }
 
 

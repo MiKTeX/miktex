@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	 xmlns:TPM="http://texlive.dante.de/">
-  <rdf:Description about="http://www.miktex.org/packages/dvisvgm/">
-    <TPM:Name>Dvisvgm win32</TPM:Name>
-    <TPM:Title>Dvisvgm, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Martin Gieseking" year="2005-2022"/>
-    <TPM:License type="gpl3"/>    
-    <TPM:Version>2.13.1</TPM:Version>
-    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
-    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
-    <TPM:Description>
-       Dvisvgm is a command line utility that converts TeX DVI files
-       to the XML-based Scalable Vector Graphics (SVG) format. It
-       provides full font support including virtual fonts, font maps,
-       and sub-fonts.  If necessary, dvisvgm vectorizes Metafont's
-       bitmap output in order to always create lossless scalable
-       output.  The embedded SVG fonts can optionally be replaced with
-       graphics paths so that applications that don't support SVG
-       fonts are enabled to render the graphics properly.  Besides
-       many other features, dvisvgm also supports color, emTeX, tpic,
-       PDF mapfile and PostScript specials.
-    </TPM:Description>
-    <TPM:RunFiles>
+	    xmlns:TPM="http://texlive.dante.de/">
+    <rdf:Description about="http://www.miktex.org/packages/dvisvgm/">
+        <TPM:Name>Dvisvgm win32</TPM:Name>
+        <TPM:Title>Dvisvgm, Windows x86</TPM:Title>
+        <TPM:Copyright owner="Martin Gieseking" year="2005-2022"/>
+        <TPM:License type="gpl3"/>    
+        <TPM:Version>2.13.2</TPM:Version>
+        <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+        <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+        <TPM:Description>
+            Dvisvgm is a command line utility that converts TeX DVI files
+            to the XML-based Scalable Vector Graphics (SVG) format. It
+            provides full font support including virtual fonts, font maps,
+            and sub-fonts.  If necessary, dvisvgm vectorizes Metafont's
+            bitmap output in order to always create lossless scalable
+            output.  The embedded SVG fonts can optionally be replaced with
+            graphics paths so that applications that don't support SVG
+            fonts are enabled to render the graphics properly.  Besides
+            many other features, dvisvgm also supports color, emTeX, tpic,
+            PDF mapfile and PostScript specials.
+        </TPM:Description>
+        <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}dvisvgm.exe
-    </TPM:RunFiles>
-  </rdf:Description>
+        </TPM:RunFiles>
+    </rdf:Description>
 </rdf:RDF>

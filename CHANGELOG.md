@@ -11,7 +11,7 @@ MiKTeX now includes the HiTeX engine.
 * asymptote 2.78
 * cweb 4.7
 * dvips 2022.1
-* dvisvgm 2.13.1
+* dvisvgm 2.13.2
 * luatex 1.15.0
 * ptex 4.0.0
 * texworks 0.7.0
