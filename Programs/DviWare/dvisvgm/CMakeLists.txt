@@ -1,553 +1,542 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
 ## Copyright (C) 2015-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvisvgm")
 
 include_directories(BEFORE
-  source/libs/brotli/include
-  source/libs/clipper
-  source/libs/ff-woff/fontforge
-  source/libs/ff-woff/inc
-  source/libs/potrace
-  source/libs/variant/include
-  source/libs/woff2/include
-  source/libs/xxHash
+    source/libs/brotli/include
+    source/libs/clipper
+    source/libs/ff-woff/fontforge
+    source/libs/ff-woff/inc
+    source/libs/potrace
+    source/libs/variant/include
+    source/libs/woff2/include
+    source/libs/xxHash
 )
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  add_definitions(
-    -DUNICODE
-    -D_UNICODE
-  )
+    add_definitions(
+        -DUNICODE
+        -D_UNICODE
+    )
 endif()
 
 if(CMAKE_CL_64)
-  add_definitions(
-    -D_WIN64
-  )
+    add_definitions(
+        -D_WIN64
+    )
 endif()
 
 set(HAVE_CXX11 1)
 set(VERSION "2.11.1")
 
 configure_file(
-  config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    config.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
 configure_file(
-  source/src/version.hpp.in
-  ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
+    source/src/version.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
 )
 
 set(libclipper_sources
-  source/libs/clipper/clipper.cpp
-  source/libs/clipper/clipper.hpp
+    source/libs/clipper/clipper.cpp
+    source/libs/clipper/clipper.hpp
 )
 
 set(libxxhash_sources
-  source/libs/xxHash/xxhash.c
-  source/libs/xxHash/xxhash.h
+    source/libs/xxHash/xxhash.c
+    source/libs/xxHash/xxhash.h
 )
 
 set(libbrotli_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
-  source/libs/brotli/common/constants.c
-  source/libs/brotli/common/constants.h
-  source/libs/brotli/common/context.c
-  source/libs/brotli/common/context.h
-  source/libs/brotli/common/dictionary.c
-  source/libs/brotli/common/dictionary.h
-  source/libs/brotli/common/platform.c
-  source/libs/brotli/common/platform.h
-  source/libs/brotli/common/transform.c
-  source/libs/brotli/common/transform.h
-  source/libs/brotli/common/version.h
-  source/libs/brotli/enc/backward_references.c
-  source/libs/brotli/enc/backward_references.h
-  source/libs/brotli/enc/backward_references_hq.c
-  source/libs/brotli/enc/backward_references_hq.h
-  source/libs/brotli/enc/backward_references_inc.h
-  source/libs/brotli/enc/bit_cost.c
-  source/libs/brotli/enc/bit_cost.h
-  source/libs/brotli/enc/bit_cost_inc.h
-  source/libs/brotli/enc/block_encoder_inc.h
-  source/libs/brotli/enc/block_splitter.c
-  source/libs/brotli/enc/block_splitter.h
-  source/libs/brotli/enc/block_splitter_inc.h
-  source/libs/brotli/enc/brotli_bit_stream.c
-  source/libs/brotli/enc/brotli_bit_stream.h
-  source/libs/brotli/enc/cluster.c
-  source/libs/brotli/enc/cluster.h
-  source/libs/brotli/enc/cluster_inc.h
-  source/libs/brotli/enc/command.c
-  source/libs/brotli/enc/command.h
-  source/libs/brotli/enc/compress_fragment.c
-  source/libs/brotli/enc/compress_fragment.h
-  source/libs/brotli/enc/compress_fragment_two_pass.c
-  source/libs/brotli/enc/compress_fragment_two_pass.h
-  source/libs/brotli/enc/dictionary_hash.c
-  source/libs/brotli/enc/dictionary_hash.h
-  source/libs/brotli/enc/encode.c
-  source/libs/brotli/enc/encoder_dict.c
-  source/libs/brotli/enc/encoder_dict.h
-  source/libs/brotli/enc/entropy_encode.c
-  source/libs/brotli/enc/entropy_encode.h
-  source/libs/brotli/enc/entropy_encode_static.h
-  source/libs/brotli/enc/fast_log.c
-  source/libs/brotli/enc/fast_log.h
-  source/libs/brotli/enc/find_match_length.h
-  source/libs/brotli/enc/hash.h
-  source/libs/brotli/enc/hash_composite_inc.h
-  source/libs/brotli/enc/hash_forgetful_chain_inc.h
-  source/libs/brotli/enc/hash_longest_match64_inc.h
-  source/libs/brotli/enc/hash_longest_match_inc.h
-  source/libs/brotli/enc/hash_longest_match_quickly_inc.h
-  source/libs/brotli/enc/hash_rolling_inc.h
-  source/libs/brotli/enc/hash_to_binary_tree_inc.h
-  source/libs/brotli/enc/histogram.c
-  source/libs/brotli/enc/histogram.h
-  source/libs/brotli/enc/histogram_inc.h
-  source/libs/brotli/enc/literal_cost.c
-  source/libs/brotli/enc/literal_cost.h
-  source/libs/brotli/enc/memory.c
-  source/libs/brotli/enc/memory.h
-  source/libs/brotli/enc/metablock.c
-  source/libs/brotli/enc/metablock.h
-  source/libs/brotli/enc/metablock_inc.h
-  source/libs/brotli/enc/params.h
-  source/libs/brotli/enc/prefix.h
-  source/libs/brotli/enc/quality.h
-  source/libs/brotli/enc/ringbuffer.h
-  source/libs/brotli/enc/static_dict.c
-  source/libs/brotli/enc/static_dict.h
-  source/libs/brotli/enc/static_dict_lut.h
-  source/libs/brotli/enc/utf8_util.c
-  source/libs/brotli/enc/utf8_util.h
-  source/libs/brotli/enc/write_bits.h
-  source/libs/brotli/include/brotli/decode.h
-  source/libs/brotli/include/brotli/encode.h
-  source/libs/brotli/include/brotli/port.h
-  source/libs/brotli/include/brotli/types.h
+    ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
+    source/libs/brotli/common/constants.c
+    source/libs/brotli/common/constants.h
+    source/libs/brotli/common/context.c
+    source/libs/brotli/common/context.h
+    source/libs/brotli/common/dictionary.c
+    source/libs/brotli/common/dictionary.h
+    source/libs/brotli/common/platform.c
+    source/libs/brotli/common/platform.h
+    source/libs/brotli/common/transform.c
+    source/libs/brotli/common/transform.h
+    source/libs/brotli/common/version.h
+    source/libs/brotli/enc/backward_references.c
+    source/libs/brotli/enc/backward_references.h
+    source/libs/brotli/enc/backward_references_hq.c
+    source/libs/brotli/enc/backward_references_hq.h
+    source/libs/brotli/enc/backward_references_inc.h
+    source/libs/brotli/enc/bit_cost.c
+    source/libs/brotli/enc/bit_cost.h
+    source/libs/brotli/enc/bit_cost_inc.h
+    source/libs/brotli/enc/block_encoder_inc.h
+    source/libs/brotli/enc/block_splitter.c
+    source/libs/brotli/enc/block_splitter.h
+    source/libs/brotli/enc/block_splitter_inc.h
+    source/libs/brotli/enc/brotli_bit_stream.c
+    source/libs/brotli/enc/brotli_bit_stream.h
+    source/libs/brotli/enc/cluster.c
+    source/libs/brotli/enc/cluster.h
+    source/libs/brotli/enc/cluster_inc.h
+    source/libs/brotli/enc/command.c
+    source/libs/brotli/enc/command.h
+    source/libs/brotli/enc/compress_fragment.c
+    source/libs/brotli/enc/compress_fragment.h
+    source/libs/brotli/enc/compress_fragment_two_pass.c
+    source/libs/brotli/enc/compress_fragment_two_pass.h
+    source/libs/brotli/enc/dictionary_hash.c
+    source/libs/brotli/enc/dictionary_hash.h
+    source/libs/brotli/enc/encode.c
+    source/libs/brotli/enc/encoder_dict.c
+    source/libs/brotli/enc/encoder_dict.h
+    source/libs/brotli/enc/entropy_encode.c
+    source/libs/brotli/enc/entropy_encode.h
+    source/libs/brotli/enc/entropy_encode_static.h
+    source/libs/brotli/enc/fast_log.c
+    source/libs/brotli/enc/fast_log.h
+    source/libs/brotli/enc/find_match_length.h
+    source/libs/brotli/enc/hash.h
+    source/libs/brotli/enc/hash_composite_inc.h
+    source/libs/brotli/enc/hash_forgetful_chain_inc.h
+    source/libs/brotli/enc/hash_longest_match64_inc.h
+    source/libs/brotli/enc/hash_longest_match_inc.h
+    source/libs/brotli/enc/hash_longest_match_quickly_inc.h
+    source/libs/brotli/enc/hash_rolling_inc.h
+    source/libs/brotli/enc/hash_to_binary_tree_inc.h
+    source/libs/brotli/enc/histogram.c
+    source/libs/brotli/enc/histogram.h
+    source/libs/brotli/enc/histogram_inc.h
+    source/libs/brotli/enc/literal_cost.c
+    source/libs/brotli/enc/literal_cost.h
+    source/libs/brotli/enc/memory.c
+    source/libs/brotli/enc/memory.h
+    source/libs/brotli/enc/metablock.c
+    source/libs/brotli/enc/metablock.h
+    source/libs/brotli/enc/metablock_inc.h
+    source/libs/brotli/enc/params.h
+    source/libs/brotli/enc/prefix.h
+    source/libs/brotli/enc/quality.h
+    source/libs/brotli/enc/ringbuffer.h
+    source/libs/brotli/enc/static_dict.c
+    source/libs/brotli/enc/static_dict.h
+    source/libs/brotli/enc/static_dict_lut.h
+    source/libs/brotli/enc/utf8_util.c
+    source/libs/brotli/enc/utf8_util.h
+    source/libs/brotli/enc/write_bits.h
+    source/libs/brotli/include/brotli/decode.h
+    source/libs/brotli/include/brotli/encode.h
+    source/libs/brotli/include/brotli/port.h
+    source/libs/brotli/include/brotli/types.h
 )
 
 set(libwoff2_sources
-  source/libs/woff2/include/woff2/decode.h
-  source/libs/woff2/include/woff2/encode.h
-  source/libs/woff2/include/woff2/output.h
-  source/libs/woff2/include/woff2/version.h
-  source/libs/woff2/src/buffer.h
-  source/libs/woff2/src/font.cc
-  source/libs/woff2/src/font.h
-  source/libs/woff2/src/glyph.cc
-  source/libs/woff2/src/glyph.h
-  source/libs/woff2/src/normalize.cc
-  source/libs/woff2/src/normalize.h
-  source/libs/woff2/src/port.h
-  source/libs/woff2/src/round.h
-  source/libs/woff2/src/store_bytes.h
-  source/libs/woff2/src/table_tags.cc
-  source/libs/woff2/src/table_tags.h
-  source/libs/woff2/src/transform.cc
-  source/libs/woff2/src/transform.h
-  source/libs/woff2/src/variable_length.cc
-  source/libs/woff2/src/variable_length.h
-  source/libs/woff2/src/woff2_common.cc
-  source/libs/woff2/src/woff2_common.h
-  source/libs/woff2/src/woff2_enc.cc
-  source/libs/woff2/src/woff2_out.cc
+    source/libs/woff2/include/woff2/decode.h
+    source/libs/woff2/include/woff2/encode.h
+    source/libs/woff2/include/woff2/output.h
+    source/libs/woff2/include/woff2/version.h
+    source/libs/woff2/src/buffer.h
+    source/libs/woff2/src/font.cc
+    source/libs/woff2/src/font.h
+    source/libs/woff2/src/glyph.cc
+    source/libs/woff2/src/glyph.h
+    source/libs/woff2/src/normalize.cc
+    source/libs/woff2/src/normalize.h
+    source/libs/woff2/src/port.h
+    source/libs/woff2/src/round.h
+    source/libs/woff2/src/store_bytes.h
+    source/libs/woff2/src/table_tags.cc
+    source/libs/woff2/src/table_tags.h
+    source/libs/woff2/src/transform.cc
+    source/libs/woff2/src/transform.h
+    source/libs/woff2/src/variable_length.cc
+    source/libs/woff2/src/variable_length.h
+    source/libs/woff2/src/woff2_common.cc
+    source/libs/woff2/src/woff2_common.h
+    source/libs/woff2/src/woff2_enc.cc
+    source/libs/woff2/src/woff2_out.cc
 )
 
 set(libffwoff_sources
-  source/libs/ff-woff/fontforge/PfEd.h
-  source/libs/ff-woff/fontforge/alphabet.c
-  source/libs/ff-woff/fontforge/asmfpst.c
-  source/libs/ff-woff/fontforge/autohint.c
-  source/libs/ff-woff/fontforge/char.c
-  source/libs/ff-woff/fontforge/cjk.c
-  source/libs/ff-woff/fontforge/configure-fontforge.h
-  source/libs/ff-woff/fontforge/cvundoes.c
-  source/libs/ff-woff/fontforge/dumppfa.c
-  source/libs/ff-woff/fontforge/edgelist.h
-  source/libs/ff-woff/fontforge/edgelist2.h
-  source/libs/ff-woff/fontforge/encoding.c
-  source/libs/ff-woff/fontforge/encoding.h
-  source/libs/ff-woff/fontforge/fflocale.c
-  source/libs/ff-woff/fontforge/fflocale.h
-  source/libs/ff-woff/fontforge/fontforge-config.h
-  source/libs/ff-woff/fontforge/fontforge.h
-  source/libs/ff-woff/fontforge/fontforgevw.h
-  source/libs/ff-woff/fontforge/fvfonts.c
-  source/libs/ff-woff/fontforge/gwwiconv.c
-  source/libs/ff-woff/fontforge/libffstamp.h
-  source/libs/ff-woff/fontforge/lookups.c
-  source/libs/ff-woff/fontforge/macbinary.c
-  source/libs/ff-woff/fontforge/macenc.c
-  source/libs/ff-woff/fontforge/mathconstants.c
-  source/libs/ff-woff/fontforge/memory.c
-  source/libs/ff-woff/fontforge/mm.c
-  source/libs/ff-woff/fontforge/namehash.h
-  source/libs/ff-woff/fontforge/namelist.c
-  source/libs/ff-woff/fontforge/nouiutil.c
-  source/libs/ff-woff/fontforge/nowakowskittfinstr.c
-  source/libs/ff-woff/fontforge/parsepfa.c
-  source/libs/ff-woff/fontforge/parsettf.c
-  source/libs/ff-woff/fontforge/parsettfatt.c
-  source/libs/ff-woff/fontforge/psfont.h
-  source/libs/ff-woff/fontforge/psread.c
-  source/libs/ff-woff/fontforge/pua.c
-  source/libs/ff-woff/fontforge/sd.h
-  source/libs/ff-woff/fontforge/sfd.c
-  source/libs/ff-woff/fontforge/sfd1.c
-  source/libs/ff-woff/fontforge/sfd1.h
-  source/libs/ff-woff/fontforge/splinechar.c
-  source/libs/ff-woff/fontforge/splinefont.c
-  source/libs/ff-woff/fontforge/splinefont.h
-  source/libs/ff-woff/fontforge/splineorder2.c
-  source/libs/ff-woff/fontforge/splineoverlap.c
-  source/libs/ff-woff/fontforge/splinerefigure.c
-  source/libs/ff-woff/fontforge/splinesave.c
-  source/libs/ff-woff/fontforge/splinesaveafm.c
-  source/libs/ff-woff/fontforge/splineutil.c
-  source/libs/ff-woff/fontforge/splineutil2.c
-  source/libs/ff-woff/fontforge/start.c
-  source/libs/ff-woff/fontforge/stemdb.c
-  source/libs/ff-woff/fontforge/stemdb.h
-  source/libs/ff-woff/fontforge/tables.h
-  source/libs/ff-woff/fontforge/tmpfile2.cpp
-  source/libs/ff-woff/fontforge/tottf.c
-  source/libs/ff-woff/fontforge/tottfaat.c
-  source/libs/ff-woff/fontforge/tottfgpos.c
-  source/libs/ff-woff/fontforge/tottfvar.c
-  source/libs/ff-woff/fontforge/ttf.h
-  source/libs/ff-woff/fontforge/ttfinstrs.c
-  source/libs/ff-woff/fontforge/ttfinstrs.h
-  source/libs/ff-woff/fontforge/ttfspecial.c
-  source/libs/ff-woff/fontforge/uiinterface.h
-  source/libs/ff-woff/fontforge/unialt.c
-  source/libs/ff-woff/fontforge/ustring.c
-  source/libs/ff-woff/fontforge/utype.c
-  source/libs/ff-woff/fontforge/woff.c
-  source/libs/ff-woff/inc/basics.h
-  source/libs/ff-woff/inc/chardata.h
-  source/libs/ff-woff/inc/charset.h
-  source/libs/ff-woff/inc/dlist.h
-  source/libs/ff-woff/inc/ffintl.h
-  source/libs/ff-woff/inc/gimage.h
-  source/libs/ff-woff/inc/gnetwork.h
-  source/libs/ff-woff/inc/gwwiconv.h
-  source/libs/ff-woff/inc/ustring.h
-  source/libs/ff-woff/inc/utype.h
+    source/libs/ff-woff/fontforge/PfEd.h
+    source/libs/ff-woff/fontforge/alphabet.c
+    source/libs/ff-woff/fontforge/asmfpst.c
+    source/libs/ff-woff/fontforge/autohint.c
+    source/libs/ff-woff/fontforge/char.c
+    source/libs/ff-woff/fontforge/cjk.c
+    source/libs/ff-woff/fontforge/configure-fontforge.h
+    source/libs/ff-woff/fontforge/cvundoes.c
+    source/libs/ff-woff/fontforge/dumppfa.c
+    source/libs/ff-woff/fontforge/edgelist.h
+    source/libs/ff-woff/fontforge/edgelist2.h
+    source/libs/ff-woff/fontforge/encoding.c
+    source/libs/ff-woff/fontforge/encoding.h
+    source/libs/ff-woff/fontforge/fflocale.c
+    source/libs/ff-woff/fontforge/fflocale.h
+    source/libs/ff-woff/fontforge/fontforge-config.h
+    source/libs/ff-woff/fontforge/fontforge.h
+    source/libs/ff-woff/fontforge/fontforgevw.h
+    source/libs/ff-woff/fontforge/fvfonts.c
+    source/libs/ff-woff/fontforge/gwwiconv.c
+    source/libs/ff-woff/fontforge/libffstamp.h
+    source/libs/ff-woff/fontforge/lookups.c
+    source/libs/ff-woff/fontforge/macbinary.c
+    source/libs/ff-woff/fontforge/macenc.c
+    source/libs/ff-woff/fontforge/mathconstants.c
+    source/libs/ff-woff/fontforge/memory.c
+    source/libs/ff-woff/fontforge/mm.c
+    source/libs/ff-woff/fontforge/namehash.h
+    source/libs/ff-woff/fontforge/namelist.c
+    source/libs/ff-woff/fontforge/nouiutil.c
+    source/libs/ff-woff/fontforge/nowakowskittfinstr.c
+    source/libs/ff-woff/fontforge/parsepfa.c
+    source/libs/ff-woff/fontforge/parsettf.c
+    source/libs/ff-woff/fontforge/parsettfatt.c
+    source/libs/ff-woff/fontforge/psfont.h
+    source/libs/ff-woff/fontforge/psread.c
+    source/libs/ff-woff/fontforge/pua.c
+    source/libs/ff-woff/fontforge/sd.h
+    source/libs/ff-woff/fontforge/sfd.c
+    source/libs/ff-woff/fontforge/sfd1.c
+    source/libs/ff-woff/fontforge/sfd1.h
+    source/libs/ff-woff/fontforge/splinechar.c
+    source/libs/ff-woff/fontforge/splinefont.c
+    source/libs/ff-woff/fontforge/splinefont.h
+    source/libs/ff-woff/fontforge/splineorder2.c
+    source/libs/ff-woff/fontforge/splineoverlap.c
+    source/libs/ff-woff/fontforge/splinerefigure.c
+    source/libs/ff-woff/fontforge/splinesave.c
+    source/libs/ff-woff/fontforge/splinesaveafm.c
+    source/libs/ff-woff/fontforge/splineutil.c
+    source/libs/ff-woff/fontforge/splineutil2.c
+    source/libs/ff-woff/fontforge/start.c
+    source/libs/ff-woff/fontforge/stemdb.c
+    source/libs/ff-woff/fontforge/stemdb.h
+    source/libs/ff-woff/fontforge/tables.h
+    source/libs/ff-woff/fontforge/tmpfile2.cpp
+    source/libs/ff-woff/fontforge/tottf.c
+    source/libs/ff-woff/fontforge/tottfaat.c
+    source/libs/ff-woff/fontforge/tottfgpos.c
+    source/libs/ff-woff/fontforge/tottfvar.c
+    source/libs/ff-woff/fontforge/ttf.h
+    source/libs/ff-woff/fontforge/ttfinstrs.c
+    source/libs/ff-woff/fontforge/ttfinstrs.h
+    source/libs/ff-woff/fontforge/ttfspecial.c
+    source/libs/ff-woff/fontforge/uiinterface.h
+    source/libs/ff-woff/fontforge/unialt.c
+    source/libs/ff-woff/fontforge/ustring.c
+    source/libs/ff-woff/fontforge/utype.c
+    source/libs/ff-woff/fontforge/woff.c
+    source/libs/ff-woff/inc/basics.h
+    source/libs/ff-woff/inc/chardata.h
+    source/libs/ff-woff/inc/charset.h
+    source/libs/ff-woff/inc/dlist.h
+    source/libs/ff-woff/inc/ffintl.h
+    source/libs/ff-woff/inc/gimage.h
+    source/libs/ff-woff/inc/gnetwork.h
+    source/libs/ff-woff/inc/gwwiconv.h
+    source/libs/ff-woff/inc/ustring.h
+    source/libs/ff-woff/inc/utype.h
 )
 
 set(potrace_sources
-  source/libs/potrace/auxiliary.h
-  source/libs/potrace/bitmap.h
-  source/libs/potrace/config.h
-  source/libs/potrace/curve.c
-  source/libs/potrace/curve.h
-  source/libs/potrace/decompose.c
-  source/libs/potrace/decompose.h
-  source/libs/potrace/lists.h
-  source/libs/potrace/potracelib.c
-  source/libs/potrace/potracelib.h
-  source/libs/potrace/progress.h
-  source/libs/potrace/trace.c
-  source/libs/potrace/trace.h
+    source/libs/potrace/auxiliary.h
+    source/libs/potrace/bitmap.h
+    source/libs/potrace/config.h
+    source/libs/potrace/curve.c
+    source/libs/potrace/curve.h
+    source/libs/potrace/decompose.c
+    source/libs/potrace/decompose.h
+    source/libs/potrace/lists.h
+    source/libs/potrace/potracelib.c
+    source/libs/potrace/potracelib.h
+    source/libs/potrace/progress.h
+    source/libs/potrace/trace.c
+    source/libs/potrace/trace.h
 )
 
 set(liboptimizer_sources
-  source/src/optimizer/AttributeExtractor.cpp
-  source/src/optimizer/AttributeExtractor.hpp
-  source/src/optimizer/DependencyGraph.hpp
-  source/src/optimizer/GroupCollapser.cpp
-  source/src/optimizer/GroupCollapser.hpp
-  source/src/optimizer/OptimizerModule.hpp
-  source/src/optimizer/RedundantElementRemover.cpp
-  source/src/optimizer/RedundantElementRemover.hpp
-  source/src/optimizer/SVGOptimizer.cpp
-  source/src/optimizer/SVGOptimizer.hpp
-  source/src/optimizer/TextSimplifier.cpp
-  source/src/optimizer/TextSimplifier.hpp
-  source/src/optimizer/TransformSimplifier.cpp
-  source/src/optimizer/TransformSimplifier.hpp
-  source/src/optimizer/WSNodeRemover.cpp
-  source/src/optimizer/WSNodeRemover.hpp
+    source/src/optimizer/AttributeExtractor.cpp
+    source/src/optimizer/AttributeExtractor.hpp
+    source/src/optimizer/DependencyGraph.hpp
+    source/src/optimizer/GroupCollapser.cpp
+    source/src/optimizer/GroupCollapser.hpp
+    source/src/optimizer/OptimizerModule.hpp
+    source/src/optimizer/RedundantElementRemover.cpp
+    source/src/optimizer/RedundantElementRemover.hpp
+    source/src/optimizer/SVGOptimizer.cpp
+    source/src/optimizer/SVGOptimizer.hpp
+    source/src/optimizer/TextSimplifier.cpp
+    source/src/optimizer/TextSimplifier.hpp
+    source/src/optimizer/TransformSimplifier.cpp
+    source/src/optimizer/TransformSimplifier.hpp
+    source/src/optimizer/WSNodeRemover.cpp
+    source/src/optimizer/WSNodeRemover.hpp
 )
 
 set(libdvisvgm_sources
-  source/src/AGLTable.hpp
-  source/src/BasicDVIReader.cpp
-  source/src/BasicDVIReader.hpp
-  source/src/Bezier.cpp
-  source/src/Bezier.hpp
-  source/src/BgColorSpecialHandler.cpp
-  source/src/BgColorSpecialHandler.hpp
-  source/src/Bitmap.cpp
-  source/src/Bitmap.hpp
-  source/src/BoundingBox.cpp
-  source/src/BoundingBox.hpp
-  source/src/CLCommandLine.cpp
-  source/src/CLCommandLine.hpp
-  source/src/CLOption.hpp
-  source/src/CMap.cpp
-  source/src/CMap.hpp
-  source/src/CMapManager.cpp
-  source/src/CMapManager.hpp
-  source/src/CMapReader.cpp
-  source/src/CMapReader.hpp
-  source/src/Calculator.cpp
-  source/src/Calculator.hpp
-  source/src/CharMapID.cpp
-  source/src/CharMapID.hpp
-  source/src/Character.hpp
-  source/src/Color.cpp
-  source/src/Color.hpp
-  source/src/ColorSpecialHandler.cpp
-  source/src/ColorSpecialHandler.hpp
-  source/src/CommandLine.hpp
-  source/src/DLLoader.cpp
-  source/src/DLLoader.hpp
-  source/src/DVIActions.hpp
-  source/src/DVIReader.cpp
-  source/src/DVIReader.hpp
-  source/src/DVIToSVG.cpp
-  source/src/DVIToSVG.hpp
-  source/src/DVIToSVGActions.cpp
-  source/src/DVIToSVGActions.hpp
-  source/src/Directory.cpp
-  source/src/Directory.hpp
-  source/src/DvisvgmSpecialHandler.cpp
-  source/src/DvisvgmSpecialHandler.hpp
-  source/src/EPSFile.cpp
-  source/src/EPSFile.hpp
-  source/src/EPSToSVG.hpp
-  source/src/EllipticalArc.cpp
-  source/src/EllipticalArc.hpp
-  source/src/EmSpecialHandler.cpp
-  source/src/EmSpecialHandler.hpp
-  source/src/EncFile.cpp
-  source/src/EncFile.hpp
-  source/src/FileFinder.cpp
-  source/src/FileFinder.hpp
-  source/src/FilePath.cpp
-  source/src/FilePath.hpp
-  source/src/FileSystem.cpp
-  source/src/FileSystem.hpp
-  source/src/FixWord.hpp
-  source/src/Font.cpp
-  source/src/Font.hpp
-  source/src/FontCache.cpp
-  source/src/FontCache.hpp
-  source/src/FontEncoding.cpp
-  source/src/FontEncoding.hpp
-  source/src/FontEngine.cpp
-  source/src/FontEngine.hpp
-  source/src/FontManager.cpp
-  source/src/FontManager.hpp
-  source/src/FontMap.cpp
-  source/src/FontMap.hpp
-  source/src/FontMetrics.cpp
-  source/src/FontMetrics.hpp
-  source/src/FontStyle.hpp
-  source/src/FontWriter.cpp
-  source/src/FontWriter.hpp
-  source/src/GFGlyphTracer.cpp
-  source/src/GFGlyphTracer.hpp
-  source/src/GFReader.cpp
-  source/src/GFReader.hpp
-  source/src/GFTracer.cpp
-  source/src/GFTracer.hpp
-  source/src/Ghostscript.cpp
-  source/src/Ghostscript.hpp
-  source/src/Glyph.hpp
-  source/src/GlyphTracerMessages.hpp
-  source/src/GraphicsPath.hpp
-  source/src/HashFunction.cpp
-  source/src/HashFunction.hpp
-  source/src/HtmlSpecialHandler.cpp
-  source/src/HtmlSpecialHandler.hpp
-  source/src/HyperlinkManager.cpp
-  source/src/HyperlinkManager.hpp
-  source/src/ImageToSVG.cpp
-  source/src/ImageToSVG.hpp
-  source/src/InputBuffer.cpp
-  source/src/InputBuffer.hpp
-  source/src/InputReader.cpp
-  source/src/InputReader.hpp
-  source/src/JFM.cpp
-  source/src/JFM.hpp
-  source/src/Length.cpp
-  source/src/Length.hpp
-  source/src/MD5HashFunction.hpp
-  source/src/MapLine.cpp
-  source/src/MapLine.hpp
-  source/src/Matrix.cpp
-  source/src/Matrix.hpp
-  source/src/Message.cpp
-  source/src/Message.hpp
-  source/src/MessageException.hpp
-  source/src/MetafontWrapper.cpp
-  source/src/MetafontWrapper.hpp
-  source/src/NoPsSpecialHandler.cpp
-  source/src/NoPsSpecialHandler.hpp
-  source/src/NumericRanges.hpp
-  source/src/Opacity.cpp
-  source/src/Opacity.hpp
-  source/src/PDFParser.cpp
-  source/src/PDFParser.hpp
-  source/src/PDFToSVG.hpp
-  source/src/PSFilter.hpp
-  source/src/PSInterpreter.cpp
-  source/src/PSInterpreter.hpp
-  source/src/PSPattern.cpp
-  source/src/PSPattern.hpp
-  source/src/PSPreviewFilter.cpp
-  source/src/PSPreviewFilter.hpp
-  source/src/PageRanges.cpp
-  source/src/PageRanges.hpp
-  source/src/PageSize.cpp
-  source/src/PageSize.hpp
-  source/src/Pair.hpp
-  source/src/PapersizeSpecialHandler.cpp
-  source/src/PapersizeSpecialHandler.hpp
-  source/src/PathClipper.cpp
-  source/src/PathClipper.hpp
-  source/src/PdfSpecialHandler.cpp
-  source/src/PdfSpecialHandler.hpp
-  source/src/PreScanDVIReader.cpp
-  source/src/PreScanDVIReader.hpp
-  source/src/PsSpecialHandler.cpp
-  source/src/PsSpecialHandler.hpp
-  source/src/RangeMap.cpp
-  source/src/RangeMap.hpp
-  source/src/SVGCharHandler.cpp
-  source/src/SVGCharHandler.hpp
-  source/src/SVGCharHandlerFactory.cpp
-  source/src/SVGCharHandlerFactory.hpp
-  source/src/SVGCharPathHandler.cpp
-  source/src/SVGCharPathHandler.hpp
-  source/src/SVGCharTspanTextHandler.cpp
-  source/src/SVGCharTspanTextHandler.hpp
-  source/src/SVGElement.cpp
-  source/src/SVGElement.hpp
-  source/src/SVGOutput.cpp
-  source/src/SVGOutput.hpp
-  source/src/SVGSingleCharTextHandler.cpp
-  source/src/SVGSingleCharTextHandler.hpp
-  source/src/SVGTree.cpp
-  source/src/SVGTree.hpp
-  source/src/ShadingPatch.cpp
-  source/src/ShadingPatch.hpp
-  source/src/SignalHandler.cpp
-  source/src/SignalHandler.hpp
-  source/src/SourceInput.cpp
-  source/src/SourceInput.hpp
-  source/src/SpecialActions.hpp
-  source/src/SpecialHandler.hpp
-  source/src/SpecialManager.cpp
-  source/src/SpecialManager.hpp
-  source/src/StreamReader.cpp
-  source/src/StreamReader.hpp
-  source/src/StreamWriter.cpp
-  source/src/StreamWriter.hpp
-  source/src/Subfont.cpp
-  source/src/Subfont.hpp
-  source/src/System.cpp
-  source/src/System.hpp
-  source/src/TFM.cpp
-  source/src/TFM.hpp
-  source/src/TTFAutohint.cpp
-  source/src/TTFAutohint.hpp
-  source/src/TensorProductPatch.cpp
-  source/src/TensorProductPatch.hpp
-  source/src/Terminal.cpp
-  source/src/Terminal.hpp
-  source/src/ToUnicodeMap.cpp
-  source/src/ToUnicodeMap.hpp
-  source/src/TpicSpecialHandler.cpp
-  source/src/TpicSpecialHandler.hpp
-  source/src/TriangularPatch.cpp
-  source/src/TriangularPatch.hpp
-  source/src/TrueTypeFont.cpp
-  source/src/TrueTypeFont.hpp
-  source/src/Unicode.cpp
-  source/src/Unicode.hpp
-  source/src/VFActions.hpp
-  source/src/VFReader.cpp
-  source/src/VFReader.hpp
-  source/src/VectorIterator.hpp
-  source/src/VectorStream.hpp
-  source/src/XMLDocument.cpp
-  source/src/XMLDocument.hpp
-  source/src/XMLNode.cpp
-  source/src/XMLNode.hpp
-  source/src/XMLString.cpp
-  source/src/XMLString.hpp
-  source/src/XXHashFunction.hpp
-  source/src/ZLibOutputStream.hpp
-  source/src/macros.hpp
-  source/src/psdefs.cpp
-  source/src/utility.cpp
-  source/src/utility.hpp
-  source/src/windows.hpp
+    source/src/AGLTable.hpp
+    source/src/BasicDVIReader.cpp
+    source/src/BasicDVIReader.hpp
+    source/src/Bezier.cpp
+    source/src/Bezier.hpp
+    source/src/BgColorSpecialHandler.cpp
+    source/src/BgColorSpecialHandler.hpp
+    source/src/Bitmap.cpp
+    source/src/Bitmap.hpp
+    source/src/BoundingBox.cpp
+    source/src/BoundingBox.hpp
+    source/src/CLCommandLine.cpp
+    source/src/CLCommandLine.hpp
+    source/src/CLOption.hpp
+    source/src/CMap.cpp
+    source/src/CMap.hpp
+    source/src/CMapManager.cpp
+    source/src/CMapManager.hpp
+    source/src/CMapReader.cpp
+    source/src/CMapReader.hpp
+    source/src/Calculator.cpp
+    source/src/Calculator.hpp
+    source/src/CharMapID.cpp
+    source/src/CharMapID.hpp
+    source/src/Character.hpp
+    source/src/Color.cpp
+    source/src/Color.hpp
+    source/src/ColorSpecialHandler.cpp
+    source/src/ColorSpecialHandler.hpp
+    source/src/CommandLine.hpp
+    source/src/DLLoader.cpp
+    source/src/DLLoader.hpp
+    source/src/DVIActions.hpp
+    source/src/DVIReader.cpp
+    source/src/DVIReader.hpp
+    source/src/DVIToSVG.cpp
+    source/src/DVIToSVG.hpp
+    source/src/DVIToSVGActions.cpp
+    source/src/DVIToSVGActions.hpp
+    source/src/Directory.cpp
+    source/src/Directory.hpp
+    source/src/DvisvgmSpecialHandler.cpp
+    source/src/DvisvgmSpecialHandler.hpp
+    source/src/EPSFile.cpp
+    source/src/EPSFile.hpp
+    source/src/EPSToSVG.hpp
+    source/src/EllipticalArc.cpp
+    source/src/EllipticalArc.hpp
+    source/src/EmSpecialHandler.cpp
+    source/src/EmSpecialHandler.hpp
+    source/src/EncFile.cpp
+    source/src/EncFile.hpp
+    source/src/FileFinder.cpp
+    source/src/FileFinder.hpp
+    source/src/FilePath.cpp
+    source/src/FilePath.hpp
+    source/src/FileSystem.cpp
+    source/src/FileSystem.hpp
+    source/src/FixWord.hpp
+    source/src/Font.cpp
+    source/src/Font.hpp
+    source/src/FontCache.cpp
+    source/src/FontCache.hpp
+    source/src/FontEncoding.cpp
+    source/src/FontEncoding.hpp
+    source/src/FontEngine.cpp
+    source/src/FontEngine.hpp
+    source/src/FontManager.cpp
+    source/src/FontManager.hpp
+    source/src/FontMap.cpp
+    source/src/FontMap.hpp
+    source/src/FontMetrics.cpp
+    source/src/FontMetrics.hpp
+    source/src/FontStyle.hpp
+    source/src/FontWriter.cpp
+    source/src/FontWriter.hpp
+    source/src/GFGlyphTracer.cpp
+    source/src/GFGlyphTracer.hpp
+    source/src/GFReader.cpp
+    source/src/GFReader.hpp
+    source/src/GFTracer.cpp
+    source/src/GFTracer.hpp
+    source/src/Ghostscript.cpp
+    source/src/Ghostscript.hpp
+    source/src/Glyph.hpp
+    source/src/GlyphTracerMessages.hpp
+    source/src/GraphicsPath.hpp
+    source/src/HashFunction.cpp
+    source/src/HashFunction.hpp
+    source/src/HtmlSpecialHandler.cpp
+    source/src/HtmlSpecialHandler.hpp
+    source/src/HyperlinkManager.cpp
+    source/src/HyperlinkManager.hpp
+    source/src/ImageToSVG.cpp
+    source/src/ImageToSVG.hpp
+    source/src/InputBuffer.cpp
+    source/src/InputBuffer.hpp
+    source/src/InputReader.cpp
+    source/src/InputReader.hpp
+    source/src/JFM.cpp
+    source/src/JFM.hpp
+    source/src/Length.cpp
+    source/src/Length.hpp
+    source/src/MD5HashFunction.hpp
+    source/src/MapLine.cpp
+    source/src/MapLine.hpp
+    source/src/Matrix.cpp
+    source/src/Matrix.hpp
+    source/src/Message.cpp
+    source/src/Message.hpp
+    source/src/MessageException.hpp
+    source/src/MetafontWrapper.cpp
+    source/src/MetafontWrapper.hpp
+    source/src/NoPsSpecialHandler.cpp
+    source/src/NoPsSpecialHandler.hpp
+    source/src/NumericRanges.hpp
+    source/src/Opacity.cpp
+    source/src/Opacity.hpp
+    source/src/PDFParser.cpp
+    source/src/PDFParser.hpp
+    source/src/PDFToSVG.hpp
+    source/src/PSFilter.hpp
+    source/src/PSInterpreter.cpp
+    source/src/PSInterpreter.hpp
+    source/src/PSPattern.cpp
+    source/src/PSPattern.hpp
+    source/src/PSPreviewFilter.cpp
+    source/src/PSPreviewFilter.hpp
+    source/src/PageRanges.cpp
+    source/src/PageRanges.hpp
+    source/src/PageSize.cpp
+    source/src/PageSize.hpp
+    source/src/Pair.hpp
+    source/src/PapersizeSpecialHandler.cpp
+    source/src/PapersizeSpecialHandler.hpp
+    source/src/PathClipper.cpp
+    source/src/PathClipper.hpp
+    source/src/PdfSpecialHandler.cpp
+    source/src/PdfSpecialHandler.hpp
+    source/src/PreScanDVIReader.cpp
+    source/src/PreScanDVIReader.hpp
+    source/src/PsSpecialHandler.cpp
+    source/src/PsSpecialHandler.hpp
+    source/src/RangeMap.cpp
+    source/src/RangeMap.hpp
+    source/src/SVGCharHandler.cpp
+    source/src/SVGCharHandler.hpp
+    source/src/SVGCharHandlerFactory.cpp
+    source/src/SVGCharHandlerFactory.hpp
+    source/src/SVGCharPathHandler.cpp
+    source/src/SVGCharPathHandler.hpp
+    source/src/SVGCharTspanTextHandler.cpp
+    source/src/SVGCharTspanTextHandler.hpp
+    source/src/SVGElement.cpp
+    source/src/SVGElement.hpp
+    source/src/SVGOutput.cpp
+    source/src/SVGOutput.hpp
+    source/src/SVGSingleCharTextHandler.cpp
+    source/src/SVGSingleCharTextHandler.hpp
+    source/src/SVGTree.cpp
+    source/src/SVGTree.hpp
+    source/src/ShadingPatch.cpp
+    source/src/ShadingPatch.hpp
+    source/src/SignalHandler.cpp
+    source/src/SignalHandler.hpp
+    source/src/SourceInput.cpp
+    source/src/SourceInput.hpp
+    source/src/SpecialActions.hpp
+    source/src/SpecialHandler.hpp
+    source/src/SpecialManager.cpp
+    source/src/SpecialManager.hpp
+    source/src/StreamReader.cpp
+    source/src/StreamReader.hpp
+    source/src/StreamWriter.cpp
+    source/src/StreamWriter.hpp
+    source/src/Subfont.cpp
+    source/src/Subfont.hpp
+    source/src/System.cpp
+    source/src/System.hpp
+    source/src/TFM.cpp
+    source/src/TFM.hpp
+    source/src/TTFAutohint.cpp
+    source/src/TTFAutohint.hpp
+    source/src/TensorProductPatch.cpp
+    source/src/TensorProductPatch.hpp
+    source/src/Terminal.cpp
+    source/src/Terminal.hpp
+    source/src/ToUnicodeMap.cpp
+    source/src/ToUnicodeMap.hpp
+    source/src/TpicSpecialHandler.cpp
+    source/src/TpicSpecialHandler.hpp
+    source/src/TriangularPatch.cpp
+    source/src/TriangularPatch.hpp
+    source/src/TrueTypeFont.cpp
+    source/src/TrueTypeFont.hpp
+    source/src/Unicode.cpp
+    source/src/Unicode.hpp
+    source/src/VFActions.hpp
+    source/src/VFReader.cpp
+    source/src/VFReader.hpp
+    source/src/VectorIterator.hpp
+    source/src/VectorStream.hpp
+    source/src/XMLDocument.cpp
+    source/src/XMLDocument.hpp
+    source/src/XMLNode.cpp
+    source/src/XMLNode.hpp
+    source/src/XMLString.cpp
+    source/src/XMLString.hpp
+    source/src/XXHashFunction.hpp
+    source/src/ZLibOutputStream.hpp
+    source/src/macros.hpp
+    source/src/psdefs.cpp
+    source/src/utility.cpp
+    source/src/utility.hpp
+    source/src/windows.hpp
 )
 
 list(APPEND libdvisvgm_sources
-  source/src/ffwrapper.c
-  source/src/ffwrapper.h
+    source/src/ffwrapper.c
+    source/src/ffwrapper.h
 )
 
 set(dvisvgm_c_sources
-  source/src/dvisvgm.cpp
+    source/src/dvisvgm.cpp
 )
 
 set(dvisvgm_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h
-  ${MIKTEX_LIBRARY_WRAPPER}
-  ${dvisvgm_c_sources}
-  ${libbrotli_sources}
-  ${libclipper_sources}
-  ${libdvisvgm_sources}
-  ${libffwoff_sources}
-  ${liboptimizer_sources}
-  ${libwoff2_sources}
-  ${libxxhash_sources}
-  ${potrace_sources}
-  dvisvgm-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    ${MIKTEX_LIBRARY_WRAPPER}
+    ${dvisvgm_c_sources}
+    ${libbrotli_sources}
+    ${libclipper_sources}
+    ${libdvisvgm_sources}
+    ${libffwoff_sources}
+    ${liboptimizer_sources}
+    ${libwoff2_sources}
+    ${libxxhash_sources}
+    ${potrace_sources}
+    miktex-dvisvgm-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND dvisvgm_sources
-    ${MIKTEX_COMMON_MANIFEST}
-    dvisvgm.rc
-  )
+    list(APPEND dvisvgm_sources
+        ${MIKTEX_COMMON_MANIFEST}
+        miktex-dvisvgm.rc
+    )
 endif()
 
 set_source_files_properties(${MIKTEX_LIBRARY_WRAPPER}
-  PROPERTIES
-    COMPILE_FLAGS "-DCPLUSPLUSMAIN -DBEQUIET"
+    PROPERTIES
+        COMPILE_FLAGS "-DCPLUSPLUSMAIN -DBEQUIET"
 )
 
 add_executable(${MIKTEX_PREFIX}dvisvgm ${dvisvgm_sources})
@@ -555,33 +544,33 @@ add_executable(${MIKTEX_PREFIX}dvisvgm ${dvisvgm_sources})
 set_property(TARGET ${MIKTEX_PREFIX}dvisvgm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::FREETYPE2)
+    target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${freetype2_dll_name})
+    target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::ZLIB)
+    target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${zlib_dll_name})
+    target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${zlib_dll_name})
 endif()
 
 target_link_libraries(${MIKTEX_PREFIX}dvisvgm
-  ${app_dll_name}
-  ${core_dll_name}
-  ${kpsemu_dll_name}
-  ${texmf_dll_name}
+    ${app_dll_name}
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+    ${texmf_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm
-    ${unxemu_dll_name}
-    ${utf8wrap_dll_name}
-  )
+    target_link_libraries(${MIKTEX_PREFIX}dvisvgm
+        ${unxemu_dll_name}
+        ${utf8wrap_dll_name}
+    )
 else()
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm
-    ${CMAKE_DL_LIBS}
-  )
+    target_link_libraries(${MIKTEX_PREFIX}dvisvgm
+        ${CMAKE_DL_LIBS}
+    )
 endif()
 
 install(TARGETS ${MIKTEX_PREFIX}dvisvgm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
