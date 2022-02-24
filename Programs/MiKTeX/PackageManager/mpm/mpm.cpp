@@ -174,7 +174,43 @@ class Application :
     public PackageInstallerCallback,
     public TraceCallback
 {
+public:
+
+    Application()
+    {
+        InstallSignalHandler(SIGINT);
+        InstallSignalHandler(SIGTERM);
+    }
+    void MIKTEXTHISCALL ReportLine(const string& str) override;
+    bool MIKTEXTHISCALL OnRetryableError(const string& message) override;
+    bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf) override;
+    void Main(int argc, const char** argv);
+
+    bool MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override
+    {
+        if (!isLog4cxxConfigured)
+        {
+            if (pendingTraceMessages.size() > 100)
+            {
+                pendingTraceMessages.clear();
+            }
+            pendingTraceMessages.push_back(traceMessage);
+            return true;
+        }
+        FlushPendingTraceMessages();
+        TraceInternal(traceMessage);
+        return true;
+    }
+
+    static void Sorry(const string& description, const string& remedy, const string& url);
+
+    static void Sorry()
+    {
+        Sorry("", "", "");
+    }
+
 private:
+
     void InstallSignalHandler(int sig)
     {
         void(*oldHandlerFunc) (int);
@@ -192,147 +228,31 @@ private:
         }
     }
 
-public:
-    Application()
-    {
-        InstallSignalHandler(SIGINT);
-        InstallSignalHandler(SIGTERM);
-    }
-
-public:
-    void MIKTEXTHISCALL ReportLine(const string& str) override;
-
-public:
-    bool MIKTEXTHISCALL OnRetryableError(const string& message) override;
-
-public:
-    bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf) override;
-
-public:
-    void Main(int argc, const char** argv);
-
-private:
     void Verbose(const string& s);
-
-private:
     void Warn(const string& s);
-
-private:
     void SecurityRisk(const string& s);
-
-private:
     void Message(const string& s);
-
-private:
     MIKTEXNORETURN void Error(const string& s);
-
-private:
     void UpdateDb();
-
-private:
     void Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved);
-
-#if defined(MIKTEX_WINDOWS)
-private:
-    void RegisterComponents(bool doRegister);
-#endif
-
-private:
     void Verify(const vector<string>& toBeVerified);
-
-private:
     void VerifyMiKTeX();
-
-private:
     void FindConflicts();
-
-private:
     void ImportPackage(const string& packageId, vector<string>& toBeinstalled);
-
-private:
     void ImportPackages(vector<string>& toBeinstalled);
-
-private:
     void FindUpdates();
-
-private:
     void Update(const vector<string>& updates);
-
-private:
     void FindUpgrades(PackageLevel packageLevel);
-
-private:
     void Upgrade(PackageLevel packageLevel);
-
-private:
     string GetDirectories(const string& packageId);
-
-private:
     void List(OutputFormat outputFormat, int maxCount);
-
-private:
     void ListRepositories(OutputFormat outputFormat);
-
-private:
     void CheckRepositories();
-
-private:
     void PickRepositoryUrl();
-
-private:
     void PrintFiles(const vector<string>& files);
-
-private:
     void PrintPackageInfo(const string& packageId);
-
-private:
     void RestartWindowed();
 
-private:
-    static void SignalHandler(int sig);
-
-private:
-    shared_ptr<PackageManager> packageManager;
-
-private:
-    shared_ptr<Session> session;
-
-private:
-    static const struct poptOption aoption[];
-
-private:
-    static volatile sig_atomic_t interrupted;
-
-private:
-    bool verbose = false;
-
-private:
-    bool quiet = false;
-
-private:
-    string repository;
-
-private:
-    vector<TraceCallback::TraceMessage> pendingTraceMessages;
-
-public:
-    bool MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override
-    {
-        if (!isLog4cxxConfigured)
-        {
-            if (pendingTraceMessages.size() > 100)
-            {
-                pendingTraceMessages.clear();
-            }
-            pendingTraceMessages.push_back(traceMessage);
-            return true;
-        }
-        FlushPendingTraceMessages();
-        TraceInternal(traceMessage);
-        return true;
-    }
-
-private:
     void FlushPendingTraceMessages()
     {
         for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
@@ -342,7 +262,6 @@ private:
         pendingTraceMessages.clear();
     }
 
-private:
     void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
     {
         log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.mpmcli.") + traceMessage.facility);
@@ -370,14 +289,21 @@ private:
         }
     }
 
-public:
-    static void Sorry(const string& description, const string& remedy, const string& url);
+#if defined(MIKTEX_WINDOWS)
+    void RegisterComponents(bool doRegister);
+#endif
 
-public:
-    static void Sorry()
-    {
-        Sorry("", "", "");
-    }
+    static void SignalHandler(int sig);
+
+    shared_ptr<PackageManager> packageManager;
+    shared_ptr<Session> session;
+    bool verbose = false;
+    bool quiet = false;
+    string repository;
+    vector<TraceCallback::TraceMessage> pendingTraceMessages;
+
+    static const struct poptOption aoption[];
+    static volatile sig_atomic_t interrupted;
 };
 
 enum Option
