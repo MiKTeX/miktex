@@ -109,7 +109,7 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
             name = popt.GetOptArg();
             break;
         case OPT_TEMPLATE:
-            outputTemplate = popt.GetOptArg();
+            outputTemplate = Unescape(popt.GetOptArg());
             break;
         }
     }

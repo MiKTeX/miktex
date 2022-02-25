@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Internal definitions
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -14,6 +14,7 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include <miktex/Definitions>
@@ -97,5 +98,39 @@ namespace OneMiKTeXUtility
         }
         argv.push_back(nullptr);
         return argv;
+    }
+
+    inline std::string Unescape(const std::string& s)
+    {
+        std::stringstream out;
+        bool wasEsc = false;
+        for (auto ch : s)
+        {
+            if (wasEsc)
+            {
+                wasEsc = false;
+                switch (ch)
+                {
+                    case '\\':
+                        out << "\\";
+                        break;
+                    case 'n':
+                        out << "\n";
+                        break;
+                    default:
+                        out << "\\" << ch;
+                        break;
+                }
+            }
+            else if (ch == '\\')
+            {
+                wasEsc = true;
+            }
+            else
+            {
+                out << ch;
+            }
+        }
+        return out.str();
     }
 }

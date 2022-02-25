@@ -113,7 +113,7 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
         switch (option)
         {
         case OPT_TEMPLATE:
-            outputTemplate = popt.GetOptArg();
+            outputTemplate = Unescape(popt.GetOptArg());
             break;
         }
     }
