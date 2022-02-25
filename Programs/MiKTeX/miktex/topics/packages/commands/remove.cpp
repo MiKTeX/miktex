@@ -30,6 +30,8 @@
 
 #include "commands.h"
 
+#include "private.h"
+
 namespace
 {
     class RemoveCommand :
@@ -141,19 +143,14 @@ void RemoveCommand::Remove(ApplicationContext& ctx, const vector<string>& toBeRe
         PackageInfo packageInfo = ctx.packageManager->GetPackageInfo(packageID);
         if (!packageInfo.IsInstalled())
         {
-            ctx.ui->FatalError(fmt::format(T_("Package \"{0}\" is not installed."), packageID));
+            ctx.ui->FatalError(fmt::format(T_("{0}: package is not installed"), packageID));
         }
     }
-    auto packageInstaller = ctx.packageManager->CreateInstaller();
+    MyPackageInstallerCallback cb;
+    auto packageInstaller = ctx.packageManager->CreateInstaller({ &cb, true, true });
+    cb.ctx = &ctx;
+    cb.packageInstaller = packageInstaller.get();
     packageInstaller->SetFileLists({}, toBeRemoved);
     packageInstaller->InstallRemove(PackageInstaller::Role::Application);
     packageInstaller->Dispose();
-    if (toBeRemoved.size() == 1)
-    {
-        ctx.ui->Verbose(0, fmt::format(T_("Package \"{0}\" has been successfully removed."), toBeRemoved[0]));
-    }
-    else if (toBeRemoved.size() > 1)
-    {
-        ctx.ui->Verbose(0, fmt::format(T_("{0} packages have been successfully removed."), toBeRemoved.size()));
-    }
 }

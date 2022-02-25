@@ -30,6 +30,8 @@
 
 #include "commands.h"
 
+#include "private.h"
+
 namespace
 {
     class InstallCommand :
@@ -151,47 +153,18 @@ void InstallCommand::Install(ApplicationContext& ctx, const vector<string>& toBe
         PackageInfo packageInfo = ctx.packageManager->GetPackageInfo(packageID);
         if (packageInfo.IsInstalled())
         {
-            ctx.ui->FatalError(fmt::format(T_("Package \"{0}\" is already installed."), packageID));
+            ctx.ui->FatalError(fmt::format(T_("{0}: package is already installed"), packageID));
         }
     }
     if (!repository.empty())
     {
         ctx.packageInstaller->SetRepository(repository);
     }
-    class callback :
-        public PackageInstallerCallback
-    {
-        void ReportLine(const string& str) override
-        {
-            ctx.ui->Verbose(0, str);
-        }
-        bool OnRetryableError(const string& message) override
-        {
-            return false;
-        }
-        bool OnProgress(MiKTeX::Packages::Notification nf) override
-        {
-            return true;
-        }
-    public:
-        callback(ApplicationContext& ctx) :
-            ctx(ctx)
-        {            
-        }
-        ApplicationContext& ctx;
-
-    };
-    callback cb(ctx);
+    MyPackageInstallerCallback cb;
     auto packageInstaller = ctx.packageManager->CreateInstaller({ &cb, true, true });
+    cb.ctx = &ctx;
+    cb.packageInstaller = packageInstaller.get();
     packageInstaller->SetFileLists(toBeInstalled, {});
     packageInstaller->InstallRemove(PackageInstaller::Role::Application);
     packageInstaller->Dispose();
-    if (toBeInstalled.size() == 1)
-    {
-        ctx.ui->Verbose(0, fmt::format(T_("Package \"{0}\" has been successfully installed."), toBeInstalled[0]));
-    }
-    else if (toBeInstalled.size() > 1)
-    {
-        ctx.ui->Verbose(0, fmt::format(T_("{0} packages have been successfully installed."), toBeInstalled.size()));
-    }
 }

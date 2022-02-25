@@ -120,6 +120,7 @@ list(APPEND miktex_sources
     topics/packages/commands/info.cpp
     topics/packages/commands/install.cpp
     topics/packages/commands/list.cpp
+    topics/packages/commands/private.h
     topics/packages/commands/remove.cpp
     topics/packages/topic.cpp
     topics/packages/topic.h
