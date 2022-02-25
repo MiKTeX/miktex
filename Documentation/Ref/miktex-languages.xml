@@ -62,52 +62,19 @@
 <para>List &LaTeX; language definitions.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<variablelist>
-<varlistentry>
-<term><code>{custom}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{exclude}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{hyphenation}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{key}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{lefthyphenmin}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{righthyphenmin}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{loader}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{luaspecial}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{patterns}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{righthyphenmin}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{synonyms}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-</variablelist></listitem>
+<simplelist type='inline'>
+<member><code>{custom}</code></member>
+<member><code>{exclude}</code></member>
+<member><code>{hyphenation}</code></member>
+<member><code>{key}</code></member>
+<member><code>{lefthyphenmin}</code></member>
+<member><code>{righthyphenmin}</code></member>
+<member><code>{loader}</code></member>
+<member><code>{luaspecial}</code></member>
+<member><code>{patterns}</code></member>
+<member><code>{righthyphenmin}</code></member>
+<member><code>{synonyms}</code></member>
+</simplelist></listitem>
 </varlistentry>
 </variablelist>
 

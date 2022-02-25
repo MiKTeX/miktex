@@ -58,20 +58,11 @@
 <para>List all links.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<variablelist>
-<varlistentry>
-<term><code>{linkName}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{linkType}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{target}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-</variablelist></listitem>
+<simplelist type='inline'>
+<member><code>{linkName}</code></member>
+<member><code>{linkType}</code></member>
+<member><code>{target}</code></member>
+</simplelist></listitem>
 </varlistentry>
 <varlistentry>
 <term><command>uninstall</command></term>

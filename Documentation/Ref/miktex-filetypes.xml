@@ -53,44 +53,17 @@
 <para>List Windows file types.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<variablelist>
-<varlistentry>
-<term><code>{commandArgs}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{ddeArgs}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{displayName}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{executable}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{extension}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{iconIndex}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{progID}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{takeOwnership}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{verb}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-</variablelist></listitem>
+<simplelist type='inline'>
+<member><code>{commandArgs}</code></member>
+<member><code>{ddeArgs}</code></member>
+<member><code>{displayName}</code></member>
+<member><code>{executable}</code></member>
+<member><code>{extension}</code></member>
+<member><code>{iconIndex}</code></member>
+<member><code>{progID}</code></member>
+<member><code>{takeOwnership}</code></member>
+<member><code>{verb}</code></member>
+</simplelist></listitem>
 </varlistentry>
 <varlistentry>
 <term><command>register</command></term>

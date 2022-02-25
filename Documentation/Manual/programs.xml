@@ -25,6 +25,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-luatex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-mf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-mpost.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex-packages.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktexsetup.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/mpm.xml" />

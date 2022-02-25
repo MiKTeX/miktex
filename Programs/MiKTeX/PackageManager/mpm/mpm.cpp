@@ -263,7 +263,7 @@ enum Option
     OPT_LIST_REPOSITORIES,
     OPT_PACKAGE_LEVEL,
     OPT_PICK_REPOSITORY_URL,
-    OPT_PRINT_PACKAGE_INFO,
+    OPT_PRINT_PACKAGE_INFO,       // deprecated
     OPT_PROXY,                    // experimental
     OPT_PROXY_PASSWORD,           // experimental
     OPT_PROXY_USER,               // experimental
@@ -387,9 +387,9 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "print-package-info", 0, POPT_ARG_STRING, nullptr, OPT_PRINT_PACKAGE_INFO,
-        T_("Print detailed information about the specified package."),
-        T_("PACKAGE")
+        "print-package-info", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PRINT_PACKAGE_INFO,
+        nullptr,
+        nullptr
     },
 
     {                             // experimental
@@ -1217,24 +1217,7 @@ void Application::PrintFiles(const vector<string>& files)
 
 void Application::PrintPackageInfo(const string& packageId)
 {
-    PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
-    cout << T_("name:") << " " << packageInfo.id << endl;
-    cout << T_("title:") << " " << packageInfo.title << endl;
-    if (!packageInfo.runFiles.empty())
-    {
-        cout << T_("run-time files:") << endl;
-        PrintFiles(packageInfo.runFiles);
-    }
-    if (!packageInfo.docFiles.empty())
-    {
-        cout << T_("documentation files:") << endl;
-        PrintFiles(packageInfo.docFiles);
-    }
-    if (!packageInfo.sourceFiles.empty())
-    {
-        cout << T_("source files:") << endl;
-        PrintFiles(packageInfo.sourceFiles);
-    }
+    RunOneMiKTeXUtility({"packages", "info", "--package-id", packageId, "--template", "name: {id}\ntitle: {title}\nrun-time files: {runFiles}"});
 }
 
 void Application::RestartWindowed()
@@ -1489,6 +1472,7 @@ void Application::Main(int argc, const char** argv)
             optPickRepositoryUrl = true;
             break;
         case OPT_PRINT_PACKAGE_INFO:
+            DeprecateOption("--print-package-info");
             optPrintPackageInfo = true;
             packageId = optArg;
             break;

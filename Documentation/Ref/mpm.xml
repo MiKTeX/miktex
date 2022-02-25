@@ -174,15 +174,6 @@ root directory must be specified via
 <listitem><para>Pick up a suitable &URL; from the package repository
 list and print it.</para></listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--print-package-info=<replaceable>package</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--print-package-info=package</primary>
-</indexterm>
-<para>Print detailed information about the
-specified package.</para></listitem>
-</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <varlistentry>
 <term><option>--require=<replaceable>packagelist</replaceable></option></term>
@@ -346,11 +337,6 @@ registered &URL;):</para>
 <screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
   --verbose --update-db</userinput></screen>
 
-<para>Print information about package
-<application>a0poster</application>:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --print-package-info a0poster</userinput></screen>
-
 <para>Install package <application>a0poster</application>:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --verbose --install a0poster</userinput></screen>
@@ -394,6 +380,16 @@ through any proxy.</para></listitem>
 </varlistentry>
 
 </variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
 
 </refsect1>
 

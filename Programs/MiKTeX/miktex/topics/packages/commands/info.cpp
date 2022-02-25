@@ -1,7 +1,7 @@
 /**
- * @file topics/packages/commands/list.cpp
+ * @file topics/packages/commands/info.cpp
  * @author Christian Schenk
- * @brief packages list
+ * @brief packages info
  *
  * @copyright Copyright © 2022 Christian Schenk
  *
@@ -32,38 +32,32 @@
 
 namespace
 {
-    class ListCommand :
+    class InfoCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("List MiKTeX packages");
+            return T_("Show information about a MiKTeX package");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "list";
+            return "info";
         }
 
         std::string Synopsis() override
         {
-            return "list [--template=TEMPLATE]";
+            return "info [--template=TEMPLATE] --package-id=PACKAGEID";
         }
 
-        const std::string defaultTemplate = "{id}";
+        const std::string defaultTemplate = R"xYz(id: {id}
+title: {title}
+version: {version}
+isInstalled: {isInstalled})xYz";
     };
 }
-
-class PackageInfoComparer
-{
-public:
-    bool operator() (const MiKTeX::Packages::PackageInfo& pi1, const MiKTeX::Packages::PackageInfo& pi2) const
-    {
-        return MiKTeX::Util::PathName::Compare(pi1.id, pi2.id) < 0;
-    }
-};
 
 using namespace std;
 
@@ -76,19 +70,27 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Packages;
 
-unique_ptr<Command> Commands::List()
+unique_ptr<Command> Commands::Info()
 {
-    return make_unique<ListCommand>();
+    return make_unique<InfoCommand>();
 }
 
 enum Option
 {
     OPT_AAA = 1,
+    OPT_PACKAGE_ID,
     OPT_TEMPLATE,
 };
 
 static const struct poptOption options[] =
 {
+    {
+        "package-id", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_PACKAGE_ID,
+        T_("Specify the package ID."),
+        "PACKAGEID"
+    },
     {
         "template", 0,
         POPT_ARG_STRING, nullptr,
@@ -100,16 +102,20 @@ static const struct poptOption options[] =
     POPT_TABLEEND
 };
 
-int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int InfoCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string outputTemplate = this->defaultTemplate;
+    string packageID;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
+        case OPT_PACKAGE_ID:
+            packageID = popt.GetOptArg();
+            break;
         case OPT_TEMPLATE:
             outputTemplate = Unescape(popt.GetOptArg());
             break;
@@ -123,24 +129,10 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    auto packageIterator = ctx.packageManager->CreateIterator();
-    PackageInfo packageInfo;
-    set<PackageInfo, PackageInfoComparer> setPi;
-    while (packageIterator->GetNext(packageInfo))
+    if (packageID.empty())
     {
-        if (packageInfo.IsPureContainer())
-        {
-            continue;
-        }
-        setPi.insert(packageInfo);
+        ctx.ui->FatalError(T_("missing package ID"));
     }
-    if (setPi.empty())
-    {
-        ctx.ui->FatalError(T_("The package database files have not been installed."));
-    }
-    for (set<PackageInfo, PackageInfoComparer>::const_iterator it = setPi.begin(); it != setPi.end(); ++it)
-    {
-        ctx.ui->Output(Format(outputTemplate, *it));
-    }
+    ctx.ui->Output(Format(outputTemplate, ctx.packageManager->GetPackageInfo(packageID)));
     return 0;
 }
