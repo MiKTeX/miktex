@@ -83,15 +83,6 @@ example, if you want to install a package for all users, you invoke
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
 <varlistentry>
-<term><option>--find-updates</option></term>
-<listitem>
-<indexterm>
-<primary>--find-updates</primary>
-</indexterm>
-<para>Check the package repository for updates, then print the list of
-updateable packages.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--find-upgrades</option></term>
 <listitem>
 <indexterm>

@@ -19,6 +19,7 @@
 
 namespace OneMiKTeXUtility::Topics::Packages::Commands
 {
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> CheckUpdate();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Info();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Install();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();

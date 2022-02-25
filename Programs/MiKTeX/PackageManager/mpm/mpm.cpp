@@ -79,15 +79,6 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-class UpdateInfoComparer
-{
-public:
-    bool operator() (const MiKTeX::Packages::PackageInstaller::UpdateInfo& ui1, const MiKTeX::Packages::PackageInstaller::UpdateInfo& ui2) const
-    {
-        return MiKTeX::Util::PathName::Compare(ui1.packageId, ui2.packageId) < 0;
-    }
-};
-
 class UpgradeInfoComparer
 {
 public:
@@ -302,8 +293,8 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "find-updates", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPDATES,
-        T_("Test the package repository for updates, then print the list of updateable packages."),
+        "find-updates", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FIND_UPDATES,
+        nullptr,
         nullptr,
     },
 
@@ -907,36 +898,13 @@ void Application::ImportPackages(vector<string>& toBeinstalled)
 
 void Application::FindUpdates()
 {
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
+    vector<string> args{ "packages", "check-update" };
     if (!repository.empty())
     {
-        installer->SetRepository(repository);
+        args.push_back("--repository");
+        args.push_back(repository);
     }
-    installer->FindUpdates();
-    vector<PackageInstaller::UpdateInfo> updates = installer->GetUpdates();
-    installer->Dispose();
-    if (updates.empty())
-    {
-        Message(T_("There are currently no updates available."));
-    }
-    else
-    {
-        sort(updates.begin(), updates.end(), UpdateInfoComparer());
-        for (const PackageInstaller::UpdateInfo& upd : updates)
-        {
-            switch (upd.action)
-            {
-            case PackageInstaller::UpdateInfo::Repair:
-            case PackageInstaller::UpdateInfo::ReleaseStateChange:
-            case PackageInstaller::UpdateInfo::Update:
-            case PackageInstaller::UpdateInfo::ForceUpdate:
-                cout << upd.packageId << endl;
-                break;
-            default:
-                break;
-            }
-        }
-    }
+    RunOneMiKTeXUtility(args);
 }
 
 void Application::Update(const vector<string>& requestedUpdates, const vector<string>& requestedUpdates2)
@@ -1301,6 +1269,7 @@ void Application::Main(int argc, const char** argv)
             optFindConflicts = true;
             break;
         case OPT_FIND_UPDATES:
+            DeprecateOption("--find-updates");
             optFindUpdates = true;
             break;
         case OPT_FIND_UPGRADES:
