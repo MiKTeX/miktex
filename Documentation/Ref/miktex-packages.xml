@@ -53,7 +53,7 @@
 <para>List &MiKTeX; packages.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<simplelist type='inline'>
+<para><simplelist type='inline'>
 <member><code>{archiveFileSize}</code></member>
 <member><code>{copyrightOwner}</code></member>
 <member><code>{copyrightYear}</code></member>
@@ -92,12 +92,14 @@ It can contain the following placeholders:</para>
 <member><code>{title}</code></member>
 <member><code>{version}</code></member>
 <member><code>{versionDate}</code></member>
-</simplelist>
+</simplelist></para>
 </listitem>
 </varlistentry>
-</variablelist>
-
-<variablelist>
+<varlistentry>
+<term><command>install</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<listitem>
+<para>Install &MiKTeX; packages.</para></listitem>
+</varlistentry>
 <varlistentry>
 <term><command>list</command> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
 <listitem>
@@ -105,6 +107,11 @@ It can contain the following placeholders:</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 See the <command>info</command> command, for a list of possible placeholders.</para>
 </listitem>
+</varlistentry>
+<varlistentry>
+<term><command>remove</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional></term>
+<listitem>
+<para>Remove &MiKTeX; packages.</para></listitem>
 </varlistentry>
 </variablelist>
 

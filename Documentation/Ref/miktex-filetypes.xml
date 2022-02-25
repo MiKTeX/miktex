@@ -53,7 +53,7 @@
 <para>List Windows file types.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<simplelist type='inline'>
+<para><simplelist type='inline'>
 <member><code>{commandArgs}</code></member>
 <member><code>{ddeArgs}</code></member>
 <member><code>{displayName}</code></member>
@@ -63,7 +63,7 @@ It can contain the following placeholders:</para>
 <member><code>{progID}</code></member>
 <member><code>{takeOwnership}</code></member>
 <member><code>{verb}</code></member>
-</simplelist></listitem>
+</simplelist></para></listitem>
 </varlistentry>
 <varlistentry>
 <term><command>register</command></term>

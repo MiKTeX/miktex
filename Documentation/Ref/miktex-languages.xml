@@ -62,7 +62,7 @@
 <para>List &LaTeX; language definitions.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<simplelist type='inline'>
+<para><simplelist type='inline'>
 <member><code>{custom}</code></member>
 <member><code>{exclude}</code></member>
 <member><code>{hyphenation}</code></member>
@@ -74,7 +74,7 @@ It can contain the following placeholders:</para>
 <member><code>{patterns}</code></member>
 <member><code>{righthyphenmin}</code></member>
 <member><code>{synonyms}</code></member>
-</simplelist></listitem>
+</simplelist></para></listitem>
 </varlistentry>
 </variablelist>
 

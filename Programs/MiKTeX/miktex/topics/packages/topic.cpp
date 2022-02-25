@@ -42,6 +42,7 @@ namespace
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Info());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Install());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::List());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Remove());
         }
     };
 }

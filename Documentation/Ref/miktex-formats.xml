@@ -65,7 +65,7 @@
 <para>List &TeX; formats.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<simplelist type='inline'>
+<para><simplelist type='inline'>
 <member><code>{arguments}</code></member>
 <member><code>{compiler}</code></member>
 <member><code>{custom}</code></member>
@@ -77,7 +77,7 @@ It can contain the following placeholders:</para>
 <member><code>{noExecutable}</code></member>
 <member><code>{outputFile}</code></member>
 <member><code>{preloaded}</code></member>
-</simplelist></listitem>
+</simplelist></para></listitem>
 </varlistentry>
 </variablelist>
 

@@ -204,14 +204,6 @@ package repository).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <varlistentry>
-<term><option>--uninstall=<replaceable>package</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--uninstall=package</primary>
-</indexterm>
-<para>Uninstall the specified package.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--update</option></term>
 <listitem>
 <indexterm>

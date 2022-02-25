@@ -67,10 +67,10 @@
 <para>Show a configuration option.</para>
 <para><replaceable>template</replaceable> controls the output.
 It can contain the following placeholders:</para>
-<simplelist type='inline'>
+<para><simplelist type='inline'>
 <member><code>{name}</code></member>
 <member><code>{value}</code></member>
-</simplelist></listitem>
+</simplelist></para></listitem>
 </varlistentry>
 </variablelist>
 

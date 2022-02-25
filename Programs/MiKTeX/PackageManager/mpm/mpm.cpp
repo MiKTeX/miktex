@@ -275,7 +275,7 @@ enum Option
     OPT_SET_REPOSITORY,
     OPT_SORT,                     // experimental
     OPT_TRACE,
-    OPT_UNINSTALL,
+    OPT_UNINSTALL,                // deprecated
     OPT_UNREGISTER_COMPONENTS,    // experimental
     OPT_UPDATE,
     OPT_UPDATE_ALL,               // experimental
@@ -461,9 +461,9 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "uninstall", 0, POPT_ARG_STRING, nullptr, OPT_UNINSTALL,
-        T_("Uninstall the specified packages."),
-        T_("[@]PACKAGELIST")
+        "uninstall", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UNINSTALL,
+        nullptr,
+        nullptr
     },
 
   #if defined(MIKTEX_WINDOWS)
@@ -684,7 +684,7 @@ void Application::UpdateDb()
 
 void Application::Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved)
 {
-    if (! toBeInstalled.empty())
+    if (!toBeInstalled.empty())
     {
         vector<string> args{ "packages", "install" };
         if (!repository.empty())
@@ -700,37 +700,15 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
         RunOneMiKTeXUtility(args);
     }
 
-    if (toBeRemoved.empty())
+    if (!toBeRemoved.empty())
     {
-        return;
-    }
-    
-    for (const string& packageId : toBeRemoved)
-    {
-        PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
-        if (!packageInfo.IsInstalled())
+        vector<string> args{ "packages", "remove" };
+        for (auto p : toBeRemoved)
         {
-            Error(fmt::format(T_("Package \"{0}\" is not installed."), packageId));
+            args.push_back("--package-id");
+            args.push_back(p);
         }
-    }
-
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
-
-    if (!repository.empty())
-    {
-        installer->SetRepository(repository);
-    }
-
-    installer->SetFileLists({}, toBeRemoved);
-    installer->InstallRemove(PackageInstaller::Role::Application);
-    installer->Dispose();
-    if (toBeRemoved.size() == 1)
-    {
-        Message(fmt::format(T_("Package \"{0}\" has been successfully removed."), toBeRemoved[0]));
-    }
-    else if (toBeRemoved.size() > 1)
-    {
-        Message(fmt::format(T_("{0} packages have been successfully removed."), toBeRemoved.size()));
+        RunOneMiKTeXUtility(args);
     }
 }
 
@@ -1540,6 +1518,7 @@ void Application::Main(int argc, const char** argv)
             // see above
             break;
         case OPT_UNINSTALL:
+            DeprecateOption("--uninstall");
             ParseList(optArg, toBeRemoved);
             break;
 #if defined (MIKTEX_WINDOWS)
