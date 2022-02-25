@@ -84,55 +84,6 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-enum class OutputFormat
-{
-    None = 0,
-    Listing,
-    CSV,
-    PackageIdentifiers,
-};
-
-enum class SortKey
-{
-    None = 0,
-    PackageId,
-    InstalledOn,
-    PackagedOn,
-};
-
-class PackageInfoComparer
-{
-public:
-    bool operator() (const MiKTeX::Packages::PackageInfo& pi1, const MiKTeX::Packages::PackageInfo& pi2) const
-    {
-        bool cmp;
-        switch (sortKey)
-        {
-        case SortKey::PackageId:
-            cmp = (MiKTeX::Util::PathName::Compare(pi1.id, pi2.id) < 0);
-            break;
-        case SortKey::InstalledOn:
-            cmp = (pi1.GetTimeInstalled() < pi2.GetTimeInstalled());
-            break;
-        case SortKey::PackagedOn:
-            cmp = (pi1.timePackaged < pi2.timePackaged);
-            break;
-        default:
-            cmp = false;
-            break;
-        }
-        return reverse ? !cmp : cmp;
-    }
-public:
-    static SortKey sortKey;
-public:
-    static bool reverse;
-};
-
-SortKey PackageInfoComparer::sortKey(SortKey::PackageId);
-
-bool PackageInfoComparer::reverse = false;
-
 class UpdateInfoComparer
 {
 public:
@@ -195,6 +146,7 @@ private:
         }
     }
 
+    void DeprecateOption(const std::string& opt);
     void Verbose(const std::string& s);
     void Warn(const std::string& s);
     void SecurityRisk(const std::string& s);
@@ -212,13 +164,14 @@ private:
     void FindUpgrades(MiKTeX::Packages::PackageLevel packageLevel);
     void Upgrade(MiKTeX::Packages::PackageLevel packageLevel);
     std::string GetDirectories(const std::string& packageId);
-    void List(OutputFormat outputFormat, int maxCount);
-    void ListRepositories(OutputFormat outputFormat);
+    void List(const std::string& outputTemplate);
+    void ListRepositories();
     void CheckRepositories();
     void PickRepositoryUrl();
     void PrintFiles(const std::vector<std::string>& files);
     void PrintPackageInfo(const std::string& packageId);
     void RestartWindowed();
+    void RunOneMiKTeXUtility(const std::vector<std::string>& arguments);
 
     void FlushPendingTraceMessages()
     {
@@ -297,7 +250,6 @@ enum Option
     OPT_AAA = 1,
     OPT_ADMIN,
     OPT_CHECK_REPOSITORIES,       // EXPERIMENTAL
-    OPT_CSV,                      // deprecated
     OPT_FIND_CONFLICTS,           // internal
     OPT_FIND_UPDATES,
     OPT_FIND_UPGRADES,
@@ -306,11 +258,9 @@ enum Option
     OPT_IMPORT_ALL,
     OPT_INSTALL,
     OPT_INSTALL_SOME,             // deprecated
-    OPT_LIST,
-    OPT_LIST_PACKAGE_NAMES,
+    OPT_LIST,                     // deprecated
+    OPT_LIST_PACKAGE_NAMES,       // deprecated
     OPT_LIST_REPOSITORIES,
-    OPT_MAX_COUNT,                // experimental
-    OPT_OUTPUT_FORMAT,            // experimental
     OPT_PACKAGE_LEVEL,
     OPT_PICK_REPOSITORY_URL,
     OPT_PRINT_PACKAGE_INFO,
@@ -322,7 +272,6 @@ enum Option
     OPT_REPOSITORY,
     OPT_REPOSITORY_RELEASE_STATE,
     OPT_REQUIRE,
-    OPT_REVERSE,                  // experimental
     OPT_SET_REPOSITORY,
     OPT_SORT,                     // experimental
     OPT_TRACE,
@@ -353,12 +302,6 @@ const struct poptOption Application::aoption[] = {
         "check-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_REPOSITORIES,
         nullptr,
         nullptr
-    },
-
-    {                             // deprecated
-        "csv", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CSV,
-        T_("Output comma-separated value lists."),
-        nullptr,
     },
 
     {                             // internal
@@ -414,14 +357,14 @@ const struct poptOption Application::aoption[] = {
   #endif
 
     {
-        "list", 0, POPT_ARG_NONE, nullptr, OPT_LIST,
-        T_("List the contents of the package database: for each package, print the installation status, the number of files, the size, and the name."),
+        "list", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_LIST,
+        nullptr,
         nullptr
     },
 
     {
-        "list-package-names", 0, POPT_ARG_NONE, nullptr, OPT_LIST_PACKAGE_NAMES,
-        T_("List the package names."),
+        "list-package-names", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_LIST_PACKAGE_NAMES,
+        nullptr,
         nullptr
     },
 
@@ -429,18 +372,6 @@ const struct poptOption Application::aoption[] = {
         "list-repositories", 0, POPT_ARG_NONE, nullptr, OPT_LIST_REPOSITORIES,
         T_("Download the list of known package repository URLs from the MiKTeX project server, then print the list."),
         nullptr
-    },
-
-    {
-        "max-count", 0, POPT_ARG_STRING, nullptr, OPT_MAX_COUNT,
-        T_("Stop after NUM packages."),
-        T_("NUM")
-    },
-
-    {                             // experimental
-        "output-format", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_OUTPUT_FORMAT,
-        T_("Set the output format."),
-        T_("FORMAT"),
     },
 
     {
@@ -515,12 +446,6 @@ const struct poptOption Application::aoption[] = {
         "require", 0, POPT_ARG_STRING, nullptr, OPT_REQUIRE,
         T_("Make sure that the specified packages are installed."),
         T_("[@]PACKAGELIST")
-    },
-
-    {
-        "reverse", 0, POPT_ARG_NONE, nullptr, OPT_REVERSE,
-        T_("Reverse the result of comparisons."),
-        nullptr
     },
 
     {
@@ -640,6 +565,11 @@ void Application::Verbose(const string& s)
     {
         cout << s << endl;
     }
+}
+
+void Application::DeprecateOption(const string& opt)
+{
+    Warn(fmt::format(T_("{0}: this option has been deprecated; it will be removed from a future version of MiKTeX"), opt));
 }
 
 void Application::Warn(const string& s)
@@ -1196,43 +1126,10 @@ string Application::GetDirectories(const string& packageId)
     return ret;
 }
 
-void Application::List(OutputFormat outputFormat, int maxCount)
+void Application::List(const string& outputTemplate)
 {
-    unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
-    PackageInfo packageInfo;
-    set<PackageInfo, PackageInfoComparer> setPi;
-    while (packageIterator->GetNext(packageInfo))
-    {
-        if (packageInfo.IsPureContainer())
-        {
-            continue;
-        }
-        setPi.insert(packageInfo);
-    }
-    if (setPi.empty())
-    {
-        Message(T_("The package database files have not been installed."));
-    }
-    int count = 0;
-    for (set<PackageInfo, PackageInfoComparer>::const_iterator it = setPi.begin(); it != setPi.end() && count < maxCount; ++it, ++count)
-    {
-        if (outputFormat == OutputFormat::Listing)
-        {
-            cout
-                << fmt::format("{} {:05} {:10} {}", it->IsInstalled() ? 'i' : '-', it->GetNumFiles(), it->GetSize(), it->id)
-                << endl;
-        }
-        else if (outputFormat == OutputFormat::CSV)
-        {
-            string path = packageManager->GetContainerPath(it->id, false);
-            string directories = GetDirectories(it->id);
-            cout << fmt::format("{}\\{},{}", path, it->id, directories) << endl;
-        }
-        else if (outputFormat == OutputFormat::PackageIdentifiers)
-        {
-            cout << it->id << endl;
-        }
-    }
+    vector<string> args = {"packages", "list", "--template", outputTemplate};
+    RunOneMiKTeXUtility(args);
 }
 
 class CountryComparer
@@ -1260,7 +1157,7 @@ public:
     }
 };
 
-void Application::ListRepositories(OutputFormat outputFormat)
+void Application::ListRepositories()
 {
     packageManager->DownloadRepositoryList();
     vector<RepositoryInfo> repositories = packageManager->GetRepositories();
@@ -1415,6 +1312,32 @@ void ParseList(const string& s, vector<string>& list)
     }
 }
 
+void Application::RunOneMiKTeXUtility(const vector<string>& arguments)
+{
+    PathName oneMiKTeXUtility;
+    if (!session->FindFile("miktex", FileType::EXE, oneMiKTeXUtility))
+    {
+        Error(T_("The miktex executable could not be found."));
+    }
+    vector<string> allArguments{ "miktex" };
+    if (verbose)
+    {
+        allArguments.push_back("--verbose");
+    }
+    if (session->IsAdminMode())
+    {
+        allArguments.push_back("--admin");
+    }
+    allArguments.insert(allArguments.end(), arguments.begin(), arguments.end());
+    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(allArguments));
+    int exitCode;
+    MiKTeXException miktexException;
+    if (!Process::Run(oneMiKTeXUtility, allArguments, nullptr, &exitCode, &miktexException, nullptr) || exitCode != 0)
+    {
+        // TODO
+    }
+}
+
 void Application::Main(int argc, const char** argv)
 {
     bool optAdmin = false;
@@ -1425,6 +1348,7 @@ void Application::Main(int argc, const char** argv)
     bool optImport = false;
     bool optImportAll = false;
     bool optList = false;
+    bool optListPackageNames = false;
     bool optListRepositories = false;
     PackageLevel optPackageLevel = PackageLevel::None;
     bool optPickRepositoryUrl = false;
@@ -1445,7 +1369,6 @@ void Application::Main(int argc, const char** argv)
     bool optRegisterComponents = false;
     bool optUnregisterComponents = false;
 #endif
-    OutputFormat outputFormat(OutputFormat::Listing);
     string packageId;
     string optProxy;
     string optProxyPassword;
@@ -1498,9 +1421,6 @@ void Application::Main(int argc, const char** argv)
         case OPT_CHECK_REPOSITORIES:
             optCheckRepositories = true;
             break;
-        case OPT_CSV:
-            outputFormat = OutputFormat::CSV;
-            break;
         case OPT_FIND_CONFLICTS:
             optFindConflicts = true;
             break;
@@ -1537,11 +1457,12 @@ void Application::Main(int argc, const char** argv)
             ReadNames(PathName(optArg), toBeInstalled);
             break;
         case OPT_LIST:
+            DeprecateOption("--list");
             optList = true;
             break;
         case OPT_LIST_PACKAGE_NAMES:
-            optList = true;
-            outputFormat = OutputFormat::PackageIdentifiers;
+            DeprecateOption("--list-package-names");
+            optListPackageNames = true;
             break;
         case OPT_LIST_REPOSITORIES:
             optListRepositories = true;
@@ -1584,23 +1505,7 @@ void Application::Main(int argc, const char** argv)
         }
         break;
         case OPT_SORT:
-            optSort = true;
-            if (Utils::EqualsIgnoreCase(optArg, "deploymentname"))
-            {
-                PackageInfoComparer::sortKey = SortKey::PackageId;
-            }
-            else if (Utils::EqualsIgnoreCase(optArg, "installedon"))
-            {
-                PackageInfoComparer::sortKey = SortKey::InstalledOn;
-            }
-            else if (Utils::EqualsIgnoreCase(optArg, "packagedon"))
-            {
-                PackageInfoComparer::sortKey = SortKey::PackagedOn;
-            }
-            else
-            {
-                Error(T_("Unknown sort key."));
-            }
+            // DEPRECATED
             break;
         case OPT_PROXY_USER:
             changeProxy = true;
@@ -1622,28 +1527,6 @@ void Application::Main(int argc, const char** argv)
             optRegisterComponents = true;
             break;
 #endif
-        case OPT_MAX_COUNT:
-            optMaxCount = std::stoi(optArg);
-            break;
-        case OPT_OUTPUT_FORMAT:
-        {
-            if (Utils::EqualsIgnoreCase(optArg, "listing"))
-            {
-                outputFormat = OutputFormat::Listing;
-            }
-            else if (Utils::EqualsIgnoreCase(optArg, "csv"))
-            {
-                outputFormat = OutputFormat::CSV;
-            }
-            else if (Utils::EqualsIgnoreCase(optArg, "deploymentnames"))
-            {
-                outputFormat = OutputFormat::PackageIdentifiers;
-            }
-            else
-            {
-                Error(T_("Unknown output format."));
-            }
-        }
         case OPT_REPOSITORY:
             repository = optArg;
             break;
@@ -1662,9 +1545,6 @@ void Application::Main(int argc, const char** argv)
             }
         case OPT_REQUIRE:
             ParseList(optArg, required);
-            break;
-        case OPT_REVERSE:
-            PackageInfoComparer::reverse = true;
             break;
         case OPT_SET_REPOSITORY:
             optSetRepository = true;
@@ -1980,13 +1860,17 @@ void Application::Main(int argc, const char** argv)
 
     if (optList)
     {
-        List(outputFormat, optMaxCount);
+        List("{isInstalled} {numFiles} {size} {id}");
         restartWindowed = false;
     }
-
+    if (optListPackageNames)
+    {
+        List("{id}");
+        restartWindowed = false;
+    }
     if (optListRepositories)
     {
-        ListRepositories(outputFormat);
+        ListRepositories();
         restartWindowed = false;
     }
 

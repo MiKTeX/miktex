@@ -143,31 +143,7 @@ root directory must be specified via
 <para>Install packages. Package names are read from
 <replaceable>listfile</replaceable>.</para></listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--list</option></term>
-<listitem>
-<indexterm>
-<primary>--list</primary>
-</indexterm>
-<para>List the contents of the package database: for each package,
-print the installation status, the number of files, the size, and the
-name.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--list-package-names</option></term>
-<listitem>
-<indexterm>
-<primary>--list-package-names</primary>
-</indexterm>
-<para>List the package names.</para>
-</listitem>
-</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
-<varlistentry>
-<term><option>--max-count=<replaceable>num</replaceable></option></term>
-<listitem><para>Stop after <replaceable>num</replaceable> packages.</para></listitem>
-</varlistentry>
 <varlistentry>
 <term><option>--package-level=<replaceable>level</replaceable></option></term>
 <listitem>
@@ -240,10 +216,6 @@ repository.  The release state is relevant for finding appropriate
 package repositories (<option>--list-repositories</option>,
 <option>--pick-repository-url</option>). The release state must be one
 of <option>stable</option> or <option>next</option>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--reverse</option></term>
-<listitem><para>Reverse the result of comparisons (when listing packages).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--set-repository=<replaceable>location</replaceable></option></term>
@@ -386,10 +358,6 @@ registered &URL;):</para>
 <para>Update all installed packages:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --verbose --update</userinput></screen>
-
-<para>Print the list of installed packages:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --list | grep ^i</userinput></screen>
 
 <para>Upgrade the &MiKTeX; setup to the highest level:</para>
 

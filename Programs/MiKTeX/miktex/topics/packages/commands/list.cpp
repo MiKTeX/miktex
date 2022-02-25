@@ -58,46 +58,14 @@ namespace
     };
 }
 
-enum class SortKey
-{
-    None = 0,
-    PackageId,
-    InstalledOn,
-    PackagedOn,
-};
-
 class PackageInfoComparer
 {
 public:
     bool operator() (const MiKTeX::Packages::PackageInfo& pi1, const MiKTeX::Packages::PackageInfo& pi2) const
     {
-        bool cmp;
-        switch (sortKey)
-        {
-        case SortKey::PackageId:
-            cmp = (MiKTeX::Util::PathName::Compare(pi1.id, pi2.id) < 0);
-            break;
-        case SortKey::InstalledOn:
-            cmp = (pi1.GetTimeInstalled() < pi2.GetTimeInstalled());
-            break;
-        case SortKey::PackagedOn:
-            cmp = (pi1.timePackaged < pi2.timePackaged);
-            break;
-        default:
-            cmp = false;
-            break;
-        }
-        return reverse ? !cmp : cmp;
+        return MiKTeX::Util::PathName::Compare(pi1.id, pi2.id) < 0;
     }
-public:
-    static SortKey sortKey;
-public:
-    static bool reverse;
 };
-
-SortKey PackageInfoComparer::sortKey(SortKey::PackageId);
-
-bool PackageInfoComparer::reverse = false;
 
 using namespace std;
 
@@ -157,8 +125,8 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    auto packageManager = PackageManager::Create(PackageManager::InitInfo(nullptr));
-    unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
+    auto packageManager = PackageManager::Create();
+    auto packageIterator = packageManager->CreateIterator();
     PackageInfo packageInfo;
     set<PackageInfo, PackageInfoComparer> setPi;
     while (packageIterator->GetNext(packageInfo))
