@@ -17,17 +17,12 @@
 #include <sstream>
 #include <string>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
 #include <miktex/Definitions>
 
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Util/PathName>
-#include <miktex/Util/PathNameUtil>
-#include <miktex/Util/StringUtil>
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 #define T_(x) MIKTEXTEXT(x)
@@ -105,82 +100,7 @@ namespace OneMiKTeXUtility
         return argv;
     }
 
-    inline std::string Unescape(const std::string& s)
-    {
-        std::stringstream out;
-        bool wasEsc = false;
-        for (auto ch : s)
-        {
-            if (wasEsc)
-            {
-                wasEsc = false;
-                switch (ch)
-                {
-                    case '\\':
-                        out << "\\";
-                        break;
-                    case 'n':
-                        out << "\n";
-                        break;
-                    default:
-                        out << "\\" << ch;
-                        break;
-                }
-            }
-            else if (ch == '\\')
-            {
-                wasEsc = true;
-            }
-            else
-            {
-                out << ch;
-            }
-        }
-        return out.str();
-    }
-
-    inline std::string Format(const std::string& outputTemplate, const MiKTeX::Packages::PackageInfo& packageInfo)
-    {
-        auto delim = MiKTeX::Util::PathNameUtil::PathNameDelimiter;
-        return fmt::format(outputTemplate,
-            fmt::arg("archiveFileSize", packageInfo.archiveFileSize), // FIXME
-            fmt::arg("copyrightOwner", packageInfo.copyrightOwner),
-            fmt::arg("copyrightYear", packageInfo.copyrightYear),
-            fmt::arg("creator", packageInfo.creator),
-            fmt::arg("ctanPath", packageInfo.ctanPath),
-            fmt::arg("description", packageInfo.description),
-            fmt::arg("digest", packageInfo.digest),
-            fmt::arg("displayName", packageInfo.displayName),
-            fmt::arg("docFiles", MiKTeX::Util::StringUtil::Flatten(packageInfo.docFiles, delim)),
-            fmt::arg("id", packageInfo.id),
-            fmt::arg("isContained", packageInfo.IsContained()),
-            fmt::arg("isContainer", packageInfo.IsContainer()),
-            fmt::arg("isInstalled", packageInfo.IsInstalled()),
-            fmt::arg("isInstalledCommon", packageInfo.IsInstalled(MiKTeX::Core::ConfigurationScope::Common)),
-            fmt::arg("isInstalledUser", packageInfo.IsInstalled(MiKTeX::Core::ConfigurationScope::User)),
-            fmt::arg("isObsolete", packageInfo.isObsolete),
-            fmt::arg("isPureContainer", packageInfo.IsPureContainer()),
-            fmt::arg("isRemovable", packageInfo.isRemovable),
-            fmt::arg("licenseType", packageInfo.licenseType),
-            fmt::arg("numFiles", packageInfo.GetNumFiles()),
-            fmt::arg("refCount", packageInfo.GetRefCount()),
-            fmt::arg("releaseState", packageInfo.releaseState),
-            fmt::arg("requiredBy", MiKTeX::Util::StringUtil::Flatten(packageInfo.requiredBy, delim)),
-            fmt::arg("requiredPackages", MiKTeX::Util::StringUtil::Flatten(packageInfo.requiredPackages, delim)),
-            fmt::arg("runFiles", MiKTeX::Util::StringUtil::Flatten(packageInfo.runFiles, delim)),
-            fmt::arg("size", packageInfo.GetSize()),
-            fmt::arg("sizeDocFiles", packageInfo.sizeDocFiles),
-            fmt::arg("sizeRunFiles", packageInfo.sizeRunFiles),
-            fmt::arg("sizeSourceFiles", packageInfo.sizeSourceFiles),
-            fmt::arg("sourceFiles", MiKTeX::Util::StringUtil::Flatten(packageInfo.sourceFiles, delim)),
-            fmt::arg("targetSystem", packageInfo.targetSystem),
-            fmt::arg("timeInstalled", packageInfo.GetTimeInstalled()),
-            fmt::arg("timeInstalledCommon", packageInfo.timeInstalledCommon),
-            fmt::arg("timeInstalledUser", packageInfo.timeInstalledUser),
-            fmt::arg("timePackaged", packageInfo.timePackaged),
-            fmt::arg("title", packageInfo.title),
-            fmt::arg("version", packageInfo.version),
-            fmt::arg("versionDate", packageInfo.versionDate)
-        );
-    }
+    std::string Unescape(const std::string& s);
+    std::string Format(const std::string& outputTemplate, const MiKTeX::Packages::PackageInfo& packageInfo);
+    void ReadNames(const MiKTeX::Util::PathName& path, std::vector<std::string>& list);
 }

@@ -126,23 +126,6 @@ root directory must be specified via
 <option>--repository=<replaceable>dir</replaceable></option>.</para>
 </listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--install=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--install=packagelist</primary>
-</indexterm>
-<para>Install the specified packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--install=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--install=@listfile</primary>
-</indexterm>
-<para>Install packages. Package names are read from
-<replaceable>listfile</replaceable>.</para></listitem>
-</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
 <varlistentry>
 <term><option>--package-level=<replaceable>level</replaceable></option></term>
@@ -336,10 +319,6 @@ registered &URL;):</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
   --verbose --update-db</userinput></screen>
-
-<para>Install package <application>a0poster</application>:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --install a0poster</userinput></screen>
 
 <para>Update all installed packages:</para>
 

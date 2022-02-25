@@ -256,7 +256,7 @@ enum Option
     OPT_HHELP,
     OPT_IMPORT,
     OPT_IMPORT_ALL,
-    OPT_INSTALL,
+    OPT_INSTALL,                  // deprecated
     OPT_INSTALL_SOME,             // deprecated
     OPT_LIST,                     // deprecated
     OPT_LIST_PACKAGE_NAMES,       // deprecated
@@ -343,9 +343,9 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "install", 0, POPT_ARG_STRING, nullptr, OPT_INSTALL,
-        T_("Install the specified packages."),
-        T_("[@]PACKAGELIST")
+        "install", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_INSTALL,
+        nullptr,
+        nullptr
     },
 
   #if ENABLE_OPT_INSTALL_SOME
@@ -684,15 +684,27 @@ void Application::UpdateDb()
 
 void Application::Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved)
 {
-    for (const string& packageId : toBeInstalled)
+    if (! toBeInstalled.empty())
     {
-        PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
-        if (packageInfo.IsInstalled())
+        vector<string> args{ "packages", "install" };
+        if (!repository.empty())
         {
-            Error(fmt::format(T_("Package \"{0}\" is already installed."), packageId));
+            args.push_back("--repository");
+            args.push_back(repository);
         }
+        for (auto p : toBeInstalled)
+        {
+            args.push_back("--package-id");
+            args.push_back(p);
+        }
+        RunOneMiKTeXUtility(args);
     }
 
+    if (toBeRemoved.empty())
+    {
+        return;
+    }
+    
     for (const string& packageId : toBeRemoved)
     {
         PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
@@ -709,17 +721,9 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
         installer->SetRepository(repository);
     }
 
-    installer->SetFileLists(toBeInstalled, toBeRemoved);
+    installer->SetFileLists({}, toBeRemoved);
     installer->InstallRemove(PackageInstaller::Role::Application);
     installer->Dispose();
-    if (toBeInstalled.size() == 1)
-    {
-        Message(fmt::format(T_("Package \"{0}\" has been successfully installed."), toBeInstalled[0]));
-    }
-    else if (toBeInstalled.size() > 1)
-    {
-        Message(fmt::format(T_("{0} packages have been successfully installed."), toBeInstalled.size()));
-    }
     if (toBeRemoved.size() == 1)
     {
         Message(fmt::format(T_("Package \"{0}\" has been successfully removed."), toBeRemoved[0]));
@@ -1430,13 +1434,11 @@ void Application::Main(int argc, const char** argv)
             optImportAll = true;
             break;
         case OPT_INSTALL:
+            DeprecateOption("--install");
             ParseList(optArg, toBeInstalled);
             break;
         case OPT_INSTALL_SOME:
-#if 0
-            // TODO
-            Warn(T_("Option --install-some is deprecated"));
-#endif
+            DeprecateOption("--install-some");
             ReadNames(PathName(optArg), toBeInstalled);
             break;
         case OPT_LIST:
@@ -1578,10 +1580,7 @@ void Application::Main(int argc, const char** argv)
             optUpdateFndb = true;
             break;
         case OPT_UPDATE_SOME:
-#if 0
-            // TODO
-            Warn(T_("Option --update-some is deprecated"));
-#endif
+            DeprecateOption("--update-some");
             if (optUpdateAll)
             {
                 Error(T_("Already updating all packages."));

@@ -43,6 +43,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 list(APPEND miktex_sources
+    internal.cpp
     internal.h
     miktex.cpp
     shims/mkfntmap.cpp
@@ -117,6 +118,7 @@ list(APPEND miktex_sources
 list(APPEND miktex_sources
     topics/packages/commands/commands.h
     topics/packages/commands/info.cpp
+    topics/packages/commands/install.cpp
     topics/packages/commands/list.cpp
     topics/packages/topic.cpp
     topics/packages/topic.h
