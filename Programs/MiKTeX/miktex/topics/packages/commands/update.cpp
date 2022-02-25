@@ -1,7 +1,7 @@
 /**
- * @file topics/packages/commands/install.cpp
+ * @file topics/packages/commands/update.cpp
  * @author Christian Schenk
- * @brief packages install
+ * @brief packages update
  *
  * @copyright Copyright © 2022 Christian Schenk
  *
@@ -23,6 +23,7 @@
 
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
+#include <miktex/Setup/SetupService>
 #include <miktex/Util/PathName>
 #include <miktex/Wrappers/PoptWrapper>
 
@@ -34,27 +35,27 @@
 
 namespace
 {
-    class InstallCommand :
+    class UpdateCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Install MiKTeX packages");
+            return T_("Update MiKTeX packages");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "install";
+            return "update";
         }
 
         std::string Synopsis() override
         {
-            return "install [--package-id=PACKAGEID] [--package-id-file=FILE] [--repository=REPOSITORY]";
+            return "update [--package-id=PACKAGEID] [--package-id-file=FILE] [--repository=REPOSITORY]";
         }
 
-        void Install(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& toBeInstalled, const std::string& repository);
+        void Update(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& toBeUpdated, const std::string& repository);
     };
 }
 
@@ -62,6 +63,7 @@ using namespace std;
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Setup;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 
@@ -69,9 +71,9 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Packages;
 
-unique_ptr<Command> Commands::Install()
+unique_ptr<Command> Commands::Update()
 {
-    return make_unique<InstallCommand>();
+    return make_unique<UpdateCommand>();
 }
 
 enum Option
@@ -109,22 +111,22 @@ static const struct poptOption options[] =
     POPT_TABLEEND
 };
 
-int InstallCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string repository;
-    vector<string> toBeInstalled;
+    vector<string> requestedUpdates;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
         case OPT_PACKAGE_ID:
-            toBeInstalled.push_back(popt.GetOptArg());
+            requestedUpdates.push_back(popt.GetOptArg());
             break;
         case OPT_PACKAGE_ID_FILE:
-            ReadNames(PathName(popt.GetOptArg()), toBeInstalled);
+            ReadNames(PathName(popt.GetOptArg()), requestedUpdates);
             break;
         case OPT_REPOSITORY:
             repository = popt.GetOptArg();
@@ -138,24 +140,12 @@ int InstallCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    if (toBeInstalled.empty())
-    {
-        ctx.ui->FatalError(T_("missing package ID"));
-    }
-    Install(ctx, toBeInstalled, repository);
+    Update(ctx, requestedUpdates, repository);
     return 0;
 }
 
-void InstallCommand::Install(ApplicationContext& ctx, const vector<string>& toBeInstalled, const string& repository)
+void UpdateCommand::Update(ApplicationContext& ctx, const vector<string>& requestedUpdates, const string& repository)
 {
-    for (const string& packageID : toBeInstalled)
-    {
-        PackageInfo packageInfo = ctx.packageManager->GetPackageInfo(packageID);
-        if (packageInfo.IsInstalled())
-        {
-            ctx.ui->FatalError(fmt::format(T_("{0}: package is already installed"), packageID));
-        }
-    }
     MyPackageInstallerCallback cb;
     auto packageInstaller = ctx.packageManager->CreateInstaller({ &cb, true, true });
     if (!repository.empty())
@@ -164,6 +154,68 @@ void InstallCommand::Install(ApplicationContext& ctx, const vector<string>& toBe
     }
     cb.ctx = &ctx;
     cb.packageInstaller = packageInstaller.get();
-    packageInstaller->SetFileLists(toBeInstalled, {});
-    packageInstaller->InstallRemove(PackageInstaller::Role::Application);
+    packageInstaller->FindUpdates();
+    vector<string> serverUpdates;
+    vector<string> toBeRemoved;
+    for (const PackageInstaller::UpdateInfo& upd : packageInstaller->GetUpdates())
+    {
+        switch (upd.action)
+        {
+        case PackageInstaller::UpdateInfo::Repair:
+        case PackageInstaller::UpdateInfo::ReleaseStateChange:
+        case PackageInstaller::UpdateInfo::Update:
+        case PackageInstaller::UpdateInfo::ForceUpdate:
+            serverUpdates.push_back(upd.packageId);
+            break;
+        case PackageInstaller::UpdateInfo::ForceRemove:
+            toBeRemoved.push_back(upd.packageId);
+            break;
+        default:
+            break;
+        }
+    }
+    vector<string> toBeInstalled;
+    if (requestedUpdates.empty())
+    {
+        if (serverUpdates.empty())
+        {
+            ctx.ui->Verbose(0, T_("There are currently no updates available."));
+        }
+        else
+        {
+            toBeInstalled = serverUpdates;
+        }
+    }
+    else
+    {
+        toBeRemoved.clear();
+        sort(serverUpdates.begin(), serverUpdates.end());
+        for (const string& packageId : requestedUpdates)
+        {
+            PackageInfo packageInfo = ctx.packageManager->GetPackageInfo(packageId);
+            if (!packageInfo.IsInstalled())
+            {
+                ctx.ui->FatalError(fmt::format(T_("{0}: package is not installed"), packageId));
+            }
+            if (binary_search(serverUpdates.begin(), serverUpdates.end(), packageId))
+            {
+                toBeInstalled.push_back(packageId);
+            }
+            else
+            {
+                ctx.ui->Verbose(0, fmt::format(T_("Package \"{0}\" is up to date."), packageId));
+            }
+        }
+    }
+    if (toBeInstalled.empty() && toBeRemoved.empty())
+    {
+        return;
+    }
+    packageInstaller->SetFileLists(toBeInstalled, toBeRemoved);
+    packageInstaller->InstallRemove(PackageInstaller::Role::Updater);
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::FinishUpdate;
+    options = service->SetOptions(options);
+    service->Run();
 }

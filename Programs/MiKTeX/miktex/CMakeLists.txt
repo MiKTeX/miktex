@@ -122,6 +122,8 @@ list(APPEND miktex_sources
     topics/packages/commands/list.cpp
     topics/packages/commands/private.h
     topics/packages/commands/remove.cpp
+    topics/packages/commands/require.cpp
+    topics/packages/commands/update.cpp
     topics/packages/topic.cpp
     topics/packages/topic.h
 )

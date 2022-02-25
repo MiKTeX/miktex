@@ -113,6 +113,11 @@ See the <command>info</command> command, for a list of possible placeholders.</p
 <listitem>
 <para>Remove &MiKTeX; packages.</para></listitem>
 </varlistentry>
+<varlistentry>
+<term><command>update</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<listitem>
+<para>Update &MiKTeX; packages.</para></listitem>
+</varlistentry>
 </variablelist>
 
 </refsect1>

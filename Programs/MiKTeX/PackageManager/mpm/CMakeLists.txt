@@ -62,7 +62,6 @@ endif()
 target_link_libraries(${MIKTEX_PROG_NAME_MPM}
     ${core_dll_name}
     ${mpm_dll_name}
-    ${setup_dll_name}
     miktex-popt-wrapper
 )
 

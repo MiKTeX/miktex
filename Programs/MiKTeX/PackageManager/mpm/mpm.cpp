@@ -53,9 +53,7 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
-#include <miktex/Core/StreamReader>
 #include <miktex/PackageManager/PackageManager>
-#include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Util/StringUtil>
@@ -72,9 +70,6 @@
 #if !defined(THE_NAME_OF_THE_GAME)
 #define THE_NAME_OF_THE_GAME T_("MiKTeX Package Manager")
 #endif
-
-#define ENABLE_OPT_INSTALL_SOME 1
-#define ENABLE_OPT_UPDATE_SOME 1
 
 #if defined(MIKTEX_WINDOWS)
 const char PATH_DELIMITER = ';';
@@ -153,14 +148,15 @@ private:
     void Message(const std::string& s);
     MIKTEXNORETURN void Error(const std::string& s);
     void UpdateDb();
-    void Install(const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved);
-    void Verify(const std::vector<std::string>& toBeVerified);
+    void Require(const std::vector<std::string>& required, const std::vector<std::string>& required2);
+    void Install(const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeInstalled2, const std::vector<std::string>& toBeRemoved, const std::vector<std::string>& toBeRemoved2);
+    void Verify(const std::vector<std::string>& toBeVerified, const std::vector<std::string>& toBeVerified2);
     void VerifyMiKTeX();
     void FindConflicts();
     void ImportPackage(const std::string& packageId, std::vector<std::string>& toBeinstalled);
     void ImportPackages(std::vector<std::string>& toBeinstalled);
     void FindUpdates();
-    void Update(const std::vector<std::string>& updates);
+    void Update(const std::vector<std::string>& requestedUpdates, const std::vector<std::string>& requestedUpdates2);
     void FindUpgrades(MiKTeX::Packages::PackageLevel packageLevel);
     void Upgrade(MiKTeX::Packages::PackageLevel packageLevel);
     std::string GetDirectories(const std::string& packageId);
@@ -231,7 +227,6 @@ using namespace std;
 using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
-using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
@@ -249,39 +244,36 @@ enum Option
 {
     OPT_AAA = 1,
     OPT_ADMIN,
-    OPT_CHECK_REPOSITORIES,       // EXPERIMENTAL
-    OPT_FIND_CONFLICTS,           // internal
+    OPT_CHECK_REPOSITORIES,
+    OPT_FIND_CONFLICTS,
     OPT_FIND_UPDATES,
     OPT_FIND_UPGRADES,
     OPT_HHELP,
     OPT_IMPORT,
     OPT_IMPORT_ALL,
-    OPT_INSTALL,                  // deprecated
-    OPT_INSTALL_SOME,             // deprecated
-    OPT_LIST,                     // deprecated
-    OPT_LIST_PACKAGE_NAMES,       // deprecated
+    OPT_INSTALL,
+    OPT_LIST,
+    OPT_LIST_PACKAGE_NAMES,
     OPT_LIST_REPOSITORIES,
     OPT_PACKAGE_LEVEL,
     OPT_PICK_REPOSITORY_URL,
-    OPT_PRINT_PACKAGE_INFO,       // deprecated
-    OPT_PROXY,                    // experimental
-    OPT_PROXY_PASSWORD,           // experimental
-    OPT_PROXY_USER,               // experimental
+    OPT_PRINT_PACKAGE_INFO,
+    OPT_PROXY,
+    OPT_PROXY_PASSWORD,
+    OPT_PROXY_USER,
     OPT_QUIET,
-    OPT_REGISTER_COMPONENTS,      // experimental
+    OPT_REGISTER_COMPONENTS,
     OPT_REPOSITORY,
     OPT_REPOSITORY_RELEASE_STATE,
     OPT_REQUIRE,
     OPT_SET_REPOSITORY,
-    OPT_SORT,                     // experimental
     OPT_TRACE,
-    OPT_UNINSTALL,                // deprecated
-    OPT_UNREGISTER_COMPONENTS,    // experimental
+    OPT_UNINSTALL,
+    OPT_UNREGISTER_COMPONENTS,
     OPT_UPDATE,
-    OPT_UPDATE_ALL,               // experimental
+    OPT_UPDATE_ALL,
     OPT_UPDATE_DB,
-    OPT_UPDATE_FNDB,              // experimental
-    OPT_UPDATE_SOME,              // deprecated
+    OPT_UPDATE_FNDB,
     OPT_UPGRADE,
     OPT_VERBOSE,
     OPT_VERIFY,
@@ -291,22 +283,21 @@ enum Option
 
 const struct poptOption Application::aoption[] = {
 
-  {
+    {
         "admin", 0, POPT_ARG_NONE, 0, OPT_ADMIN,
         T_("Run in administrator mode."),
         nullptr,
-  },
+    },
 
-  {
-        // EXPERIMENTAL
+    {
         "check-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_REPOSITORIES,
         nullptr,
         nullptr
     },
 
-    {                             // internal
+    {
         "find-conflicts", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FIND_CONFLICTS,
-        T_("Find file conflicts."),
+        nullptr,
         nullptr,
     },
 
@@ -348,14 +339,6 @@ const struct poptOption Application::aoption[] = {
         nullptr
     },
 
-  #if ENABLE_OPT_INSTALL_SOME
-    {                             // deprecated
-        "install-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_INSTALL_SOME,
-        nullptr,
-        nullptr
-    },
-  #endif
-
     {
         "list", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_LIST,
         nullptr,
@@ -392,28 +375,22 @@ const struct poptOption Application::aoption[] = {
         nullptr
     },
 
-    {                             // experimental
+    {
         "proxy", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY,
-        T_("Use the specified proxy host[:port]."),
-        T_("HOST[:PORT]")
+        nullptr,
+        nullptr
     },
 
-    {                             // experimental
+    {
         "proxy-password", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY_PASSWORD,
-        T_("Use the specified password for proxy authentication."),
-        T_("PASSWORD")
+        nullptr,
+        nullptr
     },
 
-    {                             // experimental
+    {
         "proxy-user", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PROXY_USER,
-        T_("Use the specified user for proxy authentication."),
-        T_("USER")
-    },
-
-    {                             // experimental
-        "sort", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_SORT,
-        T_("Sort the package list."),
-        T_("KEY")
+        nullptr,
+        nullptr
     },
 
     {
@@ -443,9 +420,9 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "require", 0, POPT_ARG_STRING, nullptr, OPT_REQUIRE,
-        T_("Make sure that the specified packages are installed."),
-        T_("[@]PACKAGELIST")
+        "require", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_REQUIRE,
+        nullptr,
+        nullptr
     },
 
     {
@@ -476,14 +453,14 @@ const struct poptOption Application::aoption[] = {
   #endif
 
     {
-        "update", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_UPDATE,
-        T_("Update specified packages, if an updated version is available in the package repository.  Install all updateable packages, if the package list is omitted."),
-        T_("[@]PACKAGELIST")
+        "update", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE,
+        nullptr,
+        nullptr
     },
 
-    {                             // experimental
+    {
         "update-all", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_ALL,
-        T_("Test the package repository for updates, then install all updateable packages."),
+        nullptr,
         nullptr,
     },
 
@@ -493,19 +470,11 @@ const struct poptOption Application::aoption[] = {
         nullptr
     },
 
-    {                             // experimental
+    {
         "update-fndb", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_FNDB,
-        T_("Update mpm.fndb."),
-        nullptr
-    },
-
-  #if ENABLE_OPT_UPDATE_SOME
-    {                             // deprecated
-        "update-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_SOME,
         nullptr,
         nullptr
     },
-  #endif
 
     {
         "upgrade", 0, POPT_ARG_NONE, nullptr, OPT_UPGRADE,
@@ -525,9 +494,9 @@ const struct poptOption Application::aoption[] = {
         T_("[@]PACKAGELIST")
     },
 
-    {                             // experimental
+    {
         "verify-miktex", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_VERIFY_MIKTEX,
-        T_("Verify the integrity of the installed MiKTeX packages."),
+        nullptr,
         nullptr
     },
 
@@ -682,9 +651,30 @@ void Application::UpdateDb()
     installer->Dispose();
 }
 
-void Application::Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved)
+void Application::Require(const std::vector<std::string>& required, const std::vector<std::string>& required2)
 {
-    if (!toBeInstalled.empty())
+        vector<string> args{ "packages", "require" };
+        if (!repository.empty())
+        {
+            args.push_back("--repository");
+            args.push_back(repository);
+        }
+        for (auto p : required)
+        {
+            args.push_back("--package-id");
+            args.push_back(p);
+        }
+        for (auto p : required2)
+        {
+            args.push_back("--package-id-file");
+            args.push_back(p);
+        }
+        RunOneMiKTeXUtility(args);
+}
+
+void Application::Install(const vector<string>& toBeInstalled, const vector<string>& toBeInstalled2, const vector<string>& toBeRemoved, const vector<string>& toBeRemoved2)
+{
+    if (!(toBeInstalled.empty() && toBeInstalled2.empty()))
     {
         vector<string> args{ "packages", "install" };
         if (!repository.empty())
@@ -697,15 +687,25 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
             args.push_back("--package-id");
             args.push_back(p);
         }
+        for (auto p : toBeInstalled2)
+        {
+            args.push_back("--package-id-file");
+            args.push_back(p);
+        }
         RunOneMiKTeXUtility(args);
     }
 
-    if (!toBeRemoved.empty())
+    if (!(toBeRemoved.empty() && toBeRemoved2.empty()))
     {
         vector<string> args{ "packages", "remove" };
         for (auto p : toBeRemoved)
         {
             args.push_back("--package-id");
+            args.push_back(p);
+        }
+        for (auto p : toBeRemoved2)
+        {
+            args.push_back("--package-id-file");
             args.push_back(p);
         }
         RunOneMiKTeXUtility(args);
@@ -776,10 +776,10 @@ void Application::VerifyMiKTeX()
             toBeVerified.push_back(packageInfo.id);
         }
     }
-    Verify(toBeVerified);
+    Verify(toBeVerified, {});
 }
 
-void Application::Verify(const vector<string>& toBeVerifiedArg)
+void Application::Verify(const vector<string>& toBeVerifiedArg, const vector<string>& toBeVerifiedArg2)
 {
     vector<string> toBeVerified = toBeVerifiedArg;
     bool verifyAll = toBeVerified.empty();
@@ -939,87 +939,20 @@ void Application::FindUpdates()
     }
 }
 
-void Application::Update(const vector<string>& requestedUpdates)
+void Application::Update(const vector<string>& requestedUpdates, const vector<string>& requestedUpdates2)
 {
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
-    if (!repository.empty())
+    vector<string> args {"packages", "update"};
+    for (auto u : requestedUpdates)
     {
-        installer->SetRepository(repository);
+        args.push_back("--package-id");
+        args.push_back(u);
     }
-    installer->FindUpdates();
-    vector<string> serverUpdates;
-    vector<string> toBeRemoved;
-    for (const PackageInstaller::UpdateInfo& upd : installer->GetUpdates())
+    for (auto u : requestedUpdates2)
     {
-        switch (upd.action)
-        {
-        case PackageInstaller::UpdateInfo::Repair:
-        case PackageInstaller::UpdateInfo::ReleaseStateChange:
-        case PackageInstaller::UpdateInfo::Update:
-        case PackageInstaller::UpdateInfo::ForceUpdate:
-            serverUpdates.push_back(upd.packageId);
-            break;
-        case PackageInstaller::UpdateInfo::ForceRemove:
-            toBeRemoved.push_back(upd.packageId);
-            break;
-        default:
-            break;
-        }
+        args.push_back("--package-id-file");
+        args.push_back(u);
     }
-    vector<string> toBeInstalled;
-    if (requestedUpdates.empty())
-    {
-        if (serverUpdates.empty())
-        {
-            Message(T_("There are currently no updates available."));
-        }
-        else
-        {
-            toBeInstalled = serverUpdates;
-        }
-    }
-    else
-    {
-        toBeRemoved.clear();
-        sort(serverUpdates.begin(), serverUpdates.end());
-        for (const string& packageId : requestedUpdates)
-        {
-            PackageInfo packageInfo = packageManager->GetPackageInfo(packageId);
-            if (!packageInfo.IsInstalled())
-            {
-                Error(fmt::format(T_("Package \"{0}\" is not installed."), packageId));
-            }
-            if (binary_search(serverUpdates.begin(), serverUpdates.end(), packageId))
-            {
-                toBeInstalled.push_back(packageId);
-            }
-            else
-            {
-                Message(fmt::format(T_("Package \"{0}\" is up to date."), packageId));
-            }
-        }
-    }
-    if (toBeInstalled.empty() && toBeRemoved.empty())
-    {
-        return;
-    }
-    installer->SetFileLists(toBeInstalled, toBeRemoved);
-    installer->InstallRemove(PackageInstaller::Role::Updater);
-    installer = nullptr;
-    unique_ptr<SetupService> service = SetupService::Create();
-    SetupOptions options = service->GetOptions();
-    options.Task = SetupTask::FinishUpdate;
-    options = service->SetOptions(options);
-    service->Run();
-    service = nullptr;
-    if (toBeInstalled.size() == 1)
-    {
-        Message(fmt::format(T_("Package \"{0}\" has been successfully updated."), toBeInstalled[0]));
-    }
-    else if (toBeInstalled.size() > 1)
-    {
-        Message(fmt::format(T_("{0} packages have been successfully updated."), toBeInstalled.size()));
-    }
+    RunOneMiKTeXUtility(args);
 }
 
 void Application::FindUpgrades(PackageLevel packageLevel)
@@ -1238,42 +1171,15 @@ void Application::RestartWindowed()
     Process::Start(miktexConsole, options);
 }
 
-void ReadNames(const PathName& path, vector<string>& list)
-{
-    StreamReader reader(path);
-    string line;
-    while (reader.ReadLine(line))
-    {
-        Tokenizer tok(line, " \t\n\r");
-        if (tok)
-        {
-            string name = *tok;
-            if (name[0] == '@')
-            {
-                // RECURSION
-                ReadNames(PathName(&name[1]), list);
-            }
-            else
-            {
-                list.push_back(name);
-            }
-        }
-    }
-    reader.Close();
-}
-
-void ParseList(const string& s, vector<string>& list)
+void ParseList(const string& s, vector<string>& packageIDs, vector<string>& packageIDfiles)
 {
     if (s.length() > 0 && s[0] == '@')
     {
-        ReadNames(PathName(&s[1]), list);
+        packageIDfiles.push_back(&s[1]);
     }
     else
     {
-        for (Tokenizer tok(s, " ,;"); tok; ++tok)
-        {
-            list.push_back(*tok);
-        }
+        packageIDs.push_back(s);
     }
 }
 
@@ -1340,10 +1246,15 @@ void Application::Main(int argc, const char** argv)
     string optProxyUser;
     string toBeImported;
     vector<string> toBeInstalled;
+    vector<string> toBeInstalled2;
     vector<string> toBeRemoved;
+    vector<string> toBeRemoved2;
     vector<string> toBeVerified;
-    vector<string> updates;
+    vector<string> toBeVerified2;
+    vector<string> requestedUpdates;
+    vector<string> requestedUpdates2;
     vector<string> required;
+    vector<string> required2;
     RepositoryReleaseState optRepositoryReleaseState = RepositoryReleaseState::Unknown;
 
     bool changeProxy = false;
@@ -1413,11 +1324,7 @@ void Application::Main(int argc, const char** argv)
             break;
         case OPT_INSTALL:
             DeprecateOption("--install");
-            ParseList(optArg, toBeInstalled);
-            break;
-        case OPT_INSTALL_SOME:
-            DeprecateOption("--install-some");
-            ReadNames(PathName(optArg), toBeInstalled);
+            ParseList(optArg, toBeInstalled, toBeInstalled2);
             break;
         case OPT_LIST:
             DeprecateOption("--list");
@@ -1468,9 +1375,6 @@ void Application::Main(int argc, const char** argv)
             }
         }
         break;
-        case OPT_SORT:
-            // DEPRECATED
-            break;
         case OPT_PROXY_USER:
             changeProxy = true;
             optProxyUser = optArg;
@@ -1508,7 +1412,8 @@ void Application::Main(int argc, const char** argv)
                 Error(T_("Repository release state must be one of: stable, next."));
             }
         case OPT_REQUIRE:
-            ParseList(optArg, required);
+            DeprecateOption("--require");
+            ParseList(optArg, required, required2);
             break;
         case OPT_SET_REPOSITORY:
             optSetRepository = true;
@@ -1519,7 +1424,7 @@ void Application::Main(int argc, const char** argv)
             break;
         case OPT_UNINSTALL:
             DeprecateOption("--uninstall");
-            ParseList(optArg, toBeRemoved);
+            ParseList(optArg, toBeRemoved, toBeRemoved2);
             break;
 #if defined (MIKTEX_WINDOWS)
         case OPT_UNREGISTER_COMPONENTS:
@@ -1527,6 +1432,7 @@ void Application::Main(int argc, const char** argv)
             break;
 #endif
         case OPT_UPDATE:
+            DeprecateOption("--update");
             if (!optArg.empty())
             {
                 if (optUpdateAll)
@@ -1534,7 +1440,7 @@ void Application::Main(int argc, const char** argv)
                     Error(T_("Already updating all packages."));
                 }
                 optUpdate = true;
-                ParseList(optArg, updates);
+                ParseList(optArg, requestedUpdates, requestedUpdates2);
             }
             else
             {
@@ -1546,6 +1452,7 @@ void Application::Main(int argc, const char** argv)
             }
             break;
         case OPT_UPDATE_ALL:
+            DeprecateOption("--update-all");
             if (optUpdate)
             {
                 Error(T_("Already updating selected packages."));
@@ -1557,15 +1464,6 @@ void Application::Main(int argc, const char** argv)
             break;
         case OPT_UPDATE_FNDB:
             optUpdateFndb = true;
-            break;
-        case OPT_UPDATE_SOME:
-            DeprecateOption("--update-some");
-            if (optUpdateAll)
-            {
-                Error(T_("Already updating all packages."));
-            }
-            optUpdate = true;
-            ReadNames(PathName(optArg), updates);
             break;
         case OPT_UPGRADE:
             optUpgrade = true;
@@ -1580,7 +1478,7 @@ void Application::Main(int argc, const char** argv)
         case OPT_VERIFY:
             if (!optArg.empty())
             {
-                ParseList(optArg, toBeVerified);
+                ParseList(optArg, toBeVerified, toBeVerified2);
             }
             optVerify = true;
             break;
@@ -1754,27 +1652,15 @@ void Application::Main(int argc, const char** argv)
         restartWindowed = false;
     }
 
-    if (!required.empty())
+    if (!required.empty() || !required2.empty())
     {
+        Require(required, required2);
         restartWindowed = false;
     }
 
-    for (const string& package : required)
+    if (!toBeInstalled.empty() || !toBeInstalled2.empty() || !toBeRemoved.empty() || !toBeRemoved2.empty())
     {
-        PackageInfo packageInfo;
-        if (!packageManager->TryGetPackageInfo(package, packageInfo))
-        {
-            Error(fmt::format(T_("{0}: unknown package"), package));
-        }
-        if (!packageInfo.IsInstalled())
-        {
-            toBeInstalled.push_back(package);
-        }
-    }
-
-    if (!toBeInstalled.empty() || !toBeRemoved.empty())
-    {
-        Install(toBeInstalled, toBeRemoved);
+        Install(toBeInstalled, toBeInstalled2, toBeRemoved, toBeRemoved2);
         restartWindowed = false;
     }
 
@@ -1790,9 +1676,9 @@ void Application::Main(int argc, const char** argv)
     }
 #endif
 
-    if (optUpdateAll || !updates.empty())
+    if (optUpdateAll || !requestedUpdates.empty() || !requestedUpdates2.empty())
     {
-        Update(updates);
+        Update(requestedUpdates, requestedUpdates2);
         restartWindowed = false;
     }
 
@@ -1816,7 +1702,7 @@ void Application::Main(int argc, const char** argv)
 
     if (optVerify)
     {
-        Verify(toBeVerified);
+        Verify(toBeVerified, toBeVerified2);
         restartWindowed = false;
     }
 

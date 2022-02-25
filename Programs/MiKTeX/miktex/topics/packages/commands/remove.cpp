@@ -152,5 +152,4 @@ void RemoveCommand::Remove(ApplicationContext& ctx, const vector<string>& toBeRe
     cb.packageInstaller = packageInstaller.get();
     packageInstaller->SetFileLists({}, toBeRemoved);
     packageInstaller->InstallRemove(PackageInstaller::Role::Application);
-    packageInstaller->Dispose();
 }

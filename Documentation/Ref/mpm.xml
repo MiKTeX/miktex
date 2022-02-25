@@ -159,23 +159,6 @@ list and print it.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <varlistentry>
-<term><option>--require=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--require=packagelist</primary>
-</indexterm>
-<para>Install packages which are not already installed.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--require=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--require=@listfile</primary>
-</indexterm>
-<para>Install packages which are not already installed. Package names
-are read from <replaceable>listfile</replaceable>.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--repository=<replaceable>location</replaceable></option></term>
 <listitem><para>Use the specified location as the package repository.
 The location can be either a fully qualified path name (a local
@@ -203,31 +186,6 @@ qualified path name (a local package repository) or an &URL; (a remote
 package repository).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
-<varlistentry>
-<term><option>--update</option></term>
-<listitem>
-<indexterm>
-<primary>--update</primary>
-</indexterm>
-<para>Update all installed packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--update=packagelist</primary>
-</indexterm>
-<para>Update the specified packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--update=@listfile</primary>
-</indexterm>
-<para>Update packages. Package names are read from
-<replaceable>listfile</replaceable>.</para></listitem>
-</varlistentry>
 <varlistentry>
 <term><option>--update-db</option></term>
 <listitem>
@@ -311,10 +269,6 @@ registered &URL;):</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
   --verbose --update-db</userinput></screen>
-
-<para>Update all installed packages:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --update</userinput></screen>
 
 <para>Upgrade the &MiKTeX; setup to the highest level:</para>
 

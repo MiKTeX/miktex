@@ -1,7 +1,7 @@
 /**
- * @file topics/packages/commands/install.cpp
+ * @file topics/packages/commands/require.cpp
  * @author Christian Schenk
- * @brief packages install
+ * @brief packages require
  *
  * @copyright Copyright © 2022 Christian Schenk
  *
@@ -34,27 +34,27 @@
 
 namespace
 {
-    class InstallCommand :
+    class RequireCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("Install MiKTeX packages");
+            return T_("Make sure required MiKTeX packages are installed");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "install";
+            return "require";
         }
 
         std::string Synopsis() override
         {
-            return "install [--package-id=PACKAGEID] [--package-id-file=FILE] [--repository=REPOSITORY]";
+            return "require [--package-id=PACKAGEID] [--package-id-file=FILE] [--repository=REPOSITORY]";
         }
 
-        void Install(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& toBeInstalled, const std::string& repository);
+        void Require(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& requiredPackages, const std::string& repository);
     };
 }
 
@@ -69,9 +69,9 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Packages;
 
-unique_ptr<Command> Commands::Install()
+unique_ptr<Command> Commands::Require()
 {
-    return make_unique<InstallCommand>();
+    return make_unique<RequireCommand>();
 }
 
 enum Option
@@ -109,22 +109,22 @@ static const struct poptOption options[] =
     POPT_TABLEEND
 };
 
-int InstallCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int RequireCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string repository;
-    vector<string> toBeInstalled;
+    vector<string> requiredPackages;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
         case OPT_PACKAGE_ID:
-            toBeInstalled.push_back(popt.GetOptArg());
+            requiredPackages.push_back(popt.GetOptArg());
             break;
         case OPT_PACKAGE_ID_FILE:
-            ReadNames(PathName(popt.GetOptArg()), toBeInstalled);
+            ReadNames(PathName(popt.GetOptArg()), requiredPackages);
             break;
         case OPT_REPOSITORY:
             repository = popt.GetOptArg();
@@ -138,22 +138,23 @@ int InstallCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
-    if (toBeInstalled.empty())
+    if (requiredPackages.empty())
     {
         ctx.ui->FatalError(T_("missing package ID"));
     }
-    Install(ctx, toBeInstalled, repository);
+    Require(ctx, requiredPackages, repository);
     return 0;
 }
 
-void InstallCommand::Install(ApplicationContext& ctx, const vector<string>& toBeInstalled, const string& repository)
+void RequireCommand::Require(ApplicationContext& ctx, const vector<string>& requiredPackages, const string& repository)
 {
-    for (const string& packageID : toBeInstalled)
+    vector<string> toBeInstalled;
+    for (const string& packageID : requiredPackages)
     {
         PackageInfo packageInfo = ctx.packageManager->GetPackageInfo(packageID);
-        if (packageInfo.IsInstalled())
+        if (!packageInfo.IsInstalled())
         {
-            ctx.ui->FatalError(fmt::format(T_("{0}: package is already installed"), packageID));
+            toBeInstalled.push_back(packageID);
         }
     }
     MyPackageInstallerCallback cb;
