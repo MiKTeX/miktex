@@ -138,7 +138,6 @@ private:
     void Upgrade(const std::string& packageLevel);
     void List(const std::string& outputTemplate);
     void ListRepositories();
-    void CheckRepositories();
     void PickRepositoryUrl();
     void PrintFiles(const std::vector<std::string>& files);
     void PrintPackageInfo(const std::string& packageId);
@@ -220,7 +219,6 @@ enum Option
 {
     OPT_AAA = 1,
     OPT_ADMIN,
-    OPT_CHECK_REPOSITORIES,
     OPT_FIND_CONFLICTS,
     OPT_FIND_UPDATES,
     OPT_FIND_UPGRADES,
@@ -261,12 +259,6 @@ const struct poptOption Application::aoption[] = {
         "admin", 0, POPT_ARG_NONE, 0, OPT_ADMIN,
         T_("Run in administrator mode."),
         nullptr,
-    },
-
-    {
-        "check-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_CHECK_REPOSITORIES,
-        nullptr,
-        nullptr
     },
 
     {
@@ -326,8 +318,8 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "list-repositories", 0, POPT_ARG_NONE, nullptr, OPT_LIST_REPOSITORIES,
-        T_("Download the list of known package repository URLs from the MiKTeX project server, then print the list."),
+        "list-repositories", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_LIST_REPOSITORIES,
+        nullptr,
         nullptr
     },
 
@@ -853,22 +845,6 @@ void Application::List(const string& outputTemplate)
     RunOneMiKTeXUtility(args);
 }
 
-class CountryComparer
-{
-public:
-    inline bool operator() (const RepositoryInfo& lhs, const RepositoryInfo& rhs)
-    {
-        if (lhs.ranking == rhs.ranking)
-        {
-            return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
-        }
-        else
-        {
-            return lhs.ranking < rhs.ranking;
-        }
-    }
-};
-
 class DataTransferRateComparer
 {
 public:
@@ -880,19 +856,10 @@ public:
 
 void Application::ListRepositories()
 {
-    packageManager->DownloadRepositoryList();
-    vector<RepositoryInfo> repositories = packageManager->GetRepositories();
-    if (repositories.empty())
-    {
-        Message(T_("No package repositories are currently available."));
-    }
-    sort(repositories.begin(), repositories.end(), CountryComparer());
-    for (const RepositoryInfo& ri : repositories)
-    {
-        cout << ri.url << endl;
-    }
+    RunOneMiKTeXUtility({"repositories", "list", "--template", "{url}"});
 }
 
+#if 0
 void Application::CheckRepositories()
 {
     packageManager->DownloadRepositoryList();
@@ -915,6 +882,7 @@ void Application::CheckRepositories()
     }
 #endif
 }
+#endif
 
 void Application::PickRepositoryUrl()
 {
@@ -1018,7 +986,6 @@ void Application::RunOneMiKTeXUtility(const vector<string>& arguments)
 void Application::Main(int argc, const char** argv)
 {
     bool optAdmin = false;
-    bool optCheckRepositories = false;
     bool optFindConflicts = false;
     bool optFindUpdates = false;
     bool optFindUpgrades = false;
@@ -1098,9 +1065,6 @@ void Application::Main(int argc, const char** argv)
         case OPT_ADMIN:
             optAdmin = true;
             break;
-        case OPT_CHECK_REPOSITORIES:
-            optCheckRepositories = true;
-            break;
         case OPT_FIND_CONFLICTS:
             optFindConflicts = true;
             break;
@@ -1141,6 +1105,7 @@ void Application::Main(int argc, const char** argv)
             optListPackageNames = true;
             break;
         case OPT_LIST_REPOSITORIES:
+            DeprecateOption("--list-repositories");
             optListRepositories = true;
             break;
         case OPT_PACKAGE_LEVEL:
@@ -1495,12 +1460,6 @@ void Application::Main(int argc, const char** argv)
     if (optListRepositories)
     {
         ListRepositories();
-        restartWindowed = false;
-    }
-
-    if (optCheckRepositories)
-    {
-        CheckRepositories();
         restartWindowed = false;
     }
 

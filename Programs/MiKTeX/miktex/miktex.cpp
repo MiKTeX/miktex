@@ -67,6 +67,7 @@
 #include "topics/languages/topic.h"
 #include "topics/links/topic.h"
 #include "topics/packages/topic.h"
+#include "topics/repositories/topic.h"
 
 #if defined(MIKTEX_WINDOWS)
 #include "topics/filetypes/topic.h"
@@ -108,6 +109,7 @@ private:
         RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Links::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Packages::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Repositories::Create());
 #if defined(MIKTEX_WINDOWS)
         RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
 #endif

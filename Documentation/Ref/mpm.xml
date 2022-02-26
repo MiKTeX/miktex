@@ -35,9 +35,6 @@
 
 <title>Description</title>
 
-<para>&MPM; (&MiKTeXPackageManager;) is used to install packages from
-a &MiKTeX; package repository.</para>
-
 <para>&MPM; starts in windowed mode, if you do not specify any
 command-line options.</para>
 
@@ -106,7 +103,6 @@ root directory must be specified via
 <option>--repository=<replaceable>dir</replaceable></option>.</para>
 </listitem>
 </varlistentry>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
 <varlistentry><term><option>--pick-repository-url</option></term>
 <listitem><para>Pick up a suitable &URL; from the package repository
 list and print it.</para></listitem>
@@ -116,16 +112,13 @@ list and print it.</para></listitem>
 <term><option>--repository=<replaceable>location</replaceable></option></term>
 <listitem><para>Use the specified location as the package repository.
 The location can be either a fully qualified path name (a local
-package repository) or an &URL; (a remote package repository).  You
-can use the <option>--list-repositories</option> to retrieve a list of
-working package repository &URL;s.</para></listitem>
+package repository) or an &URL; (a remote package repository).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--repository-release-state=<replaceable>state</replaceable></option></term>
 <listitem><para>Select the release state of the remote package
 repository.  The release state is relevant for finding appropriate
-package repositories (<option>--list-repositories</option>,
-<option>--pick-repository-url</option>). The release state must be one
+package repositories. The release state must be one
 of <option>stable</option> or <option>next</option>.</para></listitem>
 </varlistentry>
 <varlistentry>
