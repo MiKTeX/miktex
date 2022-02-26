@@ -142,7 +142,6 @@ private:
     void Require(const std::vector<std::string>& required, const std::vector<std::string>& required2);
     void Install(const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeInstalled2, const std::vector<std::string>& toBeRemoved, const std::vector<std::string>& toBeRemoved2);
     void Verify(const std::vector<std::string>& toBeVerified, const std::vector<std::string>& toBeVerified2);
-    void VerifyMiKTeX();
     void FindConflicts();
     void ImportPackage(const std::string& packageId, std::vector<std::string>& toBeinstalled);
     void ImportPackages(std::vector<std::string>& toBeinstalled);
@@ -268,7 +267,6 @@ enum Option
     OPT_UPGRADE,
     OPT_VERBOSE,
     OPT_VERIFY,
-    OPT_VERIFY_MIKTEX,
     OPT_VERSION,
 };
 
@@ -480,13 +478,7 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "verify", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_VERIFY,
-        T_("Verify the integrity of the installed packages."),
-        T_("[@]PACKAGELIST")
-    },
-
-    {
-        "verify-miktex", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_VERIFY_MIKTEX,
+        "verify", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_VERIFY,
         nullptr,
         nullptr
     },
@@ -753,70 +745,20 @@ void Application::FindConflicts()
     }
 }
 
-void Application::VerifyMiKTeX()
-{
-    vector<string> toBeVerified;
-    unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
-    PackageInfo packageInfo;
-    while (packageIterator->GetNext(packageInfo))
-    {
-        if (!packageInfo.IsPureContainer()
-            && packageInfo.IsInstalled()
-            && packageInfo.id.compare(0, 7, "miktex-") == 0)
-        {
-            toBeVerified.push_back(packageInfo.id);
-        }
-    }
-    Verify(toBeVerified, {});
-}
-
 void Application::Verify(const vector<string>& toBeVerifiedArg, const vector<string>& toBeVerifiedArg2)
 {
-    vector<string> toBeVerified = toBeVerifiedArg;
-    bool verifyAll = toBeVerified.empty();
-    if (verifyAll)
+    vector<string> args {"packages", "verify"};
+    for (auto p : toBeVerifiedArg)
     {
-        unique_ptr<PackageIterator> packageIterator(packageManager->CreateIterator());
-        PackageInfo packageInfo;
-        while (packageIterator->GetNext(packageInfo))
-        {
-            if (!packageInfo.IsPureContainer() && packageInfo.IsInstalled())
-            {
-                toBeVerified.push_back(packageInfo.id);
-            }
-        }
+        args.push_back("--package-id");
+        args.push_back(p);
     }
-    bool ok = true;
-    for (const string& packageId : toBeVerified)
+    for (auto p : toBeVerifiedArg2)
     {
-        if (!packageManager->TryVerifyInstalledPackage(packageId))
-        {
-            Message(fmt::format(T_("{0}: this package needs to be reinstalled."), packageId));
-            ok = false;
-        }
+        args.push_back("--package-id-file");
+        args.push_back(p);
     }
-    if (ok)
-    {
-        if (verifyAll)
-        {
-            Message(T_("All packages are correctly installed."));
-        }
-        else
-        {
-            if (toBeVerified.size() == 1)
-            {
-                Message(fmt::format(T_("Package {0} is correctly installed."), toBeVerified[0]));
-            }
-            else
-            {
-                Message(T_("The packages are correctly installed."));
-            }
-        }
-    }
-    else
-    {
-        Error(T_("Some packages need to be reinstalled."));
-    }
+    RunOneMiKTeXUtility(args);
 }
 
 void Application::ImportPackage(const string& packageId, vector<string>& toBeinstalled)
@@ -1200,7 +1142,6 @@ void Application::Main(int argc, const char** argv)
     bool optUpdateFndb = false;
     bool optUpgrade = false;
     bool optVerify = false;
-    bool optVerifyMiKTeX = false;
     bool optVersion = false;
     int optMaxCount = INT_MAX;
     int optProxyPort = -1;
@@ -1445,14 +1386,12 @@ void Application::Main(int argc, const char** argv)
             verbose = true;
             break;
         case OPT_VERIFY:
+            DeprecateOption("--verify");
             if (!optArg.empty())
             {
                 ParseList(optArg, toBeVerified, toBeVerified2);
             }
             optVerify = true;
-            break;
-        case OPT_VERIFY_MIKTEX:
-            optVerifyMiKTeX = true;
             break;
         case OPT_VERSION:
             optVersion = true;
@@ -1660,12 +1599,6 @@ void Application::Main(int argc, const char** argv)
     if (optFindConflicts)
     {
         FindConflicts();
-        restartWindowed = false;
-    }
-
-    if (optVerifyMiKTeX)
-    {
-        VerifyMiKTeX();
         restartWindowed = false;
     }
 

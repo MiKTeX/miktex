@@ -197,34 +197,6 @@ conjunction with <option>--package-level</option>).  This will install
 all the missing packages.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--verify</option></term>
-<listitem>
-<indexterm>
-<primary>--verify</primary>
-</indexterm>
-<para>Verify the integrity of all installed packages.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--verify=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--verify=packagelist</primary>
-</indexterm>
-<para>Verify the integrity of the specified packages.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--verify=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--verify=@listfile</primary>
-</indexterm>
-<para>Verify the integrity packages. Package names are read from
-<replaceable>listfile</replaceable>.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--verbose</option></term>
 <indexterm>
 <primary>--verbose</primary>

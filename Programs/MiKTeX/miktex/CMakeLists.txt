@@ -125,6 +125,7 @@ list(APPEND miktex_sources
     topics/packages/commands/remove.cpp
     topics/packages/commands/require.cpp
     topics/packages/commands/update.cpp
+    topics/packages/commands/verify.cpp
     topics/packages/topic.cpp
     topics/packages/topic.h
 )

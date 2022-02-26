@@ -55,7 +55,7 @@
 <varlistentry>
 <term><command>info</command> <option>--package-id=<replaceable>packageID</replaceable></option> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
 <listitem>
-<para>List &MiKTeX; packages.</para>
+<para>Show information about &MiKTeX; packages.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
 <para><simplelist type='inline'>
@@ -116,12 +116,17 @@ See the <command>info</command> command, for a list of possible placeholders.</p
 <varlistentry>
 <term><command>remove</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional></term>
 <listitem>
-<para>Remove &MiKTeX; packages.</para></listitem>
+<para>Remove installed &MiKTeX; packages.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><command>update</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
 <listitem>
 <para>Update &MiKTeX; packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>verify</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional></term>
+<listitem>
+<para>Verify the integrity of installed &MiKTeX; packages.</para></listitem>
 </varlistentry>
 </variablelist>
 

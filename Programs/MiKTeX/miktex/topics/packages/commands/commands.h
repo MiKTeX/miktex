@@ -26,4 +26,5 @@ namespace OneMiKTeXUtility::Topics::Packages::Commands
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Remove();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Require();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> Update();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Verify();
 }
