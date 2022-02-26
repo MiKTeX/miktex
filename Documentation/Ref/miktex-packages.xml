@@ -53,6 +53,11 @@
 <para>Check for &MiKTeX; package updates. The exit code will be 100, when package updates are available.</para></listitem>
 </varlistentry>
 <varlistentry>
+<term><command>check-upgrade</command> <option>--package-level=<replaceable>level</replaceable></option> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<listitem>
+<para>Check for a &MiKTeX; upgrade. The exit code will be 100, when an upgrade is available.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><command>info</command> <option>--package-id=<replaceable>packageID</replaceable></option> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
 <listitem>
 <para>Show information about &MiKTeX; packages.</para>
@@ -122,6 +127,16 @@ See the <command>info</command> command, for a list of possible placeholders.</p
 <term><command>update</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
 <listitem>
 <para>Update &MiKTeX; packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>update-package-database</command> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<listitem>
+<para>Update the &MiKTeX; package database.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>upgrade</command> <option>--package-level=<replaceable>level</replaceable></option> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<listitem>
+<para>Upgrade &MiKTeX; to the specified level.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><command>verify</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional></term>

@@ -79,17 +79,7 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-class UpgradeInfoComparer
-{
-public:
-    bool operator() (const  MiKTeX::Packages::PackageInstaller::UpgradeInfo& upg1, const  MiKTeX::Packages::PackageInstaller::UpgradeInfo& upg2) const
-    {
-        return MiKTeX::Util::PathName::Compare(upg1.packageId, upg2.packageId) < 0;
-    }
-};
-
 class Application :
-    public MiKTeX::Packages::PackageInstallerCallback,
     public MiKTeX::Trace::TraceCallback
 {
 public:
@@ -100,9 +90,6 @@ public:
         InstallSignalHandler(SIGTERM);
     }
 
-    void MIKTEXTHISCALL ReportLine(const std::string& str) override;
-    bool MIKTEXTHISCALL OnRetryableError(const std::string& message) override;
-    bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf) override;
     bool MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override;
     void Main(int argc, const char** argv);
 
@@ -147,9 +134,8 @@ private:
     void ImportPackages(std::vector<std::string>& toBeinstalled);
     void FindUpdates();
     void Update(const std::vector<std::string>& requestedUpdates, const std::vector<std::string>& requestedUpdates2);
-    void FindUpgrades(MiKTeX::Packages::PackageLevel packageLevel);
-    void Upgrade(MiKTeX::Packages::PackageLevel packageLevel);
-    std::string GetDirectories(const std::string& packageId);
+    void FindUpgrades(const std::string& packageLevel);
+    void Upgrade(const std::string& packageLevel);
     void List(const std::string& outputTemplate);
     void ListRepositories();
     void CheckRepositories();
@@ -263,7 +249,6 @@ enum Option
     OPT_UPDATE,
     OPT_UPDATE_ALL,
     OPT_UPDATE_DB,
-    OPT_UPDATE_FNDB,
     OPT_UPGRADE,
     OPT_VERBOSE,
     OPT_VERIFY,
@@ -297,8 +282,8 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "find-upgrades", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPGRADES,
-        T_("Search for packages that must be installed in order to complete the setup.  Works in conjunction with --package-level."),
+        "find-upgrades", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FIND_UPGRADES,
+        nullptr,
         nullptr,
     },
 
@@ -347,9 +332,9 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "package-level", 0, POPT_ARG_STRING, nullptr, OPT_PACKAGE_LEVEL,
-        T_("Use the specified package level when doing an upgrade.  Level must be one of: essential, basic, complete."),
-        T_("LEVEL")
+        "package-level", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_PACKAGE_LEVEL,
+        nullptr,
+        nullptr
     },
 
     {
@@ -397,9 +382,9 @@ const struct poptOption Application::aoption[] = {
   #endif
 
     {
-        "repository", 0, POPT_ARG_STRING, nullptr, OPT_REPOSITORY,
-        T_("Use the specified location as the package repository.  The location can be either a fully qualified path name (a local package repository) or an URL (a remote package repository)."),
-        T_("LOCATION")
+        "repository", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_REPOSITORY,
+        nullptr,
+        nullptr
     },
 
     {
@@ -454,20 +439,14 @@ const struct poptOption Application::aoption[] = {
     },
 
     {
-        "update-db", 0, POPT_ARG_NONE, nullptr, OPT_UPDATE_DB,
-        T_("Synchronize the local package database with the package repository."),
-        nullptr
-    },
-
-    {
-        "update-fndb", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_FNDB,
+        "update-db", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_DB,
         nullptr,
         nullptr
     },
 
     {
-        "upgrade", 0, POPT_ARG_NONE, nullptr, OPT_UPGRADE,
-        T_("Upgrade the MiKTeX setup to a package level (works in conjunction with --package-level)."),
+        "upgrade", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPGRADE,
+        nullptr,
         nullptr
     },
 
@@ -604,34 +583,15 @@ MIKTEXNORETURN void Application::Error(const string& s)
     throw 1;
 }
 
-void Application::ReportLine(const string& str)
-{
-    Verbose(str);
-}
-
-bool Application::OnRetryableError(const string& message)
-{
-    return false;
-}
-
-bool Application::OnProgress(MiKTeX::Packages::Notification nf)
-{
-    if (interrupted != 0)
-    {
-        return false;
-    }
-    return interrupted == 0;
-}
-
 void Application::UpdateDb()
 {
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
+    vector<string> args{ "packages", "update-package-database" };
     if (!repository.empty())
     {
-        installer->SetRepository(repository);
+        args.push_back("--repository");
+        args.push_back(repository);
     }
-    installer->UpdateDb({});
-    installer->Dispose();
+    RunOneMiKTeXUtility(args);
 }
 
 void Application::Require(const std::vector<std::string>& required, const std::vector<std::string>& required2)
@@ -699,7 +659,7 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
 
 void Application::RegisterComponents(bool doRegister)
 {
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
+    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ nullptr, true, true }));
     installer->RegisterComponents(doRegister);
     installer->Dispose();
 }
@@ -865,90 +825,26 @@ void Application::Update(const vector<string>& requestedUpdates, const vector<st
     RunOneMiKTeXUtility(args);
 }
 
-void Application::FindUpgrades(PackageLevel packageLevel)
+void Application::FindUpgrades(const string& packageLevel)
 {
-    if (packageLevel == PackageLevel::None)
-    {
-        Error("No package level (--package-level) was specified.");
-    }
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
+    vector<string> args{ "packages", "check-upgrade", "--package-level", packageLevel };
     if (!repository.empty())
     {
-        installer->SetRepository(repository);
+        args.push_back("--repository");
+        args.push_back(repository);
     }
-    installer->FindUpgrades(packageLevel);
-    vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
-    installer->Dispose();
-    if (upgrades.empty())
-    {
-        Message(T_("There are currently no upgrades available."));
-        return;
-    }
-    sort(upgrades.begin(), upgrades.end(), UpgradeInfoComparer());
-    for (const PackageInstaller::UpgradeInfo& upg : upgrades)
-    {
-        cout << upg.packageId << endl;
-    }
+    RunOneMiKTeXUtility(args);
 }
 
-void Application::Upgrade(PackageLevel packageLevel)
+void Application::Upgrade(const string& packageLevel)
 {
-    if (packageLevel == PackageLevel::None)
-    {
-        Error(T_("No package level (--package-level) was specified."));
-    }
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller({ this, true, true }));
+    vector<string> args{ "packages", "upgrade", "--package-level", packageLevel };
     if (!repository.empty())
     {
-        installer->SetRepository(repository);
+        args.push_back("--repository");
+        args.push_back(repository);
     }
-    installer->FindUpgrades(packageLevel);
-    vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
-    if (upgrades.empty())
-    {
-        Message(T_("There are currently no upgrades available."));
-        return;
-    }
-    vector<string> toBeInstalled;
-    for (const PackageInstaller::UpgradeInfo& upg : upgrades)
-    {
-        toBeInstalled.push_back(upg.packageId);
-    }
-    sort(toBeInstalled.begin(), toBeInstalled.end());
-    installer->SetFileLists(toBeInstalled, vector<string>());
-    installer->InstallRemove(PackageInstaller::Role::Application);
-    if (toBeInstalled.size() == 1)
-    {
-        Message(fmt::format(T_("Package \"{0}\" has been successfully installed."), toBeInstalled[0]));
-    }
-    else if (toBeInstalled.size() > 1)
-    {
-        Message(fmt::format(T_("{0} packages have been successfully installed."), toBeInstalled.size()));
-    }
-}
-
-string Application::GetDirectories(const string& packageId)
-{
-    set<string> directories;
-    PackageInfo pi = packageManager->GetPackageInfo(packageId);
-    for (const string& fileName : pi.runFiles)
-    {
-        PathName path(fileName);
-        if (!path.HasExtension(MIKTEX_PACKAGE_MANIFEST_FILE_SUFFIX))
-        {
-            directories.insert(path.RemoveFileSpec().ToString());
-        }
-    }
-    string ret;
-    for (const string& dir : directories)
-    {
-        if (!ret.empty())
-        {
-            ret += PATH_DELIMITER;
-        }
-        ret += dir;
-    }
-    return ret;
+    RunOneMiKTeXUtility(args);
 }
 
 void Application::List(const string& outputTemplate)
@@ -1131,7 +1027,7 @@ void Application::Main(int argc, const char** argv)
     bool optList = false;
     bool optListPackageNames = false;
     bool optListRepositories = false;
-    PackageLevel optPackageLevel = PackageLevel::None;
+    string optPackageLevel;
     bool optPickRepositoryUrl = false;
     bool optPrintPackageInfo = false;
     bool optSetRepository = false;
@@ -1139,7 +1035,6 @@ void Application::Main(int argc, const char** argv)
     bool optUpdate = false;
     bool optUpdateAll = false;
     bool optUpdateDb = false;
-    bool optUpdateFndb = false;
     bool optUpgrade = false;
     bool optVerify = false;
     bool optVersion = false;
@@ -1214,6 +1109,7 @@ void Application::Main(int argc, const char** argv)
             optFindUpdates = true;
             break;
         case OPT_FIND_UPGRADES:
+            DeprecateOption("--find-upgrades");
             optFindUpgrades = true;
             break;
 #if defined (MIKTEX_WINDOWS)
@@ -1248,22 +1144,7 @@ void Application::Main(int argc, const char** argv)
             optListRepositories = true;
             break;
         case OPT_PACKAGE_LEVEL:
-            if (optArg == "essential")
-            {
-                optPackageLevel = PackageLevel::Essential;
-            }
-            else if (optArg == "basic")
-            {
-                optPackageLevel = PackageLevel::Basic;
-            }
-            else if (optArg == "complete")
-            {
-                optPackageLevel = PackageLevel::Complete;
-            }
-            else
-            {
-                Error(T_("Unknown package level."));
-            }
+            optPackageLevel = optArg;
             break;
         case OPT_PICK_REPOSITORY_URL:
             optPickRepositoryUrl = true;
@@ -1370,12 +1251,11 @@ void Application::Main(int argc, const char** argv)
             optUpdateAll = true;
             break;
         case OPT_UPDATE_DB:
+            DeprecateOption("--update-db");
             optUpdateDb = true;
             break;
-        case OPT_UPDATE_FNDB:
-            optUpdateFndb = true;
-            break;
         case OPT_UPGRADE:
+            DeprecateOption("--upgrade");
             optUpgrade = true;
             break;
         case OPT_VERBOSE:
@@ -1522,12 +1402,6 @@ void Application::Main(int argc, const char** argv)
     if (optRepositoryReleaseState != RepositoryReleaseState::Unknown)
     {
         packageManager->SetRepositoryReleaseState(optRepositoryReleaseState);
-    }
-
-    if (optUpdateFndb && !optUpdateDb)
-    {
-        packageManager->CreateMpmFndb();
-        restartWindowed = false;
     }
 
     if (optUpdateDb)

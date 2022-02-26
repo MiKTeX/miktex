@@ -82,17 +82,6 @@ example, if you want to install a package for all users, you invoke
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
-<varlistentry>
-<term><option>--find-upgrades</option></term>
-<listitem>
-<indexterm>
-<primary>--find-upgrades</primary>
-</indexterm>
-<para>Search for packages that must be installed in order to complete
-the &MiKTeX; setup (can be used in conjunction with
-<option>--package-level</option>). Then print the package
-list.</para></listitem>
-</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <varlistentry>
@@ -118,32 +107,6 @@ root directory must be specified via
 </listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
-<varlistentry>
-<term><option>--package-level=<replaceable>level</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--package-level=level</primary>
-</indexterm>
-<para>Use the specified package level (to be used in conjunction with
-<option>--find-upgrades</option> and
-<option>--upgrade</option>).</para>
-<para><replaceable>level</replaceable> must be one of:</para>
-<variablelist>
-<varlistentry>
-<term><option>essential</option></term>
-<listitem><para>Includes mandatory packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>basic</option></term>
-<listitem><para>Includes popular packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>complete</option></term>
-<listitem><para>Includes all available packages.</para></listitem>
-</varlistentry>
-</variablelist>
-</listitem>
-</varlistentry>
 <varlistentry><term><option>--pick-repository-url</option></term>
 <listitem><para>Pick up a suitable &URL; from the package repository
 list and print it.</para></listitem>
@@ -178,25 +141,6 @@ package repository).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <varlistentry>
-<term><option>--update-db</option></term>
-<listitem>
-<indexterm>
-<primary>--update-db</primary>
-</indexterm>
-<para>Synchronize the local package database with the package
-repository.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--upgrade</option></term>
-<listitem>
-<indexterm>
-<primary>--upgrade</primary>
-</indexterm>
-<para>Upgrade the &MiKTeX; setup to a package level (can be used in
-conjunction with <option>--package-level</option>).  This will install
-all the missing packages.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--verbose</option></term>
 <indexterm>
 <primary>--verbose</primary>
@@ -205,37 +149,6 @@ all the missing packages.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
-
-</refsect1>
-
-<refsect1>
-
-<title>Package Database</title>
-
-<para>All package information is retrieved from the package database,
-which must have been properly installed by running &MPM; with the
-<option>--update-db</option> option.</para>
-
-</refsect1>
-
-<refsect1>
-
-<title>Examples</title>
-
-<para>Print the list of known package repository &URL;s:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --list-repositories</userinput></screen>
-
-<para>Retrieve the package database files from the &FTP; server
-<systemitem class="server">some.server</systemitem> (assuming this a
-registered &URL;):</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
-  --verbose --update-db</userinput></screen>
-
-<para>Upgrade the &MiKTeX; setup to the highest level:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --package-level=complete --upgrade</userinput></screen>
 
 </refsect1>
 

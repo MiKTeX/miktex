@@ -52,3 +52,20 @@ public:
     OneMiKTeXUtility::ApplicationContext* ctx = nullptr;
     MiKTeX::Packages::PackageInstaller* packageInstaller = nullptr;
 };
+
+inline MiKTeX::Packages::PackageLevel ToPackageLevel(const std::string& s)
+{
+    if (s == "essential")
+    {
+        return MiKTeX::Packages::PackageLevel::Essential;
+    }
+    else if (s == "basic")
+    {
+        return MiKTeX::Packages::PackageLevel::Basic;
+    }
+    else if (s == "complete")
+    {
+        return MiKTeX::Packages::PackageLevel::Complete;
+    }
+    return MiKTeX::Packages::PackageLevel::None;
+}

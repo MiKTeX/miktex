@@ -40,12 +40,15 @@ namespace
         void RegisterCommands() override
         {
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::CheckUpdate());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::CheckUpgrade());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Info());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Install());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::List());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Remove());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Require());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Update());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::UpdatePackageDatabase());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Upgrade());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Packages::Commands::Verify());
         }
     };

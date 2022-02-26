@@ -117,6 +117,7 @@ list(APPEND miktex_sources
 
 list(APPEND miktex_sources
     topics/packages/commands/checkupdate.cpp
+    topics/packages/commands/checkupgrade.cpp
     topics/packages/commands/commands.h
     topics/packages/commands/info.cpp
     topics/packages/commands/install.cpp
@@ -125,6 +126,8 @@ list(APPEND miktex_sources
     topics/packages/commands/remove.cpp
     topics/packages/commands/require.cpp
     topics/packages/commands/update.cpp
+    topics/packages/commands/updatepackagedatabase.cpp
+    topics/packages/commands/upgrade.cpp
     topics/packages/commands/verify.cpp
     topics/packages/topic.cpp
     topics/packages/topic.h
