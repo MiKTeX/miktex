@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain">packages</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -48,17 +48,17 @@
 
 <variablelist>
 <varlistentry>
-<term><command>check-update</command> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<term><command>check-update</command> <optional><option>--repository <replaceable>url-or-directory</replaceable></option></optional></term>
 <listitem>
 <para>Check for &MiKTeX; package updates. The exit code will be 100, when package updates are available.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>check-upgrade</command> <option>--package-level=<replaceable>level</replaceable></option> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<term><command>check-upgrade</command> <optional><option>--repository <replaceable>url-or-directory</replaceable></option></optional> <replaceable>package-level</replaceable></term>
 <listitem>
 <para>Check for a &MiKTeX; upgrade. The exit code will be 100, when an upgrade is available.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>info</command> <option>--package-id=<replaceable>packageID</replaceable></option> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
+<term><command>info</command> <optional><option>--template <replaceable>template</replaceable></option></optional> <replaceable>package-id</replaceable></term>
 <listitem>
 <para>Show information about &MiKTeX; packages.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
@@ -106,12 +106,12 @@ It can contain the following placeholders:</para>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><command>install</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<term><command>install</command> <optional><option>--package-id-file <replaceable>file</replaceable></option></optional> <optional><option>--repository <replaceable>url-or-directory</replaceable></option></optional> <replaceable>package-id...</replaceable></term>
 <listitem>
 <para>Install &MiKTeX; packages.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>list</command> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
+<term><command>list</command> <optional><option>--template <replaceable>template</replaceable></option></optional></term>
 <listitem>
 <para>List &MiKTeX; packages.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
@@ -119,27 +119,27 @@ See the <command>info</command> command, for a list of possible placeholders.</p
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><command>remove</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional></term>
+<term><command>remove</command> <optional><option>--package-id-file <replaceable>file</replaceable></option></optional> <replaceable>package-id...</replaceable></term>
 <listitem>
 <para>Remove installed &MiKTeX; packages.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>update</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<term><command>update</command> <optional><option>--package-id-file <replaceable>file</replaceable></option></optional> <optional><option>--repository <replaceable>url-or-directory</replaceable></option></optional> <optional><replaceable>package-id...</replaceable></optional></term>
 <listitem>
 <para>Update &MiKTeX; packages.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>update-package-database</command> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<term><command>update-package-database</command> <optional><option>--repository <replaceable>url-or-directory</replaceable></option></optional></term>
 <listitem>
 <para>Update the &MiKTeX; package database.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>upgrade</command> <option>--package-level=<replaceable>level</replaceable></option> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><option>--repository=<replaceable>location</replaceable></option></optional></term>
+<term><command>upgrade</command> <optional><option>--repository <replaceable>url-or-directory</replaceable></option></optional> <replaceable>package-level</replaceable></term>
 <listitem>
 <para>Upgrade &MiKTeX; to the specified level.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>verify</command> <optional><option>--package-id=<replaceable>packageID</replaceable></option></optional> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional></term>
+<term><command>verify</command> <optional><option>--package-id-file=<replaceable>file</replaceable></option></optional> <optional><replaceable>package-id...</replaceable></optional></term>
 <listitem>
 <para>Verify the integrity of installed &MiKTeX; packages.</para></listitem>
 </varlistentry>

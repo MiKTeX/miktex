@@ -1,7 +1,7 @@
 /**
- * @file topics/repositories/commands/list.cpp
+ * @file topics/repositories/commands/check.cpp
  * @author Christian Schenk
- * @brief repositories list
+ * @brief repositories check
  *
  * @copyright Copyright © 2022 Christian Schenk
  *
@@ -31,27 +31,27 @@
 
 namespace
 {
-    class ListCommand :
+    class CheckCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("List MiKTeX package repositories");
+            return T_("Check the bandwidth of MiKTeX package repositories");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "list";
+            return "check-bandwidth";
         }
 
         std::string Synopsis() override
         {
-            return "list [--template=TEMPLATE]";
+            return "check-bandwidth [--template=TEMPLATE] [--url=URL]";
         }
 
-        const std::string defaultTemplate = "{url}";
+        const std::string defaultTemplate = "{bandwidth:.2f}\t{url}";
     };
 }
 
@@ -64,15 +64,16 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Repositories;
 
-unique_ptr<Command> Commands::List()
+unique_ptr<Command> Commands::Check()
 {
-    return make_unique<ListCommand>();
+    return make_unique<CheckCommand>();
 }
 
 enum Option
 {
     OPT_AAA = 1,
     OPT_TEMPLATE,
+    OPT_URL
 };
 
 static const struct poptOption options[] =
@@ -84,22 +85,33 @@ static const struct poptOption options[] =
         T_("Specify the output template."),
         "TEMPLATE"
     },
+    {
+        "url", 0,
+        POPT_ARG_STRING, nullptr,
+        OPT_URL,
+        T_("Specify the repository URL."),
+        "URL"
+    },
     POPT_AUTOHELP
     POPT_TABLEEND
 };
 
-int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int CheckCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string outputTemplate = this->defaultTemplate;
+    vector<string> toBeChecked;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
         case OPT_TEMPLATE:
             outputTemplate = Unescape(popt.GetOptArg());
+            break;
+        case OPT_URL:
+            toBeChecked.push_back(popt.GetOptArg());
             break;
         }
     }
@@ -111,15 +123,31 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
+    vector<RepositoryInfo> repositories;
     ctx.packageManager->DownloadRepositoryList();
-    vector<RepositoryInfo> repositories = ctx.packageManager->GetRepositories();
+    if (toBeChecked.empty())
+    {
+        repositories = ctx.packageManager->GetRepositories();
+    }
+    else
+    {
+        for (auto u : toBeChecked)
+        {
+            repositories.push_back(ctx.packageManager->VerifyPackageRepository(u));
+        }
+    }
     if (repositories.empty())
     {
         ctx.ui->Verbose(0, T_("No package repositories are currently available."));
     }
     sort(repositories.begin(), repositories.end(), CountryComparer());
-    for (const RepositoryInfo& ri : repositories)
+    for (RepositoryInfo& ri : repositories)
     {
+        if (ctx.program->Canceled())
+        {
+            break;
+        }
+        ri = ctx.packageManager->CheckPackageRepository(ri.url);
         ctx.ui->Output(Format(outputTemplate, ri));
     }
     return 0;

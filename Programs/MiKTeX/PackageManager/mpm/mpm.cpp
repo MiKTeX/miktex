@@ -596,7 +596,6 @@ void Application::Require(const std::vector<std::string>& required, const std::v
         }
         for (auto p : required)
         {
-            args.push_back("--package-id");
             args.push_back(p);
         }
         for (auto p : required2)
@@ -619,7 +618,6 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
         }
         for (auto p : toBeInstalled)
         {
-            args.push_back("--package-id");
             args.push_back(p);
         }
         for (auto p : toBeInstalled2)
@@ -635,7 +633,6 @@ void Application::Install(const vector<string>& toBeInstalled, const vector<stri
         vector<string> args{ "packages", "remove" };
         for (auto p : toBeRemoved)
         {
-            args.push_back("--package-id");
             args.push_back(p);
         }
         for (auto p : toBeRemoved2)
@@ -702,7 +699,6 @@ void Application::Verify(const vector<string>& toBeVerifiedArg, const vector<str
     vector<string> args {"packages", "verify"};
     for (auto p : toBeVerifiedArg)
     {
-        args.push_back("--package-id");
         args.push_back(p);
     }
     for (auto p : toBeVerifiedArg2)
@@ -806,7 +802,6 @@ void Application::Update(const vector<string>& requestedUpdates, const vector<st
     vector<string> args {"packages", "update"};
     for (auto u : requestedUpdates)
     {
-        args.push_back("--package-id");
         args.push_back(u);
     }
     for (auto u : requestedUpdates2)
@@ -819,7 +814,7 @@ void Application::Update(const vector<string>& requestedUpdates, const vector<st
 
 void Application::FindUpgrades(const string& packageLevel)
 {
-    vector<string> args{ "packages", "check-upgrade", "--package-level", packageLevel };
+    vector<string> args{ "packages", "check-upgrade", packageLevel };
     if (!repository.empty())
     {
         args.push_back("--repository");
@@ -830,7 +825,7 @@ void Application::FindUpgrades(const string& packageLevel)
 
 void Application::Upgrade(const string& packageLevel)
 {
-    vector<string> args{ "packages", "upgrade", "--package-level", packageLevel };
+    vector<string> args{ "packages", "upgrade", packageLevel };
     if (!repository.empty())
     {
         args.push_back("--repository");
@@ -859,31 +854,6 @@ void Application::ListRepositories()
     RunOneMiKTeXUtility({"repositories", "list", "--template", "{url}"});
 }
 
-#if 0
-void Application::CheckRepositories()
-{
-    packageManager->DownloadRepositoryList();
-    vector<RepositoryInfo> repositories = packageManager->GetRepositories();
-    if (repositories.empty())
-    {
-        Message(T_("No package repositories are currently available."));
-    }
-    sort(repositories.begin(), repositories.end(), CountryComparer());
-    for (RepositoryInfo& ri : repositories)
-    {
-        ri = packageManager->CheckPackageRepository(ri.url);
-        cout << std::fixed << std::setprecision(2) << ri.dataTransferRate / 125000.0 << " Mbit/s - " << ri.url << endl;
-    }
-#if 0
-    sort(repositories.begin(), repositories.end(), DataTransferRateComparer());
-    for (const RepositoryInfo& ri : repositories)
-    {
-        cout << std::fixed << std::setprecision(2) << ri.dataTransferRate / 125000.0 << " Mbit/s - " << ri.url << endl;
-    }
-#endif
-}
-#endif
-
 void Application::PickRepositoryUrl()
 {
     cout << packageManager->PickRepositoryUrl() << endl;
@@ -906,7 +876,7 @@ void Application::PrintFiles(const vector<string>& files)
 
 void Application::PrintPackageInfo(const string& packageId)
 {
-    RunOneMiKTeXUtility({"packages", "info", "--package-id", packageId, "--template", "name: {id}\ntitle: {title}\nrun-time files: {runFiles}"});
+    RunOneMiKTeXUtility({ "packages", "info", "--template", "name: {id}\ntitle: {title}\nrun-time files: {runFiles}", packageId });
 }
 
 void Application::RestartWindowed()

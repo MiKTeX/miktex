@@ -1,7 +1,7 @@
 /**
- * @file topics/repositories/commands/list.cpp
+ * @file topics/repositories/commands/info.cpp
  * @author Christian Schenk
- * @brief repositories list
+ * @brief repositories info
  *
  * @copyright Copyright © 2022 Christian Schenk
  *
@@ -31,27 +31,29 @@
 
 namespace
 {
-    class ListCommand :
+    class InfoCommand :
         public OneMiKTeXUtility::Topics::Command
     {
         std::string Description() override
         {
-            return T_("List MiKTeX package repositories");
+            return T_("Get information about MiKTeX package repositories");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
 
         std::string Name() override
         {
-            return "list";
+            return "info";
         }
 
         std::string Synopsis() override
         {
-            return "list [--template=TEMPLATE]";
+            return "info [--template <template>] <url-or-directory>";
         }
 
-        const std::string defaultTemplate = "{url}";
+        const std::string defaultTemplate = R"xYz(url: {url}
+country: {country}
+version: {version})xYz";
     };
 }
 
@@ -64,9 +66,9 @@ using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
 using namespace OneMiKTeXUtility::Topics::Repositories;
 
-unique_ptr<Command> Commands::List()
+unique_ptr<Command> Commands::Info()
 {
-    return make_unique<ListCommand>();
+    return make_unique<InfoCommand>();
 }
 
 enum Option
@@ -88,7 +90,7 @@ static const struct poptOption options[] =
     POPT_TABLEEND
 };
 
-int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
+int InfoCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
@@ -107,20 +109,15 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftovers = popt.GetLeftovers();
+    if (leftovers.size() != 1)
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("expected one <url-or-directory> argument"));
     }
-    ctx.packageManager->DownloadRepositoryList();
-    vector<RepositoryInfo> repositories = ctx.packageManager->GetRepositories();
-    if (repositories.empty())
+    RepositoryInfo repositoryInfo;
+    if (ctx.packageManager->TryGetRepositoryInfo(leftovers[0], repositoryInfo))
     {
-        ctx.ui->Verbose(0, T_("No package repositories are currently available."));
-    }
-    sort(repositories.begin(), repositories.end(), CountryComparer());
-    for (const RepositoryInfo& ri : repositories)
-    {
-        ctx.ui->Output(Format(outputTemplate, ri));
-    }
+        ctx.ui->Output(Format(outputTemplate, repositoryInfo));
+    }    
     return 0;
 }

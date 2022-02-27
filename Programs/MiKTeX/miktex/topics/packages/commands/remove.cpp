@@ -39,7 +39,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Remove MiKTeX packages");
+            return T_("Remove installed MiKTeX packages");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
@@ -51,7 +51,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "remove [--package-id=PACKAGEID] [--package-id-file=FILE]";
+            return "remove [--package-id-file <file>] <package-id>...";
         }
 
         void Remove(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& toBeRemoved);
@@ -77,19 +77,11 @@ unique_ptr<Command> Commands::Remove()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_PACKAGE_ID,
     OPT_PACKAGE_ID_FILE,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "package-id", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_PACKAGE_ID,
-        T_("Specify the package ID."),
-        "PACKAGEID"
-    },
     {
         "package-id-file", 0,
         POPT_ARG_STRING, nullptr,
@@ -112,9 +104,6 @@ int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         switch (option)
         {
-        case OPT_PACKAGE_ID:
-            toBeRemoved.push_back(popt.GetOptArg());
-            break;
         case OPT_PACKAGE_ID_FILE:
             ReadNames(PathName(popt.GetOptArg()), toBeRemoved);
             break;
@@ -124,10 +113,8 @@ int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
-    {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
-    }
+    auto leftOvers = popt.GetLeftovers();
+    toBeRemoved.insert(toBeRemoved.end(), leftOvers.begin(), leftOvers.end());
     if (toBeRemoved.empty())
     {
         ctx.ui->FatalError(T_("missing package ID"));

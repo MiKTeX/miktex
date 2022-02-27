@@ -19,5 +19,7 @@
 
 namespace OneMiKTeXUtility::Topics::Repositories::Commands
 {
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Check();
+    std::unique_ptr<OneMiKTeXUtility::Topics::Command> Info();
     std::unique_ptr<OneMiKTeXUtility::Topics::Command> List();
 }

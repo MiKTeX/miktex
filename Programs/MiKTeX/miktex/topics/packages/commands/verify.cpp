@@ -51,7 +51,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "verify [--package-id=PACKAGEID] [--package-id-file=FILE]";
+            return "verify [--package-id-file=FILE] [<package-id>...]";
         }
 
         void Verify(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& toBeVerified);
@@ -77,19 +77,11 @@ unique_ptr<Command> Commands::Verify()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_PACKAGE_ID,
     OPT_PACKAGE_ID_FILE,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "package-id", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_PACKAGE_ID,
-        T_("Specify the package ID."),
-        "PACKAGEID"
-    },
     {
         "package-id-file", 0,
         POPT_ARG_STRING, nullptr,
@@ -112,9 +104,6 @@ int VerifyCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         switch (option)
         {
-        case OPT_PACKAGE_ID:
-            toBeVerified.push_back(popt.GetOptArg());
-            break;
         case OPT_PACKAGE_ID_FILE:
             ReadNames(PathName(popt.GetOptArg()), toBeVerified);
             break;
@@ -124,10 +113,8 @@ int VerifyCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
-    {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
-    }
+    auto leftOvers = popt.GetLeftovers();
+    toBeVerified.insert(toBeVerified.end(), leftOvers.begin(), leftOvers.end());
     Verify(ctx, toBeVerified);
     return 0;
 }

@@ -61,7 +61,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "check-upgrade --package-level=LEVEL [--repository=REPOSITORY]";
+            return "check-upgrade [--repository <repository>] <package-level>";
         }
 
         bool CheckUpgrade(OneMiKTeXUtility::ApplicationContext& ctx, MiKTeX::Packages::PackageLevel packageLevel, const std::string& repository);
@@ -88,17 +88,11 @@ unique_ptr<Command> Commands::CheckUpgrade()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_PACKAGE_LEVEL,
-    OPT_REPOSITORY
+    OPT_REPOSITORY,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "package-level", 0, POPT_ARG_STRING, nullptr, OPT_PACKAGE_LEVEL,
-        T_("Use the specified package level when doing an upgrade.  Level must be one of: essential, basic, complete."),
-        T_("LEVEL")
-    },
     {
         "repository", 0,
         POPT_ARG_STRING, nullptr,
@@ -115,18 +109,11 @@ int CheckUpgradeCommand::Execute(ApplicationContext& ctx, const vector<string>& 
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    PackageLevel packageLevel = PackageLevel::None;
     string repository;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
-        case OPT_PACKAGE_LEVEL:
-            packageLevel = ToPackageLevel(popt.GetOptArg());
-            if (packageLevel == PackageLevel::None)
-            {
-                ctx.ui->FatalError(fmt::format(T_("{0}: unknown package level"), popt.GetOptArg()));
-            }
         case OPT_REPOSITORY:
             repository = popt.GetOptArg();
         }
@@ -135,13 +122,15 @@ int CheckUpgradeCommand::Execute(ApplicationContext& ctx, const vector<string>& 
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftOvers = popt.GetLeftovers();
+    if (leftOvers.size() != 1)
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("expected one <package-level> argument"));
     }
+    auto packageLevel = ToPackageLevel(leftOvers[0]);
     if (packageLevel == PackageLevel::None)
     {
-        ctx.ui->FatalError(fmt::format(T_("no package level was specified"), popt.GetOptArg()));
+        ctx.ui->FatalError(fmt::format(T_("{0}: unknown package level"), leftOvers[0]));
     }
     return CheckUpgrade(ctx, packageLevel, repository) ? 100 : 0;
 }

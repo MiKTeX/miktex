@@ -39,6 +39,8 @@ namespace
 
         void RegisterCommands() override
         {
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Repositories::Commands::Check());
+            this->RegisterCommand(OneMiKTeXUtility::Topics::Repositories::Commands::Info());
             this->RegisterCommand(OneMiKTeXUtility::Topics::Repositories::Commands::List());
         }
     };

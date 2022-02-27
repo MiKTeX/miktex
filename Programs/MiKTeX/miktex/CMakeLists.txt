@@ -122,6 +122,7 @@ list(APPEND miktex_sources
     topics/packages/commands/info.cpp
     topics/packages/commands/install.cpp
     topics/packages/commands/list.cpp
+    topics/packages/commands/private.cpp
     topics/packages/commands/private.h
     topics/packages/commands/remove.cpp
     topics/packages/commands/require.cpp
@@ -134,12 +135,15 @@ list(APPEND miktex_sources
 )
 
 list(APPEND miktex_sources
+    topics/repositories/commands/checkbandwidth.cpp
     topics/repositories/commands/commands.h
+    topics/repositories/commands/info.cpp
     topics/repositories/commands/list.cpp
+    topics/repositories/commands/private.cpp
+    topics/repositories/commands/private.h
     topics/repositories/topic.cpp
     topics/repositories/topic.h
 )
-
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND miktex_sources

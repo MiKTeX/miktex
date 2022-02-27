@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain"><replaceable>topic</replaceable></arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -153,6 +153,11 @@ invoke the utility as follows:</para>
 <varlistentry>
 <term><citerefentry><refentrytitle>miktex-packages</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
 <listitem><para>Commands for managing &MiKTeX; packages.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><citerefentry><refentrytitle>miktex-repositories</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+<listitem><para>Commands for managing &MiKTeX; package repositories.</para></listitem>
 </varlistentry>
 
 </variablelist>

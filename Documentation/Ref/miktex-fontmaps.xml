@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain">fontmaps</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -57,12 +57,12 @@
 <para>Configure font map files for &PDF;/&PostScript; output drivers.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>set-option</command> <option>--name=<replaceable>name</replaceable></option> <optional><option>--value=<replaceable>value</replaceable></option></optional></term>
+<term><command>set-option</command> <replaceable>name</replaceable> <optional><replaceable>value</replaceable></optional></term>
 <listitem>
 <para>Set a configuration option.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>show-option</command> <option>--name=<replaceable>name</replaceable></option> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
+<term><command>show-option</command> <optional><option>--template <replaceable>template</replaceable></option></optional> <replaceable>name</replaceable></term>
 <listitem>
 <para>Show a configuration option.</para>
 <para><replaceable>template</replaceable> controls the output.

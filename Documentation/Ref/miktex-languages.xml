@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain">languages</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -57,7 +57,7 @@
 <para>Configure &LaTeX; language definition files.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>list <optional><option>--template=<replaceable>template</replaceable></option></optional></command></term>
+<term><command>list <optional><option>--template <replaceable>template</replaceable></option></optional></command></term>
 <listitem>
 <para>List &LaTeX; language definitions.</para>
 <para><replaceable>template</replaceable> controls the output of each record.

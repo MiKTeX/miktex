@@ -101,6 +101,5 @@ namespace OneMiKTeXUtility
     }
 
     std::string Unescape(const std::string& s);
-    std::string Format(const std::string& outputTemplate, const MiKTeX::Packages::PackageInfo& packageInfo);
     void ReadNames(const MiKTeX::Util::PathName& path, std::vector<std::string>& list);
 }

@@ -48,7 +48,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "list [--template=TEMPLATE]";
+            return "list [--template <template>]";
         }
 
         const std::string defaultTemplate = "{linkType} {linkName} -> {target}";

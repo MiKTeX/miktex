@@ -30,6 +30,8 @@
 
 #include "commands.h"
 
+#include "private.h"
+
 namespace
 {
     class ListCommand :
@@ -49,7 +51,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "list [--template=TEMPLATE]";
+            return "list [--template <template>]";
         }
 
         const std::string defaultTemplate = "{id}";

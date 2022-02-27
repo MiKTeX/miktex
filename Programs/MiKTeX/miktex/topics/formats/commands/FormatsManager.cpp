@@ -50,7 +50,7 @@ void FormatsManager::Build(const string& formatKey)
 
   auto formatInfo = this->Format(formatKey);
 
-  this->ctx->ui->Verbose(1, fmt::format(T_("Building format '{0}' with engine '{1}'..."), formatInfo.key, formatInfo.compiler));
+  this->ctx->ui->Verbose(0, fmt::format(T_("Building format '{0}' with engine '{1}'..."), formatInfo.key, formatInfo.compiler));
 
   string maker;
 

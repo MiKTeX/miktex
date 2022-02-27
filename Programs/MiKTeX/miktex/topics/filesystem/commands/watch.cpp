@@ -37,7 +37,7 @@ namespace
     {
         std::string Description() override
         {
-            return T_("Watch for changes in a directory");
+            return T_("Watch for changes in directories");
         }
 
         int MIKTEXTHISCALL Execute(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& arguments) override;
@@ -49,8 +49,10 @@ namespace
 
         std::string Synopsis() override
         {
-            return "watch --directroy-DIR";
+            return "watch [--template <template>] <directory>";
         }
+
+        const std::string defaultTemplate = "{action} {fileName}";
     };
 }
 
@@ -72,17 +74,17 @@ unique_ptr<Command> Commands::Watch()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_DIRECTORY,
+    OPT_TEMPLATE,
 };
 
 static const struct poptOption options[] =
 {
     {
-        "directory", 0,
+        "template", 0,
         POPT_ARG_STRING, nullptr,
-        OPT_DIRECTORY,
-        T_("Specify the directory to watch."),
-        "DIR"
+        OPT_TEMPLATE,
+        T_("Specify the output template."),
+        "TEMPLATE"
     },
     POPT_AUTOHELP
     POPT_TABLEEND
@@ -93,13 +95,13 @@ int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    PathName dir;
+    string outputTemplate = this->defaultTemplate;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
-        case OPT_DIRECTORY:
-            dir = popt.GetOptArg();
+        case OPT_TEMPLATE:
+            outputTemplate = Unescape(popt.GetOptArg());
             break;
         }
     }
@@ -107,34 +109,33 @@ int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftOvers = popt.GetLeftovers();
+    if (leftOvers.size() != 1)
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("expected one <directory> argument"));
     }
+    PathName dir(leftOvers[0]);
     if (!Directory::Exists(dir))
     {
         ctx.ui->FatalError(fmt::format(T_("{0}: directory does not exist"), dir));
     }
     auto fsWatcher = FileSystemWatcher::Create();
-    class Callback : public FileSystemWatcherCallback{
-        public:
-            Callback(OneMiKTeXUtility::ApplicationContext& ctx) : ctx(ctx) {}
-        private :
-            void OnChange(const FileSystemChangeEvent& ev) override {
-                string action;
-                switch (ev.action)
-                {
-                    case FileSystemChangeAction::Added: action = "added"; break;
-                    case FileSystemChangeAction::Modified: action = "modified"; break;
-                    case FileSystemChangeAction::Removed: action = "removed"; break;
-                    default: action = "-"; break;
-                }
-                ctx.ui->Output(fmt::format("{0}: {1}", action, ev.fileName));
-            }
-        private:
-            OneMiKTeXUtility::ApplicationContext& ctx;
+    class Callback : public FileSystemWatcherCallback
+    {
+        void OnChange(const FileSystemChangeEvent& ev) override
+        {
+            ctx->ui->Output(fmt::format(outputTemplate,
+                fmt::arg("action", ev.action),
+                fmt::arg("fileName", ev.fileName)
+            ));
+        }
+    public:
+        OneMiKTeXUtility::ApplicationContext* ctx;
+        string outputTemplate;
     };
-    Callback callback(ctx);
+    Callback callback;
+    callback.ctx = &ctx;
+    callback.outputTemplate = outputTemplate;
     fsWatcher->AddDirectories({dir});
     fsWatcher->Subscribe(&callback);
     fsWatcher->Start();

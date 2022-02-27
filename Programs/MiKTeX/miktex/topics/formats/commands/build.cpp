@@ -47,7 +47,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "build [--engine=ENGINE] [--key=KEY]";
+            return "build [--engine <engine>] [<key>]";
         }
     };
 }
@@ -69,7 +69,6 @@ enum Option
 {
     OPT_AAA = 1,
     OPT_ENGINE,
-    OPT_KEY,
 };
 
 static const struct poptOption options[] =
@@ -81,13 +80,6 @@ static const struct poptOption options[] =
         T_("Engine to be used."),
         T_("ENGINE")
     },
-    {
-        "key", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_KEY,
-        T_("Specify the format key."),
-        "KEY"
-    },
     POPT_AUTOHELP
     POPT_TABLEEND
 };
@@ -98,7 +90,6 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string engine;
-    string key;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
@@ -106,22 +97,20 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
         case OPT_ENGINE:
             engine = popt.GetOptArg();
             break;
-        case OPT_KEY:
-            key = popt.GetOptArg();
-            break;
         }
     }
     if (option != -1)
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftOvers = popt.GetLeftovers();
+    if (leftOvers.size() > 1)
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("too many arguments"));
     }
     FormatsManager mgr;
     mgr.Init(ctx);
-    if (key.empty())
+    if (leftOvers.empty())
     {
         for (auto& f : mgr.Formats())
         {
@@ -134,6 +123,7 @@ int BuildCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     }
     else
     {
+        string key = leftOvers[0];
         if (!engine.empty())
         {
             auto formatInfo = mgr.Format(key);

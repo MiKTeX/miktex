@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain">formats</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -48,7 +48,7 @@
 
 <variablelist>
 <varlistentry>
-<term><command>build</command> <optional><option>--engine=<replaceable>engine</replaceable></option></optional> <optional><option>--key=<replaceable>key</replaceable></option></optional></term>
+<term><command>build</command> <optional><option>--engine <replaceable>engine</replaceable></option></optional> <optional><replaceable>key</replaceable></optional></term>
 <listitem>
 <indexterm>
 <primary>--dump</primary>
@@ -60,7 +60,7 @@
 <para>Build &TeX; format files.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>list</command> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
+<term><command>list</command> <optional><option>--template <replaceable>template</replaceable></option></optional></term>
 <listitem>
 <para>List &TeX; formats.</para>
 <para><replaceable>template</replaceable> controls the output of each record.

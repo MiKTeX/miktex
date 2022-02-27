@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<refentry id="miktex-repositories">
+
+<?dbhh topicname="MIKTEXHELP_MIKTEX_REPOSITORIES" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex-repositories</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex-repositories</refname>
+<refpurpose>manage &MiKTeX; package repositories</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&miktex;
+<arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
+<arg choice="plain">repositories</arg>
+<arg choice="plain"><replaceable>command</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>Commands for managing &MiKTeX; package repositories.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Commands</title>
+
+<variablelist>
+<varlistentry>
+<term><command>check-bandwidth</command> <optional><option>--template=<replaceable>template</replaceable></option></optional> <optional><option>--url=<replaceable>url</replaceable></option></optional></term>
+<listitem>
+<para>Check the bandwidth of &MiKTeX; package repositories.</para>
+<para><replaceable>template</replaceable> controls the output of each record.
+See the <command>info</command> command, for a list of possible placeholders.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><command>info</command> <optional><option>--template=<replaceable>template</replaceable></option></optional> <option>--url=<replaceable>url</replaceable></option></term>
+<listitem>
+<para>Get information about a &MiKTeX; package repositories.</para>
+<para><replaceable>template</replaceable> controls the output of each record.
+It can contain the following placeholders:</para>
+<para><simplelist type='inline'>
+<member><code>{bandwidth}</code></member>
+<member><code>{country}</code></member>
+<member><code>{delay}</code></member>
+<member><code>{description}</code></member>
+<member><code>{integrity}</code></member>
+<member><code>{lastCheckTime}</code></member>
+<member><code>{lastVisitTime}</code></member>
+<member><code>{packageLevel}</code></member>
+<member><code>{ranking}</code></member>
+<member><code>{relativeDelay}</code></member>
+<member><code>{releaseState}</code></member>
+<member><code>{status}</code></member>
+<member><code>{timeDate}</code></member>
+<member><code>{town}</code></member>
+<member><code>{type}</code></member>
+<member><code>{url}</code></member>
+<member><code>{version}</code></member>
+</simplelist></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><command>list</command> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
+<listitem>
+<para>List &MiKTeX; repositories.</para>
+<para><replaceable>template</replaceable> controls the output of each record.
+See the <command>info</command> command, for a list of possible placeholders.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
+
+</refsect1>
+
+</refentry>

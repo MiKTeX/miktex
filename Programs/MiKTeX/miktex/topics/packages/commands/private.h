@@ -11,6 +11,8 @@
  * License version 2 or any later version.
  */
 
+#pragma once
+
 #include <string>
 
 #include <fmt/format.h>
@@ -33,6 +35,10 @@ class MyPackageInstallerCallback :
     }
     bool OnProgress(MiKTeX::Packages::Notification nf) override
     {
+        if (ctx->program->Canceled())
+        {
+            return false;
+        }
         auto progressInfo = packageInstaller->GetProgressInfo();
         switch (nf)
         {
@@ -69,3 +75,5 @@ inline MiKTeX::Packages::PackageLevel ToPackageLevel(const std::string& s)
     }
     return MiKTeX::Packages::PackageLevel::None;
 }
+
+std::string Format(const std::string& outputTemplate, const MiKTeX::Packages::PackageInfo& packageInfo);

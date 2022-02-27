@@ -52,7 +52,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "update [--package-id=PACKAGEID] [--package-id-file=FILE] [--repository=REPOSITORY]";
+            return "update [--package-id-file <file>] [--repository <repository>] [<package-id>...]";
         }
 
         void Update(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& toBeUpdated, const std::string& repository);
@@ -79,20 +79,12 @@ unique_ptr<Command> Commands::Update()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_PACKAGE_ID,
     OPT_PACKAGE_ID_FILE,
     OPT_REPOSITORY
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "package-id", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_PACKAGE_ID,
-        T_("Specify the package ID."),
-        "PACKAGEID"
-    },
     {
         "package-id-file", 0,
         POPT_ARG_STRING, nullptr,
@@ -122,9 +114,6 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         switch (option)
         {
-        case OPT_PACKAGE_ID:
-            requestedUpdates.push_back(popt.GetOptArg());
-            break;
         case OPT_PACKAGE_ID_FILE:
             ReadNames(PathName(popt.GetOptArg()), requestedUpdates);
             break;
@@ -136,10 +125,8 @@ int UpdateCommand::Execute(ApplicationContext& ctx, const vector<string>& argume
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
-    {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
-    }
+    auto leftOvers = popt.GetLeftovers();
+    requestedUpdates.insert(requestedUpdates.end(), leftOvers.begin(), leftOvers.end());
     Update(ctx, requestedUpdates, repository);
     return 0;
 }

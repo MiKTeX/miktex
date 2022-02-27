@@ -775,7 +775,7 @@ void IniTeXMFApp::MakeFormatFiles(const vector<string>& formats)
   }
   for (const string& fmt : formats)
   {
-    RunOneMiKTeXUtility({ "formats", "build", "--key", fmt });
+    RunOneMiKTeXUtility({ "formats", "build", fmt });
   }
 }
 
@@ -784,7 +784,7 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, con
   // ASSUME: format key and name are the same
   for (const string& name : formatsByName)
   {
-    vector<string> args{ "formats", "build", "--key", name };
+    vector<string> args{ "formats", "build", name };
     if (!engine.empty())
     {
       args.insert(args.end(), { "--engine", engine });

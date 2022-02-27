@@ -51,7 +51,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "update-package-database [--repository=REPOSITORY]";
+            return "update-package-database [--repository <repository>]";
         }
 
         void UpdatePackageDatabase(OneMiKTeXUtility::ApplicationContext& ctx, const std::string& repository);

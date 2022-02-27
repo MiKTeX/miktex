@@ -139,6 +139,7 @@ set(ref_xml_files
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-packages.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-pdftex.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-repositories.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-tex.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-xetex.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex.ini.xml

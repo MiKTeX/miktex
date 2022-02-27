@@ -30,6 +30,8 @@
 
 #include "commands.h"
 
+#include "private.h"
+
 namespace
 {
     class InfoCommand :
@@ -49,7 +51,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "info [--template=TEMPLATE] --package-id=PACKAGEID";
+            return "info [--template <template>] <package-id>";
         }
 
         const std::string defaultTemplate = R"xYz(id: {id}
@@ -78,19 +80,11 @@ unique_ptr<Command> Commands::Info()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_PACKAGE_ID,
     OPT_TEMPLATE,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "package-id", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_PACKAGE_ID,
-        T_("Specify the package ID."),
-        "PACKAGEID"
-    },
     {
         "template", 0,
         POPT_ARG_STRING, nullptr,
@@ -108,14 +102,10 @@ int InfoCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string outputTemplate = this->defaultTemplate;
-    string packageID;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
-        case OPT_PACKAGE_ID:
-            packageID = popt.GetOptArg();
-            break;
         case OPT_TEMPLATE:
             outputTemplate = Unescape(popt.GetOptArg());
             break;
@@ -125,14 +115,11 @@ int InfoCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftOvers = popt.GetLeftovers();
+    if (leftOvers.size() != 1)
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("expected one <package-id> argument"));
     }
-    if (packageID.empty())
-    {
-        ctx.ui->FatalError(T_("missing package ID"));
-    }
-    ctx.ui->Output(Format(outputTemplate, ctx.packageManager->GetPackageInfo(packageID)));
+    ctx.ui->Output(Format(outputTemplate, ctx.packageManager->GetPackageInfo(leftOvers[0])));
     return 0;
 }

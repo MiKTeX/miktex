@@ -61,7 +61,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "check-update [--repository=REPOSITORY]";
+            return "check-update [--repository <repository>]";
         }
 
         bool CheckUpdate(OneMiKTeXUtility::ApplicationContext& ctx, const std::string& repository);
@@ -88,7 +88,7 @@ unique_ptr<Command> Commands::CheckUpdate()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_REPOSITORY
+    OPT_REPOSITORY,
 };
 
 static const struct poptOption options[] =

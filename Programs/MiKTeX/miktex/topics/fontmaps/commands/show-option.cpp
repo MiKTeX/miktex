@@ -47,7 +47,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "show-option --name=NAME [--template=TEMPLATE]";
+            return "show-option [--template <template>] <name>";
         }
 
         const std::string defaultTemplate = "{value}";
@@ -70,19 +70,11 @@ unique_ptr<Command> Commands::ShowOption()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_NAME,
     OPT_TEMPLATE,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "name", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_NAME,
-        T_("Specify the option name."),
-        "NAME"
-    },
     {
         "template", 0,
         POPT_ARG_STRING, nullptr,
@@ -100,14 +92,10 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
     string outputTemplate = this->defaultTemplate;
-    string name;
     while ((option = popt.GetNextOpt()) >= 0)
     {
         switch (option)
         {
-        case OPT_NAME:
-            name = popt.GetOptArg();
-            break;
         case OPT_TEMPLATE:
             outputTemplate = Unescape(popt.GetOptArg());
             break;
@@ -117,13 +105,15 @@ int ShowOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& ar
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftOvers = popt.GetLeftovers();
+    if (leftOvers.empty())
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("expected <name> argument"));
     }
-    if (name.empty())
+    string name = leftOvers[0];
+    if (leftOvers.size() > 1)
     {
-        ctx.ui->IncorrectUsage(T_("expected --name=NAME"));
+        ctx.ui->IncorrectUsage(T_("too many arguments"));
     }
     FontMapManager mgr;
     mgr.Init(ctx);

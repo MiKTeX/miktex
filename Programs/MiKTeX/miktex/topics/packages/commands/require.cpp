@@ -51,7 +51,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "require [--package-id=PACKAGEID] [--package-id-file=FILE] [--repository=REPOSITORY]";
+            return "require [--package-id-file <file>] [--repository <repository>] <package-id>...";
         }
 
         void Require(OneMiKTeXUtility::ApplicationContext& ctx, const std::vector<std::string>& requiredPackages, const std::string& repository);
@@ -77,20 +77,12 @@ unique_ptr<Command> Commands::Require()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_PACKAGE_ID,
     OPT_PACKAGE_ID_FILE,
-    OPT_REPOSITORY
+    OPT_REPOSITORY,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "package-id", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_PACKAGE_ID,
-        T_("Specify the package ID."),
-        "PACKAGEID"
-    },
     {
         "package-id-file", 0,
         POPT_ARG_STRING, nullptr,
@@ -120,9 +112,6 @@ int RequireCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
     {
         switch (option)
         {
-        case OPT_PACKAGE_ID:
-            requiredPackages.push_back(popt.GetOptArg());
-            break;
         case OPT_PACKAGE_ID_FILE:
             ReadNames(PathName(popt.GetOptArg()), requiredPackages);
             break;
@@ -134,10 +123,8 @@ int RequireCommand::Execute(ApplicationContext& ctx, const vector<string>& argum
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
-    {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
-    }
+    auto leftOvers = popt.GetLeftovers();
+    requiredPackages.insert(requiredPackages.end(), leftOvers.begin(), leftOvers.end());
     if (requiredPackages.empty())
     {
         ctx.ui->FatalError(T_("missing package ID"));
