@@ -1,26 +1,17 @@
-/* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
-
-   Copyright (C) 1996-2022 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex/TeXAndFriends/WebAppInputLine.h
+ * @author Christian Schenk
+ * @brief MiKTeX WebApp input line base implementation
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX TeXMF Framework.
+ *
+ * The MiKTeX TeXMF Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(CCBF075DC1F84F54BFB0FC72972CB3E4)
-#define CCBF075DC1F84F54BFB0FC72972CB3E4
 
 #include <miktex/TeXAndFriends/config.h>
 
@@ -37,219 +28,144 @@
 
 #include "WebApp.h"
 
-#define MIKTEX_TEXMF_BEGIN_NAMESPACE                \
-  namespace MiKTeX {                            \
+#define MIKTEX_TEXMF_BEGIN_NAMESPACE        \
+namespace MiKTeX {                          \
     namespace TeXAndFriends {
 
-#define MIKTEX_TEXMF_END_NAMESPACE                  \
-    }                                           \
-  }
+#define MIKTEX_TEXMF_END_NAMESPACE          \
+    }                                       \
+}
 
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 class IInputOutput
 {
 public:
-  virtual C4P::C4P_signed32& loc() = 0;
-public:
-  virtual C4P::C4P_signed32& limit() = 0;
-public:
-  virtual C4P::C4P_signed32 first() = 0;
-public:
-  virtual C4P::C4P_signed32& last() = 0;
-public:
-  virtual C4P::C4P_signed32 bufsize() = 0;
-public:
-  virtual char*& nameoffile() = 0;
-public:
-  virtual C4P::C4P_signed32& namelength() = 0;
-public:
-  virtual char* buffer() = 0;
-public:
-  virtual char* buffer2() = 0;
-public:
-  virtual char32_t* buffer32() = 0;
-public:
-  virtual C4P::C4P_signed32& maxbufstack() = 0;
-public:
-  virtual void overflow(C4P::C4P_signed32 s, C4P::C4P_integer n) = 0;
+    virtual C4P::C4P_signed32& loc() = 0;
+    virtual C4P::C4P_signed32& limit() = 0;
+    virtual C4P::C4P_signed32 first() = 0;
+    virtual C4P::C4P_signed32& last() = 0;
+    virtual C4P::C4P_signed32 bufsize() = 0;
+    virtual char*& nameoffile() = 0;
+    virtual C4P::C4P_signed32& namelength() = 0;
+    virtual char* buffer() = 0;
+    virtual char* buffer2() = 0;
+    virtual char32_t* buffer32() = 0;
+    virtual C4P::C4P_signed32& maxbufstack() = 0;
+    virtual void overflow(C4P::C4P_signed32 s, C4P::C4P_integer n) = 0;
 };
 
 class MIKTEXMFTYPEAPI(WebAppInputLine) :
-  public WebApp
+    public WebApp
 {
-public:
-  MIKTEXMFEXPORT MIKTEXTHISCALL WebAppInputLine();
 
 public:
-  WebAppInputLine(const WebAppInputLine& other) = delete;
 
-public:
-  WebAppInputLine& operator=(const WebAppInputLine& other) = delete;
+    MIKTEXMFEXPORT MIKTEXTHISCALL WebAppInputLine();
+    WebAppInputLine(const WebAppInputLine& other) = delete;
+    WebAppInputLine& operator=(const WebAppInputLine& other) = delete;
+    WebAppInputLine(WebAppInputLine&& other) = delete;
+    WebAppInputLine& operator=(WebAppInputLine&& other) = delete;
+    virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebAppInputLine() noexcept;
 
-public:
-  WebAppInputLine(WebAppInputLine&& other) = delete;
+    MIKTEXMFTHISAPI(IInputOutput*) GetInputOutput() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetAuxDirectory() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFile() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFileFq() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetOutputDirectory() const;
+    MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Util::PathName & fileName, bool forInput);
+    MIKTEXMFTHISAPI(bool) InputLine(C4P::C4P_text & f, C4P::C4P_boolean bypassEndOfLine) const;
+    MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot & f, const MiKTeX::Util::PathName & fileNameInternalEncoding);
+    MIKTEXMFTHISAPI(bool) OpenInputFile(FILE * *ppFile, const MiKTeX::Util::PathName & fileNameInternalEncoding);
+    MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot & f, const MiKTeX::Util::PathName & fileNameInternalEncoding, bool isTextFile_deprecated, MiKTeX::Util::PathName & outPath);
+    MIKTEXMFTHISAPI(void) CloseFile(C4P::FileRoot & f);
+    MIKTEXMFTHISAPI(void) Finalize() override;
+    MIKTEXMFTHISAPI(void) Init(std::vector<char*>&args) override;
+    MIKTEXMFTHISAPI(void) SetAuxDirectory(const MiKTeX::Util::PathName & path);
+    MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput * inputOutput);
+    MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Util::PathName & path);
+    virtual MIKTEXMFTHISAPI(FILE*) OpenFileInternal(const MiKTeX::Util::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);
+    virtual MIKTEXMFTHISAPI(FILE*) TryOpenFileInternal(const MiKTeX::Util::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);
+    virtual MIKTEXMFTHISAPI(MiKTeX::Util::PathName) DecodeFileName(const MiKTeX::Util::PathName & fileNameInternalEncoding);
+    virtual MIKTEXMFTHISAPI(size_t) InputLineInternal(FILE * f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const;
+    virtual MIKTEXMFTHISAPI(void) CloseFileInternal(FILE * f);
 
-public:
-  WebAppInputLine& operator=(WebAppInputLine&& other) = delete;
+    virtual int GetFormatIdent() const
+    {
+        MIKTEX_UNEXPECTED();
+    }
 
-public:
-  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebAppInputLine() noexcept;
+    MiKTeX::Util::PathName GetNameOfFile() const
+    {
+        IInputOutput* inputOutput = GetInputOutput();
+        return MiKTeX::Util::PathName(inputOutput->nameoffile());
+    }
 
-public:
-  static WebAppInputLine* GetWebAppInputLine()
-  {
-    return dynamic_cast<WebAppInputLine*>(Application::GetApplication());
-  }
+    virtual void SetNameOfFile(const MiKTeX::Util::PathName & fileName)
+    {
+        IInputOutput* inputOutput = GetInputOutput();
+        MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
+        inputOutput->namelength() = static_cast<C4P::C4P_signed16>(fileName.GetLength());
+    }
 
-public:
-  MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
-
-public:
-  MIKTEXMFTHISAPI(void) Finalize() override;
+    static WebAppInputLine* GetWebAppInputLine()
+    {
+        return dynamic_cast<WebAppInputLine*>(Application::GetApplication());
+    }
 
 protected:
-  MIKTEXMFTHISAPI(void) AddOptions() override;
 
-protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
-
-public:
-  virtual int GetFormatIdent() const
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
-protected:
-  virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE*) const;
+    MIKTEXMFTHISAPI(MiKTeX::Core::ShellCommandMode) GetShellCommandMode() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetLastInputFileName() const;
+    MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
+    MIKTEXMFTHISAPI(void) AddOptions() override;
+    MIKTEXMFTHISAPI(void) EnableShellCommands(MiKTeX::Core::ShellCommandMode mode);
+    virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE*) const;
 
 private:
-  virtual MIKTEXMFTHISAPI(void) BufferSizeExceeded() const;
 
-public:
-  MIKTEXMFTHISAPI(void) CloseFile(C4P::FileRoot& f);
+    virtual MIKTEXMFTHISAPI(void) BufferSizeExceeded() const;
 
-public:
-  virtual MIKTEXMFTHISAPI(FILE*) OpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);
-
-public:
-  virtual MIKTEXMFTHISAPI(FILE*) TryOpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);
-
-public:
-  virtual MIKTEXMFTHISAPI(void) CloseFileInternal(FILE* f);
-
-public:
-  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFile() const;
-
-public:
-  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFileFq() const;
-
-public:
-  MiKTeX::Util::PathName GetNameOfFile() const
-  {
-    IInputOutput* inputOutput = GetInputOutput();
-    return MiKTeX::Util::PathName(inputOutput->nameoffile());
-  }
-
-public:
-  virtual void SetNameOfFile(const MiKTeX::Util::PathName& fileName)
-  {
-    IInputOutput* inputOutput = GetInputOutput();
-    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-    inputOutput->namelength() = static_cast<C4P::C4P_signed16>(fileName.GetLength());
-  }
-
-public:
-  MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Util::PathName & path);
-
-public:
-  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetOutputDirectory() const;
-
-public:
-  MIKTEXMFTHISAPI(void) SetAuxDirectory(const MiKTeX::Util::PathName & path);
-
-public:
-  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetAuxDirectory() const;
-
-public:
-  MIKTEXMFTHISAPI(bool) InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const;
-
-public:
-  virtual MIKTEXMFTHISAPI(size_t) InputLineInternal(FILE* f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const;
-
-public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Util::PathName& fileNameInternalEncoding);
-
-public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileNameInternalEncoding);
-
-public:
-  virtual MIKTEXMFTHISAPI(MiKTeX::Util::PathName) DecodeFileName(const MiKTeX::Util::PathName& fileNameInternalEncoding);
-
-public:
-  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Util::PathName& fileNameInternalEncoding, bool isTextFile_deprecated, MiKTeX::Util::PathName& outPath);
-
-public:
-  MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Util::PathName& fileName, bool forInput);
-
-protected:
-  MIKTEXMFTHISAPI(void) EnableShellCommands(MiKTeX::Core::ShellCommandMode mode);
-
-protected:
-  MIKTEXMFTHISAPI(MiKTeX::Core::ShellCommandMode) GetShellCommandMode() const;
-
-protected:
-  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetLastInputFileName() const;
-
-public:
-  MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput* inputOutput);
-
-public:
-  MIKTEXMFTHISAPI(IInputOutput*) GetInputOutput() const;
-
-private:
-  class impl;
-  std::unique_ptr<impl> pimpl;
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
 template<class FileType> inline bool inputln(FileType& f, C4P::C4P_boolean bypassEndOfLine = true)
 {
-  return WebAppInputLine::GetWebAppInputLine()->InputLine(f, bypassEndOfLine);
+    return WebAppInputLine::GetWebAppInputLine()->InputLine(f, bypassEndOfLine);
 }
 
 template<class FileType> inline void miktexclosefile(FileType& f)
 {
-  WebAppInputLine::GetWebAppInputLine()->CloseFile(f);
+    WebAppInputLine::GetWebAppInputLine()->CloseFile(f);
 }
 
 template<class FileType> inline bool miktexopeninputfile(FileType& f)
 {
-  bool done = WebAppInputLine::GetWebAppInputLine()->OpenInputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
-  if (done)
-  {
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq());
-  }
-  return done;
+    bool done = WebAppInputLine::GetWebAppInputLine()->OpenInputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
+    if (done)
+    {
+        WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq());
+    }
+    return done;
 }
 
 inline bool miktexallownameoffile(C4P::C4P_boolean forInput)
 {
-  return WebAppInputLine::GetWebAppInputLine()->AllowFileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), forInput);
+    return WebAppInputLine::GetWebAppInputLine()->AllowFileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), forInput);
 }
 
 template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_boolean isTextFile_deprecated)
 {
-  // must open with read/write sharing flags
-  // cf. bug 2006511
-  MiKTeX::Util::PathName outPath;
-  bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), isTextFile_deprecated, outPath);
-  if (done)
-  {
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
-  }
-  return done;
+    // must open with read/write sharing flags
+    // cf. bug 2006511
+    MiKTeX::Util::PathName outPath;
+    bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), isTextFile_deprecated, outPath);
+    if (done)
+    {
+        WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
+    }
+    return done;
 }
 
 MIKTEX_TEXMF_END_NAMESPACE;
-
-#endif

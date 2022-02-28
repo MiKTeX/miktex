@@ -1,26 +1,17 @@
-/* miktex/TeXAndFriends/StringHandlerImpl.h:            -*- C++ -*-
-
-   Copyright (C) 2017-2020 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex/TeXAndFriends/StringHandlerImpl.h
+ * @author Christian Schenk
+ * @brief String handler implementation
+ *
+ * @copyright Copyright © 2017-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX TeXMF Framework.
+ *
+ * The MiKTeX TeXMF Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(D29D04223B0E46AC810F4ADDBE5667D1)
-#define D29D04223B0E46AC810F4ADDBE5667D1
 
 #include <miktex/TeXAndFriends/config.h>
 
@@ -29,62 +20,64 @@
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
 template<class PROGRAM_CLASS> class StringHandlerImpl :
-  public IStringHandler
+    public IStringHandler
 {
+
 public:
-  StringHandlerImpl(PROGRAM_CLASS& program) :
-    program(program)
-  {
-  }
+
+    StringHandlerImpl(PROGRAM_CLASS& program) :
+        program(program)
+    {
+    }
+
+    char* strpool() override
+    {
+#if defined(MIKTEX_TEXMF_UNICODE)
+        MIKTEX_UNEXPECTED();
+#else
+        MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char));
+        return reinterpret_cast<char*>(program.strpool);
+#endif
+    }
+
+    char16_t* strpool16() override
+    {
+#if defined(MIKTEX_TEXMF_UNICODE)
+        MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char16_t));
+        return (char16_t*)program.strpool;
+#else
+        MIKTEX_UNEXPECTED();
+#endif
+    }
+
+    C4P::C4P_signed32& strptr() override
+    {
+        return program.strptr;
+    }
+
+    C4P::C4P_signed32* strstart() override
+    {
+        return program.strstart;
+    }
+
+    C4P::C4P_signed32& poolsize() override
+    {
+        return program.poolsize;
+    }
+
+    C4P::C4P_signed32& poolptr() override
+    {
+        return program.poolptr;
+    }
+
+    C4P::C4P_signed32 makestring() override
+    {
+        return program.makestring();
+    }
+
 private:
-  PROGRAM_CLASS& program;
-public:
-  char* strpool() override
-  {
-#if defined(MIKTEX_TEXMF_UNICODE)
-    MIKTEX_UNEXPECTED();
-#else
-    MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char));
-    return (char*)program.strpool;
-#endif
-  }
-public:
-  char16_t* strpool16() override
-  {
-#if defined(MIKTEX_TEXMF_UNICODE)
-    MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char16_t));
-    return (char16_t*)program.strpool;
-#else
-    MIKTEX_UNEXPECTED();
-#endif
-  }
-public:
-  C4P::C4P_signed32& strptr() override
-  {
-    return program.strptr;
-  }
-public:
-  C4P::C4P_signed32* strstart() override
-  {
-    return program.strstart;
-  }
-public:
-  C4P::C4P_signed32& poolsize() override
-  {
-    return program.poolsize;
-  }
-public:
-  C4P::C4P_signed32& poolptr() override
-  {
-    return program.poolptr;
-  }
-public:
-  C4P::C4P_signed32 makestring() override
-  {
-    return program.makestring();
-  }
+
+    PROGRAM_CLASS& program;
 };
 
 MIKTEX_TEXMF_END_NAMESPACE;
-
-#endif

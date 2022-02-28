@@ -1,26 +1,17 @@
-/* miktex/TeXAndFriends/WebApp.h:                       -*- C++ -*-
-
-   Copyright (C) 1996-2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex/TeXAndFriends/WebApp.h
+ * @author Christian Schenk
+ * @brief MiKTeX WebApp base implementation
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX TeXMF Framework.
+ *
+ * The MiKTeX TeXMF Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(B21F1EB98F524CBDA35F0691A5BB8D38)
-#define B21F1EB98F524CBDA35F0691A5BB8D38
 
 #include <miktex/TeXAndFriends/config.h>
 
@@ -44,12 +35,13 @@
 #include <miktex/Wrappers/PoptWrapper>
 
 /// @cond
-namespace C4P {
-  class Exception31 {};        // aux_done
-  class Exception32 {};        // bst_done
-  class Exception9932 {};      // no_bst_file
-  class Exception9998 {};      // end_of_TEX
-  class Exception9999 {};      // final_end
+namespace C4P
+{
+    class Exception31 {};        // aux_done
+    class Exception32 {};        // bst_done
+    class Exception9932 {};      // no_bst_file
+    class Exception9998 {};      // end_of_TEX
+    class Exception9999 {};      // final_end
 }
 /// @endcond
 
@@ -58,309 +50,234 @@ MIKTEX_TEXMF_BEGIN_NAMESPACE;
 class ICharacterConverter
 {
 public:
-  virtual char* xchr() = 0;
-  virtual char* xord() = 0;
-  virtual char* xprn() = 0;
+    virtual char* xchr() = 0;
+    virtual char* xord() = 0;
+    virtual char* xprn() = 0;
 };
 
 class IInitFinalize
 {
 public:
-  virtual C4P::C4P_signed8& history() = 0;
+    virtual C4P::C4P_signed8& history() = 0;
 };
 
 enum class Feature
 {
-  EightBitChars,
-  TCX
+    EightBitChars,
+    TCX
 };
 
 template<class FileType> inline bool miktexopentfmfile(FileType& f, const char* fileName)
 {
-  return OpenTFMFile(&f, MiKTeX::Util::PathName(fileName));
+    return OpenTFMFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenvffile(FileType& f, const char* fileName)
 {
-  return OpenVFFile(&f, MiKTeX::Util::PathName(fileName));
+    return OpenVFFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline int miktexopenxfmfile(FileType& f, const char* fileName)
 {
-  return OpenXFMFile(&f, MiKTeX::Util::PathName(fileName));
+    return OpenXFMFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline bool miktexopenxvffile(FileType& f, const char* fileName)
 {
-  return OpenXVFFile(&f, MiKTeX::Util::PathName(fileName));
+    return OpenXVFFile(&f, MiKTeX::Util::PathName(fileName));
 }
 
 template<class FileType> inline void miktexprintmiktexbanner(FileType& f)
 {
-  fprintf(f, " (%s)", MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
+    fprintf(f, " (%s)", MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
 }
 
 class MIKTEXMFTYPEAPI(WebApp) :
-  public MiKTeX::App::Application
+    public MiKTeX::App::Application
 {
-public:
-  MIKTEXMFEXPORT MIKTEXTHISCALL WebApp();
 
 public:
-  WebApp(const WebApp& other) = delete;
 
-public:
-  WebApp& operator=(const WebApp& other) = delete;
+    MIKTEXMFEXPORT MIKTEXTHISCALL WebApp();
+    WebApp(const WebApp & other) = delete;
+    WebApp& operator=(const WebApp & other) = delete;
+    WebApp(WebApp && other) = delete;
+    WebApp& operator=(WebApp && other) = delete;
+    virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebApp() noexcept;
 
-public:
-  WebApp(WebApp&& other) = delete;
+    MIKTEXMFTHISAPI(C4P::ProgramBase*) GetProgram() const;
+    MIKTEXMFTHISAPI(ICharacterConverter*) GetCharacterConverter() const;
+    MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetTcxFileName() const;
+    MIKTEXMFTHISAPI(bool) AmI(const std::string& name) const;
+    MIKTEXMFTHISAPI(bool) AmIMETAFONT() const;
+    MIKTEXMFTHISAPI(bool) AmITeX() const;
+    MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
+    MIKTEXMFTHISAPI(bool) GetVerboseFlag() const;
+    MIKTEXMFTHISAPI(bool) IsFeatureEnabled(Feature f) const;
+    MIKTEXMFTHISAPI(std::string) GetProgramName() const;
+    MIKTEXMFTHISAPI(void) EnableFeature(Feature f);
+    MIKTEXMFTHISAPI(void) Finalize() override;
+    MIKTEXMFTHISAPI(void) Init(std::vector<char*>&args) override;
+    MIKTEXMFTHISAPI(void) InitializeCharTables() const;
+    MIKTEXMFTHISAPI(void) SetCharacterConverter(ICharacterConverter* characterConverter);
+    MIKTEXMFTHISAPI(void) SetInitFinalize(IInitFinalize* initFinalize);
+    MIKTEXMFTHISAPI(void) SetProgram(C4P::ProgramBase* program, const std::string& programName, const std::string& version, const std::string& copyright, const std::string& trademarks);
+    virtual MIKTEXMFTHISAPI(std::string) TheNameOfTheGame() const;
+    virtual MIKTEXMFTHISAPI(void) ProcessCommandLineOptions();
 
-public:
-  WebApp& operator=(WebApp&& other) = delete;
+    virtual unsigned long GetHelpId() const
+    {
+        return 0;
+    }
 
-public:
-  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebApp() noexcept;
+    virtual MiKTeX::Core::FileType GetInputFileType() const
+    {
+        // must be implemented in sub-classes
+        MIKTEX_UNEXPECTED();
+    }
 
-public:
-  static WebApp* GetWebApp()
-  {
-    MIKTEX_ASSERT(dynamic_cast<WebApp*>(Application::GetApplication()) != nullptr);
-    return reinterpret_cast<WebApp*>(Application::GetApplication());
-  }
-
-public:
-  MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
-
-public:
-  MIKTEXMFTHISAPI(void) Finalize() override;
-
-public:
-  MIKTEXMFTHISAPI(void) SetProgram(C4P::ProgramBase* program, const std::string& programName, const std::string& version, const std::string& copyright, const std::string& trademarks);
-
-public:
-  virtual MIKTEXMFTHISAPI(std::string) TheNameOfTheGame() const;
-
-public:
-  MIKTEXMFTHISAPI(std::string) GetProgramName() const;
-
-public:
-  MIKTEXMFTHISAPI(bool) AmI(const std::string& name) const;
+    static WebApp* GetWebApp()
+    {
+        MIKTEX_ASSERT(dynamic_cast<WebApp*>(Application::GetApplication()) != nullptr);
+        return reinterpret_cast<WebApp*>(Application::GetApplication());
+    }
 
 protected:
-  MIKTEXMFTHISAPI(std::string) Translate(const char* msgId);
 
-protected:
-  virtual MIKTEXMFTHISAPI(void) AddOptions();
+    enum
+    {
+        OPT_UNSUPPORTED = INT_MAX - 100,
+        OPT_NOOP,
+    };
 
-protected:
-  enum {
-    OPT_UNSUPPORTED = INT_MAX - 100,
-    OPT_NOOP,
-  };
+    MIKTEXMFTHISAPI(std::string) Translate(const char* msgId);
+    MIKTEXMFTHISAPI(std::vector<poptOption>) GetOptions() const;
+    MIKTEXMFTHISAPI(void) AddOption(const std::string& aliasName, const std::string& name);
+    MIKTEXMFTHISAPI(void) AddOption(const std::string& name, const std::string& help, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void* arg = nullptr, char shortName = 0);
+    MIKTEXMFTHISAPI(void) AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args);
+    MIKTEXMFTHISAPI(void) BadUsage();
+    MIKTEXMFTHISAPI(void) Enable8BitChars(bool enable8BitChars);
+    MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Util::PathName& tcxFileName);
+    MIKTEXMFTHISAPI(void) SetTeX();
+    MIKTEXMFTHISAPI(void) ShowHelp(bool usageOnly = false) const;
+    MIKTEXMFTHISAPI(void) ShowProgramVersion() const;
+    virtual MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg);
+    virtual MIKTEXMFTHISAPI(void) AddOptions();
 
-protected:
-  MIKTEXMFTHISAPI(void) AddOption(const std::string& name, const std::string& help, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void* arg = nullptr, char shortName = 0);
+    void AddOption(const std::string& name, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void* arg = nullptr, char shortName = 0)
+    {
+        AddOption(name, "", opt, argInfo, argDescription, arg, shortName);
+    }
 
-protected:
-  void AddOption(const std::string& name, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void * arg = nullptr, char shortName = 0)
-  {
-    AddOption(name, "", opt, argInfo, argDescription, arg, shortName);
-  }
-
-protected:
-  MIKTEXMFTHISAPI(void) AddOption(const std::string& aliasName, const std::string& name);
-
-
-protected:
-  MIKTEXMFTHISAPI(void) AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args);
-
-protected:
-  MIKTEXMFTHISAPI(std::vector<poptOption>) GetOptions() const;
-
-public:
-  virtual MIKTEXMFTHISAPI(void) ProcessCommandLineOptions();
-
-protected:
-  virtual MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg);
-
-protected:
-  MIKTEXMFTHISAPI(void) ShowProgramVersion() const;
-
-protected:
-  MIKTEXMFTHISAPI(void) ShowHelp(bool usageOnly = false) const;
-
-protected:
-  MIKTEXMFTHISAPI(void) BadUsage();
-
-protected:
-  virtual std::string GetUsage() const
-  {
-    // must be implemented in sub-classes
-    MIKTEX_UNEXPECTED();
-  }
-
-public:
-  virtual unsigned long GetHelpId() const
-  {
-    return 0;
-  }
-
-public:
-  virtual MiKTeX::Core::FileType GetInputFileType() const
-  {
-    // must be implemented in sub-classes
-    MIKTEX_UNEXPECTED();
-  }
-
-public:
-  MIKTEXMFTHISAPI(void) EnableFeature(Feature f);
-
-public:
-  MIKTEXMFTHISAPI(bool) IsFeatureEnabled(Feature f) const;
-
-protected:
-  MIKTEXMFTHISAPI(void) SetTeX();
-
-public:
-  MIKTEXMFTHISAPI(bool) AmITeX() const;
-
-public:
-  MIKTEXMFTHISAPI(bool) AmIMETAFONT() const;
-
-public:
-  MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetTcxFileName() const;
-
-protected:
-  MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Util::PathName& tcxFileName);
-
-protected:
-  MIKTEXMFTHISAPI(void) Enable8BitChars(bool enable8BitChars);
-
-public:
-  MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
-
-public:
-  MIKTEXMFTHISAPI(void) InitializeCharTables() const;
-
-public:
-  MIKTEXMFTHISAPI(void) SetCharacterConverter(ICharacterConverter* characterConverter);
-
-public:
-  MIKTEXMFTHISAPI(ICharacterConverter*) GetCharacterConverter() const;
-
-public:
-  MIKTEXMFTHISAPI(void) SetInitFinalize(IInitFinalize* initFinalize);
-
-public:
-  MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
-
-public:
-  MIKTEXMFTHISAPI(bool) GetVerboseFlag() const;
-
-public:
-  MIKTEXMFTHISAPI(C4P::ProgramBase*) GetProgram() const;
+    virtual std::string GetUsage() const
+    {
+        // must be implemented in sub-classes
+        MIKTEX_UNEXPECTED();
+    }
 
 private:
-  class impl;
-  std::unique_ptr<impl> pimpl;
+
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
 inline bool miktexgetverboseflag()
 {
-  return WebApp::GetWebApp()->GetVerboseFlag();
+    return WebApp::GetWebApp()->GetVerboseFlag();
 }
 
 inline bool miktexgetquietflag()
 {
-  return WebApp::GetWebApp()->GetQuietFlag();
+    return WebApp::GetWebApp()->GetQuietFlag();
 }
 
 inline void miktexinitializechartables()
 {
-  WebApp::GetWebApp()->InitializeCharTables();
+    WebApp::GetWebApp()->InitializeCharTables();
 }
 
 inline bool miktexhavetcxfilename()
 {
-  return !WebApp::GetWebApp()->GetTcxFileName().Empty();
+    return !WebApp::GetWebApp()->GetTcxFileName().Empty();
 }
 
 inline void miktexprinttcxfilename(FILE* f)
 {
-  fprintf(f, " (%s)", WebApp::GetWebApp()->GetTcxFileName().GetData());
+    fprintf(f, " (%s)", WebApp::GetWebApp()->GetTcxFileName().GetData());
 }
 
 inline bool miktexenableeightbitcharsp()
 {
-  return WebApp::GetWebApp()->Enable8BitCharsP();
+    return WebApp::GetWebApp()->Enable8BitCharsP();
 }
 
 inline void miktexprocesscommandlineoptions()
 {
-  WebApp::GetWebApp()->ProcessCommandLineOptions();
+    WebApp::GetWebApp()->ProcessCommandLineOptions();
 }
 
 template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 {
+
 public:
-  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, const std::string& progName, int argc, char* argv[])
-  {
-    std::string componentVersion;
+
+    int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, const std::string& progName, int argc, char* argv[])
+    {
+        std::string componentVersion;
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
-    componentVersion = MIKTEX_COMPONENT_VERSION_STR;
+        componentVersion = MIKTEX_COMPONENT_VERSION_STR;
 #endif
-    std::string componentCopyright;
+        std::string componentCopyright;
 #if defined(MIKTEX_COMP_COPYRIGHT_STR)
-    componentCopyright = MIKTEX_COMP_COPYRIGHT_STR;
+        componentCopyright = MIKTEX_COMP_COPYRIGHT_STR;
 #endif
-    std::string componentTrademark;
+        std::string componentTrademark;
 #if defined(MIKTEX_COMP_TM_STR)
-    componentTrademark = MIKTEX_COMP_TM_STR;
+        componentTrademark = MIKTEX_COMP_TM_STR;
 #endif
-    app.SetProgram(&prog, progName, componentVersion, componentCopyright, componentTrademark);
-    prog.SetParent(&app);
-    try
-    {
-      MIKTEX_ASSERT(argv != nullptr && argv[argc] == nullptr);
-      std::vector<char*> newargv(argv, argv + argc + 1);
-      app.Init(newargv);
-      MIKTEX_ASSERT(!newargv.empty() && newargv.back() == nullptr);
-      int exitCode = prog.Run(newargv.size() - 1, &newargv[0]);
-      app.Finalize2(exitCode);
-      return exitCode;
+        app.SetProgram(&prog, progName, componentVersion, componentCopyright, componentTrademark);
+        prog.SetParent(&app);
+        try
+        {
+            MIKTEX_ASSERT(argv != nullptr && argv[argc] == nullptr);
+            std::vector<char*> newargv(argv, argv + argc + 1);
+            app.Init(newargv);
+            MIKTEX_ASSERT(!newargv.empty() && newargv.back() == nullptr);
+            int exitCode = prog.Run(newargv.size() - 1, &newargv[0]);
+            app.Finalize2(exitCode);
+            return exitCode;
+        }
+        catch (const MiKTeX::Core::MiKTeXException& ex)
+        {
+            app.Sorry(argv[0], ex);
+            app.Finalize2(1);
+            ex.Save();
+            return EXIT_FAILURE;
+        }
+        catch (const std::exception& ex)
+        {
+            app.Sorry(argv[0], ex);
+            app.Finalize2(1);
+            return EXIT_FAILURE;
+        }
+        catch (int exitCode)
+        {
+            app.Finalize2(exitCode);
+            return exitCode;
+        }
     }
-    catch (const MiKTeX::Core::MiKTeXException& ex)
-    {
-      app.Sorry(argv[0], ex);
-      app.Finalize2(1);
-      ex.Save();
-      return EXIT_FAILURE;
-    }
-    catch (const std::exception& ex)
-    {
-      app.Sorry(argv[0], ex);
-      app.Finalize2(1);
-      return EXIT_FAILURE;
-    }
-    catch (int exitCode)
-    {
-      app.Finalize2(exitCode);
-      return exitCode;
-    }
-  }
 };
 
 // TODO: MIKTEX_DEFINE_WEBAPP(programname, functionname, webappclass, webappinstance, programclass, programinstance)
-#define MIKTEX_DEFINE_WEBAPP(functionname, webappclass, webappinstance, programclass, programinstance) \
-programclass programinstance;                                                                          \
-webappclass webappinstance;                                                                            \
-extern "C" int MIKTEXCEECALL functionname(int argc, char* argv[])                                      \
-{                                                                                                      \
-  MiKTeX::TeXAndFriends::ProgramRunner<programclass, webappclass> p;                                   \
-  std::string programName = #webappclass;                                                              \
-  return p.Run(programinstance, webappinstance, programName, argc, argv);                              \
+#define MIKTEX_DEFINE_WEBAPP(functionname, webappclass, webappinstance, programclass, programinstance)  \
+programclass programinstance;                                                                           \
+webappclass webappinstance;                                                                             \
+extern "C" int MIKTEXCEECALL functionname(int argc, char* argv[])                                       \
+{                                                                                                       \
+    MiKTeX::TeXAndFriends::ProgramRunner<programclass, webappclass> p;                                  \
+    std::string programName = #webappclass;                                                             \
+    return p.Run(programinstance, webappinstance, programName, argc, argv);                             \
 }
 
 MIKTEX_TEXMF_END_NAMESPACE;
-
-#endif

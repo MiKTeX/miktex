@@ -1,23 +1,15 @@
-/* webapp.cpp:
-
-   Copyright (C) 1996-2021 Christian Schenk
-
-   This file is part of the MiKTeX TeXMF Library.
-
-   The MiKTeX TeXMF Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX TeXMF Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX TeXMF Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file webapp.cpp
+ * @author Christian Schenk
+ * @brief MiKTeX WebApp base implementation
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX TeXMF Framework.
+ *
+ * The MiKTeX TeXMF Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
 
 #include <iostream>
 #include <set>
@@ -33,17 +25,17 @@
 #include <miktex/Locale/Translator>
 
 #if defined(MIKTEX_TEXMF_SHARED)
-#  define C4PEXPORT MIKTEXDLLEXPORT
+#   define C4PEXPORT MIKTEXDLLEXPORT
 #else
-#  define C4PEXPORT
+#   define C4PEXPORT
 #endif
 #define C1F0C63F01D5114A90DDF8FC10FF410B
 #include "miktex/C4P/C4P.h"
 
 #if defined(MIKTEX_TEXMF_SHARED)
-#  define MIKTEXMFEXPORT MIKTEXDLLEXPORT
+#   define MIKTEXMFEXPORT MIKTEXDLLEXPORT
 #else
-#  define MIKTEXMFEXPORT
+#   define MIKTEXMFEXPORT
 #endif
 #define B8C7815676699B4EA2DE96F0BD727276
 #include "miktex/TeXAndFriends/WebApp.h"
@@ -63,86 +55,61 @@ using namespace MiKTeX::Wrappers;
 class WebApp::impl
 {
 public:
-  impl() = default;
-public:
-  impl(const impl& other) = delete;
-public:
-  impl& operator=(const impl& other) = delete;
-public:
-  impl(impl&& other) = delete;
-public:
-  impl& operator=(impl&& other) = delete;
-public:
-  ~impl() noexcept
-  {
-    try
+    impl() = default;
+    impl(const impl & other) = delete;
+    impl& operator=(const impl & other) = delete;
+    impl(impl && other) = delete;
+    impl& operator=(impl && other) = delete;
+    ~impl() noexcept
     {
-      for (char* cstr : cstrings)
-      {
-        delete[] cstr;
-      }
+        try
+        {
+            for (char* cstr : cstrings)
+            {
+                delete[] cstr;
+            }
+        }
+        catch (const exception&)
+        {
+        }
     }
-    catch (const exception&)
+
+    char* AddString(const string & s)
     {
+        size_t l = s.length();
+        char* cstr = new char[l + 1];
+        memcpy(cstr, s.c_str(), l + 1);
+        cstrings.push_back(cstr);
+        return cstr;
     }
-  }
-public:
-  vector<char*> cstrings;
-public:
-  char* AddString(const string& s)
-  {
-    size_t l = s.length();
-    char* cstr = new char[l + 1];
-    memcpy(cstr, s.c_str(), l + 1);
-    cstrings.push_back(cstr);
-    return cstr;
-  }
-public:
-  OptionSet<Feature> features;
-public:
-  PoptWrapper popt;
-public:
-  string copyright;
-public:
-  PathName packageListFileName;
-public:
-  C4P::ProgramBase* program;
-public:
-  string programName;
-public:
-  PathName tcxFileName;
-public:
-  bool enable8BitChars;
-public:
-  string trademarks;
-public:
-  string version;
-public:
-  vector<poptOption> options;
-public:
-  int optBase;
-public:
-  unordered_map<string, vector<string>> optionShortcuts;
-public:
-  ICharacterConverter* characterConverter = nullptr;
-public:
-  IInitFinalize* initFinalize = nullptr;
-public:
-  bool isTeXProgram;
-public:
-  bool isMETAFONTProgram;
-public:
-  bool verbose = true;
-public:
-  static TeXMFResources resources;
-public:
-  unique_ptr<Translator> translator;
+
+    vector<char*> cstrings;
+    OptionSet<Feature> features;
+    PoptWrapper popt;
+    string copyright;
+    PathName packageListFileName;
+    C4P::ProgramBase* program;
+    string programName;
+    PathName tcxFileName;
+    bool enable8BitChars;
+    string trademarks;
+    string version;
+    vector<poptOption> options;
+    int optBase;
+    unordered_map<string, vector<string>> optionShortcuts;
+    ICharacterConverter* characterConverter = nullptr;
+    IInitFinalize* initFinalize = nullptr;
+    bool isTeXProgram;
+    bool isMETAFONTProgram;
+    bool verbose = true;
+    static TeXMFResources resources;
+    unique_ptr<Translator> translator;
 };
 
 TeXMFResources WebApp::impl::resources;
 
 WebApp::WebApp() :
-  pimpl(make_unique<impl>())
+    pimpl(make_unique<impl>())
 {
 }
 
@@ -152,388 +119,389 @@ WebApp::~WebApp() noexcept
 
 void WebApp::Init(vector<char*>& args)
 {
-  Session::InitInfo initInfo(args[0]);
-  initInfo.SetTheNameOfTheGame(TheNameOfTheGame());
-  Application::Init(initInfo, args);
-  pimpl->enable8BitChars = false;
-  pimpl->isTeXProgram = TheNameOfTheGame() == "TeX";
-  pimpl->isMETAFONTProgram = TheNameOfTheGame() == "METAFONT";
-  pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
-  LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", pimpl->programName, pimpl->version, Utils::GetMiKTeXBannerString()));
+    Session::InitInfo initInfo(args[0]);
+    initInfo.SetTheNameOfTheGame(TheNameOfTheGame());
+    Application::Init(initInfo, args);
+    pimpl->enable8BitChars = false;
+    pimpl->isTeXProgram = TheNameOfTheGame() == "TeX";
+    pimpl->isMETAFONTProgram = TheNameOfTheGame() == "METAFONT";
+    pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
+    LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", pimpl->programName, pimpl->version, Utils::GetMiKTeXBannerString()));
 }
 
 void WebApp::Finalize()
 {
-  shared_ptr<Session> session = GetSession();
-  if (!pimpl->packageListFileName.Empty())
-  {
-    ofstream stream = File::CreateOutputStream(pimpl->packageListFileName);
-    vector<FileInfoRecord> fileInfoRecords = session->GetFileInfoRecords();
-    set<string> packages;
-    for (const FileInfoRecord& fir : fileInfoRecords)
+    shared_ptr<Session> session = GetSession();
+    if (!pimpl->packageListFileName.Empty())
     {
-      if (!fir.packageName.empty())
-      {
-	packages.insert(fir.packageName);
-      }
+        ofstream stream = File::CreateOutputStream(pimpl->packageListFileName);
+        vector<FileInfoRecord> fileInfoRecords = session->GetFileInfoRecords();
+        set<string> packages;
+        for (const FileInfoRecord& fir : fileInfoRecords)
+        {
+            if (!fir.packageName.empty())
+            {
+                packages.insert(fir.packageName);
+            }
+        }
+        for (const string& pkg : packages)
+        {
+            stream << pkg << "\n";
+        }
+        stream.close();
     }
-    for (const string& pkg : packages)
-    {
-      stream << pkg << "\n";
-    }
-    stream.close();
-  }
-  pimpl->features.Reset();
-  pimpl->copyright = "";
-  pimpl->packageListFileName = "";
-  pimpl->programName = "";
-  pimpl->tcxFileName = "";
-  pimpl->trademarks = "";
-  pimpl->version = "";
-  pimpl->options.clear();
-  pimpl->optionShortcuts.clear();
-  pimpl->translator = nullptr;
-  Application::Finalize();
+    pimpl->features.Reset();
+    pimpl->copyright = "";
+    pimpl->packageListFileName = "";
+    pimpl->programName = "";
+    pimpl->tcxFileName = "";
+    pimpl->trademarks = "";
+    pimpl->version = "";
+    pimpl->options.clear();
+    pimpl->optionShortcuts.clear();
+    pimpl->translator = nullptr;
+    Application::Finalize();
 }
 
 string WebApp::Translate(const char* msgId)
 {
-  return pimpl->translator->Translate(msgId);
+    return pimpl->translator->Translate(msgId);
 }
 
 void WebApp::ShowHelp(bool usageOnly) const
 {
-  if (pimpl->options.empty() || usageOnly || pimpl->popt == nullptr)
-  {
-    return;
-  }
-  if (usageOnly)
-  {
-    pimpl->popt.PrintUsage();
-  }
-  else
-  {
-    pimpl->popt.PrintHelp();
-  }
+    if (pimpl->options.empty() || usageOnly || pimpl->popt == nullptr)
+    {
+        return;
+    }
+    if (usageOnly)
+    {
+        pimpl->popt.PrintUsage();
+    }
+    else
+    {
+        pimpl->popt.PrintHelp();
+    }
 }
 
 void WebApp::BadUsage()
 {
-  cerr << T_("Invalid command-line. Try this:\n") << Utils::GetExeName() << " -help" << endl;
-  throw 1;
+    cerr << T_("Invalid command-line. Try this:\n") << Utils::GetExeName() << " -help" << endl;
+    throw 1;
 }
 
 void WebApp::AddOption(const string& name, const string& help, int val, int argInfo, const string& argDescription, void* arg, char shortName)
 {
-  poptOption opt{};
-  opt.longName = pimpl->AddString(name);
-  opt.shortName = shortName;
-  opt.argInfo = argInfo | POPT_ARGFLAG_ONEDASH;
-  if (val == OPT_UNSUPPORTED || val == OPT_NOOP)
-  {
-    opt.argInfo |= POPT_ARGFLAG_DOC_HIDDEN;
-  }
-  opt.arg = arg;
-  opt.val = val;
-  if (!help.empty()
-    && val != OPT_UNSUPPORTED
-    && val != OPT_NOOP
-    && !(argInfo & POPT_ARGFLAG_DOC_HIDDEN))
-  {
-    opt.descrip = pimpl->AddString(help);
-  }
-  else
-  {
-    opt.descrip = nullptr;
-  }
-  opt.argDescrip = argDescription.empty() ? nullptr : pimpl->AddString(argDescription);
-  pimpl->options.push_back(opt);
+    poptOption opt{};
+    opt.longName = pimpl->AddString(name);
+    opt.shortName = shortName;
+    opt.argInfo = argInfo | POPT_ARGFLAG_ONEDASH;
+    if (val == OPT_UNSUPPORTED || val == OPT_NOOP)
+    {
+        opt.argInfo |= POPT_ARGFLAG_DOC_HIDDEN;
+    }
+    opt.arg = arg;
+    opt.val = val;
+    if (!help.empty()
+        && val != OPT_UNSUPPORTED
+        && val != OPT_NOOP
+        && !(argInfo & POPT_ARGFLAG_DOC_HIDDEN))
+    {
+        opt.descrip = pimpl->AddString(help);
+    }
+    else
+    {
+        opt.descrip = nullptr;
+    }
+    opt.argDescrip = argDescription.empty() ? nullptr : pimpl->AddString(argDescription);
+    pimpl->options.push_back(opt);
 }
 
 void WebApp::AddOption(const string& aliasName, const string& name)
 {
-  AddOptionShortcut(aliasName, { "--" + name });
+    AddOptionShortcut(aliasName, { "--" + name });
 }
 
 void WebApp::AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args)
 {
-  pimpl->optionShortcuts[longName] = args;
+    pimpl->optionShortcuts[longName] = args;
 }
 
-enum {
-  OPT_ALIAS,
-  OPT_DISABLE_INSTALLER,
-  OPT_ENABLE_INSTALLER,
-  OPT_HELP,
-  OPT_HHELP,
-  OPT_INCLUDE_DIRECTORY,
-  OPT_RECORD_PACKAGE_USAGES,
-  OPT_TRACE,
-  OPT_VERBOSE,
-  OPT_VERSION,
+enum
+{
+    OPT_ALIAS,
+    OPT_DISABLE_INSTALLER,
+    OPT_ENABLE_INSTALLER,
+    OPT_HELP,
+    OPT_HHELP,
+    OPT_INCLUDE_DIRECTORY,
+    OPT_RECORD_PACKAGE_USAGES,
+    OPT_TRACE,
+    OPT_VERBOSE,
+    OPT_VERSION,
 };
 
 void WebApp::AddOptions()
 {
-  pimpl->options.reserve(50);
-  pimpl->optBase = (int)GetOptions().size();
-  AddOption("alias", T_("Pretend to be APP.  This affects both the format used and the search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ALIAS, POPT_ARG_STRING, T_("APP"));
-  AddOption("disable-installer", T_("Disable the package installer.  Missing files will not be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_INSTALLER);
-  AddOption("enable-installer", T_("Enable the package installer.  Missing files will be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_INSTALLER);
-  AddOption("help", T_("Show this help screen and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HELP);
-  AddOption("include-directory", T_("Prefix DIR to the input search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INCLUDE_DIRECTORY, POPT_ARG_STRING, T_("DIR"));
-  AddOption("kpathsea-debug", "", OPT_UNSUPPORTED, POPT_ARG_STRING);
-  AddOption("record-package-usages", T_("Enable the package usage recorder.  Output is written to FILE."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORD_PACKAGE_USAGES, POPT_ARG_STRING, T_("FILE"));
-  AddOption("trace", T_("Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   See the manual, for more information."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TRACE, POPT_ARG_STRING, T_("OPTIONS"));
-  AddOption("verbose", T_("Turn on verbose mode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERBOSE);
-  AddOption("version", T_("Print version information and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERSION);
+    pimpl->options.reserve(50);
+    pimpl->optBase = (int)GetOptions().size();
+    AddOption("alias", T_("Pretend to be APP.  This affects both the format used and the search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ALIAS, POPT_ARG_STRING, T_("APP"));
+    AddOption("disable-installer", T_("Disable the package installer.  Missing files will not be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_INSTALLER);
+    AddOption("enable-installer", T_("Enable the package installer.  Missing files will be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_INSTALLER);
+    AddOption("help", T_("Show this help screen and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HELP);
+    AddOption("include-directory", T_("Prefix DIR to the input search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INCLUDE_DIRECTORY, POPT_ARG_STRING, T_("DIR"));
+    AddOption("kpathsea-debug", "", OPT_UNSUPPORTED, POPT_ARG_STRING);
+    AddOption("record-package-usages", T_("Enable the package usage recorder.  Output is written to FILE."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORD_PACKAGE_USAGES, POPT_ARG_STRING, T_("FILE"));
+    AddOption("trace", T_("Turn tracing on.  OPTIONS must be a comma-separated list of trace options.   See the manual, for more information."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TRACE, POPT_ARG_STRING, T_("OPTIONS"));
+    AddOption("verbose", T_("Turn on verbose mode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERBOSE);
+    AddOption("version", T_("Print version information and exit."), FIRST_OPTION_VAL + pimpl->optBase + OPT_VERSION);
 #if defined(MIKTEX_WINDOWS)
-  if (GetHelpId() > 0)
-  {
-    AddOption("hhelp", T_("Show the manual page in an HTMLHelp window and exit when the window is closed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HHELP);
-  }
+    if (GetHelpId() > 0)
+    {
+        AddOption("hhelp", T_("Show the manual page in an HTMLHelp window and exit when the window is closed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HHELP);
+    }
 #endif
 }
 
 bool WebApp::ProcessOption(int opt, const string& optArg)
 {
-  shared_ptr<Session> session = GetSession();
-  if (opt == OPT_UNSUPPORTED)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  else if (opt == OPT_NOOP)
-  {
-    return true;
-  }
-  bool done = true;
-  switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
-  {
-  case OPT_ALIAS:
-    session->PushAppName(optArg);
-    break;
-  case OPT_DISABLE_INSTALLER:
-    EnableInstaller(TriState::False);
-    break;
-  case OPT_ENABLE_INSTALLER:
-    EnableInstaller(TriState::True);
-    break;
-  case OPT_INCLUDE_DIRECTORY:
-    if (Directory::Exists(PathName(optArg)))
+    shared_ptr<Session> session = GetSession();
+    if (opt == OPT_UNSUPPORTED)
     {
-      PathName path(optArg);
-      path.MakeFullyQualified();
-      session->AddInputDirectory(path, true);
+        MIKTEX_UNEXPECTED();
     }
-    break;
-  case OPT_HELP:
-    ShowHelp();
-    throw (0);
+    else if (opt == OPT_NOOP)
+    {
+        return true;
+    }
+    bool done = true;
+    switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
+    {
+    case OPT_ALIAS:
+        session->PushAppName(optArg);
+        break;
+    case OPT_DISABLE_INSTALLER:
+        EnableInstaller(TriState::False);
+        break;
+    case OPT_ENABLE_INSTALLER:
+        EnableInstaller(TriState::True);
+        break;
+    case OPT_INCLUDE_DIRECTORY:
+        if (Directory::Exists(PathName(optArg)))
+        {
+            PathName path(optArg);
+            path.MakeFullyQualified();
+            session->AddInputDirectory(path, true);
+        }
+        break;
+    case OPT_HELP:
+        ShowHelp();
+        throw (0);
 #if defined(MIKTEX_WINDOWS)
-  case OPT_HHELP:
-    MIKTEX_ASSERT(GetHelpId() > 0);
-    session->ShowManualPageAndWait(0, GetHelpId());
-    throw 0;
+    case OPT_HHELP:
+        MIKTEX_ASSERT(GetHelpId() > 0);
+        session->ShowManualPageAndWait(0, GetHelpId());
+        throw 0;
 #endif
-  case OPT_RECORD_PACKAGE_USAGES:
-    session->StartFileInfoRecorder(true);
-    pimpl->packageListFileName = optArg;
-    break;
-  case OPT_TRACE:
-    MiKTeX::Trace::TraceStream::SetOptions(optArg);
-    break;
-  case OPT_VERBOSE:
-    pimpl->verbose = true;
-    break;
-  case OPT_VERSION:
-    ShowProgramVersion();
-    throw 0;
-  default:
-    done = false;
-    break;
-  }
-  return done;
+    case OPT_RECORD_PACKAGE_USAGES:
+        session->StartFileInfoRecorder(true);
+        pimpl->packageListFileName = optArg;
+        break;
+    case OPT_TRACE:
+        MiKTeX::Trace::TraceStream::SetOptions(optArg);
+        break;
+    case OPT_VERBOSE:
+        pimpl->verbose = true;
+        break;
+    case OPT_VERSION:
+        ShowProgramVersion();
+        throw 0;
+    default:
+        done = false;
+        break;
+    }
+    return done;
 }
 
 inline bool operator< (const poptOption& opt1, const poptOption& opt2)
 {
-  MIKTEX_ASSERT(opt1.longName != nullptr);
-  MIKTEX_ASSERT(opt2.longName != nullptr);
-  return StringCompare(opt1.longName, opt2.longName, false) < 0;
+    MIKTEX_ASSERT(opt1.longName != nullptr);
+    MIKTEX_ASSERT(opt2.longName != nullptr);
+    return StringCompare(opt1.longName, opt2.longName, false) < 0;
 }
 
 void WebApp::ProcessCommandLineOptions()
 {
-  int argc = GetProgram()->GetArgC();
-  const char** argv = GetProgram()->GetArgV();
+    int argc = GetProgram()->GetArgC();
+    const char** argv = GetProgram()->GetArgV();
 
-  if (pimpl->options.empty())
-  {
-    AddOptions();
-    sort(pimpl->options.begin(), pimpl->options.end());
-    pimpl->options.push_back(poptOption{});
-  }
-
-  pimpl->popt.Construct(argc, argv, &pimpl->options[0]);
-  for (auto shortcut : pimpl->optionShortcuts)
-  {
-    Argv argv(shortcut.second);
-    pimpl->popt.AddAlias(shortcut.first.c_str(), 0, argv.GetArgc(), (const char**)argv.CloneFreeable());
-  }
-  pimpl->popt.SetOtherOptionHelp(GetUsage());
-
-  int opt;
-
-  while ((opt = pimpl->popt.GetNextOpt()) >= 0)
-  {
-    if (!ProcessOption(opt, pimpl->popt.GetOptArg()))
+    if (pimpl->options.empty())
     {
-      MIKTEX_UNEXPECTED();
+        AddOptions();
+        sort(pimpl->options.begin(), pimpl->options.end());
+        pimpl->options.push_back(poptOption{});
     }
-  }
 
-  if (opt != -1)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The command line options could not be processed."), "optionError", pimpl->popt.Strerror(opt));
-  }
+    pimpl->popt.Construct(argc, argv, &pimpl->options[0]);
+    for (auto shortcut : pimpl->optionShortcuts)
+    {
+        Argv argv(shortcut.second);
+        pimpl->popt.AddAlias(shortcut.first.c_str(), 0, argv.GetArgc(), (const char**)argv.CloneFreeable());
+    }
+    pimpl->popt.SetOtherOptionHelp(GetUsage());
 
-  GetProgram()->MakeCommandLine(pimpl->popt.GetLeftovers());
+    int opt;
+
+    while ((opt = pimpl->popt.GetNextOpt()) >= 0)
+    {
+        if (!ProcessOption(opt, pimpl->popt.GetOptArg()))
+        {
+            MIKTEX_UNEXPECTED();
+        }
+    }
+
+    if (opt != -1)
+    {
+        MIKTEX_FATAL_ERROR_2(T_("The command line options could not be processed."), "optionError", pimpl->popt.Strerror(opt));
+    }
+
+    GetProgram()->MakeCommandLine(pimpl->popt.GetLeftovers());
 }
 
 string WebApp::TheNameOfTheGame() const
 {
-  return pimpl->programName;
+    return pimpl->programName;
 }
 
 void WebApp::ShowProgramVersion() const
 {
-  cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << VersionNumber(pimpl->version).ToString() << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
-    << pimpl->copyright << endl;
-  if (!pimpl->trademarks.empty())
-  {
-    cout << pimpl->trademarks << endl;
-  }
-  cout << flush;
-  ShowLibraryVersions();
+    cout << "MiKTeX" << '-' << TheNameOfTheGame() << ' ' << VersionNumber(pimpl->version).ToString() << " (" << Utils::GetMiKTeXBannerString() << ')' << endl
+        << pimpl->copyright << endl;
+    if (!pimpl->trademarks.empty())
+    {
+        cout << pimpl->trademarks << endl;
+    }
+    cout << flush;
+    ShowLibraryVersions();
 }
 
 void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, const string& version, const string& copyright, const string& trademarks)
 {
-  pimpl->program = program;
-  pimpl->programName = programName;
-  pimpl->version = version;
-  pimpl->copyright = copyright;
-  pimpl->trademarks = trademarks;
+    pimpl->program = program;
+    pimpl->programName = programName;
+    pimpl->version = version;
+    pimpl->copyright = copyright;
+    pimpl->trademarks = trademarks;
 }
 
 bool WebApp::IsFeatureEnabled(Feature f) const
 {
-  return pimpl->features[f];
+    return pimpl->features[f];
 }
 
 string WebApp::GetProgramName() const
 {
-  return pimpl->programName;
+    return pimpl->programName;
 }
 
 bool WebApp::AmI(const std::string& name) const
 {
-  return StringUtil::Contains(GetProgramName().c_str(), name.c_str());
+    return StringUtil::Contains(GetProgramName().c_str(), name.c_str());
 }
 
 bool WebApp::Enable8BitCharsP() const
 {
-  return pimpl->enable8BitChars;
+    return pimpl->enable8BitChars;
 }
 
 PathName WebApp::GetTcxFileName() const
 {
-  return pimpl->tcxFileName;
+    return pimpl->tcxFileName;
 }
 
 void WebApp::EnableFeature(Feature f)
 {
-  pimpl->features += f;
+    pimpl->features += f;
 }
 
 void WebApp::Enable8BitChars(bool enable8BitChars)
 {
-  pimpl->enable8BitChars = enable8BitChars;
+    pimpl->enable8BitChars = enable8BitChars;
 }
 
 void WebApp::SetTcxFileName(const PathName& tcxFileName)
 {
-  pimpl->tcxFileName = tcxFileName;
+    pimpl->tcxFileName = tcxFileName;
 }
 
 void WebApp::InitializeCharTables() const
 {
-  unsigned long flags = 0;
-  PathName tcxFileName = GetTcxFileName();
-  if (!tcxFileName.Empty())
-  {
-    flags |= ICT_TCX;
-  }
-  if (Enable8BitCharsP())
-  {
-    flags |= ICT_8BIT;
-  }
-  if (pimpl->characterConverter == nullptr)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName,
-    pimpl->characterConverter->xchr(),
-    pimpl->characterConverter->xord(),
-    pimpl->isMETAFONTProgram || pimpl->isTeXProgram ? pimpl->characterConverter->xprn() : nullptr);
+    unsigned long flags = 0;
+    PathName tcxFileName = GetTcxFileName();
+    if (!tcxFileName.Empty())
+    {
+        flags |= ICT_TCX;
+    }
+    if (Enable8BitCharsP())
+    {
+        flags |= ICT_8BIT;
+    }
+    if (pimpl->characterConverter == nullptr)
+    {
+        MIKTEX_UNEXPECTED();
+    }
+    MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName,
+        pimpl->characterConverter->xchr(),
+        pimpl->characterConverter->xord(),
+        pimpl->isMETAFONTProgram || pimpl->isTeXProgram ? pimpl->characterConverter->xprn() : nullptr);
 }
 
 void WebApp::SetCharacterConverter(ICharacterConverter* characterConverter)
 {
-  pimpl->characterConverter = characterConverter;
+    pimpl->characterConverter = characterConverter;
 }
 
 ICharacterConverter* WebApp::GetCharacterConverter() const
 {
-  return pimpl->characterConverter;
+    return pimpl->characterConverter;
 }
 
 void WebApp::SetInitFinalize(IInitFinalize* initFinalize)
 {
-  pimpl->initFinalize = initFinalize;
+    pimpl->initFinalize = initFinalize;
 }
 
 IInitFinalize* WebApp::GetInitFinalize() const
 {
-  return pimpl->initFinalize;
+    return pimpl->initFinalize;
 }
 
 vector<poptOption> WebApp::GetOptions() const
 {
-  return pimpl->options;
+    return pimpl->options;
 }
 
 void WebApp::SetTeX()
 {
-  pimpl->isTeXProgram = true;
+    pimpl->isTeXProgram = true;
 }
 
 bool WebApp::AmITeX() const
 {
-  return pimpl->isTeXProgram;
+    return pimpl->isTeXProgram;
 }
 
 bool WebApp::AmIMETAFONT() const
 {
-  return pimpl->isMETAFONTProgram;
+    return pimpl->isMETAFONTProgram;
 }
 
 bool WebApp::GetVerboseFlag() const
 {
-  return pimpl->verbose;
+    return pimpl->verbose;
 }
 
 C4P::ProgramBase* WebApp::GetProgram() const
 {
-  return pimpl->program;
+    return pimpl->program;
 }
