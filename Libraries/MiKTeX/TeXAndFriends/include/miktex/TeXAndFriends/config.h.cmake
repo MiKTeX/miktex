@@ -69,7 +69,6 @@ namespace MiKTeX {                          \
 
 #if defined(MIKTEX_XETEX)
 #   define MIKTEX_TEX_COMPILER 1
-#   define MIKTEX_TEXMF_UNICODE 1
 #endif
 
 #if defined(MIKTEX_METAFONT)

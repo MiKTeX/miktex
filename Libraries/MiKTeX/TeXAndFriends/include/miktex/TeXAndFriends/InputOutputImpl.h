@@ -80,7 +80,7 @@ public:
 
     char* buffer() override
     {
-#if defined(MIKTEX_TEXMF_UNICODE)
+#if defined(MIKTEX_XETEX)
         MIKTEX_UNEXPECTED();
 #else
         MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char));

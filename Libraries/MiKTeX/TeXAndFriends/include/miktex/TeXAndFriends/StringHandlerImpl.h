@@ -32,7 +32,7 @@ public:
 
     char* strpool() override
     {
-#if defined(MIKTEX_TEXMF_UNICODE)
+#if defined(MIKTEX_XETEX)
         MIKTEX_UNEXPECTED();
 #else
         MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char));
@@ -42,7 +42,7 @@ public:
 
     char16_t* strpool16() override
     {
-#if defined(MIKTEX_TEXMF_UNICODE)
+#if defined(MIKTEX_XETEX)
         MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char16_t));
         return (char16_t*)program.strpool;
 #else

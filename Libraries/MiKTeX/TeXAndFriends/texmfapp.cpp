@@ -64,7 +64,6 @@ public:
     bool showFileLineErrorMessages;
     bool haltOnError;
     bool isInitProgram;
-    bool isUnicodeApp;
     bool recordFileNames;
     bool disableExtensions;
     bool setJobTime;
@@ -137,7 +136,6 @@ void TeXMFApp::Init(vector<char*>& args)
     pimpl->haltOnError = false;
     pimpl->interactionMode = -1;
     pimpl->isInitProgram = false;
-    pimpl->isUnicodeApp = AmI("xetex");
     pimpl->parseFirstLine = false;
     pimpl->recordFileNames = false;
     pimpl->setJobTime = false;
@@ -872,7 +870,7 @@ void TeXMFApp::InitializeBuffer() const
     auto first = inout->first();
     last = first;
     char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
-    char* buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
+    char* buffer = !AmI("xetex") ? inout->buffer() : nullptr;
     for (int idx = 1; idx < argc; ++idx)
     {
         if (idx > 1)
@@ -968,11 +966,6 @@ bool TeXMFApp::IsInitProgram() const
     return pimpl->isInitProgram;
 }
 
-bool TeXMFApp::IsUnicodeApp() const
-{
-    return pimpl->isUnicodeApp;
-}
-
 int TeXMFApp::GetInteraction() const
 {
     return pimpl->interactionMode;
@@ -1022,7 +1015,7 @@ void TeXMFApp::OnKeybordInterrupt(int)
 
 string TeXMFApp::GetTeXString(int stringStart, int stringLength) const
 {
-    if (IsUnicodeApp())
+    if (AmI("xetex"))
     {
         return StringUtil::UTF16ToUTF8(u16string(GetStringHandler()->strpool16() + stringStart, stringLength));
     }
@@ -1037,7 +1030,7 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
     MIKTEX_ASSERT_STRING(lpsz);
     IStringHandler* stringHandler = GetStringHandler();
     std::size_t len;
-    if (IsUnicodeApp())
+    if (AmI("xetex"))
     {
         u16string s = StringUtil::UTF8ToUTF16(lpsz);
         len = s.length();
@@ -1080,7 +1073,7 @@ int TeXMFApp::GetJobName(int fallbackJobName) const
 
 int TeXMFApp::GetTeXStringStart(int stringNumber) const
 {
-    if (IsUnicodeApp())
+    if (AmI("xetex"))
     {
         MIKTEX_ASSERT(stringNumber >= 65536);
         stringNumber -= 65536;
@@ -1092,7 +1085,7 @@ int TeXMFApp::GetTeXStringStart(int stringNumber) const
 
 int TeXMFApp::GetTeXStringLength(int stringNumber) const
 {
-    if (IsUnicodeApp())
+    if (AmI("xetex"))
     {
         MIKTEX_ASSERT(stringNumber >= 65536);
         stringNumber -= 65536;

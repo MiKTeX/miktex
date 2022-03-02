@@ -87,7 +87,6 @@ public:
     MIKTEXMFTHISAPI(bool) CStyleErrorMessagesP() const;
     MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
     MIKTEXMFTHISAPI(bool) IsInitProgram() const;
-    MIKTEXMFTHISAPI(bool) IsUnicodeApp() const;
     MIKTEXMFTHISAPI(bool) OpenFontFile(C4P::BufferedFile<unsigned char>* file, const std::string& fontName, MiKTeX::Core::FileType filetype, const char* generator);
     MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Util::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew);
     MIKTEXMFTHISAPI(bool) ParseFirstLineP() const;

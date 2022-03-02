@@ -32,7 +32,7 @@ public:
 
     char* xchr() override
     {
-#if defined(MIKTEX_TEXMF_UNICODE)
+#if defined(MIKTEX_XETEX)
         MIKTEX_UNEXPECTED();
 #else
         MIKTEX_ASSERT(sizeof(program.xchr[0]) == sizeof(char));
@@ -42,7 +42,7 @@ public:
 
     char* xord() override
     {
-#if defined(MIKTEX_TEXMF_UNICODE)
+#if defined(MIKTEX_XETEX)
         MIKTEX_UNEXPECTED();
 #else
         MIKTEX_ASSERT(sizeof(program.xord[0]) == sizeof(char));
@@ -52,7 +52,7 @@ public:
 
     char* xprn() override
     {
-#if (defined(MIKTEX_META_COMPILER) || defined(MIKTEX_TEX_COMPILER)) && !defined(MIKTEX_TEXMF_UNICODE)
+#if (defined(MIKTEX_META_COMPILER) || defined(MIKTEX_TEX_COMPILER)) && !defined(MIKTEX_XETEX)
         MIKTEX_ASSERT(sizeof(program.xprn[0]) == sizeof(char));
         return reinterpret_cast<char*>(&program.xprn[0]);
 #else
