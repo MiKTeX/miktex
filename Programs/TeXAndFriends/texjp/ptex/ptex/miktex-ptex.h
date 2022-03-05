@@ -83,6 +83,7 @@ public:
         SetStringHandler(&stringHandler);
         SetTeXMFMemoryHandler(&memoryHandler);
         TeXApp::Init(args);
+        IAm(MiKTeX::TeXAndFriends::TeXjpEngine);
         kpse_set_program_name(args[0], nullptr);
         initkanji();
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);

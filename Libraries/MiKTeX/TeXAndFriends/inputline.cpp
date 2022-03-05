@@ -122,7 +122,6 @@ public:
     int optBase;
     PathName foundFile;
     PathName foundFileFq;
-    bool isPTeX = false;
     ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
     PathName lastInputFileName;
     IInputOutput* inputOutput = nullptr;
@@ -144,7 +143,6 @@ void WebAppInputLine::Init(vector<char*>& args)
 {
     WebApp::Init(args);
     pimpl->shellCommandMode = ShellCommandMode::Forbidden;
-    pimpl->isPTeX = AmI("ptex") || AmI("eptex") || AmI("uptex") || AmI("euptex");
 }
 
 void WebAppInputLine::Finalize()
@@ -693,7 +691,7 @@ bool WebAppInputLine::InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLi
         buffer[i] = xord[buffer[i] & 0xff];
     }
 
-    if (pimpl->isPTeX)
+    if (AmI(TeXjpEngine))
     {
         for (int i = last + 1; (i < last + 5 && i < bufsize); i++)
         {

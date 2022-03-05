@@ -47,6 +47,10 @@ namespace C4P
 
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
+constexpr const char* TeXEngine = "TeXEngine";
+constexpr const char* METAFONTEngine = "METAFONTEngine";
+constexpr const char* TeXjpEngine = "TeXjpEngine";
+
 class ICharacterConverter
 {
 public:
@@ -110,10 +114,9 @@ public:
     MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
     MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetTcxFileName() const;
     MIKTEXMFTHISAPI(bool) AmI(const std::string& name) const;
-    MIKTEXMFTHISAPI(bool) AmIMETAFONT() const;
-    MIKTEXMFTHISAPI(bool) AmITeX() const;
     MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
     MIKTEXMFTHISAPI(bool) GetVerboseFlag() const;
+    MIKTEXMFTHISAPI(void) IAm(const std::string& name);
     MIKTEXMFTHISAPI(bool) IsFeatureEnabled(Feature f) const;
     MIKTEXMFTHISAPI(std::string) GetProgramName() const;
     MIKTEXMFTHISAPI(void) EnableFeature(Feature f);
@@ -159,7 +162,6 @@ protected:
     MIKTEXMFTHISAPI(void) BadUsage();
     MIKTEXMFTHISAPI(void) Enable8BitChars(bool enable8BitChars);
     MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Util::PathName& tcxFileName);
-    MIKTEXMFTHISAPI(void) SetTeX();
     MIKTEXMFTHISAPI(void) ShowHelp(bool usageOnly = false) const;
     MIKTEXMFTHISAPI(void) ShowProgramVersion() const;
     virtual MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg);

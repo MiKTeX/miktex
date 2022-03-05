@@ -11,6 +11,8 @@
  * version 2 or any later version.
  */
 
+#include <sstream>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -168,7 +170,7 @@ void TeXMFApp::OnTeXMFStartJob()
         }
     }
     session->PushBackAppName(appName);
-    pimpl->parseFirstLine = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE, ConfigValue(AmITeX())).GetBool();
+    pimpl->parseFirstLine = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_PARSE_FIRST_LINE, ConfigValue(AmI(TeXEngine))).GetBool();
     pimpl->showFileLineErrorMessages = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CSTYLEERRORS).GetBool();
     pimpl->clockStart = clock();
 }
@@ -261,12 +263,12 @@ void TeXMFApp::AddOptions()
     AddOption("dont-parse-first-line", T_("Do not parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DONT_PARSE_FIRST_LINE);
     AddOption("error-line", fmt::format(T_("Set {0} to N."), "error_line"), FIRST_OPTION_VAL + pimpl->optBase + OPT_ERROR_LINE, POPT_ARG_STRING, "N");
 
-    if (AmITeX())
+    if (AmI(TeXEngine))
     {
         AddOption("extra-mem-bot", fmt::format(T_("Set {0} to N."), "extra_mem_bot"), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_BOT, POPT_ARG_STRING, "N");
     }
 
-    if (AmITeX())
+    if (AmI(TeXEngine))
     {
         AddOption("extra-mem-top", fmt::format(T_("Set {0} to N."), "extra_mem_top"), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_TOP, POPT_ARG_STRING, "N");
     }
@@ -290,7 +292,7 @@ void TeXMFApp::AddOptions()
     AddOption("param-size", fmt::format(T_("Set {0} to N."), "param_size"), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARAM_SIZE, POPT_ARG_STRING, "N");
     AddOption("parse-first-line", T_("Parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARSE_FIRST_LINE, POPT_ARG_NONE);
 
-    if (AmITeX())
+    if (AmI(TeXEngine))
     {
         AddOption("pool-free", fmt::format(T_("Set {0} to N."), "pool_free"), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_FREE, POPT_ARG_STRING, "N");
     }
@@ -831,7 +833,7 @@ void TeXMFApp::InitializeBuffer() const
     auto argc = GetProgram()->GetArgC();
     auto argv = GetProgram()->GetArgV();
 
-    if (AmITeX())
+    if (AmI(TeXEngine))
     {
         /* test command-line for one of:
         (a) tex FILENAME
@@ -1019,6 +1021,15 @@ string TeXMFApp::GetTeXString(int stringStart, int stringLength) const
     {
         return StringUtil::UTF16ToUTF8(u16string(GetStringHandler()->strpool16() + stringStart, stringLength));
     }
+    else if (AmI(TeXjpEngine))
+    {
+        ostringstream result;
+        for (int i=0; i<stringLength; ++i)
+        {
+            result << static_cast<char>(GetStringHandler()->strpool16()[stringStart + i] & 0xff);
+        }
+        return result.str();
+    }
     else
     {
         return string(GetStringHandler()->strpool() + stringStart, stringLength);
@@ -1036,6 +1047,15 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
         len = s.length();
         CheckPoolPointer(stringHandler->poolptr(), len);
         memcpy(stringHandler->strpool16() + stringHandler->poolptr(), s.c_str(), len * sizeof(char16_t));
+    }
+    else if (AmI(TeXjpEngine))
+    {
+        len = StrLen(lpsz);
+        CheckPoolPointer(stringHandler->poolptr(), len);
+        for (int i = 0; i < len; ++i)
+        {
+            stringHandler->strpool16()[stringHandler->poolptr() + i] = static_cast<char16_t>(lpsz[i]) & 0xff;
+        }
     }
     else
     {

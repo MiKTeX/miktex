@@ -54,6 +54,7 @@ MetafontApp::~MetafontApp() noexcept
 void MetafontApp::Init(vector<char*>& args)
 {
     TeXMFApp::Init(args);
+    IAm(METAFONTEngine);
 }
 
 void MetafontApp::Finalize()

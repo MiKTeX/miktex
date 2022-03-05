@@ -69,7 +69,7 @@ void TeXApp::Init(vector<char*>& args)
 {
     TeXMFApp::Init(args);
 
-    SetTeX();
+    IAm(TeXEngine);
 
     pimpl->enableEncTeX = false;
     pimpl->enableMLTeX = false;

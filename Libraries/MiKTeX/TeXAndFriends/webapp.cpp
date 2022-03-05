@@ -99,11 +99,10 @@ public:
     unordered_map<string, vector<string>> optionShortcuts;
     ICharacterConverter* characterConverter = nullptr;
     IInitFinalize* initFinalize = nullptr;
-    bool isTeXProgram;
-    bool isMETAFONTProgram;
     bool verbose = true;
     static TeXMFResources resources;
     unique_ptr<Translator> translator;
+    vector<string> whatIAm;
 };
 
 TeXMFResources WebApp::impl::resources;
@@ -123,8 +122,6 @@ void WebApp::Init(vector<char*>& args)
     initInfo.SetTheNameOfTheGame(TheNameOfTheGame());
     Application::Init(initInfo, args);
     pimpl->enable8BitChars = false;
-    pimpl->isTeXProgram = TheNameOfTheGame() == "TeX";
-    pimpl->isMETAFONTProgram = TheNameOfTheGame() == "METAFONT";
     pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
     LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", pimpl->programName, pimpl->version, Utils::GetMiKTeXBannerString()));
 }
@@ -406,7 +403,19 @@ string WebApp::GetProgramName() const
 
 bool WebApp::AmI(const std::string& name) const
 {
+    for (auto n : pimpl->whatIAm) 
+    {
+        if (n == name)
+        {
+            return true;
+        }
+    }
     return StringUtil::Contains(GetProgramName().c_str(), name.c_str());
+}
+
+void WebApp::IAm(const string& name)
+{
+    pimpl->whatIAm.push_back(name);
 }
 
 bool WebApp::Enable8BitCharsP() const
@@ -453,7 +462,7 @@ void WebApp::InitializeCharTables() const
     MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName,
         pimpl->characterConverter->xchr(),
         pimpl->characterConverter->xord(),
-        pimpl->isMETAFONTProgram || pimpl->isTeXProgram ? pimpl->characterConverter->xprn() : nullptr);
+        AmI(METAFONTEngine) || AmI(TeXEngine) ? pimpl->characterConverter->xprn() : nullptr);
 }
 
 void WebApp::SetCharacterConverter(ICharacterConverter* characterConverter)
@@ -479,21 +488,6 @@ IInitFinalize* WebApp::GetInitFinalize() const
 vector<poptOption> WebApp::GetOptions() const
 {
     return pimpl->options;
-}
-
-void WebApp::SetTeX()
-{
-    pimpl->isTeXProgram = true;
-}
-
-bool WebApp::AmITeX() const
-{
-    return pimpl->isTeXProgram;
-}
-
-bool WebApp::AmIMETAFONT() const
-{
-    return pimpl->isMETAFONTProgram;
 }
 
 bool WebApp::GetVerboseFlag() const

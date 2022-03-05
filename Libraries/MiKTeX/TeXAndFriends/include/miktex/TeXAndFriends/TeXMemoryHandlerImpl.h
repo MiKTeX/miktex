@@ -112,7 +112,7 @@ public:
             this->program.zeqtb = nullptr;
         }
 
-        if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmITeX())
+        if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmI(TeXEngine))
         {
             this->AllocateArray("fontinfo", this->program.fontinfo, this->program.fontmemsize);
         }
