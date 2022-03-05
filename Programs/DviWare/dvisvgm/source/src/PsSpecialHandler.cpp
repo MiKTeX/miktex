@@ -437,18 +437,8 @@ unique_ptr<SVGElement> PsSpecialHandler::createImageNode (FileType type, const s
 		node->addAttribute("xlink:href", href);
 	}
 	else {  // PostScript or PDF
-		if (!clip)
-			node = util::make_unique<SVGElement>("g");
-		else {
-			// clip image to its bounding box if flag 'clip' is given
-			node = util::make_unique<SVGElement>("svg");
-			node->addAttribute("overflow", "hidden");
-			node->addAttribute("x", bbox.minX());
-			node->addAttribute("y", bbox.minY());
-			node->addAttribute("width", bbox.width());
-			node->addAttribute("height", bbox.height());
-			node->addAttribute("viewBox", bbox.svgViewBoxString());
-		}
+		node = util::make_unique<SVGElement>("g"); // put SVG nodes created from the EPS/PDF file in this group
+
 		_xmlnode = node.get();
 		_psi.execute(
 			"\n@beginspecial @setspecial"            // enter special environment
@@ -462,6 +452,14 @@ unique_ptr<SVGElement> PsSpecialHandler::createImageNode (FileType type, const s
 		);
 		if (node->empty())
 			node.reset(nullptr);
+		else if (clip) {
+			// clip image to its bounding box if flag 'clip' is given
+			auto clippath = util::make_unique<SVGElement>("clipPath");
+			clippath->addAttribute("id", "imgclip"+ to_string(_imgClipCount));
+			clippath->append(bbox.createSVGPath());
+			node->setClipPathUrl("imgclip"+ to_string(_imgClipCount++));
+			_actions->svgTree().appendToDefs(std::move(clippath));
+		}
 		_xmlnode = nullptr;   // append following elements to page group again
 	}
 	return node;
@@ -500,6 +498,7 @@ static bool transform_box_extents (const Matrix &matrix, double &w, double &h, d
 
 void PsSpecialHandler::dviBeginPage (unsigned int pageno, SpecialActions &actions) {
 	_psi.execute("/@imgbase("+image_base_path(actions)+")store\n"); // path and basename of image files
+	_imgClipCount = 0;
 }
 
 

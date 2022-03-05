@@ -269,6 +269,8 @@ set(potrace_sources
 set(liboptimizer_sources
     source/src/optimizer/AttributeExtractor.cpp
     source/src/optimizer/AttributeExtractor.hpp
+    source/src/optimizer/ClipPathReassigner.cpp
+    source/src/optimizer/ClipPathReassigner.hpp
     source/src/optimizer/DependencyGraph.hpp
     source/src/optimizer/GroupCollapser.cpp
     source/src/optimizer/GroupCollapser.hpp

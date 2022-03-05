@@ -79,6 +79,7 @@ class BoundingBox {
 		std::string svgViewBoxString () const;
 		std::ostream& write (std::ostream &os) const;
 		std::unique_ptr<XMLElement> createSVGRect () const;
+		std::unique_ptr<XMLElement> createSVGPath () const;
 
 	private:
 		double _ulx, _uly; ///< coordinates of upper left vertex (in PS point units)
