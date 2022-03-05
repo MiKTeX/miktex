@@ -15,12 +15,15 @@ include_directories(BEFORE
 )
 
 add_definitions(
+    -DINIT
+    -DSTAT
     -Dmain=Main
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
     add_definitions(
         -DUNICODE
+        -DWIN32
         -D_UNICODE
     )
 endif()

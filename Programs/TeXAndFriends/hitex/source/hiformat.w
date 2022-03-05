@@ -24,7 +24,8 @@
 % dealings in this Software without prior written authorization from the
 % copyright holders.
 
-\input ../hint.sty
+\input btxmac.tex
+\input hint.sty
 
 %% defining how to display certain C identifiers
 
@@ -47,9 +48,9 @@
 
 
 \def\setrevision$#1: #2 ${\gdef\lastrevision{#2}}
-\setrevision$Revision: 2696 $
+\setrevision$Revision: 2699 $
 \def\setdate$#1(#2) ${\gdef\lastdate{#2}}
-\setdate$Date: 2022-02-24 10:59:11 +0100 (Thu, 24 Feb 2022) $
+\setdate$Date: 2022-02-25 10:21:04 +0100 (Fri, 25 Feb 2022) $
 
 \null
 
@@ -9009,12 +9010,12 @@ It tells us what to expect in the rest of this section.
   "Usage: %s [OPTION]... FILENAME%s\n",prog_name, in_ext);@/
   fprintf(stdout,DESCRIPTION);
   fprintf(stdout,
-  "Options:\n"@/
+  "\nOptions:\n"@/
   "\t --help \t display this message\n"@/
   "\t --version\t display the HINT version\n"@/
   "\t -l     \t redirect stderr to a log file\n"@/
 #if defined (STRETCH) || defined (SHRINK)
-  "\t -o file\t specify an output file name\n"@/
+  "\t -o FILE\t specify an output file name\n"@/
 #endif
 #if defined (STRETCH)
   "\t -a     \t write auxiliary files\n"@/
@@ -10857,7 +10858,7 @@ extern int yyparse(void);
 @<put functions@>@;
 
 #define SHRINK
-#define DESCRIPTION "\nShrinking converts a 'long' ASCII HINT file into a`short' binary HINT file .\n"
+#define DESCRIPTION "\nConvert a `long' ASCII HINT file into a `short' binary HINT file.\n"
 
 int main(int argc, char *argv[])
 { @<local variables in |main|@>@;
@@ -10936,7 +10937,7 @@ format into a \HINT\ file in long format.
 @<get functions@>@;
 
 #define STRETCH
-#define DESCRIPTION "\nStretching converts a `short' binary HINT file into a 'long' ASCII HINT file.\n"
+#define DESCRIPTION "\nConvert a `short' binary HINT file into a `long' ASCII HINT file.\n"
 
 int main(int argc, char *argv[])
 { @<local variables in |main|@>@;

@@ -1828,7 +1828,9 @@ amounts of user interaction:
 @<Glob...@>=
 static int @!interaction; /*current level of interaction*/
 
-@ @<Set init...@>=interaction=error_stop_mode;
+@ @<Set init...@>=
+if (interaction_option<0) interaction=error_stop_mode;
+else interaction=interaction_option;
 
 @ \TeX\ is careful not to call |error| when the print |selector| setting
 might be unusual. The only possible values of |selector| at the time of
@@ -5179,8 +5181,9 @@ that will be defined later.
 @d tracing_scan_tokens_code (etex_int_base+3) /*show pseudo file open and close*/
 @d tracing_nesting_code (etex_int_base+4) /*show incomplete groups and ifs within files*/
 @d saving_vdiscards_code (etex_int_base+5) /*save items discarded from vlists*/
-@d expand_depth_code (etex_int_base+6) /*maximum depth for expansion---\eTeX*/
-@d eTeX_state_code (etex_int_base+7) /*\eTeX\ state variables*/
+@d saving_hyph_codes_code (etex_int_base+6) /*save hyphenation codes for languages*/
+@d expand_depth_code (etex_int_base+7) /*maximum depth for expansion---\eTeX*/
+@d eTeX_state_code (etex_int_base+8) /*\eTeX\ state variables*/
 @d etex_int_pars (eTeX_state_code+eTeX_states) /*total number of \eTeX's integer parameters*/
 @#
 @d int_pars etex_int_pars /*total number of integer parameters*/
@@ -5252,8 +5255,9 @@ that will be defined later.
 @d tracing_ifs int_par(tracing_ifs_code)
 @d tracing_scan_tokens int_par(tracing_scan_tokens_code)
 @d tracing_nesting int_par(tracing_nesting_code)
-@d expand_depth int_par(expand_depth_code)
 @d saving_vdiscards int_par(saving_vdiscards_code)
+@d saving_hyph_codes int_par(saving_hyph_codes_code)
+@d expand_depth int_par(expand_depth_code)
 
 @<Assign the values |depth_threshold:=show_box_depth|...@>=
 depth_threshold=show_box_depth;
@@ -13851,12 +13855,15 @@ baselineskip calculation is handled by the |append_to_vlist| routine.
     link(tail)= p;tail= p;
   }
   link(tail)=b;tail=b;
-  if (height_known ||
-       (type(b)==whatsit_node &&
-          (subtype(b)==hpack_node || subtype(b)==vpack_node)))
-	prev_depth=depth(b);  /* then also depth is (probably) known */
+  if (height_known)
+    prev_depth=depth(b);
+  else if (type(b)==whatsit_node &&
+          (subtype(b)==hpack_node || subtype(b)==vpack_node))
+    prev_depth=depth(b);	  /* then also depth is (probably) known */
+  else if (type(b)==whatsit_node && subtype(b)==image_node)
+    prev_depth=0;
   else
-	prev_depth=unknown_depth;
+    prev_depth=unknown_depth;
 }
 
 @* Data structures for math mode.
@@ -18138,6 +18145,7 @@ if (trie_not_ready) init_trie();
 #endif
 @;@/
 cur_lang=init_cur_lang;l_hyf=init_l_hyf;r_hyf=init_r_hyf;
+set_hyph_index;
 }
 
 @ The letters $c_1\ldots c_n$ that are candidates for hyphenation are placed
@@ -18211,8 +18219,9 @@ loop@+{@+if (is_char_node(s))
     goto resume;
     }
   else goto done1;
-  if (lc_code(c)!=0)
-    if ((lc_code(c)==c)||(uc_hyph > 0)) goto done2;
+  set_lc_code(c);
+  if (hc[0]!=0)
+    if ((hc[0]==c)||(uc_hyph > 0)) goto done2;
     else goto done1;
 resume: prev_s=s;s=link(prev_s);
   }
@@ -18228,9 +18237,10 @@ hn=0;
 loop@+{@+if (is_char_node(s))
     {@+if (font(s)!=hf) goto done3;
     hyf_bchar=character(s);c=qo(hyf_bchar);
-    if (lc_code(c)==0) goto done3;
+    set_lc_code(c);
+    if (hc[0]==0) goto done3;
     if (hn==63) goto done3;
-    hb=s;incr(hn);hu[hn]=c;hc[hn]=lc_code(c);hyf_bchar=non_char;
+    hb=s;incr(hn);hu[hn]=c;hc[hn]=hc[0];hyf_bchar=non_char;
     }
   else if (type(s)==ligature_node)
     @<Move the characters of a ligature node to |hu| and |hc|; but |goto done3|
@@ -18254,9 +18264,10 @@ to get to |done3| with |hn==0| and |hb| not set to any value.
 j=hn;q=lig_ptr(s);@+if (q > null) hyf_bchar=character(q);
 while (q > null)
   {@+c=qo(character(q));
-  if (lc_code(c)==0) goto done3;
+  set_lc_code(c);
+  if (hc[0]==0) goto done3;
   if (j==63) goto done3;
-  incr(j);hu[j]=c;hc[j]=lc_code(c);@/
+  incr(j);hu[j]=c;hc[j]=hc[0];@/
   q=link(q);
   }
 hb=s;hn=j;
@@ -18908,6 +18919,13 @@ str_number @!s, @!t; /*strings being compared or stored*/
 pool_pointer @!u, @!v; /*indices into |str_pool|*/
 scan_left_brace(); /*a left brace must follow \.{\\hyphenation}*/
 set_cur_lang;
+#ifdef @!INIT
+if (trie_not_ready)
+  {@+hyph_index=0;goto not_found1;
+  }
+#endif
+set_hyph_index;
+not_found1:
 @<Enter as many hyphenation exceptions as are listed, until coming to a right
 brace; then |return|@>;
 }
@@ -18940,7 +18958,8 @@ error();
 
 @ @<Append a new letter or hyphen@>=
 if (cur_chr=='-') @<Append the value |n| to list |p|@>@;
-else{@+if (lc_code(cur_chr)==0)
+else{@+set_lc_code(cur_chr);
+  if (hc[0]==0)
     {@+print_err("Not a letter");
 @.Not a letter@>
     help2("Letters in \\hyphenation words must have \\lccode>0.",@/
@@ -18948,7 +18967,7 @@ else{@+if (lc_code(cur_chr)==0)
     error();
     }
   else if (n < 63)
-    {@+incr(n);hc[n]=lc_code(cur_chr);
+    {@+incr(n);hc[n]=hc[0];
     }
   }
 
@@ -19244,6 +19263,7 @@ because we finish with the former just before we need the latter.
 @<Get ready to compress the trie@>=
 @<Sort \(t)the hyphenation...@>;
 for (p=0; p<=trie_size; p++) trie_hash[p]=0;
+hyph_root=compress_trie(hyph_root);
 trie_root=compress_trie(trie_root); /*identify equivalent subtries*/
 for (p=0; p<=trie_ptr; p++) trie_ref[p]=0;
 for (p=0; p<=255; p++) trie_min[p]=p+1;
@@ -19332,11 +19352,12 @@ value~0, which properly implements an ``empty'' family.
 @<Move the data into |trie|@>=
 h.rh=0;h.b0=min_quarterword;h.b1=min_quarterword; /*|trie_link=0|,
   |trie_op=min_quarterword|, |trie_char=qi(0)|*/
-if (trie_root==0)  /*no patterns were given*/
+if (trie_max==0)  /*no patterns were given*/
   {@+for (r=0; r<=256; r++) trie[r]=h;
   trie_max=256;
   }
-else{@+trie_fix(trie_root); /*this fixes the non-holes in |trie|*/
+else{@+if (hyph_root > 0) trie_fix(hyph_root);
+  if (trie_root > 0) trie_fix(trie_root); /*this fixes the non-holes in |trie|*/
   r=0; /*now we will zero out all the holes*/
   @/do@+{s=trie_link(r);trie[r]=h;r=s;
   }@+ while (!(r > trie_max));
@@ -19375,11 +19396,13 @@ bool @!digit_sensed; /*should the next digit be treated as a letter?*/
 quarterword @!v; /*trie op code*/
 trie_pointer @!p, @!q; /*nodes of trie traversed during insertion*/
 bool @!first_child; /*is |p==trie_l[q]|?*/
-ASCII_code @!c; /*character being inserted*/
+int @!c; /*character being inserted*/
 if (trie_not_ready)
   {@+set_cur_lang;scan_left_brace(); /*a left brace must follow \.{\\patterns}*/
   @<Enter all of the patterns into a linked trie, until coming to a right
 brace@>;
+  if (saving_hyph_codes > 0)
+    @<Store hyphenation codes for current language@>;
   }
 else{@+print_err("Too late for ");print_esc("patterns");
   help1("All patterns must be given before typesetting begins.");
@@ -19485,6 +19508,7 @@ two_halves @!h; /*template used to zero out |trie|'s holes*/
 if (trie_root!=0)
   {@+first_fit(trie_root);trie_pack(trie_root);
   }
+if (hyph_root!=0) @<Pack all stored |hyph_codes|@>;
 @<Move the data into |trie|@>;
 trie_not_ready=false;
 }
@@ -21131,8 +21155,17 @@ and contribution list are empty, and when the last output was not a
 static bool its_all_over(void) /*do this when \.{\\end} or \.{\\dump} occurs*/
 {@+
 if (privileged())
-  {@+if ((page_head==page_tail)&&(head==tail)&&(dead_cycles==0))
-    {@+return true;
+  {@+if ((page_head==page_tail)&&(dead_cycles==0))
+    {
+       if (head==tail) return true;
+       else if (option_no_empty_page)
+       { pointer p=link(head);
+         while (p!=null)
+         { if (is_visible(p)) break;
+           else p=link(p);
+         }
+         if (p==null) return true;
+       }
     }
   back_input(); /*we will try to end again after ejecting residual material*/
   tail_append(new_set_node());
@@ -24933,6 +24966,7 @@ print_ln();print_int(hyph_count);print(" hyphenation exception");
 if (hyph_count!=1) print_char('s');
 if (trie_not_ready) init_trie();
 dump_int(trie_max);
+dump_int(hyph_start);
 for (k=0; k<=trie_max; k++) dump_hh(trie[k]);
 dump_int(trie_op_ptr);
 for (k=1; k<=trie_op_ptr; k++)
@@ -24964,6 +24998,7 @@ undump_size(0, trie_size,"trie size", j);
 #ifdef @!INIT
 trie_max=j;
 #endif
+undump(0, j, hyph_start);
 for (k=0; k<=j; k++) undump_hh(trie[k]);
 undump_size(0, trie_op_size,"trie op size", j);
 #ifdef @!INIT
@@ -25000,6 +25035,7 @@ tracing_stats=0
 
 @ @<Undump a couple more things and the closing check word@>=
 undump(batch_mode, error_stop_mode, interaction);
+if (interaction_option>=0) interaction=interaction_option;
 undump(0, str_ptr, format_ident);
 undump_int(x);
 if ((x!=69069)||eof(fmt_file)) goto bad_fmt
@@ -25628,25 +25664,27 @@ case extension: switch (chr_code) {
   case write_node: print_esc("write");@+break;
   case close_node: print_esc("closeout");@+break;
   case special_node: print_esc("special");@+break;
-  case param_node: print("parameter");@+break;
-  case par_node: print("paragraf");@+break;
-  case disp_node: print("display");@+break;
-  case baseline_node: print("baselineskip");@+break;
-  case hpack_node: print("hpack");@+break;
-  case vpack_node: print("vpack");@+break;
-  case hset_node: print("hset");@+break;
-  case vset_node: print("vset");@+break;
-  case image_node: print("HINTimage");@+break;
-  case start_link_node: print("HINTstartlink");@+break;
-  case end_link_node: print("HINTendlink");@+break;
-  case label_node: print("HINTdest");@+break;
-  case outline_node: print("HINToutline");@+break;
-  case align_node: print("align");@+break;
-  case setpage_node: print("HINTsetpage");@+break;
-  case setstream_node: print("HINTsetstream");@+break;
-  case stream_node: print("HINTstream");@+break;
-  case xdimen_node: print("xdimen");@+break;
-  case ignore_node: print("ignore");@+break;
+  case image_node: print_esc("HINTimage");@+break;
+  case start_link_node: print_esc("HINTstartlink");@+break;
+  case end_link_node: print_esc("HINTendlink");@+break;
+  case label_node: print_esc("HINTdest");@+break;
+  case outline_node: print_esc("HINToutline");@+break;
+  case setpage_node: print_esc("HINTsetpage");@+break;
+  case stream_before_node: print_esc("HINTbefore");@+break;
+  case stream_after_node: print_esc("HINTafter");@+break;
+  case setstream_node: print_esc("HINTsetstream");@+break;
+  case stream_node: print_esc("HINTstream");@+break;
+  case param_node: print("[HINT internal: parameter list]");@+break;
+  case par_node: print("[HINT internal: paragraf]");@+break;
+  case disp_node: print("[HINT internal: display]");@+break;
+  case baseline_node: print("[HINT internal: baselineskip]");@+break;
+  case hpack_node: print("[HINT internal: hpack]");@+break;
+  case vpack_node: print("[HINT internal: vpacky");@+break;
+  case hset_node: print("[HINT internal: hset]");@+break;
+  case vset_node: print("[HINT internal: vset]");@+break;
+  case align_node: print("[HINT internal: align]");@+break;
+  case xdimen_node: print("[HINT internal: xdimen]");@+break;
+  case ignore_node: print("[HINT internal: ignore]");@+break;
   case immediate_code: print_esc("immediate");@+break;
   case set_language_code: print_esc("setlanguage");@+break;
   @/@<Cases of |extension| for |print_cmd_chr|@>@/
@@ -25692,7 +25730,10 @@ case image_node:@/
       break;
   }
   if (abs(mode)==vmode)
+  { prev_depth=ignore_depth; /* this could be deleted if baseline nodes treat
+                                images as boxes in the viewer */
     append_to_vlist(p); /* image nodes have height, width, and depth like boxes */
+  }
   else
     tail_append(p);
   break;
@@ -26265,7 +26306,9 @@ goto done;
 @ @<Let |d| be the width of the whatsit |p|@>=d=0
 
 @ @d adv_past(A) @+if (subtype(A)==language_node)
-    {@+cur_lang=what_lang(A);l_hyf=what_lhm(A);r_hyf=what_rhm(A);@+}
+    {@+cur_lang=what_lang(A);l_hyf=what_lhm(A);r_hyf=what_rhm(A);
+    set_hyph_index;
+    }
 
 @<Advance \(p)past a whatsit node in the \(l)|line_break| loop@>=@+
 adv_past(cur_p)
@@ -26581,6 +26624,8 @@ primitive("tracingnesting", assign_int, int_base+tracing_nesting_code);@/
 @!@:tracing\_nesting\_}{\.{\\tracingnesting} primitive@>
 primitive("savingvdiscards", assign_int, int_base+saving_vdiscards_code);@/
 @!@:saving\_vdiscards\_}{\.{\\savingvdiscards} primitive@>
+primitive("savinghyphcodes", assign_int, int_base+saving_hyph_codes_code);@/
+@!@:saving\_hyph\_codes\_}{\.{\\savinghyphcodes} primitive@>
 
 @ @d every_eof equiv(every_eof_loc)
 
@@ -26594,6 +26639,7 @@ case tracing_ifs_code: print_esc("tracingifs");@+break;
 case tracing_scan_tokens_code: print_esc("tracingscantokens");@+break;
 case tracing_nesting_code: print_esc("tracingnesting");@+break;
 case saving_vdiscards_code: print_esc("savingvdiscards");@+break;
+case saving_hyph_codes_code: print_esc("savinghyphcodes");@+break;
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.
@@ -28486,6 +28532,76 @@ if (sa_index(p) < dimen_val_limit) free_node(p, word_node_size);
 else free_node(p, pointer_node_size);
 }@+ while (!(sa_chain==null));
 }
+
+@ When reading \.{\\patterns} while \.{\\savinghyphcodes} is positive
+the current |lc_code| values are stored together with the hyphenation
+patterns for the current language.  They will later be used instead of
+the |lc_code| values for hyphenation purposes.
+
+The |lc_code| values are stored in the linked trie analogous to patterns
+$p_1$ of length~1, with |hyph_root==trie_r[0]| replacing |trie_root| and
+|lc_code(p_1)| replacing the |trie_op| code.  This allows to compress
+and pack them together with the patterns with minimal changes to the
+existing code.
+
+@d hyph_root trie_r[0] /*root of the linked trie for |hyph_codes|*/
+
+@<Initialize table entries...@>=
+hyph_root=0;hyph_start=0;
+
+@ @<Store hyphenation codes for current language@>=
+{@+c=cur_lang;first_child=false;p=0;
+@/do@+{q=p;p=trie_r[q];
+}@+ while (!((p==0)||(c <= so(trie_c[p]))));
+if ((p==0)||(c < so(trie_c[p])))
+  @<Insert a new trie node between |q| and |p|, and make |p| point to it@>;
+q=p; /*now node |q| represents |cur_lang|*/
+@<Store all current |lc_code| values@>;
+}
+
+@ We store all nonzero |lc_code| values, overwriting any previously
+stored values (and possibly wasting a few trie nodes that were used
+previously and are not needed now).  We always store at least one
+|lc_code| value such that |hyph_index| (defined below) will not be zero.
+
+@<Store all current |lc_code| values@>=
+p=trie_l[q];first_child=true;
+for (c=0; c<=255; c++)
+  if ((lc_code(c) > 0)||((c==255)&&first_child))
+    {@+if (p==0)
+      @<Insert a new trie node between |q| and |p|, and make |p| point to
+it@>@;
+    else trie_c[p]=si(c);
+    trie_o[p]=qi(lc_code(c));
+    q=p;p=trie_r[q];first_child=false;
+    }
+if (first_child) trie_l[q]=0;@+else trie_r[q]=0
+
+@ We must avoid to ``take'' location~1, in order to distinguish between
+|lc_code| values and patterns.
+
+@<Pack all stored |hyph_codes|@>=
+{@+if (trie_root==0) for (p=0; p<=255; p++) trie_min[p]=p+2;
+first_fit(hyph_root);trie_pack(hyph_root);
+hyph_start=trie_ref[hyph_root];
+}
+
+@ The global variable |hyph_index| will point to the hyphenation codes
+for the current language.
+
+@d set_hyph_index  /*set |hyph_index| for current language*/
+  if (trie_char(hyph_start+cur_lang)!=qi(cur_lang)
+    ) hyph_index=0; /*no hyphenation codes for |cur_lang|*/
+  else hyph_index=trie_link(hyph_start+cur_lang)
+@#
+@d set_lc_code(A)  /*set |hc[0]| to hyphenation or lc code for |A|*/
+  if (hyph_index==0) hc[0]=lc_code(A);
+  else if (trie_char(hyph_index+A)!=qi(A)) hc[0]=0;
+  else hc[0]=qo(trie_op(hyph_index+A))
+
+@<Glob...@>=
+static trie_pointer @!hyph_start; /*root of the packed trie for |hyph_codes|*/
+static trie_pointer @!hyph_index; /*pointer to hyphenation codes for |cur_lang|*/
 
 @ When |saving_vdiscards| is positive then the glue, kern, and penalty
 nodes removed by the page builder or by \.{\\vsplit} from the top of a
@@ -30687,7 +30803,7 @@ static void build_page(void)
   do
   { pointer p= link(contrib_head);
     pointer q=null; /* for output nodes */
-    pointer *t; /*the tail of the output nodes*/
+    pointer *t=NULL; /*the tail of the output nodes*/
     bool eject=(type(p)==penalty_node && penalty(p)<=eject_penalty);
     @<Record the bottom mark@>@;
     @<Suppress empty pages if requested@>@;
@@ -30756,6 +30872,11 @@ an eject penalty until either something gets printed on the page or
 another eject penalty comes along. To override the delayed output,
 a penalty less or equal to a double |eject_penalty| can be used.
 The function |its_all_over| is an example for such a use.
+It seems that the eliminated nodes do not contain anything of value
+for the output routine, but the output routine might have other
+resources, like the first column of a two column page, which it might
+put back on the contribution list. So it is wise to call the output routine
+and give it a chance.
 
 @<Suppress empty pages if requested@>=
 if (option_no_empty_page &&
@@ -30815,6 +30936,14 @@ static bool is_visible(pointer p)
     default: return true;
   }
 }
+
+@ Because we will need this procedure in the |its_all_over| function.
+We add a forward declaration
+
+@<Forward declarations@>=
+static bool is_visible(pointer p);
+
+
 @ An important feature of the new routine is the call to
 |hfix_defaults|.  It occurs when the first ``visible mark'' is placed
 in the output. At that point we record the current values of \TeX's
@@ -30937,7 +31066,7 @@ if (!is_char_node(*p))
 @ @<Fire up the output routine for |q|@>=
 { pointer r=new_null_box();type(r)=vlist_node;
   subtype(r)=0;shift_amount(r)=0;height(r)=hvsize;
-  if (t==NULL) list_ptr(r)=new_glue(ss_glue);
+  if (t==NULL) list_ptr(r)=null;
   else { list_ptr(r)=q;  *t=new_glue(ss_glue); }
   flush_node_list(box(255)); /* just in case \dots */
   box(255)=r;
@@ -33863,9 +33992,8 @@ by this option, and finally the value to store in the flag variable.
 
 Besides the flag variables that occur in the table,
 a few string variables may be set using the options.
-The following is a complete list of these variables---except
-for the the |interaction| variable of \TeX.
-Flag variables are initialized with |-1| to indicate an undefined value;
+The following is a complete list of these variables.
+Variables are initialized with |-1| to indicate an undefined value;
 string variables are initialized with |NULL|.
 
 @<Global...@>=
@@ -33874,6 +34002,7 @@ static int etexp=0;
 static int ltxp=0;
 static int parsefirstlinep=-1;
 static int filelineerrorstylep=-1;
+static int interaction_option=-1;
 static const char *user_progname=NULL, *output_directory=NULL, *c_job_name=NULL;
 static char *dump_name=NULL;@#
 int option_no_empty_page=true, option_hyphen_first=true;
@@ -33965,15 +34094,17 @@ else if (ARGUMENT_IS("version")){@+
 }
 
 
-@ The ``interaction'' option sets \TeX's |interaction| variable
+@ The ``interaction'' option sets the |interaction_option| variable
 based on its string argument contained in the |optarg| variable.
+If defined, the |interaction_option| will be used to set \TeX's
+|interaction| variable in the |initialize| and the |undump| functions.
 
 @<handle the option at |option_index|@>=
 else @+if (ARGUMENT_IS ("interaction"))@t\2@> {
-      if (STREQ (optarg, "batchmode"))        interaction = batch_mode;
-      else if (STREQ (optarg, "nonstopmode")) interaction = nonstop_mode;
-      else if (STREQ (optarg, "scrollmode"))  interaction = scroll_mode;
-      else if (STREQ (optarg, "errorstopmode")) interaction = error_stop_mode;
+      if (STREQ (optarg, "batchmode"))        interaction_option = batch_mode;
+      else if (STREQ (optarg, "nonstopmode")) interaction_option = nonstop_mode;
+      else if (STREQ (optarg, "scrollmode"))  interaction_option = scroll_mode;
+      else if (STREQ (optarg, "errorstopmode")) interaction_option = error_stop_mode;
       else WARNING1 ("Ignoring unknown argument `%s' to --interaction", optarg);
     }
 
