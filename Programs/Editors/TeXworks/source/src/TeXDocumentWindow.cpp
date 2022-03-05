@@ -2329,7 +2329,7 @@ void TeXDocumentWindow::doFindAgain(bool fromDialog)
 			int rangeStart = 0;
 			int rangeEnd = curs.position();
 			while (true) {
-				curs = doSearch(searchText, regex, flags, rangeStart, rangeEnd);
+				curs = theDoc->doSearch(searchText, regex, flags, rangeStart, rangeEnd);
 				if (curs.isNull())
 					break;
 				int blockStart = curs.block().position();

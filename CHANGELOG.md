@@ -14,7 +14,7 @@ MiKTeX now includes the HiTeX engine.
 * dvisvgm 2.13.3
 * luatex 1.15.0
 * ptex 4.0.0
-* texworks 0.7.0
+* texworks 0.6.7
 * xetex 0.999994
 
 ### Fixed issues

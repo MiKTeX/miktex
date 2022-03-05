@@ -6,7 +6,7 @@
     <TPM:Title>TeXworks, Windows x64</TPM:Title>
     <TPM:Copyright owner="Jonathan Kew, Stefan Loeffler, Charlie Sharpsteen" year="2007-2020"/>
     <TPM:License type="gpl2"/>    
-    <TPM:Version>0.7.0</TPM:Version>
+    <TPM:Version>0.6.7</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
