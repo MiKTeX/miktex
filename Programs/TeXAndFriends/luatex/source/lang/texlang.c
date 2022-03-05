@@ -674,10 +674,10 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             /*tex Let's check if we have a penalty spec. */
             if (((i+3) < len) && uword[i+1] == '[' && uword[i+2] >= '0' && uword[i+2] <= '9' && uword[i+3] == ']') {
                 if (exception_penalty_par > 0) {
-                    if (exception_penalty_par > 100000) {
-                        pen = (uword[i+2] - '0') * exception_penalty_par ;
-                    } else {
+                    if (exception_penalty_par > 10000) {
                         pen = exception_penalty_par;
+                    } else {
+                        pen = (uword[i+2] - '0') * exception_penalty_par ;
                     }
                 } else {
                     pen = hyphen_penalty_par;
@@ -993,7 +993,7 @@ void hnj_hyphenation(halfword head, halfword tail)
            tex_error("the word starts with a ghost glyph", NULL);
          } else {
            tex_error("the word doesn't start with a simple character", NULL);
-         }          
+         }
         }
         hyf_font = font(wordstart);
         if (hyphen_char(hyf_font) < 0) {

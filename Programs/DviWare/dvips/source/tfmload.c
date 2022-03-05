@@ -175,6 +175,11 @@ tfmload(register fontdesctype *curfnt)
       bc = tfm32(); ec = tfm32();
       nw = tfm32();
       for (i=0; i<8; i++) li=tfm32();
+      if (!noptex && font_level==1 && ec>=0x2E00) {
+         curfnt->iswide = 1;
+         if (li==5)    /* interpret FONTDIR RT as pTeX vertical writing */
+            curfnt->dir = 9;
+      }
       if (font_level>1 || hd<2 || bc<0 || ec<0 || nw<0
                        || bc>ec+1 || ec>65535 || nw>65536)
          badtfm("header");

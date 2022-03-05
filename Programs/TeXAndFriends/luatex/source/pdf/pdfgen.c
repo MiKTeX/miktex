@@ -1680,6 +1680,7 @@ void pdf_begin_page(PDF pdf)
         form_margin = obj_xform_margin(pdf, pdf_cur_form);
         if (xform_attributes != null)
             pdf_print_toks(pdf, xform_attributes);
+        print_pdf_table_string(pdf, "xformattributes");
         if (obj_xform_attr(pdf, pdf_cur_form) != null) {
             pdf_print_toks(pdf, obj_xform_attr(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
@@ -1965,6 +1966,7 @@ void pdf_end_page(PDF pdf)
         if (xform_resources != null) {
             pdf_print_toks(pdf, xform_resources);
         }
+        print_pdf_table_string(pdf, "xformresources");
         if (obj_xform_resources(pdf, pdf_cur_form) != null) {
             pdf_print_toks(pdf, obj_xform_resources(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_resources(pdf, pdf_cur_form));

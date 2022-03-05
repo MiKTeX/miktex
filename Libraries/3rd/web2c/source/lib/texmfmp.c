@@ -14,7 +14,7 @@
 
 #if defined(MIKTEX)
 #include "miktex-first.h"
-#endif
+#endif /*MIKTEX*/
 #include <kpathsea/config.h>
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/cnf.h>
@@ -41,7 +41,7 @@
 
 #if !defined(MIKTEX)
 #include <texmfmp-help.h>
-#endif
+#endif /*MIKTEX*/
 
 #if defined(MIKTEX)
 #define IS_eTeX 1
@@ -49,7 +49,7 @@
 #if defined(pdfTeX)
 #include "ptexlib.h"
 #endif
-#else
+#else /*MIKTEX*/
 /* {tex,mf}d.h defines TeX, MF, INI, and other such symbols.
    Unfortunately there's no way to get the banner into this code, so
    just repeat the text.  */
@@ -86,7 +86,7 @@
 #define IS_upTeX 1
 #include <euptexdir/euptexextra.h>
 #else
-#define BANNER "This is TeX, Version 3.14159265"
+#define BANNER "This is TeX, Version 3.141592653"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP TEXHELP
@@ -107,7 +107,7 @@
 #elif defined(MFLuaJIT)
 #include <mfluajitdir/mfluajitextra.h>
 #else
-#define BANNER "This is Metafont, Version 2.7182818"
+#define BANNER "This is Metafont, Version 2.71828182"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP MFHELP
@@ -126,7 +126,7 @@
 #endif
 #define edit_var "MFEDIT"
 #endif /* MF */
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(IS_eTeX)
 # define IS_eTeX 0
@@ -179,7 +179,7 @@ generic_synctex_get_current_name (void)
   return ret;
 }
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #ifdef _WIN32
@@ -228,7 +228,7 @@ fsyscp_access(const char *path, int mode)
   return ret;
 }
 #endif /* _WIN32 */
-#endif
+#endif /*MIKTEX*/
 
 #if defined(TeX) || (defined(MF) && defined(WIN32))
 static int
@@ -614,7 +614,14 @@ runsystem (const char *cmd)
   int allow = 0;
   char *safecmd = NULL;
   char *cmdname = NULL;
+#if IS_pTeX && !defined(WIN32)
+  char *cmd2 = NULL;
+#endif
   int status = 0;
+#if IS_pTeX && !defined(WIN32)
+  cmd2 = (char *)ptenc_from_internal_enc_string_to_utf8((unsigned char *)cmd);
+  if (!cmd2) cmd2=(char *)cmd;
+#endif
 
   if (shellenabledp <= 0) {
     return 0;
@@ -624,17 +631,38 @@ runsystem (const char *cmd)
   if (restrictedshell == 0)
     allow = 1;
   else
+#if IS_pTeX && !defined(WIN32)
+    allow = shell_cmd_is_allowed (cmd2, &safecmd, &cmdname);
+#else
     allow = shell_cmd_is_allowed (cmd, &safecmd, &cmdname);
+#endif
 
   if (allow == 1)
+#if IS_pTeX && !defined(WIN32)
+    status = system (cmd2);
+#else
     status = system (cmd);
-  else if (allow == 2)
+#endif
+  else if (allow == 2) {
+/*
+  command including a character '|' is not allowed in
+  restricted mode for security.
+*/
+    size_t k;
+    for (k = 0; k < strlen (safecmd); k++) {
+      if (safecmd[k] == '|')
+        return 0;
+    }
     status =  system (safecmd);
+  }
 
   /* Not really meaningful, but we have to manage the return value of system. */
   if (status != 0)
-    fprintf(stderr,"system returned with code %d\n", status); 
+    fprintf(stderr,"system returned with code %d\n", status);
 
+#if IS_pTeX && !defined(WIN32)
+  if (cmd!=cmd2) free(cmd2);
+#endif
   if (safecmd)
     free (safecmd);
   if (cmdname)
@@ -643,7 +671,7 @@ runsystem (const char *cmd)
   return allow;
 }
 #endif /* TeX */
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #if ENABLE_PIPES
@@ -659,6 +687,9 @@ runpopen (char *cmd, const char *mode)
   char *safecmd = NULL;
   char *cmdname = NULL;
   int allow;
+#if IS_pTeX && !defined(WIN32)
+  char *cmd2 = NULL;
+#endif
 
 #ifdef WIN32
   char *pp;
@@ -668,14 +699,27 @@ runpopen (char *cmd, const char *mode)
   }
 #endif
 
+#if IS_pTeX && !defined(WIN32)
+  cmd2 = (char *)ptenc_from_internal_enc_string_to_utf8((unsigned char *)cmd);
+  if (!cmd2) cmd2=(char *)cmd;
+#endif
+
   /* If restrictedshell == 0, any command is allowed. */
   if (restrictedshell == 0)
     allow = 1;
   else
+#if IS_pTeX && !defined(WIN32)
+    allow = shell_cmd_is_allowed (cmd2, &safecmd, &cmdname);
+#else
     allow = shell_cmd_is_allowed (cmd, &safecmd, &cmdname);
+#endif
 
   if (allow == 1)
+#if IS_pTeX && !defined(WIN32)
+    f = popen (cmd2, mode);
+#else
     f = popen (cmd, mode);
+#endif
   else if (allow == 2)
     f = popen (safecmd, mode);
   else if (allow == -1)
@@ -684,6 +728,9 @@ runpopen (char *cmd, const char *mode)
   else
     fprintf (stderr, "\nrunpopen command not allowed: %s\n", cmdname);
 
+#if IS_pTeX && !defined(WIN32)
+  if (cmd!=cmd2) free(cmd2);
+#endif
   if (safecmd)
     free (safecmd);
   if (cmdname)
@@ -691,16 +738,16 @@ runpopen (char *cmd, const char *mode)
   return f;
 }
 #endif /* ENABLE_PIPES */
-#endif
+#endif /*MIKTEX*/
 
 /* The main program, etc.  */
 
 #ifdef XeTeX
 #if defined(MIKTEX)
 #include "XeTeX_ext.h"
-#else
+#else /*MIKTEX*/
 #include "xetexdir/XeTeX_ext.h"
-#endif
+#endif /*MIKTEX*/
 #endif
 
 #if !defined(MIKTEX)
@@ -721,7 +768,7 @@ static const_string c_job_name;
 /* The filename for dynamic character translation, or NULL.  */
 string translate_filename;
 string default_translate_filename;
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #if defined(TeX)
@@ -731,7 +778,7 @@ static int last_lineno;
 static boolean srcspecialsoption = false;
 static void parse_src_specials_option (const_string);
 #endif
-#endif
+#endif /*MIKTEX*/
 
 /* Parsing a first %&-line in the input file. */
 static void parse_first_line (const_string);
@@ -752,13 +799,13 @@ texmf_yesno(const_string var)
   string value = kpse_var_value (var);
   return value && (*value == 't' || *value == 'y' || *value == '1');
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #ifdef pdfTeX
 const char *ptexbanner = BANNER;
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #ifdef WIN32
 /* forward declaration */
@@ -803,7 +850,7 @@ maininit (int ac, string *av)
 
 #if IS_pTeX
   kpse_set_program_name (argv[0], NULL);
-  initkanji ();
+  initkanji (); ptenc_ptex_mode(true);
 #endif
 #if (defined(XeTeX) || defined(pdfTeX)) && defined(WIN32)
   kpse_set_program_name (argv[0], NULL);
@@ -1088,7 +1135,28 @@ maininit (int ac, string *av)
   }
 #endif /* TeX */
 }
-#endif
+#endif /*MIKTEX*/
+
+#if !defined(MIKTEX)
+#if defined(_MSC_VER) && _MSC_VER > 1600
+#include <crtdbg.h>
+void
+myInvalidParameterHandler(const wchar_t* expression,
+   const wchar_t* function, 
+   const wchar_t* file, 
+   unsigned int line, 
+   uintptr_t pReserved)
+{
+/* After updating a compiler from Visual Studio 2010 to
+   Visual Studio 2015, XeTeX exits with the code 0xc0000417,
+   that means "invalid paremeter in CRT detected".
+   Probably it is safe to ignore the error.
+   So I use a handler which smiply return.
+*/
+   return;
+}
+#endif /* defined(_MSC_VER) ... */
+#endif /*MIKTEX*/
 
 /* main: Set up for reading the command line, which will happen in
    `maininit' and `topenin', then call the main body, plus
@@ -1106,6 +1174,13 @@ main (int ac, string *av)
   _wildcard (&ac, &av);
   _response (&ac, &av);
 #endif
+
+#if defined(_MSC_VER) && _MSC_VER > 1600
+   _invalid_parameter_handler oldHandler, newHandler;
+   newHandler = myInvalidParameterHandler;
+   oldHandler = _set_invalid_parameter_handler(newHandler);
+   _CrtSetReportMode(_CRT_ASSERT, 0);
+#endif /* defined(_MSC_VER) ... */
 
 #ifdef WIN32
   av[0] = kpse_program_basename (av[0]);
@@ -1139,7 +1214,7 @@ main (int ac, string *av)
 
   return EXIT_SUCCESS;
 }
-#endif
+#endif /*MIKTEX*/
 
 /* This is supposed to ``open the terminal for input'', but what we
    really do is copy command line arguments into TeX's or Metafont's
@@ -1225,7 +1300,7 @@ topenin (void)
     buffer[i] = xord[buffer[i]];
 #endif
 }
-#endif
+#endif /*MIKTEX*/
 
 /* IPC for TeX.  By Tom Rokicki for the NeXT; it makes TeX ship out the
    DVI file in a pipe to TeXView so that the output can be displayed
@@ -1460,7 +1535,11 @@ ipcpage (int is_eof)
     {
     unsigned i;
     for (i=0; i<len; i++)
+#if IS_pTeX
+      name[i] =  0xFF&strpool[i+strstart[outputfilename]];
+#else
       name[i] =  strpool[i+strstartar[outputfilename - 65536L]];
+#endif
     }
 #endif
     name[len] = 0;
@@ -1596,7 +1675,7 @@ readtcxfile (void)
 }
 #endif /* !Aleph && !XeTeX */
 #endif /* TeX || MF [character translation] */
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #ifdef XeTeX /* XeTeX handles this differently, and allows odd quotes within names */
@@ -1675,7 +1754,7 @@ normalize_quotes (const_string name, const_string mesg)
     return ret;
 }
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* Getting the input filename. */
@@ -1724,7 +1803,7 @@ get_input_file_name (void)
   }
   return input_file_name;
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* Reading the options.  */
@@ -2053,7 +2132,7 @@ parse_src_specials_option (const_string opt_list)
   srcspecialsoption = true;
 }
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* If the first thing on the command line (we use the globals `argv' and
@@ -2135,7 +2214,7 @@ parse_first_line (const_string filename)
       free (first_line);
   }
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* 
@@ -2337,7 +2416,7 @@ u_close_file_or_pipe (unicodefile* f)
 #endif
 
 #endif /* ENABLE_PIPES */
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* All our interrupt handler has to do is set TeX's or Metafont's global
@@ -2369,7 +2448,7 @@ catch_interrupt (int arg)
 #endif /* not OS2 */
 }
 #endif /* not WIN32 */
-#endif
+#endif /*MIKTEX*/
 
 #if defined(_MSC_VER)
 #define strtoull _strtoui64
@@ -2481,7 +2560,7 @@ WARNING1 ("invalid value (expected 0 or 1) for environment variable $FORCE_SOURC
 #endif /* no SA_INTERRUPT */
   }
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #if defined(pdfTeX) || defined(epTeX) || defined(eupTeX) || defined(XeTeX)
@@ -2508,7 +2587,7 @@ get_seconds_and_micros (integer *seconds,  integer *micros)
 #endif
 }
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* Read a line of input as efficiently as possible while still looking
@@ -2524,7 +2603,8 @@ input_line (FILE *f)
 
   /* Recognize either LF or CR as a line terminator.  */
 #if IS_pTeX
-  last = input_line2(f, (unsigned char *)buffer, first, bufsize, &i);
+  last = input_line2(f, (unsigned char *)buffer, (unsigned char *)buffer2,
+                     first, bufsize, &i);
 #else
 #ifdef WIN32
   if (f != Poptr && fileno (f) != fileno (stdin)) {
@@ -2628,7 +2708,7 @@ input_line (FILE *f)
   return true;
 }
 #endif /* !XeTeX */
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* This string specifies what the `e' option does in response to an
@@ -2674,29 +2754,49 @@ calledit (packedASCIIcode *filename,
      and a non-file for the insert. https://tex.stackexchange.com/q/552113 
      
      Therefore, we have to traverse down input_stack (not input_file),
-     looking for name_field values >17, which correspond to open
-     files, and then the index_field value of that entry tells us the
+     looking for large enough name_field values corresponding to open
+     files. Then the index_field value of that entry tells us the
      corresponding element of input_file, which is what we need to close.
+     Additionally we have to skip all entries with state_field 0 since these
+     correspond to token lists and not input files.
 
-     We test for >17 because name_field=0 means the terminal,
-     name_field=1..16 means \openin stream n - 1,
-     name_field=17 means an invalid stream number (for read_toks).
-     Although ... seems like we should close any opened \openin files also.
-     Whoever is reading this, please implement that? Sigh.
+     We test for name_field<=255, following tex.web, because the first
+     256 strings are static, initialized by TeX. (Well, many more
+     strings are initialized, but we'll follow tex.web.)
      
-     Description in modules 300--304 of tex.web: "Input stacks and states."
+     For the record, name_field=0 means the terminal,
+     name_field=1..16 means \openin stream n - 1,
+     name_field=17 means an invalid stream number (for read_toks),
+     name_field=18..19 means \scantokens pseudo-files (except for
+     original TeX of course). But 255 suffices for us.
      
      Here, we do not have to look at cur_input, the global variable
      which is effectively the top of input_stack, because it will always
      be a terminal (non-file) interaction -- the one where the user
-     typed "e" to start the edit.  */
+     typed "e" to start the edit.
+     
+     In addition, state_field will be zero for token lists. Skip those too.
+     (Does not apply to Metafont.)
+
+     Description in modules 300--304 of tex.web: "Input stacks and states".
+     
+     We should close any opened \openin files also. Whoever is reading
+     this, please implement that?  */
  {  
   int is_ptr; /* element of input_stack, 0 < input_ptr */  
   for (is_ptr = 0; is_ptr < inputptr; is_ptr++) {
-    if (inputstack[is_ptr].namefield <= 17) {
+#ifdef TeX
+    if (inputstack[is_ptr].statefield == 0 /* token list */
+        || inputstack[is_ptr].namefield <= 255) { /* can't be filename */
+#elif defined(MF)
+    if (inputstack[is_ptr].namefield <= 255) {
+#else
+#error "Unable to identify program" /* MetaPost doesn't use this file */
+#endif
         ; /* fprintf (stderr, "calledit: skipped input_stack[%d], ", is_ptr);
-             fprintf (stderr, "namefield=%d <= 17\n",
-                      inputstack[is_ptr].namefield); */
+             fprintf (stderr, "namefield=%d <= 255 or statefield=%d == 0\n",
+                      inputstack[is_ptr].namefield,
+                      inputstack[is_ptr].statefield); */
     } else {
       FILE *f;
       /* when name_field > 17, index_field specifies the element of
@@ -2844,7 +2944,7 @@ calledit (packedASCIIcode *filename,
   /* Quit, since we found an error.  */
   uexit (1);
 }
-#endif
+#endif /*MIKTEX*/
 
 /* Read and write dump files.  As distributed, these files are
    architecture dependent; specifically, BigEndian and LittleEndian
@@ -2929,7 +3029,7 @@ swap_items (char *p, int nitems, int size)
   }
 }
 #endif /* not WORDS_BIGENDIAN and not NO_DUMP_SHARE */
-#endif
+#endif /*MIKTEX*/
 
 
 /* Here we write NITEMS items, each item being ITEM_SIZE bytes long.
@@ -2965,7 +3065,7 @@ do_dump (char *p, int item_size, int nitems,  FILE *out_file)
   swap_items (p, nitems, item_size);
 #endif
 }
-#endif
+#endif /*MIKTEX*/
 
 
 /* Here is the dual of the writing routine.  */
@@ -2990,7 +3090,7 @@ do_undump (char *p, int item_size, int nitems, FILE *in_file)
   swap_items (p, nitems, item_size);
 #endif
 }
-#endif
+#endif /*MIKTEX*/
 
 /* Some (most?) of this could be moved to the WEB side, but oh well.  */
 #if !defined(MIKTEX)
@@ -3047,7 +3147,7 @@ maketexstring(const_string s)
   }
 #else /* ! XeTeX */
   while (len-- > 0)
-    strpool[poolptr++] = *s++;
+    strpool[poolptr++] = 0xFF&(*s++);
 #endif /* ! XeTeX */
 
   return makestring();
@@ -3065,13 +3165,24 @@ makefullnamestring(void)
 strnumber
 getjobname(strnumber name)
 {
-    strnumber ret = name;
+    strnumber ret = name; int i, l, p;
     if (c_job_name != NULL)
       ret = maketexstring(c_job_name);
+#if IS_pTeX
+    i = strstart[ret]; l = strstart[ret+1];
+    while (i<l)
+     {
+        p = multistrlenshort(strpool, l, i);
+        if (p>1) {
+             int j;
+             for (j=i+p; i<j; i++) strpool[i] = (0xFF&strpool[i])+0x100;
+        } else i++;
+     }
+#endif /* IS_pTeX */
     return ret;
 }
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #if defined(TeX)
 #if !defined(MIKTEX)
@@ -3091,7 +3202,7 @@ compare_paths (const_string p1, const_string p2)
   ret = (ret < 0 ? -1 : (ret > 0 ? 1 : 0));
   return ret;
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #ifdef XeTeX /* the string pool is UTF-16 but we want a UTF-8 string */
@@ -3156,21 +3267,25 @@ gettexstring (strnumber s)
   len = strstartar[s + 1 - 65536L] - strstartar[s - 65536L];
 #endif
   name = (string)xmalloc (len + 1);
-#if !defined(Aleph)
+#if !defined(Aleph) && !IS_pTeX
   strncpy (name, (string)&strpool[strstart[s]], len);
 #else
   {
   poolpointer i;
   /* Don't use strncpy.  The strpool is not made up of chars. */
+#if IS_pTeX
+  for (i=0; i<len; i++) name[i] =  0xFF&strpool[i+strstart[s]];
+#else
   for (i=0; i<len; i++) name[i] =  strpool[i+strstartar[s - 65536L]];
+#endif
   }
 #endif
   name[len] = 0;
   return name;
 }
-#endif
 
 #endif /* not XeTeX */
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 boolean
@@ -3179,7 +3294,7 @@ isnewsource (strnumber srcfilename, int lineno)
   char *name = gettexstring(srcfilename);
   return (compare_paths(name, last_source_name) != 0 || lineno != last_lineno);
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 void
@@ -3190,7 +3305,7 @@ remembersourceinfo (strnumber srcfilename, int lineno)
   last_source_name = gettexstring(srcfilename);
   last_lineno = lineno;
 }
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 poolpointer
@@ -3221,7 +3336,7 @@ makesrcspecial (strnumber srcfilename, int lineno)
 
   return (oldpoolptr);
 }
-#endif
+#endif /*MIKTEX*/
 
 /* pdfTeX routines also used for e-pTeX, e-upTeX, and XeTeX */
 #if defined (pdfTeX) || defined (epTeX) || defined (eupTeX) || defined(XeTeX)
@@ -3237,7 +3352,7 @@ makesrcspecial (strnumber srcfilename, int lineno)
         pdftex_fail("buffer overflow at file %s, line %d", __FILE__,  __LINE__ )
 #if defined(MIKTEX)
 #undef xfree
-#endif
+#endif /*MIKTEX*/
 #  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
 #  define MAX_CSTRING_LEN     1024 * 1024
 
@@ -3364,7 +3479,7 @@ initstarttime(void)
 #define access fsyscp_access
 #define dir_p fsyscp_dir_p
 #endif /* _WIN32 */
-#endif
+#endif /*MIKTEX*/
 
 /* Search for an input file. If -output-directory is specified look
    there first. If that fails, do the regular kpse search. */
@@ -3420,7 +3535,11 @@ makecstring(integer s)
     }
     p = cstrbuf;
     for (i = 0; i < l; i++)
+#if IS_pTeX
+        *p++ = 0xFF&strpool[i + strstart[s]];
+#else
         *p++ = strpool[i + strstart[s]];
+#endif
     *p = 0;
     return cstrbuf;
 }
@@ -3453,7 +3572,7 @@ void
 getcreationdate(void)
 {
     size_t len;
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
     int i;
 #endif
     initstarttime();
@@ -3469,7 +3588,7 @@ getcreationdate(void)
         return;
     }
 
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
     for (i = 0; i < len; i++)
         strpool[poolptr++] = (uint16_t)start_time_str[i];
 #else
@@ -3503,7 +3622,7 @@ getfilemoddate(integer s)
             poolptr = poolsize;
             /* error by str_toks that calls str_room(1) */
         } else {
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
             int i;
 
             for (i = 0; i < len; i++)
@@ -3549,7 +3668,7 @@ getfilesize(integer s)
             poolptr = poolsize;
             /* error by str_toks that calls str_room(1) */
         } else {
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
             for (i = 0; i < len; i++)
                 strpool[poolptr++] = (uint16_t)buf[i];
 #else
@@ -3568,14 +3687,14 @@ getfiledump(integer s, int offset, int length)
 {
     FILE *f;
     int read, i;
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
     unsigned char *readbuffer;
     char strbuf[3];
     int j, k;
 #else
     poolpointer data_ptr;
     poolpointer data_end;
-#endif /* XeTeX */
+#endif /* XeTeX || IS_pTeX */
     char *file_name;
 
     if (length == 0) {
@@ -3606,7 +3725,7 @@ getfiledump(integer s, int offset, int length)
         xfree(file_name);
         return;
     }
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
     readbuffer = (unsigned char *)xmalloc (length + 1);
     read = fread(readbuffer, sizeof(char), length, f);
     fclose(f);
@@ -3634,7 +3753,7 @@ getfiledump(integer s, int offset, int length)
         check_nprintf(i, 3);
         poolptr += i;
     }
-#endif /* XeTeX */
+#endif /* XeTeX || IS_pTeX */
     xfree(file_name);
 }
 
@@ -3668,7 +3787,7 @@ getmd5sum(strnumber s, boolean file)
     md5_byte_t digest[DIGEST_SIZE];
     char outbuf[2 * DIGEST_SIZE + 1];
     int len = 2 * DIGEST_SIZE;
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
     char *xname;
     int i;
 #endif
@@ -3704,7 +3823,7 @@ getmd5sum(strnumber s, boolean file)
     } else {
         /* s contains the data */
         md5_init(&state);
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
         xname = gettexstring (s);
         md5_append(&state,
                    (md5_byte_t *) xname,
@@ -3723,7 +3842,7 @@ getmd5sum(strnumber s, boolean file)
         return;
     }
     convertStringToHexString((char *) digest, outbuf, DIGEST_SIZE);
-#if defined(XeTeX)
+#if defined(XeTeX) || IS_pTeX
     for (i = 0; i < 2 * DIGEST_SIZE; i++)
         strpool[poolptr++] = (uint16_t)outbuf[i];
 #else

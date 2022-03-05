@@ -27,7 +27,7 @@ typedef UFILE* unicodefile;
 
 typedef void* voidpointer;
 #endif
-#endif
+#endif /*MIKTEX*/
 
 /* If we have these macros, use them, as they provide a better guide to
    the endianess when cross-compiling. */
@@ -108,7 +108,7 @@ typedef void* voidpointer;
 #define OUT_FILE gffile
 #define OUT_BUF gfbuf
 #endif /* MF */
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 /* Restore underscores.  */
@@ -120,7 +120,7 @@ typedef void* voidpointer;
 #define kpsemppoolformat kpse_mppool_format
 #define kpsetexpoolformat kpse_texpool_format
 #define kpsetexformat kpse_tex_format
-#endif
+#endif /*MIKTEX*/
 
 /* Hacks for TeX that are better not to #ifdef, see lib/openclose.c.  */
 extern int tfmtemp, texinputtype;
@@ -220,10 +220,10 @@ extern void ipcpage (int);
 #define	inputln(stream, flag) input_line (stream)
 #ifdef XeTeX
 extern boolean input_line (UFILE *);
-#else
+#else /*MIKTEX*/
 extern boolean input_line (FILE *);
 #endif
-#endif
+#endif /*MIKTEX*/
 
 /* This routine has to return four values.  */
 #define	dateandtime(i,j,k,l) get_date_and_time (&(i), &(j), &(k), &(l))
@@ -235,7 +235,7 @@ extern void get_date_and_time (integer *, integer *, integer *, integer *);
 #define secondsandmicros(i,j) get_seconds_and_micros (&(i), &(j))
 extern void get_seconds_and_micros (integer *, integer *);
 #endif
-#endif
+#endif /*MIKTEX*/
 
 /* Copy command-line arguments into the buffer, despite the name.  */
 extern void topenin (void);
@@ -257,7 +257,7 @@ extern void topenin (void);
 #define aopenin(f,p)  open_in_or_pipe(&(f),p,FOPEN_RBIN_MODE)
 #define aopenout(f)   open_out_or_pipe(&(f),FOPEN_W_MODE)
 #define aclose(f)     close_file_or_pipe(f)
-#endif
+#endif /*MIKTEX*/
 
 /* define FMT_COMPRESS for engines which compress formats */
 #if defined(pTeX) || defined(epTeX) || defined(upTeX) || defined(eupTeX)
@@ -292,7 +292,7 @@ extern void topenin (void);
 #define wopenout	bopenout
 #define wclose		aclose
 #endif
-#endif
+#endif /*MIKTEX*/
 
 #if !defined(MIKTEX)
 #ifdef XeTeX
@@ -306,7 +306,7 @@ extern void u_close_file_or_pipe(unicodefile* f);
 #define uclose(f) u_close_inout(&(f))
 #endif
 #endif
-#endif
+#endif /*MIKTEX*/
 
 /* Used in tex.ch (section 1338) to get a core dump in debugging mode.  */
 #ifdef unix
@@ -427,9 +427,9 @@ extern void do_undump (char *, int, int, FILE *);
 # if defined(__SyncTeX__)
 #if defined(MIKTEX)
 #include "synctex-common.h"
-#else
+#else /*MIKTEX*/
 #  include "synctexdir/synctex-common.h"
-#endif
+#endif /*MIKTEX*/
 extern char *generic_synctex_get_current_name(void);
 # endif
 #endif
