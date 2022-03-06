@@ -496,27 +496,6 @@ protected:
         }
     }
 
-    template<class T> void c4pmget(T& f, typename T::ElementType* buf, std::size_t n)
-    {
-        f.AssertValid();
-        f.Read(buf, n);
-    }
-
-    template<class T> char c4pgetc(T& f)
-    {
-        f.AssertValid();
-        return f.GetChar();
-    }
-
-    template<class T> void c4pputc(T& f)
-    {
-        f.AssertValid();
-        if (putc(*f, f) == EOF)
-        {
-            MIKTEX_FATAL_CRT_ERROR("putc");
-        }
-    }
-
     template<class T> void c4p_break(T& f)
     {
         f.AssertValid();
@@ -614,16 +593,6 @@ protected:
     {
         return &obj;
     };
-
-    template<class T> void c4pincr(T& lvalue)
-    {
-        ++lvalue;
-    }
-
-    template<class T> void c4pdecr(T& lvalue)
-    {
-        --lvalue;
-    }
 
     double c4p_abs(double x)
     {
@@ -815,7 +784,6 @@ C4PCEEAPI(C4P_integer) Round(double r);
 #define c4phour GetHour()
 #define c4pminute GetMinute()
 #define c4pmonth GetMonth()
-#define c4preturn() goto C4P_LABEL_PROC_EXIT
 #define c4psecond GetSecond()
 #define c4pyear GetYear()
 

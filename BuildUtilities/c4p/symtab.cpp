@@ -288,7 +288,6 @@ void symtab_init()
     arr = reinterpret_cast<array_node*>(new_type_node(ARRAY_NODE, 0L, 0L));
     arr->component_type = STRING_TYPE;
     new_type("c4pstrarr", ARRAY_NODE, arr, nullptr);
-    new_type("c4pjmpbuf", STRING_TYPE, nullptr, nullptr);
 
     new_variable("input", "text");
     new_variable("output", "text");
@@ -306,13 +305,13 @@ void symtab_init()
     new_variable("c4pmonth", "integer");
     new_variable("c4pyear", "integer");
 
-    new_variable("c4pcur", "integer"); /* SEEK_CUR */
-    new_variable("c4pend", "integer"); /* SEEK_END */
-    new_variable("c4pset", "integer"); /* SEEK_SET */
-    new_variable("c4prmode", "integer"); /* "r" */
-    new_variable("c4pwmode", "integer"); /* "w" */
-    new_variable("c4prbmode", "integer"); /* "rb" */
-    new_variable("c4pwbmode", "integer"); /* "wb" */
+    new_variable("c4pcur", "integer");
+    new_variable("c4pend", "integer");
+    new_variable("c4pset", "integer");
+    new_variable("c4prmode", "integer");
+    new_variable("c4pwmode", "integer");
+    new_variable("c4prbmode", "integer");
+    new_variable("c4pwbmode", "integer");
 
     new_mapping("abs", "c4p_abs");
     new_function("c4p_abs", "integer");
@@ -329,32 +328,21 @@ void symtab_init()
     new_procedure("reset");
     new_procedure("rewrite");
 
-    new_function("c4pferror", "integer"); /* ferror () */
-    new_function("c4pfopen", "boolean"); /* fopen () */
-    new_function("c4ptryfopen", "boolean"); /* fopen () */
-    new_function("c4pftell", "integer"); /* ftell () */
-    new_function("c4pinteger", "integer"); /* (integer) */
-    new_function("c4pptr", "integer"); /* & */
-    new_function("c4psetjmp", "integer"); /* setjmp () */
+    new_function("c4ptryfopen", "boolean");
+    new_function("c4pftell", "integer");
+    new_function("c4pinteger", "integer");
+    new_function("c4pptr", "integer");
     new_function("c4pstrlen", "integer");
 
-    new_procedure("c4pbufwrite"); /* fwrite () */
-    new_procedure("c4p_break");  /* fflush () */
-    new_procedure("c4pexit");    /* exit () */
-    new_procedure("c4pfclose");  /* fclose () */
-    new_procedure("c4pfopen");   /* fopen () */
-    new_procedure("c4pfseek");   /* fseek () */
-    new_procedure("c4parrcpy");  /* memcpy () */
-    new_procedure("c4pmemcpy");  /* memcpy () */
-    new_procedure("c4pstrcpy");  /* strcpy () */
-    new_procedure("c4plongjmp"); /* longjmp () */
-    new_procedure("c4pgetc");    /* getc () */
-    new_procedure("c4pputc");    /* putc () */
-    new_procedure("c4pincr");    /* ++ */
-    new_procedure("c4pdecr");    /* -- */
-    new_procedure("c4pmget");
-    new_procedure("c4preturn");
-    new_procedure("c4pbreakloop"); /* break */
+    new_procedure("c4pbufwrite");
+    new_procedure("c4p_break");
+    new_procedure("c4pexit");
+    new_procedure("c4pfclose");
+    new_procedure("c4pfopen");
+    new_procedure("c4pfseek");
+    new_procedure("c4parrcpy");
+    new_procedure("c4pstrcpy");
+    new_procedure("c4pbreakloop");
 
     new_build_in("read", READ);
     new_build_in("readln", READLN);
