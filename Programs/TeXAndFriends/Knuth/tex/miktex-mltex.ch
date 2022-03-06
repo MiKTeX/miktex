@@ -1,5 +1,4 @@
-% miktex-mltex.ch: mltex.ch modified for MiKTeX (inspired by Web2C's tex.ch)
-% Modifications by Christian Schenk.
+%% miktex-mltex.ch
 
 % This is MLTEX.CH (Version 2.2) in text format, as of Dec 17, 1995.
 % WEB change file containing code for various features extending TeX; to

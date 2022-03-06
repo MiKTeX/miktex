@@ -1,21 +1,14 @@
-/* miktex-tex.h:                                        -*- C++ -*-
-
-   Copyright (C) 1991-2020 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-tex.h
+ * @author Christian Schenk
+ * @brief MiKTeX TeX
+ *
+ * @copyright Copyright © 1991-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
@@ -36,11 +29,11 @@
 #include "tex.h"
 
 #if defined(MIKTEX_WINDOWS)
-#  include "miktex-tex.rc"
+#   include "miktex-tex.rc"
 #endif
 
 #if !defined(MIKTEXHELP_TEX)
-#  include <miktex/Core/Help>
+#   include <miktex/Core/Help>
 #endif
 
 extern TEXPROGCLASS TEXPROG;
@@ -48,85 +41,71 @@ extern TEXPROGCLASS TEXPROG;
 class TEXAPPCLASS :
   public MiKTeX::TeXAndFriends::TeXApp
 {
-private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<TEXPROGCLASS> charConv{ TEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::ErrorHandlerImpl<TEXPROGCLASS> errorHandler{ TEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::FormatHandlerImpl<TEXPROGCLASS> formatHandler{ TEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<TEXPROGCLASS> initFinalize{ TEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<TEXPROGCLASS> inputOutput{ TEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::StringHandlerImpl<TEXPROGCLASS> stringHandler{ TEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TEXPROGCLASS> memoryHandler { TEXPROG, *this };
 
 public:
-  void Init(std::vector<char*>& args) override
-  {
-    SetCharacterConverter(&charConv);
-    SetErrorHandler(&errorHandler);
-    SetFormatHandler(&formatHandler);
-    SetInitFinalize(&initFinalize);
-    SetInputOutput(&inputOutput);
-    SetStringHandler(&stringHandler);
-    SetTeXMFMemoryHandler(&memoryHandler);
-    TeXApp::Init(args);
-#if defined(IMPLEMENT_TCX)
-    EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
-    EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
-  }
 
-public:
-  MiKTeX::Util::PathName GetMemoryDumpFileName() const override
-  {
-    return MiKTeX::Util::PathName("tex.fmt");
-  }
+    void Init(std::vector<char*>& args) override
+    {
+        SetCharacterConverter(&charConv);
+        SetErrorHandler(&errorHandler);
+        SetFormatHandler(&formatHandler);
+        SetInitFinalize(&initFinalize);
+        SetInputOutput(&inputOutput);
+        SetStringHandler(&stringHandler);
+        SetTeXMFMemoryHandler(&memoryHandler);
+        TeXApp::Init(args);
+    #if defined(IMPLEMENT_TCX)
+        EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
+        EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
+    #endif
+    }
 
-public:
-  std::string GetInitProgramName() const override
-  {
-    return "initex";
-  }
+    MiKTeX::Util::PathName GetMemoryDumpFileName() const override
+    {
+        return MiKTeX::Util::PathName("tex.fmt");
+    }
 
-public:
-  std::string GetVirginProgramName() const override
-  {
-    return "virtex";
-  }
+    std::string GetInitProgramName() const override
+    {
+        return "initex";
+    }
 
-public:
-  std::string TheNameOfTheGame() const override
-  {
-    return "TeX";
-  }
+    std::string GetVirginProgramName() const override
+    {
+        return "virtex";
+    }
 
-public:
-  unsigned long GetHelpId() const override
-  {
-    return MIKTEXHELP_TEX;
-  }
+    std::string TheNameOfTheGame() const override
+    {
+        return "TeX";
+    }
+
+    unsigned long GetHelpId() const override
+    {
+        return MIKTEXHELP_TEX;
+    }
+
+private:
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<TEXPROGCLASS> charConv{ TEXPROG };
+    MiKTeX::TeXAndFriends::ErrorHandlerImpl<TEXPROGCLASS> errorHandler{ TEXPROG };
+    MiKTeX::TeXAndFriends::FormatHandlerImpl<TEXPROGCLASS> formatHandler{ TEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<TEXPROGCLASS> initFinalize{ TEXPROG };
+    MiKTeX::TeXAndFriends::InputOutputImpl<TEXPROGCLASS> inputOutput{ TEXPROG };
+    MiKTeX::TeXAndFriends::StringHandlerImpl<TEXPROGCLASS> stringHandler{ TEXPROG };
+    MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TEXPROGCLASS> memoryHandler { TEXPROG, *this };
 };
 
 int miktexloadpoolstrings(int size);
 
 inline int loadpoolstrings(int size)
 {
-  return miktexloadpoolstrings(size);
+    return miktexloadpoolstrings(size);
 }
 
 extern TEXAPPCLASS TEXAPP;
 
 inline void miktexreallocatenameoffile(size_t n)
-{  
-  TEXPROG.nameoffile = reinterpret_cast<char*>(TEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", TEXPROG.nameoffile, sizeof(*TEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
+{
+    TEXPROG.nameoffile = reinterpret_cast<char*>(TEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", TEXPROG.nameoffile, sizeof(*TEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
 }
