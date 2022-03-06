@@ -31,7 +31,6 @@ using namespace std;
 void new_keyword(const char* , unsigned);
 void new_variable(const char*, const char*);
 void new_function(const char*, const char*);
-void new_procedure(const char*);
 void new_build_in(const char*, unsigned);
 
 #define NIL_SYMBOL (MAX_SYMBOLS + 1)
@@ -323,26 +322,11 @@ void symtab_init()
     new_function("round", "integer");
     new_function("trunc", "integer");
 
-    new_procedure("get");
-    new_procedure("put");
-    new_procedure("reset");
-    new_procedure("rewrite");
-
     new_function("c4ptryfopen", "boolean");
     new_function("c4pftell", "integer");
     new_function("c4pinteger", "integer");
     new_function("c4pptr", "integer");
     new_function("c4pstrlen", "integer");
-
-    new_procedure("c4pbufwrite");
-    new_procedure("c4p_break");
-    new_procedure("c4pexit");
-    new_procedure("c4pfclose");
-    new_procedure("c4pfopen");
-    new_procedure("c4pfseek");
-    new_procedure("c4parrcpy");
-    new_procedure("c4pstrcpy");
-    new_procedure("c4pbreakloop");
 
     new_build_in("read", READ);
     new_build_in("readln", READLN);
@@ -399,15 +383,6 @@ void new_build_in(const char* name, unsigned number)
     sym->s_block_level = 0;
     sym->s_kind = BUILD_IN_IDENTIFIER;
     sym->s_type = (pascal_type)number; // fixme
-}
-
-void new_procedure(const char* proc_name)
-{
-    symbol_t* sym = new_symbol_instance(proc_name);
-    sym->s_block_level = 0;
-    sym->s_kind = PROCEDURE_IDENTIFIER;
-    sym->s_type = PROTOTYPE_NODE;
-    sym->s_type_ptr = new_type_node(PROTOTYPE_NODE, sym, 0, 0);
 }
 
 void new_mapping(const char* name, const char* mapped_name)
