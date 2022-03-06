@@ -49,7 +49,7 @@
 extern EUPTEXPROGCLASS EUPTEXPROG;
 
 class EUPTEXAPPCLASS :
-    public MiKTeX::TeXjp::WebAppInputLine<MiKTeX::TeXAndFriends::ETeXApp>
+    public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::ETeXApp>
 {
 private:
     MiKTeX::TeXAndFriends::CharacterConverterImpl<EUPTEXPROGCLASS> charConv{ EUPTEXPROG };

@@ -49,7 +49,7 @@
 extern UPTEXPROGCLASS UPTEXPROG;
 
 class UPTEXAPPCLASS :
-    public MiKTeX::TeXjp::WebAppInputLine<MiKTeX::TeXAndFriends::TeXApp>
+    public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::TeXApp>
 {
 private:
     MiKTeX::TeXAndFriends::CharacterConverterImpl<UPTEXPROGCLASS> charConv{ UPTEXPROG };

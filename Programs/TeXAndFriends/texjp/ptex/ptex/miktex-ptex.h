@@ -49,7 +49,7 @@
 extern PTEXPROGCLASS PTEXPROG;
 
 class PTEXAPPCLASS :
-    public MiKTeX::TeXjp::WebAppInputLine<MiKTeX::TeXAndFriends::TeXApp>
+    public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::TeXApp>
 {
 private:
     MiKTeX::TeXAndFriends::CharacterConverterImpl<PTEXPROGCLASS> charConv{ PTEXPROG };

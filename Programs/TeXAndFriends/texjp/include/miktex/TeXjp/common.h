@@ -88,9 +88,37 @@ namespace MiKTeX
             }
         };
 
-        template<class BASE> class WebAppInputLine :
+        template<class BASE> class TeXEngineBase :
             public WebApp<BASE>
         {
+        public:
+            int GetJobName(int fallbackJobName) const override
+            {
+                auto s = BASE::GetJobName(fallbackJobName);
+                auto stringHandler = GetStringHandler();
+                auto strstart = stringHandler->strstart();
+                auto strpool = stringHandler->strpool16();
+                auto begin = strstart[s];
+                auto end = strstart[s + 1];
+                auto pos = begin;
+                while (pos < end)
+                {
+                    auto charLen = multistrlenshort(reinterpret_cast<unsigned short*>(strpool), end, pos);
+                    if (charLen > 1)
+                    {
+                        for (int charEnd = pos + charLen; pos < charEnd; ++pos)
+                        {
+                            strpool[pos] = (0xff & strpool[pos]) + 0x100;
+                        }
+                    }
+                    else
+                    {
+                        ++pos;
+                    }
+                }
+                return s;
+            }
+
         public:
             size_t InputLineInternal(FILE* f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
             {

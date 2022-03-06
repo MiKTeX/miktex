@@ -91,7 +91,6 @@ public:
     MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Util::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew);
     MIKTEXMFTHISAPI(bool) ParseFirstLineP() const;
     MIKTEXMFTHISAPI(int) GetInteraction() const;
-    MIKTEXMFTHISAPI(int) GetJobName(int fallbackJobName) const;
     MIKTEXMFTHISAPI(int) GetTeXStringLength(int stringNumber) const;
     MIKTEXMFTHISAPI(int) GetTeXStringStart(int stringNumber) const;
     MIKTEXMFTHISAPI(int) MakeTeXString(const char* lpsz) const;
@@ -106,6 +105,7 @@ public:
     MIKTEXMFTHISAPI(void) SetStringHandler(IStringHandler* stringHandler);
     MIKTEXMFTHISAPI(void) SetTeXMFMemoryHandler(ITeXMFMemoryHandler* memoryHandler);
     MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE* file) const override;
+    virtual MIKTEXMFTHISAPI(int) GetJobName(int fallbackJobName) const;
     virtual MIKTEXMFTHISAPI(void) OnTeXMFFinishJob();
     virtual MIKTEXMFTHISAPI(void) OnTeXMFStartJob();
 
