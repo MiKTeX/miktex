@@ -31,7 +31,7 @@ using namespace std;
 void new_keyword(const char* , unsigned);
 void new_variable(const char*, const char*);
 void new_function(const char*, const char*);
-void new_build_in(const char*, unsigned);
+void new_built_in(const char*, unsigned);
 
 #define NIL_SYMBOL (MAX_SYMBOLS + 1)
 
@@ -328,10 +328,10 @@ void symtab_init()
     new_function("c4pptr", "integer");
     new_function("c4pstrlen", "integer");
 
-    new_build_in("read", READ);
-    new_build_in("readln", READLN);
-    new_build_in("write", WRITE);
-    new_build_in("writeln", WRITELN);
+    new_built_in("read", READ);
+    new_built_in("readln", READLN);
+    new_built_in("write", WRITE);
+    new_built_in("writeln", WRITELN);
 
     new_constant("false", "boolean", 0);
     new_constant("true", "boolean", 1);
@@ -377,11 +377,11 @@ void new_function(const char* func_name, const char* result_type)
     sym->s_type_ptr = new_type_node(PROTOTYPE_NODE, sym, 0, lookup(result_type));
 }
 
-void new_build_in(const char* name, unsigned number)
+void new_built_in(const char* name, unsigned number)
 {
     symbol_t* sym = new_symbol_instance(name);
     sym->s_block_level = 0;
-    sym->s_kind = BUILD_IN_IDENTIFIER;
+    sym->s_kind = BUILT_IN_IDENTIFIER;
     sym->s_type = (pascal_type)number; // fixme
 }
 

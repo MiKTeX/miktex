@@ -48,7 +48,7 @@ E               [Ee][+-]?{D}+
 
 {L}({L}|{D})*   {
                     symbol_t* s = lookup(yytext);
-                    if (s->s_kind == PASCAL_KEYWORD || s->s_kind == BUILD_IN_IDENTIFIER)
+                    if (s->s_kind == PASCAL_KEYWORD || s->s_kind == BUILT_IN_IDENTIFIER)
                     {
                         return last_tok = static_cast<int>(s->s_type);
                     }
