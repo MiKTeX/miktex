@@ -1,29 +1,22 @@
-/* miktex-euptex.h:
-
-   Copyright (C) 2021-2022 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-euptex.h
+ * @author Christian Schenk
+ * @brief MiKTeX e-upTeX
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
 #include "miktex-euptex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#   define MIKTEX_UTF8_WRAP_ALL 1
+#   include <miktex/utf8wrap.h>
 #endif
 
 #include <iostream>
@@ -51,28 +44,9 @@ extern EUPTEXPROGCLASS EUPTEXPROG;
 class EUPTEXAPPCLASS :
     public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::ETeXApp>
 {
-private:
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<EUPTEXPROGCLASS> charConv{ EUPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::ErrorHandlerImpl<EUPTEXPROGCLASS> errorHandler{ EUPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::FormatHandlerImpl<EUPTEXPROGCLASS> formatHandler{ EUPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InitFinalizeImpl<EUPTEXPROGCLASS> initFinalize{ EUPTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<EUPTEXPROGCLASS>, EUPTEXPROGCLASS> inputOutput{ EUPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::StringHandlerImpl<EUPTEXPROGCLASS> stringHandler{ EUPTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<EUPTEXPROGCLASS>, EUPTEXPROGCLASS> memoryHandler{ EUPTEXPROG, *this };
 
 public:
+
     void Init(std::vector<char*>& args) override
     {
         SetCharacterConverter(&charConv);
@@ -92,41 +66,45 @@ public:
 #endif
     }
 
-public:
     void AllocateMemory() override
     {
         ETeXApp::AllocateMemory();
     }
 
-public:
     void FreeMemory() override
     {
         ETeXApp::FreeMemory();
     }
 
-public:
     MiKTeX::Util::PathName GetMemoryDumpFileName() const override
     {
         return MiKTeX::Util::PathName("euptex.fmt");
     }
 
-public:
     std::string GetInitProgramName() const override
     {
         return "inieuptex";
     }
 
-public:
     std::string GetVirginProgramName() const override
     {
         return "vireuptex";
     }
 
-public:
     std::string TheNameOfTheGame() const override
     {
         return "eu-pTeX";
     }
+
+private:
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<EUPTEXPROGCLASS> charConv{ EUPTEXPROG };
+    MiKTeX::TeXAndFriends::ErrorHandlerImpl<EUPTEXPROGCLASS> errorHandler{ EUPTEXPROG };
+    MiKTeX::TeXAndFriends::FormatHandlerImpl<EUPTEXPROGCLASS> formatHandler{ EUPTEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<EUPTEXPROGCLASS> initFinalize{ EUPTEXPROG };
+    MiKTeX::TeXAndFriends::StringHandlerImpl<EUPTEXPROGCLASS> stringHandler{ EUPTEXPROG };
+    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<EUPTEXPROGCLASS>, EUPTEXPROGCLASS> inputOutput{ EUPTEXPROG };
+    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<EUPTEXPROGCLASS>, EUPTEXPROGCLASS> memoryHandler{ EUPTEXPROG, *this };
 };
 
 int miktexloadpoolstrings(int size);
@@ -186,8 +164,6 @@ inline auto println()
 {
     EUPTEXPROG.println();
 }
-
-
 
 #if WITH_SYNCTEX
 EUPTEX_PROG_VAR(synctexoffset, C4P::C4P_integer);

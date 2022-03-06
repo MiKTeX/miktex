@@ -1,21 +1,14 @@
-/* miktex-pbibtex.h:
-
-   Copyright (C) 2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-pbibtex.h
+ * @author Christian Schenk
+ * @brief MiKTeX pBibTeX
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
@@ -34,7 +27,8 @@
 
 #include "pbibtex.h"
 
-namespace bibtex {
+namespace bibtex
+{
 #include <miktex/bibtex.defaults.h>
 }
 
@@ -45,7 +39,9 @@ extern PBIBTEXPROGCLASS PBIBTEXPROG;
 class PBIBTEXAPPCLASS :
     public MiKTeX::TeXAndFriends::WebAppInputLine
 {
+
 public:
+
     template<typename T> void Reallocate(T*& p, size_t n)
     {
         size_t amount = n * sizeof(T);
@@ -57,45 +53,28 @@ public:
         p = reinterpret_cast<T*>(p2);
     }
   
-public:
     template<typename T> void PascalReallocate(T*& p, size_t n)
     {
         return Reallocate(p, n + 1);
     }
 
-public:
     template<typename T> void Allocate(T*& p, size_t n)
     {
         p = nullptr;
         Reallocate(p, n);
     }
 
-public:
     template<typename T> void PascalAllocate(T*& p, size_t n)
     {
         Allocate(p, n + 1);
     }
 
-public:
     template<typename T> void Free(T*& p)
     {
         free(p);
         p = nullptr;
     }
 
-private:
-    std::shared_ptr<MiKTeX::Core::Session> session;
-  
-private:
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<PBIBTEXPROGCLASS> charConv{ PBIBTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InitFinalizeImpl<PBIBTEXPROGCLASS> initFinalize{ PBIBTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InputOutputImpl<PBIBTEXPROGCLASS> inputOutput{ PBIBTEXPROG };
-
-public:
     void Init(std::vector<char*>& args) override
     {
         SetCharacterConverter(&charConv);
@@ -162,7 +141,6 @@ public:
         PBIBTEXPROG.computehashprime();
     }
   
-public:
     void Finalize() override
     {
         Free(PBIBTEXPROG.bibfile);
@@ -201,7 +179,6 @@ public:
 #define OPT_MIN_CROSSREFS 1001
 #define OPT_QUIET 1002
 
-public:
     void AddOptions() override
     {
         WebAppInputLine::AddOptions();
@@ -211,19 +188,16 @@ public:
         AddOption("terse", "quiet");
     }
   
-public:
     MiKTeX::Core::FileType GetInputFileType() const override
     {
         return MiKTeX::Core::FileType::BIB;
     }
 
-public:
     std::string MIKTEXTHISCALL GetUsage() const override
     {
         return MIKTEXTEXT("[OPTION...] AUXFILE");
     }
 
-public:
     bool ProcessOption(int opt, const std::string& optArg) override
     {
         bool done = true;
@@ -250,19 +224,16 @@ public:
         return done;
     }
   
-public:
     std::string MIKTEXTHISCALL TheNameOfTheGame() const override
     {
         return "BibTeX";
     }
 
-public:
     void BufferSizeExceeded() const override
     {
         PBIBTEXPROG.bufferoverflow();
     }
 
-public:
     void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
     {
         MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
@@ -271,7 +242,6 @@ public:
         inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
     }
 
-public:
     template<class T> bool OpenBstFile(T& f) const
     {
         const char* fileName = GetInputOutput()->nameoffile();
@@ -293,6 +263,14 @@ public:
 #endif
         return true;
     }
+
+private:
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<PBIBTEXPROGCLASS> charConv{ PBIBTEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<PBIBTEXPROGCLASS> initFinalize{ PBIBTEXPROG };
+    MiKTeX::TeXAndFriends::InputOutputImpl<PBIBTEXPROGCLASS> inputOutput{ PBIBTEXPROG };
+    std::shared_ptr<MiKTeX::Core::Session> session;
+
 };
 
 extern PBIBTEXAPPCLASS PBIBTEXAPP;

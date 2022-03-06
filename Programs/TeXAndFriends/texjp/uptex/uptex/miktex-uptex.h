@@ -1,29 +1,22 @@
-/* miktex-uptex.h:
-
-   Copyright (C) 2021-2022 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-uptex.h
+ * @author Christian Schenk
+ * @brief MiKTeX upTeX
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
 #include "miktex-uptex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#   define MIKTEX_UTF8_WRAP_ALL 1
+#   include <miktex/utf8wrap.h>
 #endif
 
 #include <iostream>
@@ -51,28 +44,9 @@ extern UPTEXPROGCLASS UPTEXPROG;
 class UPTEXAPPCLASS :
     public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::TeXApp>
 {
-private:
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<UPTEXPROGCLASS> charConv{ UPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::ErrorHandlerImpl<UPTEXPROGCLASS> errorHandler{ UPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::FormatHandlerImpl<UPTEXPROGCLASS> formatHandler{ UPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InitFinalizeImpl<UPTEXPROGCLASS> initFinalize{ UPTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<UPTEXPROGCLASS>, UPTEXPROGCLASS> inputOutput{ UPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::StringHandlerImpl<UPTEXPROGCLASS> stringHandler{ UPTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<UPTEXPROGCLASS>, UPTEXPROGCLASS> memoryHandler{ UPTEXPROG, *this };
 
 public:
+
     void Init(std::vector<char*>& args) override
     {
         SetCharacterConverter(&charConv);
@@ -92,41 +66,46 @@ public:
 #endif
     }
 
-public:
     void AllocateMemory() override
     {
         TeXApp::AllocateMemory();
     }
 
-public:
     void FreeMemory() override
     {
         TeXApp::FreeMemory();
     }
 
-public:
     MiKTeX::Util::PathName GetMemoryDumpFileName() const override
     {
         return MiKTeX::Util::PathName("uptex.fmt");
     }
 
-public:
     std::string GetInitProgramName() const override
     {
         return "iniuptex";
     }
 
-public:
     std::string GetVirginProgramName() const override
     {
         return "viruptex";
     }
 
-public:
     std::string TheNameOfTheGame() const override
     {
         return "upTeX";
     }
+
+private:
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<UPTEXPROGCLASS> charConv{ UPTEXPROG };
+    MiKTeX::TeXAndFriends::ErrorHandlerImpl<UPTEXPROGCLASS> errorHandler{ UPTEXPROG };
+    MiKTeX::TeXAndFriends::FormatHandlerImpl<UPTEXPROGCLASS> formatHandler{ UPTEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<UPTEXPROGCLASS> initFinalize{ UPTEXPROG };
+    MiKTeX::TeXAndFriends::StringHandlerImpl<UPTEXPROGCLASS> stringHandler{ UPTEXPROG };
+    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<UPTEXPROGCLASS>, UPTEXPROGCLASS> inputOutput{ UPTEXPROG };
+    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<UPTEXPROGCLASS>, UPTEXPROGCLASS> memoryHandler{ UPTEXPROG, *this };
+
 };
 
 int miktexloadpoolstrings(int size);

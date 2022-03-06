@@ -1,29 +1,22 @@
-/* miktex-ptex.h:
-
-   Copyright (C) 2021-2022 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-ptex.h
+ * @author Christian Schenk
+ * @brief MiKTeX pTeX
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
 #include "miktex-ptex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#   define MIKTEX_UTF8_WRAP_ALL 1
+#   include <miktex/utf8wrap.h>
 #endif
 
 #include <iostream>
@@ -51,28 +44,9 @@ extern PTEXPROGCLASS PTEXPROG;
 class PTEXAPPCLASS :
     public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::TeXApp>
 {
-private:
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<PTEXPROGCLASS> charConv{ PTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::ErrorHandlerImpl<PTEXPROGCLASS> errorHandler{ PTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::FormatHandlerImpl<PTEXPROGCLASS> formatHandler{ PTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InitFinalizeImpl<PTEXPROGCLASS> initFinalize{ PTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<PTEXPROGCLASS>, PTEXPROGCLASS> inputOutput{ PTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::StringHandlerImpl<PTEXPROGCLASS> stringHandler{ PTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<PTEXPROGCLASS>, PTEXPROGCLASS> memoryHandler{ PTEXPROG, *this };
 
 public:
+
     void Init(std::vector<char*>& args) override
     {
         SetCharacterConverter(&charConv);
@@ -92,41 +66,45 @@ public:
 #endif
     }
 
-public:
     void AllocateMemory() override
     {
         TeXApp::AllocateMemory();
     }
 
-public:
     void FreeMemory() override
     {
         TeXApp::FreeMemory();
     }
 
-public:
     MiKTeX::Util::PathName GetMemoryDumpFileName() const override
     {
         return MiKTeX::Util::PathName("ptex.fmt");
     }
 
-public:
     std::string GetInitProgramName() const override
     {
         return "iniptex";
     }
 
-public:
     std::string GetVirginProgramName() const override
     {
         return "virptex";
     }
 
-public:
     std::string TheNameOfTheGame() const override
     {
         return "pTeX";
     }
+
+private:
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<PTEXPROGCLASS> charConv{ PTEXPROG };
+    MiKTeX::TeXAndFriends::ErrorHandlerImpl<PTEXPROGCLASS> errorHandler{ PTEXPROG };
+    MiKTeX::TeXAndFriends::FormatHandlerImpl<PTEXPROGCLASS> formatHandler{ PTEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<PTEXPROGCLASS> initFinalize{ PTEXPROG };
+    MiKTeX::TeXAndFriends::StringHandlerImpl<PTEXPROGCLASS> stringHandler{ PTEXPROG };
+    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<PTEXPROGCLASS>, PTEXPROGCLASS> inputOutput{ PTEXPROG };
+    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<PTEXPROGCLASS>, PTEXPROGCLASS> memoryHandler{ PTEXPROG, *this };
 };
 
 int miktexloadpoolstrings(int size);
