@@ -73,9 +73,7 @@ namespace MiKTeX {                          \
 
 #if defined(MIKTEX_METAFONT)
 #   define MIKTEX_META_COMPILER 1
-#   define ENABLE_8BIT_CHARS 1
 #   define HAVE_MAIN_MEMORY 1
-#   define IMPLEMENT_TCX 1
 #endif
 
 #if defined(MIKTEX_TEX_COMPILER)
@@ -84,12 +82,4 @@ namespace MiKTeX {                          \
 #   define HAVE_MAIN_MEMORY 1
 #   define HAVE_POOL_FREE 1
 #   define HAVE_STRINGS_FREE 1
-#   if !defined(MIKTEX_XETEX)
-#       define IMPLEMENT_TCX 1
-#   endif
-#   define ENABLE_8BIT_CHARS 1
-#endif
-
-#if defined(MIKTEX_BIBTEX)
-#   define IMPLEMENT_TCX 1
 #endif

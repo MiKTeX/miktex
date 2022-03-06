@@ -37,6 +37,12 @@
 
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
+enum class Feature
+{
+    EightBitChars,
+    TCX
+};
+
 class IStringHandler
 {
 public:
@@ -83,9 +89,13 @@ public:
     MIKTEXMFTHISAPI(IStringHandler*) GetStringHandler() const;
     MIKTEXMFTHISAPI(ITeXMFMemoryHandler*) GetTeXMFMemoryHandler() const;
     MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetDefaultMemoryDumpFileName() const;
+    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetTcxFileName() const;
     MIKTEXMFTHISAPI(UserParams&) GetUserParams() const;
     MIKTEXMFTHISAPI(bool) CStyleErrorMessagesP() const;
+    MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
     MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
+    MIKTEXMFTHISAPI(void) InitializeCharTables() const;
+    MIKTEXMFTHISAPI(bool) IsFeatureEnabled(Feature f) const;
     MIKTEXMFTHISAPI(bool) IsInitProgram() const;
     MIKTEXMFTHISAPI(bool) OpenFontFile(C4P::BufferedFile<unsigned char>* file, const std::string& fontName, MiKTeX::Core::FileType filetype, const char* generator);
     MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Util::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew);
@@ -96,6 +106,7 @@ public:
     MIKTEXMFTHISAPI(int) MakeTeXString(const char* lpsz) const;
     MIKTEXMFTHISAPI(std::string) GetTeXString(int stringStart, int stringLength) const;
     MIKTEXMFTHISAPI(void) AddOptions() override;
+    MIKTEXMFTHISAPI(void) EnableFeature(Feature f);
     MIKTEXMFTHISAPI(void) Finalize() override;
     MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
     MIKTEXMFTHISAPI(void) InitializeBuffer() const;
@@ -103,6 +114,7 @@ public:
     MIKTEXMFTHISAPI(void) ProcessCommandLineOptions() override;
     MIKTEXMFTHISAPI(void) SetErrorHandler(IErrorHandler* errorHandler);
     MIKTEXMFTHISAPI(void) SetStringHandler(IStringHandler* stringHandler);
+    MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Util::PathName& tcxFileName);
     MIKTEXMFTHISAPI(void) SetTeXMFMemoryHandler(ITeXMFMemoryHandler* memoryHandler);
     MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE* file) const override;
     virtual MIKTEXMFTHISAPI(int) GetJobName(int fallbackJobName) const;
@@ -242,6 +254,7 @@ public:
 
 protected:
 
+    MIKTEXMFTHISAPI(void) Enable8BitChars(bool enable8BitChars);
     MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
 
     std::string GetUsage() const override
@@ -403,5 +416,26 @@ inline void miktexcheckmemoryifdebug()
     TeXMFApp::GetTeXMFApp()->CheckMemory();
 #endif
 }
+
+inline void miktexinitializechartables()
+{
+    TeXMFApp::GetTeXMFApp()->InitializeCharTables();
+}
+
+inline bool miktexenableeightbitcharsp()
+{
+    return TeXMFApp::GetTeXMFApp()->Enable8BitCharsP();
+}
+
+inline bool miktexhavetcxfilename()
+{
+    return !TeXMFApp::GetTeXMFApp()->GetTcxFileName().Empty();
+}
+
+inline void miktexprinttcxfilename(FILE* f)
+{
+    fprintf(f, " (%s)", TeXMFApp::GetTeXMFApp()->GetTcxFileName().GetData());
+}
+
 
 MIKTEX_TEXMF_END_NAMESPACE;

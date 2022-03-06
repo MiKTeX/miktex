@@ -54,10 +54,8 @@ public:
         SetStringHandler(&stringHandler);
         SetTeXMFMemoryHandler(&memoryHandler);
         TeXApp::Init(args);
-    #if defined(IMPLEMENT_TCX)
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-    #endif
     }
 
     MiKTeX::Util::PathName GetMemoryDumpFileName() const override

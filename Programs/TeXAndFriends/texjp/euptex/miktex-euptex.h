@@ -61,9 +61,7 @@ public:
         initkanji();
         kpse_set_program_name(args[0], nullptr);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
-#if defined(IMPLEMENT_TCX)
         EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
     }
 
     void AllocateMemory() override

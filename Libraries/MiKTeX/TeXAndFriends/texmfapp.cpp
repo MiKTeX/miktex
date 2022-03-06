@@ -61,6 +61,7 @@ public:
     string memoryDumpFileName;
     unique_ptr<TraceStream> trace_time;
     clock_t clockStart;
+    bool enable8BitChars;
     bool timeStatistics;
     bool parseFirstLine;
     bool showFileLineErrorMessages;
@@ -71,6 +72,8 @@ public:
     bool setJobTime;
     int interactionMode;
     string jobName;
+    PathName tcxFileName;
+    OptionSet<Feature> features;
     IStringHandler* stringHandler = nullptr;
     IErrorHandler* errorHandler = nullptr;
     ITeXMFMemoryHandler* memoryHandler = nullptr;
@@ -135,6 +138,7 @@ void TeXMFApp::Init(vector<char*>& args)
 
     pimpl->clockStart = clock();
     pimpl->disableExtensions = false;
+    pimpl->enable8BitChars = false;
     pimpl->haltOnError = false;
     pimpl->interactionMode = -1;
     pimpl->isInitProgram = false;
@@ -154,6 +158,8 @@ void TeXMFApp::Finalize()
     }
     pimpl->memoryDumpFileName = "";
     pimpl->jobName = "";
+    pimpl->features.Reset();
+    pimpl->tcxFileName = "";
     WebAppInputLine::Finalize();
 }
 
@@ -973,6 +979,87 @@ int TeXMFApp::GetInteraction() const
     return pimpl->interactionMode;
 }
 
+void TeXMFApp::SetTcxFileName(const PathName& tcxFileName)
+{
+    pimpl->tcxFileName = tcxFileName;
+}
+
+void TeXMFApp::InitializeCharTables() const
+{
+    PathName tcxPath;
+    shared_ptr<Session> session = GetSession();
+    if (!session->FindFile(GetTcxFileName().ToString(), FileType::TCX, tcxPath))
+    {
+        return;
+    }
+    StreamReader reader(tcxPath);
+    string line;
+    int lineNumber = 0;
+    while (reader.ReadLine(line))
+    {
+        ++lineNumber;
+        const char* start;
+        char* end;
+        if (line.empty() || line[0] == '%')
+        {
+            continue;
+        }
+        start = line.c_str();
+        if (start == nullptr)
+        {
+            MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
+        }
+        long xordidx = strtol(start, &end, 0);
+        if (start == end)
+        {
+            MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
+        }
+        else if (xordidx < 0 || xordidx > 255)
+        {
+            MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
+        }
+        long printable = 1;
+        start = end;
+        long xchridx = strtol(start, &end, 0);
+        if (start == end)
+        {
+            xchridx = xordidx;
+        }
+        else if (xchridx < 0 || xchridx > 255)
+        {
+            MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
+        }
+        else
+        {
+            start = end;
+            printable = strtol(start, &end, 0);
+            if (start == end)
+            {
+                printable = 1;
+            }
+            else if (printable < 0 || printable > 1)
+            {
+                MIKTEX_FATAL_ERROR_2("Invalid tcx file.", "tcxPath", tcxPath.ToString());
+            }
+        }
+        if (printable == 0 && xordidx >= ' ' && xordidx <= '~')
+        {
+            printable = 1;
+        }
+        GetCharacterConverter()->xord()[xordidx] = static_cast<unsigned char>(xchridx);
+        if (AmI(TeXjpEngine))
+        {
+            GetCharacterConverter()->xchr16()[xchridx] = static_cast<unsigned short>(xordidx);
+        }
+        else
+        {
+            GetCharacterConverter()->xchr()[xchridx] = static_cast<unsigned char>(xordidx);
+        }
+        GetCharacterConverter()->xprn()[xchridx] = static_cast<unsigned char>(printable);
+    }
+    reader.Close();
+}
+
 void TeXMFApp::SetStringHandler(IStringHandler* stringHandler)
 {
     pimpl->stringHandler = stringHandler;
@@ -1164,4 +1251,29 @@ bool TeXMFApp::OpenFontFile(C4P::BufferedFile<unsigned char>* file, const string
     file->Attach(session->OpenFile(pathFont, FileMode::Open, FileAccess::Read, false), true);
     file->Read();
     return true;
+}
+
+bool TeXMFApp::Enable8BitCharsP() const
+{
+    return pimpl->enable8BitChars;
+}
+
+void TeXMFApp::Enable8BitChars(bool enable8BitChars)
+{
+    pimpl->enable8BitChars = enable8BitChars;
+}
+
+PathName TeXMFApp::GetTcxFileName() const
+{
+    return pimpl->tcxFileName;
+}
+
+void TeXMFApp::EnableFeature(Feature f)
+{
+    pimpl->features += f;
+}
+
+bool TeXMFApp::IsFeatureEnabled(Feature f) const
+{
+    return pimpl->features[f];
 }

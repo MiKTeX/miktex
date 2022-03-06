@@ -125,9 +125,7 @@ public:
     MetafontApp::Init(args);
     // TODO: can be removed?
     SetProgram(&MFPROG, "mf", MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, MIKTEX_COMP_TM_STR);
-#ifdef IMPLEMENT_TCX
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
     screenEnabled = false;
   }
 

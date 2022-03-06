@@ -84,20 +84,16 @@ public:
     }
 
     vector<char*> cstrings;
-    OptionSet<Feature> features;
     PoptWrapper popt;
     string copyright;
     PathName packageListFileName;
     C4P::ProgramBase* program;
     string programName;
-    PathName tcxFileName;
-    bool enable8BitChars;
     string trademarks;
     string version;
     vector<poptOption> options;
     int optBase;
     unordered_map<string, vector<string>> optionShortcuts;
-    ICharacterConverter* characterConverter = nullptr;
     IInitFinalize* initFinalize = nullptr;
     bool verbose = true;
     static TeXMFResources resources;
@@ -121,7 +117,6 @@ void WebApp::Init(vector<char*>& args)
     Session::InitInfo initInfo(args[0]);
     initInfo.SetTheNameOfTheGame(TheNameOfTheGame());
     Application::Init(initInfo, args);
-    pimpl->enable8BitChars = false;
     pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
     LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", pimpl->programName, pimpl->version, Utils::GetMiKTeXBannerString()));
 }
@@ -147,11 +142,9 @@ void WebApp::Finalize()
         }
         stream.close();
     }
-    pimpl->features.Reset();
     pimpl->copyright = "";
     pimpl->packageListFileName = "";
     pimpl->programName = "";
-    pimpl->tcxFileName = "";
     pimpl->trademarks = "";
     pimpl->version = "";
     pimpl->options.clear();
@@ -391,11 +384,6 @@ void WebApp::SetProgram(C4P::ProgramBase* program, const string& programName, co
     pimpl->trademarks = trademarks;
 }
 
-bool WebApp::IsFeatureEnabled(Feature f) const
-{
-    return pimpl->features[f];
-}
-
 string WebApp::GetProgramName() const
 {
     return pimpl->programName;
@@ -416,63 +404,6 @@ bool WebApp::AmI(const std::string& name) const
 void WebApp::IAm(const string& name)
 {
     pimpl->whatIAm.push_back(name);
-}
-
-bool WebApp::Enable8BitCharsP() const
-{
-    return pimpl->enable8BitChars;
-}
-
-PathName WebApp::GetTcxFileName() const
-{
-    return pimpl->tcxFileName;
-}
-
-void WebApp::EnableFeature(Feature f)
-{
-    pimpl->features += f;
-}
-
-void WebApp::Enable8BitChars(bool enable8BitChars)
-{
-    pimpl->enable8BitChars = enable8BitChars;
-}
-
-void WebApp::SetTcxFileName(const PathName& tcxFileName)
-{
-    pimpl->tcxFileName = tcxFileName;
-}
-
-void WebApp::InitializeCharTables() const
-{
-    unsigned long flags = 0;
-    PathName tcxFileName = GetTcxFileName();
-    if (!tcxFileName.Empty())
-    {
-        flags |= ICT_TCX;
-    }
-    if (Enable8BitCharsP())
-    {
-        flags |= ICT_8BIT;
-    }
-    if (pimpl->characterConverter == nullptr)
-    {
-        MIKTEX_UNEXPECTED();
-    }
-    MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName,
-        pimpl->characterConverter->xchr(),
-        pimpl->characterConverter->xord(),
-        AmI(METAFONTEngine) || AmI(TeXEngine) ? pimpl->characterConverter->xprn() : nullptr);
-}
-
-void WebApp::SetCharacterConverter(ICharacterConverter* characterConverter)
-{
-    pimpl->characterConverter = characterConverter;
-}
-
-ICharacterConverter* WebApp::GetCharacterConverter() const
-{
-    return pimpl->characterConverter;
 }
 
 void WebApp::SetInitFinalize(IInitFinalize* initFinalize)

@@ -26,10 +26,6 @@
 /// utilities (e.g., BibTeX).
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
-const unsigned long ICT_TCX = 1;
-const unsigned long ICT_8BIT = 2;
-
-MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const MiKTeX::Util::PathName& fileName, char* chr, char* ord, char* printable);
 MIKTEXMFCEEAPI(bool) OpenTFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 MIKTEXMFCEEAPI(bool) OpenVFFile(void* ptr, const MiKTeX::Util::PathName& fileName);
 MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Util::PathName& fileName);

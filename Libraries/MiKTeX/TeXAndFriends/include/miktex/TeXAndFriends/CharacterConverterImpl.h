@@ -32,7 +32,7 @@ public:
 
     char* xchr() override
     {
-#if defined(MIKTEX_XETEX)
+#if defined(MIKTEX_PTEX_FAMILY)
         MIKTEX_UNEXPECTED();
 #else
         MIKTEX_ASSERT(sizeof(program.xchr[0]) == sizeof(char));
@@ -40,19 +40,25 @@ public:
 #endif
     }
 
+    char16_t* xchr16() override
+    {
+#if defined(MIKTEX_PTEX_FAMILY)
+        MIKTEX_ASSERT(sizeof(program.xchr[0]) == sizeof(char16_t));
+        return reinterpret_cast<char16_t*>(&program.xchr[0]);
+#else
+        MIKTEX_UNEXPECTED();
+#endif
+    }
+
     char* xord() override
     {
-#if defined(MIKTEX_XETEX)
-        MIKTEX_UNEXPECTED();
-#else
         MIKTEX_ASSERT(sizeof(program.xord[0]) == sizeof(char));
         return reinterpret_cast<char*>(&program.xord[0]);
-#endif
     }
 
     char* xprn() override
     {
-#if (defined(MIKTEX_META_COMPILER) || defined(MIKTEX_TEX_COMPILER)) && !defined(MIKTEX_XETEX)
+#if defined(MIKTEX_TEX_COMPILE) || defined(MIKTEX_METAFONT)
         MIKTEX_ASSERT(sizeof(program.xprn[0]) == sizeof(char));
         return reinterpret_cast<char*>(&program.xprn[0]);
 #else

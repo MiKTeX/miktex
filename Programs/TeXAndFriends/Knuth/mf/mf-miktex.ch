@@ -352,11 +352,21 @@ for i:=@'177 to @'377 do xchr[i]:=i;
 % _____________________________________________________________________________
 
 @x
-for i:=first_text_char to last_text_char do xord[chr(i)]:=@'177;
-for i:=@'200 to @'377 do xord[xchr[i]]:=i;
 for i:=0 to @'176 do xord[xchr[i]]:=i;
 @y
-miktex_initialize_char_tables;
+for i:=0 to @'176 do xord[xchr[i]]:=i;
+{Set |xprn| for printable ASCII, unless |eight_bit_p| is set.}
+for i:=0 to 255 do xprn[i]:=(miktex_enable_eightbit_chars_p or ((i>=" ")and(i<="~")));
+
+{The idea for this dynamic translation comes from the patch by
+ Libor Skarvada \.{<libor@@informatics.muni.cz>}
+ and Petr Sojka \.{<sojka@@informatics.muni.cz>}. I didn't use any of the
+ actual code, though, preferring a more general approach.}
+
+{This updates the |xchr|, |xord|, and |xprn| arrays from the provided
+ |translate_filename|.  See the function definition in \.{texmfmp.c} for
+ more comments.}
+if miktex_have_tcx_file_name then miktex_initialize_char_tables;
 @z
 
 % _____________________________________________________________________________

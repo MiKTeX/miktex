@@ -51,24 +51,10 @@ constexpr const char* TeXEngine = "TeXEngine";
 constexpr const char* METAFONTEngine = "METAFONTEngine";
 constexpr const char* TeXjpEngine = "TeXjpEngine";
 
-class ICharacterConverter
-{
-public:
-    virtual char* xchr() = 0;
-    virtual char* xord() = 0;
-    virtual char* xprn() = 0;
-};
-
 class IInitFinalize
 {
 public:
     virtual C4P::C4P_signed8& history() = 0;
-};
-
-enum class Feature
-{
-    EightBitChars,
-    TCX
 };
 
 template<class FileType> inline bool miktexopentfmfile(FileType& f, const char* fileName)
@@ -110,20 +96,13 @@ public:
     virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebApp() noexcept;
 
     MIKTEXMFTHISAPI(C4P::ProgramBase*) GetProgram() const;
-    MIKTEXMFTHISAPI(ICharacterConverter*) GetCharacterConverter() const;
     MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
-    MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetTcxFileName() const;
     MIKTEXMFTHISAPI(bool) AmI(const std::string& name) const;
-    MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
     MIKTEXMFTHISAPI(bool) GetVerboseFlag() const;
     MIKTEXMFTHISAPI(void) IAm(const std::string& name);
-    MIKTEXMFTHISAPI(bool) IsFeatureEnabled(Feature f) const;
     MIKTEXMFTHISAPI(std::string) GetProgramName() const;
-    MIKTEXMFTHISAPI(void) EnableFeature(Feature f);
     MIKTEXMFTHISAPI(void) Finalize() override;
     MIKTEXMFTHISAPI(void) Init(std::vector<char*>&args) override;
-    MIKTEXMFTHISAPI(void) InitializeCharTables() const;
-    MIKTEXMFTHISAPI(void) SetCharacterConverter(ICharacterConverter* characterConverter);
     MIKTEXMFTHISAPI(void) SetInitFinalize(IInitFinalize* initFinalize);
     MIKTEXMFTHISAPI(void) SetProgram(C4P::ProgramBase* program, const std::string& programName, const std::string& version, const std::string& copyright, const std::string& trademarks);
     virtual MIKTEXMFTHISAPI(std::string) TheNameOfTheGame() const;
@@ -160,8 +139,6 @@ protected:
     MIKTEXMFTHISAPI(void) AddOption(const std::string& name, const std::string& help, int opt, int argInfo = POPT_ARG_NONE, const std::string& argDescription = "", void* arg = nullptr, char shortName = 0);
     MIKTEXMFTHISAPI(void) AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args);
     MIKTEXMFTHISAPI(void) BadUsage();
-    MIKTEXMFTHISAPI(void) Enable8BitChars(bool enable8BitChars);
-    MIKTEXMFTHISAPI(void) SetTcxFileName(const MiKTeX::Util::PathName& tcxFileName);
     MIKTEXMFTHISAPI(void) ShowHelp(bool usageOnly = false) const;
     MIKTEXMFTHISAPI(void) ShowProgramVersion() const;
     virtual MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg);
@@ -192,26 +169,6 @@ inline bool miktexgetverboseflag()
 inline bool miktexgetquietflag()
 {
     return WebApp::GetWebApp()->GetQuietFlag();
-}
-
-inline void miktexinitializechartables()
-{
-    WebApp::GetWebApp()->InitializeCharTables();
-}
-
-inline bool miktexhavetcxfilename()
-{
-    return !WebApp::GetWebApp()->GetTcxFileName().Empty();
-}
-
-inline void miktexprinttcxfilename(FILE* f)
-{
-    fprintf(f, " (%s)", WebApp::GetWebApp()->GetTcxFileName().GetData());
-}
-
-inline bool miktexenableeightbitcharsp()
-{
-    return WebApp::GetWebApp()->Enable8BitCharsP();
 }
 
 inline void miktexprocesscommandlineoptions()

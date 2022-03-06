@@ -1,6 +1,6 @@
 /* miktex-bibtex.h:                                     -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -22,8 +22,6 @@
 #include "miktex-bibtex-config.h"
 
 #include "miktex-bibtex-version.h"
-
-#define IMPLEMENT_TCX 1
 
 #include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/FileType>
@@ -106,9 +104,6 @@ public:
     SetInputOutput(&inputOutput);
     WebAppInputLine::Init(args);
     session = GetSession();
-#if defined(IMPLEMENT_TCX)
-    EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
     BIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::ent_str_size())).GetInt();
     BIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::glob_str_size())).GetInt();
     BIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::max_strings())).GetInt();

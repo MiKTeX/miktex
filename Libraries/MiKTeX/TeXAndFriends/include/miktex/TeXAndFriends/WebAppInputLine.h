@@ -38,6 +38,15 @@ namespace MiKTeX {                          \
 
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
+class ICharacterConverter
+{
+public:
+    virtual char* xchr() = 0;
+    virtual char16_t* xchr16() = 0;
+    virtual char* xord() = 0;
+    virtual char* xprn() = 0;
+};
+
 class IInputOutput
 {
 public:
@@ -68,6 +77,7 @@ public:
     WebAppInputLine& operator=(WebAppInputLine&& other) = delete;
     virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebAppInputLine() noexcept;
 
+    MIKTEXMFTHISAPI(ICharacterConverter*) GetCharacterConverter() const;
     MIKTEXMFTHISAPI(IInputOutput*) GetInputOutput() const;
     MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetAuxDirectory() const;
     MIKTEXMFTHISAPI(MiKTeX::Util::PathName) GetFoundFile() const;
@@ -82,6 +92,7 @@ public:
     MIKTEXMFTHISAPI(void) Finalize() override;
     MIKTEXMFTHISAPI(void) Init(std::vector<char*>&args) override;
     MIKTEXMFTHISAPI(void) SetAuxDirectory(const MiKTeX::Util::PathName & path);
+    MIKTEXMFTHISAPI(void) SetCharacterConverter(ICharacterConverter* characterConverter);
     MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput * inputOutput);
     MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Util::PathName & path);
     virtual MIKTEXMFTHISAPI(FILE*) OpenFileInternal(const MiKTeX::Util::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access);

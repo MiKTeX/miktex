@@ -1,6 +1,6 @@
 %% xetex-miktex-adapter.ch: xetex.web to MiKTeX change file adapter
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -15,19 +15,6 @@
 %% You should have received a copy of the GNU General Public License
 %% along with This file; if not, write to the Free Software Foundation,
 %% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-% _____________________________________________________________________________
-%
-% [2.24]
-% _____________________________________________________________________________
-
-@x
-for i:=0 to @'176 do xord[xchr[i]]:=i;
-@y
-for i:=first_text_char to last_text_char do xord[chr(i)]:=invalid_code;
-for i:=@'200 to @'377 do xord[xchr[i]]:=i;
-for i:=0 to @'176 do xord[xchr[i]]:=i;
-@z
 
 % _____________________________________________________________________________
 %

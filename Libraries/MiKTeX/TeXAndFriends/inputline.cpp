@@ -124,6 +124,7 @@ public:
     PathName foundFileFq;
     ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
     PathName lastInputFileName;
+    ICharacterConverter* characterConverter = nullptr;
     IInputOutput* inputOutput = nullptr;
     TriState allowInput = TriState::Undetermined;
     TriState allowOutput = TriState::Undetermined;
@@ -580,6 +581,16 @@ ShellCommandMode WebAppInputLine::GetShellCommandMode() const
 PathName WebAppInputLine::GetLastInputFileName() const
 {
     return pimpl->lastInputFileName;
+}
+
+void WebAppInputLine::SetCharacterConverter(ICharacterConverter* characterConverter)
+{
+    pimpl->characterConverter = characterConverter;
+}
+
+ICharacterConverter* WebAppInputLine::GetCharacterConverter() const
+{
+    return pimpl->characterConverter;
 }
 
 void WebAppInputLine::SetInputOutput(IInputOutput* inputOutput)

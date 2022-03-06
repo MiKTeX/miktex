@@ -16,11 +16,8 @@
 
 #include <iostream>
 
-#define IMPLEMENT_TCX 1
-
 #include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/FileType>
-#include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/WebAppInputLine>
@@ -77,14 +74,10 @@ public:
 
     void Init(std::vector<char*>& args) override
     {
-        SetCharacterConverter(&charConv);
         SetInitFinalize(&initFinalize);
         SetInputOutput(&inputOutput);
         WebAppInputLine::Init(args);
         session = GetSession();
-#if defined(IMPLEMENT_TCX)
-        EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
         UPBIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::ent_str_size())).GetInt();
         UPBIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::glob_str_size())).GetInt();
         UPBIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::max_strings())).GetInt();
@@ -266,7 +259,6 @@ public:
 
 private:
 
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<UPBIBTEXPROGCLASS> charConv{ UPBIBTEXPROG };
     MiKTeX::TeXAndFriends::InitFinalizeImpl<UPBIBTEXPROGCLASS> initFinalize{ UPBIBTEXPROG };
     MiKTeX::TeXAndFriends::InputOutputImpl<UPBIBTEXPROGCLASS> inputOutput{ UPBIBTEXPROG };
     std::shared_ptr<MiKTeX::Core::Session> session;
