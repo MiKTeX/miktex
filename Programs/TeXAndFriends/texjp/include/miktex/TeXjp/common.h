@@ -45,6 +45,11 @@ template<class FileType> inline void miktexprintencstring(FileType& f)
     fprintf(f, " (%s)", get_enc_string());
 }
 
+template<class FileType> inline void miktexwritechar(FileType& f, C4P::C4P_unsigned16 ch)
+{
+    fputc(static_cast<char>(ch & 0xff), f);
+}
+
 namespace MiKTeX
 {
     namespace TeXjp
