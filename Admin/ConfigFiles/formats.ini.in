@@ -1,29 +1,29 @@
 [amstex]
 
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
+	arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
 	compiler = pdftex
 	description = AMS-TeX
 	input = amstex.ini
 
 [bagpipe]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = Typesetting bagpipe music
 	input = bagpipe.ini
 
 [bagpipex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = Typesetting bagpipe music
 	input = bagpipex.ini
 
 [bplain]
 
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
+	arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
 	compiler = pdftex
 	description = Babel plain TeX
 	input = bplain.ini
@@ -32,86 +32,89 @@
 
 [cslatex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = CSLaTeX
 	input = cslatex.ini
 
 [pdfcslatex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = PDF CSLaTeX
 	input = cslatex.ini
 
 [csplain]
 
-	arguments = -enable-enctex
-	attributes = exclude
+	arguments[] = -enable-enctex
+	attributes[] = exclude
 	compiler = pdftex
 	description = CSPlain
 	input = csplain-utf8.ini
 
 [pdfcsplain]
 
-	arguments = -enable-enctex
-	attributes = exclude
+	arguments[] = -enable-enctex
+	attributes[] = exclude
 	compiler = pdftex
 	description = PDF CSPlain
 	input = csplain-utf8.ini
 
 [dvilualatex-dev]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = lualatex
 	description = LuaLaTeX (DVI) dev
 	input = dvilualatex.ini
 
 [dvilualatex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = luatex
 	description = DVI LuaLaTeX
 	input = dvilualatex.ini
 
 [dviluatex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = luatex
 	description = DVI LuaTeX
 	input = dviluatex.ini
 
 [etex]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = plain e-TeX
 	input = etex.ini
 
 [hilatex]
 
-	arguments = -etex -ltx
+	arguments[] = -etex
+    arguments[] = -ltx
 	compiler = hitex
 	description = HiLaTeX
 	input = hilatex.ini
 
 [hilatex-dev]
 
-	arguments = -etex -ltx
+	arguments[] = -etex
+    arguments[] = -ltx
 	compiler = hitex
 	description = HiLaTeX dev
 	input = hilatex.ini
 
 [hitex]
 
-	arguments = -etex -ltx
+	arguments[] = -etex
+    arguments[] = -ltx
 	compiler = hitex
 	description = HiTeX 
 	input = hitex.ini
 
 [jadetex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = jadeTeX
 	input = jadetex.ini
@@ -119,14 +122,14 @@
 
 [latex-dev]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = LaTeX2e (DVI) dev
 	input = latex.ini
 
 [latex]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = LaTeX2e
 	input = latex.ini
@@ -169,45 +172,48 @@
 
 [mf]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = mf
 	description = METAFONT default base file
 	input = mf.ini
 
 [mllatex]
 
-	arguments = -enable-mltex -tcx=cp227.tcx
-	attributes = exclude
+	arguments[] = -enable-mltex
+    arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
 	compiler = pdftex
 	description = MLTeX extensions (LaTeX)
 	input = mllatex.ini
 
 [mltex]
 
-	arguments = -enable-mltex -tcx=cp227.tcx
-	attributes = exclude
+	arguments[] = -enable-mltex
+    arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
 	compiler = pdftex
 	description = MLTeX extensions (plain)
 	input = mltex.ini
 
 [mptopdf]
 
-	arguments = -tcx=cp227.tcx
-	attributes = exclude,noexe
+	arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
+    attributes[] = noexe
 	compiler = pdftex
 	description = MPtoPDF
 	input = mptopdf.tex
 
 [pdfetex]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = plain PDF-e-TeX
 	input = pdfetex.ini
 
 [pdfjadetex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = pdfjadeTeX
 	input = pdfjadetex.ini
@@ -215,77 +221,77 @@
 
 [pdflatex-dev]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = pdfLaTeX dev
 	input = pdflatex.ini
 
 [pdflatex]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = pdfLaTeX
 	input = pdflatex.ini
 
 [pdftex]
 
-	arguments = -tcx=cp227.tcx
+	arguments[] = -tcx=cp227.tcx
 	compiler = pdftex
 	description = plain pdfTeX
 	input = pdftex.ini
 
 [ptex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = ptex
 	description = plain pTeX 
 	input = ptex.ini
 
 [eptex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = eptex
 	description = plain e-pTeX 
 	input = eptex.ini
 
 [euptex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = euptex
 	description = plain e-upTeX 
 	input = euptex.ini
 
 [uptex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = uptex
 	description = plain upTeX 
 	input = uptex.ini
 
 [platex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = eptex
 	description = pLaTeX
 	input = platex.ini
 
 [platex-dev]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = eptex
 	description = pLaTeX dev
 	input = platex.ini
 
 [uplatex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = euptex
 	description = upLaTeX
 	input = uplatex.ini
 
 [uplatex-dev]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = euptex
 	description = upLaTeX dev
 	input = uplatex.ini
@@ -298,7 +304,7 @@
 
 [xmltex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = xmltex
 	input = xmltex.ini
@@ -306,7 +312,7 @@
 
 [pdfxmltex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = pdftex
 	description = pdfxmltex
 	input = pdfxmltex.ini
@@ -332,45 +338,45 @@
 
 [dvilollipop]
 
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
+	arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
 	compiler = pdftex
 	description = dvilollipop
 	input = dvilollipop.ini
 
 [dvilualollipop]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = luatex
 	description = dvilualollipop
 	input = dvilualollipop.ini
 
 [lollipop]
 
-	arguments = -tcx=cp227.tcx
-	attributes = exclude
+	arguments[] = -tcx=cp227.tcx
+	attributes[] = exclude
 	compiler = pdftex
 	description = lollipop
 	input = lollipop.ini
 
 [lualollipop]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = luatex
 	description = lualollipop
 	input = lualollipop.ini
 
 [optex]
 
-	attributes = exclude
+	attributes[] = exclude
 	compiler = luatex
 	description = optex
 	input = optex.ini
 
 [utf8mex]
 
-	arguments = -enable-enctex
-	attributes = exclude
+	arguments[] = -enable-enctex
+	attributes[] = exclude
 	compiler = pdftex
 	description = UTF8MeX
 	input = utf8mex.ini

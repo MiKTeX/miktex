@@ -86,9 +86,9 @@ void FormatsManager::Build(const string& formatKey)
 
   arguments.push_back(formatInfo.inputFile);
 
-  if (!formatInfo.arguments.empty())
+  for (auto a : formatInfo.arguments)
   {
-    arguments.push_back("--engine-option="s + formatInfo.arguments);
+    arguments.push_back("--engine-option="s + a);
   }
 
   this->RunMakeTeX(maker, arguments);

@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h: MiKTeX session
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -306,7 +306,7 @@ struct FormatInfo
   /// Custom flag. Set, if this format was defined by the user.
   bool custom = false;
   /// Extra engine arguments.
-  std::string arguments;
+  std::vector<std::string> arguments;
 };
 
 /// Language information.

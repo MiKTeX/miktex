@@ -20,6 +20,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
 
 #include "internal.h"
@@ -56,6 +57,7 @@ namespace
 
 using namespace std;
 
+using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
@@ -114,7 +116,7 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
     for (auto& f : mgr.Formats())
     {
         ctx.ui->Output(fmt::format(outputTemplate,
-            fmt::arg("arguments", f.arguments),
+            fmt::arg("arguments", StringUtil::Flatten(f.arguments, ',')),
             fmt::arg("compiler", f.compiler),
             fmt::arg("custom", f.custom),
             fmt::arg("description", f.description),
