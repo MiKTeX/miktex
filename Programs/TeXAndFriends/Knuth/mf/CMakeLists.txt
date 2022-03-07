@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,6 +22,12 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_KNUTH_FOLDER}/mf")
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+default_char_type_is_unsigned()
+
+list(APPEND C4P_FLAGS
+  --chars-are-unsigned
 )
 
 set(mf_target_name mf)
@@ -63,7 +69,7 @@ list(APPEND ${mf_target_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
 )
 
-set(C4P_FLAGS
+list(APPEND C4P_FLAGS
   --rename conditional
 )
 

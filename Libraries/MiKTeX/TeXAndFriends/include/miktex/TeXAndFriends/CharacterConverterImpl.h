@@ -58,7 +58,7 @@ public:
 
     char* xprn() override
     {
-#if defined(MIKTEX_TEX_COMPILE) || defined(MIKTEX_METAFONT)
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_METAFONT)
         MIKTEX_ASSERT(sizeof(program.xprn[0]) == sizeof(char));
         return reinterpret_cast<char*>(&program.xprn[0]);
 #else

@@ -463,6 +463,9 @@ contained in a system dependent header file.
 @s to   do
 
 @<Header files and function declarations@>=
+#if defined(MIKTEX)
+#include "miktex/hitex.h"
+#endif
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
@@ -1632,6 +1635,9 @@ k\TeX, according to the conventions of \TeX\ Live,
  prints the |dump_name| if no format identifier is known.
 @<Initialize the output...@>=
 wterm("%s",banner);
+#if defined(MIKTEX)
+miktex_print_banner(term_out.f);
+#endif
 if (format_ident==0) wterm_ln(" (preloaded format=%s)", dump_name);
 else{@+slow_print(format_ident);print_ln();
   }
@@ -10921,6 +10927,9 @@ prompt_file_name("transcript file name",".log");
 
 @ @<Print the banner...@>=
 {@+wlog("%s",banner);
+#if defined(MIKTEX)
+miktex_print_banner(log_file.f);
+#endif
 slow_print(format_ident);print("  ");
 print_int(sys_day);print_char(' ');
 for (k=3*sys_month-2; k<=3*sys_month; k++) wlog("%c",months[k]);
@@ -34087,9 +34096,17 @@ static int argument_is(struct option *opt, char * s)
 @<handle the option at |option_index|@>=
 if (ARGUMENT_IS("help")) usage_help();
 else if (ARGUMENT_IS("version")){@+
+#if defined(MIKTEX)
+    fputs(banner, stdout);
+    miktex_print_banner(stdout);
+    putchar('\n');
+    printf("eTeX version %s\n", eTeX_version_string);
+    printf("Prote version %s\n", Prote_version_string);
+#else
        printf(banner "\n"
               "eTeX version " eTeX_version_string "\n"
               "Prote version " Prote_version_string "\n");
+#endif
        exit(0);@+
 }
 

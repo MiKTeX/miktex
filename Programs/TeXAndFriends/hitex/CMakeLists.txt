@@ -93,11 +93,13 @@ add_custom_command(
 )
 
 set(hitex_sources
-    ${MIKTEX_LIBRARY_WRAPPER}
-    ${CMAKE_CURRENT_BINARY_DIR}/hitables.c
     ${CMAKE_CURRENT_BINARY_DIR}/hiput.c
     ${CMAKE_CURRENT_BINARY_DIR}/hiput.h
+    ${CMAKE_CURRENT_BINARY_DIR}/hitables.c
     ${CMAKE_CURRENT_BINARY_DIR}/hitex.c
+    ${MIKTEX_LIBRARY_WRAPPER}
+    miktex/hitex.h
+    miktex/miktex.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -116,6 +118,12 @@ target_link_libraries(${MIKTEX_PREFIX}hitex
     ${w2cemu_dll_name}
 )
 
+if(USE_SYSTEM_FMT)
+    target_link_libraries(${MIKTEX_PREFIX}hitex MiKTeX::Imported::FMT)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}hitex ${fmt_dll_name})
+endif()
+  
 if(USE_SYSTEM_ZLIB)
     target_link_libraries(${MIKTEX_PREFIX}hitex MiKTeX::Imported::ZLIB)
 else()
@@ -155,6 +163,12 @@ target_link_libraries(${MIKTEX_PREFIX}histretch
     ${w2cemu_dll_name}
 )
 
+if(USE_SYSTEM_FMT)
+    target_link_libraries(${MIKTEX_PREFIX}histretch MiKTeX::Imported::FMT)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}histretch ${fmt_dll_name})
+endif()
+
 if(USE_SYSTEM_ZLIB)
     target_link_libraries(${MIKTEX_PREFIX}histretch MiKTeX::Imported::ZLIB)
 else()
@@ -171,11 +185,6 @@ install(
     DESTINATION
         "${MIKTEX_BINARY_DESTINATION_DIR}"
 )
-
-
-
-
-
 
 set(hishrink_sources
     ${CMAKE_CURRENT_BINARY_DIR}/hishrink.c
@@ -201,6 +210,12 @@ target_link_libraries(${MIKTEX_PREFIX}hishrink
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
+
+if(USE_SYSTEM_FMT)
+    target_link_libraries(${MIKTEX_PREFIX}hishrink MiKTeX::Imported::FMT)
+else()
+    target_link_libraries(${MIKTEX_PREFIX}hishrink ${fmt_dll_name})
+endif()
 
 if(USE_SYSTEM_ZLIB)
     target_link_libraries(${MIKTEX_PREFIX}hishrink MiKTeX::Imported::ZLIB)
