@@ -25,7 +25,7 @@
 % copyright holders.
 
 \input btxmac.tex
-\input hint.sty
+\input hintmac.tex
 
 %% defining how to display certain C identifiers
 

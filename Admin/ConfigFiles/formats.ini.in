@@ -88,6 +88,27 @@
 	description = plain e-TeX
 	input = etex.ini
 
+[hilatex]
+
+	arguments = -etex -ltx
+	compiler = hitex
+	description = HiLaTeX
+	input = hilatex.ini
+
+[hilatex-dev]
+
+	arguments = -etex -ltx
+	compiler = hitex
+	description = HiLaTeX dev
+	input = hilatex.ini
+
+[hitex]
+
+	arguments = -etex -ltx
+	compiler = hitex
+	description = HiTeX 
+	input = hitex.ini
+
 [jadetex]
 
 	attributes = exclude

@@ -1,6 +1,6 @@
 /* miktex/Core/Paths.h: hard-coded path names           -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -720,6 +720,7 @@
 #define MIKTEX_GSF2PK_EXE "@MIKTEX_GSF2PK_EXECUTABLE@"
 #define MIKTEX_GS_EXE "mgs" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_HBF2GF_EXE MIKTEX_PREFIX "hbf2gf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_HITEX_EXE MIKTEX_PREFIX "hitex" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_INITEXMF_EXE "@MIKTEX_INITEXMF_EXECUTABLE@"
 #define MIKTEX_KPSEWHICH_EXE MIKTEX_PREFIX "kpsewhich" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_LACHECK_EXE MIKTEX_PREFIX "lacheck" MIKTEX_EXE_FILE_SUFFIX

@@ -1,6 +1,6 @@
 /* makefmt.cpp: make TeX format files
 
-   Copyright (C) 1998-2021 Christian Schenk
+   Copyright (C) 1998-2022 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -50,6 +50,7 @@ enum {
 
 enum class Engine
 {
+  HiTeX,
   LuaTeX,
   TeX,
   epTeX,
@@ -127,6 +128,10 @@ private:
     {
       this->engine = Engine::TeX;
     }
+    else if (Utils::EqualsIgnoreCase(engine, "hitex"))
+    {
+      this->engine = Engine::HiTeX;
+    }
     else if (Utils::EqualsIgnoreCase(engine, "pdftex"))
     {
       this->engine = Engine::pdfTeX;
@@ -176,6 +181,8 @@ public:
       return "luatex";
     case Engine::TeX:
       return "tex";
+    case Engine::HiTeX:
+      return "hitex";
     case Engine::pdfTeX:
       return "pdftex";
     case Engine::pTeX:
@@ -203,6 +210,8 @@ private:
       return MIKTEX_LUATEX_EXE;
     case Engine::TeX:
       return MIKTEX_TEX_EXE;
+    case Engine::HiTeX:
+      return MIKTEX_HITEX_EXE;
     case Engine::pdfTeX:
       return MIKTEX_PDFTEX_EXE;
     case Engine::pTeX:
@@ -469,18 +478,30 @@ void MakeFmt::Run(int argc, const char** argv)
   wrkDir->SetCurrent();
 
   // make command line
+  bool isHiTeX = engine == Engine::HiTeX;
   vector<string> arguments;
-  arguments.push_back("--initialize");
   arguments.push_back("--interaction="s + "nonstopmode");
-  arguments.push_back("--halt-on-error");
-  if (destinationName != PathName(GetEngineName()))
+  if (!isHiTeX)
   {
-    arguments.push_back("--alias=" + destinationName.ToString());
+    arguments.push_back("--initialize");
+    arguments.push_back("--halt-on-error");
+    if (destinationName != PathName(GetEngineName()))
+    {
+      arguments.push_back("--alias=" + destinationName.ToString());
+    }
+    arguments.push_back("--job-name=" + destinationName.ToString());
+    if (!jobTime.empty())
+    {
+      arguments.push_back("--job-time=" + jobTime);
+    }
   }
-  arguments.push_back("--job-name=" + destinationName.ToString());
-  if (!jobTime.empty())
+  else
   {
-    arguments.push_back("--job-time=" + jobTime);
+    arguments.push_back("--ini");
+    if (destinationName != PathName(GetEngineName()))
+    {
+      arguments.push_back("--progname=" + destinationName.ToString());
+    }
   }
   arguments.insert(arguments.end(), engineOptions.begin(), engineOptions.end());
   if (!preloadedFormat.empty())

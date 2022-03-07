@@ -48,6 +48,9 @@ set(main_ini_names
     frlatex
     frtex
     ftex
+    hilatex
+    hilatex-dev
+    hitex
     jadetex
     latex
     latex-dev
