@@ -185,7 +185,7 @@ set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/cata
 # resources
 set(MIKTEX_COMMON_MANIFEST              "${CMAKE_SOURCE_DIR}/Resources/Manifests/common.manifest")
 set(MIKTEX_CONSOLE_ICNS                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.icns")
-set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.ico")
+set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex2022.ico")
 set(MIKTEX_COPYING_CONDITIONS_MD        "${CMAKE_SOURCE_DIR}/COPYING.md")
 set(MIKTEX_COPYING_CONDITIONS_RTF       "${CMAKE_BINARY_DIR}/${MIKTEX_REL_DOC_DIR}/COPYING.rtf")
 set(MIKTEX_DOWNLOAD_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/download.avi")

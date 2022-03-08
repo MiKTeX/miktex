@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="/MiKTeX" >
-    <file alias="miktex16x16.png">../../../Resources/Icons/MiKTeX/16x16/apps/miktex.png</file>
-    <file alias="miktex32x32.png">../../../Resources/Icons/MiKTeX/32x32/apps/miktex.png</file>
+    <file alias="miktex16x16.png">../../../Resources/Icons/MiKTeX/16x16/apps/miktex2022.png</file>
+    <file alias="miktex32x32.png">../../../Resources/Icons/MiKTeX/32x32/apps/miktex2022.png</file>
   </qresource>
 </RCC>
