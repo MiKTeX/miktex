@@ -193,7 +193,6 @@ set(MIKTEX_DPIAWARE_MANIFEST            "${CMAKE_SOURCE_DIR}/Resources/Manifests
 set(MIKTEX_FILECOPY_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/filecopy.avi")
 set(MIKTEX_ICNS                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.icns")
 set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex2022.ico")
-set(MIKTEX_PACKAGE_MANAGER_ICON         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-package-manager.ico")
 set(MIKTEX_WIZARD_HEADER_BITMAP         "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-header-2022.bmp")
 set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-watermark.bmp")
 
