@@ -102,7 +102,7 @@ void FormatsManager::RunMakeTeX(const string& makeProg, const vector<string>& ar
 
     if (!this->ctx->session->FindFile(makeProg, FileType::EXE, exe))
     {
-        this->ctx->ui->FatalError(fmt::format(T_("{0}: not be found"), Q_(makeProg)));
+        this->ctx->ui->FatalError(fmt::format(T_("{0}: not found"), Q_(makeProg)));
     }
 
     vector<string> xArguments{ makeProg };
