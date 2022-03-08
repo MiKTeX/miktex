@@ -60,7 +60,7 @@ static integer c__125 = 125;
 
 /* ccccccccccccccccccccccccc */
 /* c */
-/* c  scor2prt 2/19/16 for PMX 2.74 */
+/* c  scor2prt 1/29/21 for PMX 2.94 */
 /* ccccccccccccccccccccccccc */
 /* This program, developed by Don Simons (dsimons@roadrunner.com), is */
 /* part of the PMX distribution, PMX is a preprocessor for MusiXTeX. In concert */
@@ -82,6 +82,9 @@ static integer c__125 = 125;
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+/* 1/29/21 */
+/*   Reformat output statement for warning about full bar rests to */
+/*     eliminate use of H format specifier */
 /* 2/19/16 */
 /*   Exit gracefully when last input line is comment, with mods in */
 /*     subroutine chkcom, adding logical argument goto999 */
@@ -270,465 +273,465 @@ static integer c__125 = 125;
     static cilist io___104 = { 0, 0, 0, "(a)", 0 };
 
 
-#line 104 ""
-    clefpend = FALSE_;
-#line 105 ""
-    all_1.insetup = TRUE_;
-#line 106 ""
-    all_1.replacing = FALSE_;
 #line 107 ""
-    frstln = TRUE_;
+    clefpend = FALSE_;
 #line 108 ""
-    lenhold = 0;
+    all_1.insetup = TRUE_;
 #line 109 ""
-    *(unsigned char *)sq = '\\';
+    all_1.replacing = FALSE_;
 #line 110 ""
-    s_wsle(&io___6);
-#line 110 ""
-    do_lio(&c__9, &c__1, "This is scor2prt for PMX 2.74, 19 February 2016", (
-	    ftnlen)47);
-#line 110 ""
-    e_wsle();
+    frstln = TRUE_;
 #line 111 ""
-    numargs = iargc_();
+    lenhold = 0;
 #line 112 ""
+    *(unsigned char *)sq = '\\';
+#line 113 ""
+    s_wsle(&io___6);
+#line 113 ""
+    do_lio(&c__9, &c__1, "This is scor2prt for PMX 2.94, 29 January 2021", (
+	    ftnlen)46);
+#line 113 ""
+    e_wsle();
+#line 114 ""
+    numargs = iargc_();
+#line 115 ""
     if (numargs == 0) {
-#line 113 ""
+#line 116 ""
 	s_wsle(&io___8);
-#line 113 ""
+#line 116 ""
 	do_lio(&c__9, &c__1, "You could have entered a jobname on the comman"\
 		"d line,", (ftnlen)53);
-#line 113 ""
-	e_wsle();
-#line 114 ""
-	s_wsle(&io___9);
-#line 114 ""
-	do_lio(&c__9, &c__1, "      but you may enter one now:", (ftnlen)32);
-#line 114 ""
-	e_wsle();
-#line 115 ""
-	s_rsfe(&io___10);
-#line 115 ""
-	do_fio(&c__1, jobname, (ftnlen)27);
-#line 115 ""
-	e_rsfe();
 #line 116 ""
-	numargs = 1;
+	e_wsle();
 #line 117 ""
+	s_wsle(&io___9);
+#line 117 ""
+	do_lio(&c__9, &c__1, "      but you may enter one now:", (ftnlen)32);
+#line 117 ""
+	e_wsle();
+#line 118 ""
+	s_rsfe(&io___10);
+#line 118 ""
+	do_fio(&c__1, jobname, (ftnlen)27);
+#line 118 ""
+	e_rsfe();
+#line 119 ""
+	numargs = 1;
+#line 120 ""
     } else {
 /*       call getarg(1,jobname,idum) ! May need to replace this w/ next line */
-#line 119 ""
-	getarg_(&c__1, jobname, (ftnlen)27);
-#line 120 ""
-    }
-#line 121 ""
-    ljob = lenstr_(jobname, &c__27, (ftnlen)27);
 #line 122 ""
+	getarg_(&c__1, jobname, (ftnlen)27);
+#line 123 ""
+    }
+#line 124 ""
+    ljob = lenstr_(jobname, &c__27, (ftnlen)27);
+#line 125 ""
     if (ljob == 0) {
-#line 123 ""
+#line 126 ""
 	s_wsle(&io___13);
-#line 123 ""
+#line 126 ""
 	do_lio(&c__9, &c__1, "No was jobname entered. Restart and try again.",
 		 (ftnlen)46);
-#line 123 ""
+#line 126 ""
 	e_wsle();
-#line 124 ""
+#line 127 ""
 	s_stop("", (ftnlen)0);
-#line 125 ""
+#line 128 ""
     }
 
 /*  Strip ".pmx" if necessary */
 
 /* Computing MAX */
-#line 129 ""
+#line 132 ""
     i__1 = i_indx(jobname, ".pmx", (ftnlen)27, (ftnlen)4), i__2 = i_indx(
 	    jobname, ".PMX", (ftnlen)27, (ftnlen)4);
-#line 129 ""
-    ndxpmx = max(i__1,i__2);
-#line 130 ""
-    if (ndxpmx > 0) {
-#line 131 ""
-	s_copy(jobname, jobname, (ftnlen)27, ndxpmx - 1);
 #line 132 ""
-	ljob += -4;
+    ndxpmx = max(i__1,i__2);
 #line 133 ""
+    if (ndxpmx > 0) {
+#line 134 ""
+	s_copy(jobname, jobname, (ftnlen)27, ndxpmx - 1);
+#line 135 ""
+	ljob += -4;
+#line 136 ""
     }
 
 /*  Check for existence of input file */
 
 /* Writing concatenation */
-#line 137 ""
-    i__3[0] = ljob, a__1[0] = jobname;
-#line 137 ""
-    i__3[1] = 4, a__1[1] = ".pmx";
-#line 137 ""
-    s_cat(infileq, a__1, i__3, &c__2, (ftnlen)27);
-#line 138 ""
-    ioin__1.inerr = 0;
-#line 138 ""
-    ioin__1.infilen = 27;
-#line 138 ""
-    ioin__1.infile = infileq;
-#line 138 ""
-    ioin__1.inex = &fexist;
-#line 138 ""
-    ioin__1.inopen = 0;
-#line 138 ""
-    ioin__1.innum = 0;
-#line 138 ""
-    ioin__1.innamed = 0;
-#line 138 ""
-    ioin__1.inname = 0;
-#line 138 ""
-    ioin__1.inacc = 0;
-#line 138 ""
-    ioin__1.inseq = 0;
-#line 138 ""
-    ioin__1.indir = 0;
-#line 138 ""
-    ioin__1.infmt = 0;
-#line 138 ""
-    ioin__1.inform = 0;
-#line 138 ""
-    ioin__1.inunf = 0;
-#line 138 ""
-    ioin__1.inrecl = 0;
-#line 138 ""
-    ioin__1.innrec = 0;
-#line 138 ""
-    ioin__1.inblank = 0;
-#line 138 ""
-    f_inqu(&ioin__1);
-#line 139 ""
-    if (! fexist) {
 #line 140 ""
+    i__3[0] = ljob, a__1[0] = jobname;
+#line 140 ""
+    i__3[1] = 4, a__1[1] = ".pmx";
+#line 140 ""
+    s_cat(infileq, a__1, i__3, &c__2, (ftnlen)27);
+#line 141 ""
+    ioin__1.inerr = 0;
+#line 141 ""
+    ioin__1.infilen = 27;
+#line 141 ""
+    ioin__1.infile = infileq;
+#line 141 ""
+    ioin__1.inex = &fexist;
+#line 141 ""
+    ioin__1.inopen = 0;
+#line 141 ""
+    ioin__1.innum = 0;
+#line 141 ""
+    ioin__1.innamed = 0;
+#line 141 ""
+    ioin__1.inname = 0;
+#line 141 ""
+    ioin__1.inacc = 0;
+#line 141 ""
+    ioin__1.inseq = 0;
+#line 141 ""
+    ioin__1.indir = 0;
+#line 141 ""
+    ioin__1.infmt = 0;
+#line 141 ""
+    ioin__1.inform = 0;
+#line 141 ""
+    ioin__1.inunf = 0;
+#line 141 ""
+    ioin__1.inrecl = 0;
+#line 141 ""
+    ioin__1.innrec = 0;
+#line 141 ""
+    ioin__1.inblank = 0;
+#line 141 ""
+    f_inqu(&ioin__1);
+#line 142 ""
+    if (! fexist) {
+#line 143 ""
 	s_wsle(&io___17);
 /* Writing concatenation */
-#line 140 ""
+#line 143 ""
 	i__3[0] = 17, a__1[0] = "Cannot find file ";
-#line 140 ""
+#line 143 ""
 	i__3[1] = 27, a__1[1] = infileq;
-#line 140 ""
+#line 143 ""
 	s_cat(ch__1, a__1, i__3, &c__2, (ftnlen)44);
-#line 140 ""
+#line 143 ""
 	do_lio(&c__9, &c__1, ch__1, (ftnlen)44);
-#line 140 ""
+#line 143 ""
 	e_wsle();
-#line 141 ""
+#line 144 ""
 	s_stop("", (ftnlen)0);
-#line 142 ""
+#line 145 ""
     }
-#line 143 ""
+#line 146 ""
     o__1.oerr = 0;
-#line 143 ""
+#line 146 ""
     o__1.ounit = 10;
-#line 143 ""
+#line 146 ""
     o__1.ofnmlen = ljob + 4;
 /* Writing concatenation */
-#line 143 ""
+#line 146 ""
     i__3[0] = ljob, a__1[0] = jobname;
-#line 143 ""
+#line 146 ""
     i__3[1] = 4, a__1[1] = ".pmx";
-#line 143 ""
+#line 146 ""
     s_cat(ch__2, a__1, i__3, &c__2, (ftnlen)31);
-#line 143 ""
+#line 146 ""
     o__1.ofnm = ch__2;
-#line 143 ""
+#line 146 ""
     o__1.orl = 0;
-#line 143 ""
+#line 146 ""
     o__1.osta = 0;
-#line 143 ""
+#line 146 ""
     o__1.oacc = 0;
-#line 143 ""
+#line 146 ""
     o__1.ofm = 0;
-#line 143 ""
+#line 146 ""
     o__1.oblnk = 0;
-#line 143 ""
+#line 146 ""
     f_open(&o__1);
 
 /* Open all instrument files now for allparts stuff.  Later disgard those >nv */
 
-#line 147 ""
-    for (iv = 1; iv <= 24; ++iv) {
-#line 148 ""
-	all_1.iorig[iv - 1] = iv;
-#line 149 ""
-	o__1.oerr = 0;
-#line 149 ""
-	o__1.ounit = iv + 10;
-#line 149 ""
-	o__1.ofnm = 0;
-#line 149 ""
-	o__1.orl = 0;
-#line 149 ""
-	o__1.osta = "SCRATCH";
-#line 149 ""
-	o__1.oacc = 0;
-#line 149 ""
-	o__1.ofm = 0;
-#line 149 ""
-	o__1.oblnk = 0;
-#line 149 ""
-	f_open(&o__1);
 #line 150 ""
-	ludpfn[iv - 1] = 0;
+    for (iv = 1; iv <= 24; ++iv) {
 #line 151 ""
-/* L19: */
-#line 151 ""
-    }
+	all_1.iorig[iv - 1] = iv;
 #line 152 ""
-    s_rsfe(&io___20);
+	o__1.oerr = 0;
 #line 152 ""
-    do_fio(&c__1, line, (ftnlen)128);
+	o__1.ounit = iv + 10;
 #line 152 ""
-    e_rsfe();
+	o__1.ofnm = 0;
+#line 152 ""
+	o__1.orl = 0;
+#line 152 ""
+	o__1.osta = "SCRATCH";
+#line 152 ""
+	o__1.oacc = 0;
+#line 152 ""
+	o__1.ofm = 0;
+#line 152 ""
+	o__1.oblnk = 0;
+#line 152 ""
+	f_open(&o__1);
 #line 153 ""
-    chkcom_(line, &goto999, (ftnlen)128);
+	ludpfn[iv - 1] = 0;
 #line 154 ""
-    if (s_cmp(line, "---", (ftnlen)3, (ftnlen)3) == 0) {
-#line 155 ""
-	allparts_(line, &c__128, (ftnlen)128);
-#line 156 ""
-L31:
-#line 156 ""
-	s_rsfe(&io___23);
-#line 156 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 156 ""
-	e_rsfe();
-#line 157 ""
-	if (s_cmp(line, "---", (ftnlen)3, (ftnlen)3) != 0) {
-#line 158 ""
-	    allparts_(line, &c__128, (ftnlen)128);
-#line 159 ""
-	    goto L31;
-#line 160 ""
-	}
-#line 161 ""
-	allparts_(line, &c__128, (ftnlen)128);
-#line 162 ""
-	s_rsfe(&io___24);
-#line 162 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 162 ""
-	e_rsfe();
-#line 163 ""
-	chkcom_(line, &goto999, (ftnlen)128);
-#line 164 ""
+/* L19: */
+#line 154 ""
     }
+#line 155 ""
+    s_rsfe(&io___20);
+#line 155 ""
+    do_fio(&c__1, line, (ftnlen)128);
+#line 155 ""
+    e_rsfe();
+#line 156 ""
+    chkcom_(line, &goto999, (ftnlen)128);
+#line 157 ""
+    if (s_cmp(line, "---", (ftnlen)3, (ftnlen)3) == 0) {
+#line 158 ""
+	allparts_(line, &c__128, (ftnlen)128);
+#line 159 ""
+L31:
+#line 159 ""
+	s_rsfe(&io___23);
+#line 159 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 159 ""
+	e_rsfe();
+#line 160 ""
+	if (s_cmp(line, "---", (ftnlen)3, (ftnlen)3) != 0) {
+#line 161 ""
+	    allparts_(line, &c__128, (ftnlen)128);
+#line 162 ""
+	    goto L31;
+#line 163 ""
+	}
+#line 164 ""
+	allparts_(line, &c__128, (ftnlen)128);
 #line 165 ""
-    iccount = 0;
+	s_rsfe(&io___24);
+#line 165 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 165 ""
+	e_rsfe();
 #line 166 ""
-    nv = readin_(line, &iccount, &c__1, (ftnlen)128) + .1f;
+	chkcom_(line, &goto999, (ftnlen)128);
 #line 167 ""
-    all_1.noinst = readin_(line, &iccount, &c__2, (ftnlen)128) + .1f;
+    }
 #line 168 ""
-    if (all_1.noinst > 0) {
+    iccount = 0;
 #line 169 ""
-	all_1.nvi[0] = nv - all_1.noinst + 1;
+    nv = readin_(line, &iccount, &c__1, (ftnlen)128) + .1f;
 #line 170 ""
-    } else {
+    all_1.noinst = readin_(line, &iccount, &c__2, (ftnlen)128) + .1f;
 #line 171 ""
-	all_1.noinst = 1 - all_1.noinst;
+    if (all_1.noinst > 0) {
 #line 172 ""
-	i__1 = all_1.noinst;
-#line 172 ""
-	for (iinst = 1; iinst <= i__1; ++iinst) {
+	all_1.nvi[0] = nv - all_1.noinst + 1;
 #line 173 ""
+    } else {
+#line 174 ""
+	all_1.noinst = 1 - all_1.noinst;
+#line 175 ""
+	i__1 = all_1.noinst;
+#line 175 ""
+	for (iinst = 1; iinst <= i__1; ++iinst) {
+#line 176 ""
 	    all_1.nvi[iinst - 1] = readin_(line, &iccount, &c_n1, (ftnlen)128)
 		     + .1f;
-#line 174 ""
-/* L21: */
-#line 174 ""
-	}
-#line 175 ""
-    }
-#line 176 ""
-    all_1.noinow = all_1.noinst;
 #line 177 ""
+/* L21: */
+#line 177 ""
+	}
+#line 178 ""
+    }
+#line 179 ""
+    all_1.noinow = all_1.noinst;
+#line 180 ""
     insnow = 1;
 
 /*  ivlast is last iv in current inst.  instnum(iv) is iinst for current voice. */
 
-#line 181 ""
-    ivlast = all_1.nvi[0];
-#line 182 ""
-    i__1 = nv;
-#line 182 ""
-    for (iv = 1; iv <= i__1; ++iv) {
-#line 183 ""
-	all_1.instnum[iv - 1] = insnow;
 #line 184 ""
+    ivlast = all_1.nvi[0];
+#line 185 ""
+    i__1 = nv;
+#line 185 ""
+    for (iv = 1; iv <= i__1; ++iv) {
+#line 186 ""
+	all_1.instnum[iv - 1] = insnow;
+#line 187 ""
 	if (iv == ivlast) {
-#line 185 ""
+#line 188 ""
 	    if (iv < nv) {
-#line 185 ""
+#line 188 ""
 		all_1.botv[iv] = TRUE_;
-#line 185 ""
+#line 188 ""
 	    }
 
 /*  The previous stmt will set botv true only for bot voice of iinst>1.  It is */
 /*  used when writing termrpts, but the one in voice one is handled differently, */
 /*  so botv(1) is left .false. */
 
-#line 191 ""
-	    if (insnow < all_1.noinst) {
-#line 192 ""
-		++insnow;
-#line 193 ""
-		ivlast += all_1.nvi[insnow - 1];
 #line 194 ""
-	    }
+	    if (insnow < all_1.noinst) {
 #line 195 ""
-	}
+		++insnow;
 #line 196 ""
-/* L22: */
-#line 196 ""
-    }
+		ivlast += all_1.nvi[insnow - 1];
 #line 197 ""
-    mtrnuml = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+	    }
 #line 198 ""
-    mtrdenl = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+	}
 #line 199 ""
-    mtrnmp = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+/* L22: */
+#line 199 ""
+    }
 #line 200 ""
-    mtrdnp = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+    mtrnuml = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
 #line 201 ""
-    xmtrnum0 = readin_(line, &iccount, &c__0, (ftnlen)128);
+    mtrdenl = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
 #line 202 ""
-    isig = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+    mtrnmp = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
 #line 203 ""
-    npages = readin_(line, &iccount, &c__3, (ftnlen)128) + .1f;
+    mtrdnp = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
 #line 204 ""
-    all_1.nsyst = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+    xmtrnum0 = readin_(line, &iccount, &c__0, (ftnlen)128);
 #line 205 ""
-    musicsize = readin_(line, &iccount, &c__4, (ftnlen)128) + .1f;
+    isig = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
 #line 206 ""
-    fracindent = readin_(line, &iccount, &c__5, (ftnlen)128);
+    npages = readin_(line, &iccount, &c__3, (ftnlen)128) + .1f;
 #line 207 ""
+    all_1.nsyst = readin_(line, &iccount, &c__0, (ftnlen)128) + .1f;
+#line 208 ""
+    musicsize = readin_(line, &iccount, &c__4, (ftnlen)128) + .1f;
+#line 209 ""
+    fracindent = readin_(line, &iccount, &c__5, (ftnlen)128);
+#line 210 ""
     if (npages == 0) {
-#line 208 ""
+#line 211 ""
 	s_wsle(&io___39);
-#line 208 ""
+#line 211 ""
 	do_lio(&c__9, &c__1, "You entered npages=0, which means nsyst is not"\
 		" the total number", (ftnlen)63);
-#line 208 ""
+#line 211 ""
 	e_wsle();
-#line 210 ""
+#line 213 ""
 	s_wsle(&io___40);
-#line 210 ""
+#line 213 ""
 	do_lio(&c__9, &c__1, "of systems.  Scor2prt has to know the total nu"\
 		"mber of systems.", (ftnlen)62);
-#line 210 ""
+#line 213 ""
 	e_wsle();
-#line 212 ""
+#line 215 ""
 	s_wsle(&io___41);
-#line 212 ""
+#line 215 ""
 	do_lio(&c__9, &c__1, "Please set npages and nsyst to their real valu"\
 		"es.", (ftnlen)49);
-#line 212 ""
-	e_wsle();
-#line 214 ""
-	s_stop("", (ftnlen)0);
 #line 215 ""
+	e_wsle();
+#line 217 ""
+	s_stop("", (ftnlen)0);
+#line 218 ""
     }
 
 /*  Must leave insetup=.true. else could bypass ALL instrument names. */
 
-#line 219 ""
+#line 222 ""
     s_rsfe(&io___42);
-#line 219 ""
+#line 222 ""
     do_fio(&c__1, line, (ftnlen)128);
-#line 219 ""
+#line 222 ""
     e_rsfe();
-#line 220 ""
+#line 223 ""
     chkcom_(line, &goto999, (ftnlen)128);
-#line 221 ""
+#line 224 ""
     al__1.aerr = 0;
-#line 221 ""
+#line 224 ""
     al__1.aunit = 10;
-#line 221 ""
+#line 224 ""
     f_back(&al__1);
 
 /*  Normally this puts pointer at start of line with 1st inst name */
 /*  Check if prior line was "%%" */
 
-#line 226 ""
+#line 229 ""
     al__1.aerr = 0;
-#line 226 ""
+#line 229 ""
     al__1.aunit = 10;
-#line 226 ""
+#line 229 ""
     f_back(&al__1);
-#line 227 ""
-    s_rsfe(&io___43);
-#line 227 ""
-    do_fio(&c__1, line, (ftnlen)128);
-#line 227 ""
-    e_rsfe();
-#line 228 ""
-    if (s_cmp(line, "%%", (ftnlen)2, (ftnlen)2) == 0) {
-#line 228 ""
-	al__1.aerr = 0;
-#line 228 ""
-	al__1.aunit = 10;
-#line 228 ""
-	f_back(&al__1);
-#line 228 ""
-    }
-#line 229 ""
-    i__1 = all_1.noinst;
-#line 229 ""
-    for (iv = 1; iv <= i__1; ++iv) {
 #line 230 ""
-	gotname = FALSE_;
+    s_rsfe(&io___43);
+#line 230 ""
+    do_fio(&c__1, line, (ftnlen)128);
+#line 230 ""
+    e_rsfe();
 #line 231 ""
-L16:
+    if (s_cmp(line, "%%", (ftnlen)2, (ftnlen)2) == 0) {
 #line 231 ""
-	s_rsfe(&io___45);
+	al__1.aerr = 0;
 #line 231 ""
-	do_fio(&c__1, instrum + (iv - 1 << 7), (ftnlen)128);
+	al__1.aunit = 10;
 #line 231 ""
-	e_rsfe();
+	f_back(&al__1);
+#line 231 ""
+    }
 #line 232 ""
-	if (s_cmp(instrum + (iv - 1 << 7), "%%", (ftnlen)2, (ftnlen)2) == 0) {
+    i__1 = all_1.noinst;
+#line 232 ""
+    for (iv = 1; iv <= i__1; ++iv) {
 #line 233 ""
-	    s_rsfe(&io___47);
-#line 233 ""
-	    do_fio(&c__1, line, (ftnlen)128);
-#line 233 ""
-	    e_rsfe();
+	gotname = FALSE_;
 #line 234 ""
-	    goto L16;
+L16:
+#line 234 ""
+	s_rsfe(&io___45);
+#line 234 ""
+	do_fio(&c__1, instrum + (iv - 1 << 7), (ftnlen)128);
+#line 234 ""
+	e_rsfe();
 #line 235 ""
-	} else if (*(unsigned char *)&instrum[(iv - 1) * 128] == '%') {
+	if (s_cmp(instrum + (iv - 1 << 7), "%%", (ftnlen)2, (ftnlen)2) == 0) {
 #line 236 ""
-	    ivq = *(unsigned char *)&instrum[(iv - 1 << 7) + 1] - 48;
+	    s_rsfe(&io___47);
+#line 236 ""
+	    do_fio(&c__1, line, (ftnlen)128);
+#line 236 ""
+	    e_rsfe();
 #line 237 ""
+	    goto L16;
+#line 238 ""
+	} else if (*(unsigned char *)&instrum[(iv - 1) * 128] == '%') {
+#line 239 ""
+	    ivq = *(unsigned char *)&instrum[(iv - 1 << 7) + 1] - 48;
+#line 240 ""
 	    if (ivq != iv) {
 
 /*  It's really a comment.  Copy to parts, then get another trial name. */
 
-#line 241 ""
-		allparts_(instrum + (iv - 1 << 7), &c__128, (ftnlen)128);
-#line 242 ""
-		goto L16;
-#line 243 ""
-	    } else {
 #line 244 ""
+		allparts_(instrum + (iv - 1 << 7), &c__128, (ftnlen)128);
+#line 245 ""
+		goto L16;
+#line 246 ""
+	    } else {
+#line 247 ""
 		s_copy(line, instrum + ((iv - 1 << 7) + 2), (ftnlen)128, (
 			ftnlen)126);
-#line 245 ""
+#line 248 ""
 		s_copy(instrum + (iv - 1 << 7), line, (ftnlen)128, (ftnlen)
 			128);
-#line 246 ""
-		gotname = TRUE_;
-#line 247 ""
-	    }
-#line 248 ""
-	} else {
 #line 249 ""
-	    gotname = TRUE_;
+		gotname = TRUE_;
 #line 250 ""
+	    }
+#line 251 ""
+	} else {
+#line 252 ""
+	    gotname = TRUE_;
+#line 253 ""
 	}
 /* c */
 /* c  The following checks for macro that write original C-clef as part of */
@@ -744,117 +747,117 @@ L16:
 /*     *      char(iy1+49)//char(iy2+49) */
 /*          instrum(iv) = instrum(iv)(inm1:inm2) */
 /*        end if */
-#line 265 ""
+#line 268 ""
 	if (! gotname) {
-#line 266 ""
+#line 269 ""
 	    s_wsle(&io___49);
-#line 266 ""
+#line 269 ""
 	    do_lio(&c__9, &c__1, "You must provide a replacement instrument "\
 		    "name", (ftnlen)46);
-#line 266 ""
+#line 269 ""
 	    e_wsle();
-#line 267 ""
+#line 270 ""
 	    s_stop("", (ftnlen)0);
-#line 268 ""
-	}
-#line 269 ""
-	io___50.ciunit = iv + 10;
-#line 269 ""
-	s_wsfe(&io___50);
-#line 269 ""
-	do_fio(&c__1, " ", (ftnlen)1);
-#line 269 ""
-	e_wsfe();
-#line 270 ""
-/* L14: */
-#line 270 ""
-    }
 #line 271 ""
-    all_1.replacing = FALSE_;
+	}
 #line 272 ""
+	io___50.ciunit = iv + 10;
+#line 272 ""
+	s_wsfe(&io___50);
+#line 272 ""
+	do_fio(&c__1, " ", (ftnlen)1);
+#line 272 ""
+	e_wsfe();
+#line 273 ""
+/* L14: */
+#line 273 ""
+    }
+#line 274 ""
+    all_1.replacing = FALSE_;
+#line 275 ""
     all_1.nvnow = nv;
 
 /*  Clef string:  Note insetup is still T, so "%%" will be treated specially */
 
-#line 276 ""
+#line 279 ""
     s_rsfe(&io___51);
-#line 276 ""
+#line 279 ""
     do_fio(&c__1, line, (ftnlen)128);
-#line 276 ""
+#line 279 ""
     e_rsfe();
-#line 277 ""
+#line 280 ""
     chkcom_(line, &goto999, (ftnlen)128);
-#line 278 ""
+#line 281 ""
     if (all_1.replacing) {
 
 /*  If here, we have next line after "%%", containing score's clef string */
 /*  Assume all clefs are handled with instrument comments. */
 
-#line 283 ""
-	s_rsfe(&io___52);
-#line 283 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 283 ""
-	e_rsfe();
-#line 284 ""
-	chkcom_(line, &goto999, (ftnlen)128);
-#line 285 ""
-	al__1.aerr = 0;
-#line 285 ""
-	al__1.aunit = 10;
-#line 285 ""
-	f_back(&al__1);
 #line 286 ""
+	s_rsfe(&io___52);
+#line 286 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 286 ""
+	e_rsfe();
+#line 287 ""
+	chkcom_(line, &goto999, (ftnlen)128);
+#line 288 ""
+	al__1.aerr = 0;
+#line 288 ""
+	al__1.aunit = 10;
+#line 288 ""
+	f_back(&al__1);
+#line 289 ""
     } else {
 
 /*  If here, line has the clef string in it.  Handle the old way */
 
-#line 290 ""
+#line 293 ""
 	kvstart = 1;
-#line 291 ""
+#line 294 ""
 	kvend = all_1.nvi[0];
-#line 292 ""
+#line 295 ""
 	i__1 = all_1.noinst;
-#line 292 ""
+#line 295 ""
 	for (inst = 1; inst <= i__1; ++inst) {
-#line 293 ""
+#line 296 ""
 	    ci__1.cierr = 0;
-#line 293 ""
+#line 296 ""
 	    ci__1.ciunit = inst + 10;
 /* Writing concatenation */
-#line 293 ""
-	    i__4[0] = 2, a__2[0] = "(a";
-#line 293 ""
-	    *(unsigned char *)&ch__4[0] = all_1.nvi[inst - 1] + 48;
-#line 293 ""
-	    i__4[1] = 1, a__2[1] = ch__4;
-#line 293 ""
-	    i__4[2] = 1, a__2[2] = ")";
-#line 293 ""
-	    ci__1.cifmt = (s_cat(ch__3, a__2, i__4, &c__3, (ftnlen)4), ch__3);
-#line 293 ""
-	    s_wsfe(&ci__1);
-#line 293 ""
-	    do_fio(&c__1, line + (kvstart - 1), kvend - (kvstart - 1));
-#line 293 ""
-	    e_wsfe();
-#line 295 ""
-	    if (inst < all_1.noinst) {
 #line 296 ""
-		kvstart = kvend + 1;
-#line 297 ""
-		kvend = kvstart + all_1.nvi[inst] - 1;
+	    i__4[0] = 2, a__2[0] = "(a";
+#line 296 ""
+	    *(unsigned char *)&ch__4[0] = all_1.nvi[inst - 1] + 48;
+#line 296 ""
+	    i__4[1] = 1, a__2[1] = ch__4;
+#line 296 ""
+	    i__4[2] = 1, a__2[2] = ")";
+#line 296 ""
+	    ci__1.cifmt = (s_cat(ch__3, a__2, i__4, &c__3, (ftnlen)4), ch__3);
+#line 296 ""
+	    s_wsfe(&ci__1);
+#line 296 ""
+	    do_fio(&c__1, line + (kvstart - 1), kvend - (kvstart - 1));
+#line 296 ""
+	    e_wsfe();
 #line 298 ""
-	    }
+	    if (inst < all_1.noinst) {
 #line 299 ""
-/* L2: */
-#line 299 ""
-	}
+		kvstart = kvend + 1;
 #line 300 ""
-    }
+		kvend = kvstart + all_1.nvi[inst] - 1;
 #line 301 ""
-    all_1.replacing = FALSE_;
+	    }
 #line 302 ""
+/* L2: */
+#line 302 ""
+	}
+#line 303 ""
+    }
+#line 304 ""
+    all_1.replacing = FALSE_;
+#line 305 ""
     all_1.insetup = FALSE_;
 
 /*  *****NOTE*****This comment applies to stuff done earlier! */
@@ -865,50 +868,50 @@ L16:
 
 /*  Path string:  ASSUME THIS WILL NEVER BE ALTERED IN PARTS! */
 
-#line 312 ""
-L18:
-#line 312 ""
-    s_rsfe(&io___56);
-#line 312 ""
-    do_fio(&c__1, line, (ftnlen)128);
-#line 312 ""
-    e_rsfe();
-#line 313 ""
-    if (*(unsigned char *)line == '%') {
-#line 314 ""
-	allparts_(line, &c__128, (ftnlen)128);
 #line 315 ""
-	goto L18;
+L18:
+#line 315 ""
+    s_rsfe(&io___56);
+#line 315 ""
+    do_fio(&c__1, line, (ftnlen)128);
+#line 315 ""
+    e_rsfe();
 #line 316 ""
-    }
+    if (*(unsigned char *)line == '%') {
 #line 317 ""
+	allparts_(line, &c__128, (ftnlen)128);
+#line 318 ""
+	goto L18;
+#line 319 ""
+    }
+#line 320 ""
     allparts_(line, &c__128, (ftnlen)128);
 
 /*  Write instrument names.  Will be blank if later part of a score. */
 
-#line 321 ""
+#line 324 ""
     if (*(unsigned char *)&instrum[0] != ' ') {
-#line 322 ""
+#line 325 ""
 	i__1 = all_1.noinst;
-#line 322 ""
+#line 325 ""
 	for (iv = 1; iv <= i__1; ++iv) {
-#line 323 ""
-	    len = lenstr_(instrum + (iv - 1 << 7), &c__79, (ftnlen)128);
-#line 324 ""
-	    io___58.ciunit = iv + 10;
-#line 324 ""
-	    s_wsfe(&io___58);
-#line 324 ""
-	    do_fio(&c__1, "Ti", (ftnlen)2);
-#line 324 ""
-	    do_fio(&c__1, instrum + (iv - 1 << 7), len);
-#line 324 ""
-	    e_wsfe();
-#line 325 ""
-/* L3: */
-#line 325 ""
-	}
 #line 326 ""
+	    len = lenstr_(instrum + (iv - 1 << 7), &c__79, (ftnlen)128);
+#line 327 ""
+	    io___58.ciunit = iv + 10;
+#line 327 ""
+	    s_wsfe(&io___58);
+#line 327 ""
+	    do_fio(&c__1, "Ti", (ftnlen)2);
+#line 327 ""
+	    do_fio(&c__1, instrum + (iv - 1 << 7), len);
+#line 327 ""
+	    e_wsfe();
+#line 328 ""
+/* L3: */
+#line 328 ""
+	}
+#line 329 ""
     }
 
 /*  The big loop.  Except for '%%', put all comment lines in all parts. */
@@ -921,481 +924,481 @@ L18:
 /*  Check for "P"; ignore in parts. */
 /*  Check for consecutive full-bar rests; if found, replace with rm[nn] */
 
-#line 338 ""
-    iv = 1;
-#line 339 ""
-    iinst = 1;
-#line 340 ""
-    termrpt = FALSE_;
 #line 341 ""
-L4:
+    iv = 1;
 #line 342 ""
-    i__1 = s_rsfe(&io___60);
-#line 342 ""
-    if (i__1 != 0) {
-#line 342 ""
-	goto L999;
-#line 342 ""
-    }
-#line 342 ""
-    i__1 = do_fio(&c__1, line, (ftnlen)128);
-#line 342 ""
-    if (i__1 != 0) {
-#line 342 ""
-	goto L999;
-#line 342 ""
-    }
-#line 342 ""
-    i__1 = e_rsfe();
-#line 342 ""
-    if (i__1 != 0) {
-#line 342 ""
-	goto L999;
-#line 342 ""
-    }
+    iinst = 1;
 #line 343 ""
-    lenline = lenstr_(line, &c__128, (ftnlen)128);
+    termrpt = FALSE_;
 #line 344 ""
-    if (lenline == 0) {
-#line 344 ""
-	goto L4;
-#line 344 ""
+L4:
+#line 345 ""
+    i__1 = s_rsfe(&io___60);
+#line 345 ""
+    if (i__1 != 0) {
+#line 345 ""
+	goto L999;
+#line 345 ""
     }
 #line 345 ""
-    zapbl_(line, &c__128, (ftnlen)128);
-#line 346 ""
-    chkcom_(line, &goto999, (ftnlen)128);
-#line 347 ""
-    if (goto999) {
-#line 347 ""
+    i__1 = do_fio(&c__1, line, (ftnlen)128);
+#line 345 ""
+    if (i__1 != 0) {
+#line 345 ""
 	goto L999;
+#line 345 ""
+    }
+#line 345 ""
+    i__1 = e_rsfe();
+#line 345 ""
+    if (i__1 != 0) {
+#line 345 ""
+	goto L999;
+#line 345 ""
+    }
+#line 346 ""
+    lenline = lenstr_(line, &c__128, (ftnlen)128);
+#line 347 ""
+    if (lenline == 0) {
+#line 347 ""
+	goto L4;
 #line 347 ""
     }
 #line 348 ""
-    lenline = lenstr_(line, &c__128, (ftnlen)128);
+    zapbl_(line, &c__128, (ftnlen)128);
 #line 349 ""
-    if (lenline == 0) {
-#line 349 ""
-	goto L4;
-#line 349 ""
-    }
+    chkcom_(line, &goto999, (ftnlen)128);
 #line 350 ""
-    if (*(unsigned char *)line == 'T') {
+    if (goto999) {
+#line 350 ""
+	goto L999;
+#line 350 ""
+    }
 #line 351 ""
-	allparts_(line, &c__128, (ftnlen)128);
+    lenline = lenstr_(line, &c__128, (ftnlen)128);
 #line 352 ""
-	s_rsfe(&io___62);
+    if (lenline == 0) {
 #line 352 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 352 ""
-	e_rsfe();
-#line 353 ""
-	allparts_(line, &c__128, (ftnlen)128);
-#line 354 ""
 	goto L4;
+#line 352 ""
+    }
+#line 353 ""
+    if (*(unsigned char *)line == 'T') {
+#line 354 ""
+	allparts_(line, &c__128, (ftnlen)128);
 #line 355 ""
+	s_rsfe(&io___62);
+#line 355 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 355 ""
+	e_rsfe();
+#line 356 ""
+	allparts_(line, &c__128, (ftnlen)128);
+#line 357 ""
+	goto L4;
+#line 358 ""
     } else /* if(complicated condition) */ {
 /* Writing concatenation */
-#line 355 ""
-	i__3[0] = 1, a__1[0] = sq;
-#line 355 ""
-	i__3[1] = 1, a__1[1] = sq;
-#line 355 ""
-	s_cat(ch__5, a__1, i__3, &c__2, (ftnlen)2);
-#line 355 ""
-	if (s_cmp(line, ch__5, (ftnlen)2, (ftnlen)2) == 0) {
-#line 356 ""
-	    allparts_(line, &c__128, (ftnlen)128);
-#line 357 ""
-	    goto L4;
 #line 358 ""
+	i__3[0] = 1, a__1[0] = sq;
+#line 358 ""
+	i__3[1] = 1, a__1[1] = sq;
+#line 358 ""
+	s_cat(ch__5, a__1, i__3, &c__2, (ftnlen)2);
+#line 358 ""
+	if (s_cmp(line, ch__5, (ftnlen)2, (ftnlen)2) == 0) {
+#line 359 ""
+	    allparts_(line, &c__128, (ftnlen)128);
+#line 360 ""
+	    goto L4;
+#line 361 ""
 	} else if (i_indx("hl", line, (ftnlen)2, (ftnlen)1) > 0 && i_indx(
 		" +-", line + 1, (ftnlen)3, (ftnlen)1) > 0) {
-#line 360 ""
-	    allparts_(line, &c__128, (ftnlen)128);
-#line 361 ""
-	    s_rsfe(&io___63);
-#line 361 ""
-	    do_fio(&c__1, line, (ftnlen)128);
-#line 361 ""
-	    e_rsfe();
-#line 362 ""
-	    allparts_(line, &c__128, (ftnlen)128);
 #line 363 ""
-	    goto L4;
+	    allparts_(line, &c__128, (ftnlen)128);
 #line 364 ""
-	} else if (iv == 1) {
+	    s_rsfe(&io___63);
+#line 364 ""
+	    do_fio(&c__1, line, (ftnlen)128);
+#line 364 ""
+	    e_rsfe();
 #line 365 ""
-	    for (ia = 1; ia <= 10; ++ia) {
+	    allparts_(line, &c__128, (ftnlen)128);
 #line 366 ""
-L24:
+	    goto L4;
 #line 367 ""
+	} else if (iv == 1) {
+#line 368 ""
+	    for (ia = 1; ia <= 10; ++ia) {
+#line 369 ""
+L24:
+#line 370 ""
 		idxa = ntindex_(line, achar + (ia - 1), (ftnlen)128, (ftnlen)
 			1);
-#line 368 ""
+#line 371 ""
 		isachar = idxa > 0;
-#line 369 ""
+#line 372 ""
 		if (idxa > 1) {
-#line 369 ""
+#line 372 ""
 		    i__1 = idxa - 2;
-#line 369 ""
+#line 372 ""
 		    isachar = s_cmp(line + i__1, " ", idxa - 1 - i__1, (
 			    ftnlen)1) == 0;
-#line 369 ""
+#line 372 ""
 		}
 
 /*                   1   2   3   4   5   6   7   8   9   10 */
 /*      data achar /'P','m','V','R','A','h','w','K','M','I'/ */
 
-#line 374 ""
+#line 377 ""
 		if (ia == 9) {
-#line 374 ""
+#line 377 ""
 		    i__1 = idxa;
-#line 374 ""
+#line 377 ""
 		    isachar = isachar && s_cmp(line + i__1, "S", idxa + 1 - 
 			    i__1, (ftnlen)1) == 0;
-#line 374 ""
+#line 377 ""
 		}
-#line 376 ""
+#line 379 ""
 		if (isachar) {
 
 /*  Check whether character is inside a quoted string by counting */
 /*  how many quotes precede it in the line */
 
-#line 382 ""
-		    oddquotesbefore_(line, &idxa, &yesodd, (ftnlen)128);
-#line 383 ""
-		    if (yesodd) {
-#line 383 ""
-			isachar = FALSE_;
-#line 383 ""
-		    }
-#line 384 ""
-		}
 #line 385 ""
+		    oddquotesbefore_(line, &idxa, &yesodd, (ftnlen)128);
+#line 386 ""
+		    if (yesodd) {
+#line 386 ""
+			isachar = FALSE_;
+#line 386 ""
+		    }
+#line 387 ""
+		}
+#line 388 ""
 		if (isachar) {
 
 /*  Find next blank */
 
-#line 389 ""
+#line 392 ""
 		    for (ib = idxa + 1; ib <= 128; ++ib) {
-#line 390 ""
+#line 393 ""
 			if (*(unsigned char *)&line[ib - 1] == ' ') {
-#line 390 ""
+#line 393 ""
 			    goto L7;
-#line 390 ""
+#line 393 ""
 			}
-#line 391 ""
+#line 394 ""
 /* L6: */
-#line 391 ""
+#line 394 ""
 		    }
-#line 392 ""
+#line 395 ""
 		    s_wsle(&io___69);
-#line 392 ""
+#line 395 ""
 		    do_lio(&c__9, &c__1, "Problem with \"V,R,m,P,A,h,MS, o"\
 			    "r w\"", (ftnlen)35);
-#line 392 ""
+#line 395 ""
 		    e_wsle();
-#line 393 ""
+#line 396 ""
 		    s_wsle(&io___70);
-#line 393 ""
+#line 396 ""
 		    do_lio(&c__9, &c__1, "Send files to Dr. Don at dsimons a"\
 			    "t roadrunner dot com", (ftnlen)54);
-#line 393 ""
-		    e_wsle();
-#line 395 ""
-		    s_stop("1", (ftnlen)1);
 #line 396 ""
+		    e_wsle();
+#line 398 ""
+		    s_stop("1", (ftnlen)1);
+#line 399 ""
 L7:
 
 /*  Next blank is at position ib.  Later, if ia=1, must check for Pc"  " ; */
 /*    i.e., look for '"' between P and blank */
 
-#line 401 ""
+#line 404 ""
 		    if (ia == 4) {
 
 /*  Check for terminal repeat.  Note if there's a term rpt, there can't be any */
 /*  others.  Also, must process repeats LAST, after m's and 'V's */
 
-#line 406 ""
+#line 409 ""
 			for (ic = ib + 1; ic <= 128; ++ic) {
 
 /*  If any subsequent character on this line is neither blank nor "/", get out */
 
-#line 410 ""
+#line 413 ""
 			    if (i_indx(" /", line + (ic - 1), (ftnlen)2, (
 				    ftnlen)1) == 0) {
-#line 410 ""
+#line 413 ""
 				goto L9;
-#line 410 ""
+#line 413 ""
 			    }
-#line 411 ""
+#line 414 ""
 			    if (*(unsigned char *)&line[ic - 1] == '/') {
-#line 412 ""
+#line 415 ""
 				termrpt = TRUE_;
-#line 413 ""
+#line 416 ""
 				i__1 = ib - 3;
-#line 413 ""
+#line 416 ""
 				s_copy(termsym, line + i__1, (ftnlen)2, ib - 
 					1 - i__1);
 
 /*  Process the line as if there were no "R" */
 
-#line 417 ""
+#line 420 ""
 				goto L10;
-#line 418 ""
+#line 421 ""
 			    }
-#line 419 ""
+#line 422 ""
 /* L8: */
-#line 419 ""
+#line 422 ""
 			}
 
 /* +++ 060812 */
 /*  If here, all chars after "R" symbol are blanks, so process the line normally, */
 /*    but only IF next line is not the M-Tx line " /" */
 
-#line 425 ""
+#line 428 ""
 			s_rsfe(&io___73);
-#line 425 ""
+#line 428 ""
 			do_fio(&c__1, templine, (ftnlen)128);
-#line 425 ""
+#line 428 ""
 			e_rsfe();
-#line 426 ""
+#line 429 ""
 			if (s_cmp(templine, " /", (ftnlen)2, (ftnlen)2) != 0) 
 				{
-#line 427 ""
+#line 430 ""
 			    al__1.aerr = 0;
-#line 427 ""
+#line 430 ""
 			    al__1.aunit = 10;
-#line 427 ""
+#line 430 ""
 			    f_back(&al__1);
 /* and flow out */
-#line 428 ""
+#line 431 ""
 			} else {
 
 /*  We have the M-Tx case where one line ends with R? and next is " /". Add / to the line, */
 /*    and proceed as above */
 
 /* Writing concatenation */
-#line 433 ""
+#line 436 ""
 			    i__3[0] = ib, a__1[0] = line;
-#line 433 ""
+#line 436 ""
 			    i__3[1] = 1, a__1[1] = "/";
-#line 433 ""
+#line 436 ""
 			    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
-#line 434 ""
+#line 437 ""
 			    lenline += 2;
-#line 435 ""
+#line 438 ""
 			    termrpt = TRUE_;
-#line 436 ""
+#line 439 ""
 			    i__1 = ib - 3;
-#line 436 ""
+#line 439 ""
 			    s_copy(termsym, line + i__1, (ftnlen)2, ib - 1 - 
 				    i__1);
-#line 437 ""
+#line 440 ""
 			    goto L10;
-#line 438 ""
+#line 441 ""
 			}
 /* +++ 060812 */
 
-#line 441 ""
+#line 444 ""
 		    } else if (ia == 1) {
-#line 442 ""
+#line 445 ""
 			idxq = ntindex_(line, "\"", (ftnlen)128, (ftnlen)1);
-#line 443 ""
+#line 446 ""
 			if (idxq > idxa && idxq < ib) {
 
 /*  Quote is between P and next blank.  Find 2nd quote, starting at the blank. */
 
-#line 447 ""
+#line 450 ""
 			    idxq2 = ib - 1 + ntindex_(line, "\"", (ftnlen)128,
 				     (ftnlen)1);
-#line 448 ""
+#line 451 ""
 			    i__1 = idxq2;
-#line 448 ""
+#line 451 ""
 			    if (idxq == 0 || s_cmp(line + i__1, " ", idxq2 + 
 				    1 - i__1, (ftnlen)1) != 0) {
-#line 449 ""
+#line 452 ""
 				s_wsle(&io___77);
-#line 449 ""
+#line 452 ""
 				e_wsle();
-#line 450 ""
+#line 453 ""
 				s_wsle(&io___78);
-#line 450 ""
+#line 453 ""
 				do_lio(&c__9, &c__1, "Error copying P with q"\
 					"uotes, idxq2:", (ftnlen)35);
-#line 450 ""
+#line 453 ""
 				do_lio(&c__3, &c__1, (char *)&idxq2, (ftnlen)
 					sizeof(integer));
-#line 450 ""
-				e_wsle();
-#line 451 ""
-				s_wsle(&io___79);
-#line 451 ""
-				do_lio(&c__9, &c__1, line, (ftnlen)60);
-#line 451 ""
-				e_wsle();
-#line 452 ""
-				s_stop("1", (ftnlen)1);
 #line 453 ""
-			    }
+				e_wsle();
 #line 454 ""
-			    ib = idxq2 + 1;
+				s_wsle(&io___79);
+#line 454 ""
+				do_lio(&c__9, &c__1, line, (ftnlen)60);
+#line 454 ""
+				e_wsle();
 #line 455 ""
+				s_stop("1", (ftnlen)1);
+#line 456 ""
+			    }
+#line 457 ""
+			    ib = idxq2 + 1;
+#line 458 ""
 			}
 
 /*  Do not transfer P into parts. */
 
-#line 459 ""
+#line 462 ""
 			goto L12;
-#line 460 ""
+#line 463 ""
 		    } else if (ia == 9) {
 
 /*  Start Saving a macro. After leaving here, a symbol will be sent to all parts, */
 /*  If all on this line, set ib to end and exit normally. */
 
-#line 465 ""
+#line 468 ""
 			i__1 = ib;
-#line 465 ""
+#line 468 ""
 			ndxm = i_indx(line + i__1, "M", 128 - i__1, (ftnlen)1)
 				;
-#line 466 ""
+#line 469 ""
 			i__1 = ib + ndxm - 2;
-#line 466 ""
+#line 469 ""
 			if (ndxm > 0 && s_cmp(line + i__1, " ", ib + ndxm - 1 
 				- i__1, (ftnlen)1) == 0) {
 
 /*  Macro ends on this line */
 
-#line 470 ""
+#line 473 ""
 			    ib = ib + ndxm + 1;
-#line 471 ""
+#line 474 ""
 			} else {
 
 /*  Save leading part of current line */
 
-#line 475 ""
+#line 478 ""
 			    lenhold = idxa - 1;
-#line 476 ""
+#line 479 ""
 			    if (lenhold > 0) {
-#line 476 ""
+#line 479 ""
 				s_copy(holdln, line, (ftnlen)128, lenhold);
-#line 476 ""
+#line 479 ""
 			    }
 
 /*  Transfer rest of line */
 
-#line 480 ""
+#line 483 ""
 			    i__1 = 129 - idxa;
-#line 480 ""
+#line 483 ""
 			    allparts_(line + (idxa - 1), &i__1, 128 - (idxa - 
 				    1));
 
 /*  Read next line */
 
-#line 484 ""
+#line 487 ""
 L20:
-#line 484 ""
+#line 487 ""
 			    s_rsfe(&io___82);
-#line 484 ""
+#line 487 ""
 			    do_fio(&c__1, line, (ftnlen)128);
-#line 484 ""
+#line 487 ""
 			    e_rsfe();
 
 /*  Check for comment, transfer and loop if so */
 
 /*                if (line(1:1) .eq.'%') then */
-#line 489 ""
+#line 492 ""
 L23:
-#line 489 ""
+#line 492 ""
 			    if (*(unsigned char *)line == '%') {
 /*                  call allparts(line,128) */
 /*                  go to 20 */
-#line 492 ""
+#line 495 ""
 				chkcom_(line, &goto999, (ftnlen)128);
-#line 493 ""
+#line 496 ""
 				goto L23;
-#line 494 ""
+#line 497 ""
 			    }
 
 /*  Look for terminal ' M' */
 
-#line 498 ""
-			    if (*(unsigned char *)line == 'M') {
-#line 499 ""
-				ndxm = 1;
-#line 500 ""
-			    } else {
 #line 501 ""
+			    if (*(unsigned char *)line == 'M') {
+#line 502 ""
+				ndxm = 1;
+#line 503 ""
+			    } else {
+#line 504 ""
 				ndxm = i_indx(line, " M", (ftnlen)128, (
 					ftnlen)2);
-#line 502 ""
+#line 505 ""
 				if (ndxm > 0) {
-#line 502 ""
+#line 505 ""
 				    ++ndxm;
-#line 502 ""
+#line 505 ""
 				}
-#line 503 ""
+#line 506 ""
 			    }
-#line 504 ""
+#line 507 ""
 			    if (ndxm > 0) {
 
 /*  Set parameters, exit normally (but later check for leading part of 1st line */
 
-#line 508 ""
+#line 511 ""
 				idxa = 1;
-#line 509 ""
+#line 512 ""
 				ib = ndxm + 1;
-#line 510 ""
+#line 513 ""
 			    } else {
 
 /*  No "M", transfer entire line, loop */
 
-#line 514 ""
-				allparts_(line, &c__128, (ftnlen)128);
-#line 515 ""
-				goto L20;
-#line 516 ""
-			    }
 #line 517 ""
-			}
+				allparts_(line, &c__128, (ftnlen)128);
 #line 518 ""
+				goto L20;
+#line 519 ""
+			    }
+#line 520 ""
+			}
+#line 521 ""
 		    } else if (ia == 10) {
 
 /*  Do not transfer MIDI command into parts */
 
-#line 522 ""
+#line 525 ""
 			goto L12;
-#line 523 ""
+#line 526 ""
 		    } else if (ia == 5) {
 
 /*  First check for "AS", but S may come after other "A" options */
 
-#line 527 ""
+#line 530 ""
 			i__1 = idxa;
-#line 527 ""
+#line 530 ""
 			idxs = i_indx(line + i__1, "S", ib - i__1, (ftnlen)1);
-#line 528 ""
+#line 531 ""
 			if (idxs > 0) {
 
 /*  Get rid of the string. First check if that's all there is in A. */
 
-#line 532 ""
+#line 535 ""
 			    if (ib - idxa == nv + 2) {
-#line 532 ""
+#line 535 ""
 				goto L12;
-#line 532 ""
+#line 535 ""
 			    }
-#line 533 ""
+#line 536 ""
 			    i__1 = idxa + idxs + nv;
 /* Writing concatenation */
-#line 533 ""
+#line 536 ""
 			    i__3[0] = idxa + idxs - 1, a__1[0] = line;
-#line 533 ""
+#line 536 ""
 			    i__3[1] = ib - i__1, a__1[1] = line + i__1;
-#line 533 ""
+#line 536 ""
 			    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
-#line 534 ""
+#line 537 ""
 			}
 
 /*  Check for user-defined part file name. Must start in column 1 and have */
@@ -1404,353 +1407,353 @@ L23:
 /*    ib is position of the next blank after "A" */
 /*    Don't allow any blanks in user */
 
-#line 542 ""
+#line 545 ""
 			i__1 = idxa;
-#line 542 ""
+#line 545 ""
 			if (s_cmp(line + i__1, "N", idxa + 1 - i__1, (ftnlen)
 				1) != 0) {
-#line 542 ""
+#line 545 ""
 			    goto L9;
-#line 542 ""
+#line 545 ""
 			}
 /* bail out */
-#line 543 ""
+#line 546 ""
 			if (idxa != 1) {
-#line 544 ""
+#line 547 ""
 			    s_wsle(&io___84);
-#line 544 ""
+#line 547 ""
 			    e_wsle();
-#line 545 ""
+#line 548 ""
 			    s_wsle(&io___85);
-#line 545 ""
+#line 548 ""
 			    do_lio(&c__9, &c__1, "You entered \"AN...\" some"\
 				    "where beyond first column; stopping.", (
 				    ftnlen)60);
-#line 545 ""
-			    e_wsle();
-#line 547 ""
-			    s_stop("1", (ftnlen)1);
 #line 548 ""
+			    e_wsle();
+#line 550 ""
+			    s_stop("1", (ftnlen)1);
+#line 551 ""
 			}
 
 /*  pmxa already checked for valid one- or 2-digit number, so get it */
 
-#line 552 ""
+#line 555 ""
 			if (*(unsigned char *)&line[3] == '"') {
 
 /*  Single digit instrument number */
 
-#line 556 ""
-			    s_rsfi(&io___86);
-#line 556 ""
-			    do_fio(&c__1, (char *)&iudpfn, (ftnlen)sizeof(
-				    integer));
-#line 556 ""
-			    e_rsfi();
-#line 557 ""
-			    idxstartname = 5;
-#line 558 ""
-			} else {
 #line 559 ""
-			    s_rsfi(&io___89);
+			    s_rsfi(&io___86);
 #line 559 ""
 			    do_fio(&c__1, (char *)&iudpfn, (ftnlen)sizeof(
 				    integer));
 #line 559 ""
 			    e_rsfi();
 #line 560 ""
-			    idxstartname = 6;
+			    idxstartname = 5;
 #line 561 ""
-			}
+			} else {
 #line 562 ""
+			    s_rsfi(&io___89);
+#line 562 ""
+			    do_fio(&c__1, (char *)&iudpfn, (ftnlen)sizeof(
+				    integer));
+#line 562 ""
+			    e_rsfi();
+#line 563 ""
+			    idxstartname = 6;
+#line 564 ""
+			}
+#line 565 ""
 			ludpfn[iudpfn - 1] = i_indx(line + (idxstartname - 1),
 				 "\"", 128 - (idxstartname - 1), (ftnlen)1) - 
 				1;
-#line 563 ""
+#line 566 ""
 			if (ludpfn[iudpfn - 1] < 0) {
-#line 564 ""
+#line 567 ""
 			    s_wsle(&io___90);
-#line 564 ""
+#line 567 ""
 			    e_wsle();
-#line 565 ""
+#line 568 ""
 			    s_wsle(&io___91);
-#line 565 ""
+#line 568 ""
 			    do_lio(&c__9, &c__1, "User-defined part file nam"\
 				    "e must be in quotes", (ftnlen)45);
-#line 565 ""
-			    e_wsle();
-#line 566 ""
-			    s_stop("1", (ftnlen)1);
-#line 567 ""
-			}
 #line 568 ""
-			idxendname = idxstartname + ludpfn[iudpfn - 1] - 1;
+			    e_wsle();
 #line 569 ""
+			    s_stop("1", (ftnlen)1);
+#line 570 ""
+			}
+#line 571 ""
+			idxendname = idxstartname + ludpfn[iudpfn - 1] - 1;
+#line 572 ""
 			s_copy(udpfnq + (iudpfn - 1 << 7), line + (
 				idxstartname - 1), (ftnlen)128, idxendname - (
 				idxstartname - 1));
 
 /*  Get a new line! */
 
-#line 573 ""
+#line 576 ""
 			goto L4;
-#line 574 ""
+#line 577 ""
 		    } else if (ia == 8) {
 
 /* Key change/transposition. */
 /* If not instrument specific, copy to all parts */
 
-#line 579 ""
+#line 582 ""
 			i__1 = idxa;
-#line 579 ""
+#line 582 ""
 			if (s_cmp(line + i__1, "i", idxa + 1 - i__1, (ftnlen)
 				1) != 0) {
-#line 579 ""
+#line 582 ""
 			    goto L9;
-#line 579 ""
+#line 582 ""
 			}
 
 /* Instrument-wise key/transposition(s): Ki[nn][+/-][dd}[+/-][dd]... */
 
-#line 583 ""
+#line 586 ""
 			ibb = idxa + 2;
 /* Starts on digit after 'i' */
-#line 584 ""
+#line 587 ""
 L40:
-#line 585 ""
+#line 588 ""
 			ici__1.icierr = 0;
-#line 585 ""
+#line 588 ""
 			ici__1.iciend = 0;
-#line 585 ""
+#line 588 ""
 			ici__1.icirnum = 1;
-#line 585 ""
+#line 588 ""
 			ici__1.icirlen = 1;
-#line 585 ""
+#line 588 ""
 			ici__1.iciunit = line + (ibb - 1);
-#line 585 ""
+#line 588 ""
 			ici__1.icifmt = "(i1)";
-#line 585 ""
+#line 588 ""
 			s_rsfi(&ici__1);
-#line 585 ""
+#line 588 ""
 			do_fio(&c__1, (char *)&iiinst, (ftnlen)sizeof(integer)
 				);
-#line 585 ""
+#line 588 ""
 			e_rsfi();
 /* 1st digit of iinst */
-#line 586 ""
+#line 589 ""
 			i__1 = ibb;
-#line 586 ""
+#line 589 ""
 			itemp = i_indx("01234567890", line + i__1, (ftnlen)11,
 				 ibb + 1 - i__1);
-#line 587 ""
-			if (itemp > 0) {
-#line 588 ""
-			    ++ibb;
-#line 589 ""
-			    iiinst = iiinst * 10 + itemp - 1;
 #line 590 ""
-			}
+			if (itemp > 0) {
 #line 591 ""
+			    ++ibb;
+#line 592 ""
+			    iiinst = iiinst * 10 + itemp - 1;
+#line 593 ""
+			}
+#line 594 ""
 			++ibb;
 /* now at first +/-. Need end of 2nd number */
-#line 592 ""
+#line 595 ""
 			i__1 = ibb;
-#line 592 ""
+#line 595 ""
 			itemp = i_indx(line + i__1, "i", ib - i__1, (ftnlen)1)
 				;
 /* Rel pos'n of next 'i' */
-#line 593 ""
-			if (itemp > 0) {
-#line 594 ""
-			    iend = ibb + itemp - 1;
-#line 595 ""
-			} else {
 #line 596 ""
-			    iend = ib - 1;
+			if (itemp > 0) {
 #line 597 ""
+			    iend = ibb + itemp - 1;
+#line 598 ""
+			} else {
+#line 599 ""
+			    iend = ib - 1;
+#line 600 ""
 			}
-#line 598 ""
+#line 601 ""
 			io___98.ciunit = all_1.iorig[iiinst - 1] + 10;
-#line 598 ""
+#line 601 ""
 			s_wsfe(&io___98);
 /* Writing concatenation */
-#line 598 ""
+#line 601 ""
 			i__3[0] = 3, a__1[0] = "Ki1";
-#line 598 ""
+#line 601 ""
 			i__3[1] = iend - (ibb - 1), a__1[1] = line + (ibb - 1)
 				;
-#line 598 ""
-			s_cat(ch__6, a__1, i__3, &c__2, (ftnlen)131);
-#line 598 ""
-			do_fio(&c__1, ch__6, iend - (ibb - 1) + 3);
-#line 598 ""
-			e_wsfe();
-#line 599 ""
-			if (itemp > 0) {
-#line 600 ""
-			    ibb = iend + 2;
 #line 601 ""
-			    goto L40;
+			s_cat(ch__6, a__1, i__3, &c__2, (ftnlen)131);
+#line 601 ""
+			do_fio(&c__1, ch__6, iend - (ibb - 1) + 3);
+#line 601 ""
+			e_wsfe();
 #line 602 ""
-			}
+			if (itemp > 0) {
 #line 603 ""
+			    ibb = iend + 2;
+#line 604 ""
+			    goto L40;
+#line 605 ""
+			}
+#line 606 ""
 			goto L12;
 /* Remove K command from string, go to next ia */
-#line 604 ""
-		    }
-#line 605 ""
-L9:
-#line 606 ""
-		    i__1 = ib - idxa;
-#line 606 ""
-		    allparts_(line + (idxa - 1), &i__1, ib - 1 - (idxa - 1));
 #line 607 ""
+		    }
+#line 608 ""
+L9:
+#line 609 ""
+		    i__1 = ib - idxa;
+#line 609 ""
+		    allparts_(line + (idxa - 1), &i__1, ib - 1 - (idxa - 1));
+#line 610 ""
 L12:
 
 /*  Remove the string from line */
 
-#line 611 ""
+#line 614 ""
 		    if (idxa == 1) {
-#line 612 ""
+#line 615 ""
 			s_copy(line, line + (ib - 1), (ftnlen)128, 128 - (ib 
 				- 1));
-#line 613 ""
+#line 616 ""
 		    } else {
 /* Writing concatenation */
-#line 614 ""
+#line 617 ""
 			i__3[0] = idxa - 1, a__1[0] = line;
-#line 614 ""
+#line 617 ""
 			i__3[1] = 128 - (ib - 1), a__1[1] = line + (ib - 1);
-#line 614 ""
+#line 617 ""
 			s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
-#line 615 ""
+#line 618 ""
 		    }
-#line 616 ""
+#line 619 ""
 		    lenline = lenstr_(line, &c__128, (ftnlen)128);
 
 /*  Loop if only blanks are left */
 
-#line 620 ""
+#line 623 ""
 		    if (lenline == 0) {
-#line 620 ""
+#line 623 ""
 			goto L4;
-#line 620 ""
+#line 623 ""
 		    }
 
 /*  Must check for multiple "I" commands, so go to just after start of ia loop */
 
-#line 624 ""
+#line 627 ""
 		    if (ia == 10) {
-#line 624 ""
+#line 627 ""
 			goto L24;
-#line 624 ""
+#line 627 ""
 		    }
 
 /*  Tack on front part from 1st line of saved macro */
 
-#line 628 ""
+#line 631 ""
 		    if (lenhold > 0) {
 /* Writing concatenation */
-#line 629 ""
-			i__4[0] = lenhold, a__2[0] = holdln;
-#line 629 ""
-			i__4[1] = 1, a__2[1] = " ";
-#line 629 ""
-			i__4[2] = lenline, a__2[2] = line;
-#line 629 ""
-			s_cat(line, a__2, i__4, &c__3, (ftnlen)128);
-#line 630 ""
-			lenhold = 0;
-#line 631 ""
-		    }
 #line 632 ""
+			i__4[0] = lenhold, a__2[0] = holdln;
+#line 632 ""
+			i__4[1] = 1, a__2[1] = " ";
+#line 632 ""
+			i__4[2] = lenline, a__2[2] = line;
+#line 632 ""
+			s_cat(line, a__2, i__4, &c__3, (ftnlen)128);
+#line 633 ""
+			lenhold = 0;
+#line 634 ""
+		    }
+#line 635 ""
 		}
-#line 633 ""
+#line 636 ""
 /* L5: */
-#line 633 ""
+#line 636 ""
 	    }
-#line 634 ""
+#line 637 ""
 	}
-#line 634 ""
+#line 637 ""
     }
 
 /*  Now a special loop to deal with 'X'.  If it was %[n]X..., will have been */
 /*  copied into part [n] already.  If no "B" or "P", remove.  If "P", just */
 /*  remove the "P" so pmxa/b will process.  If "B". do nothing. */
 
-#line 640 ""
+#line 643 ""
 L10:
-#line 641 ""
+#line 644 ""
     nchk = 1;
-#line 642 ""
+#line 645 ""
 L13:
-#line 642 ""
+#line 645 ""
     ntinx = nchk - 1 + ntindex_(line + (nchk - 1), "X", 128 - (nchk - 1), (
 	    ftnlen)1);
-#line 643 ""
+#line 646 ""
     if (ntinx > nchk - 1) {
 
 /*  There is a non-TeX 'X' at ntinx.  Loop if neither 1st nor after a blank. */
 
-#line 647 ""
+#line 650 ""
 	if (ntinx > 1) {
-#line 648 ""
+#line 651 ""
 	    i__1 = ntinx - 2;
-#line 648 ""
+#line 651 ""
 	    if (s_cmp(line + i__1, " ", ntinx - 1 - i__1, (ftnlen)1) != 0) {
 
 /*  The X is not 1st char of PMX command.  Advance starting point, loop. */
 
-#line 652 ""
-		nchk = ntinx + 1;
-#line 653 ""
-		goto L13;
-#line 654 ""
-	    }
 #line 655 ""
+		nchk = ntinx + 1;
+#line 656 ""
+		goto L13;
+#line 657 ""
+	    }
+#line 658 ""
 	}
 
 /*  We now know the X at ntinx starts a PMX command.  Find next blank */
 
-#line 659 ""
+#line 662 ""
 	i__1 = ntinx;
-#line 659 ""
+#line 662 ""
 	ib = ntinx + i_indx(line + i__1, " ", 128 - i__1, (ftnlen)1);
 
 /*  There must be a blank to right of "X", so ib>ntinx */
 
 /*        locp = nchk-1+index(line(nchk:ib),'P') */
-#line 664 ""
+#line 667 ""
 	i__1 = ntinx;
-#line 664 ""
+#line 667 ""
 	locp = ntinx + i_indx(line + i__1, "P", ib - i__1, (ftnlen)1);
 
 /*  Did not need to use ntindex because we already know bounds of PMX command. */
 
 /*        if (locp .gt. nchk-1) then */
-#line 669 ""
+#line 672 ""
 	if (locp > ntinx) {
 
 /*  Strip out the 'P' */
 
-#line 673 ""
+#line 676 ""
 	    s_copy(templine, line, (ftnlen)128, locp - 1);
-#line 674 ""
+#line 677 ""
 	    i__1 = locp;
 /* Writing concatenation */
-#line 674 ""
-	    i__3[0] = locp - 1, a__1[0] = templine;
-#line 674 ""
-	    i__3[1] = lenline - i__1, a__1[1] = line + i__1;
-#line 674 ""
-	    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
-#line 675 ""
-	    --lenline;
-#line 676 ""
-	    --ib;
 #line 677 ""
-	}
+	    i__3[0] = locp - 1, a__1[0] = templine;
+#line 677 ""
+	    i__3[1] = lenline - i__1, a__1[1] = line + i__1;
+#line 677 ""
+	    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
 #line 678 ""
+	    --lenline;
+#line 679 ""
+	    --ib;
+#line 680 ""
+	}
+#line 681 ""
 	if (i_indx(line + (ntinx - 1), ":", ib - (ntinx - 1), (ftnlen)1) > 0 
 		|| i_indx(line + (ntinx - 1), "S", ib - (ntinx - 1), (ftnlen)
 		1) > 0 || i_indx(line + (ntinx - 1), "B", ib - (ntinx - 1), (
@@ -1758,177 +1761,177 @@ L13:
 
 /*  The X command is a shift, "Both", or "Part".  Do not remove. */
 
-#line 684 ""
+#line 687 ""
 	    nchk = ib + 1;
-#line 685 ""
+#line 688 ""
 	    goto L13;
-#line 686 ""
+#line 689 ""
 	}
 
 /*  Remove the X command. */
 
-#line 690 ""
-	if (ntinx == 1) {
-#line 691 ""
-	    if (ib < lenline) {
-#line 692 ""
-		i__1 = ib;
-#line 692 ""
-		s_copy(line, line + i__1, (ftnlen)128, lenline - i__1);
 #line 693 ""
+	if (ntinx == 1) {
+#line 694 ""
+	    if (ib < lenline) {
+#line 695 ""
+		i__1 = ib;
+#line 695 ""
+		s_copy(line, line + i__1, (ftnlen)128, lenline - i__1);
+#line 696 ""
 	    } else {
 
 /*  line contains ONLY the "X" command, so get a new line */
 
-#line 697 ""
-		goto L4;
-#line 698 ""
-	    }
-#line 699 ""
-	} else {
 #line 700 ""
-	    s_copy(templine, line, (ftnlen)128, ntinx - 1);
+		goto L4;
 #line 701 ""
-	    if (ib < lenline) {
+	    }
 #line 702 ""
+	} else {
+#line 703 ""
+	    s_copy(templine, line, (ftnlen)128, ntinx - 1);
+#line 704 ""
+	    if (ib < lenline) {
+#line 705 ""
 		i__1 = ib;
 /* Writing concatenation */
-#line 702 ""
-		i__3[0] = ntinx - 1, a__1[0] = templine;
-#line 702 ""
-		i__3[1] = lenline - i__1, a__1[1] = line + i__1;
-#line 702 ""
-		s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
-#line 703 ""
-	    } else {
-#line 704 ""
-		s_copy(line, templine, (ftnlen)128, ntinx - 1);
 #line 705 ""
-	    }
+		i__3[0] = ntinx - 1, a__1[0] = templine;
+#line 705 ""
+		i__3[1] = lenline - i__1, a__1[1] = line + i__1;
+#line 705 ""
+		s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
 #line 706 ""
+	    } else {
+#line 707 ""
+		s_copy(line, templine, (ftnlen)128, ntinx - 1);
+#line 708 ""
+	    }
+#line 709 ""
 	}
 
 /*  Recompute lenline */
 
-#line 710 ""
+#line 713 ""
 	lenline = lenstr_(line, &c__128, (ftnlen)128);
 
 /*  Resume checking after location of removed command. */
 
-#line 714 ""
+#line 717 ""
 	nchk = ntinx;
-#line 715 ""
+#line 718 ""
 	goto L13;
-#line 716 ""
+#line 719 ""
     }
 
 /*  End of loop for X-checks */
 
-#line 720 ""
+#line 723 ""
     oneof2 = ntindex_(line, "//", (ftnlen)128, (ftnlen)2) > 0;
-#line 721 ""
+#line 724 ""
     if (termrpt && all_1.botv[iv - 1] && frstln && *(unsigned char *)&line[
 	    lenline - 1] == '/') {
 
 /*  Must add a terminal repeat before the slash */
 
-#line 726 ""
+#line 729 ""
 	if (oneof2) {
-#line 726 ""
+#line 729 ""
 	    --lenline;
-#line 726 ""
+#line 729 ""
 	}
-#line 727 ""
+#line 730 ""
 	if (lenline > 1) {
-#line 727 ""
+#line 730 ""
 	    io___103.ciunit = all_1.iorig[iinst - 1] + 10;
-#line 727 ""
+#line 730 ""
 	    s_wsfe(&io___103);
-#line 727 ""
+#line 730 ""
 	    do_fio(&c__1, line, lenline - 1);
-#line 727 ""
+#line 730 ""
 	    e_wsfe();
-#line 727 ""
+#line 730 ""
 	}
-#line 728 ""
+#line 731 ""
 	if (! oneof2) {
 /* Writing concatenation */
-#line 729 ""
+#line 732 ""
 	    i__3[0] = 2, a__1[0] = termsym;
-#line 729 ""
+#line 732 ""
 	    i__3[1] = 2, a__1[1] = " /";
-#line 729 ""
-	    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
-#line 730 ""
-	    lenline = 4;
-#line 731 ""
-	} else {
-/* Writing concatenation */
-#line 732 ""
-	    i__3[0] = 2, a__1[0] = termsym;
-#line 732 ""
-	    i__3[1] = 3, a__1[1] = " //";
 #line 732 ""
 	    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
 #line 733 ""
-	    lenline = 5;
+	    lenline = 4;
 #line 734 ""
-	}
+	} else {
+/* Writing concatenation */
 #line 735 ""
-    }
+	    i__3[0] = 2, a__1[0] = termsym;
+#line 735 ""
+	    i__3[1] = 3, a__1[1] = " //";
+#line 735 ""
+	    s_cat(line, a__1, i__3, &c__2, (ftnlen)128);
 #line 736 ""
+	    lenline = 5;
+#line 737 ""
+	}
+#line 738 ""
+    }
+#line 739 ""
     if (termrpt && frstln && *(unsigned char *)&line[lenline - 1] == '/' && 
 	    iv == all_1.nvnow) {
-#line 736 ""
-	termrpt = FALSE_;
-#line 736 ""
-    }
-#line 738 ""
-    io___104.ciunit = all_1.iorig[iinst - 1] + 10;
-#line 738 ""
-    s_wsfe(&io___104);
-#line 738 ""
-    do_fio(&c__1, line, lenline);
-#line 738 ""
-    e_wsfe();
 #line 739 ""
-    if (oneof2) {
-#line 740 ""
-	frstln = FALSE_;
+	termrpt = FALSE_;
+#line 739 ""
+    }
 #line 741 ""
-    } else if (! frstln) {
+    io___104.ciunit = all_1.iorig[iinst - 1] + 10;
+#line 741 ""
+    s_wsfe(&io___104);
+#line 741 ""
+    do_fio(&c__1, line, lenline);
+#line 741 ""
+    e_wsfe();
 #line 742 ""
-	frstln = TRUE_;
+    if (oneof2) {
 #line 743 ""
+	frstln = FALSE_;
+#line 744 ""
+    } else if (! frstln) {
+#line 745 ""
+	frstln = TRUE_;
+#line 746 ""
     }
 /*      if (ntindex(line,'/').gt.0 .and. index(line,'//').eq.0) then */
-#line 745 ""
+#line 748 ""
     if (ntindex_(line, "/", (ftnlen)128, (ftnlen)1) > 0 && ntindex_(line, 
 	    "//", (ftnlen)128, (ftnlen)2) == 0) {
-#line 746 ""
-	iv = iv % all_1.nvnow + 1;
-#line 747 ""
-	iinst = all_1.instnum[iv - 1];
-#line 748 ""
-    }
 #line 749 ""
-    goto L4;
+	iv = iv % all_1.nvnow + 1;
 #line 750 ""
+	iinst = all_1.instnum[iv - 1];
+#line 751 ""
+    }
+#line 752 ""
+    goto L4;
+#line 753 ""
 L999:
-#line 751 ""
+#line 754 ""
     cl__1.cerr = 0;
-#line 751 ""
+#line 754 ""
     cl__1.cunit = 10;
-#line 751 ""
+#line 754 ""
     cl__1.csta = 0;
-#line 751 ""
+#line 754 ""
     f_clos(&cl__1);
 
 /*  In the mbrest checks, must run through ALL noinst files (not just noinow) */
 
-#line 755 ""
+#line 758 ""
     i__1 = all_1.noinst;
-#line 755 ""
+#line 758 ""
     for (iinst = 1; iinst <= i__1; ++iinst) {
 /* cc+++ */
 /* c */
@@ -1948,28 +1951,28 @@ L999:
 /* 51      continue */
 /*        close(40) */
 /* cc+++ */
-#line 774 ""
+#line 777 ""
 	if (all_1.nvi[iinst - 1] == 1) {
-#line 775 ""
+#line 778 ""
 	    mbrests_(&iinst, jobname, &ljob, &ludpfn[iinst - 1], udpfnq + (
 		    iinst - 1 << 7), (ftnlen)27, (ftnlen)128);
-#line 776 ""
+#line 779 ""
 	} else {
 
 /*  Send a signal with ljob to bypass most mbrest processing */
 
-#line 780 ""
+#line 783 ""
 	    i__2 = -ljob;
-#line 780 ""
+#line 783 ""
 	    mbrests_(&iinst, jobname, &i__2, &ludpfn[iinst - 1], udpfnq + (
 		    iinst - 1 << 7), (ftnlen)27, (ftnlen)128);
-#line 781 ""
+#line 784 ""
 	}
-#line 782 ""
+#line 785 ""
 /* L11: */
-#line 782 ""
+#line 785 ""
     }
-#line 783 ""
+#line 786 ""
     return 0;
 } /* MAIN__ */
 
@@ -1978,21 +1981,21 @@ integer lenstr_(char *string, integer *n, ftnlen string_len)
     /* System generated locals */
     integer ret_val;
 
-#line 786 ""
-    for (ret_val = *n; ret_val >= 1; --ret_val) {
-#line 787 ""
-	if (*(unsigned char *)&string[ret_val - 1] != ' ') {
-#line 787 ""
-	    return ret_val;
-#line 787 ""
-	}
-#line 788 ""
-/* L1: */
-#line 788 ""
-    }
 #line 789 ""
-    ret_val = 0;
+    for (ret_val = *n; ret_val >= 1; --ret_val) {
 #line 790 ""
+	if (*(unsigned char *)&string[ret_val - 1] != ' ') {
+#line 790 ""
+	    return ret_val;
+#line 790 ""
+	}
+#line 791 ""
+/* L1: */
+#line 791 ""
+    }
+#line 792 ""
+    ret_val = 0;
+#line 793 ""
     return ret_val;
 } /* lenstr_ */
 
@@ -2013,33 +2016,33 @@ integer lenstr_(char *string, integer *n, ftnlen string_len)
     static cilist io___107 = { 0, 0, 0, "(a)", 0 };
 
 
-#line 798 ""
-    len = lenstr_(string, n, string_len);
-#line 799 ""
-    if (len == 0) {
-#line 800 ""
-	len = 1;
 #line 801 ""
-	s_copy(string, " ", string_len, (ftnlen)1);
+    len = lenstr_(string, n, string_len);
 #line 802 ""
-    }
+    if (len == 0) {
 #line 803 ""
-    i__1 = all_1.noinow;
-#line 803 ""
-    for (iinst = 1; iinst <= i__1; ++iinst) {
+	len = 1;
 #line 804 ""
-	io___107.ciunit = all_1.iorig[iinst - 1] + 10;
-#line 804 ""
-	s_wsfe(&io___107);
-#line 804 ""
-	do_fio(&c__1, string, len);
-#line 804 ""
-	e_wsfe();
-#line 805 ""
-/* L1: */
+	s_copy(string, " ", string_len, (ftnlen)1);
 #line 805 ""
     }
 #line 806 ""
+    i__1 = all_1.noinow;
+#line 806 ""
+    for (iinst = 1; iinst <= i__1; ++iinst) {
+#line 807 ""
+	io___107.ciunit = all_1.iorig[iinst - 1] + 10;
+#line 807 ""
+	s_wsfe(&io___107);
+#line 807 ""
+	do_fio(&c__1, string, len);
+#line 807 ""
+	e_wsfe();
+#line 808 ""
+/* L1: */
+#line 808 ""
+    }
+#line 809 ""
     return 0;
 } /* allparts_ */
 
@@ -2123,731 +2126,731 @@ integer lenstr_(char *string, integer *n, ftnlen string_len)
     static cilist io___162 = { 0, 40, 0, "(a)", 0 };
 
 
-#line 816 ""
+#line 819 ""
     type4 = FALSE_;
-#line 817 ""
-    *(unsigned char *)sq = '\\';
-#line 818 ""
-    alldone = FALSE_;
-#line 819 ""
-    al__1.aerr = 0;
-#line 819 ""
-    al__1.aunit = *iv + 10;
-#line 819 ""
-    f_rew(&al__1);
 #line 820 ""
-    if (*iv < 10) {
+    *(unsigned char *)sq = '\\';
 #line 821 ""
-	*(unsigned char *)partq = (char) (*iv + 48);
+    alldone = FALSE_;
 #line 822 ""
-	lpart = 1;
+    al__1.aerr = 0;
+#line 822 ""
+    al__1.aunit = *iv + 10;
+#line 822 ""
+    f_rew(&al__1);
 #line 823 ""
-    } else {
+    if (*iv < 10) {
 #line 824 ""
-	lpart = 2;
+	*(unsigned char *)partq = (char) (*iv + 48);
 #line 825 ""
+	lpart = 1;
+#line 826 ""
+    } else {
+#line 827 ""
+	lpart = 2;
+#line 828 ""
 	if (*iv < 20) {
 /* Writing concatenation */
-#line 826 ""
+#line 829 ""
 	    i__1[0] = 1, a__1[0] = "1";
-#line 826 ""
+#line 829 ""
 	    *(unsigned char *)&ch__1[0] = *iv + 38;
-#line 826 ""
+#line 829 ""
 	    i__1[1] = 1, a__1[1] = ch__1;
-#line 826 ""
+#line 829 ""
 	    s_cat(partq, a__1, i__1, &c__2, (ftnlen)2);
-#line 827 ""
+#line 830 ""
 	} else {
 /* Writing concatenation */
-#line 828 ""
+#line 831 ""
 	    i__1[0] = 1, a__1[0] = "2";
-#line 828 ""
+#line 831 ""
 	    *(unsigned char *)&ch__1[0] = *iv + 28;
-#line 828 ""
+#line 831 ""
 	    i__1[1] = 1, a__1[1] = ch__1;
-#line 828 ""
+#line 831 ""
 	    s_cat(partq, a__1, i__1, &c__2, (ftnlen)2);
-#line 829 ""
+#line 832 ""
 	}
-#line 830 ""
+#line 833 ""
     }
 /* 130327 */
 /*      open(40,file=jobname(1:abs(ljob))//partq(1:lpart)//'.pmx') */
-#line 833 ""
+#line 836 ""
     if (*ludpfn == 0) {
-#line 834 ""
+#line 837 ""
 	o__1.oerr = 0;
-#line 834 ""
+#line 837 ""
 	o__1.ounit = 40;
-#line 834 ""
+#line 837 ""
 	o__1.ofnmlen = abs(*ljob) + lpart + 4;
 /* Writing concatenation */
-#line 834 ""
+#line 837 ""
 	i__2[0] = abs(*ljob), a__2[0] = jobname;
-#line 834 ""
+#line 837 ""
 	i__2[1] = lpart, a__2[1] = partq;
-#line 834 ""
+#line 837 ""
 	i__2[2] = 4, a__2[2] = ".pmx";
-#line 834 ""
+#line 837 ""
 	s_cat(ch__2, a__2, i__2, &c__3, (ftnlen)18);
-#line 834 ""
+#line 837 ""
 	o__1.ofnm = ch__2;
-#line 834 ""
+#line 837 ""
 	o__1.orl = 0;
-#line 834 ""
+#line 837 ""
 	o__1.osta = 0;
-#line 834 ""
+#line 837 ""
 	o__1.oacc = 0;
-#line 834 ""
+#line 837 ""
 	o__1.ofm = 0;
-#line 834 ""
+#line 837 ""
 	o__1.oblnk = 0;
-#line 834 ""
+#line 837 ""
 	f_open(&o__1);
-#line 835 ""
+#line 838 ""
     } else {
-#line 836 ""
+#line 839 ""
 	o__1.oerr = 0;
-#line 836 ""
+#line 839 ""
 	o__1.ounit = 40;
-#line 836 ""
+#line 839 ""
 	o__1.ofnmlen = *ludpfn + 4;
 /* Writing concatenation */
-#line 836 ""
+#line 839 ""
 	i__1[0] = *ludpfn, a__1[0] = udpfnq;
-#line 836 ""
+#line 839 ""
 	i__1[1] = 4, a__1[1] = ".pmx";
-#line 836 ""
+#line 839 ""
 	s_cat(ch__3, a__1, i__1, &c__2, (ftnlen)132);
-#line 836 ""
+#line 839 ""
 	o__1.ofnm = ch__3;
-#line 836 ""
+#line 839 ""
 	o__1.orl = 0;
-#line 836 ""
+#line 839 ""
 	o__1.osta = 0;
-#line 836 ""
+#line 839 ""
 	o__1.oacc = 0;
-#line 836 ""
+#line 839 ""
 	o__1.ofm = 0;
-#line 836 ""
+#line 839 ""
 	o__1.oblnk = 0;
-#line 836 ""
+#line 839 ""
 	f_open(&o__1);
-#line 837 ""
-    }
-#line 838 ""
-    for (i__ = 1; i__ <= 10000; ++i__) {
-#line 839 ""
-	io___114.ciunit = *iv + 10;
-#line 839 ""
-	s_rsfe(&io___114);
-#line 839 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 839 ""
-	e_rsfe();
 #line 840 ""
+    }
+#line 841 ""
+    for (i__ = 1; i__ <= 10000; ++i__) {
+#line 842 ""
+	io___114.ciunit = *iv + 10;
+#line 842 ""
+	s_rsfe(&io___114);
+#line 842 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 842 ""
+	e_rsfe();
+#line 843 ""
 	if (*(unsigned char *)&line[0] == '%' || s_cmp(line, "---", (ftnlen)3,
 		 (ftnlen)3) == 0 || type4) {
-#line 842 ""
-	    len = lenstr_(line, &c__128, (ftnlen)128);
-#line 843 ""
-	    if (len > 0) {
-#line 844 ""
-		s_wsfe(&io___117);
-#line 844 ""
-		do_fio(&c__1, line, len);
-#line 844 ""
-		e_wsfe();
 #line 845 ""
-	    } else {
+	    len = lenstr_(line, &c__128, (ftnlen)128);
 #line 846 ""
-		s_wsfe(&io___118);
-#line 846 ""
-		do_fio(&c__1, " ", (ftnlen)1);
-#line 846 ""
-		e_wsfe();
+	    if (len > 0) {
 #line 847 ""
-	    }
+		s_wsfe(&io___117);
+#line 847 ""
+		do_fio(&c__1, line, len);
+#line 847 ""
+		e_wsfe();
 #line 848 ""
-	    if (s_cmp(line, "---", (ftnlen)3, (ftnlen)3) == 0) {
-#line 848 ""
-		type4 = ! type4;
-#line 848 ""
-	    }
+	    } else {
 #line 849 ""
-	} else {
+		s_wsfe(&io___118);
+#line 849 ""
+		do_fio(&c__1, " ", (ftnlen)1);
+#line 849 ""
+		e_wsfe();
 #line 850 ""
-	    goto L11;
+	    }
 #line 851 ""
+	    if (s_cmp(line, "---", (ftnlen)3, (ftnlen)3) == 0) {
+#line 851 ""
+		type4 = ! type4;
+#line 851 ""
+	    }
+#line 852 ""
+	} else {
+#line 853 ""
+	    goto L11;
+#line 854 ""
 	}
-#line 852 ""
+#line 855 ""
 /* L10: */
-#line 852 ""
+#line 855 ""
     }
-#line 853 ""
+#line 856 ""
     s_wsle(&io___119);
-#line 853 ""
+#line 856 ""
     do_lio(&c__9, &c__1, "You should not be here in scor2prt.  Call Dr. Don", 
 	    (ftnlen)49);
-#line 853 ""
+#line 856 ""
     e_wsle();
-#line 854 ""
+#line 857 ""
     s_stop("", (ftnlen)0);
-#line 855 ""
+#line 858 ""
 L11:
 
 /*  Finished reading opening type4 TeX and comments.  Next line to be read */
 /*  will contain the first of the input numbers */
 
-#line 860 ""
+#line 863 ""
     dosetup_(iv, line, &mtrnum, &mtrden, (ftnlen)128);
-#line 861 ""
+#line 864 ""
     for (i__ = 1; i__ <= 10000; ++i__) {
-#line 862 ""
+#line 865 ""
 L13:
-#line 862 ""
+#line 865 ""
 	io___122.ciunit = *iv + 10;
-#line 862 ""
+#line 865 ""
 	i__3 = s_rsfe(&io___122);
-#line 862 ""
+#line 865 ""
 	if (i__3 != 0) {
-#line 862 ""
+#line 865 ""
 	    goto L999;
-#line 862 ""
+#line 865 ""
 	}
-#line 862 ""
+#line 865 ""
 	i__3 = do_fio(&c__1, line, (ftnlen)128);
-#line 862 ""
+#line 865 ""
 	if (i__3 != 0) {
-#line 862 ""
+#line 865 ""
 	    goto L999;
-#line 862 ""
+#line 865 ""
 	}
-#line 862 ""
+#line 865 ""
 	i__3 = e_rsfe();
-#line 862 ""
+#line 865 ""
 	if (i__3 != 0) {
-#line 862 ""
+#line 865 ""
 	    goto L999;
-#line 862 ""
+#line 865 ""
 	}
-#line 863 ""
+#line 866 ""
 L7:
-#line 863 ""
+#line 866 ""
 	len = lenstr_(line, &c__128, (ftnlen)128);
 
 /*  Pass-through (and copy into part file) if instrumnet has >1 voice. */
 
-#line 867 ""
+#line 870 ""
 	if (*ljob < 0) {
-#line 867 ""
+#line 870 ""
 	    goto L2;
-#line 867 ""
+#line 870 ""
 	}
-#line 868 ""
+#line 871 ""
 	if (i_indx("TtTiTch+h-h l ", line, (ftnlen)14, (ftnlen)2) > 0) {
 
 /*  Traps titles, instruments, composers, headers, lower strings.  Read 2 lines. */
 
-#line 872 ""
-	    s_wsfe(&io___123);
-#line 872 ""
-	    do_fio(&c__1, line, len);
-#line 872 ""
-	    e_wsfe();
-#line 873 ""
-	    io___124.ciunit = *iv + 10;
-#line 873 ""
-	    s_rsfe(&io___124);
-#line 873 ""
-	    do_fio(&c__1, line, (ftnlen)128);
-#line 873 ""
-	    e_rsfe();
-#line 874 ""
-	    len = lenstr_(line, &c__128, (ftnlen)128);
 #line 875 ""
-	    goto L2;
+	    s_wsfe(&io___123);
+#line 875 ""
+	    do_fio(&c__1, line, len);
+#line 875 ""
+	    e_wsfe();
 #line 876 ""
-	}
+	    io___124.ciunit = *iv + 10;
+#line 876 ""
+	    s_rsfe(&io___124);
+#line 876 ""
+	    do_fio(&c__1, line, (ftnlen)128);
+#line 876 ""
+	    e_rsfe();
 #line 877 ""
+	    len = lenstr_(line, &c__128, (ftnlen)128);
+#line 878 ""
+	    goto L2;
+#line 879 ""
+	}
+#line 880 ""
 	if (i__ == 1 || i__ > 5 && *(unsigned char *)&line[0] == 'm') {
 
 /*  Either just starting, or a new meter is defined. */
 /*  NOTE! The above test may be bogus. */
 
-#line 882 ""
-	    if (*(unsigned char *)&line[0] == '%') {
-#line 883 ""
-		s_wsfe(&io___125);
-#line 883 ""
-		do_fio(&c__1, line, len);
-#line 883 ""
-		e_wsfe();
-#line 884 ""
-		goto L13;
 #line 885 ""
-	    }
+	    if (*(unsigned char *)&line[0] == '%') {
 #line 886 ""
+		s_wsfe(&io___125);
+#line 886 ""
+		do_fio(&c__1, line, len);
+#line 886 ""
+		e_wsfe();
+#line 887 ""
+		goto L13;
+#line 888 ""
+	    }
+#line 889 ""
 	    if (i__ != 1) {
 
 /*  New meter. Check for slashes (new meter change syntax) */
 
-#line 890 ""
-		idxs = i_indx(line, "/", (ftnlen)128, (ftnlen)1);
-#line 891 ""
-		idxb = i_indx(line, " ", (ftnlen)128, (ftnlen)1);
-#line 892 ""
-		newmtr = idxs > 0 && (idxb == 0 || idxs < idxb);
 #line 893 ""
+		idxs = i_indx(line, "/", (ftnlen)128, (ftnlen)1);
+#line 894 ""
+		idxb = i_indx(line, " ", (ftnlen)128, (ftnlen)1);
+#line 895 ""
+		newmtr = idxs > 0 && (idxb == 0 || idxs < idxb);
+#line 896 ""
 		if (! newmtr) {
 
 /*  Old way, no slashes, uses 'o' for lonesome '1' */
 
-#line 897 ""
-		    icden = 3;
-#line 898 ""
-		    if (*(unsigned char *)&line[1] == 'o') {
-#line 899 ""
-			mtrnum = 1;
 #line 900 ""
-		    } else {
+		    icden = 3;
 #line 901 ""
-			mtrnum = *(unsigned char *)&line[1] - 48;
+		    if (*(unsigned char *)&line[1] == 'o') {
 #line 902 ""
-			if (mtrnum == 1) {
+			mtrnum = 1;
 #line 903 ""
-			    icden = 4;
+		    } else {
 #line 904 ""
-			    mtrnum = *(unsigned char *)&line[2] - 38;
+			mtrnum = *(unsigned char *)&line[1] - 48;
 #line 905 ""
-			}
+			if (mtrnum == 1) {
 #line 906 ""
-		    }
+			    icden = 4;
 #line 907 ""
-		    mtrden = *(unsigned char *)&line[icden - 1] - 48;
+			    mtrnum = *(unsigned char *)&line[2] - 38;
 #line 908 ""
+			}
+#line 909 ""
+		    }
+#line 910 ""
+		    mtrden = *(unsigned char *)&line[icden - 1] - 48;
+#line 911 ""
 		} else {
 
 /*  New way with slashes: idxs is index of 1st slash! */
 
-#line 912 ""
+#line 915 ""
 		    ici__1.icierr = 0;
-#line 912 ""
+#line 915 ""
 		    ici__1.iciend = 0;
-#line 912 ""
+#line 915 ""
 		    ici__1.icirnum = 1;
-#line 912 ""
+#line 915 ""
 		    ici__1.icirlen = idxs - 2;
-#line 912 ""
+#line 915 ""
 		    ici__1.iciunit = line + 1;
 /* Writing concatenation */
-#line 912 ""
+#line 915 ""
 		    i__2[0] = 2, a__2[0] = "(i";
-#line 912 ""
+#line 915 ""
 		    *(unsigned char *)&ch__1[0] = idxs + 46;
-#line 912 ""
+#line 915 ""
 		    i__2[1] = 1, a__2[1] = ch__1;
-#line 912 ""
+#line 915 ""
 		    i__2[2] = 1, a__2[2] = ")";
-#line 912 ""
+#line 915 ""
 		    ici__1.icifmt = (s_cat(ch__4, a__2, i__2, &c__3, (ftnlen)
 			    4), ch__4);
-#line 912 ""
+#line 915 ""
 		    s_rsfi(&ici__1);
-#line 912 ""
+#line 915 ""
 		    do_fio(&c__1, (char *)&mtrnum, (ftnlen)sizeof(integer));
-#line 912 ""
-		    e_rsfi();
-#line 913 ""
-		    i__3 = idxs;
-#line 913 ""
-		    idxb = i_indx(line + i__3, "/", 128 - i__3, (ftnlen)1);
-#line 914 ""
-		    i__3 = idxs;
-#line 914 ""
-		    ici__1.icierr = 0;
-#line 914 ""
-		    ici__1.iciend = 0;
-#line 914 ""
-		    ici__1.icirnum = 1;
-#line 914 ""
-		    ici__1.icirlen = idxs + idxb - 1 - i__3;
-#line 914 ""
-		    ici__1.iciunit = line + i__3;
-/* Writing concatenation */
-#line 914 ""
-		    i__2[0] = 2, a__2[0] = "(i";
-#line 914 ""
-		    *(unsigned char *)&ch__1[0] = idxb + 47;
-#line 914 ""
-		    i__2[1] = 1, a__2[1] = ch__1;
-#line 914 ""
-		    i__2[2] = 1, a__2[2] = ")";
-#line 914 ""
-		    ici__1.icifmt = (s_cat(ch__4, a__2, i__2, &c__3, (ftnlen)
-			    4), ch__4);
-#line 914 ""
-		    s_rsfi(&ici__1);
-#line 914 ""
-		    do_fio(&c__1, (char *)&mtrden, (ftnlen)sizeof(integer));
-#line 914 ""
+#line 915 ""
 		    e_rsfi();
 #line 916 ""
-		}
+		    i__3 = idxs;
+#line 916 ""
+		    idxb = i_indx(line + i__3, "/", 128 - i__3, (ftnlen)1);
 #line 917 ""
-	    }
-#line 918 ""
-	    lenbeat = ifnodur_(&mtrden, "x", (ftnlen)1);
+		    i__3 = idxs;
+#line 917 ""
+		    ici__1.icierr = 0;
+#line 917 ""
+		    ici__1.iciend = 0;
+#line 917 ""
+		    ici__1.icirnum = 1;
+#line 917 ""
+		    ici__1.icirlen = idxs + idxb - 1 - i__3;
+#line 917 ""
+		    ici__1.iciunit = line + i__3;
+/* Writing concatenation */
+#line 917 ""
+		    i__2[0] = 2, a__2[0] = "(i";
+#line 917 ""
+		    *(unsigned char *)&ch__1[0] = idxb + 47;
+#line 917 ""
+		    i__2[1] = 1, a__2[1] = ch__1;
+#line 917 ""
+		    i__2[2] = 1, a__2[2] = ")";
+#line 917 ""
+		    ici__1.icifmt = (s_cat(ch__4, a__2, i__2, &c__3, (ftnlen)
+			    4), ch__4);
+#line 917 ""
+		    s_rsfi(&ici__1);
+#line 917 ""
+		    do_fio(&c__1, (char *)&mtrden, (ftnlen)sizeof(integer));
+#line 917 ""
+		    e_rsfi();
 #line 919 ""
-	    lenmult = 1;
+		}
 #line 920 ""
-	    if (mtrden == 2) {
-#line 921 ""
-		lenbeat = 16;
-#line 922 ""
-		lenmult = 2;
-#line 923 ""
 	    }
+#line 921 ""
+	    lenbeat = ifnodur_(&mtrden, "x", (ftnlen)1);
+#line 922 ""
+	    lenmult = 1;
+#line 923 ""
+	    if (mtrden == 2) {
 #line 924 ""
-	    lenbar = lenmult * mtrnum * lenbeat;
+		lenbeat = 16;
 #line 925 ""
-	    fwbrsym_(&lenbar, &nwbrs, wbrsym, &lwbrs, (ftnlen)3);
+		lenmult = 2;
 #line 926 ""
+	    }
+#line 927 ""
+	    lenbar = lenmult * mtrnum * lenbeat;
+#line 928 ""
+	    fwbrsym_(&lenbar, &nwbrs, wbrsym, &lwbrs, (ftnlen)3);
+#line 929 ""
 	}
 
 /* Finished setting up meter stuff and defining whole-bar rest symbols */
 
-#line 930 ""
-	ip1 = 0;
-#line 931 ""
-	s_copy(line1, line, (ftnlen)128, (ftnlen)128);
-#line 932 ""
-	i__3 = nwbrs;
-#line 932 ""
-	for (iw = 0; iw <= i__3; ++iw) {
 #line 933 ""
-	    if (iw > 0) {
+	ip1 = 0;
 #line 934 ""
+	s_copy(line1, line, (ftnlen)128, (ftnlen)128);
+#line 935 ""
+	i__3 = nwbrs;
+#line 935 ""
+	for (iw = 0; iw <= i__3; ++iw) {
+#line 936 ""
+	    if (iw > 0) {
+#line 937 ""
 		idx = ntindex_(line1, wbrsym + (iw - 1) * 3, (ftnlen)128, 
 			lwbrs);
-#line 935 ""
+#line 938 ""
 		if (idx > 0) {
 
 /*  Check for blank or shifted rest, discount it if it's there */
 
-#line 939 ""
+#line 942 ""
 		    i__4 = idx + lwbrs - 1;
-#line 939 ""
+#line 942 ""
 		    if (s_cmp(line1 + i__4, " ", idx + lwbrs - i__4, (ftnlen)
 			    1) != 0) {
-#line 939 ""
-			idx = 0;
-#line 939 ""
-		    }
-#line 940 ""
-		}
-#line 941 ""
-	    } else {
 #line 942 ""
+			idx = 0;
+#line 942 ""
+		    }
+#line 943 ""
+		}
+#line 944 ""
+	    } else {
+#line 945 ""
 		idx = ntindex_(line1, "rp", (ftnlen)128, (ftnlen)2);
 
 /*  Check for raised rest */
 
-#line 946 ""
+#line 949 ""
 		if (idx > 0) {
-#line 947 ""
+#line 950 ""
 		    i__4 = idx + 1;
-#line 947 ""
+#line 950 ""
 		    if (s_cmp(line1 + i__4, " ", idx + 2 - i__4, (ftnlen)1) !=
 			     0) {
-#line 947 ""
-			idx = 0;
-#line 947 ""
-		    }
-#line 948 ""
-		}
-#line 949 ""
-	    }
 #line 950 ""
-	    if (idx > 0) {
+			idx = 0;
+#line 950 ""
+		    }
 #line 951 ""
-		if (ip1 == 0) {
+		}
 #line 952 ""
-		    ip1 = idx;
+	    }
 #line 953 ""
-		} else {
+	    if (idx > 0) {
 #line 954 ""
+		if (ip1 == 0) {
+#line 955 ""
+		    ip1 = idx;
+#line 956 ""
+		} else {
+#line 957 ""
 		    ip1 = min(ip1,idx);
 /* Maybe allows e.g. r0 rp ... */
-#line 955 ""
+#line 958 ""
 		}
-#line 956 ""
+#line 959 ""
 	    }
-#line 957 ""
+#line 960 ""
 /* L3: */
-#line 957 ""
+#line 960 ""
 	}
 /* Writing concatenation */
-#line 958 ""
+#line 961 ""
 	i__1[0] = 1, a__1[0] = sq;
-#line 958 ""
+#line 961 ""
 	i__1[1] = 1, a__1[1] = sq;
-#line 958 ""
+#line 961 ""
 	s_cat(ch__5, a__1, i__1, &c__2, (ftnlen)2);
-#line 958 ""
+#line 961 ""
 	if (i__ < 5 || *(unsigned char *)&line[0] == '%' || s_cmp(line, ch__5,
 		 (ftnlen)2, (ftnlen)2) == 0 || ip1 == 0) {
-#line 958 ""
+#line 961 ""
 	    goto L2;
-#line 958 ""
+#line 961 ""
 	}
 
 /*  Switch to multibar rest search mode!!!  Start forward in line(1) */
 
-#line 963 ""
-	rpfirst = s_cmp(line1 + (ip1 - 1), "rp", (ftnlen)2, (ftnlen)2) == 0;
-#line 964 ""
-	iline = 1;
-#line 965 ""
-	nmbr = 1;
 #line 966 ""
-	if (rpfirst) {
+	rpfirst = s_cmp(line1 + (ip1 - 1), "rp", (ftnlen)2, (ftnlen)2) == 0;
 #line 967 ""
-	    lwbrsx = 2;
+	iline = 1;
 #line 968 ""
-	} else {
+	nmbr = 1;
 #line 969 ""
-	    lwbrsx = lwbrs;
+	if (rpfirst) {
 #line 970 ""
-	}
+	    lwbrsx = 2;
 #line 971 ""
+	} else {
+#line 972 ""
+	    lwbrsx = lwbrs;
+#line 973 ""
+	}
+#line 974 ""
 	ipe = ip1 + lwbrsx - 1;
 /* ip at end of 1st wbrsym */
-#line 972 ""
+#line 975 ""
 L4:
-#line 972 ""
+#line 975 ""
 	if (ipe == len) {
 
 /*  Need a new line */
 
-#line 976 ""
-	    ++iline;
-#line 977 ""
-L6:
-#line 977 ""
-	    io___145.ciunit = *iv + 10;
-#line 977 ""
-	    i__3 = s_rsfe(&io___145);
-#line 977 ""
-	    if (i__3 != 0) {
-#line 977 ""
-		goto L998;
-#line 977 ""
-	    }
-#line 977 ""
-	    i__3 = do_fio(&c__1, line + (iline - 1 << 7), (ftnlen)128);
-#line 977 ""
-	    if (i__3 != 0) {
-#line 977 ""
-		goto L998;
-#line 977 ""
-	    }
-#line 977 ""
-	    i__3 = e_rsfe();
-#line 977 ""
-	    if (i__3 != 0) {
-#line 977 ""
-		goto L998;
-#line 977 ""
-	    }
-#line 978 ""
-	    len = lenstr_(line + (iline - 1 << 7), &c__128, (ftnlen)128);
 #line 979 ""
+	    ++iline;
+#line 980 ""
+L6:
+#line 980 ""
+	    io___145.ciunit = *iv + 10;
+#line 980 ""
+	    i__3 = s_rsfe(&io___145);
+#line 980 ""
+	    if (i__3 != 0) {
+#line 980 ""
+		goto L998;
+#line 980 ""
+	    }
+#line 980 ""
+	    i__3 = do_fio(&c__1, line + (iline - 1 << 7), (ftnlen)128);
+#line 980 ""
+	    if (i__3 != 0) {
+#line 980 ""
+		goto L998;
+#line 980 ""
+	    }
+#line 980 ""
+	    i__3 = e_rsfe();
+#line 980 ""
+	    if (i__3 != 0) {
+#line 980 ""
+		goto L998;
+#line 980 ""
+	    }
+#line 981 ""
+	    len = lenstr_(line + (iline - 1 << 7), &c__128, (ftnlen)128);
+#line 982 ""
 	    if (*(unsigned char *)&line[(iline - 1) * 128] == '%') {
-#line 980 ""
+#line 983 ""
 		s_wsfe(&io___146);
-#line 980 ""
+#line 983 ""
 		do_fio(&c__1, "% Following comment has been moved forward", (
 			ftnlen)42);
-#line 980 ""
-		e_wsfe();
-#line 981 ""
-		s_wsfe(&io___147);
-#line 981 ""
-		do_fio(&c__1, line + (iline - 1 << 7), len);
-#line 981 ""
-		e_wsfe();
-#line 982 ""
-		goto L6;
 #line 983 ""
-	    }
+		e_wsfe();
 #line 984 ""
-	    ipe = 0;
+		s_wsfe(&io___147);
+#line 984 ""
+		do_fio(&c__1, line + (iline - 1 << 7), len);
+#line 984 ""
+		e_wsfe();
 #line 985 ""
-	    goto L4;
+		goto L6;
 #line 986 ""
+	    }
+#line 987 ""
+	    ipe = 0;
+#line 988 ""
+	    goto L4;
+#line 989 ""
 L998:
 
 /*  No more input left */
 
-#line 990 ""
-	    s_wsle(&io___148);
-#line 990 ""
-	    do_lio(&c__9, &c__1, "All done!", (ftnlen)9);
-#line 990 ""
-	    e_wsle();
-#line 991 ""
-	    alldone = TRUE_;
-#line 992 ""
-	    ipe = 0;
 #line 993 ""
-	    --iline;
+	    s_wsle(&io___148);
+#line 993 ""
+	    do_lio(&c__9, &c__1, "All done!", (ftnlen)9);
+#line 993 ""
+	    e_wsle();
 #line 994 ""
-	    len = lenstr_(line + (iline - 1 << 7), &c__128, (ftnlen)128);
+	    alldone = TRUE_;
 #line 995 ""
-	    goto L4;
+	    ipe = 0;
 #line 996 ""
-	} else {
+	    --iline;
 #line 997 ""
-	    if (alldone) {
+	    len = lenstr_(line + (iline - 1 << 7), &c__128, (ftnlen)128);
 #line 998 ""
-		*(unsigned char *)sym = ' ';
+	    goto L4;
 #line 999 ""
+	} else {
+#line 1000 ""
+	    if (alldone) {
+#line 1001 ""
+		*(unsigned char *)sym = ' ';
+#line 1002 ""
 	    } else {
 
 /*  ipe<len here, so it's ok to get a symbol */
 
-#line 1003 ""
+#line 1006 ""
 		nextsym_(line + (iline - 1 << 7), &len, &ipe, &ipenew, sym, &
 			lsym, (ftnlen)128, (ftnlen)80);
-#line 1004 ""
+#line 1007 ""
 	    }
 
 /*  Check for end of block or bar line symbol */
 
-#line 1008 ""
-	    if (i_indx("/|", sym, (ftnlen)2, (ftnlen)1) > 0) {
-#line 1009 ""
-		ipe = ipenew;
-#line 1010 ""
-		goto L4;
 #line 1011 ""
-	    } else {
+	    if (i_indx("/|", sym, (ftnlen)2, (ftnlen)1) > 0) {
 #line 1012 ""
-		wbrest = FALSE_;
+		ipe = ipenew;
 #line 1013 ""
-		if (alldone) {
-#line 1013 ""
-		    goto L12;
-#line 1013 ""
-		}
+		goto L4;
 #line 1014 ""
-		i__3 = nwbrs;
-#line 1014 ""
-		for (iw = 1; iw <= i__3; ++iw) {
+	    } else {
 #line 1015 ""
-		    wbrest = wbrest || s_cmp(sym, wbrsym + (iw - 1) * 3, lsym,
-			     lwbrs) == 0;
+		wbrest = FALSE_;
 #line 1016 ""
-/* L5: */
+		if (alldone) {
+#line 1016 ""
+		    goto L12;
 #line 1016 ""
 		}
 #line 1017 ""
+		i__3 = nwbrs;
+#line 1017 ""
+		for (iw = 1; iw <= i__3; ++iw) {
+#line 1018 ""
+		    wbrest = wbrest || s_cmp(sym, wbrsym + (iw - 1) * 3, lsym,
+			     lwbrs) == 0;
+#line 1019 ""
+/* L5: */
+#line 1019 ""
+		}
+#line 1020 ""
 		wbrest = wbrest || s_cmp(sym, "r", lsym, (ftnlen)1) == 0 && 
 			lwbrs == 2 || s_cmp(sym, "rd", lsym, (ftnlen)2) == 0 
 			&& lwbrs == 3 || s_cmp(sym, "rp", lsym, (ftnlen)2) == 
 			0 || s_cmp(sym, "r", lsym, (ftnlen)1) == 0 && rpfirst;
-#line 1021 ""
-L12:
-#line 1021 ""
-		if (wbrest) {
-#line 1022 ""
-		    ipe = ipenew;
-#line 1023 ""
-		    ++nmbr;
 #line 1024 ""
-		    goto L4;
+L12:
+#line 1024 ""
+		if (wbrest) {
 #line 1025 ""
+		    ipe = ipenew;
+#line 1026 ""
+		    ++nmbr;
+#line 1027 ""
+		    goto L4;
+#line 1028 ""
 		} else {
 
 /*  AHA! Failed prev. test, so last symbol was *not* mbr. */
 /*  It must be saved, and its starting position is ipenew-lsym+1 */
 
-#line 1030 ""
+#line 1033 ""
 		    if (nmbr > 1) {
 
 /*  Write stuff up to start of mbr */
 
-#line 1034 ""
+#line 1037 ""
 			if (ip1 > 1) {
-#line 1034 ""
+#line 1037 ""
 			    s_wsfe(&io___153);
-#line 1034 ""
+#line 1037 ""
 			    do_fio(&c__1, line, ip1 - 1);
-#line 1034 ""
+#line 1037 ""
 			    e_wsfe();
-#line 1034 ""
+#line 1037 ""
 			}
 
 /*  Insert mbr symbol.  Always end with a slash just in case next sym must be */
 /*  at start of block.  May think this causes undefined octaves, but */
 /*  probably not since it's a single voice. */
 
-#line 1040 ""
+#line 1043 ""
 			r__1 = nmbr + .01f;
-#line 1040 ""
+#line 1043 ""
 			ndig = (integer) r_lg10(&r__1) + 1;
-#line 1041 ""
+#line 1044 ""
 			s_wsle(&io___155);
-#line 1041 ""
+#line 1044 ""
 			do_lio(&c__9, &c__1, "Inserting rm, iv,nmbr:", (
 				ftnlen)22);
-#line 1041 ""
+#line 1044 ""
 			do_lio(&c__3, &c__1, (char *)&(*iv), (ftnlen)sizeof(
 				integer));
-#line 1041 ""
+#line 1044 ""
 			do_lio(&c__3, &c__1, (char *)&nmbr, (ftnlen)sizeof(
 				integer));
-#line 1041 ""
+#line 1044 ""
 			e_wsle();
-#line 1042 ""
+#line 1045 ""
 			ci__1.cierr = 0;
-#line 1042 ""
+#line 1045 ""
 			ci__1.ciunit = 40;
 /* Writing concatenation */
-#line 1042 ""
+#line 1045 ""
 			i__2[0] = 5, a__2[0] = "(a2,i";
-#line 1042 ""
+#line 1045 ""
 			*(unsigned char *)&ch__1[0] = ndig + 48;
-#line 1042 ""
+#line 1045 ""
 			i__2[1] = 1, a__2[1] = ch__1;
-#line 1042 ""
+#line 1045 ""
 			i__2[2] = 4, a__2[2] = ",a2)";
-#line 1042 ""
+#line 1045 ""
 			ci__1.cifmt = (s_cat(ch__6, a__2, i__2, &c__3, (
 				ftnlen)10), ch__6);
-#line 1042 ""
-			s_wsfe(&ci__1);
-#line 1042 ""
-			do_fio(&c__1, "rm", (ftnlen)2);
-#line 1042 ""
-			do_fio(&c__1, (char *)&nmbr, (ftnlen)sizeof(integer));
-#line 1042 ""
-			do_fio(&c__1, " /", (ftnlen)2);
-#line 1042 ""
-			e_wsfe();
-#line 1043 ""
-			if (alldone) {
-#line 1043 ""
-			    goto L999;
-#line 1043 ""
-			}
-#line 1044 ""
-			ipc = ipenew - lsym + 1;
 #line 1045 ""
+			s_wsfe(&ci__1);
+#line 1045 ""
+			do_fio(&c__1, "rm", (ftnlen)2);
+#line 1045 ""
+			do_fio(&c__1, (char *)&nmbr, (ftnlen)sizeof(integer));
+#line 1045 ""
+			do_fio(&c__1, " /", (ftnlen)2);
+#line 1045 ""
+			e_wsfe();
+#line 1046 ""
+			if (alldone) {
+#line 1046 ""
+			    goto L999;
+#line 1046 ""
+			}
+#line 1047 ""
+			ipc = ipenew - lsym + 1;
+#line 1048 ""
 			s_copy(line, line + ((iline - 1 << 7) + (ipc - 1)), (
 				ftnlen)128, len - (ipc - 1));
-#line 1046 ""
+#line 1049 ""
 		    } else {
 
 /*  Write old stuff up to end of original lonesome wbr, save the rest. */
@@ -2857,112 +2860,112 @@ L12:
 /*  non-comment line; then revert to normal mode on that.  In 3rd case must */
 /*  split line. */
 
-#line 1055 ""
-			if (alldone) {
-#line 1056 ""
-			    s_wsfe(&io___157);
-#line 1056 ""
-			    do_fio(&c__1, line, len);
-#line 1056 ""
-			    e_wsfe();
-#line 1057 ""
-			    goto L999;
 #line 1058 ""
-			} else if (iline > 1) {
+			if (alldone) {
 #line 1059 ""
-			    i__3 = iline - 1;
+			    s_wsfe(&io___157);
 #line 1059 ""
-			    for (il = 1; il <= i__3; ++il) {
+			    do_fio(&c__1, line, len);
+#line 1059 ""
+			    e_wsfe();
 #line 1060 ""
+			    goto L999;
+#line 1061 ""
+			} else if (iline > 1) {
+#line 1062 ""
+			    i__3 = iline - 1;
+#line 1062 ""
+			    for (il = 1; il <= i__3; ++il) {
+#line 1063 ""
 				len = lenstr_(line + (il - 1 << 7), &c__128, (
 					ftnlen)128);
-#line 1061 ""
+#line 1064 ""
 				s_wsfe(&io___159);
-#line 1061 ""
+#line 1064 ""
 				do_fio(&c__1, line + (il - 1 << 7), len);
-#line 1061 ""
+#line 1064 ""
 				e_wsfe();
-#line 1062 ""
+#line 1065 ""
 /* L9: */
-#line 1062 ""
+#line 1065 ""
 			    }
-#line 1063 ""
+#line 1066 ""
 			    s_copy(line, line + (iline - 1 << 7), (ftnlen)128,
 				     (ftnlen)128);
-#line 1064 ""
+#line 1067 ""
 			} else {
 
 /*  Since iline = 1 the wbr is not the last sym, so must split */
 
-#line 1068 ""
+#line 1071 ""
 			    s_wsfe(&io___160);
-#line 1068 ""
+#line 1071 ""
 			    do_fio(&c__1, line, ip1 + lwbrsx - 1);
-#line 1068 ""
+#line 1071 ""
 			    e_wsfe();
-#line 1069 ""
+#line 1072 ""
 			    i__3 = ip1 + lwbrsx;
-#line 1069 ""
+#line 1072 ""
 			    s_copy(line, line + i__3, (ftnlen)128, len - i__3)
 				    ;
-#line 1070 ""
+#line 1073 ""
 			}
-#line 1071 ""
+#line 1074 ""
 		    }
 
 /*  Exit multibar mode */
 
-#line 1075 ""
-		    goto L7;
-#line 1076 ""
-		}
-#line 1077 ""
-	    }
 #line 1078 ""
-	}
+		    goto L7;
 #line 1079 ""
-L2:
+		}
 #line 1080 ""
-	if (len > 0) {
+	    }
 #line 1081 ""
-	    s_wsfe(&io___161);
-#line 1081 ""
-	    do_fio(&c__1, line, len);
-#line 1081 ""
-	    e_wsfe();
-#line 1082 ""
-	} else {
-#line 1083 ""
-	    s_wsfe(&io___162);
-#line 1083 ""
-	    do_fio(&c__1, " ", (ftnlen)1);
-#line 1083 ""
-	    e_wsfe();
-#line 1084 ""
 	}
+#line 1082 ""
+L2:
+#line 1083 ""
+	if (len > 0) {
+#line 1084 ""
+	    s_wsfe(&io___161);
+#line 1084 ""
+	    do_fio(&c__1, line, len);
+#line 1084 ""
+	    e_wsfe();
 #line 1085 ""
-/* L1: */
-#line 1085 ""
-    }
+	} else {
 #line 1086 ""
-L999:
+	    s_wsfe(&io___162);
+#line 1086 ""
+	    do_fio(&c__1, " ", (ftnlen)1);
+#line 1086 ""
+	    e_wsfe();
 #line 1087 ""
-    cl__1.cerr = 0;
-#line 1087 ""
-    cl__1.cunit = *iv + 10;
-#line 1087 ""
-    cl__1.csta = 0;
-#line 1087 ""
-    f_clos(&cl__1);
+	}
 #line 1088 ""
-    cl__1.cerr = 0;
+/* L1: */
 #line 1088 ""
-    cl__1.cunit = 40;
-#line 1088 ""
-    cl__1.csta = 0;
-#line 1088 ""
-    f_clos(&cl__1);
+    }
 #line 1089 ""
+L999:
+#line 1090 ""
+    cl__1.cerr = 0;
+#line 1090 ""
+    cl__1.cunit = *iv + 10;
+#line 1090 ""
+    cl__1.csta = 0;
+#line 1090 ""
+    f_clos(&cl__1);
+#line 1091 ""
+    cl__1.cerr = 0;
+#line 1091 ""
+    cl__1.cunit = 40;
+#line 1091 ""
+    cl__1.csta = 0;
+#line 1091 ""
+    f_clos(&cl__1);
+#line 1092 ""
     return 0;
 } /* mbrests_ */
 
@@ -2980,54 +2983,54 @@ integer ifnodur_(integer *idur, char *dotq, ftnlen dotq_len)
     static cilist io___163 = { 0, 6, 0, 0, 0 };
 
 
-#line 1093 ""
-    if (*idur == 6) {
-#line 1094 ""
-	ret_val = 1;
-#line 1095 ""
-    } else if (*idur == 3) {
 #line 1096 ""
-	ret_val = 2;
+    if (*idur == 6) {
 #line 1097 ""
-    } else if (*idur == 1 || *idur == 16) {
+	ret_val = 1;
 #line 1098 ""
-	ret_val = 4;
+    } else if (*idur == 3) {
 #line 1099 ""
-    } else if (*idur == 8) {
+	ret_val = 2;
 #line 1100 ""
-	ret_val = 8;
+    } else if (*idur == 1 || *idur == 16) {
 #line 1101 ""
-    } else if (*idur == 4) {
+	ret_val = 4;
 #line 1102 ""
-	ret_val = 16;
+    } else if (*idur == 8) {
 #line 1103 ""
-    } else if (*idur == 2) {
+	ret_val = 8;
 #line 1104 ""
-	ret_val = 32;
+    } else if (*idur == 4) {
 #line 1105 ""
-    } else if (*idur == 0) {
+	ret_val = 16;
 #line 1106 ""
-	ret_val = 64;
+    } else if (*idur == 2) {
 #line 1107 ""
+	ret_val = 32;
+#line 1108 ""
+    } else if (*idur == 0) {
+#line 1109 ""
+	ret_val = 64;
+#line 1110 ""
     } else {
-#line 1108 ""
+#line 1111 ""
 	s_wsle(&io___163);
-#line 1108 ""
+#line 1111 ""
 	do_lio(&c__9, &c__1, "You entered an invalid note-length value", (
 		ftnlen)40);
-#line 1108 ""
+#line 1111 ""
 	e_wsle();
-#line 1109 ""
-	s_stop("", (ftnlen)0);
-#line 1110 ""
-    }
-#line 1111 ""
-    if (*(unsigned char *)dotq == 'd') {
-#line 1111 ""
-	ret_val = ret_val * 3 / 2;
-#line 1111 ""
-    }
 #line 1112 ""
+	s_stop("", (ftnlen)0);
+#line 1113 ""
+    }
+#line 1114 ""
+    if (*(unsigned char *)dotq == 'd') {
+#line 1114 ""
+	ret_val = ret_val * 3 / 2;
+#line 1114 ""
+    }
+#line 1115 ""
     return ret_val;
 } /* ifnodur_ */
 
@@ -3039,79 +3042,82 @@ integer ifnodur_(integer *idur, char *dotq, ftnlen dotq_len)
     integer s_wsfe(cilist *), do_fio(integer *, char *, ftnlen), e_wsfe(void);
 
     /* Fortran I/O blocks */
-    static cilist io___164 = { 0, 6, 0, "(33H Any whole-bar rests of duratio"
-	    "n ,i3,                 26H/64 will not be recognized)", 0 };
+    static cilist io___164 = { 0, 6, 0, "(a33,i3,a26)", 0 };
 
 
-#line 1116 ""
-    /* Parameter adjustments */
-#line 1116 ""
-    wbrsym -= 3;
-#line 1116 ""
-
-#line 1116 ""
-    /* Function Body */
-#line 1116 ""
-    *nwbrs = 1;
-#line 1117 ""
-    *lwbrs = 2;
-#line 1118 ""
-    if (*lenbar == 16) {
 #line 1119 ""
-	s_copy(wbrsym + 3, "r4", (ftnlen)3, (ftnlen)2);
+    /* Parameter adjustments */
+#line 1119 ""
+    wbrsym -= 3;
+#line 1119 ""
+
+#line 1119 ""
+    /* Function Body */
+#line 1119 ""
+    *nwbrs = 1;
 #line 1120 ""
-    } else if (*lenbar == 32) {
+    *lwbrs = 2;
 #line 1121 ""
-	s_copy(wbrsym + 3, "r2", (ftnlen)3, (ftnlen)2);
+    if (*lenbar == 16) {
 #line 1122 ""
-    } else if (*lenbar == 64) {
+	s_copy(wbrsym + 3, "r4", (ftnlen)3, (ftnlen)2);
 #line 1123 ""
-	s_copy(wbrsym + 3, "r0", (ftnlen)3, (ftnlen)2);
+    } else if (*lenbar == 32) {
 #line 1124 ""
-    } else if (*lenbar == 8) {
+	s_copy(wbrsym + 3, "r2", (ftnlen)3, (ftnlen)2);
 #line 1125 ""
-	s_copy(wbrsym + 3, "r8", (ftnlen)3, (ftnlen)2);
+    } else if (*lenbar == 64) {
 #line 1126 ""
-    } else if (*lenbar == 128) {
+	s_copy(wbrsym + 3, "r0", (ftnlen)3, (ftnlen)2);
 #line 1127 ""
-	s_copy(wbrsym + 3, "r9", (ftnlen)3, (ftnlen)2);
+    } else if (*lenbar == 8) {
 #line 1128 ""
-    } else {
+	s_copy(wbrsym + 3, "r8", (ftnlen)3, (ftnlen)2);
 #line 1129 ""
-	*nwbrs = 2;
+    } else if (*lenbar == 128) {
 #line 1130 ""
-	*lwbrs = 3;
+	s_copy(wbrsym + 3, "r9", (ftnlen)3, (ftnlen)2);
 #line 1131 ""
-	if (*lenbar == 24) {
+    } else {
 #line 1132 ""
-	    s_copy(wbrsym + 3, "rd4", (ftnlen)3, (ftnlen)3);
+	*nwbrs = 2;
 #line 1133 ""
-	    s_copy(wbrsym + 6, "r4d", (ftnlen)3, (ftnlen)3);
+	*lwbrs = 3;
 #line 1134 ""
-	} else if (*lenbar == 48) {
+	if (*lenbar == 24) {
 #line 1135 ""
-	    s_copy(wbrsym + 3, "rd2", (ftnlen)3, (ftnlen)3);
+	    s_copy(wbrsym + 3, "rd4", (ftnlen)3, (ftnlen)3);
 #line 1136 ""
-	    s_copy(wbrsym + 6, "r2d", (ftnlen)3, (ftnlen)3);
+	    s_copy(wbrsym + 6, "r4d", (ftnlen)3, (ftnlen)3);
 #line 1137 ""
-	} else if (*lenbar == 96) {
+	} else if (*lenbar == 48) {
 #line 1138 ""
-	    s_copy(wbrsym + 3, "rd0", (ftnlen)3, (ftnlen)3);
+	    s_copy(wbrsym + 3, "rd2", (ftnlen)3, (ftnlen)3);
 #line 1139 ""
-	    s_copy(wbrsym + 6, "r0d", (ftnlen)3, (ftnlen)3);
+	    s_copy(wbrsym + 6, "r2d", (ftnlen)3, (ftnlen)3);
 #line 1140 ""
-	} else {
+	} else if (*lenbar == 96) {
 #line 1141 ""
-	    s_wsfe(&io___164);
-#line 1141 ""
-	    do_fio(&c__1, (char *)&(*lenbar), (ftnlen)sizeof(integer));
-#line 1141 ""
-	    e_wsfe();
+	    s_copy(wbrsym + 3, "rd0", (ftnlen)3, (ftnlen)3);
+#line 1142 ""
+	    s_copy(wbrsym + 6, "r0d", (ftnlen)3, (ftnlen)3);
 #line 1143 ""
-	}
+	} else {
 #line 1144 ""
+	    s_wsfe(&io___164);
+#line 1144 ""
+	    do_fio(&c__1, " Any whole-bar rests of duration", (ftnlen)32);
+#line 1144 ""
+	    do_fio(&c__1, (char *)&(*lenbar), (ftnlen)sizeof(integer));
+#line 1144 ""
+	    do_fio(&c__1, "/64 will not be recognized", (ftnlen)26);
+#line 1144 ""
+	    e_wsfe();
+#line 1146 ""
+	}
+#line 1147 ""
     }
-#line 1145 ""
+#line 1148 ""
     return 0;
 } /* fwbrsym_ */
 
@@ -3141,104 +3147,104 @@ integer ifnodur_(integer *idur, char *dotq, ftnlen dotq_len)
 /*  Know its the last symbol if on return ipenew = len!.  So should never */
 /*    be called when ipstart=len. */
 
-#line 1154 ""
+#line 1157 ""
     if (*ipeold >= *len) {
-#line 1155 ""
+#line 1158 ""
 	s_wsle(&io___165);
-#line 1155 ""
+#line 1158 ""
 	do_lio(&c__9, &c__1, "Called nextsym with ipstart>=len ", (ftnlen)33);
-#line 1155 ""
+#line 1158 ""
 	e_wsle();
-#line 1156 ""
+#line 1159 ""
 	s_wsle(&io___166);
-#line 1156 ""
+#line 1159 ""
 	do_lio(&c__9, &c__1, "Send files to Dr. Don at dsimons@logicon.com", (
 		ftnlen)44);
-#line 1156 ""
+#line 1159 ""
 	e_wsle();
-#line 1157 ""
-	s_stop("", (ftnlen)0);
-#line 1158 ""
-    }
-#line 1159 ""
-    i__1 = *len;
-#line 1159 ""
-    for (ip = *ipeold + 1; ip <= i__1; ++ip) {
 #line 1160 ""
+	s_stop("", (ftnlen)0);
+#line 1161 ""
+    }
+#line 1162 ""
+    i__1 = *len;
+#line 1162 ""
+    for (ip = *ipeold + 1; ip <= i__1; ++ip) {
+#line 1163 ""
 	if (*(unsigned char *)&line[ip - 1] != ' ') {
 
 /*  symbol starts here (ip).  We're committed to exit the loop. */
 
-#line 1164 ""
+#line 1167 ""
 	    if (ip < *len) {
-#line 1165 ""
+#line 1168 ""
 		i__2 = *len;
-#line 1165 ""
+#line 1168 ""
 		for (iip = ip + 1; iip <= i__2; ++iip) {
-#line 1166 ""
+#line 1169 ""
 		    if (*(unsigned char *)&line[iip - 1] != ' ') {
-#line 1166 ""
+#line 1169 ""
 			goto L2;
-#line 1166 ""
+#line 1169 ""
 		    }
 
 /*  iip is the space after the symbol */
 
-#line 1170 ""
+#line 1173 ""
 		    *ipenew = iip - 1;
-#line 1171 ""
+#line 1174 ""
 		    *lsym = *ipenew - ip + 1;
-#line 1172 ""
+#line 1175 ""
 		    s_copy(sym, line + (ip - 1), (ftnlen)80, *ipenew - (ip - 
 			    1));
-#line 1173 ""
+#line 1176 ""
 		    return 0;
-#line 1174 ""
+#line 1177 ""
 L2:
-#line 1174 ""
+#line 1177 ""
 		    ;
-#line 1174 ""
+#line 1177 ""
 		}
 
 /*  Have len>=2 and ends on len */
 
-#line 1178 ""
-		*ipenew = *len;
-#line 1179 ""
-		*lsym = *ipenew - ip + 1;
-#line 1180 ""
-		s_copy(sym, line + (ip - 1), (ftnlen)80, *ipenew - (ip - 1));
 #line 1181 ""
-		return 0;
+		*ipenew = *len;
 #line 1182 ""
+		*lsym = *ipenew - ip + 1;
+#line 1183 ""
+		s_copy(sym, line + (ip - 1), (ftnlen)80, *ipenew - (ip - 1));
+#line 1184 ""
+		return 0;
+#line 1185 ""
 	    } else {
 
 /*  ip = len */
 
-#line 1186 ""
-		*ipenew = *len;
-#line 1187 ""
-		*lsym = 1;
-#line 1188 ""
-		s_copy(sym, line + (ip - 1), (ftnlen)80, (ftnlen)1);
 #line 1189 ""
-		return 0;
+		*ipenew = *len;
 #line 1190 ""
-	    }
+		*lsym = 1;
 #line 1191 ""
+		s_copy(sym, line + (ip - 1), (ftnlen)80, (ftnlen)1);
+#line 1192 ""
+		return 0;
+#line 1193 ""
+	    }
+#line 1194 ""
 	}
-#line 1192 ""
+#line 1195 ""
 /* L1: */
-#line 1192 ""
+#line 1195 ""
     }
-#line 1193 ""
+#line 1196 ""
     s_wsle(&io___169);
-#line 1193 ""
+#line 1196 ""
     do_lio(&c__9, &c__1, "Error #3.  Send files to Dr. Don at dsimons@logico"\
 	    "n.com", (ftnlen)55);
-#line 1193 ""
+#line 1196 ""
     e_wsle();
-#line 1194 ""
+#line 1197 ""
     return 0;
 } /* nextsym_ */
 
@@ -3278,158 +3284,158 @@ integer ntindex_(char *line, char *s2q, ftnlen line_len, ftnlen s2q_len)
 
 /*  Use a temporary string to store the input and test, so can zap D"..." */
 
-#line 1209 ""
+#line 1212 ""
     s_copy(tline, line, (ftnlen)128, (ftnlen)128);
-#line 1210 ""
+#line 1213 ""
     ndxs2 = i_indx(tline, s2q, (ftnlen)128, s2q_len);
 
 /*  Return point below for rechecks after zapping D"  " */
 
-#line 1214 ""
+#line 1217 ""
 L2:
-#line 1215 ""
+#line 1218 ""
     ndxbs = i_indx(tline, "\\", (ftnlen)128, (ftnlen)1);
-#line 1216 ""
+#line 1219 ""
     if (ndxbs > 0) {
 
 /* Special check in case \ is inside D"..." */
 
-#line 1220 ""
+#line 1223 ""
 	ndxdq1 = i_indx(tline, "D\"", (ftnlen)128, (ftnlen)2);
 
 /* If the following test fails, flow out of if block; else loop up to 2. */
 
-#line 1224 ""
+#line 1227 ""
 	if (ndxdq1 > 0) {
 
 /* Find end of D"..." */
 
-#line 1228 ""
+#line 1231 ""
 	    i__1 = ndxdq1 + 1;
-#line 1228 ""
+#line 1231 ""
 	    ndxdq2 = ndxdq1 + 1 + i_indx(tline + i__1, "\"", 128 - i__1, (
 		    ftnlen)1);
-#line 1229 ""
+#line 1232 ""
 	    if (ndxdq2 == ndxdq1 + 1) {
-#line 1230 ""
+#line 1233 ""
 		s_wsle(&io___175);
-#line 1230 ""
+#line 1233 ""
 		do_lio(&c__9, &c__1, "Something is really wierd here", (
 			ftnlen)30);
-#line 1230 ""
-		e_wsle();
-#line 1231 ""
-		s_stop("", (ftnlen)0);
-#line 1232 ""
-	    }
 #line 1233 ""
+		e_wsle();
+#line 1234 ""
+		s_stop("", (ftnlen)0);
+#line 1235 ""
+	    }
+#line 1236 ""
 	    s_copy(tline, tline, (ftnlen)128, ndxdq1 - 1);
-#line 1234 ""
+#line 1237 ""
 	    i__1 = ndxdq2;
-#line 1234 ""
+#line 1237 ""
 	    for (ic = ndxdq1; ic <= i__1; ++ic) {
 /* Writing concatenation */
-#line 1235 ""
+#line 1238 ""
 		i__2[0] = ic - 1, a__1[0] = tline;
-#line 1235 ""
+#line 1238 ""
 		i__2[1] = 1, a__1[1] = " ";
-#line 1235 ""
+#line 1238 ""
 		s_cat(tline, a__1, i__2, &c__2, (ftnlen)128);
-#line 1236 ""
+#line 1239 ""
 /* L3: */
-#line 1236 ""
+#line 1239 ""
 	    }
-#line 1237 ""
+#line 1240 ""
 	    i__1 = ndxdq2;
 /* Writing concatenation */
-#line 1237 ""
-	    i__2[0] = ndxdq2, a__1[0] = tline;
-#line 1237 ""
-	    i__2[1] = 128 - i__1, a__1[1] = line + i__1;
-#line 1237 ""
-	    s_cat(tline, a__1, i__2, &c__2, (ftnlen)128);
-#line 1238 ""
-	    goto L2;
-#line 1239 ""
-	}
 #line 1240 ""
-    }
+	    i__2[0] = ndxdq2, a__1[0] = tline;
+#line 1240 ""
+	    i__2[1] = 128 - i__1, a__1[1] = line + i__1;
+#line 1240 ""
+	    s_cat(tline, a__1, i__2, &c__2, (ftnlen)128);
 #line 1241 ""
-    if (ndxbs == 0 || ndxs2 < ndxbs) {
+	    goto L2;
 #line 1242 ""
+	}
+#line 1243 ""
+    }
+#line 1244 ""
+    if (ndxbs == 0 || ndxs2 < ndxbs) {
+#line 1245 ""
 	ret_val = ndxs2;
 /*     print*,'No bs, or char is left of 1st bs, ntindex:',ntindex */
-#line 1244 ""
+#line 1247 ""
     } else {
 
 /*  There are both bs and s2q, and bs is to the left of sq2. So check bs's to */
 /*  right of first: End is '\ ', start is ' \' */
 
-#line 1249 ""
+#line 1252 ""
 	len = lenstr_(tline, &c__128, (ftnlen)128);
-#line 1250 ""
+#line 1253 ""
 	intex = TRUE_;
 /*     print*,'intex+>',intex */
-#line 1252 ""
-	i__1 = len;
-#line 1252 ""
-	for (ic = ndxbs + 1; ic <= i__1; ++ic) {
-#line 1253 ""
-	    if (ic == ndxs2) {
-#line 1254 ""
-		if (intex) {
 #line 1255 ""
+	i__1 = len;
+#line 1255 ""
+	for (ic = ndxbs + 1; ic <= i__1; ++ic) {
+#line 1256 ""
+	    if (ic == ndxs2) {
+#line 1257 ""
+		if (intex) {
+#line 1258 ""
 		    ret_val = 0;
-#line 1256 ""
+#line 1259 ""
 		    i__3 = ic;
-#line 1256 ""
+#line 1259 ""
 		    ndxs2 = i_indx(tline + i__3, s2q, len - i__3, s2q_len) + 
 			    ic;
 /*     print*,'ndxs2 =>',ndxs2 */
-#line 1258 ""
-		} else {
-#line 1259 ""
-		    ret_val = ndxs2;
-#line 1260 ""
-		    return ret_val;
 #line 1261 ""
+		} else {
+#line 1262 ""
+		    ret_val = ndxs2;
+#line 1263 ""
+		    return ret_val;
+#line 1264 ""
 		}
 /*     print*,'Internal exit, intex, ntindex:',intex,ntindex */
-#line 1263 ""
+#line 1266 ""
 	    } else /* if(complicated condition) */ {
-#line 1263 ""
+#line 1266 ""
 		i__3 = ic;
-#line 1263 ""
+#line 1266 ""
 		if (intex && s_cmp(tline + i__3, "\\ ", ic + 2 - i__3, (
 			ftnlen)2) == 0) {
-#line 1264 ""
+#line 1267 ""
 		    intex = FALSE_;
 /*     print*,'intex+>',intex */
-#line 1266 ""
+#line 1269 ""
 		} else /* if(complicated condition) */ {
-#line 1266 ""
+#line 1269 ""
 		    i__3 = ic;
-#line 1266 ""
+#line 1269 ""
 		    if (! intex && s_cmp(tline + i__3, " \\", ic + 2 - i__3, (
 			    ftnlen)2) == 0) {
-#line 1268 ""
+#line 1271 ""
 			intex = TRUE_;
 /*     print*,'intex+>',intex */
-#line 1270 ""
+#line 1273 ""
 		    }
-#line 1270 ""
+#line 1273 ""
 		}
-#line 1270 ""
+#line 1273 ""
 	    }
-#line 1271 ""
+#line 1274 ""
 /* L1: */
-#line 1271 ""
+#line 1274 ""
 	}
 /*     print*,'Out end of loop 1' */
-#line 1273 ""
+#line 1276 ""
     }
 /*     print*,'Exiting ntindex at the end???' */
-#line 1275 ""
+#line 1278 ""
     return ret_val;
 } /* ntindex_ */
 
@@ -3447,23 +3453,23 @@ L2:
 /*  Gets the next character out of line*128.  If pointer iccount=128 on entry, */
 /*  then reads in a new line.  Resets iccount to position of the new character. */
 
-#line 1284 ""
-    if (*iccount == 128) {
-#line 1285 ""
-	s_rsfe(&io___179);
-#line 1285 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 1285 ""
-	e_rsfe();
-#line 1286 ""
-	*iccount = 0;
 #line 1287 ""
-    }
+    if (*iccount == 128) {
 #line 1288 ""
-    ++(*iccount);
+	s_rsfe(&io___179);
+#line 1288 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 1288 ""
+	e_rsfe();
 #line 1289 ""
-    *(unsigned char *)charq = *(unsigned char *)&line[*iccount - 1];
+	*iccount = 0;
 #line 1290 ""
+    }
+#line 1291 ""
+    ++(*iccount);
+#line 1292 ""
+    *(unsigned char *)charq = *(unsigned char *)&line[*iccount - 1];
+#line 1293 ""
     return 0;
 } /* getchar_ */
 
@@ -3515,167 +3521,167 @@ doublereal readin_(char *line, integer *iccount, integer *iread, ftnlen
 /*   4  musicsize   20 */
 /*   5  fracondent  0.05 */
 
-#line 1315 ""
-L4:
-#line 1315 ""
-    if (*iccount == 128) {
-#line 1316 ""
-	s_rsfe(&io___180);
-#line 1316 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 1316 ""
-	e_rsfe();
-#line 1317 ""
-	if (all_1.replacing) {
-#line 1317 ""
-	    all_1.replacing = FALSE_;
-#line 1317 ""
-	}
 #line 1318 ""
-	chkcom_(line, &goto999, (ftnlen)128);
+L4:
+#line 1318 ""
+    if (*iccount == 128) {
 #line 1319 ""
-	*iccount = 0;
+	s_rsfe(&io___180);
+#line 1319 ""
+	do_fio(&c__1, line, (ftnlen)128);
+#line 1319 ""
+	e_rsfe();
 #line 1320 ""
-    }
+	if (all_1.replacing) {
+#line 1320 ""
+	    all_1.replacing = FALSE_;
+#line 1320 ""
+	}
 #line 1321 ""
+	chkcom_(line, &goto999, (ftnlen)128);
+#line 1322 ""
+	*iccount = 0;
+#line 1323 ""
+    }
+#line 1324 ""
     ++(*iccount);
 
 /*  Find next non-blank or end of line */
 
-#line 1325 ""
+#line 1328 ""
     for (*iccount = *iccount; *iccount <= 127; ++(*iccount)) {
-#line 1326 ""
+#line 1329 ""
 	if (*(unsigned char *)&line[*iccount - 1] != ' ') {
-#line 1326 ""
+#line 1329 ""
 	    goto L3;
-#line 1326 ""
+#line 1329 ""
 	}
-#line 1327 ""
+#line 1330 ""
 /* L2: */
-#line 1327 ""
+#line 1330 ""
     }
 
 /*  If here, need to get a new line */
 
-#line 1331 ""
+#line 1334 ""
     *iccount = 128;
-#line 1332 ""
+#line 1335 ""
     goto L4;
-#line 1333 ""
+#line 1336 ""
 L3:
 
 /*  iccount now points to start of number to read */
 
-#line 1337 ""
+#line 1340 ""
     i1 = *iccount;
-#line 1338 ""
+#line 1341 ""
 L5:
-#line 1338 ""
+#line 1341 ""
     getchar_(line, iccount, durq, (ftnlen)128, (ftnlen)1);
 
 /*  Remember that getchar first increments iccount, *then* reads a character. */
 
-#line 1342 ""
-    if (i_indx("0123456789.-", durq, (ftnlen)12, (ftnlen)1) > 0) {
-#line 1342 ""
-	goto L5;
-#line 1342 ""
-    }
-#line 1343 ""
-    i2 = *iccount - 1;
-#line 1344 ""
-    if (i2 < i1) {
 #line 1345 ""
+    if (i_indx("0123456789.-", durq, (ftnlen)12, (ftnlen)1) > 0) {
+#line 1345 ""
+	goto L5;
+#line 1345 ""
+    }
+#line 1346 ""
+    i2 = *iccount - 1;
+#line 1347 ""
+    if (i2 < i1) {
+#line 1348 ""
 	s_wsle(&io___185);
 /* Writing concatenation */
-#line 1345 ""
-	i__1[0] = 7, a__1[0] = "Found \"";
-#line 1345 ""
-	i__1[1] = 1, a__1[1] = durq;
-#line 1345 ""
-	i__1[2] = 19, a__1[2] = "\" instead of number";
-#line 1345 ""
-	s_cat(ch__1, a__1, i__1, &c__3, (ftnlen)27);
-#line 1345 ""
-	do_lio(&c__9, &c__1, ch__1, (ftnlen)27);
-#line 1345 ""
-	e_wsle();
-#line 1346 ""
-	s_stop("1", (ftnlen)1);
-#line 1347 ""
-    }
 #line 1348 ""
+	i__1[0] = 7, a__1[0] = "Found \"";
+#line 1348 ""
+	i__1[1] = 1, a__1[1] = durq;
+#line 1348 ""
+	i__1[2] = 19, a__1[2] = "\" instead of number";
+#line 1348 ""
+	s_cat(ch__1, a__1, i__1, &c__3, (ftnlen)27);
+#line 1348 ""
+	do_lio(&c__9, &c__1, ch__1, (ftnlen)27);
+#line 1348 ""
+	e_wsle();
+#line 1349 ""
+	s_stop("1", (ftnlen)1);
+#line 1350 ""
+    }
+#line 1351 ""
     icf = i2 - i1 + 49;
-#line 1349 ""
+#line 1352 ""
     ici__1.icierr = 0;
-#line 1349 ""
+#line 1352 ""
     ici__1.iciend = 0;
-#line 1349 ""
+#line 1352 ""
     ici__1.icirnum = 1;
-#line 1349 ""
+#line 1352 ""
     ici__1.icirlen = i2 - (i1 - 1);
-#line 1349 ""
+#line 1352 ""
     ici__1.iciunit = line + (i1 - 1);
 /* Writing concatenation */
-#line 1349 ""
+#line 1352 ""
     i__1[0] = 2, a__1[0] = "(f";
-#line 1349 ""
+#line 1352 ""
     *(unsigned char *)&ch__3[0] = icf;
-#line 1349 ""
+#line 1352 ""
     i__1[1] = 1, a__1[1] = ch__3;
-#line 1349 ""
+#line 1352 ""
     i__1[2] = 3, a__1[2] = ".0)";
-#line 1349 ""
+#line 1352 ""
     ici__1.icifmt = (s_cat(ch__2, a__1, i__1, &c__3, (ftnlen)6), ch__2);
-#line 1349 ""
+#line 1352 ""
     s_rsfi(&ici__1);
-#line 1349 ""
+#line 1352 ""
     do_fio(&c__1, (char *)&ret_val, (ftnlen)sizeof(real));
-#line 1349 ""
+#line 1352 ""
     e_rsfi();
-#line 1350 ""
-    if (! all_1.replacing) {
-#line 1351 ""
-	if (*iread == 0) {
-#line 1352 ""
-	    i__2 = i2 - i1 + 1;
-#line 1352 ""
-	    allparts_(line + (i1 - 1), &i__2, i2 - (i1 - 1));
 #line 1353 ""
-	} else if (*iread == 1) {
+    if (! all_1.replacing) {
 #line 1354 ""
-	    allparts_("-999", &c__4, (ftnlen)4);
+	if (*iread == 0) {
 #line 1355 ""
-	} else if (*iread == 2) {
+	    i__2 = i2 - i1 + 1;
+#line 1355 ""
+	    allparts_(line + (i1 - 1), &i__2, i2 - (i1 - 1));
 #line 1356 ""
-	    allparts_("1", &c__1, (ftnlen)1);
+	} else if (*iread == 1) {
 #line 1357 ""
-	} else if (*iread == 3) {
+	    allparts_("-999", &c__4, (ftnlen)4);
 #line 1358 ""
-	    allparts_("-998", &c__4, (ftnlen)4);
+	} else if (*iread == 2) {
 #line 1359 ""
-	} else if (*iread == 4) {
+	    allparts_("1", &c__1, (ftnlen)1);
 #line 1360 ""
-	    allparts_("20", &c__2, (ftnlen)2);
+	} else if (*iread == 3) {
 #line 1361 ""
-	} else if (*iread == 5) {
+	    allparts_("-998", &c__4, (ftnlen)4);
 #line 1362 ""
-	    allparts_(".05", &c__3, (ftnlen)3);
+	} else if (*iread == 4) {
 #line 1363 ""
-	} else if (*iread != -1) {
+	    allparts_("20", &c__2, (ftnlen)2);
 #line 1364 ""
-	    s_wsle(&io___187);
-#line 1364 ""
-	    do_lio(&c__9, &c__1, "Error with iread in readin", (ftnlen)26);
-#line 1364 ""
-	    e_wsle();
+	} else if (*iread == 5) {
 #line 1365 ""
-	    s_stop("", (ftnlen)0);
+	    allparts_(".05", &c__3, (ftnlen)3);
 #line 1366 ""
-	}
+	} else if (*iread != -1) {
 #line 1367 ""
-    }
+	    s_wsle(&io___187);
+#line 1367 ""
+	    do_lio(&c__9, &c__1, "Error with iread in readin", (ftnlen)26);
+#line 1367 ""
+	    e_wsle();
 #line 1368 ""
+	    s_stop("", (ftnlen)0);
+#line 1369 ""
+	}
+#line 1370 ""
+    }
+#line 1371 ""
     return ret_val;
 } /* readin_ */
 
@@ -3710,217 +3716,217 @@ L5:
 /*  Assume that line has just been read. No need to change iccount since we only */
 /*  process full lines. */
 
-#line 1380 ""
+#line 1383 ""
     *goto999 = FALSE_;
-#line 1381 ""
+#line 1384 ""
 L1:
-#line 1381 ""
+#line 1384 ""
     if (*(unsigned char *)line != '%') {
-#line 1381 ""
+#line 1384 ""
 	return 0;
-#line 1381 ""
+#line 1384 ""
     }
 
 /*  If here, line has some sort of comment */
 
-#line 1385 ""
+#line 1388 ""
     if (*(unsigned char *)&line[1] == '%') {
-#line 1386 ""
+#line 1389 ""
 	if (! all_1.insetup) {
 
 /*  Suck up a line, then flow out of "if" block to get another and loop */
 
-#line 1390 ""
+#line 1393 ""
 	    s_rsfe(&io___188);
-#line 1390 ""
+#line 1393 ""
 	    do_fio(&c__1, line, (ftnlen)128);
-#line 1390 ""
+#line 1393 ""
 	    e_rsfe();
 /* ++VV */
 
 /*  UNLESS (a) it has a score-only "M" and changes # of inst's. */
 
-#line 1396 ""
-	    if (i_indx(line, "M", (ftnlen)128, (ftnlen)1) > 0) {
-#line 1397 ""
-		idxl = i_indx(line, "L", (ftnlen)128, (ftnlen)1);
-#line 1398 ""
-		idxm = i_indx(line, "M", (ftnlen)128, (ftnlen)1);
 #line 1399 ""
-		idxn = i_indx(line, "n", (ftnlen)128, (ftnlen)1);
+	    if (i_indx(line, "M", (ftnlen)128, (ftnlen)1) > 0) {
 #line 1400 ""
-		idxb = i_indx(line, " ", (ftnlen)128, (ftnlen)1);
+		idxl = i_indx(line, "L", (ftnlen)128, (ftnlen)1);
 #line 1401 ""
+		idxm = i_indx(line, "M", (ftnlen)128, (ftnlen)1);
+#line 1402 ""
+		idxn = i_indx(line, "n", (ftnlen)128, (ftnlen)1);
+#line 1403 ""
+		idxb = i_indx(line, " ", (ftnlen)128, (ftnlen)1);
+#line 1404 ""
 		if (idxl < idxm && idxm < idxn && (idxb == 0 || idxn < idxb)) 
 			{
-#line 1403 ""
+#line 1406 ""
 		    i__1 = idxn;
-#line 1403 ""
+#line 1406 ""
 		    all_1.noinow = *(unsigned char *)&line[i__1] - 48;
-#line 1404 ""
+#line 1407 ""
 		    clefpend = TRUE_;
 
 /*  Next noinow digits are original inst. #'s of new inst. set.  Next noinow */
 /*  char's after that are clefs */
 
-#line 1409 ""
+#line 1412 ""
 		    all_1.nvnow = 0;
-#line 1410 ""
+#line 1413 ""
 		    i__1 = all_1.noinow;
-#line 1410 ""
+#line 1413 ""
 		    for (j = 1; j <= i__1; ++j) {
-#line 1411 ""
+#line 1414 ""
 			i__2 = idxn + 1 + j - 1;
-#line 1411 ""
+#line 1414 ""
 			all_1.iorig[j - 1] = *(unsigned char *)&line[i__2] - 
 				48;
-#line 1412 ""
+#line 1415 ""
 			iposc0 = idxn + 1 + all_1.noinow;
-#line 1413 ""
+#line 1416 ""
 			i__2 = all_1.nvi[all_1.iorig[j - 1] - 1];
-#line 1413 ""
+#line 1416 ""
 			for (k = 1; k <= i__2; ++k) {
-#line 1414 ""
+#line 1417 ""
 			    ++all_1.nvnow;
 /*                  clefq(nvnow) = line(iposc0+nvnow:iposc0+nvnow) */
-#line 1416 ""
+#line 1419 ""
 			    all_1.instnum[all_1.nvnow - 1] = j;
-#line 1417 ""
-			    all_1.botv[all_1.nvnow - 1] = k == 1 && j != 1;
-#line 1418 ""
-/* L25: */
-#line 1418 ""
-			}
-#line 1419 ""
-/* L24: */
-#line 1419 ""
-		    }
 #line 1420 ""
-		}
+			    all_1.botv[all_1.nvnow - 1] = k == 1 && j != 1;
 #line 1421 ""
+/* L25: */
+#line 1421 ""
+			}
+#line 1422 ""
+/* L24: */
+#line 1422 ""
+		    }
+#line 1423 ""
+		}
+#line 1424 ""
 	    }
 
 /*  or if it's "h" or "l", need to suck up one more line */
 
-#line 1425 ""
+#line 1428 ""
 	    if (*(unsigned char *)line == 'h' && i_indx("+- ", line + 1, (
 		    ftnlen)3, (ftnlen)1) > 0 || *(unsigned char *)line == 'T' 
 		    || s_cmp(line, "l ", (ftnlen)2, (ftnlen)2) == 0) {
-#line 1425 ""
+#line 1428 ""
 		s_rsfe(&io___197);
-#line 1425 ""
+#line 1428 ""
 		do_fio(&c__1, line, (ftnlen)128);
-#line 1425 ""
+#line 1428 ""
 		e_rsfe();
-#line 1425 ""
+#line 1428 ""
 	    }
 
 /*  4/29/00 check for T string also */
 
-#line 1431 ""
+#line 1434 ""
 	} else {
 
 /*  In setup mode. Set flag, flow out and do use following line */
 
-#line 1435 ""
+#line 1438 ""
 	    all_1.replacing = TRUE_;
-#line 1436 ""
+#line 1439 ""
 	}
-#line 1437 ""
+#line 1440 ""
     } else if (*(unsigned char *)&line[1] == '!') {
 
 /*  Copy to all parts */
 
-#line 1441 ""
+#line 1444 ""
 	allparts_(line + 2, &c__125, (ftnlen)126);
-#line 1442 ""
+#line 1445 ""
     } else {
 
 /*  Get value of hex integer 1,2,...,9,a,b,c in 2nd position, zero otherwise */
 /* c  Get value of extended hex integer 1,2,...,9,a,b,c,...,o in 2nd position, zero otherwise */
 
-#line 1447 ""
+#line 1450 ""
 	ivq = i_indx("123456789abcdefghijklmno", line + 1, (ftnlen)24, (
 		ftnlen)1);
 
 /*  Only treat as part-specific pmx line if number .le. noinst */
 
-#line 1451 ""
+#line 1454 ""
 	if (ivq < 1 || ivq > all_1.noinst) {
 
 /*  Simple comment. */
 
-#line 1455 ""
+#line 1458 ""
 	    allparts_(line, &c__128, (ftnlen)128);
-#line 1456 ""
+#line 1459 ""
 	} else {
 
 /*  Instrument comment, copy only to part */
 
-#line 1460 ""
-	    lenline = lenstr_(line, &c__128, (ftnlen)128);
-#line 1461 ""
-	    if (lenline > 2) {
-#line 1462 ""
-		io___200.ciunit = ivq + 10;
-#line 1462 ""
-		s_wsfe(&io___200);
-#line 1462 ""
-		do_fio(&c__1, line + 2, lenline - 2);
-#line 1462 ""
-		e_wsfe();
 #line 1463 ""
+	    lenline = lenstr_(line, &c__128, (ftnlen)128);
+#line 1464 ""
+	    if (lenline > 2) {
+#line 1465 ""
+		io___200.ciunit = ivq + 10;
+#line 1465 ""
+		s_wsfe(&io___200);
+#line 1465 ""
+		do_fio(&c__1, line + 2, lenline - 2);
+#line 1465 ""
+		e_wsfe();
+#line 1466 ""
 	    } else {
 
 /*  Transferring blank line */
 
-#line 1467 ""
-		io___201.ciunit = ivq + 10;
-#line 1467 ""
-		s_wsfe(&io___201);
-#line 1467 ""
-		do_fio(&c__1, " ", (ftnlen)1);
-#line 1467 ""
-		e_wsfe();
-#line 1468 ""
-	    }
-#line 1469 ""
-	}
 #line 1470 ""
-    }
+		io___201.ciunit = ivq + 10;
+#line 1470 ""
+		s_wsfe(&io___201);
+#line 1470 ""
+		do_fio(&c__1, " ", (ftnlen)1);
+#line 1470 ""
+		e_wsfe();
 #line 1471 ""
-    i__1 = s_rsfe(&io___202);
-#line 1471 ""
-    if (i__1 != 0) {
-#line 1471 ""
-	goto L2;
-#line 1471 ""
-    }
-#line 1471 ""
-    i__1 = do_fio(&c__1, line, (ftnlen)128);
-#line 1471 ""
-    if (i__1 != 0) {
-#line 1471 ""
-	goto L2;
-#line 1471 ""
-    }
-#line 1471 ""
-    i__1 = e_rsfe();
-#line 1471 ""
-    if (i__1 != 0) {
-#line 1471 ""
-	goto L2;
-#line 1471 ""
-    }
+	    }
 #line 1472 ""
-    zapbl_(line, &c__128, (ftnlen)128);
+	}
 #line 1473 ""
-    goto L1;
+    }
 #line 1474 ""
-L2:
+    i__1 = s_rsfe(&io___202);
+#line 1474 ""
+    if (i__1 != 0) {
+#line 1474 ""
+	goto L2;
+#line 1474 ""
+    }
+#line 1474 ""
+    i__1 = do_fio(&c__1, line, (ftnlen)128);
+#line 1474 ""
+    if (i__1 != 0) {
+#line 1474 ""
+	goto L2;
+#line 1474 ""
+    }
+#line 1474 ""
+    i__1 = e_rsfe();
+#line 1474 ""
+    if (i__1 != 0) {
+#line 1474 ""
+	goto L2;
+#line 1474 ""
+    }
 #line 1475 ""
-    *goto999 = TRUE_;
+    zapbl_(line, &c__128, (ftnlen)128);
 #line 1476 ""
+    goto L1;
+#line 1477 ""
+L2:
+#line 1478 ""
+    *goto999 = TRUE_;
+#line 1479 ""
     return 0;
 } /* chkcom_ */
 
@@ -3962,128 +3968,128 @@ L2:
 /*      iset(9) (npages) will be replaced with (nsyst-1)/12+1 */
 /*    iset(2), if negative, will be followed by extra numbers to be transf. */
 
-#line 1495 ""
-    iccount = 0;
-#line 1496 ""
-    for (iset = 1; iset <= 12; ++iset) {
-#line 1497 ""
-	partnum_(iv, &iccount, line, &xdata, (ftnlen)128);
 #line 1498 ""
-	if (iset == 2) {
+    iccount = 0;
 #line 1499 ""
-	    if (xdata > 0.f) {
+    for (iset = 1; iset <= 12; ++iset) {
 #line 1500 ""
-		s_wsfe(&io___206);
-#line 1500 ""
-		i__1 = (integer) (xdata + .1f);
-#line 1500 ""
-		do_fio(&c__1, (char *)&i__1, (ftnlen)sizeof(integer));
-#line 1500 ""
-		e_wsfe();
+	partnum_(iv, &iccount, line, &xdata, (ftnlen)128);
 #line 1501 ""
-	    } else {
+	if (iset == 2) {
 #line 1502 ""
-		noi = -xdata + .1f;
+	    if (xdata > 0.f) {
 #line 1503 ""
-		s_wsfe(&io___208);
+		s_wsfe(&io___206);
 #line 1503 ""
-		do_fio(&c__1, (char *)&noi, (ftnlen)sizeof(integer));
+		i__1 = (integer) (xdata + .1f);
+#line 1503 ""
+		do_fio(&c__1, (char *)&i__1, (ftnlen)sizeof(integer));
 #line 1503 ""
 		e_wsfe();
 #line 1504 ""
-		i__1 = noi;
-#line 1504 ""
-		for (ioi = 1; ioi <= i__1; ++ioi) {
+	    } else {
 #line 1505 ""
-		    partnum_(iv, &iccount, line, &xdata, (ftnlen)128);
+		noi = -xdata + .1f;
 #line 1506 ""
-		    s_wsfe(&io___210);
+		s_wsfe(&io___208);
 #line 1506 ""
-		    i__2 = (integer) (xdata + .1f);
+		do_fio(&c__1, (char *)&noi, (ftnlen)sizeof(integer));
 #line 1506 ""
-		    do_fio(&c__1, (char *)&i__2, (ftnlen)sizeof(integer));
-#line 1506 ""
-		    e_wsfe();
+		e_wsfe();
 #line 1507 ""
-/* L2: */
+		i__1 = noi;
 #line 1507 ""
-		}
+		for (ioi = 1; ioi <= i__1; ++ioi) {
 #line 1508 ""
+		    partnum_(iv, &iccount, line, &xdata, (ftnlen)128);
+#line 1509 ""
+		    s_wsfe(&io___210);
+#line 1509 ""
+		    i__2 = (integer) (xdata + .1f);
+#line 1509 ""
+		    do_fio(&c__1, (char *)&i__2, (ftnlen)sizeof(integer));
+#line 1509 ""
+		    e_wsfe();
+#line 1510 ""
+/* L2: */
+#line 1510 ""
+		}
+#line 1511 ""
 	    }
 /*        else if (iset.ne.8 .and. xdata.lt.0) then */
-#line 1510 ""
+#line 1513 ""
 	} else if (iset != 8 && iset != 5 && xdata < 0.f) {
 
 /*  Must be either nv or npages */
 
-#line 1514 ""
+#line 1517 ""
 	    if ((integer) (-xdata + .1f) == 999) {
 
 /*  It's nv */
 
-#line 1518 ""
+#line 1521 ""
 		s_wsfe(&io___211);
-#line 1518 ""
+#line 1521 ""
 		do_fio(&c__1, (char *)&all_1.nvi[*iv - 1], (ftnlen)sizeof(
 			integer));
-#line 1518 ""
+#line 1521 ""
 		e_wsfe();
-#line 1519 ""
+#line 1522 ""
 	    } else {
 
 /*  npages must be computed */
 
-#line 1523 ""
+#line 1526 ""
 		s_wsfe(&io___212);
-#line 1523 ""
+#line 1526 ""
 		i__1 = (all_1.nsyst - 1) / 12 + 1;
-#line 1523 ""
+#line 1526 ""
 		do_fio(&c__1, (char *)&i__1, (ftnlen)sizeof(integer));
-#line 1523 ""
+#line 1526 ""
 		e_wsfe();
-#line 1524 ""
+#line 1527 ""
 	    }
-#line 1525 ""
+#line 1528 ""
 	} else if (iset != 7 && iset != 12) {
 
 /*  write integer */
 
-#line 1529 ""
+#line 1532 ""
 	    s_wsfe(&io___213);
-#line 1529 ""
+#line 1532 ""
 	    i__1 = i_nint(&xdata);
-#line 1529 ""
+#line 1532 ""
 	    do_fio(&c__1, (char *)&i__1, (ftnlen)sizeof(integer));
-#line 1529 ""
+#line 1532 ""
 	    e_wsfe();
-#line 1530 ""
+#line 1533 ""
 	} else {
 
 /*  write floating number */
 
-#line 1534 ""
-	    s_wsfe(&io___214);
-#line 1534 ""
-	    do_fio(&c__1, (char *)&xdata, (ftnlen)sizeof(real));
-#line 1534 ""
-	    e_wsfe();
-#line 1535 ""
-	}
-#line 1536 ""
-	if (iset == 3) {
 #line 1537 ""
-	    *mtrnum = i_nint(&xdata);
+	    s_wsfe(&io___214);
+#line 1537 ""
+	    do_fio(&c__1, (char *)&xdata, (ftnlen)sizeof(real));
+#line 1537 ""
+	    e_wsfe();
 #line 1538 ""
-	} else if (iset == 4) {
-#line 1539 ""
-	    *mtrden = i_nint(&xdata);
-#line 1540 ""
 	}
+#line 1539 ""
+	if (iset == 3) {
+#line 1540 ""
+	    *mtrnum = i_nint(&xdata);
 #line 1541 ""
-/* L1: */
-#line 1541 ""
-    }
+	} else if (iset == 4) {
 #line 1542 ""
+	    *mtrden = i_nint(&xdata);
+#line 1543 ""
+	}
+#line 1544 ""
+/* L1: */
+#line 1544 ""
+    }
+#line 1545 ""
     return 0;
 } /* dosetup_ */
 
@@ -4121,131 +4127,131 @@ L2:
 
 /*  Simplified number parsing.  Only looks for comment lines and numbers. */
 
-#line 1550 ""
-L2:
-#line 1550 ""
-    if (*iccount == 128) {
-#line 1551 ""
-	io___215.ciunit = *iv + 10;
-#line 1551 ""
-	s_rsfe(&io___215);
-#line 1551 ""
-	do_fio(&c__1, line, (ftnlen)128);
-#line 1551 ""
-	e_rsfe();
-#line 1552 ""
-	if (*(unsigned char *)line == '%') {
 #line 1553 ""
-	    len = lenstr_(line, &c__128, (ftnlen)128);
+L2:
+#line 1553 ""
+    if (*iccount == 128) {
 #line 1554 ""
-	    s_wsfe(&io___217);
+	io___215.ciunit = *iv + 10;
 #line 1554 ""
-	    do_fio(&c__1, line, len);
+	s_rsfe(&io___215);
 #line 1554 ""
-	    e_wsfe();
+	do_fio(&c__1, line, (ftnlen)128);
+#line 1554 ""
+	e_rsfe();
 #line 1555 ""
-	    goto L2;
+	if (*(unsigned char *)line == '%') {
 #line 1556 ""
-	}
+	    len = lenstr_(line, &c__128, (ftnlen)128);
 #line 1557 ""
-	*iccount = 0;
+	    s_wsfe(&io___217);
+#line 1557 ""
+	    do_fio(&c__1, line, len);
+#line 1557 ""
+	    e_wsfe();
 #line 1558 ""
-    }
+	    goto L2;
 #line 1559 ""
+	}
+#line 1560 ""
+	*iccount = 0;
+#line 1561 ""
+    }
+#line 1562 ""
     ++(*iccount);
 
 /*  Find next non-blank or end of line */
 
-#line 1563 ""
+#line 1566 ""
     for (*iccount = *iccount; *iccount <= 127; ++(*iccount)) {
-#line 1564 ""
+#line 1567 ""
 	if (*(unsigned char *)&line[*iccount - 1] != ' ') {
-#line 1564 ""
+#line 1567 ""
 	    goto L3;
-#line 1564 ""
+#line 1567 ""
 	}
-#line 1565 ""
+#line 1568 ""
 /* L4: */
-#line 1565 ""
+#line 1568 ""
     }
 
 /*  If here, iccount=128 and need to get a new line */
 
-#line 1569 ""
+#line 1572 ""
     goto L2;
-#line 1570 ""
+#line 1573 ""
 L3:
 
 /*  iccount now points to start of number to read */
 
-#line 1574 ""
+#line 1577 ""
     i1 = *iccount;
-#line 1575 ""
+#line 1578 ""
 L5:
-#line 1575 ""
+#line 1578 ""
     getchar_(line, iccount, durq, (ftnlen)128, (ftnlen)1);
 
 /*  Remember that getchar first increments iccount, *then* reads a character. */
 
-#line 1579 ""
-    if (i_indx("0123456789.-", durq, (ftnlen)12, (ftnlen)1) > 0) {
-#line 1579 ""
-	goto L5;
-#line 1579 ""
-    }
-#line 1580 ""
-    i2 = *iccount - 1;
-#line 1581 ""
-    if (i2 < i1) {
 #line 1582 ""
+    if (i_indx("0123456789.-", durq, (ftnlen)12, (ftnlen)1) > 0) {
+#line 1582 ""
+	goto L5;
+#line 1582 ""
+    }
+#line 1583 ""
+    i2 = *iccount - 1;
+#line 1584 ""
+    if (i2 < i1) {
+#line 1585 ""
 	s_wsle(&io___221);
 /* Writing concatenation */
-#line 1582 ""
-	i__1[0] = 7, a__1[0] = "Found \"";
-#line 1582 ""
-	i__1[1] = 1, a__1[1] = durq;
-#line 1582 ""
-	i__1[2] = 19, a__1[2] = "\" instead of number";
-#line 1582 ""
-	s_cat(ch__1, a__1, i__1, &c__3, (ftnlen)27);
-#line 1582 ""
-	do_lio(&c__9, &c__1, ch__1, (ftnlen)27);
-#line 1582 ""
-	e_wsle();
-#line 1583 ""
-	s_stop("1", (ftnlen)1);
-#line 1584 ""
-    }
 #line 1585 ""
+	i__1[0] = 7, a__1[0] = "Found \"";
+#line 1585 ""
+	i__1[1] = 1, a__1[1] = durq;
+#line 1585 ""
+	i__1[2] = 19, a__1[2] = "\" instead of number";
+#line 1585 ""
+	s_cat(ch__1, a__1, i__1, &c__3, (ftnlen)27);
+#line 1585 ""
+	do_lio(&c__9, &c__1, ch__1, (ftnlen)27);
+#line 1585 ""
+	e_wsle();
+#line 1586 ""
+	s_stop("1", (ftnlen)1);
+#line 1587 ""
+    }
+#line 1588 ""
     icf = i2 - i1 + 49;
-#line 1586 ""
+#line 1589 ""
     ici__1.icierr = 0;
-#line 1586 ""
+#line 1589 ""
     ici__1.iciend = 0;
-#line 1586 ""
+#line 1589 ""
     ici__1.icirnum = 1;
-#line 1586 ""
+#line 1589 ""
     ici__1.icirlen = i2 - (i1 - 1);
-#line 1586 ""
+#line 1589 ""
     ici__1.iciunit = line + (i1 - 1);
 /* Writing concatenation */
-#line 1586 ""
+#line 1589 ""
     i__1[0] = 2, a__1[0] = "(f";
-#line 1586 ""
+#line 1589 ""
     *(unsigned char *)&ch__3[0] = icf;
-#line 1586 ""
+#line 1589 ""
     i__1[1] = 1, a__1[1] = ch__3;
-#line 1586 ""
+#line 1589 ""
     i__1[2] = 3, a__1[2] = ".0)";
-#line 1586 ""
+#line 1589 ""
     ici__1.icifmt = (s_cat(ch__2, a__1, i__1, &c__3, (ftnlen)6), ch__2);
-#line 1586 ""
+#line 1589 ""
     s_rsfi(&ici__1);
-#line 1586 ""
+#line 1589 ""
     do_fio(&c__1, (char *)&(*xdata), (ftnlen)sizeof(real));
-#line 1586 ""
+#line 1589 ""
     e_rsfi();
-#line 1587 ""
+#line 1590 ""
     return 0;
 } /* partnum_ */
 
@@ -4261,40 +4267,40 @@ L5:
     /* Local variables */
     static integer i__;
 
-#line 1599 ""
-    i__1 = *len;
-#line 1599 ""
-    for (i__ = 1; i__ <= i__1; ++i__) {
-#line 1600 ""
-	if (*(unsigned char *)&string[i__ - 1] == ' ') {
-#line 1600 ""
-	    goto L1;
-#line 1600 ""
-	}
-#line 1601 ""
-	if (i__ == 1) {
-#line 1601 ""
-	    return 0;
-#line 1601 ""
-	}
 #line 1602 ""
+    i__1 = *len;
+#line 1602 ""
+    for (i__ = 1; i__ <= i__1; ++i__) {
+#line 1603 ""
+	if (*(unsigned char *)&string[i__ - 1] == ' ') {
+#line 1603 ""
+	    goto L1;
+#line 1603 ""
+	}
+#line 1604 ""
+	if (i__ == 1) {
+#line 1604 ""
+	    return 0;
+#line 1604 ""
+	}
+#line 1605 ""
 	goto L2;
-#line 1603 ""
+#line 1606 ""
 L1:
-#line 1603 ""
+#line 1606 ""
 	;
-#line 1603 ""
+#line 1606 ""
     }
 
 /*  If line is all blank, leave it alone */
 
-#line 1607 ""
-    return 0;
-#line 1608 ""
-L2:
-#line 1609 ""
-    s_copy(string, string + (i__ - 1), string_len, *len - (i__ - 1));
 #line 1610 ""
+    return 0;
+#line 1611 ""
+L2:
+#line 1612 ""
+    s_copy(string, string + (i__ - 1), string_len, *len - (i__ - 1));
+#line 1613 ""
     return 0;
 } /* zapbl_ */
 
@@ -4311,25 +4317,25 @@ L2:
 /*  This counts number of double quotes in lineq up to position indx-1, then */
 /*    sets yesodd according to whether number is odd or even */
 
-#line 1619 ""
+#line 1622 ""
     numdqs = 0;
-#line 1620 ""
-    i__1 = *indx - 1;
-#line 1620 ""
-    for (i__ = 1; i__ <= i__1; ++i__) {
-#line 1621 ""
-	if (*(unsigned char *)&lineq[i__ - 1] == '"') {
-#line 1621 ""
-	    ++numdqs;
-#line 1621 ""
-	}
-#line 1622 ""
-/* L1: */
-#line 1622 ""
-    }
 #line 1623 ""
-    *yesodd = numdqs % 2 == 1;
+    i__1 = *indx - 1;
+#line 1623 ""
+    for (i__ = 1; i__ <= i__1; ++i__) {
 #line 1624 ""
+	if (*(unsigned char *)&lineq[i__ - 1] == '"') {
+#line 1624 ""
+	    ++numdqs;
+#line 1624 ""
+	}
+#line 1625 ""
+/* L1: */
+#line 1625 ""
+    }
+#line 1626 ""
+    *yesodd = numdqs % 2 == 1;
+#line 1627 ""
     return 0;
 } /* oddquotesbefore_ */
 
