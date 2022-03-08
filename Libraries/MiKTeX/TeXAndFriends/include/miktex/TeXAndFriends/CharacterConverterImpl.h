@@ -15,7 +15,7 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#include "WebApp.h"
+#include "WebAppInputLine.h"
 
 MIKTEX_TEXMF_BEGIN_NAMESPACE;
 
