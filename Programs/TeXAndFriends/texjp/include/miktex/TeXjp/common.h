@@ -117,7 +117,7 @@ namespace MiKTeX
             int GetJobName(int fallbackJobName) const override
             {
                 auto s = BASE::GetJobName(fallbackJobName);
-                auto stringHandler = GetStringHandler();
+                auto stringHandler = BASE::GetStringHandler();
                 auto strstart = stringHandler->strstart();
                 auto strpool = stringHandler->strpool16();
                 auto begin = strstart[s];
