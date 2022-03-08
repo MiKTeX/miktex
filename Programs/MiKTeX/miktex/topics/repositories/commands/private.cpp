@@ -19,7 +19,7 @@
 
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
-#include <miktex/util/StringUtil>
+#include <miktex/Util/StringUtil>
 
 #include "private.h"
 
