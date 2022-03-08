@@ -90,6 +90,7 @@
 
 [hilatex]
 
+	attributes[] = exclude
 	arguments[] = -etex
     arguments[] = -ltx
 	compiler = hitex
@@ -98,6 +99,7 @@
 
 [hilatex-dev]
 
+	attributes[] = exclude
 	arguments[] = -etex
     arguments[] = -ltx
 	compiler = hitex
@@ -106,6 +108,7 @@
 
 [hitex]
 
+	attributes[] = exclude
 	arguments[] = -etex
     arguments[] = -ltx
 	compiler = hitex
