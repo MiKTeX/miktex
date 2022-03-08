@@ -90,27 +90,27 @@
 
 [hilatex]
 
-	attributes[] = exclude
 	arguments[] = -etex
     arguments[] = -ltx
+	attributes[] = exclude
 	compiler = hitex
 	description = HiLaTeX
 	input = hilatex.ini
 
 [hilatex-dev]
 
-	attributes[] = exclude
 	arguments[] = -etex
     arguments[] = -ltx
+	attributes[] = exclude
 	compiler = hitex
 	description = HiLaTeX dev
 	input = hilatex.ini
 
 [hitex]
 
-	attributes[] = exclude
 	arguments[] = -etex
     arguments[] = -ltx
+	attributes[] = exclude
 	compiler = hitex
 	description = HiTeX 
 	input = hitex.ini
