@@ -22,7 +22,8 @@ MiKTeX now includes the HiTeX engine.
 
 - [1054](https://github.com/MiKTeX/miktex/issues/1054): Open Terminal window does nothing on elementary OS
 - [1055](https://github.com/MiKTeX/miktex/issues/1055): GFtoPK crashes in supre mode for fonts in certain optical sizes
-
+- [1062](https://github.com/MiKTeX/miktex/issues/1062): mpm --admin --require=@listfile with non-existing listfile
+- 
 ## 22.1 - 2022-01-31
 
 ### Fixed issues
