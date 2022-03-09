@@ -8,7 +8,7 @@ MiKTeX now includes the HiTeX engine.
 
 ### Upgraded programs
 
-* asymptote 2.78
+* asymptote 2.79
 * cweb 4.7
 * dvips 2022.1
 * dvisvgm 2.13.3

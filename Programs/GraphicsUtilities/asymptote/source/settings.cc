@@ -1291,6 +1291,8 @@ void initSettings() {
                             "Compute indexing partial sums on GPU", true));
   addOption(new boolSetting("GPUinterlock", 0,
                             "Use fragment shader interlock", true));
+  addOption(new IntSetting("GPUlocalSize", 0, "n",
+                           "Compute shader local size", 16));
 
   addOption(new pairSetting("position", 0, "pair",
                             "Initial 3D rendering screen position"));
