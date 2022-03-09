@@ -174,6 +174,38 @@ if (check_for_change)
           else if (a<050000) confusion(_("macro defs have strange char"));
 @z
 
+@x MIKTEX
+    C_printf("\n#line %d \"",(int)a);
+@:line}{\.{\#line}@>
+    cur_val=(int)(*cur_byte++-0200)*0400;
+    cur_val+=*cur_byte++; /* points to the file name */
+    for (j=(cur_val+name_dir)->byte_start, k=(cur_val+name_dir+1)->byte_start;
+         j<k; j++) {
+      if (*j=='\\' || *j=='"') C_putc('\\');
+      C_putc(*j);
+    }
+    C_putc('"');@+C_putc('\n');
+@y MIKTEX
+#if !defined(MIKTEX)
+    C_printf("\n#line %d \"",a);
+#endif
+@:line}{\.{\#line}@>
+    cur_val=*cur_byte++;
+    cur_val=0400*(cur_val-0200)+ *cur_byte++; /* points to the file name */
+    for (j=(cur_val+name_dir)->byte_start, k=(cur_val+name_dir+1)->byte_start;
+         j<k; j++) {
+#if !defined(MIKTEX)
+      if (*j=='\\' || *j=='"') C_putc('\\');
+      C_putc(*j);
+#endif
+    }
+#if defined(MIKTEX)
+    C_putc('\n');
+#else
+    C_printf("%s","\"\n");
+#endif
+@z MIKTEX
+
 @x
           err_print("! Input ended in mid-comment");
 @y
