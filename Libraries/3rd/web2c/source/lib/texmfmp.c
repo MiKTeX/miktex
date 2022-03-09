@@ -3487,11 +3487,19 @@ string
 find_input_file(integer s)
 {
     string filename;
-
+#if IS_pTeX && (defined(MIKTEX) || !defined(WIN32))
+    string fname0; string fname1 = NULL;
+#endif
 #if defined(XeTeX)
     filename = gettexstring(s);
 #else
     filename = makecfilename(s);
+#endif
+#if IS_pTeX && (defined(MIKTEX) || !defined(WIN32))
+   fname0 = ptenc_from_internal_enc_string_to_utf8(filename);
+   if (fname0) {
+       fname1 = filename; filename = fname0;
+   }
 #endif
     /* Look in -output-directory first, if the filename is not
        absolute.  This is because we want the pdf* functions to
@@ -3501,14 +3509,26 @@ find_input_file(integer s)
 
         pathname = concat3(output_directory, DIR_SEP_STRING, filename);
         if (!access(pathname, R_OK) && !dir_p (pathname)) {
+#if IS_pTeX && (defined(MIKTEX) || !defined(WIN32))
+            if (fname1) free(filename);
+#endif
             return pathname;
         }
         xfree (pathname);
     }
     if (! kpse_in_name_ok(filename)) {
+#if IS_pTeX && (defined(MIKTEX) || !defined(WIN32))
+       if (fname1) free(filename);
+#endif
        return NULL;                /* no permission */
     }
+#if IS_pTeX && (defined(MIKTEX) || !defined(WIN32))
+    fname0 = kpse_find_tex(filename);
+    if (fname1) free(filename);
+    return fname0;
+#else
     return kpse_find_tex(filename);
+#endif
 }
 
 #if !defined(XeTeX)
