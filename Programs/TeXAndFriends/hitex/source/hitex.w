@@ -25155,7 +25155,7 @@ start_of_TEX: @<Initialize the output routines@>;
 @<Get the first line of input and prepare to start@>;
 history=spotless; /*ready to go!*/
 hhsize=hsize; hvsize=vsize;@/
-hint_open(); main_control(); hint_close();  /*come to life*/
+main_control();  /*come to life*/
 final_cleanup(); /*prepare for death*/
 close_files_and_terminate();
 ready_already=0;
@@ -25182,7 +25182,7 @@ static void close_files_and_terminate(void)
 #ifdef @!STAT
 if (tracing_stats > 0) @<Output statistics about this job@>;@;
 #endif
-wake_up_terminal;
+wake_up_terminal; hint_close();
 if (log_opened)
   {@+wlog_cr;a_close(&log_file);selector=selector-2;
   if (selector==term_only)
@@ -25313,7 +25313,6 @@ if ((format_ident==0)||(buffer[loc]=='&'))
   }
 if (eTeX_ex) wterm_ln("entering extended mode");
 if (Prote_ex) {@+Prote_initialize();
-  wterm_ln("entering prote mode");
   }
 if (end_line_char_inactive) decr(limit);
 else buffer[limit]=end_line_char;
@@ -26533,7 +26532,7 @@ is a run-time switch.
 
 @<Enable \eTeX\ and furthermore Prote, if requested@>=
 #ifdef @!INIT
-if (iniversion && (buffer[loc]=='*'||etexp)&&str_eq_str(format_ident," (INITEX)"))
+if (iniversion && (buffer[loc]=='*'||etexp))
   {@+no_new_control_sequence=false;
   @<Generate all \eTeX\ primitives@>@;
   if (buffer[loc]=='*') incr(loc);
@@ -30837,7 +30836,13 @@ empty_output:
   } while(link(contrib_head)!=null);
   DBG(DBGBUFFER,"after build page dyn_used= %d\n", dyn_used);
 }
-@ @<Freeze the page specs if called for@>=
+@ When the |page_contents| changes from |empty| to not |empty|,
+the function |hint_open| will open the output file. This place
+is choosen to match as close as possible the behaviour of the
+original \TeX. The output file is needed only much later in the
+function |hput_hint|.
+
+@<Freeze the page specs if called for@>=
 if (page_contents<box_there)
 { switch(type(p))
   { case whatsit_node:
@@ -30849,14 +30854,16 @@ if (page_contents<box_there)
         break; /* else fall through */
     case hlist_node: case vlist_node: case rule_node:
       if (page_contents==empty)
-      { freeze_page_specs(box_there);
+      { hint_open();
+        freeze_page_specs(box_there);
         hfix_defaults();
       }
       else page_contents=box_there;
       break;
     case ins_node:
       if (page_contents==empty)
-      { freeze_page_specs(inserts_only);
+      { hint_open();
+        freeze_page_specs(inserts_only);
         hfix_defaults();
       }
       break;
@@ -31801,7 +31808,9 @@ static void hint_open(void)
   pack_job_name(".hnt");
   while (!(hout=open_out((char *)name_of_file+1,"wb")))
     prompt_file_name("file name for output",".hnt");
+  output_file_name=make_name_string();
   hlog=stderr;
+  DBG(DBGBASIC,"Output file %s opened\n",(char *)name_of_file+1);
   option_global=true;
   hout_init();
 }
@@ -31809,16 +31818,21 @@ static void hint_open(void)
 #define HITEX_VERSION "1.1"
 static void  hput_definitions();
 static void hout_terminate(void)
-{ hput_content_end();
+{ size_t s;
+  if (hout==NULL) return;
+  hput_content_end();
   hput_definitions();
   hput_directory();
-  hput_hint("created by HiTeX Version " HITEX_VERSION);
+  s = hput_hint("created by HiTeX Version " HITEX_VERSION);
+  print_nl("Output written on "); slow_print(output_file_name);
+@.Output written on x@>
+  print(" (1 page, "); print_int(s); print(" bytes).");
 }
 
 static void hint_close(void)
 { hout_terminate();
   if (hout!=NULL)
-  fclose(hout);
+    fclose(hout);
   hout=NULL;
 }
 
@@ -33944,7 +33958,7 @@ static void usage_help(void)
   " -etex                 "@/
   @t\qquad@>"\t enable e-TeX extensions\n"@/
   " -ltx                 "@/
-  @t\qquad@>"\t enable extensions required for LaTeX\n"@/
+  @t\qquad@>"\t enable LaTeX extensions, implies -etex\n"@/
   " -ini                  "@/
   @t\qquad@>"\t be initex for dumping formats; this is\n"@/
   @t\qquad@>"\t\t\t also true if the program name is `hinitex'\n"@/
@@ -34409,12 +34423,9 @@ if (!dump_name)
 { fprintf(stderr,"Unable to determine format name\n");
   exit(1);
 }
+if (ltxp) etexp=1;
 if (etexp && !iniversion)
-{ fprintf(stderr,"-etex requires -ini\n");
-  exit(1);
-}
-if (ltxp && !etexp )
-{ fprintf(stderr,"-ltx requires -etex\n");
+{ fprintf(stderr,"-etex and -ltx require -ini\n");
   exit(1);
 }
 
