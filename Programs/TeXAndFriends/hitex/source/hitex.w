@@ -913,7 +913,7 @@ static bool a_open_in(alpha_file *f) /*open a text file for input*/
 }
 
 static bool b_open_in(byte_file *f)   /*open a binary file for input*/
-{@+f->f= kpse_open_file((char *)name_of_file+1,kpse_tfm_format);
+{@+f->f= open_in((char *)name_of_file+1,kpse_tfm_format,"r");
    if (f->f!=NULL) get(*f);
    return f->f!=NULL && ferror(f->f)==0;
 }
@@ -10890,6 +10890,8 @@ int @!l; /*end of first input line*/
 char @!months[]=" JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC"; /*abbreviations of month names*/
 old_setting=selector;
 if (job_name==0) job_name=s_no(c_job_name?c_job_name:"texput"); /* k\TeX\ */
+pack_job_name(".fls");
+recorder_change_filename((char *)name_of_file+1);
 @.texput@>
 pack_job_name(".log");
 while (!a_open_out(&log_file)) @<Try to get a different log file name@>;
@@ -25154,7 +25156,7 @@ ready_already=314159;
 start_of_TEX: @<Initialize the output routines@>;
 @<Get the first line of input and prepare to start@>;
 history=spotless; /*ready to go!*/
-hhsize=hsize; hvsize=vsize;@/
+hhsize=hsize; hvsize=vsize; hout_allocate();@/
 main_control();  /*come to life*/
 final_cleanup(); /*prepare for death*/
 close_files_and_terminate();
@@ -30203,6 +30205,8 @@ and variables that are used above but are defined below.
 @<Hi\TeX\ routines@>@;
 
 @ @<Forward declarations@>=
+static void hout_allocate(void);
+static void hout_init(void);
 static void hint_open(void);
 static void hint_close(void);
 
@@ -30854,7 +30858,7 @@ if (page_contents<box_there)
         break; /* else fall through */
     case hlist_node: case vlist_node: case rule_node:
       if (page_contents==empty)
-      { hint_open();
+      { hint_open(); hout_init();
         freeze_page_specs(box_there);
         hfix_defaults();
       }
@@ -30862,7 +30866,7 @@ if (page_contents<box_there)
       break;
     case ins_node:
       if (page_contents==empty)
-      { hint_open();
+      { hint_open(); hout_init();
         freeze_page_specs(inserts_only);
         hfix_defaults();
       }
@@ -31787,14 +31791,16 @@ static pointer hget_current_stream(void)
     print_err("end of setstream group without setstream node");
   return s;
 }
+
 @* \HINT\ Output.
 Here are the routines to initialize and terminate the output.
-\noindent
+The initialization is done in three steps:
+First we allocate the data structurs to write nodes into buffers;
+this requires a directory and buffers for sections 0, 1, and 2.
 
-@<Hi\TeX\ routines@>=
-static void hout_init(void)
-{
-  new_directory(dir_entries);
+@ @<Hi\TeX\ routines@>=
+static void hout_allocate(void)
+{ new_directory(dir_entries);
   new_output_buffers();
   max_section_no=2;
   hdef_init();
@@ -31802,7 +31808,23 @@ static void hout_init(void)
   @<insert an initial language node@>@;
 }
 
-extern int option_global;
+@ Second we initialize the definitions and start the content section
+before the first content node is written; this is done when the
+|page_contents| is about to change from |empty| to not |empty|.
+Finally, the actual output file |hout| needs to be opened; this
+must be done before calling |hput_hint| which is already
+part of the termination routines. It is placed, however, much earlier
+because asking for the output file name---according to \TeX's
+conventions---should come before the first item is put on the first
+page by the page builder. For this reason, |hint_open| is called
+when calling |hout_init|.
+
+@<Hi\TeX\ routines@>=
+static void hout_init(void)
+{
+
+}
+
 static void hint_open(void)
 { if (job_name==0) open_log_file();
   pack_job_name(".hnt");
@@ -31811,19 +31833,20 @@ static void hint_open(void)
   output_file_name=make_name_string();
   hlog=stderr;
   DBG(DBGBASIC,"Output file %s opened\n",(char *)name_of_file+1);
-  option_global=true;
-  hout_init();
 }
 
 #define HITEX_VERSION "1.1"
 static void  hput_definitions();
+extern int option_global;
 static void hout_terminate(void)
 { size_t s;
   if (hout==NULL) return;
   hput_content_end();
   hput_definitions();
+  option_global=true; /* use global names in the directory */
   hput_directory();
   s = hput_hint("created by HiTeX Version " HITEX_VERSION);
+  @<record the names of files in optional sections@>@;
   print_nl("Output written on "); slow_print(output_file_name);
 @.Output written on x@>
   print(" (1 page, "); print_int(s); print(" bytes).");
@@ -31836,6 +31859,18 @@ static void hint_close(void)
   hout=NULL;
 }
 
+@ The file name recording feature of Hi\TeX\ makes it necessary to
+record the names of the files that are added as optional sections.
+This feature is not part of the |hput_optional_sections| function
+which is called from |hput_hint|. The following simple
+loop will achive this.
+
+@<record the names of files in optional sections@>=
+{ int i;
+  for(i= 3;i<=max_section_no;i++)
+    recorder_record_input(dir[i].file_name);
+}
+
 @* The \HINT\ Directory.
 There is not much to do here: some code to find a new or existing directory entry,
 a variable to hold the number of directory entries allocated,
@@ -31846,6 +31881,7 @@ convert \TeX's file names to ordinary \CEE/ strings.
 for (i=3; i<= max_section_no;i++)
   if (dir[i].file_name!=NULL && strcmp(dir[i].file_name,file_name)==0)
     return i;
+
 @ @<Allocate a new directory entry@>=
   i = max_section_no;
   i++;
@@ -31864,8 +31900,11 @@ for (i=3; i<= max_section_no;i++)
     (S)=_n;                           \
   }                                   \
 }
+
+
 @ @<Hi\TeX\ variables@>=
 static int dir_entries=4;
+
 @ @<Hi\TeX\ auxiliar routines@>=
 static uint16_t hnew_file_section(char *file_name)
 { uint16_t i;
@@ -33978,6 +34017,8 @@ static void usage_help(void)
   " -kpathsea-debug=NUMBER"@/
   @t\qquad@>"\t set path searching debugging flags according\n"@/
   @t\qquad@>"\t\t\t to the bits of NUMBER\n"@/
+  " -recorder"@/
+  @t\qquad@>"\t\t enable filename recorder\n"@/
   " [-no]-parse-first-line"@/
   @t\qquad@>"\t disable/enable parsing of the first line of\n"@/
   @t\qquad@>"\t\t\t the input file\n"@/
@@ -34023,6 +34064,7 @@ string variables are initialized with |NULL|.
 static int iniversion=0;
 static int etexp=0;
 static int ltxp=0;
+static int recorder_enabled=0;
 static int parsefirstlinep=-1;
 static int filelineerrorstylep=-1;
 static int interaction_option=-1;
@@ -34048,7 +34090,8 @@ static struct option long_options[] = {@/
       { "cnf-line",                  1, 0, 0 },@/
       { "ini",                       0, &iniversion, 1 },@/
       { "etex",                      0, &etexp, 1 },@/
-      { "ltx",                     0, &ltxp, 1 },@/
+      { "ltx",                       0, &ltxp, 1 },@/
+      { "recorder",                  0, &recorder_enabled, 1 },@/
       { "parse-first-line",          0, &parsefirstlinep, 1 },@/
       { "no-parse-first-line",       0, &parsefirstlinep, 0 },@/
       { "file-line-error",           0, &filelineerrorstylep, 1 },@/
@@ -34148,12 +34191,13 @@ else if (ARGUMENT_IS ("no-mktex")) kpse_maketex_option (optarg, false);
 
 
 @ To debug the searching done by the \.{kpathsearch} library,
-the following otion can be used.
+the following option can be used.
 The argument value 3 is a good choice to start with.
 
 @<handle the option at |option_index|@>=
 else @+if (ARGUMENT_IS ("kpathsea-debug")) @t\2@>
       kpathsea_debug |= atoi (optarg);
+
 
 
 @ The remaining options either set a flag and are handled by
@@ -34183,6 +34227,131 @@ else @+if (ARGUMENT_IS("hint-debug"))
 else @+if (ARGUMENT_IS("hint-debug-help"))
   hint_debug_help();
 #endif
+
+
+@ The recorder option can be used to enable the file name recorder.
+It is crucial for getting a reliable list of files used in a given run.
+Many post-processors use it, and it is used in \TeX\ Live for
+checking the format building infrastructure.
+
+When we start the file name recorder,
+we would like to use mkstemp, but it is not portable,
+and doing the autoconfiscation (and providing fallbacks) is more
+than we want to cope with.  So we have to be content with using a
+default name.  We throw in the pid so at least parallel builds might
+work. Windows, however, seems to have no |pid_t|, so instead of storing the
+value returned by |getpid|, we immediately consume it.
+
+@<k\TeX\ auxiliar functions@>=
+static char *recorder_name=NULL;
+static FILE *recorder_file=NULL;
+static void
+recorder_start(void)
+{ char *cwd;
+  char pid_str[MAX_INT_LENGTH];
+  sprintf (pid_str, "%ld", (long) getpid());
+  recorder_name = concat3(kpse_program_name, pid_str, ".fls");
+  if (output_directory) {
+    char *temp = concat3(output_directory, DIR_SEP_STRING, recorder_name);
+    free(recorder_name);
+    recorder_name = temp;
+  }
+  recorder_file = xfopen(recorder_name, FOPEN_W_MODE);
+  cwd = xgetcwd();
+  fprintf(recorder_file, "PWD %s\n", cwd);
+  free(cwd);
+}
+
+@ After we know the log file name, we have used |recorder_change_filename|
+to change the name of the recorder file to the usual thing.
+@<Forward declarations@>=
+static void recorder_change_filename (const char *new_name);
+
+@ Now its time to define this function.
+Unfortunately, we have to explicitly take
+the output directory into account, since the new name we are
+called with does not; it is just the log file name with {\tt .log}
+replaced by {\tt .fls}.
+
+@ @<k\TeX\ auxiliar functions@>=
+static void
+recorder_change_filename (const char *new_name)
+{ char *temp = NULL;
+  if (!recorder_file)
+   return;
+#if defined(_WIN32)
+   fclose (recorder_file); /* An opened file cannot be renamed. */
+#endif /* _WIN32 */
+   if (output_directory) {
+     temp = concat3(output_directory, DIR_SEP_STRING, new_name);
+     new_name = temp;
+   }
+
+   /* On windows, renaming fails if a file with new_name exists. */
+#if defined(_WIN32)
+   remove (new_name); /* Renaming fails if a file with the |new_name| exists. */
+#endif /* _WIN32 */
+   rename(recorder_name, new_name);
+   free(recorder_name);
+   recorder_name = xstrdup(new_name);
+#if defined(_WIN32)
+   recorder_file = xfopen (recorder_name, FOPEN_A_MODE);
+#endif /* _WIN32 */
+   if (temp)
+     free (temp);
+}
+
+@ Now we are ready to record file names. The prefix INPUT is added
+to an input file and the prefiex OUTPUT to an output file.
+But both functions for recording a file name use the same
+function otherwise, which on first use will start the recorder.
+
+@<k\TeX\ auxiliar functions@>=
+static void
+recorder_record_name (const char *pfx, const char *fname)
+{ if (recorder_enabled) {
+    if (!recorder_file)
+      recorder_start();
+    fprintf(recorder_file, "%s %s\n", pfx, fname);
+    fflush(recorder_file);
+  }
+}
+
+
+static void
+recorder_record_input (const char *fname)
+{ recorder_record_name ("INPUT", fname);
+}
+
+static void
+recorder_record_output (const char * fname)
+{ recorder_record_name ("OUTPUT", fname);
+}
+
+@ Because input files are also recorded when writing the optional sections,
+we need the following declaration.
+
+@<Forward declarations@>=
+static void recorder_record_input (const char *fname);
+
+@ In WIN32, texmf.cnf is not recorded in
+the case of {\tt -recorder}, because |parse_options| is executed
+after the start of kpathsea due to special initializations.
+Therefore we record {\tt texmf.cnf} with the following code:
+
+@<record {\tt texmf.cnf}@>=
+if (recorder_enabled) {
+  char *p = kpse_find_file_generic ("texmf.cnf", kpse_cnf_format, 0, 1);
+  if (p && *p) {
+    char *pp = p;
+    while (*p) {
+    recorder_record_input (*p);
+    free (*p);
+    p++;
+    }
+  free (pp);
+}
+
 
 @ When string arguments specify files or directories,
 special care is needed if arguments are quoted and/or contain spaces.
@@ -34550,7 +34719,10 @@ static FILE *open_out(const char *file_name, const char *file_mode)
   char *new_name=NULL;
   int absolute = kpse_absolute_p(file_name, false);
   if (absolute)
-    return fopen(file_name,file_mode);
+  { f=fopen(file_name,file_mode);
+    if (f!=NULL) recorder_record_output (file_name);
+    return f;
+  }
   if (output_directory)
   { new_name = concat3(output_directory, DIR_SEP_STRING, file_name);
     f = fopen(new_name,file_mode);
@@ -34568,6 +34740,7 @@ static FILE *open_out(const char *file_name, const char *file_mode)
   }
   if (f!=NULL && new_name!=NULL)
     update_name_of_file(new_name,(int)strlen(new_name));
+  if (f!=NULL) recorder_record_output ((char*)name_of_file+1);
   if (new_name!=NULL) free(new_name);
   return f;
 }
@@ -34606,6 +34779,7 @@ static FILE*open_in(char*filename,kpse_file_format_type t,const char*rwb)
   if(fname!=NULL)
   {@+
     f= fopen(fname,rwb);
+    if (f!=NULL) recorder_record_input(fname);
     free(fname);@+
   }
   return f;
@@ -34652,7 +34826,13 @@ static void main_init(int ac, char *av[])
   char* main_input_file;
   argc = ac;
   argv = av;
-  interaction = error_stop_mode;@/
+  interaction = error_stop_mode;
+#if defined(MIKTEX)
+#else
+  kpse_record_input = recorder_record_input;
+  kpse_record_output = recorder_record_output;
+#endif
+
   @<parse options@>@;
   @<set the program and engine name@>@;
   @<activate configuration lines@>@;
@@ -34673,6 +34853,7 @@ we might need some special preparations for Windows.
   enc = kpse_var_value("command_line_encoding");
   get_command_line_args_utf8(enc, &argc, &argv);@/
   parse_options (argc, argv);
+  @<record {\tt texmf.cnf}@>@;
 }
 #else
   parse_options (ac, av);
@@ -34889,6 +35070,7 @@ static int get_md5_sum(int s, int file)
       if (f != NULL)
       { int r;
         char file_buf[FILE_BUF_SIZE];
+        recorder_record_input(fname);
         md5_init(&st);
         while ((r = fread(&file_buf, 1, FILE_BUF_SIZE, f)) > 0)
           md5_append(&st, (const md5_byte_t *) file_buf, r);

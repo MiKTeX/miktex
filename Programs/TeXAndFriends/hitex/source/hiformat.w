@@ -7631,19 +7631,24 @@ void hput_directory(void)
 
 @
 
-Now let us look at the optional sections described in the directory entries 3 and above
-Where these files are found depends on the {\tt -g} and {\tt -a} options.
+Now let us look at the optional sections described in the directory
+entries 3 and above. Where these files are found depends on the {\tt
+-g} and {\tt -a} options.
 
-With the {\tt -g} option given, only the file names as given in the directory entries are used.
-With the {\tt -a} option given, the file names are translated to filenames in the {|hin_name|\tt .abs} and  {|hin_name|\tt .rel} directories, as described in section~\secref{absrel}.
-If neither the {\tt -a} nor the {\tt -g} option is given, {\tt shrink} first trys the translated
-filename and then the global filename before it gives up.
+With the {\tt -g} option given, only the file names as given in the
+directory entries are used.  With the {\tt -a} option given, the file
+names are translated to filenames in the {|hin_name|\tt .abs} and
+{|hin_name|\tt .rel} directories, as described in
+section~\secref{absrel}.  If neither the {\tt -a} nor the {\tt -g}
+option is given, {\tt shrink} first tries the translated filename and
+then the global filename before it gives up.
 
-When the \.{shrink} program writes the directory section in the short format,
-it needs to know the sizes of all the  sections---including the optional sections.
-These sizes are not provided in the long format because it is safer and more 
-convenient to let the machine figure out the file sizes\index{file size}.
-But before we can determine the size, we need to determine the file.
+When the \.{shrink} program writes the directory section in the short
+format, it needs to know the sizes of all the sections---including the
+optional sections.  These sizes are not provided in the long format
+because it is safer and more convenient to let the machine figure out
+the file sizes\index{file size}.  But before we can determine the
+size, we need to determine the file.
 
 @<update the file sizes of optional sections@>=
 { int i;

@@ -133,12 +133,16 @@ MIKTEX_END_EXTERN_C_BLOCK;
 /// Stuff from `c-fopen.h`.
 /// @{
 
+#if !defined(FOPEN_A_MODE)
+#  define FOPEN_A_MODE "ab"
+#endif
+
 #if !defined(FOPEN_R_MODE)
 #  define FOPEN_R_MODE "r"
 #endif
 
 #if !defined(FOPEN_W_MODE)
-#  define FOPEN_W_MODE "w"
+#  define FOPEN_W_MODE "wb"
 #endif
 
 #if !defined(FOPEN_RBIN_MODE)
@@ -485,6 +489,8 @@ inline int FILESTRCASEEQ(const char* s1, const char* s2)
 #else
 #define FILESTRCASEEQ(s1, s2) (miktex_pathcmp(s1, s2) == 0)
 #endif
+
+#define MAX_INT_LENGTH 21
 
 #define STREQ(s1, s2) ((s1) != 0 && (s2) != 0 && (strcmp(s1, s2) == 0))
 
