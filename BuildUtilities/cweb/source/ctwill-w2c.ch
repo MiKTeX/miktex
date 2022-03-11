@@ -1099,8 +1099,10 @@ flush_buffer(out_ptr,false,false);
 @z
 
 @x
+        } @=/* otherwise fall through */@>@;
       default: err_print("! Improper macro definition"); break;
 @y
+        } @=/* otherwise fall through */@>@;
       default: err_print(_("! Improper macro definition")); break;
 @z
 

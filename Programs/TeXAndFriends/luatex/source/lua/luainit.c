@@ -29,6 +29,8 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #include "lua/luatex-api.h"
 
 #include <locale.h>
+
+#include "luatex_svnversion.h"
 #if defined(MIKTEX)
 #  include <miktex/Core/Paths.h> // MIKTEX_PREFIX
 #endif
@@ -341,8 +343,8 @@ static struct option long_options[] = {
     {"file-line-error", 0, &filelineerrorstylep, 1},
     {"no-file-line-error", 0, &filelineerrorstylep, -1},
     {"jobname", 1, 0, 0},
-    {"parse-first-line", 0, &parsefirstlinep, 1},
-    {"no-parse-first-line", 0, &parsefirstlinep, -1},
+    /*{"parse-first-line", 0, &parsefirstlinep, 1},*/ /* ignored, left as reference*/
+    /*{"no-parse-first-line", 0, &parsefirstlinep, -1},*/
     {"translate-file", 1, 0, 0},
     {"default-translate-file", 1, 0, 0},
     {"8bit", 0, 0, 0},

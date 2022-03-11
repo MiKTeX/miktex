@@ -351,8 +351,10 @@ case output_defs_code: if (t!=section_name) err_print(_("! Misplaced @@h"));
 @z
 
 @x
+          } @=/* otherwise fall through */@>@;
         default: err_print("! Double @@ should be used in limbo");
 @y
+          } @=/* otherwise fall through */@>@;
         default: err_print(_("! Double @@ should be used in limbo"));
 @z
 

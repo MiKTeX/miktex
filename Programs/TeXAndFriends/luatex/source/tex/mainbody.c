@@ -282,9 +282,9 @@ int save_size;
 
 int expand_depth;
 
-/*tex parse the first line for options */
+/* parse the first line for options is ignored. */
 
-int parsefirstlinep;
+/*int parsefirstlinep;*/
 
 /*tex format messages as file:line:error */
 

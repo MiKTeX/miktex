@@ -948,7 +948,7 @@ switch(ccode[c=*loc++]) {
   case verbatim: @<Scan a verbatim string@>@;
   case ord: @<Get a string@>@;
   case xref_roman: case xref_wildcard: case xref_typewriter: case noop:
-  case TeX_string: skip_restricted(); /* fall through */
+  case TeX_string: skip_restricted(); @=/* fall through */@>@;
   default: return ccode[c];
 }
 
@@ -2535,10 +2535,12 @@ text_pointer p)
         if (name_dir[r].ilk==case_like) return case_found;
         if (name_dir[r].ilk==operator_like) return operator_found;
         if (name_dir[r].ilk!=raw_int) break;
+        @=/* else fall through */@>@;
       case 1: return j;
       case 4: case 5: /* |tok_flag| or |inner_tok_flag| */
         if ((q=find_first_ident(tok_start+r))!=no_ident_found)
           return q;
+        @=/* else fall through */@>@;
       default: ; /* char, |section_flag|, fall thru: move on to next token */
         if (*j==inserted) return no_ident_found; /* ignore inserts */
         else if (*j==qualifier) j++; /* bypass namespace qualifier */
@@ -3919,7 +3921,7 @@ make_output(void) /* outputs the equivalents of tokens */
       case end_translation: return;
       case identifier: case res_word: @<Output an identifier@>@; break;
       case section_code: @<Output a section name@>@; break;
-      case math_rel: out_str("\\MRL{"@q}@>); /* fall through */
+      case math_rel: out_str("\\MRL{"@q}@>); @=/* fall through */@>@;
 @.\\MRL@>
       case noop: case inserted: break;
       case cancel: case big_cancel: c=0; b=a;
@@ -3941,11 +3943,11 @@ make_output(void) /* outputs the equivalents of tokens */
         if (a!=big_force) {
           out_str("\\1\\1"); goto reswitch;
         }
-        else dindent_pending=true; /* fall through */
+        else dindent_pending=true; @=/* fall through */@>@;
       case indent: case outdent: case opt: case backup: case break_space:
       case force: case big_force: case preproc_line: @<Output a control,
         look ahead in case of line breaks, possibly |goto reswitch|@>@; break;
-      case quoted_char: out(*(cur_tok++)); /* fall through */
+      case quoted_char: out(*(cur_tok++)); @=/* fall through */@>@;
       case qualifier: break;
       default: out(a); /* otherwise |a| is an ordinary character */
     }
@@ -4100,7 +4102,7 @@ while (k<k_limit) {
     switch (b) {
     case ' ': case '\\': case '#': case '%': case '$': case '^':
     case '{': case '}': case '~': case '&': case '_':
-      out('\\'); /* falls through */
+      out('\\'); @=/* falls through */@>@;
 @.\\\ @>
 @.\\\\@>
 @.\\\#@>
@@ -4353,7 +4355,7 @@ it starts after we scan the matching `\.)'.
         app_scrap(raw_int,no_math);
         if ((next_control=get_next())==')') {
           app(next_control); next_control=get_next(); break;
-        } /* otherwise fall through */
+        } @=/* otherwise fall through */@>@;
       default: err_print("! Improper macro definition"); break;
       }
       app('$');
@@ -4786,6 +4788,7 @@ lowcase: out_str("\\\\");
   case wildcard: out_str("\\9");@+ goto not_an_identifier;
 @.\\9@>
   case typewriter: out_str("\\.");
+  @=/* fall through */@>@;
 @.\\.@>
   case roman: not_an_identifier: out_name(cur_name,false); goto name_done;
   case custom:

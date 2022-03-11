@@ -913,11 +913,7 @@ static bool a_open_in(alpha_file *f) /*open a text file for input*/
 }
 
 static bool b_open_in(byte_file *f)   /*open a binary file for input*/
-#if defined(MIKTEX_WINDOWS)
 {@+f->f= open_in((char *)name_of_file+1,kpse_tfm_format,"rb");
-#else
-{@+f->f= open_in((char *)name_of_file+1,kpse_tfm_format,"r");
-#endif
    if (f->f!=NULL) get(*f);
    return f->f!=NULL && ferror(f->f)==0;
 }
@@ -34285,22 +34281,22 @@ recorder_change_filename (const char *new_name)
    return;
 #if defined(_WIN32)
    fclose (recorder_file); /* An opened file cannot be renamed. */
-#endif /* _WIN32 */
+#endif /* |_WIN32| */
    if (output_directory) {
      temp = concat3(output_directory, DIR_SEP_STRING, new_name);
      new_name = temp;
    }
 
-   /* On windows, renaming fails if a file with new_name exists. */
+   /* On windows, renaming fails if a file with |new_name| exists. */
 #if defined(_WIN32)
    remove (new_name); /* Renaming fails if a file with the |new_name| exists. */
-#endif /* _WIN32 */
+#endif /*  |_WIN32| */
    rename(recorder_name, new_name);
    free(recorder_name);
    recorder_name = xstrdup(new_name);
 #if defined(_WIN32)
    recorder_file = xfopen (recorder_name, FOPEN_A_MODE);
-#endif /* _WIN32 */
+#endif /* |_WIN32| */
    if (temp)
      free (temp);
 }
@@ -34345,15 +34341,16 @@ Therefore we record {\tt texmf.cnf} with the following code:
 
 @<record {\tt texmf.cnf}@>=
 if (recorder_enabled) {
-  char *p = kpse_find_file_generic ("texmf.cnf", kpse_cnf_format, 0, 1);
+  string *p = kpse_find_file_generic ("texmf.cnf", kpse_cnf_format, 0, 1);
   if (p && *p) {
-    char *pp = p;
+    string *pp = p;
     while (*p) {
-    recorder_record_input (*p);
-    free (*p);
-    p++;
+      recorder_record_input (*p);
+      free (*p);
+      p++;
     }
   free (pp);
+  }
 }
 
 

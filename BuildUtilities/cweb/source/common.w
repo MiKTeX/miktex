@@ -919,7 +919,7 @@ switch(section_name_cmp(&first,name_len,r)) {
       err_print(">");
     }
     else if (name_len<prefix_length(r)) set_prefix_length(r,name_len);
-    /* fall through */
+    @=/* fall through */@>@;
   case equal: break;
   case extension: if (!ispref || first<=last)
         extend_section_name(r,first,last+1,ispref);
