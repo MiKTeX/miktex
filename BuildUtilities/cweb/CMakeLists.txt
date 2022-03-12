@@ -17,6 +17,7 @@ include_directories(BEFORE
 
 add_definitions(
     -Dmain=Main
+    -Dregister=
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
