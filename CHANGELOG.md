@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 22.3 - to be released
+## 22.3 - 2022-03-14
 
 ### HiTeX
 
