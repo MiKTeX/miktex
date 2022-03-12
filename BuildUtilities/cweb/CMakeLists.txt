@@ -20,6 +20,12 @@ add_definitions(
     -Dregister=
 )
 
+if(MSVC)
+    add_definitions(
+        -D_ALLOW_KEYWORD_MACROS
+    )
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
     add_definitions(
         -DUNICODE
