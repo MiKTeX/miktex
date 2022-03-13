@@ -34496,7 +34496,11 @@ static char *get_input_file_name (void)
     clean_windows_filename(argv[optind]);
 #endif
     argv[optind] = normalize_quotes(argv[optind], "input file");
+#if defined(MIKTEX)
+    input_file_name=find_file(argv[optind],kpse_tex_format, true);
+#else
     input_file_name=find_file(argv[optind],kpse_tex_format, false);
+#endif
   }
   return input_file_name;
 }
@@ -34515,7 +34519,11 @@ in case we run under Windows.
     if (file_name && file_name[0] != '-' && file_name[0] != '&' && file_name[0] != '\\') {
     clean_windows_filename(file_name);
     file_name = normalize_quotes(file_name, "argument");
+#if defined(MIKTEX)
+    main_input_file=find_file(file_name,kpse_tex_format, true);
+#else
     main_input_file=find_file(file_name,kpse_tex_format, false);
+#endif
     argv[argc-1] = file_name;
     }
   }
@@ -34621,7 +34629,11 @@ static void parse_first_line (char*filename)
       *s=0;
       if (dump_name==NULL) {
         char *f_name = concat (r, ".fmt");
+#if defined(MIKTEX)
+        char *d_name = kpse_find_file (f_name,kpse_fmt_format, true);
+#else
         char *d_name = kpse_find_file (f_name,kpse_fmt_format, false);
+#endif
         if (d_name && kpse_readable_file (d_name)) {
             dump_name = xstrdup (r);
             kpse_reset_program_name (dump_name);
