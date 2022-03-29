@@ -210,7 +210,6 @@ const struct option long_options[] =
   { "local-package-repository", required_argument, 0, OPT_LOCAL_PACKAGE_REPOSITORY },
   { "no-additional-roots", no_argument, 0, OPT_NO_ADDITIONAL_ROOTS },
   { "no-registry", no_argument, 0, OPT_NO_REGISTRY },
-  { "package-set", required_argument, 0, OPT_PACKAGE_SET },
 #if FEATURE_1874934
   { "paper-size", required_argument, 0, OPT_PAPER_SIZE },
 #endif

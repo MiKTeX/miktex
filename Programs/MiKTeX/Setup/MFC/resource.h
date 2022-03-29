@@ -83,9 +83,9 @@
 #define IDC_ANI                         1031
 #define IDC_MESSAGE                     1032
 #define IDC_INSTALL_FROM_LOCAL_REPOSITORY 1033
-#define IDC_SMALL                       1034
+#define IDC_ADVANCED                       1034
 #define IDC_INSTALL_FROM_REMOTE_REPOSITORY 1035
-#define IDC_TOTAL                       1036
+#define IDC_COMPLETE                       1036
 #define IDC_ETA                         1037
 #define IDC_ETA_TITLE                   1038
 #define IDC_CHECK                       1038

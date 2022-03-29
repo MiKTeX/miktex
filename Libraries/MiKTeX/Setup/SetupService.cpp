@@ -44,6 +44,7 @@ using namespace MiKTeX::Util;
 #define LICENSE_FILE "LICENSE.TXT"
 #define DOWNLOAD_INFO_FILE "README.TXT"
 
+#define ADVANCED_MIKTEX "\"Advanced MiKTeX\""
 #define BASIC_MIKTEX "\"Basic MiKTeX\""
 #define BASIC_MIKTEX_LEGACY "\"Small MiKTeX\""
 #define COMPLETE_MIKTEX "\"Complete MiKTeX\""
@@ -283,6 +284,10 @@ PackageLevel SetupService::TestLocalRepository(const PathName& pathRepository, P
   else if (firstLine.find(BASIC_MIKTEX) != string::npos)
   {
     packageLevel_ = PackageLevel::Basic;
+  }
+  else if (firstLine.find(ADVANCED_MIKTEX) != string::npos)
+  {
+    packageLevel_ = PackageLevel::Advanced;
   }
   else if (firstLine.find(COMPLETE_MIKTEX) != string::npos
     || firstLine.find(COMPLETE_MIKTEX_LEGACY) != string::npos)
@@ -1599,6 +1604,9 @@ void SetupServiceImpl::CreateInfoFile()
   const char* lpszPackageSet;
   switch (options.PackageLevel)
   {
+  case PackageLevel::Advanced:
+    lpszPackageSet = ADVANCED_MIKTEX;
+    break;
   case PackageLevel::Essential:
     lpszPackageSet = ESSENTIAL_MIKTEX;
     break;

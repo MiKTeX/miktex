@@ -1,6 +1,6 @@
 /* PackageSet.cpp:
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2022 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -27,8 +27,8 @@
 #include "SetupWizard.h"
 
 BEGIN_MESSAGE_MAP(PackageSetPage, CPropertyPage)
-  ON_BN_CLICKED(IDC_SMALL, OnSmall)
-  ON_BN_CLICKED(IDC_TOTAL, OnTotal)
+  ON_BN_CLICKED(IDC_ADVANCED, OnAdvanced)
+  ON_BN_CLICKED(IDC_COMPLETE, OnComplete)
 END_MESSAGE_MAP();
 
 PackageSetPage::PackageSetPage(bool download) :
@@ -41,7 +41,7 @@ BOOL PackageSetPage::OnInitDialog()
   sheet = reinterpret_cast<SetupWizard *>(GetParent());
   switch (SetupApp::Instance->GetPackageLevel())
   {
-  case PackageLevel::Basic:
+  case PackageLevel::Advanced:
     packageSet = 0;
     break;
   case PackageLevel::Complete:
@@ -64,7 +64,7 @@ BOOL PackageSetPage::OnSetActive()
 void PackageSetPage::DoDataExchange(CDataExchange* dx)
 {
   CPropertyPage::DoDataExchange(dx);
-  DDX_Radio(dx, IDC_SMALL, packageSet);
+  DDX_Radio(dx, IDC_ADVANCED, packageSet);
 }
 
 LRESULT PackageSetPage::OnWizardNext()
@@ -124,18 +124,18 @@ BOOL PackageSetPage::OnKillActive()
   if (ret)
   {
     SetupOptions options = SetupApp::Instance->Service->GetOptions();
-    options.PackageLevel = (packageSet == 0 ? PackageLevel::Basic : PackageLevel::Complete);
+    options.PackageLevel = (packageSet == 0 ? PackageLevel::Advanced : PackageLevel::Complete);
     SetupApp::Instance->Service->SetOptions(options);
   }
   return ret;
 }
 
-void PackageSetPage::OnSmall()
+void PackageSetPage::OnAdvanced()
 {
   sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }
 
-void PackageSetPage::OnTotal()
+void PackageSetPage::OnComplete()
 {
   sheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
 }
