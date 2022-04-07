@@ -296,7 +296,7 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "MiKTeX has been successfullly installed.",IDC_STATIC,21,1,275,8
     CONTROL         "Check for updates now",IDC_CHECK_UPDATES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,42,275,10
-    LTEXT           "In order to obtain an up-to-date installation, it is recommend that you allow MiKTeX to check for updates now. This will happen in the background. You will be notified, if updates are available.",IDC_STATIC,21,13,275,24
+    LTEXT           "In order to obtain an up-to-date installation, it is recommended that you allow MiKTeX to check for updates now. This will happen in the background. You will be notified, if updates are available.",IDC_STATIC,21,13,275,24
 END
 
 
