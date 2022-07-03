@@ -2065,7 +2065,9 @@ vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageInte
   {
     MIKTEX_ASSERT(!session->IsAdminMode());
     InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
+#if 0
     MIKTEX_ASSERT(userInstallation.packageCount > 0);
+#endif
     if (!IsValidTimeT(userInstallation.lastUpdateCheck))
     {
       result.push_back({
