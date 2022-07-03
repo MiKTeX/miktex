@@ -1,123 +1,112 @@
-/* miktex/utf8wrap.h: Unx emulation                     -*- C++ -*-
-
-   Copyright (C) 2011-2020 Christian Schenk
-
-   This file is part of the MiKTeX UTF8Wrap Library.
-
-   The MiKTeX UTF8Wrap Library is free software; you can redistribute
-   it and/or modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 2, or (at your option) any later version.
-
-   The MiKTeX UTF8Wrap Library is distributed in the hope that it will
-   be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-   See the GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX UTF8Wrap Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file miktex/utf8wrap.h
+ * @author Christian Schenk
+ * @brief utf8wrap header file
+ *
+ * @copyright Copyright © 2011-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX UTF8Wrap Library.
+ *
+ * The MiKTeX UTF8Wrap Library is licensed under GNU General Public
+ * License version 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(B2E524AD08FE4528BE66DC6ED9CF716C)
-#define B2E524AD08FE4528BE66DC6ED9CF716C
 
 #include <miktex/utf8wrap-config.h>
 
 #if MIKTEX_UTF8_WRAP_ACCESS
-#  define access access_hidden
+#   define access access_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__ACCESS
-#  define _access _access_hidden
+#   define _access _access_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_CHDIR
-#  define chdir chdir_hidden
+#   define chdir chdir_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__CHDIR
-#  define _chdir _chdir_hidden
+#   define _chdir _chdir_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_CHMOD
-#  define chmod chmod_hidden
+#   define chmod chmod_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__CHMOD
-#  define _chmod _chmod_hidden
+#   define _chmod _chmod_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_FOPEN
-#  define fopen fopen_hidden
+#   define fopen fopen_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_FPUTC
-#  define fputc fputc_hidden
+#   define fputc fputc_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_GETCWD
-#  define getcwd getcwd_hidden
+#   define getcwd getcwd_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__GETCWD
-#  define _getcwd _getcwd_hidden
+#   define _getcwd _getcwd_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_GETENV
-#  define getenv getenv_hidden
+#   define getenv getenv_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_MKDIR
-#  define mkdir mkdir_hidden
+#   define mkdir mkdir_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__MKDIR
-#  define _mkdir _mkdir_hidden
+#   define _mkdir _mkdir_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_OPEN
-#  define open open_hidden
+#   define open open_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__OPEN
-#  define _open _open_hidden
+#   define _open _open_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_PUTC && !IS_DEFINED_PUTC
-#  define putc putc_hidden
+#   define putc putc_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_PUTCHAR && !IS_DEFINED_PUTCHAR
-#  define putchar putchar_hidden
+#   define putchar putchar_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_PUTENV
-#  define putenv putenv_hidden
+#   define putenv putenv_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_RENAME
-#  define rename rename_hidden
+#   define rename rename_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_REMOVE
-#  define remove remove_hidden
+#   define remove remove_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_RMDIR
-#  define rmdir rmdir_hidden
+#   define rmdir rmdir_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__RMDIR
-#  define _rmdir _rmdir_hidden
+#   define _rmdir _rmdir_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_SPAWNVP
-#  define spawnvp spawnvp_hidden
+#   define spawnvp spawnvp_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__SPAWNVP
-#  define _spawnvp _spawnvp_hidden
+#   define _spawnvp _spawnvp_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_STAT
-#  define stat(f, s) stat_hidden(f, s)
+#   define stat(f, s) stat_hidden(f, s)
 #endif
 #if MIKTEX_UTF8_WRAP__STAT64I32
-#  define _stat64i32 _stat64i32_hidden
+#   define _stat64i32 _stat64i32_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_SYSTEM
-#  define system system_hidden
+#   define system system_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_UNLINK
-#  define unlink unlink_hidden
+#   define unlink unlink_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__UNLINK
-#  define _unlink _unlink_hidden
+#   define _unlink _unlink_hidden
 #endif
 #if MIKTEX_UTF8_WRAP__UTIME64
-#  define _utime64 _utime64_hidden
+#   define _utime64 _utime64_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_UTIME
-#  define utime utime_hidden
+#   define utime utime_hidden
 #endif
 
 #if defined(_INC_STDIO) && MIKTEX_UTF8_WRAP_STDIO
@@ -197,7 +186,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #undef access
 static inline int access(const char* path, int mode)
 {
-  return miktex_utf8__access(path, mode);
+    return miktex_utf8__access(path, mode);
 }
 #endif
 
@@ -205,7 +194,7 @@ static inline int access(const char* path, int mode)
 #undef _access
 static inline int _access(const char* path, int mode)
 {
-  return miktex_utf8__access(path, mode);
+    return miktex_utf8__access(path, mode);
 }
 #endif
 
@@ -213,7 +202,7 @@ static inline int _access(const char* path, int mode)
 #undef chdir
 static inline int chdir(const char* path)
 {
-  return miktex_utf8__chdir(path);
+    return miktex_utf8__chdir(path);
 }
 #endif
 
@@ -221,7 +210,7 @@ static inline int chdir(const char* path)
 #undef _chdir
 static inline int _chdir(const char* path)
 {
-  return miktex_utf8__chdir(path);
+    return miktex_utf8__chdir(path);
 }
 #endif
 
@@ -229,7 +218,7 @@ static inline int _chdir(const char* path)
 #undef chmod
 static inline int chmod(const char* path, int mode)
 {
-  return miktex_utf8__chmod(path, mode);
+    return miktex_utf8__chmod(path, mode);
 }
 #endif
 
@@ -237,7 +226,7 @@ static inline int chmod(const char* path, int mode)
 #undef _chmod
 static inline int _chmod(const char* path, int mode)
 {
-  return miktex_utf8__chmod(path, mode);
+    return miktex_utf8__chmod(path, mode);
 }
 #endif
 
@@ -245,7 +234,7 @@ static inline int _chmod(const char* path, int mode)
 #undef fopen
 static inline FILE* fopen(const char* path, const char* mode)
 {
-  return miktex_utf8_fopen(path, mode);
+    return miktex_utf8_fopen(path, mode);
 }
 #endif
 
@@ -253,7 +242,7 @@ static inline FILE* fopen(const char* path, const char* mode)
 #undef fputc
 static inline int fputc(int ch, FILE* file)
 {
-  return miktex_utf8_fputc(ch, file);
+    return miktex_utf8_fputc(ch, file);
 }
 #endif
 
@@ -261,7 +250,7 @@ static inline int fputc(int ch, FILE* file)
 #undef getcwd
 static inline char* getcwd(char* path, int maxSize)
 {
-  return miktex_utf8__getcwd(path, maxSize);
+    return miktex_utf8__getcwd(path, maxSize);
 }
 #endif
 
@@ -269,7 +258,7 @@ static inline char* getcwd(char* path, int maxSize)
 #undef _getcwd
 static inline char* _getcwd(char* path, int maxSize)
 {
-  return miktex_utf8__getcwd(path, maxSize);
+    return miktex_utf8__getcwd(path, maxSize);
 }
 #endif
 
@@ -277,7 +266,7 @@ static inline char* _getcwd(char* path, int maxSize)
 #undef getenv
 static inline char* getenv(const char* name)
 {
-  return miktex_utf8_getenv(name);
+    return miktex_utf8_getenv(name);
 }
 #endif
 
@@ -285,7 +274,7 @@ static inline char* getenv(const char* name)
 #undef mkdir
 static inline int mkdir(const char* path)
 {
-  return miktex_utf8__mkdir(path);
+    return miktex_utf8__mkdir(path);
 }
 #endif
 
@@ -293,7 +282,7 @@ static inline int mkdir(const char* path)
 #undef _mkdir
 static inline int _mkdir(const char* path)
 {
-  return miktex_utf8__mkdir(path);
+    return miktex_utf8__mkdir(path);
 }
 #endif
 
@@ -301,15 +290,15 @@ static inline int _mkdir(const char* path)
 #undef open
 static inline int open(const char* path, int oflag, ...)
 {
-  int pmode = 0;
-  if ((oflag & _O_CREAT) != 0)
-  {
-    va_list ap;
-    va_start(ap, oflag);
-    pmode = va_arg(ap, int);
-    va_end(ap);
-  }
-  return miktex_utf8__open(path, oflag, pmode);
+    int pmode = 0;
+    if ((oflag & _O_CREAT) != 0)
+    {
+        va_list ap;
+        va_start(ap, oflag);
+        pmode = va_arg(ap, int);
+        va_end(ap);
+    }
+    return miktex_utf8__open(path, oflag, pmode);
 }
 #endif
 
@@ -317,15 +306,15 @@ static inline int open(const char* path, int oflag, ...)
 #undef _open
 static inline int _open(const char* path, int oflag, ...)
 {
-  int pmode = 0;
-  if ((oflag & _O_CREAT) != 0)
-  {
-    va_list ap;
-    va_start(ap, oflag);
-    pmode = va_arg(ap, int);
-    va_end(ap);
-  }
-  return miktex_utf8__open(path, oflag, pmode);
+    int pmode = 0;
+    if ((oflag & _O_CREAT) != 0)
+    {
+        va_list ap;
+        va_start(ap, oflag);
+        pmode = va_arg(ap, int);
+        va_end(ap);
+    }
+    return miktex_utf8__open(path, oflag, pmode);
 }
 #endif
 
@@ -333,7 +322,7 @@ static inline int _open(const char* path, int oflag, ...)
 #undef putc
 static inline int putc(int ch, FILE* file)
 {
-  return miktex_utf8_putc(ch, file);
+    return miktex_utf8_putc(ch, file);
 }
 #endif
 
@@ -341,7 +330,7 @@ static inline int putc(int ch, FILE* file)
 #undef putchar
 static inline int putchar(int ch)
 {
-  return miktex_utf8_putchar(ch);
+    return miktex_utf8_putchar(ch);
 }
 #endif
 
@@ -349,7 +338,7 @@ static inline int putchar(int ch)
 #undef putenv
 static inline int putenv(const char* envString)
 {
-  return miktex_utf8_putenv(envString);
+    return miktex_utf8_putenv(envString);
 }
 #endif
 
@@ -357,7 +346,7 @@ static inline int putenv(const char* envString)
 #undef rename
 static inline int rename(const char* oldPathName, const char* newPathName)
 {
-  return miktex_utf8_rename(oldPathName, newPathName);
+    return miktex_utf8_rename(oldPathName, newPathName);
 }
 #endif
 
@@ -365,7 +354,7 @@ static inline int rename(const char* oldPathName, const char* newPathName)
 #undef remove
 static inline int remove(const char* path)
 {
-  return miktex_utf8_remove(path);
+    return miktex_utf8_remove(path);
 }
 #endif
 
@@ -373,7 +362,7 @@ static inline int remove(const char* path)
 #undef rmdir
 static inline int rmdir(const char* path)
 {
-  return miktex_utf8__rmdir(path);
+    return miktex_utf8__rmdir(path);
 }
 #endif
 
@@ -381,7 +370,7 @@ static inline int rmdir(const char* path)
 #undef _rmdir
 static inline int _rmdir(const char* path)
 {
-  return miktex_utf8__rmdir(path);
+    return miktex_utf8__rmdir(path);
 }
 #endif
 
@@ -389,7 +378,7 @@ static inline int _rmdir(const char* path)
 #undef spawnvp
 static inline intptr_t spawnvp(int mode, const char* path, const char* const* argv)
 {
-  return miktex_utf8__spawnvp(mode, path, argv);
+    return miktex_utf8__spawnvp(mode, path, argv);
 }
 #endif
 
@@ -397,7 +386,7 @@ static inline intptr_t spawnvp(int mode, const char* path, const char* const* ar
 #undef _spawnvp
 static inline intptr_t _spawnvp(int mode, const char* path, const char* const* argv)
 {
-  return miktex_utf8__spawnvp(mode, path, argv);
+    return miktex_utf8__spawnvp(mode, path, argv);
 }
 #endif
 
@@ -405,7 +394,7 @@ static inline intptr_t _spawnvp(int mode, const char* path, const char* const* a
 #undef _stat64i32
 static inline int _stat64i32(const char* path, struct _stat64i32* pStat)
 {
-  return miktex_utf8__stat64i32(path, pStat);
+    return miktex_utf8__stat64i32(path, pStat);
 }
 #endif
 
@@ -413,7 +402,7 @@ static inline int _stat64i32(const char* path, struct _stat64i32* pStat)
 #undef stat
 static inline int stat(const char* path, struct stat* pStat)
 {
-  return miktex_utf8__stat64i32(path, (struct _stat64i32*)pStat);
+    return miktex_utf8__stat64i32(path, (struct _stat64i32*)pStat);
 }
 #endif
 
@@ -421,7 +410,7 @@ static inline int stat(const char* path, struct stat* pStat)
 #undef system
 static inline int system(const char* command)
 {
-  return miktex_utf8_system(command);
+    return miktex_utf8_system(command);
 }
 #endif
 
@@ -429,7 +418,7 @@ static inline int system(const char* command)
 #undef unlink
 static inline int unlink(const char* path)
 {
-  return miktex_utf8__unlink(path);
+    return miktex_utf8__unlink(path);
 }
 #endif
 
@@ -437,7 +426,7 @@ static inline int unlink(const char* path)
 #undef _unlink
 static inline int _unlink(const char* path)
 {
-  return miktex_utf8__unlink(path);
+    return miktex_utf8__unlink(path);
 }
 #endif
 
@@ -445,7 +434,7 @@ static inline int _unlink(const char* path)
 #undef utime
 static inline int utime(const char* path, struct utimbuf* pTime)
 {
-  return miktex_utf8__utime64(path, (struct __utimbuf64*)pTime);
+    return miktex_utf8__utime64(path, (struct __utimbuf64*)pTime);
 }
 #endif
 
@@ -453,8 +442,6 @@ static inline int utime(const char* path, struct utimbuf* pTime)
 #undef _utime64
 static inline int _utime64(const char* path, struct __utimbuf64* pTime)
 {
-  return miktex_utf8__utime64(path, pTime);
+    return miktex_utf8__utime64(path, pTime);
 }
-#endif
-
 #endif

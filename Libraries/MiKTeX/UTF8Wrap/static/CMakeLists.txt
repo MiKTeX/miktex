@@ -1,21 +1,10 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2011-2020 Christian Schenk
+## Copyright (C) 2011-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 use_static_crt()
 
@@ -24,28 +13,28 @@ add_library(${utf8wrap_lib_name} STATIC ${lib_sources})
 set_property(TARGET ${utf8wrap_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_compile_definitions(${utf8wrap_lib_name}
-  PUBLIC
-    -DMIKTEX_UTF8WRAP_STATIC
+    PUBLIC
+        -DMIKTEX_UTF8WRAP_STATIC
 )
 
 target_include_directories(${utf8wrap_lib_name}
-  PUBLIC
-    ${public_include_directories}
+    PUBLIC
+        ${public_include_directories}
 )
 
 target_link_libraries(${utf8wrap_lib_name}
-  PRIVATE
-    ${util_lib_name}
+    PRIVATE
+        ${util_lib_name}
 )
 
 set(utf8wrap_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/utf8wrap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/utf8wrap.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND utf8wrap_sources
-    ${MIKTEX_COMMON_MANIFEST}
-  )
+    list(APPEND utf8wrap_sources
+        ${MIKTEX_COMMON_MANIFEST}
+    )
 endif()
 
 add_executable(utf8wrap ${utf8wrap_sources})
@@ -53,7 +42,7 @@ add_executable(utf8wrap ${utf8wrap_sources})
 set_property(TARGET utf8wrap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(utf8wrap
-  ${utf8wrap_lib_name}
+    ${utf8wrap_lib_name}
 )
 
 install(TARGETS utf8wrap DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

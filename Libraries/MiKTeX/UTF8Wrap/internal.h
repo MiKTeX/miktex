@@ -1,28 +1,20 @@
-/* internal.h: internal definitions                     -*- C++ -*-
-
-   Copyright (C) 2011-2016 Christian Schenk
-
-   This file is part of the MiKTeX UTF8Wrap Library.
-
-   The MiKTeX UTF8Wrap Library is free software; you can redistribute
-   it and/or modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 2, or (at your option) any later version.
-   
-   The MiKTeX UTF8Wrap Library is distributed in the hope that it will
-   be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-   See the GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX UTF8Wrap Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file internal.h
+ * @author Christian Schenk
+ * @brief Internal definitions
+ *
+ * @copyright Copyright © 2011-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX UTF8Wrap Library.
+ *
+ * The MiKTeX UTF8Wrap Library is licensed under GNU General Public
+ * License version 2 or any later version.
+ */
 
 #if defined(MIKTEX_UTF8WRAP_SHARED)
-#  define MIKTEXUTF8WRAPEXPORT MIKTEXDLLEXPORT
+#   define MIKTEXUTF8WRAPEXPORT MIKTEXDLLEXPORT
 #else
-#  define MIKTEXUTF8WRAPEXPORT
+#   define MIKTEXUTF8WRAPEXPORT
 #endif
 
 #define BF56453E041E4B58A0EA455A65DD28B1
