@@ -136,6 +136,11 @@ private:
         this->enableInstaller2 = b;
     }
 
+    bool IsInstallerDisabled() override
+    {
+        return !this->enableInstaller2;
+    }
+
     bool IsInstallerEnabled() override
     {
         return this->enableInstaller == MiKTeX::Configuration::TriState::True && this->enableInstaller2;

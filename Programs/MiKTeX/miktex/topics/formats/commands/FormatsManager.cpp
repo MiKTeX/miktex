@@ -128,7 +128,7 @@ void FormatsManager::RunMakeTeX(const string& makeProg, const vector<string>& ar
     {
         xArguments.push_back("--enable-installer");
     }
-    else
+    else if (this->ctx->installer->IsInstallerDisabled())
     {
         xArguments.push_back("--disable-installer");
     }

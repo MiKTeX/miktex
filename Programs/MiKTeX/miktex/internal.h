@@ -46,6 +46,7 @@ namespace OneMiKTeXUtility
     {
     public:
         virtual void EnableInstaller(bool b) = 0;
+        virtual bool IsInstallerDisabled() = 0;
         virtual bool IsInstallerEnabled() = 0;
     };
 
