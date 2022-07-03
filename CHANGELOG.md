@@ -4,6 +4,7 @@
 
 ### Fixed issues
 
+- [1112](https://github.com/MiKTeX/miktex/issues/1112): [BUG]: wrong version number for miktex-dvisvgm-bin-x64-2.9
 - [1120](https://github.com/MiKTeX/miktex/issues/1120): can't build format of platex/platex-dev
 - [1121](https://github.com/MiKTeX/miktex/issues/1121): \pdffilesize doesn't work correctly in eptex and perhaps other engines
 

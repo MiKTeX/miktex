@@ -6,6 +6,8 @@
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvisvgm")
 
 include_directories(BEFORE
@@ -38,7 +40,12 @@ if(CMAKE_CL_64)
 endif()
 
 set(HAVE_CXX11 1)
-set(VERSION "2.11.1")
+set(VERSION ${MIKTEX_COMP_ORIG_VERSION_STR})
+
+configure_file(
+  miktex-dvisvgm-version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm-version.h
+)
 
 configure_file(
     config.h.cmake
@@ -516,6 +523,7 @@ set(dvisvgm_c_sources
 
 set(dvisvgm_sources
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm-version.h
     ${MIKTEX_LIBRARY_WRAPPER}
     ${dvisvgm_c_sources}
     ${libbrotli_sources}
@@ -526,7 +534,6 @@ set(dvisvgm_sources
     ${libwoff2_sources}
     ${libxxhash_sources}
     ${potrace_sources}
-    miktex-dvisvgm-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
