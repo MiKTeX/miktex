@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## 22.7 - not yet released
+
+### Fixed issues
+
+- [1120](https://github.com/MiKTeX/miktex/issues/1120): can't build format of platex/platex-dev
+- [1121](https://github.com/MiKTeX/miktex/issues/1121): \pdffilesize doesn't work correctly in eptex and perhaps other engines
+
 ## 22.3 - 2022-03-14
 
 ### HiTeX

@@ -93,6 +93,9 @@
 #if MIKTEX_UTF8_WRAP__STAT64I32
 #   define _stat64i32 _stat64i32_hidden
 #endif
+#if MIKTEX_UTF8_WRAP__STAT64
+#   define _stat64(f, s) _stat64_hidden(f, s)
+#endif
 #if MIKTEX_UTF8_WRAP_SYSTEM
 #   define system system_hidden
 #endif
@@ -173,6 +176,8 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__rmdir(const char* path);
 MIKTEXUTF8WRAPCEEAPI(intptr_t) miktex_utf8__spawnvp(int mode, const char* path, const char* const* argv);
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64i32(const char* path, struct _stat64i32* pStat);
+
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64(const char* path, struct _stat64* pStat);
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_system(const char* command);
 
@@ -395,6 +400,14 @@ static inline intptr_t _spawnvp(int mode, const char* path, const char* const* a
 static inline int _stat64i32(const char* path, struct _stat64i32* pStat)
 {
     return miktex_utf8__stat64i32(path, pStat);
+}
+#endif
+
+#if MIKTEX_UTF8_WRAP__STAT64
+#undef _stat64
+static inline int _stat64(const char* path, struct _stat64* pStat)
+{
+    return miktex_utf8__stat64(path, pStat);
 }
 #endif
 

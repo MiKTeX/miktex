@@ -132,6 +132,9 @@
 #   if !defined(MIKTEX_UTF8_WRAP__STAT64I32)
 #      define MIKTEX_UTF8_WRAP__STAT64I32 1
 #   endif
+#   if !defined(MIKTEX_UTF8_WRAP__STAT64)
+#      define MIKTEX_UTF8_WRAP__STAT64 1
+#   endif
 #   if !defined(MIKTEX_UTF8_WRAP_SYSTEM)
 #      define MIKTEX_UTF8_WRAP_SYSTEM 1
 #   endif

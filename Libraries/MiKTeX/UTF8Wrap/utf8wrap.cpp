@@ -128,6 +128,11 @@ MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64i32(const char* path, struct _stat6
     return _wstat(EXPATH_(path), statBuf);
 }
 
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__stat64(const char* path, struct _stat64* statBuf)
+{
+    return _wstat64(EXPATH_(path), statBuf);
+}
+
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__unlink(const char* path)
 {
     return _wunlink(EXPATH_(path));

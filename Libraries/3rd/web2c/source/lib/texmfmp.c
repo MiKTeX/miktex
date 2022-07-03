@@ -45,6 +45,12 @@
 
 #if defined(MIKTEX)
 #define IS_eTeX 1
+#if defined(epTeX) || defined(eupTeX) || defined(pTeX) || defined(upTeX)
+#define IS_pTeX 1
+#endif
+#if defined(eupTeX) || defined(upTeX)
+#define IS_upTeX 1
+#endif
 #define fsyscp_stat stat
 #if defined(pdfTeX)
 #include "ptexlib.h"
@@ -3496,7 +3502,11 @@ find_input_file(integer s)
     filename = makecfilename(s);
 #endif
 #if IS_pTeX && (defined(MIKTEX) || !defined(WIN32))
+#if defined(MIKTEX)
+   fname0 = (string)ptenc_from_internal_enc_string_to_utf8((const unsigned char*)filename);
+#else
    fname0 = ptenc_from_internal_enc_string_to_utf8(filename);
+#endif
    if (fname0) {
        fname1 = filename; filename = fname0;
    }
@@ -3661,7 +3671,11 @@ getfilemoddate(integer s)
 void
 getfilesize(integer s)
 {
+#if defined(MIKTEX_WINDOWS)
+    struct _stat64 file_data;
+#else
     struct stat file_data;
+#endif
     int i;
 
     char *file_name = find_input_file(s);
@@ -3672,7 +3686,11 @@ getfilesize(integer s)
     recorder_record_input(file_name);
     /* get file status */
 #ifdef _WIN32
+#if defined(MIKTEX_WINDOWS)
+    if (_stat64(file_name, &file_data) == 0) {
+#else
     if (fsyscp_stat(file_name, &file_data) == 0) {
+#endif
 #else
     if (stat(file_name, &file_data) == 0) {
 #endif
@@ -3680,8 +3698,12 @@ getfilesize(integer s)
         char buf[20];
 
         /* st_size has type off_t */
+#if defined(MIKTEX_WINDOWS)
+        i = snprintf(buf, sizeof(buf), "%I64d", file_data.st_size);
+#else
         i = snprintf(buf, sizeof(buf),
                      "%lu", (long unsigned int) file_data.st_size);
+#endif
         check_nprintf(i, sizeof(buf));
         len = strlen(buf);
         if ((unsigned) (poolptr + len) >= (unsigned) (poolsize)) {
