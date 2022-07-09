@@ -43,8 +43,13 @@ set(HAVE_CXX11 1)
 set(VERSION ${MIKTEX_COMP_ORIG_VERSION_STR})
 
 configure_file(
-  miktex-dvisvgm-version.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm-version.h
+    miktex-dvisvgm.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm.rc
+)
+
+configure_file(
+    miktex-dvisvgm-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm-version.h
 )
 
 configure_file(
@@ -538,8 +543,8 @@ set(dvisvgm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND dvisvgm_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm.rc
         ${MIKTEX_COMMON_MANIFEST}
-        miktex-dvisvgm.rc
     )
 endif()
 

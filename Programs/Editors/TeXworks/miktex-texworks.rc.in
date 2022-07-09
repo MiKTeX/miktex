@@ -1,0 +1,29 @@
+/**
+ * @file miktex-texworks.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2009-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#pragma code_page(65001)
+
+#ifdef RC_INVOKED
+IDI_ICON1 ICON DISCARDABLE "source/res/images/TeXworks.ico"
+2 ICON DISCARDABLE "source/res/images/TeXworks-doc.ico"
+#endif
+
+#include "miktex-texworks-version.h"
+
+#define VER_INTERNALNAME_STR "texworks"
+#define VER_ORIGINALFILENAME_STR "miktex-texworks.exe"
+
+#define VER_COMPANYNAME_STR "${MIKTEX_COMP_COMPANY_STR}"
+
+#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
+
+#include <miktex/win/version.rc>

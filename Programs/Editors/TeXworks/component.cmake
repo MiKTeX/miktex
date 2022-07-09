@@ -8,4 +8,5 @@
 
 include(version.cmake)
 
-set(MIKTEX_COMP_DESCRIPTION "DVI-to-SVG Converter")
+set(MIKTEX_COMP_COMPANY_STR "TeX Users Group")
+set(MIKTEX_COMP_DESCRIPTION "TeXworks - a graphical user interface to the typesetting system TeX and its extensions")
