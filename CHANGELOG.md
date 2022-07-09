@@ -5,6 +5,7 @@
 ### Fixed issues
 
 - [1071](https://github.com/MiKTeX/miktex/issues/1071): Cannot get TeXworks version: QString::arg: 1 argument(s) missing in TeXworks %1 (%2) [r.%3, %4]
+- [1090](https://github.com/MiKTeX/miktex/issues/1090): "Too many open files" errors with xelatex
 - [1112](https://github.com/MiKTeX/miktex/issues/1112): [BUG]: wrong version number for miktex-dvisvgm-bin-x64-2.9
 - [1120](https://github.com/MiKTeX/miktex/issues/1120): can't build format of platex/platex-dev
 - [1121](https://github.com/MiKTeX/miktex/issues/1121): \pdffilesize doesn't work correctly in eptex and perhaps other engines

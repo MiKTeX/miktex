@@ -119,6 +119,7 @@ void WebApp::Init(vector<char*>& args)
     Application::Init(initInfo, args);
     pimpl->translator = make_unique<Translator>(MIKTEX_COMP_ID, &pimpl->resources, GetSession());
     LogInfo(fmt::format("this is MiKTeX-{0} {1} ({2})", pimpl->programName, pimpl->version, Utils::GetMiKTeXBannerString()));
+    File::SetMaxOpen(2048);
 }
 
 void WebApp::Finalize()
