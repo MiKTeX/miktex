@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 			clp.at(i).processed = true;
 			QTextStream strm(stdout);
 #if defined(MIKTEX)
-			QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()), Tw::Utils::VersionInfo::gitCommitHash(), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
+			strm << QString::fromUtf8("TeXworks %1 (%2)\n\n").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()));
 #else
 			if (Tw::Utils::VersionInfo::isGitInfoAvailable())
 				strm << QString::fromUtf8("TeXworks %1 (%2) [r.%3, %4]\n\n").arg(Tw::Utils::VersionInfo::versionString(), Tw::Utils::VersionInfo::buildIdString(), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
