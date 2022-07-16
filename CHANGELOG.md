@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 22.7 - not yet released
+## 22.7 - 2022-07-17
 
 ### Fixed issues
 
