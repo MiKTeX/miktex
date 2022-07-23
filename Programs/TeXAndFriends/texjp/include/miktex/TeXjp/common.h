@@ -47,7 +47,7 @@ template<class FileType> inline void miktexprintencstring(FileType& f)
 
 template<class FileType> inline void miktexwritechar(FileType& f, C4P::C4P_unsigned16 ch)
 {
-    fputc(static_cast<char>(ch & 0xff), f);
+    putc2(static_cast<int>(ch), f);
 }
 
 namespace MiKTeX

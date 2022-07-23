@@ -100,7 +100,7 @@ extern PTENCDLL long input_line2(FILE *fp, unsigned char *buff, unsigned char *b
 extern PTENCDLL boolean setinfileenc(FILE *fp, const char *str);
 extern PTENCDLL boolean setstdinenc(const char *str);
 
-#if !defined(MIKTEX) && defined(WIN32)
+#if !defined(MIKTEX_WINDOWS) && defined(WIN32)
 extern PTENCDLL void clear_infile_enc(FILE *fp);
 #else
 /* open/close through nkf */

@@ -40,6 +40,7 @@ endif()
 
 target_link_libraries(texjp-ukanji
     PRIVATE
+        ${core_dll_name}
         ${web2c_sources_dll_name}
 )
 

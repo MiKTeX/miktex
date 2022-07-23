@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 22.7.31 - 2022-07-31
+
+### Fixed issues
+
+- [1129](https://github.com/MiKTeX/miktex/issues/1129): platex build fail with tarticle class
+
 ## 22.7 - 2022-07-17
 
 ### Fixed issues

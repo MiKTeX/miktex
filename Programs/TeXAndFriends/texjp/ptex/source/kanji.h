@@ -22,7 +22,7 @@
 #endif
 
 /* allow file names with 0x5c in (e)pTeX on windows */
-#if !defined(MIKTEX) && defined(WIN32)
+#if !defined(MIKTEX_WINDOWS) && defined(WIN32)
 #include <kpathsea/knj.h>
 #define not_kanji_char_seq(a,b) (!(is_cp932_system && isknj(a) && isknj2(b)))
 #else
@@ -47,9 +47,6 @@ extern integer kcatcodekey (integer c);
 
 extern void init_kanji (const_string file_str, const_string internal_str);
 extern void init_default_kanji (const_string file_str, const_string internal_str);
-#if defined(MIKTEX)
-#define initkanji() init_default_kanji(NULL, "euc")
-#else
 #ifdef PBIBTEX
 /* pBibTeX is EUC only */
 #define initkanji() init_default_kanji(NULL, "euc")
@@ -58,7 +55,6 @@ extern void init_default_kanji (const_string file_str, const_string internal_str
 #define initkanji() init_default_kanji(NULL, "sjis")
 #else
 #define initkanji() init_default_kanji(NULL, "euc")
-#endif
 #endif
 /* for pDVItype */
 #define setpriorfileenc() set_prior_file_enc()
