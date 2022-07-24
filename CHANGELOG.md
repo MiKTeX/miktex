@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 22.7.31 - 2022-07-31
+## 22.7.25 - 2022-07-25
 
 ### Fixed issues
 
