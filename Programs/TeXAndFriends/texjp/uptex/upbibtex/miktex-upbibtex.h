@@ -181,8 +181,9 @@ public:
         WebAppInputLine::AddOptions();
         AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
         AddOption("kanji", MIKTEXTEXT("Set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
+        AddOption("min-crossrefs", MIKTEXTEXT("Include item after N cross-refs; default 2."), OPT_MIN_CROSSREFS, POPT_ARG_STRING, "N");
         AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
-        AddOption(MIKTEXTEXT("quiet\0Suppress all output (except errors)."), OPT_QUIET, POPT_ARG_NONE);
+        AddOption("quiet", MIKTEXTEXT("Suppress all output (except errors)."), OPT_QUIET, POPT_ARG_NONE);
         AddOption("silent", "quiet");
         AddOption("terse", "quiet");
     }
