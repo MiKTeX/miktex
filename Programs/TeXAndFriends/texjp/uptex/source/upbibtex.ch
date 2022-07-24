@@ -1,9 +1,9 @@
 @x
 @d my_name=='pbibtex'
-@d banner=='This is pBibTeX, Version 0.99d-j0.34'
+@d banner=='This is pBibTeX, Version 0.99d-j0.35'
 @y
 @d my_name=='upbibtex'
-@d banner=='This is upBibTeX, Version 0.99d-j0.34-u1.28'
+@d banner=='This is upBibTeX, Version 0.99d-j0.35-u1.29'
 @z
 
 @x
@@ -50,6 +50,7 @@ for i:=@'200 to 255 do xord[i]:=i;
 @d u_exclamation = @"FF01       {Zenkaku exclamation mark; in UCS}
 @d u_double_question = @"2047   {Zenkaku double question mark; in UCS}
 @d u_double_exclam   = @"203C   {Zenkaku double exclamation mark; in UCS}
+@d u_interrobang     = @"203D   {Zenkaku interrobang; in UCS}
 @d u_question_exclam = @"2048   {Zenkaku question exclamation mark; in UCS}
 @d u_exclam_question = @"2049   {Zenkaku exclamation question mark; in UCS}
 @z
@@ -69,6 +70,130 @@ for i:=@'200 to @'237 do id_class[i] := illegal_id_char;
 @x
 for i:=@'240 to 254 do char_width[i]:=514;
 @y
+@z
+
+@x procedure lower_case
+procedure lower_case (var buf:buf_type; @!bf_ptr,@!len:buf_pointer);
+var i:buf_pointer;
+begin
+if (len > 0) then
+  for i := bf_ptr to bf_ptr+len-1 do
+    if ((buf[i]>="A") and (buf[i]<="Z")) then
+        buf[i] := buf[i] + case_difference;
+@y
+procedure lower_case (var buf:buf_type; @!bf_ptr,@!len:buf_pointer);
+var i:buf_pointer;
+    @!ch:integer;
+begin
+if (len > 0) then
+  for i := bf_ptr to bf_ptr+len-1 do
+    if ((buf[i]>="A") and (buf[i]<="Z")) then begin
+        buf[i] := buf[i] + case_difference;
+    end
+    else if ((is_internalUPTEX) and (buf[i]>=@"C3) and (buf[i]<=@"D4)) then begin
+        ch := fromBUFF(buf,i+2,i);
+        if (((ch>=@"C0) and (ch<=@"DE) and (ch<>@"D7)) or
+            ((ch>=@"391) and (ch<=@"3AA) and (ch<>@"3A2)) or
+            ((ch>=@"410) and (ch<=@"42F))) then begin
+            ch := toBUFF(ch + case_difference);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if (((ch>=@"100) and (ch<=@"137) and ((ch mod 2)=0)) or
+                 ((ch>=@"139) and (ch<=@"148) and ((ch mod 2)=1)) or
+                 ((ch>=@"14A) and (ch<=@"177) and ((ch mod 2)=0)) or
+                 ((ch>=@"179) and (ch<=@"17E) and ((ch mod 2)=1)) or
+                 ((ch>=@"370) and (ch<=@"373) and ((ch mod 2)=0)) or
+                 ( ch=@"376 ) or
+                 ((ch>=@"3D8) and (ch<=@"3EF) and ((ch mod 2)=0)) or
+                 ( ch=@"3F7 ) or  ( ch=@"3FA ) or
+                 ((ch>=@"460) and (ch<=@"481) and ((ch mod 2)=0)) or
+                 ((ch>=@"48A) and (ch<=@"4BF) and ((ch mod 2)=0)) or
+                 ((ch>=@"4C1) and (ch<=@"4CE) and ((ch mod 2)=1)) or
+                 ((ch>=@"4D0) and (ch<=@"52F) and ((ch mod 2)=0))) then begin
+            ch := toBUFF(ch + 1);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if (ch=@"178) then begin
+            ch := toBUFF(@"FF);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if ((ch>=@"400) and (ch<=@"40F)) then begin
+            ch := toBUFF(ch + @"50);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if (ch=@"4C0) then begin
+            ch := toBUFF(@"4CF);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+    end
+@z
+
+@x procedure upper_case
+var i:buf_pointer;
+begin
+if (len > 0) then
+  for i := bf_ptr to bf_ptr+len-1 do
+    if ((buf[i]>="a") and (buf[i]<="z")) then
+        buf[i] := buf[i] - case_difference;
+@y
+var i:buf_pointer;
+    @!ch:integer;
+begin
+if (len > 0) then
+  for i := bf_ptr to bf_ptr+len-1 do
+    if ((buf[i]>="a") and (buf[i]<="z")) then begin
+        buf[i] := buf[i] - case_difference;
+    end
+    else if ((is_internalUPTEX) and (buf[i]>=@"C3) and (buf[i]<=@"D4)) then begin
+        ch := fromBUFF(buf,i+2,i);
+        if (((ch>=@"E0) and (ch<=@"FE) and (ch<>@"F7)) or
+            ((ch>=@"3B1) and (ch<=@"3CA) and (ch<>@"3C2)) or
+            ((ch>=@"430) and (ch<=@"44F))) then begin
+            ch := toBUFF(ch - case_difference);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if (((ch>=@"100) and (ch<=@"137) and ((ch mod 2)=1)) or
+                 ((ch>=@"139) and (ch<=@"148) and ((ch mod 2)=0)) or
+                 ((ch>=@"14A) and (ch<=@"177) and ((ch mod 2)=1)) or
+                 ((ch>=@"179) and (ch<=@"17E) and ((ch mod 2)=0)) or
+                 ((ch>=@"370) and (ch<=@"373) and ((ch mod 2)=1)) or
+                 ( ch=@"377 ) or
+                 ((ch>=@"3D8) and (ch<=@"3EF) and ((ch mod 2)=1)) or
+                 ( ch=@"3F8 ) or  ( ch=@"3FB ) or
+                 ((ch>=@"460) and (ch<=@"481) and ((ch mod 2)=1)) or
+                 ((ch>=@"48A) and (ch<=@"4BF) and ((ch mod 2)=1)) or
+                 ((ch>=@"4C1) and (ch<=@"4CE) and ((ch mod 2)=0)) or
+                 ((ch>=@"4D0) and (ch<=@"52F) and ((ch mod 2)=1))) then begin
+            ch := toBUFF(ch - 1);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if (ch=@"DF) then begin { Latin Small Letter Sharp S }
+            buf[i]   := "S";
+            buf[i+1] := "S";
+        end
+        else if (ch=@"FF) then begin
+            ch := toBUFF(@"178);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if ((ch>=@"450) and (ch<=@"45F)) then begin
+            ch := toBUFF(ch - @"50);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+        else if (ch=@"4CF) then begin
+            ch := toBUFF(@"4C0);
+            buf[i]   := BYTE3(ch);
+            buf[i+1] := BYTE4(ch);
+        end
+    end
 @z
 
 @x procedure get_the_top_level_aux_file_name
@@ -122,6 +247,7 @@ var i:0..last_text_char;    {this is the first one declared}
                 u_exclamation,
                 u_double_question,
                 u_double_exclam,
+                u_interrobang,
                 u_question_exclam,
                 u_exclam_question:
                     repush_string;
@@ -132,10 +258,12 @@ var i:0..last_text_char;    {this is the first one declared}
         end;
 @z
 
-@x
-    if(str_pool[str_start[pop_lit1]]>127) then { a KANJI char is 2byte long }
+@x x_chr_to_int
+        push_lit_stk(toDVI(fromBUFF(str_pool, str_start[pop_lit1]+2, str_start[pop_lit1])),stk_int)
+                                        { a KANJI char is 2byte long }
 @y
-    if(str_pool[str_start[pop_lit1]]>127) then { a KANJI char is |2..4|byte long }
+        push_lit_stk(toDVI(fromBUFF(str_pool, str_start[pop_lit1]+length(pop_lit1), str_start[pop_lit1])),stk_int)
+                                        { a KANJI char is |2..4|byte long }
 @z
 
 @x
@@ -231,6 +359,31 @@ var i:0..last_text_char;    {this is the first one declared}
         name_bf_ptr := name_bf_ptr + multibytelen(name_buf[name_bf_ptr])-1;
 @z
 
+@x x_int_to_chr
+    str_room(2);
+    if (pop_lit1>127) then begin
+        append_char (Hi(k));
+        append_char (Lo(k));
+    end
+    else
+        append_char (pop_lit1);
+    push_lit_stk (make_string, stk_str);
+    end;
+@y
+    str_room(4);
+    k:=toBUFF(k);
+    if (BYTE1(k)>0) then
+        append_char (BYTE1(k));
+    if (BYTE2(k)>0) then
+        append_char (BYTE2(k));
+    if (BYTE3(k)>0) then
+        append_char (BYTE3(k));
+    { always }
+        append_char (BYTE4(k));
+    push_lit_stk (make_string, stk_str);
+    end;
+@z
+
 @x
 @!pop_lit2_saved: integer;
 @y
@@ -309,9 +462,9 @@ sp_end := tpe;
 @z
 
 @x
-const n_options = 6; {Pascal won't count array lengths for us.}
+const n_options = 8; {Pascal won't count array lengths for us.}
 @y
-const n_options = 7; {Pascal won't count array lengths for us.}
+const n_options = 9; {Pascal won't count array lengths for us.}
 @z
 
 @x
@@ -345,6 +498,12 @@ long_options[current_option].val := 0;
 incr(current_option);
 
 @ An element with all zeros always ends the list.
+@z
+
+@x
+begin kpse_set_program_name (argv[0], 'pbibtex');
+@y
+begin kpse_set_program_name (argv[0], 'upbibtex');
 @z
 
 @x procedure x_is_kanji_str
@@ -394,12 +553,12 @@ function is_char_kanji_upbibtex(@!c:integer):boolean;
 label exit;
 var k:integer;
 begin
-  { based on upTeX-1.28 kcatcode status: 16,17,19->true / 15,18->false }
+  { based on upTeX-1.29 kcatcode status: 16,17,19->true / 15,18->false }
   is_char_kanji_upbibtex := true;
   if (is_internalUPTEX) then begin { should be in sync with |kcat_code| of uptex-m.ch }
     k := kcatcodekey(c);
     if k=@"25 then return { Hangul Jamo }
-    else if (k>=@"68)and(k<=@"6A) then return { CJK Radicals Supplement .. Ideographic Description Characters }
+    else if (k>=@"68)and(k<=@"69) then return { CJK Radicals Supplement, Kangxi Radicals }
     else if (k>=@"6C)and(k<=@"6D) then return { Hiragana, Katakana }
     else if k=@"6E then return { Bopomofo }
     else if k=@"6F then return { Hangul Compatibility Jamo }
@@ -411,8 +570,8 @@ begin
     else if k=@"93 then return { Hangul Syllables }
     else if k=@"94 then return { Hangul Jamo Extended-B }
     else if k=@"99 then return { CJK Compatibility Ideographs }
-    else if (k>=@"10A)and(k<=@"10D) then return { Kana Extended-B .. Small Kana Extension }
-    else if (k>=@"135)and(k<=@"13B) then return { CJK Unified Ideographs Extension B .. G }
+    else if (k>=@"10D)and(k<=@"110) then return { Kana Extended-B .. Small Kana Extension }
+    else if (k>=@"13B)and(k<=@"142) then return { CJK Unified Ideographs Extension B .. H }
     else if k=@"1FE then return { Fullwidth digit and latin alphabet }
     else if k=@"1FF then return; { Halfwidth katakana }
     end

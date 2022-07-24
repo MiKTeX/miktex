@@ -58,6 +58,9 @@ extern void init_default_kanji (const_string file_str, const_string internal_str
 #endif
 /* for pDVItype */
 #define setpriorfileenc() set_prior_file_enc()
+/* for pBibTeX */
+#define enableguessfileenc()  set_guess_file_enc(1)
+#define disableguessfileenc() set_guess_file_enc(0)
 
 #ifndef PRESERVE_PUTC
 #undef putc

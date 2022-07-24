@@ -80,6 +80,8 @@ public:
         SetInputOutput(&inputOutput);
         WebAppInputLine::Init(args);
         session = GetSession();
+        auto guessFileEnc = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXJP, MIKTEX_CONFIG_VALUE_GUESS_INPUT_KANJI_ENCODING).GetBool();
+        set_guess_file_enc(guessFileEnc);
         PBIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::ent_str_size())).GetInt();
         PBIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::glob_str_size())).GetInt();
         PBIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::max_strings())).GetInt();
@@ -170,14 +172,18 @@ public:
         WebAppInputLine::Finalize();
     }
 
-#define OPT_KANJI 1000
-#define OPT_MIN_CROSSREFS 1001
-#define OPT_QUIET 1002
+#define OPT_GUESS_INPUT_ENC 1000
+#define OPT_KANJI 1001
+#define OPT_MIN_CROSSREFS 1002
+#define OPT_NO_GUESS_INPUT_ENC 1003
+#define OPT_QUIET 1004
 
     void AddOptions() override
     {
         WebAppInputLine::AddOptions();
+        AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
         AddOption("kanji", MIKTEXTEXT("Set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
+        AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
         AddOption(MIKTEXTEXT("quiet\0Suppress all output (except errors)."), OPT_QUIET, POPT_ARG_NONE);
         AddOption("silent", "quiet");
         AddOption("terse", "quiet");
@@ -198,6 +204,9 @@ public:
         bool done = true;
         switch (opt)
         {
+        case OPT_GUESS_INPUT_ENC:
+            set_guess_file_enc(1);
+            break;
         case OPT_KANJI:
             set_prior_file_enc();
             if (!set_enc_string(optArg.c_str(), optArg.c_str()))
@@ -208,6 +217,9 @@ public:
             break;
         case OPT_MIN_CROSSREFS:
             PBIBTEXPROG.mincrossrefs = std::stoi(optArg);
+            break;
+        case OPT_NO_GUESS_INPUT_ENC:
+            set_guess_file_enc(0);
             break;
         case OPT_QUIET:
             SetQuietFlag(true);

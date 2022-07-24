@@ -986,3 +986,8 @@
 
 	;; Indicates whether format files (*.fmt) will be automatically renewed.
 	${MIKTEX_CONFIG_VALUE_RENEW_FORMATS_ON_UPDATE} = t
+
+[${MIKTEX_CONFIG_SECTION_TEXJP}]
+
+	;; Indicates whether input file encodings are guessed.
+	${MIKTEX_CONFIG_VALUE_GUESS_INPUT_KANJI_ENCODING} = t

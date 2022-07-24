@@ -60,11 +60,21 @@ namespace MiKTeX
 
         public:
 
+            void InitKanji()
+            {
+                auto session = GetSession();
+                auto guessFileEnc = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXJP, MIKTEX_CONFIG_VALUE_GUESS_INPUT_KANJI_ENCODING).GetBool();
+                set_guess_file_enc(guessFileEnc);
+                initkanji();
+            }
+
             void AddOptions() override
             {
                 BASE::AddOptions();
+                AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
                 BASE::AddOption("kanji", T_("set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
                 BASE::AddOption("kanji-internal", T_("set Japanese internal encoding (ENC=euc|sjis)."), OPT_KANJI_INTERNAL, POPT_ARG_STRING, "ENC");
+                AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
             }
 
             bool ProcessOption(int opt, const std::string& optArg) override
@@ -72,6 +82,9 @@ namespace MiKTeX
                 bool done = true;
                 switch (opt)
                 {
+                case OPT_GUESS_INPUT_ENC:
+                    set_guess_file_enc(1);
+                    break;
                 case OPT_KANJI:
                     if (!set_enc_string (optArg.c_str(), nullptr))
                     {
@@ -86,6 +99,9 @@ namespace MiKTeX
                         throw 1;
                     }
                     break;
+                case OPT_NO_GUESS_INPUT_ENC:
+                    set_guess_file_enc(0);
+                    break;
                 default:
                     done = BASE::ProcessOption(opt, optArg);
                     break;
@@ -97,15 +113,16 @@ namespace MiKTeX
 
             enum
             {
-                OPT_KANJI = 10000,
+                OPT_GUESS_INPUT_ENC = 10000,
+                OPT_KANJI,
                 OPT_KANJI_INTERNAL,
+                OPT_NO_GUESS_INPUT_ENC,
             };
 
             std::string T_(const char* msgId)
             {
                 return msgId;
             }
-
         };
 
         template<class BASE> class TeXEngineBase :

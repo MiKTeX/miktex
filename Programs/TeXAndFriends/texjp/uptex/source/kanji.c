@@ -60,8 +60,8 @@ integer calc_pos(integer c)
 }
 
 /* Ref. http://www.unicode.org/Public/UNIDATA/Blocks.txt */
-/* # Blocks-14.0.0.txt                                   */
-/* # Date: 2021-01-22, 23:29:00 GMT [KW]                 */
+/* # Blocks-15.0.0.txt                                   */
+/* # Date: 2022-01-28, 20:58:00 GMT [KW]                 */
 static long ucs_range[]={
       0x0000, /* Basic Latin					     */ /* 0x00 */
       0x0080, /* Latin-1 Supplement				     */
@@ -272,6 +272,7 @@ static long ucs_range[]={
       0x10D00, /* Hanifi Rohingya				     */
       0x10E60, /* Rumi Numeral Symbols				     */
       0x10E80, /* Yezidi					     */ /* 0xd0 */
+      0x10EC0, /* Arabic Extended-C				     */
       0x10F00, /* Old Sogdian					     */
       0x10F30, /* Sogdian					     */
       0x10F70, /* Old Uyghur					     */
@@ -286,8 +287,8 @@ static long ucs_range[]={
       0x111E0, /* Sinhala Archaic Numbers			     */
       0x11200, /* Khojki					     */
       0x11280, /* Multani					     */
-      0x112B0, /* Khudawadi					     */
-      0x11300, /* Grantha					     */ /* 0xe0 */
+      0x112B0, /* Khudawadi					     */ /* 0xe0 */
+      0x11300, /* Grantha					     */
       0x11400, /* Newa						     */
       0x11480, /* Tirhuta					     */
       0x11580, /* Siddham					     */
@@ -302,12 +303,14 @@ static long ucs_range[]={
       0x11A00, /* Zanabazar Square				     */
       0x11A50, /* Soyombo					     */
       0x11AB0, /* Unified Canadian Aboriginal Syllabics Extended-A   */
-      0x11AC0, /* Pau Cin Hau					     */
-      0x11C00, /* Bhaiksuki					     */ /* 0xf0 */
+      0x11AC0, /* Pau Cin Hau					     */ /* 0xf0 */
+      0x11B00, /* Devanagari Extended-A			     */
+      0x11C00, /* Bhaiksuki					     */
       0x11C70, /* Marchen					     */
       0x11D00, /* Masaram Gondi				     */
       0x11D60, /* Gunjala Gondi				     */
       0x11EE0, /* Makasar					     */
+      0x11F00, /* Kawi						     */
       0x11FB0, /* Lisu Supplement				     */
       0x11FC0, /* Tamil Supplement				     */
       0x12000, /* Cuneiform					     */
@@ -316,10 +319,10 @@ static long ucs_range[]={
       0x12F90, /* Cypro-Minoan					     */
       0x13000, /* Egyptian Hieroglyphs				     */
       0x13430, /* Egyptian Hieroglyph Format Controls		     */
-      0x14400, /* Anatolian Hieroglyphs			     */
+      0x14400, /* Anatolian Hieroglyphs			     */ /* 0x100 */
       0x16800, /* Bamum Supplement				     */
       0x16A40, /* Mro						     */
-      0x16A70, /* Tangsa					     */ /* 0x100 */
+      0x16A70, /* Tangsa					     */
       0x16AD0, /* Bassa Vah					     */
       0x16B00, /* Pahawh Hmong					     */
       0x16E40, /* Medefaidrin					     */
@@ -332,14 +335,15 @@ static long ucs_range[]={
       0x1AFF0, /* Kana Extended-B				     */
       0x1B000, /* Kana Supplement				     */
       0x1B100, /* Kana Extended-A				     */
-      0x1B130, /* Small Kana Extension				     */
+      0x1B130, /* Small Kana Extension				     */ /* 0x110 */
       0x1B170, /* Nushu					     */
       0x1BC00, /* Duployan					     */
-      0x1BCA0, /* Shorthand Format Controls			     */ /* 0x110 */
+      0x1BCA0, /* Shorthand Format Controls			     */
       0x1CF00, /* Znamenny Musical Notation			     */
       0x1D000, /* Byzantine Musical Symbols			     */
       0x1D100, /* Musical Symbols				     */
       0x1D200, /* Ancient Greek Musical Notation		     */
+      0x1D2C0, /* Kaktovik Numerals				     */
       0x1D2E0, /* Mayan Numerals				     */
       0x1D300, /* Tai Xuan Jing Symbols			     */
       0x1D360, /* Counting Rod Numerals			     */
@@ -347,11 +351,13 @@ static long ucs_range[]={
       0x1D800, /* Sutton SignWriting				     */
       0x1DF00, /* Latin Extended-G				     */
       0x1E000, /* Glagolitic Supplement			     */
+      0x1E030, /* Cyrillic Extended-D				     */ /* 0x120 */
       0x1E100, /* Nyiakeng Puachue Hmong			     */
       0x1E290, /* Toto						     */
       0x1E2C0, /* Wancho					     */
+      0x1E4D0, /* Nag Mundari					     */
       0x1E7E0, /* Ethiopic Extended-B				     */
-      0x1E800, /* Mende Kikakui				     */ /* 0x120 */
+      0x1E800, /* Mende Kikakui				     */
       0x1E900, /* Adlam					     */
       0x1EC70, /* Indic Siyaq Numbers				     */
       0x1ED00, /* Ottoman Siyaq Numbers			     */
@@ -361,13 +367,13 @@ static long ucs_range[]={
       0x1F0A0, /* Playing Cards				     */
       0x1F100, /* Enclosed Alphanumeric Supplement		     */
       0x1F200, /* Enclosed Ideographic Supplement		     */
-      0x1F300, /* Miscellaneous Symbols and Pictographs	     */
+      0x1F300, /* Miscellaneous Symbols and Pictographs	     */ /* 0x130 */
       0x1F600, /* Emoticons					     */
       0x1F650, /* Ornamental Dingbats				     */
       0x1F680, /* Transport and Map Symbols			     */
       0x1F700, /* Alchemical Symbols				     */
       0x1F780, /* Geometric Shapes Extended			     */
-      0x1F800, /* Supplemental Arrows-C			     */ /* 0x130 */
+      0x1F800, /* Supplemental Arrows-C			     */
       0x1F900, /* Supplemental Symbols and Pictographs		     */
       0x1FA00, /* Chess Symbols				     */
       0x1FA70, /* Symbols and Pictographs Extended-A		     */
@@ -377,13 +383,14 @@ static long ucs_range[]={
       0x2B740, /* CJK Unified Ideographs Extension D		     */
       0x2B820, /* CJK Unified Ideographs Extension E		     */
       0x2CEB0, /* CJK Unified Ideographs Extension F		     */
-      0x2F800, /* CJK Compatibility Ideographs Supplement	     */
+      0x2F800, /* CJK Compatibility Ideographs Supplement	     */ /* 0x140 */
       0x30000, /* CJK Unified Ideographs Extension G		     */
-      0x31350, /* reserved					     */
+      0x31350, /* CJK Unified Ideographs Extension H		     */
+      0x323B0, /* reserved					     */
       0x40000, /* reserved					     */
       0x50000, /* reserved					     */
       0x60000, /* reserved					     */
-      0x70000, /* reserved					     */ /* 0x140 */
+      0x70000, /* reserved					     */
       0x80000, /* reserved					     */
       0x90000, /* reserved					     */
       0xA0000, /* reserved					     */
@@ -392,7 +399,7 @@ static long ucs_range[]={
       0xD0000, /* reserved					     */
       0xE0000, /* Tags						     */
       0xE0100, /* Variation Selectors Supplement		     */
-      0xF0000, /* Supplementary Private Use Area-A		     */
+      0xF0000, /* Supplementary Private Use Area-A		     */ /* 0x150 */
       0x100000, /* Supplementary Private Use Area-B		     */
   /* Value over 0x10FFFF is illegal under Unicode,
      They are for some special use.  *** experimental ***  */
@@ -401,7 +408,7 @@ static long ucs_range[]={
       0x130000, /* Reserved					     */
       0x140000, /* Reserved					     */
       0x150000, /* Reserved					     */
-      0x160000, /* Reserved					     */ /* 0x150 */
+      0x160000, /* Reserved					     */
       0x170000, /* Reserved					     */
       0x180000, /* Reserved					     */
       0x190000, /* Reserved					     */
@@ -410,10 +417,10 @@ static long ucs_range[]={
       0x1C0000, /* Reserved					     */
       0x1D0000, /* Reserved					     */
       0x1E0000, /* Reserved					     */
-      0x1F0000, /* Reserved					     */
+      0x1F0000, /* Reserved					     */ /* 0x160 */
       0x200000, /* Reserved					     */
       0x210000, /* Reserved					     */
-      0x220000, /* Reserved					     */ /* 0x15c */
+      0x220000, /* Reserved					     */ /* 0x163 */
       CJK_CHAR_LIMIT
 };
 
@@ -517,16 +524,12 @@ void init_default_kanji (const_string file_str, const_string internal_str)
             fprintf (stderr, "Ignoring bad kanji encoding \"%s\".\n", p);
     }
 
-#if !defined(MIKTEX)
-#ifdef WIN32
     p = kpse_var_value ("guess_input_kanji_encoding");
     if (p) {
         if (*p == '1' || *p == 'y' || *p == 't')
             infile_enc_auto = 1;
         free(p);
     }
-#endif
-#endif
 }
 
 void init_default_kanji_select(void)

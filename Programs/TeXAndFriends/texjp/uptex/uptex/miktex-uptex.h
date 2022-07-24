@@ -59,7 +59,7 @@ public:
         TeXApp::Init(args);
         IAm(MiKTeX::TeXAndFriends::TeXjpEngine);
         kpse_set_program_name(args[0], nullptr);
-        initkanji();
+        InitKanji();
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
     }

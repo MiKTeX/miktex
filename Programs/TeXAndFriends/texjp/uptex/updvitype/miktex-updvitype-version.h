@@ -16,7 +16,7 @@
 
 #define MIKTEX_COMP_ID "miktex-updvitype"
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "3.6-p0.5-u1.28"
+#define MIKTEX_COMP_ORIG_VERSION_STR "3.6-p0.5-u1.29"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
 

@@ -1,5 +1,5 @@
 % $Id$
-% This is a change file for upTeX u1.27
+% This is a change file for upTeX u1.29
 % By Takuji Tanaka.
 %
 % (02/26/2007) TTK  upTeX u0.01
@@ -45,6 +45,7 @@
 % (2020-02-22) TTK  upTeX u1.26
 % (2020-10-25) TTK  upTeX u1.27
 % (2022-01-23) TTK  upTeX u1.28
+% (2022-07-23) TTK  upTeX u1.29
 
 @x upTeX: banner
   {printed when \pTeX\ starts}
@@ -52,8 +53,8 @@
   {printed when \pTeX\ starts}
 @#
 @d upTeX_version=1
-@d upTeX_revision==".28"
-@d upTeX_version_string=='-u1.28' {current u\pTeX\ version}
+@d upTeX_revision==".29"
+@d upTeX_version_string=='-u1.29' {current u\pTeX\ version}
 @#
 @d upTeX_banner=='This is upTeX, Version 3.141592653',pTeX_version_string,upTeX_version_string
 @d upTeX_banner_k==upTeX_banner
@@ -250,7 +251,7 @@ if (isinternalUPTEX) then begin
   @+@t\1@>for k:=@"2 to @"3 do kcat_code(k):=not_cjk; { Latin Extended-A, Latin Extended-B }
   @t\hskip10pt@>kcat_code(@"25):=hangul; { Hangul Jamo }
   @t\hskip10pt@>kcat_code(@"46):=not_cjk; { Latin Extended Additional }
-  @+@t\1@>for k:=@"68 to @"6A do kcat_code(k):=kanji; { CJK Radicals Supplement .. Ideographic Description Characters }
+  @+@t\1@>for k:=@"68 to @"69 do kcat_code(k):=kanji; { CJK Radicals Supplement .. Kangxi Radicals }
   @+@t\1@>for k:=@"6C to @"6D do kcat_code(k):=kana;  { Hiragana, Katakana }
   @t\hskip10pt@>kcat_code(@"6E):=kanji; { Bopomofo }
   @t\hskip10pt@>kcat_code(@"6F):=hangul; { Hangul Compatibility Jamo }
@@ -263,8 +264,8 @@ if (isinternalUPTEX) then begin
   @t\hskip10pt@>kcat_code(@"94):=hangul; { Hangul Jamo Extended-B }
   @t\hskip10pt@>kcat_code(@"99):=kanji; { CJK Compatibility Ideographs }
   { \hskip10pt|kcat_code(@"A2):=other_kchar;| Halfwidth and Fullwidth Forms }
-  @+@t\1@>for k:=@"10A to @"10D do kcat_code(k):=kana; { Kana Extended-B .. Small Kana Extension }
-  @+@t\1@>for k:=@"135 to @"13B do kcat_code(k):=kanji; { CJK Unified Ideographs Extension B .. G }
+  @+@t\1@>for k:=@"10D to @"110 do kcat_code(k):=kana; { Kana Extended-B .. Small Kana Extension }
+  @+@t\1@>for k:=@"13B to @"142 do kcat_code(k):=kanji; { CJK Unified Ideographs Extension B .. H }
   @t\hskip10pt@>kcat_code(@"1FD):=not_cjk; { Latin-1 Letters }
   @t\hskip10pt@>kcat_code(@"1FE):=kana; { Fullwidth digit and latin alphabet }
   @t\hskip10pt@>kcat_code(@"1FF):=kana; { Halfwidth katakana }

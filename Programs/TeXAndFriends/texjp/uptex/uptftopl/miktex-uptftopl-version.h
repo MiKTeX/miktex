@@ -16,7 +16,7 @@
 
 #define MIKTEX_COMP_ID "miktex-uptftopl"
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "3.3-p2.0-u1.28"
+#define MIKTEX_COMP_ORIG_VERSION_STR "3.3-p2.0-u1.29"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
 

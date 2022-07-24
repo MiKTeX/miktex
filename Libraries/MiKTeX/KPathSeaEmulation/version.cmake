@@ -1,6 +1,6 @@
 ## version.cmake:
 ##
-## Copyright (C) 2016-2021 Christian Schenk
+## Copyright (C) 2016-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published

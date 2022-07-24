@@ -100,14 +100,10 @@ void init_default_kanji (const_string file_str, const_string internal_str)
             fprintf (stderr, "Ignoring bad kanji encoding \"%s\".\n", p);
     }
 
-#if !defined(MIKTEX)
-#ifdef WIN32
     p = kpse_var_value ("guess_input_kanji_encoding");
     if (p) {
         if (*p == '1' || *p == 'y' || *p == 't')
             infile_enc_auto = 1;
         free(p);
     }
-#endif
-#endif
 }

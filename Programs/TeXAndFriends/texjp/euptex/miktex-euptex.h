@@ -58,7 +58,7 @@ public:
         SetTeXMFMemoryHandler(&memoryHandler);
         ETeXApp::Init(args);
         IAm(MiKTeX::TeXAndFriends::TeXjpEngine);
-        initkanji();
+        InitKanji();
         kpse_set_program_name(args[0], nullptr);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);

@@ -16,7 +16,7 @@
 
 #define MIKTEX_COMP_ID "miktex-uptex"
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.28"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.29"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
 

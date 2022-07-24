@@ -49,6 +49,9 @@ extern void init_default_kanji_select (void);
 #define initkanji() init_default_kanji_select()
 /* for upDVItype */
 #define setpriorfileenc() set_prior_file_enc()
+/* for upBibTeX */
+#define enableguessfileenc()  set_guess_file_enc(1)
+#define disableguessfileenc() set_guess_file_enc(0)
 
 /* number of rest of multi-char for kcode_pos */
 #define nrestmultichr(x)  ( (x)!=0 ? ((x) / 8) + 2 - ((x) % 8) : -1 )

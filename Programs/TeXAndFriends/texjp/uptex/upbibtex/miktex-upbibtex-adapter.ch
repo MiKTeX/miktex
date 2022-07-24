@@ -14,7 +14,6 @@
 @x
 begin kpse_set_program_name (argv[0], 'pbibtex');
 @y
-begin kpse_set_program_name (argv[0], 'pbibtex');
-
 @ An element with all zeros always ends the list.
+begin kpse_set_program_name (argv[0], 'pbibtex');
 @z
