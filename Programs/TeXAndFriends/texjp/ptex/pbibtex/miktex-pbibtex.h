@@ -234,7 +234,7 @@ public:
   
     std::string MIKTEXTHISCALL TheNameOfTheGame() const override
     {
-        return "BibTeX";
+        return "pBibTeX";
     }
 
     void BufferSizeExceeded() const override
