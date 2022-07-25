@@ -457,7 +457,7 @@ void Application::AutoDiagnose()
   {
     if (pimpl->logger != nullptr)
     {
-      if (issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major)
+      if (issue.severity == Setup::IssueSeverity::Critical)
       {
         LOG4CXX_FATAL(pimpl->logger, issue);
       }
@@ -467,7 +467,7 @@ void Application::AutoDiagnose()
       }
       else
       {
-        LOG4CXX_ERROR(pimpl->logger, issue);
+        LOG4CXX_WARN(pimpl->logger, issue);
       }
     }
     if ((issue.severity == Setup::IssueSeverity::Critical || issue.severity == Setup::IssueSeverity::Major) && !GetQuietFlag())
