@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2021 Christian Schenk
+## Copyright (C) 2008-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -127,7 +127,7 @@ foreach(l ${MIKTEX_TRANSLATION_DONE_LOCALES})
   )
 endforeach()
 
-get_target_property(LUPDATE_EXECUTABLE Qt5::lupdate LOCATION)
+get_target_property(LUPDATE_EXECUTABLE Qt${QT_SERIES}::lupdate LOCATION)
 
 add_custom_target(gen-ui-translations
   COMMAND
@@ -137,7 +137,11 @@ add_custom_target(gen-ui-translations
 )
 set_property(TARGET gen-ui-translations PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
-qt5_add_translation(qm_files ${translations})
+if(QT_SERIES STREQUAL "5")
+  qt5_add_translation(qm_files ${translations})
+else()
+  qt_add_translation(qm_files ${translations})
+endif()
 
 configure_file(
   translations.qrc.in
@@ -149,9 +153,17 @@ set(${ui_qt_dll_name}_qrc_files
   mikuiqt.qrc
 )
 
-qt5_wrap_ui(${ui_qt_dll_name}_ui_headers ${${ui_qt_dll_name}_ui_files})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_ui(${ui_qt_dll_name}_ui_headers ${${ui_qt_dll_name}_ui_files})
+else()
+  qt_wrap_ui(${ui_qt_dll_name}_ui_headers ${${ui_qt_dll_name}_ui_files})
+endif()
 
-qt5_add_resources(${ui_qt_dll_name}_rcc_sources ${${ui_qt_dll_name}_qrc_files})
+if(QT_SERIES STREQUAL "5")
+  qt5_add_resources(${ui_qt_dll_name}_rcc_sources ${${ui_qt_dll_name}_qrc_files})
+else()
+  qt_add_resources(${ui_qt_dll_name}_rcc_sources ${${ui_qt_dll_name}_qrc_files})
+endif()
 
 add_library(${ui_qt_dll_name} SHARED
   ${${ui_qt_dll_name}_sources}
@@ -184,14 +196,14 @@ target_link_libraries(${ui_qt_dll_name}
     ${locale_dll_name}
     ${mpm_dll_name}
     ${setup_dll_name}
-    Qt5::Gui
-    Qt5::Widgets
+    Qt${QT_SERIES}::Gui
+    Qt${QT_SERIES}::Widgets
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${ui_qt_dll_name}
     PRIVATE
-      Qt5::WinExtras
+      Qt${QT_SERIES}::WinExtras
       Secur32
   )
 endif()

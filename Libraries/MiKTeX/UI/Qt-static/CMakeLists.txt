@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -86,11 +86,23 @@ set(${ui_qt_lib_name}_ui_files
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/UpdateDialog.ui
 )
 
-qt5_wrap_cpp(${ui_qt_lib_name}_mocs ${${ui_qt_lib_name}_moc_sources})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_cpp(${ui_qt_lib_name}_mocs ${${ui_qt_lib_name}_moc_sources})
+else()
+  qt_wrap_cpp(${ui_qt_lib_name}_mocs ${${ui_qt_lib_name}_moc_sources})
+endif()
 
-qt5_wrap_ui(${ui_qt_lib_name}_ui_headers ${${ui_qt_lib_name}_ui_files})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_ui(${ui_qt_lib_name}_ui_headers ${${ui_qt_lib_name}_ui_files})
+else()
+  qt_wrap_ui(${ui_qt_lib_name}_ui_headers ${${ui_qt_lib_name}_ui_files})
+endif()
 
-qt5_wrap_cpp(${ui_qt_lib_name}_ui_mocs ${${ui_qt_lib_name}_ui_headers})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_cpp(${ui_qt_lib_name}_ui_mocs ${${ui_qt_lib_name}_ui_headers})
+else()
+  qt_wrap_cpp(${ui_qt_lib_name}_ui_mocs ${${ui_qt_lib_name}_ui_headers})
+endif()
 
 add_library(${ui_qt_lib_name} STATIC
   ${${ui_qt_lib_name}_sources}

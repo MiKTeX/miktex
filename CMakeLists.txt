@@ -380,8 +380,8 @@ option(
 )
 
 option(
-    USE_SYSTEM_POPPLER_QT5
-    "Use the system Poppler PDF Rendring (Qt5 Wrapper) library."
+    USE_SYSTEM_POPPLER_QT
+    "Use the system Poppler PDF Rendring (Qt Wrapper) library."
     FALSE
 )
 
@@ -580,6 +580,8 @@ option(
 if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
     set(USE_SYSTEM_OPENGL TRUE)
 endif()
+
+set(QT_SERIES "5" CACHE STRING "The Qt series to be used.")
   
 ###############################################################################
 ## fixed values
@@ -1051,7 +1053,7 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 if(WITH_UI_QT)
-    set(required_qt5_components
+    set(required_qt_components
         Concurrent
         Core
         Gui
@@ -1065,16 +1067,16 @@ if(WITH_UI_QT)
         Xml
     )
     if(MIKTEX_NATIVE_WINDOWS)
-        list(APPEND required_qt5_components
+        list(APPEND required_qt_components
             WinExtras
         )
     endif()
     if(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
-        list(APPEND required_qt5_components
+        list(APPEND required_qt_components
             DBus
         )
     endif()
-    find_package(Qt5 REQUIRED ${required_qt5_components})
+    find_package(Qt${QT_SERIES} REQUIRED ${required_qt_components})
 endif()
 
 if(USE_SYSTEM_APR)
@@ -1200,8 +1202,8 @@ if(USE_SYSTEM_POPPLER)
     find_package(POPPLER REQUIRED)
 endif()
 
-if(USE_SYSTEM_POPPLER_QT5 AND WITH_UI_QT)
-    find_package(POPPLER_QT5 REQUIRED)
+if(USE_SYSTEM_POPPLER_QT AND WITH_UI_QT)
+    find_package(POPPLER_QT${QT_SERIES} REQUIRED)
 endif()
 
 if(USE_SYSTEM_URIPARSER)
@@ -1985,8 +1987,8 @@ else()
     add_subdirectory(${MIKTEX_REL_POPPLER_DIR})
 endif()
 
-if(USE_SYSTEM_POPPLER_QT5 AND WITH_UI_QT)
-    get_filename_component(suffix ${POPPLER_QT5_LIBRARY} EXT)
+if(USE_SYSTEM_POPPLER_QT AND WITH_UI_QT)
+    get_filename_component(suffix ${POPPLER_QT${QT_SERIES}_LIBRARY} EXT)
     if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
         add_library(MiKTeX::Imported::POPPLER_QT SHARED IMPORTED)
     else()
@@ -1994,8 +1996,8 @@ if(USE_SYSTEM_POPPLER_QT5 AND WITH_UI_QT)
     endif()
     set_target_properties(MiKTeX::Imported::POPPLER_QT
         PROPERTIES
-        IMPORTED_LOCATION "${POPPLER_QT5_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_QT5_INCLUDE_DIRS}"
+        IMPORTED_LOCATION "${POPPLER_QT${QT_SERIES}_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_QT${QT_SERIES}_INCLUDE_DIRS}"
     )
 else()
     #add_subdirectory(${MIKTEX_REL_POPPLER_DIR})

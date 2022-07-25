@@ -22,8 +22,8 @@ set_property(TARGET twpythonplugin-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDE
 target_link_libraries(twpythonplugin-static
     PUBLIC
         ${core_dll_name}
-        Qt5::Core
-        Qt5::Gui
-        Qt5::UiTools
-        Qt5::Widgets
+        Qt${QT_SERIES}::Core
+        Qt${QT_SERIES}::Gui
+        Qt${QT_SERIES}::UiTools
+        Qt${QT_SERIES}::Widgets
 )

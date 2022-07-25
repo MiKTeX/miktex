@@ -54,7 +54,11 @@ set(qtpdf_ui_files
     ${projdir}/source/modules/QtPDF/src/GuidelineEditDialog.ui
 )
 
-qt5_wrap_ui(qtpdf_ui_headers ${qtpdf_ui_files})
+if(QT_SERIES STREQUAL "5")
+    qt5_wrap_ui(qtpdf_ui_headers ${qtpdf_ui_files})
+else()
+    qt_wrap_ui(qtpdf_ui_headers ${qtpdf_ui_files})
+endif()
 
 set(qtpdf_ts_files
     ${projdir}/source/modules/QtPDF/trans/QtPDF_af.ts
@@ -81,7 +85,11 @@ set(qtpdf_ts_files
 
 add_definitions(-DUSE_POPPLERQT)
 
-qt5_add_translation(qtpdf_qm_sources ${qtpdf_ts_files})
+if(QT_SERIES STREQUAL "5")
+    qt5_add_translation(qtpdf_qm_sources ${qtpdf_ts_files})
+else()
+    qt_add_translation(qtpdf_qm_sources ${qtpdf_ts_files})
+endif()
   
 configure_file(QtPDF_trans.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/QtPDF_trans.qrc)
 
@@ -90,7 +98,11 @@ set(qtpdf_qrc_files
     ${projdir}/source/modules/QtPDF/QtPDF_icons.qrc
 )
 
-qt5_add_resources(qtpdf_rcc_sources ${qtpdf_qrc_files})
+if(QT_SERIES STREQUAL "5")
+    qt5_add_resources(qtpdf_rcc_sources ${qtpdf_qrc_files})
+else()
+    qt_add_resources(qtpdf_rcc_sources ${qtpdf_qrc_files})
+endif()
 
 add_library(qtpdf-static STATIC
     ${qtpdf_headers}
@@ -112,7 +124,7 @@ target_include_directories(qtpdf-static
         ${projdir}/source/modules/QtPDF/src/backend
 )
 
-if(USE_SYSTEM_POPPLER_QT5)
+if(USE_SYSTEM_POPPLER_QT)
     target_link_libraries(qtpdf-static PUBLIC MiKTeX::Imported::POPPLER_QT)
 else()
     target_link_libraries(qtpdf-static PUBLIC ${poppler_qt_dll_name})
@@ -120,8 +132,8 @@ endif()
 
 target_link_libraries(qtpdf-static
     PRIVATE
-        Qt5::Concurrent
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
+        Qt${QT_SERIES}::Concurrent
+        Qt${QT_SERIES}::Core
+        Qt${QT_SERIES}::Gui
+        Qt${QT_SERIES}::Widgets
 )

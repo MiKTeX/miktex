@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017-2021 Christian Schenk
+## Copyright (C) 2017-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-include(InstallQt5Plugin)
+include(InstallQtPlugin)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_CONSOLE_FOLDER}/Qt")
 
@@ -124,7 +124,7 @@ endforeach()
 
 list(SORT ui_languages)
 
-get_target_property(LUPDATE_EXECUTABLE Qt5::lupdate LOCATION)
+get_target_property(LUPDATE_EXECUTABLE Qt${QT_SERIES}::lupdate LOCATION)
 
 add_custom_target(gen-console-translations
   COMMAND
@@ -134,7 +134,11 @@ add_custom_target(gen-console-translations
 )
 set_property(TARGET gen-console-translations PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
-qt5_add_translation(qm_files ${translations})
+if(QT_SERIES STREQUAL "5")
+  qt5_add_translation(qm_files ${translations})
+else()
+  qt_add_translation(qm_files ${translations})
+endif()
 
 configure_file(
   translations.qrc.in
@@ -146,13 +150,29 @@ set(console_qrc_files
   console.qrc
 )
 
-qt5_wrap_cpp(console_mocs ${console_moc_sources})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_cpp(console_mocs ${console_moc_sources})
+else()
+  qt_wrap_cpp(console_mocs ${console_moc_sources})
+endif()
 
-qt5_wrap_ui(console_ui_headers ${console_ui_files})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_ui(console_ui_headers ${console_ui_files})
+else()
+  qt_wrap_ui(console_ui_headers ${console_ui_files})
+endif()
 
-qt5_wrap_cpp(console_ui_mocs ${console_ui_headers})
+if(QT_SERIES STREQUAL "5")
+  qt5_wrap_cpp(console_ui_mocs ${console_ui_headers})
+else()
+  qt_wrap_cpp(console_ui_mocs ${console_ui_headers})
+endif()
 
-qt5_add_resources(console_rcc_sources ${console_qrc_files})
+if(QT_SERIES STREQUAL "5")
+  qt5_add_resources(console_rcc_sources ${console_qrc_files})
+else()
+  qt_add_resources(console_rcc_sources ${console_qrc_files})
+endif()
 
 set(sources
   ${console_sources}
@@ -167,7 +187,7 @@ set(libs
   ${mpm_dll_name}
   ${setup_dll_name}
   ${ui_qt_dll_name}
-  Qt5::Widgets
+  Qt${QT_SERIES}::Widgets
   miktex-popt-wrapper
 )
 
@@ -190,15 +210,15 @@ configure_file(
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
 if(MIKTEX_MACOS_BUNDLE)
-  install_qt5_plugin("Qt5::QCocoaIntegrationPlugin" QT_PLUGINS)
+  install_qt_plugin("Qt${QT_SERIES}::QCocoaIntegrationPlugin" QT_PLUGINS)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
     "[Paths]\nPlugins = PlugIns\n")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
     DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/Resources"
   )
-  get_property(_Qt5_Core_LOCATION TARGET Qt5::Core PROPERTY LOCATION)
-  get_filename_component(Qt_BIN_DIR "${_Qt5_Core_LOCATION}" PATH)
+  get_property(_Qt${QT_SERIES}_Core_LOCATION TARGET Qt${QT_SERIES}::Core PROPERTY LOCATION)
+  get_filename_component(Qt_BIN_DIR "${_Qt${QT_SERIES}_Core_LOCATION}" PATH)
   get_filename_component(Qt_BIN_DIR "${Qt_BIN_DIR}" PATH)
 endif()
 
