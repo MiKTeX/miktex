@@ -1983,7 +1983,7 @@ vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageInte
   {
     s = IssueSeverity::Major;
   }
-  else if (now > 1672920000)
+  else if (now > 1667908800)
   {
     s = IssueSeverity::Minor;
   }
