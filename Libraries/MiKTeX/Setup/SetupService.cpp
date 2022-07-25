@@ -1973,6 +1973,28 @@ vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageInte
       });
     }
   }
+#if defined(MIKTEX_WINDOWS_32)
+  IssueSeverity s = IssueSeverity::Trivial;
+  if (now > 1760443200)
+  {
+    s = IssueSeverity::Critical;
+  }
+  else if (now > 1730808000)
+  {
+    s = IssueSeverity::Major;
+  }
+  else if (now > 1672920000)
+  {
+    s = IssueSeverity::Minor;
+  }
+  result.push_back({
+    IssueType::Windows32bit,
+    s,
+    T_("You are running the unsupported 32-bit version of MiKTeX for Windows."),
+    T_("Install the 64-bit version of MiKTeX for Windows."),
+    "miktex-32bit"
+  });
+#endif
   if (session->IsSharedSetup())
   {
     InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
