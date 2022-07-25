@@ -88,7 +88,7 @@ string IssueSeverityString(IssueSeverity severity)
   case IssueSeverity::Critical: return "critical issue";
   case IssueSeverity::Major: return "major issue";
   case IssueSeverity::Minor: return "minor issue";
-  case IssueSeverity::Trivial: return "trivial issue";
+  case IssueSeverity::Trivial: return "slight issue";
   default: MIKTEX_UNEXPECTED();
   }
 }
