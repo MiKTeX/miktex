@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 22.7.26 - 2022-07-26
+
+### Windows 32-bit deprecation
+
+The 32-bit version of MiKTeX for Windows is now deprecated.
+
 ## 22.7.25 - 2022-07-25
 
 ### Fixed issues

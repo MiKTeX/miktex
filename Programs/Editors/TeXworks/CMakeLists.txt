@@ -210,7 +210,11 @@ set(texworks_ui_files
     source/src/ui/ListSelectDialog.ui
 )
 
-qt5_wrap_ui(texworks_ui_headers ${texworks_ui_files})
+if(QT_SERIES STREQUAL "5")
+    qt5_wrap_ui(texworks_ui_headers ${texworks_ui_files})
+else()
+    qt_wrap_ui(texworks_ui_headers ${texworks_ui_files})
+endif()
 
 set(texworks_ts_files
     source/trans/TeXworks_af.ts
@@ -235,7 +239,11 @@ set(texworks_ts_files
     source/trans/TeXworks_zh_CN.ts
 )
 
-qt5_add_translation(texworks_qm_sources ${texworks_ts_files})
+if(QT_SERIES STREQUAL "5")
+    qt5_add_translation(texworks_qm_sources ${texworks_ts_files})
+else()
+    qt_add_translation(texworks_qm_sources ${texworks_ts_files})
+endif()
 
 configure_file(TeXworks_trans.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/TeXworks_trans.qrc)
 
@@ -246,24 +254,29 @@ set(texworks_qrc_files
     source/res/resources.qrc
 )
 
-qt5_add_resources(texworks_rcc_sources ${texworks_qrc_files})
+if(QT_SERIES STREQUAL "5")
+    qt5_add_resources(texworks_rcc_sources ${texworks_qrc_files})
+else()
+    qt_add_resources(texworks_rcc_sources ${texworks_qrc_files})
+endif(
 
+)
 set(libs
     twluaplugin-static
     #twpythonplugin-static
     qtpdf-static
     synctex-static
     ${core_dll_name}
-    Qt5::Concurrent
-    Qt5::Core
-    Qt5::Gui
-    Qt5::PrintSupport
-    Qt5::Qml
-    Qt5::UiTools
-    Qt5::Widgets
-    Qt5::Script
-    Qt5::ScriptTools
-    Qt5::Xml
+    Qt${QT_SERIES}::Concurrent
+    Qt${QT_SERIES}::Core
+    Qt${QT_SERIES}::Gui
+    Qt${QT_SERIES}::PrintSupport
+    Qt${QT_SERIES}::Qml
+    Qt${QT_SERIES}::UiTools
+    Qt${QT_SERIES}::Widgets
+    Qt${QT_SERIES}::Script
+    Qt${QT_SERIES}::ScriptTools
+    Qt${QT_SERIES}::Xml
 )
 
 if (USE_SYSTEM_FMT)
@@ -273,7 +286,7 @@ else()
 endif()
 
 if(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
-    list(APPEND libs Qt5::DBus)
+    list(APPEND libs Qt${QT_SERIES}::DBus)
 endif()
 
 if(USE_SYSTEM_HUNSPELL)
