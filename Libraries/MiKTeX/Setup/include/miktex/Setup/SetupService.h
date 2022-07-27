@@ -108,6 +108,7 @@ enum class IssueType
   RootDirectoryCoverage,
   PackageDamaged,
   Windows32bit,
+  UnsupportedPlatform,
 };
 
 enum class IssueSeverity

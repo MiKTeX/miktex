@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## 22.7.27 - 2022-07-27
+
+### Windows 7 deprecation
+
+Windows 7 is now deprecated.
+
 ## 22.7.26 - 2022-07-26
 
 ### Windows 32-bit deprecation
