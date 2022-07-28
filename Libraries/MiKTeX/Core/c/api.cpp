@@ -335,3 +335,16 @@ MIKTEXCORECEEAPI(int) miktex_pclose(FILE* file)
         return -1;
     }
 }
+
+MIKTEXCORECEEAPI(int) miktex_is_pipe(FILE* file)
+{
+    try
+    {
+        auto openFileInfo = MIKTEX_SESSION()->TryGetOpenFileInfo(file);
+        return openFileInfo.first && openFileInfo.second.mode == FileMode::Command ? 1 : 0;
+    }
+    catch (const MiKTeXException&)
+    {
+        return -1;
+    }
+}

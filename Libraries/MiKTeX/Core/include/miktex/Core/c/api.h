@@ -40,6 +40,7 @@ MIKTEXCORECEEAPI(int) miktex_get_miktex_banner(char* buf, size_t bufSize);
 MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* version, size_t maxsize);
 MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots();
 MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* path);
+MIKTEXCORECEEAPI(int) miktex_is_pipe(FILE* fi9le);
 MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* path1, const char* path2);
 MIKTEXCORECEEAPI(int) miktex_pclose(FILE* file);
 MIKTEXCORECEEAPI(FILE*) miktex_popen(const char* commandLine, const char* mode);
