@@ -12,6 +12,10 @@ Windows 7 is now deprecated.
 
 The 32-bit version of MiKTeX for Windows is now deprecated.
 
+### Upgraded programs
+
+* dvipdfmx 20220710
+
 ## 22.7.25 - 2022-07-25
 
 ### Fixed issues
