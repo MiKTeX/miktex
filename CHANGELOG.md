@@ -6,12 +6,6 @@
 
 Windows 7 is now deprecated.
 
-## 22.7.26 - 2022-07-26
-
-### Windows 32-bit deprecation
-
-The 32-bit version of MiKTeX for Windows is now deprecated.
-
 ### Upgraded programs
 
 * dvipdfmx 20220710
@@ -19,6 +13,12 @@ The 32-bit version of MiKTeX for Windows is now deprecated.
 ### Fixed issues
 
 - [1136](https://github.com/MiKTeX/miktex/issues/1136): platex/uplatex can't determine size of graphic automatically
+
+## 22.7.26 - 2022-07-26
+
+### Windows 32-bit deprecation
+
+The 32-bit version of MiKTeX for Windows is now deprecated.
 
 ## 22.7.25 - 2022-07-25
 
