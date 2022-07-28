@@ -305,27 +305,16 @@ MIKTEXCORECEEAPI(int) miktex_system(const char* commandLine)
     }
 }
 
-
-unordered_map<FILE*, unique_ptr<Process>> processes;
-mutex mux;
-
 MIKTEXCORECEEAPI(FILE*) miktex_popen(const char* commandLine, const char* mode)
 {
     try
     {
-        FILE* file = nullptr;
-        unique_ptr<Process> process;
-        if (strcmp(mode, "r") == 0)
+        auto fileAccess = FileAccess::Read;
+        if (mode == "w" || mode == "wb")
         {
-            process = Process::StartSystemCommand(commandLine, nullptr, &file);
+            fileAccess = FileAccess::Write;
         }
-        else
-        {
-            process = Process::StartSystemCommand(commandLine, &file, nullptr);
-        }
-        lock_guard<mutex> lockGuard(mux);
-        processes[file] = std::move(process);
-        return file;
+        return MIKTEX_SESSION()->OpenFile(PathName(commandLine), FileMode::Command, fileAccess, false);
     }
     catch (const MiKTeXException&)
     {
@@ -337,17 +326,8 @@ MIKTEXCORECEEAPI(int) miktex_pclose(FILE* file)
 {
     try
     {
-        lock_guard<mutex> lockGuard(mux);
-        auto it = processes.find(file);
-        if (it == processes.end())
-        {
-            return -1;
-        }
-        it->second->WaitForExit();
-        fclose(file);
-        int exitCode = it->second->get_ExitCode();
-        it->second->Close();
-        processes.erase(it);
+        int exitCode;
+        MIKTEX_SESSION()->CloseFile(file, exitCode);
         return exitCode;
     }
     catch (const MiKTeXException&)
