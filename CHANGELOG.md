@@ -16,6 +16,10 @@ The 32-bit version of MiKTeX for Windows is now deprecated.
 
 * dvipdfmx 20220710
 
+### Fixed issues
+
+- [1136](https://github.com/MiKTeX/miktex/issues/1136): platex/uplatex can't determine size of graphic automatically
+
 ## 22.7.25 - 2022-07-25
 
 ### Fixed issues
