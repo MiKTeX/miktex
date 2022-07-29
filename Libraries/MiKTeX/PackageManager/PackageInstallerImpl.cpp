@@ -442,7 +442,7 @@ void PackageInstallerImpl::FindUpdatesNoLock()
 
 #if defined(MIKTEX_WINDOWS)
         string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
-        if (!minTargetSystemVersion.empty() && VersionNumber(minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
+        if (!minTargetSystemVersion.empty() && VersionNumber(WindowsVersion::GetMajorMinorBuildString() < VersionNumber(minTargetSystemVersion)))
         {
             continue;
         }
@@ -634,7 +634,7 @@ void PackageInstallerImpl::FindUpgradesNoLock(PackageLevel packageLevel)
 #endif
 #if defined(MIKTEX_WINDOWS)
         string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
-        if (!minTargetSystemVersion.empty() && VersionNumber(minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
+        if (!minTargetSystemVersion.empty() && VersionNumber(WindowsVersion::GetMajorMinorBuildString() < VersionNumber(minTargetSystemVersion)))
         {
             continue;
         }
@@ -1686,7 +1686,7 @@ void PackageInstallerImpl::InstallRemove(Role role)
 #endif
 #if defined(MIKTEX_WINDOWS)
                 string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
-                if (!minTargetSystemVersion.empty() && VersionNumber(minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
+                if (!minTargetSystemVersion.empty() && VersionNumber(WindowsVersion::GetMajorMinorBuildString() < VersionNumber(minTargetSystemVersion)))
                 {
                     continue;
                 }
