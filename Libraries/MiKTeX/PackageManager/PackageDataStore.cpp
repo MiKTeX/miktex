@@ -277,7 +277,7 @@ void PackageDataStore::Load(Cfg& cfg)
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-        if (!packageInfo.minTargetSystemVersion.empty() && VersionNumber(packageInfo.minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
+        if (!packageInfo.minTargetSystemVersion.empty() && VersionNumber(WindowsVersion::GetMajorMinorBuildString()) < VersionNumber(packageInfo.minTargetSystemVersion))
         {
             continue;
         }
