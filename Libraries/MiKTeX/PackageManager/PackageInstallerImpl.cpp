@@ -439,11 +439,13 @@ void PackageInstallerImpl::FindUpdatesNoLock()
         }
 #endif
 
+#if defined(MIKTEX_WINDOWS)
         string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
-        if (minTargetSystemVersion != "")
+        if (!minTargetSystemVersion.empty() && VersionNumber(minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
         {
-            // TODO
+            continue;
         }
+#endif
 
         bool isEssential = repositoryManifest.GetPackageLevel(packageId) <= PackageLevel::Essential;
 
@@ -629,11 +631,13 @@ void PackageInstallerImpl::FindUpgradesNoLock(PackageLevel packageLevel)
             continue;
         }
 #endif
+#if defined(MIKTEX_WINDOWS)
         string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
-        if (minTargetSystemVersion != "")
+        if (!minTargetSystemVersion.empty() && VersionNumber(minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
         {
-            // TODO
+            continue;
         }
+#endif
         if (repositoryManifest.GetPackageLevel(packageId) > packageLevel)
         {
             continue;
@@ -1679,11 +1683,13 @@ void PackageInstallerImpl::InstallRemove(Role role)
                     continue;
                 }
 #endif
+#if defined(MIKTEX_WINDOWS)
                 string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
-                if (minTargetSystemVersion != "")
+                if (!minTargetSystemVersion.empty() && VersionNumber(minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
                 {
-                    // TODO
+                    continue;
                 }
+#endif
 
                 if (repositoryType == RepositoryType::Local || repositoryType == RepositoryType::Remote)
                 {

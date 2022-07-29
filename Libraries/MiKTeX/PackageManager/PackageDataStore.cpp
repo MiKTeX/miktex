@@ -20,10 +20,15 @@
 
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
+#include <miktex/Core/VersionNumber>
 #include <miktex/Trace/StopWatch>
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/StringUtil>
+
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/WindowsVersion.h>
+#endif
 
 #include "internal.h"
 
@@ -271,10 +276,12 @@ void PackageDataStore::Load(Cfg& cfg)
         }
 #endif
 
-        if (packageInfo.minTargetSystemVersion != "")
+#if defined(MIKTEX_WINDOWS)
+        if (!packageInfo.minTargetSystemVersion.empty() && VersionNumber(packageInfo.minTargetSystemVersion) < VersionNumber(WindowsVersion::GetMajorMinorBuildString()))
         {
-            // TODO
+            continue;
         }
+#endif
 
         count += 1;
 
