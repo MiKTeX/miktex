@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Daniel Stenberg, et al." year="1998-2020"/>
     <TPM:License type="permissive"/>
     <TPM:Version>7.72.0</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       libcurl is a free and easy-to-use client-side URL transfer

@@ -173,6 +173,14 @@ void ExpatTpmParser::OnStartElement(void* pv, const XML_Char* name, const XML_Ch
                 This->packageInfo.licenseType = lpszType;
             }
         }
+        else if (StrCmp(name, X_("TPM:TargetSystem")) == 0)
+        {
+            const XML_Char* lpszMinVersion;
+            if (aAttr != nullptr && (lpszMinVersion = GetAttributeValue(aAttr, X_("minVersion"))) != nullptr)
+            {
+                This->packageInfo.minTargetSystemVersion = lpszMinVersion;
+            }
+        }
         This->elementStack.push(name);
     }
     catch (const exception&)

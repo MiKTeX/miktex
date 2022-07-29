@@ -6,7 +6,7 @@
     <TPM:Title>MiKTeX AR Controller, Windows x64</TPM:Title>
     <TPM:License type="cc0-1.0"/>
     <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes the pdfopen/pdfclose executables.

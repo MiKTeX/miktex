@@ -114,6 +114,13 @@ public:
   }
 
 public:
+  std::string GetMinTargetSystemVersion(const std::string& packageId)
+  {
+    auto val = cfg->GetValue(packageId, "MinTargetSystemVersion");
+    return val == nullptr ? "" : val->AsString();
+  }
+
+public:
   MiKTeX::Core::MD5 GetPackageDigest(const std::string& packageId)
   {
     auto val = cfg->GetValue(packageId, "MD5");

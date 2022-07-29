@@ -7,7 +7,7 @@
     <TPM:Copyright owner="University of Groningen, The Netherlands" year="1991-2016"/>
     <TPM:License type="gpl"/>
     <TPM:Version>2.17</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes the devnag preprocessor.

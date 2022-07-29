@@ -439,6 +439,12 @@ void PackageInstallerImpl::FindUpdatesNoLock()
         }
 #endif
 
+        string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
+        if (minTargetSystemVersion != "")
+        {
+            // TODO
+        }
+
         bool isEssential = repositoryManifest.GetPackageLevel(packageId) <= PackageLevel::Essential;
 
         bool knownPackage;
@@ -623,6 +629,11 @@ void PackageInstallerImpl::FindUpgradesNoLock(PackageLevel packageLevel)
             continue;
         }
 #endif
+        string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
+        if (minTargetSystemVersion != "")
+        {
+            // TODO
+        }
         if (repositoryManifest.GetPackageLevel(packageId) > packageLevel)
         {
             continue;
@@ -1668,6 +1679,11 @@ void PackageInstallerImpl::InstallRemove(Role role)
                     continue;
                 }
 #endif
+                string minTargetSystemVersion = repositoryManifest.GetMinTargetSystemVersion(packageId);
+                if (minTargetSystemVersion != "")
+                {
+                    // TODO
+                }
 
                 if (repositoryType == RepositoryType::Local || repositoryType == RepositoryType::Remote)
                 {

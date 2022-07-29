@@ -700,6 +700,7 @@ void PackageManager::WritePackageManifestFile(const PathName& path, const Packag
 
     // create "TPM:TargetSystem" node
     xml.StartElement("TPM:TargetSystem");
+    xml.AddAttribute("minVersion", packageInfo.minTargetSystemVersion);
     xml.Text(packageInfo.targetSystem);
     xml.EndElement();
 
@@ -848,6 +849,10 @@ void PackageManager::PutPackageManifest(Cfg& cfg, const PackageInfo& packageInfo
     {
         cfg.PutValue(packageInfo.id, "targetSystem", packageInfo.targetSystem);
     }
+    if (!packageInfo.minTargetSystemVersion.empty())
+    {
+        cfg.PutValue(packageInfo.id, "minTargetSystemVersion", packageInfo.minTargetSystemVersion);
+    }
     if (!packageInfo.description.empty())
     {
         for (const string& line : StringUtil::Split(packageInfo.description, '\n'))
@@ -939,6 +944,10 @@ PackageInfo PackageManager::GetPackageManifest(const Cfg& cfg, const string& pac
         else if (val->GetName() == "targetSystem")
         {
             packageInfo.targetSystem = val->AsString();
+        }
+        else if (val->GetName() == "minTargetSystemVersion")
+        {
+            packageInfo.minTargetSystemVersion = val->AsString();
         }
         else if (val->GetName() == "description[]")
         {

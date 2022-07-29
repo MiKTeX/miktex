@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Silvio Levy and Donald E. Knuth" year="1987,1990,1993,2000,2016"/>
     <TPM:License type="knuth"/>
     <TPM:Version>4.7</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes the ctangle &amp; cweave executables.

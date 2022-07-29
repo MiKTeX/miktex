@@ -51,6 +51,7 @@ string Format(const string& outputTemplate, const PackageInfo& packageInfo)
         fmt::arg("isPureContainer", packageInfo.IsPureContainer()),
         fmt::arg("isRemovable", packageInfo.isRemovable),
         fmt::arg("licenseType", packageInfo.licenseType),
+        fmt::arg("minTargetSystemVersion", packageInfo.minTargetSystemVersion),
         fmt::arg("numFiles", packageInfo.GetNumFiles()),
         fmt::arg("refCount", packageInfo.GetRefCount()),
         fmt::arg("releaseState", packageInfo.releaseState),

@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Stuart Caie" year="2003-2004"/>
     <TPM:License type="lgpl2.1"/>
     <TPM:Version>0.10.1alpha</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       libmspack is a portable library for some loosely related

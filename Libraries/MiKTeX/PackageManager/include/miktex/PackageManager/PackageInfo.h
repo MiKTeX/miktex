@@ -71,6 +71,9 @@ struct PackageInfo
     /// The license type of the package.
     std::string licenseType;
 
+    /// The minimum required target system version.
+    std::string minTargetSystemVersion;
+
     /// The release state of the package.
     RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
 

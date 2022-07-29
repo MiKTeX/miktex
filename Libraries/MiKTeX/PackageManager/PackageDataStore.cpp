@@ -271,6 +271,11 @@ void PackageDataStore::Load(Cfg& cfg)
         }
 #endif
 
+        if (packageInfo.minTargetSystemVersion != "")
+        {
+            // TODO
+        }
+
         count += 1;
 
         // insert into database

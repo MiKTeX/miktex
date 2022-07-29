@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Free Software Foundation, Inc." year="1989-1994,1996-1999,2001,2003,2004"/>
     <TPM:License type="lgpl2.1"/>
     <TPM:Version>2.3.6</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes the getopt/regex DLLs.

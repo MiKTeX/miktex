@@ -8,7 +8,7 @@
     <TPM:Copyright owner="Frederic Loyer and Werner Lemberg" year="1997-1999,2000,2002"/>
     <TPM:License type="permissive"/>
     <TPM:Version>2.0</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes TTF conversion utilities: ttf2pk, ttf2tfm.

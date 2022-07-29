@@ -8,7 +8,7 @@
     <TPM:Copyright owner="Thai Open Source Software Center Ltd" year="1997-2000"/>
     <TPM:License type="permissive"/>
     <TPM:Version>2.2.10</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Expat is an XML parser library written in C. It is a

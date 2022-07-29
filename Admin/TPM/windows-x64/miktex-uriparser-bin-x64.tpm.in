@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Weijia Song and Sebastian Pipping" year="2007"/>
     <TPM:License type="bsd3"/>
     <TPM:Version>0.9.4</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Uriparser is a strictly RFC 3986 compliant URI parsing library

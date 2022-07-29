@@ -83,6 +83,7 @@ It can contain the following placeholders:</para>
 <member><code>{isPureContainer}</code></member>
 <member><code>{isRemovable}</code></member>
 <member><code>{licenseType}</code></member>
+<member><code>{minTargetSystemVersion}</code></member>
 <member><code>{numFiles}</code></member>
 <member><code>{refCount}</code></member>
 <member><code>{releaseState}</code></member>
