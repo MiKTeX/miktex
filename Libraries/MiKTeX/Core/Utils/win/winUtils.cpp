@@ -73,7 +73,7 @@ PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentP
   }
   if (hr != S_OK)
   {
-    MIKTEX_FATAL_ERROR_2(T_("A required file system path could not be retrieved."), "nfolder", std::to_string(nFolder), "hr", std::to_string(hr));
+    MIKTEX_FATAL_ERROR_2(T_("A required file system path could not be retrieved."), "nFolder", std::to_string(nFolder), "hr", std::to_string(hr));
   }
   return PathName(szPath);
 }
