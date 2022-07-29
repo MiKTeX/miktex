@@ -80,7 +80,7 @@ PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentP
 
 string Utils::GetOSVersionString()
 {
-  return WindowsVersion::GetMajorMinorBuildString();
+  return fmt::format("Windows {0}", WindowsVersion::GetMajorMinorBuildString());
 }
 
 // see Q246772
