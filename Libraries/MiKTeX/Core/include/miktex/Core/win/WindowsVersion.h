@@ -29,6 +29,7 @@ public:
     WindowsVersion& operator=(WindowsVersion&& other) = delete;
     ~WindowsVersion() = delete;
 
+    static MIKTEXCORECEEAPI(std::string) GetMajorMinorBuildString();
     static MIKTEXCORECEEAPI(std::string) GetMajorMinorString();
     static MIKTEXCORECEEAPI(bool) IsWindows7OrGreater();
     static MIKTEXCORECEEAPI(bool) IsWindows8OrGreater();

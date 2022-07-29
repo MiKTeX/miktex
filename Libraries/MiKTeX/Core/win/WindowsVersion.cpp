@@ -43,6 +43,18 @@ private:
 
 LazyWindowsVersion windowsVersion;
 
+string WindowsVersion::GetMajorMinorBuildString()
+{
+    unsigned major = LOBYTE(LOWORD(windowsVersion));
+    unsigned minor = HIBYTE(LOWORD(windowsVersion));
+    unsigned build = 0;
+    if (windowsVersion < 0x80000000)
+    {
+        build = HIWORD(windowsVersion);
+    }
+    return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(build);
+}
+
 string WindowsVersion::GetMajorMinorString()
 {
     unsigned major = LOBYTE(LOWORD(windowsVersion));
