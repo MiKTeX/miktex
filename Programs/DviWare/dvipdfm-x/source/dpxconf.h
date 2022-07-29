@@ -35,6 +35,7 @@ extern struct _dpx_conf {
   int            verbose_level;
   enum dpx_mode  compat_mode;
   int            ignore_font_license;
+  int            pdfm_str_utf8;
   struct {
     int keep_cache;
   } file;

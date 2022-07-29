@@ -120,6 +120,10 @@ endif()
 #set(MIKTEX_TARGET_SYSTEM_TAG "${system_cpu}-${system_name}")
 set(MIKTEX_TARGET_SYSTEM_TAG "${system_name}-${system_cpu}")
 
+if(MIKTEX_NATIVE_WINDOWS)
+  set(MIKTEX_MIN_TARGET_SYSTEM_VERSION "6.1.7601")
+endif()
+
 set(MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN "win")
 set(MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_UNX "unx")
 

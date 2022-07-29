@@ -7,7 +7,7 @@
     <TPM:Copyright owner="David Turner, Robert Wilhelm, and Werner Lemberg" year="2006-2020"/>
     <TPM:License type="gpl2"/>
     <TPM:Version>2.10.3</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
         FreeType is a freely available software library to render fonts.

@@ -8,7 +8,7 @@
     <TPM:Copyright owner="Jos Vermaseren" year="2018"/>
     <TPM:License type="gpl3"/>
     <TPM:Version>1.4</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Axohelp is a helper utility for the axodraw2 package.  It is

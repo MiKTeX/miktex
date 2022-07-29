@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Jean-loup Gailly and Mark Adler" year="1995-2017"/>
     <TPM:License type="permissive"/>
     <TPM:Version>1.2.11</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       zlib is a software library used for data compression. zlib was

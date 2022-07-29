@@ -31,6 +31,7 @@
 /* instantiated in dvipdfmx.c */
 extern double paper_width, paper_height;
 extern int    landscape_mode;
+extern int    dvi_ptex_with_vert;
 
 extern double get_origin (int x);
 

@@ -6,7 +6,7 @@
     <TPM:Title>GD runtime library, Windows x64</TPM:Title>
     <TPM:License type="permissive"/>
     <TPM:Version>2.3.0</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       GD is an open source code library for the dynamic creation of

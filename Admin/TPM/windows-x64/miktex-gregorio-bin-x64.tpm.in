@@ -7,7 +7,7 @@
     <TPM:Copyright owner="The Gregorio Project" year="2006-2021"/>
     <TPM:License type="gpl3"/>
     <TPM:Version>6.0.0-beta2</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Gregorio is a software application for engraving Gregorian Chant

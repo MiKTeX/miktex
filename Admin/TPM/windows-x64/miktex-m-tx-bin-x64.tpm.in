@@ -6,7 +6,7 @@
     <TPM:Title>M-Tx, Windows x64</TPM:Title>
     <TPM:License type="mit"/>
     <TPM:Version>0.63a</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       M-Tx is a preprocessor to pmx, which is itself a preprocessor to

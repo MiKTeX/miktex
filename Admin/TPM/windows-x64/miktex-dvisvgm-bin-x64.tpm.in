@@ -7,7 +7,7 @@
         <TPM:Copyright owner="Martin Gieseking" year="2005-2022"/>
         <TPM:License type="gpl3"/>    
         <TPM:Version>2.13.3</TPM:Version>
-        <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+        <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
         <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
         <TPM:Description>
             Dvisvgm is a command line utility that converts TeX DVI files

@@ -1042,7 +1042,11 @@ long input_line2(FILE *fp, unsigned char *buff, unsigned char *buff2,
             fprintf(stderr, "Detect UTF-8 with BOM #%d\n", fd);
 #endif /* DEBUG */
         }
+#if defined(MIKTEX)
+        else if (infile_enc_auto && fd != fileno(stdin) && !miktex_is_pipe(fp)) {
+#else
         else if (infile_enc_auto && fd != fileno(stdin)) {
+#endif
             char *enc;
             getc4(fp);
             getc4(fp);

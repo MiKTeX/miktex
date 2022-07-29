@@ -7,7 +7,7 @@
         <TPM:Copyright owner="Martin Ruckert" year="2017-2021"/>
         <TPM:License type="gpl2"/>
         <TPM:Version>1.4</TPM:Version>
-        <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+        <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
         <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
         <TPM:Description>
             HiTeX is a modified version of TeX that replaces the DVI (device independent)

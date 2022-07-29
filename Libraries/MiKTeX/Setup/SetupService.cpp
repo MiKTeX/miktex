@@ -1973,6 +1973,31 @@ vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageInte
       });
     }
   }
+#if defined(MIKTEX_WINDOWS)
+  if (!IsWindows10OrGreater())
+  {
+    IssueSeverity s = IssueSeverity::Trivial;
+    if (now > 1760443200)
+    {
+      s = IssueSeverity::Critical;
+    }
+    else if (now > 1730808000)
+    {
+      s = IssueSeverity::Major;
+    }
+    else if (now > 1667908800)
+    {
+      s = IssueSeverity::Minor;
+    }
+    result.push_back({
+      IssueType::UnsupportedPlatform,
+      s,
+      T_("You are running MiKTeX on an unsupported version of Windows."),
+      "",
+      "unsupported-platform"
+    });
+  }
+#endif
 #if defined(MIKTEX_WINDOWS_32)
   IssueSeverity s = IssueSeverity::Trivial;
   if (now > 1760443200)

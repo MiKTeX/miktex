@@ -631,7 +631,8 @@ modify_strings (pdf_obj *kp, pdf_obj *vp, void *dp)
       CMap *cmap = CMap_cache_get(cd->cmap_id);
       if (need_reencode(kp, vp, cd))
         r = reencode_string(cmap, vp);
-    } else if ((dpx_conf.compat_mode == dpx_mode_xdv_mode) && cd && cd->taintkeys) {
+    } else if ((dpx_conf.compat_mode == dpx_mode_xdv_mode || dpx_conf.pdfm_str_utf8) &&
+               cd && cd->taintkeys) {
       if (need_reencode(kp, vp, cd))
         r = reencode_string_from_utf8_to_utf16be(vp);
     }
@@ -668,8 +669,8 @@ parse_pdf_dict_with_tounicode (const char **pp, const char *endptr, struct touni
   pdf_obj  *dict;
 
   /* disable this test for XDV files, as we do UTF8 reencoding with no cmap */
-  if ((dpx_conf.compat_mode != dpx_mode_xdv_mode) && cd->cmap_id < 0) {
-    dict = parse_pdf_object_extended(pp, endptr, NULL, parse_pdf_reference, NULL); 
+  if ((dpx_conf.compat_mode != dpx_mode_xdv_mode && !dpx_conf.pdfm_str_utf8) && cd->cmap_id < 0) {
+    dict = parse_pdf_object_extended(pp, endptr, NULL, parse_pdf_reference, NULL);
     if (dict && !PDF_OBJ_DICTTYPE(dict)) {
       WARN("Dictionary type object expected but non-dictionary type found.");
       pdf_release_obj(dict);

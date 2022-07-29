@@ -8,7 +8,7 @@
     <TPM:Copyright owner="Eitan M. Gurari" year="1996-2009"/>
     <TPM:License type="lppl1.3c"/>
     <TPM:Version>2018-07-03-10:36</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes the TeX4HT binaries.

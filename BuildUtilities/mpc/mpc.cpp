@@ -741,6 +741,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
         << "title=" << packageInfo.title << "\n"
         << "version=" << packageInfo.version << "\n"
         << "targetsystem=" << packageInfo.targetSystem << "\n"
+        << "min_target_system_version" << packageInfo.minTargetSystemVersion << "\n"
         << "md5=" << digest << "\n"
         << "ctan_path=" << packageInfo.ctanPath << "\n"
         << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
@@ -847,6 +848,9 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
 
   // get target system (optional value)
   cfg->TryGetValueAsString("", "targetsystem", packageInfo.targetSystem);
+
+  // get minimum required target system version (optional value)
+  cfg->TryGetValueAsString("", "min_target_system_version", packageInfo.minTargetSystemVersion);
 
   // get required packages (optional value)
   string strReqList;
@@ -1085,6 +1089,10 @@ void PackageCreator::BuildTDS(const map<string, MpcPackageInfo>& packageTable, c
     if (!p.second.targetSystem.empty())
     {
       repositoryManifest.PutValue(p.second.id, "TargetSystem", p.second.targetSystem);
+    }
+    if (!p.second.minTargetSystemVersion.empty())
+    {
+      repositoryManifest.PutValue(p.second.id, "MinTargetSystemVersion", p.second.minTargetSystemVersion);
     }
   }
 }
@@ -1906,6 +1914,18 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
         else
         {
             repositoryManifest.PutValue(p.second.id, "TargetSystem", p.second.targetSystem);
+        }
+        if (p.second.minTargetSystemVersion.empty())
+        {
+            string oldMinTargetSystemVersion;
+            if (repositoryManifest.TryGetValueAsString(p.second.id, "MinTargetSystemVersion", oldMinTargetSystemVersion))
+            {
+                repositoryManifest.DeleteValue(p.second.id, "MinTargetSystemVersion");
+            }
+        }
+        else
+        {
+            repositoryManifest.PutValue(p.second.id, "MinTargetSystemVersion", p.second.minTargetSystemVersion);
         }
     }
 }

@@ -7,7 +7,7 @@
     <TPM:Copyright owner="SIL International" year="2010"/>
     <TPM:License type="lgpl2.1"/>
     <TPM:Version>1.3.14</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Graphite is a system that can be used to create “smart fonts”

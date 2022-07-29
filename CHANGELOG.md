@@ -1,5 +1,19 @@
 # MiKTeX Change Log
 
+## 22.7.30 - 2022-07-30
+
+### Windows 7 deprecation
+
+Windows 7 is now deprecated.
+
+### Upgraded programs
+
+* dvipdfmx 20220710
+
+### Fixed issues
+
+- [1136](https://github.com/MiKTeX/miktex/issues/1136): platex/uplatex can't determine size of graphic automatically
+
 ## 22.7.26 - 2022-07-26
 
 ### Windows 32-bit deprecation
