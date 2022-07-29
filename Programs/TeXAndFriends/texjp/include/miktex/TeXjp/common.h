@@ -14,6 +14,7 @@
 
 #include <unordered_set>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/TeXAndFriends/TeXMFApp>
 
 #include <kanji.h>
@@ -62,7 +63,7 @@ namespace MiKTeX
 
             void InitKanji()
             {
-                auto session = GetSession();
+                auto session = BASE::GetSession();
                 auto guessFileEnc = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXJP, MIKTEX_CONFIG_VALUE_GUESS_INPUT_KANJI_ENCODING).GetBool();
                 set_guess_file_enc(guessFileEnc);
                 initkanji();
@@ -71,10 +72,10 @@ namespace MiKTeX
             void AddOptions() override
             {
                 BASE::AddOptions();
-                AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
+                BASE::AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
                 BASE::AddOption("kanji", T_("set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
                 BASE::AddOption("kanji-internal", T_("set Japanese internal encoding (ENC=euc|sjis)."), OPT_KANJI_INTERNAL, POPT_ARG_STRING, "ENC");
-                AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
+                BASE::AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
             }
 
             bool ProcessOption(int opt, const std::string& optArg) override

@@ -3,7 +3,7 @@
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
 
-macro(install__plugin _qt_plugin_name _qt_plugins_var)
+macro(install_qt_plugin _qt_plugin_name _qt_plugins_var)
     get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)
     if(EXISTS "${_qt_plugin_path}")
         get_filename_component(_qt_plugin_file "${_qt_plugin_path}" NAME)
