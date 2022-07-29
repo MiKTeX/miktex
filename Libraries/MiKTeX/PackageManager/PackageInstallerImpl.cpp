@@ -31,6 +31,7 @@
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/HResult>
+#include <miktex/Core/win/WindowsVersion>
 #include <miktex/Core/win/winAutoResource>
 #endif
 

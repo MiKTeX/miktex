@@ -60,6 +60,10 @@
 #include <miktex/UI/UI>
 #include <miktex/Util/StringUtil>
 
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Core/win/WindowsVersion>
+#endif
+
 #include "internal.h"
 
 #include "app-version.h"
@@ -507,6 +511,9 @@ void Application::Init(const Session::InitInfo& initInfoArg)
     PathName cwd;
     cwd.SetToCurrentDirectory();
     LOG4CXX_INFO(pimpl->logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), pimpl->commandLine));
+#if defined(MIKTEX_WINDOWS)
+    LOG4CXX_INFO(pimpl->logger, fmt::format("running on Windows {0}", WindowsVersion::GetMajorMinorBuildString()));
+#endif
   }
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
