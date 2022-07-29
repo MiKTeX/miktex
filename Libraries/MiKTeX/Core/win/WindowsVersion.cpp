@@ -1,23 +1,15 @@
-/* WindowsVersion.cpp: get Windows version information
-
-   Copyright (C) 1996-2018 Christian Schenk
-
-   This file is part of the MiKTeX Core Library.
-
-   The MiKTeX Core Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Core Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file WindowsVersion.cpp
+ * @author Christian Schenk
+ * @brief Windows version information
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX Core Library.
+ *
+ * The MiKTeX Core Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #include "config.h"
 
@@ -31,38 +23,43 @@ using namespace MiKTeX::Core;
 
 class LazyWindowsVersion
 {
-private:
-  DWORD windowsVersion = 0;
+
 public:
-  operator DWORD()
-  {
-    if (windowsVersion == 0)
+
+    operator DWORD()
     {
-      windowsVersion = ::GetVersion();
+        if (windowsVersion == 0)
+        {
+            // TODO: atomic
+            windowsVersion = ::GetVersion();
+        }
+        return windowsVersion;
     }
-    return windowsVersion;
-  }
+
+private:
+
+    DWORD windowsVersion = 0;
 };
 
 LazyWindowsVersion windowsVersion;
 
 string WindowsVersion::GetMajorMinorString()
 {
-  unsigned major = LOBYTE(LOWORD(windowsVersion));
-  unsigned minor = HIBYTE(LOWORD(windowsVersion));
-  return std::to_string(major) + "." + std::to_string(minor);
-}
-
-bool WindowsVersion::IsWindows8OrGreater()
-{
-  unsigned major = LOBYTE(LOWORD(windowsVersion));
-  unsigned minor = HIBYTE(LOWORD(windowsVersion));
-  return major > 6 || (major == 6 && minor >= 2);
+    unsigned major = LOBYTE(LOWORD(windowsVersion));
+    unsigned minor = HIBYTE(LOWORD(windowsVersion));
+    return std::to_string(major) + "." + std::to_string(minor);
 }
 
 bool WindowsVersion::IsWindows7OrGreater()
 {
-  unsigned major = LOBYTE(LOWORD(windowsVersion));
-  unsigned minor = HIBYTE(LOWORD(windowsVersion));
-  return major > 6 || (major == 6 && minor >= 1);
+    unsigned major = LOBYTE(LOWORD(windowsVersion));
+    unsigned minor = HIBYTE(LOWORD(windowsVersion));
+    return major > 6 || (major == 6 && minor >= 1);
+}
+
+bool WindowsVersion::IsWindows8OrGreater()
+{
+    unsigned major = LOBYTE(LOWORD(windowsVersion));
+    unsigned minor = HIBYTE(LOWORD(windowsVersion));
+    return major > 6 || (major == 6 && minor >= 2);
 }
