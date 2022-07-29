@@ -83,18 +83,6 @@ string Utils::GetOSVersionString()
   return WindowsVersion::GetMajorMinorBuildString();
 }
 
-bool Utils::RunningOnAServer()
-{
-  OSVERSIONINFOEXW osvi;
-  ZeroMemory(&osvi, sizeof(osvi));
-  osvi.dwOSVersionInfoSize = sizeof(osvi);
-  if (!GetVersionExW(reinterpret_cast<OSVERSIONINFOW*>(&osvi)))
-  {
-    UNSUPPORTED_PLATFORM();
-  }
-  return osvi.wProductType != VER_NT_WORKSTATION;
-}
-
 // see Q246772
 bool Utils::GetDefPrinter(string& printerName)
 {
