@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 22.7.27 - 2022-07-27
+## 22.7.30 - 2022-07-30
 
 ### Windows 7 deprecation
 
