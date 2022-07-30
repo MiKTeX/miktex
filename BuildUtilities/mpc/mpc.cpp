@@ -741,7 +741,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
         << "title=" << packageInfo.title << "\n"
         << "version=" << packageInfo.version << "\n"
         << "targetsystem=" << packageInfo.targetSystem << "\n"
-        << "min_target_system_version" << packageInfo.minTargetSystemVersion << "\n"
+        << "min_target_system_version=" << packageInfo.minTargetSystemVersion << "\n"
         << "md5=" << digest << "\n"
         << "ctan_path=" << packageInfo.ctanPath << "\n"
         << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
