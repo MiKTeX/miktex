@@ -26,64 +26,47 @@ badtfm(const char *s)
 }
 
 /*
- *   Tries to open a tfm file.  Uses cmr10.tfm if unsuccessful,
- *   and complains loudly about it.
+ *   Tries to open a tfm file in FD.  Uses cmr10.tfm if unsuccessful,
+ *   and complains loudly about it.  No return, sets tfmfile global.
  */
 void
 tfmopen(register fontdesctype *fd)
 {
-   register char *n;
-#ifdef KPATHSEA
+   char *full_name;
    kpse_file_format_type d;
-#else
-   register char *d;
-#endif
-   n = fd->name;
-   if (strlen(n) + 6 >= sizeof (name)) {
-      /* 6 for tfm() + null */
-      error("! TFM file name too long in tfmopen") ;
-   }
-   if (!noomega) {
-#ifdef KPATHSEA
+   char *stem_name = concat(fd->area, fd->name);
+   
+   if (!noomega) { /* search for .ofm first */
+      full_name = concat(stem_name, ".ofm");
       d = ofmpath;
-#else
-      d = fd->area;
-      if (*d==0)
-        d = ofmpath;
-#endif
-#ifdef MVSXA   /* IBM: MVS/XA */
-      sprintf(name, "ofm(%s)", n);
-#else
-      sprintf(name, "%s.ofm", n);
-#endif
-      if ((tfmfile=search(d, name, READBIN))!=NULL)
+      if ((tfmfile = search(d, full_name, READBIN)) != NULL) {
+         free(stem_name);
+         free(full_name);
          return;
+      }
+      free(full_name);
    }
-#ifdef KPATHSEA
+
+   /* try tfm */
    d = tfmpath;
-#else
-   d = fd->area;
-   if (*d==0)
-     d = tfmpath;
-#endif
-#ifdef MVSXA   /* IBM: MVS/XA */
-   sprintf(name, "tfm(%s)", n);
-#else
-   sprintf(name, "%s.tfm", n);
-#endif
-   if ((tfmfile=search(d, name, READBIN))!=NULL)
+   full_name = concat(stem_name, ".tfm");
+   if ((tfmfile = search(d, full_name, READBIN)) != NULL) {
+      free(stem_name);
+      free(full_name);
       return;
-   sprintf(errbuf, "Can't open font metric file %.500s%.500s",
-          fd->area, name);
+   }
+   sprintf(errbuf, "Can't open font metric file %.999s", full_name);
    error(errbuf);
+   
    error("I will use cmr10.tfm instead, so expect bad output.");
-#ifdef MVSXA   /* IBM: MVS/XA */
-   if ((tfmfile=search(d, "tfm(cmr10)", READBIN))!=NULL)
-#else
-   if ((tfmfile=search(d, "cmr10.tfm", READBIN))!=NULL)
-#endif
+   if ((tfmfile=search(d, "cmr10.tfm", READBIN)) != NULL) {
+      free(stem_name);
+      free(full_name);
       return;
+   }
+
    error("! I can't find cmr10.tfm; please reinstall me with proper paths");
+   free(stem_name);
 }
 
 static shalfword
@@ -177,8 +160,15 @@ tfmload(register fontdesctype *curfnt)
       for (i=0; i<8; i++) li=tfm32();
       if (!noptex && font_level==1 && ec>=0x2E00) {
          curfnt->iswide = 1;
-         if (li==5)    /* interpret FONTDIR RT as pTeX vertical writing */
+         if (li==5) {  /* interpret FONTDIR RT as pTeX vertical writing */
             curfnt->dir = 9;
+#ifdef DEBUG
+            if (dd(D_FONTS))
+               fprintf_str(stderr,
+                  "We will interpret font (%s.ofm) direction as pTeX vertical writing.\n",
+                  curfnt->name);
+#endif /* DEBUG */
+         }
       }
       if (font_level>1 || hd<2 || bc<0 || ec<0 || nw<0
                        || bc>ec+1 || ec>65535 || nw>65536)
