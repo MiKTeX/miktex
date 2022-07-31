@@ -1,6 +1,6 @@
 /* Setup.cpp:
 
-   Copyright (C) 1999-2021 Christian Schenk
+   Copyright (C) 1999-2022 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -1011,6 +1011,7 @@ BOOL SetupApp::InitInstance()
       }
     }
     sfxDir = nullptr;
+    session->Close();
     session = nullptr;
   }
 

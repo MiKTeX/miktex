@@ -18,9 +18,9 @@
    USA. */
 
 #define MIKTEX_COMP_MAJOR_VERSION 5
-#define MIKTEX_COMP_MINOR_VERSION 1
+#define MIKTEX_COMP_MINOR_VERSION 2
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1999-2021 Christian Schenk"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1999-2022 Christian Schenk"
 
 #include <miktex/Version>
