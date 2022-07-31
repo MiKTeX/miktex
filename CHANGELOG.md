@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* luatex 1.15.1
+* metapost 2.02
+
 ## 22.7.30 - 2022-07-30
 
 ### Windows 7 deprecation

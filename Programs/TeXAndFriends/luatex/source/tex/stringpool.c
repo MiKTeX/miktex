@@ -272,9 +272,8 @@ str_number maketexlstring(const char *s, size_t l)
 
 void append_string(const unsigned char *s, unsigned l)
 {
-    if (s == NULL || *s == 0)
+    if (s == NULL || l == 0)
         return;
-    l = (unsigned) strlen((const char *) s);
     str_room(l);
     memcpy(cur_string + cur_length, s, l);
     cur_length += l;

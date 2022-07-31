@@ -182,6 +182,22 @@ that length because we have utf output so length is then a bit fuzzy anyway.
 #define escaped_char(A) \
     A+64
 
+
+#define wlog_char(A) \
+    if (needs_escaping(A)) { \
+        wlog(A); \
+    } else { \
+        if (file_offset+2>=max_print_line) { \
+            wlog_cr(); \
+            file_offset=0; \
+        } \
+        wlog('^'); \
+        wlog('^'); \
+        wlog(escaped_char(A)); \
+        file_offset += 2; \
+    }
+
+
 #define wterm_char(A) \
     if (needs_escaping(A)) { \
         wterm(A); \
@@ -241,7 +257,7 @@ void print_char(int s)
             break;
         case log_only:
             fix_log_offset(s);
-            wlog(s);
+            wlog_char(s);
             incr(file_offset);
             if (file_offset == max_print_line) {
                 wlog_cr();
@@ -252,7 +268,7 @@ void print_char(int s)
             fix_term_offset(s);
             fix_log_offset(s);
             wterm_char(s);
-            wlog(s);
+            wlog_char(s);
             incr(term_offset);
             incr(file_offset);
             if (term_offset == max_print_line) {

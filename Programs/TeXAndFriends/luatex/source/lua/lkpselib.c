@@ -1,6 +1,6 @@
 /* lkpselib.c
 
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+  Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -38,6 +38,7 @@
 #include <kpathsea/str-list.h>
 #include <kpathsea/tex-file.h>
 #include <kpathsea/paths.h>
+#include <kpathsea/absolute.h>
 
 
 static const unsigned filetypes[] = {
@@ -212,13 +213,39 @@ static int find_file(lua_State * L)
         ftype == kpse_gf_format || ftype == kpse_any_glyph_format) {
         /* ret.format, ret.name, ret.dpi */
         kpse_glyph_file_type ret;
-        lua_pushstring(L, kpse_find_glyph(st, (unsigned) mexist, ftype, &ret));
+	if (output_directory && !kpse_absolute_p(st, false)) {
+	  char *res ; 
+	  char *ftemp = concat3(output_directory, DIR_SEP_STRING, st);
+	  res = kpse_find_glyph(ftemp, 0, ftype, &ret);
+	  if (res && strlen(res)>0) {
+	    lua_pushstring(L, res);
+	  } else {
+	    lua_pushstring(L, kpse_find_glyph(st, (unsigned) mexist, ftype, &ret));
+	  }
+	  xfree(res);
+	  xfree(ftemp);
+	} else {
+	  lua_pushstring(L, kpse_find_glyph(st, (unsigned) mexist, ftype, &ret));
+	}
     } else {
         if (mexist > 0)
             mexist = 1;
         if (mexist < 0)
             mexist = 0;
-        lua_pushstring(L, kpse_find_file(st, ftype, mexist));
+	if (output_directory && !kpse_absolute_p(st, false)) {
+	  char *res ; 
+	  char *ftemp = concat3(output_directory, DIR_SEP_STRING, st);
+	  res = kpse_find_file(ftemp, ftype, 0);
+	  if (res && strlen(res)>0) {
+	    lua_pushstring(L, res);
+	  } else {
+	    lua_pushstring(L, kpse_find_file(st, ftype, mexist));
+	  }
+	  xfree(res);
+	  xfree(ftemp);
+	} else {
+	  lua_pushstring(L, kpse_find_file(st, ftype, mexist));
+	}
     }
     return 1;
 }
@@ -249,13 +276,39 @@ static int lua_kpathsea_find_file(lua_State * L)
     if (ftype == kpse_pk_format || ftype == kpse_gf_format || ftype == kpse_any_glyph_format) {
         /* ret.format, ret.name, ret.dpi */
         kpse_glyph_file_type ret;
-        lua_pushstring(L, kpathsea_find_glyph(*kp, st, (unsigned) mexist, ftype, &ret));
+	if (output_directory && !kpse_absolute_p(st, false)) {
+	  char *res ; 
+	  char *ftemp = concat3(output_directory, DIR_SEP_STRING, st);
+	  res = kpathsea_find_glyph(*kp, ftemp, (unsigned) mexist, ftype, &ret) ;
+	  if (res && strlen(res)>0) {
+	    lua_pushstring(L, res);
+	  } else {
+	    lua_pushstring(L, kpathsea_find_glyph(*kp, st, (unsigned) mexist, ftype, &ret));
+	  }
+	  xfree(res);
+	  xfree(ftemp);
+	} else {
+	  lua_pushstring(L, kpathsea_find_glyph(*kp, st, (unsigned) mexist, ftype, &ret));
+	}
     } else {
         if (mexist > 0)
             mexist = 1;
         if (mexist < 0)
             mexist = 0;
-        lua_pushstring(L, kpathsea_find_file(*kp, st, ftype, mexist));
+	if (output_directory && !kpse_absolute_p(st, false)) {
+	  char *res ; 
+	  char *ftemp = concat3(output_directory, DIR_SEP_STRING, st);
+	  res = kpathsea_find_file(*kp, ftemp, ftype, mexist);
+	  if (res && strlen(res)>0) {
+	    lua_pushstring(L, res);
+	  } else {
+	    lua_pushstring(L, kpathsea_find_file(*kp, st, ftype, mexist));
+	  }
+	  xfree(res);
+	  xfree(ftemp);
+	} else {
+	  lua_pushstring(L, kpathsea_find_file(*kp, st, ftype, mexist));
+	}
     }
     return 1;
 
@@ -631,11 +684,53 @@ static int do_lua_kpathsea_lookup(lua_State * L, kpathsea kpse, int idx)
             }
         }
         user_path = kpathsea_path_expand(kpse, user_path);
-        if (show_all) {
+	if (output_directory && !kpse_absolute_p(user_path , false)) {
+	  string ftemp = concat3(output_directory, DIR_SEP_STRING, user_path);
+	  if (show_all) {
+	    string *ret_list1;
+	    string *ret_list2;
+	    unsigned l1 = 0;
+	    unsigned l2 = 0;
+            ret_list1 = kpathsea_all_path_search(kpse, ftemp, name);
+            ret_list2 = kpathsea_all_path_search(kpse, user_path, name);
+	    l1 = 0;
+	    while (ret_list1[l1]) 
+	      l1++;
+	    l2 = 0;
+	    while (ret_list2[l2]) 
+	      l2++;
+	    ret_list = xmalloc((l1+l2+1)*sizeof(string));
+	    l1 = 0;
+	    while (ret_list1[l1]) {
+	      ret_list[l1] = ret_list1[l1];
+	      l1++;
+	    }
+            l2 = 0;
+	    while (ret_list2[l2]) {
+	      ret_list[l1] = ret_list2[l2];
+	      l1++;
+	      l2++;
+	    }
+	    ret_list[l1] = NULL;
+	    xfree(ret_list1);
+	    xfree(ret_list2); 
+	  } else {
+	    string ret1;
+	    string ret2;
+            ret1 = kpathsea_path_search(kpse, ftemp, name, must_exist);
+            ret2 = kpathsea_path_search(kpse, user_path, name, must_exist);
+	    ret  = concat3(ret1,NULL,ret2);
+	    xfree(ret1);
+	    xfree(ret2);
+	  }
+	  xfree(ftemp);
+	} else {
+	  if (show_all) {
             ret_list = kpathsea_all_path_search(kpse, user_path, name);
-        } else {
+	  } else {
             ret = kpathsea_path_search(kpse, user_path, name, must_exist);
-        }
+	  }
+	}
         free(user_path);
     } else {
         /* No user-specified search path, check user format or guess from NAME.  */
