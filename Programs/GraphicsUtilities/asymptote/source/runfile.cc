@@ -46,11 +46,11 @@ using camp::triple;
 #include <primitives.h>
 #undef PRIMITIVE
 
-typedef double real;
-
 void unused(void *);
 
 namespace run {
+typedef double real;
+
 array *copyArray(array *a);
 array *copyArray2(array *a);
 array *copyArray3(array *a);

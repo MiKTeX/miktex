@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* asymptote 2.81
 * luatex 1.15.1
 * metapost 2.02
 
