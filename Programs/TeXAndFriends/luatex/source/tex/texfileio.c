@@ -92,17 +92,12 @@ int read_file_callback_id[17];
 static char *find_in_output_directory(const char *s)
 {
     if (output_directory && !kpse_absolute_p(s, false)) {
-        FILE *f_ptr;
         char *ftemp = concat3(output_directory, DIR_SEP_STRING, s);
+	char *ret_val = NULL ;
         /*tex This code is used for input files only. */
-        f_ptr = fopen(ftemp, "rb");
-        if (f_ptr) {
-            fclose(f_ptr);
-            return ftemp;
-        } else {
-            free(ftemp);
-
-        }
+	ret_val = kpse_find_file(ftemp, kpse_tex_format, 1);
+	free(ftemp);
+	return ret_val;
     }
     return NULL;
 }
