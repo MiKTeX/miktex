@@ -112,7 +112,7 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
         {
             ctx->ui->IncorrectUsage(T_("unexpected leftover arguments"));
         }
-        arguments = { "fontmaps", "show-option", "--template", "{name}={value}", optionName };
+        arguments = { arguments[0], "fontmaps", "show-option", "--template", "{name}={value}", optionName };
     }
     else if (optSetOption)
     {
@@ -120,10 +120,14 @@ void Shims::updmap(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& ar
         {
             ctx->ui->IncorrectUsage(T_("expected arguments: <option> <value>"));
         }
-        arguments = { "fontmaps", "set-option", optionName, leftovers[0] };
+        arguments = { arguments[0], "fontmaps", "set-option", optionName, leftovers[0] };
     }
     else
     {
-        arguments = { "fontmaps", "configure" };
+        if (!leftovers.empty())
+        {
+            ctx->ui->IncorrectUsage(T_("unexpected leftover arguments"));
+        }
+        arguments = { arguments[0], "fontmaps", "configure" };
     }
 }

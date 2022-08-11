@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief mkfntmap shim
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -18,5 +18,5 @@
 
 namespace OneMiKTeXUtility::Shims
 {
-    void mkfntmap(std::vector<std::string>& arguments);
+    void mkfntmap(OneMiKTeXUtility::ApplicationContext* ctx, std::vector<std::string>& arguments);
 }

@@ -8,6 +8,10 @@
 * luatex 1.15.1
 * metapost 2.02
 
+### Fixed issues
+
+- [1138](https://github.com/MiKTeX/miktex/issues/1138): updmap crash
+
 ## 22.7.30 - 2022-07-30
 
 ### Windows 7 deprecation
