@@ -11,6 +11,7 @@
 ### Fixed issues
 
 - [1138](https://github.com/MiKTeX/miktex/issues/1138): updmap crash
+- [1145](https://github.com/MiKTeX/miktex/issues/1145): jfmutil run fail
 
 ## 22.7.30 - 2022-07-30
 

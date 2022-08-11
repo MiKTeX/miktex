@@ -28,6 +28,7 @@ function miktex_get_verbose_flag : boolean; forward;
 @x
   parse_arguments;
 @y
+  miktex_process_command_line_options;
 @z
 
 @x
