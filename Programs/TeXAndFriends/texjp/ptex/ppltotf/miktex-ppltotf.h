@@ -69,7 +69,7 @@ public:
     void ProcessCommandLineOptions() override
     {
         WebApp::ProcessCommandLineOptions();
-        if (GetProgram()->GetArgC() != 2)
+        if (GetProgram()->GetArgC() != 3)
         {
             BadUsage();
         }
