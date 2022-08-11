@@ -1218,6 +1218,15 @@ private:
   // indicates whether the session has been initialized
   bool initialized = false;
 
+private:
+  bool closing = false;
+
+public:
+  bool IsClosing() const
+  {
+    return closing;
+  }
+
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:
   struct LocalServer :
