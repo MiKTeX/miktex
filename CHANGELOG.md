@@ -1,5 +1,18 @@
 # MiKTeX Change Log
 
+## 22.8 - 2022-08-14
+
+### Upgraded programs
+
+* asymptote 2.81
+* luatex 1.15.1
+* metapost 2.02
+
+### Fixed issues
+
+- [1138](https://github.com/MiKTeX/miktex/issues/1138): updmap crash
+- [1145](https://github.com/MiKTeX/miktex/issues/1145): jfmutil run fail
+
 ## 22.7.30 - 2022-07-30
 
 ### Windows 7 deprecation

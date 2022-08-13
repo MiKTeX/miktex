@@ -264,10 +264,12 @@ void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
     int n = param_id + (256 * style_id);
     sa_tree_item sa_value = { 0 };
-    if (param_id >= math_param_ord_ord_spacing && param_id <= math_param_inner_inner_spacing) {
-        sa_tree_item ti = get_sa_item(math_param_head, n);
-        if (ti.int_value > thick_mu_skip_code && valid_node(ti.int_value)) {
-            free_node(ti.int_value, glue_spec_size);
+    if (lvl <= 1) {
+        if (param_id >= math_param_ord_ord_spacing && param_id <= math_param_inner_inner_spacing) {
+            sa_tree_item ti = get_sa_item(math_param_head, n);
+            if (ti.int_value > thick_mu_skip_code && valid_node(ti.int_value)) {
+                free_node(ti.int_value, glue_spec_size);
+            }
         }
     }
     sa_value.int_value = (int) value;
@@ -2498,7 +2500,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                     d = 0;
     }
     tail_append(new_penalty(pre_display_penalty_par,after_display_penalty));
-   
+
     /* tex
        By default the short skip detection is not adapted to r2l typesetting and that
       hasn't been the case since the start of the project. Changing it could break
@@ -2514,7 +2516,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         g1 = above_display_short_skip_code;
         g2 = below_display_short_skip_code;
        }
-    } else { 
+    } else {
       if ((d + line_s <= pre_display_size_par) || ((! dir_math_save && l) || (dir_math_save && ! l))) {
         /*tex not enough clearance */
         g1 = above_display_skip_code;

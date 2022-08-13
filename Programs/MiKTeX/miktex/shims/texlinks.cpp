@@ -47,6 +47,7 @@ void Shims::texlinks(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& 
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], aoption);
     int option;
+    arguments = { arguments[0], "links", "install" };
     while ((option = popt.GetNextOpt()) >= 0)
     {
     }
@@ -58,5 +59,4 @@ void Shims::texlinks(OneMiKTeXUtility::ApplicationContext* ctx, vector<string>& 
     {
         ctx->ui->IncorrectUsage(T_("unexpected leftover arguments"));
     }
-    arguments = { "links", "install" };
 }

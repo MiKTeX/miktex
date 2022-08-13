@@ -71,12 +71,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 2.01" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 2.02" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "2.01"
+#define metapost_version "2.02"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -7667,6 +7667,14 @@ void mp_toss_knot (MP mp, mp_knot q) {
     q->next = mp->knot_nodes;
     mp->knot_nodes = q;
     mp->num_knot_nodes++;
+    if (mp->math_mode > mp_math_double_mode) {
+      free_number (q->x_coord);
+      free_number (q->y_coord);
+      free_number (q->left_x);
+      free_number (q->left_y);
+      free_number (q->right_x);
+      free_number (q->right_y);
+    }
     return;
   }
   if (mp->math_mode > mp_math_double_mode) {
@@ -7675,6 +7683,8 @@ void mp_toss_knot (MP mp, mp_knot q) {
     mp_xfree (q);
   }
 }
+
+
 void mp_toss_knot_list (MP mp, mp_knot p) {
   mp_knot q;    /* the node being freed */
   mp_knot r;    /* the next node */
@@ -21167,7 +21177,7 @@ void mp_begin_iteration (MP mp) {
       p->value_mod = mp_suffix_sym;
     }
     mp_get_x_next (mp);
-    if (cur_cmd() == mp_within_token) {
+    if (p->value_mod == mp_expr_sym && cur_cmd() == mp_within_token) {
       @<Set up a picture iteration@>;
     } else {
       @<Check for the assignment in a loop header@>;
@@ -34815,9 +34825,9 @@ extreme cases so it may have to be shortened on some systems.
 
 @<Use |c| to compute the file extension |s|@>=
 {
-  s = xmalloc (12, 1);
-  mp_snprintf (s, 12, ".%i", (int) c);
-  s[7]='\0';
+  s = xmalloc (13, 1);
+  mp_snprintf (s, 13, ".%i", (int) c);
+  s[13]='\0';
 }
 
 

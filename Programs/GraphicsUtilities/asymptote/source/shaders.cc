@@ -106,6 +106,7 @@ GLuint createShaderFile(std::string file, int shaderType,
 #ifdef HAVE_SSBO
   if(ssbo) {
     shaderSrc << "#extension GL_ARB_shader_storage_buffer_object : enable" << "\n";
+    shaderSrc << "#extension GL_ARB_shader_atomic_counters : enable" << "\n";
     if(interlock)
       shaderSrc << "#extension GL_ARB_fragment_shader_interlock : enable"
                 << "\n";

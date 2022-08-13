@@ -92,8 +92,8 @@ namespace OneMiKTeXUtility
     inline std::vector<const char*> MakeArgv(const std::vector<std::string>& arguments)
     {
         std::vector<const char*> argv;
-        argv.reserve(arguments.size() - 1 + 1);
-        for (int idx = 1; idx < arguments.size(); ++idx)
+        argv.reserve(arguments.size() + 1);
+        for (size_t idx = 0; idx < arguments.size(); ++idx)
         {
             argv.push_back(arguments[idx].c_str());
         }

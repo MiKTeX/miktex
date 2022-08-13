@@ -111,6 +111,7 @@ ADDSYMBOL(_findroot);
 ADDSYMBOL(_image);
 ADDSYMBOL(_labelpath);
 ADDSYMBOL(_projection);
+ADDSYMBOL(_schur);
 ADDSYMBOL(_shipout);
 ADDSYMBOL(_strokepath);
 ADDSYMBOL(_texpath);

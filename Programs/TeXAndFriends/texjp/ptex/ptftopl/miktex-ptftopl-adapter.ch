@@ -86,6 +86,7 @@ initialize;@/
 @y
 @p begin initialize;@/
 c4p_begin_try_block(final_end);
+miktex_process_command_line_options;
 initialize;@/
 @z
 

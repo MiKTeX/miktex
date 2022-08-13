@@ -192,6 +192,7 @@ int lua_appendtovlist_callback(halfword box, int location, halfword prev_depth,
         *next_depth = lua_roundnumber(Luas, -1);
         *prev_set = 1;
     }
+    lua_settop(Luas, s_top); 
     return 1;
 }
 

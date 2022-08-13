@@ -14,6 +14,7 @@
 ADDSYMBOL(AtA);
 ADDSYMBOL(_findroot);
 ADDSYMBOL(_projection);
+ADDSYMBOL(_schur);
 ADDSYMBOL(a);
 ADDSYMBOL(acc);
 ADDSYMBOL(all);

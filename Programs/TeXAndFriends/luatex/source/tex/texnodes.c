@@ -124,7 +124,7 @@ field_info node_fields_whatsit_special[3];
 field_info node_fields_whatsit_user_defined[5];
 field_info node_fields_whatsit_write[4];
 
-field_info node_fields_whatsit_pdf_action[7];
+field_info node_fields_whatsit_pdf_action[8];
 field_info node_fields_whatsit_pdf_annot[7];
 field_info node_fields_whatsit_pdf_colorstack[5];
 field_info node_fields_whatsit_pdf_dest[10];

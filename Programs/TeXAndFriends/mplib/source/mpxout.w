@@ -808,6 +808,8 @@ It's ok if the \.{VF} file doesn't exist.
 
 @c 
 static web_boolean mpx_open_vf_file (MPX mpx) {
+  if (mpx->vf_file)
+    fclose(mpx->vf_file); /* Ugly... */
   mpx->vf_file = mpx_fsearch(mpx, mpx->cur_name, mpx_vf_format);
   if (mpx->vf_file) {
     free (mpx->cur_name);

@@ -156,7 +156,7 @@ void winFileSystemWatcher::WatchDirectories()
     auto ev = WaitForMultipleObjects(static_cast<DWORD>(handles.size()), handles.data(), FALSE, INFINITE);
     if (ev == WAIT_OBJECT_0)
     {
-      trace_files->WriteLine("core", fmt::format("cancaling directory watch loop"));
+      trace_files->WriteLine("core", fmt::format("canceling directory watch loop"));
       return;
     }
     else if (ev == WAIT_FAILED)
