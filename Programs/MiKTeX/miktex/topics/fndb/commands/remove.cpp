@@ -26,6 +26,7 @@
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Util/PathName>
+#include <miktex/Wrappers/PoptWrapper>
 
 #include "internal.h"
 
@@ -61,6 +62,7 @@ using namespace MiKTeX::Configuration;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Util;
+using namespace MiKTeX::Wrappers;
 
 using namespace OneMiKTeXUtility;
 using namespace OneMiKTeXUtility::Topics;
@@ -71,9 +73,30 @@ unique_ptr<Command> Commands::Remove()
     return make_unique<RemoveCommand>();
 }
 
+enum Option
+{
+    OPT_AAA = 1,
+};
+
+static const struct poptOption options[] =
+{
+    POPT_AUTOHELP
+    POPT_TABLEEND
+};
+
 int RemoveCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
-    if (arguments.size() != 2)
+    auto argv = MakeArgv(arguments);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
+    int option;
+    while ((option = popt.GetNextOpt()) >= 0)
+    {
+    }
+    if (option != -1)
+    {
+        ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
+    }
+    if (!popt.GetLeftovers().empty())
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
