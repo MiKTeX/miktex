@@ -2229,7 +2229,8 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
         print_err(" ==> Fatal error occurred, no output PDF file produced!");
     } else {
         int i, j, k;
-        int root, info;
+        int root = 0;
+        int info = 0;
         int xref_stm = 0;
         int outlines = 0;
         int threads = 0;
@@ -2270,6 +2271,7 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
                 pdf->gen_tounicode = pdf_gen_tounicode;
                 pdf->omit_cidset = pdf_omit_cidset;
                 pdf->omit_charset = pdf_omit_charset;
+                pdf->omit_infodict = pdf_omit_infodict;
                 /*tex
                     The first pass over the list will flag the slots that are
                     used so that we can do a preroll for type 3 fonts.
@@ -2386,7 +2388,8 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
                 print_pdf_table_string(pdf, "catalog");
                 pdf_end_dict(pdf);
                 pdf_end_obj(pdf);
-                info = pdf_print_info(pdf, luatexversion, luatexrevision);
+                if (! pdf->omit_infodict) 
+                    info = pdf_print_info(pdf, luatexversion, luatexrevision);
                 if (pdf->os_enable) {
                     pdf_buffer_select(pdf, OBJSTM_BUF);
                     pdf_os_write_objstream(pdf);
@@ -2420,7 +2423,8 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
                     pdf_add_int(pdf, 1);
                     pdf_end_array(pdf);
                     pdf_dict_add_ref(pdf, "Root", root);
-                    pdf_dict_add_ref(pdf, "Info", info);
+                    if (! pdf->omit_infodict) 
+                        pdf_dict_add_ref(pdf, "Info", info);
                     if (pdf_trailer_toks != null) {
                         pdf_print_toks(pdf, pdf_trailer_toks);
                         delete_token_ref(pdf_trailer_toks);
@@ -2478,7 +2482,8 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
                     pdf_begin_dict(pdf);
                     pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
                     pdf_dict_add_ref(pdf, "Root", root);
-                    pdf_dict_add_ref(pdf, "Info", info);
+                    if (! pdf->omit_infodict) 
+                        pdf_dict_add_ref(pdf, "Info", info);
                     if (pdf_trailer_toks != null) {
                         pdf_print_toks(pdf, pdf_trailer_toks);
                         delete_token_ref(pdf_trailer_toks);
