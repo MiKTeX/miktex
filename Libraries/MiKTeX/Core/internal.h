@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,6 +25,7 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
+#include <openssl/provider.h>
 #include <openssl/x509.h>
 #endif
 
