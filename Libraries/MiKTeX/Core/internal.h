@@ -25,8 +25,10 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
-#include <openssl/provider.h>
 #include <openssl/x509.h>
+#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
+#include <openssl/provider.h>
+#endif
 #endif
 
 #include <miktex/Trace/TraceStream>
