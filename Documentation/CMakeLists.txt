@@ -150,7 +150,6 @@ set(ref_xml_files
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/pdftex.cfg.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/setupwiz.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/Ref/texify.xml
-    ${CMAKE_CURRENT_SOURCE_DIR}/Ref/updmap.cfg.xml
 )
 
 set(manual_xml_files
@@ -428,7 +427,6 @@ set(generated_man1_pages
 )
 
 set(generated_man5_pages
-    ${CMAKE_CURRENT_BINARY_DIR}/updmap.cfg.5
     ${CMAKE_CURRENT_BINARY_DIR}/pdftex.cfg.5
 )
 
