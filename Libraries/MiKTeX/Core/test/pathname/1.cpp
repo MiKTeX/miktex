@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -286,6 +286,19 @@ BEGIN_TEST_FUNCTION(14);
 END_TEST_FUNCTION();
 #endif
 
+BEGIN_TEST_FUNCTION(15);
+{
+  const char* lpszShortSourceFile;
+#if defined(MIKTEX_WINDOWS)
+  lpszShortSourceFile = Utils::GetRelativizedPath(
+    "C:\\jenkins\\workspace\\miktex\\windows\\build\\source\\Libraries\\MiKTeX\\Core\\Utils\\Utils.cpp",
+    "C:/jenkins/workspace/miktex/windows/build/source");
+  TEST(lpszShortSourceFile != nullptr);
+  TEST(strcmp(lpszShortSourceFile, "Libraries\\MiKTeX\\Core\\Utils\\Utils.cpp") == 0);
+#endif
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -304,6 +317,7 @@ BEGIN_TEST_PROGRAM();
 #if defined(MIKTEX_WINDOWS)
   CALL_TEST_FUNCTION(14);
 #endif
+  CALL_TEST_FUNCTION(15);
 }
 END_TEST_PROGRAM();
 
