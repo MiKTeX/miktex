@@ -756,7 +756,7 @@ void Application::Main(int argc, const char** argv)
   if (optVersion)
   {
     cout
-      << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)) << endl
+      << fmt::format("{0} {1}", THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR) << endl
       << endl
       << MIKTEX_COMP_COPYRIGHT_STR << endl
       << endl
