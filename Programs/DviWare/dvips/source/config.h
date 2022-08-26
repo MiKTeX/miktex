@@ -9,6 +9,7 @@
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
 #endif
+#include "dvips-version.h"
 #define register
 #endif
 /* The stuff from the path searching library.  */

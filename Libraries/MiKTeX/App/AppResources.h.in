@@ -1,3 +1,16 @@
+/**
+ * @file AppResources.h
+ * @author Christian Schenk
+ * @brief Application resources
+ *
+ * @copyright Copyright © 2005-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX Application Framework.
+ *
+ * The MiKTeX Application Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
+
 #pragma once
 
 #include "config.h"
@@ -6,22 +19,25 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-${resource_includes}
+@resource_includes@
 
 class AppResources
-  : public MiKTeX::Resources::ResourceRepository
+    : public MiKTeX::Resources::ResourceRepository
 {
+
 protected:
-  void Init() override
-  {
-    ${resource_adders}
-  }
+
+    void Init() override
+    {
+        @resource_adders@
+    }
 
 private:
-  template<std::size_t N> void R_(const char* resourceId, unsigned char const (&byteArray)[N])
-  {
-    AddResource(resourceId, { byteArray, sizeof(byteArray) });
-  }
+
+    template<std::size_t N> void R_(const char* resourceId, unsigned char const (&byteArray)[N])
+    {
+        AddResource(resourceId, { byteArray, sizeof(byteArray) });
+    }
 };
 
 END_INTERNAL_NAMESPACE;

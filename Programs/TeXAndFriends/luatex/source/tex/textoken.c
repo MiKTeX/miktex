@@ -2620,6 +2620,7 @@ static int do_variable_pdf(halfword c)
     else if (scan_keyword("suppressoptionalinfo")) { do_variable_backend_int(c_pdf_suppress_optional_info); }
     else if (scan_keyword("omitcidset"))           { do_variable_backend_int(c_pdf_omit_cidset); }
     else if (scan_keyword("omitcharset"))          { do_variable_backend_int(c_pdf_omit_charset); }
+    else if (scan_keyword("omitinfodict"))         { do_variable_backend_int(c_pdf_omit_infodict); }
     else if (scan_keyword("recompress"))           { do_variable_backend_int(c_pdf_recompress); }
 
     else if (scan_keyword("horigin"))              { do_variable_backend_dimen(d_pdf_h_origin); }

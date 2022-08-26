@@ -32,6 +32,7 @@ static void utf_error(void)
     deletions_allowed = true;
 }
 
+/*
 unsigned str2uni(const unsigned char *k)
 {
     register int ch;
@@ -40,7 +41,7 @@ unsigned str2uni(const unsigned char *k)
     if ((ch = *text++) < 0x80) {
         val = (unsigned) ch;
     } else if (ch <= 0xbf) {
-        /*tex An error that we skip. */
+        // 
     } else if (ch <= 0xdf) {
         if (*text >= 0x80 && *text < 0xc0)
             val = (unsigned) (((ch & 0x1f) << 6) | (*text++ & 0x3f));
@@ -58,17 +59,50 @@ unsigned str2uni(const unsigned char *k)
         if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 ||
             *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0)
             val = 0xFFFD;
-    } else {
-        /*tex
-
-            The 5- and 6-byte UTF-8 sequences generate integers that are outside
-            of the valid UCS range, and therefore unsupported.
-
-         */
     }
     if (val == 0xFFFD)
         utf_error();
     return (val);
+}
+*/
+
+/* 
+    Per August 13 2022 we do the following. We still error on an invalid utf because we 
+    have to remain compatible but accept 0xFFFD as valid now. 
+*/
+
+unsigned str2uni(const unsigned char *k)
+{
+    int val = -1;
+    const unsigned char *text = k;
+    register int ch = *text++;
+    if (ch < 0x80) {
+        val = (unsigned) ch;
+    } else if (ch <= 0xbf) {
+        /*tex An error. */
+    } else if (ch <= 0xdf) {
+        if (*text >= 0x80 && *text < 0xc0) {
+            val = (unsigned) (((ch & 0x1f) << 6) | (*text++ & 0x3f));
+        }
+    } else if (ch <= 0xef) {
+        if (*text >= 0x80 && *text < 0xc0 && text[1] >= 0x80 && text[1] < 0xc0) {
+            val = (unsigned) (((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) | (text[1] & 0x3f));
+        }
+    } else if (ch <= 0xf7) {
+        int w = (((ch & 0x7) << 2) | ((text[0] & 0x30) >> 4)) - 1, w2;
+        w = (w << 6) | ((text[0] & 0xf) << 2) | ((text[1] & 0x30) >> 4);
+        w2 = ((text[1] & 0xf) << 6) | (text[2] & 0x3f);
+        val = (unsigned) (w * 0x400 + w2 + 0x10000);
+        if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 || *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0) {
+            val = -1;
+        }
+    }
+    if (val < 0) {
+        utf_error();
+        return 0xFFFD;
+    } else {
+        return val;
+    }
 }
 
 /*tex

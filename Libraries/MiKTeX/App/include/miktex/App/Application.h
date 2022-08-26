@@ -1,28 +1,17 @@
-/* miktex/App/Application.h:                            -*- C++ -*-
-
-   Copyright (C) 2005-2021 Christian Schenk
-
-   This file is part of the MiKTeX App Library.
-
-   The MiKTeX App Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX App Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX App Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file miktex/App/Application.h
+ * @author Christian Schenk
+ * @brief Application class
+ *
+ * @copyright Copyright © 2005-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX Application Framework.
+ *
+ * The MiKTeX Application Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(F4C0E5199356C44CBA46523020038822)
-#define F4C0E5199356C44CBA46523020038822
 
 #include "config.h"
 
@@ -36,294 +25,240 @@
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Trace/TraceCallback>
 
-/// @namespace MiKTeX::App
-/// @brief The application namespace.
+ /// @namespace MiKTeX::App
+ /// @brief The application namespace.
 MIKTEX_APP_BEGIN_NAMESPACE;
 
 /// An instance of this class controls the run-time behaviour of a MiKTeX application.
 class MIKTEXAPPTYPEAPI(Application) :
-  public MiKTeX::Core::IFindFileCallback,
-  public MiKTeX::Packages::PackageInstallerCallback,
-  public MiKTeX::Trace::TraceCallback
+    public MiKTeX::Core::IFindFileCallback,
+    public MiKTeX::Packages::PackageInstallerCallback,
+    public MiKTeX::Trace::TraceCallback
 {
-public:
-  MIKTEXAPPEXPORT MIKTEXTHISCALL Application();
 
 public:
-  Application(const Application& other) = delete;
 
-public:
-  Application& operator=(const Application& other) = delete;
+    MIKTEXAPPEXPORT MIKTEXTHISCALL Application();
+    Application(const Application& other) = delete;
+    Application& operator=(const Application& other) = delete;
+    Application(Application && other) = delete;
+    Application& operator=(Application && other) = delete;
+    virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
 
-public:
-  Application(Application&& other) = delete;
+    /// Filters out and processes special MiKTeX command-line arguments.
+    /// @param[in,out] args The command-line arguments to examine and modify.
+    /// @param[in,out] initInfo The session initialization options to modify.
+    /// @return Returns the modified command-line.
+    virtual MIKTEXAPPTHISAPI(std::string) ExamineArgs(std::vector<const char*>&args, MiKTeX::Core::Session::InitInfo& initInfo);
 
-public:
-  Application& operator=(Application&& other) = delete;
+    /// Filters out and processes special MiKTeX command-line arguments.
+    /// @param[in,out] args The command-line arguments to examine and modify.
+    /// @param[in,out] initInfo The session initialization options to modify.
+    /// @return Returns the modified command-line.
+    virtual MIKTEXAPPTHISAPI(std::string) ExamineArgs(std::vector<char*>&args, MiKTeX::Core::Session::InitInfo& initInfo);
 
-public:
-  virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
+    /// Initializes the application.
+    /// @param initInfo Session initialization options.
+    /// @param[in,out] args The command-line arguments to examine and modify.
+    virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<const char*>&args);
 
-  /// Filters out and processes special MiKTeX command-line arguments.
-  /// @param[in,out] args The command-line arguments to examine and modify.
-  /// @param[in,out] initInfo The session initialization options to modify.
-  /// @return Returns the modified command-line.
-public:
-  virtual MIKTEXAPPTHISAPI(std::string) ExamineArgs(std::vector<const char*>& args, MiKTeX::Core::Session::InitInfo& initInfo);
+    /// Initializes the application.
+    /// @param initInfo Session initialization options.
+    /// @param[in,out] args The command-line arguments to examine and modify.
+    virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<char*>&args);
 
-  /// Filters out and processes special MiKTeX command-line arguments.
-  /// @param[in,out] args The command-line arguments to examine and modify.
-  /// @param[in,out] initInfo The session initialization options to modify.
-  /// @return Returns the modified command-line.
-public:
-  virtual MIKTEXAPPTHISAPI(std::string) ExamineArgs(std::vector<char*>& args, MiKTeX::Core::Session::InitInfo& initInfo);
+    /// Initializes the application.
+    /// @param initInfo Session initialization options.
+    virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo);
 
-  /// Initializes the application.
-  /// @param initInfo Session initialization options.
-  /// @param[in,out] args The command-line arguments to examine and modify.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<const char*>& args);
+    /// Initializes the application.
+    /// @param[in,out] args The command-line arguments to examine and modify.
+    virtual MIKTEXAPPTHISAPI(void) Init(std::vector<const char*>&args);
 
-  /// Initializes the application.
-  /// @param initInfo Session initialization options.
-  /// @param[in,out] args The command-line arguments to examine and modify.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<char*>& args);
+    /// Initializes the application.
+    /// @param[in,out] args The command-line arguments to examine and modify.
+    virtual MIKTEXAPPTHISAPI(void) Init(std::vector<char*>&args);
 
-  /// Initializes the application.
-  /// @param initInfo Session initialization options.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo);
+    /// Initializes the application.
+    /// @param programInvocationName The program invocation name.
+    virtual MIKTEXAPPTHISAPI(void) Init(const std::string& programInvocationName);
 
-  /// Initializes the application.
-  /// @param[in,out] args The command-line arguments to examine and modify.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(std::vector<const char*>& args);
+    /// Initializes the application.
+    /// @param programInvocationName The program invocation name.
+    /// @param theNameOfTheGame The user friendly program name.
+    virtual MIKTEXAPPTHISAPI(void) Init(const std::string& programInvocationName, const std::string& theNameOfTheGame);
 
-  /// Initializes the application.
-  /// @param[in,out] args The command-line arguments to examine and modify.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(std::vector<char*>& args);
+    /// Frees application resources.
+    virtual MIKTEXAPPTHISAPI(void) Finalize();
 
-  /// Initializes the application.
-  /// @param programInvocationName The program invocation name.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const std::string& programInvocationName);
+    /// Frees application resources.
+    /// @param exitCode The exit code to write to the log file.
+    virtual MIKTEXAPPTHISAPI(void) Finalize2(int exitCode);
 
-  /// Initializes the application.
-  /// @param programInvocationName The program invocation name.
-  /// @param theNameOfTheGame The user friendly program name.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const std::string& programInvocationName, const std::string& theNameOfTheGame);
+    /// Collects version information of loaded libraries.
+    /// @param[in,out] versions The version table to modify.
+    virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>&versions) const
+    {
+        versions.push_back(MiKTeX::App::vi::Version::GetLibraryVersion());
+        auto deps = MiKTeX::App::vi::Runtime::GetDependencies();
+        versions.insert(std::end(versions), std::begin(deps), std::end(deps));
+    }
 
-  /// Frees application resources.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Finalize();
+    /// Prints version information of loaded libraries.
+    virtual MIKTEXAPPTHISAPI(void) ShowLibraryVersions() const;
 
-  /// Frees application resources.
-  /// @param exitCode The exit code to write to the log file.
-public:
-  virtual MIKTEXAPPTHISAPI(void) Finalize2(int exitCode);
+    /// @brief Install a package.
+    ///
+    /// This method gets called by the session object when a package
+    /// needs to be installed.
+    ///
+    /// @param packageId The ID of the requested package.
+    /// @param trigger The path to the file which triggered the auto-installer.
+    /// @param installRoot The path to the installation root directory.
+    /// @return Returns `true`, if the package has been installed.
+    MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
 
-  /// Collects version information of loaded libraries.
-  /// @param[in,out] versions The version table to modify.
-public:
-  virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const
-  {
-    versions.push_back(MiKTeX::App::vi::Version::GetLibraryVersion());
-    auto deps = MiKTeX::App::vi::Runtime::GetDependencies();
-    versions.insert(std::end(versions), std::begin(deps), std::end(deps));
-  }
+    /// @brief Creates a file.
+    ///
+    /// This method gets called by the session object when a file (e.g.,
+    /// `pdflatex.fmt`) needs to be created.
+    ///
+    /// @param fileName The path to the file.
+    /// @param fileType The file type.
+    /// @return Returns `true`, if the file has been created.
+    MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override;
 
-  /// Prints version information of loaded libraries.
-public:
-  virtual MIKTEXAPPTHISAPI(void) ShowLibraryVersions() const;
+    /// @brief Prints an installer message.
+    ///
+    /// This method gets called by the installer when a message should
+    /// be written to the report stream.
+    ///
+    /// @param message The message text.
+    MIKTEXAPPTHISAPI(void) ReportLine(const std::string& message) override;
 
-  /// @brief Install a package.
-  ///
-  /// This method gets called by the session object when a package
-  /// needs to be installed.
-  ///
-  /// @param packageId The ID of the requested package.
-  /// @param trigger The path to the file which triggered the auto-installer.
-  /// @param installRoot The path to the installation root directory.
-  /// @return Returns `true`, if the package has been installed.
-public:
-  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& packageId, const MiKTeX::Util::PathName& trigger, MiKTeX::Util::PathName& installRoot) override;
+    /// @brief Handles an installer error.
+    ///
+    /// This method gets called by the installer when an error occured.
+    ///
+    /// @param message The error message.
+    /// @returns Returns `false` to cancel the installer.
+    MIKTEXAPPTHISAPI(bool) OnRetryableError(const std::string& message) override;
 
-  /// @brief Creates a file.
-  ///
-  /// This method gets called by the session object when a file (e.g.,
-  /// `pdflatex.fmt`) needs to be created.
-  ///
-  /// @param fileName The path to the file.
-  /// @param fileType The file type.
-  /// @return Returns `true`, if the file has been created.
-public:
-  MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Util::PathName& fileName, MiKTeX::Core::FileType fileType) override;
+    /// @brief Handles an installer notification.
+    ///
+    /// This method gets called by the installer when the current phase
+    /// ends or when a new phase begins.
+    ///
+    /// @param nf The notification.
+    MIKTEXAPPTHISAPI(bool) OnProgress(MiKTeX::Packages::Notification nf) override;
 
-  /// @brief Prints an installer message.
-  ///
-  /// This method gets called by the installer when a message should
-  /// be written to the report stream.
-  ///
-  /// @param message The message text.
-public:
-  MIKTEXAPPTHISAPI(void) ReportLine(const std::string& message) override;
+    /// @brief Logs a trace message.
+    ///
+    /// This method gets called when a trace message should be logged.
+    ///
+    /// @param traceMessage The trace message to log.
+    MIKTEXAPPTHISAPI(bool) Trace(const TraceCallback::TraceMessage& traceMessage) override;
 
-  /// @brief Handles an installer error.
-  ///
-  /// This method gets called by the installer when an error occured.
-  ///
-  /// @param message The error message.
-  /// @returns Returns `false` to cancel the installer.
-public:
-  MIKTEXAPPTHISAPI(bool) OnRetryableError(const std::string& message) override;
+    /// Enables or disables the auto-installer.
+    /// @param tri The new state (on, off, inherit configuration default).
+    MIKTEXAPPTHISAPI(void) EnableInstaller(MiKTeX::Configuration::TriState tri);
 
-  /// @brief Handles an installer notification.
-  ///
-  /// This method gets called by the installer when the current phase
-  /// ends or when a new phase begins.
-  ///
-  /// @param nf The notification.
-public:
-  MIKTEXAPPTHISAPI(bool) OnProgress(MiKTeX::Packages::Notification nf) override;
+    /// Terminates the application with an error. 
+    /// @param message The error message.
+    MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const std::string& message);
 
-  /// @brief Logs a trace message.
-  ///
-  /// This method gets called when a trace message should be logged.
-  ///
-  /// @param traceMessage The trace message to log.
-public:
-  MIKTEXAPPTHISAPI(bool) Trace(const TraceCallback::TraceMessage& traceMessage) override;
+    /// Print a warning nessage.
+    /// @param message The warning message.
+    MIKTEXAPPCEEAPI(void) Warning(const std::string& message);
 
-  /// Enables or disables the auto-installer.
-  /// @param tri The new state (on, off, inherit configuration default).
-public:
-  MIKTEXAPPTHISAPI(void) EnableInstaller(MiKTeX::Configuration::TriState tri);
+    /// Print a security warning nessage.
+    /// @param message The security warning message.
+    MIKTEXAPPCEEAPI(void) SecurityRisk(const std::string& message);
 
-  /// Terminates the application with an error. 
-  /// @param message The error message.
-public:
-  MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const std::string& message);
+    /// Starts a text editor.
+    /// @param editFileName Path to the file to be edited.
+    /// @param editLineNumber The line where the edit cursor should be moved to.
+    /// @param editFileType The file type.
+    /// @param transcriptFileName Path to a secondary file (usually a log file).
+    MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Util::PathName& editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Util::PathName& transcriptFileName) const;
 
-  /// Print a warning nessage.
-  /// @param message The warning message.
-public:
-  MIKTEXAPPCEEAPI(void) Warning(const std::string& message);
+    /// Prints a user friendly error message.
+    /// @param name User friendly program name.
+    /// @param ex Error information.
+    MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const MiKTeX::Core::MiKTeXException& ex);
 
-  /// Print a security warning nessage.
-  /// @param message The security warning message.
-public:
-  MIKTEXAPPCEEAPI(void) SecurityRisk(const std::string& message);
+    /// Prints a user friendly error message.
+    /// @param name User friendly program name.
+    /// @param ex Error information.
+    MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const std::exception& ex);
 
-  /// Starts a text editor.
-  /// @param editFileName Path to the file to be edited.
-  /// @param editLineNumber The line where the edit cursor should be moved to.
-  /// @param editFileType The file type.
-  /// @param transcriptFileName Path to a secondary file (usually a log file).
-public:
-  MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Util::PathName& editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Util::PathName& transcriptFileName) const;
+    /// Prints a user friendly error message.
+    /// @param name User friendly program name.
+    /// @param description A user friendly description of the error.
+    /// @param remedy A user friendly recipe to remedy the error.
+    /// @param url A link to a help page.
+    MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy, const std::string& url);
 
-  /// Prints a user friendly error message.
-  /// @param name User friendly program name.
-  /// @param ex Error information.
-public:
-  MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const MiKTeX::Core::MiKTeXException& ex);
+    /// Prints a user friendly error message.
+    /// @param name User friendly program name.
+    void Sorry(const std::string& name)
+    {
+        Sorry(name, "", "", "");
+    }
 
-  /// Prints a user friendly error message.
-  /// @param name User friendly program name.
-  /// @param ex Error information.
-public:
-  MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const std::exception& ex);
+    /// Gets an indication whether the application is in quiet mode.
+    /// @return Returns `true`, if the application is in quiet mode.
+    /// @sa SetQuietFlag
+    MIKTEXAPPTHISAPI(bool) GetQuietFlag() const;
 
-  /// Prints a user friendly error message.
-  /// @param name User friendly program name.
-  /// @param description A user friendly description of the error.
-  /// @param remedy A user friendly recipe to remedy the error.
-  /// @param url A link to a help page.
-public:
-  MIKTEXAPPTHISAPI(void) Sorry(const std::string& name, const std::string& description, const std::string& remedy, const std::string& url);
+    /// Turns quiet mode on/off.
+    /// @param b The new quiet mode.
+    /// @sa GetQuietFlag
+    MIKTEXAPPTHISAPI(void) SetQuietFlag(bool b);
 
-  /// Prints a user friendly error message.
-  /// @param name User friendly program name.
-public:
-  void Sorry(const std::string& name)
-  {
-    Sorry(name, "", "", "");
-  }
+    /// Gets the current session.
+    /// @return Returns a smart pointer to the current session object.
+    MIKTEXAPPTHISAPI(std::shared_ptr<MiKTeX::Core::Session>) GetSession() const;
 
-  /// Gets an indication whether the application is in quiet mode.
-  /// @return Returns `true`, if the application is in quiet mode.
-  /// @sa SetQuietFlag
-public:
-  MIKTEXAPPTHISAPI(bool) GetQuietFlag() const;
+    /// Gets the current auto-installer mode.
+    /// @return Returns the current auto-installer mode (on, off, inherit configuration default).
+    MIKTEXAPPTHISAPI(MiKTeX::Configuration::TriState) GetEnableInstaller() const;
 
-  /// Turns quiet mode on/off.
-  /// @param b The new quiet mode.
-  /// @sa GetQuietFlag
-public:
-  MIKTEXAPPTHISAPI(void) SetQuietFlag(bool b);
+    /// Logs an informational message.
+    /// @param message The message to log.
+    MIKTEXAPPTHISAPI(void) LogInfo(const std::string& message) const;
 
-  /// Gets the current session.
-  /// @return Returns a smart pointer to the current session object.
-public:
-  MIKTEXAPPTHISAPI(std::shared_ptr<MiKTeX::Core::Session>) GetSession() const;
+    /// Logs a warning message.
+    /// @param message The message to log.
+    MIKTEXAPPTHISAPI(void) LogWarn(const std::string& message) const;
 
-  /// Gets the current auto-installer mode.
-  /// @return Returns the current auto-installer mode (on, off, inherit configuration default).
-public:
-  MIKTEXAPPTHISAPI(MiKTeX::Configuration::TriState) GetEnableInstaller() const;
+    /// Logs an error message.
+    /// @param message The message to log.
+    MIKTEXAPPTHISAPI(void) LogError(const std::string& message) const;
 
-  /// Logs an informational message.
-  /// @param message The message to log.
-public:
-  MIKTEXAPPTHISAPI(void) LogInfo(const std::string& message) const;
+    /// Throws an exception if the application should be terminated.
+    MIKTEXAPPTHISAPI(void) CheckCancel();
 
-  /// Logs a warning message.
-  /// @param message The message to log.
-public:
-  MIKTEXAPPTHISAPI(void) LogWarn(const std::string& message) const;
+    /// Gets the current application object.
+    /// @return Returns a pointer to the current application object.
+    static MIKTEXAPPCEEAPI(Application*) GetApplication();
 
-  /// Logs an error message.
-  /// @param message The message to log.
-public:
-  MIKTEXAPPTHISAPI(void) LogError(const std::string& message) const;
-
-  /// Gets the current application object.
-  /// @return Returns a pointer to the current application object.
-public:
-  static MIKTEXAPPCEEAPI(Application*) GetApplication();
-
-  /// Gets an indication whether the application should be terminated.
-  /// @return Returns `true`, if `SIGINT` or `SIGTERM` has been received.
 protected:
-  static MIKTEXAPPCEEAPI(bool) Cancelled();
 
-  /// Throws an exception if the application should be terminated.
-public:
-  MIKTEXAPPTHISAPI(void) CheckCancel();
-
-private:
-  void FlushPendingTraceMessages();
+    /// Gets an indication whether the application should be terminated.
+    /// @return Returns `true`, if `SIGINT` or `SIGTERM` has been received.
+    static MIKTEXAPPCEEAPI(bool) Cancelled();
 
 private:
-  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
-private:
-  void ConfigureLogging();
+    void FlushPendingTraceMessages();
+    void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
+    void ConfigureLogging();
+    void AutoMaintenance();
+    void AutoDiagnose();
 
-private:
-  void AutoMaintenance();
-
-private:
-  void AutoDiagnose();
-
-private:
-  class impl;
-  std::unique_ptr<impl> pimpl;
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_APP_END_NAMESPACE;
-
-#endif

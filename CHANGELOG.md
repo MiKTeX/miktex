@@ -1,5 +1,12 @@
 # MiKTeX Change Log
 
+## 22.8.28 - 2022-08-28
+
+### Fixed issues
+
+- [1149](https://github.com/MiKTeX/miktex/issues/1149): miktex ( on linux ) vs sagetex
+- [1151](https://github.com/MiKTeX/miktex/issues/1151): Internal error when running "miktexsetup_standalone.exe --version"
+- 
 ## 22.8 - 2022-08-14
 
 ### Upgraded programs
