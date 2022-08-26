@@ -218,11 +218,13 @@ void tex_def_font(small_number a)
 
         This is tricky: when we redefine a string we loose the old one. So this
         will change as it's only used to display the |\fontname| so we can store
-        that with the font.
+        that with the font. To be consistent with the rest of the code, unlike 
+        |pdftex| the text of |null_cs| (i.e. |\csname\endcsname|) is the empty 
+        string |""|.
 
     */
     d = cs_text(font_id_base + f);
-    t = (u >= null_cs) ? cs_text(u) : maketexstring("FONT");
+    t = (u >= null_cs) ? ((u==null_cs) ? get_nullstr() : cs_text(u)) : maketexstring("FONT");
     if (!d) {
         /*tex We have a new string. */
         cs_text(font_id_base + f) = t;
@@ -230,7 +232,7 @@ void tex_def_font(small_number a)
         /*tex We have a duplicate string. */
         flush_str(t);
     } else if (d!=t){
-        d = search_string(t);
+        d = search_string(t) ;
         if (d) {
             /*tex We have already such a string. */
             cs_text(font_id_base + f) = d;
