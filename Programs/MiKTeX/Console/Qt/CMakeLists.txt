@@ -265,13 +265,16 @@ install(TARGETS miktex-console
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
 if(MIKTEX_MACOS_BUNDLE)
   set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_DIR}/MacOS/${MIKTEX_MACOS_BUNDLE_NAME}")
-  # FIXME: icu lib dir
-  set(libs "/usr/local/opt/icu4c/lib;\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
+  # FIXME: non-standard icu lib dir
+  list(APPEND lib_dirs "/usr/local/opt/poppler-qt5/lib")
+  # FIXME: non-standard poppler-qt5 lib dir
+  list(APPEND lib_dirs "/usr/local/opt/icu4c/lib")
+  list(APPEND lib_dirs "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
   install(CODE "
     include(${CMAKE_SOURCE_DIR}/cmake/modules/BundleUtilitiesOverrides.cmake)
     include(BundleUtilities)
     set(BU_CHMOD_BUNDLE_ITEMS ON)
-    fixup_bundle(\"${fixup_exe}\" \"${QT_PLUGINS}\" \"${Qt_BIN_DIR};${QT_LIBRARY_DIR};${QT_BINARY_DIR};${libs}\")
+    fixup_bundle(\"${fixup_exe}\" \"${QT_PLUGINS}\" \"${Qt_BIN_DIR};${QT_LIBRARY_DIR};${QT_BINARY_DIR};${lib_dirs}\")
   ")
 endif()
 
