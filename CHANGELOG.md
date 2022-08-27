@@ -4,6 +4,8 @@
 
 ### Fixed issues
 
+- [1111](https://github.com/MiKTeX/miktex/issues/1111): Support for Debian 11/Ubuntu 22.04
+- [1122](https://github.com/MiKTeX/miktex/issues/1122): Fedora 36 Support
 - [1149](https://github.com/MiKTeX/miktex/issues/1149): miktex ( on linux ) vs sagetex
 - [1151](https://github.com/MiKTeX/miktex/issues/1151): Internal error when running "miktexsetup_standalone.exe --version"
 - 
