@@ -101,7 +101,7 @@ BOOL SetupWizard::OnInitDialog()
     CString title;
     if (SetupApp::Instance->IsMiKTeXDirect)
     {
-      title.Format(T_(_T("MiKTeX %s Setup (%d-bit)")), UT_(MIKTEX_VERSION_STR), static_cast<int>(sizeof(void*)) * 8);
+      title.Format(T_(_T("MiKTeX %s Setup")), UT_(MIKTEX_VERSION_STR));
     }
     else if (SetupApp::Instance->Service->GetOptions().IsPrefabricated)
     {
@@ -134,15 +134,14 @@ BOOL SetupWizard::OnInitDialog()
         __assume (false);
         break;
       }
-      title.Format(T_(_T("%sMiKTeX Installer (%s, %d-bit)")),
+      title.Format(T_(_T("%sMiKTeX Installer (%s)")),
         static_cast<LPCTSTR>(prefix),
-        static_cast<LPCTSTR>(version),
-        static_cast<int>(sizeof(void*)) * 8);
+        static_cast<LPCTSTR>(version));
     }
     else
     {
       auto gitInfo = Utils::GetGitInfo();
-      title.Format(T_(_T("MiKTeX Net Installer %s+%s (%d-bit)")), MIKTEX_COMPONENT_VERSION_STR, gitInfo.commitAbbrev, static_cast<int>(sizeof(void*)) * 8);
+      title.Format(T_(_T("MiKTeX Net Installer %s+%s")), MIKTEX_COMPONENT_VERSION_STR, gitInfo.commitAbbrev);
     }
     SetTitle(title);
     if (!SetupApp::Instance->IsRestarted)
