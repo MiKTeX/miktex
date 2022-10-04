@@ -1,6 +1,6 @@
 /* SetupWizard.cpp:
 
-   Copyright (C) 1999-2020 Christian Schenk
+   Copyright (C) 1999-2022 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -141,7 +141,8 @@ BOOL SetupWizard::OnInitDialog()
     }
     else
     {
-      title.Format(T_(_T("MiKTeX Net Installer (%d-bit)")), static_cast<int>(sizeof(void*)) * 8);
+      auto gitInfo = Utils::GetGitInfo();
+      title.Format(T_(_T("MiKTeX Net Installer %s+%s (%d-bit)")), MIKTEX_COMPONENT_VERSION_STR, gitInfo.commitAbbrev, static_cast<int>(sizeof(void*)) * 8);
     }
     SetTitle(title);
     if (!SetupApp::Instance->IsRestarted)

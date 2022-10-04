@@ -1,6 +1,6 @@
 /* miktexsetup.cpp:
 
-   Copyright (C) 2014-2021 Christian Schenk
+   Copyright (C) 2014-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -49,6 +49,7 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Quoter>
 #include <miktex/Core/Session>
+#include <miktex/Core/Utils>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Setup/SetupService>
 #include <miktex/Trace/Trace>
@@ -755,8 +756,9 @@ void Application::Main(int argc, const char** argv)
 
   if (optVersion)
   {
+    auto gitInfo = Utils::GetGitInfo();
     cout
-      << fmt::format("{0} {1}", THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR) << endl
+      << fmt::format("{0} {1}+{2}", THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR, gitInfo.commitAbbrev) << endl
       << endl
       << MIKTEX_COMP_COPYRIGHT_STR << endl
       << endl
@@ -773,7 +775,8 @@ void Application::Main(int argc, const char** argv)
 
   if (optPrintProgramVersion)
   {
-    cout << VersionNumber(MIKTEX_COMPONENT_VERSION_STR) << endl;
+    auto gitInfo = Utils::GetGitInfo();
+    cout << fmt::format("{0}+{1}", MIKTEX_COMPONENT_VERSION_STR, gitInfo.commitAbbrev) << endl;
     return;
   }
 
@@ -976,7 +979,7 @@ void Application::Main(int argc, const char** argv)
   }
 
   setupOptions.Banner = THE_NAME_OF_THE_GAME;
-  setupOptions.Version = VersionNumber(MIKTEX_COMPONENT_VERSION_STR).ToString();
+  setupOptions.Version = fmt::format("{0}+{1}", MIKTEX_COMPONENT_VERSION_STR, Utils::GetGitInfo().commitAbbrev);
 
   setupService->SetOptions(setupOptions);
 
