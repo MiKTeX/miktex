@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## next
+## 22.10 - 2022-10-17
 
 - [1183](https://github.com/MiKTeX/miktex/issues/1183): MiKTeX 22.8.28 Portable is missing pdflatex
 - [1188](https://github.com/MiKTeX/miktex/issues/1188): "pdflatex.exe" missing from "Windows net installer 64"
