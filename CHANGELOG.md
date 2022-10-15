@@ -1,9 +1,16 @@
 # MiKTeX Change Log
 
+## 22.10 - 2022-10-17
+
+- [1183](https://github.com/MiKTeX/miktex/issues/1183): MiKTeX 22.8.28 Portable is missing pdflatex
+- [1188](https://github.com/MiKTeX/miktex/issues/1188): "pdflatex.exe" missing from "Windows net installer 64"
+
 ## 22.8.28 - 2022-08-28
 
 ### Fixed issues
 
+- [1111](https://github.com/MiKTeX/miktex/issues/1111): Support for Debian 11/Ubuntu 22.04
+- [1122](https://github.com/MiKTeX/miktex/issues/1122): Fedora 36 Support
 - [1149](https://github.com/MiKTeX/miktex/issues/1149): miktex ( on linux ) vs sagetex
 - [1151](https://github.com/MiKTeX/miktex/issues/1151): Internal error when running "miktexsetup_standalone.exe --version"
 - 

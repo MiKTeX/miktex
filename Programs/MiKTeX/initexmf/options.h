@@ -153,14 +153,6 @@ const struct poptOption IniTeXMFApp::options[] = {
   },
 
   {
-    "log-file", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
-    OPT_LOG_FILE,
-    nullptr,
-    nullptr
-  },
-
-  {
     "mklangs", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_MKLANGS,

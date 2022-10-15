@@ -828,7 +828,7 @@ BOOL SetupApp::InitInstance()
       MIKTEX_UNEXPECTED();
     }
     options.Banner = TU_(banner);
-    options.Version = MIKTEX_COMPONENT_VERSION_STR;
+    options.Version = fmt::format("{0}+{1}", MIKTEX_COMPONENT_VERSION_STR, Utils::GetGitInfo().commitAbbrev);
     options = Service->SetOptions(options);
    
     // set trace options

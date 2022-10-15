@@ -1500,10 +1500,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   {
     allArgs.push_back("--admin");
   }
-  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate && options.Task != SetupTask::CleanUp)
-  {
-    allArgs.push_back("--log-file=" + GetULogFileName().ToString());
-  }
   allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
 
@@ -1511,7 +1507,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose();
     // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
@@ -1527,7 +1522,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
         Warning(miktexException);
       }
     }
-    ULogOpen();
   }
 }
 
@@ -1542,10 +1536,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
   {
     allArgs.push_back("--admin");
   }
-  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate && options.Task != SetupTask::CleanUp)
-  {
-    allArgs.push_back("--log-file=" + GetULogFileName().ToString());
-  }
   allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
   allArgs.insert(allArgs.end(), args.begin(), args.end());
@@ -1554,7 +1544,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose();
     // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
@@ -1570,7 +1559,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
         Warning(miktexException);
       }
     }
-    ULogOpen();
   }
 }
 
@@ -1592,9 +1580,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose();
     Process::Run(exePath, allArgs, this);
-    ULogOpen();
   }
 }
 
