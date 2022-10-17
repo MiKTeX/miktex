@@ -141,7 +141,7 @@ BOOL SetupWizard::OnInitDialog()
     else
     {
       auto gitInfo = Utils::GetGitInfo();
-      title.Format(T_(_T("MiKTeX Net Installer %s+%s")), MIKTEX_COMPONENT_VERSION_STR, gitInfo.commitAbbrev);
+      title.Format(T_(_T("MiKTeX Net Installer %s+%s")), UT_(MIKTEX_COMPONENT_VERSION_STR), UT_(gitInfo.commitAbbrev.c_str()));
     }
     SetTitle(title);
     if (!SetupApp::Instance->IsRestarted)
