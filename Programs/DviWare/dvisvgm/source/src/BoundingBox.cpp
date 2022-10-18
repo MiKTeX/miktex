@@ -23,6 +23,7 @@
 #include "BoundingBox.hpp"
 #include "Matrix.hpp"
 #include "utility.hpp"
+#include "SVGTree.hpp"
 #include "XMLNode.hpp"
 #include "XMLString.hpp"
 
@@ -246,7 +247,7 @@ void BoundingBox::transform (const Matrix &tm) {
 }
 
 
-string BoundingBox::toSVGViewBox () const {
+string BoundingBox::svgViewBoxString () const {
 	ostringstream oss;
 	oss << XMLString(_ulx) << ' ' << XMLString(_uly) << ' ' << XMLString(width()) << ' ' << XMLString(height());
 	return oss.str();
@@ -271,4 +272,19 @@ unique_ptr<XMLElement> BoundingBox::createSVGRect () const {
 	rect->addAttribute("height", height());
 	rect->addAttribute("fill", "none");
 	return rect;
+}
+
+
+unique_ptr<XMLElement> BoundingBox::createSVGPath () const {
+	GraphicsPath<double> path;
+	path.moveto(minX(), minY());
+	path.lineto(maxX(), minY());
+	path.lineto(maxX(), maxY());
+	path.lineto(minX(), maxY());
+	path.closepath();
+	ostringstream oss;
+	path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
+	auto pathElem = util::make_unique<XMLElement>("path");
+	pathElem->addAttribute("d", oss.str());
+	return pathElem;
 }

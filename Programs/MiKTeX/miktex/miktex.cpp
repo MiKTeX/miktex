@@ -66,6 +66,8 @@
 #include "topics/formats/topic.h"
 #include "topics/languages/topic.h"
 #include "topics/links/topic.h"
+#include "topics/packages/topic.h"
+#include "topics/repositories/topic.h"
 
 #if defined(MIKTEX_WINDOWS)
 #include "topics/filetypes/topic.h"
@@ -106,6 +108,8 @@ private:
         RegisterTopic(OneMiKTeXUtility::Topics::Formats::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Languages::Create());
         RegisterTopic(OneMiKTeXUtility::Topics::Links::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Packages::Create());
+        RegisterTopic(OneMiKTeXUtility::Topics::Repositories::Create());
 #if defined(MIKTEX_WINDOWS)
         RegisterTopic(OneMiKTeXUtility::Topics::FileTypes::Create());
 #endif
@@ -130,6 +134,11 @@ private:
     void EnableInstaller(bool b) override
     {
         this->enableInstaller2 = b;
+    }
+
+    bool IsInstallerDisabled() override
+    {
+        return !this->enableInstaller2;
     }
 
     bool IsInstallerEnabled() override
@@ -529,15 +538,14 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     bool forceAdminMode = false;
     Session::InitOptionSet options;
     bool optVersion = false;
-    vector<string> newargs;
+    auto arg0 = args[0];
+    vector<string> newargs{arg0};
     bool processingCommonOptions = true;
     MIKTEX_ASSERT(args.size() > 0);
-    auto arg0 = args[0];
     for (size_t idx = 1; idx < args.size(); ++idx)
     {
         const string& arg = args[idx];
-        bool isCommonOption = arg.length() > 0 && arg[0] == '-';
-        if (!isCommonOption)
+        if (!(arg.length() > 0 && arg[0] == '-'))
         {
             processingCommonOptions = false;
         }
@@ -579,7 +587,7 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
             }
             else
             {
-                isCommonOption = false;
+                processingCommonOptions = false;
             }
         }
         if (!processingCommonOptions)
@@ -664,7 +672,7 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
 #endif
     if (programName == "mkfntmap")
     {
-        Shims::mkfntmap(newargs);
+        Shims::mkfntmap(&ctx, newargs);
     }
     else if (programName == "mktexlsr")
     {
@@ -697,16 +705,16 @@ void MiKTeXApp::Finalize()
 
 int MiKTeXApp::Run(const vector<string>& args)
 {
-    if (args.size() == 0)
+    if (args.size() < 2)
     {
         IncorrectUsage(fmt::format(T_("missing topic; try {0} --help"), this->InvocationName()));
     }
-    auto it = topics.find(args[0]);
+    auto it = topics.find(args[1]);
     if (it == topics.end())
     {
-        IncorrectUsage(fmt::format(T_("{0}: unknown topic"), args[0]));
+        IncorrectUsage(fmt::format(T_("{0}: unknown topic"), args[1]));
     }
-    return it->second->Execute(ctx, args);
+    return it->second->Execute(ctx, vector<string>(args.begin()+1, args.end()));
 }
 
 #if defined(_UNICODE)

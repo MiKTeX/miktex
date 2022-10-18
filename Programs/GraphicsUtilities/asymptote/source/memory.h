@@ -50,6 +50,7 @@
 #define GC_THREADS
 #ifdef __clang__
 #define GC_ATTR_EXPLICIT
+#define GC_NOEXCEPT
 #endif
 #include <gc.h>
 

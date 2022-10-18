@@ -71,7 +71,7 @@ unique_ptr<XMLElement> PSTilingPattern::createPatternNode () const {
 	pattern->addAttribute("y", box.minY());
 	pattern->addAttribute("width", box.width());
 	pattern->addAttribute("height", box.height());
-	pattern->addAttribute("viewBox", box.toSVGViewBox());
+	pattern->addAttribute("viewBox", box.svgViewBoxString());
 	pattern->addAttribute("patternUnits", "userSpaceOnUse");
 	if (!_matrix.isIdentity())
 		pattern->addAttribute("patternTransform", _matrix.toSVG());

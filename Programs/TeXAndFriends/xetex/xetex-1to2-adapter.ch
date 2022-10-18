@@ -1,6 +1,6 @@
 %% xetex-1to2-adapter.ch: xetex-1.web to xetex-2.web adapter
 %% 
-%% Copyright (C) 2021 Christian Schenk
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -22,20 +22,14 @@
 % _____________________________________________________________________________
 
 @x
-miktex_initialize_char_tables;
+for i:=0 to 255 do xprn[i]:=(miktex_enable_eightbit_chars_p or ((i>=" ")and(i<="~")));
 @y
-for i:=0 to @'176 do xord[xchr[i]]:=i;
-{Set |xprn| for printable ASCII, unless |eight_bit_p| is set.}
 for i:=0 to 255 do xprn[i]:=(eight_bit_p or ((i>=" ")and(i<="~")));
+@z
 
-{The idea for this dynamic translation comes from the patch by
- Libor Skarvada \.{<libor@@informatics.muni.cz>}
- and Petr Sojka \.{<sojka@@informatics.muni.cz>}. I didn't use any of the
- actual code, though, preferring a more general approach.}
-
-{This updates the |xchr|, |xord|, and |xprn| arrays from the provided
- |translate_filename|.  See the function definition in \.{texmfmp.c} for
- more comments.}
+@x
+if miktex_have_tcx_file_name then miktex_initialize_char_tables;
+@y
 if translate_filename then read_tcx_file;
 @z
 

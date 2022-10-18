@@ -6,7 +6,7 @@
     <TPM:Title>MD5 runtime library, Windows x64</TPM:Title>
     <TPM:Copyright owner="Aladdin Enterprises" year="1999,2000,2002"/>
     <TPM:License type="permissive"/>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Independent implementation of MD5 (RFC 1321)

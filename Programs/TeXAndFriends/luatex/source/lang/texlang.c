@@ -358,7 +358,9 @@ static halfword insert_discretionary(halfword t, halfword pre, halfword post, ha
         f = get_cur_font();
     }
     for (g = pre; g != null; g = vlink(g)) {
-        font(g) = f;
+        if (! font(g)) {
+            font(g) = f;
+        }
         if (attr != null) {
             delete_attribute_ref(node_attr(g));
             node_attr(g) = attr;
@@ -366,7 +368,9 @@ static halfword insert_discretionary(halfword t, halfword pre, halfword post, ha
         }
     }
     for (g = post; g != null; g = vlink(g)) {
-        font(g) = f;
+        if (! font(g)) {
+            font(g) = f;
+        }
         if (attr != null) {
             delete_attribute_ref(node_attr(g));
             node_attr(g) = attr;
@@ -531,9 +535,14 @@ char *exception_strings(struct tex_language *lang)
     The sequence from |wordstart| to |r| can contain only normal characters it
     could be faster to modify a halfword pointer and return an integer
 
+    We now take the font from the wordstart (as in \LUAMETATEX) but leave the
+    rest as it is, because we don't want to break compatibility (end June 2022).
+    We make a copy now of the parent and hope for the best. Backporting would be
+    too intrusive so this has to do. It went unnoticed for ages anyway.
+
 */
 
-static halfword find_exception_part(unsigned int *j, unsigned int *uword, int len)
+static halfword find_exception_part(unsigned int *j, unsigned int *uword, int len, halfword parent)
 {
     halfword g = null, gg = null;
     register unsigned i = *j;
@@ -541,13 +550,16 @@ static halfword find_exception_part(unsigned int *j, unsigned int *uword, int le
     i++;
     while (i < (unsigned) len && uword[i + 1] != '}') {
         if (g == null) {
-            gg = new_char(0, (int) uword[i + 1]);
+         /* gg = new_char(font(parent), (int) uword[i + 1]); */
+            gg = copy_node(parent);
             g = gg;
         } else {
-            halfword s = new_char(0, (int) uword[i + 1]);
+         /* halfword s = new_char(font(parent), (int) uword[i + 1]); */
+            halfword s = copy_node(parent);
             couple_nodes(g, s);
-            g = vlink(g);
+            g = s;
         }
+        character(g) = (int) uword[i + 1];
         i++;
     }
     *j = ++i;
@@ -614,12 +626,12 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             halfword gg, hh, replace = null;
             int repl;
             /*tex |pre| */
-            gg = find_exception_part(&i, uword, (int) len);
+            gg = find_exception_part(&i, uword, (int) len, wordstart);
             if (i == len || uword[i + 1] != '{') {
                 tex_error("broken pattern 1", PAT_ERROR);
             }
             /*tex |post| */
-            hh = find_exception_part(&i, uword, (int) len);
+            hh = find_exception_part(&i, uword, (int) len, wordstart);
             if (i == len || uword[i + 1] != '{') {
                 tex_error("broken pattern 2", PAT_ERROR);
             }
@@ -674,10 +686,10 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             /*tex Let's check if we have a penalty spec. */
             if (((i+3) < len) && uword[i+1] == '[' && uword[i+2] >= '0' && uword[i+2] <= '9' && uword[i+3] == ']') {
                 if (exception_penalty_par > 0) {
-                    if (exception_penalty_par > 100000) {
-                        pen = (uword[i+2] - '0') * exception_penalty_par ;
-                    } else {
+                    if (exception_penalty_par > 10000) {
                         pen = exception_penalty_par;
+                    } else {
+                        pen = (uword[i+2] - '0') * exception_penalty_par ;
                     }
                 } else {
                     pen = hyphen_penalty_par;
@@ -693,6 +705,7 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             /*tex check if we have two exceptions in a row */
             if (uword[i + 1] == '{') {
                 i--;
+t = alink(t);
             }
         } else {
             t = vlink(t);
@@ -993,7 +1006,7 @@ void hnj_hyphenation(halfword head, halfword tail)
            tex_error("the word starts with a ghost glyph", NULL);
          } else {
            tex_error("the word doesn't start with a simple character", NULL);
-         }          
+         }
         }
         hyf_font = font(wordstart);
         if (hyphen_char(hyf_font) < 0) {

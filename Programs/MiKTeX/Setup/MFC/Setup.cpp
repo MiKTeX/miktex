@@ -1,6 +1,6 @@
 /* Setup.cpp:
 
-   Copyright (C) 1999-2021 Christian Schenk
+   Copyright (C) 1999-2022 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -210,7 +210,6 @@ const struct option long_options[] =
   { "local-package-repository", required_argument, 0, OPT_LOCAL_PACKAGE_REPOSITORY },
   { "no-additional-roots", no_argument, 0, OPT_NO_ADDITIONAL_ROOTS },
   { "no-registry", no_argument, 0, OPT_NO_REGISTRY },
-  { "package-set", required_argument, 0, OPT_PACKAGE_SET },
 #if FEATURE_1874934
   { "paper-size", required_argument, 0, OPT_PAPER_SIZE },
 #endif
@@ -829,7 +828,7 @@ BOOL SetupApp::InitInstance()
       MIKTEX_UNEXPECTED();
     }
     options.Banner = TU_(banner);
-    options.Version = MIKTEX_COMPONENT_VERSION_STR;
+    options.Version = fmt::format("{0}+{1}", MIKTEX_COMPONENT_VERSION_STR, Utils::GetGitInfo().commitAbbrev);
     options = Service->SetOptions(options);
    
     // set trace options
@@ -1012,6 +1011,7 @@ BOOL SetupApp::InitInstance()
       }
     }
     sfxDir = nullptr;
+    session->Close();
     session = nullptr;
   }
 

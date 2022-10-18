@@ -1,6 +1,6 @@
 /* PackageSetPage.h:                                    -*- C++ -*-
 
-   Copyright (C) 1999-2018 Christian Schenk
+   Copyright (C) 1999-2022 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -57,10 +57,10 @@ protected:
   BOOL OnKillActive() override;
 
 protected:
-  afx_msg void OnSmall();
+  afx_msg void OnAdvanced();
 
 protected:
-  afx_msg void OnTotal();
+  afx_msg void OnComplete();
 
 private:
   int packageSet = 0;

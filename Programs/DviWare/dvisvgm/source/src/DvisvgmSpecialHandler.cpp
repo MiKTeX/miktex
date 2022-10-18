@@ -162,7 +162,7 @@ static void expand_constants (string &str, SpecialActions &actions) {
 				++endpos;
 			if (str[endpos] == '}') {
 				BoundingBox &box=actions.bbox(str.substr(pos+7, endpos-pos-7));
-				str.replace(pos, endpos-pos+1, box.toSVGViewBox());
+				str.replace(pos, endpos-pos+1, box.svgViewBoxString());
 			}
 			else
 				repl_bbox = false;

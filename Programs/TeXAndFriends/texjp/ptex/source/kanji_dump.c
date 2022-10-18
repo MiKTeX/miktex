@@ -3,8 +3,8 @@
  */
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
 #endif
 #include "kanji.h"
 #ifndef pTeX
@@ -32,10 +32,10 @@ void dump_kanji (gzFile fp)
         buffer[len] = 0;
 #if defined(MIKTEX)
 #if !defined(FMT_COMPRESS)
-    if (fwrite (buffer, 1, 12, fp) != 12)
+    if (fwrite(buffer, 1, 12, fp) != 12)
     {
-      fprintf (stderr, "! Could not dump kanji.\n");
-      uexit (1);
+        fprintf(stderr, "! Could not dump kanji.\n");
+        uexit(1);
     }
 #else
     TODO();
@@ -57,10 +57,10 @@ void undump_kanji (gzFile fp)
 
 #if defined(MIKTEX)
 #if !defined(FMT_COMPRESS)
-    if (fread (buffer, 1, 12, fp) != 12)
+    if (fread(buffer, 1, 12, fp) != 12)
     {
-        fprintf (stderr, "! Could not undump kanji.\n");
-        uexit (1);
+        fprintf(stderr, "! Could not undump kanji.\n");
+        uexit(1);
     }
 #else
     TODO();

@@ -29,6 +29,8 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #include "lua/luatex-api.h"
 
 #include <locale.h>
+
+#include "luatex_svnversion.h"
 #if defined(MIKTEX)
 #  include <miktex/Core/Paths.h> // MIKTEX_PREFIX
 #endif
@@ -341,8 +343,8 @@ static struct option long_options[] = {
     {"file-line-error", 0, &filelineerrorstylep, 1},
     {"no-file-line-error", 0, &filelineerrorstylep, -1},
     {"jobname", 1, 0, 0},
-    {"parse-first-line", 0, &parsefirstlinep, 1},
-    {"no-parse-first-line", 0, &parsefirstlinep, -1},
+    /*{"parse-first-line", 0, &parsefirstlinep, 1},*/ /* ignored, left as reference*/
+    /*{"no-parse-first-line", 0, &parsefirstlinep, -1},*/
     {"translate-file", 1, 0, 0},
     {"default-translate-file", 1, 0, 0},
     {"8bit", 0, 0, 0},
@@ -577,14 +579,17 @@ static void parse_options(int ac, char **av)
         } else if (ARGUMENT_IS("help")) {
             usagehelp(LUATEX_IHELP, BUG_ADDRESS);
         } else if (ARGUMENT_IS("version")) {
+            #define STR(tok) STR2(tok)
+            #define STR2(tok) #tok
             print_version_banner();
+            puts("\nDevelopment id: " STR(luatex_svn_revision));
             /* *INDENT-OFF* */
-            puts("\n\nExecute  '" my_name " --credits'  for credits and version details.\n\n"
+            puts("\nExecute  '" my_name " --credits'  for credits and version details.\n\n"
                  "There is NO warranty. Redistribution of this software is covered by\n"
                  "the terms of the GNU General Public License, version 2 or (at your option)\n"
                  "any later version. For more information about these matters, see the file\n"
                  "named COPYING and the LuaTeX source.\n\n"
-                 "LuaTeX is Copyright 2021 Taco Hoekwater and the LuaTeX Team.\n");
+                 "LuaTeX is Copyright 2022 Taco Hoekwater and the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {

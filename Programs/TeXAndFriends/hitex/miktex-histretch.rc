@@ -1,0 +1,19 @@
+/**
+ * @file miktex-histretch.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-histretch-version.h"
+
+#define VER_FILEDESCRIPTION_STR "histretch - translating binary HINT files to ASCII files"
+#define VER_INTERNALNAME_STR "histretch"
+#define VER_ORIGINALFILENAME_STR "miktex-histretch.exe"
+
+#include <miktex/win/version.rc>

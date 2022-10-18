@@ -1,21 +1,10 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2021 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 ## shared library names; naming convention (Windows):
 ##    MiKTeXNNNNNN-NAME[-REL]
@@ -29,28 +18,28 @@
 ## where:
 ##    NAME is the component name
 if(MIKTEX_NATIVE_WINDOWS)
-  if(MIKTEX_RELEASE_STATE EQUAL 0)
-    set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT})
-  elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-    set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT}-next)
-  elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-    set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT}-debug)
-  endif()
+    if(MIKTEX_RELEASE_STATE EQUAL 0)
+        set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT})
+    elseif(MIKTEX_RELEASE_STATE EQUAL 1)
+        set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT}-next)
+    elseif(MIKTEX_RELEASE_STATE EQUAL 4)
+        set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_PATCH_INT}-debug)
+    endif()
 else()
-  set(miktex_dll_prefix miktex)
+    set(miktex_dll_prefix miktex)
 endif()
 
 macro(define_library _name)
-  set(_lib_name ${_name})
-  if(${ARGC} GREATER 1)
-    set(_var_name_prefix ${ARGV1})
-  else()
-    set(_var_name_prefix ${_lib_name})
-  endif()
-  if(NOT LINK_EVERYTHING_STATICALLY)
-    set(${_var_name_prefix}_dll_name "${miktex_dll_prefix}-${_lib_name}")
-  endif()
-  set(${_var_name_prefix}_lib_name "${_lib_name}-static")
+    set(_lib_name ${_name})
+    if(${ARGC} GREATER 1)
+        set(_var_name_prefix ${ARGV1})
+    else()
+        set(_var_name_prefix ${_lib_name})
+    endif()
+    if(NOT LINK_EVERYTHING_STATICALLY)
+        set(${_var_name_prefix}_dll_name "${miktex_dll_prefix}-${_lib_name}")
+    endif()
+    set(${_var_name_prefix}_lib_name "${_lib_name}-static")
 endmacro()
 
 define_library(app)
@@ -129,8 +118,8 @@ define_library(zlib)
 define_library(zzip)
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(core_ps_dll_name  "${core_dll_name}-PS")
-  set(mpm_ps_dll_name   "${mpm_dll_name}-PS")
-  set(mpm_tlb_name      "${miktex_dll_prefix}-packageManager")
-  set(session_tlb_name  "${miktex_dll_prefix}-session")
+    set(core_ps_dll_name  "${core_dll_name}-PS")
+    set(mpm_ps_dll_name   "${mpm_dll_name}-PS")
+    set(mpm_tlb_name      "${miktex_dll_prefix}-packageManager")
+    set(session_tlb_name  "${miktex_dll_prefix}-session")
 endif()

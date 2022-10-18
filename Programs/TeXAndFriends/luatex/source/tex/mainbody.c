@@ -282,9 +282,9 @@ int save_size;
 
 int expand_depth;
 
-/*tex parse the first line for options */
+/* parse the first line for options is ignored. */
 
-int parsefirstlinep;
+/*int parsefirstlinep;*/
 
 /*tex format messages as file:line:error */
 
@@ -441,7 +441,6 @@ int main_initialize(void)
         memset(eqtb, 0, sizeof(memory_word) * (unsigned) (eqtb_top + 1));
         init_string_pool_array((unsigned) max_strings);
         reset_cur_string();
-        show_stream_par = -1;
     }
     /*tex
         Check the ``constant'' values...

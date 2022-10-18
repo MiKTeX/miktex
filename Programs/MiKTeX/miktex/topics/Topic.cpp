@@ -57,5 +57,5 @@ int TopicBase::Execute(ApplicationContext& ctx, const vector<string>& arguments)
     {
         ctx.ui->IncorrectUsage(fmt::format(T_("{0}: unknown command"), arguments[1]));
     }
-    return cmd->Execute(ctx, arguments);
+    return cmd->Execute(ctx,  vector<string>(arguments.begin()+1, arguments.end()));
 }

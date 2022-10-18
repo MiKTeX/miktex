@@ -1,6 +1,6 @@
 /* init.cpp: session initialization
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -243,6 +243,7 @@ void SessionImpl::Close()
   {
     return;
   }
+  closing = true;
   StartFinishScript(10);
   initialized = false;
   trace_core->WriteLine("core", T_("uninitializing core library"));

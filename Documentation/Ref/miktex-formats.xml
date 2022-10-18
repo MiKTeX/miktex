@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain">formats</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -48,7 +48,7 @@
 
 <variablelist>
 <varlistentry>
-<term><command>build</command> <optional><option>--engine=<replaceable>engine</replaceable></option></optional> <optional><option>--key=<replaceable>key</replaceable></option></optional></term>
+<term><command>build</command> <optional><option>--engine <replaceable>engine</replaceable></option></optional> <optional><replaceable>key</replaceable></optional></term>
 <listitem>
 <indexterm>
 <primary>--dump</primary>
@@ -60,57 +60,24 @@
 <para>Build &TeX; format files.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><command>list</command> <optional><option>--template=<replaceable>template</replaceable></option></optional></term>
+<term><command>list</command> <optional><option>--template <replaceable>template</replaceable></option></optional></term>
 <listitem>
 <para>List &TeX; formats.</para>
 <para><replaceable>template</replaceable> controls the output of each record.
 It can contain the following placeholders:</para>
-<variablelist>
-<varlistentry>
-<term><code>{arguments}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{compiler}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{custom}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{description}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{exclude}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{inputFile}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{key}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{name}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{noExecutable}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{outputFile}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-<varlistentry>
-<term><code>{preloaded}</code></term>
-<listitem><para></para></listitem>
-</varlistentry>
-</variablelist></listitem>
+<para><simplelist type='inline'>
+<member><code>{arguments}</code></member>
+<member><code>{compiler}</code></member>
+<member><code>{custom}</code></member>
+<member><code>{description}</code></member>
+<member><code>{exclude}</code></member>
+<member><code>{inputFile}</code></member>
+<member><code>{key}</code></member>
+<member><code>{name}</code></member>
+<member><code>{noExecutable}</code></member>
+<member><code>{outputFile}</code></member>
+<member><code>{preloaded}</code></member>
+</simplelist></para></listitem>
 </varlistentry>
 </variablelist>
 

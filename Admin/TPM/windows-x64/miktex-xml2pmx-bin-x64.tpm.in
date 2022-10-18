@@ -8,7 +8,7 @@
     <TPM:Copyright owner="J. M. Spivey" year="2020"/>
     <TPM:License type="gpl3"/>
     <TPM:Version>2021-02-07</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       xml2pmx translates MusicXML files to input suitable for PMX processing.

@@ -326,7 +326,8 @@ i:integer;
 for i:=1 to @'37 do xchr[i]:=' ';
 xchr[tab]:=chr(tab);
 @y
-do_nothing;
+for i:=0 to @'37 do xchr[i]:=chr(i);
+for i:=@'177 to @'377 do xchr[i]:=chr(i);
 @z
 
 % _____________________________________________________________________________
@@ -338,7 +339,7 @@ do_nothing;
 for i:=first_text_char to last_text_char do xord[chr(i)]:=invalid_code;
 for i:=1 to @'176 do xord[xchr[i]]:=i;
 @y
-miktex_initialize_char_tables;
+for i:=first_text_char to last_text_char do xord[xchr[i]]:=i;
 @z
 
 % _____________________________________________________________________________

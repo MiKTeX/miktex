@@ -6,7 +6,7 @@
     <TPM:Title>TeXify, Windows x64</TPM:Title>
     <TPM:Copyright owner="Christian Schenk" year="@MIKTEX_YEAR_VERSION@"/>
     <TPM:License type="gpl2"/>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes the TeXify executable.

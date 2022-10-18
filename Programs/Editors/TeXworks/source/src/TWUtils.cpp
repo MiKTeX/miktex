@@ -266,7 +266,7 @@ QString TWUtils::strippedName(const QString &fullFileName, const unsigned int di
 {
 	QDir dir(QFileInfo(fullFileName).dir());
 	for (unsigned int i = 0; i < dirComponents; ++i) {
-		if (dir.exists() && QDir(dir.canonicalPath()).isRoot()) {
+		if (dir.isRoot()) {
 			// If we moved up to the root directory, there is no point in going
 			// any further; particularly on Windows, going further may produce
 			// invalid paths (such as C:\.. which make no sense and can result
@@ -275,7 +275,13 @@ QString TWUtils::strippedName(const QString &fullFileName, const unsigned int di
 		}
 		// NB: dir.cdUp() would be more logical, but fails if the resulting
 		// path does not exist
-		dir.setPath(dir.path() + QString::fromLatin1("/.."));
+		// NB: QDir::cleanPath resolves .. such as the one we deliberately
+		// introduce using string operations (i.e., without file system access)
+		// Avoiding file system access is important in case the path refers to
+		// a slow (or non-existent) network share, which would cause the program
+		// to hang until the file system access times out (which can accumulate
+		// to a very long time if this function has to be called repeatedly)
+		dir.setPath(QDir::cleanPath(dir.path() + QString::fromLatin1("/..")));
 	}
 	return dir.relativeFilePath(fullFileName);
 }

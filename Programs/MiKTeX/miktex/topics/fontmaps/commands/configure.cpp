@@ -47,7 +47,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "configure [--force] [--output-directory=DIR]";
+            return "configure [--force] [--output-directory <directory>]";
         }
     };
 }
@@ -79,7 +79,7 @@ static const struct poptOption options[] =
         POPT_ARG_NONE, nullptr,
         OPT_FORCE,
         T_("Force re-generation of apparently up-to-date fontconfig cache files, overriding the timestamp checking."),
-        nullptr,
+        nullptr
     },
     {
         "output-directory", 0,

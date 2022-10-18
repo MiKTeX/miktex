@@ -1113,7 +1113,7 @@ ps_include_page (pdf_ximage *ximage, const char *filename, load_options options)
 #if defined(_WIN32)
   char *utf8temp;
   wchar_t *wtemp;
-  char *ftest;
+  char *ftest = NULL;
 #endif
   if (!distiller_template) {
     WARN("No image converter available for converting file \"%s\" to PDF format.", filename);

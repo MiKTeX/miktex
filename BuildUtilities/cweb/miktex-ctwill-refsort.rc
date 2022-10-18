@@ -1,0 +1,19 @@
+/**
+ * @file miktex-ctwill-refsort.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2000-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-cweave-version.h"
+
+#define VER_FILEDESCRIPTION_STR "CTWILL-REFSORT - part of the CWEB system of structured documentation"
+#define VER_INTERNALNAME_STR "ctwill-refsort"
+#define VER_ORIGINALFILENAME_STR "miktex-ctwill-refsort.exe"
+
+#include <miktex/win/version.rc>

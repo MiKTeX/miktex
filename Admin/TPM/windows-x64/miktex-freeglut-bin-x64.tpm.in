@@ -7,7 +7,7 @@
     <TPM:Copyright owner=" Pawel W. Olszta" year="1999-2000"/>
     <TPM:License type="mit"/>
     <TPM:Version>3.2.1</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Freeglut, the Free OpenGL Utility Toolkit, is meant to be a free

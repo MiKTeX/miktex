@@ -48,7 +48,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "list [--template=TEMPLATE]";
+            return "list [--template <template>]";
         }
 
         const std::string defaultTemplate = "{linkType} {linkName} -> {target}";
@@ -99,7 +99,7 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
         switch (option)
         {
         case OPT_TEMPLATE:
-            outputTemplate = popt.GetOptArg();
+            outputTemplate = Unescape(popt.GetOptArg());
             break;
         }
     }

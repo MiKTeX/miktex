@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h: MiKTeX session
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -306,7 +306,7 @@ struct FormatInfo
   /// Custom flag. Set, if this format was defined by the user.
   bool custom = false;
   /// Extra engine arguments.
-  std::string arguments;
+  std::vector<std::string> arguments;
 };
 
 /// Language information.
@@ -1215,7 +1215,7 @@ MIKTEX_CORE_END_NAMESPACE;
 #define MIKTEX_STRINGIFY_(x) #x
 #define MIKTEX_STRINGIFY(x) MIKTEX_STRINGIFY_(x)
 
-#define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR(__FILE__ ":" MIKTEX_STRINGIFY(__LINE__) ": internal error")
+#define MIKTEX_INTERNAL_ERROR() MIKTEX_FATAL_ERROR("internal error")
 
 #define MIKTEX_UNEXPECTED() MIKTEX_INTERNAL_ERROR()
 

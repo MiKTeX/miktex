@@ -25,14 +25,19 @@
 % 2010          Version 0.99d of BibTeX for TeX Live
 %
 % 2022-02-08    Version 0.34 by H. Yamashita
-%               Do not break at white space after Japanese, to preserve spacing
-%               within BIB entry spacing to BBL for subsequent pTeX line-end operations
+%   * Avoid breaking BBL lines at white space after a Japanese character, to
+%     preserve spacing within BIB entry for subsequent pTeX line-end operations.
+% 2022-02-20    Still version 0.34 by H. Yamashita (-> TL'22 version)
+%   * Improve substring$ to truncate at least one character when trying to
+%     start counting from the middle byte of the first or last Japanese character.
+% 2022-05-15    Version 0.35 by Takuji Tanaka (-> TL'23 version)
+%   * Accept multibyte characters by int.to.chr$ and chr.to.int$.
 
 @x [0] only print chnages
 \def\title{\BibTeX\ }
 @y
 \let\maybe=\iffalse
-\def\title{J\BibTeX\ 0.34 Changes for C Version \BibTeX\ }
+\def\title{J\BibTeX\ 0.35 Changes for C Version \BibTeX\ }
 @z
 
 @x
@@ -42,7 +47,7 @@
 @y
  \def\titlepage{F}
  \centerline{\:\titlefont The {\:\ttitlefont J\BibTeX} preprocessor}
- \vskip 15pt \centerline{(Version 0.99d-j0.34---\today)} \vfill}
+ \vskip 15pt \centerline{(Version 0.99d-j0.35---\today)} \vfill}
 @z
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,7 +58,7 @@
 @d banner=='This is BibTeX, Version 0.99d' {printed when the program starts}
 @y
 @d my_name=='pbibtex'
-@d banner=='This is pBibTeX, Version 0.99d-j0.34'
+@d banner=='This is pBibTeX, Version 0.99d-j0.35'
   {printed when the program starts}
 @z
 
@@ -240,7 +245,7 @@ init_kanji;
 parse_arguments;
 @z
 
-% pBibTeX: do not break at |white_space| after Japanese characters
+% pBibTeX: do not break at |white_space| after Japanese characters (2022-02-08 j0.34)
 @x "Break that line"
 while ((lex_class[out_buf[out_buf_ptr]] <> white_space) and
                                         (out_buf_ptr >= min_print_line)) do
@@ -336,7 +341,7 @@ case (str_pool[sp_ptr]) of
         @<Add the |period| (it's necessary) and push@>
 @z
 
-@x Changes for JBibTeX by Shouichi Matsui [377]
+@x x_chr_to_int
 else if (length(pop_lit1) <> 1) then
     begin
     print ('"');
@@ -344,15 +349,25 @@ else if (length(pop_lit1) <> 1) then
     bst_ex_warn ('" isn''t a single character');
     push_lit_stk (0, stk_int);
     end
+else
+    push_lit_stk (str_pool[str_start[pop_lit1]], stk_int);
+                                        {push the (|ASCII_code|) integer}
 @y
-else if (length(pop_lit1) <> 1) then
-    if(str_pool[str_start[pop_lit1]]>127) then { a KANJI char is 2byte long }
+else if (length(pop_lit1) = multibytelen(str_pool[str_start[pop_lit1]])) then
+    begin
+    if (length(pop_lit1) = 1) then
         push_lit_stk(str_pool[str_start[pop_lit1]],stk_int)
-    else begin
-        print ('"');
-        print_pool_str (pop_lit1);
-        bst_ex_warn ('" isn''t a single character');
-        push_lit_stk (0, stk_int);
+                                        {push the (|ASCII_code|) integer}
+    else
+        push_lit_stk(toDVI(fromBUFF(str_pool, str_start[pop_lit1]+2, str_start[pop_lit1])),stk_int)
+                                        { a KANJI char is 2byte long }
+    end
+else
+    begin
+    print ('"');
+    print_pool_str (pop_lit1);
+    bst_ex_warn ('" isn''t a single character');
+    push_lit_stk (0, stk_int);
     end
 @z
 
@@ -459,6 +474,60 @@ end;
     else if ((name_buf[name_bf_ptr] = left_brace) and
 @z
 
+@x x_int_to_chr
+procedure x_int_to_chr;
+begin
+pop_lit_stk (pop_lit1,pop_typ1);
+if (pop_typ1 <> stk_int) then
+    begin
+    print_wrong_stk_lit (pop_lit1,pop_typ1,stk_int);
+    push_lit_stk (s_null, stk_str);
+    end
+else if ((pop_lit1 < 0) or (pop_lit1 > 127)) then
+    begin
+    bst_ex_warn (pop_lit1:0,' isn''t valid ASCII');
+    push_lit_stk (s_null, stk_str);
+    end
+else
+    begin
+    str_room(1);
+    append_char (pop_lit1);
+    push_lit_stk (make_string, stk_str);
+    end;
+end;
+@y
+procedure x_int_to_chr;
+var k:integer;
+begin
+pop_lit_stk (pop_lit1,pop_typ1);
+if (pop_typ1 <> stk_int) then
+    begin
+    print_wrong_stk_lit (pop_lit1,pop_typ1,stk_int);
+    push_lit_stk (s_null, stk_str);
+    end
+else begin
+k:=pop_lit1;
+if (pop_lit1 > 127) then k:=fromDVI(pop_lit1);
+if ((pop_lit1 < 0) or ((pop_lit1 > 127) and (k = 0))) then
+    begin
+    bst_ex_warn (pop_lit1:0,' isn''t valid character code');
+    push_lit_stk (s_null, stk_str);
+    end
+else
+    begin
+    str_room(2);
+    if (pop_lit1>127) then begin
+        append_char (Hi(k));
+        append_char (Lo(k));
+    end
+    else
+        append_char (pop_lit1);
+    push_lit_stk (make_string, stk_str);
+    end;
+end;
+end;
+@z
+
 @x Changes for JBibTeX by Shouichi Matsui [437]
 @<|execute_fn|({\.{substring\$}})@>=
 procedure x_substring;
@@ -469,10 +538,20 @@ begin
 procedure x_substring;
 label exit;
 var tps,tpe:pool_pointer; {temporary pointer}
+@!pop_lit2_saved: integer;
 begin
 @z
 
-@x Changes for JBibTeX by Shouichi Matsui [438]
+@x
+@<Form the appropriate substring@>=
+begin
+@y
+@<Form the appropriate substring@>=
+begin
+pop_lit2_saved := pop_lit2; {save before negate}
+@z
+
+@x Changes for JBibTeX by Shouichi Matsui [438] + fix (2022-02-20 j0.34)
 str_room(sp_end - sp_ptr);
 while (sp_ptr < sp_end) do                      {shift the substring}
     begin
@@ -482,27 +561,29 @@ while (sp_ptr < sp_end) do                      {shift the substring}
 @y
 { 2 bytes Kanji code break check }
 tps:=str_start[pop_lit3];
-while (tps < sp_ptr) do begin
-    if str_pool[tps] > 127
-    then tps := tps + 2
-    else incr(tps);
-end;
 tpe:=tps;
-while (tpe < sp_end) do begin
-    if str_pool[tpe] > 127
-    then tpe := tpe+2
-    else incr(tpe);
+while tpe < str_start[pop_lit3+1] do begin
+    if str_pool[tpe] > 127 then begin
+        if str_start[pop_lit3+1] < tpe+2 then
+            break;
+        tpe := tpe + 2;
+        end
+    else begin
+        if str_start[pop_lit3+1] < tpe+1 then
+            break;
+        tpe := tpe + 1;
+        end;
+    if tpe<=sp_ptr then
+        tps := tpe;
+    if sp_end<=tpe then break;
 end;
-if tps<>sp_ptr then begin
-    if tps>str_start[pop_lit3]
-    then decr(sp_ptr)
-    else incr(sp_ptr);
-end;
-if tpe<>sp_end then begin
-    if tpe<str_start[pop_lit3+1]
-    then incr(sp_end)
-    else decr(sp_end);
-end;
+if (pop_lit2_saved > 1) and (tps = str_start[pop_lit3])
+    then tps := tps + 2; {truncate at least one}
+if (pop_lit2_saved < -1) and (tpe = str_start[pop_lit3+1])
+    then tpe := tpe - 2; {truncate at least one}
+if tps > tpe then tpe := tps;
+sp_ptr := tps;
+sp_end := tpe;
 
 str_room(sp_end - sp_ptr);
 while (sp_ptr < sp_end) do                      {shift the substring}
@@ -544,7 +625,7 @@ while (sp_ptr < sp_end) do                      {shift the substring}
 @x
 const n_options = 4; {Pascal won't count array lengths for us.}
 @y
-const n_options = 6; {Pascal won't count array lengths for us.}
+const n_options = 8; {Pascal won't count array lengths for us.}
 @z
 
 @x
@@ -559,6 +640,12 @@ const n_options = 6; {Pascal won't count array lengths for us.}
     end else if argument_is ('kanji') then begin
       if (not set_enc_string(optarg, nil)) then
         write_ln('Bad kanji encoding "', stringcast(optarg), '".');
+
+    end else if argument_is ('guess-input-enc') then begin
+        enable_guess_file_enc;
+
+    end else if argument_is ('no-guess-input-enc') then begin
+        disable_guess_file_enc;
 
     end; {Else it was a flag; |getopt| has already done the assignment.}
 @z
@@ -582,6 +669,16 @@ incr (current_option);
 @<Define the option...@> =
 long_options[current_option].name := 'kanji';
 long_options[current_option].has_arg := 1;
+long_options[current_option].flag := 0;
+long_options[current_option].val := 0;
+incr(current_option);
+long_options[current_option].name := 'guess-input-enc';
+long_options[current_option].has_arg := 0;
+long_options[current_option].flag := 0;
+long_options[current_option].val := 0;
+incr(current_option);
+long_options[current_option].name := 'no-guess-input-enc';
+long_options[current_option].has_arg := 0;
 long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr(current_option);

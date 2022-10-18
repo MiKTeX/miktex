@@ -1,20 +1,64 @@
-%% miktex-ptex.ch:
-%% 
+%% miktex-ptex.ch
+%%
 %% Copyright (C) 2021-2022 Christian Schenk
 %% 
-%% This file is free software; you can redistribute it and/or modify it
-%% under the terms of the GNU General Public License as published by the
-%% Free Software Foundation; either version 2, or (at your option) any
-%% later version.
-%% 
-%% This file is distributed in the hope that it will be useful, but
-%% WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%% General Public License for more details.
-%% 
-%% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+%% This file is free software; the copyright holder gives
+%% unlimited permission to copy and/or distribute it, with or
+%% without modifications, as long as this notice is preserved.
+
+% _____________________________________________________________________________
+%
+% [5.58]
+% _____________________________________________________________________________
+
+@x
+@d wterm(#)==write(term_out,#)
+@y
+@d wterm(#)==write(term_out,#)
+@d wterm_char(#)==miktex_write_char(term_out,#)
+@z
+
+@x
+@d wlog(#)==write(log_file,#)
+@y
+@d wlog(#)==write(log_file,#)
+@d wlog_char(#)==miktex_write_char(log_file,#)
+@z
+
+% _____________________________________________________________________________
+%
+% [5.60]
+% _____________________________________________________________________________
+
+@x
+term_and_log: begin wterm(xchr[s]); incr(term_offset);
+@y
+term_and_log: begin wterm_char(xchr[s]); incr(term_offset);
+@z
+
+@x
+  wlog(xchr[s]); incr(file_offset);
+@y
+  wlog_char(xchr[s]); incr(file_offset);
+@z
+
+@x
+log_only: begin wlog(xchr[s]); incr(file_offset);
+@y
+log_only: begin wlog_char(xchr[s]); incr(file_offset);
+@z
+
+@x
+term_only: begin wterm(xchr[s]); incr(term_offset);
+@y
+term_only: begin wterm_char(xchr[s]); incr(term_offset);
+@z
+
+@x
+othercases write(write_file[selector],xchr[s])
+@y
+othercases miktex_write_char(write_file[selector],xchr[s])
+@z
 
 % _____________________________________________________________________________
 %

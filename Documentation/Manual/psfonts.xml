@@ -31,8 +31,7 @@ running <userinput>miktex fontmaps configure</userinput> (see
 
 <para><filename>psfonts.map</filename> depends on the file
 <filename>updmap.cfg</filename>.  This configuration file contains
-declarative instructions (see
-<citerefentry><refentrytitle>updmap.cfg</refentrytitle><manvolnum>5</manvolnum></citerefentry>),
+declarative instructions,
 which will be used to build <filename>psfonts.map</filename>.</para>
 
 <caution>

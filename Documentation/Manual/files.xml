@@ -11,6 +11,5 @@
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/miktex.ini.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/pdftex.cfg.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Ref/updmap.cfg.xml" />
 
 </chapter>

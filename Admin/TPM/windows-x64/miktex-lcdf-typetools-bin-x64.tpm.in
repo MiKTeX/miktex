@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Eddie Kohler" year="1997-2019"/>
     <TPM:License type="gpl2"/>
     <TPM:Version>2.108</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       LCDF Typetools comprises several programs for manipulating

@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #if defined(MIKTEX)
-#  include <config.h>
+#include <config.h>
 #endif
 #include <array>
 #include <cmath>
@@ -437,12 +437,8 @@ unique_ptr<SVGElement> PsSpecialHandler::createImageNode (FileType type, const s
 		node->addAttribute("xlink:href", href);
 	}
 	else {  // PostScript or PDF
-		// clip image to its bounding box if flag 'clip' is given
-		string rectclip;
-		if (clip)
-			rectclip = to_string(bbox.minX())+" "+to_string(bbox.minY())+" "+to_string(bbox.width())+" "+to_string(bbox.height())+" rectclip";
-
 		node = util::make_unique<SVGElement>("g"); // put SVG nodes created from the EPS/PDF file in this group
+
 		_xmlnode = node.get();
 		_psi.execute(
 			"\n@beginspecial @setspecial"            // enter special environment
@@ -450,13 +446,20 @@ unique_ptr<SVGElement> PsSpecialHandler::createImageNode (FileType type, const s
 			"/@imgbase("+image_base_path(*_actions)+")store " // path and basename of image files
 			"matrix setmatrix"                       // don't apply outer PS transformations
 			"/FirstPage "+to_string(pageno)+" def"   // set number of first page to convert (PDF only)
-			"/LastPage "+to_string(pageno)+" def "   // set number of last page to convert (PDF only)
-			+rectclip+                               // clip to bounding box (if requexted by attribute 'clip')
+			"/LastPage "+to_string(pageno)+" def"    // set number of last page to convert (PDF only)
 			"(" + pathstr + ")run "                  // execute file content
 			"@endspecial\n"                          // leave special environment
 		);
 		if (node->empty())
 			node.reset(nullptr);
+		else if (clip) {
+			// clip image to its bounding box if flag 'clip' is given
+			auto clippath = util::make_unique<SVGElement>("clipPath");
+			clippath->addAttribute("id", "imgclip"+ to_string(_imgClipCount));
+			clippath->append(bbox.createSVGPath());
+			node->setClipPathUrl("imgclip"+ to_string(_imgClipCount++));
+			_actions->svgTree().appendToDefs(std::move(clippath));
+		}
 		_xmlnode = nullptr;   // append following elements to page group again
 	}
 	return node;
@@ -495,6 +498,7 @@ static bool transform_box_extents (const Matrix &matrix, double &w, double &h, d
 
 void PsSpecialHandler::dviBeginPage (unsigned int pageno, SpecialActions &actions) {
 	_psi.execute("/@imgbase("+image_base_path(actions)+")store\n"); // path and basename of image files
+	_imgClipCount = 0;
 }
 
 

@@ -3,7 +3,7 @@
 max_in_open = 50
 
 ;; Maximum number of semantic levels simultaneously active.
-nest_size = 500
+nest_size = 1000
 
 ;; Space for saving values outside current group.
 save_size = 80000

@@ -442,7 +442,7 @@ int lua_traceback(lua_State * L)
     return 1;
 }
 
-static void luacall(int p, int nameptr, boolean is_string)
+static void luacall(int p, int nameptr, boolean is_string, halfword w)
 {
     LoadS ls;
     int i;
@@ -466,7 +466,8 @@ static void luacall(int p, int nameptr, boolean is_string)
             /*tex put it under chunk  */
             lua_insert(Luas, base);
             ++late_callback_count;
-            i = lua_pcall(Luas, 0, 0, base);
+            lua_nodelib_push_fast(Luas, w);
+            i = lua_pcall(Luas, 1, 0, base);
             /*tex remove traceback function */
             lua_remove(Luas, base);
             if (i != 0) {
@@ -600,12 +601,12 @@ void late_lua(PDF pdf, halfword p)
     if (t == normal) {
         /*tex sets |def_ref| */
         expand_macros_in_tokenlist(p);
-        luacall(def_ref, late_lua_name(p), false);
+        luacall(def_ref, late_lua_name(p), false, p);
         flush_list(def_ref);
     } else if (t == lua_refid_call) {
         luafunctioncall(late_lua_data(p));
     } else if (t == lua_refid_literal) {
-        luacall(late_lua_data(p), late_lua_name(p), true);
+        luacall(late_lua_data(p), late_lua_name(p), true, p);
     } else {
         /*tex Let's just ignore it, could be some user specific thing. */
     }

@@ -76,9 +76,10 @@ class BoundingBox {
 		bool operator != (const BoundingBox &bbox) const {return !(*this == bbox);}
 		void scale (double sx, double sy);
 		void transform (const Matrix &tm);
-		std::string toSVGViewBox () const;
+		std::string svgViewBoxString () const;
 		std::ostream& write (std::ostream &os) const;
 		std::unique_ptr<XMLElement> createSVGRect () const;
+		std::unique_ptr<XMLElement> createSVGPath () const;
 
 	private:
 		double _ulx, _uly; ///< coordinates of upper left vertex (in PS point units)

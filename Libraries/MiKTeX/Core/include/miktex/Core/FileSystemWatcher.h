@@ -1,6 +1,6 @@
 /* miktex/Core/FileSystemWatcher.h:
 
-   Copyright (C) 2021 Christian Schenk
+   Copyright (C) 2021-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include <miktex/Core/config.h>
 
 #include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -37,6 +38,21 @@ enum class FileSystemChangeAction
   Modified,
   Removed,
 };
+
+inline std::ostream& operator<<(std::ostream& os, const FileSystemChangeAction& action)
+{
+  switch (action)
+  {
+    case FileSystemChangeAction::Added:
+      return os << "added";
+    case FileSystemChangeAction::Modified:
+      return os << "modified";
+    case FileSystemChangeAction::Removed:
+      return os << "removed";
+    default:
+      return os << "?";
+  }
+}
 
 struct FileSystemChangeEvent
 {

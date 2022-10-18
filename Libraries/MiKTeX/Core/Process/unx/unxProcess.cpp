@@ -1,6 +1,6 @@
 /* unxProcess.cpp:
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -521,10 +521,7 @@ ProcessExitStatus unxProcess::get_ExitStatus() const
   {
     return ProcessExitStatus::Signaled;
   }
-  else if (WIFSTOPPED(status) != 0)
-  {
-    return ProcessExitStatus::Other;
-  }
+  return ProcessExitStatus::Other;
 }
 
 int unxProcess::get_ExitCode() const

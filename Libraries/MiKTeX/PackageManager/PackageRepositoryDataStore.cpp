@@ -1,6 +1,6 @@
 /* PackageRepositoryDataStore.cpp
 
-   Copyright (C) 2018-2021 Christian Schenk
+   Copyright (C) 2018-2022 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -102,11 +102,13 @@ bool PackageRepositoryDataStore::TryGetRepositoryInfo(const string& url, Reposit
     if (result.first)
     {
       repositoryInfo = result.second;
+      LoadVarData(repositoryInfo);
     }
     return result.first;
   }
   else if (repositoryType == RepositoryType::Local)
   {
+    repositoryInfo.url = url;
     PathName configFile(url);
     configFile /= "pr.ini";
     unique_ptr<Cfg> config(Cfg::Create());
@@ -117,6 +119,12 @@ bool PackageRepositoryDataStore::TryGetRepositoryInfo(const string& url, Reposit
       MIKTEX_UNEXPECTED();
     }
     repositoryInfo.timeDate = Utils::ToTimeT(value->AsString());
+    value =  config->GetValue("repository", "version");
+    if (value == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    repositoryInfo.version = std::stoi(value->AsString());
     return true;
   }
   else
@@ -168,6 +176,7 @@ RepositoryInfo PackageRepositoryDataStore::VerifyPackageRepository(const string&
   }
   unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
   RepositoryInfo repositoryInfo = remoteService->Verify(url);
+  LoadVarData(repositoryInfo);
   repositories.push_back(repositoryInfo);
   return repositoryInfo;
 }

@@ -388,9 +388,6 @@ private:
   vector<string> formatsMade;
 
 private:
-  ofstream logStream;
-
-private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
@@ -450,7 +447,6 @@ enum Option
   OPT_COMMON_DATA,              // <internal/>
   OPT_COMMON_INSTALL,           // <internal/>
   OPT_COMMON_ROOTS,             // <internal/>
-  OPT_LOG_FILE,                 // <internal/>
   OPT_DEFAULT_PAPER_SIZE,       // <internal/>
 #if defined(MIKTEX_WINDOWS)
   OPT_NO_REGISTRY,              // <internal/>
@@ -561,10 +557,6 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
 
 void IniTeXMFApp::Finalize(bool keepSession)
 {
-  if (logStream.is_open())
-  {
-    logStream.close();
-  }
   FlushPendingTraceMessages();
   packageInstaller = nullptr;
   packageManager = nullptr;
@@ -775,7 +767,7 @@ void IniTeXMFApp::MakeFormatFiles(const vector<string>& formats)
   }
   for (const string& fmt : formats)
   {
-    RunOneMiKTeXUtility({ "formats", "build", "--key", fmt });
+    RunOneMiKTeXUtility({ "formats", "build", fmt });
   }
 }
 
@@ -784,7 +776,7 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, con
   // ASSUME: format key and name are the same
   for (const string& name : formatsByName)
   {
-    vector<string> args{ "formats", "build", "--key", name };
+    vector<string> args{ "formats", "build", name };
     if (!engine.empty())
     {
       args.insert(args.end(), { "--engine", engine });
@@ -1189,7 +1181,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   vector<PathName> unregisterRoots;
   string defaultPaperSize;
   string engine;
-  string logFile;
   string portableRoot;
 
   bool optClean = false;
@@ -1326,11 +1317,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_USER_CONFIG:
 
       startupConfig.userConfigRoot = optArg;
-      break;
-
-    case OPT_LOG_FILE:
-
-      logFile = optArg;
       break;
 
     case OPT_MKLANGS:
@@ -1484,12 +1470,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
-  }
-
-  if (!logFile.empty())
-  {
-    auto mode = File::Exists(PathName(logFile)) ? ios_base::app : ios_base::out;
-    logStream = File::CreateOutputStream(PathName(logFile), mode);
   }
 
   if (optPortable)

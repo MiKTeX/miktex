@@ -7,7 +7,7 @@
     <TPM:Copyright owner="The Apache Software Foundation" year="2000-2007"/>
     <TPM:License type="apache"/>
     <TPM:Version>0.11.0</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Apache log4cxx is a logging framework for C++ patterned after Apache log4j.

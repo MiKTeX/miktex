@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
   {
     cerr
       << "warning: package 'asymptote' is not installed\n"
-      << "         run 'mpm --install asymptote' to install it\n";
+      << "         run 'miktex packages install --package-id asymptote' to install it\n";
   }
 #endif
 #ifdef HAVE_LIBGSL

@@ -1,6 +1,6 @@
 /* FormatInfo.cpp: format file info
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -88,6 +88,7 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
       }
     }
     string val;
+    vector<string> values;
     formatInfo.cfgFile = cfgFile;
     formatInfo.key = key->GetName();
     if (cfgFormats->TryGetValueAsString(key->GetName(), "name", val))
@@ -118,11 +119,11 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
     {
       formatInfo.preloaded = val;
     }
-    if (cfgFormats->TryGetValueAsString(key->GetName(), "attributes", val))
+    if (cfgFormats->TryGetValueAsStringVector(key->GetName(), "attributes[]", values))
     {
       formatInfo.exclude = false;
       formatInfo.noExecutable = false;
-      for (const string& flag : StringUtil::Split(val, ','))
+      for (const string& flag : values)
       {
         if (flag == "exclude")
         {
@@ -134,9 +135,9 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
         }
       }
     }
-    if (cfgFormats->TryGetValueAsString(key->GetName(), "arguments", val))
+    if (cfgFormats->TryGetValueAsStringVector(key->GetName(), "arguments[]", values))
     {
-      formatInfo.arguments = val;
+      formatInfo.arguments = values;
     }
     if (it == formats.end())
     {
@@ -201,29 +202,19 @@ void SessionImpl::WriteFormatsIni()
       {
         cfgFormats->PutValue(fmt.key, "preloaded", fmt.preloaded);
       }
-      if (!fmt.arguments.empty())
+      for (auto a : fmt.arguments)
       {
-        cfgFormats->PutValue(fmt.key, "arguments", fmt.arguments);
+        cfgFormats->PutValue(fmt.key, "arguments[]", a);
       }
     }
-    string attributes;
     if (fmt.exclude)
     {
-      if (!attributes.empty())
-      {
-        attributes += ',';
-      }
-      attributes += "exclude";
+      cfgFormats->PutValue(fmt.key, "attributes[]", "exclude");
     }
     if (fmt.noExecutable)
     {
-      if (!attributes.empty())
-      {
-        attributes += ',';
-      }
-      attributes += "noexe";
+      cfgFormats->PutValue(fmt.key, "attributes[]", "noexe");
     }
-    cfgFormats->PutValue(fmt.key, "attributes", attributes);
   }
 
   PathName pathLocalFormatsIni(GetSpecialPath(SpecialPath::ConfigRoot), PathName(MIKTEX_PATH_FORMATS_INI));

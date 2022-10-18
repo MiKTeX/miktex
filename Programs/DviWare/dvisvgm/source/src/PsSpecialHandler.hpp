@@ -184,6 +184,7 @@ class PsSpecialHandler : public SpecialHandler, protected PSActions {
 		double _dashoffset;                ///< current dash offset
 		std::vector<double> _dashpattern;
 		ClippingStack _clipStack;
+		int _imgClipCount=0;               ///< current number of clip paths assigned to images
 		bool _makingPattern=false;         ///< true if executing makepattern operator
 		std::map<int, std::unique_ptr<PSPattern>> _patterns;
 		PSTilingPattern *_pattern;         ///< current pattern

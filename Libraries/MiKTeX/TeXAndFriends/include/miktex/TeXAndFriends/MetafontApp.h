@@ -1,26 +1,17 @@
-/* miktex/TeXAndFriends/MetafontApp.h:                  -*- C++ -*-
-
-   Copyright (C) 1996-2018 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex/TeXAndFriends/MetafontApp.h
+ * @author Christian Schenk
+ * @brief MiKTeX METAFONT base implementation
+ *
+ * @copyright Copyright © 1996-2022 Christian Schenk
+ *
+ * This file is part of the MiKTeX TeXMF Framework.
+ *
+ * The MiKTeX TeXMF Framework is licensed under GNU General Public License
+ * version 2 or any later version.
+ */
 
 #pragma once
-
-#if !defined(DE6D6CCC880D4B48BF618E37BDAF1DBB)
-#define DE6D6CCC880D4B48BF618E37BDAF1DBB
 
 #include <miktex/TeXAndFriends/config.h>
 
@@ -36,59 +27,43 @@ MIKTEX_TEXMF_BEGIN_NAMESPACE;
 class MIKTEXMFTYPEAPI(MetafontApp) :
   public TeXMFApp
 {
-public:
-  MIKTEXMFEXPORT MIKTEXTHISCALL MetafontApp();
 
 public:
-  MetafontApp(const MetafontApp& other) = delete;
 
-public:
-  MetafontApp& operator=(const MetafontApp& other) = delete;
+    MIKTEXMFEXPORT MIKTEXTHISCALL MetafontApp();
+    MetafontApp(const MetafontApp& other) = delete;
+    MetafontApp& operator=(const MetafontApp& other) = delete;
+    MetafontApp(MetafontApp&& other) = delete;
+    MetafontApp& operator=(MetafontApp&& other) = delete;
+    virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~MetafontApp() noexcept;
 
-public:
-  MetafontApp(MetafontApp&& other) = delete;
+    MIKTEXMFTHISAPI(void) Finalize() override;
 
-public:
-  MetafontApp& operator=(MetafontApp&& other) = delete;
+    MiKTeX::Core::FileType GetInputFileType() const override
+    {
+        return MiKTeX::Core::FileType::MF;
+    }
 
-public:
-  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~MetafontApp() noexcept;
+    std::string GetMemoryDumpFileExtension() const override
+    {
+        return ".base";
+    }
+
+    MiKTeX::Core::FileType GetMemoryDumpFileType() const override
+    {
+        return MiKTeX::Core::FileType::BASE;
+    }
 
 protected:
-  MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
 
-public:
-  MIKTEXMFTHISAPI(void) Finalize() override;
-
-protected:
-  MIKTEXMFTHISAPI(void) AddOptions() override;
-
-protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
-
-public:
-  MiKTeX::Core::FileType GetInputFileType() const override
-  {
-    return MiKTeX::Core::FileType::MF;
-  }
-
-public:
-  std::string GetMemoryDumpFileExtension() const override
-  {
-    return ".base";
-  }
-
-public:
-  MiKTeX::Core::FileType GetMemoryDumpFileType() const override
-  {
-    return MiKTeX::Core::FileType::BASE;
-  }
+    MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
+    MIKTEXMFTHISAPI(void) AddOptions() override;
+    MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
 
 private:
-  class impl;
-  std::unique_ptr<impl> pimpl;
+
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_TEXMF_END_NAMESPACE;
-
-#endif

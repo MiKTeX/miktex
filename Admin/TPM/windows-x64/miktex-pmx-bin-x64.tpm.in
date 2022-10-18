@@ -6,8 +6,8 @@
     <TPM:Title>pmxab and scor2prt, Windows x64</TPM:Title>
     <TPM:Copyright owner="Don Simmons"/>
     <TPM:License type="gpl3"/>
-    <TPM:Version>2.9.4a</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:Version>2.9.8a</TPM:Version>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       PMX provides a preprocessor for MusiXTeX.

@@ -1,20 +1,10 @@
-%% miktex-upbibtex.ch:
+%% miktex-upbibtex.ch
+%%
+%% Copyright (C) 2021-2022 Christian Schenk
 %% 
-%% Copyright (C) 2021 Christian Schenk
-%% 
-%% This file is free software; you can redistribute it and/or modify it
-%% under the terms of the GNU General Public License as published by the
-%% Free Software Foundation; either version 2, or (at your option) any
-%% later version.
-%% 
-%% This file is distributed in the hope that it will be useful, but
-%% WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-%% General Public License for more details.
-%% 
-%% You should have received a copy of the GNU General Public License
-%% along with This file; if not, write to the Free Software Foundation,
-%% 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+%% This file is free software; the copyright holder gives
+%% unlimited permission to copy and/or distribute it, with or
+%% without modifications, as long as this notice is preserved.
 
 % _____________________________________________________________________________
 %
@@ -111,11 +101,17 @@ end;
 % _____________________________________________________________________________
 
 @x
-const n_options = 7; {Pascal won't count array lengths for us.}
+const n_options = 9; {Pascal won't count array lengths for us.}
       usage_help (UPBIBTEX_HELP, 'issue@@texjp.org');
     end else if argument_is ('kanji') then begin
       if (not set_enc_string(optarg, nil)) then
         write_ln('Bad kanji encoding "', stringcast(optarg), '".');
+
+    end else if argument_is ('guess-input-enc') then begin
+        enable_guess_file_enc;
+
+    end else if argument_is ('no-guess-input-enc') then begin
+        disable_guess_file_enc;
 
     end else if argument_is ('kanji-internal') then begin
       if (not (set_enc_string(nil,optarg) and
@@ -138,8 +134,16 @@ long_options[current_option].has_arg := 1;
 long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr(current_option);
-begin kpse_set_program_name (argv[0], 'pbibtex');
-
+long_options[current_option].name := 'guess-input-enc';
+long_options[current_option].has_arg := 0;
+long_options[current_option].flag := 0;
+long_options[current_option].val := 0;
+incr(current_option);
+long_options[current_option].name := 'no-guess-input-enc';
+long_options[current_option].has_arg := 0;
+long_options[current_option].flag := 0;
+long_options[current_option].val := 0;
+incr(current_option);
 @ Kanji-internal option.
 @.-kanji-internal@>
 
@@ -151,6 +155,7 @@ long_options[current_option].val := 0;
 incr(current_option);
 
 @ An element with all zeros always ends the list.
+begin kpse_set_program_name (argv[0], 'upbibtex');
 @y
 @z
 

@@ -1,40 +1,29 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2010-2020 Christian Schenk
+## Copyright (C) 2010-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(twpythonplugin_sources
-  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScript.cpp
-  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScript.h
-  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScriptInterface.cpp
-  ${projdir}/source/plugins-src/TWPythonPlugin/PythonScriptInterface.h
+    ${projdir}/source/plugins-src/TWPythonPlugin/PythonScript.cpp
+    ${projdir}/source/plugins-src/TWPythonPlugin/PythonScript.h
+    ${projdir}/source/plugins-src/TWPythonPlugin/PythonScriptInterface.cpp
+    ${projdir}/source/plugins-src/TWPythonPlugin/PythonScriptInterface.h
 )
 
 add_library(twpythonplugin-static STATIC
-  ${twpythonplugin_sources}
+    ${twpythonplugin_sources}
 )
 
 set_property(TARGET twpythonplugin-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(twpythonplugin-static
-  PUBLIC
-    ${core_dll_name}
-    Qt5::Core
-    Qt5::Gui
-    Qt5::UiTools
-    Qt5::Widgets
+    PUBLIC
+        ${core_dll_name}
+        Qt${QT_SERIES}::Core
+        Qt${QT_SERIES}::Gui
+        Qt${QT_SERIES}::UiTools
+        Qt${QT_SERIES}::Widgets
 )

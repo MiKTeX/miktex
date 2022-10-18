@@ -1,22 +1,93 @@
 # MiKTeX Change Log
 
-## 22.2 - to be released
+## 22.10 - 2022-10-17
+
+- [1183](https://github.com/MiKTeX/miktex/issues/1183): MiKTeX 22.8.28 Portable is missing pdflatex
+- [1188](https://github.com/MiKTeX/miktex/issues/1188): "pdflatex.exe" missing from "Windows net installer 64"
+
+## 22.8.28 - 2022-08-28
+
+### Fixed issues
+
+- [1111](https://github.com/MiKTeX/miktex/issues/1111): Support for Debian 11/Ubuntu 22.04
+- [1122](https://github.com/MiKTeX/miktex/issues/1122): Fedora 36 Support
+- [1149](https://github.com/MiKTeX/miktex/issues/1149): miktex ( on linux ) vs sagetex
+- [1151](https://github.com/MiKTeX/miktex/issues/1151): Internal error when running "miktexsetup_standalone.exe --version"
+- 
+## 22.8 - 2022-08-14
 
 ### Upgraded programs
 
-* asymptote 2.78
+* asymptote 2.81
+* luatex 1.15.1
+* metapost 2.02
+
+### Fixed issues
+
+- [1138](https://github.com/MiKTeX/miktex/issues/1138): updmap crash
+- [1145](https://github.com/MiKTeX/miktex/issues/1145): jfmutil run fail
+
+## 22.7.30 - 2022-07-30
+
+### Windows 7 deprecation
+
+Windows 7 is now deprecated.
+
+### Upgraded programs
+
+* dvipdfmx 20220710
+
+### Fixed issues
+
+- [1136](https://github.com/MiKTeX/miktex/issues/1136): platex/uplatex can't determine size of graphic automatically
+
+## 22.7.26 - 2022-07-26
+
+### Windows 32-bit deprecation
+
+The 32-bit version of MiKTeX for Windows is now deprecated.
+
+## 22.7.25 - 2022-07-25
+
+### Fixed issues
+
+- [1129](https://github.com/MiKTeX/miktex/issues/1129): platex build fail with tarticle class
+
+## 22.7 - 2022-07-17
+
+### Fixed issues
+
+- [1071](https://github.com/MiKTeX/miktex/issues/1071): Cannot get TeXworks version: QString::arg: 1 argument(s) missing in TeXworks %1 (%2) [r.%3, %4]
+- [1079](https://github.com/MiKTeX/miktex/issues/1079): spell check is gone
+- [1090](https://github.com/MiKTeX/miktex/issues/1090): "Too many open files" errors with xelatex
+- [1112](https://github.com/MiKTeX/miktex/issues/1112): [BUG]: wrong version number for miktex-dvisvgm-bin-x64-2.9
+- [1120](https://github.com/MiKTeX/miktex/issues/1120): can't build format of platex/platex-dev
+- [1121](https://github.com/MiKTeX/miktex/issues/1121): \pdffilesize doesn't work correctly in eptex and perhaps other engines
+
+## 22.3 - 2022-03-14
+
+### HiTeX
+
+MiKTeX now includes the HiTeX engine.
+
+### Upgraded programs
+
+* asymptote 2.79
+* cweb 4.7
 * dvips 2022.1
-* dvisvgm 2.13.1
+* dvisvgm 2.13.3
 * luatex 1.15.0
+* pmxab 2.9.8a
 * ptex 4.0.0
-* texworks 0.7.0
+* texworks 0.6.7
 * xetex 0.999994
 
 ### Fixed issues
 
 - [1054](https://github.com/MiKTeX/miktex/issues/1054): Open Terminal window does nothing on elementary OS
 - [1055](https://github.com/MiKTeX/miktex/issues/1055): GFtoPK crashes in supre mode for fonts in certain optical sizes
-
+- [1062](https://github.com/MiKTeX/miktex/issues/1062): mpm --admin --require=@listfile with non-existing listfile
+- 
 ## 22.1 - 2022-01-31
 
 ### Fixed issues

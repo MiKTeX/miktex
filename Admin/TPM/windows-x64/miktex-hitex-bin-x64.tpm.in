@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	    xmlns:TPM="http://texlive.dante.de/">
+    <rdf:Description about="http://www.miktex.org/packages/hitex/">
+        <TPM:Name>HiTeX win64</TPM:Name>
+        <TPM:Title>HiTeX, Windows x64</TPM:Title>
+        <TPM:Copyright owner="Martin Ruckert" year="2017-2021"/>
+        <TPM:License type="gpl2"/>
+        <TPM:Version>1.4</TPM:Version>
+        <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
+        <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+        <TPM:Description>
+            HiTeX is a modified version of TeX that replaces the DVI (device independent)
+            output format by the HINT format.
+        </TPM:Description>
+        <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}hishrink.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}histretch.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}hitex.exe
+        </TPM:RunFiles>
+    </rdf:Description>
+</rdf:RDF>

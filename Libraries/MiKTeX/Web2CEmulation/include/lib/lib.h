@@ -1,6 +1,6 @@
 /* lib/lib.h:                                           -*- C++ -*-
 
-   Copyright (C) 2013-2021 Christian Schenk
+   Copyright (C) 2013-2022 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -120,11 +120,23 @@ static inline void recorder_record_output(const char* fname)
 #define output_directory miktex_web2c_get_output_directory()
 
 #if defined(__cplusplus)
+static inline void printversionandexit (const_string banner, const_string copyright_holder, const_string author, const_string extra_info)
+{
+  // TODO
+  throw 0;
+}
+#endif
+
+#if defined(__cplusplus)
 #else
 static inline void setupboundvariable(integer* var, const char* var_name, integer dflt)
 {
   miktex_setupboundvariable(var, var_name, dflt);
 }
+#endif
+
+#if defined(__cplusplus)
+constexpr const char* versionstring = " (" MIKTEX_PRODUCTNAME_STR " " MIKTEX_DISPLAY_VERSION_STR ")";
 #endif
 
 static inline integer zround(double r)

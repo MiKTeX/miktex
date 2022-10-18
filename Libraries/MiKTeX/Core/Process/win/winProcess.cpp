@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -265,18 +265,18 @@ void winProcess::Create()
       siStartInfo.hStdError = hChildStderr != INVALID_HANDLE_VALUE ? hChildStderr : GetStdHandle(STD_ERROR_HANDLE);
     }
 
+    shared_ptr<SessionImpl> session = SESSION_IMPL();
+
     DWORD creationFlags = CREATE_UNICODE_ENVIRONMENT;
 
     // don't open a window if both stdout & stderr are redirected or if we are shutting down
-    if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE || SessionImpl::TryGetSession() == nullptr)
+    if (hChildStdout != INVALID_HANDLE_VALUE && hChildStderr != INVALID_HANDLE_VALUE || session->IsClosing())
     {
       creationFlags |= CREATE_NO_WINDOW;
     }
 
     // start child process
     trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
-
-    shared_ptr<SessionImpl> session = SESSION_IMPL();
 
     // create environment map
     unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());

@@ -29,7 +29,7 @@
 <arg choice="opt" rep="repeat"><replaceable>common-option</replaceable></arg>
 <arg choice="plain">filesystem</arg>
 <arg choice="plain"><replaceable>command</replaceable></arg>
-<arg choice="opt" rep="repeat"><replaceable>command-option</replaceable></arg>
+<arg choice="opt" rep="repeat"><replaceable>command-option-or-parameter</replaceable></arg>
 </cmdsynopsis>
 
 </refsynopsisdiv>
@@ -48,9 +48,16 @@
 
 <variablelist>
 <varlistentry>
-<term><command>watch</command> <option>--directory=<replaceable>dir</replaceable></option></term>
+<term><command>watch</command> <optional><option>--template <replaceable>template</replaceable></option></optional> <replaceable>directory</replaceable></term>
 <listitem>
-<para>Watch for changes in a directory.</para></listitem>
+<para>Watch for changes in a directory.</para>
+<para><replaceable>template</replaceable> controls the output of each directory event.
+It can contain the following placeholders:</para>
+<para><simplelist type='inline'>
+<member><code>{action}</code></member>
+<member><code>{fileName}</code></member>
+</simplelist></para>
+</listitem>
 </varlistentry>
 </variablelist>
 

@@ -1,14 +1,19 @@
-if("${CPACK_GENERATOR}" STREQUAL "DragNDrop")
-  set(CPACK_DMG_BACKGROUND_IMAGE
-    "@CMAKE_SOURCE_DIR@/Packaging/dmg/background.tif"
-  )
-  set(CPACK_DMG_DS_STORE_SETUP_SCRIPT
-    "@CMAKE_SOURCE_DIR@/Packaging/dmg/setup.scpt"
-  )
-  set(CPACK_DMG_VOLUME_NAME
-    "MiKTeX"
-  )
-endif()
+## cpack-config.cmake
+##
+## Copyright (C) 2022 Christian Schenk
+## 
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
-if("${CPACK_GENERATOR}" STREQUAL "productbuild")
+if("${CPACK_GENERATOR}" STREQUAL "DragNDrop")
+    set(CPACK_DMG_BACKGROUND_IMAGE
+        "@CMAKE_SOURCE_DIR@/Packaging/dmg/background.tif"
+    )
+    set(CPACK_DMG_DS_STORE_SETUP_SCRIPT
+        "@CMAKE_SOURCE_DIR@/Packaging/dmg/setup.scpt"
+    )
+    set(CPACK_DMG_VOLUME_NAME
+        "MiKTeX"
+    )
 endif()

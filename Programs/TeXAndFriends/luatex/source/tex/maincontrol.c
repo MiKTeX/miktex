@@ -4317,6 +4317,7 @@ void initialize(void)
         page_top_offset_par = one_inch;
         page_right_offset_par = one_inch;
         page_bottom_offset_par = one_inch;
+        show_stream_par = -1;
         ini_init_primitives();
         hash_used = frozen_control_sequence;
         hash_high = 0;

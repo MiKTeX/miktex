@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Werner Lemberg" year="1994-2015"/>
     <TPM:License type="gpl2"/>
     <TPM:Version>4.8.4</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes various CJK related font conversion utilities.

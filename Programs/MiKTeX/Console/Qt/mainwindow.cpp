@@ -2066,7 +2066,7 @@ bool BuildFormatsWorker::Run()
     for (const string& key : formats)
     {
       FormatInfo formatInfo = session->GetFormatInfo(key);
-      RunOneMiKTeXUtility({ "formats", "build", "--key", formatInfo.key });
+      RunOneMiKTeXUtility({ "formats", "build", formatInfo.key });
     }
     result = true;
   }

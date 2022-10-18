@@ -1,29 +1,22 @@
-/* miktex-eptex.h:
-
-   Copyright (C) 2021-2022 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-eptex.h
+ * @author Christian Schenk
+ * @brief MiKTeX e-pTeX
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
 #include "miktex-eptex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#   define MIKTEX_UTF8_WRAP_ALL 1
+#   include <miktex/utf8wrap.h>
 #endif
 
 #include <iostream>
@@ -49,30 +42,11 @@
 extern EPTEXPROGCLASS EPTEXPROG;
 
 class EPTEXAPPCLASS :
-    public MiKTeX::TeXjp::WebAppInputLine<MiKTeX::TeXAndFriends::ETeXApp>
+    public MiKTeX::TeXjp::TeXEngineBase<MiKTeX::TeXAndFriends::ETeXApp>
 {
-private:
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<EPTEXPROGCLASS> charConv{ EPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::ErrorHandlerImpl<EPTEXPROGCLASS> errorHandler{ EPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::FormatHandlerImpl<EPTEXPROGCLASS> formatHandler{ EPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InitFinalizeImpl<EPTEXPROGCLASS> initFinalize{ EPTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<EPTEXPROGCLASS>, EPTEXPROGCLASS> inputOutput{ EPTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::StringHandlerImpl<EPTEXPROGCLASS> stringHandler{ EPTEXPROG };
-
-private:
-    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<EPTEXPROGCLASS>, EPTEXPROGCLASS> memoryHandler{ EPTEXPROG, *this };
 
 public:
+
     void Init(std::vector<char*>& args) override
     {
         SetCharacterConverter(&charConv);
@@ -83,49 +57,52 @@ public:
         SetStringHandler(&stringHandler);
         SetTeXMFMemoryHandler(&memoryHandler);
         ETeXApp::Init(args);
-        initkanji();
+        IAm(MiKTeX::TeXAndFriends::TeXjpEngine);
+        InitKanji();
         kpse_set_program_name(args[0], nullptr);
         EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
-#if defined(IMPLEMENT_TCX)
         EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
     }
 
-public:
     void AllocateMemory() override
     {
         ETeXApp::AllocateMemory();
     }
 
-public:
     void FreeMemory() override
     {
         ETeXApp::FreeMemory();
     }
 
-public:
     MiKTeX::Util::PathName GetMemoryDumpFileName() const override
     {
         return MiKTeX::Util::PathName("eptex.fmt");
     }
 
-public:
     std::string GetInitProgramName() const override
     {
         return "inieptex";
     }
 
-public:
     std::string GetVirginProgramName() const override
     {
         return "vireptex";
     }
 
-public:
     std::string TheNameOfTheGame() const override
     {
         return "e-pTeX";
     }
+
+private:
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<EPTEXPROGCLASS> charConv{ EPTEXPROG };
+    MiKTeX::TeXAndFriends::ErrorHandlerImpl<EPTEXPROGCLASS> errorHandler{ EPTEXPROG };
+    MiKTeX::TeXAndFriends::FormatHandlerImpl<EPTEXPROGCLASS> formatHandler{ EPTEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<EPTEXPROGCLASS> initFinalize{ EPTEXPROG };
+    MiKTeX::TeXAndFriends::StringHandlerImpl<EPTEXPROGCLASS> stringHandler{ EPTEXPROG };
+    MiKTeX::TeXjp::PTeXInputOutputImpl<MiKTeX::TeXAndFriends::InputOutputImpl<EPTEXPROGCLASS>, EPTEXPROGCLASS> inputOutput{ EPTEXPROG };
+    MiKTeX::TeXjp::PTeXMemoryHandlerImpl<MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<EPTEXPROGCLASS>, EPTEXPROGCLASS> memoryHandler{ EPTEXPROG, *this };
 };
 
 int miktexloadpoolstrings(int size);
@@ -185,8 +162,6 @@ inline auto println()
 {
     EPTEXPROG.println();
 }
-
-
 
 #if WITH_SYNCTEX
 EPTEX_PROG_VAR(synctexoffset, C4P::C4P_integer);

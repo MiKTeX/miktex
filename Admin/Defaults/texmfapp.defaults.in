@@ -28,7 +28,7 @@ max_print_line = 79
 max_strings = 500000
 
 ;; Maximum number of simultaneous macro parameters.
-param_size = 10000
+param_size = 20000
 
 ;; Pool space free after format loaded.
 pool_free = 47500
@@ -39,7 +39,7 @@ pool_free = 47500
 pool_size = 3250000
 
 ;; Maximum number of simultaneous input sources.
-stack_size = 5000
+stack_size = 10000
 
 ;; Strings available after format loaded.
 strings_free = 100

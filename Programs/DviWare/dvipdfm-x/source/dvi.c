@@ -389,7 +389,7 @@ find_post (void)
   post_id_byte = ch;
   if (ch == XDV_ID || ch == XDV_ID_OLD)
     dpx_conf.compat_mode = dpx_mode_xdv_mode;
-  is_ptex = ch == DVIV_ID;
+  dvi_ptex_with_vert = is_ptex = ch == DVIV_ID;
 
   /* Make sure post_post is really there */
   current = current - 5;

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Internal definitions
  *
- * @copyright Copyright © 2021 Christian Schenk
+ * @copyright Copyright © 2021-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -14,6 +14,7 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include <miktex/Definitions>
@@ -45,6 +46,7 @@ namespace OneMiKTeXUtility
     {
     public:
         virtual void EnableInstaller(bool b) = 0;
+        virtual bool IsInstallerDisabled() = 0;
         virtual bool IsInstallerEnabled() = 0;
     };
 
@@ -90,12 +92,15 @@ namespace OneMiKTeXUtility
     inline std::vector<const char*> MakeArgv(const std::vector<std::string>& arguments)
     {
         std::vector<const char*> argv;
-        argv.reserve(arguments.size() - 1 + 1);
-        for (int idx = 1; idx < arguments.size(); ++idx)
+        argv.reserve(arguments.size() + 1);
+        for (size_t idx = 0; idx < arguments.size(); ++idx)
         {
             argv.push_back(arguments[idx].c_str());
         }
         argv.push_back(nullptr);
         return argv;
     }
+
+    std::string Unescape(const std::string& s);
+    void ReadNames(const MiKTeX::Util::PathName& path, std::vector<std::string>& list);
 }

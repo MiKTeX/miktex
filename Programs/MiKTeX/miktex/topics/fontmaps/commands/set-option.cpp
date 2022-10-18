@@ -47,7 +47,7 @@ namespace
 
         std::string Synopsis() override
         {
-            return "set-option --name=NAME [--value=VALUE]";
+            return "set-option <name> [<value>]";
         }
     };
 }
@@ -68,26 +68,10 @@ unique_ptr<Command> Commands::SetOption()
 enum Option
 {
     OPT_AAA = 1,
-    OPT_NAME,
-    OPT_VALUE,
 };
 
 static const struct poptOption options[] =
 {
-    {
-        "name", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_NAME,
-        T_("Specify the option name."),
-        "NAME"
-    },
-    {
-        "value", 0,
-        POPT_ARG_STRING, nullptr,
-        OPT_VALUE,
-        T_("Specify the option value."),
-        "NAME"
-    },
     POPT_AUTOHELP
     POPT_TABLEEND
 };
@@ -97,31 +81,27 @@ int SetOptionCommand::Execute(ApplicationContext& ctx, const vector<string>& arg
     auto argv = MakeArgv(arguments);
     PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
     int option;
-    string name;
-    string value;
     while ((option = popt.GetNextOpt()) >= 0)
     {
-        switch (option)
-        {
-        case OPT_NAME:
-            name = popt.GetOptArg();
-            break;
-        case OPT_VALUE:
-            value = popt.GetOptArg();
-            break;
-        }
     }
     if (option != -1)
     {
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
-    if (!popt.GetLeftovers().empty())
+    auto leftOvers = popt.GetLeftovers();
+    if (leftOvers.empty())
     {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
+        ctx.ui->IncorrectUsage(T_("expected <name> argument"));
     }
-    if (name.empty())
+    string name = leftOvers[0];
+    string value;
+    if (leftOvers.size() == 2)
     {
-        ctx.ui->IncorrectUsage(T_("expected --name=NAME"));
+        value = leftOvers[1];
+    }
+    else if (leftOvers.size() > 2)
+    {
+        ctx.ui->IncorrectUsage(T_("too many arguments"));
     }
     FontMapManager mgr;
     mgr.Init(ctx);

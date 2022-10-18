@@ -1,7 +1,20 @@
+/**
+ * @file miktex/TeXjp/common.h
+ * @author Christian Schenk
+ * @brief MiKTeX TeXjp base classes
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
 #pragma once
 
 #include <unordered_set>
 
+#include <miktex/Configuration/ConfigNames>
 #include <miktex/TeXAndFriends/TeXMFApp>
 
 #include <kanji.h>
@@ -30,7 +43,12 @@
 
 template<class FileType> inline void miktexprintencstring(FileType& f)
 {
-  fprintf(f, " (%s)", get_enc_string());
+    fprintf(f, " (%s)", get_enc_string());
+}
+
+template<class FileType> inline void miktexwritechar(FileType& f, C4P::C4P_unsigned16 ch)
+{
+    putc2(static_cast<int>(ch), f);
 }
 
 namespace MiKTeX
@@ -40,32 +58,34 @@ namespace MiKTeX
         template<class BASE> class WebApp :
             public BASE
         {
-        private:
-            enum {
-                OPT_KANJI = 10000,
-                OPT_KANJI_INTERNAL,
-            };
-
-        private:
-            std::string T_(const char* msgId)
-            {
-                return msgId;
-            }
 
         public:
+
+            void InitKanji()
+            {
+                auto session = BASE::GetSession();
+                auto guessFileEnc = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXJP, MIKTEX_CONFIG_VALUE_GUESS_INPUT_KANJI_ENCODING).GetBool();
+                set_guess_file_enc(guessFileEnc);
+                initkanji();
+            }
+
             void AddOptions() override
             {
                 BASE::AddOptions();
+                BASE::AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
                 BASE::AddOption("kanji", T_("set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
                 BASE::AddOption("kanji-internal", T_("set Japanese internal encoding (ENC=euc|sjis)."), OPT_KANJI_INTERNAL, POPT_ARG_STRING, "ENC");
+                BASE::AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
             }
 
-        public:
             bool ProcessOption(int opt, const std::string& optArg) override
             {
                 bool done = true;
                 switch (opt)
                 {
+                case OPT_GUESS_INPUT_ENC:
+                    set_guess_file_enc(1);
+                    break;
                 case OPT_KANJI:
                     if (!set_enc_string (optArg.c_str(), nullptr))
                     {
@@ -80,27 +100,70 @@ namespace MiKTeX
                         throw 1;
                     }
                     break;
+                case OPT_NO_GUESS_INPUT_ENC:
+                    set_guess_file_enc(0);
+                    break;
                 default:
                     done = BASE::ProcessOption(opt, optArg);
                     break;
                 }
                 return done;
             }
+
+        private:
+
+            enum
+            {
+                OPT_GUESS_INPUT_ENC = 10000,
+                OPT_KANJI,
+                OPT_KANJI_INTERNAL,
+                OPT_NO_GUESS_INPUT_ENC,
+            };
+
+            std::string T_(const char* msgId)
+            {
+                return msgId;
+            }
         };
 
-        template<class BASE> class WebAppInputLine :
+        template<class BASE> class TeXEngineBase :
             public WebApp<BASE>
         {
+
         public:
+
+            int GetJobName(int fallbackJobName) const override
+            {
+                auto s = BASE::GetJobName(fallbackJobName);
+                auto stringHandler = BASE::GetStringHandler();
+                auto strstart = stringHandler->strstart();
+                auto strpool = stringHandler->strpool16();
+                auto begin = strstart[s];
+                auto end = strstart[s + 1];
+                auto pos = begin;
+                while (pos < end)
+                {
+                    auto charLen = multistrlenshort(reinterpret_cast<unsigned short*>(strpool), end, pos);
+                    if (charLen > 1)
+                    {
+                        for (int charEnd = pos + charLen; pos < charEnd; ++pos)
+                        {
+                            strpool[pos] = (0xff & strpool[pos]) + 0x100;
+                        }
+                    }
+                    else
+                    {
+                        ++pos;
+                    }
+                }
+                return s;
+            }
+
             size_t InputLineInternal(FILE* f, char* buffer, char* buffer2, size_t bufferSize, size_t bufferPosition, int& lastChar) const override
             {
                 return static_cast<size_t>(input_line2(f, reinterpret_cast<unsigned char*>(buffer), reinterpret_cast<unsigned char*>(buffer2), static_cast<long>(bufferPosition), static_cast<long>(bufferSize), &lastChar));
             }
 
-        private:
-            std::unordered_set<const FILE*> inputFiles;
-
-        public:
             FILE* OpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access) override
             {
                 if (mode == MiKTeX::Core::FileMode::Command || access != MiKTeX::Core::FileAccess::Read)
@@ -115,7 +178,6 @@ namespace MiKTeX
                 return f;
             }
 
-        public:
             FILE* TryOpenFileInternal(const MiKTeX::Util::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access) override
             {
                 if (mode == MiKTeX::Core::FileMode::Command || access != MiKTeX::Core::FileAccess::Read)
@@ -130,7 +192,6 @@ namespace MiKTeX
                 return f;
             }
 
-        public:
             void CloseFileInternal(FILE* f) override
             {
                 std::unordered_set<const FILE*>::iterator it = inputFiles.find(f);
@@ -143,7 +204,6 @@ namespace MiKTeX
                 nkf_close(f);
             }
 
-        public:
             MiKTeX::Util::PathName DecodeFileName(const MiKTeX::Util::PathName& fileNameInternalEncoding) override
             {
                 auto decoded = ptenc_from_internal_enc_string_to_utf8(reinterpret_cast<const unsigned char*>(fileNameInternalEncoding.GetData()));
@@ -156,18 +216,23 @@ namespace MiKTeX
                 free(decoded);
                 return result;
             }
+
+        private:
+
+            std::unordered_set<const FILE*> inputFiles;
         };
 
         template<class BASE, class PROGRAM_CLASS> class PTeXInputOutputImpl :
             public BASE
         {
+
         public:
+
             PTeXInputOutputImpl(PROGRAM_CLASS& program) :
                 BASE(program)
             {                
             }
 
-        public:
             char* buffer2() override
             {
                 return reinterpret_cast<char*>(BASE::program.buffer2);
@@ -177,13 +242,14 @@ namespace MiKTeX
         template<class BASE, class PROGRAM_CLASS> class PTeXMemoryHandlerImpl :
             public BASE
         {
+
         public:
+        
             PTeXMemoryHandlerImpl(PROGRAM_CLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
                 BASE(program, texmfapp)
             {
             }
 
-        public:
             void Allocate(const std::unordered_map<std::string, int>& userParams) override
             {
                 BASE::Allocate(userParams);
@@ -195,7 +261,6 @@ namespace MiKTeX
                 BASE::AllocateArray("ctypebase", BASE::program.ctypebase, nFonts);
             }
 
-        public:
             void Free() override
             {
                 BASE::Free();
@@ -205,7 +270,6 @@ namespace MiKTeX
                 BASE::FreeArray("ctypebase", BASE::program.ctypebase);
             }
 
-        public:
             void Check() override
             {
                 BASE::Check();

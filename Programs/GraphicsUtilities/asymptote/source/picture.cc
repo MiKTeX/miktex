@@ -370,7 +370,6 @@ void texinit()
 
   bool context=settings::context(getSetting<string>("tex"));
   string dir=stripFile(outname());
-  dir=dir.substr(0,dir.length()-1);
   string logname;
   if(!context) logname=dir;
   logname += "texput.log";
@@ -386,6 +385,7 @@ void texinit()
     writeable.close();
   unlink(cname);
 
+  dir=dir.substr(0,dir.length()-1);
   mem::vector<string> cmd;
   cmd.push_back(texprogram());
   string oldPath;

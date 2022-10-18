@@ -41,6 +41,8 @@ PDFRuler::PDFRuler(PDFDocumentView *parent)
   m_unitActions.append(createUnitAction(Physical::Length::Centimeters));
   m_unitActions.append(createUnitAction(Physical::Length::Inches));
   m_unitActions.append(createUnitAction(Physical::Length::Bigpoints));
+
+  setCursor(Qt::OpenHandCursor);
 }
 
 void PDFRuler::setUnit(const Physical::Length::Unit & newUnit)
@@ -190,6 +192,7 @@ void PDFRuler::mousePressEvent(QMouseEvent * event)
     return;
   if (event->buttons() == Qt::LeftButton) {
     m_mouseDownPt = event->pos();
+    setCursor(Qt::ClosedHandCursor);
     event->accept();
   }
 }
@@ -226,6 +229,7 @@ void PDFRuler::mouseReleaseEvent(QMouseEvent * event)
     return;
   if (m_isDragging && event->button() == Qt::LeftButton) {
     m_isDragging = false;
+    setCursor(Qt::OpenHandCursor);
     emit dragStop(event->pos());
     event->accept();
   }

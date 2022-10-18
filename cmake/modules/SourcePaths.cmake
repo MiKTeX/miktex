@@ -1,21 +1,10 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2021 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 # component directories
 set(MIKTEX_REL_APP_DIR                  "Libraries/MiKTeX/App")
@@ -75,6 +64,7 @@ set(MIKTEX_REL_GRAPHITE2_DIR            "Libraries/3rd/graphite2")
 set(MIKTEX_REL_GREGORIO_DIR             "Programs/Converters/gregorio")
 set(MIKTEX_REL_GSF2PK_DIR               "Programs/MiKTeX/gsf2pk")
 set(MIKTEX_REL_HARFBUZZ_DIR             "Libraries/3rd/harfbuzz")
+set(MIKTEX_REL_HITEX_DIR                "Programs/TeXAndFriends/hitex")
 set(MIKTEX_REL_HUNSPELL_DIR             "Libraries/3rd/hunspell")
 set(MIKTEX_REL_INIPOOL_DIR              "BuildUtilities/inipool")
 set(MIKTEX_REL_INITEXMF_DIR             "Programs/MiKTeX/initexmf")
@@ -195,16 +185,15 @@ set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/cata
 # resources
 set(MIKTEX_COMMON_MANIFEST              "${CMAKE_SOURCE_DIR}/Resources/Manifests/common.manifest")
 set(MIKTEX_CONSOLE_ICNS                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.icns")
-set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.ico")
+set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex2022.ico")
 set(MIKTEX_COPYING_CONDITIONS_MD        "${CMAKE_SOURCE_DIR}/COPYING.md")
 set(MIKTEX_COPYING_CONDITIONS_RTF       "${CMAKE_BINARY_DIR}/${MIKTEX_REL_DOC_DIR}/COPYING.rtf")
 set(MIKTEX_DOWNLOAD_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/download.avi")
 set(MIKTEX_DPIAWARE_MANIFEST            "${CMAKE_SOURCE_DIR}/Resources/Manifests/dpiAware.manifest")
 set(MIKTEX_FILECOPY_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/filecopy.avi")
 set(MIKTEX_ICNS                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.icns")
-set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex2018.ico")
-set(MIKTEX_PACKAGE_MANAGER_ICON         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-package-manager.ico")
-set(MIKTEX_WIZARD_HEADER_BITMAP         "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-header.bmp")
+set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex2022.ico")
+set(MIKTEX_WIZARD_HEADER_BITMAP         "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-header-2022.bmp")
 set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-watermark.bmp")
 
 # sed scripts
@@ -239,16 +228,16 @@ set(TRACINGSTACKLEVELS_CH       "${CMAKE_SOURCE_DIR}/Programs/TeXAndFriends/web2
 
 # library address file
 if(WIN32)
-  if(CMAKE_CL_64)
-    set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs-x64.txt")
-  else()
-    set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs.txt")
-  endif()
+    if(CMAKE_CL_64)
+        set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs-x64.txt")
+    else()
+        set(MIKTEX_LIBRARY_ADDRESS_FILE "${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/etc/dll_locs.txt")
+    endif()
 endif()
 
 # build utilities
 if(MIKTEX_NATIVE_WINDOWS) 
-  set(HHC_EXECUTABLE_WRAPPER "${CMAKE_BINARY_DIR}/${MIKTEX_REL_BUILD_TOOLS_ETC_DIR}/hhc.cmd")
+    set(HHC_EXECUTABLE_WRAPPER "${CMAKE_BINARY_DIR}/${MIKTEX_REL_BUILD_TOOLS_ETC_DIR}/hhc.cmd")
 endif()
 
 # generated Git info

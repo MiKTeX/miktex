@@ -55,7 +55,7 @@ void Absolutize(string& paths, const PathName& relativeFrom)
     else
     {
 #if MIKTEX_WINDOWS
-      MIKTEX_ASSERT(PathNameUtil::IsAbsolutePath(relativeFrom));
+      MIKTEX_ASSERT(PathNameUtil::IsAbsolutePath(relativeFrom.ToString()));
       PathName absPath(relativeFrom / PathName(path));
       PathName absPath2;
       MIKTEX_ASSERT(absPath2.GetCapacity() >= MAX_PATH);

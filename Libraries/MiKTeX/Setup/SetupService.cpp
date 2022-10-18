@@ -44,6 +44,7 @@ using namespace MiKTeX::Util;
 #define LICENSE_FILE "LICENSE.TXT"
 #define DOWNLOAD_INFO_FILE "README.TXT"
 
+#define ADVANCED_MIKTEX "\"Advanced MiKTeX\""
 #define BASIC_MIKTEX "\"Basic MiKTeX\""
 #define BASIC_MIKTEX_LEGACY "\"Small MiKTeX\""
 #define COMPLETE_MIKTEX "\"Complete MiKTeX\""
@@ -87,7 +88,7 @@ string IssueSeverityString(IssueSeverity severity)
   case IssueSeverity::Critical: return "critical issue";
   case IssueSeverity::Major: return "major issue";
   case IssueSeverity::Minor: return "minor issue";
-  case IssueSeverity::Trivial: return "trivial issue";
+  case IssueSeverity::Trivial: return "slight issue";
   default: MIKTEX_UNEXPECTED();
   }
 }
@@ -283,6 +284,10 @@ PackageLevel SetupService::TestLocalRepository(const PathName& pathRepository, P
   else if (firstLine.find(BASIC_MIKTEX) != string::npos)
   {
     packageLevel_ = PackageLevel::Basic;
+  }
+  else if (firstLine.find(ADVANCED_MIKTEX) != string::npos)
+  {
+    packageLevel_ = PackageLevel::Advanced;
   }
   else if (firstLine.find(COMPLETE_MIKTEX) != string::npos
     || firstLine.find(COMPLETE_MIKTEX_LEGACY) != string::npos)
@@ -1495,10 +1500,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   {
     allArgs.push_back("--admin");
   }
-  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate && options.Task != SetupTask::CleanUp)
-  {
-    allArgs.push_back("--log-file=" + GetULogFileName().ToString());
-  }
   allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
 
@@ -1506,7 +1507,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose();
     // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
@@ -1522,7 +1522,6 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args, bool mustSucceed)
         Warning(miktexException);
       }
     }
-    ULogOpen();
   }
 }
 
@@ -1537,10 +1536,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
   {
     allArgs.push_back("--admin");
   }
-  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate && options.Task != SetupTask::CleanUp)
-  {
-    allArgs.push_back("--log-file=" + GetULogFileName().ToString());
-  }
   allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
   allArgs.insert(allArgs.end(), args.begin(), args.end());
@@ -1549,7 +1544,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose();
     // FIXME: only need to unload when building the FNDB
     session->UnloadFilenameDatabase();
     int exitCode;
@@ -1565,7 +1559,6 @@ void SetupServiceImpl::RunOneMiKTeXUtility(const vector<string>& args, bool must
         Warning(miktexException);
       }
     }
-    ULogOpen();
   }
 }
 
@@ -1587,9 +1580,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
   if (!options.IsDryRun)
   {
     Log(fmt::format("{}:\n", CommandLineBuilder(allArgs).ToString()));
-    ULogClose();
     Process::Run(exePath, allArgs, this);
-    ULogOpen();
   }
 }
 
@@ -1599,6 +1590,9 @@ void SetupServiceImpl::CreateInfoFile()
   const char* lpszPackageSet;
   switch (options.PackageLevel)
   {
+  case PackageLevel::Advanced:
+    lpszPackageSet = ADVANCED_MIKTEX;
+    break;
   case PackageLevel::Essential:
     lpszPackageSet = ESSENTIAL_MIKTEX;
     break;
@@ -1965,6 +1959,53 @@ vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageInte
       });
     }
   }
+#if defined(MIKTEX_WINDOWS)
+  if (!IsWindows10OrGreater())
+  {
+    IssueSeverity s = IssueSeverity::Trivial;
+    if (now > 1760443200)
+    {
+      s = IssueSeverity::Critical;
+    }
+    else if (now > 1730808000)
+    {
+      s = IssueSeverity::Major;
+    }
+    else if (now > 1667908800)
+    {
+      s = IssueSeverity::Minor;
+    }
+    result.push_back({
+      IssueType::UnsupportedPlatform,
+      s,
+      T_("You are running MiKTeX on an unsupported version of Windows."),
+      "",
+      "unsupported-platform"
+    });
+  }
+#endif
+#if defined(MIKTEX_WINDOWS_32)
+  IssueSeverity s = IssueSeverity::Trivial;
+  if (now > 1760443200)
+  {
+    s = IssueSeverity::Critical;
+  }
+  else if (now > 1730808000)
+  {
+    s = IssueSeverity::Major;
+  }
+  else if (now > 1667908800)
+  {
+    s = IssueSeverity::Minor;
+  }
+  result.push_back({
+    IssueType::Windows32bit,
+    s,
+    T_("You are running the unsupported 32-bit version of MiKTeX for Windows."),
+    T_("Install the 64-bit version of MiKTeX for Windows."),
+    "miktex-32bit"
+  });
+#endif
   if (session->IsSharedSetup())
   {
     InstallationSummary commonInstallation = packageManager->GetInstallationSummary(false);
@@ -2057,7 +2098,9 @@ vector<Issue> SetupServiceImpl::FindIssues(bool checkPath, bool checkPackageInte
   {
     MIKTEX_ASSERT(!session->IsAdminMode());
     InstallationSummary userInstallation = packageManager->GetInstallationSummary(true);
+#if 0
     MIKTEX_ASSERT(userInstallation.packageCount > 0);
+#endif
     if (!IsValidTimeT(userInstallation.lastUpdateCheck))
     {
       result.push_back({

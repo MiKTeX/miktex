@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -149,9 +149,6 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(bool) HaveGetGitInfo();
-
-public:
-  static MIKTEXCORECEEAPI(bool) RunningOnAServer();
 
 public:
   static MIKTEXCORECEEAPI(void) UncompressFile(const MiKTeX::Util::PathName& pathIn, MiKTeX::Util::PathName& pathOut);

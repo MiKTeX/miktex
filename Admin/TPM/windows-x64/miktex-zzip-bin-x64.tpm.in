@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Guido Draheim" year="1999-2004"/>
     <TPM:License type="lgpl2"/>
     <TPM:Version>0.13.71</TPM:Version>
-    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Extract data from files archived in a single zip file.

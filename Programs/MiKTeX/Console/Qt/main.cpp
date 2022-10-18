@@ -1,6 +1,6 @@
 /* main.cpp:
 
-   Copyright (C) 2017-2021 Christian Schenk
+   Copyright (C) 2017-2022 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -462,8 +462,18 @@ int main(int argc, char* argv[])
     {
       LOG4CXX_WARN(logger, "session.use_count() == " << session.use_count());
     }
-    session->Close();
-    session = nullptr;
+    try
+    {
+      session->Close();
+      session = nullptr;
+    }
+    catch(const MiKTeXException& e)
+    {
+      if (!fastExit)
+      {
+        throw;
+      }
+    }    
     if (isLog4cxxConfigured && !fastExit)
     {
       LOG4CXX_INFO(logger, "finishing with exit code " << ret);

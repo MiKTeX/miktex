@@ -29,7 +29,12 @@ extern long UPTEXtoUCS(long uptex);
 #define BYTE2(x) (((x)>>16) & 0xff)
 #define BYTE3(x) (((x)>> 8) & 0xff)
 #define BYTE4(x) ( (x)      & 0xff)
- 
+
+/* used only for debug */
+#ifdef DEBUG
+extern int UCStoUTF8S(long ucs, unsigned char *s);
+#endif
+
 
 /* UTF-8 -> UCS */
 #define UTF8BtoUCS(a,b)   ((((a)&0x1f) << 6) | ((b)&0x3f))

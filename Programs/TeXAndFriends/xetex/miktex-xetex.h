@@ -32,7 +32,6 @@
 #include <miktex/Core/MD5>
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
-#include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/ErrorHandlerImpl>
 #include <miktex/TeXAndFriends/FormatHandlerImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
@@ -168,9 +167,6 @@ public:
   }
 
 private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<XETEXPROGCLASS> charConv{ XETEXPROG };
-
-private:
   MiKTeX::TeXAndFriends::ErrorHandlerImpl<XETEXPROGCLASS> errorHandler{ XETEXPROG };
 
 private:
@@ -191,7 +187,6 @@ private:
 public:
   void Init(std::vector<char*>& args) override
   {
-    SetCharacterConverter(&charConv);
     SetErrorHandler(&errorHandler);
     SetFormatHandler(&formatHandler);
     SetInitFinalize(&initFinalize);

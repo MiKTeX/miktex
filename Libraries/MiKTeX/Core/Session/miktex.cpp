@@ -619,6 +619,18 @@ MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
   {
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
+#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
+    auto legacy = OSSL_PROVIDER_load(nullptr, "legacy");
+    if (legacy == nullptr)
+    {
+      // TODO
+    }
+    auto deflt = OSSL_PROVIDER_load(nullptr, "default");
+    if (deflt == NULL)
+    {
+      // TODO
+    }
+#endif
     initDone = true;
   }
   return CryptoLib::OpenSSL;

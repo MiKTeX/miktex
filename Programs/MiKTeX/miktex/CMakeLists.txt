@@ -43,6 +43,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 list(APPEND miktex_sources
+    internal.cpp
     internal.h
     miktex.cpp
     shims/mkfntmap.cpp
@@ -112,6 +113,36 @@ list(APPEND miktex_sources
     topics/links/commands/uninstall.cpp
     topics/links/topic.cpp
     topics/links/topic.h
+)
+
+list(APPEND miktex_sources
+    topics/packages/commands/checkupdate.cpp
+    topics/packages/commands/checkupgrade.cpp
+    topics/packages/commands/commands.h
+    topics/packages/commands/info.cpp
+    topics/packages/commands/install.cpp
+    topics/packages/commands/list.cpp
+    topics/packages/commands/private.cpp
+    topics/packages/commands/private.h
+    topics/packages/commands/remove.cpp
+    topics/packages/commands/require.cpp
+    topics/packages/commands/update.cpp
+    topics/packages/commands/updatepackagedatabase.cpp
+    topics/packages/commands/upgrade.cpp
+    topics/packages/commands/verify.cpp
+    topics/packages/topic.cpp
+    topics/packages/topic.h
+)
+
+list(APPEND miktex_sources
+    topics/repositories/commands/checkbandwidth.cpp
+    topics/repositories/commands/commands.h
+    topics/repositories/commands/info.cpp
+    topics/repositories/commands/list.cpp
+    topics/repositories/commands/private.cpp
+    topics/repositories/commands/private.h
+    topics/repositories/topic.cpp
+    topics/repositories/topic.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

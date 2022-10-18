@@ -1,6 +1,6 @@
 /* miktex/PackageManager/RepositoryInfo.h:              -*- C++ -*-
 
-   Copyright (C) 2001-2019 Christian Schenk
+   Copyright (C) 2001-2022 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -28,6 +28,7 @@
 
 #include <ctime>
 
+#include <ostream>
 #include <string>
 
 #include "definitions.h"
@@ -48,6 +49,25 @@ enum class PackageLevel
   Complete = 1000000000,
 };
 
+inline std::ostream& operator<<(std::ostream& os, const PackageLevel packageLevel)
+{
+  switch (packageLevel)
+  {
+    case PackageLevel::None:
+      return os << "none";
+    case PackageLevel::Essential:
+      return os << "essential";
+    case PackageLevel::Basic:
+      return os << "basic";
+    case PackageLevel::Advanced:
+      return os << "advanced";
+    case PackageLevel::Complete:
+      return os << "complete";
+    default:
+      return os << "?";
+  }  
+}
+
 /// Repository type.
 enum class RepositoryType
 {
@@ -59,7 +79,26 @@ enum class RepositoryType
   Remote,
   MiKTeXInstallation
 };
-  
+
+inline std::ostream& operator<<(std::ostream& os, const RepositoryType repositoryType)
+{
+  switch (repositoryType)
+  {
+    case RepositoryType::Unknown:
+      return os << "unknown";
+    case RepositoryType::MiKTeXDirect:
+      return os << "miktexdirect";
+    case RepositoryType::Local:
+      return os << "local";
+    case RepositoryType::Remote:
+      return os << "remote";
+    case RepositoryType::MiKTeXInstallation:
+      return os << "miktexinstallation";
+    default:
+      return os << "?";
+  }  
+}
+
 /// Repository status.
 enum class RepositoryStatus
 {
@@ -69,6 +108,21 @@ enum class RepositoryStatus
   /// Remote repository is known to be offline.
   Offline,
 };
+
+inline std::ostream& operator<<(std::ostream& os, const RepositoryStatus repositoryStatus)
+{
+  switch (repositoryStatus)
+  {
+    case RepositoryStatus::Unknown:
+      return os << "unknown";
+    case RepositoryStatus::Online:
+      return os << "online";
+    case RepositoryStatus::Offline:
+      return os << "offline";
+    default:
+      return os << "?";
+  }  
+}
 
 /// Repository integrrity.
 enum class RepositoryIntegrity
@@ -80,6 +134,21 @@ enum class RepositoryIntegrity
   Corrupted,
 };
 
+inline std::ostream& operator<<(std::ostream& os, const RepositoryIntegrity repositoryIntegrity)
+{
+  switch (repositoryIntegrity)
+  {
+    case RepositoryIntegrity::Unknown:
+      return os << "unknown";
+    case RepositoryIntegrity::Intact:
+      return os << "intact";
+    case RepositoryIntegrity::Corrupted:
+      return os << "corrupted";
+    default:
+      return os << "?";
+  }  
+}
+
 /// Repository release state.
 enum class RepositoryReleaseState
 {
@@ -89,6 +158,22 @@ enum class RepositoryReleaseState
   /// Experimental channel.
   Next,
 };
+
+inline std::ostream& operator<<(std::ostream& os, const RepositoryReleaseState repositoryReleaseState)
+{
+  switch (repositoryReleaseState)
+  {
+    case RepositoryReleaseState::Unknown:
+      return os << "unknown";
+    case RepositoryReleaseState::Stable:
+      return os << "stable";
+    case RepositoryReleaseState::Next:
+      return os << "next";
+    default:
+      return os << "?";
+  }  
+}
+
 
 /// Package repository info struct.
 struct RepositoryInfo

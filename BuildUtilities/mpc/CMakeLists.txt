@@ -1,45 +1,34 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2006-2020 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 configure_file(
-  config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    config.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
 set(mpc_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h
-  mpc-version.h
-  mpc.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    mpc-version.h
+    mpc.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND mpc_sources
-    ${MIKTEX_COMMON_MANIFEST}
-    mpc.rc
-  )
+    list(APPEND mpc_sources
+        ${MIKTEX_COMMON_MANIFEST}
+        mpc.rc
+    )
 endif()
 
 add_executable(mpc ${mpc_sources})
@@ -47,28 +36,28 @@ add_executable(mpc ${mpc_sources})
 set_property(TARGET mpc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(mpc
-  ${core_dll_name}
-  ${mpm_dll_name}
-  miktex-popt-wrapper
+    ${core_dll_name}
+    ${mpm_dll_name}
+    miktex-popt-wrapper
 )
 
 if (USE_SYSTEM_FMT)
-  target_link_libraries(mpc MiKTeX::Imported::FMT)
+    target_link_libraries(mpc MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(mpc ${fmt_dll_name})
+    target_link_libraries(mpc ${fmt_dll_name})
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(mpc
-    Wldap32
-    shlwapi
-    version
-    wininet
-    winmm
-    ws2_32
-  )
+    target_link_libraries(mpc
+        Wldap32
+        shlwapi
+        version
+        wininet
+        winmm
+        ws2_32
+    )
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  install(TARGETS mpc DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+    install(TARGETS mpc DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()

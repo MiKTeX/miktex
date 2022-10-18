@@ -1,21 +1,14 @@
-/* miktex-upbibtex.h:
-
-   Copyright (C) 2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-upbibtex.h
+ * @author Christian Schenk
+ * @brief MiKTeX upBibTeX
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
@@ -23,18 +16,16 @@
 
 #include <iostream>
 
-#define IMPLEMENT_TCX 1
-
 #include <miktex/Configuration/ConfigNames>
 #include <miktex/Core/FileType>
-#include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/WebAppInputLine>
 
 #include "upbibtex.h"
 
-namespace bibtex {
+namespace bibtex
+{
 #include <miktex/bibtex.defaults.h>
 }
 
@@ -45,7 +36,9 @@ extern UPBIBTEXPROGCLASS UPBIBTEXPROG;
 class UPBIBTEXAPPCLASS :
     public MiKTeX::TeXAndFriends::WebAppInputLine
 {
+
 public:
+
     template<typename T> void Reallocate(T*& p, size_t n)
     {
         size_t amount = n * sizeof(T);
@@ -57,55 +50,36 @@ public:
         p = reinterpret_cast<T*>(p2);
     }
   
-public:
     template<typename T> void PascalReallocate(T*& p, size_t n)
     {
         return Reallocate(p, n + 1);
     }
 
-public:
     template<typename T> void Allocate(T*& p, size_t n)
     {
         p = nullptr;
         Reallocate(p, n);
     }
 
-public:
     template<typename T> void PascalAllocate(T*& p, size_t n)
     {
         Allocate(p, n + 1);
     }
 
-public:
     template<typename T> void Free(T*& p)
     {
         free(p);
         p = nullptr;
     }
 
-private:
-    std::shared_ptr<MiKTeX::Core::Session> session;
-  
-private:
-    MiKTeX::TeXAndFriends::CharacterConverterImpl<UPBIBTEXPROGCLASS> charConv{ UPBIBTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InitFinalizeImpl<UPBIBTEXPROGCLASS> initFinalize{ UPBIBTEXPROG };
-
-private:
-    MiKTeX::TeXAndFriends::InputOutputImpl<UPBIBTEXPROGCLASS> inputOutput{ UPBIBTEXPROG };
-
-public:
     void Init(std::vector<char*>& args) override
     {
-        SetCharacterConverter(&charConv);
         SetInitFinalize(&initFinalize);
         SetInputOutput(&inputOutput);
         WebAppInputLine::Init(args);
         session = GetSession();
-#if defined(IMPLEMENT_TCX)
-        EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-#endif
+        auto guessFileEnc = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXJP, MIKTEX_CONFIG_VALUE_GUESS_INPUT_KANJI_ENCODING).GetBool();
+        set_guess_file_enc(guessFileEnc);
         UPBIBTEXPROG.entstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "ent_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::ent_str_size())).GetInt();
         UPBIBTEXPROG.globstrsize = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "glob_str_size", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::glob_str_size())).GetInt();
         UPBIBTEXPROG.maxstrings = session->GetConfigValue(MIKTEX_CONFIG_SECTION_BIBTEX, "max_strings", MiKTeX::Configuration::ConfigValue(bibtex::bibtex::max_strings())).GetInt();
@@ -162,7 +136,6 @@ public:
         UPBIBTEXPROG.computehashprime();
     }
   
-public:
     void Finalize() override
     {
         Free(UPBIBTEXPROG.bibfile);
@@ -197,38 +170,42 @@ public:
         WebAppInputLine::Finalize();
     }
 
-#define OPT_KANJI 1000
-#define OPT_MIN_CROSSREFS 1001
-#define OPT_QUIET 1002
+#define OPT_GUESS_INPUT_ENC 1000
+#define OPT_KANJI 1001
+#define OPT_MIN_CROSSREFS 1002
+#define OPT_NO_GUESS_INPUT_ENC 1003
+#define OPT_QUIET 1004
 
-public:
     void AddOptions() override
     {
         WebAppInputLine::AddOptions();
+        AddOption("guess-input-enc", MIKTEXTEXT("Guess input file encoding."), OPT_GUESS_INPUT_ENC, POPT_ARG_NONE);
         AddOption("kanji", MIKTEXTEXT("Set Japanese encoding (ENC=euc|jis|sjis|utf8)."), OPT_KANJI, POPT_ARG_STRING, "ENC");
-        AddOption(MIKTEXTEXT("quiet\0Suppress all output (except errors)."), OPT_QUIET, POPT_ARG_NONE);
+        AddOption("min-crossrefs", MIKTEXTEXT("Include item after N cross-refs; default 2."), OPT_MIN_CROSSREFS, POPT_ARG_STRING, "N");
+        AddOption("no-guess-input-enc", MIKTEXTEXT("Do not guess input file encoding."), OPT_NO_GUESS_INPUT_ENC, POPT_ARG_NONE);
+        AddOption("quiet", MIKTEXTEXT("Suppress all output (except errors)."), OPT_QUIET, POPT_ARG_NONE);
         AddOption("silent", "quiet");
         AddOption("terse", "quiet");
     }
   
-public:
     MiKTeX::Core::FileType GetInputFileType() const override
     {
         return MiKTeX::Core::FileType::BIB;
     }
 
-public:
     std::string MIKTEXTHISCALL GetUsage() const override
     {
         return MIKTEXTEXT("[OPTION...] AUXFILE");
     }
 
-public:
     bool ProcessOption(int opt, const std::string& optArg) override
     {
         bool done = true;
         switch (opt)
         {
+        case OPT_GUESS_INPUT_ENC:
+            set_guess_file_enc(1);
+            break;
         case OPT_KANJI:
             set_prior_file_enc();
             if (!set_enc_string(optArg.c_str(), optArg.c_str()))
@@ -240,6 +217,9 @@ public:
         case OPT_MIN_CROSSREFS:
             UPBIBTEXPROG.mincrossrefs = std::stoi(optArg);
             break;
+        case OPT_NO_GUESS_INPUT_ENC:
+            set_guess_file_enc(0);
+            break;
         case OPT_QUIET:
             SetQuietFlag(true);
             break;
@@ -250,19 +230,16 @@ public:
         return done;
     }
   
-public:
     std::string MIKTEXTHISCALL TheNameOfTheGame() const override
     {
-        return "BibTeX";
+        return "upBibTeX";
     }
 
-public:
     void BufferSizeExceeded() const override
     {
         UPBIBTEXPROG.bufferoverflow();
     }
 
-public:
     void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
     {
         MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
@@ -271,7 +248,6 @@ public:
         inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
     }
 
-public:
     template<class T> bool OpenBstFile(T& f) const
     {
         const char* fileName = GetInputOutput()->nameoffile();
@@ -293,6 +269,13 @@ public:
 #endif
         return true;
     }
+
+private:
+
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<UPBIBTEXPROGCLASS> initFinalize{ UPBIBTEXPROG };
+    MiKTeX::TeXAndFriends::InputOutputImpl<UPBIBTEXPROGCLASS> inputOutput{ UPBIBTEXPROG };
+    std::shared_ptr<MiKTeX::Core::Session> session;
+
 };
 
 extern UPBIBTEXAPPCLASS UPBIBTEXAPP;

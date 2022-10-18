@@ -35,9 +35,6 @@
 
 <title>Description</title>
 
-<para>&MPM; (&MiKTeXPackageManager;) is used to install packages from
-a &MiKTeX; package repository.</para>
-
 <para>&MPM; starts in windowed mode, if you do not specify any
 command-line options.</para>
 
@@ -82,26 +79,6 @@ example, if you want to install a package for all users, you invoke
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
-<varlistentry>
-<term><option>--find-updates</option></term>
-<listitem>
-<indexterm>
-<primary>--find-updates</primary>
-</indexterm>
-<para>Check the package repository for updates, then print the list of
-updateable packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--find-upgrades</option></term>
-<listitem>
-<indexterm>
-<primary>--find-upgrades</primary>
-</indexterm>
-<para>Search for packages that must be installed in order to complete
-the &MiKTeX; setup (can be used in conjunction with
-<option>--package-level</option>). Then print the package
-list.</para></listitem>
-</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <varlistentry>
@@ -126,124 +103,23 @@ root directory must be specified via
 <option>--repository=<replaceable>dir</replaceable></option>.</para>
 </listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--install=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--install=packagelist</primary>
-</indexterm>
-<para>Install the specified packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--install=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--install=@listfile</primary>
-</indexterm>
-<para>Install packages. Package names are read from
-<replaceable>listfile</replaceable>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--list</option></term>
-<listitem>
-<indexterm>
-<primary>--list</primary>
-</indexterm>
-<para>List the contents of the package database: for each package,
-print the installation status, the number of files, the size, and the
-name.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--list-package-names</option></term>
-<listitem>
-<indexterm>
-<primary>--list-package-names</primary>
-</indexterm>
-<para>List the package names.</para>
-</listitem>
-</varlistentry>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
-<varlistentry>
-<term><option>--max-count=<replaceable>num</replaceable></option></term>
-<listitem><para>Stop after <replaceable>num</replaceable> packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--package-level=<replaceable>level</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--package-level=level</primary>
-</indexterm>
-<para>Use the specified package level (to be used in conjunction with
-<option>--find-upgrades</option> and
-<option>--upgrade</option>).</para>
-<para><replaceable>level</replaceable> must be one of:</para>
-<variablelist>
-<varlistentry>
-<term><option>essential</option></term>
-<listitem><para>Includes mandatory packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>basic</option></term>
-<listitem><para>Includes popular packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>complete</option></term>
-<listitem><para>Includes all available packages.</para></listitem>
-</varlistentry>
-</variablelist>
-</listitem>
-</varlistentry>
 <varlistentry><term><option>--pick-repository-url</option></term>
 <listitem><para>Pick up a suitable &URL; from the package repository
 list and print it.</para></listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--print-package-info=<replaceable>package</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--print-package-info=package</primary>
-</indexterm>
-<para>Print detailed information about the
-specified package.</para></listitem>
-</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
-<varlistentry>
-<term><option>--require=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--require=packagelist</primary>
-</indexterm>
-<para>Install packages which are not already installed.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--require=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--require=@listfile</primary>
-</indexterm>
-<para>Install packages which are not already installed. Package names
-are read from <replaceable>listfile</replaceable>.</para></listitem>
-</varlistentry>
 <varlistentry>
 <term><option>--repository=<replaceable>location</replaceable></option></term>
 <listitem><para>Use the specified location as the package repository.
 The location can be either a fully qualified path name (a local
-package repository) or an &URL; (a remote package repository).  You
-can use the <option>--list-repositories</option> to retrieve a list of
-working package repository &URL;s.</para></listitem>
+package repository) or an &URL; (a remote package repository).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--repository-release-state=<replaceable>state</replaceable></option></term>
 <listitem><para>Select the release state of the remote package
 repository.  The release state is relevant for finding appropriate
-package repositories (<option>--list-repositories</option>,
-<option>--pick-repository-url</option>). The release state must be one
+package repositories. The release state must be one
 of <option>stable</option> or <option>next</option>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--reverse</option></term>
-<listitem><para>Reverse the result of comparisons (when listing packages).</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--set-repository=<replaceable>location</replaceable></option></term>
@@ -258,86 +134,6 @@ package repository).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <varlistentry>
-<term><option>--uninstall=<replaceable>package</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--uninstall=package</primary>
-</indexterm>
-<para>Uninstall the specified package.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update</option></term>
-<listitem>
-<indexterm>
-<primary>--update</primary>
-</indexterm>
-<para>Update all installed packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--update=packagelist</primary>
-</indexterm>
-<para>Update the specified packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--update=@listfile</primary>
-</indexterm>
-<para>Update packages. Package names are read from
-<replaceable>listfile</replaceable>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update-db</option></term>
-<listitem>
-<indexterm>
-<primary>--update-db</primary>
-</indexterm>
-<para>Synchronize the local package database with the package
-repository.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--upgrade</option></term>
-<listitem>
-<indexterm>
-<primary>--upgrade</primary>
-</indexterm>
-<para>Upgrade the &MiKTeX; setup to a package level (can be used in
-conjunction with <option>--package-level</option>).  This will install
-all the missing packages.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--verify</option></term>
-<listitem>
-<indexterm>
-<primary>--verify</primary>
-</indexterm>
-<para>Verify the integrity of all installed packages.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--verify=<replaceable>packagelist</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--verify=packagelist</primary>
-</indexterm>
-<para>Verify the integrity of the specified packages.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--verify=@<replaceable>listfile</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--verify=@listfile</primary>
-</indexterm>
-<para>Verify the integrity packages. Package names are read from
-<replaceable>listfile</replaceable>.</para>
-</listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--verbose</option></term>
 <indexterm>
 <primary>--verbose</primary>
@@ -346,54 +142,6 @@ all the missing packages.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
-
-</refsect1>
-
-<refsect1>
-
-<title>Package Database</title>
-
-<para>All package information is retrieved from the package database,
-which must have been properly installed by running &MPM; with the
-<option>--update-db</option> option.</para>
-
-</refsect1>
-
-<refsect1>
-
-<title>Examples</title>
-
-<para>Print the list of known package repository &URL;s:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --list-repositories</userinput></screen>
-
-<para>Retrieve the package database files from the &FTP; server
-<systemitem class="server">some.server</systemitem> (assuming this a
-registered &URL;):</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
-  --verbose --update-db</userinput></screen>
-
-<para>Print information about package
-<application>a0poster</application>:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --print-package-info a0poster</userinput></screen>
-
-<para>Install package <application>a0poster</application>:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --install a0poster</userinput></screen>
-
-<para>Update all installed packages:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --update</userinput></screen>
-
-<para>Print the list of installed packages:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --list | grep ^i</userinput></screen>
-
-<para>Upgrade the &MiKTeX; setup to the highest level:</para>
-
-<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --package-level=complete --upgrade</userinput></screen>
 
 </refsect1>
 
@@ -426,6 +174,16 @@ through any proxy.</para></listitem>
 </varlistentry>
 
 </variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<simplelist type="inline">
+<member><citerefentry><refentrytitle>miktex</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+</simplelist>
 
 </refsect1>
 

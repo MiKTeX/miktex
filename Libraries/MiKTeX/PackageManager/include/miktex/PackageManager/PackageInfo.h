@@ -1,28 +1,17 @@
-/* miktex/PackageManager/PackageInfo.h:                 -*- C++ -*-
-
-   Copyright (C) 2001-2020 Christian Schenk
-
-   This file is part of MiKTeX Package Manager.
-
-   MiKTeX Package Manager is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   MiKTeX Package Manager is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file miktex/PackageManager/PackageInfo.h
+ * @author Christian Schenk
+ * @brief Package information
+ *
+ * @copyright Copyright © 2001-2022 Christian Schenk
+ *
+ * This file is part of MiKTeX Package Manager.
+ *
+ * MiKTeX Package Manager is licensed under GNU General Public License version 2
+ * or any later version.
+ */
 
 #pragma once
-
-#if !defined(C47620F83A5C47D2B408E1D3C4EF0E48)
-#define C47620F83A5C47D2B408E1D3C4EF0E48
 
 #include "config.h"
 
@@ -43,200 +32,201 @@ MIKTEX_PACKAGES_BEGIN_NAMESPACE;
 /// Package record.
 struct PackageInfo
 {
-  /// Package ID.
-  std::string id;
+    /// Size of the archive file.
+    std::size_t archiveFileSize = 0;
 
-  /// Display name.
-  std::string displayName;
+    /// The copyright owner of the package.
+    std::string copyrightOwner;
 
-  /// One-line package description.
-  std::string title;
+    /// Copyright year
+    std::string copyrightYear;
 
-  /// Informal version information.
-  std::string version;
+    /// Name of creator (packer).
+    std::string creator;
 
-  /// Target system.
-  std::string targetSystem;
+    /// Relative path to the package directory on a CTAN mirror.
+    std::string ctanPath;
 
-  /// Multi-line package description.
-  std::string description;
+    /// Multi-line package description.
+    std::string description;
 
-  /// Name of creator (packer).
-  std::string creator;
+    /// MD5 of the package.
+    MiKTeX::Core::MD5 digest;
 
-  /// Total size of all run files.
-  std::size_t sizeRunFiles = 0;
+    /// Display name.
+    std::string displayName;
 
-  /// Total size of all doc files.
-  std::size_t sizeDocFiles = 0;
+    /// Package ID.
+    std::string id;
 
-  /// Total size of all source files.
-  std::size_t sizeSourceFiles = 0;
+    /// `true`, if the package is obsolete.
+    bool isObsolete = false;
 
-  /// The run file list.
-  std::vector<std::string> runFiles;
+    /// `true`, if the package can be removed.
+    bool isRemovable = false;
 
-  /// The doc file list.
-  std::vector<std::string> docFiles;
+    /// The doc file list.
+    std::vector<std::string> docFiles;
 
-  /// The source file list.
-  std::vector<std::string> sourceFiles;
+    /// The license type of the package.
+    std::string licenseType;
 
-  /// List of required packages.
-  std::vector<std::string> requiredPackages;
+    /// The minimum required target system version.
+    std::string minTargetSystemVersion;
 
-  /// List of dependants.
-  std::vector<std::string> requiredBy;
+    /// The release state of the package.
+    RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
 
-  /// Date/time when the package was created.
-  std::time_t timePackaged = InvalidTimeT;
+    /// List of dependents.
+    std::vector<std::string> requiredBy;
 
-  /// Date/time when the package was installed in the user scope..
-  std::time_t timeInstalledUser = InvalidTimeT;
+    /// List of required packages.
+    std::vector<std::string> requiredPackages;
 
-  /// Date/time when the package was installed in the common scope.
-  std::time_t timeInstalledCommon = InvalidTimeT;
+    /// The run file list.
+    std::vector<std::string> runFiles;
 
-  /// Size of the archive file.
-  std::size_t archiveFileSize = 0;
+    /// Total size of all doc files.
+    std::size_t sizeDocFiles = 0;
 
-  /// MD5 of the package.
-  MiKTeX::Core::MD5 digest;
+    /// Total size of all source files.
+    std::size_t sizeSourceFiles = 0;
 
-  /// `true`, if the package can be removed.
-  bool isRemovable = false;
+    /// Total size of all run files.
+    std::size_t sizeRunFiles = 0;
 
-  /// `true`, if the package is obsolete.
-  bool isObsolete = false;
+    /// The source file list.
+    std::vector<std::string> sourceFiles;
 
-  /// The release state of the package.
-  RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
+    /// Target system.
+    std::string targetSystem;
 
-  /// Relative path to the package directory on a CTAN mirror.
-  std::string ctanPath;
+    /// Date/time when the package was installed in the common scope.
+    std::time_t timeInstalledCommon = InvalidTimeT;
 
-  /// The license type of the package.
-  std::string licenseType;
+    /// Date/time when the package was installed in the user scope..
+    std::time_t timeInstalledUser = InvalidTimeT;
 
-  /// The copyright owner of the package.
-  std::string copyrightOwner;
+    /// Date/time when the package was created.
+    std::time_t timePackaged = InvalidTimeT;
 
-  /// Copyright year
-  std::string copyrightYear;
+    /// One-line package description.
+    std::string title;
 
-  /// The version/date of the package.
-  std::string versionDate;
+    /// Informal version information.
+    std::string version;
 
-  /// Gets the total number of files in the package.
-  /// @return Returns the number of files.
-  unsigned long GetNumFiles() const
-  {
-    return static_cast<unsigned long>(runFiles.size() + docFiles.size() + sourceFiles.size());
-  }
+    /// The version/date of the package.
+    std::string versionDate;
 
-  /// Gets the total size (in bytes) of all files in the package.
-  /// @return Returns the package size.
-  std::size_t GetSize() const
-  {
-    return sizeRunFiles + sizeDocFiles + sizeSourceFiles;
-  }
-
-  /// Tests for a pure container package.
-  /// @return Returns true, if this is a pure container package.
-  bool IsPureContainer() const
-  {
-    return IsContainer() && GetNumFiles() <= 1;
-  }
-
-  /// Tests for a container package.
-  bool IsContainer() const
-  {
-    return !requiredPackages.empty();
-  }
-
-  /// Checks to see if this package has dependants.
-  bool IsContained() const
-  {
-    return GetRefCount() > 0;
-  }
-
-  /// Checks to see whether the package is installed.
-  bool IsInstalled() const
-  {
-    return IsValidTimeT(timeInstalledUser) || IsValidTimeT(timeInstalledCommon);
-  }
-
-  /// Checks to see whether the package is installed in the specified scope.
-  bool IsInstalled(MiKTeX::Core::ConfigurationScope scope) const
-  {
-    switch (scope)
+    /// Gets the number of dependents.
+    unsigned long GetRefCount() const
     {
-    case MiKTeX::Core::ConfigurationScope::User:
-      return IsValidTimeT(timeInstalledUser);
-    case MiKTeX::Core::ConfigurationScope::Common:
-      return IsValidTimeT(timeInstalledCommon);
-    default:
-      MIKTEX_UNEXPECTED();
+        return static_cast<unsigned long>(requiredBy.size());
     }
-  }
 
-  /// Gets the time, the package was installed.
-  std::time_t GetTimeInstalled() const
-  {
-    return IsValidTimeT(timeInstalledUser) ? timeInstalledUser : timeInstalledCommon;
-  }
-
-  /// Gets the time, the package was installed.
-  void SetTimeInstalled(std::time_t timeInstalled, MiKTeX::Core::ConfigurationScope scope)
-  {
-    switch (scope)
+    /// Gets the total number of files in the package.
+    /// @return Returns the number of files.
+    unsigned long GetNumFiles() const
     {
-    case MiKTeX::Core::ConfigurationScope::User:
-      timeInstalledUser = timeInstalled;
-      break;
-    case MiKTeX::Core::ConfigurationScope::Common:
-      timeInstalledCommon = timeInstalled;
-      break;
-    default:
-      MIKTEX_UNEXPECTED();
+        return static_cast<unsigned long>(runFiles.size() + docFiles.size() + sourceFiles.size());
     }
-  }
 
-  /// Gets the number of dependants.
-  unsigned long GetRefCount() const
-  {
-    return static_cast<unsigned long>(requiredBy.size());
-  }
+    /// Gets the total size (in bytes) of all files in the package.
+    /// @return Returns the package size.
+    std::size_t GetSize() const
+    {
+        return sizeRunFiles + sizeDocFiles + sizeSourceFiles;
+    }
+
+    /// Gets the time, the package was installed.
+    std::time_t GetTimeInstalled() const
+    {
+        return IsValidTimeT(timeInstalledUser) ? timeInstalledUser : timeInstalledCommon;
+    }
+
+    /// Checks to see if this package has dependents.
+    bool IsContained() const
+    {
+        return GetRefCount() > 0;
+    }
+
+    /// Tests for a container package.
+    bool IsContainer() const
+    {
+        return !requiredPackages.empty();
+    }
+
+    /// Checks to see whether the package is installed.
+    bool IsInstalled() const
+    {
+        return IsValidTimeT(timeInstalledUser) || IsValidTimeT(timeInstalledCommon);
+    }
+
+    /// Checks to see whether the package is installed in the specified scope.
+    bool IsInstalled(MiKTeX::Core::ConfigurationScope scope) const
+    {
+        switch (scope)
+        {
+        case MiKTeX::Core::ConfigurationScope::User:
+            return IsValidTimeT(timeInstalledUser);
+        case MiKTeX::Core::ConfigurationScope::Common:
+            return IsValidTimeT(timeInstalledCommon);
+        default:
+            MIKTEX_UNEXPECTED();
+        }
+    }
+
+    /// Tests for a pure container package.
+    /// @return Returns true, if this is a pure container package.
+    bool IsPureContainer() const
+    {
+        return IsContainer() && GetNumFiles() <= 1;
+    }
+
+    /// Gets the time, the package was installed.
+    void SetTimeInstalled(std::time_t timeInstalled, MiKTeX::Core::ConfigurationScope scope)
+    {
+        switch (scope)
+        {
+        case MiKTeX::Core::ConfigurationScope::User:
+            timeInstalledUser = timeInstalled;
+            break;
+        case MiKTeX::Core::ConfigurationScope::Common:
+            timeInstalledCommon = timeInstalled;
+            break;
+        default:
+            MIKTEX_UNEXPECTED();
+        }
+    }
 };
 
 inline bool operator==(const PackageInfo& lhs, const PackageInfo& rhs)
 {
-  return
-    lhs.id == rhs.id
-    && lhs.digest == rhs.digest
-    && lhs.displayName == rhs.displayName
-    && lhs.title == rhs.title
-    && lhs.version == rhs.version
-    && lhs.targetSystem == rhs.targetSystem
-    && lhs.description == rhs.description
-    && lhs.creator == rhs.creator
+    return true
+        && lhs.copyrightOwner == rhs.copyrightOwner
+        && lhs.copyrightYear == rhs.copyrightYear
+        && lhs.creator == rhs.creator
+        && lhs.ctanPath == rhs.ctanPath
+        && lhs.description == rhs.description
+        && lhs.digest == rhs.digest
+        && lhs.displayName == rhs.displayName
+        && lhs.id == rhs.id
+        && lhs.licenseType == rhs.licenseType
+        && lhs.requiredPackages == rhs.requiredPackages
+        && lhs.sizeDocFiles == rhs.sizeDocFiles
+        && lhs.sizeSourceFiles == rhs.sizeSourceFiles
+        && lhs.targetSystem == rhs.targetSystem
+        && lhs.timePackaged == rhs.timePackaged
+        && lhs.title == rhs.title
+        && lhs.version == rhs.version
+        && lhs.versionDate == rhs.versionDate
 #if 0
-    // there was a time when the calculation of sizeRunFiles was broken
-    // maybe due to .tpm file treatment
-    && lhs.sizeRunFiles == rhs.sizeRunFiles
+        // there was a time when the calculation of sizeRunFiles was broken
+        // maybe due to .tpm file treatment
+        && lhs.sizeRunFiles == rhs.sizeRunFiles
 #endif
-    && lhs.sizeDocFiles == rhs.sizeDocFiles
-    && lhs.sizeSourceFiles == rhs.sizeSourceFiles
-    && lhs.requiredPackages == rhs.requiredPackages
-    && lhs.timePackaged == rhs.timePackaged
-    && lhs.ctanPath == rhs.ctanPath
-    && lhs.licenseType == rhs.licenseType
-    && lhs.copyrightOwner == rhs.copyrightOwner
-    && lhs.copyrightYear == rhs.copyrightYear
-    && lhs.versionDate == rhs.versionDate
-    ;
+        ;
 }
 
 MIKTEX_PACKAGES_END_NAMESPACE;
-
-#endif
