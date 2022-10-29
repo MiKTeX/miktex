@@ -294,6 +294,10 @@ int filelineerrorstylep;
 
 int haltonerrorp;
 
+/*tex already trying to halt? */
+
+boolean haltingonerrorp; 
+
 /*tex current filename is quoted */
 
 boolean quoted_filename;

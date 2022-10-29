@@ -1462,6 +1462,8 @@ int scan_math(pointer p, int mstyle)
     math_character(p) = mval.character_value;
     if ((mval.class_value == math_use_current_family_code) && cur_fam_par_in_range)
         math_fam(p) = cur_fam_par;
+    else if ((mval.family_value == var_fam_par) && var_fam_par_in_range)
+        math_fam(p) = cur_fam_par;
     else
         math_fam(p) = mval.family_value;
     return 0;
@@ -1508,6 +1510,9 @@ void set_math_char(mathcodeval mval)
             if (cur_fam_par_in_range)
                 math_fam(nucleus(p)) = cur_fam_par;
             subtype(p) = ord_noad_type;
+        } else if ((mval.family_value == var_fam_par) && var_fam_par_in_range) {
+            if (cur_fam_par_in_range)
+                math_fam(nucleus(p)) = cur_fam_par;
         } else {
             math_class_to_type(subtype(p),mval.class_value);
         }
@@ -1802,6 +1807,8 @@ void math_ac(void)
         math_character(top_accent_chr(tail)) = t.character_value;
         if ((t.class_value == math_use_current_family_code) && cur_fam_par_in_range)
             math_fam(top_accent_chr(tail)) = cur_fam_par;
+        else if ((t.family_value == var_fam_par) && var_fam_par_in_range)
+            math_fam(top_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(top_accent_chr(tail)) = t.family_value;
     }
@@ -1811,6 +1818,8 @@ void math_ac(void)
         math_character(bot_accent_chr(tail)) = b.character_value;
         if ((b.class_value == math_use_current_family_code) && cur_fam_par_in_range)
             math_fam(bot_accent_chr(tail)) = cur_fam_par;
+        else if ((b.family_value == var_fam_par) && var_fam_par_in_range)
+            math_fam(bot_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(bot_accent_chr(tail)) = b.family_value;
     }
@@ -1819,6 +1828,8 @@ void math_ac(void)
         overlay_accent_chr(tail) = q;
         math_character(overlay_accent_chr(tail)) = o.character_value;
         if ((o.class_value == math_use_current_family_code) && cur_fam_par_in_range)
+            math_fam(overlay_accent_chr(tail)) = cur_fam_par;
+        else if ((o.family_value == var_fam_par) && var_fam_par_in_range)
             math_fam(overlay_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(overlay_accent_chr(tail)) = o.family_value;

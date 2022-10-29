@@ -1132,6 +1132,7 @@ void lua_initialize(int ac, char **av)
     interactionoption = 4;
     filelineerrorstylep = false;
     haltonerrorp = false;
+    haltingonerrorp = false;
     tracefilenames = 1;
     dump_name = NULL;
     /*tex

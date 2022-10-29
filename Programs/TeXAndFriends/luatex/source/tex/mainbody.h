@@ -144,6 +144,7 @@ extern int expand_depth;
 /*extern int parsefirstlinep;*/
 extern int filelineerrorstylep;
 extern int haltonerrorp;
+extern boolean haltingonerrorp;
 extern boolean quoted_filename;
 
 extern int total_pages;

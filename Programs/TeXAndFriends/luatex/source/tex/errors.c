@@ -442,6 +442,13 @@ void error(void)
         show_context();
     }
     if (haltonerrorp) {
+        /*tex If |close_files_and_terminate| generates an error, we'll end up back
+          here; just give up in that case. If files are truncated, too bad. */
+        if (haltingonerrorp) {
+          /*tex  quit immediately */
+          do_final_end ();
+        }
+        haltingonerrorp=true;
         history = fatal_error_stop;
         jump_out();
     }

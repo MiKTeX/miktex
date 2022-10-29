@@ -119,6 +119,7 @@ void initialize_commands(void)
     primitive_tex("floatingpenalty", assign_int_cmd, int_base + floating_penalty_code, int_base);
     primitive_tex("globaldefs", assign_int_cmd, int_base + global_defs_code, int_base);
     primitive_tex("fam", assign_int_cmd, int_base + cur_fam_code, int_base);
+    primitive_luatex("variablefam", assign_int_cmd, int_base + var_fam_code, int_base);
     primitive_tex("escapechar", assign_int_cmd, int_base + escape_char_code, int_base);
     primitive_tex("defaulthyphenchar", assign_int_cmd, int_base + default_hyphen_char_code, int_base);
     primitive_tex("defaultskewchar", assign_int_cmd, int_base + default_skew_char_code, int_base);

@@ -314,8 +314,9 @@ the |number_regs| \.{\\dimen} registers.
 #  define partoken_context_code 121
 #  define show_stream_code 122
 #  define math_eq_dir_mode_code 123
+#  define var_fam_code 124
 
-#  define math_option_code 124
+#  define math_option_code 125
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
 #  define mathoption_int_last_code (mathoption_int_base_code+8)
@@ -651,11 +652,13 @@ extern halfword last_cs_name;
 #define split_top_skip_par                 glue_par(split_top_skip_code)
 
 #define cur_fam_par                        int_par(cur_fam_code)
+#define var_fam_par                        int_par(var_fam_code)
 #define pre_display_direction_par          int_par(pre_display_direction_code)
 #define pre_display_penalty_par            int_par(pre_display_penalty_code)
 #define post_display_penalty_par           int_par(post_display_penalty_code)
 
 #define cur_fam_par_in_range               ((cur_fam_par>=0)&&(cur_fam_par<256))
+#define var_fam_par_in_range               ((var_fam_par>=0)&&(var_fam_par<256))
 
 #define local_inter_line_penalty_par       int_par(local_inter_line_penalty_code)
 #define local_broken_penalty_par           int_par(local_broken_penalty_code)
