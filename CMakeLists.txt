@@ -961,11 +961,13 @@ endif()
 ###############################################################################
 ## RPATH handling
 
-if(APPLE)
+if (NOT CMAKE_INSTALL_RPATH)
+  if(APPLE)
     set(CMAKE_MACOSX_RPATH TRUE)
     set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
-else()
+  else()
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+  endif()
 endif()
 
 ###############################################################################

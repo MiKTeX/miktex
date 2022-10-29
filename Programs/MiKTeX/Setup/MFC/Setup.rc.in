@@ -140,7 +140,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Completing the MiKTeX Setup Wizard",IDC_WELCOME,115,8,195,24
-    LTEXT           "You have sucessfully completed the MiKTeX Setup Wizard.",IDC_STATUS,115,40,195,8
+    LTEXT           "You have successfully completed the MiKTeX Setup Wizard.",IDC_STATUS,115,40,195,8
     LTEXT           "To exit the wizard, click Close.",IDC_STATIC,115,178,195,8
     LTEXT           "",IDC_MESSAGE,115,55,195,54
     LTEXT           "Please help keep the machinery going. Donate to the MiKTeX project!",IDC_PETITION,115,116,195,16
@@ -172,7 +172,7 @@ BEGIN
     CONTROL         "Install MiKTeX only for &me",IDC_JUST_FOR_ME,"Button",BS_AUTORADIOBUTTON,21,1,275,10
     LTEXT           "",IDC_STATIC,46,55,250,8
     LTEXT           "Almost always this is the recommended option.",IDC_STATIC,46,14,250,8
-    LTEXT           "This option usually only makes sense if you are the administrator of a multi-user system. You and and your users must be prepared to cope with an increased management effort in order to keep competing (admin vs user) installation directories in sync.",IDC_STATIC,46,39,250,32
+    LTEXT           "This option usually only makes sense if you are the administrator of a multi-user system. You and your users must be prepared to cope with an increased management effort in order to keep competing (admin vs user) installation directories in sync.",IDC_STATIC,46,39,250,32
 END
 
 IDD_TASK DIALOGEX 0, 0, 317, 143
@@ -294,9 +294,9 @@ IDD_POST_INSTALL DIALOGEX 0, 0, 317, 143
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "MiKTeX has been successfullly installed.",IDC_STATIC,21,1,275,8
+    LTEXT           "MiKTeX has been successfully installed.",IDC_STATIC,21,1,275,8
     CONTROL         "Check for updates now",IDC_CHECK_UPDATES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,42,275,10
-    LTEXT           "In order to obtain an up-to-date installation, it is recommend that you allow MiKTeX to check for updates now. This will happen in the background. You will be notified, if updates are available.",IDC_STATIC,21,13,275,24
+    LTEXT           "In order to obtain an up-to-date installation, it is recommended that you allow MiKTeX to check for updates now. This will happen in the background. You will be notified, if updates are available.",IDC_STATIC,21,13,275,24
 END
 
 
