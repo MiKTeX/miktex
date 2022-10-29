@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* bibsort 2.5
+
 ## 22.10 - 2022-10-17
 
 - [1183](https://github.com/MiKTeX/miktex/issues/1183): MiKTeX 22.8.28 Portable is missing pdflatex

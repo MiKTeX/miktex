@@ -1,5 +1,5 @@
-/*  BibArts 2.3 assists you to write LaTeX texts in arts and humanities. */
-/*  Copyright (C) 2021  Timo Baumann   bibarts[at]gmx.de   (2021/12/06)  */
+/*  BibArts 2.5 assists you to write LaTeX texts in arts and humanities. */
+/*  Copyright (C) 2022b  Timo Baumann   bibarts[at]gmx.de   (2022/10/01) */
 
 /*  This program is free software; you can redistribute it and/or modify */
 /*  it under the terms of the GNU General Public License as published by */
@@ -20,12 +20,13 @@
 /*
   FILES OF THE PACKAGE AND DOCUMENTATION
   CTAN mirrors > BibArts > bibarts.zip
+    README.txt    Version history since 1.3
     bibarts.sty   LaTeX style file
     ba-short.pdf  Short documentation (English)
     ba-short.tex  Source of ba-short.pdf
     bibarts.pdf   Full documentation (German)
     bibarts.tex   Source of bibarts.pdf
-    bibsort.exe   Binary to create the lists
+    bibsort.exe   bibarts-bin to create the lists
     bibsort.c     This file; source of bibsort.exe
     COPYING       The license of the package
  */
@@ -34,10 +35,9 @@
 
 /*
   COMPATIBILITY
-  I have tested bibsort.c with several C compilers.  I had problems with
-  the devcpp.exe EDITOR (Dev-Cpp_5.4.0_TDM-GCC_x64_4.7.1).  Sucessful was:
-  "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\gcc.exe" -O2 -c bibsort.c -o bibsort.o
-  "C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\gcc.exe" bibsort.o -o bibsort.exe
+
+  For my tests on Windows 10, I compiled bibsort.c 2.5 with MinGW, and with
+  MS VisualStudio C/C++; I typed gcc ..., or cl ..., TO THE COMMAND PROMPT.
 
   Do NOT change this file when you do not have a qualified text
   editor - it contains control chars: '', '', '', '',  |  Are the
@@ -46,7 +46,7 @@
 
   The C-compiled binary of this file is reading LaTeX .aux files.
   It can NOT read the .bar files, which BibArts 1.x did use.
-  BibArts 2.3 ONLY has an EMULATION for 1.3 texts:  Keep copies of 1.x?
+  BibArts 2.5 ONLY has an EMULATION for 1.3 texts:  Keep copies of 1.x?
  */
 
 
@@ -137,20 +137,17 @@ char  *subCptr[MAXBACOLS][MAXLINES];
 #define PROTECT      "\\protect"
 #define KTIT         "\\ktit"
 #define KTITCMD      "\\ktit\t"
+#define KTITINARG    "{\\ktit}"
 #define ANNOUNCEKTIT "\\announcektit"
 #define KURZ         "\\kurz"
 #define KURZCMD      "\\outkurz\t"
-#define KTITINTRO    "\t"
-#define KTITINTROCH  '\t'
-#define KTITERRORCH  '\?'    /* Insert ?? for bad inner \ktit */
-#define KTITSHA      "\t<"
-#define KTITMISS     "\t|"
-#define KTITEMPTY    "\t>"
+#define KTITMISS     "\?\?"   /* "\t|" before 2.5 */
+#define KTITEMPTY    "\?\?"   /* "\t>" before 2.5 */
 #define KTITBEG      "{"
 #define KTITEND      "}"
 #define KTITOP       '{'
 #define KTITCL       '}'
-int otherktiterr   = -1;
+int ktiterr = -1;    /* otherktiterr before 2.5 */
 
 #define ACCEPTLINE   0
 #define REJECTLINE   1
@@ -161,6 +158,23 @@ int otherktiterr   = -1;
 #define REDEF1LINE   6
 #define REDEF2LINE   7
 int leval[MAXLINES];
+
+/* new errmsgs in 2.5: */
+#define NOINERR      0
+#define KTIT_SEV_ERR 1
+#define KTIT_EMP_BAS 2
+#define KTIT_EMP_ERR 3
+#define KTIT_MIS_BAS 5
+#define KTIT_MIS_ERR 6
+#define KTIT_DBL_BAS 11
+#define KTIT_DBL_ERR 12
+#define OARG_IRR_BAS 23
+#define OARG_IRR_ERR 24
+#define OARG_BRA_BAS 47
+#define OARG_BRA_ERR 48
+#define KTIT_OPE_BAS 95
+#define KTIT_OPE_ERR 96
+int inerr[MAXLINES];  /* new in 2.5 */
 
 #define BARESTCOLS   5
 #define PAGEFNTCOL   1
@@ -296,7 +310,6 @@ int llstrlen(const char *s);
 int do_only(char ret[], const char form[], const char in[]);
 int userusesdq(int deepsort, int linec);
 int texcmp(const char *s, const char *p, int dqcats, int dqcatp);
-int hasinnerentry(const char *p, const char *icmdlist[][2], const int num);
 int subdoubleauthors(int found, int addtxt, char a[], int remi, int i, const char *q, const char *p, int qline, int pline, int fe, char xx[]);
 
     /* ... end prototypes. */
@@ -422,7 +435,7 @@ void moremoreinfo(const char *myname)
   printf("%%%%                 CODEPAGES\n");
   printf("%%%%         LaTeX today writes ASCIIs > 127 in your %s-file(s), if you use\n", AUX_SUFFIX);
   printf("%%%%         \\usepackage[utf8]{inputenc}.  Then, you may start me using option\n");
-  printf("%%%%  -utf8  I expect characters as definded in utf8enc.dfu 2021/01/27 v1.2l,\n");
+  printf("%%%%  -utf8  I expect characters as definded in utf8enc.dfu 2022/06/07 v1.3c,\n");
   printf("%%%%         except those, which execute \\cyr...- or \\CYR...-cmds. Those and\n");
   printf("%%%%         further utf8-characters will be reported to screen as unknown.\n");
   printf("%%%%    -t1  You set \\UseRawInputEncoding, and ASCIIs > 127, which you use in\n");
@@ -535,29 +548,6 @@ int nextbracket(const char *p, const char opench, const char closech)
     if (c != 0) r = -r;
 
     return r;
-}
-
-
-int unshielded_cmds_in_str(const char *p, const char *s)
-{
-  int r = 0;
-
-  while (*p != '\0')
-  {
-    if (*p == '{') p += nextbracket(p, '{', '}') - 1;
-    else
-    if (*p == '\\')
-    {
-      if (*(p+1) == '\\') ++p;
-      else
-      if (*(p+1) ==  '{') ++p;
-      else
-      if (isexactlcmd(p, s) == 0) ++r;
-    }
-    ++p;
-  }
-
-  return r;
 }
 
 
@@ -1611,6 +1601,10 @@ void swap(int i, int j)
      leval[i] =  leval[j];
      leval[j] = temi;
 
+         temi =  inerr[i];  /* new in 2.5 */
+     inerr[i] =  inerr[j];
+     inerr[j] = temi;
+
    l = 0;
    while (l < MAXBACOLS)
    {
@@ -1957,11 +1951,18 @@ void maxprint(int len, const char *s)
 }
 
 
-void printktiterr(const char *s)
+void print_msg_line(int line)
 {
-  printf("%%%%    ");
-  maxprint(72, s);
-  printf("\n");
+  if (line < 0)
+  {
+    intern_err(39);
+  }
+  else
+  { 
+    printf(" in *inner v-cmd*:\n%%%%    ");
+    maxprint(65, lineptr[line]);
+    printf("\n");
+  }
 }
 
 
@@ -1999,36 +2000,44 @@ void printktiterr(const char *s)
 #define AVNUM 13
 
 
-void get_ktit(char s[], const char *p, const char *com, const char op, const char cl, const int line)
+const char *starlist[][2] =
 {
-   int l, reallen, found = 0, r = 0, ll, llen, b = 0, shielded = 0;
-   char buf[MAXLEN], fub[MAXLEN];
+  { "\\vauthor\t",    ":{}:{}" },
+  { "\\midvauthor\t", ":{}:{}" },
+  { NULL, NULL }};
+const char *exlist[] =
+{
+  "\\kauthor",
+  "\\midkauthor",
+  NULL
+};
+#define VKNUM 2
+
+
+#define INNERLASTARGNO 5
+#define INNERSTARARGNO 4
+#define INNERLNARGNO   3
+#define INNERFNARGNO   2
+#define INNEROPARGNO   1
+
+int get_ktit(char oldktit[], const char *p, const char *com, const char op, const char cl, const int line, int found, const int argno)
+{
+   int l, reallen, r = 0, ll, llen, b = 0, oldfound = found, invauthorfound = 0;
+   char buf[MAXLEN], newktit[MAXLEN];
+
 
    while (*p != '\0')
    {
-     if (*p == '{' && b > 0)
-     {
-       l = nextbracket(p, '{', '}');
-       ll = 0;
-       while (l-- > 0)
-       { 
-         fub[ll++] = *p;
-         buf[b++] = *p++; 
-       }
-         fub[ll] = '\0';
-         shielded += num_of_cmds_in_str(fub, com);
-     }
-     else
      if (*p == '\\')
      {
-       if (*(p+1) == '\\' || *(p+1) == '{')
+       if (*(p+1) == '\\')
        {
          buf[b++] = *p++; buf[b++] = *p++;
        }
        else
        if ((ll=innerentry(p, innerVcmd, AVNUM)) > -1)
        {
-         /* inneres v-cmd ueberspringen: dort darf weiteres \\ktit stehen */
+         /* inner-inner-v-cmd ueberspringen: dort darf weiteres \\ktit stehen */
          llen = LaTeXcmp_endlen(p, innerVcmd[ll][0]);
          p += llen;
          llen =     endofbracks(p, innerVcmd[ll][1]);
@@ -2048,9 +2057,9 @@ void get_ktit(char s[], const char *p, const char *com, const char op, const cha
             r = 0;   /*  <= Copy only arg of last \\ktit  */
             if (l == 1)
             {
-              s[r++] = op;
-              s[r++] = *p; buf[b++] = *p++;
-              s[r++] = cl;
+              newktit[r++] = op;
+              newktit[r++] = *p; buf[b++] = *p++;
+              newktit[r++] = cl;
             }
             else
             if (l == 2 && *p == '\\' && *(p+1) != '\0')
@@ -2058,15 +2067,15 @@ void get_ktit(char s[], const char *p, const char *com, const char op, const cha
               if (isLaTeXcmdletter(*(p+1)) == 0);
               else
               while (isLaTeXcmdletter(*(p+l)) != 0) ++l;
-              s[r++] = op;
-              while (l-- > 0) { s[r++] = *p; buf[b++] = *p++; }
-              s[r++] = cl;
+              newktit[r++] = op;
+              while (l-- > 0) { newktit[r++] = *p; buf[b++] = *p++; }
+              newktit[r++] = cl;
             }
-            else
+            else 
             {
               while (l-- > 0) 
               { 
-                s[r++] = *p; buf[b++] = *p++;
+                newktit[r++] = *p; buf[b++] = *p++;
               }
             }
          }
@@ -2076,14 +2085,41 @@ void get_ktit(char s[], const char *p, const char *com, const char op, const cha
      else   buf[b++] = *p++;
    }
 
-   s[r] = '\0';
+   newktit[r] = '\0';
    buf[b] = '\0';
 
+   if (strcmp(newktit, KTITINARG) == 0)
+   {
+     printf("%%%%\n%%%%>  Error: %s follows %s", KTIT, KTIT);
+     print_msg_line(line-1);
+              inerr[line-1] += KTIT_DBL_ERR;  /* new in 2.5 */
+   }
 
-   if (r == 0 || (s[0] == op && s[1] == cl) || (s[0] == op && s[1] == ' ' && s[2] == cl))
+   if   (r > 2 && newktit[r-1] == cl && newktit[r-2] == ' ')
+   {
+     l = 3;
+     while (r-l > 1 && newktit[r-l] == ' ') ++l;
+     while (r-l > 1 && isLaTeXcmdletter(newktit[r-l]) != 0) ++l;
+     if (newktit[r-l] != '\\') print_not_tightly_err(newktit, cl);
+   }
+
+
+   if (newktit[0] == op)
+   {    
+      l = 1; while (newktit[l] == ' ') ++l;
+      if (newktit[l] == cl) newktit[0] = '\0'; /* new in 2.5 */
+   }
+
+
+   if (found > oldfound)
+   {
+     strcpy(oldktit, newktit);
+   }
+
+
+   if (argno == INNERLASTARGNO && oldktit[0] == '\0')
    {
      if (   strlen(KTITBEG)
-          + strlen(KTITSHA)
           + strlen(KTITMISS)
           + strlen(KTITEMPTY)
           + strlen(KTITEND)
@@ -2094,93 +2130,37 @@ void get_ktit(char s[], const char *p, const char *com, const char op, const cha
      }
      else
      {
-         strcpy(s, KTITBEG);
+         strcpy(oldktit, KTITBEG);
        printf("%%%%\n%%%%>  ");
 
-       if (shielded > 0) 
-       { 
-         printf("Error: %d shadowed { %s } cmd(s), and ...\n%%%%   ", shielded, KTIT);
-         strcat(s, KTITSHA);
-       }
 
        if (found == 0)
        {
          printf("Error: Missing");
-         strcat(s, KTITMISS);
+         strcat(oldktit, KTITMISS);
+                  inerr[line-1] += KTIT_MIS_ERR;  /* new in 2.5 */
        }
        else
        { 
          printf("Warning: Empty");
-         strcat(s, KTITEMPTY);
+         strcat(oldktit, KTITEMPTY);
+                  inerr[line-1] += KTIT_EMP_ERR;  /* new in 2.5 */
        }
 
-       printf(" %s in last arg of *inner v-cmd* (%s-entry %d):\n", KTIT, AUX_SUFFIX, line);
-       printktiterr(buf);
-         strcat(s, KTITEND);
+         printf(" %s", KTIT);
+         print_msg_line(line-1);
+         strcat(oldktit, KTITEND);
      }
    }
 
-   if (found > 1) 
+
+   if (argno == INNERLASTARGNO && found > 1) 
    {
-     printf("%%%%\n%%%%>  Warning: %s used %d times in *inner v-cmd* (%s-entry %d):\n", KTIT, found, AUX_SUFFIX, line);
-     printktiterr(buf);
+     printf("%%%%\n%%%%>  Warning: %s used %d times", KTIT, found);
+     print_msg_line(line-1);
+              inerr[line-1] += KTIT_SEV_ERR;  /* new in 2.5 */
    }
 
-   if   (r > 2 && s[r-1] == cl && s[r-2] == ' ')
-   {
-     l = 3;
-     while (r-l > 1 && s[r-l] == ' ') ++l;
-     while (r-l > 1 && isLaTeXcmdletter(s[r-l]) != 0) ++l;
-     if (s[r-l] != '\\') print_not_tightly_err(s, cl);
-   }
-}
-
-
-int get_add_ktit(const char *p, const int maxktit, const int argno, const int line, const int screen)
-{
-   int reallen, found = 0, ll, llen, b = 0;
-   char buf[MAXLEN];
-
-   while (*p != '\0')
-   {
-     if (*p == '\\')
-     {
-       if (*(p+1) == '\\')
-       {
-         buf[b++] = *p++; buf[b++] = *p++;
-       }
-       else
-       if ((ll=innerentry(p, innerVcmd, AVNUM)) > -1)
-       { 
-         /* inneres v-cmd ueberspringen: dort darf weiteres \\ktit stehen */
-         llen = LaTeXcmp_endlen(p, innerVcmd[ll][0]);
-         p += llen;
-         llen =     endofbracks(p, innerVcmd[ll][1]);
-         p += llen;
-         buf[b++] = '<'; buf[b++] = '#'; buf[b++] = '>';
-       }
-       else
-       if ((reallen = LaTeXcmp_endlen(p, KTITCMD)) > 0)
-       {
-         while (reallen-- > 0) buf[b++] = *p++;
-         ++found;
-       }
-       else buf[b++] = *p++;
-     }
-     else   buf[b++] = *p++;
-   }
-
-   buf[b] = '\0';
-
-   if (screen == 1 && found > maxktit)
-   { 
-     printf("%%%%\n%%%%>  Warning: ");
-     if (maxktit == 1)
-          printf("%d %s too much",  found-1, KTIT);
-     else printf("%d misplaced %s", found,   KTIT);
-     printf(" in %s-file (entry %d, arg %d):\n", AUX_SUFFIX, line, argno);
-     printktiterr(buf);
-   }
 
    return found;
 }
@@ -2188,19 +2168,6 @@ int get_add_ktit(const char *p, const int maxktit, const int argno, const int li
 
 void do_innerVstarArg(char ret[], const char *p)
 {
-  const char *starlist[][2] =
-  {
-    { "\\vauthor\t",    ":{}:{}" },
-    { "\\midvauthor\t", ":{}:{}" },
-    { NULL, NULL }};
-  const char *exlist[] =
-  {
-    "\\kauthor",
-    "\\midkauthor",
-    NULL
-  };
-  #define VKNUM 2
-
   int r = 0, l, len, end;
 
 
@@ -2274,12 +2241,14 @@ void do_innerVstarArg(char ret[], const char *p)
 }
 
 
+#define OPTARG_FMT_UNDEF  '\0'
+
 int dobracks(char buf[], const char *p, const char fmt[], const int line)
 {
-  int l = 0, len = 0, pos;
-  char ibuf[MAXLEN], obuf[MAXLEN];
+  int l = 0, len = 0, pos, i, found = 0, oldfound, optfound = 0;
+  char ibuf[MAXLEN], obuf[MAXLEN], kbuf[MAXLEN], optarg_fmt = OPTARG_FMT_UNDEF;
 
-  buf[0] = '\0';
+  buf[0] = '\0'; kbuf[0] = '\0';
 
   while (1)
   {
@@ -2294,26 +2263,81 @@ int dobracks(char buf[], const char *p, const char fmt[], const int line)
 
     if ((pos=nextbracket(p, fmt[l+1], fmt[l+2])) > 1)
     {
-      if (fmt[l] == '!')
+      if (fmt[l] == '+')
       {
+        /* [OptArg] */
+        oldfound = found;
                      mystrncpy(ibuf, p, pos);
-                get_ktit(obuf, ibuf, KTITCMD, KTITOP, KTITCL, line);
-             strcat(buf, obuf);
+        found = get_ktit(kbuf, ibuf, KTITCMD, KTITOP, KTITCL, line, found, INNEROPARGNO);
+        optfound = found;
+
+        if (    *(p+1) == 'p' 
+             || *(p+1) == 'm'
+             || *(p+1) == 'f'
+             || *(p+1) == ']'
+           )
+        {
+          i = 2; while (*(p+i) == ' ') ++i;
+          if (*(p+1) != ']' && oldfound == found && *(p+i) == '{')
+          { 
+            optarg_fmt = *(p+1);
+          }
+          if (*(p+i) != '{' && *(p+i) != ']' && *(p+i) != '\0')
+          {
+            printf("%%%%\n%%%%>  Error: ");
+            maxprint(14, ibuf);
+            printf("  without brackets like [%c{...}]", *(p+1));
+            print_msg_line(line-1);
+                     inerr[line-1] += OARG_BRA_ERR;  /* new in 2.5 */
+          }
+        }
+        else 
+        {
+          printf("%%%%\n%%%%>  Error: ");
+          maxprint(14, ibuf);
+          printf("  begins with \'%c\' instead f/m/p", *(p+1));
+          print_msg_line(line-1);
+                   inerr[line-1] += OARG_IRR_ERR;  /* new in 2.5 */
+        }
+        found -= optfound;
       }
       else
-      if (fmt[l] == '*' || fmt[l] == '+') /*  +: \\vautkor => \\kauthor  */
+      if (fmt[l] == '!')
       {
+        /* {Rest} superior to fmt[l] == '*' */
                      mystrncpy(ibuf, p, pos);
+        found = get_ktit(kbuf, ibuf, KTITCMD, KTITOP, KTITCL, line, found, INNERLASTARGNO);
+             strcat(buf, kbuf);
+      }
+      else
+      if (fmt[l] == '*')
+      {
+        oldfound = found;
+                     mystrncpy(ibuf, p, pos);
+        found = get_ktit(kbuf, ibuf, KTITCMD, KTITOP, KTITCL, line, found, INNERSTARARGNO);
         do_innerVstarArg(obuf, ibuf);
-            if (fmt[l] == '*')     
              strcat(buf,  "*");           /*  keep fmt[l]  */
              strcat(buf, obuf);
+        if (optfound == 0 && oldfound != found && optarg_fmt != OPTARG_FMT_UNDEF)
+        {
+          printf("%%%%\n%%%%>  Error: [%c{..}] without %s overwrites %c{..%s..}", optarg_fmt, KTIT, fmt[l], KTIT);
+          print_msg_line(line-1);
+                   inerr[line-1] += KTIT_OPE_ERR;  /* new in 2.5 */
+        }
       }
       else
       if (fmt[l] == DELNORMARG || fmt[l] == DELSTARARG)
-             ; 
+      {
+                     mystrncpy(ibuf, p, pos);
+        found = get_ktit(kbuf, ibuf, KTITCMD, KTITOP, KTITCL, line, found, INNERLNARGNO);
+      }
       else
-            strncat(buf,             p, pos);
+      {
+        /* FN */
+                     mystrncpy(ibuf, p, pos);
+        found = get_ktit(kbuf, ibuf, KTITCMD, KTITOP, KTITCL, line, found, INNERFNARGNO);
+                   strcat(buf, ibuf); 
+      }
       
       p   += pos;
       len += pos;
@@ -2429,9 +2453,10 @@ int do_only(char ret[], const char form[], const char in[])
                             "\\onlyhere\t",
                             "\\onlyvoll\t",
                             "\\onlyout\t",
+                            KTITCMD,
                             NULL
                           };
-#define KHVONUM 4
+#define KHVONUM 5  /* KTITCMD added in 2.5 */
 
 
   if (form[0] == '\0' || strlen(form) != KHVONUM)
@@ -2560,28 +2585,35 @@ void telldefault(int rest)
 }
 
 
-  const char *innerK_PER_ARQ_cmd[][2] = {
+  const char *inner_K_cmd[][2] = {
   {  "\\printonlykli\t",    ":[]:{}*{}:{}"     },
   {  "\\printonlykqu\t",    ":[]:{}*{}:{}"     },
   { "\\xprintonlykli\t",    ":[]:{}*{}:{}"     },
   { "\\xprintonlykqu\t",    ":[]:{}*{}:{}"     },
   {  "\\printonlyper\t",    ":{}"              },
   {  "\\printonlyarq\t",    ":[]:{}:{}"        },
+  { NULL, NULL }};
+#define INNERTITLES 4  /* 6 changed to 4 in 2.5 */
+
+  const char *inner_PER_ARQ_ABK_cmd[][2] = {
+  {  "\\printonlyper\t",    ":{}"              },
+  {  "\\printonlyarq\t",    ":[]:{}:{}"        },
   {  "\\printonlydefabk\t", ":{}:{}"           },
   {  "\\printonlyabkdef\t", ":{}:{}"           },
   {  "\\printonlyabk\t",    ":{}"              },
   { NULL, NULL }};
-#define INNERTITLES 6
-#define XKPANUM 9
+#define INNERPAA 5  /* new in 2.5 */
 
 
-int do_inneronly(char ret[], const char in[], const char *vf, const char *kpf)
+int do_inneronly(char ret[], const char in[], const char *vf, const char *kf, const char *paaf)
 {
   char buf[MAXLEN];
   int len;
 
-  len = do_innercmd(buf,  in, innerVcmd,          XVNUM,    vf);  /* AVNUM unnecessary */
-  len = do_innercmd(ret, buf, innerK_PER_ARQ_cmd, XKPANUM, kpf);
+  len = do_innercmd(buf,  in, innerVcmd,                  XVNUM,   vf);  /* AVNUM unnecessary */
+  len = do_innercmd(ret, buf, inner_K_cmd,          INNERTITLES,   kf);  /* 2.5: XKPANUM changed to INNERTITLES */
+  len = do_innercmd(buf, ret, inner_PER_ARQ_ABK_cmd,   INNERPAA, paaf);  /* new in 2.5 */
+             strcpy(ret, buf);                                          /* new in 2.5 */
 
   return len;
 }
@@ -2613,27 +2645,48 @@ char *makeAR(char *p, int cols, int rest, char bb, char eb, const char *ident, i
          if (ventry != IS_V && i == VCOLS-1)
          {
             /*  alloc {li} or {qu} as 4th arg of k-cmds:  */
-                               alen = mystrncpy(cbuf, p, len);
+             alen =                  mystrncpy(cbuf, p, len);
          }
          else
          {
-                                      mystrncpy(cbuf, p, len);
-              alen =         do_inneronly(ibuf, cbuf, "eell", "leel");
-              alen = do_only(cbuf, formO, ibuf);
+                                     mystrncpy(cbuf, p, len);
+
+                                   /*  new in 2.5 for k-cmds: "elleX": */
+                        /* changed in 2.5: "eell" to "eeXXX"           */
+
+           if (ventry == IS_V)  /* MARKX */
+           {
+             alen =         do_inneronly(ibuf, cbuf, "eeXXX", "elleX", "leelX");
+           }
+           else  /*  new in 2.5: ventry == NO_V || ventry == IS_Q  */
+           {
+             alen =         do_inneronly(ibuf, cbuf, "leelX", "elleX", "leelX");
+           }
+                                /*   moved in 2.5: do_only */
 
            if (ventry == IS_V && i == VCOLS-1)
            {
-               alen = do_innerVcmd(ibuf, cbuf, innerVcmd, AVNUM, linec+1);
-                      strcpy(cbuf, ibuf);
-                get_add_ktit(cbuf, 1, i+cols, linec+1, 1);      /* Rest v-cmd: Ein \\ktit erlaubt */
+             alen =   do_innerVcmd(cbuf, ibuf, innerVcmd, AVNUM, linec+1);
            }
            else
-           { 
-             if(get_add_ktit(cbuf, 0, i+cols, linec+1, 1) > 0)  /* sonst (auch andere Args v-cmd) */
-             {                                                  /* get_add_ktit schreibt Fehler!! */
-               if (otherktiterr < i+1) otherktiterr = i+1;
-             }
+           {
+                            strcpy(cbuf, ibuf);
            }
+
+                /* get_add_ktit del in 2.5 */
+
+           if (ventry == IS_V)  /* MARKX */
+           {
+                /*  inner v-cmds are k-cmds here / new in 2.5: */
+                /*  e == \ktit{x} => x */
+             alen =          do_innercmd(ibuf, cbuf, inner_K_cmd, INNERTITLES, "XXlle");
+           }
+           else
+           {
+                                  strcpy(ibuf, cbuf);
+           }
+
+             alen = do_only(cbuf, formO, ibuf);
          }
 
          subAptr[i][linec] = fillsubAptr(cbuf, alen, eb);
@@ -2785,7 +2838,7 @@ void getbrackets(int linec, int alllines, const char *ident, int deep, int filen
       i = 0; while (i < MAXBACOLS)  subAptr[i++][linec] = mydefault;
       i = 0; while (i < BAALLRCOLS) subRptr[i++][linec] = mydefault;
                                            leval[linec] = ACCEPTLINE;
-
+                                           inerr[linec] = NOINERR;  /* new in 2.5 */
 
       p = lineptr[linec];
       p = setptrtofirstbracket(p);
@@ -2898,44 +2951,91 @@ void getbrackets(int linec, int alllines, const char *ident, int deep, int filen
 }
 
 
-    /*  without equivalent in MathMode:  \\b \\c \\k \\d \\H \\t  */
-    /*  2.3: control-chars are doublettes (CTL+G or [Esc] added)  */
+  /*  Accents  \b  \c  \k  \d  \H  \t  have no equivalent in MathMode.  */
+  /*  2.3: control-characters are now doublettes (CTL+G or [Esc] added).  */
+  /*  2.5: \t  added behind  \\.  \\\'  \\`  \\^  \\=  \\~  ( \.X  =  \. X ).
+           I sort   \a.  \a'  \a`  \a^  \a"X  \a=  \a~   and
+              \a{r}  \a{b}  \a{c}  \a{k}  \a{d}  \a{H}  \a{t}  \a{u}  \a{v}
+           as                   X   ...  ;
+           other  \protect\a X  will EXECUTE/PRINT  \X , BUT will be
+           SORTED as  X  (e.g.  \protect\a{textdollar}  as  textdollar).
+   */
 const char *weighttable[][2] = {
-  {  "\\.",                   ""        }, /* CTL+A + Ctl+G */  /* MARK_POINT */
+  {  "\\.\t",                 ""        }, /* CTL+A + Ctl+G */  /* MARK_POINT */
+  {  "\\@tabacckludge\t.\t",  ""        }, /* new in 2.5 */
+  {  "\\a\t.\t",              ""        }, /* new in 2.5 */
   {  "\\dot\t",               ""        },
-  {  "\\\'",                  ""        }, /* CTL+B */
-  {  "\\@tabacckludge\t\'",   ""        },  /* new in 2.3 */
-  {  "\\a\t\'",               ""        },  /* new in 2.3 */
+  {  "\\capitaldotaccent\t",  ""        },  /* new in 2.5 = \. */
+  {  "\\\'\t",                ""        }, /* CTL+B */
+  {  "\\@tabacckludge\t\'\t", ""        },  /* new in 2.3, changed in 2.5 */
+  {  "\\a\t\'\t",             ""        },  /* new in 2.3, changed in 2.5 */
   {  "\\acute\t",             ""        },
-  {  "\\`",                   ""        }, /* CTL+C */
-  {  "\\@tabacckludge\t`",    ""        },  /* new in 2.3 */
-  {  "\\a\t`",                ""        },  /* new in 2.3 */
+  {  "\\capitalacute\t",      ""        },  /* new in 2.5 = \@tabacckludge' */
+  {  "\\`\t",                 ""        }, /* CTL+C */
+  {  "\\@tabacckludge\t`\t",  ""        },  /* new in 2.3, changed in 2.5 */
+  {  "\\a\t`\t",              ""        },  /* new in 2.3, changed in 2.5 */
   {  "\\grave\t",             ""        },
-  {  "\\^",                   ""        }, /* CTL+D */
+  {  "\\capitalgrave\t",      ""        },  /* new in 2.5 = \@tabacckludge` */
+  {  "\\^\t",                 ""        }, /* CTL+D */
+  {  "\\@tabacckludge\t^\t",  ""        },  /* new in 2.5 */
+  {  "\\a\t^\t",              ""        },  /* new in 2.5 */
   {  "\\hat\t",               ""        },
-  {  "\\ddot\t",              ""        }, /* CTL+E  math-diaresis != umlaut */
-  {  "\\=",                   ""        }, /* CTL+F */
-  {  "\\@tabacckludge\t=",    ""        },  /*                new in 2.3 */
-  {  "\\a\t=",                ""        },  /*                new in 2.3 */
+  {  "\\capitalcircumflex\t", ""        },  /* new in 2.5 = \^ */
+  {  "\\ddot\t",              ""        }, /* CTL+E  math-dieresis != umlaut */
+  {  "\\=\t",                 ""        }, /* CTL+F */
+  {  "\\@tabacckludge\t=\t",  ""        },  /* new in 2.3, changed in 2.5 */
+  {  "\\a\t=\t",              ""        },  /* new in 2.3, chamged in 2.5 */
   {  "\\bar\t",               ""        },
+  {  "\\capitalmacron\t",     ""        },  /* new in 2.5 = \@tabacckludge= */
   {  "\\vec\t",               ""        }, /* CTL+F + [ESC]   changed in 2.3 */
-  {  "\\~",                   ""        }, /* CTL+K */     /* MARK_TILDE */
+  {  "\\~\t",                 ""        }, /* CTL+K */     /* MARK_TILDE */
+  {  "\\@tabacckludge\t~\t",  ""        },  /* new in 2.5 */
+  {  "\\a\t~\t",              ""        },  /* new in 2.5 */
   {  "\\tilde\t",             ""        },
+  {  "\\capitaltilde\t",      ""        },  /* new in 2.5 = \~ */
   {  "\\aa\t",                "a"       }, /* CTL+L */     /* \\r a \\r A */
   {  "\\AA\t",                "A"       },
   {  "\\r\t",                 ""        },                 /* \\AA \\aa */
+  {  "\\@tabacckludge\tr\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tr\t",              ""        },  /* new in 2.5 */
   {  "\\mathring\t",          ""        },
+  {  "\\capitalring\t",       ""        },  /* new in 2.5 = \r */
   {  "\\b\t",                 ""        }, /* CTL+N */
+  {  "\\@tabacckludge\tb\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tb\t",              ""        },  /* new in 2.5 */
   {  "\\c\t",                 ""        }, /* CTL+O + CTL+G */
+  {  "\\@tabacckludge\tc\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tc\t",              ""        },  /* new in 2.5 */
+  {  "\\capitalcedilla\t",    ""        },  /* new in 2.5 = \c */
   {  "\\textcommabelow\t",    ""        }, /* CTL+O + [ESC]    new in 2.3 */
-  {  "\\k\t",                 ""        }, /* CTL+P */      /* rechte Tilde */
+  {  "\\textogonekcentered\t",""        },  /* new in 2.5 = \k */
+  {  "\\capitalogonek\t",     ""        },  /* new in 2.5 = \k */
+  {  "\\k\t",                 ""        }, /* CTL+P */      /* rechte Tilde */
+  {  "\\@tabacckludge\tk\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tk\t",              ""        },  /* new in 2.5 */
   {  "\\d\t",                 ""        }, /* CTL+Q */
+  {  "\\@tabacckludge\td\t",  ""        },  /* new in 2.5 */
+  {  "\\a\td\t",              ""        },  /* new in 2.5 */
   {  "\\H\t",                 ""        }, /* CTL+R */
-  {  "\\t\t",                 ""        }, /* CTL+S */
+  {  "\\@tabacckludge\tH\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tH\t",              ""        },  /* new in 2.5 */
+  { "\\capitalhungarumlaut\t",""        },  /* new in 2.5 = \H */
+  {  "\\newtie\t",            ""        },  /* new in 2.5 = \t */
+  {  "\\capitalnewtie\t",     ""        },  /* new in 2.5 = \t */
+  {  "\\t\t",                 ""        }, /* CTL+S */
+  {  "\\@tabacckludge\tt\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tt\t",              ""        },  /* new in 2.5 */
+  {  "\\capitaltie\t",        ""        },  /* new in 2.5 = \t */
   {  "\\u\t",                 ""        }, /* CTL+T */
+  {  "\\@tabacckludge\tu\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tu\t",              ""        },  /* new in 2.5 */
   {  "\\breve\t",             ""        },
+  {  "\\capitalbreve\t",      ""        },  /* new in 2.5 = \u */
   {  "\\v\t",                 ""        },  /* changed in 2.3 */
+  {  "\\@tabacckludge\tv\t",  ""        },  /* new in 2.5 */
+  {  "\\a\tv\t",              ""        },  /* new in 2.5 */
   {  "\\check\t",             ""        },  /* changed in 2.3 */
+  {  "\\capitalcaron\t",      ""        },  /* new in 2.5 = \v */
   {  "\\textblank\t",         "b"       },  /* CTL+U \   new in 2.3;    */
   {  "\\textbaht\t",          "B"       },  /*        |  new in 2.3     */
   {  "\\textcent\t",          "c"       },  /*  S     |  changed in 2.3 */
@@ -2968,42 +3068,45 @@ const char *weighttable[][2] = {
   {  "\\teskip\t",              " "       },  /* new in 2.3 */
   {  "\\pteskip\t",             " "       },  /* 1\te 000     NEW in 2.2 */
   {  "\\te\t",                 ". "       },  /*  != 1000     NEW in 2.2 */
-  {  "\\textcelsius\t",         "C"       },  /* changed in 2.3 */
   {  "\\textflorin\t",          "f"       },  /* changed in 2.3 */
   {  "\\i\t",                   "i"       },
   {  "\\imath\t",               "i"       },
   {  "\\j\t",                   "j"       },
   {  "\\jmath\t",               "j"       },
-  {  "\\ae\t",                "ae"      },  /* \       changed in 2.3 */
-  {  "\\AE\t",                "Ae"      },  /*  |      <=> \\Oe  changed in 2.3 */
-  {  "\\BibArts\t",           "BibArts" },  /*  |      changed in 2.3 */
-  {  "\\pBibArts\t",          "BibArts" },  /*  |      changed in 2.3 */
-  {  "\\copyright\t",         "C"       },  /*  |      changed in 2.3 */
-  {  "\\textcopyright\t",     "C"       },  /*  |      changed in 2.3 */
-  {  "\\pcopyright\t",        "C"       },  /* CTL_X   changed in 2.3 */
-  {  "\\textdong\t",          "d"       },  /*  |      new in 2.3 (not really \\b{\\dj}) */
-  {  "\\textestimated\t",     "e"       },  /*  |      new in 2.3 */
-  {  "\\ell\t",               "l"       },  /*  | N    changed in 2.3 */
-  {  "\\ij\t",                "i"       },  /*  | E    changed in 2.3 */
-  {  "\\IJ\t",                "I"       },  /*  | A    changed in 2.3 */
-  {  "\\Im\t",                "I"       },  /*  | R    <=> \\Re */
-  {  "\\LaTeX\t",             "LaTeX" },  /*  |      changed in 2.3 */
-  {  "\\textnumero\t",        "N"       },  /*  | L    new in 2.3 */
-  {  "\\oe\t",                "oe"      },  /*  | A    changed in 2.3 */
-  {  "\\OE\t",                "Oe"      },  /*  | T    changed in 2.3 */
-  {  "\\textcircledP\t",      "P"       },  /*  | I    new in 2.3 */
-  {  "\\textregistered\t",    "R"       },  /*  | N    changed in 2.3 */
-  {  "\\Re\t",                "R"       },  /*  |      <=> \\Im */
-  {  "\\TeX\t",               "TeX"     },  /* /       changed in 2.3 */
-  {  "\\texteuro\t",          "E"       },  /* \       */
-  {  "\\textlira\t",          "L"       },  /*  |      new in 2.3 */
-  {  "\\ng\t",                "n"       },  /*  |      changed in 2.3 */
-  {  "\\NG\t",                "N"       },  /* CTL_Y   changed in 2.3 */
-  {  "\\textsterling\t",      "P"       },  /*  |      changed in 2.3 */
-  {  "\\ppounds\t",           "P"       },  /*  | F    changed in 2.3 */
-  {  "\\pounds\t",            "P"       },  /*  | A    changed in 2.3 */
-  {  "\\th\t",                "th"      },  /*  | R    */
-  {  "\\TH\t",                "Th"      },  /* /       */
+  {  "\\ae\t",                "ae"      },  /* \      changed in 2.3 */
+  {  "\\AE\t",                "Ae"      },  /*  |     <=> \\Oe  changed in 2.3 */
+  {  "\\BibArts\t",           "BibArts" },  /*  |     changed in 2.3 */
+  {  "\\pBibArts\t",          "BibArts" },  /*  |     changed in 2.3 */
+  {  "\\textdong\t",          "d"       },  /* CTL_X  new in 2.3 (not really \\b{\\dj}) */
+  {  "\\textestimated\t",     "e"       },  /*  |     new in 2.3 */
+  {  "\\ell\t",               "l"       },  /*  |     changed in 2.3 */
+  {  "\\ij\t",                "i"       },  /*  |     changed in 2.3 */
+  {  "\\IJ\t",                "I"       },  /*  |     changed in 2.3 */
+  {  "\\Im\t",                "I"       },  /*  |     <=> \\Re */
+  {  "\\LaTeX\t",             "LaTeX" },  /*  |     changed in 2.3 */
+  {  "\\textnumero\t",        "N"       },  /*  |     new in 2.3 */
+  {  "\\oe\t",                "oe"      },  /*  |     changed in 2.3 */
+  {  "\\OE\t",                "Oe"      },  /*  |     changed in 2.3 */
+  {  "\\TeX\t",               "TeX"     },  /* /      changed in 2.3 */
+  {  "\\textdollaroldstyle\t","D"       },  /* \      new in 2.5 */
+  {  "\\texteuro\t",          "E"       },  /*  |      */
+  {  "\\textlira\t",          "L"       },  /*  |     new in 2.3 */
+  {  "\\ng\t",                "n"       },  /*  |     changed in 2.3 */
+  {  "\\NG\t",                "N"       },  /* CTL_Y  changed in 2.3 */
+  {  "\\textsterling\t",      "P"       },  /*  |     changed in 2.3 */
+  {  "\\ppounds\t",           "P"       },  /*  |     changed in 2.3 */
+  {  "\\pounds\t",            "P"       },  /*  |     changed in 2.3 */
+  {  "\\mathsterling\t",      "P"       },  /*  |     new in 2.5 */
+  {  "\\th\t",                "th"      },  /*  |     */
+  {  "\\Re\t",                "R"       },  /*  |    <=> \\Im */
+  {  "\\TH\t",                "Th"      },  /* /      */
+  {  "\\copyright\t",         "C"       },  /* \              */
+  {  "\\textcopyright\t",     "C"       },  /*  |     siehe   */
+  {  "\\pcopyright\t",        "C"       },  /*  |     \\ss    */
+  {  "\\textcircledP\t",      "P"       },  /*  |     = ss  */
+  {  "\\textregistered\t",    "R"       },  /* /              */
+  {  "\\textcelsius\t",       "C"       },  /* \      changed in 2.5 */
+  {  "\\textdegree\t",        ""        },  /* /   DEG{X} new in 2.5 */
   {  "\\alpha\t",             "a"       }, /* 28 */
   {  "\\Alpha\t",             "A"       },  /* bibarts.sty; new in 2.1 */
   {  "\\beta\t",              "b"       },
@@ -3083,16 +3186,16 @@ const char *weighttable[][2] = {
   {  "\\textnineoldstyle\t",    "9"       },  /* new in 2.3 */
   {  "\\textzerooldstyle\t",    "0"       },  /* new in 2.3 */
   { NULL, NULL }};
-#define NLATEX  181
+#define NLATEX  224
 
 
 const char *udtable[][2] = { 
-  {  "\\\"a",              "a"      },  /* \     \"a */
-  {  "\\\"o",              "o"      },  /*  |    \"o */
-  {  "\\\"u",              "u"      },  /* CTL+E \"u */
-  {  "\\\"A",              "A"      },  /*  |    \"A */
-  {  "\\\"O",              "O"      },  /*  |    \"O */
-  {  "\\\"U",              "U"      },  /*  |    \"U */
+  {  "\\\"\ta",            "a"      },  /* \     \"a */  /* changend in 2.5*/
+  {  "\\\"\to",            "o"      },  /*  |    \"o */  /* changend in 2.5*/
+  {  "\\\"\tu",            "u"      },  /* CTL+E \"u */  /* changend in 2.5*/
+  {  "\\\"\tA",            "A"      },  /*  |    \"A */  /* changend in 2.5*/
+  {  "\\\"\tO",            "O"      },  /*  |    \"O */  /* changend in 2.5*/
+  {  "\\\"\tU",            "U"      },  /*  |    \"U */  /* changend in 2.5*/
   {  "\\ss\t",             "s"      },  /*       \ss */
   {  "\\SS\t",               "SS"     },  /*       \SS */
   {  "\\sz\t",             "s"      },  /*       \sz */   /* new in 2.1 */
@@ -3121,7 +3224,7 @@ const char *udtable[][2] = {
   {  "\\OLDHYF\t",           "F"      },  /*     [F-]  */   /* /          */
   {  "\\hy\t",               "-"      },  /* MINUS \hy */   /* new in 2.2 */
   {  "\\fhy\t",              "-"      },  /* MINUS \fhy*/   /* new in 2.2 */
-  {  "\\\"",               ""       },  /* /     \"  */
+  {  "\\\"\t",             ""       },  /* /     \"  */  /* changend in 2.5*/
   {  "\\3",                "s"      },  /*       \3  */
   {  "\\ck\t",               "ck"     },  /*    [c-k]  */   /* new in 2.2 */
   {  "\\CK\t",               "CK"     },  /*    [C-K]  */   /* new in 2.2 */
@@ -3131,46 +3234,68 @@ const char *udtable[][2] = {
   {  "\\NEWHYSS\t",          "SS"     },  /*    [-SS]  */   /*  | 2.2     */
   {  "\\hyss\t",           "s"      },  /* [s-s/-ss] */   /*  |         */
   {  "\\HYSS\t",             "SS"     },  /* [S-S/-SS] */   /* /          */
+  {  "\\capitaldieresis\ta",  "a"   },  /* new in 2.5 = \"a */
+  {  "\\@tabacckludge\t\"\ta","a"   },  /* new in 2.5 = \"a */
+  {  "\\a\t\"\ta",            "a"   },  /* new in 2.5 = \"a */
+  {  "\\capitaldieresis\to",  "o"   },  /* new in 2.5 = \"o */
+  {  "\\@tabacckludge\t\"\to","o"   },  /* new in 2.5 = \"o */
+  {  "\\a\t\"\to",            "o"   },  /* new in 2.5 = \"o */
+  {  "\\capitaldieresis\tu",  "u"   },  /* new in 2.5 = \"u */
+  {  "\\@tabacckludge\t\"\tu","u"   },  /* new in 2.5 = \"u */
+  {  "\\a\t\"\tu",            "u"   },  /* new in 2.5 = \"u */
+  {  "\\capitaldieresis\tA",  "A"   },  /* new in 2.5 = \"A */
+  {  "\\@tabacckludge\t\"\tA","A"   },  /* new in 2.5 = \"A */
+  {  "\\a\t\"\tA",            "A"   },  /* new in 2.5 = \"A */
+  {  "\\capitaldieresis\tO",  "O"   },  /* new in 2.5 = \"O */
+  {  "\\@tabacckludge\t\"\tO","O"   },  /* new in 2.5 = \"O */
+  {  "\\a\t\"\tO",            "O"   },  /* new in 2.5 = \"O */
+  {  "\\capitaldieresis\tU",  "U"   },  /* new in 2.5 = \"U */
+  {  "\\@tabacckludge\t\"\tU","U"   },  /* new in 2.5 = \"U */
+  {  "\\a\t\"\tU",            "U"   },  /* new in 2.5 = \"U */
+  {  "\\capitaldieresis\t",   ""    },  /* new in 2.5 = \" */
+  {  "\\@tabacckludge\t\"\t", ""    },  /* new in 2.5 = \" */
+  {  "\\a\t\"\t",             ""    },  /* new in 2.5 = \" */
   { NULL, NULL }};
-#define NUMTEX  44
+#define NUMTEX  65
 
 
+   /* \" changed to \"\t in 2.5 */
 const char *gstylist[][2] = { 
-  {  "\"a",                   NULL    },  /* \      "a */
-  {  "\"o",                   NULL    },  /*  |     "o */
-  {  "\"u",                   NULL    },  /* CTL+E  "u */
-  {  "\"A",                   NULL    },  /*  |     "A */
-  {  "\"O",                   NULL    },  /*  |     "O */
-  {  "\"U",                   NULL    },  /*  |     "U */
-  {  "\"s",                   NULL    },  /*        "s */
-  {  "\"S",                   NULL    },  /*        "S */
-  {  "\"z",                   NULL    },  /*        "z */   /* new in 2.1 */
-  {  "\"Z",                   NULL    },  /*        "Z */   /* new in 2.1 */
-  {  "\"<",                   NULL    },  /*        "` */   /* new in 2.2 */
-  {  "\">",                   NULL    },  /*        "' */   /* new in 2.2 */
-  {  "\"`",                   NULL    },  /*        "` */   /* new in 2.2 */
-  {  "\"\'",                  NULL    },  /*        "' */   /* new in 2.2 */
-  {  "\"|",                   NULL    },  /*        "| */   /* new in 2.2 */
-  {  "\"-",                   NULL    },  /*        "- */   /* new in 2.2 */
-  {  "\"c",                   NULL    },  /*     [c-]  */   /* \          */
-  {  "\"C",                   NULL    },  /*     [C-]  */   /*  |         */
-  {  "\"l",                   NULL    },  /*     [l-]  */   /*  |         */
-  {  "\"L",                   NULL    },  /*     [L-]  */   /*  |         */
-  {  "\"m",                   NULL    },  /*     [m-]  */   /*  |         */
-  {  "\"M",                   NULL    },  /*     [M-]  */   /*  |         */
-  {  "\"n",                   NULL    },  /*     [n-]  */   /*  | new     */
-  {  "\"N",                   NULL    },  /*     [N-]  */   /*  |  in     */
-  {  "\"p",                   NULL    },  /*     [p-]  */   /*  | 2.2     */
-  {  "\"P",                   NULL    },  /*     [P-]  */   /*  |         */
-  {  "\"r",                   NULL    },  /*     [r-]  */   /*  |         */
-  {  "\"R",                   NULL    },  /*     [R-]  */   /*  |         */
-  {  "\"t",                   NULL    },  /*     [t-]  */   /*  |         */
-  {  "\"T",                   NULL    },  /*     [T-]  */   /*  |         */
-  {  "\"f",                   NULL    },  /*     [f-]  */   /*  |         */
-  {  "\"F",                   NULL    },  /*     [F-]  */   /*  |         */
-  {  "\"=",                   NULL    },  /* MINUS  "= */   /* new in 2.2 */
-  {  "\"~",                   NULL    },  /* MINUS  "~ */   /* new in 2.2 */
-  {  "\"",                    NULL    },  /* /      "  */
+  {  "\"\ta",                 NULL    },  /* \      "a */
+  {  "\"\to",                 NULL    },  /*  |     "o */
+  {  "\"\tu",                 NULL    },  /* CTL+E  "u */
+  {  "\"\tA",                 NULL    },  /*  |     "A */
+  {  "\"\tO",                 NULL    },  /*  |     "O */
+  {  "\"\tU",                 NULL    },  /*  |     "U */
+  {  "\"\ts",                 NULL    },  /*        "s */
+  {  "\"\tS",                 NULL    },  /*        "S */
+  {  "\"\tz",                 NULL    },  /*        "z */   /* new in 2.1 */
+  {  "\"\tZ",                 NULL    },  /*        "Z */   /* new in 2.1 */
+  {  "\"\t<",                 NULL    },  /*        "` */   /* new in 2.2 */
+  {  "\"\t>",                 NULL    },  /*        "' */   /* new in 2.2 */
+  {  "\"\t`",                 NULL    },  /*        "` */   /* new in 2.2 */
+  {  "\"\t\'",                NULL    },  /*        "' */   /* new in 2.2 */
+  {  "\"\t|",                 NULL    },  /*        "| */   /* new in 2.2 */
+  {  "\"\t-",                 NULL    },  /*        "- */   /* new in 2.2 */
+  {  "\"\tc",                 NULL    },  /*     [c-]  */   /* \          */
+  {  "\"\tC",                 NULL    },  /*     [C-]  */   /*  |         */
+  {  "\"\tl",                 NULL    },  /*     [l-]  */   /*  |         */
+  {  "\"\tL",                 NULL    },  /*     [L-]  */   /*  |         */
+  {  "\"\tm",                 NULL    },  /*     [m-]  */   /*  |         */
+  {  "\"\tM",                 NULL    },  /*     [M-]  */   /*  |         */
+  {  "\"\tn",                 NULL    },  /*     [n-]  */   /*  | new     */
+  {  "\"\tN",                 NULL    },  /*     [N-]  */   /*  |  in     */
+  {  "\"\tp",                 NULL    },  /*     [p-]  */   /*  | 2.2     */
+  {  "\"\tP",                 NULL    },  /*     [P-]  */   /*  |         */
+  {  "\"\tr",                 NULL    },  /*     [r-]  */   /*  |         */
+  {  "\"\tR",                 NULL    },  /*     [R-]  */   /*  |         */
+  {  "\"\tt",                 NULL    },  /*     [t-]  */   /*  |         */
+  {  "\"\tT",                 NULL    },  /*     [T-]  */   /*  |         */
+  {  "\"\tf",                 NULL    },  /*     [f-]  */   /*  |         */
+  {  "\"\tF",                 NULL    },  /*     [F-]  */   /*  |         */
+  {  "\"\t=",                 NULL    },  /* MINUS  "= */   /* new in 2.2 */
+  {  "\"\t~",                 NULL    },  /* MINUS  "~ */   /* new in 2.2 */
+  {  "\"\t",                  NULL    },  /* /      "  */
   { NULL, NULL }};
 #define NUMGER  35
 
@@ -3220,6 +3345,27 @@ const char *gweight[][2] = {
   {  NULL,                   "SS"     },  /*    [-SS]  */   /*  | 2.2     */
   {  NULL,                 "ss"     },  /* [s-s/-ss] */   /*  |         */
   {  NULL,                   "SS"     },  /* [S-S/-SS] */   /* /          */
+  {  NULL,                   "ae"   },  /* new in 2.5 = \capitaldieresis a */
+  {  NULL,                   "ae"   },  /* new in 2.5 = \@tabacckludge " a */
+  {  NULL,                   "ae"   },  /* new in 2.5 = \a " a             */
+  {  NULL,                   "oe"   },  /* new in 2.5 = \capitaldieresis o */
+  {  NULL,                   "oe"   },  /* new in 2.5 = \@tabacckludge " o */
+  {  NULL,                   "oe"   },  /* new in 2.5 = \a " o             */
+  {  NULL,                   "ue"   },  /* new in 2.5 = \capitaldieresis u */
+  {  NULL,                   "ue"   },  /* new in 2.5 = \@tabacckludge " u */
+  {  NULL,                   "ue"   },  /* new in 2.5 = \a " u             */
+  {  NULL,                   "Ae"   },  /* new in 2.5 = \capitaldieresis A */
+  {  NULL,                   "Ae"   },  /* new in 2.5 = \@tabacckludge " A */
+  {  NULL,                   "Ae"   },  /* new in 2.5 = \a " A             */
+  {  NULL,                   "Oe"   },  /* new in 2.5 = \capitaldieresis O */
+  {  NULL,                   "Oe"   },  /* new in 2.5 = \@tabacckludge " O */
+  {  NULL,                   "Oe"   },  /* new in 2.5 = \a " O             */
+  {  NULL,                   "Ue"   },  /* new in 2.5 = \capitaldieresis U */
+  {  NULL,                   "Ue"   },  /* new in 2.5 = \@tabacckludge " U */
+  {  NULL,                   "Ue"   },  /* new in 2.5 = \a " U             */
+  {  NULL,                   ""     },  /* new in 2.5 = \capitaldieresis   */
+  {  NULL,                   ""     },  /* new in 2.5 = \@tabacckludge "   */
+  {  NULL,                   ""     },  /* new in 2.5 = \a "               */
   { NULL, NULL }};
 
 
@@ -3268,37 +3414,100 @@ const char *mweight[][2] = {
   {  NULL,                   "SS"     },  /*    [-SS]  */   /*  | 2.2     */
   {  NULL,                 "ss"     },  /* [s-s/-ss] */   /*  |         */
   {  NULL,                   "SS"     },  /* [S-S/-SS] */   /* /          */
+  {  NULL,                   "a"    },  /* new in 2.5 = \capitaldieresis a */
+  {  NULL,                   "a"    },  /* new in 2.5 = \@tabacckludge " a */
+  {  NULL,                   "a"    },  /* new in 2.5 = \a " a             */
+  {  NULL,                   "o"    },  /* new in 2.5 = \capitaldieresis o */
+  {  NULL,                   "o"    },  /* new in 2.5 = \@tabacckludge " o */
+  {  NULL,                   "o"    },  /* new in 2.5 = \a " o             */
+  {  NULL,                   "u"    },  /* new in 2.5 = \capitaldieresis u */
+  {  NULL,                   "u"    },  /* new in 2.5 = \@tabacckludge " u */
+  {  NULL,                   "u"    },  /* new in 2.5 = \a " u             */
+  {  NULL,                   "A"    },  /* new in 2.5 = \capitaldieresis A */
+  {  NULL,                   "A"    },  /* new in 2.5 = \@tabacckludge " A */
+  {  NULL,                   "A"    },  /* new in 2.5 = \a " A             */
+  {  NULL,                   "O"    },  /* new in 2.5 = \capitaldieresis O */
+  {  NULL,                   "O"    },  /* new in 2.5 = \@tabacckludge " O */
+  {  NULL,                   "O"    },  /* new in 2.5 = \a " O             */
+  {  NULL,                   "U"    },  /* new in 2.5 = \capitaldieresis U */
+  {  NULL,                   "U"    },  /* new in 2.5 = \@tabacckludge " U */
+  {  NULL,                   "U"    },  /* new in 2.5 = \a " U             */
+  {  NULL,                   ""     },  /* new in 2.5 = \capitaldieresis   */
+  {  NULL,                   ""     },  /* new in 2.5 = \@tabacckludge "   */
+  {  NULL,                   ""     },  /* new in 2.5 = \a "               */
   { NULL, NULL }};
 
+
+int lenofMATCHaftertab(const char *t, const char *line)
+{
+  int r = 0;
+
+  if (*t == '\t')
+  {
+    if (*(t+1) != '\0')
+    {
+      if (*(t+2) == '\0' || *(t+2) == '\t')
+      {
+        if (*(t+1) == *line) r = 1;
+         else
+        if (*line == '{' && *(t+1) == *(line+1) && *(line+2) == '}') r = 3;
+      }
+      else intern_err(34);
+    }
+  }
+
+  if (r > 0 && *(t+2) == '\t')
+  {
+    while (*(line+r) == ' ') ++r;
+
+    if(*(t+3) != '\0')
+    {
+      if (*(t+4) == '\0')
+      {
+        if (*(t+3) == *(line+r)) r += 1;
+         else
+        if (*(line+r) == '{' && *(t+3) == *(line+r+1) && *(line+r+2) == '}') r += 3;
+         else
+        r = 0;
+      }
+      else intern_err(37);
+    }
+  }
+
+  return r;
+}
 
 
 int texlistnum(const char *p, int n, const char *list[][2])
 {
    const char *entry, *line;
-   int i = 0;
+   int i = 0, len, atlen;
 
    while (i < n)
    { 
        entry = list[i][0];
-       line  = p;
+       line  = p; len = 0;
+
+
        while (*line == *entry && *entry != '\0' && *entry != '\t')
        {
-         ++line; ++entry;
+         ++line; ++entry; ++len;
        }
+      
 
-       if (*entry == '\0' || (*entry == '\t' && *(entry+1) == '\0' && isLaTeXcmdletter(*line) == 0))
-       {
+       if (     *entry == '\0'
+            || (*entry == '\t' && *(entry+1) == '\0' && ((len == 2 && *p == '\\' && isLaTeXcmdletter(*(p+1)) == 0) || isLaTeXcmdletter(*line) == 0))
+          )
          break;
-       }
-       else  /* new in 2.3 */
-       if (*entry == '\t' && *(entry+1) != '\0')
+       
+
+       if (*entry == '\t' && ((len == 1 && *p == '\"') || (len == 2 && *p == '\\' && isLaTeXcmdletter(*(p+1)) == 0) || isLaTeXcmdletter(*line) == 0))
        {
-         if (*(entry+2) == '\0')
-         {
-           while (*line == ' ') ++line;
-           if (*(entry+1) == *line) break;
-         }
-         else intern_err(34);
+         while (*line == ' ') ++line;  /* now, isLaTeXcmdletter(*line) != 0 */
+
+                    /* new in 2.3, changed in 2.5 */
+         if ((atlen=lenofMATCHaftertab(entry, line)) > 0)   /* atlen=1,3 !! */
+           break;
        }
 
        ++i;
@@ -3321,7 +3530,7 @@ int llstrlen(const char *s)
 {
    int len = 0;
 
-   while (*s != '\0' && *s != '\t') { ++s; ++len; }
+   while  (*s != '\0' && *s != '\t') { ++s; ++len; }
 
    return len;
 }
@@ -3329,7 +3538,23 @@ int llstrlen(const char *s)
 
 char *overspacesafterlettercmd(int len, const char *q, char *p)
 {
-  if (len > 0 && isLaTeXcmdletter(*(q+1)) != 0) while (*p == ' ') ++p;
+  int atlen;
+
+  /* if (isLaTeXcmdletter(*(q+1)) != 0) deleted in 2.5 !! */
+
+  if (len > 0)
+  {
+    if (*(q+len) == '\t' && ((len == 1 && *q == '\"') || (len == 2 && *q == '\\' && isLaTeXcmdletter(*(q+1)) == 0) || isLaTeXcmdletter(*p) == 0))
+    {
+      while (*p == ' ') ++p;  /* now, isLaTeXcmdletter(*p) != 0 */
+
+         /* new in 2.5 because of \capitaldieresis{x} */
+      if((atlen=lenofMATCHaftertab(q+len, p)) > 0)
+      {
+        p += atlen;
+      }
+    }
+  }
 
   return p;
 }
@@ -3431,9 +3656,10 @@ char *austauschen(char in[], char *p, int dqcat)
     {
       if (*(p+1) == '\"') p += 2;       /*  "" ist nicht in gstylist  */
       else                              /*  "~ muss in gstylist sein  */
-      if ((i=texlistnum(p, NUMGER,  gstylist)) > -1)
-      {              p += llstrlen( gstylist[i][0]);
-             pos = insertweight(in,          i,      pos, MAXLEN-1);
+      if (       (i=texlistnum(p, NUMGER,  gstylist)) > -1)
+      {                p += (len=llstrlen( gstylist[i][0]));
+                    pos = insertweight(in,          i,      pos, MAXLEN-1);
+         p = overspacesafterlettercmd(len, gstylist[i][0], p);  /* new in 2.5 */
       }
       else 
       { 
@@ -3686,7 +3912,7 @@ static char *ohninetyfour[] = {
    "{\\textasciidieresis}",/* 194 168 \\\"{} */
    "{\\textcopyright}",    /* 194 169 */
    "{\\textordfeminine}",  /* 194 170 */
-   "{\\guillemotleft}",    /* 194 171 {\\flqq} */
+   "{\\guillemetleft}",    /* 194 171 {\\flqq}; before 2.5 / v1.3c: {\\guillemotleft} */
    "{\\textlnot}",         /* 194 172 NOT SIGN */
    "{\\-}",                /* 194 173 */
    "{\\textregistered}",   /* 194 174 */
@@ -3702,7 +3928,7 @@ static char *ohninetyfour[] = {
    "{\\textasciicedilla}", /* 194 184 {\\c\\ } (\text... yet undefined) */
    "{\\textonesuperior}",  /* 194 185 ^{1} */
    "{\\textordmasculine}", /* 194 186 */
-   "{\\guillemotright}",   /* 194 187 {\\frqq} */
+   "{\\guillemetright}",   /* 194 187 {\\frqq}; before 2.5 / v1.3c: {\\guillemotright} */
    "{\\textonequarter}",   /* 194 188 \\frac{1}{4} */
    "{\\textonehalf}",      /* 194 189 \\frac{1}{2} */
    "{\\textthreequarters}",/* 194 190 \\frac{3}{4} */
@@ -3835,8 +4061,8 @@ static char *ohninetysix[] = {
    "\\c{g}",               /* 196 163 */
    "\\^H",                 /* 196 164 */
    "\\^h",                 /* 196 165 */
-   "",                     /* 196 166 H-quer (not v1.2l) */
-   "",                     /* 196 167 {\\hbar} [?] (not v1.2l) */
+   "",                     /* 196 166 H-quer (not v1.3c) */
+   "",                     /* 196 167 {\\hbar} [?] (not v1.3c) */
    "\\~I",                 /* 196 168 */
    "\\~{\\i}",             /* 196 169 */
    "\\=I",                 /* 196 170 */
@@ -3853,14 +4079,14 @@ static char *ohninetysix[] = {
    "\\^{\\j}",             /* 196 181 */
    "\\c{K}",               /* 196 182 */
    "\\c{k}",               /* 196 183 */
-   "",                     /* 196 184 kra (not v1.2l) */
+   "",                     /* 196 184 kra (not v1.3c) */
    "\\\'L",                /* 196 185 */
    "\\\'l",                /* 196 186 */
    "\\c{L}",               /* 196 187 */
    "\\c{l}",               /* 196 188 */
    "\\v{L}",               /* 196 189 */
    "\\v{l}",               /* 196 190 */
-   "",                     /* 196 191 L* (not v1.2l) */
+   "",                     /* 196 191 L* (not v1.3c) */
    NULL };
 
 #define OHNINETYSIX           196
@@ -3874,7 +4100,7 @@ char *get_ohninetysix(unsigned char c)
 
 
 static char *ohninetyseven[] = {
-   "",                     /* 197 128 l* (not v1.2l) */
+   "",                     /* 197 128 l* (not v1.3c) */
    "{\\L}",                /* 197 129 */
    "{\\l}",                /* 197 130 */
    "\\\'N",                /* 197 131 */
@@ -3883,7 +4109,7 @@ static char *ohninetyseven[] = {
    "\\c{n}",               /* 197 134 */
    "\\v{N}",               /* 197 135 */
    "\\v{n}",               /* 197 136 */
-   "",                     /* 197 137 'n (not v1.2l) */
+   "",                     /* 197 137 'n (not v1.3c) */
    "{\\NG}",               /* 197 138 */
    "{\\ng}",               /* 197 139 */
    "\\=O",                 /* 197 140 */
@@ -3912,8 +4138,8 @@ static char *ohninetyseven[] = {
    "\\c{t}",               /* 197 163 */
    "\\v{T}",               /* 197 164 */
    "\\v{t}",               /* 197 165 */
-   "",                     /* 197 166 T-quer (not v1.2l) */
-   "",                     /* 197 167 t-quer (not v1.2l) */
+   "",                     /* 197 166 T-quer (not v1.3c) */
+   "",                     /* 197 167 t-quer (not v1.3c) */
    "\\~U",                 /* 197 168 */
    "\\~u",                 /* 197 169 */
    "\\=U",                 /* 197 170 */
@@ -3937,7 +4163,7 @@ static char *ohninetyseven[] = {
    "\\.z",                 /* 197 188 */
    "\\v{Z}",               /* 197 189 */
    "\\v{z}",               /* 197 190 */
-   "",                     /* 197 191 Lang-s (not v1.2l) */
+   "",                     /* 197 191 Lang-s (not v1.3c) */
    NULL };
 
 #define OHNINETYSEVEN         197
@@ -3951,19 +4177,19 @@ char *get_ohninetyseven(unsigned char c)
 
 
 static char *ohninetynine[] = {
-   "",                     /* 199 128 dental click (not v1.2l) */
-   "",                     /* 199 129 lateral click (not v1.2l) */
-   "",                     /* 199 130 alveolar click (not v1.2l) */
-   "",                     /* 199 131 retroflex click (not v1.2l) */
-   "",                     /* 199 132 D\\v{Z} (not v1.2l) */
-   "",                     /* 199 133 D\\v{z} (not v1.2l) */
-   "",                     /* 199 134 d\\v{z} (not v1.2l) */
-   "",                     /* 199 135 LJ (not v1.2l) */
-   "",                     /* 199 136 Lj (not v1.2l) */
-   "",                     /* 199 137 lj (not v1.2l) */
-   "",                     /* 199 138 NJ (not v1.2l) */
-   "",                     /* 199 139 Nj (not v1.2l) */
-   "",                     /* 199 140 nj (not v1.2l) */
+   "",                     /* 199 128 dental click (not v1.3c) */
+   "",                     /* 199 129 lateral click (not v1.3c) */
+   "",                     /* 199 130 alveolar click (not v1.3c) */
+   "",                     /* 199 131 retroflex click (not v1.3c) */
+   "D\\v{Z}",              /* 199 132 new in 2.5 / v1.3c */
+   "D\\v{z}",              /* 199 133 new in 2.5 / v1.3c */
+   "d\\v{z}",              /* 199 134 new in 2.5 / v1.3c */
+   "LJ",                   /* 199 135 new in 2.5 / v1.3c */
+   "Lj",                   /* 199 136 new in 2.5 / v1.3c */
+   "lj",                   /* 199 137 new in 2.5 / v1.3c */
+   "NJ",                   /* 199 138 new in 2.5 / v1.3c */
+   "Nj",                   /* 199 139 new in 2.5 / v1.3c */
+   "nj",                   /* 199 140 new in 2.5 / v1.3c */
    "\\v{A}",               /* 199 141 */
    "\\v{a}",               /* 199 142 */
    "\\v{I}",               /* 199 143 */
@@ -3972,49 +4198,49 @@ static char *ohninetynine[] = {
    "\\v{o}",               /* 199 146 */
    "\\v{U}",               /* 199 147 */
    "\\v{u}",               /* 199 148 */
-   "",                     /* 199 149 \\={\\\"U} (not v1.2l) */
-   "",                     /* 199 150 \\={\\\"u} (not v1.2l) */
-   "",                     /* 199 151 \\\'{\\\"U} (not v1.2l) */
-   "",                     /* 199 152 \\\'{\\\"u} (not v1.2l) */
-   "",                     /* 199 153 \\v{\\\"U} (not v1.2l) */
-   "",                     /* 199 154 \\v{\\\"u} (not v1.2l) */
-   "",                     /* 199 155 \\`{\\\"U} (not v1.2l) */
-   "",                     /* 199 156 \\`{\\\"u} (not v1.2l) */
-   "",                     /* 199 157 turned e (not v1.2l) */
-   "",                     /* 199 158 \\={\\\"A} (not v1.2l) */
-   "",                     /* 199 159 \\={\\\"a} (not v1.2l) */
-   "",                     /* 199 160 \\={\\.A} (not v1.2l) */
-   "",                     /* 199 161 \\={\\.a} (not v1.2l) */
+   "",                     /* 199 149 \\={\\\"U} (not v1.3c) */
+   "",                     /* 199 150 \\={\\\"u} (not v1.3c) */
+   "",                     /* 199 151 \\\'{\\\"U} (not v1.3c) */
+   "",                     /* 199 152 \\\'{\\\"u} (not v1.3c) */
+   "",                     /* 199 153 \\v{\\\"U} (not v1.3c) */
+   "",                     /* 199 154 \\v{\\\"u} (not v1.3c) */
+   "",                     /* 199 155 \\`{\\\"U} (not v1.3c) */
+   "",                     /* 199 156 \\`{\\\"u} (not v1.3c) */
+   "",                     /* 199 157 turned e (not v1.3c) */
+   "",                     /* 199 158 \\={\\\"A} (not v1.3c) */
+   "",                     /* 199 159 \\={\\\"a} (not v1.3c) */
+   "",                     /* 199 160 \\={\\.A} (not v1.3c) */
+   "",                     /* 199 161 \\={\\.a} (not v1.3c) */
    "\\={\\AE}",            /* 199 162 */
    "\\={\\ae}",            /* 199 163 */
-   "",                     /* 199 164 G-quer (not v1.2l) */
-   "",                     /* 199 165 g-quer (not v1.2l) */
+   "",                     /* 199 164 G-quer (not v1.3c) */
+   "",                     /* 199 165 g-quer (not v1.3c) */
    "\\v{G}",               /* 199 166 */
    "\\v{g}",               /* 199 167 */
    "\\v{K}",               /* 199 168 */
    "\\v{k}",               /* 199 169 */
    "\\k{O}",               /* 199 170 */
    "\\k{o}",               /* 199 171 */
-   "",                     /* 199 172 \\k{\\=O} (not v1.2l) */
-   "",                     /* 199 173 \\k{\\=o} (not v1.2l) */
-   "",                     /* 199 174 EZH with \\v (not v1.2l) */
-   "",                     /* 199 175 ezh with \\v (not v1.2l) */
+   "",                     /* 199 172 \\k{\\=O} (not v1.3c) */
+   "",                     /* 199 173 \\k{\\=o} (not v1.3c) */
+   "",                     /* 199 174 EZH with \\v (not v1.3c) */
+   "",                     /* 199 175 ezh with \\v (not v1.3c) */
    "\\v{\\j}",             /* 199 176 */
-   "",                     /* 199 177 DZ (not v1.2l) */
-   "",                     /* 199 178 Dz (not v1.2l) */
-   "",                     /* 199 179 dz (not v1.2l) */
+   "",                     /* 199 177 DZ (not v1.3c) */
+   "",                     /* 199 178 Dz (not v1.3c) */
+   "",                     /* 199 179 dz (not v1.3c) */
    "\\\'G",                /* 199 180 */
    "\\\'g",                /* 199 181 */
-   "",                     /* 199 182 HWAIR (not v1.2l) */
-   "",                     /* 199 183 WYNN (not v1.2l) */
-   "",                     /* 199 184 \\`N (not v1.2l) */
-   "",                     /* 199 185 \\`n (not v1.2l) */
-   "",                     /* 199 186 \\\'{\k{A}} (not v1.2l) */
-   "",                     /* 199 187 \\\'{\k{a}} (not v1.2l) */
-   "",                     /* 199 188 \\\'{\\AE} (not v1.2l) */
-   "",                     /* 199 189 \\\'{\\ae} (not v1.2l) */
-   "",                     /* 199 190 \\\'{\\O} (not v1.2l) */
-   "",                     /* 199 191 \\\'{\\o} (not v1.2l) */
+   "",                     /* 199 182 HWAIR (not v1.3c) */
+   "",                     /* 199 183 WYNN (not v1.3c) */
+   "",                     /* 199 184 \\`N (not v1.3c) */
+   "",                     /* 199 185 \\`n (not v1.3c) */
+   "",                     /* 199 186 \\\'{\k{A}} (not v1.3c) */
+   "",                     /* 199 187 \\\'{\k{a}} (not v1.3c) */
+   "",                     /* 199 188 \\\'{\\AE} (not v1.3c) */
+   "",                     /* 199 189 \\\'{\\ae} (not v1.3c) */
+   "",                     /* 199 190 \\\'{\\O} (not v1.3c) */
+   "",                     /* 199 191 \\\'{\\o} (not v1.3c) */
    NULL };
 
 #define OHNINETYNINE          199
@@ -4028,70 +4254,70 @@ char *get_ohninetynine(unsigned char c)
 
 
 static char *thnullnull[] = {
-   "",                     /* 200 128 A with double grave (not v1.2l) */
-   "",                     /* 200 129 a with double grave (not v1.2l) */
-   "",                     /* 200 130 A with inverted breve (not v1.2l) */
-   "",                     /* 200 131 a with inverted breve (not v1.2l) */
-   "",                     /* 200 132 E with double grave (not v1.2l) */
-   "",                     /* 200 133 e with double grave (not v1.2l) */
-   "",                     /* 200 134 E with inverted breve (not v1.2l) */
-   "",                     /* 200 135 e with inverted breve (not v1.2l) */
-   "",                     /* 200 136 I with double grave (not v1.2l) */
-   "",                     /* 200 137 i with double grave (not v1.2l) */
-   "",                     /* 200 138 I with inverted breve (not v1.2l) */
-   "",                     /* 200 139 i with inverted breve (not v1.2l) */
-   "",                     /* 200 140 O with double grave (not v1.2l) */
-   "",                     /* 200 141 o with double grave (not v1.2l) */
-   "",                     /* 200 142 O with inverted breve (not v1.2l) */
-   "",                     /* 200 143 o with inverted breve (not v1.2l) */
-   "",                     /* 200 144 R with double grave (not v1.2l) */
-   "",                     /* 200 145 r with double grave (not v1.2l) */
-   "",                     /* 200 146 R with inverted breve (not v1.2l) */
-   "",                     /* 200 147 r with inverted breve (not v1.2l) */
-   "",                     /* 200 148 U with double grave (not v1.2l) */
-   "",                     /* 200 149 u with double grave (not v1.2l) */
-   "",                     /* 200 150 U with inverted breve (not v1.2l) */
-   "",                     /* 200 151 u with inverted breve (not v1.2l) */
+   "",                     /* 200 128 A with double grave (not v1.3c) */
+   "",                     /* 200 129 a with double grave (not v1.3c) */
+   "",                     /* 200 130 A with inverted breve (not v1.3c) */
+   "",                     /* 200 131 a with inverted breve (not v1.3c) */
+   "",                     /* 200 132 E with double grave (not v1.3c) */
+   "",                     /* 200 133 e with double grave (not v1.3c) */
+   "",                     /* 200 134 E with inverted breve (not v1.3c) */
+   "",                     /* 200 135 e with inverted breve (not v1.3c) */
+   "",                     /* 200 136 I with double grave (not v1.3c) */
+   "",                     /* 200 137 i with double grave (not v1.3c) */
+   "",                     /* 200 138 I with inverted breve (not v1.3c) */
+   "",                     /* 200 139 i with inverted breve (not v1.3c) */
+   "",                     /* 200 140 O with double grave (not v1.3c) */
+   "",                     /* 200 141 o with double grave (not v1.3c) */
+   "",                     /* 200 142 O with inverted breve (not v1.3c) */
+   "",                     /* 200 143 o with inverted breve (not v1.3c) */
+   "",                     /* 200 144 R with double grave (not v1.3c) */
+   "",                     /* 200 145 r with double grave (not v1.3c) */
+   "",                     /* 200 146 R with inverted breve (not v1.3c) */
+   "",                     /* 200 147 r with inverted breve (not v1.3c) */
+   "",                     /* 200 148 U with double grave (not v1.3c) */
+   "",                     /* 200 149 u with double grave (not v1.3c) */
+   "",                     /* 200 150 U with inverted breve (not v1.3c) */
+   "",                     /* 200 151 u with inverted breve (not v1.3c) */
    "\\textcommabelow{S}",  /* 200 152 */
    "\\textcommabelow{s}",  /* 200 153 */
    "\\textcommabelow{T}",  /* 200 154 */
    "\\textcommabelow{t}",  /* 200 155 */
-   "",                     /* 200 156 YOGH (not v1.2l) */
-   "",                     /* 200 157 yogh (not v1.2l) */
-   "",                     /* 200 158 \\v{H} (not v1.2l) */
-   "",                     /* 200 159 \\v{h} (not v1.2l) */
-   "",                     /* 200 160 N with long right leg (not v1.2l) */
-   "",                     /* 200 161 d with curl (not v1.2l) */
-   "",                     /* 200 162 OU (not v1.2l) */
-   "",                     /* 200 163 ou (not v1.2l) */
-   "",                     /* 200 164 Z with hook (not v1.2l) */
-   "",                     /* 200 165 z with hook (not v1.2l) */
-   "",                     /* 200 166 \\.A (not v1.2l) */
-   "",                     /* 200 167 \\.a (not v1.2l) */
-   "",                     /* 200 168 \\c{E} (not v1.2l) */
-   "",                     /* 200 169 \\c{e} (not v1.2l) */
-   "",                     /* 200 170 \\={\\\"O} (not v1.2l) */
-   "",                     /* 200 171 \\={\\\"o} (not v1.2l) */
-   "",                     /* 200 172 \\={\\~O} (not v1.2l) */
-   "",                     /* 200 173 \\={\\~o} (not v1.2l) */
-   "",                     /* 200 174 \\.O (not v1.2l) */
-   "",                     /* 200 175 \\.o (not v1.2l) */
-   "",                     /* 200 176 [\\={\\.O}] (not v1.2l) */
-   "",                     /* 200 177 [\\={\\.o}] (not v1.2l) */
+   "",                     /* 200 156 YOGH (not v1.3c) */
+   "",                     /* 200 157 yogh (not v1.3c) */
+   "",                     /* 200 158 \\v{H} (not v1.3c) */
+   "",                     /* 200 159 \\v{h} (not v1.3c) */
+   "",                     /* 200 160 N with long right leg (not v1.3c) */
+   "",                     /* 200 161 d with curl (not v1.3c) */
+   "",                     /* 200 162 OU (not v1.3c) */
+   "",                     /* 200 163 ou (not v1.3c) */
+   "",                     /* 200 164 Z with hook (not v1.3c) */
+   "",                     /* 200 165 z with hook (not v1.3c) */
+   "",                     /* 200 166 \\.A (not v1.3c) */
+   "",                     /* 200 167 \\.a (not v1.3c) */
+   "",                     /* 200 168 \\c{E} (not v1.3c) */
+   "",                     /* 200 169 \\c{e} (not v1.3c) */
+   "",                     /* 200 170 \\={\\\"O} (not v1.3c) */
+   "",                     /* 200 171 \\={\\\"o} (not v1.3c) */
+   "",                     /* 200 172 \\={\\~O} (not v1.3c) */
+   "",                     /* 200 173 \\={\\~o} (not v1.3c) */
+   "",                     /* 200 174 \\.O (not v1.3c) */
+   "",                     /* 200 175 \\.o (not v1.3c) */
+   "",                     /* 200 176 [\\={\\.O}] (not v1.3c) */
+   "",                     /* 200 177 [\\={\\.o}] (not v1.3c) */
    "\\=Y",                 /* 200 178 */
    "\\=y",                 /* 200 179 */
-   "",                     /* 200 180 l with curl (not v1.2l) */
-   "",                     /* 200 181 n with curl (not v1.2l) */
-   "",                     /* 200 182 t with curl (not v1.2l) */
+   "",                     /* 200 180 l with curl (not v1.3c) */
+   "",                     /* 200 181 n with curl (not v1.3c) */
+   "",                     /* 200 182 t with curl (not v1.3c) */
    "{\\j}",                /* 200 183 */
-   "",                     /* 200 184 db digraph (not v1.2l) */
-   "",                     /* 200 185 qp digraph (not v1.2l) */
-   "",                     /* 200 186 A with diagonal stroke (not v1.2l) */
-   "",                     /* 200 187 C with diagonal stroke (not v1.2l) */
-   "",                     /* 200 188 {\\textcentoldstyle} (not v1.2l) */
-   "",                     /* 200 189 L-quer (not v1.2l) */
-   "",                     /* 200 190 T with diagonal stroke (not v1.2l) */
-   "",                     /* 200 191 s with swash tail (not v1.2l) */
+   "",                     /* 200 184 db digraph (not v1.3c) */
+   "",                     /* 200 185 qp digraph (not v1.3c) */
+   "",                     /* 200 186 A with diagonal stroke (not v1.3c) */
+   "",                     /* 200 187 C with diagonal stroke (not v1.3c) */
+   "",                     /* 200 188 {\\textcentoldstyle} (not v1.3c) */
+   "",                     /* 200 189 L-quer (not v1.3c) */
+   "",                     /* 200 190 T with diagonal stroke (not v1.3c) */
+   "",                     /* 200 191 s with swash tail (not v1.3c) */
    NULL };
 
 #define THNULLNULL            200
@@ -4134,70 +4360,70 @@ int ins_thnullthree(char in[], unsigned char c, int pos)
 
 
 static char *thtwentyfive_oheightyfour[] = {
-   "",                        /* 225 184 128 A with ring below (not v1.2l) */
-   "",                        /* 225 184 129 a with ring below (not v1.2l) */
+   "",                        /* 225 184 128 A with ring below (not v1.3c) */
+   "",                        /* 225 184 129 a with ring below (not v1.3c) */
    "\\.B",                    /* 225 184 130 */
    "\\.b",                    /* 225 184 131 */
-   "",                        /* 225 184 132 \\d{B} (not v1.2l) */
-   "",                        /* 225 184 133 \\d{b} (not v1.2l) */
-   "",                        /* 225 184 134 \\b{B} (not v1.2l) */
-   "",                        /* 225 184 135 \\b{b} (not v1.2l) */
-   "",                        /* 225 184 136 \\c{\\\'C} (not v1.2l) */
-   "",                        /* 225 184 137 \\c{\\\'c} (not v1.2l) */
-   "",                        /* 225 184 138 \\.D (not v1.2l) */
-   "",                        /* 225 184 139 \\.d (not v1.2l) */
-   "",                        /* 225 184 140 \\d{D} (not v1.2l) */
+   "",                        /* 225 184 132 \\d{B} (not v1.3c) */
+   "",                        /* 225 184 133 \\d{b} (not v1.3c) */
+   "",                        /* 225 184 134 \\b{B} (not v1.3c) */
+   "",                        /* 225 184 135 \\b{b} (not v1.3c) */
+   "",                        /* 225 184 136 \\c{\\\'C} (not v1.3c) */
+   "",                        /* 225 184 137 \\c{\\\'c} (not v1.3c) */
+   "",                        /* 225 184 138 \\.D (not v1.3c) */
+   "",                        /* 225 184 139 \\.d (not v1.3c) */
+   "",                        /* 225 184 140 \\d{D} (not v1.3c) */
    "\\d{d}",                  /* 225 184 141 */
-   "",                        /* 225 184 142 \\b{D} (not v1.2l) */
-   "",                        /* 225 184 143 \\b{d} (not v1.2l) */
-   "",                        /* 225 184 144 \\textcommabelow{D} (not v1.2l) */
-   "",                        /* 225 184 145 \\textcommabelow{d} (not v1.2l) */
-   "",                        /* 225 184 146 D with circumflex below (not v1.2l) */
-   "",                        /* 225 184 147 d with circumflex below (not v1.2l) */
-   "",                        /* 225 184 148 [\\`{\\=E}] (not v1.2l) */
-   "",                        /* 225 184 149 [\\`{\\=e}] (not v1.2l) */
-   "",                        /* 225 184 150 [\\\'{\\=E}] (not v1.2l) */
-   "",                        /* 225 184 151 [\\\'{\\=e}] (not v1.2l) */
-   "",                        /* 225 184 152 E with circumflex below (not v1.2l) */
-   "",                        /* 225 184 153 e with circumflex below (not v1.2l) */
-   "",                        /* 225 184 154 E with tilde below (not v1.2l) */
-   "",                        /* 225 184 155 e with tilde below (not v1.2l) */
-   "",                        /* 225 184 156 [\\u{\\c{E}}] (not v1.2l) */
-   "",                        /* 225 184 157 [\\u{\\c{e}}] (not v1.2l) */
-   "",                        /* 225 184 158 \\.F (not v1.2l) */
-   "",                        /* 225 184 159 \\.f (not v1.2l) */
+   "",                        /* 225 184 142 \\b{D} (not v1.3c) */
+   "",                        /* 225 184 143 \\b{d} (not v1.3c) */
+   "",                        /* 225 184 144 \\textcommabelow{D} (not v1.3c) */
+   "",                        /* 225 184 145 \\textcommabelow{d} (not v1.3c) */
+   "",                        /* 225 184 146 D with circumflex below (not v1.3c) */
+   "",                        /* 225 184 147 d with circumflex below (not v1.3c) */
+   "",                        /* 225 184 148 [\\`{\\=E}] (not v1.3c) */
+   "",                        /* 225 184 149 [\\`{\\=e}] (not v1.3c) */
+   "",                        /* 225 184 150 [\\\'{\\=E}] (not v1.3c) */
+   "",                        /* 225 184 151 [\\\'{\\=e}] (not v1.3c) */
+   "",                        /* 225 184 152 E with circumflex below (not v1.3c) */
+   "",                        /* 225 184 153 e with circumflex below (not v1.3c) */
+   "",                        /* 225 184 154 E with tilde below (not v1.3c) */
+   "",                        /* 225 184 155 e with tilde below (not v1.3c) */
+   "",                        /* 225 184 156 [\\u{\\c{E}}] (not v1.3c) */
+   "",                        /* 225 184 157 [\\u{\\c{e}}] (not v1.3c) */
+   "\\.F",                    /* 225 184 158 new in 2.4 / v1.2n */
+   "\\.f",                    /* 225 184 159 new in 2.4 / v1.2n */
    "\\=G",                    /* 225 184 160 */
    "\\=g",                    /* 225 184 161 */
-   "",                        /* 225 184 162 \\.H (not v1.2l) */
-   "",                        /* 225 184 163 \\.h (not v1.2l) */
-   "",                        /* 225 184 164 \\d{H} (not v1.2l) */
+   "",                        /* 225 184 162 \\.H (not v1.3c) */
+   "",                        /* 225 184 163 \\.h (not v1.3c) */
+   "",                        /* 225 184 164 \\d{H} (not v1.3c) */
    "\\d{h}",                  /* 225 184 165 */
-   "",                        /* 225 184 166 \\\"H (not v1.2l) */
-   "",                        /* 225 184 167 \\\"h (not v1.2l) */
-   "",                        /* 225 184 168 \\c{H} [?] (not v1.2l) */
-   "",                        /* 225 184 169 \\c{h} [?] (not v1.2l) */
-   "",                        /* 225 184 170 H with breve below (not v1.2l) */
-   "",                        /* 225 184 171 h with breve below (not v1.2l) */
-   "",                        /* 225 184 172 I with tilde below (not v1.2l) */
-   "",                        /* 225 184 173 i with tilde below (not v1.2l) */
-   "",                        /* 225 184 174 \\\'{\\\"I} (not v1.2l) */
-   "",                        /* 225 184 175 \\\'{\\\"{\\i}} (not v1.2l) */
-   "",                        /* 225 184 176 \\\'K (not v1.2l) */
-   "",                        /* 225 184 177 \\\'k (not v1.2l) */
-   "",                        /* 225 184 178 \\d{K} (not v1.2l) */
-   "",                        /* 225 184 179 \\d{k} (not v1.2l) */
-   "",                        /* 225 184 180 \\b{K} (not v1.2l) */
-   "",                        /* 225 184 181 \\b{k} (not v1.2l) */
-   "",                        /* 225 184 182 \\d{L} (not v1.2l) */
+   "",                        /* 225 184 166 \\\"H (not v1.3c) */
+   "",                        /* 225 184 167 \\\"h (not v1.3c) */
+   "",                        /* 225 184 168 \\c{H} [?] (not v1.3c) */
+   "",                        /* 225 184 169 \\c{h} [?] (not v1.3c) */
+   "",                        /* 225 184 170 H with breve below (not v1.3c) */
+   "",                        /* 225 184 171 h with breve below (not v1.3c) */
+   "",                        /* 225 184 172 I with tilde below (not v1.3c) */
+   "",                        /* 225 184 173 i with tilde below (not v1.3c) */
+   "",                        /* 225 184 174 \\\'{\\\"I} (not v1.3c) */
+   "",                        /* 225 184 175 \\\'{\\\"{\\i}} (not v1.3c) */
+   "\\\'K",                   /* 225 184 176 new in 2.4 / v1.2n */
+   "\\\'k",                   /* 225 184 177 new in 2.4 / v1.2n */
+   "",                        /* 225 184 178 \\d{K} (not v1.3c) */
+   "",                        /* 225 184 179 \\d{k} (not v1.3c) */
+   "",                        /* 225 184 180 \\b{K} (not v1.3c) */
+   "",                        /* 225 184 181 \\b{k} (not v1.3c) */
+   "",                        /* 225 184 182 \\d{L} (not v1.3c) */
    "\\d{l}",                  /* 225 184 183 */
-   "",                        /* 225 184 184 \\d{\\=L} (not v1.2l) */
-   "",                        /* 225 184 185 \\d{\\=l} (not v1.2l) */
-   "",                        /* 225 184 186 \\b{L} (not v1.2l) */
-   "",                        /* 225 184 187 \\b{l} (not v1.2l) */
-   "",                        /* 225 184 188 L with circumflex below (not v1.2l) */
-   "",                        /* 225 184 189 l with circumflex below (not v1.2l) */
-   "",                        /* 225 184 190 \\\'M (not v1.2l) */
-   "",                        /* 225 184 191 \\\'m (not v1.2l) */
+   "",                        /* 225 184 184 \\d{\\=L} (not v1.3c) */
+   "",                        /* 225 184 185 \\d{\\=l} (not v1.3c) */
+   "",                        /* 225 184 186 \\b{L} (not v1.3c) */
+   "",                        /* 225 184 187 \\b{l} (not v1.3c) */
+   "",                        /* 225 184 188 L with circumflex below (not v1.3c) */
+   "",                        /* 225 184 189 l with circumflex below (not v1.3c) */
+   "",                        /* 225 184 190 \\\'M (not v1.3c) */
+   "",                        /* 225 184 191 \\\'m (not v1.3c) */
    NULL };
 
 #define THTWENTYFIVE             225
@@ -4212,70 +4438,70 @@ char *get_thtwentyfive_oheightyfour(unsigned char c)
 
 
 static char *thtwentyfive_oheightyfive[] = {
-   "",                        /* 225 185 128 \\.M (not v1.2l) */
-   "",                        /* 225 185 129 \\.m (not v1.2l) */
-   "",                        /* 225 185 130 \\d{M} (not v1.2l) */
+   "",                        /* 225 185 128 \\.M (not v1.3c) */
+   "",                        /* 225 185 129 \\.m (not v1.3c) */
+   "",                        /* 225 185 130 \\d{M} (not v1.3c) */
    "\\d{m}",                  /* 225 185 131 */
-   "",                        /* 225 185 132 \\.N (not v1.2l) */
+   "",                        /* 225 185 132 \\.N (not v1.3c) */
    "\\.n",                    /* 225 185 133 */
-   "",                        /* 225 185 134 \\d{N} (not v1.2l) */
+   "",                        /* 225 185 134 \\d{N} (not v1.3c) */
    "\\d{n}",                  /* 225 185 135 */
-   "",                        /* 225 185 136 N with line below (not v1.2l) */
-   "",                        /* 225 185 137 n with line below (not v1.2l) */
-   "",                        /* 225 185 138 N with circumflex below (not v1.2l) */
-   "",                        /* 225 185 139 n with circumflex below (not v1.2l) */
-   "",                        /* 225 185 140 \\\'{\\~O} (not v1.2l) */
-   "",                        /* 225 185 141 \\\'{\\~o} (not v1.2l) */
-   "",                        /* 225 185 142 \\\"{\\~O} (not v1.2l) */
-   "",                        /* 225 185 143 \\\"{\\~o} (not v1.2l) */
-   "",                        /* 225 185 144 [\\`{\\=O}] (not v1.2l) */
-   "",                        /* 225 185 145 [\\`{\\=o}] (not v1.2l) */
-   "",                        /* 225 185 146 [\\\'{\\=O}] (not v1.2l) */
-   "",                        /* 225 185 147 [\\\'{\\=o}] (not v1.2l) */
-   "",                        /* 225 185 148 \\\'P (not v1.2l) */
-   "",                        /* 225 185 149 \\\'p (not v1.2l) */
-   "",                        /* 225 185 150 \\.P (not v1.2l) */
-   "",                        /* 225 185 151 \\.p (not v1.2l) */
-   "",                        /* 225 185 152 \\.R (not v1.2l) */
-   "",                        /* 225 185 153 \\.r (not v1.2l) */
-   "",                        /* 225 185 154 \\d{R} (not v1.2l) */
+   "",                        /* 225 185 136 N with line below (not v1.3c) */
+   "",                        /* 225 185 137 n with line below (not v1.3c) */
+   "",                        /* 225 185 138 N with circumflex below (not v1.3c) */
+   "",                        /* 225 185 139 n with circumflex below (not v1.3c) */
+   "",                        /* 225 185 140 \\\'{\\~O} (not v1.3c) */
+   "",                        /* 225 185 141 \\\'{\\~o} (not v1.3c) */
+   "",                        /* 225 185 142 \\\"{\\~O} (not v1.3c) */
+   "",                        /* 225 185 143 \\\"{\\~o} (not v1.3c) */
+   "",                        /* 225 185 144 [\\`{\\=O}] (not v1.3c) */
+   "",                        /* 225 185 145 [\\`{\\=o}] (not v1.3c) */
+   "",                        /* 225 185 146 [\\\'{\\=O}] (not v1.3c) */
+   "",                        /* 225 185 147 [\\\'{\\=o}] (not v1.3c) */
+   "",                        /* 225 185 148 \\\'P (not v1.3c) */
+   "",                        /* 225 185 149 \\\'p (not v1.3c) */
+   "",                        /* 225 185 150 \\.P (not v1.3c) */
+   "",                        /* 225 185 151 \\.p (not v1.3c) */
+   "",                        /* 225 185 152 \\.R (not v1.3c) */
+   "",                        /* 225 185 153 \\.r (not v1.3c) */
+   "",                        /* 225 185 154 \\d{R} (not v1.3c) */
    "\\d{r}",                  /* 225 185 155 */
-   "",                        /* 225 185 156 \\d{\\=R} (not v1.2l) */
-   "",                        /* 225 185 157 \\d{\\=r} (not v1.2l) */
-   "",                        /* 225 185 158 R with line below (not v1.2l) */
-   "",                        /* 225 185 159 r with line below (not v1.2l) */
-   "",                        /* 225 185 160 \\.S (not v1.2l) */
-   "",                        /* 225 185 161 \\.s (not v1.2l) */
-   "",                        /* 225 185 162 \\d{S} (not v1.2l) */
+   "",                        /* 225 185 156 \\d{\\=R} (not v1.3c) */
+   "",                        /* 225 185 157 \\d{\\=r} (not v1.3c) */
+   "",                        /* 225 185 158 R with line below (not v1.3c) */
+   "",                        /* 225 185 159 r with line below (not v1.3c) */
+   "",                        /* 225 185 160 \\.S (not v1.3c) */
+   "",                        /* 225 185 161 \\.s (not v1.3c) */
+   "",                        /* 225 185 162 \\d{S} (not v1.3c) */
    "\\d{s}",                  /* 225 185 163 */
-   "",                        /* 225 185 164 \\.{\\\'S} (not v1.2l) */
-   "",                        /* 225 185 165 \\.{\\\'s} (not v1.2l) */
-   "",                        /* 225 185 166 \\.{\\v{S}} (not v1.2l) */
-   "",                        /* 225 185 167 \\.{\\v{s}} (not v1.2l) */
-   "",                        /* 225 185 168 \\d{\\.S} (not v1.2l) */
-   "",                        /* 225 185 169 \\d{\\.s} (not v1.2l) */
-   "",                        /* 225 185 170 \\.T (not v1.2l) */
-   "",                        /* 225 185 171 \\.t (not v1.2l) */
-   "",                        /* 225 185 172 \\d{T} (not v1.2l) */
+   "",                        /* 225 185 164 \\.{\\\'S} (not v1.3c) */
+   "",                        /* 225 185 165 \\.{\\\'s} (not v1.3c) */
+   "",                        /* 225 185 166 \\.{\\v{S}} (not v1.3c) */
+   "",                        /* 225 185 167 \\.{\\v{s}} (not v1.3c) */
+   "",                        /* 225 185 168 \\d{\\.S} (not v1.3c) */
+   "",                        /* 225 185 169 \\d{\\.s} (not v1.3c) */
+   "",                        /* 225 185 170 \\.T (not v1.3c) */
+   "",                        /* 225 185 171 \\.t (not v1.3c) */
+   "",                        /* 225 185 172 \\d{T} (not v1.3c) */
    "\\d{t}",                  /* 225 185 173 */
-   "",                        /* 225 185 174 T with line below (not v1.2l) */
-   "",                        /* 225 185 175 t with line below (not v1.2l) */
-   "",                        /* 225 185 176 T with circumfelx below (not v1.2l) */
-   "",                        /* 225 185 177 t with circumfelx below (not v1.2l) */
-   "",                        /* 225 185 178 U with diaresis below (not v1.2l) */
-   "",                        /* 225 185 179 u with diaresis below (not v1.2l) */
-   "",                        /* 225 185 180 U with tilde below (not v1.2l) */
-   "",                        /* 225 185 181 u with tilde below (not v1.2l) */
-   "",                        /* 225 185 182 U with circumflex below (not v1.2l) */
-   "",                        /* 225 185 183 u with circumflex below (not v1.2l) */
-   "",                        /* 225 185 184 [\\\'{\\~U}] (not v1.2l) */
-   "",                        /* 225 185 185 [\\\'{\\~u}] (not v1.2l) */
-   "",                        /* 225 185 186 [\\\"{\\=U}] (not v1.2l) */
-   "",                        /* 225 185 187 [\\\"{\\=u}] (not v1.2l) */
-   "",                        /* 225 185 188 \\~V (not v1.2l) */
-   "",                        /* 225 185 189 \\~v (not v1.2l) */
-   "",                        /* 225 185 190 \\d{V} (not v1.2l) */
-   "",                        /* 225 185 191 \\d{v} (not v1.2l) */
+   "",                        /* 225 185 174 T with line below (not v1.3c) */
+   "",                        /* 225 185 175 t with line below (not v1.3c) */
+   "",                        /* 225 185 176 T with circumfelx below (not v1.3c) */
+   "",                        /* 225 185 177 t with circumfelx below (not v1.3c) */
+   "",                        /* 225 185 178 U with dieresis below (not v1.3c) */
+   "",                        /* 225 185 179 u with dieresis below (not v1.3c) */
+   "",                        /* 225 185 180 U with tilde below (not v1.3c) */
+   "",                        /* 225 185 181 u with tilde below (not v1.3c) */
+   "",                        /* 225 185 182 U with circumflex below (not v1.3c) */
+   "",                        /* 225 185 183 u with circumflex below (not v1.3c) */
+   "",                        /* 225 185 184 [\\\'{\\~U}] (not v1.3c) */
+   "",                        /* 225 185 185 [\\\'{\\~u}] (not v1.3c) */
+   "",                        /* 225 185 186 [\\\"{\\=U}] (not v1.3c) */
+   "",                        /* 225 185 187 [\\\"{\\=u}] (not v1.3c) */
+   "",                        /* 225 185 188 \\~V (not v1.3c) */
+   "",                        /* 225 185 189 \\~v (not v1.3c) */
+   "",                        /* 225 185 190 \\d{V} (not v1.3c) */
+   "",                        /* 225 185 191 \\d{v} (not v1.3c) */
    NULL };
 
 #define THTWENTYFIVE_OHEIGHTYFIVE    185
@@ -4288,23 +4514,100 @@ char *get_thtwentyfive_oheightyfive(unsigned char c)
 }
 
 
+static char *thtwentyfive_oheightysix[] = {  /* new in 2.4 */
+   "",                        /* 225 186 128 \\`W (not v1.3c) */
+   "",                        /* 225 186 129 \\`w (not v1.3c) */
+   "",                        /* 225 186 130 \\\'W (not v1.3c) */
+   "",                        /* 225 186 131 \\\'w (not v1.3c) */
+   "",                        /* 225 186 132 \\\"W (not v1.3c) */
+   "",                        /* 225 186 133 \\\"w (not v1.3c) */
+   "",                        /* 225 186 134 \\.W (not v1.3c) */
+   "",                        /* 225 186 135 \\.w (not v1.3c) */
+   "",                        /* 225 186 136 \\d{W} (not v1.3c) */
+   "",                        /* 225 186 137 \\d{w} (not v1.3c) */
+   "",                        /* 225 186 138 \\.X (not v1.3c) */
+   "",                        /* 225 186 139 \\.x (not v1.3c) */
+   "",                        /* 225 186 140 \\\"X (not v1.3c) */
+   "",                        /* 225 186 141 \\\"x (not v1.3c) */
+   "\\.Y",                    /* 225 186 142 new in 2.4 / v1.2n */
+   "\\.y",                    /* 225 186 143 new in 2.4 / v1.2n */
+   "\\^Z",                    /* 225 186 144 new in 2.4 / v1.2n */
+   "\\^z",                    /* 225 186 145 new in 2.4 / v1.2n */
+   "",                        /* 225 186 146 \\d{Z} (not v1.3c) */
+   "",                        /* 225 186 147 \\d{z} (not v1.3c) */
+   "",                        /* 225 186 148 Z with line below (not v1.3c) */
+   "",                        /* 225 186 149 z with line below (not v1.3c) */
+   "",                        /* 225 186 150 h with line below (not v1.3c) */
+   "",                        /* 225 186 151 \\\"t (not v1.3c) */
+   "",                        /* 225 186 152 \\r{w} (not v1.3c) */
+   "",                        /* 225 186 153 \\r{y} (not v1.3c) */
+   "",                        /* 225 186 154 a with right half ring (not v1.3c) */
+   "",                        /* 225 186 155 long s with dot above (not v1.3c) */
+   "",                        /* 225 186 156 long s with diagonal stroke (not v1.3c) */
+   "",                        /* 225 186 157 long s with high stroke (not v1.3c) */
+   "{\\SS}",                  /* 225 186 158 */
+   "",                        /* 225 186 159 \\delta (not v1.3c) */
+   "",                        /* 225 186 160 \\d{A} (not v1.3c) */
+   "",                        /* 225 186 161 \\d{a} (not v1.3c) */
+   "",                        /* 225 186 162 A with hook above (not v1.3c) */
+   "",                        /* 225 186 163 a with hook above (not v1.3c) */
+   "",                        /* 225 186 164 A with circumflex-acute (not v1.3c) */
+   "",                        /* 225 186 165 a with circumflex-acute (not v1.3c) */
+   "",                        /* 225 186 166 A with circumflex-grave (not v1.3c) */
+   "",                        /* 225 186 167 a with circumflex-grave (not v1.3c) */
+   "",                        /* 225 186 168 A with circumflex-hook (not v1.3c) */
+   "",                        /* 225 186 169 a with circumflex-hook (not v1.3c) */
+   "",                        /* 225 186 170 \\~{\\^A} (not v1.3c) */
+   "",                        /* 225 186 171 \\~{\\^a} (not v1.3c) */
+   "",                        /* 225 186 172 \\d{\\^A} (not v1.3c) */
+   "",                        /* 225 186 173 \\d{\\^a} (not v1.3c) */
+   "",                        /* 225 186 174 A with breve-acute (not v1.3c) */
+   "",                        /* 225 186 175 a with breve-acute (not v1.3c) */
+   "",                        /* 225 186 176 A with breve-grave (not v1.3c) */
+   "",                        /* 225 186 177 a with breve-grave (not v1.3c) */
+   "",                        /* 225 186 178 A with breve-hook (not v1.3c) */
+   "",                        /* 225 186 179 a with breve-hook (not v1.3c) */
+   "",                        /* 225 186 180 A with breve-tilde (not v1.3c) */
+   "",                        /* 225 186 181 a with breve-tilde (not v1.3c) */
+   "",                        /* 225 186 182 \\d{\\u{A}} (not v1.3c) */
+   "",                        /* 225 186 183 \\d{\\u{a}} (not v1.3c) */
+   "",                        /* 225 186 184 \\d{E} (not v1.3c) */
+   "",                        /* 225 186 185 \\d{e} (not v1.3c) */
+   "",                        /* 225 186 186 E with hook above (not v1.3c) */
+   "",                        /* 225 186 187 e with hook above (not v1.3c) */
+   "",                        /* 225 186 188 \\~E (not v1.3c) */
+   "",                        /* 225 186 189 \\~e (not v1.3c) */
+   "",                        /* 225 186 190 E with circumflex-acute (not v1.3c) */
+   "",                        /* 225 186 191 e with circumflex-acute (not v1.3c) */
+   NULL };
+
+#define THTWENTYFIVE_OHEIGHTYSIX    186
+
+char *get_thtwentyfive_oheightysix(unsigned char c)
+{
+  if (c >= UTF_BLOCK_BEGIN && c <= UTF_BLOCK_END)  /* 128 ... 191 */
+       return thtwentyfive_oheightysix[c-UTF_BLOCK_BEGIN];
+  else return "";
+}
+
+
 static char *thtwentysix_ohtwentyeight[] = {
-   "",                        /* 226 128 128 en quad (not v1.2l) */
-   "",                        /* 226 128 129 em quad (not v1.2l) */
-   "",                        /* 226 128 130 en space (not v1.2l) */
-   "",                        /* 226 128 131 em space (not v1.2l) */
-   "",                        /* 226 128 132 three-per-em space (not v1.2l) */
-   "",                        /* 226 128 133 four-per-em space (not v1.2l) */
-   "",                        /* 226 128 134 six-per-em space (not v1.2l) */
-   "",                        /* 226 128 135 figure space (not v1.2l) */
-   "",                        /* 226 128 136 punctuation space (not v1.2l) */
-   "",                        /* 226 128 137 thin space (not v1.2l) */
-   "",                        /* 226 128 138 hair space (not v1.2l) */
-   "",                        /* 226 128 139 zero width space (not v1.2l) */
+   "",                        /* 226 128 128 en quad (not v1.3c) */
+   "",                        /* 226 128 129 em quad (not v1.3c) */
+   "",                        /* 226 128 130 en space (not v1.3c) */
+   "",                        /* 226 128 131 em space (not v1.3c) */
+   "",                        /* 226 128 132 three-per-em space (not v1.3c) */
+   "",                        /* 226 128 133 four-per-em space (not v1.3c) */
+   "",                        /* 226 128 134 six-per-em space (not v1.3c) */
+   "",                        /* 226 128 135 figure space (not v1.3c) */
+   "",                        /* 226 128 136 punctuation space (not v1.3c) */
+   "",                        /* 226 128 137 thin space (not v1.3c) */
+   "",                        /* 226 128 138 hair space (not v1.3c) */
+   "",                        /* 226 128 139 zero width space (not v1.3c) */
    "{\\textcompwordmark}",    /* 226 128 140 (LaTeX-Example: b\u{226-128-140}g) */
-   "",                        /* 226 128 141 zero width joiner (not v1.2l) */
-   "",                        /* 226 128 142 left-to-right mark (not v1.2l) */
-   "",                        /* 226 128 143 right-to-left mark (not v1.2l) */
+   "",                        /* 226 128 141 zero width joiner (not v1.3c) */
+   "",                        /* 226 128 142 left-to-right mark (not v1.3c) */
+   "",                        /* 226 128 143 right-to-left mark (not v1.3c) */
    "-",                       /* 226 128 144 */
    "\\mbox{-}",               /* 226 128 145 - */
    "{\\textendash}",          /* 226 128 146 -- */
@@ -4312,47 +4615,47 @@ static char *thtwentysix_ohtwentyeight[] = {
    "{\\textemdash}",          /* 226 128 148 --- */
    "{\\textemdash}",          /* 226 128 149 --- */
    "{\\textbardbl}",          /* 226 128 150 */
-   "",                        /* 226 128 151 double low line (not v1.2l) */
+   "",                        /* 226 128 151 double low line (not v1.3c) */
    "{\\textquoteleft}",       /* 226 128 152 ` */
    "{\\textquoteright}",      /* 226 128 153 \' */
    "{\\quotesinglbase}",      /* 226 128 154 , */
-   "",                        /* 226 128 155 single high-reversed-9 quotation mark (not v1.2l) */
+   "",                        /* 226 128 155 single high-reversed-9 quotation mark (not v1.3c) */
    "{\\textquotedblleft}",    /* 226 128 156 `` */
    "{\\textquotedblright}",   /* 226 128 157 \'\' */
    "{\\quotedblbase}",        /* 226 128 158 ,, */
-   "",                        /* 226 128 159 double high-reversed-9 quotation mark (not v1.2l) */
+   "",                        /* 226 128 159 double high-reversed-9 quotation mark (not v1.3c) */
    "{\\textdagger}",          /* 226 128 160 {\\dag} */
    "{\\textdaggerdbl}",       /* 226 128 161 {\\ddag} */
    "{\\textbullet}",          /* 226 128 162 */
-   "",                        /* 226 128 163 triangular bullet (not v1.2l) */
-   "",                        /* 226 128 164 one dot leader (not v1.2l) */
-   "",                        /* 226 128 165 two dot leader (not v1.2l) */
+   "",                        /* 226 128 163 triangular bullet (not v1.3c) */
+   "",                        /* 226 128 164 one dot leader (not v1.3c) */
+   "",                        /* 226 128 165 two dot leader (not v1.3c) */
    "{\\textellipsis}",        /* 226 128 166 {\\dots} */
-   "",                        /* 226 128 167 hyphenation point (not v1.2l) */
-   "",                        /* 226 128 168 line separator (not v1.2l) */
-   "",                        /* 226 128 169 paragraph separator (not v1.2l) */
-   "",                        /* 226 128 170 left-to-right embedding (not v1.2l) */
-   "",                        /* 226 128 171 right-to-left embedding (not v1.2l) */
-   "",                        /* 226 128 172 pop directional formatting (not v1.2l) */
-   "",                        /* 226 128 173 left-to-right override (not v1.2l) */
-   "",                        /* 226 128 174 right-to-left override (not v1.2l) */
-   "",                        /* 226 128 175 narrow no-break space (not v1.2l) */
+   "",                        /* 226 128 167 hyphenation point (not v1.3c) */
+   "",                        /* 226 128 168 line separator (not v1.3c) */
+   "",                        /* 226 128 169 paragraph separator (not v1.3c) */
+   "",                        /* 226 128 170 left-to-right embedding (not v1.3c) */
+   "",                        /* 226 128 171 right-to-left embedding (not v1.3c) */
+   "",                        /* 226 128 172 pop directional formatting (not v1.3c) */
+   "",                        /* 226 128 173 left-to-right override (not v1.3c) */
+   "",                        /* 226 128 174 right-to-left override (not v1.3c) */
+   "",                        /* 226 128 175 narrow no-break space (not v1.3c) */
    "{\\textperthousand}",     /* 226 128 176 */
    "{\\textpertenthousand}",  /* 226 128 177 */
-   "",                        /* 226 128 178 prime (not v1.2l) */
-   "",                        /* 226 128 179 double prime (not v1.2l) */
-   "",                        /* 226 128 180 triple prime (not v1.2l) */
-   "",                        /* 226 128 181 reversed prime (not v1.2l) */
-   "",                        /* 226 128 182 reversed double prime (not v1.2l) */
-   "",                        /* 226 128 183 reversed triple prime (not v1.2l) */
-   "",                        /* 226 128 184 caret (not v1.2l) */
+   "",                        /* 226 128 178 prime (not v1.3c) */
+   "",                        /* 226 128 179 double prime (not v1.3c) */
+   "",                        /* 226 128 180 triple prime (not v1.3c) */
+   "",                        /* 226 128 181 reversed prime (not v1.3c) */
+   "",                        /* 226 128 182 reversed double prime (not v1.3c) */
+   "",                        /* 226 128 183 reversed triple prime (not v1.3c) */
+   "",                        /* 226 128 184 caret (not v1.3c) */
    "{\\guilsinglleft}",       /* 226 128 185 */
    "{\\guilsinglright}",      /* 226 128 186 */
    "{\\textreferencemark}",   /* 226 128 187 */
-   "",                        /* 226 128 188 "!!" (double exclamation mark) (not v1.2l) */
+   "",                        /* 226 128 188 "!!" (double exclamation mark) (not v1.3c) */
    "{\\textinterrobang}",     /* 226 128 189 */
-   "",                        /* 226 128 190 overline (not v1.2l) */
-   "",                        /* 226 128 191 undertie (not v1.2l) */
+   "",                        /* 226 128 190 overline (not v1.3c) */
+   "",                        /* 226 128 191 undertie (not v1.3c) */
    NULL };
 
 #define THTWENTYSIX              226
@@ -4367,70 +4670,70 @@ char *get_thtwentysix_ohtwentyeight(unsigned char c)
 
 
 static char *thtwentysix_ohthirty[] = {
-   "",                        /* 226 130 128 _0 (not v1.2l) */
-   "",                        /* 226 130 129 _1 (not v1.2l) */
-   "",                        /* 226 130 130 _2 (not v1.2l) */
-   "",                        /* 226 130 131 _3 (not v1.2l) */
-   "",                        /* 226 130 132 _4 (not v1.2l) */
-   "",                        /* 226 130 133 _5 (not v1.2l) */
-   "",                        /* 226 130 134 _6 (not v1.2l) */
-   "",                        /* 226 130 135 _7 (not v1.2l) */
-   "",                        /* 226 130 136 _8 (not v1.2l) */
-   "",                        /* 226 130 137 _9 (not v1.2l) */
-   "",                        /* 226 130 138 _+ (not v1.2l) */
-   "",                        /* 226 130 139 _- (not v1.2l) */
-   "",                        /* 226 130 140 _= (not v1.2l) */
-   "",                        /* 226 130 141 _( (not v1.2l) */
-   "",                        /* 226 130 142 _) (not v1.2l) */
-   "",                        /* 226 130 143 [undefined] (not v1.2l) */ 
-   "",                        /* 226 130 144 _a (not v1.2l) */
-   "",                        /* 226 130 145 _e (not v1.2l) */
-   "",                        /* 226 130 146 _o (not v1.2l) */
-   "",                        /* 226 130 147 _x (not v1.2l) */
-   "",                        /* 226 130 148 _{schwa} (not v1.2l) */
-   "",                        /* 226 130 149 _h (not v1.2l) */
-   "",                        /* 226 130 150 _k (not v1.2l) */
-   "",                        /* 226 130 151 _l (not v1.2l) */
-   "",                        /* 226 130 152 _m (not v1.2l) */
-   "",                        /* 226 130 153 _n (not v1.2l) */
-   "",                        /* 226 130 154 _p (not v1.2l) */
-   "",                        /* 226 130 155 _s (not v1.2l) */
-   "",                        /* 226 130 156 _t (not v1.2l) */
-   "",                        /* 226 130 157 [undefined] (not v1.2l) */
-   "",                        /* 226 130 158 [undefined] (not v1.2l) */
-   "",                        /* 226 130 159 [undefined] (not v1.2l) */
-   "",                        /* 226 130 160 euro-currency sign (not v1.2l) */
+   "",                        /* 226 130 128 _0 (not v1.3c) */
+   "",                        /* 226 130 129 _1 (not v1.3c) */
+   "",                        /* 226 130 130 _2 (not v1.3c) */
+   "",                        /* 226 130 131 _3 (not v1.3c) */
+   "",                        /* 226 130 132 _4 (not v1.3c) */
+   "",                        /* 226 130 133 _5 (not v1.3c) */
+   "",                        /* 226 130 134 _6 (not v1.3c) */
+   "",                        /* 226 130 135 _7 (not v1.3c) */
+   "",                        /* 226 130 136 _8 (not v1.3c) */
+   "",                        /* 226 130 137 _9 (not v1.3c) */
+   "",                        /* 226 130 138 _+ (not v1.3c) */
+   "",                        /* 226 130 139 _- (not v1.3c) */
+   "",                        /* 226 130 140 _= (not v1.3c) */
+   "",                        /* 226 130 141 _( (not v1.3c) */
+   "",                        /* 226 130 142 _) (not v1.3c) */
+   "",                        /* 226 130 143 [undefined] (not v1.3c) */ 
+   "",                        /* 226 130 144 _a (not v1.3c) */
+   "",                        /* 226 130 145 _e (not v1.3c) */
+   "",                        /* 226 130 146 _o (not v1.3c) */
+   "",                        /* 226 130 147 _x (not v1.3c) */
+   "",                        /* 226 130 148 _{schwa} (not v1.3c) */
+   "",                        /* 226 130 149 _h (not v1.3c) */
+   "",                        /* 226 130 150 _k (not v1.3c) */
+   "",                        /* 226 130 151 _l (not v1.3c) */
+   "",                        /* 226 130 152 _m (not v1.3c) */
+   "",                        /* 226 130 153 _n (not v1.3c) */
+   "",                        /* 226 130 154 _p (not v1.3c) */
+   "",                        /* 226 130 155 _s (not v1.3c) */
+   "",                        /* 226 130 156 _t (not v1.3c) */
+   "",                        /* 226 130 157 [undefined] (not v1.3c) */
+   "",                        /* 226 130 158 [undefined] (not v1.3c) */
+   "",                        /* 226 130 159 [undefined] (not v1.3c) */
+   "",                        /* 226 130 160 euro-currency sign (not v1.3c) */
    "{\\textcolonmonetary}",   /* 226 130 161 */
-   "",                        /* 226 130 162 cruzeiro sign (not v1.2l) */
-   "",                        /* 226 130 163 french franc sign (not v1.2l) */
+   "",                        /* 226 130 162 cruzeiro sign (not v1.3c) */
+   "",                        /* 226 130 163 french franc sign (not v1.3c) */
    "{\\textlira}",            /* 226 130 164 */
-   "",                        /* 226 130 165 mill sign (not v1.2l) */
+   "",                        /* 226 130 165 mill sign (not v1.3c) */
    "{\\textnaira}",           /* 226 130 166 */
-   "",                        /* 226 130 167 peseta sign (not v1.2l) */
-   "",                        /* 226 130 168 rupee sign (not v1.2l) */
+   "",                        /* 226 130 167 peseta sign (not v1.3c) */
+   "",                        /* 226 130 168 rupee sign (not v1.3c) */
    "{\\textwon}",             /* 226 130 169 */
-   "",                        /* 226 130 170 new sheqel sign (not v1.2l) */
+   "",                        /* 226 130 170 new sheqel sign (not v1.3c) */
    "{\\textdong}",            /* 226 130 171 */
    "{\\texteuro}",            /* 226 130 172 */
-   "",                        /* 226 130 173 kip sign (not v1.2l) */
-   "",                        /* 226 130 174 tugrik sign (not v1.2l) */
-   "",                        /* 226 130 175 drachma sign (not v1.2l) */
-   "",                        /* 226 130 176 german penny sign (not v1.2l) */
+   "",                        /* 226 130 173 kip sign (not v1.3c) */
+   "",                        /* 226 130 174 tugrik sign (not v1.3c) */
+   "",                        /* 226 130 175 drachma sign (not v1.3c) */
+   "",                        /* 226 130 176 german penny sign (not v1.3c) */
    "{\\textpeso}",            /* 226 130 177 */
-   "",                        /* 226 130 178 guarani sign (not v1.2l) */
-   "",                        /* 226 130 179 austral sign (not v1.2l) */
-   "",                        /* 226 130 180 hryvnia sign (not v1.2l) */
-   "",                        /* 226 130 181 cedi sign (not v1.2l) */
-   "",                        /* 226 130 182 livre tournois sign (not v1.2l) */
-   "",                        /* 226 130 183 spesmilo sign (not v1.2l) */
-   "",                        /* 226 130 184 tenge sign (not v1.2l) */
-   "",                        /* 226 130 185 indian rupee sign (not v1.2l) */
-   "",                        /* 226 130 186 turkish lira sign (not v1.2l) */
-   "",                        /* 226 130 187 nordic mark sign (not v1.2l) */
-   "",                        /* 226 130 188 manat sign (not v1.2l) */
-   "",                        /* 226 130 189 ruble sign (not v1.2l) */
-   "",                        /* 226 130 190 lari sign (not v1.2l) */
-   "",                        /* 226 130 191 bitcoin sign (not v1.2l) */
+   "",                        /* 226 130 178 guarani sign (not v1.3c) */
+   "",                        /* 226 130 179 austral sign (not v1.3c) */
+   "",                        /* 226 130 180 hryvnia sign (not v1.3c) */
+   "",                        /* 226 130 181 cedi sign (not v1.3c) */
+   "",                        /* 226 130 182 livre tournois sign (not v1.3c) */
+   "",                        /* 226 130 183 spesmilo sign (not v1.3c) */
+   "",                        /* 226 130 184 tenge sign (not v1.3c) */
+   "",                        /* 226 130 185 indian rupee sign (not v1.3c) */
+   "",                        /* 226 130 186 turkish lira sign (not v1.3c) */
+   "",                        /* 226 130 187 nordic mark sign (not v1.3c) */
+   "",                        /* 226 130 188 manat sign (not v1.3c) */
+   "",                        /* 226 130 189 ruble sign (not v1.3c) */
+   "",                        /* 226 130 190 lari sign (not v1.3c) */
+   "",                        /* 226 130 191 bitcoin sign (not v1.3c) */
    NULL };
 
 #define THTWENTYSIX_OHTHIRTY         130
@@ -4524,6 +4827,9 @@ int ins_rest_thtwentysix(char in[], unsigned char a, unsigned char b, int pos)
 }
 
 
+#define THTWENTYSEVEN            227
+
+
 #define THTHIRTYNINE   239
 
 int ins_ththirtynine(char in[], unsigned char b, unsigned char c, int pos)
@@ -4613,8 +4919,11 @@ int reg_utf_eight(int l, int val, char ch[UTF_EIGHT_MAXERR][UTF_EIGHT_MAXLEN+1],
     {
       i = 0;
       while (i < l && ch[entry][i] == *(p+i) && *(p+i) != '\0') ++i;
-      if (ch[entry][i] == '\0' && *(p+i) == '\0')   /* (i == l) for valids */
-      { 
+      if (    i > 0                       /* i > 0 added in 2.4 */
+           && ch[entry][i] == '\0' 
+           && (*(p+i) == '\0' || i == l)  /* i == l added in 2.4 */
+         )
+      {
         found = 1;
         break;
       }
@@ -4648,7 +4957,7 @@ int utf_eight_err(const char *p)
   else
   if (c >= QUADRUPLES_BEGIN && c <= QUADRUPLES_END) l = 4;  /* 240 ... 244 */
 
-   /* l == 1 falls \GenericError bliebe. */
+   /* l == 1 if \GenericError stays and the char is in its arguments */
   if (l >= 1)
   {
     utf_err_c = reg_utf_eight(l, utf_err_c, err_utf_eight, p);
@@ -4744,8 +5053,14 @@ void get_utf_eight(char in[], const char *p)
         if (signeless(*(p+1)) == THTWENTYFIVE_OHEIGHTYFIVE)
         pos = insposmaxstr(in, get_thtwentyfive_oheightyfive(*(p+2)), pos, MAXLEN-1);
         else
-        if (signeless(*(p+1)) == 186  && signeless(*(p+2)) == 158) 
-        pos = insposmaxstr(in, "{\\SS}", pos, MAXLEN-1);  /* 225 186 158 */
+        if (signeless(*(p+1)) == THTWENTYFIVE_OHEIGHTYSIX)  /* new in 2.4 */
+        pos = insposmaxstr(in, get_thtwentyfive_oheightysix(*(p+2)), pos, MAXLEN-1);
+        else
+        if (signeless(*(p+1)) == 187  && signeless(*(p+2)) == 178)
+        pos = insposmaxstr(in, "\\`Y", pos, MAXLEN-1);  /* 225 187 178 new in 2.4 / v1.2n */
+        else
+        if (signeless(*(p+1)) == 187  && signeless(*(p+2)) == 179)
+        pos = insposmaxstr(in, "\\`y", pos, MAXLEN-1);  /* 225 187 179 new in 2.4 / v1.2n */
       }
       else
       if (a == THTWENTYSIX)
@@ -4760,6 +5075,15 @@ void get_utf_eight(char in[], const char *p)
         pos = ins_rest_thtwentysix(in, *(p+1), *(p+2), pos);
         /* 226 129 ...;  226 132 ...;  226 134 ...;  226 140 ...;  
            226 144 ...;  226 151 ...;  226 153 ...;  226 159 ... */
+      }
+      else
+      if (a == THTWENTYSEVEN)
+      {
+        if (signeless(*(p+1)) == 128  && signeless(*(p+2)) == 136)
+        pos = insposmaxstr(in, "{\\textlangle}", pos, MAXLEN-1);  /* 227 128 136 new in 2.5 (v1.3c) */
+        else
+        if (signeless(*(p+1)) == 128  && signeless(*(p+2)) == 137)
+        pos = insposmaxstr(in, "{\\textrangle}", pos, MAXLEN-1);  /* 227 128 137 new in 2.5 (v1.3c) */
       }
       else
       if (a == THTHIRTYNINE)  /* TRIPLETTES_END */
@@ -4797,8 +5121,6 @@ void get_utf_eight(char in[], const char *p)
   }
 
   in[pos] = '\0';
-
-  /* printf("%% \"%s\"\n", in); */    /* !!!! */
 }
 
 
@@ -5757,28 +6079,6 @@ void printsortline(int line, int deepsort)
 }
 
 
-void del_ktitintro(char *s)
-{
-  while(*s != '\0')
-  {
-    if (*s == KTITINTROCH)
-    {
-      if (*(s+1) != '\0')
-      {
-        *s++ = KTITERRORCH;     /* "????" is possible here,    */
-        *s++ = KTITERRORCH;     /* whereas BibArts prints "??" */
-      }
-      else 
-      { 
-        intern_err(30);
-        break;
-      }
-    }
-    else ++s;
-  }
-}
-
-
 int findauthor(const char *s)
 {
    int r = 0;
@@ -5802,9 +6102,105 @@ int findauthor(const char *s)
 }
 
 
-int writetheline(char *p, const int nlines, const int line, const int deepsort, int filec, int printsort, int kandkused, int oktitused)
+int fprint_inner_ktit_err(int j, int err, int dif, const char *msgA, const char *msgB)
 {
-  int doprint = 0, pagenum = 0, fntnum = 0, uu = 0, tn = getthirdnum(line), j, ok, ie, sha, tha, uha, oerr;
+  if (j >= err)
+  {
+    --j;
+    fprintf(outfile, "%%%%  <- Warning *inner v-cmd*: %s %s (reported No. %d).\n", msgA, msgB, ktiterr+1);
+    ++ktiterr;
+  }
+
+  if (j >= dif) j -= dif;
+
+  return j;
+}
+
+
+#define O_KTIT_UNINIT         -2   /*  init: mostoktitarg > -2  */
+#define O_KTIT_NOTUSED        -1   /*  used: mostoktitarg > -1  */
+#define O_KTIT_NOPREF          0   /*  pref: mostoktitarg >  0  */
+#define MOST_O_KTIT_ARGONE     1
+#define MOST_O_KTIT_ARGTWO     2
+#define MOST_O_KTIT_ARGTHREE   3
+#define MOST_O_KTIT_ARGFOUR    4
+
+void check_out_ktit(int line, int deepsort, int mostoktitarg)
+{
+  int i = 0, j = 0, numalter = 0, num = -1, numall = 0;
+
+  if (mostoktitarg > O_KTIT_UNINIT)   /* ventry == IS_V */
+  {
+    while (i < deepsort)   /* assume: deep == deepsort */
+    {
+      num = num_of_cmds_in_str(subAptr[i][line], KTITCMD);
+      if (num > 1)
+      {
+        fprintf(outfile, "%%%%  <- Warning *outer v-cmd*: %s used %d times in arg %d (reported No. %d).\n", KTIT, num, i+1, ktiterr+1);
+        ++ktiterr;
+      }
+      numalter = 0;
+      if (num > 0)
+      {
+        j = i+1;
+        while (j < deepsort)
+        {
+          if ((numalter = num_of_cmds_in_str(subAptr[j][line], KTITCMD)) > 0) break;
+          ++j;
+        }
+      }
+      if (num > 0 && numalter > 0)
+      {
+        /* use int j here! */
+        fprintf(outfile, "%%%%  <- Warning *outer v-cmd*: %s used in arg %d and in arg %d (reported No. %d).\n", KTIT, i+1, j+1, ktiterr+1);
+        ++ktiterr;
+      }
+      if (num > 0 && mostoktitarg > O_KTIT_NOPREF && i+1 != mostoktitarg)
+      { 
+        if (numalter == 0)
+        {
+          if (    i+1 == MOST_O_KTIT_ARGONE
+               || i+1 == MOST_O_KTIT_ARGTWO
+               || i+1 == MOST_O_KTIT_ARGTHREE
+               || i+1 == MOST_O_KTIT_ARGFOUR
+             );
+             else intern_err(42);
+
+          fprintf(outfile, "%%%%  <- Warning *outer v-cmd*: %s defined in arg %d; most entries use arg %d (reported No. %d).\n", KTIT, i+1, mostoktitarg, ktiterr+1);
+          ++ktiterr;
+        }
+      }
+      if (num > 0 && mostoktitarg == O_KTIT_NOPREF)
+      {
+        if (numalter == 0)
+        {
+          fprintf(outfile, "%%%%  <- Warning *outer v-cmd*: %s is defined here in arg %d; sum of all entries shows no preference (reported No. %d).\n", KTIT, i+1, ktiterr+1);
+          ++ktiterr;
+        }
+      }
+             if (i == 0) { numall += num; }
+        else if (i == 1) { numall += num; }
+        else if (i == 2) { numall += num; }
+        else if (i == 3) { numall += num; }
+        else intern_err(41);
+      ++i;
+    }
+
+    if (numall == 0 && mostoktitarg > O_KTIT_NOTUSED)
+    {
+        fprintf(outfile, "%%%%  <- Warning *outer v-cmd*: %s not used (or is masked); ", KTIT);
+        if (mostoktitarg  > O_KTIT_NOPREF) fprintf(outfile, "most other entries use arg %d ", mostoktitarg);
+        if (mostoktitarg == O_KTIT_NOPREF) fprintf(outfile, "other entries show no preference ");
+        fprintf(outfile, "(reported No. %d).\n", ktiterr+1);
+        ++ktiterr;
+    }
+  }
+}
+
+
+int writetheline(char *p, const int nlines, const int line, const int deepsort, int filec, int printsort, int kandkused, int mostoktitarg)
+{
+  int doprint = 0, pagenum = 0, fntnum = 0, uu = 0, tn = getthirdnum(line), j;
 
   if (*p != '%')
   { if (leval[line] != ACCEPTLINE)
@@ -5874,69 +6270,20 @@ int writetheline(char *p, const int nlines, const int line, const int deepsort, 
                               fprintf(outfile, "%s\n", p);
 
     if (kandkused == 1 && num_of_cmds_in_str(p, KURZCMD) > 0)
-                              fprintf(outfile, "%%%%  <- Warning: You have used %s here, but %s elsewhere.\n", KURZ, KTIT);
+                              fprintf(outfile, "%%%%  <- Warning: You have used %s here, but also %s here or elsewhere.\n", KURZ, KTIT);
 
-    if (otherktiterr > 0)
-    {
-      j = 0;
-      while (j < otherktiterr && subAptr[j][line] != mydefault)
-      {
-        if ((oerr = get_add_ktit(subAptr[j][line], 0, -1, -1, 0)) > 0)
-                              fprintf(outfile, "%%%%  <- Warning: %d misplaced %s in arg %d.\n", oerr, KTIT, j+1);
-        ++j;
-      }
-    }
+    check_out_ktit(line, deepsort, mostoktitarg);
 
-    if (oktitused > 0 && subAptr[VCOLS-1][line] != mydefault)
-    {
-      ok = num_of_cmds_in_str(subAptr[VCOLS-1][line], KTITCMD);
-      ie =      hasinnerentry(subAptr[VCOLS-1][line], innerK_PER_ARQ_cmd, INNERTITLES);
-
-      if (    (oktitused == 3 || oktitused == 4)
-           &&  ok == 0
-           &&  ie > -1
-         )
-                              fprintf(outfile, "%%%%  <- Info: No outer %s used in **item with inner title**, but elsewhere you have %s in that case.\n", KTIT, KTIT);
-      else if (ok == 0 && oktitused < 5)
-      {
-                              fprintf(outfile, "%%%%  <- Info: No");
-          if (ie > -1)        fprintf(outfile, " OUTER");
-                              fprintf(outfile, " %s in arg %d (other entries have %s).\n", KTIT, VCOLS, KTIT);
-      }
-      else if (ok > 1)
-      {
-                              fprintf(outfile, "%%%%  <- Warning: %d", ok);
-                              fprintf(outfile, " %s in last arg outside inner v-cmd found.  Also check %s file.\n", KTIT, VKC_SUFFIX);  /* VCOLS */
-      }
-
-      if      (oktitused == 2 || oktitused == 4)
-      {
-        if (ok > (j=unshielded_cmds_in_str(subAptr[VCOLS-1][line], KTITCMD)))
-        {
-                              fprintf(outfile, "%%%%  <- Warning: %d", ok-j);
-                              fprintf(outfile, " { %s } shadowed by brackets (in last arg outside inner v-cmd).\n", KTIT);  /* VCOLS */
-        }
-      }
-
-      if   (     isinstr(subAptr[VCOLS-1][line], KTITINTRO) == 1)
-      {
-                              fprintf(outfile, "%%%%  -> Info: An inner v-cmd should be printed as shortened reference (created by the arg of your %s cmd).\n", KTIT);
-        if ((sha=isinstr(subAptr[VCOLS-1][line], KTITSHA  )) == 1)
-                              fprintf(outfile, "%%%%  <- Error: INNER { %s } is shadowed by brackets, and ...\n", KTIT);
-        if ((tha=isinstr(subAptr[VCOLS-1][line], KTITMISS )) == 1)
-                              fprintf(outfile, "%%%%  <- Error: INNER %s is missing.\n", KTIT);
-        if ((uha=isinstr(subAptr[VCOLS-1][line], KTITEMPTY)) == 1)
-        {
-                              fprintf(outfile, "%%%%  <- Warning: Arg of");
-          if (sha == 1)       fprintf(outfile, " (last non-shadowed)");
-                              fprintf(outfile, " INNER %s is empty.\n", KTIT);
-        }
-        if (sha != 1 && tha != 1 && uha != 1) intern_err(28);  /* extra KTITINTRO found */
-      
-        del_ktitintro(subAptr[VCOLS-1][line]);  /* aus Prinzip: "\tX" => "??" */
-      }
-    }
-
+    /* get_add_ktit in 2.5 changed into: */
+    j = inerr[line];
+    j = fprint_inner_ktit_err(j, KTIT_OPE_ERR, KTIT_OPE_BAS, "[f{...}] or [m{...}] or [p{...}] overwrites but not replaces \'star\'", KTIT);
+    j = fprint_inner_ktit_err(j, OARG_BRA_ERR, OARG_BRA_BAS, "[f/m/p TEXT]", "has TEXT not in {...}");
+    j = fprint_inner_ktit_err(j, OARG_IRR_ERR, OARG_IRR_BAS, "First letter in [OptArg]", "is not f/m/p");
+    j = fprint_inner_ktit_err(j, KTIT_DBL_ERR, KTIT_DBL_BAS, KTIT, KTIT);  /* double */
+    j = fprint_inner_ktit_err(j, KTIT_MIS_ERR, KTIT_MIS_BAS, KTIT, "is missing");
+    j = fprint_inner_ktit_err(j, KTIT_EMP_ERR, KTIT_EMP_BAS, KTIT, "has empty arg");
+    j = fprint_inner_ktit_err(j, KTIT_SEV_ERR,      NOINERR, KTIT, "used several times");
+    if (j != 0) intern_err(38);
   }
 
 
@@ -6037,9 +6384,9 @@ void fprint_utf_msg(FILE *file, const char utf[], int mod)
   { 
                   fprintf(file, "%%%%\n%%%%   -utf8 :  Did not ");
     if (mod == 0) fprintf(file, "know the meaning of \'%s\' (", utf);
-    else        { fprintf(file, "sort invalid utf8 sequences (like ");
+    else        { fprintf(file, "interpret invalid utf8 sequences (like ");  /* msg changed in 2.5 */
                   if (utf[1] == '\0')
-                  fprintf(file, "a single char ");
+                  fprintf(file, "the single octet ");  /* msg changed in 2.5 */
                 }
     fprintsquence(file, utf);
     fprintf(file, ").\n%%%%     Only the last error is reported here; also see screen.\n%%%%\n");
@@ -6052,10 +6399,14 @@ void printfilelist(FILE *file, int filec, int cc, const char *vor, const char *n
     int i = 0;
 
   if (cc == 1)
-     fprintf(file, "\n%%%%   BibArts 2.3  (C) Timo Baumann  2021   [%s]\n", __DATE__);
+  {
+     fprintf(file, "\n%%%%   BibArts 2.5  (C) Timo Baumann  2022b   [%s]\n", __DATE__);
+     fprintf(file, "\\gdef\\@bibsortvers{2.5}\n");  /* new in 2.5 */
+  }
 
      fprintf(file, "%%%%\n");
    timestamp(file);
+
      fprintf(file, "%%%%   Sort arg(s):\n");
                                  fprintf(file, "%s", vor);
      if (german == 1)            fprintf(file, " -g1");
@@ -6131,7 +6482,7 @@ void printfilelist(FILE *file, int filec, int cc, const char *vor, const char *n
 }
 
 
-int writelines(int nlines, const int dqcol, const int lancol, const int commentANDignlines, const int deepsort, int filec, int printsort, int kandkused, int oktitused)
+int writelines(int nlines, const int dqcol, const int lancol, const int commentANDignlines, const int deepsort, int filec, int printsort, int kandkused, int mostoktitarg)
 {
    int i = 0, dqcat, lancat = 0, lancatbuf, extralines = 0, didsetorig, nerr = 0;
 
@@ -6139,7 +6490,7 @@ int writelines(int nlines, const int dqcol, const int lancol, const int commentA
 
    while (i < nlines && leval[i] != ACCEPTLINE)
    { 
-     nerr = nerr + writetheline(lineptr[i], 0, i, 0, filec, printsort, kandkused, oktitused);
+     nerr = nerr + writetheline(lineptr[i], 0, i, 0, filec, printsort, kandkused, mostoktitarg);
      ++i;
    }
 
@@ -6169,7 +6520,7 @@ int writelines(int nlines, const int dqcol, const int lancol, const int commentA
 
      if ((dqcol > -1 && nogsty == 0) || lancol > -1) fprintf(outfile, "\n");
 
-     nerr = nerr + writetheline(lineptr[i], nlines, i, deepsort, filec, printsort, kandkused, oktitused);
+     nerr = nerr + writetheline(lineptr[i], nlines, i, deepsort, filec, printsort, kandkused, mostoktitarg);
 
      ++i;
    }
@@ -6203,7 +6554,7 @@ int writelines(int nlines, const int dqcol, const int lancol, const int commentA
        }
      }
 
-     nerr = nerr + writetheline(lineptr[i], nlines, i, deepsort, filec, printsort, kandkused, oktitused);
+     nerr = nerr + writetheline(lineptr[i], nlines, i, deepsort, filec, printsort, kandkused, mostoktitarg);
 
      ++i;
    }
@@ -6482,9 +6833,7 @@ int checkifabbrisdefined(int nlines, int ret, char *Thead, const char *Thold, in
 
 int entkerne_IeC(char buf[], const char *s)
 {
-  int r = entkerne_arg(buf, s, IeC, '{', '}');
-         del_ktitintro(buf);
-  return r;
+  return entkerne_arg(buf, s, IeC, '{', '}');
 }
 
 
@@ -7969,6 +8318,111 @@ void testdrucken(int linec, int alllines, int deep, char *subptr[MAXBACOLS][MAXL
 }
 
 
+#define WARNDOUBLEMAX  5
+
+int fprint_out_ktit(int alllines, int deep, int ventry, const char *suffix)
+{
+  int linec = 0, i = 0, num = 0, numa = -1, numb = -1, numc = -1, numd = -1, kina = 0, kinb = 0, kinc = 0, kind = 0;
+  int mostoktitarg = O_KTIT_UNINIT, warndouble = 0, j = 0, numalter = 0;
+
+  if (ventry == IS_V)
+  {
+    while (linec < alllines)
+    {
+      numa = -1; numb = -1; numc = -1; numd = -1;
+      i = 0;
+      while (i < deep)
+      {
+        num = num_of_cmds_in_str(subAptr[i][linec], KTITCMD);
+
+        if (num > 0)
+        {
+          j = i+1;
+          while (j < deep)
+          {
+            if ((numalter = num_of_cmds_in_str(subAptr[j][linec], KTITCMD)) > 0) 
+            { 
+              num = 0;
+              break;
+            }
+            ++j;
+          }
+        }
+
+             if (i == 0) { numa = num; }
+        else if (i == 1) { numb = num; }
+        else if (i == 2) { numc = num; }
+        else if (i == 3) { numd = num; }
+        else intern_err(40);
+
+        if (numa+numb+numc+numd > 1)
+        { 
+          if (warndouble < WARNDOUBLEMAX)
+          {
+            printf("%%%%\n%%%%>  Warning %s: *Outer* %s used %d times in:\n", subRptr[LINECOL][linec], KTIT, (numa+numb+numc+numd));
+            printV(linec);
+          }
+          ++warndouble;
+        }
+        ++i;
+      }
+
+        if (numa > 0) { ++kina; }
+        if (numb > 0) { ++kinb; }
+        if (numc > 0) { ++kinc; }
+        if (numd > 0) { ++kind; }
+
+      ++linec;
+    }
+
+    if (warndouble > WARNDOUBLEMAX)
+    printf("%%%%\n%%%%>  ... for %d futher entries with multiple %s see file.\n", warndouble-WARNDOUBLEMAX, KTIT);
+
+         if (kina > kinb && kina > kinc && kina > kind)    { mostoktitarg = MOST_O_KTIT_ARGONE;    /* arg 1 most used */ }
+    else if (kinb > kina && kinb > kinc && kinb > kind)    { mostoktitarg = MOST_O_KTIT_ARGTWO;    /* arg 2 most used */ }
+    else if (kinc > kina && kinc > kinb && kinc > kind)    { mostoktitarg = MOST_O_KTIT_ARGTHREE;  /* arg 3 most used */ }
+    else if (kind > kina && kind > kinb && kind > kinc)    { mostoktitarg = MOST_O_KTIT_ARGFOUR;   /* arg 4 most used */ }
+    else if (kina > 0 || kinb > 0 || kinc > 0 || kind > 0) { mostoktitarg = O_KTIT_NOPREF;    /* no preference   */ }
+    else { mostoktitarg = O_KTIT_NOTUSED;  /* ktit not used */ }
+
+    printf("%%%%>  Summary *outer* v-cmds in %s: %s ", suffix, KTIT);
+    if (mostoktitarg == O_KTIT_NOTUSED)
+    {
+      printf("never used.\n");
+    }
+    else
+    if (mostoktitarg == O_KTIT_NOPREF)
+    {
+      printf("defined in different args!\n%%%%\n");
+      /* kina, kinb, kinc, kind save lastused args with \ktit, 
+         not all args with \ktit! */
+    }
+    else
+    {
+      if (kina == alllines || kinb == alllines || kinc == alllines || kind == alllines)
+       { if (alllines > 1) printf("in all %d entries ", alllines); }
+      else
+       printf("NOT always ");
+      printf("defined in ");
+      if (alllines > 1) 
+      { 
+        if (kina == alllines || kinb == alllines || kinc == alllines || kind == alllines);
+        else printf("mostused ");
+      }
+      printf("arg %d.\n", mostoktitarg);
+      if (kina == alllines || kinb == alllines || kinc == alllines || kind == alllines);
+      else printf("%%%%   *******\n");
+    }
+  }
+  else
+  {
+    mostoktitarg = O_KTIT_UNINIT;  /* ventry != IS_V */
+  }
+
+  return mostoktitarg;
+}
+
+
 int check_kandk(int nlines)
 {
    int i = 0;
@@ -7990,135 +8444,6 @@ int check_kandk(int nlines)
 
    if (outkurz > 0 && ktit > 0) return 1;
    return 0;
-}
-
-
-int hasinnerentry(const char *p, const char *icmdlist[][2], const int num)
-{
-   int r = -1;
-
-   while (*p != '\0')
-   {
-     if (*p == '\\')
-     {
-       if (*(p+1) == '\\') ++p;
-       else
-       if ((r=innerentry(p, icmdlist, num)) > -1) break;
-     }
-     ++p;
-   }
-
-   return r;
-}
-
-
-int check_ktit(int nlines, int ventry)
-{
-   int i = 0, ohask = 0, ohasnok = 0, elsehask = 0, shadowedlines = 0, unshadnum = 0, l, ll, badlines = 0;
-   int ohk[MAXINFO];
-
-   if (ventry != IS_V) return 0;
-
-   while (i < nlines)
-   {
-     if (subAptr[VCOLS-1][i] == mydefault)
-     { 
-       ++badlines;
-     }
-     else
-     {
-                     l =    num_of_cmds_in_str(subAptr[VCOLS-1][i], KTITCMD);
-       unshadnum += (ll=unshielded_cmds_in_str(subAptr[VCOLS-1][i], KTITCMD));
-
-       if (l > ll)
-       {
-         if (shadowedlines == 0)
-         printf("%%%%\n%%%%>  Warning: { %s } is shadowed by brackets ...\n", KTIT);
-         printf("%%%%     ... in entry from %s:\n", subRptr[LINECOL][i]);
-         printV(i);
-         ++shadowedlines;
-       }
-
-       if (hasinnerentry(subAptr[VCOLS-1][i], innerK_PER_ARQ_cmd, INNERTITLES) > -1)
-       {
-         if (l > 0)
-         {
-              ++ohask;
-         }
-         else
-         {
-            if (ohasnok < MAXINFO) ohk[ohasnok] = i;
-              ++ohasnok;
-         }
-       }
-       else
-       if   (l > 0)
-              ++elsehask;
-     }
-     ++i;
-   }
-
-   if (shadowedlines > 0) printf("%%%%>  A shadowed outer %s can not create %s in your text;\n%%%%   a shadowed inner %s can not create a shortened reference in the list.\n%%%%\n", KTIT, ANNOUNCEKTIT, KTIT);
-
-   if (badlines > 0)
-       printf("%%%%>  %s: Can\'t check all entries (%d are corrupt).\n", KTIT, badlines);
-
-
-   if (badlines < nlines)
-   {
-
-     if (ohask > 0 && ohasnok > 0)
-     {
-       printf("%%%%>  Info: Items with inner title: %d with outer %s found, %d without.\n", ohask, KTIT, ohasnok);
-     }
-
-
-     if (ohasnok > 0)
-     {
-       printf("%%%%\n%%%%>  Info: Entries with inner reference and no outer %s ...\n", KTIT);
-       i = 0;
-       while (i < MAXINFO && i < ohasnok)
-       {
-         l = ohk[i];
-         printf("%%%%     ... from %s:\n", subRptr[LINECOL][l]);
-         printV(l);
-         ++i;
-       }
-       if (ohasnok > 0)
-         printf("%%%%>  This have been the first %d (of %d) entries without outer %s.\n%%%%\n", i, ohasnok, KTIT);
-     }
-
-
-     if (    (shadowedlines == 0 && badlines == 0)
-          || (elsehask + ohask == 0 && badlines == 0)
-        )
-       printf("%%%%>  Info: ");
-
-
-     if (shadowedlines == 0 && badlines == 0 && (ohask > 0 || elsehask > 0))
-     {
-       if (elsehask+ohask == nlines) printf("All");
-       else                          printf("NOT all");
-       printf(" v-entries have (outer) %s cmds in their last arg", KTIT);   /* VCOLS */
-       if (elsehask+ohask == nlines) printf(".\n");
-       else                          printf(":\n%%%%     In case of %s see messages in the output file.\n", ANNOUNCEKTIT);
-
-       if (nlines < unshadnum)
-       printf("%%%%     I count %d unshadowed %s in %d entries (%d too much).\n", unshadnum, KTIT, nlines, unshadnum-nlines);
-     }
-     else if (elsehask + ohask == 0 && badlines == 0)
-     {
-       printf("You\'ve never used %s in last v-args:\n", KTIT);
-       printf("%%%%     No info on outer %s in output file; no %s done.\n", KTIT, ANNOUNCEKTIT);
-     }
-   }
-
-
-   l = 1;
-   if (elsehask + ohask == 0)    l += 4;
-   if (ohask > 0 && ohasnok > 0) l += 2;
-   if (shadowedlines > 0) ++l;
-   return l;
 }
 
 
@@ -8231,14 +8556,15 @@ int lastname_first(int nlines)
 
 void prepareoutput(const char *entry, const char *suffix, int deep, int deepsort, int filec, char *arg_i, char *arg_o, int prep_kill, const char *formO, int ventry, int printsort)
 {
+    int mostoktitarg = O_KTIT_UNINIT;  /* new in 2.5 */
     int nlines = 0, i = 0, extralines = 0, commentANDignlines = 0;
-    int filenum = -1, kandkused = 0, oktitused = 0, ex_err;
+    int filenum = -1, kandkused = 0, ex_err;
     char *outname = mydefault;
     
     if (arg_o == NULL) outname = makename(arg_i, suffix);
     else               outname = makename(arg_o, suffix);
 
-    otherktiterr = 0;
+    ktiterr = 0;
     thisupperascii = 0;
     mystrncpy(this_emp_utf_eight, "", UTF_EIGHT_MAXLEN);
     mystrncpy(this_err_utf_eight, "", UTF_EIGHT_MAXLEN);
@@ -8305,7 +8631,7 @@ void prepareoutput(const char *entry, const char *suffix, int deep, int deepsort
         }
 
         kandkused = check_kandk(nlines);
-        oktitused = check_ktit(nlines, ventry);
+        /* oktitused = check_ktit deleted in 2.5 */
 
         if (ex_n == EXCHANGENAMES)
         {
@@ -8324,9 +8650,13 @@ void prepareoutput(const char *entry, const char *suffix, int deep, int deepsort
           openfailed(outname);
         }
         else
-        { printf("%%%%>  Write %d item(s) to file \"%s\".\n", nlines-commentANDignlines, outname);
-          if ((extralines = writelines(nlines, DQCOL, LANCOL, commentANDignlines, deepsort, filec, printsort, kandkused, oktitused)) > 0)
+        { 
+          mostoktitarg = fprint_out_ktit(nlines, deep, ventry, suffix);
+          printf("%%%%>  Write %d item(s) to file \"%s\".\n", nlines-commentANDignlines, outname);
+          if ((extralines = writelines(nlines, DQCOL, LANCOL, commentANDignlines, deepsort, filec, printsort, kandkused, mostoktitarg)) > 0)
           printf("%%%%    (Have added %d line(s) containing commands for LaTeX.)\n", extralines);
+          if (ktiterr > 0)
+          printf("%%%%\n%%%%>   ** Wrote %d comment(s) into file concerning %s. **\n%%%%\n", ktiterr, KTIT);
         }
 
         if (outfile != NULL) { fclose(outfile); fflush(outfile); }
@@ -8495,7 +8825,7 @@ void print_utf_msg(const char err[UTF_EIGHT_MAXERR][UTF_EIGHT_MAXLEN+1], int err
     while (j < err_c && j < UTF_EIGHT_MAXERR)
     {
          printf("%%%%>  %s utf8 sequence ", msg_a);
-      if (err[j][1] == '\0') printf("beginning with char ");
+      if (err[j][1] == '\0') printf("consisting only of octet ");   /* msg changed in 2.4, 2.5 */
       i = 0; while(err[j][i] != '\0') { printf("%d", ((unsigned char)err[j][i])); if(err[j][i+1] != '\0') printf("-"); ++i; }
 
       a = ((unsigned char)err[j][0]);
@@ -8540,8 +8870,8 @@ int main(int argc, char *argv[])
    char *inname = mydefault, *arg_i = NULL, *arg_o = NULL;
 
 
-          printf("\n%%%%>  This is bibsort 2.3  (for help:  %s -\?)\n", getmyname(argv[0], 37));
-   fprintf(stderr, "%%%%      bibsort 2.3 is part of BibArts 2.3    (C) Timo Baumann  2021.\n");
+          printf("\n%%%%>  This is bibsort 2.5  (for help:  %s -\?)\n", getmyname(argv[0], 37));
+   fprintf(stderr, "%%%%      bibsort 2.5 is part of BibArts 2.5    (C) Timo Baumann  2022b.\n");
 
 
    argc = single_option(argc, argv, "-B", "-b");
@@ -8664,6 +8994,10 @@ int main(int argc, char *argv[])
      encode = IS_TONE_ENC;
    }
 
+   /* utf8 new in 2.3 (begin with utf8enc.dfu  2021/01/27 v1.2l),
+       changed in 2.4 (= changes from v1.2l to 2021/06/21 v1.2n),
+       changed in 2.5 (= changes from v1.2n to 2022/06/07 v1.3c)
+    */
    argc = single_option(argc, argv, "-utf8", "-UTF8");
    if (argc < 0)
    { argc = -argc;
@@ -8832,26 +9166,26 @@ int main(int argc, char *argv[])
      /* l = loeschen */
      /* e = entkernen */
      /* X = weder loeschen noch entkernen */
-     /*  "----" KHVONUM Positionen: \\onlykurz \\onlyhere \\onlyvoll \\onlyout  */
+     /*  "----" KHVONUM Positionen: \\onlykurz \\onlyhere \\onlyvoll \\onlyout  [new in 2.5:]  \\ktit <= X */
 
-   prepareoutput("%\\literentry", VLI_SUFFIX, VCOLS,     VCOLS, filec, arg_i, arg_o,          kill, "llee", IS_V, printsort);
-   prepareoutput("%\\quellentry", VQU_SUFFIX, VCOLS,     VCOLS, filec, arg_i, arg_o,          kill, "llee", IS_V, printsort);
-   prepareoutput("%\\vkcitentry", VKC_SUFFIX, KCOLS,     KCOLS, filec, arg_i, arg_o, DOKILLK,       "elle", NO_V, printsort);
+   prepareoutput("%\\literentry", VLI_SUFFIX, VCOLS,     VCOLS, filec, arg_i, arg_o,          kill, "lleeX", IS_V, printsort);
+   prepareoutput("%\\quellentry", VQU_SUFFIX, VCOLS,     VCOLS, filec, arg_i, arg_o,          kill, "lleeX", IS_V, printsort);
+   prepareoutput("%\\vkcitentry", VKC_SUFFIX, KCOLS,     KCOLS, filec, arg_i, arg_o, DOKILLK,       "elleX", NO_V, printsort);
 
-   prepareoutput("%\\abkrzentry", ABK_SUFFIX, ACOLS, ACOLSSORT, filec, arg_i, arg_o, DOKILLABBREVS, "llee", NO_V, printsort);
-   prepareoutput("%\\perioentry", PER_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "llee", NO_V, printsort);
-   prepareoutput("%\\archqentry", ARQ_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "llee", IS_Q, printsort);
+   prepareoutput("%\\abkrzentry", ABK_SUFFIX, ACOLS, ACOLSSORT, filec, arg_i, arg_o, DOKILLABBREVS, "lleeX", NO_V, printsort);
+   prepareoutput("%\\perioentry", PER_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "lleeX", NO_V, printsort);
+   prepareoutput("%\\archqentry", ARQ_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "lleeX", IS_Q, printsort);
 
-   prepareoutput("%\\geogrentry", GRR_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "llee", NO_V, printsort);
-   prepareoutput("%\\persrentry", PRR_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "llee", NO_V, printsort);
-   prepareoutput("%\\subjrentry", SRR_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "llee", NO_V, printsort);
+   prepareoutput("%\\geogrentry", GRR_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "lleeX", NO_V, printsort);
+   prepareoutput("%\\persrentry", PRR_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "lleeX", NO_V, printsort);
+   prepareoutput("%\\subjrentry", SRR_SUFFIX, PCOLS, PCOLSSORT, filec, arg_i, arg_o, DOKILLREGISTS, "lleeX", NO_V, printsort);
 
 
 
    if (encode == IS_BASE_ENC && lastupperascii < 0)
    {
         printf("%%%%\n%%%%>  Default encoding:  Gave ASCIIs > 127 like %d NO sorting weight.\n", ((unsigned char)lastupperascii));
-     fprintf(stderr, "%%%%   Did ignore all ASCIIs > 127.  Start me using -utf8 or -t1 \?\n");
+     fprintf(stderr, "%%%%   Did not evaluate your ASCIIs > 127.  Start me using -utf8 or -t1 \?\n");  /* msg changed in 2.5 */
               printf("%%%%   *******\n");
    }
    
@@ -8871,7 +9205,7 @@ int main(int argc, char *argv[])
    
    if (encode == IS_UTFE_ENC)
    {
-     print_utf_msg(err_utf_eight, utf_err_c, "Invalid", "invalid", "found", "ignore all", "invalid", "Are you sure, that your text editor uses utf8 \?");
+     print_utf_msg(err_utf_eight, utf_err_c, "Invalid", "invalid", "found", "not interpret", "invalid", "Are you sure, that your text editor uses utf8 \?");  /* msg changed in 2.5 */
      print_utf_msg(emp_utf_eight, utf_emp_c, "Gave", "all your", "no sorting weight", "not know the meaning of", "unknown", "Better replace this sequence(s) by LaTeX-cmds in your text.");
      if (lastupperascii == 0) no_upperascii_found_msg("-utf8");
    }

@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/bibarts/">
     <TPM:Name>bibarts win64</TPM:Name>
     <TPM:Title>bibarts, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Timo Baumann" year="2021"/>
+    <TPM:Copyright owner="Timo Baumann" year="2022"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>2.3</TPM:Version>
+    <TPM:Version>2.5</TPM:Version>
     <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
