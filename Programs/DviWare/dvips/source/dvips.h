@@ -17,7 +17,7 @@
 #if defined(MIKTEX)
 #include "dvips-version.h"
 #define BANNER \
-"This is dvips(k) " MIKTEX_COMP_ORIG_VERSION_STR " (" MIKTEX_PRODUCTNAME_STR MIKTEX_VERSION_STR ")  Copyright 2021 Radical Eye Software"
+"This is dvips(k) " MIKTEX_COMP_ORIG_VERSION_STR " (" MIKTEX_PRODUCTNAME_STR MIKTEX_VERSION_STR ")  Copyright 2022 Radical Eye Software"
 #else
 #define BANNER \
 "This is dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2022 Radical Eye Software"
