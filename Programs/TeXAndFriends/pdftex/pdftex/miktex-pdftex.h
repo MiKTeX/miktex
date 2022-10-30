@@ -1,21 +1,14 @@
-/* miktex-pdftex.h:                                     -*- C++ -*-
-   
-   Copyright (C) 1998-2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file miktex-pdftex.h
+ * @author Christian Schenk
+ * @brief MiKTeX-pdfTeX
+ *
+ * @copyright Copyright © 1998-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
 
@@ -57,317 +50,290 @@ extern PDFTEXPROGCLASS PDFTEXPROG;
 
 extern char* nameoffile;
 
-class MemoryHandlerImpl :
-  public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>
+class MemoryHandlerImpl:
+    public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>
 {
-public:
-  MemoryHandlerImpl(PDFTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
-    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>(program, texmfapp)
-  {
-  }
 
 public:
-  void Allocate(const std::unordered_map<std::string, int>& userParams) override
-  {
-    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Allocate(userParams);
-    program.pdfmemsize = GetCheckedParameter("pdf_mem_size", program.infpdfmemsize, program.suppdfmemsize, userParams, pdftex::pdftex::pdf_mem_size());
-    program.objtabsize = GetCheckedParameter("obj_tab_size", program.infobjtabsize, program.supobjtabsize, userParams, pdftex::pdftex::obj_tab_size());
-    program.destnamessize = GetCheckedParameter("dest_names_size", program.infdestnamessize, program.supdestnamessize, userParams, pdftex::pdftex::dest_names_size());
-    program.pdfosbufsize = GetCheckedParameter("pdf_os_buf_size", program.infpdfosbufsize, program.suppdfosbufsize, userParams, pdftex::pdftex::pdf_os_buf_size());
-    MIKTEX_ASSERT(program.constfontbase == 0);
-    size_t nFonts = program.fontmax - program.constfontbase;
-    AllocateArray("destnames", program.destnames, program.destnamessize);
-    AllocateArray("objtabsize", program.objtab, program.objtabsize);
-    AllocateArray("pdfcharused", program.pdfcharused, nFonts);
-    AllocateArray("pdffontautoexpand", program.pdffontattr, nFonts);
-    AllocateArray("pdffontautoexpand", program.pdffontautoexpand, nFonts);
-    AllocateArray("pdffontblink", program.pdffontblink, nFonts);
-    AllocateArray("pdffontefbase", program.pdffontefbase, nFonts);
-    AllocateArray("pdffontelink", program.pdffontelink, nFonts);
-    AllocateArray("pdffontexpandratio", program.pdffontexpandratio, nFonts);
-    AllocateArray("pdffontknacbase", program.pdffontknacbase, nFonts);
-    AllocateArray("pdffontknbcbase", program.pdffontknbcbase, nFonts);
-    AllocateArray("pdffontknbsbase", program.pdffontknbsbase, nFonts);
-    AllocateArray("pdffontlpbase", program.pdffontlpbase, nFonts);
-    AllocateArray("pdffontmap", program.pdffontmap, nFonts);
-    AllocateArray("pdffontnobuiltintounicode", program.pdffontnobuiltintounicode, nFonts);
-    AllocateArray("pdffontnum", program.pdffontnum, nFonts);
-    AllocateArray("pdffontrpbase", program.pdffontrpbase, nFonts);
-    AllocateArray("pdffontshbsbase", program.pdffontshbsbase, nFonts);
-    AllocateArray("pdffontshrink", program.pdffontshrink, nFonts);
-    AllocateArray("pdffontsize", program.pdffontsize, nFonts);
-    AllocateArray("pdffontstbsbase", program.pdffontstbsbase, nFonts);
-    AllocateArray("pdffontstep", program.pdffontstep, nFonts);
-    AllocateArray("pdffontstretch", program.pdffontstretch, nFonts);
-    AllocateArray("pdffonttype", program.pdffonttype, nFonts);
-    AllocateArray("pdfmem", program.pdfmem, program.pdfmemsize);
-    AllocateArray("pdfopbuf", program.pdfopbuf, program.pdfopbufsize);
-    AllocateArray("pdfosbuf", program.pdfosbuf, program.pdfosbufsize);
-    AllocateArray("pdfosobjnum", program.pdfosobjnum, program.pdfosmaxobjs);
-    AllocateArray("pdfosobjoff", program.pdfosobjoff, program.pdfosmaxobjs);
-    AllocateArray("vfdefaultfont", program.vfdefaultfont, nFonts);
-    AllocateArray("vfefnts", program.vfefnts, nFonts);
-    AllocateArray("vfifnts", program.vfifnts, nFonts);
-    AllocateArray("vflocalfontnum", program.vflocalfontnum, nFonts);
-    AllocateArray("vfpacketbase", program.vfpacketbase, nFonts);
-  }
 
-public:
-  void Free() override
-  {
-    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Free();
-    FreeArray("destnames", program.destnames);
-    FreeArray("objtab", program.objtab);
-    FreeArray("pdfcharused", program.pdfcharused);
-    FreeArray("pdffontattr", program.pdffontattr);
-    FreeArray("pdffontautoexpand", program.pdffontautoexpand);
-    FreeArray("pdffontblink", program.pdffontblink);
-    FreeArray("pdffontefbase", program.pdffontefbase);
-    FreeArray("pdffontelink", program.pdffontelink);
-    FreeArray("pdffontexpandratio", program.pdffontexpandratio);
-    FreeArray("pdffontknacbase", program.pdffontknacbase);
-    FreeArray("pdffontknbcbase", program.pdffontknbcbase);
-    FreeArray("pdffontknbsbase", program.pdffontknbsbase);
-    FreeArray("pdffontlpbase", program.pdffontlpbase);
-    FreeArray("pdffontmap", program.pdffontmap);
-    FreeArray("pdffontnum", program.pdffontnum);
-    FreeArray("pdffontnobuiltintounicode", program.pdffontnobuiltintounicode);
-    FreeArray("pdffontrpbase", program.pdffontrpbase);
-    FreeArray("pdffontshbsbase", program.pdffontshbsbase);
-    FreeArray("pdffontshrink", program.pdffontshrink);
-    FreeArray("pdffontsize", program.pdffontsize);
-    FreeArray("pdffontstbsbase", program.pdffontstbsbase);
-    FreeArray("pdffontstep", program.pdffontstep);
-    FreeArray("pdffontstretch", program.pdffontstretch);
-    FreeArray("pdffonttype", program.pdffonttype);
-    FreeArray("pdfmem", program.pdfmem);
-    FreeArray("pdfopbuf", program.pdfopbuf);
-    FreeArray("pdfosbuf", program.pdfosbuf);
-    FreeArray("pdfosobjnum", program.pdfosobjnum);
-    FreeArray("pdfosobjoff", program.pdfosobjoff);
-    FreeArray("vfdefaultfont", program.vfdefaultfont);
-    FreeArray("vfefnts", program.vfefnts);
-    FreeArray("vfifnts", program.vfifnts);
-    FreeArray("vflocalfontnum", program.vflocalfontnum);
-    FreeArray("vfpacketbase", program.vfpacketbase);
-  }
+    MemoryHandlerImpl(PDFTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp):
+        ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>(program, texmfapp)
+    {
+    }
 
-public:
-  void Check() override
-  {
-    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Check();
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.destnames);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.objtab);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfcharused);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontattr);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontautoexpand);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontblink);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontefbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontelink);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontexpandratio);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknacbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknbcbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknbsbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontlpbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontmap);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontnobuiltintounicode);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontnum);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontrpbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontshbsbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontshrink);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontsize);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstbsbase);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstep);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstretch);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffonttype);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfmem);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfopbuf);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosbuf);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosobjnum);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosobjoff);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfdefaultfont);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfefnts);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfifnts);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vflocalfontnum);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfpacketbase);
-  }
+    void Allocate(const std::unordered_map<std::string, int>& userParams) override
+    {
+        ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Allocate(userParams);
+        program.pdfmemsize = GetCheckedParameter("pdf_mem_size", program.infpdfmemsize, program.suppdfmemsize, userParams, pdftex::pdftex::pdf_mem_size());
+        program.objtabsize = GetCheckedParameter("obj_tab_size", program.infobjtabsize, program.supobjtabsize, userParams, pdftex::pdftex::obj_tab_size());
+        program.destnamessize = GetCheckedParameter("dest_names_size", program.infdestnamessize, program.supdestnamessize, userParams, pdftex::pdftex::dest_names_size());
+        program.pdfosbufsize = GetCheckedParameter("pdf_os_buf_size", program.infpdfosbufsize, program.suppdfosbufsize, userParams, pdftex::pdftex::pdf_os_buf_size());
+        MIKTEX_ASSERT(program.constfontbase == 0);
+        size_t nFonts = program.fontmax - program.constfontbase;
+        AllocateArray("destnames", program.destnames, program.destnamessize);
+        AllocateArray("objtabsize", program.objtab, program.objtabsize);
+        AllocateArray("pdfcharused", program.pdfcharused, nFonts);
+        AllocateArray("pdffontautoexpand", program.pdffontattr, nFonts);
+        AllocateArray("pdffontautoexpand", program.pdffontautoexpand, nFonts);
+        AllocateArray("pdffontblink", program.pdffontblink, nFonts);
+        AllocateArray("pdffontefbase", program.pdffontefbase, nFonts);
+        AllocateArray("pdffontelink", program.pdffontelink, nFonts);
+        AllocateArray("pdffontexpandratio", program.pdffontexpandratio, nFonts);
+        AllocateArray("pdffontknacbase", program.pdffontknacbase, nFonts);
+        AllocateArray("pdffontknbcbase", program.pdffontknbcbase, nFonts);
+        AllocateArray("pdffontknbsbase", program.pdffontknbsbase, nFonts);
+        AllocateArray("pdffontlpbase", program.pdffontlpbase, nFonts);
+        AllocateArray("pdffontmap", program.pdffontmap, nFonts);
+        AllocateArray("pdffontnobuiltintounicode", program.pdffontnobuiltintounicode, nFonts);
+        AllocateArray("pdffontnum", program.pdffontnum, nFonts);
+        AllocateArray("pdffontrpbase", program.pdffontrpbase, nFonts);
+        AllocateArray("pdffontshbsbase", program.pdffontshbsbase, nFonts);
+        AllocateArray("pdffontshrink", program.pdffontshrink, nFonts);
+        AllocateArray("pdffontsize", program.pdffontsize, nFonts);
+        AllocateArray("pdffontstbsbase", program.pdffontstbsbase, nFonts);
+        AllocateArray("pdffontstep", program.pdffontstep, nFonts);
+        AllocateArray("pdffontstretch", program.pdffontstretch, nFonts);
+        AllocateArray("pdffonttype", program.pdffonttype, nFonts);
+        AllocateArray("pdfmem", program.pdfmem, program.pdfmemsize);
+        AllocateArray("pdfopbuf", program.pdfopbuf, program.pdfopbufsize);
+        AllocateArray("pdfosbuf", program.pdfosbuf, program.pdfosbufsize);
+        AllocateArray("pdfosobjnum", program.pdfosobjnum, program.pdfosmaxobjs);
+        AllocateArray("pdfosobjoff", program.pdfosobjoff, program.pdfosmaxobjs);
+        AllocateArray("vfdefaultfont", program.vfdefaultfont, nFonts);
+        AllocateArray("vfefnts", program.vfefnts, nFonts);
+        AllocateArray("vfifnts", program.vfifnts, nFonts);
+        AllocateArray("vflocalfontnum", program.vflocalfontnum, nFonts);
+        AllocateArray("vfpacketbase", program.vfpacketbase, nFonts);
+    }
+
+    void Free() override
+    {
+        ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Free();
+        FreeArray("destnames", program.destnames);
+        FreeArray("objtab", program.objtab);
+        FreeArray("pdfcharused", program.pdfcharused);
+        FreeArray("pdffontattr", program.pdffontattr);
+        FreeArray("pdffontautoexpand", program.pdffontautoexpand);
+        FreeArray("pdffontblink", program.pdffontblink);
+        FreeArray("pdffontefbase", program.pdffontefbase);
+        FreeArray("pdffontelink", program.pdffontelink);
+        FreeArray("pdffontexpandratio", program.pdffontexpandratio);
+        FreeArray("pdffontknacbase", program.pdffontknacbase);
+        FreeArray("pdffontknbcbase", program.pdffontknbcbase);
+        FreeArray("pdffontknbsbase", program.pdffontknbsbase);
+        FreeArray("pdffontlpbase", program.pdffontlpbase);
+        FreeArray("pdffontmap", program.pdffontmap);
+        FreeArray("pdffontnum", program.pdffontnum);
+        FreeArray("pdffontnobuiltintounicode", program.pdffontnobuiltintounicode);
+        FreeArray("pdffontrpbase", program.pdffontrpbase);
+        FreeArray("pdffontshbsbase", program.pdffontshbsbase);
+        FreeArray("pdffontshrink", program.pdffontshrink);
+        FreeArray("pdffontsize", program.pdffontsize);
+        FreeArray("pdffontstbsbase", program.pdffontstbsbase);
+        FreeArray("pdffontstep", program.pdffontstep);
+        FreeArray("pdffontstretch", program.pdffontstretch);
+        FreeArray("pdffonttype", program.pdffonttype);
+        FreeArray("pdfmem", program.pdfmem);
+        FreeArray("pdfopbuf", program.pdfopbuf);
+        FreeArray("pdfosbuf", program.pdfosbuf);
+        FreeArray("pdfosobjnum", program.pdfosobjnum);
+        FreeArray("pdfosobjoff", program.pdfosobjoff);
+        FreeArray("vfdefaultfont", program.vfdefaultfont);
+        FreeArray("vfefnts", program.vfefnts);
+        FreeArray("vfifnts", program.vfifnts);
+        FreeArray("vflocalfontnum", program.vflocalfontnum);
+        FreeArray("vfpacketbase", program.vfpacketbase);
+    }
+
+    void Check() override
+    {
+        ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Check();
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.destnames);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.objtab);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfcharused);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontattr);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontautoexpand);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontblink);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontefbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontelink);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontexpandratio);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknacbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknbcbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknbsbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontlpbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontmap);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontnobuiltintounicode);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontnum);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontrpbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontshbsbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontshrink);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontsize);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstbsbase);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstep);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstretch);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffonttype);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfmem);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfopbuf);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosbuf);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosobjnum);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosobjoff);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfdefaultfont);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfefnts);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfifnts);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vflocalfontnum);
+        MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfpacketbase);
+    }
 };
 
-class PDFTEXAPPCLASS :
-  public MiKTeX::TeXAndFriends::ETeXApp
+class PDFTEXAPPCLASS:
+    public MiKTeX::TeXAndFriends::ETeXApp
 {
-public:
-  enum {
-    OPT_DRAFTMODE = 10000,
-    OPT_OUTPUT_FORMAT,
-  };
-
-private:
-  std::string Translate(const char* msgId)
-  {
-    return translator->Translate(msgId);
-  }
-
-private:
-  std::string T_(const char* msgId)
-  {
-    return Translate(msgId);
-  }
 
 public:
-  void AddOptions() override
-  {
-    ETeXApp::AddOptions();
-    AddOption("draftmode", T_("Switch on draft mode (generates no output)."), OPT_DRAFTMODE);
-    AddOption("output-format", T_("Set the output format."), OPT_OUTPUT_FORMAT, POPT_ARG_STRING, "FORMAT");
-  }
 
-public:
-  bool ProcessOption(int opt, const std::string& optArg) override
-  {
-    bool done = true;
-    switch (opt)
+    enum {
+        OPT_DRAFTMODE = 10000,
+        OPT_OUTPUT_FORMAT,
+    };
+
+    void AddOptions() override
     {
-    case OPT_DRAFTMODE:
-      PDFTEXPROG.pdfdraftmodeoption = 1;
-      PDFTEXPROG.pdfdraftmodevalue = 1;
-      break;
-    case OPT_OUTPUT_FORMAT:
-      PDFTEXPROG.pdfoutputoption = 1;
-      if (optArg == "dvi")
-      {
-        PDFTEXPROG.pdfoutputvalue = 0;
-      }
-      else if (optArg == "pdf")
-      {
-        PDFTEXPROG.pdfoutputvalue = 2;
-      }
-      else
-      {
-        FatalError(T_("Unknown output format value."));
-      }
-      break;
-    default:
-      done = ETeXApp::ProcessOption(opt, optArg);
-      break;
+        ETeXApp::AddOptions();
+        AddOption("draftmode", T_("Switch on draft mode (generates no output)."), OPT_DRAFTMODE);
+        AddOption("output-format", T_("Set the output format."), OPT_OUTPUT_FORMAT, POPT_ARG_STRING, "FORMAT");
     }
-    return (done);
-  }
 
-private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<PDFTEXPROGCLASS> charConv{ PDFTEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::ErrorHandlerImpl<PDFTEXPROGCLASS> errorHandler{ PDFTEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::FormatHandlerImpl<PDFTEXPROGCLASS> formatHandler{ PDFTEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<PDFTEXPROGCLASS> initFinalize{ PDFTEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<PDFTEXPROGCLASS> inputOutput{ PDFTEXPROG };
-
-private:
-  MiKTeX::TeXAndFriends::StringHandlerImpl<PDFTEXPROGCLASS> stringHandler{ PDFTEXPROG };
-
-private:
-  MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
-
-private:
-  static MiKTeX::Resources::ResourceRepository* resources;
-
-private:
-  std::unique_ptr<MiKTeX::Locale::Translator> translator;
-
-public:
-  void Init(std::vector<char*>& args) override
-  {
-    SetCharacterConverter(&charConv);
-    SetErrorHandler(&errorHandler);
-    SetFormatHandler(&formatHandler);
-    SetInitFinalize(&initFinalize);
-    SetInputOutput(&inputOutput);
-    SetStringHandler(&stringHandler);
-    SetTeXMFMemoryHandler(&memoryHandler);
-    ETeXApp::Init(args);
-    translator = std::make_unique<MiKTeX::Locale::Translator>(MIKTEX_COMP_ID, resources, GetSession());
-    kpse_set_program_name(args[0], nullptr);
-    EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
-    EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
-  }
-
- public:
-   void Finalize() override
-   {
-     translator = nullptr;
-     ETeXApp::Finalize();
-   }
+    bool ProcessOption(int opt, const std::string& optArg) override
+    {
+        bool done = true;
+        switch (opt)
+        {
+        case OPT_DRAFTMODE:
+            PDFTEXPROG.pdfdraftmodeoption = 1;
+            PDFTEXPROG.pdfdraftmodevalue = 1;
+            break;
+        case OPT_OUTPUT_FORMAT:
+            PDFTEXPROG.pdfoutputoption = 1;
+            if (optArg == "dvi")
+            {
+                PDFTEXPROG.pdfoutputvalue = 0;
+            }
+            else if (optArg == "pdf")
+            {
+                PDFTEXPROG.pdfoutputvalue = 2;
+            }
+            else
+            {
+                FatalError(T_("Unknown output format value."));
+            }
+            break;
+        default:
+            done = ETeXApp::ProcessOption(opt, optArg);
+            break;
+        }
+        return (done);
+    }
 
 public:
-  void AllocateMemory() override
-  {
-    ETeXApp::AllocateMemory();
-  }
+    void Init(std::vector<char*>& args) override
+    {
+        SetCharacterConverter(&charConv);
+        SetErrorHandler(&errorHandler);
+        SetFormatHandler(&formatHandler);
+        SetInitFinalize(&initFinalize);
+        SetInputOutput(&inputOutput);
+        SetStringHandler(&stringHandler);
+        SetTeXMFMemoryHandler(&memoryHandler);
+        ETeXApp::Init(args);
+        translator = std::make_unique<MiKTeX::Locale::Translator>(MIKTEX_COMP_ID, resources, GetSession());
+        kpse_set_program_name(args[0], nullptr);
+        EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
+        EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
+    }
 
-public:
-  void FreeMemory() override
-  {
-    ETeXApp::FreeMemory();
-  }
+    void Finalize() override
+    {
+        translator = nullptr;
+        ETeXApp::Finalize();
+    }
 
-public:
-  MiKTeX::Util::PathName GetMemoryDumpFileName() const override
-  {
-    return MiKTeX::Util::PathName("pdftex.fmt");
-  }
+    void AllocateMemory() override
+    {
+        ETeXApp::AllocateMemory();
+    }
 
-public:
-  std::string GetInitProgramName() const override
-  {
-    return "pdfinitex";
-  }
+    void FreeMemory() override
+    {
+        ETeXApp::FreeMemory();
+    }
 
-public:
-  std::string GetVirginProgramName() const override
-  {
-    return "pdfvirtex";
-  }
+    MiKTeX::Util::PathName GetMemoryDumpFileName() const override
+    {
+        return MiKTeX::Util::PathName("pdftex.fmt");
+    }
 
-public:
-  std::string TheNameOfTheGame() const override
-  {
-    return "pdfTeX";
-  }
+    std::string GetInitProgramName() const override
+    {
+        return "pdfinitex";
+    }
 
-public:
-  void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
-  {
-    MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
-    MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
-    inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
-    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
-    inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
-    // special case: Web2C likes to add 1 to the nameoffile base address
-    nameoffile = &(inputOutput->nameoffile()[-1]);
-  }
+    std::string GetVirginProgramName() const override
+    {
+        return "pdfvirtex";
+    }
 
-public:
-  void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const override;
+    std::string TheNameOfTheGame() const override
+    {
+        return "pdfTeX";
+    }
+
+    void SetNameOfFile(const MiKTeX::Util::PathName& fileName) override
+    {
+        MiKTeX::TeXAndFriends::IInputOutput* inputOutput = GetInputOutput();
+        MiKTeX::TeXAndFriends::ITeXMFMemoryHandler* texmfMemoryHandler = GetTeXMFMemoryHandler();
+        inputOutput->nameoffile() = reinterpret_cast<char*>(texmfMemoryHandler->ReallocateArray("nameoffile", inputOutput->nameoffile(), sizeof(inputOutput->nameoffile()[0]), fileName.GetLength() + 1, MIKTEX_SOURCE_LOCATION()));
+        MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), fileName.GetLength() + 1, fileName.GetData());
+        inputOutput->namelength() = static_cast<C4P::C4P_signed32>(fileName.GetLength());
+        // special case: Web2C likes to add 1 to the nameoffile base address
+        nameoffile = &(inputOutput->nameoffile()[-1]);
+    }
+
+    void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const override;
 
 #if defined(MIKTEX_WINDOWS)
-public:
-  unsigned long GetHelpId() const override
-  {
-    return MIKTEXHELP_PDFTEX;
-  }
+    unsigned long GetHelpId() const override
+    {
+        return MIKTEXHELP_PDFTEX;
+    }
 #endif
+
+private:
+
+    std::string Translate(const char* msgId)
+    {
+        return translator->Translate(msgId);
+    }
+
+    std::string T_(const char* msgId)
+    {
+        return Translate(msgId);
+    }
+
+    MiKTeX::TeXAndFriends::CharacterConverterImpl<PDFTEXPROGCLASS> charConv{ PDFTEXPROG };
+    MiKTeX::TeXAndFriends::ErrorHandlerImpl<PDFTEXPROGCLASS> errorHandler{ PDFTEXPROG };
+    MiKTeX::TeXAndFriends::FormatHandlerImpl<PDFTEXPROGCLASS> formatHandler{ PDFTEXPROG };
+    MiKTeX::TeXAndFriends::InitFinalizeImpl<PDFTEXPROGCLASS> initFinalize{ PDFTEXPROG };
+    MiKTeX::TeXAndFriends::InputOutputImpl<PDFTEXPROGCLASS> inputOutput{ PDFTEXPROG };
+    MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
+    MiKTeX::TeXAndFriends::StringHandlerImpl<PDFTEXPROGCLASS> stringHandler{ PDFTEXPROG };
+    std::unique_ptr<MiKTeX::Locale::Translator> translator;
+
+    static MiKTeX::Resources::ResourceRepository* resources;
 };
 
 inline bool miktexptrequal(const void* ptr1, const void* ptr2)
 {
-  return ptr1 == ptr2;
+    return ptr1 == ptr2;
 }
 
 using eightbits = PDFTEXPROGCLASS::eightbits;
@@ -458,166 +424,166 @@ extern C4P::C4P_integer k;
 
 inline auto dividescaled(PDFTEXPROGCLASS::scaled s, PDFTEXPROGCLASS::scaled m, C4P::C4P_integer dd)
 {
-  return PDFTEXPROG.dividescaled(s, m, dd);
+    return PDFTEXPROG.dividescaled(s, m, dd);
 }
 
 inline auto flushstr(PDFTEXPROGCLASS::strnumber s)
 {
-  PDFTEXPROG.flushstr(s);
+    PDFTEXPROG.flushstr(s);
 }
 
 inline auto getchardepth(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS::eightbits c)
 {
-  return PDFTEXPROG.getchardepth(f, c);
+    return PDFTEXPROG.getchardepth(f, c);
 }
 
 inline auto getcharheight(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS::eightbits c)
 {
-  return PDFTEXPROG.getcharheight(f, c);
+    return PDFTEXPROG.getcharheight(f, c);
 }
 
 inline auto getcharwidth(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS::eightbits c)
 {
-  return PDFTEXPROG.getcharwidth(f, c);
+    return PDFTEXPROG.getcharwidth(f, c);
 }
 
 inline auto getpdfcompresslevel()
 {
-  return PDFTEXPROG.getpdfcompresslevel();
+    return PDFTEXPROG.getpdfcompresslevel();
 }
 
 inline auto getpdfomitcharset()
 {
-  return PDFTEXPROG.getpdfomitcharset();
+    return PDFTEXPROG.getpdfomitcharset();
 }
 
 inline auto getquad(PDFTEXPROGCLASS::internalfontnumber f)
 {
-  return PDFTEXPROG.getquad(f);
+    return PDFTEXPROG.getquad(f);
 }
 
 inline auto getxheight(PDFTEXPROGCLASS::internalfontnumber f)
 {
-  return PDFTEXPROG.getxheight(f);
+    return PDFTEXPROG.getxheight(f);
 }
 
 inline auto getnullstr()
 {
-  return PDFTEXPROG.getnullstr();
+    return PDFTEXPROG.getnullstr();
 }
 
 inline auto getpdfsuppresswarningdupmap()
 {
-  return PDFTEXPROG.getpdfsuppresswarningdupmap();
+    return PDFTEXPROG.getpdfsuppresswarningdupmap();
 }
 
 inline auto getslant(PDFTEXPROGCLASS::internalfontnumber f)
 {
-  return PDFTEXPROG.getslant(f);
+    return PDFTEXPROG.getslant(f);
 }
 
 inline auto makenamestring()
 {
-  return PDFTEXPROG.makenamestring();
+    return PDFTEXPROG.makenamestring();
 }
 
 inline auto makestring()
 {
-  return PDFTEXPROG.makestring();
+    return PDFTEXPROG.makestring();
 }
 
 inline auto packfilename(PDFTEXPROGCLASS::strnumber n, PDFTEXPROGCLASS::strnumber a, PDFTEXPROGCLASS::strnumber e)
 {
-  return PDFTEXPROG.packfilename(n, a, e);
+    return PDFTEXPROG.packfilename(n, a, e);
 }
 
 inline auto pdfbegindict(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
 {
-  PDFTEXPROG.pdfbegindict(i, pdfoslevel);
+    PDFTEXPROG.pdfbegindict(i, pdfoslevel);
 }
 
 inline auto pdfbeginobj(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
 {
-  PDFTEXPROG.pdfbeginobj(i, pdfoslevel);
+    PDFTEXPROG.pdfbeginobj(i, pdfoslevel);
 }
 
 inline auto pdfbeginstream()
 {
-  PDFTEXPROG.pdfbeginstream();
+    PDFTEXPROG.pdfbeginstream();
 }
 
 inline auto pdfcreateobj(C4P::C4P_integer t, C4P::C4P_integer i)
 {
-  PDFTEXPROG.pdfcreateobj(t, i);
+    PDFTEXPROG.pdfcreateobj(t, i);
 }
 
 inline auto pdfenddict()
 {
-  PDFTEXPROG.pdfenddict();
+    PDFTEXPROG.pdfenddict();
 }
 
 inline auto pdfendobj()
 {
-  PDFTEXPROG.pdfendobj();
+    PDFTEXPROG.pdfendobj();
 }
 
 inline auto pdfendstream()
 {
-  PDFTEXPROG.pdfendstream();
+    PDFTEXPROG.pdfendstream();
 }
 inline auto pdfflush()
 {
-  PDFTEXPROG.pdfflush();
+    PDFTEXPROG.pdfflush();
 }
 
 inline auto pdfnewdict(C4P::C4P_integer t, C4P::C4P_integer i, C4P::C4P_integer pdfos)
 {
-  PDFTEXPROG.pdfnewdict(t, i, pdfos);
+    PDFTEXPROG.pdfnewdict(t, i, pdfos);
 }
 
 inline auto pdfnewobjnum()
 {
-  return PDFTEXPROG.pdfnewobjnum();
+    return PDFTEXPROG.pdfnewobjnum();
 }
 
 inline auto pdfosgetosbuf(C4P::C4P_integer s)
 {
-  PDFTEXPROG.pdfosgetosbuf(s);
+    PDFTEXPROG.pdfosgetosbuf(s);
 }
 
 inline auto pdfprint(PDFTEXPROGCLASS::strnumber s)
 {
-  PDFTEXPROG.pdfprint(s);
+    PDFTEXPROG.pdfprint(s);
 }
 
 inline auto pdfprintreal(C4P::C4P_integer m, C4P::C4P_integer d)
 {
-  PDFTEXPROG.pdfprintreal(m, d);
+    PDFTEXPROG.pdfprintreal(m, d);
 }
 
 inline auto getpdfsuppressptexinfo()
 {
-  return PDFTEXPROG.getpdfsuppressptexinfo();
+    return PDFTEXPROG.getpdfsuppressptexinfo();
 }
 
 inline auto getpdfsuppresswarningpagegroup()
 {
-  return PDFTEXPROG.getpdfsuppresswarningpagegroup();
+    return PDFTEXPROG.getpdfsuppresswarningpagegroup();
 }
 
 inline auto print(C4P::C4P_integer s)
 {
-  PDFTEXPROG.print(s);
+    PDFTEXPROG.print(s);
 }
 
 inline auto println()
 {
-  PDFTEXPROG.println();
+    PDFTEXPROG.println();
 }
 
 inline auto tokenstostring(PDFTEXPROGCLASS::halfword p)
 {
-  return PDFTEXPROG.tokenstostring(p);
+    return PDFTEXPROG.tokenstostring(p);
 }
 
 #include "pdftex.h"
@@ -628,24 +594,24 @@ inline auto tokenstostring(PDFTEXPROGCLASS::halfword p)
 
 inline void printid(PDFTEXPROGCLASS::strnumber filename)
 {
-  extern void printID(strnumber filename);
-  printID(filename);
+    extern void printID(strnumber filename);
+    printID(filename);
 }
 
 inline void printidalt(integer toks)
 {
-  extern void printIDalt(integer toks);
-  printIDalt(toks);
+    extern void printIDalt(integer toks);
+    printIDalt(toks);
 }
 
 template<typename FileType> int getbyte(FileType& f)
 {
-  unsigned char ret = *f;
-  if (!feof(f))
-  {
-    f.Read();
-  }
-  return ret & 0xff;
+    unsigned char ret = *f;
+    if (!feof(f))
+    {
+        f.Read();
+    }
+    return ret & 0xff;
 }
 
 #if defined(texbopenin)
@@ -653,15 +619,15 @@ template<typename FileType> int getbyte(FileType& f)
 #endif
 template<typename FileType> bool texbopenin(FileType& f)
 {
-  return open_input(&f.fileref(), kpse_tex_format, FOPEN_RBIN_MODE);
+    return open_input(&f.fileref(), kpse_tex_format, FOPEN_RBIN_MODE);
 };
 
 #if defined(vfbopenin)
 #  undef vfbopenin
 #endif
-template<typename FileType> bool vfbopenin(FileType &f)
+template<typename FileType> bool vfbopenin(FileType& f)
 {
-  return miktexopenvffile(f, PDFTEXPROG.nameoffile);
+    return miktexopenvffile(f, PDFTEXPROG.nameoffile);
 }
 
 #if !defined(__GNUC__)
@@ -672,20 +638,20 @@ int miktexloadpoolstrings(int size);
 
 inline int loadpoolstrings(int size)
 {
-  return miktexloadpoolstrings(size);
+    return miktexloadpoolstrings(size);
 }
 
 extern PDFTEXAPPCLASS PDFTEXAPP;
 
 inline char* gettexstring(PDFTEXPROGCLASS::strnumber stringNumber)
 {
-  return xstrdup(PDFTEXAPP.GetTeXString(stringNumber).c_str());
+    return xstrdup(PDFTEXAPP.GetTeXString(stringNumber).c_str());
 }
 
 inline void miktexreallocatenameoffile(size_t n)
 {
 
-  PDFTEXPROG.nameoffile = reinterpret_cast<char*>(PDFTEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", PDFTEXPROG.nameoffile, sizeof(*PDFTEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
-  // special case: Web2C likes to add 1 to the nameoffile base address
-  nameoffile = &PDFTEXPROG.nameoffile[-1];
+    PDFTEXPROG.nameoffile = reinterpret_cast<char*>(PDFTEXAPP.GetTeXMFMemoryHandler()->ReallocateArray("name_of_file", PDFTEXPROG.nameoffile, sizeof(*PDFTEXPROG.nameoffile), n, MIKTEX_SOURCE_LOCATION()));
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    nameoffile = &PDFTEXPROG.nameoffile[-1];
 }

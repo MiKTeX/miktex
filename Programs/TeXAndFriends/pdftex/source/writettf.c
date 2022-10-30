@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2022 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -1216,8 +1216,8 @@ static void ttf_write_OS2(void)
     TTF_USHORT version;
     ttf_reset_chksm(tab);
     version = get_ushort();
-    if (version > 3)
-        pdftex_fail("unknown version of OS/2 table (%.4X)", version);
+    if (version > 5)
+        pdftex_warn("unknown version of OS/2 table (%.4X)", version);
     (void) put_ushort(0x0001);  /* fix version to 1 */
     ttf_ncopy(2 * TTF_USHORT_SIZE + 13 * TTF_SHORT_SIZE + 10 * TTF_BYTE_SIZE);
     ttf_skip(4 * TTF_ULONG_SIZE);       /* ulUnicodeRange 1--4 */

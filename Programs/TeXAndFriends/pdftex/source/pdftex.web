@@ -1,4 +1,4 @@
-% Copyright 1996-2021 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2022 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -5705,7 +5705,8 @@ that will be defined later.
 @d pdf_info_omit_date_code  = pdftex_first_integer_code + 31 {omit generating CreationDate and ModDate}
 @d pdf_suppress_ptex_info_code = pdftex_first_integer_code + 32 {suppress /PTEX.* entries in PDF dictionaries}
 @d pdf_omit_charset_code = pdftex_first_integer_code + 33 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_int_pars=pdftex_first_integer_code + 34 {total number of \pdfTeX's integer parameters}
+@d pdf_omit_info_dict_code = pdftex_first_integer_code + 34 {suppress /PTEX.* entries in PDF dictionaries}
+@d pdf_int_pars=pdftex_first_integer_code + 35 {total number of \pdfTeX's integer parameters}
 @#
 @d etex_int_base=pdf_int_pars {base for \eTeX's integer parameters}
 @d tracing_assigns_code=etex_int_base {show assignments}
@@ -5818,6 +5819,7 @@ that will be defined later.
 @d pdf_info_omit_date == int_par(pdf_info_omit_date_code)
 @d pdf_suppress_ptex_info == int_par(pdf_suppress_ptex_info_code)
 @d pdf_omit_charset == int_par(pdf_omit_charset_code)
+@d pdf_omit_info_dict == int_par(pdf_omit_info_dict_code)
 @#
 @d tracing_assigns==int_par(tracing_assigns_code)
 @d tracing_groups==int_par(tracing_groups_code)
@@ -5927,6 +5929,7 @@ pdf_suppress_warning_page_group_code:print_esc("pdfsuppresswarningpagegroup");
 pdf_info_omit_date_code:print_esc("pdfinfoomitdate");
 pdf_suppress_ptex_info_code: print_esc("pdfsuppressptexinfo");
 pdf_omit_charset_code: print_esc("pdfomitcharset");
+pdf_omit_info_dict_code: print_esc("pdfomitinfodict");
 @/@<Cases for |print_param|@>@/
 othercases print("[unknown integer parameter!]")
 endcases;
@@ -6124,6 +6127,9 @@ primitive("pdfsuppressptexinfo",assign_int,int_base+pdf_suppress_ptex_info_code)
 
 primitive("pdfomitcharset",assign_int,int_base+pdf_omit_charset_code);@/
 @!@:pdf_omit_charset}{\.{\\pdfomitcharset} primitive@>
+
+primitive("pdfomitinfodict",assign_int,int_base+pdf_omit_info_dict_code);@/
+@!@:pdf_omit_info_dict}{\.{\\pdfomitinfodict} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 assign_int: if chr_code<count_base then print_param(chr_code-int_base)
@@ -19166,10 +19172,14 @@ pdf_end_text;
 pdfshipoutend(shipping_page);
 pdf_end_stream
 
-@ @<Write out resource lists@>=
+@ We need to write forms last, since the recursive call to |ship_out|
+would reset global state such as |pdfpagegroupval|, which is needed
+while writing images.
+
+@<Write out resource lists@>=
 @<Write out pending raw objects@>;
-@<Write out pending forms@>;
-@<Write out pending images@>
+@<Write out pending images@>;
+@<Write out pending forms@>
 
 @ @<Write out resources dictionary@>=
 pdf_begin_dict(pdf_last_resources, 1);
@@ -20318,7 +20328,7 @@ pdf_print("/W [1 ");
 pdf_print_int(xref_offset_width);
 pdf_print_ln(" 1]");
 pdf_indirect_ln("Root", root);
-pdf_indirect_ln("Info", obj_ptr - 1);
+if pdf_omit_info_dict = 0 then pdf_indirect_ln("Info", obj_ptr - 1);
 if pdf_trailer_toks <> null then begin
     pdf_print_toks_ln(pdf_trailer_toks);
     delete_toks(pdf_trailer_toks);
@@ -20354,7 +20364,7 @@ if not pdf_os_enable then begin
     pdf_print("<< ");
     pdf_int_entry_ln("Size", sys_obj_ptr + 1);
     pdf_indirect_ln("Root", root);
-    pdf_indirect_ln("Info", sys_obj_ptr);
+    if pdf_omit_info_dict = 0 then pdf_indirect_ln("Info", sys_obj_ptr);
     if pdf_trailer_toks <> null then begin
         pdf_print_toks_ln(pdf_trailer_toks);
         delete_toks(pdf_trailer_toks);
