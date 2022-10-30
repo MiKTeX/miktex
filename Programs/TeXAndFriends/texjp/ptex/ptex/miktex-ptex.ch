@@ -171,9 +171,11 @@ miktex_print_miktex_banner(log_file);
 % _____________________________________________________________________________
 
 @x
-    fget; cx:=fbyte; font_info[k].hh.lhfield:=tonum(cx); {|kchar_type|}
+    fget; cx:=fbyte;
+    font_info[k].hh.lhfield:=tonum(cx); {|kchar_type|}
 @y
-    fget; cx:=fbyte; font_info[k].hh.lh:=tonum(cx); {|kchar_type|}
+    fget; cx:=fbyte;
+    font_info[k].hh.lh:=tonum(cx); {|kchar_type|}
 @z
 
 % _____________________________________________________________________________
@@ -235,6 +237,7 @@ font_info:=xmalloc_array(memory_word, font_mem_size);
 
 @x
 font_dir:=xmalloc_array(eight_bits, font_max);
+font_enc:=xmalloc_array(eight_bits, font_max);
 font_num_ext:=xmalloc_array(integer, font_max);
 ctype_base:=xmalloc_array(integer, font_max);
 char_base:=xmalloc_array(integer, font_max);
@@ -251,6 +254,7 @@ char_base:=xmalloc_array(integer, font_max);
   buffer2:=xmalloc_array (ASCII_code, buf_size);
   font_info:=xmalloc_array (memory_word, font_mem_size);
   font_dir:=xmalloc_array(eight_bits, font_max);
+  font_enc:=xmalloc_array(eight_bits, font_max);
   font_num_ext:=xmalloc_array(integer, font_max);
   font_check:=xmalloc_array(four_quarters, font_max);
   ctype_base:=xmalloc_array(integer, font_max);

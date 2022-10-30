@@ -198,14 +198,12 @@ if (len > 0) then
 
 @x procedure get_the_top_level_aux_file_name
 label aux_found,@!aux_not_found;
+begin
+  if (not set_enc_string (nil,'EUC')) then uexit(1);
 @y
 label aux_found,@!aux_not_found;
 var i:0..last_text_char;    {this is the first one declared}
-@z
-@x
-  @<Process a possible command line@>
-@y
-  @<Process a possible command line@>
+begin
   @<Initialize variables depending on Kanji code@>
 @z
 

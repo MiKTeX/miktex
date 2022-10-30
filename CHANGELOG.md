@@ -6,6 +6,7 @@
 
 * bibsort 2.5
 * bibtex-x 4.00
+* ptex 4.1.0
 * upmendex 1.05
 
 ## 22.10 - 2022-10-17

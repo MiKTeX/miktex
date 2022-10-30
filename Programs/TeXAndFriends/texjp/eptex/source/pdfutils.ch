@@ -549,6 +549,7 @@ begin
 if s<=biggest_char then begin
   if s<0 then begin p:=undefined_primitive; goto found; end
   else p:=(s mod prim_prime)+prim_base; {we start searching here}
+  l:=1
   end
 else begin
   j:=str_start[s];

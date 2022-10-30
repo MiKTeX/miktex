@@ -228,14 +228,12 @@ var i:c_int_type;
 procedure get_the_top_level_aux_file_name;
 label aux_found,@!aux_not_found;
 begin
-  @<Process a possible command line@>
 @y
 @<Procedures and functions for the reading and processing of input files@>=
 procedure get_the_top_level_aux_file_name;
 label aux_found,@!aux_not_found;
 begin
   if (not set_enc_string (nil,'EUC')) then uexit(1);
-  @<Process a possible command line@>
 @z
 
 @x

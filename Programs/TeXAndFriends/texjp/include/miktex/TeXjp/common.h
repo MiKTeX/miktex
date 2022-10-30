@@ -38,6 +38,7 @@
 #define lo Lo
 #define tobuff toBUFF
 #define todvi toDVI
+#define tojis toJIS
 #define toucs toUCS
 #define ucstoutf8 UCStoUTF8
 
@@ -257,6 +258,7 @@ namespace MiKTeX
                 MIKTEX_ASSERT(BASE::program.constfontbase == 0);
                 size_t nFonts = BASE::program.fontmax - BASE::program.constfontbase;
                 BASE::AllocateArray("fontdir", BASE::program.fontdir, nFonts);
+                BASE::AllocateArray("fontenc", BASE::program.fontenc, nFonts);
                 BASE::AllocateArray("fontnumext", BASE::program.fontnumext, nFonts);
                 BASE::AllocateArray("ctypebase", BASE::program.ctypebase, nFonts);
             }
@@ -266,6 +268,7 @@ namespace MiKTeX
                 BASE::Free();
                 BASE::FreeArray("buffer2", BASE::program.buffer2);
                 BASE::FreeArray("fontdir", BASE::program.fontdir);
+                BASE::FreeArray("fontenc", BASE::program.fontenc);
                 BASE::FreeArray("fontnumext", BASE::program.fontnumext);
                 BASE::FreeArray("ctypebase", BASE::program.ctypebase);
             }

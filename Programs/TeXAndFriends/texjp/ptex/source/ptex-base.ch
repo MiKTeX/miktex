@@ -71,6 +71,8 @@
 %                  for better support of LaTeX3 (expl3).
 %                  Requires ptexenc version 1.4.0.
 %                  More details in TUGboat 41(2):329--334, 2020.
+% (2022-10-24) HY  pTeX p4.1.0 Add new syntax \font [in jis/ucs].
+%                  New primitives: \tojis, \ptextracingfonts and \ptexfontname.
 
 @x
 % Here is TeX material that gets inserted after \input webmac
@@ -84,9 +86,9 @@
 @d banner_k==TeX_banner_k
 @y
 @d pTeX_version=4
-@d pTeX_minor_version=0
+@d pTeX_minor_version=1
 @d pTeX_revision==".0"
-@d pTeX_version_string=='-p4.0.0' {current \pTeX\ version}
+@d pTeX_version_string=='-p4.1.0' {current \pTeX\ version}
 @#
 @d pTeX_banner=='This is pTeX, Version 3.141592653',pTeX_version_string
 @d pTeX_banner_k==pTeX_banner
@@ -724,6 +726,13 @@ of larger type codes will also be defined, for use in math mode only.
 @ In fact, there are still more types coming. When we get to math formula
 processing we will see that a |style_node| has |type=16|; and a number
 of larger type codes will also be defined, for use in math mode only.
+@z
+
+@x [12.???] pTeX: \ptexfontname, \ptextracingfonts
+@p procedure short_display(@!p:integer); {prints highlights of list |p|}
+@y
+@p@t\4@>@<Declare the pTeX-specific |print_font_...| procedures|@>@;@/
+procedure short_display(@!p:integer); {prints highlights of list |p|}
 @z
 
 @x [12.174] l.3662 - pTeX: print KANJI
@@ -1436,7 +1445,8 @@ if n<math_code_base then
 @d script_baseline_shift_factor_code=58
 @d scriptscript_baseline_shift_factor_code=59
 @d ptex_lineend_code=60
-@d tex_int_pars=61 {total number of \TeX's integer parameters}
+@d ptex_tracing_fonts_code=61
+@d tex_int_pars=62 {total number of \TeX's integer parameters}
 @z
 
 @x [17.236] l.5167 - pTeX: cur_jfam, |jchr_widow_penalty|
@@ -1451,6 +1461,7 @@ if n<math_code_base then
 @d script_baseline_shift_factor==int_par(script_baseline_shift_factor_code)
 @d scriptscript_baseline_shift_factor==int_par(scriptscript_baseline_shift_factor_code)
 @d ptex_lineend==int_par(ptex_lineend_code)
+@d ptex_tracing_fonts==int_par(ptex_tracing_fonts_code)
 @z
 
 @x [17.237] l.5244 - pTeX: cur_jfam_code, jchr_window_penalty_code
@@ -1463,6 +1474,7 @@ text_baseline_shift_factor_code:print_esc("textbaselineshiftfactor");
 script_baseline_shift_factor_code:print_esc("scriptbaselineshiftfactor");
 scriptscript_baseline_shift_factor_code:print_esc("scriptscriptbaselineshiftfactor");
 ptex_lineend_code:print_esc("ptexlineendmode");
+ptex_tracing_fonts_code:print_esc("ptextracingfonts");
 @z
 
 @x [17.238] l.5365 - pTeX: cur_jfam_code, jchr_window_penalty_code
@@ -1483,6 +1495,8 @@ primitive("scriptscriptbaselineshiftfactor",assign_int,int_base+scriptscript_bas
 @!@:scriptscript_baseline_shift_factor}{\.{\\scriptscriptbaselineshiftfactor} primitive@>
 primitive("ptexlineendmode",assign_int,int_base+ptex_lineend_code);@/
 @!@:ptex_lineend_mode_}{\.{\\ptexlineendmode} primitive@>
+primitive("ptextracingfonts",assign_int,int_base+ptex_tracing_fonts_code);@/
+@!@:ptex_tracing_fonts_}{\.{\\ptextracingfonts} primitive@>
 @z
 
 @x [17.247] l.5490 - pTeX: kinsoku, t_baseline_shift, y_baseline_shift
@@ -1626,6 +1640,43 @@ def_font: print_esc("font");
 def_font: print_esc("font");
 def_jfont: print_esc("jfont");
 def_tfont: print_esc("tfont");
+@z
+
+@x [18.???] pTeX: \ptextracingfonts based on pdfTeX \pdftracingfonts
+@<Print the font identifier for |font(p)|@>=
+print_esc(font_id_text(font(p)))
+@y
+@<Print the font identifier for |font(p)|@>=
+begin
+  print_esc(font_id_text(font(p)));
+  if ptex_tracing_fonts > 0 then begin
+    print(" (");
+    print_font_name_and_size(font(p));
+  if ptex_tracing_fonts > 1 then begin
+    print_font_dir_and_enc(font(p));
+  end;
+    print(")");
+  end;
+end;
+
+@ @<Declare the pTeX-specific |print_font_...| procedures|@>=
+procedure print_font_name_and_size(f:internal_font_number);
+begin
+  print(font_name[f]);
+  if font_size[f]<>font_dsize[f] then begin
+    print("@@");
+    print_scaled(font_size[f]);
+    print("pt");
+  end;
+end;
+@#
+procedure print_font_dir_and_enc(f:internal_font_number);
+begin
+  if font_dir[f]=dir_tate then print("/TATE")
+  else if font_dir[f]=dir_yoko then print("/YOKO");
+  if font_enc[f]=2 then print("+Unicode")
+  else if font_enc[f]=1 then print("+JIS");
+end;
 @z
 
 @x [20.289] l.6387 - pTeX: cs_token_flag
@@ -2637,8 +2688,10 @@ help6("Dimensions can be in units of em, ex, zw, zh, in, pt, pc,")@/
 @d kuten_code=9 {command code for \.{\\kuten}}
 @d ucs_code=10 {command code for \.{\\ucs}}
 @d toucs_code=11 {command code for \.{\\toucs}}
-@d ptex_revision_code=12 {command code for \.{\\ptexrevision}}
-@d ptex_convert_codes=13 {end of \pTeX's command codes}
+@d tojis_code=12 {command code for \.{\\tojis}}
+@d ptex_font_name_code=13 {command code for \.{\\ptexfontname}}
+@d ptex_revision_code=14 {command code for \.{\\ptexrevision}}
+@d ptex_convert_codes=15 {end of \pTeX's command codes}
 @d job_name_code=ptex_convert_codes {command code for \.{\\jobname}}
 @z
 
@@ -2662,6 +2715,10 @@ primitive("ucs",convert,ucs_code);
 @!@:ucs_}{\.{\\ucs} primitive@>
 primitive("toucs",convert,toucs_code);
 @!@:toucs_}{\.{\\toucs} primitive@>
+primitive("tojis",convert,tojis_code);
+@!@:tojis_}{\.{\\tojis} primitive@>
+primitive("ptexfontname",convert,ptex_font_name_code);
+@!@:ptexfontname_}{\.{\\ptexfontname} primitive@>
 primitive("ptexrevision",convert,ptex_revision_code);
 @!@:ptexrevision_}{\.{\\ptexrevision} primitive@>
 @z
@@ -2677,6 +2734,8 @@ primitive("ptexrevision",convert,ptex_revision_code);
   kuten_code:print_esc("kuten");
   ucs_code:print_esc("ucs");
   toucs_code:print_esc("toucs");
+  tojis_code:print_esc("tojis");
+  ptex_font_name_code: print_esc("ptexfontname");
   ptex_revision_code:print_esc("ptexrevision");
 @z
 
@@ -2701,7 +2760,9 @@ string_code, meaning_code: begin save_scanner_status:=scanner_status;
 KANJI(cx):=0;
 case c of
 number_code,roman_numeral_code,
-kansuji_code,euc_code,sjis_code,jis_code,kuten_code,ucs_code,toucs_code: scan_int;
+kansuji_code,euc_code,sjis_code,jis_code,kuten_code,
+ucs_code,toucs_code,tojis_code: scan_int;
+ptex_font_name_code: scan_font_ident;
 ptex_revision_code: do_nothing;
 string_code, meaning_code: begin save_scanner_status:=scanner_status;
   scanner_status:=normal; get_token;
@@ -2723,6 +2784,7 @@ string_code:if cur_cs<>0 then sprint_cs(cur_cs)
 case c of
 number_code: print_int(cur_val);
 roman_numeral_code: print_roman_int(cur_val);
+kansuji_code: print_kansuji(cur_val);
 jis_code:   begin cur_val:=fromJIS(cur_val);
   if cur_val=0 then print_int(-1) else print_int(cur_val); end;
 euc_code:   begin cur_val:=fromEUC(cur_val);
@@ -2735,8 +2797,13 @@ ucs_code:   begin cur_val:=fromUCS(cur_val);
   if cur_val=0 then print_int(-1) else print_int(cur_val); end;
 toucs_code: begin cur_val:=toUCS(cur_val);
   if cur_val=0 then print_int(-1) else print_int(cur_val); end;
+tojis_code: begin cur_val:=toJIS(cur_val);
+  if cur_val=0 then print_int(-1) else print_int(cur_val); end;
+ptex_font_name_code: begin
+  print_font_name_and_size(cur_val);
+  print_font_dir_and_enc(cur_val);
+  end;
 ptex_revision_code: print(pTeX_revision);
-kansuji_code: print_kansuji(cur_val);
 string_code:if cur_cs<>0 then sprint_cs(cur_cs)
   else if KANJI(cx)=0 then print_char(cur_chr)
   else print_kanji(cx);
@@ -3085,8 +3152,11 @@ in the |glue_kern| array. And a \.{JFM} does not use |tag=2| and |tag=3|.
 @!font_info: ^memory_word; {pTeX: use halfword for |char_type| table.}
 @!font_dir: ^eight_bits;
   {pTeX: direction of fonts, 0 is default, 1 is Yoko, 2 is Tate}
+@!font_enc: ^eight_bits;
+  {pTeX: encoding of fonts, 0 is default, 1 is JIS, 2 is Unicode}
 @!font_num_ext: ^integer;
   {pTeX: number of the |char_type| table.}
+@!jfm_enc: eight_bits; {pTeX: holds scanned result of encoding}
 @z
 
 @x [30.550] l.11270 - pTeX:
@@ -3097,6 +3167,13 @@ in the |glue_kern| array. And a \.{JFM} does not use |tag=2| and |tag=3|.
   {base addresses for |char_info|}
 @!ctype_base: ^integer;
   {pTeX: base addresses for KANJI character type parameters}
+@z
+
+@x
+@ @<Set init...@>=
+@y
+@ @<Set init...@>=
+jfm_enc:=0;
 @z
 
 @x [30.554] l.11373 - pTeX:
@@ -3238,6 +3315,7 @@ if (font_ptr=font_max)or(fmem_ptr+lf>font_mem_size) then
   @<Apologize for not loading the font, |goto done|@>;
 f:=font_ptr+1;
 font_dir[f]:=jfm_flag;
+font_enc[f]:=jfm_enc; if jfm_flag=dir_default then font_enc[f]:=0;
 font_num_ext[f]:=nt;
 ctype_base[f]:=fmem_ptr;
 char_base[f]:=ctype_base[f]+nt-bc;
@@ -3260,8 +3338,15 @@ for k:=fmem_ptr to width_base[f]-1 do
 if jfm_flag<>dir_default then
   for k:=ctype_base[f] to ctype_base[f]+nt-1 do
     begin
-    fget; read_twentyfourx(cx); font_info[k].hh.rh:=tokanji(cx); {|kchar_code|}
-    fget; cx:=fbyte; font_info[k].hh.lhfield:=tonum(cx); {|kchar_type|}
+    fget; read_twentyfourx(cx);
+    if jfm_enc=2 then {Unicode TFM}
+      font_info[k].hh.rh:=toDVI(fromUCS(cx))
+    else if jfm_enc=1 then {JIS-encoded TFM}
+      font_info[k].hh.rh:=toDVI(fromJIS(cx))
+    else
+      font_info[k].hh.rh:=tokanji(cx); {|kchar_code|}
+    fget; cx:=fbyte;
+    font_info[k].hh.lhfield:=tonum(cx); {|kchar_type|}
     end;
 for k:=char_base[f]+bc to width_base[f]-1 do
   begin store_four_quarters(font_info[k].qqqq);
@@ -3345,6 +3430,25 @@ var @!l:0..255; {small indices or counters}
     end
   else print_ASCII(c);
   print(" in font ");
+@z
+
+@x [30.???]
+@ Here is a function that returns a pointer to a character node for a
+@y
+@ Another warning for (u)\pTeX.
+
+@p procedure char_warning_jis(@!f:internal_font_number;@!jc:KANJI_code);
+begin if tracing_lost_chars>0 then
+  begin begin_diagnostic;
+  print_nl("Character "); print_kanji(jc); print(" (");
+  print_hex(jc); print(") cannot be typeset in JIS-encoded JFM ");
+  slow_print(font_name[f]);
+  print_char(","); print_nl("so I use .notdef glyph instead.");
+  end_diagnostic(false);
+  end;
+end;
+
+@ Here is a function that returns a pointer to a character node for a
 @z
 
 @x [31.586] l.12189 - pTeX: define set2
@@ -3492,7 +3596,14 @@ continue:
       synch_h;
       end;
     p:=link(p);
-    jc:=toDVI(KANJI(info(p)));
+    jc:=KANJI(info(p));
+    if font_enc[f]=2 then {Unicode TFM}
+      jc:=toUCS(jc)
+    else if font_enc[f]=1 then {JIS-encoded TFM}
+      begin if toJIS(jc)=0 then char_warning_jis(f,jc);
+      jc:=toJIS(jc); end
+    else
+      jc:=toDVI(jc);
     dvi_out(set2); dvi_out(Hi(jc)); dvi_out(Lo(jc));
     cur_h:=cur_h+char_width(f)(orig_char_info(f)(c)); {not |jc|}
     end;
@@ -6369,10 +6480,13 @@ any_mode(def_tfont),
 @z
 
 @x [49.1211] l.23397 - pTeX: prefixed_command
+@t\4@>@<Declare subprocedures for |prefixed_command|@>@t@>@;@/
 procedure prefixed_command;
 label done,exit;
 var a:small_number; {accumulated prefix codes so far}
 @y
+@t\4@>@<Declare the function called |scan_keyword_noexpand|@>
+@<Declare subprocedures for |prefixed_command|@>@t@>@;@/
 procedure prefixed_command;
 label done,exit;
 var a:small_number; {accumulated prefix codes so far}
@@ -6548,6 +6662,13 @@ def_font: new_font(a);
 def_tfont,def_jfont,def_font: new_font(a);
 @z
 
+@x [49.????] pTeX: new_font
+get_r_token; u:=cur_cs;
+@y
+@<Scan the font encoding specification@>;
+get_r_token; u:=cur_cs;
+@z
+
 @x [49.1292] l.24451 - pTeX: shift_case
 @<Change the case of the token in |p|, if a change is appropriate@>=
 t:=info(p);
@@ -6663,6 +6784,7 @@ dump_things(font_check[null_font], font_ptr+1-null_font);
 @ @<Dump the array info for internal font number |k|@>=
 begin
 dump_things(font_dir[null_font], font_ptr+1-null_font);
+dump_things(font_enc[null_font], font_ptr+1-null_font);
 dump_things(font_num_ext[null_font], font_ptr+1-null_font);
 dump_things(font_check[null_font], font_ptr+1-null_font);
 @z
@@ -6681,6 +6803,7 @@ begin {Allocate the font arrays}
 @<Undump the array info for internal font number |k|@>=
 begin {Allocate the font arrays}
 font_dir:=xmalloc_array(eight_bits, font_max);
+font_enc:=xmalloc_array(eight_bits, font_max);
 font_num_ext:=xmalloc_array(integer, font_max);
 @z
 
@@ -6695,6 +6818,7 @@ char_base:=xmalloc_array(integer, font_max);
 undump_things(font_check[null_font], font_ptr+1-null_font);
 @y
 undump_things(font_dir[null_font], font_ptr+1-null_font);
+undump_things(font_enc[null_font], font_ptr+1-null_font);
 undump_things(font_num_ext[null_font], font_ptr+1-null_font);
 undump_things(font_check[null_font], font_ptr+1-null_font);
 @z
@@ -6723,6 +6847,7 @@ undump_things(char_base[null_font], font_ptr+1-null_font);
   font_check:=xmalloc_array(four_quarters, font_max);
 @y
   font_dir:=xmalloc_array(eight_bits, font_max);
+  font_enc:=xmalloc_array(eight_bits, font_max);
   font_num_ext:=xmalloc_array(integer, font_max);
   font_check:=xmalloc_array(four_quarters, font_max);
 @z
@@ -6739,6 +6864,7 @@ undump_things(char_base[null_font], font_ptr+1-null_font);
 @y
   font_ptr:=null_font; fmem_ptr:=7;
   font_dir[null_font]:=dir_default;
+  font_enc[null_font]:=0;
   font_num_ext[null_font]:=0;
 @z
 
@@ -6890,7 +7016,9 @@ if f=null_font then
 jc:=toDVI(kcode);
 sp:=1; { start position }
 ep:=font_num_ext[f]-1; { end position }
-if (ep>=1)and(kchar_code(f)(sp)<=jc)and(jc<=kchar_code(f)(ep)) then
+if (ep>=1) then { nt is larger than 1; |char_type| is non-empty }
+if font_enc[f]=0 then { |kchar_code| are ordered; faster search }
+begin if (kchar_code(f)(sp)<=jc)and(jc<=kchar_code(f)(ep)) then
   begin while (sp <= ep) do
     begin mp:=sp+((ep-sp) div 2);
     if jc<kchar_code(f)(mp) then ep:=mp-1
@@ -6900,8 +7028,55 @@ if (ep>=1)and(kchar_code(f)(sp)<=jc)and(jc<=kchar_code(f)(ep)) then
       end;
     end;
   end;
+end
+else { TFM-DVI encoding conversion; whole search }
+  begin while (sp <= ep) do
+    if jc=kchar_code(f)(sp) then
+      begin get_jfm_pos:=kchar_type(f)(sp); return;
+      end
+    else incr(sp);
+  end;
 get_jfm_pos:=kchar_type(f)(0);
 end;
+
+@ The function |scan_keyword_noexpand| is used to scan a keyword
+preceding possibly undefined control sequence.
+It is used while scanning \.{\\font} with JFM encoding specification.
+
+@<Declare the function called |scan_keyword_noexpand|@>=
+function scan_keyword_noexpand(@!s:str_number):boolean;
+label exit;
+var p:pointer; {tail of the backup list}
+@!q:pointer; {new node being added to the token list via |store_new_token|}
+@!k:pool_pointer; {index into |str_pool|}
+begin p:=backup_head; link(p):=null; k:=str_start[s];
+while k<str_start[s+1] do
+  begin get_token; {no expansion}
+  if (cur_cs=0)and@|
+   ((cur_chr=so(str_pool[k]))or(cur_chr=so(str_pool[k])-"a"+"A")) then
+    begin store_new_token(cur_tok); incr(k);
+    end
+  else if (cur_cmd<>spacer)or(p<>backup_head) then
+    begin back_input;
+    if p<>backup_head then back_list(link(backup_head));
+    scan_keyword_noexpand:=false; return;
+    end;
+  end;
+flush_list(link(backup_head)); scan_keyword_noexpand:=true;
+exit:end;
+
+@ @<Scan the font encoding specification@>=
+begin jfm_enc:=0;
+if scan_keyword_noexpand("in") then
+  if scan_keyword_noexpand("jis") then jfm_enc:=1
+  else if scan_keyword_noexpand("ucs") then jfm_enc:=2
+  else begin
+    print_err("Unknown TFM encoding");
+@.Unknown TFM encoding@>
+    help1("TFM encoding specification is ignored.");@/
+    error;
+  end;
+end
 
 @ Following codes are used to calculate a KANJI width and height.
 
@@ -7660,6 +7835,7 @@ if s<>null then
 end;
 
 @ @<Seek list and make |t| pointing widow penalty position@>=
+k:=0;
 while(p<>null) do
 begin if is_char_node(p) then
   begin if font_dir[font(p)]<>dir_default then

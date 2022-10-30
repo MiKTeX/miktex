@@ -662,12 +662,12 @@ while k<pool_ptr do
 
 @x
 
-@d ptex_revision_code=12 {command code for \.{\\ptexrevision}}
-@d ptex_convert_codes=13 {end of \pTeX's command codes}
+@d ptex_revision_code=14 {command code for \.{\\ptexrevision}}
+@d ptex_convert_codes=15 {end of \pTeX's command codes}
 @y
-@d ptex_revision_code=12 {command code for \.{\\ptexrevision}}
-@d uptex_revision_code=13 {command code for \.{\\uptexrevision}}
-@d ptex_convert_codes=14 {end of \pTeX's command codes}
+@d ptex_revision_code=14 {command code for \.{\\ptexrevision}}
+@d uptex_revision_code=15 {command code for \.{\\uptexrevision}}
+@d ptex_convert_codes=16 {end of \pTeX's command codes}
 @z
 
 @x
@@ -757,10 +757,14 @@ if (cur_cmd>=kanji)and(cur_cmd<=hangul) then
 @z
 
 @x
-    jc:=toDVI(KANJI(info(p)));
+    jc:=KANJI(info(p));
+@y
+    jc:=KANJI(info(p)) mod max_cjk_val;
+@z
+
+@x
     dvi_out(set2); dvi_out(Hi(jc)); dvi_out(Lo(jc));
 @y
-    jc:=toDVI(KANJI(info(p)) mod max_cjk_val);
     if (jc<@"10000) then begin
       dvi_out(set2);
     end else begin
