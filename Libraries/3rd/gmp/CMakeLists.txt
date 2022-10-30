@@ -1,21 +1,10 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 include(component.cmake)
 
@@ -26,14 +15,8 @@ set(DEFN_LONG_LONG_LIMB "#define _LONG_LONG_LIMB 1")
 math(EXPR GMP_LIMB_BITS "8 * ${LONG_LONG}")
 set(GMP_NAIL_BITS 0)
 
-if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
-  set(HAVE_HOST_CPU_FAMILY_x86 1)
-  set(HAVE_LIMB_LITTLE_ENDIAN 1)
-elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
+if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   set(HAVE_HOST_CPU_FAMILY_x86_64 1)
-  set(HAVE_LIMB_LITTLE_ENDIAN 1)
-elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "cygwin-x86")
-  set(HAVE_HOST_CPU_FAMILY_x86 1)
   set(HAVE_LIMB_LITTLE_ENDIAN 1)
 else()
   message(FATAL_ERROR "TODO: implement platform checks")
