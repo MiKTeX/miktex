@@ -1,0 +1,21 @@
+/**
+ * @file miktex-upmendex-version.h
+ * @author Christian Schenk
+ * @brief Version number
+ *
+ * @copyright Copyright © 2020-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#define MIKTEX_COMP_MAJOR_VERSION @MIKTEX_COMP_MAJOR_VERSION@
+#define MIKTEX_COMP_MINOR_VERSION @MIKTEX_COMP_MINOR_VERSION@
+#define MIKTEX_COMP_PATCH_VERSION @MIKTEX_COMP_PATCH_VERSION@
+
+#define MIKTEX_COMP_ORIG_VERSION_STR "@MIKTEX_COMP_ORIG_VERSION_STR@"
+
+#define MIKTEX_COMP_COPYRIGHT_STR "@MIKTEX_COMP_COPYRIGHT_STR@"
+
+#include <miktex/Version>

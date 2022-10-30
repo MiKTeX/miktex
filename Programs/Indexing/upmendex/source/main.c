@@ -49,15 +49,6 @@ int main(int argc, char **argv)
 #endif
 #endif
 
-	kp_ist.var_name = "INDEXSTYLE";
-	kp_ist.path = DEFAULT_INDEXSTYLES; /* default path. */
-	kp_ist.suffix = "ist";
-	KP_entry_filetype(&kp_ist);
-	kp_dict.var_name = "INDEXDICTIONARY";
-	kp_dict.path = DEFAULT_INDEXDICTS; /* default path */
-	kp_dict.suffix = "dict";
-	KP_entry_filetype(&kp_dict);
-
 /*   check options   */
 
 	for (i=1,j=k=0;i<argc && j<256;i++) {
@@ -195,6 +186,15 @@ int main(int argc, char **argv)
 	}
 	idxcount=j+fsti;
 
+	kp_ist.var_name = "INDEXSTYLE";
+	kp_ist.path = DEFAULT_INDEXSTYLES; /* default path. */
+	kp_ist.suffix = "ist";
+	KP_entry_filetype(&kp_ist);
+	kp_dict.var_name = "INDEXDICTIONARY";
+	kp_dict.path = DEFAULT_INDEXDICTS; /* default path */
+	kp_dict.suffix = "dict";
+	KP_entry_filetype(&kp_dict);
+
 /*   check option errors   */
 
 	if (idxcount==0) idxcount=fsti=1;
@@ -245,10 +245,6 @@ int main(int argc, char **argv)
 			    VERSION, icu_version, TL_VERSION);
 	}
 
-/*   init kanatable   */
-
-	initkanatable();
-
 /*   init hangul,devanagari,thai *_head table   */
 	u_strcpy(hangul_head,GANADA);
 	u_strcpy(devanagari_head,DVNG_HEAD);
@@ -259,6 +255,11 @@ int main(int argc, char **argv)
 	}
 
 	set_icu_attributes();
+	init_icu_collator();
+
+/*   init kanatable   */
+
+	initkanatable();
 
 /*   read dictionary   */
 
@@ -287,7 +288,7 @@ int main(int argc, char **argv)
 	default:
 		break;
 	}
-	if (u_strlen(kana_head)>0) u_strcpy(atama,kana_head);
+	if (u_strlen(kana_head)==0) u_strcpy(kana_head,atama);
 
 /*   read idx file   */
 

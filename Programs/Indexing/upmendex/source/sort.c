@@ -28,14 +28,64 @@ static int ordering(UChar *c);
 static int get_charset_juncture(UChar *str);
 static int unescape(const unsigned char *src, UChar *dist);
 
+/*   init ICU collator   */
+void init_icu_collator()
+{
+	UErrorCode status;
+	UParseError parse_error;
+	UChar rules[RULEBUFSIZE] = {'\0'};
+	int i;
+	int32_t len;
+
+	status = U_ZERO_ERROR;
+	if (strlen(icu_rules)>0) {
+		if (strcmp(icu_locale,"root")!=0) {
+			icu_collator = ucol_open(icu_locale, &status);
+			if (U_FAILURE(status)) {
+				verb_printf(efp, "\n[ICU] Collator creation failed.: %s\n", u_errorName(status));
+				exit(254);
+			}
+			len = ucol_getRulesEx(icu_collator, UCOL_TAILORING_ONLY, rules, RULEBUFSIZE);
+			if (u_strlen(rules)<len) {
+				verb_printf(efp, "\n[ICU] Failed to extract collation rules by locale (%s). Need buffer size %d.\n",
+					icu_locale, len);
+				exit(254);
+			}
+			ucol_close(icu_collator);
+		}
+		unescape((unsigned char *)icu_rules, rules);
+		status = U_ZERO_ERROR;
+		icu_collator = ucol_openRules(rules, -1, UCOL_OFF, UCOL_TERTIARY, &parse_error, &status);
+	} else
+		icu_collator = ucol_open(icu_locale, &status);
+	if (U_FAILURE(status)) {
+		verb_printf(efp, "\n[ICU] Collator creation failed.: %s\n", u_errorName(status));
+		exit(254);
+	}
+	if (status == U_USING_DEFAULT_WARNING) {
+		warn_printf(efp, "\nWarning: [ICU] U_USING_DEFAULT_WARNING for locale %s\n",
+			    icu_locale);
+	}
+	if (status == U_USING_FALLBACK_WARNING) {
+		warn_printf(efp, "\nWarning: [ICU] U_USING_FALLBACK_WARNING for locale %s\n",
+			    icu_locale);
+	}
+	for (i=0;i<UCOL_ATTRIBUTE_COUNT;i++) {
+		if (icu_attributes[i]!=UCOL_DEFAULT) {
+			status = U_ZERO_ERROR;
+			ucol_setAttribute(icu_collator, i, icu_attributes[i], &status);
+		}
+		if (U_FAILURE(status)) {
+			warn_printf(efp, "\nWarning: [ICU] Failed to set attribute (%d): %s\n",
+				    i, u_errorName(status));
+		}
+	}
+}
+
 /*   sort index   */
 void wsort(struct index *ind, int num)
 {
 	int i,order;
-	UErrorCode status;
-	UParseError parse_error;
-	UChar rules[RULEBUFSIZE] = {'\0'};
-	int32_t len;
 
 	for (order=1,i=0;;i++) {
 		switch (character_order[i]) {
@@ -112,49 +162,6 @@ BREAK:
 	if (arab==0) arab=order++;
 	if (hbrw==0) hbrw=order++;
 
-	status = U_ZERO_ERROR;
-	if (strlen(icu_rules)>0) {
-		if (strcmp(icu_locale,"root")!=0) {
-			icu_collator = ucol_open(icu_locale, &status);
-			if (U_FAILURE(status)) {
-				verb_printf(efp, "\n[ICU] Collator creation failed.: %s\n", u_errorName(status));
-				exit(254);
-			}
-			len = ucol_getRulesEx(icu_collator, UCOL_TAILORING_ONLY, rules, RULEBUFSIZE);
-			if (u_strlen(rules)<len) {
-				verb_printf(efp, "\n[ICU] Failed to extract collation rules by locale (%s). Need buffer size %d.\n",
-					icu_locale, len);
-				exit(254);
-			}
-			ucol_close(icu_collator);
-		}
-		unescape((unsigned char *)icu_rules, rules);
-		status = U_ZERO_ERROR;
-		icu_collator = ucol_openRules(rules, -1, UCOL_OFF, UCOL_TERTIARY, &parse_error, &status);
-	} else
-		icu_collator = ucol_open(icu_locale, &status);
-	if (U_FAILURE(status)) {
-		verb_printf(efp, "\n[ICU] Collator creation failed.: %s\n", u_errorName(status));
-		exit(254);
-	}
-	if (status == U_USING_DEFAULT_WARNING) {
-		warn_printf(efp, "\nWarning: [ICU] U_USING_DEFAULT_WARNING for locale %s\n",
-			    icu_locale);
-	}
-	if (status == U_USING_FALLBACK_WARNING) {
-		warn_printf(efp, "\nWarning: [ICU] U_USING_FALLBACK_WARNING for locale %s\n",
-			    icu_locale);
-	}
-	for (i=0;i<UCOL_ATTRIBUTE_COUNT;i++) {
-		if (icu_attributes[i]!=UCOL_DEFAULT) {
-			status = U_ZERO_ERROR;
-			ucol_setAttribute(icu_collator, i, icu_attributes[i], &status);
-		}
-		if (U_FAILURE(status)) {
-			warn_printf(efp, "\nWarning: [ICU] Failed to set attribute (%d): %s\n",
-				    i, u_errorName(status));
-		}
-	}
 	qsort(ind,num,sizeof(struct index),wcomp);
 }
 
@@ -415,8 +422,6 @@ static int unescape(const unsigned char *src, UChar *dest)
 
 int is_latin(UChar *c)
 {
-	UChar32 c32;
-
 	if (((*c>=L'A')&&(*c<=L'Z'))||((*c>=L'a')&&(*c<=L'z'))) return 1;
 	else if ((*c==0x00AA)||(*c==0x00BA)) return 1; /* Latin-1 Supplement */
 	else if ((*c>=0x00C0)&&(*c<=0x00D6)) return 1;
@@ -436,6 +441,7 @@ int is_latin(UChar *c)
 	                     &&(*c<=0x24E9)) return 1; /* CIRCLED LATIN SMALL LETTER */
 
 	if (is_surrogate_pair(c)) {
+		UChar32 c32;
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
 		if      ((c32>=0x10780) && (c32<=0x107BF)) return 2; /* Latin Extended-F */
 		else if ((c32>=0x1DF00) && (c32<=0x1DFFF)) return 2; /* Latin Extended-G */
@@ -471,8 +477,6 @@ int is_numeric(UChar *c)
 
 int is_jpn_kana(UChar *c)
 {
-	UChar32 c32;
-
 	if       (*c==0x30A0)                return 0; /* KATAKANA-HIRAGANA DOUBLE HYPHEN */
 	else if  (*c==0x30FB)                return 0; /* KATAKANA MIDDLE DOT */
 	else if ((*c>=0x3040)&&(*c<=0x30FF)) return 1; /* Hiragana, Katakana */
@@ -482,14 +486,34 @@ int is_jpn_kana(UChar *c)
 	else if ((*c>=0x3300)&&(*c<=0x3357)) return 1; /* Squared Katakana words */
 
 	if (is_surrogate_pair(c)) {
+		UChar32 c32;
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
 		if ((c32>=0x1B130) && (c32<=0x1B16F)) return 2; /* Small Kana Extensions */
 		else if ((c32==0x1B000))              return 2; /* KATAKANA LETTER ARCHAIC E */
+		else if ((c32>=0x1B11F)                         /* HIRAGANA LETTER ARCHAIC WU */
+		                   && (c32<=0x1B122)) return 2; /* KATAKANA LETTER ARCHAIC WU */
 		else if ((c32==0x1F200))              return 2; /* SQUARE HIRAGANA HOKA */
+		else if (c32==0x1B001) {
+		/* check whether U+1B001 is HIRAGANA LETTER ARCHAIC YE or not.
+		                  It may be HENTAIGANA LETTER E-1              */
+			if (kana_ye_mode==0) {
+				UCollationResult order;
+				UCollationStrength strgth;
+				UChar strX[4],strZ[4];
+				strgth = ucol_getStrength(icu_collator);
+				ucol_setStrength(icu_collator, UCOL_PRIMARY);
+				strX[0] = 0xD82C; strX[1] = 0xDC01; strX[2] = L'\0'; /* U+1B001 */
+				strZ[0] = 0xD82C; strZ[1] = 0xDD21; strZ[2] = L'\0'; /* U+1B121 */
+				order = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
+				kana_ye_mode = (order==UCOL_EQUAL) ? 2 : 1;
+				ucol_setStrength(icu_collator, strgth);
+			}
+			if (kana_ye_mode==2) return 2;
+		}
 	}
 	return 0;
-		/* ICU 65 does not seem to support
-		   "Kana Supplement" and "Kana Extended-A" yet. (2020/02/16) */
+		/* ICU 71.1 does not seem to support
+		   most of "Kana Supplement" and "Kana Extended-A" yet. (2022/09/11) */
 }
 
 int is_kor_hngl(UChar *c)
@@ -507,8 +531,6 @@ int is_kor_hngl(UChar *c)
 
 int is_hanzi(UChar *c)
 {
-	UChar32 c32;
-
 	if      ((*c>=0x2E80)                          /* CJK Radicals Supplement */
 	                     &&(*c<=0x2FDF)) return 1; /* Kangxi Radicals */
 	else if ((*c>=0x31C0)&&(*c<=0x31EF)) return 1; /* CJK Strokes */
@@ -518,10 +540,11 @@ int is_hanzi(UChar *c)
 	else if ((*c>=0xF900)&&(*c<=0xFAFF)) return 1; /* CJK Compatibility Ideographs */
 
 	if (is_surrogate_pair(c)) {
+		UChar32 c32;
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
 		if ((c32>=0x20000) &&         /* CJK Unified Ideographs Extension B,C,D,E,F */
 		                              /* CJK Compatibility Ideographs Supplement */
-		    (c32<=0x3134F)) return 2; /* CJK Unified Ideographs Extension G */
+		    (c32<=0x323AF)) return 2; /* CJK Unified Ideographs Extension G,H */
 	}
 	return 0;
 }
@@ -541,7 +564,13 @@ int is_cyrillic(UChar *c)
 	else if ((*c>=0x1C80)&&(*c<=0x1C8F)) return 1; /* Cyrillic Extended-C */
 	else if ((*c>=0x2DE0)&&(*c<=0x2DFF)) return 1; /* Cyrillic Extended-A */
 	else if ((*c>=0xA640)&&(*c<=0xA69F)) return 1; /* Cyrillic Extended-B */
-	else return 0;
+
+	if (is_surrogate_pair(c)) {
+		UChar32 c32;
+		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
+		if ((c32>=0x1E030) && (c32<=0x1E08F)) return 2; /* Cyrillic Extended-D */
+	}
+	return 0;
 }
 
 int is_greek(UChar *c)
@@ -558,7 +587,13 @@ int is_devanagari(UChar *c)
 	                     &&(*c<=0x096F)) return 0; /* Devanagari Digit */
 	else if ((*c>=0x0900)&&(*c<=0x097F)) return 1; /* Devanagari */
 	else if ((*c>=0xA8E0)&&(*c<=0xA8FF)) return 1; /* Devanagari Extended */
-	else return 0;
+
+	if (is_surrogate_pair(c)) {
+		UChar32 c32;
+		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
+		if ((c32>=0x11B00) && (c32<=0x11B5F)) return 2; /* Devanagari Extended-A */
+	}
+	return 0;
 }
 
 int is_thai(UChar *c)
@@ -600,7 +635,13 @@ int is_arabic(UChar *c)
 	                     &&(*c<=0x08FF)) return 1; /* Arabic Extended-A */
 	else if ((*c>=0xFB50)&&(*c<=0xFDFF)) return 1; /* Arabic Presentation Forms-A */
 	else if ((*c>=0xFE70)&&(*c<=0xFEFF)) return 1; /* Arabic Presentation Forms-B */
-	else return 0;
+
+	if (is_surrogate_pair(c)) {
+		UChar32 c32;
+		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
+		if ((c32>=0x10EC0) && (c32<=0x10EFF)) return 2; /* Arabic Extended-C */
+	}
+	return 0;
 }
 
 int is_hebrew(UChar *c)

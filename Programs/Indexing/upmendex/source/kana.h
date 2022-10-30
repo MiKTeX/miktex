@@ -65,7 +65,9 @@ UChar AIUEO[]={
 	0x3081, /* め */
 	0x3082, /* も */
 	0x3084, /* や */
+	0xd82c, 0xdd20, /* U+1B120 Katakana Letter Archaic YI  𛄠 */
 	0x3086, /* ゆ */
+	0xd82c, 0xdd21, /* U+1B121 Katakana Letter Archaic YE  𛄡 */
 	0x3088, /* よ */
 	0x3089, /* ら */
 	0x308a, /* り */
@@ -74,6 +76,7 @@ UChar AIUEO[]={
 	0x308d, /* ろ */
 	0x308f, /* わ */
 	0x3090, /* ゐ */
+	0xd82c, 0xdd1f, /* U+1B11F Hiragana Letter Archaic WU  𛄟 */
 	0x3091, /* ゑ */
 	0x3092, /* を */
 	0x3093, /* ん */
@@ -192,6 +195,7 @@ UChar extkanatable[]={
 	0x308d, /* ろ */
 	0
 };
+int kana_ye_mode=0;
 
 
 UChar GANADA[]={

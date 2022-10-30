@@ -16,7 +16,7 @@ static int range_check(struct index ind, int count, char *lbuff, FILE *fp);
 static void linecheck(char *lbuff, char *tmpbuff, FILE *fp, int force);
 static void crcheck(char *lbuff, FILE *fp);
 static void index_normalize(UChar *istr, UChar *ini, int *chset);
-static int initial_cmp_char(UChar *ini, UChar ch);
+static int initial_cmp_char(UChar *ini, UChar *ch);
 static int init_hanzi_header(void);
 static const UNormalizer2 *unormalizer_NFD, *unormalizer_NFKD;
 static int turkish_i;
@@ -86,7 +86,7 @@ static void fprint_uchar(FILE *fp, const UChar *a, const int mode, const int len
 		olen=u_strToUpper(istr,INITIALLENGTH,istr,wclen,"",&perr);
 	} else if (mode==M_TO_LOWER) {
 		perr=U_ZERO_ERROR;
-		olen=u_strToLower(istr,INITIALLENGTH,istr,wclen, istr[0]==0x130&&turkish_i?"tr":"", &perr);
+		olen=u_strToLower(istr,INITIALLENGTH,istr,wclen, istr[0]==0x130&&turkish_i==2?"tr":"", &perr);
 	} else if (mode==M_TO_TITLE) {
 		perr=U_ZERO_ERROR;
 		olen=u_strToTitle(istr,INITIALLENGTH,istr,wclen,NULL,"",&perr);
@@ -168,9 +168,9 @@ static int pnumconv2(struct page *p)
 /*   write ind file   */
 void indwrite(char *filename, struct index *ind, int pagenum)
 {
-	int i,j,hpoint=0,tpoint=0,ipoint=0,jpoint=0,block_open=0;
+	int i,j,k,hpoint=0,tpoint=0,ipoint=0,jpoint=0,block_open=0;
 	char lbuff[BUFFERLEN],obuff[BUFFERLEN];
-	UChar datama[256],initial[INITIALLENGTH],initial_prev[INITIALLENGTH];
+	UChar initial[INITIALLENGTH],initial_prev[INITIALLENGTH];
 	int chset,chset_prev;
 	FILE *fp=NULL;
 	UErrorCode perr;
@@ -184,7 +184,6 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 #endif
 	}
 
-	convert(atama,datama);
 	fputs(preamble,fp);
 
 	if (fpage>0) {
@@ -230,31 +229,35 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 			else if (chset==CH_KANA) {
 				if (lethead_flag!=0) {
 					fputs(lethead_prefix,fp);
-					for (j=hpoint;j<(u_strlen(datama));j++) {
-						if (initial_cmp_char(initial,datama[j])) {
-							fprint_uchar(fp,&atama[j-1],M_NONE,1);
+					for (j=hpoint;j<(u_strlen(kana_head));) {
+						if (initial_cmp_char(initial,&kana_head[j])) {
+							k=j;  U16_BACK_1(kana_head, 0, k);
+							fprint_uchar(fp,&kana_head[k],M_NONE,1);
 							hpoint=j;
 							break;
 						}
+						U16_FWD_1(kana_head, j, -1);
 					}
-					if (j==(u_strlen(datama))) {
-						fprint_uchar(fp,&atama[j-1],M_NONE,1);
+					if (j==(u_strlen(kana_head))) {
+						k=j;  U16_BACK_1(kana_head, 0, k);
+						fprint_uchar(fp,&kana_head[k],M_NONE,1);
 					}
 					fputs(lethead_suffix,fp);
 				}
 				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
 				SPRINTF(lbuff,"%s%s",item_0,obuff);
-				for (hpoint=0;hpoint<(u_strlen(datama));hpoint++) {
-					if (initial_cmp_char(initial,datama[hpoint])) {
+				for (hpoint=0;hpoint<(u_strlen(kana_head));) {
+					if (initial_cmp_char(initial,&kana_head[hpoint])) {
 						break;
 					}
+					U16_FWD_1(kana_head, hpoint, -1);
 				}
 			}
 			else if (chset==CH_HANGUL) {
 				if (lethead_flag!=0) {
 					fputs(lethead_prefix,fp);
 					for (j=tpoint;j<(u_strlen(hangul_head));j++) {
-						if (initial_cmp_char(initial,hangul_head[j])) {
+						if (initial_cmp_char(initial,&hangul_head[j])) {
 							fprint_uchar(fp,&hangul_head[j-1],M_NONE,1);
 							tpoint=j;
 							break;
@@ -268,7 +271,7 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
 				SPRINTF(lbuff,"%s%s",item_0,obuff);
 				for (tpoint=0;tpoint<(u_strlen(hangul_head));tpoint++) {
-					if (initial_cmp_char(initial,hangul_head[tpoint])) {
+					if (initial_cmp_char(initial,&hangul_head[tpoint])) {
 						break;
 					}
 				}
@@ -276,31 +279,35 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 			else if (chset==CH_DEVANAGARI) {
 				if (lethead_flag!=0) {
 					fputs(lethead_prefix,fp);
-					for (j=jpoint;j<(u_strlen(devanagari_head));j++) {
-						if (initial_cmp_char(initial,devanagari_head[j])) {
-							fprint_uchar(fp,&devanagari_head[j-1],M_NONE,1);
+					for (j=jpoint;j<(u_strlen(devanagari_head));) {
+						if (initial_cmp_char(initial,&devanagari_head[j])) {
+							k=j;  U16_BACK_1(devanagari_head, 0, k);
+							fprint_uchar(fp,&devanagari_head[k],M_NONE,1);
 							jpoint=j;
 							break;
 						}
+						U16_FWD_1(devanagari_head, j, -1);
 					}
 					if (j==(u_strlen(devanagari_head))) {
-						fprint_uchar(fp,&devanagari_head[j-1],M_NONE,1);
+						k=j;  U16_BACK_1(devanagari_head, 0, k);
+						fprint_uchar(fp,&devanagari_head[k],M_NONE,1);
 					}
 					fputs(lethead_suffix,fp);
 				}
 				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
 				SPRINTF(lbuff,"%s%s",item_0,obuff);
-				for (jpoint=0;jpoint<(u_strlen(devanagari_head));jpoint++) {
-					if (initial_cmp_char(initial,devanagari_head[jpoint])) {
+				for (jpoint=0;jpoint<(u_strlen(devanagari_head));) {
+					if (initial_cmp_char(initial,&devanagari_head[jpoint])) {
 						break;
 					}
+					U16_FWD_1(devanagari_head, jpoint, -1);
 				}
 			}
 			else if (chset==CH_THAI) {
 				if (lethead_flag!=0) {
 					fputs(lethead_prefix,fp);
 					for (j=ipoint;j<(u_strlen(thai_head));j++) {
-						if (initial_cmp_char(initial,thai_head[j])) {
+						if (initial_cmp_char(initial,&thai_head[j])) {
 							fprint_uchar(fp,&thai_head[j-1],M_NONE,1);
 							ipoint=j;
 							break;
@@ -314,7 +321,7 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 				widechar_to_multibyte(obuff,BUFFERLEN,ind[i].idx[0]);
 				SPRINTF(lbuff,"%s%s",item_0,obuff);
 				for (ipoint=0;ipoint<(u_strlen(thai_head));ipoint++) {
-					if (initial_cmp_char(initial,thai_head[ipoint])) {
+					if (initial_cmp_char(initial,&thai_head[ipoint])) {
 						break;
 					}
 				}
@@ -381,24 +388,26 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 				}
 			}
 			else if (chset==CH_KANA) {
-				for (j=hpoint;j<(u_strlen(datama));j++) {
-					if (initial_cmp_char(initial,datama[j])) {
+				for (j=hpoint;j<(u_strlen(kana_head));) {
+					if (initial_cmp_char(initial,&kana_head[j])) {
 						break;
 					}
+					U16_FWD_1(kana_head, j, -1);
 				}
 				if ((j!=hpoint)||(j==0)) {
 					hpoint=j;
 					fputs(group_skip,fp);
 					if (lethead_flag!=0) {
+						k=j;  U16_BACK_1(kana_head, 0, k);
 						fputs(lethead_prefix,fp);
-						fprint_uchar(fp,&atama[j-1],M_NONE,1);
+						fprint_uchar(fp,&kana_head[k],M_NONE,1);
 						fputs(lethead_suffix,fp);
 					}
 				}
 			}
 			else if (chset==CH_HANGUL) {
 				for (j=tpoint;j<(u_strlen(hangul_head));j++) {
-					if (initial_cmp_char(initial,hangul_head[j])) {
+					if (initial_cmp_char(initial,&hangul_head[j])) {
 						break;
 					}
 				}
@@ -413,24 +422,26 @@ void indwrite(char *filename, struct index *ind, int pagenum)
 				}
 			}
 			else if (chset==CH_DEVANAGARI) {
-				for (j=jpoint;j<(u_strlen(devanagari_head));j++) {
-					if (initial_cmp_char(initial,devanagari_head[j])) {
+				for (j=jpoint;j<(u_strlen(devanagari_head));) {
+					if (initial_cmp_char(initial,&devanagari_head[j])) {
 						break;
 					}
+					U16_FWD_1(devanagari_head, j, -1);
 				}
 				if ((j!=jpoint)||(j==0)) {
 					jpoint=j;
 					fputs(group_skip,fp);
 					if (lethead_flag!=0) {
+						k=j;  U16_BACK_1(devanagari_head, 0, k);
 						fputs(lethead_prefix,fp);
-						fprint_uchar(fp,&devanagari_head[j-1],M_NONE,1);
+						fprint_uchar(fp,&devanagari_head[k],M_NONE,1);
 						fputs(lethead_suffix,fp);
 					}
 				}
 			}
 			else if (chset==CH_THAI) {
 				for (j=ipoint;j<(u_strlen(thai_head));j++) {
-					if (initial_cmp_char(initial,thai_head[j])) {
+					if (initial_cmp_char(initial,&thai_head[j])) {
 						break;
 					}
 				}
@@ -814,6 +825,15 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 				ini[0]=0x307B; break;  /* ほ */
 			case 0x1B000:                  /* 𛀀 */
 				ini[0]=0x3048; break;  /* え */
+			case 0x1B11F: case 0x1B122:    /* Archaic WU 𛄟 𛄢 */
+				ini[0]=0xD82C; ini[1]=0xDD1F; ini[2]=L'\0';
+				break;
+			case 0x1B120:                  /* Archaic YI 𛄠 */
+				ini[0]=0xD82C; ini[1]=0xDD20; ini[2]=L'\0'; break;
+			case 0x1B121: case 0x1B001:    /* Archaic YE 𛄡 𛀁 */
+				ini[0]=0xD82C; ini[1]=0xDD21; ini[2]=L'\0'; break;
+			case 0x1B132: case 0x1B155:
+				ini[0]=0x3053; break;  /* こ */
 			case 0x1B150: case 0x1B164:
 				ini[0]=0x3090; break;  /* ゐ */
 			case 0x1B151: case 0x1B165:
@@ -909,7 +929,30 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 		u_strcpy(ini,hz_index[lo-1].idx);
 		return;
 	}
-	else if (is_devanagari(&ch)||is_thai(&ch)||is_arabic(&ch)||is_hebrew(&ch)) {
+	else if (is_thai(&ch)) {
+		if ((istr[0]>=0x0E40 && istr[0]<=0x0E44) && (istr[1]>=0x0E01 && istr[1]<=0x0E2E)) {
+			/* Thai reordering :: Vowel followed by Consonant */
+			/* https://unicode-org.github.io/icu/userguide/collation/concepts.html#thailao-reordering */
+			ini[0]=istr[1];
+		} else {
+			ini[0]=istr[0];
+		}
+		return;
+	}
+	else if (is_devanagari(istr)==2) {
+		ini[0]=istr[0]; ini[1]=istr[1]; ini[2]=L'\0';
+		return;
+	}
+	else if (is_devanagari(&ch)||is_arabic(&ch)||is_hebrew(&ch)) {
+		if (ch==0x626) {  /* Arabic Letter Yeh with Hamza Above for Uyghur */
+			strY[0]=0x626; strY[1]=L'\0'; /* Yeh with Hamza Above */
+			strZ[0]=0x628; strZ[1]=L'\0'; /* Beh */
+			order = ucol_strcoll(icu_collator, strZ, -1, strY, -1);
+			if (order==UCOL_LESS) {
+				ini[0]=strY[0]; ini[1]=strY[1];
+				return;
+			}
+		}
 		if (ch==0x929||ch==0x931||ch==0x934||(0x958<=ch&&ch<=0x95F) /* Devanagary */
 			||(0x622<=ch&&ch<=0x626)||ch==0x6C0||ch==0x6C2||ch==0x6D3 /* Arabic */
 			||(0xFB50<=ch&&ch<=0xFDFF) /* Arabic Presentation Forms-A */
@@ -934,12 +977,17 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 	}
 	if (ch==0x049||ch==0x069||ch==0x130||ch==0x131||ch==0x0CE||ch==0x0EE) {
 		/* check dotted/dotless İ,I,i,ı and Î,î for Turkish */
-		strX[0] = 0x131;  strX[1] = 0x5A;  strX[2] = 0x00;  /* ıZ */
-		strZ[0] = 0x069;  strZ[1] = 0x00;                   /* i  */
-		order = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
-		if (order==UCOL_GREATER) {
+		if (turkish_i==0) {
+			strgth = ucol_getStrength(icu_collator);
+			ucol_setStrength(icu_collator, UCOL_SECONDARY);
+			strX[0] = 0x131;  strX[1] = 0x069;  strX[2] = 0x00; /* ıi */
+			strZ[0] = 0x049;  strZ[1] = 0x130;  strZ[2] = 0x00; /* Iİ */
+			order = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
+			turkish_i = (order==UCOL_EQUAL) ? 2 : 1;
+			ucol_setStrength(icu_collator, strgth);
+		}
+		if (turkish_i==2) {
 			ini[0] = (ch==0x049||ch==0x131) ? 0x131 : 0x130; /* ı or İ */
-			turkish_i=1;
 			return;
 		}
 	}
@@ -951,7 +999,7 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 			strX[0] = 0x059;  strX[1] = 0x00; /* Y */
 			strZ[0] = 0x049;  strZ[1] = 0x00; /* I */
 			order = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
-			if (order==UCOL_EQUAL) i_y_mode=2; else i_y_mode=1;
+			i_y_mode = (order==UCOL_EQUAL) ? 2 : 1;
 			ucol_setStrength(icu_collator, strgth);
 		}
 		if (i_y_mode==2) {
@@ -960,7 +1008,7 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 		}
 	}
 	if (ch==0x0C6||ch==0x0E6||ch==0x152||ch==0x153||ch==0x132||ch==0x133
-		||ch==0x0DF||ch==0x1E9E||ch==0x13F||ch==0x140||ch==0x490||ch==0x491) {
+		||ch==0x0DF||ch==0x1E9E||ch==0x13F||ch==0x140||ch==0x149||ch==0x490||ch==0x491) {
 		strX[0] = u_toupper(ch);  strX[1] = 0x00; /* ex. "Æ" "Œ" */
 		switch (ch) {
 			case 0x0C6: case 0x0E6:        /* Æ æ */
@@ -976,6 +1024,8 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 				strZ[0] = 0x49; break; /* I   */
 			case 0x13F: case 0x140:        /* Ŀ ŀ */
 				strZ[0] = 0x4C; break; /* L   */
+			case 0x149:                    /* ŉ   */
+				strZ[0] = 0x4E; break; /* N   */
 			case 0x490: case 0x491:        /* Ґ ґ */
 				strZ[0] = 0x413; break; /* Г   */
 		}
@@ -1043,9 +1093,22 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 				}
 			}
 		}
+		/* NG for Welsh */
+		if (strX[0]==0x4E && strX[1]==0x47) {                            /* NG */
+			strY[0]=0x4E; strY[1]=L'\0';                             /* N   */
+			strZ[0]=0x4E; strZ[1]=0x47; strZ[2]=0x5A; strZ[3]=L'\0'; /* NGZ */
+			order = ucol_strcoll(icu_collator, strZ, -1, strY, -1);
+			if (order==UCOL_LESS) {
+				ini[0]=strX[0]; ini[1]=strX[1]; /* NG */
+				ini[2]=L'\0';
+				return;
+			}
+		}
 		/* other digraphs */
-		if(((strX[0]==0x43 || strX[0]==0x44 || strX[0]==0x53 || strX[0]==0x54 || strX[0]==0x58 || strX[0]==0x5A)
-		                                     && strX[1]==0x48) || /* CH DH SH TH XH ZH */
+		if(((strX[0]==0x43 || strX[0]==0x44 || strX[0]==0x50 || strX[0]==0x52 || strX[0]==0x53 || strX[0]==0x54 ||
+		     strX[0]==0x58 || strX[0]==0x5A) && strX[1]==0x48) || /* CH DH PH RH SH TH XH ZH */
+		    (strX[0]==0x44 && strX[1]==0x44) ||                   /* DD */
+		    (strX[0]==0x46 && strX[1]==0x46) ||                   /* FF */
 		    (strX[0]==0x4C && strX[1]==0x4C) ||                   /* LL */
 		   ((strX[0]==0x47 || strX[0]==0x4C || strX[0]==0x4E) && strX[1]==0x4A) || /* GJ LJ NJ */
 		    (strX[0]==0x52 && strX[1]==0x52) ||                   /* RR */
@@ -1067,12 +1130,14 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 	return;
 }
 
-static int initial_cmp_char(UChar *ini, UChar ch)
+static int initial_cmp_char(UChar *ini, UChar *ch)
 {
-	UChar initial_tmp[INITIALLENGTH],istr[2];
-	int chset;
-	istr[0]=ch;
-	istr[1]=L'\0';
+	UChar initial_tmp[INITIALLENGTH],istr[3];
+	int chset, l;
+	l = is_surrogate_pair(ch) ? 2 : 1;
+	          istr[0]=ch[0];
+	if (l==2) istr[1]=ch[1];
+	          istr[l]=L'\0';
 
 	index_normalize(istr, initial_tmp, &chset);
 	return (ss_comp(ini, initial_tmp)<0);

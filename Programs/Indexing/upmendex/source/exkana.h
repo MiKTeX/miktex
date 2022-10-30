@@ -4,6 +4,7 @@ extern UChar AIUEO[];
 extern UChar *aiueo;
 extern UChar kanatable[];
 extern UChar extkanatable[];
+extern int   kana_ye_mode;
 
 #define SPACE    0x3000    /* 全角スペース */
 #define ALPHATOP 0xff01    /* ！ */
