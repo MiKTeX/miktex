@@ -6,7 +6,7 @@
 #define PTEXENC_C_AUTO_H
 
 /* ptexenc: the version string. */
-#define PTEXENCVERSION "ptexenc version 1.3.11/dev"
+#define PTEXENCVERSION "ptexenc version 1.4.2/dev"
 
 /* Define to 1 if the `closedir' function returns void instead of int. */
 #cmakedefine CLOSEDIR_VOID 1

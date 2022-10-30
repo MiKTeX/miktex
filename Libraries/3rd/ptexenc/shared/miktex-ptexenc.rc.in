@@ -1,0 +1,20 @@
+/**
+ * @file miktex-ptexenc.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "ptexenc-version.h"
+
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
+#define VER_FILETYPE VFT_DLL
+#define VER_INTERNALNAME_STR "@ptexenc_dll_name@"
+#define VER_ORIGINALFILENAME_STR "@ptexenc_dll_name@.dll"
+
+#include <miktex/win/version.rc>
