@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: gblprocs.h,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:47:30 $
+**      file: gblprocs.h
 **
 **  DESCRIPTION
 **
@@ -115,6 +113,17 @@ int32_t                 icu_strToUpper (UChar * tarup,
                                 int32_t tucap,
                                 UChar * target,
                                 int32_t tarlen);
+int32_t                 icu_toUChar32s (BufType_T buf,
+                                      BufPointer_T bf_ptr,
+                                      BufPointer_T len,
+                                      UChar32 * target,
+                                      int32_t tarcap,
+                                      UChar * buf16);
+int32_t                 icu_fromUChar32s (unsigned char * dest,
+                                        int32_t destcap,
+                                        const UChar32 * src,
+                                        int32_t srclen,
+                                        UChar * buf16);
 #define  utf8len(a)  ((a)<0x80 ? 1 : ((a)<0xc2 ? -2 : ((a)<0xe0 ? 2 : ((a)<0xf0 ? 3 : ((a)<0xf5 ? 4 : -1)))))
 #endif
 void                    a_close (const AlphaFile_T file_pointer);
@@ -381,6 +390,11 @@ void                    x_type (void);
 void                    x_warning (void);
 void                    x_width (void);
 void                    x_write (void);
+void                    x_bit_and (void);
+void                    x_bit_or (void);
+#ifdef UTF_8
+void                    x_is_cjk_string (void);
+#endif
 
 
 /*

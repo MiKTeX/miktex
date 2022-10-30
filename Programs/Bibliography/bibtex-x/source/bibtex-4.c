@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: bibtex-4.c,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:47:30 $
+**      file: bibtex-4.c
 **
 **  DESCRIPTION
 **
@@ -547,7 +545,11 @@ BEGIN
     print_wrong_stk_lit (pop_lit1, pop_typ1, STK_STR);
     push_lit_stk (0, STK_INT);
   END
+#ifdef UTF_8
+  else if (LENGTH (pop_lit1) != utf8len(str_pool[str_start[pop_lit1]]))
+#else
   else if (LENGTH (pop_lit1) != 1)
+#endif
   BEGIN
     PRINT ("\"");
     PRINT_POOL_STR (pop_lit1);
@@ -556,7 +558,13 @@ BEGIN
   END
   else
   BEGIN
+#ifdef UTF_8
+    UChar32 ch;
+    U8_GET_OR_FFFD(&str_pool[str_start[pop_lit1]], 0, 0, -1, ch);
+    push_lit_stk (ch, STK_INT);
+#else
     push_lit_stk (str_pool[str_start[pop_lit1]], STK_INT);
+#endif
   END
 END
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 377 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
@@ -955,7 +963,14 @@ BEGIN
       END
       if (ex_buf_ptr < ex_buf_length)
       BEGIN
-	ex_buf_ptr = ex_buf_ptr - 4;
+#ifdef UTF_8
+        if (ex_buf[ex_buf_ptr-3]==0xE3 || ex_buf[ex_buf_ptr-3]==0xEF)
+          /* expect U+3001 "?" or U+FF0C "," :: Ideographic/Fulwidth Comma */
+          ex_buf_ptr = ex_buf_ptr - 3;
+        else
+          /* expect "and " or "AND " */
+#endif
+        ex_buf_ptr = ex_buf_ptr - 4;
       END
       if (num_names < pop_lit2)
       BEGIN
@@ -1503,15 +1518,40 @@ BEGIN
     print_wrong_stk_lit (pop_lit1, pop_typ1, STK_INT);
     push_lit_stk (s_null, STK_STR);
   END
-  else if ((pop_lit1 < 0) || (pop_lit1 > 127))
+#if UTF_8
+  else if ((pop_lit1 < 0) || (pop_lit1 > LAST_UCS_CHAR))
+#else
+  else if ((pop_lit1 < 0) || (pop_lit1 > LAST_ASCII_CHAR))
+#endif
   BEGIN
-    BST_EX_WARN2 ("%ld isn't valid ASCII", (long) pop_lit1);
+    BST_EX_WARN2 ("%ld isn't valid character code", (long) pop_lit1);
     push_lit_stk (s_null, STK_STR);
   END
   else
   BEGIN
     STR_ROOM (1);
+#if UTF_8
+    BEGIN
+      UChar ch0[3] = {0};
+      unsigned char ch1[5] = {0}, *ch;
+      if (pop_lit1> 0xFFFF)
+      BEGIN
+        ch0[0] = U16_LEAD(pop_lit1);
+        ch0[1] = U16_TRAIL(pop_lit1);
+      END
+      else
+        ch0[0] = pop_lit1;
+      icu_fromUChars(ch1, 5, ch0, 3);
+      ch=ch1;
+      while(*ch)
+      BEGIN
+        APPEND_CHAR (*ch);
+        INCR (ch);
+      END
+    END
+#else
     APPEND_CHAR (pop_lit1);
+#endif
     push_lit_stk (make_string (), STK_STR);
   END
 END
@@ -2011,10 +2051,17 @@ We transform the character to Unicode and then get the substring, then
 back to UTF-8. 23/sep/2009
 */
     Integer_T str_length = LENGTH (pop_lit3);
-    UChar uchs[BUF_SIZE+1];
+    UChar32 uchs[BUF_SIZE+1];
+    UChar uch16[BUF_SIZE+1];
     int32_t utcap = BUF_SIZE+1;
-    int32_t ulen = icu_toUChars(str_pool,str_start[pop_lit3],str_length,uchs, utcap);
+    int32_t ulen;
+    unsigned char frUch1[BUF_SIZE+1];
+    unsigned char frUch2[BUF_SIZE+1];
+    int32_t frUchCap = BUF_SIZE + 1;
+    int32_t lenfrUch;
+    int32_t ptrfrUch;
 
+    ulen = icu_toUChar32s(str_pool,str_start[pop_lit3],str_length,uchs,utcap,uch16);
     sp_length = ulen;
 #else
     sp_length = LENGTH (pop_lit3);
@@ -2023,14 +2070,14 @@ back to UTF-8. 23/sep/2009
     BEGIN
       if ((pop_lit2 == 1) || (pop_lit2 == -1))
       BEGIN
-	REPUSH_STRING;
+        REPUSH_STRING;
         goto Exit_Label;
       END
     END
 
     if ((pop_lit1 <= 0) || (pop_lit2 == 0)
-	    || (pop_lit2 > (Integer_T) sp_length)
-	    || (pop_lit2 < -(Integer_T) sp_length))
+            || (pop_lit2 > (Integer_T) sp_length)
+            || (pop_lit2 < -(Integer_T) sp_length))
     BEGIN
       push_lit_stk (s_null, STK_STR);
       goto Exit_Label;
@@ -2046,20 +2093,13 @@ back to UTF-8. 23/sep/2009
     BEGIN
       if (pop_lit2 > 0)
       BEGIN
-#ifdef UTF_8
-        unsigned char frUch1[BUF_SIZE+1];
-        unsigned char frUch2[BUF_SIZE+1];
-        int32_t frUchCap = BUF_SIZE + 1;
-        int32_t lenfrUch;
-        int32_t ptrfrUch;
-#endif
         if (pop_lit1 > (sp_length - (pop_lit2 - 1)))
         BEGIN
           pop_lit1 = sp_length - (pop_lit2 - 1);
         END
 #ifdef UTF_8
-        lenfrUch = icu_fromUChars(frUch1, frUchCap, &uchs[pop_lit2-1], pop_lit1);
-        ptrfrUch = icu_fromUChars(frUch2, frUchCap, uchs, pop_lit2-1);
+        lenfrUch = icu_fromUChar32s(frUch1, frUchCap, &uchs[pop_lit2-1], pop_lit1, uch16);
+        ptrfrUch = icu_fromUChar32s(frUch2, frUchCap, uchs, pop_lit2-1, uch16);
         sp_ptr = str_start[pop_lit3] + ptrfrUch;
         sp_end = sp_ptr + lenfrUch;
 #else
@@ -2071,7 +2111,7 @@ back to UTF-8. 23/sep/2009
           if (pop_lit3 >= cmd_str_ptr)
           BEGIN
             str_start[pop_lit3 + 1] = sp_end;
-	    UNFLUSH_STRING;
+            UNFLUSH_STRING;
             INCR (lit_stk_ptr);
             goto Exit_Label;
           END
@@ -2079,24 +2119,16 @@ back to UTF-8. 23/sep/2009
       END
       else
       BEGIN
-#ifdef UTF_8
-        unsigned char  frUch1[BUF_SIZE+1];
-        unsigned char  frUch2[BUF_SIZE+1];
-        int32_t frUchCap = BUF_SIZE + 1;
-        int32_t lenfrUch;
-        int32_t ptrfrUch;
-#endif
         pop_lit2 = -pop_lit2;
         if (pop_lit1 > (Integer_T) (sp_length - (pop_lit2 - 1)))
         BEGIN
           pop_lit1 = sp_length - (pop_lit2 - 1);
         END
 #ifdef UTF_8
-        lenfrUch = icu_fromUChars(frUch1, frUchCap, &uchs[ulen - (pop_lit2-1) - pop_lit1], pop_lit1);
-        ptrfrUch = icu_fromUChars(frUch2, frUchCap, &uchs[ulen - pop_lit2], pop_lit2-1);
+        lenfrUch = icu_fromUChar32s(frUch1, frUchCap, &uchs[ulen - (pop_lit2-1) - pop_lit1], pop_lit1, uch16);
+        ptrfrUch = icu_fromUChar32s(frUch2, frUchCap, uchs, ulen - (pop_lit2-1) - pop_lit1, uch16);
         sp_ptr = str_start[pop_lit3] + ptrfrUch;
-        sp_end = str_start[pop_lit3 + 1] - ptrfrUch;
-        sp_ptr = sp_end - lenfrUch;
+        sp_end = sp_ptr + lenfrUch;
 #else
         sp_end = str_start[pop_lit3 + 1] - (pop_lit2 - 1);
         sp_ptr = sp_end - pop_lit1;
@@ -2234,7 +2266,7 @@ BEGIN
 /*
 The length of character of UTF-8 is different. 23/sep/2009
 */
-              DO_UTF8(str_pool[sp_ptr], , sp_ptr++, sp_ptr += 2, sp_ptr += 3);
+              DO_UTF8(str_pool[sp_ptr-1], , sp_ptr++, sp_ptr += 2, sp_ptr += 3);
 #endif
               INCR (num_text_chars);
             END
@@ -2355,7 +2387,7 @@ BEGIN
 /*
 The same for the length of character UTF-8. 23/sep/2009
 */
-              DO_UTF8(str_pool[sp_xptr1], , sp_xptr1++, sp_xptr1 += 2, sp_xptr1 += 3);
+              DO_UTF8(str_pool[sp_xptr1-1], , sp_xptr1++, sp_xptr1 += 2, sp_xptr1 += 3);
 #endif
               INCR (num_text_chars);
             END
@@ -2463,7 +2495,31 @@ BEGIN
 END
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 448 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
 
-
+#ifdef UTF_8
+Integer_T    char_width_uni (ASCIICode_T * str)
+BEGIN
+  UChar32 ch;
+  U8_GET_OR_FFFD(str, 0, 0, -1, ch);
+  if (ch<=LAST_LATIN_CHAR)
+    return ( char_width[ch] );
+  else
+  BEGIN
+    switch ( u_getIntPropertyValue(ch, UCHAR_EAST_ASIAN_WIDTH) )
+    BEGIN
+    case U_EA_WIDE:
+    case U_EA_FULLWIDTH:
+        return ( 1000 );
+    case U_EA_HALFWIDTH:
+        return ( 500 );
+    case U_EA_NARROW:
+    case U_EA_NEUTRAL:
+    case U_EA_AMBIGUOUS:
+    default:
+        return ( 700 );
+    END
+  END
+END
+#endif
 
 /***************************************************************************
  * WEB section number:	 450
@@ -2593,10 +2649,22 @@ BEGIN
                   END
                   else
                   BEGIN
+#if UTF_8
                     string_width = string_width
-					+ char_width[ex_buf[ex_buf_ptr]];
+                                     + char_width_uni(&ex_buf[ex_buf_ptr]);
+#else
+                    string_width = string_width
+                                     + char_width[ex_buf[ex_buf_ptr]];
+#endif
                   END
+#if UTF_8
+                  if (utf8len(ex_buf[ex_buf_ptr])>0)
+                    ex_buf_ptr = ex_buf_ptr + utf8len(ex_buf[ex_buf_ptr]);
+                  else
+                    INCR (ex_buf_ptr);
+#else
                   INCR (ex_buf_ptr);
+#endif
                 END
               END
               DECR (ex_buf_ptr);
@@ -2607,7 +2675,7 @@ BEGIN
             BEGIN
               string_width = string_width + char_width[LEFT_BRACE];
             END
-  	END
+          END
           else
           BEGIN
             string_width = string_width + char_width[LEFT_BRACE];
@@ -2620,9 +2688,20 @@ BEGIN
         END
         else
         BEGIN
+#if UTF_8
+          string_width = string_width + char_width_uni(&ex_buf[ex_buf_ptr]);
+#else
           string_width = string_width + char_width[ex_buf[ex_buf_ptr]];
+#endif
         END
+#if UTF_8
+        if (utf8len(ex_buf[ex_buf_ptr])>0)
+          ex_buf_ptr = ex_buf_ptr + utf8len(ex_buf[ex_buf_ptr]);
+        else
+          INCR (ex_buf_ptr);
+#else
         INCR (ex_buf_ptr);
+#endif
       END
       check_brace_level (pop_lit1);
     END
@@ -2658,3 +2737,135 @@ BEGIN
   END
 END
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 454 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
+void          x_bit_and (void)
+BEGIN
+  pop_lit_stk (&pop_lit1, &pop_typ1);
+  pop_lit_stk (&pop_lit2, &pop_typ2);
+  if (pop_typ1 != STK_INT)
+  BEGIN
+    print_wrong_stk_lit (pop_lit1, pop_typ1, STK_INT);
+    push_lit_stk (0, STK_INT);
+  END
+  else if (pop_typ2 != STK_INT)
+  BEGIN
+    print_wrong_stk_lit (pop_lit2, pop_typ2, STK_INT);
+    push_lit_stk (0, STK_INT);
+  END
+  else
+  BEGIN
+    push_lit_stk (pop_lit1 & pop_lit2, STK_INT);
+  END
+END
+void          x_bit_or (void)
+BEGIN
+  pop_lit_stk (&pop_lit1, &pop_typ1);
+  pop_lit_stk (&pop_lit2, &pop_typ2);
+  if (pop_typ1 != STK_INT)
+  BEGIN
+    print_wrong_stk_lit (pop_lit1, pop_typ1, STK_INT);
+    push_lit_stk (0, STK_INT);
+  END
+  else if (pop_typ2 != STK_INT)
+  BEGIN
+    print_wrong_stk_lit (pop_lit2, pop_typ2, STK_INT);
+    push_lit_stk (0, STK_INT);
+  END
+  else
+  BEGIN
+    push_lit_stk (pop_lit1 | pop_lit2, STK_INT);
+  END
+END
+#ifdef UTF_8
+
+#define FULLWIDTH_DIGIT_0    0xFF10
+#define FULLWIDTH_DIGIT_9    0xFF19
+#define FULLWIDTH_CAPITAL_A  0xFF21
+#define FULLWIDTH_CAPITAL_Z  0xFF3A
+#define FULLWIDTH_SMALL_A    0xFF41
+#define FULLWIDTH_SMALL_Z    0xFF5A
+#define HALFWIDTH_KATAKANA_WO         0xFF66
+#define HALFWIDTH_KATAKANA_SMALL_TSU  0xFF6F
+#define HALFWIDTH_KATAKANA_A          0xFF71
+#define HALFWIDTH_KATAKANA_N          0xFF9D
+
+void          x_is_cjk_string (void)
+BEGIN
+  pop_lit_stk (&pop_lit1, &pop_typ1);
+  if (pop_typ1 != STK_STR)
+  BEGIN
+    print_wrong_stk_lit (pop_lit1, pop_typ1, STK_STR);
+    push_lit_stk (-1, STK_INT);
+  END
+  else
+  BEGIN
+    ex_buf_length = 0;
+    add_buf_pool (pop_lit1);
+    string_width = 0;
+    BEGIN
+      ex_buf_ptr = 0;
+      while (ex_buf_ptr < ex_buf_length)
+      BEGIN
+        UChar32 ch;
+        U8_NEXT_OR_FFFD(ex_buf, ex_buf_ptr, -1, ch);
+        switch ( ublock_getCode(ch) )
+        BEGIN
+      /* hanzi */
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS:
+          case UBLOCK_CJK_COMPATIBILITY_IDEOGRAPHS:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_E:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_F:
+          case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_G:
+            string_width |= 0x001;
+            break;
+      /* kana */
+          case UBLOCK_HIRAGANA:
+          case UBLOCK_KATAKANA:
+          case UBLOCK_KATAKANA_PHONETIC_EXTENSIONS:
+          case UBLOCK_KANA_EXTENDED_A:
+          case UBLOCK_KANA_EXTENDED_B:
+          case UBLOCK_SMALL_KANA_EXTENSION:
+            string_width |= 0x002;
+            break;
+      /* hangul */
+          case UBLOCK_HANGUL_SYLLABLES:
+          case UBLOCK_HANGUL_JAMO:
+          case UBLOCK_HANGUL_JAMO_EXTENDED_A:
+          case UBLOCK_HANGUL_JAMO_EXTENDED_B:
+          case UBLOCK_HANGUL_COMPATIBILITY_JAMO:
+            string_width |= 0x004;
+            break;
+      /* bopomofo */
+          case UBLOCK_BOPOMOFO:
+          case UBLOCK_BOPOMOFO_EXTENDED:
+            string_width |= 0x008;
+            break;
+          case UBLOCK_HALFWIDTH_AND_FULLWIDTH_FORMS:
+      /* Fullwidth ASCII variants  except for U+FF01..FF0F, U+FF1A..FF20, U+FF3B..FF40, U+FF5B..FF5E */
+            if (  (FULLWIDTH_DIGIT_0  <=ch && ch<=FULLWIDTH_DIGIT_9  )
+               || (FULLWIDTH_CAPITAL_A<=ch && ch<=FULLWIDTH_CAPITAL_Z)
+               || (FULLWIDTH_SMALL_A  <=ch && ch<=FULLWIDTH_SMALL_Z  ) )
+              string_width |= 0x800;
+      /* Halfwidth Katakana variants  except for U+FF65, U+FF70, U+FF9E..FF9F */
+            if (  (HALFWIDTH_KATAKANA_WO <=ch && ch<=HALFWIDTH_KATAKANA_SMALL_TSU )
+               || (HALFWIDTH_KATAKANA_A  <=ch && ch<=HALFWIDTH_KATAKANA_N  ) )
+              string_width |= 0x002;
+            break;
+      /* miscellaneous */
+          case UBLOCK_KANBUN:
+          case UBLOCK_KANGXI_RADICALS:
+          case UBLOCK_CJK_RADICALS_SUPPLEMENT:
+            string_width |= 0x800;
+            break;
+        END
+      END
+    END
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 451 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
+
+    push_lit_stk (string_width, STK_INT);
+  END
+END
+#endif

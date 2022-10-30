@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: utils.h,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:37:06 $
+**      file: utils.h
 **
 **  DESCRIPTION
 **

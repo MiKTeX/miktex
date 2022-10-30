@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: utils.c,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:37:06 $
+**      file: utils.c
 **
 **  DESCRIPTION
 **
@@ -1085,9 +1083,9 @@ void parse_cmd_line (int argc, char **argv)
                 break;
 
             case 'v':       /**************** -v, --version ************/
-                FPRINTF (TERM_OUT, "%s\n", BANNER);
+                FPRINTF (TERM_OUT, "%s-x%s (%s)\n", BANNER, EXT_VERSION, TL_VERSION);
                 FPRINTF (TERM_OUT, "Implementation:  %s\n", IMPLEMENTATION);
-                FPRINTF (TERM_OUT, "Release version: %s (%s)\n", VERSION, TL_VERSION);
+                FPRINTF (TERM_OUT, "Release version: %s\n", VERSION);
 #ifdef UTF_8
                 {
                     UVersionInfo icuVersion;

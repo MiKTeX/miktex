@@ -7,7 +7,7 @@
     <TPM:Copyright owner="Niel Kempson" year="1991-1995"/>
     <TPM:Copyright owner="Alejandro Aguilar-Sierra" year="1995"/>
     <TPM:License type="gpl"/>
-    <TPM:Version>3.72</TPM:Version>
+    <TPM:Version>4.00</TPM:Version>
     <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

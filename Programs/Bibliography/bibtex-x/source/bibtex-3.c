@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: bibtex-3.c,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:37:06 $
+**      file: bibtex-3.c
 **
 **  DESCRIPTION
 **
@@ -241,6 +239,8 @@ BEGIN
   build_in ("<           ", 1, &b_less_than, N_LESS_THAN);
   build_in ("+           ", 1, &b_plus, N_PLUS);
   build_in ("-           ", 1, &b_minus, N_MINUS);
+  build_in ("&           ", 1, &b_bit_and, N_BIT_AND);
+  build_in ("|           ", 1, &b_bit_or, N_BIT_OR);
   build_in ("*           ", 1, &b_concatenate, N_CONCATENATE);
   build_in (":=          ", 2, &b_gets, N_GETS);
   build_in ("add.period$ ", 11, &b_add_period, N_ADD_PERIOD);
@@ -272,8 +272,11 @@ BEGIN
   build_in ("warning$    ", 8, &b_warning, N_WARNING);
   build_in ("width$      ", 6, &b_width, N_WIDTH);
   build_in ("while$      ", 6, &b_while, N_WHILE);
-  build_in ("width$      ", 6, &b_width, N_WIDTH);
   build_in ("write$      ", 6, &b_write, N_WRITE);
+#ifdef UTF_8
+  build_in ("is.cjk.str$ ", 11, &b_cjk_string, N_IS_CJK_STRING);
+  build_in ("is.kanji.str$", 13, &b_cjk_string, N_IS_CJK_STRING);
+#endif
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 334 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
 
 /***************************************************************************
@@ -3408,6 +3411,9 @@ BEGIN
  * non|right_brace| characters, to see if we have to add the |period|.
  ***************************************************************************/
   BEGIN
+#ifdef UTF_8
+    UChar ch;
+#endif
     sp_ptr = str_start[pop_lit1 + 1];
     sp_end = str_start[pop_lit1];
     while (sp_ptr > sp_end)
@@ -3419,12 +3425,24 @@ BEGIN
       END
     END
 Loop_Exit_Label:
+#ifdef UTF_8
+    ch = str_pool[sp_ptr];
+    if (utf8len(str_pool[sp_ptr]) != 1 && utf8len(str_pool[sp_ptr-1]) != 2 && utf8len(str_pool[sp_ptr-2]) == 3)
+      ch = ((str_pool[sp_ptr-2]&0x0f) <<12) | ((str_pool[sp_ptr-1]&0x3f) << 6) | (str_pool[sp_ptr]&0x3f);
+    switch (ch)
+#else
     switch (str_pool[sp_ptr])
+#endif
     BEGIN
       case PERIOD:
       case QUESTION_MARK:
       case EXCLAMATION_MARK:
-	REPUSH_STRING;
+#ifdef UTF_8
+      case 0x203C: case 0x203D: case 0x2047: /* ? ? ? */
+      case 0x2048: case 0x2049: case 0x3002: /* ? ? ? */
+      case 0xFF01: case 0xFF0E: case 0xFF1F: /* ! . ? */
+#endif
+        REPUSH_STRING;
         break;
       default:
 

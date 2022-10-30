@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: bibtex.h,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:47:30 $
+**      file: bibtex.h
 **
 **  DESCRIPTION
 **
@@ -270,7 +268,11 @@
  * cites when used with the standard styles.
  ***************************************************************************/
 #define MIN_PRINT_LINE              3
+#ifdef KPATHSEA
+#define MAX_PRINT_LINE              max_print_line
+#else
 #define MAX_PRINT_LINE              79
+#endif
 #define AUX_STACK_SIZE              20
 #define MAX_BIB_FILES               20
 
@@ -339,6 +341,12 @@
 #else
 #define LAST_ASCII_CHAR             127
 #endif                          /* SUPPORT_8BIT */
+#ifdef UTF_8
+#define LAST_LATIN_CHAR             0x17F
+#define LAST_UCS_CHAR               0x10FFFF
+#else
+#define LAST_LATIN_CHAR             LAST_ASCII_CHAR
+#endif
 
 
 /***************************************************************************
@@ -1340,7 +1348,14 @@
 #define N_WHILE                     34
 #define N_WIDTH                     35
 #define N_WRITE                     36
-#define NUM_BLT_IN_FNS              37
+#define N_BIT_AND                   37
+#define N_BIT_OR                    38
+#ifdef UTF_8
+#define N_IS_CJK_STRING             39
+#define NUM_BLT_IN_FNS              40
+#else
+#define NUM_BLT_IN_FNS              39
+#endif
 
 /***************************************************************************
  * WEB section number:  338
@@ -1470,7 +1485,7 @@
   else if ((ch >= 0xC2) && (ch <= 0xDF)) { do_2; } \
   else if ((ch >= 0xE0) && (ch <= 0xEF)) { do_3; } \
   else if ((ch >= 0xF0) && (ch <= 0xF4)) { do_4; } \
-  else printf("this isn't a right UTF-8 char!\n")
+  else printf("this (%x) isn't a right UTF-8 char!\n", ch)
 
 
 /***************************************************************************

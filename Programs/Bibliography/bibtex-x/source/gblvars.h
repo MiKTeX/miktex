@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: gblvars.h,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:47:30 $
+**      file: gblvars.h
 **
 **  DESCRIPTION
 **
@@ -119,6 +117,8 @@ __EXTERN__ Integer_T                    aux_name_length;
 __EXTERN__ AuxNumber_T                  aux_ptr;
 
 __EXTERN__ HashLoc_T                    b_add_period;
+__EXTERN__ HashLoc_T                    b_bit_and;
+__EXTERN__ HashLoc_T                    b_bit_or;
 __EXTERN__ HashLoc_T                    b_call_type;
 __EXTERN__ HashLoc_T                    b_change_case;
 __EXTERN__ HashLoc_T                    b_chr_to_int;
@@ -156,6 +156,9 @@ __EXTERN__ HashLoc_T                    b_warning;
 __EXTERN__ HashLoc_T                    b_while;
 __EXTERN__ HashLoc_T                    b_width;
 __EXTERN__ HashLoc_T                    b_write;
+#ifdef UTF_8
+__EXTERN__ HashLoc_T                    b_cjk_string;
+#endif
 __EXTERN__ Integer_T                    bad;
 __EXTERN__ AlphaFile_T                  bbl_file;
 __EXTERN__ Integer_T                    bbl_line_num;
@@ -171,6 +174,9 @@ __EXTERN__ Boolean_T                    bst_seen;
 __EXTERN__ StrNumber_T                  bst_str;
 __EXTERN__ BufPointer_T                 buf_ptr1;
 __EXTERN__ BufPointer_T                 buf_ptr2;
+#ifdef KPATHSEA
+__EXTERN__ Integer_T                    max_print_line;
+#endif
 
 __EXTERN__ Boolean_T                    citation_seen;
 __EXTERN__ Boolean_T                    cite_found;
@@ -349,7 +355,7 @@ __EXTERN__ Integer_T                    total_ex_count;
 __EXTERN__ AlphaFile_T                  aux_file[AUX_STACK_SIZE + 1];
 __EXTERN__ StrNumber_T                  aux_list[AUX_STACK_SIZE + 1];
 __EXTERN__ Integer_T                    aux_ln_stack[AUX_STACK_SIZE + 1];
-__EXTERN__ Integer_T                    char_width[LAST_ASCII_CHAR + 1];
+__EXTERN__ Integer_T                    char_width[LAST_LATIN_CHAR + 1];
 __EXTERN__ IDType_T                     id_class[LAST_ASCII_CHAR + 1];
 __EXTERN__ LexType_T                    lex_class[LAST_ASCII_CHAR + 1];
 __EXTERN__ unsigned char                xchr[LAST_ASCII_CHAR + 1];

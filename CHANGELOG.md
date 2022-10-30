@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * bibsort 2.5
+* bibtex-x 4.00
 
 ## 22.10 - 2022-10-17
 

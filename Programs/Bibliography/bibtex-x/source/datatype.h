@@ -4,9 +4,7 @@
 **
 **  MODULE
 **
-**      $RCSfile: datatype.h,v $
-**      $Revision: 3.71 $
-**      $Date: 1996/08/18 20:37:06 $
+**      file: datatype.h
 **
 **  DESCRIPTION
 **
