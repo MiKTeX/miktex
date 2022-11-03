@@ -35,3 +35,5 @@ target_link_libraries(cfg
     ${core_dll_name}
     miktex-popt-wrapper
 )
+
+install(TARGETS cfg DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
