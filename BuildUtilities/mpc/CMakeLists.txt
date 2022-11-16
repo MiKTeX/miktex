@@ -6,6 +6,8 @@
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
 include_directories(BEFORE
@@ -18,6 +20,11 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
+configure_file(
+    mpc-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mpc-version.h
+)
+
 set(mpc_sources
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
     mpc-version.h
@@ -25,6 +32,10 @@ set(mpc_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
+    configure_file(
+        mpc.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/mpc.rc
+    )
     list(APPEND mpc_sources
         ${MIKTEX_COMMON_MANIFEST}
         mpc.rc

@@ -13,9 +13,8 @@
 
 #include "mpc-version.h"
 
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_INTERNALNAME_STR "mpc"
 #define VER_ORIGINALFILENAME_STR "mpc.exe"
-
-#define VER_FILEDESCRIPTION_STR "MiKTeX Package Creator"
 
 #include "miktex/win/version.rc"
