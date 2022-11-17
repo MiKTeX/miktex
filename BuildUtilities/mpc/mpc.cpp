@@ -625,7 +625,11 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
         << "copyright_owner=" << packageInfo.copyrightOwner << "\n"
         << "copyright_year=" << packageInfo.copyrightYear << "\n"
         << "license_type=" << packageInfo.licenseType << "\n";
-    stream << "requires=" << StringUtil::Flatten(packageInfo.requiredPackages, ';') << "\n";
+    for (const string& p : packageInfo.requiredPackages)
+    {
+        stream << fmt::format("requires;={0}\n", p);
+    }
+    
 #if defined(SUPPORT_LEGACY_EXTERNALNAME)
     stream
         << "externalname=" << packageInfo.id << "\n";
@@ -734,7 +738,7 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* stagingDir)
     string strReqList;
     if (cfg->TryGetValueAsString("", "requires", strReqList))
     {
-        for (const string& tok : StringUtil::Split(strReqList, ';'))
+        for (const string& tok : StringUtil::Split(strReqList, PathNameUtil::PathNameDelimiter))
         {
             packageInfo.requiredPackages.push_back(tok);
         }
