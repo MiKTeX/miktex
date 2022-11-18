@@ -5,7 +5,7 @@
     <TPM:Name>m-tx win64</TPM:Name>
     <TPM:Title>M-Tx, Windows x64</TPM:Title>
     <TPM:License type="mit"/>
-    <TPM:Version>0.63a</TPM:Version>
+    <TPM:Version>0.63d</TPM:Version>
     <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

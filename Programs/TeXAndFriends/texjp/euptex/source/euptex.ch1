@@ -1,9 +1,33 @@
+@x e-upTeX: logo
+\def\epTeX{$\varepsilon$-\pTeX}
+@y
+\def\epTeX{$\varepsilon$-\pTeX}
+\def\eupTeX{$\varepsilon$-\upTeX}
+@z
+
+@x e-upTeX: banner
+  {printed when u\pTeX\ starts}
+@y
+  {printed when u\pTeX\ starts}
+@#
+@d eupTeX_version==pTeX_version_string,upTeX_version_string,epTeX_version_string,eTeX_version_string
+@d eupTeX_banner=='This is e-upTeX, Version 3.141592653',eupTeX_version
+@d eupTeX_banner_k==eupTeX_banner
+  {printed when \eupTeX\ starts}
+@z
+
 @x [1.2]
 @d banner==epTeX_banner
 @d banner_k==epTeX_banner_k
 @y
 @d banner==eupTeX_banner
 @d banner_k==eupTeX_banner_k
+@z
+
+@x
+@d protected_token=@'7001 {$2^8\cdot|end_match|+1$}
+@y
+@d protected_token=@"E01 {$2^8\cdot|end_match|+1$}
 @z
 
 @x

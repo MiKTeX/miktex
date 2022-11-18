@@ -953,6 +953,17 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 				return;
 			}
 		}
+		/* Devanagary, Marathi */
+		if (       (istr[0]==0x915 && istr[1]==0x94D && istr[2]== 0x937)    /* KSSA क्ष */
+			|| (istr[0]==0x91C && istr[1]==0x94D && istr[2]== 0x91E)) { /* JNYA ज्ञ */
+			strY[0]=istr[0]; strY[1]=istr[1]; strY[2]=istr[2]; strY[3]=L'\0';
+			strZ[0]=0x939; strZ[1]=L'\0'; /* HA ह */
+			order = ucol_strcoll(icu_collator, strZ, -1, strY, -1);
+			if (order==UCOL_LESS) {
+				u_strcpy(ini,strY);
+				return;
+			}
+		}
 		if (ch==0x929||ch==0x931||ch==0x934||(0x958<=ch&&ch<=0x95F) /* Devanagary */
 			||(0x622<=ch&&ch<=0x626)||ch==0x6C0||ch==0x6C2||ch==0x6D3 /* Arabic */
 			||(0xFB50<=ch&&ch<=0xFDFF) /* Arabic Presentation Forms-A */

@@ -106,7 +106,7 @@ char **xargv;
 #ifdef KR_headers
 main(argc, argv) int argc; char **argv;
 #else
-main(int argc, char **argv)
+int main(int argc, char **argv)
 #endif
 {
 xargc = argc;

@@ -6,6 +6,7 @@
 
 * bibsort 2.5
 * bibtex-x 4.00
+* m-tx 0.63a
 * ptex 4.1.0
 * upmendex 1.05
 

@@ -141,6 +141,10 @@ void wsort(struct index *ind, int num)
 			hbrw=order++;
 			break;
 
+		case '@':
+			sym=nmbr=ltn=kana=hngl=hnz=cyr=grk=dvng=thai=arab=hbrw=order++;
+			break;
+
 		default:
 			verb_printf(efp,"\nWarning: Illegal input for character_order (%c).",character_order[i]);
 			break;

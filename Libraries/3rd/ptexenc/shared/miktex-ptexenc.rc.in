@@ -10,7 +10,7 @@
  * notice is preserved.
  */
 
-#include "ptexenc-version.h"
+#include "miktex-ptexenc-version.h"
 
 #define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_FILETYPE VFT_DLL

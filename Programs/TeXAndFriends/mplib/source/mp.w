@@ -2959,11 +2959,7 @@ void *mp_xmalloc (MP mp, size_t nmem, size_t size) {
 
 @ @<Internal library declarations@>=
 /* Avoid warning on format truncation */
-#if defined(MIKTEX) && defined(_MSC_VER)
-#define mp_snprintf(...) (_snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
-#else
 #define mp_snprintf(...) (snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
-#endif
 
 @* Dynamic memory allocation.
 

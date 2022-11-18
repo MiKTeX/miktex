@@ -55,12 +55,6 @@
 @d banner_k==epTeX_banner_k
 @z
 
-@x
-@d max_quarterword=255 {largest allowable value in a |quarterword|}
-@y
-@d max_quarterword=@"FFFF {largest allowable value in a |quarterword|}
-@z
-
 @x [10.135] l.2895 - e-pTeX: box_lr and box_dir
 In \eTeX\ the |subtype| field records the box direction mode |box_lr|.
 @y
