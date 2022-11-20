@@ -528,6 +528,12 @@ option(
 )
 
 option(
+    WITH_MIKTEX_API_DOC
+    "Build API documentation."
+    ${WIN32}
+)
+
+option(
     WITH_SCRIPTS
     "Build script files."
     ${WIN32}
@@ -1000,6 +1006,12 @@ set(required_programs
     xgettext
     xsltproc
 )
+
+if(WITH_MIKTEX_API_DOC)
+    list(APPEND required_programs
+        doxygen
+    )
+endif()
 
 if(WITH_MIKTEX_DOC)
     list(APPEND required_programs
@@ -2210,6 +2222,34 @@ endif()
 
 if(WITH_UI_QT)
     add_subdirectory(${MIKTEX_REL_CONSOLE_QT_DIR})
+endif()
+
+###############################################################################
+## API documentation
+
+if(WITH_MIKTEX_API_DOC)
+    add_custom_command(
+        OUTPUT
+            ${CMAKE_BINARY_DIR}/Documentation/API/html/index.html
+        COMMAND
+            ${DOXYGEN_EXECUTABLE}
+        DEPENDS
+            Doxyfile
+        WORKING_DIRECTORY
+            ${CMAKE_BINARY_DIR}
+        VERBATIM
+    )
+    add_custom_target(gen-api-doc-html ALL
+        DEPENDS
+            ${CMAKE_BINARY_DIR}/Documentation/API/html/index.html
+    )
+    set_property(TARGET gen-api-doc-html PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+    install(
+        DIRECTORY
+            ${CMAKE_BINARY_DIR}/Documentation/API/html/
+        DESTINATION
+            ${MIKTEX_DOC_DESTINATION_DIR}/api/html
+    )
 endif()
 
 ###############################################################################
