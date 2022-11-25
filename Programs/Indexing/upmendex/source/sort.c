@@ -3,6 +3,7 @@
 
 #include "exkana.h"
 #include "exvar.h"
+#include "exhanzi.h"
 
 #define RULEBUFSIZE  29210+STYBUFSIZE
 /*
@@ -549,6 +550,12 @@ int is_hanzi(UChar *c)
 		if ((c32>=0x20000) &&         /* CJK Unified Ideographs Extension B,C,D,E,F */
 		                              /* CJK Compatibility Ideographs Supplement */
 		    (c32<=0x323AF)) return 2; /* CJK Unified Ideographs Extension G,H */
+	}
+	if (*c==0xFDD0) { /* Noncharacter */
+		if (hanzi_mode==HANZI_PINYIN &&
+		    *(c+1)>=L'A'   && *(c+1)<=L'Z'  ) return -1; /* Pinyin Index */
+		if (hanzi_mode==HANZI_ZHUYIN &&
+		    *(c+1)>=0x3105 && *(c+1)<=0x3129) return -1; /* Zhuyin Index */
 	}
 	return 0;
 }

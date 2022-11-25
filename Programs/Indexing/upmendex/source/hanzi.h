@@ -2,6 +2,7 @@
 
 struct hanzi_index hz_index[HZIDXSIZE];
 int hz_index_len;
+int hanzi_mode=0;
 
 /*
    U+FDD0 (Noncharacter) is used.

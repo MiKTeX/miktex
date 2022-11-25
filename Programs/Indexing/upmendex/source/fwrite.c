@@ -786,13 +786,13 @@ static void crcheck(char *lbuff, FILE *fp)
 
 static void index_normalize(UChar *istr, UChar *ini, int *chset)
 {
-	int k, len, hi, lo, mi;
+	int k, hi, lo, mi;
 	UChar ch,src[2],dest[8],strX[4],strY[4],strZ[4];
 	UChar32 c32;
 	UErrorCode perr;
 	UCollationResult order;
 	UCollationStrength strgth;
-	static int hanzi_mode=0, i_y_mode=0;
+	static int i_y_mode=0;
 
 	ch=istr[0];
 	*chset=charset(istr);
@@ -909,20 +909,17 @@ static void index_normalize(UChar *istr, UChar *ini, int *chset)
 		ini[0]=ch;
 		return;
 	}
-	else if ((len=is_hanzi(istr))>0) {
+	else if (is_hanzi(istr)) {
 		if (hanzi_mode==0) hanzi_mode=init_hanzi_header();
 		if (hanzi_mode==HANZI_UNKNOWN) {
 			u_strcpy(ini, hz_index[0].idx);
 			return;
 		}
-		             strX[0]  =istr[0];
-		if (len==2){ strX[1]  =istr[1]; }
-		             strX[len]=L'\0';
 		lo=0;  hi=hz_index_len;
 		while (lo<hi) {
 			mi = (lo+hi)/2;
 			u_strcpy(strZ,hz_index[mi].threshold);
-			order = ucol_strcoll(icu_collator, strZ, -1, strX, -1);
+			order = ucol_strcoll(icu_collator, strZ, -1, istr, -1);
 			if (order!=UCOL_GREATER) lo=mi+1;
 			else hi=mi;
 		}

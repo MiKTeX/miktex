@@ -8,6 +8,7 @@
 
 extern struct hanzi_index hz_index[];
 extern int hz_index_len;
+extern int hanzi_mode;
 
 extern struct hanzi_index HZ_RADICAL[];
 extern struct hanzi_index HZ_STROKE[];
