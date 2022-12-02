@@ -235,7 +235,7 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
 
     int idx = 0;
 
-    for (vector<RepositoryInfo>::const_iterator it = repositories.begin(); it != repositories.end(); ++it, ++idx)
+    for (vector<RepositoryInfo>::const_iterator it = repositories.begin(); it != repositories.end(); ++it)
     {
 #if MIKTEX_RELEASE_STATE < 4
       if (it->packageLevel < SetupApp::Instance->GetPackageLevel())
@@ -279,6 +279,8 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
         }
         selected = true;
       }
+
+      ++idx;
     }
 
     sheet->SetWizardButtons(PSWIZB_BACK | (selected ? PSWIZB_NEXT : 0));
