@@ -19862,7 +19862,7 @@ else begin
         @<Output name tree@>;
         @<Output article threads@>;
         @<Output the catalog object@>;
-        pdf_print_info; {last candidate for object stream}
+        if pdf_omit_info_dict = 0 then pdf_print_info; {last candidate for object stream}
         if pdf_os_enable then begin
             pdf_os_switch(true);
             pdf_os_write_objstream;
