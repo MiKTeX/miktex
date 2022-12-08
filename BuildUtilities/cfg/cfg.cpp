@@ -181,7 +181,6 @@ public:
             buf += ch;
         }
         passphrase = StringUtil::WideCharToUTF8(buf.GetData());
-        putchar('\n');
         return true;
 #else
         struct termios tty;
@@ -198,6 +197,7 @@ public:
             MIKTEX_FATAL_CRT_ERROR("tcsetattr");
         }
 #endif
+        cout << endl;
         return true;
     }
 
