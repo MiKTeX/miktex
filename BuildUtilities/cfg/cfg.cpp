@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(MIKTEX_WINDOWS)
 #include <conio.h>
 #endif
 
@@ -155,20 +155,21 @@ class PrivateKeyProvider :
     public IPrivateKeyProvider
 {
 public:
+
     PrivateKeyProvider(const PathName& privateKeyFile) :
         privateKeyFile(privateKeyFile)
     {
     }
-public:
+
     PathName MIKTEXTHISCALL GetPrivateKeyFile() override
     {
         return privateKeyFile;
     }
-public:
+
     bool GetPassphrase(std::string& passphrase) override
     {
+        cout << T_("Passphrase: ");
 #if defined(MIKTEX_WINDOWS)
-        fputs(T_("Passphrase: "), stdout);
         const int EOL = '\r';
         CharBuffer<wchar_t> buf;
         wint_t ch;
@@ -185,7 +186,9 @@ public:
         return false;
 #endif
     }
+
 private:
+
     PathName privateKeyFile;
 };
 

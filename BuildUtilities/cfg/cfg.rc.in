@@ -13,9 +13,8 @@
 
 #include "cfg-version.h"
 
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_INTERNALNAME_STR "cfg"
 #define VER_ORIGINALFILENAME_STR "cfg.exe"
-
-#define VER_FILEDESCRIPTION_STR "Cfg Utility"
 
 #include "miktex/win/version.rc"

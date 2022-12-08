@@ -37,8 +37,8 @@ if(MIKTEX_NATIVE_WINDOWS)
         ${CMAKE_CURRENT_BINARY_DIR}/mpc.rc
     )
     list(APPEND mpc_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/mpc.rc
         ${MIKTEX_COMMON_MANIFEST}
-        mpc.rc
     )
 endif()
 
