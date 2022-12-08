@@ -16,6 +16,9 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
 #endif
 
 #include <miktex/Core/Cfg>
@@ -181,10 +184,21 @@ public:
         putchar('\n');
         return true;
 #else
-        // TODO: read password from stdin
-        cerr << "Unimplemented: read password from stdin" << endl;
-        return false;
+        struct termios tty;
+        if (tcgetattr(STDIN_FILENO, &tty) != 0) {
+            MIKTEX_FATAL_CRT_ERROR("tcgetattr");
+        }
+        tty.c_lflag &= ~ECHO;
+        if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) != 0) {
+            MIKTEX_FATAL_CRT_ERROR("tcsetattr");
+        }
+        getline(cin, passphrase);
+        tty.c_lflag |= ECHO;
+        if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) != 0) {
+            MIKTEX_FATAL_CRT_ERROR("tcsetattr");
+        }
 #endif
+        return true;
     }
 
 private:
