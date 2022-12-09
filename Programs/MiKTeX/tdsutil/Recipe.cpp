@@ -1,6 +1,6 @@
 /* Recipe.cpp:                                          -*- C++ -*-
 
-   Copyright (C) 2016-2021 Christian Schenk
+   Copyright (C) 2016-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -437,7 +437,7 @@ void Recipe::RunInsEngine(const string& engine, const vector<string>& options, c
   writer.Close();
   CommandLineBuilder cmd;
   cmd.AppendArgument(engine);
-  cmd.AppendOption("-disable-installer");
+  cmd.AppendOption("-enable-installer");
   cmd.AppendOption("-output-directory=", outDir);
   cmd.AppendOption("-aux-directory=", workDir);
   cmd.AppendArguments(options);
@@ -445,7 +445,11 @@ void Recipe::RunInsEngine(const string& engine, const vector<string>& options, c
   cmd.AppendStdinRedirection(alwaysYes->GetPathName());
   ProcessOutputTrash trash;
   Verbose("running .ins engine on '" + insFile.GetFileName().ToString() + "'");
-  Process::ExecuteSystemCommand(cmd.ToString(), nullptr, &trash, workDir.GetData());
+  int exitCode = 0;
+  if (!Process::ExecuteSystemCommand(cmd.ToString(), &exitCode, &trash, workDir.GetData()) || exitCode != 0)
+  {
+     MIKTEX_FATAL_ERROR(T_("ins engine failure"));
+  }
 }
 
 void Recipe::RunDtxUnpacker()
