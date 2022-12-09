@@ -1,5 +1,15 @@
 # MiKTeX Change Log
 
+## next
+
+### Breaking changes
+
+#### MiKTeX Ghostscript deprecation
+
+MiKTeX now prefers the Ghostscript executable which is installed on the system.
+The bundled MiKTeX Ghostscript executable is only used as a fallback, if
+Ghostscript is not installed.
+
 ## 22.11.25 - 2022-11-25
 
 ### Upgraded programs
