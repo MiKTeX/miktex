@@ -472,12 +472,7 @@ static halfword compound_word_break(halfword t, int clang)
 void set_disc_field(halfword f, halfword t)
 {
     if (t != null) {
-        /*tex
-            No |couple_nodes(f, t);| as we can better not expose |f| as |prev|
-            pointer.
-        */
-        vlink(f) = t ;
-        alink(t) = null ;
+        couple_nodes(f, t);
         tlink(f) = tail_of_list(t);
     } else {
         vlink(f) = null;

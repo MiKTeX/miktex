@@ -2242,6 +2242,7 @@ static halfword handle_lig_nest(halfword root, halfword cur)
 static halfword handle_lig_word(halfword cur)
 {
     halfword right = null;
+    halfword last = null;
     if (type(cur) == boundary_node) {
         halfword prev = alink(cur);
         halfword fwd = vlink(cur);
@@ -2481,9 +2482,10 @@ static halfword handle_lig_word(halfword cur)
 
         } else {
             /*tex We have glyph nor disc. */
-            return cur;
+            return last;
         }
         /*tex Goto the next node, where |\par| allows |vlink(cur)| to be NULL. */
+        last = cur;
         cur = vlink(cur);
     }
     return cur;

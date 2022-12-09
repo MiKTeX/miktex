@@ -1183,13 +1183,13 @@ static int lua_nodelib_direct_getdisc(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     if ((n) && (type(n) == disc_node)) {
-        nodelib_pushdirect_or_nil(vlink(pre_break(n)));
-        nodelib_pushdirect_or_nil(vlink(post_break(n)));
-        nodelib_pushdirect_or_nil(vlink(no_break(n)));
+        nodelib_pushdirect_or_nil_alink(vlink(pre_break(n)));
+        nodelib_pushdirect_or_nil_alink(vlink(post_break(n)));
+        nodelib_pushdirect_or_nil_alink(vlink(no_break(n)));
         if (lua_isboolean(L, 2) && lua_toboolean(L, 2)) {
-            nodelib_pushdirect_or_nil(tlink(pre_break(n)));
-            nodelib_pushdirect_or_nil(tlink(post_break(n)));
-            nodelib_pushdirect_or_nil(tlink(no_break(n)));
+            nodelib_pushdirect_or_nil_alink(tlink(pre_break(n)));
+            nodelib_pushdirect_or_nil_alink(tlink(post_break(n)));
+            nodelib_pushdirect_or_nil_alink(tlink(no_break(n)));
             return 6;
         }
         return 3;
@@ -4750,11 +4750,11 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         if (lua_key_eq(s, subtype)) {
             lua_pushinteger(L, subtype(n));
         } else if (lua_key_eq(s, pre)) {
-            fast_metatable_or_nil(vlink(pre_break(n)));
+            fast_metatable_or_nil_alink(vlink(pre_break(n)));
         } else if (lua_key_eq(s, post)) {
-            fast_metatable_or_nil(vlink(post_break(n)));
+            fast_metatable_or_nil_alink(vlink(post_break(n)));
         } else if (lua_key_eq(s, replace)) {
-            fast_metatable_or_nil(vlink(no_break(n)));
+            fast_metatable_or_nil_alink(vlink(no_break(n)));
         } else if (lua_key_eq(s, penalty)) {
             lua_pushinteger(L, disc_penalty(n));
         } else {
