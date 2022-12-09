@@ -2826,7 +2826,9 @@ BEGIN
           case UBLOCK_KATAKANA:
           case UBLOCK_KATAKANA_PHONETIC_EXTENSIONS:
           case UBLOCK_KANA_EXTENDED_A:
+#if defined(MIKTEX) && defined(UBLOCK_KANA_EXTENDED_B)
           case UBLOCK_KANA_EXTENDED_B:
+#endif
           case UBLOCK_SMALL_KANA_EXTENSION:
             string_width |= 0x002;
             break;
