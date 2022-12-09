@@ -330,8 +330,12 @@ BEGIN
             case UBLOCK_LATIN_EXTENDED_C:
             case UBLOCK_LATIN_EXTENDED_D:
             case UBLOCK_LATIN_EXTENDED_E:
+#if defined(MIKTEX) && defined(UBLOCK_LATIN_EXTENDED_F)
             case UBLOCK_LATIN_EXTENDED_F:
+#endif
+#if defined(MIKTEX) && defined(UBLOCK_LATIN_EXTENDED_G)
             case UBLOCK_LATIN_EXTENDED_G:
+#endif
             case UBLOCK_LATIN_EXTENDED_ADDITIONAL:
             case UBLOCK_GREEK:
             case UBLOCK_GREEK_EXTENDED:
