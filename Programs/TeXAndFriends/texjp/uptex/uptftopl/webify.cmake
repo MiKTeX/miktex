@@ -28,38 +28,16 @@ list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/miktex-tftopl.web)
 
 add_custom_command(
     OUTPUT
-        ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptftopl.web
-    COMMAND
-        ${MIKTEX_PREFIX}tie
-        -m ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptftopl.web
-            ${CMAKE_CURRENT_BINARY_DIR}/miktex-tftopl.web
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptftopl/miktex-ptftopl-adapter.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptftopl.ch
-    WORKING_DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}
-    MAIN_DEPENDENCY
-        ${CMAKE_CURRENT_BINARY_DIR}/miktex-tftopl.web
-    DEPENDS
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/ptftopl/miktex-ptftopl-adapter.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/ptftopl.ch
-        ${MIKTEX_PREFIX}tie
-    VERBATIM
-)
-
-list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptftopl.web)
-
-add_custom_command(
-    OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/pre-uptftopl.web
     COMMAND
         ${MIKTEX_PREFIX}tie
         -m ${CMAKE_CURRENT_BINARY_DIR}/pre-uptftopl.web
-            ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptftopl.web
+            ${CMAKE_CURRENT_BINARY_DIR}/miktex-tftopl.web
             ${CMAKE_CURRENT_SOURCE_DIR}/miktex-uptftopl-adapter.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
-        ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptftopl.web
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-tftopl.web
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/miktex-uptftopl-adapter.ch
         ${MIKTEX_PREFIX}tie

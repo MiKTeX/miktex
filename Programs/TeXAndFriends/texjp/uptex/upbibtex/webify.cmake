@@ -28,38 +28,16 @@ list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/miktex-bibtex.web)
 
 add_custom_command(
     OUTPUT
-        ${CMAKE_CURRENT_BINARY_DIR}/miktex-pbibtex.web
-    COMMAND
-        ${MIKTEX_PREFIX}tie
-        -m ${CMAKE_CURRENT_BINARY_DIR}/miktex-pbibtex.web
-            ${CMAKE_CURRENT_BINARY_DIR}/miktex-bibtex.web
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/pbibtex/miktex-pbibtex-adapter.ch
-            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/pbibtex.ch
-    WORKING_DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}
-    MAIN_DEPENDENCY
-        ${CMAKE_CURRENT_BINARY_DIR}/miktex-bibtex.web
-    DEPENDS
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/pbibtex/miktex-pbibtex-adapter.ch
-        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_PTEX_DIR}/source/pbibtex.ch
-        ${MIKTEX_PREFIX}tie
-    VERBATIM
-)
-
-list(APPEND web_files ${CMAKE_CURRENT_BINARY_DIR}/miktex-pbibtex.web)
-
-add_custom_command(
-    OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/pre-upbibtex.web
     COMMAND
         ${MIKTEX_PREFIX}tie
         -m ${CMAKE_CURRENT_BINARY_DIR}/pre-upbibtex.web
-            ${CMAKE_CURRENT_BINARY_DIR}/miktex-pbibtex.web
+            ${CMAKE_CURRENT_BINARY_DIR}/miktex-bibtex.web
             ${CMAKE_CURRENT_SOURCE_DIR}/miktex-upbibtex-adapter.ch
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
-        ${CMAKE_CURRENT_BINARY_DIR}/miktex-pbibtex.web
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-bibtex.web
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/miktex-upbibtex-adapter.ch
         ${MIKTEX_PREFIX}tie

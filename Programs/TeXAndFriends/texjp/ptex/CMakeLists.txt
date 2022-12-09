@@ -27,8 +27,4 @@ endif()
 
 include(libkanji.cmake)
 
-add_subdirectory(pbibtex)
-add_subdirectory(pdvitype)
-add_subdirectory(ppltotf)
 add_subdirectory(ptex)
-add_subdirectory(ptftopl)

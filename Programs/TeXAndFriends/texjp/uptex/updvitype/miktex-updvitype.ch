@@ -13,10 +13,22 @@
 
 @x
   parse_arguments;
+  print (banner);
+  print (' (');
+  print (conststringcast(get_enc_string));
+  print (')');
+  print_ln (version_string);
 @y
+  print (banner);
+  miktex_print_enc_string(output);
 @z
 
-@x
+ @x
+  parse_arguments;
+ @y
+ @z
+
+ @x
   REMOVE_THIS_BEGIN;
   print (banner);
   print (' (');
@@ -24,9 +36,10 @@
   print (')');
   print_ln (version_string);
   REMOVE_THIS_END;
-@y
+ @y
+  
   miktex_print_enc_string(output);
-@z
+ @z
 
 % _____________________________________________________________________________
 %
