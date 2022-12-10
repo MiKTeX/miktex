@@ -54,6 +54,7 @@ int NumRegexes = 0;
 int FoundErr = EXIT_SUCCESS;
 int LastWasComment = FALSE;
 int SeenSpace = FALSE;
+int FrenchSpacing = FALSE;
 
 /***************************** ERROR MESSAGES ***************************/
 
@@ -124,6 +125,15 @@ static const char LTX_GenPunc[] = { ',', ';', 0 };
 static const char LTX_SmallPunc[] = { '.', ',', 0 };
 
 /*
+ * A list of characters that could be considered to start a new
+ * sentence, or not.
+ *
+ * This allows "Mr. ``X'' " to warn about the same as "Mr. X".
+ *
+ */
+static const char LTX_BosPunc[] = {'`', '(', '[', 0};
+
+/*
  * String used to delimit a line suppression.  This string must be
  * followed immediately by the number of the warning to be suppressed.
  * If more than one warning is to be suppressed, then multiple copies
@@ -157,9 +167,9 @@ static char *BufPtr;
 static int ItFlag = efNone;
 static int MathFlag = efNone;
 
-NEWBUF(Buf, BUFSIZ);
-NEWBUF(CmdBuffer, BUFSIZ);
-NEWBUF(ArgBuffer, BUFSIZ);
+NEWBUF(Buf, BUFFER_SIZE);
+NEWBUF(CmdBuffer, BUFFER_SIZE);
+NEWBUF(ArgBuffer, BUFFER_SIZE);
 
 static enum ErrNum PerformCommand(const char *Cmd, char *Arg);
 
@@ -300,9 +310,8 @@ static char *PreProcess(void)
     char *TmpPtr;
 
     /* Reset any line suppressions  */
-
-    LineSuppressions = FileSuppressions;
-    UserLineSuppressions = UserFileSuppressions;
+    LineSuppressions = *(uint64_t *)StkTop(&FileSuppStack);
+    UserLineSuppressions = *(uint64_t *)StkTop(&UserFileSuppStack);
 
     /* Kill comments. */
     strcpy(Buf, RealBuf);
@@ -349,15 +358,16 @@ static char *PreProcess(void)
                     {
                         PrintPrgErr(pmSuppTooHigh, error, MaxSuppressionBits);
                     }
+                    uint64_t errbit = ((uint64_t)1 << abs(error));
                     if (error > 0)
                     {
-                        FileSuppressions |= ((uint64_t)1 << error);
-                        LineSuppressions |= ((uint64_t)1 << error);
+                        *(uint64_t *)StkTop(&FileSuppStack) |= errbit;
+                        LineSuppressions |= errbit;
                     }
                     else
                     {
-                        UserFileSuppressions |= ((uint64_t)1 << (-error));
-                        UserLineSuppressions |= ((uint64_t)1 << (-error));
+                        *(uint64_t *)StkTop(&UserFileSuppStack) |= errbit;
+                        UserLineSuppressions |= errbit;
                     }
                 }
                 TmpPtr = EscapePtr;
@@ -395,12 +405,30 @@ static char *PreProcess(void)
 
 static void PerformEnv(char *Env, int Begin)
 {
-    static char VBStr[BUFSIZ] = "";
+    static char VBStr[BUFFER_SIZE] = "";
 
     if (HasWord(Env, &MathEnvir))
     {
-        MathMode += Begin ? 1 : -1;
-        MathMode = max(MathMode, 0);
+        if (Begin)
+            PushMode(TRUE, &MathModeStack);
+        else
+        {
+            if (!CurStkMode(&MathModeStack))
+                PSERRA(BufPtr - Buf - 4, 1, emMathModeConfusion, "on");
+            StkPop(&MathModeStack);
+        }
+    }
+
+    if (HasWord(Env, &TextEnvir))
+    {
+        if (Begin)
+            PushMode(FALSE, &MathModeStack);
+        else
+        {
+            if (CurStkMode(&MathModeStack))
+                PSERRA(BufPtr - Buf - 4, 1, emMathModeConfusion, "off");
+            StkPop(&MathModeStack);
+        }
     }
 
     if (Begin && HasWord(Env, &VerbEnvir))
@@ -453,7 +481,7 @@ static enum DotLevel CheckDots(char *PrePtr, char *PstPtr)
     int TmpC;
     enum DotLevel Front = dtUnknown, Back = dtUnknown;
 
-    if (MathMode)
+    if (CurStkMode(&MathModeStack))
     {
         PrePtr--;
 #define SKIP_EMPTIES(macro, ptr) macro(ptr, TmpC, \
@@ -626,10 +654,9 @@ static void PerformBigCmd(char *CmdPtr)
 
             if ((*TmpPtr == 'i') || (*TmpPtr == 'j'))
                 PrintError(emAccent, CurStkName(&InputStack), RealBuf,
-                           CmdPtr - Buf,
-                           (long) strlen(CmdBuffer), Line,
+                           CmdPtr - Buf, (long)strlen(CmdBuffer), Line,
                            CmdBuffer, *TmpPtr,
-                           MathMode ? "math" : "");
+                           CurStkMode(&MathModeStack) ? "math" : "");
         }
         else
             PSERR(CmdPtr - Buf, CmdLen, emNoArgFound);
@@ -776,8 +803,13 @@ static void CheckAbbrevs(const char *Buffer)
         for (i = Abbrev.MaxLen; i >= 0; i--)
         {
             *--TmpPtr = *AbbPtr--;
-            if (!isalpha((unsigned char)*AbbPtr) && HasWord(TmpPtr, &Abbrev))
+            if (!isalpha((unsigned char)*AbbPtr) &&
+                /* Ignore spacing problems after commands if desired */
+                (*AbbPtr != '\\' || (CmdSpace & csInterWord)) &&
+                HasWord(TmpPtr, &Abbrev))
+            {
                 PSERR(Buffer - Buf + 1, 1, emInterWord);
+            }
             if (!*AbbPtr)
                 break;
         }
@@ -1026,7 +1058,7 @@ static void CheckDash(void)
     SKIP_AHEAD(TmpPtr, TmpC, TmpC == '-');
     TmpCount = TmpPtr - BufPtr + 1;
 
-    if (MathMode)
+    if (CurStkMode(&MathModeStack))
     {
         if (TmpCount > 1)
             HERE(TmpCount, emWrongDash);
@@ -1088,6 +1120,73 @@ static void CheckDash(void)
                 }
             }
 
+            /* Check DashExcpt looking for phrase with hyphenation that doesn't
+             * match what's in DashExcpt.  This really only makes sense for
+             * HyphDash, but it should be cheap in the other cases. */
+            if (!Errored)
+            {
+                TmpPtr = BufPtr-1;
+
+                SKIP_BACK(TmpPtr, TmpC, (TmpC == '-'));
+                SKIP_BACK(TmpPtr, TmpC, isalpha(TmpC));
+                /* If we found a dash going backwards, the we already checked
+                 * this on the first dash */
+                if (*TmpPtr != '-')
+                {
+                    /* PrePtr now points to the beginning of the hyphenated phrase */
+                    PrePtr = ++TmpPtr;
+
+                    struct WordList *el = &DashExcpt;
+
+                    FORWL(i, *el)
+                    {
+                        char *e = el->Stack.Data[i];
+                        TmpPtr = PrePtr;
+
+                        /* Walk through the strings until we find a
+                         * mismatch.  */
+                        int FoundHyphenDiff = FALSE;
+                        while (*e && *TmpPtr && *e == *TmpPtr)
+                        {
+                            /* Skip past characters that are the same */
+                            while (*e && *TmpPtr && *e == *TmpPtr)
+                            {
+                                ++e;
+                                ++TmpPtr;
+                            }
+                            /* Skip past differences in hyphens */
+                            while (*e == '-' && *TmpPtr != '-')
+                            {
+                                ++e;
+                                FoundHyphenDiff = TRUE;
+                            }
+                            while (*TmpPtr == '-' && *e != '-')
+                            {
+                                ++TmpPtr;
+                                FoundHyphenDiff = TRUE;
+                            }
+                        }
+
+                        /* If there was no mismatch all the way to the end of e,
+                         * and TmpPtr is not in the middle of a word, then they
+                         * matched ignoring hyphens, so we have found the one
+                         * DashExcpt element we care about and don't have to
+                         * check any others.  Moreover, if we found a difference
+                         * in hyphenation, then we must warn because it matches
+                         * something in DashExcpt but with improper hyphenation.
+                         * It's possible they could put the same phrase in twice
+                         * with different hyphenations, but that seems pretty
+                         * pathological. */
+                        if (*e == '\0' && !isalpha((unsigned char)*TmpPtr))
+                        {
+                            if (FoundHyphenDiff)
+                                Errored = TRUE;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (Errored)
                 HERE(TmpCount, emWrongDash);
         }
@@ -1140,14 +1239,8 @@ static void HandleBracket(char Char)
                     ItState = TRUE;
 
                 /* Same for math mode */
-                if (ei->Flags & efMath)
-                {
-                    MathMode = 1;
-                }
-                else if (ei->Flags & efNoMath)
-                {
-                    MathMode = 0;
-                }
+                if (ei->Flags & efMath || ei->Flags & efNoMath)
+                    StkPop(&MathModeStack);
 
                 FreeErrInfo(ei);
             }
@@ -1187,12 +1280,16 @@ static void HandleBracket(char Char)
 
                     switch (MathFlag)
                     {
-                    default:
+                    case efNone:
+                        break;
+                    case efMath:
+                    case efNoMath:
+                        PushMode((MathFlag == efMath), &MathModeStack);
+                        /* Save for when we exit this delimiter */
                         ei->Flags |= MathFlag;
+                        /* Reset flag just in case... */
                         MathFlag = efNone;
                         break;
-                    case efNone:
-                        ei->Flags |= MathMode ? efMath : efNoMath;
                     }
                 }
             }
@@ -1368,14 +1465,14 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                 TmpPtr = PrePtr;
 
                 SKIP_BACK(TmpPtr, TmpC,
-                          (LATEX_SPACE(TmpC) || strchr("{}$", TmpC)));
+                          (LATEX_SPACE(TmpC) || strchr("$", TmpC)));
 
                 if (isdigit((unsigned char)*TmpPtr))
                 {
                     TmpPtr = BufPtr;
 
                     SKIP_AHEAD(TmpPtr, TmpC,
-                               (LATEX_SPACE(TmpC) || strchr("{}$", TmpC)));
+                               (LATEX_SPACE(TmpC) || strchr("$", TmpC)));
 
                     if (isdigit((unsigned char)*TmpPtr))
                         HERE(1, emUseTimes);
@@ -1433,7 +1530,8 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
             case 'W':          /* case 'X': */
             case 'Y':
             case 'Z':
-                if (!isalpha((unsigned char)*PrePtr) && (*PrePtr != '\\') && MathMode)
+                if (!isalpha((unsigned char)*PrePtr) && (*PrePtr != '\\') &&
+                    CurStkMode(&MathModeStack))
                 {
                     TmpPtr = BufPtr;
                     CmdPtr = CmdBuffer;
@@ -1474,7 +1572,7 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                     HEREA(3, emEllipsis, cTmpPtr);
                 }
 
-                /* Regexp: "([^A-Z@.])\.[.!?:]*\s+[a-z]" */
+                /* Regexp: "([^A-Z@.])\.[.!?:]*\s[ \`([]*[a-z]" */
 
                 TmpPtr = BufPtr;
                 SKIP_AHEAD(TmpPtr, TmpC, strchr(LTX_EosPunc, TmpC));
@@ -1483,9 +1581,17 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                     if (!isupper((unsigned char)*PrePtr) && (*PrePtr != '@') &&
                         (*PrePtr != '.'))
                     {
-                        SKIP_AHEAD(TmpPtr, TmpC, LATEX_SPACE(TmpC));
+                        SKIP_AHEAD(TmpPtr, TmpC,
+                                   (LATEX_SPACE(TmpC) || TmpC == '\\' ||
+                                    strchr(LTX_BosPunc, TmpC)));
                         if (islower((unsigned char)*TmpPtr))
-                            PSERR(BufPtr - Buf, 1, emInterWord);
+                        {
+                            /* Ignore spacing problems after commands if desired */
+                            TmpPtr = PrePtr;
+                            SKIP_BACK(TmpPtr, TmpC, istex(TmpC));
+                            if (*TmpPtr != '\\' || (CmdSpace & csInterWord))
+                                PSERR(BufPtr - Buf, 1, emInterWord);
+                        }
                         else
                             CheckAbbrevs(&BufPtr[-1]);
                     }
@@ -1498,9 +1604,17 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
             case ';':
                 /* Regexp: "[A-Z][A-Z][.!?:;]\s+" */
 
-                if (isspace((unsigned char)*BufPtr) && isupper((unsigned char)*PrePtr) &&
-                    (isupper((unsigned char)PrePtr[-1]) || (Char != '.')))
-                    HERE(1, emInterSent);
+                if (isspace((unsigned char)*BufPtr) &&
+                    isupper((unsigned char)*PrePtr) &&
+                    (isupper((unsigned char)PrePtr[-1]) || (Char != '.')) &&
+                    !FrenchSpacing)
+                {
+                    /* Ignore spacing problems after commands if desired */
+                    TmpPtr = PrePtr;
+                    SKIP_BACK(TmpPtr, TmpC, istex(TmpC));
+                    if (*TmpPtr != '\\' || (CmdSpace & csInterSentence))
+                        HERE(1, emInterSent);
+                }
 
                 /* FALLTHRU */
             case ',':
@@ -1509,12 +1623,12 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                       ((BufPtr[-1] == '.') || (BufPtr[-1] == ','))))
                     PSERR(PrePtr - Buf, 1, emSpacePunct);
 
-                if (MathMode &&
+                if (CurStkMode(&MathModeStack) &&
                     (((*BufPtr == '$') && (BufPtr[1] != '$')) ||
                      (!strafter(BufPtr, "\\)"))))
                     HEREA(1, emPunctMath, "outside inner");
 
-                if (!MathMode &&
+                if (!CurStkMode(&MathModeStack) &&
                     (((*PrePtr == '$') && (PrePtr[-1] == '$')) ||
                      (!strinfront(PrePtr, "\\]"))))
                     HEREA(1, emPunctMath, "inside display");
@@ -1661,9 +1775,8 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                                1, emFalsePage);
                 }
 
-                if (LATEX_SPACE(*BufPtr) && !MathMode &&
-                    !CheckSilentRegex() &&
-                    (strlen(CmdBuffer) != 2))
+                if (LATEX_SPACE(*BufPtr) && !CurStkMode(&MathModeStack) &&
+                    !CheckSilentRegex() && (strlen(CmdBuffer) != 2))
                 {
                     PSERR(BufPtr - Buf, 1, emSpaceTerm);
                 }
@@ -1725,7 +1838,14 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                         SKIP_AHEAD(TmpPtr, TmpC, (TmpC != '$' && TmpC != '\0'));
                         PSERR(BufPtr - Buf - 1, TmpPtr-BufPtr+2, emInlineMath);
                     }
-                    MathMode ^= TRUE;
+                    if (CurStkMode(&MathModeStack))
+                    {
+                        StkPop(&MathModeStack);
+                    }
+                    else
+                    {
+                        PushMode(TRUE, &MathModeStack);
+                    }
                 }
 
                 break;
@@ -1800,7 +1920,7 @@ void PrintStatus(unsigned long Lines)
         FreeErrInfo(ei);
     }
 
-    if (MathMode)
+    if (CurStkMode(&MathModeStack))
     {
         PrintError(emMathStillOn, CurStkName(&InputStack), "", 0L, 0L, Lines);
     }
@@ -1823,7 +1943,14 @@ void PrintStatus(unsigned long Lines)
 
         /* Print how to suppress warnings. */
         if ( ErrPrint + WarnPrint > 0 ) {
-            fprintf(stderr, "See the manual for how to suppress some or all of these warnings/errors.\n" );
+            fprintf(
+                stderr,
+                "See the manual for how to suppress some or all of these warnings/errors.\n"
+                "The manual is available "
+#ifdef TEX_LIVE
+                "by running `texdoc chktex` or "
+#endif
+                "at https://www.nongnu.org/chktex/ChkTeX.pdf\n");
         }
     }
 }
@@ -1856,7 +1983,7 @@ PrintError(const enum ErrNum Error, const char *File, const char *String,
            const long Position, const long Len, const long LineNo,  ...)
 {
     static                      /* Just to reduce stack usage... */
-    char PrintBuffer[BUFSIZ];
+    char PrintBuffer[BUFFER_SIZE];
     va_list MsgArgs;
 
     char *LastNorm = OutputFormat;
@@ -1883,8 +2010,8 @@ PrintError(const enum ErrNum Error, const char *File, const char *String,
 
 #define RGTCTXT(Ctxt, Var) if((Context & Ctxt) && !(Var)) break;
 
-                RGTCTXT(ctInMath, MathMode);
-                RGTCTXT(ctOutMath, !MathMode);
+                RGTCTXT(ctInMath, CurStkMode(&MathModeStack));
+                RGTCTXT(ctOutMath, !CurStkMode(&MathModeStack));
                 RGTCTXT(ctInHead, InHeader);
                 RGTCTXT(ctOutHead, !InHeader);
 
@@ -2015,6 +2142,10 @@ static enum ErrNum PerformCommand(const char *Cmd, char *Arg)
         AtLetter = TRUE;
     else if (!strcmp(Cmd, "\\makeatother"))
         AtLetter = FALSE;
+    else if (!strcmp(Cmd, "\\frenchspacing"))
+        FrenchSpacing = TRUE;
+    else if (!strcmp(Cmd, "\\nonfrenchspacing"))
+        FrenchSpacing = FALSE;
     else if (InputFiles && !(strcmp(Cmd, "\\input") && strcmp(Cmd, "\\include")))
     {
         SKIP_AHEAD(Arg, TmpC, LATEX_SPACE(TmpC));
@@ -2036,8 +2167,8 @@ static enum ErrNum PerformCommand(const char *Cmd, char *Arg)
         SKIP_AHEAD(Arg, TmpC, LATEX_SPACE(TmpC));
         if (*Arg == '{')
         {
-            MathFlag = MathMode ? efMath : efNoMath;
-            MathMode = 1;
+            /* We will actually turn on math mode when we enter the {} */
+            MathFlag = efMath;
         }
     }
     else if (HasWord(Cmd, &TextCmd))
@@ -2045,8 +2176,8 @@ static enum ErrNum PerformCommand(const char *Cmd, char *Arg)
         SKIP_AHEAD(Arg, TmpC, LATEX_SPACE(TmpC));
         if (*Arg == '{')
         {
-            MathFlag = MathMode ? efMath : efNoMath;
-            MathMode = 0;
+            /* We will actually turn on text mode when we enter the {} */
+            MathFlag = efNoMath;
         }
     }
     else if (*Cmd == '\\')
@@ -2056,11 +2187,14 @@ static enum ErrNum PerformCommand(const char *Cmd, char *Arg)
         {
         case '(':
         case '[':
-            MathMode = TRUE;
+            PushMode(TRUE, &MathModeStack);
             break;
         case ']':
         case ')':
-            MathMode = FALSE;
+            if (!CurStkMode(&MathModeStack))
+                PSERRA(BufPtr - Buf - 2, 1, emMathModeConfusion, "on");
+
+            StkPop(&MathModeStack);
             break;
         case '/':
             switch (ItState)

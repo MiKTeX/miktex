@@ -235,7 +235,7 @@ DEBUGBITS(Debug_BIT)
  MSG(pmNoRsrc,      etWarn, TRUE, 0,\
      "Could not find global resource file.")\
  MSG(pmQuoteStyle,    etWarn, TRUE, 0,\
-     "Illegal quotestyle `%s'.")\
+     "Illegal quotestyle `%s' using `Traditional'.")\
  MSG(pmWrongWipeTemp, etWarn, TRUE, 0,\
      "Wrong template for wiping arguments, \"%s\"")\
  MSG(pmSpecifyTerm, etErr, TRUE, 0,\
@@ -263,7 +263,9 @@ DEBUGBITS(Debug_BIT)
 MSG(pmLongLines,  etWarn,  TRUE, 0,\
      "ChkTeX does not handle lines over %d bytes correctly.  Some errors and line numbers may be wrong in this file.") \
 MSG(pmTabExpands,  etWarn,  TRUE, 0,\
-     "ChkTeX could not fully expand tabs because the resulting line would be more than %d bytes.  Some errors and line numbers may be wrong in this file.")
+     "ChkTeX could not fully expand tabs because the resulting line would be more than %d bytes.  Some errors and line numbers may be wrong in this file.") \
+MSG(pmCmdSpaceStyle, etWarn, TRUE, 0,\
+     "Illegal CmdSpaceStyle `%s' using `Ignore'.")
 
 #undef MSG
 #define MSG(num, type, inuse, ctxt, text) num,
@@ -332,20 +334,19 @@ extern FILE *OutputFile, *InputFile;
   DEF(int, AtLetter, FALSE); /* Whether `@' is a letter or not. */      \
   DEF(int, InHeader, TRUE);  /* Whether we're in the header */          \
   DEF(int, VerbMode, FALSE); /* Whether we're in complete ignore-mode */ \
-  DEF(long, MathMode, 0);    /* Whether we're in math mode or not */    \
   DEF(const char *, VerbStr, "");     /* String we'll terminate verbmode upon */ \
   DEF(unsigned long, ErrPrint, 0);    /* # errors printed */            \
   DEF(unsigned long, WarnPrint, 0);   /* # warnings printed */          \
   DEF(unsigned long, UserSupp, 0);    /* # user suppressed warnings */  \
-  DEF(unsigned long, LineSupp, 0);    /* # warnings suppressed on a single line */ \
-  DEF(uint64_t, FileSuppressions, 0);     /* # warnings suppressed in a file */ \
-  DEF(uint64_t, UserFileSuppressions, 0) /* # User warnings suppressed in a file */
+  DEF(unsigned long, LineSupp, 0);    /* # warnings suppressed on a single line */
 
 #define DEF(type, name, value) extern type name
 OPTION_DEFAULTS;
 STATE_VARS;
 #undef DEF
 extern struct Stack CharStack, InputStack, EnvStack, ConTeXtStack;
+extern struct Stack FileSuppStack, UserFileSuppStack;
+extern struct Stack MathModeStack;
 
 enum Quote
 {
@@ -355,6 +356,15 @@ enum Quote
 
 extern enum Quote Quote;
 extern int StdInTTY, StdOutTTY, UsingStdIn;
+
+enum CmdSpace
+{
+    csIgnore = 0,
+    csInterWord = 0x1,
+    csInterSentence = 0x2,
+    csBoth = 0x3, /* both bits set */
+};
+extern enum CmdSpace CmdSpace;
 
 int main(int argc, char **argv);
 void PrintPrgErr(enum PrgErrNum, ...);

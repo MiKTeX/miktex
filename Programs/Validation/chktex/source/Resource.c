@@ -90,7 +90,8 @@ TOKENBITS(Token);
 static enum Token Expect;
 static unsigned long RsrcLine;
 
-static enum Token ReadWord(char *, FILE *);
+static enum Token ReadWord(char *, FILE *,
+                           char *(fgetsfun)(char *, int, FILE *));
 static char MapChars(char **String);
 
 
@@ -108,11 +109,11 @@ static char MapChars(char **String);
  * Returns whether the attempt was a successful one.
  */
 
-int ReadRC(const char *Filename)
+int ProcessRC(FILE *fh, const char *Filename,
+              char *(fgetsfun)(char *, int, FILE *))
 {
     const char *String = NULL;
-    int Success = FALSE;
-    FILE *fh;
+    int Success = TRUE;
     enum Token Token;
     unsigned long Counter;
 
@@ -130,130 +131,138 @@ int ReadRC(const char *Filename)
 
     RsrcLine = 0;
     Expect = FLG_Word | FLG_Eof;
-
-    if ((fh = fopen(Filename, "r")))
+    do
     {
-        Success = TRUE;
-        do
+        Token = ReadWord(ReadBuffer, fh, fgetsfun);
+        if (!(Expect & Token))
         {
-            Token = ReadWord(ReadBuffer, fh);
-            if (!(Expect & Token))
+            switch (Token)
             {
-                switch (Token)
+            case FLG_Item:
+                String = "item";
+                break;
+            case FLG_Word:
+                String = "word";
+                break;
+            case FLG_Equal:
+                String = "`='";
+                break;
+            case FLG_Open:
+                String = "`{'";
+                break;
+            case FLG_Close:
+                String = "`}'";
+                break;
+            case FLG_BrOpen:
+                String = "`['";
+                break;
+            case FLG_BrClose:
+                String = "`]'";
+                break;
+            case FLG_Eof:
+                String = "EOF";
+                break;
+            }
+            PrintPrgErr(pmFaultFmt, Filename, RsrcLine, String);
+            Success = FALSE;
+            Token = FLG_Eof;
+        }
+
+        switch (Token)
+        {
+        case FLG_Word:
+            for (Counter = 0; Keys[Counter].Name; Counter++)
+            {
+                if (!strcasecmp(ReadBuffer, Keys[Counter].Name))
                 {
-                case FLG_Item:
-                    String = "item";
-                    break;
-                case FLG_Word:
-                    String = "word";
-                    break;
-                case FLG_Equal:
-                    String = "`='";
-                    break;
-                case FLG_Open:
-                    String = "`{'";
-                    break;
-                case FLG_Close:
-                    String = "`}'";
-                    break;
-                case FLG_BrOpen:
-                    String = "`['";
-                    break;
-                case FLG_BrClose:
-                    String = "`]'";
-                    break;
-                case FLG_Eof:
-                    String = "EOF";
+                    CurWord = &Keys[Counter];
+                    Expect = (CurWord->List ? FLG_Open : 0) |
+                        (CurWord->CaseList ? FLG_BrOpen : 0) | FLG_Equal;
                     break;
                 }
-                PrintPrgErr(pmFaultFmt, Filename, RsrcLine, String);
+            }
+            if (!Keys[Counter].Name)
+            {
+                PrintPrgErr(pmKeyWord, ReadBuffer, Filename);
                 Success = FALSE;
                 Token = FLG_Eof;
             }
-
-            switch (Token)
+            break;
+        case FLG_Item:
+            switch (What)
             {
-            case FLG_Word:
-                for (Counter = 0; Keys[Counter].Name; Counter++)
+            case whEqual:
+                if (!(*(CurWord->String) = strdup(ReadBuffer)))
                 {
-                    if (!strcasecmp(ReadBuffer, Keys[Counter].Name))
-                    {
-                        CurWord = &Keys[Counter];
-                        Expect = (CurWord->List ? FLG_Open : 0) |
-                            (CurWord->CaseList ? FLG_BrOpen : 0) | FLG_Equal;
-                        break;
-                    }
-                }
-                if (!Keys[Counter].Name)
-                {
-                    PrintPrgErr(pmKeyWord, ReadBuffer, Filename);
-                    Success = FALSE;
+                    PrintPrgErr(pmStrDupErr);
                     Token = FLG_Eof;
+                    Success = FALSE;
                 }
-                break;
-            case FLG_Item:
-                switch (What)
-                {
-                case whEqual:
-                    if (!(*(CurWord->String) = strdup(ReadBuffer)))
-                    {
-                        PrintPrgErr(pmStrDupErr);
-                        Token = FLG_Eof;
-                        Success = FALSE;
-                    }
 
-                    What = whNone;
-                    Expect = FLG_Word | FLG_Eof;
-                    break;
-                case whCaseList:
-                    if (!InsertWord(ReadBuffer, CurWord->CaseList))
-                    {
-                        Token = FLG_Eof;
-                        Success = FALSE;
-                    }
-                    break;
-                case whList:
-                    if (!InsertWord(ReadBuffer, CurWord->List))
-                    {
-                        Token = FLG_Eof;
-                        Success = FALSE;
-                    }
-                    break;
-                case whNone:
-                    PrintPrgErr(pmAssert);
-                }
-                break;
-            case FLG_Equal:
-                What = whEqual;
-                Expect = (CurWord->List ? FLG_Open : 0) |
-                    (CurWord->CaseList ? FLG_BrOpen : 0) |
-                    (CurWord->String ? FLG_Item : 0);
-                break;
-            case FLG_BrOpen:
-                if (What == whEqual)
-                    ClearWord(CurWord->CaseList);
-                What = whCaseList;
-                Expect = FLG_Item | FLG_BrClose;
-                break;
-            case FLG_Open:
-                if (What == whEqual)
-                    ClearWord(CurWord->List);
-                What = whList;
-                Expect = FLG_Item | FLG_Close;
-                break;
-            case FLG_BrClose:
-            case FLG_Close:
-                Expect = (CurWord->List ? FLG_Open : 0) |
-                    (CurWord->CaseList ? FLG_BrOpen : 0) |
-                    FLG_Equal | FLG_Word | FLG_Eof;
                 What = whNone;
+                Expect = FLG_Word | FLG_Eof;
                 break;
-            case FLG_Eof:
+            case whCaseList:
+                if (!InsertWord(ReadBuffer, CurWord->CaseList))
+                {
+                    Token = FLG_Eof;
+                    Success = FALSE;
+                }
                 break;
+            case whList:
+                if (!InsertWord(ReadBuffer, CurWord->List))
+                {
+                    Token = FLG_Eof;
+                    Success = FALSE;
+                }
+                break;
+            case whNone:
+                PrintPrgErr(pmAssert);
             }
+            break;
+        case FLG_Equal:
+            What = whEqual;
+            Expect = (CurWord->List ? FLG_Open : 0) |
+                (CurWord->CaseList ? FLG_BrOpen : 0) |
+                (CurWord->String ? FLG_Item : 0);
+            break;
+        case FLG_BrOpen:
+            if (What == whEqual)
+                ClearWord(CurWord->CaseList);
+            What = whCaseList;
+            Expect = FLG_Item | FLG_BrClose;
+            break;
+        case FLG_Open:
+            if (What == whEqual)
+                ClearWord(CurWord->List);
+            What = whList;
+            Expect = FLG_Item | FLG_Close;
+            break;
+        case FLG_BrClose:
+        case FLG_Close:
+            Expect = (CurWord->List ? FLG_Open : 0) |
+                (CurWord->CaseList ? FLG_BrOpen : 0) | FLG_Equal | FLG_Word |
+                FLG_Eof;
+            What = whNone;
+            break;
+        case FLG_Eof:
+            break;
         }
-        while (Token != FLG_Eof);
+    } while (Token != FLG_Eof);
+    return (Success);
+}
 
+/*
+ * Opens a file and passes to ProcessRC().
+ */
+int ReadRC(const char *Filename)
+{
+    int Success = FALSE;
+    FILE *fh;
+
+    if ((fh = fopen(Filename, "r")))
+    {
+        Success = ProcessRC(fh, Filename, &fgets);
         fclose(fh);
     }
     else
@@ -262,16 +271,52 @@ int ReadRC(const char *Filename)
     return (Success);
 }
 
+const char *FGETS_TMP = NULL;
+char *fgets_from_string(char *out, int size, FILE *fh)
+{
+    char *res;
+    if (FGETS_TMP == NULL)
+        return NULL;
+    res = strncpy(out, FGETS_TMP, size - 1);
+
+    if (size - 1 < strlen(FGETS_TMP))
+    {
+        /* It wasn't all read, so null terminate it, and get ready for
+         * next time. */
+        res[size] = '\0';
+        FGETS_TMP = FGETS_TMP + (size - 1);
+    }
+    else
+    {
+        /* We're done, so signal that */
+        FGETS_TMP = NULL;
+    }
+    return res;
+}
+
+/*
+ * Opens a file and passes to ProcessRC().
+ */
+int ReadRCFromCmdLine(const char *CmdLineArg)
+{
+    if (!CmdLineArg)
+        return FALSE;
+
+    FGETS_TMP = CmdLineArg;
+    return ProcessRC(NULL, "CommandLineArg", &fgets_from_string);
+}
+
 /*
  * Reads a token from the `.chktexrc' file; if the token is
  * FLG_Item or FLG_Word, Buffer will contain the plaintext of the
  * token. If not, the contents are undefined.
  */
 
-static enum Token ReadWord(char *Buffer, FILE * fh)
+static enum Token ReadWord(char *Buffer, FILE *fh,
+                           char *(fgetsfun)(char *, int, FILE *))
 {
     static char *String = NULL;
-    static char StatBuf[BUFSIZ];
+    static char StatBuf[BUFFER_SIZE];
     enum Token Retval = FLG_Eof;
 
     unsigned short Chr;
@@ -285,7 +330,7 @@ static enum Token ReadWord(char *Buffer, FILE * fh)
         {
             if (!(String && *String))
             {
-                if (fgets(StatBuf, BUFSIZ - 1, fh))
+                if ((fgetsfun)(StatBuf, BUFFER_SIZE - 1, fh))
                     String = strip(StatBuf, STRP_RGT);
                 RsrcLine++;
             }

@@ -87,8 +87,7 @@ int fexists(const char *Filename)
 #else
 
     FILE *fh;
-
-    if (fh = fopen(Filename, "r"))
+    if ((fh = fopen(Filename, "r")))
     {
         Retval = TRUE;
         fclose(fh);
@@ -96,6 +95,12 @@ int fexists(const char *Filename)
     else
         Retval = FALSE;
 #endif
+
+    /* Ensure that it's not a directory */
+    if (Retval && !IsRegFile(Filename))
+    {
+        Retval = FALSE;
+    }
 
     return (Retval);
 }
@@ -115,7 +120,7 @@ void *sfmemset(void *to, int c, long n)
 {
     if (to && (n > 0))
     {
-        n = min(n, BUFSIZ);
+        n = min(n, BUFFER_SIZE);
 
         return (memset(to, c, (size_t) n));
     }
@@ -325,7 +330,7 @@ void strwrite(char *To, const char *From, unsigned long Len)
     unsigned long i, j;
     unsigned long FromLen = strlen(From);
 
-    Len = min(Len, BUFSIZ);
+    Len = min(Len, BUFFER_SIZE);
 
     if (To && From)
     {
@@ -681,7 +686,7 @@ void *StkTop(struct Stack *Stack)
 int PushFileName(const char *Name, struct Stack *stack)
 {
     FILE *fh = NULL;
-    static char NameBuf[BUFSIZ];
+    static char NameBuf[BUFFER_SIZE];
 
     if (Name && stack)
     {
@@ -701,6 +706,7 @@ int PushFileName(const char *Name, struct Stack *stack)
 int PushFile(const char *Name, FILE * fh, struct Stack *stack)
 {
     struct FileNode *fn;
+    uint64_t *filesupp;
 
     if (Name && fh && stack)
     {
@@ -710,6 +716,21 @@ int PushFile(const char *Name, FILE * fh, struct Stack *stack)
             {
                 fn->fh = fh;
                 fn->Line = 0L;
+                if ((filesupp = malloc(sizeof(uint64_t))))
+                {
+                    *filesupp = 0;
+                    StkPush(filesupp, &FileSuppStack);
+                }
+                else
+                    PrintPrgErr(pmNoStackMem);
+                if ((filesupp = malloc(sizeof(uint64_t))))
+                {
+                    *filesupp = 0;
+                    StkPush(filesupp, &UserFileSuppStack);
+                }
+                else
+                    PrintPrgErr(pmNoStackMem);
+
                 if (StkPush(fn, stack))
                     return (TRUE);
                 free(fn->Name);
@@ -754,6 +775,9 @@ char *FGetsStk(char *Dest, unsigned long len, struct Stack *stack)
                 free(fn->Name);
             free(fn);
             HasSeenLong = 0;
+
+            StkPop(&FileSuppStack);
+            StkPop(&UserFileSuppStack);
         }
         while (!Retval && (fn = StkTop(stack)));
     }
@@ -805,8 +829,27 @@ unsigned long CurStkLine(struct Stack *stack)
         return (LastLine);
 }
 
+long CurStkMode(struct Stack *stack)
+{
+    long * Mode;
+    if ((Mode = StkTop(stack)))
+        return *Mode;
+    /* printf("Empty stack\n"); */
+    return FALSE;
+}
 
+long *PushMode(long mode, struct Stack *stack)
+{
+    long *m;
 
+    if ((m = malloc(sizeof(long))))
+    {
+        *m = mode;
+        StkPush(m, stack);
+        return m;
+    }
+    return NULL;
+}
 /************************** CHARACTER STACK ******************************/
 
 /*

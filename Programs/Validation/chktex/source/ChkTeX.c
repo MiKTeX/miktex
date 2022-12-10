@@ -46,18 +46,13 @@ struct ErrMsg PrgMsgs[pmMaxFault + 1] = {
     PRGMSGS {(enum ErrNum)pmMaxFault, etErr, TRUE, 0, INTERNFAULT}
 };
 
-struct Stack CharStack = {
-    0L
-}, InputStack =
-
-{
-0L}, EnvStack =
-
-{
-0L}, ConTeXtStack =
-
-{
-0L};
+struct Stack CharStack = {0L};
+struct Stack InputStack = {0L};
+struct Stack EnvStack = {0L};
+struct Stack ConTeXtStack = {0L};
+struct Stack FileSuppStack = {0L};
+struct Stack UserFileSuppStack = {0L};
+struct Stack MathModeStack = {0L};
 
 /************************************************************************/
 
@@ -74,8 +69,8 @@ unsigned long Brackets[NUMBRACKETS];
  */
 
 
-NEWBUF(TmpBuffer, BUFSIZ);
-NEWBUF(ReadBuffer, BUFSIZ);
+NEWBUF(TmpBuffer, BUFFER_SIZE);
+NEWBUF(ReadBuffer, BUFFER_SIZE);
 
 static const char *Banner =
     "ChkTeX v" PACKAGE_VERSION " - Copyright 1995-96 Jens T. Berger Thielemann.\n"
@@ -147,8 +142,11 @@ static const char *HelpText =
     "    -h  --help      : This text.\n"
     "    -i  --license   : Show distribution information\n"
     "    -l  --localrc   : Read local .chktexrc formatted file.\n"
-    "    -d  --debug     : Debug information. Give it a number.\n"
+    "    -d  --debug     : Debug information. A bit field with 5 bits.\n"
+    "                      Each bit shows a different type of information.\n"
     "    -r  --reset     : Reset settings to default.\n"
+    "    -S  --set       : Read it's argument as if from chktexrc.\n"
+    "                      e.g., -S TabSize=8 will override the TabSize.\n"
     "\n"
     "Muting warning messages:\n"
     "~~~~~~~~~~~~~~~~~~~~~~~~\n"
@@ -156,7 +154,7 @@ static const char *HelpText =
     "    -e  --erroron   : Makes msg # given an error and turns it on.\n"
     "    -m  --msgon     : Makes msg # given a message and turns it on.\n"
     "    -n  --nowarn    : Mutes msg # given.\n"
-    "    -L  --nolinesupp: Disables per-line suppressions.\n"
+    "    -L  --nolinesupp: Disables per-line and per-file suppressions.\n"
     "\n"
     "Output control flags:\n"
     "~~~~~~~~~~~~~~~~~~~~~\n"
@@ -176,7 +174,7 @@ static const char *HelpText =
     "    -x  --wipeverb  : Ignore contents of `\\verb' commands.\n"
     "    -g  --globalrc  : Read global .chktexrc file.\n"
     "    -I  --inputfiles: Execute \\input statements.\n"
-    "    -H  --headererr : Show errors found in front of \\begin{document}\n"
+    "    -H  --headererr : Show errors found before \\begin{document}\n"
     "\n"
     "Miscellaneous switches:\n"
     "~~~~~~~~~~~~~~~~~~~~~~~\n"
@@ -206,6 +204,8 @@ static const char *HelpText =
  */
 
 enum Quote Quote;
+
+enum CmdSpace CmdSpace;
 
 char VerbNormal[] = "%k %n in %f line %l: %m\n" "%r%s%t\n" "%u\n";
 
@@ -334,7 +334,7 @@ static void ExpandTabs(char *From, char *To, long TSize, long MaxDiff)
             Diff = MaxDiff+1;
             if ( !HasExpandedTooLong )
             {
-                PrintPrgErr(pmTabExpands, BUFSIZ);
+                PrintPrgErr(pmTabExpands, BUFFER_SIZE);
             }
             HasExpandedTooLong = 1;
         }
@@ -346,6 +346,19 @@ static void ExpandTabs(char *From, char *To, long TSize, long MaxDiff)
         From = ++Next;
     }
     strcpy(To, From);
+}
+
+void ReadRcFiles(void)
+{
+    unsigned long i;
+    while (SetupVars())
+    {
+        InsertWord(ConfigFile, &ConfigFiles);
+    }
+    FORWL(i, ConfigFiles)
+    {
+        ReadRC(ConfigFiles.Stack.Data[i]);
+    }
 }
 
 
@@ -383,8 +396,7 @@ int main(int argc, char **argv)
 
     RESOURCE_INFO
 
-    while (SetupVars())
-        ReadRC(ConfigFile);
+    ReadRcFiles();
 
     if (CmdLine.Stack.Used)
     {
@@ -445,6 +457,22 @@ int main(int argc, char **argv)
                     Quote = quTrad;
                 }
             }
+            if (CmdSpaceStyle)
+            {
+                if (!strcasecmp(CmdSpaceStyle, "IGNORE"))
+                    CmdSpace = csIgnore;
+                else if (!strcasecmp(CmdSpaceStyle, "INTERWORD"))
+                    CmdSpace = csInterWord;
+                else if (!strcasecmp(CmdSpaceStyle, "INTERSENTENCE"))
+                    CmdSpace = csInterSentence;
+                else if (!strcasecmp(CmdSpaceStyle, "BOTH"))
+                    CmdSpace = csBoth;
+                else
+                {
+                    PrintPrgErr(pmCmdSpaceStyle, CmdSpaceStyle);
+                    CmdSpace = csIgnore;
+                }
+            }
 
             if (DebugLevel)
                 ShowIntStatus();
@@ -484,6 +512,7 @@ int main(int argc, char **argv)
                             if (CurArg < argc)
                                 filename = argv[CurArg++];
 
+                            AddDirectoryFromRelativeFile(filename,&TeXInputs);
                             if (!PushFileName(filename, &InputStack))
                                 break;
                         }
@@ -494,7 +523,7 @@ int main(int argc, char **argv)
                         while (!ferror(OutputFile)
                                && StkTop(&InputStack)
                                && !ferror(CurStkFile(&InputStack))
-                               && FGetsStk(ReadBuffer, BUFSIZ - 1,
+                               && FGetsStk(ReadBuffer, BUFFER_SIZE - 1,
                                            &InputStack))
                         {
 
@@ -502,7 +531,8 @@ int main(int argc, char **argv)
 
                             strrep(ReadBuffer, '\n', ' ');
                             strrep(ReadBuffer, '\r', ' ');
-                            ExpandTabs(ReadBuffer, TmpBuffer, Tab, BUFSIZ - 1 - strlen(ReadBuffer) );
+                            ExpandTabs(ReadBuffer, TmpBuffer, Tab,
+                                       BUFFER_SIZE - 1 - strlen(ReadBuffer));
                             strcpy(ReadBuffer, TmpBuffer);
 
                             strcat(ReadBuffer, " ");
@@ -678,6 +708,7 @@ static void ShowIntStatus(void)
 
     if (DebugLevel & (FLG_DbgListInfo | FLG_DbgListCont))
     {
+        ShowWL("ConfigFilesRead", &ConfigFiles);
         RESOURCE_INFO
     }
 
@@ -810,6 +841,7 @@ static int ParseArgs(int argc, char **argv)
         {"pipeverb", optional_argument, 0L, 'V'},
         {"debug", required_argument, 0L, 'd'},
         {"reset", no_argument, 0L, 'r'},
+        {"set", required_argument, 0L, 'S'},
         {"quiet", no_argument, 0L, 'q'},
         {"license", no_argument, 0L, 'i'},
         {"splitchar", required_argument, 0L, 's'},
@@ -846,7 +878,7 @@ static int ParseArgs(int argc, char **argv)
 
     while (!ArgErr &&
            ((c = getopt_long((int) argc, argv,
-                             "b::d:e:f:g::hH::I::il:m:n:Lo:p:qrs:t::v::V::w:Wx::",
+                             "b::d:e:f:g::hH::I::il:m:n:Lo:p:qrs:S:t::v::V::w:Wx::",
                              long_options, &option_index)) != EOF))
     {
         while (c)
@@ -854,6 +886,10 @@ static int ParseArgs(int argc, char **argv)
             nextc = 0;
             switch (c)
             {
+            case 'S':
+                ReadRCFromCmdLine(optarg);
+                break;
+
             case 's':
                 if (!(Delimit = strdup(optarg)))
                 {

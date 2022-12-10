@@ -59,7 +59,7 @@
  * You may wish to modify the SetupVars() (OpSys.c) to better suit your
  * preferences. In any case, it should put the filename (and full path)
  * of the `.chktexrc' file into the ConfigFile array. The array is sized
- * BUFSIZ bytes.
+ * BUFFER_SIZE bytes.
  *
  * The program does also assume that __unix__ is defined if the source is
  * compiled on a UNIX machine.
@@ -185,6 +185,26 @@
 #  define BAKAPPENDIX ".bak"
 #endif
 
+
+/*  -=><=- -=><=- -=><=- -=><=- -=><=- -=><=- -=><=- -=><=- -=><=-  */
+
+/*
+ * This defines the buffer size used in many places.  The biggest
+ * limitation imposed by a small buffer is the size of a line which
+ * can be accurately processed by chktex.  On the other hand, a large
+ * buffer size will waste memory.  However, memory is quite cheap
+ * these days, especially considering the amount needed by ChkTeX.
+ *
+ * ChkTeX used to use BUFSIZ which was 1024 (fairly reasonable) on
+ * many UNIX-like systems, but was much smaller on Windows.  So,
+ * instead we create our own buffer size and hope that no-one has
+ * lines longer than 4k.
+ *
+ */
+
+#define BUFFER_SIZE 4096
+
+
 /***************** END OF USER SETTABLE PREFERENCES *****************/
 /********************************************************************/
 
@@ -197,14 +217,17 @@ struct WordList;
 
 extern const char *ReverseOn;
 extern const char *ReverseOff;
-extern char ConfigFile[BUFSIZ];
+extern char ConfigFile[BUFFER_SIZE];
+extern struct WordList ConfigFiles;
 
-char *MatchFileName(char *String);
 int SetupVars(void);
 void SetupTerm(void);
 void AddAppendix(char *Name, const char *App);
 void tackon(char *, const char *);
 int LocateFile(const char *Filename, char *Dest, const char *App,
                struct WordList *wl);
+
+void AddDirectoryFromRelativeFile(const char * Filename, struct WordList *TeXInputs);
+int IsRegFile(const char *Filename);
 
 #endif /* OPSYS_H */

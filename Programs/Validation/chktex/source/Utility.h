@@ -89,12 +89,6 @@ struct FileNode
     unsigned long Line;
 };
 
-/* Rotates x n bits left (should be an int, long, etc.) */
-#define ROTATEL(x,n) ((x<<n) | (x>>((CHAR_BIT*sizeof(x)) - n)))
-
-/* Rotates x n bits right (should be an int, long, etc.) */
-#define ROTATER(x,n) ((x>>n) | (x<<((CHAR_BIT*sizeof(x)) - n)))
-
 /* Subtract 1 because sizeof includes the null terminator.
  * WARNING: To use this on a variable, the type should be char[]
  * rather than char*, since for some versions of gcc these give
@@ -132,6 +126,8 @@ void *StkTop(struct Stack *Stack);
 FILE *CurStkFile(struct Stack *stack);
 const char *CurStkName(struct Stack *stack);
 unsigned long CurStkLine(struct Stack *stack);
+long CurStkMode(struct Stack *stack);
+long *PushMode(long mode, struct Stack *stack);
 char *FGetsStk(char *Dest, unsigned long len, struct Stack *stack);
 int PushFileName(const char *Name, struct Stack *stack);
 int PushFile(const char *, FILE *, struct Stack *);

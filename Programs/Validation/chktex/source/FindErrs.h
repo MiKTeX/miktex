@@ -132,7 +132,9 @@
  MSG(emExpectConTeXt, etWarn, iuOK, ctNone,\
      "`%s' expected, found `%s' (ConTeXt).")\
  MSG(emNoMatchConTeXt, etWarn, iuOK, ctNone,\
-     "No match found for `%s' (ConTeXt).")
+     "No match found for `%s' (ConTeXt).") \
+ MSG(emMathModeConfusion, etWarn, iuOK, ctNone,\
+     "Expected math mode to be %s here.")
 
 #undef MSG
 #define MSG(num, type, inuse, ctxt, text) num,
