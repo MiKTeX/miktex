@@ -13,6 +13,7 @@ Ghostscript is not installed.
 ### Upgraded programs
 
 * chktex 1.7.8
+* lacheck 1.30
 
 ## 22.11.25 - 2022-11-25
 

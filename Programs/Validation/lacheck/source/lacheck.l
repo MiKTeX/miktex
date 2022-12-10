@@ -1,9 +1,10 @@
-/*                    -*- Mode: C -*-
+/* $Id$
  * 
  * lacheck.lex - A consistency checker checker for LaTeX documents
  *	
  * Copyright (C) 1991, 1992 Kresten Krab Thorup.
  * Copyright (C) 1993 --- 1998 Per Abrahamsen.
+ * Copyright (C) 2019 --- 2022 Karl Berry.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +17,22 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Please send bugs, suggestions, and queries to auc-tex_mgr@sunsite.auc.dk.
- * 
- * $Revision: 1.26 $
+ * original Revision: 1.26 $
  * Author          : Kresten Krab Thorup
  * Created On      : Sun May 26 18:11:58 1991
  * 
  * HISTORY
+ * 02-May-2022          Karl Berry
+ *    Count initial { of definitions, and support \newcommand* (etc.).
+ *    Report from Michael Clark,
+ *    https://tug.org/pipermail/tex-live/2022-April/048096.html.
+ *    Version number now 1.30.
+ * 08-Jul-2019          Karl Berry
+ *    Separate patterns for \def vs. \newcommand. Report from Zayd Hammoudeh,
+ *    https://tug.org/pipermail/tex-live/2019-January/043083.html.
+ *    Update version number (now 1.29), contact info.
  * 07-Mar-1998		Per Abrahamsen
  *    Added return to yywrap.  Patch by Fabrice POPINEAU 
  *    <popineau@esemetz.ese-metz.fr>.
@@ -72,10 +79,10 @@
  *    Recognize \endinput.  Suggested by Stefan Farestam
  *    <Stefan.Farestam@cerfacs.fr>.
  * 13-Aug-1993          Per Abrahamsen
- *    } was eaten after display math.  Reported by Eckhard Rüggeberg
+ *    } was eaten after display math.  Reported by Eckhard Rï¿½ggeberg
  *    <eckhard@ts.go.dlr.de>.
  * 13-Aug-1993          Per Abrahamsen
- *    Recognize \verb*.  Reported by Eckhard Rüggeberg
+ *    Recognize \verb*.  Reported by Eckhard Rï¿½ggeberg
  *    <eckhard@ts.go.dlr.de>.  
  * 08-Aug-1993          Per Abrahamsen
  *    Better catch begin and end without arguments.
@@ -219,11 +226,11 @@ ws [ \n\t](%[^\n]\n)*
 space ({ws}|\~|\\space)
 hard_space (\~|\\space)
 
-u_letter [A-ZÆØÅ] 
-l_letter [a-zæøå] 
+u_letter [A-Zï¿½ï¿½ï¿½] 
+l_letter [a-zï¿½ï¿½ï¿½] 
 punct [\!\.\?]
 atoz [a-zA-Z]
-letter [A-ZÆØÅa-zæøå]
+letter [A-Zï¿½ï¿½ï¿½a-zï¿½ï¿½ï¿½]
 
 c_bin ("-"|"+"|"\\cdot"|"\\oplus"|"\\otimes"|"\\times")
 l_bin (",")
@@ -283,7 +290,7 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
 
 <ICOR>{e_group} {  g_checkend(0); }
 
-<GETICOR>[A-Za-zæøåÆØÅ0-9;:!()]+ {
+<GETICOR>[A-Za-zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0-9;:!()]+ {
  {
    if (!CG_ITALIC)
      {
@@ -294,7 +301,7 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
     BEGIN(INITIAL); 
  }}
 
-<ICOR>[A-Za-zæøåÆØÅ0-9;:!?()`']+ {
+<ICOR>[A-Za-zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0-9;:!?()`']+ {
  {
    if (CG_ITALIC)
      {
@@ -305,7 +312,7 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
     BEGIN(INITIAL); 
  }}
 
-^[A-Za-zæøåÆØÅ0-9;:!?()`',.]+{ws}*/\\\/ {
+^[A-Za-zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0-9;:!?()`',.]+{ws}*/\\\/ {
   {
    linecount();
    if (!CG_ITALIC)
@@ -316,7 +323,7 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
      }
  }}
 
-{ws}[A-Za-zæøåÆØÅ0-9;:!?()`',.]+{ws}*/\\\/ {
+{ws}[A-Za-zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0-9;:!?()`',.]+{ws}*/\\\/ {
   {
    linecount();
    if (!CG_ITALIC)
@@ -381,7 +388,33 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
     BEGIN(INITIAL); 
   }}
 
-"\\"[exg]?(def|newcommand)[^\n\{]+ 	BEGIN(DEF);
+  /* \def (or \edef etc.) can be followed by whitespace, then the \ to
+     start the control sequence, then more or less anything up to the {
+     starting the replacement text, which we assume is on the same line.
+     (All this could be changed in TeX, with catcodes etc., but we can't
+     try to handle that.) */
+"\\"[exg]?def[ \t\n]*"\\"[^\n{]+\{	{ ++def_count; BEGIN(DEF); }
+
+  /* \newcommand{\foo}{...} or \newcommand\foo{...}
+       or \renewcommand or \providecommand;
+       and/or with \...command*;
+       and/or with \...command[N] argument count;
+     To allow for arbitrary control sequence names, we match
+       the braced name as anything not containing a }.
+     We assume the control sequence name is either a single character or
+       one or more English letters, a-zA-Z, as usual with TeX.
+     To handle the [N] argument count and [dflt] optional argument
+       default specifications, we just match anything after the control
+       sequence up to the next {, which we assume starts the definition.
+     We don't do anything with the definition; the only purpose is to
+       count braces. */
+"\\"(provide|(re)?newcommand)[ \t\n]*(\*[ \t\n]*)?(\{\\[^}]+\}|\\([a-zA-Z]+|.))[^{]*\{	{ ++def_count; BEGIN(DEF); }
+
+  /*                          ws     optional*    ({\cs}      |\cs)            .*?      {defn}
+
+     Pre-2019 rule was (see test-def.tex):
+     "\\"[exg]?(def|newcommand)[^\n\{]+ 	BEGIN(DEF);
+  */
 
 <DEF>{b_group} { ++def_count; }
 
@@ -749,6 +782,14 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
 
 \\endinput/[^A-Za-z] |
 <<EOF>> { 
+	  if (def_count != 0)
+	  {
+	  	printf("\"%s\", line %d: %d missing right brace(s).\n",  
+			file_name,
+			line_count,
+			def_count);
+	  }
+
 	  if (--istackp < 0)
 		  yyterminate(); 
 
@@ -769,6 +810,33 @@ symbol ("$"("\\"{atoz}+|.)"$"|"\\#"|"\\$"|"\\%"|"\\ref")
 
 . { ; }
 %%
+static void print_version (void)
+{
+#if defined(MIKTEX)
+  printf("%s (MiKTeX) %s\n", PROGNAME, "1.30");
+#else
+	printf("%s (TeX Live) %s\n", PROGNAME, "1.30");
+#endif
+	puts("$Id$");
+	printf("License GPLv1+: GNU GPL version 1 or later");
+	puts(" <https://gnu.org/licenses/gpl.html>.");
+	puts("This is free software: you are free to change and redistribute it.");
+	puts("There is NO WARRANTY, to the extent permitted by law.");
+	puts("Written by Kresten Krab Thorup and Per Abrahamsen.");
+}
+
+static void print_help (void)
+{
+	printf("Usage: lacheck FILENAME[.tex]\n");
+	printf("A consistency checker for LaTeX documents.\n\n");
+	printf("Document context is displayed in \"double quotes\".\n");
+	printf("All messages are only warnings!\n");
+	printf("Your document may be right even though LaCheck says");
+	printf(" otherwise.\n\n");
+	print_version();
+	printf("\nEmail bug reports to tex-live@tug.org.\n");
+}
+
 #if defined(MIKTEX)
 int MIKTEXCEECALL Main(int argc, char ** argv)
 #else
@@ -783,11 +851,18 @@ int main(int argc, char *argv[])
 	exit(3);
     }
 	
-    if(argc > 1)
+    if (argc == 2)
     {
+        if (strcmp(argv[1], "--help") == 0) {
+            print_help();
+            exit(0);
+        } else if (strcmp(argv[1], "--version") == 0) {
+            print_version();
+            exit(0);
+        }
         if ( (file_name = (char*) malloc(strlen(argv[1]) + 5)) == NULL ) {
-		fprintf(stderr, "%s: out of memory\n", PROGNAME);
-		exit(3);
+	    fprintf(stderr, "%s: out of memory\n", PROGNAME);
+	    exit(3);
 	}
 	
 	strcpy(file_name, argv[1]);
@@ -808,25 +883,19 @@ int main(int argc, char *argv[])
 		     f_checkend(file_name);
 		 }
 		 else
-		     fprintf(stderr,
-			     "%s: Could not open : %s\n",PROGNAME, argv[1]);
+		 {
+		     fprintf(stderr, "%s: Could not open ",PROGNAME);
+		     perror(argv[1]);
+		     exit(1);
+		 }
 	     }
+        /* printf("%s checked.\n", argv[1]); */
     }
     else
     {
-	printf("\n* %s *\n\n",PROGNAME);
-	printf("\t...a consistency checker for LaTeX documents.\n");
-	printf("$Id: lacheck.lex,v 1.26 1998/03/07 07:46:45 abraham Exp $\n\n");
-
-	printf("Usage:\n\tlacheck filename[.tex] <return>\n\n\n");
-
-	printf("\tFrom within Emacs:\n\n");
-	printf("\tM-x compile RET lacheck filename[.tex] RET\n\n");
-	printf("\tUse C-x ` to step through the messages.\n\n");
-	printf("\n\tThe found context is displayed in \"double quotes\"\n\n");
-	printf("Remark:\n\tAll messages are only warnings!\n\n");
-	printf("\tYour document may be right even though LaCheck says ");
-	printf("something else.\n\n");
+	printf("Usage: lacheck FILENAME[.tex]\n");
+	printf("Try 'lacheck --help' for more information.\n");
+	exit(1);
     }
     return(0);
 }
@@ -1105,4 +1174,3 @@ void linecount(void)
     if(yytext[i] == '\n')
       line_count++;
 }
-
