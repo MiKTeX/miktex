@@ -129,7 +129,7 @@
 
 /* Define to the version of this package. */
 #if defined(MIKTEX)
-#  include "chktex-version.h"
+#  include "miktex-chktex-version.h"
 #endif
 #define PACKAGE_VERSION MIKTEX_COMP_ORIG_VERSION_STR
 
