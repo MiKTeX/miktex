@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## next
+## 22.12 - 2022-12-12
 
 ### Breaking changes
 
