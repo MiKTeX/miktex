@@ -1,11 +1,11 @@
-## version.cmake
+## component.cmake
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2022 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
-set(MIKTEX_COMP_MAJOR_VERSION 1)
-set(MIKTEX_COMP_MINOR_VERSION 5)
-set(MIKTEX_COMP_PATCH_VERSION 0)
+include(version.cmake)
+
+set(MIKTEX_COMP_DESCRIPTION "MiKTeX Setup Utility")

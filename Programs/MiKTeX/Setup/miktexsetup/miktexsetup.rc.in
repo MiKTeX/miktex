@@ -1,0 +1,22 @@
+/**
+ * @file miktexsetup.rc
+ * @author Christian Schenk
+ * @brief Resources (Windows)
+ *
+ * @copyright Copyright © 2014-2022 Christian Schenk
+ *
+ * This file is part of MiKTeX Setup Utility.
+ *
+ * MiKTeX Setup Utility is licensed under GNU General Public License version 2
+ * or any later version.
+ */
+
+#pragma code_page(65001)
+
+#include "miktexsetup-version.h"
+
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
+#define VER_INTERNALNAME_STR "miktexsetup"
+#define VER_ORIGINALFILENAME_STR "miktexsetup.exe"
+
+#include "miktex/win/version.rc"
