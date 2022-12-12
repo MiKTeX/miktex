@@ -1280,8 +1280,8 @@ primitive("xkanjiskip",assign_glue,glue_base+xkanji_skip_code);@/
   {table of 256 command codes for the wchar's catcodes }
 @d auto_xsp_code_base=kcat_code_base+256 {table of 256 auto spacer flag}
 @d inhibit_xsp_code_base=auto_xsp_code_base+256
-@d kinsoku_base=inhibit_xsp_code_base+256 {table of 256 kinsoku mappings}
-@d kansuji_base=kinsoku_base+256 {table of 10 kansuji mappings}
+@d kinsoku_base=inhibit_xsp_code_base+1024 {table of 1024 kinsoku mappings}
+@d kansuji_base=kinsoku_base+1024 {table of 10 kansuji mappings}
 @d lc_code_base=kansuji_base+10 {table of 256 lowercase mappings}
 @z
 
@@ -7228,7 +7228,7 @@ inserting a space between 2byte-char and 1byte-char.
 @d inhibit_after=2    {disable to insert space after 2byte-char}
 @d inhibit_none=3     {enable to insert space before/after 2byte-char}
 @d inhibit_unused=4   {unused entry}
-@d no_entry=1000
+@d no_entry=10000
 @d new_pos=0
 @d cur_pos=1
 
@@ -7260,7 +7260,7 @@ if n=new_pos then
     begin if pp<>no_entry then p:=pp; goto done; end;
   if inhibit_xsp_type(p)=inhibit_unused then
     if pp=no_entry then pp:=p; { save the nearest unused hash }
-  incr(p); if p>255 then p:=0;
+  incr(p); if p>1023 then p:=0;
   until s=p;
   p:=pp;
   end
@@ -7268,7 +7268,7 @@ else
   begin repeat
   if inhibit_xsp_code(p)=0 then goto done1;
   if inhibit_xsp_code(p)=c then goto done;
-  incr(p); if p>255 then p:=0;
+  incr(p); if p>1023 then p:=0;
   until s=p;
 done1: p:=no_entry;
   end;
@@ -7343,7 +7343,7 @@ if n=new_pos then
     begin if pp<>no_entry then p:=pp; goto done; end;
   if kinsoku_type(p)=kinsoku_unused_code then
     if pp=no_entry then pp:=p; { save the nearest unused hash }
-  incr(p); if p>255 then p:=0;
+  incr(p); if p>1023 then p:=0;
   until s=p;
   p:=pp;
   end
@@ -7351,7 +7351,7 @@ else
   begin repeat
   if kinsoku_type(p)=0 then goto done1;
   if kinsoku_code(p)=c then goto done;
-  incr(p); if p>255 then p:=0;
+  incr(p); if p>1023 then p:=0;
   until s=p;
 done1: p:=no_entry;
   end;

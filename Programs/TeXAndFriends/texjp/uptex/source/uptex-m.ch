@@ -1178,6 +1178,15 @@ else if font_dir[font(first_char)]<>dir_default then
 @z
 
 @x
+else if font_dir[font(last_char)]<>dir_default then
+  begin insert_skip:=after_wchar; KANJI(cx):=info(link(last_char));
+@y
+else if font_dir[font(last_char)]<>dir_default then
+  begin insert_skip:=after_wchar;
+  KANJI(cx):=info(link(last_char)) mod max_cjk_val;
+@z
+
+@x
 begin if is_char_node(link(p)) then
   begin q:=p; p:=link(p);
   if font_dir[font(p)]<>dir_default then
