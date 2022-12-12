@@ -2818,7 +2818,9 @@ BEGIN
           case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D:
           case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_E:
           case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_F:
+#if defined(MIKTEX) && defined(UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_G)
           case UBLOCK_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_G:
+#endif
             string_width |= 0x001;
             break;
       /* kana */
@@ -2829,7 +2831,9 @@ BEGIN
 #if defined(MIKTEX) && defined(UBLOCK_KANA_EXTENDED_B)
           case UBLOCK_KANA_EXTENDED_B:
 #endif
+#if defined(MIKTEX) && defined(UBLOCK_SMALL_KANA_EXTENSION)
           case UBLOCK_SMALL_KANA_EXTENSION:
+#endif
             string_width |= 0x002;
             break;
       /* hangul */
