@@ -122,8 +122,10 @@ legal in similar contexts.
 @z
 
 @x [30.581]
+@p procedure char_warning(@!f:internal_font_number;@!c:eight_bits);
 var old_setting: integer; {saved value of |tracing_online|}
 @y
+@p procedure char_warning(@!f:internal_font_number;@!c:eight_bits);
 @z
 
 @x [32.619]

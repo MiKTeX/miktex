@@ -125,8 +125,8 @@ end;
 @x
 @d ptex_minor_version_code=ptex_version_code+1 {code for \.{\\ptexminorversion}}
 @y
-@d ptex_minor_version_code=ptex_version_code+1 {code for \.{\\ptexminorversion}}
-@d eptex_version_code=ptex_minor_version_code+1 {code for \.{\\epTeXversion}}
+@d eptex_version_code=ptex_version_code+1 {code for \.{\\epTeXversion}}
+@d ptex_minor_version_code=eptex_version_code+1 {code for \.{\\ptexminorversion}}
 @z
 
 @x e-pTeX: \current(x)spacingmode
@@ -136,22 +136,21 @@ end;
 @z
 
 @x
-primitive("ptexversion",last_item,ptex_version_code);
-@!@:ptexversion_}{\.{\\ptexversion} primitive@>
+primitive("ptexminorversion",last_item,ptex_minor_version_code);
+@!@:ptexminorversion_}{\.{\\ptexminorversion} primitive@>
 @y
-primitive("ptexversion",last_item,ptex_version_code);
-@!@:ptexversion_}{\.{\\ptexversion} primitive@>
 primitive("epTeXversion",last_item,eptex_version_code);
 @!@:epTeXversion_}{\.{\\epTeXversion} primitive@>
+primitive("ptexminorversion",last_item,ptex_minor_version_code);
+@!@:ptexminorversion_}{\.{\\ptexminorversion} primitive@>
 @z
 
 @x
-  ptex_version_code: print_esc("ptexversion");
+  ptex_minor_version_code: print_esc("ptexminorversion");
 @y
-  ptex_version_code: print_esc("ptexversion");
   eptex_version_code: print_esc("epTeXversion");
+  ptex_minor_version_code: print_esc("ptexminorversion");
 @z
-
 
 @x [26.420] l.8474 - pTeX: Fetch a box dimension: dir_node
 begin scan_eight_bit_int; q:=box(cur_val);
@@ -209,10 +208,10 @@ end
 @z
 
 @x
-    ptex_version_code: cur_val:=pTeX_version;
+    ptex_minor_version_code: cur_val:=pTeX_minor_version;
 @y
-    ptex_version_code: cur_val:=pTeX_version;
     eptex_version_code: cur_val:=epTeX_version_number;
+    ptex_minor_version_code: cur_val:=pTeX_minor_version;
 @z
 
 @x [26.424] e-pTeX: node char

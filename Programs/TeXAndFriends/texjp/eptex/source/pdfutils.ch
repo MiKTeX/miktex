@@ -840,13 +840,13 @@ ignore_spaces: {trap unexpandable primitives}
 @z
 
 @x
-@d eptex_version_code=ptex_minor_version_code+1 {code for \.{\\epTeXversion}}
+@d ptex_minor_version_code=eptex_version_code+1 {code for \.{\\ptexminorversion}}
 @y
-@d eptex_version_code=ptex_minor_version_code+1 {code for \.{\\epTeXversion}}
-@d pdf_last_x_pos_code=eptex_version_code+1 {code for \.{\\pdflastxpos}}
+@d ptex_minor_version_code=eptex_version_code+1 {code for \.{\\ptexminorversion}}
+@d pdf_last_x_pos_code=ptex_minor_version_code+1 {code for \.{\\pdflastxpos}}
 @d pdf_last_y_pos_code=pdf_last_x_pos_code+1 {code for \.{\\pdflastypos}}
 @d pdf_shell_escape_code=pdf_last_y_pos_code+1 {code for \.{\\pdflastypos}}
-@d elapsed_time_code =pdf_shell_escape_code+1 {code for \.{\\pdfelapsedtime}}
+@d elapsed_time_code=pdf_shell_escape_code+1 {code for \.{\\pdfelapsedtime}}
 @d random_seed_code=elapsed_time_code+1 {code for \.{\\pdfrandomseed}}
 @z
 
@@ -1204,11 +1204,9 @@ var b:boolean; {is the condition true?}
 @z
 
 @x \[if]pdfprimitive
-if_void_code, if_hbox_code, if_vbox_code, if_tbox_code, if_ybox_code, if_dbox_code, if_mbox_code:
-  @<Test box register status@>;
+if_void_code, if_hbox_code, if_vbox_code: @<Test box register status@>;
 @y
-if_void_code, if_hbox_code, if_vbox_code, if_tbox_code, if_ybox_code, if_dbox_code, if_mbox_code:
-  @<Test box register status@>;
+if_void_code, if_hbox_code, if_vbox_code: @<Test box register status@>;
 if_pdfprimitive_code: begin
   save_scanner_status:=scanner_status;
   scanner_status:=normal;

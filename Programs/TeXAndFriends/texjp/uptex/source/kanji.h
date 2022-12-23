@@ -78,6 +78,7 @@ inline long inputline2(FILE* f, unsigned char* buffer, long pos, const long buff
 #define inputline2(fp,buff,pos,size) input_line2(fp,buff,NULL,pos,size,NULL)
 #endif
 #endif
+#define ptencconvfirstline(pos,limit,buff,size) ptenc_conv_first_line(pos,limit,buff,size)
 
 extern void init_kanji (const_string file_str, const_string internal_str);
 #if defined(MIKTEX)

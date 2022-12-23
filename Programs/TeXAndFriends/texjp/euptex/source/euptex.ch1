@@ -6,9 +6,9 @@
 @z
 
 @x e-upTeX: banner
-  {printed when u\pTeX\ starts}
+  {printed when \upTeX\ starts}
 @y
-  {printed when u\pTeX\ starts}
+  {printed when \upTeX\ starts}
 @#
 @d eupTeX_version==pTeX_version_string,upTeX_version_string,epTeX_version_string,eTeX_version_string
 @d eupTeX_banner=='This is e-upTeX, Version 3.141592653',eupTeX_version
@@ -31,9 +31,10 @@
 @z
 
 @x
-@d uptex_version_code=ptex_minor_version_code+1 {code for \.{\\uptexversion}}
+@d eptex_version_code=ptex_version_code+1 {code for \.{\\epTeXversion}}
 @y
-@d uptex_version_code=ptex_minor_version_code+2 {code for \.{\\uptexversion}}
+@d uptex_version_code=ptex_version_code+1 {code for \.{\\uptexversion}}
+@d eptex_version_code=uptex_version_code+1 {code for \.{\\epTeXversion}}
 @z
 
 @x e-upTeX: \currentcjktoken
@@ -45,8 +46,8 @@
 @x
   eptex_version_code: print_esc("epTeXversion");
 @y
-  eptex_version_code: print_esc("epTeXversion");
   uptex_version_code: print_esc("uptexversion");
+  eptex_version_code: print_esc("epTeXversion");
 @z
 
 @x
@@ -58,8 +59,8 @@ if font_dir[font(tx)]<>dir_default then cur_val:=KANJI(info(link(tx))) mod max_c
 @x
   eptex_version_code: cur_val:=epTeX_version_number;
 @y
-  eptex_version_code: cur_val:=epTeX_version_number;
   uptex_version_code: cur_val:=upTeX_version;
+  eptex_version_code: cur_val:=epTeX_version_number;
 @z
 
 @x

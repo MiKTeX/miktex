@@ -29,6 +29,14 @@ last_node_type:=-1; last_node_subtype:=-1;
     buffer[first+j]:=Lo(so(str_pool[k+j])); buffer2[first+j]:=Hi(so(str_pool[k+j])); end;
 @z
 
+@x [26.413]
+@<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
+end;
+@y
+@<Fix the reference count, if any, and negate |cur_val| if |negative|@>;
+exit:end;
+@z
+
 @x
 @d eTeX_int=badness_code+1 {first of \eTeX\ codes for integers}
 @y
@@ -71,8 +79,10 @@ last_node_type:=-1; last_node_subtype:=-1;
 @z
 
 @x [30.581]
+@p procedure char_warning(@!f:internal_font_number;@!c:eight_bits);
 var @!l:0..255; {small indices or counters}
 @y
+@p procedure char_warning(@!f:internal_font_number;@!c:eight_bits);
 var @!l:0..255; {small indices or counters}
 old_setting: integer; {saved value of |tracing_online|}
 @z
@@ -131,7 +141,8 @@ else begin
   box(n):=vpack(q,natural); set_box_dir(box(n))(box_dir(v));
   end;
 @y
-q:=prune_page_top(q,saving_vdiscards>0); p:=list_ptr(v);
+q:=prune_page_top(q,saving_vdiscards>0);
+p:=list_ptr(v);
 if q<>null then begin
     q:=vpack(q,natural); set_box_dir(q)(box_dir(v));
   end;

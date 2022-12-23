@@ -5706,7 +5706,8 @@ that will be defined later.
 @d pdf_suppress_ptex_info_code = pdftex_first_integer_code + 32 {suppress /PTEX.* entries in PDF dictionaries}
 @d pdf_omit_charset_code = pdftex_first_integer_code + 33 {suppress /PTEX.* entries in PDF dictionaries}
 @d pdf_omit_info_dict_code = pdftex_first_integer_code + 34 {suppress /PTEX.* entries in PDF dictionaries}
-@d pdf_int_pars=pdftex_first_integer_code + 35 {total number of \pdfTeX's integer parameters}
+@d pdf_omit_procset_code = pdftex_first_integer_code + 35 {suppress /PTEX.* entries in PDF dictionaries}
+@d pdf_int_pars=pdftex_first_integer_code + 36 {total number of \pdfTeX's integer parameters}
 @#
 @d etex_int_base=pdf_int_pars {base for \eTeX's integer parameters}
 @d tracing_assigns_code=etex_int_base {show assignments}
@@ -5820,6 +5821,7 @@ that will be defined later.
 @d pdf_suppress_ptex_info == int_par(pdf_suppress_ptex_info_code)
 @d pdf_omit_charset == int_par(pdf_omit_charset_code)
 @d pdf_omit_info_dict == int_par(pdf_omit_info_dict_code)
+@d pdf_omit_procset == int_par(pdf_omit_procset_code)
 @#
 @d tracing_assigns==int_par(tracing_assigns_code)
 @d tracing_groups==int_par(tracing_groups_code)
@@ -5930,6 +5932,7 @@ pdf_info_omit_date_code:print_esc("pdfinfoomitdate");
 pdf_suppress_ptex_info_code: print_esc("pdfsuppressptexinfo");
 pdf_omit_charset_code: print_esc("pdfomitcharset");
 pdf_omit_info_dict_code: print_esc("pdfomitinfodict");
+pdf_omit_procset_code: print_esc("pdfomitprocset");
 @/@<Cases for |print_param|@>@/
 othercases print("[unknown integer parameter!]")
 endcases;
@@ -6130,6 +6133,9 @@ primitive("pdfomitcharset",assign_int,int_base+pdf_omit_charset_code);@/
 
 primitive("pdfomitinfodict",assign_int,int_base+pdf_omit_info_dict_code);@/
 @!@:pdf_omit_info_dict}{\.{\\pdfomitinfodict} primitive@>
+
+primitive("pdfomitprocset",assign_int,int_base+pdf_omit_procset_code);@/
+@!@:pdf_omit_procset}{\.{\\pdfomitprocset} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 assign_int: if chr_code<count_base then print_param(chr_code-int_base)
@@ -19186,7 +19192,7 @@ pdf_begin_dict(pdf_last_resources, 1);
 @<Print additional resources@>;
 @<Generate font resources@>;
 @<Generate XObject resources@>;
-@<Generate ProcSet@>;
+@<Generate ProcSet if desired@>;
 pdf_end_dict
 
 @ @<Print additional resources@>=
@@ -19263,17 +19269,21 @@ if (pdf_xform_list <> null) or (pdf_ximage_list <> null) then begin
     pdf_print_ln(">>");
 end
 
-@ @<Generate ProcSet@>=
-pdf_print("/ProcSet [ /PDF");
-if pdf_text_procset then
-    pdf_print(" /Text");
-if check_image_b(pdf_image_procset) then
-    pdf_print(" /ImageB");
-if check_image_c(pdf_image_procset) then
-    pdf_print(" /ImageC");
-if check_image_i(pdf_image_procset) then
-    pdf_print(" /ImageI");
-pdf_print_ln(" ]")
+@ @<Generate ProcSet if desired@>=
+if (pdf_omit_procset < 0) or
+   ((pdf_omit_procset = 0) and (pdf_major_version < 2)) then
+begin
+    pdf_print("/ProcSet [ /PDF");
+    if pdf_text_procset then
+        pdf_print(" /Text");
+    if check_image_b(pdf_image_procset) then
+        pdf_print(" /ImageB");
+    if check_image_c(pdf_image_procset) then
+        pdf_print(" /ImageC");
+    if check_image_i(pdf_image_procset) then
+        pdf_print(" /ImageI");
+    pdf_print_ln(" ]")
+end
 
 @ @<Write out page object@>=
 pdf_begin_dict(pdf_last_page, 1);

@@ -7,6 +7,13 @@
 @z
 
 @x
+@d uptex_version_code=ptex_version_code+1 {code for \.{\\uptexversion}}
+@d ptex_minor_version_code=uptex_version_code+1 {code for \.{\\ptexminorversion}}
+@y
+@d ptex_minor_version_code=ptex_version_code+1 {code for \.{\\ptexminorversion}}
+@z
+
+@x
   uptex_version_code: print_esc("uptexversion");
 @y
 @z

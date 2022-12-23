@@ -5,18 +5,6 @@
 @z
 
 @x
-@d pdf_last_x_pos_code=eptex_version_code+1 {code for \.{\\pdflastxpos}}
-@y
-@d uptex_version_code=eptex_version_code+1 {code for \.{\\uptexversion}}
-@d pdf_last_x_pos_code=uptex_version_code+1 {code for \.{\\pdflastxpos}}
-@z
-
-@x
-@d uptex_version_code=ptex_minor_version_code+2 {code for \.{\\uptexversion}}
-@y
-@z
-
-@x
     if (cc=not_cjk) then cc:=other_kchar;
 @y
     if cat>=kanji then cc:=cat else if (cc=not_cjk) then cc:=other_kchar;

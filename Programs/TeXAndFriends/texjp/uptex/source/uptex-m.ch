@@ -48,6 +48,13 @@
 % (2022-07-23) TTK  upTeX u1.29
 % (2022-12-09) HK   Hironori Kitagawa fixed a bug in \char, \kchar.
 
+@x
+\def\pTeX{p\kern-.15em\TeX}
+@y
+\def\pTeX{p\kern-.15em\TeX}
+\def\upTeX{u\pTeX}
+@z
+
 @x upTeX: banner
   {printed when \pTeX\ starts}
 @y
@@ -55,11 +62,11 @@
 @#
 @d upTeX_version=1
 @d upTeX_revision==".29"
-@d upTeX_version_string=='-u1.29' {current u\pTeX\ version}
+@d upTeX_version_string=='-u1.29' {current \upTeX\ version}
 @#
 @d upTeX_banner=='This is upTeX, Version 3.141592653',pTeX_version_string,upTeX_version_string
 @d upTeX_banner_k==upTeX_banner
-  {printed when u\pTeX\ starts}
+  {printed when \upTeX\ starts}
 @z
 
 @x upTeX: banner
@@ -174,10 +181,12 @@ else if (kcode_pos=1)or((kcode_pos>=@'11)and(kcode_pos<=@'12))
 @z
 
 @x
-@d math_comp=left_right+1 {component of formula ( \.{\\mathbin}, etc.~)}
+@d char_num=max_char_code+1 {character specified numerically ( \.{\\char} )}
+@d math_char_num=char_num+1 {explicit math code ( \.{\\mathchar} )}
 @y
-@d kchar_num=left_right+1 {cjk character specified numerically ( \.{\\kchar} )}
-@d math_comp=kchar_num+1 {component of formula ( \.{\\mathbin}, etc.~)}
+@d char_num=max_char_code+1 {character specified numerically ( \.{\\char} )}
+@d kchar_num=char_num+1 {cjk character specified numerically ( \.{\\kchar} )}
+@d math_char_num=kchar_num+1 {explicit math code ( \.{\\mathchar} )}
 @z
 
 @x
@@ -188,10 +197,11 @@ else if (kcode_pos=1)or((kcode_pos>=@'11)and(kcode_pos<=@'12))
 @z
 
 @x
-@d max_command=partoken_name {the largest command code seen at |big_switch|}
+@d partoken_name=set_auto_spacing+1 {set |par_token| name}
 @y
-@d set_enable_cjk_token=partoken_name+1 {set cjk mode ( \.{\\enablecjktoken}, \.{\\disablecjktoken}, \.{\\forcecjktoken} )}
-@d max_command=set_enable_cjk_token {the largest command code seen at |big_switch|}
+@d set_enable_cjk_token=set_auto_spacing+1 {set cjk mode
+  ( \.{\\enablecjktoken}, \.{\\disablecjktoken}, \.{\\forcecjktoken} )}
+@d partoken_name=set_enable_cjk_token+1 {set |par_token| name}
 @z
 
 @x
@@ -221,8 +231,7 @@ eqtb[auto_xspacing_code]:=eqtb[cat_code_base];
 for k:=0 to 255 do
   begin cat_code(k):=other_char; kcat_code(k):=other_kchar;
   math_code(k):=hi(k); sf_code(k):=1000;
-  auto_xsp_code(k):=0; inhibit_xsp_code(k):=0; inhibit_xsp_type(k):=0;
-  kinsoku_code(k):=0; kinsoku_type(k):=0;
+  auto_xsp_code(k):=0;
   end;
 @y
 eqtb[auto_xspacing_code]:=eqtb[cat_code_base];
@@ -230,8 +239,7 @@ eqtb[enable_cjk_token_code]:=eqtb[cat_code_base];
 for k:=0 to 255 do
   begin cat_code(k):=other_char;
   math_code(k):=hi(k); sf_code(k):=1000;
-  auto_xsp_code(k):=0; inhibit_xsp_code(k):=0; inhibit_xsp_type(k):=0;
-  kinsoku_code(k):=0; kinsoku_type(k):=0;
+  auto_xsp_code(k):=0;
   end;
 for k:=0 to 511 do
   begin kcat_code(k):=other_kchar;
@@ -292,9 +300,9 @@ primitive("kchar",kchar_num,0);@/
 @z
 
 @x
-ital_corr: print_esc("/");
+char_num: print_esc("char");
 @y
-ital_corr: print_esc("/");
+char_num: print_esc("char");
 kchar_num: print_esc("kchar");
 @z
 
@@ -594,8 +602,8 @@ char_given,math_given: scanned_result(cur_chr)(int_val);
 @x
 @d ptex_minor_version_code=ptex_version_code+1 {code for \.{\\ptexminorversion}}
 @y
-@d ptex_minor_version_code=ptex_version_code+1 {code for \.{\\ptexminorversion}}
-@d uptex_version_code=ptex_minor_version_code+1 {code for \.{\\uptexversion}}
+@d uptex_version_code=ptex_version_code+1 {code for \.{\\uptexversion}}
+@d ptex_minor_version_code=uptex_version_code+1 {code for \.{\\ptexminorversion}}
 @z
 
 @x

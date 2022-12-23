@@ -1327,7 +1327,10 @@ eqtb[auto_xspacing_code]:=eqtb[cat_code_base];
 for k:=0 to 255 do
   begin cat_code(k):=other_char; kcat_code(k):=other_kchar;
   math_code(k):=hi(k); sf_code(k):=1000;
-  auto_xsp_code(k):=0; inhibit_xsp_code(k):=0; inhibit_xsp_type(k):=0;
+  auto_xsp_code(k):=0;
+  end;
+for k:=0 to 1023 do
+  begin inhibit_xsp_code(k):=0; inhibit_xsp_type(k):=0;
   kinsoku_code(k):=0; kinsoku_type(k):=0;
   end;
 @z
@@ -2373,18 +2376,16 @@ procedure scan_something_internal(@!level:small_number;@!negative:boolean);
 var m:halfword; {|chr_code| part of the operand token}
 @y
 var m:halfword; {|chr_code| part of the operand token}
+@!q,@!r:pointer; {general purpose indices}
 @!tx:pointer; {effective tail node}
 @!qx:halfword; {general purpose index}
 @z
 @x [26.413] l.8345 - pTeX: scan_something_internal
-begin m:=cur_chr;
 case cur_cmd of
 def_code: @<Fetch a character code from some table@>;
 toks_register,assign_toks,def_family,set_font,def_font: @<Fetch a token list or
   font identifier, provided that |level=tok_val|@>;
 @y
-@!q,@!r:pointer;
-begin m:=cur_chr;
 case cur_cmd of
 assign_kinsoku: @<Fetch breaking penalty from some table@>;
 assign_inhibit_xsp_code: @<Fetch inhibit type from some table@>;
@@ -2884,8 +2885,8 @@ if_tdir_code: b:=(abs(direction)=dir_tate);
 if_ydir_code: b:=(abs(direction)=dir_yoko);
 if_ddir_code: b:=(abs(direction)=dir_dtou);
 if_mdir_code: b:=(direction<0);
-if_void_code, if_hbox_code, if_vbox_code, if_tbox_code, if_ybox_code, if_dbox_code, if_mbox_code:
-  @<Test box register status@>;
+if_tbox_code, if_ybox_code, if_dbox_code, if_mbox_code,
+if_void_code, if_hbox_code, if_vbox_code: @<Test box register status@>;
 if_jfont_code, if_tfont_code:
   begin scan_font_ident;
   if this_if=if_jfont_code then b:=(font_dir[cur_val]=dir_yoko)
@@ -6858,6 +6859,13 @@ undump_things(char_base[null_font], font_ptr+1-null_font);
   font_info:=xmalloc_array (fmemory_word, font_mem_size);
 @y
   font_info:=xmalloc_array (memory_word, font_mem_size);
+@z
+
+@x
+fix_date_and_time;@/
+@y
+last:=ptenc_conv_first_line(loc, last, buffer, buf_size); limit:=last;
+fix_date_and_time;@/
 @z
 
 @x [51.1337] l.25563 - pTeX:

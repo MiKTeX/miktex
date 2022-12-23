@@ -175,6 +175,25 @@ miktex_allocate_memory;
 miktex_allocate_memory;
   buffer:=xmalloc_array (ASCII_code, buf_size);
   font_info:=xmalloc_array (fmemory_word, font_mem_size);
+@z
+
+% _____________________________________________________________________________
+%
+% [51.1338]
+% _____________________________________________________________________________
+
+@x
+fix_date_and_time;@/
+@y
+fix_date_and_time;@/
+@z
+
+@x
+  trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
+@y
+  trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
+
+  {Allocate and initialize font arrays}
   font_check:=xmalloc_array(four_quarters, font_max);
   char_base:=xmalloc_array(integer, font_max);
 @z
