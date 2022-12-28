@@ -11,10 +11,10 @@ set(${curl_dll_name}_sources ${curl_sources})
 if(MIKTEX_NATIVE_WINDOWS)
     configure_file(
         windows/miktex-curl.rc.in
-        ${CMAKE_CURRENT_BINARY_DIR}/curl.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-curl.rc
     )
     list(APPEND ${curl_dll_name}_sources
-        ${CMAKE_CURRENT_BINARY_DIR}/curl.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-curl.rc
     )
 endif()
 
