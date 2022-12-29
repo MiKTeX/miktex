@@ -135,13 +135,17 @@ set(sources
     source/src/pshinter/pshinter.c
     source/src/psnames/psnames.c
     source/src/raster/raster.c
+    source/src/sdf/sdf.c
     source/src/sfnt/sfnt.c
     source/src/smooth/smooth.c
+    source/src/svg/svg.c
     source/src/truetype/truetype.c
     source/src/type1/type1.c
     source/src/type42/type42.c
     source/src/winfonts/winfnt.c
 
+    source/include/dlg/dlg.h
+    source/include/dlg/output.h
     source/include/freetype/config/ftconfig.h
     source/include/freetype/config/ftheader.h
     source/include/freetype/config/ftmodule.h
@@ -172,6 +176,7 @@ set(sources
     source/include/freetype/ftincrem.h
     source/include/freetype/ftlcdfil.h
     source/include/freetype/ftlist.h
+    source/include/freetype/ftlogging.h
     source/include/freetype/ftlzw.h
     source/include/freetype/ftmac.h
     source/include/freetype/ftmm.h
@@ -230,15 +235,16 @@ set(sources
     source/include/freetype/internal/services/svttglyf.h
     source/include/freetype/internal/services/svwinfnt.h
     source/include/freetype/internal/sfnt.h
+    source/include/freetype/internal/svginterface.h
     source/include/freetype/internal/t1types.h
     source/include/freetype/internal/tttypes.h
     source/include/freetype/internal/wofftypes.h
+    source/include/freetype/otsvg.h
     source/include/freetype/t1tables.h
     source/include/freetype/ttnameid.h
     source/include/freetype/tttables.h
     source/include/freetype/tttags.h
     source/include/ft2build.h
-    source/src/autofit/afangles.h
     source/src/autofit/afblue.h
     source/src/autofit/afcjk.h
     source/src/autofit/afcover.h
@@ -248,7 +254,6 @@ set(sources
     source/src/autofit/afhints.h
     source/src/autofit/afindic.h
     source/src/autofit/aflatin.h
-    source/src/autofit/aflatin2.h
     source/src/autofit/afloader.h
     source/src/autofit/afmodule.h
     source/src/autofit/afranges.h
@@ -256,8 +261,8 @@ set(sources
     source/src/autofit/afshaper.h
     source/src/autofit/afstyles.h
     source/src/autofit/aftypes.h
-    source/src/autofit/afwarp.h
-    source/src/autofit/afwrtsys.h
+    source/src/autofit/afws-decl.h
+    source/src/autofit/afws-iter.h
     source/src/base/ftbase.h
     source/src/base/md5.h
     source/src/bdf/bdf.h
@@ -293,12 +298,13 @@ set(sources
     source/src/gxvalid/gxvmod.h
     source/src/gxvalid/gxvmort.h
     source/src/gxvalid/gxvmorx.h
+    source/src/gzip/crc32.h
     source/src/gzip/ftzconf.h
-    source/src/gzip/infblock.h
-    source/src/gzip/infcodes.h
+    source/src/gzip/gzguts.h
+    source/src/gzip/inffast.h
     source/src/gzip/inffixed.h
+    source/src/gzip/inflate.h
     source/src/gzip/inftrees.h
-    source/src/gzip/infutil.h
     source/src/gzip/zlib.h
     source/src/gzip/zutil.h
     source/src/lzw/ftzopen.h
@@ -352,6 +358,10 @@ set(sources
     source/src/raster/ftraster.h
     source/src/raster/ftrend1.h
     source/src/raster/rasterrs.h
+    source/src/sdf/ftsdf.h
+    source/src/sdf/ftsdfcommon.h
+    source/src/sdf/ftsdferrs.h
+    source/src/sdf/ftsdfrend.h
     source/src/sfnt/pngshim.h
     source/src/sfnt/sfdriver.h
     source/src/sfnt/sferrors.h
@@ -368,10 +378,13 @@ set(sources
     source/src/sfnt/ttmtx.h
     source/src/sfnt/ttpost.h
     source/src/sfnt/ttsbit.h
+    source/src/sfnt/ttsvg.h
     source/src/sfnt/woff2tags.h
     source/src/smooth/ftgrays.h
     source/src/smooth/ftsmerrs.h
     source/src/smooth/ftsmooth.h
+    source/src/svg/ftsvg.h
+    source/src/svg/svgtypes.h
     source/src/truetype/ttdriver.h
     source/src/truetype/tterrors.h
     source/src/truetype/ttgload.h
