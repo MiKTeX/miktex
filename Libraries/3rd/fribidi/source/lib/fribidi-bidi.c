@@ -83,13 +83,19 @@ merge_with_prev (
   first->next->prev = first;
   RL_LEN (first) += RL_LEN (second);
   if (second->next_isolate)
-    second->next_isolate->prev_isolate = first;
+    second->next_isolate->prev_isolate = second->prev_isolate;
+  /* The following edge case typically shouldn't happen, but fuzz
+     testing shows it does, and the assignment protects against
+     a dangling pointer. */
+  else if (second->next->prev_isolate == second)
+    second->next->prev_isolate = second->prev_isolate;  
+  if (second->prev_isolate)
+    second->prev_isolate->next_isolate = second->next_isolate;
   first->next_isolate = second->next_isolate;
 
   fribidi_free (second);
   return first;
 }
-
 static void
 compact_list (
   FriBidiRun *list
@@ -101,6 +107,7 @@ compact_list (
     for_run_list (list, list)
       if (RL_TYPE (list->prev) == RL_TYPE (list)
 	  && RL_LEVEL (list->prev) == RL_LEVEL (list)
+          && RL_ISOLATE_LEVEL (list->prev) == RL_ISOLATE_LEVEL (list)
           && RL_BRACKET_TYPE(list) == FRIBIDI_NO_BRACKET /* Don't join brackets! */
           && RL_BRACKET_TYPE(list->prev) == FRIBIDI_NO_BRACKET
           )
@@ -119,6 +126,7 @@ compact_neutrals (
       for_run_list (list, list)
       {
 	if (RL_LEVEL (list->prev) == RL_LEVEL (list)
+            && RL_ISOLATE_LEVEL (list->prev) == RL_ISOLATE_LEVEL (list)
 	    &&
 	    ((RL_TYPE (list->prev) == RL_TYPE (list)
 	      || (FRIBIDI_IS_NEUTRAL (RL_TYPE (list->prev))
@@ -391,14 +399,25 @@ fribidi_get_par_direction (
   const FriBidiStrIndex len
 )
 {
+  int valid_isolate_count = 0;
   register FriBidiStrIndex i;
 
   fribidi_assert (bidi_types);
 
   for (i = 0; i < len; i++)
-    if (FRIBIDI_IS_LETTER (bidi_types[i]))
-      return FRIBIDI_IS_RTL (bidi_types[i]) ? FRIBIDI_PAR_RTL :
-	FRIBIDI_PAR_LTR;
+    {
+      if (bidi_types[i] == FRIBIDI_TYPE_PDI)
+        {
+          /* Ignore if there is no matching isolate */
+          if (valid_isolate_count>0)
+            valid_isolate_count--;
+        }
+      else if (FRIBIDI_IS_ISOLATE(bidi_types[i]))
+        valid_isolate_count++;
+      else if (valid_isolate_count==0 && FRIBIDI_IS_LETTER (bidi_types[i]))
+        return FRIBIDI_IS_RTL (bidi_types[i]) ? FRIBIDI_PAR_RTL :
+          FRIBIDI_PAR_LTR;
+    }
 
   return FRIBIDI_PAR_ON;
 }
@@ -690,7 +709,8 @@ fribidi_get_par_embedding_levels_ex (
                     POP_STATUS;
                   over_pushed = 0; /* The PDI resets the overpushed! */
                   POP_STATUS;
-                  isolate_level-- ;
+                  if (isolate_level>0)
+                    isolate_level--;
                   valid_isolate_count--;
                   RL_LEVEL (pp) = level;
                   RL_ISOLATE_LEVEL (pp) = isolate_level;

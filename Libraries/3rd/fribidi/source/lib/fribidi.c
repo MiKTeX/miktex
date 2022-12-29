@@ -74,7 +74,7 @@ fribidi_remove_bidi_marks (
   fribidi_boolean status = false;
 
   if UNLIKELY
-    (len == 0)
+    (len == 0 || str == NULL)
     {
       status = true;
       goto out;
