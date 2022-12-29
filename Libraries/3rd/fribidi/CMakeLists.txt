@@ -1,35 +1,23 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2016-2018 Christian Schenk
+## Copyright (C) 2016-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/fribidi")
 
-include_directories(BEFORE
-  
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
+include_directories(BEFORE  
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 
-  ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi
-  
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/charset
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib
+    ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/charset
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib
 )
 
 set(FRIBIDI_CHARSETS 1)
@@ -38,55 +26,55 @@ set(SIZEOF_INT 4)
 set(HAVE_STRINGIZE 1)
 
 configure_file(
-  source/lib/fribidi-config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi/fribidi-config.h
+    source/lib/fribidi-config.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi/fribidi-config.h
 )
 
 configure_file(
-  config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    config.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
 set(public_include_directories
-  ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 set(public_headers
-  lib/fribidi-arabic.h
-  lib/fribidi-begindecls.h
-  lib/fribidi-bidi-types-list.h
-  lib/fribidi-bidi-types.h
-  lib/fribidi-bidi.h
-  lib/fribidi-brackets.h
-  lib/fribidi-char-sets-list.h
-  lib/fribidi-char-sets.h
-  lib/fribidi-common.h
-  lib/fribidi-deprecated.h
-  lib/fribidi-enddecls.h
-  lib/fribidi-flags.h
-  lib/fribidi-joining-types-list.h
-  lib/fribidi-joining-types.h
-  lib/fribidi-joining.h
-  lib/fribidi-mirroring.h
-  lib/fribidi-shape.h
-  lib/fribidi-types.h
-  lib/fribidi-unicode-version.h
-  lib/fribidi-unicode.h
-  lib/fribidi.h
+    lib/fribidi-arabic.h
+    lib/fribidi-begindecls.h
+    lib/fribidi-bidi-types-list.h
+    lib/fribidi-bidi-types.h
+    lib/fribidi-bidi.h
+    lib/fribidi-brackets.h
+    lib/fribidi-char-sets-list.h
+    lib/fribidi-char-sets.h
+    lib/fribidi-common.h
+    lib/fribidi-deprecated.h
+    lib/fribidi-enddecls.h
+    lib/fribidi-flags.h
+    lib/fribidi-joining-types-list.h
+    lib/fribidi-joining-types.h
+    lib/fribidi-joining.h
+    lib/fribidi-mirroring.h
+    lib/fribidi-shape.h
+    lib/fribidi-types.h
+    lib/fribidi-unicode-version.h
+    lib/fribidi-unicode.h
+    lib/fribidi.h
 )
 
 foreach(hdr ${public_headers})
-  get_filename_component(h ${hdr} NAME)
-  configure_file(
-    source/${hdr}
-    ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi/${h}
-    COPYONLY
-  )
+    get_filename_component(h ${hdr} NAME)
+    configure_file(
+        source/${hdr}
+        ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi/${h}
+        COPYONLY
+    )
 endforeach()
 
 configure_file(
-  fribidi-version.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/fribidi-version.h
+    miktex-fribidi-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-fribidi-version.h
 )
 
 include(sources.cmake)
