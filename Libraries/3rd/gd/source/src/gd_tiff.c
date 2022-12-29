@@ -43,6 +43,7 @@
 
 #include "gd.h"
 #include "gd_errors.h"
+#include "gd_intern.h"
 #include "gdfonts.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,10 +71,6 @@
 #define GD_GRAY 3
 #define GD_INDEXED 4
 #define GD_RGB 5
-
-#define MIN(a,b) (a < b) ? a : b;
-#define MAX(a,b) (a > b) ? a : b;
-
 
 typedef struct tiff_handle {
 	int size;
@@ -240,10 +237,10 @@ void tiffWriter(gdImagePtr image, gdIOCtx *out, int bitDepth)
 	int transparentColorR = -1;
 	int transparentColorG = -1;
 	int transparentColorB = -1;
-	uint16 extraSamples[1];
-	uint16 *colorMapRed = NULL;
-	uint16 *colorMapGreen = NULL;
-	uint16 *colorMapBlue = NULL;
+	uint16_t extraSamples[1];
+	uint16_t *colorMapRed = NULL;
+	uint16_t *colorMapGreen = NULL;
+	uint16_t *colorMapBlue = NULL;
 
 	tiff_handle *th;
 
@@ -295,18 +292,18 @@ void tiffWriter(gdImagePtr image, gdIOCtx *out, int bitDepth)
 
 	/* build the color map for 8 bit images */
 	if(bitDepth != 24) {
-		colorMapRed   = (uint16 *) gdMalloc(3 * (1 << bitsPerSample));
+		colorMapRed   = (uint16_t *) gdMalloc(3 * (1 << bitsPerSample));
 		if (!colorMapRed) {
 			gdFree(th);
 			return;
 		}
-		colorMapGreen = (uint16 *) gdMalloc(3 * (1 << bitsPerSample));
+		colorMapGreen = (uint16_t *) gdMalloc(3 * (1 << bitsPerSample));
 		if (!colorMapGreen) {
 			gdFree(colorMapRed);
 			gdFree(th);
 			return;
 		}
-		colorMapBlue  = (uint16 *) gdMalloc(3 *  (1 << bitsPerSample));
+		colorMapBlue  = (uint16_t *) gdMalloc(3 *  (1 << bitsPerSample));
 		if (!colorMapBlue) {
 			gdFree(colorMapRed);
 			gdFree(colorMapGreen);
@@ -451,7 +448,7 @@ BGD_DECLARE(void) gdImageTiffCtx(gdImagePtr image, gdIOCtx *out)
 /* Check if we are really in 8bit mode */
 static int checkColorMap(n, r, g, b)
 int n;
-uint16 *r, *g, *b;
+uint16_t *r, *g, *b;
 {
 	while (n-- > 0)
 		if (*r++ >= 256 || *g++ >= 256 || *b++ >= 256)
@@ -463,8 +460,8 @@ uint16 *r, *g, *b;
 /* Read and convert a TIFF colormap */
 static int readTiffColorMap(gdImagePtr im, TIFF *tif, char is_bw, int photometric)
 {
-	uint16 *redcmap, *greencmap, *bluecmap;
-	uint16 bps;
+	uint16_t *redcmap, *greencmap, *bluecmap;
+	uint16_t bps;
 	int i;
 
 	if (is_bw) {
@@ -476,7 +473,7 @@ static int readTiffColorMap(gdImagePtr im, TIFF *tif, char is_bw, int photometri
 			gdImageColorAllocate(im, 255,255,255);
 		}
 	} else {
-		uint16 min_sample_val, max_sample_val;
+		uint16_t min_sample_val, max_sample_val;
 
 		if (!TIFFGetField(tif, TIFFTAG_MINSAMPLEVALUE, &min_sample_val)) {
 			min_sample_val = 0;
@@ -518,7 +515,7 @@ static int readTiffColorMap(gdImagePtr im, TIFF *tif, char is_bw, int photometri
 
 static void readTiffBw (const unsigned char *src,
 			gdImagePtr im,
-			uint16       photometric,
+			uint16_t       photometric,
 			int          startx,
 			int          starty,
 			int          width,
@@ -550,7 +547,7 @@ static void readTiffBw (const unsigned char *src,
 
 static void readTiff8bit (const unsigned char *src,
                           gdImagePtr im,
-                          uint16       photometric,
+                          uint16_t       photometric,
                           int          startx,
                           int          starty,
                           int          width,
@@ -637,10 +634,10 @@ static void readTiff8bit (const unsigned char *src,
 	}
 }
 
-static int createFromTiffTiles(TIFF *tif, gdImagePtr im, uint16 bps, uint16 photometric,
+static int createFromTiffTiles(TIFF *tif, gdImagePtr im, uint16_t bps, uint16_t photometric,
                                char has_alpha, char is_bw, int extra)
 {
-	uint16  planar;
+	uint16_t  planar;
 	int im_width, im_height;
 	int tile_width, tile_height;
 	int  x, y, height, width;
@@ -685,11 +682,11 @@ end:
 	return success;
 }
 
-static int createFromTiffLines(TIFF *tif, gdImagePtr im, uint16 bps, uint16 photometric,
+static int createFromTiffLines(TIFF *tif, gdImagePtr im, uint16_t bps, uint16_t photometric,
                                char has_alpha, char is_bw, int extra)
 {
-	uint16  planar;
-	uint32 im_height, im_width, y;
+	uint16_t  planar;
+	uint32_t im_height, im_width, y;
 
 	unsigned char *buffer;
 	int success = GD_SUCCESS;
@@ -764,11 +761,11 @@ static int createFromTiffRgba(TIFF * tif, gdImagePtr im)
 	int color;
 	int width = im->sx;
 	int height = im->sy;
-	uint32 *buffer;
-	uint32 rgba;
+	uint32_t *buffer;
+	uint32_t rgba;
 	int success;
 
-	buffer = (uint32 *) gdCalloc(sizeof(uint32), width * height);
+	buffer = (uint32_t *) gdCalloc(sizeof(uint32_t), width * height);
 	if (!buffer) {
 		return GD_FAILURE;
 	}
@@ -813,11 +810,11 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffCtx(gdIOCtx *infile)
 	TIFF *tif;
 	tiff_handle *th;
 
-	uint16 bps, spp, photometric;
-	uint16 orientation;
+	uint16_t bps, spp, photometric;
+	uint16_t orientation;
 	int width, height;
-	uint16 extra, *extra_types;
-	uint16 planar;
+	uint16_t extra, *extra_types;
+	uint16_t planar;
 	char	has_alpha, is_bw, is_gray;
 	char	force_rgba = FALSE;
 	char	save_transparent;
@@ -870,7 +867,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffCtx(gdIOCtx *infile)
 	}
 
 	if (!TIFFGetField (tif, TIFFTAG_PHOTOMETRIC, &photometric)) {
-		uint16 compression;
+		uint16_t compression;
 		if (TIFFGetField(tif, TIFFTAG_COMPRESSION, &compression) &&
 		        (compression == COMPRESSION_CCITTFAX3 ||
 		         compression == COMPRESSION_CCITTFAX4 ||
@@ -1078,34 +1075,44 @@ static void _noTiffError(void)
 
 BGD_DECLARE(void) gdImageTiffCtx(gdImagePtr image, gdIOCtx *out)
 {
+	ARG_NOT_USED(image);
+	ARG_NOT_USED(out);
 	_noTiffError();
 }
 
 BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffCtx(gdIOCtx *infile)
 {
+	ARG_NOT_USED(infile);
 	_noTiffError();
 	return NULL;
 }
 
 BGD_DECLARE(gdImagePtr) gdImageCreateFromTiff(FILE *inFile)
 {
+	ARG_NOT_USED(inFile);
 	_noTiffError();
 	return NULL;
 }
 
 BGD_DECLARE(gdImagePtr) gdImageCreateFromTiffPtr(int size, void *data)
 {
+	ARG_NOT_USED(size);
+	ARG_NOT_USED(data);
 	_noTiffError();
 	return NULL;
 }
 
 BGD_DECLARE(void) gdImageTiff(gdImagePtr im, FILE *outFile)
 {
+	ARG_NOT_USED(im);
+	ARG_NOT_USED(outFile);
 	_noTiffError();
 }
 
 BGD_DECLARE(void *) gdImageTiffPtr(gdImagePtr im, int *size)
 {
+	ARG_NOT_USED(im);
+	ARG_NOT_USED(size);
 	_noTiffError();
 	return NULL;
 }

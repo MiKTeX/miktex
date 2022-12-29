@@ -35,14 +35,13 @@ configure_file(
 
 set(sources
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-gd-version.h
-    source/src/bmp.h
+    
     source/src/gd.c
-    source/src/gd.h
+    source/src/gd_avif.c
     source/src/gd_bmp.c
     source/src/gd_color.c
-    source/src/gd_color.h
     source/src/gd_color_map.c
-    source/src/gd_color_map.h
+    source/src/gd_color_match.c
     source/src/gd_crop.c
     source/src/gd_filename.c
     source/src/gd_filter.c
@@ -50,24 +49,21 @@ set(sources
     source/src/gd_gd2.c
     source/src/gd_gif_in.c
     source/src/gd_gif_out.c
+    source/src/gd_heif.c
     source/src/gd_interpolation.c
     source/src/gd_io.c
-    source/src/gd_io.h
     source/src/gd_io_dp.c
     source/src/gd_io_file.c
     source/src/gd_io_ss.c
     source/src/gd_io_stream.cxx
-    source/src/gd_io_stream.h
     source/src/gd_jpeg.c
     source/src/gd_matrix.c
     source/src/gd_nnquant.c
-    source/src/gd_nnquant.h
     source/src/gd_png.c
     source/src/gd_rotate.c
     source/src/gd_security.c
     source/src/gd_ss.c
     source/src/gd_tga.c
-    source/src/gd_tga.h
     source/src/gd_tiff.c
     source/src/gd_topal.c
     source/src/gd_transform.c
@@ -76,29 +72,41 @@ set(sources
     source/src/gd_webp.c
     source/src/gd_xbm.c
     source/src/gdcache.c
-    source/src/gdcache.h
     source/src/gdfontg.c
-    source/src/gdfontg.h
     source/src/gdfontl.c
-    source/src/gdfontl.h
     source/src/gdfontmb.c
-    source/src/gdfontmb.h
     source/src/gdfonts.c
-    source/src/gdfonts.h
     source/src/gdfontt.c
-    source/src/gdfontt.h
     source/src/gdft.c
     source/src/gdfx.c
-    source/src/gdfx.h
     source/src/gdhelpers.c
-    source/src/gdhelpers.h
     source/src/gdkanji.c
     source/src/gdpp.cxx
-    source/src/gdpp.h
     source/src/gdtables.c
     source/src/gdxpm.c
-    source/src/jisx0208.h
     source/src/wbmp.c
+
+    source/src/bmp.h
+    source/src/entities.h
+    source/src/gd.h
+    source/src/gdcache.h
+    source/src/gdfontg.h
+    source/src/gdfontl.h
+    source/src/gdfontmb.h
+    source/src/gdfonts.h
+    source/src/gdfontt.h
+    source/src/gdfx.h
+    source/src/gdhelpers.h
+    source/src/gdpp.h
+    source/src/gd_color.h
+    source/src/gd_color_map.h
+    source/src/gd_errors.h
+    source/src/gd_intern.h
+    source/src/gd_io.h
+    source/src/gd_io_stream.h
+    source/src/gd_nnquant.h
+    source/src/gd_tga.h
+    source/src/jisx0208.h
     source/src/wbmp.h
 )
 

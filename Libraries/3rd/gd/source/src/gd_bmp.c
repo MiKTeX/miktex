@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include "gd.h"
 #include "gdhelpers.h"
+#include "gd_errors.h"
 #include "bmp.h"
 
 static int compress_row(unsigned char *uncompressed_row, int length);
@@ -223,10 +224,10 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 	/* 8-bit colours */
 	if (!im->trueColor) {
 		for(i = 0; i< im->colorsTotal; ++i) {
-			Putchar(gdImageBlue(im, i), out);
-			Putchar(gdImageGreen(im, i), out);
-			Putchar(gdImageRed(im, i), out);
-			Putchar(0, out);
+			gdPutC(gdImageBlue(im, i), out);
+			gdPutC(gdImageGreen(im, i), out);
+			gdPutC(gdImageRed(im, i), out);
+			gdPutC(0, out);
 		}
 
 		if (compression) {
@@ -247,14 +248,14 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 				if (compression) {
 					*uncompressed_row++ = (unsigned char)gdImageGetPixel(im, xpos, row);
 				} else {
-					Putchar(gdImageGetPixel(im, xpos, row), out);
+					gdPutC(gdImageGetPixel(im, xpos, row), out);
 				}
 			}
 
 			if (!compression) {
 				/* Add padding to make sure we have n mod 4 == 0 bytes per row */
 				for (xpos = padding; xpos > 0; --xpos) {
-					Putchar('\0', out);
+					gdPutC('\0', out);
 				}
 			} else {
 				int compressed_size = 0;
@@ -266,9 +267,13 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 				bitmap_size += compressed_size;
 
 
-				gdPutBuf(uncompressed_row, compressed_size, out);
-				Putchar(BMP_RLE_COMMAND, out);
-				Putchar(BMP_RLE_ENDOFLINE, out);
+				if (gdPutBuf(uncompressed_row, compressed_size, out) != compressed_size){
+					gd_error("gd-bmp write error\n");
+					error = 1;
+					break;
+				}
+				gdPutC(BMP_RLE_COMMAND, out);
+				gdPutC(BMP_RLE_ENDOFLINE, out);
 				bitmap_size += 2;
 			}
 		}
@@ -279,8 +284,8 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 				goto cleanup;
 			}
 			/* Update filesize based on new values and set compression flag */
-			Putchar(BMP_RLE_COMMAND, out);
-			Putchar(BMP_RLE_ENDOFBITMAP, out);
+			gdPutC(BMP_RLE_COMMAND, out);
+			gdPutC(BMP_RLE_ENDOFBITMAP, out);
 			bitmap_size += 2;
 
 			/* Write new total bitmap size */
@@ -297,14 +302,14 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 			for (xpos = 0; xpos < im->sx; xpos++) {
 				pixel = gdImageGetPixel(im, xpos, row);
 
-				Putchar(gdTrueColorGetBlue(pixel), out);
-				Putchar(gdTrueColorGetGreen(pixel), out);
-				Putchar(gdTrueColorGetRed(pixel), out);
+				gdPutC(gdTrueColorGetBlue(pixel), out);
+				gdPutC(gdTrueColorGetGreen(pixel), out);
+				gdPutC(gdTrueColorGetRed(pixel), out);
 			}
 
 			/* Add padding to make sure we have n mod 4 == 0 bytes per row */
 			for (xpos = padding; xpos > 0; --xpos) {
-				Putchar('\0', out);
+				gdPutC('\0', out);
 			}
 		}
 	}
@@ -325,7 +330,10 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 			if (buffer_size == 0) {
 				break;
 			}
-			gdPutBuf(copy_buffer , buffer_size, out_original);
+			if (gdPutBuf(copy_buffer , buffer_size, out_original) != buffer_size) {
+				gd_error("gd-bmp write error\n");
+				error = 1;
+			}
 		}
 		gdFree(copy_buffer);
 
@@ -335,7 +343,7 @@ static int _gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 		out_original = NULL;
 	}
 
-	ret = 0;
+	ret = error;
 cleanup:
 	if (tmpfile_for_compression) {
 #ifdef _WIN32
