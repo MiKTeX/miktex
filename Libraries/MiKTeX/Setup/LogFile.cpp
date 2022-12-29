@@ -1,6 +1,6 @@
 /* LogFile.cpp:
 
-   Copyright (C) 2000-2021 Christian Schenk
+   Copyright (C) 2000-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -30,7 +30,7 @@ using namespace MiKTeX::Util;
 
 void LogFile::Load(const PathName& logFileName)
 {
-  setupService->ReportLine(fmt::format("loading {0}...", logFileName));
+  setupService->ReportLine(fmt::format("loading {0}...", logFileName.ToDisplayString()));
   files.clear();
 #if defined(MIKTEX_WINDOWS)
   regValues.clear();
@@ -154,7 +154,7 @@ void LogFile::RemoveRegistrySettings()
 
 void LogFile::RemoveFiles(const PathName& prefix)
 {
-  setupService->ReportLine(fmt::format("removing MiKTeX files from {0}...", prefix));
+  setupService->ReportLine(fmt::format("removing MiKTeX files from {0}...", prefix.ToDisplayString()));
   set<PathName> directories;
   for (const PathName& file : files)
   {

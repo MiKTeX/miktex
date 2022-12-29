@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -174,7 +174,7 @@ void SessionImpl::TraceDirectoryPatterns(const std::string& fileType, const vect
   unsigned ord = 0;
   for (vector<PathName>::const_iterator it = vec.begin(); it != vec.end(); ++it, ++ord)
   {
-    trace_filesearch->WriteLine("core", TraceLevel::Trace, fmt::format("  {0}: {1}", ord, *it));
+    trace_filesearch->WriteLine("core", TraceLevel::Trace, fmt::format("  {0}: {1}", ord, it->ToDisplayString()));
   }
 }
 

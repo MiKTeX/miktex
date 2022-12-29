@@ -1,6 +1,6 @@
 /* miktex/Core/Exceptions.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -43,11 +43,17 @@ struct SourceLocation
   SourceLocation& operator=(SourceLocation&& other) = default;
   ~SourceLocation() = default;
   MIKTEXCOREEXPORT MIKTEXTHISCALL SourceLocation(const std::string& functionName, const std::string& fileName, int lineNo);
+  std::string ToString() const;
   std::string functionName;
   std::string fileName;
   int lineNo = 0;
   std::string tag;
 };
+
+inline std::string SourceLocation::ToString() const
+{
+  return this->fileName + std::string(":") + std::to_string(this->lineNo);
+}
 
 #define MIKTEX_SOURCE_LOCATION()                                \
   MiKTeX::Core::SourceLocation(__func__, __FILE__, __LINE__)
@@ -252,7 +258,7 @@ private:
 
 inline std::ostream& operator<<(std::ostream& os, const SourceLocation& loc)
 {
-  os << loc.fileName << ":" << loc.lineNo;
+  os << loc.ToString();
   return os;
 }
 

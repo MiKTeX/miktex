@@ -1,6 +1,6 @@
 /* Helpers.cpp:
 
-   Copyright (C) 2021 Christian Schenk
+   Copyright (C) 2021-2022 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -113,7 +113,7 @@ PathName Helpers::GetHomeDirectory()
   // TODO
   if (!Helpers::DirectoryExists(result))
   {
-    throw Exception(fmt::format("Home directory {0} does not exist.", result));
+    throw Exception(fmt::format("Home directory \"{0}\" does not exist.", result.ToDisplayString()));
   }
   return result;
 }

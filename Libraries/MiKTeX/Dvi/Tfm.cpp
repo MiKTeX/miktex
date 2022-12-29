@@ -1,6 +1,6 @@
 /* Tfm.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -118,7 +118,7 @@ void Tfm::Read()
 
   dviInfo.fileName = fileName.ToString();
 
-  trace_tfm->WriteLine("libdvi", fmt::format(T_("opening TFM file {0}"), fileName));
+  trace_tfm->WriteLine("libdvi", fmt::format(T_("opening TFM file {0}"), Q_(fileName.ToDisplayString())));
 
   InputStream inputStream(fileName.GetData());
 

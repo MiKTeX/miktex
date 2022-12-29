@@ -1,6 +1,6 @@
 /* winSetupService.cpp:
 
-   Copyright (C) 2014-2021 Christian Schenk
+   Copyright (C) 2014-2022 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -486,7 +486,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (hr.Failed())
     {
-      LogInternal(TraceLevel::Error, fmt::format("IShellLinkW could not be created (hr={0})\n", hr));
+      LogInternal(TraceLevel::Error, fmt::format("IShellLinkW could not be created (hr={0})\n", hr.ToString()));
       MIKTEX_UNEXPECTED();
     }
 
@@ -496,7 +496,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (hr.Failed())
     {
-      LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetPath() failed (hr={0})\n", hr));
+      LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetPath() failed (hr={0})\n", hr.ToString()));
       MIKTEX_UNEXPECTED();
     }
 
@@ -505,7 +505,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetArguments(Expand(ld.args, str).c_str());
       if (hr.Failed())
       {
-        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetArguments() failed (hr={0})\n", hr));
+        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetArguments() failed (hr={0})\n", hr.ToString()));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -515,7 +515,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetDescription(UW_(ld.description));
       if (hr.Failed())
       {
-        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetDescription() failed (hr={0})\n", hr));
+        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetDescription() failed (hr={0})\n", hr.ToString()));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -525,7 +525,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetIconLocation(Expand(ld.iconPath, str).c_str(), ld.iconIndex);
       if (hr.Failed())
       {
-        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetIconLocation() failed (hr={0})\n", hr));
+        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetIconLocation() failed (hr={0})\n", hr.ToString()));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -535,7 +535,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetWorkingDirectory(Expand(ld.workingDir, str).c_str());
       if (hr.Failed())
       {
-        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetWorkingDirectory() failed (hr={0})\n", hr));
+        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetWorkingDirectory() failed (hr={0})\n", hr.ToString()));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -545,7 +545,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetShowCmd(ld.showCmd);
       if (hr.Failed())
       {
-        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetShowCmd() failed (hr={0})\n", hr));
+        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetShowCmd() failed (hr={0})\n", hr.ToString()));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -555,7 +555,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
       hr = psl->SetHotkey(ld.hotKey);
       if (hr.Failed())
       {
-        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetHotkey() failed (hr={0})\n", hr));
+        LogInternal(TraceLevel::Error, fmt::format("IShellLinkW::SetHotkey() failed (hr={0})\n", hr.ToString()));
         MIKTEX_UNEXPECTED();
       }
     }
@@ -566,7 +566,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (hr.Failed())
     {
-      LogInternal(TraceLevel::Error, fmt::format("IPersistFile could not be created (hr={0})\n", hr));
+      LogInternal(TraceLevel::Error, fmt::format("IPersistFile could not be created (hr={0})\n", hr.ToString()));
       MIKTEX_UNEXPECTED();
     }
 
@@ -574,7 +574,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const Shel
 
     if (hr.Failed())
     {
-      LogInternal(TraceLevel::Error, fmt::format("IPersistFile::Save() failed (hr={0})\n", hr));
+      LogInternal(TraceLevel::Error, fmt::format("IPersistFile::Save() failed (hr={0})\n", hr.ToString()));
       MIKTEX_UNEXPECTED();
     }
   }
@@ -592,7 +592,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (hr.Failed())
   {
-    LogInternal(TraceLevel::Error, fmt::format("IUniformResourceLocator could not be created (hr={0})\n", hr));
+    LogInternal(TraceLevel::Error, fmt::format("IUniformResourceLocator could not be created (hr={0})\n", hr.ToString()));
     MIKTEX_UNEXPECTED();
   }
 
@@ -600,7 +600,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (hr.Failed())
   {
-    LogInternal(TraceLevel::Error, fmt::format("IUniformResourceLocatorW::SetURL() failed (hr={0})\n", hr));
+    LogInternal(TraceLevel::Error, fmt::format("IUniformResourceLocatorW::SetURL() failed (hr={0})\n", hr.ToString()));
     MIKTEX_UNEXPECTED();
   }
 
@@ -610,7 +610,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (hr.Failed())
   {
-    LogInternal(TraceLevel::Error, fmt::format("IPersistFile could not be created (hr={0})\n", hr));
+    LogInternal(TraceLevel::Error, fmt::format("IPersistFile could not be created (hr={0})\n", hr.ToString()));
     MIKTEX_UNEXPECTED();
   }
 
@@ -618,7 +618,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const str
 
   if (hr.Failed())
   {
-    LogInternal(TraceLevel::Error, fmt::format("IPersistFile::Save() failed (hr={0})\n", hr));
+    LogInternal(TraceLevel::Error, fmt::format("IPersistFile::Save() failed (hr={0})\n", hr.ToString()));
     MIKTEX_UNEXPECTED();
   }
 }

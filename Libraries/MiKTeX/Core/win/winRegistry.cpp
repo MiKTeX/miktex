@@ -1,6 +1,6 @@
 /* winRegistry.cpp: Windows registry operations
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,6 +23,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/xchar.h>
 
 #include <miktex/Core/win/Registry>
 #include <miktex/Core/win/winAutoResource>
@@ -43,7 +44,7 @@ using namespace MiKTeX::Util;
 wstring MakeRegistryPath(const wstring& keyName)
 {
 
-  return fmt::format(L"{}\\{}", SESSION_IMPL()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES), keyName);
+  return fmt::format(L"{}\\{}"s, SESSION_IMPL()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES), keyName);
 }
 
 HKEY ToHkey(ConfigurationScope scope)

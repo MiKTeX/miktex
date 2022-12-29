@@ -405,7 +405,7 @@ void PackageInstallerImpl::LoadRepositoryManifest(bool download)
     repositoryManifest.Load(pathMpmIni);
 
     // report digest
-    ReportLine(fmt::format(T_("package repository digest: {0}"), repositoryManifest.GetDigest()));
+    ReportLine(fmt::format(T_("package repository digest: {0}"), repositoryManifest.GetDigest().ToString()));
 }
 
 void PackageInstallerImpl::FindUpdatesNoLock()
@@ -515,8 +515,8 @@ void PackageInstallerImpl::FindUpdatesNoLock()
         {
             trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("{0}: server has a different version"), packageId));
         }
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("server digest: {0}"), md5));;
-        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package.digest));
+        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("server digest: {0}"), md5.ToString()));;
+        trace_mpm->WriteLine(TRACE_FACILITY, fmt::format(T_("local digest: {0}"), package.digest.ToString()));
         if (!isReleaseStateDiff)
         {
             // compare time stamps
@@ -1336,7 +1336,7 @@ void PackageInstallerImpl::ConnectToServer()
 void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& path, bool mustSucceed)
 {
     MIKTEX_ASSERT(!session->IsMiKTeXPortable());
-    ReportLine(fmt::format("{0} {1}", (doRegister ? "registering" : "unregistering"), path));
+    ReportLine(fmt::format("{0} {1}", (doRegister ? "registering" : "unregistering"), Q_(path.ToDisplayString())));
 #if !USE_REGSVR32
     MIKTEX_ASSERT(path.HasExtension(MIKTEX_SHARED_LIB_FILE_SUFFIX));
     DllProc0<HRESULT> regsvr(path.GetData(), doRegister ? "DllRegisterServer" : "DllUnregisterServer");
@@ -1349,7 +1349,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& pa
         }
         else
         {
-            trace_error->WriteLine(TRACE_FACILITY, TraceLevel::Error, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr));
+            trace_error->WriteLine(TRACE_FACILITY, TraceLevel::Error, fmt::format(T_("registration/unregistration of {0} did not succeed; hr={1}"), Q_(path), hr.ToString()));
         }
     }
 #else
@@ -1435,12 +1435,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
                     pathIn /= relPathIn;
                     if (File::Exists(pathIn))
                     {
-                        ReportLine(fmt::format(T_("configuring {0}"), relPath));
+                        ReportLine(fmt::format(T_("configuring {0}"), Q_(relPath.ToDisplayString())));
                         session->ConfigureFile(relPath);
                     }
                     else
                     {
-                        ReportLine(fmt::format(T_("problem: {0} does not exist"), pathIn));
+                        ReportLine(fmt::format(T_("problem: {0} does not exist"), Q_(pathIn.ToDisplayString())));
                     }
                 }
 #endif
@@ -1486,12 +1486,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
             pathIn.AppendExtension(".in");
             if (File::Exists(pathIn))
             {
-                ReportLine(fmt::format(T_("configuring {0}"), relPath));
+                ReportLine(fmt::format(T_("configuring {0}"), Q_(relPath.ToDisplayString())));
                 session->ConfigureFile(relPath);
             }
             else
             {
-                ReportLine(fmt::format(T_("problem: {0} does not exist"), pathIn));
+                ReportLine(fmt::format(T_("problem: {0} does not exist"), Q_(pathIn.ToDisplayString())));
             }
         }
 #endif
@@ -1509,7 +1509,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
             }
             else
             {
-                ReportLine(fmt::format(T_("problem: {0} does not exist"), path));
+                ReportLine(fmt::format(T_("problem: {0} does not exist"), Q_(path.ToDisplayString())));
             }
         }
     }

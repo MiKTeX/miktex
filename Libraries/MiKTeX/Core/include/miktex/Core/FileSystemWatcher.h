@@ -39,19 +39,24 @@ enum class FileSystemChangeAction
   Removed,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const FileSystemChangeAction& action)
+inline std::string FileSystemChangeActionToString(FileSystemChangeAction action)
 {
   switch (action)
   {
     case FileSystemChangeAction::Added:
-      return os << "added";
+      return "added";
     case FileSystemChangeAction::Modified:
-      return os << "modified";
+      return "modified";
     case FileSystemChangeAction::Removed:
-      return os << "removed";
+      return "removed";
     default:
-      return os << "?";
+      return "?";
   }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const FileSystemChangeAction& action)
+{
+  return os << FileSystemChangeActionToString(action);
 }
 
 struct FileSystemChangeEvent

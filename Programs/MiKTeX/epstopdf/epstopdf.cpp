@@ -1,6 +1,6 @@
 /* epstopdf.cpp: epstopdf
 
-   Copyright (C) 2000-2021 Christian Schenk
+   Copyright (C) 2000-2022 Christian Schenk
    Copyright (C) 1998-2001 by Sebastian Rahtz et al.
 
    This file is part of EPStoPDF.
@@ -623,7 +623,7 @@ void EpsToPdfApp::EnsureFontIsAvailable(const string& fontName)
     PathName result;
     if (session->FindFile(fileName, "%R/fonts//", result))
     {
-      MyTrace(fmt::format(T_("found required font {0}: {1}"), fontName, result));
+      MyTrace(fmt::format(T_("found required font {0}: {1}"), fontName, result.ToDisplayString()));
     }
     else
     {
@@ -1131,7 +1131,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     }
     if (restricted && !Utils::IsSafeFileName(outFile))
     {
-      FatalError(fmt::format(T_("Output file name not allowed in restricted mode: {0}"), outFile));
+      FatalError(fmt::format(T_("Output file name not allowed in restricted mode: {0}"), Q_(outFile.ToDisplayString())));
     }
   }
   else

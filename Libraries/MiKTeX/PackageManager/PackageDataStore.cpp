@@ -200,7 +200,7 @@ void PackageDataStore::NeedPackageManifestsIni()
     PathName tpmDir = session->GetSpecialPath(SpecialPath::InstallRoot) / PathName(MIKTEX_PATH_PACKAGE_MANIFEST_DIR);
     if (Directory::Exists(tpmDir))
     {
-        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("starting migration: {} -> {}", tpmDir, existingPackageManifestsIni));
+        trace_mpm->WriteLine(TRACE_FACILITY, TraceLevel::Info, fmt::format("starting migration: {} -> {}", Q_(tpmDir.ToDisplayString()), Q_(existingPackageManifestsIni.ToDisplayString())));
         unique_ptr<Cfg> cfgExisting = Cfg::Create();
         unique_ptr<DirectoryLister> lister = DirectoryLister::Open(tpmDir);
         DirectoryEntry direntry;

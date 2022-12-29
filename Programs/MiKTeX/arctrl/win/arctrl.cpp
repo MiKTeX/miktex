@@ -1,6 +1,6 @@
 /* arctrl.cpp: Acrobat Reader (AR) Controller
 
-   Written in the years 2006-2021 by Christian Schenk.
+   Written in the years 2006-2022 by Christian Schenk.
 
    This file is based on public domain work by Fabrice Popineau.
 
@@ -420,7 +420,7 @@ void ArCtrl::DocOpen(const PathName& path)
   }
   PathName fullPath(path);
   fullPath.MakeFullyQualified();
-  ExecuteDdeCommand(fmt::format("[DocOpen(\"{0}\")]", fullPath));
+  ExecuteDdeCommand(fmt::format("[DocOpen(\"{0}\")]", fullPath.ToString()));
 }
 
 void ArCtrl::DocClose(const PathName& path)
@@ -431,7 +431,7 @@ void ArCtrl::DocClose(const PathName& path)
   }
   PathName fullPath(path);
   fullPath.MakeFullyQualified();
-  ExecuteDdeCommand(fmt::format("[DocClose(\"{0}\")]", fullPath));
+  ExecuteDdeCommand(fmt::format("[DocClose(\"{0}\")]", fullPath.ToString()));
 }
 
 void ArCtrl::CloseAllDocs()
@@ -462,7 +462,7 @@ void ArCtrl::DocGoTo(const PathName& path, int pageNum)
   }
   PathName fullPath(path);
   fullPath.MakeFullyQualified();
-  ExecuteDdeCommand(fmt::format("[DocGoTo(\"{0}\",{1})]", fullPath, pageNum));
+  ExecuteDdeCommand(fmt::format("[DocGoTo(\"{0}\",{1})]", fullPath.ToString(), pageNum));
 }
 
 void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
@@ -473,7 +473,7 @@ void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
   }
   PathName fullPath(path);
   fullPath.MakeFullyQualified();
-  ExecuteDdeCommand(fmt::format("[DocGoToNameDest(\"{0}\",\"{1}\")]", fullPath, nameDest));
+  ExecuteDdeCommand(fmt::format("[DocGoToNameDest(\"{0}\",\"{1}\")]", fullPath.ToString(), nameDest));
 }
 
 void ArCtrl::FileOpen(const PathName& path)
@@ -484,7 +484,7 @@ void ArCtrl::FileOpen(const PathName& path)
   }
   PathName fullPath(path);
   fullPath.MakeFullyQualified();
-  ExecuteDdeCommand(fmt::format("[FileOpen(\"{0}\")]", fullPath));
+  ExecuteDdeCommand(fmt::format("[FileOpen(\"{0}\")]", fullPath.ToString()));
 }
 
 bool ArCtrl::Execute(const string& commandLine)

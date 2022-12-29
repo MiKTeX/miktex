@@ -1,6 +1,6 @@
 /* error.cpp: error handling
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -54,7 +54,7 @@ void Session::FatalMiKTeXError(const string& message, const string& description,
   string programInvocationName = Utils::GetExeName();
   auto trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
   trace_error->WriteLine("core", TraceLevel::Fatal, message);
-  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Data: {0}", info));
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Data: {0}", info.ToString()));
   trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format("Source: {0}:{1}", sourceLocation.fileName, sourceLocation.lineNo));
   string env;
   if (Utils::GetEnvironmentString("MIKTEX_DEBUG_BREAK", env) && env == "1")
@@ -98,7 +98,7 @@ void Session::FatalCrtError(const string& functionName, int errorCode, const MiK
   trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Function: {0}"), functionName));
   trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Result: {0}"), errorCode));
   trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Data: {0}"), infoString.empty() ? "<no data>" : infoString));
-  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Source: {0}"), sourceLocation));
+  trace_error->WriteLine("core", TraceLevel::Fatal, fmt::format(T_("Source: {0}"), sourceLocation.ToString()));
   string env;
   if (Utils::GetEnvironmentString("MIKTEX_DEBUG_BREAK", env) && env == "1")
   {

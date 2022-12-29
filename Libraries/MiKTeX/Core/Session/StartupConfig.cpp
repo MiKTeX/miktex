@@ -1,6 +1,6 @@
 /* startupconfig.cpp: startup configuration
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -468,7 +468,7 @@ InternalStartupConfig SessionImpl::ReadMiKTeXConfig(const PathName& path)
 
 void SessionImpl::SaveStartupConfig(const InternalStartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
-  trace_core->WriteLine("core", TraceLevel::Info, fmt::format(T_("saving startup configuration; setupVersion={0}"), startupConfig.setupVersion));
+  trace_core->WriteLine("core", TraceLevel::Info, fmt::format(T_("saving startup configuration; setupVersion={0}"), startupConfig.setupVersion.ToString()));
 #if defined(MIKTEX_WINDOWS)
   bool noRegistry = options[RegisterRootDirectoriesOption::NoRegistry];
 #else

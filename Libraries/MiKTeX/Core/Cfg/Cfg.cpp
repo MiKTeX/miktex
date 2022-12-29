@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -954,7 +954,7 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   unique_ptr<StopWatch> stopWatch = StopWatch::Start(traceStopWatch.get(), "core", path.ToString());
-  traceStream->WriteLine("core", fmt::format(T_("parsing: {0}..."), path));
+  traceStream->WriteLine("core", fmt::format(T_("parsing: {0}..."), path.ToDisplayString()));
   AutoRestore<int> autoRestore1(lineno);
   AutoRestore<PathName> autoRestore(currentFile);
   std::ifstream reader = File::CreateInputStream(path);

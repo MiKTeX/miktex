@@ -19,21 +19,26 @@ set(public_include_directories
 )
 
 set(fmt_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/format.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/os.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/args.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/chrono.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/color.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/compile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/core.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/format-inl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/format.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/locale.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/os.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/ostream.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/posix.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/printf.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/ranges.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/std.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/fmt/xchar.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/format.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/os.cc
 )
+
+if(FALSE)
+    list(ADD fmt_sources ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fmt.cc)
+endif()
 
 configure_file(
     miktex-fmt-version.h.in

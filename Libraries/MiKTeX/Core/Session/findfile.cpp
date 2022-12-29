@@ -369,7 +369,7 @@ bool SessionImpl::FindFileByType(const string& fileName, FileType fileType, bool
       }
       if (renew)
       {
-        trace_filesearch->WriteLine("core", fmt::format(T_("going to renew {0} after update"), result[0]));
+        trace_filesearch->WriteLine("core", fmt::format(T_("going to renew {0} after update"), result[0].ToDisplayString()));
         if (callback->TryCreateFile(PathName(fileName), fileType))
         {
           result.clear();

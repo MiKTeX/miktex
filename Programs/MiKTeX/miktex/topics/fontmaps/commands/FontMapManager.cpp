@@ -228,12 +228,12 @@ const map<string, string> FontMapManager::psADOBE =
 
 MIKTEXNORETURN void FontMapManager::CfgError(const string& message)
 {
-    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), cfgContext.path, cfgContext.line, message));
+    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), Q_(cfgContext.path), cfgContext.line, message));
 }
 
 MIKTEXNORETURN void FontMapManager::MapError(const string& message)
 {
-    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), mapContext.path, mapContext.line, message));
+    this->ctx->ui->FatalError(fmt::format(T_("{0}:{1}: {2}"), Q_(mapContext.path), mapContext.line, message));
 }
 
 std::string FontMapManager::Option(const std::string& optionName)

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Links manager
  *
- * @copyright Copyright © 2002-2021 Christian Schenk
+ * @copyright Copyright © 2002-2022 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -26,16 +26,20 @@ enum class LinkType
   Symbolic,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const LinkType& t)
+inline std::string LinkTypeToString(LinkType t)
 {
-  std::string s;
   switch (t)
   {
-    case LinkType::Copy: s = "copy"; break;
-    case LinkType::Hard: s = "hard-link"; break;
-    case LinkType::Symbolic: s = "symlink"; break;
+    case LinkType::Copy: return "copy";
+    case LinkType::Hard: return "hard-link";
+    case LinkType::Symbolic: return "symlink";
+    default: return "";
   }
-  return os << s;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const LinkType& t)
+{
+  return os << LinkTypeToString(t);
 }
 
 struct FileLink

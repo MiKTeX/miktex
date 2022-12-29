@@ -969,7 +969,7 @@ void Application::Main(int argc, const char** argv)
         PathName logFile = setupService->CloseLog(interrupted);
         if (!logFile.Empty())
         {
-            Verbose(fmt::format("Transcript written on {0}.", logFile));
+            Verbose(fmt::format("Transcript written on {0}.", Q_(logFile.ToDisplayString())));
         }
     }
 

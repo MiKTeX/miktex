@@ -130,7 +130,7 @@ string Issue::GetUrl() const
 
 string Issue::ToString() const
 {
-  return fmt::format("{}: {}", severity, message);
+  return fmt::format("{}: {}", IssueSeverityString(severity), message);
 }
 
 SetupService::~SetupService() noexcept
@@ -999,7 +999,7 @@ void SetupServiceImpl::DoTheInstallation()
     cmdScriptFileName /= "miktex-portable.cmd";
     StreamWriter cmdScript(cmdScriptFileName);
     cmdScript.WriteLine("@echo off");
-    cmdScript.WriteLine(fmt::format("start \"\" \"%~d0%~p0{}\" --hide --mkmaps", console.ToDos()));
+    cmdScript.WriteLine(fmt::format("start \"\" \"%~d0%~p0{}\" --hide --mkmaps", console.ToDos().ToString()));
     cmdScript.Close();
   }
 
@@ -1365,11 +1365,11 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
     if (!options.CommonLinkTargetDirectory.Empty())
     {
-      args.push_back(fmt::format("--set-config-value=[{}]{}={}", MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, options.CommonLinkTargetDirectory));
+      args.push_back(fmt::format("--set-config-value=[{}]{}={}", MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_COMMONLINKTARGETDIRECTORY, options.CommonLinkTargetDirectory.ToString()));
     }
     if (!options.UserLinkTargetDirectory.Empty())
     {
-      args.push_back(fmt::format("--set-config-value=[{}]{}={}", MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, options.UserLinkTargetDirectory));
+      args.push_back(fmt::format("--set-config-value=[{}]{}={}", MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_USERLINKTARGETDIRECTORY, options.UserLinkTargetDirectory.ToString()));
     }
     if (!args.empty())
     {
@@ -1616,7 +1616,7 @@ void SetupServiceImpl::CreateInfoFile()
   }
   PathName setupExe(szSetupPath);
   setupExe.RemoveDirectorySpec();
-  stream.WriteLine(fmt::format("To install MiKTeX, run {0}.", setupExe));
+  stream.WriteLine(fmt::format("To install MiKTeX, run {0}.", setupExe.ToString()));
   stream.WriteLine();
   stream.WriteLine();
 #endif
@@ -1892,7 +1892,7 @@ void SetupServiceImpl::WriteReport(ostream& s, ReportOptionSet options)
     vector<RootDirectoryInfo> roots = session->GetRootDirectories();
     for (int idx = 0; idx < roots.size(); ++idx)
     {
-      s << fmt::format("Root{}: {}", idx, roots[idx].path) << "\n";
+      s << fmt::format("Root{}: {}", idx, roots[idx].path.ToDisplayString()) << "\n";
     }
     if (!session->IsAdminMode())
     {
@@ -1930,7 +1930,7 @@ void SetupServiceImpl::WriteReport(ostream& s, ReportOptionSet options)
     int nr = 1;
     for (const auto& iss : issues)
     {
-      s << fmt::format("  {}: {}: {}", nr, iss.severity, iss.message) << "\n";
+      s << fmt::format("  {}: {}: {}", nr, IssueSeverityString(iss.severity), iss.message) << "\n";
       nr++;
     }
   }

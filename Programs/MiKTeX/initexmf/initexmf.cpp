@@ -541,7 +541,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
   PathName cwd;
   cwd.SetToCurrentDirectory();
-  LOG4CXX_INFO(logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), CommandLineBuilder(argc, argv)));
+  LOG4CXX_INFO(logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), CommandLineBuilder(argc, argv).ToString()));
   FlushPendingTraceMessages();
   if (session->IsAdminMode())
   {
@@ -923,7 +923,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   }
   if (!File::Exists(configFile))
   {
-    Verbose(fmt::format(T_("Creating config file: {0}..."), configFile));
+    Verbose(fmt::format(T_("Creating config file: {0}..."), Q_(configFile.ToDisplayString())));
     if (!session->TryCreateFromTemplate(configFile))
     {
       File::WriteBytes(configFile, {});

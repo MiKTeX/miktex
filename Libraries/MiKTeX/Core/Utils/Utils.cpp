@@ -1,6 +1,6 @@
 /* util.cpp: generi utilities
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -519,7 +519,7 @@ string GitInfo::ToString() const
 
 string Utils::MakeProgramVersionString(const string& programName, const VersionNumber& programVersionNumber)
 {
-  return fmt::format("{0} {1} ({2})", programName, programVersionNumber, GetMiKTeXBannerString());
+  return fmt::format("{0} {1} ({2})", programName, programVersionNumber.ToString(), GetMiKTeXBannerString());
 }
 
 bool Utils::GetEnvironmentString(const string& name, string& str)

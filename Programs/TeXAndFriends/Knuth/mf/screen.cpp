@@ -1,6 +1,6 @@
 /* screen.cpp: METAFONT screen display
 
-   Copyright (C) 1998-2020 Christian Schenk
+   Copyright (C) 1998-2022 Christian Schenk
    Copyright (C) 1998 Wolfgang Kleinschmidt
 
    This file is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/xchar.h>
 
 #include "mf-miktex.h"
 
@@ -108,7 +109,7 @@ LRESULT CALLBACK ScreenWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 DWORD WINAPI ScreenThreadFunc(LPVOID lpv)
 {
   LPPOINT ppt = reinterpret_cast<LPPOINT>(lpv);
-  wstring windowName = fmt::format(L"METAFONT Screen ({0} x {1})", ppt->x, ppt->y);
+  wstring windowName = fmt::format(L"METAFONT Screen ({0} x {1})"s, ppt->x, ppt->y);
   window = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, WINDOW_CLASS, windowName.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, instance, nullptr);
   if (window == nullptr)
   {

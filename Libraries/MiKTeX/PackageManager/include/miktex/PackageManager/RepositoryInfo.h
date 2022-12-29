@@ -49,23 +49,28 @@ enum class PackageLevel
   Complete = 1000000000,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const PackageLevel packageLevel)
+inline std::string PackageLevelToString(PackageLevel packageLevel)
 {
   switch (packageLevel)
   {
     case PackageLevel::None:
-      return os << "none";
+      return "none";
     case PackageLevel::Essential:
-      return os << "essential";
+      return "essential";
     case PackageLevel::Basic:
-      return os << "basic";
+      return "basic";
     case PackageLevel::Advanced:
-      return os << "advanced";
+      return "advanced";
     case PackageLevel::Complete:
-      return os << "complete";
+      return "complete";
     default:
-      return os << "?";
-  }  
+      return "?";
+  }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const PackageLevel packageLevel)
+{
+  return os << PackageLevelToString(packageLevel);
 }
 
 /// Repository type.
@@ -80,23 +85,28 @@ enum class RepositoryType
   MiKTeXInstallation
 };
 
-inline std::ostream& operator<<(std::ostream& os, const RepositoryType repositoryType)
+inline std::string RepositoryTypeToString(RepositoryType repositoryType)
 {
   switch (repositoryType)
   {
     case RepositoryType::Unknown:
-      return os << "unknown";
+      return "unknown";
     case RepositoryType::MiKTeXDirect:
-      return os << "miktexdirect";
+      return "miktexdirect";
     case RepositoryType::Local:
-      return os << "local";
+      return "local";
     case RepositoryType::Remote:
-      return os << "remote";
+      return "remote";
     case RepositoryType::MiKTeXInstallation:
-      return os << "miktexinstallation";
+      return "miktexinstallation";
     default:
-      return os << "?";
+      return "?";
   }  
+}
+
+inline std::ostream& operator<<(std::ostream& os, const RepositoryType repositoryType)
+{
+  return os << RepositoryTypeToString(repositoryType);
 }
 
 /// Repository status.
@@ -109,19 +119,24 @@ enum class RepositoryStatus
   Offline,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const RepositoryStatus repositoryStatus)
+inline std::string RepositoryStatusToString(RepositoryStatus repositoryStatus)
 {
   switch (repositoryStatus)
   {
     case RepositoryStatus::Unknown:
-      return os << "unknown";
+      return "unknown";
     case RepositoryStatus::Online:
-      return os << "online";
+      return "online";
     case RepositoryStatus::Offline:
-      return os << "offline";
+      return "offline";
     default:
-      return os << "?";
+      return "?";
   }  
+}
+
+inline std::ostream& operator<<(std::ostream& os, const RepositoryStatus repositoryStatus)
+{
+  return os << RepositoryStatusToString(repositoryStatus);
 }
 
 /// Repository integrrity.
@@ -134,19 +149,24 @@ enum class RepositoryIntegrity
   Corrupted,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const RepositoryIntegrity repositoryIntegrity)
+inline std::string RepositoryIntegrityToString(RepositoryIntegrity repositoryIntegrity)
 {
   switch (repositoryIntegrity)
   {
     case RepositoryIntegrity::Unknown:
-      return os << "unknown";
+      return "unknown";
     case RepositoryIntegrity::Intact:
-      return os << "intact";
+      return "intact";
     case RepositoryIntegrity::Corrupted:
-      return os << "corrupted";
+      return "corrupted";
     default:
-      return os << "?";
+      return "?";
   }  
+}
+
+inline std::ostream& operator<<(std::ostream& os, const RepositoryIntegrity repositoryIntegrity)
+{
+  return os << RepositoryIntegrityToString(repositoryIntegrity);
 }
 
 /// Repository release state.
@@ -159,21 +179,25 @@ enum class RepositoryReleaseState
   Next,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const RepositoryReleaseState repositoryReleaseState)
+inline std::string RepositoryReleaseStateToString(RepositoryReleaseState repositoryReleaseState)
 {
   switch (repositoryReleaseState)
   {
     case RepositoryReleaseState::Unknown:
-      return os << "unknown";
+      return "unknown";
     case RepositoryReleaseState::Stable:
-      return os << "stable";
+      return "stable";
     case RepositoryReleaseState::Next:
-      return os << "next";
+      return "next";
     default:
-      return os << "?";
+      return "?";
   }  
 }
 
+inline std::ostream& operator<<(std::ostream& os, const RepositoryReleaseState repositoryReleaseState)
+{
+  return os << RepositoryReleaseStateToString(repositoryReleaseState);
+}
 
 /// Package repository info struct.
 struct RepositoryInfo

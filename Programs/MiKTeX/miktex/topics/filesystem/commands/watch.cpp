@@ -117,7 +117,7 @@ int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
     PathName dir(leftOvers[0]);
     if (!Directory::Exists(dir))
     {
-        ctx.ui->FatalError(fmt::format(T_("{0}: directory does not exist"), dir));
+        ctx.ui->FatalError(fmt::format(T_("{0}: directory does not exist"), Q_(dir.ToDisplayString())));
     }
     auto fsWatcher = FileSystemWatcher::Create();
     class Callback : public FileSystemWatcherCallback
@@ -125,8 +125,8 @@ int WatchCommand::Execute(ApplicationContext& ctx, const vector<string>& argumen
         void OnChange(const FileSystemChangeEvent& ev) override
         {
             ctx->ui->Output(fmt::format(outputTemplate,
-                fmt::arg("action", ev.action),
-                fmt::arg("fileName", ev.fileName)
+                fmt::arg("action", FileSystemChangeActionToString(ev.action)),
+                fmt::arg("fileName", ev.fileName.ToString())
             ));
         }
     public:

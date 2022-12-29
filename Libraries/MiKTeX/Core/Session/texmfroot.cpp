@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -110,24 +110,24 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, RootDirectoryI
       // already registered
       if (scope == ConfigurationScope::Common && !rootDirectories[idx].IsCommon())
       {
-        trace_config->WriteLine("core", fmt::format(T_("now a common TEXMF root: {0}"), root));
+        trace_config->WriteLine("core", fmt::format(T_("now a common TEXMF root: {0}"), root.ToDisplayString()));
         rootDirectories[idx].set_Common(true);
       }
       if (other && !rootDirectories[idx].IsOther())
       {
-        trace_config->WriteLine("core", fmt::format(T_("now a foreign TEXMF root: {0}"), root));
+        trace_config->WriteLine("core", fmt::format(T_("now a foreign TEXMF root: {0}"), root.ToDisplayString()));
         rootDirectories[idx].set_Other(true);
       }
       if (scope == ConfigurationScope::User && !rootDirectories[idx].IsUser())
       {
-        trace_config->WriteLine("core", fmt::format(T_("now a user TEXMF root: {0}"), root));
+        trace_config->WriteLine("core", fmt::format(T_("now a user TEXMF root: {0}"), root.ToDisplayString()));
         rootDirectories[idx].set_User(true);
       }
       rootDirectories[idx].purposes += purpose;;
       return idx;
     }
   }
-  trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), scope == ConfigurationScope::Common ? "common" : "user", root));
+  trace_config->WriteLine("core", fmt::format(T_("registering {0} TEXMF root: {1}"), scope == ConfigurationScope::Common ? "common" : "user", root.ToDisplayString()));
   RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root));
   rootDirectory.purposes += purpose;
   rootDirectory.set_Common(scope == ConfigurationScope::Common);
@@ -276,16 +276,16 @@ void SessionImpl::InitializeRootDirectories(const InternalStartupConfig& startup
 
   if (!IsAdminMode())
   {
-    trace_config->WriteLine("core", fmt::format("UserData: {}", GetRootDirectoryPath(userDataRootIndex)));
-    trace_config->WriteLine("core", fmt::format("UserConfig: {}", GetRootDirectoryPath(userConfigRootIndex)));
-    trace_config->WriteLine("core", fmt::format("UserInstall: {}", GetRootDirectoryPath(userInstallRootIndex)));
+    trace_config->WriteLine("core", fmt::format("UserData: {}", GetRootDirectoryPath(userDataRootIndex).ToDisplayString()));
+    trace_config->WriteLine("core", fmt::format("UserConfig: {}", GetRootDirectoryPath(userConfigRootIndex).ToDisplayString()));
+    trace_config->WriteLine("core", fmt::format("UserInstall: {}", GetRootDirectoryPath(userInstallRootIndex).ToDisplayString()));
   }
 
   if (startupConfig.isSharedSetup == TriState::True)
   {
-    trace_config->WriteLine("core", fmt::format("CommonData: {}", GetRootDirectoryPath(commonDataRootIndex)));
-    trace_config->WriteLine("core", fmt::format("CommonConfig: {}", GetRootDirectoryPath(commonConfigRootIndex)));
-    trace_config->WriteLine("core", fmt::format("CommonInstall: {}", GetRootDirectoryPath(commonInstallRootIndex)));
+    trace_config->WriteLine("core", fmt::format("CommonData: {}", GetRootDirectoryPath(commonDataRootIndex).ToDisplayString()));
+    trace_config->WriteLine("core", fmt::format("CommonConfig: {}", GetRootDirectoryPath(commonConfigRootIndex).ToDisplayString()));
+    trace_config->WriteLine("core", fmt::format("CommonInstall: {}", GetRootDirectoryPath(commonInstallRootIndex).ToDisplayString()));
   }
 }
 
@@ -859,7 +859,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r)
     return nullptr;
   }
 
-  trace_fndb->WriteLine("core", fmt::format(T_("loading fndb: {0}"), fqFndbFileName));
+  trace_fndb->WriteLine("core", fmt::format(T_("loading fndb: {0}"), fqFndbFileName.ToDisplayString()));
 
   shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName, root.get_Path(), fsWatcher);
 

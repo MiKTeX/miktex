@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -158,7 +158,7 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
 
 FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
-  trace_files->WriteLine("core", fmt::format("OpenFile(\"{0}\", {1}, {2:x}, {3})", path, static_cast<int>(mode), static_cast<int>(access), text));
+  trace_files->WriteLine("core", fmt::format("OpenFile(\"{0}\", {1}, {2:x}, {3})", path.ToString(), static_cast<int>(mode), static_cast<int>(access), text));
 
   unique_ptr<Process> process;
   FILE* file = nullptr;
@@ -167,7 +167,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   {
     MIKTEX_ASSERT(access == FileAccess::Read || access == FileAccess::Write);
     MIKTEX_ASSERT(!text);
-    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("starting {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, path));
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("starting {0} pipe: {1}", access == FileAccess::Read ? "input"s : "output"s, path.ToDisplayString()));
     tie(process, file) = InitiateProcessPipe(path.ToString(), access, mode);
   }
   else

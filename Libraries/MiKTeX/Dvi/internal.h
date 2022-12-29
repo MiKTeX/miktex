@@ -1,6 +1,6 @@
 /* internal.h: internal DVI definitions                 -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -29,6 +29,7 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Debug>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/Quoter>
 #include <miktex/Core/TemporaryFile>
 #include <miktex/Core/Utils>
 #include <miktex/DVI/Dvi>

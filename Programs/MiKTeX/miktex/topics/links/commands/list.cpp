@@ -119,7 +119,7 @@ int ListCommand::Execute(ApplicationContext& ctx, const vector<string>& argument
         {
             ctx.ui->Output(fmt::format(outputTemplate,
                 fmt::arg("linkName", PathName(n).ToDisplayString()),
-                fmt::arg("linkType", f.linkType),
+                fmt::arg("linkType", LinkTypeToString(f.linkType)),
                 fmt::arg("target", PathName(f.target).ToDisplayString())
             ));
         }

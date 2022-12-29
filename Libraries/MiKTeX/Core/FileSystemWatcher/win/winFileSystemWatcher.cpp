@@ -1,6 +1,6 @@
 /* winFileSystemWatcher.cpp: file system watcher (Windows specials)
 
-   Copyright (C) 2021 Christian Schenk
+   Copyright (C) 2021-2022 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -75,7 +75,7 @@ void winFileSystemWatcher::AddDirectories(const vector<PathName>& directories)
   }
   for (const auto& dir : newDirectories)
   {
-    trace_files->WriteLine("core", fmt::format("watching directory: {0}", dir));
+    trace_files->WriteLine("core", fmt::format("watching directory: {0}", dir.ToDisplayString()));
     this->directories.push_back(dir);
   }
   l.unlock();
@@ -174,7 +174,7 @@ void winFileSystemWatcher::WatchDirectories()
     }
     if (bytesReturned == 0)
     {
-      trace_error->WriteLine("core", MiKTeX::Trace::TraceLevel::Error, fmt::format("event buffer overflow while watching: {0}", dwi.path));
+      trace_error->WriteLine("core", MiKTeX::Trace::TraceLevel::Error, fmt::format("event buffer overflow while watching: {0}", dwi.path.ToDisplayString()));
       continue;
     }
     FILE_NOTIFY_INFORMATION *fni = reinterpret_cast<FILE_NOTIFY_INFORMATION *>(dwi.buffer);

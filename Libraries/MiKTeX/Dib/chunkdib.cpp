@@ -1,6 +1,6 @@
 /* chunkdib.cpp: test driver for the DibChunker interfaces
 
-   Copyright (C) 2002-2020 Christian Schenk
+   Copyright (C) 2002-2022 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License
@@ -29,6 +29,7 @@
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>
+#include <miktex/Core/Quoter>
 #include <miktex/Graphics/DibChunker>
 
 using namespace MiKTeX::App;
@@ -37,6 +38,7 @@ using namespace MiKTeX::Graphics;
 using namespace MiKTeX::Util;
 using namespace std;
 
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 #define T_(x) MIKTEXTEXT(x)
 
 class ChunkDib :
@@ -89,7 +91,7 @@ void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
   bitmapFile.Write(chunk->GetColors(), nColors * sizeof(RGBQUAD));
   bitmapFile.Write(chunk->GetBits(), nBytesPerLine * pBitmapInfo->bmiHeader.biHeight);
   bitmapFile.Close();
-  cout << fmt::format(T_("chunk {0} written"), fileName) << endl;
+  cout << fmt::format(T_("chunk {0} written"), Q_(fileName.ToDisplayString())) << endl;
 }
 
 void ChunkDib::Run(int argc, const char** argv)

@@ -1,6 +1,6 @@
 /* AddChangeEditorDialog.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of Yap.
 
@@ -66,7 +66,7 @@ BOOL AddChangeEditorDialog::OnInitDialog()
     if (hr.Failed())
     {
 #if 1
-      YapError(fmt::format(T_("Auto completion error: {0}"), hr));
+      YapError(fmt::format(T_("Auto completion error: {0}"), hr.ToString()));
 #else
       MIKTEX_FATAL_ERROR_2(T_("Auto completion error."), "hr", hr.GetText());
 #endif

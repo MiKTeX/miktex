@@ -26,6 +26,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/xchar.h>
 
 #include <fcntl.h>
 
@@ -276,7 +277,7 @@ void winProcess::Create()
     }
 
     // start child process
-    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine));
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("start process: {0}", commandLine.ToString()));
 
     // create environment map
     unordered_map<string, string> envMap = session->CreateChildEnvironment(!startinfo.WorkingDirectory.empty());
@@ -296,7 +297,7 @@ void winProcess::Create()
     size_t stringIdx = 0;
     for (const auto& p : envMap)
     {
-      wstring s = fmt::format(L"{}={}", UW_(p.first), UW_(p.second));
+      wstring s = fmt::format(L"{}={}"s, UW_(p.first), UW_(p.second));
       wcscpy_s(environmentStrings + stringIdx, envSize - stringIdx, s.c_str());
       stringIdx += s.length() + 1;
     }

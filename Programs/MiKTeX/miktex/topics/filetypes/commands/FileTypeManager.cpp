@@ -64,12 +64,12 @@ void FileTypeManager::RegisterShellFileTypes(bool reg)
             string command;
             if (!sft.executable.empty() && !sft.commandArgs.empty())
             {
-                command = fmt::format("{0} {1}", exe.ToDos(), sft.commandArgs);
+                command = fmt::format("{0} {1}", exe.ToDos().ToString(), sft.commandArgs);
             }
             string iconPath;
             if (!sft.executable.empty() && sft.iconIndex != INT_MAX)
             {
-                iconPath = fmt::format("{0},{1}", exe.ToDos(), sft.iconIndex);
+                iconPath = fmt::format("{0},{1}", exe.ToDos().ToString(), sft.iconIndex);
             }
             if (!sft.displayName.empty() || !iconPath.empty())
             {

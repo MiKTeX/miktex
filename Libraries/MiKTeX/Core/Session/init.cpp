@@ -272,7 +272,7 @@ void SessionImpl::StartFinishScript(int delay)
   }
   trace_core->WriteLine("core", fmt::format(T_("finish script: {0} commands to execute"), onFinishScript.size()));
   unique_ptr<TemporaryDirectory> tmpdir = TemporaryDirectory::Create();
-  trace_core->WriteLine("core", fmt::format(T_("finish script: tmpdir={0}"), tmpdir->GetPathName()));
+  trace_core->WriteLine("core", fmt::format(T_("finish script: tmpdir={0}"), tmpdir->GetPathName().ToDisplayString()));
   vector<string> pre = {
 #if defined(MIKTEX_WINDOWS)
     fmt::format("ping localhost -n {} >nul", delay),

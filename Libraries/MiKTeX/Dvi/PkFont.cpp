@@ -1,6 +1,6 @@
 /* PkFont.cpp:
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2022 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -210,7 +210,7 @@ void PkFont::Read()
 
   dviInfo.fileName = fileName.ToString();
 
-  trace_pkfont->WriteLine("libdvi", fmt::format(T_("opening pk file {0}"), fileName));
+  trace_pkfont->WriteLine("libdvi", fmt::format(T_("opening pk file {0}"), Q_(fileName.ToDisplayString())));
 
   InputStream inputstream(fileName.GetData());
   int b;

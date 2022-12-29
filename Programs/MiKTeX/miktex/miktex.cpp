@@ -662,7 +662,7 @@ tuple<int, vector<string>> MiKTeXApp::Init(const vector<string>& args)
     LOG4CXX_INFO(logger, "this is " << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_COMPONENT_VERSION_STR)));
     PathName cwd;
     cwd.SetToCurrentDirectory();
-    LOG4CXX_INFO(logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), CommandLineBuilder(args)));
+    LOG4CXX_INFO(logger, fmt::format("this process ({0}) started by {1} in directory {2} with command line: {3}", thisProcess->GetSystemId(), Q_(invokerName), cwd.ToDisplayString(), CommandLineBuilder(args).ToString()));
     FlushPendingTraceMessages();
     string programName;
 #if defined(MIKTEX_WINDOWS)

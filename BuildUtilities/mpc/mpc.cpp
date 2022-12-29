@@ -1058,11 +1058,11 @@ void PackageCreator::ExecuteSystemCommand(const char* command, const PathName& w
     int exitCode = 0;
     if (workingDirectory.Empty())
     {
-        Verbose(fmt::format(T_("working directory: {0}"), PathName().SetToCurrentDirectory()));
+        Verbose(fmt::format(T_("working directory: {0}"), PathName().SetToCurrentDirectory().ToDisplayString()));
     }
     else
     {
-        Verbose(fmt::format(T_("working directory: {0}"), workingDirectory));
+        Verbose(fmt::format(T_("working directory: {0}"), workingDirectory.ToDisplayString()));
     }
     Verbose(fmt::format(T_("running: {0}"), command));
     if (!Process::ExecuteSystemCommand(command, &exitCode, this, workingDirectory.Empty() ? nullptr : workingDirectory.GetData()) || exitCode != 0)
