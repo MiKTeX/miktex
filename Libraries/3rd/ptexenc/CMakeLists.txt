@@ -54,8 +54,5 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptexenc-version.h
 )
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-    add_subdirectory(shared)
-endif()
-
+add_subdirectory(shared)
 add_subdirectory(static)

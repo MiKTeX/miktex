@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2020 Christian Schenk
+## Copyright (C) 2015-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -174,8 +174,5 @@ endforeach()
 
 add_subdirectory(test)
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-  add_subdirectory(shared)
-endif()
-
+add_subdirectory(shared)
 add_subdirectory(static)

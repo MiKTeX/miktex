@@ -398,7 +398,7 @@ set(gmp_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.h
 )
 
-if(gmp_complete AND NOT LINK_EVERYTHING_STATICALLY)
+if(gmp_complete)
   add_subdirectory(shared)
 endif()
 

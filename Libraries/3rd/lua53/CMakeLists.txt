@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2019 Christian Schenk
+## Copyright (C) 2010-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -89,12 +89,8 @@ include(sources.cmake)
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-  add_subdirectory(shared)
-  set(lua53_target_library ${lua53_dll_name})
-else()
-  set(lua53_target_library ${lua53_lib_name})
-endif()
+add_subdirectory(shared)
+set(lua53_target_library ${lua53_dll_name})
 
 add_subdirectory(static)
 

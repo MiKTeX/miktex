@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016-2020 Christian Schenk
+## Copyright (C) 2016-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,10 +18,6 @@
 ## USA.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/tdsutil")
-
-if(LINK_EVERYTHING_STATICALLY)
-  use_static_crt()
-endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(

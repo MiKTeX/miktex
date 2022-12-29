@@ -21,13 +21,7 @@ set(updvitype_web_file ${CMAKE_CURRENT_BINARY_DIR}/updvitype-final.web)
 
 create_web_app(upDVItype)
 
-if(LINK_EVERYTHING_STATICALLY)
-    target_link_libraries(${MIKTEX_PREFIX}updvitype
-        texjp-kanji
-    )
-else()
-    target_link_libraries(${updvitype_target_name}
-        PRIVATE
-            texjp-ukanji
-    )
-endif()
+target_link_libraries(${updvitype_target_name}
+    PRIVATE
+        texjp-ukanji
+)

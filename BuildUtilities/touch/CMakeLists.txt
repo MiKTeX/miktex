@@ -8,8 +8,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
-use_static_crt()
-
 set(touch_sources
     touch-version.h
     touch.cpp
@@ -27,6 +25,6 @@ add_executable(${MIKTEX_PREFIX}touch ${touch_sources})
 set_property(TARGET ${MIKTEX_PREFIX}touch PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}touch
-    ${core_lib_name}
-    miktex-popt-wrapper-static
+    ${core_dll_name}
+    miktex-popt-wrapper
 )

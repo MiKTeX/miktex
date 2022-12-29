@@ -36,8 +36,5 @@ endif()
 
 include(sources.cmake)
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-    add_subdirectory(shared)
-endif()
-
+add_subdirectory(shared)
 add_subdirectory(static)

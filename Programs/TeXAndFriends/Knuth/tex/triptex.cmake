@@ -26,11 +26,7 @@ add_custom_command(
 set(triptex_web_file ${CMAKE_CURRENT_SOURCE_DIR}/source/tex.web)
 set(triptex_change_file ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.ch)
 
-if(LINK_EVERYTHING_STATICALLY)
-    set(triptex_target_name ${triptex_lib_name})
-else()
-    set(triptex_target_name ${triptex_dll_name})
-endif()
+set(triptex_target_name ${triptex_dll_name})
 
 add_custom_command(
     OUTPUT
@@ -53,16 +49,10 @@ set(${triptex_target_name}_sources
 
 create_web_app(TripTeX)
 
-if(LINK_EVERYTHING_STATICALLY)
-    target_link_libraries(${triptex_target_name}
-        ${w2cemu_lib_name}
-    )
-else()
-    target_link_libraries(${triptex_target_name}
-        PRIVATE
-            ${w2cemu_dll_name}
-    )
-endif()
+target_link_libraries(${triptex_target_name}
+    PRIVATE
+        ${w2cemu_dll_name}
+)
 
 set_source_files_properties(
     ${CMAKE_CURRENT_BINARY_DIR}/triptex_pool.cpp

@@ -21,13 +21,7 @@ set(uppltotf_web_file ${CMAKE_CURRENT_BINARY_DIR}/uppltotf-final.web)
 
 create_web_app(upPLtoTF)
 
-if(LINK_EVERYTHING_STATICALLY)
-    target_link_libraries(${MIKTEX_PREFIX}uppltotf
+target_link_libraries(${uppltotf_target_name}
+    PRIVATE
         texjp-ukanji
-    )
-else()
-    target_link_libraries(${uppltotf_target_name}
-        PRIVATE
-            texjp-ukanji
-    )
-endif()
+)

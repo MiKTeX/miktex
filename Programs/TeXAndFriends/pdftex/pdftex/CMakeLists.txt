@@ -8,10 +8,6 @@
 
 set(MIKTEX_CURRENT_FOLDER ${MIKTEX_CURRENT_FOLDER}/pdfTeX)
 
-if(LINK_EVERYTHING_STATICALLY)
-    use_static_crt()
-endif()
-
 default_char_type_is_unsigned()
 
 set(C4P_FLAGS
@@ -164,75 +160,45 @@ set_source_files_properties(
     PROPERTIES COMPILE_FLAGS "-DCOMPILING_PDFTEX_CC"
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-    if(USE_SYSTEM_JPEG)
-        target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::JPEG)
-    else()
-        target_link_libraries(${MIKTEX_PREFIX}pdftex ${jpeg_lib_name})
-    endif()
-    if(USE_SYSTEM_PNG)
-        target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::PNG)
-    else()
-        target_link_libraries(${MIKTEX_PREFIX}pdftex ${png_lib_name})
-    endif()
-    target_link_libraries(${MIKTEX_PREFIX}pdftex
-        ${kpsemu_lib_name}
-        ${md5_lib_name}
-        ${w2cemu_lib_name}
-        ${web2c_sources_lib_name}
-        ${xpdf_lib_name}
-    )
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${MIKTEX_PREFIX}pdftex
-        ${unxemu_lib_name}
-        ${utf8wrap_lib_name}
-        )
-    endif()
+if(USE_SYSTEM_JPEG)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::JPEG)
 else()
-    if(USE_SYSTEM_JPEG)
-        target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::JPEG)
-    else()
-        target_link_libraries(${pdftex_target_name} PRIVATE ${jpeg_dll_name})
-    endif()
-    if(USE_SYSTEM_PNG)
-        target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::PNG)
-    else()
-        target_link_libraries(${pdftex_target_name} PRIVATE ${png_dll_name})
-    endif()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${jpeg_dll_name})
+endif()
+if(USE_SYSTEM_PNG)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${png_dll_name})
+endif()
+target_link_libraries(${pdftex_target_name}
+    PRIVATE
+    ${kpsemu_dll_name}
+    ${md5_dll_name}
+    ${w2cemu_dll_name}
+    ${web2c_sources_dll_name}
+    ${xpdf_lib_name}
+)
+if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${pdftex_target_name}
-        PRIVATE
-        ${kpsemu_dll_name}
-        ${md5_dll_name}
-        ${w2cemu_dll_name}
-        ${web2c_sources_dll_name}
-        ${xpdf_lib_name}
+    PRIVATE
+        ${unxemu_dll_name}
+        ${utf8wrap_dll_name}
     )
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${pdftex_target_name}
-        PRIVATE
-            ${unxemu_dll_name}
-            ${utf8wrap_dll_name}
-        )
-    endif()
 endif()
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-    if(USE_SYSTEM_ZLIB)
-        target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
-    else()
-        target_link_libraries(${pdftex_target_name} PRIVATE ${zlib_dll_name})
-    endif()
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${pdftex_target_name}
-        PRIVATE
-            ${regex_dll_name}
-        )
-    endif()
+if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${zlib_dll_name})
 endif()
-
-if(NOT LINK_EVERYTHING_STATICALLY)
-    delay_load(${pdftex_target_name}
-        ${png_dll_name}
+if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${pdftex_target_name}
+    PRIVATE
         ${regex_dll_name}
     )
 endif()
+
+delay_load(${pdftex_target_name}
+    ${png_dll_name}
+    ${regex_dll_name}
+)

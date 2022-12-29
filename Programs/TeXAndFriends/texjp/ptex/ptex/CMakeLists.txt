@@ -8,10 +8,6 @@
 
 set(MIKTEX_CURRENT_FOLDER ${MIKTEX_CURRENT_FOLDER}/pTeX)
 
-if(LINK_EVERYTHING_STATICALLY)
-    use_static_crt()
-endif()
-
 default_char_type_is_unsigned()
 
 include_directories(BEFORE
@@ -99,30 +95,16 @@ add_custom_command(
         inipool
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-    target_link_libraries(${MIKTEX_PREFIX}ptex
-        ${kpsemu_lib_name}
-        ${w2cemu_lib_name}
-        ${web2c_sources_lib_name}
+target_link_libraries(${ptex_target_name}
+    PRIVATE
+        ${kpsemu_dll_name}
+        ${w2cemu_dll_name}
+        ${web2c_sources_dll_name}
         texjp-kanji
-    )
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${MIKTEX_PREFIX}ptex
-            ${utf8wrap_lib_name}
-        )
-    endif()
-else()
+)
+if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${ptex_target_name}
         PRIVATE
-            ${kpsemu_dll_name}
-            ${w2cemu_dll_name}
-            ${web2c_sources_dll_name}
-            texjp-kanji
+            ${utf8wrap_dll_name}
     )
-    if(MIKTEX_NATIVE_WINDOWS)
-        target_link_libraries(${ptex_target_name}
-            PRIVATE
-                ${utf8wrap_dll_name}
-        )
-    endif()
 endif()

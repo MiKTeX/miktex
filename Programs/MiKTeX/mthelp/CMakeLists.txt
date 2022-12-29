@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2018 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,10 +18,6 @@
 ## USA.
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/${MIKTEX_PROG_NAME_MTHELP}")
-
-if(LINK_EVERYTHING_STATICALLY)
-  use_static_crt()
-endif()
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}

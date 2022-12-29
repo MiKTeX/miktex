@@ -1,6 +1,6 @@
 ## UseStaticCRT.cmake
 ##
-## Copyright (C) 2006-202 Christian Schenk
+## Copyright (C) 2006-2022 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -77,6 +77,16 @@ macro(use_static_crt)
             string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS${c} "${CMAKE_CXX_FLAGS${c}}")
         endforeach()
     endif()
+endmacro()
+
+###############################################################################
+# use_static_mfc
+# 
+# Prepare to link against the static MFC runtime library.
+###############################################################################
+
+macro(use_static_mfc)
+    use_static_crt()
     remove_definitions(
         -D_AFXDLL
         -D_ATL_DLL

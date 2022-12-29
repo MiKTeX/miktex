@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2017 Christian Schenk
+## Copyright (C) 2009-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -382,15 +382,11 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_BINARY_DIR}/include/poppler/poppler-config.h
 )
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-  add_subdirectory(shared)
-  if(WITH_UI_QT)
-    add_subdirectory(qt5/shared)
-  endif()
-  set(poppler_target_library ${poppler_dll_name})
-else()
-  set(poppler_target_library ${poppler_lib_name})
+add_subdirectory(shared)
+if(WITH_UI_QT)
+  add_subdirectory(qt5/shared)
 endif()
+set(poppler_target_library ${poppler_dll_name})
 
 add_subdirectory(static)
 

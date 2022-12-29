@@ -8,8 +8,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_BUILD_UTILITIES_FOLDER}")
 
-use_static_crt()
-
 set(padout_sources
     padout.cpp
 )

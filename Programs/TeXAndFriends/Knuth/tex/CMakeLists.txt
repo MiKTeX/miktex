@@ -87,16 +87,10 @@ add_custom_command(
         inipool
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-    target_link_libraries(${tex_target_name}
-        ${w2cemu_lib_name}
-    )
-else()
-    target_link_libraries(${tex_target_name}
-        PRIVATE
-            ${w2cemu_dll_name}
-    )
-endif()
+target_link_libraries(${tex_target_name}
+    PRIVATE
+        ${w2cemu_dll_name}
+)
 
 if(WITH_TRIPTEX)
     include(triptex.cmake)

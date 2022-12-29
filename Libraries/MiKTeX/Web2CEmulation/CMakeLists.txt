@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2020 Christian Schenk
+## Copyright (C) 2010-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -68,49 +68,47 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-  add_library(${w2cemu_dll_name} SHARED ${${w2cemu_dll_name}_sources})
+add_library(${w2cemu_dll_name} SHARED ${${w2cemu_dll_name}_sources})
 
-  set_property(TARGET ${w2cemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${w2cemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-  set_shared_library_version_properties(
-    ${w2cemu_dll_name}
-    ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
-    ${MIKTEX_COMP_INTERFACE_VERSION}
-  )
+set_shared_library_version_properties(
+  ${w2cemu_dll_name}
+  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+)
 
-  target_include_directories(${w2cemu_dll_name}
-    PUBLIC
-      ${CMAKE_BINARY_DIR}/${MIKTEX_REL_W2CEMU_DIR}/include
-      ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_W2CEMU_DIR}/include
-  )
+target_include_directories(${w2cemu_dll_name}
+  PUBLIC
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_W2CEMU_DIR}/include
+    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_W2CEMU_DIR}/include
+)
 
+target_link_libraries(${w2cemu_dll_name}
+  PUBLIC
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+    ${texmf_dll_name}
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${w2cemu_dll_name}
-    PUBLIC
-      ${core_dll_name}
-      ${kpsemu_dll_name}
-      ${texmf_dll_name}
-  )
-
-  if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(${w2cemu_dll_name}
-      INTERFACE
-        ${unxemu_dll_name}
-    )
-  endif()
-
-  if(USE_SYSTEM_FMT)
-    target_link_libraries(${w2cemu_dll_name} PRIVATE MiKTeX::Imported::FMT)
-  else()
-    target_link_libraries(${w2cemu_dll_name} PRIVATE ${fmt_dll_name})
-  endif()
-
-  install(TARGETS ${w2cemu_dll_name}
-    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+    INTERFACE
+      ${unxemu_dll_name}
   )
 endif()
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${w2cemu_dll_name} PRIVATE MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${w2cemu_dll_name} PRIVATE ${fmt_dll_name})
+endif()
+
+install(TARGETS ${w2cemu_dll_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
 
 if(INSTALL_MIKTEX_HEADERS)
   install(

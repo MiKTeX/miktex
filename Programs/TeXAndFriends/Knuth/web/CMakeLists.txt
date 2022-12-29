@@ -8,10 +8,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_KNUTH_FOLDER}/web")
 
-if(LINK_EVERYTHING_STATICALLY)
-    use_static_crt()
-endif()
-
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

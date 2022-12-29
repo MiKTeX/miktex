@@ -486,12 +486,6 @@ option(
 )
 
 option(
-    LINK_EVERYTHING_STATICALLY
-    "Don't build and use shared libraries."
-    FALSE
-)
-
-option(
     INSTALL_MIKTEX_HEADERS
     "Install the MiKTeX header files."
     FALSE
@@ -978,10 +972,6 @@ endif()
 
 ###############################################################################
 ## find/check stuff
-
-if(LINK_EVERYTHING_STATICALLY)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
-endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
     add_definitions(
@@ -2333,10 +2323,6 @@ endif()
 
 if(UNIX AND NOT APPLE AND NOT RPMBUILD_EXECUTABLE)
     list(APPEND CPACK_GENERATOR DEB)
-endif()
-
-if(LINK_EVERYTHING_STATICALLY)
-    list(APPEND CPACK_GENERATOR TGZ)
 endif()
 
 if(MIKTEX_MACOS_BUNDLE)

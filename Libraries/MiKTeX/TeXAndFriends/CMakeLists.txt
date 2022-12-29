@@ -207,10 +207,7 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-    add_subdirectory(shared)
-endif()
-
+add_subdirectory(shared)
 add_subdirectory(static)
 
 if(INSTALL_MIKTEX_HEADERS)

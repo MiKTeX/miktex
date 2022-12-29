@@ -129,8 +129,5 @@ set(miktex_sources
 
 list(APPEND freeglut_sources ${miktex_sources})
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-    add_subdirectory(shared)
-endif()
+add_subdirectory(shared)
 
-#add_subdirectory(static)

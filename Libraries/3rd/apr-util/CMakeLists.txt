@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2018 Christian Schenk
+## Copyright (C) 2015-2022 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -187,8 +187,5 @@ set(apu_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include/apu_version.h
 )
 
-if(NOT LINK_EVERYTHING_STATICALLY)
-  add_subdirectory(shared)
-endif()
-
+add_subdirectory(shared)
 add_subdirectory(static)

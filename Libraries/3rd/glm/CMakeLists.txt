@@ -31,8 +31,4 @@ list(APPEND glm_sources
   ${CMAKE_CURRENT_BINARY_DIR}/miktex-glm-version.h
 )
 
-#if(NOT LINK_EVERYTHING_STATICALLY)
-#  add_subdirectory(shared)
-#endif()
-
 add_subdirectory(static)
