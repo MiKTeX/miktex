@@ -12,12 +12,14 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/getopt")
 
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/posix
 )
 
 set(public_include_directories ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 set(public_headers
+    bits/getopt_core.h
+    bits/getopt_ext.h
     getopt.h
 )
 
@@ -43,5 +45,4 @@ set(getopt_sources
 )
 
 add_subdirectory(shared)
-
 add_subdirectory(static)
