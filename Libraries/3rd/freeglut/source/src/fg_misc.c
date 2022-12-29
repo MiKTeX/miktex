@@ -28,14 +28,12 @@
 #include <GL/freeglut.h>
 #include "fg_internal.h"
 
-/*
- * TODO BEFORE THE STABLE RELEASE:
- *
- *  glutSetColor()     --
- *  glutGetColor()     --
- *  glutCopyColormap() --
- *  glutSetKeyRepeat() -- this is evil and should be removed from API
- */
+
+/* platform-specific colormap functions */
+void fgPlatformSetColor(int idx, float r, float g, float b);
+float fgPlatformGetColor(int idx, int comp);
+void fgPlatformCopyColormap(int win);
+
 
 /* -- INTERFACE FUNCTIONS -------------------------------------------------- */
 
@@ -175,29 +173,28 @@ void FGAPIENTRY glutSetKeyRepeat( int repeatMode )
 /*
  *
  */
-void FGAPIENTRY glutSetColor( int nColor, GLfloat red, GLfloat green, GLfloat blue )
+void FGAPIENTRY glutSetColor(int idx, GLfloat r, GLfloat g, GLfloat b)
 {
-    FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutSetColor" );
-    /* We really need to do something here. */
+	FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutSetColor" );
+	fgPlatformSetColor(idx, r, g, b);
 }
 
 /*
  *
  */
-GLfloat FGAPIENTRY glutGetColor( int color, int component )
+GLfloat FGAPIENTRY glutGetColor(int idx, int component)
 {
-    FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutGetColor" );
-    /* We really need to do something here. */
-    return( 0.0f );
+	FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutGetColor" );
+	return fgPlatformGetColor(idx, component);
 }
 
 /*
  *
  */
-void FGAPIENTRY glutCopyColormap( int window )
+void FGAPIENTRY glutCopyColormap(int window)
 {
-    FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutCopyColormap" );
-    /* We really need to do something here. */
+	FREEGLUT_EXIT_IF_NOT_INITIALISED ( "glutCopyColormap" );
+	fgPlatformCopyColormap(window);
 }
 
 /*** END OF FILE ***/

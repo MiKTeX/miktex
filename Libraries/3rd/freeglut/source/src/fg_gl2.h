@@ -1,5 +1,5 @@
 /*
- * fg_gl2.c
+ * fg_gl2.h
  *
  * Load OpenGL (ES) 2.0 functions used by fg_geometry
  *
@@ -67,13 +67,13 @@ typedef void (APIENTRY *FGH_PFNGLENABLEVERTEXATTRIBARRAYPROC) (GLuint index);
 typedef void (APIENTRY *FGH_PFNGLDISABLEVERTEXATTRIBARRAYPROC) (GLuint);
 typedef void (APIENTRY *FGH_PFNGLVERTEXATTRIBPOINTERPROC) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
 
-FGH_PFNGLGENBUFFERSPROC fghGenBuffers;
-FGH_PFNGLDELETEBUFFERSPROC fghDeleteBuffers;
-FGH_PFNGLBINDBUFFERPROC fghBindBuffer;
-FGH_PFNGLBUFFERDATAPROC fghBufferData;
-FGH_PFNGLENABLEVERTEXATTRIBARRAYPROC fghEnableVertexAttribArray;
-FGH_PFNGLDISABLEVERTEXATTRIBARRAYPROC fghDisableVertexAttribArray;
-FGH_PFNGLVERTEXATTRIBPOINTERPROC fghVertexAttribPointer;
+extern FGH_PFNGLGENBUFFERSPROC fghGenBuffers;
+extern FGH_PFNGLDELETEBUFFERSPROC fghDeleteBuffers;
+extern FGH_PFNGLBINDBUFFERPROC fghBindBuffer;
+extern FGH_PFNGLBUFFERDATAPROC fghBufferData;
+extern FGH_PFNGLENABLEVERTEXATTRIBARRAYPROC fghEnableVertexAttribArray;
+extern FGH_PFNGLDISABLEVERTEXATTRIBARRAYPROC fghDisableVertexAttribArray;
+extern FGH_PFNGLVERTEXATTRIBPOINTERPROC fghVertexAttribPointer;
 
 #    endif
 

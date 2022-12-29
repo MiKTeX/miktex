@@ -72,7 +72,7 @@ void fgPlatformSetCursor ( SFG_Window *window, int cursorID )
     {
         MAP_CURSOR( GLUT_CURSOR_RIGHT_ARROW,         IDC_ARROW     );
         MAP_CURSOR( GLUT_CURSOR_LEFT_ARROW,          IDC_ARROW     ); /* XXX ToDo */
-        MAP_CURSOR( GLUT_CURSOR_INFO,                IDC_HELP      );
+        MAP_CURSOR( GLUT_CURSOR_INFO,                IDC_HAND      );
         MAP_CURSOR( GLUT_CURSOR_DESTROY,             IDC_CROSS     );
         MAP_CURSOR( GLUT_CURSOR_HELP,                IDC_HELP      );
         MAP_CURSOR( GLUT_CURSOR_CYCLE,               IDC_SIZEALL   );

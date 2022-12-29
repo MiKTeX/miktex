@@ -44,6 +44,13 @@
 #define GLUT_KEY_CTRL_R             0x0073
 #define GLUT_KEY_ALT_L              0x0074
 #define GLUT_KEY_ALT_R              0x0075
+#define GLUT_KEY_SUPER_L            0x0076
+#define GLUT_KEY_SUPER_R            0x0077
+
+/*
+ * Additional GLUT modifiers
+ */
+#define GLUT_ACTIVE_SUPER           0x0008
 
 /*
  * GLUT API Extension macro definitions -- behaviour when the user clicks on an "x" to close a window

@@ -37,7 +37,7 @@
 #endif
 
 #ifndef VERSION_MINOR
-#define VERSION_MINOR 0
+#define VERSION_MINOR 4
 #endif
 
 #ifndef VERSION_PATCH

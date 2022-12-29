@@ -1,5 +1,6 @@
 /* TODO: implement me! */
 
+#define FREEGLUT_BUILDING_LIB
 #include <GL/freeglut.h>
 #include "fg_internal.h"
 
@@ -17,6 +18,8 @@ GLboolean fgCheckActiveMenu ( SFG_Window *window, int button, GLboolean pressed,
   fprintf(stderr, "fgCheckActiveMenu: STUB\n");
   return GL_FALSE;
 }
+
+int FGAPIENTRY glutCreateMenuUcall( FGCBMenuUC callback, FGCBUserData userData ) { return 0; }
 
 int  glutCreateMenu( void (* callback)( int menu ) ) { return 0; }
 void glutDestroyMenu( int menu ) {}

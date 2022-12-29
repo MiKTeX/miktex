@@ -189,62 +189,45 @@ void fgNewWGLCreateContext( SFG_Window* window )
 
 #if !defined(_WIN32_WCE)
 
-static void fghFillPFD( PIXELFORMATDESCRIPTOR *ppfd, HDC hdc, unsigned char layer_type )
+static void fghFillPFD(PIXELFORMATDESCRIPTOR *ppfd, HDC hdc, unsigned char layer_type)
 {
-  int flags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-  if ( fgState.DisplayMode & GLUT_DOUBLE ) {
-        flags |= PFD_DOUBLEBUFFER;
-  }
-  if ( fgState.DisplayMode & GLUT_STEREO ) {
-    flags |= PFD_STEREO;
-  }
+	int flags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	if(fgState.DisplayMode & GLUT_DOUBLE) {
+		flags |= PFD_DOUBLEBUFFER;
+	}
+	if(fgState.DisplayMode & GLUT_STEREO) {
+		flags |= PFD_STEREO;
+	}
 
-#if defined(_MSC_VER)
-#pragma message( "fgSetupPixelFormat(): there is still some work to do here!" )
-#endif
+	/* Specify which pixel format do we opt for... */
+	memset(ppfd, 0, sizeof *ppfd);
+	ppfd->nSize = sizeof *ppfd;
+	ppfd->nVersion = 1;
+	ppfd->dwFlags = flags;
 
-  /* Specify which pixel format do we opt for... */
-  ppfd->nSize = sizeof(PIXELFORMATDESCRIPTOR);
-  ppfd->nVersion = 1;
-  ppfd->dwFlags = flags;
+	if(fgState.DisplayMode & GLUT_INDEX) {
+		ppfd->iPixelType = PFD_TYPE_COLORINDEX;
+		ppfd->cColorBits = 8;
+	} else {
+		ppfd->iPixelType = PFD_TYPE_RGBA;
+		ppfd->cColorBits = 24;
+	}
+	if(fgState.DisplayMode & GLUT_ALPHA) {
+		ppfd->cAlphaBits = 8;
+	}
 
-  if( fgState.DisplayMode & GLUT_INDEX ) {
-    ppfd->iPixelType = PFD_TYPE_COLORINDEX;
-    ppfd->cRedBits = 0;
-    ppfd->cGreenBits = 0;
-    ppfd->cBlueBits = 0;
-    ppfd->cAlphaBits = 0;
-  } else {
-    ppfd->iPixelType = PFD_TYPE_RGBA;
-    ppfd->cRedBits = 8;
-    ppfd->cGreenBits = 8;
-    ppfd->cBlueBits = 8;
-    ppfd->cAlphaBits = ( fgState.DisplayMode & GLUT_ALPHA ) ? 8 : 0;
-  }
+	ppfd->cAccumBits = (fgState.DisplayMode & GLUT_ACCUM) ? 1 : 0;
 
-  ppfd->cColorBits = 24;
-  ppfd->cRedShift = 0;
-  ppfd->cGreenShift = 0;
-  ppfd->cBlueShift = 0;
-  ppfd->cAlphaShift = 0;
-  ppfd->cAccumBits = ( fgState.DisplayMode & GLUT_ACCUM ) ? 1 : 0;
-  ppfd->cAccumRedBits = 0;
-  ppfd->cAccumGreenBits = 0;
-  ppfd->cAccumBlueBits = 0;
-  ppfd->cAccumAlphaBits = 0;
+	/* Hmmm, or 32/0 instead of 24/8? */
+	if(fgState.DisplayMode & GLUT_DEPTH) {
+		ppfd->cDepthBits = 24;
+	}
+	if(fgState.DisplayMode & GLUT_STENCIL) {
+		ppfd->cStencilBits = 8;
+	}
 
-  /* Hmmm, or 32/0 instead of 24/8? */
-  ppfd->cDepthBits = 24;
-  ppfd->cStencilBits = 8;
-
-  ppfd->cAuxBuffers = (BYTE) fghNumberOfAuxBuffersRequested();
-  ppfd->iLayerType = layer_type;
-  ppfd->bReserved = 0;
-  ppfd->dwLayerMask = 0;
-  ppfd->dwVisibleMask = 0;
-  ppfd->dwDamageMask = 0;
-
-  ppfd->cColorBits = (BYTE) GetDeviceCaps( hdc, BITSPIXEL );
+	ppfd->cAuxBuffers = (BYTE)fghNumberOfAuxBuffersRequested();
+	ppfd->iLayerType = layer_type;
 }
 
 static void fghFillPixelFormatAttributes( int *attributes, const PIXELFORMATDESCRIPTOR *ppfd )
@@ -279,18 +262,19 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
     return GL_TRUE;
 #else
     PIXELFORMATDESCRIPTOR pfd;
-    PIXELFORMATDESCRIPTOR* ppfd = &pfd;
     int pixelformat;
     HDC current_hDC;
-    GLboolean success;
+    GLboolean success = GL_FALSE;
 
     if (checkOnly)
       current_hDC = CreateDC(TEXT("DISPLAY"), NULL ,NULL ,NULL);
     else
       current_hDC = window->Window.pContext.Device;
 
-    fghFillPFD( ppfd, current_hDC, layer_type );
-    pixelformat = ChoosePixelFormat( current_hDC, ppfd );
+    fghFillPFD(&pfd, current_hDC, layer_type);
+    if(!(pixelformat = ChoosePixelFormat(current_hDC, &pfd))) {
+		return 0;
+	}
 
     /* windows hack for multismapling/sRGB */
     if ( ( fgState.DisplayMode & GLUT_MULTISAMPLE ) ||
@@ -311,7 +295,7 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
 
         hWnd=CreateWindow(_T("FREEGLUT_dummy"), _T(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW , 0,0,0,0, 0, 0, fgDisplay.pDisplay.Instance, 0 );
         hDC=GetDC(hWnd);
-        SetPixelFormat( hDC, pixelformat, ppfd );
+        SetPixelFormat(hDC, pixelformat, &pfd);
 
         rc = wglCreateContext( hDC );
         wglMakeCurrent(hDC, rc);
@@ -327,7 +311,7 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
                 BOOL bValid;
                 float fAttributes[] = { 0, 0 };
                 UINT numFormats;
-                fghFillPixelFormatAttributes( attributes, ppfd );
+                fghFillPixelFormatAttributes(attributes, &pfd);
                 bValid = wglChoosePixelFormatARBProc(hDC, attributes, fAttributes, 1, &iPixelFormat, &numFormats);
 
                 if ( bValid && numFormats > 0 )
@@ -344,12 +328,24 @@ GLboolean fgSetupPixelFormat( SFG_Window* window, GLboolean checkOnly,
         UnregisterClass(_T("FREEGLUT_dummy"), fgDisplay.pDisplay.Instance);
     }
 
-    success = ( pixelformat != 0 ) && ( checkOnly || SetPixelFormat( current_hDC, pixelformat, ppfd ) );
+	if(pixelformat) {
+		DescribePixelFormat(current_hDC, pixelformat, sizeof pfd, &pfd);
 
-    if (checkOnly)
-        DeleteDC(current_hDC);
+		if(fgState.DisplayMode & GLUT_INDEX) {
+			if(pfd.iPixelType == PFD_TYPE_RGBA) goto end;
+		} else {
+			if(pfd.iPixelType == PFD_TYPE_COLORINDEX) goto end;
+		}
+	}
 
-    return success;
+    success = ( pixelformat != 0 ) && ( checkOnly || SetPixelFormat( current_hDC, pixelformat, &pfd) );
+
+end:
+	if(checkOnly) {
+		DeleteDC(current_hDC);
+	}
+
+	return success;
 #endif /* defined(_WIN32_WCE) */
 }
 
@@ -583,6 +579,7 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
     DWORD flags   = 0;
     DWORD exFlags = 0;
     BOOL atom;
+    HDC dc;
 #if defined(MIKTEX_WINDOWS) && defined(_UNICODE)
     wchar_t miktex_wchar_title[1024];
     miktex_utf8_to_wide_char(title, 1024, miktex_wchar_title);
@@ -741,13 +738,60 @@ void fgPlatformOpenWindow( SFG_Window* window, const char* title,
 #endif /* defined(_WIN32_WCE) */
 
     /* Make a menu window always on top - fix Feature Request 947118 */
-    if( window->IsMenu || gameMode )
-        SetWindowPos(
-                        window->Window.Handle,
-                        HWND_TOPMOST,
-                        0, 0, 0, 0,
-                        SWP_NOMOVE | SWP_NOSIZE
-                    );
+    if(window->IsMenu || gameMode) {
+        SetWindowPos(window->Window.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	}
+
+	dc = window->Window.pContext.Device;
+	/* for color index mode, create a palette */
+	if(fgState.DisplayMode & GLUT_INDEX) {
+		char buf[sizeof(LOGPALETTE) + 255 * sizeof(PALETTEENTRY)];
+		LOGPALETTE *logipal = (LOGPALETTE*)buf;
+
+		GetSystemPaletteEntries(dc, 0, 256, logipal->palPalEntry);
+
+		logipal->palVersion = 0x300;
+		logipal->palNumEntries = 256;
+
+		if(!(window->Window.cmap = CreatePalette(logipal))) {
+			fgError("Failed to create palette in indexed mode");
+		}
+		SelectPalette(dc, window->Window.cmap, 0);
+		RealizePalette(dc);
+
+		window->Window.cmap_size = 256;
+	} else {
+		int cur_bpp = GetDeviceCaps(dc, BITSPIXEL) * GetDeviceCaps(dc, PLANES);
+		if(cur_bpp <= 8) {
+			/* for RGB mode we also need a palette if we're running in a palettized mode */
+			/* XXX we'll just assume 256 colors for now. */
+			int i;
+			char buf[sizeof(LOGPALETTE) + 255 * sizeof(PALETTEENTRY)];
+			LOGPALETTE *logipal = (LOGPALETTE*)buf;
+
+			logipal->palVersion = 0x300;
+			logipal->palNumEntries = 256;
+
+			for(i=0; i<256; i++) {
+				int r = i & 7;
+				int g = (i >> 3) & 7;
+				int b = (i >> 5) & 3;
+
+				logipal->palPalEntry[i].peRed = (r << 5) | (r << 2) | (r >> 1);
+				logipal->palPalEntry[i].peGreen = (g << 5) | (g << 2) | (g >> 1);
+				logipal->palPalEntry[i].peBlue = (b << 6) | (b << 4) | (b << 2) | b;
+				logipal->palPalEntry[i].peFlags = PC_NOCOLLAPSE;
+			}
+
+			if(!(window->Window.cmap = CreatePalette(logipal))) {
+				fgWarning("Failed to create palette in RGB mode on %d bpp display, colors might be wrong\n", cur_bpp);
+			} else {
+				SelectPalette(dc, window->Window.cmap, 0);
+				RealizePalette(dc);
+			}
+			window->Window.cmap_size = 256;
+		}
+	}
 
     /* Enable multitouch: additional flag TWF_FINETOUCH, TWF_WANTPALM */
     #ifdef WM_TOUCH

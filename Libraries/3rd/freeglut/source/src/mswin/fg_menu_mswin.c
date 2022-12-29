@@ -94,7 +94,7 @@ void fgPlatformCheckMenuDeactivate(HWND newFocusWnd)
             }
         }
     }
-};
+}
 
 
 

@@ -89,6 +89,7 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND freeglut_sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mswin/fg_cmap_mswin.c
         ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mswin/fg_cursor_mswin.c
         ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mswin/fg_display_mswin.c
         ${CMAKE_CURRENT_SOURCE_DIR}/source/src/mswin/fg_ext_mswin.c

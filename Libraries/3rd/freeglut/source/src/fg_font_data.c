@@ -199,6 +199,7 @@ static const GLubyte Fixed8x13_Character_123[] = {  8,  0,  0,  0, 14, 16, 16,  
 static const GLubyte Fixed8x13_Character_124[] = {  8,  0,  0,  0, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  0};
 static const GLubyte Fixed8x13_Character_125[] = {  8,  0,  0,  0,112,  8,  8, 16, 12, 16,  8,  8,112,  0,  0};
 static const GLubyte Fixed8x13_Character_126[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0, 72, 84, 36,  0,  0};
+/*
 static const GLubyte Fixed8x13_Character_127[] = {  9,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0};
 static const GLubyte Fixed8x13_Character_128[] = {  9,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0};
 static const GLubyte Fixed8x13_Character_129[] = {  9,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0};
@@ -232,6 +233,7 @@ static const GLubyte Fixed8x13_Character_156[] = {  9,  0,  0,  0,  0,  0,  0,17
 static const GLubyte Fixed8x13_Character_157[] = {  9,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0};
 static const GLubyte Fixed8x13_Character_158[] = {  9,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0};
 static const GLubyte Fixed8x13_Character_159[] = {  9,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Fixed8x13_Character_160[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Fixed8x13_Character_161[] = {  8,  0,  0,  0, 16, 16, 16, 16, 16, 16, 16,  0, 16,  0,  0};
 static const GLubyte Fixed8x13_Character_162[] = {  8,  0,  0,  0,  0, 16, 56, 84, 80, 80, 84, 56, 16,  0,  0};
@@ -348,7 +350,7 @@ static const GLubyte* Fixed8x13_Character_Map[] = {Fixed8x13_Character_000,Fixed
                                                    Fixed8x13_Character_240,Fixed8x13_Character_241,Fixed8x13_Character_242,Fixed8x13_Character_243,Fixed8x13_Character_244,Fixed8x13_Character_245,Fixed8x13_Character_246,Fixed8x13_Character_247,Fixed8x13_Character_248,Fixed8x13_Character_249,Fixed8x13_Character_250,Fixed8x13_Character_251,Fixed8x13_Character_252,Fixed8x13_Character_253,Fixed8x13_Character_254,Fixed8x13_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontFixed8x13 = { "-misc-fixed-medium-r-normal--13-120-75-75-C-80-iso8859-1", 256, 14, Fixed8x13_Character_Map, 0, 3 };
+SFG_Font fgFontFixed8x13 = { "-misc-fixed-medium-r-normal--13-120-75-75-C-80-iso8859-1", 256, 14, Fixed8x13_Character_Map, 0, 3 };
 
 static const GLubyte Fixed9x15_Character_000[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_001[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0,  8,  0, 28,  0, 62,  0,127,  0,255,128,127,  0, 62,  0, 28,  0,  8,  0,  0,  0,  0,  0,  0,  0};
@@ -477,6 +479,7 @@ static const GLubyte Fixed9x15_Character_123[] = {  9,  0,  0,  0,  0,  0,  0,  
 static const GLubyte Fixed9x15_Character_124[] = {  9,  0,  0,  0,  0,  0,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_125[] = {  9,  0,  0,  0,  0,  0,  0,112,  0,  8,  0,  8,  0,  8,  0, 16,  0, 12,  0, 12,  0, 16,  0,  8,  0,  8,  0,  8,  0,112,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_126[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 70,  0, 73,  0, 49,  0,  0,  0,  0,  0};
+/*
 static const GLubyte Fixed9x15_Character_127[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_128[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_129[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
@@ -510,6 +513,7 @@ static const GLubyte Fixed9x15_Character_156[] = { 10,  0,  0,  0,  0,  0,  0,  
 static const GLubyte Fixed9x15_Character_157[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_158[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_159[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0, 91,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0, 65,  0, 64,  0,  1,  0,109,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Fixed9x15_Character_160[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_161[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  8,  0,  0,  0,  0,  0,  8,  0,  8,  0,  0,  0};
 static const GLubyte Fixed9x15_Character_162[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0, 32,  0, 60,  0, 82,  0, 80,  0, 72,  0, 74,  0, 60,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -626,8 +630,9 @@ static const GLubyte* Fixed9x15_Character_Map[] = {Fixed9x15_Character_000,Fixed
                                                    Fixed9x15_Character_240,Fixed9x15_Character_241,Fixed9x15_Character_242,Fixed9x15_Character_243,Fixed9x15_Character_244,Fixed9x15_Character_245,Fixed9x15_Character_246,Fixed9x15_Character_247,Fixed9x15_Character_248,Fixed9x15_Character_249,Fixed9x15_Character_250,Fixed9x15_Character_251,Fixed9x15_Character_252,Fixed9x15_Character_253,Fixed9x15_Character_254,Fixed9x15_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontFixed9x15 = { "-misc-fixed-medium-r-normal--15-140-75-75-C-90-iso8859-1", 256, 16, Fixed9x15_Character_Map, 0, 4 };
+SFG_Font fgFontFixed9x15 = { "-misc-fixed-medium-r-normal--15-140-75-75-C-90-iso8859-1", 256, 16, Fixed9x15_Character_Map, 0, 4 };
 
+/*
 static const GLubyte Helvetica10_Character_000[] = {  8,  0,  0,  0, 84,  0, 68,  0, 68,  0, 84,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_001[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_002[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -660,6 +665,7 @@ static const GLubyte Helvetica10_Character_028[] = { 13,  0,  0,  0,  0,  0,  0,
 static const GLubyte Helvetica10_Character_029[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_030[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_031[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Helvetica10_Character_032[] = {  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_033[] = {  3,  0,  0,  0, 64,  0, 64, 64, 64, 64, 64, 64,  0,  0,  0};
 static const GLubyte Helvetica10_Character_034[] = {  4,  0,  0,  0,  0,  0,  0,  0,  0,  0, 80, 80,  0,  0,  0};
@@ -755,6 +761,7 @@ static const GLubyte Helvetica10_Character_123[] = {  3,  0, 32, 64, 64, 64, 64,
 static const GLubyte Helvetica10_Character_124[] = {  3,  0, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,  0,  0,  0};
 static const GLubyte Helvetica10_Character_125[] = {  3,  0,128, 64, 64, 64, 64, 32, 64, 64, 64,128,  0,  0,  0};
 static const GLubyte Helvetica10_Character_126[] = {  7,  0,  0,  0,  0,  0,  0,152,100,  0,  0,  0,  0,  0,  0};
+/*
 static const GLubyte Helvetica10_Character_127[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_128[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_129[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -788,6 +795,7 @@ static const GLubyte Helvetica10_Character_156[] = { 13,  0,  0,  0,  0,  0,  0,
 static const GLubyte Helvetica10_Character_157[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_158[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_159[] = { 13,  0,  0,  0,  0,  0,  0, 84,  0,  0,  0, 68,  0,  0,  0, 68,  0,  0,  0, 84,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Helvetica10_Character_160[] = {  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_161[] = {  3,  0, 64, 64, 64, 64, 64, 64,  0, 64,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica10_Character_162[] = {  6,  0,  0, 64,112,168,160,160,168,112, 16,  0,  0,  0,  0};
@@ -904,8 +912,9 @@ static const GLubyte* Helvetica10_Character_Map[] = {Helvetica10_Character_032,H
                                                      Helvetica10_Character_240,Helvetica10_Character_241,Helvetica10_Character_242,Helvetica10_Character_243,Helvetica10_Character_244,Helvetica10_Character_245,Helvetica10_Character_246,Helvetica10_Character_247,Helvetica10_Character_248,Helvetica10_Character_249,Helvetica10_Character_250,Helvetica10_Character_251,Helvetica10_Character_252,Helvetica10_Character_253,Helvetica10_Character_254,Helvetica10_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontHelvetica10 = { "-adobe-helvetica-medium-r-normal--10-100-75-75-p-56-iso8859-1", 256, 14, Helvetica10_Character_Map, 0, 3 };
+SFG_Font fgFontHelvetica10 = { "-adobe-helvetica-medium-r-normal--10-100-75-75-p-56-iso8859-1", 256, 14, Helvetica10_Character_Map, 0, 3 };
 
+/*
 static const GLubyte Helvetica12_Character_000[] = {  9,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_001[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_002[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
@@ -938,6 +947,7 @@ static const GLubyte Helvetica12_Character_028[] = { 12,  0,  0,  0,  0,  0,  0,
 static const GLubyte Helvetica12_Character_029[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_030[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_031[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Helvetica12_Character_032[] = {  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_033[] = {  3,  0,  0,  0,  0, 64,  0, 64, 64, 64, 64, 64, 64, 64,  0,  0,  0};
 static const GLubyte Helvetica12_Character_034[] = {  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 80, 80, 80,  0,  0,  0};
@@ -1033,6 +1043,7 @@ static const GLubyte Helvetica12_Character_123[] = {  4,  0, 48, 64, 64, 64, 64,
 static const GLubyte Helvetica12_Character_124[] = {  3,  0, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,  0,  0,  0};
 static const GLubyte Helvetica12_Character_125[] = {  4,  0,192, 32, 32, 32, 32, 32, 16, 32, 32, 32, 32,192,  0,  0,  0};
 static const GLubyte Helvetica12_Character_126[] = {  7,  0,  0,  0,  0,  0,  0,  0,152,100,  0,  0,  0,  0,  0,  0,  0};
+/*
 static const GLubyte Helvetica12_Character_127[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_128[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_129[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
@@ -1066,6 +1077,7 @@ static const GLubyte Helvetica12_Character_156[] = { 12,  0,  0,  0,  0,  0,  0,
 static const GLubyte Helvetica12_Character_157[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_158[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_159[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0, 85,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 65,  0,  0,  0, 85,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Helvetica12_Character_160[] = {  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_161[] = {  3,  0, 64, 64, 64, 64, 64, 64, 64, 64,  0, 64,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica12_Character_162[] = {  7,  0,  0,  0, 32, 56,100, 80, 80, 80, 84, 56,  8,  0,  0,  0,  0};
@@ -1182,8 +1194,9 @@ static const GLubyte* Helvetica12_Character_Map[] = {Helvetica12_Character_032,H
                                                      Helvetica12_Character_240,Helvetica12_Character_241,Helvetica12_Character_242,Helvetica12_Character_243,Helvetica12_Character_244,Helvetica12_Character_245,Helvetica12_Character_246,Helvetica12_Character_247,Helvetica12_Character_248,Helvetica12_Character_249,Helvetica12_Character_250,Helvetica12_Character_251,Helvetica12_Character_252,Helvetica12_Character_253,Helvetica12_Character_254,Helvetica12_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontHelvetica12 = { "-adobe-helvetica-medium-r-normal--12-120-75-75-p-67-iso8859-1", 256, 16, Helvetica12_Character_Map, 0, 4 };
+SFG_Font fgFontHelvetica12 = { "-adobe-helvetica-medium-r-normal--12-120-75-75-p-67-iso8859-1", 256, 16, Helvetica12_Character_Map, 0, 4 };
 
+/*
 static const GLubyte Helvetica18_Character_000[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0, 64, 16,  0,  0, 64, 16,  0,  0, 64, 16,  0,  0, 64, 16,  0,  0, 64, 16,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_001[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_002[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -1216,6 +1229,7 @@ static const GLubyte Helvetica18_Character_028[] = { 20,  0,  0,  0,  0,  0,  0,
 static const GLubyte Helvetica18_Character_029[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_030[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_031[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Helvetica18_Character_032[] = {  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_033[] = {  6,  0,  0,  0,  0,  0, 48, 48,  0,  0, 32, 32, 48, 48, 48, 48, 48, 48, 48, 48,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_034[] = {  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,144,144,216,216,216,  0,  0,  0,  0};
@@ -1311,6 +1325,7 @@ static const GLubyte Helvetica18_Character_123[] = {  6,  0, 12, 24, 48, 48, 48,
 static const GLubyte Helvetica18_Character_124[] = {  4,  0, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_125[] = {  6,  0,192, 96, 48, 48, 48, 48, 48, 48, 24, 12, 24, 48, 48, 48, 48, 48, 96,192,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_126[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,102,  0, 63,  0, 25,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+/*
 static const GLubyte Helvetica18_Character_127[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_128[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_129[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -1344,6 +1359,7 @@ static const GLubyte Helvetica18_Character_156[] = { 20,  0,  0,  0,  0,  0,  0,
 static const GLubyte Helvetica18_Character_157[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_158[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_159[] = { 20,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 64, 16,  0,  0,  0,  0, 85, 80,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte Helvetica18_Character_160[] = {  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_161[] = {  6,  0, 48, 48, 48, 48, 48, 48, 48, 48, 16, 16,  0,  0, 48, 48,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte Helvetica18_Character_162[] = { 10,  0,  0,  0,  0,  0,  0,  8,  0,  8,  0, 31,  0, 63,128, 53,128,100,  0,100,  0,100,  0,100,  0, 53,128, 63,128, 31,  0,  2,  0,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -1460,8 +1476,9 @@ static const GLubyte* Helvetica18_Character_Map[] = {Helvetica18_Character_032,H
                                                      Helvetica18_Character_240,Helvetica18_Character_241,Helvetica18_Character_242,Helvetica18_Character_243,Helvetica18_Character_244,Helvetica18_Character_245,Helvetica18_Character_246,Helvetica18_Character_247,Helvetica18_Character_248,Helvetica18_Character_249,Helvetica18_Character_250,Helvetica18_Character_251,Helvetica18_Character_252,Helvetica18_Character_253,Helvetica18_Character_254,Helvetica18_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontHelvetica18 = { "-adobe-helvetica-medium-r-normal--18-180-75-75-p-98-iso8859-1", 256, 23, Helvetica18_Character_Map, 0, 5 };
+SFG_Font fgFontHelvetica18 = { "-adobe-helvetica-medium-r-normal--18-180-75-75-p-98-iso8859-1", 256, 23, Helvetica18_Character_Map, 0, 5 };
 
+/*
 static const GLubyte TimesRoman10_Character_000[] = {  8,  0,  0,  0,  0,170,  0,130,  0,130,  0,170,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_001[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_002[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
@@ -1494,6 +1511,7 @@ static const GLubyte TimesRoman10_Character_028[] = { 13,  0,  0,  0,  0,  0,  0
 static const GLubyte TimesRoman10_Character_029[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_030[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_031[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte TimesRoman10_Character_032[] = {  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_033[] = {  3,  0,  0,  0,  0, 64,  0, 64, 64, 64, 64, 64,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_034[] = {  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,160,160,  0,  0,  0};
@@ -1589,6 +1607,7 @@ static const GLubyte TimesRoman10_Character_123[] = {  4,  0,  0, 32, 64, 64, 64
 static const GLubyte TimesRoman10_Character_124[] = {  2,  0,  0,128,128,128,128,128,128,128,128,128,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_125[] = {  4,  0,  0,128, 64, 64, 64, 32, 64, 64, 64,128,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_126[] = {  7,  0,  0,  0,  0,  0,  0,152,100,  0,  0,  0,  0,  0,  0};
+/*
 static const GLubyte TimesRoman10_Character_127[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_128[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_129[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
@@ -1622,6 +1641,7 @@ static const GLubyte TimesRoman10_Character_156[] = { 13,  0,  0,  0,  0,  0,  0
 static const GLubyte TimesRoman10_Character_157[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_158[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_159[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,170,  0,  0,  0,130,  0,  0,  0,130,  0,  0,  0,170,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte TimesRoman10_Character_160[] = {  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_161[] = {  3,  0,  0, 64, 64, 64, 64, 64,  0, 64,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman10_Character_162[] = {  5,  0,  0,  0,128,224,144,128,144,112, 16,  0,  0,  0,  0};
@@ -1738,8 +1758,8 @@ static const GLubyte* TimesRoman10_Character_Map[] = {TimesRoman10_Character_032
                                                       TimesRoman10_Character_240,TimesRoman10_Character_241,TimesRoman10_Character_242,TimesRoman10_Character_243,TimesRoman10_Character_244,TimesRoman10_Character_245,TimesRoman10_Character_246,TimesRoman10_Character_247,TimesRoman10_Character_248,TimesRoman10_Character_249,TimesRoman10_Character_250,TimesRoman10_Character_251,TimesRoman10_Character_252,TimesRoman10_Character_253,TimesRoman10_Character_254,TimesRoman10_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontTimesRoman10 = { "-adobe-times-medium-r-normal--10-100-75-75-p-54-iso8859-1", 256, 14, TimesRoman10_Character_Map, 0, 4 };
-
+SFG_Font fgFontTimesRoman10 = { "-adobe-times-medium-r-normal--10-100-75-75-p-54-iso8859-1", 256, 14, TimesRoman10_Character_Map, 0, 4 };
+/*
 static const GLubyte TimesRoman24_Character_000[] = { 19,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 64,  0, 64,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_001[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_002[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -1772,6 +1792,7 @@ static const GLubyte TimesRoman24_Character_028[] = { 26,  0,  0,  0,  0,  0,  0
 static const GLubyte TimesRoman24_Character_029[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_030[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_031[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte TimesRoman24_Character_032[] = {  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_033[] = {  8,  0,  0,  0,  0,  0,  0,  0, 24, 24,  0,  0,  0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_034[] = { 10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 68,  0,102,  0,102,  0,102,  0,102,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -1867,6 +1888,7 @@ static const GLubyte TimesRoman24_Character_123[] = { 10,  0,  0,  0,  0,  3,128
 static const GLubyte TimesRoman24_Character_124[] = {  6,  0,  0,  0,  0,  0,  0,  0, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_125[] = { 10,  0,  0,  0,  0,112,  0, 24,  0, 12,  0, 12,  0, 12,  0, 12,  0, 12,  0, 12,  0,  4,  0,  6,  0,  2,  0,  1,128,  2,  0,  6,  0,  4,  0, 12,  0, 12,  0, 12,  0, 12,  0, 12,  0, 24,  0,112,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_126[] = { 13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 65,192, 99,224, 62, 48, 28, 16,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+/*
 static const GLubyte TimesRoman24_Character_127[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_128[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_129[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -1900,6 +1922,7 @@ static const GLubyte TimesRoman24_Character_156[] = { 26,  0,  0,  0,  0,  0,  0
 static const GLubyte TimesRoman24_Character_157[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_158[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_159[] = { 26,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 64,  0, 64,  0,  0,  0,  0,  0, 85, 85, 64,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+*/
 static const GLubyte TimesRoman24_Character_160[] = {  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_161[] = {  8,  0,  0, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,  0,  0,  0, 12, 12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 static const GLubyte TimesRoman24_Character_162[] = { 12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 32,  0, 32,  0, 31,  0, 63,128, 56, 64,104,  0,100,  0,100,  0,100,  0, 98,  0, 98,  0, 33,192, 49,192, 15,128,  0,128,  0,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
@@ -2016,5 +2039,5 @@ static const GLubyte* TimesRoman24_Character_Map[] = {TimesRoman24_Character_032
                                                       TimesRoman24_Character_240,TimesRoman24_Character_241,TimesRoman24_Character_242,TimesRoman24_Character_243,TimesRoman24_Character_244,TimesRoman24_Character_245,TimesRoman24_Character_246,TimesRoman24_Character_247,TimesRoman24_Character_248,TimesRoman24_Character_249,TimesRoman24_Character_250,TimesRoman24_Character_251,TimesRoman24_Character_252,TimesRoman24_Character_253,TimesRoman24_Character_254,TimesRoman24_Character_255,NULL};
 
 /* The font structure: */
-const SFG_Font fgFontTimesRoman24 = { "-adobe-times-medium-r-normal--24-240-75-75-p-124-iso8859-1", 256, 29, TimesRoman24_Character_Map, 0, 7 };
+SFG_Font fgFontTimesRoman24 = { "-adobe-times-medium-r-normal--24-240-75-75-p-124-iso8859-1", 256, 29, TimesRoman24_Character_Map, 0, 7 };
 

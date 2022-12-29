@@ -33,22 +33,22 @@
 
 /* char: 0x20 */
 
-static const SFG_StrokeStrip ch32st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch32st[] =
 {
   { 0, NULL }
 };
 
-static const SFG_StrokeChar ch32 = {104.762f,0,ch32st};
+static const SFG_StrokeChar StrokeMonoRoman_ch32 = {104.762f,0,StrokeMonoRoman_ch32st};
 
 /* char: 0x21 */
 
-static const SFG_StrokeVertex ch33st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch33st0[] =
 {
  {52.381f,100.0f},
  {52.381f,33.3333f}
 };
 
-static const SFG_StrokeVertex ch33st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch33st1[] =
 {
  {52.381f,9.5238f},
  {47.6191f,4.7619f},
@@ -57,87 +57,87 @@ static const SFG_StrokeVertex ch33st1[] =
  {52.381f,9.5238f}
 };
 
-static const SFG_StrokeStrip ch33st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch33st[] =
 {
- {2,ch33st0},
- {5,ch33st1}
+ {2,StrokeMonoRoman_ch33st0},
+ {5,StrokeMonoRoman_ch33st1}
 };
 
-static const SFG_StrokeChar ch33 = {104.762f,2,ch33st};
+static const SFG_StrokeChar StrokeMonoRoman_ch33 = {104.762f,2,StrokeMonoRoman_ch33st};
 
 /* char: 0x22 */
 
-static const SFG_StrokeVertex ch34st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch34st0[] =
 {
  {33.3334f,100.0f},
  {33.3334f,66.6667f}
 };
 
-static const SFG_StrokeVertex ch34st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch34st1[] =
 {
  {71.4286f,100.0f},
  {71.4286f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch34st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch34st[] =
 {
- {2,ch34st0},
- {2,ch34st1}
+ {2,StrokeMonoRoman_ch34st0},
+ {2,StrokeMonoRoman_ch34st1}
 };
 
-static const SFG_StrokeChar ch34 = {104.762f,2,ch34st};
+static const SFG_StrokeChar StrokeMonoRoman_ch34 = {104.762f,2,StrokeMonoRoman_ch34st};
 
 /* char: 0x23 */
 
-static const SFG_StrokeVertex ch35st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch35st0[] =
 {
  {54.7619f,119.048f},
  {21.4286f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch35st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch35st1[] =
 {
  {83.3334f,119.048f},
  {50.0f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch35st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch35st2[] =
 {
  {21.4286f,57.1429f},
  {88.0952f,57.1429f}
 };
 
-static const SFG_StrokeVertex ch35st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch35st3[] =
 {
  {16.6667f,28.5714f},
  {83.3334f,28.5714f}
 };
 
-static const SFG_StrokeStrip ch35st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch35st[] =
 {
- {2,ch35st0},
- {2,ch35st1},
- {2,ch35st2},
- {2,ch35st3}
+ {2,StrokeMonoRoman_ch35st0},
+ {2,StrokeMonoRoman_ch35st1},
+ {2,StrokeMonoRoman_ch35st2},
+ {2,StrokeMonoRoman_ch35st3}
 };
 
-static const SFG_StrokeChar ch35 = {104.762f,4,ch35st};
+static const SFG_StrokeChar StrokeMonoRoman_ch35 = {104.762f,4,StrokeMonoRoman_ch35st};
 
 /* char: 0x24 */
 
-static const SFG_StrokeVertex ch36st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch36st0[] =
 {
  {42.8571f,119.048f},
  {42.8571f,-19.0476f}
 };
 
-static const SFG_StrokeVertex ch36st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch36st1[] =
 {
  {61.9047f,119.048f},
  {61.9047f,-19.0476f}
 };
 
-static const SFG_StrokeVertex ch36st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch36st2[] =
 {
  {85.7143f,85.7143f},
  {76.1905f,95.2381f},
@@ -161,24 +161,24 @@ static const SFG_StrokeVertex ch36st2[] =
  {19.0476f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch36st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch36st[] =
 {
- {2,ch36st0},
- {2,ch36st1},
- {20,ch36st2}
+ {2,StrokeMonoRoman_ch36st0},
+ {2,StrokeMonoRoman_ch36st1},
+ {20,StrokeMonoRoman_ch36st2}
 };
 
-static const SFG_StrokeChar ch36 = {104.762f,3,ch36st};
+static const SFG_StrokeChar StrokeMonoRoman_ch36 = {104.762f,3,StrokeMonoRoman_ch36st};
 
 /* char: 0x25 */
 
-static const SFG_StrokeVertex ch37st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch37st0[] =
 {
  {95.2381f,100.0f},
  {9.5238f,0.0f}
 };
 
-static const SFG_StrokeVertex ch37st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch37st1[] =
 {
  {33.3333f,100.0f},
  {42.8571f,90.4762f},
@@ -198,7 +198,7 @@ static const SFG_StrokeVertex ch37st1[] =
  {95.2381f,100.0f}
 };
 
-static const SFG_StrokeVertex ch37st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch37st2[] =
 {
  {76.1905f,33.3333f},
  {66.6667f,28.5714f},
@@ -213,18 +213,18 @@ static const SFG_StrokeVertex ch37st2[] =
  {76.1905f,33.3333f}
 };
 
-static const SFG_StrokeStrip ch37st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch37st[] =
 {
- {2,ch37st0},
- {16,ch37st1},
- {11,ch37st2}
+ {2,StrokeMonoRoman_ch37st0},
+ {16,StrokeMonoRoman_ch37st1},
+ {11,StrokeMonoRoman_ch37st2}
 };
 
-static const SFG_StrokeChar ch37 = {104.762f,3,ch37st};
+static const SFG_StrokeChar StrokeMonoRoman_ch37 = {104.762f,3,StrokeMonoRoman_ch37st};
 
 /* char: 0x26 */
 
-static const SFG_StrokeVertex ch38st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch38st0[] =
 {
  {100.0f,57.1429f},
  {100.0f,61.9048f},
@@ -262,31 +262,31 @@ static const SFG_StrokeVertex ch38st0[] =
  {100.0f,9.5238f}
 };
 
-static const SFG_StrokeStrip ch38st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch38st[] =
 {
- {34,ch38st0}
+ {34,StrokeMonoRoman_ch38st0}
 };
 
-static const SFG_StrokeChar ch38 = {104.762f,1,ch38st};
+static const SFG_StrokeChar StrokeMonoRoman_ch38 = {104.762f,1,StrokeMonoRoman_ch38st};
 
 /* char: 0x27 */
 
-static const SFG_StrokeVertex ch39st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch39st0[] =
 {
  {52.381f,100.0f},
  {52.381f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch39st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch39st[] =
 {
- {2,ch39st0}
+ {2,StrokeMonoRoman_ch39st0}
 };
 
-static const SFG_StrokeChar ch39 = {104.762f,1,ch39st};
+static const SFG_StrokeChar StrokeMonoRoman_ch39 = {104.762f,1,StrokeMonoRoman_ch39st};
 
 /* char: 0x28 */
 
-static const SFG_StrokeVertex ch40st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch40st0[] =
 {
  {69.0476f,119.048f},
  {59.5238f,109.524f},
@@ -300,16 +300,16 @@ static const SFG_StrokeVertex ch40st0[] =
  {69.0476f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch40st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch40st[] =
 {
- {10,ch40st0}
+ {10,StrokeMonoRoman_ch40st0}
 };
 
-static const SFG_StrokeChar ch40 = {104.762f,1,ch40st};
+static const SFG_StrokeChar StrokeMonoRoman_ch40 = {104.762f,1,StrokeMonoRoman_ch40st};
 
 /* char: 0x29 */
 
-static const SFG_StrokeVertex ch41st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch41st0[] =
 {
  {35.7143f,119.048f},
  {45.2381f,109.524f},
@@ -323,67 +323,67 @@ static const SFG_StrokeVertex ch41st0[] =
  {35.7143f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch41st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch41st[] =
 {
- {10,ch41st0}
+ {10,StrokeMonoRoman_ch41st0}
 };
 
-static const SFG_StrokeChar ch41 = {104.762f,1,ch41st};
+static const SFG_StrokeChar StrokeMonoRoman_ch41 = {104.762f,1,StrokeMonoRoman_ch41st};
 
 /* char: 0x2a */
 
-static const SFG_StrokeVertex ch42st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch42st0[] =
 {
  {52.381f,71.4286f},
  {52.381f,14.2857f}
 };
 
-static const SFG_StrokeVertex ch42st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch42st1[] =
 {
  {28.5715f,57.1429f},
  {76.1905f,28.5714f}
 };
 
-static const SFG_StrokeVertex ch42st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch42st2[] =
 {
  {76.1905f,57.1429f},
  {28.5715f,28.5714f}
 };
 
-static const SFG_StrokeStrip ch42st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch42st[] =
 {
- {2,ch42st0},
- {2,ch42st1},
- {2,ch42st2}
+ {2,StrokeMonoRoman_ch42st0},
+ {2,StrokeMonoRoman_ch42st1},
+ {2,StrokeMonoRoman_ch42st2}
 };
 
-static const SFG_StrokeChar ch42 = {104.762f,3,ch42st};
+static const SFG_StrokeChar StrokeMonoRoman_ch42 = {104.762f,3,StrokeMonoRoman_ch42st};
 
 /* char: 0x2b */
 
-static const SFG_StrokeVertex ch43st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch43st0[] =
 {
  {52.3809f,85.7143f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch43st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch43st1[] =
 {
  {9.5238f,42.8571f},
  {95.2381f,42.8571f}
 };
 
-static const SFG_StrokeStrip ch43st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch43st[] =
 {
- {2,ch43st0},
- {2,ch43st1}
+ {2,StrokeMonoRoman_ch43st0},
+ {2,StrokeMonoRoman_ch43st1}
 };
 
-static const SFG_StrokeChar ch43 = {104.762f,2,ch43st};
+static const SFG_StrokeChar StrokeMonoRoman_ch43 = {104.762f,2,StrokeMonoRoman_ch43st};
 
 /* char: 0x2c */
 
-static const SFG_StrokeVertex ch44st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch44st0[] =
 {
  {57.1429f,4.7619f},
  {52.381f,0.0f},
@@ -395,31 +395,31 @@ static const SFG_StrokeVertex ch44st0[] =
  {47.6191f,-19.0476f}
 };
 
-static const SFG_StrokeStrip ch44st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch44st[] =
 {
- {8,ch44st0}
+ {8,StrokeMonoRoman_ch44st0}
 };
 
-static const SFG_StrokeChar ch44 = {104.762f,1,ch44st};
+static const SFG_StrokeChar StrokeMonoRoman_ch44 = {104.762f,1,StrokeMonoRoman_ch44st};
 
 /* char: 0x2d */
 
-static const SFG_StrokeVertex ch45st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch45st0[] =
 {
  {9.5238f,42.8571f},
  {95.2381f,42.8571f}
 };
 
-static const SFG_StrokeStrip ch45st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch45st[] =
 {
- {2,ch45st0}
+ {2,StrokeMonoRoman_ch45st0}
 };
 
-static const SFG_StrokeChar ch45 = {104.762f,1,ch45st};
+static const SFG_StrokeChar StrokeMonoRoman_ch45 = {104.762f,1,StrokeMonoRoman_ch45st};
 
 /* char: 0x2e */
 
-static const SFG_StrokeVertex ch46st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch46st0[] =
 {
  {52.381f,9.5238f},
  {47.6191f,4.7619f},
@@ -428,31 +428,31 @@ static const SFG_StrokeVertex ch46st0[] =
  {52.381f,9.5238f}
 };
 
-static const SFG_StrokeStrip ch46st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch46st[] =
 {
- {5,ch46st0}
+ {5,StrokeMonoRoman_ch46st0}
 };
 
-static const SFG_StrokeChar ch46 = {104.762f,1,ch46st};
+static const SFG_StrokeChar StrokeMonoRoman_ch46 = {104.762f,1,StrokeMonoRoman_ch46st};
 
 /* char: 0x2f */
 
-static const SFG_StrokeVertex ch47st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch47st0[] =
 {
  {19.0476f,-14.2857f},
  {85.7143f,100.0f}
 };
 
-static const SFG_StrokeStrip ch47st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch47st[] =
 {
- {2,ch47st0}
+ {2,StrokeMonoRoman_ch47st0}
 };
 
-static const SFG_StrokeChar ch47 = {104.762f,1,ch47st};
+static const SFG_StrokeChar StrokeMonoRoman_ch47 = {104.762f,1,StrokeMonoRoman_ch47st};
 
 /* char: 0x30 */
 
-static const SFG_StrokeVertex ch48st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch48st0[] =
 {
  {47.619f,100.0f},
  {33.3333f,95.2381f},
@@ -473,16 +473,16 @@ static const SFG_StrokeVertex ch48st0[] =
  {47.619f,100.0f}
 };
 
-static const SFG_StrokeStrip ch48st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch48st[] =
 {
- {17,ch48st0}
+ {17,StrokeMonoRoman_ch48st0}
 };
 
-static const SFG_StrokeChar ch48 = {104.762f,1,ch48st};
+static const SFG_StrokeChar StrokeMonoRoman_ch48 = {104.762f,1,StrokeMonoRoman_ch48st};
 
 /* char: 0x31 */
 
-static const SFG_StrokeVertex ch49st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch49st0[] =
 {
  {40.4762f,80.9524f},
  {50.0f,85.7143f},
@@ -490,16 +490,16 @@ static const SFG_StrokeVertex ch49st0[] =
  {64.2857f,0.0f}
 };
 
-static const SFG_StrokeStrip ch49st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch49st[] =
 {
- {4,ch49st0}
+ {4,StrokeMonoRoman_ch49st0}
 };
 
-static const SFG_StrokeChar ch49 = {104.762f,1,ch49st};
+static const SFG_StrokeChar StrokeMonoRoman_ch49 = {104.762f,1,StrokeMonoRoman_ch49st};
 
 /* char: 0x32 */
 
-static const SFG_StrokeVertex ch50st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch50st0[] =
 {
  {23.8095f,76.1905f},
  {23.8095f,80.9524f},
@@ -517,16 +517,16 @@ static const SFG_StrokeVertex ch50st0[] =
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeStrip ch50st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch50st[] =
 {
- {14,ch50st0}
+ {14,StrokeMonoRoman_ch50st0}
 };
 
-static const SFG_StrokeChar ch50 = {104.762f,1,ch50st};
+static const SFG_StrokeChar StrokeMonoRoman_ch50 = {104.762f,1,StrokeMonoRoman_ch50st};
 
 /* char: 0x33 */
 
-static const SFG_StrokeVertex ch51st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch51st0[] =
 {
  {28.5714f,100.0f},
  {80.9524f,100.0f},
@@ -545,39 +545,39 @@ static const SFG_StrokeVertex ch51st0[] =
  {19.0476f,19.0476f}
 };
 
-static const SFG_StrokeStrip ch51st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch51st[] =
 {
- {15,ch51st0}
+ {15,StrokeMonoRoman_ch51st0}
 };
 
-static const SFG_StrokeChar ch51 = {104.762f,1,ch51st};
+static const SFG_StrokeChar StrokeMonoRoman_ch51 = {104.762f,1,StrokeMonoRoman_ch51st};
 
 /* char: 0x34 */
 
-static const SFG_StrokeVertex ch52st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch52st0[] =
 {
  {64.2857f,100.0f},
  {16.6667f,33.3333f},
  {88.0952f,33.3333f}
 };
 
-static const SFG_StrokeVertex ch52st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch52st1[] =
 {
  {64.2857f,100.0f},
  {64.2857f,0.0f}
 };
 
-static const SFG_StrokeStrip ch52st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch52st[] =
 {
- {3,ch52st0},
- {2,ch52st1}
+ {3,StrokeMonoRoman_ch52st0},
+ {2,StrokeMonoRoman_ch52st1}
 };
 
-static const SFG_StrokeChar ch52 = {104.762f,2,ch52st};
+static const SFG_StrokeChar StrokeMonoRoman_ch52 = {104.762f,2,StrokeMonoRoman_ch52st};
 
 /* char: 0x35 */
 
-static const SFG_StrokeVertex ch53st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch53st0[] =
 {
  {76.1905f,100.0f},
  {28.5714f,100.0f},
@@ -598,16 +598,16 @@ static const SFG_StrokeVertex ch53st0[] =
  {19.0476f,19.0476f}
 };
 
-static const SFG_StrokeStrip ch53st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch53st[] =
 {
- {17,ch53st0}
+ {17,StrokeMonoRoman_ch53st0}
 };
 
-static const SFG_StrokeChar ch53 = {104.762f,1,ch53st};
+static const SFG_StrokeChar StrokeMonoRoman_ch53 = {104.762f,1,StrokeMonoRoman_ch53st};
 
 /* char: 0x36 */
 
-static const SFG_StrokeVertex ch54st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch54st0[] =
 {
  {78.5714f,85.7143f},
  {73.8096f,95.2381f},
@@ -634,38 +634,38 @@ static const SFG_StrokeVertex ch54st0[] =
  {21.4286f,33.3333f}
 };
 
-static const SFG_StrokeStrip ch54st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch54st[] =
 {
- {23,ch54st0}
+ {23,StrokeMonoRoman_ch54st0}
 };
 
-static const SFG_StrokeChar ch54 = {104.762f,1,ch54st};
+static const SFG_StrokeChar StrokeMonoRoman_ch54 = {104.762f,1,StrokeMonoRoman_ch54st};
 
 /* char: 0x37 */
 
-static const SFG_StrokeVertex ch55st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch55st0[] =
 {
  {85.7143f,100.0f},
  {38.0952f,0.0f}
 };
 
-static const SFG_StrokeVertex ch55st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch55st1[] =
 {
  {19.0476f,100.0f},
  {85.7143f,100.0f}
 };
 
-static const SFG_StrokeStrip ch55st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch55st[] =
 {
- {2,ch55st0},
- {2,ch55st1}
+ {2,StrokeMonoRoman_ch55st0},
+ {2,StrokeMonoRoman_ch55st1}
 };
 
-static const SFG_StrokeChar ch55 = {104.762f,2,ch55st};
+static const SFG_StrokeChar StrokeMonoRoman_ch55 = {104.762f,2,StrokeMonoRoman_ch55st};
 
 /* char: 0x38 */
 
-static const SFG_StrokeVertex ch56st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch56st0[] =
 {
  {42.8571f,100.0f},
  {28.5714f,95.2381f},
@@ -698,16 +698,16 @@ static const SFG_StrokeVertex ch56st0[] =
  {42.8571f,100.0f}
 };
 
-static const SFG_StrokeStrip ch56st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch56st[] =
 {
- {29,ch56st0}
+ {29,StrokeMonoRoman_ch56st0}
 };
 
-static const SFG_StrokeChar ch56 = {104.762f,1,ch56st};
+static const SFG_StrokeChar StrokeMonoRoman_ch56 = {104.762f,1,StrokeMonoRoman_ch56st};
 
 /* char: 0x39 */
 
-static const SFG_StrokeVertex ch57st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch57st0[] =
 {
  {83.3334f,66.6667f},
  {78.5714f,52.381f},
@@ -734,16 +734,16 @@ static const SFG_StrokeVertex ch57st0[] =
  {26.1905f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch57st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch57st[] =
 {
- {23,ch57st0}
+ {23,StrokeMonoRoman_ch57st0}
 };
 
-static const SFG_StrokeChar ch57 = {104.762f,1,ch57st};
+static const SFG_StrokeChar StrokeMonoRoman_ch57 = {104.762f,1,StrokeMonoRoman_ch57st};
 
 /* char: 0x3a */
 
-static const SFG_StrokeVertex ch58st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch58st0[] =
 {
  {52.381f,66.6667f},
  {47.6191f,61.9048f},
@@ -752,7 +752,7 @@ static const SFG_StrokeVertex ch58st0[] =
  {52.381f,66.6667f}
 };
 
-static const SFG_StrokeVertex ch58st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch58st1[] =
 {
  {52.381f,9.5238f},
  {47.6191f,4.7619f},
@@ -761,17 +761,17 @@ static const SFG_StrokeVertex ch58st1[] =
  {52.381f,9.5238f}
 };
 
-static const SFG_StrokeStrip ch58st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch58st[] =
 {
- {5,ch58st0},
- {5,ch58st1}
+ {5,StrokeMonoRoman_ch58st0},
+ {5,StrokeMonoRoman_ch58st1}
 };
 
-static const SFG_StrokeChar ch58 = {104.762f,2,ch58st};
+static const SFG_StrokeChar StrokeMonoRoman_ch58 = {104.762f,2,StrokeMonoRoman_ch58st};
 
 /* char: 0x3b */
 
-static const SFG_StrokeVertex ch59st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch59st0[] =
 {
  {52.381f,66.6667f},
  {47.6191f,61.9048f},
@@ -780,7 +780,7 @@ static const SFG_StrokeVertex ch59st0[] =
  {52.381f,66.6667f}
 };
 
-static const SFG_StrokeVertex ch59st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch59st1[] =
 {
  {57.1429f,4.7619f},
  {52.381f,0.0f},
@@ -792,71 +792,71 @@ static const SFG_StrokeVertex ch59st1[] =
  {47.6191f,-19.0476f}
 };
 
-static const SFG_StrokeStrip ch59st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch59st[] =
 {
- {5,ch59st0},
- {8,ch59st1}
+ {5,StrokeMonoRoman_ch59st0},
+ {8,StrokeMonoRoman_ch59st1}
 };
 
-static const SFG_StrokeChar ch59 = {104.762f,2,ch59st};
+static const SFG_StrokeChar StrokeMonoRoman_ch59 = {104.762f,2,StrokeMonoRoman_ch59st};
 
 /* char: 0x3c */
 
-static const SFG_StrokeVertex ch60st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch60st0[] =
 {
  {90.4762f,85.7143f},
  {14.2857f,42.8571f},
  {90.4762f,0.0f}
 };
 
-static const SFG_StrokeStrip ch60st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch60st[] =
 {
- {3,ch60st0}
+ {3,StrokeMonoRoman_ch60st0}
 };
 
-static const SFG_StrokeChar ch60 = {104.762f,1,ch60st};
+static const SFG_StrokeChar StrokeMonoRoman_ch60 = {104.762f,1,StrokeMonoRoman_ch60st};
 
 /* char: 0x3d */
 
-static const SFG_StrokeVertex ch61st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch61st0[] =
 {
  {9.5238f,57.1429f},
  {95.2381f,57.1429f}
 };
 
-static const SFG_StrokeVertex ch61st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch61st1[] =
 {
  {9.5238f,28.5714f},
  {95.2381f,28.5714f}
 };
 
-static const SFG_StrokeStrip ch61st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch61st[] =
 {
- {2,ch61st0},
- {2,ch61st1}
+ {2,StrokeMonoRoman_ch61st0},
+ {2,StrokeMonoRoman_ch61st1}
 };
 
-static const SFG_StrokeChar ch61 = {104.762f,2,ch61st};
+static const SFG_StrokeChar StrokeMonoRoman_ch61 = {104.762f,2,StrokeMonoRoman_ch61st};
 
 /* char: 0x3e */
 
-static const SFG_StrokeVertex ch62st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch62st0[] =
 {
  {14.2857f,85.7143f},
  {90.4762f,42.8571f},
  {14.2857f,0.0f}
 };
 
-static const SFG_StrokeStrip ch62st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch62st[] =
 {
- {3,ch62st0}
+ {3,StrokeMonoRoman_ch62st0}
 };
 
-static const SFG_StrokeChar ch62 = {104.762f,1,ch62st};
+static const SFG_StrokeChar StrokeMonoRoman_ch62 = {104.762f,1,StrokeMonoRoman_ch62st};
 
 /* char: 0x3f */
 
-static const SFG_StrokeVertex ch63st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch63st0[] =
 {
  {23.8095f,76.1905f},
  {23.8095f,80.9524f},
@@ -874,7 +874,7 @@ static const SFG_StrokeVertex ch63st0[] =
  {52.3809f,33.3333f}
 };
 
-static const SFG_StrokeVertex ch63st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch63st1[] =
 {
  {52.3809f,9.5238f},
  {47.619f,4.7619f},
@@ -883,17 +883,17 @@ static const SFG_StrokeVertex ch63st1[] =
  {52.3809f,9.5238f}
 };
 
-static const SFG_StrokeStrip ch63st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch63st[] =
 {
- {14,ch63st0},
- {5,ch63st1}
+ {14,StrokeMonoRoman_ch63st0},
+ {5,StrokeMonoRoman_ch63st1}
 };
 
-static const SFG_StrokeChar ch63 = {104.762f,2,ch63st};
+static const SFG_StrokeChar StrokeMonoRoman_ch63 = {104.762f,2,StrokeMonoRoman_ch63st};
 
 /* char: 0x40 */
 
-static const SFG_StrokeVertex ch64st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch64st0[] =
 {
  {64.2857f,52.381f},
  {54.7619f,57.1429f},
@@ -905,7 +905,7 @@ static const SFG_StrokeVertex ch64st0[] =
  {64.2857f,38.0952f}
 };
 
-static const SFG_StrokeVertex ch64st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch64st1[] =
 {
  {64.2857f,57.1429f},
  {64.2857f,38.0952f},
@@ -928,52 +928,52 @@ static const SFG_StrokeVertex ch64st1[] =
  {69.0476f,19.0476f}
 };
 
-static const SFG_StrokeStrip ch64st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch64st[] =
 {
- {8,ch64st0},
- {19,ch64st1}
+ {8,StrokeMonoRoman_ch64st0},
+ {19,StrokeMonoRoman_ch64st1}
 };
 
-static const SFG_StrokeChar ch64 = {104.762f,2,ch64st};
+static const SFG_StrokeChar StrokeMonoRoman_ch64 = {104.762f,2,StrokeMonoRoman_ch64st};
 
 /* char: 0x41 */
 
-static const SFG_StrokeVertex ch65st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch65st0[] =
 {
  {52.3809f,100.0f},
  {14.2857f,0.0f}
 };
 
-static const SFG_StrokeVertex ch65st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch65st1[] =
 {
  {52.3809f,100.0f},
  {90.4762f,0.0f}
 };
 
-static const SFG_StrokeVertex ch65st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch65st2[] =
 {
  {28.5714f,33.3333f},
  {76.1905f,33.3333f}
 };
 
-static const SFG_StrokeStrip ch65st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch65st[] =
 {
- {2,ch65st0},
- {2,ch65st1},
- {2,ch65st2}
+ {2,StrokeMonoRoman_ch65st0},
+ {2,StrokeMonoRoman_ch65st1},
+ {2,StrokeMonoRoman_ch65st2}
 };
 
-static const SFG_StrokeChar ch65 = {104.762f,3,ch65st};
+static const SFG_StrokeChar StrokeMonoRoman_ch65 = {104.762f,3,StrokeMonoRoman_ch65st};
 
 /* char: 0x42 */
 
-static const SFG_StrokeVertex ch66st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch66st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch66st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch66st1[] =
 {
  {19.0476f,100.0f},
  {61.9047f,100.0f},
@@ -986,7 +986,7 @@ static const SFG_StrokeVertex ch66st1[] =
  {61.9047f,52.381f}
 };
 
-static const SFG_StrokeVertex ch66st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch66st2[] =
 {
  {19.0476f,52.381f},
  {61.9047f,52.381f},
@@ -1000,18 +1000,18 @@ static const SFG_StrokeVertex ch66st2[] =
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeStrip ch66st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch66st[] =
 {
- {2,ch66st0},
- {9,ch66st1},
- {10,ch66st2}
+ {2,StrokeMonoRoman_ch66st0},
+ {9,StrokeMonoRoman_ch66st1},
+ {10,StrokeMonoRoman_ch66st2}
 };
 
-static const SFG_StrokeChar ch66 = {104.762f,3,ch66st};
+static const SFG_StrokeChar StrokeMonoRoman_ch66 = {104.762f,3,StrokeMonoRoman_ch66st};
 
 /* char: 0x43 */
 
-static const SFG_StrokeVertex ch67st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch67st0[] =
 {
  {88.0952f,76.1905f},
  {83.3334f,85.7143f},
@@ -1033,22 +1033,22 @@ static const SFG_StrokeVertex ch67st0[] =
  {88.0952f,23.8095f}
 };
 
-static const SFG_StrokeStrip ch67st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch67st[] =
 {
- {18,ch67st0}
+ {18,StrokeMonoRoman_ch67st0}
 };
 
-static const SFG_StrokeChar ch67 = {104.762f,1,ch67st};
+static const SFG_StrokeChar StrokeMonoRoman_ch67 = {104.762f,1,StrokeMonoRoman_ch67st};
 
 /* char: 0x44 */
 
-static const SFG_StrokeVertex ch68st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch68st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch68st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch68st1[] =
 {
  {19.0476f,100.0f},
  {52.3809f,100.0f},
@@ -1064,82 +1064,82 @@ static const SFG_StrokeVertex ch68st1[] =
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeStrip ch68st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch68st[] =
 {
- {2,ch68st0},
- {12,ch68st1}
+ {2,StrokeMonoRoman_ch68st0},
+ {12,StrokeMonoRoman_ch68st1}
 };
 
-static const SFG_StrokeChar ch68 = {104.762f,2,ch68st};
+static const SFG_StrokeChar StrokeMonoRoman_ch68 = {104.762f,2,StrokeMonoRoman_ch68st};
 
 /* char: 0x45 */
 
-static const SFG_StrokeVertex ch69st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch69st0[] =
 {
  {21.4286f,100.0f},
  {21.4286f,0.0f}
 };
 
-static const SFG_StrokeVertex ch69st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch69st1[] =
 {
  {21.4286f,100.0f},
  {83.3334f,100.0f}
 };
 
-static const SFG_StrokeVertex ch69st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch69st2[] =
 {
  {21.4286f,52.381f},
  {59.5238f,52.381f}
 };
 
-static const SFG_StrokeVertex ch69st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch69st3[] =
 {
  {21.4286f,0.0f},
  {83.3334f,0.0f}
 };
 
-static const SFG_StrokeStrip ch69st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch69st[] =
 {
- {2,ch69st0},
- {2,ch69st1},
- {2,ch69st2},
- {2,ch69st3}
+ {2,StrokeMonoRoman_ch69st0},
+ {2,StrokeMonoRoman_ch69st1},
+ {2,StrokeMonoRoman_ch69st2},
+ {2,StrokeMonoRoman_ch69st3}
 };
 
-static const SFG_StrokeChar ch69 = {104.762f,4,ch69st};
+static const SFG_StrokeChar StrokeMonoRoman_ch69 = {104.762f,4,StrokeMonoRoman_ch69st};
 
 /* char: 0x46 */
 
-static const SFG_StrokeVertex ch70st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch70st0[] =
 {
  {21.4286f,100.0f},
  {21.4286f,0.0f}
 };
 
-static const SFG_StrokeVertex ch70st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch70st1[] =
 {
  {21.4286f,100.0f},
  {83.3334f,100.0f}
 };
 
-static const SFG_StrokeVertex ch70st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch70st2[] =
 {
  {21.4286f,52.381f},
  {59.5238f,52.381f}
 };
 
-static const SFG_StrokeStrip ch70st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch70st[] =
 {
- {2,ch70st0},
- {2,ch70st1},
- {2,ch70st2}
+ {2,StrokeMonoRoman_ch70st0},
+ {2,StrokeMonoRoman_ch70st1},
+ {2,StrokeMonoRoman_ch70st2}
 };
 
-static const SFG_StrokeChar ch70 = {104.762f,3,ch70st};
+static const SFG_StrokeChar StrokeMonoRoman_ch70 = {104.762f,3,StrokeMonoRoman_ch70st};
 
 /* char: 0x47 */
 
-static const SFG_StrokeVertex ch71st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch71st0[] =
 {
  {88.0952f,76.1905f},
  {83.3334f,85.7143f},
@@ -1162,67 +1162,67 @@ static const SFG_StrokeVertex ch71st0[] =
  {88.0952f,38.0952f}
 };
 
-static const SFG_StrokeVertex ch71st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch71st1[] =
 {
  {64.2857f,38.0952f},
  {88.0952f,38.0952f}
 };
 
-static const SFG_StrokeStrip ch71st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch71st[] =
 {
- {19,ch71st0},
- {2,ch71st1}
+ {19,StrokeMonoRoman_ch71st0},
+ {2,StrokeMonoRoman_ch71st1}
 };
 
-static const SFG_StrokeChar ch71 = {104.762f,2,ch71st};
+static const SFG_StrokeChar StrokeMonoRoman_ch71 = {104.762f,2,StrokeMonoRoman_ch71st};
 
 /* char: 0x48 */
 
-static const SFG_StrokeVertex ch72st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch72st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch72st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch72st1[] =
 {
  {85.7143f,100.0f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeVertex ch72st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch72st2[] =
 {
  {19.0476f,52.381f},
  {85.7143f,52.381f}
 };
 
-static const SFG_StrokeStrip ch72st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch72st[] =
 {
- {2,ch72st0},
- {2,ch72st1},
- {2,ch72st2}
+ {2,StrokeMonoRoman_ch72st0},
+ {2,StrokeMonoRoman_ch72st1},
+ {2,StrokeMonoRoman_ch72st2}
 };
 
-static const SFG_StrokeChar ch72 = {104.762f,3,ch72st};
+static const SFG_StrokeChar StrokeMonoRoman_ch72 = {104.762f,3,StrokeMonoRoman_ch72st};
 
 /* char: 0x49 */
 
-static const SFG_StrokeVertex ch73st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch73st0[] =
 {
  {52.381f,100.0f},
  {52.381f,0.0f}
 };
 
-static const SFG_StrokeStrip ch73st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch73st[] =
 {
- {2,ch73st0}
+ {2,StrokeMonoRoman_ch73st0}
 };
 
-static const SFG_StrokeChar ch73 = {104.762f,1,ch73st};
+static const SFG_StrokeChar StrokeMonoRoman_ch73 = {104.762f,1,StrokeMonoRoman_ch73st};
 
 /* char: 0x4a */
 
-static const SFG_StrokeVertex ch74st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch74st0[] =
 {
  {76.1905f,100.0f},
  {76.1905f,23.8095f},
@@ -1236,132 +1236,132 @@ static const SFG_StrokeVertex ch74st0[] =
  {28.5715f,33.3333f}
 };
 
-static const SFG_StrokeStrip ch74st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch74st[] =
 {
- {10,ch74st0}
+ {10,StrokeMonoRoman_ch74st0}
 };
 
-static const SFG_StrokeChar ch74 = {104.762f,1,ch74st};
+static const SFG_StrokeChar StrokeMonoRoman_ch74 = {104.762f,1,StrokeMonoRoman_ch74st};
 
 /* char: 0x4b */
 
-static const SFG_StrokeVertex ch75st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch75st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch75st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch75st1[] =
 {
  {85.7143f,100.0f},
  {19.0476f,33.3333f}
 };
 
-static const SFG_StrokeVertex ch75st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch75st2[] =
 {
  {42.8571f,57.1429f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeStrip ch75st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch75st[] =
 {
- {2,ch75st0},
- {2,ch75st1},
- {2,ch75st2}
+ {2,StrokeMonoRoman_ch75st0},
+ {2,StrokeMonoRoman_ch75st1},
+ {2,StrokeMonoRoman_ch75st2}
 };
 
-static const SFG_StrokeChar ch75 = {104.762f,3,ch75st};
+static const SFG_StrokeChar StrokeMonoRoman_ch75 = {104.762f,3,StrokeMonoRoman_ch75st};
 
 /* char: 0x4c */
 
-static const SFG_StrokeVertex ch76st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch76st0[] =
 {
  {23.8095f,100.0f},
  {23.8095f,0.0f}
 };
 
-static const SFG_StrokeVertex ch76st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch76st1[] =
 {
  {23.8095f,0.0f},
  {80.9524f,0.0f}
 };
 
-static const SFG_StrokeStrip ch76st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch76st[] =
 {
- {2,ch76st0},
- {2,ch76st1}
+ {2,StrokeMonoRoman_ch76st0},
+ {2,StrokeMonoRoman_ch76st1}
 };
 
-static const SFG_StrokeChar ch76 = {104.762f,2,ch76st};
+static const SFG_StrokeChar StrokeMonoRoman_ch76 = {104.762f,2,StrokeMonoRoman_ch76st};
 
 /* char: 0x4d */
 
-static const SFG_StrokeVertex ch77st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch77st0[] =
 {
  {14.2857f,100.0f},
  {14.2857f,0.0f}
 };
 
-static const SFG_StrokeVertex ch77st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch77st1[] =
 {
  {14.2857f,100.0f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch77st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch77st2[] =
 {
  {90.4762f,100.0f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch77st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch77st3[] =
 {
  {90.4762f,100.0f},
  {90.4762f,0.0f}
 };
 
-static const SFG_StrokeStrip ch77st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch77st[] =
 {
- {2,ch77st0},
- {2,ch77st1},
- {2,ch77st2},
- {2,ch77st3}
+ {2,StrokeMonoRoman_ch77st0},
+ {2,StrokeMonoRoman_ch77st1},
+ {2,StrokeMonoRoman_ch77st2},
+ {2,StrokeMonoRoman_ch77st3}
 };
 
-static const SFG_StrokeChar ch77 = {104.762f,4,ch77st};
+static const SFG_StrokeChar StrokeMonoRoman_ch77 = {104.762f,4,StrokeMonoRoman_ch77st};
 
 /* char: 0x4e */
 
-static const SFG_StrokeVertex ch78st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch78st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch78st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch78st1[] =
 {
  {19.0476f,100.0f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeVertex ch78st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch78st2[] =
 {
  {85.7143f,100.0f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeStrip ch78st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch78st[] =
 {
- {2,ch78st0},
- {2,ch78st1},
- {2,ch78st2}
+ {2,StrokeMonoRoman_ch78st0},
+ {2,StrokeMonoRoman_ch78st1},
+ {2,StrokeMonoRoman_ch78st2}
 };
 
-static const SFG_StrokeChar ch78 = {104.762f,3,ch78st};
+static const SFG_StrokeChar StrokeMonoRoman_ch78 = {104.762f,3,StrokeMonoRoman_ch78st};
 
 /* char: 0x4f */
 
-static const SFG_StrokeVertex ch79st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch79st0[] =
 {
  {42.8571f,100.0f},
  {33.3333f,95.2381f},
@@ -1386,22 +1386,22 @@ static const SFG_StrokeVertex ch79st0[] =
  {42.8571f,100.0f}
 };
 
-static const SFG_StrokeStrip ch79st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch79st[] =
 {
- {21,ch79st0}
+ {21,StrokeMonoRoman_ch79st0}
 };
 
-static const SFG_StrokeChar ch79 = {104.762f,1,ch79st};
+static const SFG_StrokeChar StrokeMonoRoman_ch79 = {104.762f,1,StrokeMonoRoman_ch79st};
 
 /* char: 0x50 */
 
-static const SFG_StrokeVertex ch80st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch80st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch80st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch80st1[] =
 {
  {19.0476f,100.0f},
  {61.9047f,100.0f},
@@ -1415,17 +1415,17 @@ static const SFG_StrokeVertex ch80st1[] =
  {19.0476f,47.619f}
 };
 
-static const SFG_StrokeStrip ch80st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch80st[] =
 {
- {2,ch80st0},
- {10,ch80st1}
+ {2,StrokeMonoRoman_ch80st0},
+ {10,StrokeMonoRoman_ch80st1}
 };
 
-static const SFG_StrokeChar ch80 = {104.762f,2,ch80st};
+static const SFG_StrokeChar StrokeMonoRoman_ch80 = {104.762f,2,StrokeMonoRoman_ch80st};
 
 /* char: 0x51 */
 
-static const SFG_StrokeVertex ch81st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch81st0[] =
 {
  {42.8571f,100.0f},
  {33.3333f,95.2381f},
@@ -1450,29 +1450,29 @@ static const SFG_StrokeVertex ch81st0[] =
  {42.8571f,100.0f}
 };
 
-static const SFG_StrokeVertex ch81st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch81st1[] =
 {
  {57.1428f,19.0476f},
  {85.7143f,-9.5238f}
 };
 
-static const SFG_StrokeStrip ch81st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch81st[] =
 {
- {21,ch81st0},
- {2,ch81st1}
+ {21,StrokeMonoRoman_ch81st0},
+ {2,StrokeMonoRoman_ch81st1}
 };
 
-static const SFG_StrokeChar ch81 = {104.762f,2,ch81st};
+static const SFG_StrokeChar StrokeMonoRoman_ch81 = {104.762f,2,StrokeMonoRoman_ch81st};
 
 /* char: 0x52 */
 
-static const SFG_StrokeVertex ch82st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch82st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch82st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch82st1[] =
 {
  {19.0476f,100.0f},
  {61.9047f,100.0f},
@@ -1486,24 +1486,24 @@ static const SFG_StrokeVertex ch82st1[] =
  {19.0476f,52.381f}
 };
 
-static const SFG_StrokeVertex ch82st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch82st2[] =
 {
  {52.3809f,52.381f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeStrip ch82st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch82st[] =
 {
- {2,ch82st0},
- {10,ch82st1},
- {2,ch82st2}
+ {2,StrokeMonoRoman_ch82st0},
+ {10,StrokeMonoRoman_ch82st1},
+ {2,StrokeMonoRoman_ch82st2}
 };
 
-static const SFG_StrokeChar ch82 = {104.762f,3,ch82st};
+static const SFG_StrokeChar StrokeMonoRoman_ch82 = {104.762f,3,StrokeMonoRoman_ch82st};
 
 /* char: 0x53 */
 
-static const SFG_StrokeVertex ch83st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch83st0[] =
 {
  {85.7143f,85.7143f},
  {76.1905f,95.2381f},
@@ -1527,38 +1527,38 @@ static const SFG_StrokeVertex ch83st0[] =
  {19.0476f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch83st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch83st[] =
 {
- {20,ch83st0}
+ {20,StrokeMonoRoman_ch83st0}
 };
 
-static const SFG_StrokeChar ch83 = {104.762f,1,ch83st};
+static const SFG_StrokeChar StrokeMonoRoman_ch83 = {104.762f,1,StrokeMonoRoman_ch83st};
 
 /* char: 0x54 */
 
-static const SFG_StrokeVertex ch84st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch84st0[] =
 {
  {52.3809f,100.0f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch84st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch84st1[] =
 {
  {19.0476f,100.0f},
  {85.7143f,100.0f}
 };
 
-static const SFG_StrokeStrip ch84st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch84st[] =
 {
- {2,ch84st0},
- {2,ch84st1}
+ {2,StrokeMonoRoman_ch84st0},
+ {2,StrokeMonoRoman_ch84st1}
 };
 
-static const SFG_StrokeChar ch84 = {104.762f,2,ch84st};
+static const SFG_StrokeChar StrokeMonoRoman_ch84 = {104.762f,2,StrokeMonoRoman_ch84st};
 
 /* char: 0x55 */
 
-static const SFG_StrokeVertex ch85st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch85st0[] =
 {
  {19.0476f,100.0f},
  {19.0476f,28.5714f},
@@ -1572,257 +1572,257 @@ static const SFG_StrokeVertex ch85st0[] =
  {85.7143f,100.0f}
 };
 
-static const SFG_StrokeStrip ch85st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch85st[] =
 {
- {10,ch85st0}
+ {10,StrokeMonoRoman_ch85st0}
 };
 
-static const SFG_StrokeChar ch85 = {104.762f,1,ch85st};
+static const SFG_StrokeChar StrokeMonoRoman_ch85 = {104.762f,1,StrokeMonoRoman_ch85st};
 
 /* char: 0x56 */
 
-static const SFG_StrokeVertex ch86st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch86st0[] =
 {
  {14.2857f,100.0f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch86st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch86st1[] =
 {
  {90.4762f,100.0f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeStrip ch86st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch86st[] =
 {
- {2,ch86st0},
- {2,ch86st1}
+ {2,StrokeMonoRoman_ch86st0},
+ {2,StrokeMonoRoman_ch86st1}
 };
 
-static const SFG_StrokeChar ch86 = {104.762f,2,ch86st};
+static const SFG_StrokeChar StrokeMonoRoman_ch86 = {104.762f,2,StrokeMonoRoman_ch86st};
 
 /* char: 0x57 */
 
-static const SFG_StrokeVertex ch87st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch87st0[] =
 {
  {4.7619f,100.0f},
  {28.5714f,0.0f}
 };
 
-static const SFG_StrokeVertex ch87st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch87st1[] =
 {
  {52.3809f,100.0f},
  {28.5714f,0.0f}
 };
 
-static const SFG_StrokeVertex ch87st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch87st2[] =
 {
  {52.3809f,100.0f},
  {76.1905f,0.0f}
 };
 
-static const SFG_StrokeVertex ch87st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch87st3[] =
 {
  {100.0f,100.0f},
  {76.1905f,0.0f}
 };
 
-static const SFG_StrokeStrip ch87st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch87st[] =
 {
- {2,ch87st0},
- {2,ch87st1},
- {2,ch87st2},
- {2,ch87st3}
+ {2,StrokeMonoRoman_ch87st0},
+ {2,StrokeMonoRoman_ch87st1},
+ {2,StrokeMonoRoman_ch87st2},
+ {2,StrokeMonoRoman_ch87st3}
 };
 
-static const SFG_StrokeChar ch87 = {104.762f,4,ch87st};
+static const SFG_StrokeChar StrokeMonoRoman_ch87 = {104.762f,4,StrokeMonoRoman_ch87st};
 
 /* char: 0x58 */
 
-static const SFG_StrokeVertex ch88st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch88st0[] =
 {
  {19.0476f,100.0f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeVertex ch88st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch88st1[] =
 {
  {85.7143f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeStrip ch88st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch88st[] =
 {
- {2,ch88st0},
- {2,ch88st1}
+ {2,StrokeMonoRoman_ch88st0},
+ {2,StrokeMonoRoman_ch88st1}
 };
 
-static const SFG_StrokeChar ch88 = {104.762f,2,ch88st};
+static const SFG_StrokeChar StrokeMonoRoman_ch88 = {104.762f,2,StrokeMonoRoman_ch88st};
 
 /* char: 0x59 */
 
-static const SFG_StrokeVertex ch89st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch89st0[] =
 {
  {14.2857f,100.0f},
  {52.3809f,52.381f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch89st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch89st1[] =
 {
  {90.4762f,100.0f},
  {52.3809f,52.381f}
 };
 
-static const SFG_StrokeStrip ch89st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch89st[] =
 {
- {3,ch89st0},
- {2,ch89st1}
+ {3,StrokeMonoRoman_ch89st0},
+ {2,StrokeMonoRoman_ch89st1}
 };
 
-static const SFG_StrokeChar ch89 = {104.762f,2,ch89st};
+static const SFG_StrokeChar StrokeMonoRoman_ch89 = {104.762f,2,StrokeMonoRoman_ch89st};
 
 /* char: 0x5a */
 
-static const SFG_StrokeVertex ch90st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch90st0[] =
 {
  {85.7143f,100.0f},
  {19.0476f,0.0f}
 };
 
-static const SFG_StrokeVertex ch90st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch90st1[] =
 {
  {19.0476f,100.0f},
  {85.7143f,100.0f}
 };
 
-static const SFG_StrokeVertex ch90st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch90st2[] =
 {
  {19.0476f,0.0f},
  {85.7143f,0.0f}
 };
 
-static const SFG_StrokeStrip ch90st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch90st[] =
 {
- {2,ch90st0},
- {2,ch90st1},
- {2,ch90st2}
+ {2,StrokeMonoRoman_ch90st0},
+ {2,StrokeMonoRoman_ch90st1},
+ {2,StrokeMonoRoman_ch90st2}
 };
 
-static const SFG_StrokeChar ch90 = {104.762f,3,ch90st};
+static const SFG_StrokeChar StrokeMonoRoman_ch90 = {104.762f,3,StrokeMonoRoman_ch90st};
 
 /* char: 0x5b */
 
-static const SFG_StrokeVertex ch91st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch91st0[] =
 {
  {35.7143f,119.048f},
  {35.7143f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch91st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch91st1[] =
 {
  {40.4762f,119.048f},
  {40.4762f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch91st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch91st2[] =
 {
  {35.7143f,119.048f},
  {69.0476f,119.048f}
 };
 
-static const SFG_StrokeVertex ch91st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch91st3[] =
 {
  {35.7143f,-33.3333f},
  {69.0476f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch91st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch91st[] =
 {
- {2,ch91st0},
- {2,ch91st1},
- {2,ch91st2},
- {2,ch91st3}
+ {2,StrokeMonoRoman_ch91st0},
+ {2,StrokeMonoRoman_ch91st1},
+ {2,StrokeMonoRoman_ch91st2},
+ {2,StrokeMonoRoman_ch91st3}
 };
 
-static const SFG_StrokeChar ch91 = {104.762f,4,ch91st};
+static const SFG_StrokeChar StrokeMonoRoman_ch91 = {104.762f,4,StrokeMonoRoman_ch91st};
 
 /* char: 0x5c */
 
-static const SFG_StrokeVertex ch92st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch92st0[] =
 {
  {19.0476f,100.0f},
  {85.7143f,-14.2857f}
 };
 
-static const SFG_StrokeStrip ch92st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch92st[] =
 {
- {2,ch92st0}
+ {2,StrokeMonoRoman_ch92st0}
 };
 
-static const SFG_StrokeChar ch92 = {104.762f,1,ch92st};
+static const SFG_StrokeChar StrokeMonoRoman_ch92 = {104.762f,1,StrokeMonoRoman_ch92st};
 
 /* char: 0x5d */
 
-static const SFG_StrokeVertex ch93st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch93st0[] =
 {
  {64.2857f,119.048f},
  {64.2857f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch93st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch93st1[] =
 {
  {69.0476f,119.048f},
  {69.0476f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch93st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch93st2[] =
 {
  {35.7143f,119.048f},
  {69.0476f,119.048f}
 };
 
-static const SFG_StrokeVertex ch93st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch93st3[] =
 {
  {35.7143f,-33.3333f},
  {69.0476f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch93st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch93st[] =
 {
- {2,ch93st0},
- {2,ch93st1},
- {2,ch93st2},
- {2,ch93st3}
+ {2,StrokeMonoRoman_ch93st0},
+ {2,StrokeMonoRoman_ch93st1},
+ {2,StrokeMonoRoman_ch93st2},
+ {2,StrokeMonoRoman_ch93st3}
 };
 
-static const SFG_StrokeChar ch93 = {104.762f,4,ch93st};
+static const SFG_StrokeChar StrokeMonoRoman_ch93 = {104.762f,4,StrokeMonoRoman_ch93st};
 
 /* char: 0x5e */
 
-static const SFG_StrokeVertex ch94st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch94st0[] =
 {
  {52.3809f,109.524f},
  {14.2857f,42.8571f}
 };
 
-static const SFG_StrokeVertex ch94st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch94st1[] =
 {
  {52.3809f,109.524f},
  {90.4762f,42.8571f}
 };
 
-static const SFG_StrokeStrip ch94st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch94st[] =
 {
- {2,ch94st0},
- {2,ch94st1}
+ {2,StrokeMonoRoman_ch94st0},
+ {2,StrokeMonoRoman_ch94st1}
 };
 
-static const SFG_StrokeChar ch94 = {104.762f,2,ch94st};
+static const SFG_StrokeChar StrokeMonoRoman_ch94 = {104.762f,2,StrokeMonoRoman_ch94st};
 
 /* char: 0x5f */
 
-static const SFG_StrokeVertex ch95st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch95st0[] =
 {
  {0,-33.3333f},
  {104.762f,-33.3333f},
@@ -1831,45 +1831,45 @@ static const SFG_StrokeVertex ch95st0[] =
  {0,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch95st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch95st[] =
 {
- {5,ch95st0}
+ {5,StrokeMonoRoman_ch95st0}
 };
 
-static const SFG_StrokeChar ch95 = {104.762f,1,ch95st};
+static const SFG_StrokeChar StrokeMonoRoman_ch95 = {104.762f,1,StrokeMonoRoman_ch95st};
 
 /* char: 0x60 */
 
-static const SFG_StrokeVertex ch96st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch96st0[] =
 {
  {42.8572f,100.0f},
  {66.6667f,71.4286f}
 };
 
-static const SFG_StrokeVertex ch96st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch96st1[] =
 {
  {42.8572f,100.0f},
  {38.0953f,95.2381f},
  {66.6667f,71.4286f}
 };
 
-static const SFG_StrokeStrip ch96st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch96st[] =
 {
- {2,ch96st0},
- {3,ch96st1}
+ {2,StrokeMonoRoman_ch96st0},
+ {3,StrokeMonoRoman_ch96st1}
 };
 
-static const SFG_StrokeChar ch96 = {104.762f,2,ch96st};
+static const SFG_StrokeChar StrokeMonoRoman_ch96 = {104.762f,2,StrokeMonoRoman_ch96st};
 
 /* char: 0x61 */
 
-static const SFG_StrokeVertex ch97st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch97st0[] =
 {
  {80.9524f,66.6667f},
  {80.9524f,0.0f}
 };
 
-static const SFG_StrokeVertex ch97st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch97st1[] =
 {
  {80.9524f,52.381f},
  {71.4285f,61.9048f},
@@ -1887,23 +1887,23 @@ static const SFG_StrokeVertex ch97st1[] =
  {80.9524f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch97st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch97st[] =
 {
- {2,ch97st0},
- {14,ch97st1}
+ {2,StrokeMonoRoman_ch97st0},
+ {14,StrokeMonoRoman_ch97st1}
 };
 
-static const SFG_StrokeChar ch97 = {104.762f,2,ch97st};
+static const SFG_StrokeChar StrokeMonoRoman_ch97 = {104.762f,2,StrokeMonoRoman_ch97st};
 
 /* char: 0x62 */
 
-static const SFG_StrokeVertex ch98st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch98st0[] =
 {
  {23.8095f,100.0f},
  {23.8095f,0.0f}
 };
 
-static const SFG_StrokeVertex ch98st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch98st1[] =
 {
  {23.8095f,52.381f},
  {33.3333f,61.9048f},
@@ -1921,17 +1921,17 @@ static const SFG_StrokeVertex ch98st1[] =
  {23.8095f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch98st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch98st[] =
 {
- {2,ch98st0},
- {14,ch98st1}
+ {2,StrokeMonoRoman_ch98st0},
+ {14,StrokeMonoRoman_ch98st1}
 };
 
-static const SFG_StrokeChar ch98 = {104.762f,2,ch98st};
+static const SFG_StrokeChar StrokeMonoRoman_ch98 = {104.762f,2,StrokeMonoRoman_ch98st};
 
 /* char: 0x63 */
 
-static const SFG_StrokeVertex ch99st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch99st0[] =
 {
  {80.9524f,52.381f},
  {71.4285f,61.9048f},
@@ -1949,22 +1949,22 @@ static const SFG_StrokeVertex ch99st0[] =
  {80.9524f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch99st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch99st[] =
 {
- {14,ch99st0}
+ {14,StrokeMonoRoman_ch99st0}
 };
 
-static const SFG_StrokeChar ch99 = {104.762f,1,ch99st};
+static const SFG_StrokeChar StrokeMonoRoman_ch99 = {104.762f,1,StrokeMonoRoman_ch99st};
 
 /* char: 0x64 */
 
-static const SFG_StrokeVertex ch100st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch100st0[] =
 {
  {80.9524f,100.0f},
  {80.9524f,0.0f}
 };
 
-static const SFG_StrokeVertex ch100st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch100st1[] =
 {
  {80.9524f,52.381f},
  {71.4285f,61.9048f},
@@ -1982,17 +1982,17 @@ static const SFG_StrokeVertex ch100st1[] =
  {80.9524f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch100st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch100st[] =
 {
- {2,ch100st0},
- {14,ch100st1}
+ {2,StrokeMonoRoman_ch100st0},
+ {14,StrokeMonoRoman_ch100st1}
 };
 
-static const SFG_StrokeChar ch100 = {104.762f,2,ch100st};
+static const SFG_StrokeChar StrokeMonoRoman_ch100 = {104.762f,2,StrokeMonoRoman_ch100st};
 
 /* char: 0x65 */
 
-static const SFG_StrokeVertex ch101st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch101st0[] =
 {
  {23.8095f,38.0952f},
  {80.9524f,38.0952f},
@@ -2013,16 +2013,16 @@ static const SFG_StrokeVertex ch101st0[] =
  {80.9524f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch101st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch101st[] =
 {
- {17,ch101st0}
+ {17,StrokeMonoRoman_ch101st0}
 };
 
-static const SFG_StrokeChar ch101 = {104.762f,1,ch101st};
+static const SFG_StrokeChar StrokeMonoRoman_ch101 = {104.762f,1,StrokeMonoRoman_ch101st};
 
 /* char: 0x66 */
 
-static const SFG_StrokeVertex ch102st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch102st0[] =
 {
  {71.4286f,100.0f},
  {61.9048f,100.0f},
@@ -2031,23 +2031,23 @@ static const SFG_StrokeVertex ch102st0[] =
  {47.6191f,0.0f}
 };
 
-static const SFG_StrokeVertex ch102st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch102st1[] =
 {
  {33.3334f,66.6667f},
  {66.6667f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch102st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch102st[] =
 {
- {5,ch102st0},
- {2,ch102st1}
+ {5,StrokeMonoRoman_ch102st0},
+ {2,StrokeMonoRoman_ch102st1}
 };
 
-static const SFG_StrokeChar ch102 = {104.762f,2,ch102st};
+static const SFG_StrokeChar StrokeMonoRoman_ch102 = {104.762f,2,StrokeMonoRoman_ch102st};
 
 /* char: 0x67 */
 
-static const SFG_StrokeVertex ch103st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch103st0[] =
 {
  {80.9524f,66.6667f},
  {80.9524f,-9.5238f},
@@ -2058,7 +2058,7 @@ static const SFG_StrokeVertex ch103st0[] =
  {38.0952f,-28.5714f}
 };
 
-static const SFG_StrokeVertex ch103st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch103st1[] =
 {
  {80.9524f,52.381f},
  {71.4285f,61.9048f},
@@ -2076,23 +2076,23 @@ static const SFG_StrokeVertex ch103st1[] =
  {80.9524f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch103st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch103st[] =
 {
- {7,ch103st0},
- {14,ch103st1}
+ {7,StrokeMonoRoman_ch103st0},
+ {14,StrokeMonoRoman_ch103st1}
 };
 
-static const SFG_StrokeChar ch103 = {104.762f,2,ch103st};
+static const SFG_StrokeChar StrokeMonoRoman_ch103 = {104.762f,2,StrokeMonoRoman_ch103st};
 
 /* char: 0x68 */
 
-static const SFG_StrokeVertex ch104st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch104st0[] =
 {
  {26.1905f,100.0f},
  {26.1905f,0.0f}
 };
 
-static const SFG_StrokeVertex ch104st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch104st1[] =
 {
  {26.1905f,47.619f},
  {40.4762f,61.9048f},
@@ -2103,17 +2103,17 @@ static const SFG_StrokeVertex ch104st1[] =
  {78.5715f,0.0f}
 };
 
-static const SFG_StrokeStrip ch104st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch104st[] =
 {
- {2,ch104st0},
- {7,ch104st1}
+ {2,StrokeMonoRoman_ch104st0},
+ {7,StrokeMonoRoman_ch104st1}
 };
 
-static const SFG_StrokeChar ch104 = {104.762f,2,ch104st};
+static const SFG_StrokeChar StrokeMonoRoman_ch104 = {104.762f,2,StrokeMonoRoman_ch104st};
 
 /* char: 0x69 */
 
-static const SFG_StrokeVertex ch105st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch105st0[] =
 {
  {47.6191f,100.0f},
  {52.381f,95.2381f},
@@ -2122,23 +2122,23 @@ static const SFG_StrokeVertex ch105st0[] =
  {47.6191f,100.0f}
 };
 
-static const SFG_StrokeVertex ch105st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch105st1[] =
 {
  {52.381f,66.6667f},
  {52.381f,0.0f}
 };
 
-static const SFG_StrokeStrip ch105st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch105st[] =
 {
- {5,ch105st0},
- {2,ch105st1}
+ {5,StrokeMonoRoman_ch105st0},
+ {2,StrokeMonoRoman_ch105st1}
 };
 
-static const SFG_StrokeChar ch105 = {104.762f,2,ch105st};
+static const SFG_StrokeChar StrokeMonoRoman_ch105 = {104.762f,2,StrokeMonoRoman_ch105st};
 
 /* char: 0x6a */
 
-static const SFG_StrokeVertex ch106st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch106st0[] =
 {
  {57.1429f,100.0f},
  {61.9048f,95.2381f},
@@ -2147,7 +2147,7 @@ static const SFG_StrokeVertex ch106st0[] =
  {57.1429f,100.0f}
 };
 
-static const SFG_StrokeVertex ch106st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch106st1[] =
 {
  {61.9048f,66.6667f},
  {61.9048f,-14.2857f},
@@ -2156,67 +2156,67 @@ static const SFG_StrokeVertex ch106st1[] =
  {38.0953f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch106st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch106st[] =
 {
- {5,ch106st0},
- {5,ch106st1}
+ {5,StrokeMonoRoman_ch106st0},
+ {5,StrokeMonoRoman_ch106st1}
 };
 
-static const SFG_StrokeChar ch106 = {104.762f,2,ch106st};
+static const SFG_StrokeChar StrokeMonoRoman_ch106 = {104.762f,2,StrokeMonoRoman_ch106st};
 
 /* char: 0x6b */
 
-static const SFG_StrokeVertex ch107st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch107st0[] =
 {
  {26.1905f,100.0f},
  {26.1905f,0.0f}
 };
 
-static const SFG_StrokeVertex ch107st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch107st1[] =
 {
  {73.8095f,66.6667f},
  {26.1905f,19.0476f}
 };
 
-static const SFG_StrokeVertex ch107st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch107st2[] =
 {
  {45.2381f,38.0952f},
  {78.5715f,0.0f}
 };
 
-static const SFG_StrokeStrip ch107st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch107st[] =
 {
- {2,ch107st0},
- {2,ch107st1},
- {2,ch107st2}
+ {2,StrokeMonoRoman_ch107st0},
+ {2,StrokeMonoRoman_ch107st1},
+ {2,StrokeMonoRoman_ch107st2}
 };
 
-static const SFG_StrokeChar ch107 = {104.762f,3,ch107st};
+static const SFG_StrokeChar StrokeMonoRoman_ch107 = {104.762f,3,StrokeMonoRoman_ch107st};
 
 /* char: 0x6c */
 
-static const SFG_StrokeVertex ch108st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch108st0[] =
 {
  {52.381f,100.0f},
  {52.381f,0.0f}
 };
 
-static const SFG_StrokeStrip ch108st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch108st[] =
 {
- {2,ch108st0}
+ {2,StrokeMonoRoman_ch108st0}
 };
 
-static const SFG_StrokeChar ch108 = {104.762f,1,ch108st};
+static const SFG_StrokeChar StrokeMonoRoman_ch108 = {104.762f,1,StrokeMonoRoman_ch108st};
 
 /* char: 0x6d */
 
-static const SFG_StrokeVertex ch109st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch109st0[] =
 {
  {0,66.6667f},
  {0,0.0f}
 };
 
-static const SFG_StrokeVertex ch109st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch109st1[] =
 {
  {0,47.619f},
  {14.2857f,61.9048f},
@@ -2227,7 +2227,7 @@ static const SFG_StrokeVertex ch109st1[] =
  {52.381f,0.0f}
 };
 
-static const SFG_StrokeVertex ch109st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch109st2[] =
 {
  {52.381f,47.619f},
  {66.6667f,61.9048f},
@@ -2238,24 +2238,24 @@ static const SFG_StrokeVertex ch109st2[] =
  {104.762f,0.0f}
 };
 
-static const SFG_StrokeStrip ch109st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch109st[] =
 {
- {2,ch109st0},
- {7,ch109st1},
- {7,ch109st2}
+ {2,StrokeMonoRoman_ch109st0},
+ {7,StrokeMonoRoman_ch109st1},
+ {7,StrokeMonoRoman_ch109st2}
 };
 
-static const SFG_StrokeChar ch109 = {104.762f,3,ch109st};
+static const SFG_StrokeChar StrokeMonoRoman_ch109 = {104.762f,3,StrokeMonoRoman_ch109st};
 
 /* char: 0x6e */
 
-static const SFG_StrokeVertex ch110st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch110st0[] =
 {
  {26.1905f,66.6667f},
  {26.1905f,0.0f}
 };
 
-static const SFG_StrokeVertex ch110st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch110st1[] =
 {
  {26.1905f,47.619f},
  {40.4762f,61.9048f},
@@ -2266,17 +2266,17 @@ static const SFG_StrokeVertex ch110st1[] =
  {78.5715f,0.0f}
 };
 
-static const SFG_StrokeStrip ch110st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch110st[] =
 {
- {2,ch110st0},
- {7,ch110st1}
+ {2,StrokeMonoRoman_ch110st0},
+ {7,StrokeMonoRoman_ch110st1}
 };
 
-static const SFG_StrokeChar ch110 = {104.762f,2,ch110st};
+static const SFG_StrokeChar StrokeMonoRoman_ch110 = {104.762f,2,StrokeMonoRoman_ch110st};
 
 /* char: 0x6f */
 
-static const SFG_StrokeVertex ch111st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch111st0[] =
 {
  {45.2381f,66.6667f},
  {35.7143f,61.9048f},
@@ -2297,22 +2297,22 @@ static const SFG_StrokeVertex ch111st0[] =
  {45.2381f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch111st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch111st[] =
 {
- {17,ch111st0}
+ {17,StrokeMonoRoman_ch111st0}
 };
 
-static const SFG_StrokeChar ch111 = {104.762f,1,ch111st};
+static const SFG_StrokeChar StrokeMonoRoman_ch111 = {104.762f,1,StrokeMonoRoman_ch111st};
 
 /* char: 0x70 */
 
-static const SFG_StrokeVertex ch112st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch112st0[] =
 {
  {23.8095f,66.6667f},
  {23.8095f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch112st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch112st1[] =
 {
  {23.8095f,52.381f},
  {33.3333f,61.9048f},
@@ -2330,23 +2330,23 @@ static const SFG_StrokeVertex ch112st1[] =
  {23.8095f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch112st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch112st[] =
 {
- {2,ch112st0},
- {14,ch112st1}
+ {2,StrokeMonoRoman_ch112st0},
+ {14,StrokeMonoRoman_ch112st1}
 };
 
-static const SFG_StrokeChar ch112 = {104.762f,2,ch112st};
+static const SFG_StrokeChar StrokeMonoRoman_ch112 = {104.762f,2,StrokeMonoRoman_ch112st};
 
 /* char: 0x71 */
 
-static const SFG_StrokeVertex ch113st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch113st0[] =
 {
  {80.9524f,66.6667f},
  {80.9524f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch113st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch113st1[] =
 {
  {80.9524f,52.381f},
  {71.4285f,61.9048f},
@@ -2364,23 +2364,23 @@ static const SFG_StrokeVertex ch113st1[] =
  {80.9524f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch113st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch113st[] =
 {
- {2,ch113st0},
- {14,ch113st1}
+ {2,StrokeMonoRoman_ch113st0},
+ {14,StrokeMonoRoman_ch113st1}
 };
 
-static const SFG_StrokeChar ch113 = {104.762f,2,ch113st};
+static const SFG_StrokeChar StrokeMonoRoman_ch113 = {104.762f,2,StrokeMonoRoman_ch113st};
 
 /* char: 0x72 */
 
-static const SFG_StrokeVertex ch114st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch114st0[] =
 {
  {33.3334f,66.6667f},
  {33.3334f,0.0f}
 };
 
-static const SFG_StrokeVertex ch114st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch114st1[] =
 {
  {33.3334f,38.0952f},
  {38.0953f,52.381f},
@@ -2389,17 +2389,17 @@ static const SFG_StrokeVertex ch114st1[] =
  {71.4286f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch114st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch114st[] =
 {
- {2,ch114st0},
- {5,ch114st1}
+ {2,StrokeMonoRoman_ch114st0},
+ {5,StrokeMonoRoman_ch114st1}
 };
 
-static const SFG_StrokeChar ch114 = {104.762f,2,ch114st};
+static const SFG_StrokeChar StrokeMonoRoman_ch114 = {104.762f,2,StrokeMonoRoman_ch114st};
 
 /* char: 0x73 */
 
-static const SFG_StrokeVertex ch115st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch115st0[] =
 {
  {78.5715f,52.381f},
  {73.8095f,61.9048f},
@@ -2420,16 +2420,16 @@ static const SFG_StrokeVertex ch115st0[] =
  {26.1905f,14.2857f}
 };
 
-static const SFG_StrokeStrip ch115st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch115st[] =
 {
- {17,ch115st0}
+ {17,StrokeMonoRoman_ch115st0}
 };
 
-static const SFG_StrokeChar ch115 = {104.762f,1,ch115st};
+static const SFG_StrokeChar StrokeMonoRoman_ch115 = {104.762f,1,StrokeMonoRoman_ch115st};
 
 /* char: 0x74 */
 
-static const SFG_StrokeVertex ch116st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch116st0[] =
 {
  {47.6191f,100.0f},
  {47.6191f,19.0476f},
@@ -2438,23 +2438,23 @@ static const SFG_StrokeVertex ch116st0[] =
  {71.4286f,0.0f}
 };
 
-static const SFG_StrokeVertex ch116st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch116st1[] =
 {
  {33.3334f,66.6667f},
  {66.6667f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch116st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch116st[] =
 {
- {5,ch116st0},
- {2,ch116st1}
+ {5,StrokeMonoRoman_ch116st0},
+ {2,StrokeMonoRoman_ch116st1}
 };
 
-static const SFG_StrokeChar ch116 = {104.762f,2,ch116st};
+static const SFG_StrokeChar StrokeMonoRoman_ch116 = {104.762f,2,StrokeMonoRoman_ch116st};
 
 /* char: 0x75 */
 
-static const SFG_StrokeVertex ch117st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch117st0[] =
 {
  {26.1905f,66.6667f},
  {26.1905f,19.0476f},
@@ -2465,109 +2465,109 @@ static const SFG_StrokeVertex ch117st0[] =
  {78.5715f,19.0476f}
 };
 
-static const SFG_StrokeVertex ch117st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch117st1[] =
 {
  {78.5715f,66.6667f},
  {78.5715f,0.0f}
 };
 
-static const SFG_StrokeStrip ch117st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch117st[] =
 {
- {7,ch117st0},
- {2,ch117st1}
+ {7,StrokeMonoRoman_ch117st0},
+ {2,StrokeMonoRoman_ch117st1}
 };
 
-static const SFG_StrokeChar ch117 = {104.762f,2,ch117st};
+static const SFG_StrokeChar StrokeMonoRoman_ch117 = {104.762f,2,StrokeMonoRoman_ch117st};
 
 /* char: 0x76 */
 
-static const SFG_StrokeVertex ch118st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch118st0[] =
 {
  {23.8095f,66.6667f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeVertex ch118st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch118st1[] =
 {
  {80.9524f,66.6667f},
  {52.3809f,0.0f}
 };
 
-static const SFG_StrokeStrip ch118st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch118st[] =
 {
- {2,ch118st0},
- {2,ch118st1}
+ {2,StrokeMonoRoman_ch118st0},
+ {2,StrokeMonoRoman_ch118st1}
 };
 
-static const SFG_StrokeChar ch118 = {104.762f,2,ch118st};
+static const SFG_StrokeChar StrokeMonoRoman_ch118 = {104.762f,2,StrokeMonoRoman_ch118st};
 
 /* char: 0x77 */
 
-static const SFG_StrokeVertex ch119st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch119st0[] =
 {
  {14.2857f,66.6667f},
  {33.3333f,0.0f}
 };
 
-static const SFG_StrokeVertex ch119st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch119st1[] =
 {
  {52.3809f,66.6667f},
  {33.3333f,0.0f}
 };
 
-static const SFG_StrokeVertex ch119st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch119st2[] =
 {
  {52.3809f,66.6667f},
  {71.4286f,0.0f}
 };
 
-static const SFG_StrokeVertex ch119st3[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch119st3[] =
 {
  {90.4762f,66.6667f},
  {71.4286f,0.0f}
 };
 
-static const SFG_StrokeStrip ch119st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch119st[] =
 {
- {2,ch119st0},
- {2,ch119st1},
- {2,ch119st2},
- {2,ch119st3}
+ {2,StrokeMonoRoman_ch119st0},
+ {2,StrokeMonoRoman_ch119st1},
+ {2,StrokeMonoRoman_ch119st2},
+ {2,StrokeMonoRoman_ch119st3}
 };
 
-static const SFG_StrokeChar ch119 = {104.762f,4,ch119st};
+static const SFG_StrokeChar StrokeMonoRoman_ch119 = {104.762f,4,StrokeMonoRoman_ch119st};
 
 /* char: 0x78 */
 
-static const SFG_StrokeVertex ch120st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch120st0[] =
 {
  {26.1905f,66.6667f},
  {78.5715f,0.0f}
 };
 
-static const SFG_StrokeVertex ch120st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch120st1[] =
 {
  {78.5715f,66.6667f},
  {26.1905f,0.0f}
 };
 
-static const SFG_StrokeStrip ch120st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch120st[] =
 {
- {2,ch120st0},
- {2,ch120st1}
+ {2,StrokeMonoRoman_ch120st0},
+ {2,StrokeMonoRoman_ch120st1}
 };
 
-static const SFG_StrokeChar ch120 = {104.762f,2,ch120st};
+static const SFG_StrokeChar StrokeMonoRoman_ch120 = {104.762f,2,StrokeMonoRoman_ch120st};
 
 /* char: 0x79 */
 
-static const SFG_StrokeVertex ch121st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch121st0[] =
 {
  {26.1905f,66.6667f},
  {54.7619f,0.0f}
 };
 
-static const SFG_StrokeVertex ch121st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch121st1[] =
 {
  {83.3334f,66.6667f},
  {54.7619f,0.0f},
@@ -2577,46 +2577,46 @@ static const SFG_StrokeVertex ch121st1[] =
  {21.4286f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch121st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch121st[] =
 {
- {2,ch121st0},
- {6,ch121st1}
+ {2,StrokeMonoRoman_ch121st0},
+ {6,StrokeMonoRoman_ch121st1}
 };
 
-static const SFG_StrokeChar ch121 = {104.762f,2,ch121st};
+static const SFG_StrokeChar StrokeMonoRoman_ch121 = {104.762f,2,StrokeMonoRoman_ch121st};
 
 /* char: 0x7a */
 
-static const SFG_StrokeVertex ch122st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch122st0[] =
 {
  {78.5715f,66.6667f},
  {26.1905f,0.0f}
 };
 
-static const SFG_StrokeVertex ch122st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch122st1[] =
 {
  {26.1905f,66.6667f},
  {78.5715f,66.6667f}
 };
 
-static const SFG_StrokeVertex ch122st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch122st2[] =
 {
  {26.1905f,0.0f},
  {78.5715f,0.0f}
 };
 
-static const SFG_StrokeStrip ch122st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch122st[] =
 {
- {2,ch122st0},
- {2,ch122st1},
- {2,ch122st2}
+ {2,StrokeMonoRoman_ch122st0},
+ {2,StrokeMonoRoman_ch122st1},
+ {2,StrokeMonoRoman_ch122st2}
 };
 
-static const SFG_StrokeChar ch122 = {104.762f,3,ch122st};
+static const SFG_StrokeChar StrokeMonoRoman_ch122 = {104.762f,3,StrokeMonoRoman_ch122st};
 
 /* char: 0x7b */
 
-static const SFG_StrokeVertex ch123st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch123st0[] =
 {
  {64.2857f,119.048f},
  {54.7619f,114.286f},
@@ -2630,7 +2630,7 @@ static const SFG_StrokeVertex ch123st0[] =
  {50.0f,47.619f}
 };
 
-static const SFG_StrokeVertex ch123st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch123st1[] =
 {
  {54.7619f,114.286f},
  {50.0f,104.762f},
@@ -2651,7 +2651,7 @@ static const SFG_StrokeVertex ch123st1[] =
  {54.7619f,-28.5714f}
 };
 
-static const SFG_StrokeVertex ch123st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch123st2[] =
 {
  {50.0f,38.0952f},
  {59.5238f,28.5714f},
@@ -2665,33 +2665,33 @@ static const SFG_StrokeVertex ch123st2[] =
  {64.2857f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch123st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch123st[] =
 {
- {10,ch123st0},
- {17,ch123st1},
- {10,ch123st2}
+ {10,StrokeMonoRoman_ch123st0},
+ {17,StrokeMonoRoman_ch123st1},
+ {10,StrokeMonoRoman_ch123st2}
 };
 
-static const SFG_StrokeChar ch123 = {104.762f,3,ch123st};
+static const SFG_StrokeChar StrokeMonoRoman_ch123 = {104.762f,3,StrokeMonoRoman_ch123st};
 
 /* char: 0x7c */
 
-static const SFG_StrokeVertex ch124st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch124st0[] =
 {
  {52.381f,119.048f},
  {52.381f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch124st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch124st[] =
 {
- {2,ch124st0}
+ {2,StrokeMonoRoman_ch124st0}
 };
 
-static const SFG_StrokeChar ch124 = {104.762f,1,ch124st};
+static const SFG_StrokeChar StrokeMonoRoman_ch124 = {104.762f,1,StrokeMonoRoman_ch124st};
 
 /* char: 0x7d */
 
-static const SFG_StrokeVertex ch125st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch125st0[] =
 {
  {40.4762f,119.048f},
  {50.0f,114.286f},
@@ -2705,7 +2705,7 @@ static const SFG_StrokeVertex ch125st0[] =
  {54.7619f,47.619f}
 };
 
-static const SFG_StrokeVertex ch125st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch125st1[] =
 {
  {50.0f,114.286f},
  {54.7619f,104.762f},
@@ -2726,7 +2726,7 @@ static const SFG_StrokeVertex ch125st1[] =
  {50.0f,-28.5714f}
 };
 
-static const SFG_StrokeVertex ch125st2[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch125st2[] =
 {
  {54.7619f,38.0952f},
  {45.2381f,28.5714f},
@@ -2740,18 +2740,18 @@ static const SFG_StrokeVertex ch125st2[] =
  {40.4762f,-33.3333f}
 };
 
-static const SFG_StrokeStrip ch125st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch125st[] =
 {
- {10,ch125st0},
- {17,ch125st1},
- {10,ch125st2}
+ {10,StrokeMonoRoman_ch125st0},
+ {17,StrokeMonoRoman_ch125st1},
+ {10,StrokeMonoRoman_ch125st2}
 };
 
-static const SFG_StrokeChar ch125 = {104.762f,3,ch125st};
+static const SFG_StrokeChar StrokeMonoRoman_ch125 = {104.762f,3,StrokeMonoRoman_ch125st};
 
 /* char: 0x7e */
 
-static const SFG_StrokeVertex ch126st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch126st0[] =
 {
  {9.5238f,28.5714f},
  {9.5238f,38.0952f},
@@ -2766,7 +2766,7 @@ static const SFG_StrokeVertex ch126st0[] =
  {95.2381f,47.619f}
 };
 
-static const SFG_StrokeVertex ch126st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch126st1[] =
 {
  {9.5238f,38.0952f},
  {14.2857f,47.619f},
@@ -2781,23 +2781,23 @@ static const SFG_StrokeVertex ch126st1[] =
  {95.2381f,57.1429f}
 };
 
-static const SFG_StrokeStrip ch126st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch126st[] =
 {
- {11,ch126st0},
- {11,ch126st1}
+ {11,StrokeMonoRoman_ch126st0},
+ {11,StrokeMonoRoman_ch126st1}
 };
 
-static const SFG_StrokeChar ch126 = {104.762f,2,ch126st};
+static const SFG_StrokeChar StrokeMonoRoman_ch126 = {104.762f,2,StrokeMonoRoman_ch126st};
 
 /* char: 0x7f */
 
-static const SFG_StrokeVertex ch127st0[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch127st0[] =
 {
  {71.4286f,100.0f},
  {33.3333f,-33.3333f}
 };
 
-static const SFG_StrokeVertex ch127st1[] =
+static const SFG_StrokeVertex StrokeMonoRoman_ch127st1[] =
 {
  {47.619f,66.6667f},
  {33.3333f,61.9048f},
@@ -2818,32 +2818,32 @@ static const SFG_StrokeVertex ch127st1[] =
  {47.619f,66.6667f}
 };
 
-static const SFG_StrokeStrip ch127st[] =
+static const SFG_StrokeStrip StrokeMonoRoman_ch127st[] =
 {
- {2,ch127st0},
- {17,ch127st1}
+ {2,StrokeMonoRoman_ch127st0},
+ {17,StrokeMonoRoman_ch127st1}
 };
 
-static const SFG_StrokeChar ch127 = {104.762f,2,ch127st};
+static const SFG_StrokeChar StrokeMonoRoman_ch127 = {104.762f,2,StrokeMonoRoman_ch127st};
 
-static const SFG_StrokeChar *chars[] =
+static const SFG_StrokeChar *StrokeMonoRoman_chars[] =
 {
  0, 0, 0, 0, 0, 0, 0, 0,
  0, 0, 0, 0, 0, 0, 0, 0,
  0, 0, 0, 0, 0, 0, 0, 0,
  0, 0, 0, 0, 0, 0, 0, 0,
- &ch32, &ch33, &ch34, &ch35, &ch36, &ch37, &ch38, &ch39,
- &ch40, &ch41, &ch42, &ch43, &ch44, &ch45, &ch46, &ch47,
- &ch48, &ch49, &ch50, &ch51, &ch52, &ch53, &ch54, &ch55,
- &ch56, &ch57, &ch58, &ch59, &ch60, &ch61, &ch62, &ch63,
- &ch64, &ch65, &ch66, &ch67, &ch68, &ch69, &ch70, &ch71,
- &ch72, &ch73, &ch74, &ch75, &ch76, &ch77, &ch78, &ch79,
- &ch80, &ch81, &ch82, &ch83, &ch84, &ch85, &ch86, &ch87,
- &ch88, &ch89, &ch90, &ch91, &ch92, &ch93, &ch94, &ch95,
- &ch96, &ch97, &ch98, &ch99, &ch100, &ch101, &ch102, &ch103,
- &ch104, &ch105, &ch106, &ch107, &ch108, &ch109, &ch110, &ch111,
- &ch112, &ch113, &ch114, &ch115, &ch116, &ch117, &ch118, &ch119,
- &ch120, &ch121, &ch122, &ch123, &ch124, &ch125, &ch126, &ch127
+ &StrokeMonoRoman_ch32, &StrokeMonoRoman_ch33, &StrokeMonoRoman_ch34, &StrokeMonoRoman_ch35, &StrokeMonoRoman_ch36, &StrokeMonoRoman_ch37, &StrokeMonoRoman_ch38, &StrokeMonoRoman_ch39,
+ &StrokeMonoRoman_ch40, &StrokeMonoRoman_ch41, &StrokeMonoRoman_ch42, &StrokeMonoRoman_ch43, &StrokeMonoRoman_ch44, &StrokeMonoRoman_ch45, &StrokeMonoRoman_ch46, &StrokeMonoRoman_ch47,
+ &StrokeMonoRoman_ch48, &StrokeMonoRoman_ch49, &StrokeMonoRoman_ch50, &StrokeMonoRoman_ch51, &StrokeMonoRoman_ch52, &StrokeMonoRoman_ch53, &StrokeMonoRoman_ch54, &StrokeMonoRoman_ch55,
+ &StrokeMonoRoman_ch56, &StrokeMonoRoman_ch57, &StrokeMonoRoman_ch58, &StrokeMonoRoman_ch59, &StrokeMonoRoman_ch60, &StrokeMonoRoman_ch61, &StrokeMonoRoman_ch62, &StrokeMonoRoman_ch63,
+ &StrokeMonoRoman_ch64, &StrokeMonoRoman_ch65, &StrokeMonoRoman_ch66, &StrokeMonoRoman_ch67, &StrokeMonoRoman_ch68, &StrokeMonoRoman_ch69, &StrokeMonoRoman_ch70, &StrokeMonoRoman_ch71,
+ &StrokeMonoRoman_ch72, &StrokeMonoRoman_ch73, &StrokeMonoRoman_ch74, &StrokeMonoRoman_ch75, &StrokeMonoRoman_ch76, &StrokeMonoRoman_ch77, &StrokeMonoRoman_ch78, &StrokeMonoRoman_ch79,
+ &StrokeMonoRoman_ch80, &StrokeMonoRoman_ch81, &StrokeMonoRoman_ch82, &StrokeMonoRoman_ch83, &StrokeMonoRoman_ch84, &StrokeMonoRoman_ch85, &StrokeMonoRoman_ch86, &StrokeMonoRoman_ch87,
+ &StrokeMonoRoman_ch88, &StrokeMonoRoman_ch89, &StrokeMonoRoman_ch90, &StrokeMonoRoman_ch91, &StrokeMonoRoman_ch92, &StrokeMonoRoman_ch93, &StrokeMonoRoman_ch94, &StrokeMonoRoman_ch95,
+ &StrokeMonoRoman_ch96, &StrokeMonoRoman_ch97, &StrokeMonoRoman_ch98, &StrokeMonoRoman_ch99, &StrokeMonoRoman_ch100, &StrokeMonoRoman_ch101, &StrokeMonoRoman_ch102, &StrokeMonoRoman_ch103,
+ &StrokeMonoRoman_ch104, &StrokeMonoRoman_ch105, &StrokeMonoRoman_ch106, &StrokeMonoRoman_ch107, &StrokeMonoRoman_ch108, &StrokeMonoRoman_ch109, &StrokeMonoRoman_ch110, &StrokeMonoRoman_ch111,
+ &StrokeMonoRoman_ch112, &StrokeMonoRoman_ch113, &StrokeMonoRoman_ch114, &StrokeMonoRoman_ch115, &StrokeMonoRoman_ch116, &StrokeMonoRoman_ch117, &StrokeMonoRoman_ch118, &StrokeMonoRoman_ch119,
+ &StrokeMonoRoman_ch120, &StrokeMonoRoman_ch121, &StrokeMonoRoman_ch122, &StrokeMonoRoman_ch123, &StrokeMonoRoman_ch124, &StrokeMonoRoman_ch125, &StrokeMonoRoman_ch126, &StrokeMonoRoman_ch127
 };
 
-const SFG_StrokeFont fgStrokeMonoRoman = {"MonoRoman",128,152.381f,chars};
+SFG_StrokeFont fgStrokeMonoRoman = {"MonoRoman",128,152.381f,StrokeMonoRoman_chars};

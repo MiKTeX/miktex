@@ -310,6 +310,12 @@ int fgPlatformGlutGet ( GLenum eWhat )
         }
         return 0;
 
+	case GLUT_WINDOW_COLORMAP_SIZE:
+		if(!fgStructure.CurrentWindow) {
+			return 0;
+		}
+		return fgStructure.CurrentWindow->Window.cmap_size;
+
     default:
         fgWarning( "glutGet(): missing enum handle %d", eWhat );
         break;

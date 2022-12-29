@@ -74,7 +74,7 @@ void FGAPIENTRY glutTimerFuncUcall( unsigned int timeOut, FGCBTimerUC callback, 
             break;
     }
 
-    fgListInsert( &fgState.Timers, &node->Node, &timer->Node );
+    fgListInsert( &fgState.Timers, node ? &node->Node : 0, &timer->Node );
 }
 
 IMPLEMENT_CALLBACK_FUNC_CB_ARG1(Timer, Timer)

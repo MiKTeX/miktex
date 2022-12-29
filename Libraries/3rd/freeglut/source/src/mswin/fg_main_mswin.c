@@ -191,7 +191,7 @@ static struct WM_MESSAGE_MAP allMessages[] =
 #   endif /* _WIN32_WINNT >= 0x0500 */
 
 
-#   if(_WIN32_WINNT >= 0x0501)
+#   if(_WIN32_WINNT >= 0x0501) && defined(WM_INPUT_DEVICE_CHANGE)
         DEFINE_MESSAGE(WM_INPUT_DEVICE_CHANGE),
 #   endif /* _WIN32_WINNT >= 0x0501 */
 
@@ -407,7 +407,7 @@ static struct WM_MESSAGE_MAP allMessages[] =
 #   endif /* _WIN32_WINNT >= 0x0501 */
 
 
-#   if(_WIN32_WINNT >= 0x0501)
+#   if(_WIN32_WINNT >= 0x0501) && defined(WM_CLIPBOARDUPDATE)
         DEFINE_MESSAGE(WM_CLIPBOARDUPDATE),
 #   endif /* _WIN32_WINNT >= 0x0501 */
 
@@ -575,7 +575,9 @@ static int fgPlatformGetModifiers (void)
         ( ( ( GetKeyState( VK_LCONTROL ) < 0 ) ||
             ( GetKeyState( VK_RCONTROL ) < 0 )) ? GLUT_ACTIVE_CTRL  : 0 ) |
         ( ( ( GetKeyState( VK_LMENU    ) < 0 ) ||
-            ( GetKeyState( VK_RMENU    ) < 0 )) ? GLUT_ACTIVE_ALT   : 0 );
+            ( GetKeyState( VK_RMENU    ) < 0 )) ? GLUT_ACTIVE_ALT   : 0 ) |
+		( ( ( GetKeyState( VK_LWIN     ) < 0 ) ||
+            ( GetKeyState( VK_RWIN     ) < 0 )) ? GLUT_ACTIVE_SUPER : 0 );
 }
 
 /* Check whether a button (VK_*BUTTON) is currently depressed. Returns
@@ -631,6 +633,8 @@ static LRESULT fghWindowProcKeyPress(SFG_Window *window, UINT uMsg, GLboolean ke
         FG_KEY( VK_RIGHT,  GLUT_KEY_RIGHT     );
         FG_KEY( VK_DOWN,   GLUT_KEY_DOWN      );
         FG_KEY( VK_INSERT, GLUT_KEY_INSERT    );
+		FG_KEY( VK_LWIN,   GLUT_KEY_SUPER_L   );
+		FG_KEY( VK_RWIN,   GLUT_KEY_SUPER_R   );
 
     /* handle control, alt and shift. For GLUT, we want to distinguish between left and right presses.
      * The VK_L* & VK_R* left and right Alt, Ctrl and Shift virtual keys are however only used as parameters to GetAsyncKeyState() and GetKeyState()
@@ -716,17 +720,15 @@ static LRESULT fghWindowProcKeyPress(SFG_Window *window, UINT uMsg, GLboolean ke
     }
 #endif
 
-    if( keypress != -1 )
-        if (keydown)
-            INVOKE_WCB( *window, Special,
-                        ( keypress,
-                            window->State.MouseX, window->State.MouseY )
-            );
-        else
-            INVOKE_WCB( *window, SpecialUp,
-                        ( keypress,
-                            window->State.MouseX, window->State.MouseY )
-            );
+    if(keypress != -1) {
+        if(keydown) {
+            INVOKE_WCB(*window, Special,
+                    (keypress, window->State.MouseX, window->State.MouseY));
+        } else {
+            INVOKE_WCB(*window, SpecialUp,
+                    (keypress, window->State.MouseX, window->State.MouseY));
+        }
+    }
 
     fgState.Modifiers = INVALID_MODIFIERS;
 

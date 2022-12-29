@@ -114,7 +114,19 @@ void FGAPIENTRY glutBitmapCharacter( void* fontID, int character )
      */
     face = font->Characters[ character ];
 
+#ifdef GL_VERSION_1_1
     glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT );
+#else
+	{
+	GLint swbytes, lsbfirst, rowlen, skiprows, skippix, align;
+
+	glGetIntegerv(GL_UNPACK_SWAP_BYTES, &swbytes);
+	glGetIntegerv(GL_UNPACK_LSB_FIRST, &lsbfirst);
+	glGetIntegerv(GL_UNPACK_ROW_LENGTH, &rowlen);
+	glGetIntegerv(GL_UNPACK_SKIP_ROWS, &skiprows);
+	glGetIntegerv(GL_UNPACK_SKIP_PIXELS, &skippix);
+	glGetIntegerv(GL_UNPACK_ALIGNMENT, &align);
+#endif
     glPixelStorei( GL_UNPACK_SWAP_BYTES,  GL_FALSE );
     glPixelStorei( GL_UNPACK_LSB_FIRST,   GL_FALSE );
     glPixelStorei( GL_UNPACK_ROW_LENGTH,  0        );
@@ -127,7 +139,17 @@ void FGAPIENTRY glutBitmapCharacter( void* fontID, int character )
         ( float )( face[ 0 ] ), 0.0,  /* The raster advance -- inc. x,y */
         ( face + 1 )                  /* The packed bitmap data...      */
     );
-    glPopClientAttrib( );
+#ifdef GL_VERSION_1_1
+    glPopClientAttrib();
+#else
+	glPixelStorei(GL_UNPACK_SWAP_BYTES, swbytes);
+	glPixelStorei(GL_UNPACK_LSB_FIRST, lsbfirst);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, rowlen);
+	glPixelStorei(GL_UNPACK_SKIP_ROWS, skiprows);
+	glPixelStorei(GL_UNPACK_SKIP_PIXELS, skippix);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, align);
+	}
+#endif
 }
 
 void FGAPIENTRY glutBitmapString( void* fontID, const unsigned char *string )
@@ -145,7 +167,19 @@ void FGAPIENTRY glutBitmapString( void* fontID, const unsigned char *string )
     if ( !string || ! *string )
         return;
 
+#ifdef GL_VERSION_1_1
     glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT );
+#else
+	{
+	GLint swbytes, lsbfirst, rowlen, skiprows, skippix, align;
+
+	glGetIntegerv(GL_UNPACK_SWAP_BYTES, &swbytes);
+	glGetIntegerv(GL_UNPACK_LSB_FIRST, &lsbfirst);
+	glGetIntegerv(GL_UNPACK_ROW_LENGTH, &rowlen);
+	glGetIntegerv(GL_UNPACK_SKIP_ROWS, &skiprows);
+	glGetIntegerv(GL_UNPACK_SKIP_PIXELS, &skippix);
+	glGetIntegerv(GL_UNPACK_ALIGNMENT, &align);
+#endif
     glPixelStorei( GL_UNPACK_SWAP_BYTES,  GL_FALSE );
     glPixelStorei( GL_UNPACK_LSB_FIRST,   GL_FALSE );
     glPixelStorei( GL_UNPACK_ROW_LENGTH,  0        );
@@ -178,7 +212,17 @@ void FGAPIENTRY glutBitmapString( void* fontID, const unsigned char *string )
             x += ( float )( face[ 0 ] );
         }
 
-    glPopClientAttrib( );
+#ifdef GL_VERSION_1_1
+    glPopClientAttrib();
+#else
+	glPixelStorei(GL_UNPACK_SWAP_BYTES, swbytes);
+	glPixelStorei(GL_UNPACK_LSB_FIRST, lsbfirst);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, rowlen);
+	glPixelStorei(GL_UNPACK_SKIP_ROWS, skiprows);
+	glPixelStorei(GL_UNPACK_SKIP_PIXELS, skippix);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, align);
+	}
+#endif
 }
 
 /*

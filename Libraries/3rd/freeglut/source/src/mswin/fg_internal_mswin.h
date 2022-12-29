@@ -80,6 +80,8 @@ struct tagSFG_PlatformDisplay
  */
 typedef HWND    SFG_WindowHandleType;
 typedef HGLRC   SFG_WindowContextType;
+typedef HPALETTE SFG_WindowColormapType;
+
 typedef struct tagSFG_PlatformContext SFG_PlatformContext;
 struct tagSFG_PlatformContext
 {

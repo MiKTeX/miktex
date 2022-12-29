@@ -33,6 +33,7 @@
 #endif
 
 
+
 extern LRESULT CALLBACK fgPlatformWindowProc( HWND hWnd, UINT uMsg,
                                WPARAM wParam, LPARAM lParam );
 extern void fgPlatformInitSystemTime();
