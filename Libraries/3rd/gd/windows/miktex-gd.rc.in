@@ -10,7 +10,7 @@
  * notice is preserved.
  */
 
-#include "gd-version.h"
+#include "miktex-gd-version.h"
 
 #define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_FILETYPE VFT_DLL
