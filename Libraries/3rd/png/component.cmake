@@ -9,5 +9,5 @@
 include(version.cmake)
 
 set(MIKTEX_COMP_COMPANY_STR "")
-set(MIKTEX_COMP_COPYRIGHT_STR "© 1998-2018 Glenn Randers-Pehrson")
+set(MIKTEX_COMP_COPYRIGHT_STR "© 1998-2022 Glenn Randers-Pehrson")
 set(MIKTEX_COMP_DESCRIPTION "PNG reference library")
