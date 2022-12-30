@@ -57,7 +57,7 @@
 #include "fcatomic.h"
 
 #if defined(MIKTEX)
-#  include "fcmiktex.h"
+#  include "miktex/fontconfig.h"
 #  if defined(MIKTEX_WINDOWS)
 #    define MIKTEX_USE_FCSTAT_WORKAROUND 1
      /* file locking is currently (fontconfig 2.12.0) not correctly

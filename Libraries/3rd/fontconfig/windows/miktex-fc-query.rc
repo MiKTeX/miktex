@@ -1,0 +1,19 @@
+/**
+ * @file miktex-fc-query.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2010-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-fc-query-version.h"
+
+#define VER_FILEDESCRIPTION_STR "Fontconfig - query font files"
+#define VER_INTERNALNAME_STR "fc-query"
+#define VER_ORIGINALFILENAME_STR "fc-query.exe"
+
+#include "miktex/win/version.rc"

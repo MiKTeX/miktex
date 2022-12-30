@@ -52,5 +52,8 @@ set(fribidi_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/joining-type.tab.i
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/mirroring.tab.i
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/fribidi-config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/include/fribidi/fribidi-config.h
+
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-fribidi-version.h
 )

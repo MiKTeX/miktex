@@ -1,0 +1,19 @@
+/**
+ * @file miktex-fc-match.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2007-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-fc-match-version.h"
+
+#define VER_FILEDESCRIPTION_STR "Fontconfig - match available fonts"
+#define VER_INTERNALNAME_STR "fc-match"
+#define VER_ORIGINALFILENAME_STR "fc-match.exe"
+
+#include "miktex/win/version.rc"

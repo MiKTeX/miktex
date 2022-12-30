@@ -1,4 +1,4 @@
-## version.cmake:
+## version.cmake
 ##
 ## Copyright (C) 2020-2022 Christian Schenk
 ## 

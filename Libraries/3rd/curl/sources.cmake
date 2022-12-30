@@ -7,6 +7,21 @@
 ## without modifications, as long as this notice is preserved.
 
 set(curl_sources
+    ${configured_headers}
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/curl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/curlver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/easy.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/header.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/mprintf.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/multi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/options.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/stdcheaders.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/system.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/typecheck-gcc.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/urlapi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/include/curl/websockets.h
+
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/cleartext.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/cram.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/digest.c

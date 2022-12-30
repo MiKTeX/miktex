@@ -1,0 +1,19 @@
+/**
+ * @file miktex-fc-pattern.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2012-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-fc-pattern-version.h"
+
+#define VER_FILEDESCRIPTION_STR "Fontconfig - parse and show pattern"
+#define VER_INTERNALNAME_STR "fc-pattern"
+#define VER_ORIGINALFILENAME_STR "fc-pattern.exe"
+
+#include "miktex/win/version.rc"
