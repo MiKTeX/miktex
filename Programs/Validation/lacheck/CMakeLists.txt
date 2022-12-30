@@ -56,12 +56,12 @@ set(lacheck_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
     configure_file(
-        miktex-lacheck.rc.in
+        windows/miktex-lacheck.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/miktex-lacheck.rc
     )
     list(APPEND lacheck_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-lacheck.rc
         ${MIKTEX_COMMON_MANIFEST}
-        miktex-lacheck.rc
     )
 endif()
 

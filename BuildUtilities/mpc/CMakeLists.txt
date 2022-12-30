@@ -27,7 +27,7 @@ configure_file(
 
 set(mpc_sources
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
-    mpc-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/mpc-version.h
     mpc.cpp
 )
 
