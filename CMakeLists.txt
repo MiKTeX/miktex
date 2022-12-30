@@ -1899,7 +1899,7 @@ if(USE_SYSTEM_LZMA)
         INTERFACE_INCLUDE_DIRECTORIES "${LIBLZMA_INCLUDE_DIRS}"
     )
 else()
-    add_subdirectory(${MIKTEX_REL_XZUTILS_DIR})
+    add_subdirectory(${MIKTEX_REL_XZ_DIR})
 endif()
 
 if(USE_SYSTEM_MPFR)
