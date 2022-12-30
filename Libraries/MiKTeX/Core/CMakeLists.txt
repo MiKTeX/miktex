@@ -661,4 +661,6 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 add_subdirectory(shared)
 add_subdirectory(test)
 
-add_subdirectory(static)
+if(WITH_STANDALONE_SETUP)
+    add_subdirectory(static)
+endif()

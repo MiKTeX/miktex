@@ -97,4 +97,3 @@ list(APPEND pixman_sources
 )
 
 add_subdirectory(shared)
-add_subdirectory(static)

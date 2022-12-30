@@ -58,4 +58,7 @@ configure_file(
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 
 add_subdirectory(shared)
-add_subdirectory(static)
+
+if(WITH_STANDALONE_SETUP)
+    add_subdirectory(static)
+endif()

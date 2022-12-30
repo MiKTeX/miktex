@@ -388,8 +388,6 @@ if(WITH_UI_QT)
 endif()
 set(poppler_target_library ${poppler_dll_name})
 
-add_subdirectory(static)
-
 generate_export_header(${poppler_target_library}
   BASE_NAME MIKTEX_POPPLER
   EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include//miktex/poppler/export.h

@@ -50,4 +50,7 @@ list(APPEND fmt_sources
 )
 
 add_subdirectory(shared)
-add_subdirectory(static)
+
+if(WITH_STANDALONE_SETUP)
+    add_subdirectory(static)
+endif()

@@ -446,4 +446,3 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 add_subdirectory(shared)
-add_subdirectory(static)

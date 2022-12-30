@@ -462,6 +462,12 @@ option(
 )
 
 option(
+    WITH_STANDALONE_SETUP
+    "Build standalone setup programs."
+    ${MIKTEX_NATIVE_WINDOWS}
+)
+
+option(
     WITH_UI_MFC
     "Build MFC components."
     ${MSVC}

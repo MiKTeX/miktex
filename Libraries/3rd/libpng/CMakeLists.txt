@@ -69,4 +69,3 @@ set(png_sources
 set(${png_dll_name}_sources ${sources})
 
 add_subdirectory(shared)
-add_subdirectory(static)

@@ -208,7 +208,6 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 add_subdirectory(shared)
-add_subdirectory(static)
 
 if(INSTALL_MIKTEX_HEADERS)
     install(
