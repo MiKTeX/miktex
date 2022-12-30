@@ -38,7 +38,7 @@ target_compile_definitions(${fmt_dll_name}
 target_include_directories(${fmt_dll_name} PUBLIC ${public_include_directories})
 
 install(TARGETS ${fmt_dll_name}
-    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
     ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
 )
