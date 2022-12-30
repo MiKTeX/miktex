@@ -1,32 +1,21 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2015-2020 Christian Schenk
+## Copyright (C) 2015-2022 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(${log4cxx_dll_name}_sources ${log4cxx_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
-  configure_file(
-    ../log4cxx.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/log4cxx.rc
-  )
-  list(APPEND ${log4cxx_dll_name}_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/log4cxx.rc
-  )
+    configure_file(
+        windows/miktex-log4cxx.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-log4cxx.rc
+    )
+    list(APPEND ${log4cxx_dll_name}_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-log4cxx.rc
+    )
 endif()
 
 add_library(${log4cxx_dll_name} SHARED ${${log4cxx_dll_name}_sources})
@@ -34,30 +23,30 @@ add_library(${log4cxx_dll_name} SHARED ${${log4cxx_dll_name}_sources})
 set_property(TARGET ${log4cxx_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_shared_library_version_properties(
-  ${log4cxx_dll_name}
-  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
-  ${MIKTEX_COMP_INTERFACE_VERSION}
+    ${log4cxx_dll_name}
+    ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+    ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_compile_definitions(${log4cxx_dll_name}
-  PRIVATE
-    -DLOG4CXX
+    PRIVATE
+        -DLOG4CXX
 )
 
 target_include_directories(${log4cxx_dll_name}
-  PUBLIC
-    ${public_include_directories}
+    PUBLIC
+        ${public_include_directories}
 )
 
 target_link_libraries(${log4cxx_dll_name}
-  PRIVATE
-    ${system_libraries}
+    PRIVATE
+        ${system_libraries}
 )
 
 if(USE_SYSTEM_APR)
-  target_link_libraries(${log4cxx_dll_name} PUBLIC MiKTeX::Imported::APR)
+    target_link_libraries(${log4cxx_dll_name} PUBLIC MiKTeX::Imported::APR)
 else()
-  target_link_libraries(${log4cxx_dll_name} PUBLIC ${apr_dll_name})
+    target_link_libraries(${log4cxx_dll_name} PUBLIC ${apr_dll_name})
 endif()
 
 if(USE_SYSTEM_APRUTIL)
