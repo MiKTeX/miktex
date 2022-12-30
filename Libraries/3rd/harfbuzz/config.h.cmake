@@ -12,6 +12,13 @@
 /* Have cairo-ft support in cairo graphics library */
 #cmakedefine HAVE_CAIRO_FT 1
 
+/* Define to 1 if you have the
+   `cairo_user_font_face_set_render_color_glyph_func' function. */
+#cmakedefine HAVE_CAIRO_USER_FONT_FACE_SET_RENDER_COLOR_GLYPH_FUNC 1
+
+/* Have chafa terminal graphics library */
+#cmakedefine HAVE_CHAFA
+
 /* Have Core Text backend */
 #cmakedefine HAVE_CORETEXT 1
 
@@ -24,17 +31,17 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H 1
 
-/* Define to 1 if you have the <dwrite.h> header file. */
+/* Define to 1 if you have the <dwrite_1.h> header file. */
 #cmakedefine HAVE_DWRITE_H 1
-
-/* Have fontconfig library */
-#cmakedefine HAVE_FONTCONFIG
 
 /* Have FreeType 2 library */
 #cmakedefine HAVE_FREETYPE 1
 
 /* Define to 1 if you have the `FT_Done_MM_Var' function. */
 #cmakedefine HAVE_FT_DONE_MM_VAR 1
+
+/* Define to 1 if you have the `FT_Get_Transform' function. */
+#cmakedefine HAVE_FT_GET_TRANSFORM 1
 
 /* Define to 1 if you have the `FT_Get_Var_Blend_Coordinates' function. */
 #cmakedefine HAVE_FT_GET_VAR_BLEND_COORDINATES 1
@@ -63,9 +70,6 @@
 /* Use hb-icu Unicode callbacks */
 #cmakedefine HAVE_ICU_BUILTIN
 
-/* Have Intel __sync_* atomic primitives */
-#cmakedefine HAVE_INTEL_ATOMIC_PRIMITIVES 1
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
 
@@ -81,20 +85,14 @@
 /* Define to 1 if you have the `mprotect' function. */
 #cmakedefine HAVE_MPROTECT 1
 
+/* Define to 1 if you have the `newlocale' function. */
+#cmakedefine HAVE_NEWLOCALE 1
+
 /* Have POSIX threads */
 #cmakedefine HAVE_PTHREAD 1
 
 /* Have PTHREAD_PRIO_INHERIT. */
 #cmakedefine HAVE_PTHREAD_PRIO_INHERIT 1
-
-/* Define to 1 if you have the <sched.h> header file. */
-#cmakedefine HAVE_SCHED_H 1
-
-/* Have sched_yield */
-#cmakedefine HAVE_SCHED_YIELD 1
-
-/* Have Solaris __machine_*_barrier and atomic_* operations */
-#cmakedefine HAVE_SOLARIS_ATOMIC_OPS 1
 
 /* Define to 1 if you have the <stdbool.h> header file. */
 #cmakedefine HAVE_STDBOOL_H 1
@@ -129,11 +127,17 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
+/* Define to 1 if you have the `uselocale' function. */
+#cmakedefine HAVE_USELOCALE 1
+
 /* Define to 1 if you have the <usp10.h> header file. */
 #cmakedefine HAVE_USP10_H 1
 
 /* Define to 1 if you have the <windows.h> header file. */
 #cmakedefine HAVE_WINDOWS_H 1
+
+/* Define to 1 if you have the <xlocale.h> header file. */
+#cmakedefine HAVE_XLOCALE_H 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR 1

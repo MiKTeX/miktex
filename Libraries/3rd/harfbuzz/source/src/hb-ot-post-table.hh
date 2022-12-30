@@ -55,8 +55,15 @@ struct postV2Tail
     return_trace (glyphNameIndex.sanitize (c));
   }
 
+  template<typename Iterator>
+  bool serialize (hb_serialize_context_t *c,
+                  Iterator it,
+                  const void* _post) const;
+
+  bool subset (hb_subset_context_t *c) const;
+
   protected:
-  ArrayOf<HBUINT16>	glyphNameIndex;	/* This is not an offset, but is the
+  Array16Of<HBUINT16>	glyphNameIndex;	/* This is not an offset, but is the
 					 * ordinal number of the glyph in 'post'
 					 * string tables. */
 /*UnsizedArrayOf<HBUINT8>
@@ -71,13 +78,18 @@ struct post
 {
   static constexpr hb_tag_t tableTag = HB_OT_TAG_post;
 
-  void serialize (hb_serialize_context_t *c) const
+  bool serialize (hb_serialize_context_t *c, bool glyph_names) const
   {
+    TRACE_SERIALIZE (this);
     post *post_prime = c->allocate_min<post> ();
-    if (unlikely (!post_prime))  return;
+    if (unlikely (!post_prime))  return_trace (false);
 
-    memcpy (post_prime, this, post::min_size);
-    post_prime->version.major = 3; // Version 3 does not have any glyph names.
+    hb_memcpy (post_prime, this, post::min_size);
+    if (!glyph_names)
+      return_trace (c->check_assign (post_prime->version.major, 3,
+                                     HB_SERIALIZE_ERROR_INT_OVERFLOW)); // Version 3 does not have any glyph names.
+
+    return_trace (true);
   }
 
   bool subset (hb_subset_context_t *c) const
@@ -86,18 +98,30 @@ struct post
     post *post_prime = c->serializer->start_embed<post> ();
     if (unlikely (!post_prime)) return_trace (false);
 
-    serialize (c->serializer);
-    if (c->serializer->in_error () || c->serializer->ran_out_of_room) return_trace (false);
+    bool glyph_names = c->plan->flags & HB_SUBSET_FLAGS_GLYPH_NAMES;
+    if (!serialize (c->serializer, glyph_names))
+      return_trace (false);
+
+    if (c->plan->user_axes_location->has (HB_TAG ('s','l','n','t')) &&
+        !c->plan->pinned_at_default)
+    {
+      float italic_angle = c->plan->user_axes_location->get (HB_TAG ('s','l','n','t'));
+      italic_angle = hb_max (-90.f, hb_min (italic_angle, 90.f));
+      post_prime->italicAngle.set_float (italic_angle);
+    }
+
+    if (glyph_names && version.major == 2)
+      return_trace (v2X.subset (c));
 
     return_trace (true);
   }
 
   struct accelerator_t
   {
-    void init (hb_face_t *face)
-    {
-      index_to_offset.init ();
+    friend struct postV2Tail;
 
+    accelerator_t (hb_face_t *face)
+    {
       table = hb_sanitize_context_t ().reference_table<post> (face);
       unsigned int table_length = table.get_length ();
 
@@ -115,10 +139,9 @@ struct post
 	   data += 1 + *data)
 	index_to_offset.push (data - pool);
     }
-    void fini ()
+    ~accelerator_t ()
     {
-      index_to_offset.fini ();
-      free (gids_sorted_by_name.get ());
+      hb_free (gids_sorted_by_name.get_acquire ());
       table.destroy ();
     }
 
@@ -145,11 +168,11 @@ struct post
       if (unlikely (!len)) return false;
 
     retry:
-      uint16_t *gids = gids_sorted_by_name.get ();
+      uint16_t *gids = gids_sorted_by_name.get_acquire ();
 
       if (unlikely (!gids))
       {
-	gids = (uint16_t *) malloc (count * sizeof (gids[0]));
+	gids = (uint16_t *) hb_malloc (count * sizeof (gids[0]));
 	if (unlikely (!gids))
 	  return false; /* Anything better?! */
 
@@ -159,7 +182,7 @@ struct post
 
 	if (unlikely (!gids_sorted_by_name.cmpexch (nullptr, gids)))
 	{
-	  free (gids);
+	  hb_free (gids);
 	  goto retry;
 	}
       }
@@ -237,9 +260,9 @@ struct post
 
     private:
     uint32_t version;
-    const ArrayOf<HBUINT16> *glyphNameIndex;
+    const Array16Of<HBUINT16> *glyphNameIndex = nullptr;
     hb_vector_t<uint32_t> index_to_offset;
-    const uint8_t *pool;
+    const uint8_t *pool = nullptr;
     hb_atomic_ptr_t<uint16_t *> gids_sorted_by_name;
   };
 
@@ -248,10 +271,10 @@ struct post
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
-    return_trace (likely (c->check_struct (this) &&
-			  (version.to_int () == 0x00010000 ||
-			   (version.to_int () == 0x00020000 && v2X.sanitize (c)) ||
-			   version.to_int () == 0x00030000)));
+    return_trace (c->check_struct (this) &&
+		  (version.to_int () == 0x00010000 ||
+		   (version.to_int () == 0x00020000 && v2X.sanitize (c)) ||
+		   version.to_int () == 0x00030000));
   }
 
   public:
@@ -259,7 +282,7 @@ struct post
 					 * 0x00020000 for version 2.0
 					 * 0x00025000 for version 2.5 (deprecated)
 					 * 0x00030000 for version 3.0 */
-  HBFixed	italicAngle;		/* Italic angle in counter-clockwise degrees
+  F16DOT16	italicAngle;		/* Italic angle in counter-clockwise degrees
 					 * from the vertical. Zero for upright text,
 					 * negative for text that leans to the right
 					 * (forward). */
@@ -290,7 +313,10 @@ struct post
   DEFINE_SIZE_MIN (32);
 };
 
-struct post_accelerator_t : post::accelerator_t {};
+struct post_accelerator_t : post::accelerator_t {
+  post_accelerator_t (hb_face_t *face) : post::accelerator_t (face) {}
+};
+
 
 } /* namespace OT */
 

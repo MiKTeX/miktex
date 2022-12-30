@@ -4,10 +4,10 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>HarfBuzz lib win64</TPM:Name>
     <TPM:Title>OpenType text shaping engine, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Mozilla Foundation" year="2015"/>
-    <TPM:Copyright owner="Google, Inc." year="2015"/>
+    <TPM:Copyright owner="Mozilla Foundation" year="2012"/>
+    <TPM:Copyright owner="Google, Inc." year="2020"/>
     <TPM:License type="mit"/>
-    <TPM:Version>2.7.2</TPM:Version>
+    <TPM:Version>6.0.0</TPM:Version>
     <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

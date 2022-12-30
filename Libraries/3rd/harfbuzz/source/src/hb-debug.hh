@@ -67,12 +67,12 @@ hb_options ()
 #endif
   /* Make a local copy, so we can access bitfield threadsafely. */
   hb_options_union_t u;
-  u.i = _hb_options.get_relaxed ();
+  u.i = _hb_options;
 
   if (unlikely (!u.i))
   {
     _hb_options_init ();
-    u.i = _hb_options.get_relaxed ();
+    u.i = _hb_options;
   }
 
   return u.opts;
@@ -302,16 +302,16 @@ struct hb_auto_trace_t
   {
     if (unlikely (returned)) {
       fprintf (stderr, "OUCH, double calls to return_trace().  This is a bug, please report.\n");
-      return hb_forward<T> (v);
+      return std::forward<T> (v);
     }
 
     _hb_debug_msg<max_level> (what, obj, func, true, plevel ? *plevel : 1, -1,
 			      "return %s (line %d)",
-			      hb_printer_t<decltype (v)>().print (v), line);
+			      hb_printer_t<hb_decay<decltype (v)>>().print (v), line);
     if (plevel) --*plevel;
     plevel = nullptr;
     returned = true;
-    return hb_forward<T> (v);
+    return std::forward<T> (v);
   }
 
   private:
@@ -333,7 +333,7 @@ struct hb_auto_trace_t<0, ret_t>
   template <typename T>
   T ret (T&& v,
 	 const char *func HB_UNUSED = nullptr,
-	 unsigned int line HB_UNUSED = 0) { return hb_forward<T> (v); }
+	 unsigned int line HB_UNUSED = 0) { return std::forward<T> (v); }
 };
 
 /* For disabled tracing; optimize out everything.
@@ -343,7 +343,7 @@ struct hb_no_trace_t {
   template <typename T>
   T ret (T&& v,
 	 const char *func HB_UNUSED = nullptr,
-	 unsigned int line HB_UNUSED = 0) { return hb_forward<T> (v); }
+	 unsigned int line HB_UNUSED = 0) { return std::forward<T> (v); }
 };
 
 #define return_trace(RET) return trace.ret (RET, HB_FUNC, __LINE__)
@@ -438,6 +438,10 @@ struct hb_no_trace_t {
 #define TRACE_SUBSET(this) hb_no_trace_t<bool> trace
 #endif
 
+#ifndef HB_DEBUG_SUBSET_REPACK
+#define HB_DEBUG_SUBSET_REPACK (HB_DEBUG+0)
+#endif
+
 #ifndef HB_DEBUG_DISPATCH
 #define HB_DEBUG_DISPATCH ( \
 	HB_DEBUG_APPLY + \
@@ -453,6 +457,11 @@ struct hb_no_trace_t {
 	 "format %d", (int) format)
 #else
 #define TRACE_DISPATCH(this, format) hb_no_trace_t<typename context_t::return_t> trace
+#endif
+
+
+#ifndef HB_BUFFER_MESSAGE_MORE
+#define HB_BUFFER_MESSAGE_MORE (HB_DEBUG+1)
 #endif
 
 

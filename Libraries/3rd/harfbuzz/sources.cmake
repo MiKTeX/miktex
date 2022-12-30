@@ -27,9 +27,13 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-array.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-atomic.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-bimap.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-bit-page.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-bit-set.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-bit-set-invertible.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-serialize.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-verify.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-cache.hh
@@ -55,6 +59,8 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-meta.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ms-feature-ranges.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-multimap.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-mutex.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-null.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number.cc
@@ -91,6 +97,77 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gdef-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gpos-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsub-table.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/glyf.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/glyf-helpers.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/loca.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/path-builder.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/Glyph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/GlyphHeader.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/SimpleGlyph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/coord-setter.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/composite-iter.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/CompositeGlyph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/VarCompositeGlyph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/SubsetGlyph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/types.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/Coverage.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/CoverageFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/CoverageFormat2.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/RangeRecord.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorFormat2.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorFormat3.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/Anchor.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorMatrix.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/ChainContextPos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/Common.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/ContextPos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/CursivePosFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/CursivePos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/ExtensionPos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/GPOS.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/LigatureArray.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkArray.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkBasePosFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkBasePos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkLigPosFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkLigPos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkMarkPosFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkMarkPos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/MarkRecord.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PairPosFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PairPosFormat2.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PairPos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PairSet.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PairValueRecord.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PosLookup.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/PosLookupSubTable.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/SinglePosFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/SinglePosFormat2.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/SinglePos.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/ValueFormat.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/AlternateSet.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/AlternateSubstFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/AlternateSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/ChainContextSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/Common.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/ContextSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/ExtensionSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/GSUB.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/Ligature.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/LigatureSet.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/LigatureSubstFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/LigatureSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/MultipleSubstFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/MultipleSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/ReverseChainSingleSubstFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/ReverseChainSingleSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/Sequence.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SingleSubstFormat1.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SingleSubstFormat2.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SingleSubst.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SubstLookup.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SubstLookupSubTable.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsubgpos.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-jstf-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.cc
@@ -112,29 +189,29 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-os2-unicode-ranges.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-macroman.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-fallback.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-joining-list.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic-win1256.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-arabic.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-default.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-hangul.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-hebrew.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-table.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-thai.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-table.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-vowel-constraints.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-vowel-constraints.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic-fallback.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic-joining-list.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic-pua.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic-table.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic-win1256.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-arabic.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-default.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-hangul.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-hebrew.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-indic-table.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-indic.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-indic.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-khmer.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-myanmar.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-syllabic.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-syllabic.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-thai.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-use-table.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-use.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-vowel-constraints.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-vowel-constraints.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-fallback.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-normalize.cc
@@ -145,6 +222,7 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-avar-table.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-common.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-fvar-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-gvar-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-hvar-table.hh
@@ -174,6 +252,7 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-utf.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-vector.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-priority-queue.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb.hh
 )
 
@@ -181,10 +260,10 @@ set(HB_BASE_RAGEL_GENERATED_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-json.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-text.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number-parser.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-indic-machine.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-khmer-machine.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-myanmar-machine.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape-complex-use-machine.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-indic-machine.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-khmer-machine.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-myanmar-machine.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-use-machine.hh
 )
 
 set(HB_BASE_headers
@@ -193,6 +272,7 @@ set(HB_BASE_headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-blob.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-cplusplus.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-deprecated.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-draw.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.h
@@ -287,6 +367,8 @@ set(HB_SUBSET_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff1-table.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff2-table.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-colrv1-closure.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-table-v2subset.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-static.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff-common.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff-common.hh
@@ -296,16 +378,28 @@ set(HB_SUBSET_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-cff2.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-input.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-input.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-accelerator.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-plan.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-repacker.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-repacker.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/graph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/gsubgpos-graph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/gsubgpos-context.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/gsubgpos-context.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/coverage-graph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/classdef-graph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/pairpos-graph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/markbasepos-graph.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/split-helpers.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/graph/serialize.hh
 )
 
 set(HB_SUBSET_headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-subset-repacker.h
 )
 
 set(HB_GOBJECT_DIST_sources

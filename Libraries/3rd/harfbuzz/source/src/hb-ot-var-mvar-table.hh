@@ -43,7 +43,7 @@ struct VariationValueRecord
 
   public:
   Tag		valueTag;	/* Four-byte tag identifying a font-wide measure. */
-  HBUINT32		varIdx;		/* Outer/inner index into VariationStore item. */
+  VarIdx	varIdx;		/* Outer/inner index into VariationStore item. */
 
   public:
   DEFINE_SIZE_STATIC (8);
@@ -103,7 +103,7 @@ protected:
   HBUINT16	valueRecordSize;/* The size in bytes of each value record —
 				 * must be greater than zero. */
   HBUINT16	valueRecordCount;/* The number of value records — may be zero. */
-  OffsetTo<VariationStore>
+  Offset16To<VariationStore>
 		varStore;	/* Offset to item variation store table. */
   UnsizedArrayOf<HBUINT8>
 		valuesZ;	/* Array of value records. The records must be

@@ -73,7 +73,7 @@
  * === The sanitize() contract ===
  *
  * The sanitize() method of each object type shall return true if it's safe to
- * call other methods of the object, and false otherwise.
+ * call other methods of the object, and %false otherwise.
  *
  * Note that what sanitize() checks for might align with what the specification
  * describes as valid table data, but does not have to be.  In particular, we
@@ -105,7 +105,7 @@
 #define HB_SANITIZE_MAX_EDITS 32
 #endif
 #ifndef HB_SANITIZE_MAX_OPS_FACTOR
-#define HB_SANITIZE_MAX_OPS_FACTOR 8
+#define HB_SANITIZE_MAX_OPS_FACTOR 64
 #endif
 #ifndef HB_SANITIZE_MAX_OPS_MIN
 #define HB_SANITIZE_MAX_OPS_MIN 16384
@@ -113,8 +113,8 @@
 #ifndef HB_SANITIZE_MAX_OPS_MAX
 #define HB_SANITIZE_MAX_OPS_MAX 0x3FFFFFFF
 #endif
-#ifndef HB_SANITIZE_MAX_SUTABLES
-#define HB_SANITIZE_MAX_SUTABLES 0x4000
+#ifndef HB_SANITIZE_MAX_SUBTABLES
+#define HB_SANITIZE_MAX_SUBTABLES 0x4000
 #endif
 
 struct hb_sanitize_context_t :
@@ -123,6 +123,7 @@ struct hb_sanitize_context_t :
   hb_sanitize_context_t () :
 	start (nullptr), end (nullptr),
 	max_ops (0), max_subtables (0),
+        recursion_depth (0),
 	writable (false), edit_count (0),
 	blob (nullptr),
 	num_glyphs (65536),
@@ -139,20 +140,20 @@ struct hb_sanitize_context_t :
   bool visit_subtables (unsigned count)
   {
     max_subtables += count;
-    return max_subtables < HB_SANITIZE_MAX_SUTABLES;
+    return max_subtables < HB_SANITIZE_MAX_SUBTABLES;
   }
 
   private:
   template <typename T, typename ...Ts> auto
   _dispatch (const T &obj, hb_priority<1>, Ts&&... ds) HB_AUTO_RETURN
-  ( obj.sanitize (this, hb_forward<Ts> (ds)...) )
+  ( obj.sanitize (this, std::forward<Ts> (ds)...) )
   template <typename T, typename ...Ts> auto
   _dispatch (const T &obj, hb_priority<0>, Ts&&... ds) HB_AUTO_RETURN
-  ( obj.dispatch (this, hb_forward<Ts> (ds)...) )
+  ( obj.dispatch (this, std::forward<Ts> (ds)...) )
   public:
   template <typename T, typename ...Ts> auto
   dispatch (const T &obj, Ts&&... ds) HB_AUTO_RETURN
-  ( _dispatch (obj, hb_prioritize, hb_forward<Ts> (ds)...) )
+  ( _dispatch (obj, hb_prioritize, std::forward<Ts> (ds)...) )
 
 
   void init (hb_blob_t *b)
@@ -197,14 +198,16 @@ struct hb_sanitize_context_t :
   void start_processing ()
   {
     reset_object ();
-    if (unlikely (hb_unsigned_mul_overflows (this->end - this->start, HB_SANITIZE_MAX_OPS_FACTOR)))
+    unsigned m;
+    if (unlikely (hb_unsigned_mul_overflows (this->end - this->start, HB_SANITIZE_MAX_OPS_FACTOR, &m)))
       this->max_ops = HB_SANITIZE_MAX_OPS_MAX;
     else
-      this->max_ops = hb_clamp ((unsigned) (this->end - this->start) * HB_SANITIZE_MAX_OPS_FACTOR,
+      this->max_ops = hb_clamp (m,
 				(unsigned) HB_SANITIZE_MAX_OPS_MIN,
 				(unsigned) HB_SANITIZE_MAX_OPS_MAX);
     this->edit_count = 0;
     this->debug_depth = 0;
+    this->recursion_depth = 0;
 
     DEBUG_MSG_LEVEL (SANITIZE, start, 0, +1,
 		     "start [%p..%p] (%lu bytes)",
@@ -233,7 +236,7 @@ struct hb_sanitize_context_t :
 	      (this->start <= p &&
 	       p <= this->end &&
 	       (unsigned int) (this->end - p) >= len &&
-	       this->max_ops-- > 0);
+	       (this->max_ops -= len) > 0);
 
     DEBUG_MSG_LEVEL (SANITIZE, p, this->debug_depth+1, 0,
 		     "check_range [%p..%p]"
@@ -250,8 +253,9 @@ struct hb_sanitize_context_t :
 		    unsigned int a,
 		    unsigned int b) const
   {
-    return !hb_unsigned_mul_overflows (a, b) &&
-	   this->check_range (base, a * b);
+    unsigned m;
+    return !hb_unsigned_mul_overflows (a, b, &m) &&
+	   this->check_range (base, m);
   }
 
   template <typename T>
@@ -260,8 +264,9 @@ struct hb_sanitize_context_t :
 		    unsigned int b,
 		    unsigned int c) const
   {
-    return !hb_unsigned_mul_overflows (a, b) &&
-	   this->check_range (base, a * b, c);
+    unsigned m;
+    return !hb_unsigned_mul_overflows (a, b, &m) &&
+	   this->check_range (base, m, c);
   }
 
   template <typename T>
@@ -276,6 +281,18 @@ struct hb_sanitize_context_t :
 		    unsigned int b) const
   {
     return this->check_range (base, a, b, hb_static_size (T));
+  }
+
+  bool check_start_recursion (int max_depth)
+  {
+    if (unlikely (recursion_depth >= max_depth)) return false;
+    return ++recursion_depth;
+  }
+
+  bool end_recursion (bool result)
+  {
+    recursion_depth--;
+    return result;
   }
 
   template <typename Type>
@@ -389,6 +406,7 @@ struct hb_sanitize_context_t :
   const char *start, *end;
   mutable int max_ops, max_subtables;
   private:
+  int recursion_depth;
   bool writable;
   unsigned int edit_count;
   hb_blob_t *blob;
