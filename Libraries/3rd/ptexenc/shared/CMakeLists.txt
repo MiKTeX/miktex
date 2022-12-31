@@ -10,7 +10,7 @@ set(${ptexenc_dll_name}_sources ${ptexenc_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
     configure_file(
-        miktex-ptexenc.rc.in
+        windows/miktex-ptexenc.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/miktex-ptexenc.rc
     )
     list(APPEND ${ptexenc_dll_name}_sources
