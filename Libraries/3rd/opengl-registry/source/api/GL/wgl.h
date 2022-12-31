@@ -20,7 +20,7 @@ extern "C" {
 #include <windows.h>
 #endif
 
-/* Generated on date 20200813 */
+/* Generated on date 20220530 */
 
 /* Generated C header for:
  * API: wgl
