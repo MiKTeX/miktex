@@ -1,35 +1,26 @@
-/* miktex/Wrappers/PoptWrapper.h: popt library wrapper  -*- C++ -*-
-
-   Copyright (C) 2001-2018 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU Library General Public License as
-   published by the Free Software Foundation; either version 2, or (at
-   your option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public
-   License along with this file; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+/**
+ * @file miktex/Wrappers/PoptWrapper.h
+ * @author Christian Schenk
+ * @brief popt library wrapper
+ *
+ * @copyright Copyright © 2001-2022 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
 
 #pragma once
-
-#if !defined(B67A80F5A5EE48459F83EE04616B8DFE)
-#define B67A80F5A5EE48459F83EE04616B8DFE
 
 #include <popt.h>
 
 #define MIKTEX_POPT_BEGIN_NAMESPACE             \
-  namespace MiKTeX {                            \
-    namespace Wrappers {
+    namespace MiKTeX {                          \
+        namespace Wrappers {
 
 #define MIKTEX_POPT_END_NAMESPACE               \
-    }                                           \
-  }
+        }                                       \
+    }
 
 #include <string>
 #include <vector>
@@ -38,154 +29,128 @@ MIKTEX_POPT_BEGIN_NAMESPACE;
 
 class PoptWrapper
 {
-public:
-  PoptWrapper() = default;
 
 public:
-  PoptWrapper(const PoptWrapper& other) = delete;
 
-public:
-  PoptWrapper& operator=(const PoptWrapper& other) = delete;
+    PoptWrapper() = default;
+    PoptWrapper(const PoptWrapper& other) = delete;
+    PoptWrapper& operator=(const PoptWrapper& other) = delete;
+    PoptWrapper(PoptWrapper&& other) = delete;
+    PoptWrapper& operator=(PoptWrapper&& other) = delete;
 
-public:
-  PoptWrapper(PoptWrapper&& other) = delete;
-
-public:
-  PoptWrapper& operator=(PoptWrapper&& other) = delete;
-
-public:
-  virtual ~PoptWrapper() noexcept
-  {
-    Dispose();
-  }
-
-public:
-  PoptWrapper(const char* name, int argc, const char** argv, const struct poptOption* options, int flags = 0)
-  {
-    Construct(name, argc, argv, options, flags);
-  }
-
-public:
-  PoptWrapper(int argc, const char** argv, const struct poptOption* options, int flags = 0)
-  {
-    Construct(argc, argv, options, flags);
-  }
-
-
-public:
-  void Construct(const char* name, int argc, const char** argv, const struct poptOption* options, int flags = 0)
-  {
-    ctx = poptGetContext(name, argc, argv, options, flags);
-  }
-
-public:
-  void Construct(int argc, const char** argv, const struct poptOption* options, int flags = 0)
-  {
-    Construct(nullptr, argc, argv, options, flags);
-  }
-
-public:
-  void Reset()
-  {
-    poptResetContext(ctx);
-  }
-
-public:
-  int AddAlias(const char* longName, char shortName, int argc, const char** argvFreeable)
-  {
-    return poptAddAlias(ctx, { longName, shortName, argc, argvFreeable }, 0);
-  }
-
-public:
-  void Dispose()
-  {
-    if (ctx != nullptr)
+    virtual ~PoptWrapper() noexcept
     {
-      poptFreeContext(ctx);
-      ctx = nullptr;
+        Dispose();
     }
-  }
 
-public:
-  operator poptContext() const
-  {
-    return ctx;
-  }
-
-public:
-  operator poptContext()
-  {
-    return ctx;
-  }
-
-public:
-  void SetOtherOptionHelp(const std::string& usage)
-  {
-    poptSetOtherOptionHelp(ctx, usage.c_str());
-  }
-
-public:
-  void PrintUsage(FILE* stream = stdout, int flags = 0) const
-  {
-    poptPrintUsage(ctx, stream, flags);
-  }
-
-public:
-  void PrintHelp(FILE* stream = stdout, int flags = 0) const
-  {
-    poptPrintHelp(ctx, stream, flags);
-  }
-
-public:
-  int GetNextOpt()
-  {
-    return poptGetNextOpt(ctx);
-  }
-
-public:
-  std::string GetOptArg()
-  {
-    std::string result;
-    char* lpsz = poptGetOptArg(ctx);
-    if (lpsz != nullptr)
+    PoptWrapper(const char* name, int argc, const char** argv, const struct poptOption* options, int flags = 0)
     {
-      result = lpsz;
-      free(lpsz);
+        Construct(name, argc, argv, options, flags);
     }
-    return result;
-  }
 
-public:
-  std::vector<std::string> GetLeftovers()
-  {
-    std::vector<std::string> result;
-    const char** args = poptGetArgs(ctx);
-    if (args != nullptr)
+    PoptWrapper(int argc, const char** argv, const struct poptOption* options, int flags = 0)
     {
-      for (const char** a = args; *a != nullptr; ++a)
-      {
-        result.push_back(*a);
-      }
+        Construct(argc, argv, options, flags);
     }
-    return result;
-  }
 
-public:
-  std::string BadOption(int flags)
-  {
-    return poptBadOption(ctx, flags);
-  }
+    void Construct(const char* name, int argc, const char** argv, const struct poptOption* options, int flags = 0)
+    {
+        ctx = poptGetContext(name, argc, argv, options, flags);
+    }
 
-public:
-  static std::string Strerror(int error)
-  {
-    return poptStrerror(error);
-  }
+    void Construct(int argc, const char** argv, const struct poptOption* options, int flags = 0)
+    {
+        Construct(nullptr, argc, argv, options, flags);
+    }
+
+    void Reset()
+    {
+        poptResetContext(ctx);
+    }
+
+    int AddAlias(const char* longName, char shortName, int argc, const char** argvFreeable)
+    {
+        return poptAddAlias(ctx, { longName, shortName, argc, argvFreeable }, 0);
+    }
+
+    void Dispose()
+    {
+        if (ctx != nullptr)
+        {
+            poptFreeContext(ctx);
+            ctx = nullptr;
+        }
+    }
+
+    operator poptContext() const
+    {
+        return ctx;
+    }
+
+    operator poptContext()
+    {
+        return ctx;
+    }
+
+    void SetOtherOptionHelp(const std::string& usage)
+    {
+        poptSetOtherOptionHelp(ctx, usage.c_str());
+    }
+
+    void PrintUsage(FILE* stream = stdout, int flags = 0) const
+    {
+        poptPrintUsage(ctx, stream, flags);
+    }
+
+    void PrintHelp(FILE* stream = stdout, int flags = 0) const
+    {
+        poptPrintHelp(ctx, stream, flags);
+    }
+
+    int GetNextOpt()
+    {
+        return poptGetNextOpt(ctx);
+    }
+
+    std::string GetOptArg()
+    {
+        std::string result;
+        char* lpsz = poptGetOptArg(ctx);
+        if (lpsz != nullptr)
+        {
+            result = lpsz;
+            free(lpsz);
+        }
+        return result;
+    }
+
+    std::vector<std::string> GetLeftovers()
+    {
+        std::vector<std::string> result;
+        const char** args = poptGetArgs(ctx);
+        if (args != nullptr)
+        {
+            for (const char** a = args; *a != nullptr; ++a)
+            {
+                result.push_back(*a);
+            }
+        }
+        return result;
+    }
+
+    std::string BadOption(int flags)
+    {
+        return poptBadOption(ctx, flags);
+    }
+
+    static std::string Strerror(int error)
+    {
+        return poptStrerror(error);
+    }
 
 private:
-  poptContext ctx = nullptr;
+
+    poptContext ctx = nullptr;
 };
 
 MIKTEX_POPT_END_NAMESPACE;
-
-#endif
