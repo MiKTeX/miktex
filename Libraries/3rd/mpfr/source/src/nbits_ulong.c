@@ -1,6 +1,6 @@
 /* mpfr_nbits_ulong -- number of significant bits in an unsigned long
 
-Copyright 2018-2020 Free Software Foundation, Inc.
+Copyright 2018-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.

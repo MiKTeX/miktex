@@ -1,6 +1,6 @@
 /* mpfr_pow_si -- power function x^y with y a signed int
 
-Copyright 2001-2020 Free Software Foundation, Inc.
+Copyright 2001-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -75,7 +75,7 @@ mpfr_pow_si (mpfr_ptr y, mpfr_srcptr x, long int n, mpfr_rnd_t rnd)
            *
            * Some systems (apparently alpha-freebsd) abort with
            * LONG_MIN / 1, and LONG_MIN / -1 is undefined.
-           * http://www.freebsd.org/cgi/query-pr.cgi?pr=72024
+           * https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=72024
            *
            * Proof of the overflow checking. The expressions below are
            * assumed to be on the rational numbers, but the word "overflow"

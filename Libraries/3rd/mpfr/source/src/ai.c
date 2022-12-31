@@ -1,6 +1,6 @@
 /* mpfr_ai -- Airy function Ai
 
-Copyright 2010-2020 Free Software Foundation, Inc.
+Copyright 2010-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -216,7 +216,7 @@ mpfr_ai1 (mpfr_ptr y, mpfr_srcptr x, mpfr_rnd_t rnd)
       mpfr_set_ui (ti, 9, MPFR_RNDN);
       mpfr_cbrt (ti, ti, MPFR_RNDN);
       mpfr_mul (ti, ti, temp2, MPFR_RNDN);
-      mpfr_ui_div (ti, 1, ti , MPFR_RNDN); /* ti = 1/( Gamma (2/3)*9^(1/3) ) */
+      mpfr_ui_div (ti, 1, ti, MPFR_RNDN); /* ti = 1/( Gamma (2/3)*9^(1/3) ) */
 
       mpfr_set_ui (tip1, 3, MPFR_RNDN);
       mpfr_cbrt (tip1, tip1, MPFR_RNDN);
@@ -464,7 +464,7 @@ mpfr_ai2 (mpfr_ptr y, mpfr_srcptr x, mpfr_rnd_t rnd)
       mpfr_set_ui (u0, 9, MPFR_RNDN);
       mpfr_cbrt (u0, u0, MPFR_RNDN);
       mpfr_mul (u0, u0, temp2, MPFR_RNDN);
-      mpfr_ui_div (u0, 1, u0 , MPFR_RNDN); /* u0 = 1/( Gamma (2/3)*9^(1/3) ) */
+      mpfr_ui_div (u0, 1, u0, MPFR_RNDN); /* u0 = 1/( Gamma (2/3)*9^(1/3) ) */
 
       mpfr_set_ui (u1, 3, MPFR_RNDN);
       mpfr_cbrt (u1, u1, MPFR_RNDN);

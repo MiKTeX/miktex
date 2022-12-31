@@ -1,7 +1,7 @@
 /* mpfr_set_z_2exp -- set a floating-point number from a multiple-precision
                       integer and an exponent
 
-Copyright 1999-2020 Free Software Foundation, Inc.
+Copyright 1999-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -28,10 +28,11 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 int
 mpfr_set_z_2exp (mpfr_ptr f, mpz_srcptr z, mpfr_exp_t e, mpfr_rnd_t rnd_mode)
 {
-  mp_size_t fn, zn, dif, en;
+  mp_size_t fn, zn, dif;
   int k, sign_z, inex;
   mp_limb_t *fp, *zp;
-  mpfr_exp_t exp;
+  mpfr_exp_t exp, nmax;
+  mpfr_uexp_t uexp;
 
   sign_z = mpz_sgn (z);
   if (MPFR_UNLIKELY (sign_z == 0)) /* ignore the exponent for 0 */
@@ -43,10 +44,15 @@ mpfr_set_z_2exp (mpfr_ptr f, mpz_srcptr z, mpfr_exp_t e, mpfr_rnd_t rnd_mode)
   MPFR_ASSERTD (sign_z == MPFR_SIGN_POS || sign_z == MPFR_SIGN_NEG);
 
   zn = ABSIZ(z); /* limb size of z */
-  /* compute en = floor(e/GMP_NUMB_BITS) */
-  en = (e >= 0) ? e / GMP_NUMB_BITS : (e + 1) / GMP_NUMB_BITS - 1;
   MPFR_ASSERTD (zn >= 1);
-  if (MPFR_UNLIKELY (zn + en > MPFR_EMAX_MAX / GMP_NUMB_BITS + 1))
+  nmax = MPFR_EMAX_MAX / GMP_NUMB_BITS + 1;
+  /* Detect early overflow with zn + en > nmax,
+     where en = floor(e / GMP_NUMB_BITS).
+     This is checked without an integer overflow (even assuming some
+     future version of GMP, where limitations may be removed). */
+  if (MPFR_UNLIKELY (e >= 0 ?
+                     zn > nmax - e / GMP_NUMB_BITS :
+                     zn + (e + 1) / GMP_NUMB_BITS - 1 > nmax))
     return mpfr_overflow (f, rnd_mode, sign_z);
   /* because zn + en >= MPFR_EMAX_MAX / GMP_NUMB_BITS + 2
      implies (zn + en) * GMP_NUMB_BITS >= MPFR_EMAX_MAX + GMP_NUMB_BITS + 1
@@ -64,8 +70,21 @@ mpfr_set_z_2exp (mpfr_ptr f, mpz_srcptr z, mpfr_exp_t e, mpfr_rnd_t rnd_mode)
      and exp = zn * GMP_NUMB_BITS + e - k
              <= (zn + en) * GMP_NUMB_BITS - k + GMP_NUMB_BITS - 1
              <= MPFR_EMAX_MAX + 2 * GMP_NUMB_BITS - 1 */
-  exp = (mpfr_prec_t) zn * GMP_NUMB_BITS + e - k;
+  /* We need to compute exp = zn * GMP_NUMB_BITS + e - k with well-defined
+     operations (no integer overflows / no implementation-defined results).
+     The mathematical result of zn * GMP_NUMB_BITS may be larger than
+     the largest value of mpfr_exp_t while exp could still be less than
+     __gmpfr_emax. Thanks to early overflow detection, we can compute the
+     result in modular arithmetic, using mpfr_uexp_t, and convert it to
+     mpfr_exp_t. */
+  uexp = (mpfr_uexp_t) zn * GMP_NUMB_BITS + (mpfr_uexp_t) e - k;
+
+  /* Convert to signed in a portable way (see doc/README.dev).
+     On most platforms, this can be optimized to identity (no-op). */
+  exp = uexp > MPFR_EXP_MAX ? -1 - (mpfr_exp_t) ~uexp : (mpfr_exp_t) uexp;
+
   /* The exponent will be exp or exp + 1 (due to rounding) */
+
   if (MPFR_UNLIKELY (exp > __gmpfr_emax))
     return mpfr_overflow (f, rnd_mode, sign_z);
   if (MPFR_UNLIKELY (exp + 1 < __gmpfr_emin))

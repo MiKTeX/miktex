@@ -1,6 +1,6 @@
 /* Functions to work with unbounded floats (limited low-level interface).
 
-Copyright 2016-2020 Free Software Foundation, Inc.
+Copyright 2016-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -78,7 +78,7 @@ mpfr_ubf_mul_exact (mpfr_ubf_ptr a, mpfr_srcptr b, mpfr_srcptr c)
       mpfr_get_prec (b), mpfr_log_prec, b,
       mpfr_get_prec (c), mpfr_log_prec, c),
      ("a[%Pu]=%.*Rg",
-      mpfr_get_prec (a), mpfr_log_prec, a));
+      mpfr_get_prec ((mpfr_ptr) a), mpfr_log_prec, a));
 
   MPFR_ASSERTD ((mpfr_ptr) a != b);
   MPFR_ASSERTD ((mpfr_ptr) a != c);

@@ -1,6 +1,6 @@
 /* Utilities for MPFR developers, not exported.
 
-Copyright 1999-2020 Free Software Foundation, Inc.
+Copyright 1999-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -988,7 +988,7 @@ union ieee_decimal128
 #endif
 
 /* Before doing a cast to mpfr_uexp_t, make sure that the value is
-   nonnegative. */
+   non-negative. */
 #define MPFR_UEXP(X) (MPFR_ASSERTD ((X) >= 0), (mpfr_uexp_t) (X))
 
 /* Define mpfr_eexp_t, mpfr_ueexp_t and MPFR_EXP_FSPEC.
@@ -1445,7 +1445,7 @@ typedef union { mp_size_t s; mp_limb_t l; } mpfr_size_limb_t;
 
 /* Code to debug branch prediction, based on Ulrich Drepper's paper
  * "What Every Programmer Should Know About Memory":
- *   http://people.freebsd.org/~lstewart/articles/cpumemory.pdf
+ *   https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
  */
 asm (".section predict_data, \"aw\"; .previous\n"
      ".section predict_line, \"a\"; .previous\n"
@@ -2033,7 +2033,7 @@ typedef struct {
 /* To safely increase some precision, detecting integer overflows.
    This macro is particularly useful when determining the initial
    working precision before Ziv's loop. P is a precision, X is an
-   arbitrary nonnegative integer.
+   arbitrary non-negative integer.
    Note: On 2012-02-23, the MPFR_PREC_MAX value has been decreased
    by 256 from the maximum value representable in the mpfr_prec_t
    type, in order to avoid some integer overflows when this macro
@@ -2474,7 +2474,8 @@ __MPFR_DECLSPEC void mpfr_rand_raw (mpfr_limb_ptr, gmp_randstate_t,
 __MPFR_DECLSPEC mpz_srcptr mpfr_bernoulli_cache (unsigned long);
 __MPFR_DECLSPEC void mpfr_bernoulli_freecache (void);
 
-__MPFR_DECLSPEC int mpfr_sincos_fast (mpfr_t, mpfr_t, mpfr_srcptr, mpfr_rnd_t);
+__MPFR_DECLSPEC int mpfr_sincos_fast (mpfr_ptr, mpfr_ptr, mpfr_srcptr,
+                                      mpfr_rnd_t);
 
 __MPFR_DECLSPEC double mpfr_scale2 (double, int);
 
@@ -2485,7 +2486,7 @@ __MPFR_DECLSPEC void mpfr_gamma_one_and_two_third (mpfr_ptr, mpfr_ptr,
                                                    mpfr_prec_t);
 
 __MPFR_DECLSPEC void mpfr_mpz_init (mpz_ptr);
-__MPFR_DECLSPEC void mpfr_mpz_init2 (mpz_t, mp_bitcnt_t);
+__MPFR_DECLSPEC void mpfr_mpz_init2 (mpz_ptr, mp_bitcnt_t);
 __MPFR_DECLSPEC void mpfr_mpz_clear (mpz_ptr);
 
 __MPFR_DECLSPEC int mpfr_odd_p (mpfr_srcptr);

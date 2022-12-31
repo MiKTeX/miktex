@@ -2,7 +2,7 @@
    and variance 1 and round it to the precision of rop according to the given
    rounding mode.
 
-Copyright 2013-2020 Free Software Foundation, Inc.
+Copyright 2013-2022 Free Software Foundation, Inc.
 Contributed by Charles Karney <charles@karney.com>, SRI International.
 
 This file is part of the GNU MPFR Library.
@@ -29,7 +29,7 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
  *   "Sampling exactly from the normal distribution",
  *   ACM Trans. Math. Software 42(1), 3:1-14 (Jan. 2016).
  *   https://dx.doi.org/10.1145/2710016
- *   http://arxiv.org/abs/1303.6257
+ *   https://arxiv.org/abs/1303.6257
  *
  * The implementation here closely follows the C++ one given in the paper
  * above.  However, here, C is simplified by using gmp_urandomm_ui; the initial
@@ -155,7 +155,7 @@ B (unsigned long k, mpfr_random_deviate_t x, gmp_randstate_t r,
 
 /* return a normal random deviate with mean 0 and variance 1 as a MPFR  */
 int
-mpfr_nrandom (mpfr_t z, gmp_randstate_t r, mpfr_rnd_t rnd)
+mpfr_nrandom (mpfr_ptr z, gmp_randstate_t r, mpfr_rnd_t rnd)
 {
   mpfr_random_deviate_t x, p, q;
   int inex;

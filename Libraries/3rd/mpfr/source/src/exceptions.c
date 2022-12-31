@@ -1,6 +1,6 @@
 /* Exception flags and utilities. Constructors and destructors (debug).
 
-Copyright 2001-2020 Free Software Foundation, Inc.
+Copyright 2001-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -442,7 +442,7 @@ mpfr_overflow (mpfr_ptr x, mpfr_rnd_t rnd_mode, int sign)
  *
  * Code to debug branch prediction, based on Ulrich Drepper's paper
  * "What Every Programmer Should Know About Memory":
- *   http://people.freebsd.org/~lstewart/articles/cpumemory.pdf
+ *   https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
  */
 
 extern long int __start_predict_data;

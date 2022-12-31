@@ -1,6 +1,6 @@
 /* Uniform Interface to GMP.
 
-Copyright 2004-2020 Free Software Foundation, Inc.
+Copyright 2004-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -61,7 +61,7 @@ extern "C" {
 #endif
 
 #if GMP_NAIL_BITS != 0
-# error "MPFR doesn't support nonzero values of GMP_NAIL_BITS"
+# error "MPFR doesn't support non-zero values of GMP_NAIL_BITS"
 #endif
 
 #if (GMP_NUMB_BITS<8) || (GMP_NUMB_BITS & (GMP_NUMB_BITS - 1))

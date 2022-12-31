@@ -1,7 +1,7 @@
 /* mpfr_y0, mpfr_y1, mpfr_yn -- Bessel functions of 2nd kind, integer order.
-   http://www.opengroup.org/onlinepubs/009695399/functions/y0.html
+   https://pubs.opengroup.org/onlinepubs/9699919799/functions/y0.html
 
-Copyright 2007-2020 Free Software Foundation, Inc.
+Copyright 2007-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.

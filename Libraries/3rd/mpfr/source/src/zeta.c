@@ -1,6 +1,6 @@
 /* mpfr_zeta -- compute the Riemann Zeta function
 
-Copyright 2003-2020 Free Software Foundation, Inc.
+Copyright 2003-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -35,7 +35,7 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
    sum(tc[i]*product((s+2j)*(s+2j-1)/n^2,j=1..i-1), i=1..p)*s*n^(-s-1)
 */
 static void
-mpfr_zeta_part_b (mpfr_t b, mpfr_srcptr s, int n, int p, mpfr_t *tc)
+mpfr_zeta_part_b (mpfr_ptr b, mpfr_srcptr s, int n, int p, mpfr_t *tc)
 {
   mpfr_t s1, d, u;
   unsigned long n2;
@@ -130,7 +130,7 @@ mpfr_zeta_c (int p, mpfr_t *tc)
           n - an integer
    Output: sum - a floating-point number approximating sum(1/i^s, i=1..n-1) */
 static void
-mpfr_zeta_part_a (mpfr_t sum, mpfr_srcptr s, int n)
+mpfr_zeta_part_a (mpfr_ptr sum, mpfr_srcptr s, int n)
 {
   mpfr_t u, s1;
   int i;
@@ -158,7 +158,7 @@ mpfr_zeta_part_a (mpfr_t sum, mpfr_srcptr s, int n)
    Output: z - Zeta(s) rounded to the precision of z with direction rnd_mode
 */
 static int
-mpfr_zeta_pos (mpfr_t z, mpfr_srcptr s, mpfr_rnd_t rnd_mode)
+mpfr_zeta_pos (mpfr_ptr z, mpfr_srcptr s, mpfr_rnd_t rnd_mode)
 {
   mpfr_t b, c, z_pre, f, s1;
   double beta, sd, dnep;
@@ -356,8 +356,8 @@ compute_add (mpfr_srcptr s, mpfr_prec_t precz)
    At input, p is Pi rounded down.
    The comments in the code are for rnd = RNDD. */
 static void
-mpfr_reflection_overflow (mpfr_t z, mpfr_t s1, const mpfr_t s, mpfr_t y,
-                          mpfr_t p, mpfr_rnd_t rnd)
+mpfr_reflection_overflow (mpfr_ptr z, mpfr_ptr s1, mpfr_srcptr s, mpfr_ptr y,
+                          mpfr_ptr p, mpfr_rnd_t rnd)
 {
   mpz_t sint;
 
@@ -432,7 +432,7 @@ mpfr_reflection_overflow (mpfr_t z, mpfr_t s1, const mpfr_t s, mpfr_t y,
 }
 
 int
-mpfr_zeta (mpfr_t z, mpfr_srcptr s, mpfr_rnd_t rnd_mode)
+mpfr_zeta (mpfr_ptr z, mpfr_srcptr s, mpfr_rnd_t rnd_mode)
 {
   mpfr_t z_pre, s1, y, p;
   long add;

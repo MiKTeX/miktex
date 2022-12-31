@@ -1,7 +1,7 @@
 /* mpfr_pow_ui-- compute the power of a floating-point
                                   by a machine integer
 
-Copyright 1999-2020 Free Software Foundation, Inc.
+Copyright 1999-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -89,7 +89,7 @@ mpfr_pow_ui (mpfr_ptr y, mpfr_srcptr x, unsigned long int n, mpfr_rnd_t rnd)
   /* Augment exponent range */
   MPFR_SAVE_EXPO_MARK (expo);
 
-  /* setup initial precision */
+  /* set up initial precision */
   prec = MPFR_PREC (y) + 3 + GMP_NUMB_BITS
     + MPFR_INT_CEIL_LOG2 (MPFR_PREC (y));
   mpfr_init2 (res, prec);
@@ -140,7 +140,7 @@ mpfr_pow_ui (mpfr_ptr y, mpfr_srcptr x, unsigned long int n, mpfr_rnd_t rnd)
     {
       mpz_t z;
 
-      /* Internal overflow or underflow. However the approximation error has
+      /* Internal overflow or underflow. However, the approximation error has
        * not been taken into account. So, let's solve this problem by using
        * mpfr_pow_z, which can handle it. This case could be improved in the
        * future, without having to use mpfr_pow_z.

@@ -1,7 +1,7 @@
 /* mpfr_inp_str -- input a number in base BASE from stdio stream STREAM
                    and store the result in ROP
 
-Copyright 1999, 2001-2002, 2004, 2006-2020 Free Software Foundation, Inc.
+Copyright 1999, 2001-2002, 2004, 2006-2022 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -103,7 +103,7 @@ mpfr_inp_str (mpfr_ptr rop, FILE *stream, int base, mpfr_rnd_t rnd_mode)
   MPFR_ASSERTD (nread >= 1);
   str_size += nread - 1;
   if (MPFR_UNLIKELY (str_size < nread - 1))  /* size_t overflow */
-    return 0;  /* however rop has been set successfully */
+    return 0;  /* however, rop has been set successfully */
   else
     return str_size;
 }
