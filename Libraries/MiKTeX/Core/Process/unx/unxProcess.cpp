@@ -813,7 +813,7 @@ void Process::Overlay(const PathName& fileName, const vector<string>& arguments)
     Argv argv(arguments.empty() ? vector<string>{ PathName(fileName).GetFileNameWithoutExtension().ToString() } : arguments);
 
     auto trace_process = TraceStream::Open(MIKTEX_TRACE_PROCESS);
-    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execve: {0}", fileName));
+    trace_process->WriteLine("core", TraceLevel::Info, fmt::format("execve: {0}", Q_(fileName.ToDisplayString())));
     for (int idx = 0; argv[idx] != nullptr; ++idx)
     {
         trace_process->WriteLine("core", TraceLevel::Info, fmt::format(" argv[{0}]: {1}", idx, argv[idx]));

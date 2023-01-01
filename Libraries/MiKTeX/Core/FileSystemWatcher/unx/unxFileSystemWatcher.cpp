@@ -71,7 +71,7 @@ void unxFileSystemWatcher::AddDirectories(const vector<PathName>& directories)
         {
             continue;
         }
-        trace_files->WriteLine("core", fmt::format("watching directory: {0}", dir));
+        trace_files->WriteLine("core", fmt::format("watching directory: {0}", Q_(dir.ToDisplayString())));
         this->directories[wd] = dir;
     }
 }

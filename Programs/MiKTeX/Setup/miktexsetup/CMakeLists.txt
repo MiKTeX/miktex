@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2014-2022 Christian Schenk
+## Copyright (C) 2014-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -44,4 +44,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 add_subdirectory(integrated)
-add_subdirectory(standalone)
+
+if(WITH_STANDALONE_SETUP)
+    add_subdirectory(standalone)
+endif()
