@@ -1,36 +1,25 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2008-2020 Christian Schenk
+## Copyright (C) 2008-2023 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(${uriparser_dll_name}_sources ${uriparser_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
-  configure_file(
-    ../uriparser.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/uriparser.rc
-  )
-  list(APPEND ${uriparser_dll_name}_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/uriparser.rc
-  )
+    configure_file(
+        windows/miktex-uriparser.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-uriparser.rc
+    )
+    list(APPEND ${uriparser_dll_name}_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-uriparser.rc
+    )
 endif()
 
 add_definitions(
-  -DURI_LIBRARY_BUILD
+    -DURI_LIBRARY_BUILD
 )
 
 add_library(${uriparser_dll_name} SHARED ${${uriparser_dll_name}_sources})
@@ -38,14 +27,14 @@ add_library(${uriparser_dll_name} SHARED ${${uriparser_dll_name}_sources})
 set_property(TARGET ${uriparser_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_shared_library_version_properties(
-  ${uriparser_dll_name}
-  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
-  ${MIKTEX_COMP_INTERFACE_VERSION}
+    ${uriparser_dll_name}
+    ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+    ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_include_directories(${uriparser_dll_name}
-  PUBLIC
-    ${public_include_directories}
+    PUBLIC
+        ${public_include_directories}
 )
 
 install(TARGETS ${uriparser_dll_name}
