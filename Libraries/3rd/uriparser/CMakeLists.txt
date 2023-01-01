@@ -26,7 +26,7 @@ add_definitions(
 
 configure_file(
     source/src/UriConfig.h.in
-    UriConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/UriConfig.h
 )
 
 configure_file(
@@ -35,7 +35,7 @@ configure_file(
 )
 
 set(uriparser_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/UriConfig.h
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-uriparser-version.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/include/uriparser/Uri.h

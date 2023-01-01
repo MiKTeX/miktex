@@ -1380,28 +1380,6 @@ unsigned char *ptenc_from_internal_enc_string_to_utf8(const unsigned char *is)
     return buf;
 }
 
-int ptenc_get_command_line_args(int *p_ac, char ***p_av)
-{
-    int i, argc;
-    char **argv;
-
-    get_terminal_enc();
-    if (terminal_enc == ENC_UTF8 && !is_internalUPTEX()) {
-        argc = *p_ac;
-        argv = xmalloc(sizeof(char *)*(argc+1));
-        for (i=0; i<argc; i++) {
-            argv[i] = ptenc_from_utf8_string_to_internal_enc((*p_av)[i]);
-#ifdef DEBUG
-            fprintf(stderr, "Commandline arguments %d:(%s)\n", i, argv[i]);
-#endif /* DEBUG */
-        }
-        argv[argc] = NULL;
-        *p_av = argv;
-         return terminal_enc;
-    }
-    return 0;
-}
-
 long ptenc_conv_first_line(long pos, long last, unsigned char *buff, const long buffsize)
   /* return new last */
 {

@@ -1,13 +1,14 @@
 ## sources.cmake
 ##
-## Copyright (C) 2022 Christian Schenk
+## Copyright (C) 2022-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
 list(APPEND liblua_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/liblua-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-liblua-version.h
+
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/lapi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/lapi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/lauxlib.c

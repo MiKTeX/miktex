@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX-pdfTeX version information
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2023 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -13,7 +13,7 @@
 #include "pdftex_version.h"
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 13
+#define MIKTEX_COMP_MINOR_VERSION 14
 #define MIKTEX_COMP_PATCH_VERSION 0
 
 #define MIKTEX_COMP_ID "miktex-pdftex"

@@ -35537,6 +35537,10 @@ end;
 pdf_end_link_node: print_esc("pdfendlink");
 pdf_dest_node: begin
     print_esc("pdfdest");
+    if pdf_dest_objnum(p) <> null then begin
+        print(" struct");
+        print_int(pdf_dest_objnum(p));
+    end;
     if pdf_dest_named_id(p) > 0 then begin
         print(" name");
         print_mark(pdf_dest_id(p));

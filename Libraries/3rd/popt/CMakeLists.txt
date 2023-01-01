@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -48,7 +48,8 @@ endforeach()
 
 set(popt_sources
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
-    ${CMAKE_CURRENT_BINARY_DIR}/popt-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-popt-version.h
+
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/popt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/popt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/poptconfig.c

@@ -113,7 +113,6 @@ extern PTENCDLL FILE *nkf_open(const char *path, const char *mode);
 extern PTENCDLL int nkf_close(FILE *fp);
 extern PTENCDLL unsigned char *ptenc_from_utf8_string_to_internal_enc(const unsigned char *is);
 extern PTENCDLL unsigned char *ptenc_from_internal_enc_string_to_utf8(const unsigned char *is);
-extern PTENCDLL int ptenc_get_command_line_args(int *p_ac, char ***p_av);
 #endif
 extern PTENCDLL long ptenc_conv_first_line(long pos, long limit, unsigned char *buff, const long buffsize);
 
