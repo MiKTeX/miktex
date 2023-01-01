@@ -229,7 +229,7 @@ private:
 		     Type1CPrivateDict *pDict);
   void cvtGlyph(int offset, int nBytes, GString *charBuf,
 		Type1CIndex *subrIdx, Type1CPrivateDict *pDict,
-		GBool top);
+		GBool top, int recursion);
   void cvtGlyphWidth(GBool useOp, GString *charBuf,
 		     Type1CPrivateDict *pDict);
   void cvtNum(Type1COp op, GString *charBuf);

@@ -64,6 +64,7 @@ static GBool userUnit = gFalse;
 static GBool duplex = gFalse;
 static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
+static GBool verbose = gFalse;
 static GBool quiet = gFalse;
 static char cfgFileName[256] = "";
 static GBool printVersion = gFalse;
@@ -132,6 +133,8 @@ static ArgDesc argDesc[] = {
    "owner password (for encrypted files)"},
   {"-upw",        argString,   userPassword,    sizeof(userPassword),
    "user password (for encrypted files)"},
+  {"-verbose", argFlag,    &verbose,       0,
+   "print per-page status information"},
   {"-q",          argFlag,     &quiet,          0,
    "don't print any messages or errors"},
   {"-cfg",        argString,      cfgFileName,    sizeof(cfgFileName),
@@ -182,7 +185,7 @@ int main(int argc, char *argv[]) {
   fixCommandLine(&argc, &argv);
   ok = parseArgs(argDesc, &argc, argv);
   if (!ok || argc < 2 || argc > 3 || printVersion || printHelp) {
-    fprintf(stderr, "pdftops version %s\n", xpdfVersion);
+    fprintf(stderr, "pdftops version %s [www.xpdfreader.com]\n", xpdfVersion);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdftops", "<PDF-file> [<PS-file>]", argDesc);
@@ -231,6 +234,10 @@ int main(int argc, char *argv[]) {
   fileName = argv[1];
 
   // read config file
+  if (cfgFileName[0] && !pathIsFile(cfgFileName)) {
+    error(errConfig, -1, "Config file '{0:s}' doesn't exist or isn't a file",
+	  cfgFileName);
+  }
   globalParams = new GlobalParams(cfgFileName);
 #if HAVE_SPLASH
   globalParams->setupBaseFonts(NULL);
@@ -291,6 +298,9 @@ int main(int argc, char *argv[]) {
     globalParams->setPSOPI(doOPI);
   }
 #endif
+  if (verbose) {
+    globalParams->setPrintStatusInfo(verbose);
+  }
   if (quiet) {
     globalParams->setErrQuiet(quiet);
   }
@@ -337,6 +347,9 @@ int main(int argc, char *argv[]) {
     }
     psFileName->append(doEPS ? ".eps" : ".ps");
   }
+  if (psFileName->cmp("-") == 0) {
+    globalParams->setPrintStatusInfo(gFalse);
+  }
 
   // get page range
   if (firstPage < 1) {
@@ -355,7 +368,7 @@ int main(int argc, char *argv[]) {
   // write PostScript file
   psOut = new PSOutputDev(psFileName->getCString(), doc,
 			  firstPage, lastPage, mode,
-			  0, 0, 0, 0, gFalse, NULL, NULL, userUnit);
+			  0, 0, 0, 0, gFalse, NULL, NULL, userUnit, gTrue);
   if (!psOut->isOk()) {
     delete psOut;
     exitCode = 2;

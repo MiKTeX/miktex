@@ -232,6 +232,10 @@ CharCodeToUnicode *CharCodeToUnicode::make8BitToUnicode(Unicode *toUnicode) {
   return new CharCodeToUnicode(NULL, toUnicode, 256, gTrue, NULL, 0, 0);
 }
 
+CharCodeToUnicode *CharCodeToUnicode::make16BitToUnicode(Unicode *toUnicode) {
+  return new CharCodeToUnicode(NULL, toUnicode, 65536, gTrue, NULL, 0, 0);
+}
+
 CharCodeToUnicode *CharCodeToUnicode::parseCMap(GString *buf, int nBits) {
   CharCodeToUnicode *ctu;
   GStringIndex idx;
@@ -470,12 +474,15 @@ GBool CharCodeToUnicode::parseCMap1(int (*getCharFunc)(void *), void *data,
 void CharCodeToUnicode::addMapping(CharCode code, char *uStr, int n,
 				   int offset) {
   CharCode oldLen, i;
-  Unicode u;
-  int j;
+  Unicode u[maxUnicodeString];
+  int uLen, j;
 
   if (code > 0xffffff) {
     // This is an arbitrary limit to avoid integer overflow issues.
     // (I've seen CMaps with mappings for <ffffffff>.)
+    return;
+  }
+  if ((uLen = parseUTF16String(uStr, n, u)) == 0) {
     return;
   }
   if (code >= mapLen) {
@@ -489,12 +496,8 @@ void CharCodeToUnicode::addMapping(CharCode code, char *uStr, int n,
       map[i] = 0;
     }
   }
-  if (n <= 4) {
-    if (!parseHex(uStr, n, &u)) {
-      error(errSyntaxWarning, -1, "Illegal entry in ToUnicode CMap");
-      return;
-    }
-    map[code] = u + offset;
+  if (uLen == 1) {
+    map[code] = u[0] + offset;
   } else {
     if (sMapLen >= sMapSize) {
       sMapSize = sMapSize + 16;
@@ -503,18 +506,42 @@ void CharCodeToUnicode::addMapping(CharCode code, char *uStr, int n,
     }
     map[code] = 0;
     sMap[sMapLen].c = code;
-    if ((sMap[sMapLen].len = n / 4) > maxUnicodeString) {
-      sMap[sMapLen].len = maxUnicodeString;
+    for (j = 0; j < uLen; ++j) {
+      sMap[sMapLen].u[j] = u[j];
     }
-    for (j = 0; j < sMap[sMapLen].len; ++j) {
-      if (!parseHex(uStr + j*4, 4, &sMap[sMapLen].u[j])) {
-	error(errSyntaxWarning, -1, "Illegal entry in ToUnicode CMap");
-	return;
-      }
-    }
-    sMap[sMapLen].u[sMap[sMapLen].len - 1] += offset;
+    sMap[sMapLen].u[uLen - 1] += offset;
+    sMap[sMapLen].len = uLen;
     ++sMapLen;
   }
+}
+
+// Convert a UTF-16BE hex string into a sequence of up to
+// maxUnicodeString Unicode chars.
+int CharCodeToUnicode::parseUTF16String(char *uStr, int n, Unicode *uOut) {
+  int i = 0;
+  int uLen = 0;
+  while (i < n) {
+    Unicode u;
+    int j = n;
+    if (j - i > 4) {
+      j = i + 4;
+    }
+    if (!parseHex(uStr + i, j - i, &u)) {
+      error(errSyntaxWarning, -1, "Illegal entry in ToUnicode CMap");
+      return 0;
+    }
+    // look for a UTF-16 pair
+    if (uLen > 0 && uOut[uLen-1] >= 0xd800 && uOut[uLen-1] <= 0xdbff &&
+	u >= 0xdc00 && u <= 0xdfff) {
+      uOut[uLen-1] = 0x10000 + ((uOut[uLen-1] & 0x03ff) << 10) + (u & 0x03ff);
+    } else {
+      if (uLen < maxUnicodeString) {
+	uOut[uLen++] = u;
+      }
+    }
+    i = j;
+  }
+  return uLen;
 }
 
 void CharCodeToUnicode::addMappingInt(CharCode code, Unicode u) {

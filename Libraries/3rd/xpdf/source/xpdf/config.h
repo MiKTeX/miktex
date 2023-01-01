@@ -2,7 +2,7 @@
 //
 // config.h
 //
-// Copyright 1996-2019 Glyph & Cog, LLC
+// Copyright 1996-2022 Glyph & Cog, LLC
 //
 //========================================================================
 
@@ -14,13 +14,13 @@
 //------------------------------------------------------------------------
 
 // xpdf version
-#define xpdfVersion          "4.02"
-#define xpdfVersionNum       4.02
+#define xpdfVersion          "4.04"
+#define xpdfVersionNum       4.04
 #define xpdfMajorVersion     4
-#define xpdfMinorVersion     2
+#define xpdfMinorVersion     4
 #define xpdfUpdateVersion    0
 #define xpdfMajorVersionStr  "4"
-#define xpdfMinorVersionStr  "2"
+#define xpdfMinorVersionStr  "4"
 #define xpdfUpdateVersionStr "0"
 
 // supported PDF version
@@ -28,11 +28,11 @@
 #define supportedPDFVersionNum 2.0
 
 // copyright notice
-#define xpdfCopyright "Copyright 1996-2019 Glyph & Cog, LLC"
+#define xpdfCopyright "Copyright 1996-2022 Glyph & Cog, LLC"
 
 // Windows resource file stuff
-#define winxpdfVersion "WinXpdf 4.02"
-#define xpdfCopyrightAmp "Copyright 1996-2019 Glyph && Cog, LLC"
+#define winxpdfVersion "WinXpdf 4.04"
+#define xpdfCopyrightAmp "Copyright 1996-2022 Glyph && Cog, LLC"
 
 //------------------------------------------------------------------------
 // paper size
@@ -59,12 +59,14 @@
 #endif
 
 // system config file name (set via the configure script)
-#ifdef SYSTEM_XPDFRC
-#define xpdfSysConfigFile SYSTEM_XPDFRC
-#else
+#if defined(_WIN32)
 // under Windows, we get the directory with the executable and then
 // append this file name
 #define xpdfSysConfigFile "xpdfrc"
+#elif defined(SYSTEM_XPDFRC)
+#define xpdfSysConfigFile SYSTEM_XPDFRC
+#else
+#define xpdfSysConfigFile "/etc/xpdfrc"
 #endif
 
 //------------------------------------------------------------------------

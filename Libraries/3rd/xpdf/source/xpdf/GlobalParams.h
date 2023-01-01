@@ -131,50 +131,68 @@ public:
   ~KeyBinding();
 };
 
-#define xpdfKeyCodeTab            0x1000
-#define xpdfKeyCodeReturn         0x1001
-#define xpdfKeyCodeEnter          0x1002
-#define xpdfKeyCodeBackspace      0x1003
-#define xpdfKeyCodeEsc            0x1004
-#define xpdfKeyCodeInsert         0x1005
-#define xpdfKeyCodeDelete         0x1006
-#define xpdfKeyCodeHome           0x1007
-#define xpdfKeyCodeEnd            0x1008
-#define xpdfKeyCodePgUp           0x1009
-#define xpdfKeyCodePgDn           0x100a
-#define xpdfKeyCodeLeft           0x100b
-#define xpdfKeyCodeRight          0x100c
-#define xpdfKeyCodeUp             0x100d
-#define xpdfKeyCodeDown           0x100e
-#define xpdfKeyCodeF1             0x1100
-#define xpdfKeyCodeF35            0x1122
-#define xpdfKeyCodeMousePress1    0x2001
-#define xpdfKeyCodeMousePress2    0x2002
-#define xpdfKeyCodeMousePress3    0x2003
-#define xpdfKeyCodeMousePress4    0x2004
-#define xpdfKeyCodeMousePress5    0x2005
-#define xpdfKeyCodeMousePress6    0x2006
-#define xpdfKeyCodeMousePress7    0x2007
+#define xpdfKeyCodeTab                0x1000
+#define xpdfKeyCodeReturn             0x1001
+#define xpdfKeyCodeEnter              0x1002
+#define xpdfKeyCodeBackspace          0x1003
+#define xpdfKeyCodeEsc                0x1004
+#define xpdfKeyCodeInsert             0x1005
+#define xpdfKeyCodeDelete             0x1006
+#define xpdfKeyCodeHome               0x1007
+#define xpdfKeyCodeEnd                0x1008
+#define xpdfKeyCodePgUp               0x1009
+#define xpdfKeyCodePgDn               0x100a
+#define xpdfKeyCodeLeft               0x100b
+#define xpdfKeyCodeRight              0x100c
+#define xpdfKeyCodeUp                 0x100d
+#define xpdfKeyCodeDown               0x100e
+#define xpdfKeyCodeF1                 0x1100
+#define xpdfKeyCodeF35                0x1122
+#define xpdfKeyCodeMousePress1        0x2001
+#define xpdfKeyCodeMousePress2        0x2002
+#define xpdfKeyCodeMousePress3        0x2003
+#define xpdfKeyCodeMousePress4        0x2004
+#define xpdfKeyCodeMousePress5        0x2005
+#define xpdfKeyCodeMousePress6        0x2006
+#define xpdfKeyCodeMousePress7        0x2007
 // ...
-#define xpdfKeyCodeMousePress32   0x2020
-#define xpdfKeyCodeMouseRelease1  0x2101
-#define xpdfKeyCodeMouseRelease2  0x2102
-#define xpdfKeyCodeMouseRelease3  0x2103
-#define xpdfKeyCodeMouseRelease4  0x2104
-#define xpdfKeyCodeMouseRelease5  0x2105
-#define xpdfKeyCodeMouseRelease6  0x2106
-#define xpdfKeyCodeMouseRelease7  0x2107
+#define xpdfKeyCodeMousePress32       0x2020
+#define xpdfKeyCodeMouseRelease1      0x2101
+#define xpdfKeyCodeMouseRelease2      0x2102
+#define xpdfKeyCodeMouseRelease3      0x2103
+#define xpdfKeyCodeMouseRelease4      0x2104
+#define xpdfKeyCodeMouseRelease5      0x2105
+#define xpdfKeyCodeMouseRelease6      0x2106
+#define xpdfKeyCodeMouseRelease7      0x2107
 // ...
-#define xpdfKeyCodeMouseRelease32 0x2120
-#define xpdfKeyCodeMouseClick1    0x2201
-#define xpdfKeyCodeMouseClick2    0x2202
-#define xpdfKeyCodeMouseClick3    0x2203
-#define xpdfKeyCodeMouseClick4    0x2204
-#define xpdfKeyCodeMouseClick5    0x2205
-#define xpdfKeyCodeMouseClick6    0x2206
-#define xpdfKeyCodeMouseClick7    0x2207
+#define xpdfKeyCodeMouseRelease32     0x2120
+#define xpdfKeyCodeMouseClick1        0x2201
+#define xpdfKeyCodeMouseClick2        0x2202
+#define xpdfKeyCodeMouseClick3        0x2203
+#define xpdfKeyCodeMouseClick4        0x2204
+#define xpdfKeyCodeMouseClick5        0x2205
+#define xpdfKeyCodeMouseClick6        0x2206
+#define xpdfKeyCodeMouseClick7        0x2207
 // ...
-#define xpdfKeyCodeMouseClick32   0x2220
+#define xpdfKeyCodeMouseClick32       0x2220
+#define xpdfKeyCodeMouseDoubleClick1  0x2301
+#define xpdfKeyCodeMouseDoubleClick2  0x2302
+#define xpdfKeyCodeMouseDoubleClick3  0x2303
+#define xpdfKeyCodeMouseDoubleClick4  0x2304
+#define xpdfKeyCodeMouseDoubleClick5  0x2305
+#define xpdfKeyCodeMouseDoubleClick6  0x2306
+#define xpdfKeyCodeMouseDoubleClick7  0x2307
+// ...
+#define xpdfKeyCodeMouseDoubleClick32 0x2320
+#define xpdfKeyCodeMouseTripleClick1  0x2401
+#define xpdfKeyCodeMouseTripleClick2  0x2402
+#define xpdfKeyCodeMouseTripleClick3  0x2403
+#define xpdfKeyCodeMouseTripleClick4  0x2404
+#define xpdfKeyCodeMouseTripleClick5  0x2405
+#define xpdfKeyCodeMouseTripleClick6  0x2406
+#define xpdfKeyCodeMouseTripleClick7  0x2407
+// ...
+#define xpdfKeyCodeMouseTripleClick32 0x2420
 #define xpdfKeyModNone            0
 #define xpdfKeyModShift           (1 << 0)
 #define xpdfKeyModCtrl            (1 << 1)
@@ -282,6 +300,7 @@ public:
   GBool getPSAlwaysRasterize();
   GBool getPSNeverRasterize();
   GString *getTextEncodingName();
+  GList *getAvailableTextEncodings();
   EndOfLineKind getTextEOL();
   GBool getTextPageBreaks();
   GBool getTextKeepTinyChars();
@@ -290,6 +309,7 @@ public:
   GString *getInitialDisplayMode();
   GBool getInitialToolbarState();
   GBool getInitialSidebarState();
+  int getInitialSidebarWidth();
   GString *getInitialSelectMode();
   int getMaxTileWidth();
   int getMaxTileHeight();
@@ -299,6 +319,7 @@ public:
   GBool getDisableFreeTypeHinting();
   GBool getAntialias();
   GBool getVectorAntialias();
+  GBool getImageMaskAntialias();
   GBool getAntialiasPrinting();
   StrokeAdjustMode getStrokeAdjust();
   ScreenType getScreenType();
@@ -311,10 +332,12 @@ public:
   GBool getEnablePathSimplification();
   GBool getDrawAnnotations();
   GBool getDrawFormFields();
+  GBool getEnableXFA();
   GBool getOverprintPreview() { return overprintPreview; }
   GString *getPaperColor();
   GString *getMatteColor();
   GString *getFullScreenMatteColor();
+  GString *getSelectionColor();
   GBool getReverseVideoInvertImages();
   GString *getLaunchCommand() { return launchCommand; }
   GString *getMovieCommand() { return movieCommand; }
@@ -322,16 +345,19 @@ public:
   GBool getMapNumericCharNames();
   GBool getMapUnknownCharNames();
   GBool getMapExtTrueTypeFontsViaUnicode();
+  GBool getUseTrueTypeUnicodeMapping();
   GBool isDroppedFont(const char *fontName);
-  GBool getEnableXFA();
   GList *getKeyBinding(int code, int mods, int context);
+  GList *getAllKeyBindings();
   int getNumPopupMenuCmds();
   PopupMenuCmd *getPopupMenuCmd(int idx);
   GString *getTabStateFile();
+  GBool getSavePageNumbers();
   GBool getPrintCommands();
+  GBool getPrintStatusInfo();
   GBool getErrQuiet();
   GString *getDebugLogFile();
-  void debugLogPrintf(char *fmt, ...);
+  void debugLogPrintf(const char *fmt, ...);
 
   CharCodeToUnicode *getCIDToUnicode(GString *collection);
   CharCodeToUnicode *getUnicodeToUnicode(GString *fontName);
@@ -381,9 +407,9 @@ public:
   void setMapNumericCharNames(GBool map);
   void setMapUnknownCharNames(GBool map);
   void setMapExtTrueTypeFontsViaUnicode(GBool map);
-  void setEnableXFA(GBool enable);
   void setTabStateFile(char *tabStateFileA);
   void setPrintCommands(GBool printCommandsA);
+  void setPrintStatusInfo(GBool printStatusInfoA);
   void setErrQuiet(GBool errQuietA);
 
 #ifdef _WIN32
@@ -395,8 +421,10 @@ public:
 
 private:
 
+  void setDataDirVar();
   void createDefaultKeyBindings();
   void parseFile(GString *fileName, FILE *f);
+  GList *parseLineTokens(char *buf, GString *fileName, int line);
   void parseNameToUnicode(GList *tokens, GString *fileName, int line);
   void parseCIDToUnicode(GList *tokens, GString *fileName, int line);
   void parseUnicodeToUnicode(GList *tokens, GString *fileName, int line);
@@ -441,9 +469,14 @@ private:
   NameToCharCode *		// mapping from char name to
     macRomanReverseMap;		//   MacRomanEncoding index
 
-  //----- user-modifiable settings
+  //----- meta settings
 
   GString *baseDir;		// base directory - for plugins, etc.
+  GHash *configFileVars;	// variables for use in the config file
+				//   [GString]
+
+  //----- user-modifiable settings
+
   NameToCharCode *		// mapping from char name to Unicode
     nameToUnicode;
   GHash *cidToUnicodes;		// files for mappings from char collections
@@ -525,6 +558,7 @@ private:
 				//   or closed (false)
   GBool initialSidebarState;	// initial sidebar state - open (true)
 				//   or closed (false)
+  int initialSidebarWidth;	// initial sidebar width
   GString *initialSelectMode;	// initial selection mode (block or linear)
   int maxTileWidth;		// maximum rasterization tile width
   int maxTileHeight;		// maximum rasterization tile height
@@ -534,6 +568,7 @@ private:
   GBool disableFreeTypeHinting;	// FreeType hinting disable flag
   GBool antialias;		// font anti-aliasing enable flag
   GBool vectorAntialias;	// vector anti-aliasing enable flag
+  GBool imageMaskAntialias;	// image mask anti-aliasing enable flag
   GBool antialiasPrinting;	// allow anti-aliasing when printing
   StrokeAdjustMode strokeAdjust; // stroke adjustment mode
   ScreenType screenType;	// halftone screen type
@@ -547,10 +582,12 @@ private:
     enablePathSimplification;
   GBool drawAnnotations;	// draw annotations or not
   GBool drawFormFields;		// draw form fields or not
+  GBool enableXFA;		// enable XFA form parsing
   GBool overprintPreview;	// enable overprint preview
   GString *paperColor;		// paper (page background) color
   GString *matteColor;		// matte (background outside of page) color
   GString *fullScreenMatteColor; // matte color in full-screen mode
+  GString *selectionColor;	// selection color
   GBool reverseVideoInvertImages; // invert images in reverse video mode
   GString *launchCommand;	// command executed for 'launch' links
   GString *movieCommand;	// command executed for movie annotations
@@ -560,12 +597,17 @@ private:
   GBool mapUnknownCharNames;	// map unknown char names?
   GBool mapExtTrueTypeFontsViaUnicode;  // map char codes to GID via Unicode
 				        //   for external TrueType fonts?
+  GBool useTrueTypeUnicodeMapping;	// use the Unicode cmaps in TrueType
+					//   fonts, rather than the PDF
+					//   ToUnicode mapping
   GHash *droppedFonts;		// dropped fonts [int]
-  GBool enableXFA;		// enable XFA form rendering
   GList *keyBindings;		// key & mouse button bindings [KeyBinding]
   GList *popupMenuCmds;		// popup menu commands [PopupMenuCmd]
   GString *tabStateFile;	// path for the tab state save file
+  GBool savePageNumbers;	// save page number when file is closed
+				//   and restore page number when opened
   GBool printCommands;		// print the drawing commands
+  GBool printStatusInfo;	// print status info for each page
   GBool errQuiet;		// suppress error messages?
   GString *debugLogFile;	// path for debug log file
 

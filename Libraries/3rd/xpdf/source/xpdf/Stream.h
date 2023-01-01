@@ -80,6 +80,13 @@ public:
 
   virtual GBool isEmbedStream() { return gFalse; }
 
+  // Disable checking for 'decompression bombs', i.e., cases where the
+  // encryption ratio looks suspiciously high.  This should be called
+  // for things like images which (a) can have very high compression
+  // ratios in certain cases, and (b) have fixed data sizes controlled
+  // by the reader.
+  virtual void disableDecompressionBombChecking() {}
+
   // Reset stream to beginning.
   virtual void reset() = 0;
 
@@ -192,6 +199,8 @@ public:
 
   FilterStream(Stream *strA);
   virtual ~FilterStream();
+  virtual void disableDecompressionBombChecking()
+    { str->disableDecompressionBombChecking(); }
   virtual void close();
   virtual GFileOffset getPos() { return str->getPos(); }
   virtual void setPos(GFileOffset pos, int dir = 0);
@@ -472,6 +481,7 @@ public:
   virtual ~LZWStream();
   virtual Stream *copy();
   virtual StreamKind getKind() { return strLZW; }
+  virtual void disableDecompressionBombChecking();
   virtual void reset();
   virtual int getChar();
   virtual int lookChar();
@@ -501,6 +511,9 @@ private:
   int seqLength;		// length of current sequence
   int seqIndex;			// index into current sequence
   GBool first;			// first code after a table clear
+  GBool checkForDecompressionBombs;
+  unsigned long long totalIn;	// total number of encoded bytes read so far
+  unsigned long long totalOut;	// total number of bytes decoded so far
 
   GBool processNextCode();
   void clearTable();
@@ -691,6 +704,7 @@ private:
 
 #else // HAVE_JPEGLIB
 
+  GBool prepared;		// set after prepare() is called
   GBool progressive;		// set if in progressive mode
   GBool interleaved;		// set if in interleaved mode
   int width, height;		// image size
@@ -722,6 +736,7 @@ private:
   int inputBuf;			// input buffer for variable length codes
   int inputBits;		// number of valid bits in input buffer
 
+  void prepare();
   void restart();
   GBool readMCURow();
   void readScan();
@@ -789,6 +804,7 @@ public:
   virtual ~FlateStream();
   virtual Stream *copy();
   virtual StreamKind getKind() { return strFlate; }
+  virtual void disableDecompressionBombChecking();
   virtual void reset();
   virtual int getChar();
   virtual int lookChar();
@@ -814,6 +830,9 @@ private:
   int blockLen;			// remaining length of uncompressed block
   GBool endOfBlock;		// set when end of block is reached
   GBool eof;			// set when end of stream is reached
+  GBool checkForDecompressionBombs;
+  unsigned long long totalIn;	// total number of encoded bytes read so far
+  unsigned long long totalOut;	// total number of bytes decoded so far
 
   static int			// code length code reordering
     codeLenCodeMap[flateMaxCodeLenCodes];

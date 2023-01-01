@@ -1730,7 +1730,7 @@ void FoFiTrueType::cvtCharStrings(char **encoding,
     if (encoding) {
       name = encoding[i];
     } else {
-      sprintf(buf2, "c%02x", i);
+      snprintf(buf2, sizeof(buf2), "c%02x", i);
       name = buf2;
     }
     if (name && strcmp(name, ".notdef")) {
@@ -2143,7 +2143,7 @@ Guint FoFiTrueType::computeTableChecksum(Guchar *data, int length) {
 
 void FoFiTrueType::parse(int fontNum, GBool allowHeadlessCFF) {
   Guint topTag;
-  int offset, pos, ver, i, j;
+  int offset, pos, ver, i, j, k;
 
   parsedOk = gTrue;
 
@@ -2206,7 +2206,7 @@ void FoFiTrueType::parse(int fontNum, GBool allowHeadlessCFF) {
   // check for the head table; allow for a head-less OpenType CFF font
   headlessCFF = gFalse;
   if (seekTable("head") < 0) {
-    if (openTypeCFF && allowHeadlessCFF) {
+    if (openTypeCFF && allowHeadlessCFF && seekTable("CFF ") >= 0) {
       headlessCFF = gTrue;
       nGlyphs = 0;
       bbox[0] = bbox[1] = bbox[2] = bbox[3] = 0;
@@ -2238,14 +2238,22 @@ void FoFiTrueType::parse(int fontNum, GBool allowHeadlessCFF) {
       return;
     }
     cmaps = (TrueTypeCmap *)gmallocn(nCmaps, sizeof(TrueTypeCmap));
+    k = 0;
     for (j = 0; j < nCmaps; ++j) {
-      cmaps[j].platform = getU16BE(pos, &parsedOk);
-      cmaps[j].encoding = getU16BE(pos + 2, &parsedOk);
-      cmaps[j].offset = tables[i].offset + getU32BE(pos + 4, &parsedOk);
+      cmaps[k].platform = getU16BE(pos, &parsedOk);
+      cmaps[k].encoding = getU16BE(pos + 2, &parsedOk);
+      cmaps[k].offset = getU32BE(pos + 4, &parsedOk);
       pos += 8;
-      cmaps[j].fmt = getU16BE(cmaps[j].offset, &parsedOk);
-      cmaps[j].len = getU16BE(cmaps[j].offset + 2, &parsedOk);
+      if (cmaps[k].offset >= tables[i].len) {
+	// skip any invalid subtables
+	continue;
+      }
+      cmaps[k].offset += tables[i].offset;
+      cmaps[k].fmt = getU16BE(cmaps[k].offset, &parsedOk);
+      cmaps[k].len = getU16BE(cmaps[k].offset + 2, &parsedOk);
+      ++k;
     }
+    nCmaps = k;
     if (!parsedOk) {
       return;
     }
@@ -2273,7 +2281,7 @@ void FoFiTrueType::parse(int fontNum, GBool allowHeadlessCFF) {
   // NB: out-of-bounds entries are handled in writeTTF()
   if (!openTypeCFF) {
     i = seekTable("loca");
-    if (tables[i].len < 0) {
+    if (tables[i].len < (locaFmt ? 4 : 2)) {
       parsedOk = gFalse;
       return;
     }

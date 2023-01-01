@@ -593,7 +593,8 @@ void SplashXPath::finishSegments() {
       seg->dydx = 0;
     }
 #else
-    if (seg->y0 == seg->y1 || seg->x0 == seg->x1) {
+    if (splashAbs(seg->y1 - seg->y0) < 1e-200 ||
+	splashAbs(seg->x1 - seg->x0) < 1e-200) {
       seg->dxdy = 0;
       seg->dydx = 0;
     } else {

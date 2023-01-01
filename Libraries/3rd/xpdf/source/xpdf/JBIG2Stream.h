@@ -48,6 +48,7 @@ public:
 
 private:
 
+  void decodeImage();
   void readSegments();
   GBool readSymbolDictSeg(Guint segNum, Guint length,
 			  Guint *refSegs, Guint nRefSegs);
@@ -117,6 +118,7 @@ private:
   GBool readULong(Guint *x);
   GBool readLong(int *x);
 
+  GBool decoded;
   Object globalsStream;
   Guint pageW, pageH, curPageH;
   Guint pageDefPixel;
@@ -128,6 +130,7 @@ private:
   Guchar *dataPtr;
   Guchar *dataEnd;
   Guint byteCounter;
+  GBool done;
 
   JArithmeticDecoder *arithDecoder;
   JArithmeticDecoderStats *genericRegionStats;

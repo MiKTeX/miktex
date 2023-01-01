@@ -63,6 +63,21 @@ SplashState::SplashState(int width, int height, GBool vectorAntialias,
   deleteSoftMask = gFalse;
   inNonIsolatedGroup = gFalse;
   inKnockoutGroup = gFalse;
+#if SPLASH_CMYK
+  rgbTransferR = (Guchar *)gmalloc(8 * 256);
+  rgbTransferG = rgbTransferR + 256;
+  rgbTransferB = rgbTransferG + 256;
+  grayTransfer = rgbTransferB + 256;
+  cmykTransferC = grayTransfer + 256;
+  cmykTransferM = cmykTransferC + 256;
+  cmykTransferY = cmykTransferM + 256;
+  cmykTransferK = cmykTransferY + 256;
+#else
+  rgbTransferR = (Guchar *)gmalloc(4 * 256);
+  rgbTransferG = rgbTransferR + 256;
+  rgbTransferB = rgbTransferG + 256;
+  grayTransfer = rgbTransferB + 256;
+#endif
   for (i = 0; i < 256; ++i) {
     rgbTransferR[i] = (Guchar)i;
     rgbTransferG[i] = (Guchar)i;
@@ -75,6 +90,7 @@ SplashState::SplashState(int width, int height, GBool vectorAntialias,
     cmykTransferK[i] = (Guchar)i;
 #endif
   }
+  transferIsShared = gFalse;
   overprintMask = 0xffffffff;
   enablePathSimplification = gFalse;
   next = NULL;
@@ -110,6 +126,21 @@ SplashState::SplashState(int width, int height, GBool vectorAntialias,
   deleteSoftMask = gFalse;
   inNonIsolatedGroup = gFalse;
   inKnockoutGroup = gFalse;
+#if SPLASH_CMYK
+  rgbTransferR = (Guchar *)gmalloc(8 * 256);
+  rgbTransferG = rgbTransferR + 256;
+  rgbTransferB = rgbTransferG + 256;
+  grayTransfer = rgbTransferB + 256;
+  cmykTransferC = grayTransfer + 256;
+  cmykTransferM = cmykTransferC + 256;
+  cmykTransferY = cmykTransferM + 256;
+  cmykTransferK = cmykTransferY + 256;
+#else
+  rgbTransferR = (Guchar *)gmalloc(4 * 256);
+  rgbTransferG = rgbTransferR + 256;
+  rgbTransferB = rgbTransferG + 256;
+  grayTransfer = rgbTransferB + 256;
+#endif
   for (i = 0; i < 256; ++i) {
     rgbTransferR[i] = (Guchar)i;
     rgbTransferG[i] = (Guchar)i;
@@ -122,6 +153,7 @@ SplashState::SplashState(int width, int height, GBool vectorAntialias,
     cmykTransferK[i] = (Guchar)i;
 #endif
   }
+  transferIsShared = gFalse;
   overprintMask = 0xffffffff;
   enablePathSimplification = gFalse;
   next = NULL;
@@ -156,16 +188,17 @@ SplashState::SplashState(SplashState *state) {
   deleteSoftMask = gFalse;
   inNonIsolatedGroup = state->inNonIsolatedGroup;
   inKnockoutGroup = state->inKnockoutGroup;
-  memcpy(rgbTransferR, state->rgbTransferR, 256);
-  memcpy(rgbTransferG, state->rgbTransferG, 256);
-  memcpy(rgbTransferB, state->rgbTransferB, 256);
-  memcpy(grayTransfer, state->grayTransfer, 256);
+  rgbTransferR = state->rgbTransferR;
+  rgbTransferG = state->rgbTransferG;
+  rgbTransferB = state->rgbTransferB;
+  grayTransfer = state->grayTransfer;
 #if SPLASH_CMYK
-  memcpy(cmykTransferC, state->cmykTransferC, 256);
-  memcpy(cmykTransferM, state->cmykTransferM, 256);
-  memcpy(cmykTransferY, state->cmykTransferY, 256);
-  memcpy(cmykTransferK, state->cmykTransferK, 256);
+  cmykTransferC = state->cmykTransferC;
+  cmykTransferM = state->cmykTransferM;
+  cmykTransferY = state->cmykTransferY;
+  cmykTransferK = state->cmykTransferK;
 #endif
+  transferIsShared = gTrue;
   overprintMask = state->overprintMask;
   enablePathSimplification = state->enablePathSimplification;
   next = NULL;
@@ -178,6 +211,9 @@ SplashState::~SplashState() {
   gfree(lineDash);
   if (!clipIsShared) {
     delete clip;
+  }
+  if (!transferIsShared) {
+    gfree(rgbTransferR);
   }
   if (deleteSoftMask && softMask) {
     delete softMask;
@@ -265,12 +301,12 @@ SplashError SplashState::clipToPath(SplashPath *path, GBool eo) {
 			  enablePathSimplification, strokeAdjust);
 }
 
-void SplashState::setSoftMask(SplashBitmap *softMaskA) {
+void SplashState::setSoftMask(SplashBitmap *softMaskA, GBool deleteBitmap) {
   if (deleteSoftMask) {
     delete softMask;
   }
   softMask = softMaskA;
-  deleteSoftMask = gTrue;
+  deleteSoftMask = deleteBitmap;
 }
 
 void SplashState::setTransfer(Guchar *red, Guchar *green, Guchar *blue,
@@ -279,6 +315,24 @@ void SplashState::setTransfer(Guchar *red, Guchar *green, Guchar *blue,
   int i;
 #endif
 
+  if (transferIsShared) {
+#if SPLASH_CMYK
+    rgbTransferR = (Guchar *)gmalloc(8 * 256);
+    rgbTransferG = rgbTransferR + 256;
+    rgbTransferB = rgbTransferG + 256;
+    grayTransfer = rgbTransferB + 256;
+    cmykTransferC = grayTransfer + 256;
+    cmykTransferM = cmykTransferC + 256;
+    cmykTransferY = cmykTransferM + 256;
+    cmykTransferK = cmykTransferY + 256;
+#else
+    rgbTransferR = (Guchar *)gmalloc(4 * 256);
+    rgbTransferG = rgbTransferR + 256;
+    rgbTransferB = rgbTransferG + 256;
+    grayTransfer = rgbTransferB + 256;
+#endif
+    transferIsShared = gFalse;
+  }
   memcpy(rgbTransferR, red, 256);
   memcpy(rgbTransferG, green, 256);
   memcpy(rgbTransferB, blue, 256);

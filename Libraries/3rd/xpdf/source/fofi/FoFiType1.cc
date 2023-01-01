@@ -114,7 +114,7 @@ void FoFiType1::writeEncoded(const char **newEncoding,
 		"0 1 255 {1 index exch /.notdef put} for\n", 40);
   for (i = 0; i < 256; ++i) {
     if (newEncoding[i]) {
-      sprintf(buf, "dup %d /%s put\n", i, newEncoding[i]);
+      snprintf(buf, sizeof(buf), "dup %d /%s put\n", i, newEncoding[i]);
       (*outputFunc)(outputStream, buf, (int)strlen(buf));
     }
   }

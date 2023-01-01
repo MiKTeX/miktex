@@ -18,6 +18,7 @@
 #endif
 
 #include "gtypes.h"
+#include "FoFiBase.h"
 #include "GfxFont.h"
 
 class FoFiTrueType;
@@ -45,13 +46,23 @@ public:
   // called if canWriteTTF() returns true.  Returns true on success.
   GBool writeTTF(const char *fontFilePath);
 
+  // Return the TrueType file as a string.  This can only be called if
+  // canWriteTTF() returns true.  Returns null on error.
+  GString *getTTFData();
+
   // Write an OpenType (.otf) file to [fontFilePath].  This can only
   // be called if canWriteOTF() returns true.  Returns true on
   // success.
   GBool writeOTF(const char *fontFilePath);
 
+  // Return the OpenType file as a string.  This can only be called if
+  // canWriteOTF() returns true.  Returns null on error.
+  GString *getOTFData();
+
 private:
 
+  GBool generateTTF(FoFiOutputFunc outFunc, void *stream);
+  GBool generateOTF(FoFiOutputFunc outFunc, void *stream);
   Gushort *makeType1CWidths(int *codeToGID, int nCodes, int *nWidths);
   Gushort *makeCIDType0CWidths(int *codeToGID, int nCodes, int *nWidths);
   Guchar *makeUnicodeCmapTable(int *codeToGID, int nCodes,

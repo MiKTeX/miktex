@@ -16,6 +16,8 @@
 #include <limits.h>
 #include "gmem.h"
 #include "gmempp.h"
+#include "gfile.h"
+#include "Trace.h"
 #include "SplashErrorCodes.h"
 #include "SplashBitmap.h"
 
@@ -64,6 +66,11 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
   rowSize += rowPad - 1;
   rowSize -= rowSize % rowPad;
 
+  traceAlloc(this, "alloc bitmap: %d x %d x %d %s -> %lld bytes",
+	     width, height, splashColorModeNComps[mode],
+	     alphaA ? "with alpha" : "without alpha",
+	     height * rowSize + (alphaA ? height * width : 0));
+
   parent = parentA;
   oldData = NULL;
   oldAlpha = NULL;
@@ -75,8 +82,14 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
       parent->oldHeight == height) {
     data = parent->oldData;
     parent->oldData = NULL;
+    traceMessage("reusing bitmap memory");
   } else {
     data = (SplashColorPtr)gmallocn64(height, rowSize);
+    traceMessage("not reusing bitmap memory"
+		 " (parent=%p parent->oldData=%p same-size=%d)",
+		 parent, parent ? parent->oldData : NULL,
+		 parent ? (parent->oldRowSize == rowSize &&
+			   parent->oldHeight == height) : 0);
   }
   if (!topDown) {
     data += (height - 1) * rowSize;
@@ -99,11 +112,12 @@ SplashBitmap::SplashBitmap(int widthA, int heightA, int rowPad,
 }
 
 SplashBitmap::~SplashBitmap() {
+  traceFree(this, "free bitmap");
   if (data && rowSize < 0) {
     rowSize = -rowSize;
     data -= (height - 1) * rowSize;
   }
-  if (parent && rowSize > 10000000 / height) {
+  if (parent && rowSize > 4000000 / height) {
     gfree(parent->oldData);
     gfree(parent->oldAlpha);
     parent->oldData = data;
@@ -123,7 +137,7 @@ SplashError SplashBitmap::writePNMFile(char *fileName) {
   FILE *f;
   SplashError err;
 
-  if (!(f = fopen(fileName, "wb"))) {
+  if (!(f = openFile(fileName, "wb"))) {
     return splashErrOpenFile;
   }
   err = writePNMFile(f);
@@ -211,7 +225,7 @@ SplashError SplashBitmap::writeAlphaPGMFile(char *fileName) {
   if (!alpha) {
     return splashErrModeMismatch;
   }
-  if (!(f = fopen(fileName, "wb"))) {
+  if (!(f = openFile(fileName, "wb"))) {
     return splashErrOpenFile;
   }
   fprintf(f, "P5\n%d %d\n255\n", width, height);

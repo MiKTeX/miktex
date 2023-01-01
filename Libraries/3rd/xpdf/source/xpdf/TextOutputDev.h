@@ -42,10 +42,17 @@ enum TextOutputMode {
   textOutReadingOrder,		// format into reading order
   textOutPhysLayout,		// maintain original physical layout
   textOutSimpleLayout,		// simple one-column physical layout
+  textOutSimple2Layout,		// simple one-column physical layout
   textOutTableLayout,		// similar to PhysLayout, but optimized
 				//   for tables
   textOutLinePrinter,		// strict fixed-pitch/height layout
   textOutRawOrder		// keep text in content stream order
+};
+
+enum TextOutputOverlapHandling {
+  textOutIgnoreOverlaps,	// no special handling for overlaps
+  textOutAppendOverlaps,	// append overlapping text to main text
+  textOutDiscardOverlaps	// discard overlapping text
 };
 
 class TextOutputControl {
@@ -66,8 +73,17 @@ public:
 				//   in after forming columns
   GBool discardDiagonalText;	// discard all text that's not close to
 				//   0/90/180/270 degrees
+  GBool discardRotatedText;	// discard all text that's not horizontal
+				//   (0 degrees)
   GBool discardInvisibleText;	// discard all invisible characters
   GBool discardClippedText;	// discard all clipped characters
+  GBool splitRotatedWords;	// do not combine horizontal and
+				//   non-horizontal chars in a single
+				//   word
+  TextOutputOverlapHandling	// how to handle overlapping text
+               overlapHandling;
+  GBool separateLargeChars;	// separate "large" characters from
+				//   "regular" characters
   GBool insertBOM;		// insert a Unicode BOM at the start of
 				//   the text output
   double marginLeft,		// characters outside the margins are
@@ -83,7 +99,12 @@ public:
 class TextFontInfo {
 public:
 
+  // Create a TextFontInfo for the current font in [state].
   TextFontInfo(GfxState *state);
+
+  // Create a dummy TextFontInfo.
+  TextFontInfo();
+
   ~TextFontInfo();
 
   GBool matches(GfxState *state);
@@ -124,7 +145,7 @@ class TextWord {
 public:
 
   TextWord(GList *chars, int start, int lenA,
-	   int rotA, int dirA, GBool spaceAfterA);
+	   int rotA, GBool rotatedA, int dirA, GBool spaceAfterA);
   ~TextWord();
   TextWord *copy() { return new TextWord(this); }
 
@@ -144,6 +165,7 @@ public:
 		   double *xMaxA, double *yMaxA);
   double getFontSize() { return fontSize; }
   int getRotation() { return rot; }
+  GBool isRotated() { return (GBool)rotated; }
   int getCharPos() { return charPos[0]; }
   int getCharLen() { return charPos[len] - charPos[0]; }
   int getDirection() { return dir; }
@@ -158,8 +180,6 @@ private:
   static int cmpYX(const void *p1, const void *p2);
   static int cmpCharPos(const void *p1, const void *p2);
 
-  int rot;			// rotation, multiple of 90 degrees
-				//   (0, 1, 2, or 3)
   double xMin, xMax;		// bounding box x coordinates
   double yMin, yMax;		// bounding box y coordinates
   Unicode *text;		// the text
@@ -171,18 +191,21 @@ private:
   int len;			// number of characters
   TextFontInfo *font;		// font information
   double fontSize;		// font size
-  int dir;			// character direction (+1 = left-to-right;
-				//   -1 = right-to-left; 0 = neither)
-  GBool spaceAfter;		// set if there is a space between this
-				//   word and the next word on the line
-
-  GBool underlined;
   TextLink *link;
-
   double colorR,		// word color
          colorG,
          colorB;
   GBool invisible;		// set for invisible text (render mode 3)
+
+  // group the byte-size fields to minimize object size
+  Guchar rot;			// rotation, multiple of 90 degrees
+				//   (0, 1, 2, or 3)
+  char rotated;			// set if this word is non-horizontal
+  char dir;			// character direction (+1 = left-to-right;
+				//   -1 = right-to-left; 0 = neither)
+  char spaceAfter;		// set if there is a space between this
+				//   word and the next word on the line
+  char underlined;
 
   friend class TextBlock;
   friend class TextLine;
@@ -207,8 +230,10 @@ public:
   double getBaseline();
   int getRotation() { return rot; }
   GList *getWords() { return words; }
+  Unicode *getUnicode() { return text; }
   int getLength() { return len; }
   double getEdge(int idx) { return edge[idx]; }
+  GBool getHyphenated() { return hyphenated; }
 
 private:
 
@@ -407,6 +432,16 @@ public:
   // are no columns.
   GBool findPointNear(double x, double y, TextPosition *pos);
 
+  // Find the start and end of a word inside a column.  Returns false
+  // if x,y fall outside all columns.
+  GBool findWordPoints(double x, double y,
+		       TextPosition *startPos, TextPosition *endPos);
+
+  // Find the start and end of a line inside a column.  Returns false
+  // if x,y fall outside all columns.
+  GBool findLinePoints(double x, double y,
+		       TextPosition *startPos, TextPosition *endPos);
+
   // Get the upper point of a TextPosition.
   void convertPosToPointUpper(TextPosition *pos, double *x, double *y);
 
@@ -447,6 +482,16 @@ public:
   // be problematic when converting text to Unicode.
   GBool problematicForUnicode() { return problematic; }
 
+  // Add a 'special' character to this TextPage.  This is currently
+  // used by pdftohtml to insert markers for form fields.
+  void addSpecialChar(double xMin, double yMin, double xMax, double yMax,
+		      int rot, TextFontInfo *font, double fontSize,
+		      Unicode u);
+
+  // Remove characters that fall inside a region.
+  void removeChars(double xMin, double yMin, double xMax, double yMax,
+		   double xOverlapThresh, double yOverlapThresh);
+
 private:
 
   void startPage(GfxState *state);
@@ -478,6 +523,11 @@ private:
 			 UnicodeMap *uMap,
 			 char *space, int spaceLen,
 			 char *eol, int eolLen);
+  void writeSimple2Layout(void *outputStream,
+			  TextOutputFunc outputFunc,
+			  UnicodeMap *uMap,
+			  char *space, int spaceLen,
+			  char *eol, int eolLen);
   void writeLinePrinter(void *outputStream,
 			TextOutputFunc outputFunc,
 			UnicodeMap *uMap,
@@ -490,24 +540,33 @@ private:
 		char *eol, int eolLen);
   void encodeFragment(Unicode *text, int len, UnicodeMap *uMap,
 		      GBool primaryLR, GString *s);
+  GBool unicodeEffectiveTypeLOrNum(Unicode u, Unicode left, Unicode right);
+  GBool unicodeEffectiveTypeR(Unicode u, Unicode left, Unicode right);
 
   // analysis
   int rotateChars(GList *charsA);
+  void rotateCharsToZero(GList *charsA);
   void rotateUnderlinesAndLinks(int rot);
   void unrotateChars(GList *charsA, int rot);
+  void unrotateCharsFromZero(GList *charsA);
+  void unrotateColumnsFromZero(GList *columns);
   void unrotateColumns(GList *columns, int rot);
   void unrotateWords(GList *words, int rot);
   GBool checkPrimaryLR(GList *charsA);
   void removeDuplicates(GList *charsA, int rot);
+  GList *separateOverlappingText(GList *charsA);
+  TextColumn *buildOverlappingTextColumn(GList *overlappingChars);
   TextBlock *splitChars(GList *charsA);
-  TextBlock *split(GList *charsA, int rot);
+  TextBlock *split(GList *charsA, int rot, GBool vertOnly);
   GList *getChars(GList *charsA, double xMin, double yMin,
 		  double xMax, double yMax);
   void findGaps(GList *charsA, int rot,
 		double *xMinOut, double *yMinOut,
 		double *xMaxOut, double *yMaxOut,
-		double *avgFontSizeOut,
+		double *avgFontSizeOut, double *minFontSizeOut,
+		GList *splitLines,
 		TextGaps *horizGaps, TextGaps *vertGaps);
+  void mergeSplitLines(GList *charsA, int rot, GList *splitLines);
   void tagBlock(TextBlock *blk);
   void insertLargeChars(GList *largeChars, TextBlock *blk);
   void insertLargeCharsInFirstLeaf(GList *largeChars, TextBlock *blk);
@@ -522,11 +581,16 @@ private:
   double getLineIndent(TextLine *line, TextBlock *blk);
   double getAverageLineSpacing(GList *lines);
   double getLineSpacing(TextLine *line0, TextLine *line1);
-  void buildLines(TextBlock *blk, GList *lines);
+  void buildLines(TextBlock *blk, GList *lines, GBool splitSuperLines);
+  GList *buildSimple2Columns(GList *charsA);
+  GList *buildSimple2Lines(GList *charsA, int rot);
   TextLine *buildLine(TextBlock *blk);
+  TextLine *buildLine(GList *charsA, int rot,
+		      double xMin, double yMin, double xMax, double yMax);
   void getLineChars(TextBlock *blk, GList *charsA);
   double computeWordSpacingThreshold(GList *charsA, int rot);
   int getCharDirection(TextChar *ch);
+  int getCharDirection(TextChar *ch, TextChar *left, TextChar *right);
   int assignPhysLayoutPositions(GList *columns);
   void assignLinePhysPositions(GList *columns);
   void computeLinePhysWidth(TextLine *line, UnicodeMap *uMap);
@@ -563,6 +627,7 @@ private:
   int curRot;			// current rotation
   GBool diagonal;		// set if rotation is not close to
 				//   0/90/180/270 degrees
+  GBool rotated;		// set if text is not horizontal (0 degrees)
   int nTinyChars;		// number of "tiny" chars seen so far
   Unicode *actualText;		// current "ActualText" span
   int actualTextLen;
@@ -605,7 +670,7 @@ public:
   // is maintained.  If <rawOrder> is true, the text is kept in
   // content stream order.
   TextOutputDev(char *fileName, TextOutputControl *controlA,
-		GBool append);
+		GBool append, GBool fileNameIsUTF8 = gFalse);
 
   // Create a TextOutputDev which will write to a generic stream.  If
   // <physLayoutA> is true, the original physical layout of the text

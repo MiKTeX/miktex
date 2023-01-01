@@ -23,7 +23,7 @@
 #include "Dict.h"
 #include "GfxFont.h"
 #include "Annot.h"
-#include "Form.h"
+#include "AcroForm.h"
 #include "PDFDoc.h"
 #include "config.h"
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
   Page *page;
   Dict *resDict;
   Annots *annots;
-  Form *form;
+  AcroForm *form;
   Object obj1, obj2;
   int pg, i, j;
   int exitCode;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
   fixCommandLine(&argc, &argv);
   ok = parseArgs(argDesc, &argc, argv);
   if (!ok || argc != 2 || printVersion || printHelp) {
-    fprintf(stderr, "pdffonts version %s\n", xpdfVersion);
+    fprintf(stderr, "pdffonts version %s [www.xpdfreader.com]\n", xpdfVersion);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdffonts", "<PDF-file>", argDesc);
@@ -123,6 +123,10 @@ int main(int argc, char *argv[]) {
   fileName = argv[1];
 
   // read config file
+  if (cfgFileName[0] && !pathIsFile(cfgFileName)) {
+    error(errConfig, -1, "Config file '{0:s}' doesn't exist or isn't a file",
+	  cfgFileName);
+  }
   globalParams = new GlobalParams(cfgFileName);
   globalParams->setupBaseFonts(NULL);
 

@@ -11,18 +11,21 @@
 #include <aconf.h>
 
 #if defined(MIKTEX)
-#  if defined(MIKTEX_WINDOWS)
-#    define MIKTEX_UTF8_WRAP_ALL 1
-#    include <miktex/utf8wrap.h>
-#  endif
-#  include <miktex/Core/Directory>
-#  include <miktex/Util/PathName>
+#if defined(MIKTEX_WINDOWS)
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#endif
+#include <miktex/Core/Directory>
+#include <miktex/Util/PathName>
 #endif
 #ifdef _WIN32
 #  undef WIN32_LEAN_AND_MEAN
 #  include <windows.h>
 #  include <time.h>
 #  include <direct.h>
+#  include <shobjidl.h>
+#  include <shlguid.h>
 #else
 #  if !defined(ACORN)
 #    include <sys/types.h>
@@ -57,8 +60,19 @@ GString *getHomeDir() {
   //---------- VMS ----------
   return new GString("SYS$LOGIN:");
 
-#elif defined(__EMX__) || defined(_WIN32)
-  //---------- OS/2+EMX and Win32 ----------
+#elif defined(_WIN32)
+  //---------- Win32 ----------
+  char *s;
+  GString *ret;
+
+  if ((s = getenv("USERPROFILE")))
+    ret = new GString(s);
+  else
+    ret = new GString(".");
+  return ret;
+
+#elif defined(__EMX__)
+  //---------- OS/2+EMX ----------
   char *s;
   GString *ret;
 
@@ -347,11 +361,11 @@ GString *makePathAbsolute(GString *path) {
 
 #elif defined(_WIN32)
   //---------- Win32 ----------
-  char buf[_MAX_PATH];
+  char buf[MAX_PATH];
   char *fp;
 
   buf[0] = '\0';
-  if (!GetFullPathNameA(path->getCString(), _MAX_PATH, buf, &fp)) {
+  if (!GetFullPathNameA(path->getCString(), MAX_PATH, buf, &fp)) {
     path->clear();
     return path;
   }
@@ -407,6 +421,19 @@ GString *makePathAbsolute(GString *path) {
     }
   }
   return path;
+#endif
+}
+
+GBool pathIsFile(const char *path) {
+#if !defined(MIKTEX) && defined(_WIN32)
+  wchar_t wPath[winMaxLongPath + 1];
+  fileNameToUCS2(path, wPath, winMaxLongPath + 1);
+  DWORD attr = GetFileAttributesW(wPath);
+  return attr != INVALID_FILE_ATTRIBUTES &&
+         !(attr & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_DEVICE));
+#else
+  struct stat statBuf;
+  return stat(path, &statBuf) == 0 && S_ISREG(statBuf.st_mode);
 #endif
 }
 
@@ -541,7 +568,7 @@ GBool openTempFile(GString **name, FILE **f,
 
 GBool createDir(char *path, int mode) {
 #ifdef _WIN32
-  return !mkdir(path);
+  return !_mkdir(path);
 #else
   return !mkdir(path, mode);
 #endif
@@ -592,71 +619,113 @@ GString *fileNameToUTF8(wchar_t *path) {
   }
   return s;
 }
+
+wchar_t *fileNameToUCS2(const char *path, wchar_t *out, size_t outSize) {
+  const char *p;
+  size_t i;
+
+  for (p = path, i = 0; *p && i < outSize - 1; ++i) {
+    if ((p[0] & 0xe0) == 0xc0 &&
+	p[1] && (p[1] & 0xc0) == 0x80) {
+      out[i] = (wchar_t)(((p[0] & 0x1f) << 6) |
+			  (p[1] & 0x3f));
+      p += 2;
+    } else if ((p[0] & 0xf0) == 0xe0 &&
+	       (p[1] & 0xc0) == 0x80 &&
+	       (p[2] & 0xc0) == 0x80) {
+      out[i] = (wchar_t)(((p[0] & 0x0f) << 12) |
+			 ((p[1] & 0x3f) << 6) |
+			  (p[2] & 0x3f));
+      p += 3;
+    } else {
+      out[i] = (wchar_t)(p[0] & 0xff);
+      p += 1;
+    }
+  }
+  out[i] = (wchar_t)0;
+  return out;
+}
 #endif
 #endif
 
 FILE *openFile(const char *path, const char *mode) {
 #if !defined(MIKTEX) && defined(_WIN32)
-  OSVERSIONINFO version;
-  wchar_t wPath[_MAX_PATH + 1];
-  char nPath[_MAX_PATH + 1];
+  wchar_t wPath[winMaxLongPath + 1];
   wchar_t wMode[8];
-  const char *p;
   int i;
 
-  // NB: _wfopen is only available in NT
-  version.dwOSVersionInfoSize = sizeof(version);
-  GetVersionEx(&version);
-  if (version.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-    for (p = path, i = 0; *p && i < _MAX_PATH; ++i) {
-      if ((p[0] & 0xe0) == 0xc0 &&
-	  p[1] && (p[1] & 0xc0) == 0x80) {
-	wPath[i] = (wchar_t)(((p[0] & 0x1f) << 6) |
-			     (p[1] & 0x3f));
-	p += 2;
-      } else if ((p[0] & 0xf0) == 0xe0 &&
-		 p[1] && (p[1] & 0xc0) == 0x80 &&
-		 p[2] && (p[2] & 0xc0) == 0x80) {
-	wPath[i] = (wchar_t)(((p[0] & 0x0f) << 12) |
-			     ((p[1] & 0x3f) << 6) |
-			     (p[2] & 0x3f));
-	p += 3;
-      } else {
-	wPath[i] = (wchar_t)(p[0] & 0xff);
-	p += 1;
-      }
-    }
-    wPath[i] = (wchar_t)0;
-    for (i = 0; mode[i] && i < sizeof(wMode)/sizeof(wchar_t) - 1; ++i) {
-      wMode[i] = (wchar_t)(mode[i] & 0xff);
-    }
-    wMode[i] = (wchar_t)0;
-    return _wfopen(wPath, wMode);
-  } else {
-    for (p = path, i = 0; *p && i < _MAX_PATH; ++i) {
-      if ((p[0] & 0xe0) == 0xc0 &&
-	  p[1] && (p[1] & 0xc0) == 0x80) {
-	nPath[i] = (char)(((p[0] & 0x1f) << 6) |
-			  (p[1] & 0x3f));
-	p += 2;
-      } else if ((p[0] & 0xf0) == 0xe0 &&
-		 p[1] && (p[1] & 0xc0) == 0x80 &&
-		 p[2] && (p[2] & 0xc0) == 0x80) {
-	nPath[i] = (char)(((p[1] & 0x3f) << 6) |
-			  (p[2] & 0x3f));
-	p += 3;
-      } else {
-	nPath[i] = p[0];
-	p += 1;
-      }
-    }
-    nPath[i] = '\0';
-    return fopen(nPath, mode);
+  fileNameToUCS2(path, wPath, winMaxLongPath + 1);
+  for (i = 0; mode[i] && i < sizeof(wMode)/sizeof(wchar_t) - 1; ++i) {
+    wMode[i] = (wchar_t)(mode[i] & 0xff);
   }
+  wMode[i] = (wchar_t)0;
+  readWindowsShortcut(wPath, winMaxLongPath + 1);
+  return _wfopen(wPath, wMode);
 #elif defined(VMS)
   return fopen(path, mode, "ctx=stm");
 #else
   return fopen(path, mode);
+#endif
+}
+
+#if !defined(MIKTEX)
+#ifdef _WIN32
+void readWindowsShortcut(wchar_t *wPath, size_t wPathSize) {
+  size_t n = wcslen(wPath);
+  if (n < 4 || wcscmp(wPath + n - 4, L".lnk")) {
+    return;
+  }
+  IShellLinkW *shellLink;
+  HRESULT hres;
+  hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+			  IID_IShellLinkW, (LPVOID *)&shellLink);
+  bool needCoUninit = false;
+  if (hres == CO_E_NOTINITIALIZED) {
+    CoInitialize(NULL);
+    needCoUninit = true;
+    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+			    IID_IShellLinkW, (LPVOID *)&shellLink);
+  }
+  if (FAILED(hres)) {
+    return;
+  }
+  IPersistFile *persistFile;
+  hres = shellLink->QueryInterface(IID_IPersistFile, (LPVOID *)&persistFile);
+  if (FAILED(hres)) {
+    return;
+  }
+  hres = persistFile->Load(wPath, STGM_READ);
+  if (FAILED(hres)) {
+    fprintf(stderr, "IPersistFile.Load failed: 0x%08x\n", hres);
+    exit(1);
+  }
+  wchar_t target[winMaxLongPath + 1];
+  hres = shellLink->GetPath(target, winMaxLongPath + 1, NULL, 0);
+  if (FAILED(hres)) {
+    return;
+  }
+  shellLink->Release();
+  if (needCoUninit) {
+    CoUninitialize();
+  }
+  if (wcslen(target) > wPathSize - 1) {
+    return;
+  }
+  wcscpy(wPath, target);
+}
+#endif
+#endif
+
+int makeDir(const char *path, int mode) {
+#if defined(MIKTEX_WINDOWS)
+  return mkdir(path);
+#else
+#ifdef _WIN32
+  wchar_t wPath[winMaxLongPath + 1];
+  return _wmkdir(fileNameToUCS2(path, wPath, winMaxLongPath + 1));
+#else
+  return mkdir(path, (mode_t)mode);
+#endif
 #endif
 }
 

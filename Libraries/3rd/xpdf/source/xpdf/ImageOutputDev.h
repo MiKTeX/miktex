@@ -85,12 +85,13 @@ public:
   virtual void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
 			       int width, int height,
 			       GfxImageColorMap *colorMap,
-			       Stream *maskStr, int maskWidth, int maskHeight,
+			       Object *maskRef, Stream *maskStr,
+			       int maskWidth, int maskHeight,
 			       GBool maskInvert, GBool interpolate);
   virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
 				   int width, int height,
 				   GfxImageColorMap *colorMap,
-				   Stream *maskStr,
+				   Object *maskRef, Stream *maskStr,
 				   int maskWidth, int maskHeight,
 				   GfxImageColorMap *maskColorMap,
 				   double *matte, GBool interpolate);
@@ -99,11 +100,11 @@ private:
 
   Stream *getRawStream(Stream *str);
   const char *getRawFileExtension(Stream *str);
-  void writeImageInfo(int width, int height, GfxState *state,
+  void writeImageInfo(GString *fileName,
+		      int width, int height, GfxState *state,
 		      GfxImageColorMap *colorMap);
 
   char *fileRoot;		// root of output file names
-  char *fileName;		// buffer for output file names
   GBool dumpJPEG;		// set to dump native JPEG files
   GBool dumpRaw;		// set to dump raw PDF-native image files
   GBool list;			// set to write image info to stdout

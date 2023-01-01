@@ -20,6 +20,7 @@
 #include "gmem.h"
 #include "gmempp.h"
 #include "GString.h"
+#include "GList.h"
 #include "SplashMath.h"
 #include "SplashFTFontEngine.h"
 #include "SplashFontFile.h"
@@ -48,6 +49,7 @@ SplashFontEngine::SplashFontEngine(
   for (i = 0; i < splashFontCacheSize; ++i) {
     fontCache[i] = NULL;
   }
+  badFontFiles = new GList();
 
 #if HAVE_FREETYPE_H
   if (enableFreeType) {
@@ -66,6 +68,7 @@ SplashFontEngine::~SplashFontEngine() {
       delete fontCache[i];
     }
   }
+  deleteGList(badFontFiles, SplashFontFileID);
 
 #if HAVE_FREETYPE_H
   if (ftEngine) {
@@ -87,6 +90,15 @@ SplashFontFile *SplashFontEngine::getFontFile(SplashFontFileID *id) {
     }
   }
   return NULL;
+}
+
+GBool SplashFontEngine::checkForBadFontFile(SplashFontFileID *id) {
+  for (int i = 0; i < badFontFiles->getLength(); ++i) {
+    if (((SplashFontFileID *)badFontFiles->get(i))->matches(id)) {
+      return gTrue;
+    }
+  }
+  return gFalse;
 }
 
 SplashFontFile *SplashFontEngine::loadType1Font(SplashFontFileID *idA,
@@ -121,6 +133,10 @@ SplashFontFile *SplashFontEngine::loadType1Font(SplashFontFileID *idA,
     unlink(fontFile ? fontFile->fileName->getCString() : fileName);
   }
 #endif
+
+  if (!fontFile) {
+    badFontFiles->append(idA);
+  }
 
   return fontFile;
 }
@@ -162,6 +178,10 @@ SplashFontFile *SplashFontEngine::loadType1CFont(SplashFontFileID *idA,
   }
 #endif
 
+  if (!fontFile) {
+    badFontFiles->append(idA);
+  }
+
   return fontFile;
 }
 
@@ -201,6 +221,10 @@ SplashFontFile *SplashFontEngine::loadOpenTypeT1CFont(SplashFontFileID *idA,
     unlink(fontFile ? fontFile->fileName->getCString() : fileName);
   }
 #endif
+
+  if (!fontFile) {
+    badFontFiles->append(idA);
+  }
 
   return fontFile;
 }
@@ -243,6 +267,10 @@ SplashFontFile *SplashFontEngine::loadCIDFont(SplashFontFileID *idA,
   }
 #endif
 
+  if (!fontFile) {
+    badFontFiles->append(idA);
+  }
+
   return fontFile;
 }
 
@@ -283,6 +311,10 @@ SplashFontFile *SplashFontEngine::loadOpenTypeCFFFont(SplashFontFileID *idA,
     unlink(fontFile ? fontFile->fileName->getCString() : fileName);
   }
 #endif
+
+  if (!fontFile) {
+    badFontFiles->append(idA);
+  }
 
   return fontFile;
 }
@@ -326,6 +358,10 @@ SplashFontFile *SplashFontEngine::loadTrueTypeFont(SplashFontFileID *idA,
     unlink(fontFile ? fontFile->fileName->getCString() : fileName);
   }
 #endif
+
+  if (!fontFile) {
+    badFontFiles->append(idA);
+  }
 
   return fontFile;
 }

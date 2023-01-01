@@ -18,6 +18,7 @@
 #include "gmempp.h"
 #include "GString.h"
 #include "GList.h"
+#include "GlobalParams.h"
 #include "Error.h"
 #include "Object.h"
 #include "PDFDoc.h"
@@ -27,6 +28,9 @@
 #include "OptionalContent.h"
 #include "Annot.h"
 #include "Lexer.h"
+#include "XFAScanner.h"
+#include "UTF8.h"
+#include "PDF417Barcode.h"
 #include "AcroForm.h"
 
 //------------------------------------------------------------------------
@@ -55,6 +59,11 @@
 #define acroFormQuadCenter 1
 #define acroFormQuadRight  2
 
+#define acroFormVAlignTop               0
+#define acroFormVAlignMiddle            1
+#define acroFormVAlignMiddleNoDescender 2
+#define acroFormVAlignBottom            3
+
 #define annotFlagHidden    0x0002
 #define annotFlagPrint     0x0004
 #define annotFlagNoView    0x0020
@@ -62,6 +71,256 @@
 // distance of Bezier control point from center for circle approximation
 // = (4 * (sqrt(2) - 1) / 3) * r
 #define bezierCircle 0.55228475
+
+// limit recursive field-parent lookups to avoid infinite loops
+#define maxFieldObjectDepth 50
+
+//------------------------------------------------------------------------
+
+// 5 bars + 5 spaces -- each can be wide (1) or narrow (0)
+// (there are always exactly 3 wide elements;
+// the last space is always narrow)
+static Guchar code3Of9Data[128][10] = {
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 0x00
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 0x10
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 1, 1, 0, 0, 0, 1, 0, 0, 0 }, // ' ' = 0x20
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 1, 0, 1, 0, 1, 0, 0, 0, 0 }, // '$' = 0x24
+  { 0, 0, 0, 1, 0, 1, 0, 1, 0, 0 }, // '%' = 0x25
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 1, 0, 0, 1, 0, 1, 0, 0, 0 }, // '*' = 0x2a
+  { 0, 1, 0, 0, 0, 1, 0, 1, 0, 0 }, // '+' = 0x2b
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 1, 0, 0, 0, 0, 1, 0, 1, 0 }, // '-' = 0x2d
+  { 1, 1, 0, 0, 0, 0, 1, 0, 0, 0 }, // '.' = 0x2e
+  { 0, 1, 0, 1, 0, 0, 0, 1, 0, 0 }, // '/' = 0x2f
+  { 0, 0, 0, 1, 1, 0, 1, 0, 0, 0 }, // '0' = 0x30
+  { 1, 0, 0, 1, 0, 0, 0, 0, 1, 0 }, // '1'
+  { 0, 0, 1, 1, 0, 0, 0, 0, 1, 0 }, // '2'
+  { 1, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, // '3'
+  { 0, 0, 0, 1, 1, 0, 0, 0, 1, 0 }, // '4'
+  { 1, 0, 0, 1, 1, 0, 0, 0, 0, 0 }, // '5'
+  { 0, 0, 1, 1, 1, 0, 0, 0, 0, 0 }, // '6'
+  { 0, 0, 0, 1, 0, 0, 1, 0, 1, 0 }, // '7'
+  { 1, 0, 0, 1, 0, 0, 1, 0, 0, 0 }, // '8'
+  { 0, 0, 1, 1, 0, 0, 1, 0, 0, 0 }, // '9'
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 0x40
+  { 1, 0, 0, 0, 0, 1, 0, 0, 1, 0 }, // 'A' = 0x41
+  { 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 }, // 'B'
+  { 1, 0, 1, 0, 0, 1, 0, 0, 0, 0 }, // 'C'
+  { 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 }, // 'D'
+  { 1, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, // 'E'
+  { 0, 0, 1, 0, 1, 1, 0, 0, 0, 0 }, // 'F'
+  { 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 }, // 'G'
+  { 1, 0, 0, 0, 0, 1, 1, 0, 0, 0 }, // 'H'
+  { 0, 0, 1, 0, 0, 1, 1, 0, 0, 0 }, // 'I'
+  { 0, 0, 0, 0, 1, 1, 1, 0, 0, 0 }, // 'J'
+  { 1, 0, 0, 0, 0, 0, 0, 1, 1, 0 }, // 'K'
+  { 0, 0, 1, 0, 0, 0, 0, 1, 1, 0 }, // 'L'
+  { 1, 0, 1, 0, 0, 0, 0, 1, 0, 0 }, // 'M'
+  { 0, 0, 0, 0, 1, 0, 0, 1, 1, 0 }, // 'N'
+  { 1, 0, 0, 0, 1, 0, 0, 1, 0, 0 }, // 'O'
+  { 0, 0, 1, 0, 1, 0, 0, 1, 0, 0 }, // 'P' = 0x50
+  { 0, 0, 0, 0, 0, 0, 1, 1, 1, 0 }, // 'Q'
+  { 1, 0, 0, 0, 0, 0, 1, 1, 0, 0 }, // 'R'
+  { 0, 0, 1, 0, 0, 0, 1, 1, 0, 0 }, // 'S'
+  { 0, 0, 0, 0, 1, 0, 1, 1, 0, 0 }, // 'T'
+  { 1, 1, 0, 0, 0, 0, 0, 0, 1, 0 }, // 'U'
+  { 0, 1, 1, 0, 0, 0, 0, 0, 1, 0 }, // 'V'
+  { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, // 'W'
+  { 0, 1, 0, 0, 1, 0, 0, 0, 1, 0 }, // 'X'
+  { 1, 1, 0, 0, 1, 0, 0, 0, 0, 0 }, // 'Y'
+  { 0, 1, 1, 0, 1, 0, 0, 0, 0, 0 }, // 'Z'
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 0x60
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // 0x70
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
+
+// 3 bars + 3 spaces -- each can be 1, 2, 3, or 4 units wide
+static Guchar code128Data[107][6] = {
+  { 2, 1, 2, 2, 2, 2 },
+  { 2, 2, 2, 1, 2, 2 },
+  { 2, 2, 2, 2, 2, 1 },
+  { 1, 2, 1, 2, 2, 3 },
+  { 1, 2, 1, 3, 2, 2 },
+  { 1, 3, 1, 2, 2, 2 },
+  { 1, 2, 2, 2, 1, 3 },
+  { 1, 2, 2, 3, 1, 2 },
+  { 1, 3, 2, 2, 1, 2 },
+  { 2, 2, 1, 2, 1, 3 },
+  { 2, 2, 1, 3, 1, 2 },
+  { 2, 3, 1, 2, 1, 2 },
+  { 1, 1, 2, 2, 3, 2 },
+  { 1, 2, 2, 1, 3, 2 },
+  { 1, 2, 2, 2, 3, 1 },
+  { 1, 1, 3, 2, 2, 2 },
+  { 1, 2, 3, 1, 2, 2 },
+  { 1, 2, 3, 2, 2, 1 },
+  { 2, 2, 3, 2, 1, 1 },
+  { 2, 2, 1, 1, 3, 2 },
+  { 2, 2, 1, 2, 3, 1 },
+  { 2, 1, 3, 2, 1, 2 },
+  { 2, 2, 3, 1, 1, 2 },
+  { 3, 1, 2, 1, 3, 1 },
+  { 3, 1, 1, 2, 2, 2 },
+  { 3, 2, 1, 1, 2, 2 },
+  { 3, 2, 1, 2, 2, 1 },
+  { 3, 1, 2, 2, 1, 2 },
+  { 3, 2, 2, 1, 1, 2 },
+  { 3, 2, 2, 2, 1, 1 },
+  { 2, 1, 2, 1, 2, 3 },
+  { 2, 1, 2, 3, 2, 1 },
+  { 2, 3, 2, 1, 2, 1 },
+  { 1, 1, 1, 3, 2, 3 },
+  { 1, 3, 1, 1, 2, 3 },
+  { 1, 3, 1, 3, 2, 1 },
+  { 1, 1, 2, 3, 1, 3 },
+  { 1, 3, 2, 1, 1, 3 },
+  { 1, 3, 2, 3, 1, 1 },
+  { 2, 1, 1, 3, 1, 3 },
+  { 2, 3, 1, 1, 1, 3 },
+  { 2, 3, 1, 3, 1, 1 },
+  { 1, 1, 2, 1, 3, 3 },
+  { 1, 1, 2, 3, 3, 1 },
+  { 1, 3, 2, 1, 3, 1 },
+  { 1, 1, 3, 1, 2, 3 },
+  { 1, 1, 3, 3, 2, 1 },
+  { 1, 3, 3, 1, 2, 1 },
+  { 3, 1, 3, 1, 2, 1 },
+  { 2, 1, 1, 3, 3, 1 },
+  { 2, 3, 1, 1, 3, 1 },
+  { 2, 1, 3, 1, 1, 3 },
+  { 2, 1, 3, 3, 1, 1 },
+  { 2, 1, 3, 1, 3, 1 },
+  { 3, 1, 1, 1, 2, 3 },
+  { 3, 1, 1, 3, 2, 1 },
+  { 3, 3, 1, 1, 2, 1 },
+  { 3, 1, 2, 1, 1, 3 },
+  { 3, 1, 2, 3, 1, 1 },
+  { 3, 3, 2, 1, 1, 1 },
+  { 3, 1, 4, 1, 1, 1 },
+  { 2, 2, 1, 4, 1, 1 },
+  { 4, 3, 1, 1, 1, 1 },
+  { 1, 1, 1, 2, 2, 4 },
+  { 1, 1, 1, 4, 2, 2 },
+  { 1, 2, 1, 1, 2, 4 },
+  { 1, 2, 1, 4, 2, 1 },
+  { 1, 4, 1, 1, 2, 2 },
+  { 1, 4, 1, 2, 2, 1 },
+  { 1, 1, 2, 2, 1, 4 },
+  { 1, 1, 2, 4, 1, 2 },
+  { 1, 2, 2, 1, 1, 4 },
+  { 1, 2, 2, 4, 1, 1 },
+  { 1, 4, 2, 1, 1, 2 },
+  { 1, 4, 2, 2, 1, 1 },
+  { 2, 4, 1, 2, 1, 1 },
+  { 2, 2, 1, 1, 1, 4 },
+  { 4, 1, 3, 1, 1, 1 },
+  { 2, 4, 1, 1, 1, 2 },
+  { 1, 3, 4, 1, 1, 1 },
+  { 1, 1, 1, 2, 4, 2 },
+  { 1, 2, 1, 1, 4, 2 },
+  { 1, 2, 1, 2, 4, 1 },
+  { 1, 1, 4, 2, 1, 2 },
+  { 1, 2, 4, 1, 1, 2 },
+  { 1, 2, 4, 2, 1, 1 },
+  { 4, 1, 1, 2, 1, 2 },
+  { 4, 2, 1, 1, 1, 2 },
+  { 4, 2, 1, 2, 1, 1 },
+  { 2, 1, 2, 1, 4, 1 },
+  { 2, 1, 4, 1, 2, 1 },
+  { 4, 1, 2, 1, 2, 1 },
+  { 1, 1, 1, 1, 4, 3 },
+  { 1, 1, 1, 3, 4, 1 },
+  { 1, 3, 1, 1, 4, 1 },
+  { 1, 1, 4, 1, 1, 3 },
+  { 1, 1, 4, 3, 1, 1 },
+  { 4, 1, 1, 1, 1, 3 },
+  { 4, 1, 1, 3, 1, 1 },
+  { 1, 1, 3, 1, 4, 1 },
+  { 1, 1, 4, 1, 3, 1 },
+  { 3, 1, 1, 1, 4, 1 },
+  { 4, 1, 1, 1, 3, 1 },
+  { 2, 1, 1, 4, 1, 2 }, // start code A
+  { 2, 1, 1, 2, 1, 4 }, // start code B
+  { 2, 1, 1, 2, 3, 2 }, // start code C
+  { 2, 3, 3, 1, 1, 1 }  // stop code (without final bar)
+};
 
 //------------------------------------------------------------------------
 
@@ -83,12 +342,22 @@ AcroForm *AcroForm::load(PDFDoc *docA, Catalog *catalog, Object *acroFormObjA) {
   Object acroFormObj2;
   AcroForm *acroForm;
   AcroFormField *field;
-  Object fieldsObj, annotsObj, annotRef, annotObj, obj1, obj2;
+  Object xfaObj, fieldsObj, annotsObj, annotRef, annotObj, obj1, obj2;
   int pageNum, i, j;
 
   // this is the normal case: acroFormObj is a dictionary, as expected
   if (acroFormObjA->isDict()) {
     acroForm = new AcroForm(docA, acroFormObjA);
+
+    if (globalParams->getEnableXFA()) {
+      if (!acroFormObjA->dictLookup("XFA", &xfaObj)->isNull()) {
+	acroForm->xfaScanner = XFAScanner::load(&xfaObj);
+	if (!catalog->getNeedsRendering()) {
+	  acroForm->isStaticXFA = gTrue;
+	}
+      }
+      xfaObj.free();
+    }
 
     if (acroFormObjA->dictLookup("NeedAppearances", &obj1)->isBool()) {
       acroForm->needAppearances = obj1.getBool();
@@ -183,17 +452,25 @@ AcroForm *AcroForm::load(PDFDoc *docA, Catalog *catalog, Object *acroFormObjA) {
   return acroForm;
 }
 
-AcroForm::AcroForm(PDFDoc *docA, Object *acroFormObjA): Form(docA) {
+AcroForm::AcroForm(PDFDoc *docA, Object *acroFormObjA) {
+  doc = docA;
   acroFormObjA->copy(&acroFormObj);
   needAppearances = gFalse;
   annotPages = new GList();
   fields = new GList();
+  xfaScanner = NULL;
+  isStaticXFA = gFalse;
 }
 
 AcroForm::~AcroForm() {
   acroFormObj.free();
   deleteGList(annotPages, AcroFormAnnotPage);
   deleteGList(fields, AcroFormField);
+  delete xfaScanner;
+}
+
+const char *AcroForm::getType() {
+  return isStaticXFA ? "static XFA" : "AcroForm";
 }
 
 void AcroForm::buildAnnotPageList(Catalog *catalog) {
@@ -296,8 +573,42 @@ int AcroForm::getNumFields() {
   return fields->getLength();
 }
 
-FormField *AcroForm::getField(int idx) {
+AcroFormField *AcroForm::getField(int idx) {
   return (AcroFormField *)fields->get(idx);
+}
+
+AcroFormField *AcroForm::findField(int pg, double x, double y) {
+  AcroFormField *field;
+  double llx, lly, urx, ury;
+  int i;
+
+  for (i = 0; i < fields->getLength(); ++i) {
+    field = (AcroFormField *)fields->get(i);
+    if (field->getPageNum() == pg) {
+      field->getBBox(&llx, &lly, &urx, &ury);
+      if (llx <= x && x <= urx && lly <= y && y <= ury) {
+	return field;
+      }
+    }
+  }
+  return NULL;
+}
+
+int AcroForm::findFieldIdx(int pg, double x, double y) {
+  AcroFormField *field;
+  double llx, lly, urx, ury;
+  int i;
+
+  for (i = 0; i < fields->getLength(); ++i) {
+    field = (AcroFormField *)fields->get(i);
+    if (field->getPageNum() == pg) {
+      field->getBBox(&llx, &lly, &urx, &ury);
+      if (llx <= x && x <= urx && lly <= y && y <= ury) {
+	return i;
+      }
+    }
+  }
+  return -1;
 }
 
 //------------------------------------------------------------------------
@@ -307,11 +618,14 @@ FormField *AcroForm::getField(int idx) {
 AcroFormField *AcroFormField::load(AcroForm *acroFormA, Object *fieldRefA) {
   GString *typeStr;
   TextString *nameA;
+  GString *xfaName;
   Guint flagsA;
   GBool haveFlags, typeFromParentA;
   Object fieldObjA, parentObj, parentObj2, obj1, obj2;
   AcroFormFieldType typeA;
+  XFAField *xfaFieldA;
   AcroFormField *field;
+  int depth, i0, i1;
 
   fieldRefA->fetch(acroFormA->doc->getXRef(), &fieldObjA);
 
@@ -345,7 +659,8 @@ AcroFormField *AcroFormField::load(AcroForm *acroFormA, Object *fieldRefA) {
   //----- get info from parent non-terminal fields
 
   fieldObjA.dictLookup("Parent", &parentObj);
-  while (parentObj.isDict()) {
+  depth = 0;
+  while (parentObj.isDict() && depth < maxFieldObjectDepth) {
 
     if (parentObj.dictLookup("T", &obj1)->isString()) {
       if (nameA->getLength()) {
@@ -373,12 +688,41 @@ AcroFormField *AcroFormField::load(AcroForm *acroFormA, Object *fieldRefA) {
     parentObj.dictLookup("Parent", &parentObj2);
     parentObj.free();
     parentObj = parentObj2;
+
+    ++depth;
   }
   parentObj.free();
 
   if (!typeStr) {
     error(errSyntaxError, -1, "Missing type in AcroForm field");
     goto err1;
+  }
+
+  //----- get static XFA info
+
+  xfaFieldA = NULL;
+  if (acroFormA->xfaScanner) {
+    // convert field name to UTF-8, and remove segments that start
+    // with '#' -- to match the XFA field name
+    xfaName = nameA->toUTF8();
+    i0 = 0;
+    while (i0 < xfaName->getLength()) {
+      i1 = i0;
+      while (i1 < xfaName->getLength()) {
+	if (xfaName->getChar(i1) == '.') {
+	  ++i1;
+	  break;
+	}
+	++i1;
+      }
+      if (xfaName->getChar(i0) == '#') {
+	xfaName->del(i0, i1 - i0);
+      } else {
+	i0 = i1;
+      }
+    }
+    xfaFieldA = acroFormA->xfaScanner->findField(xfaName);
+    delete xfaName;
   }
 
   //----- check for a radio button
@@ -400,7 +744,9 @@ AcroFormField *AcroFormField::load(AcroForm *acroFormA, Object *fieldRefA) {
       typeA = acroFormFieldCheckbox;
     }
   } else if (!typeStr->cmp("Tx")) {
-    if (flagsA & acroFormFlagFileSelect) {
+    if (xfaFieldA && xfaFieldA->getBarcodeInfo()) {
+      typeA = acroFormFieldBarcode;
+    } else if (flagsA & acroFormFlagFileSelect) {
       typeA = acroFormFieldFileSelect;
     } else if (flagsA & acroFormFlagMultiline) {
       typeA = acroFormFieldMultilineText;
@@ -422,7 +768,7 @@ AcroFormField *AcroFormField::load(AcroForm *acroFormA, Object *fieldRefA) {
   delete typeStr;
 
   field = new AcroFormField(acroFormA, fieldRefA, &fieldObjA,
-			    typeA, nameA, flagsA, typeFromParentA);
+			    typeA, nameA, flagsA, typeFromParentA, xfaFieldA);
   fieldObjA.free();
   return field;
 
@@ -436,7 +782,8 @@ AcroFormField *AcroFormField::load(AcroForm *acroFormA, Object *fieldRefA) {
 AcroFormField::AcroFormField(AcroForm *acroFormA,
 			     Object *fieldRefA, Object *fieldObjA,
 			     AcroFormFieldType typeA, TextString *nameA,
-			     Guint flagsA, GBool typeFromParentA) {
+			     Guint flagsA, GBool typeFromParentA,
+			     XFAField *xfaFieldA) {
   acroForm = acroFormA;
   fieldRefA->copy(&fieldRef);
   fieldObjA->copy(&fieldObj);
@@ -444,6 +791,7 @@ AcroFormField::AcroFormField(AcroForm *acroFormA,
   name = nameA;
   flags = flagsA;
   typeFromParent = typeFromParentA;
+  xfaField = xfaFieldA;
 }
 
 AcroFormField::~AcroFormField() {
@@ -478,6 +826,7 @@ const char *AcroFormField::getType() {
   case acroFormFieldFileSelect:    return "FileSelect";
   case acroFormFieldMultilineText: return "MultilineText";
   case acroFormFieldText:          return "Text";
+  case acroFormFieldBarcode:       return "Barcode";
   case acroFormFieldComboBox:      return "ComboBox";
   case acroFormFieldListBox:       return "ListBox";
   case acroFormFieldSignature:     return "Signature";
@@ -508,36 +857,47 @@ Unicode *AcroFormField::getValue(int *length) {
   u = NULL;
   *length = 0;
 
-  fieldLookup("V", &obj1);
-  if (obj1.isName()) {
-    s = obj1.getName();
-    n = (int)strlen(s);
-    u = (Unicode *)gmallocn(n, sizeof(Unicode));
-    for (i = 0; i < n; ++i) {
-      u[i] = s[i] & 0xff;
+  // if this field has a counterpart in the XFA form, take the value
+  // from the XFA field (NB: an XFA field with no value overrides the
+  // AcroForm value)
+  if (xfaField) {
+    if (xfaField->getValue()) {
+      u = utf8ToUnicode(xfaField->getValue(), length);
     }
-    *length = n;
-  } else if (obj1.isString()) {
-    ts = new TextString(obj1.getString());
-    n = ts->getLength();
-    u = (Unicode *)gmallocn(n, sizeof(Unicode));
-    memcpy(u, ts->getUnicode(), n * sizeof(Unicode));
-    *length = n;
-    delete ts;
-  } else if (obj1.isDict()) {
-    obj1.dictLookup("Contents", &obj2);
-    if (obj2.isString()) {
-      gs = obj2.getString();
-      n = gs->getLength();
+
+  // no XFA form - take the AcroForm value
+  } else {
+    fieldLookup("V", &obj1);
+    if (obj1.isName()) {
+      s = obj1.getName();
+      n = (int)strlen(s);
       u = (Unicode *)gmallocn(n, sizeof(Unicode));
       for (i = 0; i < n; ++i) {
-	u[i] = gs->getChar(i) & 0xff;
+        u[i] = s[i] & 0xff;
       }
       *length = n;
+    } else if (obj1.isString()) {
+      ts = new TextString(obj1.getString());
+      n = ts->getLength();
+      u = (Unicode *)gmallocn(n, sizeof(Unicode));
+      memcpy(u, ts->getUnicode(), n * sizeof(Unicode));
+      *length = n;
+      delete ts;
+    } else if (obj1.isDict()) {
+      obj1.dictLookup("Contents", &obj2);
+      if (obj2.isString()) {
+        gs = obj2.getString();
+        n = gs->getLength();
+        u = (Unicode *)gmallocn(n, sizeof(Unicode));
+        for (i = 0; i < n; ++i) {
+  	u[i] = gs->getChar(i) & 0xff;
+        }
+        *length = n;
+      }
+      obj2.free();
     }
-    obj2.free();
+    obj1.free();
   }
-  obj1.free();
 
   return u;
 }
@@ -818,6 +1178,8 @@ void AcroFormField::drawAnnot(int pageNum, Gfx *gfx, GBool printing,
   render = gFalse;
   if (acroForm->needAppearances) {
     render = gTrue;
+  } else if (xfaField && xfaField->getValue()) {
+    render = gTrue;
   } else {
     if (!annotObj->dictLookup("AP", &obj1)->isDict()) {
       render = gTrue;
@@ -889,9 +1251,17 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
   double borderWidth;
   double *borderDash;
   GString *appearanceState;
-  int borderDashLength, rot, quadding, comb, nOptions, topIdx, i, j;
+  int borderDashLength, rot, quadding, vAlign, comb, nOptions, topIdx, i;
 
   appearBuf = new GString();
+#if 0 //~debug
+  appearBuf->appendf("1 1 0 rg 0 0 {0:.4f} {1:.4f} re f\n",
+		     xMax - xMin, yMax - yMin);
+#endif
+#if 0 //~debug
+  appearBuf->appendf("1 1 0 RG 0 0 {0:.4f} {1:.4f} re s\n",
+		     xMax - xMin, yMax - yMin);
+#endif
 
   // get the appearance characteristics (MK) dictionary
   if (annot->lookup("MK", &mkObj)->isDict()) {
@@ -1141,6 +1511,9 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
   asObj.free();
   apObj.free();
 
+  int valueLength;
+  Unicode *value = getValue(&valueLength);
+
   // draw the field contents
   if (ftObj.isName("Btn")) {
     caption = NULL;
@@ -1153,12 +1526,13 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
     // radio button
     if (flags & acroFormFlagRadio) {
       //~ Acrobat doesn't draw a caption if there is no AP dict (?)
-      if (fieldLookup("V", &obj1)
-	    ->isName(appearanceState->getCString())) {
+      if (value && unicodeStringEqual(value, valueLength,
+				      appearanceState->getCString())) {
 	if (caption) {
-	  drawText(caption, da, fontDict, gFalse, 0, acroFormQuadCenter,
-		   gFalse, gTrue, rot, xMin, yMin, xMax, yMax, borderWidth,
-		   appearBuf);
+	  drawText(caption, da, fontDict, gFalse, 0,
+		   acroFormQuadCenter, acroFormVAlignMiddleNoDescender,
+		   gFalse, gTrue, rot, 0, 0, xMax - xMin, yMax - yMin,
+		   borderWidth, gFalse, appearBuf);
 	} else {
 	  if (mkDict) {
 	    if (mkDict->lookup("BC", &obj2)->isArray() &&
@@ -1173,55 +1547,112 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
 	  }
 	}
       }
-      obj1.free();
     // pushbutton
     } else if (flags & acroFormFlagPushbutton) {
       if (caption) {
-	drawText(caption, da, fontDict, gFalse, 0, acroFormQuadCenter,
-		 gFalse, gFalse, rot, xMin, yMin, xMax, yMax, borderWidth,
-		 appearBuf);
+	drawText(caption, da, fontDict, gFalse, 0,
+		 acroFormQuadCenter, acroFormVAlignMiddle,
+		 gFalse, gFalse, rot, 0, 0, xMax - xMin, yMax - yMin,
+		 borderWidth, gFalse, appearBuf);
       }
     // checkbox
     } else {
-      fieldLookup("V", &obj1);
-      if (obj1.isName() && !(obj1.isName("Off") ||
-			     obj1.isName("No") ||
-			     obj1.isName(""))) {
+      if (value && !(unicodeStringEqual(value, valueLength, "Off") ||
+		     unicodeStringEqual(value, valueLength, "No") ||
+		     unicodeStringEqual(value, valueLength, "0") ||
+		     valueLength == 0)) {
 	if (!caption) {
 	  caption = new GString("3"); // ZapfDingbats checkmark
 	}
-	drawText(caption, da, fontDict, gFalse, 0, acroFormQuadCenter,
-		 gFalse, gTrue, rot, xMin, yMin, xMax, yMax, borderWidth,
-		 appearBuf);
+	drawText(caption, da, fontDict, gFalse, 0,
+		 acroFormQuadCenter, acroFormVAlignMiddleNoDescender,
+		 gFalse, gTrue, rot, 0, 0, xMax - xMin, yMax - yMin,
+		 borderWidth, gFalse, appearBuf);
       }
-      obj1.free();
     }
     if (caption) {
       delete caption;
     }
   } else if (ftObj.isName("Tx")) {
-    //~ value strings can be Unicode
-    fieldLookup("V", &obj1);
-    if (obj1.isString()) {
-      if (fieldLookup("Q", &obj2)->isInt()) {
-	quadding = obj2.getInt();
+    XFAFieldBarcodeInfo *barcodeInfo = xfaField ? xfaField->getBarcodeInfo()
+                                                : (XFAFieldBarcodeInfo *)NULL;
+    if (value) {
+      //~ value strings can be Unicode
+      GString *valueLatin1 = unicodeToLatin1(value, valueLength);
+      if (barcodeInfo) {
+	drawBarcode(valueLatin1, da, fontDict, rot, xMin, yMin, xMax, yMax,
+		    barcodeInfo, appearBuf);
       } else {
-	quadding = acroFormQuadLeft;
-      }
-      obj2.free();
-      comb = 0;
-      if (flags & acroFormFlagComb) {
-	if (fieldLookup("MaxLen", &obj2)->isInt()) {
-	  comb = obj2.getInt();
+	if (fieldLookup("Q", &obj2)->isInt()) {
+	  quadding = obj2.getInt();
+	} else {
+	  quadding = acroFormQuadLeft;
 	}
 	obj2.free();
+	vAlign = (flags & acroFormFlagMultiline) ? acroFormVAlignTop
+	                                         : acroFormVAlignMiddle;
+	XFAFieldLayoutInfo *layoutInfo = xfaField ? xfaField->getLayoutInfo()
+	                                          : (XFAFieldLayoutInfo *)NULL;
+	if (layoutInfo) {
+	  switch (layoutInfo->hAlign) {
+	  case xfaFieldLayoutHAlignLeft:
+	  default:
+	    quadding = acroFormQuadLeft;
+	    break;
+	  case xfaFieldLayoutHAlignCenter:
+	    quadding = acroFormQuadCenter;
+	    break;
+	  case xfaFieldLayoutHAlignRight:
+	    quadding = acroFormQuadRight;
+	    break;
+	  }
+	  switch (layoutInfo->vAlign) {
+	  case xfaFieldLayoutVAlignTop:
+	  default:
+	    vAlign = acroFormVAlignTop;
+	    break;
+	  case xfaFieldLayoutVAlignMiddle:
+	    vAlign = acroFormVAlignMiddle;
+	    break;
+	  case xfaFieldLayoutVAlignBottom:
+	    vAlign = acroFormVAlignBottom;
+	    break;
+	  }
+	}
+	comb = 0;
+	if (flags & acroFormFlagComb) {
+	  if (fieldLookup("MaxLen", &obj2)->isInt()) {
+	    comb = obj2.getInt();
+	  }
+	  obj2.free();
+	}
+	XFAFieldPictureInfo *pictureInfo =
+	    xfaField ? xfaField->getPictureInfo()
+	             : (XFAFieldPictureInfo *)NULL;
+	GString *value2 = valueLatin1;
+	if (pictureInfo) {
+	  switch (pictureInfo->subtype) {
+	  case xfaFieldPictureDateTime:
+	    value2 = pictureFormatDateTime(valueLatin1, pictureInfo->format);
+	    break;
+	  case xfaFieldPictureNumeric:
+	    value2 = pictureFormatNumber(valueLatin1, pictureInfo->format);
+	    break;
+	  case xfaFieldPictureText:
+	    value2 = pictureFormatText(valueLatin1, pictureInfo->format);
+	    break;
+	  }
+	}
+	drawText(value2, da, fontDict,
+		 flags & acroFormFlagMultiline, comb, quadding, vAlign,
+		 gTrue, gFalse, rot, 0, 0, xMax - xMin, yMax - yMin,
+		 borderWidth, gFalse, appearBuf);
+	if (value2 != valueLatin1) {
+	  delete value2;
+	}
       }
-      drawText(obj1.getString(), da, fontDict,
-	       flags & acroFormFlagMultiline, comb, quadding,
-	       gTrue, gFalse, rot, xMin, yMin, xMax, yMax, borderWidth,
-	       appearBuf);
+      delete valueLatin1;
     }
-    obj1.free();
   } else if (ftObj.isName("Ch")) {
     //~ value/option strings can be Unicode
     if (fieldLookup("Q", &obj1)->isInt()) {
@@ -1230,10 +1661,39 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
       quadding = acroFormQuadLeft;
     }
     obj1.free();
+    vAlign = acroFormVAlignMiddle;
+    XFAFieldLayoutInfo *layoutInfo = xfaField ? xfaField->getLayoutInfo()
+                                              : (XFAFieldLayoutInfo *)NULL;
+    if (layoutInfo) {
+      switch (layoutInfo->hAlign) {
+      case xfaFieldLayoutHAlignLeft:
+      default:
+	quadding = acroFormQuadLeft;
+	break;
+      case xfaFieldLayoutHAlignCenter:
+	quadding = acroFormQuadCenter;
+	break;
+      case xfaFieldLayoutHAlignRight:
+	quadding = acroFormQuadRight;
+	break;
+      }
+      switch (layoutInfo->vAlign) {
+      case xfaFieldLayoutVAlignTop:
+      default:
+	vAlign = acroFormVAlignTop;
+	break;
+      case xfaFieldLayoutVAlignMiddle:
+	vAlign = acroFormVAlignMiddle;
+	break;
+      case xfaFieldLayoutVAlignBottom:
+	vAlign = acroFormVAlignBottom;
+	break;
+      }
+    }
     // combo box
     if (flags & acroFormFlagCombo) {
-      if (fieldLookup("V", &obj1)->isString()) {
-	val = obj1.getString()->copy();
+      if (value) {
+	val = unicodeToLatin1(value, valueLength);
 	if (fieldObj.dictLookup("Opt", &obj2)->isArray()) {
 	  for (i = 0, done = false; i < obj2.arrayGetLength() && !done; ++i) {
 	    obj2.arrayGet(i, &obj3);
@@ -1254,12 +1714,12 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
 	}
 	obj2.free();
 	drawText(val, da, fontDict,
-		 gFalse, 0, quadding, gTrue, gFalse, rot,
-		 xMin, yMin, xMax, yMax, borderWidth, appearBuf);
+		 gFalse, 0, quadding, vAlign, gTrue, gFalse, rot,
+		 0, 0, xMax - xMin, yMax - yMin, borderWidth,
+		 gFalse, appearBuf);
 	delete val;
 	//~ Acrobat draws a popup icon on the right side
       }
-      obj1.free();
     // list box
     } else {
       if (fieldObj.dictLookup("Opt", &obj1)->isArray()) {
@@ -1285,27 +1745,15 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
 	// get the selected option(s)
 	selection = (GBool *)gmallocn(nOptions, sizeof(GBool));
 	//~ need to use the I field in addition to the V field
-	fieldLookup("V", &obj2);
 	for (i = 0; i < nOptions; ++i) {
-	  selection[i] = gFalse;
-	  if (obj2.isString()) {
-	    if (!obj2.getString()->cmp(text[i])) {
-	      selection[i] = gTrue;
-	    }
-	  } else if (obj2.isArray()) {
-	    for (j = 0; j < obj2.arrayGetLength(); ++j) {
-	      if (obj2.arrayGet(j, &obj3)->isString() &&
-		  !obj3.getString()->cmp(text[i])) {
-		selection[i] = gTrue;
-	      }
-	      obj3.free();
-	    }
-	  }
+	  selection[i] = unicodeStringEqual(value, valueLength, text[i]);
 	}
-	obj2.free();
 	// get the top index
 	if (fieldObj.dictLookup("TI", &obj2)->isInt()) {
 	  topIdx = obj2.getInt();
+	  if (topIdx < 0 || topIdx >= nOptions) {
+	    topIdx = 0;
+	  }
 	} else {
 	  topIdx = 0;
 	}
@@ -1334,13 +1782,15 @@ void AcroFormField::drawNewAppearance(Gfx *gfx, Dict *annot,
       delete da;
     }
     da = new GString("/Helv 10 Tf 1 0 0 rg");
-    drawText(caption, da, fontDict,
-	     gFalse, 0, acroFormQuadLeft, gFalse, gFalse, rot,
-	     xMin, yMin, xMax, yMax, borderWidth, appearBuf);
+    drawText(caption, da, fontDict, gFalse, 0,
+	     acroFormQuadLeft, acroFormVAlignMiddle, gFalse, gFalse, rot,
+	     0, 0, xMax - xMin, yMax - yMin, borderWidth, gFalse, appearBuf);
     delete caption;
   } else {
     error(errSyntaxError, -1, "Unknown field type");
   }
+
+  gfree(value);
 
   delete appearanceState;
   if (da) {
@@ -1457,17 +1907,20 @@ void AcroFormField::setColor(Array *a, GBool fill, int adjust,
 
 // Draw the variable text or caption for a field.
 void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
-			     GBool multiline, int comb, int quadding,
+			     GBool multiline, int comb,
+			     int quadding, int vAlign,
 			     GBool txField, GBool forceZapfDingbats, int rot,
-			     double xMin, double yMin, double xMax, double yMax,
-			     double border, GString *appearBuf) {
+			     double x, double y, double width, double height,
+			     double border, GBool whiteBackground,
+			     GString *appearBuf) {
   GString *text2;
   GList *daToks;
   GString *tok;
   GfxFont *font;
   double dx, dy;
-  double fontSize, fontSize2, x, xPrev, y, w, w2, wMax;
-  int tfPos, tmPos, i, j, k, c;
+  double fontSize, fontSize2, topBorder, xx, xPrev, yy, w, wMax;
+  double offset, offset2, charWidth, ascent, descent;
+  int tfPos, tmPos, nLines, i, j, k, c;
 
   //~ if there is no MK entry, this should use the existing content stream,
   //~ and only replace the marked content portion of it
@@ -1501,7 +1954,7 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
   if (da) {
     daToks = tokenize(da);
     for (i = 2; i < daToks->getLength(); ++i) {
-      if (i >= 2 && !((GString *)daToks->get(i))->cmp("Tf")) {
+      if (!((GString *)daToks->get(i))->cmp("Tf")) {
 	tfPos = i - 2;
       } else if (i >= 6 && !((GString *)daToks->get(i))->cmp("Tm")) {
 	tmPos = i - 6;
@@ -1558,23 +2011,21 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
   }
   appearBuf->append("q\n");
   if (rot == 90) {
-    appearBuf->appendf("0 1 -1 0 {0:.4f} 0 cm\n", xMax - xMin);
-    dx = yMax - yMin;
-    dy = xMax - xMin;
+    appearBuf->appendf("0 1 -1 0 {0:.4f} 0 cm\n", width);
+    dx = height;
+    dy = width;
   } else if (rot == 180) {
-    appearBuf->appendf("-1 0 0 -1 {0:.4f} {1:.4f} cm\n",
-		       xMax - xMin, yMax - yMin);
-    dx = xMax - yMax;
-    dy = yMax - yMin;
+    appearBuf->appendf("-1 0 0 -1 {0:.4f} {1:.4f} cm\n", width, height);
+    dx = width;
+    dy = height;
   } else if (rot == 270) {
-    appearBuf->appendf("0 -1 1 0 0 {0:.4f} cm\n", yMax - yMin);
-    dx = yMax - yMin;
-    dy = xMax - xMin;
+    appearBuf->appendf("0 -1 1 0 0 {0:.4f} cm\n", height);
+    dx = height;
+    dy = width;
   } else { // assume rot == 0
-    dx = xMax - xMin;
-    dy = yMax - yMin;
+    dx = width;
+    dy = height;
   }
-  appearBuf->append("BT\n");
 
   // multi-line text
   if (multiline) {
@@ -1582,22 +2033,29 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
 
     wMax = dx - 2 * border - 4;
 
+#if 1 //~tmp
+    // this is a kludge that appears to match Adobe's behavior
+    if (height > 15) {
+      topBorder = 5;
+    } else {
+      topBorder = 2;
+    }
+#else
+    topBorder = 5;
+#endif
+
     // compute font autosize
     if (fontSize == 0) {
       for (fontSize = 10; fontSize > 1; --fontSize) {
-	y = dy - 3;
-	w2 = 0;
+	yy = dy - topBorder;
 	i = 0;
 	while (i < text2->getLength()) {
 	  getNextLine(text2, i, font, fontSize, wMax, &j, &w, &k);
-	  if (w > w2) {
-	    w2 = w;
-	  }
 	  i = k;
-	  y -= fontSize;
+	  yy -= fontSize;
 	}
 	// approximate the descender for the last line
-	if (y >= 0.33 * fontSize && w <= wMax) {
+	if (yy >= 0.25 * fontSize && w <= wMax) {
 	  break;
 	}
       }
@@ -1609,22 +2067,54 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
     }
 
     // starting y coordinate
-    // (note: each line of text starts with a Td operator that moves
-    // down a line)
-    if (dy > fontSize + 6) {
-      y = dy - 3;
-    } else {
-      y = 0.5 * dy - 0.4 * fontSize + fontSize;
+    nLines = 0;
+    i = 0;
+    while (i < text2->getLength()) {
+      getNextLine(text2, i, font, fontSize, wMax, &j, &w, &k);
+      i = k;
+      ++nLines;
     }
+    if (font) {
+      ascent = font->getDeclaredAscent() * fontSize;
+      descent = font->getDescent() * fontSize;
+    } else {
+      ascent = 0.75 * fontSize;
+      descent = -0.25 * fontSize;
+    }
+    switch (vAlign) {
+    case acroFormVAlignTop:
+    default:
+      yy = dy - ascent - topBorder;
+      break;
+    case acroFormVAlignMiddle:
+      yy = 0.5 * (dy - nLines * fontSize) + (nLines - 1) * fontSize - descent;
+      break;
+    case acroFormVAlignMiddleNoDescender:
+      yy = 0.5 * (dy - nLines * fontSize) + (nLines - 1) * fontSize;
+      break;
+    case acroFormVAlignBottom:
+      yy = (nLines - 1) * fontSize - descent;
+      break;
+    }
+    // if the field is shorter than a line of text, Acrobat positions
+    // the text relative to the bottom edge
+    if (dy < fontSize + topBorder) {
+      yy = 2 - descent;
+    }
+    // each line of text starts with a Td operator that moves down a
+    // line -- so move up a line here
+    yy += fontSize;
+
+    appearBuf->append("BT\n");
 
     // set the font matrix
     if (tmPos >= 0) {
       tok = (GString *)daToks->get(tmPos + 4);
       tok->clear();
-      tok->append('0');
+      tok->appendf("{0:.4f}", x);
       tok = (GString *)daToks->get(tmPos + 5);
       tok->clear();
-      tok->appendf("{0:.4f}", y);
+      tok->appendf("{0:.4f}", y + yy);
     }
 
     // write the DA string
@@ -1636,7 +2126,7 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
 
     // write the font matrix (if not part of the DA string)
     if (tmPos < 0) {
-      appearBuf->appendf("1 0 0 1 0 {0:.4f} Tm\n", y);
+      appearBuf->appendf("1 0 0 1 {0:.4f} {1:.4f} Tm\n", x, y + yy);
     }
 
     // write a series of lines of text
@@ -1650,18 +2140,18 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
       switch (quadding) {
       case acroFormQuadLeft:
       default:
-	x = border + 2;
+	xx = border + 2;
 	break;
       case acroFormQuadCenter:
-	x = (dx - w) / 2;
+	xx = (dx - w) / 2;
 	break;
       case acroFormQuadRight:
-	x = dx - border - 2 - w;
+	xx = dx - border - 2 - w;
 	break;
       }
 
       // draw the line
-      appearBuf->appendf("{0:.4f} {1:.4f} Td\n", x - xPrev, -fontSize);
+      appearBuf->appendf("{0:.4f} {1:.4f} Td\n", xx - xPrev, -fontSize);
       appearBuf->append('(');
       for (; i < j; ++i) {
 	c = text2->getChar(i) & 0xff;
@@ -1678,8 +2168,10 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
 
       // next line
       i = k;
-      xPrev = x;
+      xPrev = xx;
     }
+
+    appearBuf->append("ET\n");
 
   // single-line text
   } else {
@@ -1689,7 +2181,7 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
     if (comb > 0) {
 
       // compute comb spacing
-      w = (dx - 2 * border) / comb;
+      w = dx / comb;
 
       // compute font autosize
       if (fontSize == 0) {
@@ -1712,25 +2204,48 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
       switch (quadding) {
       case acroFormQuadLeft:
       default:
-	x = border + 2;
+	xx = 0;
 	break;
       case acroFormQuadCenter:
-	x = border + 2 + 0.5 * (comb - text2->getLength()) * w;
+	xx = ((comb - text2->getLength()) / 2) * w;
 	break;
       case acroFormQuadRight:
-	x = border + 2 + (comb - text2->getLength()) * w;
+	xx = (comb - text2->getLength()) * w;
 	break;
       }
-      y = 0.5 * dy - 0.4 * fontSize;
+      if (font) {
+	ascent = font->getDeclaredAscent() * fontSize;
+	descent = font->getDescent() * fontSize;
+      } else {
+	ascent = 0.75 * fontSize;
+	descent = -0.25 * fontSize;
+      }
+      switch (vAlign) {
+      case acroFormVAlignTop:
+      default:
+	yy = dy - ascent;
+	break;
+      case acroFormVAlignMiddle:
+	yy = 0.5 * (dy - ascent - descent);
+	break;
+      case acroFormVAlignMiddleNoDescender:
+	yy = 0.5 * (dy - ascent);
+	break;
+      case acroFormVAlignBottom:
+	yy = -descent;
+	break;
+      }
+
+      appearBuf->append("BT\n");
 
       // set the font matrix
       if (tmPos >= 0) {
 	tok = (GString *)daToks->get(tmPos + 4);
 	tok->clear();
-	tok->appendf("{0:.4f}", x);
+	tok->appendf("{0:.4f}", x + xx);
 	tok = (GString *)daToks->get(tmPos + 5);
 	tok->clear();
-	tok->appendf("{0:.4f}", y);
+	tok->appendf("{0:.4f}", y + yy);
       }
 
       // write the DA string
@@ -1742,28 +2257,34 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
 
       // write the font matrix (if not part of the DA string)
       if (tmPos < 0) {
-	appearBuf->appendf("1 0 0 1 {0:.4f} {1:.4f} Tm\n", x, y);
+	appearBuf->appendf("1 0 0 1 {0:.4f} {1:.4f} Tm\n", x + xx, y + yy);
       }
 
       // write the text string
-      //~ this should center (instead of left-justify) each character within
-      //~     its comb cell
+      offset = 0;
       for (i = 0; i < text2->getLength(); ++i) {
-	if (i > 0) {
-	  appearBuf->appendf("{0:.4f} 0 Td\n", w);
-	}
-	appearBuf->append('(');
 	c = text2->getChar(i) & 0xff;
-	if (c == '(' || c == ')' || c == '\\') {
-	  appearBuf->append('\\');
-	  appearBuf->append((char)c);
-	} else if (c < 0x20 || c >= 0x80) {
-	  appearBuf->appendf("{0:.4f} 0 Td\n", w);
+	if (c >= 0x20 && c < 0x80) {
+	  if (font && !font->isCIDFont()) {
+	    charWidth = ((Gfx8BitFont *)font)->getWidth((Guchar)c) * fontSize;
+	  } else {
+	    // otherwise, make a crude estimate
+	    charWidth = 0.5 * fontSize;
+	  }
+	  offset2 = 0.5 * (w - charWidth);
+	  appearBuf->appendf("{0:.4f} 0 Td\n", offset + offset2);
+	  if (c == '(' || c == ')' || c == '\\') {
+	    appearBuf->appendf("(\\{0:c}) Tj\n", c);
+	  } else {
+	    appearBuf->appendf("({0:c}) Tj\n", c);
+	  }
+	  offset = w - offset2;
 	} else {
-	  appearBuf->append((char)c);
+	  offset += w;
 	}
-	appearBuf->append(") Tj\n");
       }
+
+      appearBuf->append("ET\n");
 
     // regular (non-comb) formatting
     } else {
@@ -1802,25 +2323,54 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
       switch (quadding) {
       case acroFormQuadLeft:
       default:
-	x = border + 2;
+	xx = border + 2;
 	break;
       case acroFormQuadCenter:
-	x = (dx - w) / 2;
+	xx = (dx - w) / 2;
 	break;
       case acroFormQuadRight:
-	x = dx - border - 2 - w;
+	xx = dx - border - 2 - w;
 	break;
       }
-      y = 0.5 * dy - 0.4 * fontSize;
+      if (font) {
+	ascent = font->getDeclaredAscent() * fontSize;
+	descent = font->getDescent() * fontSize;
+      } else {
+	ascent = 0.75 * fontSize;
+	descent = -0.25 * fontSize;
+      }
+      switch (vAlign) {
+      case acroFormVAlignTop:
+      default:
+	yy = dy - ascent;
+	break;
+      case acroFormVAlignMiddle:
+	yy = 0.5 * (dy - ascent - descent);
+	break;
+      case acroFormVAlignMiddleNoDescender:
+	yy = 0.5 * (dy - ascent);
+	break;
+      case acroFormVAlignBottom:
+	yy = -descent;
+	break;
+      }
+
+      if (whiteBackground) {
+	appearBuf->appendf("q 1 g {0:.4f} {1:.4f} {2:.4f} {3:.4f} re f Q\n",
+			   xx - 0.25 * fontSize, yy - 0.35 * fontSize,
+			   w + 0.5 * fontSize, 1.2 * fontSize);
+      }
+
+      appearBuf->append("BT\n");
 
       // set the font matrix
       if (tmPos >= 0) {
 	tok = (GString *)daToks->get(tmPos + 4);
 	tok->clear();
-	tok->appendf("{0:.4f}", x);
+	tok->appendf("{0:.4f}", x + xx);
 	tok = (GString *)daToks->get(tmPos + 5);
 	tok->clear();
-	tok->appendf("{0:.4f}", y);
+	tok->appendf("{0:.4f}", y + yy);
       }
 
       // write the DA string
@@ -1832,7 +2382,7 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
 
       // write the font matrix (if not part of the DA string)
       if (tmPos < 0) {
-	appearBuf->appendf("1 0 0 1 {0:.4f} {1:.4f} Tm\n", x, y);
+	appearBuf->appendf("1 0 0 1 {0:.4f} {1:.4f} Tm\n", x + xx, y + yy);
       }
 
       // write the text string
@@ -1850,10 +2400,11 @@ void AcroFormField::drawText(GString *text, GString *da, GfxFontDict *fontDict,
       }
       appearBuf->append(") Tj\n");
     }
+
+    appearBuf->append("ET\n");
   }
 
   // cleanup
-  appearBuf->append("ET\n");
   appearBuf->append("Q\n");
   if (txField) {
     appearBuf->append("EMC\n");
@@ -2197,6 +2748,203 @@ void AcroFormField::drawCircleBottomRight(double cx, double cy, double r,
   appearBuf->append("S\n");
 }
 
+void AcroFormField::drawBarcode(GString *value, GString *da,
+				GfxFontDict *fontDict, int rot,
+				double xMin, double yMin,
+				double xMax, double yMax,
+				XFAFieldBarcodeInfo *barcodeInfo,
+				GString *appearBuf) {
+  //--- handle rotation
+  double w, h;
+  appearBuf->append("q\n");
+  switch (rot) {
+  case 0:
+  default:
+    w = xMax - xMin;
+    h = yMax - yMin;
+    break;
+  case 90:
+    appearBuf->appendf("0 1 -1 0 {0:.4f} 0 cm\n", xMax - xMin);
+    w = yMax - yMin;
+    h = xMax - xMin;
+    break;
+  case 180:
+    appearBuf->appendf("0 -1 1 0 0 {0:.4f} cm\n", yMax - yMin);
+    w = yMax - yMin;
+    h = xMax - xMin;
+    break;
+  case 270:
+    appearBuf->appendf("0 -1 1 0 0 {0:.4f} cm\n", yMax - yMin);
+    w = yMax - yMin;
+    h = xMax - xMin;
+    break;
+  }
+
+  //--- get the font size
+  double fontSize = 0.2 * h;
+  if (da) {
+    GList *daToks = tokenize(da);
+    for (int i = 2; i < daToks->getLength(); ++i) {
+      if (!((GString *)daToks->get(i))->cmp("Tf")) {
+	fontSize = atof(((GString *)daToks->get(i - 1))->getCString());
+	break;
+      }
+    }
+    deleteGList(daToks, GString);
+  }
+
+  //--- compute the embedded text type position
+  GBool doText = gTrue;
+  double yText = 0;
+  int vAlign = acroFormVAlignTop;
+  double yBarcode = 0;
+  double hBarcode = 0;
+  GBool whiteBackground = gFalse;
+  //~ this uses an estimate of the font baseline position
+  if (barcodeInfo->textLocation &&
+      !barcodeInfo->textLocation->cmp("above")) {
+    yText = h;
+    vAlign = acroFormVAlignTop;
+    yBarcode = 0;
+    hBarcode = h - fontSize;
+  } else if (barcodeInfo->textLocation &&
+	     !barcodeInfo->textLocation->cmp("belowEmbedded")) {
+    yText = 0;
+    vAlign = acroFormVAlignBottom;
+    yBarcode = 0;
+    hBarcode = h;
+    whiteBackground = gTrue;
+  } else if (barcodeInfo->textLocation &&
+	     !barcodeInfo->textLocation->cmp("aboveEmbedded")) {
+    yText = h;
+    vAlign = acroFormVAlignTop;
+    yBarcode = 0;
+    hBarcode = h;
+    whiteBackground = gTrue;
+  } else if (barcodeInfo->textLocation &&
+	     !barcodeInfo->textLocation->cmp("none")) {
+    doText = gFalse;
+  } else { // default is "below"
+    yText = 0;
+    vAlign = acroFormVAlignBottom;
+    yBarcode = fontSize;
+    hBarcode = h - fontSize;
+  }
+  double wText = w;
+
+  //--- remove extraneous start/stop chars
+  GString *value2 = value->copy();
+  if (!barcodeInfo->barcodeType->cmp("code3Of9")) {
+    if (value2->getLength() >= 1 && value2->getChar(0) == '*') {
+      value2->del(0);
+    }
+    if (value2->getLength() >= 1 &&
+	value2->getChar(value2->getLength() - 1) == '*') {
+      value2->del(value2->getLength() - 1);
+    }
+  }
+
+  //--- draw the bar code
+  if (!barcodeInfo->barcodeType->cmp("code3Of9")) {
+    if (!barcodeInfo->dataLength) {
+      error(errSyntaxError, -1,
+	    "Missing 'dataLength' attribute in barcode field");
+      goto err;
+    }
+    appearBuf->append("0 g\n");
+    double wNarrow = w / ((7 + 3 * barcodeInfo->wideNarrowRatio)
+			  * (barcodeInfo->dataLength + 2));
+    double xx = 0;
+    for (int i = -1; i <= value2->getLength(); ++i) {
+      int c;
+      if (i < 0 || i >= value2->getLength()) {
+	c = '*';
+      } else {
+	c = value2->getChar(i) & 0x7f;
+      }
+      for (int j = 0; j < 10; j += 2) {
+	appearBuf->appendf("{0:.4f} {1:.4f} {2:.4f} {3:.4f} re f\n",
+			   xx, yBarcode,
+			   (code3Of9Data[c][j] ? barcodeInfo->wideNarrowRatio
+			                       : 1) * wNarrow,
+			   hBarcode);
+	xx += ((code3Of9Data[c][j] ? barcodeInfo->wideNarrowRatio : 1) +
+	       (code3Of9Data[c][j+1] ? barcodeInfo->wideNarrowRatio : 1))
+	      * wNarrow;
+      }
+    }
+    // center the text on the drawn barcode (not the max length barcode)
+    wText = (value2->getLength() + 2) * (7 + 3 * barcodeInfo->wideNarrowRatio)
+            * wNarrow;
+  } else if (!barcodeInfo->barcodeType->cmp("code128B")) {
+    if (!barcodeInfo->dataLength) {
+      error(errSyntaxError, -1,
+	    "Missing 'dataLength' attribute in barcode field");
+      goto err;
+    }
+    appearBuf->append("0 g\n");
+    double wNarrow = w / (11 * (barcodeInfo->dataLength + 3) + 2);
+    double xx = 0;
+    int checksum = 0;
+    for (int i = -1; i <= value2->getLength() + 1; ++i) {
+      int c;
+      if (i == -1) {
+	// start code B
+	c = 104;
+	checksum += c;
+      } else if (i == value2->getLength()) {
+	// checksum
+	c = checksum % 103;
+      } else if (i == value2->getLength() + 1) {
+	// stop code
+	c = 106;
+      } else {
+	c = value2->getChar(i) & 0xff;
+	if (c >= 32 && c <= 127) {
+	  c -= 32;
+	} else {
+	  c = 0;
+	}	  
+	checksum += (i + 1) * c;
+      }
+      for (int j = 0; j < 6; j += 2) {
+	appearBuf->appendf("{0:.4f} {1:.4f} {2:.4f} {3:.4f} re f\n",
+			   xx, yBarcode,
+			   code128Data[c][j] * wNarrow, hBarcode);
+	xx += (code128Data[c][j] + code128Data[c][j+1]) * wNarrow;
+      }
+    }
+    // final bar of the stop code
+    appearBuf->appendf("{0:.4f} {1:.4f} {2:.4f} {3:.4f} re f\n",
+		       xx, yBarcode, 2 * wNarrow, hBarcode);
+    // center the text on the drawn barcode (not the max length barcode)
+    wText = (11 * (value2->getLength() + 3) + 2) * wNarrow;
+  } else if (!barcodeInfo->barcodeType->cmp("pdf417")) {
+    drawPDF417Barcode(w, h, barcodeInfo->moduleWidth,
+		      barcodeInfo->moduleHeight,
+		      barcodeInfo->errorCorrectionLevel,
+		      value2, appearBuf);
+    doText = gFalse;
+  } else {
+    error(errSyntaxError, -1,
+	  "Unimplemented barcode type '{0:t}' in barcode field",
+	  barcodeInfo->barcodeType);
+  }
+  //~ add other barcode types here
+
+  //--- draw the embedded text
+  if (doText) {
+    drawText(value2, da, fontDict, gFalse, 0, acroFormQuadCenter,
+	     vAlign, gFalse, gFalse, 0, 0, yText, wText, yText + fontSize,
+	     0, whiteBackground, appearBuf);
+  }
+
+  appearBuf->append("Q\n");
+
+ err:
+  delete value2;
+}
+
 GList *AcroFormField::tokenize(GString *s) {
   GList *toks;
   int i, j;
@@ -2373,19 +3121,769 @@ Object *AcroFormField::fieldLookup(const char *key, Object *obj) {
 }
 
 Object *AcroFormField::fieldLookup(Dict *dict, const char *key, Object *obj) {
-  Object parent;
+  Object parent, parent2;
+  int depth;
 
   if (!dict->lookup(key, obj)->isNull()) {
     return obj;
   }
   obj->free();
-  if (dict->lookup("Parent", &parent)->isDict()) {
-    fieldLookup(parent.getDict(), key, obj);
-  } else {
-    // some fields don't specify a parent, so we check the AcroForm
-    // dictionary just in case
-    acroForm->acroFormObj.dictLookup(key, obj);
+
+  dict->lookup("Parent", &parent)->isDict();
+  depth = 0;
+  while (parent.isDict() && depth < maxFieldObjectDepth) {
+    if (!parent.dictLookup(key, obj)->isNull()) {
+      parent.free();
+      return obj;
+    }
+    obj->free();
+    parent.dictLookup("Parent", &parent2);
+    parent.free();
+    parent = parent2;
+    ++depth;
   }
   parent.free();
+
+  // some fields don't specify a parent, so we check the AcroForm
+  // dictionary just in case
+  acroForm->acroFormObj.dictLookup(key, obj);
   return obj;
+}
+
+Unicode *AcroFormField::utf8ToUnicode(GString *s, int *unicodeLength) {
+  int n = 0;
+  int i = 0;
+  Unicode u;
+  while (getUTF8(s, &i, &u)) {
+    ++n;
+  }
+  Unicode *uVec = (Unicode *)gmallocn(n, sizeof(Unicode));
+  n = 0;
+  i = 0;
+  while (getUTF8(s, &i, &uVec[n])) {
+    ++n;
+  }
+  *unicodeLength = n;
+  return uVec;
+}
+
+GString *AcroFormField::unicodeToLatin1(Unicode *u, int unicodeLength) {
+  GString *s = new GString();
+  for (int i = 0; i < unicodeLength; ++i) {
+    if (u[i] <= 0xff) {
+      s->append((char)u[i]);
+    }
+  }
+  return s;
+}
+
+GBool AcroFormField::unicodeStringEqual(Unicode *u, int unicodeLength,
+					GString *s) {
+  if (s->getLength() != unicodeLength) {
+    return gFalse;
+  }
+  for (int i = 0; i < unicodeLength; ++i) {
+    if ((s->getChar(i) & 0xff) != u[i]) {
+      return gFalse;
+    }
+  }
+  return gTrue;
+}
+
+GBool AcroFormField::unicodeStringEqual(Unicode *u, int unicodeLength,
+					const char *s) {
+  for (int i = 0; i < unicodeLength; ++i) {
+    if (!s[i] || (s[i] & 0xff) != u[i]) {
+      return gFalse;
+    }
+  }
+  return gTrue;
+}
+
+//------------------------------------------------------------------------
+// 'picture' formatting
+//------------------------------------------------------------------------
+
+class PictureNode {
+public:
+  virtual ~PictureNode() {}
+  virtual GBool isLiteral() { return gFalse; }
+  virtual GBool isSign() { return gFalse; }
+  virtual GBool isDigit() { return gFalse; }
+  virtual GBool isDecPt() { return gFalse; }
+  virtual GBool isSeparator() { return gFalse; }
+  virtual GBool isYear() { return gFalse; }
+  virtual GBool isMonth() { return gFalse; }
+  virtual GBool isDay() { return gFalse; }
+  virtual GBool isHour() { return gFalse; }
+  virtual GBool isMinute() { return gFalse; }
+  virtual GBool isSecond() { return gFalse; }
+  virtual GBool isChar() { return gFalse; }
+};
+
+class PictureLiteral: public PictureNode {
+public:
+  PictureLiteral(GString *sA) { s = sA; }
+  virtual ~PictureLiteral() { delete s; }
+  virtual GBool isLiteral() { return gTrue; }
+  GString *s;
+};
+
+class PictureSign: public PictureNode {
+public:
+  PictureSign(char cA) { c = cA; }
+  virtual GBool isSign() { return gTrue; }
+  char c;
+};
+
+class PictureDigit: public PictureNode {
+public:
+  PictureDigit(char cA) { c = cA; pos = 0; }
+  virtual GBool isDigit() { return gTrue; }
+  char c;
+  int pos;
+};
+
+class PictureDecPt: public PictureNode {
+public:
+  PictureDecPt() { }
+  virtual GBool isDecPt() { return gTrue; }
+};
+
+class PictureSeparator: public PictureNode {
+public:
+  PictureSeparator() { }
+  virtual GBool isSeparator() { return gTrue; }
+};
+
+class PictureYear: public PictureNode {
+public:
+  PictureYear(int nDigitsA) { nDigits = nDigitsA; }
+  virtual GBool isYear() { return gTrue; }
+  int nDigits;
+};
+
+class PictureMonth: public PictureNode {
+public:
+  PictureMonth(int nDigitsA) { nDigits = nDigitsA; }
+  virtual GBool isMonth() { return gTrue; }
+  int nDigits;
+};
+
+class PictureDay: public PictureNode {
+public:
+  PictureDay(int nDigitsA) { nDigits = nDigitsA; }
+  virtual GBool isDay() { return gTrue; }
+  int nDigits;
+};
+
+class PictureHour: public PictureNode {
+public:
+  PictureHour(GBool is24HourA, int nDigitsA)
+    { is24Hour = is24HourA; nDigits = nDigitsA; }
+  virtual GBool isHour() { return gTrue; }
+  GBool is24Hour;
+  int nDigits;
+};
+
+class PictureMinute: public PictureNode {
+public:
+  PictureMinute(int nDigitsA) { nDigits = nDigitsA; }
+  virtual GBool isMinute() { return gTrue; }
+  int nDigits;
+};
+
+class PictureSecond: public PictureNode {
+public:
+  PictureSecond(int nDigitsA) { nDigits = nDigitsA; }
+  virtual GBool isSecond() { return gTrue; }
+  int nDigits;
+};
+
+class PictureChar: public PictureNode {
+public:
+  PictureChar() {}
+  virtual GBool isChar() { return gTrue; }
+};
+
+GString *AcroFormField::pictureFormatDateTime(GString *value,
+					      GString *picture) {
+  GList *pic;
+  PictureNode *node;
+  GString *ret, *s;
+  char c;
+  int year, month, day, hour, min, sec;
+  int len, picStart, picEnd, u, n, i, j;
+
+  len = value->getLength();
+  if (len == 0) {
+    return value->copy();
+  }
+
+  //--- parse the value
+
+  // expected format is yyyy(-mm(-dd)?)?Thh(:mm(:ss)?)?
+  // where:
+  // - the '-'s and ':'s are optional
+  // - the 'T' is literal
+  // - we're ignoring optional time zone info at the end
+  // (if the value is not in this canonical format, we just punt and
+  // return the value string)
+  //~ another option would be to parse the value following the
+  //~   <ui><picture> element
+  year = month = day = hour = min = sec = 0;
+  i = 0;
+  if (!(i + 4 <= len && isValidInt(value, i, 4))) {
+    return value->copy();
+  }
+  year = convertInt(value, i, 4);
+  i += 4;
+  if (i < len && value->getChar(i) == '-') {
+    ++i;
+  }
+  if (i + 2 <= len && isValidInt(value, i, 2)) {
+    month = convertInt(value, i, 2);
+    i += 2;
+    if (i < len && value->getChar(i) == '-') {
+      ++i;
+    }
+    if (i + 2 <= len && isValidInt(value, i, 2)) {
+      day = convertInt(value, i, 2);
+      i += 2;
+    }
+  }
+  if (i < len) {
+    if (value->getChar(i) != 'T') {
+      return value->copy();
+    }
+    ++i;
+    if (!(i + 2 <= len && isValidInt(value, i, 2))) {
+      return value->copy();
+    }
+    hour = convertInt(value, i, 2);
+    i += 2;
+    if (i < len && value->getChar(i) == ':') {
+      ++i;
+    }
+    if (i + 2 <= len && isValidInt(value, i, 2)) {
+      min = convertInt(value, i, 2);
+      i += 2;
+      if (i < len && value->getChar(i) == ':') {
+	++i;
+      }
+      if (i + 2 <= len && isValidInt(value, i, 2)) {
+	sec = convertInt(value, i, 2);
+	i += 2;
+      }
+    }
+  }
+  if (i < len) {
+    return value->copy();
+  }
+
+  //--- skip the category and locale in the picture
+
+  picStart = 0;
+  picEnd = picture->getLength();
+  for (i = 0; i < picture->getLength(); ++i) {
+    c = picture->getChar(i);
+    if (c == '{') {
+      picStart = i + 1;
+      for (picEnd = picStart;
+	   picEnd < picture->getLength() && picture->getChar(picEnd) != '}';
+	   ++picEnd) ;
+      break;
+    } else if (!((c >= 'a' && c <= 'z') ||
+		 (c >= 'A' && c <= 'Z') ||
+		 c == '(' ||
+		 c == ')')) {
+      break;
+    }
+  }
+
+  //--- parse the picture
+
+  pic = new GList();
+  i = picStart;
+  while (i < picEnd) {
+    c = picture->getChar(i);
+    ++i;
+    if (c == '\'') {
+      s = new GString();
+      while (i < picEnd) {
+	c = picture->getChar(i);
+	if (c == '\'') {
+	  ++i;
+	  if (i < picEnd && picture->getChar(i) == '\'') {
+	    s->append('\'');
+	    ++i;
+	  } else {
+	    break;
+	  }
+	} else if (c == '\\') {
+	  ++i;
+	  if (i == picEnd) {
+	    break;
+	  }
+	  c = picture->getChar(i);
+	  ++i;
+	  if (c == 'u' && i+4 <= picEnd) {
+	    u = 0;
+	    for (j = 0; j < 4; ++j, ++i) {
+	      c = picture->getChar(i);
+	      u <<= 4;
+	      if (c >= '0' && c <= '9') {
+		u += c - '0';
+	      } else if (c >= 'a' && c <= 'f') {
+		u += c - 'a' + 10;
+	      } else if (c >= 'A' && c <= 'F') {
+		u += c - 'A' + 10;
+	      }
+	    }
+	    //~ this should convert to UTF-8 (?)
+	    if (u <= 0xff) {
+	      s->append((char)u);
+	    }
+	  } else {
+	    s->append(c);
+	  }
+	} else {
+	  s->append(c);
+	}
+      }
+      pic->append(new PictureLiteral(s));
+    } else if (c == ',' || c == '-' || c == ':' ||
+	       c == '/' || c == '.' || c == ' ') {
+      s = new GString();
+      s->append(c);
+      pic->append(new PictureLiteral(s));
+    } else if (c == 'Y') {
+      for (n = 1; n < 4 && i < picEnd && picture->getChar(i) == 'Y'; ++n, ++i) ;
+      pic->append(new PictureYear(n));
+    } else if (c == 'M') {
+      for (n = 1; n < 2 && i < picEnd && picture->getChar(i) == 'M'; ++n, ++i) ;
+      pic->append(new PictureMonth(n));
+    } else if (c == 'D') {
+      for (n = 1; n < 2 && i < picEnd && picture->getChar(i) == 'D'; ++n, ++i) ;
+      pic->append(new PictureDay(n));
+    } else if (c == 'h') {
+      for (n = 1; n < 2 && i < picEnd && picture->getChar(i) == 'h'; ++n, ++i) ;
+      pic->append(new PictureHour(gFalse, n));
+    } else if (c == 'H') {
+      for (n = 1; n < 2 && i < picEnd && picture->getChar(i) == 'H'; ++n, ++i) ;
+      pic->append(new PictureHour(gTrue, n));
+    } else if (c == 'M') {
+      for (n = 1; n < 2 && i < picEnd && picture->getChar(i) == 'M'; ++n, ++i) ;
+      pic->append(new PictureMinute(n));
+    } else if (c == 'S') {
+      for (n = 1; n < 2 && i < picEnd && picture->getChar(i) == 'S'; ++n, ++i) ;
+      pic->append(new PictureSecond(n));
+    }
+  }
+
+  //--- generate formatted text
+
+  ret = new GString();
+  for (i = 0; i < pic->getLength(); ++i) {
+    node = (PictureNode *)pic->get(i);
+    if (node->isLiteral()) {
+      ret->append(((PictureLiteral *)node)->s);
+    } else if (node->isYear()) {
+      if (((PictureYear *)node)->nDigits == 2) {
+	if (year >= 1930 && year < 2030) {
+	  ret->appendf("{0:02d}", year % 100);
+	} else {
+	  ret->append("??");
+	}
+      } else {
+	ret->appendf("{0:04d}", year);
+      }
+    } else if (node->isMonth()) {
+      if (((PictureMonth *)node)->nDigits == 1) {
+	ret->appendf("{0:d}", month);
+      } else {
+	ret->appendf("{0:02d}", month);
+      }
+    } else if (node->isDay()) {
+      if (((PictureDay *)node)->nDigits == 1) {
+	ret->appendf("{0:d}", day);
+      } else {
+	ret->appendf("{0:02d}", day);
+      }
+    } else if (node->isHour()) {
+      if (((PictureHour *)node)->is24Hour) {
+	n = hour;
+      } else {
+	n = hour % 12;
+	if (n == 0) {
+	  n = 12;
+	}
+      }
+      if (((PictureHour *)node)->nDigits == 1) {
+	ret->appendf("{0:d}", n);
+      } else {
+	ret->appendf("{0:02d}", n);
+      }
+    } else if (node->isMinute()) {
+      if (((PictureMinute *)node)->nDigits == 1) {
+	ret->appendf("{0:d}", min);
+      } else {
+	ret->appendf("{0:02d}", min);
+      }
+    } else if (node->isSecond()) {
+      if (((PictureSecond *)node)->nDigits == 1) {
+	ret->appendf("{0:d}", sec);
+      } else {
+	ret->appendf("{0:02d}", sec);
+      }
+    }
+  }
+  deleteGList(pic, PictureNode);
+
+  return ret;
+}
+
+GString *AcroFormField::pictureFormatNumber(GString *value, GString *picture) {
+  GList *pic;
+  PictureNode *node;
+  GString *ret, *s;
+  GBool neg, haveDigits;
+  char c;
+  int start, decPt, trailingZero, len;
+  int picStart, picEnd, u, pos, i, j;
+
+  len = value->getLength();
+  if (len == 0) {
+    return value->copy();
+  }
+
+  //--- parse the value
+
+  // -nnnn.nnnn0000
+  //  ^   ^    ^   ^
+  //  |   |    |   +-- len
+  //  |   |    +------ trailingZero
+  //  |   +----------- decPt
+  //  +--------------- start
+  start = 0;
+  neg = gFalse;
+  if (value->getChar(start) == '-') {
+    neg = gTrue;
+    ++start;
+  } else if (value->getChar(start) == '+') {
+    ++start;
+  }
+  for (decPt = start; decPt < len && value->getChar(decPt) != '.'; ++decPt) ;
+  for (trailingZero = len;
+       trailingZero > decPt && value->getChar(trailingZero - 1) == '0';
+       --trailingZero) ;
+
+  //--- skip the category and locale in the picture
+
+  picStart = 0;
+  picEnd = picture->getLength();
+  for (i = 0; i < picture->getLength(); ++i) {
+    c = picture->getChar(i);
+    if (c == '{') {
+      picStart = i + 1;
+      for (picEnd = picStart;
+	   picEnd < picture->getLength() && picture->getChar(picEnd) != '}';
+	   ++picEnd) ;
+      break;
+    } else if (!((c >= 'a' && c <= 'z') ||
+		 (c >= 'A' && c <= 'Z') ||
+		 c == '(' ||
+		 c == ')')) {
+      break;
+    }
+  }
+
+  //--- parse the picture
+
+  pic = new GList();
+  i = picStart;
+  while (i < picEnd) {
+    c = picture->getChar(i);
+    ++i;
+    if (c == '\'') {
+      s = new GString();
+      while (i < picEnd) {
+	c = picture->getChar(i);
+	if (c == '\'') {
+	  ++i;
+	  if (i < picEnd && picture->getChar(i) == '\'') {
+	    s->append('\'');
+	    ++i;
+	  } else {
+	    break;
+	  }
+	} else if (c == '\\') {
+	  ++i;
+	  if (i == picEnd) {
+	    break;
+	  }
+	  c = picture->getChar(i);
+	  ++i;
+	  if (c == 'u' && i+4 <= picEnd) {
+	    u = 0;
+	    for (j = 0; j < 4; ++j, ++i) {
+	      c = picture->getChar(i);
+	      u <<= 4;
+	      if (c >= '0' && c <= '9') {
+		u += c - '0';
+	      } else if (c >= 'a' && c <= 'F') {
+		u += c - 'a' + 10;
+	      } else if (c >= 'A' && c <= 'F') {
+		u += c - 'A' + 10;
+	      }
+	    }
+	    //~ this should convert to UTF-8 (?)
+	    if (u <= 0xff) {
+	      s->append((char)u);
+	    }
+	  } else {
+	    s->append(c);
+	  }
+	} else {
+	  s->append(c);
+	  ++i;
+	}
+      }
+      pic->append(new PictureLiteral(s));
+    } else if (c == '-' || c == ':' || c == '/' || c == ' ') {
+      s = new GString();
+      s->append(c);
+      pic->append(new PictureLiteral(s));
+    } else if (c == 's' || c == 'S') {
+      pic->append(new PictureSign(c));
+    } else if (c == 'Z' || c == 'z' || c == '8' || c == '9') {
+      pic->append(new PictureDigit(c));
+    } else if (c == '.') {
+      pic->append(new PictureDecPt());
+    } else if (c == ',') {
+      pic->append(new PictureSeparator());
+    }
+  }
+  for (i = 0; i < pic->getLength(); ++i) {
+    node = (PictureNode *)pic->get(i);
+    if (node->isDecPt()) {
+      break;
+    }
+  }
+  pos = 0;
+  for (j = i - 1; j >= 0; --j) {
+    node = (PictureNode *)pic->get(j);
+    if (node->isDigit()) {
+      ((PictureDigit *)node)->pos = pos;
+      ++pos;
+    }
+  }
+  pos = -1;
+  for (j = i + 1; j < pic->getLength(); ++j) {
+    node = (PictureNode *)pic->get(j);
+    if (node->isDigit()) {
+      ((PictureDigit *)node)->pos = pos;
+      --pos;
+    }
+  }
+
+  //--- generate formatted text
+
+  ret = new GString();
+  haveDigits = gFalse;
+  for (i = 0; i < pic->getLength(); ++i) {
+    node = (PictureNode *)pic->get(i);
+    if (node->isLiteral()) {
+      ret->append(((PictureLiteral *)node)->s);
+    } else if (node->isSign()) {
+      if (((PictureSign *)node)->c == 'S') {
+	ret->append(neg ? '-' : ' ');
+      } else {
+	if (neg) {
+	  ret->append('-');
+	}
+      }
+    } else if (node->isDigit()) {
+      pos = ((PictureDigit *)node)->pos;
+      c = ((PictureDigit *)node)->c;
+      if (pos >= 0 && pos < decPt - start) {
+	ret->append(value->getChar(decPt - 1 - pos));
+	haveDigits = gTrue;
+      } else if (pos < 0 && -pos <= trailingZero - decPt - 1) {
+	ret->append(value->getChar(decPt - pos));
+	haveDigits = gTrue;
+      } else if (c == '8' &&
+		 pos < 0 &&
+		 -pos <= len - decPt - 1) {
+	ret->append('0');
+	haveDigits = gTrue;
+      } else if (c == '9') {
+	ret->append('0');
+	haveDigits = gTrue;
+      } else if (c == 'Z' && pos >= 0) {
+	ret->append(' ');
+      }
+    } else if (node->isDecPt()) {
+      if (!(i+1 < pic->getLength() &&
+	    ((PictureNode *)pic->get(i+1))->isDigit() &&
+	    ((PictureDigit *)pic->get(i+1))->c == 'z') ||
+	  trailingZero > decPt + 1) {
+	ret->append('.');
+      }
+    } else if (node->isSeparator()) {
+      if (haveDigits) {
+	ret->append(',');
+      }
+    }
+  }
+  deleteGList(pic, PictureNode);
+
+  return ret;
+}
+
+GString *AcroFormField::pictureFormatText(GString *value, GString *picture) {
+  GList *pic;
+  PictureNode *node;
+  GString *ret, *s;
+  char c;
+  int len, picStart, picEnd, u, i, j;
+
+  len = value->getLength();
+  if (len == 0) {
+    return value->copy();
+  }
+
+  //--- skip the category and locale in the picture
+
+  picStart = 0;
+  picEnd = picture->getLength();
+  for (i = 0; i < picture->getLength(); ++i) {
+    c = picture->getChar(i);
+    if (c == '{') {
+      picStart = i + 1;
+      for (picEnd = picStart;
+	   picEnd < picture->getLength() && picture->getChar(picEnd) != '}';
+	   ++picEnd) ;
+      break;
+    } else if (!((c >= 'a' && c <= 'z') ||
+		 (c >= 'A' && c <= 'Z') ||
+		 c == '(' ||
+		 c == ')')) {
+      break;
+    }
+  }
+
+  //--- parse the picture
+
+  pic = new GList();
+  i = picStart;
+  while (i < picEnd) {
+    c = picture->getChar(i);
+    ++i;
+    if (c == '\'') {
+      s = new GString();
+      while (i < picEnd) {
+	c = picture->getChar(i);
+	if (c == '\'') {
+	  ++i;
+	  if (i < picEnd && picture->getChar(i) == '\'') {
+	    s->append('\'');
+	    ++i;
+	  } else {
+	    break;
+	  }
+	} else if (c == '\\') {
+	  ++i;
+	  if (i == picEnd) {
+	    break;
+	  }
+	  c = picture->getChar(i);
+	  ++i;
+	  if (c == 'u' && i+4 <= picEnd) {
+	    u = 0;
+	    for (j = 0; j < 4; ++j, ++i) {
+	      c = picture->getChar(i);
+	      u <<= 4;
+	      if (c >= '0' && c <= '9') {
+		u += c - '0';
+	      } else if (c >= 'a' && c <= 'F') {
+		u += c - 'a' + 10;
+	      } else if (c >= 'A' && c <= 'F') {
+		u += c - 'A' + 10;
+	      }
+	    }
+	    //~ this should convert to UTF-8 (?)
+	    if (u <= 0xff) {
+	      s->append((char)u);
+	    }
+	  } else {
+	    s->append(c);
+	  }
+	} else {
+	  s->append(c);
+	  ++i;
+	}
+      }
+      pic->append(new PictureLiteral(s));
+    } else if (c == ',' || c == '-' || c == ':' ||
+	       c == '/' || c == '.' || c == ' ') {
+      s = new GString();
+      s->append(c);
+      pic->append(new PictureLiteral(s));
+    } else if (c == 'A' || c == 'X' || c == 'O' || c == '0' || c == '9') {
+      pic->append(new PictureChar());
+    }
+  }
+
+  //--- generate formatted text
+
+  ret = new GString();
+  j = 0;
+  for (i = 0; i < pic->getLength(); ++i) {
+    node = (PictureNode *)pic->get(i);
+    if (node->isLiteral()) {
+      ret->append(((PictureLiteral *)node)->s);
+    } else if (node->isChar()) {
+      // if there are more chars in the picture than in the value,
+      // Adobe renders the value as-is, without picture formatting
+      if (j >= value->getLength()) {
+	delete ret;
+	ret = value->copy();
+	break;
+      }
+      ret->append(value->getChar(j));
+      ++j;
+    }
+  }
+  deleteGList(pic, PictureNode);
+
+  return ret;
+}
+
+GBool AcroFormField::isValidInt(GString *s, int start, int len) {
+  int i;
+
+  for (i = 0; i < len; ++i) {
+    if (!(start + i < s->getLength() &&
+	  s->getChar(start + i) >= '0' &&
+	  s->getChar(start + i) <= '9')) {
+      return gFalse;
+    }
+  }
+  return gTrue;
+}
+
+int AcroFormField::convertInt(GString *s, int start, int len) {
+  char c;
+  int x, i;
+
+  x = 0;
+  for (i = 0; i < len && start + i < s->getLength(); ++i) {
+    c = s->getChar(start + i);
+    if (c < '0' || c > '9') {
+      break;
+    }
+    x = x * 10 + (c - '0');
+  }
+  return x;
 }

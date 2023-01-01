@@ -565,7 +565,7 @@ static FoFiIdentifierType identifyOpenType(Reader *reader) {
 
 static FoFiIdentifierType identifyCFF(Reader *reader, int start) {
   Guint offset0, offset1;
-  int hdrSize, offSize0, offSize1, pos, endPos, b0, n, i;
+  int hdrSize, offSize0, offSize1, pos, endPos, b0, n;
 
   //----- read the header
   if (reader->getByte(start) != 0x01 ||
@@ -626,19 +626,18 @@ static FoFiIdentifierType identifyCFF(Reader *reader, int start) {
   //----- parse the top dict, look for ROS as first entry
   // for a CID font, the top dict starts with:
   //     <int> <int> <int> ROS
-  for (i = 0; i < 3; ++i) {
-    b0 = reader->getByte(pos++);
+  while (pos >= 0 && pos < endPos) {
+    b0 = reader->getByte(pos);
     if (b0 == 0x1c) {
-      pos += 2;
+      pos += 3;
     } else if (b0 == 0x1d) {
-      pos += 4;
+      pos += 5;
     } else if (b0 >= 0xf7 && b0 <= 0xfe) {
+      pos += 2;
+    } else if (b0 >= 0x20 && b0 <= 0xf6) {
       pos += 1;
-    } else if (b0 < 0x20 || b0 > 0xf6) {
-      return fofiIdCFF8Bit;
-    }
-    if (pos >= endPos || pos < 0) {
-      return fofiIdCFF8Bit;
+    } else {
+      break;
     }
   }
   if (pos + 1 < endPos &&

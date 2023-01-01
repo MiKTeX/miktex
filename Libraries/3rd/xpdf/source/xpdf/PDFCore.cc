@@ -26,7 +26,7 @@
 #include "PDFDoc.h"
 #include "Link.h"
 #include "Annot.h"
-#include "Form.h"
+#include "AcroForm.h"
 #include "OptionalContent.h"
 #include "TileMap.h"
 #include "TileCache.h"
@@ -260,9 +260,15 @@ void PDFCore::displayPage(int page, GBool scrollToTop,
   if (page <= 0 || page > doc->getNumPages()) {
     return;
   }
-  if (scrollToTop ||
-      state->getDisplayMode() == displayContinuous ||
-      state->getDisplayMode() == displaySideBySideContinuous) {
+  if (!scrollToTop &&
+      (state->getDisplayMode() == displayContinuous ||
+       state->getDisplayMode() == displaySideBySideContinuous)) {
+    scrollY = tileMap->getPageTopY(page)
+              + (state->getScrollY()
+		 - tileMap->getPageTopY(tileMap->getFirstPage()));
+  } else if (scrollToTop ||
+	     state->getDisplayMode() == displayContinuous ||
+	     state->getDisplayMode() == displaySideBySideContinuous) {
     scrollY = tileMap->getPageTopY(page);
   } else if (scrollToBottom) {
     scrollY = tileMap->getPageBottomY(page);
@@ -415,7 +421,15 @@ void PDFCore::finishUpdate(GBool addToHist, GBool checkForChangedFile) {
   }
 
   // redraw
-  invalidateWholeWindow();
+  // - if the bitmap is available (e.g., we just scrolled), we want to
+  //   redraw immediately; if not, postpone the redraw until a
+  //   tileDone or tick (incremental update) to avoid "flashing" the
+  //   screen (drawing a blank background, followed by the actual
+  //   content slightly later)
+  getWindowBitmap(gTrue);
+  if (bitmapFinished) {
+    invalidateWholeWindow();
+  }
   updateScrollbars();
 
   // add to history
@@ -430,21 +444,28 @@ void PDFCore::addToHistory() {
 
   cur = &history[historyCur];
   h.page = tileMap->getMidPage();
+  h.fileName = NULL;
 #ifdef _WIN32
   if (doc->getFileNameU()) {
-    h.fileName = (wchar_t *)gmallocn(MAX_PATH + 1, sizeof(wchar_t));
-    if (GetFullPathNameW(doc->getFileNameU(), MAX_PATH + 1,
-			 h.fileName, NULL) == 0) {
-      h.fileName = NULL;
+    wchar_t dummy;
+    // NB: if the buffer is too small, GetFullPathNameW returns a
+    // *maximum* required buffer size, which may be larger than the
+    // size actually used by the second call (it looks like it just
+    // adds the size of the current directory and the sizef of the
+    // input path)
+    DWORD nChars = GetFullPathNameW(doc->getFileNameU(), 1, &dummy, NULL);
+    if (nChars > 0) {
+      h.fileName = (wchar_t *)gmallocn(nChars, sizeof(wchar_t));
+      if (GetFullPathNameW(doc->getFileNameU(), nChars,
+			   h.fileName, NULL) == 0) {
+	gfree(h.fileName);
+	h.fileName = NULL;
+      }
     }
-  } else {
-    h.fileName = NULL;
   }
 #else
   if (doc->getFileName()) {
     h.fileName = doc->getFileName()->copy();
-  } else {
-    h.fileName = NULL;
   }
 #endif
   if (historyBLen > 0 && h.page == cur->page) {
@@ -679,19 +700,23 @@ void PDFCore::scrollTo(int x, int y, GBool snapToPage) {
 	state->getDisplayMode() == displaySideBySideContinuous) {
       next = state->getDisplayMode() == displaySideBySideContinuous ? 2 : 1;
       topPage = tileMap->getFirstPage();
-      topPageY = tileMap->getPageTopY(topPage);
-      sy = state->getScrollY();
-      dy = sy - topPageY;
-      // note: dy can be negative here if the inter-page gap is at the
-      // top of the window
-      if (-16 < dy && dy < 16) {
-	state->setScrollPosition(state->getScrollPage(), x, topPageY);
-      } else if (topPage + next <= doc->getNumPages()) {
-	topPage += next;
+      // NB: topPage can be out of bounds here, because the scroll
+      // position isn't adjusted until finishUpdate is called, below
+      if (topPage > 0 && topPage <= doc->getNumPages()) {
 	topPageY = tileMap->getPageTopY(topPage);
+	sy = state->getScrollY();
 	dy = sy - topPageY;
-	if (-16 < dy && dy < 0) {
+	// note: dy can be negative here if the inter-page gap is at the
+	// top of the window
+	if (-16 < dy && dy < 16) {
 	  state->setScrollPosition(state->getScrollPage(), x, topPageY);
+	} else if (topPage + next <= doc->getNumPages()) {
+	  topPage += next;
+	  topPageY = tileMap->getPageTopY(topPage);
+	  dy = sy - topPageY;
+	  if (-16 < dy && dy < 0) {
+	    state->setScrollPosition(state->getScrollPage(), x, topPageY);
+	  }
 	}
       }
     }
@@ -1100,7 +1125,7 @@ void PDFCore::setLinearSelection(int page, TextPosition *pos0,
 
   // build the list of rectangles
   //~ this doesn't handle RtL, vertical, or rotated text
-  loadText(selectPage);
+  loadText(page);
   rects = new GList();
   if (begin.colIdx == end.colIdx &&
       begin.parIdx == end.parIdx &&
@@ -1108,51 +1133,51 @@ void PDFCore::setLinearSelection(int page, TextPosition *pos0,
     // same line
     text->convertPosToPointUpper(&begin, &x0, &y0);
     text->convertPosToPointLower(&end, &x1, &y1);
-    cvtDevToUser(selectPage, (int)(x0 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x0 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
   } else if (begin.colIdx == end.colIdx) {
     // same column
     text->convertPosToPointUpper(&begin, &x0, &y0);
     text->convertPosToPointRightEdge(&begin, &x1, &y1);
     text->convertPosToPointLeftEdge(&end, &x2, &y2);
     text->convertPosToPointLower(&end, &x3, &y3);
-    cvtDevToUser(selectPage, (int)(x0 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
-    cvtDevToUser(selectPage, (int)(x2 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y2 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
-    cvtDevToUser(selectPage, (int)(x2 + 0.5), (int)(y2 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x3 + 0.5), (int)(y3 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x0 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x2 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y2 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x2 + 0.5), (int)(y2 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x3 + 0.5), (int)(y3 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
   } else {
     // different columns
     text->convertPosToPointUpper(&begin, &x0, &y0);
     text->convertPosToPointRightEdge(&begin, &x1, &y1);
     text->getColumnLowerLeft(begin.colIdx, &x2, &y2);
-    cvtDevToUser(selectPage, (int)(x0 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
-    cvtDevToUser(selectPage, (int)(x2 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y2 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x0 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x2 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y2 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
     for (colIdx = begin.colIdx + 1; colIdx < end.colIdx; ++colIdx) {
       text->getColumnLowerLeft(colIdx, &x0, &y0);
       text->getColumnUpperRight(colIdx, &x1, &y1);
-      cvtDevToUser(selectPage, (int)(x0 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
-      cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y0 + 0.5), &ux1, &uy1);
-      rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
+      cvtDevToUser(page, (int)(x0 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
+      cvtDevToUser(page, (int)(x1 + 0.5), (int)(y0 + 0.5), &ux1, &uy1);
+      rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
     }
     text->getColumnUpperRight(end.colIdx, &x0, &y0);
     text->convertPosToPointLeftEdge(&end, &x1, &y1);
     text->convertPosToPointLower(&end, &x2, &y2);
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x0 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
-    cvtDevToUser(selectPage, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
-    cvtDevToUser(selectPage, (int)(x2 + 0.5), (int)(y2 + 0.5), &ux1, &uy1);
-    rects->append(new SelectRect(selectPage, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y0 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x0 + 0.5), (int)(y1 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
+    cvtDevToUser(page, (int)(x1 + 0.5), (int)(y1 + 0.5), &ux0, &uy0);
+    cvtDevToUser(page, (int)(x2 + 0.5), (int)(y2 + 0.5), &ux1, &uy1);
+    rects->append(new SelectRect(page, ux0, uy0, ux1, uy1));
   }
 
   // get window coord bboxes for old selection and new selection;
@@ -1264,8 +1289,31 @@ void PDFCore::moveSelectionDrag(int pg, int x, int y) {
 }
 
 void PDFCore::finishSelectionDrag() {
-  selectPage = 0;
-  selectStartX = selectStartY = 0;
+  // nothing
+}
+
+void PDFCore::selectWord(int pg, int x, int y) {
+  TextPosition endPos;
+
+  loadText(pg);
+  if (text->findWordPoints(x, y, &selectStartPos, &endPos)) {
+    selectPage = pg;
+    setLinearSelection(pg, &selectStartPos, &endPos);
+  } else {
+    selectPage = 0;
+  }
+}
+
+void PDFCore::selectLine(int pg, int x, int y) {
+  TextPosition endPos;
+
+  loadText(pg);
+  if (text->findLinePoints(x, y, &selectStartPos, &endPos)) {
+    selectPage = pg;
+    setLinearSelection(pg, &selectStartPos, &endPos);
+  } else {
+    selectPage = 0;
+  }
 }
 
 GBool PDFCore::getSelection(int *pg, double *ulx, double *uly,
@@ -1550,6 +1598,45 @@ GBool PDFCore::findU(Unicode *u, int len, GBool caseSensitive,
   return gTrue;
 }
 
+GList *PDFCore::findAll(Unicode *u, int len, GBool caseSensitive,
+			GBool wholeWord, int firstPage, int lastPage) {
+  GList *results = new GList();
+
+  TextOutputDev *textOut = new TextOutputDev(NULL, &textOutCtrl, gFalse);
+  if (!textOut->isOk()) {
+    delete textOut;
+    return results;
+  }
+
+  for (int pg = firstPage; pg <= lastPage; ++pg) {
+    doc->displayPage(textOut, pg, 72, 72, 0, gFalse, gTrue, gFalse);
+    GBool first = gTrue;
+    while (1) {
+      double xMin, yMin, xMax, yMax;
+      if (!textOut->findText(u, len, first, gTrue, !first, gFalse,
+			    caseSensitive, gFalse, wholeWord,
+			    &xMin, &yMin, &xMax, &yMax)) {
+	break;
+      }
+      double uxMin, uyMin, uxMax, uyMax, t;
+      textOut->cvtDevToUser(xMin, yMin, &uxMin, &uyMin);
+      textOut->cvtDevToUser(xMax, yMax, &uxMax, &uyMax);
+      if (uxMin > uxMax) {
+	t = uxMin;  uxMin = uxMax;  uxMax = t;
+      }
+      if (uyMin > uyMax) {
+	t = uyMin;  uyMin = uyMax;  uyMax = t;
+      }
+      results->append(new FindResult(pg, uxMin, uyMin, uxMax, uyMax));
+      first = gFalse;
+    }
+  }
+
+  delete textOut;
+
+  return results;
+}
+
 
 GBool PDFCore::cvtWindowToUser(int xw, int yw,
 			       int *pg, double *xu, double *yu) {
@@ -1683,7 +1770,7 @@ Annot *PDFCore::getAnnot(int idx) {
   return annots->getAnnot(idx);
 }
 
-FormField *PDFCore::findFormField(int pg, double x, double y) {
+AcroFormField *PDFCore::findFormField(int pg, double x, double y) {
   if (!doc->getCatalog()->getForm()) {
     return NULL;
   }
@@ -1697,7 +1784,7 @@ int PDFCore::findFormFieldIdx(int pg, double x, double y) {
   return doc->getCatalog()->getForm()->findFieldIdx(pg, x, y);
 }
 
-FormField *PDFCore::getFormField(int idx) {
+AcroFormField *PDFCore::getFormField(int idx) {
   if (!doc->getCatalog()->getForm()) {
     return NULL;
   }

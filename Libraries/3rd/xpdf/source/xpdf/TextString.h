@@ -56,6 +56,9 @@ public:
   // Create a PDF text string from a TextString.
   GString *toPDFTextString();
 
+  // Convert a TextString to UTF-8.
+  GString *toUTF8();
+
 private:
 
   void expand(int delta);

@@ -26,6 +26,8 @@
 
 static char hexChars[17] = "0123456789ABCDEF";
 
+#define type1cSubrRecursionLimit 20
+
 //------------------------------------------------------------------------
 
 GBool Type1COp::isZero() {
@@ -39,28 +41,52 @@ GBool Type1COp::isZero() {
 
 GBool Type1COp::isNegative() {
   switch (kind) {
-  case type1COpInteger:  return intgr < 0;
-  case type1COpFloat:    return flt < 0;
-  case type1COpRational: return (rat.num < 0) != (rat.den < 0);
-  default:               return gFalse;   // shouldn't happen
+  case type1COpInteger:
+    return intgr < 0;
+  case type1COpFloat:
+    return flt < 0;
+  case type1COpRational:
+    return (rat.num < 0) != (rat.den < 0);
+  default:
+    // shouldn't happen
+    return gFalse;
   }
 }
 
 int Type1COp::toInt() {
   switch (kind) {
-  case type1COpInteger:  return intgr;
-  case type1COpFloat:    return (int)flt;
-  case type1COpRational: return rat.num / rat.den;
-  default:               return 0;   // shouldn't happen
+  case type1COpInteger:
+    return intgr;
+  case type1COpFloat:
+    if (flt < -2e9 || flt > 2e9) {
+      return 0;
+    }
+    return (int)flt;
+  case type1COpRational:
+    if (rat.den == 0) {
+      return 0;
+    }
+    return rat.num / rat.den;
+  default:
+    // shouldn't happen
+    return 0;
   }
 }
 
 double Type1COp::toFloat() {
   switch (kind) {
-  case type1COpInteger:  return (double)intgr;
-  case type1COpFloat:    return flt;
-  case type1COpRational: return (double)rat.num / (double)rat.den;
-  default:               return 0.0;   // shouldn't happen
+  case type1COpInteger:
+    return (double)intgr;
+  case type1COpFloat:
+    return flt;
+  case type1COpRational:
+    if (rat.den == 0) {
+      return 0;
+    }
+    return (double)rat.num / (double)rat.den;
+  default:
+    // shouldn't happen
+    return 0.0;
   }
 }
 
@@ -379,7 +405,9 @@ void FoFiType1C::convertToType1(char *psName, const char **newEncoding,
   eexecWrite(&eb, "/password 5839 def\n");
   if (privateDicts[0].nBlueValues) {
     eexecWrite(&eb, "/BlueValues [");
-    for (i = 0; i < privateDicts[0].nBlueValues; ++i) {
+    // number of entries must be even
+    int n = privateDicts[0].nBlueValues & ~1;
+    for (i = 0; i < n; ++i) {
       buf = GString::format("{0:s}{1:d}",
 			    i > 0 ? " " : "", privateDicts[0].blueValues[i]);
       eexecWrite(&eb, buf->getCString());
@@ -389,7 +417,9 @@ void FoFiType1C::convertToType1(char *psName, const char **newEncoding,
   }
   if (privateDicts[0].nOtherBlues) {
     eexecWrite(&eb, "/OtherBlues [");
-    for (i = 0; i < privateDicts[0].nOtherBlues; ++i) {
+    // number of entries must be even
+    int n = privateDicts[0].nOtherBlues & ~1;
+    for (i = 0; i < n; ++i) {
       buf = GString::format("{0:s}{1:d}",
 			    i > 0 ? " " : "", privateDicts[0].otherBlues[i]);
       eexecWrite(&eb, buf->getCString());
@@ -399,7 +429,9 @@ void FoFiType1C::convertToType1(char *psName, const char **newEncoding,
   }
   if (privateDicts[0].nFamilyBlues) {
     eexecWrite(&eb, "/FamilyBlues [");
-    for (i = 0; i < privateDicts[0].nFamilyBlues; ++i) {
+    // number of entries must be even
+    int n = privateDicts[0].nFamilyBlues & ~1;
+    for (i = 0; i < n; ++i) {
       buf = GString::format("{0:s}{1:d}",
 			    i > 0 ? " " : "", privateDicts[0].familyBlues[i]);
       eexecWrite(&eb, buf->getCString());
@@ -409,7 +441,9 @@ void FoFiType1C::convertToType1(char *psName, const char **newEncoding,
   }
   if (privateDicts[0].nFamilyOtherBlues) {
     eexecWrite(&eb, "/FamilyOtherBlues [");
-    for (i = 0; i < privateDicts[0].nFamilyOtherBlues; ++i) {
+    // number of entries must be even
+    int n = privateDicts[0].nFamilyOtherBlues & ~1;
+    for (i = 0; i < n; ++i) {
       buf = GString::format("{0:s}{1:d}", i > 0 ? " " : "",
 			    privateDicts[0].familyOtherBlues[i]);
       eexecWrite(&eb, buf->getCString());
@@ -607,7 +641,8 @@ void FoFiType1C::convertToCIDType0(char *psName, int *codeMap, int nCodes,
 	  subrIdx.pos = -1;
 	}
 	cvtGlyph(val.pos, val.len, charStrings,
-		 &subrIdx, &privateDicts[fdSelect ? fdSelect[gid] : 0], gTrue);
+		 &subrIdx, &privateDicts[fdSelect ? fdSelect[gid] : 0],
+		 gTrue, 0);
       }
     }
   }
@@ -969,6 +1004,10 @@ void FoFiType1C::convertToType0(char *psName, int *codeMap, int nCodes,
 	}
       }
     }
+    if (fd < 0 || fd >= nFDs) {
+      // this will only happen in a broken/damaged font
+      fd = 0;
+    }
 
     // font dictionary (unencrypted section)
     (*outputFunc)(outputStream, "16 dict begin\n", 14);
@@ -1269,7 +1308,7 @@ void FoFiType1C::eexecCvtGlyph(Type1CEexecBuf *eb, const char *glyphName,
 
   // generate the charstring
   charBuf = new GString();
-  cvtGlyph(offset, nBytes, charBuf, subrIdx, pDict, gTrue);
+  cvtGlyph(offset, nBytes, charBuf, subrIdx, pDict, gTrue, 0);
 
   buf = GString::format("/{0:s} {1:d} RD ", glyphName, charBuf->getLength());
   eexecWrite(eb, buf->getCString());
@@ -1283,7 +1322,7 @@ void FoFiType1C::eexecCvtGlyph(Type1CEexecBuf *eb, const char *glyphName,
 
 void FoFiType1C::cvtGlyph(int offset, int nBytes, GString *charBuf,
 			  Type1CIndex *subrIdx, Type1CPrivateDict *pDict,
-			  GBool top) {
+			  GBool top, int recursion) {
   Type1CIndexVal val;
   Type1COp zero, tmp;
   GBool ok, dInt;
@@ -1291,6 +1330,11 @@ void FoFiType1C::cvtGlyph(int offset, int nBytes, GString *charBuf,
   Gushort r2;
   Guchar byte;
   int pos, subrBias, start, num, den, i, k;
+
+  if (recursion > type1cSubrRecursionLimit) {
+    //~ error(-1, "Recursive loop in Type1C glyph");
+    return;
+  }
 
   start = charBuf->getLength();
   if (top) {
@@ -1504,7 +1548,8 @@ void FoFiType1C::cvtGlyph(int offset, int nBytes, GString *charBuf,
 	  ok = gTrue;
 	  getIndexVal(subrIdx, k, &val, &ok);
 	  if (ok) {
-	    cvtGlyph(val.pos, val.len, charBuf, subrIdx, pDict, gFalse);
+	    cvtGlyph(val.pos, val.len, charBuf, subrIdx, pDict, gFalse,
+		     recursion + 1);
 	  }
 	} else {
 	  //~ error(-1, "Too few args to Type 2 callsubr");
@@ -1739,7 +1784,8 @@ void FoFiType1C::cvtGlyph(int offset, int nBytes, GString *charBuf,
 	  ok = gTrue;
 	  getIndexVal(&gsubrIdx, k, &val, &ok);
 	  if (ok) {
-	    cvtGlyph(val.pos, val.len, charBuf, subrIdx, pDict, gFalse);
+	    cvtGlyph(val.pos, val.len, charBuf, subrIdx, pDict, gFalse,
+		     recursion + 1);
 	  }
 	} else {
 	  //~ error(-1, "Too few args to Type 2 callgsubr");
@@ -2945,11 +2991,10 @@ void FoFiType1C::readFDSelect() {
   int fdSelectFmt, pos, nRanges, gid0, gid1, fd, i, j;
 
   fdSelect = (Guchar *)gmalloc(nGlyphs);
-  if (topDict.fdSelectOffset == 0) {
-    for (i = 0; i < nGlyphs; ++i) {
-      fdSelect[i] = 0;
-    }
-  } else {
+  for (i = 0; i < nGlyphs; ++i) {
+    fdSelect[i] = 0;
+  }
+  if (topDict.fdSelectOffset != 0) {
     pos = topDict.fdSelectOffset;
     fdSelectFmt = getU8(pos++, &parsedOk);
     if (!parsedOk) {
@@ -2992,9 +3037,6 @@ void FoFiType1C::readFDSelect() {
       }
     } else {
       //~ error(-1, "Unknown FDSelect table format in CID font");
-      for (i = 0; i < nGlyphs; ++i) {
-	fdSelect[i] = 0;
-      }
     }
   }
 }

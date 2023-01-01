@@ -62,6 +62,12 @@
 @SYSTEM_XPDFRC_DEFINE@
 
 /*
+ * Directory to use for the ${DATADIR} variable in the xpdfrc config
+ * file.
+ */
+@XPDFRC_DATADIR_DEFINE@
+
+/*
  * Various include files and functions.
  */
 #cmakedefine01 HAVE_MKSTEMP

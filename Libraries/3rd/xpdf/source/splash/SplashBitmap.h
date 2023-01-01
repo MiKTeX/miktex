@@ -17,6 +17,10 @@
 
 #include <stdio.h>
 #include <limits.h>
+// older compilers won't define SIZE_MAX in stdint.h without this
+#ifndef __STDC_LIMIT_MACROS
+#  define __STDC_LIMIT_MACROS 1
+#endif
 #include <stdint.h>
 #include "SplashTypes.h"
 

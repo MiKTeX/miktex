@@ -46,7 +46,7 @@ public:
   // Construct a new PageAttrs object by merging a dictionary
   // (of type Pages or Page) into another PageAttrs object.  If
   // <attrs> is NULL, uses defaults.
-  PageAttrs(PageAttrs *attrs, Dict *dict);
+  PageAttrs(PageAttrs *attrs, Dict *dict, XRef *xref);
 
   // Construct a new PageAttrs object for an empty page (only used
   // when there is an error in the page tree).
@@ -127,6 +127,7 @@ public:
 
   // Get page parameters.
   int getNum() { return num; }
+  PageAttrs *getAttrs() { return attrs; }
   PDFRectangle *getMediaBox() { return attrs->getMediaBox(); }
   PDFRectangle *getCropBox() { return attrs->getCropBox(); }
   GBool isCropped() { return attrs->isCropped(); }

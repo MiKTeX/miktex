@@ -135,6 +135,10 @@ public:
   static GfxFont *makeFont(XRef *xref, const char *tagA,
 			   Ref idA, Dict *fontDict);
 
+  // Create a simple default font, to substitute for an undefined font
+  // object.
+  static GfxFont *makeDefaultFont(XRef *xref);
+
   GfxFont(const char *tagA, Ref idA, GString *nameA,
 	  GfxFontType typeA, Ref embFontIDA);
 
@@ -185,6 +189,7 @@ public:
   // Return the ascent and descent values.
   double getAscent() { return ascent; }
   double getDescent() { return descent; }
+  double getDeclaredAscent() { return declaredAscent; }
 
   // Return the writing mode (0=horizontal, 1=vertical).
   virtual int getWMode() { return 0; }
@@ -234,6 +239,7 @@ protected:
   double missingWidth;		// "default" width
   double ascent;		// max height above baseline
   double descent;		// max depth below baseline
+  double declaredAscent;	// ascent value, before munging
   GBool hasToUnicode;		// true if the font has a ToUnicode map
   GBool ok;
 };
@@ -355,6 +361,7 @@ public:
 
 private:
 
+  void readTrueTypeUnicodeMapping(XRef *xref);
   void getHorizontalMetrics(CID cid, double *w);
   void getVerticalMetrics(CID cid, double *h,
 			  double *vx, double *vy);
@@ -396,8 +403,10 @@ public:
 
 private:
 
-  int hashFontObject(Object *obj);
-  void hashFontObject1(Object *obj, FNVHash *h);
+  friend class GfxFont;
+
+  static int hashFontObject(Object *obj);
+  static void hashFontObject1(Object *obj, FNVHash *h);
 
   GHash *fonts;			// hash table of fonts -- this may
 				//   include duplicates, i.e., when

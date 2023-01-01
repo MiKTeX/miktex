@@ -207,6 +207,11 @@ public:
   // Return the color space's overprint mask.
   Guint getOverprintMask() { return overprintMask; }
 
+  // Return true if this color space object is the result of
+  // substituting a DefaultGray/RGB/CMYK color space for
+  // DeviceGray/RGB/CMYK.
+  GBool isDefaultColorSpace() { return defaultColorSpace; }
+
   // Return the number of color space modes
   static int getNumColorSpaceModes();
 
@@ -216,6 +221,7 @@ public:
 protected:
 
   Guint overprintMask;
+  GBool defaultColorSpace;
 };
 
 //------------------------------------------------------------------------
@@ -877,6 +883,7 @@ public:
   void getTriangle(int i, double *x0, double *y0, double *color0,
 		   double *x1, double *y1, double *color1,
 		   double *x2, double *y2, double *color2);
+  void getBBox(double *xMin, double *yMin, double *xMax, double *yMax);
   void getColor(double *in, GfxColor *out);
 
 private:
@@ -916,6 +923,7 @@ public:
   int getNComps() { return nComps; }
   int getNPatches() { return nPatches; }
   GfxPatch *getPatch(int i) { return &patches[i]; }
+  void getBBox(double *xMin, double *yMin, double *xMax, double *yMax);
   void getColor(double *in, GfxColor *out);
 
 private:
@@ -1067,6 +1075,10 @@ public:
   // Get last point on last subpath.
   double getLastX() { return subpaths[n-1]->getLastX(); }
   double getLastY() { return subpaths[n-1]->getLastY(); }
+
+  // Get the current point
+  double getCurX();
+  double getCurY();
 
   // Move the current point.
   void moveTo(double x, double y);

@@ -30,7 +30,7 @@ struct Ref;
 class LinkDest;
 class PageTreeNode;
 class PageLabelNode;
-class Form;
+class AcroForm;
 class TextString;
 
 //------------------------------------------------------------------------
@@ -88,7 +88,7 @@ public:
 
   Object *getAcroForm() { return &acroForm; }
 
-  Form *getForm() { return form; }
+  AcroForm *getForm() { return form; }
 
   GBool getNeedsRendering() { return needsRendering; }
 
@@ -137,7 +137,7 @@ private:
   Object outline;		// outline dictionary
   Object acroForm;		// AcroForm dictionary
   GBool needsRendering;		// NeedsRendering flag
-  Form *form;			// parsed form
+  AcroForm *form;		// parsed form
   Object ocProperties;		// OCProperties dictionary
   GList *embeddedFiles;		// embedded file list [EmbeddedFile]
   GList *pageLabels;		// page labels [PageLabelNode]

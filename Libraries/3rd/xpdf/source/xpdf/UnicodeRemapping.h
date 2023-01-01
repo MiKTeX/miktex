@@ -43,6 +43,8 @@ public:
 
 private:
 
+  int findSMap(Unicode u);
+
   Unicode page0[256];
   UnicodeRemappingString *sMap;
   int sMapLen, sMapSize;

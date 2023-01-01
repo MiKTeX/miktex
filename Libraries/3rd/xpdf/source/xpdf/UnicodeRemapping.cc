@@ -83,7 +83,7 @@ UnicodeRemapping::~UnicodeRemapping() {
 }
 
 void UnicodeRemapping::addRemapping(Unicode in, Unicode *out, int len) {
-  int i;
+  int i, j;
 
   if (in < 256 && len == 1) {
     page0[in] = out[0];
@@ -96,11 +96,16 @@ void UnicodeRemapping::addRemapping(Unicode in, Unicode *out, int len) {
       sMap = (UnicodeRemappingString *)
 	         greallocn(sMap, sMapSize, sizeof(UnicodeRemappingString));
     }
-    sMap[sMapLen].in = in;
-    for (i = 0; i < len && i < maxUnicodeString; ++i) {
-      sMap[sMapLen].out[i] = out[i];
+    i = findSMap(in);
+    if (i < sMapLen) {
+      memmove(sMap + i + 1, sMap + i,
+	      (sMapLen - i) * sizeof(UnicodeRemappingString));
     }
-    sMap[sMapLen].len = i;
+    sMap[i].in = in;
+    for (j = 0; j < len && j < maxUnicodeString; ++j) {
+      sMap[i].out[j] = out[j];
+    }
+    sMap[i].len = j;
     ++sMapLen;
   }
 }
@@ -146,6 +151,24 @@ void UnicodeRemapping::parseFile(GString *fileName) {
   }
 
   fclose(f);
+}
+
+// Determine the location in sMap to insert/replace the entry for [u].
+int UnicodeRemapping::findSMap(Unicode u) {
+  int a, b, m;
+
+  a = -1;
+  b = sMapLen;
+  // invariant: sMap[a].in < u <= sMap[b].in
+  while (b - a > 1) {
+    m = (a + b) / 2;
+    if (sMap[m].in < u) {
+      a = m;
+    } else {
+      b = m;
+    }
+  }
+  return b;
 }
 
 int UnicodeRemapping::map(Unicode in, Unicode *out, int size) {

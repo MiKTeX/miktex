@@ -45,11 +45,12 @@ const char *objTypeNames[numObjTypes] = {
 #ifdef DEBUG_MEM
 #if MULTITHREADED
 GAtomicCounter Object::numAlloc[numObjTypes] =
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 long Object::numAlloc[numObjTypes] =
-#endif
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
+#endif // DEBUG_MEM
 
 Object *Object::initArray(XRef *xref) {
   initObj(objArray);
@@ -229,13 +230,15 @@ void Object::memCheck(FILE *f) {
   long t;
 
   t = 0;
-  for (i = 0; i < numObjTypes; ++i)
+  for (i = 0; i < numObjTypes; ++i) {
     t += numAlloc[i];
+  }
   if (t > 0) {
     fprintf(f, "Allocated objects:\n");
     for (i = 0; i < numObjTypes; ++i) {
-      if (numAlloc[i] > 0)
+      if (numAlloc[i] > 0) {
 	fprintf(f, "  %-20s: %6ld\n", objTypeNames[i], numAlloc[i]);
+      }
     }
   }
 #endif

@@ -164,6 +164,10 @@ public:
   GBool okToAddNotes(GBool ignoreOwnerPW = gFalse)
     { return xref->okToAddNotes(ignoreOwnerPW); }
 
+  // Is the PDF file damaged?  This checks to see if the xref table
+  // was constructed by the repair code.
+  GBool isDamaged() { return xref->isRepaired(); }
+
   // Is this document linearized?
   GBool isLinearized();
 
@@ -187,6 +191,7 @@ public:
   int getEmbeddedFileNameLength(int idx)
     { return catalog->getEmbeddedFileNameLength(idx); }
   GBool saveEmbeddedFile(int idx, const char *path);
+  GBool saveEmbeddedFileU(int idx, const char *path);
 #ifdef _WIN32
   GBool saveEmbeddedFile(int idx, const wchar_t *path, int pathLen);
 #endif

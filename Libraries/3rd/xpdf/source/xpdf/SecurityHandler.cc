@@ -203,18 +203,15 @@ StandardSecurityHandler::StandardSecurityHandler(PDFDoc *docA,
 	    fileKeyLength = cfLengthObj.getInt();
 	  }
 	  cfLengthObj.free();
-	  if (fileKeyLength == 16) {
-	    // this isn't allowed by the spec, but Adobe supports it
-	    encVersion = 2;
-	    encRevision = 3;
-	    encAlgorithm = cryptAES;
-	  } else {
-	    encVersion = 5;
-	    if (encRevision != 5 && encRevision != 6) {
-	      encRevision = 6;
-	    }
-	    encAlgorithm = cryptAES256;
+	  encVersion = 5;
+	  if (encRevision != 5 && encRevision != 6) {
+	    encRevision = 6;
 	  }
+	  encAlgorithm = cryptAES256;
+	  // The PDF 2.0 spec says Length and CF.Length are both deprecated.
+	  // Acrobat X honors Length and ignores CF.Length.
+	  // I think it's safest to ignore both.
+	  fileKeyLength = 32;
 	}
 	cfmObj.free();
       }

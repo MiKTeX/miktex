@@ -172,6 +172,7 @@ GBool OptionalContent::evalOCObject(Object *obj, GBool *visible) {
   int policy;
   Ref ref;
   Object obj2, obj3, obj4, obj5;
+  GBool gotOCG;
   int i;
 
   if (obj->isNull()) {
@@ -224,33 +225,39 @@ GBool OptionalContent::evalOCObject(Object *obj, GBool *visible) {
 	obj2.free();
 	return gFalse;
       }
+      gotOCG = gFalse;
       for (i = 0; i < obj4.arrayGetLength(); ++i) {
 	obj4.arrayGetNF(i, &obj5);
 	if (obj5.isRef()) {
 	  ref = obj5.getRef();
-	  if (!(ocg = findOCG(&ref))) {
-	    obj5.free();
-	    obj4.free();
-	    obj3.free();
-	    obj2.free();
-	    return gFalse;
-	  }
-	  switch (policy) {
-	  case ocPolicyAllOn:
-	    *visible = *visible && ocg->getState();
-	    break;
-	  case ocPolicyAnyOn:
-	    *visible = *visible || ocg->getState();
-	    break;
-	  case ocPolicyAnyOff:
-	    *visible = *visible || !ocg->getState();
-	    break;
-	  case ocPolicyAllOff:
-	    *visible = *visible && !ocg->getState();
-	    break;
+	  if ((ocg = findOCG(&ref))) {
+	    gotOCG = gTrue;
+	    switch (policy) {
+	    case ocPolicyAllOn:
+	      *visible = *visible && ocg->getState();
+	      break;
+	    case ocPolicyAnyOn:
+	      *visible = *visible || ocg->getState();
+	      break;
+	    case ocPolicyAnyOff:
+	      *visible = *visible || !ocg->getState();
+	      break;
+	    case ocPolicyAllOff:
+	      *visible = *visible && !ocg->getState();
+	      break;
+	    }
 	  }
 	}
 	obj5.free();
+      }
+      if (!gotOCG) {
+	// if the "OCGs" array is "empty or contains references only
+	// to null or deleted objects", this OCMD doesn't have any
+	// effect
+	obj4.free();
+	obj3.free();
+	obj2.free();
+	return gFalse;
       }
       obj4.free();
     }

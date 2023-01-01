@@ -55,6 +55,7 @@ set(xpdf_sources
     source/goo/GHash.cc
     source/goo/GList.cc
     source/goo/GString.cc
+    source/goo/Trace.cc
     source/goo/gfile.cc
     source/goo/gmem.cc
     source/goo/gmempp.cc
@@ -71,7 +72,6 @@ set(xpdf_sources
     source/xpdf/Dict.cc
     source/xpdf/Error.cc
     source/xpdf/FontEncodingTables.cc
-    source/xpdf/Form.cc
     source/xpdf/Function.cc
     source/xpdf/Gfx.cc
     source/xpdf/GfxFont.cc
@@ -99,7 +99,7 @@ set(xpdf_sources
     source/xpdf/UnicodeMap.cc
     source/xpdf/UnicodeRemapping.cc
     source/xpdf/UTF8.cc
-    source/xpdf/XFAForm.cc
+    source/xpdf/XFAScanner.cc
     source/xpdf/XRef.cc
     source/xpdf/Zoox.cc
 )
@@ -116,6 +116,7 @@ list(APPEND xpdf_sources
     source/goo/GList.h
     source/goo/GMutex.h
     source/goo/GString.h
+    source/goo/Trace.h
     source/goo/gfile.h
     source/goo/gmem.h
     source/goo/gmempp.h
@@ -137,7 +138,6 @@ list(APPEND xpdf_sources
     source/xpdf/Error.h
     source/xpdf/ErrorCodes.h
     source/xpdf/FontEncodingTables.h
-    source/xpdf/Form.h
     source/xpdf/Function.h
     source/xpdf/Gfx.h
     source/xpdf/GfxFont.h
@@ -180,7 +180,7 @@ list(APPEND xpdf_sources
     source/xpdf/UnicodeRemapping.h
     source/xpdf/UnicodeTypeTable.h
     source/xpdf/WebFont.h
-    source/xpdf/XFAForm.h
+    source/xpdf/XFAScanner.cc
     source/xpdf/XRef.h
     source/xpdf/Zoox.h
     source/xpdf/config.h

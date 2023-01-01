@@ -71,7 +71,11 @@ void SplashFont::initCache() {
     // if the glyphs are too large, don't cache them -- setting the
     // cache bitmap size to something tiny will cause getGlyph() to
     // fall back to the uncached case
-    glyphW = glyphH = 1;
+    glyphW = glyphH = 0;
+    glyphSize = 0;
+    cacheSets = 0;
+    cacheAssoc = 0;
+    return;
   }
   if (aa) {
     glyphSize = glyphW * glyphH;
@@ -117,29 +121,33 @@ GBool SplashFont::getGlyph(int c, int xFrac, int yFrac,
   }
 
   // check the cache
-  i = (c & (cacheSets - 1)) * cacheAssoc;
-  for (j = 0; j < cacheAssoc; ++j) {
-    if ((cacheTags[i+j].mru & 0x80000000) &&
-	cacheTags[i+j].c == c &&
-	(int)cacheTags[i+j].xFrac == xFrac &&
-	(int)cacheTags[i+j].yFrac == yFrac) {
-      bitmap->x = cacheTags[i+j].x;
-      bitmap->y = cacheTags[i+j].y;
-      bitmap->w = cacheTags[i+j].w;
-      bitmap->h = cacheTags[i+j].h;
-      for (k = 0; k < cacheAssoc; ++k) {
-	if (k != j &&
-	    (cacheTags[i+k].mru & 0x7fffffff) <
+  if (cache) {
+    i = (c & (cacheSets - 1)) * cacheAssoc;
+    for (j = 0; j < cacheAssoc; ++j) {
+      if ((cacheTags[i+j].mru & 0x80000000) &&
+	  cacheTags[i+j].c == c &&
+	  (int)cacheTags[i+j].xFrac == xFrac &&
+	  (int)cacheTags[i+j].yFrac == yFrac) {
+	bitmap->x = cacheTags[i+j].x;
+	bitmap->y = cacheTags[i+j].y;
+	bitmap->w = cacheTags[i+j].w;
+	bitmap->h = cacheTags[i+j].h;
+	for (k = 0; k < cacheAssoc; ++k) {
+	  if (k != j &&
+	      (cacheTags[i+k].mru & 0x7fffffff) <
 	      (cacheTags[i+j].mru & 0x7fffffff)) {
-	  ++cacheTags[i+k].mru;
+	    ++cacheTags[i+k].mru;
+	  }
 	}
+	cacheTags[i+j].mru = 0x80000000;
+	bitmap->aa = aa;
+	bitmap->data = cache + (i+j) * glyphSize;
+	bitmap->freeData = gFalse;
+	return gTrue;
       }
-      cacheTags[i+j].mru = 0x80000000;
-      bitmap->aa = aa;
-      bitmap->data = cache + (i+j) * glyphSize;
-      bitmap->freeData = gFalse;
-      return gTrue;
     }
+  } else {
+    i = 0; // make gcc happy
   }
 
   // generate the glyph bitmap
@@ -149,7 +157,7 @@ GBool SplashFont::getGlyph(int c, int xFrac, int yFrac,
 
   // if the glyph doesn't fit in the bounding box, return a temporary
   // uncached bitmap
-  if (bitmap2.w > glyphW || bitmap2.h > glyphH) {
+  if (!cache || bitmap2.w > glyphW || bitmap2.h > glyphH) {
     *bitmap = bitmap2;
     return gTrue;
   }

@@ -16,6 +16,7 @@
 #include "PDFDoc.h"
 #include "CharTypes.h"
 #include "UnicodeMap.h"
+#include "UTF8.h"
 #include "Error.h"
 #include "config.h"
 
@@ -67,8 +68,7 @@ int main(int argc, char *argv[]) {
   PDFDoc *doc;
   Unicode *name;
   char uBuf[8];
-  char path[1024];
-  char *p;
+  GString *path;
   GBool ok;
   int exitCode;
   int nFiles, nameLen, n, i, j;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     ok = gFalse;
   }
   if (!ok || argc != 2 || printVersion || printHelp) {
-    fprintf(stderr, "pdfdetach version %s\n", xpdfVersion);
+    fprintf(stderr, "pdfdetach version %s [www.xpdfreader.com]\n", xpdfVersion);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdfdetach", "<PDF-file>", argDesc);
@@ -94,6 +94,10 @@ int main(int argc, char *argv[]) {
   fileName = argv[1];
 
   // read config file
+  if (cfgFileName[0] && !pathIsFile(cfgFileName)) {
+    error(errConfig, -1, "Config file '{0:s}' doesn't exist or isn't a file",
+	  cfgFileName);
+  }
   globalParams = new GlobalParams(cfgFileName);
   if (textEncName[0]) {
     globalParams->setTextEncoding(textEncName);
@@ -148,32 +152,24 @@ int main(int argc, char *argv[]) {
   } else if (saveAll) {
     for (i = 0; i < nFiles; ++i) {
       if (savePath[0]) {
-	n = (int)strlen(savePath);
-	if (n > (int)sizeof(path) - 2) {
-	  n = sizeof(path) - 2;
-	}
-	memcpy(path, savePath, n);
-	path[n] = '/';
-	p = path + n + 1;
+	path = new GString(savePath);
+	path->append('/');
       } else {
-	p = path;
+	path = new GString();
       }
       name = doc->getEmbeddedFileName(i);
       nameLen = doc->getEmbeddedFileNameLength(i);
       for (j = 0; j < nameLen; ++j) {
-	n = uMap->mapUnicode(name[j], uBuf, sizeof(uBuf));
-	if (p + n >= path + sizeof(path)) {
-	  break;
-	}
-	memcpy(p, uBuf, n);
-	p += n;
+	n = mapUTF8(name[j], uBuf, sizeof(uBuf));
+	path->append(uBuf, n);
       }
-      *p = '\0';
-      if (!doc->saveEmbeddedFile(i, path)) {
-	error(errIO, -1, "Error saving embedded file as '{0:s}'", p);
+      if (!doc->saveEmbeddedFileU(i, path->getCString())) {
+	error(errIO, -1, "Error saving embedded file as '{0:t}'", path);
+	delete path;
 	exitCode = 2;
 	goto err2;
       }
+      delete path;
     }
 
   // save an embedded file
@@ -183,27 +179,23 @@ int main(int argc, char *argv[]) {
       goto err2;
     }
     if (savePath[0]) {
-      p = savePath;
+      path = new GString(savePath);
     } else {
       name = doc->getEmbeddedFileName(saveNum - 1);
       nameLen = doc->getEmbeddedFileNameLength(saveNum - 1);
-      p = path;
+      path = new GString();
       for (j = 0; j < nameLen; ++j) {
-	n = uMap->mapUnicode(name[j], uBuf, sizeof(uBuf));
-	if (p + n >= path + sizeof(path)) {
-	  break;
-	}
-	memcpy(p, uBuf, n);
-	p += n;
+	n = mapUTF8(name[j], uBuf, sizeof(uBuf));
+	path->append(uBuf, n);
       }
-      *p = '\0';
-      p = path;
     }
-    if (!doc->saveEmbeddedFile(saveNum - 1, p)) {
-      error(errIO, -1, "Error saving embedded file as '{0:s}'", p);
+    if (!doc->saveEmbeddedFileU(saveNum - 1, path->getCString())) {
+      error(errIO, -1, "Error saving embedded file as '{0:t}'", path);
+      delete path;
       exitCode = 2;
       goto err2;
     }
+    delete path;
   }
 
   exitCode = 0;

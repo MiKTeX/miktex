@@ -201,3 +201,13 @@ GString *TextString::toPDFTextString() {
   }
   return s;
 }
+
+GString *TextString::toUTF8() {
+  GString *s = new GString();
+  for (int i = 0; i < len; ++i) {
+    char buf[8];
+    int n = mapUTF8(u[i], buf, sizeof(buf));
+    s->append(buf, n);
+  }
+  return s;
+}

@@ -32,10 +32,6 @@ public:
 
 #endif // USE_EXCEPTIONS
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
  * Same as malloc, but prints error message and exits if malloc()
  * returns NULL.
@@ -95,9 +91,5 @@ extern void gMemReport(FILE *f);
  * Allocate memory and copy a string into it.
  */
 extern char *copyString(const char *s);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

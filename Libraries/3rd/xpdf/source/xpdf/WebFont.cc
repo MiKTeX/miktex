@@ -22,6 +22,7 @@
 
 WebFont::WebFont(GfxFont *gfxFontA, XRef *xref) {
   GfxFontType type;
+  Ref id;
 
   gfxFont = gfxFontA;
   fontBuf = NULL;
@@ -29,23 +30,25 @@ WebFont::WebFont(GfxFont *gfxFontA, XRef *xref) {
   ffType1C = NULL;
   isOpenType = gFalse;
 
-  type = gfxFont->getType();
-  if (type == fontTrueType ||
-      type == fontTrueTypeOT ||
-      type == fontCIDType2 ||
-      type == fontCIDType2OT) {
-    if ((fontBuf = gfxFont->readEmbFontFile(xref, &fontLength))) {
-      ffTrueType = FoFiTrueType::make(fontBuf, fontLength, 0);
-    }
-  } else if (type == fontType1C ||
-	     type == fontCIDType0C) {
-    if ((fontBuf = gfxFont->readEmbFontFile(xref, &fontLength))) {
-      ffType1C = FoFiType1C::make(fontBuf, fontLength);
-    }
-  } else if (type == fontType1COT ||
-	     type == fontCIDType0COT) {
-    if ((fontBuf = gfxFont->readEmbFontFile(xref, &fontLength))) {
-      isOpenType = gTrue;
+  if (gfxFont->getEmbeddedFontID(&id)) {
+    type = gfxFont->getType();
+    if (type == fontTrueType ||
+	type == fontTrueTypeOT ||
+	type == fontCIDType2 ||
+	type == fontCIDType2OT) {
+      if ((fontBuf = gfxFont->readEmbFontFile(xref, &fontLength))) {
+	ffTrueType = FoFiTrueType::make(fontBuf, fontLength, 0);
+      }
+    } else if (type == fontType1C ||
+	       type == fontCIDType0C) {
+      if ((fontBuf = gfxFont->readEmbFontFile(xref, &fontLength))) {
+	ffType1C = FoFiType1C::make(fontBuf, fontLength);
+      }
+    } else if (type == fontType1COT ||
+	       type == fontCIDType0COT) {
+      if ((fontBuf = gfxFont->readEmbFontFile(xref, &fontLength))) {
+	isOpenType = gTrue;
+      }
     }
   }
 }
@@ -68,8 +71,11 @@ static void writeToFile(void *stream, const char *data, int len) {
   fwrite(data, 1, len, (FILE *)stream);
 }
 
-GBool WebFont::writeTTF(const char *fontFilePath) {
-  FILE *out;
+static void writeToString(void *stream, const char *data, int len) {
+  ((GString *)stream)->append(data, len);
+}
+
+GBool WebFont::generateTTF(FoFiOutputFunc outFunc, void *stream) {
   int *codeToGID;
   Guchar *cmapTable;
   GBool freeCodeToGID;
@@ -97,22 +103,35 @@ GBool WebFont::writeTTF(const char *fontFilePath) {
   if (!cmapTable) {
     return gFalse;
   }
-  if (!(out = fopen(fontFilePath, "wb"))) {
-    gfree(cmapTable);
-    return gFalse;
-  }
-  ffTrueType->writeTTF(writeToFile, out, NULL, NULL,
+  ffTrueType->writeTTF(outFunc, stream, NULL, NULL,
 		       cmapTable, cmapTableLength);
-  fclose(out);
   gfree(cmapTable);
   return gTrue;
 }
 
-GBool WebFont::writeOTF(const char *fontFilePath) {
+GBool WebFont::writeTTF(const char *fontFilePath) {
+  FILE *out = fopen(fontFilePath, "wb");
+  if (!out) {
+    return gFalse;
+  }
+  GBool ret = generateTTF(writeToFile, out);
+  fclose(out);
+  return ret;
+}
+
+GString *WebFont::getTTFData() {
+  GString *s = new GString();
+  if (!generateTTF(writeToString, s)) {
+    delete s;
+    return NULL;
+  }
+  return s;
+}
+
+GBool WebFont::generateOTF(FoFiOutputFunc outFunc, void *stream) {
   int *codeToGID;
   Gushort *widths;
   Guchar *cmapTable;
-  FILE *out;
   int nCodes, nWidths, cmapTableLength;
 
   if (ffType1C) {
@@ -135,33 +154,38 @@ GBool WebFont::writeOTF(const char *fontFilePath) {
       widths = makeCIDType0CWidths(codeToGID, nCodes, &nWidths);
       gfree(codeToGID);
     }
-    if (!(out = fopen(fontFilePath, "wb"))) {
-      gfree(cmapTable);
-      gfree(widths);
-      return gFalse;
-    }
-    ffType1C->convertToOpenType(writeToFile, out,
-				nWidths, widths,
+    ffType1C->convertToOpenType(outFunc, stream, nWidths, widths,
 				cmapTable, cmapTableLength);
-    fclose(out);
     gfree(cmapTable);
     gfree(widths);
 
   } else if (isOpenType) {
-    if (!(out = fopen(fontFilePath, "wb"))) {
-      return gFalse;
-    }
-    if (fwrite(fontBuf, 1, fontLength, out) != (Guint)fontLength) {
-      fclose(out);
-      return gFalse;
-    }
-    fclose(out);
+    outFunc(stream, fontBuf, fontLength);
 
   } else {
     return gFalse;
   }
 
   return gTrue;
+}
+
+GBool WebFont::writeOTF(const char *fontFilePath) {
+  FILE *out = fopen(fontFilePath, "wb");
+  if (!out) {
+    return gFalse;
+  }
+  GBool ret = generateOTF(writeToFile, out);
+  fclose(out);
+  return ret;
+}
+
+GString *WebFont::getOTFData() {
+  GString *s = new GString();
+  if (!generateOTF(writeToString, s)) {
+    delete s;
+    return NULL;
+  }
+  return s;
 }
 
 Gushort *WebFont::makeType1CWidths(int *codeToGID, int nCodes,

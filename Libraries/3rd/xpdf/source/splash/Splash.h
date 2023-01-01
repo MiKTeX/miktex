@@ -29,6 +29,17 @@ class SplashPath;
 class SplashXPath;
 class SplashFont;
 struct SplashPipe;
+struct SplashDrawImageMaskRowData;
+class ImageScaler;
+typedef void (Splash::*SplashDrawImageMaskRowFunc)(
+				      SplashDrawImageMaskRowData *data,
+				      Guchar *maskData,
+				      int x, int y, int width);
+struct SplashDrawImageRowData;
+typedef void (Splash::*SplashDrawImageRowFunc)(SplashDrawImageRowData *data,
+					       Guchar *colorData,
+					       Guchar *alphaData,
+					       int x, int y, int width);
 
 //------------------------------------------------------------------------
 
@@ -66,6 +77,15 @@ enum SplashPipeResultColorCtrl {
 };
 
 //------------------------------------------------------------------------
+
+// Transparency group destination bitmap initialization control.
+enum SplashGroupDestInitMode {
+  splashGroupDestPreInit,	// dest is already initialized
+  splashGroupDestInitZero,	// initialize to zero (isolated group)
+  splashGroupDestInitCopy	// copy backdrop (non-isolated group)
+};
+
+//------------------------------------------------------------------------
 // SplashImageCache
 //------------------------------------------------------------------------
 
@@ -76,19 +96,23 @@ public:
 
   SplashImageCache();
   ~SplashImageCache();
+  GBool match(GString *aTag, int aWidth, int aHeight,
+	      SplashColorMode aMode, GBool aAlpha,
+	      GBool aInterpolate);
+  void reset(GString *aTag, int aWidth, int aHeight,
+	     SplashColorMode aMode, GBool aAlpha,
+	     GBool aInterpolate);
   void incRefCount();
   void decRefCount();
 
   GString *tag;
-  GBool isMask;
   int width;
   int height;
   SplashColorMode mode;
   GBool alpha;
   GBool interpolate;
-  GBool vertFlip;
-  GBool horizFlip;
-  SplashBitmap *image;
+  Guchar *colorData;
+  Guchar *alphaData;
 
   int refCount;
 };
@@ -158,10 +182,13 @@ public:
 			 SplashCoord x1, SplashCoord y1);
   // NB: uses untransformed coordinates.
   SplashError clipToPath(SplashPath *path, GBool eo);
-  void setSoftMask(SplashBitmap *softMask);
+  void setSoftMask(SplashBitmap *softMask, GBool deleteBitmap = gTrue);
   void setInTransparencyGroup(SplashBitmap *groupBackBitmapA,
 			      int groupBackXA, int groupBackYA,
+			      SplashGroupDestInitMode groupDestInitModeA,
 			      GBool nonIsolated, GBool knockout);
+  void forceDeferredInit(int y, int h);
+  GBool checkTransparentRect(int x, int y, int w, int h);
   void setTransfer(Guchar *red, Guchar *green, Guchar *blue, Guchar *gray);
   void setOverprintMask(Guint overprintMask);
   void setEnablePathSimplification(GBool en);
@@ -202,11 +229,15 @@ public:
   //    [x' y' 1] = [x y 1] * mat
   // Note that the Splash y axis points downward, and the image source
   // is assumed to produce pixels in raster order, starting from the
-  // top line.
+  // top line.  If [interpolate] is false, no filtering is done when
+  // upsampling.  If [antialias] is false, no filtering is done when
+  // upsampling (overriding the [interpolate] flag), and threshold
+  // filtering is done when downsampling.
   SplashError fillImageMask(GString *imageTag,
 			    SplashImageMaskSource src, void *srcData,
 			    int w, int h, SplashCoord *mat,
-			    GBool glyphMode, GBool interpolate);
+			    GBool glyphMode, GBool interpolate,
+			    GBool antialias);
 
   // Draw an image.  This will read <h> lines of <w> pixels from
   // <src>, starting with the top line.  These pixels are assumed to
@@ -233,6 +264,15 @@ public:
   SplashError composite(SplashBitmap *src, int xSrc, int ySrc,
 			int xDest, int yDest, int w, int h,
 			GBool noClip, GBool nonIsolated);
+
+  // Composite a rectangular region from <src> onto this Splash
+  // object, using <srcOverprintMaskBitmap> as the overprint mask per
+  // pixel.  This is only supported for CMYK and DeviceN bitmaps.
+  SplashError compositeWithOverprint(SplashBitmap *src,
+				     Guint *srcOverprintMaskBitmap,
+				     int xSrc, int ySrc,
+				     int xDest, int yDest, int w, int h,
+				     GBool noClip, GBool nonIsolated);
 
   // Composite this Splash object onto a background color.  The
   // background alpha is assumed to be 1.
@@ -269,6 +309,10 @@ public:
   // Return the associated bitmap.
   SplashBitmap *getBitmap() { return bitmap; }
 
+  // Enable writing the per-pixel overprint mask to a separate bitmap.
+  void setOverprintMaskBitmap(Guint *overprintMaskBitmapA)
+    { overprintMaskBitmap = overprintMaskBitmapA; }
+
   // Set the minimum line width.
   void setMinLineWidth(SplashCoord w) { minLineWidth = w; }
 
@@ -298,7 +342,7 @@ private:
 
   void pipeInit(SplashPipe *pipe, SplashPattern *pattern,
 		Guchar aInput, GBool usesShape,
-		GBool nonIsolatedGroup);
+		GBool nonIsolatedGroup, GBool usesSrcOverprint = gFalse);
   void pipeRun(SplashPipe *pipe, int x0, int x1, int y,
 	       Guchar *shapePtr, SplashColorPtr cSrcPtr);
   void pipeRunSimpleMono1(SplashPipe *pipe, int x0, int x1, int y,
@@ -325,6 +369,8 @@ private:
   void pipeRunShapeCMYK8(SplashPipe *pipe, int x0, int x1, int y,
 			 Guchar *shapePtr, SplashColorPtr cSrcPtr);
 #endif
+  void pipeRunShapeNoAlphaMono8(SplashPipe *pipe, int x0, int x1, int y,
+                                Guchar *shapePtr, SplashColorPtr cSrcPtr);
   void pipeRunAAMono1(SplashPipe *pipe, int x0, int x1, int y,
 		      Guchar *shapePtr, SplashColorPtr cSrcPtr);
   void pipeRunAAMono8(SplashPipe *pipe, int x0, int x1, int y,
@@ -337,6 +383,16 @@ private:
   void pipeRunAACMYK8(SplashPipe *pipe, int x0, int x1, int y,
 		      Guchar *shapePtr, SplashColorPtr cSrcPtr);
 #endif
+  void pipeRunSoftMaskMono8(SplashPipe *pipe, int x0, int x1, int y,
+			    Guchar *shapePtr, SplashColorPtr cSrcPtr);
+  void pipeRunSoftMaskRGB8(SplashPipe *pipe, int x0, int x1, int y,
+                           Guchar *shapePtr, SplashColorPtr cSrcPtr);
+  void pipeRunSoftMaskBGR8(SplashPipe *pipe, int x0, int x1, int y,
+                           Guchar *shapePtr, SplashColorPtr cSrcPtr);
+#if SPLASH_CMYK
+  void pipeRunSoftMaskCMYK8(SplashPipe *pipe, int x0, int x1, int y,
+			    Guchar *shapePtr, SplashColorPtr cSrcPtr);
+#endif
   void pipeRunNonIsoMono8(SplashPipe *pipe, int x0, int x1, int y,
 			  Guchar *shapePtr, SplashColorPtr cSrcPtr);
   void pipeRunNonIsoRGB8(SplashPipe *pipe, int x0, int x1, int y,
@@ -347,6 +403,8 @@ private:
   void pipeRunNonIsoCMYK8(SplashPipe *pipe, int x0, int x1, int y,
 			  Guchar *shapePtr, SplashColorPtr cSrcPtr);
 #endif
+  void useDestRow(int y);
+  void copyGroupBackdropRow(int y);
   void transform(SplashCoord *matrix, SplashCoord xi, SplashCoord yi,
 		 SplashCoord *xo, SplashCoord *yo);
   void updateModX(int x);
@@ -371,92 +429,81 @@ private:
   SplashError fillGlyph2(int x0, int y0, SplashGlyphBitmap *glyph);
   void getImageBounds(SplashCoord xyMin, SplashCoord xyMax,
 		      int *xyMinI, int *xyMaxI);
-  void upscaleMask(SplashImageMaskSource src, void *srcData,
-		   int srcWidth, int srcHeight,
-		   SplashCoord *mat, GBool glyphMode,
-		   GBool interpolate);
-  void arbitraryTransformMask(GString *imageTag,
-			      SplashImageMaskSource src, void *srcData,
-			      int srcWidth, int srcHeight,
-			      SplashCoord *mat, GBool glyphMode,
-			      GBool interpolate);
-  SplashBitmap *scaleMask(GString *imageTag,
-			  SplashImageMaskSource src, void *srcData,
-			  int srcWidth, int srcHeight,
-			  int scaledWidth, int scaledHeight,
-			  GBool interpolate);
-  void scaleMaskYdXd(SplashImageMaskSource src, void *srcData,
-		     int srcWidth, int srcHeight,
-		     int scaledWidth, int scaledHeight,
-		     SplashBitmap *dest);
-  void scaleMaskYdXu(SplashImageMaskSource src, void *srcData,
-		     int srcWidth, int srcHeight,
-		     int scaledWidth, int scaledHeight,
-		     SplashBitmap *dest);
-  void scaleMaskYuXd(SplashImageMaskSource src, void *srcData,
-		     int srcWidth, int srcHeight,
-		     int scaledWidth, int scaledHeight,
-		     SplashBitmap *dest);
-  void scaleMaskYuXu(SplashImageMaskSource src, void *srcData,
-		     int srcWidth, int srcHeight,
-		     int scaledWidth, int scaledHeight,
-		     SplashBitmap *dest);
-  void scaleMaskYuXuI(SplashImageMaskSource src, void *srcData,
-		      int srcWidth, int srcHeight,
+  void drawImageMaskArbitraryNoInterp(Guchar *scaledMask,
+				      SplashDrawImageMaskRowData *dd,
+				      SplashDrawImageMaskRowFunc drawRowFunc,
+				      SplashCoord *invMat,
+				      int scaledWidth, int scaledHeight,
+				      int xMin, int yMin, int xMax, int yMax);
+  void drawImageMaskArbitraryInterp(Guchar *scaledMask,
+				    SplashDrawImageMaskRowData *dd,
+				    SplashDrawImageMaskRowFunc drawRowFunc,
+				    SplashCoord *invMat,
+				    int scaledWidth, int scaledHeight,
+				    int xMin, int yMin, int xMax, int yMax);
+  void mirrorImageMaskRow(Guchar *maskIn, Guchar *maskOut, int width);
+  void drawImageMaskRowNoClip(SplashDrawImageMaskRowData *data,
+			      Guchar *maskData,
+			      int x, int y, int width);
+  void drawImageMaskRowClipNoAA(SplashDrawImageMaskRowData *data,
+				Guchar *maskData,
+				int x, int y, int width);
+  void drawImageMaskRowClipAA(SplashDrawImageMaskRowData *data,
+			      Guchar *maskData,
+			      int x, int y, int width);
+  ImageScaler *getImageScaler(GString *imageTag,
+			      SplashImageSource src, void *srcData,
+			      int w, int h, int nComps,
+			      int scaledWidth, int scaledHeight,
+			      SplashColorMode srcMode,
+			      GBool srcAlpha, GBool interpolate);
+  void getScaledImage(GString *imageTag,
+		      SplashImageSource src, void *srcData,
+		      int w, int h, int nComps,
 		      int scaledWidth, int scaledHeight,
-		      SplashBitmap *dest);
-  void blitMask(SplashBitmap *src, int xDest, int yDest,
-		SplashClipResult clipRes);
-  void upscaleImage(SplashImageSource src, void *srcData,
-		    SplashColorMode srcMode, int nComps,
-		    GBool srcAlpha, int srcWidth, int srcHeight,
-		    SplashCoord *mat, GBool interpolate);
-  void arbitraryTransformImage(GString *imageTag,
-			       SplashImageSource src, void *srcData,
-			       SplashColorMode srcMode, int nComps,
-			       GBool srcAlpha,
-			       int srcWidth, int srcHeight,
-			       SplashCoord *mat, GBool interpolate);
-  SplashBitmap *scaleImage(GString *imageTag,
-			   SplashImageSource src, void *srcData,
-			   SplashColorMode srcMode, int nComps,
-			   GBool srcAlpha, int srcWidth, int srcHeight,
-			   int scaledWidth, int scaledHeight,
-			   GBool interpolate);
-  void scaleImageYdXd(SplashImageSource src, void *srcData,
-		      SplashColorMode srcMode, int nComps,
-		      GBool srcAlpha, int srcWidth, int srcHeight,
-		      int scaledWidth, int scaledHeight,
-		      SplashBitmap *dest);
-  void scaleImageYdXu(SplashImageSource src, void *srcData,
-		      SplashColorMode srcMode, int nComps,
-		      GBool srcAlpha, int srcWidth, int srcHeight,
-		      int scaledWidth, int scaledHeight,
-		      SplashBitmap *dest);
-  void scaleImageYuXd(SplashImageSource src, void *srcData,
-		      SplashColorMode srcMode, int nComps,
-		      GBool srcAlpha, int srcWidth, int srcHeight,
-		      int scaledWidth, int scaledHeight,
-		      SplashBitmap *dest);
-  void scaleImageYuXu(SplashImageSource src, void *srcData,
-		      SplashColorMode srcMode, int nComps,
-		      GBool srcAlpha, int srcWidth, int srcHeight,
-		      int scaledWidth, int scaledHeight,
-		      SplashBitmap *dest);
-  void scaleImageYuXuI(SplashImageSource src, void *srcData,
-		       SplashColorMode srcMode, int nComps,
-		       GBool srcAlpha, int srcWidth, int srcHeight,
-		       int scaledWidth, int scaledHeight,
-		       SplashBitmap *dest);
-  void vertFlipImage(SplashBitmap *img, int width, int height,
-		     int nComps);
-  void horizFlipImage(SplashBitmap *img, int width, int height,
-		      int nComps);
-  void blitImage(SplashBitmap *src, GBool srcAlpha, int xDest, int yDest,
-		 SplashClipResult clipRes);
-  void blitImageClipped(SplashBitmap *src, GBool srcAlpha,
-			int xSrc, int ySrc, int xDest, int yDest,
-			int w, int h);
+		      SplashColorMode srcMode,
+		      GBool srcAlpha, GBool interpolate,
+		      Guchar **scaledColor, Guchar **scaledAlpha,
+		      GBool *freeScaledImage);
+  void drawImageArbitraryNoInterp(Guchar *scaledColor, Guchar *scaledAlpha,
+				  SplashDrawImageRowData *dd,
+				  SplashDrawImageRowFunc drawRowFunc,
+				  SplashCoord *invMat,
+				  int scaledWidth, int scaledHeight,
+				  int xMin, int yMin, int xMax, int yMax,
+				  int nComps, GBool srcAlpha);
+  void drawImageArbitraryInterp(Guchar *scaledColor, Guchar *scaledAlpha,
+				SplashDrawImageRowData *dd,
+				SplashDrawImageRowFunc drawRowFunc,
+				SplashCoord *invMat,
+				int scaledWidth, int scaledHeight,
+				int xMin, int yMin, int xMax, int yMax,
+				int nComps, GBool srcAlpha);
+  void mirrorImageRow(Guchar *colorIn, Guchar *alphaIn,
+		      Guchar *colorOut, Guchar *alphaOut,
+		      int width, int nComps, GBool srcAlpha);
+  void drawImageRowNoClipNoAlpha(SplashDrawImageRowData *data,
+				 Guchar *colorData, Guchar *alphaData,
+				 int x, int y, int width);
+  void drawImageRowNoClipAlpha(SplashDrawImageRowData *data,
+			       Guchar *colorData, Guchar *alphaData,
+			       int x, int y, int width);
+  void drawImageRowClipNoAlphaNoAA(SplashDrawImageRowData *data,
+				   Guchar *colorData,
+				   Guchar *alphaData,
+				   int x, int y, int width);
+  void drawImageRowClipNoAlphaAA(SplashDrawImageRowData *data,
+				 Guchar *colorData,
+				 Guchar *alphaData,
+				 int x, int y, int width);
+  void drawImageRowClipAlphaNoAA(SplashDrawImageRowData *data,
+				 Guchar *colorData,
+				 Guchar *alphaData,
+				 int x, int y, int width);
+  void drawImageRowClipAlphaAA(SplashDrawImageRowData *data,
+			       Guchar *colorData,
+			       Guchar *alphaData,
+			       int x, int y, int width);
   void dumpPath(SplashPath *path);
   void dumpXPath(SplashXPath *path);
 
@@ -474,6 +521,9 @@ private:
   SplashBitmap			// for transparency groups, this is the bitmap
     *groupBackBitmap;		//   containing the alpha0/color0 values
   int groupBackX, groupBackY;	// offset within groupBackBitmap
+  SplashGroupDestInitMode groupDestInitMode;
+  int groupDestInitYMin, groupDestInitYMax;
+  Guint *overprintMaskBitmap;
   SplashCoord minLineWidth;
   int modXMin, modYMin, modXMax, modYMax;
   SplashClipResult opClipRes;

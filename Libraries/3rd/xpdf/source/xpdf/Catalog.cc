@@ -28,7 +28,7 @@
 #include "Page.h"
 #include "Error.h"
 #include "Link.h"
-#include "Form.h"
+#include "AcroForm.h"
 #include "TextString.h"
 #include "Catalog.h"
 
@@ -159,6 +159,7 @@ Catalog::Catalog(PDFDoc *docA) {
   baseURI = NULL;
   form = NULL;
   embeddedFiles = NULL;
+  pageLabels = NULL;
 #if MULTITHREADED
   gInitMutex(&pageMutex);
 #endif
@@ -222,7 +223,7 @@ Catalog::Catalog(PDFDoc *docA) {
   catDict.dictLookup("AcroForm", &acroForm);
 
   // get the NeedsRendering flag
-  // NB: Form::load() uses this value
+  // NB: AcroForm::load() uses this value
   needsRendering = catDict.dictLookup("NeedsRendering", &obj)->isBool() &&
                    obj.getBool();
   obj.free();
@@ -230,7 +231,7 @@ Catalog::Catalog(PDFDoc *docA) {
   // create the Form
   // (if acroForm is a null object, this will still create an AcroForm
   // if there are unattached Widget-type annots)
-  form = Form::load(doc, this, &acroForm);
+  form = AcroForm::load(doc, this, &acroForm);
 
   // get the OCProperties dictionary
   catDict.dictLookup("OCProperties", &ocProperties);
@@ -241,7 +242,6 @@ Catalog::Catalog(PDFDoc *docA) {
   // get the ViewerPreferences object
   catDict.dictLookupNF("ViewerPreferences", &viewerPrefs);
 
-  pageLabels = NULL;
   if (catDict.dictLookup("PageLabels", &obj)->isDict()) {
     readPageLabelTree(&obj);
   }
@@ -623,7 +623,7 @@ void Catalog::loadPage2(int pg, int relPg, PageTreeNode *node) {
     // merge the PageAttrs
     attrs = new PageAttrs(node->parent ? node->parent->attrs
 			               : (PageAttrs *)NULL,
-			  pageObj.getDict());
+			  pageObj.getDict(), xref);
 
     // if "Kids" exists, it's an internal node
     if (pageObj.dictLookup("Kids", &kidsObj)->isArray()) {
@@ -1190,7 +1190,7 @@ GBool Catalog::convertPageLabelToInt(TextString *pageLabel, int prefixLength,
 	return gFalse;
       }
     }
-    *n = (len - prefixLength - 1) * 26 + (u[i] - (Unicode)style) + 1;
+    *n = (len - prefixLength - 1) * 26 + (u[prefixLength] - (Unicode)style) + 1;
     return gTrue;
   }
   return gFalse;

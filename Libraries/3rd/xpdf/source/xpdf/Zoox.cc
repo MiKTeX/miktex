@@ -434,7 +434,8 @@ ZxAttr *ZxDoc::parseAttr() {
   GString *name, *value;
   const char *start;
   char quote, c;
-  int x, n;
+  unsigned int x;
+  int n;
 
   name = parseName();
   parseSpace();
@@ -563,7 +564,8 @@ void ZxDoc::parseCharData(ZxElement *par) {
   GString *data;
   const char *start;
   char c;
-  int x, n;
+  unsigned int x;
+  int n;
 
   data = new GString();
   while (parsePtr < parseEnd && *parsePtr != '<') {
@@ -642,7 +644,7 @@ void ZxDoc::parseCharData(ZxElement *par) {
   par->addChild(new ZxCharData(data, true));
 }
 
-void ZxDoc::appendUTF8(GString *s, int c) {
+void ZxDoc::appendUTF8(GString *s, unsigned int c) {
   if (c <= 0x7f) {
     s->append((char)c);
   } else if (c <= 0x7ff) {

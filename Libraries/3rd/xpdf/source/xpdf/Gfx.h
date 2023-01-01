@@ -76,7 +76,7 @@ public:
   GfxFont *lookupFontByRef(Ref ref);
   GBool lookupXObject(const char *name, Object *obj);
   GBool lookupXObjectNF(const char *name, Object *obj);
-  void lookupColorSpace(const char *name, Object *obj);
+  void lookupColorSpace(const char *name, Object *obj, GBool inherit = gTrue);
   GfxPattern *lookupPattern(const char *name
 			    );
   GfxShading *lookupShading(const char *name
@@ -88,6 +88,7 @@ public:
 
 private:
 
+  GBool valid;
   GfxFontDict *fonts;
   Object xObjDict;
   Object colorSpaceDict;
@@ -164,10 +165,9 @@ public:
 
   void drawForm(Object *strRef, Dict *resDict, double *matrix, double *bbox,
 		GBool transpGroup = gFalse, GBool softMask = gFalse,
-		GfxColorSpace *blendingColorSpace = NULL,
 		GBool isolated = gFalse, GBool knockout = gFalse,
 		GBool alpha = gFalse, Function *transferFunc = NULL,
-		GfxColor *backdropColor = NULL);
+		Object *backdropColorObj = NULL);
 
   // Take all of the content stream stack entries from <oldGfx>.  This
   // is useful when creating a new Gfx object to handle a pattern,
@@ -188,6 +188,7 @@ private:
   GBool subPage;		// is this a sub-page object?
   GBool printCommands;		// print the drawing commands (for debugging)
   GfxResources *res;		// resource stack
+  GfxFont *defaultFont;		// font substituted for undefined fonts
   int opCounter;		// operation counter (used to decide when
 				//   to check for an abort)
 
@@ -214,6 +215,7 @@ private:
 
   GBool checkForContentStreamLoop(Object *ref);
   void go(GBool topLevel);
+  void getContentObj(Object *obj);
   GBool execOp(Object *cmd, Object args[], int numArgs);
   Operator *findOp(char *name);
   GBool checkArg(Object *arg, TchkType type);
@@ -231,9 +233,8 @@ private:
   void opSetLineWidth(Object args[], int numArgs);
   void opSetExtGState(Object args[], int numArgs);
   void doSoftMask(Object *str, Object *strRef, GBool alpha,
-		  GfxColorSpace *blendingColorSpace,
 		  GBool isolated, GBool knockout,
-		  Function *transferFunc, GfxColor *backdropColor);
+		  Function *transferFunc, Object *backdropColorObj);
   void opSetRenderingIntent(Object args[], int numArgs);
   GfxRenderingIntent parseRenderingIntent(const char *name);
 
@@ -280,6 +281,7 @@ private:
   void doShadingPatternFill(GfxShadingPattern *sPat,
 			    GBool stroke, GBool eoFill, GBool text);
   void opShFill(Object args[], int numArgs);
+  void doShFill(GfxShading *shading);
   void doFunctionShFill(GfxFunctionShading *shading);
   void doFunctionShFill1(GfxFunctionShading *shading,
 			 double x0, double y0,

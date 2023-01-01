@@ -103,7 +103,7 @@ private:
   ZxAttr *parseAttr();
   void parseContent(ZxElement *par);
   void parseCharData(ZxElement *par);
-  void appendUTF8(GString *s, int c);
+  void appendUTF8(GString *s, unsigned int c);
   void parseCDSect(ZxNode *par);
   void parseMisc(ZxNode *par);
   void parseComment(ZxNode *par);

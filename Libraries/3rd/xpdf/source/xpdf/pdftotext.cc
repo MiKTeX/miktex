@@ -19,6 +19,7 @@
 #include "gmempp.h"
 #include "parseargs.h"
 #include "GString.h"
+#include "GList.h"
 #include "GlobalParams.h"
 #include "Object.h"
 #include "Stream.h"
@@ -39,6 +40,7 @@ static int firstPage = 1;
 static int lastPage = 0;
 static GBool physLayout = gFalse;
 static GBool simpleLayout = gFalse;
+static GBool simple2Layout = gFalse;
 static GBool tableLayout = gFalse;
 static GBool linePrinter = gFalse;
 static GBool rawOrder = gFalse;
@@ -56,8 +58,10 @@ static double marginTop = 0;
 static double marginBottom = 0;
 static char ownerPassword[33] = "\001";
 static char userPassword[33] = "\001";
+static GBool verbose = gFalse;
 static GBool quiet = gFalse;
 static char cfgFileName[256] = "";
+static GBool listEncodings = gFalse;
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
 
@@ -70,6 +74,8 @@ static ArgDesc argDesc[] = {
    "maintain original physical layout"},
   {"-simple",  argFlag,     &simpleLayout,  0,
    "simple one-column page layout"},
+  {"-simple2", argFlag,     &simple2Layout, 0,
+   "simple one-column page layout, version 2"},
   {"-table",   argFlag,     &tableLayout,   0,
    "similar to -layout, but optimized for tables"},
   {"-lineprinter", argFlag, &linePrinter,   0,
@@ -89,7 +95,7 @@ static ArgDesc argDesc[] = {
   {"-eol",     argString,   textEOL,        sizeof(textEOL),
    "output end-of-line convention (unix, dos, or mac)"},
   {"-nopgbrk", argFlag,     &noPageBreaks,  0,
-   "don't insert page breaks between pages"},
+   "don't insert a page break at the end of each page"},
   {"-bom",     argFlag,     &insertBOM,     0,
    "insert a Unicode BOM at the start of the text file"},
   {"-marginl", argFP,       &marginLeft,    0,
@@ -104,10 +110,14 @@ static ArgDesc argDesc[] = {
    "owner password (for encrypted files)"},
   {"-upw",     argString,   userPassword,   sizeof(userPassword),
    "user password (for encrypted files)"},
+  {"-verbose", argFlag,    &verbose,       0,
+   "print per-page status information"},
   {"-q",       argFlag,     &quiet,         0,
    "don't print any messages or errors"},
   {"-cfg",     argString,   cfgFileName,    sizeof(cfgFileName),
    "configuration file to use in place of .xpdfrc"},
+  {"-listencodings", argFlag, &listEncodings, 0,
+   "list all available output text encodings"},
   {"-v",       argFlag,     &printVersion,  0,
    "print copyright and version info"},
   {"-h",       argFlag,     &printHelp,     0,
@@ -153,8 +163,23 @@ int main(int argc, char *argv[]) {
   // parse args
   fixCommandLine(&argc, &argv);
   ok = parseArgs(argDesc, &argc, argv);
+  if (ok && listEncodings) {
+    // list available encodings
+    if (cfgFileName[0] && !pathIsFile(cfgFileName)) {
+      error(errConfig, -1, "Config file '{0:s}' doesn't exist or isn't a file",
+	    cfgFileName);
+    }
+    globalParams = new GlobalParams(cfgFileName);
+    GList *encs = globalParams->getAvailableTextEncodings();
+    for (int i = 0; i < encs->getLength(); ++i) {
+      printf("%s\n", ((GString *)encs->get(i))->getCString());
+    }
+    deleteGList(encs, GString);
+    delete globalParams;
+    goto err0;
+  }
   if (!ok || argc < 2 || argc > 3 || printVersion || printHelp) {
-    fprintf(stderr, "pdftotext version %s\n", xpdfVersion);
+    fprintf(stderr, "pdftotext version %s [www.xpdfreader.com]\n", xpdfVersion);
     fprintf(stderr, "%s\n", xpdfCopyright);
     if (!printVersion) {
       printUsage("pdftotext", "<PDF-file> [<text-file>]", argDesc);
@@ -164,6 +189,10 @@ int main(int argc, char *argv[]) {
   fileName = argv[1];
 
   // read config file
+  if (cfgFileName[0] && !pathIsFile(cfgFileName)) {
+    error(errConfig, -1, "Config file '{0:s}' doesn't exist or isn't a file",
+	  cfgFileName);
+  }
   globalParams = new GlobalParams(cfgFileName);
   if (textEncName[0]) {
     globalParams->setTextEncoding(textEncName);
@@ -175,6 +204,9 @@ int main(int argc, char *argv[]) {
   }
   if (noPageBreaks) {
     globalParams->setTextPageBreaks(gFalse);
+  }
+  if (verbose) {
+    globalParams->setPrintStatusInfo(verbose);
   }
   if (quiet) {
     globalParams->setErrQuiet(quiet);
@@ -229,6 +261,9 @@ int main(int argc, char *argv[]) {
     }
     textFileName->append(".txt");
   }
+  if (textFileName->cmp("-") == 0) {
+    globalParams->setPrintStatusInfo(gFalse);
+  }
 
   // get page range
   if (firstPage < 1) {
@@ -247,6 +282,8 @@ int main(int argc, char *argv[]) {
     textOutControl.fixedPitch = fixedPitch;
   } else if (simpleLayout) {
     textOutControl.mode = textOutSimpleLayout;
+  } else if (simple2Layout) {
+    textOutControl.mode = textOutSimple2Layout;
   } else if (linePrinter) {
     textOutControl.mode = textOutLinePrinter;
     textOutControl.fixedPitch = fixedPitch;
@@ -264,7 +301,7 @@ int main(int argc, char *argv[]) {
   textOutControl.marginTop = marginTop;
   textOutControl.marginBottom = marginBottom;
   textOut = new TextOutputDev(textFileName->getCString(), &textOutControl,
-			      gFalse);
+			      gFalse, gTrue);
   if (textOut->isOk()) {
     doc->displayPages(textOut, firstPage, lastPage, 72, 72, 0,
 		      gFalse, gTrue, gFalse);

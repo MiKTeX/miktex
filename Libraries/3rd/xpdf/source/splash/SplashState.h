@@ -81,7 +81,7 @@ public:
   SplashError clipToPath(SplashPath *path, GBool eo);
 
   // Set the soft mask bitmap.
-  void setSoftMask(SplashBitmap *softMaskA);
+  void setSoftMask(SplashBitmap *softMaskA, GBool deleteBitmap = gTrue);
 
   // Set the transfer function.
   void setTransfer(Guchar *red, Guchar *green, Guchar *blue, Guchar *gray);
@@ -113,16 +113,17 @@ private:
   GBool deleteSoftMask;
   GBool inNonIsolatedGroup;
   GBool inKnockoutGroup;
-  Guchar rgbTransferR[256],
-         rgbTransferG[256],
-         rgbTransferB[256];
-  Guchar grayTransfer[256];
+  Guchar *rgbTransferR;
+  Guchar *rgbTransferG;
+  Guchar *rgbTransferB;
+  Guchar *grayTransfer;
 #if SPLASH_CMYK
-  Guchar cmykTransferC[256],
-         cmykTransferM[256],
-         cmykTransferY[256],
-         cmykTransferK[256];
+  Guchar *cmykTransferC;
+  Guchar *cmykTransferM;
+  Guchar *cmykTransferY;
+  Guchar *cmykTransferK;
 #endif
+  GBool transferIsShared;
   Guint overprintMask;
   GBool enablePathSimplification;
 
