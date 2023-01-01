@@ -26,7 +26,7 @@ add_definitions(
 
 configure_file(
     source/src/UriConfig.h.in
-    config.h
+    UriConfig.h
 )
 
 configure_file(

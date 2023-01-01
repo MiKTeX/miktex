@@ -84,8 +84,6 @@ int URI_FUNC(CompareRange)(
 
 UriBool URI_FUNC(RemoveDotSegmentsAbsolute)(URI_TYPE(Uri) * uri,
 		UriMemoryManager * memory);
-UriBool URI_FUNC(RemoveDotSegments)(URI_TYPE(Uri) * uri, UriBool relative,
-		UriMemoryManager * memory);
 UriBool URI_FUNC(RemoveDotSegmentsEx)(URI_TYPE(Uri) * uri,
 		UriBool relative, UriBool pathOwned, UriMemoryManager * memory);
 

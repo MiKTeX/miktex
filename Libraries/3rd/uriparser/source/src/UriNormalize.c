@@ -115,13 +115,17 @@ static void URI_FUNC(PreventLeakage)(URI_TYPE(Uri) * uri,
 static URI_INLINE void URI_FUNC(PreventLeakage)(URI_TYPE(Uri) * uri,
 		unsigned int revertMask, UriMemoryManager * memory) {
 	if (revertMask & URI_NORMALIZE_SCHEME) {
+		/* NOTE: A scheme cannot be the empty string
+		 *       so no need to compare .first with .afterLast, here. */
 		memory->free(memory, (URI_CHAR *)uri->scheme.first);
 		uri->scheme.first = NULL;
 		uri->scheme.afterLast = NULL;
 	}
 
 	if (revertMask & URI_NORMALIZE_USER_INFO) {
-		memory->free(memory, (URI_CHAR *)uri->userInfo.first);
+		if (uri->userInfo.first != uri->userInfo.afterLast) {
+			memory->free(memory, (URI_CHAR *)uri->userInfo.first);
+		}
 		uri->userInfo.first = NULL;
 		uri->userInfo.afterLast = NULL;
 	}
@@ -129,16 +133,18 @@ static URI_INLINE void URI_FUNC(PreventLeakage)(URI_TYPE(Uri) * uri,
 	if (revertMask & URI_NORMALIZE_HOST) {
 		if (uri->hostData.ipFuture.first != NULL) {
 			/* IPvFuture */
+			/* NOTE: An IPvFuture address cannot be the empty string
+			 *       so no need to compare .first with .afterLast, here. */
 			memory->free(memory, (URI_CHAR *)uri->hostData.ipFuture.first);
 			uri->hostData.ipFuture.first = NULL;
 			uri->hostData.ipFuture.afterLast = NULL;
 			uri->hostText.first = NULL;
 			uri->hostText.afterLast = NULL;
-		} else if ((uri->hostText.first != NULL)
-				&& (uri->hostData.ip4 == NULL)
-				&& (uri->hostData.ip6 == NULL)) {
+		} else if (uri->hostText.first != NULL) {
 			/* Regname */
-			memory->free(memory, (URI_CHAR *)uri->hostText.first);
+			if (uri->hostText.first != uri->hostText.afterLast) {
+				memory->free(memory, (URI_CHAR *)uri->hostText.first);
+			}
 			uri->hostText.first = NULL;
 			uri->hostText.afterLast = NULL;
 		}
@@ -161,13 +167,17 @@ static URI_INLINE void URI_FUNC(PreventLeakage)(URI_TYPE(Uri) * uri,
 	}
 
 	if (revertMask & URI_NORMALIZE_QUERY) {
-		memory->free(memory, (URI_CHAR *)uri->query.first);
+		if (uri->query.first != uri->query.afterLast) {
+			memory->free(memory, (URI_CHAR *)uri->query.first);
+		}
 		uri->query.first = NULL;
 		uri->query.afterLast = NULL;
 	}
 
 	if (revertMask & URI_NORMALIZE_FRAGMENT) {
-		memory->free(memory, (URI_CHAR *)uri->fragment.first);
+		if (uri->fragment.first != uri->fragment.afterLast) {
+			memory->free(memory, (URI_CHAR *)uri->fragment.first);
+		}
 		uri->fragment.first = NULL;
 		uri->fragment.afterLast = NULL;
 	}
@@ -407,22 +417,19 @@ static URI_INLINE UriBool URI_FUNC(MakeOwnerEngine)(URI_TYPE(Uri) * uri,
 
 	/* Host */
 	if ((*doneMask & URI_NORMALIZE_HOST) == 0) {
-		if ((uri->hostData.ip4 == NULL)
-				&& (uri->hostData.ip6 == NULL)) {
-			if (uri->hostData.ipFuture.first != NULL) {
-				/* IPvFuture */
-				if (!URI_FUNC(MakeRangeOwner)(doneMask, URI_NORMALIZE_HOST,
-						&(uri->hostData.ipFuture), memory)) {
-					return URI_FALSE; /* Raises malloc error */
-				}
-				uri->hostText.first = uri->hostData.ipFuture.first;
-				uri->hostText.afterLast = uri->hostData.ipFuture.afterLast;
-			} else if (uri->hostText.first != NULL) {
-				/* Regname */
-				if (!URI_FUNC(MakeRangeOwner)(doneMask, URI_NORMALIZE_HOST,
-						&(uri->hostText), memory)) {
-					return URI_FALSE; /* Raises malloc error */
-				}
+		if (uri->hostData.ipFuture.first != NULL) {
+			/* IPvFuture */
+			if (!URI_FUNC(MakeRangeOwner)(doneMask, URI_NORMALIZE_HOST,
+					&(uri->hostData.ipFuture), memory)) {
+				return URI_FALSE; /* Raises malloc error */
+			}
+			uri->hostText.first = uri->hostData.ipFuture.first;
+			uri->hostText.afterLast = uri->hostData.ipFuture.afterLast;
+		} else if (uri->hostText.first != NULL) {
+			/* Regname */
+			if (!URI_FUNC(MakeRangeOwner)(doneMask, URI_NORMALIZE_HOST,
+					&(uri->hostText), memory)) {
+				return URI_FALSE; /* Raises malloc error */
 			}
 		}
 	}
