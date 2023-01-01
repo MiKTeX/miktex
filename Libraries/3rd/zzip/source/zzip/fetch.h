@@ -164,6 +164,30 @@ extern void     __zzip_set64(zzip_byte_t * s, uint64_t v);
 #define zzip_extra_block_get_datasize(__p)     ZZIP_GET16((zzip_byte_t*)(__p)+2)
 #define zzip_extra_block_set_datasize(__p,__x) ZZIP_SET16((zzip_byte_t*)(__p)+2,__x)
 
+#define zzip_extra_zip64_get_datatype(__p)      ZZIP_GET16((__p)->z_datatype)
+#define zzip_extra_zip64_set_datatype(__p,__x)  ZZIP_SET16((__p)->z_datatype,(__x))
+#define zzip_extra_zip64_get_datasize(__p)      ZZIP_GET16((__p)->z_datasize)
+#define zzip_extra_zip64_set_datasize(__p,__x)  ZZIP_SET16((__p)->z_datasize,(__x))
+#define zzip_extra_zip64_get_usize(__p)         ZZIP_GET64((__p)->z_usize)
+#define zzip_extra_zip64_set_usize(__p,__x )    ZZIP_SET64((__p)->z_usize,(__x))
+#define zzip_extra_zip64_get_csize(__p)         ZZIP_GET64((__p)->z_csize)
+#define zzip_extra_zip64_set_csize(__p,__x )    ZZIP_SET64((__p)->z_csize,(__x))
+#define zzip_extra_zip64_get_offset(__p)        ZZIP_GET64((__p)->z_offset)
+#define zzip_extra_zip64_set_offset(__p,__x)    ZZIP_SET64((__p)->z_offset,(__x))
+#define zzip_extra_zip64_get_diskstart(__p)     ZZIP_GET32((__p)->z_diskstart)
+#define zzip_extra_zip64_set_diskstart(__p,__x) ZZIP_SET32((__p)->z_diskstart,(__x))
+
+/* zzip64_disk_locator - used inside the old central directory */
+#define zzip_disk64_locator_get_magic(__p)        ZZIP_GET32((__p)->z_magic)
+#define zzip_disk64_locator_set_magic(__p,__x)    ZZIP_SET32((__p)->z_magic,(__x))
+#define zzip_disk64_locator_get_rootdisk(__p)     ZZIP_GET32((__p)->z_rootdisk)
+#define zzip_disk64_locator_set_rootdisk(__p,__x) ZZIP_SET32((__p)->z_rootdisk,(__x))
+#define zzip_disk64_locator_get_rootseek(__p)     ZZIP_GET64((__p)->z_rootseek)
+#define zzip_disk64_locator_set_rootseek(__p,__x) ZZIP_SET64((__p)->z_rootseek,(__x))
+#define zzip_disk64_locator_get_numdisks(__p)     ZZIP_GET32((__p)->z_numdisks)
+#define zzip_disk64_locator_set_numdisks(__p,__x) ZZIP_SET32((__p)->z_numdisks,(__x))
+#define zzip_disk64_locator_check_magic(__p)  ZZIP_DISK64_LOCATOR_CHECKMAGIC((__p))
+
 /* zzip64_disk_trailer - the zip64 archive entry point */
 #define zzip_disk64_trailer_get_magic(__p)      ZZIP_GET32((__p)->z_magic)
 #define zzip_disk64_trailer_set_magic(__p,__x)  ZZIP_SET32((__p)->z_magic,(__x))
@@ -283,6 +307,18 @@ extern void     __zzip_set64(zzip_byte_t * s, uint64_t v);
         ((char*)(__p) + zzip_disk_trailer_headerlength))
 #define zzip_disk_trailer_to_endoffile(__p)   ((void*) \
         (zzip_disk_trailer_to_comment(__p) + zzip_disk_trailer_comment(__p)))
+
+#define zzip_extra_zip64_csize(__p)   ((zzip_size_t) \
+        zzip_extra_zip64_get_csize(__p))
+#define zzip_extra_zip64_usize(__p)   ((zzip_size_t) \
+        zzip_extra_zip64_get_usize(__p))
+#define zzip_extra_zip64_offset(__p)   ((zzip_off_t) \
+        zzip_extra_zip64_get_offset(__p))
+#define zzip_extra_zip64_diskstart(__p)   ((zzip_size_t) \
+        zzip_extra_zip64_get_diskstart(__p))
+
+#define zzip_disk64_locator_rootseek(__p) ((zzip_off64_t) \
+        zzip_disk64_locator_get_rootseek(__p))
 
 /* zzip_disk64_trailer - the zip archive entry point */
 #define zzip_disk64_trailer_localdisk(__p) ((int) \

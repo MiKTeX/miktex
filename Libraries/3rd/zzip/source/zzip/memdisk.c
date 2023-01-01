@@ -1,4 +1,3 @@
-
 /*
  * NOTE: this is part of libzzipmmapped (i.e. it is not libzzip).
  *                                            ==================
@@ -52,15 +51,7 @@
 #endif
 
 #define ZZIP_EXTRA_zip64 0x0001
-typedef struct _zzip_extra_zip64
-{                               /* ZIP64 extended information extra field */
-    zzip_byte_t z_datatype[2];  /* Tag for this "extra" block type */
-    zzip_byte_t z_datasize[2];  /* Size of this "extra" block */
-    zzip_byte_t z_usize[8];     /* Original uncompressed file size */
-    zzip_byte_t z_csize[8];     /* Size of compressed data */
-    zzip_byte_t z_offset[8];    /* Offset of local header record */
-    zzip_byte_t z_diskstart[4]; /* Number of the disk for file start */
-} zzip_extra_zip64;
+typedef struct zzip_extra_zip64 zzip_extra_zip64;
 
 /*forward*/
 
@@ -280,14 +271,14 @@ zzip_mem_entry_new(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
     }
     {
         /* override sizes/offsets with zip64 values for largefile support */
-        zzip_extra_zip64 *block = (zzip_extra_zip64 *)
-            zzip_mem_entry_find_extra_block(item, ZZIP_EXTRA_zip64, sizeof(zzip_extra_zip64));
+        struct zzip_extra_zip64 *block = (struct zzip_extra_zip64 *)
+            zzip_mem_entry_find_extra_block(item, ZZIP_EXTRA_ZIP64_MAGIC, sizeof(struct zzip_extra_zip64));
         if (block)
         {
-            item->zz_usize = ZZIP_GET64(block->z_usize);
-            item->zz_csize = ZZIP_GET64(block->z_csize);
-            item->zz_offset = ZZIP_GET64(block->z_offset);
-            item->zz_diskstart = ZZIP_GET32(block->z_diskstart);
+            item->zz_usize = zzip_extra_zip64_usize(block);
+            item->zz_csize = zzip_extra_zip64_csize(block);
+            item->zz_offset = zzip_extra_zip64_offset(block);
+            item->zz_diskstart = zzip_extra_zip64_diskstart(block);
         }
     }
     /* NOTE:

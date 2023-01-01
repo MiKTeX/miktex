@@ -52,6 +52,9 @@ typedef struct zzip_dostime zzip_dostime_t;
       (((zzip_byte_t*)(__p))[1]==(__B)) && \
       (((zzip_byte_t*)(__p))[2]==(__C)) && \
       (((zzip_byte_t*)(__p))[3]==(__D)) )
+#define ZZIP_CHECK(__p,__A,__B) \
+    ( (((zzip_byte_t*)(__p))[0]==(__A)) && \
+      (((zzip_byte_t*)(__p))[1]==(__B)) )
 
 /* A. Local file header */
 struct zzip_file_header
@@ -172,6 +175,31 @@ struct zzip_extra_block
     zzip_byte_t  z_datasize[2];       /* being returned by xx_to_extras usually */
 } ZZIP_GNUC_PACKED;
 #define zzip_extra_block_headerlength (2U+2U)
+
+/* Zip64 extras block */
+struct zzip_extra_zip64
+{
+#   define ZZIP_EXTRA_ZIP64_MAGIC 0x0001
+#   define ZZIP_EXTRA_ZIP64_CHECK(__p) ZZIP_CHECK(__p,'\0','\1')
+    zzip_byte_t  z_datatype[2];       /* extras signature 0x0001 */
+    zzip_byte_t  z_datasize[2];       /* structure length 0x0010 */
+    zzip_byte_t  z_usize[8];          /* original size */
+    zzip_byte_t  z_csize[8];          /* compressed size */
+    zzip_byte_t  z_offset[8];         /* offset from file header */
+    zzip_byte_t  z_diskstart[4];      /* disk where the file starts */
+} ZZIP_GNUC_PACKED;
+
+/* Zip64 end of central dir locator */
+struct zzip_disk64_locator
+{
+#   define ZZIP_DISK64_LOCATOR_MAGIC 0x07064b50
+#   define ZZIP_DISK64_LOCATOR_CHECKMAGIC(__p) ZZIP_CHECKMAGIC(__p,'P','K','\6','\7')
+    zzip_byte_t  z_magic[4]; /* end of central dir signature (0x06054b50) */
+    zzip_byte_t  z_rootdisk[4]; /* number of disk with the zip64 directory */
+    zzip_byte_t  z_rootseek[8]; /* relative offset of the zip64 directory */
+    zzip_byte_t  z_numdisks[4];    /* total numer of disks */
+    /* followed by zip64 extensible data sector (of variable size) */
+} ZZIP_GNUC_PACKED;
 
 /* Zip64 end of central dir record */
 struct zzip_disk64_trailer

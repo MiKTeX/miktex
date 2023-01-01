@@ -379,6 +379,16 @@ zzip_entry_findfirst(FILE * disk)
                      * central directory was written directly before : */
                     root = mapoffs - rootsize;
                 }
+                if (buffer + sizeof(struct zzip_disk64_locator) <= p) {
+                    p -= sizeof(struct zzip_disk64_locator);
+                }
+                if (zzip_disk64_locator_check_magic(p))
+                {
+                    struct zzip_disk64_locator *locator =
+                        (struct zzip_disk64_locator *) p;
+                    debug1("found zip64 disk locator (not supported)");
+                    /* seek = zzip_disk64_locator_rootseek(locator); */
+                }
             } else if (zzip_disk64_trailer_check_magic(p))
             {
                 struct zzip_disk64_trailer *trailer =

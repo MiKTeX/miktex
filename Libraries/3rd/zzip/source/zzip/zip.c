@@ -76,10 +76,10 @@ struct _disk_trailer
  * which know what they do and which can adapt from version to version
  */
 
-int __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
+static int __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
                               struct _disk_trailer *_zzip_restrict trailer,
                               zzip_plugin_io_t io);
-int __zzip_parse_root_directory(int fd,
+static int __zzip_parse_root_directory(int fd,
                                 struct _disk_trailer *trailer,
                                 struct zzip_dir_hdr **hdr_return,
                                 zzip_plugin_io_t io,
@@ -173,7 +173,7 @@ __debug_dir_hdr(struct zzip_dir_hdr *hdr)
  * the zip's central directory info that is usually a few
  * bytes off the end of the file.
  */
-int
+static int
 __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
                           struct _disk_trailer *_zzip_restrict trailer,
                           zzip_plugin_io_t io)
@@ -403,7 +403,7 @@ __zzip_aligned4(char *p)
  * information and create a zziplib private directory table in
  * memory.
  */
-int
+static int
 __zzip_parse_root_directory(int fd,
                             struct _disk_trailer *trailer,
                             struct zzip_dir_hdr **hdr_return,

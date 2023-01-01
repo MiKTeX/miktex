@@ -60,6 +60,19 @@
 #define ____ }
 #endif
 
+#define DEBUG 1
+#ifdef DEBUG
+#define debug1(msg) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__); } while(0)
+#define debug2(msg, arg1) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1); } while(0)
+#define debug3(msg, arg1, arg2) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1, arg2); } while(0)
+#define debug4(msg, arg1, arg2, arg3) do { fprintf(stderr, "DEBUG: %s : " msg "\n", __func__, arg1, arg2, arg3); } while(0)
+#else
+#define debug1(msg) 
+#define debug2(msg, arg1) 
+#define debug3(msg, arg1, arg2) 
+#define debug4(msg, arg1, arg2, arg3) 
+#endif
+
 /** => zzip_disk_mmap
  * This function does primary initialization of a disk-buffer struct.
  * 
@@ -265,12 +278,14 @@ zzip_disk_entry_to_file_header(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
     zzip_byte_t *const ptr = disk->buffer + zzip_disk_entry_fileoffset(entry);
     if (disk->buffer > ptr || ptr >= disk->endbuf)
     {
+        debug2("file header: offset out of bounds (0x%llx)", (long long unsigned)(disk->buffer));
         errno = EBADMSG;
         return 0;
     }
     ___  struct zzip_file_header *file_header = (void *) ptr;
     if (zzip_file_header_get_magic(file_header) != ZZIP_FILE_HEADER_MAGIC)
     {
+        debug1("file header: bad magic");
         errno = EBADMSG;
         return 0;
     }
@@ -644,12 +659,31 @@ zzip_disk_entry_fopen(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
          return file; 
     }
 
+    ___ /* a ZIP64 extended block may follow. */
+    size_t csize = zzip_file_header_csize(header);
+    off_t offset = zzip_file_header_to_data(header);
+    if (csize == 0xFFFFu) {
+        struct zzip_extra_zip64* zip64 =
+           zzip_file_header_to_extras(header);
+        if (ZZIP_EXTRA_ZIP64_CHECK(zip64)) {
+            csize = zzip_extra_zip64_csize(zip64);
+        }
+    }
+    if (offset == 0xFFFFu) {
+        struct zzip_extra_zip64* zip64 =
+           zzip_file_header_to_extras(header);
+        if (ZZIP_EXTRA_ZIP64_CHECK(zip64)) {
+            offset = zzip_extra_zip64_offset(zip64);
+        }
+    }
+
     file->stored = 0;
     file->zlib.opaque = 0;
     file->zlib.zalloc = Z_NULL;
     file->zlib.zfree = Z_NULL;
-    file->zlib.avail_in = zzip_file_header_csize(header);
-    file->zlib.next_in = zzip_file_header_to_data(header);
+    file->zlib.avail_in = csize;
+    file->zlib.next_in = offset;
+    ____;
 
     DBG2("compressed size %i", (int) file->zlib.avail_in);
     if (file->zlib.next_in + file->zlib.avail_in >= disk->endbuf)
