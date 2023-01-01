@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -10,7 +10,7 @@ set(${app_dll_name}_sources ${app_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
     configure_file(
-        ../app.rc.in
+        windows/app.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/app.rc
     )
     list(APPEND ${app_dll_name}_sources
