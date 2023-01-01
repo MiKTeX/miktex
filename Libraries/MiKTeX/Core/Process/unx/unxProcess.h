@@ -1,23 +1,15 @@
-/* unxProcess.h:                                        -*- C++ -*-
-
-   Copyright (C) 1996-2020 Christian Schenk
-
-   This file is part of the MiKTeX Core Library.
-
-   The MiKTeX Core Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Core Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file unxProcess.h
+ * @author Christian Schenk
+ * @brief Process handling (Unix-alike)
+ *
+ * @copyright Copyright © 1996-2023 Christian Schenk
+ *
+ * This file is part of the MiKTeX Core Library.
+ *
+ * The MiKTeX Core Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #pragma once
 
@@ -32,85 +24,61 @@
 CORE_INTERNAL_BEGIN_NAMESPACE;
 
 class unxProcess :
-  public MiKTeX::Core::Process
+    public MiKTeX::Core::Process
 {
-public:
-  FILE* get_StandardInput() override;
 
 public:
-  FILE* get_StandardOutput() override;
 
-public:
-  FILE* get_StandardError() override;
+    FILE* get_StandardInput() override;
 
-public:
-  void WaitForExit() override;
+    FILE* get_StandardOutput() override;
 
-public:
-  bool WaitForExit(int milliseconds) override;
+    FILE* get_StandardError() override;
 
-public:
-  MiKTeX::Core::ProcessExitStatus get_ExitStatus() const override;
+    void WaitForExit() override;
 
-public:
-  int get_ExitCode() const override;
+    bool WaitForExit(int milliseconds) override;
 
-public:
-  bool MIKTEXTHISCALL get_Exception(MiKTeX::Core::MiKTeXException& ex) const override;
+    MiKTeX::Core::ProcessExitStatus get_ExitStatus() const override;
 
-public:
-  void Close() override;
+    int get_ExitCode() const override;
 
-public:
-  int GetSystemId() override;
+    bool MIKTEXTHISCALL get_Exception(MiKTeX::Core::MiKTeXException& ex) const override;
 
-public:
-  std::unique_ptr<MiKTeX::Core::Process> get_Parent() override;
+    void Close() override;
 
-public:
-  std::string get_ProcessName() override;
-  
-public:
-  MiKTeX::Core::ProcessInfo GetProcessInfo() override;
+    int GetSystemId() override;
 
-public:
-  unxProcess()
-  {
-  }
-  
-public:
-  unxProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
+    std::unique_ptr<MiKTeX::Core::Process> get_Parent() override;
 
-public:
-  ~unxProcess() override;
+    std::string get_ProcessName() override;
+
+    MiKTeX::Core::ProcessInfo GetProcessInfo() override;
+
+    unxProcess()
+    {
+    }
+
+    unxProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
+
+    ~unxProcess() override;
 
 private:
-  void Create();
 
-private:
-  MiKTeX::Core::ProcessStartInfo startinfo;
+    void Create();
 
-private:
-  int status;
+    int fdStandardError = -1;
+    int fdStandardInput = -1;
+    int fdStandardOutput = -1;
+    FILE* pFileStandardError = nullptr;
+    FILE* pFileStandardInput = nullptr;
+    FILE* pFileStandardOutput = nullptr;
+    pid_t pid = -1;
+    MiKTeX::Core::ProcessStartInfo startinfo;
+    int status;
+    std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpFile;
 
-private:
-  pid_t pid = -1;
-
-private:
-  int fdStandardInput = -1;
-  int fdStandardOutput = -1;
-  int fdStandardError = -1;
-
-private:
-  FILE* pFileStandardInput = nullptr;
-  FILE* pFileStandardOutput = nullptr;
-  FILE* pFileStandardError = nullptr;
-
-private:
-  std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpFile;
-
-private:
-  friend class MiKTeX::Core::Process;
+    friend class MiKTeX::Core::Process;
 };
 
 CORE_INTERNAL_END_NAMESPACE;
