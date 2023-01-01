@@ -1,15 +1,15 @@
 ## miktex-version.cmake
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
 ## without modifications, as long as this notice is preserved.
 
 ## date based version
-set(MIKTEX_YEAR_VERSION 2022)
-set(MIKTEX_MONTH_VERSION 12)
-set(MIKTEX_DAY_VERSION 11)
+set(MIKTEX_YEAR_VERSION 2023)
+set(MIKTEX_MONTH_VERSION 1)
+set(MIKTEX_DAY_VERSION 1)
 
 set(MIKTEX_DAY_VERSION_IS_PATCH_VERSION FALSE)
 
