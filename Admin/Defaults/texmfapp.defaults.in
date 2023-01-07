@@ -19,7 +19,7 @@ extra_mem_top = 0
 half_error_line = 50
 
 ;; Words of inimemory available.
-main_memory = 3000000
+main_memory = 5000000
 
 ;; Width of longest text lines output; should be at least 60.
 max_print_line = 79
@@ -36,7 +36,7 @@ pool_free = 47500
 ;; Max number of characters in all strings, including all error
 ;; messages, help texts, font names, control sequences.  These values
 ;; apply to TeX and MP.
-pool_size = 3250000
+pool_size = 6250000
 
 ;; Maximum number of simultaneous input sources.
 stack_size = 10000
