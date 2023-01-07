@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Application class
  *
- * @copyright Copyright © 2005-2022 Christian Schenk
+ * @copyright Copyright © 2005-2023 Christian Schenk
  *
  * This file is part of the MiKTeX Application Framework.
  *
@@ -598,10 +598,6 @@ void Application::ReportLine(const string& str)
 {
     MIKTEX_ASSERT(pimpl->logger != nullptr);
     LOG4CXX_INFO(pimpl->logger, "mpm: " << str);
-    if (!GetQuietFlag())
-    {
-        cout << str << endl;
-    }
 }
 
 bool Application::OnRetryableError(const string& message)
@@ -636,8 +632,6 @@ MIKTEXAPPTHISAPI(void) Application::ShowLibraryVersions() const
         }
     }
 }
-
-const char* const SEP = "======================================================================";
 
 bool Application::InstallPackage(const string& packageId, const PathName& trigger, PathName& installRoot)
 {
@@ -703,10 +697,6 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
     fileList.push_back(packageId);
     pimpl->installer->SetFileLists(fileList, vector<string>());
     LOG4CXX_INFO(pimpl->logger, "installing package " << packageId << " triggered by " << trigger.ToString());
-    if (!GetQuietFlag())
-    {
-        cout << "\n" << SEP << endl;
-    }
     bool done = false;
     bool switchToAdminMode = (pimpl->mpmAutoAdmin == TriState::True && !pimpl->session->IsAdminMode());
     if (switchToAdminMode)
@@ -727,29 +717,10 @@ bool Application::InstallPackage(const string& packageId, const PathName& trigge
         LOG4CXX_FATAL(pimpl->logger, "Info: " << ex.GetInfo());
         LOG4CXX_FATAL(pimpl->logger, "Source: " << ex.GetSourceFile());
         LOG4CXX_FATAL(pimpl->logger, "Line: " << ex.GetSourceLine());
-        cerr
-            << "\n"
-            << fmt::format(T_("Unfortunately, the package {0} could not be installed."), packageId) << endl;
-#if defined(MIKTEX_LOG4CXX_12)
-        log4cxx::AppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-        log4cxx::FileAppenderPtr fileAppender = log4cxx::cast<log4cxx::FileAppender>(appender);
-#else
-        log4cxx::FileAppenderPtr fileAppender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
-#endif
-        if (fileAppender != nullptr)
-        {
-            cerr
-                << T_("Please check the log file:") << "\n"
-                << PathName(fileAppender->getFile()) << endl;
-        }
     }
     if (switchToAdminMode)
     {
         pimpl->session->SetAdminMode(false);
-    }
-    if (!GetQuietFlag())
-    {
-        cout << SEP << endl;
     }
     return done;
 }

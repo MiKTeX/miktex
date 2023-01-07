@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Fixed issues
+
+- [1246](https://github.com/MiKTeX/miktex/issues/1246): installation log is printed in the stdout of kpsewhich
+
 ## 22.12 - 2022-12-12
 
 ### Breaking changes
