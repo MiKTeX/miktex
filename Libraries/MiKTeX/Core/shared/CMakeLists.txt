@@ -1,49 +1,38 @@
-## CMakeLists.txt                                       -*- CMake -*-
+## CMakeLists.txt
 ##
-## Copyright (C) 2006-2021 Christian Schenk
-##
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-##
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## Copyright (C) 2006-2023 Christian Schenk
+## 
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 if(WITH_COM)
-  include(com.cmake)
-  add_subdirectory(ps)
+    include(com.cmake)
+    add_subdirectory(ps)
 endif()
 
 set(${core_dll_name}_sources
-  ${core_com_sources}
-  ${core_sources}
+    ${core_com_sources}
+    ${core_sources}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  configure_file(
-    ../core.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/core.rc
-  )
-  list(APPEND ${core_dll_name}_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/core.rc
-    ${core_source_dir}/Resource.h
-  )
-  list(APPEND resource_files
-    ${CMAKE_CURRENT_BINARY_DIR}/core.rc
-    ${core_source_dir}/Resource.h
-  )
+    configure_file(
+        windows/core.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/core.rc
+    )
+    list(APPEND ${core_dll_name}_sources
+        ${CMAKE_CURRENT_BINARY_DIR}/core.rc
+        ${core_source_dir}/Resource.h
+    )
+    list(APPEND resource_files
+        ${CMAKE_CURRENT_BINARY_DIR}/core.rc
+        ${core_source_dir}/Resource.h
+    )
 endif()
 
 add_library(${core_dll_name} SHARED ${${core_dll_name}_sources})
@@ -53,115 +42,115 @@ set_property(TARGET ${core_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 add_dependencies(${core_dll_name} gen-core-sources)
 
 set_source_files_properties(
-  ${generated_core_sources}
-  PROPERTIES
-    GENERATED TRUE
+    ${generated_core_sources}
+    PROPERTIES
+        GENERATED TRUE
 )
 
 add_dependencies(${core_dll_name} gen-git-info)
 
 set_source_files_properties(
-  ${MIKTEX_GITINFO_H}
-  PROPERTIES
-    GENERATED TRUE
+    ${MIKTEX_GITINFO_H}
+    PROPERTIES
+        GENERATED TRUE
 )
 
 set_shared_library_version_properties(
-  ${core_dll_name}
-  ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
-  ${MIKTEX_COMP_INTERFACE_VERSION}
+    ${core_dll_name}
+    ${MIKTEX_COMP_MAJOR_VERSION}.${MIKTEX_COMP_MINOR_VERSION}.${MIKTEX_COMP_PATCH_VERSION}
+    ${MIKTEX_COMP_INTERFACE_VERSION}
 )
 
 target_compile_definitions(${core_dll_name}
-  PUBLIC
-    -DMIKTEX_CORE_SHARED
+    PUBLIC
+        -DMIKTEX_CORE_SHARED
 )
 
 target_include_directories(${core_dll_name}
-  PUBLIC
-    ${public_include_directories}
+    PUBLIC
+        ${public_include_directories}
 )
 
 if(USE_SYSTEM_BZIP2)
-  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::BZIP2)
+    target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::BZIP2)
 else()
-  target_link_libraries(${core_dll_name} PRIVATE ${bzip2_dll_name})
+    target_link_libraries(${core_dll_name} PRIVATE ${bzip2_dll_name})
 endif()
 
 if(USE_SYSTEM_FMT)
-  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::FMT)
+    target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::FMT)
 else()
-  target_link_libraries(${core_dll_name} PRIVATE ${fmt_dll_name})
+    target_link_libraries(${core_dll_name} PRIVATE ${fmt_dll_name})
 endif()
 
 if(USE_SYSTEM_LZMA)
-  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::LZMA)
+    target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::LZMA)
 else()
-  target_link_libraries(${core_dll_name} PRIVATE ${lzma_dll_name})
+    target_link_libraries(${core_dll_name} PRIVATE ${lzma_dll_name})
 endif()
 
 if(USE_SYSTEM_URIPARSER)
-  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::URIPARSER)
+    target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::URIPARSER)
 else()
-  target_link_libraries(${core_dll_name} PRIVATE ${uriparser_dll_name})
+    target_link_libraries(${core_dll_name} PRIVATE ${uriparser_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+    target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(${core_dll_name} PRIVATE ${zlib_dll_name})
+    target_link_libraries(${core_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
 target_link_libraries(${core_dll_name}
-  PRIVATE
-    Threads::Threads
-  PUBLIC
-    ${config_dll_name}
-    ${md5_dll_name}
-    ${trace_dll_name}
-    ${util_dll_name}
+    PRIVATE
+        Threads::Threads
+    PUBLIC
+        ${config_dll_name}
+        ${md5_dll_name}
+        ${trace_dll_name}
+        ${util_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${core_dll_name}
-    PRIVATE
-      SHFolder.lib
-      shlwapi.lib
-  )
-  if(MSVC)
     target_link_libraries(${core_dll_name}
-      PRIVATE
-        htmlhelp.lib
+        PRIVATE
+            SHFolder.lib
+            shlwapi.lib
     )
-  endif()
+    if(MSVC)
+        target_link_libraries(${core_dll_name}
+            PRIVATE
+                htmlhelp.lib
+        )
+    endif()
 endif()
 
 if(MIKTEX_MACOS_BUNDLE)
-  target_link_libraries(${core_dll_name}
-    PRIVATE
-      "-framework CoreServices"
-  )
+    target_link_libraries(${core_dll_name}
+        PRIVATE
+            "-framework CoreServices"
+    )
 endif()
 
 if(MIKTEX_FREEBSD)
-  target_link_libraries(${core_dll_name}
-    PRIVATE
-      kvm
-      procstat
-  )
+    target_link_libraries(${core_dll_name}
+        PRIVATE
+            kvm
+            procstat
+    )
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)
-  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::OPENSSL::CRYPTO)
+    target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::OPENSSL::CRYPTO)
 elseif(WITH_LIBRESSL_CRYPTO)
-  target_link_libraries(${core_dll_name} PRIVATE ${openssl_crypto_dll_name})
+    target_link_libraries(${core_dll_name} PRIVATE ${openssl_crypto_dll_name})
 endif()
 
 delay_load(${core_dll_name}
-  ${bzip2_dll_name}
-  ${lzma_dll_name}
-  ${uriparser_dll_name}
-  ${zlib_dll_name}
+    ${bzip2_dll_name}
+    ${lzma_dll_name}
+    ${uriparser_dll_name}
+    ${zlib_dll_name}
 )
 
 install(TARGETS ${core_dll_name}
@@ -188,13 +177,13 @@ source_group(Process FILES ${process_sources})
 source_group(Public/Core FILES ${public_headers_c} ${public_headers_core})
 source_group(Public/noext FILES ${public_headers_no_ext})
 if(MIKTEX_NATIVE_WINDOWS)
-  source_group(Public/win FILES ${public_headers_win})
+    source_group(Public/win FILES ${public_headers_win})
 endif()
 if(APPLE)
-  source_group(Public/mac FILES ${public_headers_mac})
+    source_group(Public/mac FILES ${public_headers_mac})
 endif()
 if(MIKTEX_LINUX)
-  source_group(Public/tux FILES ${public_headers_tux})
+    source_group(Public/tux FILES ${public_headers_tux})
 endif()
 source_group(Resources FILES ${resource_files})
 source_group(Session FILES ${session_sources})

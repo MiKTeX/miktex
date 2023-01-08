@@ -1,23 +1,15 @@
-/* internal.h: internal definitions                     -*- C++ -*-
-
-   Copyright (C) 1996-2022 Christian Schenk
-
-   This file is part of the MiKTeX Core Library.
-
-   The MiKTeX Core Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Core Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file internal.cpp
+ * @author Christian Schenk
+ * @brief Internal definitions
+ *
+ * @copyright Copyright © 1996-2023 Christian Schenk
+ *
+ * This file is part of the MiKTeX Core Library.
+ *
+ * The MiKTeX Core Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #pragma once
 
@@ -45,7 +37,7 @@
 #define FIND_FILE_PREFER_RELATIVE_PATH_NAMES 1
 #define FIND_FILE_DONT_TRIGGER_INSTALLER_IF_ALL 1
 
-// experimental
+ // experimental
 #define USE_CODECVT_UTF8 1
 
 #define CORE_INTERNAL_BEGIN_NAMESPACE           \
@@ -232,8 +224,8 @@ const char* GetFileNameExtension(const char* path);
 
 enum class CryptoLib
 {
-  None,
-  OpenSSL
+    None,
+    OpenSSL
 };
 
 CryptoLib GetCryptoLib();
@@ -260,132 +252,135 @@ const char* GetShortSourceFile(const char* sourceFileName);
 
 inline bool IsValidTimeT(std::time_t time)
 {
-  return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
+    return time != static_cast<std::time_t>(0) && time != static_cast<std::time_t>(-1);
 }
 
 inline void DbgView(const std::string& s)
 {
 #if defined(_WIN32)
-  OutputDebugStringW(UW_("MiKTeX Core: " + s));
+    OutputDebugStringW(UW_("MiKTeX Core: " + s));
 #endif
 }
 
-class memstreambuf :
-  public std::streambuf
+class memstreambuf:
+    public std::streambuf
 {
 public:
-  memstreambuf(const unsigned char* mem, size_t len)
-  {
-    char* s = reinterpret_cast<char*>(const_cast<unsigned char*>(mem));
-    setg(s, s, s + len);
-  }
+    memstreambuf(const unsigned char* mem, size_t len)
+    {
+        char* s = reinterpret_cast<char*>(const_cast<unsigned char*>(mem));
+        setg(s, s, s + len);
+    }
 };
 
 template<class VALTYPE> class AutoRestore
 {
-public:
-  AutoRestore(VALTYPE& val) :
-    oldVal(val),
-    pVal(&val)
-  {
-  }
 
 public:
-  ~AutoRestore()
-  {
-    *pVal = oldVal;
-  }
+
+    AutoRestore(VALTYPE& val):
+        oldVal(val),
+        pVal(&val)
+    {
+    }
+
+    ~AutoRestore()
+    {
+        *pVal = oldVal;
+    }
 
 private:
-  VALTYPE oldVal;
 
-private:
-  VALTYPE* pVal;
+    VALTYPE oldVal;
+    VALTYPE* pVal;
 };
 
 template<class VALTYPE> class Optional
 {
+
 public:
-  Optional() :
-    hasValue(false)
-  {
-  }
-public:
-  Optional(const VALTYPE& value) :
-    value(value),
-    hasValue(true)
-  {
-  }
-public:
-  bool HasValue() const
-  {
-    return hasValue;
-  }
-public:
-  operator bool() const
-  {
-    return HasValue();
-  }
-public:
-  const VALTYPE& GetValue() const
-  {
-    if (!hasValue)
+
+    Optional():
+        hasValue(false)
     {
-      MIKTEX_UNEXPECTED();
     }
-    return value;
-  }
-public:
-  const VALTYPE& operator*() const
-  {
-    return GetValue();
-  }
+
+    Optional(const VALTYPE& value):
+        value(value),
+        hasValue(true)
+    {
+    }
+
+    bool HasValue() const
+    {
+        return hasValue;
+    }
+
+    operator bool() const
+    {
+        return HasValue();
+    }
+
+    const VALTYPE& GetValue() const
+    {
+        if (!hasValue)
+        {
+            MIKTEX_UNEXPECTED();
+        }
+        return value;
+    }
+
+    const VALTYPE& operator*() const
+    {
+        return GetValue();
+    }
+
 private:
-  bool hasValue;
-private:
-  VALTYPE value;
+
+    bool hasValue;
+    VALTYPE value;
 };
 
 struct StringComparerIgnoringCase
 {
-  bool operator()(const std::string& lhs, const std::string& rhs) const
-  {
-    return MiKTeX::Util::StringCompare(lhs.c_str(), rhs.c_str(), true) < 0;
-  }
+    bool operator()(const std::string& lhs, const std::string& rhs) const
+    {
+        return MiKTeX::Util::StringCompare(lhs.c_str(), rhs.c_str(), true) < 0;
+    }
 };
 
 inline FILE* FdOpen(const MiKTeX::Util::PathName& path, int fd, const char* mode)
 {
 #if defined(_MSC_VER)
-  FILE* stream = _fdopen(fd, mode);
+    FILE* stream = _fdopen(fd, mode);
 #else
-  FILE* stream = fdopen(fd, mode);
+    FILE* stream = fdopen(fd, mode);
 #endif
-  if (stream == nullptr)
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("fdopen", "path", path.ToString());
-  }
-  return stream;
+    if (stream == nullptr)
+    {
+        MIKTEX_FATAL_CRT_ERROR_2("fdopen", "path", path.ToString());
+    }
+    return stream;
 }
 
 inline FILE* FdOpen(int fd, const char* mode)
 {
 #if defined(_MSC_VER)
-  FILE* stream = _fdopen(fd, mode);
+    FILE* stream = _fdopen(fd, mode);
 #else
-  FILE* stream = fdopen(fd, mode);
+    FILE* stream = fdopen(fd, mode);
 #endif
-  if (stream == nullptr)
-  {
-    MIKTEX_FATAL_CRT_ERROR("fdopen");
-  }
-  return stream;
+    if (stream == nullptr)
+    {
+        MIKTEX_FATAL_CRT_ERROR("fdopen");
+    }
+    return stream;
 }
 
 inline bool EndsWith(const std::string& s, const std::string& suffix)
 {
-  return s.length() >= suffix.length() &&
-    s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+    return s.length() >= suffix.length() &&
+        s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
 /* _________________________________________________________________________ */
