@@ -1,6 +1,6 @@
 /* mpfr_cos -- cosine of a floating-point number
 
-Copyright 2001-2022 Free Software Foundation, Inc.
+Copyright 2001-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -141,8 +141,8 @@ mpfr_cos (mpfr_ptr y, mpfr_srcptr x, mpfr_rnd_t rnd_mode)
   MPFR_GROUP_DECL (group);
 
   MPFR_LOG_FUNC (
-    ("x[%Pu]=%*.Rg rnd=%d", mpfr_get_prec (x), mpfr_log_prec, x, rnd_mode),
-    ("y[%Pu]=%*.Rg inexact=%d", mpfr_get_prec (y), mpfr_log_prec, y,
+    ("x[%Pu]=%.*Rg rnd=%d", mpfr_get_prec (x), mpfr_log_prec, x, rnd_mode),
+    ("y[%Pu]=%.*Rg inexact=%d", mpfr_get_prec (y), mpfr_log_prec, y,
      inexact));
 
   if (MPFR_UNLIKELY (MPFR_IS_SINGULAR (x)))

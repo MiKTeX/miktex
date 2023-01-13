@@ -1,7 +1,7 @@
 /* mpfr_round_raw_generic, mpfr_round_raw2, mpfr_round_raw, mpfr_prec_round,
    mpfr_can_round, mpfr_can_round_raw -- various rounding functions
 
-Copyright 1999-2022 Free Software Foundation, Inc.
+Copyright 1999-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.

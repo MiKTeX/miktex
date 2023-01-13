@@ -1,6 +1,6 @@
 /* mpfr_ai -- Airy function Ai
 
-Copyright 2010-2022 Free Software Foundation, Inc.
+Copyright 2010-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -188,12 +188,12 @@ mpfr_ai1 (mpfr_ptr y, mpfr_srcptr x, mpfr_rnd_t rnd)
     wprec = MPFR_ADD_PREC (prec, t);
   }
 
-  mpfr_init (ti);
-  mpfr_init (tip1);
-  mpfr_init (temp1);
-  mpfr_init (temp2);
-  mpfr_init (x3);
-  mpfr_init (s);
+  mpfr_init2 (ti, wprec);
+  mpfr_init2 (tip1, wprec);
+  mpfr_init2 (temp1, wprec);
+  mpfr_init2 (temp2, wprec);
+  mpfr_init2 (x3, wprec);
+  mpfr_init2 (s, wprec);
 
   /* ZIV loop */
   for (;;)
@@ -420,13 +420,13 @@ mpfr_ai2 (mpfr_ptr y, mpfr_srcptr x, mpfr_rnd_t rnd)
   z = (mpfr_t *) mpfr_allocate_func ( (L + 1) * sizeof (mpfr_t) );
   MPFR_ASSERTN (z != NULL);
   for (j=0; j<=L; j++)
-    mpfr_init (z[j]);
+    mpfr_init2 (z[j], wprec);
 
-  mpfr_init (s);
-  mpfr_init (u0); mpfr_init (u1);
-  mpfr_init (result);
-  mpfr_init (temp1);
-  mpfr_init (temp2);
+  mpfr_init2 (s, wprec);
+  mpfr_init2 (u0, wprec); mpfr_init2 (u1, wprec);
+  mpfr_init2 (result, wprec);
+  mpfr_init2 (temp1, wprec);
+  mpfr_init2 (temp2, wprec);
 
   /* ZIV loop */
   for (;;)
@@ -573,7 +573,7 @@ mpfr_ai2 (mpfr_ptr y, mpfr_srcptr x, mpfr_rnd_t rnd)
       z = (mpfr_t *) mpfr_allocate_func ( (L + 1) * sizeof (mpfr_t));
       MPFR_ASSERTN (z != NULL);
       for (j=0; j<=L; j++)
-        mpfr_init (z[j]);
+        mpfr_init2 (z[j], wprec);
 
       if (correctBits == 0)
         {

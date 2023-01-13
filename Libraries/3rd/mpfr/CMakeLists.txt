@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -75,12 +75,13 @@ set(mpfr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_sint.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_slong.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/fits_ulong.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/frac.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/free_cache.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_d.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_si.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_str.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_z.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_z_exp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_z_2exp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/get_ui.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/gmp_op.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/init.c
@@ -125,7 +126,7 @@ set(mpfr_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_ui_2exp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_ui.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_z.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_z_exp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_z_2exp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/set_zero.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/setmax.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/setmin.c

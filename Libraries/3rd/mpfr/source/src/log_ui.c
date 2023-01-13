@@ -1,6 +1,6 @@
 /* mpfr_log_ui -- compute natural logarithm of an unsigned long
 
-Copyright 2014-2022 Free Software Foundation, Inc.
+Copyright 2014-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -146,7 +146,7 @@ mpfr_log_ui (mpfr_ptr x, unsigned long n, mpfr_rnd_t rnd_mode)
      Since |p| <= LONG_MAX, if n > LONG_MAX, this means that p < 0 and
      -n as an unsigned long value is at most LONG_MAX, thus fits in a
      long. */
-  p = n > LONG_MAX ? - (long) - n : (long) n;
+  p = ULONG2LONG (n);
 
   MPFR_TMP_MARK(marker);
   w = MPFR_PREC(x) + MPFR_INT_CEIL_LOG2 (MPFR_PREC(x)) + 10;

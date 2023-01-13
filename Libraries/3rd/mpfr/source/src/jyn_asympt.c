@@ -1,6 +1,6 @@
 /* mpfr_jn_asympt, mpfr_yn_asympt -- shared code for mpfr_jn and mpfr_yn
 
-Copyright 2007-2022 Free Software Foundation, Inc.
+Copyright 2007-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -290,8 +290,8 @@ FUNCTION (mpfr_ptr res, long n, mpfr_srcptr z, mpfr_rnd_t r)
     }
   MPFR_ZIV_FREE (loop);
 
-  inex = (MPFR_IS_POS(z) || ((n & 1) == 0)) ? mpfr_set (res, c, r)
-    : mpfr_neg (res, c, r);
+  inex = mpfr_set4 (res, c, r, MPFR_IS_POS (z) || (n & 1) == 0 ?
+                    MPFR_SIGN (c) : - MPFR_SIGN (c));
   mpfr_clear (c);
 
   /* for RNDF, mpfr_set or mpfr_neg may return 0, but if we return 0, it

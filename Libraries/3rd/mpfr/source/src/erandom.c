@@ -2,7 +2,7 @@
    mean 1 and round it to the precision of rop according to the given rounding
    mode.
 
-Copyright 2013-2022 Free Software Foundation, Inc.
+Copyright 2013-2023 Free Software Foundation, Inc.
 Contributed by Charles Karney <charles@karney.com>, SRI International.
 
 This file is part of the GNU MPFR Library.

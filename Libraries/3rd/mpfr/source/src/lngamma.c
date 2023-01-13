@@ -1,6 +1,6 @@
 /* mpfr_lngamma -- lngamma function
 
-Copyright 2005-2022 Free Software Foundation, Inc.
+Copyright 2005-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -284,7 +284,7 @@ GAMMA_FUNC (mpfr_ptr y, mpfr_srcptr z0, mpfr_rnd_t rnd)
              case if we assume lngamma(z0) cannot be exact, the other flag
              should be correct. We are conservative here and request that both
              inexact flags agree. */
-          ok = SAME_SIGN (inex1, inex2) && mpfr_cmp (l, h) == 0;
+          ok = SAME_SIGN (inex1, inex2) && mpfr_equal_p (l, h);
           if (ok)
             mpfr_set (y, h, rnd); /* exact */
           mpfr_clear (l);

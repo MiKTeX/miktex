@@ -1,7 +1,7 @@
 /* mpfr_get_ld, mpfr_get_ld_2exp -- convert a multiple precision floating-point
                                     number to a machine long double
 
-Copyright 2002-2022 Free Software Foundation, Inc.
+Copyright 2002-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -207,7 +207,10 @@ mpfr_get_ld (mpfr_srcptr x, mpfr_rnd_t rnd_mode)
              to get the correct sign (assuming mpfr_get_d supports signed
              zeros on the implementation). */
           if (s == 0 || DOUBLE_ISNAN (s) || DOUBLE_ISINF (s))
-            r = (long double) s;
+            {
+              /* we don't propagate the sign bit of NaN */
+              r = (long double) s;
+            }
           else
             {
               mpfr_t y, z;

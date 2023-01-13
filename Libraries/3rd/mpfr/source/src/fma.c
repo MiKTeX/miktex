@@ -1,6 +1,6 @@
 /* mpfr_fma -- Floating multiply-add
 
-Copyright 2001-2002, 2004, 2006-2022 Free Software Foundation, Inc.
+Copyright 2001-2002, 2004, 2006-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -90,7 +90,8 @@ mpfr_fma_singular (mpfr_ptr s, mpfr_srcptr x, mpfr_srcptr y, mpfr_srcptr z,
   else /* necessarily z is zero here */
     {
       MPFR_ASSERTD(MPFR_IS_ZERO(z));
-      return mpfr_mul (s, x, y, rnd_mode);
+      return (x == y) ? mpfr_sqr (s, x, rnd_mode)
+        : mpfr_mul (s, x, y, rnd_mode);
     }
 }
 
@@ -191,7 +192,10 @@ mpfr_fma (mpfr_ptr s, mpfr_srcptr x, mpfr_srcptr y, mpfr_srcptr z,
           MPFR_TMP_INIT (up, u, un * GMP_NUMB_BITS, un);
           up = MPFR_MANT(u);
           /* multiply x*y exactly into u */
-          mpn_mul_n (up, MPFR_MANT(x), MPFR_MANT(y), n);
+          if (x == y)
+            mpn_sqr (up, MPFR_MANT(x), n);
+          else
+            mpn_mul_n (up, MPFR_MANT(x), MPFR_MANT(y), n);
           if (MPFR_LIMB_MSB (up[un - 1]) == 0)
             {
               mpn_lshift (up, up, un, 1);

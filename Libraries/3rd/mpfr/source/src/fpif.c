@@ -1,7 +1,7 @@
 /* mpfr_fpif -- Binary export & import of MPFR numbers
    (floating-point interchange format)
 
-Copyright 2012-2022 Free Software Foundation, Inc.
+Copyright 2012-2023 Free Software Foundation, Inc.
 Contributed by Olivier Demengeon.
 
 This file is part of the GNU MPFR Library.

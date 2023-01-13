@@ -1,7 +1,7 @@
 /* mpfr_subnormalize -- Subnormalize a floating point number
    emulating sub-normal numbers.
 
-Copyright 2005-2022 Free Software Foundation, Inc.
+Copyright 2005-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -32,7 +32,7 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
      1            |   0         | -1       | AddOneUlp |
      1            |   1         |  ?       | AddOneUlp |
 
-   For other rounding mode, there isn't such a problem.
+   For other rounding modes, there isn't such a problem.
    Just round it again and merge the ternary values.
 
    Set the inexact flag if the returned ternary value is non-zero.

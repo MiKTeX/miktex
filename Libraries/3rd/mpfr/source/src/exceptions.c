@@ -1,6 +1,6 @@
 /* Exception flags and utilities. Constructors and destructors (debug).
 
-Copyright 2001-2022 Free Software Foundation, Inc.
+Copyright 2001-2023 Free Software Foundation, Inc.
 Contributed by the AriC and Caramba projects, INRIA.
 
 This file is part of the GNU MPFR Library.
@@ -252,6 +252,9 @@ mpfr_set_erangeflag (void)
 /* Note: It is possible that for pure FP numbers, EXP(x) < MPFR_EMIN_MIN,
    but the caller must make sure that the difference remains small enough
    to avoid reaching the special exponent values. */
+/* This function does not have logging messages. As it is also partly
+   implemented as a macro, if messages are added in the future, the macro
+   may need to be disabled when logging is enabled. */
 int
 mpfr_check_range (mpfr_ptr x, int t, mpfr_rnd_t rnd_mode)
 {

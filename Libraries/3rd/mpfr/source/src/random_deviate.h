@@ -1,6 +1,6 @@
 /* Declarations of random_deviate routines for mpfr_erandom and mpfr_nrandom.
 
-Copyright 2013-2022 Free Software Foundation, Inc.
+Copyright 2013-2023 Free Software Foundation, Inc.
 Contributed by Charles Karney <charles@karney.com>, SRI International.
 
 This file is part of the GNU MPFR Library.
