@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -41,11 +41,6 @@ endif()
 
 set(HAVE_CXX11 1)
 set(VERSION ${MIKTEX_COMP_ORIG_VERSION_STR})
-
-configure_file(
-    miktex-dvisvgm.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm.rc
-)
 
 configure_file(
     miktex-dvisvgm-version.h.in
@@ -542,6 +537,10 @@ set(dvisvgm_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
+    configure_file(
+        windows/miktex-dvisvgm.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm.rc
+    )
     list(APPEND dvisvgm_sources
         ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm.rc
         ${MIKTEX_COMMON_MANIFEST}
