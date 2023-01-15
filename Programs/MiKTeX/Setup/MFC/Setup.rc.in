@@ -1,3 +1,16 @@
+/**
+ * @file miktexsetup.rc
+ * @author Christian Schenk
+ * @brief Resources (Windows)
+ *
+ * @copyright Copyright © 2023 Christian Schenk
+ *
+ * This file is part of MiKTeX Setup Wizard.
+ *
+ * MiKTeX Setup Wizard is licensed under GNU General Public License version 2
+ * or any later version.
+ */
+
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"

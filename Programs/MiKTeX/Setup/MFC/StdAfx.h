@@ -1,32 +1,24 @@
-/* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
-
-   Copyright (C) 1999-2022 Christian Schenk
-
-   This file is part of MiKTeX Setup Wizard.
-
-   MiKTeX Setup Wizard is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   MiKTeX Setup Wizard is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with MiKTeX Setup Wizard; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file Setup.h
+ * @author Christian Schenk
+ * @brief Pre-compiled header stuff
+ *
+ * @copyright Copyright © 1999-2023 Christian Schenk
+ *
+ * This file is part of MiKTeX Setup Wizard.
+ *
+ * MiKTeX Setup Wizard is licensed under GNU General Public License version 2 or
+ * any later version.
+ */
 
 #pragma once
 
 #if !defined(_SECURE_ATL)
-#  define _SECURE_ATL 1
+#define _SECURE_ATL 1
 #endif
 
 #if !defined(VC_EXTRALEAN)
-#  define VC_EXTRALEAN
+#define VC_EXTRALEAN
 #endif
 
 #include "targetver.h"
@@ -43,7 +35,7 @@
 #include <afxtempl.h>
 
 #ifndef _AFX_NO_AFXCMN_SUPPORT
-#  include <afxcmn.h>
+#include <afxcmn.h>
 #endif
 
 #include <intshcut.h>

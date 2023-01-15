@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -52,6 +52,12 @@ set(inittangle_sources
     miktex-tangle-version.h
     miktex-tangle.h
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND inittangle_sources
+        ${MIKTEX_COMMON_MANIFEST}
+    )
+endif()
 
 add_executable(inittangle ${inittangle_sources})
 

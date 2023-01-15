@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2022 Christian Schenk
+## Copyright (C) 2022-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -75,6 +75,12 @@ set(himktables_sources
     ${CMAKE_CURRENT_BINARY_DIR}/hibasetypes.h
     ${CMAKE_CURRENT_BINARY_DIR}/hiformat.h
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND himktables_sources
+        ${MIKTEX_COMMON_MANIFEST}
+    )
+endif()
 
 add_executable(himktables ${himktables_sources})
 

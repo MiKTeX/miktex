@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Setup Utility
  *
- * @copyright Copyright © 2014-2022 Christian Schenk
+ * @copyright Copyright © 2014-2023 Christian Schenk
  *
  * This file is part of MiKTeX Setup Utility.
  *
@@ -28,6 +28,11 @@
 #include <vector>
 
 #include <signal.h>
+
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#include <VersionHelpers.h>
+#endif
 
 #if defined(_MSC_VER)
 #   pragma warning (pop)
@@ -999,6 +1004,11 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 int MAIN(int argc, MAINCHAR** argv)
 {
 #if defined(MIKTEX_WINDOWS)
+    if (!IsWindows10OrGreater())
+    {
+        cerr << T_("This application requires Windows 10 (or greater).") << endl;
+        return 1;
+    }
     ConsoleCodePageSwitcher cpSwitcher;
 #endif
     int retCode = 0;

@@ -1,23 +1,15 @@
-/* Setup.h:                                             -*- C++ -*-
-
-   Copyright (C) 1999-2020 Christian Schenk
-
-   This file is part of the MiKTeX Setup Wizard.
-
-   The MiKTeX Setup Wizard is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Setup Wizard is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Setup Wizard; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file Setup.h
+ * @author Christian Schenk
+ * @brief MiKTeX Setup Wizard
+ *
+ * @copyright Copyright © 1999-2023 Christian Schenk
+ *
+ * This file is part of MiKTeX Setup Wizard.
+ *
+ * MiKTeX Setup Wizard is licensed under GNU General Public License version 2 or
+ * any later version.
+ */
 
 #pragma once
 
@@ -30,7 +22,7 @@
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #if !defined(UNICODE)
-#  error UNICODE required
+#error UNICODE required
 #endif
 
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
@@ -43,164 +35,128 @@
 #define DBGLOC2(s) OutputDebugStringA(fmt::format("{0}:{1} {2}", __FILE__, __LINE__, s).c_str())
 
 class SetupApp :
-  public CWinApp
+    public CWinApp
 {
-public:
-  SetupApp();
 
 public:
-  static SetupApp* Instance;
 
-public:
-  BOOL InitInstance() override;
+    SetupApp();
 
-public:
-  DECLARE_MESSAGE_MAP();
+    BOOL InitInstance() override;
 
-public:
-  unique_ptr<TraceStream> traceStream;
-
-public:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
-
-public:
-  unique_ptr<SetupService> Service;
-
-public:
-  PathName GetInstallationDirectory() const
-  {
-    SetupOptions options = Service->GetOptions();
-    if (options.IsPortable)
+    PathName GetInstallationDirectory() const
     {
-      return options.PortableRoot;
+        SetupOptions options = Service->GetOptions();
+        if (options.IsPortable)
+        {
+            return options.PortableRoot;
+        }
+        else
+        {
+            return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
+        }
     }
-    else
+
+    void SetInstallationDirectory(const PathName& path)
     {
-      return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
+        SetupOptions options = Service->GetOptions();
+        if (options.IsPortable)
+        {
+            options.PortableRoot = path;
+        }
+        else if (options.IsCommonSetup)
+        {
+            options.Config.commonInstallRoot = path;
+        }
+        else
+        {
+            options.Config.userInstallRoot = path;
+        }
+        Service->SetOptions(options);
     }
-  }
 
-public:
-  void SetInstallationDirectory(const PathName& path)
-  {
-    SetupOptions options = Service->GetOptions();
-    if (options.IsPortable)
+    PathName GetInstallRoot() const
     {
-      options.PortableRoot = path;
+        SetupOptions options = Service->GetOptions();
+        if (options.IsPortable)
+        {
+            return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
+        }
+        else
+        {
+            return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
+        }
     }
-    else if (options.IsCommonSetup)
+
+    SetupTask GetTask()
     {
-      options.Config.commonInstallRoot = path;
+        return Service->GetOptions().Task;
     }
-    else
+
+    void SetTask(SetupTask task)
     {
-      options.Config.userInstallRoot = path;
+        SetupOptions options = Service->GetOptions();
+        options.Task = task;
+        Service->SetOptions(options);
     }
-    Service->SetOptions(options);
-  }
 
-public:
-  PathName GetInstallRoot() const
-  {
-    SetupOptions options = Service->GetOptions();
-    if (options.IsPortable)
+    bool IsCommonSetup()
     {
-      return options.PortableRoot / PathName(MIKTEX_PORTABLE_REL_INSTALL_DIR);
+        return Service->GetOptions().IsCommonSetup;
     }
-    else
+
+    bool IsPortable()
     {
-      return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
+        return Service->GetOptions().IsPortable;
     }
-  }
 
-public:
-  SetupTask GetTask()
-  {
-    return Service->GetOptions().Task;
-  }
+    bool IsDryRun()
+    {
+        return Service->GetOptions().IsDryRun;
+    }
 
-public:
-  void SetTask(SetupTask task)
-  {
-    SetupOptions options = Service->GetOptions();
-    options.Task = task;
-    Service->SetOptions(options);
-  }
+    PathName GetLocalPackageRepository()
+    {
+        return Service->GetOptions().LocalPackageRepository;
+    }
 
-public:
-  bool IsCommonSetup()
-  {
-    return Service->GetOptions().IsCommonSetup;
-  }
+    string GetRemotePackageRepository()
+    {
+        return Service->GetOptions().RemotePackageRepository;
+    }
 
-public:
-  bool IsPortable()
-  {
-    return Service->GetOptions().IsPortable;
-  }
+    PackageLevel GetPackageLevel()
+    {
+        return Service->GetOptions().PackageLevel;
+    }
 
-public:
-  bool IsDryRun()
-  {
-    return Service->GetOptions().IsDryRun;
-  }
+    PathName GetFolderName()
+    {
+        return Service->GetOptions().FolderName;
+    }
 
-public:
-  PathName GetLocalPackageRepository()
-  {
-    return Service->GetOptions().LocalPackageRepository;
-  }
+    StartupConfig GetStartupConfig()
+    {
+        return Service->GetOptions().Config;
+    }
 
-public:
-  string GetRemotePackageRepository()
-  {
-    return Service->GetOptions().RemotePackageRepository;
-  }
+    bool AllowUnattendedReboot = false;
+    bool CheckUpdatesOnExit = false;
+    bool IsMiKTeXDirect = false;
+    bool IsRestarted = false;
+    bool IsUnattended = false;
+    unique_ptr<SetupService> Service;
+    bool ShowLogFileOnExit = false;
+    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+    PackageLevel prefabricatedPackageLevel = PackageLevel::None;
+    unique_ptr<TraceStream> traceStream;
 
-public:
-  PackageLevel GetPackageLevel()
-  {
-    return Service->GetOptions().PackageLevel;
-  }
+    static SetupApp* Instance;
 
-public:
-  PathName GetFolderName()
-  {
-    return Service->GetOptions().FolderName;
-  }
-
-public:
-  StartupConfig GetStartupConfig()
-  {
-    return Service->GetOptions().Config;
-  }
-
-public:
-  bool AllowUnattendedReboot = false;
-
-public:
-  bool IsMiKTeXDirect = false;
-
-public:
-  PackageLevel prefabricatedPackageLevel = PackageLevel::None;
-
-public:
-  bool ShowLogFileOnExit = false;
-
-public:
-  bool CheckUpdatesOnExit = false;
-
-public:
-  bool IsUnattended = false;
-
-public:
-  bool IsRestarted = false;
+    DECLARE_MESSAGE_MAP();
 };
 
 void DDV_Path(CDataExchange* dx, const CString& str);
-
 bool FindFile(const PathName& fileName, PathName& result);
-
 void ReportError(const MiKTeXException& e);
-
 void ReportError(const exception& e);

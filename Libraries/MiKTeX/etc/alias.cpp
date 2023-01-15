@@ -1,23 +1,23 @@
-/* alias.cpp: function wrapper
+/**
+ * @file alias.cpp
+ * @author Christian Schenk
+ * @brief Function wrapper
+ *
+ * @copyright Copyright © 1991-2023 Christian Schenk
+ *
+ * This file is free software.
+ *
+ * This file is licensed under GNU General Public License version 2 or any later
+ * version.
+ */
 
-   Copyright (C) 1999-2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA.  */
-
+#include <iostream>
 #include <memory>
+
+#if defined(MIKTEX_WINDOWS)
+#include <Windows.h>
+#include <VersionHelpers.h>
+#endif
 
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/FileType>
@@ -30,41 +30,48 @@
 #endif
 
 #if !defined(FUNC)
-#  define FUNC c4pmain
+#define FUNC c4pmain
 #endif
+
+#define T_(x) MIKTEXTEXT(x)
 
 extern "C" int MIKTEXCEECALL FUNC(int argc, char* argv[]);
 
 #if defined(_UNICODE)
-#  define WRAPPER_MAIN wmain
-#  define WRAPPER_CHAR wchar_t
+#define WRAPPER_MAIN wmain
+#define WRAPPER_CHAR wchar_t
 #else
-#  define WRAPPER_MAIN main
-#  define WRAPPER_CHAR char
+#define WRAPPER_MAIN main
+#define WRAPPER_CHAR char
 #endif
 
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
-  MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
-  std::vector<std::string> utf8args;
-  utf8args.reserve(argc);
+    if (!IsWindows10OrGreater())
+    {
+        std::cerr << T_("This application requires Windows 10 (or greater).") << std::endl;
+        return 1;
+    }
+    MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
+    std::vector<std::string> utf8args;
+    utf8args.reserve(argc);
 #endif
-  std::vector<char*> args;
-  args.reserve(argc + 1);
-  for (int idx = 0; idx < argc; ++idx)
-  {
+    std::vector<char*> args;
+    args.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
 #if defined(MIKTEX_WINDOWS)
 #if defined(_UNICODE)
-    utf8args.push_back(MiKTeX::Util::StringUtil::WideCharToUTF8(argv[idx]));
+        utf8args.push_back(MiKTeX::Util::StringUtil::WideCharToUTF8(argv[idx]));
 #else
-    utf8args.push_back(MiKTeX::Util::StringUtil::AnsiToUTF8(argv[idx]));
+        utf8args.push_back(MiKTeX::Util::StringUtil::AnsiToUTF8(argv[idx]));
 #endif
-    args.push_back(const_cast<char*>(utf8args[idx].c_str()));
+        args.push_back(const_cast<char*>(utf8args[idx].c_str()));
 #else
-    args.push_back(argv[idx]);
+        args.push_back(argv[idx]);
 #endif
-  }
-  args.push_back(nullptr);
-  return FUNC(argc, &args[0]);
+    }
+    args.push_back(nullptr);
+    return FUNC(argc, &args[0]);
 }

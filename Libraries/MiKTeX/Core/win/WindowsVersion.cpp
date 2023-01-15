@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Windows version information
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2023 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -60,18 +60,4 @@ string WindowsVersion::GetMajorMinorString()
     unsigned major = LOBYTE(LOWORD(windowsVersion));
     unsigned minor = HIBYTE(LOWORD(windowsVersion));
     return std::to_string(major) + "." + std::to_string(minor);
-}
-
-bool WindowsVersion::IsWindows7OrGreater()
-{
-    unsigned major = LOBYTE(LOWORD(windowsVersion));
-    unsigned minor = HIBYTE(LOWORD(windowsVersion));
-    return major > 6 || (major == 6 && minor >= 1);
-}
-
-bool WindowsVersion::IsWindows8OrGreater()
-{
-    unsigned major = LOBYTE(LOWORD(windowsVersion));
-    unsigned minor = HIBYTE(LOWORD(windowsVersion));
-    return major > 6 || (major == 6 && minor >= 2);
 }

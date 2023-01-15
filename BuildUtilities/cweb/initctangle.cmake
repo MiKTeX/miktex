@@ -1,6 +1,6 @@
 ## initctangle.cmake
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -14,6 +14,12 @@ set(initctangle_sources
     source/comm-w2c.h
     texlive/help.h
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND initctangle_sources
+        ${MIKTEX_COMMON_MANIFEST}
+    )
+endif()
 
 set_source_files_properties(
     init/initcommon.c

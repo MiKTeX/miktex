@@ -1,21 +1,15 @@
-/* winSetupService.h: internal definitions              -*- C++ -*-
-
-   Copyright (C) 2014-2021 Christian Schenk
-
-   This file is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 2, or (at your
-   option) any later version.
-
-   This file is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA. */
+/**
+ * @file  winSetupService.h
+ * @author Christian Schenk
+ * @brief Setup service implementation (Windows)
+ *
+ * @copyright Copyright © 2014-2023 Christian Schenk
+ *
+ * This file is part of the MiKTeX Setup Library.
+ *
+ * The MiKTeX Setup Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #pragma once
 
@@ -23,74 +17,47 @@ BEGIN_INTERNAL_NAMESPACE;
 
 struct ShellLinkData
 {
-  bool isUrl;
-  bool isObsolete;
-  std::string folder;
-  std::string name;
-  std::string pathName;
-  unsigned long flags;
-  std::string description;
-  std::string args;
-  std::string iconPath;
-  int iconIndex;
-  std::string workingDir;
-  int showCmd;
-  WORD hotKey;
+    bool isUrl;
+    bool isObsolete;
+    std::string folder;
+    std::string name;
+    std::string pathName;
+    unsigned long flags;
+    std::string description;
+    std::string args;
+    std::string iconPath;
+    int iconIndex;
+    std::string workingDir;
+    int showCmd;
+    WORD hotKey;
 };
 
-class winSetupServiceImpl :
-  public SetupServiceImpl
+class winSetupServiceImpl:
+    public SetupServiceImpl
 {
+
 public:
-  virtual void Initialize();
+
+    virtual void Initialize();
 
 private:
-  void ULogAddRegValue(HKEY hkey, const std::string& valueName, const std::string& value) override;
 
-private:
-  void CreateProgramIcons() override;
-
-private:
-  void RegisterUninstaller() override;
-
-private:
-  void UnregisterShellFileTypes() override;
-
-private:
-  void RemoveRegistryKeys() override;
-
-private:
-  void UnregisterPath(bool shared) override;
-
-private:
-  void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
-
-private:
-  bool Exists(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
-
-private:
-  bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
-
-private:
-  bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(std::string& path);
-
-private:
-  void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, const std::string& value);
-
-private:
-  void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, DWORD value);
-
-private:
-  MiKTeX::Util::PathName CreateProgramFolder();
-
-private:
-  void CreateShellLink(const MiKTeX::Util::PathName& pathFolder, const ShellLinkData& ld);
-
-private:
-  void CreateInternetShortcut(const MiKTeX::Util::PathName& path, const std::string& url);
-
-private:
-  std::vector<ShellLinkData> GetShellLinks();
+    void ULogAddRegValue(HKEY hkey, const std::string& valueName, const std::string& value) override;
+    void CreateProgramIcons() override;
+    void RegisterUninstaller() override;
+    void UnregisterShellFileTypes() override;
+    void RemoveRegistryKeys() override;
+    void UnregisterPath(bool shared) override;
+    void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
+    bool Exists(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
+    bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Util::PathName& subKey);
+    bool winSetupServiceImpl::RemoveBinDirectoriesFromPath(std::string& path);
+    void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, const std::string& value);
+    void AddUninstallerRegValue(HKEY hkey, const std::string& valueName, DWORD value);
+    MiKTeX::Util::PathName CreateProgramFolder();
+    void CreateShellLink(const MiKTeX::Util::PathName& pathFolder, const ShellLinkData& ld);
+    void CreateInternetShortcut(const MiKTeX::Util::PathName& path, const std::string& url);
+    std::vector<ShellLinkData> GetShellLinks();
 };
 
 END_INTERNAL_NAMESPACE;
