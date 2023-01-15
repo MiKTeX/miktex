@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX MakeFMT
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2023 Christian Schenk
  *
  * This file is part of the MiKTeX Make Utility Collection.
  *
@@ -203,13 +203,13 @@ private:
         case Engine::pdfTeX:
             return MIKTEX_PDFTEX_EXE;
         case Engine::pTeX:
-            return MIKTEX_PTEX_EXE;
+            return MIKTEX_EPTEX_EXE;
         case Engine::epTeX:
             return MIKTEX_EPTEX_EXE;
         case Engine::eupTeX:
             return MIKTEX_EUPTEX_EXE;
         case Engine::upTeX:
-            return MIKTEX_UPTEX_EXE;
+            return MIKTEX_EUPTEX_EXE;
         case Engine::XeTeX:
             return MIKTEX_XETEX_EXE;
         case Engine::LuaHBTeX:

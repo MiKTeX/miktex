@@ -10,7 +10,7 @@
 
 #define BANNER "This is e-upTeX, Version 3.141592653-" PTEX_VERSION "-" UPTEX_VERSION "-" EPTEX_VERSION "-" ETEX_VERSION
 #define COPYRIGHT_HOLDER "D.E. Knuth"
-#define AUTHOR "Peter Breitenlohner"
+#define AUTHOR "Japanese TeX Development Community"
 #define PROGRAM_HELP EUPTEXHELP
 #define BUG_ADDRESS "issue@texjp.org"
 #define DUMP_VAR TEXformatdefault

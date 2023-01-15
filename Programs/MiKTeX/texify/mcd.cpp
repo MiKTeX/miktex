@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2021 Christian Schenk
+   Copyright (C) 1998-2023 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -514,10 +514,10 @@ Options::Options()
   makeinfoProgram = SetProgramName("MAKEINFO", "makeinfo");
   pdflatexProgram = SetProgramName("PDFLATEX", "pdflatex");
   pdftexProgram = SetProgramName("PDFTEX", MIKTEX_PDFTEX_EXE);
-  ptexProgram = SetProgramName("PTEX", MIKTEX_PTEX_EXE);
+  ptexProgram = SetProgramName("PTEX", MIKTEX_EPTEX_EXE);
   eptexProgram = SetProgramName("EPTEX", MIKTEX_EPTEX_EXE);
   euptexProgram = SetProgramName("EUPTEX", MIKTEX_EUPTEX_EXE);
-  uptexProgram = SetProgramName("UPTEX", MIKTEX_UPTEX_EXE);
+  uptexProgram = SetProgramName("UPTEX", MIKTEX_EUPTEX_EXE);
   texProgram = SetProgramName("TEX", MIKTEX_TEX_EXE);
   texindexProgram = SetProgramName("TEXINDEX", "texindex");
   xelatexProgram = SetProgramName("XELATEX", "xelatex");

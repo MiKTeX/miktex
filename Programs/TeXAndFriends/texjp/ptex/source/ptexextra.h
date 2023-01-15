@@ -7,7 +7,7 @@
 
 #define BANNER "This is pTeX, Version 3.141592653-" PTEX_VERSION
 #define COPYRIGHT_HOLDER "D.E. Knuth"
-#define AUTHOR NULL
+#define AUTHOR "Japanese TeX Development Community"
 #define PROGRAM_HELP PTEXHELP
 #define BUG_ADDRESS "issue@texjp.org"
 #define DUMP_VAR TEXformatdefault

@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -30,5 +30,4 @@ include(libukanji.cmake)
 add_subdirectory(upbibtex)
 add_subdirectory(updvitype)
 add_subdirectory(uppltotf)
-add_subdirectory(uptex)
 add_subdirectory(uptftopl)

@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Links manager
  *
- * @copyright Copyright © 2002-2022 Christian Schenk
+ * @copyright Copyright © 2002-2023 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -364,8 +364,8 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_DVITYPE_EXE, { "dvitype" } },
   { MIKTEX_EPSFFIT_EXE, { "epsffit" } },
   { MIKTEX_EPSTOPDF_EXE,{ "epstopdf", "repstopdf", MIKTEX_PREFIX "epstopdf-unrestricted" } },
-  { MIKTEX_EPTEX_EXE, { "eptex" } },
-  { MIKTEX_EUPTEX_EXE, { "euptex" } },
+  { MIKTEX_EPTEX_EXE, { "eptex", "ptex" } },
+  { MIKTEX_EUPTEX_EXE, { "euptex", "uptex" } },
   { MIKTEX_EXTCONV_EXE, { "extconv" } },
   { MIKTEX_FRIBIDIXETEX_EXE, { "fribidixetex" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },
@@ -408,7 +408,6 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_PSRESIZE_EXE, { "psresize" } },
   { MIKTEX_PSSELECT_EXE, { "psselect" } },
   { MIKTEX_PSTOPS_EXE, { "pstops" } },
-  { MIKTEX_PTEX_EXE, { "ptex" } },
   { MIKTEX_REBAR_EXE, { "rebar" } },
   { MIKTEX_SCOR2PRT_EXE, { "scor2prt" } },
   { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
@@ -428,7 +427,6 @@ const vector<FileLink> LinksManager::miktexFileLinks =
   { MIKTEX_UPBIBTEX_EXE, { "pbibtex", "upbibtex" } },
   { MIKTEX_UPDVITYPE_EXE, { "pdvitype", "updvitype" } },
   { MIKTEX_UPPLTOTF_EXE, { "ppltotf", "uppltotf" } },
-  { MIKTEX_UPTEX_EXE, { "uptex" } },
   { MIKTEX_UPTFTOPL_EXE, { "ptftopl", "uptftopl" } },
   { MIKTEX_PREFIX "upmendex" MIKTEX_EXE_FILE_SUFFIX, { "upmendex"} },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
