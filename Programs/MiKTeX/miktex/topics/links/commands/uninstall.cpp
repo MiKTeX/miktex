@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief links uninstall
  *
- * @copyright Copyright © 2021-2022 Christian Schenk
+ * @copyright Copyright © 2021-2023 Christian Schenk
  *
  * This file is part of One MiKTeX Utility.
  *
@@ -70,7 +70,7 @@ enum Option
     OPT_AAA = 1,
 };
 
-static const struct poptOption options[] =
+static const struct poptOption uninstall_options[] =
 {
     POPT_AUTOHELP
     POPT_TABLEEND
@@ -78,8 +78,12 @@ static const struct poptOption options[] =
 
 int UninstallCommand::Execute(ApplicationContext& ctx, const vector<string>& arguments)
 {
+    if (ctx.session->IsSharedSetup() && !ctx.session->IsAdminMode())
+    {
+        ctx.ui->FatalError(T_("this command must be run in admin mode"));
+    }
     auto argv = MakeArgv(arguments);
-    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], options);
+    PoptWrapper popt(static_cast<int>(argv.size() - 1), &argv[0], uninstall_options);
     int option;
     while ((option = popt.GetNextOpt()) >= 0)
     {
@@ -89,14 +93,6 @@ int UninstallCommand::Execute(ApplicationContext& ctx, const vector<string>& arg
         ctx.ui->IncorrectUsage(fmt::format("{0}: {1}", popt.BadOption(POPT_BADOPTION_NOALIAS), popt.Strerror(option)));
     }
     if (!popt.GetLeftovers().empty())
-    {
-        ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
-    }
-    if (ctx.session->IsSharedSetup() && !ctx.session->IsAdminMode())
-    {
-        ctx.ui->FatalError(T_("this command must be run in admin mode"));
-    }
-    if (arguments.size() != 2)
     {
         ctx.ui->IncorrectUsage(T_("unexpected command arguments"));
     }
