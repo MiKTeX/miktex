@@ -300,6 +300,7 @@ typedef struct pdf_output_file_ {
     int omit_cidset;
     int omit_charset;
     int omit_infodict;
+    int omit_mediabox; 
     int inclusion_copy_font;
     int major_version;          /* fixed major part of the PDF version */
     int minor_version;          /* fixed minor part of the PDF version */

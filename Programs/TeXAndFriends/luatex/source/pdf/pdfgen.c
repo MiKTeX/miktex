@@ -1803,13 +1803,16 @@ void pdf_end_page(PDF pdf)
         pdf_dict_add_name(pdf, "Type", "Page");
         pdf_dict_add_ref(pdf, "Contents", pdf->last_stream);
         pdf_dict_add_ref(pdf, "Resources", res_p->last_resources);
-        pdf_add_name(pdf, "MediaBox");
-        pdf_begin_array(pdf);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 0);
-        pdf_add_bp(pdf, pdf->page_size.h);
-        pdf_add_bp(pdf, pdf->page_size.v);
-        pdf_end_array(pdf);
+        pdf->omit_mediabox = pdf_omit_mediabox;
+        if (! pdf->omit_mediabox) {
+            pdf_add_name(pdf, "MediaBox");
+            pdf_begin_array(pdf);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 0);
+            pdf_add_bp(pdf, pdf->page_size.h);
+            pdf_add_bp(pdf, pdf->page_size.v);
+            pdf_end_array(pdf);
+        }
         page_attributes = pdf_page_attr ;
         if (page_attributes != null)
             pdf_print_toks(pdf, page_attributes);
@@ -2253,6 +2256,10 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
             }
         } else {
             if (pdf->draftmode == 0) {
+                pdf->gen_tounicode = pdf_gen_tounicode;
+                pdf->omit_cidset = pdf_omit_cidset;
+                pdf->omit_charset = pdf_omit_charset;
+                pdf->omit_infodict = pdf_omit_infodict;
                 /*tex We make sure that the output file name has been already created. */
                 pdf_flush(pdf);
                 /*tex Flush page 0 objects from JBIG2 images, if any. */
@@ -2265,13 +2272,6 @@ void pdf_finish_file(PDF pdf, int fatal_error) {
                     check_nonexisting_destinations(pdf);
                     check_nonexisting_structure_destinations(pdf);
                 }
-                /*tex
-                    Output fonts definition.
-                */
-                pdf->gen_tounicode = pdf_gen_tounicode;
-                pdf->omit_cidset = pdf_omit_cidset;
-                pdf->omit_charset = pdf_omit_charset;
-                pdf->omit_infodict = pdf_omit_infodict;
                 /*tex
                     The first pass over the list will flag the slots that are
                     used so that we can do a preroll for type 3 fonts.

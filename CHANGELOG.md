@@ -2,6 +2,10 @@
 
 ## next
 
+### Upgraded programs
+
+* luatex 1.16.0
+
 ### Fixed issues
 
 - [1172](https://github.com/MiKTeX/miktex/issues/1172): Change link target directory does not work in versions 22.8 and 22.8.28 in Monterey 12.4

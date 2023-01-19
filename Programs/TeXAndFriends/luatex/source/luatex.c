@@ -32,9 +32,9 @@
     stick to "0" upto "9" so users can expect a number represented as string.
 */
 
-int luatex_version = 115;
-int luatex_revision = '1';
-const char *luatex_version_string = "1.15.1";
+int luatex_version = 116;
+int luatex_revision = '0';
+const char *luatex_version_string = "1.16.0";
 const char *engine_name = my_name;
 
 #include <kpathsea/c-ctype.h>
