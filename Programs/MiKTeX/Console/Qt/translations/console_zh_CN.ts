@@ -948,7 +948,7 @@ To avoid leftovers, all MiKTeX users should first reset their personal MiKTeX co
     <message>
         <location filename="../mainwindow.cpp" line="628"/>
         <source>&lt;p&gt;%1 is free software. You are welcome to redistribute it under certain conditions.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;%1 是免费软件。您可在一定条件下重新发布它。&lt;/p&gt;</translation>
+        <translation type="unfinished">&lt;p&gt;%1 是自由软件。您可在一定条件下重新发布它。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="629"/>

@@ -9,6 +9,7 @@
 ### Fixed issues
 
 - [1172](https://github.com/MiKTeX/miktex/issues/1172): Change link target directory does not work in versions 22.8 and 22.8.28 in Monterey 12.4
+- [1214](https://github.com/MiKTeX/miktex/issues/1214): Maybe wrong translation?
 - [1246](https://github.com/MiKTeX/miktex/issues/1246): installation log is printed in the stdout of kpsewhich
 
 ## 22.12 - 2022-12-12
