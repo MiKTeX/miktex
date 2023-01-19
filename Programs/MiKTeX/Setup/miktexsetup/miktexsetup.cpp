@@ -1007,7 +1007,9 @@ int MAIN(int argc, MAINCHAR** argv)
     if (!IsWindows10OrGreater())
     {
         cerr << T_("This application requires Windows 10 (or greater).") << endl;
+#if defined(MIKTEX_SETUP_STANDALONE) // TODO
         return 1;
+#endif
     }
     ConsoleCodePageSwitcher cpSwitcher;
 #endif

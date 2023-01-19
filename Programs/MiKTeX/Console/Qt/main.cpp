@@ -280,7 +280,9 @@ int main(int argc, char* argv[])
     if (!IsWindows10OrGreater())
     {
         QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "This application requires Windows 10 (or greater)."));
+#if 0 // TODO
         return 1;
+#endif
     }
 #endif
     unique_ptr<MiKTeX::Core::LockFile> lockFile;

@@ -51,7 +51,9 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
     if (!IsWindows10OrGreater())
     {
         std::cerr << T_("This application requires Windows 10 (or greater).") << std::endl;
+#if 0 // TODO
         return 1;
+#endif
     }
     MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
     std::vector<std::string> utf8args;
