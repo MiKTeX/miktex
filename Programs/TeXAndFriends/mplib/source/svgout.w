@@ -382,8 +382,9 @@ The two correction values are calculated by the function that writes
 the initial |<svg>| tag, and  are stored in two globals:
 
 @<Globals@>=
-integer dx;
-integer dy;
+double dx;
+double dy;
+
 
 @ @c
 void mp_svg_pair_out (MP mp,double x, double y) { 
