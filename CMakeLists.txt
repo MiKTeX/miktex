@@ -492,6 +492,12 @@ option(
 )
 
 option(
+    WITH_LEGACY_WINDOWS_SUPPORT
+    "Wether to support Windows 7/8."
+    TRUE
+)
+
+option(
     INSTALL_MIKTEX_HEADERS
     "Install the MiKTeX header files."
     FALSE
@@ -980,16 +986,27 @@ endif()
 ## find/check stuff
 
 if(MIKTEX_NATIVE_WINDOWS)
-    add_definitions(
-        -DWINVER=0x0600
-        -D_WIN32_WINNT=0x0600
-    )
-    if(CMAKE_CL_64)
-        set(CMAKE_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
-        set(CMAKE_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
+    if(WITH_LEGACY_WINDOWS_SUPPORT)
+        add_definitions(
+            -DMIKTEX_SUPPORT_LEGACY_WINDOWS
+        )
+        add_definitions(
+            -DWINVER=0x0600
+            -D_WIN32_WINNT=0x0600
+        )
+        set(CMAKE_C_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
+        set(CMAKE_C_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
+        set(CMAKE_CXX_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
+        set(CMAKE_CXX_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
     else()
-        set(CMAKE_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,6.00)
-        set(CMAKE_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,6.00)
+        add_definitions(
+            -DWINVER=0x0a00
+            -D_WIN32_WINNT=0x0a00
+        )
+        set(CMAKE_C_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,10.00)
+        set(CMAKE_C_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,10.00)
+        set(CMAKE_CXX_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,10.00)
+        set(CMAKE_CXX_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,10.00)
     endif()
 endif()
 

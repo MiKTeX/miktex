@@ -84,8 +84,8 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 #if defined(MIKTEX_WINDOWS)
     if (!IsWindows10OrGreater())
     {
-        std::cerr << T_("This application requires Windows 10 (or greater).") << std::endl;
-#if 0 // TODO
+        std::cerr << T_("MiKTeX requires Windows 10 (or greater): https://miktex.org/announcement/legacy-windows-deprecation") << std::endl;
+#if !defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
         return 1;
 #endif
     }

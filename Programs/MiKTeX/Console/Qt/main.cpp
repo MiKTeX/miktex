@@ -279,8 +279,10 @@ int main(int argc, char* argv[])
 #if defined(MIKTEX_WINDOWS)
     if (!IsWindows10OrGreater())
     {
-        QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "This application requires Windows 10 (or greater)."));
-#if 0 // TODO
+#if defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
+        QMessageBox::warning(nullptr, displayName, QCoreApplication::translate("main", "<p>MiKTeX is running on an outdated Windows platform.</p><p>Please note that future MiKTeX versions will require at least Windows 10.</p>For more information, visit:<br><a href=\"%1\">%1</a></p>").arg("https://miktex.org/announcement/legacy-windows-deprecation"));
+#else
+        QMessageBox::critical(nullptr, displayName, QCoreApplication::translate("main", "MiKTeX requires Windows 10 (or greater)."));
         return 1;
 #endif
     }

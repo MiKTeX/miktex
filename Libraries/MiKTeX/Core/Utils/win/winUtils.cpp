@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <Windows.h>
+#include <VersionHelpers.h>
 #include <shlobj.h>
 #include <strsafe.h>
 #include <wininet.h>
@@ -195,16 +196,33 @@ BOOL ShellExecuteURLExInternal(LPSHELLEXECUTEINFOW lpExecInfo)
 
                 if (SUCCEEDED(hr))
                 {
-                    /* Don't let ShellExecuteEx guess */
-                    lpExecInfo->fMask |= SEE_MASK_CLASSKEY;
-                    lpExecInfo->lpClass = NULL;
-                    lpExecInfo->hkeyClass = hkeyClass;
+                    /* Is the ProgId really an URL scheme? */
+                    if (IsWindows8OrGreater())
+                    {
+                        dwErr = NO_ERROR;
+                    }
+                    else
+                    {
+                        dwErr = RegQueryValueExW
+                        (
+                            hkeyClass, L"URL Protocol", NULL, NULL, NULL, NULL
+                        );
+                    }
 
-                    /* Finally, execute the damn URL */
-                    bRet = ShellExecuteExW(lpExecInfo);
+                    /* All clear! */
+                    if (dwErr == NO_ERROR || dwErr == ERROR_MORE_DATA)
+                    {
+                        /* Don't let ShellExecuteEx guess */
+                        lpExecInfo->fMask |= SEE_MASK_CLASSKEY;
+                        lpExecInfo->lpClass = NULL;
+                        lpExecInfo->hkeyClass = hkeyClass;
 
-                    /* To preserve ShellExecuteEx's last error */
-                    dwErr = NO_ERROR;
+                        /* Finally, execute the damn URL */
+                        bRet = ShellExecuteExW(lpExecInfo);
+
+                        /* To preserve ShellExecuteEx's last error */
+                        dwErr = NO_ERROR;
+                    }
 
                     RegCloseKey(hkeyClass);
                 }
@@ -647,7 +665,14 @@ bool Utils::SupportsHardLinks(const PathName& path)
     {
         MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumeInformationW", "root", root.ToString());
     }
-    return (fileSystemFlags & FILE_SUPPORTS_HARD_LINKS) != 0;
+    if (IsWindows7OrGreater())
+    {
+        return (fileSystemFlags & FILE_SUPPORTS_HARD_LINKS) != 0;
+    }
+    else
+    {
+        return _wcsicmp(fileSystemName, L"NTFS") == 0;
+    }
 }
 
 PathName Utils::GetExe()

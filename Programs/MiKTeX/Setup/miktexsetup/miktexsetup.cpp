@@ -1006,9 +1006,11 @@ int MAIN(int argc, MAINCHAR** argv)
 #if defined(MIKTEX_WINDOWS)
     if (!IsWindows10OrGreater())
     {
-        cerr << T_("This application requires Windows 10 (or greater).") << endl;
-#if defined(MIKTEX_SETUP_STANDALONE) // TODO
+#if defined(MIKTEX_SETUP_STANDALONE) || !defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
+        cerr << T_("MiKTeX requires Windows 10 (or greater).") << endl;
         return 1;
+#else
+        cerr << T_("MiKTeX requires Windows 10 (or greater): https://miktex.org/announcement/legacy-windows-deprecation") << endl;
 #endif
     }
     ConsoleCodePageSwitcher cpSwitcher;

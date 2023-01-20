@@ -749,7 +749,7 @@ BOOL SetupApp::InitInstance()
 {
     if (!IsWindows10OrGreater())
     {
-        AfxMessageBox(T_(_T("This application requires Windows 10 (or greater).")), MB_ICONSTOP | MB_OK);
+        AfxMessageBox(T_(_T("MiKTeX requires Windows 10 (or greater).")), MB_ICONSTOP | MB_OK);
         return FALSE;
     }
 

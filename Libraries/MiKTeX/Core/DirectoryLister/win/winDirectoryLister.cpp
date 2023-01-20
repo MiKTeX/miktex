@@ -13,6 +13,9 @@
 
 #include "config.h"
 
+#include <Windows.h>
+#include <VersionHelpers.h>
+
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/win/WindowsVersion>
 
@@ -116,11 +119,11 @@ bool winDirectoryLister::GetNext(DirectoryEntry2& direntry2)
             }
             handle = FindFirstFileExW(
                 pathPattern.ToExtendedLengthPathName().ToWideCharString().c_str(),
-                FindExInfoBasic,
+                IsWindows7OrGreater() ? FindExInfoBasic : FindExInfoStandard,
                 &ffdat,
                 (options & (int)Options::DirectoriesOnly) != 0 ? FindExSearchLimitToDirectories : FindExSearchNameMatch,
                 nullptr,
-                FIND_FIRST_EX_LARGE_FETCH);
+                IsWindows7OrGreater() ? FIND_FIRST_EX_LARGE_FETCH : 0);
             if (handle == INVALID_HANDLE_VALUE)
             {
                 if (::GetLastError() != ERROR_FILE_NOT_FOUND)
