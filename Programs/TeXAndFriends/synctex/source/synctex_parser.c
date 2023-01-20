@@ -83,10 +83,20 @@
  *  First level objects are sheets and forms, containing boxes, glues, kerns...
  *  The third tree allows to browse leaves according to tag and line.
  */
+/* Declare _GNU_SOURCE for accessing vasprintf. For MSC compiler, vasprintf is
+ * defined in this file
+ */
+#define _GNU_SOURCE
+#if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
 #endif
+#if !defined(__GNUC__) && !defined(__attribute__)
+#define __attribute__(x)
+#endif
+#endif
+
 #   if defined(SYNCTEX_USE_LOCAL_HEADER)
 #       include "synctex_parser_local.h"
 #   else
@@ -365,7 +375,7 @@ __synctex_scanner_register_handle_to(NODE)
 static synctex_bool_t _synctex_tree_has_##WHAT(synctex_node_p node) {\
     if (node) {\
         if (node->class_->navigator->WHAT>=0) {\
-            return  synctex_YES; \
+            return synctex_YES; \
         } else {\
             printf("WARNING: NO tree %s for %s\n", #WHAT, synctex_node_isa(node));\
         }\
@@ -373,9 +383,9 @@ static synctex_bool_t _synctex_tree_has_##WHAT(synctex_node_p node) {\
     return synctex_NO;\
 }
 #else
-#define SYNCTEX_PARAMETER_ASSERT(WHAT)
-#define DEFINE_SYNCTEX_TREE_HAS(WHAT) \
-static synctex_bool_t _synctex_tree_has_##WHAT(synctex_node_p node) {\
+#   define SYNCTEX_PARAMETER_ASSERT(WHAT)
+#   define DEFINE_SYNCTEX_TREE_HAS(WHAT) \
+SYNCTEX_INLINE static synctex_bool_t _synctex_tree_has_##WHAT(synctex_node_p node) {\
     return (node && (node->class_->navigator->WHAT>=0));\
 }
 #endif
@@ -386,7 +396,7 @@ SYNCTEX_INLINE static synctex_node_p __synctex_tree_##WHAT(synctex_non_null_node
 }
 #   define DEFINE_SYNCTEX_TREE_GET(WHAT) \
 DEFINE_SYNCTEX_TREE__GET(WHAT) \
-static synctex_node_p _synctex_tree_##WHAT(synctex_node_p node) {\
+SYNCTEX_INLINE static synctex_node_p _synctex_tree_##WHAT(synctex_node_p node) {\
     if (_synctex_tree_has_##WHAT(node)) {\
         return __synctex_tree_##WHAT(node);\
     }\
@@ -442,10 +452,31 @@ DEFINE_SYNCTEX_TREE_RESET(WHAT)
  *  The return value of _synctex_tree_set_child and 
  *  _synctex_tree_set_sibling must be released somehow.
  */
+/* The next macro call creates:
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_sibling(synctex_node_p node)
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_set_sibling(synctex_node_p node, synctex_node_p new_value)
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_reset_sibling(synctex_node_p node)
+ */
 DEFINE_SYNCTEX_TREE__GETSETRESET(sibling)
+/* The next macro call creates:
+ SYNCTEX_INLINE static synctex_bool_t _synctex_tree_has_parent(synctex_node_p node);
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_parent(synctex_non_null_node_p node);
+ SYNCTEX_INLINE static synctex_node_p _synctex_tree_parent(synctex_node_p node);
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_set_parent(synctex_node_p node, synctex_node_p new_value);
+ SYNCTEX_INLINE static synctex_node_p _synctex_tree_set_parent(synctex_node_p node, synctex_node_p new_value);
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_reset_parent(synctex_node_p node);
+ SYNCTEX_INLINE static synctex_node_p _synctex_tree_reset_parent(synctex_node_p node);
+ */
 DEFINE_SYNCTEX_TREE_GETSETRESET(parent)
 DEFINE_SYNCTEX_TREE_GETSETRESET(child)
 DEFINE_SYNCTEX_TREE_GETSETRESET(friend)
+/* The next macro call creates:
+ SYNCTEX_INLINE static synctex_bool_t _synctex_tree_has_last(synctex_node_p node);
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_last(synctex_non_null_node_p node);
+ SYNCTEX_INLINE static synctex_node_p _synctex_tree_last(synctex_node_p node);
+ SYNCTEX_INLINE static synctex_node_p __synctex_tree_set_last(synctex_node_p node, synctex_node_p new_value);
+ SYNCTEX_INLINE static synctex_node_p _synctex_tree_set_last(synctex_node_p node, synctex_node_p new_value);
+ */
 DEFINE_SYNCTEX_TREE_GETSET(last)
 DEFINE_SYNCTEX_TREE_GETSET(next_hbox)
 DEFINE_SYNCTEX_TREE_GETSET(arg_sibling)
@@ -474,7 +505,7 @@ DEFINE_SYNCTEX_TREE_GETSETRESET(target)
 
 #define SYNCTEX_HAS_CHILDREN(NODE) (NODE && _synctex_tree_child(NODE))
 #	ifdef	__SYNCTEX_WORK__
-#		include "/usr/include/zlib.h"
+#		include "/usr/local/include/node/zlib.h"
 #	else
 #		include <zlib.h>
 #	endif
@@ -896,13 +927,39 @@ static void _synctex_free_node(synctex_node_p node) {
  *  It is not owned by its parent, unless it is its first child.
  *  This destructor is for all handles.
  */
+static void _synctex_free_handle_old(synctex_node_p handle) {
+  if (handle) {
+    _synctex_free_handle_old(__synctex_tree_sibling(handle));
+    _synctex_free_handle_old(_synctex_tree_child(handle));
+    _synctex_free(handle);
+  }
+  return;
+}
 static void _synctex_free_handle(synctex_node_p handle) {
-    if (handle) {
-        _synctex_free_handle(__synctex_tree_sibling(handle));
-        _synctex_free_handle(_synctex_tree_child(handle));
-        _synctex_free(handle);
+  if (handle) {
+    synctex_node_p n = handle;
+    synctex_node_p nn;
+    __synctex_tree_set_parent(n, NULL);
+  down:
+    while ((nn = _synctex_tree_child(n))) {
+      __synctex_tree_set_parent(nn, n);
+      n = nn;
+    };
+  right:
+    nn = __synctex_tree_sibling(n);
+    if (nn) {
+      _synctex_free(n);
+      n = nn;
+      goto down;
     }
-    return;
+    nn = __synctex_tree_parent(n);
+    _synctex_free(n);
+    if (nn) {
+      n = nn;
+      goto right;
+    }
+  }
+  return;
 }
 
 /**
@@ -4514,7 +4571,7 @@ next_line:
             _synctex_error("Problem with Y offset in the Post Scriptum.");
             return fs.status;
         }
-        scanner->x_offset = fs.value;
+        scanner->y_offset = fs.value;
         goto next_line;
     } else if (status<SYNCTEX_STATUS_EOF){
         goto report_record_problem;
@@ -6010,11 +6067,12 @@ synctex_scanner_p synctex_scanner_new_with_output_file(const char * output, cons
         _synctex_error("malloc problem");
         return NULL;
     }
-    if ((scanner->reader = synctex_reader_init_with_output_file(scanner->reader, output, build_directory))) {
+    if (synctex_reader_init_with_output_file(scanner->reader, output, build_directory)) {
         return parse? synctex_scanner_parse(scanner):scanner;
     }
     // don't warn to terminal if no file is present, this is a library.
     // _synctex_error("No file?");
+    synctex_scanner_free(scanner);
     return NULL;
 }
 
@@ -6023,10 +6081,6 @@ synctex_scanner_p synctex_scanner_new_with_output_file(const char * output, cons
 int synctex_scanner_free(synctex_scanner_p scanner) {
     int node_count = 0;
     if (scanner) {
-        if (SYNCTEX_FILE) {
-            gzclose(SYNCTEX_FILE);
-            SYNCTEX_FILE = NULL;
-        }
         synctex_node_free(scanner->sheet);
         synctex_node_free(scanner->form);
         synctex_node_free(scanner->input);
@@ -6058,17 +6112,6 @@ synctex_scanner_p synctex_scanner_parse(synctex_scanner_p scanner) {
     scanner->x_offset = scanner->y_offset = 6.027e23f;
     scanner->reader->line_number = 1;
     
-    SYNCTEX_START = (char *)malloc(SYNCTEX_BUFFER_SIZE+1); /*  one more character for null termination */
-    if (NULL == SYNCTEX_START) {
-        _synctex_error("!  malloc error in synctex_scanner_parse.");
-    bailey:
-#ifdef SYNCTEX_DEBUG
-        return scanner;
-#else
-        synctex_scanner_free(scanner);
-        return NULL;
-#endif
-    }
     synctex_scanner_set_display_switcher(scanner, 1000);
     SYNCTEX_END = SYNCTEX_START+SYNCTEX_BUFFER_SIZE;
     /*  SYNCTEX_END always points to a null terminating character.
@@ -6082,7 +6125,13 @@ synctex_scanner_p synctex_scanner_parse(synctex_scanner_p scanner) {
     status = _synctex_scan_preamble(scanner);
     if (status<SYNCTEX_STATUS_OK) {
         _synctex_error("Bad preamble\n");
-        goto bailey;
+        bailey:
+#ifdef SYNCTEX_DEBUG
+            return scanner;
+#else
+            synctex_scanner_free(scanner);
+            return NULL;
+#endif
     }
     status = _synctex_scan_content(scanner);
     if (status<SYNCTEX_STATUS_OK) {
@@ -8394,6 +8443,7 @@ struct synctex_updater_t {
     int length;             /*  the number of chars appended */
 };
 
+__attribute__((__format__ (__printf__, 2, 3)))
 static int _synctex_updater_print(synctex_updater_p updater, const char * format, ...) {
     int result = 0;
     if (updater) {
@@ -8430,6 +8480,7 @@ static int vasprintf(char **ret,
 /**
  *  gzvprintf is not available until OSX 10.10
  */
+__attribute__((__format__ (__printf__, 2, 3)))
 static int _synctex_updater_print_gz(synctex_updater_p updater, const char * format, ...) {
     int result = 0;
     if (updater) {

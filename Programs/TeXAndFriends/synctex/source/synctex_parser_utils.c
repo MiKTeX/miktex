@@ -40,9 +40,14 @@
 
 /*  In this file, we find all the functions that may depend on the operating system. */
 
+#if defined(MIKTEX)
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
+#endif
+#if !defined(__GNUC__) && !defined(__attribute__)
+#define __attribute__(x)
+#endif
 #endif
 #include <synctex_parser_utils.h>
 #include <stdlib.h>
@@ -90,6 +95,7 @@ void _synctex_free(void * ptr) {
 #   include <syslog.h>
 #endif
 
+__attribute__((__format__ (__printf__, 3, 0)))
 static int _synctex_log(int level, const char * prompt, const char * reason,va_list arg) {
 	int result;
 #	ifdef SYNCTEX_RECENT_WINDOWS
@@ -136,6 +142,7 @@ static int _synctex_log(int level, const char * prompt, const char * reason,va_l
 	return result;
 }
 
+__attribute__((__format__ (__printf__, 1, 2)))
 int _synctex_error(const char * reason,...) {
     va_list arg;
     int result;
@@ -149,6 +156,7 @@ int _synctex_error(const char * reason,...) {
     return result;
 }
 
+__attribute__((__format__ (__printf__, 1, 2)))
 int _synctex_debug(const char * reason,...) {
     va_list arg;
     int result;
