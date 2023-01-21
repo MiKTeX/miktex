@@ -82,13 +82,13 @@ static std::string nameOfTheGame;
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
     if (!IsWindows10OrGreater())
     {
         std::cerr << T_("MiKTeX requires Windows 10 (or greater): https://miktex.org/announcement/legacy-windows-deprecation") << std::endl;
-#if !defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
         return 1;
-#endif
     }
+#endif
     MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
 #endif
     try
@@ -134,6 +134,16 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
         int exitCode = MAINFUNC(args.size() - 1, &args[0]);
 
         app.Finalize2(exitCode);
+
+#if defined(MIKTEX_WINDOWS)
+        if (exitCode == 0 && !IsWindows10OrGreater())
+        {
+            std::cerr
+                << "\n"
+                << "\n"
+                << T_("MiKTeX requires Windows 10 (or greater): https://miktex.org/announcement/legacy-windows-deprecation") << std::endl;
+        }
+#endif
 
         return exitCode;
     }

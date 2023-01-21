@@ -48,13 +48,13 @@ extern "C" int MIKTEXCEECALL FUNC(int argc, char* argv[]);
 int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
     if (!IsWindows10OrGreater())
     {
         std::cerr << T_("MiKTeX requires Windows 10 (or greater): https://miktex.org/announcement/legacy-windows-deprecation") << std::endl;
-#if !defined(MIKTEX_SUPPORT_LEGACY_WINDOWS)
         return 1;
-#endif
     }
+#endif
     MiKTeX::Core::ConsoleCodePageSwitcher cpSwitcher;
     std::vector<std::string> utf8args;
     utf8args.reserve(argc);
@@ -75,5 +75,15 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 #endif
     }
     args.push_back(nullptr);
-    return FUNC(argc, &args[0]);
+    int exitCode = FUNC(argc, &args[0]);
+#if defined(MIKTEX_WINDOWS)
+    if (exitCode == 0 && !IsWindows10OrGreater())
+    {
+        std::cerr
+            << "\n"
+            << "\n"
+            << T_("MiKTeX requires Windows 10 (or greater): https://miktex.org/announcement/legacy-windows-deprecation") << std::endl;
+    }
+#endif
+    return exitCode;
 }
