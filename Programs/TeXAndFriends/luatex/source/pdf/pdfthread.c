@@ -76,7 +76,8 @@ void do_thread(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
-    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
+    pdf_ann_margin(p) = pdf_thread_margin;
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
     append_bead(pdf, p);
     pdf->last_thread = p;
 }
@@ -99,7 +100,7 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
-    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
     append_bead(pdf, p);
     pdf->last_thread = p;
 }
@@ -115,13 +116,13 @@ void end_thread(PDF pdf, halfword p)
         switch (pdf->posstruct->dir) {
             case dir_TLT:
             case dir_TRT:
-                pdf_ann_bottom(pdf->last_thread) = pos.v - pdf_thread_margin;
+                pdf_ann_bottom(pdf->last_thread) = pos.v;
                 break;
             case dir_LTL:
-                pdf_ann_right(pdf->last_thread) = pos.h + pdf_thread_margin;
+                pdf_ann_right(pdf->last_thread) = pos.h;
                 break;
             case dir_RTT:
-                pdf_ann_left(pdf->last_thread) = pos.h - pdf_thread_margin;
+                pdf_ann_left(pdf->last_thread) = pos.h;
                 break;
             default:
                 formatted_warning("pdf backend","forcing bad dir %i to TLT in end tread",pdf->posstruct->dir);

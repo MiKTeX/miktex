@@ -47,6 +47,8 @@ void push_link_level(PDF pdf, halfword p)
     pdf->link_stack[pdf->link_stack_ptr].nesting_level = cur_s;
     pdf->link_stack[pdf->link_stack_ptr].link_node = copy_node_list(p);
     pdf->link_stack[pdf->link_stack_ptr].ref_link_node = p;
+    pdf->link_stack[pdf->link_stack_ptr].direction = pdf->posstruct->dir;
+    pdf->link_stack[pdf->link_stack_ptr].count =  0;
 }
 
 void pop_link_level(PDF pdf)
@@ -69,7 +71,9 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
-    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
+    pdf->link_stack[pdf->link_stack_ptr].count++;
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
+    pdf_ann_margin(p) = pdf_link_margin;
     /*tex The reference for the annot object must be set here. */
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p;
     k = pdf_link_objnum(p);
@@ -95,15 +99,15 @@ void end_link(PDF pdf, halfword p)
     if (is_running(width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
         q = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
         if (global_shipping_mode == SHIPPING_PAGE && matrixused()) {
-            matrixrecalculate(pos.h + pdf_link_margin);
-            pdf_ann_left(q) = getllx() - pdf_link_margin;
-            pdf_ann_top(q) = getlly() - pdf_link_margin;
-            pdf_ann_right(q) = geturx() + pdf_link_margin;
-            pdf_ann_bottom(q) = getury() + pdf_link_margin;
+            matrixrecalculate(pos.h);
+            pdf_ann_left(q) = getllx();
+            pdf_ann_top(q) = getlly();
+            pdf_ann_right(q) = geturx();
+            pdf_ann_bottom(q) = getury();
         } else {
             switch (pdf->posstruct->dir) {
                 case dir_TLT:
-                    pdf_ann_right(q) = pos.h + pdf_link_margin;
+                    pdf_ann_right(q) = pos.h;
                     break;
                 case dir_TRT:
                     /*tex 
@@ -111,19 +115,35 @@ void end_link(PDF pdf, halfword p)
                        to the moment we write the rectangle, but it did not
                        consider this case.
                     */ 
+                    if (pdf_linking) {
+                        /* begin of experiment, can be simplified */
+                        if (pdf->link_stack[pdf->link_stack_ptr].count > 1) { 
+                            pdf_ann_right(q) = pdf_ann_right(q) - pdf_ann_left(q) + pos.h;
+                            pdf_ann_left(q) = pos.h;
+                            if (pdf_ann_left(q) > pdf_ann_right(q)) {
+                                halfword r = pdf_ann_right(q);
+                                halfword l = pdf_ann_left(q);
+                                pdf_ann_right(q) = pos.h - r;
+                                pdf_ann_left(q) = pos.h;
+                            }
+                            break;
+                        }
+                        /* end of experiment */
+                    }
                     if (pdf_ann_left(q)<pdf_ann_right(q)) {
-                      pdf_ann_left(q) = pos.h - pdf_link_margin;
+                        pdf_ann_left(q) = pos.h;
                     } else {
-                      pdf_ann_right(q) = pos.h - pdf_link_margin;
+                        pdf_ann_right(q) = pos.h;
                     } 
                     break;
                 case dir_LTL:
                 case dir_RTT:
-                    pdf_ann_bottom(q) = pos.v - pdf_link_margin;
+                    pdf_ann_bottom(q) = pos.v;
                     break;
                 default:
-                    pdf_ann_right(q) = pos.h + pdf_link_margin;
+                    pdf_ann_right(q) = pos.h;
                     formatted_warning("pdf backend","forcing bad dir %i to TLT in link",pdf->posstruct->dir);
+                    break;
             }
         }
     }
@@ -147,12 +167,13 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     scaled_whd alt_rule;
     p = copy_node(pdf->link_stack[(int) i].link_node);
     pdf->link_stack[(int) i].ref_link_node = p;
+    pdf->link_stack[(int) i].count++;
     /*tex This node is not a normal link node. */
     subtype(p) = pdf_link_data_node;
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
-    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
     k = pdf_create_obj(pdf, obj_type_others, 0);
     obj_annot_ptr(pdf, k) = p;
     set_obj_scheduled(pdf, pdf_link_objnum(p));

@@ -105,10 +105,11 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         The different branches for matrixused is somewhat strange and should
         always be used
     */
+    pdf_ann_margin(p) = pdf_dest_margin;
     switch (pdf_dest_type(p)) {
     case pdf_dest_xyz:
         if (matrixused())
-            set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
+            set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
         else {
             pdf_ann_left(p) = pos.h;
             pdf_ann_top(p) = pos.v;
@@ -117,14 +118,14 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     case pdf_dest_fith:
     case pdf_dest_fitbh:
         if (matrixused())
-            set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
+            set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
         else
             pdf_ann_top(p) = pos.v;
         break;
     case pdf_dest_fitv:
     case pdf_dest_fitbv:
         if (matrixused())
-            set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
+            set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
         else
             pdf_ann_left(p) = pos.h;
         break;
@@ -132,7 +133,8 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     case pdf_dest_fitb:
         break;
     case pdf_dest_fitr:
-        set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
+        set_rect_dimens(pdf, p, parent_box, cur, alt_rule);
+        break;
     }
 }
 

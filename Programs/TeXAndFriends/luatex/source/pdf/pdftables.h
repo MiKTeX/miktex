@@ -108,7 +108,7 @@ extern void check_obj_exists(PDF pdf, int objnum);
 extern void check_obj_type(PDF pdf, int t, int objnum);
 extern int pdf_get_obj(PDF pdf, int t, int i, boolean byname);
 extern int pdf_create_obj(PDF pdf, int t, int i);
-extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule, scaled margin);
+extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule);
 extern void libpdffinish(PDF);
 
 #  define set_width(A,B)  width(A)=(B)
@@ -143,6 +143,7 @@ typedef enum {
     c_pdf_omit_charset,
     c_pdf_omit_infodict,
     c_pdf_omit_mediabox,
+    c_pdf_linking,
 } pdf_backend_counters ;
 
 typedef enum {
@@ -195,6 +196,7 @@ extern int pdf_cur_form;
 #  define pdf_omit_infodict             get_tex_extension_count_register(c_pdf_omit_infodict)
 #  define pdf_omit_mediabox             get_tex_extension_count_register(c_pdf_omit_mediabox)
 #  define pdf_recompress                get_tex_extension_count_register(c_pdf_recompress)
+#  define pdf_linking                   get_tex_extension_count_register(c_pdf_linking)
 
 #  define pdf_h_origin                  get_tex_extension_dimen_register(d_pdf_h_origin)
 #  define pdf_v_origin                  get_tex_extension_dimen_register(d_pdf_v_origin)
@@ -221,6 +223,7 @@ extern int pdf_cur_form;
 #  define set_pdf_omit_mediabox(i)      set_tex_extension_count_register(c_pdf_omit_mediabox,i)
 #  define set_pdf_gen_tounicode(i)      set_tex_extension_count_register(c_pdf_gen_tounicode,i)
 #  define set_pdf_recompress(i)         set_tex_extension_count_register(c_pdf_recompress,i)
+#  define set_pdf_linking(i)            set_tex_extension_count_register(c_pdf_linking,i)
 
 #  define set_pdf_decimal_digits(i)     set_tex_extension_count_register(c_pdf_decimal_digits,i)
 #  define set_pdf_pk_resolution(i)      set_tex_extension_count_register(c_pdf_pk_resolution,i)

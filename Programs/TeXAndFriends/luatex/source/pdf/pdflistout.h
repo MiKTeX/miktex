@@ -29,4 +29,6 @@
 extern void hlist_out(PDF pdf, halfword this_box, int rule_callback_id);
 extern void vlist_out(PDF pdf, halfword this_box, int rule_callback_id);
 
+extern halfword calculate_width_to_endlink(halfword p, halfword this_box, halfword *leftskip, halfword *rightskip);
+
 #endif

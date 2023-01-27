@@ -194,6 +194,8 @@ typedef struct pdf_link_stack_record {
     int ref_link_node;          /* points to original |pdf_start_link_node|, or a
                                    copy of |link_node| created by |append_link| in
                                    case of multi-line link */
+    int direction;
+    int count; 
 } pdf_link_stack_record;
 
 /* types of objects */

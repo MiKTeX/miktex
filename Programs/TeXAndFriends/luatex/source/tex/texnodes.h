@@ -876,9 +876,9 @@ typedef enum {
 
 #  define pdf_obj_objnum(a) vinfo((a) + 2)
 
-#  define pdf_annot_node_size 8
-#  define pdf_dest_node_size 8
-#  define pdf_thread_node_size 8
+#  define pdf_annot_node_size  9 /* all need the same size, rect margin related ! */
+#  define pdf_dest_node_size   9
+#  define pdf_thread_node_size 9
 
 /*
     when a whatsit node representing annotation is created, words |1..3| are
@@ -895,6 +895,7 @@ typedef enum {
 #  define pdf_ann_top(a)            varmem[(a) + 3].cint
 #  define pdf_ann_right(a)          varmem[(a) + 4].cint
 #  define pdf_ann_bottom(a)         varmem[(a) + 5].cint
+#  define pdf_ann_margin(a)         varmem[(a) + 8].cint  /* so all need to have the same size */
 
 #  define pdf_literal_data(a)       vlink((a)+2)
 #  define pdf_literal_mode(a)       type((a)+2)

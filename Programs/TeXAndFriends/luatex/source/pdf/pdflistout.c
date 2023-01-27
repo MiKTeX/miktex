@@ -154,6 +154,110 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_
     return enddir_ptr;
 }
 
+/*tex 
+    With |\pdfvariable linking = 1| a few alternative code paths witll be used that try to compensate 
+    for multiline side effects as well as left- and right skip (no other skips yet). After days of 
+    looking for better ways I settled on this hackery approach. After all for > 15 years we had the 
+    old handling and so a flag makes sense. I (HH) don't use this code myself so it's a it of a 
+    gamble wrt usage scenarios. 
+*/
+
+halfword calculate_width_to_endlink(halfword p, halfword this_box, halfword *leftskip, halfword *rightskip)
+{
+    halfword q = p;
+    scaled w = 0;
+    /*tex The glue value before rounding: */
+    real glue_temp;
+    real cur_glue = 0.0;
+    int level = 0; 
+    /*tex rounded equivalent of |cur_glue| times the glue ratio */
+    scaled cur_g = 0;
+    int g_sign = glue_sign(this_box);
+    int g_order = glue_order(this_box);
+    *leftskip = 0;
+    while (q != null) {
+        if (is_char_node(q))
+            w += pack_width(box_dir(this_box), dir_TRT, q, true);
+        else {
+            switch (type(q)) {
+                case hlist_node:
+                case vlist_node:
+                    w += pack_width(box_dir(this_box), box_dir(q), q, false);
+                    break;
+                case rule_node:
+                case margin_kern_node:
+                    w += width(q);
+                    break;
+                case kern_node:
+                    /*tex Officially we should check the subtype. */
+                    w += kern_width(q);
+                    break;
+                case math_node:
+                    /*tex Begin of |mathskip| code. */
+                    if (glue_is_zero(q)) {
+                        w += surround(q);
+                        break;
+                    } else {
+                        /*tex Fall through |mathskip|. */
+                    }
+                    /*tex End of |mathskip| code. */
+                case glue_node:
+                    /* this is a terrible hack related to multiline links with directions */
+                    {
+                        halfword ww = w; 
+
+                        w += width(q) - cur_g;
+                        if (g_sign != normal) {
+                            if (g_sign == stretching) {
+                                if (stretch_order(q) == g_order) {
+                                    cur_glue = cur_glue + stretch(q);
+                                    vet_glue(float_cast(glue_set(this_box)) * cur_glue);
+                                    cur_g = float_round(glue_temp);
+                                }
+                            } else if (shrink_order(q) == g_order) {
+                                cur_glue = cur_glue - shrink(q);
+                                vet_glue(float_cast(glue_set(this_box)) * cur_glue);
+                                cur_g = float_round(glue_temp);
+                            }
+                        }
+                        w += cur_g;
+                        /* also experiment */
+                        if (type(q) == glue_node) { 
+                            if (subtype(q) == left_skip_glue) { 
+                                *leftskip = w - ww; 
+                                w = ww; 
+                            } else if (subtype(q) == right_skip_glue) { 
+                                *rightskip = w - ww; 
+                                w = ww; 
+                            }
+                        }
+                    }
+                    break;
+                case disc_node:
+                    /* (HH): The frontend should append already. */
+                    if (vlink(no_break(q)) != null)
+                        w += simple_advance_width(no_break(q));
+                    break;
+                case whatsit_node:
+                    if (subtype(q) == pdf_end_link_node) {
+                        if (level == 0) {
+                            return w;
+                        } else {
+                            --level;
+                        }
+                    } else if (subtype(q) == pdf_start_link_node) {
+                        ++level;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        q = vlink(q);
+    }
+    return w;
+}
+
 /*tex
 
     The |out_what| procedure takes care of outputting the whatsit nodes for
@@ -260,13 +364,14 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                 We ignore this link. This is a compatibility-with-pdftex feature needed for latex. It
                 is suboptimal in the sense that when the whatsit is set, the next box is influenced,
                 so there there can be side effects when used in the middle of a line, when using
-                vadjust, etc. But we can assume that tha macro package knows when and where this
+                vadjust, etc. But we can assume that the macro package knows when and where this
                 mechanism is triggered, so a more sophisticated solution is not needed (and would be
                 confusing in its own anyway.)
 
                 I would not be surprised of we have some leak here but it's harmless.
            */
         } else if (pdf->link_stack[i].nesting_level == cur_s) {
+            /* hm, cur is zero */
             append_link(pdf, this_box, cur, (small_number) i);
         }
     }
@@ -413,129 +518,129 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                 vet_glue(float_cast(glue_set(this_box)) * cur_glue);
                                 cur_g = float_round(glue_temp);
                             }
-                    }
-                    rule.wd = rule.wd + cur_g;
-                    if (subtype(p) >= a_leaders) {
-                        /*tex
-                            Output leaders in an hlist, |goto fin_rule| if a rule
-                            or to |next_p| if done.
-                        */
-                        leader_box = leader_ptr(p);
-                        if (type(leader_box) == rule_node) {
-                            rule.ht = height(leader_box);
-                            rule.dp = depth(leader_box);
-                            rleft = 0;
-                            rright = 0;
-                            goto FIN_RULE;
                         }
-                        if (textdir_parallel(box_dir(leader_box), localpos.dir))
-                            leader_wd = width(leader_box);
-                        else
-                            leader_wd = height(leader_box) + depth(leader_box);
-                        if ((leader_wd > 0) && (rule.wd > 0)) {
-                            /*tex Compensate for floating-point rounding. */
-                            rule.wd = rule.wd + 10;
-                            edge = cur.h + rule.wd;
-                            lx = 0;
+                        rule.wd = rule.wd + cur_g;
+                        if (subtype(p) >= a_leaders) {
                             /*tex
-                                Let |cur.h| be the position of the first box, and
-                                set |leader_wd+lx| to the spacing between
-                                corresponding parts of boxes.
+                                Output leaders in an hlist, |goto fin_rule| if a rule
+                                or to |next_p| if done.
                             */
-                            if (subtype(p) == g_leaders) {
-                                save_h = cur.h;
-                                switch (localpos.dir) {
-                                    case dir_TLT:
-                                        cur.h += refpos->pos.h - shipbox_refpos.h;
-                                        cur.h = leader_wd * (cur.h / leader_wd);
-                                        cur.h -= refpos->pos.h - shipbox_refpos.h;
-                                        break;
-                                    case dir_TRT:
-                                        cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
-                                        cur.h = leader_wd * (cur.h / leader_wd);
-                                        cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
-                                        break;
-                                    case dir_LTL:
-                                    case dir_RTT:
-                                        cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
-                                        cur.h = leader_wd * (cur.h / leader_wd);
-                                        cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
-                                        break;
-                                    default:
-                                        formatted_warning("pdf backend","forcing bad dir %i to TLT in hlist case 1",localpos.dir);
-                                        localpos.dir = dir_TLT;
-                                        cur.h += refpos->pos.h - shipbox_refpos.h;
-                                        cur.h = leader_wd * (cur.h / leader_wd);
-                                        cur.h -= refpos->pos.h - shipbox_refpos.h;
-                                        break;
-                                }
-                                if (cur.h < save_h)
-                                    cur.h += leader_wd;
-                            } else if (subtype(p) == a_leaders) {
-                                save_h = cur.h;
-                                cur.h = leader_wd * (cur.h / leader_wd);
-                                if (cur.h < save_h)
-                                    cur.h += leader_wd;
-                            } else {
-                                /*tex The number of box copies: */
-                                lq = rule.wd / leader_wd;
-                                /*tex The remaining space: */
-                                lr = rule.wd % leader_wd;
-                                if (subtype(p) == c_leaders) {
-                                    cur.h += lr / 2;
-                                } else {
-                                    lx = lr / (lq + 1);
-                                    cur.h += (lr - (lq - 1) * lx) / 2;
-                                }
+                            leader_box = leader_ptr(p);
+                            if (type(leader_box) == rule_node) {
+                                rule.ht = height(leader_box);
+                                rule.dp = depth(leader_box);
+                                rleft = 0;
+                                rright = 0;
+                                goto FIN_RULE;
                             }
-                            while (cur.h + leader_wd <= edge) {
+                            if (textdir_parallel(box_dir(leader_box), localpos.dir))
+                                leader_wd = width(leader_box);
+                            else
+                                leader_wd = height(leader_box) + depth(leader_box);
+                            if ((leader_wd > 0) && (rule.wd > 0)) {
+                                /*tex Compensate for floating-point rounding. */
+                                rule.wd = rule.wd + 10;
+                                edge = cur.h + rule.wd;
+                                lx = 0;
                                 /*tex
-                                    Output a leader box at |cur.h|, then advance
-                                    |cur.h| by |leader_wd+lx|.
+                                    Let |cur.h| be the position of the first box, and
+                                    set |leader_wd+lx| to the spacing between
+                                    corresponding parts of boxes.
                                 */
-                                if (pardir_parallel(box_dir(leader_box), localpos.dir)) {
-                                    basepoint.v = 0;
-                                    if (textdir_opposite(box_dir(leader_box), localpos.dir))
-                                        basepoint.h = width(leader_box);
-                                    else
-                                        basepoint.h = 0;
-                                } else {
-                                    if (!is_mirrored(box_dir(leader_box))) {
-                                        if (partextdir_eq(box_dir(leader_box), localpos.dir))
-                                            basepoint.h = height(leader_box);
-                                        else
-                                            basepoint.h = depth(leader_box);
-                                    } else {
-                                        if (partextdir_eq(box_dir(leader_box), localpos.dir))
-                                            basepoint.h = depth(leader_box);
-                                        else
-                                            basepoint.h = height(leader_box);
+                                if (subtype(p) == g_leaders) {
+                                    save_h = cur.h;
+                                    switch (localpos.dir) {
+                                        case dir_TLT:
+                                            cur.h += refpos->pos.h - shipbox_refpos.h;
+                                            cur.h = leader_wd * (cur.h / leader_wd);
+                                            cur.h -= refpos->pos.h - shipbox_refpos.h;
+                                            break;
+                                        case dir_TRT:
+                                            cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
+                                            cur.h = leader_wd * (cur.h / leader_wd);
+                                            cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
+                                            break;
+                                        case dir_LTL:
+                                        case dir_RTT:
+                                            cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
+                                            cur.h = leader_wd * (cur.h / leader_wd);
+                                            cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
+                                            break;
+                                        default:
+                                            formatted_warning("pdf backend","forcing bad dir %i to TLT in hlist case 1",localpos.dir);
+                                            localpos.dir = dir_TLT;
+                                            cur.h += refpos->pos.h - shipbox_refpos.h;
+                                            cur.h = leader_wd * (cur.h / leader_wd);
+                                            cur.h -= refpos->pos.h - shipbox_refpos.h;
+                                            break;
                                     }
-                                    if (partextdir_eq(localpos.dir, box_dir(leader_box)))
-                                        basepoint.v = -(width(leader_box) / 2);
-                                    else
-                                        basepoint.v = (width(leader_box) / 2);
+                                    if (cur.h < save_h)
+                                        cur.h += leader_wd;
+                                } else if (subtype(p) == a_leaders) {
+                                    save_h = cur.h;
+                                    cur.h = leader_wd * (cur.h / leader_wd);
+                                    if (cur.h < save_h)
+                                        cur.h += leader_wd;
+                                } else {
+                                    /*tex The number of box copies: */
+                                    lq = rule.wd / leader_wd;
+                                    /*tex The remaining space: */
+                                    lr = rule.wd % leader_wd;
+                                    if (subtype(p) == c_leaders) {
+                                        cur.h += lr / 2;
+                                    } else {
+                                        lx = lr / (lq + 1);
+                                        cur.h += (lr - (lq - 1) * lx) / 2;
+                                    }
                                 }
-                                if (!is_mirrored(localpos.dir))
-                                    basepoint.v = basepoint.v + shift_amount(leader_box); /* shift the box down */
-                                else
-                                    basepoint.v = basepoint.v - shift_amount(leader_box); /* shift the box up */
-                                tmpcur.h = cur.h + basepoint.h;
-                                tmpcur.v = basepoint.v;
-                                synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
-                                outer_doing_leaders = doing_leaders;
-                                doing_leaders = true;
-                                if (type(leader_box) == vlist_node)
-                                    vlist_out(pdf, leader_box, rule_callback_id);
-                                else
-                                    hlist_out(pdf, leader_box, rule_callback_id);
-                                doing_leaders = outer_doing_leaders;
-                                cur.h += leader_wd + lx;
+                                while (cur.h + leader_wd <= edge) {
+                                    /*tex
+                                        Output a leader box at |cur.h|, then advance
+                                        |cur.h| by |leader_wd+lx|.
+                                    */
+                                    if (pardir_parallel(box_dir(leader_box), localpos.dir)) {
+                                        basepoint.v = 0;
+                                        if (textdir_opposite(box_dir(leader_box), localpos.dir))
+                                            basepoint.h = width(leader_box);
+                                        else
+                                            basepoint.h = 0;
+                                    } else {
+                                        if (!is_mirrored(box_dir(leader_box))) {
+                                            if (partextdir_eq(box_dir(leader_box), localpos.dir))
+                                                basepoint.h = height(leader_box);
+                                            else
+                                                basepoint.h = depth(leader_box);
+                                        } else {
+                                            if (partextdir_eq(box_dir(leader_box), localpos.dir))
+                                                basepoint.h = depth(leader_box);
+                                            else
+                                                basepoint.h = height(leader_box);
+                                        }
+                                        if (partextdir_eq(localpos.dir, box_dir(leader_box)))
+                                            basepoint.v = -(width(leader_box) / 2);
+                                        else
+                                            basepoint.v = (width(leader_box) / 2);
+                                    }
+                                    if (!is_mirrored(localpos.dir))
+                                        basepoint.v = basepoint.v + shift_amount(leader_box); /* shift the box down */
+                                    else
+                                        basepoint.v = basepoint.v - shift_amount(leader_box); /* shift the box up */
+                                    tmpcur.h = cur.h + basepoint.h;
+                                    tmpcur.v = basepoint.v;
+                                    synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
+                                    outer_doing_leaders = doing_leaders;
+                                    doing_leaders = true;
+                                    if (type(leader_box) == vlist_node)
+                                        vlist_out(pdf, leader_box, rule_callback_id);
+                                    else
+                                        hlist_out(pdf, leader_box, rule_callback_id);
+                                    doing_leaders = outer_doing_leaders;
+                                    cur.h += leader_wd + lx;
+                                }
+                                cur.h = edge - 10;
+                                goto NEXTP;
                             }
-                            cur.h = edge - 10;
-                            goto NEXTP;
                         }
-                    }
                     }
                     goto MOVE_PAST;
                     break;
