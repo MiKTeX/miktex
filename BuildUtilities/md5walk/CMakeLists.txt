@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -26,6 +26,7 @@ set_property(TARGET md5walk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(md5walk
     ${core_dll_name}
+    Threads::Threads
     miktex-popt-wrapper
 )
 
