@@ -1,1 +1,17 @@
 !include bibtex-x.ini
+
+[${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.bib]
+
+	;; Search path for BibTeXu database files.
+	${MIKTEX_CONFIG_VALUE_PATHS} = .
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/bibtexu/bib//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pbibtex/bib//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/bibtex/bib//
+
+[${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.bst]
+
+	;; Search path for BibTeXu style files.
+	${MIKTEX_CONFIG_VALUE_PATHS} = .
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/bibtexu/bst//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pbibtex/bst//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/bibtex/bst//
