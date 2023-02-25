@@ -1570,9 +1570,20 @@ init_randoms(random_seed);@/
 @z
 
 @x
+@d language_node=4 {|subtype| in whatsits that change the current language}
+@y
+@d latespecial_node=4 {|subtype| in whatsits that represent \.{\\special} things}
+@d language_node=5 {|subtype| in whatsits that change the current language}
+@z
+
+@x
+@d immediate_code=4 {command modifier for \.{\\immediate}}
+@d set_language_code=5 {command modifier for \.{\\setlanguage}}
 @d epTeX_input_encoding_code=6 {command modifier for \.{\\epTeXinputencoding}}
 @y
-@d epTeX_input_encoding_code=6 {command modifier for \.{\\epTeXinputencoding}}
+@d immediate_code=5 {command modifier for \.{\\immediate}}
+@d set_language_code=6 {command modifier for \.{\\setlanguage}}
+@d epTeX_input_encoding_code=7 {command modifier for \.{\\epTeXinputencoding}}
 @d pdf_save_pos_node=epTeX_input_encoding_code+1
 @d set_random_seed_code=pdf_save_pos_node+1
 @d reset_timer_code=set_random_seed_code+1
@@ -1596,6 +1607,38 @@ set_random_seed_code: @<Implement \.{\\pdfsetrandomseed}@>;
 reset_timer_code: @<Implement \.{\\pdfresettimer}@>;
 @z
 
+@x
+@<Implement \.{\\special}@>=
+begin new_whatsit(special_node,write_node_size); write_stream(tail):=null;
+p:=scan_toks(false,true); write_tokens(tail):=def_ref;
+inhibit_glue_flag:=false;
+end
+@y
+@<Implement \.{\\special}@>=
+begin if scan_keyword("shipout") then
+begin new_whatsit(latespecial_node,write_node_size); write_stream(tail):=null;
+p:=scan_toks(false,false); write_tokens(tail):=def_ref;
+end else
+begin new_whatsit(special_node,write_node_size); write_stream(tail):=null;
+p:=scan_toks(false,true); write_tokens(tail):=def_ref;
+end;
+inhibit_glue_flag:=false;
+end
+@z
+
+@x
+special_node:begin print_esc("special");
+  print_mark(write_tokens(p));
+  end;
+@y
+special_node:begin print_esc("special");
+  print_mark(write_tokens(p));
+  end;
+latespecial_node:begin print_esc("special"); print(" shipout");
+  print_mark(write_tokens(p));
+  end;
+@z
+
 @x \pdfsavepos
   print_int(what_lhm(p)); print_char(",");
   print_int(what_rhm(p)); print_char(")");
@@ -1607,6 +1650,12 @@ reset_timer_code: @<Implement \.{\\pdfresettimer}@>;
 pdf_save_pos_node: print_esc("pdfsavepos");
 set_random_seed_code: print_esc("pdfsetrandomseed");
 reset_timer_code: print_esc("pdfresettimer");
+@z
+
+@x
+write_node,special_node: begin r:=get_node(write_node_size);
+@y
+write_node,special_node,latespecial_node: begin r:=get_node(write_node_size);
 @z
 
 @x \pdfsavepos
@@ -1621,6 +1670,12 @@ pdf_save_pos_node:
    r := get_node(small_node_size);
 @z
 
+@x
+write_node,special_node: begin delete_token_ref(write_tokens(p));
+@y
+write_node,special_node,latespecial_node: begin delete_token_ref(write_tokens(p));
+@z
+
 @x \pdfsavepos
 close_node,language_node: free_node(p,small_node_size);
 @y
@@ -1632,14 +1687,30 @@ pdf_save_pos_node: free_node(p, small_node_size);
 procedure special_out(@!p:pointer);
 var old_setting:0..max_selector; {holds print |selector|}
 @!k:pool_pointer; {index into |str_pool|}
+begin synch_h; synch_v;@/
+old_setting:=selector; selector:=new_string;
+show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
 @y
 procedure special_out(@!p:pointer);
 label done;
 var old_setting:0..max_selector; {holds print |selector|}
+@!h:halfword;
 @!k:pool_pointer; {index into |str_pool|}
+@!q,@!r:pointer; {temporary variables for list manipulation}
+@!old_mode:integer; {saved |mode|}
 @!s,@!t,@!cw, @!num, @!denom: scaled;
 @!bl: boolean;
 @!i: small_number;
+begin synch_h; synch_v;@/
+old_setting:=selector;
+if subtype(p)=latespecial_node then
+  begin @<Expand macros in the token list
+    and make |link(def_ref)| point to the result@>;
+    h:=def_ref;
+  end
+else h:=write_tokens(p);
+selector:=new_string;
+show_token_list(link(h),null,pool_size-pool_ptr);
 @z
 
 @x
@@ -1648,11 +1719,15 @@ pool_ptr:=str_start[str_ptr]; {erase the string}
 if read_papersize_special>0 then
   @<Determine whether this \.{\\special} is a papersize special@>;
 done: pool_ptr:=str_start[str_ptr]; {erase the string}
+if subtype(p)=latespecial_node then
+  flush_list(def_ref);
 @z
 
 @x
+special_node:special_out(p);
 language_node:do_nothing;
 @y
+special_node,latespecial_node:special_out(p);
 language_node:do_nothing;
 pdf_save_pos_node:
   @<Save current position in DVI mode@>;
