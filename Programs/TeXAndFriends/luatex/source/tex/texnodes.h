@@ -710,6 +710,7 @@ typedef enum {
     write_node,
     close_node,
     special_node,
+    late_special_node,          /* done a la pdftex, more natural is to use special with a flag instead */
     use_box_resource_node,
     use_image_resource_node,
     save_pos_node,
@@ -719,6 +720,7 @@ typedef enum {
     dvi_literal_node = 15,
     /* pdf backend */
     pdf_literal_node = 16,
+    pdf_late_literal_node,   /* done a la pdftex, more natural is to use special with a flag instead */
     pdf_refobj_node,
     pdf_annot_node,
     pdf_start_link_node,
@@ -737,16 +739,19 @@ typedef enum {
     pdf_link_state_node,
 } whatsit_types;
 
-#  define first_common_whatsit      0
+#  define first_common_whatsit      open_node
 #  define last_common_whatsit       user_defined_node
-#  define backend_first_dvi_whatsit 15
-#  define backend_last_dvi_whatsit  15
-#  define backend_first_pdf_whatsit 16
-#  define backend_last_pdf_whatsit  32
+#  define backend_first_dvi_whatsit dvi_literal_node
+#  define backend_last_dvi_whatsit  dvi_literal_node 
+#  define backend_first_pdf_whatsit pdf_literal_node 
+#  define backend_last_pdf_whatsit  pdf_link_state_node  /* Don't forget to adapt this when extending! */
 
-/* add some slack for the future */
+/* 
+    We add quite some slack for future usage because who knows how we need to be compatible with 
+    other engines. 
+*/
 
-#  define MAX_WHATSIT_TYPE 34
+#  define MAX_WHATSIT_TYPE 48
 
 #  define known_whatsit_type(i) ( \
     (i >= first_common_whatsit      && i <= last_common_whatsit) || \
@@ -810,8 +815,6 @@ typedef enum {
 #  define boundary_node_size 3
 #  define boundary_value(a) vinfo((a)+2)
 
-#  define special_node_size 3
-
 typedef enum {
     normal_dir = 0,
     cancel_dir,
@@ -826,9 +829,13 @@ typedef enum {
 #  define dir_cur_v(a)     vlink((a)+4)
 
 #  define write_node_size 3
+#  define literal_node_size 3
+#  define special_node_size 3
 #  define close_node_size 3
 #  define write_tokens(a)  vlink(a+2)
 #  define write_stream(a)  vinfo(a+2)
+
+#  define special_tokens write_tokens
 
 #  define open_node_size 4
 #  define open_name(a)   vlink((a)+2)

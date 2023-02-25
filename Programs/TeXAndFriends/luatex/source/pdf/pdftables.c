@@ -231,6 +231,8 @@ void check_obj_type(PDF pdf, int t, int objnum)
     passed to |set_rect_dimens| and have control per feature, maybe even under parameter control.
 */
 
+halfword calculate_width_to_endlink(halfword p, halfword this_box, halfword *leftskip, halfword *rightskip);
+
 void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule)
 {
     /*tex 

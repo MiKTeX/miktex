@@ -714,7 +714,8 @@ void initialize_commands(void)
     primitive_tex("special", extension_cmd, special_code, 0);
     cs_text(frozen_special) = maketexstring("special");
     eqtb[frozen_special] = eqtb[cur_val];
-    primitive_tex("immediate", extension_cmd, immediate_code, 0);
+    primitive_tex("immediate", extension_cmd, reserved_immediate_code, 0);
+    primitive_tex("deferred", extension_cmd, reserved_deferred_code, 0);
     primitive_luatex("localinterlinepenalty", assign_int_cmd, int_base + local_inter_line_penalty_code, int_base);
     primitive_luatex("localbrokenpenalty", assign_int_cmd, int_base + local_broken_penalty_code, int_base);
     primitive_luatex("pagedir", assign_dir_cmd, int_base + page_direction_code, dir_base);

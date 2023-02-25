@@ -116,38 +116,60 @@ int last_saved_image_pages ;
 int last_saved_box_index ;
 scaledpos last_position = { 0, 0 };
 
-static void do_extension_dvi(int immediate)
+static void do_extension_dvi_literal(int deferred)
+{
+    new_whatsit(deferred ? late_special_node : special_node);
+    write_stream(tail) = null;
+    scan_toks(false, ! deferred);
+    write_tokens(tail) = def_ref;
+}
+
+static void do_extension_dvi(int immediate, int deferred)
 {
     if (scan_keyword("literal")) {
-        new_whatsit(special_node);
-        write_stream(tail) = null;
-        scan_toks(false, true);
-        write_tokens(tail) = def_ref;
+        /* immediate is the default here */
+        if (scan_keyword("shipout")) { 
+            deferred = 1;
+        }
+        do_extension_dvi_literal(deferred);
+    } else if (scan_keyword("lateliteral")) {
+        do_extension_dvi_literal(1);
     } else {
         tex_error("unexpected use of \\dviextension",null);
     }
 }
 
-static void do_extension_pdf(int immediate)
+static void do_extension_pdf_literal(int deferred)
+{
+    new_whatsit(deferred ? pdf_late_literal_node : pdf_literal_node);
+    if (scan_keyword("direct"))
+        set_pdf_literal_mode(tail, direct_always);
+    else if (scan_keyword("page"))
+        set_pdf_literal_mode(tail, direct_page);
+    else if (scan_keyword("text"))
+        set_pdf_literal_mode(tail, direct_text);
+    else if (scan_keyword("raw"))
+        set_pdf_literal_mode(tail, direct_raw);
+    else if (scan_keyword("origin"))
+        set_pdf_literal_mode(tail, set_origin);
+    else
+        set_pdf_literal_mode(tail, set_origin);
+    scan_toks(false, ! deferred);
+    set_pdf_literal_type(tail, normal);
+    set_pdf_literal_data(tail, def_ref);
+}
+
+static void do_extension_pdf(int immediate, int deferred)
 {
     int i;
     if (scan_keyword("literal")) {
-        new_whatsit(pdf_literal_node);
-        if (scan_keyword("direct"))
-            set_pdf_literal_mode(tail, direct_always);
-        else if (scan_keyword("page"))
-            set_pdf_literal_mode(tail, direct_page);
-        else if (scan_keyword("text"))
-            set_pdf_literal_mode(tail, direct_text);
-        else if (scan_keyword("raw"))
-            set_pdf_literal_mode(tail, direct_raw);
-        else if (scan_keyword("origin"))
-            set_pdf_literal_mode(tail, set_origin);
-        else
-            set_pdf_literal_mode(tail, set_origin);
-        scan_toks(false, true);
-        set_pdf_literal_type(tail, normal);
-        set_pdf_literal_data(tail, def_ref);
+        /* immediate is the default here */
+        if (scan_keyword("shipout")) { 
+            deferred = 1;
+        }
+        do_extension_pdf_literal(deferred);
+    } else if (scan_keyword("lateliteral")) {
+        do_extension_pdf_literal(1);
     } else if (scan_keyword("dest")) {
         scan_pdfdest(static_pdf);
     } else if (scan_keyword("annot")) {
@@ -341,7 +363,7 @@ static void do_resource_pdf(int immediate, int code)
 
     The extensions are backend related. The next subroutine uses |cur_chr| to
     decide what sort of whatsit is involved, and also inserts a |write_stream|
-    number.
+    number. 
 
 */
 
@@ -363,10 +385,17 @@ static void new_write_whatsit(int w, int check)
     write_stream(tail) = cur_val;
 }
 
-void do_extension(int immediate)
+/* 
+    Specials and literals are immediate by default but can be deferred as well. We have two prefixes that 
+    don't accumulate but trigger a next token pickup. Writes and resources are deferred by default. The 
+    (wish for a) shipout key scanner comes from similar features in the other engines. So, we're 
+    compatible but also conceptually a bit more consistent by introducing a |\deferred| prefix. 
+*/
+
+void do_extension(int immediate, int deferred)
 {
     /*tex All-purpose pointers. */
-    halfword k,p;
+    halfword k, p;
     if (cur_cmd == extension_cmd) {
         /*tex These have their own range starting at 0. */
         switch (cur_chr) {
@@ -431,17 +460,25 @@ void do_extension(int immediate)
                 /*tex
 
                     When `\.{\\special\{...\}}' appears, we expand the macros in
-                    the token list as in \.{\\xdef} and \.{\\mark}.
+                    the token list as in \.{\\xdef} and \.{\\mark}.  When marked with \.{shipout}, we keep
+                    tokens unexpanded for now.
 
                 */
-                new_whatsit(special_node);
+                if (scan_keyword("shipout")) {
+                    deferred = 1;
+                } 
+                new_whatsit(deferred ? late_special_node : special_node);
                 write_stream(tail) = null;
-                p = scan_toks(false, true);
+                p = scan_toks(false, ! deferred);
                 write_tokens(tail) = def_ref;
                 break;
-            case immediate_code:
+            case reserved_immediate_code:
                 get_x_token();
-                do_extension(1);
+                do_extension(1, 0);
+                break;
+            case reserved_deferred_code:
+                get_x_token();
+                do_extension(0, 1);
                 break;
             case end_local_code:
                 if (tracing_nesting_par > 2) {
@@ -467,11 +504,11 @@ void do_extension(int immediate)
             /*tex Backend extensions have their own range starting at 32. */
             case dvi_extension_code:
                 if (get_o_mode() == OMODE_DVI)
-                    do_extension_dvi(immediate);
+                    do_extension_dvi(immediate, deferred);
                 break;
             case pdf_extension_code:
                 if (get_o_mode() == OMODE_PDF)
-                    do_extension_pdf(immediate);
+                    do_extension_pdf(immediate, deferred);
                 break;
             /*tex Done. */
             default:
@@ -523,7 +560,7 @@ void expand_macros_in_tokenlist(halfword p)
     token_link(q) = r;
     token_info(r) = end_write_token;
     begin_token_list(q, inserted);
-    begin_token_list(write_tokens(p), write_text);
+    begin_token_list(p, write_text);
     q = get_avail();
     token_info(q) = left_brace_token + '{';
     begin_token_list(q, inserted);
@@ -573,7 +610,7 @@ void write_out(halfword p)
     lstring *s = NULL;
     int callback_id;
     int lua_retval;
-    expand_macros_in_tokenlist(p);
+    expand_macros_in_tokenlist(write_tokens(p));
     old_setting = selector;
     j = write_stream(p);
     if (file_can_be_written(j)) {

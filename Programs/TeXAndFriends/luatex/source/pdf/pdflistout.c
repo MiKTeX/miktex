@@ -274,6 +274,7 @@ static void handle_backend_whatsit(PDF pdf, halfword p, halfword parent_box, sca
     if (output_mode_used == OMODE_PDF) {
         switch (subtype(p)) {
             case pdf_literal_node:
+            case pdf_late_literal_node:
             case pdf_save_node:
             case pdf_restore_node:
             case pdf_setmatrix_node:
@@ -730,6 +731,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                 wrapup_leader(p);
                                 break;
                             case special_node:
+                            case late_special_node:
                                 /*tex |pdf_special(pdf, p)| */
                             case late_lua_node:
                                 /*tex |late_lua(pdf, p)| */
@@ -1103,6 +1105,7 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                             wrapup_leader(p);
                             break;
                         case special_node:
+                        case late_special_node:
                             /*tex |pdf_special(pdf, p)|; */
                         case late_lua_node:
                             /*tex |late_lua(pdf, p)|; */

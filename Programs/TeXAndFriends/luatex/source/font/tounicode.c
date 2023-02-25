@@ -305,6 +305,21 @@ static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp, internal
 }
 */
 
+static boolean is_last_byte_valid(int srcCode1, int srcCode2, long code)
+{
+    /*tex
+       Followin pdfTeX, when defining ranges of this type, the value of the last byte in the
+       string shall be less than or equal to 255 - (srcCode2 - srcCode1). This
+       ensures that the last byte of the string shall not be incremented past
+       255; otherwise, the result of mapping is undefined. 
+    */
+    char *s = strend(utf16be_str(code)) - 2;
+    long l = strtol(s, NULL, 16);
+    return l < 255 - (srcCode2 - srcCode1);
+}
+
+
+
 static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_font_number f)
 {
     char buf[SMALL_BUF_SIZE], *p, *s;
@@ -403,7 +418,8 @@ static int do_write_tounicode(PDF pdf, char **glyph_names, char *name, internal_
         } else {
             /*tex |gtab[i].code >= 0| */
             j = i;
-            while (i < 256 && gtab[i + 1].code >= 0 && gtab[i].code + 1 == gtab[i + 1].code)
+            while (i < 256 && gtab[i + 1].code >= 0 && gtab[i].code + 1 == gtab[i + 1].code && is_last_byte_valid(j, i, gtab[i].code)
+)
                 i++;
             /*tex
                 At this point |i| is the last entry of the subrange so we move |i| to

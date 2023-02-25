@@ -1790,13 +1790,12 @@ static int settex(lua_State * L)
                 }
             } else if (is_toks_assign(cur_cmd1)) {
                 if (lua_type(L,i) == LUA_TSTRING) {
-                    j = tokenlist_from_lua(L);  /* uses stack -1 */
+                    j = tokenlist_from_lua(L, -1);  /* uses stack -1 */
                     assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs1), j);
 
                 } else {
                     luaL_error(L, "unsupported value type");
                 }
-
             } else if (lua_istable(L, (i - 2))) {
                 /*
                     people may want to add keys that are also primitives |tex.wd| for example)

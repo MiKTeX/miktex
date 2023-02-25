@@ -1207,6 +1207,10 @@ static void cs_mark(const char *cs_name, int subr)
                     cc_clear();
                     mark_cs(standard_glyph_names[a1]);
                     mark_cs(standard_glyph_names[a2]);
+		    if (fd_cur->gl_tree != NULL) {
+		      avl_probe(fd_cur->gl_tree, standard_glyph_names[a1]);
+		      avl_probe(fd_cur->gl_tree, standard_glyph_names[a2]);
+		    }
                     break;
                 default:
                     if (cc->clear)

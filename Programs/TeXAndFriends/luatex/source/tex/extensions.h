@@ -42,7 +42,7 @@ extern scaled neg_ht;
 
 extern halfword write_loc;
 
-extern void do_extension(int immediate);
+extern void do_extension(int immediate, int deferred);
 
 /*
 User defined whatsits can be inserted into node lists to pass data
@@ -130,6 +130,7 @@ typedef enum {
     close_code,
     reserved_extension_code, // 3: we moved special below immediate //
     reserved_immediate_code, // 4: same number as main codes, expected value //
+    reserved_deferred_code,
     /* backend specific implementations */
     special_code,
     save_box_resource_code,

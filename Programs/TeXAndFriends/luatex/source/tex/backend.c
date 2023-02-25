@@ -32,7 +32,10 @@ static void init_pdf_backend_functions(void)
     p->node_fu[rule_node] = &pdf_place_rule;
     p->node_fu[glyph_node] = &pdf_place_glyph;
     p->whatsit_fu[special_node] = &pdf_special;
+    p->whatsit_fu[late_special_node] = &pdf_special;
+    p->whatsit_fu[late_lua_node] = &late_lua;
     p->whatsit_fu[pdf_literal_node] = &pdf_out_literal;
+    p->whatsit_fu[pdf_late_literal_node] = &pdf_out_literal;
     p->whatsit_fu[pdf_refobj_node] = &pdf_ref_obj;
     p->whatsit_fu[pdf_annot_node] = &do_annot;
     p->whatsit_fu[pdf_start_link_node] = &do_link;
@@ -40,7 +43,6 @@ static void init_pdf_backend_functions(void)
     p->whatsit_fu[pdf_dest_node] = &do_dest;
     p->whatsit_fu[pdf_thread_node] = &do_thread;
     p->whatsit_fu[pdf_end_thread_node] = &end_thread;
-    p->whatsit_fu[late_lua_node] = &late_lua;
     p->whatsit_fu[pdf_colorstack_node] = &pdf_out_colorstack;
     p->whatsit_fu[pdf_setmatrix_node] = &pdf_out_setmatrix;
     p->whatsit_fu[pdf_save_node] = &pdf_out_save;
@@ -63,6 +65,7 @@ static void init_dvi_backend_functions(void)
     p->node_fu[rule_node] = &dvi_place_rule;
     p->node_fu[glyph_node] = &dvi_place_glyph;
     p->whatsit_fu[special_node] = &dvi_special;
+    p->whatsit_fu[late_special_node] = &dvi_special;
     p->whatsit_fu[late_lua_node] = &late_lua;
     p->control_fu[backend_control_push_list] = &dvi_push_list;
     p->control_fu[backend_control_pop_list] = &dvi_pop_list;

@@ -624,7 +624,7 @@ static void run_par_token (void) {
 }
 
 static void run_extension (void) {
-    do_extension(0);
+    do_extension(0, 0);
 }
 
 static void run_normal (void) {

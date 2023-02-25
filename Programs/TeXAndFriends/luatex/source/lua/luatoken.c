@@ -386,30 +386,6 @@ static int get_cur_cmd(lua_State * L)
 }
 */
 
-static int token_from_lua(lua_State * L)
-{
-    int cmd, chr;
-    int cs = 0;
-    size_t len = lua_rawlen(L, -1);
-    if (len == 3 || len == 2) {
-        lua_rawgeti(L, -1, 1);
-        cmd = (int) lua_tointeger(L, -1);
-        lua_rawgeti(L, -2, 2);
-        chr = (int) lua_tointeger(L, -1);
-        if (len == 3) {
-            lua_rawgeti(L, -3, 3);
-            cs = (int) lua_tointeger(L, -1);
-        }
-        lua_pop(L, (int) len);
-        if (cs == 0) {
-            return token_val(cmd, chr);
-        } else {
-            return cs_token_flag + cs;
-        }
-    }
-    return -1;
-}
-
 /*
 static int get_cur_cs(lua_State * L)
 {
@@ -482,7 +458,7 @@ void tokenlist_to_luastring(lua_State * L, int p)
     free(s);
 }
 
-int tokenlist_from_lua(lua_State * L)
+int tokenlist_from_lua(lua_State * L, int index)
 {
     const char *s;
     int tok, t;
@@ -492,12 +468,12 @@ int tokenlist_from_lua(lua_State * L)
     token_info(r) = 0;
     token_link(r) = null;
     p = r;
-    t = lua_type(L, -1);
+    t = lua_type(L, index);
     if (t == LUA_TTABLE) {
-        j = lua_rawlen(L, -1);
+        j = lua_rawlen(L, index);
         if (j > 0) {
             for (i = 1; i <= j; i++) {
-                lua_rawgeti(L, -1, (int) i);
+                lua_rawgeti(L, index, (int) i);
                 tok = token_from_lua(L);
                 if (tok >= 0) {
                     store_new_token(tok);
@@ -507,7 +483,7 @@ int tokenlist_from_lua(lua_State * L)
         }
         return r;
     } else if (t == LUA_TSTRING) {
-        s = lua_tolstring(L, -1, &j);
+        s = lua_tolstring(L, index, &j);
         for (i = 0; i < j; i++) {
             if (s[i] == 32) {
                 tok = token_val(10, s[i]);

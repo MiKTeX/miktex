@@ -418,7 +418,10 @@ void free_user_lua(pointer p)
 void show_pdf_literal(pointer p)
 {
     int t = pdf_literal_type(p);
-    tprint_esc("pdfliteral");
+    if (subtype(p)==pdf_late_literal_node)
+        tprint_esc("pdflateliteral");
+    else 
+        tprint_esc("pdfliteral");
     switch (pdf_literal_mode(p)) {
         case set_origin:
             tprint(" origin");

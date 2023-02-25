@@ -1324,11 +1324,21 @@ void dvi_special(PDF pdf, halfword p)
     int old_setting;
     /*tex index into |cur_string| */
     unsigned k;
+    halfword h; 
     synch_dvi_with_pos(pdf->posstruct->pos);
     old_setting = selector;
+    if (subtype(p) == late_special_node ) {
+        expand_macros_in_tokenlist(special_tokens(p));
+        h = token_link(def_ref); 
+    } else { 
+        h = token_link(special_tokens(p));
+    }
     selector = new_string;
-    show_token_list(token_link(write_tokens(p)), null, -1);
+    show_token_list(h, null, -1);
     selector = old_setting;
+    if (subtype(p) == late_special_node ) {
+        flush_list(def_ref);
+    }
     if (cur_length < 256) {
         dvi_out(xxx1);
         dvi_out(cur_length);

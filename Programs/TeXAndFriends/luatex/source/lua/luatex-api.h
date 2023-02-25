@@ -162,7 +162,8 @@ extern int characters_from_lua(lua_State * L, int f); /* return is boolean */
 extern int luaopen_token(lua_State * L);
 extern void tokenlist_to_lua(lua_State * L, int p);
 extern void tokenlist_to_luastring(lua_State * L, int p);
-extern int tokenlist_from_lua(lua_State * L);
+extern int tokenlist_from_lua(lua_State * L, int i);
+extern int token_from_lua(lua_State * L);
 
 extern void lua_nodelib_push(lua_State * L);
 extern int nodelib_getdir(lua_State * L, int n);
@@ -1017,6 +1018,7 @@ make_lua_key(pdf_end_thread);\
 make_lua_key(pdf_link_data);\
 make_lua_key(pdf_link_state);\
 make_lua_key(pdf_literal);\
+make_lua_key(pdf_late_literal);\
 make_lua_key(pdf_refobj);\
 make_lua_key(pdf_restore);\
 make_lua_key(pdf_save);\
@@ -1125,6 +1127,7 @@ make_lua_key(spaceskip);\
 make_lua_key(span);\
 make_lua_key(spec);\
 make_lua_key(special);\
+make_lua_key(late_special);\
 make_lua_key(split_discards_head);\
 make_lua_key(split_insert);\
 make_lua_key(split_keep);\
@@ -1721,6 +1724,7 @@ init_lua_key(pdf_end_thread);\
 init_lua_key(pdf_link_data);\
 init_lua_key(pdf_link_state);\
 init_lua_key(pdf_literal);\
+init_lua_key(pdf_late_literal);\
 init_lua_key(pdf_refobj);\
 init_lua_key(pdf_restore);\
 init_lua_key(pdf_save);\
@@ -1825,6 +1829,7 @@ init_lua_key(spaceskip);\
 init_lua_key(span);\
 init_lua_key(spec);\
 init_lua_key(special);\
+init_lua_key(late_special);\
 init_lua_key(split_discards_head);\
 init_lua_key(split_insert);\
 init_lua_key(split_keep);\
@@ -2492,6 +2497,7 @@ use_lua_key(pdf_end_thread);
 use_lua_key(pdf_link_data);
 use_lua_key(pdf_link_state);
 use_lua_key(pdf_literal);
+use_lua_key(pdf_late_literal);
 use_lua_key(pdf_refobj);
 use_lua_key(pdf_restore);
 use_lua_key(pdf_save);
@@ -2600,6 +2606,7 @@ use_lua_key(spaceskip);
 use_lua_key(span);
 use_lua_key(spec);
 use_lua_key(special);
+use_lua_key(late_special);
 use_lua_key(split_discards_head);
 use_lua_key(split_insert);
 use_lua_key(split_keep);

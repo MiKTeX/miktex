@@ -352,7 +352,8 @@ typedef enum {
     gp_code_base = 7
 } font_codes ;
 
-#  define immediate_code 4      /* command modifier for \.{\\immediate} */
+#  define immediate_code 4   /* reserved_immediate_code */  /* command modifier for \.{\\immediate} */
+#  define deferred_code  5   /* reserved_deferred_code  */  /* command modifier for \.{\\deferred} */
 
 extern void initialize_commands(void);
 extern void initialize_etex_commands(void);

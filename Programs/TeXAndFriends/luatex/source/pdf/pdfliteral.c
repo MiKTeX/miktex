@@ -21,16 +21,32 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ptexlib.h"
 
+/* 
+    With these (new) late nodes we operate on write_tokens which happens to be 
+    equivalent to pdf_literal_data so it is somewhat confusing but cleaning this 
+    up now is asking for troubles. 
+*/
+
 void pdf_special(PDF pdf, halfword p)
 {
     int old_setting = selector;
     str_number s;
+    halfword h; 
+    if (subtype(p) == late_special_node) {
+        expand_macros_in_tokenlist(pdf_literal_data(p));
+        h = token_link(def_ref); 
+    } else { 
+        h = token_link(pdf_literal_data(p));
+    }
     selector = new_string;
-    show_token_list(token_link(write_tokens(p)), null, -1);
+    show_token_list(h, null, -1);
     selector = old_setting;
     s = make_string();
     pdf_literal(pdf, s, scan_special, true);
     flush_str(s);
+    if (subtype(p) == late_special_node) {
+        flush_list(def_ref);
+    }
 }
 
 /*tex
@@ -47,15 +63,25 @@ void pdf_out_literal(PDF pdf, halfword p)
     int old_setting;
     str_number s;
     int t = pdf_literal_type(p);
+    halfword h; 
     pdfstructure *ps = pdf->pstruct;
     if (t == normal) {
         old_setting = selector;
+        if (subtype(p) == pdf_late_literal_node) {
+            expand_macros_in_tokenlist(pdf_literal_data(p));
+            h = token_link(def_ref); 
+        } else { 
+            h = token_link(pdf_literal_data(p));
+        }
         selector = new_string;
-        show_token_list(token_link(pdf_literal_data(p)), null, -1);
+        show_token_list(h, null, -1);
         selector = old_setting;
         s = make_string();
         pdf_literal(pdf, s, pdf_literal_mode(p), false);
         flush_str(s);
+        if (subtype(p) == pdf_late_literal_node) {
+            flush_list(def_ref);
+        }
     } else if (t == lua_refid_literal) {
         switch (pdf_literal_mode(p)) {
             case set_origin:

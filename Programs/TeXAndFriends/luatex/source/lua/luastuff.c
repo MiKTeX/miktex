@@ -600,7 +600,7 @@ void late_lua(PDF pdf, halfword p)
     t = late_lua_type(p);
     if (t == normal) {
         /*tex sets |def_ref| */
-        expand_macros_in_tokenlist(p);
+        expand_macros_in_tokenlist(late_lua_data(p));
         luacall(def_ref, late_lua_name(p), false, p);
         flush_list(def_ref);
     } else if (t == lua_refid_call) {

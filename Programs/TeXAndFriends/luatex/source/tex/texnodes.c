@@ -961,12 +961,12 @@ node_info whatsit_node_data[] = {
     { write_node,            write_node_size,          NULL, node_fields_whatsit_write,            NULL, -1, 0 },
     { close_node,            close_node_size,          NULL, node_fields_whatsit_close,            NULL, -1, 0 },
     { special_node,          special_node_size,        NULL, node_fields_whatsit_special,          NULL, -1, 0 },
+    { late_special_node,     special_node_size,        NULL, node_fields_whatsit_special,          NULL, -1, 0 },
     { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
     { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
     { save_pos_node,         save_pos_node_size,       NULL, node_fields_whatsit_save_pos,         NULL, -1, 0 },
     { late_lua_node,         late_lua_node_size,       NULL, node_fields_whatsit_late_lua,         NULL, -1, 0 },
     { user_defined_node,     user_defined_node_size,   NULL, node_fields_whatsit_user_defined,     NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
     { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
     { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
     { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
@@ -980,7 +980,8 @@ node_info whatsit_node_data[] = {
 
     /*tex Here starts the \PDF\ backend section, todo: a separate list.  */
 
-    { pdf_literal_node,      write_node_size,          NULL, node_fields_whatsit_pdf_literal,      NULL, -1, 0 },
+    { pdf_literal_node,      literal_node_size,        NULL, node_fields_whatsit_pdf_literal,      NULL, -1, 0 },
+    { pdf_late_literal_node, literal_node_size,        NULL, node_fields_whatsit_pdf_literal,      NULL, -1, 0 },
     { pdf_refobj_node,       pdf_refobj_node_size,     NULL, node_fields_whatsit_pdf_refobj,       NULL, -1, 0 },
     { pdf_annot_node,        pdf_annot_node_size,      NULL, node_fields_whatsit_pdf_annot,        NULL, -1, 0 },
     { pdf_start_link_node,   pdf_annot_node_size,      NULL, node_fields_whatsit_pdf_start_link,   NULL, -1, 0 },
@@ -1009,6 +1010,7 @@ void l_set_whatsit_data(void) {
     init_node_key(whatsit_node_data, write_node,        write)
     init_node_key(whatsit_node_data, close_node,        close)
     init_node_key(whatsit_node_data, special_node,      special)
+    init_node_key(whatsit_node_data, late_special_node, late_special)
     init_node_key(whatsit_node_data, save_pos_node,     save_pos)
     init_node_key(whatsit_node_data, late_lua_node,     late_lua)
     init_node_key(whatsit_node_data, user_defined_node, user_defined)
@@ -1050,6 +1052,7 @@ void l_set_whatsit_data(void) {
     init_field_nop(node_fields_whatsit_write, 3);
 
     init_node_key(whatsit_node_data, pdf_literal_node,     pdf_literal)
+    init_node_key(whatsit_node_data, pdf_late_literal_node,pdf_late_literal)
     init_node_key(whatsit_node_data, pdf_refobj_node,      pdf_refobj)
     init_node_key(whatsit_node_data, pdf_annot_node,       pdf_annot)
     init_node_key(whatsit_node_data, pdf_start_link_node,  pdf_start_link)
@@ -1942,6 +1945,7 @@ static void copy_node_wrapup_core(halfword p, halfword r)
     switch (subtype(p)) {
         case write_node:
         case special_node:
+        case late_special_node:
             add_token_ref(write_tokens(p));
             break;
         case late_lua_node:
@@ -1980,6 +1984,7 @@ void copy_node_wrapup_pdf(halfword p, halfword r)
 {
     switch(subtype(p)) {
         case pdf_literal_node:
+        case pdf_late_literal_node:
             copy_pdf_literal(r, p);
             break;
         case pdf_colorstack_node:
@@ -2196,12 +2201,15 @@ static void flush_node_wrapup_core(halfword p)
 {
     switch (subtype(p)) {
         case open_node:
-        case write_node:
         case close_node:
         case save_pos_node:
             break;
+        case write_node:
+            /* Not similar to elsewhere, already flushed? */
+            break;
         case special_node:
-            delete_token_ref(write_tokens(p));
+        case late_special_node:
+            delete_token_ref(special_tokens(p));
             break;
         case late_lua_node:
             free_late_lua(p);
@@ -2257,6 +2265,7 @@ void flush_node_wrapup_pdf(halfword p)
         case pdf_end_thread_node:
             break;
         case pdf_literal_node:
+        case pdf_late_literal_node:
             free_pdf_literal(p);
             break;
         case pdf_colorstack_node:
@@ -2481,6 +2490,7 @@ static void check_node_wrapup_core(halfword p)
     switch (subtype(p)) {
         /*tex Frontend code. */
         case special_node:
+        case late_special_node:
             check_token_ref(p);
             break;
         case user_defined_node:
@@ -2519,6 +2529,7 @@ void check_node_wrapup_pdf(halfword p)
 {
     switch (subtype(p)) {
         case pdf_literal_node:
+        case pdf_late_literal_node:
             if (pdf_literal_type(p) == normal)
                 check_token_ref(p);
             break;
@@ -3473,7 +3484,11 @@ static void show_node_wrapup_core(int p)
             break;
         case special_node:
             tprint_esc("special");
-            print_mark(write_tokens(p));
+            print_mark(special_tokens(p));
+            break;
+        case late_special_node:
+            tprint_esc("latespecial");
+            print_mark(late_lua_data(p));
             break;
         case late_lua_node:
             show_late_lua(p);
@@ -3518,6 +3533,7 @@ void show_node_wrapup_pdf(int p)
 {
     switch (subtype(p)) {
         case pdf_literal_node:
+        case pdf_late_literal_node:
             show_pdf_literal(p);
             break;
         case pdf_colorstack_node:

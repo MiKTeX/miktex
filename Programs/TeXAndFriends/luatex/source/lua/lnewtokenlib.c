@@ -124,6 +124,41 @@ lua_token *check_istoken(lua_State * L, int ud)
     return NULL;
 }
 
+/* moved here */
+
+int token_from_lua(lua_State * L)
+{
+    int cmd, chr;
+    int cs = 0;
+    size_t len;
+    lua_token *p;
+    if (lua_type(L, -1) == LUA_TTABLE) {
+        len = lua_rawlen(L, -1);
+        if (len == 3 || len == 2) {
+            lua_rawgeti(L, -1, 1);
+            cmd = (int) lua_tointeger(L, -1);
+            lua_rawgeti(L, -2, 2);
+            chr = (int) lua_tointeger(L, -1);
+            if (len == 3) {
+                lua_rawgeti(L, -3, 3);
+                cs = (int) lua_tointeger(L, -1);
+            }
+            lua_pop(L, (int) len);
+            if (cs == 0) {
+                return token_val(cmd, chr);
+            } else {
+                return cs_token_flag + cs;
+            }
+        }
+    } else { 
+        p = check_istoken(L, -1);
+        if (p) {
+            return token_info(p->token);
+        }
+    }
+    return -1;
+}
+
 /* token library functions */
 
 static void make_new_token(lua_State * L, int cmd, int chr, int cs)

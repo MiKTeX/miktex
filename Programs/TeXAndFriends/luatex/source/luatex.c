@@ -332,7 +332,7 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
     free(buf);
 
     /*
-        Is *cmdname listed in a texmf.cnf vriable as shell_escape_commands =
+        Is *cmdname listed in a texmf.cnf variable as shell_escape_commands =
         foo,bar,... ?
     */
     p = cmdlist;
