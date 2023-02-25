@@ -1,5 +1,5 @@
 % Copyright (c) 1994-2008 by SIL International
-% Copyright (c) 2009-2022 by Jonathan Kew
+% Copyright (c) 2009-2023 by Jonathan Kew
 % Copyright (c) 2010-2012 by Han The Thanh
 % Copyright (c) 2012-2013 by Khaled Hosny
 
@@ -319,8 +319,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".999994" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.999994' {current \XeTeX\ version}
+@d XeTeX_revision==".999995" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.999995' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.141592653',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}
@@ -22995,8 +22995,16 @@ end;
 @ @<Insert glue for |split_top_skip|...@>=
 begin q:=new_skip_param(split_top_skip_code); link(prev_p):=q; link(q):=p;
   {now |temp_ptr=glue_ptr(q)|}
-if width(temp_ptr)>height(p) then width(temp_ptr):=width(temp_ptr)-height(p)
-else width(temp_ptr):=0;
+if XeTeX_upwards then
+  begin
+    if width(temp_ptr)>depth(p) then width(temp_ptr):=width(temp_ptr)-depth(p)
+    else width(temp_ptr):=0;
+  end
+else
+  begin
+    if width(temp_ptr)>height(p) then width(temp_ptr):=width(temp_ptr)-height(p)
+    else width(temp_ptr):=0;
+  end;
 p:=null;
 end
 
@@ -23632,8 +23640,16 @@ endcases
 begin if page_contents=empty then freeze_page_specs(box_there)
 else page_contents:=box_there;
 q:=new_skip_param(top_skip_code); {now |temp_ptr=glue_ptr(q)|}
-if width(temp_ptr)>height(p) then width(temp_ptr):=width(temp_ptr)-height(p)
-else width(temp_ptr):=0;
+if XeTeX_upwards then
+  begin
+    if width(temp_ptr)>depth(p) then width(temp_ptr):=width(temp_ptr)-depth(p)
+    else width(temp_ptr):=0;
+  end
+else
+  begin
+    if width(temp_ptr)>height(p) then width(temp_ptr):=width(temp_ptr)-height(p)
+    else width(temp_ptr):=0;
+  end;
 link(q):=p; link(contrib_head):=q; goto continue;
 end
 
@@ -29551,7 +29567,8 @@ to hold the string numbers for name, area, and extension.
 @d write_node=1 {|subtype| in whatsits that represent things to \.{\\write}}
 @d close_node=2 {|subtype| in whatsits that represent streams to \.{\\closeout}}
 @d special_node=3 {|subtype| in whatsits that represent \.{\\special} things}
-@d language_node=4 {|subtype| in whatsits that change the current language}
+@d latespecial_node=4 {|subtype| in whatsits that represent \.{\\special} things}
+@d language_node=5 {|subtype| in whatsits that change the current language}
 @d what_lang(#)==link(#+1) {language number, in the range |0..255|}
 @d what_lhm(#)==type(#+1) {minimum left fragment, in the range |1..63|}
 @d what_rhm(#)==subtype(#+1) {minimum right fragment, in the range |1..63|}
@@ -29578,13 +29595,13 @@ for k:=0 to 17 do write_open[k]:=false;
 |extension| with a modifier, whenever possible, so that |main_control|
 stays the same.
 
-@d immediate_code=4 {command modifier for \.{\\immediate}}
-@d set_language_code=5 {command modifier for \.{\\setlanguage}}
+@d immediate_code=5 {command modifier for \.{\\immediate}}
+@d set_language_code=6 {command modifier for \.{\\setlanguage}}
 
-@d pdftex_first_extension_code = 6
-@d pdf_save_pos_node           == pdftex_first_extension_code + 15
-@d reset_timer_code            == pdftex_first_extension_code + 25
-@d set_random_seed_code        == pdftex_first_extension_code + 27
+@d pdftex_first_extension_code = 7
+@d pdf_save_pos_node           == pdftex_first_extension_code + 16
+@d reset_timer_code            == pdftex_first_extension_code + 26
+@d set_random_seed_code        == pdftex_first_extension_code + 28
 
 @d pic_file_code=41 { command modifier for \.{\\XeTeXpicfile}, skipping codes pdfTeX might use }
 @d pdf_file_code=42 { command modifier for \.{\\XeTeXpdffile} }
@@ -29732,12 +29749,17 @@ begin new_write_whatsit(write_node_size); write_tokens(tail):=null;
 end
 
 @ When `\.{\\special\{...\}}' appears, we expand the macros in the token
-list as in \.{\\xdef} and \.{\\mark}.
+list as in \.{\\xdef} and \.{\\mark}.  When marked with \.{shipout}, we keep
+tokens unexpanded for now.
 
 @<Implement \.{\\special}@>=
+begin if scan_keyword("shipout") then
+begin new_whatsit(latespecial_node,write_node_size); write_stream(tail):=null;
+p:=scan_toks(false,false); write_tokens(tail):=def_ref;
+end else
 begin new_whatsit(special_node,write_node_size); write_stream(tail):=null;
 p:=scan_toks(false,true); write_tokens(tail):=def_ref;
-end
+end; end
 
 @ @d call_func(#) == begin if # <> 0 then do_nothing end
 @d flushable(#) == (# = str_ptr - 1)
@@ -29884,6 +29906,9 @@ close_node:print_write_whatsit("closeout",p);
 special_node:begin print_esc("special");
   print_mark(write_tokens(p));
   end;
+latespecial_node:begin print_esc("special"); print(" shipout");
+  print_mark(write_tokens(p));
+  end;
 language_node:begin print_esc("setlanguage");
   print_int(what_lang(p)); print(" (hyphenmin ");
   print_int(what_lhm(p)); print_char(",");
@@ -29916,7 +29941,7 @@ endcases
 case subtype(p) of
 open_node: begin r:=get_node(open_node_size); words:=open_node_size;
   end;
-write_node,special_node: begin r:=get_node(write_node_size);
+write_node,special_node,latespecial_node: begin r:=get_node(write_node_size);
   add_token_ref(write_tokens(p)); words:=write_node_size;
   end;
 close_node,language_node: begin r:=get_node(small_node_size);
@@ -29944,7 +29969,7 @@ endcases
 @ @<Wipe out the whatsit...@>=
 begin case subtype(p) of
 open_node: free_node(p,open_node_size);
-write_node,special_node: begin delete_token_ref(write_tokens(p));
+write_node,special_node,latespecial_node: begin delete_token_ref(write_tokens(p));
   free_node(p,write_node_size); goto done;
   end;
 close_node,language_node: free_node(p,small_node_size);
@@ -30226,10 +30251,20 @@ that actually send out the requested data. Let's do \.{\\special} first
 procedure special_out(@!p:pointer);
 var old_setting:0..max_selector; {holds print |selector|}
 @!k:pool_pointer; {index into |str_pool|}
+@!h:halfword;
+@!q,@!r:pointer; {temporary variables for list manipulation}
+@!old_mode:integer; {saved |mode|}
 begin synch_h; synch_v;@/
 doing_special:=true;
-old_setting:=selector; selector:=new_string;
-show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
+old_setting:=selector;
+if subtype(p)=latespecial_node then
+  begin @<Expand macros in the token list
+    and make |link(def_ref)| point to the result@>;
+    h:=def_ref;
+  end
+else h:=write_tokens(p);
+selector:=new_string;
+show_token_list(link(h),null,pool_size-pool_ptr);
 selector:=old_setting;
 str_room(1);
 if cur_length<256 then
@@ -30239,6 +30274,8 @@ else  begin dvi_out(xxx4); dvi_four(cur_length);
   end;
 for k:=str_start_macro(str_ptr) to pool_ptr-1 do dvi_out(so(str_pool[k]));
 pool_ptr:=str_start_macro(str_ptr); {erase the string}
+if subtype(p)=latespecial_node then
+  flush_list(def_ref);
 doing_special:=false;
 end;
 
@@ -30355,7 +30392,7 @@ var j:small_number; {write stream number}
 begin case subtype(p) of
 open_node,write_node,close_node:@<Do some work that has been queued up
   for \.{\\write}@>;
-special_node:special_out(p);
+special_node,latespecial_node:special_out(p);
 language_node:do_nothing;
 othercases confusion("ext4")
 @:this can't happen ext4}{\quad ext4@>

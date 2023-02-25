@@ -5,7 +5,8 @@
 ### Upgraded programs
 
 * pdftex 1.40.25
-
+* xetex 0.999995
+ 
 ## 23.1 - 2023-1-28
 
 ### Upgraded programs
