@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX-pdfTeX
  *
- * @copyright Copyright © 1998-2022 Christian Schenk
+ * @copyright Copyright © 1998-2023 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -79,6 +79,7 @@ public:
         AllocateArray("pdffontefbase", program.pdffontefbase, nFonts);
         AllocateArray("pdffontelink", program.pdffontelink, nFonts);
         AllocateArray("pdffontexpandratio", program.pdffontexpandratio, nFonts);
+        AllocateArray("pdffonthasspacechar", program.pdffonthasspacechar, nFonts);
         AllocateArray("pdffontknacbase", program.pdffontknacbase, nFonts);
         AllocateArray("pdffontknbcbase", program.pdffontknbcbase, nFonts);
         AllocateArray("pdffontknbsbase", program.pdffontknbsbase, nFonts);
@@ -118,6 +119,7 @@ public:
         FreeArray("pdffontefbase", program.pdffontefbase);
         FreeArray("pdffontelink", program.pdffontelink);
         FreeArray("pdffontexpandratio", program.pdffontexpandratio);
+        FreeArray("pdffonthasspacechar", program.pdffonthasspacechar);
         FreeArray("pdffontknacbase", program.pdffontknacbase);
         FreeArray("pdffontknbcbase", program.pdffontknbcbase);
         FreeArray("pdffontknbsbase", program.pdffontknbsbase);

@@ -1,6 +1,6 @@
 /* mapfile.c: handling of map files/lines
 
-Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2023 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -663,6 +663,25 @@ boolean isscalable(internalfontnumber f)
     return hasfmentry(f) && (!is_pk((fm_entry *)pdffontmap[f]));
 }
 
+boolean hasspacechar(internalfontnumber f)
+{
+    fm_entry *fm;
+    fe_entry *fe;
+    if (!isscalable(f))
+        return false;
+
+    fm = (fm_entry *)pdffontmap[f];
+
+    /* if a font is not re-encoded via its map entry, we assume it has no space char */
+    if (is_reencoded(fm) && (fe = get_fe_entry(fm->encname)) != NULL) {
+        char *s = fe->glyph_names[32];
+        assert(s != NULL);
+        if (strcmp(s, "space") == 0)
+            return true;
+    }
+    return false;
+}
+
 /* check whether a map entry is valid for font replacement */
 
 static boolean fm_valid_for_font_replacement(fm_entry * fm)
@@ -846,6 +865,11 @@ void pdfmapline(integer t)
 {
     process_map_item(makecstring(tokenstostring(t)), MAPLINE);
     flushstr(lasttokensstring);
+}
+
+void pdfmaplinesp(void)
+{
+    process_map_item("=pdftexspace PdfTeX-Space <pdftexspace.pfb", MAPLINE);
 }
 
 void pdfinitmapfile(const_string map_name)

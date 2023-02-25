@@ -1,4 +1,4 @@
-% Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+% Copyright 1996-2023 Han The Thanh, <thanh@pdftex.org>
 %
 % This file is part of pdfTeX.
 %
@@ -179,6 +179,7 @@ pdf_font_type:=xmalloc_array(eight_bits, font_max);
 pdf_font_attr:=xmalloc_array(str_number, font_max);
 pdf_font_blink:=xmalloc_array(internal_font_number, font_max);
 pdf_font_elink:=xmalloc_array(internal_font_number, font_max);
+pdf_font_has_space_char:=xmalloc_array(internal_font_number, font_max);
 pdf_font_stretch:=xmalloc_array(integer, font_max);
 pdf_font_shrink:=xmalloc_array(integer, font_max);
 pdf_font_step:=xmalloc_array(integer, font_max);
@@ -209,6 +210,7 @@ for font_k := font_base to font_max do begin
     pdf_font_attr[font_k] := "";
     pdf_font_blink[font_k] := null_font;
     pdf_font_elink[font_k] := null_font;
+    pdf_font_has_space_char[font_k] := false;
     pdf_font_stretch[font_k] := null_font;
     pdf_font_shrink[font_k] := null_font;
     pdf_font_step[font_k] := 0;
@@ -296,6 +298,7 @@ pdf_font_type:=xmalloc_array(eight_bits,font_max);
 pdf_font_attr:=xmalloc_array(str_number,font_max);
 pdf_font_blink:=xmalloc_array(internal_font_number,font_max);
 pdf_font_elink:=xmalloc_array(internal_font_number,font_max);
+pdf_font_has_space_char:=xmalloc_array(internal_font_number,font_max);
 pdf_font_stretch:=xmalloc_array(integer,font_max);
 pdf_font_shrink:=xmalloc_array(integer,font_max);
 pdf_font_step:=xmalloc_array(integer,font_max);
@@ -326,6 +329,7 @@ for font_k := font_base to font_max do begin
     pdf_font_attr[font_k] := "";
     pdf_font_blink[font_k] := null_font;
     pdf_font_elink[font_k] := null_font;
+    pdf_font_has_space_char[font_k] := false;
     pdf_font_stretch[font_k] := null_font;
     pdf_font_shrink[font_k] := null_font;
     pdf_font_step[font_k] := 0;

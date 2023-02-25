@@ -1,5 +1,5 @@
 /* ptexlib.h: macros for pdfTeX library code.
-Copyright 1996-2021 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2023 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -215,11 +215,13 @@ extern const char *ptexbanner;
 /* mapfile.c */
 extern boolean hasfmentry(internalfontnumber);
 extern boolean isscalable(internalfontnumber);
+extern boolean hasspacechar(internalfontnumber);
 extern void fm_free(void);
 extern void fm_read_info(void);
 extern ff_entry *check_ff_exist(char *, boolean);
 extern void pdfmapfile(integer);
 extern void pdfmapline(integer);
+extern void pdfmaplinesp(void);
 extern void pdfinitmapfile(const_string map_name);
 extern fm_entry *new_fm_entry(void);
 extern void delete_fm_entry(fm_entry *);

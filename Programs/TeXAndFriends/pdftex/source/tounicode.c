@@ -1,5 +1,5 @@
 /*
-Copyright 2006-2021 Han The Thanh, <thanh@pdftex.org>
+Copyright 2006-2023 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -189,7 +189,7 @@ static char *utf16be_str(long code)
  * taking into account tfmname; in case it returns
  * gp->code == UNI_EXTRA_STRING then the caller is responsible for freeing
  * gp->unicode_seq too */
-static void set_glyph_unicode(const char *s, const char* tfmname, 
+static void set_glyph_unicode(const char *s, const char* tfmname,
                               glyph_unicode_entry *gp)
 {
     char buf[SMALL_BUF_SIZE], buf2[SMALL_BUF_SIZE], *p;
@@ -330,6 +330,19 @@ static void set_glyph_unicode(const char *s, const char* tfmname,
     }
 }
 
+static boolean is_last_byte_valid(int srcCode1, int srcCode2, long code)
+{
+    /*
+       When defining ranges of this type, the value of the last byte in the
+       string shall be less than or equal to 255 - (srcCode2 - srcCode1). This
+       ensures that the last byte of the string shall not be incremented past
+       255; otherwise, the result of mapping is undefined.
+    */
+    char *s = strend(utf16be_str(code)) - 2;
+    long l = strtol(s, NULL, 16);
+    return l < 255 - (srcCode2 - srcCode1);
+}
+
 
 /* tfmname is without .tfm extension, but encname ends in .enc; */
 integer write_tounicode(char **glyph_names, const char *tfmname,
@@ -362,7 +375,7 @@ integer write_tounicode(char **glyph_names, const char *tfmname,
             pdftex_warn("Dubious encoding file name: `%s'", encname);
     } else { /* this is a builtin encoding, so name is e.g. "cmr10-builtin" */
         assert(strlen(tfmname) + strlen(builtin_suffix) + 1 < SMALL_BUF_SIZE);
-        strcat(buf, builtin_suffix);    
+        strcat(buf, builtin_suffix);
     }
 
     objnum = pdfnewobjnum();
@@ -405,8 +418,10 @@ integer write_tounicode(char **glyph_names, const char *tfmname,
             i++;
         } else {                /* gtab[i].code >= 0 */
             j = i;
-            while (i < 256 && gtab[i + 1].code >= 0 &&
-                   gtab[i].code + 1 == gtab[i + 1].code)
+            while (i < 256 && gtab[i + 1].code >= 0
+                    && gtab[i].code + 1 == gtab[i + 1].code
+                    && is_last_byte_valid(j, i, gtab[i].code)
+                  )
                 i++;
             /* at this point i is the last entry of the subrange */
             i++;                /* move i to the next entry */

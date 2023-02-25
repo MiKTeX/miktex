@@ -307,8 +307,8 @@ known as `\eTeX'.
   {printed when \eTeX\ starts}
 @#
 @d pdftex_version==140 { \.{\\pdftexversion} }
-@d pdftex_revision=="24" { \.{\\pdftexrevision} }
-@d pdftex_version_string=='-1.40.24' {current \pdfTeX\ version}
+@d pdftex_revision=="25" { \.{\\pdftexrevision} }
+@d pdftex_version_string=='-1.40.25' {current \pdfTeX\ version}
 @#
 @d pdfTeX_banner=='This is pdfTeX, Version 3.141592653',eTeX_version_string,pdftex_version_string
    {printed when \pdfTeX\ starts}
@@ -15225,11 +15225,6 @@ begin
     get_slant := slant(f);
 end;
 
-function new_dummy_font: internal_font_number;
-begin
-    new_dummy_font := read_font_info(null_cs, "dummy", "", -1000);
-end;
-
 @ Helper for debugging purposes:
 
 @p procedure short_display_n(@!p, m:integer); {prints highlights of list |p|}
@@ -15783,6 +15778,8 @@ accuracy.
 @!scaled_out: integer; {amount of |scaled| that was taken out in
 |divide_scaled|}
 @!init_pdf_output: boolean;
+@!adv_char_width_s: integer; {to save result of calculation done in |adv_char_width| }
+@!adv_char_width_s_out: scaled;
 
 @ @<Set init...@>=
 one_bp := 65782; {65781.76}
@@ -15869,27 +15866,30 @@ For PK fonts things are more complicated,
 as we have to deal with scaling bitmaps as well.
 
 @p
-procedure adv_char_width(f: internal_font_number; c: eight_bits); {update |pdf_h|
-by character width |w| from font |f|}
+procedure adv_char_width(f: internal_font_number; c: eight_bits; dd: eight_bits);
+{update |pdf_delta_h| by character width |w| from font |f|}
 var w, s_out: scaled;
     s: integer;
 begin
     w := char_width(f)(char_info(f)(c));
     if isscalable(f) then begin
         if pdf_cur_Tm_a = 0 then begin
-            call_func(divide_scaled(w, pdf_font_size[f], 4));
-            pdf_delta_h := pdf_delta_h + scaled_out;
+            s := divide_scaled(w, pdf_font_size[f], dd);
+            s_out := scaled_out;
+            pdf_delta_h := pdf_delta_h + s_out;
         end
         else begin
             s := divide_scaled(round_xn_over_d(w, 1000, 1000 + pdf_cur_Tm_a),
                                pdf_font_size[f],
-                               4);
+                               dd);
             s_out := round_xn_over_d(round_xn_over_d(pdf_font_size[f], abs(s), 10000),
                                      1000 + pdf_cur_Tm_a, 1000);
             if s < 0 then
                 s_out := -s_out;
             pdf_delta_h := pdf_delta_h + s_out;
         end;
+        adv_char_width_s := s;
+        adv_char_width_s_out := s_out;
     end else
         pdf_delta_h := pdf_delta_h + get_pk_char_width(f, w);
 end;
@@ -15967,7 +15967,6 @@ DVI}
 @!pdf_last_f: internal_font_number; {last font in PDF output page}
 @!pdf_last_fs: internal_font_number; {last font size in PDF output page}
 @!pdf_dummy_font: internal_font_number; {font used to insert artificial interword spaces}
-
 
 @ Following procedures implement low-level subroutines to convert \TeX{}
 internal structures to PDF page description.
@@ -16121,6 +16120,7 @@ begin
 
     {create a new font object for |f|}
     pdf_create_obj(obj_type_font, f);
+    pdf_font_has_space_char[f] := hasspacechar(f);
     pdf_use_font(f, obj_ptr);
 end;
 
@@ -16177,7 +16177,8 @@ end;
 procedure pdf_read_dummy_font;
 begin
     if pdf_dummy_font = null_font then begin
-        pdf_dummy_font := read_font_info(null_cs, "dummy-space", "", one_bp);
+        pdf_dummy_font := read_font_info(null_cs, pdf_space_font_name, "", -1000);
+        pdfmaplinesp;
         pdf_mark_char(pdf_dummy_font, 32);
     end;
 end;
@@ -16192,6 +16193,7 @@ end;
 
 procedure pdf_begin_string(f: internal_font_number); {begin to draw a string}
 var s_out, v, v_out: scaled;
+    save_pdf_delta_h: scaled;
     s: integer;
     must_end_string: boolean;  {must we end the current string?}
     must_insert_space: boolean;  {must we insert an interword space?}
@@ -16233,29 +16235,37 @@ begin
     must_insert_space := false;
     must_end_string := false;
 
-@{    print_nl("s_out = "); print_scaled(s_out); @}
-@{    print_nl("space(f) = "); print_scaled(space(f)); @}
-@{    print_nl("space_shrink(f) = "); print_scaled(space_shrink(f)); @}
-@{    print_nl("x_height(f) = "); print_scaled(x_height(f)); @}
-@{    print_nl("v = "); print_scaled(v); @}
-@{    print_nl("v_out = "); print_scaled(v_out); @}
+    if (f <> pdf_f) or (v <> 0) or (abs(s) >= @'100000) then begin
+        must_end_string := true;
+    end;
 
-    if gen_faked_interword_space and
-        pdf_doing_string and
-        ((abs(v_out) > 2*x_height(f)) or
-         (s_out > space(f) - space_shrink(f)) or
-         ((f <> pdf_f) and (v = 0))) then
-    begin
+    if gen_faked_interword_space
+        and pdf_doing_string
+        and (not must_end_string)
+        and (s_out > space(f) - space_shrink(f))
+        and (v = 0)
+    then begin
         must_insert_space := true;
     end;
 
-    if (f <> pdf_f) or (v <> 0) or (abs(s) >= @'100000) or must_insert_space then begin
-        must_end_string := true;
+    if (must_insert_space) then begin
+        {insert a real space char from the font when possible}
+        if pdf_font_has_space_char[f]  then begin
+            pdf_out(" ");
+            save_pdf_delta_h := pdf_delta_h;
+            adv_char_width(f, 32, 3); { to get |adv_char_width_s| and |adv_char_width_s_out|}
+            s := s - adv_char_width_s;
+            s_out := s_out - adv_char_width_s_out;
+            pdf_mark_char(f, 32);
+        end
+        else
+            must_end_string := true;
     end;
 
     if must_end_string then begin
         pdf_end_string;
-        if must_insert_space then begin
+        {insert a space char from the dummy font if needed}
+        if (must_insert_space) and (not pdf_font_has_space_char[f]) then begin
             pdf_insert_interword_space; {this will change |pdf_f|}
             pdf_set_font(f);
         end;
@@ -18373,7 +18383,7 @@ end;
     else begin
         pdf_begin_string(f);
         pdf_print_char(f, #);
-        adv_char_width(f, #);
+        adv_char_width(f, #, 4);
     end;
 end
 
@@ -18501,6 +18511,7 @@ need to declare some procedures needed in |pdf_hlist_out| and |pdf_vlist_out|.
 procedure pdf_out_literal(p:pointer);
 var old_setting:0..max_selector; {holds print |selector|}
     s: str_number;
+    h: halfword;
     @!q,@!r:pointer; {temporary variables for list manipulation}
     @!old_mode:integer; {saved |mode|}
 begin
@@ -18508,14 +18519,17 @@ begin
     if subtype(p)=pdf_lateliteral_node then
       begin @<Expand macros in the token list
         and make |link(def_ref)| point to the result@>;
-      pdf_literal_data(p):=def_ref;
-      end;
+      h:=def_ref;
+      end
+    else h:=pdf_literal_data(p);
     selector:=new_string;
-    show_token_list(link(pdf_literal_data(p)),null,pool_size-pool_ptr);
+    show_token_list(link(h),null,pool_size-pool_ptr);
     selector:=old_setting;
     s := make_string;
     literal(s, pdf_literal_mode(p), false);
     flush_str(s);
+    if subtype(p)=pdf_lateliteral_node then
+      flush_list(def_ref);
 end;
 
 procedure pdf_out_colorstack(p:pointer);
@@ -18626,6 +18640,7 @@ end;
 procedure pdf_special(p: pointer);
 var old_setting:0..max_selector; {holds print |selector|}
     s: str_number;
+    h: halfword;
     @!q,@!r:pointer; {temporary variables for list manipulation}
     @!old_mode:integer; {saved |mode|}
 begin
@@ -18634,14 +18649,17 @@ begin
     if subtype(p)=latespecial_node then
       begin @<Expand macros in the token list
         and make |link(def_ref)| point to the result@>;
-      write_tokens(p):=def_ref;
-      end;
+        h:=def_ref;
+      end
+    else h:=write_tokens(p);
     selector:=new_string;
-    show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
+    show_token_list(link(h),null,pool_size-pool_ptr);
     selector:=old_setting;
     s := make_string;
     literal(s, scan_special, true);
     flush_str(s);
+    if subtype(p)=latespecial_node then
+      flush_list(def_ref);
 end;
 
 procedure pdf_print_toks(p: pointer); {print tokens list |p|}
@@ -20511,6 +20529,7 @@ location |adjust_tail|.
 @ @<Glob...@>=
 @!pdf_font_blink: ^internal_font_number; {link to base font (used for expanded fonts only)}
 @!pdf_font_elink: ^internal_font_number; {link to expanded fonts (used for base fonts only)}
+@!pdf_font_has_space_char: ^boolean; {has font a real space char?}
 @!pdf_font_stretch: ^integer; {link to font expanded by stretch limi}
 @!pdf_font_shrink: ^integer; {link to font expanded by shrink limit}
 @!pdf_font_step: ^integer;  {amount of one step of expansion}
@@ -33715,7 +33734,8 @@ stays the same.
 @d pdf_fake_space_node         == pdftex_first_extension_code + 40
 @d pdf_running_link_off_node   == pdftex_first_extension_code + 41
 @d pdf_running_link_on_node    == pdftex_first_extension_code + 42
-@d pdftex_last_extension_code  == pdftex_first_extension_code + 42
+@d pdf_space_font_code         == pdftex_first_extension_code + 43
+@d pdftex_last_extension_code  == pdftex_first_extension_code + 43
 
 @<Put each...@>=
 primitive("openout",extension,open_node);@/
@@ -33814,6 +33834,8 @@ primitive("pdfrunninglinkoff",extension,pdf_running_link_off_node);@/
 @!@:pdf_running_link_off_}{\.{\\pdfrunninglinkoff} primitive@>
 primitive("pdfrunninglinkon",extension,pdf_running_link_on_node);@/
 @!@:pdf_running_link_on_}{\.{\\pdfrunninglinkon} primitive@>
+primitive("pdfspacefont",extension,pdf_space_font_code);@/
+@!@:pdf_space_font_}{\.{\\pdfspacefont} primitive@>
 
 @ The variable |write_loc| just introduced is used to provide an
 appropriate error message in case of ``runaway'' write texts.
@@ -33871,6 +33893,7 @@ extension: case chr_code of
   pdf_fake_space_node: print_esc("pdffakespace");
   pdf_running_link_off_node: print_esc("pdfrunninglinkoff");
   pdf_running_link_on_node: print_esc("pdfrunninglinkon");
+  pdf_space_font_code: print_esc("pdfspacefont");
   othercases print("[unknown extension!]")
   endcases;
 
@@ -33934,6 +33957,7 @@ begin case cur_chr of
   pdf_fake_space_node: @<Implement \.{\\pdffakespace}@>;
   pdf_running_link_off_node: @<Implement \.{\\pdfrunninglinkoff}@>;
   pdf_running_link_on_node: @<Implement \.{\\pdfrunninglinkon}@>;
+  pdf_space_font_code: @<Implement \.{\\pdfspacefont}@>;
 othercases confusion("ext1")
 @:this can't happen ext1}{\quad ext1@>
 endcases;
@@ -33986,6 +34010,21 @@ end
 @ When `\.{\\special\{...\}}' appears, we expand the macros in the token
 list as in \.{\\xdef} and \.{\\mark}.  When marked with \.{shipout}, we keep
 tokens unexpanded for now.
+
+Unfortunately, the |write_stream(tail):=null| done here is not a valid
+assignment in Web2C, because |null| (a.k.a.\ |min_halfword|) is a large
+negative number ($-268435455 = -@"FFFFFFF$, set in \.{tex.ch}); too
+large to fit in the {\bf short} structure element that's being assigned.
+The warning from gcc~8.5.0 was:
+
+\.{pdftex0.c: In function 'doextension':}
+\.{pdftex0.c:37849:40: warning: overflow in conversion from 'long int' to 'short int'}
+\.{changes value from '-268435455' to '1' [-Woverflow]}\hfil\break
+\.{  mem [curlist .tailfield + 1 ].hh.b0 = -268435455L ;}
+
+The correct thing to do is not immediately evident. However, for Web2C,
+it does not matter, because these lines are changed for enc\TeX, in
+\.{enctex2.ch}, and now zero is assigned, instead of |null|.
 
 @<Implement \.{\\special}@>=
 begin if scan_keyword("shipout") then
@@ -35318,6 +35357,14 @@ begin
     new_whatsit(pdf_running_link_on_node, small_node_size);
 end
 
+@ @<Implement \.{\\pdfspacefont}@>=
+begin
+    check_pdfoutput("\pdfspacefont", true);
+    scan_pdf_ext_toks;
+    pdf_space_font_name := tokens_to_string(def_ref);
+    delete_token_ref(def_ref);
+end
+
 @ The following function are needed for outputting article thread.
 
 @<Declare procedures needed in |do_ext...@>=
@@ -35920,6 +35967,7 @@ that actually send out the requested data. Let's do \.{\\special} first
 procedure special_out(@!p:pointer);
 var old_setting:0..max_selector; {holds print |selector|}
 @!k:pool_pointer; {index into |str_pool|}
+@!h:halfword;
 @!q,@!r:pointer; {temporary variables for list manipulation}
 @!old_mode:integer; {saved |mode|}
 begin synch_h; synch_v;@/
@@ -35928,10 +35976,11 @@ selector:=old_setting;
 if subtype(p)=latespecial_node then
   begin @<Expand macros in the token list
     and make |link(def_ref)| point to the result@>;
-  write_tokens(p):=def_ref;
-  end;
+    h:=def_ref;
+  end
+else h:=write_tokens(p);
 selector:=new_string;
-show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
+show_token_list(link(h),null,pool_size-pool_ptr);
 selector:=old_setting;
 str_room(1);
 if cur_length<256 then
@@ -35941,6 +35990,8 @@ else  begin dvi_out(xxx4); dvi_four(cur_length);
   end;
 for k:=str_start[str_ptr] to pool_ptr-1 do dvi_out(so(str_pool[k]));
 pool_ptr:=str_start[str_ptr]; {erase the string}
+if subtype(p)=latespecial_node then
+  flush_list(def_ref);
 end;
 
 @ To write a token list, we must run it through \TeX's scanner, expanding
@@ -36177,6 +36228,7 @@ thread}
 @!pdf_trailer_id_toks: pointer; {custom Trailer ID}
 @!gen_faked_interword_space: boolean; {flag to turn on/off faked interword spaces}
 @!gen_running_link: boolean; {flag to turn on/off running link}
+@!pdf_space_font_name: str_number; {name of font used for inter-word space in PDF output}
 
 @ @<Set init...@>=
 pdf_first_outline:= 0;
@@ -36194,6 +36246,8 @@ pdf_trailer_toks := null;
 pdf_trailer_id_toks := null;
 gen_faked_interword_space := false;
 gen_running_link := true;
+pdf_space_font_name := "pdftexspace";
+
 
 @ The following procedures are needed for outputting whatsit nodes for
 \pdfTeX{}.
