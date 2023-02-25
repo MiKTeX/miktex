@@ -1,6 +1,6 @@
 /* dvips-version.h: version number                      -*- C++ -*-
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,11 +18,11 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 4
+#define MIKTEX_COMP_MINOR_VERSION 5
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2022.1"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2023.1"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2022 Radical Eye Software"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2023 Radical Eye Software"
 
 #include <miktex/Version>

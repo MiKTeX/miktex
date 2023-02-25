@@ -670,8 +670,7 @@ main(int argc, char **argv)
 #else
          puts (kpathsea_version_string);
 #endif
-         puts ("Copyright 2022 Radical Eye Software.\n\
-There is NO warranty.  You may redistribute this software\n\
+         puts ("There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
 For more information about these matters, see the files\n\
@@ -734,19 +733,6 @@ Primary author of Dvips: T. Rokicki.");
    if (dd(D_SEARCH)) KPSE_DEBUG_SET (KPSE_DEBUG_SEARCH);
 #endif /* KPATHSEA && KPSE_DEBUG */
 #endif /* DEBUG */
-#ifdef KPATHSEA
-   if (argc > 1) {
-      if (argc == 2 && strncmp(argv[1], "-?", 2) == 0) {
-         printf("%s %s\n", banner, banner2);
-         help(0);
-         exit(0);
-      }
-      if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
-         printf("%s %s\n", banner, banner2);
-         exit(0);
-      }
-   }
-#endif /* KPATHSEA */
 #endif /* VMS */
    dvips_debug_flag = 0;
    { /* for compilers incompatible with c99 */
@@ -801,33 +787,6 @@ Primary author of Dvips: T. Rokicki.");
          if (*argv[i]=='-') {
             char *p=argv[i]+2;
             char c=argv[i][1];
-#ifdef KPATHSEA
-            /* print information and exit if dvips finds options
-               --help or --version */
-            if (strlen (argv[i] + 1) == 5 && strcmp (argv[i] + 1, "-help") == 0) {
-               help (0);
-               exit (0);
-            }
-            if (strlen (argv[i] + 1) == 8 &&
-                strcmp (argv[i] + 1, "-version") == 0) {
-               puts (BANNER);
-#if defined(MIKTEX)
-               {
-                  puts(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
-               }
-#else
-               puts (kpathsea_version_string);
-#endif
-               puts ("Copyright 2022 Radical Eye Software.\n\
-There is NO warranty.  You may redistribute this software\n\
-under the terms of the GNU General Public License\n\
-and the Dvips copyright.\n\
-For more information about these matters, see the files\n\
-named COPYING and dvips.h.\n\
-Primary author of Dvips: T. Rokicki.");
-               exit (0);
-            }
-#endif /* KPATHSEA */
             switch (c) {
 case '-':
                queryoptions = 1;
