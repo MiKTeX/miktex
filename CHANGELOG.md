@@ -4,6 +4,7 @@
 
 ### Upgraded programs
 
+* pmxab 3.00
 * pdftex 1.40.25
 * xetex 0.999995
  
