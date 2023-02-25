@@ -2,7 +2,7 @@
 
     DVIPDFMx, an eXtended version of DVIPDFM by Mark A. Wicks.
 
-    Copyright (C) 2002-2021 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2023 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the DVIPDFMx project team.
     
     Copyright (c) 2006 SIL. (xdvipdfmx extensions for XeTeX support)
@@ -194,8 +194,8 @@ show_version (void)
   if (*my_name == 'x')
     printf ("an extended version of DVIPDFMx, which in turn was\n");
   printf ("an extended version of dvipdfm-0.13.2c developed by Mark A. Wicks.\n");
-  printf ("\nCopyright (C) 2002-2021 the DVIPDFMx project team\n");
-  printf ("Copyright (C) 2006-2021 SIL International.\n");
+  printf ("\nCopyright (C) 2002-2023 the DVIPDFMx project team\n");
+  printf ("Copyright (C) 2006-2023 SIL International.\n");
   printf ("\nThis is free software; you can redistribute it and/or modify\n");
   printf ("it under the terms of the GNU General Public License as published by\n");
   printf ("the Free Software Foundation; either version 2 of the License, or\n");
@@ -1224,7 +1224,7 @@ main (int argc, char *argv[])
   /* PDF trailer ID. */
   if (!has_id) {
 #define PRODUCER \
-"%s-%s, Copyright 2002-2021 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata"
+"%s-%s, Copyright 2002-2023 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata"
     char producer[256];
     
     sprintf(producer, PRODUCER, my_name, VERSION);
