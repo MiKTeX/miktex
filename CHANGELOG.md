@@ -4,6 +4,12 @@
 
 ### Upgraded programs
 
+* pdftex 1.40.25
+
+## 23.1 - 2023-1-28
+
+### Upgraded programs
+
 * luatex 1.16.0
 
 ### Fixed issues
