@@ -95,7 +95,7 @@ void _synctex_free(void * ptr) {
 #   include <syslog.h>
 #endif
 
-__attribute__((__format__ (__printf__, 3, 0)))
+SYNCTEX_ATTRIBUTE_FORMAT_PRINTF(3, 0)
 static int _synctex_log(int level, const char * prompt, const char * reason,va_list arg) {
 	int result;
 #	ifdef SYNCTEX_RECENT_WINDOWS
@@ -142,7 +142,7 @@ static int _synctex_log(int level, const char * prompt, const char * reason,va_l
 	return result;
 }
 
-__attribute__((__format__ (__printf__, 1, 2)))
+SYNCTEX_ATTRIBUTE_FORMAT_PRINTF(1, 2)
 int _synctex_error(const char * reason,...) {
     va_list arg;
     int result;
@@ -156,7 +156,7 @@ int _synctex_error(const char * reason,...) {
     return result;
 }
 
-__attribute__((__format__ (__printf__, 1, 2)))
+SYNCTEX_ATTRIBUTE_FORMAT_PRINTF(1, 2)
 int _synctex_debug(const char * reason,...) {
     va_list arg;
     int result;
