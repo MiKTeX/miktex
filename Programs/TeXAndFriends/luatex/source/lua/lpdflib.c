@@ -1048,7 +1048,7 @@ static int setpdforigin(lua_State * L)
     if (lua_type(L, 1) == LUA_TNUMBER) {
         h = (int) lua_roundnumber(L, 1);
         if (lua_type(L, 2) == LUA_TNUMBER) {
-            v = (int) lua_roundnumber(L, 1);
+            v = (int) lua_roundnumber(L, 2);
         } else {
             v = h;
         }
