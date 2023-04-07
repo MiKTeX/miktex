@@ -9,7 +9,11 @@
 * pmxab 3.00
 * pdftex 1.40.25
 * xetex 0.999995
- 
+
+### Fixed issues
+
+- [1309](https://github.com/MiKTeX/miktex/issues/1309): https://github.com/MiKTeX/miktex/issues/1309
+
 ## 23.1 - 2023-1-28
 
 ### Upgraded programs
