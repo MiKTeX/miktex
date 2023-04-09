@@ -11,10 +11,9 @@ include(component.cmake)
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvisvgm")
 
 include_directories(BEFORE
+    source/libs/boost
     source/libs/brotli/include
     source/libs/clipper
-    source/libs/ff-woff/fontforge
-    source/libs/ff-woff/inc
     source/libs/potrace
     source/libs/variant/include
     source/libs/woff2/include
@@ -38,6 +37,10 @@ if(CMAKE_CL_64)
         -D_WIN64
     )
 endif()
+
+add_definitions(
+    -DHAVE_CONFIG_H
+)
 
 set(HAVE_CXX11 1)
 set(VERSION ${MIKTEX_COMP_ORIG_VERSION_STR})
@@ -175,88 +178,6 @@ set(libwoff2_sources
     source/libs/woff2/src/woff2_out.cc
 )
 
-set(libffwoff_sources
-    source/libs/ff-woff/fontforge/PfEd.h
-    source/libs/ff-woff/fontforge/alphabet.c
-    source/libs/ff-woff/fontforge/asmfpst.c
-    source/libs/ff-woff/fontforge/autohint.c
-    source/libs/ff-woff/fontforge/char.c
-    source/libs/ff-woff/fontforge/cjk.c
-    source/libs/ff-woff/fontforge/configure-fontforge.h
-    source/libs/ff-woff/fontforge/cvundoes.c
-    source/libs/ff-woff/fontforge/dumppfa.c
-    source/libs/ff-woff/fontforge/edgelist.h
-    source/libs/ff-woff/fontforge/edgelist2.h
-    source/libs/ff-woff/fontforge/encoding.c
-    source/libs/ff-woff/fontforge/encoding.h
-    source/libs/ff-woff/fontforge/fflocale.c
-    source/libs/ff-woff/fontforge/fflocale.h
-    source/libs/ff-woff/fontforge/fontforge-config.h
-    source/libs/ff-woff/fontforge/fontforge.h
-    source/libs/ff-woff/fontforge/fontforgevw.h
-    source/libs/ff-woff/fontforge/fvfonts.c
-    source/libs/ff-woff/fontforge/gwwiconv.c
-    source/libs/ff-woff/fontforge/libffstamp.h
-    source/libs/ff-woff/fontforge/lookups.c
-    source/libs/ff-woff/fontforge/macbinary.c
-    source/libs/ff-woff/fontforge/macenc.c
-    source/libs/ff-woff/fontforge/mathconstants.c
-    source/libs/ff-woff/fontforge/memory.c
-    source/libs/ff-woff/fontforge/mm.c
-    source/libs/ff-woff/fontforge/namehash.h
-    source/libs/ff-woff/fontforge/namelist.c
-    source/libs/ff-woff/fontforge/nouiutil.c
-    source/libs/ff-woff/fontforge/nowakowskittfinstr.c
-    source/libs/ff-woff/fontforge/parsepfa.c
-    source/libs/ff-woff/fontforge/parsettf.c
-    source/libs/ff-woff/fontforge/parsettfatt.c
-    source/libs/ff-woff/fontforge/psfont.h
-    source/libs/ff-woff/fontforge/psread.c
-    source/libs/ff-woff/fontforge/pua.c
-    source/libs/ff-woff/fontforge/sd.h
-    source/libs/ff-woff/fontforge/sfd.c
-    source/libs/ff-woff/fontforge/sfd1.c
-    source/libs/ff-woff/fontforge/sfd1.h
-    source/libs/ff-woff/fontforge/splinechar.c
-    source/libs/ff-woff/fontforge/splinefont.c
-    source/libs/ff-woff/fontforge/splinefont.h
-    source/libs/ff-woff/fontforge/splineorder2.c
-    source/libs/ff-woff/fontforge/splineoverlap.c
-    source/libs/ff-woff/fontforge/splinerefigure.c
-    source/libs/ff-woff/fontforge/splinesave.c
-    source/libs/ff-woff/fontforge/splinesaveafm.c
-    source/libs/ff-woff/fontforge/splineutil.c
-    source/libs/ff-woff/fontforge/splineutil2.c
-    source/libs/ff-woff/fontforge/start.c
-    source/libs/ff-woff/fontforge/stemdb.c
-    source/libs/ff-woff/fontforge/stemdb.h
-    source/libs/ff-woff/fontforge/tables.h
-    source/libs/ff-woff/fontforge/tmpfile2.cpp
-    source/libs/ff-woff/fontforge/tottf.c
-    source/libs/ff-woff/fontforge/tottfaat.c
-    source/libs/ff-woff/fontforge/tottfgpos.c
-    source/libs/ff-woff/fontforge/tottfvar.c
-    source/libs/ff-woff/fontforge/ttf.h
-    source/libs/ff-woff/fontforge/ttfinstrs.c
-    source/libs/ff-woff/fontforge/ttfinstrs.h
-    source/libs/ff-woff/fontforge/ttfspecial.c
-    source/libs/ff-woff/fontforge/uiinterface.h
-    source/libs/ff-woff/fontforge/unialt.c
-    source/libs/ff-woff/fontforge/ustring.c
-    source/libs/ff-woff/fontforge/utype.c
-    source/libs/ff-woff/fontforge/woff.c
-    source/libs/ff-woff/inc/basics.h
-    source/libs/ff-woff/inc/chardata.h
-    source/libs/ff-woff/inc/charset.h
-    source/libs/ff-woff/inc/dlist.h
-    source/libs/ff-woff/inc/ffintl.h
-    source/libs/ff-woff/inc/gimage.h
-    source/libs/ff-woff/inc/gnetwork.h
-    source/libs/ff-woff/inc/gwwiconv.h
-    source/libs/ff-woff/inc/ustring.h
-    source/libs/ff-woff/inc/utype.h
-)
-
 set(potrace_sources
     source/libs/potrace/auxiliary.h
     source/libs/potrace/bitmap.h
@@ -271,6 +192,25 @@ set(potrace_sources
     source/libs/potrace/progress.h
     source/libs/potrace/trace.c
     source/libs/potrace/trace.h
+)
+
+set(libbase14fonts_source
+    source/src/fonts/Base14Fonts.cpp
+    source/src/fonts/Base14Fonts.hpp
+    source/src/fonts/Dingbats.cff.cpp
+    source/src/fonts/NimbusMonoPS-Bold.cff.cpp
+    source/src/fonts/NimbusMonoPS-BoldItalic.cff.cpp
+    source/src/fonts/NimbusMonoPS-Italic.cff.cpp
+    source/src/fonts/NimbusMonoPS-Regular.cff.cpp
+    source/src/fonts/NimbusRoman-Bold.cff.cpp
+    source/src/fonts/NimbusRoman-BoldItalic.cff.cpp
+    source/src/fonts/NimbusRoman-Italic.cff.cpp
+    source/src/fonts/NimbusRoman-Regular.cff.cpp
+    source/src/fonts/NimbusSans-Bold.cff.cpp
+    source/src/fonts/NimbusSans-BoldItalic.cff.cpp
+    source/src/fonts/NimbusSans-Italic.cff.cpp
+    source/src/fonts/NimbusSans-Regular.cff.cpp
+    source/src/fonts/StandardSymbolsPS.cff.cpp
 )
 
 set(liboptimizer_sources
@@ -292,6 +232,38 @@ set(liboptimizer_sources
     source/src/optimizer/TransformSimplifier.hpp
     source/src/optimizer/WSNodeRemover.cpp
     source/src/optimizer/WSNodeRemover.hpp
+)
+
+set(libttf_sources
+    source/src/ttf/CmapTable.cpp
+    source/src/ttf/CmapTable.hpp
+    source/src/ttf/GlyfTable.cpp
+    source/src/ttf/GlyfTable.hpp
+    source/src/ttf/HeadTable.cpp
+    source/src/ttf/HeadTable.hpp
+    source/src/ttf/HheaTable.cpp
+    source/src/ttf/HheaTable.hpp
+    source/src/ttf/HmtxTable.cpp
+    source/src/ttf/HmtxTable.hpp
+    source/src/ttf/LocaTable.hpp
+    source/src/ttf/MaxpTable.cpp
+    source/src/ttf/MaxpTable.hpp
+    source/src/ttf/NameTable.cpp
+    source/src/ttf/NameTable.hpp
+    source/src/ttf/OS2Table.cpp
+    source/src/ttf/OS2Table.hpp
+    source/src/ttf/PostTable.cpp
+    source/src/ttf/PostTable.hpp
+    source/src/ttf/TTFAutohint.cpp
+    source/src/ttf/TTFAutohint.hpp
+    source/src/ttf/TTFTable.cpp
+    source/src/ttf/TTFTable.hpp
+    source/src/ttf/TTFWriter.cpp
+    source/src/ttf/TTFWriter.hpp
+    source/src/ttf/VheaTable.cpp
+    source/src/ttf/VheaTable.hpp
+    source/src/ttf/VmtxTable.cpp
+    source/src/ttf/VmtxTable.hpp
 )
 
 set(libdvisvgm_sources
@@ -382,6 +354,7 @@ set(libdvisvgm_sources
     source/src/Glyph.hpp
     source/src/GlyphTracerMessages.hpp
     source/src/GraphicsPath.hpp
+    source/src/GraphicsPathParser.hpp
     source/src/HashFunction.cpp
     source/src/HashFunction.hpp
     source/src/HtmlSpecialHandler.cpp
@@ -413,8 +386,11 @@ set(libdvisvgm_sources
     source/src/NumericRanges.hpp
     source/src/Opacity.cpp
     source/src/Opacity.hpp
+    source/src/PDFHandler.cpp
+    source/src/PDFHandler.hpp
     source/src/PDFParser.cpp
     source/src/PDFParser.hpp
+    source/src/PDFToSVG.cpp
     source/src/PDFToSVG.hpp
     source/src/PSFilter.hpp
     source/src/PSInterpreter.cpp
@@ -436,6 +412,8 @@ set(libdvisvgm_sources
     source/src/PdfSpecialHandler.hpp
     source/src/PreScanDVIReader.cpp
     source/src/PreScanDVIReader.hpp
+    source/src/Process.cpp
+    source/src/Process.hpp
     source/src/PsSpecialHandler.cpp
     source/src/PsSpecialHandler.hpp
     source/src/RangeMap.cpp
@@ -476,8 +454,6 @@ set(libdvisvgm_sources
     source/src/System.hpp
     source/src/TFM.cpp
     source/src/TFM.hpp
-    source/src/TTFAutohint.cpp
-    source/src/TTFAutohint.hpp
     source/src/TensorProductPatch.cpp
     source/src/TensorProductPatch.hpp
     source/src/Terminal.cpp
@@ -488,8 +464,6 @@ set(libdvisvgm_sources
     source/src/TpicSpecialHandler.hpp
     source/src/TriangularPatch.cpp
     source/src/TriangularPatch.hpp
-    source/src/TrueTypeFont.cpp
-    source/src/TrueTypeFont.hpp
     source/src/Unicode.cpp
     source/src/Unicode.hpp
     source/src/VFActions.hpp
@@ -501,6 +475,8 @@ set(libdvisvgm_sources
     source/src/XMLDocument.hpp
     source/src/XMLNode.cpp
     source/src/XMLNode.hpp
+    source/src/XMLParser.cpp
+    source/src/XMLParser.hpp
     source/src/XMLString.cpp
     source/src/XMLString.hpp
     source/src/XXHashFunction.hpp
@@ -512,11 +488,6 @@ set(libdvisvgm_sources
     source/src/windows.hpp
 )
 
-list(APPEND libdvisvgm_sources
-    source/src/ffwrapper.c
-    source/src/ffwrapper.h
-)
-
 set(dvisvgm_c_sources
     source/src/dvisvgm.cpp
 )
@@ -526,11 +497,12 @@ set(dvisvgm_sources
     ${CMAKE_CURRENT_BINARY_DIR}/miktex-dvisvgm-version.h
     ${MIKTEX_LIBRARY_WRAPPER}
     ${dvisvgm_c_sources}
+    ${libbase14fonts_source}
     ${libbrotli_sources}
     ${libclipper_sources}
     ${libdvisvgm_sources}
-    ${libffwoff_sources}
     ${liboptimizer_sources}
+    ${libttf_sources}
     ${libwoff2_sources}
     ${libxxhash_sources}
     ${potrace_sources}

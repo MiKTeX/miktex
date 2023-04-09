@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvips 2023.1
+* dvisvgm 3.0.4
 * luatex 1.16.1
 * pmxab 3.00
 * pdftex 1.40.25

@@ -2,7 +2,7 @@
 ** ClipPathReassigner.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <set>
 #include <sstream>
@@ -35,12 +38,14 @@ const char* ClipPathReassigner::info () const {
 /** Returns a hash value for an XML element where the id attribute is not taken into account.
  *  Two elements that differ only by their id attribute get the same hash value. */
 static uint64_t hash_value (XMLElement *elem) {
-	const char *id = elem->getAttributeValue("id");
+	string id;
+	if (const char* idval = elem->getAttributeValue("id"))
+		id = idval;
 	elem->removeAttribute("id");
 	ostringstream oss;
 	elem->write(oss);
 	uint64_t value = XXH64HashFunction(oss.str().data(), oss.str().length()).digestValue();
-	if (id)
+	if (!id.empty())
 		elem->addAttribute("id", id);
 	return value;
 }

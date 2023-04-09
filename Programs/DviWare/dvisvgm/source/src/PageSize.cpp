@@ -2,7 +2,7 @@
 ** PageSize.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -96,7 +99,7 @@ void PageSize::resize (string name) {
 
 	name = util::tolower(name);
 	// extract optional suffix
-	size_t pos = name.rfind('-');
+	auto pos = name.rfind('-');
 	bool landscape = false;
 	if (pos != string::npos) {
 		string suffix = name.substr(pos);

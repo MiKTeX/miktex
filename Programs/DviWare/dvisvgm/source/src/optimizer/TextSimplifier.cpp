@@ -2,7 +2,7 @@
 ** TextSimplifier.cpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <vector>
 #include "AttributeExtractor.hpp"
 #include "TextSimplifier.hpp"
@@ -40,7 +43,7 @@ static XMLElement::Attributes common_inheritable_attributes (const vector<XMLEle
 			if (intersected)
 				break;
 			for (const auto &attrib : elem->attributes()) {
-				if (AttributeExtractor::inheritable(attrib))
+				if (attrib.inheritable())
 					commonAttribs.push_back(attrib);
 			}
 		}

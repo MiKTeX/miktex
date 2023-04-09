@@ -46,14 +46,8 @@
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine HAVE_LIBZ 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_NDIR_H 1
-
-/* Define to 1 if you have the <openssl/md5.h> header file. */
-#cmakedefine HAVE_OPENSSL_MD5_H 1
 
 /* Define to 1 if you have the `sigaction' function. */
 #cmakedefine HAVE_SIGACTION 1
@@ -67,6 +61,9 @@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#cmakedefine HAVE_STDIO_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
@@ -115,6 +112,12 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #cmakedefine HAVE__BOOL 1
 
+/* Define to 1 if the system has the `__builtin_clz' built-in function */
+#cmakedefine HAVE___BUILTIN_CLZ 1
+
+/* The machine triplet of the host system */
+#cmakedefine HOST_SYSTEM
+
 /* Define to 1 if the kpathsea headers are not C++ safe. */
 #cmakedefine KPSE_CXX_UNSAFE 1
 
@@ -146,11 +149,10 @@
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #cmakedefine STDC_HEADERS 1
-
-/* The machine triplet of the target system */
-#define TARGET_SYSTEM ""
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #cmakedefine TM_IN_SYS_TIME 1

@@ -2,7 +2,7 @@
 ** PSInterpreter.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #if defined(MIKTEX)
-#  include <config.h>
+#include <config.h>
 #endif
 #include <algorithm>
 #include <cstring>
@@ -66,6 +66,12 @@ void PSInterpreter::init () {
 				gsargs.emplace_back("-dDELAYSAFER");
 				gsargs.emplace_back("-dALLOWPSTRANSPARENCY");
 			}
+			// GS 9.55.0 introduced a new, C-based PDF interpreter which is enabled by default
+			// as of GS 9.56.0. Since dvisvgm relies on the old PS-based interpreter for its
+			// PDF support, we try to disable the new one.
+			// https://www.ghostscript.com/doc/9.56.0/Use.htm#PDF_switches
+			if (gsrev >= 9560)
+				gsargs.emplace_back("-dNEWPDF=false");
 		}
 		_gs.init(gsargs.size(), gsargs.data(), this);
 		_gs.set_stdio(input, output, error);
@@ -75,6 +81,16 @@ void PSInterpreter::init () {
 		// need the completely initialized PSInterpreter object here.
 		execute(PSDEFS);
 	}
+}
+
+
+/** Sets or replaces the filter applied to the PS code.
+ *  @param[in] filter the new filter being used
+ *  @return the previous, replaced filter (nullptr if there was none) */
+PSFilter* PSInterpreter::setFilter (PSFilter *filter) {
+	PSFilter *prevFilter = _filter;
+	_filter = filter;
+	return prevFilter;
 }
 
 

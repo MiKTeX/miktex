@@ -2,7 +2,7 @@
 ** EllipticalArc.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -47,7 +47,7 @@ class EllipticalArc {
 		bool isStraightLine () const {return _rx < 1e-7 || _ry < 1e-7;}
 		BoundingBox getBBox () const;
 		void transform (const Matrix &matrix);
-		std::vector<Bezier> approximate () const;
+		std::vector<CubicBezier> approximate () const;
 
 	private:
 		double _rx, _ry;       ///< length of semi-major and semi-minor axes

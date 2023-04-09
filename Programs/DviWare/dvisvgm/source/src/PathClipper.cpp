@@ -2,7 +2,7 @@
 ** PathClipper.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <cmath>
 #include "Bezier.hpp"
 #include "PathClipper.hpp"
@@ -51,7 +54,7 @@ inline DPair to_DPair (const IntPoint &p) {
  *  is called. */
 class FlattenActions : public CurvedPath::IterationActions {
 	public:
-		FlattenActions (vector<Bezier> &curves, Polygons &polygons, int &numLines)
+		FlattenActions (vector<CubicBezier> &curves, Polygons &polygons, int &numLines)
 			: _polygons(polygons), _curves(curves), _numLines(numLines) {}
 
 		void moveto (const CurvedPath::Point &p) override {
@@ -74,12 +77,12 @@ class FlattenActions : public CurvedPath::IterationActions {
 		}
 
 		void quadto (const CurvedPath::Point &p1, const CurvedPath::Point &p2) override {
-			Bezier bezier(_currentPoint, p1, p2);
-			addCurvePoints(bezier);
+			QuadBezier qbezier(_currentPoint, p1, p2);
+			addCurvePoints(CubicBezier(qbezier));
 		}
 
 		void cubicto (const CurvedPath::Point &p1, const CurvedPath::Point &p2, const CurvedPath::Point &p3) override {
-			Bezier bezier(_currentPoint, p1, p2, p3);
+			CubicBezier bezier(_currentPoint, p1, p2, p3);
 			addCurvePoints(bezier);
 		}
 
@@ -98,7 +101,7 @@ class FlattenActions : public CurvedPath::IterationActions {
 		}
 
 	protected:
-		void addCurvePoints (const Bezier &bezier) {
+		void addCurvePoints (const CubicBezier &bezier) {
 			if (_currentPoly.empty()) // this shouldn't happen but in case it does, ...
 				_currentPoly.emplace_back(IntPoint(0, 0, 0)); // ...add a start point first
 			vector<DPair> points;  // points of flattened curve
@@ -122,7 +125,7 @@ class FlattenActions : public CurvedPath::IterationActions {
 		CurvedPath::Point _startPoint, _currentPoint;
 		Polygon _currentPoly;    ///< polygon being created
 		Polygons &_polygons;     ///< all polygons created
-		vector<Bezier> &_curves;
+		vector<CubicBezier> &_curves;
 		int &_numLines;
 };
 
@@ -288,7 +291,7 @@ void PathClipper::reconstruct (const Polygon &polygon, CurvedPath &path) {
 		if (diff == 1 || label1.id <= 0)  // line segment?
 			path.lineto(to_DPair(polygon[index2]));
 		else {  // Bézier curve segment
-			Bezier bezier(_curves[label1.id-1], label1.t, label2.t);
+			CubicBezier bezier(_curves[label1.id-1], label1.t, label2.t);
 			if (label1.t > label2.t)
 				bezier.reverse();
 			path.cubicto(bezier.point(1), bezier.point(2), bezier.point(3));

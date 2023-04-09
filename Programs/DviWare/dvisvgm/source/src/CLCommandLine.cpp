@@ -2,7 +2,7 @@
 ** CLCommandLine.cpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <cstring>
 #include <unordered_map>
@@ -154,7 +157,7 @@ void CommandLine::parseLongOption (istream &is) {
 /** Returns all options that match the given long name. */
 vector<Option*> CommandLine::lookupOption (const string &optname) const {
 	vector<Option*> matches;
-	int len = optname.length();
+	auto len = optname.length();
 	for (OptSectPair optsect : options()) {
 		if (optsect.first->longName() == optname) {  // exact match?
 			matches.clear();
@@ -187,7 +190,7 @@ void CommandLine::help (ostream &os, int mode) const {
 	string usage = _usage;
 	int count=0;
 	while (!usage.empty()) {
-		size_t pos = usage.find('\n');
+		auto pos = usage.find('\n');
 		os << (count++ == 0 ? "Usage: " : "       ") << PROGRAM_NAME << ' ' << usage.substr(0, pos) << '\n';
 		if (pos != string::npos)
 			usage = usage.substr(pos+1);
@@ -201,7 +204,7 @@ void CommandLine::help (ostream &os, int mode) const {
 	unordered_map<Option*, pair<string,string>> linecols;
 	size_t col1width=0;
 	for (const OptSectPair &ospair : options()) {
-		size_t pos;
+		string::size_type pos;
 		string line = ospair.first->helpline();
 		if ((pos = line.find('\t')) != string::npos) {
 			linecols.emplace(ospair.first, pair<string,string>(line.substr(0, pos), line.substr(pos+1)));

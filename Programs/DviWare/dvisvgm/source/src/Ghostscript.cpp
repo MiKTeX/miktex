@@ -2,7 +2,7 @@
 ** Ghostscript.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <config.h>
 #include "FilePath.hpp"
 #include "Ghostscript.hpp"
@@ -81,8 +84,8 @@ static string get_path_from_registry () {
 }
 #endif // _WIN32
 
-#if defined(_WIN32) && !defined(_WIN64)
-static string get_gsdll32 () {
+#if defined(_WIN32)
+static string get_gsdll () {
 	string pathstr;
 #if defined(TEXLIVEWIN32)
 	char exepath[256];
@@ -97,9 +100,13 @@ static string get_gsdll32 () {
 		pathstr += "bin\\";
 	}
 #endif
+#if defined(_WIN64)
+	return pathstr+"gsdll64.dll";
+#else
 	return pathstr+"gsdll32.dll";
+#endif
 }
-#endif  // _WIN32  && !_WIN64
+#endif  // _WIN32
 
 
 /** Try to detect name of the Ghostscript shared library depending on the user settings.
@@ -123,14 +130,10 @@ static string get_libgs (const string &fname) {
 	string gsdll_path = get_path_from_registry();
 	if (!gsdll_path.empty())
 		return gsdll_path;
-#endif //_WIN32
-#if defined(_WIN64)
-	return "gsdll64.dll";
-#elif defined(_WIN32)
-	return get_gsdll32();
+	return get_gsdll();
 #else
 	// try to find libgs.so.X on the user's system
-	const int abi_min=7, abi_max=9; // supported libgs ABI versions
+	const int abi_min=7, abi_max=10; // supported libgs ABI versions
 	for (int i=abi_max; i >= abi_min; i--) {
 #if defined(__CYGWIN__)
 		string dlname = "cyggs-" + to_string(i) + ".dll";
@@ -141,12 +144,16 @@ static string get_libgs (const string &fname) {
 		if (loader.loaded())
 			return dlname;
 #if defined(__APPLE__)
-		dlname = "libgs." + to_string(i) + ".dylib";
-		if (loader.loadLibrary(dlname))
-			return dlname;
-		dlname = "libgs.dylib." + to_string(i);
-		if (loader.loadLibrary(dlname))
-			return dlname;
+		// dlopen() requires an absolute path in a hardened runtime such as installed
+		// by MacTeX. Thus, explicitly lookup libgs in /usr/local/lib too.
+		for (const string path : {"", "/usr/local/lib/"}) {
+			dlname = path + "libgs." + to_string(i) + ".dylib";
+			if (loader.loadLibrary(dlname))
+				return dlname;
+			dlname = path + "libgs.dylib." + to_string(i);
+			if (loader.loadLibrary(dlname))
+				return dlname;
+		}
 #endif
 	}
 #endif
@@ -228,10 +235,13 @@ bool Ghostscript::revision (gsapi_revision_t *r) const {
 
 /** Returns the revision number of the GS library. */
 int Ghostscript::revision () const {
-	gsapi_revision_t r;
-	if (revision(&r))
-		return static_cast<int>(r.revision);
-	return 0;
+	static int rev=0;
+	if (rev == 0) {
+		gsapi_revision_t r;
+		if (revision(&r))
+			rev = static_cast<int>(r.revision);
+	}
+	return rev;
 }
 
 
@@ -375,19 +385,9 @@ const char* Ghostscript::error_name (int code) {
 	if (code < 0)
 		code = -code;
 	const char *error_names[] = { ERROR_NAMES };
-	if (code == 0 || (size_t)code > sizeof(error_names)/sizeof(error_names[0]))
+	if (code == 0 || size_t(code) > sizeof(error_names)/sizeof(error_names[0]))
 		return nullptr;
-#if defined(HAVE_LIBGS)
-	// use array defined in libgs to avoid linking the error strings into the binary
-	return gs_error_names[code-1];
-#elif defined(_WIN32) || defined(MIKTEX)
-	// gs_error_names is private in the Ghostscript DLL so we can't access it here
 	return error_names[code-1];
-#else
-	if (auto error_names = loadSymbol<const char**>("gs_error_names"))
-		return error_names[code-1];
-	return nullptr;
-#endif
 }
 
 #endif  // !DISABLE_GS

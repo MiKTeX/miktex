@@ -2,7 +2,7 @@
 ** DvisvgmSpecialHandler.cpp                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,11 +18,15 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <array>
 #include <cstring>
 #include <utility>
 #include "Calculator.hpp"
 #include "DvisvgmSpecialHandler.hpp"
+#include "GraphicsPathParser.hpp"
 #include "InputBuffer.hpp"
 #include "InputReader.hpp"
 #include "Length.hpp"
@@ -35,10 +39,60 @@
 using namespace std;
 
 
-DvisvgmSpecialHandler::DvisvgmSpecialHandler () :
-	_currentMacro(_macros.end()),
-	_defsParser(&SVGTree::appendToDefs, &SVGTree::pushDefsContext, &SVGTree::popDefsContext),
-	_pageParser(&SVGTree::appendToPage, &SVGTree::pushPageContext, &SVGTree::popPageContext)
+void SVGParser::assign (SVGTree &svg, Append append, PushContext pushContext, PopContext popContext) {
+	_svg = &svg;
+	_append = append;
+	_pushContext = pushContext;
+	_popContext = popContext;
+	setRootElement(nullptr);
+}
+
+
+XMLElement* SVGParser::openElement (const std::string &tag) {
+	XMLElement *elem = XMLParser::openElement(tag);
+	if (elem->name() == "path" || elem->name() == "svg:path") {
+		if (const char *d = elem->getAttributeValue("d")) {
+			try {
+				// parse and reformat path definition
+				auto path = GraphicsPathParser<double>().parse(d);
+				ostringstream oss;
+				path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
+				elem->addAttribute("d", oss.str());
+			}
+			catch (const GraphicsPathParserException &e) {
+				throw XMLParserException(string("error in path data: ")+e.what());
+			}
+		}
+	}
+	return elem;
+}
+
+
+void SVGParser::appendNode (unique_ptr<XMLNode> node) {
+	(_svg->*_append)(std::move(node));
+}
+
+
+XMLElement* SVGParser::finishPushContext (unique_ptr<XMLElement> elem) {
+	unique_ptr<SVGElement> svgElement{static_cast<SVGElement*>(elem.release())};
+	XMLElement *elemPtr = svgElement.get();
+	(_svg->*_pushContext)(std::move(svgElement));
+	return elemPtr;
+}
+
+
+void SVGParser::finishPopContext () {
+	(_svg->*_popContext)();
+}
+
+
+XMLElement* SVGParser::createElementPtr (std::string name) const {
+	return new SVGElement(std::move(name));
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+DvisvgmSpecialHandler::DvisvgmSpecialHandler () : _currentMacro(_macros.end())
 {
 }
 
@@ -153,19 +207,19 @@ bool DvisvgmSpecialHandler::process (const string &prefix, istream &is, SpecialA
 static void expand_constants (string &str, SpecialActions &actions) {
 	bool repl_bbox = true;
 	while (repl_bbox) {
-		size_t pos = str.find("{?bbox ");
+		const auto pos = str.find("{?bbox ");
 		if (pos == string::npos)
 			repl_bbox = false;
 		else {
-			size_t endpos = pos+7;
+			auto endpos = pos+7;
 			while (endpos < str.length() && isalnum(str[endpos]))
 				++endpos;
-			if (str[endpos] == '}') {
-				BoundingBox &box=actions.bbox(str.substr(pos+7, endpos-pos-7));
+			if (str[endpos] != '}')
+				repl_bbox = false;
+			else {
+				BoundingBox &box = actions.bbox(str.substr(pos+7, endpos-pos-7));
 				str.replace(pos, endpos-pos+1, box.svgViewBoxString());
 			}
-			else
-				repl_bbox = false;
 		}
 	}
 	struct Constant {
@@ -181,7 +235,7 @@ static void expand_constants (string &str, SpecialActions &actions) {
 	}};
 	for (const Constant &constant : constants) {
 		const string pattern = string("{?")+constant.name+"}";
-		size_t pos = str.find(pattern);
+		auto pos = str.find(pattern);
 		while (pos != string::npos) {
 			str.replace(pos, strlen(constant.name)+3, constant.val);
 			pos = str.find(pattern, pos+constant.val.length());  // look for further matches
@@ -194,9 +248,9 @@ static void expand_constants (string &str, SpecialActions &actions) {
  *  and replaces the substring by the computed value.
  *  @param[in,out] str string to scan for expressions */
 static void evaluate_expressions (string &str, const SpecialActions &actions) {
-	size_t left = str.find("{?(");             // start position of expression macro
+	auto left = str.find("{?(");             // start position of expression macro
 	while (left != string::npos) {
-		size_t right = str.find(")}", left+2);  // end position of expression macro
+		auto right = str.find(")}", left+2);  // end position of expression macro
 		if (right == string::npos)
 			break;
 		Calculator calc;
@@ -232,7 +286,7 @@ void DvisvgmSpecialHandler::processRaw (InputReader &ir, SpecialActions &actions
 		if (!xml.empty()) {
 			evaluate_expressions(xml, actions);
 			expand_constants(xml, actions);
-			_pageParser.parse(xml, actions);
+			_pageParser.parse(std::move(xml));
 		}
 	}
 }
@@ -244,7 +298,7 @@ void DvisvgmSpecialHandler::processRawDef (InputReader &ir, SpecialActions &acti
 		if (!xml.empty()) {
 			evaluate_expressions(xml, actions);
 			expand_constants(xml, actions);
-			_defsParser.parse(xml, actions);
+			_defsParser.parse(std::move(xml));
 		}
 	}
 }
@@ -276,9 +330,9 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions &acti
 		if ((type == 'P' || type == 'D') && !def.empty()) {
 			expand_constants(def, actions);
 			if (type == 'P')
-				_pageParser.parse(def, actions);
+				_pageParser.parse(std::move(def));
 			else {          // type == 'D'
-				_defsParser.parse(def, actions);
+				_defsParser.parse(std::move(def));
 				type = 'L';  // locked
 			}
 		}
@@ -413,9 +467,16 @@ void DvisvgmSpecialHandler::dviPreprocessingFinished () {
 }
 
 
+void DvisvgmSpecialHandler::dviBeginPage (unsigned, SpecialActions &actions) {
+	SVGTree &svg = actions.svgTree();
+	_defsParser.assign(svg, &SVGTree::appendToDefs, &SVGTree::pushDefsContext, &SVGTree::popDefsContext);
+	_pageParser.assign(svg, &SVGTree::appendToPage, &SVGTree::pushPageContext, &SVGTree::popPageContext);
+}
+
+
 void DvisvgmSpecialHandler::dviEndPage (unsigned, SpecialActions &actions) {
-	_defsParser.finish(actions);
-	_pageParser.finish(actions);
+	_defsParser.finish();
+	_pageParser.finish();
 	actions.bbox().unlock();
 	for (auto &strvecpair : _macros) {
 		StringVector &vec = strvecpair.second;
@@ -431,148 +492,4 @@ void DvisvgmSpecialHandler::dviEndPage (unsigned, SpecialActions &actions) {
 vector<const char*> DvisvgmSpecialHandler::prefixes() const {
 	vector<const char*> pfx {"dvisvgm:"};
 	return pfx;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-/** Parses a fragment of XML code, creates corresponding XML nodes and adds them
- *  to the SVG tree. The code may be split and processed by several calls of this
- *  function. Incomplete chunks that can't be processed yet are stored and picked
- *  up again together with the next incoming XML fragment. If a call of this function
- *  is supposed to finish the parsing of an XML subtree, parameter 'finish' must be set.
- *  @param[in] xml XML fragment to parse
- *  @param[in] actions object providing the SVG tree functions
- *  @param[in] finish if true, no more XML is expected and parsing is finished */
-void DvisvgmSpecialHandler::XMLParser::parse (const string &xml, SpecialActions &actions, bool finish) {
-	// collect/extract an XML fragment that only contains complete tags
-	// incomplete tags are held back
-	_xmlbuf += xml;
-	size_t left=0;
-	try {
-		while (left != string::npos) {
-			size_t right = _xmlbuf.find('<', left);
-			if (left < right && left < _xmlbuf.length())  // plain text found?
-				(actions.svgTree().*_append)(util::make_unique<XMLText>(_xmlbuf.substr(left, right-left)));
-			if (right != string::npos) {
-				left = right;
-				if (_xmlbuf.compare(left, 9, "<![CDATA[") == 0) {
-					right = _xmlbuf.find("]]>", left+9);
-					if (right == string::npos) {
-						if (finish) throw SpecialException("expected ']]>' at end of CDATA block");
-						break;
-					}
-					(actions.svgTree().*_append)(util::make_unique<XMLCData>(_xmlbuf.substr(left+9, right-left-9)));
-					right += 2;
-				}
-				else if (_xmlbuf.compare(left, 4, "<!--") == 0) {
-					right = _xmlbuf.find("-->", left+4);
-					if (right == string::npos) {
-						if (finish) throw SpecialException("expected '-->' at end of comment");
-						break;
-					}
-					(actions.svgTree().*_append)(util::make_unique<XMLComment>(_xmlbuf.substr(left+4, right-left-4)));
-					right += 2;
-				}
-				else if (_xmlbuf.compare(left, 2, "<?") == 0) {
-					right = _xmlbuf.find("?>", left+2);
-					if (right == string::npos) {
-						if (finish) throw SpecialException("expected '?>' at end of processing instruction");
-						break;
-					}
-					(actions.svgTree().*_append)(util::make_unique<XMLText>(_xmlbuf.substr(left, right-left+2)));
-					right++;
-				}
-				else if (_xmlbuf.compare(left, 2, "</") == 0) {
-					right = _xmlbuf.find('>', left+2);
-					if (right == string::npos) {
-						if (finish) throw SpecialException("missing '>' at end of closing XML tag");
-						break;
-					}
-					closeElement(_xmlbuf.substr(left+2, right-left-2), actions);
-				}
-				else {
-					right = _xmlbuf.find('>', left+1);
-					if (right == string::npos) {
-						if (finish)	throw SpecialException("missing '>' or '/>' at end of opening XML tag");
-						break;
-					}
-					openElement(_xmlbuf.substr(left+1, right-left-1), actions);
-				}
-			}
-			left = right;
-			if (right != string::npos)
-				left++;
-		}
-	}
-	catch (const SpecialException &e) {
-		_error = true;
-		throw;
-	}
-	if (left == string::npos)
-		_xmlbuf.clear();
-	else
-		_xmlbuf.erase(0, left);
-}
-
-
-/** Processes an opening element tag.
- *  @param[in] tag tag without leading and trailing angle brackets */
-void DvisvgmSpecialHandler::XMLParser::openElement (const string &tag, SpecialActions &actions) {
-	StringInputBuffer ib(tag);
-	BufferInputReader ir(ib);
-	string name = ir.getString("/ \t\n\r");
-	ir.skipSpace();
-	auto elemNode = util::make_unique<SVGElement>(name);
-	map<string, string> attribs;
-	if (ir.parseAttributes(attribs, true, "\"'")) {
-		for (const auto &attrpair : attribs)
-			elemNode->addAttribute(attrpair.first, attrpair.second);
-	}
-	ir.skipSpace();
-	if (ir.peek() == '/')       // end of empty element tag
-		(actions.svgTree().*_append)(std::move(elemNode));
-	else if (ir.peek() < 0) {   // end of opening tag
-		_nameStack.push_back(name);
-		(actions.svgTree().*_pushContext)(std::move(elemNode));
-	}
-	else
-		throw SpecialException("'>' or '/>' expected at end of opening tag <"+name);
-}
-
-
-/** Processes a closing element tag.
- *  @param[in] tag tag without leading and trailing angle brackets */
-void DvisvgmSpecialHandler::XMLParser::closeElement (const string &tag, SpecialActions &actions) {
-	StringInputBuffer ib(tag);
-	BufferInputReader ir(ib);
-	string name = ir.getString(" \t\n\r");
-	ir.skipSpace();
-	if (ir.peek() >= 0)
-		throw SpecialException("'>' expected at end of closing tag </"+name);
-	if (_nameStack.empty())
-		throw SpecialException("spurious closing tag </" + name + ">");
-	if (_nameStack.back() != name)
-		throw SpecialException("expected </" + _nameStack.back() + "> but found </" + name + ">");
-	(actions.svgTree().*_popContext)();
-	_nameStack.pop_back();
-}
-
-
-/** Processes any remaining XML fragments, checks for missing closing tags,
- *  and resets the parser state. */
-void DvisvgmSpecialHandler::XMLParser::finish (SpecialActions &actions) {
-	if (!_xmlbuf.empty()) {
-		if (!_error)
-			parse("", actions, true);
-		_xmlbuf.clear();
-	}
-	string tags;
-	while (!_nameStack.empty()) {
-		tags += "</"+_nameStack.back()+">, ";
-		_nameStack.pop_back();
-	}
-	if (!tags.empty() && !_error) {
-		tags.resize(tags.length()-2);
-		throw SpecialException("missing closing tag(s): "+tags);
-	}
 }

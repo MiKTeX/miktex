@@ -2,7 +2,7 @@
 ** Unicode.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
@@ -52,9 +55,12 @@ bool Unicode::isValidCodepoint (uint32_t c) {
 
 /** Returns a valid Unicode point for the given character code. Character codes
  *  that are invalid code points because the XML standard forbids or discourages
- *  their usage, are mapped to the Private Use Zone U+E000-U+F8FF. */
-uint32_t Unicode::charToCodepoint (uint32_t c) {
-	uint32_t ranges[] = {
+ *  their usage, are mapped to the Private Use Zone U+E000-U+F8FF.
+ *  @param[in] c character code to map
+ *  @param[in] permitSpace if true, space characters are treated as allowed code points
+ *  @return the code point */
+uint32_t Unicode::charToCodepoint (uint32_t c, bool permitSpace) {
+	static uint32_t ranges[] = {
 		0x0000, 0x0020, 0xe000, // basic control characters + space
 		0x007f, 0x009f, 0xe021, // use of control characters is discouraged by the XML standard
 		0x202a, 0x202e, 0xe042, // bidi control characters
@@ -78,9 +84,12 @@ uint32_t Unicode::charToCodepoint (uint32_t c) {
 		0xffffe, 0xfffff, 0xe885,
 		0x10fffe, 0x10ffff, 0xe887
 	};
-	for (size_t i=0; i < sizeof(ranges)/sizeof(unsigned) && c >= ranges[i]; i+=3)
-		if (c <= ranges[i+1])
-			return ranges[i+2]+c-ranges[i];
+	if (!permitSpace || c != 0x20) {
+		for (size_t i=0; i < sizeof(ranges)/sizeof(uint32_t) && c >= ranges[i]; i+=3) {
+			if (c <= ranges[i+1])
+				return ranges[i+2]+c-ranges[i];
+		}
+	}
 	return c;
 }
 
@@ -111,6 +120,32 @@ string Unicode::utf8 (int32_t cp) {
 		// UTF-8 does not support codepoints >= 0x110000
 	}
 	return utf8;
+}
+
+
+uint32_t Unicode::utf8ToCodepoint (const string &utf8) {
+	auto len = utf8.length();
+	if (len > 0) {
+		unsigned char c0 = utf8[0];
+		if (c0 >= 0 && c0 <= 127)
+			return c0;
+		if (len > 1) {
+			unsigned char c1 = utf8[1];
+			if (c0 >= 0xC0 && c0 <= 0xDF)
+				return ((c0-0xC0) << 6) + (c1-0x80);
+			if (len > 2 && (c0 != 0xED || (c1 & 0xA0) != 0xA0)) {
+				unsigned char c2 = utf8[2];
+				if (c0 >= 0xE0 && c0 <= 0xEF)
+					return ((c0-0xE0) << 12) + ((c1-0x80) << 6) + (c2-0x80);
+				if (len > 3) {
+					unsigned char c3 = utf8[3];
+					if (c0 >= 0xF0 && c0 <= 0xF7)
+						return  ((c0-0xF0) << 18) + ((c1-0x80) << 12) + ((c2-0x80) << 6) + (c3-0x80);
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 
@@ -147,6 +182,43 @@ uint32_t Unicode::toSurrogate (uint32_t cp) {
 	return (high << 16) | low;
 }
 
+
+uint32_t Unicode::toLigature (const string &nonlig) {
+	struct Ligature {
+		const char *nonlig;
+		uint32_t lig;
+	} ligatures[39] = {
+		{u8"AA",  0xA732}, {u8"aa", 0xA733},
+		{u8"AE",  0x00C6}, {u8"ae", 0x00E6},
+		{u8"AO",  0xA734}, {u8"ao", 0xA735},
+		{u8"AU",  0xA736}, {u8"au", 0xA737},
+		{u8"AV",  0xA738}, {u8"av", 0xA739},
+		{u8"AY",  0xA73C}, {u8"ay", 0xA73D},
+		{u8"et", 0x1F670},
+		{u8"ff",  0xFB00},
+		{u8"ffi", 0xFB03},
+		{u8"ffl", 0xFB04},
+		{u8"fi",  0xFB01},
+		{u8"fl",  0xFB02},
+		{u8"Hv",  0x01F6}, {u8"hv", 0x0195},
+		{u8"lb",  0x2114},
+		{u8"lL",  0x1EFA}, {u8"ll", 0x1EFB},
+		{u8"OE",  0x0152}, {u8"oe", 0x0153},
+		{u8"OO",  0xA74E}, {u8"oo", 0xA74F},
+		{u8"OO",  0xA74E},
+		{u8"\u0254e", 0xAB62},
+		{u8"\u017Fs", 0x1E9E}, {u8"\u017Az", 0x00DF},
+		{u8"Tz",  0xA728}, {u8"tz",  0xA729},
+		{u8"ue",  0x1D6B},
+		{u8"uo",  0xAB63},
+		{u8"VV",  0x0057}, {u8"tz",  0x0077},
+		{u8"VY",  0xA760}, {u8"tz",  0xA761},
+	};
+	auto it = find_if(begin(ligatures), end(ligatures), [&nonlig](const Ligature &l) {
+		return l.nonlig == nonlig;
+	});
+	return it != end(ligatures) ? it->lig : 0;
+}
 
 #include "AGLTable.hpp"
 
@@ -189,7 +261,7 @@ static const char* get_suffix (const string &name) {
 		"small", "swash", "superior", "inferior", "numerator", "denominator", "oldstyle",
 		"display", "text", "big", "bigg", "Big", "Bigg", 0
 	};
-	size_t pos = name.rfind('.');
+	auto pos = name.rfind('.');
 	if (pos != string::npos) {
 		string suffix = name.substr(pos+1);
 		for (const char **p=suffixes; *p; p++)

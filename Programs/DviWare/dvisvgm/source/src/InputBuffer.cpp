@@ -2,7 +2,7 @@
 ** InputBuffer.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <cmath>
 #include <cstring>
 #include "InputBuffer.hpp"
@@ -26,60 +29,53 @@ using namespace std;
 
 
 StreamInputBuffer::StreamInputBuffer (istream &is, size_t bufsize)
-	: _is(is), _bufsize(bufsize), _buf1(new uint8_t[_bufsize]), _buf2(new uint8_t[_bufsize]), _bufptr(_buf1)
+	: _is(is), _buf1(bufsize), _buf2(bufsize)
 {
 	_size1 = fillBuffer(_buf1);
 	_size2 = fillBuffer(_buf2);
 }
 
 
-StreamInputBuffer::~StreamInputBuffer () {
-	delete [] _buf1;
-	delete [] _buf2;
-}
-
-
+/** Returns the next character from the input buffer (or -1 if there's none). */
 int StreamInputBuffer::get () {
-	if (pos() == _size1) {
+	if (_pos == _size1) {
 		if (_size2 == 0)
 			return -1;
-		swap(_buf1, _buf2);
+		swap(_buf1, _buf2);  // O(1) swap of memory buffers
 		_size1 = _size2;
-		_bufptr = _buf1;
+		_pos = 0;
 		_size2 = fillBuffer(_buf2);
 	}
-	uint8_t c = *_bufptr++;
-	return c;
+	return _buf1[_pos++];
 }
 
 
 /** Returns the next character to be read without skipping it.
  *  Same as peek(0). */
 int StreamInputBuffer::peek () const {
-	if (pos() < _size1)
-		return *_bufptr;
-	return _size2 > 0 ? *_buf2 : -1;
+	if (_pos < _size1)
+		return _buf1[_pos];
+	return _size2 > 0 ? _buf2[0] : -1;
 }
 
 
 /** Returns the n-th next character without skipping it. */
 int StreamInputBuffer::peek (size_t n) const {
-	if (pos()+n < _size1)
-		return *(_bufptr+n);
-	if (pos()+n < _size1+_size2)
-		return *(_buf2 + pos()+n-_size1);
+	if (_pos+n < _size1)
+		return _buf1[_pos+n];
+	if (_pos+n < _size1+_size2)
+		return _buf2[_pos+n-_size1];
 	return -1;
 }
 
 
-/** Fills the buffer by reading a sequence of characters from the assigned
- *  input stream.
- *  @param[in] buf pointer to character buffer to be filled
+/** Fills the buffer by reading a sequence of characters from the assigned input stream.
+ *  @param[in] buf buffer to be filled
  *  @return number of characters read */
-int StreamInputBuffer::fillBuffer (uint8_t *buf) {
+size_t StreamInputBuffer::fillBuffer (vector<uint8_t> &buf) {
 	if (_is && !_is.eof()) {
-		_is.read((char*)buf, _bufsize);
-		return  _is.gcount();
+		_is.read(reinterpret_cast<char*>(buf.data()), streamsize(buf.size()));
+		return _is.gcount();
 	}
 	return 0;
 }
@@ -133,5 +129,3 @@ int TextStreamInputBuffer::get () {
 		_col++;
 	return c;
 }
-
-

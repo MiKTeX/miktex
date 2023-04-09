@@ -2,7 +2,7 @@
 ** SVGOutput.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -116,7 +119,7 @@ FilePath SVGOutput::filepath (int page, int numPages, const HashTriple &hashes) 
 string SVGOutput::expandFormatString (string str, int page, int numPages, const HashTriple &hashes) const {
 	string result;
 	while (!str.empty()) {
-		size_t pos = str.find('%');
+		auto pos = str.find('%');
 		if (pos == string::npos) {
 			result += str;
 			str.clear();
@@ -158,7 +161,7 @@ string SVGOutput::expandFormatString (string str, int page, int numPages, const 
 					result += oss.str();
 					break;
 				case '(': {
-					size_t endpos = str.find(')', pos);
+					auto endpos = str.find(')', pos);
 					if (endpos == string::npos)
 						throw MessageException("missing ')' in filename pattern");
 					else if (endpos-pos-1 > 1) {

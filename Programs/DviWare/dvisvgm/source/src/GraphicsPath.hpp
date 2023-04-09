@@ -2,7 +2,7 @@
 ** GraphicsPath.hpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -642,7 +642,7 @@ class GraphicsPath {
 				void arcto (T rx, T ry, double angle, bool largeArcFlag, bool sweepFlag, const Point &p) override {
 					EllipticalArc arc(this->currentPoint(), rx, ry, angle, largeArcFlag, sweepFlag, p);
 					std::vector<CommandVariant> cmds;
-					for (const Bezier &bezier : arc.approximate())
+					for (const CubicBezier &bezier : arc.approximate())
 						cmds.emplace_back(CubicTo{bezier.point(1), bezier.point(2), bezier.point(3)});
 					this->path().replace(this->commandPos(), cmds);
 				}

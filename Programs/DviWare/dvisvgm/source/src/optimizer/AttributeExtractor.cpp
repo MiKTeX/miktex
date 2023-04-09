@@ -2,7 +2,7 @@
 ** AttributeExtractor.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <array>
 #include "AttributeExtractor.hpp"
@@ -82,7 +85,7 @@ void AttributeExtractor::execute (XMLElement *context, bool recurse) {
  *  @return the new group element if attributes could be grouped, 'elem' otherwise  */
 XMLNode* AttributeExtractor::extractAttribute (XMLElement *elem) {
 	for (const auto &currentAttribute : elem->attributes()) {
-		if (!inheritable(currentAttribute) || extracted(currentAttribute))
+		if (!currentAttribute.inheritable() || extracted(currentAttribute))
 			continue;
 		AttributeRun run(currentAttribute, elem);
 		if (run.length() >= MIN_RUN_LENGTH) {
@@ -121,30 +124,6 @@ bool AttributeExtractor::groupable (const XMLElement &elem) {
 		"style", "switch", "symbol", "text", "title", "use", "view"
 	};
 	return binary_search(begin(names), end(names), elem.name(), [](const string &name1, const string &name2) {
-		return name1 < name2;
-	});
-}
-
-
-/** Checks whether an SVG attribute A of an element E implicitly propagates its properties
- *  to all child elements of E that don't specify A. For now we only consider a subset of
- *  the inheritable properties.
- *  @param[in] attrib name of attribute to check
- *  @return true if the attribute is inheritable */
-bool AttributeExtractor::inheritable (const Attribute &attrib) {
-	// subset of inheritable properties listed on https://www.w3.org/TR/SVG11/propidx.html
-	// clip-path is not inheritable but can be moved to the parent element as long as
-	// no child gets an different clip-path attribute
-	// https://www.w3.org/TR/SVG11/styling.html#Inheritance
-	static const char *names[] = {
-		"clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile",
-		"color-rendering", "direction", "fill", "fill-opacity", "fill-rule", "font", "font-family", "font-size",
-		"font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "glyph-orientation-horizontal",
-		"glyph-orientation-vertical", "letter-spacing", "paint-order", "stroke", "stroke-dasharray", "stroke-dashoffset",
-		"stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "transform",
-		"visibility", "word-spacing", "writing-mode"
-	};
-	return binary_search(begin(names), end(names), attrib.name, [](const string &name1, const string &name2) {
 		return name1 < name2;
 	});
 }

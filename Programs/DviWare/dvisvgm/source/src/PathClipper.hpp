@@ -2,7 +2,7 @@
 ** PathClipper.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -47,7 +47,7 @@ class PathClipper {
 		static void callback (IntPoint &e1bot, IntPoint &e1top, IntPoint &e2bot, IntPoint &e2top, IntPoint &ip);
 
 	private:
-		std::vector<Bezier> _curves;
+		std::vector<CubicBezier> _curves;
 		int _numLines=0;  ///< negative number of straight line segments in path been processed
 };
 

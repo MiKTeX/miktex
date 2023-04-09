@@ -3,7 +3,7 @@
 ** options.xml                                                          **
 **                                                                      **
 ** This file is part of dvisvgm - a fast DVI to SVG converter           **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,7 +26,7 @@
 		<usage>--eps [options] epsfile</usage>
 		<usage>--pdf [options] pdffile</usage>
 		<description>This program converts DVI files, as created by TeX/LaTeX, as well as\nEPS and PDF files to the XML-based scalable vector graphics format SVG.</description>
-		<copyright>Copyright (C) 2005-2022 Martin Gieseking &lt;martin.gieseking@uos.de></copyright>
+		<copyright>Copyright (C) 2005-2023 Martin Gieseking &lt;martin.gieseking@uos.de></copyright>
 	</program>
 	<options>
 		<section title="Input options">
@@ -65,6 +65,9 @@
 			</option>
 			<option long="comments">
 				<description>add comments with additional information</description>
+			</option>
+			<option long="embed-bitmaps">
+				<description>prevent references to external bitmap files</description>
 			</option>
 			<option long="font-format" short="f" if="!defined(DISABLE_WOFF)">
 				<arg type="string" name="format" default="svg"/>
@@ -148,6 +151,9 @@
 			<option long="cache" short="C">
 				<arg type="string" name="dir" optional="yes"/>
 				<description>set/print path of cache directory</description>
+			</option>
+			<option long="debug-glyphs" if="defined(TTFDEBUG)">
+				<description>create PS files for all glyphs converted to TTF</description>
 			</option>
 			<option long="exact-bbox" short="e">
 				<description>compute exact glyph bounding boxes</description>

@@ -2,7 +2,7 @@
 ** SVGOutput.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -47,6 +47,7 @@ struct SVGOutputBase {
 	virtual ~SVGOutputBase () =default;
 	virtual std::ostream& getPageStream (int page, int numPages, const HashTriple &hashes=HashTriple()) const =0;
 	virtual FilePath filepath (int page, int numPages, const HashTriple &hashes= HashTriple()) const =0;
+	virtual void finish () =0;
 	virtual bool ignoresHashes () const {return true;}
 };
 
@@ -59,6 +60,7 @@ class SVGOutput : public SVGOutputBase {
 		SVGOutput (const std::string &base, std::string pattern, int zipLevel);
 		std::ostream& getPageStream (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
 		FilePath filepath (int page, int numPages, const HashTriple &hash=HashTriple()) const override;
+		void finish () override {_osptr.reset();}
 		bool ignoresHashes () const override;
 		void setFileNumbers (int fileNumber, int fileCount) {_fileNumber = fileNumber; _fileCount = fileCount;}
 

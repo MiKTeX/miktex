@@ -2,7 +2,7 @@
 ** Font.cpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -19,10 +19,10 @@
 *************************************************************************/
 
 #if defined(MIKTEX)
-#  include <config.h>
+#include <config.h>
 #endif
+#include <algorithm>
 #include <cstdlib>
-#include <fstream>
 #include <set>
 #include <sstream>
 #include "CMap.hpp"
@@ -57,7 +57,7 @@ const FontEncoding* Font::encoding () const {
 
 const FontMap::Entry* Font::fontMapEntry () const {
 	string fontname = name();
-	size_t pos = fontname.rfind('.');
+	auto pos = fontname.rfind('.');
 	if (pos != string::npos)
 		fontname = fontname.substr(0, pos); // strip extension
 	return FontMap::instance().lookup(fontname);
@@ -236,7 +236,8 @@ int PhysicalFont::unitsPerEm() const {
 }
 
 
-int PhysicalFont::hAdvance () const {
+/** Returns the average horizontal advance width in font units. */
+int PhysicalFont::hAverageAdvance () const {
 	if (type() == Type::MF)
 		return 0;
 	FontEngine::instance().setFont(*this);
@@ -244,6 +245,7 @@ int PhysicalFont::hAdvance () const {
 }
 
 
+/** Returns the horizontal advance width of a character in font units. */
 double PhysicalFont::hAdvance (int c) const {
 	if (type() == Type::MF)
 		return unitsPerEm()*charWidth(c)/designSize();
@@ -255,6 +257,7 @@ double PhysicalFont::hAdvance (int c) const {
 }
 
 
+/** Returns the vertical advance width of a character in font units. */
 double PhysicalFont::vAdvance (int c) const {
 	if (type() == Type::MF)
 		return unitsPerEm()*charWidth(c)/designSize();
@@ -282,7 +285,8 @@ double PhysicalFont::scaledAscent() const {
 }
 
 
-/** Returns the unscaled ascender of the font in design units. */
+/** Returns the unscaled ascender of the font in design units.
+ *  Positive values denote an extension above the baseline.'*/
 int PhysicalFont::ascent () const {
 	if (type() == Type::MF)
 		return getMetrics() ? getMetrics()->getAscent()*unitsPerEm()/getMetrics()->getQuad() : 0;
@@ -291,7 +295,8 @@ int PhysicalFont::ascent () const {
 }
 
 
-/** Returns the unscaled descender of the font in design units. */
+/** Returns the unscaled descender of the font in design units.
+ *  Positive values denote an extension below the baseline. */
 int PhysicalFont::descent () const {
 	if (type() == Type::MF)
 		return getMetrics() ? getMetrics()->getDescent()*unitsPerEm()/getMetrics()->getQuad() : 0;
@@ -317,6 +322,13 @@ std::string PhysicalFont::styleName () const {
 	return style ? style : "";
 }
 
+
+int PhysicalFont::charIndexByName(const string &charname) const {
+	if (charname.empty())
+		return 0;
+	FontEngine::instance().setFont(*this);
+	return FontEngine::instance().getCharIndexByGlyphName(charname.c_str());
+}
 
 
 /** Extracts the glyph outlines of a given character.
@@ -599,7 +611,7 @@ PhysicalFont::Type NativeFont::type () const {
 				return PhysicalFont::Type::OTF;
 			if (ext == "ttf")
 				return PhysicalFont::Type::TTF;
-			if (ext == "pfb")
+			if (ext == "pfb" || ext == "pfa")
 				return PhysicalFont::Type::PFB;
 		}
 	}
@@ -610,7 +622,7 @@ PhysicalFont::Type NativeFont::type () const {
 double NativeFont::charWidth (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
-	return upem ? (scaledSize()*FontEngine::instance().getAdvance(c)/upem*_style.extend) : 0;
+	return upem ? (scaledSize()*FontEngine::instance().getHAdvance(decodeChar(c))/upem*_style.extend) : 0;
 }
 
 
@@ -624,14 +636,37 @@ double NativeFont::italicCorr(int c) const {
 double NativeFont::charHeight (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
-	return upem ? (scaledSize()*FontEngine::instance().getHeight(Character(Character::INDEX, c))/upem) : 0;
+	return upem ? (scaledSize()*FontEngine::instance().getHeight(decodeChar(c))/upem) : 0;
 }
 
 
 double NativeFont::charDepth (int c) const {
 	FontEngine::instance().setFont(*this);
 	int upem = FontEngine::instance().getUnitsPerEM();
-	return upem ? (scaledSize()*FontEngine::instance().getDepth(Character(Character::INDEX, c))/upem) : 0;
+	return upem ? (scaledSize()*FontEngine::instance().getDepth(decodeChar(c))/upem) : 0;
+}
+
+
+double NativeFont::hAdvance (Character c) const {
+	FontEngine::instance().setFont(*this);
+	int upem = FontEngine::instance().getUnitsPerEM();
+	return upem ? (scaledSize()*FontEngine::instance().getHAdvance(c)/upem) : 0;
+}
+
+
+double NativeFont::vAdvance (Character c) const {
+	FontEngine::instance().setFont(*this);
+	int upem = FontEngine::instance().getUnitsPerEM();
+	return upem ? (scaledSize()*FontEngine::instance().getVAdvance(c)/upem) : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+NativeFontImpl::NativeFontImpl (string fname, string fontname, double ptsize)
+	: NativeFont(ptsize, FontStyle(), Color::BLACK), _path(std::move(fname)), _name(std::move(fontname))
+{
+	// plus characters (as appended to subset prefixes) are not allowed in font/family names
+	std::replace(_name.begin(), _name.end(), '+', '-');
 }
 
 
@@ -647,13 +682,25 @@ bool NativeFontImpl::findAndAssignBaseFontMap () {
 
 
 Character NativeFontImpl::decodeChar (uint32_t c) const {
-	return Character(Character::INDEX, c);
+	return {Character::INDEX, c};
 }
 
 
 uint32_t NativeFontImpl::unicode (uint32_t c) const {
 	uint32_t ucode = _toUnicodeMap.valueAt(c);
-	return Unicode::charToCodepoint(ucode);
+	return Unicode::charToCodepoint(ucode, true);
+}
+
+
+void NativeFontImpl::mapCharToUnicode (uint32_t c, uint32_t codepoint) {
+	_toUnicodeMap.addRange(c, c, codepoint);
+}
+
+
+bool NativeFontImpl::verticalLayout() const {
+	FontEngine &fe = FontEngine::instance();
+	fe.setFont(*this);
+	return fe.hasVerticalMetrics();
 }
 
 //////////////////////////////////////////////////////////////////////////////

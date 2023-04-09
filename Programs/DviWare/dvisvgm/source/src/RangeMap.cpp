@@ -2,7 +2,7 @@
 ** RangeMap.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <numeric>
 #include "RangeMap.hpp"
 
@@ -179,7 +182,7 @@ uint32_t RangeMap::valueAt (uint32_t c) const {
 
 /** Returns the number of values mapped. */
 size_t RangeMap::numValues () const {
-	return std::accumulate(_ranges.begin(), _ranges.end(), 0, [](size_t sum, const Range &range) {
+	return std::accumulate(_ranges.begin(), _ranges.end(), size_t(0), [](size_t sum, const Range &range) {
 		return sum+range.max()-range.min()+1;
 	});
 }

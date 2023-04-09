@@ -2,7 +2,7 @@
 ** MD5HashFunction.hpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,17 +21,11 @@
 #ifndef MD5HASHFUNCTION_HPP
 #define MD5HASHFUNCTION_HPP
 
-#include <config.h>
 #if defined(MIKTEX)
 #  include <miktex/Core/MD5>
 #else
-#ifdef HAVE_OPENSSL_MD5_H
-#	include <openssl/md5.h>
-#else
-#	include <md5.h>
+#include <md5.h>
 #endif
-#endif
-
 #include "HashFunction.hpp"
 
 class MD5HashFunction : public HashFunction {

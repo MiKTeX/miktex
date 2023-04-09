@@ -2,7 +2,7 @@
 ** SpecialActions.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -50,7 +50,7 @@ class SpecialActions {
 		virtual void setOpacity (const Opacity &opacity) =0;
 		virtual const Opacity& getOpacity () const =0;
 		virtual const SVGTree& svgTree () const =0;
-		SVGTree& svgTree () {return const_cast<SVGTree&>(const_cast<const SpecialActions*>(this)->svgTree());}
+		virtual SVGTree& svgTree () {return const_cast<SVGTree&>(const_cast<const SpecialActions*>(this)->svgTree());}
 		virtual BoundingBox& bbox () =0;
 		virtual BoundingBox& bbox (const std::string &name, bool reset=false) =0;
 		virtual void embed (const BoundingBox &bbox) =0;

@@ -2,7 +2,7 @@
 ** HyperlinkManager.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <sstream>
 #include "HyperlinkManager.hpp"
 #include "Message.hpp"
@@ -229,7 +232,7 @@ void HyperlinkManager::createViews (unsigned pageno, SpecialActions &actions) {
 bool HyperlinkManager::setLinkMarker (const string &marker) {
 	string type;  // "none", "box", "line", or a background color specifier
 	string color; // optional line color specifier
-	size_t seppos = marker.find(':');
+	auto seppos = marker.find(':');
 	if (seppos == string::npos)
 		type = marker;
 	else {

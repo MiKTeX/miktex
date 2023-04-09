@@ -2,7 +2,7 @@
 ** HyperlinkManager.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -42,7 +42,7 @@ class HyperlinkManager {
 	enum class ColorSource {DEFAULT, LINKMARKER, STATIC};
 	using NamedAnchors = std::unordered_map<std::string, NamedAnchor>;
 
-   public:
+	public:
 		HyperlinkManager (const HyperlinkManager&) =delete;
 		HyperlinkManager (HyperlinkManager&&) =delete;
 		void addHrefAnchor (const std::string &uri);
@@ -68,7 +68,7 @@ class HyperlinkManager {
 		static Color LINK_LINECOLOR;    ///< line color if linkmark type is LM_LINE or LM_BOX
 		static ColorSource COLORSOURCE; ///< if true, LINK_LINECOLOR is applied
 
-   private:
+	private:
 		AnchorType _anchorType=AnchorType::NONE;  ///< type of active anchor
 		int _depthThreshold=0;      ///< break anchor box if the DVI stack depth underruns this threshold
 		double _linewidth=-1;       ///< line width of link marker (-1 => compute individual value per link)

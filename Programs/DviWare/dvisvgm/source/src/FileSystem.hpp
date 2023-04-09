@@ -2,7 +2,7 @@
 ** FileSystem.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,6 +21,7 @@
 #ifndef FILESYSTEM_HPP
 #define FILESYSTEM_HPP
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -28,7 +29,7 @@ class FileSystem {
 	class TemporaryDirectory {
 		friend class FileSystem;
 		public:
-			TemporaryDirectory (const std::string &folder, std::string prefix);
+			TemporaryDirectory (const std::string &folder, std::string prefix, bool inplace=false);
 			TemporaryDirectory (TemporaryDirectory &&tmpdir) =default;
 			~TemporaryDirectory ();
 			TemporaryDirectory& operator = (TemporaryDirectory &&tmpdir) =default;
@@ -47,11 +48,12 @@ class FileSystem {
 		static bool copy (const std::string &src, const std::string &dest, bool remove_src=false);
 		static uint64_t filesize (const std::string &fname);
 		static std::string ensureForwardSlashes (std::string path);
+		static std::string ensureSystemSlashes (std::string path);
 		static std::string getcwd ();
 #ifdef _WIN32
 		static std::string getcwd (char drive);
 #endif
-		static std::string tmpdir ();
+		static std::string tmpdir (bool inplace=false);
 		static bool chdir (const std::string &dir);
 		static bool exists (const std::string &fname);
 		static bool mkdir (const std::string &dirname);

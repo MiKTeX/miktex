@@ -2,7 +2,7 @@
 ** SVGTree.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -91,8 +94,15 @@ void SVGTree::setFont (int num, const Font &font) {
 }
 
 
+pair<int,const Font*> SVGTree::getFontPair () const {
+	if (_charHandler)
+		return {_charHandler->getFontID(), _charHandler->getFont()};
+	return {0, nullptr};
+}
+
+
 bool SVGTree::setFontFormat (string formatstr) {
-	size_t pos = formatstr.find(',');
+	auto pos = formatstr.find(',');
 	string opt;
 	if (pos != string::npos) {
 		opt = formatstr.substr(pos+1);
@@ -258,7 +268,7 @@ void SVGTree::append (const PhysicalFont &font, const set<int> &chars, GFGlyphTr
 			auto fontNode = util::make_unique<XMLElement>("font");
 			string fontname = font.name();
 			fontNode->addAttribute("id", fontname);
-			fontNode->addAttribute("horiz-adv-x", font.hAdvance());
+			fontNode->addAttribute("horiz-adv-x", font.hAverageAdvance());
 
 			auto faceNode = util::make_unique<XMLElement>("font-face");
 			faceNode->addAttribute("font-family", fontname);
@@ -323,11 +333,11 @@ void SVGTree::pushPageContext (unique_ptr<SVGElement> node) {
 }
 
 
-/** Pops the current context element and restored the previous one. */
+/** Pops the current context element and restores the previous one. */
 void SVGTree::popPageContext () {
 	if (!_pageContextStack.empty())
 		_pageContextStack.pop();
-	_charHandler->setInitialContextNode(_page);
+	_charHandler->setInitialContextNode(_pageContextStack.empty() ? _page : _pageContextStack.top());
 }
 
 

@@ -2,7 +2,7 @@
 ** TFM.cpp                                                              **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <fstream>
 #include <vector>
 #include "FileFinder.hpp"
@@ -43,8 +46,8 @@ static void read_words (StreamReader &reader, vector<T> &v, unsigned n) {
 
 
 TFM::TFM (istream &is) : _checksum(0), _firstChar(0), _lastChar(0), _designSize(0), _ascent(0), _descent(0) {
-   if (!is)
-      return;
+	if (!is)
+		return;
 	is.seekg(0);
 	StreamReader reader(is);
 	uint16_t lf = uint16_t(reader.readUnsigned(2)); // length of entire file in 4 byte words

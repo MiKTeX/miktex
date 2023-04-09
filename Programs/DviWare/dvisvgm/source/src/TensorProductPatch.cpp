@@ -2,7 +2,7 @@
 ** TensorProductPatch.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <valarray>
 #include "TensorProductPatch.hpp"
 
@@ -147,10 +150,10 @@ DPair TensorProductPatch::valueAt (double u, double v) const {
 	// compute tensor product
 	DPair p[4];
 	for (int i=0; i < 4; i++) {
-		Bezier bezier(_points[i][0], _points[i][1], _points[i][2], _points[i][3]);
+		CubicBezier bezier(_points[i][0], _points[i][1], _points[i][2], _points[i][3]);
 		p[i] = bezier.valueAt(u);
 	}
-	Bezier bezier(p[0], p[1], p[2], p[3]);
+	CubicBezier bezier(p[0], p[1], p[2], p[3]);
 	return bezier.valueAt(v);
 }
 
@@ -224,7 +227,7 @@ GraphicsPath<double> TensorProductPatch::getBoundaryPath () const {
  *  runs "vertically" from P(u,0) to P(u,1) through the patch P.
  *  @param[in] u "horizontal" parameter in the range from 0 to 1
  *  @param[out] bezier the resulting Bézier curve */
-void TensorProductPatch::verticalCurve (double u, Bezier &bezier) const {
+void TensorProductPatch::verticalCurve (double u, CubicBezier &bezier) const {
 	// check for simple cases (boundary curves) first
 	if (u == 0)
 		bezier.setPoints(_points[0][0], _points[1][0], _points[2][0], _points[3][0]);
@@ -234,7 +237,7 @@ void TensorProductPatch::verticalCurve (double u, Bezier &bezier) const {
 		// compute "inner" curve
 		DPair p[4];
 		for (int i=0; i < 4; i++) {
-			Bezier bezier(_points[i][0], _points[i][1], _points[i][2], _points[i][3]);
+			CubicBezier bezier(_points[i][0], _points[i][1], _points[i][2], _points[i][3]);
 			p[i] = bezier.valueAt(u);
 		}
 		bezier.setPoints(p[0], p[1], p[2], p[3]);
@@ -246,7 +249,7 @@ void TensorProductPatch::verticalCurve (double u, Bezier &bezier) const {
  *  runs "horizontally" from P(0,v) to P(1,v) through the patch P.
  *  @param[in] v "vertical" parameter in the range from 0 to 1
  *  @param[out] bezier the resulting Bézier curve */
-void TensorProductPatch::horizontalCurve (double v, Bezier &bezier) const {
+void TensorProductPatch::horizontalCurve (double v, CubicBezier &bezier) const {
 	// check for simple cases (boundary curves) first
 	if (v == 0)
 		bezier.setPoints(_points[0][0], _points[0][1], _points[0][2], _points[0][3]);
@@ -256,7 +259,7 @@ void TensorProductPatch::horizontalCurve (double v, Bezier &bezier) const {
 		// compute "inner" curve
 		DPair p[4];
 		for (int i=0; i < 4; i++) {
-			Bezier bezier(_points[0][i], _points[1][i], _points[2][i], _points[3][i]);
+			CubicBezier bezier(_points[0][i], _points[1][i], _points[2][i], _points[3][i]);
 			p[i] = bezier.valueAt(v);
 		}
 		bezier.setPoints(p[0], p[1], p[2], p[3]);
@@ -293,10 +296,10 @@ void TensorProductPatch::subpatch (double u1, double u2, double v1, double v2, T
 DPair TensorProductPatch::blossomValue (double u1, double u2, double u3, double v1, double v2, double v3) const {
 	DPair p[4];
 	for (int i=0; i < 4; i++) {
-		Bezier bezier(_points[i][0], _points[i][1], _points[i][2], _points[i][3]);
+		CubicBezier bezier(_points[i][0], _points[i][1], _points[i][2], _points[i][3]);
 		p[i] = bezier.blossomValue(u1, u2, u3);
 	}
-	Bezier bezier(p[0], p[1], p[2], p[3]);
+	CubicBezier bezier(p[0], p[1], p[2], p[3]);
 	return bezier.blossomValue(v1, v2, v3);
 }
 
@@ -313,10 +316,10 @@ static inline double snap (double x) {
 
 
 /** Computes a single row of segments approximating the patch region between v1 and v1+inc. */
-void TensorProductPatch::approximateRow (double v1, double inc, bool overlap, double delta, const vector<Bezier> &vbeziers, Callback &callback) const {
+void TensorProductPatch::approximateRow (double v1, double inc, bool overlap, double delta, const vector<CubicBezier> &vbeziers, Callback &callback) const {
 	double v2 = snap(v1+inc);
 	double ov2 = (overlap && v2 < 1) ? snap(v2+inc) : v2;
-	Bezier hbezier1, hbezier2;
+	CubicBezier hbezier1, hbezier2;
 	horizontalCurve(v1, hbezier1);
 	horizontalCurve(ov2, hbezier2);
 	double u1 = 0;
@@ -324,10 +327,10 @@ void TensorProductPatch::approximateRow (double v1, double inc, bool overlap, do
 		double u2 = snap(u1+inc);
 		double ou2 = (overlap && u2 < 1) ? snap(u2+inc) : u2;
 		// compute segment boundaries
-		Bezier b1(hbezier1, u1, ou2);
-		Bezier b2(vbeziers[i + (overlap && i < vbeziers.size()-1 ? 1 : 0)], v1, ov2);
-		Bezier b3(hbezier2, u1, ou2);
-		Bezier b4(vbeziers[i-1], v1, ov2);
+		CubicBezier b1(hbezier1, u1, ou2);
+		CubicBezier b2(vbeziers[i + (overlap && i < vbeziers.size()-1 ? 1 : 0)], v1, ov2);
+		CubicBezier b3(hbezier2, u1, ou2);
+		CubicBezier b4(vbeziers[i-1], v1, ov2);
 		GraphicsPath<double> path;
 		path.moveto(b1.point(0));
 		if (inc > delta) {
@@ -366,7 +369,7 @@ void TensorProductPatch::approximate (int gridsize, bool overlap, double delta, 
 	else {
 		const double inc = 1.0/gridsize;
 		// collect curves dividing the patch into several columns (curved vertical stripes)
-		vector<Bezier> vbeziers(gridsize+1);
+		vector<CubicBezier> vbeziers(gridsize+1);
 		double u=0;
 		for (int i=0; i <= gridsize; i++) {
 			verticalCurve(u, vbeziers[i]);
@@ -384,7 +387,7 @@ void TensorProductPatch::approximate (int gridsize, bool overlap, double delta, 
 
 BoundingBox TensorProductPatch::getBBox () const {
 	BoundingBox bbox;
-	Bezier bezier;
+	CubicBezier bezier;
 	for (int i=0; i <= 1; i++) {
 		horizontalCurve(i, bezier);
 		bbox.embed(bezier.getBBox());
@@ -398,10 +401,10 @@ BoundingBox TensorProductPatch::getBBox () const {
 #if 0
 void TensorProductPatch::approximate (int gridsize, Callback &callback) const {
 	const double inc = 1.0/gridsize;
-	Bezier ubezier0; verticalCurve(0, ubezier0);
-	Bezier ubezier1; verticalCurve(1, ubezier1);
-	Bezier vbezier0; horizontalCurve(0, vbezier0);
-	Bezier vbezier1; horizontalCurve(1, vbezier1);
+	CubicBezier ubezier0; verticalCurve(0, ubezier0);
+	CubicBezier ubezier1; verticalCurve(1, ubezier1);
+	CubicBezier vbezier0; horizontalCurve(0, vbezier0);
+	CubicBezier vbezier1; horizontalCurve(1, vbezier1);
 	for (double v1=0; v1 < 1; v1=snap(v1+inc)) {
 		double v2 = snap(v1+inc);
 		DPair p0 = valueAt(0, v1);
@@ -423,25 +426,25 @@ void TensorProductPatch::approximate (int gridsize, Callback &callback) const {
 			if (v1 > 0)
 				path.lineto(p1);
 			else {
-				Bezier bezier(vbezier0, u1, u2);
+				CubicBezier bezier(vbezier0, u1, u2);
 				path.cubicto(bezier.point(1), bezier.point(2), bezier.point(3));
 			}
 			if (u2 < 1)
 				path.lineto(p3);
 			else {
-				Bezier bezier(ubezier1, v1, v2);
+				CubicBezier bezier(ubezier1, v1, v2);
 				path.cubicto(bezier.point(1), bezier.point(2), bezier.point(3));
 			}
 			if (v2 < 1)
 				path.lineto(p2);
 			else {
-				Bezier bezier(vbezier1, u1, u2);
+				CubicBezier bezier(vbezier1, u1, u2);
 				path.cubicto(bezier.point(2), bezier.point(1), bezier.point(0));
 			}
 			if (u1 > 0)
 				path.closepath();
 			else {
-				Bezier bezier(ubezier0, v1, v2);
+				CubicBezier bezier(ubezier0, v1, v2);
 				path.cubicto(bezier.point(2), bezier.point(1), bezier.point(0));
 				path.closepath();
 			}
@@ -472,10 +475,10 @@ DPair CoonsPatch::valueAt (double u, double v) const {
 	// Compute the value of P(u,v) using the Coons equation rather than the
 	// tensor product since the "inner" control points of the tensor matrix
 	// might not be set yet.
-	Bezier bezier1(_points[3][0], _points[3][1], _points[3][2], _points[3][3]);
-	Bezier bezier2(_points[0][0], _points[0][1], _points[0][2], _points[0][3]);
-	Bezier bezier3(_points[3][0], _points[2][0], _points[1][0], _points[0][0]);
-	Bezier bezier4(_points[3][3], _points[2][3], _points[1][3], _points[0][3]);
+	CubicBezier bezier1(_points[3][0], _points[3][1], _points[3][2], _points[3][3]);
+	CubicBezier bezier2(_points[0][0], _points[0][1], _points[0][2], _points[0][3]);
+	CubicBezier bezier3(_points[3][0], _points[2][0], _points[1][0], _points[0][0]);
+	CubicBezier bezier4(_points[3][3], _points[2][3], _points[1][3], _points[0][3]);
 	DPair ph = bezier1.valueAt(u)*(1-v) + bezier2.valueAt(u)*v;
 	DPair pv = bezier3.valueAt(v)*(1-u) + bezier4.valueAt(v)*u;
 	DPair pc = (_points[3][0]*(1-u) + _points[3][3]*u)*(1-v) + (_points[0][0]*(1-u) + _points[0][3]*u)*v;

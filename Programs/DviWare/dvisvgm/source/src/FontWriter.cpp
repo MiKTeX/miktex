@@ -2,7 +2,7 @@
 ** FontWriter.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -75,7 +75,7 @@ vector<string> FontWriter::supportedFormats () {
 
 #ifdef DISABLE_WOFF
 // dummy functions used if WOFF support is disabled
-FontWriter::FontWriter (const PhysicalFont &font) : _font(font) {}
+FontWriter::FontWriter (const PhysicalFont &font) : _currentFont(font) {}
 std::string FontWriter::createFontFile (FontFormat format, const set<int> &charcodes, GFGlyphTracer::Callback *cb) const {return "";}
 bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes, ostream &os, GFGlyphTracer::Callback *cb) const {return false;}
 #else
@@ -84,141 +84,50 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 #include <iomanip>
 #include <sstream>
 #include <woff2/encode.h>
-#include "ffwrapper.h"
 #include "Bezier.hpp"
 #include "FileSystem.hpp"
 #include "Font.hpp"
 #include "Glyph.hpp"
-#include "TTFAutohint.hpp"
-#include "TrueTypeFont.hpp"
+#include "ttf/TTFAutohint.hpp"
+#include "ttf/TTFWriter.hpp"
 
+using namespace ttf;
 
-FontWriter::FontWriter (const PhysicalFont &font) : _font(font) {
-	static bool initialized=false;
-	if (!initialized) {
-		ff_init();
-		initialized = true;
-	}
-}
-
-
-struct SFDActions : Glyph::IterationActions {
-	explicit SFDActions (ostream &os) : _os(os) {}
-
-	using Point = Glyph::Point;
-	void moveto (const Point &p) override {write('m', p);}
-	void lineto (const Point &p) override {write('l', p);}
-	void cubicto (const Point &p1, const Point &p2, const Point &p3) override {write('c', p1, p2, p3);	}
-	void closepath () override {write('m', startPoint());}
-
-	void quadto (const Point &p1, const Point &p2) override {
-		// convert quadratic Bézier curve to cubic one
-		DPair pt0(currentPoint().x(), currentPoint().y());
-		DPair pt1(p1.x(), p1.y());
-		DPair pt2(p2.x(), p2.y());
-		Bezier b(pt0, pt1, pt2);
-		write('c', round(b.point(0)), round(b.point(1)), round(b.point(2)), round(b.point(3)));
-	}
-
-	template <typename ...Args>
-	void write (char cmd, const Args& ...args) {
-		writeParams(args...);
-		_os << cmd << " 0\n";
-	}
-
-	static void writeParams () {}
-
-	template <typename Pt, typename ...Args>
-	void writeParams (const Pt &p, const Args& ...args) const {
-		_os << p.x() << ' ' << p.y() << ' ';
-		writeParams(args...);
-	}
-
-	ostream &_os;
-   Glyph::Point _startPoint, _currentPoint;
-};
-
-
-/** Creates a Spline Font Database (SFD) file describing the font and its glyphs.
- *  https://fontforge.github.io/sfdformat.html */
-static void writeSFD (const string &sfdname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) {
-#if defined(MIKTEX_WINDOWS)
-        ofstream sfd(EXPATH_(sfdname));
-#else
-	ofstream sfd(sfdname);
-#endif
-	if (!sfd)
-		throw FontWriterException("failed writing SFD file "+sfdname);
-
-	sfd <<
-		"SplineFontDB: 3.0\n"
-		"FontName: " << font.name() << '\n';
-
-	// ensure that the sum of the SFD's Ascent and Descent values equals the font's units per EM
-	double yext = font.ascent()+font.descent();
-	double scale = double(font.unitsPerEm())/(yext != 0 ? yext : abs(font.ascent()));
-	sfd <<
-		"Ascent: " << font.ascent()*scale << "\n"
-		"Descent: " << font.descent()*scale << "\n"
-		"LayerCount: 2\n"           // number of layers must be 2 at least
-		"Layer: 0 0 \"Back\" 1\n"   // layer 0: background layer with cubic splines
-		"Layer: 1 0 \"Fore\" 0\n"   // layer 1: foreground layer with cubic splines
-		"Encoding: UnicodeFull\n"   // character codes can use the full Unicode range
-		"BeginChars: 1114112 " << charcodes.size() << '\n';
-
-	double extend = font.style() ? font.style()->extend : 1;
-	for (int c : charcodes) {
-		string name = font.glyphName(c);
-		if (name.empty()) {
-			// if the font doesn't provide glyph names, use AGL name uFOO
-			ostringstream oss;
-			oss << 'u' << hex << uppercase << setw(4) << setfill('0') << c;
-			name = oss.str();
-		}
-		uint32_t codepoint = font.unicode(c);
-		sfd <<
-			"StartChar: " << name << "\n"
-			"Encoding: "  << codepoint << ' ' << codepoint << " 0\n"
-			"Width: "     << font.hAdvance(c)*extend << "\n"
-			"VWidth: "    << font.vAdvance(c) << "\n"
-			"Fore\n"
-			"SplineSet\n";
-		Glyph glyph;
-		if (font.getGlyph(c, glyph, cb)) {
-			SFDActions actions(sfd);
-			glyph.iterate(actions, false);
-		}
-		sfd <<
-			"EndSplineSet\n"
-			"EndChar\n";
-	}
-	sfd.flush();
-	sfd.close();
-	if (sfd.fail())
-		throw FontWriterException("failed writing SFD file "+sfdname);
-}
-
-
-bool FontWriter::createTTFFile (const string &sfdname, const string &ttfname) const {
-	TTFAutohint autohinter;
-	if (!autohinter.available())
-		return ff_sfd_to_ttf(sfdname.c_str(), ttfname.c_str(), AUTOHINT_FONTS);
-
-	bool ok = ff_sfd_to_ttf(sfdname.c_str(), ttfname.c_str(), false);
+bool FontWriter::createTTFFile (const std::string &ttfname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) const {
+	TTFWriter ttfWriter(font, charcodes);
+	if (cb)
+		ttfWriter.setTracerCallback(*cb);
+	bool ok = ttfWriter.writeTTF(ttfname);
 	if (ok && AUTOHINT_FONTS) {
-		string tmpname = ttfname+"-ah";
-		int errnum = autohinter.autohint(ttfname, tmpname, true);
-		if (errnum) {
-			Message::wstream(true) << "failed to autohint font '" << _font.name() << "'";
-			string msg = autohinter.lastErrorMessage();
-			if (!msg.empty())
-				Message::wstream() << " (" << msg << ")";
-			// keep the unhinted TTF
-			FileSystem::remove(tmpname);
+		TTFAutohint autohinter;
+		if (!autohinter.available()) {
+			static bool reported=false;
+			if (!reported) {
+				Message::wstream(true) << "autohint functionality disabled (ttfautohint not found)";
+				reported = true;
+			}
 		}
 		else {
-			FileSystem::remove(ttfname);
-			FileSystem::rename(tmpname, ttfname);
+			string tmpname = ttfname+"-ah";
+			try {
+				int errnum = autohinter.autohint(ttfname, tmpname, true);
+				if (errnum == 0) {  // success?
+					FileSystem::remove(ttfname);
+					FileSystem::rename(tmpname, ttfname);
+				}
+				else {
+					Message::wstream(true) << "failed to autohint font '" << _font.name() << "'";
+					string msg = autohinter.lastErrorMessage();
+					if (!msg.empty())
+						Message::wstream() << " (" << msg << ")";
+					// keep the unhinted TTF
+					FileSystem::remove(tmpname);
+				}
+			}
+			catch (MessageException &e) {
+				Message::wstream(true) << e.what() << '\n';
+				FileSystem::remove(tmpname);
+			}
 		}
 	}
 	return ok;
@@ -233,24 +142,19 @@ bool FontWriter::createTTFFile (const string &sfdname, const string &ttfname) co
 string FontWriter::createFontFile (FontFormat format, const set<int> &charcodes, GFGlyphTracer::Callback *cb) const {
 	string tmpdir = FileSystem::tmpdir();
 	string basename = tmpdir+_font.name()+"-tmp";
-	string sfdname = basename+".sfd";
-	writeSFD(sfdname, _font, charcodes, cb);
 	string ttfname = basename+".ttf";
 	string targetname = basename+"."+fontFormatInfo(format)->formatstr_short;
-	bool ok = createTTFFile(sfdname, ttfname);
+	bool ok = createTTFFile(ttfname, _font, charcodes, cb);
 	if (ok) {
 		if (format == FontFormat::WOFF || format == FontFormat::WOFF2) {
-			TrueTypeFont ttf(ttfname);
 			if (format == FontFormat::WOFF)
-				ttf.writeWOFF(targetname);
+				ok = TTFWriter::convertTTFToWOFF(ttfname, targetname);
 			else
-				ok = ttf.writeWOFF2(targetname);
+				TTFWriter::convertTTFToWOFF2(ttfname, targetname);
 			if (!PhysicalFont::KEEP_TEMP_FILES)
 				FileSystem::remove(ttfname);
 		}
 	}
-	if (!PhysicalFont::KEEP_TEMP_FILES)
-		FileSystem::remove(sfdname);
 	if (!ok)
 		throw FontWriterException("failed writing "+string(fontFormatInfo(format)->formatstr_short)+ " file " + targetname);
 	return targetname;

@@ -2,7 +2,7 @@
 ** DVIToSVGActions.cpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <cstring>
 #include <ctime>
 #include "BoundingBox.hpp"
@@ -33,8 +36,7 @@ using namespace std;
 
 
 void DVIToSVGActions::reset() {
-	_usedChars.clear();
-	_usedFonts.clear();
+	FontManager::instance().resetUsedChars();
 	_bbox = BoundingBox();
 	_currentFontNum = -1;
 	_bgcolor = Color::TRANSPARENT;
@@ -93,10 +95,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
 	// record font names and chars. The various font sizes can be ignored here.
 	// For a given font object, Font::uniqueFont() returns the same unique font object for
 	// all fonts with the same name.
-	_usedChars[SVGTree::USE_FONTS ? font.uniqueFont() : &font].insert(c);
-
-	// However, we record all required fonts
-	_usedFonts.insert(&font);
+	FontManager::instance().addUsedChar(font, c);
 	_svg.appendChar(c, x, y);
 
 	static string fontname;
@@ -216,10 +215,10 @@ void DVIToSVGActions::special (const string &spc, double dvi2bp, bool preprocess
  *  @param[in] c array with 10 components representing \\count0 ... \\count9. c[0] contains the
  *               current (printed) page number (may differ from page count) */
 void DVIToSVGActions::beginPage (unsigned pageno, const vector<int32_t>&) {
-	SpecialManager::instance().notifyBeginPage(pageno, *this);
 	_svg.newPage(++_pageCount);
 	_bbox = BoundingBox();  // clear bounding box
 	_boxes.clear();
+	SpecialManager::instance().notifyBeginPage(pageno, *this);
 }
 
 

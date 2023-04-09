@@ -2,7 +2,7 @@
 ** PsSpecialHandler.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,7 +23,6 @@
 #endif
 #include <array>
 #include <cmath>
-#include <fstream>
 #include <memory>
 #include <sstream>
 #include "FileFinder.hpp"
@@ -52,6 +51,7 @@ bool PsSpecialHandler::SHADING_SEGMENT_OVERLAP = false;
 int PsSpecialHandler::SHADING_SEGMENT_SIZE = 20;
 double PsSpecialHandler::SHADING_SIMPLIFY_DELTA = 0.01;
 string PsSpecialHandler::BITMAP_FORMAT;
+bool PsSpecialHandler::EMBED_BITMAP_DATA = false;
 
 
 PsSpecialHandler::PsSpecialHandler () : _psi(this), _previewFilter(_psi)
@@ -166,7 +166,9 @@ void PsSpecialHandler::executeAndSync (istream &is, bool updatePos) {
 		_actions->getColor().getRGB(r, g, b);
 		ostringstream oss;
 		oss << '\n' << r << ' ' << g << ' ' << b << " setrgbcolor ";
+		PSFilter *filter = _psi.setFilter(nullptr);  // don't apply any filters here
 		_psi.execute(oss.str(), false);
+		_psi.setFilter(filter);
 	}
 	_psi.execute(is);
 	if (updatePos) {
@@ -201,7 +203,7 @@ void PsSpecialHandler::preprocess (const string &prefix, istream &is, SpecialAct
 
 static string filename_suffix (const string &fname) {
 	string ret;
-	size_t pos = fname.rfind('.');
+	auto pos = fname.rfind('.');
 	if (pos != string::npos)
 		ret = util::tolower(fname.substr(pos+1));
 	return ret;
@@ -231,7 +233,7 @@ bool PsSpecialHandler::process (const string &prefix, istream &is, SpecialAction
 			string fname = in.getQuotedString(in.peek() == '"' ? "\"" : nullptr);
 			fname = FileSystem::ensureForwardSlashes(fname);
 			FileType fileType = FileType::EPS;
-			if (prefix == "pdffile")
+			if (prefix == "pdffile=")
 				fileType = FileType::PDF;
 			else {
 				// accept selected non-PS files in psfile special
@@ -323,6 +325,7 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const ma
 	double urx = (it = attr.find("urx")) != attr.end() ? stod(it->second) : 0;
 	double ury = (it = attr.find("ury")) != attr.end() ? stod(it->second) : 0;
 	int pageno = (it = attr.find("page")) != attr.end() ? stoi(it->second, nullptr, 10) : 1;
+	_pdfProc = ((it = attr.find("proc")) != attr.end() ? it->second : "");
 
 	if (filetype == FileType::BITMAP || filetype == FileType::SVG)
 		swap(lly, ury);
@@ -372,24 +375,21 @@ void PsSpecialHandler::imgfile (FileType filetype, const string &fname, const ma
 	_actions->setX(0);
 	_actions->setY(0);
 	moveToDVIPos();
-
 	auto imgNode = createImageNode(filetype, fname, pageno, BoundingBox(llx, lly, urx, ury), clipToBbox);
-	if (imgNode) {  // has anything been drawn?
-		Matrix matrix(1);
+	if (imgNode.element) {  // has anything been drawn?
 		if (filetype == FileType::EPS || filetype == FileType::PDF)
 			sy = -sy;  // adapt orientation of y-coordinates
-		matrix.scale(sx, sy).rotate(-angle).scale(hscale/100, vscale/100);  // apply transformation attributes
-		matrix.translate(x+hoffset, y-voffset);     // move image to current DVI position
-		matrix.lmultiply(_actions->getMatrix());
+		imgNode.matrix.scale(sx, sy).rotate(-angle).scale(hscale/100, vscale/100);  // apply transformation attributes
+		imgNode.matrix.translate(x+hoffset, y-voffset);     // move image to current DVI position
+		imgNode.matrix.lmultiply(_actions->getMatrix());
 		// update bounding box
 		BoundingBox bbox(0, 0, urx-llx, ury-lly);
-		bbox.transform(matrix);
+		bbox.transform(imgNode.matrix);
 		_actions->embed(bbox);
-
 		// insert element containing the image data
-		matrix.rmultiply(TranslationMatrix(-llx, -lly));  // move lower left corner of image to origin
-		imgNode->setTransform(matrix);
-		_actions->svgTree().appendToPage(std::move(imgNode));
+		imgNode.matrix.rmultiply(TranslationMatrix(-llx, -lly));  // move lower left corner of image to origin
+		imgNode.element->setTransform(imgNode.matrix);
+		_actions->svgTree().appendToPage(std::move(imgNode.element));
 	}
 	// restore DVI position
 	_actions->setX(x);
@@ -412,8 +412,8 @@ static string image_base_path (const SpecialActions &actions) {
  *  @param[in] bbox bounding box of the image
  *  @param[in] clip if true, the image is clipped to its bounding box
  *  @return pointer to the element or nullptr if there's no image data */
-unique_ptr<SVGElement> PsSpecialHandler::createImageNode (FileType type, const string &fname, int pageno, BoundingBox bbox, bool clip) {
-	unique_ptr<SVGElement> node;
+PsSpecialHandler::ImageNode PsSpecialHandler::createImageNode (FileType type, const string &fname, int pageno, BoundingBox bbox, bool clip) {
+	ImageNode imgnode;
 	string pathstr;
 	if (const char *path = FileFinder::instance().lookup(fname, false))
 		pathstr = FileSystem::ensureForwardSlashes(path);
@@ -421,48 +421,100 @@ unique_ptr<SVGElement> PsSpecialHandler::createImageNode (FileType type, const s
 		pathstr = fname;
 	if (pathstr.empty())
 		Message::wstream(true) << "file '" << fname << "' not found\n";
-	else if (type == FileType::BITMAP || type == FileType::SVG) {
-		node = util::make_unique<SVGElement>("image");
-		node->addAttribute("x", 0);
-		node->addAttribute("y", 0);
-		node->addAttribute("width", bbox.width());
-		node->addAttribute("height", bbox.height());
+	else if (type == FileType::BITMAP || type == FileType::SVG)
+		imgnode = createBitmapNode(fname, pathstr, pageno, bbox);
+	else if (type == FileType::EPS)
+		imgnode = createPSNode(fname, pathstr, pageno, bbox, clip);
+	else
+		imgnode = createPDFNode(fname, pathstr, pageno, bbox, clip);
+	return imgnode;
+}
 
+
+PsSpecialHandler::ImageNode PsSpecialHandler::createBitmapNode (const string &fname, const string &path, int pageno, BoundingBox bbox) {
+	ImageNode imgnode(util::make_unique<SVGElement>("image"));
+	imgnode.element->addAttribute("x", 0);
+	imgnode.element->addAttribute("y", 0);
+	imgnode.element->addAttribute("width", bbox.width());
+	imgnode.element->addAttribute("height", bbox.height());
+	if (EMBED_BITMAP_DATA)
+		imgnode.element->addAttribute("@@xlink:href", "data:" + util::mimetype(fname) + ";base64," + fname);
+	else {
+		string href = path;
 		// Only reference the image with an absolute path if either an absolute path was given by the user
 		// or a given plain filename is not present in the current working directory but was found through
 		// the FileFinder, i.e. it's usually located somewhere in the texmf tree.
-		string href = pathstr;
 		if (!FilePath::isAbsolute(fname) && (fname.find('/') != string::npos || FilePath(fname).exists()))
-			href = FilePath(pathstr).relative(FilePath(_actions->getSVGFilePath(pageno)));
-		node->addAttribute("xlink:href", href);
+			href = FilePath(path).relative(FilePath(_actions->getSVGFilePath(pageno)));
+		imgnode.element->addAttribute("xlink:href", href);
 	}
-	else {  // PostScript or PDF
-		node = util::make_unique<SVGElement>("g"); // put SVG nodes created from the EPS/PDF file in this group
+	return imgnode;
+}
 
-		_xmlnode = node.get();
-		_psi.execute(
-			"\n@beginspecial @setspecial"            // enter special environment
-			"/setpagedevice{@setpagedevice}def "     // activate processing of operator "setpagedevice"
-			"/@imgbase("+image_base_path(*_actions)+")store " // path and basename of image files
-			"matrix setmatrix"                       // don't apply outer PS transformations
-			"/FirstPage "+to_string(pageno)+" def"   // set number of first page to convert (PDF only)
-			"/LastPage "+to_string(pageno)+" def"    // set number of last page to convert (PDF only)
-			"(" + pathstr + ")run "                  // execute file content
-			"@endspecial\n"                          // leave special environment
-		);
-		if (node->empty())
-			node.reset(nullptr);
-		else if (clip) {
-			// clip image to its bounding box if flag 'clip' is given
-			auto clippath = util::make_unique<SVGElement>("clipPath");
-			clippath->addAttribute("id", "imgclip"+ to_string(_imgClipCount));
-			clippath->append(bbox.createSVGPath());
-			node->setClipPathUrl("imgclip"+ to_string(_imgClipCount++));
-			_actions->svgTree().appendToDefs(std::move(clippath));
-		}
-		_xmlnode = nullptr;   // append following elements to page group again
+
+PsSpecialHandler::ImageNode PsSpecialHandler::createPSNode (const string &fname, const string &path, int pageno, BoundingBox bbox, bool clip) {
+	ImageNode imgnode(util::make_unique<SVGElement>("g")); // put SVG nodes created from the EPS/PDF file in this group
+	_xmlnode = imgnode.element.get();
+	_psi.execute(
+		"\n@beginspecial @setspecial"            // enter special environment
+		"/setpagedevice{@setpagedevice}def "     // activate processing of operator "setpagedevice"
+		"/@imgbase("+image_base_path(*_actions)+")store " // path and basename of image files
+		"matrix setmatrix"                       // don't apply outer PS transformations
+		"/FirstPage "+to_string(pageno)+" def"   // set number of first page to convert (PDF only)
+		"/LastPage "+to_string(pageno)+" def"    // set number of last page to convert (PDF only)
+		"(" + path + ")run "                  // execute file content
+		"@endspecial\n"                          // leave special environment
+	);
+	if (imgnode.element->empty())
+		imgnode.element.reset(nullptr);
+	else if (clip) {
+		// clip image to its bounding box if flag 'clip' is given
+		auto clippath = util::make_unique<SVGElement>("clipPath");
+		clippath->addAttribute("id", "imgclip"+ to_string(_imgClipCount));
+		clippath->append(bbox.createSVGPath());
+		imgnode.element->setClipPathUrl("imgclip" + to_string(_imgClipCount++));
+		_actions->svgTree().appendToDefs(std::move(clippath));
 	}
-	return node;
+	_xmlnode = nullptr;   // append following elements to page group again
+	return imgnode;
+}
+
+
+PsSpecialHandler::ImageNode PsSpecialHandler::createPDFNode (const string &fname, const string &path, int pageno, BoundingBox bbox, bool clip) {
+	if (_pdfProc == "gs" || (_pdfProc.empty() && _psi.supportsPDF()))
+		return createPSNode(fname, path, pageno, bbox, clip);
+
+	ImageNode imgnode;
+	if (PDFHandler::available()) {
+		// save SVG state
+		auto savedFont = _actions->svgTree().getFontPair();
+		auto savedMatrix = _actions->svgTree().getMatrix();
+		auto savedColor = _actions->svgTree().getColor();
+
+		imgnode.element = util::make_unique<SVGElement>("g");
+		_pdfHandler.assignSVGTree(_actions->svgTree());
+		imgnode.element = _pdfHandler.convert(path, pageno, std::move(imgnode.element));
+
+		// restore SVG state
+		if (savedFont.second)
+			_actions->svgTree().setFont(savedFont.first, *savedFont.second);
+		_actions->svgTree().setMatrix(savedMatrix);
+		_actions->svgTree().setColor(savedColor);
+
+		if (imgnode.element->empty())
+			imgnode.element.reset(nullptr);
+		else {
+			imgnode.matrix.translate(0, -bbox.height()).scale(1, -1);
+			if (clip) {
+				auto clippath = util::make_unique<SVGElement>("clipPath");
+				clippath->addAttribute("id", "imgclip" + to_string(_imgClipCount));
+				clippath->append(bbox.createSVGPath());
+				imgnode.element->setClipPathUrl("imgclip" + to_string(_imgClipCount++));
+				_actions->svgTree().appendToDefs(std::move(clippath));
+			}
+		}
+	}
+	return imgnode;
 }
 
 
@@ -808,8 +860,7 @@ void PsSpecialHandler::image (std::vector<double> &p) {
 
 		// To prevent memory issues, only add the filename to the href attribute and tag it by '@'
 		// for later base64 encoding.
-		image->addAttribute("@xlink:href", string("data:image/")+(suffix == ".png" ? "png" : "jpeg")+";base64,"+fname);
-
+		image->addAttribute("@xlink:href", "data:"+util::mimetype(fname)+";base64,"+fname);
 		// if set, assign clipping path to image
 		if (_clipStack.path()) {
 			auto group = util::make_unique<SVGElement>("g");

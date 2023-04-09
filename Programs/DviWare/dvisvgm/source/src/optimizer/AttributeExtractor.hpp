@@ -2,7 +2,7 @@
 ** AttributeExtractor.hpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -46,7 +46,6 @@ class AttributeExtractor : public OptimizerModule {
 		void execute (XMLElement*, XMLElement *context) override {execute(context, true);};
 		const char* info () const override;
 		static bool groupable (const XMLElement &elem);
-		static bool inheritable (const Attribute &attrib);
 		static bool extractable (const Attribute &attr, XMLElement &element);
 
 	protected:

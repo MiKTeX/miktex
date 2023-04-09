@@ -2,7 +2,7 @@
 ** MiKTeXCom.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <comdef.h>
 #include <string>
 #include "MessageException.hpp"
@@ -66,8 +69,7 @@ string MiKTeXCom::getVersion () {
 	MiKTeXSetupInfo info;
 	_session->GetMiKTeXSetupInfo(&info);
 #endif
-	_bstr_t version = info.version;
-	return string(version);
+	return to_string(info.series/100)+"."+ to_string(info.series%100);
 }
 
 
@@ -105,6 +107,6 @@ const char* MiKTeXCom::findFile (const char *fname) {
 		return nullptr;
 	}
 	catch (_com_error &e) {
-		throw MessageException((const char*)e.Description());
+		throw MessageException(static_cast<const char*>(e.Description()));
 	}
 }

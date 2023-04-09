@@ -2,7 +2,7 @@
 ** Pair.hpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -73,6 +73,7 @@ inline T det (const Pair<T> &p1, const Pair<T> &p2) {
 struct Pair32 : public Pair<int32_t> {
 	explicit Pair32 (int32_t x=0, int32_t y=0) : Pair<int32_t>(x, y) {}
 	explicit Pair32 (double x, double y) : Pair<int32_t>(lround(x), lround(y)) {}
+	explicit Pair32 (const Pair<double> &p) : Pair32(p.x(), p.y()) {}
 	Pair32 (const Pair<int32_t> &p) : Pair<int32_t>(p) {}
 };
 
@@ -81,6 +82,11 @@ typedef Pair<double> DPair;
 inline DPair round (const DPair &p) {
 	return DPair(std::lround(p.x()), std::lround(p.y()));
 }
+
+
+template<> template<>
+inline Pair<int>::Pair (const Pair<double> &p) : _x(int(round(p.x()))), _y(int(round(p.y()))) {}
+
 
 template <typename T>
 IMPLEMENT_ARITHMETIC_OPERATOR(Pair<T>, +)

@@ -2,7 +2,7 @@
 ** Opacity.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include "Opacity.hpp"
 
 using namespace std;
@@ -42,6 +45,50 @@ string Opacity::cssBlendMode (BlendMode bm) {
 		case BM_LUMINOSITY: return "luminosity";
 	}
 	return "";
+}
+
+
+static string to_lower_drop_nonalpha (const string &str) {
+	string ret;
+	if (!str.empty()) {
+		ret.reserve(str.length());
+		for (char c : str) {
+			if (isalpha(c))
+				ret += char(tolower(c));
+		}
+	}
+	return ret;
+}
+
+
+Opacity::BlendMode Opacity::blendMode (const std::string &name) {
+	struct {
+		const char *name;
+		BlendMode mode;
+	} modes[] = {
+		{"normal",     BM_NORMAL    },
+		{"multiply",   BM_MULTIPLY  },
+		{"screen",     BM_SCREEN    },
+		{"overlay",    BM_OVERLAY   },
+		{"softlight",  BM_SOFTLIGHT },
+		{"hardlight",  BM_HARDLIGHT },
+		{"colordodge", BM_COLORDODGE},
+		{"colorburn",  BM_COLORBURN },
+		{"darken",     BM_DARKEN    },
+		{"lighten",    BM_LIGHTEN   },
+		{"difference", BM_DIFFERENCE},
+		{"exclusion",  BM_EXCLUSION },
+		{"hue",        BM_HUE       },
+		{"saturation", BM_SATURATION},
+		{"color",      BM_COLOR     },
+		{"luminosity", BM_LUMINOSITY}
+	};
+	string compname = to_lower_drop_nonalpha(name);
+	for (const auto &m : modes) {
+		if (compname == m.name)
+			return m.mode;
+	}
+	return BM_NORMAL;
 }
 
 

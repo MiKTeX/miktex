@@ -2,7 +2,7 @@
 ** utility.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,7 +21,12 @@
 #ifndef UTILITY_HPP
 #define UTILITY_HPP
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <iomanip>
+#include <functional>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -40,6 +45,7 @@ inline double rad2deg (double rad) {return 180.0*rad/PI;}
 double normalize_angle (double angle, double mod);
 double normalize_0_2pi (double rad);
 std::vector<double> svd (const double (&m)[2][2]);
+double integral (double t0, double t1, int n, const std::function<double(double)> &f);
 
 /** Signum function (returns x/abs(x) if x != 0, and 0 otherwise). */
 template <typename T>
@@ -61,6 +67,8 @@ std::string normalize_space (std::string str, const char *ws=" \t\n\r\f");
 std::string tolower (const std::string &str);
 std::string replace (std::string str, const std::string &find, const std::string &repl);
 std::string to_string (double val);
+std::string mimetype (const std::string &fname);
+
 std::vector<std::string> split (const std::string &str, const std::string &sep);
 int ilog10 (int n);
 
@@ -136,18 +144,82 @@ inline void base64_copy (std::istream &is, std::ostream &os, int wrap=0) {
  *  Constructs an object of class T on the heap and returns a unique_ptr<T> to it.
  *  @param[in] args arguments forwarded to an constructor of T */
 template<typename T, typename... Args>
-std::unique_ptr<T> make_unique (Args&&... args) {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+inline std::unique_ptr<T> make_unique (Args&&... args) {
+	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+
+
+/** Simple implementation mimicking array variant of std::make_unique introduced in C++14.
+ *  Constructs an array of class T on the heap and returns a unique_ptr<T>(size) to it.
+ *  @param[in] size size of array */
+template<typename T>
+inline std::unique_ptr<T> make_unique (std::size_t size) {
+	return std::unique_ptr<T>(new typename std::remove_extent<T>::type[size]());
 }
 
 
 template<typename T, typename U>
-std::unique_ptr<T> static_unique_ptr_cast (std::unique_ptr<U> &&old){
-    return std::unique_ptr<T>{static_cast<T*>(old.release())};
+inline std::unique_ptr<T> static_unique_ptr_cast (std::unique_ptr<U> &&old){
+	return std::unique_ptr<T>{static_cast<T*>(old.release())};
+}
+
+#ifdef HAVE___BUILTIN_CLZ
+
+template <typename T>
+typename std::enable_if<sizeof(T) <= sizeof(unsigned int), int>::type
+count_leading_zeros (T val) {
+	return val == 0 ? 8*sizeof(T) : __builtin_clz(val) - 8*(sizeof(unsigned int)-sizeof(T));
 }
 
 template <typename T>
-struct set_const_of { 
+typename std::enable_if<sizeof(T) == sizeof(unsigned long) && sizeof(unsigned long) != sizeof(unsigned int), int>::type
+count_leading_zeros (T val) {
+	return val == 0 ? 8*sizeof(T) : __builtin_clzl(val);
+}
+
+template <typename T>
+typename std::enable_if<sizeof(T) == sizeof(unsigned long long) && sizeof(unsigned long long) != sizeof(unsigned long), int>::type
+count_leading_zeros (T val) {
+	return val == 0 ? 8*sizeof(T) : __builtin_clzll(val);
+}
+
+#elif defined(_MSC_VER)
+
+#include <intrin.h>
+
+template <typename T>
+typename std::enable_if<sizeof(T) <= 4, int>::type
+count_leading_zeros (T val) {
+	unsigned long index;
+	return _BitScanReverse(&index, val) ? static_cast<int>(8*sizeof(T)-1-index) : 8*sizeof(T);
+}
+
+#else
+
+// fallback implementation if no built-in clz function is available
+template <typename T>
+typename std::enable_if<sizeof(T) <= 4, int>::type
+count_leading_zeros (T val) {
+	uint32_t val32 = val;
+	static const uint8_t clz_table[16] = {4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+	int n=0;
+	if ((val32 & 0xFFFF0000) == 0) {n = 16; val32 <<= 16;}
+	if ((val32 & 0xFF000000) == 0) {n += 8; val32 <<=  8;}
+	if ((val32 & 0xF0000000) == 0) {n += 4; val32 <<=  4;}
+	return n + clz_table[val32 >> (32-4)] - (32-8*sizeof(T));
+}
+
+#endif
+
+/** Returns floor(log2(n)) where n is a positive integer.
+ *  If n < 1, it returns -1. */
+template <typename T>
+int ilog2 (T n) {
+	return n > 0 ? 8*sizeof(T)-1-count_leading_zeros(n) : -1;
+}
+
+template <typename T>
+struct set_const_of {
 	template <typename U>
 	struct by {
 		using type = typename std::conditional<
@@ -155,8 +227,19 @@ struct set_const_of {
 			typename std::add_const<T>::type,
 			typename std::remove_const<T>::type
 		>::type;
-    };
+	};
 };
+
+class Date {
+	public:
+		Date (int year, int month, int day) : _year(year), _month(month-1), _day(day-1) {}
+		bool operator < (const Date &date) const;
+		size_t operator - (Date date2) const;
+
+	private:
+		int _year, _month, _day;  // _month and _day are 0-based
+};
+
 } // namespace util
 
 #endif

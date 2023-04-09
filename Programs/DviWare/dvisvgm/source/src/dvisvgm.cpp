@@ -2,7 +2,7 @@
 ** dvisvgm.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -40,6 +40,7 @@
 #include "HyperlinkManager.hpp"
 #include "Message.hpp"
 #include "PageSize.hpp"
+#include "PDFHandler.hpp"
 #include "PDFToSVG.hpp"
 #include "PSInterpreter.hpp"
 #include "PsSpecialHandler.hpp"
@@ -48,6 +49,8 @@
 #include "optimizer/SVGOptimizer.hpp"
 #include "SVGOutput.hpp"
 #include "System.hpp"
+#include "ttf/TTFWriter.hpp"
+#include "XMLParser.hpp"
 #include "XXHashFunction.hpp"
 #include "utility.hpp"
 #include "version.hpp"
@@ -55,8 +58,7 @@
 #ifndef DISABLE_WOFF
 #include <brotli/encode.h>
 //#include <woff2/version.h>
-#include "ffwrapper.h"
-#include "TTFAutohint.hpp"
+#include "ttf/TTFAutohint.hpp"
 #endif
 #if defined(MIKTEX)
 #  include <miktex/Definitions>
@@ -68,7 +70,7 @@ using namespace std;
 
 static string remove_path (string fname) {
 	fname = FileSystem::ensureForwardSlashes(fname);
-	size_t slashpos = fname.rfind('/');
+	auto slashpos = fname.rfind('/');
 	if (slashpos == string::npos)
 		return fname;
 	return fname.substr(slashpos+1);
@@ -77,7 +79,7 @@ static string remove_path (string fname) {
 
 static string ensure_suffix (string fname, const string &suffix) {
 	if (!fname.empty()) {
-		size_t dotpos = remove_path(fname).rfind('.');
+		auto dotpos = remove_path(fname).rfind('.');
 		if (dotpos == string::npos)
 			fname += "." + suffix;
 	}
@@ -158,7 +160,7 @@ static bool set_temp_dir (const CommandLine &args) {
 		if (!args.tmpdirOpt.value().empty())
 			FileSystem::TMPDIR = args.tmpdirOpt.value();
 		else {
-			cout << "temporary folder: " << FileSystem::tmpdir() << '\n';
+			cout << "temporary folder: " << FileSystem::ensureSystemSlashes(FileSystem::tmpdir(true)) << '\n';
 			return false;
 		}
 	}
@@ -257,9 +259,9 @@ class VersionInfo {
 
 static void print_version (bool extended) {
 	string versionstr = string(PROGRAM_NAME)+" "+PROGRAM_VERSION;
-#ifdef TARGET_SYSTEM
-	if (extended && strlen(TARGET_SYSTEM) > 0)
-		versionstr += " (" TARGET_SYSTEM ")";
+#ifdef HOST_SYSTEM
+	if (extended && strlen(HOST_SYSTEM) > 0)
+		versionstr += " (" HOST_SYSTEM ")";
 #endif
 	cout << versionstr << '\n';
 	if (extended) {
@@ -271,11 +273,11 @@ static void print_version (bool extended) {
 		versionInfo.add("xxhash", XXH64HashFunction::version(), 3, 100);
 		versionInfo.add("zlib", zlibVersion());
 		versionInfo.add("Ghostscript", Ghostscript().revisionstr(), true);
+		versionInfo.add("mutool", PDFHandler::mutoolVersion(), true);
 #ifndef DISABLE_WOFF
 		versionInfo.add("brotli", BrotliEncoderVersion(), 3, 0x1000);
 //		versionInfo.add("woff2", woff2::version, 3, 0x100);
-		versionInfo.add("fontforge", ff_version());
-		versionInfo.add("ttfautohint", TTFAutohint().version(), true);
+		versionInfo.add("ttfautohint", ttf::TTFAutohint().version(), true);
 #endif
 #ifdef MIKTEX_COM
 		versionInfo.add("MiKTeX", FileFinder::instance().version());
@@ -373,6 +375,10 @@ static void set_variables (const CommandLine &cmdline) {
 	PsSpecialHandler::SHADING_SEGMENT_SIZE = max(1, cmdline.gradSegmentsOpt.value());
 	PsSpecialHandler::SHADING_SIMPLIFY_DELTA = cmdline.gradSimplifyOpt.value();
 	PsSpecialHandler::BITMAP_FORMAT = util::tolower(cmdline.bitmapFormatOpt.value());
+#ifdef TTFDEBUG
+	ttf::TTFWriter::CREATE_PS_GLYPH_OUTLINES = cmdline.debugGlyphsOpt.given();
+#endif
+	PsSpecialHandler::EMBED_BITMAP_DATA = cmdline.embedBitmapsOpt.given();
 	if (!PSInterpreter::imageDeviceKnown(PsSpecialHandler::BITMAP_FORMAT)) {
 		ostringstream oss;
 		oss << "unknown image format '" << PsSpecialHandler::BITMAP_FORMAT << "'\nknown formats:\n";
@@ -498,6 +504,10 @@ int main (int argc, char *argv[]) {
 	catch (PSException &e) {
 		Message::estream() << "\nPostScript error: " << e.what() << '\n';
 		return -2;
+	}
+	catch (XMLParserException &e) {
+		Message::estream() << "\nXML error: " << e.what() << '\n';
+		return -5;
 	}
 	catch (SignalException &e) {
 		Message::wstream().clearline();

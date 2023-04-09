@@ -2,7 +2,7 @@
 ** XMLNode.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <fstream>
 #include <list>
@@ -27,6 +30,10 @@
 #include "utility.hpp"
 #include "XMLNode.hpp"
 #include "XMLString.hpp"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/PathNameUtil>
+#define EXPATH_(x) MiKTeX::Util::PathNameUtil::ToLengthExtendedPathName(x)
+#endif
 
 using namespace std;
 
@@ -61,6 +68,14 @@ unique_ptr<XMLNode> XMLNode::removeNext () {
 		}
 	}
 	return oldnext;
+}
+
+
+XMLElement* XMLNode::nextElement () const {
+	for (XMLNode *node = next(); node; node = node->next())
+		if (node->toElement())
+			return node->toElement();
+	return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -100,6 +115,19 @@ void XMLElement::clear () {
 	_attributes.clear();
 	_firstChild.reset();
 	_lastChild = nullptr;
+}
+
+
+/** Returns true if element has no child nodes or, alternatively, only whitespace children.
+ *  @param[in] ignoreWhitespace if true and if there are only whitespace children, the functions returns true */
+bool XMLElement::empty (bool ignoreWhitespace) const {
+	if (!_firstChild || !ignoreWhitespace)
+		return _firstChild == nullptr;
+	for (const XMLNode *node : *this) {
+		if (!node->toWSNode())
+			return false;
+	}
+	return true;
 }
 
 
@@ -362,19 +390,24 @@ ostream& XMLElement::write (ostream &os) const {
 		if (attrib.name.front() != '@')
 			os << attrib.name << "='" << attrib.value << '\'';
 		else {
-			os << attrib.name.substr(1) << "='";
-			size_t pos = attrib.value.find("base64,");
+			bool keep = (attrib.name.size() > 1 && attrib.name[1] == '@');
+			os << attrib.name.substr(keep ? 2 : 1) << "='";
+			auto pos = attrib.value.find("base64,");
 			if (pos == string::npos)
 				os << attrib.value;
 			else {
 				os << attrib.value.substr(0, pos+7);
 				string fname = attrib.value.substr(pos+7);
+#if defined(MIKTEX_WINDOWS)
+				ifstream ifs(EXPATH_(fname), ios::binary);
+#else
 				ifstream ifs(fname, ios::binary);
+#endif
 				if (ifs) {
 					os << '\n';
 					util::base64_copy(ifs, os, 200);
 					ifs.close();
-					if (!KEEP_ENCODED_FILES)
+					if (!KEEP_ENCODED_FILES && !keep)
 						FileSystem::remove(fname);
 				}
 			}
@@ -431,6 +464,29 @@ const XMLElement::Attribute* XMLElement::getAttribute (const string &name) const
 		return attr.name == name;
 	});
 	return it != _attributes.end() ? &(*it) : nullptr;
+}
+
+
+/** Checks whether an SVG attribute A of an element E implicitly propagates its properties
+ *  to all child elements of E that don't specify A. For now we only consider a subset of
+ *  the inheritable properties.
+ *  @return true if the attribute is inheritable */
+bool XMLElement::Attribute::inheritable () const {
+	// subset of inheritable properties listed on https://www.w3.org/TR/SVG11/propidx.html
+	// clip-path is not inheritable but can be moved to the parent element as long as
+	// no child gets an different clip-path attribute
+	// https://www.w3.org/TR/SVG11/styling.html#Inheritance
+	static const char *names[] = {
+			"clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile",
+			"color-rendering", "direction", "fill", "fill-opacity", "fill-rule", "font", "font-family", "font-size",
+			"font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "glyph-orientation-horizontal",
+			"glyph-orientation-vertical", "letter-spacing", "paint-order", "stroke", "stroke-dasharray", "stroke-dashoffset",
+			"stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "transform",
+			"visibility", "word-spacing", "writing-mode"
+	};
+	return binary_search(std::begin(names), std::end(names), name, [](const string &name1, const string &name2) {
+		return name1 < name2;
+	});
 }
 
 

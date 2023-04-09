@@ -2,7 +2,7 @@
 ** DVIReader.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <sstream>
 #include "Color.hpp"
@@ -464,7 +467,7 @@ const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_
 	Font *font = fm.getFont(fontnum);
 	if (!font && !name.empty()) {  // font not registered yet?
 		if (name[0] == '[') {       // LuaTeX native font reference?
-			size_t last = name.rfind(']');
+			auto last = name.rfind(']');
 			if (last != string::npos) {
 				string path = name.substr(1, last-1);
 				FontStyle style;
@@ -603,6 +606,20 @@ void DVIReader::cmdXFontDef (int) {
 }
 
 
+/** Returns the width of a string typed with a given font.
+ *  @param[in] glyphs glyphs of the string
+ *  @param[in] font assigned font
+ *  @return width in bp units */
+static double string_width (const vector<uint16_t> &glyphs, const Font *font) {
+	double width=0;
+	if (auto nfont = font_cast<const NativeFont*>(font)) {
+		for (auto glyph: glyphs)
+			width += nfont->hAdvance(Character(Character::INDEX, glyph));
+	}
+	return width;
+}
+
+
 /** XDV extension: prints an array of characters where each character
  *  can take independent x and y coordinates.
  *  parameters: w[4] n[2] (dx,dy)[(4+4)n] glyphs[2n] */
@@ -610,11 +627,14 @@ void DVIReader::cmdXGlyphArray (int) {
 	vector<double> dx, dy;
 	vector<uint16_t> glyphs;
 	double width = putGlyphArray(false, dx, dy, glyphs);
-	if (Font *font = FontManager::instance().getFont(_currFontNum))
-		dviXGlyphArray(dx, dy, glyphs, *font);
-	else
+	Font *font = FontManager::instance().getFont(_currFontNum);
+	if (!font)
 		throw DVIException("missing setfont prior to xglypharray");
-	moveRight(width, MoveMode::SETCHAR);
+	dviXGlyphArray(dx, dy, glyphs, *font);
+	double diff = abs(string_width(glyphs, font) - width);
+	// if the given width differs from the actual width of the string,
+	// we must force a position change to prevent misalignments
+	moveRight(width, diff < 0.2 ? MoveMode::SETCHAR : MoveMode::CHANGEPOS);
 }
 
 
@@ -625,11 +645,14 @@ void DVIReader::cmdXGlyphString (int) {
 	vector<double> dx, dy;
 	vector<uint16_t> glyphs;
 	double width = putGlyphArray(true, dx, dy, glyphs);
-	if (Font *font = FontManager::instance().getFont(_currFontNum))
-		dviXGlyphString(dx, glyphs, *font);
-	else
+	Font *font = FontManager::instance().getFont(_currFontNum);
+	if (!font)
 		throw DVIException("missing setfont prior to xglyphstring");
-	moveRight(width, MoveMode::SETCHAR);
+	dviXGlyphString(dx, glyphs, *font);
+	double diff = abs(string_width(glyphs, font) - width);
+	// if the given width differs from the actual width of the string,
+	// we must force a position change to prevent misalignments
+	moveRight(width, diff < 0.2 ? MoveMode::SETCHAR : MoveMode::CHANGEPOS);
 }
 
 
@@ -647,11 +670,14 @@ void DVIReader::cmdXTextAndGlyphs (int) {
 	vector<double> x, y;
 	vector<uint16_t> glyphs;
 	double width = putGlyphArray(false, x, y, glyphs);
-	if (Font *font = FontManager::instance().getFont(_currFontNum))
-		dviXTextAndGlyphs(x, y, chars, glyphs, *font);
-	else
+	Font *font = FontManager::instance().getFont(_currFontNum);
+	if (!font)
 		throw DVIException("missing setfont prior to xtextandglyphs");
-	moveRight(width, MoveMode::SETCHAR);
+	dviXTextAndGlyphs(x, y, chars, glyphs, *font);
+	double diff = abs(string_width(glyphs, font) - width);
+	// if the given width differs from the actual width of the string,
+	// we must force a position change to prevent misalignments
+	moveRight(width, diff < 0.2 ? MoveMode::SETCHAR : MoveMode::CHANGEPOS);
 }
 
 

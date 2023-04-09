@@ -2,7 +2,7 @@
 ** ImageToSVG.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -32,24 +32,25 @@ struct SVGOutputBase;
 
 class ImageToSVG : protected SpecialActions {
 	public:
-		ImageToSVG (std::string fname, SVGOutputBase &out) : _fname(std::move(fname)), _out(out) {}
-		void convert (int pageno);
+		ImageToSVG (std::string fname, SVGOutputBase &out);
+		virtual void convert (int pageno);
 		void convert (int firstPage, int lastPage, std::pair<int,int> *pageinfo);
 		void convert (const std::string &rangestr, std::pair<int,int> *pageinfo);
 		void setPageTransformation (const std::string &transCmds) {_transCmds = transCmds;}
-//		void setPageSize (const std::string &name);
 		std::string filename () const {return _fname;}
 		PSInterpreter& psInterpreter () const {return _psHandler.psInterpreter();}
 		virtual bool isSinglePageFormat () const =0;
 		virtual int totalPageCount () const =0;
 
 	protected:
-		void checkGSAndFileFormat ();
+		virtual void checkGSAndFileFormat ();
 		Matrix getUserMatrix (const BoundingBox &bbox) const;
 		virtual std::string imageFormat () const =0;
 		virtual bool imageIsValid () const =0;
 		virtual BoundingBox imageBBox () const =0;
 		virtual std::string psSpecialCmd () const =0;
+		int gsVersion () const                                  {return _gsVersion;}
+		virtual void writeSVG (int pageno);
 		// implement abstract base class SpecialActions
 		double getX () const override                           {return _x;}
 		double getY () const override                           {return _y;}
@@ -71,17 +72,19 @@ class ImageToSVG : protected SpecialActions {
 		BoundingBox& bbox () override                           {return _bbox;}
 		BoundingBox& bbox (const std::string &name, bool reset=false) override {return _bbox;}
 		FilePath getSVGFilePath (unsigned pageno) const override;
-		std::string getBBoxFormatString () const override {return "";}
+		std::string getBBoxFormatString () const override       {return "";}
+
+	protected:
+		SVGTree _svg;
 
 	private:
 		std::string _fname;   ///< name of image file
-		SVGTree _svg;
 		SVGOutputBase &_out;
 		double _x=0, _y=0;
 		unsigned _currentPageNumber=0;
 		BoundingBox _bbox;
 		mutable PsSpecialHandler _psHandler;
-		bool _haveGS=false;      ///< true if Ghostscript is available
+		int _gsVersion=0;        ///< Ghostscript version found
 		std::string _transCmds;  ///< transformation commands
 };
 

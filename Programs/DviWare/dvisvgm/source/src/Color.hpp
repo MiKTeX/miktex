@@ -2,7 +2,7 @@
 ** Color.hpp                                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,6 +21,7 @@
 #ifndef COLOR_HPP
 #define COLOR_HPP
 
+#include <cstdint>
 #include <string>
 #include <valarray>
 #include <vector>

@@ -2,7 +2,7 @@
 // It is part of the dvisvgm package and published under the terms
 // of the GNU General Public License version 3, or (at your option) any later version.
 // See file COPYING for further details.
-// Copyright (C) 2016-2022 Martin Gieseking <martin.gieseking@uos.de>
+// Copyright (C) 2016-2023 Martin Gieseking <martin.gieseking@uos.de>
 
 #ifndef COMMANDLINE_HPP
 #define COMMANDLINE_HPP
@@ -20,7 +20,7 @@ class CommandLine : public CL::CommandLine {
 		CommandLine () : CL::CommandLine(
 			"This program converts DVI files, as created by TeX/LaTeX, as well as\nEPS and PDF files to the XML-based scalable vector graphics format SVG.",
 			"[options] dvifile\n--eps [options] epsfile\n--pdf [options] pdffile",
-			"Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>"
+			"Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>"
 		) {}
 
 		CommandLine (int argc, char **argv) : CommandLine() {
@@ -35,6 +35,8 @@ class CommandLine : public CL::CommandLine {
 		Option colorOpt {"color", '\0', "colorize messages"};
 		Option colornamesOpt {"colornames", '\0', "prefer color names to RGB values if possible"};
 		Option commentsOpt {"comments", '\0', "add comments with additional information"};
+		Option debugGlyphsOpt {"debug-glyphs", '\0', "create PS files for all glyphs converted to TTF"};
+		Option embedBitmapsOpt {"embed-bitmaps", '\0', "prevent references to external bitmap files"};
 		Option epsOpt {"eps", 'E', "convert EPS file to SVG"};
 		Option exactBboxOpt {"exact-bbox", 'e', "compute exact glyph bounding boxes"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "set file format of embedded fonts"};
@@ -106,6 +108,7 @@ class CommandLine : public CL::CommandLine {
 #endif
 			{&colornamesOpt, 1},
 			{&commentsOpt, 1},
+			{&embedBitmapsOpt, 1},
 #if !defined(DISABLE_WOFF)
 			{&fontFormatOpt, 1},
 #endif
@@ -135,6 +138,9 @@ class CommandLine : public CL::CommandLine {
 			{&transformOpt, 2},
 			{&zoomOpt, 2},
 			{&cacheOpt, 3},
+#if defined(TTFDEBUG)
+			{&debugGlyphsOpt, 3},
+#endif
 			{&exactBboxOpt, 3},
 			{&keepOpt, 3},
 #if !defined(HAVE_LIBGS) && !defined(DISABLE_GS)

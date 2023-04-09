@@ -2,7 +2,7 @@
 ** PSInterpreter.hpp                                                    **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -108,13 +108,14 @@ class PSInterpreter {
 		bool executeRaw (const std::string &str, int n);
 		bool active () const                   {return _mode != PS_QUIT;}
 		void limit (size_t max_bytes)          {_bytesToRead = max_bytes;}
-		void setFilter (PSFilter *filter)      {_filter = filter;}
+		PSFilter* setFilter (PSFilter *filter);
 		PSActions* setActions (PSActions *actions);
 		int pdfPageCount (const std::string &fname);
 		BoundingBox pdfPageBox (const std::string &fname, int pageno);
 		const std::vector<std::string>& rawData () const {return _rawData;}
 		bool setImageDevice (const std::string &deviceStr);
 		bool hasFullOpacitySupport () const {return _gs.revision() >= 952;}
+		bool supportsPDF () const           {return _gs.revision() > 0 && _gs.revision() < 10010;}
 		static std::vector<PSDeviceInfo> getImageDeviceInfos ();
 		static void listImageDeviceInfos (std::ostream &os);
 		static bool imageDeviceKnown (std::string deviceStr);

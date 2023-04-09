@@ -2,7 +2,7 @@
 ** TensorProductPatch.hpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -49,8 +49,8 @@ class TensorProductPatch : public ShadingPatch {
 		virtual DPair valueAt (double u, double v) const;
 		Color colorAt (double u, double v) const;
 		Color averageColor () const override;
-		void horizontalCurve (double v, Bezier &bezier) const;
-		void verticalCurve (double u, Bezier &bezier) const;
+		void horizontalCurve (double v, CubicBezier &bezier) const;
+		void verticalCurve (double u, CubicBezier &bezier) const;
 		GraphicsPath<double> getBoundaryPath () const override;
 		void subpatch (double u1, double u2, double v1, double v2, TensorProductPatch &patch) const;
 		DPair blossomValue (double u1, double u2, double u3, double v1, double v2, double v3) const;
@@ -62,7 +62,7 @@ class TensorProductPatch : public ShadingPatch {
 
 	protected:
 		Color averageColor (const Color &c1, const Color &c2, const Color &c3, const Color &c4) const;
-		void approximateRow (double v1, double inc, bool overlap, double delta, const std::vector<Bezier> &beziers, Callback &callback) const;
+		void approximateRow (double v1, double inc, bool overlap, double delta, const std::vector<CubicBezier> &beziers, Callback &callback) const;
 		void setFirstMatrixColumn (const DPair source[4], bool reverse);
 		void setFirstMatrixColumn (DPair source[4][4], int col, bool reverse);
 

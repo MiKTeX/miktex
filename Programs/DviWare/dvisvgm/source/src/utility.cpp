@@ -2,7 +2,7 @@
 ** utility.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+#if defined(MIKTEX)
+#include <config.h>
+#endif
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -66,6 +69,26 @@ vector<double> math::svd (const double (&m)[2][2]) {
 }
 
 
+/** Returns the value of the definite integral of f:R->R over the interval [t0,t1]
+ *  using a simple Simpson/Runge-Kutta (rk4) approximation.
+ *  @param[in] t0 lower interval boundary
+ *  @param[in] t1 upper interval boundary
+ *  @param[in] n number of slices the interval is divided into
+ *  @param[in] f function to integrate */
+double math::integral (double t0, double t1, int n, const std::function<double(double)> &f) {
+	double ti = t0, ui=0;
+	double h = (t1-t0)/n;
+	for (int i=0; i < n; i++) {
+		double k1 = f(ti);
+		double k2 = f(ti + h/2);
+		double k4 = f(ti + h);
+		ui += h*(k1 + 4*k2 + k4)/6;
+		ti += h;
+	}
+	return ui;
+}
+
+
 /** Normalizes an angle to the interval [-mod, mod). */
 double math::normalize_angle (double angle, double mod) {
 	angle = fmod(angle+mod, 2.0*mod);
@@ -88,10 +111,10 @@ double math::normalize_0_2pi (double rad) {
  *  @param[in] ws characters treated as whitespace
  *  @return the trimmed string */
 string util::trim (const std::string &str, const char *ws) {
-	size_t first = str.find_first_not_of(ws);
+	auto first = str.find_first_not_of(ws);
 	if (first == string::npos)
 		return "";
-	size_t last = str.find_last_not_of(ws);
+	auto last = str.find_last_not_of(ws);
 	return str.substr(first, last-first+1);
 }
 
@@ -103,9 +126,9 @@ string util::trim (const std::string &str, const char *ws) {
  *  @return the normalized string */
 string util::normalize_space (string str, const char *ws) {
 	str = trim(str);
-	size_t first = str.find_first_of(ws);
+	auto first = str.find_first_of(ws);
 	while (first != string::npos) {
-		size_t last = str.find_first_not_of(ws, first);
+		auto last = str.find_first_not_of(ws, first);
 		str.replace(first, last-first, " ");
 		first = str.find_first_of(ws, first+1);
 	}
@@ -120,7 +143,7 @@ string util::normalize_space (string str, const char *ws) {
  *  @return the resulting string */
 string util::replace (string str, const string &find, const string &repl) {
 	if (!find.empty() && !repl.empty()) {
-		size_t first = str.find(find);
+		auto first = str.find(find);
 		while (first != string::npos) {
 			str.replace(first, find.length(), repl);
 			first = str.find(find, first+repl.length());
@@ -140,9 +163,9 @@ vector<string> util::split (const string &str, const string &sep) {
 	if (str.empty() || sep.empty())
 		parts.push_back(str);
 	else {
-		size_t left=0;
+		string::size_type left=0;
 		while (left <= str.length()) {
-			size_t right = str.find(sep, left);
+			auto right = str.find(sep, left);
 			if (right == string::npos) {
 				parts.push_back(str.substr(left));
 				left = string::npos;
@@ -168,7 +191,7 @@ string util::tolower (const string &str) {
 string util::to_string (double val) {
 	string str = std::to_string(val);
 	if (str.find('.') != string::npos) {  // double value and not an integer?
-		size_t pos = str.find_last_not_of('0');
+		auto pos = str.find_last_not_of('0');
 		if (pos != string::npos)  // trailing zeros
 			str.erase(pos+1, string::npos);
 		if (str.back() == '.')    // trailing dot?
@@ -213,4 +236,84 @@ void util::write_file_contents (const string &fname, string::iterator start, str
 	ofstream ofs(fname, ios::binary);
 #endif
 	copy(start, end, ostream_iterator<char>(ofs));
+}
+
+
+string util::mimetype (const string &fname) {
+	string ret;
+	auto pos = fname.rfind('.');
+	if (pos != string::npos) {
+		string suffix = fname.substr(pos+1);
+		if (suffix == "svg")
+			ret = "svg+xml";
+		else if (suffix == "png" || suffix == "gif")
+			ret = suffix;
+		else if (suffix == "jpg" || suffix == "jpeg")
+			ret = "jpeg";
+		else if (suffix == "tif" || suffix == "tiff")
+			ret = "tiff";
+	}
+	if (!ret.empty())
+		ret = "image/"+ret;
+	return ret;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+static bool is_leap_year (int year) {
+	return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+}
+
+
+/** Returns the number of leap years in the interval [year1, year2]. */
+static size_t number_of_leap_years (int year1, int year2) {
+	year1--;
+	size_t ly1 = year1/4 - year1/100 + year1/400;
+	size_t ly2 = year2/4 - year2/100 + year2/400;
+	return ly2-ly1;
+}
+
+
+static size_t number_of_days (int year, int month1, int month2) {
+	const int mdays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	size_t days = is_leap_year(year) ? 366 : 365;
+	for (int i=0; i < month1; i++)
+		days -= mdays[i];
+	for (int i=month2+1; i < 12; i++)
+		days -= mdays[i];
+	return days;
+}
+
+
+static size_t number_of_days (int year1, int month1, int year2, int month2) {
+	size_t days = 0;
+	if (year1 == year2)
+		days = number_of_days(year1, month1, month2);
+	else {
+		if (year2-year1 > 1)
+			days = (year2-year1-1)*365 + number_of_leap_years(year1+1, year2-1);
+		days += number_of_days(year1, month1, 11);
+		days += number_of_days(year2, 0, month2);
+	}
+	return days;
+}
+
+
+/** Returns the number of days spanning the interval from this date up to another one. */
+size_t util::Date::operator - (Date date2) const {
+	Date date1 = *this;
+	if (date2 < date1)
+		std::swap(date1, date2);
+	size_t days = ::number_of_days(date1._year, date1._month, date2._year, date2._month-1);
+	days += date2._day - date1._day + 1;
+	return days;
+}
+
+
+bool util::Date::operator < (const Date &date) const {
+	if (_year < date._year)	return true;
+	if (_year > date._year)	return false;
+	if (_month < date._month) return true;
+	if (_month > date._month) return false;
+	return _day < date._day;
 }

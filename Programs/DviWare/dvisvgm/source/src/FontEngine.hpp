@@ -2,7 +2,7 @@
 ** FontEngine.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -43,29 +43,30 @@ class FontEngine {
 		static FontEngine& instance ();
 		static std::string version ();
 		bool setFont (const Font &font);
+		const Font* currentFont () const {return _currentFont;}
 		bool isCIDFont() const;
+		bool hasVerticalMetrics () const;
 		bool traceOutline (const Character &c, Glyph &glyph, bool scale=true) const;
 		const char* getFamilyName () const;
 		const char* getStyleName () const;
+		const char* getPSName () const;
+		std::string getPSName (const std::string &fname) const;
 		int getUnitsPerEM () const;
 		int getAscender () const;
 		int getDescender () const;
-		int getAdvance (int c) const;
 		int getHAdvance () const;
 		int getHAdvance (const Character &c) const;
 		int getVAdvance (const Character &c) const;
 		int getWidth (const Character &c) const;
 		int getHeight (const Character &c) const;
 		int getDepth (const Character &c) const;
-		int getFirstChar () const;
-		int getNextChar () const;
 		int getCharMapIDs (std::vector<CharMapID> &charmapIDs) const;
 		int getNumGlyphs () const;
 		CharMapID setUnicodeCharMap ();
 		CharMapID setCustomCharMap ();
 		std::vector<int> getPanose () const;
 		std::string getGlyphName (const Character &c) const;
-		int getCharByGlyphName (const char *name) const;
+		int getCharIndexByGlyphName (const char *name) const;
 		bool setCharMap (const CharMapID &charMapID);
 		void buildGidToCharCodeMap (RangeMap &charmap);
 		std::unique_ptr<const RangeMap> createCustomToUnicodeMap ();

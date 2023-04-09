@@ -2,7 +2,7 @@
 ** Process.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,13 +23,30 @@
 
 #include <string>
 
+struct SearchPattern {
+	SearchPattern () =default;
+
+	explicit SearchPattern (std::string searchRegex)
+		: search(std::move(searchRegex)) {}
+
+	SearchPattern (std::string searchRegex, std::string replExpr)
+		: search(std::move(searchRegex)), replace(std::move(replExpr)) {}
+
+	std::string search;
+	std::string replace;
+};
+
+
 class Process {
 	public:
+		enum PipeFlags {PF_STDOUT=1, PF_STDERR=2};
+
 		Process (std::string cmd, std::string paramstr);
 		Process (const Process &orig) =delete;
 		Process (Process &&orig) =delete;
-		bool run (std::string *out=nullptr);
-		bool run (const std::string &dir, std::string *out=nullptr);
+		bool run (std::string *out=nullptr, PipeFlags flags=PF_STDOUT);
+		bool run (const std::string &dir, std::string *out=nullptr, PipeFlags flags=PF_STDOUT);
+		bool run (std::string *out, const SearchPattern &pattern, PipeFlags flags=PF_STDOUT);
 
 	private:
 		std::string _cmd;

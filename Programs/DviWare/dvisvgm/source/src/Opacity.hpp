@@ -2,7 +2,7 @@
 ** Opacity.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2022 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2023 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -27,6 +27,7 @@ class OpacityAlpha {
 	public:
 		OpacityAlpha () =default;
 		OpacityAlpha (double constalpha, double shapealpha) : _constalpha(constalpha), _shapealpha(shapealpha) {}
+		explicit OpacityAlpha (double alpha) : _constalpha(alpha) {}
 		void setConstAlpha (double alpha) { _constalpha = alpha;}
 		void setShapeAlpha (double shapealpha) {_shapealpha = shapealpha;}
 		double value () const {return _constalpha * _shapealpha;}
@@ -48,11 +49,11 @@ class Opacity {
 			BM_HUE, BM_SATURATION, BM_COLOR, BM_LUMINOSITY
 		};
 
-   public:
+	public:
 		Opacity () =default;
 		Opacity (OpacityAlpha fillalpha, OpacityAlpha strokealpha, BlendMode bm) : _fillalpha(fillalpha), _strokealpha(strokealpha), _blendMode(bm) {}
 		Opacity (OpacityAlpha fillalpha, OpacityAlpha strokealpha) : Opacity(fillalpha, strokealpha, BM_NORMAL) {}
-      explicit Opacity (BlendMode bm) : _blendMode(bm) {}
+		explicit Opacity (BlendMode bm) : _blendMode(bm) {}
 		OpacityAlpha& fillalpha () {return _fillalpha;}
 		OpacityAlpha& strokealpha () {return _strokealpha;}
 		const OpacityAlpha& fillalpha () const {return _fillalpha;}
@@ -66,7 +67,9 @@ class Opacity {
 		bool operator == (const Opacity &opacity) const;
 		bool operator != (const Opacity &opacity) const;
 
-   private:
+		static BlendMode blendMode (const std::string &name);
+
+	private:
 		OpacityAlpha _fillalpha;
 		OpacityAlpha _strokealpha;
 		BlendMode _blendMode=BM_NORMAL;
