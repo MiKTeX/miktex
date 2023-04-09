@@ -1,6 +1,6 @@
 %% tftopl-miktex.ch: WEB change file for TFtoPL
 %%
-%% Copyright (C) 1991-2021 Christian Schenk
+%% Copyright (C) 1991-2023 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -114,10 +114,10 @@ ASCII_10:='@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_';@/
 ASCII_14:='`abcdefghijklmnopqrstuvwxyz{|}~ ';@/
 MBL_string:='MBL'; RI_string:='RI '; RCE_string:='RCE';
 @y
-c4p_arrcpy(ASCII_04,'  !"#$%&''()*+,-./0123456789:;<=>?');@/
+c4p_arrcpy(ASCII_04,' !"#$%&''()*+,-./0123456789:;<=>?');@/
 c4p_arrcpy(ASCII_10,' @@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_');@/
 c4p_arrcpy(ASCII_14,' `abcdefghijklmnopqrstuvwxyz{|}~ ');@/
-c4p_arrcpy(ASCII_all,'  !"#$%&''()*+,-./0123456789:;<=>?@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~');@/
+c4p_arrcpy(ASCII_all,' !"#$%&''()*+,-./0123456789:;<=>?@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~');@/
 c4p_arrcpy(MBL_string,'MBL'); c4p_arrcpy(RI_string,'RI '); c4p_arrcpy(RCE_string,'RCE');
 @z
 

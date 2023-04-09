@@ -13,6 +13,7 @@
 
 ### Fixed issues
 
+- [1305](https://github.com/MiKTeX/miktex/issues/1305): tftopl and MikTeX : information for characters shifted by one?
 - [1309](https://github.com/MiKTeX/miktex/issues/1309): https://github.com/MiKTeX/miktex/issues/1309
 
 ## 23.1 - 2023-1-28
