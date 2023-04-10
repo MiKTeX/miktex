@@ -1,35 +1,24 @@
 ## luamisc.cmake
 ##
-## Copyright (C) 2010-2020 Christian Schenk
+## Copyright (C) 2010-2023 Christian Schenk
 ## 
-## This file is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; either version 2, or (at your
-## option) any later version.
-## 
-## This file is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
-## 
-## You should have received a copy of the GNU General Public License
-## along with this file; if not, write to the Free Software
-## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-## USA.
+## This file is free software; the copyright holder gives
+## unlimited permission to copy and/or distribute it, with or
+## without modifications, as long as this notice is preserved.
 
 set(luamisc_sources
-  source/luafilesystem/src/lfs.c
-  source/luafilesystem/src/lfs.h
-  source/luamd5/luamd5.h
-  source/luamd5/md5.c
-  source/luamd5/md5lib.c
-  source/luapeg/lpeg.c
-  source/luapeg/lpeg.h
-  source/luazip/src/luazip.c
-  source/luazip/src/luazip.h
-  source/luazlib/lgzip.c
-  source/luazlib/lzlib.c
-  source/slnunicode/slnunico.c
+    source/luafilesystem/src/lfs.c
+    source/luafilesystem/src/lfs.h
+    source/luamd5/luamd5.h
+    source/luamd5/md5.c
+    source/luamd5/md5lib.c
+    source/luapeg/lpeg.c
+    source/luapeg/lpeg.h
+    source/luazip/src/luazip.c
+    source/luazip/src/luazip.h
+    source/luazlib/lgzip.c
+    source/luazlib/lzlib.c
+    source/slnunicode/slnunico.c
 )
 
 add_library(luatex-luamisc-objects OBJECT ${luamisc_sources})
@@ -37,33 +26,33 @@ add_library(luatex-luamisc-objects OBJECT ${luamisc_sources})
 set_property(TARGET luatex-luamisc-objects PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_compile_definitions(luatex-luamisc-objects
-  PRIVATE
-    -DLUAZIP_API=
+    PRIVATE
+        -DLUAZIP_API=
 )
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(luatex-luamisc-objects PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(luatex-luamisc-objects PUBLIC MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(luatex-luamisc-objects PUBLIC ${zlib_dll_name})
+    target_link_libraries(luatex-luamisc-objects PUBLIC ${zlib_dll_name})
 endif()
 
 if(USE_SYSTEM_ZZIP)
-  target_link_libraries(luatex-luamisc-objects PUBLIC MiKTeX::Imported::ZZIP)
+    target_link_libraries(luatex-luamisc-objects PUBLIC MiKTeX::Imported::ZZIP)
 else()
-  target_link_libraries(luatex-luamisc-objects PUBLIC ${zzip_dll_name})
+    target_link_libraries(luatex-luamisc-objects PUBLIC ${zzip_dll_name})
 endif()
 
 target_link_libraries(luatex-luamisc-objects
-  PUBLIC
-    ${core_dll_name}
-    ${lua53_target_name}
-    ${pplib_lib_name}
+    PUBLIC
+        ${core_dll_name}
+        ${lua53_target_name}
+        ${pplib_lib_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-luamisc-objects
-    PUBLIC
-      ${unxemu_dll_name}
-      ${utf8wrap_dll_name}
-  )
+    target_link_libraries(luatex-luamisc-objects
+        PUBLIC
+        ${unxemu_dll_name}
+        ${utf8wrap_dll_name}
+    )
 endif()

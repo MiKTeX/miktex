@@ -1,0 +1,19 @@
+/**
+ * @file miktex-luahbtex.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2019-2023 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-luatex-version.h"
+
+#define VER_FILEDESCRIPTION_STR "LuaHBTeX - a TeX engine with embedded HarfBuzz and Lua"
+#define VER_INTERNALNAME_STR "luahbtex"
+#define VER_ORIGINALFILENAME_STR "miktex-luahbtex.exe"
+
+#include "miktex/win/version.rc"

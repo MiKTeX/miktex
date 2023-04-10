@@ -1,0 +1,19 @@
+/**
+ * @file miktex-luatex.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2010-2023 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-luatex-version.h"
+
+#define VER_FILEDESCRIPTION_STR "LuaTeX - a document compiler intended to simplify high-quality typesetting for many of the world's languages"
+#define VER_INTERNALNAME_STR "luatex"
+#define VER_ORIGINALFILENAME_STR "miktex-luatex.exe"
+
+#include "miktex/win/version.rc"
