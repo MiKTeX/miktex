@@ -228,8 +228,9 @@ int miktex_emulate__spawn_command(const char* fileName, char* const* argv, char*
     try
     {
         MIKTEX_EXPECT(env == nullptr);
-        Process::Start(PathName(fileName), arguments);
-        return 0;
+        int exitCode;
+        Process::Run(PathName(fileName), arguments, nullptr, &exitCode, nullptr);
+        return exitCode;
     }
     catch (const MiKTeXException&)
     {
