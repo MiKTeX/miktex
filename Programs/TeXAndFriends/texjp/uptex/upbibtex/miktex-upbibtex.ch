@@ -1,6 +1,6 @@
 %% miktex-upbibtex.ch
 %%
-%% Copyright (C) 2021-2022 Christian Schenk
+%% Copyright (C) 2021-2023 Christian Schenk
 %% 
 %% This file is free software; the copyright holder gives
 %% unlimited permission to copy and/or distribute it, with or
@@ -64,6 +64,18 @@ label exit, 4711;
 %
 % [14.438]
 % _____________________________________________________________________________
+
+@x
+                break;
+@y
+                goto 4711;
+@z
+
+@x
+            if sp_end<=tpe then break;
+@y
+            if sp_end<=tpe then goto 4711;
+@z
 
 @x
         break;

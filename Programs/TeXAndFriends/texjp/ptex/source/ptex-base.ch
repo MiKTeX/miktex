@@ -5971,8 +5971,10 @@ while link(tail)<>null do
   {reset |inhibit_glue_flag| when a node other than |disp_node| is found;
    |disp_node| is always inserted according to tex-jp-build issue 40}
   begin p:=tail; tail:=link(tail);
-  if is_char_node(tail) then
-    inhibit_glue_flag:=false
+  if is_char_node(tail) then begin
+    inhibit_glue_flag:=false;
+    if font_dir[font(tail)]<>dir_default then last_jchr:=link(tail);
+    end
   else
     case type(tail) of
     glue_node : begin
