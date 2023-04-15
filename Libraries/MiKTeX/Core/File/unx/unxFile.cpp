@@ -1,6 +1,6 @@
 /* unxFile.cpp: file operations
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -324,7 +324,7 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
   auto trace_files = TraceStream::Open(MIKTEX_TRACE_FILES);
   trace_files->WriteLine("core", fmt::format(T_("copying {0} to {1}"), Q_(source), Q_(dest)));
   struct stat sourceStat;
-  if (options[FileCopyOption::PreserveAttributes])
+  if (options[FileCopyOption::PreserveMode])
   {
     if (stat(source.GetData(), &sourceStat) != 0)
     {
@@ -350,16 +350,9 @@ void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet 
     sourceStream.Close();
     File::Unlock(destStream.GetFile());
     destStream.Close();
-    if (options[FileCopyOption::PreserveAttributes])
+    if (options[FileCopyOption::PreserveMode])
     {
       SetNativeAttributes(dest, static_cast<unsigned long>(sourceStat.st_mode));
-#if defined(HAVE_CHOWN)
-      if (chown(dest.GetData(), sourceStat.st_uid, sourceStat.st_gid) != 0)
-      {
-        MIKTEX_FATAL_CRT_ERROR_2("chown", "path", dest.ToString());
-      }
-#endif
-      SetTimes(dest, sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
     }
   }
   catch (const MiKTeXException&)

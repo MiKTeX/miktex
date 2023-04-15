@@ -1,6 +1,6 @@
 /* miktex/Core/Directory.h:                             -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -40,8 +40,8 @@ enum class DirectoryCopyOption
   UpdateFndb,
   /// Replace an existing directory.
   ReplaceExisting,
-  /// Preserve attributes.
-  PreserveAttributes,
+  /// Preserve mode.
+  PreserveMode,
   /// Deep copy.
   CopySubDirectories
 };

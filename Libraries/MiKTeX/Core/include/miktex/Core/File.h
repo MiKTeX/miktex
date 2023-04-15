@@ -137,8 +137,8 @@ enum class FileCopyOption
   UpdateFndb,
   /// Replace an existing file.
   ReplaceExisting,
-  /// Preserve file attributes.
-  PreserveAttributes,
+  /// Preserve file mode.
+  PreserveMode,
 };
 
 typedef MiKTeX::Util::OptionSet<FileCopyOption> FileCopyOptionSet;

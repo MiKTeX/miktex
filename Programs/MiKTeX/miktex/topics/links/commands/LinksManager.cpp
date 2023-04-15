@@ -201,7 +201,7 @@ void LinksManager::ManageLink(const FileLink& fileLink, bool supportsHardLinks, 
             break;
         case LinkType::Copy:
             this->ctx->ui->Verbose(2, fmt::format(T_("Copying: {0} -> {1}..."), Q_(PathName(linkName).ToDisplayString()), Q_(PathName(fileLink.target).ToDisplayString())));
-            File::Copy(PathName(fileLink.target), PathName(linkName), { FileCopyOption::PreserveAttributes, FileCopyOption::UpdateFndb });
+            File::Copy(PathName(fileLink.target), PathName(linkName), { FileCopyOption::PreserveMode, FileCopyOption::UpdateFndb });
             break;
         default:
             MIKTEX_UNEXPECTED();
