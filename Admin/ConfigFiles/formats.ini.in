@@ -63,7 +63,7 @@
 [dvilualatex-dev]
 
 	attributes[] = exclude
-	compiler = lualatex
+	compiler = luatex
 	description = LuaLaTeX (DVI) dev
 	input = dvilualatex.ini
 
@@ -243,13 +243,6 @@
 	description = plain pdfTeX
 	input = pdftex.ini
 
-[ptex]
-
-	attributes[] = exclude
-	compiler = ptex
-	description = plain pTeX 
-	input = ptex.ini
-
 [eptex]
 
 	attributes[] = exclude
@@ -263,13 +256,6 @@
 	compiler = euptex
 	description = plain e-upTeX 
 	input = euptex.ini
-
-[uptex]
-
-	attributes[] = exclude
-	compiler = uptex
-	description = plain upTeX 
-	input = uptex.ini
 
 [platex]
 
