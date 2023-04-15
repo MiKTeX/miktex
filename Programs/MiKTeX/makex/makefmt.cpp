@@ -50,9 +50,7 @@ enum class Engine
     XeTeX,
     epTeX,
     eupTeX,
-    pTeX,
     pdfTeX,
-    upTeX,
 };
 
 class PdfConfigValues :
@@ -112,14 +110,10 @@ public:
             return "hitex";
         case Engine::pdfTeX:
             return "pdftex";
-        case Engine::pTeX:
-            return "ptex";
         case Engine::epTeX:
             return "eptex";
         case Engine::eupTeX:
             return "euptex";
-        case Engine::upTeX:
-            return "uptex";
         case Engine::XeTeX:
             return "xetex";
         case Engine::LuaHBTeX:
@@ -155,10 +149,6 @@ private:
         {
             this->engine = Engine::pdfTeX;
         }
-        else if (Utils::EqualsIgnoreCase(engine, "ptex"))
-        {
-            this->engine = Engine::pTeX;
-        }
         else if (Utils::EqualsIgnoreCase(engine, "eptex"))
         {
             this->engine = Engine::epTeX;
@@ -166,10 +156,6 @@ private:
         else if (Utils::EqualsIgnoreCase(engine, "euptex"))
         {
             this->engine = Engine::eupTeX;
-        }
-        else if (Utils::EqualsIgnoreCase(engine, "uptex"))
-        {
-            this->engine = Engine::upTeX;
         }
         else if (Utils::EqualsIgnoreCase(engine, "xetex"))
         {
@@ -202,13 +188,9 @@ private:
             return MIKTEX_HITEX_EXE;
         case Engine::pdfTeX:
             return MIKTEX_PDFTEX_EXE;
-        case Engine::pTeX:
-            return MIKTEX_EPTEX_EXE;
         case Engine::epTeX:
             return MIKTEX_EPTEX_EXE;
         case Engine::eupTeX:
-            return MIKTEX_EUPTEX_EXE;
-        case Engine::upTeX:
             return MIKTEX_EUPTEX_EXE;
         case Engine::XeTeX:
             return MIKTEX_XETEX_EXE;
