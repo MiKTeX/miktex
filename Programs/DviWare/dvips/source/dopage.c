@@ -134,19 +134,31 @@ dochar:
    if (!noptex && mychar<0x1000000 && curfnt->loaded == 2 && curfnt->kind == VF_PTEX) {
       if (mychar>=curfnt->maxchars || !(cd->flags & EXISTS)) {
       /* try fallback */
+         chardesctype *cd0;
+         int kind0;
+         cd0 = curfnt->localfonts->desc->chardesc;
+         kind0 = curfnt->localfonts->desc->kind;
+         if (mychar<curfnt->localfonts->desc->maxchars && (cd0[mychar].flags & EXISTS)) {
 #ifdef DEBUG
-         if (dd(D_FONTS))
-            fprintf_str(stderr,
-              "Fallback pTeX vf:%s char=%d(0x%06x) to %s\n",
-               curfnt->name, mychar, mychar, curfnt->localfonts->desc->name);
+            if (dd(D_FONTS))
+               fprintf_str(stderr,
+                 "Fallback pTeX vf:%s char=%d(0x%06x) to %s:%s\n",
+                  curfnt->name, mychar, mychar, kind0==OFM_OMEGA ? "ofm" : "tfm",
+                  curfnt->localfonts->desc->name);
 #endif /* DEBUG */
-         cd = curfnt->localfonts->desc->chardesc;
+            cd0 = &(cd0[mychar]);
+         } else {
+            fprintf_str(stderr,
+                 "Warning: Failed to fallback pTeX vf:%s char=%d(0x%06x) to %s:%s\n",
+                  curfnt->name, mychar, mychar, kind0==OFM_OMEGA ? "ofm" : "tfm",
+                  curfnt->localfonts->desc->name);
+         }
          if (charmove) {
             if (!dir) {
-               sp->hh = hh + cd->pixelwidth;
-               sp->h = h + cd->TFMwidth;
+               sp->hh = hh + cd0->pixelwidth;
+               sp->h = h + cd0->TFMwidth;
             } else {
-               sp->v = v + cd->TFMwidth;
+               sp->v = v + cd0->TFMwidth;
                sp->vv = PixRound(sp->v);
             }
          } else {

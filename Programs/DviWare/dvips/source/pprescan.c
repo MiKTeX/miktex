@@ -135,8 +135,9 @@ dochar:
 #ifdef DEBUG
    if (dd(D_FONTS))
       fprintf_str(stderr,
-              "We will fallback pTeX vf:%s to %s\n",
-               curfnt->name, curfnt->localfonts->desc->name);
+              "We will fallback pTeX vf:%s to %s:%s\n",
+               curfnt->name, curfnt->localfonts->desc->kind==OFM_OMEGA ? "ofm" : "tfm",
+               curfnt->localfonts->desc->name);
 #endif /* DEBUG */
                } else {
                   fprintf(stderr, "Wrong char code: %04X\n", mychar);

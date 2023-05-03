@@ -127,10 +127,12 @@ tfmload(register fontdesctype *curfnt)
    curfnt->dir = 0;
    curfnt->iswide = 0;
    curfnt->codewidth = 1;
+   curfnt->kind = TFM_TEX;
    id = tfm16();
    if (id!=0) {
       font_level = -1;
       if (id == 9 || id == 11) {
+         curfnt->kind = JFM_PTEX;
          if (noptex) badtfm("length");
          if (id == 9) curfnt->dir = id;
          nt = tfm16(); li = tfm16();
@@ -153,6 +155,7 @@ tfmload(register fontdesctype *curfnt)
          badtfm("header");
    } else {  /* In an .ofm file */
       if (noomega) badtfm("length");
+      curfnt->kind = OFM_OMEGA;
       font_level = tfm16();
       li = tfm32(); hd = tfm32();
       bc = tfm32(); ec = tfm32();
@@ -170,8 +173,9 @@ tfmload(register fontdesctype *curfnt)
 #endif /* DEBUG */
          }
       }
-      if (font_level>1 || hd<2 || bc<0 || ec<0 || nw<0
-                       || bc>ec+1 || ec>65535 || nw>65536)
+      if ((font_level>1 || hd<2 || bc<0 || ec<0 || nw<0
+                       || bc>ec+1 || ec>0x10FFFF || nw>0x110000) ||
+         (font_level==0 && (ec>65535 || nw>65536)))
          badtfm("header");
       if (font_level==1) {
          nco = tfm32();
