@@ -1203,7 +1203,7 @@ void l_set_whatsit_data(void) {
     the original one as a metatable. After some experiments (that also included
     timing) with these scenarios I decided that a deep copy made no sense, nor
     did nilling. In the end both the shallow copy and the metatable variant were
-    both ok, although the second ons is slower. The most important aspect to keep
+    both ok, although the second one is slower. The most important aspect to keep
     in mind is that references to other nodes in properties no longer can be
     valid for that copy. We could use two tables (one unique and one shared) or
     metatables but that only complicates matters.

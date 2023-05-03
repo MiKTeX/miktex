@@ -1239,7 +1239,6 @@ static void handle_pfminfo(lua_State * L, struct pfminfo pfm)
     dump_intfield(L, "vlinegap", pfm.vlinegap);
     dump_intfield(L, "hhead_ascent", pfm.hhead_ascent);
     dump_intfield(L, "hhead_descent", pfm.hhead_descent);
-    dump_intfield(L, "hhead_descent", pfm.hhead_descent);
     dump_intfield(L, "os2_typoascent", pfm.os2_typoascent);
     dump_intfield(L, "os2_typodescent", pfm.os2_typodescent);
     dump_intfield(L, "os2_typolinegap", pfm.os2_typolinegap);

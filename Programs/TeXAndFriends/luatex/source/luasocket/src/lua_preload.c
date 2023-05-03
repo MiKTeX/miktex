@@ -16,6 +16,7 @@ int luatex_ftp_lua_open(lua_State*);
 
 
 extern void luatex_socketlua_open (lua_State *) ;
+extern void luatex_socketlua_safe_open (lua_State *) ;
 #include "ftp_lua.c"
 #include "headers_lua.c" 
 #include "http_lua.c"
@@ -56,4 +57,12 @@ luatex_socketlua_open (lua_State *L) {
     TEST(luatex_smtp_lua_open(L));
     TEST(luatex_http_lua_open(L));
     TEST(luatex_ftp_lua_open(L));
+}
+
+/* luatex_socketlua_safe_open: load safe modules */
+/* of luasocket ( mime ).                        */
+void
+luatex_socketlua_safe_open (lua_State *L) {
+    TEST(luatex_ltn12_lua_open(L));
+    TEST(luatex_mime_lua_open(L));
 }

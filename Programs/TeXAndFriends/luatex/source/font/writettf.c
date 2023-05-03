@@ -1518,7 +1518,7 @@ static void do_writeotf(PDF pdf, fd_entry * fd)
     if (tracefilenames)
         tex_printf("<<%s", cur_file_name);
     ttf_read_tabdir();
-    /*tex Read teh font parameters. */
+    /*tex Read the font parameters. */
     if (ttf_name_lookup("head", false) != NULL)
         ttf_read_head();
     if (ttf_name_lookup("hhea", false) != NULL)
@@ -1570,4 +1570,3 @@ void writeotf(PDF pdf, fd_entry * fd)
     xfree(ttf_buffer);
     cur_file_name = NULL;
 }
-

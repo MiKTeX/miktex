@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvipdfmx 20230429
+* luatex 1.17.0
 
 ## 23.4 - 2023-4-15
 

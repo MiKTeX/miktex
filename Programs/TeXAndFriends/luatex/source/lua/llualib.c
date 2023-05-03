@@ -323,8 +323,8 @@ static int set_luaname(lua_State * L)
 {
     int k;
     const char *s;
-    if (lua_gettop(L) == 3) {
-        k = (int) luaL_checkinteger(L, 2);
+    if (lua_gettop(L) == 2) {
+        k = (int) luaL_checkinteger(L, 1);
         if (k > 65535 || k < 0) {
             /* error */
         } else {
@@ -332,8 +332,8 @@ static int set_luaname(lua_State * L)
                 free(luanames[k]);
                 luanames[k] = NULL;
             }
-            if (lua_type(L,3) == LUA_TSTRING) {
-                s = lua_tostring(L, 3);
+            if (lua_type(L, 2) == LUA_TSTRING) {
+                s = lua_tostring(L, 2);
                 if (s != NULL)
                     luanames[k] = xstrdup(s);
             }
@@ -344,7 +344,7 @@ static int set_luaname(lua_State * L)
 
 static int get_luaname(lua_State * L)
 {
-    int k = (int) luaL_checkinteger(L, 2);
+    int k = (int) luaL_checkinteger(L, 1);
     if (k > 65535 || k < 0) {
         /* error */
         lua_pushnil(L);
