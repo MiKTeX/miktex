@@ -251,7 +251,7 @@ struct font_metric
   fixword  designsize;
   char    *codingscheme;
 
-  int  fontdir;
+  int  level, fontdir;
   int firstchar, lastchar;
   
   fixword *widths;
@@ -784,6 +784,7 @@ read_ofm (struct font_metric *fm, FILE *ofm_file, off_t ofm_file_size)
   tfm_unpack_header(fm, &tfm);
   fm->firstchar = tfm.bc;
   fm->lastchar  = tfm.ec;
+  fm->level     = tfm.level;
   fm->source    = SOURCE_TYPE_OFM;
 
   tfm_font_clear(&tfm);
@@ -1228,9 +1229,17 @@ tfm_is_vert (int font_id)
 int
 tfm_is_jfm (int font_id)
 {
+  int is_jfm = 0;
+
   CHECK_ID(font_id);
 
-  return (fms[font_id].source == SOURCE_TYPE_JFM) ? 1 : 0;
+  if (fms[font_id].source == SOURCE_TYPE_JFM) is_jfm = 1;
+#ifndef WITHOUT_OMEGA
+  if (fms[font_id].source == SOURCE_TYPE_OFM
+      && fms[font_id].level == 1 && fms[font_id].lastchar >= 0x2E00) is_jfm = 2;
+#endif
+
+  return is_jfm;
 }
 #else /* WITHOUT_ASCII_PTEX */
 int
