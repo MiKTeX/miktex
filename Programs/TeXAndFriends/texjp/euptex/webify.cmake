@@ -1,6 +1,6 @@
 ## webify.cmake
 ##
-## Copyright (C) 2021-2022 Christian Schenk
+## Copyright (C) 2021-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -88,6 +88,7 @@ add_custom_command(
 	        ${euptex_ch_synctex}
 	        ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/fam256.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-pre.ch
+            ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/suppresserrors.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/pdfutils.ch
             ${CMAKE_CURRENT_SOURCE_DIR}/source/pdfstrcmp-eup-post.ch
             ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_EPTEX_DIR}/source/char-warning-eptex.ch

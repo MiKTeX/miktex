@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Fixed issues
+
+- [1333](https://github.com/MiKTeX/miktex/issues/1333): eptex missing \suppress... primitives
+
 ## 23.5 - 2023-5-3
 
 ### Upgraded programs
