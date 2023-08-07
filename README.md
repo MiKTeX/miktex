@@ -31,4 +31,4 @@ In addition, you can try one of the Dockerized build environments to build MiKTe
 
 ## Deep diving
 
-If you want to understand the MiKTeX source code, have a look at at [HACKING.md](HACKING.md).
+If you want to understand the MiKTeX source code, have a look at [HACKING.md](HACKING.md).
