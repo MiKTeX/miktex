@@ -85,24 +85,24 @@ public:
 
 private:
 
-    void MyTrace(const string &line);
-    void Verbose(const string &line);
-    void PrintOnly(const string &line);
-    void Warning(const string &line);
-    bool GetLine(string &line);
-    void PutLine(const string &line);
-    void ExamineLine(const string &line);
-    void EnsureFontIsAvailable(const string &fontName);
-    void ReadFontMapFile(const PathName &path);
-    void CorrectBoundingBox(double llx, double lly, double urx, double ury);
-    bool BoundingBoxWithValues(const string &line, double &llx, double &lly, double &urx, double &ury);
     bool BoundingBoxWithAtEnd(const string &line);
-    void ScanHeader();
+    bool BoundingBoxWithValues(const string &line, double &llx, double &lly, double &urx, double &ury);
+    bool GetLine(string &line);
+    bool IsSafeGhostscriptOption(const string &o);
     int ReadDosBinary4();
+    void CorrectBoundingBox(double llx, double lly, double urx, double ury);
+    void EnsureFontIsAvailable(const string &fontName);
+    void ExamineLine(const string &line);
     void GetFirstLine(string &line);
+    void MyTrace(const string &line);
     void PrepareInput(bool runAsFilter, const PathName &inputFile);
     void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName &gsExe, const vector<string> &gsExtra, const PathName &outFile);
-    bool IsSafeGhostscriptOption(const string &o);
+    void PrintOnly(const string &line);
+    void PutLine(const string &line);
+    void ReadFontMapFile(const PathName &path);
+    void ScanHeader();
+    void Verbose(const string &line);
+    void Warning(const string &line);
 
     bool boundingBoxCorrected = false;
     string boundingBoxName;
