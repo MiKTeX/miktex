@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX core C API
  *
- * @copyright Copyright © 1996-2022 Christian Schenk
+ * @copyright Copyright © 1996-2023 Christian Schenk
  *
  * This file is part of the MiKTeX Core Library.
  *
@@ -310,7 +310,7 @@ MIKTEXCORECEEAPI(FILE*) miktex_popen(const char* commandLine, const char* mode)
     try
     {
         auto fileAccess = FileAccess::Read;
-        if (mode == "w" || mode == "wb")
+        if (strlen(mode) > 0 && mode[0] == 'w')
         {
             fileAccess = FileAccess::Write;
         }
