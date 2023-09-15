@@ -43,6 +43,7 @@
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceStream>
 #include <miktex/Util/StringUtil>
+#include <miktex/Util/Tokenizer>
 #include <miktex/Wrappers/PoptWrapper>
 
 #if defined(MIKTEX_WINDOWS)
@@ -90,11 +91,13 @@ private:
     bool GetLine(string &line);
     bool IsSafeGhostscriptOption(const string &o);
     int ReadDosBinary4();
+    unordered_map<string, string> ParsePdfConfigFiles() const;
     void CorrectBoundingBox(double llx, double lly, double urx, double ury);
     void EnsureFontIsAvailable(const string &fontName);
     void ExamineLine(const string &line);
     void GetFirstLine(string &line);
     void MyTrace(const string &line);
+    void ParsePdfConfigFile(const PathName& cfgFile, unordered_map<string, string>& values) const;
     void PrepareInput(bool runAsFilter, const PathName &inputFile);
     void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName &gsExe, const vector<string> &gsExtra, const PathName &outFile);
     void PrintOnly(const string &line);
@@ -556,6 +559,44 @@ void EpsToPdfApp::GetFirstLine(string &line)
     }
 }
 
+unordered_map<string, string> EpsToPdfApp::ParsePdfConfigFiles() const
+{
+    vector<PathName> cfgFiles;
+    if (!session->FindFile(MIKTEX_PATH_PDFTEX_CFG, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, cfgFiles))
+    {
+        MIKTEX_FATAL_ERROR(T_("The pdfTeX configuration file (pdftex.cfg) could not be found."));
+    }
+    unordered_map<string, string> values;
+    for (vector<PathName>::const_reverse_iterator it = cfgFiles.rbegin(); it != cfgFiles.rend(); ++it)
+    {
+        ParsePdfConfigFile(*it, values);
+    }
+    return values;
+}
+
+void EpsToPdfApp::ParsePdfConfigFile(const PathName& cfgFile, unordered_map<string, string>& values) const
+{
+    ifstream stream = File::CreateInputStream(cfgFile);
+    string line;
+    while (std::getline(stream, line))
+    {
+        Tokenizer tok(line, " \t\r\n");
+        if (!tok)
+        {
+            continue;
+        }
+        string valueName = *tok;
+        tok.SetDelimiters("\r\n");
+        ++tok;
+        if (!tok)
+        {
+            continue;
+        }
+        string value = *tok;
+        values[valueName] = value;
+    }
+}
+
 void EpsToPdfApp::PrepareInput(bool runAsFilter, const PathName &inputFile)
 {
     if (runAsFilter)
@@ -590,6 +631,11 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
         gsOptions.push_back("-dSubsetFonts="s + "true");
         gsOptions.push_back("-dEmbedAllFonts="s + "true");
 #endif
+        if (pdfVersion.empty())
+        {
+            auto &cfg = ParsePdfConfigFiles();
+            pdfVersion = cfg["pdf_minorversion"];
+        }
         if (!pdfVersion.empty())
         {
             gsOptions.push_back("-dCompatibilityLevel="s + pdfVersion);
