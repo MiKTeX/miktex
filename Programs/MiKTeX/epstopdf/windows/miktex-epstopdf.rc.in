@@ -1,0 +1,22 @@
+/**
+ * @file miktex-epstopdf.rc
+ * @author Christian Schenk
+ * @brief Resources (Windows)
+ *
+ * @copyright Copyright © 2000-2023 Christian Schenk
+ *
+ * This file is part of MiKTeX EPStoPDF.
+ *
+ * MiKTeX EPStoPDF is licensed under GNU General Public License version 2 or any
+ * later version.
+ */
+
+#pragma code_page(65001)
+
+#include "miktex-epstopdf-version.h"
+
+#define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
+#define VER_INTERNALNAME_STR "epstopdf"
+#define VER_ORIGINALFILENAME_STR "miktex-epstopdf.exe"
+
+#include "miktex/win/version.rc"

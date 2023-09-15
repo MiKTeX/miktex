@@ -1,26 +1,19 @@
-/* epstopdf.cpp: epstopdf
+/**
+ * @file miktex.cpp
+ * @author Christian Schenk
+ * @brief Main program
+ *
+ * @copyright Copyright © 2021-2022 Christian Schenk
+ * @copyright Copyright © 1998-2001 by Sebastian Rahtz et al.
+ *
+ * This file is part of MiKTeX EPStoPDF.
+ *
+ * MiKTeX EPStoPDF is licensed under GNU General Public
+ * License version 2 or any later version.
+ */
 
-   Copyright (C) 2000-2022 Christian Schenk
-   Copyright (C) 1998-2001 by Sebastian Rahtz et al.
-
-   This file is part of EPStoPDF.
-
-   EPStoPDF is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   EPStoPDF is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with EPStoPDF; if not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
-
-   /* This program reimplements the epstopdf Perl script written by
-      Sebastian Rahtz. */
+/* This program reimplements the epstopdf Perl script written by Sebastian
+ * Rahtz. */
 
 #include <cassert>
 #include <cmath>
@@ -37,7 +30,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "epstopdf-version.h"
+#include "miktex-epstopdf-version.h"
 
 #include <miktex/App/Application>
 #include <miktex/Core/BufferSizes>
