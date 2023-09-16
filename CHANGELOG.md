@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * bibtex-x 4.01
+* upmendex 1.06
 
 ### Fixed issues
 

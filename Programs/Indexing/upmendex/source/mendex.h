@@ -13,10 +13,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(WIN32) && defined(WITH_SYSTEM_ICU)
+#include <icu.h>
+#else
 #include <unicode/utypes.h>
 #include <unicode/ustring.h>
 #include <unicode/uchar.h>
 #include <unicode/ucol.h>
+#include <unicode/unorm2.h>
+#endif
 
 #define PAGE_COMPOSIT_DEPTH 10
 

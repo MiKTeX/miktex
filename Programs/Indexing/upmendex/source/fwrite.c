@@ -3,7 +3,6 @@
 #include <stdarg.h>
 
 #include <kpathsea/tex-file.h>
-#include <unicode/unorm2.h>
 
 #include "exkana.h"
 #include "exhanzi.h"
