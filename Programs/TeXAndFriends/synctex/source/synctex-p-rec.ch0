@@ -12,17 +12,9 @@ save_loc:=dvi_offset+dvi_ptr; left_edge:=cur_h; cur_v:=cur_v-height(this_box);
 @z
 
 @x synctex-mem.ch0 l.236
-It is initialized by the {\sl Sync\TeX} controller to the command-line option if given.
-The controller may filter some reserved bits.
-
-@ @<Put each...@>=
 primitive("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 @y
-It is initialized by the {\sl Sync\TeX} controller to the command-line option if given.
-The controller may filter some reserved bits.
-
-@ @<Put each...@>=
 primitive("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 

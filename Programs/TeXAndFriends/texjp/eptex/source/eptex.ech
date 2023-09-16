@@ -777,7 +777,7 @@ procedure print_direction(@!d:integer); {print the direction represented by d}
 @z
 
 @x e-pTeX: fetch \(no)auto(x)spacing status
-@* \[56] System-dependent changes.
+@* \[54] System-dependent changes.
 @y
 @ The \.{\\currentspacingmode} and \.{\\currentxspacingmode} commands
 return the current \pTeX's status of \.{\\(no)autospacing} and
@@ -800,5 +800,5 @@ current_xspacing_mode_code: print_esc("currentxspacingmode");
 current_spacing_mode_code: cur_val:=auto_spacing;
 current_xspacing_mode_code: cur_val:=auto_xspacing;
 
-@* \[56] System-dependent changes.
+@* \[54] System-dependent changes.
 @z

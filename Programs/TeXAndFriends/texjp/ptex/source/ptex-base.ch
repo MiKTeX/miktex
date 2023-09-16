@@ -499,26 +499,9 @@ sufficiently large and this is required for \pTeX.
 In \pTeX\ the |subtype| field records the box direction |box_dir|.
 @z
 
-@x [10.135] l.2897 - pTeX: box_dir, space_ptr, xspace_ptr
+@x [10.135] l.2897 - pTeX: box_dir
 @d hlist_node=0 {|type| of hlist nodes}
 @d box_node_size=7 {number of words to allocate for a box node}
-@d width_offset=1 {position of |width| field in a box node}
-@d depth_offset=2 {position of |depth| field in a box node}
-@d height_offset=3 {position of |height| field in a box node}
-@d width(#) == mem[#+width_offset].sc {width of the box, in sp}
-@d depth(#) == mem[#+depth_offset].sc {depth of the box, in sp}
-@d height(#) == mem[#+height_offset].sc {height of the box, in sp}
-@d shift_amount(#) == mem[#+4].sc {repositioning distance, in sp}
-@d list_offset=5 {position of |list_ptr| field in a box node}
-@d list_ptr(#) == link(#+list_offset) {beginning of the list inside the box}
-@d glue_order(#) == subtype(#+list_offset) {applicable order of infinity}
-@d glue_sign(#) == type(#+list_offset) {stretching or shrinking}
-@d normal=0 {the most common case when several cases are named}
-@d stretching = 1 {glue setting applies to the stretch components}
-@d shrinking = 2 {glue setting applies to the shrink components}
-@d glue_offset = 6 {position of |glue_set| in a box node}
-@d glue_set(#) == mem[#+glue_offset].gr
-  {a word of type |glue_ratio| for glue setting}
 @y
 @d hlist_node=0 {|type| of hlist nodes}
 @d box_node_size=8 {number of words to allocate for a box node}
@@ -534,20 +517,13 @@ In \pTeX\ the |subtype| field records the box direction |box_dir|.
 @d dir_yoko = 4 {direction of the box, equal default}
 @d any_dir == dir_yoko,dir_tate,dir_dtou
 @#
-@d width_offset=1 {position of |width| field in a box node}
-@d depth_offset=2 {position of |depth| field in a box node}
-@d height_offset=3 {position of |height| field in a box node}
-@d width(#) == mem[#+width_offset].sc {width of the box, in sp}
-@d depth(#) == mem[#+depth_offset].sc {depth of the box, in sp}
-@d height(#) == mem[#+height_offset].sc {height of the box, in sp}
-@d shift_amount(#) == mem[#+4].sc {repositioning distance, in sp}
-@d list_offset=5 {position of |list_ptr| field in a box node}
-@d list_ptr(#) == link(#+list_offset) {beginning of the list inside the box}
-@d glue_order(#) == subtype(#+list_offset) {applicable order of infinity}
-@d glue_sign(#) == type(#+list_offset) {stretching or shrinking}
-@d normal=0 {the most common case when several cases are named}
-@d stretching = 1 {glue setting applies to the stretch components}
-@d shrinking = 2 {glue setting applies to the shrink components}
+@z
+
+@x [10.135] l.2897 - pTeX: space_ptr, xspace_ptr
+@d glue_offset = 6 {position of |glue_set| in a box node}
+@d glue_set(#) == mem[#+glue_offset].gr
+  {a word of type |glue_ratio| for glue setting}
+@y
 @d glue_offset = 6 {position of |glue_set| in a box node}
 @d glue_set(#) == mem[#+glue_offset].gr
   {a word of type |glue_ratio| for glue setting}
@@ -754,8 +730,8 @@ procedure short_display(@!p:integer); {prints highlights of list |p|}
 hlist_node,vlist_node,ins_node,whatsit_node,mark_node,adjust_node,
   unset_node: print("[]");
 @y
-hlist_node,vlist_node,dir_node,ins_node,whatsit_node,
-  mark_node,adjust_node,unset_node: print("[]");
+hlist_node,vlist_node,dir_node,ins_node,whatsit_node,mark_node,adjust_node,
+  unset_node: print("[]");
 @z
 
 @x [12.176] l.3698 - pTeX: print KANJI.
@@ -1292,8 +1268,8 @@ primitive("xkanjiskip",assign_glue,glue_base+xkanji_skip_code);@/
 @d char_sub_code(#)==equiv(char_sub_code_base+#)
   {Note: |char_sub_code(c)| is the true substitution info plus |min_halfword|}
 @#
-@d cur_jfont==equiv(cur_jfont_loc) {pTeX: }
-@d cur_tfont==equiv(cur_tfont_loc)
+@d cur_jfont==equiv(cur_jfont_loc) { \pTeX }
+@d cur_tfont==equiv(cur_tfont_loc) { \pTeX }
 @d auto_spacing==equiv(auto_spacing_code)
 @d auto_xspacing==equiv(auto_xspacing_code)
 @d kcat_code(#)==equiv(kcat_code_base+#)
@@ -7028,7 +7004,7 @@ for k:=256 to 511 do xchr[k]:=k;
 @x l.26984 - pTeX
 @* \[54] System-dependent changes.
 @y
-@* \[55/\pTeX] System-dependent changes for \pTeX.
+@* \[53b/\pTeX] The extended features for \pTeX.
 This section described extended variables, procesures, functions and so on
 for \pTeX.
 
@@ -8192,5 +8168,5 @@ begin
   end;
 end;
 
-@* \[56] System-dependent changes.
+@* \[54] System-dependent changes.
 @z

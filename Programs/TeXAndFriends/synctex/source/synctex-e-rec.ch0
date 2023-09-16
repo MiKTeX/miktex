@@ -116,11 +116,9 @@ end
 @z
 
 @x synctex-mem.ch0 l.236
-@ @<Put each...@>=
 primitive("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 @y
-@ @<Put each...@>=
 primitive("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 

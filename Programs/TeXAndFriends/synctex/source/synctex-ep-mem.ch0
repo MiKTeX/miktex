@@ -17,9 +17,3 @@ disp_node: begin r:=get_node(small_node_size);
   words:=small_node_size;
   end;
 @z
-
-@x tex.web l. 24956
-@* \[54/\pTeX] System-dependent changes for \pTeX.
-@y
-@* \[54] System-dependent changes.
-@z

@@ -47,6 +47,7 @@
 % (2022-01-23) TTK  upTeX u1.28
 % (2022-07-23) TTK  upTeX u1.29
 % (2022-12-09) HK   Hironori Kitagawa fixed a bug in \char, \kchar.
+% (2023-09-16) TTK  upTeX u1.30
 
 @x
 \def\pTeX{p\kern-.15em\TeX}
@@ -61,8 +62,8 @@
   {printed when \pTeX\ starts}
 @#
 @d upTeX_version=1
-@d upTeX_revision==".29"
-@d upTeX_version_string=='-u1.29' {current \upTeX\ version}
+@d upTeX_revision==".30"
+@d upTeX_version_string=='-u1.30' {current \upTeX\ version}
 @#
 @d upTeX_banner=='This is upTeX, Version 3.141592653',pTeX_version_string,upTeX_version_string
 @d upTeX_banner_k==upTeX_banner
@@ -274,7 +275,7 @@ if (isinternalUPTEX) then begin
   @t\hskip10pt@>kcat_code(@"99):=kanji; { CJK Compatibility Ideographs }
   { \hskip10pt|kcat_code(@"A2):=other_kchar;| Halfwidth and Fullwidth Forms }
   @+@t\1@>for k:=@"10D to @"110 do kcat_code(k):=kana; { Kana Extended-B .. Small Kana Extension }
-  @+@t\1@>for k:=@"13B to @"142 do kcat_code(k):=kanji; { CJK Unified Ideographs Extension B .. H }
+  @+@t\1@>for k:=@"13B to @"143 do kcat_code(k):=kanji; { CJK Unified Ideographs Extension B .. H }
   @t\hskip10pt@>kcat_code(@"1FD):=not_cjk; { Latin-1 Letters }
   @t\hskip10pt@>kcat_code(@"1FE):=kana; { Fullwidth digit and latin alphabet }
   @t\hskip10pt@>kcat_code(@"1FF):=kana; { Halfwidth katakana }
@@ -670,7 +671,6 @@ while k<pool_ptr do
 @z
 
 @x
-
 @d ptex_revision_code=14 {command code for \.{\\ptexrevision}}
 @d ptex_convert_codes=15 {end of \pTeX's command codes}
 @y
@@ -783,22 +783,6 @@ if (cur_cmd>=kanji)and(cur_cmd<=hangul) then
 @z
 
 @x
-loop@+  begin get_x_token;
-  reswitch: case cur_cmd of
-  letter,other_char,char_given:@<Append a new letter or hyphen@>;
-  char_num: begin scan_char_num; cur_chr:=cur_val; cur_cmd:=char_given;
-    goto reswitch;
-    end;
-@y
-loop@+  begin get_x_token;
-  reswitch: case cur_cmd of
-  letter,other_char,char_given,kchar_given:@<Append a new letter or hyphen@>;
-  char_num,kchar_num: begin scan_char_num; cur_chr:=cur_val; cur_cmd:=char_given;
-    goto reswitch;
-    end;
-@z
-
-@x
 hmode+kanji,hmode+kana,hmode+other_kchar: goto main_loop_j;
 hmode+char_given:
   if is_char_ascii(cur_chr) then goto main_loop else goto main_loop_j;
@@ -811,11 +795,11 @@ hmode+no_boundary: begin get_x_token;
    (cur_cmd=char_given)or(cur_cmd=char_num) then cancel_boundary:=true;
 @y
 hmode+kanji,hmode+kana,hmode+other_kchar,hmode+hangul: goto main_loop_j;
-hmode+kchar_given:
-  begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); goto main_loop_j; end;
 hmode+char_given:
   if check_echar_range(cur_chr) then goto main_loop
   else begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); goto main_loop_j; end;
+hmode+kchar_given:
+  begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); goto main_loop_j; end;
 hmode+char_num: begin scan_char_num; cur_chr:=cur_val;
   if check_echar_range(cur_chr) then goto main_loop
   else begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); goto main_loop_j; end;
@@ -874,6 +858,9 @@ if cur_cmd=char_given then
   begin if check_echar_range(cur_chr) then goto main_loop_lookahead+1
   else begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); @<goto |main_lig_loop|@>; end;
   end;
+if cur_cmd=kchar_given then
+  begin cur_chr:=cur_chr mod max_cjk_val;
+  cur_cmd:=kcat_code(kcatcodekey(cur_chr)); @<goto |main_lig_loop|@>; end;
 if cur_cmd=char_num then
   begin scan_char_num; cur_chr:=cur_val;
   if check_echar_range(cur_chr) then goto main_loop_lookahead+1
@@ -995,11 +982,20 @@ letter,other_char,char_given:
 @x
     KANJI(cx):=cur_chr;
 kanji,kana,other_kchar: cx:=cur_chr;
+char_num: begin scan_char_num; cur_chr:=cur_val; cur_cmd:=char_given;
+  goto reswitch;
+  end;
 @y
     KANJI(cx):=cur_chr;
+kanji,kana,other_kchar,hangul: cx:=cur_chr;
 kchar_given:
   KANJI(cx):=cur_chr;
-kanji,kana,other_kchar,hangul: cx:=cur_chr;
+char_num: begin scan_char_num; cur_chr:=cur_val; cur_cmd:=char_given;
+  goto reswitch;
+  end;
+kchar_num: begin scan_char_num; cur_chr:=cur_val; cur_cmd:=kchar_given;
+  goto reswitch;
+  end;
 @z
 
 @x
