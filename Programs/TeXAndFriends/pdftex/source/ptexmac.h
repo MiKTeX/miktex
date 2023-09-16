@@ -221,6 +221,10 @@ size_t          T##_limit
     cur_file_name = s;      \
     packfilename(maketexstring(cur_file_name), getnullstr(), getnullstr())
 
+/* This macro doesn't handle the case where a==b. It turns out that is
+ * convenient for the way it's used; for example, see writettf.c.
+ * All uses (must) follow the same pattern.
+ */
 #  define cmp_return(a, b) \
     if ((a) > (b))         \
         return 1;        \

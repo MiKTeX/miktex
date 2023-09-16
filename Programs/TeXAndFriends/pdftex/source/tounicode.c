@@ -555,10 +555,17 @@ void undumptounicode(void)
         void **result;
         glyph_unicode_entry *gu = new_glyph_unicode_entry();
         undumpcharptr(gu->name);
+        if (gu->name == NULL) {
+            pdftex_fail("undumpcharptr(gu->name) got NULL");
+        }
         generic_undump(gu->code);
 
-        if (gu->code == UNI_STRING)
+        if (gu->code == UNI_STRING) {
             undumpcharptr(gu->unicode_seq);
+            if (gu->unicode_seq == NULL) {
+                pdftex_fail("undumpcharptr(gu->unicode_seq) got NULL");
+            }
+        }
 
         result = avl_probe(glyph_unicode_tree, gu);
         assert(*result == gu);

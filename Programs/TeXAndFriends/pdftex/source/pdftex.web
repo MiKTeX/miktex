@@ -6531,11 +6531,11 @@ cs_count:=0;
 eq_type(frozen_dont_expand):=dont_expand;
 text(frozen_dont_expand):="notexpanded:";
 @.notexpanded:@>
-
 eq_type(frozen_primitive):=ignore_spaces;
 equiv(frozen_primitive):=1;
 eq_level(frozen_primitive):=level_one;
 text(frozen_primitive):="pdfprimitive";
+
 @ Here is the subroutine that searches the hash table for an identifier
 that matches a given string of length |l>1| appearing in |buffer[j..
 (j+l-1)]|. If the identifier is found, the corresponding hash table address
@@ -6653,7 +6653,6 @@ for k:=j+1 to j+l-1 do
   begin h:=h+h+str_pool[k];
   while h>=prim_prime do h:=h-prim_prime;
   end
-
 
 @ Single-character control sequences do not need to be looked up in a hash
 table, since we can use the character code itself as a direct address.
@@ -8048,10 +8047,9 @@ if name<=17 then
 @.*\relax@>
     print_char(">");
     end
-else if index<>in_open then {input from a pseudo file}
-  begin print_nl("l."); print_int(line_stack[index+1]);
-  end
-else  begin print_nl("l."); print_int(line);
+else  begin print_nl("l.");
+  if index=in_open then print_int(line)
+  else print_int(line_stack[index+1]); {input from a pseudo file}
   end;
 print_char(" ")
 
