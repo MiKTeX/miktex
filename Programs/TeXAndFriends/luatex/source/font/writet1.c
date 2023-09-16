@@ -814,13 +814,19 @@ static char **t1_builtin_enc(void)
                 *t1_buf_array == '/' && valid_code(i)) {
                 if (strcmp(t1_buf_array + 1, notdef) != 0)
                     glyph_names[i] = xstrdup(t1_buf_array + 1);
-                p = strstr(p, " put") + strlen(" put");
+                p = strstr(p, " put");
+                if (!p)
+                    normal_error("type 1", "invalid pfb, no put found in dup");
+                p += strlen(" put");
                 skip_char(p, ' ');
             }
             /*tex Check for |dup dup <to> exch <from> get put|. */
             else if (sscanf(p, "dup dup %i exch %i get put", &b, &a) == 2 && valid_code(a) && valid_code(b)) {
                 copy_glyph_names(glyph_names, a, b);
-                p = strstr(p, " get put") + strlen(" get put");
+                p = strstr(p, " get put");
+                if (!p)
+                    normal_error("type 1", "invalid pfb, no get put found in dup dup");
+                p += strlen(" get put");
                 skip_char(p, ' ');
             }
             /*tex Check for |dup dup <from> <size> getinterval <to> exch putinterval|. */
@@ -828,7 +834,10 @@ static char **t1_builtin_enc(void)
                     &a, &c, &b) == 3 && valid_code(a) && valid_code(b) && valid_code(c)) {
                 for (i = 0; i < c; i++)
                     copy_glyph_names(glyph_names, a + i, b + i);
-                p = strstr(p, " putinterval") + strlen(" putinterval");
+                p = strstr(p, " putinterval");
+                if (!p)
+                   normal_error("type 1", "invalid pfb, no putinterval found in dup dup");
+                p += strlen(" putinterval");
                 skip_char(p, ' ');
             }
             /*tex Check for |def or |readonly def|. */
