@@ -133,6 +133,6 @@ long UCStoUPTEX (long ucs)
 /* using over U+10.FFFF Area */
 long UPTEXtoUCS (long uptex)
 {
-    if (uptex>UCS_MAX) return uptex % UCS_MAX; /* for OTF package */
+    if (uptex>=UCS_MAX) return uptex % UCS_MAX; /* for OTF package */
     return uptex;
 }
