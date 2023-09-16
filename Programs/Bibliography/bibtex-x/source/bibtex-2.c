@@ -2203,10 +2203,10 @@ BEGIN
     if (MIN_PRINT_LINE < 3)
         bad = 1;
 
-    if (MAX_PRINT_LINE <= MIN_PRINT_LINE)
+    if (Max_Print_Line <= MIN_PRINT_LINE)
         bad = 10 * bad + 2;
 
-    if (MAX_PRINT_LINE >= Buf_Size)
+    if (Max_Print_Line >= Buf_Size)
         bad = 10 * bad + 3;
 
     if (Hash_Prime < 128)
@@ -2393,9 +2393,10 @@ BEGIN
 /*
 **  Full 8Bit Support Note [ASIERRA95]:
 **  BibTeX just must recognize characters greater than 127.
-**    for (i=128; i<=255; i++)
-**      xchr [i] = (unsigned char) i;
 */
+    for (i=128; i<=255; i++)
+      xchr [i] = (unsigned char) i;
+
 #endif                          /* SUPPORT_8BIT */
 
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 25 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
@@ -2458,13 +2459,10 @@ BEGIN
     END
 
 #ifdef SUPPORT_8BIT
-/*
-**    if (!Flag_7bit)
-**      for (i=128; i<=LAST_ASCII_CHAR; i++)
-**      BEGIN
-**	  xord[xchr[i]] = i;
-**      END
-*/
+    for (i=128; i<=LAST_ASCII_CHAR; i++)
+    BEGIN
+        xord[xchr[i]] = i;
+    END
 #endif                          /* SUPPORT_8BIT */
 
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 28 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
@@ -2620,13 +2618,13 @@ BEGIN
 #ifdef SUPPORT_8BIT
     char_width[0074] = 472; /* <, refer 0x3C in T1 ecrm1000.tfm  */
 #else
-    char_width[0074] = 278; /* ¡, refer 0x3C in OT1 cmr10.tfm  */
+    char_width[0074] = 278; /* ï¿½, refer 0x3C in OT1 cmr10.tfm  */
 #endif
     char_width[0075] = 778; /* =, refer 0x3D in T1 ecrm1000.tfm  */
 #ifdef SUPPORT_8BIT
     char_width[0076] = 472; /* >, refer 0x3E in T1 ecrm1000.tfm  */
 #else
-    char_width[0076] = 472; /* ¿, refer 0x3E in OT1 cmr10.tfm  */
+    char_width[0076] = 472; /* ï¿½, refer 0x3E in OT1 cmr10.tfm  */
 #endif
     char_width[0077] = 472; /* ?, refer 0x3F in T1 ecrm1000.tfm  */
     char_width[0100] = 778;
@@ -2706,12 +2704,12 @@ BEGIN
     char_width[0176] = 500; /* ??? */
 #endif
 #ifdef SUPPORT_8BIT
-    char_width[0xA1] =  278; /* ¡, refer 0xBD in T1 ecrm1000.tfm  */
-    char_width[0xA3] =  639; /* £, refer 0xBF in T1 ecrm1000.tfm  */
-    char_width[0xA7] =  444; /* §, refer 0x9F in T1 ecrm1000.tfm  */
-    char_width[0xAB] =  556; /* «, refer 0x13 in T1 ecrm1000.tfm  */
-    char_width[0xBB] =  556; /* », refer 0x14 in T1 ecrm1000.tfm  */
-    char_width[0xBF] =  472; /* ¿, refer 0xBE in T1 ecrm1000.tfm  */
+    char_width[0xA1] =  278; /* ï¿½, refer 0xBD in T1 ecrm1000.tfm  */
+    char_width[0xA3] =  639; /* ï¿½, refer 0xBF in T1 ecrm1000.tfm  */
+    char_width[0xA7] =  444; /* ï¿½, refer 0x9F in T1 ecrm1000.tfm  */
+    char_width[0xAB] =  556; /* ï¿½, refer 0x13 in T1 ecrm1000.tfm  */
+    char_width[0xBB] =  556; /* ï¿½, refer 0x14 in T1 ecrm1000.tfm  */
+    char_width[0xBF] =  472; /* ï¿½, refer 0xBE in T1 ecrm1000.tfm  */
     char_width[0xC0] =  750;
     char_width[0xC1] =  750;
     char_width[0xC2] =  750;
@@ -2735,7 +2733,7 @@ BEGIN
     char_width[0xD4] =  778;
     char_width[0xD5] =  778;
     char_width[0xD6] =  778;
-    char_width[0xD7] =  778; /* expect "×" */
+    char_width[0xD7] =  778; /* expect "ï¿½" */
     char_width[0xD8] =  778;
     char_width[0xD9] =  750;
     char_width[0xDA] =  750;
@@ -2743,7 +2741,7 @@ BEGIN
     char_width[0xDC] =  750;
     char_width[0xDD] =  750;
     char_width[0xDE] =  625;
-    char_width[0xDF] =  500; /* ß, refer 0xFF in T1 ecrm1000.tfm  */
+    char_width[0xDF] =  500; /* ï¿½, refer 0xFF in T1 ecrm1000.tfm  */
     char_width[0xE0] =  500;
     char_width[0xE1] =  500;
     char_width[0xE2] =  500;
@@ -2767,7 +2765,7 @@ BEGIN
     char_width[0xF4] =  500;
     char_width[0xF5] =  500;
     char_width[0xF6] =  500;
-    char_width[0xF7] =  778; /* expect "÷" */
+    char_width[0xF7] =  778; /* expect "ï¿½" */
     char_width[0xF8] =  500;
     char_width[0xF9] =  556;
     char_width[0xFA] =  556;
@@ -2775,7 +2773,7 @@ BEGIN
     char_width[0xFC] =  556;
     char_width[0xFD] =  528;
     char_width[0xFE] =  556;
-    char_width[0xFF] =  528; /* ÿ, refer 0xB8 in T1 ecrm1000.tfm  */
+    char_width[0xFF] =  528; /* ï¿½, refer 0xB8 in T1 ecrm1000.tfm  */
 #endif
 #ifdef UTF_8
     char_width[0x100] =  750;
@@ -2860,8 +2858,8 @@ BEGIN
     char_width[0x14F] =  500;
     char_width[0x150] =  778;
     char_width[0x151] =  500;
-    char_width[0x152] =  1014; /* Œ, refer 0xD7 in T1 ecrm1000.tfm  */
-    char_width[0x153] =  778; /* œ, refer 0xF7 in T1 ecrm1000.tfm  */
+    char_width[0x152] =  1014; /* ï¿½, refer 0xD7 in T1 ecrm1000.tfm  */
+    char_width[0x153] =  778; /* ï¿½, refer 0xF7 in T1 ecrm1000.tfm  */
     char_width[0x154] =  736;
     char_width[0x155] =  392;
     char_width[0x156] =  736;
@@ -3782,10 +3780,26 @@ BEGIN
 
   if (f != NULL)
   BEGIN
+#if defined(WIN32) && defined(KPATHSEA)
+#define  MAX_STR  780
+    unsigned char tmpstr[MAX_STR];
+    int j=0;
+    for (i=str_start[s]; i<=(str_start[s+1] - 1) && j<MAX_STR-1; i++, j++)
+    BEGIN
+      tmpstr[j] = xchr[str_pool[i]];
+    END
+    tmpstr[j] = '\0';
+#if defined(MIKTEX)
+    FPUTS((const char*)tmpstr, f);
+#else
+    FPUTS (tmpstr, f);
+#endif
+#else
     for (i=str_start[s]; i<=(str_start[s+1] - 1); i++)
     BEGIN
       FPUTC (xchr[str_pool[i]], f);
     END
+#endif
   END
 END
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION 51 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/

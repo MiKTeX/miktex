@@ -92,10 +92,14 @@
 
 
 #ifdef UTF_8
+#if defined(WIN32) && defined(WITH_SYSTEM_ICU)
+#include "icu.h"
+#else
 #include "unicode/uchar.h"
 #include "unicode/ustdio.h"
 #include "unicode/ustring.h"
 #include "unicode/ucol.h"
+#endif
 int32_t                 icu_toUChars (BufType_T buf,
                                       BufPointer_T bf_ptr,
                                       BufPointer_T len,

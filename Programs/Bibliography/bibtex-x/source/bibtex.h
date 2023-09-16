@@ -268,11 +268,7 @@
  * cites when used with the standard styles.
  ***************************************************************************/
 #define MIN_PRINT_LINE              3
-#ifdef KPATHSEA
-#define MAX_PRINT_LINE              max_print_line
-#else
 #define MAX_PRINT_LINE              79
-#endif
 #define AUX_STACK_SIZE              20
 #define MAX_BIB_FILES               20
 

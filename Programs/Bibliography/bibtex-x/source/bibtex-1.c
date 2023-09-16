@@ -276,7 +276,7 @@ BEGIN
   END
   out_buf_length = out_buf_ptr;
   unbreakable_tail = FALSE;
-  while ((out_buf_length > MAX_PRINT_LINE) && ! unbreakable_tail)
+  while ((out_buf_length > Max_Print_Line) && ! unbreakable_tail)
 
 /***************************************************************************
  * WEB section number:	 323
@@ -292,7 +292,7 @@ BEGIN
  ***************************************************************************/
   BEGIN
     end_ptr = out_buf_length;
-    out_buf_ptr = MAX_PRINT_LINE;
+    out_buf_ptr = Max_Print_Line;
     break_pt_found = FALSE;
     while ((lex_class[out_buf[out_buf_ptr]] != WHITE_SPACE)
         && (out_buf_ptr >= MIN_PRINT_LINE))
@@ -313,7 +313,7 @@ BEGIN
  * point, so we don't break the line (yet).
  ***************************************************************************/
     BEGIN
-      out_buf_ptr = MAX_PRINT_LINE + 1;
+      out_buf_ptr = Max_Print_Line + 1;
       while (out_buf_ptr < end_ptr)
       BEGIN
 #ifdef UTF_8
@@ -330,10 +330,8 @@ BEGIN
             case UBLOCK_LATIN_EXTENDED_C:
             case UBLOCK_LATIN_EXTENDED_D:
             case UBLOCK_LATIN_EXTENDED_E:
-#if defined(MIKTEX) && defined(UBLOCK_LATIN_EXTENDED_F)
+#if defined(U_ICU_VERSION_MAJOR_NUM) && (U_ICU_VERSION_MAJOR_NUM > 69)
             case UBLOCK_LATIN_EXTENDED_F:
-#endif
-#if defined(MIKTEX) && defined(UBLOCK_LATIN_EXTENDED_G)
             case UBLOCK_LATIN_EXTENDED_G:
 #endif
             case UBLOCK_LATIN_EXTENDED_ADDITIONAL:
@@ -344,6 +342,9 @@ BEGIN
             case UBLOCK_CYRILLIC_EXTENDED_A:
             case UBLOCK_CYRILLIC_EXTENDED_B:
             case UBLOCK_CYRILLIC_EXTENDED_C:
+#if defined(U_ICU_VERSION_MAJOR_NUM) && (U_ICU_VERSION_MAJOR_NUM > 71)
+            case UBLOCK_CYRILLIC_EXTENDED_D:
+#endif
             case UBLOCK_HANGUL_SYLLABLES:
               goto Loop1_Exit; /* break line */
             break;

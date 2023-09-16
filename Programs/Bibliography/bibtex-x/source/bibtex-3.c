@@ -1069,12 +1069,11 @@ END
 void          sam_wrong_file_name_print (void)
 BEGIN
   FPRINTF (TERM_OUT, "I couldn't open file name `");
-  name_ptr = 0;
-  while (name_ptr < name_length)
-  BEGIN
-    FPUTC (name_of_file[name_ptr], TERM_OUT);
-    INCR (name_ptr);
-  END
+#if defined(MIKTEX)
+  FPUTS((const char*)name_of_file, TERM_OUT);
+#else
+  FPUTS (name_of_file, TERM_OUT);
+#endif
   FPRINTF (TERM_OUT, "'\n");
 END
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^ END OF SECTION  99 ^^^^^^^^^^^^^^^^^^^^^^^^^^^*/

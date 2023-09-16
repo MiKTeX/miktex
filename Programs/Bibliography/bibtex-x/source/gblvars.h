@@ -174,9 +174,6 @@ __EXTERN__ Boolean_T                    bst_seen;
 __EXTERN__ StrNumber_T                  bst_str;
 __EXTERN__ BufPointer_T                 buf_ptr1;
 __EXTERN__ BufPointer_T                 buf_ptr2;
-#ifdef KPATHSEA
-__EXTERN__ Integer_T                    max_print_line;
-#endif
 
 __EXTERN__ Boolean_T                    citation_seen;
 __EXTERN__ Boolean_T                    cite_found;
@@ -189,7 +186,6 @@ __EXTERN__ LongJumpBuf_T                Close_Up_Shop_Flag;
 __EXTERN__ StrNumber_T                  cmd_str_ptr;
 __EXTERN__ BufPointer_T                 comma1;
 __EXTERN__ BufPointer_T                 comma2;
-__EXTERN__ Char_T                     **command_line_arg_strings;
 __EXTERN__ Integer_T                    command_num;
 __EXTERN__ HashLoc_T                    control_seq_loc;
 __EXTERN__ Integer8_T                   conversion_type;
@@ -264,7 +260,6 @@ __EXTERN__ BibNumber_T                  num_preamble_strings;
 __EXTERN__ FieldLoc_T                   num_pre_defined_fields;
 __EXTERN__ BufPointer_T                 num_text_chars;
 __EXTERN__ BufPointer_T                 num_tokens;
-__EXTERN__ Integer8_T                   number_of_command_line_args;
 
 __EXTERN__ CiteNumber_T                 old_num_cites;
 __EXTERN__ BufPointer_T                 out_buf_length;
@@ -467,6 +462,7 @@ __EXTERN__ Integer_T                    Max_Bib_Files;
 __EXTERN__ Integer_T                    Max_Cites;
 __EXTERN__ Integer_T                    Max_Fields;
 __EXTERN__ Integer_T                    Max_Glob_Strs;
+__EXTERN__ Integer_T                    Max_Print_Line;
 __EXTERN__ Integer_T                    Max_Strings;
 __EXTERN__ Integer_T                    Min_Crossrefs;
 __EXTERN__ Integer_T                    Pool_Size;

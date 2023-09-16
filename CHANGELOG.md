@@ -2,6 +2,10 @@
 
 ## next
 
+### Upgraded programs
+
+* bibtex-x 4.01
+
 ### Fixed issues
 
 - [1333](https://github.com/MiKTeX/miktex/issues/1333): eptex missing \suppress... primitives
