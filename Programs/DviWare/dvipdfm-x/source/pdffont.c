@@ -1043,7 +1043,7 @@ pdf_font_get_uniqueTag (pdf_font *font)
 }
 
 /*
- * Please don’t use TFM widths for the /Widths
+ * Please don't use TFM widths for the /Widths
  * entry of the font dictionary.
  *
  * PDF 32000-1:2008 (p.255)
