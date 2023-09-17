@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 23.9 - 2023-9-16
+## 23.9 - 2023-9-17
 
 ### Upgraded programs
 

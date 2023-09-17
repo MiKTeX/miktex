@@ -1,9 +1,9 @@
 /**
- * @file miktex.cpp
+ * @file miktex-epstopdf.cpp
  * @author Christian Schenk
  * @brief Main program
  *
- * @copyright Copyright © 2021-2022 Christian Schenk
+ * @copyright Copyright © 2021-2023 Christian Schenk
  * @copyright Copyright © 1998-2001 by Sebastian Rahtz et al.
  *
  * This file is part of MiKTeX EPStoPDF.
@@ -12,8 +12,8 @@
  * License version 2 or any later version.
  */
 
-/* This program reimplements the epstopdf Perl script written by Sebastian
- * Rahtz. */
+// This program reimplements the epstopdf Perl script written by Sebastian
+// Rahtz.
 
 #include <cassert>
 #include <cmath>
@@ -633,7 +633,7 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
 #endif
         if (pdfVersion.empty())
         {
-            auto &cfg = ParsePdfConfigFiles();
+            auto cfg = ParsePdfConfigFiles();
             pdfVersion = cfg["pdf_minorversion"];
         }
         if (!pdfVersion.empty())
