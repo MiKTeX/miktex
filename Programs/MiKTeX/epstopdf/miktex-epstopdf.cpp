@@ -634,7 +634,11 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
         if (pdfVersion.empty())
         {
             auto cfg = ParsePdfConfigFiles();
-            pdfVersion = cfg["pdf_minorversion"];
+            auto minver = cfg["pdf_minorversion"];
+            if (!minver.empty())
+            {
+                pdfVersion = "1."s + minver;
+            }
         }
         if (!pdfVersion.empty())
         {

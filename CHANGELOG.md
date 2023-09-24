@@ -1,5 +1,9 @@
 # MiKTeX Change Log
 
+## 23.9.24 - 2023-9-24
+
+- [1354](https://github.com/MiKTeX/miktex/issues/1354): default pdfversion of pdflatex and miktex-epstopdf differ
+
 ## 23.9 - 2023-9-17
 
 ### Upgraded programs
@@ -11,7 +15,6 @@
 
 - [1333](https://github.com/MiKTeX/miktex/issues/1333): eptex missing \suppress... primitives
 - [1352](https://github.com/MiKTeX/miktex/issues/1352): Lua io.popen() doesn't work with :write and :close
-- [1354](https://github.com/MiKTeX/miktex/issues/1354): default pdfversion of pdflatex and miktex-epstopdf differ
 
 ## 23.5 - 2023-5-3
 
