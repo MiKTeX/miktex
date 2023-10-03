@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Version number
  *
- * @copyright Copyright © 2015-2022 Christian Schenk
+ * @copyright Copyright © 2015-2023 Christian Schenk
  *
  * This file is free software; the copyright holder gives unlimited permission
  * to copy and/or distribute it, with or without modifications, as long as this
@@ -28,7 +28,11 @@
 
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
+#if LOG4CXX_VERSION_MAJOR > 0
+#include <log4cxx/rolling/rollingfileappender.h> 
+#else
 #include <log4cxx/rollingfileappender.h>
+#endif
 #if defined(LOG4CXX_INFO_FMT)
 #   define MIKTEX_LOG4CXX_12 1
 #endif

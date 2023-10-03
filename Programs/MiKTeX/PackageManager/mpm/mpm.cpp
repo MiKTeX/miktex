@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief MiKTeX Package Manager (cli version)
  *
- * @copyright Copyright © 2003-2022 Christian Schenk
+ * @copyright Copyright © 2003-2023 Christian Schenk
  *
  * This file is part of MpmCon.
  *
@@ -36,7 +36,11 @@
 #include <fmt/ostream.h>
 
 #include <log4cxx/logger.h>
-#include <log4cxx/rollingfileappender.h>
+#if LOG4CXX_VERSION_MAJOR > 0
+#include <log4cxx/rolling/rollingfileappender.h> 
+#else
+#include <log4cxx/rollingfileappender.h> 
+#endif
 #include <log4cxx/xml/domconfigurator.h>
 #if defined(LOG4CXX_INFO_FMT)
 #define MIKTEX_LOG4CXX_12 1

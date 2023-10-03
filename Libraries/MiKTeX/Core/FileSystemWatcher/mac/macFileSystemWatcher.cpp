@@ -1,23 +1,15 @@
-/* macFileSystemWatcher.cpp: file system watcher (macOS specials)
-
-   Copyright (C) 2021 Christian Schenk
-
-   This file is part of the MiKTeX Core Library.
-
-   The MiKTeX Core Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
-
-   The MiKTeX Core Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the MiKTeX Core Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+/**
+ * @file macFileSystemWatcher.cpp
+ * @author Christian Schenk
+ * @brief File system watcher (macOS)
+ *
+ * @copyright Copyright © 2021-2023 Christian Schenk
+ *
+ * This file is part of the MiKTeX Core Library.
+ *
+ * The MiKTeX Core Library is licensed under GNU General Public License version
+ * 2 or any later version.
+ */
 
 #include "config.h"
 
@@ -35,7 +27,7 @@ using namespace MiKTeX::Util;
 
 unique_ptr<FileSystemWatcher> FileSystemWatcher::Create()
 {
-  return make_unique<macFileSystemWatcher>();
+    return make_unique<macFileSystemWatcher>();
 }
 
 macFileSystemWatcher::~macFileSystemWatcher()
@@ -55,7 +47,7 @@ void macFileSystemWatcher::AddDirectories(const vector<PathName>& directories)
     unique_lock l(mutex);
     for (const PathName &p : directories)
     {
-        trace_files->WriteLine("core", fmt::format("adding directory to watch list: {0}", p));
+        trace_files->WriteLine("core", fmt::format("adding directory to watch list: {0}", Q_(p.ToDisplayString())));
         this->directories.push_back(CFStringCreateWithCString(nullptr, p.ToString().c_str(), kCFStringEncodingUTF8));
     }
     l.unlock();
