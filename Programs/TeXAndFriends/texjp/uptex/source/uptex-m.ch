@@ -1,5 +1,5 @@
 % $Id$
-% This is a change file for upTeX u1.29
+% This is a change file for upTeX u1.30
 % By Takuji Tanaka.
 %
 % (02/26/2007) TTK  upTeX u0.01
@@ -859,8 +859,7 @@ if cur_cmd=char_given then
   else begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); @<goto |main_lig_loop|@>; end;
   end;
 if cur_cmd=kchar_given then
-  begin cur_chr:=cur_chr mod max_cjk_val;
-  cur_cmd:=kcat_code(kcatcodekey(cur_chr)); @<goto |main_lig_loop|@>; end;
+  begin cur_cmd:=kcat_code(kcatcodekey(cur_chr)); @<goto |main_lig_loop|@>; end;
 if cur_cmd=char_num then
   begin scan_char_num; cur_chr:=cur_val;
   if check_echar_range(cur_chr) then goto main_loop_lookahead+1

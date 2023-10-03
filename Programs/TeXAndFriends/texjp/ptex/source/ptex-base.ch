@@ -73,6 +73,7 @@
 %                  More details in TUGboat 41(2):329--334, 2020.
 % (2022-10-24) HY  pTeX p4.1.0 Add new syntax \font [in jis/ucs].
 %                  New primitives: \tojis, \ptextracingfonts and \ptexfontname.
+% (2023-09-17) HY  pTeX p4.1.1 Support more than 256 different glue/kern.
 
 @x
 % Here is TeX material that gets inserted after \input webmac
@@ -87,8 +88,8 @@
 @y
 @d pTeX_version=4
 @d pTeX_minor_version=1
-@d pTeX_revision==".0"
-@d pTeX_version_string=='-p4.1.0' {current \pTeX\ version}
+@d pTeX_revision==".1"
+@d pTeX_version_string=='-p4.1.1' {current \pTeX\ version}
 @#
 @d pTeX_banner=='This is pTeX, Version 3.141592653',pTeX_version_string
 @d pTeX_banner_k==pTeX_banner
@@ -3359,9 +3360,11 @@ for k:=char_base[f]+bc to width_base[f]-1 do
       end
     else begin if b<>bchar then check_existence(b);
       if c<128 then begin
-          if jfm_flag<>dir_default then begin if d>=ne then abort; end
+        if jfm_flag<>dir_default then
+          begin if 256*c+d>=ne then abort; end {check glue}
         else check_existence(d); {check ligature}
-      end else if 256*(c-128)+d>=nk then abort; {check kern}
+        end
+      else if 256*(c-128)+d>=nk then abort; {check kern}
       if a<128 then if k-lig_kern_base[f]+a+1>=nl then abort;
       end;
     end;
@@ -4451,7 +4454,7 @@ if (math_type(subscr(q))=empty)and(math_type(supscr(q))=empty)and@|
        loop@+ begin
          if next_char(cur_i)=cur_c then if skip_byte(cur_i)<=stop_flag then
          if op_byte(cur_i)<kern_flag then
-           begin gp:=font_glue[cur_f]; rr:=rem_byte(cur_i);
+           begin gp:=font_glue[cur_f]; rr:=op_byte(cur_i)*256+rem_byte(cur_i);
            if gp<>null then begin
              while((type(gp)<>rr)and(link(gp)<>null)) do begin gp:=link(gp);
                end;
@@ -8070,7 +8073,7 @@ if inhibit_glue_flag<>true then
         end;
     loop@+begin if next_char(main_j)=cur_l then if skip_byte(main_j)<=stop_flag then
       begin if op_byte(main_j)<kern_flag then
-        begin gp:=font_glue[main_f]; cur_r:=rem_byte(main_j);
+        begin gp:=font_glue[main_f]; cur_r:=op_byte(main_j)*256+rem_byte(main_j);
         if gp<>null then
           begin while((type(gp)<>cur_r)and(link(gp)<>null)) do gp:=link(gp);
           gq:=glue_ptr(gp);
