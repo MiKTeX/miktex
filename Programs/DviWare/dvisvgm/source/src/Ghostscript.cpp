@@ -259,7 +259,10 @@ string Ghostscript::revisionstr () {
 			int major = rev / 1000;
 			int minor = (rev - major*1000)/10;
 			int patch = rev % 10;
-			revstr = to_string(major) + "." + to_string(minor) + "." + to_string(patch);
+			revstr = to_string(major) + ".";
+			if (minor > 0 && minor < 10)
+				revstr += '0';
+			revstr += to_string(minor) + "." + to_string(patch);
 		}
 	}
 	return revstr;

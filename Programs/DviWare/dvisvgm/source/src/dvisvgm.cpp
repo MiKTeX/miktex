@@ -312,11 +312,11 @@ static void init_fontmap (const CommandLine &cmdline) {
  *  options affecting the SVG output. */
 static string svg_options_hash (const CommandLine &cmdline) {
 	// options affecting the SVG output
-	vector<const CL::Option*> svg_options = {
+	const CL::Option* svg_options[] = {
 		&cmdline.bboxOpt,	&cmdline.clipjoinOpt, &cmdline.colornamesOpt, &cmdline.commentsOpt,
-		&cmdline.exactBboxOpt, &cmdline.fontFormatOpt, &cmdline.fontmapOpt, &cmdline.gradOverlapOpt,
-		&cmdline.gradSegmentsOpt, &cmdline.gradSimplifyOpt, &cmdline.linkmarkOpt, &cmdline.magOpt,
-		&cmdline.noFontsOpt, &cmdline.noMergeOpt,	&cmdline.noSpecialsOpt, &cmdline.noStylesOpt,
+		&cmdline.currentcolorOpt, &cmdline.exactBboxOpt, &cmdline.fontFormatOpt, &cmdline.fontmapOpt,
+		&cmdline.gradOverlapOpt, &cmdline.gradSegmentsOpt, &cmdline.gradSimplifyOpt, &cmdline.linkmarkOpt,
+		&cmdline.magOpt, &cmdline.noFontsOpt, &cmdline.noMergeOpt, &cmdline.noSpecialsOpt, &cmdline.noStylesOpt,
 		&cmdline.optimizeOpt, &cmdline.precisionOpt, &cmdline.relativeOpt, &cmdline.zoomOpt
 	};
 	string idString = get_transformation_string(cmdline);
@@ -348,6 +348,13 @@ static void set_variables (const CommandLine &cmdline) {
 		SpecialActions::PROGRESSBAR_DELAY = cmdline.progressOpt.value();
 	}
 	Color::SUPPRESS_COLOR_NAMES = !cmdline.colornamesOpt.given();
+	if ((SVGElement::USE_CURRENTCOLOR = cmdline.currentcolorOpt.given())) {
+		Color color;
+		if (color.setRGBHexString(cmdline.currentcolorOpt.value()))
+			SVGElement::CURRENTCOLOR = color;
+		else
+			throw CL::CommandLineException("invalid color string '"+cmdline.currentcolorOpt.value()+"'");
+	}
 	SVGTree::CREATE_CSS = !cmdline.noStylesOpt.given();
 	SVGTree::USE_FONTS = !cmdline.noFontsOpt.given();
 	if (!SVGTree::setFontFormat(cmdline.fontFormatOpt.value())) {

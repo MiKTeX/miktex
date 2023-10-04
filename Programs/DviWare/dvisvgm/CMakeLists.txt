@@ -384,6 +384,8 @@ set(libdvisvgm_sources
     source/src/NoPsSpecialHandler.cpp
     source/src/NoPsSpecialHandler.hpp
     source/src/NumericRanges.hpp
+    source/src/OFM.cpp
+    source/src/OFM.hpp
     source/src/Opacity.cpp
     source/src/Opacity.hpp
     source/src/PDFHandler.cpp

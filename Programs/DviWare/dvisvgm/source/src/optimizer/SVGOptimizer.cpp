@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <array>
 #include <map>
+#include <set>
 #include "SVGOptimizer.hpp"
 #include "../SVGTree.hpp"
 
@@ -33,7 +34,6 @@
 #include "RedundantElementRemover.hpp"
 #include "TextSimplifier.hpp"
 #include "TransformSimplifier.hpp"
-#include "WSNodeRemover.hpp"
 
 using namespace std;
 
@@ -42,35 +42,53 @@ string SVGOptimizer::MODULE_SEQUENCE;
 SVGOptimizer::SVGOptimizer (SVGTree *svg) : _svg(svg) {
 	// optimizer modules available to the user; must be listed in default order
 //	_moduleEntries.emplace_back(ModuleEntry("remove-ws", util::make_unique<WSNodeRemover>()));
-	_moduleEntries.emplace_back(ModuleEntry("simplify-text", util::make_unique<TextSimplifier>()));
-	_moduleEntries.emplace_back(ModuleEntry("simplify-transform", util::make_unique<TransformSimplifier>()));
-	_moduleEntries.emplace_back(ModuleEntry("group-attributes", util::make_unique<AttributeExtractor>()));
-	_moduleEntries.emplace_back(ModuleEntry("collapse-groups", util::make_unique<GroupCollapser>()));
-	_moduleEntries.emplace_back(ModuleEntry("remove-clippaths", util::make_unique<RedundantElementRemover>()));
-	_moduleEntries.emplace_back(ModuleEntry("reassign-clippaths", util::make_unique<ClipPathReassigner>()));
+	_moduleEntries.emplace_back("simplify-text", util::make_unique<TextSimplifier>());
+	_moduleEntries.emplace_back("simplify-transform", util::make_unique<TransformSimplifier>());
+	_moduleEntries.emplace_back("group-attributes", util::make_unique<AttributeExtractor>());
+	_moduleEntries.emplace_back("collapse-groups", util::make_unique<GroupCollapser>());
+	_moduleEntries.emplace_back("remove-clippaths", util::make_unique<RedundantElementRemover>());
+	_moduleEntries.emplace_back("reassign-clippaths", util::make_unique<ClipPathReassigner>());
 }
 
 
 void SVGOptimizer::execute () {
 	if (!_svg || MODULE_SEQUENCE == "none")
 		return;
-	if (MODULE_SEQUENCE.empty())
-		MODULE_SEQUENCE = "remove-clippath"; // default behaviour of previous dvisvgm releases
+
+	vector<string> names = util::split(MODULE_SEQUENCE, ",", true);
+	set<string> removedNames;
+	if (names.empty())
+		names.emplace_back("remove-clippaths"); // default behaviour of previous dvisvgm releases
 	else {
-		if (MODULE_SEQUENCE == "all") {
-			for (const auto &entry: _moduleEntries)
-				entry.module->execute(_svg->defsNode(), _svg->pageNode());
+		auto it = names.begin();
+		if (names[0] == "all")
+			it = names.erase(it);
+		if (names[0] == "all" || names[0][0] == '-') {
+			// add names of all optimizer modules
+			for (const auto &moduleEntry : _moduleEntries) {
+				it = names.insert(it, moduleEntry.modname);
+				++it;
+			}
+		}
+	}
+	// create sequence of module names to be considered
+	for (auto it=names.begin(); it != names.end();) {
+		if ((*it)[0] == '-') {
+			removedNames.insert(it->substr(1));
+			it = names.erase(it);
 		}
 		else {
-			vector<string> names = util::split(MODULE_SEQUENCE, ",");
-			auto it = find_if(names.begin(), names.end(), [](const string &name) {
-				return name == "simplify-transform";
-			});
-			GroupCollapser::COMBINE_TRANSFORMS = (it != names.end());
-			for (const string &name: names) {
-				if (OptimizerModule *module = getModule(name))
-					module->execute(_svg->defsNode(), _svg->pageNode());
-			}
+			if ((*it)[0] == '+')
+				*it = it->substr(1);
+			++it;
+		}
+	}
+	GroupCollapser::COMBINE_TRANSFORMS = (find(names.begin(), names.end(), "simplify-transform") != names.end());
+	// execute optimizer modules
+	for (const string &name: names) {
+		if (removedNames.find(name) == removedNames.end()) {
+			if (OptimizerModule *module = getModule(name))
+				module->execute(_svg->defsNode(), _svg->pageNode());
 		}
 	}
 }
@@ -96,11 +114,13 @@ void SVGOptimizer::listModules (ostream &os) const {
  *  @return true if all names are known */
 bool SVGOptimizer::checkModuleString (string &namestr, vector<string> &unknownNames) const {
 	unknownNames.clear();
-	if (namestr.empty() || namestr == "all" || namestr == "none")
+	if (namestr.empty() || namestr == "none" || namestr == "all" || namestr.substr(0,4) == "all,")
 		return true;
 	vector<string> givenNames = util::split(namestr, ",");
-	for (const string &name : givenNames) {
-		if (!getModule(name))
+	for (string name : givenNames) {
+		if (name[0] == '-' || name[0] == '+')
+			name = name.substr(1);
+		if (!name.empty() && !getModule(name))
 			unknownNames.emplace_back(name);
 	}
 	return unknownNames.empty();

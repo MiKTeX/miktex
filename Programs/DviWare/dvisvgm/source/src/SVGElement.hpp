@@ -58,6 +58,9 @@ class SVGElement : public XMLElement {
 		void setStrokeWidth (double width);
 		void setStrokeMiterLimit (double limit);
 		void setTransform (const Matrix &matrix);
+
+		static bool USE_CURRENTCOLOR;  ///< if true, apply color value "currentColor"
+		static Color CURRENTCOLOR;     ///< color to be replaced with "currentColor"
 };
 
 #endif

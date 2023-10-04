@@ -236,12 +236,13 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 		else {
 			// create dummy font as a placeholder if the proper font is not available
 			newfont = util::make_unique<EmptyFont>(name);
-			if (filename.rfind('.') == string::npos)
-				filename += ".mf";
 			// print warning message about missing font file (only once for each filename)
 			static set<string> missing_fonts;
 			if (missing_fonts.find(filename) == missing_fonts.end()) {
-				Message::wstream(true) << "font file '" << filename << "' not found\n";
+				if (filename.rfind('.') == string::npos)
+					Message::wstream(true) << "no font file found for '" << filename << "'\n";
+				else
+					Message::wstream(true) << "font file '" << filename << "' not found\n";
 				missing_fonts.insert(filename);
 			}
 		}

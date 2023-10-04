@@ -27,6 +27,22 @@
 #include "GraphicsPath.hpp"
 #include "MessageException.hpp"
 
+namespace internal {
+	template <typename NumType>
+	bool parse_number (std::istream &is, NumType &value) {
+		is >> value;
+		return !is.fail();
+	}
+
+	template <>
+	bool parse_number (std::istream &is, double &value) {
+		// don't use operator >> for parsing floating point values because it's implemented
+		// differently in libstdc++ and libc++. Instead, use our own function to read the
+		// value from the input stream.
+		return util::read_double(is, value);
+	}
+}
+
 
 struct GraphicsPathParserException : public MessageException {
 	explicit GraphicsPathParserException (const std::string &msg) : MessageException(msg) {}
@@ -48,8 +64,7 @@ class GraphicsPathParser {
 		NumType parseNumberOfType (std::istream &is) const {
 			is >> std::ws;
 			NumType number;
-			is >> number;
-			if (is.fail())
+			if (!internal::parse_number(is, number))
 				error("number expected", is);
 			is >> std::ws;
 			return number;

@@ -52,7 +52,7 @@ void PDFToSVG::checkGSAndFileFormat () {
 		if (!PDFHandler::available()) {
 			ostringstream oss;
 			if (gsVersion() > 0) {
-				oss << "To process PDF files, either Ghostscript < 10.1 or mutool is required.\n";
+				oss << "To process PDF files, either Ghostscript < 10.01.0 or mutool is required.\n";
 				oss << "The installed Ghostscript version " << Ghostscript().revisionstr() << " isn't supported.\n";
 				throw MessageException(oss.str());
 			}
@@ -66,7 +66,10 @@ void PDFToSVG::checkGSAndFileFormat () {
 /** Returns the total number of pages in the PDF file. */
 int PDFToSVG::totalPageCount () const {
 	if (_totalPageCount < 0) {
-		_totalPageCount = psInterpreter().pdfPageCount(filename());
+		if (_useGS)
+			_totalPageCount = psInterpreter().pdfPageCount(filename());
+		else
+			_totalPageCount = PDFHandler::numberOfPages(filename());
 		if (_totalPageCount < 1)
 			throw MessageException("can't retrieve number of pages from file " + filename());
 	}

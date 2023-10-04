@@ -74,6 +74,7 @@ void ClipPathReassigner::execute (XMLElement *defs, XMLElement *context) {
 	}
 	// replace clip path references
 	vector<XMLElement*> descendants;
+	defs->getDescendants(nullptr, "clip-path", descendants);
 	context->getDescendants(nullptr, "clip-path", descendants);
 	for (auto &mapEntry : clipPathMap) {
 		vector<XMLElement*> &identicalClipPathElements = mapEntry.second;

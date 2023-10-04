@@ -70,7 +70,8 @@ void PSInterpreter::init () {
 			// as of GS 9.56.0. Since dvisvgm relies on the old PS-based interpreter for its
 			// PDF support, we try to disable the new one.
 			// https://www.ghostscript.com/doc/9.56.0/Use.htm#PDF_switches
-			if (gsrev >= 9560)
+			// As of GS 10.02.0, option NEWPDF has been deprecated and has no effect any longer.
+			if (gsrev >= 9560 && gsrev < 10020)
 				gsargs.emplace_back("-dNEWPDF=false");
 		}
 		_gs.init(gsargs.size(), gsargs.data(), this);

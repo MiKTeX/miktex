@@ -22,6 +22,7 @@
 #define PAIR_HPP
 
 #include <cmath>
+#include <cstdint>
 #include <ostream>
 #include "macros.hpp"
 

@@ -30,6 +30,9 @@
 
 using namespace std;
 
+bool SVGElement::USE_CURRENTCOLOR=false;
+Color SVGElement::CURRENTCOLOR;
+
 
 void SVGElement::setClipPathUrl (const string &url) {
 	if (!url.empty())
@@ -44,7 +47,9 @@ void SVGElement::setClipRule (FillRule rule) {
 
 
 void SVGElement::setFillColor (Color color, bool skipBlack) {
-	if (color != Color::BLACK || !skipBlack)
+	if (USE_CURRENTCOLOR && color == CURRENTCOLOR)
+		addAttribute("fill", "currentColor");
+	else if (color != Color::BLACK || !skipBlack)
 		addAttribute("fill", color.svgColorString());
 }
 
@@ -111,7 +116,7 @@ void SVGElement::setPoints (const vector<DPair> &points) {
 
 
 void SVGElement::setStrokeColor (Color color) {
-	addAttribute("stroke", color.svgColorString());
+	addAttribute("stroke", USE_CURRENTCOLOR && color == CURRENTCOLOR ? "currentColor" : color.svgColorString());
 }
 
 

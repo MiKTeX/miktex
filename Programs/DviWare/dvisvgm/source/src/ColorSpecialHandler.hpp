@@ -33,9 +33,10 @@ class ColorSpecialHandler : public SpecialHandler {
 		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		static Color readColor (std::istream &is);
 		static Color readColor (const std::string &model, std::istream &is);
-		const char* name () const override {return "color";}
+		const char* name () const override {return handlerName();}
+		static const char* handlerName ()  {return "color";}
 		const char* info () const override {return "complete support of color specials";}
-		std::vector<const char*> prefixes() const override;
+		std::vector<const char*> prefixes () const override;
 
 	private:
 		std::stack<Color> _colorStack;

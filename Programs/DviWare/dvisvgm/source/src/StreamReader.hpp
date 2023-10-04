@@ -50,6 +50,7 @@ class StreamReader {
 		int readByte (HashFunction &hashfunc);
 		void seek (std::streampos pos, std::ios::seekdir dir) {_is->seekg(pos, dir);}
 		void seek (std::streampos pos)  {_is->seekg(pos);}
+		void skip (std::streampos n)    {_is->seekg(n, std::ios::cur);}
 		std::streampos tell () const    {return _is->tellg();}
 		int peek () const               {return _is->peek();}
 

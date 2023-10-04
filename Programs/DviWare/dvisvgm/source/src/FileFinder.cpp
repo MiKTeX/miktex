@@ -171,6 +171,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 #ifndef MIKTEX_COM
 	static std::map<std::string, kpse_file_format_type> types = {
 		{"tfm",  kpse_tfm_format},
+		{"ofm",  kpse_ofm_format},
 		{"pfb",  kpse_type1_format},
 		{"vf",   kpse_vf_format},
 		{"mf",   kpse_mf_format},

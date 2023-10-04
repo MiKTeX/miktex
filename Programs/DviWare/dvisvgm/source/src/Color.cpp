@@ -58,6 +58,35 @@ void Color::setRGB (double r, double g, double b) {
 }
 
 
+/** Sets the color value according to a given hex RGB string of the
+ *  form "#123456" or "#123" where the latter is expanded to "#112233".
+ *  The leading '#' character is optional.
+ *  @param[in] hexString the RGB hex string
+ *  @return true if the color value was assigned successfully */
+bool Color::setRGBHexString (string hexString) {
+	if (!hexString.empty()) {
+		if (hexString[0] == '#')
+			hexString = hexString.substr(1);
+		if (hexString.length() == 3) {
+			// expand short form "123" to "112233"
+			hexString.resize(6);
+			hexString[5] = hexString[4] = hexString[2];
+			hexString[3] = hexString[2] = hexString[1];
+			hexString[1] = hexString[0];
+		}
+		if (hexString.length() == 6) {
+			try {
+				_rgb = stoi(hexString, nullptr, 16);
+				return true;
+			}
+			catch (...) {
+			}
+		}
+	}
+	return false;
+}
+
+
 /** Expects a PostScript color name and sets the color accordingly.
  *  @param[in] name PS color name
  *  @param[in] case_sensitive if true, upper/lower case spelling is significant

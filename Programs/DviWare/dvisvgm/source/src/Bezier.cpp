@@ -273,7 +273,7 @@ vector<QuadBezier> CubicBezier::toQuadBeziers (double precision, vector<double> 
 QuadBezier CubicBezier::midpointApproximation () const {
 	 DPair p0 = (_points[1]*3.0 - _points[0])/2.0;
 	 DPair p1 = (_points[2]*3.0 - _points[3])/2.0;
-	 return QuadBezier(_points[0], (p0+p1)/2.0, _points[3]);
+	 return {_points[0], (p0+p1)/2.0, _points[3]};
 }
 
 
@@ -308,7 +308,7 @@ void CubicBezier::toQuadBeziers (double t0, double t1, double precision, vector<
 	double tmax3 = 18.0/sqrt(3.0)*precision/dist;  // the cube of tmax
 	if (tmax3 >= 1.0) {
 		// curve is already quadratic, no subdivision necessary, return MPA
-		qbeziers.emplace_back(QuadBezier(_points[0], (q1+q2)/2.0, _points[3]));
+		qbeziers.emplace_back(_points[0], (q1+q2)/2.0, _points[3]);
 		if (startParams)
 			startParams->push_back(t0);
 	}

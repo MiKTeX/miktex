@@ -377,48 +377,67 @@ void DVIToSVG::embedFonts (XMLElement *svgElement) {
 }
 
 
+static vector<string> extract_prefixes (const char *ignorelist) {
+	vector<string> prefixes;
+	if (ignorelist) {
+		const char *left = ignorelist;
+		while (*left) {
+			while (*left && !isalnum(*left))
+				left++;
+			const char *right = left;
+			while (*right && isalnum(*right))
+				right++;
+			if (*left)
+				prefixes.emplace_back(left, right-left);
+			left = right;
+		}
+	}
+	return prefixes;
+}
+
+
 /** Enables or disables processing of specials. If ignorelist == 0, all
  *  supported special handlers are loaded. To disable selected sets of specials,
  *  the corresponding prefixes can be given separated by non alpha-numeric characters,
  *  e.g. "color, ps, em" or "color: ps em" etc.
  *  A single "*" in the ignore list disables all specials.
- *  @param[in] ignorelist list of special prefixes to ignore
+ *  @param[in] ignorelist list of hanlder names to ignore
  *  @param[in] pswarning if true, shows warning about disabled PS support
  *  @return the SpecialManager that handles special statements */
 void DVIToSVG::setProcessSpecials (const char *ignorelist, bool pswarning) {
 	if (ignorelist && strcmp(ignorelist, "*") == 0)  // ignore all specials?
 		SpecialManager::instance().unregisterHandlers();
 	else {
+		auto ignoredHandlerName = extract_prefixes(ignorelist);
 		// add special handlers
-		vector<unique_ptr<SpecialHandler>> handlers;
-		handlers.emplace_back(util::make_unique<BgColorSpecialHandler>());   // handles background color special
-		handlers.emplace_back(util::make_unique<ColorSpecialHandler>());     // handles color specials
-		handlers.emplace_back(util::make_unique<DvisvgmSpecialHandler>());   // handles raw SVG embeddings
-		handlers.emplace_back(util::make_unique<EmSpecialHandler>());        // handles emTeX specials
-		handlers.emplace_back(util::make_unique<HtmlSpecialHandler>());      // handles hyperref specials
-		handlers.emplace_back(util::make_unique<PapersizeSpecialHandler>()); // handles papersize special
-		handlers.emplace_back(util::make_unique<PdfSpecialHandler>());       // handles pdf specials
-		handlers.emplace_back(util::make_unique<TpicSpecialHandler>());      // handles tpic specials
+		SpecialManager::registerHandler<BgColorSpecialHandler>(ignoredHandlerName);    // handles background color special
+		SpecialManager::registerHandler<ColorSpecialHandler>(ignoredHandlerName);      // handles color specials
+		SpecialManager::registerHandler<DvisvgmSpecialHandler>(ignoredHandlerName);    // handles raw SVG embeddings
+		SpecialManager::registerHandler<EmSpecialHandler>(ignoredHandlerName);         // handles emTeX specials
+		SpecialManager::registerHandler<HtmlSpecialHandler>(ignoredHandlerName);       // handles hyperref specials
+		SpecialManager::registerHandler<PapersizeSpecialHandler>(ignoredHandlerName);  // handles papersize special
+		SpecialManager::registerHandler<PdfSpecialHandler>(ignoredHandlerName);        // handles pdf specials
+		SpecialManager::registerHandler<TpicSpecialHandler>(ignoredHandlerName);       // handles tpic specials
+		if (find(ignoredHandlerName.begin(), ignoredHandlerName.end(), PsSpecialHandler::handlerName()) == ignoredHandlerName.end()) {
 #ifndef DISABLE_GS
-		if (Ghostscript().available())
-			handlers.emplace_back(util::make_unique<PsSpecialHandler>());     // handles PostScript specials
-		else
+			if (Ghostscript().available())
+				SpecialManager::registerHandler<PsSpecialHandler>(ignoredHandlerName);   // handles PostScript specials
+			else
 #endif
-		{
+			{
 #ifndef HAVE_LIBGS
-			// dummy PS special handler that only prints warning messages
-			handlers.emplace_back(util::make_unique<NoPsSpecialHandler>());
-			if (pswarning) {
+				// dummy PS special handler that only prints warning messages
+				SpecialManager::registerHandler<NoPsSpecialHandler>(ignoredHandlerName);
+				if (pswarning) {
 #ifdef DISABLE_GS
-				Message::wstream() << "processing of PostScript specials has been disabled permanently\n";
+					Message::wstream() << "processing of PostScript specials has been disabled permanently\n";
 #else
-				Message::wstream() << "processing of PostScript specials is disabled (Ghostscript not found)\n";
+					Message::wstream() << "processing of PostScript specials is disabled (Ghostscript not found)\n";
+#endif
+				}
 #endif
 			}
-#endif
 		}
-		SpecialManager::instance().unregisterHandlers();
-		SpecialManager::instance().registerHandlers(handlers, ignorelist);
 	}
 }
 

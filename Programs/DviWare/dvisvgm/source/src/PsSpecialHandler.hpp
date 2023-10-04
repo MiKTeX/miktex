@@ -91,11 +91,12 @@ class PsSpecialHandler : public SpecialHandler, protected PSActions {
 	public:
 		PsSpecialHandler ();
 		~PsSpecialHandler () override;
-		const char* name () const override {return "ps";}
-		const char* info () const override {return "dvips PostScript specials";}
-		std::vector<const char*> prefixes() const override;
 		void preprocess (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
 		bool process (const std::string &prefix, std::istream &is, SpecialActions &actions) override;
+		const char* info () const override {return "dvips PostScript specials";}
+		const char* name () const override {return handlerName();}
+		static const char* handlerName ()  {return "ps";}
+		std::vector<const char*> prefixes () const override;
 		void setDviScaleFactor (double dvi2bp) override {_previewFilter.setDviScaleFactor(dvi2bp);}
 		void enterBodySection ();
 		PSInterpreter& psInterpreter () {return _psi;}

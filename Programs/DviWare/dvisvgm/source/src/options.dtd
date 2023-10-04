@@ -41,7 +41,7 @@
 
 <!ELEMENT arg EMPTY>
 <!ATTLIST arg
-  default NMTOKEN #IMPLIED
+  default CDATA #IMPLIED
   name CDATA #REQUIRED
   optional (yes|no) #IMPLIED
   type NMTOKEN #REQUIRED>

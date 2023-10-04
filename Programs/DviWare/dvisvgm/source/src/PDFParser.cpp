@@ -278,7 +278,7 @@ static PDFStream parse_stream (InputReader &ir, const char *delim) {
 	do
 		ir.skipUntil("endstream");
 	while (ir.peek() >= 0 && !strchr(delim, ir.peek()));  // ensure delimiter after "endstream"
-	return PDFStream();
+	return {};
 }
 
 
@@ -292,7 +292,7 @@ static PDFIndirectObject parse_indirect_object (InputReader &ir, const char *del
 		const int *objno = objects.back().get<int>();
 		objects.pop_back();
 		if (objno && genno)
-			return PDFIndirectObject(*objno, *genno);
+			return {*objno, *genno};
 	}
 	throw PDFException("object and generation number expected before 'obj'");
 }
@@ -305,7 +305,7 @@ static PDFObjectRef parse_object_ref (vector<PDFObject> &objects) {
 		const int *objno = objects.back().get<int>();
 		objects.pop_back();
 		if (objno && genno)
-			return PDFObjectRef(*objno, *genno);
+			return {*objno, *genno};
 	}
 	throw PDFException("object and generation number expected before 'R'");
 }

@@ -395,14 +395,14 @@ bool TTFWriter::convertTTFToWOFF (istream &is, ostream &os) {
 	// read and process TTF header
 	vector<char> bufvec(12, 0);
 	is.read(&bufvec[0], 12);
-	buffers.emplace_back(TableBuffer(0, std::move(bufvec)));
+	buffers.emplace_back(0, std::move(bufvec));
 	int numTables = buffers.back().getUInt16(4);
 
 	// read and process table records
 	bufvec.clear();
 	bufvec.resize(4 * 4 * numTables);
 	is.read(&bufvec[0], 4 * 4 * numTables);
-	buffers.emplace_back(TableBuffer(0, std::move(bufvec)));
+	buffers.emplace_back(0, std::move(bufvec));
 
 	struct TableRecord {
 		TableRecord (const TableBuffer &buf, size_t ofs)
@@ -416,7 +416,7 @@ bool TTFWriter::convertTTFToWOFF (istream &is, ostream &os) {
 	tableRecords.reserve(numTables);
 	const TableBuffer &recbuf = buffers.back();
 	for (int i=0; i < numTables; i++)
-		tableRecords.emplace_back(TableRecord(recbuf, 16*i));
+		tableRecords.emplace_back(recbuf, 16*i);
 
 	// read and process tables
 	for (const TableRecord &record : tableRecords) {
@@ -425,9 +425,9 @@ bool TTFWriter::convertTTFToWOFF (istream &is, ostream &os) {
 		is.seekg(record.offset);
 		is.read(&bufvec[0], record.length);
 		if (record.tag == TTFTable::name2id("head"))
-			buffers.emplace_back(TableBuffer(record.tag, std::move(bufvec), HeadTable::offsetToChecksum()));
+			buffers.emplace_back(record.tag, std::move(bufvec), HeadTable::offsetToChecksum());
 		else
-			buffers.emplace_back(TableBuffer(record.tag, std::move(bufvec)));
+			buffers.emplace_back(record.tag, std::move(bufvec));
 	}
 	return ttf_to_woff(std::move(buffers), os);
 }

@@ -357,7 +357,7 @@ bool TpicSpecialHandler::process (const string &prefix, istream &is, SpecialActi
 }
 
 
-vector<const char*> TpicSpecialHandler::prefixes() const {
+vector<const char*> TpicSpecialHandler::prefixes () const {
 	vector<const char*> pfx {"ar", "bk", "da", "dt", "fp", "ia", "ip", "pa", "pn", "sh", "sp", "tx", "wh"};
 	return pfx;
 }

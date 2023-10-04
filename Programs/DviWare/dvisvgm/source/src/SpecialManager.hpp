@@ -21,12 +21,14 @@
 #ifndef SPECIALMANAGER_HPP
 #define SPECIALMANAGER_HPP
 
+#include <algorithm>
 #include <memory>
 #include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "SpecialHandler.hpp"
+#include "utility.hpp"
 
 class SpecialActions;
 
@@ -38,6 +40,14 @@ class SpecialManager {
 	public:
 		SpecialManager (const SpecialManager &) =delete;
 		static SpecialManager& instance ();
+
+		template <class Handler>
+		static void registerHandler (const std::vector<std::string> &ignoredHandlerNames) {
+			const char *name = Handler::handlerName();
+			if (!name || find(ignoredHandlerNames.begin(), ignoredHandlerNames.end(), std::string(name)) == ignoredHandlerNames.end())
+				instance().registerHandler(util::make_unique<Handler>());
+		}
+
 		void registerHandler (std::unique_ptr<SpecialHandler> handler);
 		void registerHandlers (std::vector<std::unique_ptr<SpecialHandler>> &handlers, const char *ignorelist);
 		void unregisterHandlers ();

@@ -58,6 +58,7 @@ class PDFHandler {
 		std::unique_ptr<SVGElement> convert (const std::string &fname, int pageno, std::unique_ptr<SVGElement> context=nullptr);
 		static std::string mutoolVersion ();
 		static bool available () {return !mutoolVersion().empty();}
+		static int numberOfPages (const std::string &fname);
 
 	protected:
 		static std::string mutool (const std::string &cmd, bool readFromStderr=false);

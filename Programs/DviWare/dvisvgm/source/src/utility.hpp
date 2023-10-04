@@ -69,9 +69,10 @@ std::string replace (std::string str, const std::string &find, const std::string
 std::string to_string (double val);
 std::string mimetype (const std::string &fname);
 
-std::vector<std::string> split (const std::string &str, const std::string &sep);
+std::vector<std::string> split (const std::string &str, const std::string &sep, bool allowEmptyResult=false);
 int ilog10 (int n);
 
+bool read_double (std::istream &is, double &value);
 std::string read_file_contents (const std::string &fname);
 void write_file_contents (const std::string &fname, std::string::iterator start, std::string::iterator end);
 

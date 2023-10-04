@@ -21,6 +21,7 @@
 #ifndef FONTMETRICS_HPP
 #define FONTMETRICS_HPP
 
+#include <cstdint>
 #include <istream>
 #include <memory>
 #include <string>
@@ -28,6 +29,7 @@
 
 struct FontMetrics {
 	virtual ~FontMetrics () =default;
+	virtual void read (std::istream &is) {}
 	virtual double getDesignSize () const =0;
 	virtual double getCharWidth (int c) const =0;
 	virtual double getCharHeight (int c) const =0;
@@ -41,14 +43,15 @@ struct FontMetrics {
 	virtual double getDescent () const =0;
 	virtual bool verticalLayout () const =0;
 	virtual uint32_t getChecksum () const =0;
-	virtual uint16_t firstChar () const =0;
-	virtual uint16_t lastChar () const =0;
+	virtual uint32_t firstChar () const =0;
+	virtual uint32_t lastChar () const =0;
 	virtual bool isJFM () const {return false;}
+	virtual bool isOFM () const {return false;}
 	static std::unique_ptr<FontMetrics> read (const std::string &fontname);
 };
 
 
-struct NullFontMetric : public FontMetrics {
+struct NullFontMetrics : public FontMetrics {
 	double getDesignSize () const override      {return 1;}
 	double getCharWidth (int c) const override  {return 0;}
 	double getCharHeight (int c) const override {return 0;}
@@ -62,8 +65,8 @@ struct NullFontMetric : public FontMetrics {
 	double getDescent () const override         {return 0;}
 	bool verticalLayout () const override       {return false;}
 	uint32_t getChecksum () const override      {return 0;}
-	uint16_t firstChar () const override        {return 0;}
-	uint16_t lastChar () const override         {return 0;}
+	uint32_t firstChar () const override        {return 0;}
+	uint32_t lastChar () const override         {return 0;}
 };
 
 

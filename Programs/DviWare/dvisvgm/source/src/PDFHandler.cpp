@@ -146,6 +146,12 @@ string PDFHandler::mutoolVersion () {
 }
 
 
+/** Returns the total number of pages of a PDF file. */
+int PDFHandler::numberOfPages (const string &fname) {
+	return parse_value<int>(mtShow("\""+fname+"\"", "trailer/Root/Pages/Count"));
+}
+
+
 /** Converts a single page of a PDF file to SVG. If no context element is given,
  *  the SVG page contents are added to a page group element of the SVG tree.
  *  Otherwise, they are added to the context element which is not inserted into
@@ -186,6 +192,7 @@ unique_ptr<SVGElement> PDFHandler::convert (const string &fname, int pageno, uni
 void PDFHandler::initFile (const string &fname) {
 	finishFile();
 	_fname = FilePath(fname, true).absolute();
+	_fname = "\"" + _fname + "\"";
 	_numPages = parse_value<int>(mtShow("trailer/Root/Pages/Count"));
 	// extract image and font files from the PDF
 	string cwd = FileSystem::getcwd();
@@ -483,7 +490,7 @@ void PDFHandler::doClipPath (XMLElement *trcClipPathElement) {
 		auto clipPathElement = util::make_unique<SVGElement>("clipPath");
 		clipPathElement->addAttribute("id", id);
 		auto groupElement = util::make_unique<SVGElement>("g");
-		_clipPathStack.emplace(ClipPathData{std::move(id), groupElement.get()});
+		_clipPathStack.emplace(std::move(id), groupElement.get());
 		groupElement->setClipPathUrl(_clipPathStack.top().id);
 		clipPathElement->append(std::move(pathElement));
 		_svg->appendToDefs(std::move(clipPathElement));
@@ -507,7 +514,7 @@ void PDFHandler::doClipStrokePath (XMLElement *trcClipStrokePathElement) {
 		maskElement->append(std::move(pathElement));
 		auto groupElement = util::make_unique<SVGElement>("g");
 		groupElement->setMaskUrl(id);
-		_clipPathStack.emplace(ClipPathData{std::move(id), groupElement.get()});
+		_clipPathStack.emplace(std::move(id), groupElement.get());
 		_svg->appendToDefs(std::move(maskElement));
 		_svg->pushPageContext(std::move(groupElement));
 	}
@@ -519,7 +526,7 @@ void PDFHandler::doClipText (XMLElement *trcClipTextElement) {
 	auto clipPathElement = util::make_unique<SVGElement>("clipPath");
 	clipPathElement->addAttribute("id", id);
 	auto groupElement = util::make_unique<SVGElement>("g");
-	_clipPathStack.emplace(ClipPathData{std::move(id), groupElement.get()});
+	_clipPathStack.emplace(std::move(id), groupElement.get());
 	groupElement->setClipPathUrl(_clipPathStack.top().id);
 	SVGElement *cpElementPtr = clipPathElement.get();
 	_svg->pushPageContext(std::move(clipPathElement));
@@ -641,9 +648,14 @@ void PDFHandler::doFillText (XMLElement *trcFillTextElement) {
 			auto trm = parse_attr_value<vector<double>>(spanElement, "trm");
 			if (trm.size() < 4 || trm[0] == 0)
 				continue;
-			auto fontname = strip_subset_prefix(parse_attr_value<string>(spanElement, "font"));
-			string filename;
+			auto fontname = parse_attr_value<string>(spanElement, "font");
 			auto it = _objDict.find(fontname);
+			if (it == _objDict.end()) {
+				// try to lookup font without subfont prefix
+				fontname = strip_subset_prefix(fontname);
+				it = _objDict.find(fontname);
+			}
+			string filename;
 			if (it != _objDict.end())
 				filename = it->second.fname;
 			if (filename.empty())
@@ -800,11 +812,10 @@ void PDFHandler::collectObjects () {
 	for (auto &entry : _extractedFiles) {
 		if (entry.second.substr(0, 5) == "font-") {
 			string filepath = tmpdir+entry.second;  // path to font file
-			string fontname = strip_subset_prefix(FontEngine::instance().getPSName(filepath));
-			// If the extracted font file doesn't contain a font name,
-			// try to get it from the corresponding PDF object.
-			if (fontname.empty())
-				fontname = mtShow(to_string(entry.first)+"/FontName", SearchPattern(R"(/(\w+))", "$1"));
+			string psFontname = FontEngine::instance().getPSName(filepath);
+			string fontname = mtShow(to_string(entry.first) + "/FontName", SearchPattern(R"(/((\w|[+-])+))", "$1"));
+			if (!psFontname.empty() && fontname.find('+') == string::npos)
+				fontname = std::move(psFontname);
 			_objDict.emplace(fontname, ObjID(entry.first, 0, filepath));
 		}
 	}

@@ -56,6 +56,7 @@ class Color {
 		void setRGB (uint8_t r, uint8_t g, uint8_t b)  {_rgb = (r << 16) | (g << 8) | b;}
 		void setRGB (double r, double g, double b);
 		void setRGB (const std::valarray<double> &rgb) {setRGB(rgb[0], rgb[1], rgb[2]);}
+		bool setRGBHexString (std::string hexString);
 		bool setPSName (std::string name, bool case_sensitive=true);
 		void setGray (uint8_t g)  {setRGB(g,g,g);}
 		void setGray (double g) {setRGB(g,g,g);}

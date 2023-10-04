@@ -21,6 +21,7 @@
 #ifndef DVIACTIONS_HPP
 #define DVIACTIONS_HPP
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

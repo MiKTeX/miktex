@@ -22,7 +22,6 @@
 #include <config.h>
 #endif
 #include <algorithm>
-#include <cstring>
 #include <fstream>
 #include <sstream>
 #include "JFM.hpp"
@@ -31,27 +30,27 @@
 using namespace std;
 
 
-JFM::JFM (istream &is) {
+void JFM::read (istream &is) {
 	is.seekg(0);
 	StreamReader reader(is);
-	uint16_t id = uint16_t(reader.readUnsigned(2)); // JFM ID (9 or 11)
+	auto id = uint16_t(reader.readUnsigned(2)); // JFM ID (9 or 11)
 	if (id != 9 && id != 11)
 		throw FontMetricException("invalid JFM identifier " + std::to_string(id) + " (9 or 11 expected)");
 
 	_vertical = (id == 9);
-	uint16_t nt = uint16_t(reader.readUnsigned(2));  // length of character type table
-	uint16_t lf = uint16_t(reader.readUnsigned(2));  // length of entire file in 4 byte words
-	uint16_t lh = uint16_t(reader.readUnsigned(2));  // length of header in 4 byte words
-	uint16_t bc = uint16_t(reader.readUnsigned(2));  // smallest character code in font
-	uint16_t ec = uint16_t(reader.readUnsigned(2));  // largest character code in font
-	uint16_t nw = uint16_t(reader.readUnsigned(2));  // number of words in width table
-	uint16_t nh = uint16_t(reader.readUnsigned(2));  // number of words in height table
-	uint16_t nd = uint16_t(reader.readUnsigned(2));  // number of words in depth table
-	uint16_t ni = uint16_t(reader.readUnsigned(2));  // number of words in italic corr. table
-	uint16_t nl = uint16_t(reader.readUnsigned(2));  // number of words in glue/kern table
-	uint16_t nk = uint16_t(reader.readUnsigned(2));  // number of words in kern table
-	uint16_t ng = uint16_t(reader.readUnsigned(2));  // number of words in glue table
-	uint16_t np = uint16_t(reader.readUnsigned(2));  // number of font parameter words
+	auto nt = uint16_t(reader.readUnsigned(2));  // length of character type table
+	auto lf = uint16_t(reader.readUnsigned(2));  // length of entire file in 4 byte words
+	auto lh = uint16_t(reader.readUnsigned(2));  // length of header in 4 byte words
+	auto bc = uint16_t(reader.readUnsigned(2));  // smallest character code in font
+	auto ec = uint16_t(reader.readUnsigned(2));  // largest character code in font
+	auto nw = uint16_t(reader.readUnsigned(2));  // number of words in width table
+	auto nh = uint16_t(reader.readUnsigned(2));  // number of words in height table
+	auto nd = uint16_t(reader.readUnsigned(2));  // number of words in depth table
+	auto ni = uint16_t(reader.readUnsigned(2));  // number of words in italic corr. table
+	auto nl = uint16_t(reader.readUnsigned(2));  // number of words in glue/kern table
+	auto nk = uint16_t(reader.readUnsigned(2));  // number of words in kern table
+	auto ng = uint16_t(reader.readUnsigned(2));  // number of words in glue table
+	auto np = uint16_t(reader.readUnsigned(2));  // number of font parameter words
 
 	if (7+nt+lh+(ec-bc+1)+nw+nh+nd+ni+nl+nk+ng+np != lf)
 		throw FontMetricException("inconsistent length values");
@@ -60,7 +59,7 @@ JFM::JFM (istream &is) {
 	readHeader(reader);
 	is.seekg(28+lh*4);
 	readTables(reader, nt, nw, nh, nd, ni);
-	is.seekg(4*(lf-np), ios::beg);
+	is.seekg(4*(lf-np));
 	readParameters(reader, np);   // JFM files provide 9 parameters but we don't need all of them
 }
 
@@ -72,7 +71,7 @@ void JFM::readTables (StreamReader &reader, int nt, int nw, int nh, int nd, int 
 		// support new JFM spec by texjporg
 		uint32_t c = reader.readUnsigned(2);
 		c += 0x10000 * reader.readUnsigned(1);
-		uint8_t t =  uint8_t(reader.readUnsigned(1));
+		auto t =  uint8_t(reader.readUnsigned(1));
 		if (t > 0) {
 			minchar = min(minchar, c);
 			maxchar = max(maxchar, c);
@@ -87,7 +86,7 @@ void JFM::readTables (StreamReader &reader, int nt, int nw, int nh, int nd, int 
 			// support new JFM spec by texjporg
 			uint32_t c = reader.readUnsigned(2);
 			c += 0x10000 * reader.readUnsigned(1);
-			uint8_t t = uint8_t(reader.readUnsigned(1));
+			auto t = uint8_t(reader.readUnsigned(1));
 			if (c >= minchar)
 				_charTypeTable[c-minchar] = t;
 		}
@@ -96,7 +95,7 @@ void JFM::readTables (StreamReader &reader, int nt, int nw, int nh, int nd, int 
 }
 
 
-int JFM::charIndex (int c) const {
+size_t JFM::charIndex (int c) const {
 	uint8_t chartype = 0;
 	if (!_charTypeTable.empty() && uint32_t(c) >= _minchar && uint32_t(c) < _minchar+_charTypeTable.size())
 		chartype = _charTypeTable[c-_minchar];

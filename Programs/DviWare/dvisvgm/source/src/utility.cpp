@@ -65,7 +65,7 @@ vector<double> math::svd (const double (&m)[2][2]) {
 			theta = (a2-a1)/2;
 		}
 	}
-	return vector<double>{phi, sx, sy, theta};
+	return {phi, sx, sy, theta};
 }
 
 
@@ -75,7 +75,7 @@ vector<double> math::svd (const double (&m)[2][2]) {
  *  @param[in] t1 upper interval boundary
  *  @param[in] n number of slices the interval is divided into
  *  @param[in] f function to integrate */
-double math::integral (double t0, double t1, int n, const std::function<double(double)> &f) {
+double math::integral (double t0, double t1, int n, const function<double(double)> &f) {
 	double ti = t0, ui=0;
 	double h = (t1-t0)/n;
 	for (int i=0; i < n; i++) {
@@ -110,7 +110,7 @@ double math::normalize_0_2pi (double rad) {
  *  @param[in] str the string to process
  *  @param[in] ws characters treated as whitespace
  *  @return the trimmed string */
-string util::trim (const std::string &str, const char *ws) {
+string util::trim (const string &str, const char *ws) {
 	auto first = str.find_first_not_of(ws);
 	if (first == string::npos)
 		return "";
@@ -157,12 +157,13 @@ string util::replace (string str, const string &find, const string &repl) {
  *  returns the substrings.
  *  @param[in] str string to split
  *  @param[in] sep separator to look for
+ *  @param[in] allowEmptyResult if true, the result vector is empty if str is empty; otherwise an empty string is inserted
  *  @return the substrings between the separators */
-vector<string> util::split (const string &str, const string &sep) {
+vector<string> util::split (const string &str, const string &sep, bool allowEmptyResult) {
 	vector<string> parts;
-	if (str.empty() || sep.empty())
+	if ((str.empty() && !allowEmptyResult) || sep.empty())
 		parts.push_back(str);
-	else {
+	else if (!str.empty()) {
 		string::size_type left=0;
 		while (left <= str.length()) {
 			auto right = str.find(sep, left);
@@ -190,13 +191,8 @@ string util::tolower (const string &str) {
 /** Converts a double to a string and strips redundant trailing digits/dots. */
 string util::to_string (double val) {
 	string str = std::to_string(val);
-	if (str.find('.') != string::npos) {  // double value and not an integer?
-		auto pos = str.find_last_not_of('0');
-		if (pos != string::npos)  // trailing zeros
-			str.erase(pos+1, string::npos);
-		if (str.back() == '.')    // trailing dot?
-			str.pop_back();
-	}
+	str.erase(str.find_last_not_of('0')+1, string::npos);
+	str.erase(str.find_last_not_of('.')+1, string::npos);
 	return str;
 }
 
@@ -213,6 +209,64 @@ int util::ilog10 (int n) {
 }
 
 
+/** Reads an integer string of the form (+|-)?[0-9]+ from an input stream
+ *  ana appends it to a given one.
+ *  @param[in] is stream to read from
+ *  @param[out] str the read string is appended to this one
+ *  @param[in] allow_leading_sign true if the first character may be '+' or '-'
+ *  @return true if the string coule be read successfully */
+static bool read_int_string (istream &is, string &str, bool allow_leading_sign=true) {
+	string intstr;
+	if (is.peek() == '-' || is.peek() == '+') {
+		if (!allow_leading_sign)
+			return false;
+		intstr += char(is.get());
+		if (!isdigit(is.peek()))
+			return false;
+	}
+	while (isdigit(is.peek()))
+		intstr += char(is.get());
+	str += intstr;
+	return !intstr.empty();
+}
+
+
+/** Reads and parses a double from an input stream.
+ *  @param[in] is stream to read from
+ *  @param[out] value the read double value
+ *  @return true if the value was read and parsed successfully */
+bool util::read_double (istream &is, double &value) {
+	is >> ws;
+	string numstr;
+	// read optional leading sign
+	bool plusminus = (is.peek() == '-' || is.peek() == '+');
+	if (plusminus)
+		numstr += char(is.get());
+	// read optional integer part (before decimal dot)
+	read_int_string(is, numstr, !plusminus);
+	if (is.peek() == '.') {
+		numstr += char(is.get());
+		// read fractional part (after decimal dot)
+		if (!read_int_string(is, numstr, false))
+			return false;
+	}
+	// read optional exponential part
+	if (std::tolower(is.peek()) == 'e') {
+		numstr += char(is.get());
+		if (!read_int_string(is, numstr))
+			return false;
+	}
+	try {
+		size_t count;
+		value = stod(numstr, &count);
+		return count == numstr.length();
+	}
+	catch (...) {
+		return false;
+	}
+}
+
+
 /** Returns the contents of a file.
  *  @param[in] fname name/path of the file */
 string util::read_file_contents (const string &fname) {
@@ -221,7 +275,7 @@ string util::read_file_contents (const string &fname) {
 #else
 	ifstream ifs(fname, ios::binary);
 #endif
-	return string(istreambuf_iterator<char>(ifs.rdbuf()), istreambuf_iterator<char>());
+	return {istreambuf_iterator<char>(ifs.rdbuf()), istreambuf_iterator<char>()};
 }
 
 

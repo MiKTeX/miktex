@@ -83,7 +83,7 @@ void HtmlSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-vector<const char*> HtmlSpecialHandler::prefixes() const {
+vector<const char*> HtmlSpecialHandler::prefixes () const {
 	vector<const char*> pfx {"html:"};
 	return pfx;
 }

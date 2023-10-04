@@ -92,8 +92,8 @@ class SVGTree {
 
 	private:
 		XMLDocument _doc;
-		SVGElement *_root, *_page, *_defs;
-		XMLCData *_styleCDataNode;
+		SVGElement *_root=nullptr, *_page=nullptr, *_defs=nullptr;
+		XMLCData *_styleCDataNode=nullptr;
 		std::unique_ptr<SVGCharHandler> _charHandler;
 		std::stack<SVGElement*> _defsContextStack;
 		std::stack<SVGElement*> _pageContextStack;

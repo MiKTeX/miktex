@@ -286,7 +286,7 @@ void PdfSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-vector<const char*> PdfSpecialHandler::prefixes() const {
+vector<const char*> PdfSpecialHandler::prefixes () const {
 	vector<const char*> pfx {"pdf:"};
 	return pfx;
 }

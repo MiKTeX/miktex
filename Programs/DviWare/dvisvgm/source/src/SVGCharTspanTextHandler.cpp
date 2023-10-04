@@ -49,7 +49,7 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 	}
 	// Apply text color changes only if the color of the entire font is black.
 	// Glyphs of non-black fonts (e.g. defined in a XeTeX document) can't change their color.
-	bool applyColor = _color.get() != Color::BLACK && _font.get()->color() == Color::BLACK;
+	bool applyColor = _color.get() != Color::BLACK || (SVGElement::USE_CURRENTCOLOR && _font.get()->color() == Color::BLACK);
 	bool applyOpacity = !_opacity->isFillDefault();
 	if (_xchanged || _ychanged || (_color.changed() && applyColor) || (_opacity.changed() && applyOpacity)) {
 		_tspanNode = pushContextNode(util::make_unique<SVGElement>("tspan"));

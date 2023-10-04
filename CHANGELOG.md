@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## Next
+
+### Upgraded programs
+
+* dvisvgm 3.1.1
+
 ## 23.9.24 - 2023-9-24
 
 ### Fixed issues

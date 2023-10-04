@@ -291,6 +291,8 @@ class NativeFont : public PhysicalFont {
 
 	protected:
 		NativeFont (double ptsize, const FontStyle &style, Color color) : _ptsize(ptsize), _style(style), _color(color) {}
+		using PhysicalFont::hAdvance;
+		using PhysicalFont::vAdvance;
 
 	private:
 		double _ptsize;    ///< font size in PS point units
