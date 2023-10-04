@@ -7,6 +7,10 @@
 * dvisvgm 3.1.1
 * texworks 0.6.8
 
+### Fixed issues
+
+- [1364](https://github.com/MiKTeX/miktex/issues/1364): User-only installation cannot check for updates during installation
+
 ## 23.9.24 - 2023-9-24
 
 ### Fixed issues

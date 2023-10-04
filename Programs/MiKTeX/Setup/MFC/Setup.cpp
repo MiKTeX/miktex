@@ -880,7 +880,7 @@ BOOL SetupApp::InitInstance()
         {
             PathName miktexConsole(GetInstallationDirectory() / PathName(MIKTEX_PATH_BIN_DIR) / PathName(MIKTEX_CONSOLE_EXE));
             vector<string> args{ "--hide", "--check-updates" };
-            if (options.IsCommonSetup)
+            if (Service->GetOptions().IsCommonSetup)
             {
                 args.push_back("--admin");
             }
