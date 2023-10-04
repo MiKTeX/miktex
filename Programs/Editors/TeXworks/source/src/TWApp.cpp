@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,10 +38,12 @@
 #include "TemplateDialog.h"
 #include "document/SpellChecker.h"
 #include "scripting/ScriptAPI.h"
+#include "utils/CommandlineParser.h"
 #include "utils/ResourcesLibrary.h"
 #include "utils/SystemCommand.h"
 #include "utils/TextCodecs.h"
 #include "utils/VersionInfo.h"
+#include "utils/WindowManager.h"
 
 #include <QAction>
 #include <QDesktopServices>
@@ -73,8 +75,6 @@ extern QString GetMacOSVersionString();
 #endif
 
 #define SETUP_FILE_NAME "texworks-setup.ini"
-
-const int kDefaultMaxRecentFiles = 20;
 
 TWApp *TWApp::theAppInstance = nullptr;
 
@@ -117,15 +117,27 @@ QString replaceEnvironmentVariables(const QString & s)
 
 TWApp::TWApp(int &argc, char **argv)
 	: QApplication(argc, argv)
-	, recentFilesLimit(kDefaultMaxRecentFiles)
-	, defaultCodec(nullptr)
-	, binaryPaths(nullptr)
-	, defaultBinPaths(nullptr)
-	, engineList(nullptr)
-	, defaultEngineIndex(0)
-	, scriptManager(nullptr)
 {
 	init();
+	CommandLineData cld = processCommandLine();
+	if (!cld.shouldContinue) {
+		return;
+	}
+	if (!ensureSingleInstance(cld)) {
+		return;
+	}
+	// If a document is opened during the startup of Tw, the QApplication
+	// may not be properly initialized yet. Therefore, defer the opening to
+	// the event loop.
+	for (const auto & fileToOpen : cld.filesToOpen) {
+		QCoreApplication::postEvent(this, new TWDocumentOpenEvent(fileToOpen.filename, fileToOpen.position));
+	}
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
+	QTimer::singleShot(1, this, SLOT(launchAction()));
+#else
+	QTimer::singleShot(1, this, &TWApp::launchAction);
+#endif
 }
 
 TWApp::~TWApp()
@@ -180,7 +192,7 @@ void TWApp::init()
 			}
 		}
 		if (portable.contains(QString::fromLatin1("defaultbinpaths"))) {
-			defaultBinPaths = new QStringList;
+			defaultBinPaths = std::unique_ptr<QStringList>(new QStringList);
 			*defaultBinPaths = portable.value(QString::fromLatin1("defaultbinpaths")).toString().split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts);
 		}
 	}
@@ -232,6 +244,8 @@ void TWApp::init()
 	defaultCodec = QTextCodec::codecForName(codecName.toLatin1());
 	if (!defaultCodec)
 		defaultCodec = QTextCodec::codecForName("UTF-8");
+
+	QtPDF::Backend::Document::pageCache().setMaxCost(settings.value(QStringLiteral("pdfPageCacheSizeMiB"), kDefault_PDFPageCacheSizeMiB).toInt() * 1024 * 1024);
 
 	TWUtils::readConfig();
 
@@ -288,6 +302,88 @@ void TWApp::init()
         QTimer* timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(UnloadFileNameDatabase()));
         timer->start(5000);
+#endif
+}
+
+TWApp::CommandLineData TWApp::processCommandLine()
+{
+	CommandLineData retVal;
+	Tw::Utils::CommandlineParser clp;
+	clp.registerSwitch(QString::fromLatin1("help"), tr("Display this message"), QString::fromLatin1("?"));
+	clp.registerOption(QString::fromLatin1("position"), tr("Open the following file at the given position (line or page)"), QString::fromLatin1("p"));
+	clp.registerSwitch(QString::fromLatin1("version"), tr("Display version information"), QString::fromLatin1("v"));
+
+	if (clp.parse()) {
+		int i{-1}, numArgs{0};
+		while ((i = clp.getNextArgument()) >= 0) {
+			++numArgs;
+			int j = clp.getPrevOption(QString::fromLatin1("position"), i);
+			int pos = -1;
+			if (j >= 0) {
+				pos = clp.at(j).value.toInt();
+				clp.at(j).processed = true;
+			}
+			Tw::Utils::CommandlineParser::CommandlineItem & item = clp.at(i);
+			item.processed = true;
+
+			retVal.filesToOpen.push_back({item.value.toString(), pos});
+		}
+		if ((i = clp.getNextSwitch(QString::fromLatin1("version"))) >= 0) {
+			if (numArgs == 0) {
+				retVal.shouldContinue = false;
+				exitLater(0);
+			}
+			clp.at(i).processed = true;
+			QTextStream strm(stdout);
+			strm << "TeXworks " << Tw::Utils::VersionInfo::fullVersionString() << "\n\n";
+			strm << QString::fromUtf8("\
+Copyright (C) %1  %2\n\
+License GPLv2+: GNU GPL (version 2 or later) <http://gnu.org/licenses/gpl.html>\n\
+This is free software: you are free to change and redistribute it.\n\
+There is NO WARRANTY, to the extent permitted by law.\n\n").arg(QString::fromLatin1("2007-2023"), QString::fromUtf8("Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"));
+			strm.flush();
+		}
+		if ((i = clp.getNextSwitch(QString::fromLatin1("help"))) >= 0) {
+			if (numArgs == 0) {
+				retVal.shouldContinue = false;
+				exitLater(0);
+			}
+			clp.at(i).processed = true;
+			QTextStream strm(stdout);
+			clp.printUsage(strm);
+		}
+	}
+	return retVal;
+}
+
+bool TWApp::ensureSingleInstance(const CommandLineData &cld)
+{
+	if (!m_IPC.isFirstInstance()) {
+		m_IPC.sendBringToFront();
+		for(const CommandLineData::fileToOpenStruct & fileToOpen : cld.filesToOpen) {
+			QFileInfo fi(fileToOpen.filename);
+			if (!fi.exists())
+				continue;
+			m_IPC.sendOpenFile(fi.absoluteFilePath(), fileToOpen.position);
+		}
+		exitLater(0);
+		return false;
+	}
+	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedBringToFront, this, &TWApp::bringToFront);
+	QObject::connect(&m_IPC, &Tw::InterProcessCommunicator::receivedOpenFile, this, &TWApp::openFile);
+	return true;
+}
+
+void TWApp::exitLater(int retCode)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
+	QTimer * t = new QTimer();
+	t->setSingleShot(true);
+	connect(t, &QTimer::timeout, [&]() { this->exit(retCode); });
+	connect(t, &QTimer::timeout, t, &QTimer::deleteLater);
+	t->start(0);
+#else
+	QTimer::singleShot(0, this, [&]() { this->exit(retCode); });
 #endif
 }
 
@@ -379,14 +475,11 @@ void TWApp::about()
 {
 	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(QString::fromLatin1(TEXWORKS_NAME));
 	aboutText += QLatin1String("<small>");
-  aboutText += QLatin1String("<p>&#xA9; 2007-2022  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
+	aboutText += QLatin1String("<p>&#xA9; 2007-2023  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen");
 #if defined(MIKTEX)
 	aboutText += tr("<br>Version %1 (%2)").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()));
 #else
-	if (Tw::Utils::VersionInfo::isGitInfoAvailable())
-		aboutText += tr("<br>Version %1 (%2) [r.%3, %4]").arg(Tw::Utils::VersionInfo::versionString(), Tw::Utils::VersionInfo::buildIdString(), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
-	else
-		aboutText += tr("<br>Version %1 (%2)").arg(Tw::Utils::VersionInfo::versionString(), Tw::Utils::VersionInfo::buildIdString());
+	aboutText += tr("<br>Version %1").arg(Tw::Utils::VersionInfo::fullVersionString());
 #endif
 	aboutText += tr("<p>Distributed under the <a href=\"http://www.gnu.org/licenses/gpl-2.0.html\">GNU General Public License</a>, version 2 or (at your option) any later version.");
 	aboutText += tr("<p><a href=\"http://www.qt.io/\">Qt application framework</a> v%1 by The Qt Company.").arg(QString::fromLatin1(qVersion()));
@@ -442,13 +535,21 @@ QString TWApp::GetWindowsVersionString()
 	else
 		GetSystemInfo(&si);
 
+	// See https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-osversioninfoexa
+	// and https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
 	if ( VER_PLATFORM_WIN32_NT == osvi.dwPlatformId && osvi.dwMajorVersion > 4 ) {
 		if ( osvi.dwMajorVersion == 10 ) {
 			if ( osvi.dwMinorVersion == 0 ) {
-				if ( osvi.wProductType == VER_NT_WORKSTATION )
-					result = QLatin1String("10");
+				if ( osvi.wProductType == VER_NT_WORKSTATION ) {
+					if (osvi.dwBuildNumber >= 22000)
+						result = QLatin1String("11");
+					else
+						result = QLatin1String("10");
+				}
 				else {
-					if (osvi.dwBuildNumber >= 17623)
+					if (osvi.dwBuildNumber >= 20348)
+						result = QLatin1String("Server 2022");
+					else if (osvi.dwBuildNumber >= 17763)
 						result = QLatin1String("Server 2019");
 					else
 						result = QLatin1String("Server 2016");
@@ -605,7 +706,7 @@ void TWApp::writeToMailingList()
 #if defined(MIKTEX)
 	body += QStringLiteral("TeXworks version : %1 (%2)\n").arg(Tw::Utils::VersionInfo::versionString(), QString::fromUtf8(MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str()));
 #else
-	body += QStringLiteral("TeXworks version : %1 (%2) [r.%3, %4]\n").arg(Tw::Utils::VersionInfo::versionString(), Tw::Utils::VersionInfo::buildIdString(), Tw::Utils::VersionInfo::gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
+	body += QStringLiteral("TeXworks version : %1\n").arg(Tw::Utils::VersionInfo::fullVersionString());
 #endif
 #if defined(Q_OS_DARWIN)
 	body += QLatin1String("Install location : ") + QDir(applicationDirPath() + QLatin1String("/../..")).absolutePath() + QChar::fromLatin1('\n');
@@ -845,17 +946,18 @@ void TWApp::updateRecentFileActions()
 
 void TWApp::updateWindowMenus()
 {
+	Tw::Utils::WindowManager::updateWindowList(TeXDocumentWindow::documentList(), PDFDocumentWindow::documentList());
 	emit windowListChanged();
 }
 
 void TWApp::stackWindows()
 {
-	arrangeWindows(TWUtils::stackWindowsInRect);
+	arrangeWindows(Tw::Utils::WindowManager::stackWindowsInRect);
 }
 
 void TWApp::tileWindows()
 {
-	arrangeWindows(TWUtils::tileWindowsInRect);
+	arrangeWindows(Tw::Utils::WindowManager::tileWindowsInRect);
 }
 
 void TWApp::arrangeWindows(WindowArrangementFunction func)
@@ -903,7 +1005,7 @@ void TWApp::setDefaultPaths()
 
 	QDir appDir(applicationDirPath());
 	if (!binaryPaths)
-		binaryPaths = new QStringList;
+		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
 	else
 		binaryPaths->clear();
 	if (defaultBinPaths)
@@ -919,10 +1021,13 @@ void TWApp::setDefaultPaths()
 #else
 	QString envPath = QString::fromLocal8Bit(getenv("PATH"));
 #endif
-	if (!envPath.isEmpty())
-		foreach (const QString& s, envPath.split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts))
-		if (!binaryPaths->contains(s))
-			binaryPaths->append(s);
+	if (!envPath.isEmpty()) {
+		foreach (const QString& s, envPath.split(QString::fromLatin1(PATH_LIST_SEP), SkipEmptyParts)) {
+			if (!binaryPaths->contains(s)) {
+				binaryPaths->append(s);
+			}
+		}
+	}
 	if (!defaultBinPaths) {
 #if defined(MIKTEX)
           {
@@ -941,7 +1046,7 @@ void TWApp::setDefaultPaths()
 		}
 #endif
 	}
-	for (int i = binaryPaths->count() - 1; i >= 0; --i) {
+	for (auto i = binaryPaths->count() - 1; i >= 0; --i) {
 		// Note: Only replace the environmental variables for testing directory
 		// existance but do not alter the binaryPaths themselves. Those might
 		// get stored, e.g., in the preferences and we want to keep
@@ -963,7 +1068,7 @@ void TWApp::setDefaultPaths()
 const QStringList TWApp::getPrefsBinaryPaths()
 {
 	if (!binaryPaths) {
-		binaryPaths = new QStringList;
+		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
 		Tw::Settings settings;
 		if (settings.contains(QString::fromLatin1("binaryPaths")))
 			*binaryPaths = settings.value(QString::fromLatin1("binaryPaths")).toStringList();
@@ -976,7 +1081,7 @@ const QStringList TWApp::getPrefsBinaryPaths()
 void TWApp::setBinaryPaths(const QStringList& paths)
 {
 	if (!binaryPaths)
-		binaryPaths = new QStringList;
+		binaryPaths = std::unique_ptr<QStringList>(new QStringList);
 	*binaryPaths = paths;
 	Tw::Settings settings;
 	settings.setValue(QString::fromLatin1("binaryPaths"), paths);
@@ -985,7 +1090,7 @@ void TWApp::setBinaryPaths(const QStringList& paths)
 void TWApp::setDefaultEngineList()
 {
 	if (!engineList)
-		engineList = new QList<Engine>;
+		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
 	else
 		engineList->clear();
 #if defined(MIKTEX)
@@ -1031,7 +1136,7 @@ void TWApp::setDefaultEngineList()
 const QList<Engine> TWApp::getEngineList()
 {
 	if (!engineList) {
-		engineList = new QList<Engine>;
+		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
 		bool foundList = false;
 		// check for old engine list in Preferences
 		Tw::Settings settings;
@@ -1107,7 +1212,7 @@ void TWApp::saveEngineList()
 void TWApp::setEngineList(const QList<Engine>& engines)
 {
 	if (!engineList)
-		engineList = new QList<Engine>;
+		engineList = std::unique_ptr< QList<Engine> >(new QList<Engine>);
 	*engineList = engines;
 	saveEngineList();
 	Tw::Settings settings;

@@ -39,6 +39,9 @@ public:
   int numPages() const;
   void setNumPages(const int n);
 
+  Physical::Length::Unit unit() const { return m_unit; }
+  void setUnit(const Physical::Length::Unit unit);
+
 private:
   void convertPositionToNewUnit();
   Physical::Length::Unit m_unit{Physical::Length::Centimeters};

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -65,31 +65,14 @@ public:
 	// perform the updates to a menu; used by the documents to update their own menus
 	static void updateRecentFileActions(QObject *parent, QList<QAction*> &actions, QMenu *menu, QAction * clearAction);
 
-	// update the SelWinActions in a menu, used by the documents
-	static void updateWindowMenu(QWidget *window, QMenu *menu);
-
-	// return just the filename from a full pathname, suitable for UI display
-	static QString strippedName(const QString &fullFileName, const unsigned int dirComponents = 0);
-
-	// return a list of file labels suitable for UI display that uniquely
-	// describe the given filenames
-	static QStringList constructUniqueFileLabels(const QStringList & fileList);
-
-	static void tileWindowsInRect(const QWidgetList& windows, const QRect& bounds);
-	static void stackWindowsInRect(const QWidgetList& windows, const QRect& bounds);
-
-	static void zoomToScreen(QWidget *window);
-	static void zoomToHalfScreen(QWidget *window, bool rhs = false);
-	static void sideBySide(QWidget *window1, QWidget *window2);
-	static void ensureOnScreen(QWidget *window);
 	static void applyToolbarOptions(QMainWindow *theWindow, int iconSize, bool showText);
 
 	static QChar closerMatching(QChar c);
 	static QChar openerMatching(QChar c);
 	static void readConfig();
 
-	static int balanceDelim(const QString& text, int pos, QChar delim, int direction);
-	static int findOpeningDelim(const QString& text, int pos);
+	static QString::size_type balanceDelim(const QString& text, QString::size_type pos, QChar delim, int direction);
+	static QString::size_type findOpeningDelim(const QString& text, QString::size_type pos);
 
 	static const QString& includeTextCommand();
 	static const QString& includePdfCommand();
@@ -117,31 +100,5 @@ private:
 	static QString sIncludePostscriptCommand;
 	static QString sCleanupPatterns;
 };
-
-// this special QAction class is used in Window menus, so that it's easy to recognize the dynamically-created items
-class SelWinAction : public QAction
-{
-	Q_OBJECT
-
-public:
-	SelWinAction(QObject *parent, const QString & fileName, const QString &label);
-};
-
-// filter used to stop Command-keys getting inserted into edit text items
-// (only used on Mac OS X)
-class CmdKeyFilter: public QObject
-{
-	Q_OBJECT
-
-public:
-	static CmdKeyFilter *filter();
-
-protected:
-	bool eventFilter(QObject *obj, QEvent *event) override;
-
-private:
-	static CmdKeyFilter *filterObj;
-};
-
 
 #endif

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ void RecentStringsKeyFilter::setRecentString(QObject *obj, int dir)
 	if (strings.empty())
 		return;
 
-	int index = strings.indexOf(lineEdit->text());
+	QStringList::size_type index = strings.indexOf(lineEdit->text());
 	if (index == -1)
 		index = (dir == 1) ? 0 : strings.size() - 1;
 	else {
@@ -489,8 +489,8 @@ void SearchResults::presentResults(const QString& searchText,
 		// specified search string to keep the results clear
 		bool truncateStart = true, truncateEnd = true;
 		QString text = result.doc->getLineText(result.lineNo);
-		int iStart = result.selStart - MAXIMUM_CHARACTERS_BEFORE_SEARCH_RESULT;
-		int iEnd = result.selEnd + MAXIMUM_CHARACTERS_AFTER_SEARCH_RESULT;
+		QString::size_type iStart = result.selStart - MAXIMUM_CHARACTERS_BEFORE_SEARCH_RESULT;
+		QString::size_type iEnd = result.selEnd + MAXIMUM_CHARACTERS_AFTER_SEARCH_RESULT;
 		if (iStart < 0) {
 			iStart = 0;
 			truncateStart = false;

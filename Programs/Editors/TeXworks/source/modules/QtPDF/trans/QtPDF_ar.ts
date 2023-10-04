@@ -765,37 +765,37 @@
 <context>
     <name>QtPDF::PDFDocumentScene</name>
     <message>
-        <location filename="../src/PDFBackend.cpp" line="612"/>
+        <location filename="../src/PDFBackend.cpp" line="321"/>
         <source>rendering page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
         <source>Unlock PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2013"/>
         <source>Please enter the password to unlock the PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2045"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
         <source>Incorrect password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2045"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2029"/>
         <source>The password you entered was incorrect.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2051"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2035"/>
         <source>This document is locked. You need a password to open it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2052"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2036"/>
         <source>Unlock</source>
         <translation type="unfinished"></translation>
     </message>
@@ -813,313 +813,313 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2597"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2577"/>
         <source>Goto page %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2609"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2589"/>
         <source>Execute `%1`</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2855"/>
-        <location filename="../src/PDFDocumentView.cpp" line="2872"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2835"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2852"/>
         <source>Table of Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="2964"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3171"/>
+        <location filename="../src/PDFDocumentView.cpp" line="2944"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3151"/>
         <source>Meta Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3020"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3181"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3000"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3161"/>
         <source>Processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3052"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3188"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3032"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3168"/>
         <source>Other</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3077"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3057"/>
         <source>B</source>
         <extracomment>File size: bytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3079"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3059"/>
         <source>kB</source>
         <extracomment>File size: kilobytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3081"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3061"/>
         <source>MB</source>
         <extracomment>File size: megabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3083"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3063"/>
         <source>GB</source>
         <extracomment>File size: gigabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3085"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3065"/>
         <source>TB</source>
         <extracomment>File size: terabytes</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3115"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3095"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3118"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3098"/>
         <source>No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3121"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3158"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3101"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3138"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3173"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3153"/>
         <source>Document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3174"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3154"/>
         <source>Title:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3175"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3155"/>
         <source>Author:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3176"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3156"/>
         <source>Subject:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3177"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3157"/>
         <source>Keywords:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3178"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3158"/>
         <source>Page size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3179"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3159"/>
         <source>File size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3182"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3162"/>
         <source>Creator:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3183"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3163"/>
         <source>Producer:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3184"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3164"/>
         <source>Creation date:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3185"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3165"/>
         <source>Modification date:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3186"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3166"/>
         <source>Trapped:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3197"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3291"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3177"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3271"/>
         <source>Fonts</source>
         <translation type="unfinished">الخطوط</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3247"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3227"/>
         <source>Type 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3250"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3230"/>
         <source>Type 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3253"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3233"/>
         <source>Type 1 (multiple master)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3256"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3236"/>
         <source>Type 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3259"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3239"/>
         <source>TrueType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3262"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
         <source>yes</source>
         <translation type="unfinished">نعم</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3262"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3242"/>
         <source>no</source>
         <translation type="unfinished">لا</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3265"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3245"/>
         <source>[embedded]</source>
         <translation type="unfinished">[مضمّن]</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3268"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3248"/>
         <source>[builtin]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
         <source>Name</source>
         <translation type="unfinished">الاسم</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
         <source>Type</source>
         <translation type="unfinished">النوع</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
         <source>Subset</source>
         <translation type="unfinished">جزئي</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3292"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3272"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3300"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3395"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3280"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3375"/>
         <source>Permissions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3358"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3374"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3329"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3338"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3347"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3354"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3359"/>
         <source>Allowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3331"/>
         <source>Low resolution only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3354"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3364"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3371"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3376"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3381"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3386"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3387"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3388"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3390"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3334"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3344"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3351"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3356"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3366"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3367"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3368"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3370"/>
         <source>Denied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3360"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3340"/>
         <source>Assembling only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3361"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3341"/>
         <source>Insert, rotate, or delete pages and create bookmarks or thumbnail images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3369"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3349"/>
         <source>Accessibility support only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3397"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3377"/>
         <source>Printing:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3398"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3378"/>
         <source>Modifications:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3399"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3379"/>
         <source>Extraction:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3400"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3380"/>
         <source>Annotation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3401"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3381"/>
         <source>Filling forms:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3409"/>
-        <location filename="../src/PDFDocumentView.cpp" line="3501"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3389"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3481"/>
         <source>Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
         <source>Subject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
         <source>Author</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/PDFDocumentView.cpp" line="3502"/>
+        <location filename="../src/PDFDocumentView.cpp" line="3482"/>
         <source>Contents</source>
         <translation type="unfinished">المحتويات</translation>
     </message>

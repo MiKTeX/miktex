@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2020-2022  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,16 +21,11 @@ namespace Backend {
 PDFToCItem::PDFToCItem(const PDFToCItem & o)
   : _label(o._label)
   , _isOpen(o._isOpen)
+  , _action(std::unique_ptr<PDFAction>(o._action ? o._action->clone() : nullptr))
   , _color(o._color)
   , _children(o._children)
   , _flags(o._flags)
 {
-  _action = (o._action ? o._action->clone() : nullptr);
-}
-
-PDFToCItem::~PDFToCItem()
-{
-  delete _action;
 }
 
 PDFToCItem & PDFToCItem::operator=(const PDFToCItem & o)
@@ -43,16 +38,13 @@ PDFToCItem & PDFToCItem::operator=(const PDFToCItem & o)
   _color = o._color;
   _children = o._children;
   _flags = o._flags;
-  setAction(o._action != nullptr ? o._action->clone() : nullptr);
+  setAction(std::unique_ptr<PDFAction>(o._action != nullptr ? o._action->clone() : nullptr));
   return *this;
 }
 
-void PDFToCItem::setAction(PDFAction * action)
+void PDFToCItem::setAction(std::unique_ptr<PDFAction> action)
 {
-  if (_action != action) {
-    delete _action;
-  }
-  _action = action;
+  _action.swap(action);
 }
 
 bool PDFToCItem::operator==(const PDFToCItem & o) const {

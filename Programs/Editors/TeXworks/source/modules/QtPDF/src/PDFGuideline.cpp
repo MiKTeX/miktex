@@ -161,7 +161,12 @@ void PDFGuideline::mouseMoveEvent(QMouseEvent *event)
     m_isDragging = true;
 
   if (m_isDragging) {
-    dragMove(m_parent->mapFromGlobal(event->globalPos()));
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const QPoint globalPos = event->globalPos();
+#else
+    const QPoint globalPos = event->globalPosition().toPoint();
+#endif
+    dragMove(m_parent->mapFromGlobal(globalPos));
     event->accept();
   }
 }
@@ -175,7 +180,12 @@ void PDFGuideline::mouseReleaseEvent(QMouseEvent *event)
 
   if (m_isDragging) {
     m_isDragging = false;
-    dragStop(m_parent->mapFromGlobal(event->globalPos()));
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const QPoint globalPos = event->globalPos();
+#else
+    const QPoint globalPos = event->globalPosition().toPoint();
+#endif
+    dragStop(m_parent->mapFromGlobal(globalPos));
     event->accept();
   }
 }
@@ -191,6 +201,7 @@ void PDFGuideline::mouseDoubleClickEvent(QMouseEvent *event)
   dlg.setNumPages(doc->numPages());
   dlg.setGuidelinePage(page() + 1);
   dlg.setGuidelinePos(Physical::Length(posPage(), Physical::Length::Bigpoints));
+  dlg.setUnit(m_parent->ruler()->unit());
 
   if (dlg.exec() == QDialog::Accepted) {
     setPage(dlg.guidelinePage() - 1);

@@ -107,7 +107,7 @@ dat libgstreamer-plugins-base is geïnstalleerd.</translation>
         <source>A required codec is missing. You need to install the following codec(s) to play this content: %0</source>
         <translatorcomment>RL - kan nog niet goed vertaald worden omdat %n als single/plural place marker niet in source is opgenomen. Ticket #10400 aangemaakt bij virtualbox, afwachten tot bug hersteld is. RL - Ticket gesloten - is string van derde (Phonon) in Qt source, geen VirtualBox issue.</translatorcomment>
         <translation>
-            <numerusform>Een noodzakelijke codec ontbreekt. U moet de volgende codec installeren om dit bestand af te kunnen spelen: %0</numerusform>
+            <numerusform>Een noodzakelijke codec ontbreekt. U moet de volgende codec(s) installeren om dit bestand af te kunnen spelen: %0</numerusform>
             <numerusform>Noodzakelijke codecs ontbreken. U moet de volgende codecs installeren om dit bestand af te kunnen spelen: %0</numerusform>
         </translation>
     </message>
@@ -4086,7 +4086,7 @@ Kies een andere bestandsnaam.</translation>
         <translation>Kan URL niet tonen</translation>
     </message>
     <message>
-        <source>Frame load interruped by policy change</source>
+        <source>Frame load interrupted by policy change</source>
         <translation>Laden van het frame onderbroken door een policywijziging</translation>
     </message>
     <message>

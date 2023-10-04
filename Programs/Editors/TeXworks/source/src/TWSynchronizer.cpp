@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2020  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2022  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,15 +34,14 @@
 //   "abc\footnote{abc}")
 
 TWSyncTeXSynchronizer::TWSyncTeXSynchronizer(const QString & filename, TeXLoader texLoader, PDFLoader pdfLoader)
+#if defined(MIKTEX_WINDOWS)
+  : _scanner(SyncTeX::synctex_scanner_new_with_output_file(filename.toUtf8().data(), nullptr, 1))
+#else
   : _scanner(SyncTeX::synctex_scanner_new_with_output_file(filename.toLocal8Bit().data(), nullptr, 1))
+#endif
   , m_TeXLoader(texLoader)
   , m_PDFLoader(pdfLoader)
 {
-#if defined(MIKTEX_WINDOWS)
-  _scanner = SyncTeX::synctex_scanner_new_with_output_file(filename.toUtf8().data(), nullptr, 1);
-#else
-  _scanner = SyncTeX::synctex_scanner_new_with_output_file(filename.toLocal8Bit().data(), nullptr, 1);
-#endif
 }
 
 TWSyncTeXSynchronizer::~TWSyncTeXSynchronizer()
@@ -222,13 +221,13 @@ void TWSyncTeXSynchronizer::_syncFromTeXFine(const TWSynchronizer::TeXSyncPoint 
 
   // If the user clicked past the end of the line, start matching at the last
   // character
-  int col = src.col;
+  QString::size_type col{src.col};
   if (col >= srcContext.length())
     col = srcContext.length() - 1;
 
   // Perform the text matching
   bool unique = false;
-  int destCol = _findCorrespondingPosition(srcContext, destContext, col, unique);
+  QString::size_type destCol = _findCorrespondingPosition(srcContext, destContext, col, unique);
 
   // If we found no (unique) match bail out
   if (destCol < 0 || !unique)
@@ -312,7 +311,7 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
 
   // Perform the text matching
   bool unique = false;
-  int destCol = _findCorrespondingPosition(srcContext, destContext, col, unique);
+  QString::size_type destCol = _findCorrespondingPosition(srcContext, destContext, col, unique);
 
   // If we found no (unique) match bail out
   if (destCol < 0 || !unique)
@@ -340,7 +339,7 @@ void TWSyncTeXSynchronizer::_syncFromPDFFine(const TWSynchronizer::PDFSyncPoint 
 }
 
 // static
-int TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext, const QString & destContext, const int col, bool & unique)
+QString::size_type TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext, const QString & destContext, const QString::size_type col, bool & unique)
 {
   // Find the position in the destination corresponding to the one in the source
   // Do this by enlarging the search string until a unique match is found
@@ -348,14 +347,14 @@ int TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext
   // found anymore (e.g., because we stumble across some TeX code like a
   // \command or a math delimiter), or the end of the string is reached). Then,
   // repeat the same process to the left.
-  int deltaFront = 0, deltaBack{1};
+  QString::size_type deltaFront = 0, deltaBack{1};
   bool found = false;
   unique = false;
 
   // Search to the right
   // FIXME: Possibly use some form of bisectioning
   for (deltaBack = 1; col + deltaBack <= srcContext.length(); ++deltaBack) {
-    int c = destContext.count(srcContext.mid(col - deltaFront, deltaBack + deltaFront));
+    QString::size_type c = destContext.count(srcContext.mid(col - deltaFront, deltaBack + deltaFront));
     found = (c > 0);
     unique = (c == 1);
     if (!found || unique)
@@ -373,7 +372,7 @@ int TWSyncTeXSynchronizer::_findCorrespondingPosition(const QString & srcContext
     // Search to the left
     // FIXME: Possibly use some form of bisectioning
     for (deltaFront = 1; deltaFront <= col; ++deltaFront) {
-      int c = destContext.count(srcContext.mid(col - deltaFront, deltaBack + deltaFront));
+      QString::size_type c = destContext.count(srcContext.mid(col - deltaFront, deltaBack + deltaFront));
       found = (c > 0);
       unique = (c == 1);
       if (!found || unique)

@@ -55,15 +55,27 @@ void GuidelineEditDialog::setNumPages(const int n)
   cPage->setMaximum(n);
 }
 
+void GuidelineEditDialog::setUnit(const Physical::Length::Unit unit)
+{
+  if (unit == m_unit)
+    return;
+  cPosition->setValue(Physical::Length::convert(cPosition->value(), m_unit, unit));
+
+  m_unit = unit;
+  switch(unit) {
+    case Physical::Length::Centimeters: cPositionUnit->setCurrentIndex(0); break;
+    case Physical::Length::Inches: cPositionUnit->setCurrentIndex(1); break;
+    case Physical::Length::Bigpoints: cPositionUnit->setCurrentIndex(2); break;
+  }
+}
+
 void GuidelineEditDialog::convertPositionToNewUnit()
 {
-  Physical::Length::Unit oldUnit = m_unit;
   switch (cPositionUnit->currentIndex()) {
-    case 0: m_unit = Physical::Length::Centimeters; break;
-    case 1: m_unit = Physical::Length::Inches; break;
-    case 2: m_unit = Physical::Length::Bigpoints; break;
+    case 0: setUnit(Physical::Length::Centimeters); break;
+    case 1: setUnit(Physical::Length::Inches); break;
+    case 2: setUnit(Physical::Length::Bigpoints); break;
   }
-  cPosition->setValue(Physical::Length::convert(cPosition->value(), oldUnit, m_unit));
 }
 
 } // namespace QtPDF

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ CitationModel::CitationModel(QObject * parent /* = nullptr */)
 int CitationModel::rowCount(const QModelIndex &parent /* = QModelIndex() */) const
 {
 	if (parent.isValid()) return 0;
-	return _entries.size();
+	return static_cast<int>(_entries.size());
 }
 
 //virtual

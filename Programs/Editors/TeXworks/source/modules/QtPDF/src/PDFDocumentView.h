@@ -17,6 +17,7 @@
 #include "PDFBackend.h"
 #include "PDFDocumentTools.h"
 #include "PDFRuler.h"
+#include "PDFSearcher.h"
 
 #include <QtWidgets>
 #include <memory>
@@ -43,9 +44,8 @@ class PDFDocumentView : public QGraphicsView {
   qreal _zoomLevel{1.0};
   int _currentPage{-1}, _lastPage{-1};
 
-  QString _searchString;
+  PDFSearcher _searcher;
   QList<QGraphicsItem *> _searchResults;
-  QFutureWatcher< QList<Backend::SearchResult> > _searchResultWatcher;
   int _currentSearchResult{-1};
   QBrush _searchResultHighlightBrush;
   QBrush _currentSearchResultHighlightBrush;
@@ -201,7 +201,7 @@ protected slots:
   void goToPage(const PDFPageGraphicsItem * page, const QRectF view, const bool mayZoom = false);
   void goToPage(const PDFPageGraphicsItem * page, const int alignment = Qt::AlignLeft | Qt::AlignTop);
   void goToPage(const PDFPageGraphicsItem * page, const QPointF anchor, const int alignment = Qt::AlignHCenter | Qt::AlignVCenter);
-  void searchResultReady(int index);
+  void searchResultReady(int pageIndex);
   void searchProgressValueChanged(int progressValue);
   void reinitializeFromScene();
   void notifyTextSelectionChanged();

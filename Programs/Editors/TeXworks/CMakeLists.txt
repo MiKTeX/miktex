@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2009-2022 Christian Schenk
+## Copyright (C) 2009-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -142,10 +142,14 @@ set(texworks_sources
     source/src/scripting/Script.h
     source/src/ui/ClickableLabel.h
     source/src/ui/ClosableTabWidget.h
+    source/src/ui/ColorButton.cpp
+    source/src/ui/ColorButton.h
     source/src/ui/LineNumberWidget.h
     source/src/ui/ListSelectDialog.h
     source/src/ui/RemoveAuxFilesDialog.h
     source/src/ui/ScreenCalibrationWidget.h
+    source/src/utils/CmdKeyFilter.cpp
+    source/src/utils/CmdKeyFilter.h
     source/src/utils/CommandlineParser.h
     source/src/utils/FileVersionDatabase.h
     source/src/utils/FullscreenManager.h
@@ -154,6 +158,8 @@ set(texworks_sources
     source/src/utils/TextCodecs.h
     source/src/utils/TypesetManager.h
     source/src/utils/VersionInfo.h
+    source/src/utils/WindowManager.cpp
+    source/src/utils/WindowManager.h
 
     GitRev.h
     miktex-texworks-version.h

@@ -5827,7 +5827,7 @@ Please choose a different file name.</source>
     </message>
     <message>
         <location line="+6"/>
-        <source>Frame load interruped by policy change</source>
+        <source>Frame load interrupted by policy change</source>
         <translation>因为策略调整打断了桢的加载</translation>
     </message>
     <message>

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2010-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2010-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -196,7 +196,11 @@ void ScriptManagerWidget::treeSelectionChanged()
 	addDetailsRow(rows, tr("Shortcut: "), s->getKeySequence().toString());
 	addDetailsRow(rows, tr("File: "), QFileInfo(s->getFilename()).fileName());
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
 	const Tw::Scripting::ScriptLanguageInterface * sli = qobject_cast<Tw::Scripting::ScriptLanguageInterface*>(s->getScriptLanguagePlugin());
+#else
+	const Tw::Scripting::ScriptLanguageInterface * sli = qobject_cast<const Tw::Scripting::ScriptLanguageInterface*>(s->getScriptLanguagePlugin());
+#endif
 	if(sli) {
 		QString url = sli->scriptLanguageURL();
 		QString str = sli->scriptLanguageName();

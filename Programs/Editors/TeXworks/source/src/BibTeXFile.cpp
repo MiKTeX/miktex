@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ bool BibTeXFile::load(const QString & filename)
 	QFile file(filename);
 	QByteArray content;
 	QTextCodec * codec = QTextCodec::codecForName("utf-8");
-	int curPos = 0;
+	size_type curPos = 0;
 
 	_entries.clear();
 
@@ -113,14 +113,15 @@ bool BibTeXFile::load(const QString & filename)
 	return true;
 }
 
-template <class S, class C> int findBlock(const S & content, int from, const C & startDelim, const C & endDelim, const C & escapeChar)
+template <class S, class C> BibTeXFile::size_type findBlock(const S & content, const BibTeXFile::size_type from, const C & startDelim, const C & endDelim, const C & escapeChar)
 {
+	using size_type = BibTeXFile::size_type;
 	// Blocks are enclosed in {}.
 	if (content[from] != startDelim)
 		return -1;
 
-	int open = 1;
-	int i{from + 1};
+	size_type open = 1;
+	size_type i{from + 1};
 	bool escaped = false;
 	for (i = from + 1; i < content.size() && open > 0; ++i) {
 		if (escaped) escaped = false;
@@ -134,29 +135,29 @@ template <class S, class C> int findBlock(const S & content, int from, const C &
 	return -1;
 }
 
-inline int findBlock(const QByteArray & content, int from, char startDelim = '{', char endDelim = '}', char escapeChar = 0)
+inline BibTeXFile::size_type findBlock(const QByteArray & content, const BibTeXFile::size_type from, char startDelim = '{', char endDelim = '}', char escapeChar = 0)
 {
 	return findBlock<QByteArray, char>(content, from, startDelim, endDelim, escapeChar);
 }
 
-inline int findBlock(const QString & content, int from, const QChar & startDelim = QChar::fromLatin1('{'), const QChar & endDelim = QChar::fromLatin1('}'), const QChar & escapeChar = QChar())
+inline BibTeXFile::size_type findBlock(const QString & content, const BibTeXFile::size_type from, const QChar & startDelim = QChar::fromLatin1('{'), const QChar & endDelim = QChar::fromLatin1('}'), const QChar & escapeChar = QChar())
 {
 	return findBlock<QString, QChar>(content, from, startDelim, endDelim, escapeChar);
 }
 
 // static
-int BibTeXFile::readEntry(Entry & e, const QByteArray & content, int curPos, const QTextCodec * codec)
+BibTeXFile::size_type BibTeXFile::readEntry(Entry & e, const QByteArray & content, const size_type startPos, const QTextCodec * codec)
 {
-	curPos = content.indexOf('@', curPos);
+	size_type curPos = content.indexOf('@', startPos);
 	if (curPos < 0)
 		return -1;
 	++curPos;
-	int start = content.indexOf('{', curPos);
+	size_type start = content.indexOf('{', curPos);
 	if (start < 0)
 		return -1;
 	e._type = codec->toUnicode(content.mid(curPos, start - curPos));
 
-	int end = findBlock(content, start);
+	size_type end = findBlock(content, start);
 	if (end < 0) return -1;
 	++start;
 	QByteArray block = content.mid(start, end - start);
@@ -183,28 +184,29 @@ int BibTeXFile::readEntry(Entry & e, const QByteArray & content, int curPos, con
 //static
 void BibTeXFile::parseEntry(Entry & e, const QString & block)
 {
-	int pos = block.indexOf(QChar::fromLatin1(','));
+	size_type pos = block.indexOf(QChar::fromLatin1(','));
 	e._key = block.mid(0, pos).trimmed();
 	if (pos == -1) return;
 
 	parseFields(e, block, pos + 1);
 }
 
-void BibTeXFile::parseFields(BibTeXFile::Entry & e, const QString & block, int pos)
+void BibTeXFile::parseFields(BibTeXFile::Entry & e, const QString & block, const size_type startPos)
 {
 	QChar startDelim, endDelim;
+	size_type pos{startPos};
 
 	do {
-		int start{pos};
+		size_type start{pos};
 		pos = block.indexOf(QChar::fromLatin1('='), start);
 		if (pos < 0) break;
 		const QString key = block.mid(start, pos - start).trimmed();
 		QString val;
-		int i{pos + 1};
 
 		start = -1;
 
 		// Skip initial whitespace
+		size_type i;
 		for (i = pos + 1; i < block.size() && start < 0; ++i) {
 			if (!block[i].isSpace()) start = i;
 		}
@@ -228,7 +230,7 @@ void BibTeXFile::parseFields(BibTeXFile::Entry & e, const QString & block, int p
 				continue;
 			}
 
-			int end = findBlock(block, i, startDelim, endDelim);
+			size_type end = findBlock(block, i, startDelim, endDelim);
 			if (end < 0) {
 				val += block.mid(i);
 				i = block.size();

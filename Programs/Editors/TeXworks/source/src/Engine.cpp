@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2018-2020  Jonathan Kew, Stefan Löffler
+	Copyright (C) 2018-2022  Jonathan Kew, Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -122,13 +122,12 @@ QProcess * Engine::run(const QFileInfo & input, QObject * parent /* = nullptr */
 #endif
 	process->setWorkingDirectory(workingDir);
 
-
 #if !defined(Q_OS_DARWIN) // not supported on OS X yet :(
 	// Add a (customized) TEXEDIT environment variable
-	env.insert(QStringLiteral("TEXEDIT"), QStringLiteral("%1 --position=%d %s").arg(QCoreApplication::applicationFilePath()));
+	env.insert(QStringLiteral("TEXEDIT"), QStringLiteral("\"%1\" --position=%d \"%s\"").arg(QCoreApplication::applicationFilePath()));
 
 	// MiKTeX apparently uses it's own variable
-	env.insert(QStringLiteral("MIKTEX_EDITOR"), QStringLiteral("%1 --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath()));
+	env.insert(QStringLiteral("MIKTEX_EDITOR"), QStringLiteral("\"%1\" --position=%l \"%f\"").arg(QCoreApplication::applicationFilePath()));
 #endif
 
 #if defined(Q_OS_DARWIN)

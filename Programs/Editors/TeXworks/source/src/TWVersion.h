@@ -21,5 +21,5 @@
 
 #define VER_MAJOR			0
 #define VER_MINOR			6
-#define VER_BUGFIX			7
-#define TEXWORKS_VERSION	"0.6.7"
+#define VER_BUGFIX			8
+#define TEXWORKS_VERSION	"0.6.8"

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2022  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,7 +43,7 @@ class Document: public Backend::Document
   typedef Backend::Document Super;
   friend class Page;
 
-  QSharedPointer< ::Poppler::Document > _poppler_doc;
+  std::unique_ptr<::Poppler::Document> _poppler_doc;
 
 #if POPPLER_HAS_OUTLINE
   void recursiveConvertToC(QList<PDFToCItem> & items, const QVector<Poppler::OutlineItem> & popplerItems) const;
@@ -59,6 +59,8 @@ protected:
   // result.
   mutable QList<PDFFontInfo> _fonts;
   mutable bool _fontsLoaded{false};
+
+  bool load(const QString & filename);
 
   // The following two methods are not thread-safe because they don't acquire a
   // read lock. This is to enable methods that have a write lock to use them.
@@ -81,6 +83,8 @@ public:
   PDFToC toc() const override;
   QList<PDFFontInfo> fonts() const override;
 
+  QColor paperColor() const override;
+  void setPaperColor(const QColor & color) override;
 private:
   void parseDocument();
 };
@@ -91,7 +95,7 @@ class Page: public Backend::Page
   friend class Document;
 
   typedef Backend::Page Super;
-  QSharedPointer< ::Poppler::Page > _poppler_page;
+  std::unique_ptr< ::Poppler::Page > _poppler_page;
   QList< QSharedPointer<Annotation::AbstractAnnotation> > _annotations;
   QList< QSharedPointer<Annotation::Link> > _links;
   bool _annotationsLoaded{false};

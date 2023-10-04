@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -174,7 +174,7 @@ private:
 	};
 	static QList<IndentMode> *indentModes;
 	int autoIndentMode{-1};
-	int prefixLength{0};
+	QString::size_type prefixLength{0};
 
 	static void loadSmartQuotesModes();
 

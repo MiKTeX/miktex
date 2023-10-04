@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Stefan Löffler
+	Copyright (C) 2007-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -45,5 +45,6 @@ const bool kDefault_AllowScriptFileWriting = false;
 const bool kDefault_EnableScriptingPlugins = false;
 const bool kDefault_AllowSystemCommands = false;
 const bool kDefault_ScriptDebugger = false;
+const int kDefault_PDFPageCacheSizeMiB = 256;
 
 #endif // !defined(DefaultPrefs_H)

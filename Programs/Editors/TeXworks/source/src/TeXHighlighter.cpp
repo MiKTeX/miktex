@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,10 +48,10 @@ TeXHighlighter::TeXHighlighter(Tw::Document::TeXDocument * parent)
 	spellFormat.setUnderlineColor(Qt::red);
 }
 
-void TeXHighlighter::spellCheckRange(const QString &text, int index, int limit, const QTextCharFormat &spellFormat)
+void TeXHighlighter::spellCheckRange(const QString &text, QString::size_type index, QString::size_type limit, const QTextCharFormat &spellFormat)
 {
 	while (index < limit) {
-		int start{0}, end{0};
+		QString::size_type start{0}, end{0};
 		if (Tw::Document::TeXDocument::findNextWord(text, index, start, end)) {
 			if (start < index)
 				start = index;
@@ -68,14 +68,14 @@ void TeXHighlighter::spellCheckRange(const QString &text, int index, int limit, 
 
 void TeXHighlighter::highlightBlock(const QString &text)
 {
-	int charPos = 0;
+	QString::size_type charPos = 0;
 	if (highlightIndex >= 0 && highlightIndex < syntaxRules->count()) {
 		QList<HighlightingRule>& highlightingRules = (*syntaxRules)[highlightIndex].rules;
 		// Go through the whole text...
 		while (charPos < text.length()) {
 			// ... and find the highlight pattern that matches closest to the
 			// current character index
-			int firstIndex{INT_MAX}, len{0};
+			QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
 			const HighlightingRule* firstRule = nullptr;
 			QRegularExpressionMatch firstMatch;
 			for (int i = 0; i < highlightingRules.size(); ++i) {
@@ -108,9 +108,9 @@ void TeXHighlighter::highlightBlock(const QString &text)
 	if (texDoc) {
 		texDoc->removeTags(currentBlock().position(), currentBlock().length());
 		if (isTagging) {
-			int index = 0;
+			QString::size_type index = 0;
 			while (index < text.length()) {
-				int firstIndex{INT_MAX}, len{0};
+				QString::size_type firstIndex{std::numeric_limits<QString::size_type>::max()}, len{0};
 				TagPattern* firstPatt = nullptr;
 				QRegularExpressionMatch firstMatch;
 				for (int i = 0; i < tagPatterns->count(); ++i) {
@@ -160,9 +160,11 @@ QStringList TeXHighlighter::syntaxOptions()
 	loadPatterns();
 
 	QStringList options;
-	if (syntaxRules)
-		foreach (const HighlightingSpec& spec, *syntaxRules)
+	if (syntaxRules) {
+		foreach (const HighlightingSpec& spec, *syntaxRules) {
 			options << spec.name;
+		}
+	}
 	return options;
 }
 
@@ -360,14 +362,14 @@ void NonblockingSyntaxHighlighter::sanitizeHighlightRanges()
 	}
 
 	// 2) remove any invalid ranges
-	for (int i = _highlightRanges.size() - 1; i >= 0; --i) {
+	for (auto i = _highlightRanges.size() - 1; i >= 0; --i) {
 		if (_highlightRanges[i].to <= _highlightRanges[i].from)
 			_highlightRanges.remove(i);
 	}
 	// 3) merge adjacent (or overlapping) ranges
 	// NB: There must not be any invalid ranges in here for this or else the
 	// merging algorithm would fail
-	for (int i = _highlightRanges.size() - 1; i >= 1; --i) {
+	for (auto i = _highlightRanges.size() - 1; i >= 1; --i) {
 		if (_highlightRanges[i].from <= _highlightRanges[i - 1].to) {
 			if (_highlightRanges[i - 1].from > _highlightRanges[i].from)
 				_highlightRanges[i - 1].from = _highlightRanges[i].from;
@@ -447,7 +449,7 @@ void NonblockingSyntaxHighlighter::pushHighlightRange(const int from, const int 
 
 void NonblockingSyntaxHighlighter::popHighlightRange(const int from, const int to)
 {
-	for (int i = _highlightRanges.size() - 1; i >= 0 && _highlightRanges[i].to > from; --i) {
+	for (auto i = _highlightRanges.size() - 1; i >= 0 && _highlightRanges[i].to > from; --i) {
 		// Case 1: crop the end of the range (or the whole range)
 		if (to >= _highlightRanges[i].to) {
 			if (from <= _highlightRanges[i].from)
@@ -517,11 +519,11 @@ void NonblockingSyntaxHighlighter::markDirtyContent()
 }
 
 
-void NonblockingSyntaxHighlighter::setFormat(const int start, const int count, const QTextCharFormat & format)
+void NonblockingSyntaxHighlighter::setFormat(const QString::size_type start, const QString::size_type count, const QTextCharFormat & format)
 {
 	QTextLayout::FormatRange formatRange;
-	formatRange.start = start;
-	formatRange.length = count;
+	formatRange.start = static_cast<decltype(formatRange.start)>(start);
+	formatRange.length = static_cast<decltype(formatRange.length)>(count);
 	formatRange.format = format;
 	_currentFormatRanges << formatRange;
 }

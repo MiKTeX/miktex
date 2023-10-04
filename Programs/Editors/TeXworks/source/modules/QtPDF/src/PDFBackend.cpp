@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2021  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2023  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -154,291 +154,6 @@ QDateTime fromPDFDate(QString pdfDate)
   return QDateTime(date, time, Qt::UTC).addSecs(sign * (hourOffset * 3600 + minuteOffset * 60)).toLocalTime();
 }
 
-#ifdef DEBUG
-void PDFPageProcessingThread::dumpWorkStack(const QStack<PageProcessingRequest*> & ws)
-{
-  QStringList strList;
-  for (int i = 0; i < ws.size(); ++i) {
-    PageProcessingRequest * request = ws[i];
-    if (!request)
-      strList << QString::fromUtf8("NULL");
-    else {
-      strList << *request;
-    }
-  }
-  qDebug() << strList;
-}
-#endif
-
-
-// Backend Rendering
-// =================
-
-PDFPageProcessingThread::~PDFPageProcessingThread()
-{
-  _mutex.lock();
-  _quit = true;
-  _waitCondition.wakeAll();
-  _mutex.unlock();
-  wait();
-}
-
-void PDFPageProcessingThread::addPageProcessingRequest(PageProcessingRequest * request)
-{
-
-  if (!request)
-    return;
-
-  // `request` must live in the main (GUI) thread, or else destroying it later
-  // on will fail
-  Q_ASSERT(request->thread() == QApplication::instance()->thread());
-
-  QMutexLocker locker(&(this->_mutex));
-  // Note: Commenting the "remove identical requests in the stack" code for now.
-  // This should be handled by the caching routine elsewhere automatically. If
-  // in doubt, it's better to render a tile twice than to not render it at all
-  // (thereby leaving the dummy image in the cache indefinitely)
-/*
-  // remove any instances of the given request type before adding the new one to
-  // avoid processing it several times
-  // **TODO:** Could it be that we require several concurrent versions of the
-  //           same page?
-  int i;
-  for (i = _workStack.size() - 1; i >= 0; --i) {
-    if (*(_workStack[i]) == *request) {
-      // Using deleteLater() doesn't work because we have no event queue in this
-      // thread. However, since the object is still on the stack, it is still
-      // sleeping and directly deleting it should therefore be safe.
-      delete _workStack[i];
-      _workStack.remove(i);
-    }
-  }
-*/
-
-  _workStack.push(request);
-#ifdef DEBUG
-  qDebug() << "new request:" << *request;
-#endif
-
-  locker.unlock();
-  if (!isRunning())
-    start();
-  else
-    _waitCondition.wakeOne();
-}
-
-void PDFPageProcessingThread::run()
-{
-  _mutex.lock();
-  _idle = false;
-  while (!_quit) {
-    // mutex must be locked at start of loop
-    if (!_workStack.empty()) {
-      PageProcessingRequest * workItem = _workStack.pop();
-      _mutex.unlock();
-
-#ifdef DEBUG
-      qDebug() << "processing work item" << *workItem << "; remaining items:" << _workStack.size();
-      QElapsedTimer timer;
-      timer.start();
-#endif
-      workItem->execute();
-#ifdef DEBUG
-      QString jobDesc;
-      switch (workItem->type()) {
-        case PageProcessingRequest::LoadLinks:
-          jobDesc = QString::fromUtf8("loading links");
-          break;
-        case PageProcessingRequest::PageRendering:
-          jobDesc = QString::fromUtf8("rendering page");
-          break;
-      }
-      qDebug() << "finished " << jobDesc << "for page" << workItem->page->pageNum() << ". Time elapsed: " << timer.elapsed() << " ms.";
-#endif
-
-      // Delete the work item as it has fulfilled its purpose
-      // Note that we can't delete it here or we might risk that some emitted
-      // signals are invalidated; to ensure they reach their destination, we
-      // need to call deleteLater().
-      // Note: workItem *must* live in the main (GUI) thread for this!
-      Q_ASSERT(workItem->thread() == QApplication::instance()->thread());
-      workItem->deleteLater();
-
-      _mutex.lock();
-    }
-    else {
-#ifdef DEBUG
-      qDebug() << "going to sleep";
-#endif
-      _idle = true;
-      _idleCondition.wakeAll();
-      _waitCondition.wait(&_mutex);
-      _idle = false;
-#ifdef DEBUG
-      qDebug() << "waking up";
-#endif
-    }
-  }
-  _mutex.unlock();
-}
-
-void PDFPageProcessingThread::clearWorkStack()
-{
-  _mutex.lock();
-
-  foreach(PageProcessingRequest * workItem, _workStack) {
-    if (!workItem)
-      continue;
-    Q_ASSERT(workItem->thread() == QApplication::instance()->thread());
-    workItem->deleteLater();
-  }
-  _workStack.clear();
-
-  if (!_idle) {
-    // Wait until the current operation finishes
-    _idleCondition.wait(&_mutex);
-  }
-  _mutex.unlock();
-}
-
-
-// Asynchronous Page Operations
-// ----------------------------
-//
-// The `execute` functions here are called by the processing theread to perform
-// background jobs such as page rendering or link loading. This alows the GUI
-// thread to stay unblocked and responsive. The results of background jobs are
-// posted as events to a `listener` which can be any subclass of `QObject`. The
-// `listener` will need a custom `event` function that is capable of picking up
-// on these events.
-
-bool PageProcessingRequest::operator==(const PageProcessingRequest & r) const
-{
-  // TODO: Should we care about the listener here as well?
-  return (type() == r.type() && page == r.page);
-}
-
-bool PageProcessingRenderPageRequest::operator==(const PageProcessingRequest & r) const
-{
-  if (!PageProcessingRequest::operator==(r))
-    return false;
-  const PageProcessingRenderPageRequest * rr = dynamic_cast<const PageProcessingRenderPageRequest*>(&r);
-  // TODO: Should we care about the listener here as well?
-  return (qFuzzyCompare(xres, rr->xres) && qFuzzyCompare(yres, rr->yres) && render_box == rr->render_box && cache == rr->cache);
-}
-
-#ifdef DEBUG
-PageProcessingRenderPageRequest::operator QString() const
-{
-  return QString::fromUtf8("RP:%1.%2_%3").arg(page->pageNum()).arg(render_box.topLeft().x()).arg(render_box.topLeft().y());
-}
-#endif
-
-// ### Custom Event Types
-// These are the events posted by `execute` functions.
-const QEvent::Type PDFPageRenderedEvent::PageRenderedEvent = static_cast<QEvent::Type>( QEvent::registerEventType() );
-const QEvent::Type PDFLinksLoadedEvent::LinksLoadedEvent = static_cast<QEvent::Type>( QEvent::registerEventType() );
-
-bool PageProcessingRenderPageRequest::execute()
-{
-  // TODO: Aborting renders doesn't really work right now---the backend knows
-  // nothing about the PDF scenes.
-  //
-  // Idea: Perhaps allow page render requests to provide a pointer to a function
-  // that returns a `bool` value indicating if the request is still valid? Then
-  // the `PDFPageGraphicsItem` could have a function that indicates if the item
-  // is anywhere near a viewport.
-  QImage rendered_page = page->renderToImage(xres, yres, render_box, cache);
-  QCoreApplication::postEvent(listener, new PDFPageRenderedEvent(xres, yres, render_box, rendered_page));
-
-  return true;
-}
-
-bool PageProcessingLoadLinksRequest::execute()
-{
-  QCoreApplication::postEvent(listener, new PDFLinksLoadedEvent(page->loadLinks()));
-  return true;
-}
-
-#ifdef DEBUG
-PageProcessingLoadLinksRequest::operator QString() const
-{
-  return QString::fromUtf8("LL:%1").arg(page->pageNum());
-}
-#endif
-
-QSharedPointer<QImage> PDFPageCache::getImage(const PDFPageTile & tile) const
-{
-  _lock.lockForRead();
-  QSharedPointer<QImage> * retVal = object(tile);
-  _lock.unlock();
-  if (retVal)
-    return *retVal;
-  return QSharedPointer<QImage>();
-}
-
-PDFPageCache::TileStatus PDFPageCache::getStatus(const PDFPageTile & tile) const
-{
-  PDFPageCache::TileStatus retVal = UNKNOWN;
-  _lock.lockForRead();
-  if (_tileStatus.contains(tile))
-    retVal = _tileStatus[tile];
-  _lock.unlock();
-  return retVal;
-}
-
-QSharedPointer<QImage> PDFPageCache::setImage(const PDFPageTile & tile, QImage * image, const TileStatus status, const bool overwrite /* = true */)
-{
-  _lock.lockForWrite();
-  QSharedPointer<QImage> retVal;
-  if (contains(tile))
-    retVal = *object(tile);
-  // If the key is not in the cache yet add it. Otherwise overwrite the cached
-  // image but leave the pointer intact as that can be held/used elsewhere
-  if (!retVal) {
-    QSharedPointer<QImage> * toInsert = new QSharedPointer<QImage>(image);
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-    insert(tile, toInsert, (image ? image->byteCount() : 0));
-#else
-    // No image (1024x124x4 bytes by default) should ever come even close to the
-    // 2 GB mark corresponding to INT_MAX; note that Document::Document() sets
-    // the cache's max-size to 1 GB total
-    insert(tile, toInsert, (image ? static_cast<int>(image->sizeInBytes()) : 0));
-#endif
-    _tileStatus.insert(tile, status);
-    retVal = *toInsert;
-  }
-  else if (retVal.data() == image) {
-    // Trying to overwrite an image with itself - just update the status
-    _tileStatus.insert(tile, status);
-  }
-  else if (overwrite) {
-    // TODO: overwriting an image with a different one can change its size (and
-    // therefore its cost in the cache). There doesn't seem to be a method to
-    // hande that in QCache, though, and since we only use one tile size this
-    // shouldn't pose a problem.
-    if (image)
-      *retVal = *image;
-    else {
-      QSharedPointer<QImage> * toInsert = new QSharedPointer<QImage>;
-      insert(tile, toInsert, 0);
-      retVal = *toInsert;
-    }
-    _tileStatus.insert(tile, status);
-  }
-  _lock.unlock();
-  return retVal;
-}
-
-void PDFPageCache::markOutdated()
-{
-  QWriteLocker l(&_lock);
-  QMap<PDFPageTile, TileStatus>::iterator it;
-  for (it = _tileStatus.begin(); it != _tileStatus.end(); ++it)
-    it.value() = OUTDATED;
-}
-
-
 // PDF ABCs
 // ========
 
@@ -447,6 +162,9 @@ void PDFPageCache::markOutdated()
 //
 // This class is thread-safe. Data access is governed by the QReadWriteLock
 // _docLock.
+
+PDFPageCache Document::_pageCache;
+
 Document::Document(QString fileName):
   _fileName(fileName)
 {
@@ -455,13 +173,6 @@ Document::Document(QString fileName):
 #ifdef DEBUG
 //  qDebug() << "Document::Document(" << fileName << ")";
 #endif
-
-  // Set cache for rendered pages to be 1GB. This is enough for 256 RGBA tiles
-  // (1024 x 1024 pixels x 4 bytes per pixel).
-  //
-  // NOTE: The application seems to exceed 1 GB---usage plateaus at around 2GB. No idea why. Perhaps freed
-  // blocks are not garbage collected?? Perhaps my math is off??
-  _pageCache.setMaxSize(1024 * 1024 * 1024);
 }
 
 // FIXME: Consider porting Document to a PIMPL design in which we could just
@@ -493,11 +204,11 @@ Document::~Document()
 //  qDebug() << "Document::~Document()";
 #endif
   clearPages();
+  _pageCache.removeDocumentTiles(this);
 }
 
 int Document::numPages() const { QReadLocker docLocker(_docLock.data()); return _numPages; }
 PDFPageProcessingThread &Document::processingThread() { QReadLocker docLocker(_docLock.data()); return _processingThread; }
-PDFPageCache &Document::pageCache() { QReadLocker docLocker(_docLock.data()); return _pageCache; }
 
 QWeakPointer<Page> Document::page(int at)
 {
@@ -591,8 +302,6 @@ Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
   _n(at),
   _docLock(docLock)
 {
-  Q_ASSERT(_pageLock);
-
 #ifdef DEBUG
 //  qDebug() << "Page::Page(" << parent << ", " << at << ")";
 #endif
@@ -619,11 +328,11 @@ Page::Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock):
   }
 }
 
-int Page::pageNum() const { QReadLocker pageLocker(_pageLock); return _n; }
+int Page::pageNum() const { QReadLocker pageLocker(&_pageLock); return _n; }
 
 void Page::detachFromParent()
 {
-  QWriteLocker pageLocker(_pageLock);
+  QWriteLocker pageLocker(&_pageLock);
   _parent = nullptr;
 }
 
@@ -677,13 +386,13 @@ QRectF Page::getContentBoundingBox() const
 QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect render_box /* = QRect() */, PDFPageCache::TileStatus * status /* = nullptr */)
 {
   QReadLocker docLocker(_docLock.data());
-  QReadLocker pageLocker(_pageLock);
+  QReadLocker pageLocker(&_pageLock);
   if (!_parent) {
     if (status)
       *status = PDFPageCache::UNKNOWN;
     return QSharedPointer<QImage>();
   }
-  PDFPageTile tile(xres, yres, render_box, _n);
+  const PDFPageTile tile(xres, yres, render_box, _parent, _n);
   if (status)
     *status = _parent->pageCache().getStatus(tile);
   return _parent->pageCache().getImage(tile);
@@ -692,7 +401,7 @@ QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect rend
 void Page::asyncRenderToImage(QObject *listener, double xres, double yres, QRect render_box, bool cache)
 {
   QReadLocker docLocker(_docLock.data());
-  QReadLocker pageLocker(_pageLock);
+  QReadLocker pageLocker(&_pageLock);
   if (!_parent)
     return;
   _parent->processingThread().addPageProcessingRequest(new PageProcessingRenderPageRequest(this, listener, xres, yres, render_box, cache));
@@ -707,7 +416,7 @@ bool higherResolutionThan(const PDFPageTile & t1, const PDFPageTile & t2)
 QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres, const double yres, QRect render_box /* = QRect() */)
 {
   QReadLocker docLocker(_docLock.data());
-  QReadLocker pageLocker(_pageLock);
+  QReadLocker pageLocker(&_pageLock);
 
   // If the render_box is empty, use the whole page
   if (render_box.isNull())
@@ -732,12 +441,12 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
 
     if (retVal && status == PDFPageCache::OUTDATED) {
       // If we have an outdated image, use that as a placeholder
-      _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _n), retVal.data(), PDFPageCache::PLACEHOLDER, false);
+      _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _parent, _n), retVal, PDFPageCache::PLACEHOLDER, false);
     }
     else {
       // otherwise construct a dummy image
-      QImage * tmpImg = new QImage(render_box.width(), render_box.height(), QImage::Format_ARGB32);
-      QPainter p(tmpImg);
+      QSharedPointer<QImage> tmpImg{new QImage(render_box.width(), render_box.height(), QImage::Format_ARGB32)};
+      QPainter p(tmpImg.data());
       p.fillRect(tmpImg->rect(), *pageDummyBrush);
 
       // Look through the cache to find tiles we can reuse (by scaling) for our
@@ -747,7 +456,7 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
       if (_parent) {
         QList<PDFPageTile> tiles = _parent->pageCache().tiles();
         for (QList<PDFPageTile>::iterator it = tiles.begin(); it != tiles.end(); ) {
-          if (it->page_num != pageNum()) {
+          if (it->doc != _parent || it->page_num != pageNum()) {
             it = tiles.erase(it);
             continue;
           }
@@ -797,9 +506,7 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
       // Note: In the meantime the asynchronous rendering could have finished and
       // insert the final image in the cache---we must handle that case and delete
       // our temporary image
-      retVal = _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _n), tmpImg, PDFPageCache::PLACEHOLDER, false);
-      if (retVal != tmpImg)
-        delete tmpImg;
+      retVal = _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _parent, _n), tmpImg, PDFPageCache::PLACEHOLDER, false);
     }
     return retVal;
   }
@@ -810,7 +517,7 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
 void Page::asyncLoadLinks(QObject *listener)
 {
   QReadLocker docLocker(_docLock.data());
-  QReadLocker pageLocker(_pageLock);
+  QReadLocker pageLocker(&_pageLock);
   if (!_parent)
     return;
   _parent->processingThread().addPageProcessingRequest(new PageProcessingLoadLinksRequest(this, listener));

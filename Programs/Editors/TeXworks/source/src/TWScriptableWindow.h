@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 
 class QAction;
 class QMenu;
-class QSignalMapper;
 
 // parent class for document windows (i.e. both the source and PDF window types);
 // handles the Scripts menu and other common functionality
@@ -58,9 +57,6 @@ private slots:
 protected slots:
 	void hideFloatersUnlessThis(QWidget* currWindow);
 
-protected slots:
-	void scriptDeleted(QObject * obj);
-
 protected:
 	void initScriptable(QMenu* scriptsMenu,
 						QAction* aboutScriptsAction,
@@ -69,7 +65,7 @@ protected:
 						QAction* showScriptsFolderAction);
 
 	int addScriptsToMenu(QMenu *menu, TWScriptList *scripts);
-	void removeScriptsFromMenu(QMenu *menu, int startIndex = 0);
+	void removeScriptsFromMenu(QMenu *menu, QList<QAction*>::size_type startIndex = 0);
 
 	void showFloaters();
 
@@ -77,8 +73,7 @@ protected:
 
 private:
 	QMenu * scriptsMenu{nullptr};
-	QSignalMapper * scriptMapper{nullptr};
-	int staticScriptMenuItemCount{0};
+	QList<QAction*>::size_type staticScriptMenuItemCount{0};
 
 	QList<QWidget*> latentVisibleWidgets;
 };

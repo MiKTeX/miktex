@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,14 +29,12 @@
 #endif
 #include "TWUtils.h"
 
-#include "GitRev.h"
 #include "PDFDocumentWindow.h"
 #include "Settings.h"
 #include "TWApp.h"
 #include "TeXDocumentWindow.h"
-#include "utils/FileVersionDatabase.h"
 #include "utils/ResourcesLibrary.h"
-#include "utils/VersionInfo.h"
+#include "utils/WindowManager.h"
 
 #include <QAction>
 #include <QCompleter>
@@ -239,7 +237,19 @@ void TWUtils::setDefaultFilters()
 	*filters << QObject::tr("Auxiliary files (*.aux *.toc *.lot *.lof *.nav *.out *.snm *.ind *.idx *.bbl *.brf)");
 	*filters << QObject::tr("Text files (*.txt)");
 	*filters << QObject::tr("PDF documents (*.pdf)");
-	*filters << QObject::tr("All files") + QLatin1String(" (*)"); // this must not be "*.*", which causes an extension ".*" to be added on some systems
+#ifdef Q_OS_WIN
+	// It seems (contrary to documentation) that on Windows, this has to be
+	// *.* to allow saving files with non-standard extensions (though *.* still
+	// does not allow to save without any extension at all, see below)
+	const QString allFilesFilter = QStringLiteral("*.*");
+//	const QString allFilesFilter = QStringLiteral("*");
+#else
+	// On other systems, *.* might require a . in the filename, which would
+	// preclude filenames without extension. In line with the documentation, *
+	// should be used in those cases
+	const QString allFilesFilter = QStringLiteral("*");
+#endif
+	*filters << QObject::tr("All files") + QStringLiteral(" (%1)").arg(allFilesFilter);
 }
 
 /*static*/
@@ -248,7 +258,7 @@ QString TWUtils::chooseDefaultFilter(const QString & filename, const QStringList
 	QString extension = QFileInfo(filename).completeSuffix();
 
 	if (extension.isEmpty())
-		return filters[0];
+		return filters.last();
 
 	foreach (QString filter, filters) {
 		// return filter if it corresponds to the given extension
@@ -260,63 +270,6 @@ QString TWUtils::chooseDefaultFilter(const QString & filename, const QStringList
 	}
 	// if no filter matched, return the last one (which should be "All files")
 	return filters.last();
-}
-
-QString TWUtils::strippedName(const QString &fullFileName, const unsigned int dirComponents /* = 0 */)
-{
-	QDir dir(QFileInfo(fullFileName).dir());
-	for (unsigned int i = 0; i < dirComponents; ++i) {
-		if (dir.isRoot()) {
-			// If we moved up to the root directory, there is no point in going
-			// any further; particularly on Windows, going further may produce
-			// invalid paths (such as C:\.. which make no sense and can result
-			// in infinite loops in constructUniqueFileLabels()
-			return fullFileName;
-		}
-		// NB: dir.cdUp() would be more logical, but fails if the resulting
-		// path does not exist
-		// NB: QDir::cleanPath resolves .. such as the one we deliberately
-		// introduce using string operations (i.e., without file system access)
-		// Avoiding file system access is important in case the path refers to
-		// a slow (or non-existent) network share, which would cause the program
-		// to hang until the file system access times out (which can accumulate
-		// to a very long time if this function has to be called repeatedly)
-		dir.setPath(QDir::cleanPath(dir.path() + QString::fromLatin1("/..")));
-	}
-	return dir.relativeFilePath(fullFileName);
-}
-
-QStringList TWUtils::constructUniqueFileLabels(const QStringList & fileList)
-{
-	QStringList labelList;
-
-	for (const QString & file : fileList) {
-		labelList.append(strippedName(file));
-	}
-
-	// Make label list unique, i.e. while labels are not unique, add
-	// directory components
-	bool done{false};
-	for (unsigned int dirComponents = 1; !done; ++dirComponents) {
-		QList<bool> isDuplicate;
-		for (const QString & label : labelList) {
-			isDuplicate.append(labelList.count(label) > 1);
-		}
-		if (!isDuplicate.contains(true))
-			break;
-
-		done = true;
-		for (int i = 0; i < labelList.size(); ++i) {
-			if (!isDuplicate[i])
-				continue;
-			const QString newName = strippedName(fileList[i], dirComponents);
-			if (labelList[i] != newName) {
-				labelList[i] = newName;
-				done = false;
-			}
-		}
-	}
-	return labelList;
 }
 
 void TWUtils::updateRecentFileActions(QObject *parent, QList<QAction*> &actions, QMenu *menu, QAction * clearAction) /* static */
@@ -347,9 +300,9 @@ void TWUtils::updateRecentFileActions(QObject *parent, QList<QAction*> &actions,
 	}
 
 	// Generate label list (list of filenames without directory components)
-	labelList = constructUniqueFileLabels(fileList);
+	labelList = Tw::Utils::WindowManager::constructUniqueFileLabels(fileList);
 
-	int numRecentFiles = fileList.size();
+	QStringList::size_type numRecentFiles = fileList.size();
 
 	foreach(QAction * sep, menu->actions()) {
 		if (sep->isSeparator())
@@ -369,7 +322,7 @@ void TWUtils::updateRecentFileActions(QObject *parent, QList<QAction*> &actions,
 		delete act;
 	}
 
-	for (int i = 0; i < numRecentFiles; ++i) {
+	for (QStringList::size_type i = 0; i < numRecentFiles; ++i) {
 		// a "&" inside a menu label is considered a mnemonic, thus, we need to escape them
 		labelList[i].replace(QString::fromLatin1("&"), QString::fromLatin1("&&"));
 
@@ -384,264 +337,6 @@ void TWUtils::updateRecentFileActions(QObject *parent, QList<QAction*> &actions,
 		menu->insertSeparator(clearAction);
 	if (clearAction)
 		clearAction->setEnabled(numRecentFiles > 0);
-}
-
-void TWUtils::updateWindowMenu(QWidget *window, QMenu *menu) /* static */
-{
-	// shorten the menu by removing everything from the first "selectWindow" action onwards
-	QList<QAction*> actions = menu->actions();
-	for (QList<QAction*>::iterator i = actions.begin(); i != actions.end(); ++i) {
-		SelWinAction *selWin = qobject_cast<SelWinAction*>(*i);
-		if (selWin)
-			menu->removeAction(*i);
-	}
-	while (!menu->actions().isEmpty() && menu->actions().last()->isSeparator())
-		menu->removeAction(menu->actions().last());
-
-	QList<TeXDocumentWindow *> texDocList;
-	QStringList fileList, labelList;
-	Q_FOREACH(TeXDocumentWindow * texDoc, TeXDocumentWindow::documentList()) {
-		texDocList.append(texDoc);
-		fileList.append(texDoc->fileName());
-	}
-	labelList = constructUniqueFileLabels(fileList);
-
-	// append an item for each TeXDocument
-	bool first = true;
-	for (int i = 0; i < texDocList.size(); ++i) {
-		TeXDocumentWindow * texDoc = texDocList[i];
-		if (first && !menu->actions().isEmpty())
-			menu->addSeparator();
-		first = false;
-		SelWinAction *selWin = new SelWinAction(menu, fileList[i], labelList[i]);
-		if (texDoc->isModified()) {
-			QFont f(selWin->font());
-			f.setItalic(true);
-			selWin->setFont(f);
-		}
-		if (texDoc == qobject_cast<TeXDocumentWindow*>(window)) {
-			selWin->setCheckable(true);
-			selWin->setChecked(true);
-		}
-		// Don't use a direct connection as triggered has a boolean argument
-		// (checked) which would get forwarded to selectWindow's "activate",
-		// which doesn't make sense.
-		QObject::connect(selWin, &SelWinAction::triggered, texDoc, [texDoc](){ texDoc->selectWindow(); });
-		menu->addAction(selWin);
-	}
-
-	QList<PDFDocumentWindow *> pdfDocList;
-	fileList.clear();
-	labelList.clear();
-	Q_FOREACH(PDFDocumentWindow * pdfDoc, PDFDocumentWindow::documentList()) {
-		pdfDocList.append(pdfDoc);
-		fileList.append(pdfDoc->fileName());
-	}
-	labelList = constructUniqueFileLabels(fileList);
-
-	// append an item for each PDFDocument
-	first = true;
-	for (int i = 0; i < pdfDocList.size(); ++i) {
-		PDFDocumentWindow * pdfDoc = pdfDocList[i];
-		if (first && !menu->actions().isEmpty())
-			menu->addSeparator();
-		first = false;
-		SelWinAction *selWin = new SelWinAction(menu, fileList[i], labelList[i]);
-		if (pdfDoc == qobject_cast<PDFDocumentWindow*>(window)) {
-			selWin->setCheckable(true);
-			selWin->setChecked(true);
-		}
-		QObject::connect(selWin, &SelWinAction::triggered, pdfDoc, &PDFDocumentWindow::selectWindow);
-		menu->addAction(selWin);
-	}
-}
-
-void TWUtils::ensureOnScreen(QWidget *window)
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect screenRect = desktop->availableGeometry(window);
-#else
-	QRect screenRect = window->screen()->availableGeometry();
-#endif
-	QRect adjustedFrame = window->frameGeometry();
-	if (adjustedFrame.width() > screenRect.width())
-		adjustedFrame.setWidth(screenRect.width());
-	if (adjustedFrame.height() > screenRect.height())
-		adjustedFrame.setHeight(screenRect.height());
-	if (adjustedFrame.left() < screenRect.left())
-		adjustedFrame.moveLeft(screenRect.left());
-	else if (adjustedFrame.right() > screenRect.right())
-		adjustedFrame.moveRight(screenRect.right());
-	if (adjustedFrame.top() < screenRect.top())
-		adjustedFrame.moveTop(screenRect.top());
-	else if (adjustedFrame.bottom() > screenRect.bottom())
-		adjustedFrame.moveBottom(screenRect.bottom());
-	if (adjustedFrame != window->frameGeometry())
-		window->setGeometry(adjustedFrame.adjusted(window->geometry().left() - window->frameGeometry().left(),
-													window->geometry().top() - window->frameGeometry().top(),
-													window->frameGeometry().right() - window->geometry().right(),
-													window->frameGeometry().bottom() - window->geometry().bottom()
-												));
-}
-
-void TWUtils::zoomToScreen(QWidget *window)
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect screenRect = desktop->availableGeometry(window);
-#else
-	QRect screenRect = window->screen()->availableGeometry();
-#endif
-	screenRect.setTop(screenRect.top() + window->geometry().y() - window->y());
-	window->setGeometry(screenRect);
-}
-
-void TWUtils::zoomToHalfScreen(QWidget *window, bool rhs)
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect r = desktop->availableGeometry(window);
-#else
-	QRect r = window->screen()->availableGeometry();
-#endif
-	int wDiff = window->frameGeometry().width() - window->width();
-	int hDiff = window->frameGeometry().height() - window->height();
-
-	if (hDiff == 0 && wDiff == 0) {
-		// window may not be decorated yet, so we don't know how large
-		// the title bar etc. is. Try to extrapolate from other top-level
-		// windows (if some are available). We assume that if either
-		// hDiff or wDiff is non-zero, we have found a decorated window
-		// and can use its values.
-		foreach (QWidget * widget, QApplication::topLevelWidgets()) {
-			if (!qobject_cast<QMainWindow*>(widget))
-				continue;
-			hDiff = widget->frameGeometry().height() - widget->height();
-			wDiff = widget->frameGeometry().width() - widget->width();
-			if (hDiff != 0 || wDiff != 0)
-				break;
-		}
-		if (hDiff == 0 && wDiff == 0) {
-			// Give the user the possibility to specify his own values by
-			// hacking the config files.
-			// (Note: this should only be necessary in some special cases, e.g.
-			// on X11 systems with special effects enabled)
-			Tw::Settings settings;
-			wDiff = qMax(0, settings.value(QString::fromLatin1("windowWDiff"), 0).toInt());
-			hDiff = qMax(0, settings.value(QString::fromLatin1("windowHDiff"), 0).toInt());
-		}
-		// If we still have no valid value for hDiff/wDiff, just guess (on some
-		// platforms)
-		if (hDiff == 0 && wDiff == 0) {
-#if defined(Q_OS_WIN)
-			// (these values were determined on WinXP with default theme)
-			hDiff = 34;
-			wDiff = 8;
-#endif
-		}
-	}
-
-	// Ensure the window is not maximized, otherwise some window managers might
-	// react strangely to resizing
-	window->showNormal();
-	if (rhs) {
-		r.setLeft((r.left() + r.right()) / 2);
-		window->move(r.left(), r.top());
-		window->resize(r.width() - wDiff, r.height() - hDiff);
-	}
-	else {
-		r.setRight((r.left() + r.right()) / 2 - 1);
-		window->move(r.left(), r.top());
-		window->resize(r.width() - wDiff, r.height() - hDiff);
-	}
-}
-
-void TWUtils::sideBySide(QWidget *window1, QWidget *window2)
-{
-	// if the windows reside on the same screen zoom each so that it occupies
-	// half of that screen
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-	QDesktopWidget *desktop = QApplication::desktop();
-	if (desktop->screenNumber(window1) == desktop->screenNumber(window2)) {
-#else
-	if (window1->screen() == window2->screen()) {
-#endif
-		zoomToHalfScreen(window1, false);
-		zoomToHalfScreen(window2, true);
-	}
-	// if the windows reside on different screens zoom each so that it uses
-	// its whole screen
-	else {
-		zoomToScreen(window1);
-		zoomToScreen(window2);
-	}
-}
-
-void TWUtils::tileWindowsInRect(const QWidgetList& windows, const QRect& bounds)
-{
-	int numWindows = windows.count();
-	int rows = 1, cols = 1;
-	while (rows * cols < numWindows)
-		if (rows == cols)
-			++cols;
-		else
-			++rows;
-	QRect r;
-	r.setWidth(bounds.width() / cols);
-	r.setHeight(bounds.height() / rows);
-	r.moveLeft(bounds.left());
-	r.moveTop(bounds.top());
-	int x = 0, y = 0;
-	foreach (QWidget* window, windows) {
-		int wDiff = window->frameGeometry().width() - window->width();
-		int hDiff = window->frameGeometry().height() - window->height();
-		window->move(r.left(), r.top());
-		window->resize(r.width() - wDiff, r.height() - hDiff);
-		if (window->isMinimized())
-			window->showNormal();
-		if (++x == cols) {
-			x = 0;
-			++y;
-			r.moveLeft(bounds.left());
-			r.moveTop(bounds.top() + (bounds.height() * y) / rows);
-		}
-		else
-			r.moveLeft(bounds.left() + (bounds.width() * x) / cols);
-	}
-}
-
-void TWUtils::stackWindowsInRect(const QWidgetList& windows, const QRect& bounds)
-{
-	const int kStackingOffset = 20;
-	QRect r(bounds);
-	r.setWidth(r.width() / 2);
-	int index = 0;
-	foreach (QWidget* window, windows) {
-		int wDiff = window->frameGeometry().width() - window->width();
-		int hDiff = window->frameGeometry().height() - window->height();
-		window->move(r.left(), r.top());
-		window->resize(r.width() - wDiff, r.height() - hDiff);
-		if (window->isMinimized())
-			window->showNormal();
-		r.moveLeft(r.left() + kStackingOffset);
-		if (r.right() > bounds.right()) {
-			r = bounds;
-			r.setWidth(r.width() / 2);
-			index = 0;
-		}
-		else if (++index == 10) {
-			r.setTop(bounds.top());
-			index = 0;
-		}
-		else {
-			r.setTop(r.top() + kStackingOffset);
-			if (r.height() < bounds.height() / 2) {
-				r.setTop(bounds.top());
-				index = 0;
-			}
-		}
-	}
 }
 
 void TWUtils::applyToolbarOptions(QMainWindow *theWindow, int iconSize, bool showText)
@@ -791,9 +486,9 @@ void TWUtils::readConfig()
 		setDefaultFilters();
 }
 
-int TWUtils::balanceDelim(const QString& text, int pos, QChar delim, int direction)
+QString::size_type TWUtils::balanceDelim(const QString& text, QString::size_type pos, QChar delim, int direction)
 {
-	int len = text.length();
+	QString::size_type len = text.length();
 	QChar c;
 	while ((c = text[pos]) != delim) {
 		if (!openerMatching(c).isNull())
@@ -809,7 +504,7 @@ int TWUtils::balanceDelim(const QString& text, int pos, QChar delim, int directi
 	return pos;
 }
 
-int TWUtils::findOpeningDelim(const QString& text, int pos)
+QString::size_type TWUtils::findOpeningDelim(const QString& text, QString::size_type pos)
 	// find the first opening delimiter before offset /pos/
 {
 	while (--pos >= 0) {
@@ -858,44 +553,3 @@ void TWUtils::installCustomShortcuts(QWidget * widget, bool recursive /* = true 
 	if (deleteMap)
 		delete map;
 }
-
-// action subclass used for dynamic window-selection items in the Window menu
-
-SelWinAction::SelWinAction(QObject *parent, const QString &fileName, const QString &label)
-	: QAction(parent)
-{
-	setText(label);
-	setData(fileName);
-}
-
-// on OS X only, the singleton CmdKeyFilter object is attached to all TeXDocument editor widgets
-// to stop Command-keys getting inserted into edit text items
-
-CmdKeyFilter *CmdKeyFilter::filterObj = nullptr;
-
-CmdKeyFilter *CmdKeyFilter::filter()
-{
-	if (!filterObj)
-		filterObj = new CmdKeyFilter;
-	return filterObj;
-}
-
-bool CmdKeyFilter::eventFilter(QObject *obj, QEvent *event)
-{
-#if defined(Q_OS_DARWIN)
-	if (event->type() == QEvent::KeyPress) {
-		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-		if ((keyEvent->modifiers() & Qt::ControlModifier) != 0) {
-			if (keyEvent->key() <= 0x0ff
-				&& keyEvent->key() != Qt::Key_Z
-				&& keyEvent->key() != Qt::Key_X
-				&& keyEvent->key() != Qt::Key_C
-				&& keyEvent->key() != Qt::Key_V
-				&& keyEvent->key() != Qt::Key_A)
-				return true;
-		}
-	}
-#endif
-	return QObject::eventFilter(obj, event);
-}
-

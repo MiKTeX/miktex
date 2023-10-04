@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2020  Stefan Löffler
+	Copyright (C) 2020-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
 #include "../src/GitRev.h"
 #endif
 #include "TWVersion.h"
+
+#include <QLocale>
 
 #ifndef TW_BUILD_ID
 #define TW_BUILD_ID unknown build
@@ -76,6 +78,14 @@ QString VersionInfo::versionString()
 QString VersionInfo::buildIdString()
 {
 	return QStringLiteral(TW_BUILD_ID_STR);
+}
+
+QString VersionInfo::fullVersionString()
+{
+	if (isGitInfoAvailable()) {
+		return QStringLiteral("%1 (%2) [r.%3, %4]").arg(versionString(), buildIdString(), gitCommitHash(), QLocale::system().toString(Tw::Utils::VersionInfo::gitCommitDate().toLocalTime(), QLocale::ShortFormat));
+	}
+	return QStringLiteral("%1 (%2)").arg(versionString(), buildIdString());
 }
 
 // static

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2020  Stefan Löffler
+	Copyright (C) 2008-2023  Stefan Löffler
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@ public:
 
 	static QString versionString();
 	static QString buildIdString();
+
+	static QString fullVersionString();
 
 	// return the version of Tw (0xMMNNPP)
 	static int getVersion();

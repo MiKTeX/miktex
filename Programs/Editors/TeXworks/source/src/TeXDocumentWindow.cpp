@@ -36,6 +36,8 @@
 #include "scripting/ScriptAPI.h"
 #include "ui/ClickableLabel.h"
 #include "ui/RemoveAuxFilesDialog.h"
+#include "utils/CmdKeyFilter.h"
+#include "utils/WindowManager.h"
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -82,6 +84,11 @@ TeXDocumentWindow::TeXDocumentWindow(const QString &fileName, bool asTemplate)
 
 TeXDocumentWindow::~TeXDocumentWindow()
 {
+	// Disconnect from notifications to avoid getting signals after our
+	// TeXDocumentWindow is destroyed (but before the base QObject is destroyed,
+	// in which case the system wouldn't know what to do with the signal)
+	disconnect(TWApp::instance(), &TWApp::windowListChanged, this, nullptr);
+	disconnect(TWApp::instance(), &TWApp::recentFileActionsChanged, this, nullptr);
 	docList.removeAll(this);
 	updateWindowMenu();
 	// Because _texDoc->parent() == this, _texDoc will be destroyed
@@ -245,8 +252,9 @@ void TeXDocumentWindow::init()
 
 	connect(menuEdit, &QMenu::aboutToShow, this, &TeXDocumentWindow::editMenuAboutToShow);
 
-#if defined(Q_OS_DARWIN)
-	textEdit->installEventFilter(CmdKeyFilter::filter());
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
+	// Work around QTBUG-36281
+	textEdit->installEventFilter(Tw::Utils::CmdKeyFilter::filter());
 #endif
 
 	connect(inputLine, &QLineEdit::returnPressed, this, &TeXDocumentWindow::acceptInputLine);
@@ -399,7 +407,7 @@ void TeXDocumentWindow::init()
 	menuShow->addAction(toolBar_edit->toggleViewAction());
 	menuShow->addSeparator();
 
-	TWUtils::zoomToHalfScreen(this);
+	Tw::Utils::WindowManager::zoomToHalfScreen(this);
 
 	QDockWidget *dw = new TagsDock(this);
 	dw->hide();
@@ -557,7 +565,7 @@ void TeXDocumentWindow::reloadSpellcheckerMenu()
 					label = tr("%1 (%2)").arg(QLocale::languageToString(loc.language()), dict);
 			}
 
-			QAction * act = new QAction(label, nullptr);
+			QAction * act = new QAction(label, menuSpelling);
 			act->setCheckable(true);
 			if (!oldSelected.isEmpty() && label == oldSelected)
 				act->setChecked(true);
@@ -622,11 +630,7 @@ void TeXDocumentWindow::makeUntitled()
 void TeXDocumentWindow::open()
 {
 	QFileDialog::Options options = QFileDialog::DontResolveSymlinks;
-#if defined(Q_OS_DARWIN)
-		/* use a sheet if we're calling Open from an empty, untitled, untouched window; otherwise use a separate dialog */
-	if (!(untitled() && textEdit->document()->isEmpty() && !isWindowModified()))
-		options = QFileDialog::DontUseSheet;
-#elif defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
 	if(TWApp::GetWindowsVersion() < 0x06000000) options |= QFileDialog::DontUseNativeDialog;
 #endif
 	Tw::Settings settings;
@@ -706,6 +710,13 @@ void TeXDocumentWindow::closeEvent(QCloseEvent *event)
 			return;
 		}
 		interrupt();
+		// Wait for the process to actually finish (and be destroyed) as this
+		// might try to access, e.g., the log window (which could be destroyed
+		// at any time once the close event goes through and this
+		// TeXDocumentWindow is started to be destroyed)
+		if (process) {
+			process->waitForFinished();
+		}
 	}
 
 	if (maybeSave()) {
@@ -882,18 +893,12 @@ bool TeXDocumentWindow::maybeSave()
 bool TeXDocumentWindow::saveFilesHavingRoot(const QString& aRootFile)
 {
 	foreach (TeXDocumentWindow* doc, docList) {
-		if (doc->getRootFilePath() == aRootFile) {
+		if (doc->textDoc() && doc->textDoc()->getRootFilePath() == aRootFile) {
 			if (doc->textEdit->document()->isModified() && !doc->save())
 				return false;
 		}
 	}
 	return true;
-}
-
-const QString& TeXDocumentWindow::getRootFilePath()
-{
-	findRootFilePath();
-	return rootFilePath;
 }
 
 void TeXDocumentWindow::revert()
@@ -1361,7 +1366,7 @@ void TeXDocumentWindow::reloadIfChangedOnDisk()
 // get expected name of the Preview file, and return whether it exists
 bool TeXDocumentWindow::getPreviewFileName(QString &pdfName)
 {
-	findRootFilePath();
+	const QString & rootFilePath = textDoc()->getRootFilePath();
 	if (rootFilePath.isEmpty())
 		return false;
 	QFileInfo fi(rootFilePath);
@@ -1581,20 +1586,11 @@ void TeXDocumentWindow::updateRecentFileActions()
 
 void TeXDocumentWindow::updateWindowMenu()
 {
-	TWUtils::updateWindowMenu(this, menuWindow);
+	Tw::Utils::WindowManager::updateWindowMenu(this, menuWindow);
 
-	// If the window list changed, we might want to update our window title as
-	// well to uniquely identify the current file among all others open in
-	// TeXworks
-	Q_FOREACH(QAction * action, menuWindow->actions()) {
-		SelWinAction * selWinAction = qobject_cast<SelWinAction*>(action);
-		// If this is not an action related to an open window, skip it
-		if (!selWinAction)
-			continue;
-		// If this action corresponds to the current file, use it's label as
-		// window text
-		if (selWinAction->data().toString() == fileName())
-			setWindowTitle(tr("%1[*] - %2").arg(selWinAction->text(), tr(TEXWORKS_NAME)));
+	const QString label = Tw::Utils::WindowManager::uniqueLabelForFile(fileName());
+	if (!label.isEmpty()) {
+		setWindowTitle(tr("%1[*] - %2").arg(label, tr(TEXWORKS_NAME)));
 	}
 }
 
@@ -1770,7 +1766,7 @@ void TeXDocumentWindow::encodingPopup(const QPoint loc)
 void TeXDocumentWindow::sideBySide()
 {
 	if (pdfDoc) {
-		TWUtils::sideBySide(this, pdfDoc);
+		Tw::Utils::WindowManager::sideBySide(this, pdfDoc);
 		pdfDoc->selectWindow(false);
 		selectWindow();
 	}
@@ -2135,7 +2131,7 @@ void TeXDocumentWindow::doHardWrap(int mode, int lineWidth, bool rewrap)
 	QString newText;
 
 	while (!oldText.isEmpty()) {
-		int eol = oldText.indexOf(QChar::ParagraphSeparator);
+		QString::size_type eol = oldText.indexOf(QChar::ParagraphSeparator);
 		if (eol == -1)
 			eol = oldText.length();
 		else
@@ -2167,11 +2163,11 @@ void TeXDocumentWindow::doHardWrap(int mode, int lineWidth, bool rewrap)
 			continue;
 		}
 
-		int curLength = 0;
+		QString::size_type curLength = 0;
 		while (!line.isEmpty()) {
 			QRegularExpressionMatch breakMatch = breakPattern.match(line);
-			int breakPoint = breakMatch.capturedStart();
-			int matchLen = breakMatch.capturedLength();
+			QString::size_type breakPoint = breakMatch.capturedStart();
+			QString::size_type matchLen = breakMatch.capturedLength();
 			if (breakPoint == -1) {
 				breakPoint = line.length();
 				matchLen = 0;
@@ -2610,7 +2606,7 @@ QTextCursor TeXDocumentWindow::doSearch(const QString& searchText, const QRegula
 			// curs = theDoc->find(*regex, e, flags);
 			QRegularExpressionMatch m;
 #if QT_VERSION >= 0x050500
-			int offset = docText.lastIndexOf(*regex, e, &m);
+			QString::size_type offset = docText.lastIndexOf(*regex, e, &m);
 #else
 			int offset = docText.lastIndexOf(*regex, e);
 			if (offset >= 0)
@@ -2739,7 +2735,7 @@ void TeXDocumentWindow::typeset()
 		}
 	}
 
-	findRootFilePath();
+	const QString & rootFilePath = textDoc()->getRootFilePath();
 	if (!saveFilesHavingRoot(rootFilePath))
 		return;
 
@@ -2755,7 +2751,7 @@ void TeXDocumentWindow::typeset()
 		return;
 	}
 
-	if (!TWApp::instance()->typesetManager().startTypesetting(fileInfo.canonicalFilePath(), this)) {
+	if (!TWApp::instance()->typesetManager().startTypesetting(rootFilePath, this)) {
 		statusBar()->showMessage(tr("%1 is already being processed").arg(rootFilePath), kStatusMessageDuration);
 		updateTypesettingAction();
 		return;
@@ -2787,8 +2783,13 @@ void TeXDocumentWindow::typeset()
 		}
 		// ensure the window is visible - otherwise we can't see the output
 		// panel (and the typeset process appears to hang in case of an error)
+		// Also ensure the window is activated (in case it wasn't; e.g. when
+		// starting typesetting from the preview) so it can receive focus (to
+		// the input line)
 		consoleTabs->setCurrentIndex(0);
+		show();
 		raise();
+		activateWindow();
 
 		inputLine->setFocus(Qt::OtherFocusReason);
 		showPdfWhenFinished = e.showPdf();
@@ -2848,7 +2849,7 @@ void TeXDocumentWindow::interrupt()
 
 void TeXDocumentWindow::goToTypesettingWindow()
 {
-	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(getRootFilePath()));
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()));
 	if (owner) {
 		owner->raise();
 		owner->activateWindow();
@@ -2857,7 +2858,7 @@ void TeXDocumentWindow::goToTypesettingWindow()
 
 void TeXDocumentWindow::updateTypesettingAction()
 {
-	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(getRootFilePath()));
+	TeXDocumentWindow * owner = qobject_cast<TeXDocumentWindow*>(TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()));
 
 	disconnect(actionTypeset, &QAction::triggered, this, nullptr);
 	if (isTypesetting()) {
@@ -2892,7 +2893,7 @@ void TeXDocumentWindow::conditionallyEnableRemoveAuxFiles()
 	// 2) A typesetting process is running for "our" root file which may be
 	//    accessing the aux files
 	const bool enable = [&](){
-		QFileInfo rootFileInfo{getRootFilePath()};
+		QFileInfo rootFileInfo{textDoc()->getRootFilePath()};
 		if (!rootFileInfo.exists())
 			return false;
 		if (TWApp::instance()->typesetManager().isFileBeingTypeset(rootFileInfo.canonicalFilePath()))
@@ -3034,7 +3035,7 @@ void TeXDocumentWindow::anchorClicked(const QUrl& url)
 		if (url.hasFragment()) {
 			line = url.fragment().toInt();
 		}
-		TeXDocumentWindow * target = openDocument(QFileInfo(getRootFilePath()).absoluteDir().filePath(url.path()), true, true, line);
+		TeXDocumentWindow * target = openDocument(QFileInfo(textDoc()->getRootFilePath()).absoluteDir().filePath(url.path()), true, true, line);
 		if (target)
 			target->textEdit->setFocus(Qt::OtherFocusReason);
 	}
@@ -3160,25 +3161,6 @@ void TeXDocumentWindow::handleModelineChange(QStringList changedKeys, QStringLis
 	}
 }
 
-void TeXDocumentWindow::findRootFilePath()
-{
-	if (untitled()) {
-		rootFilePath.clear();
-		return;
-	}
-
-	if (textDoc()->hasModeLine(QStringLiteral("root"))) {
-		QString rootName = textDoc()->getModeLineValue(QStringLiteral("root")).trimmed();
-		QFileInfo rootFileInfo(textDoc()->getFileInfo().dir(), rootName);
-		if (rootFileInfo.exists())
-			rootFilePath = rootFileInfo.canonicalFilePath();
-		else
-			rootFilePath = rootFileInfo.filePath();
-	}
-	else
-		rootFilePath = textDoc()->absoluteFilePath();
-}
-
 void TeXDocumentWindow::goToTag(int index)
 {
 	if (_texDoc && index < _texDoc->getTags().count()) {
@@ -3189,12 +3171,12 @@ void TeXDocumentWindow::goToTag(int index)
 
 bool TeXDocumentWindow::isTypesetting() const
 {
-	return (process != nullptr || TWApp::instance()->typesetManager().getOwnerForRootFile(rootFilePath) == this);
+	return (process != nullptr || TWApp::instance()->typesetManager().getOwnerForRootFile(textDoc()->getRootFilePath()) == this);
 }
 
 void TeXDocumentWindow::removeAuxFiles()
 {
-	findRootFilePath();
+	const QString & rootFilePath = textDoc()->getRootFilePath();
 	if (rootFilePath.isEmpty())
 		return;
 

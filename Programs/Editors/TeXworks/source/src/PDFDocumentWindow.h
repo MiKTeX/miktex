@@ -46,6 +46,7 @@ const int kDefault_PreviewScale = 200;
 const QtPDF::PDFDocumentView::PageMode kDefault_PDFPageMode = QtPDF::PDFDocumentView::PageMode_OneColumnContinuous;
 const bool kDefault_PreviewRulerShow = false;
 const int kDefault_PreviewRulerUnits = QtPDF::Physical::Length::Centimeters;
+const QColor kDefault_PaperColor = Qt::white;
 
 const int kPDFWindowStateVersion = 1;
 
@@ -80,7 +81,7 @@ public:
 	void resetMagnifier();
 	void enableTypesetAction(bool enabled);
 	void linkToSource(TeXDocumentWindow *texDoc);
-	bool hasSyncData() const { return _synchronizer != nullptr; }
+	bool hasSyncData() const { return static_cast<bool>(_synchronizer); }
 
 	QtPDF::PDFDocumentWidget * widget() { return pdfWidget; }
 
@@ -149,6 +150,9 @@ private:
 	void loadSyncData();
 	void saveRecentFileInfo();
 
+	QString getMainSourceFilename() const;
+	TeXDocumentWindow * getFirstTeXDocumentWindow(const bool openIfNecessary);
+
 	QString curFile;
 
 	QtPDF::PDFDocumentWidget *pdfWidget;
@@ -174,7 +178,7 @@ private:
 
 	static QList<PDFDocumentWindow*> docList;
 
-	TWSyncTeXSynchronizer * _synchronizer;
+	std::unique_ptr<TWSyncTeXSynchronizer> _synchronizer;
 #if defined(MIKTEX)
         QAction* actionAbout_MiKTeX;
 #endif

@@ -26,6 +26,7 @@
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXDocumentWindow.h"
+#include "utils/WindowManager.h"
 
 #include <QCloseEvent>
 #include <QDesktopServices>
@@ -79,7 +80,6 @@ PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow 
 	, _fullScreenManager(nullptr)
 	, _syncHighlight(nullptr)
 	, openedManually(false)
-	, _synchronizer(nullptr)
 {
 	init();
 
@@ -92,7 +92,7 @@ PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow 
 	if (properties.contains(QString::fromLatin1("geometry")))
 		restoreGeometry(properties.value(QString::fromLatin1("geometry")).toByteArray());
 	else
-		TWUtils::zoomToHalfScreen(this, true);
+		Tw::Utils::WindowManager::zoomToHalfScreen(this, true);
 
 	if (properties.contains(QString::fromLatin1("state")))
 		restoreState(properties.value(QString::fromLatin1("state")).toByteArray(), kPDFWindowStateVersion);
@@ -116,6 +116,11 @@ PDFDocumentWindow::PDFDocumentWindow(const QString &fileName, TeXDocumentWindow 
 
 PDFDocumentWindow::~PDFDocumentWindow()
 {
+	// Disconnect from windowListChanged notifications to avoid getting the
+	// signal after our TeXDocumentWindow is destroyed (but before the base
+	// QObject is destroyed, in which case the system wouldn't know what to do
+	// with the signal)
+	disconnect(TWApp::instance(), &TWApp::windowListChanged, this, nullptr);
 	docList.removeAll(this);
 #if defined(Q_OS_DARWIN)
 	// Work around QTBUG-17941
@@ -150,7 +155,13 @@ void PDFDocumentWindow::init()
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedPage, this, &PDFDocumentWindow::updateStatusBar);
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedZoom, this, &PDFDocumentWindow::updateStatusBar);
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedDocument, this, &PDFDocumentWindow::changedDocument);
-	connect(pdfWidget, &QtPDF::PDFDocumentWidget::searchResultHighlighted, this, &PDFDocumentWindow::searchResultHighlighted);
+	// NB: Using a queued connection ensures the signal has to pass through the
+	// event loop. If searching effectively blocks the GUI for a while (e.g., by
+	// spawning too many threads), this ensures that the highlighting processing
+	// (including clearing the highlighting after kPDFHighlightDuration) only
+	// starts when the GUI is responsive (i.e., the highlight is actually
+	// displayed)
+	connect(pdfWidget, &QtPDF::PDFDocumentWidget::searchResultHighlighted, this, &PDFDocumentWindow::searchResultHighlighted, Qt::QueuedConnection);
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::changedPageMode, this, &PDFDocumentWindow::updatePageMode);
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::requestOpenPdf, this, &PDFDocumentWindow::maybeOpenPdf);
 	connect(pdfWidget, &QtPDF::PDFDocumentWidget::requestOpenUrl, this, &PDFDocumentWindow::maybeOpenUrl);
@@ -400,27 +411,18 @@ void PDFDocumentWindow::updateRecentFileActions()
 
 void PDFDocumentWindow::updateWindowMenu()
 {
-	TWUtils::updateWindowMenu(this, menuWindow);
+	Tw::Utils::WindowManager::updateWindowMenu(this, menuWindow);
 
-	// If the window list changed, we might want to update our window title as
-	// well to uniquely identify the current file among all others open in
-	// TeXworks
-	Q_FOREACH(QAction * action, menuWindow->actions()) {
-		SelWinAction * selWinAction = qobject_cast<SelWinAction*>(action);
-		// If this is not an action related to an open window, skip it
-		if (!selWinAction)
-			continue;
-		// If this action corresponds to the current file, use it's label as
-		// window text
-		if (selWinAction->data().toString() == fileName())
-			setWindowTitle(tr("%1[*] - %2").arg(selWinAction->text(), tr(TEXWORKS_NAME)));
+	const QString label = Tw::Utils::WindowManager::uniqueLabelForFile(fileName());
+	if (!label.isEmpty()) {
+		setWindowTitle(tr("%1[*] - %2").arg(label, tr(TEXWORKS_NAME)));
 	}
 }
 
 void PDFDocumentWindow::sideBySide()
 {
 	if (sourceDocList.count() > 0) {
-		TWUtils::sideBySide(sourceDocList.first(), this);
+		Tw::Utils::WindowManager::sideBySide(sourceDocList.first(), this);
 		sourceDocList.first()->selectWindow(false);
 		selectWindow();
 	}
@@ -460,6 +462,59 @@ void PDFDocumentWindow::saveRecentFileInfo()
 	TWApp::instance()->addToRecentFiles(fileProperties);
 }
 
+QString PDFDocumentWindow::getMainSourceFilename() const
+{
+	// If there are any open source documents, use their root path
+	for (TeXDocumentWindow * const win : sourceDocList) {
+		if (win == nullptr) {
+			continue;
+		}
+		const Tw::Document::TeXDocument * const doc = win->textDoc();
+		if (doc == nullptr) {
+			continue;
+		}
+		const QString path = doc->getRootFilePath();
+		if (QFileInfo::exists(path)) {
+				return path;
+		}
+	}
+	// If we have synchronization data, use the document that corresponds to the
+	// top left corner of the first page
+	// TODO: Is this necessarily a TeX file (and not, e.g., an aux file in case
+	// the first page is not a standard text page such as a toc, titlepage, or
+	// index/bibliography)?
+	if (_synchronizer) {
+		const TWSynchronizer::TeXSyncPoint syncPt = _synchronizer->syncFromPDF({fileName(), 0, QList<QRectF>() << QRectF()}, TWSynchronizer::LineResolution);
+		if (QFileInfo::exists(syncPt.filename)) {
+			return syncPt.filename;
+		}
+	}
+	// If all else fails, assume a .tex file with the same base name as the pdf
+	// is the root source file (this might be flakey, though, e.g. in case
+	// \jobname is redefined or non-standard typesetting tools are used)
+	QString src = fileName();
+	if (src.endsWith(QStringLiteral(".pdf"))) {
+		src.replace(src.length() - 3, 3, QStringLiteral("tex"));
+		if (QFileInfo::exists(src)) {
+			return src;
+		}
+	}
+	return {};
+}
+
+TeXDocumentWindow * PDFDocumentWindow::getFirstTeXDocumentWindow(const bool openIfNecessary)
+{
+	for (TeXDocumentWindow * const src : sourceDocList) {
+		if (src != nullptr) {
+			return src;
+		}
+	}
+	if (!openIfNecessary) {
+		return nullptr;
+	}
+	return TeXDocumentWindow::openDocument(getMainSourceFilename(), false);
+}
+
 void PDFDocumentWindow::loadFile(const QString &fileName)
 {
 	setCurrentFile(fileName);
@@ -476,29 +531,31 @@ void PDFDocumentWindow::reload()
 
 	clearSyncHighlight();
 	if (pdfWidget->load(curFile)) {
+		QSharedPointer<QtPDF::Backend::Document> doc = pdfWidget->document().toStrongRef();
+		if (doc) {
+			Tw::Settings settings;
+			doc->setPaperColor(settings.value(QStringLiteral("pdfPaperColor"), QVariant::fromValue<QColor>(kDefault_PaperColor)).value<QColor>());
+		}
 		loadSyncData();
 		emit reloaded();
 	}
 	else {
-		statusBar()->showMessage(tr("Failed to load file \"%1\"; perhaps it is not a valid PDF document.").arg(TWUtils::strippedName(curFile)));
+		statusBar()->showMessage(tr("Failed to load file \"%1\"; perhaps it is not a valid PDF document.").arg(Tw::Utils::WindowManager::strippedName(curFile)));
 	}
+	updateTypesettingAction();
 	QApplication::restoreOverrideCursor();
 }
 
 void PDFDocumentWindow::loadSyncData()
 {
-	if (_synchronizer) {
-		delete _synchronizer;
-		_synchronizer = nullptr;
-	}
-	_synchronizer = new TWSyncTeXSynchronizer(curFile, [](const QString & filename) {
+	_synchronizer = std::unique_ptr<TWSyncTeXSynchronizer>(new TWSyncTeXSynchronizer(curFile, [](const QString & filename) {
 			const TeXDocumentWindow * win = TeXDocumentWindow::openDocument(filename, false, false);
 			return (win ? win->textDoc() : nullptr);
 		}, [](const QString & filename) {
 			PDFDocumentWindow * pdfWin = PDFDocumentWindow::findDocument(filename);
 			return (pdfWin && pdfWin->widget() ? pdfWin->widget()->document().toStrongRef() : QSharedPointer<QtPDF::Backend::Document>());
 		}
-	);
+	));
 	if (!_synchronizer)
 		statusBar()->showMessage(tr("Error initializing SyncTeX"), kStatusMessageDuration);
 	else if (!_synchronizer->isValid())
@@ -717,7 +774,7 @@ void PDFDocumentWindow::setCurrentFile(const QString &fileName)
 {
 	curFile = QFileInfo(fileName).canonicalFilePath();
 	//: Format for the window title (ex. "file.pdf[*] - TeXworks")
-	setWindowTitle(tr("%1[*] - %2").arg(TWUtils::strippedName(curFile), tr(TEXWORKS_NAME)));
+	setWindowTitle(tr("%1[*] - %2").arg(Tw::Utils::WindowManager::strippedName(curFile), tr(TEXWORKS_NAME)));
 	TWApp::instance()->updateWindowMenus();
 }
 
@@ -745,8 +802,10 @@ void PDFDocumentWindow::showScale(qreal scale)
 
 void PDFDocumentWindow::retypeset()
 {
-	if (sourceDocList.count() > 0)
-		sourceDocList.first()->typeset();
+	TeXDocumentWindow * src = getFirstTeXDocumentWindow(true);
+	if (src != nullptr) {
+		src->typeset();
+	}
 }
 
 void PDFDocumentWindow::interrupt()
@@ -852,17 +911,23 @@ void PDFDocumentWindow::updateTypesettingAction()
 		}
 		return false;
 	}();
+	const bool canTypeset = [&]() {
+		return !getMainSourceFilename().isEmpty();
+	}();
+
 
 	disconnect(actionTypeset, &QAction::triggered, this, nullptr);
 	if (isSourceTypesetting) {
 		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		actionTypeset->setText(tr("Abort typesetting"));
 		connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::interrupt);
+		enableTypesetAction(true);
 	}
 	else {
 		actionTypeset->setIcon(QIcon::fromTheme(QStringLiteral("process-start")));
 		actionTypeset->setText(tr("Typeset"));
 		connect(actionTypeset, &QAction::triggered, this, &PDFDocumentWindow::retypeset);
+		enableTypesetAction(canTypeset);
 	}
 }
 

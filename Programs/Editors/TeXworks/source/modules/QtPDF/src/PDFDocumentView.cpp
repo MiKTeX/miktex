@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2022  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2013-2023  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -68,11 +68,11 @@ PDFDocumentView::PDFDocumentView(QWidget *parent /* = nullptr */):
   setFocusPolicy(Qt::StrongFocus);
 
   QColor fillColor(Qt::darkYellow);
-  fillColor.setAlphaF(0.3);
+  fillColor.setAlphaF(0.3f);
   _searchResultHighlightBrush = QBrush(fillColor);
 
   fillColor = QColor(Qt::yellow);
-  fillColor.setAlphaF(0.6);
+  fillColor.setAlphaF(0.6f);
   _currentSearchResultHighlightBrush = QBrush(fillColor);
 
   // If _currentPage is not set to -1, the compiler may default to 0. In that
@@ -98,8 +98,8 @@ PDFDocumentView::PDFDocumentView(QWidget *parent /* = nullptr */):
   // in turn sets up other variables such as _toolAccessors
   setMouseMode(MouseMode_MagnifyingGlass);
 
-  connect(&_searchResultWatcher, &QFutureWatcher< QList<Backend::SearchResult> >::resultReadyAt, this, &PDFDocumentView::searchResultReady);
-  connect(&_searchResultWatcher, &QFutureWatcher< QList<Backend::SearchResult> >::progressValueChanged, this, &PDFDocumentView::searchProgressValueChanged);
+  connect(&_searcher, &PDFSearcher::resultReady, this, &PDFDocumentView::searchResultReady);
+  connect(&_searcher, &PDFSearcher::progressValueChanged, this, &PDFDocumentView::searchProgressValueChanged);
 
   showRuler(false);
   connect(&_ruler, &PDFRuler::dragStart, this, [this](QPoint pos, Qt::Edge origin) {
@@ -125,8 +125,7 @@ PDFDocumentView::PDFDocumentView(QWidget *parent /* = nullptr */):
 
 PDFDocumentView::~PDFDocumentView()
 {
-  if (!_searchResultWatcher.isFinished())
-    _searchResultWatcher.cancel();
+  _searcher.ensureStopped();
 }
 
 // Accessors
@@ -811,43 +810,21 @@ void PDFDocumentView::search(QString searchText, Backend::SearchFlags flags /* =
   // change the search text in that case (e.g., to something meaningless and
   // then back again to abort the previous search and restart at the new
   // location).
-  if (searchText == _searchString) {
-    // FIXME: If flags changed we need to do a full search!
+  if (searchText == _searcher.searchString() && flags == _searcher.searchFlags()) {
     nextSearchResult();
     return;
   }
 
+  _searcher.ensureStopped();
+
   clearSearchResults();
-
-  // Construct a list of requests that can be passed to QtConcurrent::mapped()
-  QList<Backend::SearchRequest> requests;
-  for (int i = _currentPage; i < _lastPage; ++i) {
-    Backend::SearchRequest request;
-    request.doc = _pdf_scene->document();
-    request.pageNum = i;
-    request.searchString = searchText;
-    request.flags = flags;
-    requests << request;
-  }
-  for (int i = 0; i < _currentPage; ++i) {
-    Backend::SearchRequest request;
-    request.doc = _pdf_scene->document();
-    request.pageNum = i;
-    request.searchString = searchText;
-    request.flags = flags;
-    requests << request;
-  }
-
-  // If another search is still running, cancel it---after all, the user wants
-  // to perform a new search
-  if (!_searchResultWatcher.isFinished()) {
-    _searchResultWatcher.cancel();
-    _searchResultWatcher.waitForFinished();
-  }
-
   _currentSearchResult = -1;
-  _searchString = searchText;
-  _searchResultWatcher.setFuture(QtConcurrent::mapped(requests, Backend::Page::executeSearch));
+
+  _searcher.setSearchString(searchText);
+  _searcher.setSearchFlags(flags);
+  _searcher.setDocument(document());
+  _searcher.setStartPage(currentPage());
+  _searcher.start();
 }
 
 void PDFDocumentView::nextSearchResult()
@@ -873,10 +850,13 @@ void PDFDocumentView::nextSearchResult()
     return;
 
   highlightPath->setBrush(_currentSearchResultHighlightBrush);
-  centerOn(highlightPath);
 
   PDFPageGraphicsItem * pageItem = dynamic_cast<PDFPageGraphicsItem *>(highlightPath->parentItem());
   if (pageItem) {
+    const QRectF bb = pageItem->mapRectFromItem(highlightPath, highlightPath->boundingRect());
+    const QRectF pdfRect = QRectF(pageItem->mapToPage(bb.topLeft()), pageItem->mapToPage(bb.bottomRight()));
+    goToPage(pageItem, pdfRect, false);
+
     QSharedPointer<Backend::Page> page = pageItem->page().toStrongRef();
     // FIXME: shape subpath coordinates seem to be in upside down pdf coordinates. We should find a better place to construct the proper transform (e.g., in PDFPageGraphicsItem)
     if (page)
@@ -906,10 +886,13 @@ void PDFDocumentView::previousSearchResult()
     return;
 
   highlightPath->setBrush(_currentSearchResultHighlightBrush);
-  centerOn(highlightPath);
 
   PDFPageGraphicsItem * pageItem = dynamic_cast<PDFPageGraphicsItem *>(highlightPath->parentItem());
   if (pageItem) {
+    const QRectF bb = pageItem->mapRectFromItem(highlightPath, highlightPath->boundingRect());
+    const QRectF pdfRect = QRectF(pageItem->mapToPage(bb.topLeft()), pageItem->mapToPage(bb.bottomRight()));
+    goToPage(pageItem, pdfRect, false);
+
     QSharedPointer<Backend::Page> page = pageItem->page().toStrongRef();
     // FIXME: shape subpath coordinates seem to be in upside down pdf coordinates. We should find a better place to construct the proper transform (e.g., in PDFPageGraphicsItem)
     if (page)
@@ -948,11 +931,13 @@ void PDFDocumentView::setCurrentSearchResultHighlightBrush(const QBrush & brush)
 
 // Protected Slots
 // --------------
-void PDFDocumentView::searchResultReady(int index)
+void PDFDocumentView::searchResultReady(int pageIndex)
 {
+  const auto & result = _searcher.resultAt(pageIndex);
   // Convert the search result to highlight boxes
-  foreach( Backend::SearchResult result, _searchResultWatcher.future().resultAt(index) )
+  foreach(Backend::SearchResult result, result) {
     _searchResults << addHighlightPath(result.pageNum, result.bbox, _searchResultHighlightBrush);
+  }
 
   // If this is the first result that becomes available in a new search, center
   // on the first result
@@ -961,7 +946,7 @@ void PDFDocumentView::searchResultReady(int index)
 
   // Inform the rest of the world of our progress (in %, and how many
   // occurrences were found so far).
-  emit searchProgressChanged(100 * (_searchResultWatcher.progressValue() - _searchResultWatcher.progressMinimum()) / (_searchResultWatcher.progressMaximum() - _searchResultWatcher.progressMinimum()), _searchResults.count());
+  emit searchProgressChanged(100 * (_searcher.progressValue() - _searcher.progressMinimum()) / (_searcher.progressMaximum() - _searcher.progressMinimum()), _searchResults.count());
 }
 
 void PDFDocumentView::searchProgressValueChanged(int progressValue)
@@ -977,10 +962,10 @@ void PDFDocumentView::searchProgressValueChanged(int progressValue)
   // of the progress when no matches are found, whereas searchResultReady is
   // primarily intended for informing the user of the progress when matches are
   // found.
-  if (_searchResultWatcher.progressMaximum() == _searchResultWatcher.progressMinimum())
+  if (_searcher.progressMaximum() == _searcher.progressMinimum())
     emit searchProgressChanged(100, _searchResults.count());
   else
-    emit searchProgressChanged(100 * (progressValue - _searchResultWatcher.progressMinimum()) / (_searchResultWatcher.progressMaximum() - _searchResultWatcher.progressMinimum()), _searchResults.count());
+    emit searchProgressChanged(100 * (progressValue - _searcher.progressMinimum()) / (_searcher.progressMaximum() - _searcher.progressMinimum()), _searchResults.count());
 }
 
 void PDFDocumentView::maybeUpdateSceneRect() {
@@ -1282,14 +1267,13 @@ void PDFDocumentView::reinitializeFromScene()
   if (selectTool)
     selectTool->pageDestroyed();
   // Ensure (old) search data is destroyed as well
-  if (!_searchResultWatcher.isFinished())
-    _searchResultWatcher.cancel();
-  _searchResults.clear();
-  _currentSearchResult = -1;
+  _searcher.ensureStopped();
   // Also reset _searchString. Otherwise the next search for the same string
   // will assume the search has already been run (without results as
   // _searchResults is empty) and won't run it again on the new scene data.
-  _searchString = QString();
+  _searcher.setSearchString(QString());
+  _searchResults.clear();
+  _currentSearchResult = -1;
 }
 
 void PDFDocumentView::notifyTextSelectionChanged()
@@ -1975,14 +1959,14 @@ int PDFDocumentScene::pageNumAt(const QPolygonF &polygon)
   QList<QGraphicsItem*> p(pages(polygon));
   if (p.isEmpty())
     return -1;
-  return _pages.indexOf(p.first());
+  return static_cast<int>(_pages.indexOf(p.first()));
 }
 
 // This is a convenience function for returning the page number of the first
 // page item at a given point. If no page is in the specified area, -1 is returned.
 int PDFDocumentScene::pageNumAt(const QPointF &pt)
 {
-  return _pages.indexOf(pageAt(pt));
+  return static_cast<int>(_pages.indexOf(pageAt(pt)));
 }
 
 int PDFDocumentScene::pageNumFor(const PDFPageGraphicsItem * const graphicsItem) const
@@ -2363,7 +2347,7 @@ void PDFPageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
     // Each tile is rendered at TILE_SIZE pixels, which may be scaled (e.g. on
     // high-dpi screens) and displayed at an effective size
-    int effectiveTileSize = TILE_SIZE / painter->device()->devicePixelRatio();
+    int effectiveTileSize = static_cast<int>(TILE_SIZE / painter->device()->devicePixelRatio());
 
     int imin = (visibleRect.left() - pageRect.left()) / effectiveTileSize;
     int imax = (visibleRect.right() - pageRect.left());
@@ -2402,9 +2386,6 @@ void PDFPageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
         }
 
         renderedPage = page->getTileImage(this, _dpiX * scaleFactor * painter->device()->devicePixelRatio(), _dpiY * scaleFactor * painter->device()->devicePixelRatio(), renderTile);
-        // we don't want a finished render thread to change our image while we
-        // draw it
-        page->document()->pageCache().lock();
         // renderedPage as returned from getTileImage _should_ always be valid
         if ( renderedPage ) {
           if (useGrayScale) {
@@ -2421,7 +2402,6 @@ void PDFPageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
             painter->drawImage(displayTile.topLeft(), img);
           }
         }
-        page->document()->pageCache().unlock();
 #ifdef DEBUG
         painter->drawRect(displayTile);
 #endif

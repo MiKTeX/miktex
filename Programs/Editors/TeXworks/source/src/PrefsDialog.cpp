@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -365,10 +365,14 @@ void PrefsDialog::restoreDefaults()
 				break;
 			}
 
+			pdfPaperColor->setColor(kDefault_PaperColor);
+
 			pdfRulerUnits->setCurrentIndex(kDefault_PreviewRulerUnits);
 			pdfRulerShow->setChecked(kDefault_PreviewRulerShow);
 
 			resolution->setDpi(QApplication::screens().first()->physicalDotsPerInch());
+
+			pdfPageCacheSizeMiB->setValue(kDefault_PDFPageCacheSizeMiB);
 
 			switch (TWSynchronizer::kDefault_Resolution_ToTeX) {
 				case TWSynchronizer::CharacterResolution:
@@ -631,11 +635,16 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			break;
 	}
 
+	dlg.pdfPaperColor->setColor(settings.value(QStringLiteral("pdfPaperColor"), QVariant::fromValue<QColor>(kDefault_PaperColor)).value<QColor>());
+
 	dlg.pdfRulerUnits->setCurrentIndex(settings.value(QStringLiteral("pdfRulerUnits"), kDefault_PreviewRulerUnits).toInt());
 	dlg.pdfRulerShow->setChecked(settings.value(QStringLiteral("pdfRulerShow"), kDefault_PreviewRulerShow).toBool());
 
 	double oldResolution = settings.value(QString::fromLatin1("previewResolution"), QApplication::screens().first()->physicalDotsPerInch()).toDouble();
 	dlg.resolution->setDpi(oldResolution);
+
+	const int oldPDFPageCacheSize = settings.value(QStringLiteral("pdfPageCacheSizeMiB"), kDefault_PDFPageCacheSizeMiB).toInt();
+	dlg.pdfPageCacheSizeMiB->setValue(oldPDFPageCacheSize);
 
 	int oldSyncToTeX = settings.value(QString::fromLatin1("syncResolutionToTeX"), TWSynchronizer::kDefault_Resolution_ToTeX).toInt();
 	dlg.cbSyncToTeX->setCurrentIndex(oldSyncToTeX);
@@ -810,6 +819,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 				break;
 		}
 
+		settings.setValue(QStringLiteral("pdfPaperColor"), dlg.pdfPaperColor->color());
+
 		settings.setValue(QStringLiteral("pdfRulerUnits"), dlg.pdfRulerUnits->currentIndex());
 		settings.setValue(QStringLiteral("pdfRulerShow"), dlg.pdfRulerShow->isChecked());
 
@@ -822,6 +833,10 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 					thePdfDoc->setResolution(resolution);
 			}
 		}
+
+		const int pdfPageCacheSize = dlg.pdfPageCacheSizeMiB->value();
+		settings.setValue(QStringLiteral("pdfPageCacheSizeMiB"), pdfPageCacheSize);
+		QtPDF::Backend::Document::pageCache().setMaxCost(pdfPageCacheSize * 1024 * 1024);
 
 		int syncToTeX = dlg.cbSyncToTeX->currentIndex();
 		if (syncToTeX != oldSyncToTeX)

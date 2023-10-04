@@ -5962,7 +5962,7 @@ Elija un nombre de fichero diferente.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Frame load interruped by policy change</source>
+        <source>Frame load interrupted by policy change</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

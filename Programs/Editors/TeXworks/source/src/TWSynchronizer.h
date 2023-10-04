@@ -1,6 +1,6 @@
 /*
   This is part of TeXworks, an environment for working with TeX documents
-  Copyright (C) 2014-2021  Stefan Löffler, Jonathan Kew
+  Copyright (C) 2014-2022  Stefan Löffler, Jonathan Kew
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -45,8 +45,8 @@ public:
   struct TeXSyncPoint {
     QString filename;
     int line;
-    int col;
-    int len;
+    QString::size_type col;
+    QString::size_type len;
 
     bool operator==(const TeXSyncPoint & o) const {
       return (filename == o.filename && line == o.line && col == o.col && len == o.len);
@@ -104,7 +104,7 @@ protected:
   void _syncFromTeXFine(const TeXSyncPoint & src, PDFSyncPoint & dest, const Resolution resolution) const;
   void _syncFromPDFFine(const PDFSyncPoint & src, TeXSyncPoint & dest, const Resolution resolution) const;
 
-  static int _findCorrespondingPosition(const QString & srcContext, const QString & destContext, const int col, bool & unique);
+  static QString::size_type _findCorrespondingPosition(const QString & srcContext, const QString & destContext, const QString::size_type col, bool & unique);
 
   SyncTeX::synctex_scanner_p _scanner;
   TeXLoader m_TeXLoader;

@@ -4053,7 +4053,7 @@ Por favor escolha um nome de arquivo diferente.</translation>
         <translation>Não é possível exibir a URL</translation>
     </message>
     <message>
-        <source>Frame load interruped by policy change</source>
+        <source>Frame load interrupted by policy change</source>
         <translation>O carregamento do frame foi interrompido por uma mudança de política</translation>
     </message>
     <message>

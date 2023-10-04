@@ -4051,7 +4051,7 @@ Lütfen farklı bir dosya adı seçin.</translation>
         <translation>URL gösterilemiyor</translation>
     </message>
     <message>
-        <source>Frame load interruped by policy change</source>
+        <source>Frame load interrupted by policy change</source>
         <translation>Politika değişimi yüzünden çerçeve yükleme kesildi</translation>
     </message>
     <message>

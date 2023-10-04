@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ void TemplateDialog::init()
 		TeXHighlighter * highlighter = new TeXHighlighter(texDoc);
 		// For now, we use "LaTeX" highlighting for all files (which is probably
 		// reasonable in most/typical cases)
-		int idx = TeXHighlighter::syntaxOptions().indexOf(QStringLiteral("LaTeX"));
+		int idx = static_cast<int>(TeXHighlighter::syntaxOptions().indexOf(QStringLiteral("LaTeX")));
 		if (idx >= 0)
 			highlighter->setActiveIndex(idx);
 	}

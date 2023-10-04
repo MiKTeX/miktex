@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2017-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2017-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,6 +29,12 @@
 class BibTeXFile
 {
 public:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  using size_type = int;
+#else
+  using size_type = qsizetype;
+#endif
+
 	class Entry {
 		friend BibTeXFile;
 	public:
@@ -69,9 +75,9 @@ public:
 
 	bool load(const QString & filename);
 protected:
-	static int readEntry(Entry & e, const QByteArray & content, int curPos, const QTextCodec * codec);
+  static size_type readEntry(Entry & e, const QByteArray & content, const size_type startPos, const QTextCodec * codec);
 	static void parseEntry(Entry & e, const QString & block);
-	static void parseFields(Entry & e, const QString & block, int pos = 0);
+  static void parseFields(Entry & e, const QString & block, const size_type startPos = 0);
 
 	QList<Entry> _entries;
 };

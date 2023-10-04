@@ -252,8 +252,7 @@ private:
 	void hideConsole();
 	void updateTypesettingAction();
 	void conditionallyEnableRemoveAuxFiles();
-	void findRootFilePath();
-	const QString& getRootFilePath();
+	QString getRootFilePath() const { return textDoc()->getRootFilePath(); }
 	void maybeCenterSelection(int oldScrollValue = -1);
 	void presentResults(const QList<SearchResult>& results);
 	void showLineEndingSetting();
@@ -272,7 +271,6 @@ private:
 	// them, we need to keep track of them ourselves.
 	bool utf8BOM{false};
 	int lineEndings{kLineEnd_LF};
-	QString rootFilePath;
 	QDateTime lastModified;
 	qreal m_lineSpacing{kDefault_LineSpacing};
 

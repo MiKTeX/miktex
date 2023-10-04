@@ -775,23 +775,23 @@
           </widget>
          </item>
          <item row="1" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>Paper color:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="Tw::UI::ColorButton" name="pdfPaperColor"/>
+         </item>
+         <item row="2" column="0">
           <widget class="QLabel" name="label_18">
            <property name="text">
             <string>Ruler:</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Screen resolution:</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1">
-          <widget class="Tw::UI::ScreenCalibrationWidget" name="resolution" native="true"/>
-         </item>
-         <item row="1" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_15">
            <item>
             <widget class="QComboBox" name="pdfRulerUnits">
@@ -820,6 +820,48 @@
             </widget>
            </item>
           </layout>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Screen resolution:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="Tw::UI::ScreenCalibrationWidget" name="resolution" native="true"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Render Cache:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="pdfPageCacheSizeMiB">
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::PlusMinus</enum>
+           </property>
+           <property name="correctionMode">
+            <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+           </property>
+           <property name="suffix">
+            <string extracomment="abbreviation of megabytes"> MB</string>
+           </property>
+           <property name="minimum">
+            <number>64</number>
+           </property>
+           <property name="maximum">
+            <number>2000</number>
+           </property>
+           <property name="singleStep">
+            <number>16</number>
+           </property>
+           <property name="value">
+            <number>1024</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -1288,6 +1330,11 @@
    <header>ui/ScreenCalibrationWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>Tw::UI::ColorButton</class>
+   <extends>QToolButton</extends>
+   <header>ui/ColorButton.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
@@ -1327,6 +1374,7 @@
   <tabstop>circularMag</tabstop>
   <tabstop>pdfPageMode</tabstop>
   <tabstop>resolution</tabstop>
+  <tabstop>pdfPageCacheSizeMiB</tabstop>
   <tabstop>binPathList</tabstop>
   <tabstop>pathUp</tabstop>
   <tabstop>pathDown</tabstop>

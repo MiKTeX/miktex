@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * dvisvgm 3.1.1
+* texworks 0.6.8
 
 ## 23.9.24 - 2023-9-24
 

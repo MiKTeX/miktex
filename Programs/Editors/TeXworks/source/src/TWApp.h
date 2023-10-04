@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2023  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #ifndef TWApp_H
 #define TWApp_H
 
+#include "InterProcessCommunicator.h"
 #include "utils/TypesetManager.h"
 
 #include <QAction>
@@ -37,6 +38,8 @@
 #include <QString>
 #include <QTextCodec>
 #include <QVariant>
+
+#include <memory>
 
 class Engine;
 class TWScriptManager;
@@ -58,6 +61,7 @@ class TWScriptManager;
 // general constants used by multiple document types
 const int kStatusMessageDuration = 3000;
 const int kNewWindowOffset = 32;
+const int kDefaultMaxRecentFiles = 20;
 
 class TWApp : public QApplication
 {
@@ -148,7 +152,7 @@ public:
 	void recreateSpecialMenuItems();
 private:
 	// on the Mac only, we have a top-level app menu bar, including its own copy of the recent files menu
-	QMenuBar *menuBar;
+	QMenuBar *menuBar{nullptr};
 
 	QMenu *menuFile{nullptr};
 	QAction *actionNew{nullptr};
@@ -244,28 +248,41 @@ protected:
 	bool event(QEvent *) override;
 
 private:
+	struct CommandLineData {
+		struct fileToOpenStruct {
+			QString filename;
+			int position;
+		};
+		bool shouldContinue{true};
+		std::vector<fileToOpenStruct> filesToOpen;
+	};
+
 	void init();
+	CommandLineData processCommandLine();
+	bool ensureSingleInstance(const CommandLineData & cld);
+	void exitLater(int retCode);
 
 	void arrangeWindows(WindowArrangementFunction func);
 
-	int recentFilesLimit;
+	int recentFilesLimit{kDefaultMaxRecentFiles};
 
-	QTextCodec *defaultCodec;
+	QTextCodec *defaultCodec{nullptr};
 
-	QStringList *binaryPaths;
-	QStringList *defaultBinPaths;
-	QList<Engine> *engineList;
-	int defaultEngineIndex;
+	std::unique_ptr<QStringList> binaryPaths;
+	std::unique_ptr<QStringList> defaultBinPaths;
+	std::unique_ptr< QList<Engine> > engineList;
+	int defaultEngineIndex{0};
 
 	QList<QTranslator*> translators;
 
-	TWScriptManager *scriptManager;
+	TWScriptManager *scriptManager{nullptr};
 
 	QHash<QString, QVariant> m_globals;
 
 	Tw::Utils::TypesetManager m_typesetManager{this};
 
 	static TWApp *theAppInstance;
+	Tw::InterProcessCommunicator m_IPC;
 };
 
 inline TWApp *TWApp::instance()

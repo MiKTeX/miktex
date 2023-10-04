@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,8 +51,9 @@ private:
 	// scripts and subfolders are stored as children of the QObject
 };
 
-class TWScriptManager
+class TWScriptManager : public QObject
 {
+	Q_OBJECT
 public:
 	TWScriptManager();
 	virtual ~TWScriptManager() = default;

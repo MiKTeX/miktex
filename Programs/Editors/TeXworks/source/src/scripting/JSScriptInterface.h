@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2019  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2019-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ class JSScriptInterface : public QObject, public ScriptLanguageInterface
 	Q_INTERFACES(Tw::Scripting::ScriptLanguageInterface)
 
 public:
-	JSScriptInterface() = default;
+	JSScriptInterface(QObject * parent) : QObject(parent) { }
 	~JSScriptInterface() override = default;
 
 	Script* newScript(const QString& fileName) override;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2020-2023  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,6 +15,7 @@
 #ifndef PDFPageTile_H
 #define PDFPageTile_H
 
+#include <QHash>
 #include <QRect>
 
 #ifdef DEBUG
@@ -25,26 +26,26 @@ namespace QtPDF {
 
 namespace Backend {
 
+class Document;
+
 class PDFPageTile
 {
 public:
-  // TODO:
-  // We may want an application-wide cache instead of a document-specific cache
-  // to keep memory usage down. This may require an additional piece of
-  // information---the document that the page belongs to.
-  PDFPageTile(double xres, double yres, QRect render_box, int page_num):
+  PDFPageTile(double xres, double yres, QRect render_box, const Document * doc, int page_num):
     xres(xres), yres(yres),
     render_box(render_box),
+    doc(doc),
     page_num(page_num)
   {}
 
   double xres, yres;
   QRect render_box;
+  const Document * doc;
   int page_num;
 
   bool operator==(const PDFPageTile &other) const
   {
-    return (xres == other.xres && yres == other.yres && render_box == other.render_box && page_num == other.page_num);
+    return (xres == other.xres && yres == other.yres && render_box == other.render_box && doc == other.doc && page_num == other.page_num);
   }
 
   bool operator <(const PDFPageTile &other) const;
@@ -55,7 +56,7 @@ public:
 };
 
 // ### Cache for Rendered Images
-uint qHash(const PDFPageTile &tile) noexcept;
+decltype(::qHash(0)) qHash(const PDFPageTile &tile) noexcept;
 
 } // namespace Backend
 

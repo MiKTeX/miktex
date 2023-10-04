@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2008-2022 Christian Schenk
+## Copyright (C) 2008-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -22,8 +22,11 @@ set(qtpdf_sources
     ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.cpp
     ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.cpp
     ${projdir}/source/modules/QtPDF/src/PDFGuideline.cpp
+    ${projdir}/source/modules/QtPDF/src/PDFPageCache.cpp
+    ${projdir}/source/modules/QtPDF/src/PDFPageProcessingThread.cpp
     ${projdir}/source/modules/QtPDF/src/PDFPageTile.cpp
     ${projdir}/source/modules/QtPDF/src/PDFRuler.cpp
+    ${projdir}/source/modules/QtPDF/src/PDFSearcher.cpp 
     ${projdir}/source/modules/QtPDF/src/PDFToC.cpp
     ${projdir}/source/modules/QtPDF/src/PDFTransitions.cpp
     ${projdir}/source/modules/QtPDF/src/PaperSizes.cpp
@@ -40,9 +43,13 @@ set(qtpdf_headers
     ${projdir}/source/modules/QtPDF/src/PDFDocumentView.h
     ${projdir}/source/modules/QtPDF/src/PDFDocumentWidget.h
     ${projdir}/source/modules/QtPDF/src/PDFFontDescriptor.h
+    ${projdir}/source/modules/QtPDF/src/PDFFontInfo.h
     ${projdir}/source/modules/QtPDF/src/PDFGuideline.h
+    ${projdir}/source/modules/QtPDF/src/PDFPageCache.h
+    ${projdir}/source/modules/QtPDF/src/PDFPageProcessingThread.h
     ${projdir}/source/modules/QtPDF/src/PDFPageTile.h
     ${projdir}/source/modules/QtPDF/src/PDFRuler.h
+    ${projdir}/source/modules/QtPDF/src/PDFSearcher.h
     ${projdir}/source/modules/QtPDF/src/PDFToC.h
     ${projdir}/source/modules/QtPDF/src/PDFTransitions.h
     ${projdir}/source/modules/QtPDF/src/PaperSizes.h

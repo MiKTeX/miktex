@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2020-2022  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,8 @@
 #include <QColor>
 #include <QString>
 
+#include <memory>
+
 namespace QtPDF {
 
 namespace Backend {
@@ -31,12 +33,11 @@ public:
 
   PDFToCItem(const QString label = QString()) : _label(label) { }
   PDFToCItem(const PDFToCItem & o);
-  virtual ~PDFToCItem();
   PDFToCItem & operator=(const PDFToCItem & o);
 
   QString label() const { return _label; }
   bool isOpen() const { return _isOpen; }
-  PDFAction * action() const { return _action; }
+  PDFAction * action() const { return _action.get(); }
   QColor color() const { return _color; }
   const QList<PDFToCItem> & children() const { return _children; }
   QList<PDFToCItem> & children() { return _children; }
@@ -45,7 +46,7 @@ public:
 
   void setLabel(const QString label) { _label = label; }
   void setOpen(const bool isOpen = true) { _isOpen = isOpen; }
-  void setAction(PDFAction * action);
+  void setAction(std::unique_ptr<PDFAction> action);
   void setColor(const QColor color) { _color = color; }
 
   bool operator==(const PDFToCItem & o) const;
@@ -53,7 +54,7 @@ public:
 protected:
   QString _label;
   bool _isOpen{false}; // derived from the sign of the `Count` member of the outline item dictionary
-  PDFAction * _action{nullptr}; // if the `Dest` member of the outline item dictionary is set, it must be converted to a PDFGotoAction
+  std::unique_ptr<PDFAction> _action; // if the `Dest` member of the outline item dictionary is set, it must be converted to a PDFGotoAction
   QColor _color;
   QList<PDFToCItem> _children;
   PDFToCItemFlags _flags;

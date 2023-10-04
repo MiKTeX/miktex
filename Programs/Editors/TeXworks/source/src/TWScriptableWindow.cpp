@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,15 +34,14 @@
 #if WITH_QTSCRIPT
 #	include "scripting/JSScriptInterface.h"
 #endif
-#include "scripting/ScriptAPI.h"
 #include "scripting/ScriptLanguageInterface.h"
+#include "utils/WindowManager.h"
 
 #include <QAction>
 #include <QDockWidget>
 #include <QFile>
 #include <QMenu>
 #include <QMessageBox>
-#include <QSignalMapper>
 #include <QStatusBar>
 #include <QToolBar>
 
@@ -58,12 +57,6 @@ TWScriptableWindow::initScriptable(QMenu* theScriptsMenu,
 	connect(manageScriptsAction, &QAction::triggered, this, &TWScriptableWindow::doManageScripts);
 	connect(updateScriptsAction, &QAction::triggered, TWApp::instance(), &TWApp::updateScriptsList);
 	connect(showScriptsFolderAction, &QAction::triggered, TWApp::instance(), &TWApp::showScriptsFolder);
-	scriptMapper = new QSignalMapper(this);
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-	connect(scriptMapper, static_cast<void (QSignalMapper::*)(QObject*)>(&QSignalMapper::mapped), this, [=](QObject * script) { this->runScript(script); });
-#else
-	connect(scriptMapper, &QSignalMapper::mappedObject, this, [=](QObject * script) { this->runScript(script); });
-#endif
 	staticScriptMenuItemCount = scriptsMenu->actions().count();
 
 	connect(TWApp::instance(), &TWApp::scriptListChanged, this, &TWScriptableWindow::updateScriptsMenu);
@@ -81,18 +74,17 @@ TWScriptableWindow::updateScriptsMenu()
 }
 
 void
-TWScriptableWindow::removeScriptsFromMenu(QMenu *menu, int startIndex /* = 0 */)
+TWScriptableWindow::removeScriptsFromMenu(QMenu *menu, QList<QAction*>::size_type startIndex /* = 0 */)
 {
 	if (!menu)
 		return;
 
 	QList<QAction*> actions = menu->actions();
-	for (int i = startIndex; i < actions.count(); ++i) {
+	for (auto i = startIndex; i < actions.count(); ++i) {
 		// if this is a popup menu, make sure all its children are destroyed
 		// first, or else old QActions may still be floating around somewhere
 		if (actions[i]->menu())
 			removeScriptsFromMenu(actions[i]->menu());
-		scriptMapper->removeMappings(actions[i]);
 		scriptsMenu->removeAction(actions[i]);
 		actions[i]->deleteLater();
 	}
@@ -109,7 +101,7 @@ TWScriptableWindow::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 				continue;
 			if (script->getContext().isEmpty() || script->getContext() == scriptContext()) {
 				QAction *a = menu->addAction(script->getTitle());
-				connect(script, &Tw::Scripting::Script::destroyed, this, &TWScriptableWindow::scriptDeleted);
+				connect(script, &Tw::Scripting::Script::destroyed, this, [this,a]() { scriptsMenu->removeAction(a); });
 				if (!script->getKeySequence().isEmpty())
 					a->setShortcut(script->getKeySequence());
 //				a->setEnabled(script->isEnabled());
@@ -117,8 +109,7 @@ TWScriptableWindow::addScriptsToMenu(QMenu *menu, TWScriptList *scripts)
 				// customization process of keyboard shortcuts in the future
 				a->setObjectName(QString::fromLatin1("Script: %1").arg(script->getTitle()));
 				a->setStatusTip(script->getDescription());
-				scriptMapper->setMapping(a, script);
-				connect(a, &QAction::triggered, scriptMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+				connect(a, &QAction::triggered, this, [this, script](){ runScript(script); });
 				++count;
 			}
 			continue;
@@ -189,7 +180,11 @@ TWScriptableWindow::doAboutScripts()
 	aboutText += QLatin1String("</p><ul>");
 	foreach (const QObject * plugin,
 			 TWApp::instance()->getScriptManager()->languages()) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
 		const Tw::Scripting::ScriptLanguageInterface * i = qobject_cast<Tw::Scripting::ScriptLanguageInterface*>(plugin);
+#else
+		const Tw::Scripting::ScriptLanguageInterface * i = qobject_cast<const Tw::Scripting::ScriptLanguageInterface*>(plugin);
+#endif
 		if(!i) continue;
 		const bool isPlugin = (
 #if WITH_QTSCRIPT
@@ -243,12 +238,12 @@ void TWScriptableWindow::showFloaters()
 
 void TWScriptableWindow::placeOnLeft()
 {
-	TWUtils::zoomToHalfScreen(this, false);
+	Tw::Utils::WindowManager::zoomToHalfScreen(this, false);
 }
 
 void TWScriptableWindow::placeOnRight()
 {
-	TWUtils::zoomToHalfScreen(this, true);
+	Tw::Utils::WindowManager::zoomToHalfScreen(this, true);
 }
 
 void TWScriptableWindow::selectWindow(bool activate)
@@ -260,18 +255,3 @@ void TWScriptableWindow::selectWindow(bool activate)
 	if (isMinimized())
 		showNormal();
 }
-
-void TWScriptableWindow::scriptDeleted(QObject * obj)
-{
-	if (!obj || !scriptMapper)
-		return;
-
-	QAction * a = qobject_cast<QAction*>(scriptMapper->mapping(obj));
-	if (!a)
-		return;
-
-	// a script got deleted that we still have in the menu => remove it
-	scriptMapper->removeMappings(a);
-	scriptsMenu->removeAction(a);
-}
-

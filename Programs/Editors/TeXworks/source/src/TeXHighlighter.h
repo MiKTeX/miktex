@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2020  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ public slots:
 
 protected:
 	virtual void highlightBlock(const QString & text) = 0;
-	void setFormat(const int start, const int count, const QTextCharFormat & format);
+	void setFormat(const QString::size_type start, const QString::size_type count, const QTextCharFormat & format);
 	QTextBlock currentBlock() const { return _currentBlock; }
 	int currentBlockState() const { return _currentBlock.userState(); }
 	int previousBlockState() const { return _currentBlock.previous().userState(); }
@@ -120,7 +120,7 @@ public:
 protected:
 	void highlightBlock(const QString &text) override;
 
-	void spellCheckRange(const QString &text, int index, int limit, const QTextCharFormat &spellFormat);
+	void spellCheckRange(const QString &text, QString::size_type index, QString::size_type limit, const QTextCharFormat &spellFormat);
 
 private:
 	static void loadPatterns();

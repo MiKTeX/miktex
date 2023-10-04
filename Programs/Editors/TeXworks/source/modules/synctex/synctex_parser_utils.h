@@ -85,6 +85,12 @@ extern "C" {
 #	else
 #		define SYNCTEX_ARE_PATH_CHARACTERS_EQUAL(left,right) (toupper(left) != toupper(right))
 #	endif
+
+#	if defined(_MSC_VER)
+#		define SYNCTEX_ATTRIBUTE_FORMAT_PRINTF(STRING_INDEX, FIRST_TO_CHECK)
+#	else
+#		define SYNCTEX_ATTRIBUTE_FORMAT_PRINTF(STRING_INDEX, FIRST_TO_CHECK) __attribute__((__format__ (__printf__, (STRING_INDEX), (FIRST_TO_CHECK))))
+#	endif
     
 /*  This custom malloc functions initializes to 0 the newly allocated memory.
  *  There is no bzero function on windows. */

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020  Charlie Sharpsteen, Stefan Löffler
+ * Copyright (C) 2020-2023  Charlie Sharpsteen, Stefan Löffler
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,8 +14,10 @@
 
 #include "PDFPageTile.h"
 
-#include <QHash>
 #include <QPair>
+#include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 3, 0)
 
@@ -78,12 +80,13 @@ PDFPageTile::operator QString() const
 }
 #endif
 
-// ### Cache for Rendered Images
-uint qHash(const PDFPageTile &tile) noexcept
+// Overlad qHash so PDFPageTile can be used, e.g., in a QMap or QCache
+decltype(::qHash(0)) qHash(const PDFPageTile &tile) noexcept
 {
-  uint h1 = ::qHash(QPair<uint, uint>(::qHash(tile.xres), ::qHash(tile.yres)));
-  uint h2 = ::qHash(QPair<uint,int>(::qHash(tile.render_box), tile.page_num));
-  return ::qHash(QPair<uint, uint>(h1, h2));
+  QByteArray ba;
+  QDataStream strm{&ba, QIODevice::WriteOnly};
+  strm << tile.xres << tile.yres << tile.render_box << reinterpret_cast<quint64>(tile.doc) << tile.page_num;
+  return ::qHash(ba);
 }
 
 } // namespace Backend

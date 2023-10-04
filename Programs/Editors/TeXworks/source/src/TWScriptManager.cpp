@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2021  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2022  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -88,9 +88,9 @@ void TWScriptManager::loadPlugins()
 {
 	// the JSScript interface isn't really a plugin, but provides the same interface
 #if WITH_QTSCRIPT
-	scriptLanguages += new Tw::Scripting::JSScriptInterface();
+	scriptLanguages += new Tw::Scripting::JSScriptInterface(this);
 #endif
-	scriptLanguages += new Tw::Scripting::ECMAScriptInterface();
+	scriptLanguages += new Tw::Scripting::ECMAScriptInterface(this);
 
 	// get any static plugins
 	foreach (QObject *plugin, QPluginLoader::staticInstances()) {
