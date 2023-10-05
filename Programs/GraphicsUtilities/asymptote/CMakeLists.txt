@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2017-2022 Christian Schenk
+## Copyright (C) 2017-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -73,7 +73,7 @@ configure_file(
 )
 
 configure_file(
-    asy.rc.cmake
+    windows/asy.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/asy.rc
 )
 
