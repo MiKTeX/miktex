@@ -14,7 +14,7 @@
 IDI_ICON1 ICON DISCARDABLE "source/asy.ico"
 #endif
 
-#include "asy-version.h"
+#include "miktex-asy-version.h"
 
 #define VER_FILEDESCRIPTION_STR "@MIKTEX_COMP_DESCRIPTION@"
 #define VER_INTERNALNAME_STR "asy"

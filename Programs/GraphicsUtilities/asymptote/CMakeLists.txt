@@ -68,13 +68,13 @@ configure_file(
 )
 
 configure_file(
-    asy-version.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
+    miktex-asy-version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-asy-version.h
 )
 
 configure_file(
-    windows/asy.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/asy.rc
+    windows/miktex-asy.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-asy.rc
 )
 
 set(camp_sources
@@ -337,7 +337,7 @@ set(symbol_headers
 )
 
 set(miktex_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-asy-version.h
     ${MIKTEX_LIBRARY_WRAPPER}
     miktex/InProcPipe.h
     miktex/PipeStream.cpp
@@ -366,7 +366,7 @@ set_source_files_properties(source/glew.c
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND asy_sources
         ${MIKTEX_COMMON_MANIFEST}
-        ${CMAKE_CURRENT_BINARY_DIR}/asy.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/miktex-asy.rc
     )
 endif()
 
