@@ -258,6 +258,7 @@ set(core_headers
     source/newexp.h
     source/opcodes.h
     source/pair.h
+    source/parallel.h
     source/parser.h
     source/path.h
     source/path3.h

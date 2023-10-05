@@ -21,6 +21,9 @@
 /* Define to 1 if you have the <editline/readline.h> header file. */
 #cmakedefine HAVE_EDITLINE_READLINE_H 1
 
+/* Define to 1 if you have the <Eigen/Dense> header file. */
+#cmakedefine HAVE_EIGEN_DENSE 1
+
 /* Define to 1 if you have the `feenableexcept' function. */
 #cmakedefine HAVE_FEENABLEEXCEPT 1
 
@@ -111,9 +114,6 @@
 /* Define to 1 if you have Language server protocol. */
 #cmakedefine HAVE_LSP 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to 1 if you have the `memrchr' function. */
 #cmakedefine HAVE_MEMRCHR 1
 
@@ -149,6 +149,9 @@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#cmakedefine HAVE_STDIO_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
@@ -226,7 +229,9 @@
    your system. */
 #cmakedefine PTHREAD_CREATE_JOINABLE
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #cmakedefine STDC_HEADERS 1
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
@@ -257,7 +262,7 @@
 #cmakedefine inline
 #endif
 
-/* Define to `int' if <sys/types.h> does not define. */
+/* Define as a signed integer type capable of holding a process identifier. */
 #cmakedefine pid_t
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
