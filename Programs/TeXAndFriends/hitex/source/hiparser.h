@@ -124,21 +124,22 @@ extern int yydebug;
     MID = 325,                     /* "mid"  */
     LINK = 326,                    /* "link"  */
     OUTLINE = 327,                 /* "outline"  */
-    STREAM = 328,                  /* "stream"  */
-    STREAMDEF = 329,               /* "stream (definition)"  */
-    FIRST = 330,                   /* "first"  */
-    LAST = 331,                    /* "last"  */
-    TOP = 332,                     /* "top"  */
-    NOREFERENCE = 333,             /* "*"  */
-    PAGE = 334,                    /* "page"  */
-    RANGE = 335,                   /* "range"  */
-    DIRECTORY = 336,               /* "directory"  */
-    SECTION = 337,                 /* "entry"  */
-    DEFINITIONS = 338,             /* "definitions"  */
-    MAX = 339,                     /* "max"  */
-    PARAM = 340,                   /* "param"  */
-    FONT = 341,                    /* "font"  */
-    CONTENT = 342                  /* "content"  */
+    UNKNOWN = 328,                 /* "unknown"  */
+    STREAM = 329,                  /* "stream"  */
+    STREAMDEF = 330,               /* "stream (definition)"  */
+    FIRST = 331,                   /* "first"  */
+    LAST = 332,                    /* "last"  */
+    TOP = 333,                     /* "top"  */
+    NOREFERENCE = 334,             /* "*"  */
+    PAGE = 335,                    /* "page"  */
+    RANGE = 336,                   /* "range"  */
+    DIRECTORY = 337,               /* "directory"  */
+    SECTION = 338,                 /* "entry"  */
+    DEFINITIONS = 339,             /* "definitions"  */
+    MAX = 340,                     /* "max"  */
+    PARAM = 341,                   /* "param"  */
+    FONT = 342,                    /* "font"  */
+    CONTENT = 343                  /* "content"  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -149,7 +150,7 @@ union YYSTYPE
 {
 #line 79 "parser.y"
 
-	#line 10802 "format.w"
+	#line 11164 "format.w"
 	uint32_t u;  int32_t i;  char *s;  float64_t f;  Glyph c;
 	Dimen d;Stretch st;Xdimen xd;Kern kt;
 	Rule r;Glue g;Image x;
@@ -157,7 +158,7 @@ union YYSTYPE
 	Ref rf;Info info;Order o;bool b;
 	
 
-#line 161 "hiparser.h"
+#line 162 "hiparser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -47,10 +47,6 @@
 \titletrue
 
 
-\def\setrevision$#1: #2 ${\gdef\lastrevision{#2}}
-\setrevision$Revision$
-\def\setdate$#1(#2) ${\gdef\lastdate{#2}}
-\setdate$Date$
 
 \null
 
@@ -160,7 +156,8 @@ ISBN-13: 979-854992684-4\par
 First printing: August 2019\par
 Second edition: August 2021\par
 \medskip
-Revision: \lastrevision,\quad Date: \lastdate\par
+\def\lastrevision{Date: Thu Aug 17 14:00:42 2023}
+\lastrevision\par
 }
 }
 \endgroup
@@ -473,22 +470,25 @@ Now let's see how writing the short format works in detail.
 
   
 \subsection{Writing the Short Format}
-A content node in short form begins with a start\index{start byte} byte. It tells us what kind of node it is.
-To describe the content of a short \HINT\ file, 32 different kinds\index{kind} of nodes are defined.
-Hence the kind of a node can be stored in 5 bits and the remaining bits of the start byte
-can be used to contain a 3 bit ``info''\index{info} value. 
+A content node in short form begins with a start\index{start byte}
+byte. It tells us what kind of node it is.  To describe the content of
+a short \HINT\ file, 32 different kinds\index{kind} of nodes are
+defined.  Hence the kind of a node can be stored in 5 bits and the
+remaining bits of the start byte can be used to contain a 3 bit
+``info''\index{info} value.
 
-We define an enumeration type to give symbolic names to the kind-values.
-The exact numerical values are of no specific importance;
-we will see in section~\secref{text}, however, that the assignment chosen below,
-has certain advantages.
+We define an enumeration type to give symbolic names to the
+kind-values.  The exact numerical values are of no specific
+importance; we will see in section~\secref{text}, however, that the
+assignment chosen below, has certain advantages.
  
-Because the usage of kind-values in content nodes is 
-slightly different from the usage in definition nodes, we define alternative names for some kind-values.
-To display readable names instead of numerical values when debugging,
-we define two arrays of strings as well. Keeping the definitions consistent
-is achieved by creating all definitions from the same list
-of identifiers using different definitions of the macro |DEF_KIND|.
+Because the usage of kind-values in content nodes is slightly
+different from the usage in definition nodes, we define alternative
+names for some kind-values.  To display readable names instead of
+numerical values when debugging, we define two arrays of strings as
+well. Keeping the definitions consistent is achieved by creating all
+definitions from the same list of identifiers using different
+definitions of the macro |DEF_KIND|.
 
 @<hint basic types@>=
 #define DEF_KIND(C,D,N) @[C##_kind=N@]
@@ -556,13 +556,12 @@ printf("};\n\n");
 \index{range kind+\\{range\_kind}}
 \index{adjust kind+\\{adjust\_kind}}
 \index{param kind+\\{param\_kind}}
-\index{text kind+\\{text\_kind}}
 \index{list kind+\\{list\_kind}}
 \label{kinddef}
 @<kinds@>=
-DEF_KIND(t@&ext,t@&ext,0),@/
-DEF_KIND(l@&ist,l@&ist,1),@/
-DEF_KIND(p@&aram,p@&aram,2),@/
+DEF_KIND(l@&ist,l@&ist,0),@/
+DEF_KIND(p@&aram,p@&aram,1),@/
+DEF_KIND(r@&ange,r@&ange,2),@/
 DEF_KIND(x@&dimen,x@&dimen,3),@/
 DEF_KIND(a@&djust,a@&djust,4),@/
 DEF_KIND(g@&lyph, f@&ont,5),@/
@@ -587,8 +586,8 @@ DEF_KIND(h@&pack,h@&pack,23),@/
 DEF_KIND(v@&pack,v@&pack,24),@/
 DEF_KIND(s@&tream,s@&tream,25),@/
 DEF_KIND(p@&age,p@&age,26),@/
-DEF_KIND(r@&ange,r@&ange,27),@/
-DEF_KIND(l@&ink,l@&abel,28),@/
+DEF_KIND(l@&ink,l@&abel,27),@/
+DEF_KIND(u@&ndefined1,u@&ndefined1,28),@/
 DEF_KIND(u@&ndefined2,u@&ndefined2,29),@/
 DEF_KIND(u@&ndefined3,u@&ndefined3,30),@/
 DEF_KIND(p@&enalty, i@&nt,31)
@@ -599,7 +598,7 @@ For a few kind-values we have
 alternative names; we will use them
 to express different intentions when using them.
 @<alternative kind names@>=
-font_kind=glyph_kind,int_kind=penalty_kind, dimen_kind=kern_kind, label_kind=link_kind, outline_kind=link_kind@/@t{}@>
+font_kind=glyph_kind,int_kind=penalty_kind, unknown_kind=penalty_kind, dimen_kind=kern_kind, label_kind=link_kind, outline_kind=link_kind@/@t{}@>
 @
 
 The info\index{info value} values can be used to represent numbers in the range 0 to 7; for an example
@@ -637,6 +636,10 @@ duplicated after the content as an end\index{end byte} byte.
 
 
 We store a kind and an info value in one byte and call this a tag.
+@<hint basic types@>=
+typedef uint8_t Tag;
+@
+
 The following macros are used to assemble and disassemble tags:\index{TAG+\.{TAG}}
 @<hint macros@>=
 #define @[KIND(T)@]      (((T)>>3)&0x1F)
@@ -676,7 +679,7 @@ static uint8_t hput_n(uint32_t n)
   {@+HPUT32(n);@+ return 4;@+}
 }
 
-uint8_t hput_glyph(Glyph *g)
+Tag hput_glyph(Glyph *g)
 { Info info;
   info = hput_n(g->c);
   HPUT8(g->f);@/
@@ -687,7 +690,7 @@ The |hput_tags| function is called after the node content has been written to th
 stream. It gets a the position of the start byte and the tag. With this information
 it writes the start byte at the given position and the end byte at the current stream position.
 @<put functions@>=
-void hput_tags(uint32_t pos, uint8_t tag)
+void hput_tags(uint32_t pos, Tag tag)
 { DBGTAG(tag,hstart+pos);DBGTAG(tag,hpos);
   HPUTX(1); *(hstart+pos)=*(hpos++)=tag; @+
 }
@@ -716,7 +719,7 @@ The schema of  {\it hget\_\kern 1pt\dots\/}  functions reverse the schema of  {\
 Here is the code for the initial and final part of a get function:
 
 @<read the start byte |a|@>=
-uint8_t a,z; /* the start and the end byte*/
+Tag a,z; /* the start and the end byte*/
 uint32_t node_pos=hpos-hstart;
 if (hpos>=hend) QUIT("Attempt to read a start byte at the end of the section");
 HGETTAG(a);@/@t{}@>
@@ -756,22 +759,23 @@ reading routine (avoiding another switch statement).
 
 \codesection{\getsymbol}{Reading the Short Format}\getindex{1}{2}{Content Nodes}
 @<get functions@>=
-void hget_content(uint8_t a);
-uint8_t hget_content_node(void)
+static void hget_content(Tag a);
+Tag hget_content_node(void)
 { @<read the start byte |a|@>@;@+ hwrite_start();
-  hwritef("%s",content_name[KIND(a)]);
+  if (content_known[KIND(a)]&(1<<INFO(a))) hwritef("%s",content_name[KIND(a)]);
   hget_content(a);@/
   @<read and check the end byte |z|@>@; hwrite_end();
   return a;
 }
 
-void hget_content(uint8_t a)
+static void hget_content(Tag a)
 {@+
   switch (a)@/
   {@+
     @<cases to get content@>@;@t\1@>@/
     default:
-      TAGERR(a);
+      if (!hget_unknown(a))
+        TAGERR(a);
       break;@t\2@>@/
   }
 }
@@ -887,8 +891,8 @@ The two primitive operations to write the long format file are defined
 as macros:
 
 @<write macros@>=
-#define @[hwritec(c)@] @[putc(c,hout)@]
-#define @[hwritef(...)@] @[fprintf(hout,__VA_ARGS__)@]
+#define @[hwritec(c)@] @[(hout?putc(c,hout):0)@]
+#define @[hwritef(...)@] @[(hout?fprintf(hout,__VA_ARGS__):0)@]
 @
 
 
@@ -1035,7 +1039,8 @@ void hwrite_string(char *str)
   { hwritec('\''); 
     while (*str!=0)@/
     { @+if (*str=='\'') hwritec('\'');
-      hwritec(*str++);
+      hwritec(*str);
+      str++;
     }
     hwritec('\''); 
   } 
@@ -1489,15 +1494,18 @@ The inverse function is |hwrite_float64|. It strives to print floating point num
 as readable as possible. So numbers without fractional part are written as integers.
 Numbers that can be represented exactly in decimal notation are represented in
 decimal notation. All other values are written as hexadecimal floating point numbers. 
-We avoid an exponent if it can be avoided by using up to |MAX_HEX_DIGITS|
+We avoid an exponent if it can be avoided by using up to |MAX_HEX_DIGITS|.
+For the use with extended dimensions, floating point numbers should be printed as a suffix:
+without a leading space and with a mandatory sign.
 
 \writecode
 @<write functions@>=
 #define MAX_HEX_DIGITS 12
-void hwrite_float64(float64_t d)
+void hwrite_float64(float64_t d, bool suffix)
 { uint64_t bits, mantissa;
   int exp, digits;
-  hwritec(' '); 
+  if (!suffix) hwritec(' ');
+  else if (d>=0) hwritec('+'); 
   if (floor(d)==d) 
   { hwritef("%d",(int)d);@+ return;@+}
   if (floor(10000.0*d)==10000.0*d)
@@ -1644,7 +1652,7 @@ typedef int32_t Scaled;
 \writecode
 @<write functions@>=
 void hwrite_scaled(Scaled x)
-{ hwrite_float64(x/(float64_t)ONE);
+{ hwrite_float64(x/(float64_t)ONE, false);
 }
 @
 
@@ -1712,7 +1720,7 @@ void hwrite_dimension(Dimen x)
 In the short format, dimensions are stored as 32 bit scaled point values without conversion.
 \getcode
 @<get functions@>=
-void hget_dimen(uint8_t a)
+void hget_dimen(Tag a)
 { if (INFO(a)==b000)
   {uint8_t r; r=HGET8; REF(dimen_kind,r); hwrite_ref(r);}
   else
@@ -1723,7 +1731,7 @@ void hget_dimen(uint8_t a)
 \putcode
 @<put functions@>=
 
-uint8_t hput_dimen(Dimen d)
+Tag hput_dimen(Dimen d)
 { HPUT32(d);
   return TAG(dimen_kind, b001);
 }
@@ -1786,8 +1794,8 @@ xdimen_node: start XDIMEN xdimen END { hput_tags($1,hput_xdimen(&($3))); };
 @<write functions@>=
 void hwrite_xdimen(Xdimen *x)
 { hwrite_dimension(x->w); 
-  if (x->h!=0.0) {hwrite_float64(x->h); @+hwritec('h');@+}  
-  if (x->v!=0.0) {hwrite_float64(x->v); @+hwritec('v');@+}
+  if (x->h!=0.0) {hwrite_float64(x->h,true); @+hwritec('h');@+}  
+  if (x->v!=0.0) {hwrite_float64(x->v,true); @+hwritec('v');@+}
 }
 
 void hwrite_xdimen_node(Xdimen *x)
@@ -1804,7 +1812,7 @@ void hwrite_xdimen_node(Xdimen *x)
 @
 
 @<get functions@>=
-void hget_xdimen(uint8_t a, Xdimen *x)
+void hget_xdimen(Tag a, Xdimen *x)
 { switch(a)
   {
     case TAG(xdimen_kind,b001): HGET_XDIMEN(b001,*x);@+break;
@@ -1842,7 +1850,7 @@ void hget_xdimen_node(Xdimen *x)
 
 \putcode
 @<put functions@>=
-uint8_t hput_xdimen(Xdimen *x)
+Tag hput_xdimen(Xdimen *x)
 { Info info=b000;
   if (x->w==0 && x->h==0.0 && x->v==0.0){ HPUT32(0); @+info|=b100; @+} 
   else
@@ -1977,7 +1985,7 @@ void hwrite_order(Order o)
 }
 
 void hwrite_stretch(Stretch *s)
-{ hwrite_float64(s->f);
+{ hwrite_float64(s->f, false);
   hwrite_order(s->o);
 }
 @ 
@@ -1995,7 +2003,7 @@ The more general node is called an integer node;
 it shares the same kind-value |int_kind=penalty_kind|
 but allows the full range of values.  
 The info value of a penalty node is 1 or 2 and indicates the number of bytes
-used to store the integer. The info value 4 can be used for general
+used to store the integer. The info value 3 can be used for general
 integers (see section~\secref{definitions}) that need four byte of storage.
 
 \readcode
@@ -2022,28 +2030,30 @@ content_node: start PENALTY penalty END { hput_tags($1,hput_int($3));@+};
 @<cases to get content@>=
 @t\1\kern1em@>case TAG(penalty_kind,1):  @+{int32_t p;@+ HGET_PENALTY(1,p);@+} @+break;
 case TAG(penalty_kind,2):  @+{int32_t p;@+ HGET_PENALTY(2,p);@+} @+break;
+case TAG(penalty_kind,3):  @+{int32_t p;@+ HGET_PENALTY(3,p);@+} @+break;
 @
 
 @<get macros@>=
 #define @[HGET_PENALTY(I,P)@] \
 if (I==1) {int8_t n=HGET8;  @+P=n;@+ } \
-else {int16_t n;@+ HGET16(n);@+RNG("Penalty",n,-20000,+20000); @+ P=n; @+}\
+else if (I==2) {int16_t n;@+ HGET16(n);@+RNG("Penalty",n,-20000,+20000); @+ P=n; @+}\
+else if (I==3) {int32_t n;@+ HGET32(n);@+RNG("Penalty",n,-20000,+20000); @+ P=n; @+}\
 hwrite_signed(P);
 @
 
 \putcode
 @<put functions@>=
-uint8_t hput_int(int32_t n)
+Tag hput_int(int32_t n)
 { Info info;
   if (n>=0) @/
   { @+if (n<0x80) { @+HPUT8(n); @+info=1;@+ }
     else if (n<0x8000)  {@+ HPUT16(n);@+ info=2;@+ }
-    else  {@+ HPUT32(n);@+ info=4;@+ }
+    else  {@+ HPUT32(n);@+ info=3;@+ }
   }
   else@/
   {@+ if (n>=-0x80) {@+ HPUT8(n);@+ info=1;@+ }
     else if (n>=-0x8000)  {@+ HPUT16(n);@+ info=2;@+ }
-    else  {@+ HPUT32(n);@+ info=4;@+ }
+    else  {@+ HPUT32(n);@+ info=3;@+ }
   }
   return TAG(int_kind,info);
 }
@@ -2108,7 +2118,7 @@ case TAG(language_kind,7): REF(language_kind,6);  @+hwrite_ref(6); @+break;
 
 \putcode
 @<put functions@>=
-uint8_t hput_language(uint8_t n)
+Tag hput_language(uint8_t n)
 { if (n<7) return TAG(language_kind,n+1);
   HPUT8(n); return TAG(language_kind,0);
 }
@@ -2244,7 +2254,7 @@ void hget_rule_node(void)
 
 \putcode
 @<put functions@>=
-uint8_t hput_rule(Rule *r)
+Tag hput_rule(Rule *r)
 { Info info=b000;
   if (r->h!=RUNNING_DIMEN) { HPUT32(r->h); @+info|=b100; @+} 
   if (r->d!=RUNNING_DIMEN) { HPUT32(r->d); @+info|=b010; @+} 
@@ -2340,7 +2350,7 @@ hwrite_kern(&k);
 
 \putcode
 @<put functions@>=
-uint8_t hput_kern(Kern *k)
+Tag hput_kern(Kern *k)
 { Info info;
   if (k->x) info=b100; @+else info=b000;
   if (k->d.h==0.0 && k->d.v==0.0)
@@ -2586,7 +2596,7 @@ void hget_glue_node(void)
 
 \putcode
 @<put functions@>=
-uint8_t hput_glue(Glue *g)
+Tag hput_glue(Glue *g)
 { Info info=b000;
   if (ZERO_GLUE(*g)) { HPUT8(zero_skip_no); @+ info=b000; }
   else if ( (g->w.w==0 && g->w.h==0.0 && g->w.v==0.0)) 
@@ -2613,7 +2623,8 @@ a list\index{list} node.  It is important to note that list nodes
 never occur as individual nodes, they only occur as parts of other
 nodes.  In total, we have three different types of lists: plain lists
 that use the kind-value |list_kind|, text\index{text} lists that use
-the kind-value |text_kind|, and parameter\index{parameter} lists that use the
+the kind-value |list_kind| together with the info bit |b100|, 
+and parameter\index{parameter} lists that use the
 kind-value |param_kind|.  A description of the first two types of
 lists follows here. Parameter lists are described in section~\secref{paramlist}.
 
@@ -2668,11 +2679,13 @@ in either direction until finding a matching tag will not answer the
 question. The situation is better if we specify a
 size: we can read the suspected size after or before the tag and check if we
 find a matching tag and size at the position indicated. 
-In the short format, we use the |info| value to indicate the number of
-byte used to store the list size: A list with $0<|info|\le 5$ 
-uses $|info|-1$ byte to store the size.
-The info value zero is reserved for references to predefined lists
-(which are currently not implemented).
+
+In the short format, we use the two lower bits of the |info| value to indicate the number of
+byte used to store the list size: A list with $\hbox{|info&0x3|}=1$ uses 1 byte,
+with  $\hbox{|info&0x3|}=2$ uses 2 byte, and  with $\hbox{|info&0x3|}=3$ uses 4 byte.
+The |info&0x3| value zero is reserved for references to predefined lists.
+An empty list is always represented using zero as the reference number.
+General predefined lists are currently implemented only for parameter lists.
 
 Storing the list size immediately preceding the end tag creates a new
 problem: If we try to recover from an error, we might not know the
@@ -2683,15 +2696,14 @@ content backward, the problem is completely symmetric.
 
 To solve the problem, we insert an additional byte immediately before
 the final size and after the initial size marking the size boundary.
-We choose the byte values |0xFF|, |0xFE|, |0xFD|, and |0xFC| which can
+We choose the byte values |0xFF|, |0xFE|, and |0xFD| which can
 not be confused with valid tag bytes and indicate that the size is
-stored using 1, 2, 3, or 4 byte respectively.  Under regular
+stored using 1, 2, or 4 byte respectively.  Under regular
 circumstances, these bytes are simply skipped.  When searching for the
 list end (or start) these bytes would correspond to
-|TAG(penalty_kind,i)| with $7 \ge \hbox{|i|} \ge 4$ and can not be
+|TAG(penalty_kind,i)| with $7 \ge \hbox{|i|} \ge 5$ and can not be
 confused with valid penalty nodes which use only the info values 0, 1,
-and~2. An empty list uses the info value 1 and has neither a size bytes
-nor boundary bytes; it consists only of the two tags. 
+and~2. An empty list always uses the info value 0 and the reference value 0. 
 
 We are a bit lazy when it comes to the internal representation of a list.
 Since we need the representation as a short format byte sequence anyway, 
@@ -2701,7 +2713,7 @@ If the list is empty, |s| is zero.
 
 @<hint types@>=
 typedef struct {@+
-Kind k; @+
+Tag t;@+
 uint32_t p;@+
 uint32_t s;@+
 } List;
@@ -2775,11 +2787,8 @@ Hence as a default, we reserve two byte to store the size for texts.
 
 \subsection{Plain Lists}\label{plainlists}
 Plain list nodes start and end with a tag of kind |list_kind|.
-
-Not uncommon are empty\index{empty list} lists; these are the only lists that can be
-stored using $|info|=1$; such a list has zero bytes of size
-information, and no boundary bytes either; implicitly its size is zero. 
-The |info| value 0 is not used since we do not use predefined plain lists.
+Not uncommon are empty\index{empty list} lists; these can be
+stored using $|info|=0$ and a reference to the predefined empty list.
 
 Writing the long format uses the fact that the function
 |hget_content_node|, as implemented in the \.{stretch} program, will
@@ -2803,7 +2812,7 @@ content_list: @+ position @+
 estimate: {hpos+=2; } @+
         | UNSIGNED  {hpos+=hsize_bytes($1)+1; } ;
 list: start estimate content_list END @/
-          {@+$$.k=list_kind;@+ $$.p=$3; @+ $$.s=(hpos-hstart)-$3;
+          {@+$$.t=TAG(list_kind,b010);@+ $$.p=$3; @+ $$.s=(hpos-hstart)-$3;
            hput_tags($1,hput_list($1+1, &($$)));@+};
 @
 
@@ -2812,9 +2821,9 @@ list: start estimate content_list END @/
 void hwrite_list(List *l)
 { uint32_t h=hpos-hstart, e=hend-hstart; /* save |hpos| and |hend| */
   hpos=l->p+hstart;@+ hend=hpos+l->s;
-  if (l->k==list_kind ) @<write a list@>@;
-  else if (l->k==text_kind)  @<write a text@>@;
-  else QUIT("List expected got %s", content_name[l->k]);
+  if (KIND(l->t)==list_kind)
+  { if (INFO(l->t)&b100)  @<write a text@>@; else @<write a list@>@; }
+  else QUIT("List expected got %s", content_name[KIND(l->t)]);
   hpos=hstart+h;@+  hend=hstart+e; /* restore  |hpos| and |hend| */
 }
 @
@@ -2836,31 +2845,31 @@ void hwrite_list(List *l)
 @<shared get functions@>=
 void hget_size_boundary(Info info)
 { uint32_t n;
-  if (info<2) return;
+  info=info&0x3;
+  if (info==0) return;
   n=HGET8;
-  if (n-1!=0x100-info) QUIT(@["Size boundary byte 0x%x with info value %d at " SIZE_F@],
-                            n, info,hpos-hstart-1);
+  if (n!=0x100-info) QUIT("Non matching boundary byte 0x%x with info value %d at 0x%x",
+                            n, info,(uint32_t)(hpos-hstart-1));
 }
 
 uint32_t hget_list_size(Info info)
-{ uint32_t n=0;  
-  if (info==1) return 0;
-  else if (info==2) n=HGET8;
-  else if (info==3) HGET16(n);
-  else if (info==4) HGET24(n);
-  else if (info==5) HGET32(n);
-  else QUIT("List info %d must be 1, 2, 3, 4, or 5",info);
+{ uint32_t n=0;
+  info=info&0x3;  
+  if (info==0) return 0;
+  else if (info==1) n=HGET8;
+  else if (info==2) HGET16(n);
+  else if (info==3) HGET32(n);
+  else QUIT("List info %d must be 0, 1, 2, or 3",info);
   return n;
-} 
+}
 
 void hget_list(List *l)
-{@+if (KIND(*hpos)!=list_kind && @/
-        KIND(*hpos)!=text_kind  &&@| KIND(*hpos)!=param_kind) @/
+{@+if (KIND(*hpos)!=list_kind && KIND(*hpos)!=param_kind) @/
     QUIT("List expected at 0x%x", (uint32_t)(hpos-hstart)); 
   else
   {
     @<read the start byte |a|@>@;
-    l->k=KIND(a);
+    l->t=a;
     HGET_LIST(INFO(a),*l);
     @<read and check the end byte |z|@>@;
     DBG(DBGNODE,"Get list at 0x%x size=%u\n", l->p, l->s);
@@ -2868,14 +2877,18 @@ void hget_list(List *l)
 }
 @
 
+If a list has the info value zero, the list is the empty list.
+Other list references are currently not implemented.
+
 @<shared get macros@>=
 #define @[HGET_LIST(I,L)@] \
-    (L).s=hget_list_size(I); hget_size_boundary(I);\
+  if (((I)&0x3)==0) {uint8_t n=HGET8; @+REF_RNG(KIND((L).t),n);@+ (L).s=0;@+}\
+  else { (L).s=hget_list_size(I); hget_size_boundary(I);\
     (L).p=hpos-hstart; \
     hpos=hpos+(L).s; hget_size_boundary(I);\
     { uint32_t s=hget_list_size(I); \
       if (s!=(L).s) \
-      QUIT(@["List sizes at 0x%x and " SIZE_F " do not match 0x%x != 0x%x"@],node_pos+1,hpos-hstart-I-1,(L).s,s);}
+      QUIT(@["List sizes at 0x%x and " SIZE_F " do not match 0x%x != 0x%x"@],node_pos+1,hpos-hstart-I-1,(L).s,s);}}
 @
 
 \putcode
@@ -2885,25 +2898,25 @@ uint8_t hsize_bytes(uint32_t n)
 { @+if (n==0)  return 0;
   else if (n<0x100)  return 1;
   else if (n<0x10000)  return 2;
-  else if (n<0x1000000)  return 3;
   else return 4;
 }
 
 void hput_list_size(uint32_t n, int i)
-{ @+if (i==0) ;
+{ @+if (i==0) return;
   else if (i==1) HPUT8(n);
   else if (i==2) HPUT16(n);
-  else if (i==3) HPUT24(n);
   else  HPUT32(n);
 }
 
-uint8_t hput_list(uint32_t start_pos, List *l)
+Tag hput_list(uint32_t start_pos, List *l)
 { @+if (l->s==0)
-  { hpos=hstart+start_pos; return TAG(l->k,1);@+}
+  { hpos=hstart+start_pos; @+ HPUT8(0); @+return TAG(KIND(l->t),INFO(l->t)&b100);@+}
   else@/
   { uint32_t list_end=hpos-hstart;
     int i=l->p -start_pos-1; /* number of byte allocated for size */
     int j=hsize_bytes(l->s); /* number of byte needed for size */
+    Info k;
+    if (j==4) k=3; else k=j;
     DBG(DBGNODE,"Put list at 0x%x size=%u\n", l->p, l->s);
     if (i>j && l->s> 0x100) j=i; /* avoid moving large lists */
     if (i!=j)@/
@@ -2915,9 +2928,9 @@ uint8_t hput_list(uint32_t start_pos, List *l)
       l->p=l->p+d;@+
       list_end=list_end+d;
     }
-    hpos=hstart+start_pos; @+  hput_list_size(l->s,j);@+ HPUT8(0x100-j);
-    hpos=hstart+list_end;@+  HPUT8(0x100-j);@+ hput_list_size(l->s,j);
-    return TAG(l->k,j+1);
+    hpos=hstart+start_pos; @+  hput_list_size(l->s,j);@+ HPUT8(0x100-k);
+    hpos=hstart+list_end;@+  HPUT8(0x100-k);@+ hput_list_size(l->s,j);
+    return TAG(KIND(l->t),k|(INFO(l->t)&b100));
   }
 }
 
@@ -2958,11 +2971,13 @@ Inside a text, character nodes start with a byte in the range
 |0x21|--|0xF7|. This is a wide range and it overlaps considerably with
 the range of valid tag bytes. It is however possible to choose the
 kind-values in such a way that the control codes do not overlap with
-the valid tag bytes that start a node. For this reason, the values
-|text_kind==0|, |list_kind==1|, |param_kind==2|, |xdimen_kind==3|, and
-|adjust_kind==4| were chosen on page~\pageref{kinddef}.  Texts, lists,
-parameter lists, and extended dimensions occur only {\it inside} of
-content nodes, but are not content nodes in their own right; so the
+the valid tag bytes that start a node. 
+For this reason, the values
+|list_kind==0|, |param_kind==1|, |range_kind==2|, |xdimen_kind==3|, and
+|adjust_kind==4| were chosen on page~\pageref{kinddef}.  Lists,
+parameter lists,  and extended dimensions occur only {\it inside} of
+content nodes, but are not content nodes in their own right; 
+page ranges occur only in the definition section; so the
 values |0x00| to |0x1F| are not used as tag bytes of content
 nodes. The value |0x20| would, as a tag byte, indicate an adjust node
 (|adjust_kind==4|) with info value zero. Because there are no
@@ -2973,9 +2988,9 @@ nodes because there are no predefined paragraphs.)
 The largest byte that starts an UTF8 code is |0xF7|; hence, there are
 eight possible control codes, from |0xF8| to |0xFF|, available.  The
 first three values |0xF8|, |0xF9|, and |0xFA| are actually used for
-penalty nodes with info values, 0, 1, and 2. The last four |0xFC|,
+penalty nodes with info values, 0, 1, and 2. The last three 
 |0xFD|, |0xFE|, and |0xFF| are used as boundary marks for the text
-size and therefore we use only |0xFB| as control code.
+size and therefore we can use only |0xFB| and \label{FC}|0xFC| as control codes.
 
 In the long format, we do not provide a syntax for specifying a size
 estimate\index{estimate} as we did for plain lists, because we expect
@@ -2992,8 +3007,7 @@ Here are the details:
 
 \item In the long format, a text starts and ends with a
 double\index{double quote} quote character ``{\tt "}''.  In the short
-format, texts are encoded similar to lists using the kind-value
-|text_kind|.
+format, texts are encoded similar to lists setting the info bit |b100|.
 
 \item Arbitrary nodes can be embedded inside a text. In the long
 format, they are enclosed in pointed brackets \.{<} \dots \.{>} as
@@ -3066,7 +3080,7 @@ sequence is written ``\.{\\F}$n$\.{\\}'' where $n$ is the decimal
 representation of the font number.
 
 
-\item The control codes |0x09|, |0x0A|, |0x0B|, |0x0C|, |0x0E|,
+\item The control codes |0x09|, |0x0A|, |0x0B|, |0x0C|, |0x0D|,
 |0x0E|, |0x0F|, and |0x10| are also followed by a second parameter
 byte. They are used to reference the global definitions of
 penalty\index{penalty}, kern\index{kern}, ligature\index{ligature},
@@ -3117,6 +3131,8 @@ character} ``\.{\ }'' as well.
 \item The control code $|txt_ignore|=|0xFB|$ is ignored, its position
 can be used in a link to specify a position between two characters. In
 the long format it is written as ``\.{\\@@}''.
+
+\item The control code |0xFC| is currently unused.
 
 \enditemize
 For the control codes, we define an enumeration type 
@@ -3212,7 +3228,7 @@ static int scan_level=0;
 list: TXT_START position @|
           {hpos+=4;  /* start byte, two size byte, and boundary byte */ }
            text TXT_END@|
-          { $$.k=text_kind;$$.p=$4; $$.s=(hpos-hstart)-$4;
+          { $$.t=TAG(list_kind,b110);$$.p=$4; $$.s=(hpos-hstart)-$4;
             hput_tags($2,hput_list($2+1, &($$)));@+};
 text: position @+| text txt;
 
@@ -3388,10 +3404,6 @@ void hput_txt_local(uint8_t n)
 @
 
 
-@<hint types@>=
-typedef struct { @+Kind k; @+int n; @+} Ref;
-@
-
 
 \section{Composite Nodes}\hascode
 \label{composite}
@@ -3508,7 +3520,7 @@ void hwrite_box(Box *b)
   if (b->a!=0)  { hwritef(" shifted"); @+hwrite_dimension(b->a); @+}
   if (b->r!=0.0 && b->s!=0  )@/ 
   { @+if (b->s>0) @+hwritef(" plus"); @+else @+hwritef(" minus");
-    @+hwrite_float64(b->r); @+hwrite_order(b->o);
+    @+hwrite_float64(b->r, false); @+hwrite_order(b->o);
   }
   hwrite_list(&(b->l));
 }
@@ -3635,11 +3647,24 @@ indicates a nonzero shift amount.  For a box of type |hset_kind| or
 |vset_kind|, the info bit |b001| indicates, if set, a nonzero depth.
 For a box of type |hpack_kind| or |vpack_kind|, the info bit |b001|
 indicates, if set, an additional target size, and if unset, an exact
-target size.  For a box of type |vpack_kind| also the maximum depth is
-given.
+target size.  For a box of type |vpack_kind| also the maximum depth 
+is given. If in the long format the maximum depth is omitted, the
+value |MAX_DIMEN| is used. 
+
+The reference point of a vertical box is usually the reference point of
+the last box inside it and multiple vertical boxes are aligned
+along this common baseline. Occasionaly, however, we want to align
+vertical boxes using the baselines of their first box.
+We indicate this alternative setting of the reference point
+using the keyword {\tt top} in the long form.
+In the short form, we use the fact the the absolut value of any dimension
+is less or equal to |MAX_DIMEN| which is equal to |0x3fffffff|. This means
+that the two most significant bits are always the same. So a vtop node
+can be marked by toggling the second of these bits. 
 
 \readcode
-@s xbox symbol
+@s box_options symbol
+@s vbox_dimen symbol
 @s hpack symbol
 @s vpack symbol
 @s box_goal symbol
@@ -3653,6 +3678,7 @@ given.
 @s vxbox_node symbol
 @s hxbox_node symbol
 @s DEPTH symbol
+@s max_depth symbol
 
 @<symbols@>=
 %token HPACK "hpack"
@@ -3662,7 +3688,8 @@ given.
 %token DEPTH "depth"
 %token ADD "add"
 %token TO "to"
-%type <info> xbox box_goal hpack vpack
+%type <info> box_options box_goal hpack vpack vbox_dimen
+%type <d> max_depth
 @
 
 @<scanning rules@>=
@@ -3677,8 +3704,17 @@ given.
 
 @<parsing rules@>=
 box_flex: plus minus { hput_stretch(&($1));hput_stretch(&($2)); };
-xbox:  box_dimen box_shift box_flex xdimen_ref list  {$$=$1|$2;} 
-     | box_dimen box_shift box_flex  xdimen_node list {$$=$1|$2|b100;};
+
+box_options: box_shift box_flex xdimen_ref list  {$$=$1;} 
+           |  box_shift box_flex xdimen_node list {$$=$1|b100;};
+
+hxbox_node: start HSET box_dimen box_options END   { hput_tags($1, TAG(hset_kind,$3|$4)); };
+
+vbox_dimen: box_dimen 
+          | TOP dimension dimension dimension @/
+           {$$= hput_box_dimen($2,$3^0x40000000,$4); };
+
+vxbox_node: start VSET vbox_dimen box_options END   { hput_tags($1, TAG(vset_kind,$3|$4)); };
 
 box_goal: TO xdimen_ref {$$=b000;} 
       | ADD xdimen_ref  {$$=b001;} 
@@ -3686,14 +3722,15 @@ box_goal: TO xdimen_ref {$$=b000;}
       | ADD xdimen_node {$$=b101;}; 
 
 hpack: box_shift box_goal list {$$=$2;};
-vpack: box_shift MAX DEPTH dimension {HPUT32($4);} @/ box_goal list {$$= $1|$6;};
 
-vxbox_node: start VSET xbox END   { hput_tags($1, TAG(vset_kind,$3)); }
-          | start VPACK vpack END  { hput_tags($1, TAG(vpack_kind,$3)); };
+hxbox_node: start HPACK hpack END  { hput_tags($1, TAG(hpack_kind,$3)); };
 
+max_depth: {$$=MAX_DIMEN;} | MAX DEPTH dimension { $$=$3; };
 
-hxbox_node: start HSET xbox END   { hput_tags($1, TAG(hset_kind,$3)); }
-          | start HPACK hpack END  { hput_tags($1, TAG(hpack_kind,$3)); };
+vpack: max_depth {HPUT32($1);} box_shift  box_goal list {$$= $3|$4;}
+     | TOP  max_depth {HPUT32($2^0x40000000);} @/ box_shift box_goal list {$$= $4|$5;};
+
+vxbox_node: start VPACK vpack END  { hput_tags($1, TAG(vpack_kind,$3)); };
 
 content_node: vxbox_node | hxbox_node;
  @
@@ -3701,23 +3738,23 @@ content_node: vxbox_node | hxbox_node;
 \getcode
 @<cases to get content@>=
 @t\1\kern1em@>
-case TAG(hset_kind,b000): HGET_SET(b000); @+ break;
-case TAG(hset_kind,b001): HGET_SET(b001); @+ break;
-case TAG(hset_kind,b010): HGET_SET(b010); @+ break;
-case TAG(hset_kind,b011): HGET_SET(b011); @+ break;
-case TAG(hset_kind,b100): HGET_SET(b100); @+ break;
-case TAG(hset_kind,b101): HGET_SET(b101); @+ break;
-case TAG(hset_kind,b110): HGET_SET(b110); @+ break;
-case TAG(hset_kind,b111): HGET_SET(b111); @+ break;@#
+case TAG(hset_kind,b000): HGET_SET(hset_kind,b000); @+ break;
+case TAG(hset_kind,b001): HGET_SET(hset_kind,b001); @+ break;
+case TAG(hset_kind,b010): HGET_SET(hset_kind,b010); @+ break;
+case TAG(hset_kind,b011): HGET_SET(hset_kind,b011); @+ break;
+case TAG(hset_kind,b100): HGET_SET(hset_kind,b100); @+ break;
+case TAG(hset_kind,b101): HGET_SET(hset_kind,b101); @+ break;
+case TAG(hset_kind,b110): HGET_SET(hset_kind,b110); @+ break;
+case TAG(hset_kind,b111): HGET_SET(hset_kind,b111); @+ break;@#
 
-case TAG(vset_kind,b000): HGET_SET(b000); @+ break;
-case TAG(vset_kind,b001): HGET_SET(b001); @+ break;
-case TAG(vset_kind,b010): HGET_SET(b010); @+ break;
-case TAG(vset_kind,b011): HGET_SET(b011); @+ break;
-case TAG(vset_kind,b100): HGET_SET(b100); @+ break;
-case TAG(vset_kind,b101): HGET_SET(b101); @+ break;
-case TAG(vset_kind,b110): HGET_SET(b110); @+ break;
-case TAG(vset_kind,b111): HGET_SET(b111); @+ break;@#
+case TAG(vset_kind,b000): HGET_SET(vset_kind,b000); @+ break;
+case TAG(vset_kind,b001): HGET_SET(vset_kind,b001); @+ break;
+case TAG(vset_kind,b010): HGET_SET(vset_kind,b010); @+ break;
+case TAG(vset_kind,b011): HGET_SET(vset_kind,b011); @+ break;
+case TAG(vset_kind,b100): HGET_SET(vset_kind,b100); @+ break;
+case TAG(vset_kind,b101): HGET_SET(vset_kind,b101); @+ break;
+case TAG(vset_kind,b110): HGET_SET(vset_kind,b110); @+ break;
+case TAG(vset_kind,b111): HGET_SET(vset_kind,b111); @+ break;@#
 
 case TAG(hpack_kind,b000): HGET_PACK(hpack_kind,b000); @+ break;
 case TAG(hpack_kind,b001): HGET_PACK(hpack_kind,b001); @+ break;
@@ -3740,11 +3777,13 @@ case TAG(vpack_kind,b111): HGET_PACK(vpack_kind,b111); @+ break;
 
 
 @<get macros@>=
-#define @[HGET_SET(I)@] @/\
- { Dimen h; @+HGET32(h); @+hwrite_dimension(h);@+}\
- { Dimen d; @+if ((I)&b001) HGET32(d); @+ else d=0;@+hwrite_dimension(d); @+}\ 
+#define @[HGET_SET(K,I)@] @/\
+ { Dimen h,d; @+HGET32(h);\
+   if ((I)&b001) HGET32(d); @+ else d=0;\
+   if (K==vset_kind && (d>MAX_DIMEN || d<-MAX_DIMEN)) { hwritef(" top"); d^=0x40000000;}\
+   hwrite_dimension(h); hwrite_dimension(d); @+}\ 
  { Dimen w; @+HGET32(w); @+hwrite_dimension(w);@+} \
-if ((I)&b010)  { Dimen a; @+HGET32(a); hwritef(" shifted"); @+hwrite_dimension(a);@+}\
+ if ((I)&b010)  { Dimen a; @+HGET32(a); hwritef(" shifted"); @+hwrite_dimension(a);@+}\
  { Stretch p; @+HGET_STRETCH(p);@+hwrite_plus(&p);@+}\
  { Stretch m; @+HGET_STRETCH(m);@+hwrite_minus(&m);@+}\
  if ((I)&b100) {Xdimen x;@+ hget_xdimen_node(&x); @+hwrite_xdimen_node(&x);@+} else HGET_REF(xdimen_kind);\
@@ -3752,8 +3791,10 @@ if ((I)&b010)  { Dimen a; @+HGET32(a); hwritef(" shifted"); @+hwrite_dimension(a
 @#
 
 #define @[HGET_PACK(K,I)@] @/\
- if ((I)&b010)  { Dimen d; @+HGET32(d); hwritef(" shifted");  @+hwrite_dimension(d);  @+ }\
- if (K==vpack_kind) { Dimen d; @+HGET32(d); hwritef(" max depth");@+hwrite_dimension(d);  @+ }\
+ if (K==vpack_kind) {@+Dimen d; HGET32(d); \
+   if (d>MAX_DIMEN || d<-MAX_DIMEN) { hwritef(" top"); d^=0x40000000;}\ 
+   if (d!=MAX_DIMEN) {hwritef(" max depth");@+hwrite_dimension(d);}} \
+ if ((I)&b010)@+{@+Dimen s; HGET32(s); hwritef(" shifted");  @+hwrite_dimension(s); }\
  if ((I)&b001) hwritef(" add");@+ else hwritef(" to");\
  if ((I)&b100) {Xdimen x;@+ hget_xdimen_node(&x);@+hwrite_xdimen_node(&x);@+}\
  else @+HGET_REF(xdimen_kind);\
@@ -3946,7 +3987,7 @@ case TAG(baseline_kind,b111): { Baseline b;@+ HGET_BASELINE(b111,b);@+ }@+break;
 
 \putcode
 @<put functions@>=
-uint8_t hput_baseline(Baseline *b)
+Tag hput_baseline(Baseline *b)
 { Info info=b000;
   if (!ZERO_GLUE(b->bs)) @+info|=b100;
   if (!ZERO_GLUE(b->ls)) @+ info|=b010; 
@@ -4048,7 +4089,7 @@ hwrite_ligature(&(L));
 
 \putcode
 @<put functions@>=
-uint8_t hput_ligature(Lig *l)
+Tag hput_ligature(Lig *l)
 { @+if (l->l.s < 7) return TAG(ligature_kind,l->l.s);
   else@/
   { uint32_t pos=l->l.p;
@@ -4123,8 +4164,8 @@ replace_count: explicit {@+ if ($1) {$$=0x80; HPUT8(0x80);@+}@+ else $$=0x00;@+}
 	     | explicit UNSIGNED { RNG("Replace count",$2,0,31); 
                $$=($2)|(($1)?0x80:0x00); @+ if ($$!=0) HPUT8($$);@+};
 disc: replace_count list list { $$.r=$1;$$.p=$2; $$.q=$3; 
-          if ($3.s==0) { hpos=hpos-2;@+ if ($2.s==0) hpos=hpos-2; @+}@+}
-      | replace_count list { $$.r=$1;$$.p=$2; if ($2.s==0) hpos=hpos-2;@+ $$.q.s=0; }
+          if ($3.s==0) { hpos=hpos-3;@+ if ($2.s==0) hpos=hpos-3; @+}@+}
+      | replace_count list { $$.r=$1;$$.p=$2; if ($2.s==0) hpos=hpos-3;@+ $$.q.s=0; }
       | replace_count { $$.r=$1;$$.p.s=0; $$.q.s=0; };
 
 
@@ -4162,8 +4203,8 @@ case TAG(disc_kind,b111): {Disc h; @+HGET_DISC(b111,h);@+ hwrite_disc(&h); @+} @
 #define @[HGET_DISC(I,Y)@]\
 if ((I)&b100) {uint8_t r=HGET8; (Y).r=r&0x7F; @+ RNG("Replace count",(Y).r,0,31); @+(Y).x=(r&0x80)!=0; @+}\
 @+else { (Y).r=0; @+ (Y).x=false;@+}\
-if ((I)&b010) hget_list(&((Y).p)); else { (Y).p.p=hpos-hstart; @+(Y).p.s=0; @+(Y).p.k=list_kind; @+}\
-if ((I)&b001) hget_list(&((Y).q)); else { (Y).q.p=hpos-hstart; @+(Y).q.s=0; @+(Y).q.k=list_kind; @+}
+if ((I)&b010) hget_list(&((Y).p)); else { (Y).p.p=hpos-hstart; @+(Y).p.s=0; @+(Y).p.t=TAG(list_kind,b000); @+}\
+if ((I)&b001) hget_list(&((Y).q)); else { (Y).q.p=hpos-hstart; @+(Y).q.s=0; @+(Y).q.t=TAG(list_kind,b000); @+}
 @
 
 @<get functions@>=
@@ -4182,7 +4223,7 @@ Because the info value |b000| is reserved for references, a zero reference
 count is written to avoid this case.
 \putcode
 @<put functions@>=
-uint8_t hput_disc(Disc *h)
+Tag hput_disc(Disc *h)
 { Info info=b000;
   if (h->r!=0)  info|=b100; 
   if (h->q.s!=0) info|=b011;
@@ -4278,18 +4319,14 @@ layout of the short format nodes where all sub nodes are located at
 the end of a node.  In this case, I want to put a |param_ref| before
 an |xdimen| node, but otherwise have the |xdimen_ref| before a
 |param_list|.  The |par_dimen| rule is introduced only to avoid a
-reduce/reduce conflict in the parser.  The parsing of
-|empty_param_list| and |non_empty_param_list| is explained in
-section~\secref{paramlist}.
+reduce/reduce conflict in the parser.
 
 @<parsing rules@>=
 par_dimen: xdimen { hput_xdimen_node(&($1)); };
 par: xdimen_ref param_ref list {$$=b000;}
-   | xdimen_ref empty_param_list non_empty_param_list list { $$=b010;}
-   | xdimen_ref empty_param_list list { $$=b010;}
+   | xdimen_ref param_list list { $$=b010;}
    | xdimen param_ref { hput_xdimen_node(&($1)); } list { $$=b100;}
-   | par_dimen empty_param_list non_empty_param_list list { $$=b110;}
-   | par_dimen empty_param_list list { $$=b110;};
+   | par_dimen param_list list { $$=b110;};
 
 content_node: start PAR par END { hput_tags($1,TAG(par_kind,$3));};
 @
@@ -4360,12 +4397,9 @@ placement of the equation number.
 math:    param_ref  list {$$=b000;}
        | param_ref  list hbox_node {$$=b001;}
        | param_ref  hbox_node list {$$=b010;}
-       | empty_param_list list {$$=b100;} 
-       | empty_param_list list hbox_node {$$=b101;} 
-       | empty_param_list hbox_node list {$$=b110;} 
-       | empty_param_list non_empty_param_list list {$$=b100;} 
-       | empty_param_list non_empty_param_list list hbox_node {$$=b101;} 
-       | empty_param_list non_empty_param_list hbox_node list {$$=b110;};
+       | param_list list {$$=b100;} 
+       | param_list list hbox_node {$$=b101;} 
+       | param_list hbox_node list {$$=b110;};
 
 content_node: start MATH math END @/{ hput_tags($1,TAG(math_kind,$3));};
 @
@@ -4601,7 +4635,7 @@ Info hput_span_count(uint32_t n)
   { HPUT8(n); return 7; }
 }
 @
-\section{Extensions to \TeX}\hascode
+\section{Extensions}\hascode
 
 \subsection{Images}
 In the first implementation attempt, images behaved pretty much
@@ -4621,14 +4655,14 @@ The new design described below allows images with extended dimensions.
 This covers the case of stretchable or shrinkable images inside of
 extended boxes.  The given extended dimensions are considered maximum
 values. The stretching or shrinking of images will always preserve the
-relation of width${}/{}$height, the aspect ratio.
+ $\hbox{aspect ratio}=\hbox{width}/\hbox{height}$.
 
 For convenience, we allow missing values in the long format, for
 example the aspect ratio, if they can be determined from the image
 data.  In the short format, the necessary information for a correct
 layout must be available without using the image data.
 
-In the long format, the only required parts of an image node are the
+In the long format, the only required parts of an image node are: the
 number of the auxiliary section where the image data can be found and
 the descriptive text which is there to make the document more
 accessible.  The section number is followed by the optional aspect
@@ -4638,7 +4672,7 @@ data. The node ends with the description.
 
 The short format, starts with the section number of the image data and
 ends with the description. Missing values for aspect ratio, width, and
-height are only allowed if they can be recomputed from the given data.
+height are only allowed if they can be recomputed from the image data.
 A missing width or height is represented by a reference to the zero
 extended dimension.  If the |b100| bit is set, the aspect ratio is
 present as a 32 bit floating point value followed by extended
@@ -4655,6 +4689,10 @@ The value |b000| is used for a reference to an image.
 The value |b011| indicates an immediate width and an immediate height.
 The value |b010| indicates an aspect ratio and an immediate width.
 The value |b001| indicates an aspect ratio and an immediate height.
+
+The following data type stores image information. The width and height
+are either given as extended dimensions either directly in |w| and |h|
+or as references in |wr| and |hr|.
 
 @<hint types@>=
 typedef struct {@+
@@ -4710,11 +4748,22 @@ image: image_spec list {$$=$1;};
 content_node: start IMAGE image END { hput_tags($1,TAG(image_kind,$3));};
 @
 
+When a short format file is generated, the image width and height must be
+determined if necessary from the image file.
+The following function will write this information into the long format file.
+Editing the image file at a later time and converting the short format
+file back to a long format file will preserve the old information.
+This is not allways a desirable effect. It would be possible to
+eliminate information about the image size when writing the long format
+if that information can be derived from the image file. The latter
+solution might have the disadvantage, that infomation about a
+desired image size might get lost when editing a image file.
+
 \writecode
 @<write functions@>=
 void hwrite_image(Image *x)
 { RNG("Section number",x->n,3,max_section_no); hwritef(" %u",x->n);
-  if (x->a!=0.0) hwrite_float64(x->a);
+  if (x->a!=0.0) hwrite_float64(x->a, false);
   if (x->wr!=0) hwritef(" width *%u",x->wr);
   else if (x->w.w!=0 ||x->w.h!=0.0 || x->w.v!=0.0)
   { hwritef(" width"); hwrite_xdimen(&x->w); }
@@ -4751,14 +4800,6 @@ else if((I)==b001){ x.a=hget_float32(); HGET32(x.h.w);}\
 hwrite_image(&x);\
 {List d;  hget_list(&d);hwrite_list(&d);}}@/
 @
-
-
-
-Because the long format can omit part of the image specification
-which is required for the short format if the necessary information 
-is contained in the image data, we have to implement the extraction
-of image information before we can implement the |hput_image_spec|
-function.
 
 \putcode
 @<put functions@>=
@@ -4805,15 +4846,35 @@ Info hput_image_spec(uint32_t n, float32_t a,
 }
 @
 
+
+If extended dimensions are involved,
+the long format might very well specify different values than
+stored in the image.  In this case the given dimensions are
+interpreted as maximum dimensions. If the aspect ratio is missing,
+we use |hextract_image_dimens| to extract it from the image file.
+
+@<image functions@>=
+static void hput_image_aspect(int n,double a)
+{ 
+  if (a==0.0) {Dimen w,h; hextract_image_dimens(n,&a,&w,&h);}
+  if (a!=0.0) hput_float32(a);
+  else  QUIT("Unable to determine aspect ratio of image %s",dir[n].file_name);
+}
+@
+
 If no extended dimensions are involved in an image specification,
 we use |hput_image_dimen|.
+Because the long format can omit part of the image specification,
+we use |hextract_image_dimens| to extract information from
+the image file and merge this information
+with the data supplied in the long format.
 
 @<image functions@>=
 @<auxiliar image functions@>@;
 static Info hput_image_dimens(int n,float32_t a, Dimen w, Dimen h)
 { Dimen iw,ih;
   double ia;
-  hget_image_dimens(n,&ia,&iw,&ih);
+  hextract_image_dimens(n,&ia,&iw,&ih);
   @<merge stored image dimensions with dimensions given@>@;
   if (w!=0 && h!=0)
   { HPUT32(iw); HPUT32(ih); return b011; }
@@ -4828,53 +4889,42 @@ static Info hput_image_dimens(int n,float32_t a, Dimen w, Dimen h)
 }
 @
 
-If extended dimensions are involved, we need |hput_image_aspect|.
-@<image functions@>=
-static void hput_image_aspect(int n,double a)
-{ 
-  if (a==0.0) {Dimen w,h; hget_image_dimens(n,&a,&w,&h);}
-  if (a!=0.0) hput_float32(a);
-  else  QUIT("Unable to determine aspect ratio of image %d",n);
-}
-@
 
-
-When we have found the width, height or aspect ratio of the stored
-image, we can merge this information with the information given by the
-user.  Note that from width and height the aspect ratio can always be
-determined.  The user might very well specify different values than
-stored in the image.  In this case the user given dimensions are
-interpreted as maximum dimensions and the aspect ratio as given in the
-image file takes precedence over an user specified value.  This is
-accomplished by the following:
+If the width, height or aspect ratio is stored in the 
+image file, we can merge this information with the information given in
+the long format.
+It is considered an error, if the function |hextract_image_dimens|
+can not extract the aspect ratio. Absolute width and height values,
+however, might be missing. If the aspect ratio is computed from the
+number of horizontal and vertical pixels, these values are negated and
+returned instead of absolute width and height values.
+Hi\TeX\ for example, will use these values to guess the image size
+assuming square pixels and a fixed resolution of 72.27 dpi.
 
 @<merge stored image dimensions with dimensions given@>=
 { if (ia==0.0)
   { if (a!=0.0) ia=a;
     else if(w!=0 && h!=0) ia=(double)w/(double)h;
-    else QUIT("Unable to determine dimensions of image %d",n);
+    else QUIT("Unable to determine dimensions of image %s",dir[n].file_name);
   }
   if (w==0 && h==0)
-  { if (iw==0) iw=round(ih * ia);
-    else if (ih==0) ih=round(iw/ia);
+  { if (ih>0) iw=round(ih * ia);
+    else if (iw>0) ih=round(iw/ia);
   }
   else if (h==0) 
-  { iw=w; ih=round(w/ia); }
+  { iw=w;@+ ih=round(w/ia);@+ }
   else if (w==0) 
-  { ih=h; iw=round(h*ia);}
+  { ih=h;@+ iw=round(h*ia);@+}
   else 
-  { Dimen x;
-    x =  round(h*ia);
-    if (w>x) w = x;
-    x =  round(w/ia);
-    if (h>x) h=x;
-    ih = h;
-    iw = w;
+  { ih = h;@+
+    iw = w;@+
   }
 }
 @
 
-We define a few macros and variables for the reading of image files.
+Before we present the code to extract image dimensions from
+various types of image files, we define a few macros and
+variables for the reading these image files.
 
 @<auxiliar image functions@>=
 #define IMG_BUF_MAX 54
@@ -4910,8 +4960,7 @@ bitmap in pixels at offsets |0x12| and |0x16| stored as little-endian
 32 bit integers. At offsets |0x26| and |0x2A|, we find the horizontal
 and vertical resolution in pixel per meter stored in the same format.
 This is sufficient to compute the true width and height of the image
-in scaled points.  If either the width or the height is already known,
-we just use the aspect ratio and compute the missing value.
+in scaled points.
 
 The Windows Bitmap format is easy to process but not very
 efficient. So the support for this format in the \HINT\ format is
@@ -4961,6 +5010,8 @@ giving the horizontal and vertical pixels per unit, and a one byte
 unit specifier, which is either 0 for an undefined unit or 1 for the
 meter as unit. With an undefined unit, only the aspect ratio of the
 pixels and hence the aspect ratio of the image can be determined.
+It is not uncommon, however, that the resolution in such a case is given
+as dots per inch. So we decide to assume the latter.
 
 
 @<auxiliar image functions@>=
@@ -4986,26 +5037,31 @@ static bool get_PNG_info(FILE *f, char *fn, double *a, Dimen *w, Dimen *h)
     { xppu =(double)BigEndian32(8);  
       yppu =(double)BigEndian32(12);
       unit=img_buf[16];
-      if (unit==0)
-      { *a =(wpx/xppu)/(hpx/yppu);
+      if (unit==0) /* assuming unit is inch */
+      { *w=floor(0.5+ONE*72.27*wpx/xppu);
+        *h=floor(0.5+ONE*72.27*hpx/yppu);
+        *a =(wpx/xppu)/(hpx/yppu);
         return true;
       }
-      else if (unit==1)
+      else if (unit==1) /* unit is meter */
       {
-        *w=floor(0.5+ONE*(72.00/0.0254)*wpx/xppu);
-        *h=floor(0.5+ONE*(72.00/0.0254)*hpx/yppu);
+        *w=floor(0.5+ONE*(72.27/0.0254)*wpx/xppu);
+        *h=floor(0.5+ONE*(72.27/0.0254)*hpx/yppu);
         *a = (wpx/xppu)/(hpx/yppu);
         return true;
       }
       else
-        return false;
+        break;
     }
     else if  (Match4(4,'I', 'D', 'A', 'T'))
-      return false;
+      break;
     else
       pos=pos+12+size;
   }
-  return false;
+  *w=-wpx;
+  *h=-hpx;
+  *a =wpx/hpx;
+  return true;
 }
 @ 
 
@@ -5023,7 +5079,9 @@ vertical resolution both as 16 Bit big-endian integers.  To find the
 actual width and height, we have to search for a start of frame marker
 (|0xFF|, |0xC0|+$n$ with $0\le n\le 15$). Which is followed by the 2
 byte segment size, the 1 byte sample precission, the 2 byte height and
-the 2 byte width.
+the 2 byte width. Because here, in contrast to the PNG file format,
+the dots per inch can be specified explicitly, we will indeed treat
+the undefined unit as such.
 
 
 @<auxiliar image functions@>=
@@ -5052,17 +5110,19 @@ static bool get_JPG_info(FILE *f, char *fn,  double *a, Dimen *w, Dimen *h)
       wpx =(double)BigEndian16(7);
       if (unit==0)
       { *a = (wpx/xppu)/(hpx/yppu);
+        *w=-wpx;
+	*h=-hpx;
         return true;
       }
       else if (unit==1)
-      { *w = floor(0.5+ONE*72.00*wpx/xppu);
-        *h = floor(0.5+ONE*72.00*hpx/yppu);
+      { *w = floor(0.5+ONE*72.27*wpx/xppu);
+        *h = floor(0.5+ONE*72.27*hpx/yppu);
         *a = (wpx/xppu)/(hpx/yppu);
         return true;
       }
       else if (unit==2)
-      { *w = floor(0.5+ONE*(72.00/2.54)*wpx/xppu);
-        *h = floor(0.5+ONE*(72.00/2.54)*hpx/yppu);
+      { *w = floor(0.5+ONE*(72.27/2.54)*wpx/xppu);
+        *h = floor(0.5+ONE*(72.27/2.54)*hpx/yppu);
         *a = (wpx/xppu)/(hpx/yppu);
         return true;
       }
@@ -5087,15 +5147,18 @@ PostScript fonts and hence it has already the necessary interpreter.
 So it seems reasonable to put the burden of converting vector graphics
 into a Type 1 PostScript font on the generator of \HINT\ files
 and keep the \HINT\ viewer as small and simple as possible.
-Now we determine width, height
-and aspect ratio  based on an image file.
+An alternative which would impose only a slight burden on the \HINT\ file
+viewer is the use of the rsvg library.
 
+After having considered the various types of image files,
+we now determine width, height and aspect ratio  based on
+such an image file.
 
-We combine all three functions into the |hget_image_dimens|
+We combine all the above functions into the |hextract_image_dimens|
 function.
 
-@<auxiliar image functions@>=
-static void hget_image_dimens(int n, double *a, Dimen *w, Dimen *h)
+@<image functions@>=
+void hextract_image_dimens(int n, double *a, Dimen *w, Dimen *h)
 { char *fn;
   FILE *f;
   *a=0.0;
@@ -5109,8 +5172,8 @@ static void hget_image_dimens(int n, double *a, Dimen *w, Dimen *h)
       !get_JPG_info(f,fn,a,w,h))
     DBG(DBGDEF,"Unknown image type %s",fn);
     fclose(f); 
-    DBG(DBGDEF,"image %d: width= %fpt height= %fpt\n",
-             n,*w/(double)ONE,*h/(double)ONE);
+    DBG(DBGDEF,"image %d: width= %fpt height= %fpt aspect=%f\n",
+             n,*w/(double)ONE,*h/(double)ONE,*a);
   }
 }
 @
@@ -5343,7 +5406,7 @@ An undefined label has |where| equal to zero.
 @
 
 @<common variables@>=
-Label *labels;
+Label *labels=NULL;
 int first_label=-1;
 @
 The variable |first_label| will be used together with the |next| field of
@@ -5552,7 +5615,7 @@ The function |hput_label| is simply the reverse of the above code.
 
 \putcode
 @<put functions@>=
-uint8_t hput_label(int n, Label *l)
+Tag hput_label(int n, Label *l)
 { Info i=b000;
   HPUTX(13); 
   if (n>0xFF) {i|=b001; HPUT16(n);@+}@+ else HPUT8(n);
@@ -5577,7 +5640,7 @@ to the definition section.
 The outlines are stored after the labels because they reference the labels.
 @<put functions@>=
 extern void hput_definitions_end(void);
-extern uint8_t hput_outline(Outline *t);
+extern Tag hput_outline(Outline *t);
 void hput_label_defs(void)
 { int n;
   section_no=1;
@@ -5638,7 +5701,7 @@ the appropriate tag.
 
 \putcode
 @<put functions@>=
-uint8_t hput_link(int n, int on)
+Tag hput_link(int n, int on)
 { Info i;
   REF_RNG(label_kind,n);
   labels[n].used=true;
@@ -5831,7 +5894,7 @@ outline definitions.
 
 \putcode
 @<put functions@>=
-uint8_t hput_outline(Outline *t)
+Tag hput_outline(Outline *t)
 { Info i=b100;
   HPUTX(t->s+4); 
   if (t->r>0xFF) {i|=b001; @+HPUT16(t->r);@+} @+else HPUT8(t->r);
@@ -5867,18 +5930,212 @@ As a consequence, we can not just define a ``color change node''.
 Colors could be specified as an optional parameter of a glyph node, but the
 amount of data necessary would be considerable. In texts, on the other hand,
 a color change control code would be possible because we parse texts only in forward
-direction. The current font  would then become a current color and font with the appropriate
-changes for positions.  
+direction. The current font  would then become a current color and font.
 
-A more attractive alternative would be to specify colored fonts. 
-This would require an optional
-color argument for a font. For example one could have a cmr10 font in black as
-font number 3, and a cmr10 font in blue as font number 4. Having 256 different fonts,
+An attractive alternative would be colored fonts. 
+This would require an optional color argument for a font. 
+For example one could have a cmr10 font in black as
+font number 3, and the same cmr10 font in blue as font number 4. Having 256 different fonts,
 this is definitely a possibility because rarely you would need that many fonts 
 or that many colors. If necessary and desired, one could allow 16 bit font numbers
 of overcome the problem.
 
 Background colors could be associated with boxes as an optional parameter.
+In addition to the background color, a frame color and frame thickness
+for a box could be desirable. Because pages are using a page template there
+would be no need to an extra page color. The page color could simply be
+given as the color of the outer box in the template.
+Even for extended boxes such aditional parameters can be implemented.
+
+Colored boxes, however, are not the perfect solution for highlighting text
+because boxes interfer with line breaking. Enclosing a phrase in a box just
+to give it a special background will make it impossible for the line breaking
+routine to insert line breaks. Therefore, paragraph nodes might benefit from
+a color change command for the background (and foreground) color.
+
+
+\subsection{Rotation}
+When it comes to rotation, there is a big difference between printed books and
+computer displays. For example, if a book contains a table that is rotated
+to fill a page in landscape mode, the reader can rotate the book and read
+the table. If you are looking at the same page displayed on a 
+big computer monitor, you will most likely not turn the whole monitor.
+Instead your viewing application will be able to perform the rotation for you
+before displaying the page. A smart phone, on the other hand, is
+easy to turn. But very likely, it will try to be smart and rerenders the
+content on the display to keep the same orientation. 
+
+Occasionaly, however, rotation of text is a desirable feature. For example,
+if a table has lots of tall columns with lenghty column headers. It might be
+usefull to rotate the column headers in order to keep the column width within
+reasonable limits.
+
+A simple solution therefore would be optional parameters for boxes
+specifying center and angle for rotating the box.
+
+
+\subsection{Unknown Extensions}
+Starting with the inclusion in the \TeX\ Live 2022 distribution, the \HINT\ file format
+became accessible to a wider audience which brought the constant rewrite and upgrade cycle
+to a sudden halt. Except for bug fixes, pretty much nothing happened for a about a year.
+When the \TeX\ Live 2023 distribution started to appear on the horizon, one extension
+that I had on my wish-list already for a long time---the support of \TeX's 
+\\{vtop} boxes---was definitely due for implementation. 
+Adding new tag bytes to the specification of the short file format will, however,
+invalidate all \HINT\ file viewers and requires everybody to upgrade the viewing
+application. Because the \HINT\ file format is still in its infancy, more
+such additions are to be expected and the new version 2.0 file format needs a way to handle
+such yet unknown extensions gracefuly. For this purpose the definition section
+now may specify additional entries for the |hnode_size| array. 
+All \HINT\ file viewers starting with version 2.0 will use these entries to skip
+unknown nodes and display the remaining content of \HINT\ files.
+
+\readcode
+In the long format, unknown nodes, whether in the definition or the content section,
+start with the keyword \\{unknown}. 
+
+@s UNKNOWN   symbol
+
+@<symbols@>=
+%token UNKNOWN    "unknown"
+@
+
+@<scanning rules@>=
+::@=unknown@>              :< return UNKNOWN;    >:
+@
+
+In the definition section, the keyword is followed by the tag and the length of the initial
+part of the node (not counting the start byte), after which follows optionaly the number of trailing nodes embedded
+in the unknown node. There is no need for a maximum value, because the information 
+is stored directly in the |hnode_size| array. 
+
+@<parsing rules@>=
+def_node: start UNKNOWN UNSIGNED UNSIGNED END     { hput_tags($1,hput_unknown_def($3,$4,0));@+} 
+        | start UNKNOWN UNSIGNED UNSIGNED UNSIGNED END   { hput_tags($1,hput_unknown_def($3,$4,$5));@+};      
+@
+
+In the content section, the keyword is followed by the tag value, the remaining byte values
+belonging to the initial part and the nodes belonging to the trailing part.
+The end byte, which is equal to the start byte, is omited from the long format.
+
+@<symbols@>=
+%type  <u> unknown_bytes
+%type  <u> unknown_nodes
+@
+@<parsing rules@>=
+content_node: start UNKNOWN UNSIGNED unknown_bytes unknown_nodes END     { hput_tags($1,hput_unknown($1,$3,$4,$5));@+} 
+unknown_bytes: {$$=0;} | unknown_bytes UNSIGNED { RNG("byte",$2,0,0xFF);  HPUT8($2); $$=$1+1; };
+unknown_node: content_node | xdimen_node | list | named_param_list;
+unknown_nodes:  {$$=0;} | unknown_nodes unknown_node { RNG("unknown subnodes",$1,0,3); $$=$1+1; };
+@
+
+\putcode
+In the short format, definitions for unknown nodes are marked with |TAG(unknown_kind,b100)|. 
+This tag is not used elsewhere (see also page \pageref{FC}).
+We do not check for multiple definitions of the same
+tag. But only the first of them is considered valid. 
+After the start byte follows the unknown tag and the corresponding entry in the |hnode_size| array.
+
+@<put functions@>=
+uint32_t hput_unknown_def(uint32_t t, uint32_t b, uint32_t n)
+{ if (n==0)
+  { RNG("unknown tag",t,TAG(param_kind,7)+1,TAG(int_kind,0)-1);
+    RNG("unknown initial bytes",b,0,0x7F-2);
+    HPUT8(t);
+    HPUT8(b+2); /* adding start and end byte */
+    if (hnode_size[t]==0) 
+    { hnode_size[t]=NODE_SIZE(b,0);
+      DBG(DBGTAGS,"Defining unknown node size %d,%d for tag 0x%x\n",b,n,t);
+    }
+  }
+  else
+  { int i;
+    RNG("unknown tag",t,TAG(param_kind,7)+1,TAG(int_kind,0)-1);
+    RNG("unknown initial bytes",b,0,0x1F-1);
+    RNG("unknown trailing nodes",n,1,4);
+    HPUT8(t);
+    i=NODE_SIZE(b,n);
+    HPUT8(i);
+    if (hnode_size[t]==0)
+    { hnode_size[t]=i;
+      DBG(DBGTAGS,"Defining unknown node size %d,%d for tag 0x%x\n",b,n,t);
+    }
+  }
+  return TAG(unknown_kind,b100);
+}
+@
+
+In the content section, the unknown nodes are of course marked with their unknown tag.
+@<put functions@>=
+Tag hput_unknown(uint32_t pos,uint32_t t, uint32_t b, uint32_t n)
+{ int s;
+  RNG("unknown tag",t,TAG(param_kind,7)+1,TAG(int_kind,0)-1);
+  if (n==0)
+  { RNG("unknown initial bytes",b,0,0x7F-2);
+    s=NODE_SIZE(b,0);
+  }
+  else
+  { RNG("unknown initial bytes",b,0,0x1F-2);
+    RNG("unknown trailing nodes",n,1,4);
+    s=NODE_SIZE(b,n);
+   }
+  DBG(DBGTAGS,"Adding unknown node size %d,%d tag 0x%x at 0x%x\n",b,n,t,pos);
+  if (hnode_size[t]!=s)
+    QUIT(@["Size %d of unknown node [%s,%d] at " SIZE_F " does not match %d\n"@],s,NAME(t),INFO(t),hpos-hstart,hnode_size[t]);
+  return (Tag)t;
+}
+@
+
+\goodbreak
+\vbox{\getcode\vskip -\baselineskip\writecode}
+
+@<get functions@>=
+void hget_unknown_def(void)
+{ Tag t; signed char i, b=0, n=0;
+  t=HGET8;
+  i=HGET8;
+  if (i==0)
+    QUIT("Zero not allowed for unknown node size at 0x%x\n",(uint32_t)(hpos-hstart-2));
+  hwrite_start(); @+hwritef("unknown");
+  b=NODE_HEAD(i); n=NODE_TAIL(i);
+  if (n==0)
+     hwritef(" 0x%02X %d",t,b);
+  else 
+    hwritef(" 0x%02X %d %d",t,b, n);
+  if (hnode_size[t]==0)
+  { hnode_size[t]=i;
+    DBG(DBGTAGS,"Defining node size %d,%d for tag 0x%x\n",b,n,t);
+  }
+  hwrite_end();
+}
+@
+
+The |hget_unknown| funktion tries to process a unknown node with the help of
+an entry in the |hnode_size| array. The definition section can be used to provide
+this extra information. If successful the function returns 1 else 0.
+
+@<get functions@>=
+int hget_unknown(Tag a)
+{ int b, n;
+  int8_t s;
+  s = hnode_size[a];
+  DBG(DBGTAGS,"Trying unknown tag 0x%x at 0x%x\n",a,(uint32_t)(hpos-hstart-1));
+  if (s==0) return 0;
+  b=NODE_HEAD(s); n=NODE_TAIL(s);
+  DBG(DBGTAGS,"Trying unknown node size %d %d\n",b,n);
+  hwritef("unknown 0x%02X", a);
+  while (b>0) { a=HGET8; hwritef(" 0x%02X",a); b--;}
+  while (n>0) {
+    a=*hpos;
+    if (KIND(a)==xdimen_kind) {  Xdimen x;  hget_xdimen_node(&x); @+hwrite_xdimen_node(&x); }
+    else if (KIND(a)==param_kind) { List l; @+hget_param_list(&l);@+ hwrite_named_param_list(&l); @+}
+    else if (KIND(a)<=list_kind) { List l; @+hget_list(&l);@+ hwrite_list(&l); @+}
+    else hget_content_node();
+    n--; }
+  return 1;
+}
+@
+
 
  
 \section{Replacing \TeX's Page Building Process}
@@ -6310,8 +6567,7 @@ These types are currently not yet implemented.
 @
 
 @<parsing rules@>=
-stream: empty_param_list list {$$=b010;} 
-      | empty_param_list non_empty_param_list  list {$$=b010;} 
+stream: param_list list {$$=b010;} 
       | param_ref  list {$$=b000;};
 content_node: start STREAM stream_ref stream END
               @/{@+hput_tags($1,TAG(stream_kind,$4)); @+}; 
@@ -6451,7 +6707,8 @@ the start position $p$ of the page is within that range: $a\le p < b$.
 If paging backward this definition might cause problems because the
 start position of the page is known only after the page has been
 build.  In this case, the viewer might choose a page template based on
-the position at the bottom of the page. If it turns out that this ``bottom template''
+the position at the bottom of the page. 
+If it turns out that this ``bottom template''
 is no longer valid when the page builder has found the start of the
 page, the viewer might display the page anyway with the bottom
 template, it might just display the page with the new ``top
@@ -6698,7 +6955,7 @@ int hbanner_size=0;
 
 bool hcheck_banner(char *magic)
 {
-  int v;
+  int v,s;
   char *t;
   t=hbanner;
   if (strncmp(magic,hbanner,4)!=0)
@@ -6710,17 +6967,22 @@ bool hcheck_banner(char *magic)
   { MESSAGE("Space expected in banner after %s\n",magic); return false; }
   else t++;
   v=strtol(t,&t,10);
-  if (v!=HINT_VERSION)
-  { MESSAGE("Wrong HINT version: got %d, expected %d\n",v,HINT_VERSION); return false; }
   if (*t!='.')
   { MESSAGE("Dot expected in banner after HINT version number\n"); return false; }
   else t++;
-  v=strtol(t,&t,10);
-  if (v!=HINT_SUB_VERSION)
-  { MESSAGE("Wrong HINT subversion: got %d, expected %d\n",v,HINT_SUB_VERSION); return false; }
+  s=strtol(t,&t,10);
+  if (v!=HINT_VERSION)
+  { MESSAGE("Wrong HINT version: got %d.%d, expected %d.%d\n",
+      v,s,HINT_VERSION,HINT_SUB_VERSION); return false; }
+  if (s<HINT_SUB_VERSION)
+  { MESSAGE("Old HINT subversion: got %d.%d, expected %d.%d\n",
+      v,s,HINT_VERSION,HINT_SUB_VERSION); }
+  else if (s>HINT_SUB_VERSION)
+  { MESSAGE("New HINT subversion: got %d.%d, expected %d.%d, update your application\n",
+      v,s,HINT_VERSION,HINT_SUB_VERSION); }
   if (*t!=' ' && *t!='\n')
   { MESSAGE("Space expected in banner after HINT subversion\n"); return false; }
-  LOG("%s file version %d.%d:%s",magic,HINT_VERSION, HINT_SUB_VERSION, t);
+  LOG("%s file version " HINT_VERSION_STRING ":%s", magic, t);
   DBG(DBGDIR,"banner size=0x%x\n",hbanner_size);
   return true;
 }
@@ -6766,7 +7028,7 @@ and a (short) comment as the second argument.
 @<function to write the banner@>=
 
 static size_t hput_banner(char *magic, char *str)
-{ size_t s=fprintf(hout,"%s %d.%d %s\n",magic,HINT_VERSION,HINT_SUB_VERSION,str);
+{ size_t s=fprintf(hout,"%s " HINT_VERSION_STRING " %s\n",magic,str);
   if (s>MAX_BANNER) QUIT("Banner too big"); 
   return s;
 }
@@ -7292,7 +7554,7 @@ options.
 
 The above code uses the |access| function, and we need to make sure it is defined:
 @<make sure |access| is defined@>=
-#if !defined(MIKTEX) && defined(WIN32)
+#ifdef WIN32
 #include <io.h>
 #define @[access(N,M)@] @[_access(N, M )@] 
 #define F_OK 0
@@ -7565,24 +7827,24 @@ Armed with these preparations, we can put the directory into the \HINT\ file.
 \putcode
 @<put functions@>=
 static void hput_entry(Entry *e)
-{ uint8_t b;
-  if (e->size<0x100 && e->xsize<0x100) b=0;
-  else if (e->size<0x10000 &&e->xsize<0x10000) b=1;
-  else if (e->size<0x1000000 &&e->xsize<0x1000000) b=2;
-  else b=3;
+{ Info b;
+  if (e->size<0x100 && e->xsize<0x100) b=b000;
+  else if (e->size<0x10000 &&e->xsize<0x10000) b=b001;
+  else if (e->size<0x1000000 &&e->xsize<0x1000000) b=b010;
+  else b=b011;
   if (e->xsize!=0) b =b|b100;
   DBG(DBGTAGS,"Directory entry no=%d size=0x%x xsize=0x%x\n",e->section_no, e->size, e->xsize);
   HPUTTAG(0,b);@/
   HPUT16(e->section_no);
   switch (b) {
-  case 0: HPUT8(e->size);@+break;
-  case 1: HPUT16(e->size);@+break;
-  case 2: HPUT24(e->size);@+break;
-  case 3: HPUT32(e->size);@+break;
-  case b100|0: HPUT8(e->size);@+HPUT8(e->xsize);@+break;
-  case b100|1: HPUT16(e->size);@+HPUT16(e->xsize);@+break;
-  case b100|2: HPUT24(e->size);@+HPUT24(e->xsize);@+break;
-  case b100|3: HPUT32(e->size);@+HPUT32(e->xsize);@+break;
+  case b000: HPUT8(e->size);@+break;
+  case b001: HPUT16(e->size);@+break;
+  case b010: HPUT24(e->size);@+break;
+  case b011: HPUT32(e->size);@+break;
+  case b100: HPUT8(e->size);@+HPUT8(e->xsize);@+break;
+  case b101: HPUT16(e->size);@+HPUT16(e->xsize);@+break;
+  case b110: HPUT24(e->size);@+HPUT24(e->xsize);@+break;
+  case b111: HPUT32(e->size);@+HPUT32(e->xsize);@+break;
   default: QUIT("Can't happen");@+ break;
   }
   hput_string(e->file_name);@/
@@ -7974,6 +8236,7 @@ void hget_max_definitions(void)
     @<read and check the end byte |z|@>@;
   }
   if (INFO(a)!=0) QUIT("End of maximum list with info %d", INFO(a));
+  DBG(DBGDEF,"Getting Max Definitions END\n");
 }
 @
 
@@ -8087,6 +8350,8 @@ uint32_t definition_bits[0x100/32][32]={{0}};
 @
 
 @<initialize definitions@>=
+definition_bits[0][list_kind]=(1<<(MAX_LIST_DEFAULT+1))-1;
+definition_bits[0][param_kind]=(1<<(MAX_LIST_DEFAULT+1))-1;
 definition_bits[0][int_kind]=(1<<(MAX_INT_DEFAULT+1))-1;
 definition_bits[0][dimen_kind]=(1<<(MAX_DIMEN_DEFAULT+1))-1;
 definition_bits[0][xdimen_kind]=(1<<(MAX_XDIMEN_DEFAULT+1))-1;
@@ -8153,11 +8418,11 @@ def_node:
 \vbox{\getcode\vskip -\baselineskip\writecode}
 
 @<get functions@>=
-void hget_definition(int n, uint8_t a, uint32_t node_pos)
+void hget_definition(int n, Tag a, uint32_t node_pos)
 {@+ switch(KIND(a))
     { case font_kind: hget_font_def(n);@+ break;
       case param_kind:
-        {@+ List l; @+HGET_LIST(INFO(a),l); @+hwrite_parameters(&l); @+ break;@+} 
+        {@+ List l; l.t=a; @+HGET_LIST(INFO(a),l); @+hwrite_parameters(&l); @+ break;@+} 
       case page_kind: hget_page(); @+break;
       case dimen_kind:  hget_dimen(a); @+break;
       case xdimen_kind:
@@ -8179,7 +8444,9 @@ void hget_def_node()
 
   @<read the start byte |a|@>@;
   k=KIND(a);
-  if (k==label_kind)
+  if (k==unknown_kind && INFO(a)==b100)
+    hget_unknown_def();
+  else if (k==label_kind)
     hget_outline_or_label_def(INFO(a),node_pos);
   else
   { int n;
@@ -8196,9 +8463,9 @@ void hget_def_node()
     if(n>max_ref[k] || n <= max_fixed[k]) 
       QUIT("Definition %d for %s out of range [%d - %d]",@|
         n, definition_name[k],max_fixed[k]+1,max_ref[k]);
+    if (max_fixed[k]>max_default[k]) 
+      QUIT("Definitions for kind %s not supported", definition_name[k]);
   }
-  if (max_fixed[k]>max_default[k]) 
-    QUIT("Definitions for kind %s not supported", definition_name[k]);
   @<read and check the end byte |z|@>@;
 }
 @
@@ -8243,8 +8510,8 @@ is omitted in the long format as well as in the short format.
 @s parameters_node symbol
 @s def_node symbol
 @s parameters symbol
-@s empty_param_list symbol
-@s non_empty_param_list symbol
+@s named_param_list symbol
+@s param_list symbol
 
 @<symbols@>=
 %token PARAM "param"
@@ -8258,30 +8525,22 @@ is omitted in the long format as well as in the short format.
 @<parsing rules@>=
 def_list:  position @+
           | def_list def_node {check_param_def(&($2));};
-parameters: estimate def_list { $$.p=$2; $$.k=param_kind; $$.s=(hpos-hstart)-$2;};
+parameters: estimate def_list { $$.p=$2; $$.t=TAG(param_kind,b001); $$.s=(hpos-hstart)-$2;};
 @
 
 Using a parsing rule like
 ``\nts{param\_list}: \nts{start} \ts{PARAM} \nts{parameters} \ts{END}'',
 an empty parameter list will be written as ``\.{<param>}''.
-This looks ugly and seems like unnecessary syntax. It would be nicer
-if an empty parameter list could simply be omitted.
-Generating an empty parameter list for an omitted parameter list
-is however a bit tricky.
-Consider the sequence ``\.{<param\dots>} \.{<hbox\dots>}'' versus 
-the sequence ``\.{<hbox\dots>}''. In the latter case, 
-the parser will notice the missing parameter list
-when it encounters the \.{hbox} token.
-Of course it is not a good idea to augment the rules for the \.{hbox} with
-a special test for the missing empty parameter list.
-It is better to insert an empty parameter list before parsing the first ``\.{<}'' token
-and remove it again if a non-empty parameter list has been detected.
-This can be accomplished by the following two rules.
+This looks ugly and seems like unnecessary syntax because
+the parser knows anyway that a parameter list will come next.
+Therefore the keyword can be omited except in definitions and in unknown nodes.
+
 
 @<parsing rules@>=
-empty_param_list: position { HPUTX(2); hpos++; hput_tags($1,TAG(param_kind,1));};
-non_empty_param_list: start PARAM {hpos=hpos-2;} parameters END @/
-                     { @+ hput_tags($1-2,hput_list($1-1,&($4)));@+};
+named_param_list: start PARAM parameters END @/
+                     { @+ hput_tags($1,hput_list($1+1,&($3)));@+};
+param_list: named_param_list | start parameters END @/
+                     { @+ hput_tags($1,hput_list($1+1,&($2)));@+};
 @
 
 \writecode
@@ -8294,12 +8553,16 @@ void hwrite_parameters(List *l)
   hpos=hstart+h;@+  hend=hstart+e; /* restore  |hpos| and |hend| */ 
 }
 void hwrite_param_list(List *l)
-{ @+if (l->s!=0) @/
-  { hwrite_start();@+
-    hwritef("param"); 
-    hwrite_parameters(l);
-    hwrite_end();
-  }
+{ hwrite_start();@+
+  hwrite_parameters(l);
+  hwrite_end();
+}
+
+void hwrite_named_param_list(List *l)
+{ hwrite_start();@+
+  hwritef("param"); 
+  hwrite_parameters(l);
+  hwrite_end();
 }
 @
 
@@ -8483,7 +8746,7 @@ void hget_font_def(uint8_t f)
 
 \putcode
 @<put functions@>=
-uint8_t hput_font_head(uint8_t f,  char *n, Dimen s, @| uint16_t m, uint16_t y)
+Tag hput_font_head(uint8_t f,  char *n, Dimen s, @| uint16_t m, uint16_t y)
 { Info i=b000;
   DBG(DBGDEF,"Defining font %d (%s) size 0x%x\n", f, n, s); 
   hput_string(n);
@@ -8505,6 +8768,10 @@ for example, a penalty with value 50,
 written ``{\tt \.{<}penalty 50\.{>}}'', 
 from a penalty referencing the integer
 definition number 50, written ``{\tt \.{<}penalty *50\.{>}}''.
+
+@<hint types@>=
+typedef struct { @+Kind k; @+int n; @+} Ref;
+@
 
 \goodbreak
 \vbox{\readcode\vskip -\baselineskip\putcode}
@@ -8936,6 +9203,22 @@ max_default[range_kind]=MAX_RANGE_DEFAULT;
 max_fixed[range_kind]=zero_range_no;
 @
 
+\subsection{List, Texts, and Parameters}
+@<default names@>=
+typedef enum {@+
+empty_list_no=0@+
+} List_no;
+#define MAX_LIST_DEFAULT empty_list_no
+@
+
+@<define range defaults@>=
+max_default[list_kind]=MAX_LIST_DEFAULT;
+max_fixed[list_kind]=empty_list_no;
+max_default[param_kind]=MAX_LIST_DEFAULT;
+max_fixed[param_kind]=empty_list_no;
+@
+
+
 
 \section{Content Section}
 The content section\index{content section} is just a list of nodes. 
@@ -9140,7 +9423,7 @@ are supported in addition to the short options.
       switch(option)
       { case '-': 
           if (strcmp(*argv,"--version")==0)
-          { fprintf(stderr,"%s version %d.%d\n",prog_name, HINT_VERSION, HINT_SUB_VERSION);
+          { fprintf(stderr,"%s version " HINT_VERSION_STRING "\n",prog_name);
             exit(0);
           }
           else if (strcmp(*argv,"--help")==0) 
@@ -9325,9 +9608,9 @@ For portability, we first define the output specifier for expressions of type |s
 \index{RNG+\.{RNG}}\index{TAGERR+\.{TAGERR}}
 @<debug macros@>=
 #ifdef WIN32
-#define SIZE_F "0x%x"
+#define SIZE_F "0x%tx"
 #else
-#define SIZE_F "0x%zx"
+#define SIZE_F "0x%tx"
 #endif
 #ifdef DEBUG
 #define @[DBG(FLAGS,...)@] ((debugflags & (FLAGS))?LOG(__VA_ARGS__):0)
@@ -9383,6 +9666,16 @@ using negated values. What works for lists,
 of course, will work for other kinds of nodes as well.
 So we use the lowest two bits of the values in the size table
 to store the number of embedded nodes that follow after the initial part.
+To combine the number of leading bytes and the number of trailing nodes
+into a single number that encodes both values according to this formula
+we use the macro |NODE_SIZE|. We can get back both values using the
+macros |NODE_HEAD| and |NODE_TAIL|.
+
+@<hint macros@>=
+#define @[NODE_SIZE(H,T)@] ((T)==0?(H)+2:-4*((H)+1)+((T)-1))
+#define @[NODE_HEAD(N)@]   ((N)>0?(N)-2:-((N)>>2)-1)
+#define @[NODE_TAIL(N)@]   ((N)<0?((N)&0x3)+1:0)
+@
 
 For list nodes neither of these methods works and these nodes can be marked
 with a zero entry in the node size table.
@@ -9392,22 +9685,22 @@ for |hpos|:
 
 @<shared skip functions@>=
 uint32_t hff_list_pos=0, hff_list_size=0;
-uint8_t hff_tag;
+Tag hff_tag;
 void hff_hpos(void)
-{ signed char i,k;
+{ signed char i,b,n;
   hff_tag=*hpos;@+
   DBGTAG(hff_tag,hpos);
   i= hnode_size[hff_tag];
-  if (i>0) {hpos=hpos+i; @+return;@+ }
+  if (i>0) {hpos=hpos+NODE_HEAD(i)+2; @+return;@+ }
   else if (i<0) 
-  { k=1+(i&0x3);@+ i=i>>2;
-    hpos=hpos-i;    /* skip initial part */
-    while (k>0)
-    { hff_hpos(); @+k--; @+} /* skip trailing nodes */
+  { n=NODE_TAIL(i);@+ b=NODE_HEAD(i);
+    hpos=hpos+1+b;    /* skip initial part */
+    while (n>0)
+    { hff_hpos(); @+n--; @+} /* skip trailing nodes */
     hpos++;/* skip end byte */
     return;
   }
-  else if (hff_tag <=TAG(param_kind,5))
+  else if (hff_tag <=TAG(param_kind,7))
     @<advance |hpos| over a list@>@;
  TAGERR(hff_tag);
 }
@@ -9430,20 +9723,47 @@ readable.
   printf("\n\n");
 @  
 
+When dealing with unknown content nodes, it is convenient to know which
+nodes are known and which are not. For this purpose the |content_known|
+array contains one byte for each kind value and each such bytes will
+indicate using the seven least significant bits for which info values
+the corresponding nodes are known.
+
+@<print the |content_known| variable@>=
+  for (k=0;k<32;k++)
+    for(i=0;i<8;i++)
+      if (hnode_size[TAG(k,i)]!=0)
+        content_known[k]|=(1<<i); 
+  printf("uint8_t content_known[32]= {\n");
+  for (k=0; k<32; k++)@/
+  { printf("0x%02X",content_known[k]);
+    if (k<31) printf(",");
+    else  printf("};");
+    printf(" /* %s */\n",content_name[k]);
+  }
+  printf("\n");
+@  
+
+
+
+
+
 \subsection{Lists}\index{list}\index{text}\index{parameters}
 List don't follow the usual schema of nodes. They have a variable size
 that is stored in the node. We keep position and size in global variables
 so that the list that ends a node can be conveniently located.
 
 @<advance |hpos| over a list@>=
-switch (INFO(hff_tag)){
-case 1: hff_list_pos=hpos-hstart+1;hff_list_size=0; hpos=hpos+2;@+  return;
-case 2: hpos++;@+ hff_list_size=HGET8;@+ hff_list_pos=hpos-hstart+1;  hpos=hpos+1+hff_list_size+1+1+1;@+ return;
-case 3: hpos++;@+ HGET16(hff_list_size);@+hff_list_pos=hpos-hstart+1; hpos=hpos+1+hff_list_size+1+2+1;@+ return;
-case 4: hpos++;@+ HGET24(hff_list_size);@+hff_list_pos=hpos-hstart+1; hpos=hpos+1+hff_list_size+1+3+1;@+ return;
-case 5: hpos++;@+ HGET32(hff_list_size);@+hff_list_pos=hpos-hstart+1; hpos=hpos+1+hff_list_size+1+4+1;@+ return;
+switch (INFO(hff_tag)&0x3){
+case 0: hff_list_pos=hpos-hstart+1;hff_list_size=0; hpos=hpos+3;@+  return;
+case 1: hpos++;@+ hff_list_size=HGET8;@+ hff_list_pos=hpos-hstart+1;  hpos=hpos+1+hff_list_size+1+1+1;@+ return;
+case 2: hpos++;@+ HGET16(hff_list_size);@+hff_list_pos=hpos-hstart+1; hpos=hpos+1+hff_list_size+1+2+1;@+ return;
+case 3: hpos++;@+ HGET32(hff_list_size);@+hff_list_pos=hpos-hstart+1; hpos=hpos+1+hff_list_size+1+4+1;@+ return;
+default: QUIT(@["List with unknown info [%s,%d] at " SIZE_F "\n"@],NAME(hff_tag),INFO(hff_tag),hpos-hstart);
 }
 @
+Actually list nodes never occur as content nodes in their own right but only as subnodes of
+content nodes.
 
 Now let's consider the different kinds of nodes.
 
@@ -9453,68 +9773,66 @@ have a start and an end tag, one byte for the font,
 and depending on the info from 1 to 4 bytes for the character code.
 
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(glyph_kind,1)] = 1+1+1+1;
-hnode_size[TAG(glyph_kind,2)] = 1+1+2+1;
-hnode_size[TAG(glyph_kind,3)] = 1+1+3+1;
-hnode_size[TAG(glyph_kind,4)] = 1+1+4+1;
+hnode_size[TAG(glyph_kind,1)] = NODE_SIZE(1+1,0);
+hnode_size[TAG(glyph_kind,2)] = NODE_SIZE(1+2,0);
+hnode_size[TAG(glyph_kind,3)] = NODE_SIZE(1+3,0);
+hnode_size[TAG(glyph_kind,4)] = NODE_SIZE(1+4,0);
 @
+
+
+
 
 \subsection{Penalties}\index{penalty}
 Penalty nodes either contain a one byte reference, a one byte number, or a two byte number.
 
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(penalty_kind,0)] = 1+1+1;
-hnode_size[TAG(penalty_kind,1)] = 1+1+1;
-hnode_size[TAG(penalty_kind,2)] = 1+2+1;
+hnode_size[TAG(penalty_kind,0)] = NODE_SIZE(1,0);
+hnode_size[TAG(penalty_kind,1)] = NODE_SIZE(1,0);
+hnode_size[TAG(penalty_kind,2)] = NODE_SIZE(2,0);
+hnode_size[TAG(penalty_kind,3)] = NODE_SIZE(4,0);
 @
 
 \subsection{Kerns}\index{kern}
 Kern nodes can contain a reference (either to a dimension or an extended dimension)
-a dimension, or an extended dimension node.
+followed by either a dimension or an extended dimension node.
 
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(kern_kind,b000)] = 1+1+1;
-hnode_size[TAG(kern_kind,b001)] = 1+1+1;
-hnode_size[TAG(kern_kind,b010)] = 1+4+1;
-hnode_size[TAG(kern_kind,b011)] = I_T(1,1);
-hnode_size[TAG(kern_kind,b100)] = 1+1+1;
-hnode_size[TAG(kern_kind,b101)] = 1+1+1;
-hnode_size[TAG(kern_kind,b110)] = 1+4+1;
-hnode_size[TAG(kern_kind,b111)] = I_T(1,1);
+hnode_size[TAG(kern_kind,b000)] = NODE_SIZE(1,0);
+hnode_size[TAG(kern_kind,b001)] = NODE_SIZE(1,0);
+hnode_size[TAG(kern_kind,b010)] = NODE_SIZE(4,0);
+hnode_size[TAG(kern_kind,b011)] = NODE_SIZE(0,1);
+hnode_size[TAG(kern_kind,b100)] = NODE_SIZE(1,0);
+hnode_size[TAG(kern_kind,b101)] = NODE_SIZE(1,0);
+hnode_size[TAG(kern_kind,b110)] = NODE_SIZE(4,0);
+hnode_size[TAG(kern_kind,b111)] = NODE_SIZE(0,1);
 @
 
-For the two cases where a kern node contains an extended dimension,
-we use the following macro to combine the size of the initial part 
-with the number of trailing nodes:
-@<skip macros@>=
-#define @[I_T(I,T)@] (((-(I))<<2)|((T)-1))
-@
 
 \subsection{Extended Dimensions}\index{extended dimension}
 Extended dimensions contain either one two or three 4 byte values depending
 on the info bits.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(xdimen_kind,b100)] = 1+4+1;
-hnode_size[TAG(xdimen_kind,b010)] = 1+4+1;
-hnode_size[TAG(xdimen_kind,b001)] = 1+4+1;
-hnode_size[TAG(xdimen_kind,b110)] = 1+4+4+1;
-hnode_size[TAG(xdimen_kind,b101)] = 1+4+4+1;
-hnode_size[TAG(xdimen_kind,b011)] = 1+4+4+1;
-hnode_size[TAG(xdimen_kind,b111)] = 1+4+4+4+1;
+hnode_size[TAG(xdimen_kind,b100)] = NODE_SIZE(4,0);
+hnode_size[TAG(xdimen_kind,b010)] = NODE_SIZE(4,0);
+hnode_size[TAG(xdimen_kind,b001)] = NODE_SIZE(4,0);
+hnode_size[TAG(xdimen_kind,b110)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(xdimen_kind,b101)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(xdimen_kind,b011)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(xdimen_kind,b111)] = NODE_SIZE(4+4+4,0);
 @
 
 \subsection{Language}\index{language}
 Language nodes either code the language in the info value or they contain
 a reference byte.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(language_kind,b000)] = 1+1+1;
-hnode_size[TAG(language_kind,1)] = 1+1;
-hnode_size[TAG(language_kind,2)] = 1+1;
-hnode_size[TAG(language_kind,3)] = 1+1;
-hnode_size[TAG(language_kind,4)] = 1+1;
-hnode_size[TAG(language_kind,5)] = 1+1;
-hnode_size[TAG(language_kind,6)] = 1+1;
-hnode_size[TAG(language_kind,7)] = 1+1;
+hnode_size[TAG(language_kind,b000)] = NODE_SIZE(1,0);
+hnode_size[TAG(language_kind,1)] = NODE_SIZE(0,0);
+hnode_size[TAG(language_kind,2)] = NODE_SIZE(0,0);
+hnode_size[TAG(language_kind,3)] = NODE_SIZE(0,0);
+hnode_size[TAG(language_kind,4)] = NODE_SIZE(0,0);
+hnode_size[TAG(language_kind,5)] = NODE_SIZE(0,0);
+hnode_size[TAG(language_kind,6)] = NODE_SIZE(0,0);
+hnode_size[TAG(language_kind,7)] = NODE_SIZE(0,0);
 @
 
 \subsection{Rules}\index{rule}
@@ -9522,14 +9840,14 @@ Rules usually contain a reference, otherwise
 they contain either one, two, or three 4 byte values depending
 on the info bits.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(rule_kind,b000)] = 1+1+1;
-hnode_size[TAG(rule_kind,b100)] = 1+4+1;
-hnode_size[TAG(rule_kind,b010)] = 1+4+1;
-hnode_size[TAG(rule_kind,b001)] = 1+4+1;
-hnode_size[TAG(rule_kind,b110)] = 1+4+4+1;
-hnode_size[TAG(rule_kind,b101)] = 1+4+4+1;
-hnode_size[TAG(rule_kind,b011)] = 1+4+4+1;
-hnode_size[TAG(rule_kind,b111)] = 1+4+4+4+1;
+hnode_size[TAG(rule_kind,b000)] = NODE_SIZE(1,0);
+hnode_size[TAG(rule_kind,b100)] = NODE_SIZE(4,0);
+hnode_size[TAG(rule_kind,b010)] = NODE_SIZE(4,0);
+hnode_size[TAG(rule_kind,b001)] = NODE_SIZE(4,0);
+hnode_size[TAG(rule_kind,b110)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(rule_kind,b101)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(rule_kind,b011)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(rule_kind,b111)] = NODE_SIZE(4+4+4,0);
 @
 
 \subsection{Glue}\index{glue}
@@ -9538,14 +9856,14 @@ they contain either one two or three 4 byte values depending
 on the info bits, and possibly even an extended dimension node followed 
 by two 4 byte values.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(glue_kind,b000)] = 1+1+1;
-hnode_size[TAG(glue_kind,b100)] = 1+4+1;
-hnode_size[TAG(glue_kind,b010)] = 1+4+1;
-hnode_size[TAG(glue_kind,b001)] = 1+4+1;
-hnode_size[TAG(glue_kind,b110)] = 1+4+4+1;
-hnode_size[TAG(glue_kind,b101)] = 1+4+4+1;
-hnode_size[TAG(glue_kind,b011)] = 1+4+4+1;
-hnode_size[TAG(glue_kind,b111)] = I_T(1+4+4,1);
+hnode_size[TAG(glue_kind,b000)] = NODE_SIZE(1,0);
+hnode_size[TAG(glue_kind,b100)] = NODE_SIZE(4,0);
+hnode_size[TAG(glue_kind,b010)] = NODE_SIZE(4,0);
+hnode_size[TAG(glue_kind,b001)] = NODE_SIZE(4,0);
+hnode_size[TAG(glue_kind,b110)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(glue_kind,b101)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(glue_kind,b011)] = NODE_SIZE(4+4,0);
+hnode_size[TAG(glue_kind,b111)] = NODE_SIZE(4+4,1);
 @
 
 
@@ -9556,22 +9874,22 @@ and some a glue setting together with glue sign and glue order.
 The last item in a box is a node list.
 
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(hbox_kind,b000)] = I_T(1+4+4,1); /* tag, height, width*/
-hnode_size[TAG(hbox_kind,b001)] = I_T(1+4+4+4,1); /* and depth */
-hnode_size[TAG(hbox_kind,b010)] = I_T(1+4+4+4,1); /* or shift */
-hnode_size[TAG(hbox_kind,b011)] = I_T(1+4+4+4+4,1); /* or both */
-hnode_size[TAG(hbox_kind,b100)] = I_T(1+4+4+5,1); /* and glue setting*/
-hnode_size[TAG(hbox_kind,b101)] = I_T(1+4+4+4+5,1); /* and depth */
-hnode_size[TAG(hbox_kind,b110)] = I_T(1+4+4+4+5,1); /* or shift */
-hnode_size[TAG(hbox_kind,b111)] = I_T(1+4+4+4+4+5,1); /*or both */
-hnode_size[TAG(vbox_kind,b000)] = I_T(1+4+4,1); /* same for vbox*/
-hnode_size[TAG(vbox_kind,b001)] = I_T(1+4+4+4,1);
-hnode_size[TAG(vbox_kind,b010)] = I_T(1+4+4+4,1);
-hnode_size[TAG(vbox_kind,b011)] = I_T(1+4+4+4+4,1);
-hnode_size[TAG(vbox_kind,b100)] = I_T(1+4+4+5,1);
-hnode_size[TAG(vbox_kind,b101)] = I_T(1+4+4+4+5,1);
-hnode_size[TAG(vbox_kind,b110)] = I_T(1+4+4+4+5,1);
-hnode_size[TAG(vbox_kind,b111)] = I_T(1+4+4+4+4+5,1);
+hnode_size[TAG(hbox_kind,b000)] = NODE_SIZE(4+4,1); /* tag, height, width*/
+hnode_size[TAG(hbox_kind,b001)] = NODE_SIZE(4+4+4,1); /* and depth */
+hnode_size[TAG(hbox_kind,b010)] = NODE_SIZE(4+4+4,1); /* or shift */
+hnode_size[TAG(hbox_kind,b011)] = NODE_SIZE(4+4+4+4,1); /* or both */
+hnode_size[TAG(hbox_kind,b100)] = NODE_SIZE(4+4+5,1); /* and glue setting*/
+hnode_size[TAG(hbox_kind,b101)] = NODE_SIZE(4+4+4+5,1); /* and depth */
+hnode_size[TAG(hbox_kind,b110)] = NODE_SIZE(4+4+4+5,1); /* or shift */
+hnode_size[TAG(hbox_kind,b111)] = NODE_SIZE(4+4+4+4+5,1); /*or both */
+hnode_size[TAG(vbox_kind,b000)] = NODE_SIZE(4+4,1); /* same for vbox*/
+hnode_size[TAG(vbox_kind,b001)] = NODE_SIZE(4+4+4,1);
+hnode_size[TAG(vbox_kind,b010)] = NODE_SIZE(4+4+4,1);
+hnode_size[TAG(vbox_kind,b011)] = NODE_SIZE(4+4+4+4,1);
+hnode_size[TAG(vbox_kind,b100)] = NODE_SIZE(4+4+5,1);
+hnode_size[TAG(vbox_kind,b101)] = NODE_SIZE(4+4+4+5,1);
+hnode_size[TAG(vbox_kind,b110)] = NODE_SIZE(4+4+4+5,1);
+hnode_size[TAG(vbox_kind,b111)] = NODE_SIZE(4+4+4+4+5,1);
 @
 
 \subsection{Extended Boxes}\index{extended box}
@@ -9579,72 +9897,72 @@ Extended boxes start with height, width, depth, stretch, or shrink components.
 Then follows an extended dimension either as a reference or a node.
 The node ends with a list.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(hset_kind,b000)] = I_T(1+4+4+4+4+1,1);
-hnode_size[TAG(hset_kind,b001)] = I_T(1+4+4+4+4+4+1,1);
-hnode_size[TAG(hset_kind,b010)] = I_T(1+4+4+4+4+4+1,1);
-hnode_size[TAG(hset_kind,b011)] = I_T(1+4+4+4+4+4+4+1,1);
-hnode_size[TAG(vset_kind,b000)] = I_T(1+4+4+4+4+1,1); 
-hnode_size[TAG(vset_kind,b001)] = I_T(1+4+4+4+4+4+1,1);
-hnode_size[TAG(vset_kind,b010)] = I_T(1+4+4+4+4+4+1,1);
-hnode_size[TAG(vset_kind,b011)] = I_T(1+4+4+4+4+4+4+1,1);
+hnode_size[TAG(hset_kind,b000)] = NODE_SIZE(4+4+4+4+1,1);
+hnode_size[TAG(hset_kind,b001)] = NODE_SIZE(4+4+4+4+4+1,1);
+hnode_size[TAG(hset_kind,b010)] = NODE_SIZE(4+4+4+4+4+1,1);
+hnode_size[TAG(hset_kind,b011)] = NODE_SIZE(4+4+4+4+4+4+1,1);
+hnode_size[TAG(vset_kind,b000)] = NODE_SIZE(4+4+4+4+1,1); 
+hnode_size[TAG(vset_kind,b001)] = NODE_SIZE(4+4+4+4+4+1,1);
+hnode_size[TAG(vset_kind,b010)] = NODE_SIZE(4+4+4+4+4+1,1);
+hnode_size[TAG(vset_kind,b011)] = NODE_SIZE(4+4+4+4+4+4+1,1);
 
-hnode_size[TAG(hset_kind,b100)] = I_T(1+4+4+4+4,2);
-hnode_size[TAG(hset_kind,b101)] = I_T(1+4+4+4+4+4,2);
-hnode_size[TAG(hset_kind,b110)] = I_T(1+4+4+4+4+4,2);
-hnode_size[TAG(hset_kind,b111)] = I_T(1+4+4+4+4+4+4,2);
-hnode_size[TAG(vset_kind,b100)] = I_T(1+4+4+4+4,2); 
-hnode_size[TAG(vset_kind,b101)] = I_T(1+4+4+4+4+4,2);
-hnode_size[TAG(vset_kind,b110)] = I_T(1+4+4+4+4+4,2);
-hnode_size[TAG(vset_kind,b111)] = I_T(1+4+4+4+4+4+4,2);
+hnode_size[TAG(hset_kind,b100)] = NODE_SIZE(4+4+4+4,2);
+hnode_size[TAG(hset_kind,b101)] = NODE_SIZE(4+4+4+4+4,2);
+hnode_size[TAG(hset_kind,b110)] = NODE_SIZE(4+4+4+4+4,2);
+hnode_size[TAG(hset_kind,b111)] = NODE_SIZE(4+4+4+4+4+4,2);
+hnode_size[TAG(vset_kind,b100)] = NODE_SIZE(4+4+4+4,2); 
+hnode_size[TAG(vset_kind,b101)] = NODE_SIZE(4+4+4+4+4,2);
+hnode_size[TAG(vset_kind,b110)] = NODE_SIZE(4+4+4+4+4,2);
+hnode_size[TAG(vset_kind,b111)] = NODE_SIZE(4+4+4+4+4+4,2);
 @
 
 The hpack and vpack nodes start with a shift amount and in case of vpack a depth.
 Then again an extended dimension and a list.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(hpack_kind,b000)] = I_T(1+1,1); 
-hnode_size[TAG(hpack_kind,b001)] = I_T(1+1,1); 
-hnode_size[TAG(hpack_kind,b010)] = I_T(1+4+1,1);
-hnode_size[TAG(hpack_kind,b011)] = I_T(1+4+1,1);
-hnode_size[TAG(vpack_kind,b000)] = I_T(1+4+1,1);
-hnode_size[TAG(vpack_kind,b001)] = I_T(1+4+1,1);
-hnode_size[TAG(vpack_kind,b010)] = I_T(1+4+4+1,1);
-hnode_size[TAG(vpack_kind,b011)] = I_T(1+4+4+1,1);
+hnode_size[TAG(hpack_kind,b000)] = NODE_SIZE(1,1); 
+hnode_size[TAG(hpack_kind,b001)] = NODE_SIZE(1,1); 
+hnode_size[TAG(hpack_kind,b010)] = NODE_SIZE(4+1,1);
+hnode_size[TAG(hpack_kind,b011)] = NODE_SIZE(4+1,1);
+hnode_size[TAG(vpack_kind,b000)] = NODE_SIZE(4+1,1);
+hnode_size[TAG(vpack_kind,b001)] = NODE_SIZE(4+1,1);
+hnode_size[TAG(vpack_kind,b010)] = NODE_SIZE(4+4+1,1);
+hnode_size[TAG(vpack_kind,b011)] = NODE_SIZE(4+4+1,1);
 
-hnode_size[TAG(hpack_kind,b100)] = I_T(1,2); 
-hnode_size[TAG(hpack_kind,b101)] = I_T(1,2); 
-hnode_size[TAG(hpack_kind,b110)] = I_T(1+4,2);
-hnode_size[TAG(hpack_kind,b111)] = I_T(1+4,2);
-hnode_size[TAG(vpack_kind,b100)] = I_T(1+4,2);
-hnode_size[TAG(vpack_kind,b101)] = I_T(1+4,2);
-hnode_size[TAG(vpack_kind,b110)] = I_T(1+4+4,2);
-hnode_size[TAG(vpack_kind,b111)] = I_T(1+4+4,2);
+hnode_size[TAG(hpack_kind,b100)] = NODE_SIZE(0,2); 
+hnode_size[TAG(hpack_kind,b101)] = NODE_SIZE(0,2); 
+hnode_size[TAG(hpack_kind,b110)] = NODE_SIZE(4,2);
+hnode_size[TAG(hpack_kind,b111)] = NODE_SIZE(4,2);
+hnode_size[TAG(vpack_kind,b100)] = NODE_SIZE(4,2);
+hnode_size[TAG(vpack_kind,b101)] = NODE_SIZE(4,2);
+hnode_size[TAG(vpack_kind,b110)] = NODE_SIZE(4+4,2);
+hnode_size[TAG(vpack_kind,b111)] = NODE_SIZE(4+4,2);
 @
 
 \subsection{Leaders}\index{leaders}
 Most leader nodes will use a reference.
 Otherwise they contain a glue node followed by a box or rule node.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(leaders_kind,b000)] = 1+1+1; 
-hnode_size[TAG(leaders_kind,1)] = I_T(1,1); 
-hnode_size[TAG(leaders_kind,2)] = I_T(1,1); 
-hnode_size[TAG(leaders_kind,3)] = I_T(1,1); 
-hnode_size[TAG(leaders_kind,b100|1)] = I_T(1,2); 
-hnode_size[TAG(leaders_kind,b100|2)] = I_T(1,2); 
-hnode_size[TAG(leaders_kind,b100|3)] = I_T(1,2); 
+hnode_size[TAG(leaders_kind,b000)] = NODE_SIZE(1,0); 
+hnode_size[TAG(leaders_kind,1)] = NODE_SIZE(0,1); 
+hnode_size[TAG(leaders_kind,2)] = NODE_SIZE(0,1); 
+hnode_size[TAG(leaders_kind,3)] = NODE_SIZE(0,1); 
+hnode_size[TAG(leaders_kind,b100|1)] = NODE_SIZE(0,2); 
+hnode_size[TAG(leaders_kind,b100|2)] = NODE_SIZE(0,2); 
+hnode_size[TAG(leaders_kind,b100|3)] = NODE_SIZE(0,2); 
 @
 
 \subsection{Baseline Skips}\index{baseline skip}
 Here we expect either a reference or two optional glue nodes followed by an optional dimension.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(baseline_kind,b000)] = 1+1+1; 
-hnode_size[TAG(baseline_kind,b001)] = 1+4+1; 
-hnode_size[TAG(baseline_kind,b010)] = I_T(1,1); 
-hnode_size[TAG(baseline_kind,b100)] = I_T(1,1); 
-hnode_size[TAG(baseline_kind,b110)] = I_T(1,2);
+hnode_size[TAG(baseline_kind,b000)] = NODE_SIZE(1,0); 
+hnode_size[TAG(baseline_kind,b001)] = NODE_SIZE(4,0); 
+hnode_size[TAG(baseline_kind,b010)] = NODE_SIZE(0,1); 
+hnode_size[TAG(baseline_kind,b100)] = NODE_SIZE(0,1); 
+hnode_size[TAG(baseline_kind,b110)] = NODE_SIZE(0,2);
 
-hnode_size[TAG(baseline_kind,b011)] = I_T(1+4,1);
-hnode_size[TAG(baseline_kind,b101)] = I_T(1+4,1);
-hnode_size[TAG(baseline_kind,b111)] = I_T(1+4,2);
+hnode_size[TAG(baseline_kind,b011)] = NODE_SIZE(4,1);
+hnode_size[TAG(baseline_kind,b101)] = NODE_SIZE(4,1);
+hnode_size[TAG(baseline_kind,b111)] = NODE_SIZE(4,2);
 @
 
 
@@ -9653,14 +9971,14 @@ As usual a reference is possible, otherwise the font is followed by character by
 as given by the info. Only if the info value is 7, the number of character bytes
 is stored separately.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(ligature_kind,b000)] = 1+1+1;  
-hnode_size[TAG(ligature_kind,1)] = 1+1+1+1; 
-hnode_size[TAG(ligature_kind,2)] = 1+1+2+1; 
-hnode_size[TAG(ligature_kind,3)] = 1+1+3+1; 
-hnode_size[TAG(ligature_kind,4)] = 1+1+4+1; 
-hnode_size[TAG(ligature_kind,5)] = 1+1+5+1; 
-hnode_size[TAG(ligature_kind,6)] = 1+1+6+1; 
-hnode_size[TAG(ligature_kind,7)] = I_T(1+1,1); 
+hnode_size[TAG(ligature_kind,b000)] = NODE_SIZE(1,0);  
+hnode_size[TAG(ligature_kind,1)] = NODE_SIZE(1+1,0); 
+hnode_size[TAG(ligature_kind,2)] = NODE_SIZE(1+2,0); 
+hnode_size[TAG(ligature_kind,3)] = NODE_SIZE(1+3,0); 
+hnode_size[TAG(ligature_kind,4)] = NODE_SIZE(1+4,0); 
+hnode_size[TAG(ligature_kind,5)] = NODE_SIZE(1+5,0); 
+hnode_size[TAG(ligature_kind,6)] = NODE_SIZE(1+6,0); 
+hnode_size[TAG(ligature_kind,7)] = NODE_SIZE(1,1); 
 @
 
 \subsection{Discretionary breaks}\index{discretionary break}
@@ -9669,22 +9987,22 @@ with empty pre- and post-list, or with a zero line skip limit
 Otherwise one or two lists are followed by an optional replace count.
 
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(disc_kind,b000)] = 1+1+1;  
-hnode_size[TAG(disc_kind,b010)] = I_T(1,1);  
-hnode_size[TAG(disc_kind,b011)] = I_T(1,2);  
-hnode_size[TAG(disc_kind,b100)] = 1+1+1;  
-hnode_size[TAG(disc_kind,b110)] = I_T(1+1,1);  
-hnode_size[TAG(disc_kind,b111)] = I_T(1+1,2);  
+hnode_size[TAG(disc_kind,b000)] = NODE_SIZE(1,0);  
+hnode_size[TAG(disc_kind,b010)] = NODE_SIZE(0,1);  
+hnode_size[TAG(disc_kind,b011)] = NODE_SIZE(0,2);  
+hnode_size[TAG(disc_kind,b100)] = NODE_SIZE(1,0);  
+hnode_size[TAG(disc_kind,b110)] = NODE_SIZE(1,1);  
+hnode_size[TAG(disc_kind,b111)] = NODE_SIZE(1,2);  
 @
 
 \subsection{Paragraphs}\index{paragraph}
 Paragraph nodes contain an extended dimension, an parameter list and a list.
 The first two can be given as a reference.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(par_kind,b000)] = I_T(1+1+1,1);  
-hnode_size[TAG(par_kind,b010)] = I_T(1+1,2);  
-hnode_size[TAG(par_kind,b110)] = I_T(1,3);  
-hnode_size[TAG(par_kind,b100)] = I_T(1+1,2);  
+hnode_size[TAG(par_kind,b000)] = NODE_SIZE(1+1,1);  
+hnode_size[TAG(par_kind,b010)] = NODE_SIZE(1,2);  
+hnode_size[TAG(par_kind,b110)] = NODE_SIZE(0,3);  
+hnode_size[TAG(par_kind,b100)] = NODE_SIZE(1,2);  
 @
 
 \subsection{Mathematics}\index{mathematics}\index{displayed formula}
@@ -9692,75 +10010,76 @@ Displayed math needs a parameter list, either as list or as reference
 followed by an optional left or right equation number and a list.
 Text math is simpler: the only information is in the info value.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(math_kind,b000)] = I_T(1+1,1);  
-hnode_size[TAG(math_kind,b001)] = I_T(1+1,2);  
-hnode_size[TAG(math_kind,b010)] = I_T(1+1,2);  
-hnode_size[TAG(math_kind,b100)] = I_T(1,2);  
-hnode_size[TAG(math_kind,b101)] = I_T(1,3);  
-hnode_size[TAG(math_kind,b110)] = I_T(1,3);  
-hnode_size[TAG(math_kind,b111)] = 1+1;
-hnode_size[TAG(math_kind,b011)] = 1+1;
+hnode_size[TAG(math_kind,b000)] = NODE_SIZE(1,1);  
+hnode_size[TAG(math_kind,b001)] = NODE_SIZE(1,2);  
+hnode_size[TAG(math_kind,b010)] = NODE_SIZE(1,2);  
+hnode_size[TAG(math_kind,b100)] = NODE_SIZE(0,2);  
+hnode_size[TAG(math_kind,b101)] = NODE_SIZE(0,3);  
+hnode_size[TAG(math_kind,b110)] = NODE_SIZE(0,3);  
+hnode_size[TAG(math_kind,b111)] = NODE_SIZE(0,0);
+hnode_size[TAG(math_kind,b011)] = NODE_SIZE(0,0);
 @
 
 \subsection{Adjustments}\index{adjustment}
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(adjust_kind,1)] = I_T(1,1);  
+hnode_size[TAG(adjust_kind,1)] = NODE_SIZE(0,1);  
 @
 
 \subsection{Tables}\index{alignment}
 Tables have an extended dimension either as a node or as a reference followed 
 by two lists.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(table_kind,b000)] = I_T(1+1,2);  
-hnode_size[TAG(table_kind,b001)] = I_T(1+1,2);  
-hnode_size[TAG(table_kind,b010)] = I_T(1+1,2);  
-hnode_size[TAG(table_kind,b011)] = I_T(1+1,2);  
-hnode_size[TAG(table_kind,b100)] = I_T(1,3);  
-hnode_size[TAG(table_kind,b101)] = I_T(1,3);  
-hnode_size[TAG(table_kind,b110)] = I_T(1,3);  
-hnode_size[TAG(table_kind,b111)] = I_T(1,3);  
+hnode_size[TAG(table_kind,b000)] = NODE_SIZE(1,2);  
+hnode_size[TAG(table_kind,b001)] = NODE_SIZE(1,2);  
+hnode_size[TAG(table_kind,b010)] = NODE_SIZE(1,2);  
+hnode_size[TAG(table_kind,b011)] = NODE_SIZE(1,2);  
+hnode_size[TAG(table_kind,b100)] = NODE_SIZE(0,3);  
+hnode_size[TAG(table_kind,b101)] = NODE_SIZE(0,3);  
+hnode_size[TAG(table_kind,b110)] = NODE_SIZE(0,3);  
+hnode_size[TAG(table_kind,b111)] = NODE_SIZE(0,3);  
 @
 Outer item nodes are lists of inner item nodes, inner item nodes are box nodes
 followed by an optional span count.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(item_kind,b000)] = I_T(1,1);  /* outer */
-hnode_size[TAG(item_kind,1)] = I_T(1,1);    /* inner */
-hnode_size[TAG(item_kind,2)] = I_T(1,1);   
-hnode_size[TAG(item_kind,3)] = I_T(1,1);   
-hnode_size[TAG(item_kind,4)] = I_T(1,1);   
-hnode_size[TAG(item_kind,5)] = I_T(1,1);   
-hnode_size[TAG(item_kind,6)] = I_T(1,1);   
-hnode_size[TAG(item_kind,6)] = I_T(2,1);   
+hnode_size[TAG(item_kind,b000)] = NODE_SIZE(0,1);  /* outer */
+hnode_size[TAG(item_kind,1)] = NODE_SIZE(0,1);    /* inner */
+hnode_size[TAG(item_kind,2)] = NODE_SIZE(0,1);   
+hnode_size[TAG(item_kind,3)] = NODE_SIZE(0,1);   
+hnode_size[TAG(item_kind,4)] = NODE_SIZE(0,1);   
+hnode_size[TAG(item_kind,5)] = NODE_SIZE(0,1);   
+hnode_size[TAG(item_kind,6)] = NODE_SIZE(0,1);   
+hnode_size[TAG(item_kind,7)] = NODE_SIZE(1,1);   
 @
 
 \subsection{Images}\index{image}
 If not given by a reference, images contain a section reference and optional dimensions and a descriptive list.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(image_kind,b000)] = 1+1+1;
-hnode_size[TAG(image_kind,b001)] = I_T(1+2+4+4,1);
-hnode_size[TAG(image_kind,b010)] = I_T(1+2+4+4,1);
-hnode_size[TAG(image_kind,b011)] = I_T(1+2+4+4,1);
-hnode_size[TAG(image_kind,b100)] = I_T(1+2+4+1+1,1);
-hnode_size[TAG(image_kind,b101)] = I_T(1+2+4+1,2);
-hnode_size[TAG(image_kind,b110)] = I_T(1+2+4+1,2);
-hnode_size[TAG(image_kind,b111)] = I_T(1+2+4,3);
+hnode_size[TAG(image_kind,b000)] = NODE_SIZE(1,0);
+hnode_size[TAG(image_kind,b001)] = NODE_SIZE(2+4+4,1);
+hnode_size[TAG(image_kind,b010)] = NODE_SIZE(2+4+4,1);
+hnode_size[TAG(image_kind,b011)] = NODE_SIZE(2+4+4,1);
+hnode_size[TAG(image_kind,b100)] = NODE_SIZE(2+4+1+1,1);
+hnode_size[TAG(image_kind,b101)] = NODE_SIZE(2+4+1,2);
+hnode_size[TAG(image_kind,b110)] = NODE_SIZE(2+4+1,2);
+hnode_size[TAG(image_kind,b111)] = NODE_SIZE(2+4,3);
 @
 
 \subsection{Links}\index{link}
 Links contain either a 2 byte or a 1 byte reference.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(link_kind,b000)] = 1+1+1;
-hnode_size[TAG(link_kind,b001)] = 1+2+1;
-hnode_size[TAG(link_kind,b010)] = 1+1+1;
-hnode_size[TAG(link_kind,b011)] = 1+2+1;
+hnode_size[TAG(link_kind,b000)] = NODE_SIZE(1,0);
+hnode_size[TAG(link_kind,b001)] = NODE_SIZE(2,0);
+hnode_size[TAG(link_kind,b010)] = NODE_SIZE(1,0);
+hnode_size[TAG(link_kind,b011)] = NODE_SIZE(2,0);
 @
 
 \subsection{Stream Nodes}\index{stream}
 After the stream reference follows a parameter list, either as reference
 or as a list, and then a content list.
 @<initialize the  |hnode_size| array@>=
-hnode_size[TAG(stream_kind,b000)] = I_T(1+1+1,1);
-hnode_size[TAG(stream_kind,b010)] = I_T(1+1,2);
+hnode_size[TAG(stream_kind,b000)] = NODE_SIZE(1+1,1);
+hnode_size[TAG(stream_kind,b010)] = NODE_SIZE(1,2);
+hnode_size[TAG(stream_kind,b100)] = NODE_SIZE(1,0);
 @
 
 
@@ -9805,12 +10124,13 @@ static void hteg_content_node(void)
   @<skip and check the start byte |a|@>@;
 }
 
-static void hteg_content(uint8_t z)
+static void hteg_content(Tag z)
 {@+ switch (z)@/
   { 
     @<cases to skip content@>@;@t\1@>@/
     default:
-      TAGERR(z);
+      if (!hteg_unknown(z))
+        TAGERR(z);
       break;@t\2@>@/
   }
 }
@@ -9819,7 +10139,7 @@ static void hteg_content(uint8_t z)
 The code to skip the end\index{end byte} byte |z| and to check the start\index{start byte} byte |a| is used repeatedly.
 
 @<skip the end byte |z|@>=
-  uint8_t a,z; /* the start and the end byte*/
+  Tag a,z; /* the start and the end byte*/
   uint32_t node_pos=hpos-hstart;
   if (hpos<=hstart) return;
   HTEGTAG(z);
@@ -9919,12 +10239,14 @@ case TAG(glyph_kind,4): @+{@+Glyph g;@+ HTEG_GLYPH(4,g);@+}@+break;
 @<skip macros@>=
 #define @[HTEG_PENALTY(I,P)@] \
 if (I==1) {int8_t n; @+n=HTEG8;  @+P=n;@+ } \
-else {int16_t n;@+ HTEG16(n); @+ P=n; @+}\
+else if (I==2) {int16_t n;@+ HTEG16(n); @+ P=n; @+}\
+else if (I==3) {int32_t n;@+ HTEG32(n); @+ P=n; @+}
 @
 
 @<cases to skip content@>=
 @t\1\kern1em@>case TAG(penalty_kind,1):  @+{int32_t p;@+ HTEG_PENALTY(1,p);@+} @+break;
 case TAG(penalty_kind,2):  @+{int32_t p;@+ HTEG_PENALTY(2,p);@+} @+break;
+case TAG(penalty_kind,3):  @+{int32_t p;@+ HTEG_PENALTY(2,p);@+} @+break;
 @
 
 
@@ -10078,9 +10400,9 @@ if ((I)&b010)  { Dimen a; @+HTEG32(a);@+} \
 #define @[HTEG_PACK(K,I)@] @/\
  { List l; @+hteg_list(&l); @+} \
  if ((I)&b100) {Xdimen x; hteg_xdimen_node(&x);@+} @+ else HTEG_REF(xdimen_kind);\
- if (K==vpack_kind) { Dimen d; @+HTEG32(d); @+ }\
- if ((I)&b010)  { Dimen d; @+HTEG32(d); @+ }
-@
+ if ((I)&b010)  { Dimen d; @+HTEG32(d); @+ }\
+ if (K==vpack_kind) { Dimen d; @+HTEG32(d); @+ }
+ @
 
 @<cases to skip content@>=
 @t\1\kern1em@>case TAG(hset_kind,b000): HTEG_SET(b000); @+ break;
@@ -10184,8 +10506,8 @@ case TAG(ligature_kind,7):@+ {Lig l; @+HTEG_LIG(7,l);@+} @+break;
 \noindent
 @<skip macros@>=
 #define @[HTEG_DISC(I,H)@]\
-if ((I)&b001) hteg_list(&((H).q)); else { (H).q.p=hpos-hstart; @+(H).q.s=0; @+(H).q.k=list_kind; @+}\
-if ((I)&b010) hteg_list(&((H).p)); else { (H).p.p=hpos-hstart; @+(H).p.s=0; @+(H).p.k=list_kind; @+} \
+if ((I)&b001) hteg_list(&((H).q)); else { (H).q.p=hpos-hstart; @+(H).q.s=0; @+(H).q.t=TAG(list_kind,b000); @+}\
+if ((I)&b010) hteg_list(&((H).p)); else { (H).p.p=hpos-hstart; @+(H).p.s=0; @+(H).p.t=TAG(list_kind,b000); @+} \
 if ((I)&b100) (H).r=HTEG8; @+else (H).r=0;
 @
 @<cases to skip content@>=
@@ -10287,30 +10609,32 @@ case TAG(link_kind,b011): @+ HTEG_LINK(b011); @+break;
 @<shared skip functions@>=
 void hteg_size_boundary(Info info)
 { uint32_t n;
-  if (info<2) return;
+  info=info&0x3;
+  if (info==0) return;
   n=HTEG8;
-  if (n-1!=0x100-info) QUIT(@["List size boundary byte 0x%x does not match info value %d at " SIZE_F@],
+  if (n!=0x100-info) QUIT(@["List size boundary byte 0x%x does not match info value %d at " SIZE_F@],
                             n, info,hpos-hstart);
 }
 
 uint32_t hteg_list_size(Info info)
-{ uint32_t n;  
-  if (info==1) return 0;
-  else if (info==2) n=HTEG8;
-  else if (info==3) HTEG16(n);
-  else if (info==4) HTEG24(n);
-  else if (info==5) HTEG32(n);
-  else QUIT("List info %d must be 1, 2, 3, 4, or 5",info);
+{ uint32_t n=0;
+  info=info&0x3;  
+  if (info==0) return 0;
+  else if (info==1) n=HTEG8;
+  else if (info==2) HTEG16(n);
+  else if (info==3) HTEG32(n);
+  else QUIT("List info %d must be 0, 1, 2, or 3",info);
   return n;
 } 
 
 void hteg_list(List *l)
 { @<skip the end byte |z|@>@,
-  @+if (KIND(z)!=list_kind && KIND(z)!=text_kind  &&@| KIND(z)!=param_kind) @/
+  @+if (KIND(z)!=list_kind && KIND(z)!=param_kind) @/
     QUIT("List expected at 0x%x", (uint32_t)(hpos-hstart)); 
-   else
+  else if ((INFO(z)&0x3)==0)  {HBACK(1); l->s=0;@+}
+  else
   { uint32_t s;
-    l->k=KIND(z);
+    l->t=z;
     l->s=hteg_list_size(INFO(z));
     hteg_size_boundary(INFO(z));
     hpos=hpos-l->s;
@@ -10319,8 +10643,8 @@ void hteg_list(List *l)
     s=hteg_list_size(INFO(z));
     if (s!=l->s) QUIT(@["List sizes at " SIZE_F " and 0x%x do not match 0x%x != 0x%x"@],
                         hpos-hstart,node_pos-1,s,l->s);
-    @<skip and check the start byte |a|@>@;
   }
+  @<skip and check the start byte |a|@>@;
 }
 
 void hteg_param_list(List *l)
@@ -10405,6 +10729,29 @@ case TAG(leaders_kind,0):  HTEG_REF(leaders_kind); @+break;
 case TAG(baseline_kind,0):  HTEG_REF(baseline_kind); @+break;
 @
 
+\subsection{Unknown nodes}
+@<skip functions@>=
+static int hteg_unknown(Tag z)
+{ int b, n;
+  int8_t s;
+  s = hnode_size[z];
+  DBG(DBGTAGS,"Trying unknown tag 0x%x at 0x%x\n",z,(uint32_t)(hpos-hstart-1));
+  if (s==0) return 0;
+  b=NODE_HEAD(s); n=NODE_TAIL(s);
+  DBG(DBGTAGS,"Trying unknown node size %d %d\n",b,n);
+ 
+  while (n>0) {
+    z=*(hpos-1);
+    if (KIND(z)==xdimen_kind) {  Xdimen x;  hteg_xdimen_node(&x); }
+    else if (KIND(z)==param_kind) { List l; @+hteg_param_list(&l); @+}
+    else if (KIND(z)<=list_kind) { List l; @+hteg_list(&l); @+}
+    else hteg_content_node();
+    n--; }
+    while (b>0) { z=HTEG8; b--;}
+  return 1;
+}
+@
+
 
 \section{Code and Header Files}\index{code file}\index{header file}
 
@@ -10454,8 +10801,11 @@ typedef double float64_t;
 #if __SIZEOF_DOUBLE__!=8
 #error  @=float64 type must have size 8@>
 #endif
-#define HINT_VERSION 1
-#define HINT_SUB_VERSION 4
+#define HINT_VERSION 2
+#define HINT_SUB_VERSION 0
+#define AS_STR(X) #X
+#define VERSION_AS_STR(X,Y) AS_STR(X) "." AS_STR(Y)
+#define HINT_VERSION_STRING VERSION_AS_STR(HINT_VERSION, HINT_SUB_VERSION)
 #endif
 @
 
@@ -10484,6 +10834,7 @@ extern Glue glue_defaults[MAX_GLUE_DEFAULT+1];
 extern Baseline baseline_defaults[MAX_BASELINE_DEFAULT+1];
 extern Label label_defaults[MAX_LABEL_DEFAULT+1];
 extern signed char hnode_size[0x100];
+extern uint8_t content_known[32];
 
 #endif
 @
@@ -10506,6 +10857,7 @@ Glue glue_defaults[MAX_GLUE_DEFAULT+1]={{{0}}};
 Baseline baseline_defaults[MAX_BASELINE_DEFAULT+1]={{{{0}}}};
 
 signed char hnode_size[0x100]={0};
+uint8_t content_known[32]={0};
 @<define |content_name| and |definition_name|@>@;
 #if defined(MIKTEX)
 int Main(int argc, char** argv)
@@ -10537,6 +10889,7 @@ int main(void)
  
   @<initialize the  |hnode_size| array@>@;
   @<print the |hnode_size| variable@>@;
+  @<print the |content_known| variable@>@;
   return 0;
 }
 @
@@ -10600,15 +10953,21 @@ extern uint32_t hget_utf8(void);
 extern void hget_size_boundary(Info info);
 extern uint32_t hget_list_size(Info info);
 extern void hget_list(List *l);
-extern uint32_t hget_utf8(void);
 extern float32_t hget_float32(void);
-extern float32_t hteg_float32(void);
-extern void hteg_size_boundary(Info info);
-extern uint32_t hteg_list_size(Info info);
-extern void hteg_list(List *l);
 extern void hff_hpos(void);
 extern uint32_t hff_list_pos, hff_list_size;
-extern uint8_t hff_tag;
+extern Tag hff_tag;
+extern float32_t hteg_float32(void);
+extern uint32_t hteg_list_size(Info info);
+
+/* seems like these are declared static */
+#if 0
+extern void hteg_list(List *l);
+
+extern void hteg_size_boundary(Info info);
+
+#endif
+
 @
 
 
@@ -10675,18 +11034,18 @@ extern void hput_content_start(void);
 extern void hput_content_end(void);
 
 extern void hset_label(int n,int w);
-extern uint8_t hput_link(int n, int on);
+extern Tag hput_link(int n, int on);
 extern void hset_outline(int m, int r, int d, uint32_t p);
 extern void hput_label_defs(void);
 
-extern void hput_tags(uint32_t pos, uint8_t tag);
-extern uint8_t hput_glyph(Glyph *g);
-extern uint8_t hput_xdimen(Xdimen *x);
-extern uint8_t hput_int(int32_t p);
-extern uint8_t hput_language(uint8_t n);
-extern uint8_t hput_rule(Rule *r);
-extern uint8_t hput_glue(Glue *g);
-extern uint8_t hput_list(uint32_t size_pos, List *y);
+extern void hput_tags(uint32_t pos, Tag tag);
+extern Tag hput_glyph(Glyph *g);
+extern Tag hput_xdimen(Xdimen *x);
+extern Tag hput_int(int32_t p);
+extern Tag hput_language(uint8_t n);
+extern Tag hput_rule(Rule *r);
+extern Tag hput_glue(Glue *g);
+extern Tag hput_list(uint32_t size_pos, List *y);
 extern uint8_t hsize_bytes(uint32_t n);
 extern void hput_txt_cc(uint32_t c);
 extern void hput_txt_font(uint8_t f);
@@ -10696,22 +11055,25 @@ extern Info hput_box_dimen(Dimen h, Dimen d, Dimen w);
 extern Info hput_box_shift(Dimen a);
 extern Info hput_box_glue_set(int8_t s, float32_t r, Order o);
 extern void hput_stretch(Stretch *s);
-extern uint8_t hput_kern(Kern *k);
+extern Tag hput_kern(Kern *k);
 extern void hput_utf8(uint32_t c);
-extern uint8_t hput_ligature(Lig *l);
-extern uint8_t hput_disc(Disc *h);
+extern Tag hput_ligature(Lig *l);
+extern Tag hput_disc(Disc *h);
 extern Info hput_span_count(uint32_t n);
+extern void hextract_image_dimens(int n, double *a, Dimen *w, Dimen *h);
 extern Info hput_image_spec(uint32_t n, float32_t a, uint32_t wr, Xdimen *w, uint32_t hr, Xdimen *h);
 extern void hput_string(char *str);
 extern void hput_range(uint8_t pg, bool on);
 extern void hput_max_definitions(void);
-extern uint8_t hput_dimen(Dimen d);
-extern uint8_t hput_font_head(uint8_t f,  char *n, Dimen s,@| uint16_t m, uint16_t y);
+extern Tag hput_dimen(Dimen d);
+extern Tag hput_font_head(uint8_t f,  char *n, Dimen s,@| uint16_t m, uint16_t y);
 extern void hput_range_defs(void);
 extern void hput_xdimen_node(Xdimen *x);
 extern void hput_directory(void);
 extern size_t hput_hint(char * str);
 extern void hput_list_size(uint32_t n, int i);
+extern uint32_t hput_unknown_def(uint32_t t, uint32_t b, uint32_t n);
+extern Tag hput_unknown(uint32_t pos,uint32_t t, uint32_t b, uint32_t n);
 extern int hcompress_depth(int n, int c);
 @
 
@@ -10991,13 +11353,14 @@ extern void hget_xdimen_node(Xdimen *x);
 extern void hget_def_node(void);
 extern void hget_font_def(uint8_t f);
 extern void hget_content_section(void);
-extern uint8_t hget_content_node(void);
+extern Tag hget_content_node(void);
 extern void hget_glue_node(void);
 extern void hget_rule_node(void);
 extern void hget_hbox_node(void);
 extern void hget_vbox_node(void);
 extern void hget_param_list(List *l);
 extern int hget_txt(void);
+extern int hget_unknown(Tag a);
 @
 
 
@@ -11011,20 +11374,30 @@ backwards.
 #include <miktex/utf8wrap.h>
 #endif
 #include "hibasetypes.h"
+#include <math.h>
 #include <string.h>
+#include <ctype.h>
 #include <zlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "hierror.h"
 #include "hiformat.h"
+#if 1
+#include "higet.h"
+#else
 @<hint types@>@;
+@<directory entry type@>@;
+@<shared get macros@>@;
+#endif
+
+@<get macros@>@;
+@<write macros@>@;
 
 @<common variables@>@;
-
+@<shared put variables@>@;
 @<map functions@>@;
 @<function to check the banner@>@;
-@<directory entry type@>@;
 @<directory functions@>@;
 @<shared get macros@>@;
 @<get file functions@>@;
@@ -11033,6 +11406,14 @@ backwards.
 @<skip function declarations@>@;
 @<shared skip functions@>@;
 @<skip functions@>@;
+
+@<definition checks@>@;
+@<get function declarations@>@;
+@<write functions@>@;
+@<shared get functions@>@;
+@<get functions@>@;
+
+
 
 #define SKIP
 #define DESCRIPTION "\n This program tests parsing a binary HINT file in reverse direction.\n"
@@ -11044,26 +11425,30 @@ int main(int argc, char *argv[])
 
   @<process the command line@>@;
   @<open the log file@>@;
+  hout=NULL;
   if (!hget_map()) QUIT("Unable to map the input file");
   hpos=hstart=hin_addr;
   hend=hstart+hin_size;
   hget_banner();
   if (!hcheck_banner("hint")) QUIT("Invalid banner");
   hget_directory();
+  hget_definition_section();
   DBG(DBGBASIC,"Skipping Content Section\n");
   hteg_content_section();
   DBG(DBGBASIC,"Fast forward Content Section\n");
   hpos=hstart;
       while(hpos<hend) 
       { hff_hpos();
-        if (KIND(*(hpos-1))==par_kind && KIND(hff_tag)==list_kind && hff_list_size>0)
+        if (KIND(*(hpos-1))==par_kind && KIND(hff_tag)==list_kind && hff_list_size>0 && !(INFO(hff_tag)&b100))
         { uint8_t *p=hpos,*q;
-	  DBG(DBGTAGS,"Fast forward list at 0x%x, size %d",hff_list_pos,hff_list_size);
+	  DBG(DBGTAGS,"Fast forward list at 0x%x, size %d\n",hff_list_pos,hff_list_size);
           hpos=hstart+hff_list_pos;
           q=hpos+hff_list_size;
           while (hpos<q)
                hff_hpos();
+	  DBG(DBGTAGS,"Fast forward list end at 0x%x\n",(uint32_t)(hpos-hstart));
           hpos=p;
+	  DBG(DBGTAGS,"Continue at 0x%x\n",(uint32_t)(hpos-hstart-1));
         }
       }
   hget_unmap();
@@ -11078,15 +11463,15 @@ use requirement of \CEE.
 
 @<skip function declarations@>=
 static void hteg_content_node(void);
-static void hteg_content(uint8_t z);
+static void hteg_content(Tag z);
 static void hteg_xdimen_node(Xdimen *x);
 static void hteg_list(List *l);
 static void hteg_param_list(List *l);
-static float32_t hteg_float32(void);
 static void hteg_rule_node(void);
 static void hteg_hbox_node(void);
 static void hteg_vbox_node(void);
 static void hteg_glue_node(void);
+static int hteg_unknown(Tag z);
 @
 
 \thecodeindex

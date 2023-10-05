@@ -5,6 +5,7 @@
 ### Upgraded programs
 
 * asymptote 2.86
+* hitex 2.0
 
 ## 23.10 - 2023-10-4
 

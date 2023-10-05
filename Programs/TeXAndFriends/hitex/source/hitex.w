@@ -81,10 +81,18 @@
 
 % A reward of $327.68 will be paid to the first finder of any remaining bug.
 
-% This is a beta version of 1.0 of Prote, developed during August 2021,
-% and corrected during september/october 2021.
+% This is the 1.1 version of Prote, developed during August 2021,
+% and corrected during september/october 2021 and amended in august 2023
+% for file primitives behavior matching input behavior.
 %
 % 1.0: adds primitives needed by LaTeX as listed in ltnews31.
+%    - 2022-07-21: tiddying formal fix: a spurious line was a left over
+%      of a removed paragraph (pointed by Martin Ruckert). Suppressed.
+%
+% 1.1: 2023-08-01: the new file primitives are used in LaTeX expecting
+%    the input behavior that ".tex" be appended if no extension. So
+%    modified to provide this.
+%
 %  History towards 1.0 release:
 %    0.99.4:
 %      - typos and style corrections provided by Martin Ruckert for
@@ -110,6 +118,8 @@
 %        xchg_buffer_length:=0 (caught by Martin Ruckert).
 %    0.99.10:
 %      - KerTeX Public License -> X11/MIT license.
+%    1.0:
+%      - Just naming the official release. No change.
 %
 % This work was done by Thierry Laronde and is under the MIT/X11
 % license.
@@ -124,7 +134,7 @@
 \let\mc=\ninerm % medium caps for names like SAIL
 \def\Prote{{\tenrm P\kern-0.1em R\kern-0.15em\raise.11ex\hbox{o}%
   \kern-0.22em T\kern-0.05em E}}
-\ifacro
+\ifpdftex
 \sanitizecommand{\eTeX}{eTeX}
 \sanitizecommand{\Prote}{PRoTE}
 \fi
@@ -133,7 +143,7 @@
 \def\eTeX{$\varepsilon$-\TeX}
 \font\sf=cmss10 % used for the HINT name
 \def\HINT{\leavevmode\hbox{\sf HINT\spacefactor1000}}
-\ifacro\sanitizecommand{\HINT}{HINT}\fi
+\ifpdftex\sanitizecommand{\HINT}{HINT}\fi
 \font\revrm=xbmc10 % for right-to-left text
 % to generate xbmc10 (i.e., reflected cmbx10) use a file
 % xbmc10.mf containing:
@@ -198,14 +208,52 @@
   \let\_=\UL % underline in a string
   \let\&=\AM % ampersand in a string
   #1\kern.05em}}
+\def\&#1{\leavevmode\hbox{\bf\def\_{\UL}%
+  #1\/\kern.05em}} % boldface type for reserved words
+\def\\#1{\leavevmode\hbox{\it\def\_{\UL}%
+  #1\/\kern.05em}} % italic type for identifiers
+\def\vb#1{{\rm #1}}
 \def\^{\ifmmode\mathchar"222 \else\char`^ \fi} % pointer or hat
 \def\LQ{{\tt\char'22}} % left quote in a string
 \def\RQ{{\tt\char'23}} % right quote in a string
+\def\UL{{\tt\char`\_}} % underline character in a C identifier
 \def\dotdot{\mathrel{.\,.}} % double dot, used only in math mode
+\setbox\MGbox=\hbox{\kern1pt$\rightarrow$\kern1pt} % C pointer to field
+\def\MG{\copy\MGbox}
 @s dotdot TeX
+@s alpha_file int
+@s byte_file int
+@s word_file int
+@s uint8_t int
+@s int16_t int
+@s uint16_t int
+@s int32_t int
+@s uint32_t int
+@s halfword int
+@s nonnegative_integer int
+@s small_number int
+@s glue_ratio double
+@s Xdimen int
+@s Kern int
+@s Font int
+@s Glue int
+@s Disc int
+@s Lig int
+@s Rule int
+@s List int
+@s Kind int
+@s Info int
+@s kpse_file_format_type int
+@s Stretch int
+@s in TeX
+@s line normal
+@s to   do
+
 @* Introduction.
-This is Hi\TeX, a program derived from and extending the capabilities
-of \TeX\ plus \eTeX\ plus \Prote\ plus the \TeX\ Live extensions.
+This is Hi\TeX, a program derived from \TeX, extending its capabilities
+using \eTeX and \Prote, and adding functions common to other engines from
+the \TeX\ Live distribution. Hi\TeX\ writes output files in
+the \HINT\ file format. Like \TeX, it is
 a document compiler intended to produce typesetting of high
 quality.
 The \PASCAL\ program that follows is the definition of \TeX82, a standard
@@ -320,17 +368,16 @@ known as `\Prote'.
 @#
 @d eTeX_states 1 /*number of \eTeX\ state variables in |eqtb|*/
 @#
-@d Prote_version_string "3.141592653-2.6-0.99.9" /*current \Prote\ version*/
-@d Prote_version 0 /* \.{\\Proteversion} */
-@d Prote_revision ".99.9" /* \.{\\Proterevision} */
+@d Prote_version_string "3.141592653-2.6-1.1.0" /*current \Prote\ version*/
+@d Prote_version 1 /* \.{\\Proteversion} */
+@d Prote_revision ".1.0" /* \.{\\Proterevision} */
 @#
 @d Prote_banner "This is Prote, Version " Prote_version_string
    /*printed when \Prote\ starts*/
 @#
-@d QUOTE(X) #X
-@d HINT_VER_STR(X,Y) "HINT version " QUOTE(X) "." QUOTE(Y)
-@d banner "This is HiTeX, Version 3.141592653, " HINT_VER_STR(HINT_VERSION,HINT_SUB_VERSION)
-   /*printed when \TeX\ starts*/
+@d banner "This is HiTeX, Version 3.141592653"
+          eTeX_version_string"-"HINT_VERSION_STRING" "TL_VERSION
+          /*printed when \TeX\ starts*/
 
 @ Different \PASCAL s have slightly different conventions, and the present
 @!@:PASCAL H}{\ph@>
@@ -370,7 +417,7 @@ Many implementors have
 therefore chosen to substitute their own home-grown rounding procedure.
 
 @ The following is an outline of the program, whose
-components will be filled in later, using the conventions of \.{WEB}.
+components will be filled in later, using the conventions of \.{cweb}.
 @.WEB@>
 For example, the portion of the program called `\X\glob:Global
 variables\X' below will be replaced by a sequence of variable declarations
@@ -381,6 +428,10 @@ once.  Cross references in $\section\glob$, where it says ``See also
 sections \gglob, \dots,'' also make it possible to look at the set of
 all global variables, if desired.  Similar remarks apply to the other
 portions of the program.
+
+The program starts with inserting header files and occassionaly a function
+must be placed before declaring \TeX's macros, because the function
+uses identifiers that \TeX will declare as macros.
 
 @p @<Header files and function declarations@>@;
 @h
@@ -407,26 +458,18 @@ is to follow pretty much the order of \TeX's components as they appear in the
 intended to combine the advantages of the ``bottom up'' and ``top down''
 approaches to the problem of understanding a somewhat complicated system.
 
-@ There is no need to declare labels in \CEE/, but occasionally
-it is necessary to insert header files and declare functions
-very early in the program. For example, the function |s_no|
-which uses |make_string| to convert a \CEE/ string into
-a string number is used in |initialize| and needs a forward
-declaration.
-
-@<Header files and function declarations@>=
-static int s_no(const char *str);
+@ There is no need to declare labels in \CEE/.
 
 @ Some of the code below is intended to be used only when diagnosing the
 strange behavior that sometimes occurs when \TeX\ is being installed or
 when system wizards are fooling around with \TeX\ without quite knowing
 what they are doing. Such code will not normally be compiled; it is
-delimited by the codewords `$|debug|\ldots|debug|$', with apologies
+delimited by the codewords `$|@t\#\&{ifdef} \.{DEBUG}@>|\ldots|@t\#\&{endif}@>|$', with apologies
 to people who wish to preserve the purity of English.
 
 Similarly, there is some conditional code delimited by
-`$|stat|\ldots|tats|$' that is intended for use when statistics are to be
-kept about \TeX's memory usage.  The |stat| $\ldots$ |tats| code also
+`$|@t\#\&{ifdef} \.{STAT}@>|\ldots|@t\#\&{endif}@>|$' that is intended for use when statistics are to be
+kept about \TeX's memory usage.  The |@t\#\&{ifdef} \.{STAT}@>| $\ldots$ |@t\#\&{endif}@>| code also
 implements diagnostic information for \.{\\tracingparagraphs},
 \.{\\tracingpages}, and \.{\\tracingrestores}.
 @^debugging@>
@@ -437,7 +480,7 @@ version called \.{INITEX}, which does the extra calculations needed to
 initialize \TeX's internal tables; and (2)~there is a shorter and faster
 production version, which cuts the initialization to a bare minimum.
 Parts of the program that are needed in (1) but not in (2) are delimited by
-|#ifdef| |INIT|\dots\ |#endif|.
+the codewords `$|@t\#\&{ifdef} \.{INIT}@>|\ldots|@t\#\&{endif}@>|$'.
 
 \TeX\ Live has established the common practice
 to select the initialization code at runtime
@@ -446,21 +489,13 @@ using the |iniversion| variable.
 @<Initialize whatever...@>=
 @<Set initial values of key variables@>@/
 #ifdef @!INIT
-if (iniversion) {@+@<Initialize table entries (done by \.{INITEX} only)@>@;@+}
+if (iniversion)  /* \TeX\ Live*/
+  {@+@<Initialize table entries (done by \.{INITEX} only)@>@;@+}
 #endif
 
 @ The declaration of all basic type definitions needed by Hi\TeX\ are
 contained in a system dependent header file.
 
-@s uint8_t int
-@s int16_t int
-@s uint16_t int
-@s int32_t int
-@s uint32_t int
-@s halfword int
-@s in TeX
-@s line normal
-@s to   do
 
 @<Header files and function declarations@>=
 #if defined(MIKTEX)
@@ -475,7 +510,7 @@ contained in a system dependent header file.
 #include <math.h>
 
 @ Further it is necessary to define some build in primitives of
-\PASCAL\ that are otherwise not available in \CEE/.
+\PASCAL\ that are otherwise not available in~\CEE/.
 @:PASCAL H}{\ph@>
 
 @d odd(X)       ((X)&1)
@@ -820,8 +855,8 @@ right of these assignment statements to |chr(i)|.
 @^system dependencies@>
 
 @<Set init...@>=
-for (i=0; i<=037; i++) xchr[i]=chr(i); /* k\TeX\ */
-for (i=0177; i<=0377; i++) xchr[i]=chr(i); /* k\TeX\ */
+for (i=0; i<=037; i++) xchr[i]=chr(i); /* \TeX\ Live*/
+for (i=0177; i<=0377; i++) xchr[i]=chr(i); /* \TeX\ Live*/
 
 @ The following system-independent code makes the |xord| array contain a
 suitable inverse to the information in |xchr|. Note that if |xchr[i]==xchr[j]|
@@ -892,10 +927,12 @@ static unsigned char @!name_of_file0[file_name_size+1]={0},
 static int @!name_length;@/ /*this many characters are actually
   relevant in |name_of_file| (the rest are blank)*/
 
-@ k\TeX\ uses the {\tt kpathsearch} library to implement access to files.
-So most of the code to find and open files is contained in two functions,
-|open_in| and |open_out| defined later.
-\TeX's file-opening functions do not to issue their own
+@ To open files, \TeX\ used \PASCAL's |reset| function.
+We use the {\tt kpathsearch} library to implement new functions
+in the section on \TeX\ Live Integration.
+Here we give only the function prototypes.
+
+\TeX's file-opening functions do not issue their own
 error messages if something goes wrong. If a file identified by
 |name_of_file| cannot be found,
 or if such a file cannot be opened for some other reason
@@ -905,44 +942,15 @@ This allows \TeX\ to undertake appropriate corrective action.
 @^system dependencies@>
 
 @p
-static FILE*open_in(char*filename,kpse_file_format_type t,const char*rwb);
-static bool a_open_in(alpha_file *f) /*open a text file for input*/
-{@+f->f= open_in((char *)name_of_file+1,kpse_tex_format,"r");
-   if (f->f!=NULL) get(*f);
-   return f->f!=NULL && ferror(f->f)==0;
-}
-
-static bool b_open_in(byte_file *f)   /*open a binary file for input*/
-{@+f->f= open_in((char *)name_of_file+1,kpse_tfm_format,"rb");
-   if (f->f!=NULL) get(*f);
-   return f->f!=NULL && ferror(f->f)==0;
-}
-
-static bool w_open_in(word_file *f)   /*open a word file for input*/
-{@+
-  f->f=NULL;
-  if (name_of_file[1]!=0)
-    f->f= open_in((char*)name_of_file+1,kpse_fmt_format,"rb");
-  if (f->f!=NULL) get(*f);
-  return f->f!=NULL && ferror(f->f)==0;
-}
-
-static FILE *open_out(const char *file_name, const char *file_mode);
-static bool a_open_out(alpha_file *f)  /*open a text file for output*/
-{@+f->f=open_out((char*)name_of_file+1,"w");
-  return f->f!=NULL && ferror(f->f)==0;@+
-}
-
-static bool b_open_out(byte_file *f)  /*open a binary file for output*/
-{@+f->f=open_out((char *)name_of_file+1,"wb");
-return f->f!=NULL && ferror(f->f)==0;@+
-}
-
+static FILE*open_in(char*filename,kpse_file_format_type t,const char*rwb);  /* \TeX\ Live*/
+static bool a_open_in(alpha_file *f); /*open a text file for input*/
+static bool b_open_in(byte_file *f);   /*open a binary file for input*/
+static bool w_open_in(word_file *f);   /*open a word file for input*/
+static FILE *open_out(const char *file_name, const char *file_mode);  /* \TeX\ Live*/
+static bool a_open_out(alpha_file *f);  /*open a text file for output*/
+static bool b_open_out(byte_file *f);  /*open a binary file for output*/
 #ifdef @!INIT
-static bool w_open_out(word_file *f)  /*open a word file for output*/
-{@+f->f=open_out((char *)name_of_file+1,"wb");
-   return f->f!=NULL && ferror(f->f)==0;@+
-}
+static bool w_open_out(word_file *f);  /*open a word file for output*/
 #endif
 
 @ Files can be closed with the \ph\ routine `|pascal_close(f)|', which
@@ -1153,14 +1161,14 @@ not be typed immediately after~`\.{**}'.)
 
 @d loc cur_input.loc_field /*location of first unread character in |buffer|*/
 
-@ The following program calls |input_command_line|
+@ The following routine calls |input_command_line|
 to retrieve a possible command line.
 @^system dependencies@>
 
 @p static bool init_terminal(void) /*gets the terminal input started*/
 {@+
 t_open_in;
-if (input_command_line()) return true; /* k\TeX\ */
+if (input_command_line()) return true; /* \TeX\ Live */
 loop@+{@+wake_up_terminal;pascal_write(term_out,"**");update_terminal;
 @.**@>
   if (!input_ln(&term_in, true))  /*this shouldn't happen*/
@@ -1313,7 +1321,7 @@ not_found: return result;
 @ Here is a similar routine, but it compares two strings in the string pool,
 and it does not assume that they have the same length.
 
-@p static bool strn_eq_str(str_number @!s, str_number @!t)
+@p static bool str_eq_str(str_number @!s, str_number @!t)
    /*test equality of strings*/
 {@+ /*loop exit*/
 pool_pointer j, @!k; /*running indices*/
@@ -1330,16 +1338,6 @@ not_found: return result;
 }
 @t\4@>@<Declare \Prote\ procedures for strings@>@;
 
-static bool str_eq_str(str_number @!s, char *@!t)
-   /*test equality of strings*/
-{@+int j, @!k; /*running indices*/
-if (length(s)!=(int)strlen(t)) return false;
-j=str_start[s];k=0;
-while (j < str_start[s+1])
-  if (str_pool[j++]!=t[k++]) return false;
-return true;
-}
-
 @ The initial values of |str_pool|, |str_start|, |pool_ptr|,
 and |str_ptr| are computed by the \.{INITEX} program, based in part
 on the information that \.{WEB} has output while processing \TeX.
@@ -1347,12 +1345,13 @@ on the information that \.{WEB} has output while processing \TeX.
 @^string pool@>
 
 @p
-static void get_strings_started(void) /*initializes the string pool*/
+static bool get_strings_started(void) /*initializes the string pool*/
 {@+
 int k, @!l; /*small indices or counters*/
 pool_ptr=0;str_ptr=0;str_start[0]=0;
 @<Make the first 256 strings@>;
 @<Add the empty string to the string pool@>;
+return true;
 }
 
 @ @d app_lc_hex(A) l=A;
@@ -1403,7 +1402,7 @@ Thus, at least 80 printable characters are needed.
 
 @ The |pool_file| variable is no longer needed and has been removed.
 
-@ Instead of reading the other strings from the \.{TEX.POOL} file,
+Instead of reading the other strings from the \.{TEX.POOL} file,
 it is sufficient here to add the empty string.
 @<Add the empty string to the string pool@>=
 make_string();
@@ -1421,6 +1420,12 @@ string number.
   while (*str!=0) append_char(*str++);
   return make_string();
 }
+
+@ The function |s_no| is used in |initialize| and needs a forward
+declaration.
+
+@<Forward declarations@>=
+static int s_no(const char *str);
 
 @* On-line and off-line printing.
 Messages that are sent to a user's terminal and to the transcript-log file
@@ -1494,25 +1499,25 @@ by changing |wterm|, |wterm_ln|, and |wterm_cr| in this section.
 @^system dependencies@>
 
 @<Basic printing procedures@>=
-#define put(F)    @[fwrite(&((F).d),sizeof((F).d),1,(F).f)@]
-#define get(F)    @[fread(&((F).d),sizeof((F).d),1,(F).f)@]
+#define @[put(F)@]    @[fwrite(&((F).d)@],@[sizeof((F).d),1,(F).f)@]@;
+#define @[get(F)@]    @[fread(&((F).d),sizeof((F).d),1,(F).f)@]
 
-#define pascal_close(F)    @[fclose((F).f)@]
-#define eof(F)    @[feof((F).f)@]
-#define eoln(F)    @[((F).d=='\n'||eof(F))@]
-#define erstat(F)   @[((F).f==NULL?-1:ferror((F).f))@]
+#define @[pascal_close(F)@]    @[fclose((F).f)@]
+#define @[eof(F)@]    @[feof((F).f)@]
+#define @[eoln(F)@]    @[((F).d=='\n'||eof(F))@]
+#define @[erstat(F)@]   @[((F).f==NULL?-1:ferror((F).f))@]
 
-#define pascal_read(F,X) @[((X)=(F).d,get(F))@]
-#define read_ln(F)  @[do get(F); while (!eoln(F))@]
+#define @[pascal_read(F,X)@] @[((X)=(F).d,get(F))@]
+#define @[read_ln(F)@]  do get(F); while (!eoln(F))
 
-#define pascal_write(F, FMT,...)    @[fprintf(F.f,FMT,## __VA_ARGS__)@]
-#define write_ln(F,...)    @[pascal_write(F,__VA_ARGS__"\n")@]
+#define @[pascal_write(F, FMT,...)@]    @[fprintf(F.f,FMT,## __VA_ARGS__)@]
+#define @[write_ln(F,...)@]    @[pascal_write(F,__VA_ARGS__"\n")@]
 
-#define wterm(FMT,...) @[pascal_write(term_out,FMT, ## __VA_ARGS__)@]
-#define wterm_ln(FMT,...) @[wterm(FMT "\n", ## __VA_ARGS__)@]
+#define @[wterm(FMT,...)@] @[pascal_write(term_out,FMT, ## __VA_ARGS__)@]
+#define @[wterm_ln(FMT,...)@] @[wterm(FMT "\n", ## __VA_ARGS__)@]
 #define wterm_cr         @[pascal_write(term_out,"\n")@]
-#define wlog(FMT, ...) @[pascal_write(log_file,FMT, ## __VA_ARGS__)@]
-#define wlog_ln(FMT, ...)   @[wlog(FMT "\n", ## __VA_ARGS__)@]
+#define @[wlog(FMT, ...)@] @[pascal_write(log_file,FMT, ## __VA_ARGS__)@]
+#define @[wlog_ln(FMT, ...)@]   @[wlog(FMT "\n", ## __VA_ARGS__)@]
 #define wlog_cr         @[pascal_write(log_file,"\n")@]
 
 @ To end a line of text output, we call |print_ln|.
@@ -1578,7 +1583,8 @@ assumes that it is always safe to print a visible ASCII character.)
 
 @<Basic print...@>=
 static void print(char *s) /* the simple version */
-{ while (*s!=0) print_char(*s++);@+
+{ @+if (s == NULL) s="???"; /*this can't happen*/
+  while (*s!=0) print_char(*s++);@+
 }
 
 static void printn(int @!s) /*prints string |s|*/
@@ -1631,8 +1637,8 @@ incorrect, but the discrepancy is not serious since we assume that this
 part of the program is system dependent.
 @^system dependencies@>
 
-k\TeX, according to the conventions of \TeX\ Live,
- prints the |dump_name| if no format identifier is known.
+According to the conventions of \TeX\ Live,
+ we print the |dump_name| if no format identifier is known.
 @<Initialize the output...@>=
 wterm("%s",banner);
 #if defined(MIKTEX)
@@ -1816,9 +1822,9 @@ message may be printed.
 @^system dependencies@>
 
 @<Error handling...@>=
-void print_err(char *s)
+static void print_err(char *s)
 {@+if (interaction==error_stop_mode) wake_up_terminal;
-  if (filelineerrorstylep) print_file_line(); /* k\TeX\ */
+  if (filelineerrorstylep) print_file_line(); /* \TeX\ Live */
   else print_nl("! ");
   print(s);
 }
@@ -1836,7 +1842,7 @@ static int @!interaction; /*current level of interaction*/
 
 @ @<Set init...@>=
 if (interaction_option<0) interaction=error_stop_mode;
-else interaction=interaction_option;
+else interaction=interaction_option;  /* \TeX\ Live */
 
 @ \TeX\ is careful not to call |error| when the print |selector| setting
 might be unusual. The only possible values of |selector| at the time of
@@ -2004,7 +2010,7 @@ switch (c) {
 case '0': case '1': case '2': case '3':
   case '4': case '5': case '6': case '7':
   case '8': case '9': if (deletions_allowed)
-  @<Delete \(c)|c-"0"| tokens and |goto continue|@>@;@+break;
+  @<Delete \(c)|c-"0"| tokens and |goto resume|@>@;@+break;
 @t\4\4@>@;
 #ifdef @!DEBUG
 case 'D': {@+debug_help();goto resume;@+}
@@ -2016,7 +2022,7 @@ case 'E': if (base_ptr > 0) if (input_stack[base_ptr].name_field >= 256)
   print(" at line ");print_int(line);
   interaction=scroll_mode;jump_out();
   } @+break;
-case 'H': @<Print the help information and |goto continue|@>@;
+case 'H': @<Print the help information and |goto resume|@>@;
 case 'I': @<Introduce new material from the terminal and |return|@>@;
 case 'Q': case 'R': case 'S': @<Change the interaction level and |return|@>@;
 case 'X': {@+interaction=scroll_mode;jump_out();
@@ -2457,15 +2463,15 @@ routines cited there must be modified to allow negative glue ratios.)
 
 @d set_glue_ratio_zero(A) A=0.0 /*store the representation of zero ratio*/
 @d set_glue_ratio_one(A) A=1.0 /*store the representation of unit ratio*/
-@d float(A) ((double)(A)) /*convert from |glue_ratio| to type |double|*/
-@d unfloat(A) ((glue_ratio)(A)) /*convert from |double| to type |glue_ratio|*/
+@d unfix(A) ((double)(A)) /*convert from |glue_ratio| to type |double|*/
+@d fix(A) ((glue_ratio)(A)) /*convert from |double| to type |glue_ratio|*/
 @d float_constant(A) ((double)(A)) /*convert |int| constant to |double|*/
 
 @<Types...@>=
 #if __SIZEOF_FLOAT__==4
 typedef float float32_t;
 #else
-#error  float type must have size 4
+#error  @=float type must have size 4@>
 #endif
 typedef float @!glue_ratio; /*one-word representation of a glue expansion factor*/
 
@@ -2606,7 +2612,7 @@ static void print_word(memory_word @!w)
    /*prints |w| in all ways*/
 {@+print_int(w.i);print_char(' ');@/
 print_scaled(w.sc);print_char(' ');@/
-print_scaled(round(unity*float(w.gr)));print_ln();@/
+print_scaled(round(unity*unfix(w.gr)));print_ln();@/
 @^real multiplication@>
 print_int(w.hh.lh);print_char('=');print_int(w.hh.b0);print_char(':');
 print_int(w.hh.b1);print_char(';');print_int(w.hh.rh);print_char(' ');@/
@@ -2676,7 +2682,7 @@ is possible to prepare a version of \TeX\ that keeps track of current and
 maximum memory usage. When code between the delimiters |
 #ifdef @!STAT
 | $\ldots$
-|tats| is not ``commented out,'' \TeX\ will run a bit slower but it will
+|@t\#\&{endif}@>| is not ``commented out,'' \TeX\ will run a bit slower but it will
 report these statistics when |tracing_stats| is sufficiently large.
 
 @<Glob...@>=
@@ -3109,13 +3115,12 @@ split insertion of the same class.  There is one more field, the
 
 @ A |mark_node| has a |mark_ptr| field that points to the reference count
 of a token list that contains the user's \.{\\mark} text.
-This field occupies a full word instead of a halfword, because
-there's nothing to put in the other halfword; it is easier in \PASCAL\ to
-use the full word than to risk leaving garbage in the unused half.
+In addition there is a |mark_class| field that contains the mark class.
 
 @d mark_node 4 /*|type| of a mark node*/
 @d small_node_size 2 /*number of words to allocate for most node types*/
-@d mark_ptr(A) mem[A+1].i /*head of the token list for a mark*/
+@d mark_ptr(A) link(A+1) /*head of the token list for a mark*/
+@d mark_class(A) info(A+1) /*the mark class*/
 
 @ An |adjust_node|, which occurs only in horizontal lists,
 specifies material that will be moved out into the surrounding
@@ -3124,7 +3129,8 @@ operation.  The |adjust_ptr| field points to the vlist containing this
 material.
 
 @d adjust_node 5 /*|type| of an adjust node*/
-@d adjust_ptr(A) mark_ptr(A) /*vertical list to be moved out of horizontal list*/
+@d adjust_ptr(A) mem[A+1].i
+   /*vertical list to be moved out of horizontal list*/
 
 @ A |ligature_node|, which occurs only in horizontal lists, specifies
 a character that was fabricated from the interaction of two or more
@@ -3914,7 +3920,7 @@ floating point underflow on the author's computer.
 @^dirty \PASCAL@>
 
 @<Display the value of |glue_set(p)|@>=
-g=float(glue_set(p));
+g=unfix(glue_set(p));
 if ((g!=float_constant(0))&&(glue_sign(p)!=normal))
   {@+print(", glue set ");
   if (glue_sign(p)==shrinking) print("- ");
@@ -4014,7 +4020,11 @@ append_char('|');show_node_list(post_break(p));flush_char; /*recursive call*/
 }
 
 @ @<Display mark |p|@>=
-{@+print_esc("mark");print_mark(mark_ptr(p));
+{@+print_esc("mark");
+if (mark_class(p)!=0)
+  {@+print_char('s');print_int(mark_class(p));
+  }
+print_mark(mark_ptr(p));
 }
 
 @ @<Display adjustment |p|@>=
@@ -4213,7 +4223,7 @@ e.g., `\.{\\catcode \`\\\${} = 3}' to make \.{\char'44} a math delimiter,
 and the command code |math_shift| is equal to~3. Some other codes have
 been made adjacent so that |case| statements in the program need not consider
 cases that are widely spaced, or so that |case| statements can be replaced
-by |if (| statements.
+by |if| statements.
 
 At any rate, here is the list, for future reference. First come the
 ``catcode'' commands, several of which share their numeric codes with
@@ -4259,6 +4269,7 @@ expanded by `\.{\\the}'.
 @d vmove 22 /*vertical motion ( \.{\\raise}, \.{\\lower} )*/
 @d un_hbox 23 /*unglue a box ( \.{\\unhbox}, \.{\\unhcopy} )*/
 @d un_vbox 24 /*unglue a box ( \.{\\unvbox}, \.{\\unvcopy} )*/
+   /*( or \.{\\pagediscards}, \.{\\splitdiscards} )*/
 @d remove_item 25 /*nullify last item ( \.{\\unpenalty},
   \.{\\unkern}, \.{\\unskip} )*/
 @d hskip 26 /*horizontal glue ( \.{\\hskip}, \.{\\hfil}, etc.~)*/
@@ -5178,7 +5189,8 @@ that will be defined later.
 @d right_hyphen_min_code 52 /*minimum right hyphenation fragment size*/
 @d holding_inserts_code 53 /*do not remove insertion nodes from \.{\\box255}*/
 @d error_context_lines_code 54 /*maximum intermediate line pairs shown*/
-@d tex_int_pars 55 /*total number of \TeX's integer parameters*/
+@d tracing_stack_levels_code 55 /*tracing |input_stack| level if |tracingmacros| positive*/
+@d tex_int_pars 56 /*total number of \TeX's integer parameters*/
 @#
 @d etex_int_base tex_int_pars /*base for \eTeX's integer parameters*/
 @d tracing_assigns_code etex_int_base /*show assignments*/
@@ -5255,6 +5267,7 @@ that will be defined later.
 @d right_hyphen_min int_par(right_hyphen_min_code)
 @d holding_inserts int_par(holding_inserts_code)
 @d error_context_lines int_par(error_context_lines_code)
+@d tracing_stack_levels int_par(tracing_stack_levels_code)
 @#
 @d tracing_assigns int_par(tracing_assigns_code)
 @d tracing_groups int_par(tracing_groups_code)
@@ -5328,6 +5341,7 @@ case left_hyphen_min_code: print_esc("lefthyphenmin");@+break;
 case right_hyphen_min_code: print_esc("righthyphenmin");@+break;
 case holding_inserts_code: print_esc("holdinginserts");@+break;
 case error_context_lines_code: print_esc("errorcontextlines");@+break;
+case tracing_stack_levels_code: print_esc("tracingstacklevels");@+break;
 @/@<Cases for |print_param|@>@/
 default:print("[unknown integer parameter!]");
 }
@@ -5449,6 +5463,8 @@ primitive("holdinginserts", assign_int, int_base+holding_inserts_code);@/
 @!@:holding\_inserts\_}{\.{\\holdinginserts} primitive@>
 primitive("errorcontextlines", assign_int, int_base+error_context_lines_code);@/
 @!@:error\_context\_lines\_}{\.{\\errorcontextlines} primitive@>
+primitive("tracingstacklevels", assign_int, int_base+tracing_stack_levels_code);@/
+@!@:tracing\_stack\_levels_}{\.{\\tracingstacklevels} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 case assign_int: if (chr_code < count_base) print_param(chr_code-int_base);
@@ -5478,7 +5494,7 @@ defined by |SOURCE_DATE_EPOCH|.
 @^creation date@>
 @^reference time@>
 @^system dependencies@>
-k\TeX\ calls |tl_now| to obtain the current time as a |tm| structure.
+\TeX\ Live calls |tl_now| to obtain the current time as a |tm| structure.
 @p static void fix_date_and_time(void)
 {@+ struct tm *t=tl_now();
   time=sys_time= t->tm_hour*60+t->tm_min;/*minutes since midnight*/
@@ -6036,7 +6052,9 @@ case hrule: print_esc("hrule");@+break;
 case ignore_spaces: print_esc("ignorespaces");@+break;
 case insert: print_esc("insert");@+break;
 case ital_corr: print_esc("/");@+break;
-case mark: print_esc("mark");@+break;
+case mark: {@+print_esc("mark");
+  if (chr_code > 0) print_char('s');
+  } @+break;
 case math_accent: print_esc("mathaccent");@+break;
 case math_char_num: print_esc("mathchar");@+break;
 case math_choice: print_esc("mathchoice");@+break;
@@ -6719,7 +6737,7 @@ symbolic form, including the expansion of a macro or mark.
 if (cur_cmd >= call)
   {@+print_char(':');print_ln();token_show(cur_chr);
   }
-else if (cur_cmd==top_bot_mark)
+else if ((cur_cmd==top_bot_mark)&&(cur_chr < marks_code))
   {@+print_char(':');print_ln();
   token_show(cur_mark[cur_chr]);
   }
@@ -7504,7 +7522,8 @@ or |limit| or |line|.
 if (first==buf_size) overflow("buffer size", buf_size);
 @:TeX capacity exceeded buffer size}{\quad buffer size@>
 incr(in_open);push_input;index=in_open;@/
-source_filename_stack[index]=0; /* k\TeX\ */
+source_filename_stack[index]=NULL; /* \TeX\ Live */
+full_source_filename_stack[index]=NULL; /* \TeX\ Live */
 eof_seen[index]=false;
 grp_stack[index]=cur_boundary;if_stack[index]=cond_ptr;
 line_stack[index]=line;start=first;state=mid_line;
@@ -7573,12 +7592,18 @@ appear on that line. (There might not be any tokens at all, if the
 
 @ The value of |par_loc| is the |eqtb| address of `\.{\\par}'. This quantity
 is needed because a blank line of input is supposed to be exactly equivalent
-to the appearance of \.{\\par}; we must set |cur_cs=par_loc|
+to the appearance of \.{\\par}; we must set |cur_cs:=par_loc|
 when detecting a blank line.
+
+The same is true for the input, for the warning message, since input
+is expected by default before every scanning and hence setting of
+|cur_cs|.
 
 @<Glob...@>=
 static pointer @!par_loc; /*location of `\.{\\par}' in |eqtb|*/
 static halfword @!par_token; /*token representing `\.{\\par}'*/
+static pointer @!input_loc; /*location of `\.{\\input}' in |eqtb|*/
+static halfword @!input_token; /*token representing `\.{\\input}'*/
 
 @ @<Put each...@>=
 primitive("par", par_end, 256); /*cf.\ |scan_file_name|*/
@@ -8268,6 +8293,7 @@ which will be declared later; the processing of \.{\\endinput} is trivial.
 @<Put each...@>=
 primitive("input", input, 0);@/
 @!@:input\_}{\.{\\input} primitive@>
+input_loc=cur_val;input_token=cs_token_flag+input_loc;
 primitive("endinput", input, 1);@/
 @!@:end\_input\_}{\.{\\endinput} primitive@>
 
@@ -8334,6 +8360,8 @@ global array of five pointers; we refer to the individual entries of this
 array by symbolic names |top_mark|, etc. The value of |top_mark| is either
 |null| or a pointer to the reference count of a token list.
 
+@d marks_code 5 /*add this for \.{\\topmarks} etc.*/
+@#
 @d top_mark_code 0 /*the mark in effect at the previous page break*/
 @d first_mark_code 1 /*the first mark between |top_mark| and |bot_mark|*/
 @d bot_mark_code 2 /*the mark in effect at the current page break*/
@@ -8367,20 +8395,25 @@ primitive("splitbotmark", top_bot_mark, split_bot_mark_code);
 @!@:split\_bot\_mark\_}{\.{\\splitbotmark} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
-case top_bot_mark: switch (chr_code) {
+case top_bot_mark: {@+switch ((chr_code%marks_code)) {
   case first_mark_code: print_esc("firstmark");@+break;
   case bot_mark_code: print_esc("botmark");@+break;
   case split_first_mark_code: print_esc("splitfirstmark");@+break;
   case split_bot_mark_code: print_esc("splitbotmark");@+break;
   default:print_esc("topmark");
+  }
+  if (chr_code >= marks_code) print_char('s');
   } @+break;
 
 @ The following code is activated when |cur_cmd==top_bot_mark| and
 when |cur_chr| is a code like |top_mark_code|.
 
 @<Insert the \(a)appropriate mark text into the scanner@>=
-{@+if (cur_mark[cur_chr]!=null)
-  begin_token_list(cur_mark[cur_chr], mark_text);
+{@+t=cur_chr%marks_code;
+if (cur_chr >= marks_code) scan_register_num();@+else cur_val=0;
+if (cur_val==0) cur_ptr=cur_mark[t];
+else@<Compute the mark pointer for mark type |t| and class |cur_val|@>;
+if (cur_ptr!=null) begin_token_list(cur_ptr, mark_text);
 }
 
 @ Now let's consider |macro_call| itself, which is invoked when \TeX\ is
@@ -8503,23 +8536,23 @@ always fail the test `|cur_tok==info(r)|' in the following algorithm.
 resume: get_token(); /*set |cur_tok| to the next token of input*/
 if (cur_tok==info(r))
   @<Advance \(r)|r|; |goto found| if the parameter delimiter has been fully
-matched, otherwise |goto continue|@>;
+matched, otherwise |goto resume|@>;
 @<Contribute the recently matched tokens to the current parameter, and |goto
-continue| if a partial match is still in effect; but abort if |s=null|@>;
+resume| if a partial match is still in effect; but abort if |s=null|@>;
 if (cur_tok==par_token) if (long_state!=long_call)
   @<Report a runaway argument and abort@>;
 if (cur_tok < right_brace_limit)
   if (cur_tok < left_brace_limit)
     @<Contribute an entire group to the current parameter@>@;
-  else@<Report an extra right brace and |goto continue|@>@;
-else@<Store the current token, but |goto continue| if it is a blank space
+  else@<Report an extra right brace and |goto resume|@>@;
+else@<Store the current token, but |goto resume| if it is a blank space
 that would become an undelimited parameter@>;
 incr(m);
 if (info(r) > end_match_token) goto resume;
 if (info(r) < match_token) goto resume;
 found: if (s!=null) @<Tidy up the parameter just scanned, and tuck it away@>@;
 
-@ @<Store the current token, but |goto continue| if it is...@>=
+@ @<Store the current token, but |goto resume| if it is...@>=
 {@+if (cur_tok==space_token)
   if (info(r) <= end_match_token)
     if (info(r) >= match_token) goto resume;
@@ -8540,7 +8573,7 @@ if ((info(r) >= match_token)&&(info(r) <= end_match_token))
 else goto resume;
 }
 
-@ @<Report an extra right brace and |goto continue|@>=
+@ @<Report an extra right brace and |goto resume|@>=
 {@+back_input();print_err("Argument of ");sprint_cs(warning_index);
 @.Argument of \\x has...@>
 print(" has an extra }");
@@ -8641,6 +8674,7 @@ strip off the enclosing braces. That's why |rbrace_ptr| was introduced.
 else pstack[n]=link(temp_head);
 incr(n);
 if (tracing_macros > 0)
+  if ((tracing_stack_levels==0)||(input_ptr < tracing_stack_levels))
   {@+begin_diagnostic();print_nl("");printn(match_chr);print_int(n);
   print("<-");show_token_list(pstack[n-1], null, 1000);
   end_diagnostic(false);
@@ -8648,8 +8682,19 @@ if (tracing_macros > 0)
 }
 
 @ @<Show the text of the macro being expanded@>=
-{@+begin_diagnostic();print_ln();print_cs(warning_index);
-token_show(ref_count);end_diagnostic(false);
+{@+begin_diagnostic();
+  if (tracing_stack_levels > 0)
+  { if (input_ptr < tracing_stack_levels)
+      {@+
+        int v=input_ptr;
+        print_ln();print_char('~');
+        while (v-- > 0) print_char('.');
+        print_cs(warning_index);token_show(ref_count);
+      }
+    else{@+print_char('~');print_char('~');print_cs(warning_index);}
+  }
+  else{@+print_ln();print_cs(warning_index);token_show(ref_count);}
+  end_diagnostic(false);
 }
 
 @* Basic scanning subroutines.
@@ -10574,8 +10619,8 @@ whether $|more_name|(c_n)$ returned |true| or |false|.
 
 @<Glob...@>=
 static str_number @!cur_name; /*name of file just scanned*/
-static char *@!cur_area; /*file area just scanned, or \.{""}*/
-static char *@!cur_ext; /*file extension just scanned, or \.{""}*/
+static str_number @!cur_area; /*file area just scanned, or \.{""}*/
+static str_number @!cur_ext; /*file extension just scanned, or \.{""}*/
 
 @ The file names we shall deal with for illustrative purposes have the
 following structure:  If the name contains `\.>' or `\.:', the file area
@@ -10591,7 +10636,6 @@ of the occurrences of area and extension delimiters:
 @<Glob...@>=
 static pool_pointer @!area_delimiter; /*the most recent `\.>' or `\.:', if any*/
 static pool_pointer @!ext_delimiter; /*the relevant `\..', if any*/
-static int @!cur_file_name_length;
 
 @ Input files that can't be found in the user's area may appear in a standard
 system area called |TEX_area|. Font metric files whose areas are not given
@@ -10608,14 +10652,9 @@ to place.
 @ Here now is the first of the system-dependent routines for file name scanning.
 @^system dependencies@>
 
-The filename is scanned into |cur_file_name|; |cur_ext| and |cur_aire|
-will point into this buffer.
-
-@d MAX_CUR_FILE_NAME 1024
-
-@p static char cur_file_name[MAX_CUR_FILE_NAME+1];
+@p static bool quoted_filename;
 static void begin_name(void)
-{@+area_delimiter=ext_delimiter=cur_file_name_length=0;
+{@+area_delimiter=0;ext_delimiter=0; quoted_filename=false;
 }
 
 @ And here's the second. The string pool might change as the file name is
@@ -10625,20 +10664,12 @@ string, instead of assigning an absolute address like |pool_ptr| to them.
 @^system dependencies@>
 
 @p static bool more_name(ASCII_code @!c)
-{@+if (c==' ') return false;
-  if (cur_file_name_length>= MAX_CUR_FILE_NAME )
-  { overflow("file name length", MAX_CUR_FILE_NAME);
-    return false;
-  }
-  else
-  { /*contribute |c| to the current string*/
-    cur_file_name[cur_file_name_length]=c;
-    if (c=='/')
-    {@+area_delimiter=cur_file_name_length;ext_delimiter=0;
-    }
-    else if (c=='.') ext_delimiter=cur_file_name_length;
-    cur_file_name_length++;
-    return true;
+{@+if (c==' ' && !quoted_filename) return false;
+else if (c=='"') {@+quoted_filename=!quoted_filename; return true; }
+else {@+str_room(1);append_char(c); /*contribute |c| to the current string*/
+  if (IS_DIR_SEP(c)) {@+area_delimiter=cur_length;ext_delimiter=0; }
+  else if (c=='.') ext_delimiter=cur_length;
+  return true;
   }
 }
 
@@ -10646,34 +10677,20 @@ string, instead of assigning an absolute address like |pool_ptr| to them.
 @^system dependencies@>
 
 @p static void end_name(void)
-{@+int i=0;
-  if (str_ptr+1 > max_strings)
+{@+if (str_ptr+3 > max_strings)
   overflow("number of strings", max_strings-init_str_ptr);
 @:TeX capacity exceeded number of strings}{\quad number of strings@>
-cur_file_name[cur_file_name_length]=0;
-if (area_delimiter==0) cur_area=cur_file_name+cur_file_name_length;
-else @+cur_area=cur_file_name,i=area_delimiter+1;
-if (ext_delimiter==0) ext_delimiter=cur_file_name_length;
-cur_ext=cur_file_name+ext_delimiter;
-for (;i<ext_delimiter;i++) append_char(cur_file_name[i]);
-if (area_delimiter!=0) cur_file_name[area_delimiter+1]=0;
-cur_name=make_string();
-}
-
-static void set_cur_area_ext(str_number a, str_number e)
-{ int i;
-  if (length(a)+length(e)+2>=MAX_CUR_FILE_NAME)
-  { overflow("file name length", MAX_CUR_FILE_NAME);
-    return;
+if (area_delimiter==0) cur_area=empty_string;
+else{@+cur_area=str_ptr;
+  str_start[str_ptr+1]=str_start[str_ptr]+area_delimiter;incr(str_ptr);
   }
-  cur_file_name_length=0;
-  area_delimiter=0;
-  for(i=str_start[a]; i<str_start[a+1];i++) cur_file_name[cur_file_name_length++]=str_pool[i];
-  cur_file_name[cur_file_name_length++]=0;
-  cur_area=cur_file_name;
-  cur_ext=cur_file_name+cur_file_name_length;
-  for(i=str_start[e]; i<str_start[e+1];i++) cur_file_name[cur_file_name_length++]=str_pool[i];
-  cur_file_name[cur_file_name_length++]=0;
+if (ext_delimiter==0)
+  {@+cur_ext=empty_string;cur_name=make_string();
+  }
+else{@+cur_name=str_ptr;
+  str_start[str_ptr+1]=str_start[str_ptr]+ext_delimiter-area_delimiter-1;
+  incr(str_ptr);cur_ext=make_string();
+  }
 }
 
 @ Conversely, here is a routine that takes three strings and prints a file
@@ -10682,11 +10699,7 @@ some operating systems put the file area last instead of first.)
 @^system dependencies@>
 
 @<Basic printing...@>=
-static void print_file_name(int @!n, char *@!a, char *@!e)
-{@+print(a);slow_print(n);print(e);
-}
-
-static void printn_file_name(int @!n, int @!a, int @!e)
+static void print_file_name(int @!n, int @!a, int @!e)
 {@+slow_print(a);slow_print(n);slow_print(e);
 }
 
@@ -10700,28 +10713,32 @@ allows both lowercase and uppercase letters in the file name.
   if (k <= file_name_size) name_of_file[k]=xchr[c];
   }
 
-@p static void pack_file_name(str_number @!n, char *@!a, char *@!e)
+@p static void pack_file_name(str_number @!n, str_number @!a, str_number @!e,  char *@!f)
 {@+int k; /*number of positions filled in |name_of_file|*/
 ASCII_code @!c; /*character being packed*/
 int @!j; /*index into |str_pool|*/
 k=0;
-while(*a!=0) append_to_name(so(*a++));
-for (j=str_start[n]; j<=str_start[n+1]-1; j++) append_to_name(so(str_pool[j]));
-while(*e!=0) append_to_name(so(*e++));
+for (j=str_start[a]; j<=str_start[a+1]-1; j++) append_to_name(so(str_pool[j]))@;
+for (j=str_start[n]; j<=str_start[n+1]-1; j++) append_to_name(so(str_pool[j]))@;
+if (f==NULL)
+  for (j=str_start[e]; j<=str_start[e+1]-1; j++) append_to_name(so(str_pool[j]))@;
+else
+  while(*f!=0) append_to_name(so(*f++))@;
 if (k <= file_name_size) name_length=k;@+else name_length=file_name_size;
 name_of_file[name_length+1]=0;
 }
 
 
-@ The global variable |TEX_format_default| is no longer needed
+
+@  \TeX\ Live does not use the global variable |TEX_format_default|. It is no longer needed
 to supply the text for default system areas
 and extensions related to format files.
 
-@ Consequently there is no initialization of |TEX_format_default| either.
+@ Consequently \TeX\ Live does not need the initialization of |TEX_format_default| either.
 
-@ And there is no need to check the length of |TEX_format_default|.
+@ And \TeX\ Live does not check the length of |TEX_format_default|.
 
-@ The |format_extension|, however, is needed later on
+@ The |format_extension|, however, is needed by \TeX\ Live
 to create the format name from the job name.
 
 @d format_extension ".fmt"
@@ -10733,9 +10750,9 @@ format file by typing `\.\&' after the initial `\.{**}' prompt.  The buffer
 contains the first line of input in |buffer[loc dotdot(last-1)]|, where
 |loc < last| and |buffer[loc]!=' '|.
 
-k\TeX\ uses the {\tt kpathsearch} library to implement access to files.
-To do so we declare |open_fmt_file| here and postpone the
-actual implementation.
+\TeX\ Live uses the {\tt kpathsearch} library to implement access to files.
+|open_fmt_file| is declared here and the
+actual implementation is in the section on \TeX\ Live Integration.
 
 @<Declare the function called |open_fmt_file|@>=
 static bool open_fmt_file(void);
@@ -10774,15 +10791,41 @@ static str_number w_make_name_string(word_file *f)
 @ Now let's consider the ``driver''
 routines by which \TeX\ deals with file names
 in a system-independent manner.  First comes a procedure that looks for a
-file name in the input by calling |get_x_token| for the information.
+file name.
+There are two ways to specify the file name: as a general text argument
+or as a token (after expansion).
+The traditional token delimiter is the space. For a file name, however,
+a double quote is used as the token delimiter if the token starts
+with a double quote.
+
+Once the |area_delimiter| and the |ext_delimiter| are defined,
+the final processing is shared for all variants.
+
+When starting, \.{\\relax} is skipped as well as blanks and non-calls.
+Then a test for the |left_brace| will branch to the code for scanning
+a general text.
+% consider the case where a double quote is made an active character
+% equivalent to a left brace!
 
 @p static void scan_file_name(void)
 {@+
+pool_pointer @!j, k; /*index into |str_pool|*/
+int @!old_setting; /*holds |selector| setting*/
 name_in_progress=true;begin_name();
-@<Get the next non-blank non-call...@>;
+@<Get the next non-blank non-relax...@>;
+if (cur_cmd==left_brace)
+  @<Define a general text file name and |goto done|@>@;
 loop@+{@+if ((cur_cmd > other_char)||(cur_chr > 255))  /*not a character*/
     {@+back_input();goto done;
     }
+#if 0
+    /* This is from pdftex-final.ch. I don't know these `some cases',
+       and I am not sure whether the name should end even if quoting is on.*/
+    /*If |cur_chr| is a space and we're not scanning a token list, check
+      whether we're at the end of the buffer. Otherwise we end up adding
+      spurious spaces to file names in some cases.*/
+    if (cur_chr==' ' && state!=token_list && loc>limit) goto done;
+#endif
   if (!more_name(cur_chr)) goto done;
   get_x_token();
   }
@@ -10817,18 +10860,23 @@ job_name=0;name_in_progress=false;log_opened=false;
 |job_name!=0|. It ignores and changes the current settings of |cur_area|
 and |cur_ext|.
 
-@d pack_cur_name pack_file_name(cur_name, cur_area, cur_ext)
+@d pack_cur_name(A) if (cur_ext==empty_string) pack_file_name(cur_name, cur_area, cur_ext,A);
+                    else pack_file_name(cur_name, cur_area, cur_ext,NULL)
 
 @p static void pack_job_name(char *@!s) /*|s==".log"|, |".dvi"|, or
   |format_extension|*/
-{@+cur_area="";cur_ext=s;
-cur_name=job_name;pack_cur_name;
+{@+cur_area=empty_string;cur_ext=empty_string;
+cur_name=job_name;pack_cur_name(s);
 }
 
 @ If some trouble arises when \TeX\ tries to open a file, the following
 routine calls upon the user to supply another file name. Parameter~|s|
 is used in the error message to identify the type of file; parameter~|e|
-is the default extension if none is given. Upon exit from the routine,
+is the default extension if none is given.
+We handle the specification of a file name with possibly spaces in
+double quotes (the last one is optional if this is the end of line
+i.e. the end of the buffer).
+Upon exit from the routine,
 variables |cur_name|, |cur_area|, |cur_ext|, and |name_of_file| are
 ready for another attempt at file opening.
 
@@ -10848,12 +10896,12 @@ if (interaction < scroll_mode)
   fatal_error("*** (job aborted, file error in nonstop mode)");
 @.job aborted, file error...@>
 clear_terminal;prompt_input(": ");@<Scan file name in the buffer@>;
-if (cur_ext[0]==0) cur_ext=e;
-pack_cur_name;
+pack_cur_name(e);
 }
 
 @ @<Scan file name in the buffer@>=
-{@+begin_name();k=first;
+{@+
+begin_name();k=first;
 while ((buffer[k]==' ')&&(k < last)) incr(k);
 loop@+{@+if (k==last) goto done;
   if (!more_name(buffer[k])) goto done;
@@ -10889,7 +10937,7 @@ int @!k; /*index into |months| and |buffer|*/
 int @!l; /*end of first input line*/
 char @!months[]=" JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC"; /*abbreviations of month names*/
 old_setting=selector;
-if (job_name==0) job_name=s_no(c_job_name?c_job_name:"texput"); /* k\TeX\ */
+if (job_name==0) job_name=s_no(c_job_name?c_job_name:"texput"); /* \TeX\ Live */
 pack_job_name(".fls");
 recorder_change_filename((char *)name_of_file+1);
 @.texput@>
@@ -10954,23 +11002,40 @@ of string pool space; but that can confuse the interactive `\.E' option.
 @p static void start_input(void) /*\TeX\ will \.{\\input} something*/
 {@+
 scan_file_name(); /*set |cur_name| to desired file name*/
-if (cur_ext[0]==0) cur_ext=".tex";
-pack_cur_name;
+pack_cur_name(".tex");
 loop@+{@+begin_file_reading(); /*set up |cur_file| and new level of input*/
   if (a_open_in(&cur_file)) goto done;
   end_file_reading(); /*remove the level that didn't work*/
   prompt_file_name("input file name",".tex");
   }
 done: name=a_make_name_string(&cur_file);@/
-source_filename_stack[in_open]=name; /* k\TeX\ */
+if (source_filename_stack[in_open]==NULL)
+  free(source_filename_stack[in_open]);
+source_filename_stack[in_open]=strdup(name_of_file+1); /*\TeX\ Live*/
+if (full_source_filename_stack[in_open]==NULL)
+  free(full_source_filename_stack[in_open]);
+full_source_filename_stack[in_open]=strdup(full_name_of_file);
 if (job_name==0)
   {@+if (c_job_name==NULL) job_name=cur_name;
-     else job_name=s_no(c_job_name); open_log_file(); /* k\TeX\ */
+     else job_name=s_no(c_job_name); open_log_file(); /* \TeX\ Live*/
   }  /*|open_log_file| doesn't |show_context|, so |limit|
     and |loc| needn't be set to meaningful values yet*/
-if (term_offset+length(name) > max_print_line-2) print_ln();
+if (term_offset+strlen(full_source_filename_stack[in_open]) > max_print_line-2)
+  print_ln();
 else if ((term_offset > 0)||(file_offset > 0)) print_char(' ');
-print_char('(');incr(open_parens);slow_print(name);update_terminal;
+print_char('(');incr(open_parens);
+print(full_source_filename_stack[in_open]);update_terminal;
+if (tracing_stack_levels > 0)
+{@+int v;
+  begin_diagnostic();print_ln();
+  print_char('~');
+  v=input_ptr-1;
+  if (v < tracing_stack_levels)
+    while (v-- > 0) print_char('.');
+  else print_char('~');
+  print("INPUT ");slow_print(cur_name);slow_print(cur_ext);print_ln();
+  end_diagnostic(false);
+}
 state=new_line;
 if (name==str_ptr-1)  /*conserve string pool space (but see note above)*/
   {@+flush_string;name=cur_name;
@@ -11506,7 +11571,7 @@ information is stored; |null_font| is returned in this case.
 
 @d abort goto bad_tfm /*do this when the \.{TFM} data is wrong*/
 
-@p static internal_font_number read_font_info(pointer @!u, str_number @!nom, char *@!aire,
+@p static internal_font_number read_font_info(pointer @!u, str_number @!nom, str_number @!aire,
   scaled @!s) /*input a \.{TFM} file*/
 {@+
 int k; /*index into |font_info|*/
@@ -11539,7 +11604,7 @@ precise details about why it rejects a particular \.{TFM} file.
 @.TFtoPL@> @.PLtoTF@>
 
 @d start_font_error_message print_err("Font ");sprint_cs(u);
-  print_char('=');print_file_name(nom, aire,"");
+  print_char('=');print_file_name(nom, aire, empty_string);
   if (s >= 0)
     {@+print(" at ");print_scaled(s);print("pt");
     }
@@ -11573,7 +11638,7 @@ error()
 
 @ @<Open |tfm_file| for input@>=
 file_opened=false;
-pack_file_name(nom, "",".tfm"); /* k\TeX\ */
+pack_file_name(nom, empty_string,empty_string,".tfm"); /* \TeX\ Live */
 if (!b_open_in(&tfm_file)) abort;
 file_opened=true
 
@@ -11814,7 +11879,7 @@ if (bchar <= ec) if (bchar >= bc)
   if (char_exists(qw)) font_false_bchar[f]=non_char;
   }
 font_name[f]=nom;
-font_area[f]=s_no(aire);
+font_area[f]=aire;
 font_bc[f]=bc;font_ec[f]=ec;font_glue[f]=null;
 adjust(char_base);adjust(width_base);adjust(lig_kern_base);
 adjust(kern_base);adjust(exten_base);
@@ -13042,14 +13107,14 @@ if (g_sign!=normal)
   {@+if (g_sign==stretching)
     {@+if (stretch_order(g)==g_order)
       {@+cur_glue=cur_glue+stretch(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
+      vet_glue(unfix(glue_set(this_box))*cur_glue);
 @^real multiplication@>
       cur_g=round(glue_temp);
       }
     }
   else if (shrink_order(g)==g_order)
       {@+cur_glue=cur_glue-shrink(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
+      vet_glue(unfix(glue_set(this_box))*cur_glue);
       cur_g=round(glue_temp);
       }
   }
@@ -13210,14 +13275,14 @@ if (g_sign!=normal)
   {@+if (g_sign==stretching)
     {@+if (stretch_order(g)==g_order)
       {@+cur_glue=cur_glue+stretch(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
+      vet_glue(unfix(glue_set(this_box))*cur_glue);
 @^real multiplication@>
       cur_g=round(glue_temp);
       }
     }
   else if (shrink_order(g)==g_order)
       {@+cur_glue=cur_glue-shrink(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
+      vet_glue(unfix(glue_set(this_box))*cur_glue);
       cur_g=round(glue_temp);
       }
   }
@@ -13601,7 +13666,7 @@ common_ending|}@>@;
 @ @<Determine horizontal glue stretch setting...@>=
 {@+@<Determine the stretch order@>;
 glue_order(r)=o;glue_sign(r)=stretching;
-if (total_stretch[o]!=0) glue_set(r)=unfloat(x/(double)total_stretch[o]);
+if (total_stretch[o]!=0) glue_set(r)=fix(x/(double)total_stretch[o]);
 @^real division@>
 else{@+glue_sign(r)=normal;
   set_glue_ratio_zero(glue_set(r)); /*there's nothing to stretch*/
@@ -13660,7 +13725,7 @@ begin_diagnostic();show_box(r);end_diagnostic(true)
 @ @<Determine horizontal glue shrink setting...@>=
 {@+@<Determine the shrink order@>;
 glue_order(r)=o;glue_sign(r)=shrinking;
-if (total_shrink[o]!=0) glue_set(r)=unfloat((-x)/(double)total_shrink[o]);
+if (total_shrink[o]!=0) glue_set(r)=fix((-x)/(double)total_shrink[o]);
 @^real division@>
 else{@+glue_sign(r)=normal;
   set_glue_ratio_zero(glue_set(r)); /*there's nothing to shrink*/
@@ -13770,7 +13835,7 @@ common_ending|}@>@;
 @ @<Determine vertical glue stretch setting...@>=
 {@+@<Determine the stretch order@>;
 glue_order(r)=o;glue_sign(r)=stretching;
-if (total_stretch[o]!=0) glue_set(r)=unfloat(x/(double)total_stretch[o]);
+if (total_stretch[o]!=0) glue_set(r)=fix(x/(double)total_stretch[o]);
 @^real division@>
 else{@+glue_sign(r)=normal;
   set_glue_ratio_zero(glue_set(r)); /*there's nothing to stretch*/
@@ -13809,7 +13874,7 @@ begin_diagnostic();show_box(r);end_diagnostic(true)
 @ @<Determine vertical glue shrink setting...@>=
 {@+@<Determine the shrink order@>;
 glue_order(r)=o;glue_sign(r)=shrinking;
-if (total_shrink[o]!=0) glue_set(r)=unfloat((-x)/(double)total_shrink[o]);
+if (total_shrink[o]!=0) glue_set(r)=fix((-x)/(double)total_shrink[o]);
 @^real division@>
 else{@+glue_sign(r)=normal;
   set_glue_ratio_zero(glue_set(r)); /*there's nothing to shrink*/
@@ -16325,7 +16390,7 @@ static void build_page(void);@/
 static void fin_align(void)
 {@+pointer @!p, @!q, @!r, @!s, @!u, @!v; /*registers for the list operations*/
 scaled @!t, @!w; /*width of column*/
-bool x=false; /* indicates an extende alignment */
+bool x=false; /* indicates an extended alignment */
 scaled @!o; /*shift offset for unset boxes*/
 halfword @!n; /*matching span amount*/
 scaled @!rule_save; /*temporary storage for |overfull_rule|*/
@@ -16527,12 +16592,12 @@ s=link(s);v=glue_ptr(s);link(u)=new_glue(v);u=link(u);
 subtype(u)=tab_skip_code+1;t=t+width(v);
 if (glue_sign(p)==stretching)
   {@+if (stretch_order(v)==glue_order(p))
-    t=t+round(float(glue_set(p))*stretch(v));
+    t=t+round(unfix(glue_set(p))*stretch(v));
 @^real multiplication@>
   }
 else if (glue_sign(p)==shrinking)
   {@+if (shrink_order(v)==glue_order(p))
-    t=t-round(float(glue_set(p))*shrink(v));
+    t=t-round(unfix(glue_set(p))*shrink(v));
   }
 s=link(s);link(u)=new_null_box();u=link(u);t=t+width(s);
 if (mode==-vmode) width(u)=width(s);@+else
@@ -16548,14 +16613,14 @@ if (t==width(r))
 else if (t > width(r))
   {@+glue_sign(r)=stretching;
   if (glue_stretch(r)==0) set_glue_ratio_zero(glue_set(r));
-  else glue_set(r)=unfloat((t-width(r))/(double)glue_stretch(r));
+  else glue_set(r)=fix((t-width(r))/(double)glue_stretch(r));
 @^real division@>
   }
 else{@+glue_order(r)=glue_sign(r);glue_sign(r)=shrinking;
   if (glue_shrink(r)==0) set_glue_ratio_zero(glue_set(r));
   else if ((glue_order(r)==normal)&&(width(r)-t > glue_shrink(r)))
     set_glue_ratio_one(glue_set(r));
-  else glue_set(r)=unfloat((width(r)-t)/(double)glue_shrink(r));
+  else glue_set(r)=fix((width(r)-t)/(double)glue_shrink(r));
   }
 width(r)=w;type(r)=hlist_node;
 }
@@ -16569,14 +16634,14 @@ if (t==height(r))
 else if (t > height(r))
   {@+glue_sign(r)=stretching;
   if (glue_stretch(r)==0) set_glue_ratio_zero(glue_set(r));
-  else glue_set(r)=unfloat((t-height(r))/(double)glue_stretch(r));
+  else glue_set(r)=fix((t-height(r))/(double)glue_stretch(r));
 @^real division@>
   }
 else{@+glue_order(r)=glue_sign(r);glue_sign(r)=shrinking;
   if (glue_shrink(r)==0) set_glue_ratio_zero(glue_set(r));
   else if ((glue_order(r)==normal)&&(height(r)-t > glue_shrink(r)))
     set_glue_ratio_one(glue_set(r));
-  else glue_set(r)=unfloat((height(r)-t)/(double)glue_shrink(r));
+  else glue_set(r)=fix((height(r)-t)/(double)glue_shrink(r));
   }
 height(r)=w;type(r)=vlist_node;
 }
@@ -16985,12 +17050,12 @@ no_break_yet=true;prev_r=active;old_l=0;
 do_all_six(copy_to_cur_active);
 loop@+{@+resume: r=link(prev_r);
   @<If node |r| is of type |delta_node|, update |cur_active_width|, set |prev_r|
-and |prev_prev_r|, then |goto continue|@>;
+and |prev_prev_r|, then |goto resume|@>;
   @<If a line number class has ended, create new active nodes for the best
 feasible breaks in that class; then |return| if |r=last_active|, otherwise
 compute the new |line_width|@>;
   @<Consider the demerits for a line from |r| to |cur_p|; deactivate node
-|r| if it should no longer be active; then |goto continue| if a line from
+|r| if it should no longer be active; then |goto resume| if a line from
 |r| to |cur_p| is infeasible, otherwise record a new feasible break@>;
   }
 end: ;
@@ -18452,7 +18517,7 @@ hyphen_passed=0;t=hold_head;w=0;link(hold_head)=null;
 @<Set up data structures with the cursor following position |j|@>;
 resume: @<If there's a ligature or kern at the cursor position, update the
 data structures, possibly advancing~|j|; continue until the cursor moves@>;
-@<Append a ligature and/or kern to the translation; |goto continue| if the
+@<Append a ligature and/or kern to the translation; |goto resume| if the
 stack of inserted ligatures is nonempty@>;
 return j;
 }
@@ -18527,7 +18592,7 @@ loop@+{@+if (next_char(q)==test_char) if (skip_byte(q) <= stop_flag)
         }
       if (op_byte(q) < kern_flag)
       @<Carry out a ligature replacement, updating the cursor structure and
-possibly advancing~|j|; |goto continue| if the cursor doesn't advance, otherwise
+possibly advancing~|j|; |goto resume| if the cursor doesn't advance, otherwise
 |goto done|@>;
       w=char_kern(hf, q);goto done; /*this kern will be inserted below*/
      }
@@ -19726,7 +19791,8 @@ The original box becomes ``void'' if and only if it has been entirely
 extracted.  The extracted box is ``void'' if and only if the original
 box was void (or if it was, erroneously, an hlist box).
 
-@p static pointer vsplit(halfword @!n, scaled @!h)
+@p @t\4@>@<Declare the function called |do_marks|@>@;
+static pointer vsplit(halfword @!n, scaled @!h)
    /*extracts a page of height |h| from box |n|*/
 {@+
 pointer v; /*the box to be split*/
@@ -19734,6 +19800,8 @@ pointer p; /*runs through the vlist*/
 pointer q; /*points to where the break occurs*/
 cur_val=n;fetch_box(v);
 flush_node_list(split_disc);split_disc=null;
+if (sa_mark!=null)
+  if (do_marks(vsplit_init, 0, sa_mark)) sa_mark=null;
 if (split_first_mark!=null)
   {@+delete_token_ref(split_first_mark);split_first_mark=null;
   delete_token_ref(split_bot_mark);split_bot_mark=null;
@@ -19769,7 +19837,8 @@ if (type(v)!=vlist_node)
 p=list_ptr(v);
 if (p==q) list_ptr(v)=null;
 else loop@+{@+if (type(p)==mark_node)
-    if (split_first_mark==null)
+    if (mark_class(p)!=0) @<Update the current marks for |vsplit|@>@;
+    else if (split_first_mark==null)
       {@+split_first_mark=mark_ptr(p);
       split_bot_mark=split_first_mark;
       token_ref_count(split_first_mark)=@|
@@ -20100,7 +20169,7 @@ be immediately followed by `|goto big_switch|', which is \TeX's central
 control point.
 
 @p
-void update_last_values(pointer p)
+static void update_last_values(pointer p)
 {@<Update the values of |last_glue|, |last_penalty|, and |last_kern|@>;
 }
 
@@ -20166,7 +20235,7 @@ we know its successor.
 switch (type(p)) {
 case hlist_node: case vlist_node: case rule_node: if (page_contents < box_there)
     @<Initialize the current page, insert the \.{\\topskip} glue ahead of
-|p|, and |goto continue|@>@;
+|p|, and |goto resume|@>@;
   else@<Prepare to move a box or rule node to the current page, then |goto
 contribute|@>@;@+break;
 case whatsit_node: @<Prepare to move whatsit |p| to the current page, then
@@ -20400,6 +20469,8 @@ int @!save_vbadness; /*saved value of |vbadness|*/
 scaled @!save_vfuzz; /*saved value of |vfuzz|*/
 pointer @!save_split_top_skip; /*saved value of |split_top_skip|*/
 @<Set the value of |output_penalty|@>;
+if (sa_mark!=null)
+  if (do_marks(fire_up_init, 0, sa_mark)) sa_mark=null;
 if (bot_mark!=null)
   {@+if (top_mark!=null) delete_token_ref(top_mark);
   top_mark=bot_mark;add_token_ref(top_mark);
@@ -20408,6 +20479,8 @@ if (bot_mark!=null)
 @<Put the \(o)optimal current page into box 255, update |first_mark| and |bot_mark|,
 append insertions to their boxes, and put the remaining nodes back on the
 contribution list@>;
+if (sa_mark!=null)
+  if (do_marks(fire_up_done, 0, sa_mark)) sa_mark=null;
 if ((top_mark!=null)&&(first_mark==null))
   {@+first_mark=top_mark;add_token_ref(top_mark);
   }
@@ -20444,7 +20517,9 @@ while (p!=best_page_break)
        @<Either insert the material specified by node |p| into the appropriate
 box, or hold it for the next page; also delete node |p| from the current page@>;
     }
-  else if (type(p)==mark_node) @<Update the values of |first_mark| and |bot_mark|@>;
+  else if (type(p)==mark_node)
+    if (mark_class(p)!=0) @<Update the current marks for |fire_up|@>@;
+    else@<Update the values of |first_mark| and |bot_mark|@>;
   prev_p=p;p=link(prev_p);
   }
 split_top_skip=save_split_top_skip;
@@ -21781,9 +21856,19 @@ the \.{\\vtop} height is zero.
 
 
 @<Readjust the height...@>=
-{@+h=0;p=list_ptr(cur_box);
-if (p!=null) if (type(p) <= rule_node) h=height(p);
-depth(cur_box)=depth(cur_box)-h+height(cur_box);height(cur_box)=h;
+{@+if (type(cur_box)==vlist_node)
+  {@+h=0;p=list_ptr(cur_box);
+    if (p!=null && type(p) <= rule_node) h=height(p);
+    depth(cur_box)=depth(cur_box)-h+height(cur_box);height(cur_box)=h;
+  }
+  else if (type(cur_box) == whatsit_node)
+  { if (subtype(cur_box)==vpack_node)
+      pack_limit(cur_box)^=MAX_DIMEN+1;
+    else if(subtype(cur_box)==vset_node)
+    { height(cur_box)=height(cur_box)+depth(cur_box);
+      depth(cur_box)^=MAX_DIMEN+1;
+    }
+  }
 }
 
 @ A paragraph begins when horizontal-mode material occurs in vertical mode,
@@ -21943,7 +22028,12 @@ case outline_group: hfinish_outline_group();@+break;
 @ @<Declare act...@>=
 static void make_mark(void)
 {@+pointer p; /*new node*/
+halfword @!c; /*the mark class*/
+if (cur_chr==0) c=0;
+else{@+scan_register_num();c=cur_val;
+  }
 p=scan_toks(false, true);p=get_node(small_node_size);
+mark_class(p)=c;
 type(p)=mark_node;subtype(p)=0; /*the |subtype| is not used*/
 mark_ptr(p)=def_ref;link(tail)=p;tail=p;
 }
@@ -24224,7 +24314,7 @@ the new name becomes the font identifier of record. Font names `\.{xyz}' and
 @<If this font has already been loaded...@>=
 flushable_string=str_ptr-1;
 for (f=font_base+1; f<=font_ptr; f++)
-  if (strn_eq_str(font_name[f], cur_name)&&str_eq_str(font_area[f], cur_area))
+  if (str_eq_str(font_name[f], cur_name)&&str_eq_str(font_area[f], cur_area))
     {@+if (cur_name==flushable_string)
       {@+flush_string;cur_name=font_name[f];
       }
@@ -24332,9 +24422,8 @@ if (read_open[n]!=closed)
   }
 if (c!=0)
   {@+scan_optional_equals();scan_file_name();
-  if (cur_ext[0]==0) cur_ext=".tex";
-  pack_cur_name;
-  if (a_open_in(&read_file[n])) read_open[n]=just_open;
+  pack_cur_name(".tex");
+   if (a_open_in(&read_file[n])) read_open[n]=just_open;
   }
 }
 
@@ -24576,13 +24665,15 @@ month, and day that the format file was created. We have |format_ident==0|
 before \TeX's tables are loaded.
 
 @<Glob...@>=
-static str_number @!format_ident;
+static str_number @!format_ident, frozen_format_ident;
 
 @ @<Set init...@>=
-format_ident=0;
+format_ident=frozen_format_ident=0;
 
-@ @<Initialize table entries...@>=
-format_ident=s_no(" (INITEX)");
+@ We keep a copy of the initial value, be able to test for it later.
+
+@<Initialize table entries...@>=
+format_ident=frozen_format_ident=s_no(" (INITEX)");
 
 @ @<Declare act...@>=
 #ifdef @!INIT
@@ -24806,6 +24897,7 @@ undump_int(var_used);undump_int(dyn_used)
 @<Dump regions 1 to 4 of |eqtb|@>;
 @<Dump regions 5 and 6 of |eqtb|@>;
 dump_int(par_loc);dump_int(write_loc);@/
+dump_int(input_loc);@/
 @<Dump the hash table@>@;
 
 @ @<Undump the table of equivalents@>=
@@ -24813,6 +24905,8 @@ dump_int(par_loc);dump_int(write_loc);@/
 undump(hash_base, frozen_control_sequence, par_loc);
 par_token=cs_token_flag+par_loc;@/
 undump(hash_base, frozen_control_sequence, write_loc);@/
+undump(hash_base, frozen_control_sequence, input_loc);
+input_token=cs_token_flag+input_loc;@/
 @<Undump the hash table@>@;
 
 @ The table of equivalents usually contains repeated information, so we dump it
@@ -24936,7 +25030,7 @@ dump_int(bchar_label[k]);
 dump_int(font_bchar[k]);
 dump_int(font_false_bchar[k]);@/
 print_nl("\\font");printn_esc(font_id_text(k));print_char('=');
-printn_file_name(font_name[k], font_area[k],empty_string);
+print_file_name(font_name[k], font_area[k],empty_string);
 if (font_size[k]!=font_dsize[k])
   {@+print(" at ");print_scaled(font_size[k]);print("pt");
   }
@@ -25046,7 +25140,7 @@ tracing_stats=0
 
 @ @<Undump a couple more things and the closing check word@>=
 undump(batch_mode, error_stop_mode, interaction);
-if (interaction_option>=0) interaction=interaction_option;
+if (interaction_option>=0) interaction=interaction_option;  /* \TeX\ Live */
 undump(0, str_ptr, format_ident);
 undump_int(x);
 if ((x!=69069)||eof(fmt_file)) goto bad_fmt
@@ -25134,7 +25228,8 @@ The initial test involving |ready_already| should be deleted if the
 
 @p
 int main(int argc, char *argv[]) {@! /*|start_here|*/
-  main_init(argc, argv); /* k\TeX\ */
+hlog=stderr;
+  main_init(argc, argv); /* \TeX\ Live */
 history=fatal_error_stop; /*in case we quit during initialization*/
 t_open_out; /*open the terminal for output*/
 if (ready_already==314159) goto start_of_TEX;
@@ -25148,7 +25243,7 @@ if (bad > 0)
 get_strings_started();
 initialize(); /*set global variables to their starting values*/
 #ifdef @!INIT
-if (iniversion)
+if (iniversion)  /* \TeX\ Live */
 { init_prim(); /*call |primitive| for each primitive*/
   init_str_ptr=str_ptr;init_pool_ptr=pool_ptr;fix_date_and_time(); }
 #endif
@@ -25275,6 +25370,8 @@ if (c==1)
 #ifdef @!INIT
 for (c=top_mark_code; c<=split_bot_mark_code; c++)
     if (cur_mark[c]!=null) delete_token_ref(cur_mark[c]);
+  if (sa_mark!=null)
+    if (do_marks(destroy_marks, 0, sa_mark)) sa_mark=null;
   for (c=last_box_code; c<=vsplit_code; c++) flush_node_list(disc_ptr[c]);
   if (last_glue!=max_halfword) delete_glue_ref(last_glue);
   store_fmt_file();return;
@@ -25491,14 +25588,15 @@ to hold the string numbers for name, area, and extension.
 @d baseline_node_no(A) mem[A+1].i /* baseline reference */@#
 
 @d image_node    hitex_ext+4  /*|subtype| that records an image */
-@d image_node_size 5 /* number of memory words in an |image_node| */
+@d image_node_size 6 /* number of memory words in an |image_node| */
 @d image_xwidth(A)  link(A+1)  /*extended width of image */
 @d image_xheight(A) info(A+1)  /*extended height of image */
-@d image_no(A)     link(A+2)  /* the section number */
-@d image_name(A)   info(A+2)  /*string number of file name */
-@d image_area(A)   info(A+3)  /*string number of file area */
-@d image_ext(A)    link(A+3)  /*string number of file extension */
-@d image_alt(A)    link(A+4)  /* alternative image description text */@#
+@d image_aspect(A)  mem[(A)+2].sc /* aspect ratio of image */
+@d image_no(A)     link(A+3)  /* the section number */
+@d image_name(A)   info(A+3)  /*string number of file name */
+@d image_area(A)   info(A+4)  /*string number of file area */
+@d image_ext(A)    link(A+4)  /*string number of file extension */
+@d image_alt(A)    link(A+5)  /* alternative image description text */@#
 
 @d hpack_node         hitex_ext+5 /* a hlist that needs to go to hpack */
 @d vpack_node         hitex_ext+6 /* a vlist that needs to go to vpackage */
@@ -25542,7 +25640,7 @@ to hold the string numbers for name, area, and extension.
 @d setstream_number(A)    type(A+1)
 @d setstream_insertion(A) subtype(A+1)
 @d setstream_mag(A)       link(A+1) /* magnification factor */
-@d setstream_prefered(A)  type(A+2)
+@d setstream_preferred(A)  type(A+2)
 @d setstream_next(A)      subtype(A+2)
 @d setstream_ratio(A)     link(A+2) /* split ratio */
 @d setstream_max(A)       info(A+3) /* extended dimension number */
@@ -25607,7 +25705,9 @@ for (k=0; k<=17; k++) write_open[k]=false;
 stays the same.
 
 @d immediate_code 4 /*command modifier for \.{\\immediate}*/
-@d set_language_code 5 /*command modifier for \.{\\setlanguage}*/
+@d latex_first_extension_code 5
+@d latespecial_node (latex_first_extension_code+0) /*|subtype| in whatsits that represent \.{\\special} things expanded during output*/
+@d set_language_code (latex_first_extension_code+1) /*command modifier for \.{\\setlanguage}*/
 @d TeX_last_extension_cmd_mod set_language_code
 
 @<Put each...@>=
@@ -25685,11 +25785,11 @@ case extension: switch (chr_code) {
   case setstream_node: print_esc("HINTsetstream");@+break;
   case stream_node: print_esc("HINTstream");@+break;
   case param_node: print("[HINT internal: parameter list]");@+break;
-  case par_node: print("[HINT internal: paragraf]");@+break;
+  case par_node: print("[HINT internal: paragraph]");@+break;
   case disp_node: print("[HINT internal: display]");@+break;
   case baseline_node: print("[HINT internal: baselineskip]");@+break;
   case hpack_node: print("[HINT internal: hpack]");@+break;
-  case vpack_node: print("[HINT internal: vpacky");@+break;
+  case vpack_node: print("[HINT internal: vpack");@+break;
   case hset_node: print("[HINT internal: hset]");@+break;
   case vset_node: print("[HINT internal: vset]");@+break;
   case align_node: print("[HINT internal: align]");@+break;
@@ -25739,6 +25839,38 @@ case image_node:@/
     else
       break;
   }
+  { scaled iw,ih;
+    double ia;
+    pointer r,q;
+    hextract_image_dimens(image_no(p),&ia,&iw,&ih);
+    image_aspect(p)=round(ia*ONE);
+    r=image_xwidth(p);
+    q=image_xheight(p);
+    if (r==null && q==null)
+    { if (iw>0)
+      { image_xwidth(p)=r=new_xdimen(iw,0,0);
+        image_xheight(p)=q=new_xdimen(ih,0,0);
+      }
+      else if (iw<0)
+      { MESSAGE("Unable to determine size of image %s; using 72dpi.\n",
+		dir[image_no(p)].file_name);
+	image_xwidth(p)=r=new_xdimen(-iw*ONE,0,0);
+        image_xheight(p)=q=new_xdimen(-ih*ONE,0,0);
+      }
+      else
+      { MESSAGE("Unable to determine size of image %s; using 100pt x 100pt\n",
+		dir[image_no(p)].file_name);
+ 	image_xwidth(p)=r=new_xdimen(100*ONE,0,0);
+        image_xheight(p)=q=new_xdimen(100*ONE,0,0);
+     }
+    }
+    else if (r!=null && q==null)
+      image_xheight(p)=q=new_xdimen(round(xdimen_width(r)/ia),
+	      round(xdimen_hfactor(r)/ia),round(xdimen_vfactor(r)/ia));
+    else if (r==null && q!=null)
+       image_xwidth(p)=r=new_xdimen(round(xdimen_width(q)*ia),
+ 	      round(xdimen_hfactor(q)*ia),round(xdimen_vfactor(q)*ia));
+  }
   if (abs(mode)==vmode)
   { prev_depth=ignore_depth; /* this could be deleted if baseline nodes treat
                                 images as boxes in the viewer */
@@ -25750,7 +25882,7 @@ case image_node:@/
 }
 case start_link_node:
   if (abs(mode) == vmode)
-    fatal_error("HiTeX startlink cannot be used in vertical mode");
+    fatal_error("HINTstartlink cannot be used in vertical mode");
   else
   { new_whatsit(start_link_node,link_node_size);
     scan_label(tail);
@@ -25758,7 +25890,7 @@ case start_link_node:
   break;
 case end_link_node:
   if (abs(mode) == vmode)
-    fatal_error("HiTeX endlink cannot be used in vertical mode");
+    fatal_error("HINTendlink cannot be used in vertical mode");
   else
     new_whatsit(end_link_node,link_node_size);
   break;
@@ -25825,10 +25957,10 @@ case setstream_node:
   s=new_setstream_node(n);
   link(s)=setpage_streams(t); setpage_streams(t)=s;
   loop {
-    if (scan_keyword("prefered"))
+    if (scan_keyword("preferred"))
     {@+scan_eight_bit_int();
       if (cur_val!=255)
-        setstream_prefered(s)=hget_stream_no(cur_val); }
+        setstream_preferred(s)=hget_stream_no(cur_val); }
     else if (scan_keyword("next"))
     {@+scan_eight_bit_int();
       if (cur_val!=255)
@@ -25863,11 +25995,11 @@ default:confusion("ext1");
 }
 
 @ @<Declare procedures needed in |do_extension|@>=
-void scan_spaces(void)
+static void scan_spaces(void)
 { @<Get the next non-blank non-call token@>;
   back_input();
 }
-void scan_destination(pointer p)
+static void scan_destination(pointer p)
 {@+if (scan_keyword("name"))
   { label_has_name(p)=1;
     scan_toks(false,true); label_ptr(p)=def_ref;
@@ -25883,7 +26015,7 @@ void scan_destination(pointer p)
   }
   scan_spaces();
 }
-void scan_label(pointer p)
+static void scan_label(pointer p)
 { if (!scan_keyword("goto"))
     print_err("keyword `goto' inserted");
   scan_destination(p);
@@ -25917,7 +26049,7 @@ write_stream(tail)=cur_val;
 @ @<Implement \.{\\openout}@>=
 {@+new_write_whatsit(open_node_size);
 scan_optional_equals();scan_file_name();@/
-open_name(tail)=cur_name;open_area(tail)=s_no(cur_area);open_ext(tail)=s_no(cur_ext);
+open_name(tail)=cur_name;open_area(tail)=cur_area;open_ext(tail)=cur_ext;
 }
 
 @ When `\.{\\write 12\{...\}}' appears, we scan the token list `\.{\{...\}}'
@@ -25934,12 +26066,17 @@ cur_cs=k;p=scan_toks(false, false);write_tokens(tail)=def_ref;
 }
 
 @ When `\.{\\special\{...\}}' appears, we expand the macros in the token
-list as in \.{\\xdef} and \.{\\mark}.
+list as in \.{\\xdef} and \.{\\mark}.  When marked with \.{shipout}, we keep
+tokens unexpanded for now.
 
 @<Implement \.{\\special}@>=
+{@+if (scan_keyword("shipout"))
+{@+new_whatsit(latespecial_node, write_node_size);write_stream(tail)=null;
+p=scan_toks(false, false);write_tokens(tail)=def_ref;
+} else
 {@+new_whatsit(special_node, write_node_size);write_stream(tail)=null;
 p=scan_toks(false, true);write_tokens(tail)=def_ref;
-}
+} }
 
 @ Each new type of node that appears in our data structure must be capable
 of being displayed, copied, destroyed, and so on. The routines that we
@@ -25965,12 +26102,15 @@ else print_char('-');
 @ @<Display the whatsit...@>=
 switch (subtype(p)) {
 case open_node: {@+print_write_whatsit("openout", p);
-  print_char('=');printn_file_name(open_name(p), open_area(p), open_ext(p));
+  print_char('=');print_file_name(open_name(p), open_area(p), open_ext(p));
   } @+break;
 case write_node: {@+print_write_whatsit("write", p);
   print_mark(write_tokens(p));
   } @+break;
 case close_node: print_write_whatsit("closeout", p);@+break;
+case latespecial_node: {@+print_esc("special");print(" shipout");
+  print_mark(write_tokens(p));
+  } @+break;
 case special_node: {@+print_esc("special");
   print_mark(write_tokens(p));
   } @+break;
@@ -25984,7 +26124,7 @@ case param_node: print_esc("parameter ");
   print_int(param_type(p));print_char(',');print_int(param_no(p));
   print_char(':');print_int(param_value(p).i);
   break;
-case par_node: print_esc("paragraf(");
+case par_node: print_esc("paragraph(");
   print_xdimen(par_extent(p));
   print(", ");
   print_int(par_penalty(p));
@@ -26033,6 +26173,7 @@ case image_node:
   print_esc("HINTimage(");
   print("width ");print_xdimen(image_xheight(p));
   print(" height "); print_xdimen(image_xwidth(p));
+  print(" aspect "); print_scaled(image_aspect(p));
   print("), section ");print_int(image_no(p));
   if (image_name(p)!=0) {print(", "); printn(image_name(p));}
   break;
@@ -26057,7 +26198,7 @@ case setpage_node:
 case setstream_node:
   print_esc("HINTsetstream");print_int(setstream_insertion(p));
   print_char('(');print_int(setstream_number(p));print_char(')');
-  if (setstream_prefered(p)!=255) { print(" prefered ");print_int(setstream_prefered(p)); }
+  if (setstream_preferred(p)!=255) { print(" preferred ");print_int(setstream_preferred(p)); }
   if (setstream_ratio(p)>0) { print(" ratio ");print_int(setstream_ratio(p)); }
   if (setstream_next(p)!=255) { print(" next ");print_int(setstream_next(p)); }
   append_char('.');
@@ -26113,7 +26254,7 @@ default: print("whatsit?");
 switch (subtype(p)) {
 case open_node: {@+r=get_node(open_node_size);words=open_node_size;
   } @+break;
-case write_node: case special_node: {@+r=get_node(write_node_size);
+case write_node: case special_node: case latespecial_node: {@+r=get_node(write_node_size);
   add_token_ref(write_tokens(p));words=write_node_size;
   } @+break;
 case close_node: case language_node: {@+r=get_node(small_node_size);
@@ -26232,7 +26373,7 @@ default:confusion("ext2");
 @ @<Wipe out the whatsit...@>=
 {@+switch (subtype(p)) {
 case open_node: free_node(p, open_node_size);@+break;
-case write_node: case special_node: {@+delete_token_ref(write_tokens(p));
+case write_node: case special_node: case latespecial_node: {@+delete_token_ref(write_tokens(p));
   free_node(p, write_node_size);goto done;
   }
 case close_node: case language_node: free_node(p, small_node_size);@+break;
@@ -26344,20 +26485,14 @@ that actually send out the requested data. Let's do \.{\\special} first
 
 @<Declare procedures needed in |hlist_out|, |vlist_out|@>=
 static void special_out(pointer @!p)
-{@+int old_setting; /*holds print |selector|*/
-int @!k; /*index into |str_pool|*/
-synch_h;synch_v;@/
-old_setting=selector;selector=new_string;
-show_token_list(link(write_tokens(p)), null, pool_size-pool_ptr);
-selector=old_setting;
-str_room(1);
-if (cur_length < 256)
-  {@+dvi_out(xxx1);dvi_out(cur_length);
+{@+pointer @!q, @!r; /*temporary variables for list manipulation*/
+int @!old_mode; /*saved |mode|*/
+
+if (subtype(p)==latespecial_node)
+  {@+@<Expand macros in the token list and make |link(def_ref)| point to the
+result@>;
+  write_tokens(p)=def_ref;
   }
-else{@+dvi_out(xxx4);dvi_four(cur_length);
-  }
-for (k=str_start[str_ptr]; k<=pool_ptr-1; k++) dvi_out(so(str_pool[k]));
-pool_ptr=str_start[str_ptr]; /*erase the string*/
 }
 
 @ To write a token list, we must run it through \TeX's scanner, expanding
@@ -26434,7 +26569,7 @@ static void out_what(pointer @!p)
 switch (subtype(p)) {
 case open_node: case write_node: case close_node: @<Do some work that has
 been queued up for \.{\\write}@>@;@+break;
-case special_node:
+case special_node: case latespecial_node: special_out(p);@+break;
 case language_node:
 case save_pos_code: do_nothing;@+break;
 default:confusion("ext4");
@@ -26454,10 +26589,9 @@ if (!doing_leaders)
   else{@+if (write_open[j]) a_close(&write_file[j]);
     if (subtype(p)==close_node) write_open[j]=false;
     else if (j < 16)
-      {@+cur_name=open_name(p);
-       set_cur_area_ext(open_area(p),open_ext(p));
-      if (cur_ext[0]==0) cur_ext=".tex";
-      pack_cur_name;
+      {@+cur_name=open_name(p);cur_area=open_area(p);
+      cur_ext=open_ext(p);
+      pack_cur_name(".tex");
       while (!a_open_out(&write_file[j]))
         prompt_file_name("output file name",".tex");
       write_open[j]=true;
@@ -26529,15 +26663,15 @@ place when a `virgin' \.{eINITEX} starts without reading a format file.
 Later on the values of all \eTeX\ state variables are inherited when
 \.{eVIRTEX} (or \.{eINITEX}) reads a format file.
 
-The code below is designed to work for cases where `$|init|\ldots|tini|$'
+The code below is designed to work for cases where `$|@t\#\&{ifdef} \.{INIT}@>|\ldots|@t\#\&{endif}@>|$'
 is a run-time switch.
 
 @<Enable \eTeX\ and furthermore Prote, if requested@>=
 #ifdef @!INIT
-if (iniversion && (buffer[loc]=='*'||etexp))
+if (iniversion && (buffer[loc]=='*'||etexp))  /* \TeX\ Live */
   {@+no_new_control_sequence=false;
   @<Generate all \eTeX\ primitives@>@;
-  if (buffer[loc]=='*') incr(loc);
+  if (buffer[loc]=='*') incr(loc);  /* \TeX\ Live */
   eTeX_mode=1; /*enter extended mode*/
   @<Initialize variables for \eTeX\ extended mode@>@;
   if (buffer[loc]=='*'||ltxp) {@+
@@ -28003,6 +28137,31 @@ for count and dimen values, |zero_glue| for glue (skip and muskip)
 values, void for boxes, and |null| for token lists (and current marks
 discussed below).
 
+Similarly there are 32768 mark classes; the command \.{\\marks}|n|
+creates a mark node for a given mark class |0 <= n <= 32767| (where
+\.{\\marks0} is synonymous to \.{\\mark}).  The page builder (actually
+the |fire_up| routine) and the |vsplit| routine maintain the current
+values of |top_mark|, |first_mark|, |bot_mark|, |split_first_mark|, and
+|split_bot_mark| for each mark class.  They are accessed as
+\.{\\topmarks}|n| etc., and \.{\\topmarks0} is again synonymous to
+\.{\\topmark}.  As in \TeX\ the five current marks for mark class zero
+are realized as |cur_mark| array.  The additional current marks are
+again realized as tree structure with individual mark classes existing
+only when needed.
+
+@<Generate all \eTeX...@>=
+primitive("marks", mark, marks_code);
+@!@:marks\_}{\.{\\marks} primitive@>
+primitive("topmarks", top_bot_mark, top_mark_code+marks_code);
+@!@:top\_marks\_}{\.{\\topmarks} primitive@>
+primitive("firstmarks", top_bot_mark, first_mark_code+marks_code);
+@!@:first\_marks\_}{\.{\\firstmarks} primitive@>
+primitive("botmarks", top_bot_mark, bot_mark_code+marks_code);
+@!@:bot\_marks\_}{\.{\\botmarks} primitive@>
+primitive("splitfirstmarks", top_bot_mark, split_first_mark_code+marks_code);
+@!@:split\_first\_marks\_}{\.{\\splitfirstmarks} primitive@>
+primitive("splitbotmarks", top_bot_mark, split_bot_mark_code+marks_code);
+@!@:split\_bot\_marks\_}{\.{\\splitbotmarks} primitive@>
 
 @ The |scan_register_num| procedure scans a register number that must
 not exceed 255 in compatibility mode resp.\ 32767 in extended mode.
@@ -28321,6 +28480,136 @@ else{@+t=sa_type(p);
   }
 print_char('}');end_diagnostic(false);
 }
+#endif
+
+@ Here we compute the pointer to the current mark of type |t| and mark
+class |cur_val|.
+
+@<Compute the mark pointer...@>=
+{@+find_sa_element(mark_val, cur_val, false);
+if (cur_ptr!=null)
+  if (odd(t)) cur_ptr=link(cur_ptr+(t/2)+1);
+  else cur_ptr=info(cur_ptr+(t/2)+1);
+}
+
+@ The current marks for all mark classes are maintained by the |vsplit|
+and |fire_up| routines and are finally destroyed (for \.{INITEX} only)
+@.INITEX@>
+by the |final_cleanup| routine.  Apart from updating the current marks
+when mark nodes are encountered, these routines perform certain actions
+on all existing mark classes.  The recursive |do_marks| procedure walks
+through the whole tree or a subtree of existing mark class nodes and
+preforms certain actions indicted by its first parameter |a|, the action
+code.  The second parameter |l| indicates the level of recursion (at
+most four); the third parameter points to a nonempty tree or subtree.
+The result is |true| if the complete tree or subtree has been deleted.
+
+@d vsplit_init 0 /*action code for |vsplit| initialization*/
+@d fire_up_init 1 /*action code for |fire_up| initialization*/
+@d fire_up_done 2 /*action code for |fire_up| completion*/
+@d destroy_marks 3 /*action code for |final_cleanup|*/
+@#
+@d sa_top_mark(A) info(A+1) /*\.{\\topmarks}|n|*/
+@d sa_first_mark(A) link(A+1) /*\.{\\firstmarks}|n|*/
+@d sa_bot_mark(A) info(A+2) /*\.{\\botmarks}|n|*/
+@d sa_split_first_mark(A) link(A+2) /*\.{\\splitfirstmarks}|n|*/
+@d sa_split_bot_mark(A) info(A+3) /*\.{\\splitbotmarks}|n|*/
+
+@<Declare the function called |do_marks|@>=
+static bool do_marks(small_number @!a, small_number @!l, pointer @!q)
+{@+int i; /*a four bit index*/
+if (l < 4)  /*|q| is an index node*/
+  {@+for (i=0; i<=15; i++)
+    {@+get_sa_ptr;
+    if (cur_ptr!=null) if (do_marks(a, l+1, cur_ptr)) delete_sa_ptr;
+    }
+  if (sa_used(q)==0)
+    {@+free_node(q, index_node_size);q=null;
+    }
+  }
+else /*|q| is the node for a mark class*/
+  {@+switch (a) {
+  @<Cases for |do_marks|@>@;
+  }  /*there are no other cases*/
+  if (sa_bot_mark(q)==null) if (sa_split_bot_mark(q)==null)
+    {@+free_node(q, mark_class_node_size);q=null;
+    }
+  }
+return(q==null);
+}
+
+@ At the start of the |vsplit| routine the existing |split_fist_mark|
+and |split_bot_mark| are discarded.
+
+@<Cases for |do_marks|@>=
+case vsplit_init: if (sa_split_first_mark(q)!=null)
+  {@+delete_token_ref(sa_split_first_mark(q));sa_split_first_mark(q)=null;
+  delete_token_ref(sa_split_bot_mark(q));sa_split_bot_mark(q)=null;
+  } @+break;
+
+@ We use again the fact that |split_first_mark==null| if and only if
+|split_bot_mark==null|.
+
+@<Update the current marks for |vsplit|@>=
+{@+find_sa_element(mark_val, mark_class(p), true);
+if (sa_split_first_mark(cur_ptr)==null)
+  {@+sa_split_first_mark(cur_ptr)=mark_ptr(p);
+  add_token_ref(mark_ptr(p));
+  }
+else delete_token_ref(sa_split_bot_mark(cur_ptr));
+sa_split_bot_mark(cur_ptr)=mark_ptr(p);
+add_token_ref(mark_ptr(p));
+}
+
+@ At the start of the |fire_up| routine the old |top_mark| and
+|first_mark| are discarded, whereas the old |bot_mark| becomes the new
+|top_mark|.  An empty new |top_mark| token list is, however, discarded
+as well in order that mark class nodes can eventually be released.  We
+use again the fact that |bot_mark!=null| implies |first_mark!=null|; it
+also knows that |bot_mark==null| implies |top_mark==first_mark==null|.
+
+@<Cases for |do_marks|@>=
+case fire_up_init: if (sa_bot_mark(q)!=null)
+  {@+if (sa_top_mark(q)!=null) delete_token_ref(sa_top_mark(q));
+  delete_token_ref(sa_first_mark(q));sa_first_mark(q)=null;
+  if (link(sa_bot_mark(q))==null)  /*an empty token list*/
+    {@+delete_token_ref(sa_bot_mark(q));sa_bot_mark(q)=null;
+    }
+  else add_token_ref(sa_bot_mark(q));
+  sa_top_mark(q)=sa_bot_mark(q);
+  } @+break;
+
+@ @<Cases for |do_marks|@>=
+case fire_up_done: if ((sa_top_mark(q)!=null)&&(sa_first_mark(q)==null))
+  {@+sa_first_mark(q)=sa_top_mark(q);add_token_ref(sa_top_mark(q));
+  } @+break;
+
+@ @<Update the current marks for |fire_up|@>=
+{@+find_sa_element(mark_val, mark_class(p), true);
+if (sa_first_mark(cur_ptr)==null)
+  {@+sa_first_mark(cur_ptr)=mark_ptr(p);
+  add_token_ref(mark_ptr(p));
+  }
+if (sa_bot_mark(cur_ptr)!=null) delete_token_ref(sa_bot_mark(cur_ptr));
+sa_bot_mark(cur_ptr)=mark_ptr(p);add_token_ref(mark_ptr(p));
+}
+
+@ Here we use the fact that the five current mark pointers in a mark
+class node occupy the same locations as the the first five pointers of
+an index node.  For systems using a run-time switch to distinguish
+between \.{VIRTEX} and \.{INITEX}, the codewords `$|@t\#\&{ifdef} \.{INIT}@>|\ldots|@t\#\&{endif}@>|$'
+surrounding the following piece of code should be removed.
+@.INITEX@>
+@^system dependencies@>
+
+@<Cases for |do_marks|@>=
+#ifdef @!INIT
+case destroy_marks: for (i=top_mark_code; i<=split_bot_mark_code; i++)
+  {@+get_sa_ptr;
+  if (cur_ptr!=null)
+    {@+delete_token_ref(cur_ptr);put_sa_ptr(null);
+    }
+  }
 #endif
 
 @ The command code |internal_register| is used for `\.{\\count}', `\.{\\dimen}',
@@ -28875,7 +29164,6 @@ def_ref=d; /*restore whatever*/
 and converts it to a string number that is returned in |info(garbage)|.
 Neither the token list nor the string (obviously) are flushed.
 
-
 @<Forward declarations@>=
 static void toks_to_str(void);
 
@@ -28893,9 +29181,14 @@ old_setting=selector;selector=new_string;
 @*1 \Prote\ added strings routines.
 
 The next procedure sets |name_of_file| from the string given as an
-argument. It silently truncates if the length of the string exceeds the
-size of the name buffer and doesn't use |cur_area| and |cur_ext|: it
-takes the string as is and the string is not flushed.
+argument, mimicking the |input| primitive by adding an |.tex| extension
+if there is none. It silently truncates if the length of the string
+exceeds the size of the name buffer and doesn't use |cur_area| and
+|cur_ext|, but |name_length| is set to the real name length (without
+truncating) so a test about |k <= file_name_size| allows to detect the
+impossibility of opening the file without having to call external code.
+The string is not flushed: it is the responsability of the code calling
+the procedure to flush it if wanted.
 
 @<Declare \Prote\ procedures for strings@>=
 static void str_to_name(str_number @!s)
@@ -29330,6 +29623,7 @@ returned.
 @<Cases of `Scan the argument for command |c|'@>=
 case file_size_code: {@+scan_general_x_text();toks_to_str();
   s=info(garbage);flush_list(link(garbage));str_to_name(s);
+  cur_val=-1; /*invalid value if error*/
   cur_val=get_file_size();
   flush_string;
   } @+break;
@@ -29372,7 +29666,6 @@ If the length is $0$, nothing is printed.
 @<Cases of `Print the result of command |c|'@>=
 case file_mod_date_code: for (k=0; time_str[k]!='\0'; k++)
    print_char(time_str[k]);@+break;
-
 
 @ The primitive \.{\\filedump} expands to the dump of the first
  \.{length} bytes of the file, starting from \.{offset}. Offset and
@@ -29483,7 +29776,6 @@ case mdfive_sum_code: for (k=0; k<l; k++)
 {@+dig[0]=md5_digest[k]%16;@+dig[1]=md5_digest[k]/16;print_the_digs(2);
 } @+break;
 
-@ If the string obtained is supposed to be a file name,
 @ This is something that we will be doing several times. We have scanned
 a general text. The result is a token list that we will interpret as a
 file name. We must then put this name in |name_of_file| and try to open
@@ -29494,7 +29786,7 @@ it, as a binary file.
 @<Generate the MD5 hash for a file@>=
 {@+str_to_name(s);
 xchg_buffer_length=0; /*empty if file not opened*/
-if (b_open_in(&data_in)) {@+
+if ((name_length <= file_name_size)&&(b_open_in(&data_in))) {@+
   mdfive_init;
   r=false; /*reset it to indicate eof*/
   while (!r)
@@ -30162,9 +30454,9 @@ case save_pos_code: save_pos_out(p);@+break;
 @* Hi\TeX.
 In the following we present macros, variables, and routines that
 implement the various features that have been used above to replace
-\TeX's native behaviour.
+\TeX's native behavior.
 
-@ Following the implemenentation of other engines,
+@ Following the implementation of other engines,
 the new engine returns a version number as an integer
 extending the cases for |last_item|. Since the additional
 primitives that we define are specific to the \HINT\ format,
@@ -30174,7 +30466,7 @@ format that this program will generate.
 @d HINT_version_code (eTeX_last_last_item_cmd_mod+7) /* \.{\\HINTversion} */
 @d HINT_subversion_code (eTeX_last_last_item_cmd_mod+8) /* \.{\\HINTsubversion} */
 
-@ Now this new primitive needs its implementation
+@ Now this new primitive needs its implementation.
 
 @<Cases of |last_item| for |print_cmd_chr|@>=
 case HINT_version_code: print_esc("HINTversion");@+break;
@@ -30186,31 +30478,31 @@ case HINT_subversion_code: cur_val=HINT_SUB_VERSION;@+break;
 
 
 @ The implementation reuses code that has been written as part of
-the \HINT\  file format specification; therfore we start with three
+the \HINT\  file format specification; therefore we start with three
 include files containing the necessary declarations.
-We end with a list of forward declarations for all the functions
-and variables that are used above but are defined below.
 
-@p
+@<Header files and function declarations@>=
 #include "hierror.h"
 #include "hiformat.h"
 #include "hiput.h"
 
+@ @p
 @<Hi\TeX\ macros@>@;
 @<Hi\TeX\ variables@>@;
 @<Hi\TeX\ function declarations@>@;
 
-@<Hi\TeX\ auxiliar routines@>@;
+@<Hi\TeX\ auxiliary routines@>@;
 
 @<Hi\TeX\ routines@>@;
 
-@ @<Forward declarations@>=
+@  This is a list of forward declarations for all the functions
+and variables that are used above but are defined below.
+
+
+ @<Forward declarations@>=
 static void hout_allocate(void);
-static void hout_init(void);
 static void hint_open(void);
 static void hint_close(void);
-
-static void hint_debug_help(void);
 
 static void hyphenate_word(void);
 static void hline_break(int final_widow_penalty);
@@ -30232,39 +30524,13 @@ static pointer new_set_node(void);
 static pointer new_setstream_node(eight_bits n);
 static pointer new_setpage_node(eight_bits k, str_number n);
 static pointer new_disp_node(void);
-static pointer new_image_node(str_number n, char *a, char *e);
+static pointer new_image_node(str_number n, str_number a, str_number e);
 static void new_param_node(eight_bits t, eight_bits n, int v);
 
 
-@*1 Debugging options.
-Hi\TeX\ has a few additional command line options that we define next.
-
-@<Hi\TeX\ routines@>=
-#ifdef DEBUG
-static void hint_debug_help(void)
-{
-fprintf(stderr,@/
-  "To generate HINT format debug output use the option\n"
-  " -hint-debug=XX             "@/
-@t\qquad@>"\t XX is a hexadecimal value. OR together these values:\n");@/
-fprintf(stderr,"\t\t\t XX=%04X \t basic debugging\n", DBGBASIC);@/
-fprintf(stderr,"\t\t\t XX=%04X \t tag debugging\n", DBGTAGS);@/
-fprintf(stderr,"\t\t\t XX=%04X \t node debugging\n",DBGNODE);@/
-fprintf(stderr,"\t\t\t XX=%04X \t definition debugging\n", DBGDEF);@/
-fprintf(stderr,"\t\t\t XX=%04X \t directory debugging\n", DBGDIR);@/
-fprintf(stderr,"\t\t\t XX=%04X \t range debugging\n",DBGRANGE);@/
-fprintf(stderr,"\t\t\t XX=%04X \t float debugging\n", DBGFLOAT);@/
-fprintf(stderr,"\t\t\t XX=%04X \t compression debugging\n", DBGCOMPRESS);@/
-fprintf(stderr,"\t\t\t XX=%04X \t buffer debugging\n", DBGBUFFER);@/
-fprintf(stderr,"\t\t\t XX=%04X \t TeX debugging\n", DBGTEX);@/
-fprintf(stderr,"\t\t\t XX=%04X \t page debugging\n", DBGPAGE);@/
-fprintf(stderr,"\t\t\t XX=%04X \t font debugging\n", DBGFONT);@/
-exit(0);
-}
-#endif
 @*1 Creating new whatsit nodes.
 The following functions create nodes for paragraphs, displayed equations, baseline skips,
-hpack nodes, vpack nodes, hset nodes, vset nodes, and image nodes.
+hpack nodes, vpack nodes, hset nodes, and vset nodes.
 
 @<Hi\TeX\ routines@>=
 static pointer new_par_node(void)
@@ -30272,9 +30538,7 @@ static pointer new_par_node(void)
   p=get_node(par_node_size);
   type(p)=whatsit_node;
   subtype(p)=par_node;
-  par_params(p)=null;
-  par_list(p)=null;
-  par_extent(p)=null;
+  par_params(p)= par_list(p)= par_extent(p)=null;
   depth(p)=0;
   return p;
 }
@@ -30285,9 +30549,7 @@ static pointer new_disp_node(void)
   p=get_node(disp_node_size);
   type(p)=whatsit_node;
   subtype(p)=disp_node;
-  display_params(p)=null;
-  display_formula(p)=null;
-  display_eqno(p)=null;
+  display_params(p)= display_formula(p)= display_eqno(p)=null;
   return p;
 }
 
@@ -30307,8 +30569,7 @@ static pointer new_pack_node(void)
   subtype(p)=hpack_node;
   width(p)=depth(p)=height(p)=shift_amount(p)=0;
   pack_limit(p)=max_dimen;
-  pack_extent(p)=null;
-  list_ptr(p)=null;
+  pack_extent(p)= list_ptr(p)=null;
   return p;
 }
 
@@ -30318,45 +30579,55 @@ static pointer new_set_node(void)
   type(p)=whatsit_node;
   subtype(p)=hset_node;
   width(p)=depth(p)=height(p)=shift_amount(p)=set_stretch(p)=set_shrink(p)=0;
-  set_extent(p)=null;
-  list_ptr(p)=null;
+  set_extent(p)= list_ptr(p)=null;
   return p;
 }
 
 
+@ When creating a new image node, we could use the |kpse_find_tex|
+function to get image files from the same directory, where we also
+get the \TeX\ input files. Here we use the simpler method from plain \TeX.
 
-
-static pointer new_image_node( str_number n, char *a, char *e)
+@<Hi\TeX\ routines@>=
+static pointer new_image_node( str_number n, str_number a, str_number e)
 { pointer p;
   int i;
   char *fn;
   int l;
+
   p=get_node(image_node_size);type(p)=whatsit_node;subtype(p)=image_node;
   image_name(p)=n;
-  image_area(p)=s_no(a);
-  image_ext(p)=s_no(e);
+  image_area(p)=a;
+  image_ext(p)=e;
   fn=hfile_name(n,a,e);
-#if 0
-  fn=kpse_find_tex(fn);
-#endif
   i=hnew_file_section(fn);
-#if 0
-  free(fn);
-#endif
   image_no(p)=i;
   image_xwidth(p)=image_xheight(p)=image_alt(p)=null;
+  image_aspect(p)=0;
   return p;
 }
 
 @*1 Creating parameter nodes.
-Parameter nodes are added to the current list using the |new_param_node| function.
+The |new_param_node| function
+adds parameter nodes to the current list.
 It should be possible to check the parameter values against those
 stored in the definition section and remove the ones that
 are unchanged. It would make the parameter lists shorter, saving
 some time when setting and restoring them later.
 There is probably not much savings in memory space, because
-most of the times a reference number is found for the parameter list.
-@<Create the parameter node@>=
+most of the time a reference number is found for the parameter list.
+
+
+@<Hi\TeX\ routines@>=
+static void new_param_node(uint8_t t, uint8_t n, int v)
+{ @+pointer p;
+  @<Create the parameter node@>@;
+  @<Initialize the parameter node@>@;
+  link(p)=link(temp_head);
+  link(temp_head)=p;
+}
+
+@ @<Create the parameter node@>=
   p=get_node(param_node_size);
   type(p)=whatsit_node;
   subtype(p)=param_node;
@@ -30373,15 +30644,6 @@ most of the times a reference number is found for the parameter list.
     QUIT("Undefined parameter type %d",t);
   }
 
-@ @<Hi\TeX\ routines@>=
-static void new_param_node(uint8_t t, uint8_t n, int v)
-{ @+pointer p;
-  @<Create the parameter node@>@;
-  @<Initialize the parameter node@>@;
-  link(p)=link(temp_head);
-  link(temp_head)=p;
-}
-
 @*1 Hyphenation.
 While the breaking of a paragraph into lines must be postponed because
 {\tt hsize} is not known, hyphenation should be done as part of Hi\TeX\
@@ -30390,19 +30652,21 @@ Hi\TeX\ will do hyphenation for all words within a paragraph.
 
 There is a fine point to observe here: \TeX\ will consider a word as
 a candidate for automatic hyphenation only if the world ``follows'' after a
-glue. (For the exact rules, see Appendix H.)
+glue. (For the exact rules, see Appendix H of the \TeX-book.)
 As a consequence, \TeX\ usually does not submit the first word of a
 paragraph to its hyphenation routine.
 Viewing paragraphs that start with a lengthy word on a narrow display
 therefore often look more unsightly than necessary: the long word sticks out
 into the right margin as much as it can. To remedy this situation,
-Hi\TeX\ has a ``{\tt -f}'' option. If set Hi\TeX\ will deviate from
-\TeX's rules and submit the first word of a paragraph to the hyphenation algorithm.
+Hi\TeX\ has a ``{\tt [-no]-hyphenate-first-word}'' option.
+If set, which is the default, Hi\TeX\ will deviate from
+\TeX's rules and submit the first word of a paragraph
+to the hyphenation algorithm.
 
 The next problem arises from \TeX's multipass approach to line breaking
 and the attempt to have Hi\TeX\ choose exactly the same line breaks as
 \TeX\ does:
-\TeX\ distingishes between discretionary breaks inserted by the author of a
+\TeX\ distinguishes between discretionary breaks inserted by the author of a
 text, and discretionary breaks discovered by the hyphenation routine.
 The latter, called here ``automatic'', are used only in pass two and three
 of the line breaking routine.
@@ -30434,7 +30698,7 @@ static void hline_break(int final_widow_penalty)
     par_extent(pp)=new_xdimen(dimen_par(hsize_code),
       dimen_par_hfactor(hsize_code),dimen_par_vfactor(hsize_code));
   else
-    @<fix the use of parshape = 1 indent length@>@;
+    @<fix simple use of parshape@>@;
   link(temp_head)=link(head);
   if (is_char_node(tail))
   { tail_append(new_penalty(inf_penalty))@;
@@ -30571,13 +30835,13 @@ done5:;
 }
 
 @ Currently Hi\TeX\ dos not implement the parshape feature of \TeX.
-The implementation of {\tt \BS list} in \LaTeX\ does however depends
-on a simple us of parshape where all lines have the same length
+The implementation of {\tt \BS list} in \LaTeX\ does, however, depend
+on a simple use of parshape where all lines have the same length
 and indentation. We cover this special case be using a hanging
 indentation and adjusting the paragraph width by the difference
 of the normal {\tt \BS hsize} and the given length.
 
-@<fix the use of parshape = 1 indent length@>=
+@<fix simple use of parshape@>=
 { last_special_line= info(par_shape_ptr)-1;
   if (last_special_line!=0)
     DBG(DBGTEX,"Warning parshape with n=%d not yet implemented",info(par_shape_ptr));
@@ -30596,15 +30860,15 @@ The \HINT\ format knows about labels, links, and outlines.
 When generating a short format \HINT\ file, links are part of
 the content section, where as labels and outlines are found in
 the definition section. Because labels are defined while
-writing the content section, the writing of labels and outlines, which
-reference the labels, must be postponed. For that reason,
+writing the content section, the writing of labels and outlines
+ must be postponed. For that reason,
 we store information about labels and outlines in dynamic arrays,
 and map labels, which are identified by a name or a number,
 to their index using a dynamic hash table.
 
 We start with two functions that allocate new entries in the
 dynamic arrays increasing their size if necessary.
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static int next_label(void)
 { static int label_no=-1;
   static int labels_allocated =0;
@@ -30635,13 +30899,13 @@ static int next_outline(void)
   return outline_no;
 }
 @ While processing the content nodes, access to the labels is provided either
-by name or by number through a hash table. We store tabel entries in linked
+by name or by number through a hash table. We store table entries in linked
 lists starting with a reasonably sized table of pointers. This keeps
 the fixed costs low and guards against overflow and rapidly increasing
 inefficiency. We start with a function to insert a new entry into
 the hash table.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 typedef struct hash_entry
 {int num; char *nom; uint16_t n; struct hash_entry *next;} HashEntry;
 #define LABEL_HASH 1009 /* MIX a prime number */
@@ -30663,9 +30927,9 @@ static int insert_hash(int h, int num, char *nom)
 }
 @ There are two cases: finding a label by name or by number.
 We start with the simpler case where the number is given.
-The process is straigth forward:
+The process is straight forward:
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static int find_label_by_number(int p)
 { unsigned int h=(unsigned int)p%LABEL_HASH;
   HashEntry *e= label_hash[h];
@@ -30675,18 +30939,17 @@ static int find_label_by_number(int p)
   return insert_hash(h,p,NULL);
 }
 @ To look up a label by its name as given by a token list,
-we prepare ourselfs by implementing two functions:
+we prepare ourselves by implementing two functions:
 one to extract the character codes from the token list
 forming the ``name''
 and one to compute the hash value for a name.
 The routine to find the label by name is then equivalent to the
 routine we have just seen. Given a pointer |p| to
-either a label, a link, or an outline node, the function |find_label_by_name|
+either a label, a link, or an outline node, the function |find_label|
 returns the correct label reference.
-Currently, we limit label names to at most 255 byte not counting the
-zero byte.
+Currently, we limit label names to at most 255 significant byte.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static char *tokens_to_name(pointer p)
 { static char s[256];
   int i=0;
@@ -30722,7 +30985,7 @@ static int find_label_by_name(pointer p)
 }
 @ We combine both ways of finding a label reference in the following function:
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static int find_label(pointer p)
 {@+ if (label_has_name(p)) return find_label_by_name(label_ptr(p));
   else return find_label_by_number(label_ptr(p));
@@ -30737,7 +31000,7 @@ Further labels are linked together in order of descending positions,
 to allow the efficient adjustment of label positions when
 moving lists.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static void new_label(pointer p)
 { int n=find_label(p);
   if (n!=zero_label_no && labels[n].where!=LABEL_UNDEF)
@@ -30757,7 +31020,7 @@ static void new_label(pointer p)
 @ When a link node is written to the output, we can check
 that start links and end links properly match.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static int last_link=-1;
 static int new_start_link(pointer p)
 { int n=find_label(p);
@@ -30784,14 +31047,14 @@ In general, the front end should be able to render such a
 horizontal list, but at least it should be able to extract
 the UTF8 character codes and display those.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static void new_outline(pointer p)
 { int r=find_label(p);
   int m=next_outline();
   List l;
   uint32_t pos;
   pos=hpos-hstart;
-  l.k=list_kind; /* this eventually should be |text_kind| */
+  l.t=TAG(list_kind,b001); /* this eventually should be a text */
   hout_list_node(outline_ptr(p),pos,&l);
   hset_outline(m,r,outline_depth(p),pos);
   DBG(DBGLABEL,"New outline for label *%d\n",r);
@@ -30817,12 +31080,13 @@ static void build_page(void)
     pointer q=null; /* for output nodes */
     pointer *t=NULL; /*the tail of the output nodes*/
     bool eject=(type(p)==penalty_node && penalty(p)<=eject_penalty);
+    int page_penalty=0;
+    if (eject) page_penalty=penalty(p);
     @<Record the bottom mark@>@;
     @<Suppress empty pages if requested@>@;
     link(contrib_head)= link(p);link(p)= null;
     if (link(contrib_head)==null)
-    { if(nest_ptr==0) tail= contrib_head;
-      else contrib_tail= contrib_head;
+    { @<Make the contribution list empty by setting its tail to |contrib_head|@>;
     }
     update_last_values(p);
     @<Freeze the page specs if called for@>@;
@@ -30832,8 +31096,9 @@ static void build_page(void)
     { hpos0=hpos; hout_node(p); }
 recycle_p:
     flush_node_list(p);
-    if (q!=null||eject)
+    if (q!=null||(eject&&page_contents>=box_there))
     {
+      geq_word_define(int_base+output_penalty_code, page_penalty);
 empty_output:
       @<Fire up the output routine for |q|@>@;
     }
@@ -30841,10 +31106,11 @@ empty_output:
   DBG(DBGBUFFER,"after build page dyn_used= %d\n", dyn_used);
 }
 @ When the |page_contents| changes from |empty| to not |empty|,
-the function |hint_open| will open the output file. This place
-is choosen to match as close as possible the behaviour of the
-original \TeX. The output file is needed only much later in the
-function |hput_hint|.
+the function |hint_open| will open the output file.
+While the output file is needed only much later in the
+function |hput_hint|, this place was chosen to match,
+as close as possible, the behavior of the
+original \TeX.
 
 @<Freeze the page specs if called for@>=
 if (page_contents<box_there)
@@ -30858,7 +31124,7 @@ if (page_contents<box_there)
         break; /* else fall through */
     case hlist_node: case vlist_node: case rule_node:
       if (page_contents==empty)
-      { hint_open(); hout_init();
+      { hint_open();
         freeze_page_specs(box_there);
         hfix_defaults();
       }
@@ -30866,7 +31132,7 @@ if (page_contents<box_there)
       break;
     case ins_node:
       if (page_contents==empty)
-      { hint_open(); hout_init();
+      { hint_open();
         freeze_page_specs(inserts_only);
         hfix_defaults();
       }
@@ -30883,7 +31149,7 @@ a new chapter on a right hand page with an odd page number.
 This makes sense for a printed book but not for a screen reader where
 there are no page numbers nor right or left hand pages.
 Using a screen reader, empty pages are just annoying.
-The common way to achive an empty page is the use of {\tt \BS eject}
+The common way to achieve an empty page is the use of {\tt \BS eject}
 followed by a an empty box, a fill glue, and another  {\tt \BS eject}.
 
 The following code tries to detect such a sequence of nodes and will eliminate
@@ -30911,7 +31177,8 @@ if (option_no_empty_page &&
     { q=p;
       link(prev_r)=null;
       link(contrib_head)=r;
-      DBG(DBGPAGE,"Eliminating empty page preceeding penalty %d\n",penalty(r));
+      DBG(DBGPAGE,"Eliminating empty page preceding penalty %d\n",penalty(r));
+      geq_word_define(int_base+output_penalty_code, penalty(r));
       goto empty_output;
     }
     prev_r=r;
@@ -30926,7 +31193,7 @@ because deleting them could cause unwanted
 side effects. Possibly it would be better to regard them as invisible,
 but still pass them on to the rest of the output routine.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static bool is_visible(pointer p)
 { switch (type(p))
   { case penalty_node:
@@ -31012,14 +31279,14 @@ static scaled page_h, page_v;
   hsize=0; vsize=0;
   dimen_par_hfactor(hsize_code)= unity;
   dimen_par_vfactor(vsize_code)= unity;
-@ There is one point where we can not simpy forego the
+@ There is one point where we can not simply forgo the
 output routine: \.{\\write} commands. Unless the \.{\\write} is
 decorated with an \.{\\immediate}, the whatsit node generated from it
 will lay dormant in the contribution list (and later the page) until
 the output routine passes it as part of the finished page to the |ship_out|
 routine. There it will come to life and write its token list out.
 The whatsit nodes from \.{\\openout} and \.{\\closeout} commands
-behave similary.
+behave similarly.
 
 It is not possible to ignore the output routine
 because the output routine may change the environment in which the
@@ -31028,11 +31295,11 @@ For example \LaTeX\ redefines \.{\\protect} to be \.{\\noexpand}.
 As a consequence we have to implement a simplified version
 of \TeX's usual process to fire up the output routine.
 
-The |collect_output| routine takes a node list |p|,
-removes the output nodes and appends them to |q|, with |q|
+The |collect_output| routine takes a node list |*p|,
+removes the output nodes and appends them to |*q|, with |q|
 always pointing to the tail pointer.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static pointer *collect_output(pointer *p, pointer *q)
 { while (*p!=null)
   { @<Collect output nodes from |*p|@>@;
@@ -31040,7 +31307,7 @@ static pointer *collect_output(pointer *p, pointer *q)
   }
   return q;
 }
-@ \TeX\ does not permit output nodes in leaders, so we dont check them;
+@ \TeX\ does not permit output nodes in leaders, so we don't check them;
 further we do not check the pre- and post-break lists of
 discretionary breaks.
 
@@ -31048,9 +31315,19 @@ discretionary breaks.
 if (!is_char_node(*p))
 { pointer r=*p;
   switch (type(r))
-  { case whatsit_node:
+  {
+#if 0
+    case glue_node: /* possibly the output routine might like these */
+    case penalty_node:
+      { *p=link(r); link(r)=null; *q=r; q=&(link(r));
+        if (*p==null) return q;
+      }
+      break;
+#endif
+    case whatsit_node:
       switch (subtype(r))
       { case open_node: case write_node: case close_node:
+        case special_node: case latespecial_node:
         { *p=link(r); link(r)=null; *q=r; q=&(link(r));
           if (*p==null) return q;
         }
@@ -31083,11 +31360,13 @@ if (!is_char_node(*p))
     default: break;
   }
 }
+
+
 @ @<Fire up the output routine for |q|@>=
 { pointer r=new_null_box();type(r)=vlist_node;
   subtype(r)=0;shift_amount(r)=0;height(r)=hvsize;
-  if (t==NULL) list_ptr(r)=null;
-  else { list_ptr(r)=q;  *t=new_glue(ss_glue); }
+  if (t==NULL) list_ptr(r)=null; /* or |new_glue(fill_glue);| ?  */
+  else { list_ptr(r)=q;  *t=new_glue(fill_glue); }
   flush_node_list(box(255)); /* just in case \dots */
   box(255)=r;
   if (output_routine!=null)
@@ -31098,6 +31377,7 @@ if (!is_char_node(*p))
       if (first_mark!=null) delete_token_ref(first_mark);
       first_mark=bot_mark;add_token_ref(first_mark);
     }
+    DBG(DBGPAGE,"Starting the output routine (output penalty=%d)\n",output_penalty);
     push_nest();mode=-vmode;prev_depth=ignore_depth;mode_line=-line;
     begin_token_list(output_routine, output_text);
     new_save_level(output_group);normal_paragraph();
@@ -31109,6 +31389,7 @@ if (!is_char_node(*p))
     ship_out(box(255)); box(255)=null;
   }
 }
+
 @ The |ship_out| routine just calls |execute_output|.
 Because the output routine might have added plenty
 of decorations around the list of output nodes,
@@ -31127,6 +31408,7 @@ if (!is_char_node(p))
   { case whatsit_node:
       switch (subtype(p))
       { case open_node: case write_node: case close_node:
+        case special_node: case latespecial_node:
           out_what(p);
           break;
         case par_node: execute_output(par_list(p));
@@ -31448,7 +31730,7 @@ if (x==0)
     }
  else if (x> 0)
 	  { glue_order(r)= sto;glue_sign(r)= stretching;
-        if (total_stretch[sto]!=0)glue_set(r)= unfloat(x/(double)total_stretch[sto]);
+        if (total_stretch[sto]!=0)glue_set(r)= fix(x/(double)total_stretch[sto]);
         else
 	    { glue_sign(r)= normal;
 	      set_glue_ratio_zero(glue_set(r));
@@ -31469,7 +31751,7 @@ if (x==0)
   else /* if (x<0) */
     {
       glue_order(r)= sho;glue_sign(r)= shrinking;
-      if (total_shrink[sho]!=0)glue_set(r)= unfloat((-x)/(double)total_shrink[sho]);
+      if (total_shrink[sho]!=0)glue_set(r)= fix((-x)/(double)total_shrink[sho]);
       else
 	{ glue_sign(r)= normal;
 	  set_glue_ratio_zero(glue_set(r));
@@ -31539,15 +31821,15 @@ numbers to \HINT\ stream numbers.
 The predefined stream for the main content has stream number 0.
 
 @<Hi\TeX\ variables@>=
-int insert2stream[0x100]={0};
+static int insert2stream[0x100]={0};
 @ The following function returns the stream number for a given insert number $i$
 with $255>|i|\ge 0$. A new stream number is allocated if necessary.
 Note that no overflow test is necessary since \TeX\ allocates less
 than 233 inserts.
 The initial value of |max_ref[stream_kind]| is 0 and therefore
-stream number 0, reserved for the main content
+stream number 0, reserved for the main content,
 is never allocated. Stream definitions might also be loaded
-as part of a format file. Then the maximum stream number ist stored in |max_stream|.
+as part of a format file. Then the maximum stream number is stored in |max_stream|.
 So if we do not find a stream number
 in the |insert2stream| array, we scan the stream definitions
 once and cache the associations found there.
@@ -31579,32 +31861,33 @@ Given a pointer |p| to such a node, here are the macros used to access the data 
 \def\item{\par\noindent\hbox to 0pt{$\bullet$\hss}\quad\ignorespaces }
 \item |setstream_number(p)| the \HINT\ stream number $n$.
 \item |setstream_insertion(p)| the corresponding \TeX\ insertion number $i$.
-\item |setstream_max(p)| the maximum height $x$: This extended dimension is the maximum size
+\item |setstream_max(p)| the maximum height $x$:
+          This extended dimension is the maximum size
           per page for this insertion.
 \item |setstream_mag(p)| the magnification factor $f$:
           Inserting a box of height $h$ will contribute $h*f/1000$
           to the main page.
-\item |setstream_prefered(p)| the prefered stream  $p$:
+\item |setstream_preferred(p)| the preferred stream  $p$:
           If $p\ge0$ we move the insert to stream $p$ if possible.
 \item |setstream_next(p)| the next stream $n$:
           If $n\ge0$ we move the insert to stream $n$ if it can not be
-          accomodated otherwise.
+          accommodated otherwise.
 \item |setstream_ratio(p)| the split ratio $r$:
-          If $r>0$ split the final contribution of this streams between
-          stream $p$ and $n$  in the ratio $r/1000$ for $p$ and $1-r/1000$ for $n$
-          before contributing streams $p$ and $r$ to the page.
+          If $r>0$ split the final contribution of this stream between
+          stream $p$ and $n$ in the ratio $r/1000$ for $p$ and $1-r/1000$ for $n$
+          before contributing streams $p$ and $n$ to the page.
 \item |setstream_before(p)|  the ``before'' list $b$:
           For a nonempty stream the material that is added before the stream content.
 \item |setstream_after(p)| the ``after'' list  $a$:
-          For a nonempty stream, material that is added after the stream conten.
+          For a nonempty stream the material that is added after the stream content.
 \item |setstream_topskip(p)| the top skip glue $t$: This glue is inserted between
-          the $b$ list and the stream content and ajusted for the height for the first box
-          of the stream content.
+          the $b$ list and the stream content and adjusted for the height for
+          the first box of the stream content.
 \item |setstream_width(p)| the width $w$:
           This extended dimension is the width used for example
           to break paragraphs in the stream content into lines.
 \item |setstream_height(p)| a glue specification $h$ reflecting the total height,
-          strechability and shrinkability of the material in lists $a$ and $b$.
+          stretchability and shrinkability of the material in lists $a$ and $b$.
 
 
 Currently Hi\TeX\ handles only normal streams. First or last streams will come later.
@@ -31617,7 +31900,7 @@ static pointer new_setstream_node(uint8_t n)
   setstream_insertion(p)=n;
   setstream_number(p)=hget_stream_no(n);
   setstream_mag(p)=1000;
-  setstream_prefered(p)=255;
+  setstream_preferred(p)=255;
   setstream_next(p)=255;
   setstream_ratio(p)=0;
   setstream_max(p)=new_xdimen(0,0,ONE);
@@ -31629,7 +31912,7 @@ static pointer new_setstream_node(uint8_t n)
 
   return p;
 }
-@ The prefered stream, the next stream, and the split ratio are scanned as part of the
+@ The preferred stream, the next stream, and the split ratio are scanned as part of the
 {\tt \BS setstream} primitive.
 When \TeX\ finds the right brace that terminates the stream definition,
 it calls |handle_right_brace|. Then it is time to obtain the remaining parts of the
@@ -31664,7 +31947,7 @@ static void hfinish_stream_group(void)
    pop_nest();
 }
 @ The before list $b$ and the after list $a$ are defined using the
-{\tt \BS before} and {\tt \BS after} primitives. When the corresponding list
+{\tt \BS HINTbefore} and {\tt \BS HINTafter} primitives. When the corresponding list
 has ended with a right brace, \TeX\ calls |handle_right_brace| and we can store
 the lists.
 
@@ -31702,7 +31985,7 @@ Given a pointer |p| to such a node, here are the macros used to access the data 
       to reference this page template.
 \item |setpage_priority(p)|: The priority helps in selecting a page template.
 \item |setpage_topskip(p)|: The topskip glue is added at the top of a page and
-      adjusted by the height of the first bos on the page.
+      adjusted by the height of the first box on the page.
 \item |setpage_height(p)|: The height of the full page including the margins.
 \item |setpage_width(p)|:  The width of the full page including the margins.
 \item |setpage_depth(p)|:  The maximum depth of the page content. If the last box is deeper
@@ -31773,7 +32056,7 @@ static void hfinish_page_group(void)
   unsave();
   pop_nest();
 }
-@ @<Hi\TeX\ auxiliar routines@>=
+@ @<Hi\TeX\ auxiliary routines@>=
 
 static pointer hget_current_page(void)
 { pointer p=link(setpage_head);
@@ -31795,7 +32078,7 @@ static pointer hget_current_stream(void)
 @* \HINT\ Output.
 Here are the routines to initialize and terminate the output.
 The initialization is done in three steps:
-First we allocate the data structurs to write nodes into buffers;
+First we allocate the data structures to write nodes into buffers;
 this requires a directory and buffers for sections 0, 1, and 2.
 
 @ @<Hi\TeX\ routines@>=
@@ -31816,22 +32099,15 @@ must be done before calling |hput_hint| which is already
 part of the termination routines. It is placed, however, much earlier
 because asking for the output file name---according to \TeX's
 conventions---should come before the first item is put on the first
-page by the page builder. For this reason, |hint_open| is called
-when calling |hout_init|.
+page by the page builder.
 
 @<Hi\TeX\ routines@>=
-static void hout_init(void)
-{
-
-}
-
 static void hint_open(void)
 { if (job_name==0) open_log_file();
   pack_job_name(".hnt");
   while (!(hout=open_out((char *)name_of_file+1,"wb")))
     prompt_file_name("file name for output",".hnt");
   output_file_name=make_name_string();
-  hlog=stderr;
   DBG(DBGBASIC,"Output file %s opened\n",(char *)name_of_file+1);
 }
 
@@ -31863,7 +32139,7 @@ static void hint_close(void)
 record the names of the files that are added as optional sections.
 This feature is not part of the |hput_optional_sections| function
 which is called from |hput_hint|. The following simple
-loop will achive this.
+loop will achieve this.
 
 @<record the names of files in optional sections@>=
 { int i;
@@ -31874,7 +32150,7 @@ loop will achive this.
 @* The \HINT\ Directory.
 There is not much to do here: some code to find a new or existing directory entry,
 a variable to hold the number of directory entries allocated,
-a function to allocate a new file section, and an auxiliar function to
+a function to allocate a new file section, and an auxiliary function to
 convert \TeX's file names to ordinary \CEE/ strings.
 
 @<Find an existing directory entry@>=
@@ -31905,7 +32181,7 @@ for (i=3; i<= max_section_no;i++)
 @ @<Hi\TeX\ variables@>=
 static int dir_entries=4;
 
-@ @<Hi\TeX\ auxiliar routines@>=
+@ @<Hi\TeX\ auxiliary routines@>=
 static uint16_t hnew_file_section(char *file_name)
 { uint16_t i;
   @<Find an existing directory entry@>@;
@@ -31915,7 +32191,7 @@ static uint16_t hnew_file_section(char *file_name)
 }
 
 @ The following function uses \TeX's function |pack_file_name|
-to create a new filename from a name |n|, a direcory or ``area'' |a|,
+to create a new filename from a name |n|, a directory or ``area'' |a|,
 and an extension |e|. \TeX\ will truncate the new filename
 to |file_name_size| characters without warning. The new function
 will take a |name_length| equal to | file_name_size| as an
@@ -31923,9 +32199,9 @@ indication that truncation has taken place and terminates the
 program. The return value converts a {\mc Pascal} array, starting with index 1,
 into a \CEE/ array starting with index 0.
 
-@<Hi\TeX\ auxiliar routines@>=
-static char *hfile_name(str_number n, char *a, char *e)
-{ pack_file_name(n,a,e);
+@<Hi\TeX\ auxiliary routines@>=
+static char *hfile_name(str_number n, str_number a, str_number e)
+{ pack_file_name(n,a,e,NULL);
   if (name_length>=file_name_size)
    QUIT("File name too long %d >= %d",name_length,file_name_size);
   return (char *)name_of_file+1;
@@ -31951,9 +32227,8 @@ Hi\TeX\ generates definitions for \TeX-parameters using the
 
 The procedure that generates these definitions is called |hfix_defaults|:
 
-@<Hi\TeX\ auxiliar routines@>=
-
-void hfix_defaults(void)
+@<Hi\TeX\ auxiliary routines@>=
+static void hfix_defaults(void)
 { @+int i;
   DBG(DBGDEF,"Freezing HINT file defaults\n");
   @<Compute the page size@>@;
@@ -31985,7 +32260,7 @@ total number of definitions we can make plus four byte of overhead per instance.
 
 
 Here we initialize the necessary data structures for definitions.
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static void hdef_init(void)
 {@+ int i;
   @<Switch |hsize| and |vsize| to extended dimensions@>@;
@@ -32000,10 +32275,10 @@ static void hdef_init(void)
 @ After all definitions are ready, we write them using the function
 |hput_definitions|.  When we output the definitions,
 we have to make sure to define references before we use them.
-This is achived by using a specific ordering of the
+This is achieved by using a specific ordering of the
 definitions in the function |hput_definitions| and by preventing
 the allocation of new definitions as soon as the output of the definition
-section has started. The latter has the aditional benefit that the
+section has started. The latter has the additional benefit that the
 maximum values do no longer change.
 
 @<Hi\TeX\ routines@>=
@@ -32047,7 +32322,7 @@ static int32_t int_defined[0x100]={0};
 parameter numbers to \HINT\ definition numbers. While it seems more convenient here
 to have the reverse mapping, we need the mapping only once to record parameter definitions,
 but we will need it repeatedly in the function |hdef_param_node| and the overhead here does
-not warant having the mapping in both directions.
+not warrant having the mapping in both directions.
 
 @<Hi\TeX\ variables@>=
 static const int hmap_int[] ={@/
@@ -32107,7 +32382,7 @@ floating_penalty_no  /* |floating_penalty_code|	42*/
 @ The function |hget_int_no| tries to allocate a predefined integer number;
 if not successful, it returns $-1$.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static int hget_int_no(int32_t n)
 { int i;
   int m =max_ref[int_kind];
@@ -32119,7 +32394,7 @@ static int hget_int_no(int32_t n)
     return -1;
 }
 @ Before we give the code to output an integer definition, we declare a macro that
-is usefull for all the definitions. |HPUTDEF| takes a function |F| and a reference number |R|.
+is useful for all the definitions. |HPUTDEF| takes a function |F| and a reference number |R|.
 It is assumed that |F| writes a definition into the output and returns a tag. The macro
 will then add the reference number and both tags to the output.
 @<Hi\TeX\ macros@>=
@@ -32180,7 +32455,7 @@ static const int hmap_dimen[] ={@/
   dimen_defined[quad_no]=quad(cur_font);
   dimen_defined[math_quad_no]=math_quad(text_size);
   max_ref[dimen_kind]=MAX_DIMEN_DEFAULT;
-@ @<Hi\TeX\ auxiliar routines@>=
+@ @<Hi\TeX\ auxiliary routines@>=
 static int hget_dimen_no(scaled s)
 /* tries to allocate  a predefined dimension number in the range 0 to 0xFF
    if not successful return -1 */
@@ -32217,8 +32492,8 @@ scaled w,h,v; } xdimen_defined[0x100];
 array and if no match was found, we allocate a new entry,
 reallocating the array if needed.
 
-@<Hi\TeX\ auxiliar routines@>=
-int hget_xdimen_no(pointer p)
+@<Hi\TeX\ auxiliary routines@>=
+static int hget_xdimen_no(pointer p)
 { int i;
   for (i=0;i<=max_ref[xdimen_kind];i++)
   { if (xdimen_defined[i].w== xdimen_width(p) &&
@@ -32299,20 +32574,20 @@ par_fill_skip_no  /* |par_fill_skip_code| 14 */
     if ( hmap_glue[i]>=0)
     { glue_defined[hmap_glue[i]]=glue_par(i); incr(glue_ref_count(glue_par(i)));}
   max_ref[glue_kind]=MAX_GLUE_DEFAULT;
-@ Next we define some auxiliar routines to compare glues for equality and to convert glues beween the different representations.
+@ Next we define some auxiliary routines to compare glues for equality and to convert glues between the different representations.
 
-@<Hi\TeX\ auxiliar routines@>=
-int glue_spec_equal(pointer p, pointer q)
+@<Hi\TeX\ auxiliary routines@>=
+static int glue_spec_equal(pointer p, pointer q)
 { return (width(q)==width(p) && stretch(q)==stretch(p) && shrink(q)==shrink(p) &&
         (stretch_order(q)==stretch_order(p) || stretch(q)==0) &&
 		  (shrink_order(q)==shrink_order(p)|| shrink(q)==0));
 }
 
-int glue_equal(pointer p, pointer q)
+static int glue_equal(pointer p, pointer q)
 { return p==q || glue_spec_equal(p,q);
 }
 
-int Glue_equal(Glue *p, Glue *q)
+static int Glue_equal(Glue *p, Glue *q)
 { return(p->w.w==q->w.w && p->w.h==q->w.h && p->w.v==q->w.v &&
           p->p.f== q->p.f && p->m.f==q->m.f &&
           (p->p.o==q->p.o || p->p.f==0.0) &&
@@ -32324,7 +32599,7 @@ on the first pass we just compare pointers and on the second pass
 we also compare values. An alternative approach to speed up searching
 is used for parameter lists as described below.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static int hget_glue_no(pointer p)
 { static int rover=0;
   int i;
@@ -32376,8 +32651,8 @@ a regular glue or kern.
 % Care should be taken for the statically allocated glue specs
 % deallocation of glue specs is relatively simple
 % extended glue and kern values can be restricted to non math mode
-@<Hi\TeX\ auxiliar routines@>=
-void to_Glue(pointer p, Glue *g)
+@<Hi\TeX\ auxiliary routines@>=
+static void to_Glue(pointer p, Glue *g)
 { g->w.w=width(p);
   g->w.h=g->w.v=0.0;
   g->p.f=stretch(p)/(double)ONE; g->p.o= stretch_order(p);
@@ -32385,8 +32660,8 @@ void to_Glue(pointer p, Glue *g)
 }
 @*1 Baseline Skips.
 TeX's baseline nodes just store a baseline skip reference number.
-We have seen this sitation before when dealing with extended dimensions
-and the solution here is the same: a dynamicaly allocated array.
+We have seen this situation before when dealing with extended dimensions
+and the solution here is the same: a dynamically allocated array.
 @<Hi\TeX\ variables@>=
 typedef struct {
 	pointer ls, bs; /* line skip and baselineskip gluespecs */
@@ -32407,8 +32682,8 @@ in a baseline node.
   bl_defined[zero_baseline_no].lsl=0;
   bl_used= MAX_BASELINE_DEFAULT+1;
   max_ref[baseline_kind]= MAX_BASELINE_DEFAULT;
-@ @<Hi\TeX\ auxiliar routines@>=
-int hget_baseline_no(pointer bs, pointer ls, scaled lsl)
+@ @<Hi\TeX\ auxiliary routines@>=
+static int hget_baseline_no(pointer bs, pointer ls, scaled lsl)
 {
   static int rover=0;
   int i;
@@ -32438,10 +32713,10 @@ int hget_baseline_no(pointer bs, pointer ls, scaled lsl)
 }
 
 @ The following routine does not allocate a new glue definition, because the
-baselinedefinitions are output after the glue definitions. This is not perfect.
-@<Hi\TeX\ auxiliar routines@>=
+baseline definitions are output after the glue definitions. This is not perfect.
+@<Hi\TeX\ auxiliary routines@>=
 static uint8_t hout_glue_spec(pointer p);
-uint8_t hout_baselinespec(int n)
+static uint8_t hout_baselinespec(int n)
 { Info i=b000;
   pointer p;
   scaled s;
@@ -32500,7 +32775,7 @@ For discretionary breaks, we use again the pointer representation.
 @<Hi\TeX\ variables@>=
 static pointer dc_defined[0x100];
 @ There are no predefined discretionary breaks and so we start with
-three auxiliar functions and the
+three auxiliary functions and the
 function to get a ``disc'' number.
 
 The first two routines are used to compare discretionary breaks
@@ -32512,7 +32787,7 @@ and its content might be huge and deeply nested.
 The following routine will not make a complete comparison but will give
 up if the box content is ``too complex''.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static bool list_equal(pointer p, pointer q);
 static bool node_equal(pointer p, pointer q)
 { if (is_char_node(p) && is_char_node(q) &&
@@ -32595,6 +32870,7 @@ ensure_font_no(post_break(p));
   DBG(DBGDEF,"Maximum disc reference: %d\n",max_ref[disc_kind]);
   for (i=0;i<=max_ref[disc_kind]; i++)
            HPUTDEF(hout_disc(dc_defined[i]),i);
+
 @*1 Parameter Lists.
 We store predefined parameter lists in a hash table in order to speed up
 finding existing parameter lists. The parameter list itself is stored as
@@ -32606,13 +32882,14 @@ to output them in a more ``orderly'' fashion.
 
 #define PLH_SIZE 313 /* a prime number $\approx2^8\times 1.2$. */
 
-struct {int l; /* link */
+static struct {int l; /* link */
   uint32_t h; /* hash */
   uint32_t n; /* number */
   uint32_t s; /* size */
   uint8_t *p; /* pointer */} pl_defined[PLH_SIZE]={{0}};
-int pl_head=-1, *pl_tail=&pl_head;
-@ Next we define three short auxiliar routines and the |hget_param_list_no| function.
+static int pl_head=0, *pl_tail=&pl_head;
+
+@ Next we define three short auxiliary routines and the |hget_param_list_no| function.
 
 @<Hi\TeX\ routines@>=
 
@@ -32621,7 +32898,7 @@ static uint32_t  hparam_list_hash(List *l)
   uint32_t i;
   for (i=0;i<l->s;i++)
     h=3*h+hstart[l->p+i];
-  return i;
+  return h;
 }
 
 static bool pl_equal(List *l, uint8_t *p)
@@ -32640,7 +32917,7 @@ static void pl_copy(List *l, uint8_t *p)
 static int hget_param_list_no(List *l)
 { uint32_t h;
   int i;
-  if (l->s<=0) return -1;
+  if (l->s<=0) return 0;
   h= hparam_list_hash(l);
   i = h%PLH_SIZE;
   while (pl_defined[i].p!=NULL)
@@ -32652,7 +32929,7 @@ static int hget_param_list_no(List *l)
   if (max_ref[param_kind]>=0xFF || section_no!=2) return -1;
   pl_defined[i].n=++max_ref[param_kind];
   *pl_tail=i; pl_tail=&(pl_defined[i].l);
-  pl_defined[i].l=-1;
+  pl_defined[i].l=0;
   pl_defined[i].h=h;
   pl_defined[i].s=l->s;
   ALLOCATE(pl_defined[i].p,l->s,uint8_t);
@@ -32682,21 +32959,22 @@ static void hdef_param_node(int ptype, int pnumber,int pvalue)
 parameter lists sorted by their reference number.
 
  @<Output parameter list definitions@>=
-  DBG(DBGDEF,"Defining %d parameter lists\n",max_ref[param_kind]+1);
-  for (i=pl_head;i>=0;i=pl_defined[i].l)
-  { int j;
+  DBG(DBGDEF,"Defining %d parameter lists\n",max_ref[param_kind]);
+  for (i=pl_head;i>0;i=pl_defined[i].l)
+  { int j,k;
     DBG(DBGDEF,"Defining parameter list %d, size 0x%x\n",i,pl_defined[i].s);
     j=hsize_bytes(pl_defined[i].s);
     HPUTX(1+1+j+1+pl_defined[i].s+1+j+1);
-    HPUTTAG(param_kind,j+1);
+    if (j==4) k=3; else k=j;
+    HPUTTAG(param_kind,k);
     HPUT8(pl_defined[i].n);
     hput_list_size(pl_defined[i].s,j);
-    HPUT8(0x100-j);
+    HPUT8(0x100-k);
     memcpy(hpos,pl_defined[i].p,pl_defined[i].s);
     hpos=hpos+pl_defined[i].s;
-    HPUT8(0x100-j);
+    HPUT8(0x100-k);
     hput_list_size(pl_defined[i].s,j);
-    HPUTTAG(param_kind,j+1);
+    HPUTTAG(param_kind,k);
   }
 @*1 Fonts.
 To store a font definition, we define the data type |Font|
@@ -32726,9 +33004,9 @@ static int hmap_font[MAX_FONTS];
 number to a \HINT\ font number using the function |hget_font_no|, and while
 doing so discover that the corresponding \HINT\ font number does not yet exist.
 Because the |Font| structure must be initialized after allocating it,
-we start with some auxiliar routines for that purpose.
+we start with some auxiliary routines for that purpose.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static pointer find_space_glue(internal_font_number f)
 {@+font_index @!main_k;
    pointer main_p=font_glue[f];
@@ -32781,7 +33059,7 @@ This is currently not implemented.
 %|kpse_find_file(name,kpse_fontmap_format,false);|
 %with name "ps2pk.map" or "psfonts.map" or "ttfonts.map" or cmfonts.map
 %to get from the tfm name the postscript name.
-%then I get the |psfont_name| ususaly its the same font name
+%then I get the |psfont_name| usually its the same font name
 %with .pfb appended
 %so I can skip it
 %#ifdef HAVE_KPSE_ENC_FORMATS
@@ -32791,7 +33069,7 @@ This is currently not implemented.
 %#endif
 %reading the encoding is found in dvipng/dvipnd-src/enc.c
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static char *hfind_glyphs(char *filename)
 { char *fname=NULL;
   kpse_glyph_file_type file_ret;
@@ -32825,13 +33103,13 @@ static uint8_t hget_font_no(uint8_t f)
   hmap_font[f]=g;
   hfonts[g]->g=hget_font_space(f);
   hfonts[g]->h=hget_font_hyphen(f);
-  pack_file_name(font_name[f], "",".tfm");
+  pack_file_name(font_name[f], empty_string,empty_string,".tfm");
   n = kpse_find_tfm((char*)name_of_file+1);
   if (n==NULL)
     QUIT("Unable to find .tfm file for font %s",(char*)name_of_file+1);
   hfonts[g]->m= hnew_file_section(n);
   free(n);
-  pack_file_name(font_name[f], "","");
+  pack_file_name(font_name[f], empty_string,empty_string,"");
   n= hfind_glyphs((char*)name_of_file+1);
   if (n==NULL)
     QUIT("Unable to find glyph file for font %s",(char*)name_of_file+1);
@@ -32844,9 +33122,9 @@ content section; some characters might hide in the definition section
 inside the pre- or post-break list of a predefined discretionary break.
 To make sure that the fonts necessary for these characters are included
 in the final \HINT\ file, we check these lists to make sure all \TeX\ font
-numbers have a corresponting \HINT\ font number.
+numbers have a corresponding \HINT\ font number.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 static void ensure_font_no(pointer p)
 { while (p!=null)
   { if (is_char_node(p))
@@ -32881,9 +33159,8 @@ static void ensure_font_no(pointer p)
     }
 }
 @ We used the following function to write a \TeX\ string to the \HINT\ file:
-@<Hi\TeX\ auxiliar routines@>=
-
-void hout_string(int s)
+@<Hi\TeX\ auxiliary routines@>=
+static void hout_string(int s)
 { pool_pointer j;
   uint8_t c;
   j= str_start[s];
@@ -32908,14 +33185,15 @@ void hout_string(int s)
 @<Hi\TeX\ macros@>=
 
 #define HPUTCONTENT(F,D)        \
-  { uint8_t *_p;                \
+  { uint32_t _p;                \
     uint8_t _f;                 \
     HPUTNODE; /* allocate */    \
-    _p=hpos++; /* tag */        \
+    _p=hpos++-hstart; /* tag */ \
     _f=F(D);                    \
-    *_p=_f; DBGTAG(_f,_p);      \
+    *(hstart+_p)=_f; DBGTAG(_f,hstart+_p);      \
     DBGTAG(_f,hpos); HPUT8(_f); \
   }
+
 @*1 Labels.
 The only label that must always exist is the zero label. It is used
 to mark the ``home'' position of a document.
@@ -32939,7 +33217,7 @@ We then make sure it can be found under the name ``HINT.home''.
 
 Once we start producing content nodes, we update the maximum numbers
 of page templates and streams from |max_page| and |max_stream|.
-These values might have changed because the templates were stored in a
+These values might have changed because templates were loaded from a
 format file.
 
 @<Fix definitions of page templates@>=
@@ -32987,7 +33265,7 @@ stream definitions:
     HPUT8(n);
     hout_xdimen_node(setstream_max(p)); /* maximum height */
     HPUT16(setstream_mag(p)); /* factor */
-    HPUT8(setstream_prefered(p)); /* prefered */
+    HPUT8(setstream_preferred(p)); /* preferred */
     HPUT8(setstream_next(p)); /* next */
     HPUT16(setstream_ratio(p)); /* ratio */
     q=setstream_before(p);setstream_before(p)=null;
@@ -33077,22 +33355,23 @@ The kern nodes of \TeX\ contain a single dimension and a flag to mark ``explicit
      }
      break;
 @*1 Extended Dimensions.
-Extended dimensions do not consitute content on their own, but nodes
+Extended dimensions do not constitute content on their own, but nodes
 containing an extended dimension are part of other nodes. Here we
-define an auxiliar function that checks for a predefined extended
+define an auxiliary function that checks for a predefined extended
 dimension and if found outputs the reference number and returns false;
 otherwise it outputs the extended dimension and returns true.
 
 
-@<Hi\TeX\ auxiliar routines@>=
-void hout_xdimen_node(pointer p)
+@<Hi\TeX\ auxiliary routines@>=
+static void hout_xdimen_node(pointer p)
 { Xdimen x;
    x.w=xdimen_width(p);
    x.h=xdimen_hfactor(p)/(double)ONE;
    x.v=xdimen_vfactor(p)/(double)ONE;
    hput_xdimen_node(&x);
 }
-bool hout_xdimen(pointer p)
+
+static bool hout_xdimen(pointer p)
 {int n = hget_xdimen_no(p);
  if (n>=0) { HPUT8(n); return false; @+}
  else
@@ -33100,8 +33379,7 @@ bool hout_xdimen(pointer p)
 }
 
 @*1 Languages.
-We map the language numbers of \TeX\ to \HINT\ language numbers
-using the |hlanguage| array.
+The |hlanguage| array maps the language numbers of \TeX\ to \HINT\ language numbers.
 @<Hi\TeX\ variables@>=
 static struct {
   uint8_t n;
@@ -33109,12 +33387,12 @@ static struct {
 } hlanguage[0x100];
 @ For any language number of \TeX, the following function returns
 the corresponding \HINT\ language number.
-Since \TeX\ knowns about a maximum of 255 languages, there is
+Since \TeX\ knows about a maximum of 255 languages, there is
 no need for overflow checking. The next function writes a language
 node to the output stream.
 
-@<Hi\TeX\ auxiliar routines@>=
-uint8_t hget_language_no(uint8_t n)
+@<Hi\TeX\ auxiliary routines@>=
+static uint8_t hget_language_no(uint8_t n)
 { int i;
   for (i=0;i<=max_ref[language_kind]; i++)
     if (hlanguage[i].n==n) return i;
@@ -33124,7 +33402,7 @@ uint8_t hget_language_no(uint8_t n)
   return i;
 }
 
-uint8_t hout_language(uint8_t n)
+static uint8_t hout_language(uint8_t n)
 { n=hget_language_no(n);
   if (n<7) return TAG(language_kind,n+1);
   else
@@ -33137,7 +33415,8 @@ simple:
 case language_node:
   tag=hout_language(what_lang(p));
   break;
-@ Normaly \TeX\ does not produce an initial language node and
+
+@ Normally \TeX\ does not produce an initial language node and
 then the language in the \HINT\ file would not be known until
 it changes for the first time.
 
@@ -33199,11 +33478,11 @@ to get the same behavior in respect to line breaking.
      break;
 @*1 Glue and Leaders.
 Because glue specifications and glue nodes are sometimes part of other
-nodes, we start with three auxiliar functions: The first simply
+nodes, we start with three auxiliary functions: The first simply
 converts a Hi\TeX\ glue node into a \HINT\ |Glue|, outputs it and
 returns the tag; the second checks for predefined glues, and the third
 outputs a complete glue node including tags.
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 
 static uint8_t hout_glue_spec(pointer p)
 { @+Glue g;
@@ -33253,9 +33532,8 @@ Discretionary breaks are needed in font descriptions.
 Therefore we define a function that converts \TeX's |disc_node| pointers
 to \HINT's |Disc|, outputs the discretionary break, and returns the tag.
 
-@<Hi\TeX\ auxiliar routines@>=
-
-uint8_t hout_disc(pointer p)
+@<Hi\TeX\ auxiliary routines@>=
+static uint8_t hout_disc(pointer p)
 { Disc h;
   h.x=!is_auto_disc(p);
   h.r=replace_count(p);
@@ -33266,14 +33544,14 @@ uint8_t hout_disc(pointer p)
   else
   { uint32_t lpos;
     lpos=hpos-hstart;
-    h.p.k=list_kind;
+    h.p.t=TAG(list_kind,b001);
     hout_list_node(pre_break(p),lpos,&(h.p));
     if (post_break(p)==null)
       h.q.s=0;
     else
     { uint32_t lpos;
       lpos=hpos-hstart;
-      h.q.k=list_kind;
+      h.q.t=TAG(list_kind,b001);
       hout_list_node(post_break(p),lpos,&(h.q));
     }
   }
@@ -33292,7 +33570,7 @@ uint8_t hout_disc(pointer p)
 @*1 Ligatures.
 The subtype giving information on left and right boundary characters
 is ignored since the \HINT\ viewer will not do ligature or kerning
-programms and neither attempt hyphenation.
+programs and neither attempt hyphenation.
 
 @<cases to output content nodes@>=
    case ligature_node:
@@ -33353,8 +33631,8 @@ parameters |floating_penalty|, |split_max_depth|, and
 used. This is probably also for \TeX\ the most common situation.
 It is, however, possible to supply more than one page template with different defaults
 and while not very common, \TeX\ might change the parameters at any time.
-Because we dont know which is the current page template,
-it is not posible to compare the current parameter values against the defaults,
+Because we don't know which is the current page template,
+it is not possible to compare the current parameter values against the defaults,
 and we have to supply all the parameters always.
 In a future version, we might have a \TeX\ primitive that allows us to
 signal ``use the defaults''.
@@ -33372,7 +33650,7 @@ signal ``use the defaults''.
   new_param_node(dimen_type,split_max_depth_code,depth(p));
   new_param_node(glue_type,split_top_skip_code,split_top_ptr(p));
   pos=hpos-hstart;
-  l.k=param_kind;
+  l.t=TAG(param_kind,b001);
   n=hout_param_list(link(temp_head),pos,&l);
   flush_node_list(link(temp_head));@+ link(temp_head)=null;
   if (n>=0) HPUT8(n); else i=b010;
@@ -33399,10 +33677,11 @@ We have added custom whatsit nodes and now we switch based on the subtype.
         return;
     }
     break;
+
 @ For \TeX's whatsit nodes that handle output files, no code is generated;
 hence, we call |out_what| and simply remove the tag byte that is already
 in the output.
-When the \.{\\write} node arrives here, it is normaly handled
+When the \.{\\write} node arrives here, it is normally handled
 in |hlist_out| or |vlist_out| in an environment determined by
 the output routine. For example \LaTeX\ redefines \.{\\protect}
 as \.{\\noexpand} and these redefinitions need to be made
@@ -33412,16 +33691,15 @@ to mimic expanding inside an output routine.
 
 
 @<cases to output whatsit content nodes@>=
-     case open_node:
-     case write_node:
-     case close_node: out_what(p);
-     case special_node: hpos--; return;
+     case open_node: case write_node: case close_node:
+     case special_node: case latespecial_node: out_what(p);  hpos--; return;
+
 @*1 Paragraphs.
 When we output a paragraph node, we have to consider a special case:
 The parameter list is given by a reference number but the extended dimension
 needs an |xdimen| node. In this case the reference number for the parameter
 list comes first, while otherwise the extended dimension would come first.
-To determine whether ther is a reference number for the parameter list,
+To determine whether there is a reference number for the parameter list,
 the function |hout_param_list| is writing the parameter list to the output.
 \noindent
 @<cases to output whatsit content nodes@>=
@@ -33437,7 +33715,7 @@ case par_node:
 	else
         { xpos=hpos-hstart; hout_xdimen_node(p); xsize=(hpos-hstart)-xpos; i|=b100; }
         pos=hpos-hstart;
-        l.k=param_kind;
+        l.t=TAG(param_kind,b001);
 	m=hout_param_list(par_params(p),pos,&l);
         if (m>=0)
         { if (i&b100)
@@ -33474,7 +33752,7 @@ case par_node:
           int n;
           Info i=b000;
           pos=hpos-hstart;
-          l.k=param_kind;
+          l.t=TAG(param_kind,b001);
 	  n=hout_param_list(display_params(p),pos,&l);
           if (n>=0) HPUT8(n); else i|=b100;
           if (display_eqno(p)!=null && display_left(p))
@@ -33490,8 +33768,8 @@ case par_node:
 When we output an extended box, we have to consider a special case: the page templates.
 Page templates are boxes that contain insertion points. These insertion points look
 like regular insertions but with an empty content list. As a result the |hpack| and
-|vpackage| routines might belive that they can compute the dimensions of the box
-conntent when in fact they can not.
+|vpackage| routines might believe that they can compute the dimensions of the box
+content when in fact they can not.
 
 
 @<cases to output whatsit content nodes@>=
@@ -33539,8 +33817,8 @@ case align_node:
     }
 break;
 @ In the preamble, we remove the unset nodes and retain only the list of tabskip glues.
-@<Hi\TeX\ auxiliar routines@>=
-void hout_preamble(pointer p)
+@<Hi\TeX\ auxiliary routines@>=
+static void hout_preamble(pointer p)
 { pointer q,r;
   DBG(DBGBASIC,"Writing Preamble\n");
   q=p;
@@ -33562,7 +33840,7 @@ packaged inside an item node.
 When the viewer reads an item node, it will package the extended boxes to their natural size.
 This is the size that is needed to compute the maximum width of a column.
 
-@<Hi\TeX\ auxiliar routines@>=
+@<Hi\TeX\ auxiliary routines@>=
 
 static void hout_item(pointer p, uint8_t t, uint8_t s)
 { Info i=b000;
@@ -33584,7 +33862,7 @@ static void hout_item_list(pointer p, bool v)
 { List l;
   uint32_t pos;
   DBG(DBGBASIC,"Writing Item List\n");
-  l.k=list_kind;
+  l.t=TAG(list_kind,b001);
   HPUTTAG(item_kind,b000);
   pos=hpos-hstart;
   HPUTX(2);
@@ -33605,11 +33883,11 @@ static void hout_item_list(pointer p, bool v)
   DBG(DBGBASIC,"End Item List\n");
 }
 
-void hout_align_list(pointer p, bool v)
+static void hout_align_list(pointer p, bool v)
 { List l;
   uint32_t pos;
   DBG(DBGBASIC,"Writing Align List\n");
-  l.k=list_kind;
+  l.t=TAG(list_kind,b001);
   pos=hpos-hstart;
   HPUTX(2);
   HPUT8(0); /* space for the tag */
@@ -33677,7 +33955,7 @@ static void hout_list_node2(pointer p)
 { List l;
   uint32_t pos;
   pos=hpos-hstart;
-  l.k=list_kind;
+  l.t=TAG(list_kind,b001);
   hout_list_node(p,pos,&l);
 }
 @ @<Hi\TeX\ function declarations@>=
@@ -33690,15 +33968,14 @@ The next function is like |hout_list_node| but restricted to parameter nodes.
 The parameter |p| is a pointer to a param node list.
 The function either finds a reference number to a predefined parameter list
    and returns the reference number,
- or it outputs the node list at position pos (thats where the tag goes),
-   sets |l->k|, |l->p| and |l->s|, and returns $-1$.
+or it outputs the node list at position pos (that's where the tag goes),
+   sets |l->t|, |l->p| and |l->s|, and returns $-1$.
 
 @<Hi\TeX\ routines@>=
 static int hout_param_list(pointer p, uint32_t pos, List *l)
 { int n;
   hpos=hstart+pos;
-  if (p==null)
-  {HPUTX(2); hpos++;hput_tags(pos,TAG(param_kind,1)); l->s=0; return -1;}
+  if (p==null) return 0;
   HPUTX(3);
   HPUT8(0); /* space for the tag */
   HPUT8(0); /* space for the list size */
@@ -33762,7 +34039,7 @@ case outline_node: hpos--; new_outline(p);  return;
             h.h=xdimen_hfactor(r)/(double)ONE;
             h.v=xdimen_vfactor(r)/(double)ONE;
           }
-          tag=TAG(image_kind,hput_image_spec(image_no(p),0.0,0,&w,0,&h));
+          tag=TAG(image_kind,hput_image_spec(image_no(p),image_aspect(p)/(double)ONE,0,&w,0,&h));
           hout_list_node2(image_alt(p)); /* should eventually become  a text */
 	}
         break;
@@ -33898,6 +34175,9 @@ static void hprint_text(pointer p)
 \item Tables where the width of a column depends on \.{\\hsize} or
       \.{\\vsize} are not tested and probably not yet supported.
 
+\item \.{\\vcenter} will not work if any dimension of the
+      vertical list depends on \.{\\hsize} or \.{\\vsize}.
+
 \item The encoding of horizontal lists as texts is not yet supported,
       but it would make the \HINT\ file shorter and much better to read
       when stretched into long \HINT\ format.
@@ -33933,23 +34213,67 @@ to some of the \TeX\ engines included in \TeX\ Live. New is also
 that the code is presented in literate programming style.
 
 The code that follows is organized in three parts.
-Some code for k\TeX\ must come before
+Some code for \TeX\ Live must come before
 the definition of \TeX's macros because
 it uses include files containing identifiers that are in conflict
-with \TeX's macros. The remaining two parts are first auxiliar functions and then
+with \TeX's macros or modify these macros. For example
+\TeX's |banner| is modified by adding the \TeX\ Live version.
+
+@<Header files and function declarations@>=
+#ifdef WEB2CVERSION
+#define TL_VERSION "(TeX Live "WEB2CVERSION")"
+#else
+#define TL_VERSION
+#endif
+
+@ The remaining two parts are first auxiliary functions and then
 those functions that are called from the ``classic'' \TeX\ code.
 
-@p @<k\TeX\ auxiliar functions@>@;
-   @<k\TeX\ functions@>@;
+@p @<\TeX\ Live auxiliary functions@>@;
+   @<\TeX\ Live functions@>@;
 
-@ Let's begin with the beginning: the command line.
+@
+Most of the code that we present next comes together in the
+function |main_init|
+which is the first function called in the main program of a \TeX\ engine
+belonging to \TeX\ Live. Before doing so, we make copies of
+argument count and argument vector putting them in global variables.
+@<Global...@>=
+static char **argv;
+static int argc;
+
+@ @<\TeX\ Live functions@>=
+static void main_init(int ac, char *av[])
+{@+
+  char* main_input_file;
+  argc = ac;
+  argv = av;
+  interaction = error_stop_mode;
+  kpse_record_input = recorder_record_input;
+  kpse_record_output = recorder_record_output;
+
+  @<parse options@>@;
+  @<set the program and engine name@>@;
+  @<activate configuration lines@>@;
+  @<set the input file name@>@;
+  @<set defaults from the {\tt texmf.cfg} file@>@;
+  @<set the format name@>@;
+  @<enable the generation of input files@>@;
+}
+
+@ @<Forward declarations@>=
+static void main_init(int ac, char *av[]);
+
+
+@*1 Command Line.
+ Let's begin with the beginning: the command line.
 To see how a command line is structured, we first look at the
 help text that is displayed if the user asks for it (or if \TeX\
 decides that the user needs it). The help text is produced by the
 function |usage_help|.
 \def\SP{ }% disable visible spaces in strings.
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static void usage_help(void)
 {@+@<explain the command line@>@;
   @<explain the options@>@;
@@ -33957,7 +34281,7 @@ static void usage_help(void)
   exit(0);
 }
 
-@ The command line commes in three slightly different versions:
+@ The command line comes in three slightly different versions:
 
 @<explain the command line@>=
   fprintf(stdout,@/
@@ -33985,7 +34309,9 @@ static void usage_help(void)
     "  If no arguments or options are specified, prompt for input.\n"@/
     "\n");
 
-@ Here is the list of possible options and their explanation:
+
+@*1 Options.
+Here is the list of possible options and their explanation:
 
 @<explain the options@>=
   fprintf(stdout,
@@ -34023,36 +34349,36 @@ static void usage_help(void)
   @t\qquad@>"\t disable/enable parsing of the first line of\n"@/
   @t\qquad@>"\t\t\t the input file\n"@/
   " [-no]-file-line-error"@/
-  @t\qquad@>"\t Disable/Enable file:line:error style\n"@/
+  @t\qquad@>"\t disable/enable file:line:error style\n"@/
   " -cnf-line=STRING"@/
-  @t\qquad@>"\t Process STRING like a line in texmf.cnf\n"@/
+  @t\qquad@>"\t process STRING like a line in texmf.cnf\n"@/
   " -compress             "@/
   @t\qquad@>"\t enable compression of section 1 and 2\n"@/
   " [-no]-empty-page      "@/
-  @t\qquad@>"\t Disable/Enable empty pages\n"@/
-  " -hyphenate-first-word "@/
-  @t\qquad@>"\t hyphenate the first word of a paragraph\n"@/
-  " -no-hyphenate-first-word "@/
-  @t\qquad@>"\t don't hyphenate the first word of a paragraph\n"@/
+  @t\qquad@>"\t disable/enable empty pages\n"@/
+  " [-no]-hyphenate-first-word "@/
+  @t\qquad@>"\t disable/enable hyphenation of\n"@/
+  @t\qquad@>"\t\t\t the first word of a paragraph\n"@/
   " -resolution=NUMBER    "@/
   @t\qquad@>"\t set the resolution to NUMBER dpi\n"@/
   " -mfmode=MODE          "@/
   @t\qquad@>"\t set the METAFONT mode to MODE\n"@/
 #ifdef DEBUG
-  " -hint-debug=FLAGS          "@/
-  @t\qquad@>"\t set flags to controll hint debug output\n"@/
+  " -hint-debug=FLAGS     "@/
+  @t\qquad@>"\t set flags to control hint debug output\n"@/
   " -hint-debug-help      "@/
   @t\qquad@>"\t give help on hint debugging\n"@/
 #endif
 );
 
-
 @ The processing of command line options is controlled by the |long_options|
 \def\SP{{\tt\char`\ }}% restore the visible space in a string
 array. Each entry in this array contains first the name of the option,
-then a flag that tells whether the option takes an argument or not,
-then the (optional) address of a flag variable that gets set
-by this option, and finally the value to store in the flag variable.
+then a flag that tells whether the option takes an argument or not.
+If next the (optional) address of a flag variable is given,
+it is followed by  the value to store in the flag variable.
+In this case, setting the flag variable is handled by
+the |getopt_long_only| function.
 
 Besides the flag variables that occur in the table,
 a few string variables may be set using the options.
@@ -34061,18 +34387,13 @@ Variables are initialized with |-1| to indicate an undefined value;
 string variables are initialized with |NULL|.
 
 @<Global...@>=
-static int iniversion=0;
-static int etexp=0;
-static int ltxp=0;
-static int recorder_enabled=0;
-static int parsefirstlinep=-1;
-static int filelineerrorstylep=-1;
-static int interaction_option=-1;
-static const char *user_progname=NULL, *output_directory=NULL, *c_job_name=NULL;
-static char *dump_name=NULL;@#
-int option_no_empty_page=true, option_hyphen_first=true;
-int option_dpi=600;
-const char *option_mfmode="ljfour", *option_dpi_str="600";
+static int iniversion=false, etexp=false, ltxp=false, recorder_enabled=false;
+static int parsefirstlinep=-1, filelineerrorstylep=-1, interaction_option=-1;
+static const char *user_progname=NULL, *output_directory=NULL, *c_job_name=NULL,
+  *dump_name=NULL;@#
+static int option_no_empty_page=true, option_hyphen_first=true;
+static int option_dpi=600;
+static const char *option_mfmode="ljfour", *option_dpi_str="600";
 extern int option_compress;
 extern unsigned int debugflags;
 
@@ -34115,13 +34436,13 @@ static struct option long_options[] = {@/
 function from the \CEE/ library. This function returns 0 and sets the
 |option_index| parameter to the option found, or it returns $-1$ if
 the end of all options is reached.
-@<k\TeX\ functions@>=
+@<\TeX\ Live  functions@>=
 static void parse_options (int argc, char *argv[])
 {@+ while (true) {
     int option_index;
     int g = getopt_long_only (argc, argv, "+", long_options, &option_index);
     if (g==0)
-    { @<handle the option at |option_index|@>@;@+ }
+    { @<handle the options@>@;@+ }
     else if (g == '?')
     { fprintf(stderr,"Try '%s --help' for more information\n",argv[0]);
       exit(1);
@@ -34130,12 +34451,32 @@ static void parse_options (int argc, char *argv[])
   }
 }
 
+@ @<Forward declarations@>=
+static void parse_options (int argc, char *argv[]);
+
+@ Before we can call the |parse_options| function,
+we might need some special preparations for Windows.
+
+@<parse options@>=
+#if defined(WIN32)
+{@+ char* enc;
+  kpse_set_program_name (argv[0], NULL);
+  enc = kpse_var_value("command_line_encoding");
+  get_command_line_args_utf8(enc, &argc, &argv);@/
+  parse_options (argc, argv);
+  @<record {\tt texmf.cnf}@>@;
+}
+#else
+  parse_options (ac, av);
+#endif
+
+
 @ To handle the options, we compare the name at the given |option_index| with
 the different option names. This is not a very efficient method, but the
 impact is low and it's simple to write.
 
 Comparing the name of the argument with the |name| field in the |option|
-structure is done in the auxiliar function |argument_is|.
+structure is done in the auxiliary function |argument_is|.
 Unfortunately the |name| field is in conflict with the |name| macro
 defined by \TeX. To avoid the conflict, the |argument_is| function
 goes just after the \.{kpathsea.h} header file that defines
@@ -34150,19 +34491,19 @@ static int argument_is(struct option *opt, char * s)
 
 @ Now we can handle the first two options:
 
-@<handle the option at |option_index|@>=
+@<handle the options@>=
 if (ARGUMENT_IS("help")) usage_help();
 else if (ARGUMENT_IS("version")){@+
 #if defined(MIKTEX)
     fputs(banner, stdout);
     miktex_print_banner(stdout);
     putchar('\n');
-    printf("eTeX version %s\n", eTeX_version_string);
+    printf("HINT version %s\n", HINT_VERSION_STRING);
     printf("Prote version %s\n", Prote_version_string);
 #else
-       printf(banner "\n"
-              "eTeX version " eTeX_version_string "\n"
-              "Prote version " Prote_version_string "\n");
+       printf(banner@, "\n"@/
+              "HINT version "@,HINT_VERSION_STRING@,"\n"@/
+              "Prote version "@, Prote_version_string@, "\n");
 #endif
        exit(0);@+
 }
@@ -34173,7 +34514,7 @@ based on its string argument contained in the |optarg| variable.
 If defined, the |interaction_option| will be used to set \TeX's
 |interaction| variable in the |initialize| and the |undump| functions.
 
-@<handle the option at |option_index|@>=
+@<handle the options@>=
 else @+if (ARGUMENT_IS ("interaction"))@t\2@> {
       if (STREQ (optarg, "batchmode"))        interaction_option = batch_mode;
       else if (STREQ (optarg, "nonstopmode")) interaction_option = nonstop_mode;
@@ -34185,7 +34526,7 @@ else @+if (ARGUMENT_IS ("interaction"))@t\2@> {
 @ The next two options pass the string argument to the
 \.{kpathsearch} library.
 
-@<handle the option at |option_index|@>=
+@<handle the options@>=
 else @+if (ARGUMENT_IS ("mktex")) @t\2@> kpse_maketex_option (optarg, true);
 else if (ARGUMENT_IS ("no-mktex")) kpse_maketex_option (optarg, false);
 
@@ -34194,17 +34535,16 @@ else if (ARGUMENT_IS ("no-mktex")) kpse_maketex_option (optarg, false);
 the following option can be used.
 The argument value 3 is a good choice to start with.
 
-@<handle the option at |option_index|@>=
+@<handle the options@>=
 else @+if (ARGUMENT_IS ("kpathsea-debug")) @t\2@>
       kpathsea_debug |= atoi (optarg);
 
 
 
-@ The remaining options either set a flag and are handled by
-the |getopt_long_only| function or they take a string argument
+@ The next set of options  take a string argument
 and assign it to the corresponding string variable.
 
-@<handle the option at |option_index|@>=
+@<handle the options@>=
 else @+if (ARGUMENT_IS ("progname"))@t\2@>
   user_progname = normalize_quotes(optarg,"program name");
 else if (ARGUMENT_IS ("fmt"))
@@ -34213,23 +34553,85 @@ else if (ARGUMENT_IS ("output-directory"))
   output_directory = normalize_quotes(optarg,"output directory");
 else if (ARGUMENT_IS ("jobname"))
   c_job_name = normalize_quotes (optarg, "job name");
-else @+if (ARGUMENT_IS ("cnf-line"))
-  add_cnf_line(optarg);@t\2@>
-else if (ARGUMENT_IS("resolution")) @t\2@>
-{ option_dpi_str=optarg;
-  option_dpi=strtol(option_dpi_str,NULL,10);
+
+@ When string arguments specify files or directories,
+special care is needed if arguments are quoted and/or contain spaces.
+The function |normalize_quotes| makes sure that arguments containing
+spaces get quotes around them and it checks for unbalanced quotes.
+
+
+@<\TeX\ Live auxiliary functions@>=
+static char *normalize_quotes (const char *nom, const char *mesg)
+{@+ int quoted = false;
+    int must_quote = (strchr(nom, ' ') != NULL);
+    char *ret = xmalloc(strlen(nom)+3);/*room for two quotes and NUL*/
+    char *p=ret;
+    const char *q;
+
+    if (must_quote)
+        *p++ = '"';
+    for (q = nom; *q; q++)
+        if (*q == '"')
+            quoted = !quoted;@+
+        else
+            *p++ = *q;
+
+    if (must_quote)
+        *p++ = '"';
+    *p = '\0';
+    if (quoted) {
+        fprintf(stderr, "! Unbalanced quotes in %s %s\n", mesg, nom);
+        exit(1);
+    }
+    return ret;
 }
-else if (ARGUMENT_IS("mfmode"))
-  option_mfmode=optarg;
-#ifdef DEBUG@t\1@>
-else @+if (ARGUMENT_IS("hint-debug"))
-  debugflags=strtol(optarg,NULL,16);
-else @+if (ARGUMENT_IS("hint-debug-help"))
-  hint_debug_help();
-#endif
+
+@*1 Passing a file name as a general text argument.
+
+|scan_file_name| uses the following code to parse a file name given
+as a general text argument. Such an argument can be any token list
+starting with a left brace and ending with a right brace.
+This token list is then expanded (without the leading and trailing braces)
+and printed into the string pool without making it yet an official string.
+After removing all double quotes, because this is current practice
+for \TeX\ engines that are part of \TeX\ Live,
+and setting the area and extension delimiters,
+all temporary garbage used so far is freed.
+
+Due to the expansion of the token list, this code and hence the
+|scan_file_name| procedure is recursive.
+One can provide the name of a file as the content of an other file.
 
 
-@ The recorder option can be used to enable the file name recorder.
+% Thierry Laronde
+@<Define a general text file name and |goto done|@>=
+{@+back_input();name_in_progress=false; /*this version is recursive...*/
+  cur_cs=input_loc; /*|scan_toks| will set |warning_index| from it*/
+  scan_general_x_text();
+  old_setting=selector;selector=new_string;
+  token_show(link(garbage));selector=old_setting;
+  @<Suppress double quotes in braced input file name@>@;
+  j=pool_ptr-1;while ((j >= str_start[str_ptr])&&(area_delimiter==0))
+    {@+
+      if ((str_pool[j]=='/')) area_delimiter=j-str_start[str_ptr];
+      if ((ext_delimiter==0)&&(str_pool[j]=='.'))
+        ext_delimiter=j-str_start[str_ptr];
+      decr(j);
+    }
+  flush_list(link(garbage));
+  goto done;
+}
+
+@ A simple loop removes the double quotes and adjusts the |pool_ptr|.
+
+@<Suppress double quotes in braced input file name@>=
+for (k=j=str_start[str_ptr]; k < pool_ptr; k++) {@+
+  if (str_pool[k]!='"') {@+str_pool[j]=str_pool[k];incr(j);}
+}
+pool_ptr=j;
+
+@*1 The {\tt -recorder} Option.
+The recorder option can be used to enable the file name recorder.
 It is crucial for getting a reliable list of files used in a given run.
 Many post-processors use it, and it is used in \TeX\ Live for
 checking the format building infrastructure.
@@ -34242,7 +34644,7 @@ default name.  We throw in the pid so at least parallel builds might
 work. Windows, however, seems to have no |pid_t|, so instead of storing the
 value returned by |getpid|, we immediately consume it.
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static char *recorder_name=NULL;
 static FILE *recorder_file=NULL;
 static void
@@ -34273,43 +34675,42 @@ the output directory into account, since the new name we are
 called with does not; it is just the log file name with {\tt .log}
 replaced by {\tt .fls}.
 
-@ @<k\TeX\ auxiliar functions@>=
+@ @<\TeX\ Live auxiliary functions@>=
 static void
 recorder_change_filename (const char *new_name)
 { char *temp = NULL;
   if (!recorder_file)
    return;
 #if defined(_WIN32)
-   fclose (recorder_file); /* An opened file cannot be renamed. */
+   fclose (recorder_file); /* An open file cannot be renamed. */
 #endif /* |_WIN32| */
    if (output_directory) {
      temp = concat3(output_directory, DIR_SEP_STRING, new_name);
      new_name = temp;
    }
 
-   /* On windows, renaming fails if a file with |new_name| exists. */
 #if defined(_WIN32)
-   remove (new_name); /* Renaming fails if a file with the |new_name| exists. */
+   remove (new_name); /* A file with the |new_name| must not exist. */
 #endif /*  |_WIN32| */
    rename(recorder_name, new_name);
    free(recorder_name);
    recorder_name = xstrdup(new_name);
 #if defined(_WIN32)
-   recorder_file = xfopen (recorder_name, FOPEN_A_MODE);
+   recorder_file = xfopen (recorder_name, FOPEN_A_MODE); /* A closed file must be opened. */
 #endif /* |_WIN32| */
    if (temp)
      free (temp);
 }
 
 @ Now we are ready to record file names. The prefix INPUT is added
-to an input file and the prefiex OUTPUT to an output file.
+to an input file and the prefix OUTPUT to an output file.
 But both functions for recording a file name use the same
 function otherwise, which on first use will start the recorder.
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static void
 recorder_record_name (const char *pfx, const char *fname)
-{ if (recorder_enabled) {
+{ @+if (recorder_enabled) {
     if (!recorder_file)
       recorder_start();
     fprintf(recorder_file, "%s %s\n", pfx, fname);
@@ -34341,9 +34742,9 @@ Therefore we record {\tt texmf.cnf} with the following code:
 
 @<record {\tt texmf.cnf}@>=
 if (recorder_enabled) {
-  string *p = kpse_find_file_generic ("texmf.cnf", kpse_cnf_format, 0, 1);
+  char **p = kpse_find_file_generic ("texmf.cnf", kpse_cnf_format, 0, 1);
   if (p && *p) {
-    string *pp = p;
+    char **pp = p;
     while (*p) {
       recorder_record_input (*p);
       free (*p);
@@ -34354,39 +34755,10 @@ if (recorder_enabled) {
 }
 
 
-@ When string arguments specify files or directories,
-special care is needed if arguments are quoted and/or contain spaces.
-The function |normalize_quotes| makes shure that arguments containing
-spaces get quotes around them and it checks for unballanced quotes.
 
 
-@<k\TeX\ auxiliar functions@>=
-static char *normalize_quotes (const char *nom, const char *mesg)
-{@+ int quoted = false;
-    int must_quote = (strchr(nom, ' ') != NULL);
-    char *ret = xmalloc(strlen(nom)+3);/*room for two quotes and NUL*/
-    char *p=ret;
-    const char *q;
-
-    if (must_quote)
-        *p++ = '"';
-    for (q = nom; *q; q++)
-        if (*q == '"')
-            quoted = !quoted;@+
-        else
-            *p++ = *q;
-
-    if (must_quote)
-        *p++ = '"';
-    *p = '\0';
-    if (quoted) {
-        fprintf(stderr, "! Unbalanced quotes in %s %s\n", mesg, nom);
-        exit(1);
-    }
-    return ret;
-}
-
-@ With the \.{-cnf-line} option it is possible to specify
+@*1 The {\tt -cnf-line} Option.
+With the \.{-cnf-line} option it is possible to specify
 a line of text as if this line were part of \TeX's configuration
 file---even taking precedence over conflicting lines in the configuration
 file. For example it is possible to change \TeX's
@@ -34397,13 +34769,17 @@ to the \.{kpathsearch} library only after the library has been
 initialized sufficiently.
 
 @<Global...@>=
-char **cnf_lines=NULL;
-int cnf_count=0;
+static char **cnf_lines=NULL;
+static int cnf_count=0;
+
+@ @<handle the options@>=
+else @+if (ARGUMENT_IS ("cnf-line"))
+  add_cnf_line(optarg);
 
 @ The function  |add_cnf_line| stores the
 given command line argument in the variable |cnf_lines|.
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static void  add_cnf_line(char *arg)
 {@+ cnf_count++;
   cnf_lines=xrealloc(cnf_lines,sizeof(char*)*cnf_count);
@@ -34414,7 +34790,7 @@ static void  add_cnf_line(char *arg)
  \.{kpathsearch} library.
 
 @<activate configuration lines@>=
-#if 0 /* this function does not exists allways */
+#if 1 /* this function does not exists always */
 {@+ int i;
   for (i=0;i<cnf_count;i++)
     kpathsea_cnf_line_env_progname (kpse_def, cnf_lines[i]);
@@ -34422,11 +34798,50 @@ static void  add_cnf_line(char *arg)
 }
 #endif
 
-@ After we are done with the options,
+
+@*1 Hi\TeX\ specific command line options.
+Hi\TeX\ provides options to set the \MF\ mode and the resolution if
+{\tt .pk} fonts must be rendered and/or included in the {\tt .hnt}
+output file. Further, a lot of debug output can be generated if
+Hi\TeX\ was compiled with debugging enabled. The {\tt -hint-debug-help}
+option gives a short summary of what to expect.
+@<handle the options@>=
+else @+if (ARGUMENT_IS("resolution")) @t\2@>
+{ option_dpi_str=optarg;
+  option_dpi=strtol(option_dpi_str,NULL,10);
+}
+else if (ARGUMENT_IS("mfmode"))
+  option_mfmode=optarg;
+#ifdef DEBUG@t\1@>
+else @+if (ARGUMENT_IS("hint-debug"))@t\2@>
+  debugflags=strtol(optarg,NULL,16);
+else @+if (ARGUMENT_IS("hint-debug-help"))
+{ fprintf(stderr,@/
+     "To generate HINT format debug output use the option\n"
+     " -hint-debug=XX"@/
+@t\qquad@>"\t\t XX is a hexadecimal value. OR together these values:\n");@/
+fprintf(stderr,"\t XX=%04X \t basic debugging\n", DBGBASIC);@/
+fprintf(stderr,"\t XX=%04X \t tag debugging\n", DBGTAGS);@/
+fprintf(stderr,"\t XX=%04X \t node debugging\n",DBGNODE);@/
+fprintf(stderr,"\t XX=%04X \t definition debugging\n", DBGDEF);@/
+fprintf(stderr,"\t XX=%04X \t directory debugging\n", DBGDIR);@/
+fprintf(stderr,"\t XX=%04X \t range debugging\n",DBGRANGE);@/
+fprintf(stderr,"\t XX=%04X \t float debugging\n", DBGFLOAT);@/
+fprintf(stderr,"\t XX=%04X \t compression debugging\n", DBGCOMPRESS);@/
+fprintf(stderr,"\t XX=%04X \t buffer debugging\n", DBGBUFFER);@/
+fprintf(stderr,"\t XX=%04X \t TeX debugging\n", DBGTEX);@/
+fprintf(stderr,"\t XX=%04X \t page debugging\n", DBGPAGE);@/
+fprintf(stderr,"\t XX=%04X \t font debugging\n", DBGFONT);@/
+exit(0);
+}
+#endif
+
+@*1 The Input File.
+After we are done with the options,
 we inform the \.{kpathsearch} library about the program name.
 This is an important piece of information for the library
 because the library serves quite different programs
-and its behaviour can be customized for each program
+and its behavior can be customized for each program
 using configuration files.
 After the program and engine name is set,
 the library is ready to use.
@@ -34444,7 +34859,7 @@ if (!user_progname)
 
 @ After the options, the command line usually continues with the name of the input
 file. Getting a hold of the input file name can be quite complicated,
-and we will have the first opportunity to use the \.{kpathsearch} library.
+but the \.{kpathsearch} library will help us to do the job.
 
 We start by looking at the first argument after the options:
 If it does not start with an
@@ -34453,9 +34868,9 @@ Under Windows, however, filenames might start with a drive letter
 followed by a colon and a ``\.{\BS}'' which is used to separate
 directory names.  Finally, if the filename is a quoted string, we need
 to remove the quotes before we use the \.{kpathsearch} library to find it
-and reattach the quotes afterwards.
+and reattach the quotes afterward.
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 #ifdef WIN32
 static void clean_windows_filename(char *filename)
 {@+if (strlen (filename) > 2 && isalpha (filename[0]) &&
@@ -34540,7 +34955,7 @@ from the {\tt texmf.cfg} file.
     parsefirstlinep = texmf_yesno ("parse_first_line");@/@t~@>
 
 @ We needed:
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static int texmf_yesno(const char *var)
 {@+
   char *value = kpse_var_value (var);
@@ -34549,30 +34964,32 @@ static int texmf_yesno(const char *var)
 
 @ We need a stack, matching the |line_stack| that
 contains the source file names;
-we postpone k\TeX\'s |full_source_filename_stack| to a later time.
 
 @<Global...@>=
-int @!source_filename_stack0[max_in_open], *const @!source_filename_stack = @!source_filename_stack0-1;
+static char * @!source_filename_stack0[max_in_open]={NULL}, **const @!source_filename_stack = @!source_filename_stack0-1;
+static char * @!full_source_filename_stack0[max_in_open]={NULL}, **const @!full_source_filename_stack = @!full_source_filename_stack0-1;
+static char *full_name_of_file=NULL;
 
 @ The function |print_file_line|
-prints ``file:line:error'' style messages.  It looks for a
-filename in |source_filename_stack|, and if it fails to find
-one falls back on the ``non-file:line:error'' style.
+prints ``file:line:error'' style messages using
+the |source_filename_stack|. If it fails to find the file name, it
+falls back to the ``non-file:line:error'' style.
 
 @<Basic printing...@>=
 static void print_file_line(void)
 {@+int level=in_open;
-  while (level>0 && source_filename_stack[level]==0) level--;
+  while (level>0 && full_source_filename_stack[level]==NULL) level--;
   if (level==0) print_nl("! ");
   else
-  { print_nl(""); printn(source_filename_stack[level]); print_char(':');
+  { print_nl(""); print(full_source_filename_stack[level]); print_char(':');
     if (level==in_open) print_int(line);
     else print_int(line_stack[level]);
     print(": ");
   }
 }
 
-@ Most of the time \TeX\ is not running as \.{initex} or \.{virtex},
+@*1 The Format File.
+Most of the time \TeX\ is not running as \.{initex} or \.{virtex},
 but it runs with a format file preloaded.
 To set the format name, we first check if the format name was given on the
 command line with an ``\.{\AM}'' prefix,
@@ -34611,8 +35028,8 @@ if (etexp && !iniversion)
 the file for a \TeX\ comment of the form ``\%\AM format''\footnote{${}^1$}{The idea of using this format came from Wlodzimierz Bzyl.}.
 If found, we will use the format given there.
 
-@<k\TeX\ functions@>=
-static void parse_first_line (char*filename)
+@<\TeX\ Live  auxiliary functions@>=
+static void parse_first_line(char*filename)
 {@+ FILE *f=NULL;
   if (filename==NULL) return;
   f = open_in(filename,kpse_tex_format,"r");
@@ -34645,31 +35062,14 @@ static void parse_first_line (char*filename)
   }
 }
 
-
-@ The \TeX\ Live infrastructure is able to generate format files,
-font metric files,
-and even some tex files, if required.
-
-@<enable the generation of input files@>=
-  kpse_set_program_enabled (kpse_tfm_format, MAKE_TEX_TFM_BY_DEFAULT,
-                            kpse_src_compile);@/
-  kpse_set_program_enabled (kpse_tex_format, MAKE_TEX_TEX_BY_DEFAULT,
-                            kpse_src_compile);@/
-  kpse_set_program_enabled (kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
-                            kpse_src_compile);@/
-  kpse_set_program_enabled (kpse_pk_format, MAKE_TEX_PK_BY_DEFAULT,
- 			   kpse_src_compile);@/
-  xputenv("MAKETEX_BASE_DPI", option_dpi_str);
-  xputenv("MAKETEX_MODE", option_mfmode);
-
-
-@ In the old days, \TeX\ was a \PASCAL\ program, and standard \PASCAL\
+@*1 Commands.
+In the old days, \TeX\ was a \PASCAL\ program, and standard \PASCAL\
 did say nothing about a command line. So \TeX\ would open the terminal
 file for input and read all the information from the terminal.
 If you don't give \TeX\ command line arguments, this is still true today.
-In our present time, people got so much used to control the behaviour
+In our present time, people got so much used to control the behavior
 of a program using command line arguments---especially when writing
-scripts---that k\TeX\ allows the specification of commands on
+scripts---that \TeX\ Live allows the specification of commands on
 the command line which \TeX\ would normally expect on
 the first line of its terminal input.
 
@@ -34681,7 +35081,7 @@ which duplicates part of the |input_ln| function.
 Further it skips initial spaces and replaces trailing spaces
 and line endings by a single space.
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static void input_add_char(unsigned int c)
 {@+ if (last >= max_buf_stack)
   {@+max_buf_stack=last+1;
@@ -34714,9 +35114,12 @@ loc=first;
 return (loc < last);
 @+ }
 
+@ @<Forward declarations@>=
+static int input_command_line(void);
 
 
-@ When we open an output file, there is usually no searching necessary.
+@*1 Opening Files.
+When we open an output file, there is usually no searching necessary.
 In the best case, we have an absolute path and can open it.
 If the path is relative, we try in this order:
 the |file_name| prefixed by the |output_directory|,
@@ -34726,7 +35129,7 @@ the |file_name| prefixed with the environment variable |TEXMFOUTPUT|.
 If we were successful with one of the modified names, we update
 |name_of_file|.
 
-@<k\TeX\ functions@>=
+@<\TeX\ Live functions@>=
 static FILE *open_out(const char *file_name, const char *file_mode)
 {@+ FILE *f=NULL;
   char *new_name=NULL;
@@ -34758,6 +35161,24 @@ static FILE *open_out(const char *file_name, const char *file_mode)
   return f;
 }
 
+static bool a_open_out(alpha_file *f)  /*open a text file for output*/
+{@+f->f=open_out((char*)name_of_file+1,"w");
+  return f->f!=NULL && ferror(f->f)==0;@+
+}
+
+static bool b_open_out(byte_file *f)  /*open a binary file for output*/
+{@+f->f=open_out((char *)name_of_file+1,"wb");
+return f->f!=NULL && ferror(f->f)==0;@+
+}
+
+#ifdef @!INIT
+static bool w_open_out(word_file *f)  /*open a word file for output*/
+{@+f->f=open_out((char *)name_of_file+1,"wb");
+   return f->f!=NULL && ferror(f->f)==0;@+
+}
+#endif
+
+
 @ Format file names must be scanned
 before \TeX's string mechanism has been initialized.
 The function |update_name_of_file| will set |name_of_file| from
@@ -34769,8 +35190,8 @@ since the error will be detected in another way when a strange file name
 isn't found.
 @^system dependencies@>
 
-@<k\TeX\ auxiliar functions@>=
-static void update_name_of_file(char *@!s, int @!k)
+@<\TeX\ Live auxiliary functions@>=
+static void update_name_of_file(const char *@!s, int @!k)
 {@+ int j;
   if (k <= file_name_size) name_length=k;@+
   else name_length=file_name_size;
@@ -34779,12 +35200,11 @@ static void update_name_of_file(char *@!s, int @!k)
 }
 
 @ In standard \TeX, the |reset| macro is used to open input files.
-The \.{kpathsearch} library uses different search pathes for
+The \.{kpathsearch} library uses different search paths for
 different types of files and therefore different functions are needed to
 open these files. The common code is in the function |open_in|.
 
-
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 static FILE*open_in(char*filename,kpse_file_format_type t,const char*rwb)
 {@+ char *fname=NULL;
   FILE*f= NULL;
@@ -34793,9 +35213,31 @@ static FILE*open_in(char*filename,kpse_file_format_type t,const char*rwb)
   {@+
     f= fopen(fname,rwb);
     if (f!=NULL) recorder_record_input(fname);
-    free(fname);@+
+    if (full_name_of_file!=NULL) free(full_name_of_file);
+    full_name_of_file=fname;@+
   }
   return f;
+}
+
+static bool a_open_in(alpha_file *f) /*open a text file for input*/
+{@+f->f= open_in((char *)name_of_file+1,kpse_tex_format,"r");
+   if (f->f!=NULL) get(*f);
+   return f->f!=NULL && ferror(f->f)==0;
+}
+
+static bool b_open_in(byte_file *f)   /*open a binary file for input*/
+{@+f->f= open_in((char *)name_of_file+1,kpse_tfm_format,"rb");
+   if (f->f!=NULL) get(*f);
+   return f->f!=NULL && ferror(f->f)==0;
+}
+
+static bool w_open_in(word_file *f)   /*open a word file for input*/
+{@+
+  f->f=NULL;
+  if (name_of_file[1]!=0)
+    f->f= open_in((char*)name_of_file+1,kpse_fmt_format,"rb");
+  if (f->f!=NULL) get(*f);
+  return f->f!=NULL && ferror(f->f)==0;
 }
 
 @ \TeX's |open_fmt_file| function will call the following function
@@ -34805,7 +35247,7 @@ The function will try |dump_name| as a last resort before returning |NULL|.
 
 
 
-@<k\TeX\ functions@>=
+@<\TeX\ Live functions@>=
 static bool open_fmt_file(void)
 {@+int j=loc;
   if (buffer[loc]=='&')
@@ -34824,63 +35266,26 @@ found: loc=j;return true;
 }
 
 
+@ The \TeX\ Live infrastructure is able to generate format files,
+font metric files,
+and even some tex files, if required.
 
-@ All the code that we have seen so far commes together in the function |main_init|
-which is the first function called in the main program of a \TeX\ engine
-belonging to \TeX\ Live. Before doing so, we make copies of
-argument count and argument vector putting them in global variables.
-@<Global...@>=
-static char **argv;
-static int argc;
-
-@ @<k\TeX\ functions@>=
-static void main_init(int ac, char *av[])
-{@+
-  char* main_input_file;
-  argc = ac;
-  argv = av;
-  interaction = error_stop_mode;
-#if defined(MIKTEX)
-#else
-  kpse_record_input = recorder_record_input;
-  kpse_record_output = recorder_record_output;
-#endif
-
-  @<parse options@>@;
-  @<set the program and engine name@>@;
-  @<activate configuration lines@>@;
-  @<set the input file name@>@;
-  @<set defaults from the {\tt texmf.cfg} file@>@;
-  @<set the format name@>@;
-  @<enable the generation of input files@>@;
-}
+@<enable the generation of input files@>=
+  kpse_set_program_enabled (kpse_tfm_format, MAKE_TEX_TFM_BY_DEFAULT,
+                            kpse_src_compile);@/
+  kpse_set_program_enabled (kpse_tex_format, MAKE_TEX_TEX_BY_DEFAULT,
+                            kpse_src_compile);@/
+  kpse_set_program_enabled (kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
+                            kpse_src_compile);@/
+  kpse_set_program_enabled (kpse_pk_format, MAKE_TEX_PK_BY_DEFAULT,
+ 			   kpse_src_compile);@/
+  xputenv("MAKETEX_BASE_DPI", option_dpi_str);
+  xputenv("MAKETEX_MODE", option_mfmode);
 
 
-@ Before we can call the |parse_options| function,
-we might need some special preparations for Windows.
 
-@<parse options@>=
-#if !defined(MIKTEX) && defined(WIN32)
-{@+ char* enc;
-  kpse_set_program_name (argv[0], NULL);
-  enc = kpse_var_value("command_line_encoding");
-  get_command_line_args_utf8(enc, &argc, &argv);@/
-  parse_options (argc, argv);
-  @<record {\tt texmf.cnf}@>@;
-}
-#else
-  parse_options (ac, av);
-#endif
-
-@ Adding prototypes for the functions just defined allows \TeX\
-to call them.
-
-@<Header files and function declarations@>=
-
-static int input_command_line(void);
-static void main_init(int ac, char *av[]);
-
-@ We conclude this chapter using \.{time.h} to provide a function
+@*1 Date and Time.
+We conclude this chapter using \.{time.h} to provide a function
 that is used to initialize
 \TeX's date and time information. Because |time| is one of \TeX's
 macros, we add the function |tl_now| before including \TeX's macros
@@ -34935,7 +35340,8 @@ static struct tm *tl_now(void)
   return tp;
 }
 
-@ To support \LaTeX, a few more time related functions are needed.
+@*1 Retrieving File Properties.
+To support \LaTeX, a few more time related functions are needed.
 @<Header files and function declarations@>=
 #define TIME_STR_SIZE 30
 static char time_str[TIME_STR_SIZE];
@@ -34954,7 +35360,7 @@ static int get_md5_sum(int s, int file);
 the \TeX\ Live distribution and slightly modified.
 
 
-@<k\TeX\ auxiliar functions@>=
+@<\TeX\ Live auxiliary functions@>=
 
 static void
 make_time_str(time_t t, bool utc)
@@ -35075,7 +35481,7 @@ static int get_md5_sum(int s, int file)
   memset(md5_digest,0,DIGEST_SIZE);
   if (file)
   { char *fname;
-    pack_file_name(s,"","");
+    pack_file_name(s,empty_string,empty_string,NULL);
     fname= find_input_file();
     if(fname!=NULL)
     { FILE *f;
