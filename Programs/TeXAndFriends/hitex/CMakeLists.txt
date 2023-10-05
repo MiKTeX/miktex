@@ -111,7 +111,7 @@ set(hitex_sources
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND hitex_sources
         ${MIKTEX_COMMON_MANIFEST}
-        miktex-hitex.rc
+        windows/miktex-hitex.rc
     )
 endif()
 
@@ -156,7 +156,7 @@ set(histretch_sources
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND histretch_sources
         ${MIKTEX_COMMON_MANIFEST}
-        miktex-histretch.rc
+        windows/miktex-histretch.rc
     )
 endif()
 
@@ -204,7 +204,7 @@ set(hishrink_sources
 if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND hishrink_sources
         ${MIKTEX_COMMON_MANIFEST}
-        miktex-hishrink.rc
+        windows/miktex-hishrink.rc
     )
 endif()
 

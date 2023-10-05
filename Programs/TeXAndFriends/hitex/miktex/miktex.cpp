@@ -1,5 +1,5 @@
 /**
- * @file miktex.cpp
+ * @file miktex/miktex.cpp
  * @author Christian Schenk
  * @brief MiKTeX HiTeX
  *
