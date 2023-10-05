@@ -6,10 +6,10 @@
 #include "LibLsp/JsonRpc/RequestInMessage.h"
 #include "LibLsp/JsonRpc/lsResponseMessage.h"
 struct AddOverridableMethodParams {
-	lsCodeActionParams context;
-	std::vector<OverridableMethod> overridableMethods;
+        lsCodeActionParams context;
+        std::vector<OverridableMethod> overridableMethods;
 
-	MAKE_SWAP_METHOD(AddOverridableMethodParams, context, overridableMethods);
+        MAKE_SWAP_METHOD(AddOverridableMethodParams, context, overridableMethods);
 };
 
 MAKE_REFLECT_STRUCT(AddOverridableMethodParams, context, overridableMethods);

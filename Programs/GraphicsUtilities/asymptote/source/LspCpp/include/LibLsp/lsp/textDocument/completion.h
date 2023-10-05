@@ -30,7 +30,7 @@ struct lsCompletionContext {
 
   // The trigger character (a single character) that has trigger code complete.
   // Is undefined if `triggerKind !== CompletionTriggerKind.TriggerCharacter`
-  boost::optional<std::string> triggerCharacter;
+  optional<std::string> triggerCharacter;
 
   MAKE_SWAP_METHOD(lsCompletionContext, triggerKind, triggerCharacter);
 };
@@ -40,10 +40,10 @@ struct lsCompletionParams : lsTextDocumentPositionParams {
   // The completion context. This is only available it the client specifies to
   // send this using
   // `ClientCapabilities.textDocument.completion.contextSupport === true`
-  boost::optional<lsCompletionContext> context;
-	
+  optional<lsCompletionContext> context;
+
   MAKE_SWAP_METHOD(lsCompletionParams, textDocument, position, context);
-	
+
 };
 MAKE_REFLECT_STRUCT(lsCompletionParams, textDocument, position, context);
 
@@ -56,9 +56,9 @@ MAKE_REFLECT_STRUCT(lsCompletionParams, textDocument, position, context);
 
 
 namespace TextDocumentComplete{
-	
-	typedef  std::pair< boost::optional<std::vector<lsCompletionItem>>, boost::optional<CompletionList> > Either;
-	
+
+        typedef  std::pair< optional<std::vector<lsCompletionItem>>, optional<CompletionList> > Either;
+
 };
 extern  void Reflect(Reader& visitor, TextDocumentComplete::Either& value);
 

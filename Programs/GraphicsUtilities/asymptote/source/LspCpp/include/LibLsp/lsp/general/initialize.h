@@ -15,7 +15,7 @@
  */
   struct InitializeResult {
     lsServerCapabilities capabilities;
-	MAKE_SWAP_METHOD(InitializeResult, capabilities);
+        MAKE_SWAP_METHOD(InitializeResult, capabilities);
   };
 
 MAKE_REFLECT_STRUCT(InitializeResult, capabilities);
@@ -26,7 +26,7 @@ MAKE_REFLECT_STRUCT(InitializeResult, capabilities);
  * the server.
  *
  * If the server receives request or notification before the initialize request it should act as follows:
- * 	- for a request the respond should be errored with code: -32001. The message can be picked by the server.
+ *      - for a request the respond should be errored with code: -32001. The message can be picked by the server.
  *  - notifications should be dropped, except for the exit notification. This will allow the exit a server without an initialize request.
  *
  * Until the server has responded to the initialize request with an InitializeResult

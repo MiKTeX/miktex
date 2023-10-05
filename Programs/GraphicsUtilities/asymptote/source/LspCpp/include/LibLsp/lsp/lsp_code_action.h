@@ -13,18 +13,18 @@ struct CommandArgs {
 };
 MAKE_REFLECT_STRUCT_WRITER_AS_ARRAY(CommandArgs, textDocumentUri, edits);
 inline void Reflect(Reader& visitor, CommandArgs& value) {
-	int i = 0;
-	visitor.IterArray([&](Reader& visitor) {
-		switch (i++) {
-		case 0:
-			Reflect(visitor, value.textDocumentUri);
-			break;
-		case 1:
-			Reflect(visitor, value.edits);
-			break;
+        int i = 0;
+        visitor.IterArray([&](Reader& visitor) {
+                switch (i++) {
+                case 0:
+                        Reflect(visitor, value.textDocumentUri);
+                        break;
+                case 1:
+                        Reflect(visitor, value.edits);
+                        break;
 
-		}
-		});
+                }
+                });
 }
 
 // codeLens

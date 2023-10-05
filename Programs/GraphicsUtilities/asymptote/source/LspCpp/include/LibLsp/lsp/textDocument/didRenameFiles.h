@@ -9,36 +9,36 @@
 
 class FileRenameEvent {
 public:
-	std::string oldUri;
-	std::string newUri;
+        std::string oldUri;
+        std::string newUri;
 
-	FileRenameEvent() {
-	}
+        FileRenameEvent() {
+        }
 
-	FileRenameEvent(std::string oldUri, std::string newUri) {
-		this->oldUri = oldUri;
-		this->newUri = newUri;
-	}
-	MAKE_SWAP_METHOD(FileRenameEvent, oldUri, newUri);
+        FileRenameEvent(std::string oldUri, std::string newUri) {
+                this->oldUri = oldUri;
+                this->newUri = newUri;
+        }
+        MAKE_SWAP_METHOD(FileRenameEvent, oldUri, newUri);
 };
 MAKE_REFLECT_STRUCT(FileRenameEvent, oldUri, newUri);
 
 class FileRenameParams {
 public:
-	std::vector <FileRenameEvent> files;
+        std::vector <FileRenameEvent> files;
 
-	FileRenameParams() {
-	}
+        FileRenameParams() {
+        }
 
-	FileRenameParams(std::vector<FileRenameEvent>& files) {
-		this->files = files;
-	}
-	MAKE_SWAP_METHOD(FileRenameParams, files);
+        FileRenameParams(std::vector<FileRenameEvent>& files) {
+                this->files = files;
+        }
+        MAKE_SWAP_METHOD(FileRenameParams, files);
 };
 MAKE_REFLECT_STRUCT(FileRenameParams, files);
 
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_didRenameFiles, FileRenameParams, boost::optional<lsWorkspaceEdit>, "java/didRenameFiles");
+DEFINE_REQUEST_RESPONSE_TYPE(td_didRenameFiles, FileRenameParams, optional<lsWorkspaceEdit>, "java/didRenameFiles");
 
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_willRenameFiles, FileRenameParams, boost::optional<lsWorkspaceEdit>, "java/willRenameFiles");
+DEFINE_REQUEST_RESPONSE_TYPE(td_willRenameFiles, FileRenameParams, optional<lsWorkspaceEdit>, "java/willRenameFiles");

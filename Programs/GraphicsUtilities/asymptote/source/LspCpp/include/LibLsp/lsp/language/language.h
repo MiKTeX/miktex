@@ -11,27 +11,27 @@
 #endif
 
 struct  StatusReport {
-	
-	std::string ToString() const
-	{
-		std::string info;
-		info += "type:" + type + "\n";
-		info += "message:" + message + "\n";
-		return info;
-	}
-	/**
-	 * The message type. See {
-	 *
-	 */
 
-	std::string  type;
-	/**
-	 * The actual message
-	 *
-	 */
+        std::string ToString() const
+        {
+                std::string info;
+                info += "type:" + type + "\n";
+                info += "message:" + message + "\n";
+                return info;
+        }
+        /**
+         * The message type. See {
+         *
+         */
 
-	std::string  message;
-	MAKE_SWAP_METHOD(StatusReport, type, message);
+        std::string  type;
+        /**
+         * The actual message
+         *
+         */
+
+        std::string  message;
+        MAKE_SWAP_METHOD(StatusReport, type, message);
 };
 MAKE_REFLECT_STRUCT(StatusReport, type, message);
 
@@ -44,25 +44,25 @@ DEFINE_NOTIFICATION_TYPE(lang_status, StatusReport, "language/status");
 
 enum class MessageType {
 
-	/**
-	 * An error message.
-	 */
-	Error=(1),
+        /**
+         * An error message.
+         */
+        Error=(1),
 
-	/**
-	 * A warning message.
-	 */
-	 Warning=(2),
+        /**
+         * A warning message.
+         */
+         Warning=(2),
 
-	 /**
-	  * An information message.
-	  */
-	  Info=(3),
+         /**
+          * An information message.
+          */
+          Info=(3),
 
-	  /**
-	   * A log message.
-	   */
-	   Log=(4)
+          /**
+           * A log message.
+           */
+           Log=(4)
 };
 MAKE_REFLECT_TYPE_PROXY(MessageType);
 
@@ -70,36 +70,36 @@ MAKE_REFLECT_TYPE_PROXY(MessageType);
 struct ActionableNotification {
 
 
-	
-	/**
-	 * The message type. See {
-	 *
-	 */
 
-	 MessageType severity;
-	/**
-	 * The actual message
-	 *
-	 */
+        /**
+         * The message type. See {
+         *
+         */
 
-	 std::string message;
+         MessageType severity;
+        /**
+         * The actual message
+         *
+         */
 
-	/**
-	 * Optional data
-	 *
-	 */
+         std::string message;
 
-	boost::optional<lsp::Any> data;
+        /**
+         * Optional data
+         *
+         */
+
+        optional<lsp::Any> data;
 
 
-	/**
-	 * Optional commands
-	 *
-	 */
+        /**
+         * Optional commands
+         *
+         */
 
-	 std::vector<lsCommandWithAny> commands;
+         std::vector<lsCommandWithAny> commands;
 
-	 MAKE_SWAP_METHOD(ActionableNotification, severity, message, data, commands)
+         MAKE_SWAP_METHOD(ActionableNotification, severity, message, data, commands)
 };
 MAKE_REFLECT_STRUCT(ActionableNotification, severity, message, data, commands)
 
@@ -114,27 +114,27 @@ DEFINE_NOTIFICATION_TYPE(lang_actionableNotification, ActionableNotification, "l
 
 
 struct  ProgressReport {
-	std::string ToString() const;
+        std::string ToString() const;
 
-	std::string id;
-
-
-	std::string task;
+        std::string id;
 
 
-	std::string subTask;
+        std::string task;
 
 
-	std::string status;
-
-	 int totalWork = 0;
+        std::string subTask;
 
 
-	 int workDone = 0;
+        std::string status;
+
+         int totalWork = 0;
 
 
-	 bool complete = false;
-	 MAKE_SWAP_METHOD(ProgressReport, id, task, subTask, status, workDone, complete);
+         int workDone = 0;
+
+
+         bool complete = false;
+         MAKE_SWAP_METHOD(ProgressReport, id, task, subTask, status, workDone, complete);
 };
 
 
@@ -147,23 +147,23 @@ MAKE_REFLECT_STRUCT(ProgressReport, id, task, subTask, status, workDone, complet
 DEFINE_NOTIFICATION_TYPE(lang_progressReport, ProgressReport, "language/progressReport");
 
 enum EventType {
-	/**
-	 * classpath updated event.
-	 */
-	ClasspathUpdated = (100),
+        /**
+         * classpath updated event.
+         */
+        ClasspathUpdated = (100),
 
-	/**
-	 * projects imported event.
-	 */
-	 ProjectsImported = (200)
+        /**
+         * projects imported event.
+         */
+         ProjectsImported = (200)
 };
 
 struct EventNotification
 {
-	int eventType;
-	lsp::Any data;
-	std::string ToString() const;
-	MAKE_SWAP_METHOD(EventNotification, eventType, data)
+        int eventType;
+        lsp::Any data;
+        std::string ToString() const;
+        MAKE_SWAP_METHOD(EventNotification, eventType, data)
 };
 MAKE_REFLECT_STRUCT(EventNotification, eventType, data);
 

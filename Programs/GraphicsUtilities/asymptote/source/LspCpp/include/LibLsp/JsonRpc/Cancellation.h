@@ -7,12 +7,12 @@ namespace Cancellation
 {
 
   struct Params {
-	  /**
-	   * The request id to cancel.
-	   */
-	  lsRequestId id;
-  	
-	  MAKE_SWAP_METHOD(Cancellation::Params, id);
+          /**
+           * The request id to cancel.
+           */
+          lsRequestId id;
+
+          MAKE_SWAP_METHOD(Cancellation::Params, id);
   };
 
 };

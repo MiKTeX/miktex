@@ -23,6 +23,8 @@ struct BezierCurve
   double res,res2;
   bool Onscreen;
 
+  BezierCurve() : Onscreen(true) {}
+
   void init(double res);
 
   // Approximate bounds by bounding box of control polyhedron.

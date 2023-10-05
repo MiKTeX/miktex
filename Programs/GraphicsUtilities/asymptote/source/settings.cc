@@ -131,8 +131,8 @@ string defaultPSViewer = "cmd";
 string defaultPDFViewer = "cmd";
 string defaultHTMLViewer = "cmd";
 #else
-string defaultPSViewer="gv";
-string defaultPDFViewer="acroread";
+string defaultPSViewer="evince";
+string defaultPDFViewer="evince";
 string defaultHTMLViewer="google-chrome";
 #endif
 #endif
@@ -161,14 +161,12 @@ bool msdos=true;
 string HOME="USERPROFILE";
 string docdir="c:\\Program Files\\Asymptote";
 const char pathSeparator=';';
-//string defaultPSViewer="gsview32.exe";
 string defaultPSViewer="cmd";
 //string defaultPDFViewer="AcroRd32.exe";
 string defaultPDFViewer="cmd";
 string defaultHTMLViewer="cmd";
 string defaultGhostscript;
 string defaultGhostscriptLibrary;
-//string defaultDisplay="imdisplay";
 string defaultDisplay="cmd";
 //string defaultAnimate="animate";
 string defaultAnimate="cmd";
@@ -246,8 +244,6 @@ void queryRegistry()
   if(defaultPDFViewer != "cmd")
     defaultPDFViewer=getEntry("Adobe/Acrobat Reader/*/InstallPath/@")+"\\"+
       defaultPDFViewer;
-  if(defaultPSViewer != "cmd")
-    defaultPSViewer=getEntry("Ghostgum/GSview/*")+"\\gsview\\"+defaultPSViewer;
   string s;
   s=getEntry("Microsoft/Windows/CurrentVersion/App Paths/Asymptote/Path");
   if(!s.empty()) docdir=s;
@@ -410,9 +406,9 @@ struct option : public gc {
   }
 
   // Outputs description of the command for the -help option.
-  virtual void describe() {
+  virtual void describe(char option) {
     // Don't show the option if it has no desciption.
-    if (!desc.empty()) {
+    if(!hide() && ((option == 'h') ^ env())) {
       const unsigned WIDTH=22;
       string start=describeStart();
       cerr << std::left << std::setw(WIDTH) << start;
@@ -422,14 +418,19 @@ struct option : public gc {
       }
       cerr << " " << desc;
       if(cmdlineonly) cerr << "; command-line only";
-      if(Default != "")
-        cerr << " [" << Default << "]";
+      if(Default != "") {
+        if(!desc.empty()) cerr << " ";
+        cerr << Default;
+      }
       cerr << endl;
     }
   }
 
   virtual void reset() {
   }
+
+  virtual bool env() {return false;}
+  virtual bool hide() {return false;}
 };
 
 const string noarg;
@@ -507,7 +508,7 @@ struct boolSetting : public itemSetting {
               bool defaultValue=false)
     : itemSetting(name, code, noarg, desc,
                   types::primBoolean(), (item)defaultValue,
-                  defaultValue ? "true" : "false") {}
+                  defaultValue ? "[true]" : "[false]") {}
 
   bool getOption() {
     value=(item)true;
@@ -517,6 +518,8 @@ struct boolSetting : public itemSetting {
   option *negation(string name) {
     struct negOption : public option {
       boolSetting &base;
+
+      bool hide() {return true;}
 
       negOption(boolSetting &base, string name)
         : option(name, 0, noarg, ""), base(base) {}
@@ -564,6 +567,8 @@ struct boolSetting : public itemSetting {
       struct negOption : public option {
         multiOption &base;
 
+        bool hide() {return true;}
+
         negOption(multiOption &base, string name)
           : option(name, 0, noarg, ""), base(base) {}
 
@@ -605,7 +610,7 @@ struct stringSetting : public argumentSetting {
   stringSetting(string name, char code,
                 string argname, string desc,
                 string defaultValue="")
-    : argumentSetting(name, code, argname, desc.empty() ? "" :
+    : argumentSetting(name, code, argname, desc == "" ? "["+defaultValue+"]" :
                       desc+(defaultValue.empty() ? "" : " ["+defaultValue+"]"),
                       types::primString(), (item)defaultValue) {}
 
@@ -644,6 +649,8 @@ struct warnSetting : public option {
     struct negOption : public option {
       warnSetting &base;
 
+      bool hide() {return true;}
+
       negOption(warnSetting &base, string name, string argname)
         : option(name, 0, argname, ""), base(base) {}
 
@@ -674,6 +681,7 @@ string GetEnv(string s, string Default) {
 struct envSetting : public stringSetting {
   envSetting(string name, string Default)
     : stringSetting(name, 0, " ", "", GetEnv(name,Default)) {}
+  bool env() {return true;}
 };
 
 template<class T>
@@ -749,6 +757,7 @@ struct stringArraySetting : public itemSetting {
   stringArraySetting(string name, array *defaultValue)
     : itemSetting(name, 0, "", "",
                   types::stringArray(), (item) defaultValue) {}
+  bool hide() {return true;}
 
   bool getOption() {return true;}
 };
@@ -831,6 +840,8 @@ struct boolrefSetting : public refSetting<bool> {
     struct negOption : public option {
       boolrefSetting &base;
 
+      bool hide() {return true;}
+
       negOption(boolrefSetting &base, string name)
         : option(name, 0, noarg, ""), base(base) {}
 
@@ -882,6 +893,8 @@ struct incrementSetting : public refSetting<Int> {
     struct negOption : public option {
       incrementSetting &base;
 
+      bool hide() {return true;}
+
       negOption(incrementSetting &base, string name)
         : option(name, 0, noarg, ""), base(base) {}
 
@@ -910,6 +923,8 @@ struct incrementOption : public option {
   incrementOption(string name, char code, string desc, Int *ref,
                   Int level=1)
     : option(name, code, noarg, desc, true), ref(ref), level(level) {}
+
+  bool hide() {return true;}
 
   bool getOption() {
     // Increment the value.
@@ -946,15 +961,19 @@ void reportSyntax() {
   exit(1);
 }
 
-void displayOptions()
+void displayOptions(char code)
 {
   cerr << endl;
-  cerr << "Options (negate by replacing - with -no): "
-       << endl << endl;
+  if(code == 'h')
+    cerr << "Options (negate boolean options by replacing - with -no): "
+         << endl << endl;
+  else
+    cerr << "Environment settings: "
+         << endl << endl;
   for (optionsMap_t::iterator opt=optionsMap.begin();
        opt!=optionsMap.end();
        ++opt)
-    opt->second->describe();
+    opt->second->describe(code);
 }
 
 struct helpOption : public option {
@@ -963,7 +982,7 @@ struct helpOption : public option {
 
   bool getOption() {
     usage(argv0);
-    displayOptions();
+    displayOptions(code);
     cerr << endl;
     exit(0);
 
@@ -1254,7 +1273,7 @@ void initSettings() {
   addOption(new stringArraySetting("wheeldown", stringArray(wheeldown)));
   addOption(new stringArraySetting("suppress", new array));
 
-  addOption(new warnSetting("warn", 0, "string", "Enable warning"));
+  addOption(new warnSetting("warn", 0, "str", "Enable warning"));
 
   multiOption *view=new multiOption("View", 'V', "View output");
   view->add(new boolSetting("batchView", 0, "View output in batch mode",
@@ -1278,9 +1297,9 @@ void initSettings() {
                             "Show 3D axes in PDF output", true));
   addOption(new boolSetting("ibl", 0,
                             "Enable environment map image-based lighting", false));
-  addOption(new stringSetting("image", 0,"string","Environment image name","snowyField"));
-  addOption(new stringSetting("imageDir", 0,"string","Environment image library directory","ibl"));
-  addOption(new stringSetting("imageURL", 0,"string","Environment image library URL","https://vectorgraphics.gitlab.io/asymptote/ibl"));
+  addOption(new stringSetting("image", 0,"str","Environment image name","snowyField"));
+  addOption(new stringSetting("imageDir", 0,"str","Environment image library directory","ibl"));
+  addOption(new stringSetting("imageURL", 0,"str","Environment image library URL","https://vectorgraphics.gitlab.io/asymptote/ibl"));
   addOption(new realSetting("render", 0, "n",
                             "Render 3D graphics using n pixels per bp (-1=auto)",
                             havegl ? -1.0 : 0.0));
@@ -1300,7 +1319,9 @@ void initSettings() {
                             "Compress GPU transparent fragment counts",
                             false));
   addOption(new IntSetting("GPUlocalSize", 0, "n",
-                           "Compute shader local size", 16));
+                           "Compute shader local size", 256));
+  addOption(new IntSetting("GPUblockSize", 0, "n",
+                           "Compute shader block size", 8));
 
   addOption(new pairSetting("position", 0, "pair",
                             "Initial 3D rendering screen position"));
@@ -1335,6 +1356,7 @@ void initSettings() {
                             "Write expressions entered at the prompt to stdout",
                             true));
   addOption(new helpOption("help", 'h', "Show summary of options"));
+  addOption(new helpOption("environment", 'e', "Show summary of environment settings"));
   addOption(new versionOption("version", 0, "Show version"));
 
   addOption(new pairSetting("offset", 'O', "pair", "PostScript offset"));
@@ -1424,23 +1446,26 @@ void initSettings() {
                               "Garbage collect using purge(divisor=n) [2]"));
 #endif
 
-  addOption(new stringSetting("prompt", 0,"string","Prompt","> "));
-  addOption(new stringSetting("prompt2", 0,"string",
+  addOption(new stringSetting("prompt", 0,"str","Prompt","> "));
+  addOption(new stringSetting("prompt2", 0,"str",
                               "Continuation prompt for multiline input ",
                               ".."));
   addOption(new boolSetting("multiline", 0,
                             "Input code over multiple lines at the prompt"));
   addOption(new boolSetting("xasy", 0,
                             "Interactive mode for xasy"));
+#ifdef HAVE_LSP
   addOption(new boolSetting("lsp", 0, "Interactive mode for the Language Server Protocol"));
-  addOption(new boolSetting("wsl", 0, "Run asy under the Windows Subsystem for Linux."));
   addOption(new envSetting("lspport", ""));
   addOption(new envSetting("lsphost", "127.0.0.1"));
+#endif
+
+  addOption(new boolSetting("wsl", 0, "Run asy under the Windows Subsystem for Linux"));
 
   addOption(new boolSetting("wait", 0,
                             "Wait for child processes to finish before exiting"));
-  addOption(new IntSetting("inpipe", 0, "n","",-1));
-  addOption(new IntSetting("outpipe", 0, "n","",-1));
+  addOption(new IntSetting("inpipe", 0, "n","Input pipe",-1));
+  addOption(new IntSetting("outpipe", 0, "n","Output pipe",-1));
   addOption(new boolSetting("exitonEOF", 0, "Exit interactive mode on EOF",
                             true));
 
@@ -1467,11 +1492,11 @@ void initSettings() {
   addOption(new IntSetting("pdfreloaddelay", 0, "usec",
                            "Delay before attempting initial pdf reload"
                            ,750000));
-  addOption(new stringSetting("autoimport", 0, "string",
+  addOption(new stringSetting("autoimport", 0, "str",
                               "Module to automatically import"));
-  addOption(new userSetting("command", 'c', "string",
+  addOption(new userSetting("command", 'c', "str",
                             "Command to autoexecute"));
-  addOption(new userSetting("user", 'u', "string",
+  addOption(new userSetting("user", 'u', "str",
                             "General purpose user string"));
 
   addOption(new realSetting("zoomfactor", 0, "factor", "Zoom step factor",
@@ -1495,26 +1520,24 @@ void initSettings() {
                             60.0));
   addOption(new realSetting("framerate", 0, "frames/s", "Animation speed",
                             30.0));
-  addOption(new realSetting("framedelay", 0, "ms",
-                            "Additional frame delay", 0.0));
   addOption(new realSetting("resizestep", 0, "step", "Resize step", 1.2));
   addOption(new IntSetting("digits", 0, "n",
                            "Default output file precision", 7));
 
-  addOption(new realSetting("paperwidth", 0, "bp", ""));
-  addOption(new realSetting("paperheight", 0, "bp", ""));
+  addOption(new realSetting("paperwidth", 0, "bp", "Default page width"));
+  addOption(new realSetting("paperheight", 0, "bp", "Default page height"));
 
-  addOption(new stringSetting("dvipsOptions", 0, "string", ""));
-  addOption(new stringSetting("dvisvgmOptions", 0, "string", ""));
+  addOption(new stringSetting("dvipsOptions", 0, "str", ""));
+  addOption(new stringSetting("dvisvgmOptions", 0, "str", ""));
   addOption(new boolSetting("dvisvgmMultipleFiles", 0,
-                            "dvisvgm supports multiple files", false));
-  addOption(new stringSetting("convertOptions", 0, "string", ""));
-  addOption(new stringSetting("gsOptions", 0, "string", ""));
-  addOption(new stringSetting("htmlviewerOptions", 0, "string", ""));
-  addOption(new stringSetting("psviewerOptions", 0, "string", ""));
-  addOption(new stringSetting("pdfviewerOptions", 0, "string", ""));
-  addOption(new stringSetting("pdfreloadOptions", 0, "string", ""));
-  addOption(new stringSetting("glOptions", 0, "string", ""));
+                            "dvisvgm supports multiple files", true));
+  addOption(new stringSetting("convertOptions", 0, "str", ""));
+  addOption(new stringSetting("gsOptions", 0, "str", ""));
+  addOption(new stringSetting("htmlviewerOptions", 0, "str", ""));
+  addOption(new stringSetting("psviewerOptions", 0, "str", ""));
+  addOption(new stringSetting("pdfviewerOptions", 0, "str", ""));
+  addOption(new stringSetting("pdfreloadOptions", 0, "str", ""));
+  addOption(new stringSetting("glOptions", 0, "str", ""));
   addOption(new stringSetting("hyperrefOptions", 0, "str",
                               "","setpagesize=false,unicode,pdfborder=0 0 0"));
 

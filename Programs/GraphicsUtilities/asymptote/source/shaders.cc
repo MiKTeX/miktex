@@ -15,6 +15,8 @@
 #include <string>
 #include <iostream>
 
+#include "settings.h"
+#include "fpu.h"
 #include "shaders.h"
 
 int GLSLversion;
@@ -41,7 +43,9 @@ GLuint compileAndLinkShader(std::vector<ShaderfileModePair> const& shaders,
   glBindAttribLocation(shader,colorAttrib,"color");
   glBindAttribLocation(shader,widthAttrib,"width");
 
+  fpu_trap(false); // Work around FE_INVALID
   glLinkProgram(shader);
+  fpu_trap(settings::trap());
 
   for(size_t i=0; i < n; ++i) {
     glDetachShader(shader,compiledShaders[i]);

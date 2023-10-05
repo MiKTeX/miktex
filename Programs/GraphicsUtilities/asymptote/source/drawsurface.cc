@@ -118,18 +118,18 @@ void drawBezierPatch::bounds(const double* t, bbox3& b)
 
     double c0=cx[0];
     double fuzz=Fuzz*run::norm(cx,16);
-    x=bound(cx,min,b.empty ? c0 : min(c0,b.left),fuzz,maxdepth);
-    X=bound(cx,max,b.empty ? c0 : max(c0,b.right),fuzz,maxdepth);
+    x=bound(cx,min,c0,fuzz,maxdepth);
+    X=bound(cx,max,c0,fuzz,maxdepth);
 
     c0=cy[0];
     fuzz=Fuzz*run::norm(cy,16);
-    y=bound(cy,min,b.empty ? c0 : min(c0,b.bottom),fuzz,maxdepth);
-    Y=bound(cy,max,b.empty ? c0 : max(c0,b.top),fuzz,maxdepth);
+    y=bound(cy,min,c0,fuzz,maxdepth);
+    Y=bound(cy,max,c0,fuzz,maxdepth);
 
     c0=cz[0];
     fuzz=Fuzz*run::norm(cz,16);
-    z=bound(cz,min,b.empty ? c0 : min(c0,b.near),fuzz,maxdepth);
-    Z=bound(cz,max,b.empty ? c0 : max(c0,b.far),fuzz,maxdepth);
+    z=bound(cz,min,c0,fuzz,maxdepth);
+    Z=bound(cz,max,c0,fuzz,maxdepth);
   }
 
   b.add(x,y,z);
@@ -232,7 +232,7 @@ bool drawBezierPatch::write(abs3Doutfile *out)
   out->precision(digits);
   if(straight) {
     triple Controls[]={controls[0],controls[12],controls[15],controls[3]};
-    out->addStraightPatch(Controls,Min,Max,colors);
+    out->addStraightPatch(Controls,colors);
   } else {
     double prerender=renderResolution();
     if(prerender) {
@@ -247,7 +247,7 @@ bool drawBezierPatch::write(abs3Doutfile *out)
                        Min,Max);
       dt.write(out);
     } else
-      out->addPatch(controls,Min,Max,colors);
+      out->addPatch(controls,colors);
   }
   out->precision(getSetting<Int>("digits"));
 
@@ -378,18 +378,18 @@ void drawBezierTriangle::bounds(const double* t, bbox3& b)
 
     double c0=cx[0];
     double fuzz=Fuzz*run::norm(cx,10);
-    x=boundtri(cx,min,b.empty ? c0 : min(c0,b.left),fuzz,maxdepth);
-    X=boundtri(cx,max,b.empty ? c0 : max(c0,b.right),fuzz,maxdepth);
+    x=boundtri(cx,min,c0,fuzz,maxdepth);
+    X=boundtri(cx,max,c0,fuzz,maxdepth);
 
     c0=cy[0];
     fuzz=Fuzz*run::norm(cy,10);
-    y=boundtri(cy,min,b.empty ? c0 : min(c0,b.bottom),fuzz,maxdepth);
-    Y=boundtri(cy,max,b.empty ? c0 : max(c0,b.top),fuzz,maxdepth);
+    y=boundtri(cy,min,c0,fuzz,maxdepth);
+    Y=boundtri(cy,max,c0,fuzz,maxdepth);
 
     c0=cz[0];
     fuzz=Fuzz*run::norm(cz,10);
-    z=boundtri(cz,min,b.empty ? c0 : min(c0,b.near),fuzz,maxdepth);
-    Z=boundtri(cz,max,b.empty ? c0 : max(c0,b.far),fuzz,maxdepth);
+    z=boundtri(cz,min,c0,fuzz,maxdepth);
+    Z=boundtri(cz,max,c0,fuzz,maxdepth);
   }
 
   b.add(x,y,z);
@@ -493,7 +493,7 @@ bool drawBezierTriangle::write(abs3Doutfile *out)
   out->precision(digits);
   if(straight) {
     triple Controls[]={controls[0],controls[6],controls[9]};
-    out->addStraightBezierTriangle(Controls,Min,Max,colors);
+    out->addStraightBezierTriangle(Controls,colors);
   } else {
     double prerender=renderResolution();
     if(prerender) {
@@ -508,7 +508,7 @@ bool drawBezierTriangle::write(abs3Doutfile *out)
                        Min,Max);
       dt.write(out);
     } else
-      out->addBezierTriangle(controls,Min,Max,colors);
+      out->addBezierTriangle(controls,colors);
   }
   out->precision(getSetting<Int>("digits"));
 
@@ -911,7 +911,7 @@ bool drawTube::write(abs3Doutfile *out)
   b.add(T*triple(M.getx(),M.gety(),m.getz()));
   b.add(T*M);
 
-  out->addTube(g,width,b.Min(),b.Max(),core);
+  out->addTube(g,width,core);
 
 #endif
   return true;
@@ -995,7 +995,7 @@ bool drawTriangles::write(abs3Doutfile *out)
   } else drawElement::centerIndex=0;
 
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
-  out->addTriangles(nP,P,nN,N,nC,C,nI,PI,NI,CI,Min,Max);
+  out->addTriangles(nP,P,nN,N,nC,C,nI,PI,NI,CI);
 #endif
   return true;
 }

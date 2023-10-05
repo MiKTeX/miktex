@@ -11,18 +11,18 @@ namespace  TextDocumentReferences {
 
   struct lsReferenceContext {
     // Include the declaration of the current symbol.
-    boost::optional<bool>  includeDeclaration;
+    optional<bool>  includeDeclaration;
    MAKE_REFLECT_STRUCT(lsReferenceContext,
-	   includeDeclaration)
+           includeDeclaration)
   };
   struct Params {
     lsTextDocumentIdentifier textDocument;
     lsPosition position;
     lsReferenceContext context;
-	MAKE_SWAP_METHOD(Params,
-		textDocument,
-		position,
-		context)
+        MAKE_SWAP_METHOD(Params,
+                textDocument,
+                position,
+                context)
 
   };
 
@@ -44,5 +44,5 @@ MAKE_REFLECT_STRUCT(TextDocumentReferences::Params,
  *
  * Registration Options: TextDocumentRegistrationOptions
  */
-DEFINE_REQUEST_RESPONSE_TYPE(td_references, TextDocumentReferences::Params, 
+DEFINE_REQUEST_RESPONSE_TYPE(td_references, TextDocumentReferences::Params,
     std::vector<lsLocation>, "textDocument/references");

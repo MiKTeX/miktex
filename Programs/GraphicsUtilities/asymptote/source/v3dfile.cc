@@ -101,8 +101,7 @@ void v3dfile::addColors(prc::RGBAColour const* col, size_t nc)
 }
 
 
-void v3dfile::addPatch(triple const* controls, triple const& Min,
-                       triple const& Max, prc::RGBAColour const* c)
+void v3dfile::addPatch(triple const* controls, prc::RGBAColour const* c)
 {
   getXDRFile() << (c ? v3dtypes::bezierPatchColor : v3dtypes::bezierPatch);
   addTriples(controls,16);
@@ -112,8 +111,8 @@ void v3dfile::addPatch(triple const* controls, triple const& Min,
     addColors(c,4);
 }
 
-void v3dfile::addStraightPatch(triple const* controls, triple const& Min,
-                               triple const& Max, prc::RGBAColour const* c)
+void v3dfile::addStraightPatch(triple const* controls,
+                               prc::RGBAColour const* c)
 {
   getXDRFile() << (c ? v3dtypes::quadColor : v3dtypes::quad);
   addTriples(controls,4);
@@ -123,8 +122,8 @@ void v3dfile::addStraightPatch(triple const* controls, triple const& Min,
     addColors(c,4);
 }
 
-void v3dfile::addBezierTriangle(triple const* controls, triple const& Min,
-                                triple const& Max, prc::RGBAColour const* c)
+void v3dfile::addBezierTriangle(triple const* controls,
+                                prc::RGBAColour const* c)
 {
   getXDRFile() << (c ? v3dtypes::bezierTriangleColor : v3dtypes::bezierTriangle);
   addTriples(controls,10);
@@ -134,8 +133,8 @@ void v3dfile::addBezierTriangle(triple const* controls, triple const& Min,
     addColors(c,3);
 }
 
-void v3dfile::addStraightBezierTriangle(triple const* controls, triple const& Min,
-                                        triple const& Max, prc::RGBAColour const* c)
+void v3dfile::addStraightBezierTriangle(triple const* controls,
+                                        prc::RGBAColour const* c)
 {
   getXDRFile() << (c ? v3dtypes::triangleColor : v3dtypes::triangle);
   addTriples(controls,3);
@@ -196,7 +195,7 @@ void v3dfile::addDisk(triple const& center, double radius, double const& polar, 
   getXDRFile() << polar << azimuth;
 }
 
-void v3dfile::addTube(triple const* g, double width, triple const& Min, triple const& Max, bool core)
+void v3dfile::addTube(triple const* g, double width, bool core)
 {
   getXDRFile() << v3dtypes::tube;
   for(int i=0; i < 4; ++i)
@@ -206,9 +205,11 @@ void v3dfile::addTube(triple const* g, double width, triple const& Min, triple c
   getXDRFile() << core;
 }
 
-void v3dfile::addTriangles(size_t nP, triple const* P, size_t nN, triple const* N, size_t nC, prc::RGBAColour const* C,
-                           size_t nI, uint32_t const (* PI)[3], uint32_t const (* NI)[3], uint32_t const (* CI)[3],
-                           triple const& Min, triple const& Max)
+void v3dfile::addTriangles(size_t nP, triple const* P, size_t nN,
+                           triple const* N, size_t nC,
+                           prc::RGBAColour const* C, size_t nI,
+                           uint32_t const (* PI)[3], uint32_t const (* NI)[3],
+                           uint32_t const (* CI)[3])
 {
   getXDRFile() << v3dtypes::triangles;
   getXDRFile() << (uint32_t) nI;
@@ -266,21 +267,21 @@ void v3dfile::addIndices(uint32_t const* v)
   getXDRFile() << v[0] << v[1] << v[2];
 }
 
-void v3dfile::addCurve(triple const& z0, triple const& c0, triple const& c1, triple const& z1, triple const& Min,
-                       triple const& Max)
+void v3dfile::addCurve(triple const& z0, triple const& c0, triple const& c1,
+                       triple const& z1)
 {
   getXDRFile() << v3dtypes::curve << z0 << c0 << c1 << z1;
   addCenterIndexMat();
 
 }
 
-void v3dfile::addCurve(triple const& z0, triple const& z1, triple const& Min, triple const& Max)
+void v3dfile::addCurve(triple const& z0, triple const& z1)
 {
   getXDRFile() << v3dtypes::line << z0 << z1;
   addCenterIndexMat();
 }
 
-void v3dfile::addPixel(triple const& z0, double width, triple const& Min, triple const& Max)
+void v3dfile::addPixel(triple const& z0, double width)
 {
   getXDRFile() << v3dtypes::pixel << z0 << width;
   getXDRFile() << (uint32_t) materialIndex;

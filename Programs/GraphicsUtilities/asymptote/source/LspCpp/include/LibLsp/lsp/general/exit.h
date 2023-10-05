@@ -4,4 +4,4 @@
 /**
  * A notification to ask the server to exit its process.
  */
-DEFINE_NOTIFICATION_TYPE(Notify_Exit, boost::optional<JsonNull>, "exit");
+DEFINE_NOTIFICATION_TYPE(Notify_Exit, optional<JsonNull>, "exit");

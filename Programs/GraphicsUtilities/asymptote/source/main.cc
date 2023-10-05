@@ -53,6 +53,10 @@
 #include "interact.h"
 #include "fileio.h"
 
+#ifdef HAVE_LIBFFTW3
+#include "fftw++.h"
+#endif
+
 #ifdef HAVE_LSP
 #include "lspserv.h"
 #endif
@@ -127,6 +131,9 @@ void signalHandler(int)
 
 void interruptHandler(int)
 {
+#ifdef HAVE_LIBFFTW3
+  fftwpp::saveWisdom();
+#endif
   em.Interrupt(true);
 }
 
@@ -153,6 +160,9 @@ void *asymain(void *A)
   setsignal(signalHandler);
   Args *args=(Args *) A;
   fpu_trap(trap());
+#ifdef HAVE_LIBFFTW3
+  fftwpp::wisdomName=".wisdom";
+#endif
 
   if(interactive) {
     Signal(SIGINT,interruptHandler);
@@ -209,9 +219,10 @@ void *asymain(void *A)
     } else {
       for(int ind=0; ind < n; ind++) {
         string name=(getArg(ind));
-        if(name == stripExt(name)+".v3d") {
+        string prefix=stripExt(name);
+        if(name == prefix+".v3d") {
           interact::uptodate=false;
-          runString("import v3d; defaultfilename=\""+stripDir(name)+
+          runString("import v3d; defaultfilename=\""+stripDir(prefix)+
                     "\"; importv3d(\""+name+"\");");
         } else
           processFile(name,n > 1);

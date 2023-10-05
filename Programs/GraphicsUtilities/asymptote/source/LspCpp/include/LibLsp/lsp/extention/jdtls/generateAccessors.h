@@ -8,11 +8,11 @@
 
 
 struct GenerateAccessorsParams {
-	lsCodeActionParams context;
-	std::vector<AccessorField>  accessors;
+        lsCodeActionParams context;
+        std::vector<AccessorField>  accessors;
 
 
-	MAKE_SWAP_METHOD(GenerateAccessorsParams, context, accessors)
+        MAKE_SWAP_METHOD(GenerateAccessorsParams, context, accessors)
 };
 MAKE_REFLECT_STRUCT(GenerateAccessorsParams, context, accessors)
 

@@ -11,5 +11,5 @@
  * that asks the server to exit.
  */
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_shutdown, boost::optional<JsonNull>, boost::optional<lsp::Any>, "shutdown");
+DEFINE_REQUEST_RESPONSE_TYPE(td_shutdown, optional<JsonNull>, optional<lsp::Any>, "shutdown");
 

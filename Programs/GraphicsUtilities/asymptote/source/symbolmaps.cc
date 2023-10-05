@@ -70,7 +70,7 @@ namespace AsymptoteLsp
       if (posMatches and !isOperator)
       {
         posInFile endPos(pos.first, endCharacter + 1);
-        return boost::make_optional(std::make_tuple(syLit, pos, endPos));
+        return make_optional(std::make_tuple(syLit, pos, endPos));
       }
     }
     return nullopt;

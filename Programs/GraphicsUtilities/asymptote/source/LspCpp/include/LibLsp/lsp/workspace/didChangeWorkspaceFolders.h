@@ -5,30 +5,30 @@
  * The workspace folder change event.
  */
 struct WorkspaceFoldersChangeEvent {
-	/**
-	 * The array of added workspace folders
-	 */
+        /**
+         * The array of added workspace folders
+         */
 
-	std::vector<WorkspaceFolder> added;
+        std::vector<WorkspaceFolder> added;
 
-	/**
-	 * The array of the removed workspace folders
-	 */
+        /**
+         * The array of the removed workspace folders
+         */
 
-	std::vector <WorkspaceFolder> removed;
-	MAKE_SWAP_METHOD(WorkspaceFoldersChangeEvent, added, removed);
-	
+        std::vector <WorkspaceFolder> removed;
+        MAKE_SWAP_METHOD(WorkspaceFoldersChangeEvent, added, removed);
+
 };
 MAKE_REFLECT_STRUCT(WorkspaceFoldersChangeEvent, added, removed);
 
 struct DidChangeWorkspaceFoldersParams {
-	/**
-	 * The actual workspace folder change event.
-	 */
+        /**
+         * The actual workspace folder change event.
+         */
 
-	WorkspaceFoldersChangeEvent event;
-	
-	MAKE_SWAP_METHOD(DidChangeWorkspaceFoldersParams, event);
+        WorkspaceFoldersChangeEvent event;
+
+        MAKE_SWAP_METHOD(DidChangeWorkspaceFoldersParams, event);
 };
 MAKE_REFLECT_STRUCT(DidChangeWorkspaceFoldersParams, event);
 
@@ -40,8 +40,8 @@ MAKE_REFLECT_STRUCT(DidChangeWorkspaceFoldersParams, event);
  * and ClientCapabilities/workspace/workspaceFolders are true; or if the server has
  * registered to receive this notification it first.
  */
-DEFINE_NOTIFICATION_TYPE(Notify_WorkspaceDidChangeWorkspaceFolders, 
-	DidChangeWorkspaceFoldersParams, "workspace/didChangeWorkspaceFolders");
+DEFINE_NOTIFICATION_TYPE(Notify_WorkspaceDidChangeWorkspaceFolders,
+        DidChangeWorkspaceFoldersParams, "workspace/didChangeWorkspaceFolders");
 
 
 

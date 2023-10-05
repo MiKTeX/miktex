@@ -7,12 +7,12 @@
 #include "LibLsp/lsp/lsRange.h"
 #include <vector>
 struct DocumentColorParams {
-	/**
-	 * The text document.
-	 */
+        /**
+         * The text document.
+         */
 
-	 lsTextDocumentIdentifier textDocument;
-	 MAKE_SWAP_METHOD(DocumentColorParams, textDocument);
+         lsTextDocumentIdentifier textDocument;
+         MAKE_SWAP_METHOD(DocumentColorParams, textDocument);
 };
 MAKE_REFLECT_STRUCT(DocumentColorParams, textDocument);
 
@@ -28,45 +28,45 @@ MAKE_REFLECT_STRUCT(DocumentColorParams, textDocument);
  */
 
 namespace TextDocument {
-	struct  Color {
-		/**
-		 * The red component of this color in the range [0-1].
-		 */
-		double red = 0;
+        struct  Color {
+                /**
+                 * The red component of this color in the range [0-1].
+                 */
+                double red = 0;
 
-		/**
-		 * The green component of this color in the range [0-1].
-		 */
-		double green = 0;
+                /**
+                 * The green component of this color in the range [0-1].
+                 */
+                double green = 0;
 
-		/**
-		 * The blue component of this color in the range [0-1].
-		 */
-		double blue = 0;
+                /**
+                 * The blue component of this color in the range [0-1].
+                 */
+                double blue = 0;
 
-		/**
-		 * The alpha component of this color in the range [0-1].
-		 */
-		double alpha = 0;
-		MAKE_SWAP_METHOD(TextDocument::Color, red, green, blue, alpha)
-	};
+                /**
+                 * The alpha component of this color in the range [0-1].
+                 */
+                double alpha = 0;
+                MAKE_SWAP_METHOD(TextDocument::Color, red, green, blue, alpha)
+        };
 }
 MAKE_REFLECT_STRUCT(TextDocument::Color, red, green, blue, alpha)
 
 
 struct ColorInformation {
-	/**
-	 * The range in the document where this color appers.
-	 */
+        /**
+         * The range in the document where this color appers.
+         */
 
-	lsRange range;
+        lsRange range;
 
-	/**
-	 * The actual color value for this color range.
-	 */
+        /**
+         * The actual color value for this color range.
+         */
 
-	TextDocument::Color color;
-	MAKE_SWAP_METHOD(ColorInformation, range, color)
+        TextDocument::Color color;
+        MAKE_SWAP_METHOD(ColorInformation, range, color)
 };
 MAKE_REFLECT_STRUCT(ColorInformation,range,color)
 

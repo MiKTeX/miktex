@@ -20,24 +20,24 @@
 // Note that markdown strings will be sanitized - that means html will be
 // escaped.
 struct lsMarkedString {
-	boost::optional<std::string> language;
-	std::string value;
+        optional<std::string> language;
+        std::string value;
 };
 
 struct MarkupContent {
-	/**
-	 * The type of the Markup.
-	 */
+        /**
+         * The type of the Markup.
+         */
 
-	 std::string kind;
+         std::string kind;
 
-	/**
-	 * The content itself.
-	 */
-	
-	 std::string value;
+        /**
+         * The content itself.
+         */
 
-	 MAKE_SWAP_METHOD(MarkupContent, kind, value);
+         std::string value;
+
+         MAKE_SWAP_METHOD(MarkupContent, kind, value);
 };
 MAKE_REFLECT_STRUCT(MarkupContent,kind,value);
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <cctype> 
+#include <cctype>
 #include <clocale>
 #include <cstddef>
 #include <memory>
@@ -11,7 +11,7 @@
 
 namespace lsp
 {
-	
+
 /// Holds text and knows how to lay it out. Multiple blocks can be grouped to
 /// form a document. Blocks include their own trailing newlines,  std::string_ref
 /// should trim them if need be.

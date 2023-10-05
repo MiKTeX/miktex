@@ -1,11 +1,6 @@
 #pragma once
 
 #include "macro_map.h"
-#ifdef boost
-#include "optional.hpp"
-#else
-#include <boost/optional.hpp>
-#endif
 
 #include <cassert>
 #include <memory>
@@ -16,6 +11,7 @@
 #include <map>
 #include <algorithm>
 
+#include "optionalVersion.h"
 
 struct AbsolutePath;
 
@@ -24,64 +20,64 @@ enum class SerializeFormat { Json, MessagePack };
 // A tag type that can be used to write `null` to json.
 struct JsonNull
 {
-	void swap(JsonNull& arg) noexcept;
+        void swap(JsonNull& arg) noexcept;
 };
 
 
 
 class Reader {
 public:
-	virtual ~Reader() {}
-	virtual SerializeFormat Format() const = 0;
+        virtual ~Reader() {}
+        virtual SerializeFormat Format() const = 0;
 
-	virtual bool IsBool() = 0;
-	virtual bool IsNull() = 0;
-	virtual bool IsArray() = 0;
-	virtual bool IsInt() = 0;
-	virtual bool IsInt64() = 0;
-	virtual bool IsUint64() = 0;
-	virtual bool IsDouble() = 0;
+        virtual bool IsBool() = 0;
+        virtual bool IsNull() = 0;
+        virtual bool IsArray() = 0;
+        virtual bool IsInt() = 0;
+        virtual bool IsInt64() = 0;
+        virtual bool IsUint64() = 0;
+        virtual bool IsDouble() = 0;
     virtual bool IsNumber() = 0;
     virtual bool IsString() = 0;
 
-	virtual void GetNull() = 0;
-	virtual bool GetBool() = 0;
-	virtual int GetInt() = 0;
-	virtual uint32_t GetUint32() = 0;
-	virtual int64_t GetInt64() = 0;
-	virtual uint64_t GetUint64() = 0;
-	virtual double GetDouble() = 0;
-	virtual std::string GetString() = 0;
+        virtual void GetNull() = 0;
+        virtual bool GetBool() = 0;
+        virtual int GetInt() = 0;
+        virtual uint32_t GetUint32() = 0;
+        virtual int64_t GetInt64() = 0;
+        virtual uint64_t GetUint64() = 0;
+        virtual double GetDouble() = 0;
+        virtual std::string GetString() = 0;
 
-	virtual bool HasMember(const char* x) = 0;
-	virtual std::unique_ptr<Reader> operator[](const char* x) = 0;
-	virtual void IterMap( std::function<void(const char*, Reader&)> fn) = 0;
-	virtual void IterArray(std::function<void(Reader&)> fn) = 0;
-	virtual void DoMember(const char* name, std::function<void(Reader&)> fn) = 0;
-	virtual std::string ToString() const = 0;
+        virtual bool HasMember(const char* x) = 0;
+        virtual std::unique_ptr<Reader> operator[](const char* x) = 0;
+        virtual void IterMap( std::function<void(const char*, Reader&)> fn) = 0;
+        virtual void IterArray(std::function<void(Reader&)> fn) = 0;
+        virtual void DoMember(const char* name, std::function<void(Reader&)> fn) = 0;
+        virtual std::string ToString() const = 0;
 };
 
 
 
 class Writer {
 public:
-	virtual ~Writer() {}
-	virtual SerializeFormat Format() const = 0;
+        virtual ~Writer() {}
+        virtual SerializeFormat Format() const = 0;
 
-	virtual void Null() = 0;
-	virtual void Bool(bool x) = 0;
-	virtual void Int(int x) = 0;
-	virtual void Uint32(uint32_t x) = 0;
-	virtual void Int64(int64_t x) = 0;
-	virtual void Uint64(uint64_t x) = 0;
-	virtual void Double(double x) = 0;
-	virtual void String(const char* x) = 0;
-	virtual void String(const char* x, size_t len) = 0;
-	virtual void StartArray(size_t) = 0;
-	virtual void EndArray() = 0;
-	virtual void StartObject() = 0;
-	virtual void EndObject() = 0;
-	virtual void Key(const char* name) = 0;
+        virtual void Null() = 0;
+        virtual void Bool(bool x) = 0;
+        virtual void Int(int x) = 0;
+        virtual void Uint32(uint32_t x) = 0;
+        virtual void Int64(int64_t x) = 0;
+        virtual void Uint64(uint64_t x) = 0;
+        virtual void Double(double x) = 0;
+        virtual void String(const char* x) = 0;
+        virtual void String(const char* x, size_t len) = 0;
+        virtual void StartArray(size_t) = 0;
+        virtual void EndArray() = 0;
+        virtual void StartObject() = 0;
+        virtual void EndObject() = 0;
+        virtual void Key(const char* name) = 0;
 };
 
 
@@ -130,9 +126,9 @@ struct optionals_mandatory_tag {};
 
 #define _MAPPABLE_SWAP_MEMBER(name)  std::swap(name,arg.name);
 
-#define  MAKE_SWAP_METHOD(type, ...)			\
-void swap(type& arg) noexcept{			\
-	MACRO_MAP(_MAPPABLE_SWAP_MEMBER, __VA_ARGS__) \
+#define  MAKE_SWAP_METHOD(type, ...)                    \
+void swap(type& arg) noexcept{                  \
+        MACRO_MAP(_MAPPABLE_SWAP_MEMBER, __VA_ARGS__) \
 }
 
 #define MAKE_REFLECT_STRUCT_OPTIONALS_MANDATORY(type, ...)     \
@@ -205,174 +201,172 @@ void Reflect(Reader& visitor, SerializeFormat& value);
 void Reflect(Writer& visitor, SerializeFormat& value);
 
 //// Type constructors
-
 template <typename T>
-void Reflect(Reader& visitor, boost::optional<T>& value) {
-	if (visitor.IsNull()) {
-		visitor.GetNull();
-		return;
-	}
-	T real_value;
-	Reflect(visitor, real_value);
-	value = std::move(real_value);
+void Reflect(Reader& visitor, optional<T>& value) {
+        if (visitor.IsNull()) {
+                visitor.GetNull();
+                return;
+        }
+        T real_value;
+        Reflect(visitor, real_value);
+        value = std::move(real_value);
 }
 template <typename T>
-void Reflect(Writer& visitor, boost::optional<T>& value) {
-	if (value)
-		Reflect(visitor, *value);
-	else
-		visitor.Null();
+void Reflect(Writer& visitor, optional<T>& value) {
+        if (value)
+                Reflect(visitor, *value);
+        else
+                visitor.Null();
 }
 
 
 template <typename T>
-void ReflectMember(Writer& visitor, const char* name, boost::optional<T>& value) {
-	// For TypeScript optional property key?: value in the spec,
-	// We omit both key and value if value is std::nullopt (null) for JsonWriter
-	// to reduce output. But keep it for other serialization formats.
-	if (value || visitor.Format() != SerializeFormat::Json) {
-		visitor.Key(name);
-		Reflect(visitor, value);
-	}
+void ReflectMember(Writer& visitor, const char* name, optional<T>& value) {
+        // For TypeScript optional property key?: value in the spec,
+        // We omit both key and value if value is std::nullopt (null) for JsonWriter
+        // to reduce output. But keep it for other serialization formats.
+        if (value || visitor.Format() != SerializeFormat::Json) {
+                visitor.Key(name);
+                Reflect(visitor, value);
+        }
 }
-
 
 
 template <typename T>
 void ReflectMember(Writer& visitor,
-	const char* name,
-	T& value,
-	optionals_mandatory_tag) {
-	visitor.Key(name);
-	Reflect(visitor, value);
+        const char* name,
+        T& value,
+        optionals_mandatory_tag) {
+        visitor.Key(name);
+        Reflect(visitor, value);
 }
 template <typename T>
 void ReflectMember(Reader& visitor,
-	const char* name,
-	T& value,
-	optionals_mandatory_tag) {
-	Reflect(visitor, value);
+        const char* name,
+        T& value,
+        optionals_mandatory_tag) {
+        Reflect(visitor, value);
 }
 
 template<class T >
 void Reflect(Reader& visitor, std::map<std::string, T>& value)
 {
-	visitor.IterMap([&](const char* name,Reader& entry) {
-		T entry_value;
-		Reflect(entry, entry_value);
-		value[name]=(std::move(entry_value));
-	});
+        visitor.IterMap([&](const char* name,Reader& entry) {
+                T entry_value;
+                Reflect(entry, entry_value);
+                value[name]=(std::move(entry_value));
+        });
 }
 template<class _Ty >
 void Reflect(Writer& visitor, std::map<std::string, _Ty>& value)
 {
-	REFLECT_MEMBER_START();
-	for (auto& it : value)
-	{
-		visitor.Key(it.first.c_str());
-		Reflect(visitor, it.second);
-	}
-	REFLECT_MEMBER_END();
+        REFLECT_MEMBER_START();
+        for (auto& it : value)
+        {
+                visitor.Key(it.first.c_str());
+                Reflect(visitor, it.second);
+        }
+        REFLECT_MEMBER_END();
 }
 
 // std::vector
 template <typename T>
 void Reflect(Reader& visitor, std::vector<T>& values) {
-	visitor.IterArray([&](Reader& entry) {
-		T entry_value;
-		Reflect(entry, entry_value);
-		values.push_back(std::move(entry_value));
-		});
+        visitor.IterArray([&](Reader& entry) {
+                T entry_value;
+                Reflect(entry, entry_value);
+                values.push_back(std::move(entry_value));
+                });
 }
 
 
 template <typename T>
 void Reflect(Writer& visitor, std::vector<T>& values) {
-	visitor.StartArray(values.size());
-	for (auto& value : values)
-		Reflect(visitor, value);
-	visitor.EndArray();
+        visitor.StartArray(values.size());
+        for (auto& value : values)
+                Reflect(visitor, value);
+        visitor.EndArray();
 }
 
 // ReflectMember
 
 inline void DefaultReflectMemberStart(Writer& visitor) {
-	visitor.StartObject();
+        visitor.StartObject();
 }
 inline void DefaultReflectMemberStart(Reader& visitor) {}
 
 template <typename T>
 bool ReflectMemberStart(Reader& visitor, T& value) {
-	return false;
+        return false;
 }
 template <typename T>
 bool ReflectMemberStart(Writer& visitor, T& value) {
-	visitor.StartObject();
-	return true;
+        visitor.StartObject();
+        return true;
 }
 
 template <typename T>
 void ReflectMemberEnd(Reader& visitor, T& value) {}
 template <typename T>
 void ReflectMemberEnd(Writer& visitor, T& value) {
-	visitor.EndObject();
+        visitor.EndObject();
 }
 
 template <typename T>
 void ReflectMember(Reader& visitor, const char* name, T& value) {
-	visitor.DoMember(name, [&](Reader& child) { Reflect(child, value); });
+        visitor.DoMember(name, [&](Reader& child) { Reflect(child, value); });
 }
 template <typename T>
 void ReflectMember(Writer& visitor, const char* name, T& value) {
-	visitor.Key(name);
-	Reflect(visitor, value);
+        visitor.Key(name);
+        Reflect(visitor, value);
 }
 
 template<class _Ty1, class _Ty2>
-void Reflect(Writer& visitor, std::pair<  boost::optional<_Ty1>, boost::optional<_Ty2> >& value)
+void Reflect(Writer& visitor, std::pair<  optional<_Ty1>, optional<_Ty2> >& value)
 {
-	if (value.first)
-	{
-		Reflect(visitor, value.first);
-	}
-	else
-	{
-		Reflect(visitor, value.second);
-	}
+        if (value.first)
+        {
+                Reflect(visitor, value.first);
+        }
+        else
+        {
+                Reflect(visitor, value.second);
+        }
 }
 template<class _Ty2>
-void Reflect(Reader& visitor, std::pair<  boost::optional<bool>, boost::optional<_Ty2> >& value)
+void Reflect(Reader& visitor, std::pair<  optional<bool>, optional<_Ty2> >& value)
 {
-	if(visitor.IsBool())
-	{
-		Reflect(visitor, value.first);
-		return;
-	}
+        if(visitor.IsBool())
+        {
+                Reflect(visitor, value.first);
+                return;
+        }
 
-	Reflect(visitor, value.second);
+        Reflect(visitor, value.second);
 }
 template<class _Ty2>
-void Reflect(Reader& visitor, std::pair<  boost::optional<std::string>, boost::optional<_Ty2> >& value)
+void Reflect(Reader& visitor, std::pair<  optional<std::string>, optional<_Ty2> >& value)
 {
-	if (visitor.IsString())
-	{
-		Reflect(visitor, value.first);
-		return;
-	}
+        if (visitor.IsString())
+        {
+                Reflect(visitor, value.first);
+                return;
+        }
 
-	Reflect(visitor, value.second);
+        Reflect(visitor, value.second);
 }
 
 
 template<class _Ty1, class _Ty2>
-void Reflect(Reader& visitor, std::pair<  boost::optional<_Ty1>, boost::optional<_Ty2> >& value)
+void Reflect(Reader& visitor, std::pair<  optional<_Ty1>, optional<_Ty2> >& value)
 {
-	try
-	{
-		Reflect(visitor, value.second);
-	}
-	catch (...)
-	{
-		Reflect(visitor, value.first);
-	}
+        try
+        {
+                Reflect(visitor, value.second);
+        }
+        catch (...)
+        {
+                Reflect(visitor, value.first);
+        }
 }

@@ -194,7 +194,7 @@ std::pair<std::string, optional<std::string>> formal::fnInfo() const
 {
   std::string typeName(static_cast<std::string>(*base));
   return start != nullptr ?
-    std::make_pair(typeName, boost::make_optional(static_cast<std::string>(start->getName()))) :
+    std::make_pair(typeName, make_optional(static_cast<std::string>(start->getName()))) :
     std::make_pair(typeName, nullopt);
 }
 #endif

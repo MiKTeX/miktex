@@ -166,6 +166,7 @@ set(core_sources
     source/lspserv.cc
     source/name.cc
     source/newexp.cc
+    source/parallel.cc
     source/parser.cc
     source/predicates.cc
     source/process.cc

@@ -44,9 +44,9 @@ struct WorkingFiles {
   bool GetFileBufferContent(const AbsolutePath& filename, std::wstring& out)
   {
       auto  file = GetFileByFilename(filename);
-  	  if(!file)
+          if(!file)
           return false;
-	return GetFileBufferContent(file, out);
+        return GetFileBufferContent(file, out);
   }
   bool  GetFileBufferContent(const AbsolutePath& filename,std::string& out)
   {

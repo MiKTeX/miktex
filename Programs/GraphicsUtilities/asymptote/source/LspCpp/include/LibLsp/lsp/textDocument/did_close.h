@@ -11,11 +11,11 @@ namespace TextDocumentDidClose  {
 
   struct Params {
     lsTextDocumentIdentifier textDocument;
-	void swap(Params& arg) noexcept
-	{
-		textDocument.swap(arg.textDocument);
-	}
-  	
+        void swap(Params& arg) noexcept
+        {
+                textDocument.swap(arg.textDocument);
+        }
+
   };
 
 };

@@ -102,13 +102,13 @@ public:
   void writeInit();
   void finalize();
 
-  void addPatch(triple const* controls, triple const& Min, triple const& Max, prc::RGBAColour const* c) override;
+  void addPatch(triple const* controls, prc::RGBAColour const* c) override;
   void addStraightPatch(
-          triple const* controls, triple const& Min, triple const& Max, prc::RGBAColour const* c) override;
+          triple const* controls, prc::RGBAColour const* c) override;
   void addBezierTriangle(
-          triple const* control, triple const& Min, triple const& Max, prc::RGBAColour const* c) override;
+          triple const* control, prc::RGBAColour const* c) override;
   void addStraightBezierTriangle(
-          triple const* controls, triple const& Min, triple const& Max, prc::RGBAColour const* c) override;
+          triple const* controls, prc::RGBAColour const* c) override;
 
 #ifdef HAVE_LIBGLM
   void addMaterial(Material const& mat) override;
@@ -122,21 +122,20 @@ public:
                    bool core) override;
   void addDisk(triple const& center, double radius,
                double const& polar, const double& azimuth) override;
-  void addTube(const triple *g, double width,
-               const triple& Min, const triple& Max, bool core) override;
+  void addTube(const triple *g, double width, bool core) override;
 
   void addTriangles(size_t nP, const triple* P, size_t nN,
-                            const triple* N, size_t nC, const prc::RGBAColour* C,
-                            size_t nI, const uint32_t (*PI)[3],
-                            const uint32_t (*NI)[3], const uint32_t (*CI)[3],
-                            const triple& Min, const triple& Max) override;
+                    const triple* N, size_t nC, const prc::RGBAColour* C,
+                    size_t nI, const uint32_t (*PI)[3],
+                    const uint32_t (*NI)[3],
+                    const uint32_t (*CI)[3]) override;
 
-  void addCurve(triple const& z0, triple const& c0, triple const& c1, triple const& z1, triple const& Min,
-                triple const& Max) override;
+  void addCurve(triple const& z0, triple const& c0, triple const& c1,
+                triple const& z1) override;
 
-  void addCurve(triple const& z0, triple const& z1, triple const& Min, triple const& Max) override;
+  void addCurve(triple const& z0, triple const& z1) override;
 
-  void addPixel(triple const& z0, double width, triple const& Min, triple const& Max) override;
+  void addPixel(triple const& z0, double width) override;
 
   void precision(int digits) override {}
 

@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/optional/optional.hpp>
+#include <optional>
 #include <LibLsp/lsp/AbsolutePath.h>
 
 #include "lsPosition.h"
@@ -15,7 +15,7 @@
 
 namespace lsp
 {
-	
+
 
 // Returns true if |value| starts/ends with |start| or |ending|.
 bool StartsWith(std::string value, std::string start);
@@ -80,7 +80,7 @@ std::string EscapeFileName(std::string path);
 
 // FIXME: Move ReadContent into ICacheManager?
 bool FileExists(const std::string& filename);
-boost::optional<std::string> ReadContent(const AbsolutePath& filename);
+optional<std::string> ReadContent(const AbsolutePath& filename);
 std::vector<std::string> ReadLinesWithEnding(const AbsolutePath& filename);
 
 bool WriteToFile(const std::string& filename, const std::string& content);

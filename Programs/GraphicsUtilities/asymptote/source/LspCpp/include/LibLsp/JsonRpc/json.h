@@ -10,7 +10,7 @@ class JsonReader : public Reader {
   std::vector<const char*> path_;
 
  public:
-	 rapidjson::GenericValue<rapidjson::UTF8<>>* m_;
+         rapidjson::GenericValue<rapidjson::UTF8<>>* m_;
   JsonReader(rapidjson::GenericValue<rapidjson::UTF8<>>* m) : m_(m) {}
   SerializeFormat Format() const override { return SerializeFormat::Json; }
 
@@ -35,10 +35,10 @@ class JsonReader : public Reader {
 
   bool HasMember(const char* x) override
   {
-	  if (m_->IsObject())
-		  return m_->HasMember(x);
-	  else
-		  return false;
+          if (m_->IsObject())
+                  return m_->HasMember(x);
+          else
+                  return false;
   }
   std::unique_ptr<Reader> operator[](const char* x) override {
     auto& sub = (*m_)[x];
@@ -59,7 +59,7 @@ class JsonReader : public Reader {
 class JsonWriter : public Writer {
 
  public:
-	 rapidjson::Writer<rapidjson::StringBuffer>* m_;
+         rapidjson::Writer<rapidjson::StringBuffer>* m_;
 
   JsonWriter(rapidjson::Writer<rapidjson::StringBuffer>* m) : m_(m) {}
   SerializeFormat Format() const override { return SerializeFormat::Json; }

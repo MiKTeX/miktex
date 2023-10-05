@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/optional/optional.hpp>
+#include <optional>
 #include <algorithm>
 #include <atomic>
 #include <condition_variable>
@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "optionalVersion.h"
 
 struct MultiQueueWaiter;
 
@@ -57,23 +58,23 @@ struct MultiQueueWaiter {
   static bool HasState(std::initializer_list<BaseThreadQueue*> queues);
 
   bool ValidateWaiter(std::initializer_list<BaseThreadQueue*> queues);
-	
+
   template <typename... BaseThreadQueue>
   bool Wait(std::atomic<bool>& quit, BaseThreadQueue... queues) {
-	  MultiQueueLock<BaseThreadQueue...> l(queues...);
-	  while (!quit.load(std::memory_order_relaxed)) {
-		  if (HasState({ queues... }))
-			  return false;
-		  cv.wait(l);
-	  }
-	  return true;
+          MultiQueueLock<BaseThreadQueue...> l(queues...);
+          while (!quit.load(std::memory_order_relaxed)) {
+                  if (HasState({ queues... }))
+                          return false;
+                  cv.wait(l);
+          }
+          return true;
   }
   template <typename... BaseThreadQueue>
   void WaitUntil(std::chrono::steady_clock::time_point t,
-	  BaseThreadQueue... queues) {
-	  MultiQueueLock<BaseThreadQueue...> l(queues...);
-	  if (!HasState({ queues... }))
-		  cv.wait_until(l, t);
+          BaseThreadQueue... queues) {
+          MultiQueueLock<BaseThreadQueue...> l(queues...);
+          if (!HasState({ queues... }))
+                  cv.wait_until(l, t);
   }
   template <typename... BaseThreadQueue>
   void Wait(BaseThreadQueue... queues) {
@@ -156,7 +157,7 @@ struct ThreadedQueue : public BaseThreadQueue {
 
   // Get the first element from the queue without blocking. Returns a null
   // value if the queue is empty.
-  boost::optional<T> TryDequeue(bool priority) {
+  optional<T> TryDequeue(bool priority) {
     std::lock_guard<std::mutex> lock(mutex);
 
     auto pop = [&](std::deque<T>* q) {
@@ -167,7 +168,7 @@ struct ThreadedQueue : public BaseThreadQueue {
     };
 
     auto get_result = [&](std::deque<T>* first,
-                          std::deque<T>* second) -> boost::optional<T> {
+                          std::deque<T>* second) -> optional<T> {
       if (!first->empty())
         return pop(first);
       if (!second->empty())
@@ -181,22 +182,22 @@ struct ThreadedQueue : public BaseThreadQueue {
   }
   // Return all elements in the queue.
   std::vector<T> DequeueAll() {
-	  std::lock_guard<std::mutex> lock(mutex);
+          std::lock_guard<std::mutex> lock(mutex);
 
-	  total_count_ = 0;
+          total_count_ = 0;
 
-	  std::vector<T> result;
-	  result.reserve(priority_.size() + queue_.size());
-	  while (!priority_.empty()) {
-		  result.emplace_back(std::move(priority_.front()));
-		  priority_.pop_front();
-	  }
-	  while (!queue_.empty()) {
-		  result.emplace_back(std::move(queue_.front()));
-		  queue_.pop_front();
-	  }
+          std::vector<T> result;
+          result.reserve(priority_.size() + queue_.size());
+          while (!priority_.empty()) {
+                  result.emplace_back(std::move(priority_.front()));
+                  priority_.pop_front();
+          }
+          while (!queue_.empty()) {
+                  result.emplace_back(std::move(queue_.front()));
+                  queue_.pop_front();
+          }
 
-	  return result;
+          return result;
   }
   std::vector<T> TryDequeueSome(size_t num) {
       std::lock_guard<std::mutex> lock(mutex);
@@ -213,7 +214,7 @@ struct ThreadedQueue : public BaseThreadQueue {
           }
           else
           {
-	          break;
+                  break;
           }
           num -= 1;
       }

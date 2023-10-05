@@ -8,41 +8,41 @@
 
 namespace WillSaveTextDocumentParams {
 
-	/**
-	 * Represents reasons why a text document is saved.
-	 */
-	enum class TextDocumentSaveReason {
+        /**
+         * Represents reasons why a text document is saved.
+         */
+        enum class TextDocumentSaveReason {
 
-		/**
-		 * Manually triggered, e.g. by the user pressing save, by starting debugging,
-		 * or by an API call.
-		 */
-		Manual=(1),
+                /**
+                 * Manually triggered, e.g. by the user pressing save, by starting debugging,
+                 * or by an API call.
+                 */
+                Manual=(1),
 
-		/**
-		 * Automatic after a delay.
-		 */
-		 AfterDelay=(2),
+                /**
+                 * Automatic after a delay.
+                 */
+                 AfterDelay=(2),
 
-		 /**
-		  * When the editor lost focus.
-		  */
-		  FocusOut=(3)
-	};
-	
+                 /**
+                  * When the editor lost focus.
+                  */
+                  FocusOut=(3)
+        };
+
   struct Params {
-	  /**
-	   * The document that will be saved.
-	   */
+          /**
+           * The document that will be saved.
+           */
     lsTextDocumentIdentifier textDocument;
 
    /*
    * A reason why a text document is saved.
    */
 
-	  boost::optional<TextDocumentSaveReason>  reason;
+          optional<TextDocumentSaveReason>  reason;
 
-		MAKE_SWAP_METHOD(Params, textDocument, reason);
+                MAKE_SWAP_METHOD(Params, textDocument, reason);
   };
 
 };
@@ -67,5 +67,5 @@ DEFINE_NOTIFICATION_TYPE(td_willSave, WillSaveTextDocumentParams::Params, "textD
  * Registration Options: TextDocumentRegistrationOptions
  */
 DEFINE_REQUEST_RESPONSE_TYPE(td_willSaveWaitUntil,
-	WillSaveTextDocumentParams::Params, std::vector<lsTextEdit>, "textDocument/willSaveWaitUntil");
+        WillSaveTextDocumentParams::Params, std::vector<lsTextEdit>, "textDocument/willSaveWaitUntil");
 

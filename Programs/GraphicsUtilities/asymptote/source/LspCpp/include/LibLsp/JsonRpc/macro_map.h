@@ -27,7 +27,7 @@ DEALINGS IN THE SOFTWARE.
 // Taken from https://github.com/cbeck88/visit_struct.
 //
 // Usage
-//  
+//
 //   #define PRINT_DOUBLE(x) printf(#x " = %d\n", x);
 //
 //   MACRO_MAP(PRINT_DOUBLE, 1, 2, 3)

@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "inst.h"
+#include "seconds.h"
 
 namespace vm {
 
@@ -295,27 +296,17 @@ class profiler : public gc {
     analyseNode(emptynode);
   }
 
-
   // Timing data.
-  struct timeval timestamp;
+  utils::cpuTimer timestamp;
 
   void startLap() {
-    gettimeofday(&timestamp, 0);
-  }
-
-  long long timeAndResetLap() {
-    struct timeval now;
-    gettimeofday(&now, 0);
-    long long nsecs = 1000000000LL * (now.tv_sec - timestamp.tv_sec) +
-      1000LL * (now.tv_usec - timestamp.tv_usec);
-    timestamp = now;
-    return nsecs;
+    timestamp.reset();
   }
 
   // Called whenever the stack is about to change, in order to record the time
   // duration for the current node.
   void recordTime() {
-    topnode().nsecs += timeAndResetLap();
+    topnode().nsecs += (long long) timestamp.nanoseconds(true);
   }
 
 public:

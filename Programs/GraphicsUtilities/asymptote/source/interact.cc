@@ -125,6 +125,10 @@ void pre_readline()
   int fd=intcast(settings::getSetting<Int>("inpipe"));
   if(fd >= 0) {
     if(!fin) fin=fdopen(fd,"r");
+    if(!fin) {
+      cerr << "Cannot open inpipe " << fd << endl;
+      exit(-1);
+    }
     Readline=readpipeline;
   } else {
 #if defined(HAVE_READLINE) && defined(HAVE_LIBCURSES)

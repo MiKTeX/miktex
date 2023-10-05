@@ -7,16 +7,16 @@
 
 
 struct AccessorField {
-	std::string fieldName;
-	bool isStatic =false;
-	bool generateGetter = false;
-	bool generateSetter = false;
-	void swap(AccessorField& arg) noexcept{
-		fieldName.swap(arg.fieldName);
-		std::swap(isStatic, arg.isStatic);
-		std::swap(generateGetter, arg.generateGetter);
-		std::swap(generateSetter, arg.generateSetter);
-	}
+        std::string fieldName;
+        bool isStatic =false;
+        bool generateGetter = false;
+        bool generateSetter = false;
+        void swap(AccessorField& arg) noexcept{
+                fieldName.swap(arg.fieldName);
+                std::swap(isStatic, arg.isStatic);
+                std::swap(generateGetter, arg.generateGetter);
+                std::swap(generateSetter, arg.generateSetter);
+        }
 };
 
 MAKE_REFLECT_STRUCT(AccessorField, fieldName,isStatic,generateGetter,generateSetter)

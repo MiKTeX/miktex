@@ -6,8 +6,8 @@
 #include "LibLsp/lsp/lsMarkedString.h"
 #include "LibLsp/lsp/lsTextDocumentPositionParams.h"
 
-extern  void Reflect(Reader& visitor, 
-	std::pair<boost::optional<std::string>, boost::optional<MarkupContent>>& value);
+extern  void Reflect(Reader& visitor,
+        std::pair<optional<std::string>, optional<MarkupContent>>& value);
 
 
 
@@ -20,7 +20,7 @@ struct lsParameterInformation {
 
   // The human-readable doc-comment of this parameter. Will be shown
   // in the UI but can be omitted.
-  boost::optional< std::pair<  boost::optional<std::string>  , boost::optional <MarkupContent>  > > documentation;
+  optional< std::pair<  optional<std::string>  , optional <MarkupContent>  > > documentation;
 
   MAKE_SWAP_METHOD(lsParameterInformation, label, documentation)
 };
@@ -36,7 +36,7 @@ struct lsSignatureInformation {
 
   // The human-readable doc-comment of this signature. Will be shown
   // in the UI but can be omitted.
-  boost::optional< std::pair<  boost::optional<std::string>, boost::optional <MarkupContent>  > > documentation;
+  optional< std::pair<  optional<std::string>, optional <MarkupContent>  > > documentation;
 
   // The parameters of this signature.
   std::vector<lsParameterInformation> parameters;
@@ -59,7 +59,7 @@ struct lsSignatureHelp {
   // rely on a default value.
   // In future version of the protocol this property might become
   // mandantory to better express this.
-  boost::optional<int> activeSignature;
+  optional<int> activeSignature;
 
   // The active parameter of the active signature. If omitted or the value
   // lies outside the range of `signatures[activeSignature].parameters`
@@ -68,13 +68,13 @@ struct lsSignatureHelp {
   // In future version of the protocol this property might become
   // mandantory to better express the active parameter if the
   // active signature does have any.
-  boost::optional<int> activeParameter;
+  optional<int> activeParameter;
 
 
   MAKE_SWAP_METHOD(lsSignatureHelp,
-	  signatures,
-	  activeSignature,
-	  activeParameter)
+          signatures,
+          activeSignature,
+          activeParameter)
 };
 MAKE_REFLECT_STRUCT(lsSignatureHelp,
                     signatures,

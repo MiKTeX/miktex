@@ -3,38 +3,38 @@
 #include "LibLsp/JsonRpc/serializer.h"
 
 struct lsFormattingOptions {
-	struct KeyData {
-		boost::optional<bool> _boolean;
-		boost::optional<int32_t> _integer;
-		boost::optional<std::string> _string;
-	};
+        struct KeyData {
+                optional<bool> _boolean;
+                optional<int32_t> _integer;
+                optional<std::string> _string;
+        };
 
-	// Size of a tab in spaces.
-	int tabSize =4;
-	// Prefer spaces over tabs.
-	bool insertSpaces = true;
+        // Size of a tab in spaces.
+        int tabSize =4;
+        // Prefer spaces over tabs.
+        bool insertSpaces = true;
 
-	/**
-		 * Trim trailing whitespace on a line.
-		 *
-		 * @since 3.15.0
-		 */
-	boost::optional<bool> trimTrailingWhitespace;
+        /**
+                 * Trim trailing whitespace on a line.
+                 *
+                 * @since 3.15.0
+                 */
+        optional<bool> trimTrailingWhitespace;
 
-	/**
-	 * Insert a newline character at the end of the file if one does not exist.
-	 *
-	 * @since 3.15.0
-	 */
-	boost::optional<bool> insertFinalNewline;
+        /**
+         * Insert a newline character at the end of the file if one does not exist.
+         *
+         * @since 3.15.0
+         */
+        optional<bool> insertFinalNewline;
 
-	/**
-	 * Trim all newlines after the final newline at the end of the file.
-	 *
-	 * @since 3.15.0
-	 */
-	boost::optional<bool> trimFinalNewlines;
-	boost::optional<KeyData> key;
+        /**
+         * Trim all newlines after the final newline at the end of the file.
+         *
+         * @since 3.15.0
+         */
+        optional<bool> trimFinalNewlines;
+        optional<KeyData> key;
     MAKE_SWAP_METHOD(lsFormattingOptions, tabSize, insertSpaces, trimTrailingWhitespace, insertFinalNewline, trimFinalNewlines, key)
 };
 MAKE_REFLECT_STRUCT(lsFormattingOptions, tabSize, insertSpaces, trimTrailingWhitespace, insertFinalNewline, trimFinalNewlines, key);

@@ -2348,7 +2348,7 @@ void gen_runarray70(stack *Stack)
 #ifdef HAVE_EIGEN_DENSE
   size_t n=checkArray(a);
 
-  MatrixXd A=MatrixXd::Random(n,n);
+  MatrixXd A(n,n);
   RealSchur<MatrixXd> schur(n);
 
   array *S=new array(2);
@@ -2400,7 +2400,7 @@ void gen_runarray71(stack *Stack)
 #ifdef HAVE_EIGEN_DENSE
   size_t n=checkArray(a);
 
-  MatrixXcd A=MatrixXcd::Random(n,n);
+  MatrixXcd A(n,n);
   ComplexSchur<MatrixXcd> schur(n);
 
   array *S=new array(2);

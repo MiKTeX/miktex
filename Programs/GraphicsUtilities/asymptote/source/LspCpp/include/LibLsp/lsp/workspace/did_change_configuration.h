@@ -9,11 +9,11 @@
 
 
 struct lsDidChangeConfigurationParams {
-	/**
-	  * The actual changed settings.
-	  */
-	lsp::Any settings;
-	MAKE_SWAP_METHOD(lsDidChangeConfigurationParams, settings);
+        /**
+          * The actual changed settings.
+          */
+        lsp::Any settings;
+        MAKE_SWAP_METHOD(lsDidChangeConfigurationParams, settings);
 };
 
 MAKE_REFLECT_STRUCT(lsDidChangeConfigurationParams, settings);

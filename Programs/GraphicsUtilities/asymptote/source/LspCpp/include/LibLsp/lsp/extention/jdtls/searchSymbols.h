@@ -13,10 +13,10 @@
 
 struct SearchSymbolParams :public WorkspaceSymbolParams
 {
-	boost::optional<std::string>  projectName;
-	boost::optional< bool >sourceOnly;
-	boost::optional< int> maxResults;
-	MAKE_SWAP_METHOD(SearchSymbolParams, query, projectName, sourceOnly, maxResults);
+        optional<std::string>  projectName;
+        optional< bool >sourceOnly;
+        optional< int> maxResults;
+        MAKE_SWAP_METHOD(SearchSymbolParams, query, projectName, sourceOnly, maxResults);
 };
 MAKE_REFLECT_STRUCT(SearchSymbolParams, query, projectName, sourceOnly, maxResults);
 

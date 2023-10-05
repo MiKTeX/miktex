@@ -3,45 +3,45 @@
 
 
 enum class lsSymbolKind : uint8_t {
-	Unknown = 0,
+        Unknown = 0,
 
-	File = 1,
-	Module = 2,
-	Namespace = 3,
-	Package = 4,
-	Class = 5,
-	Method = 6,
-	Property = 7,
-	Field = 8,
-	Constructor = 9,
-	Enum = 10,
-	Interface = 11,
-	Function = 12,
-	Variable = 13,
-	Constant = 14,
-	String = 15,
-	Number = 16,
-	Boolean = 17,
-	Array = 18,
-	Object = 19,
-	Key = 20,
-	Null = 21,
-	EnumMember = 22,
-	Struct = 23,
-	Event = 24,
-	Operator = 25,
+        File = 1,
+        Module = 2,
+        Namespace = 3,
+        Package = 4,
+        Class = 5,
+        Method = 6,
+        Property = 7,
+        Field = 8,
+        Constructor = 9,
+        Enum = 10,
+        Interface = 11,
+        Function = 12,
+        Variable = 13,
+        Constant = 14,
+        String = 15,
+        Number = 16,
+        Boolean = 17,
+        Array = 18,
+        Object = 19,
+        Key = 20,
+        Null = 21,
+        EnumMember = 22,
+        Struct = 23,
+        Event = 24,
+        Operator = 25,
 
-	// For C++, this is interpreted as "template parameter" (including
-	// non-type template parameters).
-	TypeParameter = 26,
+        // For C++, this is interpreted as "template parameter" (including
+        // non-type template parameters).
+        TypeParameter = 26,
 
-	// cquery extensions
-	// See also https://github.com/Microsoft/language-server-protocol/issues/344
-	// for new SymbolKind clang/Index/IndexSymbol.h clang::index::SymbolKind
-	TypeAlias = 252,
-	Parameter = 253,
-	StaticMethod = 254,
-	Macro = 255,
+        // cquery extensions
+        // See also https://github.com/Microsoft/language-server-protocol/issues/344
+        // for new SymbolKind clang/Index/IndexSymbol.h clang::index::SymbolKind
+        TypeAlias = 252,
+        Parameter = 253,
+        StaticMethod = 254,
+        Macro = 255,
 };
 MAKE_REFLECT_TYPE_PROXY(lsSymbolKind);
 
@@ -66,7 +66,7 @@ struct lsDocumentHighlight {
   lsRange range;
 
   // The highlight kind, default is DocumentHighlightKind.Text.
-  boost::optional<lsDocumentHighlightKind>  kind ;
+  optional<lsDocumentHighlightKind>  kind ;
 
   MAKE_SWAP_METHOD(lsDocumentHighlight, range, kind)
 };
@@ -85,7 +85,7 @@ struct lsSymbolInformation {
   /**
 * Indicates if this symbol is deprecated.
 */
-  boost::optional<bool> deprecated;
+  optional<bool> deprecated;
   /**
    * The location of this symbol. The location's range is used by a tool
    * to reveal the location in the editor. If the symbol is selected in the
@@ -104,7 +104,7 @@ struct lsSymbolInformation {
  * if necessary). It can't be used to re-infer a hierarchy for the document
  * symbols.
  */
-  boost::optional<std::string>  containerName;
+  optional<std::string>  containerName;
 
 
   MAKE_SWAP_METHOD(lsSymbolInformation, name, kind, deprecated, location, containerName);
@@ -113,52 +113,52 @@ MAKE_REFLECT_STRUCT(lsSymbolInformation, name, kind, deprecated, location, conta
 
 
 struct lsDocumentSymbol {
-	/**
-	 * The name of this symbol.
-	 */
+        /**
+         * The name of this symbol.
+         */
 
-	std::string name;
+        std::string name;
 
-	/**
-	 * The kind of this symbol.
-	 */
-	
-	lsSymbolKind kind = lsSymbolKind::Unknown;
+        /**
+         * The kind of this symbol.
+         */
 
-	/**
-	 * The range enclosing this symbol not including leading/trailing whitespace but everything else
-	 * like comments. This information is typically used to determine if the clients cursor is
-	 * inside the symbol to reveal in the symbol in the UI.
-	 */
-	
-	lsRange range;
+        lsSymbolKind kind = lsSymbolKind::Unknown;
 
-	/**
-	 * The range that should be selected and revealed when this symbol is being picked, e.g the name of a function.
-	 * Must be contained by the `range`.
-	 */
-	
-	lsRange selectionRange;
+        /**
+         * The range enclosing this symbol not including leading/trailing whitespace but everything else
+         * like comments. This information is typically used to determine if the clients cursor is
+         * inside the symbol to reveal in the symbol in the UI.
+         */
 
-	/**
-	 * More detail for this symbol, e.g the signature of a function. If not provided the
-	 * name is used.
-	 */
-	boost::optional< std::string >  detail;
+        lsRange range;
 
-	/**
-	 * Indicates if this symbol is deprecated.
-	 */
-	boost::optional< bool > deprecated;
+        /**
+         * The range that should be selected and revealed when this symbol is being picked, e.g the name of a function.
+         * Must be contained by the `range`.
+         */
 
-	/**
-	 * Children of this symbol, e.g. properties of a class.
-	 */
-	boost::optional < std::vector<lsDocumentSymbol> > children;
+        lsRange selectionRange;
 
-	//internal use
-	int flags=0;
+        /**
+         * More detail for this symbol, e.g the signature of a function. If not provided the
+         * name is used.
+         */
+        optional< std::string >  detail;
 
-	MAKE_SWAP_METHOD(lsDocumentSymbol, name, kind, range, selectionRange, detail, deprecated, children, flags);
+        /**
+         * Indicates if this symbol is deprecated.
+         */
+        optional< bool > deprecated;
+
+        /**
+         * Children of this symbol, e.g. properties of a class.
+         */
+        optional < std::vector<lsDocumentSymbol> > children;
+
+        //internal use
+        int flags=0;
+
+        MAKE_SWAP_METHOD(lsDocumentSymbol, name, kind, range, selectionRange, detail, deprecated, children, flags);
 };
 MAKE_REFLECT_STRUCT(lsDocumentSymbol, name, kind, range, selectionRange, detail, deprecated, children, flags);

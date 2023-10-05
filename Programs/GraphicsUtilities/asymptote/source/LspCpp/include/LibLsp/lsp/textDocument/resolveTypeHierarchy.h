@@ -9,23 +9,23 @@
 #include "typeHierarchy.h"
 
 struct ResolveTypeHierarchyItemParams {
-	/**
-	 * The hierarchy item to resolve.
-	 */
+        /**
+         * The hierarchy item to resolve.
+         */
 
-	TypeHierarchyItem item;
+        TypeHierarchyItem item;
 
-	/**
-	 * The number of hierarchy levels to resolve. {@code 0} indicates no hierarchy level.
-	 */
-	boost::optional<int>  resolve;
+        /**
+         * The number of hierarchy levels to resolve. {@code 0} indicates no hierarchy level.
+         */
+        optional<int>  resolve;
 
-	/**
-	 * The direction of the type hierarchy resolution.
-	 */
+        /**
+         * The direction of the type hierarchy resolution.
+         */
 
-	TypeHierarchyDirection direction;
-	MAKE_SWAP_METHOD(ResolveTypeHierarchyItemParams, item, resolve, direction)
+        TypeHierarchyDirection direction;
+        MAKE_SWAP_METHOD(ResolveTypeHierarchyItemParams, item, resolve, direction)
 };
 MAKE_REFLECT_STRUCT(ResolveTypeHierarchyItemParams,item,resolve,direction)
 DEFINE_REQUEST_RESPONSE_TYPE(typeHierarchy_resolve, ResolveTypeHierarchyItemParams, TypeHierarchyItem, "typeHierarchy/resolve")

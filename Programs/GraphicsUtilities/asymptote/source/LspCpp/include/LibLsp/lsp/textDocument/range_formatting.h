@@ -13,9 +13,9 @@ struct lsTextDocumentRangeFormattingParams {
   lsFormattingOptions options;
 
   MAKE_SWAP_METHOD(lsTextDocumentRangeFormattingParams,
-	  textDocument,
-	  range,
-	  options)
+          textDocument,
+          range,
+          options)
 };
 MAKE_REFLECT_STRUCT(lsTextDocumentRangeFormattingParams,
                     textDocument,
@@ -29,7 +29,7 @@ MAKE_REFLECT_STRUCT(lsTextDocumentRangeFormattingParams,
  * Registration Options: TextDocumentRegistrationOptions
  */
 DEFINE_REQUEST_RESPONSE_TYPE(td_rangeFormatting, lsTextDocumentRangeFormattingParams, std::vector<lsTextEdit>,
-	"textDocument/rangeFormatting");
+        "textDocument/rangeFormatting");
 
 
 

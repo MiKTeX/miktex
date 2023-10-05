@@ -6,19 +6,19 @@
 #include "checkHashCodeEqualsStatus.h"
 
 struct  LspMethodBinding {
-	 std::string bindingKey;
-	 std::string name;
-	std::vector< std::string> parameters;
+         std::string bindingKey;
+         std::string name;
+        std::vector< std::string> parameters;
 
-	MAKE_SWAP_METHOD(LspMethodBinding, bindingKey, name, parameters);
+        MAKE_SWAP_METHOD(LspMethodBinding, bindingKey, name, parameters);
 };
 MAKE_REFLECT_STRUCT(LspMethodBinding, bindingKey, name, parameters);
 
 
 struct CheckConstructorsResponse {
-	std::vector<LspMethodBinding> constructors;
-	std::vector<LspVariableBinding>  fields;
-	MAKE_SWAP_METHOD(CheckConstructorsResponse, constructors, fields)
+        std::vector<LspMethodBinding> constructors;
+        std::vector<LspVariableBinding>  fields;
+        MAKE_SWAP_METHOD(CheckConstructorsResponse, constructors, fields)
 };
 MAKE_REFLECT_STRUCT(CheckConstructorsResponse, constructors,fields)
 

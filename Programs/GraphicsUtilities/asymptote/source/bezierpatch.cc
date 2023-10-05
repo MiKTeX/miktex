@@ -23,12 +23,16 @@ const double FillFactor=0.1;
 void BezierPatch::init(double res)
 {
   res2=res*res;
-  Epsilon=FillFactor*res;
 
-  MaterialIndex=transparent ?
-    (color ? -1-materialIndex : 1+materialIndex) : materialIndex;
-
-  pvertex=transparent ? &vertexBuffer::tvertex : &vertexBuffer::vertex;
+  if(transparent) {
+    Epsilon=0.0;
+    MaterialIndex=color ? -1-materialIndex : 1+materialIndex;
+    pvertex=&vertexBuffer::tvertex;
+  } else {
+    Epsilon=FillFactor*res;
+    MaterialIndex=materialIndex;
+    pvertex=&vertexBuffer::vertex;
+  }
 }
 
 void BezierPatch::render(const triple *p, bool straight, GLfloat *c0)
@@ -222,16 +226,18 @@ void BezierPatch::render(const triple *p,
 
       triple m0=0.5*(P1+P2);
       if(!flat1) {
-        if((flat1=Straightness(p12,p[13],p[14],p15) < res2))
-          m0 -= Epsilon*unit(differential(s1[12],s1[8],s1[4],s1[0]));
-        else m0=s0[15];
+        if((flat1=Straightness(p12,p[13],p[14],p15) < res2)) {
+          if(Epsilon)
+            m0 -= Epsilon*unit(differential(s1[12],s1[8],s1[4],s1[0]));
+        } else m0=s0[15];
       }
 
       triple m1=0.5*(P3+P0);
       if(!flat3) {
-        if((flat3=Straightness(p0,p[1],p[2],p3) < res2))
-          m1 -= Epsilon*unit(differential(s0[3],s0[7],s0[11],s0[15]));
-        else m1=s1[0];
+        if((flat3=Straightness(p0,p[1],p[2],p3) < res2)) {
+          if(Epsilon)
+            m1 -= Epsilon*unit(differential(s0[3],s0[7],s0[11],s0[15]));
+        } else m1=s1[0];
       }
 
       if(color) {
@@ -312,16 +318,18 @@ void BezierPatch::render(const triple *p,
 
       triple m0=0.5*(P0+P1);
       if(!flat0) {
-        if((flat0=Straightness(p0,p[4],p[8],p12) < res2))
-          m0 -= Epsilon*unit(differential(s1[0],s1[1],s1[2],s1[3]));
-        else m0=s0[12];
+        if((flat0=Straightness(p0,p[4],p[8],p12) < res2)) {
+          if(Epsilon)
+            m0 -= Epsilon*unit(differential(s1[0],s1[1],s1[2],s1[3]));
+        } else m0=s0[12];
       }
 
       triple m1=0.5*(P2+P3);
       if(!flat2) {
-        if((flat2=Straightness(p15,p[11],p[7],p3) < res2))
-          m1 -= Epsilon*unit(differential(s0[15],s0[14],s0[13],s0[12]));
-        else m1=s1[3];
+        if((flat2=Straightness(p15,p[11],p[7],p3) < res2)) {
+          if(Epsilon)
+            m1 -= Epsilon*unit(differential(s0[15],s0[14],s0[13],s0[12]));
+        } else m1=s1[3];
       }
 
       if(color) {
@@ -428,30 +436,34 @@ void BezierPatch::render(const triple *p,
 
     triple m0=0.5*(P0+P1);
     if(!flat0) {
-      if((flat0=Straightness(p0,p[4],p[8],p12) < res2))
-        m0 -= Epsilon*unit(differential(s1[0],s1[1],s1[2],s1[3]));
-      else m0=s0[12];
+      if((flat0=Straightness(p0,p[4],p[8],p12) < res2)) {
+        if(Epsilon)
+          m0 -= Epsilon*unit(differential(s1[0],s1[1],s1[2],s1[3]));
+      } else m0=s0[12];
     }
 
     triple m1=0.5*(P1+P2);
     if(!flat1) {
-      if((flat1=Straightness(p12,p[13],p[14],p15) < res2))
-        m1 -= Epsilon*unit(differential(s2[12],s2[8],s2[4],s2[0]));
-      else m1=s1[15];
+      if((flat1=Straightness(p12,p[13],p[14],p15) < res2)) {
+        if(Epsilon)
+          m1 -= Epsilon*unit(differential(s2[12],s2[8],s2[4],s2[0]));
+      } else m1=s1[15];
     }
 
     triple m2=0.5*(P2+P3);
     if(!flat2) {
-      if((flat2=Straightness(p15,p[11],p[7],p3) < res2))
-        m2 -= Epsilon*unit(differential(s3[15],s3[14],s3[13],s3[12]));
-      else m2=s2[3];
+      if((flat2=Straightness(p15,p[11],p[7],p3) < res2)) {
+        if(Epsilon)
+          m2 -= Epsilon*unit(differential(s3[15],s3[14],s3[13],s3[12]));
+      } else m2=s2[3];
     }
 
     triple m3=0.5*(P3+P0);
     if(!flat3) {
-      if((flat3=Straightness(p0,p[1],p[2],p3) < res2))
-        m3 -= Epsilon*unit(differential(s0[3],s0[7],s0[11],s0[15]));
-      else m3=s3[0];
+      if((flat3=Straightness(p0,p[1],p[2],p3) < res2)) {
+        if(Epsilon)
+          m3 -= Epsilon*unit(differential(s0[3],s0[7],s0[11],s0[15]));
+      } else m3=s3[0];
     }
 
     if(color) {
@@ -681,26 +693,29 @@ void BezierTriangle::render(const triple *p,
 
     triple m0=0.5*(P1+P2);
     if(!flat0) {
-      if((flat0=Straightness(r300,p210,p120,u030) < res2))
-        m0 -= Epsilon*unit(differential(c[0],c[2],c[5],c[9])+
-                           differential(c[0],c[1],c[3],c[6]));
-      else m0=r030;
+      if((flat0=Straightness(r300,p210,p120,u030) < res2)) {
+        if(Epsilon)
+          m0 -= Epsilon*unit(differential(c[0],c[2],c[5],c[9])+
+                             differential(c[0],c[1],c[3],c[6]));
+      } else m0=r030;
     }
 
     triple m1=0.5*(P2+P0);
     if(!flat1) {
-      if((flat1=Straightness(l003,p012,p021,u030) < res2))
-        m1 -= Epsilon*unit(differential(c[6],c[3],c[1],c[0])+
-                           differential(c[6],c[7],c[8],c[9]));
-      else m1=l030;
+      if((flat1=Straightness(l003,p012,p021,u030) < res2)) {
+        if(Epsilon)
+          m1 -= Epsilon*unit(differential(c[6],c[3],c[1],c[0])+
+                             differential(c[6],c[7],c[8],c[9]));
+      } else m1=l030;
     }
 
     triple m2=0.5*(P0+P1);
     if(!flat2) {
-      if((flat2=Straightness(l003,p102,p201,r300) < res2))
-        m2 -= Epsilon*unit(differential(c[9],c[8],c[7],c[6])+
-                           differential(c[9],c[5],c[2],c[0]));
-      else m2=l300;
+      if((flat2=Straightness(l003,p102,p201,r300) < res2)) {
+        if(Epsilon)
+          m2 -= Epsilon*unit(differential(c[9],c[8],c[7],c[6])+
+                             differential(c[9],c[5],c[2],c[0]));
+      } else m2=l300;
     }
 
     if(color) {

@@ -7,22 +7,22 @@
 
 
 struct ConfigurationItem {
-	/**
-	 * The scope to get the configuration section for.
-	 */
-	lsDocumentUri scopeUri;
+        /**
+         * The scope to get the configuration section for.
+         */
+        lsDocumentUri scopeUri;
 
-	/**
-	 * The configuration section asked for.
-	 */
-	std::string section;
-	MAKE_SWAP_METHOD(ConfigurationItem, scopeUri, section);
+        /**
+         * The configuration section asked for.
+         */
+        std::string section;
+        MAKE_SWAP_METHOD(ConfigurationItem, scopeUri, section);
 };
 MAKE_REFLECT_STRUCT(ConfigurationItem, scopeUri, section);
 struct ConfigurationParams
 {
-	std::vector<ConfigurationItem> items;
-	MAKE_SWAP_METHOD(ConfigurationParams, items)
+        std::vector<ConfigurationItem> items;
+        MAKE_SWAP_METHOD(ConfigurationParams, items)
 };
 
 MAKE_REFLECT_STRUCT(ConfigurationParams, items);

@@ -4,45 +4,45 @@
 
 namespace lsp
 {
-	class ProcessIoService
-	{
-	public:
-		using IOService = boost::asio::io_service;
-		using Work = boost::asio::io_service::work;
-		using WorkPtr = std::unique_ptr<Work>;
+        class ProcessIoService
+        {
+        public:
+                using IOService = boost::asio::io_service;
+                using Work = boost::asio::io_service::work;
+                using WorkPtr = std::unique_ptr<Work>;
 
-		ProcessIoService() {
+                ProcessIoService() {
 
-			work_ = std::unique_ptr<Work>(new Work(ioService_));
-			auto temp_thread_ = new std::thread([this]
-				{
-					ioService_.run();
-				});
-			thread_ = std::unique_ptr<std::thread>(temp_thread_);
-		}
+                        work_ = std::unique_ptr<Work>(new Work(ioService_));
+                        auto temp_thread_ = new std::thread([this]
+                                {
+                                        ioService_.run();
+                                });
+                        thread_ = std::unique_ptr<std::thread>(temp_thread_);
+                }
 
-		ProcessIoService(const ProcessIoService&) = delete;
-		ProcessIoService& operator=(const ProcessIoService&) = delete;
+                ProcessIoService(const ProcessIoService&) = delete;
+                ProcessIoService& operator=(const ProcessIoService&) = delete;
 
-		boost::asio::io_service& getIOService()
-		{
-			return ioService_;
-		}
+                boost::asio::io_service& getIOService()
+                {
+                        return ioService_;
+                }
 
-		void stop()
-		{
+                void stop()
+                {
 
-			work_.reset();
+                        work_.reset();
 
-			thread_->join();
+                        thread_->join();
 
-		}
+                }
 
-	private:
-		IOService       ioService_;
-		WorkPtr        work_;
-		std::unique_ptr<std::thread>    thread_;
+        private:
+                IOService       ioService_;
+                WorkPtr        work_;
+                std::unique_ptr<std::thread>    thread_;
 
-	};
+        };
 
 }

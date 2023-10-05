@@ -20,10 +20,10 @@ namespace TextDocumentRename  {
     // request must return a [ResponseError](#ResponseError) with an
     // appropriate message set.
     std::string newName;
-	MAKE_SWAP_METHOD(Params,
-		textDocument,
-		position,
-		newName);
+        MAKE_SWAP_METHOD(Params,
+                textDocument,
+                position,
+                newName);
   };
 
 };

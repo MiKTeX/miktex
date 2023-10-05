@@ -5,9 +5,9 @@
 class MessageProducer
 {
 public:
-	
-	
-	typedef  std::function< void(std::string&&) >  MessageConsumer;
-	virtual  ~MessageProducer() = default;
-	virtual void listen(MessageConsumer) = 0;
+
+
+        typedef  std::function< void(std::string&&) >  MessageConsumer;
+        virtual  ~MessageProducer() = default;
+        virtual void listen(MessageConsumer) = 0;
 };

@@ -8,15 +8,15 @@
 namespace  TextDocumentFormatting  {
 
   struct Params {
-	/**
-	 * The document to format.
-	*/
+        /**
+         * The document to format.
+        */
     lsTextDocumentIdentifier textDocument;
-	/**
-	 * The format options.
-	 */
+        /**
+         * The format options.
+         */
     lsFormattingOptions options;
-	MAKE_SWAP_METHOD(Params, textDocument, options);
+        MAKE_SWAP_METHOD(Params, textDocument, options);
   };
 
 };
@@ -28,5 +28,5 @@ MAKE_REFLECT_STRUCT(TextDocumentFormatting::Params, textDocument, options);
  * Registration Options: TextDocumentRegistrationOptions
  */
 DEFINE_REQUEST_RESPONSE_TYPE(td_formatting, TextDocumentFormatting::Params,
-	std::vector<lsTextEdit>, "textDocument/formatting");
+        std::vector<lsTextEdit>, "textDocument/formatting");
 

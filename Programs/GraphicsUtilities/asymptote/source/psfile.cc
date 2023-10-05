@@ -191,28 +191,43 @@ void psfile::epilogue()
 void psfile::setcolor(const pen& p, const string& begin="",
                       const string& end="")
 {
+  ostringstream buf;
   if(p.cmyk() && (!lastpen.cmyk() ||
                   (p.cyan() != lastpen.cyan() ||
                    p.magenta() != lastpen.magenta() ||
                    p.yellow() != lastpen.yellow() ||
                    p.black() != lastpen.black()))) {
-    *out << begin << p.cyan() << " " << p.magenta() << " " << p.yellow() << " "
-         << p.black() << (pdf ? " k" : " setcmykcolor") << end << newl;
+    buf << begin << p.cyan() << " " << p.magenta() << " " << p.yellow() << " "
+        << p.black();
+    if(pdf) {
+      *out << buf.str() << " k" << end << newl;
+      *out << buf.str() << " K" << end << newl;
+    } else
+      *out << buf.str() << " setcmykcolor" << end << newl;
   } else if(p.rgb() && (!lastpen.rgb() ||
                         (p.red() != lastpen.red() ||
                          p.green() != lastpen.green() ||
                          p.blue() != lastpen.blue()))) {
-    *out << begin << p.red() << " " << p.green() << " " << p.blue()
-         << (pdf ? " rg" : " setrgbcolor") << end << newl;
+    buf << begin << p.red() << " " << p.green() << " " << p.blue();
+    if(pdf) {
+      *out << buf.str() << " rg" << end << newl;
+      *out << buf.str() << " RG" << end << newl;
+    } else
+      *out << buf.str() << " setrgbcolor" << end << newl;
   } else if(p.grayscale() && (!lastpen.grayscale() ||
                               p.gray() != lastpen.gray())) {
-    *out << begin << p.gray() << (pdf ? " g" : " setgray") << end << newl;
+    buf << begin << p.gray();
+    if(pdf) {
+      *out << begin << p.gray() << " g" << end << newl;
+      *out << begin << p.gray() << " G" << end << newl;
+    } else
+      *out << begin << p.gray() << " setgray" << end << newl;
   }
 }
 
 bool psfile::transparentFormat(string outputformat)
 {
-  return
+  return (pdftex() && outputformat == "") ||
     outputformat == "pdf" || outputformat == "html" ||
     outputformat == "svg" || outputformat == "png" ||
     outputformat == "v3d";
@@ -220,20 +235,17 @@ bool psfile::transparentFormat(string outputformat)
 
 void psfile::setopacity(const pen& p)
 {
-  if(p.blend() != lastpen.blend()) {
-    *out << "/" << p.blend() << " .setblendmode" << newl;
-  }
+  if(transparentFormat(settings::getSetting<string>("outformat"))) {
+    if(p.blend() != lastpen.blend())
+      *out << "/" << p.blend() << " .setblendmode" << newl;
 
-  string outputformat=settings::getSetting<string>("outformat");
-  if(p.opacity() != lastpen.opacity() &&
-  ((pdftex() && outputformat == "") || transparentFormat(outputformat))) {
-    *out << p.opacity() << " .setfillconstantalpha" << newl
-         << p.opacity() << " .setstrokeconstantalpha" << newl;
-  }
+    if(p.opacity() != lastpen.opacity())
+      *out << p.opacity() << " .setfillconstantalpha" << newl
+           << p.opacity() << " .setstrokeconstantalpha" << newl;
 
-  lastpen.settransparency(p);
+    lastpen.settransparency(p);
+  }
 }
-
 
 void psfile::setpen(pen p)
 {

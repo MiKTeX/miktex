@@ -10,7 +10,7 @@
 
 enum class  BuildWorkspaceStatus : uint8_t{
 
-	FAILED, SUCCEED, WITH_ERROR, CANCELLED,
+        FAILED, SUCCEED, WITH_ERROR, CANCELLED,
 };
 MAKE_REFLECT_TYPE_PROXY(BuildWorkspaceStatus)
 

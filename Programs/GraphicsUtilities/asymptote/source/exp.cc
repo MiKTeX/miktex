@@ -849,7 +849,9 @@ application *callExp::resolve(coenv &e, overloaded *o, signature *source,
         em << "call of function \'" << s;
       else
         em << "call with signature \'";
-      em << *source << "\' is ambiguous";
+      em << *source << "\' is ambiguous:\n\n";
+      for(app_list::iterator p=l.begin(); p != l.end(); ++p)
+        em << *(*p)->getType() << "\n";
     }
 
     return 0;

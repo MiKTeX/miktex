@@ -20,15 +20,27 @@
 #endif
 
 #ifdef HAVE_LSP
+#if __cplusplus < 201703L
 #include <boost/optional.hpp>
 #include <boost/none.hpp>
 using boost::optional;
+#define nullopt boost::none
 using boost::make_optional;
 #else
+#include <optional>
+using std::optional;
+using std::nullopt;
+using std::make_optional;
+#endif
+
+#else
+#if __cplusplus < 201703L
 #include "optional.hpp"
 #define boost nonstd
 using nonstd::optional;
 using nonstd::nullopt;
+using nonstd::make_optional;
+#endif
 #endif
 
 using std::make_pair;

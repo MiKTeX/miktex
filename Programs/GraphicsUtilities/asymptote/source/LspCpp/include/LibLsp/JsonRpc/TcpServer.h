@@ -36,5 +36,5 @@ namespace lsp
             void do_stop();
             Data* d_ptr = nullptr;
         };
-} // namespace 
+} // namespace
 

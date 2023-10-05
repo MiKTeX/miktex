@@ -11,20 +11,20 @@ struct MessageParams {
 /**
   * The message type.
  */
-	
-	lsMessageType type = lsMessageType::Error;
-	
+
+        lsMessageType type = lsMessageType::Error;
+
 /**
  * The actual message.
  */
-	std::string message;
-	
-	void swap(MessageParams& arg) noexcept {
-		lsMessageType temp = type;
-		type = arg.type;
-		arg.type = temp;
-		message.swap(arg.message);
-	}
+        std::string message;
+
+        void swap(MessageParams& arg) noexcept {
+                lsMessageType temp = type;
+                type = arg.type;
+                arg.type = temp;
+                message.swap(arg.message);
+        }
 };
 MAKE_REFLECT_STRUCT(MessageParams, type, message)
 
@@ -49,23 +49,23 @@ DEFINE_NOTIFICATION_TYPE(Notify_ShowMessage, MessageParams, "window/showMessage"
  * answer from the client.
  */
 struct MessageActionItem {
-	/**
-	 * A short title like 'Retry', 'Open Log' etc.
-	 */
+        /**
+         * A short title like 'Retry', 'Open Log' etc.
+         */
 
-	std::string title;
-	MAKE_SWAP_METHOD(MessageActionItem, title)
+        std::string title;
+        MAKE_SWAP_METHOD(MessageActionItem, title)
 };
 MAKE_REFLECT_STRUCT(MessageActionItem, title);
 
 
 struct ShowMessageRequestParams :public MessageParams {
-	/**
-	 * The message action items to present.
-	 */
-	std::vector<MessageActionItem> actions;
-	
-	MAKE_SWAP_METHOD(ShowMessageRequestParams, type, message, actions)
+        /**
+         * The message action items to present.
+         */
+        std::vector<MessageActionItem> actions;
+
+        MAKE_SWAP_METHOD(ShowMessageRequestParams, type, message, actions)
 
 };
 MAKE_REFLECT_STRUCT(ShowMessageRequestParams, type, message, actions)

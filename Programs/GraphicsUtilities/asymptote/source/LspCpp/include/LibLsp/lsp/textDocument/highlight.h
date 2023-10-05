@@ -14,5 +14,5 @@
  */
 
 DEFINE_REQUEST_RESPONSE_TYPE(td_highlight, lsTextDocumentPositionParams,
-	std::vector<lsDocumentHighlight>, "textDocument/documentHighlight");
+        std::vector<lsDocumentHighlight>, "textDocument/documentHighlight");
 

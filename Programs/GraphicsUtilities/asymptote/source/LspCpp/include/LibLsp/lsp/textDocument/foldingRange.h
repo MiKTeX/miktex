@@ -9,47 +9,47 @@
 
 
 struct FoldingRangeRequestParams {
-	/**
-	 * The text document.
-	 */
+        /**
+         * The text document.
+         */
 
-	lsTextDocumentIdentifier textDocument;
-	MAKE_SWAP_METHOD(FoldingRangeRequestParams, textDocument)
+        lsTextDocumentIdentifier textDocument;
+        MAKE_SWAP_METHOD(FoldingRangeRequestParams, textDocument)
 };
 MAKE_REFLECT_STRUCT(FoldingRangeRequestParams, textDocument)
 
 
 struct FoldingRange {
-	/**
-	 * The zero-based line number from where the folded range starts.
-	 */
-	 int startLine;
+        /**
+         * The zero-based line number from where the folded range starts.
+         */
+         int startLine;
 
-	/**
-	 * The zero-based line number where the folded range ends.
-	 */
-	 int endLine;
+        /**
+         * The zero-based line number where the folded range ends.
+         */
+         int endLine;
 
-	/**
-	 * The zero-based character offset from where the folded range starts. If not defined, defaults
-	 * to the length of the start line.
-	 */
-	 int startCharacter;
+        /**
+         * The zero-based character offset from where the folded range starts. If not defined, defaults
+         * to the length of the start line.
+         */
+         int startCharacter;
 
-	/**
-	 * The zero-based character offset before the folded range ends. If not defined, defaults to the
-	 * length of the end line.
-	 */
-	 int endCharacter;
+        /**
+         * The zero-based character offset before the folded range ends. If not defined, defaults to the
+         * length of the end line.
+         */
+         int endCharacter;
 
-	/**
-	 * Describes the kind of the folding range such as `comment' or 'region'. The kind
-	 * is used to categorize folding ranges and used by commands like 'Fold all comments'. See
-	 * FoldingRangeKind for an enumeration of standardized kinds.
-	 */
-	std::string kind;
+        /**
+         * Describes the kind of the folding range such as `comment' or 'region'. The kind
+         * is used to categorize folding ranges and used by commands like 'Fold all comments'. See
+         * FoldingRangeKind for an enumeration of standardized kinds.
+         */
+        std::string kind;
 
-	MAKE_SWAP_METHOD(FoldingRange, startLine, endLine, startCharacter, endCharacter, kind)
+        MAKE_SWAP_METHOD(FoldingRange, startLine, endLine, startCharacter, endCharacter, kind)
 };
 MAKE_REFLECT_STRUCT(FoldingRange,startLine,endLine,startCharacter,endCharacter,kind)
 

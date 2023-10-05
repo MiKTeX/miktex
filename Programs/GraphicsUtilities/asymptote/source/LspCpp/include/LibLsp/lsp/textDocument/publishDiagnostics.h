@@ -11,14 +11,14 @@ namespace TextDocumentPublishDiagnostics{
 
     // An array of diagnostic information items.
     std::vector<lsDiagnostic> diagnostics;
-	MAKE_SWAP_METHOD(Params,uri,diagnostics);
+        MAKE_SWAP_METHOD(Params,uri,diagnostics);
   };
 
-  
+
 };
 MAKE_REFLECT_STRUCT(TextDocumentPublishDiagnostics::Params,
-	uri,
-	diagnostics);
+        uri,
+        diagnostics);
 
 /**
  * Diagnostics notifications are sent from the server to the client to

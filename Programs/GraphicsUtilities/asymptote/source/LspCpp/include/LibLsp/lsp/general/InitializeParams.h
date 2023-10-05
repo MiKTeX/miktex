@@ -6,10 +6,10 @@
 #include "LibLsp/lsp/workspace/workspaceFolders.h"
 
 struct ClientInfo {
-	std::string name;
-	boost::optional<std::string> version;
-	
-	MAKE_SWAP_METHOD(ClientInfo,name,version);
+        std::string name;
+        optional<std::string> version;
+
+        MAKE_SWAP_METHOD(ClientInfo,name,version);
 };
 MAKE_REFLECT_STRUCT(ClientInfo,name,version);
 
@@ -18,14 +18,14 @@ struct lsInitializeParams {
   // the server. Is null if the process has not been started by another process.
   // If the parent process is not alive then the server should exit (see exit
   // notification) its process.
-  boost::optional<int> processId;
-	
+  optional<int> processId;
+
   /**
    * Information about the client
    *
    * @since 3.15.0
    */
-  boost::optional<ClientInfo> clientInfo;
+  optional<ClientInfo> clientInfo;
   /**
    * The locale the client is currently showing the user interface
    * in. This must not necessarily be the locale of the operating
@@ -36,41 +36,41 @@ struct lsInitializeParams {
    *
    * @since 3.16.0
    */
-  boost::optional<std::string> locale;
-	
+  optional<std::string> locale;
+
   // The rootPath of the workspace. Is null
   // if no folder is open.
   //
   // @deprecated in favour of rootUri.
-  boost::optional<std::string> rootPath;
+  optional<std::string> rootPath;
 
   // The rootUri of the workspace. Is null if no
   // folder is open. If both `rootPath` and `rootUri` are set
   // `rootUri` wins.
-  boost::optional<lsDocumentUri> rootUri;
+  optional<lsDocumentUri> rootUri;
 
   // User provided initialization options.
-  boost::optional<lsp::Any> initializationOptions;
+  optional<lsp::Any> initializationOptions;
 
   // The capabilities provided by the client (editor or tool)
   lsClientCapabilities capabilities;
 
 
   /**
- * An boost::optional extension to the protocol.
+ * An optional extension to the protocol.
  * To tell the server what client (editor) is talking to it.
  */
  // @Deprecated
-  boost::optional< std::string >clientName;
+  optional< std::string >clientName;
 
 
-	
+
   enum class lsTrace {
     // NOTE: serialized as a string, one of 'off' | 'messages' | 'verbose';
     Off,       // off
     Messages,  // messages
     Verbose    // verbose
-  	
+
   };
 
   // The initial trace setting. If omitted trace is disabled ('off').
@@ -85,7 +85,7 @@ struct lsInitializeParams {
  *
  * Since 3.6.0
  */
-  boost::optional< std::vector<WorkspaceFolder> >  workspaceFolders;
+  optional< std::vector<WorkspaceFolder> >  workspaceFolders;
 
   MAKE_SWAP_METHOD(lsInitializeParams,
       processId,
@@ -117,9 +117,9 @@ struct lsInitializeError {
   bool retry;
   void swap(lsInitializeError& arg) noexcept
   {
-	  auto tem = retry;
-	  retry = arg.retry;
-	  arg.retry = tem;
+          auto tem = retry;
+          retry = arg.retry;
+          arg.retry = tem;
   }
 };
 MAKE_REFLECT_STRUCT(lsInitializeError, retry);

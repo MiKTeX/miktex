@@ -134,7 +134,7 @@ private:
 protected:
   XDR xdri;
 public:
-  ixstream(bool singleprecision=false): singleprecision(singleprecision) {}
+  ixstream(bool singleprecision=false) : singleprecision(singleprecision) {}
 
   virtual void open(const char *filename, open_mode=in) {
     clear();
@@ -156,8 +156,10 @@ public:
       buf=nullptr;
     }
   }
-  ixstream(const char *filename) {open(filename);}
-  ixstream(const char *filename, open_mode mode) {open(filename,mode);}
+  ixstream(const char *filename, bool singleprecision=false) :
+    singleprecision(singleprecision) {open(filename);}
+  ixstream(const char *filename, open_mode mode, bool singleprecision=false) :
+    singleprecision(singleprecision) {open(filename,mode);}
   virtual ~ixstream() {close();}
 
   typedef ixstream& (*imanip)(ixstream&);
@@ -226,9 +228,10 @@ public:
     }
   }
 
-  oxstream(const char *filename, bool singleprecision=false): singleprecision(singleprecision) {open(filename);}
-  oxstream(const char *filename, open_mode mode, bool singleprecision=false): singleprecision(singleprecision)
-  {
+  oxstream(const char *filename, bool singleprecision=false) :
+    singleprecision(singleprecision) {open(filename);}
+  oxstream(const char *filename, open_mode mode, bool singleprecision=false) :
+    singleprecision(singleprecision) {
     open(filename,mode);
   }
   virtual ~oxstream() {closefile();}

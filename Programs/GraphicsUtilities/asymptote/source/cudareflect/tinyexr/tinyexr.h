@@ -6777,7 +6777,6 @@ static int EncodeChunk(const EXRImage* exr_image, const EXRHeader* exr_header,
   if (exr_image->tiles) {
     const EXRImage* level_image = exr_image;
     size_t block_idx = 0;
-    tinyexr::tinyexr_uint64 block_data_size = 0;
     int num_levels = (exr_header->tile_level_mode != TINYEXR_TILE_RIPMAP_LEVELS) ?
       offset_data.num_x_levels : (offset_data.num_x_levels * offset_data.num_y_levels);
     for (int level_index = 0; level_index < num_levels; ++level_index) {
@@ -6825,7 +6824,6 @@ static int EncodeChunk(const EXRImage* exr_image, const EXRHeader* exr_header,
           offset_data.offsets[level_index][j][i] = offset;
           swap8(reinterpret_cast<tinyexr_uint64*>(&offset_data.offsets[level_index][j][i]));
           offset += data_list[block_idx].size() + doffset;
-          block_data_size += data_list[block_idx].size();
           ++block_idx;
         }
       level_image = level_image->next_level;

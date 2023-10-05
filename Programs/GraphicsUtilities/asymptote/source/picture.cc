@@ -321,7 +321,6 @@ bbox3 picture::bounds3()
     b3=bbox3();
 
   matrixstack ms;
-  size_t i=0;
   for(nodelist::const_iterator p=nodes.begin(); p != nodes.end(); ++p) {
     assert(*p);
     if((*p)->begingroup3())
@@ -330,7 +329,6 @@ bbox3 picture::bounds3()
       ms.pop();
     else
       (*p)->bounds(ms.T(),b3);
-    i++;
   }
 
   lastnumber3=n;
@@ -482,7 +480,7 @@ string dvisvgmCommand(mem::vector<string>& cmd, const string& outname)
   string libgs=getSetting<string>("libgs");
   if(!libgs.empty())
     cmd.push_back("--libgs="+libgs);
-//  cmd.push_back("--optimize"); // Requires dvisvgm > 2.9.1
+  cmd.push_back("--optimize");
   push_split(cmd,getSetting<string>("dvisvgmOptions"));
   string outfile=stripDir(outname);
   if(!outfile.empty())
@@ -665,7 +663,11 @@ bool picture::texprocess(const string& texname, const string& outname,
 
 int picture::epstopdf(const string& epsname, const string& pdfname)
 {
-  string compress=getSetting<bool>("compress") ? "true" : "false";
+  string outputformat=getSetting<string>("outformat");
+  bool pdf=settings::pdf(getSetting<string>("tex"));
+  bool pdfformat=(pdf && outputformat == "") || outputformat == "pdf";
+  string compress=getSetting<bool>("compress") && pdfformat ?
+    "true" : "false";
   mem::vector<string> cmd;
   cmd.push_back(getSetting<string>("gs"));
   cmd.push_back("-q");
@@ -683,6 +685,7 @@ int picture::epstopdf(const string& epsname, const string& pdfname)
   cmd.push_back("-dEncodeColorImages="+compress);
   cmd.push_back("-dEncodeGrayImages="+compress);
   cmd.push_back("-dCompatibilityLevel=1.4");
+  cmd.push_back("-dTransferFunctionInfo=/Apply");
   if(!getSetting<bool>("autorotate"))
     cmd.push_back("-dAutoRotatePages=/None");
   cmd.push_back("-g"+String(max(ceil(getSetting<double>("paperwidth")),1.0))
@@ -715,7 +718,7 @@ int picture::pdftoeps(const string& pdfname, const string& epsname, bool eps)
   mem::vector<string> cmd;
   cmd.push_back(getSetting<string>("gs"));
   cmd.push_back("-q");
-  cmd.push_back("-dNOCACHE");
+  cmd.push_back("-dNoOutputFonts");
   cmd.push_back("-dNOPAUSE");
   cmd.push_back("-dBATCH");
   cmd.push_back("-P");

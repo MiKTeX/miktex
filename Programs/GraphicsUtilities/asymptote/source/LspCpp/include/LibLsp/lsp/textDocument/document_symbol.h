@@ -18,7 +18,7 @@ MAKE_REFLECT_STRUCT(lsDocumentSymbolParams, textDocument);
 
 
 struct  TextDocumentDocumentSymbol{
-	typedef  std::pair< boost::optional<lsSymbolInformation>  , boost::optional<lsDocumentSymbol> > Either;
+        typedef  std::pair< optional<lsSymbolInformation>  , optional<lsDocumentSymbol> > Either;
 };
 void Reflect(Reader& visitor, TextDocumentDocumentSymbol::Either& value);
 
@@ -42,14 +42,14 @@ void Reflect(Reader& visitor, TextDocumentDocumentSymbol::Either& value);
  * </p>
  */
 
-//DEFINE_REQUEST_RESPONSE_TYPE(td_symbol, 
-//	lsDocumentSymbolParams,
-//	std::vector<TextDocumentDocumentSymbol::Either> );
+//DEFINE_REQUEST_RESPONSE_TYPE(td_symbol,
+//      lsDocumentSymbolParams,
+//      std::vector<TextDocumentDocumentSymbol::Either> );
 //
 
-DEFINE_REQUEST_RESPONSE_TYPE(td_symbol, 
-	lsDocumentSymbolParams,
-	std::vector< lsDocumentSymbol >,"textDocument/documentSymbol" );
+DEFINE_REQUEST_RESPONSE_TYPE(td_symbol,
+        lsDocumentSymbolParams,
+        std::vector< lsDocumentSymbol >,"textDocument/documentSymbol" );
 
 
 

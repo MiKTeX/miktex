@@ -140,7 +140,7 @@ public:
   bool add(symbol src, symbol dest,
            protoenv &source, varEntry *qualifier, coder &c)
   {
-    return te.add(src, dest, source.te, qualifier, c) |
+    return te.add(src, dest, source.te, qualifier, c) ||
       ve.add(src, dest, source.ve, qualifier, c);
   }
 

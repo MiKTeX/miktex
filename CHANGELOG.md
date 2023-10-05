@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* asymptote 2.86
+
 ## 23.10 - 2023-10-4
 
 ### Upgraded programs

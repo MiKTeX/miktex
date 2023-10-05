@@ -8,13 +8,13 @@
 
 struct lsVersionedTextDocumentIdentifier
 {
-	lsDocumentUri uri;
-	// The version number of this document.  number | null
-	boost::optional<int> version;
+        lsDocumentUri uri;
+        // The version number of this document.  number | null
+        optional<int> version;
 
-	lsTextDocumentIdentifier AsTextDocumentIdentifier() const;
+        lsTextDocumentIdentifier AsTextDocumentIdentifier() const;
 
-	MAKE_SWAP_METHOD(lsVersionedTextDocumentIdentifier, uri, version)
+        MAKE_SWAP_METHOD(lsVersionedTextDocumentIdentifier, uri, version)
 };
 MAKE_REFLECT_STRUCT(lsVersionedTextDocumentIdentifier, uri, version)
 

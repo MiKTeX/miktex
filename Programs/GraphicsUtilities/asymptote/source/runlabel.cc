@@ -370,14 +370,13 @@ void gen_runlabel3(stack *Stack)
 
   int status=opentex(texname,prefix,!xe);
 
-  string pdfname,pdfname2,psname2;
+  string pdfname,psname2;
   bool keep=getSetting<bool>("keep");
 
   if(!status) {
     if(xe) {
       string psdriver=getSetting<string>("psdriver");
       pdfname=auxname(prefix,"pdf");
-      pdfname2=auxname(prefix+"_","pdf");
       psname2=auxname(prefix+"_","ps");
       if(!fs::exists(pdfname)) {Stack->push<patharray2*>(new array(n)); return;}
 #if defined(MIKTEX_WINDOWS)
@@ -389,38 +388,25 @@ void gen_runlabel3(stack *Stack)
 
       showpath(ps);
 
-      mem::vector<string> pcmd;
-      pcmd.push_back(getSetting<string>("gs"));
-      pcmd.push_back("-q");
-      pcmd.push_back("-dNOCACHE");
-      pcmd.push_back("-dNOPAUSE");
-      pcmd.push_back("-dBATCH");
-      if(safe) pcmd.push_back("-dSAFER");
-      pcmd.push_back("-sDEVICE=pdfwrite");
-      pcmd.push_back("-sOutputFile="+pdfname2);
-      pcmd.push_back(pdfname);
-      status=System(pcmd,0,true,"gs");
-      if(status == 0) {
-        mem::vector<string> cmd;
-        cmd.push_back(getSetting<string>("gs"));
-        cmd.push_back("-q");
-        cmd.push_back("-dNOCACHE");
-        cmd.push_back("-dNOPAUSE");
-        cmd.push_back("-dBATCH");
-        if(safe) cmd.push_back("-dSAFER");
-        cmd.push_back("-sDEVICE="+psdriver);
-        cmd.push_back("-sOutputFile="+psname2);
-        cmd.push_back(pdfname2);
-        status=System(cmd,0,true,"gs");
+      mem::vector<string> cmd;
+      cmd.push_back(getSetting<string>("gs"));
+      cmd.push_back("-q");
+      cmd.push_back("-dNoOutputFonts");
+      cmd.push_back("-dNOPAUSE");
+      cmd.push_back("-dBATCH");
+      if(safe) cmd.push_back("-dSAFER");
+      cmd.push_back("-sDEVICE="+psdriver);
+      cmd.push_back("-sOutputFile="+psname2);
+      cmd.push_back(pdfname);
+      status=System(cmd,0,true,"gs");
 
 #if defined(MIKTEX_WINDOWS)
-        std::ifstream in(UW_(psname2));
+      std::ifstream in(UW_(psname2));
 #else
-        std::ifstream in(psname2.c_str());
+      std::ifstream in(psname2.c_str());
 #endif
-        ps << in.rdbuf();
-        ps.close();
-      }
+      ps << in.rdbuf();
+      ps.close();
     } else {
       if(!fs::exists(dviname)) {Stack->push<patharray2*>(new array(n)); return;}
       mem::vector<string> dcmd;
@@ -442,11 +428,7 @@ void gen_runlabel3(stack *Stack)
     if(!getSetting<bool>("keepaux"))
       unlink(auxname(prefix,"aux").c_str());
     unlink(auxname(prefix,"log").c_str());
-    if(xe) {
-      unlink(pdfname.c_str());
-      unlink(pdfname2.c_str());
-    } else
-      unlink(dviname.c_str());
+    unlink(xe ? pdfname.c_str() : dviname.c_str());
     if(settings::context(texengine)) {
       unlink(auxname(prefix,"top").c_str());
       unlink(auxname(prefix,"tua").c_str());
@@ -457,13 +439,13 @@ void gen_runlabel3(stack *Stack)
   {Stack->push<patharray2*>(xe ? readpath(psname,keep,0.1) : readpath(psname,keep,0.12,-1.0)); return;}
 }
 
-#line 367 "runlabel.in"
+#line 349 "runlabel.in"
 // patharray2* textpath(stringarray *s, penarray *p);
 void gen_runlabel4(stack *Stack)
 {
   penarray * p=vm::pop<penarray *>(Stack);
   stringarray * s=vm::pop<stringarray *>(Stack);
-#line 368 "runlabel.in"
+#line 350 "runlabel.in"
   size_t n=checkArrays(s,p);
   if(n == 0) {Stack->push<patharray2*>(new array(0)); return;}
 
@@ -507,7 +489,7 @@ void gen_runlabel4(stack *Stack)
   mem::vector<string> cmd2;
   cmd2.push_back(getSetting<string>("gs"));
   cmd2.push_back("-q");
-  cmd2.push_back("-dNOCACHE");
+  cmd2.push_back("-dNoOutputFonts");
   cmd2.push_back("-dNOPAUSE");
   cmd2.push_back("-dBATCH");
   cmd2.push_back("-P");
@@ -544,13 +526,13 @@ void gen_runlabel4(stack *Stack)
   {Stack->push<patharray2*>(readpath(psname,keep,0.1)); return;}
 }
 
-#line 441 "runlabel.in"
+#line 423 "runlabel.in"
 // patharray* _strokepath(path g, pen p=CURRENTPEN);
 void gen_runlabel5(stack *Stack)
 {
   pen p=vm::pop<pen>(Stack,CURRENTPEN);
   path g=vm::pop<path>(Stack);
-#line 442 "runlabel.in"
+#line 424 "runlabel.in"
   array *P=new array(0);
   if(g.size() == 0) {Stack->push<patharray*>(P); return;}
 
@@ -588,9 +570,9 @@ void gen_runlabel_venv(venv &ve)
   addFunc(ve, run::gen_runlabel2, realArray(), SYM(texsize), formal(primString(), SYM(s), false, false), formal(primPen(), SYM(p), true, false));
 #line 243 "runlabel.in"
   addFunc(ve, run::gen_runlabel3, pathArray2(), SYM(_texpath), formal(stringArray(), SYM(s), false, false), formal(penArray(), SYM(p), false, false));
-#line 367 "runlabel.in"
+#line 349 "runlabel.in"
   addFunc(ve, run::gen_runlabel4, pathArray2(), SYM(textpath), formal(stringArray(), SYM(s), false, false), formal(penArray(), SYM(p), false, false));
-#line 441 "runlabel.in"
+#line 423 "runlabel.in"
   addFunc(ve, run::gen_runlabel5, pathArray(), SYM(_strokepath), formal(primPath(), SYM(g), false, false), formal(primPen(), SYM(p), true, false));
 }
 

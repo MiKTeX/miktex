@@ -8,11 +8,11 @@
 #include "LibLsp/lsp/lsTextDocumentPositionParams.h"
 
 struct  FindLinksParams {
-	// Supported link types: superImplementation
-	std::string type;
-	lsTextDocumentPositionParams position;
-	
-	MAKE_SWAP_METHOD(FindLinksParams, type, position)
+        // Supported link types: superImplementation
+        std::string type;
+        lsTextDocumentPositionParams position;
+
+        MAKE_SWAP_METHOD(FindLinksParams, type, position)
 };
 MAKE_REFLECT_STRUCT(FindLinksParams,type,position)
 

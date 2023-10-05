@@ -57,8 +57,8 @@ MAKE_REFLECT_TYPE_PROXY(lsInsertTextFormat);
 
 namespace lsp
 {
-	std::string ToString(lsCompletionItemKind);
-	std::string ToString(lsInsertTextFormat);
+        std::string ToString(lsCompletionItemKind);
+        std::string ToString(lsInsertTextFormat);
 }
 /**
  * The Completion request is sent from the client to the server to compute completion items at a given cursor position.
@@ -67,7 +67,7 @@ namespace lsp
  * completion item is selected in the user class.
  */
 struct lsCompletionItem {
- 
+
   // The label of this completion item. By default
   // also the text that is inserted when selecting
   // this completion.
@@ -75,30 +75,30 @@ struct lsCompletionItem {
 
   // The kind of this completion item. Based of the kind
   // an icon is chosen by the editor.
-  boost::optional<lsCompletionItemKind>  kind ;
+  optional<lsCompletionItemKind>  kind ;
 
   // A human-readable string with additional information
   // about this item, like type or symbol information.
-  boost::optional < std::string > detail;
+  optional < std::string > detail;
 
   // A human-readable string that represents a doc-comment.
-  boost::optional< std::pair<boost::optional< std::string> , boost::optional<MarkupContent> > > documentation;
+  optional< std::pair<optional< std::string> , optional<MarkupContent> > > documentation;
 
 
   /**
    * Indicates if this item is deprecated.
    */
-  boost::optional< bool >deprecated;
-	
+  optional< bool >deprecated;
+
 
    /**
    * Select this item when showing.
-   * 
+   *
    * *Note* that only one completion item can be selected and that the
    * tool / client decides which item that is. The rule is that the *first
    * item of those that match best is selected.
    */
-  boost::optional< bool > preselect;
+  optional< bool > preselect;
 
 
   // Internal information to order candidates.
@@ -106,33 +106,33 @@ struct lsCompletionItem {
 
   // A string that shoud be used when comparing this item
   // with other items. When `falsy` the label is used.
-  boost::optional< std::string > sortText;
+  optional< std::string > sortText;
 
   // A string that should be used when filtering a set of
   // completion items. When `falsy` the label is used.
-  boost::optional<std::string> filterText;
+  optional<std::string> filterText;
 
   // A string that should be inserted a document when selecting
   // this completion. When `falsy` the label is used.
-  boost::optional<std::string> insertText;
+  optional<std::string> insertText;
 
   // The format of the insert text. The format applies to both the `insertText`
   // property and the `newText` property of a provided `textEdit`.
-  boost::optional< lsInsertTextFormat> insertTextFormat ;
+  optional< lsInsertTextFormat> insertTextFormat ;
 
   // An edit which is applied to a document when selecting this completion. When
   // an edit is provided the value of `insertText` is ignored.
   //
   // *Note:* The range of the edit must be a single line range and it must
   // contain the position at which completion has been requested.
-  boost::optional<lsTextEdit> textEdit;
+  optional<lsTextEdit> textEdit;
 
-  // An boost::optional array of additional text edits that are applied when
+  // An optional array of additional text edits that are applied when
   // selecting this completion. Edits must not overlap with the main edit
   // nor with themselves.
   // std::vector<TextEdit> additionalTextEdits;
 
-  // An boost::optional command that is executed *after* inserting this completion.
+  // An optional command that is executed *after* inserting this completion.
   // *Note* that additional modifications to the current document should be
   // described with the additionalTextEdits-property. Command command;
 
@@ -147,7 +147,7 @@ struct lsCompletionItem {
 
   std::string DisplayText();
   /**
- * An boost::optional array of additional text edits that are applied when
+ * An optional array of additional text edits that are applied when
  * selecting this completion. Edits must not overlap (including the same insert position)
  * with the main edit nor with themselves.
  *
@@ -155,40 +155,40 @@ struct lsCompletionItem {
  * (for example adding an import statement at the top of the file if the completion item will
  * insert an unqualified type).
  */
-  boost::optional<std::vector<lsTextEdit> >additionalTextEdits;
+  optional<std::vector<lsTextEdit> >additionalTextEdits;
 
   /**
-* An boost::optional set of characters that when pressed while this completion is active will accept it first and
+* An optional set of characters that when pressed while this completion is active will accept it first and
 * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
 * characters will be ignored.
 */
-  boost::optional< std::vector<std::string> > commitCharacters;
+  optional< std::vector<std::string> > commitCharacters;
 
   /**
-* An boost::optional command that is executed *after* inserting this completion. *Note* that
+* An optional command that is executed *after* inserting this completion. *Note* that
 * additional modifications to the current document should be described with the
 * additionalTextEdits-property.
 */
-  boost::optional<lsCommandWithAny> command;
+  optional<lsCommandWithAny> command;
 
   /**
 * An data entry field that is preserved on a completion item between a completion and a completion resolve request.
 */
-  boost::optional<lsp::Any> data;
+  optional<lsp::Any> data;
   std::string ToString();
   MAKE_SWAP_METHOD(lsCompletionItem,
-	  label,
-	  kind,
-	  detail,
-	  documentation,
-	  sortText,
-	  insertText,
-	  filterText,
-	  insertTextFormat,
-	  textEdit,
-	  deprecated, preselect, additionalTextEdits, commitCharacters,
-	  command, data);
-	
+          label,
+          kind,
+          detail,
+          documentation,
+          sortText,
+          insertText,
+          filterText,
+          insertTextFormat,
+          textEdit,
+          deprecated, preselect, additionalTextEdits, commitCharacters,
+          command, data);
+
 };
 
 
@@ -204,21 +204,21 @@ MAKE_REFLECT_STRUCT(lsCompletionItem,
                     insertTextFormat,
                     textEdit,
                     deprecated, preselect, additionalTextEdits, commitCharacters,
-	command, data);
+        command, data);
 
 
 
 struct CompletionList {
-	// This list it not complete. Further typing should result in recomputing
-	// this list.
-	bool isIncomplete = false;
-	// The completion items.
-	std::vector<lsCompletionItem> items;
+        // This list it not complete. Further typing should result in recomputing
+        // this list.
+        bool isIncomplete = false;
+        // The completion items.
+        std::vector<lsCompletionItem> items;
 
-	void swap(CompletionList& arg) noexcept
-	{
-		items.swap(arg.items);
-		std::swap(isIncomplete, arg.isIncomplete);
-	}
+        void swap(CompletionList& arg) noexcept
+        {
+                items.swap(arg.items);
+                std::swap(isIncomplete, arg.isIncomplete);
+        }
 };
 MAKE_REFLECT_STRUCT(CompletionList, isIncomplete, items);

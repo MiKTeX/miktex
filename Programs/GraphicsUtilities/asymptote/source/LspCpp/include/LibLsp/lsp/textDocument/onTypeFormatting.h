@@ -17,20 +17,20 @@ struct lsDocumentOnTypeFormattingParams
 
   lsPosition position;
 
-	 /**
-	  * The character that has been typed.
-	  */
+         /**
+          * The character that has been typed.
+          */
 
   std::string ch;
 
   MAKE_SWAP_METHOD(lsDocumentOnTypeFormattingParams,
-	  textDocument,
-	  position,
-	  options, ch);
+          textDocument,
+          position,
+          options, ch);
 };
 MAKE_REFLECT_STRUCT(lsDocumentOnTypeFormattingParams,
                     textDocument,
-					position,
+                                        position,
                     options,ch);
 
 /**
@@ -40,5 +40,5 @@ MAKE_REFLECT_STRUCT(lsDocumentOnTypeFormattingParams,
  * Registration Options: TextDocumentRegistrationOptions
  */
 DEFINE_REQUEST_RESPONSE_TYPE(td_onTypeFormatting,
-	lsDocumentOnTypeFormattingParams, std::vector<lsTextEdit>, "textDocument/onTypeFormatting");
+        lsDocumentOnTypeFormattingParams, std::vector<lsTextEdit>, "textDocument/onTypeFormatting");
 

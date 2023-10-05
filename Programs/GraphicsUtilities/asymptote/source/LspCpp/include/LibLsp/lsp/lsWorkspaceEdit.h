@@ -20,36 +20,36 @@
 
 struct lsChangeAnnotations
 {
-	lsChangeAnnotation id;
-	MAKE_SWAP_METHOD(lsChangeAnnotations, id)
+        lsChangeAnnotation id;
+        MAKE_SWAP_METHOD(lsChangeAnnotations, id)
 };
 MAKE_REFLECT_STRUCT(lsChangeAnnotations, id)
 struct lsWorkspaceEdit {
-	// Holds changes to existing resources.
-	// changes ? : { [uri:string]: TextEdit[]; };
-	// std::unordered_map<lsDocumentUri, std::vector<lsTextEdit>> changes;
+        // Holds changes to existing resources.
+        // changes ? : { [uri:string]: TextEdit[]; };
+        // std::unordered_map<lsDocumentUri, std::vector<lsTextEdit>> changes;
 
-	// An array of `TextDocumentEdit`s to express changes to specific a specific
-	// version of a text document. Whether a client supports versioned document
-	// edits is expressed via `WorkspaceClientCapabilites.versionedWorkspaceEdit`.
-	//
-	boost::optional< std::map<std::string, std::vector<lsTextEdit> > >  changes;
-	typedef std::pair < boost::optional<lsTextDocumentEdit>, boost::optional<lsp::Any> > Either;
+        // An array of `TextDocumentEdit`s to express changes to specific a specific
+        // version of a text document. Whether a client supports versioned document
+        // edits is expressed via `WorkspaceClientCapabilites.versionedWorkspaceEdit`.
+        //
+        optional< std::map<std::string, std::vector<lsTextEdit> > >  changes;
+        typedef std::pair < optional<lsTextDocumentEdit>, optional<lsp::Any> > Either;
 
-	boost::optional <  std::vector< Either > > documentChanges;
-	/**
-	 * A map of change annotations that can be referenced in
-	 * `AnnotatedTextEdit`s or create, rename and delete file / folder
-	 * operations.
-	 *
-	 * Whether clients honor this property depends on the client capability
-	 * `workspace.changeAnnotationSupport`.
-	 *
-	 * @since 3.16.0
-	 */
-	boost::optional< lsChangeAnnotations > changeAnnotations;
+        optional <  std::vector< Either > > documentChanges;
+        /**
+         * A map of change annotations that can be referenced in
+         * `AnnotatedTextEdit`s or create, rename and delete file / folder
+         * operations.
+         *
+         * Whether clients honor this property depends on the client capability
+         * `workspace.changeAnnotationSupport`.
+         *
+         * @since 3.16.0
+         */
+        optional< lsChangeAnnotations > changeAnnotations;
 
-	MAKE_SWAP_METHOD(lsWorkspaceEdit, changes, documentChanges, changeAnnotations)
+        MAKE_SWAP_METHOD(lsWorkspaceEdit, changes, documentChanges, changeAnnotations)
 };
 MAKE_REFLECT_STRUCT(lsWorkspaceEdit, changes, documentChanges, changeAnnotations)
 

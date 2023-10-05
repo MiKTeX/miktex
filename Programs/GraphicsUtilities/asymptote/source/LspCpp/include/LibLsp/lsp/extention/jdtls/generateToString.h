@@ -7,11 +7,11 @@
 
 
 struct GenerateToStringParams {
-	lsCodeActionParams context;
-	std::vector< LspVariableBinding >fields;
-	
-	MAKE_SWAP_METHOD(GenerateToStringParams, context, fields)
-	
+        lsCodeActionParams context;
+        std::vector< LspVariableBinding >fields;
+
+        MAKE_SWAP_METHOD(GenerateToStringParams, context, fields)
+
 };
 MAKE_REFLECT_STRUCT(GenerateToStringParams, context, fields)
 

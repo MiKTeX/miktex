@@ -13,9 +13,9 @@ namespace TextDocumentDidSave  {
 
     // Optional the content when saved. Depends on the includeText value
     // when the save notifcation was requested.
-    boost::optional<std::string>  text;
+    optional<std::string>  text;
 
-	MAKE_SWAP_METHOD(TextDocumentDidSave::Params, textDocument, text);
+        MAKE_SWAP_METHOD(TextDocumentDidSave::Params, textDocument, text);
   };
 
 };

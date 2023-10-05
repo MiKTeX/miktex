@@ -335,6 +335,10 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
   if(pid == -1)
     camp::reportError("Cannot fork process");
 
+#ifdef __MSDOS__
+  wait=true;
+#endif
+
   if(pid == 0) {
     if(interact::interactive) signal(SIGINT,SIG_IGN);
     if(quiet) {

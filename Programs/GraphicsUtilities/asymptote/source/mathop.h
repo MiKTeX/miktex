@@ -249,7 +249,7 @@ struct quotient {
     if(y == -1) return Negate(x);
 // Implementation-independent definition of integer division: round down
     Int q=x/y;
-    if(q >= 0 || y*q == x) return q;
+    if(!((x < 0)^(y < 0)) || y*q == x) return q;
     return q-1;
   }
 };
@@ -325,4 +325,3 @@ void interp(vm::stack *s)
 } // namespace run
 
 #endif //MATHOP_H
-

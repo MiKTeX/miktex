@@ -17,24 +17,24 @@
  */
 struct lsChangeAnnotation
 {
-	/**
-	 * A human-readable string describing the actual change. The string
-	 * is rendered prominent in the user interface.
-	 */
-	std::string label;
+        /**
+         * A human-readable string describing the actual change. The string
+         * is rendered prominent in the user interface.
+         */
+        std::string label;
 
-	/**
-	 * A flag which indicates that user confirmation is needed
-	 * before applying the change.
-	 */
-	boost::optional<bool>  needsConfirmation;
+        /**
+         * A flag which indicates that user confirmation is needed
+         * before applying the change.
+         */
+        optional<bool>  needsConfirmation;
 
-	/**
-	 * A human-readable string which is rendered less prominent in
-	 * the user interface.
-	 */
-	boost::optional < std::string >  description;
-	MAKE_REFLECT_STRUCT(lsChangeAnnotation, label, needsConfirmation, description)
+        /**
+         * A human-readable string which is rendered less prominent in
+         * the user interface.
+         */
+        optional < std::string >  description;
+        MAKE_REFLECT_STRUCT(lsChangeAnnotation, label, needsConfirmation, description)
 };
 MAKE_REFLECT_STRUCT(lsChangeAnnotation, label, needsConfirmation, description)
 
@@ -64,23 +64,23 @@ using lsChangeAnnotationIdentifier = std::string;
 
 //A textual edit applicable to a text document.
 struct lsTextEdit {
-	// The range of the text document to be manipulated. To insert
-	// text into a document create a range where start === end.
-	lsRange range;
+        // The range of the text document to be manipulated. To insert
+        // text into a document create a range where start === end.
+        lsRange range;
 
-	// The string to be inserted. For delete operations use an
-	// empty string.
-	std::string newText;
+        // The string to be inserted. For delete operations use an
+        // empty string.
+        std::string newText;
 
-	/**
+        /**
  * The actual annotation identifier.
  */
-	boost::optional<lsChangeAnnotationIdentifier>  annotationId;
-	
+        optional<lsChangeAnnotationIdentifier>  annotationId;
 
-		bool operator==(const lsTextEdit& that);
-	std::string ToString() const;
-	MAKE_SWAP_METHOD(lsTextEdit, range, newText, annotationId)
+
+                bool operator==(const lsTextEdit& that);
+        std::string ToString() const;
+        MAKE_SWAP_METHOD(lsTextEdit, range, newText, annotationId)
 };
 MAKE_REFLECT_STRUCT(lsTextEdit, range, newText, annotationId)
 

@@ -489,12 +489,16 @@ void svgtexfile::properties(const pen& p)
   const LineType *lastlinetype=lastpen.linetype();
 
   if(!(linetype->pattern == lastlinetype->pattern)) {
+    bool xasy=getSetting<bool>("xasy");
+    auto qtfix=[&](double x) {
+      return xasy ? max(x,1.0e-6) : x;
+    };
     size_t n=linetype->pattern.size();
     if(n > 0) {
       *out << " stroke-dasharray='";
-      *out << vm::read<double>(linetype->pattern,0)*ps2tex;
+      *out << qtfix(vm::read<double>(linetype->pattern,0)*ps2tex);
       for(size_t i=1; i < n; ++i)
-        *out << "," << vm::read<double>(linetype->pattern,i)*ps2tex;
+        *out << "," << qtfix(vm::read<double>(linetype->pattern,i)*ps2tex);
       *out << "'";
     }
   }

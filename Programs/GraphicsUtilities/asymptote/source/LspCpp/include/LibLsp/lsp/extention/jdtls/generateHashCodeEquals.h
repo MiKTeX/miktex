@@ -8,15 +8,15 @@
 #include "checkHashCodeEqualsStatus.h"
 
 struct GenerateHashCodeEqualsParams {
-	lsCodeActionParams context;
-	std::vector<LspVariableBinding>  fields;
-	bool regenerate= false;
-	void swap(GenerateHashCodeEqualsParams& arg) noexcept
-	{
-		context.swap(arg.context);
-		fields.swap(arg.fields);
-		std::swap(regenerate, arg.regenerate);
-	}
+        lsCodeActionParams context;
+        std::vector<LspVariableBinding>  fields;
+        bool regenerate= false;
+        void swap(GenerateHashCodeEqualsParams& arg) noexcept
+        {
+                context.swap(arg.context);
+                fields.swap(arg.fields);
+                std::swap(regenerate, arg.regenerate);
+        }
 };
 MAKE_REFLECT_STRUCT(GenerateHashCodeEqualsParams, context, fields, regenerate);
 

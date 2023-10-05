@@ -15,8 +15,8 @@
 
 namespace LocationListEither{
 
-	typedef  std::pair< boost::optional<std::vector<lsLocation>> , boost::optional<std::vector<LocationLink> > > Either;
-	
+        typedef  std::pair< optional<std::vector<lsLocation>> , optional<std::vector<LocationLink> > > Either;
+
 };
 extern  void Reflect(Reader& visitor, LocationListEither::Either& value);
 //DEFINE_RESPONCE_TYPE(Rsp_LocationListEither, LocationListEither::Either);

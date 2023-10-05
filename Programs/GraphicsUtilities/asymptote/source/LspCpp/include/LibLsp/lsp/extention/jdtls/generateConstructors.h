@@ -8,10 +8,10 @@
 
 
 struct GenerateConstructorsParams {
-	lsCodeActionParams context;
-	std::vector<LspMethodBinding> constructors;
-	std::vector< LspVariableBinding >fields;
-	MAKE_SWAP_METHOD(GenerateConstructorsParams, context, fields)
+        lsCodeActionParams context;
+        std::vector<LspMethodBinding> constructors;
+        std::vector< LspVariableBinding >fields;
+        MAKE_SWAP_METHOD(GenerateConstructorsParams, context, fields)
 };
 MAKE_REFLECT_STRUCT(GenerateConstructorsParams, context, fields)
 

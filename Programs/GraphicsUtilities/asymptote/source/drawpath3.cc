@@ -50,10 +50,10 @@ bool drawPath3::write(abs3Doutfile *out)
   setcolors(diffuse,emissive,specular,shininess,metallic,fresnel0,out);
 
   if(straight)
-    out->addCurve(g.point((Int) 0),g.point((Int) 1),Min,Max);
+    out->addCurve(g.point((Int) 0),g.point((Int) 1));
   else
     out->addCurve(g.point((Int) 0),g.postcontrol((Int) 0),
-                  g.precontrol((Int) 1),g.point((Int) 1),Min,Max);
+                  g.precontrol((Int) 1),g.point((Int) 1));
 #endif
   return true;
 }
@@ -231,7 +231,7 @@ bool drawPixel::write(abs3Doutfile *out)
   RGBAColour Black(0.0,0.0,0.0,color.A);
   setcolors(color,color,Black,1.0,0.0,0.04,out);
 
-  out->addPixel(v,width,Min,Max);
+  out->addPixel(v,width);
 #endif
   return true;
 }
