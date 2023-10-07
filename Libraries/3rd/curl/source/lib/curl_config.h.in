@@ -18,20 +18,35 @@
 /* disable alt-svc */
 #undef CURL_DISABLE_ALTSVC
 
+/* to disable AWS sig support */
+#undef CURL_DISABLE_AWS
+
+/* to disable basic authentication */
+#undef CURL_DISABLE_BASIC_AUTH
+
+/* to disable bearer authentication */
+#undef CURL_DISABLE_BEARER_AUTH
+
+/* disable local binding support */
+#undef CURL_DISABLE_BINDLOCAL
+
 /* to disable cookies support */
 #undef CURL_DISABLE_COOKIES
 
-/* to disable cryptographic authentication */
-#undef CURL_DISABLE_CRYPTO_AUTH
-
 /* to disable DICT */
 #undef CURL_DISABLE_DICT
+
+/* to disable digest authentication */
+#undef CURL_DISABLE_DIGEST_AUTH
 
 /* disable DoH */
 #undef CURL_DISABLE_DOH
 
 /* to disable FILE */
 #undef CURL_DISABLE_FILE
+
+/* disable form API */
+#undef CURL_DISABLE_FORM_API
 
 /* to disable FTP */
 #undef CURL_DISABLE_FTP
@@ -57,6 +72,9 @@
 /* to disable IMAP */
 #undef CURL_DISABLE_IMAP
 
+/* to disable kerberos authentication */
+#undef CURL_DISABLE_KERBEROS_AUTH
+
 /* to disable LDAP */
 #undef CURL_DISABLE_LDAP
 
@@ -71,6 +89,9 @@
 
 /* to disable MQTT */
 #undef CURL_DISABLE_MQTT
+
+/* to disable negotiate authentication */
+#undef CURL_DISABLE_NEGOTIATE_AUTH
 
 /* disable netrc parsing */
 #undef CURL_DISABLE_NETRC
@@ -129,9 +150,6 @@
 /* enable debug build options */
 #undef DEBUGBUILD
 
-/* your Entropy Gathering Daemon socket pathname */
-#undef EGD_SOCKET
-
 /* Define if you want to enable IPv6 support */
 #undef ENABLE_IPV6
 
@@ -141,6 +159,9 @@
 /* Define to 1 if you have the alarm function. */
 #undef HAVE_ALARM
 
+/* Define to 1 if you have the `arc4random' function. */
+#undef HAVE_ARC4RANDOM
+
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
@@ -149,6 +170,9 @@
 
 /* Define to 1 if you have _Atomic support. */
 #undef HAVE_ATOMIC
+
+/* Define to 1 if using AWS-LC. */
+#undef HAVE_AWSLC
 
 /* Define to 1 if you have the basename function. */
 #undef HAVE_BASENAME
@@ -170,6 +194,10 @@
 
 /* Define to 1 if you have the clock_gettime function and monotonic timer. */
 #undef HAVE_CLOCK_GETTIME_MONOTONIC
+
+/* Define to 1 if you have the clock_gettime function and raw monotonic timer.
+   */
+#undef HAVE_CLOCK_GETTIME_MONOTONIC_RAW
 
 /* Define to 1 if you have the closesocket function. */
 #undef HAVE_CLOSESOCKET
@@ -356,6 +384,9 @@
 /* Define to 1 if you have the ldap.h header file. */
 #undef HAVE_LDAP_H
 
+/* Define to 1 if you have the `ldap_init_fd' function. */
+#undef HAVE_LDAP_INIT_FD
+
 /* Use LDAPS implementation */
 #undef HAVE_LDAP_SSL
 
@@ -484,9 +515,6 @@
 /* Define to 1 if you have the `pipe' function. */
 #undef HAVE_PIPE
 
-/* if you have the PK11_CreateManagedGenericObject function */
-#undef HAVE_PK11_CREATEMANAGEDGENERICOBJECT
-
 /* If you have a fine poll */
 #undef HAVE_POLL_FINE
 
@@ -510,9 +538,6 @@
 
 /* Define to 1 if you have the <quiche.h> header file. */
 #undef HAVE_QUICHE_H
-
-/* Define to 1 if you have the `RAND_egd' function. */
-#undef HAVE_RAND_EGD
 
 /* Define to 1 if you have the recv function. */
 #undef HAVE_RECV
@@ -579,6 +604,9 @@
 
 /* Define to 1 if you have the <ssl.h> header file. */
 #undef HAVE_SSL_H
+
+/* Define to 1 if you have the `SSL_set0_wbio' function. */
+#undef HAVE_SSL_SET0_WBIO
 
 /* Define to 1 if you have the <stdatomic.h> header file. */
 #undef HAVE_STDATOMIC_H
@@ -706,14 +734,8 @@
 /* Define to 1 if compiler supports old gcc variadic macro style. */
 #undef HAVE_VARIADIC_MACROS_GCC
 
-/* Define to 1 if you have the wincrypt.h header file. */
-#undef HAVE_WINCRYPT_H
-
 /* Define to 1 if you have the windows.h header file. */
 #undef HAVE_WINDOWS_H
-
-/* Define to 1 if you have the winldap.h header file. */
-#undef HAVE_WINLDAP_H
 
 /* Define to 1 if you have the winsock2.h header file. */
 #undef HAVE_WINSOCK2_H
@@ -796,6 +818,9 @@
 /* Size of curl_off_t in number of bytes */
 #undef SIZEOF_CURL_OFF_T
 
+/* Size of curl_socket_t in number of bytes */
+#undef SIZEOF_CURL_SOCKET_T
+
 /* Size of int in number of bytes */
 #undef SIZEOF_INT
 
@@ -873,14 +898,11 @@
 /* if ngtcp2_crypto_gnutls is in use */
 #undef USE_NGTCP2_CRYPTO_GNUTLS
 
-/* if ngtcp2_crypto_openssl is in use */
-#undef USE_NGTCP2_CRYPTO_OPENSSL
+/* if ngtcp2_crypto_quictls is in use */
+#undef USE_NGTCP2_CRYPTO_QUICTLS
 
 /* if ngtcp2_crypto_wolfssl is in use */
 #undef USE_NGTCP2_CRYPTO_WOLFSSL
-
-/* if NSS is enabled */
-#undef USE_NSS
 
 /* Use OpenLDAP-specific code */
 #undef USE_OPENLDAP

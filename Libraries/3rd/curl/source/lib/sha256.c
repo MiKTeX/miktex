@@ -5,8 +5,8 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 2017, Florin Petriuc, <petriuc.florin@gmail.com>
- * Copyright (C) 2018 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) Florin Petriuc, <petriuc.florin@gmail.com>
+ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -25,7 +25,8 @@
 
 #include "curl_setup.h"
 
-#ifndef CURL_DISABLE_CRYPTO_AUTH
+#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) \
+    || defined(USE_LIBSSH2)
 
 #include "warnless.h"
 #include "curl_sha256.h"
@@ -59,9 +60,7 @@
 
 #if defined(USE_OPENSSL_SHA256)
 
-/* When OpenSSL or wolfSSL is available is available we use their
- * SHA256-functions.
- */
+/* When OpenSSL or wolfSSL is available we use their SHA256-functions. */
 #if defined(USE_OPENSSL)
 #include <openssl/evp.h>
 #elif defined(USE_WOLFSSL)
@@ -112,7 +111,10 @@ static CURLcode my_sha256_init(my_sha256_ctx *ctx)
   if(!ctx->openssl_ctx)
     return CURLE_OUT_OF_MEMORY;
 
-  EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL);
+  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+    EVP_MD_CTX_destroy(ctx->openssl_ctx);
+    return CURLE_FAILED_INIT;
+  }
   return CURLE_OK;
 }
 
@@ -220,9 +222,14 @@ typedef struct sha256_ctx my_sha256_ctx;
 
 static CURLcode my_sha256_init(my_sha256_ctx *ctx)
 {
-  if(CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
-                         CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
-    CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash);
+  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+                         CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+    return CURLE_OUT_OF_MEMORY;
+
+  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+    CryptReleaseContext(ctx->hCryptProv, 0);
+    ctx->hCryptProv = 0;
+    return CURLE_FAILED_INIT;
   }
 
   return CURLE_OK;
@@ -535,4 +542,4 @@ const struct HMAC_params Curl_HMAC_SHA256[] = {
 };
 
 
-#endif /* CURL_DISABLE_CRYPTO_AUTH */
+#endif /* AWS, DIGEST, or libSSH2 */

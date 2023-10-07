@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -24,52 +24,32 @@
 
 #include "curl_setup.h"
 
-#ifndef CURL_DISABLE_FTP
+#ifdef CURL_MACOS_CALL_COPYPROXIES
 
-#include "wildcard.h"
-#include "llist.h"
-#include "fileinfo.h"
-/* The last 3 #include files should be in this order */
-#include "curl_printf.h"
-#include "curl_memory.h"
-#include "memdebug.h"
+#include <curl/curl.h>
 
-static void fileinfo_dtor(void *user, void *element)
+#include "macos.h"
+
+#include <SystemConfiguration/SCDynamicStoreCopySpecific.h>
+
+CURLcode Curl_macos_init(void)
 {
-  (void)user;
-  Curl_fileinfo_cleanup(element);
-}
-
-CURLcode Curl_wildcard_init(struct WildcardData *wc)
-{
-  Curl_llist_init(&wc->filelist, fileinfo_dtor);
-  wc->state = CURLWC_INIT;
-
+  {
+    /*
+     * The automagic conversion from IPv4 literals to IPv6 literals only
+     * works if the SCDynamicStoreCopyProxies system function gets called
+     * first. As Curl currently doesn't support system-wide HTTP proxies, we
+     * therefore don't use any value this function might return.
+     *
+     * This function is only available on macOS and is not needed for
+     * IPv4-only builds, hence the conditions for defining
+     * CURL_MACOS_CALL_COPYPROXIES in curl_setup.h.
+     */
+    CFDictionaryRef dict = SCDynamicStoreCopyProxies(NULL);
+    if(dict)
+      CFRelease(dict);
+  }
   return CURLE_OK;
 }
 
-void Curl_wildcard_dtor(struct WildcardData *wc)
-{
-  if(!wc)
-    return;
-
-  if(wc->dtor) {
-    wc->dtor(wc->protdata);
-    wc->dtor = ZERO_NULL;
-    wc->protdata = NULL;
-  }
-  DEBUGASSERT(wc->protdata == NULL);
-
-  Curl_llist_destroy(&wc->filelist, NULL);
-
-
-  free(wc->path);
-  wc->path = NULL;
-  free(wc->pattern);
-  wc->pattern = NULL;
-
-  wc->customptr = NULL;
-  wc->state = CURLWC_INIT;
-}
-
-#endif /* if disabled */
+#endif

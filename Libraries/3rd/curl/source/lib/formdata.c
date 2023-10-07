@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -27,7 +27,7 @@
 #include <curl/curl.h>
 
 #include "formdata.h"
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_MIME)
+#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
 
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)
 #include <libgen.h>
@@ -941,7 +941,7 @@ int curl_formget(struct curl_httppost *form, void *arg,
 void curl_formfree(struct curl_httppost *form)
 {
   (void)form;
-  /* does nothing HTTP is disabled */
+  /* Nothing to do. */
 }
 
 #endif  /* if disabled */

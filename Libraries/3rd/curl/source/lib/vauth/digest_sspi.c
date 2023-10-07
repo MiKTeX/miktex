@@ -5,8 +5,8 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 2014 - 2016, Steve Holme, <steve_holme@hotmail.com>.
- * Copyright (C) 2015 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) Steve Holme, <steve_holme@hotmail.com>.
+ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -27,7 +27,7 @@
 
 #include "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_CRYPTO_AUTH)
+#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include <curl/curl.h>
 
@@ -665,4 +665,4 @@ void Curl_auth_digest_cleanup(struct digestdata *digest)
   Curl_safefree(digest->passwd);
 }
 
-#endif /* USE_WINDOWS_SSPI && !CURL_DISABLE_CRYPTO_AUTH */
+#endif /* USE_WINDOWS_SSPI && !CURL_DISABLE_DIGEST_AUTH */

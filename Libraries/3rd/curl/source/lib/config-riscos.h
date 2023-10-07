@@ -7,7 +7,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -65,9 +65,6 @@
 
 /* Define this as a suitable file to read random data from */
 #undef RANDOM_FILE
-
-/* Define this to your Entropy Gathering Daemon socket pathname */
-#undef EGD_SOCKET
 
 /* Define if you want to enable IPv6 support */
 #undef ENABLE_IPV6
@@ -135,9 +132,6 @@
 /* Define if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
-/* Define if you have the `RAND_egd' function. */
-#undef HAVE_RAND_EGD
-
 /* Define if you have the `select' function. */
 #define HAVE_SELECT
 
@@ -152,9 +146,6 @@
 
 /* Define if you have the `socket' function. */
 #define HAVE_SOCKET
-
-/* Define if you have the <ssl.h> header file. */
-#undef HAVE_SSL_H
 
 /* Define if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H

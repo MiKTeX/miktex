@@ -1,6 +1,6 @@
 ## sources.cmake
 ##
-## Copyright (C) 2006-2022 Christian Schenk
+## Copyright (C) 2006-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -41,13 +41,11 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/vauth.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/bearssl.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/gskit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/gtls.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/hostcheck.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/keylog.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/mbedtls.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/mbedtls_threadlock.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/nss.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/openssl.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/rustls.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/schannel.c
@@ -58,31 +56,31 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/x509asn1.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/bearssl.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/gskit.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/gtls.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/hostcheck.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/keylog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/mbedtls.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/mbedtls_threadlock.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/nssg.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/openssl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/rustls.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/schannel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/schannel_int.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/sectransp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/vtls.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/vtls_int.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/wolfssl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/x509asn1.h
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/msh3.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/ngtcp2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/quiche.c
+ 
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/curl_msh3.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/curl_ngtcp2.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/curl_quiche.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/vquic.c
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/msh3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/ngtcp2.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/quiche.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/curl_msh3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/curl_ngtcp2.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/curl_quiche.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/vquic.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vquic/vquic_int.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vssh/libssh.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vssh/libssh2.c
@@ -95,8 +93,14 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/asyn-ares.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/asyn-thread.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/base64.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/bufq.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/bufref.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/c-hyper.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-h1-proxy.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-h2-proxy.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-haproxy.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-https-connect.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-socket.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cfilters.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/conncache.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/connect.c
@@ -119,9 +123,11 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sasl.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sspi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_threads.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_trc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dict.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/doh.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dynbuf.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dynhds.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/easy.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/easygetopt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/easyoptions.c
@@ -135,7 +141,6 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/getenv.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/getinfo.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/gopher.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/h2h3.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hash.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/headers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hmac.c
@@ -146,6 +151,7 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hostsyn.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hsts.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http1.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http2.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_chunks.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_digest.c
@@ -161,6 +167,7 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/krb5.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/ldap.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/llist.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/macos.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/md4.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/md5.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/memdebug.c
@@ -210,15 +217,20 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/version.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/version_win32.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/warnless.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/wildcard.c
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/ws.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/altsvc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/amigaos.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/arpa_telnet.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/asyn.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/bufq.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/bufref.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/c-hyper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-h1-proxy.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-h2-proxy.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-haproxy.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-https-connect.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cf-socket.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/cfilters.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/conncache.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/connect.h
@@ -253,10 +265,12 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sha256.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sspi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_threads.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_trc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curlx.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dict.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/doh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dynbuf.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dynhds.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/easy_lock.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/easyif.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/easyoptions.h
@@ -270,12 +284,12 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/ftplistparser.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/getinfo.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/gopher.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/h2h3.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hash.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/headers.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hostip.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/hsts.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http1.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http2.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_chunks.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_digest.h
@@ -289,6 +303,7 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/inet_ntop.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/inet_pton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/llist.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/macos.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/memdebug.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/mime.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/mqtt.h
@@ -302,7 +317,6 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/pop3.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/progress.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/psl.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/quic.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rand.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rename.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rtsp.h
@@ -336,6 +350,5 @@ set(curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/urldata.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/version_win32.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/warnless.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/wildcard.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/ws.h
 )
