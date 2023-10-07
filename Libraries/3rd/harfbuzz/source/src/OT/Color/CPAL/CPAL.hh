@@ -25,12 +25,12 @@
  * Google Author(s): Sascha Brawer
  */
 
-#ifndef HB_OT_COLOR_CPAL_TABLE_HH
-#define HB_OT_COLOR_CPAL_TABLE_HH
+#ifndef OT_COLOR_CPAL_CPAL_HH
+#define OT_COLOR_CPAL_CPAL_HH
 
-#include "hb-open-type.hh"
-#include "hb-ot-color.h"
-#include "hb-ot-name.h"
+#include "../../../hb-open-type.hh"
+#include "../../../hb-ot-color.h"
+#include "../../../hb-ot-name.h"
 
 
 /*
@@ -73,6 +73,30 @@ struct CPALV1Tail
   }
 
   public:
+  void collect_name_ids (const void *base,
+                         unsigned palette_count,
+                         unsigned color_count,
+                         const hb_map_t *color_index_map,
+                         hb_set_t *nameids_to_retain /* OUT */) const
+  {
+    if (paletteLabelsZ)
+    {
+      + (base+paletteLabelsZ).as_array (palette_count)
+      | hb_sink (nameids_to_retain)
+      ;
+    }
+
+    if (colorLabelsZ)
+    {
+      const hb_array_t<const NameID> colorLabels = (base+colorLabelsZ).as_array (color_count);
+      for (unsigned i = 0; i < color_count; i++)
+      {
+        if (!color_index_map->has (i)) continue;
+        nameids_to_retain->add (colorLabels[i]);
+      }
+    }
+  }
+
   bool serialize (hb_serialize_context_t *c,
                   unsigned palette_count,
                   unsigned color_count,
@@ -95,13 +119,10 @@ struct CPALV1Tail
     if (colorLabelsZ)
     {
       c->push ();
-      for (const auto _ : colorLabels)
+      for (unsigned i = 0; i < color_count; i++)
       {
-	const hb_codepoint_t *v;
-        if (!color_index_map->has (_, &v)) continue;
-        NameID new_color_idx;
-	new_color_idx = *v;
-        if (!c->copy<NameID> (new_color_idx))
+        if (!color_index_map->has (i)) continue;
+        if (!c->copy<NameID> (colorLabels[i]))
         {
           c->pop_discard ();
           return_trace (false);
@@ -189,6 +210,13 @@ struct CPAL
     return numColors;
   }
 
+  void collect_name_ids (const hb_map_t *color_index_map,
+                         hb_set_t *nameids_to_retain /* OUT */) const
+  {
+    if (version == 1)
+      v1 ().collect_name_ids (this, numPalettes, numColors, color_index_map, nameids_to_retain);
+  }
+
   private:
   const CPALV1Tail& v1 () const
   {
@@ -239,7 +267,7 @@ struct CPAL
     TRACE_SUBSET (this);
     if (!numPalettes) return_trace (false);
 
-    const hb_map_t *color_index_map = c->plan->colr_palettes;
+    const hb_map_t *color_index_map = &c->plan->colr_palettes;
     if (color_index_map->is_empty ()) return_trace (false);
 
     hb_set_t retained_color_indices;
@@ -319,4 +347,4 @@ struct CPAL
 } /* namespace OT */
 
 
-#endif /* HB_OT_COLOR_CPAL_TABLE_HH */
+#endif /* OT_COLOR_CPAL_CPAL_HH */

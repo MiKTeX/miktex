@@ -25,12 +25,14 @@
  * Google Author(s): Calder Kitagawa
  */
 
-#ifndef HB_OT_COLOR_COLR_TABLE_HH
-#define HB_OT_COLOR_COLR_TABLE_HH
+#ifndef OT_COLOR_COLR_COLR_HH
+#define OT_COLOR_COLR_COLR_HH
 
-#include "hb-open-type.hh"
-#include "hb-ot-layout-common.hh"
-#include "hb-ot-var-common.hh"
+#include "../../../hb.hh"
+#include "../../../hb-open-type.hh"
+#include "../../../hb-ot-var-common.hh"
+#include "../../../hb-paint.hh"
+#include "../../../hb-paint-extents.hh"
 
 /*
  * COLR -- Color
@@ -38,13 +40,84 @@
  */
 #define HB_OT_TAG_COLR HB_TAG('C','O','L','R')
 
-#ifndef HB_COLRV1_MAX_NESTING_LEVEL
-#define HB_COLRV1_MAX_NESTING_LEVEL	16
-#endif
+namespace OT {
+struct hb_paint_context_t;
+}
 
 namespace OT {
 
 struct COLR;
+
+struct Paint;
+
+struct hb_paint_context_t :
+       hb_dispatch_context_t<hb_paint_context_t>
+{
+  const char *get_name () { return "PAINT"; }
+  template <typename T>
+  return_t dispatch (const T &obj) { obj.paint_glyph (this); return hb_empty_t (); }
+  static return_t default_return_value () { return hb_empty_t (); }
+
+  const COLR* get_colr_table () const
+  { return reinterpret_cast<const COLR *> (base); }
+
+public:
+  const void *base;
+  hb_paint_funcs_t *funcs;
+  void *data;
+  hb_font_t *font;
+  unsigned int palette_index;
+  hb_color_t foreground;
+  VarStoreInstancer &instancer;
+  hb_map_t current_glyphs;
+  hb_map_t current_layers;
+  int depth_left = HB_MAX_NESTING_LEVEL;
+  int edge_count = HB_COLRV1_MAX_EDGE_COUNT;
+
+  hb_paint_context_t (const void *base_,
+		      hb_paint_funcs_t *funcs_,
+		      void *data_,
+                      hb_font_t *font_,
+                      unsigned int palette_,
+                      hb_color_t foreground_,
+		      VarStoreInstancer &instancer_) :
+    base (base_),
+    funcs (funcs_),
+    data (data_),
+    font (font_),
+    palette_index (palette_),
+    foreground (foreground_),
+    instancer (instancer_)
+  { }
+
+  hb_color_t get_color (unsigned int color_index, float alpha, hb_bool_t *is_foreground)
+  {
+    hb_color_t color = foreground;
+
+    *is_foreground = true;
+
+    if (color_index != 0xffff)
+    {
+      if (!funcs->custom_palette_color (data, color_index, &color))
+      {
+	unsigned int clen = 1;
+	hb_face_t *face = hb_font_get_face (font);
+
+	hb_ot_color_palette_get_colors (face, palette_index, color_index, &clen, &color);
+      }
+
+      *is_foreground = false;
+    }
+
+    return HB_COLOR (hb_color_get_blue (color),
+                     hb_color_get_green (color),
+                     hb_color_get_red (color),
+                     hb_color_get_alpha (color) * alpha);
+  }
+
+  inline void recurse (const Paint &paint);
+};
+
 struct hb_colrv1_closure_context_t :
        hb_dispatch_context_t<hb_colrv1_closure_context_t>
 {
@@ -98,7 +171,7 @@ struct hb_colrv1_closure_context_t :
                                hb_set_t *glyphs_,
                                hb_set_t *layer_indices_,
                                hb_set_t *palette_indices_,
-                               unsigned nesting_level_left_ = HB_COLRV1_MAX_NESTING_LEVEL) :
+                               unsigned nesting_level_left_ = HB_MAX_NESTING_LEVEL) :
                           base (base_),
                           glyphs (glyphs_),
                           layer_indices (layer_indices_),
@@ -160,6 +233,8 @@ struct BaseGlyphRecord
 template <typename T>
 struct Variable
 {
+  static constexpr bool is_variable = true;
+
   Variable<T>* copy (hb_serialize_context_t *c) const
   {
     TRACE_SERIALIZE (this);
@@ -169,10 +244,15 @@ struct Variable
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { value.closurev1 (c); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
-    if (!value.subset (c)) return_trace (false);
+    if (!value.subset (c, instancer, varIdxBase)) return_trace (false);
+    if (c->plan->all_axes_pinned)
+      return_trace (true);
+
+    //TODO: update varIdxBase for partial-instancing
     return_trace (c->serializer->embed (varIdxBase));
   }
 
@@ -182,17 +262,37 @@ struct Variable
     return_trace (c->check_struct (this) && value.sanitize (c));
   }
 
+  void paint_glyph (hb_paint_context_t *c) const
+  {
+    TRACE_PAINT (this);
+    value.paint_glyph (c, varIdxBase);
+  }
+
+  void get_color_stop (hb_paint_context_t *c,
+                       hb_color_stop_t *stop,
+		       const VarStoreInstancer &instancer) const
+  {
+    value.get_color_stop (c, stop, varIdxBase, instancer);
+  }
+
+  hb_paint_extend_t get_extend () const
+  {
+    return value.get_extend ();
+  }
+
   protected:
   T      value;
   public:
   VarIdx varIdxBase;
   public:
-  DEFINE_SIZE_STATIC (4 + T::static_size);
+  DEFINE_SIZE_MIN (VarIdx::static_size + T::min_size);
 };
 
 template <typename T>
 struct NoVariable
 {
+  static constexpr bool is_variable = false;
+
   static constexpr uint32_t varIdxBase = VarIdx::NO_VARIATION;
 
   NoVariable<T>* copy (hb_serialize_context_t *c) const
@@ -204,10 +304,11 @@ struct NoVariable
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { value.closurev1 (c); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
-    return_trace (value.subset (c));
+    return_trace (value.subset (c, instancer, varIdxBase));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
@@ -216,9 +317,27 @@ struct NoVariable
     return_trace (c->check_struct (this) && value.sanitize (c));
   }
 
+  void paint_glyph (hb_paint_context_t *c) const
+  {
+    TRACE_PAINT (this);
+    value.paint_glyph (c, varIdxBase);
+  }
+
+  void get_color_stop (hb_paint_context_t *c,
+                       hb_color_stop_t *stop,
+		       const VarStoreInstancer &instancer) const
+  {
+    value.get_color_stop (c, stop, VarIdx::NO_VARIATION, instancer);
+  }
+
+  hb_paint_extend_t get_extend () const
+  {
+    return value.get_extend ();
+  }
+
   T      value;
   public:
-  DEFINE_SIZE_STATIC (T::static_size);
+  DEFINE_SIZE_MIN (T::min_size);
 };
 
 // Color structures
@@ -228,12 +347,21 @@ struct ColorStop
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { c->add_palette_index (paletteIndex); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (*this);
     if (unlikely (!out)) return_trace (false);
-    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes->get (paletteIndex),
+
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->stopOffset.set_float (stopOffset.to_float(instancer (varIdxBase, 0)));
+      out->alpha.set_float (alpha.to_float (instancer (varIdxBase, 1)));
+    }
+
+    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes.get (paletteIndex),
                                                HB_SERIALIZE_ERROR_INT_OVERFLOW));
   }
 
@@ -241,6 +369,17 @@ struct ColorStop
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this));
+  }
+
+  void get_color_stop (hb_paint_context_t *c,
+                       hb_color_stop_t *out,
+		       uint32_t varIdx,
+		       const VarStoreInstancer &instancer) const
+  {
+    out->offset = stopOffset.to_float(instancer (varIdx, 0));
+    out->color = c->get_color (paletteIndex,
+                               alpha.to_float (instancer (varIdx, 1)),
+                               &out->is_foreground);
   }
 
   F2DOT14	stopOffset;
@@ -270,11 +409,11 @@ struct ColorLine
       stop.closurev1 (c);
   }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (this);
-    if (unlikely (!out)) return_trace (false);
     if (unlikely (!c->serializer->extend_min (out))) return_trace (false);
 
     if (!c->serializer->check_assign (out->extend, extend, HB_SERIALIZE_ERROR_INT_OVERFLOW)) return_trace (false);
@@ -282,7 +421,7 @@ struct ColorLine
 
     for (const auto& stop : stops.iter ())
     {
-      if (!stop.subset (c)) return_trace (false);
+      if (!stop.subset (c, instancer)) return_trace (false);
     }
     return_trace (true);
   }
@@ -292,6 +431,52 @@ struct ColorLine
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
                   stops.sanitize (c));
+  }
+
+  /* get up to count stops from start */
+  unsigned int
+  get_color_stops (hb_paint_context_t *c,
+                   unsigned int start,
+		   unsigned int *count,
+		   hb_color_stop_t *color_stops,
+		   const VarStoreInstancer &instancer) const
+  {
+    unsigned int len = stops.len;
+
+    if (count && color_stops)
+    {
+      unsigned int i;
+      for (i = 0; i < *count && start + i < len; i++)
+        stops[start + i].get_color_stop (c, &color_stops[i], instancer);
+      *count = i;
+    }
+
+    return len;
+  }
+
+  HB_INTERNAL static unsigned int static_get_color_stops (hb_color_line_t *color_line,
+							  void *color_line_data,
+							  unsigned int start,
+							  unsigned int *count,
+							  hb_color_stop_t *color_stops,
+							  void *user_data)
+  {
+    const ColorLine *thiz = (const ColorLine *) color_line_data;
+    hb_paint_context_t *c = (hb_paint_context_t *) user_data;
+    return thiz->get_color_stops (c, start, count, color_stops, c->instancer);
+  }
+
+  hb_paint_extend_t get_extend () const
+  {
+    return (hb_paint_extend_t) (unsigned int) extend;
+  }
+
+  HB_INTERNAL static hb_paint_extend_t static_get_extend (hb_color_line_t *color_line,
+							  void *color_line_data,
+							  void *user_data)
+  {
+    const ColorLine *thiz = (const ColorLine *) color_line_data;
+    return thiz->get_extend ();
   }
 
   Extend	extend;
@@ -357,6 +542,37 @@ struct Affine2x3
     return_trace (c->check_struct (this));
   }
 
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
+  {
+    TRACE_SUBSET (this);
+    auto *out = c->serializer->embed (*this);
+    if (unlikely (!out)) return_trace (false);
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->xx.set_float (xx.to_float(instancer (varIdxBase, 0)));
+      out->yx.set_float (yx.to_float(instancer (varIdxBase, 1)));
+      out->xy.set_float (xy.to_float(instancer (varIdxBase, 2)));
+      out->yy.set_float (yy.to_float(instancer (varIdxBase, 3)));
+      out->dx.set_float (dx.to_float(instancer (varIdxBase, 4)));
+      out->dy.set_float (dy.to_float(instancer (varIdxBase, 5)));
+    }
+    return_trace (true);
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    c->funcs->push_transform (c->data,
+			      xx.to_float (c->instancer (varIdxBase, 0)),
+			      yx.to_float (c->instancer (varIdxBase, 1)),
+                              xy.to_float (c->instancer (varIdxBase, 2)),
+			      yy.to_float (c->instancer (varIdxBase, 3)),
+                              dx.to_float (c->instancer (varIdxBase, 4)),
+			      dy.to_float (c->instancer (varIdxBase, 5)));
+  }
+
   F16DOT16 xx;
   F16DOT16 yx;
   F16DOT16 xy;
@@ -371,12 +587,13 @@ struct PaintColrLayers
 {
   void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer HB_UNUSED) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
-    return_trace (c->serializer->check_assign (out->firstLayerIndex, c->plan->colrv1_layers->get (firstLayerIndex),
+    return_trace (c->serializer->check_assign (out->firstLayerIndex, c->plan->colrv1_layers.get (firstLayerIndex),
                                                HB_SERIALIZE_ERROR_INT_OVERFLOW));
 
     return_trace (true);
@@ -387,6 +604,8 @@ struct PaintColrLayers
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this));
   }
+
+  inline void paint_glyph (hb_paint_context_t *c) const;
 
   HBUINT8	format; /* format = 1 */
   HBUINT8	numLayers;
@@ -400,12 +619,21 @@ struct PaintSolid
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { c->add_palette_index (paletteIndex); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (*this);
     if (unlikely (!out)) return_trace (false);
-    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes->get (paletteIndex),
+
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+      out->alpha.set_float (alpha.to_float (instancer (varIdxBase, 0)));
+
+    if (format == 3 && c->plan->all_axes_pinned)
+        out->format = 2;
+
+    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes.get (paletteIndex),
                                                HB_SERIALIZE_ERROR_INT_OVERFLOW));
   }
 
@@ -413,6 +641,18 @@ struct PaintSolid
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    hb_bool_t is_foreground;
+    hb_color_t color;
+
+    color = c->get_color (paletteIndex,
+                          alpha.to_float (c->instancer (varIdxBase, 0)),
+                          &is_foreground);
+    c->funcs->color (c->data, is_foreground, color);
   }
 
   HBUINT8	format; /* format = 2(noVar) or 3(Var)*/
@@ -428,19 +668,52 @@ struct PaintLinearGradient
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { (this+colorLine).closurev1 (c); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->colorLine.serialize_subset (c, colorLine, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->x0 = x0 + (int) roundf (instancer (varIdxBase, 0));
+      out->y0 = y0 + (int) roundf (instancer (varIdxBase, 1));
+      out->x1 = x1 + (int) roundf (instancer (varIdxBase, 2));
+      out->y1 = y1 + (int) roundf (instancer (varIdxBase, 3));
+      out->x2 = x2 + (int) roundf (instancer (varIdxBase, 4));
+      out->y2 = y2 + (int) roundf (instancer (varIdxBase, 5));
+    }
+
+    if (format == 5 && c->plan->all_axes_pinned)
+        out->format = 4;
+
+    return_trace (out->colorLine.serialize_subset (c, colorLine, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && colorLine.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    hb_color_line_t cl = {
+      (void *) &(this+colorLine),
+      (this+colorLine).static_get_color_stops, c,
+      (this+colorLine).static_get_extend, nullptr
+    };
+
+    c->funcs->linear_gradient (c->data, &cl,
+			       x0 + c->instancer (varIdxBase, 0),
+			       y0 + c->instancer (varIdxBase, 1),
+			       x1 + c->instancer (varIdxBase, 2),
+			       y1 + c->instancer (varIdxBase, 3),
+			       x2 + c->instancer (varIdxBase, 4),
+			       y2 + c->instancer (varIdxBase, 5));
   }
 
   HBUINT8			format; /* format = 4(noVar) or 5 (Var) */
@@ -462,19 +735,52 @@ struct PaintRadialGradient
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { (this+colorLine).closurev1 (c); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->colorLine.serialize_subset (c, colorLine, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->x0 = x0 + (int) roundf (instancer (varIdxBase, 0));
+      out->y0 = y0 + (int) roundf (instancer (varIdxBase, 1));
+      out->radius0 = radius0 + (unsigned) roundf (instancer (varIdxBase, 2));
+      out->x1 = x1 + (int) roundf (instancer (varIdxBase, 3));
+      out->y1 = y1 + (int) roundf (instancer (varIdxBase, 4));
+      out->radius1 = radius1 + (unsigned) roundf (instancer (varIdxBase, 5));
+    }
+
+    if (format == 7 && c->plan->all_axes_pinned)
+        out->format = 6;
+
+    return_trace (out->colorLine.serialize_subset (c, colorLine, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && colorLine.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    hb_color_line_t cl = {
+      (void *) &(this+colorLine),
+      (this+colorLine).static_get_color_stops, c,
+      (this+colorLine).static_get_extend, nullptr
+    };
+
+    c->funcs->radial_gradient (c->data, &cl,
+			       x0 + c->instancer (varIdxBase, 0),
+			       y0 + c->instancer (varIdxBase, 1),
+			       radius0 + c->instancer (varIdxBase, 2),
+			       x1 + c->instancer (varIdxBase, 3),
+			       y1 + c->instancer (varIdxBase, 4),
+			       radius1 + c->instancer (varIdxBase, 5));
   }
 
   HBUINT8			format; /* format = 6(noVar) or 7 (Var) */
@@ -496,19 +802,48 @@ struct PaintSweepGradient
   void closurev1 (hb_colrv1_closure_context_t* c) const
   { (this+colorLine).closurev1 (c); }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->colorLine.serialize_subset (c, colorLine, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->centerX = centerX + (int) roundf (instancer (varIdxBase, 0));
+      out->centerY = centerY + (int) roundf (instancer (varIdxBase, 1));
+      out->startAngle.set_float (startAngle.to_float (instancer (varIdxBase, 2)));
+      out->endAngle.set_float (endAngle.to_float (instancer (varIdxBase, 3)));
+    }
+
+    if (format == 9 && c->plan->all_axes_pinned)
+        out->format = 8;
+
+    return_trace (out->colorLine.serialize_subset (c, colorLine, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && colorLine.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    hb_color_line_t cl = {
+      (void *) &(this+colorLine),
+      (this+colorLine).static_get_color_stops, c,
+      (this+colorLine).static_get_extend, nullptr
+    };
+
+    c->funcs->sweep_gradient (c->data, &cl,
+			      centerX + c->instancer (varIdxBase, 0),
+			      centerY + c->instancer (varIdxBase, 1),
+                              (startAngle.to_float (c->instancer (varIdxBase, 2)) + 1) * HB_PI,
+                              (endAngle.to_float   (c->instancer (varIdxBase, 3)) + 1) * HB_PI);
   }
 
   HBUINT8			format; /* format = 8(noVar) or 9 (Var) */
@@ -522,14 +857,13 @@ struct PaintSweepGradient
   DEFINE_SIZE_STATIC (4 + 2 * FWORD::static_size + 2 * F2DOT14::static_size);
 };
 
-struct Paint;
-
 // Paint a non-COLR glyph, filled as indicated by paint.
 struct PaintGlyph
 {
   void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
@@ -539,13 +873,25 @@ struct PaintGlyph
                                        HB_SERIALIZE_ERROR_INT_OVERFLOW))
       return_trace (false);
 
-    return_trace (out->paint.serialize_subset (c, paint, this));
+    return_trace (out->paint.serialize_subset (c, paint, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && paint.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c) const
+  {
+    TRACE_PAINT (this);
+    c->funcs->push_inverse_root_transform (c->data, c->font);
+    c->funcs->push_clip_glyph (c->data, gid, c->font);
+    c->funcs->push_root_transform (c->data, c->font);
+    c->recurse (this+paint);
+    c->funcs->pop_transform (c->data);
+    c->funcs->pop_clip (c->data);
+    c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 10 */
@@ -559,7 +905,8 @@ struct PaintColrGlyph
 {
   void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer HB_UNUSED) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
@@ -575,6 +922,8 @@ struct PaintColrGlyph
     return_trace (c->check_struct (this));
   }
 
+  inline void paint_glyph (hb_paint_context_t *c) const;
+
   HBUINT8	format; /* format = 11 */
   HBUINT16	gid;
   public:
@@ -586,13 +935,16 @@ struct PaintTransform
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
-    if (!out->transform.serialize_copy (c->serializer, transform, this)) return_trace (false);
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (!out->transform.serialize_subset (c, transform, this, instancer)) return_trace (false);
+    if (format == 13 && c->plan->all_axes_pinned)
+      out->format = 12;
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
@@ -601,6 +953,14 @@ struct PaintTransform
     return_trace (c->check_struct (this) &&
                   src.sanitize (c, this) &&
                   transform.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c) const
+  {
+    TRACE_PAINT (this);
+    (this+transform).paint_glyph (c);
+    c->recurse (this+src);
+    c->funcs->pop_transform (c->data);
   }
 
   HBUINT8			format; /* format = 12(noVar) or 13 (Var) */
@@ -614,19 +974,41 @@ struct PaintTranslate
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->dx = dx + (int) roundf (instancer (varIdxBase, 0));
+      out->dy = dy + (int) roundf (instancer (varIdxBase, 1));
+    }
+
+    if (format == 15 && c->plan->all_axes_pinned)
+        out->format = 14;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float ddx = dx + c->instancer (varIdxBase, 0);
+    float ddy = dy + c->instancer (varIdxBase, 1);
+
+    bool p1 = c->funcs->push_translate (c->data, ddx, ddy);
+    c->recurse (this+src);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 14(noVar) or 15 (Var) */
@@ -641,19 +1023,41 @@ struct PaintScale
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->scaleX.set_float (scaleX.to_float (instancer (varIdxBase, 0)));
+      out->scaleY.set_float (scaleY.to_float (instancer (varIdxBase, 1)));
+    }
+
+    if (format == 17 && c->plan->all_axes_pinned)
+        out->format = 16;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float sx = scaleX.to_float (c->instancer (varIdxBase, 0));
+    float sy = scaleY.to_float (c->instancer (varIdxBase, 1));
+
+    bool p1 = c->funcs->push_scale (c->data, sx, sy);
+    c->recurse (this+src);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 16 (noVar) or 17(Var) */
@@ -668,19 +1072,49 @@ struct PaintScaleAroundCenter
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->scaleX.set_float (scaleX.to_float (instancer (varIdxBase, 0)));
+      out->scaleY.set_float (scaleY.to_float (instancer (varIdxBase, 1)));
+      out->centerX = centerX + (int) roundf (instancer (varIdxBase, 2));
+      out->centerY = centerY + (int) roundf (instancer (varIdxBase, 3));
+    }
+
+    if (format == 19 && c->plan->all_axes_pinned)
+        out->format = 18;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float sx = scaleX.to_float (c->instancer (varIdxBase, 0));
+    float sy = scaleY.to_float (c->instancer (varIdxBase, 1));
+    float tCenterX = centerX + c->instancer (varIdxBase, 2);
+    float tCenterY = centerY + c->instancer (varIdxBase, 3);
+
+    bool p1 = c->funcs->push_translate (c->data, +tCenterX, +tCenterY);
+    bool p2 = c->funcs->push_scale (c->data, sx, sy);
+    bool p3 = c->funcs->push_translate (c->data, -tCenterX, -tCenterY);
+    c->recurse (this+src);
+    if (p3) c->funcs->pop_transform (c->data);
+    if (p2) c->funcs->pop_transform (c->data);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 18 (noVar) or 19(Var) */
@@ -697,19 +1131,37 @@ struct PaintScaleUniform
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+      out->scale.set_float (scale.to_float (instancer (varIdxBase, 0)));
+
+    if (format == 21 && c->plan->all_axes_pinned)
+        out->format = 20;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float s = scale.to_float (c->instancer (varIdxBase, 0));
+
+    bool p1 = c->funcs->push_scale (c->data, s, s);
+    c->recurse (this+src);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 20 (noVar) or 21(Var) */
@@ -723,19 +1175,47 @@ struct PaintScaleUniformAroundCenter
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->scale.set_float (scale.to_float (instancer (varIdxBase, 0)));
+      out->centerX = centerX + (int) roundf (instancer (varIdxBase, 1));
+      out->centerY = centerY + (int) roundf (instancer (varIdxBase, 2));
+    }
+
+    if (format == 23 && c->plan->all_axes_pinned)
+        out->format = 22;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float s = scale.to_float (c->instancer (varIdxBase, 0));
+    float tCenterX = centerX + c->instancer (varIdxBase, 1);
+    float tCenterY = centerY + c->instancer (varIdxBase, 2);
+
+    bool p1 = c->funcs->push_translate (c->data, +tCenterX, +tCenterY);
+    bool p2 = c->funcs->push_scale (c->data, s, s);
+    bool p3 = c->funcs->push_translate (c->data, -tCenterX, -tCenterY);
+    c->recurse (this+src);
+    if (p3) c->funcs->pop_transform (c->data);
+    if (p2) c->funcs->pop_transform (c->data);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 22 (noVar) or 23(Var) */
@@ -751,19 +1231,37 @@ struct PaintRotate
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+      out->angle.set_float (angle.to_float (instancer (varIdxBase, 0)));
+
+    if (format == 25 && c->plan->all_axes_pinned)
+      out->format = 24;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float a = angle.to_float (c->instancer (varIdxBase, 0));
+
+    bool p1 = c->funcs->push_rotate (c->data, a);
+    c->recurse (this+src);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 24 (noVar) or 25(Var) */
@@ -777,19 +1275,47 @@ struct PaintRotateAroundCenter
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->angle.set_float (angle.to_float (instancer (varIdxBase, 0)));
+      out->centerX = centerX + (int) roundf (instancer (varIdxBase, 1));
+      out->centerY = centerY + (int) roundf (instancer (varIdxBase, 2));
+    }
+
+    if (format ==27 && c->plan->all_axes_pinned)
+        out->format = 26;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float a = angle.to_float (c->instancer (varIdxBase, 0));
+    float tCenterX = centerX + c->instancer (varIdxBase, 1);
+    float tCenterY = centerY + c->instancer (varIdxBase, 2);
+
+    bool p1 = c->funcs->push_translate (c->data, +tCenterX, +tCenterY);
+    bool p2 = c->funcs->push_rotate (c->data, a);
+    bool p3 = c->funcs->push_translate (c->data, -tCenterX, -tCenterY);
+    c->recurse (this+src);
+    if (p3) c->funcs->pop_transform (c->data);
+    if (p2) c->funcs->pop_transform (c->data);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 26 (noVar) or 27(Var) */
@@ -805,19 +1331,41 @@ struct PaintSkew
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->xSkewAngle.set_float (xSkewAngle.to_float (instancer (varIdxBase, 0)));
+      out->ySkewAngle.set_float (ySkewAngle.to_float (instancer (varIdxBase, 1)));
+    }
+
+    if (format == 29 && c->plan->all_axes_pinned)
+        out->format = 28;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float sx = xSkewAngle.to_float(c->instancer (varIdxBase, 0));
+    float sy = ySkewAngle.to_float(c->instancer (varIdxBase, 1));
+
+    bool p1 = c->funcs->push_skew (c->data, sx, sy);
+    c->recurse (this+src);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 28(noVar) or 29 (Var) */
@@ -832,19 +1380,49 @@ struct PaintSkewAroundCenter
 {
   HB_INTERNAL void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    return_trace (out->src.serialize_subset (c, src, this));
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->xSkewAngle.set_float (xSkewAngle.to_float (instancer (varIdxBase, 0)));
+      out->ySkewAngle.set_float (ySkewAngle.to_float (instancer (varIdxBase, 1)));
+      out->centerX = centerX + (int) roundf (instancer (varIdxBase, 2));
+      out->centerY = centerY + (int) roundf (instancer (varIdxBase, 3));
+    }
+
+    if (format == 31 && c->plan->all_axes_pinned)
+        out->format = 30;
+
+    return_trace (out->src.serialize_subset (c, src, this, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && src.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
+  {
+    TRACE_PAINT (this);
+    float sx = xSkewAngle.to_float(c->instancer (varIdxBase, 0));
+    float sy = ySkewAngle.to_float(c->instancer (varIdxBase, 1));
+    float tCenterX = centerX + c->instancer (varIdxBase, 2);
+    float tCenterY = centerY + c->instancer (varIdxBase, 3);
+
+    bool p1 = c->funcs->push_translate (c->data, +tCenterX, +tCenterY);
+    bool p2 = c->funcs->push_skew (c->data, sx, sy);
+    bool p3 = c->funcs->push_translate (c->data, -tCenterX, -tCenterY);
+    c->recurse (this+src);
+    if (p3) c->funcs->pop_transform (c->data);
+    if (p2) c->funcs->pop_transform (c->data);
+    if (p1) c->funcs->pop_transform (c->data);
   }
 
   HBUINT8		format; /* format = 30(noVar) or 31 (Var) */
@@ -861,22 +1439,35 @@ struct PaintComposite
 {
   void closurev1 (hb_colrv1_closure_context_t* c) const;
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    if (!out->src.serialize_subset (c, src, this)) return_trace (false);
-    return_trace (out->backdrop.serialize_subset (c, backdrop, this));
+    bool ret = false;
+    ret |= out->src.serialize_subset (c, src, this, instancer);
+    ret |= out->backdrop.serialize_subset (c, backdrop, this, instancer);
+    return_trace (ret);
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
+		  c->check_ops (this->min_size) && // PainComposite can get exponential
                   src.sanitize (c, this) &&
                   backdrop.sanitize (c, this));
+  }
+
+  void paint_glyph (hb_paint_context_t *c) const
+  {
+    TRACE_PAINT (this);
+    c->recurse (this+backdrop);
+    c->funcs->push_group (c->data);
+    c->recurse (this+src);
+    c->funcs->pop_group (c->data, (hb_paint_composite_mode_t) (int) mode);
   }
 
   HBUINT8		format; /* format = 32 */
@@ -908,6 +1499,28 @@ struct ClipBoxFormat1
     clip_box.yMax = yMax;
   }
 
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer,
+               uint32_t varIdxBase) const
+  {
+    TRACE_SUBSET (this);
+    auto *out = c->serializer->embed (*this);
+    if (unlikely (!out)) return_trace (false);
+
+    if (instancer && !c->plan->pinned_at_default && varIdxBase != VarIdx::NO_VARIATION)
+    {
+      out->xMin = xMin + (int) roundf (instancer (varIdxBase, 0));
+      out->yMin = yMin + (int) roundf (instancer (varIdxBase, 1));
+      out->xMax = xMax + (int) roundf (instancer (varIdxBase, 2));
+      out->yMax = yMax + (int) roundf (instancer (varIdxBase, 3));
+    }
+
+    if (format == 2 && c->plan->all_axes_pinned)
+        out->format = 1;
+
+    return_trace (true);
+  }
+
   public:
   HBUINT8	format; /* format = 1(noVar) or 2(Var)*/
   FWORD		xMin;
@@ -925,31 +1538,32 @@ struct ClipBoxFormat2 : Variable<ClipBoxFormat1>
     value.get_clip_box(clip_box, instancer);
     if (instancer)
     {
-      clip_box.xMin += _hb_roundf (instancer (varIdxBase, 0));
-      clip_box.yMin += _hb_roundf (instancer (varIdxBase, 1));
-      clip_box.xMax += _hb_roundf (instancer (varIdxBase, 2));
-      clip_box.yMax += _hb_roundf (instancer (varIdxBase, 3));
+      clip_box.xMin += roundf (instancer (varIdxBase, 0));
+      clip_box.yMin += roundf (instancer (varIdxBase, 1));
+      clip_box.xMax += roundf (instancer (varIdxBase, 2));
+      clip_box.yMax += roundf (instancer (varIdxBase, 3));
     }
   }
 };
 
 struct ClipBox
 {
-  ClipBox* copy (hb_serialize_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
-    TRACE_SERIALIZE (this);
+    TRACE_SUBSET (this);
     switch (u.format) {
-    case 1: return_trace (reinterpret_cast<ClipBox *> (c->embed (u.format1)));
-    case 2: return_trace (reinterpret_cast<ClipBox *> (c->embed (u.format2)));
-    default:return_trace (nullptr);
+    case 1: return_trace (u.format1.subset (c, instancer, VarIdx::NO_VARIATION));
+    case 2: return_trace (u.format2.subset (c, instancer));
+    default:return_trace (c->default_return_value ());
     }
   }
 
   template <typename context_t, typename ...Ts>
   typename context_t::return_t dispatch (context_t *c, Ts&&... ds) const
   {
+    if (unlikely (!c->may_dispatch (this, &u.format))) return c->no_dispatch_return_value ();
     TRACE_DISPATCH (this, u.format);
-    if (unlikely (!c->may_dispatch (this, &u.format))) return_trace (c->no_dispatch_return_value ());
     switch (u.format) {
     case 1: return_trace (c->dispatch (u.format1, std::forward<Ts> (ds)...));
     case 2: return_trace (c->dispatch (u.format2, std::forward<Ts> (ds)...));
@@ -992,13 +1606,15 @@ struct ClipRecord
   int cmp (hb_codepoint_t g) const
   { return g < startGlyphID ? -1 : g <= endGlyphID ? 0 : +1; }
 
-  ClipRecord* copy (hb_serialize_context_t *c, const void *base) const
+  bool subset (hb_subset_context_t *c,
+               const void *base,
+               const VarStoreInstancer &instancer) const
   {
-    TRACE_SERIALIZE (this);
-    auto *out = c->embed (this);
-    if (unlikely (!out)) return_trace (nullptr);
-    if (!out->clipBox.serialize_copy (c, clipBox, base)) return_trace (nullptr);
-    return_trace (out);
+    TRACE_SUBSET (this);
+    auto *out = c->serializer->embed (*this);
+    if (unlikely (!out)) return_trace (false);
+
+    return_trace (out->clipBox.serialize_subset (c, clipBox, base, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c, const void *base) const
@@ -1025,7 +1641,8 @@ DECLARE_NULL_NAMESPACE_BYTES (OT, ClipRecord);
 
 struct ClipList
 {
-  unsigned serialize_clip_records (hb_serialize_context_t *c,
+  unsigned serialize_clip_records (hb_subset_context_t *c,
+                                   const VarStoreInstancer &instancer,
                                    const hb_set_t& gids,
                                    const hb_map_t& gid_offset_map) const
   {
@@ -1057,7 +1674,7 @@ struct ClipList
       record.endGlyphID = prev_gid;
       record.clipBox = prev_offset;
 
-      if (!c->copy (record, this)) return_trace (0);
+      if (!record.subset (c, this, instancer)) return_trace (0);
       count++;
 
       start_gid = _;
@@ -1071,20 +1688,21 @@ struct ClipList
       record.startGlyphID = start_gid;
       record.endGlyphID = prev_gid;
       record.clipBox = prev_offset;
-      if (!c->copy (record, this)) return_trace (0);
+      if (!record.subset (c, this, instancer)) return_trace (0);
       count++;
     }
     return_trace (count);
   }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (*this);
     if (unlikely (!c->serializer->extend_min (out))) return_trace (false);
     if (!c->serializer->check_assign (out->format, format, HB_SERIALIZE_ERROR_INT_OVERFLOW)) return_trace (false);
 
-    const hb_set_t& glyphset = *c->plan->_glyphset_colred;
+    const hb_set_t& glyphset = c->plan->_glyphset_colred;
     const hb_map_t &glyph_map = *c->plan->glyph_map;
 
     hb_map_t new_gid_offset_map;
@@ -1102,7 +1720,7 @@ struct ClipList
       }
     }
 
-    unsigned count = serialize_clip_records (c->serializer, new_gids, new_gid_offset_map);
+    unsigned count = serialize_clip_records (c, instancer, new_gids, new_gid_offset_map);
     if (!count) return_trace (false);
     return_trace (c->serializer->check_assign (out->clips.len, count, HB_SERIALIZE_ERROR_INT_OVERFLOW));
   }
@@ -1142,7 +1760,7 @@ struct Paint
   {
     TRACE_SANITIZE (this);
 
-    if (unlikely (!c->check_start_recursion (HB_COLRV1_MAX_NESTING_LEVEL)))
+    if (unlikely (!c->check_start_recursion (HB_MAX_NESTING_LEVEL)))
       return_trace (c->no_dispatch_return_value ());
 
     return_trace (c->end_recursion (this->dispatch (c, std::forward<Ts> (ds)...)));
@@ -1151,8 +1769,8 @@ struct Paint
   template <typename context_t, typename ...Ts>
   typename context_t::return_t dispatch (context_t *c, Ts&&... ds) const
   {
+    if (unlikely (!c->may_dispatch (this, &u.format))) return c->no_dispatch_return_value ();
     TRACE_DISPATCH (this, u.format);
-    if (unlikely (!c->may_dispatch (this, &u.format))) return_trace (c->no_dispatch_return_value ());
     switch (u.format) {
     case 1: return_trace (c->dispatch (u.paintformat1, std::forward<Ts> (ds)...));
     case 2: return_trace (c->dispatch (u.paintformat2, std::forward<Ts> (ds)...));
@@ -1194,35 +1812,35 @@ struct Paint
   union {
   HBUINT8					format;
   PaintColrLayers				paintformat1;
-  PaintSolid					paintformat2;
+  NoVariable<PaintSolid>			paintformat2;
   Variable<PaintSolid>				paintformat3;
-  PaintLinearGradient<NoVariable>		paintformat4;
+  NoVariable<PaintLinearGradient<NoVariable>>	paintformat4;
   Variable<PaintLinearGradient<Variable>>	paintformat5;
-  PaintRadialGradient<NoVariable>		paintformat6;
+  NoVariable<PaintRadialGradient<NoVariable>>	paintformat6;
   Variable<PaintRadialGradient<Variable>>	paintformat7;
-  PaintSweepGradient<NoVariable>		paintformat8;
+  NoVariable<PaintSweepGradient<NoVariable>>	paintformat8;
   Variable<PaintSweepGradient<Variable>>	paintformat9;
   PaintGlyph					paintformat10;
   PaintColrGlyph				paintformat11;
   PaintTransform<NoVariable>			paintformat12;
   PaintTransform<Variable>			paintformat13;
-  PaintTranslate				paintformat14;
+  NoVariable<PaintTranslate>			paintformat14;
   Variable<PaintTranslate>			paintformat15;
-  PaintScale					paintformat16;
+  NoVariable<PaintScale>			paintformat16;
   Variable<PaintScale>				paintformat17;
-  PaintScaleAroundCenter			paintformat18;
+  NoVariable<PaintScaleAroundCenter>		paintformat18;
   Variable<PaintScaleAroundCenter>		paintformat19;
-  PaintScaleUniform				paintformat20;
+  NoVariable<PaintScaleUniform>			paintformat20;
   Variable<PaintScaleUniform>			paintformat21;
-  PaintScaleUniformAroundCenter			paintformat22;
+  NoVariable<PaintScaleUniformAroundCenter>	paintformat22;
   Variable<PaintScaleUniformAroundCenter>	paintformat23;
-  PaintRotate					paintformat24;
+  NoVariable<PaintRotate>			paintformat24;
   Variable<PaintRotate>				paintformat25;
-  PaintRotateAroundCenter			paintformat26;
+  NoVariable<PaintRotateAroundCenter>		paintformat26;
   Variable<PaintRotateAroundCenter>		paintformat27;
-  PaintSkew					paintformat28;
+  NoVariable<PaintSkew>				paintformat28;
   Variable<PaintSkew>				paintformat29;
-  PaintSkewAroundCenter				paintformat30;
+  NoVariable<PaintSkewAroundCenter>		paintformat30;
   Variable<PaintSkewAroundCenter>		paintformat31;
   PaintComposite				paintformat32;
   } u;
@@ -1236,7 +1854,8 @@ struct BaseGlyphPaintRecord
   { return g < glyphId ? -1 : g > glyphId ? 1 : 0; }
 
   bool serialize (hb_serialize_context_t *s, const hb_map_t* glyph_map,
-                  const void* src_base, hb_subset_context_t *c) const
+                  const void* src_base, hb_subset_context_t *c,
+                  const VarStoreInstancer &instancer) const
   {
     TRACE_SERIALIZE (this);
     auto *out = s->embed (this);
@@ -1245,7 +1864,7 @@ struct BaseGlyphPaintRecord
                           HB_SERIALIZE_ERROR_INT_OVERFLOW))
       return_trace (false);
 
-    return_trace (out->paint.serialize_subset (c, paint, src_base));
+    return_trace (out->paint.serialize_subset (c, paint, src_base, instancer));
   }
 
   bool sanitize (hb_sanitize_context_t *c, const void *base) const
@@ -1264,19 +1883,20 @@ struct BaseGlyphPaintRecord
 
 struct BaseGlyphList : SortedArray32Of<BaseGlyphPaintRecord>
 {
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (this);
     if (unlikely (!c->serializer->extend_min (out)))  return_trace (false);
-    const hb_set_t* glyphset = c->plan->_glyphset_colred;
+    const hb_set_t* glyphset = &c->plan->_glyphset_colred;
 
     for (const auto& _ : as_array ())
     {
       unsigned gid = _.glyphId;
       if (!glyphset->has (gid)) continue;
 
-      if (_.serialize (c->serializer, c->plan->glyph_map, this, c)) out->len++;
+      if (_.serialize (c->serializer, c->plan->glyph_map, this, c, instancer)) out->len++;
       else return_trace (false);
     }
 
@@ -1295,21 +1915,23 @@ struct LayerList : Array32OfOffset32To<Paint>
   const Paint& get_paint (unsigned i) const
   { return this+(*this)[i]; }
 
-  bool subset (hb_subset_context_t *c) const
+  bool subset (hb_subset_context_t *c,
+               const VarStoreInstancer &instancer) const
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (this);
     if (unlikely (!c->serializer->extend_min (out)))  return_trace (false);
 
+    bool ret = false;
     for (const auto& _ : + hb_enumerate (*this)
                          | hb_filter (c->plan->colrv1_layers, hb_first))
 
     {
       auto *o = out->serialize_append (c->serializer);
-      if (unlikely (!o) || !o->serialize_subset (c, _.second, this))
-        return_trace (false);
+      if (unlikely (!o)) return_trace (false);
+      ret |= o->serialize_subset (c, _.second, this, instancer);
     }
-    return_trace (true);
+    return_trace (ret);
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
@@ -1323,7 +1945,14 @@ struct COLR
 {
   static constexpr hb_tag_t tableTag = HB_OT_TAG_COLR;
 
-  bool has_data () const { return numBaseGlyphs; }
+  bool has_v0_data () const { return numBaseGlyphs; }
+  bool has_v1_data () const
+  {
+    if (version == 1)
+      return (this+baseGlyphList).len > 0;
+
+    return false;
+  }
 
   unsigned int get_glyph_layers (hb_codepoint_t       glyph,
 				 unsigned int         start_offset,
@@ -1501,9 +2130,8 @@ struct COLR
   bool subset (hb_subset_context_t *c) const
   {
     TRACE_SUBSET (this);
-
     const hb_map_t &reverse_glyph_map = *c->plan->reverse_glyph_map;
-    const hb_set_t& glyphset = *c->plan->_glyphset_colred;
+    const hb_set_t& glyphset = c->plan->_glyphset_colred;
 
     auto base_it =
     + hb_range (c->plan->num_output_glyphs ())
@@ -1552,7 +2180,7 @@ struct COLR
 				  if (unlikely (!c->plan->new_gid_for_old_gid (out_layers[i].glyphId, &new_gid)))
 				    return hb_pair_t<bool, hb_vector_t<LayerRecord>> (false, out_layers);
 				  out_layers[i].glyphId = new_gid;
-				  out_layers[i].colorIdx = c->plan->colr_palettes->get (layers[i].colorIdx);
+				  out_layers[i].colorIdx = c->plan->colr_palettes.get (layers[i].colorIdx);
 				}
 
 				return hb_pair_t<bool, hb_vector_t<LayerRecord>> (true, out_layers);
@@ -1564,7 +2192,7 @@ struct COLR
     if (version == 0 && (!base_it || !layer_it))
       return_trace (false);
 
-    COLR *colr_prime = c->serializer->start_embed<COLR> ();
+    auto *colr_prime = c->serializer->start_embed<COLR> ();
     if (unlikely (!c->serializer->extend_min (colr_prime)))  return_trace (false);
 
     if (version == 0)
@@ -1572,7 +2200,12 @@ struct COLR
 
     auto snap = c->serializer->snapshot ();
     if (!c->serializer->allocate_size<void> (5 * HBUINT32::static_size)) return_trace (false);
-    if (!colr_prime->baseGlyphList.serialize_subset (c, baseGlyphList, this))
+
+    VarStoreInstancer instancer (varStore ? &(this+varStore) : nullptr,
+	                         varIdxMap ? &(this+varIdxMap) : nullptr,
+	                         c->plan->normalized_coords.as_array ());
+
+    if (!colr_prime->baseGlyphList.serialize_subset (c, baseGlyphList, this, instancer))
     {
       if (c->serializer->in_error ()) return_trace (false);
       //no more COLRv1 glyphs: downgrade to version 0
@@ -1582,36 +2215,181 @@ struct COLR
 
     if (!colr_prime->serialize_V0 (c->serializer, version, base_it, layer_it)) return_trace (false);
 
-    colr_prime->layerList.serialize_subset (c, layerList, this);
-    colr_prime->clipList.serialize_subset (c, clipList, this);
+    colr_prime->layerList.serialize_subset (c, layerList, this, instancer);
+    colr_prime->clipList.serialize_subset (c, clipList, this, instancer);
+    if (!varStore || c->plan->all_axes_pinned)
+      return_trace (true);
+
     colr_prime->varIdxMap.serialize_copy (c->serializer, varIdxMap, this);
-    //TODO: subset varStore once it's implemented in fonttools
+    colr_prime->varStore.serialize_copy (c->serializer, varStore, this);
     return_trace (true);
   }
 
+  const Paint *get_base_glyph_paint (hb_codepoint_t glyph) const
+  {
+    const BaseGlyphList &baseglyph_paintrecords = this+baseGlyphList;
+    const BaseGlyphPaintRecord* record = get_base_glyph_paintrecord (glyph);
+    if (record)
+    {
+      const Paint &paint = &baseglyph_paintrecords+record->paint;
+      return &paint;
+    }
+    else
+      return nullptr;
+  }
+
+#ifndef HB_NO_PAINT
   bool
   get_extents (hb_font_t *font, hb_codepoint_t glyph, hb_glyph_extents_t *extents) const
   {
     if (version != 1)
       return false;
 
-    VarStoreInstancer instancer (this+varStore,
-				 this+varIdxMap,
+    VarStoreInstancer instancer (&(this+varStore),
+				 &(this+varIdxMap),
 				 hb_array (font->coords, font->num_coords));
 
-    if ((this+clipList).get_extents (glyph,
-				     extents,
-				     instancer))
+    if (get_clip (glyph, extents, instancer))
     {
-      extents->x_bearing = font->em_scale_x (extents->x_bearing);
-      extents->y_bearing = font->em_scale_x (extents->y_bearing);
-      extents->width = font->em_scale_x (extents->width);
-      extents->height = font->em_scale_x (extents->height);
+      font->scale_glyph_extents (extents);
+      return true;
+    }
+
+    auto *extents_funcs = hb_paint_extents_get_funcs ();
+    hb_paint_extents_context_t extents_data;
+    bool ret = paint_glyph (font, glyph, extents_funcs, &extents_data, 0, HB_COLOR(0,0,0,0));
+
+    hb_extents_t e = extents_data.get_extents ();
+    if (e.is_void ())
+    {
+      extents->x_bearing = 0;
+      extents->y_bearing = 0;
+      extents->width = 0;
+      extents->height = 0;
+    }
+    else
+    {
+      extents->x_bearing = e.xmin;
+      extents->y_bearing = e.ymax;
+      extents->width = e.xmax - e.xmin;
+      extents->height = e.ymin - e.ymax;
+    }
+
+    return ret;
+  }
+#endif
+
+  bool
+  has_paint_for_glyph (hb_codepoint_t glyph) const
+  {
+    if (version == 1)
+    {
+      const Paint *paint = get_base_glyph_paint (glyph);
+
+      return paint != nullptr;
+    }
+
+    return false;
+  }
+
+  bool get_clip (hb_codepoint_t glyph,
+		 hb_glyph_extents_t *extents,
+		 const VarStoreInstancer instancer) const
+  {
+    return (this+clipList).get_extents (glyph,
+					extents,
+					instancer);
+  }
+
+#ifndef HB_NO_PAINT
+  bool
+  paint_glyph (hb_font_t *font, hb_codepoint_t glyph, hb_paint_funcs_t *funcs, void *data, unsigned int palette_index, hb_color_t foreground, bool clip = true) const
+  {
+    VarStoreInstancer instancer (&(this+varStore),
+	                         &(this+varIdxMap),
+	                         hb_array (font->coords, font->num_coords));
+    hb_paint_context_t c (this, funcs, data, font, palette_index, foreground, instancer);
+    c.current_glyphs.add (glyph);
+
+    if (version == 1)
+    {
+      const Paint *paint = get_base_glyph_paint (glyph);
+      if (paint)
+      {
+        // COLRv1 glyph
+
+	VarStoreInstancer instancer (&(this+varStore),
+				     &(this+varIdxMap),
+				     hb_array (font->coords, font->num_coords));
+
+	bool is_bounded = true;
+	if (clip)
+	{
+	  hb_glyph_extents_t extents;
+	  if (get_clip (glyph, &extents, instancer))
+	  {
+	    font->scale_glyph_extents (&extents);
+	    c.funcs->push_clip_rectangle (c.data,
+					  extents.x_bearing,
+					  extents.y_bearing + extents.height,
+					  extents.x_bearing + extents.width,
+					  extents.y_bearing);
+	  }
+	  else
+	  {
+	    auto *extents_funcs = hb_paint_extents_get_funcs ();
+	    hb_paint_extents_context_t extents_data;
+
+	    paint_glyph (font, glyph,
+			 extents_funcs, &extents_data,
+			 palette_index, foreground,
+			 false);
+
+	    hb_extents_t extents = extents_data.get_extents ();
+	    is_bounded = extents_data.is_bounded ();
+
+	    c.funcs->push_clip_rectangle (c.data,
+					  extents.xmin,
+					  extents.ymin,
+					  extents.xmax,
+					  extents.ymax);
+	  }
+	}
+
+	c.funcs->push_root_transform (c.data, font);
+
+	if (is_bounded)
+	  c.recurse (*paint);
+
+	c.funcs->pop_transform (c.data);
+
+	if (clip)
+	  c.funcs->pop_clip (c.data);
+
+        return true;
+      }
+    }
+
+    const BaseGlyphRecord *record = get_base_glyph_record (glyph);
+    if (record && ((hb_codepoint_t) record->glyphId == glyph))
+    {
+      // COLRv0 glyph
+      for (const auto &r : (this+layersZ).as_array (numLayers)
+			   .sub_array (record->firstLayerIdx, record->numLayers))
+      {
+        hb_bool_t is_foreground;
+        hb_color_t color = c.get_color (r.colorIdx, 1., &is_foreground);
+        c.funcs->push_clip_glyph (c.data, r.glyphId, c.font);
+        c.funcs->color (c.data, is_foreground, color);
+        c.funcs->pop_clip (c.data);
+      }
+
       return true;
     }
 
     return false;
   }
+#endif
 
   protected:
   HBUINT16	version;	/* Table version number (starts at 0). */
@@ -1635,7 +2413,76 @@ struct COLR_accelerator_t : COLR::accelerator_t {
   COLR_accelerator_t (hb_face_t *face) : COLR::accelerator_t (face) {}
 };
 
+void
+hb_paint_context_t::recurse (const Paint &paint)
+{
+  if (unlikely (depth_left <= 0 || edge_count <= 0)) return;
+  depth_left--;
+  edge_count--;
+  paint.dispatch (this);
+  depth_left++;
+}
+
+void PaintColrLayers::paint_glyph (hb_paint_context_t *c) const
+{
+  TRACE_PAINT (this);
+  const LayerList &paint_offset_lists = c->get_colr_table ()->get_layerList ();
+  for (unsigned i = firstLayerIndex; i < firstLayerIndex + numLayers; i++)
+  {
+    if (unlikely (c->current_layers.has (i)))
+      continue;
+
+    c->current_layers.add (i);
+
+    const Paint &paint = paint_offset_lists.get_paint (i);
+    c->funcs->push_group (c->data);
+    c->recurse (paint);
+    c->funcs->pop_group (c->data, HB_PAINT_COMPOSITE_MODE_SRC_OVER);
+
+    c->current_layers.del (i);
+  }
+}
+
+void PaintColrGlyph::paint_glyph (hb_paint_context_t *c) const
+{
+  TRACE_PAINT (this);
+
+  if (unlikely (c->current_glyphs.has (gid)))
+    return;
+
+  c->current_glyphs.add (gid);
+
+  c->funcs->push_inverse_root_transform (c->data, c->font);
+  if (c->funcs->color_glyph (c->data, gid, c->font))
+  {
+    c->funcs->pop_transform (c->data);
+    c->current_glyphs.del (gid);
+    return;
+  }
+  c->funcs->pop_transform (c->data);
+
+  const COLR *colr_table = c->get_colr_table ();
+  const Paint *paint = colr_table->get_base_glyph_paint (gid);
+
+  hb_glyph_extents_t extents = {0};
+  bool has_clip_box = colr_table->get_clip (gid, &extents, c->instancer);
+
+  if (has_clip_box)
+    c->funcs->push_clip_rectangle (c->data,
+				   extents.x_bearing,
+				   extents.y_bearing + extents.height,
+				   extents.x_bearing + extents.width,
+				   extents.y_bearing);
+
+  if (paint)
+    c->recurse (*paint);
+
+  if (has_clip_box)
+    c->funcs->pop_clip (c->data);
+
+  c->current_glyphs.del (gid);
+}
+
 } /* namespace OT */
 
-
-#endif /* HB_OT_COLOR_COLR_TABLE_HH */
+#endif /* OT_COLOR_COLR_COLR_HH */

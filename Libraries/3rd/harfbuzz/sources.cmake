@@ -1,6 +1,6 @@
 ## sources.cmake
 ##
-## Copyright (C) 2020-2013 Christian Schenk
+## Copyright (C) 2020-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -50,11 +50,13 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-draw.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face-builder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-fallback-shape.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-font.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-iter.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-kern.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-limits.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-machinery.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-map.hh
@@ -75,11 +77,6 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff2-table.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cff2-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-cmap-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-cbdt-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-colr-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-cpal-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-sbix-table.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color-svg-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-color.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face-table-list.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-face.cc
@@ -96,7 +93,18 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-common.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gdef-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gpos-table.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-outline.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-outline.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-paint.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-paint.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-paint-extents.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-paint-extents.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsub-table.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Color/CBDT/CBDT.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Color/COLR/COLR.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Color/CPAL/CPAL.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Color/sbix/sbix.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Color/svg/svg.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/glyf.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/glyf-helpers.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/glyf/loca.hh
@@ -114,6 +122,7 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/CoverageFormat1.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/CoverageFormat2.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/Common/RangeRecord.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GDEF/GDEF.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorFormat1.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorFormat2.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GPOS/AnchorFormat3.hh
@@ -168,6 +177,7 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SingleSubst.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SubstLookup.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/Layout/GSUB/SubstLookupSubTable.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/OT/name/name.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-gsubgpos.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout-jstf-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-layout.cc
@@ -223,6 +233,7 @@ set(HB_BASE_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-avar-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-common.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-cvar-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-fvar-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-gvar-table.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var-hvar-table.hh
@@ -258,7 +269,8 @@ set(HB_BASE_sources
 
 set(HB_BASE_RAGEL_GENERATED_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-json.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-text.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-text-glyphs.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-deserialize-text-unicode.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-number-parser.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-indic-machine.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shaper-khmer-machine.hh
@@ -289,6 +301,7 @@ set(HB_BASE_headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-shape.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-var.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-paint.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape.h

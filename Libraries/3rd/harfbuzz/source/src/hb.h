@@ -29,7 +29,7 @@
 #define HB_H_IN
 
 #if defined(MIKTEX)
-#  include <miktex/harfbuzz/rename-symbols.h>
+#include <miktex/harfbuzz/rename-symbols.h>
 #endif
 #ifndef HB_EXTERN
 #define HB_EXTERN extern
@@ -42,6 +42,7 @@
 #include "hb-face.h"
 #include "hb-font.h"
 #include "hb-map.h"
+#include "hb-paint.h"
 #include "hb-set.h"
 #include "hb-shape.h"
 #include "hb-shape-plan.h"

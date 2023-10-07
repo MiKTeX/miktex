@@ -73,7 +73,7 @@ struct SinglePosFormat2
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-			  "positioning glyph at %d",
+			  "positioning glyph at %u",
 			  c->buffer->idx);
     }
 
@@ -84,7 +84,7 @@ struct SinglePosFormat2
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-			  "positioned glyph at %d",
+			  "positioned glyph at %u",
 			  c->buffer->idx);
     }
 
@@ -94,6 +94,7 @@ struct SinglePosFormat2
 
   bool
   position_single (hb_font_t           *font,
+		   hb_blob_t           *table_blob,
 		   hb_direction_t       direction,
 		   hb_codepoint_t       gid,
 		   hb_glyph_position_t &pos) const
@@ -105,7 +106,7 @@ struct SinglePosFormat2
     /* This is ugly... */
     hb_buffer_t buffer;
     buffer.props.direction = direction;
-    OT::hb_ot_apply_context_t c (1, font, &buffer);
+    OT::hb_ot_apply_context_t c (1, font, &buffer, table_blob);
 
     valueFormat.apply_value (&c, this,
                              &values[index * valueFormat.get_len ()],
@@ -163,7 +164,7 @@ struct SinglePosFormat2
     ;
 
     bool ret = bool (it);
-    SinglePos_serialize (c->serializer, this, it, c->plan->layout_variation_idx_delta_map, c->plan->all_axes_pinned);
+    SinglePos_serialize (c->serializer, this, it, &c->plan->layout_variation_idx_delta_map, c->plan->all_axes_pinned);
     return_trace (ret);
   }
 };

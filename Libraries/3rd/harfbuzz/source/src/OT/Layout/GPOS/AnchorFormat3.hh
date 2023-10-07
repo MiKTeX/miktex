@@ -25,7 +25,9 @@ struct AnchorFormat3
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
-    return_trace (c->check_struct (this) && xDeviceTable.sanitize (c, this) && yDeviceTable.sanitize (c, this));
+    if (unlikely (!c->check_struct (this))) return_trace (false);
+
+    return_trace (xDeviceTable.sanitize (c, this) && yDeviceTable.sanitize (c, this));
   }
 
   void get_anchor (hb_ot_apply_context_t *c, hb_codepoint_t glyph_id HB_UNUSED,
@@ -35,9 +37,9 @@ struct AnchorFormat3
     *x = font->em_fscale_x (xCoordinate);
     *y = font->em_fscale_y (yCoordinate);
 
-    if (font->x_ppem || font->num_coords)
+    if ((font->x_ppem || font->num_coords) && xDeviceTable.sanitize (&c->sanitizer, this))
       *x += (this+xDeviceTable).get_x_delta (font, c->var_store, c->var_store_cache);
-    if (font->y_ppem || font->num_coords)
+    if ((font->y_ppem || font->num_coords) && yDeviceTable.sanitize (&c->sanitizer, this))
       *y += (this+yDeviceTable).get_y_delta (font, c->var_store, c->var_store_cache);
   }
 
@@ -45,15 +47,14 @@ struct AnchorFormat3
   {
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (*this);
-    if (unlikely (!out)) return_trace (false);
     if (unlikely (!c->serializer->embed (format))) return_trace (false);
     if (unlikely (!c->serializer->embed (xCoordinate))) return_trace (false);
     if (unlikely (!c->serializer->embed (yCoordinate))) return_trace (false);
 
     unsigned x_varidx = xDeviceTable ? (this+xDeviceTable).get_variation_index () : HB_OT_LAYOUT_NO_VARIATIONS_INDEX;
-    if (c->plan->layout_variation_idx_delta_map->has (x_varidx))
+    if (c->plan->layout_variation_idx_delta_map.has (x_varidx))
     {
-      int delta = hb_second (c->plan->layout_variation_idx_delta_map->get (x_varidx));
+      int delta = hb_second (c->plan->layout_variation_idx_delta_map.get (x_varidx));
       if (delta != 0)
       {
         if (!c->serializer->check_assign (out->xCoordinate, xCoordinate + delta,
@@ -63,9 +64,9 @@ struct AnchorFormat3
     }
 
     unsigned y_varidx = yDeviceTable ? (this+yDeviceTable).get_variation_index () : HB_OT_LAYOUT_NO_VARIATIONS_INDEX;
-    if (c->plan->layout_variation_idx_delta_map->has (y_varidx))
+    if (c->plan->layout_variation_idx_delta_map.has (y_varidx))
     {
-      int delta = hb_second (c->plan->layout_variation_idx_delta_map->get (y_varidx));
+      int delta = hb_second (c->plan->layout_variation_idx_delta_map.get (y_varidx));
       if (delta != 0)
       {
         if (!c->serializer->check_assign (out->yCoordinate, yCoordinate + delta,
@@ -80,8 +81,8 @@ struct AnchorFormat3
     if (!c->serializer->embed (xDeviceTable)) return_trace (false);
     if (!c->serializer->embed (yDeviceTable)) return_trace (false);
 
-    out->xDeviceTable.serialize_copy (c->serializer, xDeviceTable, this, 0, hb_serialize_context_t::Head, c->plan->layout_variation_idx_delta_map);
-    out->yDeviceTable.serialize_copy (c->serializer, yDeviceTable, this, 0, hb_serialize_context_t::Head, c->plan->layout_variation_idx_delta_map);
+    out->xDeviceTable.serialize_copy (c->serializer, xDeviceTable, this, 0, hb_serialize_context_t::Head, &c->plan->layout_variation_idx_delta_map);
+    out->yDeviceTable.serialize_copy (c->serializer, yDeviceTable, this, 0, hb_serialize_context_t::Head, &c->plan->layout_variation_idx_delta_map);
     return_trace (out);
   }
 
