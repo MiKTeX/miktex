@@ -1,4 +1,4 @@
-/* $OpenBSD: randfile.c,v 1.42 2015/09/10 15:56:25 jsing Exp $ */
+/* $OpenBSD: randfile.c,v 1.44 2023/07/07 19:37:54 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

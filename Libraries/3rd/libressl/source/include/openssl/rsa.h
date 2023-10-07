@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa.h,v 1.51 2019/11/04 12:30:56 jsing Exp $ */
+/* $OpenBSD: rsa.h,v 1.65 2023/07/28 10:05:16 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -66,11 +66,10 @@
 #ifndef OPENSSL_NO_BIO
 #include <openssl/bio.h>
 #endif
-#include <openssl/crypto.h>
-#include <openssl/ossl_typ.h>
-#ifndef OPENSSL_NO_DEPRECATED
 #include <openssl/bn.h>
-#endif
+#include <openssl/crypto.h>
+
+#include <openssl/ossl_typ.h>
 
 #ifdef OPENSSL_NO_RSA
 #error RSA is disabled.
@@ -80,11 +79,7 @@
 extern "C" {
 #endif
 
-/* Declared already in ossl_typ.h */
-/* typedef struct rsa_st RSA; */
-/* typedef struct rsa_meth_st RSA_METHOD; */
-
-typedef struct rsa_pss_params_st {
+struct rsa_pss_params_st {
 	X509_ALGOR *hashAlgorithm;
 	X509_ALGOR *maskGenAlgorithm;
 	ASN1_INTEGER *saltLength;
@@ -92,7 +87,7 @@ typedef struct rsa_pss_params_st {
 
 	/* Hash algorithm decoded from maskGenAlgorithm. */
 	X509_ALGOR *maskHash;
-} RSA_PSS_PARAMS;
+} /* RSA_PSS_PARAMS */;
 
 typedef struct rsa_oaep_params_st {
 	X509_ALGOR *hashFunc;
@@ -102,80 +97,6 @@ typedef struct rsa_oaep_params_st {
 	/* Hash algorithm decoded from maskGenFunc. */
 	X509_ALGOR *maskHash;
 } RSA_OAEP_PARAMS;
-
-struct rsa_meth_st {
-	const char *name;
-	int (*rsa_pub_enc)(int flen, const unsigned char *from,
-	    unsigned char *to, RSA *rsa, int padding);
-	int (*rsa_pub_dec)(int flen, const unsigned char *from,
-	    unsigned char *to, RSA *rsa, int padding);
-	int (*rsa_priv_enc)(int flen, const unsigned char *from,
-	    unsigned char *to, RSA *rsa, int padding);
-	int (*rsa_priv_dec)(int flen, const unsigned char *from,
-	    unsigned char *to, RSA *rsa, int padding);
-	int (*rsa_mod_exp)(BIGNUM *r0, const BIGNUM *I, RSA *rsa,
-	    BN_CTX *ctx); /* Can be null */
-	int (*bn_mod_exp)(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
-	    const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx); /* Can be null */
-	int (*init)(RSA *rsa);		/* called at new */
-	int (*finish)(RSA *rsa);	/* called at free */
-	int flags;			/* RSA_METHOD_FLAG_* things */
-	char *app_data;			/* may be needed! */
-/* New sign and verify functions: some libraries don't allow arbitrary data
- * to be signed/verified: this allows them to be used. Note: for this to work
- * the RSA_public_decrypt() and RSA_private_encrypt() should *NOT* be used
- * RSA_sign(), RSA_verify() should be used instead. Note: for backwards
- * compatibility this functionality is only enabled if the RSA_FLAG_SIGN_VER
- * option is set in 'flags'.
- */
-	int (*rsa_sign)(int type, const unsigned char *m, unsigned int m_length,
-	    unsigned char *sigret, unsigned int *siglen, const RSA *rsa);
-	int (*rsa_verify)(int dtype, const unsigned char *m,
-	    unsigned int m_length, const unsigned char *sigbuf,
-	    unsigned int siglen, const RSA *rsa);
-/* If this callback is NULL, the builtin software RSA key-gen will be used. This
- * is for behavioural compatibility whilst the code gets rewired, but one day
- * it would be nice to assume there are no such things as "builtin software"
- * implementations. */
-	int (*rsa_keygen)(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb);
-};
-
-struct rsa_st {
-	/* The first parameter is used to pickup errors where
-	 * this is passed instead of aEVP_PKEY, it is set to 0 */
-	int pad;
-	long version;
-	const RSA_METHOD *meth;
-
-	/* functional reference if 'meth' is ENGINE-provided */
-	ENGINE *engine;
-	BIGNUM *n;
-	BIGNUM *e;
-	BIGNUM *d;
-	BIGNUM *p;
-	BIGNUM *q;
-	BIGNUM *dmp1;
-	BIGNUM *dmq1;
-	BIGNUM *iqmp;
-
-	/* Parameter restrictions for PSS only keys. */
-	RSA_PSS_PARAMS *pss;
-
-	/* be careful using this if the RSA structure is shared */
-	CRYPTO_EX_DATA ex_data;
-	int references;
-	int flags;
-
-	/* Used to cache montgomery values */
-	BN_MONT_CTX *_method_mod_n;
-	BN_MONT_CTX *_method_mod_p;
-	BN_MONT_CTX *_method_mod_q;
-
-	/* all BIGNUM values are actually in the following data, if it is not
-	 * NULL */
-	BN_BLINDING *blinding;
-	BN_BLINDING *mt_blinding;
-};
 
 #ifndef OPENSSL_RSA_MAX_MODULUS_BITS
 # define OPENSSL_RSA_MAX_MODULUS_BITS	16384
@@ -304,6 +225,7 @@ struct rsa_st {
 #define RSA_SSLV23_PADDING	2
 #define RSA_NO_PADDING		3
 #define RSA_PKCS1_OAEP_PADDING	4
+/* rust-openssl and erlang expose this and salt even uses it. */
 #define RSA_X931_PADDING	5
 /* EVP_PKEY_ only */
 #define RSA_PKCS1_PSS_PADDING	6
@@ -318,11 +240,12 @@ RSA *RSA_new_method(ENGINE *engine);
 int RSA_bits(const RSA *rsa);
 int RSA_size(const RSA *rsa);
 
-/* Deprecated version */
-#ifndef OPENSSL_NO_DEPRECATED
+/*
+ * Wrapped in OPENSSL_NO_DEPRECATED in 0.9.8. Still used for libressl bindings
+ * in rust-openssl.
+ */
 RSA *RSA_generate_key(int bits, unsigned long e,
     void (*callback)(int, int, void *), void *cb_arg);
-#endif /* !defined(OPENSSL_NO_DEPRECATED) */
 
 /* New version */
 int RSA_generate_key_ex(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb);
@@ -380,18 +303,6 @@ int RSA_print_fp(FILE *fp, const RSA *r, int offset);
 int RSA_print(BIO *bp, const RSA *r, int offset);
 #endif
 
-#ifndef OPENSSL_NO_RC4
-int i2d_RSA_NET(const RSA *a, unsigned char **pp,
-    int (*cb)(char *buf, int len, const char *prompt, int verify), int sgckey);
-RSA *d2i_RSA_NET(RSA **a, const unsigned char **pp, long length,
-    int (*cb)(char *buf, int len, const char *prompt, int verify), int sgckey);
-
-int i2d_Netscape_RSA(const RSA *a, unsigned char **pp,
-    int (*cb)(char *buf, int len, const char *prompt, int verify));
-RSA *d2i_Netscape_RSA(RSA **a, const unsigned char **pp, long length,
-    int (*cb)(char *buf, int len, const char *prompt, int verify));
-#endif
-
 /* The following 2 functions sign and verify a X509_SIG ASN1 object
  * inside PKCS#1 padded RSA encryption */
 int RSA_sign(int type, const unsigned char *m, unsigned int m_length,
@@ -410,7 +321,6 @@ int RSA_verify_ASN1_OCTET_STRING(int type, const unsigned char *m,
 
 int RSA_blinding_on(RSA *rsa, BN_CTX *ctx);
 void RSA_blinding_off(RSA *rsa);
-BN_BLINDING *RSA_setup_blinding(RSA *rsa, BN_CTX *ctx);
 
 int RSA_padding_add_PKCS1_type_1(unsigned char *to, int tlen,
     const unsigned char *f, int fl);
@@ -438,11 +348,6 @@ int RSA_padding_add_none(unsigned char *to, int tlen,
     const unsigned char *f, int fl);
 int RSA_padding_check_none(unsigned char *to, int tlen,
     const unsigned char *f, int fl, int rsa_len);
-int RSA_padding_add_X931(unsigned char *to, int tlen,
-    const unsigned char *f, int fl);
-int RSA_padding_check_X931(unsigned char *to, int tlen,
-    const unsigned char *f, int fl, int rsa_len);
-int RSA_X931_hash_id(int nid);
 
 int RSA_verify_PKCS1_PSS(RSA *rsa, const unsigned char *mHash,
     const EVP_MD *Hash, const unsigned char *EM, int sLen);
@@ -462,6 +367,8 @@ int RSA_get_ex_new_index(long argl, void *argp, CRYPTO_EX_new *new_func,
 int RSA_set_ex_data(RSA *r, int idx, void *arg);
 void *RSA_get_ex_data(const RSA *r, int idx);
 
+int RSA_security_bits(const RSA *rsa);
+
 void RSA_get0_key(const RSA *r, const BIGNUM **n, const BIGNUM **e,
     const BIGNUM **d);
 int RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d);
@@ -470,6 +377,15 @@ void RSA_get0_crt_params(const RSA *r, const BIGNUM **dmp1, const BIGNUM **dmq1,
 int RSA_set0_crt_params(RSA *r, BIGNUM *dmp1, BIGNUM *dmq1, BIGNUM *iqmp);
 void RSA_get0_factors(const RSA *r, const BIGNUM **p, const BIGNUM **q);
 int RSA_set0_factors(RSA *r, BIGNUM *p, BIGNUM *q);
+const BIGNUM *RSA_get0_n(const RSA *r);
+const BIGNUM *RSA_get0_e(const RSA *r);
+const BIGNUM *RSA_get0_d(const RSA *r);
+const BIGNUM *RSA_get0_p(const RSA *r);
+const BIGNUM *RSA_get0_q(const RSA *r);
+const BIGNUM *RSA_get0_dmp1(const RSA *r);
+const BIGNUM *RSA_get0_dmq1(const RSA *r);
+const BIGNUM *RSA_get0_iqmp(const RSA *r);
+const RSA_PSS_PARAMS *RSA_get0_pss_params(const RSA *r);
 void RSA_clear_flags(RSA *r, int flags);
 int RSA_test_flags(const RSA *r, int flags);
 void RSA_set_flags(RSA *r, int flags);
@@ -554,10 +470,6 @@ int RSA_meth_set_verify(RSA_METHOD *rsa, int (*verify)(int dtype,
     unsigned int siglen, const RSA *rsa));
 
 
-/* BEGIN ERROR CODES */
-/* The following lines are auto generated by the script mkerr.pl. Any changes
- * made after this point may be overwritten when the script is next run.
- */
 void ERR_load_RSA_strings(void);
 
 /* Error codes for the RSA functions. */

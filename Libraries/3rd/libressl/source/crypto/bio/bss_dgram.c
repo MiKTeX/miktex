@@ -1,4 +1,4 @@
-/* $OpenBSD: bss_dgram.c,v 1.42 2018/05/12 17:47:53 tb Exp $ */
+/* $OpenBSD: bss_dgram.c,v 1.45 2023/07/05 21:23:37 beck Exp $ */
 /* 
  * DTLS implementation written by Nagendra Modadugu
  * (nagendra@cs.stanford.edu) for the OpenSSL project 2005.  
@@ -72,6 +72,8 @@
 
 #include <openssl/bio.h>
 
+#include "bio_local.h"
+
 #ifndef OPENSSL_NO_DGRAM
 
 
@@ -117,6 +119,7 @@ BIO_s_datagram(void)
 {
 	return (&methods_dgramp);
 }
+LCRYPTO_ALIAS(BIO_s_datagram);
 
 BIO *
 BIO_new_dgram(int fd, int close_flag)
@@ -129,6 +132,7 @@ BIO_new_dgram(int fd, int close_flag)
 	BIO_set_fd(ret, fd, close_flag);
 	return (ret);
 }
+LCRYPTO_ALIAS(BIO_new_dgram);
 
 static int
 dgram_new(BIO *bi)
@@ -212,7 +216,7 @@ dgram_adjust_rcv_timeout(BIO *b)
 			timeleft.tv_usec = 1;
 		}
 
-		/* Adjust socket timeout if next handhake message timer
+		/* Adjust socket timeout if next handshake message timer
 		 * will expire earlier.
 		 */
 		if ((data->socket_timeout.tv_sec == 0 &&
@@ -654,5 +658,6 @@ BIO_dgram_non_fatal_error(int err)
 	}
 	return (0);
 }
+LCRYPTO_ALIAS(BIO_dgram_non_fatal_error);
 
 #endif

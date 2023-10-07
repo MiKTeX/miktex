@@ -1,4 +1,4 @@
-/* $OpenBSD: p12_utl.c,v 1.16 2018/05/30 15:32:11 tb Exp $ */
+/* $OpenBSD: p12_utl.c,v 1.21 2023/02/16 08:38:17 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -62,6 +62,8 @@
 
 #include <openssl/pkcs12.h>
 
+#include "pkcs12_local.h"
+
 /* Cheap and nasty Unicode stuff */
 
 unsigned char *
@@ -98,6 +100,7 @@ OPENSSL_asc2uni(const char *asc, int asclen, unsigned char **uni, int *unilen)
 		*uni = unitmp;
 	return unitmp;
 }
+LCRYPTO_ALIAS(OPENSSL_asc2uni);
 
 char *
 OPENSSL_uni2asc(const unsigned char *uni, int unilen)
@@ -123,63 +126,32 @@ OPENSSL_uni2asc(const unsigned char *uni, int unilen)
 	asctmp[asclen - 1] = '\0';
 	return asctmp;
 }
+LCRYPTO_ALIAS(OPENSSL_uni2asc);
 
 int
 i2d_PKCS12_bio(BIO *bp, PKCS12 *p12)
 {
 	return ASN1_item_i2d_bio(&PKCS12_it, bp, p12);
 }
+LCRYPTO_ALIAS(i2d_PKCS12_bio);
 
 int
 i2d_PKCS12_fp(FILE *fp, PKCS12 *p12)
 {
 	return ASN1_item_i2d_fp(&PKCS12_it, fp, p12);
 }
+LCRYPTO_ALIAS(i2d_PKCS12_fp);
 
 PKCS12 *
 d2i_PKCS12_bio(BIO *bp, PKCS12 **p12)
 {
 	return ASN1_item_d2i_bio(&PKCS12_it, bp, p12);
 }
+LCRYPTO_ALIAS(d2i_PKCS12_bio);
 
 PKCS12 *
 d2i_PKCS12_fp(FILE *fp, PKCS12 **p12)
 {
 	    return ASN1_item_d2i_fp(&PKCS12_it, fp, p12);
 }
-
-PKCS12_SAFEBAG *
-PKCS12_x5092certbag(X509 *x509)
-{
-	return PKCS12_item_pack_safebag(x509, &X509_it,
-	    NID_x509Certificate, NID_certBag);
-}
-
-PKCS12_SAFEBAG *
-PKCS12_x509crl2certbag(X509_CRL *crl)
-{
-	return PKCS12_item_pack_safebag(crl, &X509_CRL_it,
-	    NID_x509Crl, NID_crlBag);
-}
-
-X509 *
-PKCS12_certbag2x509(PKCS12_SAFEBAG *bag)
-{
-	if (OBJ_obj2nid(bag->type) != NID_certBag)
-		return NULL;
-	if (OBJ_obj2nid(bag->value.bag->type) != NID_x509Certificate)
-		return NULL;
-	return ASN1_item_unpack(bag->value.bag->value.octet,
-	    &X509_it);
-}
-
-X509_CRL *
-PKCS12_certbag2x509crl(PKCS12_SAFEBAG *bag)
-{
-	if (OBJ_obj2nid(bag->type) != NID_crlBag)
-		return NULL;
-	if (OBJ_obj2nid(bag->value.bag->type) != NID_x509Crl)
-		return NULL;
-	return ASN1_item_unpack(bag->value.bag->value.octet,
-	    &X509_CRL_it);
-}
+LCRYPTO_ALIAS(d2i_PKCS12_fp);

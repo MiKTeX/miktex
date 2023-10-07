@@ -1,4 +1,4 @@
-/* $OpenBSD: bss_sock.c,v 1.24 2018/05/01 13:29:10 tb Exp $ */
+/* $OpenBSD: bss_sock.c,v 1.27 2023/08/07 10:54:14 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -65,6 +65,8 @@
 
 #include <openssl/bio.h>
 
+#include "bio_local.h"
+
 static int sock_write(BIO *h, const char *buf, int num);
 static int sock_read(BIO *h, char *buf, int size);
 static int sock_puts(BIO *h, const char *str);
@@ -89,6 +91,7 @@ BIO_s_socket(void)
 {
 	return (&methods_sockp);
 }
+LCRYPTO_ALIAS(BIO_s_socket);
 
 BIO *
 BIO_new_socket(int fd, int close_flag)
@@ -101,6 +104,7 @@ BIO_new_socket(int fd, int close_flag)
 	BIO_set_fd(ret, fd, close_flag);
 	return (ret);
 }
+LCRYPTO_ALIAS(BIO_new_socket);
 
 static int
 sock_new(BIO *bi)
@@ -169,7 +173,7 @@ sock_ctrl(BIO *b, int cmd, long num, void *ptr)
 	switch (cmd) {
 	case BIO_C_SET_FD:
 		sock_free(b);
-		b->num= *((int *)ptr);
+		b->num = *((int *)ptr);
 		b->shutdown = (int)num;
 		b->init = 1;
 		break;
@@ -220,6 +224,7 @@ BIO_sock_should_retry(int i)
 	}
 	return (0);
 }
+LCRYPTO_ALIAS(BIO_sock_should_retry);
 
 int
 BIO_sock_non_fatal_error(int err)
@@ -236,4 +241,4 @@ BIO_sock_non_fatal_error(int err)
 	}
 	return (0);
 }
-
+LCRYPTO_ALIAS(BIO_sock_non_fatal_error);

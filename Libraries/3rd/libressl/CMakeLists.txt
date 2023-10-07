@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -35,6 +35,33 @@ list(APPEND configured_headers ${CMAKE_CURRENT_BINARY_DIR}/miktex-libressl-versi
 include_directories(BEFORE
     ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(aarch64|arm64)")
+	set(HOST_AARCH64 TRUE)
+elseif("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm")
+	set(HOST_ARM TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "SunOS" AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i386")
+	set(HOST_X86_64 TRUE)
+elseif("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(x86_64|amd64)")
+	set(HOST_X86_64 TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "[i?86|x86]")
+	set(ENABLE_ASM FALSE)
+	set(HOST_I386 TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "mips64")
+	set(HOST_MIPS64 TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "mips")
+	set(HOST_MIPS TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "powerpc")
+	set(HOST_POWERPC TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "ppc64")
+	set(HOST_PPC64 TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "riscv64")
+	set(HOST_RISCV64 TRUE)
+elseif("${CMAKE_SYSTEM_NAME}" MATCHES "sparc64")
+	set(HOST_SPARC64 TRUE)
+else()
+	set(ENABLE_ASM FALSE)
+endif()
 
 set(public_headers
     openssl/aes.h
@@ -128,6 +155,8 @@ add_definitions(-D__END_HIDDEN_DECLS=)
 if(HAVE_STRNLEN)
     add_definitions(-DHAVE_STRNLEN)
 endif()
+
+add_definitions(-DHAVE_GETOPT)
 
 set(HAVE_INET_NTOP TRUE)
 set(HAVE_INET_PTON TRUE)

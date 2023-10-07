@@ -2,6 +2,7 @@
 
 .private_extern	_OPENSSL_cpuid_setup
 .mod_init_func
+	endbr64
 	.p2align	3
 	.quad	_OPENSSL_cpuid_setup
 
@@ -10,24 +11,11 @@
 
 .text	
 
-.globl	_OPENSSL_atomic_add
-
-.p2align	4
-_OPENSSL_atomic_add:
-	movl	(%rdi),%eax
-L$spin:	leaq	(%rsi,%rax,1),%r8
-.byte	0xf0		
-	cmpxchgl	%r8d,(%rdi)
-	jne	L$spin
-	movl	%r8d,%eax
-.byte	0x48,0x98	
-	retq
-
-
 .globl	_OPENSSL_ia32_cpuid
 
 .p2align	4
 _OPENSSL_ia32_cpuid:
+	endbr64
 	movq	%rbx,%r8
 
 	xorl	%eax,%eax
@@ -65,6 +53,7 @@ _OPENSSL_ia32_cpuid:
 	movl	%eax,%r10d
 	movl	$2147483649,%eax
 	cpuid
+	orl	%ecx,%r9d
 	andl	$IA32CAP_MASK1_AMD_XOP,%r9d
 	orl	$1,%r9d
 
@@ -146,36 +135,5 @@ L$done:
 	movl	%r10d,%eax
 	movq	%r8,%rbx
 	orq	%r9,%rax
-	retq
-
-.globl	_OPENSSL_wipe_cpu
-
-.p2align	4
-_OPENSSL_wipe_cpu:
-	pxor	%xmm0,%xmm0
-	pxor	%xmm1,%xmm1
-	pxor	%xmm2,%xmm2
-	pxor	%xmm3,%xmm3
-	pxor	%xmm4,%xmm4
-	pxor	%xmm5,%xmm5
-	pxor	%xmm6,%xmm6
-	pxor	%xmm7,%xmm7
-	pxor	%xmm8,%xmm8
-	pxor	%xmm9,%xmm9
-	pxor	%xmm10,%xmm10
-	pxor	%xmm11,%xmm11
-	pxor	%xmm12,%xmm12
-	pxor	%xmm13,%xmm13
-	pxor	%xmm14,%xmm14
-	pxor	%xmm15,%xmm15
-	xorq	%rcx,%rcx
-	xorq	%rdx,%rdx
-	xorq	%rsi,%rsi
-	xorq	%rdi,%rdi
-	xorq	%r8,%r8
-	xorq	%r9,%r9
-	xorq	%r10,%r10
-	xorq	%r11,%r11
-	leaq	8(%rsp),%rax
 	retq
 

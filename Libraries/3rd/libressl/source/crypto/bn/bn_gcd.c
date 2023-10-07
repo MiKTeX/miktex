@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_gcd.c,v 1.15 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: bn_gcd.c,v 1.28 2023/06/02 17:15:30 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -111,11 +111,53 @@
 
 #include <openssl/err.h>
 
-#include "bn_lcl.h"
+#include "bn_local.h"
 
-static BIGNUM *euclid(BIGNUM *a, BIGNUM *b);
-static BIGNUM *BN_gcd_no_branch(BIGNUM *in, const BIGNUM *a, const BIGNUM *n,
-    BN_CTX *ctx);
+static BIGNUM *
+euclid(BIGNUM *a, BIGNUM *b)
+{
+	BIGNUM *t;
+	int shifts = 0;
+
+	/* Loop invariant: 0 <= b <= a. */
+	while (!BN_is_zero(b)) {
+		if (BN_is_odd(a) && BN_is_odd(b)) {
+			if (!BN_sub(a, a, b))
+				goto err;
+			if (!BN_rshift1(a, a))
+				goto err;
+		} else if (BN_is_odd(a) && !BN_is_odd(b)) {
+			if (!BN_rshift1(b, b))
+				goto err;
+		} else if (!BN_is_odd(a) && BN_is_odd(b)) {
+			if (!BN_rshift1(a, a))
+				goto err;
+		} else {
+			if (!BN_rshift1(a, a))
+				goto err;
+			if (!BN_rshift1(b, b))
+				goto err;
+			shifts++;
+			continue;
+		}
+
+		if (BN_cmp(a, b) < 0) {
+			t = a;
+			a = b;
+			b = t;
+		}
+	}
+
+	if (shifts) {
+		if (!BN_lshift(a, a, shifts))
+			goto err;
+	}
+
+	return a;
+
+ err:
+	return NULL;
+}
 
 int
 BN_gcd(BIGNUM *r, const BIGNUM *in_a, const BIGNUM *in_b, BN_CTX *ctx)
@@ -123,18 +165,15 @@ BN_gcd(BIGNUM *r, const BIGNUM *in_a, const BIGNUM *in_b, BN_CTX *ctx)
 	BIGNUM *a, *b, *t;
 	int ret = 0;
 
-	bn_check_top(in_a);
-	bn_check_top(in_b);
-
 	BN_CTX_start(ctx);
 	if ((a = BN_CTX_get(ctx)) == NULL)
 		goto err;
 	if ((b = BN_CTX_get(ctx)) == NULL)
 		goto err;
 
-	if (BN_copy(a, in_a) == NULL)
+	if (!bn_copy(a, in_a))
 		goto err;
-	if (BN_copy(b, in_b) == NULL)
+	if (!bn_copy(b, in_b))
 		goto err;
 	a->neg = 0;
 	b->neg = 0;
@@ -148,13 +187,161 @@ BN_gcd(BIGNUM *r, const BIGNUM *in_a, const BIGNUM *in_b, BN_CTX *ctx)
 	if (t == NULL)
 		goto err;
 
-	if (BN_copy(r, t) == NULL)
+	if (!bn_copy(r, t))
 		goto err;
 	ret = 1;
 
-err:
+ err:
 	BN_CTX_end(ctx);
-	bn_check_top(r);
+	return (ret);
+}
+
+int
+BN_gcd_nonct(BIGNUM *r, const BIGNUM *in_a, const BIGNUM *in_b, BN_CTX *ctx)
+{
+	return BN_gcd(r, in_a, in_b, ctx);
+}
+
+/*
+ * BN_gcd_no_branch is a special version of BN_mod_inverse_no_branch.
+ * that returns the GCD.
+ */
+static BIGNUM *
+BN_gcd_no_branch(BIGNUM *in, const BIGNUM *a, const BIGNUM *n,
+    BN_CTX *ctx)
+{
+	BIGNUM *A, *B, *X, *Y, *M, *D, *T, *R = NULL;
+	BIGNUM local_A, local_B;
+	BIGNUM *pA, *pB;
+	BIGNUM *ret = NULL;
+	int sign;
+
+	if (in == NULL)
+		goto err;
+	R = in;
+
+	BN_init(&local_A);
+	BN_init(&local_B);
+
+	BN_CTX_start(ctx);
+	if ((A = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((B = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((X = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((D = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((M = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((Y = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((T = BN_CTX_get(ctx)) == NULL)
+		goto err;
+
+	if (!BN_one(X))
+		goto err;
+	BN_zero(Y);
+	if (!bn_copy(B, a))
+		goto err;
+	if (!bn_copy(A, n))
+		goto err;
+	A->neg = 0;
+
+	if (B->neg || (BN_ucmp(B, A) >= 0)) {
+		/*
+		 * Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
+		 * BN_div_no_branch will be called eventually.
+		 */
+		pB = &local_B;
+		/* BN_init() done at the top of the function. */
+		BN_with_flags(pB, B, BN_FLG_CONSTTIME);
+		if (!BN_nnmod(B, pB, A, ctx))
+			goto err;
+	}
+	sign = -1;
+	/* From  B = a mod |n|,  A = |n|  it follows that
+	 *
+	 *      0 <= B < A,
+	 *     -sign*X*a  ==  B   (mod |n|),
+	 *      sign*Y*a  ==  A   (mod |n|).
+	 */
+
+	while (!BN_is_zero(B)) {
+		BIGNUM *tmp;
+
+		/*
+		 *      0 < B < A,
+		 * (*) -sign*X*a  ==  B   (mod |n|),
+		 *      sign*Y*a  ==  A   (mod |n|)
+		 */
+
+		/*
+		 * Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
+		 * BN_div_no_branch will be called eventually.
+		 */
+		pA = &local_A;
+		/* BN_init() done at the top of the function. */
+		BN_with_flags(pA, A, BN_FLG_CONSTTIME);
+
+		/* (D, M) := (A/B, A%B) ... */
+		if (!BN_div_ct(D, M, pA, B, ctx))
+			goto err;
+
+		/* Now
+		 *      A = D*B + M;
+		 * thus we have
+		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
+		 */
+		tmp = A; /* keep the BIGNUM object, the value does not matter */
+
+		/* (A, B) := (B, A mod B) ... */
+		A = B;
+		B = M;
+		/* ... so we have  0 <= B < A  again */
+
+		/* Since the former  M  is now  B  and the former  B  is now  A,
+		 * (**) translates into
+		 *       sign*Y*a  ==  D*A + B    (mod |n|),
+		 * i.e.
+		 *       sign*Y*a - D*A  ==  B    (mod |n|).
+		 * Similarly, (*) translates into
+		 *      -sign*X*a  ==  A          (mod |n|).
+		 *
+		 * Thus,
+		 *   sign*Y*a + D*sign*X*a  ==  B  (mod |n|),
+		 * i.e.
+		 *        sign*(Y + D*X)*a  ==  B  (mod |n|).
+		 *
+		 * So if we set  (X, Y, sign) := (Y + D*X, X, -sign),  we arrive back at
+		 *      -sign*X*a  ==  B   (mod |n|),
+		 *       sign*Y*a  ==  A   (mod |n|).
+		 * Note that  X  and  Y  stay non-negative all the time.
+		 */
+
+		if (!BN_mul(tmp, D, X, ctx))
+			goto err;
+		if (!BN_add(tmp, tmp, Y))
+			goto err;
+
+		M = Y; /* keep the BIGNUM object, the value does not matter */
+		Y = X;
+		X = tmp;
+		sign = -sign;
+	}
+
+	/*
+	 * The while loop (Euclid's algorithm) ends when
+	 *      A == gcd(a,n);
+	 */
+
+	if (!bn_copy(R, A))
+		goto err;
+	ret = R;
+ err:
+	if ((ret == NULL) && (in == NULL))
+		BN_free(R);
+	BN_CTX_end(ctx);
 	return (ret);
 }
 
@@ -166,101 +353,21 @@ BN_gcd_ct(BIGNUM *r, const BIGNUM *in_a, const BIGNUM *in_b, BN_CTX *ctx)
 	return 1;
 }
 
-int
-BN_gcd_nonct(BIGNUM *r, const BIGNUM *in_a, const BIGNUM *in_b, BN_CTX *ctx)
-{
-	return BN_gcd(r, in_a, in_b, ctx);
-}
-
-
+/* BN_mod_inverse_no_branch is a special version of BN_mod_inverse.
+ * It does not contain branches that may leak sensitive information.
+ */
 static BIGNUM *
-euclid(BIGNUM *a, BIGNUM *b)
-{
-	BIGNUM *t;
-	int shifts = 0;
-
-	bn_check_top(a);
-	bn_check_top(b);
-
-	/* 0 <= b <= a */
-	while (!BN_is_zero(b)) {
-		/* 0 < b <= a */
-
-		if (BN_is_odd(a)) {
-			if (BN_is_odd(b)) {
-				if (!BN_sub(a, a, b))
-					goto err;
-				if (!BN_rshift1(a, a))
-					goto err;
-				if (BN_cmp(a, b) < 0) {
-					t = a;
-					a = b;
-					b = t;
-				}
-			}
-			else		/* a odd - b even */
-			{
-				if (!BN_rshift1(b, b))
-					goto err;
-				if (BN_cmp(a, b) < 0) {
-					t = a;
-					a = b;
-					b = t;
-				}
-			}
-		}
-		else			/* a is even */
-		{
-			if (BN_is_odd(b)) {
-				if (!BN_rshift1(a, a))
-					goto err;
-				if (BN_cmp(a, b) < 0) {
-					t = a;
-					a = b;
-					b = t;
-				}
-			}
-			else		/* a even - b even */
-			{
-				if (!BN_rshift1(a, a))
-					goto err;
-				if (!BN_rshift1(b, b))
-					goto err;
-				shifts++;
-			}
-		}
-		/* 0 <= b <= a */
-	}
-
-	if (shifts) {
-		if (!BN_lshift(a, a, shifts))
-			goto err;
-	}
-	bn_check_top(a);
-	return (a);
-
-err:
-	return (NULL);
-}
-
-
-/* solves ax == 1 (mod n) */
-static BIGNUM *BN_mod_inverse_no_branch(BIGNUM *in, const BIGNUM *a,
-    const BIGNUM *n, BN_CTX *ctx);
-
-static BIGNUM *
-BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx,
-    int ct)
+BN_mod_inverse_no_branch(BIGNUM *in, const BIGNUM *a, const BIGNUM *n,
+    BN_CTX *ctx)
 {
 	BIGNUM *A, *B, *X, *Y, *M, *D, *T, *R = NULL;
+	BIGNUM local_A, local_B;
+	BIGNUM *pA, *pB;
 	BIGNUM *ret = NULL;
 	int sign;
 
-	if (ct)
-		return BN_mod_inverse_no_branch(in, a, n, ctx);
-
-	bn_check_top(a);
-	bn_check_top(n);
+	BN_init(&local_A);
+	BN_init(&local_B);
 
 	BN_CTX_start(ctx);
 	if ((A = BN_CTX_get(ctx)) == NULL)
@@ -285,11 +392,171 @@ BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ct
 	if (R == NULL)
 		goto err;
 
-	BN_one(X);
-	BN_zero(Y);
-	if (BN_copy(B, a) == NULL)
+	if (!BN_one(X))
 		goto err;
-	if (BN_copy(A, n) == NULL)
+	BN_zero(Y);
+	if (!bn_copy(B, a))
+		goto err;
+	if (!bn_copy(A, n))
+		goto err;
+	A->neg = 0;
+
+	if (B->neg || (BN_ucmp(B, A) >= 0)) {
+		/*
+		 * Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
+		 * BN_div_no_branch will be called eventually.
+		 */
+		pB = &local_B;
+		/* BN_init() done at the top of the function. */
+		BN_with_flags(pB, B, BN_FLG_CONSTTIME);
+		if (!BN_nnmod(B, pB, A, ctx))
+			goto err;
+	}
+	sign = -1;
+	/* From  B = a mod |n|,  A = |n|  it follows that
+	 *
+	 *      0 <= B < A,
+	 *     -sign*X*a  ==  B   (mod |n|),
+	 *      sign*Y*a  ==  A   (mod |n|).
+	 */
+
+	while (!BN_is_zero(B)) {
+		BIGNUM *tmp;
+
+		/*
+		 *      0 < B < A,
+		 * (*) -sign*X*a  ==  B   (mod |n|),
+		 *      sign*Y*a  ==  A   (mod |n|)
+		 */
+
+		/*
+		 * Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
+		 * BN_div_no_branch will be called eventually.
+		 */
+		pA = &local_A;
+		/* BN_init() done at the top of the function. */
+		BN_with_flags(pA, A, BN_FLG_CONSTTIME);
+
+		/* (D, M) := (A/B, A%B) ... */
+		if (!BN_div_ct(D, M, pA, B, ctx))
+			goto err;
+
+		/* Now
+		 *      A = D*B + M;
+		 * thus we have
+		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
+		 */
+		tmp = A; /* keep the BIGNUM object, the value does not matter */
+
+		/* (A, B) := (B, A mod B) ... */
+		A = B;
+		B = M;
+		/* ... so we have  0 <= B < A  again */
+
+		/* Since the former  M  is now  B  and the former  B  is now  A,
+		 * (**) translates into
+		 *       sign*Y*a  ==  D*A + B    (mod |n|),
+		 * i.e.
+		 *       sign*Y*a - D*A  ==  B    (mod |n|).
+		 * Similarly, (*) translates into
+		 *      -sign*X*a  ==  A          (mod |n|).
+		 *
+		 * Thus,
+		 *   sign*Y*a + D*sign*X*a  ==  B  (mod |n|),
+		 * i.e.
+		 *        sign*(Y + D*X)*a  ==  B  (mod |n|).
+		 *
+		 * So if we set  (X, Y, sign) := (Y + D*X, X, -sign),  we arrive back at
+		 *      -sign*X*a  ==  B   (mod |n|),
+		 *       sign*Y*a  ==  A   (mod |n|).
+		 * Note that  X  and  Y  stay non-negative all the time.
+		 */
+
+		if (!BN_mul(tmp, D, X, ctx))
+			goto err;
+		if (!BN_add(tmp, tmp, Y))
+			goto err;
+
+		M = Y; /* keep the BIGNUM object, the value does not matter */
+		Y = X;
+		X = tmp;
+		sign = -sign;
+	}
+
+	/*
+	 * The while loop (Euclid's algorithm) ends when
+	 *      A == gcd(a,n);
+	 * we have
+	 *       sign*Y*a  ==  A  (mod |n|),
+	 * where  Y  is non-negative.
+	 */
+
+	if (sign < 0) {
+		if (!BN_sub(Y, n, Y))
+			goto err;
+	}
+	/* Now  Y*a  ==  A  (mod |n|).  */
+
+	if (!BN_is_one(A)) {
+		BNerror(BN_R_NO_INVERSE);
+		goto err;
+	}
+
+	if (!BN_nnmod(Y, Y, n, ctx))
+		goto err;
+	if (!bn_copy(R, Y))
+		goto err;
+
+	ret = R;
+
+ err:
+	if ((ret == NULL) && (in == NULL))
+		BN_free(R);
+	BN_CTX_end(ctx);
+	return (ret);
+}
+
+/* solves ax == 1 (mod n) */
+static BIGNUM *
+BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx,
+    int ct)
+{
+	BIGNUM *A, *B, *X, *Y, *M, *D, *T, *R = NULL;
+	BIGNUM *ret = NULL;
+	int sign;
+
+	if (ct)
+		return BN_mod_inverse_no_branch(in, a, n, ctx);
+
+	BN_CTX_start(ctx);
+	if ((A = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((B = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((X = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((D = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((M = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((Y = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((T = BN_CTX_get(ctx)) == NULL)
+		goto err;
+
+	if (in == NULL)
+		R = BN_new();
+	else
+		R = in;
+	if (R == NULL)
+		goto err;
+
+	if (!BN_one(X))
+		goto err;
+	BN_zero(Y);
+	if (!bn_copy(B, a))
+		goto err;
+	if (!bn_copy(A, n))
 		goto err;
 	A->neg = 0;
 	if (B->neg || (BN_ucmp(B, A) >= 0)) {
@@ -308,7 +575,7 @@ BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ct
 		/* Binary inversion algorithm; requires odd modulus.
 		 * This is faster than the general algorithm if the modulus
 		 * is sufficiently small (about 400 .. 500 bits on 32-bit
-		 * sytems, but much more on 64-bit systems) */
+		 * systems, but much more on 64-bit systems) */
 		int shift;
 
 		while (!BN_is_zero(B)) {
@@ -340,7 +607,6 @@ BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ct
 					goto err;
 			}
 
-
 			/* Same for  A  and  Y.  Afterwards, (2) still holds. */
 			shift = 0;
 			while (!BN_is_bit_set(A, shift)) /* note that 0 < A */
@@ -359,7 +625,6 @@ BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ct
 				if (!BN_rshift(A, A, shift))
 					goto err;
 			}
-
 
 			/* We still have (1) and (2).
 			 * Both  A  and  B  are odd.
@@ -484,7 +749,7 @@ BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ct
 					if (!BN_lshift(tmp, X, 2))
 						goto err;
 				} else if (D->top == 1) {
-					if (!BN_copy(tmp, X))
+					if (!bn_copy(tmp, X))
 						goto err;
 					if (!BN_mul_word(tmp, D->d[0]))
 						goto err;
@@ -517,26 +782,22 @@ BN_mod_inverse_internal(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ct
 	}
 	/* Now  Y*a  ==  A  (mod |n|).  */
 
-	if (BN_is_one(A)) {
-		/* Y*a == 1  (mod |n|) */
-		if (!Y->neg && BN_ucmp(Y, n) < 0) {
-			if (!BN_copy(R, Y))
-				goto err;
-		} else {
-			if (!BN_nnmod(R, Y,n, ctx))
-				goto err;
-		}
-	} else {
+	if (!BN_is_one(A)) {
 		BNerror(BN_R_NO_INVERSE);
 		goto err;
 	}
+
+	if (!BN_nnmod(Y, Y, n, ctx))
+		goto err;
+	if (!bn_copy(R, Y))
+		goto err;
+
 	ret = R;
 
-err:
+ err:
 	if ((ret == NULL) && (in == NULL))
 		BN_free(R);
 	BN_CTX_end(ctx);
-	bn_check_top(ret);
 	return (ret);
 }
 
@@ -558,305 +819,4 @@ BIGNUM *
 BN_mod_inverse_ct(BIGNUM *in, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx)
 {
 	return BN_mod_inverse_internal(in, a, n, ctx, 1);
-}
-
-/* BN_mod_inverse_no_branch is a special version of BN_mod_inverse.
- * It does not contain branches that may leak sensitive information.
- */
-static BIGNUM *
-BN_mod_inverse_no_branch(BIGNUM *in, const BIGNUM *a, const BIGNUM *n,
-    BN_CTX *ctx)
-{
-	BIGNUM *A, *B, *X, *Y, *M, *D, *T, *R = NULL;
-	BIGNUM local_A, local_B;
-	BIGNUM *pA, *pB;
-	BIGNUM *ret = NULL;
-	int sign;
-
-	bn_check_top(a);
-	bn_check_top(n);
-
-	BN_CTX_start(ctx);
-	if ((A = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((B = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((X = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((D = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((M = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((Y = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((T = BN_CTX_get(ctx)) == NULL)
-		goto err;
-
-	if (in == NULL)
-		R = BN_new();
-	else
-		R = in;
-	if (R == NULL)
-		goto err;
-
-	BN_one(X);
-	BN_zero(Y);
-	if (BN_copy(B, a) == NULL)
-		goto err;
-	if (BN_copy(A, n) == NULL)
-		goto err;
-	A->neg = 0;
-
-	if (B->neg || (BN_ucmp(B, A) >= 0)) {
-		/* Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
-	 	 * BN_div_no_branch will be called eventually.
-	 	 */
-		pB = &local_B;
-		BN_with_flags(pB, B, BN_FLG_CONSTTIME);
-		if (!BN_nnmod(B, pB, A, ctx))
-			goto err;
-	}
-	sign = -1;
-	/* From  B = a mod |n|,  A = |n|  it follows that
-	 *
-	 *      0 <= B < A,
-	 *     -sign*X*a  ==  B   (mod |n|),
-	 *      sign*Y*a  ==  A   (mod |n|).
-	 */
-
-	while (!BN_is_zero(B)) {
-		BIGNUM *tmp;
-
-		/*
-		 *      0 < B < A,
-		 * (*) -sign*X*a  ==  B   (mod |n|),
-		 *      sign*Y*a  ==  A   (mod |n|)
-		 */
-
-		/* Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
-	 	 * BN_div_no_branch will be called eventually.
-	 	 */
-		pA = &local_A;
-		BN_with_flags(pA, A, BN_FLG_CONSTTIME);
-
-		/* (D, M) := (A/B, A%B) ... */
-		if (!BN_div_ct(D, M, pA, B, ctx))
-			goto err;
-
-		/* Now
-		 *      A = D*B + M;
-		 * thus we have
-		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
-		 */
-		tmp = A; /* keep the BIGNUM object, the value does not matter */
-
-		/* (A, B) := (B, A mod B) ... */
-		A = B;
-		B = M;
-		/* ... so we have  0 <= B < A  again */
-
-		/* Since the former  M  is now  B  and the former  B  is now  A,
-		 * (**) translates into
-		 *       sign*Y*a  ==  D*A + B    (mod |n|),
-		 * i.e.
-		 *       sign*Y*a - D*A  ==  B    (mod |n|).
-		 * Similarly, (*) translates into
-		 *      -sign*X*a  ==  A          (mod |n|).
-		 *
-		 * Thus,
-		 *   sign*Y*a + D*sign*X*a  ==  B  (mod |n|),
-		 * i.e.
-		 *        sign*(Y + D*X)*a  ==  B  (mod |n|).
-		 *
-		 * So if we set  (X, Y, sign) := (Y + D*X, X, -sign),  we arrive back at
-		 *      -sign*X*a  ==  B   (mod |n|),
-		 *       sign*Y*a  ==  A   (mod |n|).
-		 * Note that  X  and  Y  stay non-negative all the time.
-		 */
-
-		if (!BN_mul(tmp, D, X, ctx))
-			goto err;
-		if (!BN_add(tmp, tmp, Y))
-			goto err;
-
-		M = Y; /* keep the BIGNUM object, the value does not matter */
-		Y = X;
-		X = tmp;
-		sign = -sign;
-	}
-
-	/*
-	 * The while loop (Euclid's algorithm) ends when
-	 *      A == gcd(a,n);
-	 * we have
-	 *       sign*Y*a  ==  A  (mod |n|),
-	 * where  Y  is non-negative.
-	 */
-
-	if (sign < 0) {
-		if (!BN_sub(Y, n, Y))
-			goto err;
-	}
-	/* Now  Y*a  ==  A  (mod |n|).  */
-
-	if (BN_is_one(A)) {
-		/* Y*a == 1  (mod |n|) */
-		if (!Y->neg && BN_ucmp(Y, n) < 0) {
-			if (!BN_copy(R, Y))
-				goto err;
-		} else {
-			if (!BN_nnmod(R, Y, n, ctx))
-				goto err;
-		}
-	} else {
-		BNerror(BN_R_NO_INVERSE);
-		goto err;
-	}
-	ret = R;
-
-err:
-	if ((ret == NULL) && (in == NULL))
-		BN_free(R);
-	BN_CTX_end(ctx);
-	bn_check_top(ret);
-	return (ret);
-}
-
-/*
- * BN_gcd_no_branch is a special version of BN_mod_inverse_no_branch.
- * that returns the GCD.
- */
-static BIGNUM *
-BN_gcd_no_branch(BIGNUM *in, const BIGNUM *a, const BIGNUM *n,
-    BN_CTX *ctx)
-{
-	BIGNUM *A, *B, *X, *Y, *M, *D, *T, *R = NULL;
-	BIGNUM local_A, local_B;
-	BIGNUM *pA, *pB;
-	BIGNUM *ret = NULL;
-	int sign;
-
-	if (in == NULL)
-		goto err;
-	R = in;
-
-	bn_check_top(a);
-	bn_check_top(n);
-
-	BN_CTX_start(ctx);
-	if ((A = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((B = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((X = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((D = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((M = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((Y = BN_CTX_get(ctx)) == NULL)
-		goto err;
-	if ((T = BN_CTX_get(ctx)) == NULL)
-		goto err;
-
-	BN_one(X);
-	BN_zero(Y);
-	if (BN_copy(B, a) == NULL)
-		goto err;
-	if (BN_copy(A, n) == NULL)
-		goto err;
-	A->neg = 0;
-
-	if (B->neg || (BN_ucmp(B, A) >= 0)) {
-		/* Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
-	 	 * BN_div_no_branch will be called eventually.
-	 	 */
-		pB = &local_B;
-		BN_with_flags(pB, B, BN_FLG_CONSTTIME);
-		if (!BN_nnmod(B, pB, A, ctx))
-			goto err;
-	}
-	sign = -1;
-	/* From  B = a mod |n|,  A = |n|  it follows that
-	 *
-	 *      0 <= B < A,
-	 *     -sign*X*a  ==  B   (mod |n|),
-	 *      sign*Y*a  ==  A   (mod |n|).
-	 */
-
-	while (!BN_is_zero(B)) {
-		BIGNUM *tmp;
-
-		/*
-		 *      0 < B < A,
-		 * (*) -sign*X*a  ==  B   (mod |n|),
-		 *      sign*Y*a  ==  A   (mod |n|)
-		 */
-
-		/* Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
-	 	 * BN_div_no_branch will be called eventually.
-	 	 */
-		pA = &local_A;
-		BN_with_flags(pA, A, BN_FLG_CONSTTIME);
-
-		/* (D, M) := (A/B, A%B) ... */
-		if (!BN_div_ct(D, M, pA, B, ctx))
-			goto err;
-
-		/* Now
-		 *      A = D*B + M;
-		 * thus we have
-		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
-		 */
-		tmp = A; /* keep the BIGNUM object, the value does not matter */
-
-		/* (A, B) := (B, A mod B) ... */
-		A = B;
-		B = M;
-		/* ... so we have  0 <= B < A  again */
-
-		/* Since the former  M  is now  B  and the former  B  is now  A,
-		 * (**) translates into
-		 *       sign*Y*a  ==  D*A + B    (mod |n|),
-		 * i.e.
-		 *       sign*Y*a - D*A  ==  B    (mod |n|).
-		 * Similarly, (*) translates into
-		 *      -sign*X*a  ==  A          (mod |n|).
-		 *
-		 * Thus,
-		 *   sign*Y*a + D*sign*X*a  ==  B  (mod |n|),
-		 * i.e.
-		 *        sign*(Y + D*X)*a  ==  B  (mod |n|).
-		 *
-		 * So if we set  (X, Y, sign) := (Y + D*X, X, -sign),  we arrive back at
-		 *      -sign*X*a  ==  B   (mod |n|),
-		 *       sign*Y*a  ==  A   (mod |n|).
-		 * Note that  X  and  Y  stay non-negative all the time.
-		 */
-
-		if (!BN_mul(tmp, D, X, ctx))
-			goto err;
-		if (!BN_add(tmp, tmp, Y))
-			goto err;
-
-		M = Y; /* keep the BIGNUM object, the value does not matter */
-		Y = X;
-		X = tmp;
-		sign = -sign;
-	}
-
-	/*
-	 * The while loop (Euclid's algorithm) ends when
-	 *      A == gcd(a,n);
-	 */
-
-	if (!BN_copy(R, A))
-		goto err;
-	ret = R;
-err:
-	if ((ret == NULL) && (in == NULL))
-		BN_free(R);
-	BN_CTX_end(ctx);
-	bn_check_top(ret);
-	return (ret);
 }

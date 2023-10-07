@@ -1,4 +1,4 @@
-/* $OpenBSD: p8_pkey.c,v 1.19 2018/08/24 20:17:33 tb Exp $ */
+/* $OpenBSD: p8_pkey.c,v 1.23 2023/07/07 19:37:52 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -61,6 +61,8 @@
 
 #include <openssl/asn1t.h>
 #include <openssl/x509.h>
+
+#include "x509_local.h"
 
 /* Minor tweak to operation: zero private key data */
 static int
@@ -183,4 +185,3 @@ PKCS8_pkey_add1_attr_by_NID(PKCS8_PRIV_KEY_INFO *p8, int nid, int type,
 		return 1;
 	return 0;
 }
-

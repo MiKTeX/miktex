@@ -1,4 +1,4 @@
-/* $OpenBSD: bio_enc.c,v 1.22 2018/08/24 19:30:24 tb Exp $ */
+/* $OpenBSD: bio_enc.c,v 1.29 2023/07/07 19:37:53 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -63,6 +63,9 @@
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
 
+#include "bio_local.h"
+#include "evp_local.h"
+
 static int enc_write(BIO *h, const char *buf, int num);
 static int enc_read(BIO *h, char *buf, int size);
 /*static int enc_puts(BIO *h, const char *str); */
@@ -70,7 +73,7 @@ static int enc_read(BIO *h, char *buf, int size);
 static long enc_ctrl(BIO *h, int cmd, long arg1, void *arg2);
 static int enc_new(BIO *h);
 static int enc_free(BIO *data);
-static long enc_callback_ctrl(BIO *h, int cmd, bio_info_cb *fps);
+static long enc_callback_ctrl(BIO *h, int cmd, BIO_info_cb *fps);
 #define ENC_BLOCK_SIZE	(1024*4)
 #define BUF_OFFSET	(EVP_MAX_BLOCK_LENGTH*2)
 
@@ -370,7 +373,7 @@ again:
 }
 
 static long
-enc_callback_ctrl(BIO *b, int cmd, bio_info_cb *fp)
+enc_callback_ctrl(BIO *b, int cmd, BIO_info_cb *fp)
 {
 	long ret = 1;
 
@@ -383,26 +386,6 @@ enc_callback_ctrl(BIO *b, int cmd, bio_info_cb *fp)
 	}
 	return (ret);
 }
-
-/*
-void BIO_set_cipher_ctx(b,c)
-BIO *b;
-EVP_CIPHER_ctx *c;
-	{
-	if (b == NULL) return;
-
-	if ((b->callback != NULL) &&
-		(b->callback(b,BIO_CB_CTRL,(char *)c,BIO_CTRL_SET,e,0L) <= 0))
-		return;
-
-	b->init=1;
-	ctx=(BIO_ENC_CTX *)b->ptr;
-	memcpy(ctx->cipher,c,sizeof(EVP_CIPHER_CTX));
-
-	if (b->callback != NULL)
-		b->callback(b,BIO_CB_CTRL,(char *)c,BIO_CTRL_SET,e,1L);
-	}
-*/
 
 int
 BIO_set_cipher(BIO *b, const EVP_CIPHER *c, const unsigned char *k,

@@ -5,6 +5,7 @@
 .type	sha512_block_data_order,@function
 .align	16
 sha512_block_data_order:
+	endbr64
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r12
@@ -1758,6 +1759,7 @@ sha512_block_data_order:
 .Lepilogue:
 	retq
 .size	sha512_block_data_order,.-sha512_block_data_order
+.section	.rodata
 .align	64
 .type	K512,@object
 K512:
@@ -1801,6 +1803,7 @@ K512:
 .quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
 .quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
 .quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+.text	
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits
 #endif

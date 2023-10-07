@@ -1,4 +1,4 @@
-/* $OpenBSD: poly1305.c,v 1.3 2014/06/12 15:49:30 deraadt Exp $ */
+/* $OpenBSD: poly1305.c,v 1.4 2023/07/07 12:01:32 beck Exp $ */
 /*
  * Copyright (c) 2014 Joel Sing <jsing@openbsd.org>
  *
@@ -23,6 +23,7 @@ CRYPTO_poly1305_init(poly1305_context *ctx, const unsigned char key[32])
 {
 	poly1305_init(ctx, key);
 }
+LCRYPTO_ALIAS(CRYPTO_poly1305_init);
 
 void
 CRYPTO_poly1305_update(poly1305_context *ctx, const unsigned char *in,
@@ -30,9 +31,11 @@ CRYPTO_poly1305_update(poly1305_context *ctx, const unsigned char *in,
 {
 	poly1305_update(ctx, in, len);
 }
+LCRYPTO_ALIAS(CRYPTO_poly1305_update);
 
 void
 CRYPTO_poly1305_finish(poly1305_context *ctx, unsigned char mac[16])
 {
 	poly1305_finish(ctx, mac);
 }
+LCRYPTO_ALIAS(CRYPTO_poly1305_finish);

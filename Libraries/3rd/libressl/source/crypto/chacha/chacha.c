@@ -1,4 +1,4 @@
-/* $OpenBSD: chacha.c,v 1.8 2019/01/22 00:59:21 dlg Exp $ */
+/* $OpenBSD: chacha.c,v 1.10 2023/07/05 16:17:20 beck Exp $ */
 /*
  * Copyright (c) 2014 Joel Sing <jsing@openbsd.org>
  *
@@ -27,6 +27,7 @@ ChaCha_set_key(ChaCha_ctx *ctx, const unsigned char *key, uint32_t keybits)
 	chacha_keysetup((chacha_ctx *)ctx, key, keybits);
 	ctx->unused = 0;
 }
+LCRYPTO_ALIAS(ChaCha_set_key);
 
 void
 ChaCha_set_iv(ChaCha_ctx *ctx, const unsigned char *iv,
@@ -35,11 +36,13 @@ ChaCha_set_iv(ChaCha_ctx *ctx, const unsigned char *iv,
 	chacha_ivsetup((chacha_ctx *)ctx, iv, counter);
 	ctx->unused = 0;
 }
+LCRYPTO_ALIAS(ChaCha_set_iv);
 
 void
 ChaCha(ChaCha_ctx *ctx, unsigned char *out, const unsigned char *in, size_t len)
 {
 	unsigned char *k;
+	uint64_t n;
 	int i, l;
 
 	/* Consume remaining keystream, if any exists. */
@@ -52,14 +55,25 @@ ChaCha(ChaCha_ctx *ctx, unsigned char *out, const unsigned char *in, size_t len)
 		len -= l;
 	}
 
-	chacha_encrypt_bytes((chacha_ctx *)ctx, in, out, (uint32_t)len);
+	while (len > 0) {
+		if ((n = len) > UINT32_MAX)
+			n = UINT32_MAX;
+
+		chacha_encrypt_bytes((chacha_ctx *)ctx, in, out, (uint32_t)n);
+
+		in += n;
+		out += n;
+		len -= n;
+	}
 }
+LCRYPTO_ALIAS(ChaCha);
 
 void
 CRYPTO_chacha_20(unsigned char *out, const unsigned char *in, size_t len,
     const unsigned char key[32], const unsigned char iv[8], uint64_t counter)
 {
 	struct chacha_ctx ctx;
+	uint64_t n;
 
 	/*
 	 * chacha_ivsetup expects the counter to be in u8. Rather than
@@ -73,8 +87,18 @@ CRYPTO_chacha_20(unsigned char *out, const unsigned char *in, size_t len,
 		ctx.input[13] = (uint32_t)(counter >> 32);
 	}
 
-	chacha_encrypt_bytes(&ctx, in, out, (uint32_t)len);
+	while (len > 0) {
+		if ((n = len) > UINT32_MAX)
+			n = UINT32_MAX;
+
+		chacha_encrypt_bytes(&ctx, in, out, (uint32_t)n);
+
+		in += n;
+		out += n;
+		len -= n;
+	}
 }
+LCRYPTO_ALIAS(CRYPTO_chacha_20);
 
 void
 CRYPTO_xchacha_20(unsigned char *out, const unsigned char *in, size_t len,
@@ -85,3 +109,4 @@ CRYPTO_xchacha_20(unsigned char *out, const unsigned char *in, size_t len,
 	CRYPTO_hchacha_20(subkey, key, iv);
 	CRYPTO_chacha_20(out, in, len, subkey, iv + 16, 0);
 }
+LCRYPTO_ALIAS(CRYPTO_xchacha_20);

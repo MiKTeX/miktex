@@ -5,6 +5,7 @@
 .type	bn_mul_mont_gather5,@function
 .align	64
 bn_mul_mont_gather5:
+	endbr64
 	testl	$3,%r9d
 	jnz	.Lmul_enter
 	cmpl	$8,%r9d
@@ -400,6 +401,7 @@ bn_mul_mont_gather5:
 .type	bn_mul4x_mont_gather5,@function
 .align	16
 bn_mul4x_mont_gather5:
+	endbr64
 .Lmul4x_enter:
 	movl	%r9d,%r9d
 	movd	8(%rsp),%xmm5
@@ -990,6 +992,7 @@ bn_mul4x_mont_gather5:
 .type	bn_scatter5,@function
 .align	16
 bn_scatter5:
+	endbr64
 	cmpq	$0,%rsi
 	jz	.Lscatter_epilogue
 	leaq	(%rdx,%rcx,8),%rdx
@@ -1008,6 +1011,7 @@ bn_scatter5:
 .type	bn_gather5,@function
 .align	16
 bn_gather5:
+	endbr64
 .LSEH_begin_bn_gather5:
 
 .byte	0x4c,0x8d,0x14,0x24			
@@ -1167,11 +1171,12 @@ bn_gather5:
 	retq
 .LSEH_end_bn_gather5:
 .size	bn_gather5,.-bn_gather5
+.section	.rodata
 .align	64
 .Linc:
 .long	0,0, 1,1
 .long	2,2, 2,2
-.byte	77,111,110,116,103,111,109,101,114,121,32,77,117,108,116,105,112,108,105,99,97,116,105,111,110,32,119,105,116,104,32,115,99,97,116,116,101,114,47,103,97,116,104,101,114,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0
+.text	
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits
 #endif

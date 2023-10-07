@@ -1,4 +1,4 @@
-/* $OpenBSD: p12_decr.c,v 1.19 2018/05/13 14:22:34 tb Exp $ */
+/* $OpenBSD: p12_decr.c,v 1.24 2023/02/16 08:38:17 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -62,6 +62,8 @@
 #include <openssl/err.h>
 #include <openssl/pkcs12.h>
 
+#include "evp_local.h"
+
 /* Encrypt/Decrypt a buffer based on password and algor, result in a
  * malloc'ed buffer
  */
@@ -114,6 +116,7 @@ err:
 	return out;
 
 }
+LCRYPTO_ALIAS(PKCS12_pbe_crypt);
 
 /* Decrypt an OCTET STRING and decode ASN1 structure
  * if zbuf set zero buffer after use.
@@ -142,6 +145,7 @@ PKCS12_item_decrypt_d2i(const X509_ALGOR *algor, const ASN1_ITEM *it,
 	free(out);
 	return ret;
 }
+LCRYPTO_ALIAS(PKCS12_item_decrypt_d2i);
 
 /* Encode ASN1 structure and encrypt, return OCTET STRING
  * if zbuf set zero encoding.
@@ -156,7 +160,7 @@ PKCS12_item_i2d_encrypt(X509_ALGOR *algor, const ASN1_ITEM *it,
 	unsigned char *in = NULL;
 	int inlen;
 
-	if (!(oct = ASN1_OCTET_STRING_new ())) {
+	if (!(oct = ASN1_OCTET_STRING_new())) {
 		PKCS12error(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -180,5 +184,6 @@ err:
 	ASN1_OCTET_STRING_free(oct);
 	return NULL;
 }
+LCRYPTO_ALIAS(PKCS12_item_i2d_encrypt);
 
 IMPLEMENT_PKCS12_STACK_OF(PKCS7)

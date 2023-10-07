@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa_eay.c,v 1.51 2019/11/02 13:52:31 jsing Exp $ */
+/* $OpenBSD: rsa_eay.c,v 1.65 2023/08/09 12:09:06 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -118,46 +118,11 @@
 #include <openssl/err.h>
 #include <openssl/rsa.h>
 
-#include "bn_lcl.h"
-
-static int RSA_eay_public_encrypt(int flen, const unsigned char *from,
-    unsigned char *to, RSA *rsa, int padding);
-static int RSA_eay_private_encrypt(int flen, const unsigned char *from,
-    unsigned char *to, RSA *rsa, int padding);
-static int RSA_eay_public_decrypt(int flen, const unsigned char *from,
-    unsigned char *to, RSA *rsa, int padding);
-static int RSA_eay_private_decrypt(int flen, const unsigned char *from,
-    unsigned char *to, RSA *rsa, int padding);
-static int RSA_eay_mod_exp(BIGNUM *r0, const BIGNUM *i, RSA *rsa, BN_CTX *ctx);
-static int RSA_eay_init(RSA *rsa);
-static int RSA_eay_finish(RSA *rsa);
-
-static RSA_METHOD rsa_pkcs1_eay_meth = {
-	.name = "Eric Young's PKCS#1 RSA",
-	.rsa_pub_enc = RSA_eay_public_encrypt,
-	.rsa_pub_dec = RSA_eay_public_decrypt, /* signature verification */
-	.rsa_priv_enc = RSA_eay_private_encrypt, /* signing */
-	.rsa_priv_dec = RSA_eay_private_decrypt,
-	.rsa_mod_exp = RSA_eay_mod_exp,
-	.bn_mod_exp = BN_mod_exp_mont_ct, /* XXX probably we should not use Montgomery if  e == 3 */
-	.init = RSA_eay_init,
-	.finish = RSA_eay_finish,
-};
-
-const RSA_METHOD *
-RSA_PKCS1_OpenSSL(void)
-{
-	return &rsa_pkcs1_eay_meth;
-}
-
-const RSA_METHOD *
-RSA_PKCS1_SSLeay(void)
-{
-	return &rsa_pkcs1_eay_meth;
-}
+#include "bn_local.h"
+#include "rsa_local.h"
 
 static int
-RSA_eay_public_encrypt(int flen, const unsigned char *from, unsigned char *to,
+rsa_public_encrypt(int flen, const unsigned char *from, unsigned char *to,
     RSA *rsa, int padding)
 {
 	BIGNUM *f, *ret;
@@ -225,10 +190,11 @@ RSA_eay_public_encrypt(int flen, const unsigned char *from, unsigned char *to,
 		goto err;
 	}
 
-	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC)
+	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC) {
 		if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
 		    CRYPTO_LOCK_RSA, rsa->n, ctx))
 			goto err;
+	}
 
 	if (!rsa->meth->bn_mod_exp(ret, f, rsa->e, rsa->n, ctx,
 	    rsa->_method_mod_n))
@@ -256,7 +222,6 @@ rsa_get_blinding(RSA *rsa, int *local, BN_CTX *ctx)
 {
 	BN_BLINDING *ret;
 	int got_write_lock = 0;
-	CRYPTO_THREADID cur;
 
 	CRYPTO_r_lock(CRYPTO_LOCK_RSA);
 
@@ -269,24 +234,14 @@ rsa_get_blinding(RSA *rsa, int *local, BN_CTX *ctx)
 			rsa->blinding = RSA_setup_blinding(rsa, ctx);
 	}
 
-	ret = rsa->blinding;
-	if (ret == NULL)
+	if ((ret = rsa->blinding) == NULL)
 		goto err;
 
-	CRYPTO_THREADID_current(&cur);
-	if (!CRYPTO_THREADID_cmp(&cur, BN_BLINDING_thread_id(ret))) {
-		/* rsa->blinding is ours! */
-		*local = 1;
-	} else {
-		/* resort to rsa->mt_blinding instead */
-		/*
-		 * Instruct rsa_blinding_convert(), rsa_blinding_invert()
-		 * that the BN_BLINDING is shared, meaning that accesses
-		 * require locks, and that the blinding factor must be
-		 * stored outside the BN_BLINDING
-		 */
-		*local = 0;
-
+	/*
+	 * We need a shared blinding. Accesses require locks and a copy of the
+	 * blinding factor needs to be retained on use.
+	 */
+	if ((*local = BN_BLINDING_is_local(ret)) == 0) {
 		if (rsa->mt_blinding == NULL) {
 			if (!got_write_lock) {
 				CRYPTO_r_unlock(CRYPTO_LOCK_RSA);
@@ -300,11 +255,12 @@ rsa_get_blinding(RSA *rsa, int *local, BN_CTX *ctx)
 		ret = rsa->mt_blinding;
 	}
 
-err:
+ err:
 	if (got_write_lock)
 		CRYPTO_w_unlock(CRYPTO_LOCK_RSA);
 	else
 		CRYPTO_r_unlock(CRYPTO_LOCK_RSA);
+
 	return ret;
 }
 
@@ -316,7 +272,7 @@ rsa_blinding_convert(BN_BLINDING *b, BIGNUM *f, BIGNUM *unblind, BN_CTX *ctx)
 		 * Local blinding: store the unblinding factor
 		 * in BN_BLINDING.
 		 */
-		return BN_BLINDING_convert_ex(f, NULL, b, ctx);
+		return BN_BLINDING_convert(f, NULL, b, ctx);
 	else {
 		/*
 		 * Shared blinding: store the unblinding factor
@@ -324,7 +280,7 @@ rsa_blinding_convert(BN_BLINDING *b, BIGNUM *f, BIGNUM *unblind, BN_CTX *ctx)
 		 */
 		int ret;
 		CRYPTO_w_lock(CRYPTO_LOCK_RSA_BLINDING);
-		ret = BN_BLINDING_convert_ex(f, unblind, b, ctx);
+		ret = BN_BLINDING_convert(f, unblind, b, ctx);
 		CRYPTO_w_unlock(CRYPTO_LOCK_RSA_BLINDING);
 		return ret;
 	}
@@ -334,19 +290,19 @@ static int
 rsa_blinding_invert(BN_BLINDING *b, BIGNUM *f, BIGNUM *unblind, BN_CTX *ctx)
 {
 	/*
-	 * For local blinding, unblind is set to NULL, and BN_BLINDING_invert_ex
+	 * For local blinding, unblind is set to NULL, and BN_BLINDING_invert()
 	 * will use the unblinding factor stored in BN_BLINDING.
 	 * If BN_BLINDING is shared between threads, unblind must be non-null:
-	 * BN_BLINDING_invert_ex will then use the local unblinding factor,
+	 * BN_BLINDING_invert() will then use the local unblinding factor,
 	 * and will only read the modulus from BN_BLINDING.
 	 * In both cases it's safe to access the blinding without a lock.
 	 */
-	return BN_BLINDING_invert_ex(f, unblind, b, ctx);
+	return BN_BLINDING_invert(f, unblind, b, ctx);
 }
 
 /* signing */
 static int
-RSA_eay_private_encrypt(int flen, const unsigned char *from, unsigned char *to,
+rsa_private_encrypt(int flen, const unsigned char *from, unsigned char *to,
     RSA *rsa, int padding)
 {
 	BIGNUM *f, *ret, *res;
@@ -402,6 +358,12 @@ RSA_eay_private_encrypt(int flen, const unsigned char *from, unsigned char *to,
 		goto err;
 	}
 
+	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC) {
+		if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
+		    CRYPTO_LOCK_RSA, rsa->n, ctx))
+			goto err;
+	}
+
 	if (!(rsa->flags & RSA_FLAG_NO_BLINDING)) {
 		blinding = rsa_get_blinding(rsa, &local_blinding, ctx);
 		if (blinding == NULL) {
@@ -430,11 +392,6 @@ RSA_eay_private_encrypt(int flen, const unsigned char *from, unsigned char *to,
 		BN_init(&d);
 		BN_with_flags(&d, rsa->d, BN_FLG_CONSTTIME);
 
-		if (rsa->flags & RSA_FLAG_CACHE_PUBLIC)
-			if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
-			    CRYPTO_LOCK_RSA, rsa->n, ctx))
-				goto err;
-
 		if (!rsa->meth->bn_mod_exp(ret, f, &d, rsa->n, ctx,
 		    rsa->_method_mod_n)) {
 			goto err;
@@ -446,7 +403,8 @@ RSA_eay_private_encrypt(int flen, const unsigned char *from, unsigned char *to,
 			goto err;
 
 	if (padding == RSA_X931_PADDING) {
-		BN_sub(f, rsa->n, ret);
+		if (!BN_sub(f, rsa->n, ret))
+			goto err;
 		if (BN_cmp(ret, f) > 0)
 			res = f;
 		else
@@ -472,7 +430,7 @@ err:
 }
 
 static int
-RSA_eay_private_decrypt(int flen, const unsigned char *from, unsigned char *to,
+rsa_private_decrypt(int flen, const unsigned char *from, unsigned char *to,
     RSA *rsa, int padding)
 {
 	BIGNUM *f, *ret;
@@ -519,6 +477,12 @@ RSA_eay_private_decrypt(int flen, const unsigned char *from, unsigned char *to,
 		goto err;
 	}
 
+	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC) {
+		if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
+		    CRYPTO_LOCK_RSA, rsa->n, ctx))
+			goto err;
+	}
+
 	if (!(rsa->flags & RSA_FLAG_NO_BLINDING)) {
 		blinding = rsa_get_blinding(rsa, &local_blinding, ctx);
 		if (blinding == NULL) {
@@ -547,11 +511,6 @@ RSA_eay_private_decrypt(int flen, const unsigned char *from, unsigned char *to,
 
 		BN_init(&d);
 		BN_with_flags(&d, rsa->d, BN_FLG_CONSTTIME);
-
-		if (rsa->flags & RSA_FLAG_CACHE_PUBLIC)
-			if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
-			    CRYPTO_LOCK_RSA, rsa->n, ctx))
-				goto err;
 
 		if (!rsa->meth->bn_mod_exp(ret, f, &d, rsa->n, ctx,
 		    rsa->_method_mod_n)) {
@@ -596,7 +555,7 @@ err:
 
 /* signature verification */
 static int
-RSA_eay_public_decrypt(int flen, const unsigned char *from, unsigned char *to,
+rsa_public_decrypt(int flen, const unsigned char *from, unsigned char *to,
     RSA *rsa, int padding)
 {
 	BIGNUM *f, *ret;
@@ -652,10 +611,11 @@ RSA_eay_public_decrypt(int flen, const unsigned char *from, unsigned char *to,
 		goto err;
 	}
 
-	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC)
+	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC) {
 		if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
 		    CRYPTO_LOCK_RSA, rsa->n, ctx))
 			goto err;
+	}
 
 	if (!rsa->meth->bn_mod_exp(ret, f, rsa->e, rsa->n, ctx,
 	    rsa->_method_mod_n))
@@ -695,7 +655,7 @@ err:
 }
 
 static int
-RSA_eay_mod_exp(BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx)
+rsa_mod_exp(BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx)
 {
 	BIGNUM *r1, *m1, *vrfy;
 	BIGNUM dmp1, dmq1, c, pr1;
@@ -714,7 +674,7 @@ RSA_eay_mod_exp(BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx)
 		BIGNUM p, q;
 
 		/*
-		 * Make sure BN_mod_inverse in Montgomery intialization uses the
+		 * Make sure BN_mod_inverse in Montgomery initialization uses the
 		 * BN_FLG_CONSTTIME flag
 		 */
 		BN_init(&p);
@@ -732,10 +692,11 @@ RSA_eay_mod_exp(BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx)
 		}
 	}
 
-	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC)
+	if (rsa->flags & RSA_FLAG_CACHE_PUBLIC) {
 		if (!BN_MONT_CTX_set_locked(&rsa->_method_mod_n,
 		    CRYPTO_LOCK_RSA, rsa->n, ctx))
 			goto err;
+	}
 
 	/* compute I mod q */
 	BN_init(&c);
@@ -753,6 +714,7 @@ RSA_eay_mod_exp(BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx)
 		goto err;
 
 	/* compute I mod p */
+	BN_init(&c);
 	BN_with_flags(&c, I, BN_FLG_CONSTTIME);
 
 	if (!BN_mod_ct(r1, &c, rsa->p, ctx))
@@ -844,14 +806,14 @@ err:
 }
 
 static int
-RSA_eay_init(RSA *rsa)
+rsa_init(RSA *rsa)
 {
 	rsa->flags |= RSA_FLAG_CACHE_PUBLIC | RSA_FLAG_CACHE_PRIVATE;
 	return 1;
 }
 
 static int
-RSA_eay_finish(RSA *rsa)
+rsa_finish(RSA *rsa)
 {
 	BN_MONT_CTX_free(rsa->_method_mod_n);
 	BN_MONT_CTX_free(rsa->_method_mod_p);
@@ -859,3 +821,82 @@ RSA_eay_finish(RSA *rsa)
 
 	return 1;
 }
+
+static const RSA_METHOD rsa_pkcs1_meth = {
+	.name = "OpenSSL PKCS#1 RSA",
+	.rsa_pub_enc = rsa_public_encrypt,
+	.rsa_pub_dec = rsa_public_decrypt, /* signature verification */
+	.rsa_priv_enc = rsa_private_encrypt, /* signing */
+	.rsa_priv_dec = rsa_private_decrypt,
+	.rsa_mod_exp = rsa_mod_exp,
+	.bn_mod_exp = BN_mod_exp_mont_ct, /* XXX probably we should not use Montgomery if  e == 3 */
+	.init = rsa_init,
+	.finish = rsa_finish,
+};
+
+const RSA_METHOD *
+RSA_PKCS1_OpenSSL(void)
+{
+	return &rsa_pkcs1_meth;
+}
+LCRYPTO_ALIAS(RSA_PKCS1_OpenSSL);
+
+const RSA_METHOD *
+RSA_PKCS1_SSLeay(void)
+{
+	return RSA_PKCS1_OpenSSL();
+}
+LCRYPTO_ALIAS(RSA_PKCS1_SSLeay);
+
+int
+RSA_bits(const RSA *r)
+{
+	return BN_num_bits(r->n);
+}
+LCRYPTO_ALIAS(RSA_bits);
+
+int
+RSA_size(const RSA *r)
+{
+	return BN_num_bytes(r->n);
+}
+LCRYPTO_ALIAS(RSA_size);
+
+int
+RSA_public_encrypt(int flen, const unsigned char *from, unsigned char *to,
+    RSA *rsa, int padding)
+{
+	return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);
+}
+LCRYPTO_ALIAS(RSA_public_encrypt);
+
+int
+RSA_private_encrypt(int flen, const unsigned char *from, unsigned char *to,
+    RSA *rsa, int padding)
+{
+	return rsa->meth->rsa_priv_enc(flen, from, to, rsa, padding);
+}
+LCRYPTO_ALIAS(RSA_private_encrypt);
+
+int
+RSA_private_decrypt(int flen, const unsigned char *from, unsigned char *to,
+    RSA *rsa, int padding)
+{
+	return rsa->meth->rsa_priv_dec(flen, from, to, rsa, padding);
+}
+LCRYPTO_ALIAS(RSA_private_decrypt);
+
+int
+RSA_public_decrypt(int flen, const unsigned char *from, unsigned char *to,
+    RSA *rsa, int padding)
+{
+	return rsa->meth->rsa_pub_dec(flen, from, to, rsa, padding);
+}
+LCRYPTO_ALIAS(RSA_public_decrypt);
+
+int
+RSA_flags(const RSA *r)
+{
+	return r == NULL ? 0 : r->meth->flags;
+}
+LCRYPTO_ALIAS(RSA_flags);

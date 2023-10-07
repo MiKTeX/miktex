@@ -1,4 +1,4 @@
-/* $OpenBSD: p12_init.c,v 1.11 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: p12_init.c,v 1.16 2023/02/16 08:38:17 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -61,6 +61,8 @@
 #include <openssl/err.h>
 #include <openssl/pkcs12.h>
 
+#include "pkcs12_local.h"
+
 /* Initialise a PKCS12 structure to take data */
 
 PKCS12 *
@@ -72,8 +74,10 @@ PKCS12_init(int mode)
 		PKCS12error(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	ASN1_INTEGER_set(pkcs12->version, 3);
-	pkcs12->authsafes->type = OBJ_nid2obj(mode);
+	if (!ASN1_INTEGER_set(pkcs12->version, 3))
+		goto err;
+	if ((pkcs12->authsafes->type = OBJ_nid2obj(mode)) == NULL)
+		goto err;
 	switch (mode) {
 	case NID_pkcs7_data:
 		if (!(pkcs12->authsafes->d.data =
@@ -94,3 +98,4 @@ err:
 		PKCS12_free(pkcs12);
 	return NULL;
 }
+LCRYPTO_ALIAS(PKCS12_init);

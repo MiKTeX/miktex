@@ -1,4 +1,4 @@
-/* $OpenBSD: pkcs12.h,v 1.24 2018/05/30 15:32:11 tb Exp $ */
+/* $OpenBSD: pkcs12.h,v 1.27 2022/09/11 17:30:13 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -96,43 +96,16 @@ extern "C" {
 #define KEY_EX	0x10
 #define KEY_SIG 0x80
 
-typedef struct {
-	X509_SIG *dinfo;
-	ASN1_OCTET_STRING *salt;
-	ASN1_INTEGER *iter;	/* defaults to 1 */
-} PKCS12_MAC_DATA;
+typedef struct PKCS12_MAC_DATA_st PKCS12_MAC_DATA;
 
-typedef struct {
-	ASN1_INTEGER *version;
-	PKCS12_MAC_DATA *mac;
-	PKCS7 *authsafes;
-} PKCS12;
+typedef struct PKCS12_st PKCS12;
 
-typedef struct {
-	ASN1_OBJECT *type;
-	union {
-	struct pkcs12_bag_st *bag; /* secret, crl and certbag */
-	struct pkcs8_priv_key_info_st	*keybag; /* keybag */
-	X509_SIG *shkeybag; /* shrouded key bag */
-		STACK_OF(PKCS12_SAFEBAG) *safes;
-		ASN1_TYPE *other;
-	} value;
-	STACK_OF(X509_ATTRIBUTE) *attrib;
-} PKCS12_SAFEBAG;
+typedef struct PKCS12_SAFEBAG_st PKCS12_SAFEBAG;
 
 DECLARE_STACK_OF(PKCS12_SAFEBAG)
 DECLARE_PKCS12_STACK_OF(PKCS12_SAFEBAG)
 
-typedef struct pkcs12_bag_st {
-	ASN1_OBJECT *type;
-	union {
-		ASN1_OCTET_STRING *x509cert;
-		ASN1_OCTET_STRING *x509crl;
-		ASN1_OCTET_STRING *octet;
-		ASN1_IA5STRING *sdsicert;
-		ASN1_TYPE *other; /* Secret or other bag */
-	} value;
-} PKCS12_BAGS;
+typedef struct pkcs12_bag_st PKCS12_BAGS;
 
 #define PKCS12_ERROR	0
 #define PKCS12_OK	1
@@ -155,38 +128,61 @@ typedef struct pkcs12_bag_st {
 #define M_PKCS12_decrypt_skey PKCS12_decrypt_skey
 #define M_PKCS8_decrypt PKCS8_decrypt
 
-#define M_PKCS12_bag_type(bg) OBJ_obj2nid((bg)->type)
-#define M_PKCS12_cert_bag_type(bg) OBJ_obj2nid((bg)->value.bag->type)
-#define M_PKCS12_crl_bag_type M_PKCS12_cert_bag_type
-
 #endif /* !LIBRESSL_INTERNAL */
 
-#define PKCS12_get_attr(bag, attr_nid) \
-			 PKCS12_get_attr_gen(bag->attrib, attr_nid)
+#define M_PKCS12_bag_type	PKCS12_bag_type
+#define M_PKCS12_cert_bag_type	PKCS12_cert_bag_type
+#define M_PKCS12_crl_bag_type	PKCS12_cert_bag_type
 
-#define PKCS8_get_attr(p8, attr_nid) \
-		PKCS12_get_attr_gen(p8->attributes, attr_nid)
+#define PKCS12_bag_type		PKCS12_SAFEBAG_get_nid
+#define PKCS12_cert_bag_type	PKCS12_SAFEBAG_get_bag_nid
 
-#define PKCS12_mac_present(p12) ((p12)->mac ? 1 : 0)
+#define PKCS12_certbag2x509	PKCS12_SAFEBAG_get1_cert
+#define PKCS12_certbag2x509crl	PKCS12_SAFEBAG_get1_crl
 
+#define PKCS12_x5092certbag	PKCS12_SAFEBAG_create_cert
+#define PKCS12_x509crl2certbag	PKCS12_SAFEBAG_create_crl
+#define PKCS12_MAKE_KEYBAG	PKCS12_SAFEBAG_create0_p8inf
+#define PKCS12_MAKE_SHKEYBAG	PKCS12_SAFEBAG_create_pkcs8_encrypt
 
-PKCS12_SAFEBAG *PKCS12_x5092certbag(X509 *x509);
-PKCS12_SAFEBAG *PKCS12_x509crl2certbag(X509_CRL *crl);
-X509 *PKCS12_certbag2x509(PKCS12_SAFEBAG *bag);
-X509_CRL *PKCS12_certbag2x509crl(PKCS12_SAFEBAG *bag);
+const ASN1_TYPE *PKCS12_SAFEBAG_get0_attr(const PKCS12_SAFEBAG *bag,
+    int attr_nid);
+const STACK_OF(X509_ATTRIBUTE) *
+    PKCS12_SAFEBAG_get0_attrs(const PKCS12_SAFEBAG *bag);
+int PKCS12_SAFEBAG_get_nid(const PKCS12_SAFEBAG *bag);
+int PKCS12_SAFEBAG_get_bag_nid(const PKCS12_SAFEBAG *bag);
+
+X509 *PKCS12_SAFEBAG_get1_cert(const PKCS12_SAFEBAG *bag);
+X509_CRL *PKCS12_SAFEBAG_get1_crl(const PKCS12_SAFEBAG *bag);
+
+ASN1_TYPE *PKCS8_get_attr(PKCS8_PRIV_KEY_INFO *p8, int attr_nid);
+int PKCS12_mac_present(const PKCS12 *p12);
+void PKCS12_get0_mac(const ASN1_OCTET_STRING **pmac, const X509_ALGOR **pmacalg,
+    const ASN1_OCTET_STRING **psalt, const ASN1_INTEGER **piter,
+    const PKCS12 *p12);
+
+PKCS12_SAFEBAG *PKCS12_SAFEBAG_create_cert(X509 *x509);
+PKCS12_SAFEBAG *PKCS12_SAFEBAG_create_crl(X509_CRL *crl);
+PKCS12_SAFEBAG *PKCS12_SAFEBAG_create0_p8inf(PKCS8_PRIV_KEY_INFO *p8);
+PKCS12_SAFEBAG *PKCS12_SAFEBAG_create0_pkcs8(X509_SIG *p8);
+PKCS12_SAFEBAG *PKCS12_SAFEBAG_create_pkcs8_encrypt(int pbe_nid,
+    const char *pass, int passlen, unsigned char *salt, int saltlen, int iter,
+    PKCS8_PRIV_KEY_INFO *p8);
+
+const PKCS8_PRIV_KEY_INFO *PKCS12_SAFEBAG_get0_p8inf(const PKCS12_SAFEBAG *bag);
+const X509_SIG *PKCS12_SAFEBAG_get0_pkcs8(const PKCS12_SAFEBAG *bag);
+const STACK_OF(PKCS12_SAFEBAG) *
+    PKCS12_SAFEBAG_get0_safes(const PKCS12_SAFEBAG *bag);
+const ASN1_OBJECT *PKCS12_SAFEBAG_get0_type(const PKCS12_SAFEBAG *bag);
 
 PKCS12_SAFEBAG *PKCS12_item_pack_safebag(void *obj, const ASN1_ITEM *it,
     int nid1, int nid2);
-PKCS12_SAFEBAG *PKCS12_MAKE_KEYBAG(PKCS8_PRIV_KEY_INFO *p8);
 PKCS8_PRIV_KEY_INFO *PKCS8_decrypt(const X509_SIG *p8, const char *pass,
     int passlen);
 PKCS8_PRIV_KEY_INFO *PKCS12_decrypt_skey(const PKCS12_SAFEBAG *bag,
     const char *pass, int passlen);
 X509_SIG *PKCS8_encrypt(int pbe_nid, const EVP_CIPHER *cipher,
     const char *pass, int passlen, unsigned char *salt, int saltlen, int iter,
-    PKCS8_PRIV_KEY_INFO *p8);
-PKCS12_SAFEBAG *PKCS12_MAKE_SHKEYBAG(int pbe_nid, const char *pass,
-    int passlen, unsigned char *salt, int saltlen, int iter,
     PKCS8_PRIV_KEY_INFO *p8);
 PKCS7 *PKCS12_pack_p7data(STACK_OF(PKCS12_SAFEBAG) *sk);
 STACK_OF(PKCS12_SAFEBAG) *PKCS12_unpack_p7data(PKCS7 *p7);
@@ -283,10 +279,6 @@ PKCS12 *d2i_PKCS12_bio(BIO *bp, PKCS12 **p12);
 PKCS12 *d2i_PKCS12_fp(FILE *fp, PKCS12 **p12);
 int PKCS12_newpass(PKCS12 *p12, const char *oldpass, const char *newpass);
 
-/* BEGIN ERROR CODES */
-/* The following lines are auto generated by the script mkerr.pl. Any changes
- * made after this point may be overwritten when the script is next run.
- */
 void ERR_load_PKCS12_strings(void);
 
 /* Error codes for the PKCS12 functions. */

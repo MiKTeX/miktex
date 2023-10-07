@@ -1,4 +1,4 @@
-/* $OpenBSD: cms_enc.c,v 1.20 2019/08/11 11:04:18 jsing Exp $ */
+/* $OpenBSD: cms_enc.c,v 1.23 2023/07/08 08:26:26 beck Exp $ */
 /*
  * Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
@@ -61,7 +61,7 @@
 #include <openssl/err.h>
 #include <openssl/cms.h>
 #include <openssl/rand.h>
-#include "cms_lcl.h"
+#include "cms_local.h"
 
 /* CMS EncryptedData Utilities */
 
@@ -151,7 +151,7 @@ cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo *ec)
 
 	if (ec->keylen != tkeylen) {
 		/* If necessary set key length */
-		if (EVP_CIPHER_CTX_set_key_length(ctx, ec->keylen) <= 0) {
+		if (!EVP_CIPHER_CTX_set_key_length(ctx, ec->keylen)) {
 			/*
 			 * Only reveal failure if debugging so we don't leak information
 			 * which may be useful in MMA.
@@ -249,6 +249,7 @@ CMS_EncryptedData_set1_key(CMS_ContentInfo *cms, const EVP_CIPHER *ciph,
 
 	return cms_EncryptedContent_init(ec, ciph, key, keylen);
 }
+LCRYPTO_ALIAS(CMS_EncryptedData_set1_key);
 
 BIO *
 cms_EncryptedData_init_bio(CMS_ContentInfo *cms)

@@ -1,4 +1,4 @@
-/* $OpenBSD: bf_buff.c,v 1.25 2018/05/01 13:29:09 tb Exp $ */
+/* $OpenBSD: bf_buff.c,v 1.28 2023/07/05 21:23:37 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -63,6 +63,8 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 
+#include "bio_local.h"
+
 static int buffer_write(BIO *h, const char *buf, int num);
 static int buffer_read(BIO *h, char *buf, int size);
 static int buffer_puts(BIO *h, const char *str);
@@ -70,7 +72,7 @@ static int buffer_gets(BIO *h, char *str, int size);
 static long buffer_ctrl(BIO *h, int cmd, long arg1, void *arg2);
 static int buffer_new(BIO *h);
 static int buffer_free(BIO *data);
-static long buffer_callback_ctrl(BIO *h, int cmd, bio_info_cb *fp);
+static long buffer_callback_ctrl(BIO *h, int cmd, BIO_info_cb *fp);
 #define DEFAULT_BUFFER_SIZE	4096
 
 static const BIO_METHOD methods_buffer = {
@@ -91,6 +93,7 @@ BIO_f_buffer(void)
 {
 	return (&methods_buffer);
 }
+LCRYPTO_ALIAS(BIO_f_buffer);
 
 static int
 buffer_new(BIO *bi)
@@ -450,7 +453,7 @@ malloc_error:
 }
 
 static long
-buffer_callback_ctrl(BIO *b, int cmd, bio_info_cb *fp)
+buffer_callback_ctrl(BIO *b, int cmd, BIO_info_cb *fp)
 {
 	long ret = 1;
 

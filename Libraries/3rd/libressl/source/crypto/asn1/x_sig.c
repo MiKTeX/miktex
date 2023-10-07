@@ -1,4 +1,4 @@
-/* $OpenBSD: x_sig.c,v 1.11 2015/02/11 04:00:39 jsing Exp $ */
+/* $OpenBSD: x_sig.c,v 1.16 2023/07/07 19:37:53 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -61,6 +61,8 @@
 #include <openssl/asn1t.h>
 #include <openssl/x509.h>
 
+#include "x509_local.h"
+
 static const ASN1_TEMPLATE X509_SIG_seq_tt[] = {
 	{
 		.offset = offsetof(X509_SIG, algor),
@@ -107,4 +109,23 @@ void
 X509_SIG_free(X509_SIG *a)
 {
 	ASN1_item_free((ASN1_VALUE *)a, &X509_SIG_it);
+}
+
+void
+X509_SIG_get0(const X509_SIG *sig, const X509_ALGOR **palg,
+    const ASN1_OCTET_STRING **pdigest)
+{
+	if (palg != NULL)
+		*palg = sig->algor;
+	if (pdigest != NULL)
+		*pdigest = sig->digest;
+}
+
+void
+X509_SIG_getm(X509_SIG *sig, X509_ALGOR **palg, ASN1_OCTET_STRING **pdigest)
+{
+	if (palg != NULL)
+		*palg = sig->algor;
+	if (pdigest != NULL)
+		*pdigest = sig->digest;
 }

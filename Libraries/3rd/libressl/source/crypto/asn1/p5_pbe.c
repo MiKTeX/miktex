@@ -1,4 +1,4 @@
-/* $OpenBSD: p5_pbe.c,v 1.22 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: p5_pbe.c,v 1.25 2023/07/07 19:37:52 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -159,7 +159,7 @@ PKCS5_pbe_set0_algor(X509_ALGOR *algor, int alg, int iter,
 	if (X509_ALGOR_set0(algor, OBJ_nid2obj(alg), V_ASN1_SEQUENCE, pbe_str))
 		return 1;
 
-err:
+ err:
 	if (pbe != NULL)
 		PBEPARAM_free(pbe);
 	ASN1_STRING_free(pbe_str);

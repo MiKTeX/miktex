@@ -1,4 +1,4 @@
-/* $OpenBSD: cms_asn1.c,v 1.18 2019/08/11 10:43:57 jsing Exp $ */
+/* $OpenBSD: cms_asn1.c,v 1.23 2023/07/08 08:26:26 beck Exp $ */
 /*
  * Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
@@ -56,7 +56,7 @@
 #include <openssl/pem.h>
 #include <openssl/x509v3.h>
 #include <openssl/cms.h>
-#include "cms_lcl.h"
+#include "cms_local.h"
 
 
 static const ASN1_TEMPLATE CMS_IssuerAndSerialNumber_seq_tt[] = {
@@ -1250,7 +1250,6 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.data",
 			.item = &ASN1_OCTET_STRING_NDEF_it,
 		},
-	
 	},
 	{
 		.value = NID_pkcs7_signed,
@@ -1261,7 +1260,6 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.signedData",
 			.item = &CMS_SignedData_it,
 		},
-	
 	},
 	{
 		.value = NID_pkcs7_enveloped,
@@ -1272,7 +1270,6 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.envelopedData",
 			.item = &CMS_EnvelopedData_it,
 		},
-	
 	},
 	{
 		.value = NID_pkcs7_digest,
@@ -1283,7 +1280,6 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.digestedData",
 			.item = &CMS_DigestedData_it,
 		},
-	
 	},
 	{
 		.value = NID_pkcs7_encrypted,
@@ -1294,7 +1290,6 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.encryptedData",
 			.item = &CMS_EncryptedData_it,
 		},
-	
 	},
 	{
 		.value = NID_id_smime_ct_authData,
@@ -1305,7 +1300,6 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.authenticatedData",
 			.item = &CMS_AuthenticatedData_it,
 		},
-	
 	},
 	{
 		.value = NID_id_smime_ct_compressedData,
@@ -1316,14 +1310,12 @@ static const ASN1_ADB_TABLE CMS_ContentInfo_adbtbl[] = {
 			.field_name = "d.compressedData",
 			.item = &CMS_CompressedData_it,
 		},
-	
 	},
 };
 
 static const ASN1_ADB CMS_ContentInfo_adb = {
 	.flags = 0,
 	.offset = offsetof(CMS_ContentInfo, contentType),
-	.app_items = 0,
 	.tbl = CMS_ContentInfo_adbtbl,
 	.tblcount = sizeof(CMS_ContentInfo_adbtbl) / sizeof(ASN1_ADB_TABLE),
 	.default_tt = &cms_default_tt,
@@ -1336,16 +1328,18 @@ cms_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it, void *exarg)
 {
 	ASN1_STREAM_ARG *sarg = exarg;
 	CMS_ContentInfo *cms = NULL;
+
 	if (pval)
 		cms = (CMS_ContentInfo *)*pval;
 	else
 		return 1;
-	switch (operation) {
 
+	switch (operation) {
 	case ASN1_OP_STREAM_PRE:
 		if (CMS_stream(&sarg->boundary, cms) <= 0)
 			return 0;
-		/* fall thru */
+		/* FALLTHROUGH */
+
 	case ASN1_OP_DETACHED_PRE:
 		sarg->ndef_bio = CMS_dataInit(cms, sarg->out);
 		if (!sarg->ndef_bio)
@@ -1357,8 +1351,8 @@ cms_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it, void *exarg)
 		if (CMS_dataFinal(cms, sarg->ndef_bio) <= 0)
 			return 0;
 		break;
-
 	}
+
 	return 1;
 }
 
@@ -1625,3 +1619,4 @@ CMS_SharedInfo_encode(unsigned char **pder, X509_ALGOR *kekalg,
 
 	return ASN1_item_i2d(intsi.a, pder, &CMS_SharedInfo_it);
 }
+LCRYPTO_ALIAS(CMS_SharedInfo_encode);

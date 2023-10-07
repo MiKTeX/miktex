@@ -1,4 +1,4 @@
-/* $OpenBSD: bss_null.c,v 1.11 2018/05/01 13:29:10 tb Exp $ */
+/* $OpenBSD: bss_null.c,v 1.13 2023/07/05 21:23:37 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -62,6 +62,8 @@
 
 #include <openssl/bio.h>
 
+#include "bio_local.h"
+
 static int null_write(BIO *h, const char *buf, int num);
 static int null_read(BIO *h, char *buf, int size);
 static int null_puts(BIO *h, const char *str);
@@ -87,6 +89,7 @@ BIO_s_null(void)
 {
 	return (&null_method);
 }
+LCRYPTO_ALIAS(BIO_s_null);
 
 static int
 null_new(BIO *bi)

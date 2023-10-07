@@ -5,6 +5,7 @@
 .type	whirlpool_block,@function
 .align	16
 whirlpool_block:
+	endbr64
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r12
@@ -588,6 +589,7 @@ whirlpool_block:
 	retq
 .size	whirlpool_block,.-whirlpool_block
 
+.section	.rodata
 .align	64
 .type	.Ltable,@object
 .Ltable:

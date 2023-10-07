@@ -1,4 +1,4 @@
-/*	$OpenBSD: getentropy_solaris.c,v 1.13 2018/11/20 08:04:28 deraadt Exp $	*/
+/*	$OpenBSD: getentropy_solaris.c,v 1.15 2021/10/24 21:24:20 deraadt Exp $	*/
 
 /*
  * Copyright (c) 2014 Theo de Raadt <deraadt@openbsd.org>
@@ -52,7 +52,7 @@
 #include <sys/loadavg.h>
 
 #define REPEAT 5
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define MINIMUM(a, b) (((a) < (b)) ? (a) : (b))
 
 #define HX(a, b) \
 	do { \
@@ -164,7 +164,7 @@ start:
 #ifdef O_CLOEXEC
 	flags |= O_CLOEXEC;
 #endif
-	fd = open(path, flags, 0);
+	fd = open(path, flags);
 	if (fd == -1) {
 		if (errno == EINTR)
 			goto start;
@@ -412,8 +412,8 @@ getentropy_fallback(void *buf, size_t len)
 			HD(cnt);
 		}
 		SHA512_Final(results, &ctx);
-		memcpy((char *)buf + i, results, min(sizeof(results), len - i));
-		i += min(sizeof(results), len - i);
+		memcpy((char *)buf + i, results, MINIMUM(sizeof(results), len - i));
+		i += MINIMUM(sizeof(results), len - i);
 	}
 	explicit_bzero(&ctx, sizeof ctx);
 	explicit_bzero(results, sizeof results);

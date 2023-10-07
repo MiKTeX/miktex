@@ -1,4 +1,4 @@
-/* $OpenBSD: e_gost2814789.c,v 1.4 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: e_gost2814789.c,v 1.13 2023/07/07 19:37:53 beck Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -48,6 +48,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ====================================================================
  */
+
 #include <string.h>
 
 #include <openssl/opensslconf.h>
@@ -56,12 +57,22 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/gost.h>
-#include "evp_locl.h"
+
+#include "evp_local.h"
 
 typedef struct {
 	GOST2814789_KEY ks;
 	int param_nid;
 } EVP_GOST2814789_CTX;
+
+static int
+gost2814789_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
+    const unsigned char *iv, int enc)
+{
+	EVP_GOST2814789_CTX *c = ctx->cipher_data;
+
+	return Gost2814789_set_key(&c->ks, key, ctx->key_len * 8);
+}
 
 static int
 gost2814789_ctl(EVP_CIPHER_CTX *ctx, int type, int arg, void *ptr)
@@ -85,15 +96,6 @@ gost2814789_ctl(EVP_CIPHER_CTX *ctx, int type, int arg, void *ptr)
 	default:
 		return -1;
 	}
-}
-
-static int
-gost2814789_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
-    const unsigned char *iv, int enc)
-{
-	EVP_GOST2814789_CTX *c = ctx->cipher_data;
-
-	return Gost2814789_set_key(&c->ks, key, ctx->key_len * 8);
 }
 
 int
@@ -184,8 +186,43 @@ gost2814789_get_asn1_params(EVP_CIPHER_CTX *ctx, ASN1_TYPE *params)
 	return 1;
 }
 
-BLOCK_CIPHER_func_ecb(gost2814789, Gost2814789, EVP_GOST2814789_CTX, ks)
-BLOCK_CIPHER_func_cfb(gost2814789, Gost2814789, 64, EVP_GOST2814789_CTX, ks)
+static int
+gost2814789_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in, size_t inl)
+{
+	size_t i, bl;
+
+	bl = ctx->cipher->block_size;
+
+	if (inl < bl)
+		return 1;
+
+	inl -= bl;
+
+	for (i = 0; i <= inl; i += bl)
+		Gost2814789_ecb_encrypt(in + i, out + i, &((EVP_GOST2814789_CTX *)ctx->cipher_data)->ks, ctx->encrypt);
+
+	return 1;
+}
+
+static int
+gost2814789_cfb64_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in, size_t inl)
+{
+	size_t chunk = EVP_MAXCHUNK;
+
+	if (inl < chunk)
+		chunk = inl;
+
+	while (inl && inl >= chunk) {
+		Gost2814789_cfb64_encrypt(in, out, chunk, &((EVP_GOST2814789_CTX *)ctx->cipher_data)->ks, ctx->iv, &ctx->num, ctx->encrypt);
+		inl -= chunk;
+		in += chunk;
+		out += chunk;
+		if (inl < chunk)
+			chunk = inl;
+	}
+
+	return 1;
+}
 
 static int
 gost2814789_cnt_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
@@ -194,7 +231,7 @@ gost2814789_cnt_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 	EVP_GOST2814789_CTX *c = ctx->cipher_data;
 
 	while (inl >= EVP_MAXCHUNK) {
-		Gost2814789_cnt_encrypt(in, out, (long)EVP_MAXCHUNK, &c->ks,
+		Gost2814789_cnt_encrypt(in, out, EVP_MAXCHUNK, &c->ks,
 		    ctx->iv, ctx->buf, &ctx->num);
 		inl -= EVP_MAXCHUNK;
 		in += EVP_MAXCHUNK;
@@ -210,16 +247,69 @@ gost2814789_cnt_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 /* gost89 is CFB-64 */
 #define NID_gost89_cfb64 NID_id_Gost28147_89
 
-BLOCK_CIPHER_def_ecb(gost2814789, EVP_GOST2814789_CTX, NID_gost89, 8, 32,
-		     EVP_CIPH_NO_PADDING | EVP_CIPH_CTRL_INIT,
-		     gost2814789_init_key, NULL, gost2814789_set_asn1_params,
-		     gost2814789_get_asn1_params, gost2814789_ctl)
-BLOCK_CIPHER_def_cfb(gost2814789, EVP_GOST2814789_CTX, NID_gost89, 32, 8, 64,
-		     EVP_CIPH_NO_PADDING | EVP_CIPH_CTRL_INIT,
-		     gost2814789_init_key, NULL, gost2814789_set_asn1_params,
-		     gost2814789_get_asn1_params, gost2814789_ctl)
-BLOCK_CIPHER_def1(gost2814789, cnt, cnt, OFB, EVP_GOST2814789_CTX, NID_gost89,
-		  1, 32, 8, EVP_CIPH_NO_PADDING | EVP_CIPH_CTRL_INIT,
-		  gost2814789_init_key, NULL, gost2814789_set_asn1_params,
-		  gost2814789_get_asn1_params, gost2814789_ctl)
+static const EVP_CIPHER gost2814789_ecb = {
+	.nid = NID_gost89_ecb,
+	.block_size = 8,
+	.key_len = 32,
+	.iv_len = 0,
+	.flags = EVP_CIPH_NO_PADDING | EVP_CIPH_CTRL_INIT | EVP_CIPH_ECB_MODE,
+	.init = gost2814789_init_key,
+	.do_cipher = gost2814789_ecb_cipher,
+	.cleanup = NULL,
+	.ctx_size = sizeof(EVP_GOST2814789_CTX),
+	.set_asn1_parameters = gost2814789_set_asn1_params,
+	.get_asn1_parameters = gost2814789_get_asn1_params,
+	.ctrl = gost2814789_ctl,
+	.app_data = NULL,
+};
+
+const EVP_CIPHER *
+EVP_gost2814789_ecb(void)
+{
+	return &gost2814789_ecb;
+}
+
+static const EVP_CIPHER gost2814789_cfb64 = {
+	.nid = NID_gost89_cfb64,
+	.block_size = 1,
+	.key_len = 32,
+	.iv_len = 8,
+	.flags = EVP_CIPH_NO_PADDING | EVP_CIPH_CTRL_INIT | EVP_CIPH_CFB_MODE,
+	.init = gost2814789_init_key,
+	.do_cipher = gost2814789_cfb64_cipher,
+	.cleanup = NULL,
+	.ctx_size = sizeof(EVP_GOST2814789_CTX),
+	.set_asn1_parameters = gost2814789_set_asn1_params,
+	.get_asn1_parameters = gost2814789_get_asn1_params,
+	.ctrl = gost2814789_ctl,
+	.app_data = NULL,
+};
+
+const EVP_CIPHER *
+EVP_gost2814789_cfb64(void)
+{
+	return &gost2814789_cfb64;
+}
+
+static const EVP_CIPHER gost2814789_cnt = {
+	.nid = NID_gost89_cnt,
+	.block_size = 1,
+	.key_len = 32,
+	.iv_len = 8,
+	.flags = EVP_CIPH_NO_PADDING | EVP_CIPH_CTRL_INIT | EVP_CIPH_OFB_MODE,
+	.init = gost2814789_init_key,
+	.do_cipher = gost2814789_cnt_cipher,
+	.cleanup = NULL,
+	.ctx_size = sizeof(EVP_GOST2814789_CTX),
+	.set_asn1_parameters = gost2814789_set_asn1_params,
+	.get_asn1_parameters = gost2814789_get_asn1_params,
+	.ctrl = gost2814789_ctl,
+	.app_data = NULL,
+};
+
+const EVP_CIPHER *
+EVP_gost2814789_cnt(void)
+{
+	return &gost2814789_cnt;
+}
 #endif

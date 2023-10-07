@@ -1,4 +1,4 @@
-/* $OpenBSD: hkdf.c,v 1.4 2019/11/21 20:02:20 tim Exp $ */
+/* $OpenBSD: hkdf.c,v 1.10 2023/07/07 13:54:46 beck Exp $ */
 /* Copyright (c) 2014, Google Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -16,11 +16,13 @@
 
 #include <openssl/hkdf.h>
 
-#include <assert.h>
 #include <string.h>
 
 #include <openssl/err.h>
 #include <openssl/hmac.h>
+
+#include "evp_local.h"
+#include "hmac_local.h"
 
 /* https://tools.ietf.org/html/rfc5869#section-2 */
 int
@@ -40,6 +42,7 @@ HKDF(uint8_t *out_key, size_t out_len, const EVP_MD *digest,
 
 	return 1;
 }
+LCRYPTO_ALIAS(HKDF);
 
 /* https://tools.ietf.org/html/rfc5869#section-2.2 */
 int
@@ -61,6 +64,7 @@ HKDF_extract(uint8_t *out_key, size_t *out_len,
 	*out_len = len;
 	return 1;
 }
+LCRYPTO_ALIAS(HKDF_extract);
 
 /* https://tools.ietf.org/html/rfc5869#section-2.3 */
 int
@@ -100,7 +104,7 @@ HKDF_expand(uint8_t *out_key, size_t out_len,
 			goto out;
 
 		todo = digest_len;
-		if (done + todo > out_len)
+		if (todo > out_len - done)
 			todo = out_len - done;
 
 		memcpy(out_key + done, previous, todo);
@@ -116,3 +120,4 @@ HKDF_expand(uint8_t *out_key, size_t out_len,
 		CRYPTOerror(ERR_R_CRYPTO_LIB);
 	return ret;
 }
+LCRYPTO_ALIAS(HKDF_expand);

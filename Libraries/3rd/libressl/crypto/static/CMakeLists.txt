@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -22,6 +22,7 @@ target_include_directories(${libressl_crypto_lib_name}
 if (MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${libressl_crypto_lib_name}
         PUBLIC
+            Bcrypt.lib
             Ws2_32.lib
     )
 endif()

@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_recp.c,v 1.15 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: bn_recp.c,v 1.19 2023/03/27 10:25:02 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -60,7 +60,7 @@
 
 #include <openssl/err.h>
 
-#include "bn_lcl.h"
+#include "bn_local.h"
 
 void
 BN_RECP_CTX_init(BN_RECP_CTX *recp)
@@ -99,7 +99,7 @@ BN_RECP_CTX_free(BN_RECP_CTX *recp)
 int
 BN_RECP_CTX_set(BN_RECP_CTX *recp, const BIGNUM *d, BN_CTX *ctx)
 {
-	if (!BN_copy(&(recp->N), d))
+	if (!bn_copy(&(recp->N), d))
 		return 0;
 	BN_zero(&(recp->Nr));
 	recp->num_bits = BN_num_bits(d);
@@ -134,7 +134,6 @@ BN_mod_mul_reciprocal(BIGNUM *r, const BIGNUM *x, const BIGNUM *y,
 
 err:
 	BN_CTX_end(ctx);
-	bn_check_top(r);
 	return (ret);
 }
 
@@ -161,7 +160,7 @@ BN_div_recp(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, BN_RECP_CTX *recp,
 
 	if (BN_ucmp(m, &(recp->N)) < 0) {
 		BN_zero(d);
-		if (!BN_copy(r, m)) {
+		if (!bn_copy(r, m)) {
 			BN_CTX_end(ctx);
 			return 0;
 		}
@@ -222,14 +221,13 @@ BN_div_recp(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, BN_RECP_CTX *recp,
 	}
 #endif
 
-	r->neg = BN_is_zero(r) ? 0 : m->neg;
-	d->neg = m->neg^recp->N.neg;
+	BN_set_negative(r, m->neg);
+	BN_set_negative(d, m->neg ^ recp->N.neg);
+
 	ret = 1;
 
 err:
 	BN_CTX_end(ctx);
-	bn_check_top(dv);
-	bn_check_top(rem);
 	return (ret);
 }
 
@@ -257,7 +255,6 @@ BN_reciprocal(BIGNUM *r, const BIGNUM *m, int len, BN_CTX *ctx)
 	ret = len;
 
 err:
-	bn_check_top(r);
 	BN_CTX_end(ctx);
 	return (ret);
 }

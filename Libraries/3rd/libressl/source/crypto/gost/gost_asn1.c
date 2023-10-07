@@ -14,7 +14,7 @@
 #include <openssl/x509.h>
 #include <openssl/gost.h>
 
-#include "gost_locl.h"
+#include "gost_local.h"
 #include "gost_asn1.h"
 
 static const ASN1_TEMPLATE GOST_KEY_TRANSPORT_seq_tt[] = {
@@ -273,23 +273,27 @@ d2i_GOST_CIPHER_PARAMS(GOST_CIPHER_PARAMS **a, const unsigned char **in, long le
 	return (GOST_CIPHER_PARAMS *)ASN1_item_d2i((ASN1_VALUE **)a, in, len,
 	    &GOST_CIPHER_PARAMS_it);
 }
+LCRYPTO_ALIAS(d2i_GOST_CIPHER_PARAMS);
 
 int
 i2d_GOST_CIPHER_PARAMS(GOST_CIPHER_PARAMS *a, unsigned char **out)
 {
 	return ASN1_item_i2d((ASN1_VALUE *)a, out, &GOST_CIPHER_PARAMS_it);
 }
+LCRYPTO_ALIAS(i2d_GOST_CIPHER_PARAMS);
 
 GOST_CIPHER_PARAMS *
 GOST_CIPHER_PARAMS_new(void)
 {
 	return (GOST_CIPHER_PARAMS *)ASN1_item_new(&GOST_CIPHER_PARAMS_it);
 }
+LCRYPTO_ALIAS(GOST_CIPHER_PARAMS_new);
 
 void
 GOST_CIPHER_PARAMS_free(GOST_CIPHER_PARAMS *a)
 {
 	ASN1_item_free((ASN1_VALUE *)a, &GOST_CIPHER_PARAMS_it);
 }
+LCRYPTO_ALIAS(GOST_CIPHER_PARAMS_free);
 
 #endif

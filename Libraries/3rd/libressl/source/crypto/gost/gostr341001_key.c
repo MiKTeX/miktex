@@ -1,4 +1,4 @@
-/* $OpenBSD: gostr341001_key.c,v 1.8 2017/05/02 03:59:44 deraadt Exp $ */
+/* $OpenBSD: gostr341001_key.c,v 1.14 2023/07/24 17:08:53 tb Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -58,7 +58,7 @@
 #include <openssl/err.h>
 #include <openssl/gost.h>
 #include <openssl/objects.h>
-#include "gost_locl.h"
+#include "gost_local.h"
 
 struct gost_key_st {
 	EC_GROUP *group;
@@ -88,6 +88,7 @@ GOST_KEY_new(void)
 	ret->digest_nid = NID_undef;
 	return (ret);
 }
+LCRYPTO_ALIAS(GOST_KEY_new);
 
 void
 GOST_KEY_free(GOST_KEY *r)
@@ -103,10 +104,11 @@ GOST_KEY_free(GOST_KEY *r)
 
 	EC_GROUP_free(r->group);
 	EC_POINT_free(r->pub_key);
-	BN_clear_free(r->priv_key);
+	BN_free(r->priv_key);
 
 	freezero(r, sizeof(GOST_KEY));
 }
+LCRYPTO_ALIAS(GOST_KEY_free);
 
 int
 GOST_KEY_check_key(const GOST_KEY *key)
@@ -130,7 +132,7 @@ GOST_KEY_check_key(const GOST_KEY *key)
 		goto err;
 
 	/* testing whether the pub_key is on the elliptic curve */
-	if (EC_POINT_is_on_curve(key->group, key->pub_key, ctx) == 0) {
+	if (EC_POINT_is_on_curve(key->group, key->pub_key, ctx) <= 0) {
 		GOSTerror(EC_R_POINT_IS_NOT_ON_CURVE);
 		goto err;
 	}
@@ -176,6 +178,7 @@ err:
 	EC_POINT_free(point);
 	return (ok);
 }
+LCRYPTO_ALIAS(GOST_KEY_check_key);
 
 int
 GOST_KEY_set_public_key_affine_coordinates(GOST_KEY *key, BIGNUM *x, BIGNUM *y)
@@ -193,6 +196,8 @@ GOST_KEY_set_public_key_affine_coordinates(GOST_KEY *key, BIGNUM *x, BIGNUM *y)
 	if (ctx == NULL)
 		goto err;
 
+	BN_CTX_start(ctx);
+
 	point = EC_POINT_new(key->group);
 	if (point == NULL)
 		goto err;
@@ -201,10 +206,10 @@ GOST_KEY_set_public_key_affine_coordinates(GOST_KEY *key, BIGNUM *x, BIGNUM *y)
 		goto err;
 	if ((ty = BN_CTX_get(ctx)) == NULL)
 		goto err;
-	if (EC_POINT_set_affine_coordinates_GFp(key->group, point, x, y,
+	if (EC_POINT_set_affine_coordinates(key->group, point, x, y,
 	    ctx) == 0)
 		goto err;
-	if (EC_POINT_get_affine_coordinates_GFp(key->group, point, tx, ty,
+	if (EC_POINT_get_affine_coordinates(key->group, point, tx, ty,
 	    ctx) == 0)
 		goto err;
 	/*
@@ -225,16 +230,19 @@ GOST_KEY_set_public_key_affine_coordinates(GOST_KEY *key, BIGNUM *x, BIGNUM *y)
 
 err:
 	EC_POINT_free(point);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	return ok;
 
 }
+LCRYPTO_ALIAS(GOST_KEY_set_public_key_affine_coordinates);
 
 const EC_GROUP *
 GOST_KEY_get0_group(const GOST_KEY *key)
 {
 	return key->group;
 }
+LCRYPTO_ALIAS(GOST_KEY_get0_group);
 
 int
 GOST_KEY_set_group(GOST_KEY *key, const EC_GROUP *group)
@@ -243,26 +251,30 @@ GOST_KEY_set_group(GOST_KEY *key, const EC_GROUP *group)
 	key->group = EC_GROUP_dup(group);
 	return (key->group == NULL) ? 0 : 1;
 }
+LCRYPTO_ALIAS(GOST_KEY_set_group);
 
 const BIGNUM *
 GOST_KEY_get0_private_key(const GOST_KEY *key)
 {
 	return key->priv_key;
 }
+LCRYPTO_ALIAS(GOST_KEY_get0_private_key);
 
 int
 GOST_KEY_set_private_key(GOST_KEY *key, const BIGNUM *priv_key)
 {
-	BN_clear_free(key->priv_key);
+	BN_free(key->priv_key);
 	key->priv_key = BN_dup(priv_key);
 	return (key->priv_key == NULL) ? 0 : 1;
 }
+LCRYPTO_ALIAS(GOST_KEY_set_private_key);
 
 const EC_POINT *
 GOST_KEY_get0_public_key(const GOST_KEY *key)
 {
 	return key->pub_key;
 }
+LCRYPTO_ALIAS(GOST_KEY_get0_public_key);
 
 int
 GOST_KEY_set_public_key(GOST_KEY *key, const EC_POINT *pub_key)
@@ -271,12 +283,14 @@ GOST_KEY_set_public_key(GOST_KEY *key, const EC_POINT *pub_key)
 	key->pub_key = EC_POINT_dup(pub_key, key->group);
 	return (key->pub_key == NULL) ? 0 : 1;
 }
+LCRYPTO_ALIAS(GOST_KEY_set_public_key);
 
 int
 GOST_KEY_get_digest(const GOST_KEY *key)
 {
 	return key->digest_nid;
 }
+LCRYPTO_ALIAS(GOST_KEY_get_digest);
 int
 GOST_KEY_set_digest(GOST_KEY *key, int digest_nid)
 {
@@ -289,6 +303,7 @@ GOST_KEY_set_digest(GOST_KEY *key, int digest_nid)
 
 	return 0;
 }
+LCRYPTO_ALIAS(GOST_KEY_set_digest);
 
 size_t
 GOST_KEY_get_size(const GOST_KEY *r)
@@ -307,12 +322,13 @@ GOST_KEY_get_size(const GOST_KEY *r)
 		return 0;
 
 	if (EC_GROUP_get_order(group, order, NULL) == 0) {
-		BN_clear_free(order);
+		BN_free(order);
 		return 0;
 	}
 
 	i = BN_num_bytes(order);
-	BN_clear_free(order);
+	BN_free(order);
 	return (i);
 }
+LCRYPTO_ALIAS(GOST_KEY_get_size);
 #endif

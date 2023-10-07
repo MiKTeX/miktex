@@ -1,4 +1,4 @@
-/* $OpenBSD: evp_enc.c,v 1.43 2019/04/14 17:16:57 jsing Exp $ */
+/* $OpenBSD: evp_enc.c,v 1.52 2023/07/07 19:37:53 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -56,6 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,9 +72,7 @@
 #include <openssl/engine.h>
 #endif
 
-#include "evp_locl.h"
-
-#define M_do_cipher(ctx, out, in, inl) ctx->cipher->do_cipher(ctx, out, in, inl)
+#include "evp_local.h"
 
 int
 EVP_CipherInit(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
@@ -99,7 +98,7 @@ EVP_CipherInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher, ENGINE *impl,
 	/* Whether it's nice or not, "Inits" can be used on "Final"'d contexts
 	 * so this context may already have an ENGINE! Try to avoid releasing
 	 * the previous handle, re-querying for an ENGINE, and having a
-	 * reinitialisation, when it may all be unecessary. */
+	 * reinitialisation, when it may all be unnecessary. */
 	if (ctx->engine && ctx->cipher &&
 	    (!cipher || (cipher && (cipher->nid == ctx->cipher->nid))))
 		goto skip_to_init;
@@ -299,8 +298,16 @@ EVP_EncryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 {
 	int i, j, bl;
 
+	*outl = 0;
+
+	if (inl < 0)
+		return 0;
+
+	if (inl == 0 && EVP_CIPHER_mode(ctx->cipher) != EVP_CIPH_CCM_MODE)
+		return 1;
+
 	if (ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
-		i = M_do_cipher(ctx, out, in, inl);
+		i = ctx->cipher->do_cipher(ctx, out, in, inl);
 		if (i < 0)
 			return 0;
 		else
@@ -308,13 +315,8 @@ EVP_EncryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 		return 1;
 	}
 
-	if (inl <= 0) {
-		*outl = 0;
-		return inl == 0;
-	}
-
 	if (ctx->buf_len == 0 && (inl&(ctx->block_mask)) == 0) {
-		if (M_do_cipher(ctx, out, in, inl)) {
+		if (ctx->cipher->do_cipher(ctx, out, in, inl)) {
 			*outl = inl;
 			return 1;
 		} else {
@@ -337,8 +339,19 @@ EVP_EncryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 			return 1;
 		} else {
 			j = bl - i;
+
+			/*
+			 * Once we've processed the first j bytes from in, the
+			 * amount of data left that is a multiple of the block
+			 * length is (inl - j) & ~(bl - 1).  Ensure this plus
+			 * the block processed from ctx-buf doesn't overflow.
+			 */
+			if (((inl - j) & ~(bl - 1)) > INT_MAX - bl) {
+				EVPerror(EVP_R_TOO_LARGE);
+				return 0;
+			}
 			memcpy(&(ctx->buf[i]), in, j);
-			if (!M_do_cipher(ctx, out, ctx->buf, bl))
+			if (!ctx->cipher->do_cipher(ctx, out, ctx->buf, bl))
 				return 0;
 			inl -= j;
 			in += j;
@@ -350,7 +363,7 @@ EVP_EncryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 	i = inl&(bl - 1);
 	inl -= i;
 	if (inl > 0) {
-		if (!M_do_cipher(ctx, out, in, inl))
+		if (!ctx->cipher->do_cipher(ctx, out, in, inl))
 			return 0;
 		*outl += inl;
 	}
@@ -380,7 +393,7 @@ EVP_EncryptFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 	unsigned int i, b, bl;
 
 	if (ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
-		ret = M_do_cipher(ctx, out, NULL, 0);
+		ret = ctx->cipher->do_cipher(ctx, out, NULL, 0);
 		if (ret < 0)
 			return 0;
 		else
@@ -410,7 +423,7 @@ EVP_EncryptFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 	n = b - bl;
 	for (i = bl; i < b; i++)
 		ctx->buf[i] = n;
-	ret = M_do_cipher(ctx, out, ctx->buf, b);
+	ret = ctx->cipher->do_cipher(ctx, out, ctx->buf, b);
 
 
 	if (ret)
@@ -426,19 +439,22 @@ EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 	int fix_len;
 	unsigned int b;
 
+	*outl = 0;
+
+	if (inl < 0)
+		return 0;
+
+	if (inl == 0 && EVP_CIPHER_mode(ctx->cipher) != EVP_CIPH_CCM_MODE)
+		return 1;
+
 	if (ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
-		fix_len = M_do_cipher(ctx, out, in, inl);
+		fix_len = ctx->cipher->do_cipher(ctx, out, in, inl);
 		if (fix_len < 0) {
 			*outl = 0;
 			return 0;
 		} else
 			*outl = fix_len;
 		return 1;
-	}
-
-	if (inl <= 0) {
-		*outl = 0;
-		return inl == 0;
 	}
 
 	if (ctx->flags & EVP_CIPH_NO_PADDING)
@@ -451,6 +467,16 @@ EVP_DecryptUpdate(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl,
 	}
 
 	if (ctx->final_used) {
+		/*
+		 * final_used is only ever set if buf_len is 0. Therefore the
+		 * maximum length output we will ever see from EVP_EncryptUpdate
+		 * is inl & ~(b - 1). Since final_used is set, the final output
+		 * length is (inl & ~(b - 1)) + b. Ensure it doesn't overflow.
+		 */
+		if ((inl & ~(b - 1)) > INT_MAX - b) {
+			EVPerror(EVP_R_TOO_LARGE);
+			return 0;
+		}
 		memcpy(out, ctx->final, b);
 		out += b;
 		fix_len = 1;
@@ -496,7 +522,7 @@ EVP_DecryptFinal_ex(EVP_CIPHER_CTX *ctx, unsigned char *out, int *outl)
 	*outl = 0;
 
 	if (ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
-		i = M_do_cipher(ctx, out, NULL, 0);
+		i = ctx->cipher->do_cipher(ctx, out, NULL, 0);
 		if (i < 0)
 			return 0;
 		else
@@ -575,18 +601,22 @@ int
 EVP_CIPHER_CTX_cleanup(EVP_CIPHER_CTX *c)
 {
 	if (c->cipher != NULL) {
-		if (c->cipher->cleanup && !c->cipher->cleanup(c))
-			return 0;
-		/* Cleanse cipher context data */
-		if (c->cipher_data)
+		/* XXX - Avoid leaks, so ignore return value of cleanup()... */
+		if (c->cipher->cleanup != NULL)
+			c->cipher->cleanup(c);
+		if (c->cipher_data != NULL)
 			explicit_bzero(c->cipher_data, c->cipher->ctx_size);
 	}
+
 	/* XXX - store size of cipher_data so we can always freezero(). */
 	free(c->cipher_data);
+
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(c->engine);
 #endif
+
 	explicit_bzero(c, sizeof(EVP_CIPHER_CTX));
+
 	return 1;
 }
 

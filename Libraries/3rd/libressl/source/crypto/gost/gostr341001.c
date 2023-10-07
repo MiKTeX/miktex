@@ -1,4 +1,4 @@
-/* $OpenBSD: gostr341001.c,v 1.7 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: gostr341001.c,v 1.12 2023/07/05 11:37:45 tb Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -58,8 +58,9 @@
 #include <openssl/err.h>
 #include <openssl/gost.h>
 
-#include "bn_lcl.h"
-#include "gost_locl.h"
+#include "bn_local.h"
+#include "ecdsa_local.h"
+#include "gost_local.h"
 
 /* Convert little-endian byte array into bignum */
 BIGNUM *
@@ -177,8 +178,10 @@ gost2001_do_sign(BIGNUM *md, GOST_KEY *eckey)
 		goto err;
 	if (BN_mod_ct(e, md, order, ctx) == 0)
 		goto err;
-	if (BN_is_zero(e))
-		BN_one(e);
+	if (BN_is_zero(e)) {
+		if (!BN_one(e))
+			goto err;
+	}
 	if ((k = BN_CTX_get(ctx)) == NULL)
 		goto err;
 	if ((X = BN_CTX_get(ctx)) == NULL)
@@ -206,7 +209,7 @@ gost2001_do_sign(BIGNUM *md, GOST_KEY *eckey)
 				GOSTerror(ERR_R_EC_LIB);
 				goto err;
 			}
-			if (EC_POINT_get_affine_coordinates_GFp(group, C, X,
+			if (EC_POINT_get_affine_coordinates(group, C, X,
 			    NULL, ctx) == 0) {
 				GOSTerror(ERR_R_EC_LIB);
 				goto err;
@@ -288,8 +291,10 @@ gost2001_do_verify(BIGNUM *md, ECDSA_SIG *sig, GOST_KEY *ec)
 
 	if (BN_mod_ct(e, md, order, ctx) == 0)
 		goto err;
-	if (BN_is_zero(e))
-		BN_one(e);
+	if (BN_is_zero(e)) {
+		if (!BN_one(e))
+			goto err;
+	}
 	if ((v = BN_mod_inverse_ct(v, e, order, ctx)) == NULL)
 		goto err;
 	if (BN_mod_mul(z1, sig->s, v, order, ctx) == 0)
@@ -304,7 +309,7 @@ gost2001_do_verify(BIGNUM *md, ECDSA_SIG *sig, GOST_KEY *ec)
 		GOSTerror(ERR_R_EC_LIB);
 		goto err;
 	}
-	if (EC_POINT_get_affine_coordinates_GFp(group, C, X, NULL, ctx) == 0) {
+	if (EC_POINT_get_affine_coordinates(group, C, X, NULL, ctx) == 0) {
 		GOSTerror(ERR_R_EC_LIB);
 		goto err;
 	}
@@ -354,7 +359,7 @@ VKO_compute_key(BIGNUM *X, BIGNUM *Y, const GOST_KEY *pkey, GOST_KEY *priv_key,
 		goto err;
 	if (EC_POINT_mul(group, pnt, NULL, pub_key, p, ctx) == 0)
 		goto err;
-	if (EC_POINT_get_affine_coordinates_GFp(group, pnt, X, Y, ctx) == 0)
+	if (EC_POINT_get_affine_coordinates(group, pnt, X, Y, ctx) == 0)
 		goto err;
 	ok = 1;
 

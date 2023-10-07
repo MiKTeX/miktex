@@ -1,6 +1,7 @@
-/* $OpenBSD: e_chacha20poly1305.c,v 1.21 2019/03/27 15:34:01 jsing Exp $ */
+/* $OpenBSD: e_chacha20poly1305.c,v 1.31 2023/08/24 04:33:08 tb Exp $ */
 
 /*
+ * Copyright (c) 2022 Joel Sing <jsing@openbsd.org>
  * Copyright (c) 2015 Reyk Floter <reyk@openbsd.org>
  * Copyright (c) 2014, Google Inc.
  *
@@ -29,7 +30,8 @@
 #include <openssl/chacha.h>
 #include <openssl/poly1305.h>
 
-#include "evp_locl.h"
+#include "bytestring.h"
+#include "evp_local.h"
 
 #define POLY1305_TAG_LEN 16
 
@@ -99,19 +101,24 @@ poly1305_update_with_length(poly1305_state *poly1305,
 }
 
 static void
-poly1305_update_with_pad16(poly1305_state *poly1305,
-    const unsigned char *data, size_t data_len)
+poly1305_pad16(poly1305_state *poly1305, size_t data_len)
 {
 	static const unsigned char zero_pad16[16];
 	size_t pad_len;
 
-	CRYPTO_poly1305_update(poly1305, data, data_len);
-
-	/* pad16() is defined in RFC 7539 2.8.1. */
+	/* pad16() is defined in RFC 8439 2.8.1. */
 	if ((pad_len = data_len % 16) == 0)
 		return;
 
 	CRYPTO_poly1305_update(poly1305, zero_pad16, 16 - pad_len);
+}
+
+static void
+poly1305_update_with_pad16(poly1305_state *poly1305,
+    const unsigned char *data, size_t data_len)
+{
+	CRYPTO_poly1305_update(poly1305, data, data_len);
+	poly1305_pad16(poly1305, data_len);
 }
 
 static int
@@ -124,20 +131,7 @@ aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx, unsigned char *out,
 	unsigned char poly1305_key[32];
 	poly1305_state poly1305;
 	const unsigned char *iv;
-	const uint64_t in_len_64 = in_len;
 	uint64_t ctr;
-
-	/* The underlying ChaCha implementation may not overflow the block
-	 * counter into the second counter word. Therefore we disallow
-	 * individual operations that work on more than 2TB at a time.
-	 * in_len_64 is needed because, on 32-bit platforms, size_t is only
-	 * 32-bits and this produces a warning because it's always false.
-	 * Casting to uint64_t inside the conditional is not sufficient to stop
-	 * the warning. */
-	if (in_len_64 >= (1ULL << 32) * 64 - 64) {
-		EVPerror(EVP_R_TOO_LARGE);
-		return 0;
-	}
 
 	if (max_out_len < in_len + c20_ctx->tag_len) {
 		EVPerror(EVP_R_BUFFER_TOO_SMALL);
@@ -188,24 +182,11 @@ aead_chacha20_poly1305_open(const EVP_AEAD_CTX *ctx, unsigned char *out,
 	unsigned char poly1305_key[32];
 	const unsigned char *iv = nonce;
 	poly1305_state poly1305;
-	const uint64_t in_len_64 = in_len;
 	size_t plaintext_len;
 	uint64_t ctr = 0;
 
 	if (in_len < c20_ctx->tag_len) {
 		EVPerror(EVP_R_BAD_DECRYPT);
-		return 0;
-	}
-
-	/* The underlying ChaCha implementation may not overflow the block
-	 * counter into the second counter word. Therefore we disallow
-	 * individual operations that work on more than 2TB at a time.
-	 * in_len_64 is needed because, on 32-bit platforms, size_t is only
-	 * 32-bits and this produces a warning because it's always false.
-	 * Casting to uint64_t inside the conditional is not sufficient to stop
-	 * the warning. */
-	if (in_len_64 >= (1ULL << 32) * 64 - 64) {
-		EVPerror(EVP_R_TOO_LARGE);
 		return 0;
 	}
 
@@ -349,7 +330,7 @@ aead_xchacha20_poly1305_open(const EVP_AEAD_CTX *ctx, unsigned char *out,
 	return 1;
 }
 
-/* RFC 7539 */
+/* RFC 8439 */
 static const EVP_AEAD aead_chacha20_poly1305 = {
 	.key_len = 32,
 	.nonce_len = CHACHA20_NONCE_LEN,
@@ -384,6 +365,246 @@ const EVP_AEAD *
 EVP_aead_xchacha20_poly1305()
 {
 	return &aead_xchacha20_poly1305;
+}
+
+struct chacha20_poly1305_ctx {
+	ChaCha_ctx chacha;
+	poly1305_state poly1305;
+
+	unsigned char key[32];
+	unsigned char nonce[CHACHA20_NONCE_LEN];
+	size_t nonce_len;
+	unsigned char tag[POLY1305_TAG_LEN];
+	size_t tag_len;
+
+	size_t ad_len;
+	size_t in_len;
+
+	int in_ad;
+	int started;
+};
+
+static int
+chacha20_poly1305_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
+    const unsigned char *iv, int encrypt)
+{
+	struct chacha20_poly1305_ctx *cpx = ctx->cipher_data;
+	uint8_t *data;
+	CBB cbb;
+	int ret = 0;
+
+	memset(&cbb, 0, sizeof(cbb));
+
+	if (key == NULL && iv == NULL)
+		goto done;
+
+	cpx->started = 0;
+
+	if (key != NULL)
+		memcpy(cpx->key, key, sizeof(cpx->key));
+
+	if (iv != NULL) {
+		/*
+		 * Left zero pad if configured nonce length is less than ChaCha
+		 * nonce length.
+		 */
+		if (!CBB_init_fixed(&cbb, cpx->nonce, sizeof(cpx->nonce)))
+			goto err;
+		if (!CBB_add_space(&cbb, &data, sizeof(cpx->nonce) - cpx->nonce_len))
+			goto err;
+		if (!CBB_add_bytes(&cbb, iv, cpx->nonce_len))
+			goto err;
+		if (!CBB_finish(&cbb, NULL, NULL))
+			goto err;
+	}
+
+ done:
+	ret = 1;
+
+ err:
+	CBB_cleanup(&cbb);
+
+	return ret;
+}
+
+static int
+chacha20_poly1305_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+    const unsigned char *in, size_t len)
+{
+	struct chacha20_poly1305_ctx *cpx = ctx->cipher_data;
+
+	/*
+	 * Since we're making AEAD work within the constraints of EVP_CIPHER...
+	 * If in is non-NULL then this is an update, while if in is NULL then
+	 * this is a final. If in is non-NULL but out is NULL, then the input
+	 * being provided is associated data. Plus we have to handle encryption
+	 * (sealing) and decryption (opening) in the same function.
+	 */
+
+	if (!cpx->started) {
+		unsigned char poly1305_key[32];
+		const unsigned char *iv;
+		uint64_t ctr;
+
+		ctr = (uint64_t)((uint32_t)(cpx->nonce[0]) |
+		    (uint32_t)(cpx->nonce[1]) << 8 |
+		    (uint32_t)(cpx->nonce[2]) << 16 |
+		    (uint32_t)(cpx->nonce[3]) << 24) << 32;
+		iv = cpx->nonce + CHACHA20_CONSTANT_LEN;
+
+		ChaCha_set_key(&cpx->chacha, cpx->key, 8 * sizeof(cpx->key));
+		ChaCha_set_iv(&cpx->chacha, iv, NULL);
+
+		/* See chacha.c for details re handling of counter. */
+		cpx->chacha.input[12] = (uint32_t)ctr;
+		cpx->chacha.input[13] = (uint32_t)(ctr >> 32);
+
+		memset(poly1305_key, 0, sizeof(poly1305_key));
+		ChaCha(&cpx->chacha, poly1305_key, poly1305_key,
+		    sizeof(poly1305_key));
+		CRYPTO_poly1305_init(&cpx->poly1305, poly1305_key);
+
+		/* Mark remaining key block as used. */
+		cpx->chacha.unused = 0;
+
+		cpx->ad_len = 0;
+		cpx->in_len = 0;
+		cpx->in_ad = 0;
+
+		cpx->started = 1;
+	}
+
+	if (len > SIZE_MAX - cpx->in_len) {
+		EVPerror(EVP_R_TOO_LARGE);
+		return 0;
+	}
+
+	/* Disallow authenticated data after plaintext/ciphertext. */
+	if (cpx->in_len > 0 && in != NULL && out == NULL)
+		return -1;
+
+	if (cpx->in_ad && (in == NULL || out != NULL)) {
+		poly1305_pad16(&cpx->poly1305, cpx->ad_len);
+		cpx->in_ad = 0;
+	}
+
+	/* Update with AD or plaintext/ciphertext. */
+	if (in != NULL) {
+		if (out == NULL) {
+			cpx->ad_len += len;
+			cpx->in_ad = 1;
+		} else {
+			ChaCha(&cpx->chacha, out, in, len);
+			cpx->in_len += len;
+		}
+		if (ctx->encrypt && out != NULL)
+			CRYPTO_poly1305_update(&cpx->poly1305, out, len);
+		else
+			CRYPTO_poly1305_update(&cpx->poly1305, in, len);
+
+		return len;
+	}
+
+	/* Final. */
+	poly1305_pad16(&cpx->poly1305, cpx->in_len);
+	poly1305_update_with_length(&cpx->poly1305, NULL, cpx->ad_len);
+	poly1305_update_with_length(&cpx->poly1305, NULL, cpx->in_len);
+
+	if (ctx->encrypt) {
+		CRYPTO_poly1305_finish(&cpx->poly1305, cpx->tag);
+		cpx->tag_len = sizeof(cpx->tag);
+	} else {
+		unsigned char tag[POLY1305_TAG_LEN];
+
+		/* Ensure that a tag has been provided. */
+		if (cpx->tag_len <= 0)
+			return -1;
+
+		CRYPTO_poly1305_finish(&cpx->poly1305, tag);
+		if (timingsafe_memcmp(tag, cpx->tag, cpx->tag_len) != 0)
+			return -1;
+	}
+
+	cpx->started = 0;
+
+	return len;
+}
+
+static int
+chacha20_poly1305_cleanup(EVP_CIPHER_CTX *ctx)
+{
+	struct chacha20_poly1305_ctx *cpx = ctx->cipher_data;
+
+	explicit_bzero(cpx, sizeof(*cpx));
+
+	return 1;
+}
+
+static int
+chacha20_poly1305_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg, void *ptr)
+{
+	struct chacha20_poly1305_ctx *cpx = ctx->cipher_data;
+
+	switch (type) {
+	case EVP_CTRL_INIT:
+		memset(cpx, 0, sizeof(*cpx));
+		cpx->nonce_len = sizeof(cpx->nonce);
+		return 1;
+
+	case EVP_CTRL_AEAD_SET_IVLEN:
+		if (arg <= 0 || arg > sizeof(cpx->nonce))
+			return 0;
+		cpx->nonce_len = arg;
+		return 1;
+
+	case EVP_CTRL_AEAD_SET_TAG:
+		if (ctx->encrypt)
+			return 0;
+		if (arg <= 0 || arg > sizeof(cpx->tag))
+			return 0;
+		if (ptr != NULL) {
+			memcpy(cpx->tag, ptr, arg);
+			cpx->tag_len = arg;
+		}
+		return 1;
+
+	case EVP_CTRL_AEAD_GET_TAG:
+		if (!ctx->encrypt)
+			return 0;
+		if (arg <= 0 || arg > cpx->tag_len)
+			return 0;
+		memcpy(ptr, cpx->tag, arg);
+		return 1;
+
+	case EVP_CTRL_AEAD_SET_IV_FIXED:
+		if (arg != sizeof(cpx->nonce))
+			return 0;
+		memcpy(cpx->nonce, ptr, arg);
+		return 1;
+	}
+
+	return 0;
+}
+
+static const EVP_CIPHER cipher_chacha20_poly1305 = {
+	.nid = NID_chacha20_poly1305,
+	.block_size = 1,
+	.key_len = 32,
+	.iv_len = 12,
+	.flags = EVP_CIPH_ALWAYS_CALL_INIT | EVP_CIPH_CTRL_INIT |
+	    EVP_CIPH_CUSTOM_IV | EVP_CIPH_FLAG_AEAD_CIPHER |
+	    EVP_CIPH_FLAG_CUSTOM_CIPHER | EVP_CIPH_FLAG_DEFAULT_ASN1,
+	.init = chacha20_poly1305_init,
+	.do_cipher = chacha20_poly1305_cipher,
+	.cleanup = chacha20_poly1305_cleanup,
+	.ctx_size = sizeof(struct chacha20_poly1305_ctx),
+	.ctrl = chacha20_poly1305_ctrl,
+};
+
+const EVP_CIPHER *
+EVP_chacha20_poly1305(void)
+{
+	return &cipher_chacha20_poly1305;
 }
 
 #endif  /* !OPENSSL_NO_CHACHA && !OPENSSL_NO_POLY1305 */

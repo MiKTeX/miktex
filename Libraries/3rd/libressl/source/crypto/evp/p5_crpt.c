@@ -1,4 +1,4 @@
-/* $OpenBSD: p5_crpt.c,v 1.19 2020/01/12 07:11:13 inoguchi Exp $ */
+/* $OpenBSD: p5_crpt.c,v 1.23 2023/07/07 19:37:54 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -63,6 +63,8 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/x509.h>
+
+#include "evp_local.h"
 
 /* Doesn't do anything now: Builtin PBE algorithms in static table.
  */

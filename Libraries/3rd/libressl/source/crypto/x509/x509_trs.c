@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_trs.c,v 1.23 2018/05/18 18:40:38 tb Exp $ */
+/* $OpenBSD: x509_trs.c,v 1.32 2023/07/02 17:12:17 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -62,6 +62,8 @@
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
 
+#include "x509_local.h"
+
 static int tr_cmp(const X509_TRUST * const *a, const X509_TRUST * const *b);
 static void trtable_free(X509_TRUST *p);
 
@@ -78,17 +80,56 @@ static int (*default_trust)(int id, X509 *x, int flags) = obj_trust;
  */
 
 static X509_TRUST trstandard[] = {
-	{X509_TRUST_COMPAT, 0, trust_compat, "compatible", 0, NULL},
-	{X509_TRUST_SSL_CLIENT, 0, trust_1oidany, "SSL Client", NID_client_auth, NULL},
-	{X509_TRUST_SSL_SERVER, 0, trust_1oidany, "SSL Server", NID_server_auth, NULL},
-	{X509_TRUST_EMAIL, 0, trust_1oidany, "S/MIME email", NID_email_protect, NULL},
-	{X509_TRUST_OBJECT_SIGN, 0, trust_1oidany, "Object Signer", NID_code_sign, NULL},
-	{X509_TRUST_OCSP_SIGN, 0, trust_1oid, "OCSP responder", NID_OCSP_sign, NULL},
-	{X509_TRUST_OCSP_REQUEST, 0, trust_1oid, "OCSP request", NID_ad_OCSP, NULL},
-	{X509_TRUST_TSA, 0, trust_1oidany, "TSA server", NID_time_stamp, NULL}
+	{
+		.trust = X509_TRUST_COMPAT,
+		.check_trust = trust_compat,
+		.name = "compatible",
+	},
+	{
+		.trust = X509_TRUST_SSL_CLIENT,
+		.check_trust = trust_1oidany,
+		.name = "SSL Client",
+		.arg1 = NID_client_auth,
+	},
+	{
+		.trust = X509_TRUST_SSL_SERVER,
+		.check_trust = trust_1oidany,
+		.name = "SSL Server",
+		.arg1 = NID_server_auth,
+	},
+	{
+		.trust = X509_TRUST_EMAIL,
+		.check_trust = trust_1oidany,
+		.name = "S/MIME email",
+		.arg1 = NID_email_protect,
+	},
+	{
+		.trust = X509_TRUST_OBJECT_SIGN,
+		.check_trust = trust_1oidany,
+		.name = "Object Signer",
+		.arg1 = NID_code_sign,
+	},
+	{
+		.trust = X509_TRUST_OCSP_SIGN,
+		.check_trust = trust_1oid,
+		.name = "OCSP responder",
+		.arg1 = NID_OCSP_sign,
+	},
+	{
+		.trust = X509_TRUST_OCSP_REQUEST,
+		.check_trust = trust_1oid,
+		.name = "OCSP request",
+		.arg1 = NID_ad_OCSP,
+	},
+	{
+		.trust = X509_TRUST_TSA,
+		.check_trust = trust_1oidany,
+		.name = "TSA server",
+		.arg1 = NID_time_stamp,
+	},
 };
 
-#define X509_TRUST_COUNT	(sizeof(trstandard)/sizeof(X509_TRUST))
+#define X509_TRUST_COUNT	(sizeof(trstandard) / sizeof(trstandard[0]))
 
 static STACK_OF(X509_TRUST) *trtable = NULL;
 
@@ -107,6 +148,7 @@ int
 	default_trust = trust;
 	return oldtrust;
 }
+LCRYPTO_ALIAS(X509_TRUST_set_default);
 
 int
 X509_check_trust(X509 *x, int id, int flags)
@@ -138,6 +180,7 @@ X509_check_trust(X509 *x, int id, int flags)
 	pt = X509_TRUST_get0(idx);
 	return pt->check_trust(pt, x, flags);
 }
+LCRYPTO_ALIAS(X509_check_trust);
 
 int
 X509_TRUST_get_count(void)
@@ -146,6 +189,7 @@ X509_TRUST_get_count(void)
 		return X509_TRUST_COUNT;
 	return sk_X509_TRUST_num(trtable) + X509_TRUST_COUNT;
 }
+LCRYPTO_ALIAS(X509_TRUST_get_count);
 
 X509_TRUST *
 X509_TRUST_get0(int idx)
@@ -156,6 +200,7 @@ X509_TRUST_get0(int idx)
 		return trstandard + idx;
 	return sk_X509_TRUST_value(trtable, idx - X509_TRUST_COUNT);
 }
+LCRYPTO_ALIAS(X509_TRUST_get0);
 
 int
 X509_TRUST_get_by_id(int id)
@@ -173,6 +218,7 @@ X509_TRUST_get_by_id(int id)
 		return -1;
 	return idx + X509_TRUST_COUNT;
 }
+LCRYPTO_ALIAS(X509_TRUST_get_by_id);
 
 int
 X509_TRUST_set(int *t, int trust)
@@ -184,6 +230,7 @@ X509_TRUST_set(int *t, int trust)
 	*t = trust;
 	return 1;
 }
+LCRYPTO_ALIAS(X509_TRUST_set);
 
 int
 X509_TRUST_add(int id, int flags, int (*ck)(X509_TRUST *, X509 *, int),
@@ -249,6 +296,7 @@ err:
 	X509error(ERR_R_MALLOC_FAILURE);
 	return 0;
 }
+LCRYPTO_ALIAS(X509_TRUST_add);
 
 static void
 trtable_free(X509_TRUST *p)
@@ -265,31 +313,31 @@ trtable_free(X509_TRUST *p)
 void
 X509_TRUST_cleanup(void)
 {
-	unsigned int i;
-
-	for (i = 0; i < X509_TRUST_COUNT; i++)
-		trtable_free(trstandard + i);
 	sk_X509_TRUST_pop_free(trtable, trtable_free);
 	trtable = NULL;
 }
+LCRYPTO_ALIAS(X509_TRUST_cleanup);
 
 int
 X509_TRUST_get_flags(const X509_TRUST *xp)
 {
 	return xp->flags;
 }
+LCRYPTO_ALIAS(X509_TRUST_get_flags);
 
 char *
 X509_TRUST_get0_name(const X509_TRUST *xp)
 {
 	return xp->name;
 }
+LCRYPTO_ALIAS(X509_TRUST_get0_name);
 
 int
 X509_TRUST_get_trust(const X509_TRUST *xp)
 {
 	return xp->trust;
 }
+LCRYPTO_ALIAS(X509_TRUST_get_trust);
 
 static int
 trust_1oidany(X509_TRUST *trust, X509 *x, int flags)
@@ -324,7 +372,7 @@ static int
 obj_trust(int id, X509 *x, int flags)
 {
 	ASN1_OBJECT *obj;
-	int i;
+	int i, nid;
 	X509_CERT_AUX *ax;
 
 	ax = x->aux;
@@ -333,14 +381,16 @@ obj_trust(int id, X509 *x, int flags)
 	if (ax->reject) {
 		for (i = 0; i < sk_ASN1_OBJECT_num(ax->reject); i++) {
 			obj = sk_ASN1_OBJECT_value(ax->reject, i);
-			if (OBJ_obj2nid(obj) == id)
+			nid = OBJ_obj2nid(obj);
+			if (nid == id || nid == NID_anyExtendedKeyUsage)
 				return X509_TRUST_REJECTED;
 		}
 	}
 	if (ax->trust) {
 		for (i = 0; i < sk_ASN1_OBJECT_num(ax->trust); i++) {
 			obj = sk_ASN1_OBJECT_value(ax->trust, i);
-			if (OBJ_obj2nid(obj) == id)
+			nid = OBJ_obj2nid(obj);
+			if (nid == id || nid == NID_anyExtendedKeyUsage)
 				return X509_TRUST_TRUSTED;
 		}
 	}

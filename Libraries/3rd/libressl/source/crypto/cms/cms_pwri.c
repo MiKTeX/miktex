@@ -1,4 +1,4 @@
-/* $OpenBSD: cms_pwri.c,v 1.26 2019/08/12 18:04:57 jsing Exp $ */
+/* $OpenBSD: cms_pwri.c,v 1.29 2023/07/08 08:26:26 beck Exp $ */
 /*
  * Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
@@ -62,8 +62,8 @@
 #include <openssl/cms.h>
 #include <openssl/rand.h>
 #include <openssl/aes.h>
-#include "cms_lcl.h"
-#include "asn1/asn1_locl.h"
+#include "cms_local.h"
+#include "asn1/asn1_local.h"
 
 int
 CMS_RecipientInfo_set0_password(CMS_RecipientInfo *ri, unsigned char *pass,
@@ -84,6 +84,7 @@ CMS_RecipientInfo_set0_password(CMS_RecipientInfo *ri, unsigned char *pass,
 
 	return 1;
 }
+LCRYPTO_ALIAS(CMS_RecipientInfo_set0_password);
 
 CMS_RecipientInfo *
 CMS_add0_recipient_password(CMS_ContentInfo *cms, int iter, int wrap_nid,
@@ -126,7 +127,9 @@ CMS_add0_recipient_password(CMS_ContentInfo *cms, int iter, int wrap_nid,
 	if (encalg == NULL) {
 		goto merr;
 	}
-	ctx = EVP_CIPHER_CTX_new();
+
+	if ((ctx = EVP_CIPHER_CTX_new()) == NULL)
+		goto merr;
 
 	if (EVP_EncryptInit_ex(ctx, kekciph, NULL, NULL, NULL) <= 0) {
 		CMSerror(ERR_R_EVP_LIB);
@@ -211,6 +214,7 @@ CMS_add0_recipient_password(CMS_ContentInfo *cms, int iter, int wrap_nid,
 
 	return NULL;
 }
+LCRYPTO_ALIAS(CMS_add0_recipient_password);
 
 /*
  * This is an implementation of the key wrapping mechanism in RFC3211, at

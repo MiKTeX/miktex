@@ -1,4 +1,4 @@
-/* $OpenBSD: b_dump.c,v 1.21 2015/04/23 06:11:19 deraadt Exp $ */
+/* $OpenBSD: b_dump.c,v 1.26 2023/07/29 02:32:00 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -80,11 +80,11 @@ int
 BIO_dump_indent_cb(int (*cb)(const void *data, size_t len, void *u),
     void *u, const char *s, int len, int indent)
 {
-	int ret = 0;
 	char buf[288 + 1], tmp[20], str[128 + 1];
-	int i, j, rows, trc;
+	int i, j, rows, trc, written;
 	unsigned char ch;
 	int dump_width;
+	int ret = 0;
 
 	trc = 0;
 
@@ -95,14 +95,13 @@ BIO_dump_indent_cb(int (*cb)(const void *data, size_t len, void *u),
 
 	if (indent < 0)
 		indent = 0;
-	if (indent) {
-		if (indent > 128)
-			indent = 128;
-		memset(str, ' ', indent);
-	}
+	if (indent > 64)
+		indent = 64;
+	memset(str, ' ', indent);
 	str[indent] = '\0';
 
-	dump_width = DUMP_WIDTH_LESS_INDENT(indent);
+	if ((dump_width = DUMP_WIDTH_LESS_INDENT(indent)) <= 0)
+		return -1;
 	rows = (len / dump_width);
 	if ((rows * dump_width) < len)
 		rows++;
@@ -133,13 +132,18 @@ BIO_dump_indent_cb(int (*cb)(const void *data, size_t len, void *u),
 		/* if this is the last call then update the ddt_dump thing so
 		 * that we will move the selection point in the debug window
 		 */
-		ret += cb((void *)buf, strlen(buf), u);
+		if ((written = cb((void *)buf, strlen(buf), u)) < 0)
+			return -1;
+		ret += written;
+
 	}
 #ifdef TRUNCATE
 	if (trc > 0) {
 		snprintf(buf, sizeof buf, "%s%04x - <SPACES/NULS>\n",
 		    str, len + trc);
-		ret += cb((void *)buf, strlen(buf), u);
+		if ((written = cb((void *)buf, strlen(buf), u)) < 0)
+			return -1;
+		ret += written;
 	}
 #endif
 	return (ret);
@@ -156,12 +160,14 @@ BIO_dump_fp(FILE *fp, const char *s, int len)
 {
 	return BIO_dump_cb(write_fp, fp, s, len);
 }
+LCRYPTO_ALIAS(BIO_dump_fp);
 
 int
 BIO_dump_indent_fp(FILE *fp, const char *s, int len, int indent)
 {
 	return BIO_dump_indent_cb(write_fp, fp, s, len, indent);
 }
+LCRYPTO_ALIAS(BIO_dump_indent_fp);
 
 static int
 write_bio(const void *data, size_t len, void *bp)
@@ -174,9 +180,11 @@ BIO_dump(BIO *bp, const char *s, int len)
 {
 	return BIO_dump_cb(write_bio, bp, s, len);
 }
+LCRYPTO_ALIAS(BIO_dump);
 
 int
 BIO_dump_indent(BIO *bp, const char *s, int len, int indent)
 {
 	return BIO_dump_indent_cb(write_bio, bp, s, len, indent);
 }
+LCRYPTO_ALIAS(BIO_dump_indent);

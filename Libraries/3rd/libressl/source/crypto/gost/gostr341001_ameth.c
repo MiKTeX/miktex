@@ -1,4 +1,4 @@
-/* $OpenBSD: gostr341001_ameth.c,v 1.15 2018/08/24 20:22:15 tb Exp $ */
+/* $OpenBSD: gostr341001_ameth.c,v 1.20 2022/11/26 16:08:53 tb Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -62,8 +62,9 @@
 #include <openssl/gost.h>
 
 
-#include "asn1_locl.h"
-#include "gost_locl.h"
+#include "asn1_local.h"
+#include "evp_local.h"
+#include "gost_local.h"
 #include "gost_asn1.h"
 
 static void
@@ -96,15 +97,19 @@ decode_gost01_algor_params(EVP_PKEY *pkey, const unsigned char **p, int len)
 	ec = pkey->pkey.gost;
 	if (ec == NULL) {
 		ec = GOST_KEY_new();
-		if (ec == NULL)
+		if (ec == NULL) {
+			GOSTerror(ERR_R_MALLOC_FAILURE);
 			return 0;
+		}
 		if (EVP_PKEY_assign_GOST(pkey, ec) == 0)
 			return 0;
 	}
 
 	group = EC_GROUP_new_by_curve_name(param_nid);
-	if (group == NULL)
+	if (group == NULL) {
+		GOSTerror(EC_R_EC_GROUP_NEW_BY_NAME_FAILURE);
 		return 0;
+	}
 	EC_GROUP_set_asn1_flag(group, OPENSSL_EC_NAMED_CURVE);
 	if (GOST_KEY_set_group(ec, group) == 0) {
 		EC_GROUP_free(group);
@@ -207,8 +212,10 @@ pub_decode_gost01(EVP_PKEY *pk, X509_PUBKEY *pub)
 		return 0;
 	}
 	p = pval->data;
-	if (decode_gost01_algor_params(pk, &p, pval->length) == 0)
+	if (decode_gost01_algor_params(pk, &p, pval->length) == 0) {
+		GOSTerror(GOST_R_BAD_KEY_PARAMETERS_FORMAT);
 		return 0;
+	}
 
 	octet = d2i_ASN1_OCTET_STRING(NULL, &pubkey_buf, pub_len);
 	if (octet == NULL) {
@@ -284,7 +291,7 @@ pub_encode_gost01(X509_PUBKEY *pub, const EVP_PKEY *pk)
 		goto err;
 	}
 
-	if (EC_POINT_get_affine_coordinates_GFp(GOST_KEY_get0_group(ec),
+	if (EC_POINT_get_affine_coordinates(GOST_KEY_get0_group(ec),
 	    pub_key, X, Y, NULL) == 0) {
 		GOSTerror(ERR_R_EC_LIB);
 		goto err;
@@ -346,8 +353,7 @@ pub_print_gost01(BIO *out, const EVP_PKEY *pkey, int indent, ASN1_PCTX *pctx)
 		goto err;
 	pubkey = GOST_KEY_get0_public_key(pkey->pkey.gost);
 	group = GOST_KEY_get0_group(pkey->pkey.gost);
-	if (EC_POINT_get_affine_coordinates_GFp(group, pubkey, X, Y,
-	    ctx) == 0) {
+	if (EC_POINT_get_affine_coordinates(group, pubkey, X, Y, ctx) == 0) {
 		GOSTerror(ERR_R_EC_LIB);
 		goto err;
 	}
@@ -359,7 +365,8 @@ pub_print_gost01(BIO *out, const EVP_PKEY *pkey, int indent, ASN1_PCTX *pctx)
 	BIO_printf(out, "X:");
 	BN_print(out, X);
 	BIO_printf(out, "\n");
-	BIO_indent(out, indent + 3, 128);
+	if (BIO_indent(out, indent + 3, 128) == 0)
+		goto err;
 	BIO_printf(out, "Y:");
 	BN_print(out, Y);
 	BIO_printf(out, "\n");
@@ -407,8 +414,10 @@ priv_decode_gost01(EVP_PKEY *pk, const PKCS8_PRIV_KEY_INFO *p8inf)
 	int ptype = V_ASN1_UNDEF;
 	ASN1_STRING *pval = NULL;
 
-	if (PKCS8_pkey_get0(&palg_obj, &pkey_buf, &priv_len, &palg, p8inf) == 0)
+	if (PKCS8_pkey_get0(&palg_obj, &pkey_buf, &priv_len, &palg, p8inf) == 0) {
+		GOSTerror(GOST_R_BAD_KEY_PARAMETERS_FORMAT);
 		return 0;
+	}
 	(void)EVP_PKEY_assign_GOST(pk, NULL);
 	X509_ALGOR_get0(NULL, &ptype, (const void **)&pval, palg);
 	if (ptype != V_ASN1_SEQUENCE) {
@@ -416,8 +425,10 @@ priv_decode_gost01(EVP_PKEY *pk, const PKCS8_PRIV_KEY_INFO *p8inf)
 		return 0;
 	}
 	p = pval->data;
-	if (decode_gost01_algor_params(pk, &p, pval->length) == 0)
+	if (decode_gost01_algor_params(pk, &p, pval->length) == 0) {
+		GOSTerror(GOST_R_BAD_KEY_PARAMETERS_FORMAT);
 		return 0;
+	}
 	p = pkey_buf;
 	if (V_ASN1_OCTET_STRING == *p) {
 		/* New format - Little endian octet string */

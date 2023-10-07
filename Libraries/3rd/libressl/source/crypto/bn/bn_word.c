@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_word.c,v 1.13 2016/07/05 02:54:35 bcook Exp $ */
+/* $OpenBSD: bn_word.c,v 1.21 2023/07/08 12:21:58 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -58,7 +58,7 @@
 
 #include <stdio.h>
 
-#include "bn_lcl.h"
+#include "bn_local.h"
 
 BN_ULONG
 BN_mod_word(const BIGNUM *a, BN_ULONG w)
@@ -87,7 +87,6 @@ BN_mod_word(const BIGNUM *a, BN_ULONG w)
 	}
 #endif
 
-	bn_check_top(a);
 	w &= BN_MASK2;
 	for (i = a->top - 1; i >= 0; i--) {
 #ifndef BN_LLONG
@@ -101,6 +100,7 @@ BN_mod_word(const BIGNUM *a, BN_ULONG w)
 	}
 	return ((BN_ULONG)ret);
 }
+LCRYPTO_ALIAS(BN_mod_word);
 
 BN_ULONG
 BN_div_word(BIGNUM *a, BN_ULONG w)
@@ -108,7 +108,6 @@ BN_div_word(BIGNUM *a, BN_ULONG w)
 	BN_ULONG ret = 0;
 	int i, j;
 
-	bn_check_top(a);
 	w &= BN_MASK2;
 
 	if (!w)
@@ -127,16 +126,19 @@ BN_div_word(BIGNUM *a, BN_ULONG w)
 		BN_ULONG l, d;
 
 		l = a->d[i];
-		d = bn_div_words(ret, l, w);
-		ret = (l - ((d*w)&BN_MASK2))&BN_MASK2;
+		bn_div_rem_words(ret, l, w, &d, &ret);
 		a->d[i] = d;
 	}
 	if ((a->top > 0) && (a->d[a->top - 1] == 0))
 		a->top--;
 	ret >>= j;
-	bn_check_top(a);
+
+	/* Set negative again, to handle -0 case. */
+	BN_set_negative(a, a->neg);
+
 	return (ret);
 }
+LCRYPTO_ALIAS(BN_div_word);
 
 int
 BN_add_word(BIGNUM *a, BN_ULONG w)
@@ -144,7 +146,6 @@ BN_add_word(BIGNUM *a, BN_ULONG w)
 	BN_ULONG l;
 	int i;
 
-	bn_check_top(a);
 	w &= BN_MASK2;
 
 	/* degenerate case: w is zero */
@@ -157,8 +158,7 @@ BN_add_word(BIGNUM *a, BN_ULONG w)
 	if (a->neg) {
 		a->neg = 0;
 		i = BN_sub_word(a, w);
-		if (!BN_is_zero(a))
-			a->neg=!(a->neg);
+		BN_set_negative(a, !a->neg);
 		return (i);
 	}
 	for (i = 0; w != 0 && i < a->top; i++) {
@@ -166,21 +166,20 @@ BN_add_word(BIGNUM *a, BN_ULONG w)
 		w = (w > l) ? 1 : 0;
 	}
 	if (w && i == a->top) {
-		if (bn_wexpand(a, a->top + 1) == NULL)
+		if (!bn_wexpand(a, a->top + 1))
 			return 0;
 		a->top++;
 		a->d[i] = w;
 	}
-	bn_check_top(a);
 	return (1);
 }
+LCRYPTO_ALIAS(BN_add_word);
 
 int
 BN_sub_word(BIGNUM *a, BN_ULONG w)
 {
 	int i;
 
-	bn_check_top(a);
 	w &= BN_MASK2;
 
 	/* degenerate case: w is zero */
@@ -197,13 +196,13 @@ BN_sub_word(BIGNUM *a, BN_ULONG w)
 	if (a->neg) {
 		a->neg = 0;
 		i = BN_add_word(a, w);
-		a->neg = 1;
+		BN_set_negative(a, !a->neg);
 		return (i);
 	}
 
 	if ((a->top == 1) && (a->d[0] < w)) {
 		a->d[0] = w - a->d[0];
-		a->neg = 1;
+		BN_set_negative(a, 1);
 		return (1);
 	}
 	i = 0;
@@ -219,16 +218,15 @@ BN_sub_word(BIGNUM *a, BN_ULONG w)
 	}
 	if ((a->d[i] == 0) && (i == (a->top - 1)))
 		a->top--;
-	bn_check_top(a);
 	return (1);
 }
+LCRYPTO_ALIAS(BN_sub_word);
 
 int
 BN_mul_word(BIGNUM *a, BN_ULONG w)
 {
 	BN_ULONG ll;
 
-	bn_check_top(a);
 	w &= BN_MASK2;
 	if (a->top) {
 		if (w == 0)
@@ -236,12 +234,12 @@ BN_mul_word(BIGNUM *a, BN_ULONG w)
 		else {
 			ll = bn_mul_words(a->d, a->d, a->top, w);
 			if (ll) {
-				if (bn_wexpand(a, a->top + 1) == NULL)
+				if (!bn_wexpand(a, a->top + 1))
 					return (0);
 				a->d[a->top++] = ll;
 			}
 		}
 	}
-	bn_check_top(a);
 	return (1);
 }
+LCRYPTO_ALIAS(BN_mul_word);

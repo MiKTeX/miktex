@@ -1,10 +1,6 @@
 #include <openssl/opensslfeatures.h>
 /* crypto/opensslconf.h.in */
 
-#if defined(_MSC_VER) && !defined(__attribute__)
-#define __attribute__(a)
-#endif
-
 #if defined(HEADER_CRYPTLIB_H) && !defined(OPENSSLDIR)
 #define OPENSSLDIR "/etc/ssl"
 #endif
@@ -89,7 +85,7 @@
 #endif
 
 /* This helps C compiler generate the correct code for multiple functional
- * units.  It reduces register dependancies at the expense of 2 more
+ * units.  It reduces register dependencies at the expense of 2 more
  * registers */
 #ifndef DES_RISC1
 #undef DES_RISC1
@@ -104,7 +100,7 @@ YOU SHOULD NOT HAVE BOTH DES_RISC1 AND DES_RISC2 DEFINED!!!!!
 #endif
 
 /* Unroll the inner loop, this sometimes helps, sometimes hinders.
- * Very mucy CPU dependant */
+ * Very much CPU dependent */
 #ifndef DES_UNROLL
 #define DES_UNROLL
 #endif

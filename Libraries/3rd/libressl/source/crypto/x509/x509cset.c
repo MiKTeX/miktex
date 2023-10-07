@@ -1,4 +1,4 @@
-/* $OpenBSD: x509cset.c,v 1.14 2018/02/22 17:01:44 jsing Exp $ */
+/* $OpenBSD: x509cset.c,v 1.19 2023/02/16 08:38:17 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2001.
  */
@@ -63,12 +63,15 @@
 #include <openssl/objects.h>
 #include <openssl/x509.h>
 
+#include "x509_local.h"
+
 int
-X509_CRL_up_ref(X509_CRL *x)   
+X509_CRL_up_ref(X509_CRL *x)
 {
 	int refs = CRYPTO_add(&x->references, 1, CRYPTO_LOCK_X509_CRL);
 	return (refs > 1) ? 1 : 0;
 }
+LCRYPTO_ALIAS(X509_CRL_up_ref);
 
 int
 X509_CRL_set_version(X509_CRL *x, long version)
@@ -81,6 +84,7 @@ X509_CRL_set_version(X509_CRL *x, long version)
 	}
 	return (ASN1_INTEGER_set(x->crl->version, version));
 }
+LCRYPTO_ALIAS(X509_CRL_set_version);
 
 int
 X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name)
@@ -89,6 +93,7 @@ X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name)
 		return (0);
 	return (X509_NAME_set(&x->crl->issuer, name));
 }
+LCRYPTO_ALIAS(X509_CRL_set_issuer_name);
 
 int
 X509_CRL_set_lastUpdate(X509_CRL *x, const ASN1_TIME *tm)
@@ -107,12 +112,14 @@ X509_CRL_set_lastUpdate(X509_CRL *x, const ASN1_TIME *tm)
 	}
 	return (in != NULL);
 }
+LCRYPTO_ALIAS(X509_CRL_set_lastUpdate);
 
 int
 X509_CRL_set1_lastUpdate(X509_CRL *x, const ASN1_TIME *tm)
 {
 	return X509_CRL_set_lastUpdate(x, tm);
 }
+LCRYPTO_ALIAS(X509_CRL_set1_lastUpdate);
 
 int
 X509_CRL_set_nextUpdate(X509_CRL *x, const ASN1_TIME *tm)
@@ -131,12 +138,14 @@ X509_CRL_set_nextUpdate(X509_CRL *x, const ASN1_TIME *tm)
 	}
 	return (in != NULL);
 }
+LCRYPTO_ALIAS(X509_CRL_set_nextUpdate);
 
 int
 X509_CRL_set1_nextUpdate(X509_CRL *x, const ASN1_TIME *tm)
 {
 	return X509_CRL_set_nextUpdate(x, tm);
 }
+LCRYPTO_ALIAS(X509_CRL_set1_nextUpdate);
 
 int
 X509_CRL_sort(X509_CRL *c)
@@ -154,24 +163,28 @@ X509_CRL_sort(X509_CRL *c)
 	c->crl->enc.modified = 1;
 	return 1;
 }
+LCRYPTO_ALIAS(X509_CRL_sort);
 
 const STACK_OF(X509_EXTENSION) *
 X509_REVOKED_get0_extensions(const X509_REVOKED *x)
 {
 	return x->extensions;
 }
+LCRYPTO_ALIAS(X509_REVOKED_get0_extensions);
 
 const ASN1_TIME *
 X509_REVOKED_get0_revocationDate(const X509_REVOKED *x)
 {
 	return x->revocationDate;
 }
+LCRYPTO_ALIAS(X509_REVOKED_get0_revocationDate);
 
 const ASN1_INTEGER *
 X509_REVOKED_get0_serialNumber(const X509_REVOKED *x)
 {
 	return x->serialNumber;
 }
+LCRYPTO_ALIAS(X509_REVOKED_get0_serialNumber);
 
 int
 X509_REVOKED_set_revocationDate(X509_REVOKED *x, ASN1_TIME *tm)
@@ -190,6 +203,7 @@ X509_REVOKED_set_revocationDate(X509_REVOKED *x, ASN1_TIME *tm)
 	}
 	return (in != NULL);
 }
+LCRYPTO_ALIAS(X509_REVOKED_set_revocationDate);
 
 int
 X509_REVOKED_set_serialNumber(X509_REVOKED *x, ASN1_INTEGER *serial)
@@ -208,3 +222,12 @@ X509_REVOKED_set_serialNumber(X509_REVOKED *x, ASN1_INTEGER *serial)
 	}
 	return (in != NULL);
 }
+LCRYPTO_ALIAS(X509_REVOKED_set_serialNumber);
+
+int
+i2d_re_X509_CRL_tbs(X509_CRL *crl, unsigned char **pp)
+{
+	crl->crl->enc.modified = 1;
+	return i2d_X509_CRL_INFO(crl->crl, pp);
+}
+LCRYPTO_ALIAS(i2d_re_X509_CRL_tbs);

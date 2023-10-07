@@ -1,4 +1,4 @@
-/* $OpenBSD: p5_pbev2.c,v 1.25 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: p5_pbev2.c,v 1.30 2023/07/07 19:37:52 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999-2004.
  */
@@ -63,6 +63,8 @@
 #include <openssl/asn1t.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
+
+#include "evp_local.h"
 
 /* PKCS#5 v2.0 password based encryption structures */
 
@@ -272,10 +274,10 @@ PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter, unsigned char *salt,
 
 	return ret;
 
-merr:
+ merr:
 	ASN1error(ERR_R_MALLOC_FAILURE);
 
-err:
+ err:
 	PBE2PARAM_free(pbe2);
 	/* Note 'scheme' is freed as part of pbe2 */
 	X509_ALGOR_free(kalg);
@@ -364,7 +366,7 @@ PKCS5_pbkdf2_set(int iter, unsigned char *salt, int saltlen, int prf_nid,
 	PBKDF2PARAM_free(kdf);
 	return keyfunc;
 
-merr:
+ merr:
 	ASN1error(ERR_R_MALLOC_FAILURE);
 	PBKDF2PARAM_free(kdf);
 	X509_ALGOR_free(keyfunc);

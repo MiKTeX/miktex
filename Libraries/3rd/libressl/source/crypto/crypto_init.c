@@ -1,3 +1,4 @@
+/*	$OpenBSD: crypto_init.c,v 1.11 2023/07/08 08:28:23 beck Exp $ */
 /*
  * Copyright (c) 2018 Bob Beck <beck@openbsd.org>
  *
@@ -19,17 +20,25 @@
 #include <pthread.h>
 #include <stdio.h>
 
-#include <openssl/objects.h>
+#include <openssl/asn1.h>
 #include <openssl/conf.h>
-#include <openssl/evp.h>
+#ifndef OPENSSL_NO_ENGINE
+#include <openssl/engine.h>
+#endif
 #include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/objects.h>
+#include <openssl/x509v3.h>
 
 #include "cryptlib.h"
+#include "x509_issuer_cache.h"
 
 int OpenSSL_config(const char *);
 int OpenSSL_no_config(void);
 
+static pthread_once_t crypto_init_once = PTHREAD_ONCE_INIT;
 static pthread_t crypto_init_thread;
+static int crypto_init_cleaned_up;
 
 static void
 OPENSSL_init_crypto_internal(void)
@@ -45,12 +54,15 @@ OPENSSL_init_crypto_internal(void)
 int
 OPENSSL_init_crypto(uint64_t opts, const void *settings)
 {
-	static pthread_once_t once = PTHREAD_ONCE_INIT;
+	if (crypto_init_cleaned_up) {
+		CRYPTOerror(ERR_R_INIT_FAIL);
+		return 0;
+	}
 
 	if (pthread_equal(pthread_self(), crypto_init_thread))
 		return 1; /* don't recurse */
 
-	if (pthread_once(&once, OPENSSL_init_crypto_internal) != 0)
+	if (pthread_once(&crypto_init_once, OPENSSL_init_crypto_internal) != 0)
 		return 0;
 
 	if ((opts & OPENSSL_INIT_NO_LOAD_CONFIG) &&
@@ -63,3 +75,28 @@ OPENSSL_init_crypto(uint64_t opts, const void *settings)
 
 	return 1;
 }
+LCRYPTO_ALIAS(OPENSSL_init_crypto);
+
+void
+OPENSSL_cleanup(void)
+{
+	/* This currently calls init... */
+	ERR_free_strings();
+
+	CRYPTO_cleanup_all_ex_data();
+#ifndef OPENSSL_NO_ENGINE
+	ENGINE_cleanup();
+#endif
+	EVP_cleanup();
+
+	ASN1_STRING_TABLE_cleanup();
+	X509V3_EXT_cleanup();
+	X509_PURPOSE_cleanup();
+	X509_TRUST_cleanup();
+	X509_VERIFY_PARAM_table_cleanup();
+
+	x509_issuer_cache_free();
+
+	crypto_init_cleaned_up = 1;
+}
+LCRYPTO_ALIAS(OPENSSL_cleanup);

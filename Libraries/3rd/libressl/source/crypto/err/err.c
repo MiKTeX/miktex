@@ -1,4 +1,4 @@
-/* $OpenBSD: err.c,v 1.48 2019/10/17 14:28:53 jsing Exp $ */
+/* $OpenBSD: err.c,v 1.56 2023/07/28 10:23:19 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -125,6 +125,8 @@
 DECLARE_LHASH_OF(ERR_STRING_DATA);
 DECLARE_LHASH_OF(ERR_STATE);
 
+typedef struct st_ERR_FNS ERR_FNS;
+
 static void err_load_strings(int lib, ERR_STRING_DATA *str);
 
 static void ERR_STATE_free(ERR_STATE *s);
@@ -215,6 +217,7 @@ static ERR_STRING_DATA ERR_str_reasons[] = {
 	{ERR_R_PASSED_NULL_PARAMETER,		"passed a null parameter"},
 	{ERR_R_INTERNAL_ERROR,			"internal error"},
 	{ERR_R_DISABLED	,			"called a function that was disabled at compile-time"},
+	{ERR_R_INIT_FAIL,			"initialization failure"},
 
 	{0, NULL},
 };
@@ -297,31 +300,6 @@ err_fns_check(void)
 	if (!err_fns)
 		err_fns = &err_defaults;
 	CRYPTO_w_unlock(CRYPTO_LOCK_ERR);
-}
-
-/* API functions to get or set the underlying ERR functions. */
-
-const ERR_FNS *
-ERR_get_implementation(void)
-{
-	err_fns_check();
-	return err_fns;
-}
-
-int
-ERR_set_implementation(const ERR_FNS *fns)
-{
-	int ret = 0;
-
-	CRYPTO_w_lock(CRYPTO_LOCK_ERR);
-	/* It's too late if 'err_fns' is non-NULL. BTW: not much point setting
-	 * an error is there?! */
-	if (!err_fns) {
-		err_fns = fns;
-		ret = 1;
-	}
-	CRYPTO_w_unlock(CRYPTO_LOCK_ERR);
-	return ret;
 }
 
 /* These are the callbacks provided to "lh_new()" when creating the LHASH tables
@@ -579,6 +557,7 @@ build_SYS_str_reasons(void)
 	static char strerror_tab[NUM_SYS_STR_REASONS][LEN_SYS_STR_REASON];
 	int i;
 	static int init = 1;
+	int save_errno;
 
 	CRYPTO_r_lock(CRYPTO_LOCK_ERR);
 	if (!init) {
@@ -593,6 +572,8 @@ build_SYS_str_reasons(void)
 		return;
 	}
 
+	/* strerror(3) will set errno to EINVAL when i is an unknown errno. */
+	save_errno = errno;
 	for (i = 1; i <= NUM_SYS_STR_REASONS; i++) {
 		ERR_STRING_DATA *str = &SYS_str_reasons[i - 1];
 
@@ -609,6 +590,7 @@ build_SYS_str_reasons(void)
 		if (str->string == NULL)
 			str->string = "unknown";
 	}
+	errno = save_errno;
 
 	/* Now we still have SYS_str_reasons[NUM_SYS_STR_REASONS] = {0, NULL},
 	 * as required by ERR_load_strings. */
@@ -680,6 +662,7 @@ ERR_load_ERR_strings(void)
 
 	(void) pthread_once(&once, ERR_load_ERR_strings_internal);
 }
+LCRYPTO_ALIAS(ERR_load_ERR_strings);
 
 static void
 err_load_strings(int lib, ERR_STRING_DATA *str)
@@ -698,6 +681,7 @@ ERR_load_strings(int lib, ERR_STRING_DATA *str)
 	ERR_load_ERR_strings();
 	err_load_strings(lib, str);
 }
+LCRYPTO_ALIAS(ERR_load_strings);
 
 void
 ERR_unload_strings(int lib, ERR_STRING_DATA *str)
@@ -712,6 +696,7 @@ ERR_unload_strings(int lib, ERR_STRING_DATA *str)
 		str++;
 	}
 }
+LCRYPTO_ALIAS(ERR_unload_strings);
 
 void
 ERR_free_strings(void)
@@ -722,6 +707,7 @@ ERR_free_strings(void)
 	err_fns_check();
 	ERRFN(err_del)();
 }
+LCRYPTO_ALIAS(ERR_free_strings);
 
 /********************************************************/
 
@@ -743,6 +729,7 @@ ERR_put_error(int lib, int func, int reason, const char *file, int line)
 	err_clear_data(es, es->top);
 	errno = save_errno;
 }
+LCRYPTO_ALIAS(ERR_put_error);
 
 void
 ERR_clear_error(void)
@@ -757,6 +744,7 @@ ERR_clear_error(void)
 	}
 	es->top = es->bottom = 0;
 }
+LCRYPTO_ALIAS(ERR_clear_error);
 
 
 unsigned long
@@ -764,12 +752,14 @@ ERR_get_error(void)
 {
 	return (get_error_values(1, 0, NULL, NULL, NULL, NULL));
 }
+LCRYPTO_ALIAS(ERR_get_error);
 
 unsigned long
 ERR_get_error_line(const char **file, int *line)
 {
 	return (get_error_values(1, 0, file, line, NULL, NULL));
 }
+LCRYPTO_ALIAS(ERR_get_error_line);
 
 unsigned long
 ERR_get_error_line_data(const char **file, int *line,
@@ -777,6 +767,7 @@ ERR_get_error_line_data(const char **file, int *line,
 {
 	return (get_error_values(1, 0, file, line, data, flags));
 }
+LCRYPTO_ALIAS(ERR_get_error_line_data);
 
 
 unsigned long
@@ -784,12 +775,14 @@ ERR_peek_error(void)
 {
 	return (get_error_values(0, 0, NULL, NULL, NULL, NULL));
 }
+LCRYPTO_ALIAS(ERR_peek_error);
 
 unsigned long
 ERR_peek_error_line(const char **file, int *line)
 {
 	return (get_error_values(0, 0, file, line, NULL, NULL));
 }
+LCRYPTO_ALIAS(ERR_peek_error_line);
 
 unsigned long
 ERR_peek_error_line_data(const char **file, int *line,
@@ -797,18 +790,21 @@ ERR_peek_error_line_data(const char **file, int *line,
 {
 	return (get_error_values(0, 0, file, line, data, flags));
 }
+LCRYPTO_ALIAS(ERR_peek_error_line_data);
 
 unsigned long
 ERR_peek_last_error(void)
 {
 	return (get_error_values(0, 1, NULL, NULL, NULL, NULL));
 }
+LCRYPTO_ALIAS(ERR_peek_last_error);
 
 unsigned long
 ERR_peek_last_error_line(const char **file, int *line)
 {
 	return (get_error_values(0, 1, file, line, NULL, NULL));
 }
+LCRYPTO_ALIAS(ERR_peek_last_error_line);
 
 unsigned long
 ERR_peek_last_error_line_data(const char **file, int *line,
@@ -816,6 +812,7 @@ ERR_peek_last_error_line_data(const char **file, int *line,
 {
 	return (get_error_values(0, 1, file, line, data, flags));
 }
+LCRYPTO_ALIAS(ERR_peek_last_error_line_data);
 
 static unsigned long
 get_error_values(int inc, int top, const char **file, int *line,
@@ -937,6 +934,7 @@ ERR_error_string_n(unsigned long e, char *buf, size_t len)
 		}
 	}
 }
+LCRYPTO_ALIAS(ERR_error_string_n);
 
 /* BAD for multi-threading: uses a local buffer if ret == NULL */
 /* ERR_error_string_n should be used instead for ret != NULL
@@ -952,25 +950,7 @@ ERR_error_string(unsigned long e, char *ret)
 
 	return ret;
 }
-
-LHASH_OF(ERR_STRING_DATA) *ERR_get_string_table(void)
-{
-	err_fns_check();
-	return ERRFN(err_get)(0);
-}
-
-LHASH_OF(ERR_STATE) *ERR_get_err_state_table(void)
-{
-	err_fns_check();
-	return ERRFN(thread_get)(0);
-}
-
-void
-ERR_release_err_state_table(LHASH_OF(ERR_STATE) **hash)
-{
-	err_fns_check();
-	ERRFN(thread_release)(hash);
-}
+LCRYPTO_ALIAS(ERR_error_string);
 
 const char *
 ERR_lib_error_string(unsigned long e)
@@ -987,6 +967,7 @@ ERR_lib_error_string(unsigned long e)
 	p = ERRFN(err_get_item)(&d);
 	return ((p == NULL) ? NULL : p->string);
 }
+LCRYPTO_ALIAS(ERR_lib_error_string);
 
 const char *
 ERR_func_error_string(unsigned long e)
@@ -1001,6 +982,7 @@ ERR_func_error_string(unsigned long e)
 	p = ERRFN(err_get_item)(&d);
 	return ((p == NULL) ? NULL : p->string);
 }
+LCRYPTO_ALIAS(ERR_func_error_string);
 
 const char *
 ERR_reason_error_string(unsigned long e)
@@ -1019,6 +1001,7 @@ ERR_reason_error_string(unsigned long e)
 	}
 	return ((p == NULL) ? NULL : p->string);
 }
+LCRYPTO_ALIAS(ERR_reason_error_string);
 
 void
 ERR_remove_thread_state(const CRYPTO_THREADID *id)
@@ -1034,14 +1017,14 @@ ERR_remove_thread_state(const CRYPTO_THREADID *id)
 	 * items reaches zero. */
 	ERRFN(thread_del_item)(&tmp);
 }
+LCRYPTO_ALIAS(ERR_remove_thread_state);
 
-#ifndef OPENSSL_NO_DEPRECATED
 void
 ERR_remove_state(unsigned long pid)
 {
 	ERR_remove_thread_state(NULL);
 }
-#endif
+LCRYPTO_ALIAS(ERR_remove_state);
 
 ERR_STATE *
 ERR_get_state(void)
@@ -1074,13 +1057,14 @@ ERR_get_state(void)
 			ERR_STATE_free(ret); /* could not insert it */
 			return (&fallback);
 		}
-		/* If a race occured in this function and we came second, tmpp
+		/* If a race occurred in this function and we came second, tmpp
 		 * is the first one that we just replaced. */
 		if (tmpp)
 			ERR_STATE_free(tmpp);
 	}
 	return ret;
 }
+LCRYPTO_ALIAS(ERR_get_state);
 
 int
 ERR_get_next_error_library(void)
@@ -1088,6 +1072,7 @@ ERR_get_next_error_library(void)
 	err_fns_check();
 	return ERRFN(get_next_lib)();
 }
+LCRYPTO_ALIAS(ERR_get_next_error_library);
 
 void
 ERR_set_error_data(char *data, int flags)
@@ -1105,6 +1090,7 @@ ERR_set_error_data(char *data, int flags)
 	es->err_data[i] = data;
 	es->err_data_flags[i] = flags;
 }
+LCRYPTO_ALIAS(ERR_set_error_data);
 
 void
 ERR_asprintf_error_data(char * format, ...)
@@ -1121,6 +1107,7 @@ ERR_asprintf_error_data(char * format, ...)
 	else
 		ERR_set_error_data(errbuf, ERR_TXT_MALLOCED|ERR_TXT_STRING);
 }
+LCRYPTO_ALIAS(ERR_asprintf_error_data);
 
 void
 ERR_add_error_vdata(int num, va_list args)
@@ -1163,6 +1150,7 @@ ERR_set_mark(void)
 	es->err_flags[es->top] |= ERR_FLAG_MARK;
 	return 1;
 }
+LCRYPTO_ALIAS(ERR_set_mark);
 
 int
 ERR_pop_to_mark(void)
@@ -1184,6 +1172,7 @@ ERR_pop_to_mark(void)
 	es->err_flags[es->top]&=~ERR_FLAG_MARK;
 	return 1;
 }
+LCRYPTO_ALIAS(ERR_pop_to_mark);
 
 void
 err_clear_last_constant_time(int clear)

@@ -1,4 +1,4 @@
-/* $OpenBSD: e_chacha.c,v 1.8 2020/01/26 07:47:26 tb Exp $ */
+/* $OpenBSD: e_chacha.c,v 1.13 2023/08/24 04:20:57 tb Exp $ */
 /*
  * Copyright (c) 2014 Joel Sing <jsing@openbsd.org>
  *
@@ -23,38 +23,7 @@
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 
-#include "evp_locl.h"
-
-static int chacha_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
-    const unsigned char *in, size_t len);
-static int chacha_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
-    const unsigned char *iv, int enc);
-
-static const EVP_CIPHER chacha20_cipher = {
-	.nid = NID_chacha20,
-	.block_size = 1,
-	.key_len = 32,
-	/* 
-	 * The 128 bit EVP IV is split for ChaCha into four 32 bit pieces:
-	 * 			counter[0]	counter[1]	iv[0]	iv[1]
-	 * OpenSSL exposes these as:
-	 * 	openssl_iv =	counter[0]	iv[0]		iv[1]	iv[2]
-	 * Due to the cipher internal state's symmetry, these are functionally
-	 * equivalent.
-	 */
-	.iv_len = 16,
-	.flags = EVP_CIPH_STREAM_CIPHER | EVP_CIPH_ALWAYS_CALL_INIT |
-	    EVP_CIPH_CUSTOM_IV,
-	.init = chacha_init,
-	.do_cipher = chacha_cipher,
-	.ctx_size = sizeof(ChaCha_ctx)
-};
-
-const EVP_CIPHER *
-EVP_chacha20(void)
-{
-	return (&chacha20_cipher);
-}
+#include "evp_local.h"
 
 static int
 chacha_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
@@ -78,6 +47,30 @@ chacha_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in,
 {
 	ChaCha((ChaCha_ctx *)ctx->cipher_data, out, in, len);
 	return 1;
+}
+
+static const EVP_CIPHER chacha20_cipher = {
+	.nid = NID_chacha20,
+	.block_size = 1,
+	.key_len = 32,
+	/*
+	 * The 16-byte EVP IV is split into 4 little-endian 4-byte words
+	 *      evpiv[15:12]	evpiv[11:8]	evpiv[7:4]	evpiv[3:0]
+	 *	iv[1]		iv[0]		counter[1]	counter[0]
+	 * and passed as iv[] and counter[] to ChaCha_set_iv().
+	 */
+	.iv_len = 16,
+	.flags = EVP_CIPH_STREAM_CIPHER | EVP_CIPH_ALWAYS_CALL_INIT |
+	    EVP_CIPH_CUSTOM_IV,
+	.init = chacha_init,
+	.do_cipher = chacha_cipher,
+	.ctx_size = sizeof(ChaCha_ctx)
+};
+
+const EVP_CIPHER *
+EVP_chacha20(void)
+{
+	return (&chacha20_cipher);
 }
 
 #endif

@@ -1,4 +1,4 @@
-/*	$OpenBSD: curve25519.c,v 1.5 2019/05/11 15:55:52 tb Exp $ */
+/*	$OpenBSD: curve25519.c,v 1.16 2023/07/08 15:12:49 beck Exp $ */
 /*
  * Copyright (c) 2015, Google Inc.
  *
@@ -24,14 +24,12 @@
  * The field functions are shared by Ed25519 and X25519 where possible.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <openssl/curve25519.h>
-
-#ifdef ED25519
 #include <openssl/sha.h>
-#endif
 
 #include "curve25519_internal.h"
 
@@ -644,9 +642,6 @@ static void fe_invert(fe out, const fe z) {
   int i;
 
   fe_sq(t0, z);
-  for (i = 1; i < 1; ++i) {
-    fe_sq(t0, t0);
-  }
   fe_sq(t1, t0);
   for (i = 1; i < 2; ++i) {
     fe_sq(t1, t1);
@@ -654,9 +649,6 @@ static void fe_invert(fe out, const fe z) {
   fe_mul(t1, z, t1);
   fe_mul(t0, t0, t1);
   fe_sq(t2, t0);
-  for (i = 1; i < 1; ++i) {
-    fe_sq(t2, t2);
-  }
   fe_mul(t1, t1, t2);
   fe_sq(t2, t1);
   for (i = 1; i < 5; ++i) {
@@ -911,9 +903,6 @@ static void fe_pow22523(fe out, const fe z) {
   int i;
 
   fe_sq(t0, z);
-  for (i = 1; i < 1; ++i) {
-    fe_sq(t0, t0);
-  }
   fe_sq(t1, t0);
   for (i = 1; i < 2; ++i) {
     fe_sq(t1, t1);
@@ -921,9 +910,6 @@ static void fe_pow22523(fe out, const fe z) {
   fe_mul(t1, z, t1);
   fe_mul(t0, t0, t1);
   fe_sq(t0, t0);
-  for (i = 1; i < 1; ++i) {
-    fe_sq(t0, t0);
-  }
   fe_mul(t0, t1, t0);
   fe_sq(t1, t0);
   for (i = 1; i < 5; ++i) {
@@ -979,7 +965,6 @@ void x25519_ge_tobytes(uint8_t *s, const ge_p2 *h) {
   s[31] ^= fe_isnegative(x) << 7;
 }
 
-#ifdef ED25519
 static void ge_p3_tobytes(uint8_t *s, const ge_p3 *h) {
   fe recip;
   fe x;
@@ -991,7 +976,6 @@ static void ge_p3_tobytes(uint8_t *s, const ge_p3 *h) {
   fe_tobytes(s, y);
   s[31] ^= fe_isnegative(x) << 7;
 }
-#endif
 
 static const fe d = {-10913610, 13857413, -15372611, 6949391,   114729,
                      -8787816,  -6275908, -3247719,  -18696448, -12055116};
@@ -1146,7 +1130,6 @@ static void ge_madd(ge_p1p1 *r, const ge_p3 *p, const ge_precomp *q) {
   fe_sub(r->T, t0, r->T);
 }
 
-#ifdef ED25519
 /* r = p - q */
 static void ge_msub(ge_p1p1 *r, const ge_p3 *p, const ge_precomp *q) {
   fe t0;
@@ -1162,7 +1145,6 @@ static void ge_msub(ge_p1p1 *r, const ge_p3 *p, const ge_precomp *q) {
   fe_sub(r->Z, t0, r->T);
   fe_add(r->T, t0, r->T);
 }
-#endif
 
 /* r = p + q */
 void x25519_ge_add(ge_p1p1 *r, const ge_p3 *p, const ge_cached *q) {
@@ -3513,7 +3495,7 @@ static void table_select(ge_precomp *t, int pos, signed char b) {
  *
  * Preconditions:
  *   a[31] <= 127 */
-void x25519_ge_scalarmult_base(ge_p3 *h, const uint8_t *a) {
+void x25519_ge_scalarmult_base(ge_p3 *h, const uint8_t a[32]) {
   signed char e[64];
   signed char carry;
   ge_p1p1 r;
@@ -3624,7 +3606,6 @@ void x25519_ge_scalarmult(ge_p2 *r, const uint8_t *scalar, const ge_p3 *A) {
   }
 }
 
-#ifdef ED25519
 static void slide(signed char *r, const uint8_t *a) {
   int i;
   int b;
@@ -3799,7 +3780,6 @@ ge_double_scalarmult_vartime(ge_p2 *r, const uint8_t *a,
     x25519_ge_p1p1_to_p2(r, &t);
   }
 }
-#endif
 
 /* The set of scalars is \Z/l
  * where l = 2^252 + 27742317777372353535851937790883648493. */
@@ -4145,7 +4125,6 @@ x25519_sc_reduce(uint8_t *s) {
   s[31] = s11 >> 17;
 }
 
-#ifdef ED25519
 /* Input:
  *   a[0]+256*a[1]+...+256^31*a[31] = a
  *   b[0]+256*b[1]+...+256^31*b[31] = b
@@ -4636,15 +4615,11 @@ sc_muladd(uint8_t *s, const uint8_t *a, const uint8_t *b,
   s[30] = s11 >> 9;
   s[31] = s11 >> 17;
 }
-#endif
 
-#ifdef ED25519
-void ED25519_keypair(uint8_t out_public_key[32], uint8_t out_private_key[64]) {
-  uint8_t seed[32];
-  arc4random_buf(seed, 32);
-
+void ED25519_public_from_private(uint8_t out_public_key[ED25519_PUBLIC_KEY_LENGTH],
+    const uint8_t private_key[ED25519_PRIVATE_KEY_LENGTH]) {
   uint8_t az[SHA512_DIGEST_LENGTH];
-  SHA512(seed, 32, az);
+  SHA512(private_key, 32, az);
 
   az[0] &= 248;
   az[31] &= 63;
@@ -4653,13 +4628,19 @@ void ED25519_keypair(uint8_t out_public_key[32], uint8_t out_private_key[64]) {
   ge_p3 A;
   x25519_ge_scalarmult_base(&A, az);
   ge_p3_tobytes(out_public_key, &A);
-
-  memcpy(out_private_key, seed, 32);
-  memmove(out_private_key + 32, out_public_key, 32);
 }
 
+void ED25519_keypair(uint8_t out_public_key[ED25519_PUBLIC_KEY_LENGTH],
+    uint8_t out_private_key[ED25519_PRIVATE_KEY_LENGTH]) {
+  arc4random_buf(out_private_key, 32);
+
+  ED25519_public_from_private(out_public_key, out_private_key);
+}
+LCRYPTO_ALIAS(ED25519_keypair);
+
 int ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len,
-                 const uint8_t private_key[64]) {
+    const uint8_t public_key[ED25519_PUBLIC_KEY_LENGTH],
+    const uint8_t private_key[ED25519_PRIVATE_KEY_LENGTH]) {
   uint8_t az[SHA512_DIGEST_LENGTH];
   SHA512(private_key, 32, az);
 
@@ -4681,7 +4662,7 @@ int ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len,
 
   SHA512_Init(&hash_ctx);
   SHA512_Update(&hash_ctx, out_sig, 32);
-  SHA512_Update(&hash_ctx, private_key + 32, 32);
+  SHA512_Update(&hash_ctx, public_key, 32);
   SHA512_Update(&hash_ctx, message, message_len);
   uint8_t hram[SHA512_DIGEST_LENGTH];
   SHA512_Final(hram, &hash_ctx);
@@ -4691,10 +4672,24 @@ int ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len,
 
   return 1;
 }
+LCRYPTO_ALIAS(ED25519_sign);
+
+/*
+ * Little endian representation of the order of edwards25519,
+ * see https://www.rfc-editor.org/rfc/rfc7748#section-4.1
+ */
+static const uint8_t order[] = {
+  0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58,
+  0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10,
+};
 
 int ED25519_verify(const uint8_t *message, size_t message_len,
-                   const uint8_t signature[64], const uint8_t public_key[32]) {
+    const uint8_t signature[ED25519_SIGNATURE_LENGTH],
+    const uint8_t public_key[ED25519_PUBLIC_KEY_LENGTH]) {
   ge_p3 A;
+  int i;
   if ((signature[63] & 224) != 0 ||
       x25519_ge_frombytes_vartime(&A, public_key) != 0) {
     return 0;
@@ -4709,6 +4704,20 @@ int ED25519_verify(const uint8_t *message, size_t message_len,
   memcpy(rcopy, signature, 32);
   uint8_t scopy[32];
   memcpy(scopy, signature + 32, 32);
+
+  /*
+   * https://tools.ietf.org/html/rfc8032#section-5.1.7 requires that scopy be
+   * in the range [0, order) to prevent signature malleability. This value is
+   * public, so there is no need to make this constant time.
+   */
+  for (i = 31; i >= 0; i--) {
+    if (scopy[i] > order[i])
+      return 0;
+    if (scopy[i] < order[i])
+      break;
+    if (i == 0)
+      return 0;
+  }
 
   SHA512_CTX hash_ctx;
   SHA512_Init(&hash_ctx);
@@ -4728,7 +4737,7 @@ int ED25519_verify(const uint8_t *message, size_t message_len,
 
   return timingsafe_memcmp(rcheck, rcopy, sizeof(rcheck)) == 0;
 }
-#endif
+LCRYPTO_ALIAS(ED25519_verify);
 
 /* Replace (f,g) with (g,f) if b == 1;
  * replace (f,g) with (f,g) if b == 0.
@@ -4862,7 +4871,7 @@ x25519_scalar_mult_generic(uint8_t out[32], const uint8_t scalar[32],
 
 #ifdef unused
 void
-x25519_public_from_private_generic(uint8_t out_public_value[32],
+x25519_public_from_private_generic(uint8_t out_public_key[32],
     const uint8_t private_key[32])
 {
   uint8_t e[32];
@@ -4882,21 +4891,21 @@ x25519_public_from_private_generic(uint8_t out_public_value[32],
   fe_sub(zminusy, A.Z, A.Y);
   fe_invert(zminusy_inv, zminusy);
   fe_mul(zplusy, zplusy, zminusy_inv);
-  fe_tobytes(out_public_value, zplusy);
+  fe_tobytes(out_public_key, zplusy);
 }
 #endif
 
 void
-x25519_public_from_private(uint8_t out_public_value[32],
-    const uint8_t private_key[32])
+X25519_public_from_private(uint8_t out_public_key[X25519_KEY_LENGTH],
+    const uint8_t private_key[X25519_KEY_LENGTH])
 {
   static const uint8_t kMongomeryBasePoint[32] = {9};
 
-  x25519_scalar_mult(out_public_value, private_key, kMongomeryBasePoint);
+  x25519_scalar_mult(out_public_key, private_key, kMongomeryBasePoint);
 }
 
 void
-X25519_keypair(uint8_t out_public_value[X25519_KEY_LENGTH],
+X25519_keypair(uint8_t out_public_key[X25519_KEY_LENGTH],
     uint8_t out_private_key[X25519_KEY_LENGTH])
 {
   /* All X25519 implementations should decode scalars correctly (see
@@ -4918,18 +4927,20 @@ X25519_keypair(uint8_t out_public_value[X25519_KEY_LENGTH],
   out_private_key[31] &= 63;
   out_private_key[31] |= 128;
 
-  x25519_public_from_private(out_public_value, out_private_key);
+  X25519_public_from_private(out_public_key, out_private_key);
 }
+LCRYPTO_ALIAS(X25519_keypair);
 
 int
 X25519(uint8_t out_shared_key[X25519_KEY_LENGTH],
     const uint8_t private_key[X25519_KEY_LENGTH],
-    const uint8_t peer_public_value[X25519_KEY_LENGTH])
+    const uint8_t peer_public_key[X25519_KEY_LENGTH])
 {
   static const uint8_t kZeros[32] = {0};
 
-  x25519_scalar_mult(out_shared_key, private_key, peer_public_value);
+  x25519_scalar_mult(out_shared_key, private_key, peer_public_key);
 
   /* The all-zero output results when the input is a point of small order. */
   return timingsafe_memcmp(kZeros, out_shared_key, 32) != 0;
 }
+LCRYPTO_ALIAS(X25519);

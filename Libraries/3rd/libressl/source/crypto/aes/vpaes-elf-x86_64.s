@@ -19,6 +19,7 @@
 .type	_vpaes_encrypt_core,@function
 .align	16
 _vpaes_encrypt_core:
+	endbr64
 	movq	%rdx,%r9
 	movq	$16,%r11
 	movl	240(%rdx),%eax
@@ -109,6 +110,7 @@ _vpaes_encrypt_core:
 .type	_vpaes_decrypt_core,@function
 .align	16
 _vpaes_decrypt_core:
+	endbr64
 	movq	%rdx,%r9
 	movl	240(%rdx),%eax
 	movdqa	%xmm9,%xmm1
@@ -216,6 +218,7 @@ _vpaes_decrypt_core:
 .type	_vpaes_schedule_core,@function
 .align	16
 _vpaes_schedule_core:
+	endbr64
 
 
 
@@ -401,6 +404,7 @@ _vpaes_schedule_core:
 .type	_vpaes_schedule_192_smear,@function
 .align	16
 _vpaes_schedule_192_smear:
+	endbr64
 	pshufd	$128,%xmm6,%xmm0
 	pxor	%xmm0,%xmm6
 	pshufd	$254,%xmm7,%xmm0
@@ -432,6 +436,7 @@ _vpaes_schedule_192_smear:
 .type	_vpaes_schedule_round,@function
 .align	16
 _vpaes_schedule_round:
+	endbr64
 
 	pxor	%xmm1,%xmm1
 .byte	102,65,15,58,15,200,15
@@ -499,6 +504,7 @@ _vpaes_schedule_low_round:
 .type	_vpaes_schedule_transform,@function
 .align	16
 _vpaes_schedule_transform:
+	endbr64
 	movdqa	%xmm9,%xmm1
 	pandn	%xmm0,%xmm1
 	psrld	$4,%xmm1
@@ -537,6 +543,7 @@ _vpaes_schedule_transform:
 .type	_vpaes_schedule_mangle,@function
 .align	16
 _vpaes_schedule_mangle:
+	endbr64
 	movdqa	%xmm0,%xmm4
 	movdqa	.Lk_mc_forward(%rip),%xmm5
 	testq	%rcx,%rcx
@@ -610,6 +617,7 @@ _vpaes_schedule_mangle:
 .type	vpaes_set_encrypt_key,@function
 .align	16
 vpaes_set_encrypt_key:
+	endbr64
 	movl	%esi,%eax
 	shrl	$5,%eax
 	addl	$5,%eax
@@ -626,6 +634,7 @@ vpaes_set_encrypt_key:
 .type	vpaes_set_decrypt_key,@function
 .align	16
 vpaes_set_decrypt_key:
+	endbr64
 	movl	%esi,%eax
 	shrl	$5,%eax
 	addl	$5,%eax
@@ -647,6 +656,7 @@ vpaes_set_decrypt_key:
 .type	vpaes_encrypt,@function
 .align	16
 vpaes_encrypt:
+	endbr64
 	movdqu	(%rdi),%xmm0
 	call	_vpaes_preheat
 	call	_vpaes_encrypt_core
@@ -658,6 +668,7 @@ vpaes_encrypt:
 .type	vpaes_decrypt,@function
 .align	16
 vpaes_decrypt:
+	endbr64
 	movdqu	(%rdi),%xmm0
 	call	_vpaes_preheat
 	call	_vpaes_decrypt_core
@@ -668,6 +679,7 @@ vpaes_decrypt:
 .type	vpaes_cbc_encrypt,@function
 .align	16
 vpaes_cbc_encrypt:
+	endbr64
 	xchgq	%rcx,%rdx
 	subq	$16,%rcx
 	jc	.Lcbc_abort
@@ -713,6 +725,7 @@ vpaes_cbc_encrypt:
 .type	_vpaes_preheat,@function
 .align	16
 _vpaes_preheat:
+	endbr64
 	leaq	.Lk_s0F(%rip),%r10
 	movdqa	-32(%r10),%xmm10
 	movdqa	-16(%r10),%xmm11
@@ -728,6 +741,7 @@ _vpaes_preheat:
 
 
 
+.section	.rodata
 .type	_vpaes_consts,@object
 .align	64
 _vpaes_consts:
@@ -824,9 +838,9 @@ _vpaes_consts:
 .Lk_dsbo:
 .quad	0x1387EA537EF94000, 0xC7AA6DB9D4943E2D
 .quad	0x12D7560F93441D00, 0xCA4B8159D8C58E9C
-.byte	86,101,99,116,111,114,32,80,101,114,109,117,116,97,116,105,111,110,32,65,69,83,32,102,111,114,32,120,56,54,95,54,52,47,83,83,83,69,51,44,32,77,105,107,101,32,72,97,109,98,117,114,103,32,40,83,116,97,110,102,111,114,100,32,85,110,105,118,101,114,115,105,116,121,41,0
 .align	64
 .size	_vpaes_consts,.-_vpaes_consts
+.text	
 #if defined(HAVE_GNU_STACK)
 .section .note.GNU-stack,"",%progbits
 #endif

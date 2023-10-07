@@ -5,6 +5,7 @@
 
 .p2align	4
 _whirlpool_block:
+	endbr64
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r12
@@ -588,6 +589,7 @@ L$epilogue:
 	retq
 
 
+.section	__DATA,__const
 .p2align	6
 
 L$table:

@@ -1,4 +1,4 @@
-/* $OpenBSD: m_gostr341194.c,v 1.2 2014/11/09 23:06:50 miod Exp $ */
+/* $OpenBSD: m_gostr341194.c,v 1.7 2023/07/07 19:37:53 beck Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -48,6 +48,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * ====================================================================
  */
+
 #include <stdio.h>
 
 #include <openssl/opensslconf.h>
@@ -57,6 +58,8 @@
 #include <openssl/evp.h>
 #include <openssl/gost.h>
 #include <openssl/objects.h>
+
+#include "evp_local.h"
 
 static int
 gostr341194_init(EVP_MD_CTX *ctx)
@@ -81,7 +84,7 @@ static const EVP_MD gostr341194_md = {
 	.type = NID_id_GostR3411_94,
 	.pkey_type = NID_undef,
 	.md_size = GOSTR341194_LENGTH,
-	.flags = EVP_MD_FLAG_PKEY_METHOD_SIGNATURE,
+	.flags = 0,
 	.init = gostr341194_init,
 	.update = gostr341194_update,
 	.final = gostr341194_final,

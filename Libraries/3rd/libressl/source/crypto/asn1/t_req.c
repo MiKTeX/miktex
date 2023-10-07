@@ -1,4 +1,4 @@
-/* $OpenBSD: t_req.c,v 1.19 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: t_req.c,v 1.26 2023/07/07 19:37:52 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -74,6 +74,8 @@
 #include <openssl/rsa.h>
 #endif
 
+#include "x509_local.h"
+
 int
 X509_REQ_print_fp(FILE *fp, X509_REQ *x)
 {
@@ -100,7 +102,7 @@ X509_REQ_print_ex(BIO *bp, X509_REQ *x, unsigned long nmflags,
 	X509_REQ_INFO *ri;
 	EVP_PKEY *pkey;
 	STACK_OF(X509_ATTRIBUTE) *sk;
-	STACK_OF(X509_EXTENSION) *exts;
+	STACK_OF(X509_EXTENSION) *exts = NULL;
 	char mlch = ' ';
 	int nmindent = 0;
 
@@ -174,7 +176,6 @@ X509_REQ_print_ex(BIO *bp, X509_REQ *x, unsigned long nmflags,
 				ASN1_TYPE *at;
 				X509_ATTRIBUTE *a;
 				ASN1_BIT_STRING *bs = NULL;
-				ASN1_TYPE *t;
 				int j, type = 0, count = 1, ii = 0;
 
 				a = sk_X509_ATTRIBUTE_value(sk, i);
@@ -184,20 +185,12 @@ X509_REQ_print_ex(BIO *bp, X509_REQ *x, unsigned long nmflags,
 				if (BIO_printf(bp, "%12s", "") <= 0)
 					goto err;
 				if ((j = i2a_ASN1_OBJECT(bp, a->object)) > 0) {
-					if (a->single) {
-						t = a->value.single;
-						type = t->type;
-						bs = t->value.bit_string;
-					} else {
-						ii = 0;
-						count = sk_ASN1_TYPE_num(
-						    a->value.set);
-get_next:
-						at = sk_ASN1_TYPE_value(
-						    a->value.set, ii);
-						type = at->type;
-						bs = at->value.asn1_string;
-					}
+					ii = 0;
+					count = sk_ASN1_TYPE_num(a->set);
+ get_next:
+					at = sk_ASN1_TYPE_value(a->set, ii);
+					type = at->type;
+					bs = at->value.asn1_string;
 				}
 				for (j = 25 - j; j > 0; j--)
 					if (BIO_write(bp, " ", 1) != 1)
@@ -245,6 +238,7 @@ get_next:
 					goto err;
 			}
 			sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
+			exts = NULL;
 		}
 	}
 
@@ -255,7 +249,8 @@ get_next:
 
 	return (1);
 
-err:
+ err:
+	sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
 	X509error(ERR_R_BUF_LIB);
 	return (0);
 }

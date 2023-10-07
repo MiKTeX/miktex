@@ -1,4 +1,4 @@
-/* $OpenBSD: t_x509a.c,v 1.8 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: t_x509a.c,v 1.13 2023/07/07 19:37:52 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -62,8 +62,9 @@
 #include <openssl/evp.h>
 #include <openssl/x509.h>
 
-/* X509_CERT_AUX and string set routines
- */
+#include "x509_local.h"
+
+/* X509_CERT_AUX and string set routines */
 
 int
 X509_CERT_AUX_print(BIO *out, X509_CERT_AUX *aux, int indent)
@@ -105,8 +106,8 @@ X509_CERT_AUX_print(BIO *out, X509_CERT_AUX *aux, int indent)
 	} else
 		BIO_printf(out, "%*sNo Rejected Uses.\n", indent, "");
 	if (aux->alias)
-		BIO_printf(out, "%*sAlias: %s\n", indent, "",
-		    aux->alias->data);
+		BIO_printf(out, "%*sAlias: %.*s\n", indent, "",
+		    aux->alias->length, aux->alias->data);
 	if (aux->keyid) {
 		BIO_printf(out, "%*sKey Id: ", indent, "");
 		for (i = 0; i < aux->keyid->length; i++)

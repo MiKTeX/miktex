@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa_ameth.c,v 1.24 2019/11/20 10:46:17 inoguchi Exp $ */
+/* $OpenBSD: rsa_ameth.c,v 1.33 2023/08/12 08:02:43 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2006.
  */
@@ -64,12 +64,14 @@
 #include <openssl/bn.h>
 #include <openssl/cms.h>
 #include <openssl/err.h>
+#include <openssl/rsa.h>
 #include <openssl/x509.h>
 
-#include "asn1_locl.h"
+#include "asn1_local.h"
+#include "bn_local.h"
 #include "cryptlib.h"
-#include "evp_locl.h"
-#include "rsa_locl.h"
+#include "evp_local.h"
+#include "rsa_local.h"
 
 #ifndef OPENSSL_NO_CMS
 static int rsa_cms_sign(CMS_SignerInfo *si);
@@ -134,21 +136,28 @@ rsa_param_decode(RSA *rsa, const X509_ALGOR *alg)
 static int
 rsa_pub_encode(X509_PUBKEY *pk, const EVP_PKEY *pkey)
 {
-	unsigned char *penc = NULL;
-	int penclen;
-	ASN1_STRING *str;
+	ASN1_STRING *str = NULL;
 	int strtype;
+	unsigned char *penc = NULL;
+	int penclen = 0;
+	ASN1_OBJECT *aobj;
 
 	if (!rsa_param_encode(pkey, &str, &strtype))
-		return 0;
-	penclen = i2d_RSAPublicKey(pkey->pkey.rsa, &penc);
-	if (penclen <= 0)
-		return 0;
-	if (X509_PUBKEY_set0_param(pk, OBJ_nid2obj(pkey->ameth->pkey_id),
-	    strtype, str, penc, penclen))
-		return 1;
+		goto err;
+	if ((penclen = i2d_RSAPublicKey(pkey->pkey.rsa, &penc)) <= 0) {
+		penclen = 0;
+		goto err;
+	}
+	if ((aobj = OBJ_nid2obj(pkey->ameth->pkey_id)) == NULL)
+		goto err;
+	if (!X509_PUBKEY_set0_param(pk, aobj, strtype, str, penc, penclen))
+		goto err;
 
-	free(penc);
+	return 1;
+
+ err:
+	ASN1_STRING_free(str);
+	freezero(penc, penclen);
 
 	return 0;
 }
@@ -210,29 +219,33 @@ old_rsa_priv_encode(const EVP_PKEY *pkey, unsigned char **pder)
 static int
 rsa_priv_encode(PKCS8_PRIV_KEY_INFO *p8, const EVP_PKEY *pkey)
 {
-	unsigned char *rk = NULL;
-	int rklen;
-	ASN1_STRING *str;
+	ASN1_STRING *str = NULL;
+	ASN1_OBJECT *aobj;
 	int strtype;
+	unsigned char *rk = NULL;
+	int rklen = 0;
 
 	if (!rsa_param_encode(pkey, &str, &strtype))
-		return 0;
-
-	rklen = i2d_RSAPrivateKey(pkey->pkey.rsa, &rk);
-	if (rklen <= 0) {
+		goto err;
+	if ((rklen = i2d_RSAPrivateKey(pkey->pkey.rsa, &rk)) <= 0) {
 		RSAerror(ERR_R_MALLOC_FAILURE);
-		ASN1_STRING_free(str);
-		return 0;
+		rklen = 0;
+		goto err;
 	}
-
-	if (!PKCS8_pkey_set0(p8, OBJ_nid2obj(pkey->ameth->pkey_id), 0,
-	    strtype, str, rk, rklen)) {
+	if ((aobj = OBJ_nid2obj(pkey->ameth->pkey_id)) == NULL)
+		goto err;
+	if (!PKCS8_pkey_set0(p8, aobj, 0, strtype, str, rk, rklen)) {
 		RSAerror(ERR_R_MALLOC_FAILURE);
-		ASN1_STRING_free(str);
-		return 0;
+		goto err;
 	}
 
 	return 1;
+
+ err:
+	ASN1_STRING_free(str);
+	freezero(rk, rklen);
+
+	return 0;
 }
 
 static int
@@ -260,7 +273,7 @@ rsa_priv_decode(EVP_PKEY *pkey, const PKCS8_PRIV_KEY_INFO *p8)
 }
 
 static int
-int_rsa_size(const EVP_PKEY *pkey)
+rsa_size(const EVP_PKEY *pkey)
 {
 	return RSA_size(pkey->pkey.rsa);
 }
@@ -271,8 +284,14 @@ rsa_bits(const EVP_PKEY *pkey)
 	return BN_num_bits(pkey->pkey.rsa->n);
 }
 
+static int
+rsa_security_bits(const EVP_PKEY *pkey)
+{
+	return RSA_security_bits(pkey->pkey.rsa);
+}
+
 static void
-int_rsa_free(EVP_PKEY *pkey)
+rsa_free(EVP_PKEY *pkey)
 {
 	RSA_free(pkey->pkey.rsa);
 }
@@ -401,44 +420,13 @@ rsa_pss_param_print(BIO *bp, int pss_key, RSA_PSS_PARAMS *pss, int indent)
 
 }
 
-static void
-update_buflen(const BIGNUM *b, size_t *pbuflen)
-{
-	size_t i;
-
-	if (!b)
-		return;
-	if (*pbuflen < (i = (size_t)BN_num_bytes(b)))
-		*pbuflen = i;
-}
-
 static int
 pkey_rsa_print(BIO *bp, const EVP_PKEY *pkey, int off, int priv)
 {
 	const RSA *x = pkey->pkey.rsa;
-	unsigned char *m = NULL;
 	char *str;
 	const char *s;
 	int ret = 0, mod_len = 0;
-	size_t buf_len = 0;
-
-	update_buflen(x->n, &buf_len);
-	update_buflen(x->e, &buf_len);
-
-	if (priv) {
-		update_buflen(x->d, &buf_len);
-		update_buflen(x->p, &buf_len);
-		update_buflen(x->q, &buf_len);
-		update_buflen(x->dmp1, &buf_len);
-		update_buflen(x->dmq1, &buf_len);
-		update_buflen(x->iqmp, &buf_len);
-	}
-
-	m = malloc(buf_len + 10);
-	if (m == NULL) {
-		RSAerror(ERR_R_MALLOC_FAILURE);
-		goto err;
-	}
 
 	if (x->n != NULL)
 		mod_len = BN_num_bits(x->n);
@@ -460,29 +448,28 @@ pkey_rsa_print(BIO *bp, const EVP_PKEY *pkey, int off, int priv)
 		str = "Modulus:";
 		s = "Exponent:";
 	}
-	if (!ASN1_bn_print(bp, str, x->n, m, off))
+	if (!bn_printf(bp, x->n, off, "%s", str))
 		goto err;
-	if (!ASN1_bn_print(bp, s, x->e, m, off))
+	if (!bn_printf(bp, x->e, off, "%s", s))
 		goto err;
 	if (priv) {
-		if (!ASN1_bn_print(bp, "privateExponent:", x->d, m, off))
+		if (!bn_printf(bp, x->d, off, "privateExponent:"))
 			goto err;
-		if (!ASN1_bn_print(bp, "prime1:", x->p, m, off))
+		if (!bn_printf(bp, x->p, off, "prime1:"))
 			goto err;
-		if (!ASN1_bn_print(bp, "prime2:", x->q, m, off))
+		if (!bn_printf(bp, x->q, off, "prime2:"))
 			goto err;
-		if (!ASN1_bn_print(bp, "exponent1:", x->dmp1, m, off))
+		if (!bn_printf(bp, x->dmp1, off, "exponent1:"))
 			goto err;
-		if (!ASN1_bn_print(bp, "exponent2:", x->dmq1, m, off))
+		if (!bn_printf(bp, x->dmq1, off, "exponent2:"))
 			goto err;
-		if (!ASN1_bn_print(bp, "coefficient:", x->iqmp, m, off))
+		if (!bn_printf(bp, x->iqmp, off, "coefficient:"))
 			goto err;
 	}
 	if (pkey_is_pss(pkey) && !rsa_pss_param_print(bp, 1, x->pss, off))
 		goto err;
 	ret = 1;
  err:
-	free(m);
 	return ret;
 }
 
@@ -916,6 +903,12 @@ rsa_item_sign(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 	return 2;
 }
 
+static int
+rsa_pkey_check(const EVP_PKEY *pkey)
+{
+	return RSA_check_key(pkey->pkey.rsa);
+}
+
 #ifndef OPENSSL_NO_CMS
 static RSA_OAEP_PARAMS *
 rsa_oaep_decode(const X509_ALGOR *alg)
@@ -1095,24 +1088,29 @@ const EVP_PKEY_ASN1_METHOD rsa_asn1_meths[] = {
 		.priv_encode = rsa_priv_encode,
 		.priv_print = rsa_priv_print,
 
-		.pkey_size = int_rsa_size,
+		.pkey_size = rsa_size,
 		.pkey_bits = rsa_bits,
+		.pkey_security_bits = rsa_security_bits,
 
 		.sig_print = rsa_sig_print,
 
-		.pkey_free = int_rsa_free,
+		.pkey_free = rsa_free,
 		.pkey_ctrl = rsa_pkey_ctrl,
 		.old_priv_decode = old_rsa_priv_decode,
 		.old_priv_encode = old_rsa_priv_encode,
 		.item_verify = rsa_item_verify,
-		.item_sign = rsa_item_sign
+		.item_sign = rsa_item_sign,
+
+		.pkey_check = rsa_pkey_check,
 	},
 
 	{
 		.pkey_id = EVP_PKEY_RSA2,
 		.pkey_base_id = EVP_PKEY_RSA,
-		.pkey_flags = ASN1_PKEY_ALIAS
-	}
+		.pkey_flags = ASN1_PKEY_ALIAS,
+
+		.pkey_check = rsa_pkey_check,
+	},
 };
 
 const EVP_PKEY_ASN1_METHOD rsa_pss_asn1_meth = {
@@ -1132,12 +1130,13 @@ const EVP_PKEY_ASN1_METHOD rsa_pss_asn1_meth = {
 	.priv_encode = rsa_priv_encode,
 	.priv_print = rsa_priv_print,
 
-	.pkey_size = int_rsa_size,
+	.pkey_size = rsa_size,
 	.pkey_bits = rsa_bits,
+	.pkey_security_bits = rsa_security_bits,
 
 	.sig_print = rsa_sig_print,
 
-	.pkey_free = int_rsa_free,
+	.pkey_free = rsa_free,
 	.pkey_ctrl = rsa_pkey_ctrl,
 	.item_verify = rsa_item_verify,
 	.item_sign = rsa_item_sign

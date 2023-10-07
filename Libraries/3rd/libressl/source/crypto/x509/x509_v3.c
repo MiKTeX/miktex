@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_v3.c,v 1.17 2018/05/19 10:54:40 tb Exp $ */
+/* $OpenBSD: x509_v3.c,v 1.21 2023/02/16 08:38:17 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -66,6 +66,8 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
+#include "x509_local.h"
+
 int
 X509v3_get_ext_count(const STACK_OF(X509_EXTENSION) *x)
 {
@@ -73,6 +75,7 @@ X509v3_get_ext_count(const STACK_OF(X509_EXTENSION) *x)
 		return (0);
 	return (sk_X509_EXTENSION_num(x));
 }
+LCRYPTO_ALIAS(X509v3_get_ext_count);
 
 int
 X509v3_get_ext_by_NID(const STACK_OF(X509_EXTENSION) *x, int nid, int lastpos)
@@ -84,6 +87,7 @@ X509v3_get_ext_by_NID(const STACK_OF(X509_EXTENSION) *x, int nid, int lastpos)
 		return (-2);
 	return (X509v3_get_ext_by_OBJ(x, obj, lastpos));
 }
+LCRYPTO_ALIAS(X509v3_get_ext_by_NID);
 
 int
 X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) *sk,
@@ -105,6 +109,7 @@ X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) *sk,
 	}
 	return (-1);
 }
+LCRYPTO_ALIAS(X509v3_get_ext_by_OBJ);
 
 int
 X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) *sk, int crit,
@@ -127,6 +132,7 @@ X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) *sk, int crit,
 	}
 	return (-1);
 }
+LCRYPTO_ALIAS(X509v3_get_ext_by_critical);
 
 X509_EXTENSION *
 X509v3_get_ext(const STACK_OF(X509_EXTENSION) *x, int loc)
@@ -136,6 +142,7 @@ X509v3_get_ext(const STACK_OF(X509_EXTENSION) *x, int loc)
 	else
 		return sk_X509_EXTENSION_value(x, loc);
 }
+LCRYPTO_ALIAS(X509v3_get_ext);
 
 X509_EXTENSION *
 X509v3_delete_ext(STACK_OF(X509_EXTENSION) *x, int loc)
@@ -147,6 +154,7 @@ X509v3_delete_ext(STACK_OF(X509_EXTENSION) *x, int loc)
 	ret = sk_X509_EXTENSION_delete(x, loc);
 	return (ret);
 }
+LCRYPTO_ALIAS(X509v3_delete_ext);
 
 STACK_OF(X509_EXTENSION) *
 X509v3_add_ext(STACK_OF(X509_EXTENSION) **x, X509_EXTENSION *ex, int loc)
@@ -189,6 +197,7 @@ err2:
 		sk_X509_EXTENSION_free(sk);
 	return (NULL);
 }
+LCRYPTO_ALIAS(X509v3_add_ext);
 
 X509_EXTENSION *
 X509_EXTENSION_create_by_NID(X509_EXTENSION **ex, int nid, int crit,
@@ -207,6 +216,7 @@ X509_EXTENSION_create_by_NID(X509_EXTENSION **ex, int nid, int crit,
 		ASN1_OBJECT_free(obj);
 	return (ret);
 }
+LCRYPTO_ALIAS(X509_EXTENSION_create_by_NID);
 
 X509_EXTENSION *
 X509_EXTENSION_create_by_OBJ(X509_EXTENSION **ex, const ASN1_OBJECT *obj,
@@ -238,6 +248,7 @@ err:
 		X509_EXTENSION_free(ret);
 	return (NULL);
 }
+LCRYPTO_ALIAS(X509_EXTENSION_create_by_OBJ);
 
 int
 X509_EXTENSION_set_object(X509_EXTENSION *ex, const ASN1_OBJECT *obj)
@@ -248,6 +259,7 @@ X509_EXTENSION_set_object(X509_EXTENSION *ex, const ASN1_OBJECT *obj)
 	ex->object = OBJ_dup(obj);
 	return ex->object != NULL;
 }
+LCRYPTO_ALIAS(X509_EXTENSION_set_object);
 
 int
 X509_EXTENSION_set_critical(X509_EXTENSION *ex, int crit)
@@ -257,6 +269,7 @@ X509_EXTENSION_set_critical(X509_EXTENSION *ex, int crit)
 	ex->critical = (crit) ? 0xFF : -1;
 	return (1);
 }
+LCRYPTO_ALIAS(X509_EXTENSION_set_critical);
 
 int
 X509_EXTENSION_set_data(X509_EXTENSION *ex, ASN1_OCTET_STRING *data)
@@ -270,6 +283,7 @@ X509_EXTENSION_set_data(X509_EXTENSION *ex, ASN1_OCTET_STRING *data)
 		return (0);
 	return (1);
 }
+LCRYPTO_ALIAS(X509_EXTENSION_set_data);
 
 ASN1_OBJECT *
 X509_EXTENSION_get_object(X509_EXTENSION *ex)
@@ -278,6 +292,7 @@ X509_EXTENSION_get_object(X509_EXTENSION *ex)
 		return (NULL);
 	return (ex->object);
 }
+LCRYPTO_ALIAS(X509_EXTENSION_get_object);
 
 ASN1_OCTET_STRING *
 X509_EXTENSION_get_data(X509_EXTENSION *ex)
@@ -286,6 +301,7 @@ X509_EXTENSION_get_data(X509_EXTENSION *ex)
 		return (NULL);
 	return (ex->value);
 }
+LCRYPTO_ALIAS(X509_EXTENSION_get_data);
 
 int
 X509_EXTENSION_get_critical(const X509_EXTENSION *ex)
@@ -296,3 +312,4 @@ X509_EXTENSION_get_critical(const X509_EXTENSION *ex)
 		return 1;
 	return 0;
 }
+LCRYPTO_ALIAS(X509_EXTENSION_get_critical);

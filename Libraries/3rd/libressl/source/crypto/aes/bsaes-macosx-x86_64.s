@@ -7,6 +7,7 @@
 
 .p2align	6
 _bsaes_encrypt8:
+	endbr64
 	leaq	L$BS0(%rip),%r11
 
 	movdqa	(%rax),%xmm8
@@ -479,6 +480,7 @@ L$enc_done:
 
 .p2align	6
 _bsaes_decrypt8:
+	endbr64
 	leaq	L$BS0(%rip),%r11
 
 	movdqa	(%rax),%xmm8
@@ -984,6 +986,7 @@ L$dec_done:
 
 .p2align	4
 _bsaes_key_convert:
+	endbr64
 	leaq	L$masks(%rip),%r11
 	movdqu	(%rcx),%xmm7
 	leaq	16(%rcx),%rcx
@@ -1068,6 +1071,7 @@ L$key_loop:
 
 .p2align	4
 _bsaes_cbc_encrypt:
+	endbr64
 	cmpl	$0,%r9d
 	jne	_asm_AES_cbc_encrypt
 	cmpq	$128,%rdx
@@ -1318,6 +1322,7 @@ L$cbc_dec_epilogue:
 
 .p2align	4
 _bsaes_ctr32_encrypt_blocks:
+	endbr64
 	movq	%rsp,%rax
 L$ctr_enc_prologue:
 	pushq	%rbp
@@ -1517,6 +1522,7 @@ L$ctr_enc_epilogue:
 
 .p2align	4
 _bsaes_xts_encrypt:
+	endbr64
 	movq	%rsp,%rax
 L$xts_enc_prologue:
 	pushq	%rbp
@@ -1969,6 +1975,7 @@ L$xts_enc_epilogue:
 
 .p2align	4
 _bsaes_xts_decrypt:
+	endbr64
 	movq	%rsp,%rax
 L$xts_dec_prologue:
 	pushq	%rbp
@@ -2442,6 +2449,7 @@ L$xts_dec_bzero:
 L$xts_dec_epilogue:
 	retq
 
+.section	__DATA,__const
 
 .p2align	6
 _bsaes_const:
@@ -2494,6 +2502,6 @@ L$M0:
 .quad	0x02060a0e03070b0f, 0x0004080c0105090d
 L$63:
 .quad	0x6363636363636363, 0x6363636363636363
-.byte	66,105,116,45,115,108,105,99,101,100,32,65,69,83,32,102,111,114,32,120,56,54,95,54,52,47,83,83,83,69,51,44,32,69,109,105,108,105,97,32,75,195,164,115,112,101,114,44,32,80,101,116,101,114,32,83,99,104,119,97,98,101,44,32,65,110,100,121,32,80,111,108,121,97,107,111,118,0
 .p2align	6
 
+.text	

@@ -1,4 +1,4 @@
-/* $OpenBSD: rand_lib.c,v 1.20 2014/10/22 13:02:04 jsing Exp $ */
+/* $OpenBSD: rand_lib.c,v 1.22 2023/07/07 19:37:54 beck Exp $ */
 /*
  * Copyright (c) 2014 Ted Unangst <tedu@openbsd.org>
  *
@@ -29,18 +29,21 @@ RAND_set_rand_method(const RAND_METHOD *meth)
 {
 	return 1;
 }
+LCRYPTO_ALIAS(RAND_set_rand_method);
 
 const RAND_METHOD *
 RAND_get_rand_method(void)
 {
 	return NULL;
 }
+LCRYPTO_ALIAS(RAND_get_rand_method);
 
 RAND_METHOD *
 RAND_SSLeay(void)
 {
 	return NULL;
 }
+LCRYPTO_ALIAS(RAND_SSLeay);
 
 #ifndef OPENSSL_NO_ENGINE
 int
@@ -48,6 +51,7 @@ RAND_set_rand_engine(ENGINE *engine)
 {
 	return 1;
 }
+LCRYPTO_ALIAS(RAND_set_rand_engine);
 #endif
 
 void

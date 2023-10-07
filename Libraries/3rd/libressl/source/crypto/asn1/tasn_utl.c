@@ -1,4 +1,4 @@
-/* $OpenBSD: tasn_utl.c,v 1.12 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: tasn_utl.c,v 1.18 2022/12/26 07:18:51 jmc Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */
@@ -56,12 +56,16 @@
  *
  */
 
+#include <limits.h>
 #include <stddef.h>
 #include <string.h>
+
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
 #include <openssl/objects.h>
 #include <openssl/err.h>
+
+#include "bytestring.h"
 
 /* Utility functions for manipulating fields and offsets */
 
@@ -96,7 +100,7 @@ asn1_set_choice_selector(ASN1_VALUE **pval, int value, const ASN1_ITEM *it)
 /* Do reference counting. The value 'op' decides what to do.
  * if it is +1 then the count is incremented. If op is 0 count is
  * set to 1. If op is -1 count is decremented and the return value
- * is the current refrence count or 0 if no reference count exists.
+ * is the current reference count or 0 if no reference count exists.
  */
 
 int
@@ -123,79 +127,96 @@ asn1_do_lock(ASN1_VALUE **pval, int op, const ASN1_ITEM *it)
 static ASN1_ENCODING *
 asn1_get_enc_ptr(ASN1_VALUE **pval, const ASN1_ITEM *it)
 {
-	const ASN1_AUX *aux;
+	const ASN1_AUX *aux = it->funcs;
 
-	if (!pval || !*pval)
+	if (pval == NULL || *pval == NULL)
 		return NULL;
-	aux = it->funcs;
-	if (!aux || !(aux->flags & ASN1_AFLG_ENCODING))
+
+	if (aux == NULL || (aux->flags & ASN1_AFLG_ENCODING) == 0)
 		return NULL;
+
 	return offset2ptr(*pval, aux->enc_offset);
 }
 
 void
 asn1_enc_init(ASN1_VALUE **pval, const ASN1_ITEM *it)
 {
-	ASN1_ENCODING *enc;
+	ASN1_ENCODING *aenc;
 
-	enc = asn1_get_enc_ptr(pval, it);
-	if (enc) {
-		enc->enc = NULL;
-		enc->len = 0;
-		enc->modified = 1;
-	}
+	if ((aenc = asn1_get_enc_ptr(pval, it)) == NULL)
+		return;
+
+	aenc->enc = NULL;
+	aenc->len = 0;
+	aenc->modified = 1;
+}
+
+static void
+asn1_enc_clear(ASN1_ENCODING *aenc)
+{
+	freezero(aenc->enc, aenc->len);
+	aenc->enc = NULL;
+	aenc->len = 0;
+	aenc->modified = 1;
 }
 
 void
-asn1_enc_free(ASN1_VALUE **pval, const ASN1_ITEM *it)
+asn1_enc_cleanup(ASN1_VALUE **pval, const ASN1_ITEM *it)
 {
-	ASN1_ENCODING *enc;
+	ASN1_ENCODING *aenc;
 
-	enc = asn1_get_enc_ptr(pval, it);
-	if (enc) {
-		free(enc->enc);
-		enc->enc = NULL;
-		enc->len = 0;
-		enc->modified = 1;
-	}
+	if ((aenc = asn1_get_enc_ptr(pval, it)) == NULL)
+		return;
+
+	asn1_enc_clear(aenc);
 }
 
 int
-asn1_enc_save(ASN1_VALUE **pval, const unsigned char *in, int inlen,
-    const ASN1_ITEM *it)
+asn1_enc_save(ASN1_VALUE **pval, CBS *cbs, const ASN1_ITEM *it)
 {
-	ASN1_ENCODING *enc;
+	ASN1_ENCODING *aenc;
+	uint8_t *data = NULL;
+	size_t data_len = 0;
 
-	enc = asn1_get_enc_ptr(pval, it);
-	if (!enc)
+	if ((aenc = asn1_get_enc_ptr(pval, it)) == NULL)
 		return 1;
 
-	free(enc->enc);
-	enc->enc = malloc(inlen);
-	if (!enc->enc)
+	asn1_enc_clear(aenc);
+
+	if (!CBS_stow(cbs, &data, &data_len))
 		return 0;
-	memcpy(enc->enc, in, inlen);
-	enc->len = inlen;
-	enc->modified = 0;
+	if (data_len > LONG_MAX) {
+		freezero(data, data_len);
+		return 0;
+	}
+
+	aenc->enc = data;
+	aenc->len = (long)data_len;
+	aenc->modified = 0;
 
 	return 1;
 }
 
 int
-asn1_enc_restore(int *len, unsigned char **out, ASN1_VALUE **pval,
+asn1_enc_restore(int *out_len, unsigned char **out, ASN1_VALUE **pval,
     const ASN1_ITEM *it)
 {
-	ASN1_ENCODING *enc;
+	ASN1_ENCODING *aenc;
 
-	enc = asn1_get_enc_ptr(pval, it);
-	if (!enc || enc->modified)
+	if ((aenc = asn1_get_enc_ptr(pval, it)) == NULL)
 		return 0;
-	if (out) {
-		memcpy(*out, enc->enc, enc->len);
-		*out += enc->len;
+
+	if (aenc->modified)
+		return 0;
+
+	if (out != NULL) {
+		memcpy(*out, aenc->enc, aenc->len);
+		*out += aenc->len;
 	}
-	if (len)
-		*len = enc->len;
+
+	if (out_len != NULL)
+		*out_len = aenc->len;
+
 	return 1;
 }
 
@@ -205,8 +226,6 @@ asn1_get_field_ptr(ASN1_VALUE **pval, const ASN1_TEMPLATE *tt)
 {
 	ASN1_VALUE **pvaltmp;
 
-	if (tt->flags & ASN1_TFLG_COMBINE)
-		return pval;
 	pvaltmp = offset2ptr(*pval, tt->offset);
 	/* NOTE for BOOLEAN types the field is just a plain
  	 * int so we can't return int **, so settle for
@@ -272,7 +291,7 @@ asn1_do_adb(ASN1_VALUE **pval, const ASN1_TEMPLATE *tt, int nullerr)
 		goto err;
 	return adb->default_tt;
 
-err:
+ err:
 	/* FIXME: should log the value or OID of unsupported type */
 	if (nullerr)
 		ASN1error(ASN1_R_UNSUPPORTED_ANY_DEFINED_BY_TYPE);

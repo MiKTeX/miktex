@@ -1,4 +1,4 @@
-/* $OpenBSD: crypto_lock.c,v 1.2 2018/11/28 15:51:32 jsing Exp $ */
+/* $OpenBSD: crypto_lock.c,v 1.6 2023/07/08 08:28:23 beck Exp $ */
 /*
  * Copyright (c) 2018 Brent Cook <bcook@openbsd.org>
  *
@@ -18,6 +18,8 @@
 #include <pthread.h>
 
 #include <openssl/crypto.h>
+
+#include "crypto_internal.h"
 
 static pthread_mutex_t locks[] = {
 	PTHREAD_MUTEX_INITIALIZER,
@@ -63,9 +65,6 @@ static pthread_mutex_t locks[] = {
 	PTHREAD_MUTEX_INITIALIZER,
 };
 
-#define CTASSERT(x)	extern char  _ctassert[(x) ? 1 : -1 ] \
-			    __attribute__((__unused__))
-
 CTASSERT((sizeof(locks) / sizeof(*locks)) == CRYPTO_NUM_LOCKS);
 
 void
@@ -79,6 +78,7 @@ CRYPTO_lock(int mode, int type, const char *file, int line)
 	else if (mode & CRYPTO_UNLOCK)
 		(void) pthread_mutex_unlock(&locks[type]);
 }
+LCRYPTO_ALIAS(CRYPTO_lock);
 
 int
 CRYPTO_add_lock(int *pointer, int amount, int type, const char *file,
@@ -93,3 +93,4 @@ CRYPTO_add_lock(int *pointer, int amount, int type, const char *file,
 
 	return (ret);
 }
+LCRYPTO_ALIAS(CRYPTO_add_lock);

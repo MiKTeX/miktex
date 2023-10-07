@@ -1,4 +1,4 @@
-/*	$OpenBSD: getentropy_aix.c,v 1.6 2018/11/20 08:04:28 deraadt Exp $	*/
+/*	$OpenBSD: getentropy_aix.c,v 1.9 2022/12/26 07:18:50 jmc Exp $	*/
 
 /*
  * Copyright (c) 2015 Michael Felt <aixtools@gmail.com>
@@ -21,7 +21,7 @@
  * http://man.openbsd.org/getentropy.2
  */
 /*
- * -lperfstat is needed for the psuedo entropy data
+ * -lperfstat is needed for the pseudo entropy data
  */
 
 #include <sys/mman.h>
@@ -44,7 +44,7 @@
 #include <libperfstat.h>
 
 #define REPEAT 5
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define MINIMUM(a, b) (((a) < (b)) ? (a) : (b))
 
 #define HX(a, b) \
 	do { \
@@ -134,7 +134,7 @@ start:
 #ifdef O_CLOEXEC
 	flags |= O_CLOEXEC;
 #endif
-	fd = open(path, flags, 0);
+	fd = open(path, flags);
 	if (fd == -1) {
 		if (errno == EINTR)
 			goto start;
@@ -392,8 +392,8 @@ getentropy_fallback(void *buf, size_t len)
 			HD(cnt);
 		}
 		SHA512_Final(results, &ctx);
-		memcpy((char *)buf + i, results, min(sizeof(results), len - i));
-		i += min(sizeof(results), len - i);
+		memcpy((char *)buf + i, results, MINIMUM(sizeof(results), len - i));
+		i += MINIMUM(sizeof(results), len - i);
 	}
 	explicit_bzero(&ctx, sizeof ctx);
 	explicit_bzero(results, sizeof results);

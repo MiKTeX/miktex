@@ -1,4 +1,4 @@
-/* $OpenBSD: ts_verify_ctx.c,v 1.9 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: ts_verify_ctx.c,v 1.14 2023/07/07 07:25:21 beck Exp $ */
 /* Written by Zoltan Glozik (zglozik@stones.com) for the OpenSSL
  * project 2003.
  */
@@ -62,6 +62,8 @@
 #include <openssl/objects.h>
 #include <openssl/ts.h>
 
+#include "ts_local.h"
+
 TS_VERIFY_CTX *
 TS_VERIFY_CTX_new(void)
 {
@@ -72,12 +74,7 @@ TS_VERIFY_CTX_new(void)
 
 	return ctx;
 }
-
-void
-TS_VERIFY_CTX_init(TS_VERIFY_CTX *ctx)
-{
-	memset(ctx, 0, sizeof(TS_VERIFY_CTX));
-}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_new);
 
 void
 TS_VERIFY_CTX_free(TS_VERIFY_CTX *ctx)
@@ -88,6 +85,7 @@ TS_VERIFY_CTX_free(TS_VERIFY_CTX *ctx)
 	TS_VERIFY_CTX_cleanup(ctx);
 	free(ctx);
 }
+LCRYPTO_ALIAS(TS_VERIFY_CTX_free);
 
 void
 TS_VERIFY_CTX_cleanup(TS_VERIFY_CTX *ctx)
@@ -109,8 +107,79 @@ TS_VERIFY_CTX_cleanup(TS_VERIFY_CTX *ctx)
 
 	GENERAL_NAME_free(ctx->tsa_name);
 
-	TS_VERIFY_CTX_init(ctx);
+	memset(ctx, 0, sizeof(*ctx));
 }
+LCRYPTO_ALIAS(TS_VERIFY_CTX_cleanup);
+
+/*
+ * XXX: The following accessors demonstrate the amount of care and thought that
+ * went into OpenSSL 1.1 API design and the review thereof: for whatever reason
+ * these functions return what was passed in. Correct memory management is left
+ * as an exercise for the reader... Unfortunately, careful consumers like
+ * openssl-ruby assume this behavior, so we're stuck with this insanity. The
+ * cherry on top is the TS_VERIFY_CTS_set_certs() [sic!] function that made it
+ * into the public API.
+ *
+ * Outstanding job, R$ and tjh, A+.
+ */
+
+int
+TS_VERIFY_CTX_add_flags(TS_VERIFY_CTX *ctx, int flags)
+{
+	ctx->flags |= flags;
+
+	return ctx->flags;
+}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_add_flags);
+
+int
+TS_VERIFY_CTX_set_flags(TS_VERIFY_CTX *ctx, int flags)
+{
+	ctx->flags = flags;
+
+	return ctx->flags;
+}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_set_flags);
+
+BIO *
+TS_VERIFY_CTX_set_data(TS_VERIFY_CTX *ctx, BIO *bio)
+{
+	ctx->data = bio;
+
+	return ctx->data;
+}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_set_data);
+
+X509_STORE *
+TS_VERIFY_CTX_set_store(TS_VERIFY_CTX *ctx, X509_STORE *store)
+{
+	ctx->store = store;
+
+	return ctx->store;
+}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_set_store);
+
+STACK_OF(X509) *
+TS_VERIFY_CTX_set_certs(TS_VERIFY_CTX *ctx, STACK_OF(X509) *certs)
+{
+	ctx->certs = certs;
+
+	return ctx->certs;
+}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_set_certs);
+
+unsigned char *
+TS_VERIFY_CTX_set_imprint(TS_VERIFY_CTX *ctx, unsigned char *imprint,
+    long imprint_len)
+{
+	free(ctx->imprint);
+
+	ctx->imprint = imprint;
+	ctx->imprint_len = imprint_len;
+
+	return ctx->imprint;
+}
+LCRYPTO_ALIAS(TS_VERIFY_CTX_set_imprint);
 
 TS_VERIFY_CTX *
 TS_REQ_to_TS_VERIFY_CTX(TS_REQ *req, TS_VERIFY_CTX *ctx)
@@ -164,3 +233,4 @@ err:
 		TS_VERIFY_CTX_free(ret);
 	return NULL;
 }
+LCRYPTO_ALIAS(TS_REQ_to_TS_VERIFY_CTX);

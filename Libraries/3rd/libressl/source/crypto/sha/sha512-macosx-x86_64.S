@@ -5,6 +5,7 @@
 
 .p2align	4
 _sha512_block_data_order:
+	endbr64
 	pushq	%rbx
 	pushq	%rbp
 	pushq	%r12
@@ -1758,6 +1759,7 @@ L$rounds_16_xx:
 L$epilogue:
 	retq
 
+.section	__DATA,__const
 .p2align	6
 
 K512:
@@ -1801,3 +1803,4 @@ K512:
 .quad	0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
 .quad	0x4cc5d4becb3e42b6,0x597f299cfc657e2a
 .quad	0x5fcb6fab3ad6faec,0x6c44198c4a475817
+.text	

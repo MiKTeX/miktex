@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_r2x.c,v 1.11 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: x509_r2x.c,v 1.17 2023/04/25 09:46:36 job Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -66,12 +66,15 @@
 #include <openssl/objects.h>
 #include <openssl/x509.h>
 
+#include "x509_local.h"
+
 X509 *
 X509_REQ_to_X509(X509_REQ *r, int days, EVP_PKEY *pkey)
 {
 	X509 *ret = NULL;
 	X509_CINF *xi = NULL;
 	X509_NAME *xn;
+	EVP_PKEY *pubkey;
 
 	if ((ret = X509_new()) == NULL) {
 		X509error(ERR_R_MALLOC_FAILURE);
@@ -82,18 +85,14 @@ X509_REQ_to_X509(X509_REQ *r, int days, EVP_PKEY *pkey)
 	xi = ret->cert_info;
 
 	if (sk_X509_ATTRIBUTE_num(r->req_info->attributes) != 0) {
-		if ((xi->version = ASN1_INTEGER_new()) == NULL)
+		if (!X509_set_version(ret, 2))
 			goto err;
-		if (!ASN1_INTEGER_set(xi->version, 2))
-			goto err;
-/*		xi->extensions=ri->attributes; <- bad, should not ever be done
-		ri->attributes=NULL; */
 	}
 
 	xn = X509_REQ_get_subject_name(r);
-	if (X509_set_subject_name(ret, X509_NAME_dup(xn)) == 0)
+	if (X509_set_subject_name(ret, xn) == 0)
 		goto err;
-	if (X509_set_issuer_name(ret, X509_NAME_dup(xn)) == 0)
+	if (X509_set_issuer_name(ret, xn) == 0)
 		goto err;
 
 	if (X509_gmtime_adj(xi->validity->notBefore, 0) == NULL)
@@ -102,14 +101,17 @@ X509_REQ_to_X509(X509_REQ *r, int days, EVP_PKEY *pkey)
 	    (long)60 * 60 * 24 * days) == NULL)
 		goto err;
 
-	X509_set_pubkey(ret, X509_REQ_get_pubkey(r));
+	if ((pubkey = X509_REQ_get0_pubkey(r)) == NULL)
+		goto err;
+	if (!X509_set_pubkey(ret, pubkey))
+		goto err;
 
 	if (!X509_sign(ret, pkey, EVP_md5()))
 		goto err;
-	if (0) {
+	return ret;
+
 err:
-		X509_free(ret);
-		ret = NULL;
-	}
-	return (ret);
+	X509_free(ret);
+	return NULL;
 }
+LCRYPTO_ALIAS(X509_REQ_to_X509);

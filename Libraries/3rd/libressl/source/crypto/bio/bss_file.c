@@ -1,4 +1,4 @@
-/* $OpenBSD: bss_file.c,v 1.33 2018/05/30 00:23:04 tb Exp $ */
+/* $OpenBSD: bss_file.c,v 1.35 2023/07/05 21:23:37 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -90,6 +90,8 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 
+#include "bio_local.h"
+
 static int file_write(BIO *h, const char *buf, int num);
 static int file_read(BIO *h, char *buf, int size);
 static int file_puts(BIO *h, const char *str);
@@ -135,6 +137,7 @@ BIO_new_file(const char *filename, const char *mode)
 	BIO_set_fp(ret, file, BIO_CLOSE);
 	return (ret);
 }
+LCRYPTO_ALIAS(BIO_new_file);
 
 BIO *
 BIO_new_fp(FILE *stream, int close_flag)
@@ -147,12 +150,14 @@ BIO_new_fp(FILE *stream, int close_flag)
 	BIO_set_fp(ret, stream, close_flag);
 	return (ret);
 }
+LCRYPTO_ALIAS(BIO_new_fp);
 
 const BIO_METHOD *
 BIO_s_file(void)
 {
 	return (&methods_filep);
 }
+LCRYPTO_ALIAS(BIO_s_file);
 
 static int
 file_new(BIO *bi)

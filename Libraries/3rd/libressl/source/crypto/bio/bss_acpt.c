@@ -1,4 +1,4 @@
-/* $OpenBSD: bss_acpt.c,v 1.29 2018/05/12 18:51:59 tb Exp $ */
+/* $OpenBSD: bss_acpt.c,v 1.31 2023/07/05 21:23:37 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -67,6 +67,8 @@
 #include <openssl/buffer.h>
 #include <openssl/err.h>
 
+#include "bio_local.h"
+
 #define SOCKET_PROTOCOL IPPROTO_TCP
 
 typedef struct bio_accept_st {
@@ -116,6 +118,7 @@ BIO_s_accept(void)
 {
 	return (&methods_acceptp);
 }
+LCRYPTO_ALIAS(BIO_s_accept);
 
 static int
 acpt_new(BIO *bi)
@@ -450,4 +453,4 @@ BIO_new_accept(const char *str)
 		return (NULL);
 	}
 }
-
+LCRYPTO_ALIAS(BIO_new_accept);

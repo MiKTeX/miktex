@@ -1,4 +1,4 @@
-/* $OpenBSD: dh_key.c,v 1.36 2018/11/12 17:39:17 tb Exp $ */
+/* $OpenBSD: dh_key.c,v 1.40 2023/08/03 18:53:55 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -62,7 +62,8 @@
 #include <openssl/dh.h>
 #include <openssl/err.h>
 
-#include "bn_lcl.h"
+#include "bn_local.h"
+#include "dh_local.h"
 
 static int generate_key(DH *dh);
 static int compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh);
@@ -76,12 +77,14 @@ DH_generate_key(DH *dh)
 {
 	return dh->meth->generate_key(dh);
 }
+LCRYPTO_ALIAS(DH_generate_key);
 
 int
 DH_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
 {
 	return dh->meth->compute_key(key, pub_key, dh);
 }
+LCRYPTO_ALIAS(DH_compute_key);
 
 static DH_METHOD dh_ossl = {
 	.name = "OpenSSL DH Method",
@@ -97,6 +100,7 @@ DH_OpenSSL(void)
 {
 	return &dh_ossl;
 }
+LCRYPTO_ALIAS(DH_OpenSSL);
 
 static int
 generate_key(DH *dh)
@@ -105,7 +109,7 @@ generate_key(DH *dh)
 	unsigned l;
 	BN_CTX *ctx;
 	BN_MONT_CTX *mont = NULL;
-	BIGNUM *pub_key = NULL, *priv_key = NULL, *two = NULL;
+	BIGNUM *pub_key = NULL, *priv_key = NULL;
 
 	if (BN_num_bits(dh->p) > OPENSSL_DH_MAX_MODULUS_BITS) {
 		DHerror(DH_R_MODULUS_TOO_LARGE);
@@ -135,11 +139,7 @@ generate_key(DH *dh)
 
 	if (dh->priv_key == NULL) {
 		if (dh->q) {
-			if ((two = BN_new()) == NULL)
-				goto err;
-			if (!BN_add(two, BN_value_one(), BN_value_one()))
-				goto err;
-			if (!bn_rand_interval(priv_key, two, dh->q))
+			if (!bn_rand_interval(priv_key, 2, dh->q))
 				goto err;
 		} else {
 			/* secret exponent length */
@@ -165,7 +165,7 @@ generate_key(DH *dh)
 	if (dh->priv_key == NULL)
 		BN_free(priv_key);
 	BN_CTX_free(ctx);
-	BN_free(two);
+
 	return ok;
 }
 

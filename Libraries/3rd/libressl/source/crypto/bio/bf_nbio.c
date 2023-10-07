@@ -1,4 +1,4 @@
-/* $OpenBSD: bf_nbio.c,v 1.20 2018/05/01 13:29:09 tb Exp $ */
+/* $OpenBSD: bf_nbio.c,v 1.23 2023/07/05 21:23:37 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -62,6 +62,8 @@
 
 #include <openssl/bio.h>
 
+#include "bio_local.h"
+
 /* BIO_put and BIO_get both add to the digest,
  * BIO_gets returns the digest */
 
@@ -72,7 +74,7 @@ static int nbiof_gets(BIO *h, char *str, int size);
 static long nbiof_ctrl(BIO *h, int cmd, long arg1, void *arg2);
 static int nbiof_new(BIO *h);
 static int nbiof_free(BIO *data);
-static long nbiof_callback_ctrl(BIO *h, int cmd, bio_info_cb *fp);
+static long nbiof_callback_ctrl(BIO *h, int cmd, BIO_info_cb *fp);
 
 typedef struct nbio_test_st {
 	/* only set if we sent a 'should retry' error */
@@ -98,6 +100,7 @@ BIO_f_nbio_test(void)
 {
 	return (&methods_nbiof);
 }
+LCRYPTO_ALIAS(BIO_f_nbio_test);
 
 static int
 nbiof_new(BIO *bi)
@@ -221,7 +224,7 @@ nbiof_ctrl(BIO *b, int cmd, long num, void *ptr)
 }
 
 static long
-nbiof_callback_ctrl(BIO *b, int cmd, bio_info_cb *fp)
+nbiof_callback_ctrl(BIO *b, int cmd, BIO_info_cb *fp)
 {
 	long ret = 1;
 

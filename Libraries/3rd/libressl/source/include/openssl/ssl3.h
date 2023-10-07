@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl3.h,v 1.50 2020/03/12 17:01:53 jsing Exp $ */
+/* $OpenBSD: ssl3.h,v 1.57 2021/09/10 14:49:13 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -292,11 +292,11 @@ extern "C" {
 #define SSL3_RT_ALERT			21
 #define SSL3_RT_HANDSHAKE		22
 #define SSL3_RT_APPLICATION_DATA	23
-#define TLS1_RT_HEARTBEAT		24
 
 #define SSL3_AL_WARNING			1
 #define SSL3_AL_FATAL			2
 
+#ifndef LIBRESSL_INTERNAL
 #define SSL3_AD_CLOSE_NOTIFY		 0
 #define SSL3_AD_UNEXPECTED_MESSAGE	10	/* fatal */
 #define SSL3_AD_BAD_RECORD_MAC		20	/* fatal */
@@ -309,33 +309,10 @@ extern "C" {
 #define SSL3_AD_CERTIFICATE_EXPIRED	45
 #define SSL3_AD_CERTIFICATE_UNKNOWN	46
 #define SSL3_AD_ILLEGAL_PARAMETER	47	/* fatal */
+#endif
 
 #define TLS1_HB_REQUEST		1
 #define TLS1_HB_RESPONSE	2
-
-#ifndef OPENSSL_NO_SSL_INTERN
-#ifndef LIBRESSL_INTERNAL
-
-typedef struct ssl3_record_st {
-/*r */	int type;               /* type of record */
-/*rw*/	unsigned int length;    /* How many bytes available */
-/*r */	unsigned int off;       /* read/write offset into 'buf' */
-/*rw*/	unsigned char *data;    /* pointer to the record data */
-/*rw*/	unsigned char *input;   /* where the decode bytes are */
-/*r */  unsigned long epoch;    /* epoch number, needed by DTLS1 */
-/*r */  unsigned char seq_num[8]; /* sequence number, needed by DTLS1 */
-} SSL3_RECORD;
-
-typedef struct ssl3_buffer_st {
-	unsigned char *buf;	/* at least SSL3_RT_MAX_PACKET_SIZE bytes,
-	                         * see ssl3_setup_buffers() */
-	size_t len;		/* buffer size */
-	int offset;		/* where to 'copy from' */
-	int left;		/* how many bytes left */
-} SSL3_BUFFER;
-
-#endif
-#endif
 
 #define SSL3_CT_RSA_SIGN			1
 #define SSL3_CT_DSS_SIGN			2
@@ -348,27 +325,12 @@ typedef struct ssl3_buffer_st {
  * enough to contain all of the cert types defined either for
  * SSLv3 and TLSv1.
  */
-#define SSL3_CT_NUMBER			11
+#define SSL3_CT_NUMBER			13
 
 #define SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS	0x0001
 #define TLS1_FLAGS_SKIP_CERT_VERIFY		0x0010
 #define TLS1_FLAGS_FREEZE_TRANSCRIPT		0x0020
 #define SSL3_FLAGS_CCS_OK			0x0080
-
-#ifndef OPENSSL_NO_SSL_INTERN
-
-struct ssl3_state_internal_st;
-
-typedef struct ssl3_state_st {
-	long flags;
-
-	unsigned char server_random[SSL3_RANDOM_SIZE];
-	unsigned char client_random[SSL3_RANDOM_SIZE];
-
-	struct ssl3_state_internal_st *internal;
-} SSL3_STATE;
-
-#endif
 
 /* SSLv3 */
 /*client */
@@ -475,6 +437,7 @@ typedef struct ssl3_state_st {
 
 #define SSL3_MT_CCS				1
 
+#ifndef LIBRESSL_INTERNAL
 /* These are used when changing over to a new cipher */
 #define SSL3_CC_READ		0x01
 #define SSL3_CC_WRITE		0x02
@@ -484,6 +447,7 @@ typedef struct ssl3_state_st {
 #define SSL3_CHANGE_CIPHER_SERVER_READ		(SSL3_CC_SERVER|SSL3_CC_READ)
 #define SSL3_CHANGE_CIPHER_CLIENT_READ		(SSL3_CC_CLIENT|SSL3_CC_READ)
 #define SSL3_CHANGE_CIPHER_SERVER_WRITE		(SSL3_CC_SERVER|SSL3_CC_WRITE)
+#endif
 
 #ifdef  __cplusplus
 }

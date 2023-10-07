@@ -620,6 +620,16 @@
 #define NID_sha224WithRSAEncryption		671
 #define OBJ_sha224WithRSAEncryption		OBJ_pkcs1,14L
 
+#define SN_sha512_224WithRSAEncryption		"RSA-SHA512/224"
+#define LN_sha512_224WithRSAEncryption		"sha512-224WithRSAEncryption"
+#define NID_sha512_224WithRSAEncryption		1025
+#define OBJ_sha512_224WithRSAEncryption		OBJ_pkcs1,15L
+
+#define SN_sha512_256WithRSAEncryption		"RSA-SHA512/256"
+#define LN_sha512_256WithRSAEncryption		"sha512-256WithRSAEncryption"
+#define NID_sha512_256WithRSAEncryption		1026
+#define OBJ_sha512_256WithRSAEncryption		OBJ_pkcs1,16L
+
 #define SN_pkcs3		"pkcs3"
 #define NID_pkcs3		27
 #define OBJ_pkcs3		OBJ_pkcs,3L
@@ -853,9 +863,41 @@
 #define NID_id_smime_ct_compressedData		786
 #define OBJ_id_smime_ct_compressedData		OBJ_id_smime_ct,9L
 
+#define SN_id_ct_routeOriginAuthz		"id-ct-routeOriginAuthz"
+#define NID_id_ct_routeOriginAuthz		1001
+#define OBJ_id_ct_routeOriginAuthz		OBJ_id_smime_ct,24L
+
+#define SN_id_ct_rpkiManifest		"id-ct-rpkiManifest"
+#define NID_id_ct_rpkiManifest		1002
+#define OBJ_id_ct_rpkiManifest		OBJ_id_smime_ct,26L
+
 #define SN_id_ct_asciiTextWithCRLF		"id-ct-asciiTextWithCRLF"
 #define NID_id_ct_asciiTextWithCRLF		787
 #define OBJ_id_ct_asciiTextWithCRLF		OBJ_id_smime_ct,27L
+
+#define SN_id_ct_rpkiGhostbusters		"id-ct-rpkiGhostbusters"
+#define NID_id_ct_rpkiGhostbusters		1003
+#define OBJ_id_ct_rpkiGhostbusters		OBJ_id_smime_ct,35L
+
+#define SN_id_ct_resourceTaggedAttest		"id-ct-resourceTaggedAttest"
+#define NID_id_ct_resourceTaggedAttest		1004
+#define OBJ_id_ct_resourceTaggedAttest		OBJ_id_smime_ct,36L
+
+#define SN_id_ct_geofeedCSVwithCRLF		"id-ct-geofeedCSVwithCRLF"
+#define NID_id_ct_geofeedCSVwithCRLF		1013
+#define OBJ_id_ct_geofeedCSVwithCRLF		OBJ_id_smime_ct,47L
+
+#define SN_id_ct_signedChecklist		"id-ct-signedChecklist"
+#define NID_id_ct_signedChecklist		1014
+#define OBJ_id_ct_signedChecklist		OBJ_id_smime_ct,48L
+
+#define SN_id_ct_ASPA		"id-ct-ASPA"
+#define NID_id_ct_ASPA		1017
+#define OBJ_id_ct_ASPA		OBJ_id_smime_ct,49L
+
+#define SN_id_ct_signedTAL		"id-ct-signedTAL"
+#define NID_id_ct_signedTAL		1024
+#define OBJ_id_ct_signedTAL		OBJ_id_smime_ct,50L
 
 #define SN_id_smime_aa_receiptRequest		"id-smime-aa-receiptRequest"
 #define NID_id_smime_aa_receiptRequest		212
@@ -972,6 +1014,10 @@
 #define SN_id_smime_aa_dvcs_dvc		"id-smime-aa-dvcs-dvc"
 #define NID_id_smime_aa_dvcs_dvc		240
 #define OBJ_id_smime_aa_dvcs_dvc		OBJ_id_smime_aa,29L
+
+#define SN_id_smime_aa_signingCertificateV2		"id-smime-aa-signingCertificateV2"
+#define NID_id_smime_aa_signingCertificateV2		1023
+#define OBJ_id_smime_aa_signingCertificateV2		OBJ_id_smime_aa,47L
 
 #define SN_id_smime_alg_ESDHwith3DES		"id-smime-alg-ESDHwith3DES"
 #define NID_id_smime_alg_ESDHwith3DES		241
@@ -1180,6 +1226,14 @@
 #define NID_hmacWithSHA512		801
 #define OBJ_hmacWithSHA512		OBJ_rsadsi,2L,11L
 
+#define LN_hmacWithSHA512_224		"hmacWithSHA512-224"
+#define NID_hmacWithSHA512_224		1027
+#define OBJ_hmacWithSHA512_224		OBJ_rsadsi,2L,12L
+
+#define LN_hmacWithSHA512_256		"hmacWithSHA512-256"
+#define NID_hmacWithSHA512_256		1028
+#define OBJ_hmacWithSHA512_256		OBJ_rsadsi,2L,13L
+
 #define SN_rc2_cbc		"RC2-CBC"
 #define LN_rc2_cbc		"rc2-cbc"
 #define NID_rc2_cbc		37
@@ -1366,6 +1420,10 @@
 #define NID_id_cct		268
 #define OBJ_id_cct		OBJ_id_pkix,12L
 
+#define SN_id_cp		"id-cp"
+#define NID_id_cp		1005
+#define OBJ_id_cp		OBJ_id_pkix,14L
+
 #define SN_id_ppl		"id-ppl"
 #define NID_id_ppl		662
 #define OBJ_id_ppl		OBJ_id_pkix,21L
@@ -1490,6 +1548,19 @@
 #define NID_proxyCertInfo		663
 #define OBJ_proxyCertInfo		OBJ_id_pe,14L
 
+#define SN_tlsfeature		"tlsfeature"
+#define LN_tlsfeature		"TLS Feature"
+#define NID_tlsfeature		1016
+#define OBJ_tlsfeature		OBJ_id_pe,24L
+
+#define SN_sbgp_ipAddrBlockv2		"sbgp-ipAddrBlockv2"
+#define NID_sbgp_ipAddrBlockv2		1006
+#define OBJ_sbgp_ipAddrBlockv2		OBJ_id_pe,28L
+
+#define SN_sbgp_autonomousSysNumv2		"sbgp-autonomousSysNumv2"
+#define NID_sbgp_autonomousSysNumv2		1007
+#define OBJ_sbgp_autonomousSysNumv2		OBJ_id_pe,29L
+
 #define SN_id_qt_cps		"id-qt-cps"
 #define LN_id_qt_cps		"Policy Qualifier CPS"
 #define NID_id_qt_cps		164
@@ -1553,6 +1624,11 @@
 #define LN_dvcs		"dvcs"
 #define NID_dvcs		297
 #define OBJ_dvcs		OBJ_id_kp,10L
+
+#define SN_id_kp_bgpsec_router		"id-kp-bgpsec-router"
+#define LN_id_kp_bgpsec_router		"BGPsec Router"
+#define NID_id_kp_bgpsec_router		1015
+#define OBJ_id_kp_bgpsec_router		OBJ_id_kp,30L
 
 #define SN_id_it_caProtEncCert		"id-it-caProtEncCert"
 #define NID_id_it_caProtEncCert		298
@@ -1823,6 +1899,14 @@
 #define NID_id_cct_PKIResponse		362
 #define OBJ_id_cct_PKIResponse		OBJ_id_cct,3L
 
+#define SN_ipAddr_asNumber		"ipAddr-asNumber"
+#define NID_ipAddr_asNumber		1008
+#define OBJ_ipAddr_asNumber		OBJ_id_cp,2L
+
+#define SN_ipAddr_asNumberv2		"ipAddr-asNumberv2"
+#define NID_ipAddr_asNumberv2		1009
+#define OBJ_ipAddr_asNumberv2		OBJ_id_cp,3L
+
 #define SN_id_ppl_anyLanguage		"id-ppl-anyLanguage"
 #define LN_id_ppl_anyLanguage		"Any language"
 #define NID_id_ppl_anyLanguage		664
@@ -1862,6 +1946,21 @@
 #define LN_caRepository		"CA Repository"
 #define NID_caRepository		785
 #define OBJ_caRepository		OBJ_id_ad,5L
+
+#define SN_rpkiManifest		"rpkiManifest"
+#define LN_rpkiManifest		"RPKI Manifest"
+#define NID_rpkiManifest		1010
+#define OBJ_rpkiManifest		OBJ_id_ad,10L
+
+#define SN_signedObject		"signedObject"
+#define LN_signedObject		"Signed Object"
+#define NID_signedObject		1011
+#define OBJ_signedObject		OBJ_id_ad,11L
+
+#define SN_rpkiNotify		"rpkiNotify"
+#define LN_rpkiNotify		"RPKI Notify"
+#define NID_rpkiNotify		1012
+#define OBJ_rpkiNotify		OBJ_id_ad,13L
 
 #define OBJ_id_pkix_OCSP		OBJ_ad_OCSP
 
@@ -2805,15 +2904,137 @@
 #define NID_sha224		675
 #define OBJ_sha224		OBJ_nist_hashalgs,4L
 
-#define OBJ_dsa_with_sha2		OBJ_nistAlgorithms,3L
+#define SN_sha512_224		"SHA512-224"
+#define LN_sha512_224		"sha512-224"
+#define NID_sha512_224		1029
+#define OBJ_sha512_224		OBJ_nist_hashalgs,5L
 
-#define SN_dsa_with_SHA224		"dsa_with_SHA224"
+#define SN_sha512_256		"SHA512-256"
+#define LN_sha512_256		"sha512-256"
+#define NID_sha512_256		1030
+#define OBJ_sha512_256		OBJ_nist_hashalgs,6L
+
+#define SN_sha3_224		"SHA3-224"
+#define LN_sha3_224		"sha3-224"
+#define NID_sha3_224		1031
+#define OBJ_sha3_224		OBJ_nist_hashalgs,7L
+
+#define SN_sha3_256		"SHA3-256"
+#define LN_sha3_256		"sha3-256"
+#define NID_sha3_256		1032
+#define OBJ_sha3_256		OBJ_nist_hashalgs,8L
+
+#define SN_sha3_384		"SHA3-384"
+#define LN_sha3_384		"sha3-384"
+#define NID_sha3_384		1033
+#define OBJ_sha3_384		OBJ_nist_hashalgs,9L
+
+#define SN_sha3_512		"SHA3-512"
+#define LN_sha3_512		"sha3-512"
+#define NID_sha3_512		1034
+#define OBJ_sha3_512		OBJ_nist_hashalgs,10L
+
+#define SN_hmac_sha3_224		"id-hmacWithSHA3-224"
+#define LN_hmac_sha3_224		"hmac-sha3-224"
+#define NID_hmac_sha3_224		1035
+#define OBJ_hmac_sha3_224		OBJ_nist_hashalgs,13L
+
+#define SN_hmac_sha3_256		"id-hmacWithSHA3-256"
+#define LN_hmac_sha3_256		"hmac-sha3-256"
+#define NID_hmac_sha3_256		1036
+#define OBJ_hmac_sha3_256		OBJ_nist_hashalgs,14L
+
+#define SN_hmac_sha3_384		"id-hmacWithSHA3-384"
+#define LN_hmac_sha3_384		"hmac-sha3-384"
+#define NID_hmac_sha3_384		1037
+#define OBJ_hmac_sha3_384		OBJ_nist_hashalgs,15L
+
+#define SN_hmac_sha3_512		"id-hmacWithSHA3-512"
+#define LN_hmac_sha3_512		"hmac-sha3-512"
+#define NID_hmac_sha3_512		1038
+#define OBJ_hmac_sha3_512		OBJ_nist_hashalgs,16L
+
+#define OBJ_nist_sigalgs		OBJ_nistAlgorithms,3L
+
+#define SN_dsa_with_SHA224		"id-dsa-with-sha224"
+#define LN_dsa_with_SHA224		"dsa_with_SHA224"
 #define NID_dsa_with_SHA224		802
-#define OBJ_dsa_with_SHA224		OBJ_dsa_with_sha2,1L
+#define OBJ_dsa_with_SHA224		OBJ_nist_sigalgs,1L
 
-#define SN_dsa_with_SHA256		"dsa_with_SHA256"
+#define SN_dsa_with_SHA256		"id-dsa-with-sha256"
+#define LN_dsa_with_SHA256		"dsa_with_SHA256"
 #define NID_dsa_with_SHA256		803
-#define OBJ_dsa_with_SHA256		OBJ_dsa_with_sha2,2L
+#define OBJ_dsa_with_SHA256		OBJ_nist_sigalgs,2L
+
+#define SN_dsa_with_SHA384		"id-dsa-with-sha384"
+#define LN_dsa_with_SHA384		"dsa_with_SHA384"
+#define NID_dsa_with_SHA384		1039
+#define OBJ_dsa_with_SHA384		OBJ_nist_sigalgs,3L
+
+#define SN_dsa_with_SHA512		"id-dsa-with-sha512"
+#define LN_dsa_with_SHA512		"dsa_with_SHA512"
+#define NID_dsa_with_SHA512		1040
+#define OBJ_dsa_with_SHA512		OBJ_nist_sigalgs,4L
+
+#define SN_dsa_with_SHA3_224		"id-dsa-with-sha3-224"
+#define LN_dsa_with_SHA3_224		"dsa_with_SHA3-224"
+#define NID_dsa_with_SHA3_224		1041
+#define OBJ_dsa_with_SHA3_224		OBJ_nist_sigalgs,5L
+
+#define SN_dsa_with_SHA3_256		"id-dsa-with-sha3-256"
+#define LN_dsa_with_SHA3_256		"dsa_with_SHA3-256"
+#define NID_dsa_with_SHA3_256		1042
+#define OBJ_dsa_with_SHA3_256		OBJ_nist_sigalgs,6L
+
+#define SN_dsa_with_SHA3_384		"id-dsa-with-sha3-384"
+#define LN_dsa_with_SHA3_384		"dsa_with_SHA3-384"
+#define NID_dsa_with_SHA3_384		1043
+#define OBJ_dsa_with_SHA3_384		OBJ_nist_sigalgs,7L
+
+#define SN_dsa_with_SHA3_512		"id-dsa-with-sha3-512"
+#define LN_dsa_with_SHA3_512		"dsa_with_SHA3-512"
+#define NID_dsa_with_SHA3_512		1044
+#define OBJ_dsa_with_SHA3_512		OBJ_nist_sigalgs,8L
+
+#define SN_ecdsa_with_SHA3_224		"id-ecdsa-with-sha3-224"
+#define LN_ecdsa_with_SHA3_224		"ecdsa_with_SHA3-224"
+#define NID_ecdsa_with_SHA3_224		1045
+#define OBJ_ecdsa_with_SHA3_224		OBJ_nist_sigalgs,9L
+
+#define SN_ecdsa_with_SHA3_256		"id-ecdsa-with-sha3-256"
+#define LN_ecdsa_with_SHA3_256		"ecdsa_with_SHA3-256"
+#define NID_ecdsa_with_SHA3_256		1046
+#define OBJ_ecdsa_with_SHA3_256		OBJ_nist_sigalgs,10L
+
+#define SN_ecdsa_with_SHA3_384		"id-ecdsa-with-sha3-384"
+#define LN_ecdsa_with_SHA3_384		"ecdsa_with_SHA3-384"
+#define NID_ecdsa_with_SHA3_384		1047
+#define OBJ_ecdsa_with_SHA3_384		OBJ_nist_sigalgs,11L
+
+#define SN_ecdsa_with_SHA3_512		"id-ecdsa-with-sha3-512"
+#define LN_ecdsa_with_SHA3_512		"ecdsa_with_SHA3-512"
+#define NID_ecdsa_with_SHA3_512		1048
+#define OBJ_ecdsa_with_SHA3_512		OBJ_nist_sigalgs,12L
+
+#define SN_RSA_SHA3_224		"id-rsassa-pkcs1-v1_5-with-sha3-224"
+#define LN_RSA_SHA3_224		"RSA-SHA3-224"
+#define NID_RSA_SHA3_224		1049
+#define OBJ_RSA_SHA3_224		OBJ_nist_sigalgs,13L
+
+#define SN_RSA_SHA3_256		"id-rsassa-pkcs1-v1_5-with-sha3-256"
+#define LN_RSA_SHA3_256		"RSA-SHA3-256"
+#define NID_RSA_SHA3_256		1050
+#define OBJ_RSA_SHA3_256		OBJ_nist_sigalgs,14L
+
+#define SN_RSA_SHA3_384		"id-rsassa-pkcs1-v1_5-with-sha3-384"
+#define LN_RSA_SHA3_384		"RSA-SHA3-384"
+#define NID_RSA_SHA3_384		1051
+#define OBJ_RSA_SHA3_384		OBJ_nist_sigalgs,15L
+
+#define SN_RSA_SHA3_512		"id-rsassa-pkcs1-v1_5-with-sha3-512"
+#define LN_RSA_SHA3_512		"RSA-SHA3-512"
+#define NID_RSA_SHA3_512		1052
+#define OBJ_RSA_SHA3_512		OBJ_nist_sigalgs,16L
 
 #define SN_hold_instruction_code		"holdInstructionCode"
 #define LN_hold_instruction_code		"Hold Instruction Code"
@@ -4157,6 +4378,30 @@
 #define SN_dh_cofactor_kdf		"dh-cofactor-kdf"
 #define NID_dh_cofactor_kdf		991
 
+#define SN_ct_precert_scts		"ct_precert_scts"
+#define LN_ct_precert_scts		"CT Precertificate SCTs"
+#define NID_ct_precert_scts		1018
+#define OBJ_ct_precert_scts		1L,3L,6L,1L,4L,1L,11129L,2L,4L,2L
+
+#define SN_ct_precert_poison		"ct_precert_poison"
+#define LN_ct_precert_poison		"CT Precertificate Poison"
+#define NID_ct_precert_poison		1019
+#define OBJ_ct_precert_poison		1L,3L,6L,1L,4L,1L,11129L,2L,4L,3L
+
+#define SN_ct_precert_signer		"ct_precert_signer"
+#define LN_ct_precert_signer		"CT Precertificate Signer"
+#define NID_ct_precert_signer		1020
+#define OBJ_ct_precert_signer		1L,3L,6L,1L,4L,1L,11129L,2L,4L,4L
+
+#define SN_ct_cert_scts		"ct_cert_scts"
+#define LN_ct_cert_scts		"CT Certificate SCTs"
+#define NID_ct_cert_scts		1021
+#define OBJ_ct_cert_scts		1L,3L,6L,1L,4L,1L,11129L,2L,4L,5L
+
+#define SN_hkdf		"HKDF"
+#define LN_hkdf		"hkdf"
+#define NID_hkdf		1022
+
 #define SN_teletrust		"teletrust"
 #define NID_teletrust		920
 #define OBJ_teletrust		OBJ_identified_organization,36L
@@ -4253,13 +4498,55 @@
 #define NID_id_tc26_gost3411_2012_512		942
 #define OBJ_id_tc26_gost3411_2012_512		OBJ_tc26,1L,2L,3L
 
-#define SN_id_tc26_gost_3410_2012_512_paramSetA		"id-tc26-gost-3410-2012-512-paramSetA"
-#define NID_id_tc26_gost_3410_2012_512_paramSetA		943
-#define OBJ_id_tc26_gost_3410_2012_512_paramSetA		OBJ_tc26,2L,1L,2L,1L
+#define SN_id_tc26_hmac_gost_3411_12_256		"id-tc26-hmac-gost-3411-12-256"
+#define LN_id_tc26_hmac_gost_3411_12_256		"HMAC STREEBOG 256"
+#define NID_id_tc26_hmac_gost_3411_12_256		999
+#define OBJ_id_tc26_hmac_gost_3411_12_256		OBJ_tc26,1L,4L,1L
 
-#define SN_id_tc26_gost_3410_2012_512_paramSetB		"id-tc26-gost-3410-2012-512-paramSetB"
-#define NID_id_tc26_gost_3410_2012_512_paramSetB		944
-#define OBJ_id_tc26_gost_3410_2012_512_paramSetB		OBJ_tc26,2L,1L,2L,2L
+#define SN_id_tc26_hmac_gost_3411_12_512		"id-tc26-hmac-gost-3411-12-512"
+#define LN_id_tc26_hmac_gost_3411_12_512		"HMAC STREEBOG 512"
+#define NID_id_tc26_hmac_gost_3411_12_512		1000
+#define OBJ_id_tc26_hmac_gost_3411_12_512		OBJ_tc26,1L,4L,2L
+
+#define SN_id_tc26_gost_3410_12_256_paramSetA		"id-tc26-gost-3410-12-256-paramSetA"
+#define LN_id_tc26_gost_3410_12_256_paramSetA		"GOST R 34.10-2012 (256 bit) ParamSet A"
+#define NID_id_tc26_gost_3410_12_256_paramSetA		993
+#define OBJ_id_tc26_gost_3410_12_256_paramSetA		OBJ_tc26,2L,1L,1L,1L
+
+#define SN_id_tc26_gost_3410_12_256_paramSetB		"id-tc26-gost-3410-12-256-paramSetB"
+#define LN_id_tc26_gost_3410_12_256_paramSetB		"GOST R 34.10-2012 (256 bit) ParamSet B"
+#define NID_id_tc26_gost_3410_12_256_paramSetB		994
+#define OBJ_id_tc26_gost_3410_12_256_paramSetB		OBJ_tc26,2L,1L,1L,2L
+
+#define SN_id_tc26_gost_3410_12_256_paramSetC		"id-tc26-gost-3410-12-256-paramSetC"
+#define LN_id_tc26_gost_3410_12_256_paramSetC		"GOST R 34.10-2012 (256 bit) ParamSet C"
+#define NID_id_tc26_gost_3410_12_256_paramSetC		995
+#define OBJ_id_tc26_gost_3410_12_256_paramSetC		OBJ_tc26,2L,1L,1L,3L
+
+#define SN_id_tc26_gost_3410_12_256_paramSetD		"id-tc26-gost-3410-12-256-paramSetD"
+#define LN_id_tc26_gost_3410_12_256_paramSetD		"GOST R 34.10-2012 (256 bit) ParamSet D"
+#define NID_id_tc26_gost_3410_12_256_paramSetD		996
+#define OBJ_id_tc26_gost_3410_12_256_paramSetD		OBJ_tc26,2L,1L,1L,4L
+
+#define SN_id_tc26_gost_3410_12_512_paramSetTest		"id-tc26-gost-3410-12-512-paramSetTest"
+#define LN_id_tc26_gost_3410_12_512_paramSetTest		"GOST R 34.10-2012 (512 bit) testing parameter set"
+#define NID_id_tc26_gost_3410_12_512_paramSetTest		997
+#define OBJ_id_tc26_gost_3410_12_512_paramSetTest		OBJ_tc26,2L,1L,2L,0L
+
+#define SN_id_tc26_gost_3410_12_512_paramSetA		"id-tc26-gost-3410-12-512-paramSetA"
+#define LN_id_tc26_gost_3410_12_512_paramSetA		"GOST R 34.10-2012 (512 bit) ParamSet A"
+#define NID_id_tc26_gost_3410_12_512_paramSetA		943
+#define OBJ_id_tc26_gost_3410_12_512_paramSetA		OBJ_tc26,2L,1L,2L,1L
+
+#define SN_id_tc26_gost_3410_12_512_paramSetB		"id-tc26-gost-3410-12-512-paramSetB"
+#define LN_id_tc26_gost_3410_12_512_paramSetB		"GOST R 34.10-2012 (512 bit) ParamSet B"
+#define NID_id_tc26_gost_3410_12_512_paramSetB		944
+#define OBJ_id_tc26_gost_3410_12_512_paramSetB		OBJ_tc26,2L,1L,2L,2L
+
+#define SN_id_tc26_gost_3410_12_512_paramSetC		"id-tc26-gost-3410-12-512-paramSetC"
+#define LN_id_tc26_gost_3410_12_512_paramSetC		"GOST R 34.10-2012 (512 bit) ParamSet C"
+#define NID_id_tc26_gost_3410_12_512_paramSetC		998
+#define OBJ_id_tc26_gost_3410_12_512_paramSetC		OBJ_tc26,2L,1L,2L,3L
 
 #define SN_id_tc26_gost_28147_param_Z		"id-tc26-gost-28147-param-Z"
 #define NID_id_tc26_gost_28147_param_Z		945

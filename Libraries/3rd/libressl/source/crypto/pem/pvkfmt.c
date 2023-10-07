@@ -1,4 +1,4 @@
-/* $OpenBSD: pvkfmt.c,v 1.22 2019/07/08 11:56:18 inoguchi Exp $ */
+/* $OpenBSD: pvkfmt.c,v 1.27 2023/07/07 13:40:44 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2005.
  */
@@ -73,7 +73,10 @@
 #include <openssl/dsa.h>
 #include <openssl/rsa.h>
 
-#include "bn_lcl.h"
+#include "bn_local.h"
+#include "dsa_local.h"
+#include "evp_local.h"
+#include "rsa_local.h"
 
 /* Utility function: read a DWORD (4 byte unsigned integer) in little endian
  * format
@@ -411,24 +414,28 @@ b2i_PrivateKey(const unsigned char **in, long length)
 {
 	return do_b2i(in, length, 0);
 }
+LCRYPTO_ALIAS(b2i_PrivateKey);
 
 EVP_PKEY *
 b2i_PublicKey(const unsigned char **in, long length)
 {
 	return do_b2i(in, length, 1);
 }
+LCRYPTO_ALIAS(b2i_PublicKey);
 
 EVP_PKEY *
 b2i_PrivateKey_bio(BIO *in)
 {
 	return do_b2i_bio(in, 0);
 }
+LCRYPTO_ALIAS(b2i_PrivateKey_bio);
 
 EVP_PKEY *
 b2i_PublicKey_bio(BIO *in)
 {
 	return do_b2i_bio(in, 1);
 }
+LCRYPTO_ALIAS(b2i_PublicKey_bio);
 
 static void
 write_ledword(unsigned char **out, unsigned int dw)
@@ -643,12 +650,14 @@ i2b_PrivateKey_bio(BIO *out, EVP_PKEY *pk)
 {
 	return do_i2b_bio(out, pk, 0);
 }
+LCRYPTO_ALIAS(i2b_PrivateKey_bio);
 
 int
 i2b_PublicKey_bio(BIO *out, EVP_PKEY *pk)
 {
 	return do_i2b_bio(out, pk, 1);
 }
+LCRYPTO_ALIAS(i2b_PublicKey_bio);
 
 #ifndef OPENSSL_NO_RC4
 
@@ -834,6 +843,7 @@ b2i_PVK_bio(BIO *in, pem_password_cb *cb, void *u)
 	freezero(buf, buflen);
 	return ret;
 }
+LCRYPTO_ALIAS(b2i_PVK_bio);
 
 static int
 i2b_PVK(unsigned char **out, EVP_PKEY*pk, int enclevel, pem_password_cb *cb,
@@ -927,6 +937,7 @@ i2b_PVK_bio(BIO *out, EVP_PKEY *pk, int enclevel, pem_password_cb *cb, void *u)
 	}
 	return outlen;
 }
+LCRYPTO_ALIAS(i2b_PVK_bio);
 
 #endif
 

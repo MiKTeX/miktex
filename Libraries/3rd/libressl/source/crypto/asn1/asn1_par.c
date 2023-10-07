@@ -1,4 +1,4 @@
-/* $OpenBSD: asn1_par.c,v 1.28 2020/01/09 11:27:21 inoguchi Exp $ */
+/* $OpenBSD: asn1_par.c,v 1.35 2023/07/05 21:23:36 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -80,7 +80,8 @@ asn1_print_info(BIO *bp, int tag, int xclass, int constructed,
 		p="prim: ";
 	if (BIO_write(bp, p, 6) < 6)
 		goto err;
-	BIO_indent(bp, indent, 128);
+	if (!BIO_indent(bp, indent, 128))
+		goto err;
 
 	p = str;
 	if ((xclass & V_ASN1_PRIVATE) == V_ASN1_PRIVATE)
@@ -97,7 +98,7 @@ asn1_print_info(BIO *bp, int tag, int xclass, int constructed,
 	if (BIO_printf(bp, "%-18s", p) <= 0)
 		goto err;
 	return (1);
-err:
+ err:
 	return (0);
 }
 
@@ -106,12 +107,14 @@ ASN1_parse(BIO *bp, const unsigned char *pp, long len, int indent)
 {
 	return (asn1_parse2(bp, &pp, len, 0, 0, indent, 0));
 }
+LCRYPTO_ALIAS(ASN1_parse);
 
 int
 ASN1_parse_dump(BIO *bp, const unsigned char *pp, long len, int indent, int dump)
 {
 	return (asn1_parse2(bp, &pp, len, 0, 0, indent, dump));
 }
+LCRYPTO_ALIAS(ASN1_parse_dump);
 
 static int
 asn1_parse2(BIO *bp, const unsigned char **pp, long length, int offset,
@@ -232,16 +235,13 @@ asn1_parse2(BIO *bp, const unsigned char **pp, long length, int offset,
 						goto end;
 				}
 			} else if (tag == V_ASN1_BOOLEAN) {
-				int ii;
-
-				opp = op;
-				ii = d2i_ASN1_BOOLEAN(NULL, &opp, len + hl);
-				if (ii < 0) {
+				if (len == 1 && p < tot) {
+					BIO_printf(bp, ":%u", p[0]);
+				} else {
 					if (BIO_write(bp, "Bad boolean\n",
 					    12) <= 0)
 						goto end;
 				}
-				BIO_printf(bp, ":%d", ii);
 			} else if (tag == V_ASN1_BMPSTRING) {
 				/* do the BMP thang */
 			} else if (tag == V_ASN1_OCTET_STRING) {
@@ -375,7 +375,7 @@ asn1_parse2(BIO *bp, const unsigned char **pp, long length, int offset,
 	}
 	ret = 1;
 
-end:
+ end:
 	if (o != NULL)
 		ASN1_OBJECT_free(o);
 	ASN1_OCTET_STRING_free(os);
@@ -383,26 +383,4 @@ end:
 	ASN1_ENUMERATED_free(ae);
 	*pp = p;
 	return (ret);
-}
-
-const char *
-ASN1_tag2str(int tag)
-{
-	static const char * const tag2str[] = {
-		"EOC", "BOOLEAN", "INTEGER", "BIT STRING", "OCTET STRING", /* 0-4 */
-		"NULL", "OBJECT", "OBJECT DESCRIPTOR", "EXTERNAL", "REAL", /* 5-9 */
-		"ENUMERATED", "<ASN1 11>", "UTF8STRING", "<ASN1 13>", 	    /* 10-13 */
-		"<ASN1 14>", "<ASN1 15>", "SEQUENCE", "SET", 		    /* 15-17 */
-		"NUMERICSTRING", "PRINTABLESTRING", "T61STRING",	    /* 18-20 */
-		"VIDEOTEXSTRING", "IA5STRING", "UTCTIME", "GENERALIZEDTIME", /* 21-24 */
-		"GRAPHICSTRING", "VISIBLESTRING", "GENERALSTRING",	    /* 25-27 */
-		"UNIVERSALSTRING", "<ASN1 29>", "BMPSTRING"		    /* 28-30 */
-	};
-
-	if ((tag == V_ASN1_NEG_INTEGER) || (tag == V_ASN1_NEG_ENUMERATED))
-		tag &= ~0x100;
-
-	if (tag < 0 || tag > 30)
-		return "(unknown)";
-	return tag2str[tag];
 }

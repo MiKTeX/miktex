@@ -5,6 +5,7 @@
 .globl	_md5_block_asm_data_order
 
 _md5_block_asm_data_order:
+	endbr64
 	pushq	%rbp
 	pushq	%rbx
 	pushq	%r12

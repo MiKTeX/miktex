@@ -1,4 +1,4 @@
-/* $OpenBSD: tasn_enc.c,v 1.22 2019/04/01 15:48:04 jsing Exp $ */
+/* $OpenBSD: tasn_enc.c,v 1.33 2023/07/28 10:00:10 tb Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */
@@ -61,7 +61,10 @@
 
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
+#include <openssl/err.h>
 #include <openssl/objects.h>
+
+#include "asn1_local.h"
 
 static int asn1_i2d_ex_primitive(ASN1_VALUE **pval, unsigned char **out,
     const ASN1_ITEM *it, int tag, int aclass);
@@ -89,6 +92,7 @@ ASN1_item_i2d(ASN1_VALUE *val, unsigned char **out, const ASN1_ITEM *it)
 {
 	return asn1_item_flags_i2d(val, out, it, 0);
 }
+LCRYPTO_ALIAS(ASN1_item_i2d);
 
 /* Encode an ASN1 item, this is use by the
  * standard 'i2d' function. 'out' points to
@@ -103,22 +107,28 @@ static int
 asn1_item_flags_i2d(ASN1_VALUE *val, unsigned char **out, const ASN1_ITEM *it,
     int flags)
 {
-	if (out && !*out) {
-		unsigned char *p, *buf;
-		int len;
-		len = ASN1_item_ex_i2d(&val, NULL, it, -1, flags);
-		if (len <= 0)
-			return len;
-		buf = malloc(len);
-		if (!buf)
-			return -1;
-		p = buf;
-		ASN1_item_ex_i2d(&val, &p, it, -1, flags);
-		*out = buf;
+	unsigned char *p, *buf;
+	int len;
+
+	if (out == NULL || *out != NULL)
+		return ASN1_item_ex_i2d(&val, out, it, -1, flags);
+
+	if ((len = ASN1_item_ex_i2d(&val, NULL, it, -1, flags)) <= 0)
 		return len;
+
+	if ((buf = calloc(1, len)) == NULL)
+		return -1;
+
+	p = buf;
+	if (ASN1_item_ex_i2d(&val, &p, it, -1, flags) != len) {
+		freezero(buf, len);
+		ASN1error(ASN1_R_LENGTH_ERROR);
+		return -1;
 	}
 
-	return ASN1_item_ex_i2d(&val, out, it, -1, flags);
+	*out = buf;
+
+	return len;
 }
 
 /* Encode an item, taking care of IMPLICIT tagging (if any).
@@ -152,9 +162,27 @@ ASN1_item_ex_i2d(ASN1_VALUE **pval, unsigned char **out, const ASN1_ITEM *it,
 		break;
 
 	case ASN1_ITYPE_MSTRING:
+		/*
+		 * It never makes sense for multi-strings to have implicit
+		 * tagging, so if tag != -1, then this looks like an error in
+		 * the template.
+		 */
+		if (tag != -1) {
+			ASN1error(ASN1_R_BAD_TEMPLATE);
+			return 0;
+		}
 		return asn1_i2d_ex_primitive(pval, out, it, -1, aclass);
 
 	case ASN1_ITYPE_CHOICE:
+		/*
+		 * It never makes sense for CHOICE types to have implicit
+		 * tagging, so if tag != -1, then this looks like an error in
+		 * the template.
+		 */
+		if (tag != -1) {
+			ASN1error(ASN1_R_BAD_TEMPLATE);
+			return 0;
+		}
 		if (asn1_cb && !asn1_cb(ASN1_OP_I2D_PRE, pval, it, NULL))
 			return 0;
 		i = asn1_get_choice_selector(pval, it);
@@ -241,13 +269,7 @@ ASN1_item_ex_i2d(ASN1_VALUE **pval, unsigned char **out, const ASN1_ITEM *it,
 	}
 	return 0;
 }
-
-int
-ASN1_template_i2d(ASN1_VALUE **pval, unsigned char **out,
-    const ASN1_TEMPLATE *tt)
-{
-	return asn1_template_ex_i2d(pval, out, tt, -1, 0);
-}
+LCRYPTO_ALIAS(ASN1_item_ex_i2d);
 
 static int
 asn1_template_ex_i2d(ASN1_VALUE **pval, unsigned char **out,
@@ -473,7 +495,7 @@ static int
 asn1_i2d_ex_primitive(ASN1_VALUE **pval, unsigned char **out,
     const ASN1_ITEM *it, int tag, int aclass)
 {
-	int len;
+	int olen, len;
 	int utype;
 	int usetag;
 	int ndef = 0;
@@ -484,7 +506,7 @@ asn1_i2d_ex_primitive(ASN1_VALUE **pval, unsigned char **out,
 	 * out the underlying type.
 	 */
 
-	len = asn1_ex_i2c(pval, NULL, &utype, it);
+	olen = len = asn1_ex_i2c(pval, NULL, &utype, it);
 
 	/* If SEQUENCE, SET or OTHER then header is
 	 * included in pseudo content octets so don't
@@ -508,6 +530,10 @@ asn1_i2d_ex_primitive(ASN1_VALUE **pval, unsigned char **out,
 		len = 0;
 	}
 
+	/* Treat any other negative value as an error. */
+	if (len < 0)
+		return -1;
+
 	/* If not implicitly tagged get tag from underlying type */
 	if (tag == -1)
 		tag = utype;
@@ -516,7 +542,8 @@ asn1_i2d_ex_primitive(ASN1_VALUE **pval, unsigned char **out,
 	if (out) {
 		if (usetag)
 			ASN1_put_object(out, ndef, len, tag, aclass);
-		asn1_ex_i2c(pval, *out, &utype, it);
+		if (asn1_ex_i2c(pval, *out, &utype, it) != olen)
+			return -1;
 		if (ndef)
 			ASN1_put_eoc(out);
 		else

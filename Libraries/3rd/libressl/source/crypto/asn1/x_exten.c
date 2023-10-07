@@ -1,4 +1,4 @@
-/* $OpenBSD: x_exten.c,v 1.16 2015/07/24 15:09:52 jsing Exp $ */
+/* $OpenBSD: x_exten.c,v 1.20 2023/07/07 19:37:52 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */
@@ -60,6 +60,8 @@
 #include <openssl/x509.h>
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
+
+#include "x509_local.h"
 
 static const ASN1_TEMPLATE X509_EXTENSION_seq_tt[] = {
 	{

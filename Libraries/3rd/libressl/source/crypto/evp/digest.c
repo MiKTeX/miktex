@@ -1,4 +1,4 @@
-/* $OpenBSD: digest.c,v 1.31 2019/04/19 17:04:45 jsing Exp $ */
+/* $OpenBSD: digest.c,v 1.38 2023/07/07 19:37:53 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -122,6 +122,8 @@
 #include <openssl/engine.h>
 #endif
 
+#include "evp_local.h"
+
 int
 EVP_DigestInit(EVP_MD_CTX *ctx, const EVP_MD *type)
 {
@@ -138,7 +140,7 @@ EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl)
 	/* Whether it's nice or not, "Inits" can be used on "Final"'d contexts
 	 * so this context may already have an ENGINE! Try to avoid releasing
 	 * the previous handle, re-querying for an ENGINE, and having a
-	 * reinitialisation, when it may all be unecessary. */
+	 * reinitialisation, when it may all be unnecessary. */
 	if (ctx->engine && ctx->digest && (!type ||
 	    (type && (type->type == ctx->digest->type))))
 		goto skip_to_init;
@@ -279,6 +281,14 @@ EVP_MD_CTX_copy_ex(EVP_MD_CTX *out, const EVP_MD_CTX *in)
 		tmp_buf = NULL;
 	EVP_MD_CTX_cleanup(out);
 	memcpy(out, in, sizeof *out);
+	out->md_data = NULL;
+	out->pctx = NULL;
+
+	/*
+	 * Because of the EVP_PKEY_CTX_dup() below, EVP_MD_CTX_cleanup() needs
+	 * to free out->pctx in all cases (even if this flag is set on in).
+	 */
+	EVP_MD_CTX_clear_flags(out, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
 
 	if (in->md_data && out->digest->ctx_size) {
 		if (tmp_buf) {
@@ -381,7 +391,12 @@ EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
 	if (ctx->digest && ctx->digest->ctx_size && ctx->md_data &&
 	    !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE))
 		freezero(ctx->md_data, ctx->digest->ctx_size);
-	EVP_PKEY_CTX_free(ctx->pctx);
+	/*
+	 * If EVP_MD_CTX_FLAG_KEEP_PKEY_CTX is set, EVP_MD_CTX_set_pkey() was
+	 * called and its strange API contract implies we don't own ctx->pctx.
+	 */
+	if (!EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX))
+		EVP_PKEY_CTX_free(ctx->pctx);
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(ctx->engine);
 #endif

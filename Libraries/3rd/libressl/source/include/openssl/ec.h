@@ -1,10 +1,6 @@
-/* $OpenBSD: ec.h,v 1.18 2019/09/29 10:09:09 tb Exp $ */
+/* $OpenBSD: ec.h,v 1.46 2023/08/11 04:45:27 tb Exp $ */
 /*
  * Originally written by Bodo Moeller for the OpenSSL project.
- */
-/**
- * \file crypto/ec/ec.h Include file for the OpenSSL EC functions
- * \author Originally written by Bodo Moeller for the OpenSSL project
  */
 /* ====================================================================
  * Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.
@@ -14,7 +10,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -62,15 +58,14 @@
 /* ====================================================================
  * Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
  *
- * Portions of the attached software ("Contribution") are developed by 
+ * Portions of the attached software ("Contribution") are developed by
  * SUN MICROSYSTEMS, INC., and are contributed to the OpenSSL project.
  *
  * The Contribution is licensed pursuant to the OpenSSL open source
  * license provided above.
  *
- * The elliptic curve binary polynomial software is originally written by 
+ * The elliptic curve binary polynomial software is originally written by
  * Sheueling Chang Shantz and Douglas Stebila of Sun Microsystems Laboratories.
- *
  */
 
 #ifndef HEADER_EC_H
@@ -83,9 +78,7 @@
 #endif
 
 #include <openssl/asn1.h>
-#ifndef OPENSSL_NO_DEPRECATED
 #include <openssl/bn.h>
-#endif
 
 #ifdef  __cplusplus
 extern "C" {
@@ -95,592 +88,162 @@ extern "C" {
 # endif
 #endif
 
-  
 #ifndef OPENSSL_ECC_MAX_FIELD_BITS
 #define OPENSSL_ECC_MAX_FIELD_BITS 661
 #endif
 
-/** Enum for the point conversion form as defined in X9.62 (ECDSA)
- *  for the encoding of a elliptic curve point (x,y) */
+/* Elliptic point conversion form as per X9.62, page 4 and section 4.4.2. */
 typedef enum {
-	/** the point is encoded as z||x, where the octet z specifies 
-	 *  which solution of the quadratic equation y is  */
 	POINT_CONVERSION_COMPRESSED = 2,
-	/** the point is encoded as z||x||y, where z is the octet 0x02  */
 	POINT_CONVERSION_UNCOMPRESSED = 4,
-	/** the point is encoded as z||x||y, where the octet z specifies
-         *  which solution of the quadratic equation y is  */
 	POINT_CONVERSION_HYBRID = 6
 } point_conversion_form_t;
 
-
 typedef struct ec_method_st EC_METHOD;
-
-typedef struct ec_group_st
-	/*
-	 EC_METHOD *meth;
-	 -- field definition
-	 -- curve coefficients
-	 -- optional generator with associated information (order, cofactor)
-	 -- optional extra data (precomputed table for fast computation of multiples of generator)
-	 -- ASN1 stuff
-	*/
-	EC_GROUP;
-
+typedef struct ec_group_st EC_GROUP;
 typedef struct ec_point_st EC_POINT;
 
-
-/********************************************************************/
-/*               EC_METHODs for curves over GF(p)                   */       
-/********************************************************************/
-
-/** Returns the basic GFp ec methods which provides the basis for the
- *  optimized methods. 
- *  \return  EC_METHOD object
- */
 const EC_METHOD *EC_GFp_simple_method(void);
-
-/** Returns GFp methods using montgomery multiplication.
- *  \return  EC_METHOD object
- */
 const EC_METHOD *EC_GFp_mont_method(void);
 
-/** Returns GFp methods using optimized methods for NIST recommended curves
- *  \return  EC_METHOD object
- */
-const EC_METHOD *EC_GFp_nist_method(void);
-
-#ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
-/** Returns 64-bit optimized methods for nistp224
- *  \return  EC_METHOD object
- */
-const EC_METHOD *EC_GFp_nistp224_method(void);
-
-/** Returns 64-bit optimized methods for nistp256
- *  \return  EC_METHOD object
- */
-const EC_METHOD *EC_GFp_nistp256_method(void);
-
-/** Returns 64-bit optimized methods for nistp521
- *  \return  EC_METHOD object
- */
-const EC_METHOD *EC_GFp_nistp521_method(void);
-#endif
-
-#ifndef OPENSSL_NO_EC2M
-/********************************************************************/ 
-/*           EC_METHOD for curves over GF(2^m)                      */
-/********************************************************************/
-
-/** Returns the basic GF2m ec method 
- *  \return  EC_METHOD object
- */
-const EC_METHOD *EC_GF2m_simple_method(void);
-
-#endif
-
-
-/********************************************************************/
-/*                   EC_GROUP functions                             */
-/********************************************************************/
-
-/** Creates a new EC_GROUP object
- *  \param   meth  EC_METHOD to use
- *  \return  newly created EC_GROUP object or NULL in case of an error.
- */
 EC_GROUP *EC_GROUP_new(const EC_METHOD *meth);
-
-/** Frees a EC_GROUP object
- *  \param  group  EC_GROUP object to be freed.
- */
 void EC_GROUP_free(EC_GROUP *group);
-
-/** Clears and frees a EC_GROUP object
- *  \param  group  EC_GROUP object to be cleared and freed.
- */
+#ifndef LIBRESSL_INTERNAL
 void EC_GROUP_clear_free(EC_GROUP *group);
+#endif
 
-/** Copies EC_GROUP objects. Note: both EC_GROUPs must use the same EC_METHOD.
- *  \param  dst  destination EC_GROUP object
- *  \param  src  source EC_GROUP object
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_GROUP_copy(EC_GROUP *dst, const EC_GROUP *src);
-
-/** Creates a new EC_GROUP object and copies the copies the content
- *  form src to the newly created EC_KEY object
- *  \param  src  source EC_GROUP object
- *  \return newly created EC_GROUP object or NULL in case of an error.
- */
 EC_GROUP *EC_GROUP_dup(const EC_GROUP *src);
 
-/** Returns the EC_METHOD of the EC_GROUP object.
- *  \param  group  EC_GROUP object 
- *  \return EC_METHOD used in this EC_GROUP object.
- */
 const EC_METHOD *EC_GROUP_method_of(const EC_GROUP *group);
-
-/** Returns the field type of the EC_METHOD.
- *  \param  meth  EC_METHOD object
- *  \return NID of the underlying field type OID.
- */
 int EC_METHOD_get_field_type(const EC_METHOD *meth);
 
-/** Sets the generator and it's order/cofactor of a EC_GROUP object.
- *  \param  group      EC_GROUP object 
- *  \param  generator  EC_POINT object with the generator.
- *  \param  order      the order of the group generated by the generator.
- *  \param  cofactor   the index of the sub-group generated by the generator
- *                     in the group of all points on the elliptic curve.
- *  \return 1 on success and 0 if an error occured
- */
-int EC_GROUP_set_generator(EC_GROUP *group, const EC_POINT *generator, const BIGNUM *order, const BIGNUM *cofactor);
-
-/** Returns the generator of a EC_GROUP object.
- *  \param  group  EC_GROUP object
- *  \return the currently used generator (possibly NULL).
- */
+int EC_GROUP_set_generator(EC_GROUP *group, const EC_POINT *generator,
+    const BIGNUM *order, const BIGNUM *cofactor);
 const EC_POINT *EC_GROUP_get0_generator(const EC_GROUP *group);
 
-/** Gets the order of a EC_GROUP
- *  \param  group  EC_GROUP object
- *  \param  order  BIGNUM to which the order is copied
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
 int EC_GROUP_get_order(const EC_GROUP *group, BIGNUM *order, BN_CTX *ctx);
-
-/** Gets the cofactor of a EC_GROUP
- *  \param  group     EC_GROUP object
- *  \param  cofactor  BIGNUM to which the cofactor is copied
- *  \param  ctx       BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+int EC_GROUP_order_bits(const EC_GROUP *group);
 int EC_GROUP_get_cofactor(const EC_GROUP *group, BIGNUM *cofactor, BN_CTX *ctx);
 
-/** Sets the name of a EC_GROUP object
- *  \param  group  EC_GROUP object
- *  \param  nid    NID of the curve name OID
- */
 void EC_GROUP_set_curve_name(EC_GROUP *group, int nid);
-
-/** Returns the curve name of a EC_GROUP object
- *  \param  group  EC_GROUP object
- *  \return NID of the curve name OID or 0 if not set.
- */
 int EC_GROUP_get_curve_name(const EC_GROUP *group);
 
 void EC_GROUP_set_asn1_flag(EC_GROUP *group, int flag);
 int EC_GROUP_get_asn1_flag(const EC_GROUP *group);
 
-void EC_GROUP_set_point_conversion_form(EC_GROUP *group, point_conversion_form_t form);
+void EC_GROUP_set_point_conversion_form(EC_GROUP *group,
+    point_conversion_form_t form);
 point_conversion_form_t EC_GROUP_get_point_conversion_form(const EC_GROUP *);
 
 unsigned char *EC_GROUP_get0_seed(const EC_GROUP *x);
 size_t EC_GROUP_get_seed_len(const EC_GROUP *);
 size_t EC_GROUP_set_seed(EC_GROUP *, const unsigned char *, size_t len);
 
-/** Sets the parameter of a ec over GFp defined by y^2 = x^3 + a*x + b
- *  \param  group  EC_GROUP object
- *  \param  p      BIGNUM with the prime number
- *  \param  a      BIGNUM with parameter a of the equation
- *  \param  b      BIGNUM with parameter b of the equation
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_GROUP_set_curve_GFp(EC_GROUP *group, const BIGNUM *p, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
+int EC_GROUP_set_curve(EC_GROUP *group, const BIGNUM *p, const BIGNUM *a,
+    const BIGNUM *b, BN_CTX *ctx);
+int EC_GROUP_get_curve(const EC_GROUP *group, BIGNUM *p, BIGNUM *a, BIGNUM *b,
+    BN_CTX *ctx);
 
-/** Gets the parameter of the ec over GFp defined by y^2 = x^3 + a*x + b
- *  \param  group  EC_GROUP object
- *  \param  p      BIGNUM for the prime number
- *  \param  a      BIGNUM for parameter a of the equation
- *  \param  b      BIGNUM for parameter b of the equation
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_GROUP_get_curve_GFp(const EC_GROUP *group, BIGNUM *p, BIGNUM *a, BIGNUM *b, BN_CTX *ctx);
-
-#ifndef OPENSSL_NO_EC2M
-/** Sets the parameter of a ec over GF2m defined by y^2 + x*y = x^3 + a*x^2 + b
- *  \param  group  EC_GROUP object
- *  \param  p      BIGNUM with the polynomial defining the underlying field
- *  \param  a      BIGNUM with parameter a of the equation
- *  \param  b      BIGNUM with parameter b of the equation
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_GROUP_set_curve_GF2m(EC_GROUP *group, const BIGNUM *p, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
-
-/** Gets the parameter of the ec over GF2m defined by y^2 + x*y = x^3 + a*x^2 + b
- *  \param  group  EC_GROUP object
- *  \param  p      BIGNUM for the polynomial defining the underlying field
- *  \param  a      BIGNUM for parameter a of the equation
- *  \param  b      BIGNUM for parameter b of the equation
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_GROUP_get_curve_GF2m(const EC_GROUP *group, BIGNUM *p, BIGNUM *a, BIGNUM *b, BN_CTX *ctx);
+#if !defined(LIBRESSL_INTERNAL)
+int EC_GROUP_set_curve_GFp(EC_GROUP *group, const BIGNUM *p, const BIGNUM *a,
+    const BIGNUM *b, BN_CTX *ctx);
+int EC_GROUP_get_curve_GFp(const EC_GROUP *group, BIGNUM *p, BIGNUM *a,
+    BIGNUM *b, BN_CTX *ctx);
 #endif
-/** Returns the number of bits needed to represent a field element 
- *  \param  group  EC_GROUP object
- *  \return number of bits needed to represent a field element
- */
+
 int EC_GROUP_get_degree(const EC_GROUP *group);
 
-/** Checks whether the parameter in the EC_GROUP define a valid ec group
- *  \param  group  EC_GROUP object
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 if group is a valid ec group and 0 otherwise
- */
 int EC_GROUP_check(const EC_GROUP *group, BN_CTX *ctx);
-
-/** Checks whether the discriminant of the elliptic curve is zero or not
- *  \param  group  EC_GROUP object
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 if the discriminant is not zero and 0 otherwise
- */
 int EC_GROUP_check_discriminant(const EC_GROUP *group, BN_CTX *ctx);
 
-/** Compares two EC_GROUP objects
- *  \param  a    first EC_GROUP object
- *  \param  b    second EC_GROUP object
- *  \param  ctx  BN_CTX object (optional)
- *  \return 0 if both groups are equal and 1 otherwise
- */
+/* Compare two EC_GROUPs. Returns 0 if both groups are equal, 1 otherwise. */
 int EC_GROUP_cmp(const EC_GROUP *a, const EC_GROUP *b, BN_CTX *ctx);
 
-/* EC_GROUP_new_GF*() calls EC_GROUP_new() and EC_GROUP_set_GF*()
- * after choosing an appropriate EC_METHOD */
-
-/** Creates a new EC_GROUP object with the specified parameters defined
- *  over GFp (defined by the equation y^2 = x^3 + a*x + b)
- *  \param  p    BIGNUM with the prime number
- *  \param  a    BIGNUM with the parameter a of the equation
- *  \param  b    BIGNUM with the parameter b of the equation
- *  \param  ctx  BN_CTX object (optional)
- *  \return newly created EC_GROUP object with the specified parameters
- */
-EC_GROUP *EC_GROUP_new_curve_GFp(const BIGNUM *p, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
-#ifndef OPENSSL_NO_EC2M
-/** Creates a new EC_GROUP object with the specified parameters defined
- *  over GF2m (defined by the equation y^2 + x*y = x^3 + a*x^2 + b)
- *  \param  p    BIGNUM with the polynomial defining the underlying field
- *  \param  a    BIGNUM with the parameter a of the equation
- *  \param  b    BIGNUM with the parameter b of the equation
- *  \param  ctx  BN_CTX object (optional)
- *  \return newly created EC_GROUP object with the specified parameters
- */
-EC_GROUP *EC_GROUP_new_curve_GF2m(const BIGNUM *p, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
-#endif
-/** Creates a EC_GROUP object with a curve specified by a NID
- *  \param  nid  NID of the OID of the curve name
- *  \return newly created EC_GROUP object with specified curve or NULL
- *          if an error occurred
- */
+EC_GROUP *EC_GROUP_new_curve_GFp(const BIGNUM *p, const BIGNUM *a,
+    const BIGNUM *b, BN_CTX *ctx);
 EC_GROUP *EC_GROUP_new_by_curve_name(int nid);
 
-
-/********************************************************************/
-/*               handling of internal curves                        */
-/********************************************************************/
-
-typedef struct { 
+typedef struct {
 	int nid;
 	const char *comment;
-	} EC_builtin_curve;
+} EC_builtin_curve;
 
-/* EC_builtin_curves(EC_builtin_curve *r, size_t size) returns number 
- * of all available curves or zero if a error occurred. 
- * In case r ist not zero nitems EC_builtin_curve structures 
- * are filled with the data of the first nitems internal groups */
 size_t EC_get_builtin_curves(EC_builtin_curve *r, size_t nitems);
 
 const char *EC_curve_nid2nist(int nid);
 int EC_curve_nist2nid(const char *name);
 
-/********************************************************************/
-/*                    EC_POINT functions                            */
-/********************************************************************/
-
-/** Creates a new EC_POINT object for the specified EC_GROUP
- *  \param  group  EC_GROUP the underlying EC_GROUP object
- *  \return newly created EC_POINT object or NULL if an error occurred
- */
 EC_POINT *EC_POINT_new(const EC_GROUP *group);
-
-/** Frees a EC_POINT object
- *  \param  point  EC_POINT object to be freed
- */
 void EC_POINT_free(EC_POINT *point);
-
-/** Clears and frees a EC_POINT object
- *  \param  point  EC_POINT object to be cleared and freed
- */
+#ifndef LIBRESSL_INTERNAL
 void EC_POINT_clear_free(EC_POINT *point);
-
-/** Copies EC_POINT object
- *  \param  dst  destination EC_POINT object
- *  \param  src  source EC_POINT object
- *  \return 1 on success and 0 if an error occured
- */
+#endif
 int EC_POINT_copy(EC_POINT *dst, const EC_POINT *src);
-
-/** Creates a new EC_POINT object and copies the content of the supplied
- *  EC_POINT
- *  \param  src    source EC_POINT object
- *  \param  group  underlying the EC_GROUP object
- *  \return newly created EC_POINT object or NULL if an error occurred 
- */
 EC_POINT *EC_POINT_dup(const EC_POINT *src, const EC_GROUP *group);
- 
-/** Returns the EC_METHOD used in EC_POINT object 
- *  \param  point  EC_POINT object
- *  \return the EC_METHOD used
- */
+
 const EC_METHOD *EC_POINT_method_of(const EC_POINT *point);
 
-/** Sets a point to infinity (neutral element)
- *  \param  group  underlying EC_GROUP object
- *  \param  point  EC_POINT to set to infinity
- *  \return 1 on success and 0 if an error occured
- */
 int EC_POINT_set_to_infinity(const EC_GROUP *group, EC_POINT *point);
 
-/** Sets the jacobian projective coordinates of a EC_POINT over GFp
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM with the x-coordinate
- *  \param  y      BIGNUM with the y-coordinate
- *  \param  z      BIGNUM with the z-coordinate
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+int EC_POINT_set_affine_coordinates(const EC_GROUP *group, EC_POINT *p,
+    const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
+int EC_POINT_get_affine_coordinates(const EC_GROUP *group, const EC_POINT *p,
+    BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
+int EC_POINT_set_compressed_coordinates(const EC_GROUP *group, EC_POINT *p,
+    const BIGNUM *x, int y_bit, BN_CTX *ctx);
+
+#ifndef LIBRESSL_INTERNAL
 int EC_POINT_set_Jprojective_coordinates_GFp(const EC_GROUP *group, EC_POINT *p,
-	const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
-
-/** Gets the jacobian projective coordinates of a EC_POINT over GFp
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM for the x-coordinate
- *  \param  y      BIGNUM for the y-coordinate
- *  \param  z      BIGNUM for the z-coordinate
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+    const BIGNUM *x, const BIGNUM *y, const BIGNUM *z, BN_CTX *ctx);
 int EC_POINT_get_Jprojective_coordinates_GFp(const EC_GROUP *group,
-	const EC_POINT *p, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
-
-/** Sets the affine coordinates of a EC_POINT over GFp
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM with the x-coordinate
- *  \param  y      BIGNUM with the y-coordinate
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+    const EC_POINT *p, BIGNUM *x, BIGNUM *y, BIGNUM *z, BN_CTX *ctx);
 int EC_POINT_set_affine_coordinates_GFp(const EC_GROUP *group, EC_POINT *p,
-	const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
-
-/** Gets the affine coordinates of a EC_POINT over GFp
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM for the x-coordinate
- *  \param  y      BIGNUM for the y-coordinate
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+    const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
 int EC_POINT_get_affine_coordinates_GFp(const EC_GROUP *group,
-	const EC_POINT *p, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
-
-/** Sets the x9.62 compressed coordinates of a EC_POINT over GFp
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM with x-coordinate
- *  \param  y_bit  integer with the y-Bit (either 0 or 1)
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+    const EC_POINT *p, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
 int EC_POINT_set_compressed_coordinates_GFp(const EC_GROUP *group, EC_POINT *p,
-	const BIGNUM *x, int y_bit, BN_CTX *ctx);
-#ifndef OPENSSL_NO_EC2M
-/** Sets the affine coordinates of a EC_POINT over GF2m
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM with the x-coordinate
- *  \param  y      BIGNUM with the y-coordinate
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINT_set_affine_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p,
-	const BIGNUM *x, const BIGNUM *y, BN_CTX *ctx);
-
-/** Gets the affine coordinates of a EC_POINT over GF2m
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM for the x-coordinate
- *  \param  y      BIGNUM for the y-coordinate
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINT_get_affine_coordinates_GF2m(const EC_GROUP *group,
-	const EC_POINT *p, BIGNUM *x, BIGNUM *y, BN_CTX *ctx);
-
-/** Sets the x9.62 compressed coordinates of a EC_POINT over GF2m
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  x      BIGNUM with x-coordinate
- *  \param  y_bit  integer with the y-Bit (either 0 or 1)
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINT_set_compressed_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p,
-	const BIGNUM *x, int y_bit, BN_CTX *ctx);
-#endif
-/** Encodes a EC_POINT object to a octet string
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  form   point conversion form
- *  \param  buf    memory buffer for the result. If NULL the function returns
- *                 required buffer size.
- *  \param  len    length of the memory buffer
- *  \param  ctx    BN_CTX object (optional)
- *  \return the length of the encoded octet string or 0 if an error occurred
- */
+    const BIGNUM *x, int y_bit, BN_CTX *ctx);
+#endif /* !LIBRESSL_INTERNAL */
 size_t EC_POINT_point2oct(const EC_GROUP *group, const EC_POINT *p,
-	point_conversion_form_t form,
-        unsigned char *buf, size_t len, BN_CTX *ctx);
-
-/** Decodes a EC_POINT from a octet string
- *  \param  group  underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \param  buf    memory buffer with the encoded ec point
- *  \param  len    length of the encoded ec point
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+    point_conversion_form_t form, unsigned char *buf, size_t len, BN_CTX *ctx);
 int EC_POINT_oct2point(const EC_GROUP *group, EC_POINT *p,
-        const unsigned char *buf, size_t len, BN_CTX *ctx);
+    const unsigned char *buf, size_t len, BN_CTX *ctx);
 
-/* other interfaces to point2oct/oct2point: */
 BIGNUM *EC_POINT_point2bn(const EC_GROUP *, const EC_POINT *,
-	point_conversion_form_t form, BIGNUM *, BN_CTX *);
-EC_POINT *EC_POINT_bn2point(const EC_GROUP *, const BIGNUM *,
-	EC_POINT *, BN_CTX *);
+    point_conversion_form_t form, BIGNUM *, BN_CTX *);
+EC_POINT *EC_POINT_bn2point(const EC_GROUP *, const BIGNUM *, EC_POINT *,
+    BN_CTX *);
 char *EC_POINT_point2hex(const EC_GROUP *, const EC_POINT *,
-	point_conversion_form_t form, BN_CTX *);
-EC_POINT *EC_POINT_hex2point(const EC_GROUP *, const char *,
-	EC_POINT *, BN_CTX *);
+    point_conversion_form_t form, BN_CTX *);
+EC_POINT *EC_POINT_hex2point(const EC_GROUP *, const char *, EC_POINT *,
+    BN_CTX *);
 
-
-/********************************************************************/
-/*         functions for doing EC_POINT arithmetic                  */
-/********************************************************************/
-
-/** Computes the sum of two EC_POINT 
- *  \param  group  underlying EC_GROUP object
- *  \param  r      EC_POINT object for the result (r = a + b)
- *  \param  a      EC_POINT object with the first summand
- *  \param  b      EC_POINT object with the second summand
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a, const EC_POINT *b, BN_CTX *ctx);
-
-/** Computes the double of a EC_POINT
- *  \param  group  underlying EC_GROUP object
- *  \param  r      EC_POINT object for the result (r = 2 * a)
- *  \param  a      EC_POINT object 
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINT_dbl(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a, BN_CTX *ctx);
-
-/** Computes the inverse of a EC_POINT
- *  \param  group  underlying EC_GROUP object
- *  \param  a      EC_POINT object to be inverted (it's used for the result as well)
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+int EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a,
+    const EC_POINT *b, BN_CTX *ctx);
+int EC_POINT_dbl(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a,
+    BN_CTX *ctx);
 int EC_POINT_invert(const EC_GROUP *group, EC_POINT *a, BN_CTX *ctx);
-
-/** Checks whether the point is the neutral element of the group
- *  \param  group  the underlying EC_GROUP object
- *  \param  p      EC_POINT object
- *  \return 1 if the point is the neutral element and 0 otherwise
- */
 int EC_POINT_is_at_infinity(const EC_GROUP *group, const EC_POINT *p);
-
-/** Checks whether the point is on the curve 
- *  \param  group  underlying EC_GROUP object
- *  \param  point  EC_POINT object to check
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 if point if on the curve and 0 otherwise
- */
-int EC_POINT_is_on_curve(const EC_GROUP *group, const EC_POINT *point, BN_CTX *ctx);
-
-/** Compares two EC_POINTs 
- *  \param  group  underlying EC_GROUP object
- *  \param  a      first EC_POINT object
- *  \param  b      second EC_POINT object
- *  \param  ctx    BN_CTX object (optional)
- *  \return 0 if both points are equal and a value != 0 otherwise
- */
-int EC_POINT_cmp(const EC_GROUP *group, const EC_POINT *a, const EC_POINT *b, BN_CTX *ctx);
+int EC_POINT_is_on_curve(const EC_GROUP *group, const EC_POINT *point,
+    BN_CTX *ctx);
+int EC_POINT_cmp(const EC_GROUP *group, const EC_POINT *a, const EC_POINT *b,
+    BN_CTX *ctx);
 
 int EC_POINT_make_affine(const EC_GROUP *group, EC_POINT *point, BN_CTX *ctx);
-int EC_POINTs_make_affine(const EC_GROUP *group, size_t num, EC_POINT *points[], BN_CTX *ctx);
-
-/** Computes r = generator * n sum_{i=0}^num p[i] * m[i]
- *  \param  group  underlying EC_GROUP object
- *  \param  r      EC_POINT object for the result
- *  \param  n      BIGNUM with the multiplier for the group generator (optional)
- *  \param  num    number futher summands
- *  \param  p      array of size num of EC_POINT objects
- *  \param  m      array of size num of BIGNUM objects
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINTs_mul(const EC_GROUP *group, EC_POINT *r, const BIGNUM *n, size_t num, const EC_POINT *p[], const BIGNUM *m[], BN_CTX *ctx);
-
-/** Computes r = generator * n + q * m
- *  \param  group  underlying EC_GROUP object
- *  \param  r      EC_POINT object for the result
- *  \param  n      BIGNUM with the multiplier for the group generator (optional)
- *  \param  q      EC_POINT object with the first factor of the second summand
- *  \param  m      BIGNUM with the second factor of the second summand
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
-int EC_POINT_mul(const EC_GROUP *group, EC_POINT *r, const BIGNUM *n, const EC_POINT *q, const BIGNUM *m, BN_CTX *ctx);
-
-/** Stores multiples of generator for faster point multiplication
- *  \param  group  EC_GROUP object
- *  \param  ctx    BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occured
- */
+int EC_POINTs_make_affine(const EC_GROUP *group, size_t num, EC_POINT *points[],
+    BN_CTX *ctx);
+int EC_POINTs_mul(const EC_GROUP *group, EC_POINT *r, const BIGNUM *n,
+    size_t num, const EC_POINT *p[], const BIGNUM *m[], BN_CTX *ctx);
+int EC_POINT_mul(const EC_GROUP *group, EC_POINT *r, const BIGNUM *n,
+    const EC_POINT *q, const BIGNUM *m, BN_CTX *ctx);
 int EC_GROUP_precompute_mult(EC_GROUP *group, BN_CTX *ctx);
-
-/** Reports whether a precomputation has been done
- *  \param  group  EC_GROUP object
- *  \return 1 if a pre-computation has been done and 0 otherwise
- */
 int EC_GROUP_have_precompute_mult(const EC_GROUP *group);
 
-
-/********************************************************************/
-/*                       ASN1 stuff                                 */
-/********************************************************************/
-
-/* EC_GROUP_get_basis_type() returns the NID of the basis type
- * used to represent the field elements */
 int EC_GROUP_get_basis_type(const EC_GROUP *);
-#ifndef OPENSSL_NO_EC2M
-int EC_GROUP_get_trinomial_basis(const EC_GROUP *, unsigned int *k);
-int EC_GROUP_get_pentanomial_basis(const EC_GROUP *, unsigned int *k1, 
-	unsigned int *k2, unsigned int *k3);
-#endif
 
-#define OPENSSL_EC_NAMED_CURVE	0x001
+#define OPENSSL_EC_EXPLICIT_CURVE	0x000
+#define OPENSSL_EC_NAMED_CURVE		0x001
 
 typedef struct ecpk_parameters_st ECPKPARAMETERS;
 
@@ -695,257 +258,59 @@ int i2d_ECPKParameters(const EC_GROUP *, unsigned char **out);
 		(unsigned char *)(x))
 
 #ifndef OPENSSL_NO_BIO
-int     ECPKParameters_print(BIO *bp, const EC_GROUP *x, int off);
+int ECPKParameters_print(BIO *bp, const EC_GROUP *x, int off);
 #endif
-int     ECPKParameters_print_fp(FILE *fp, const EC_GROUP *x, int off);
+int ECPKParameters_print_fp(FILE *fp, const EC_GROUP *x, int off);
 
-
-/********************************************************************/
-/*                      EC_KEY functions                            */
-/********************************************************************/
-
-typedef struct ec_key_st EC_KEY;
-typedef struct ec_key_method_st EC_KEY_METHOD;
-
-/* some values for the encoding_flag */
 #define EC_PKEY_NO_PARAMETERS	0x001
 #define EC_PKEY_NO_PUBKEY	0x002
 
-/* some values for the flags field */
 #define EC_FLAG_NON_FIPS_ALLOW	0x1
 #define EC_FLAG_FIPS_CHECKED	0x2
 #define EC_FLAG_COFACTOR_ECDH	0x1000
 
-/** Creates a new EC_KEY object.
- *  \return EC_KEY object or NULL if an error occurred.
- */
 EC_KEY *EC_KEY_new(void);
-
 int EC_KEY_get_flags(const EC_KEY *key);
-
 void EC_KEY_set_flags(EC_KEY *key, int flags);
-
 void EC_KEY_clear_flags(EC_KEY *key, int flags);
-
-/** Creates a new EC_KEY object using a named curve as underlying
- *  EC_GROUP object.
- *  \param  nid  NID of the named curve.
- *  \return EC_KEY object or NULL if an error occurred. 
- */
 EC_KEY *EC_KEY_new_by_curve_name(int nid);
-
-/** Frees a EC_KEY object.
- *  \param  key  EC_KEY object to be freed.
- */
 void EC_KEY_free(EC_KEY *key);
-
-/** Copies a EC_KEY object.
- *  \param  dst  destination EC_KEY object
- *  \param  src  src EC_KEY object
- *  \return dst or NULL if an error occurred.
- */
 EC_KEY *EC_KEY_copy(EC_KEY *dst, const EC_KEY *src);
-
-/** Creates a new EC_KEY object and copies the content from src to it.
- *  \param  src  the source EC_KEY object
- *  \return newly created EC_KEY object or NULL if an error occurred.
- */
 EC_KEY *EC_KEY_dup(const EC_KEY *src);
-
-/** Increases the internal reference count of a EC_KEY object.
- *  \param  key  EC_KEY object
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_KEY_up_ref(EC_KEY *key);
 
-/** Returns the EC_GROUP object of a EC_KEY object
- *  \param  key  EC_KEY object
- *  \return the EC_GROUP object (possibly NULL).
- */
 const EC_GROUP *EC_KEY_get0_group(const EC_KEY *key);
-
-/** Sets the EC_GROUP of a EC_KEY object.
- *  \param  key    EC_KEY object
- *  \param  group  EC_GROUP to use in the EC_KEY object (note: the EC_KEY
- *                 object will use an own copy of the EC_GROUP).
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_KEY_set_group(EC_KEY *key, const EC_GROUP *group);
-
-/** Returns the private key of a EC_KEY object.
- *  \param  key  EC_KEY object
- *  \return a BIGNUM with the private key (possibly NULL).
- */
 const BIGNUM *EC_KEY_get0_private_key(const EC_KEY *key);
-
-/** Sets the private key of a EC_KEY object.
- *  \param  key  EC_KEY object
- *  \param  prv  BIGNUM with the private key (note: the EC_KEY object
- *               will use an own copy of the BIGNUM).
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_KEY_set_private_key(EC_KEY *key, const BIGNUM *prv);
-
-/** Returns the public key of a EC_KEY object.
- *  \param  key  the EC_KEY object
- *  \return a EC_POINT object with the public key (possibly NULL)
- */
 const EC_POINT *EC_KEY_get0_public_key(const EC_KEY *key);
-
-/** Sets the public key of a EC_KEY object.
- *  \param  key  EC_KEY object
- *  \param  pub  EC_POINT object with the public key (note: the EC_KEY object
- *               will use an own copy of the EC_POINT object).
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_KEY_set_public_key(EC_KEY *key, const EC_POINT *pub);
 
 unsigned EC_KEY_get_enc_flags(const EC_KEY *key);
 void EC_KEY_set_enc_flags(EC_KEY *eckey, unsigned int flags);
 point_conversion_form_t EC_KEY_get_conv_form(const EC_KEY *key);
 void EC_KEY_set_conv_form(EC_KEY *eckey, point_conversion_form_t cform);
-/* functions to set/get method specific data  */
-void *EC_KEY_get_key_method_data(EC_KEY *key, 
-	void *(*dup_func)(void *), void (*free_func)(void *), void (*clear_free_func)(void *));
-/** Sets the key method data of an EC_KEY object, if none has yet been set.
- *  \param  key              EC_KEY object
- *  \param  data             opaque data to install.
- *  \param  dup_func         a function that duplicates |data|.
- *  \param  free_func        a function that frees |data|.
- *  \param  clear_free_func  a function that wipes and frees |data|.
- *  \return the previously set data pointer, or NULL if |data| was inserted.
- */
-void *EC_KEY_insert_key_method_data(EC_KEY *key, void *data,
-	void *(*dup_func)(void *), void (*free_func)(void *), void (*clear_free_func)(void *));
-/* wrapper functions for the underlying EC_GROUP object */
+
 void EC_KEY_set_asn1_flag(EC_KEY *eckey, int asn1_flag);
-
-/** Creates a table of pre-computed multiples of the generator to 
- *  accelerate further EC_KEY operations.
- *  \param  key  EC_KEY object
- *  \param  ctx  BN_CTX object (optional)
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_KEY_precompute_mult(EC_KEY *key, BN_CTX *ctx);
-
-/** Creates a new ec private (and optional a new public) key.
- *  \param  key  EC_KEY object
- *  \return 1 on success and 0 if an error occurred.
- */
 int EC_KEY_generate_key(EC_KEY *key);
-
-/** Verifies that a private and/or public key is valid.
- *  \param  key  the EC_KEY object
- *  \return 1 on success and 0 otherwise.
- */
 int EC_KEY_check_key(const EC_KEY *key);
-
-/** Sets a public key from affine coordindates performing
- *  neccessary NIST PKV tests.
- *  \param  key  the EC_KEY object
- *  \param  x    public key x coordinate
- *  \param  y    public key y coordinate
- *  \return 1 on success and 0 otherwise.
- */
 int EC_KEY_set_public_key_affine_coordinates(EC_KEY *key, BIGNUM *x, BIGNUM *y);
 
-
-/********************************************************************/
-/*        de- and encoding functions for SEC1 ECPrivateKey          */
-/********************************************************************/
-
-/** Decodes a private key from a memory buffer.
- *  \param  key  a pointer to a EC_KEY object which should be used (or NULL)
- *  \param  in   pointer to memory with the DER encoded private key
- *  \param  len  length of the DER encoded private key
- *  \return the decoded private key or NULL if an error occurred.
- */
 EC_KEY *d2i_ECPrivateKey(EC_KEY **key, const unsigned char **in, long len);
-
-/** Encodes a private key object and stores the result in a buffer.
- *  \param  key  the EC_KEY object to encode
- *  \param  out  the buffer for the result (if NULL the function returns number
- *               of bytes needed).
- *  \return 1 on success and 0 if an error occurred.
- */
 int i2d_ECPrivateKey(EC_KEY *key, unsigned char **out);
-
-
-/********************************************************************/
-/*        de- and encoding functions for EC parameters              */
-/********************************************************************/
-
-/** Decodes ec parameter from a memory buffer.
- *  \param  key  a pointer to a EC_KEY object which should be used (or NULL)
- *  \param  in   pointer to memory with the DER encoded ec parameters
- *  \param  len  length of the DER encoded ec parameters
- *  \return a EC_KEY object with the decoded parameters or NULL if an error
- *          occurred.
- */
 EC_KEY *d2i_ECParameters(EC_KEY **key, const unsigned char **in, long len);
-
-/** Encodes ec parameter and stores the result in a buffer.
- *  \param  key  the EC_KEY object with ec paramters to encode
- *  \param  out  the buffer for the result (if NULL the function returns number
- *               of bytes needed).
- *  \return 1 on success and 0 if an error occurred.
- */
 int i2d_ECParameters(EC_KEY *key, unsigned char **out);
 
-
-/********************************************************************/
-/*         de- and encoding functions for EC public key             */
-/*         (octet string, not DER -- hence 'o2i' and 'i2o')         */
-/********************************************************************/
-
-/** Decodes a ec public key from a octet string.
- *  \param  key  a pointer to a EC_KEY object which should be used
- *  \param  in   memory buffer with the encoded public key
- *  \param  len  length of the encoded public key
- *  \return EC_KEY object with decoded public key or NULL if an error
- *          occurred.
- */
 EC_KEY *o2i_ECPublicKey(EC_KEY **key, const unsigned char **in, long len);
-
-/** Encodes a ec public key in an octet string.
- *  \param  key  the EC_KEY object with the public key
- *  \param  out  the buffer for the result (if NULL the function returns number
- *               of bytes needed).
- *  \return 1 on success and 0 if an error occurred
- */
 int i2o_ECPublicKey(const EC_KEY *key, unsigned char **out);
 
 #ifndef OPENSSL_NO_BIO
-/** Prints out the ec parameters on human readable form.
- *  \param  bp   BIO object to which the information is printed
- *  \param  key  EC_KEY object
- *  \return 1 on success and 0 if an error occurred
- */
-int	ECParameters_print(BIO *bp, const EC_KEY *key);
-
-/** Prints out the contents of a EC_KEY object
- *  \param  bp   BIO object to which the information is printed
- *  \param  key  EC_KEY object
- *  \param  off  line offset 
- *  \return 1 on success and 0 if an error occurred
- */
-int	EC_KEY_print(BIO *bp, const EC_KEY *key, int off);
-
+int ECParameters_print(BIO *bp, const EC_KEY *key);
+int EC_KEY_print(BIO *bp, const EC_KEY *key, int off);
 #endif
-/** Prints out the ec parameters on human readable form.
- *  \param  fp   file descriptor to which the information is printed
- *  \param  key  EC_KEY object
- *  \return 1 on success and 0 if an error occurred
- */
-int	ECParameters_print_fp(FILE *fp, const EC_KEY *key);
-
-/** Prints out the contents of a EC_KEY object
- *  \param  fp   file descriptor to which the information is printed
- *  \param  key  EC_KEY object
- *  \param  off  line offset 
- *  \return 1 on success and 0 if an error occurred
- */
-int	EC_KEY_print_fp(FILE *fp, const EC_KEY *key, int off);
+int ECParameters_print_fp(FILE *fp, const EC_KEY *key);
+int EC_KEY_print_fp(FILE *fp, const EC_KEY *key, int off);
 
 #define EC_KEY_get_ex_new_index(l, p, newf, dupf, freef) \
     CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_EC_KEY, l, p, newf, dupf, freef)
@@ -958,6 +323,36 @@ void EC_KEY_set_default_method(const EC_KEY_METHOD *meth);
 const EC_KEY_METHOD *EC_KEY_get_method(const EC_KEY *key);
 int EC_KEY_set_method(EC_KEY *key, const EC_KEY_METHOD *meth);
 EC_KEY *EC_KEY_new_method(ENGINE *engine);
+
+int ECDH_size(const EC_KEY *ecdh);
+int ECDH_compute_key(void *out, size_t outlen, const EC_POINT *pub_key,
+    EC_KEY *ecdh,
+    void *(*KDF)(const void *in, size_t inlen, void *out, size_t *outlen));
+
+typedef struct ECDSA_SIG_st ECDSA_SIG;
+
+ECDSA_SIG *ECDSA_SIG_new(void);
+void ECDSA_SIG_free(ECDSA_SIG *sig);
+int i2d_ECDSA_SIG(const ECDSA_SIG *sig, unsigned char **pp);
+ECDSA_SIG *d2i_ECDSA_SIG(ECDSA_SIG **sig, const unsigned char **pp, long len);
+
+const BIGNUM *ECDSA_SIG_get0_r(const ECDSA_SIG *sig);
+const BIGNUM *ECDSA_SIG_get0_s(const ECDSA_SIG *sig);
+void ECDSA_SIG_get0(const ECDSA_SIG *sig, const BIGNUM **pr, const BIGNUM **ps);
+int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s);
+
+int ECDSA_size(const EC_KEY *eckey);
+
+ECDSA_SIG *ECDSA_do_sign(const unsigned char *digest, int digest_len,
+    EC_KEY *eckey);
+int ECDSA_do_verify(const unsigned char *digest, int digest_len,
+    const ECDSA_SIG *sig, EC_KEY *eckey);
+
+int ECDSA_sign(int type, const unsigned char *digest, int digest_len,
+    unsigned char *signature, unsigned int *signature_len, EC_KEY *eckey);
+int ECDSA_verify(int type, const unsigned char *digest, int digest_len,
+    const unsigned char *signature, int signature_len, EC_KEY *eckey);
+
 EC_KEY_METHOD *EC_KEY_METHOD_new(const EC_KEY_METHOD *meth);
 void EC_KEY_METHOD_free(EC_KEY_METHOD *meth);
 void EC_KEY_METHOD_set_init(EC_KEY_METHOD *meth,
@@ -970,8 +365,20 @@ void EC_KEY_METHOD_set_init(EC_KEY_METHOD *meth,
 void EC_KEY_METHOD_set_keygen(EC_KEY_METHOD *meth,
     int (*keygen)(EC_KEY *key));
 void EC_KEY_METHOD_set_compute_key(EC_KEY_METHOD *meth,
-    int (*ckey)(void *out, size_t outlen, const EC_POINT *pub_key, EC_KEY *ecdh,
-	void *(*KDF) (const void *in, size_t inlen, void *out, size_t *outlen)));
+    int (*ckey)(unsigned char **out, size_t *out_len, const EC_POINT *pub_key,
+        const EC_KEY *ecdh));
+void EC_KEY_METHOD_set_sign(EC_KEY_METHOD *meth,
+    int (*sign)(int type, const unsigned char *digest, int digest_len,
+	unsigned char *signature, unsigned int *signature_len,
+	const BIGNUM *kinv, const BIGNUM *r, EC_KEY *eckey),
+    int (*sign_setup)(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp),
+    ECDSA_SIG *(*sign_sig)(const unsigned char *digest, int digest_len,
+        const BIGNUM *in_kinv, const BIGNUM *in_r, EC_KEY *eckey));
+void EC_KEY_METHOD_set_verify(EC_KEY_METHOD *meth,
+    int (*verify)(int type, const unsigned char *digest, int digest_len,
+	const unsigned char *signature, int signature_len, EC_KEY *eckey),
+    int (*verify_sig)(const unsigned char *digest, int digest_len,
+	const ECDSA_SIG *sig, EC_KEY *eckey));
 void EC_KEY_METHOD_get_init(const EC_KEY_METHOD *meth,
     int (**pinit)(EC_KEY *key),
     void (**pfinish)(EC_KEY *key),
@@ -982,8 +389,20 @@ void EC_KEY_METHOD_get_init(const EC_KEY_METHOD *meth,
 void EC_KEY_METHOD_get_keygen(const EC_KEY_METHOD *meth,
     int (**pkeygen)(EC_KEY *key));
 void EC_KEY_METHOD_get_compute_key(const EC_KEY_METHOD *meth,
-    int (**pck)(void *out, size_t outlen, const EC_POINT *pub_key, EC_KEY *ecdh,
-	void *(*KDF) (const void *in, size_t inlen, void *out, size_t *outlen)));
+    int (**pck)(unsigned char **out, size_t *out_len, const EC_POINT *pub_key,
+        const EC_KEY *ecdh));
+void EC_KEY_METHOD_get_sign(const EC_KEY_METHOD *meth,
+    int (**psign)(int type, const unsigned char *digest, int digest_len,
+        unsigned char *signature, unsigned int *signature_len,
+	const BIGNUM *kinv, const BIGNUM *r, EC_KEY *eckey),
+    int (**psign_setup)(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp),
+    ECDSA_SIG *(**psign_sig)(const unsigned char *digest, int digest_len,
+        const BIGNUM *in_kinv, const BIGNUM *in_r, EC_KEY *eckey));
+void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD *meth,
+    int (**pverify)(int type, const unsigned char *digest, int digest_len,
+	const unsigned char *signature, int signature_len, EC_KEY *eckey),
+    int (**pverify_sig)(const unsigned char *digest, int digest_len,
+	const ECDSA_SIG *sig, EC_KEY *eckey));
 
 EC_KEY *ECParameters_dup(EC_KEY *key);
 
@@ -1087,10 +506,6 @@ EC_KEY *ECParameters_dup(EC_KEY *key);
 #define EVP_PKEY_ECDH_KDF_NONE				1
 #define EVP_PKEY_ECDH_KDF_X9_63				2
 
-/* BEGIN ERROR CODES */
-/* The following lines are auto generated by the script mkerr.pl. Any changes
- * made after this point may be overwritten when the script is next run.
- */
 void ERR_load_EC_strings(void);
 
 /* Error codes for the EC functions. */
@@ -1242,6 +657,7 @@ void ERR_load_EC_strings(void);
 /* Reason codes. */
 #define EC_R_ASN1_ERROR					 115
 #define EC_R_ASN1_UNKNOWN_FIELD				 116
+#define EC_R_BAD_SIGNATURE				 166
 #define EC_R_BIGNUM_OUT_OF_RANGE			 144
 #define EC_R_BUFFER_TOO_SMALL				 100
 #define EC_R_COORDINATES_OUT_OF_RANGE			 146
@@ -1264,13 +680,19 @@ void ERR_load_EC_strings(void);
 #define EC_R_INVALID_FIELD				 103
 #define EC_R_INVALID_FORM				 104
 #define EC_R_INVALID_GROUP_ORDER			 122
+#define EC_R_INVALID_KEY				 165
+#define EC_R_INVALID_OUTPUT_LENGTH			 171
+#define EC_R_INVALID_PEER_KEY				 152
 #define EC_R_INVALID_PENTANOMIAL_BASIS			 132
 #define EC_R_INVALID_PRIVATE_KEY			 123
 #define EC_R_INVALID_TRINOMIAL_BASIS			 137
+#define EC_R_KDF_FAILED					 167
 #define EC_R_KDF_PARAMETER_ERROR			 148
+#define EC_R_KEY_TRUNCATION				 168
 #define EC_R_KEYS_NOT_SET				 140
 #define EC_R_MISSING_PARAMETERS				 124
 #define EC_R_MISSING_PRIVATE_KEY			 125
+#define EC_R_NEED_NEW_SETUP_VALUES			 170
 #define EC_R_NOT_A_NIST_PRIME				 135
 #define EC_R_NOT_A_SUPPORTED_NIST_PRIME			 136
 #define EC_R_NOT_IMPLEMENTED				 126
@@ -1281,6 +703,7 @@ void ERR_load_EC_strings(void);
 #define EC_R_PEER_KEY_ERROR				 149
 #define EC_R_PKPARAMETERS2GROUP_FAILURE			 127
 #define EC_R_POINT_AT_INFINITY				 106
+#define EC_R_POINT_ARITHMETIC_FAILURE			 169
 #define EC_R_POINT_IS_NOT_ON_CURVE			 107
 #define EC_R_SHARED_INFO_ERROR				 150
 #define EC_R_SLOT_FULL					 108

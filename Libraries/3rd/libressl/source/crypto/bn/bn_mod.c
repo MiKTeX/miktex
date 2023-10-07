@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_mod.c,v 1.12 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: bn_mod.c,v 1.22 2023/07/08 12:21:58 beck Exp $ */
 /* Includes code written by Lenka Fibikova <fibikova@exp-math.uni-essen.de>
  * for the OpenSSL project. */
 /* ====================================================================
@@ -113,196 +113,257 @@
 
 #include <openssl/err.h>
 
-#include "bn_lcl.h"
+#include "bn_local.h"
 
 int
-BN_nnmod(BIGNUM *r, const BIGNUM *m, const BIGNUM *d, BN_CTX *ctx)
+BN_mod_ct(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx)
 {
-	/* like BN_mod, but returns non-negative remainder
-	 * (i.e.,  0 <= r < |d|  always holds) */
-
-	if (!(BN_mod_ct(r, m,d, ctx)))
-		return 0;
-	if (!r->neg)
-		return 1;
-	/* now -|d| < r < 0,  so we have to set  r := r + |d| */
-	if (d->neg)
-		return BN_sub(r, r, d);
-	else
-		return BN_add(r, r, d);
+	return BN_div_ct(NULL, r, a, m, ctx);
 }
+
+int
+BN_mod_nonct(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx)
+{
+	return BN_div_nonct(NULL, r, a, m, ctx);
+}
+
+/*
+ * BN_nnmod() is like BN_mod(), but always returns a non-negative remainder
+ * (that is 0 <= r < |m| always holds). If both a and m have the same sign then
+ * the result is already non-negative. Otherwise, -|m| < r < 0, which needs to
+ * be adjusted as r := r + |m|. This equates to r := |m| - |r|.
+ */
+int
+BN_nnmod(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx)
+{
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
+	}
+	if (!BN_mod_ct(r, a, m, ctx))
+		return 0;
+	if (BN_is_negative(r))
+		return BN_usub(r, m, r);
+	return 1;
+}
+LCRYPTO_ALIAS(BN_nnmod);
 
 int
 BN_mod_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m,
     BN_CTX *ctx)
 {
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
+	}
 	if (!BN_add(r, a, b))
 		return 0;
 	return BN_nnmod(r, r, m, ctx);
 }
+LCRYPTO_ALIAS(BN_mod_add);
 
-/* BN_mod_add variant that may be used if both  a  and  b  are non-negative
- * and less than  m */
+/*
+ * BN_mod_add() variant that may only be used if both a and b are non-negative
+ * and have already been reduced (less than m).
+ */
 int
 BN_mod_add_quick(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m)
 {
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
+	}
 	if (!BN_uadd(r, a, b))
 		return 0;
 	if (BN_ucmp(r, m) >= 0)
 		return BN_usub(r, r, m);
 	return 1;
 }
+LCRYPTO_ALIAS(BN_mod_add_quick);
 
 int
 BN_mod_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m,
     BN_CTX *ctx)
 {
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
+	}
 	if (!BN_sub(r, a, b))
 		return 0;
 	return BN_nnmod(r, r, m, ctx);
 }
+LCRYPTO_ALIAS(BN_mod_sub);
 
-/* BN_mod_sub variant that may be used if both  a  and  b  are non-negative
- * and less than  m */
+/*
+ * BN_mod_sub() variant that may only be used if both a and b are non-negative
+ * and have already been reduced (less than m).
+ */
 int
 BN_mod_sub_quick(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m)
 {
-	if (!BN_sub(r, a, b))
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
 		return 0;
-	if (r->neg)
-		return BN_add(r, r, m);
-	return 1;
+	}
+	if (BN_ucmp(a, b) >= 0)
+		return BN_usub(r, a, b);
+	if (!BN_usub(r, b, a))
+		return 0;
+	return BN_usub(r, m, r);
 }
+LCRYPTO_ALIAS(BN_mod_sub_quick);
 
-/* slow but works */
 int
 BN_mod_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m,
     BN_CTX *ctx)
 {
-	BIGNUM *t;
+	BIGNUM *rr;
 	int ret = 0;
 
-	bn_check_top(a);
-	bn_check_top(b);
-	bn_check_top(m);
-
 	BN_CTX_start(ctx);
-	if ((t = BN_CTX_get(ctx)) == NULL)
+
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
 		goto err;
+	}
+
+	rr = r;
+	if (rr == a || rr == b)
+		rr = BN_CTX_get(ctx);
+	if (rr == NULL)
+		goto err;
+
 	if (a == b) {
-		if (!BN_sqr(t, a, ctx))
+		if (!BN_sqr(rr, a, ctx))
 			goto err;
 	} else {
-		if (!BN_mul(t, a,b, ctx))
+		if (!BN_mul(rr, a, b, ctx))
 			goto err;
 	}
-	if (!BN_nnmod(r, t,m, ctx))
+	if (!BN_nnmod(r, rr, m, ctx))
 		goto err;
-	bn_check_top(r);
+
 	ret = 1;
 
-err:
+ err:
 	BN_CTX_end(ctx);
-	return (ret);
+
+	return ret;
 }
+LCRYPTO_ALIAS(BN_mod_mul);
 
 int
 BN_mod_sqr(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx)
 {
-	if (!BN_sqr(r, a, ctx))
-		return 0;
-	/* r->neg == 0,  thus we don't need BN_nnmod */
-	return BN_mod_ct(r, r, m, ctx);
+	return BN_mod_mul(r, a, a, m, ctx);
 }
+LCRYPTO_ALIAS(BN_mod_sqr);
 
 int
 BN_mod_lshift1(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx)
 {
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
+	}
 	if (!BN_lshift1(r, a))
 		return 0;
-	bn_check_top(r);
 	return BN_nnmod(r, r, m, ctx);
 }
+LCRYPTO_ALIAS(BN_mod_lshift1);
 
-/* BN_mod_lshift1 variant that may be used if  a  is non-negative
- * and less than  m */
+/*
+ * BN_mod_lshift1() variant that may be used if a is non-negative
+ * and has already been reduced (less than m).
+ */
 int
 BN_mod_lshift1_quick(BIGNUM *r, const BIGNUM *a, const BIGNUM *m)
 {
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
+	}
 	if (!BN_lshift1(r, a))
 		return 0;
-	bn_check_top(r);
-	if (BN_cmp(r, m) >= 0)
-		return BN_sub(r, r, m);
+	if (BN_ucmp(r, m) >= 0)
+		return BN_usub(r, r, m);
 	return 1;
 }
+LCRYPTO_ALIAS(BN_mod_lshift1_quick);
 
 int
 BN_mod_lshift(BIGNUM *r, const BIGNUM *a, int n, const BIGNUM *m, BN_CTX *ctx)
 {
-	BIGNUM *abs_m = NULL;
-	int ret;
+	BIGNUM *abs_m;
+	int ret = 0;
 
-	if (!BN_nnmod(r, a, m, ctx))
-		return 0;
+	BN_CTX_start(ctx);
 
-	if (m->neg) {
-		abs_m = BN_dup(m);
-		if (abs_m == NULL)
-			return 0;
-		abs_m->neg = 0;
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		goto err;
 	}
 
-	ret = BN_mod_lshift_quick(r, r, n, (abs_m ? abs_m : m));
-	bn_check_top(r);
+	if (!BN_nnmod(r, a, m, ctx))
+		goto err;
 
-	BN_free(abs_m);
+	if (BN_is_negative(m)) {
+		if ((abs_m = BN_CTX_get(ctx)) == NULL)
+			goto err;
+		if (!bn_copy(abs_m, m))
+			goto err;
+		BN_set_negative(abs_m, 0);
+		m = abs_m;
+	}
+	if (!BN_mod_lshift_quick(r, r, n, m))
+		goto err;
+
+	ret = 1;
+ err:
+	BN_CTX_end(ctx);
+
 	return ret;
 }
+LCRYPTO_ALIAS(BN_mod_lshift);
 
-/* BN_mod_lshift variant that may be used if  a  is non-negative
- * and less than  m */
+/*
+ * BN_mod_lshift() variant that may be used if a is non-negative
+ * and has already been reduced (less than m).
+ */
 int
 BN_mod_lshift_quick(BIGNUM *r, const BIGNUM *a, int n, const BIGNUM *m)
 {
-	if (r != a) {
-		if (BN_copy(r, a) == NULL)
-			return 0;
+	int max_shift;
+
+	if (r == m) {
+		BNerror(BN_R_INVALID_ARGUMENT);
+		return 0;
 	}
 
+	if (!bn_copy(r, a))
+		return 0;
+
 	while (n > 0) {
-		int max_shift;
-
-		/* 0 < r < m */
-		max_shift = BN_num_bits(m) - BN_num_bits(r);
-		/* max_shift >= 0 */
-
-		if (max_shift < 0) {
+		if ((max_shift = BN_num_bits(m) - BN_num_bits(r)) < 0) {
 			BNerror(BN_R_INPUT_NOT_REDUCED);
 			return 0;
 		}
-
+		if (max_shift == 0)
+			max_shift = 1;
 		if (max_shift > n)
 			max_shift = n;
 
-		if (max_shift) {
-			if (!BN_lshift(r, r, max_shift))
-				return 0;
-			n -= max_shift;
-		} else {
-			if (!BN_lshift1(r, r))
-				return 0;
-			--n;
-		}
+		if (!BN_lshift(r, r, max_shift))
+			return 0;
+		n -= max_shift;
 
-		/* BN_num_bits(r) <= BN_num_bits(m) */
-
-		if (BN_cmp(r, m) >= 0) {
-			if (!BN_sub(r, r, m))
+		if (BN_ucmp(r, m) >= 0) {
+			if (!BN_usub(r, r, m))
 				return 0;
 		}
 	}
-	bn_check_top(r);
 
 	return 1;
 }
+LCRYPTO_ALIAS(BN_mod_lshift_quick);

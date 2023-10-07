@@ -1,436 +1,204 @@
-/* $OpenBSD: asn1_lib.c,v 1.44 2018/11/17 09:34:11 tb Exp $ */
-/* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
- * All rights reserved.
+/* $OpenBSD: asn1_lib.c,v 1.54 2022/05/05 19:18:56 jsing Exp $ */
+/*
+ * Copyright (c) 2021 Joel Sing <jsing@openbsd.org>
  *
- * This package is an SSL implementation written
- * by Eric Young (eay@cryptsoft.com).
- * The implementation was written so as to conform with Netscapes SSL.
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
  *
- * This library is free for commercial and non-commercial use as long as
- * the following conditions are aheared to.  The following conditions
- * apply to all code found in this distribution, be it the RC4, RSA,
- * lhash, DES, etc., code; not just the SSL code.  The SSL documentation
- * included with this distribution is covered by the same copyright terms
- * except that the holder is Tim Hudson (tjh@cryptsoft.com).
- *
- * Copyright remains Eric Young's, and as such any Copyright notices in
- * the code are not to be removed.
- * If this package is used in a product, Eric Young should be given attribution
- * as the author of the parts of the library used.
- * This can be in the form of a textual message at program startup or
- * in documentation (online or textual) provided with the package.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *    "This product includes cryptographic software written by
- *     Eric Young (eay@cryptsoft.com)"
- *    The word 'cryptographic' can be left out if the rouines from the library
- *    being used are not cryptographic related :-).
- * 4. If you include any Windows specific code (or a derivative thereof) from
- *    the apps directory (application code) you must include an acknowledgement:
- *    "This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
- *
- * THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * The licence and distribution terms for any publically available version or
- * derivative of this code cannot be changed.  i.e. this code cannot simply be
- * copied and put under another distribution licence
- * [including the GNU Public Licence.]
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-#include <openssl/asn1.h>
-#include <openssl/err.h>
-
-static int asn1_get_length(const unsigned char **pp, int *inf, long *rl, int max);
-static void asn1_put_length(unsigned char **pp, int length);
-
-static int
-_asn1_check_infinite_end(const unsigned char **p, long len)
-{
-	/* If there is 0 or 1 byte left, the length check should pick
-	 * things up */
-	if (len <= 0)
-		return (1);
-	else if ((len >= 2) && ((*p)[0] == 0) && ((*p)[1] == 0)) {
-		(*p) += 2;
-		return (1);
-	}
-	return (0);
-}
+#include "bytestring.h"
 
 int
-ASN1_check_infinite_end(unsigned char **p, long len)
+asn1_get_identifier_cbs(CBS *cbs, int der_mode, uint8_t *out_class,
+    int *out_constructed, uint32_t *out_tag_number)
 {
-	return _asn1_check_infinite_end((const unsigned char **)p, len);
-}
+	uint8_t tag_class, tag_val;
+	int tag_constructed;
+	uint32_t tag_number;
 
-int
-ASN1_const_check_infinite_end(const unsigned char **p, long len)
-{
-	return _asn1_check_infinite_end(p, len);
-}
+	/*
+	 * Decode ASN.1 identifier octets - see ITU-T X.690 section 8.1.2.
+	 */
 
-int
-ASN1_get_object(const unsigned char **pp, long *plength, int *ptag,
-    int *pclass, long omax)
-{
-	int i, ret;
-	long l;
-	const unsigned char *p = *pp;
-	int tag, xclass, inf;
-	long max = omax;
+	*out_class = 0;
+	*out_constructed = 0;
+	*out_tag_number = 0;
 
-	if (!max)
-		goto err;
-	ret = (*p & V_ASN1_CONSTRUCTED);
-	xclass = (*p & V_ASN1_PRIVATE);
-	i = *p & V_ASN1_PRIMITIVE_TAG;
-	if (i == V_ASN1_PRIMITIVE_TAG) {		/* high-tag */
-		p++;
-		if (--max == 0)
-			goto err;
-		l = 0;
-		while (*p & 0x80) {
-			l <<= 7L;
-			l |= *(p++) & 0x7f;
-			if (--max == 0)
-				goto err;
-			if (l > (INT_MAX >> 7L))
-				goto err;
-		}
-		l <<= 7L;
-		l |= *(p++) & 0x7f;
-		tag = (int)l;
-		if (--max == 0)
-			goto err;
-	} else {
-		tag = i;
-		p++;
-		if (--max == 0)
-			goto err;
-	}
-	*ptag = tag;
-	*pclass = xclass;
-	if (!asn1_get_length(&p, &inf, plength, (int)max))
-		goto err;
+	if (!CBS_get_u8(cbs, &tag_val))
+		return 0;
 
-	if (inf && !(ret & V_ASN1_CONSTRUCTED))
-		goto err;
+	/*
+	 * ASN.1 tag class, encoding (primitive or constructed) and tag number
+	 * are encoded in one or more identifier octets - the first octet
+	 * contains the 2 bit tag class, the 1 bit encoding type and 5 bits
+	 * of tag number.
+	 *
+	 * For tag numbers larger than 30 (0x1e) the 5 bit tag number in the
+	 * first octet is set to all ones (0x1f) - the tag number is then
+	 * encoded in subsequent octets - each of which have a one bit
+	 * continuation flag and 7 bits of tag number in big-endian form.
+	 * The encoding should not contain leading zeros but can for BER.
+	 */
+	tag_class = (tag_val >> 6) & 0x3;
+	tag_constructed = (tag_val >> 5) & 0x1;
+	tag_number = tag_val & 0x1f;
 
-	if (*plength > (omax - (p - *pp))) {
-		ASN1error(ASN1_R_TOO_LONG);
-		/* Set this so that even if things are not long enough
-		 * the values are set correctly */
-		ret |= 0x80;
-	}
-	*pp = p;
-	return (ret | inf);
-
-err:
-	ASN1error(ASN1_R_HEADER_TOO_LONG);
-	return (0x80);
-}
-
-static int
-asn1_get_length(const unsigned char **pp, int *inf, long *rl, int max)
-{
-	const unsigned char *p = *pp;
-	unsigned long ret = 0;
-	unsigned int i;
-
-	if (max-- < 1)
-		return (0);
-	if (*p == 0x80) {
-		*inf = 1;
-		ret = 0;
-		p++;
-	} else {
-		*inf = 0;
-		i = *p & 0x7f;
-		if (*(p++) & 0x80) {
-			if (max < (int)i)
-				return (0);
-			/* skip leading zeroes */
-			while (i && *p == 0) {
-				p++;
-				i--;
-			}
-			if (i > sizeof(long))
+	/* Long form. */
+	if (tag_number == 0x1f) {
+		tag_number = 0;
+		do {
+			if (!CBS_get_u8(cbs, &tag_val))
 				return 0;
-			while (i-- > 0) {
-				ret <<= 8L;
-				ret |= *(p++);
-			}
-		} else
-			ret = i;
+			if (der_mode && tag_number == 0 && tag_val == 0x80)
+				return 0;
+			if (tag_number > (UINT32_MAX >> 7))
+				return 0;
+			tag_number = tag_number << 7 | (tag_val & 0x7f);
+		} while ((tag_val & 0x80) != 0);
 	}
-	if (ret > LONG_MAX)
-		return 0;
-	*pp = p;
-	*rl = (long)ret;
-	return (1);
-}
 
-/* class 0 is constructed
- * constructed == 2 for indefinite length constructed */
-void
-ASN1_put_object(unsigned char **pp, int constructed, int length, int tag,
-    int xclass)
-{
-	unsigned char *p = *pp;
-	int i, ttag;
+	*out_class = tag_class;
+	*out_constructed = tag_constructed;
+	*out_tag_number = tag_number;
 
-	i = (constructed) ? V_ASN1_CONSTRUCTED : 0;
-	i |= (xclass & V_ASN1_PRIVATE);
-	if (tag < 31)
-		*(p++) = i | (tag & V_ASN1_PRIMITIVE_TAG);
-	else {
-		*(p++) = i | V_ASN1_PRIMITIVE_TAG;
-		for(i = 0, ttag = tag; ttag > 0; i++)
-			ttag >>= 7;
-		ttag = i;
-		while (i-- > 0) {
-			p[i] = tag & 0x7f;
-			if (i != (ttag - 1))
-				p[i] |= 0x80;
-			tag >>= 7;
-		}
-		p += ttag;
-	}
-	if (constructed == 2)
-		*(p++) = 0x80;
-	else
-		asn1_put_length(&p, length);
-	*pp = p;
-}
-
-int
-ASN1_put_eoc(unsigned char **pp)
-{
-	unsigned char *p = *pp;
-
-	*p++ = 0;
-	*p++ = 0;
-	*pp = p;
-	return 2;
-}
-
-static void
-asn1_put_length(unsigned char **pp, int length)
-{
-	unsigned char *p = *pp;
-
-	int i, l;
-	if (length <= 127)
-		*(p++) = (unsigned char)length;
-	else {
-		l = length;
-		for (i = 0; l > 0; i++)
-			l >>= 8;
-		*(p++) = i | 0x80;
-		l = i;
-		while (i-- > 0) {
-			p[i] = length & 0xff;
-			length >>= 8;
-		}
-		p += l;
-	}
-	*pp = p;
-}
-
-int
-ASN1_object_size(int constructed, int length, int tag)
-{
-	int ret;
-
-	ret = length;
-	ret++;
-	if (tag >= 31) {
-		while (tag > 0) {
-			tag >>= 7;
-			ret++;
-		}
-	}
-	if (constructed == 2)
-		return ret + 3;
-	ret++;
-	if (length > 127) {
-		while (length > 0) {
-			length >>= 8;
-			ret++;
-		}
-	}
-	return (ret);
-}
-
-int
-ASN1_STRING_copy(ASN1_STRING *dst, const ASN1_STRING *str)
-{
-	if (str == NULL)
-		return 0;
-	dst->type = str->type;
-	if (!ASN1_STRING_set(dst, str->data, str->length))
-		return 0;
-	dst->flags = str->flags;
 	return 1;
 }
 
-ASN1_STRING *
-ASN1_STRING_dup(const ASN1_STRING *str)
+int
+asn1_get_length_cbs(CBS *cbs, int der_mode, int *out_indefinite,
+    size_t *out_length)
 {
-	ASN1_STRING *ret;
+	uint8_t len_bytes;
+	size_t length;
+	uint8_t val;
 
-	if (!str)
-		return NULL;
-	ret = ASN1_STRING_new();
-	if (!ret)
-		return NULL;
-	if (!ASN1_STRING_copy(ret, str)) {
-		ASN1_STRING_free(ret);
-		return NULL;
+	/*
+	 * Decode ASN.1 length octets - see ITU-T X.690 section 8.1.3.
+	 */
+
+	*out_length = 0;
+	*out_indefinite = 0;
+
+	if (!CBS_get_u8(cbs, &val))
+		return 0;
+
+	/*
+	 * Short form - length is encoded in the lower 7 bits of a single byte.
+	 */
+	if (val < 0x80) {
+		*out_length = val;
+		return 1;
 	}
-	return ret;
+
+	/*
+	 * Indefinite length - content continues until an End of Content (EOC)
+	 * marker is reached. Must be used with constructed encoding.
+	 */
+	if (val == 0x80) {
+		*out_indefinite = 1;
+		return 1;
+	}
+
+	/*
+	 * Long form - the lower 7 bits of the first byte specifies the number
+	 * of bytes used to encode the length, the following bytes specify the
+	 * length in big-endian form. The encoding should not contain leading
+	 * zeros but can for BER. A length value of 0x7f is invalid.
+	 */
+	if ((len_bytes = val & 0x7f) == 0x7f)
+		return 0;
+
+	length = 0;
+
+	while (len_bytes-- > 0) {
+		if (!CBS_get_u8(cbs, &val))
+			return 0;
+		if (der_mode && length == 0 && val == 0)
+			return 0;
+		if (length > (SIZE_MAX >> 8))
+			return 0;
+		length = (length << 8) | val;
+	}
+
+	*out_length = length;
+
+	return 1;
 }
 
 int
-ASN1_STRING_set(ASN1_STRING *str, const void *_data, int len)
+asn1_get_object_cbs(CBS *cbs, int der_mode, uint8_t *out_tag_class,
+    int *out_constructed, uint32_t *out_tag_number, int *out_indefinite,
+    size_t *out_length)
 {
-	const char *data = _data;
+	int constructed, indefinite;
+	uint32_t tag_number;
+	uint8_t tag_class;
+	size_t length;
 
-	if (len < 0) {
-		if (data == NULL)
-			return (0);
-		else
-			len = strlen(data);
-	}
-	if ((str->length < len) || (str->data == NULL)) {
-		unsigned char *tmp;
-		tmp = realloc(str->data, len + 1);
-		if (tmp == NULL) {
-			ASN1error(ERR_R_MALLOC_FAILURE);
-			return (0);
-		}
-		str->data = tmp;
-	}
-	str->length = len;
-	if (data != NULL) {
-		memmove(str->data, data, len);
-	}
-	str->data[str->length] = '\0';
-	return (1);
-}
+	*out_tag_class = 0;
+	*out_constructed = 0;
+	*out_tag_number = 0;
+	*out_indefinite = 0;
+	*out_length = 0;
 
-void
-ASN1_STRING_set0(ASN1_STRING *str, void *data, int len)
-{
-	freezero(str->data, str->length);
-	str->data = data;
-	str->length = len;
-}
+	if (!asn1_get_identifier_cbs(cbs, der_mode, &tag_class, &constructed,
+	    &tag_number))
+		return 0;
+	if (!asn1_get_length_cbs(cbs, der_mode, &indefinite, &length))
+		return 0;
 
-ASN1_STRING *
-ASN1_STRING_new(void)
-{
-	return (ASN1_STRING_type_new(V_ASN1_OCTET_STRING));
-}
+	/* Indefinite length can only be used with constructed encoding. */
+	if (indefinite && !constructed)
+		return 0;
 
-ASN1_STRING *
-ASN1_STRING_type_new(int type)
-{
-	ASN1_STRING *ret;
+	*out_tag_class = tag_class;
+	*out_constructed = constructed;
+	*out_tag_number = tag_number;
+	*out_indefinite = indefinite;
+	*out_length = length;
 
-	ret = malloc(sizeof(ASN1_STRING));
-	if (ret == NULL) {
-		ASN1error(ERR_R_MALLOC_FAILURE);
-		return (NULL);
-	}
-	ret->length = 0;
-	ret->type = type;
-	ret->data = NULL;
-	ret->flags = 0;
-	return (ret);
-}
-
-void
-ASN1_STRING_free(ASN1_STRING *a)
-{
-	if (a == NULL)
-		return;
-	if (a->data != NULL && !(a->flags & ASN1_STRING_FLAG_NDEF))
-		freezero(a->data, a->length);
-	free(a);
+	return 1;
 }
 
 int
-ASN1_STRING_cmp(const ASN1_STRING *a, const ASN1_STRING *b)
+asn1_get_primitive(CBS *cbs, int der_mode, uint32_t *out_tag_number,
+    CBS *out_content)
 {
-	int i;
+	int constructed, indefinite;
+	uint32_t tag_number;
+	uint8_t tag_class;
+	size_t length;
 
-	i = (a->length - b->length);
-	if (i == 0) {
-		i = memcmp(a->data, b->data, a->length);
-		if (i == 0)
-			return (a->type - b->type);
-		else
-			return (i);
-	} else
-		return (i);
-}
+	*out_tag_number = 0;
 
-void
-asn1_add_error(const unsigned char *address, int offset)
-{
-	ERR_asprintf_error_data("offset=%d", offset);
-}
+	CBS_init(out_content, NULL, 0);
 
-int
-ASN1_STRING_length(const ASN1_STRING *x)
-{
-	return (x->length);
-}
+	if (!asn1_get_identifier_cbs(cbs, der_mode, &tag_class, &constructed,
+	    &tag_number))
+		return 0;
+	if (!asn1_get_length_cbs(cbs, der_mode, &indefinite, &length))
+		return 0;
 
-void
-ASN1_STRING_length_set(ASN1_STRING *x, int len)
-{
-	x->length = len;
-}
+	/* A primitive is not constructed and has a definite length. */
+	if (constructed || indefinite)
+		return 0;
 
-int
-ASN1_STRING_type(const ASN1_STRING *x)
-{
-	return (x->type);
-}
+	if (!CBS_get_bytes(cbs, out_content, length))
+		return 0;
 
-unsigned char *
-ASN1_STRING_data(ASN1_STRING *x)
-{
-	return (x->data);
-}
+	*out_tag_number = tag_number;
 
-const unsigned char *
-ASN1_STRING_get0_data(const ASN1_STRING *x)
-{
-	return (x->data);
+	return 1;
 }

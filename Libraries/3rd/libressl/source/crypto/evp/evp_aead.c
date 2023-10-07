@@ -1,4 +1,4 @@
-/* $OpenBSD: evp_aead.c,v 1.6 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: evp_aead.c,v 1.10 2023/07/07 19:37:53 beck Exp $ */
 /*
  * Copyright (c) 2014, Google Inc.
  *
@@ -21,7 +21,7 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#include "evp_locl.h"
+#include "evp_local.h"
 
 size_t
 EVP_AEAD_key_length(const EVP_AEAD *aead)
@@ -66,6 +66,22 @@ EVP_AEAD_CTX_cleanup(EVP_AEAD_CTX *ctx)
 		return;
 	ctx->aead->cleanup(ctx);
 	ctx->aead = NULL;
+}
+
+EVP_AEAD_CTX *
+EVP_AEAD_CTX_new(void)
+{
+	return calloc(1, sizeof(EVP_AEAD_CTX));
+}
+
+void
+EVP_AEAD_CTX_free(EVP_AEAD_CTX *ctx)
+{
+	if (ctx == NULL)
+		return;
+
+	EVP_AEAD_CTX_cleanup(ctx);
+	free(ctx);
 }
 
 /* check_alias returns 0 if out points within the buffer determined by in

@@ -1,4 +1,4 @@
-/* $OpenBSD: ocsp_cl.c,v 1.16 2018/11/25 19:48:43 jmc Exp $ */
+/* $OpenBSD: ocsp_cl.c,v 1.23 2023/07/08 10:44:00 beck Exp $ */
 /* Written by Tom Titchener <Tom_Titchener@groove.net> for the OpenSSL
  * project. */
 
@@ -71,6 +71,8 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
+#include "ocsp_local.h"
+
 /* Utility functions related to sending OCSP requests and extracting
  * relevant information from the response.
  */
@@ -81,21 +83,23 @@
 OCSP_ONEREQ *
 OCSP_request_add0_id(OCSP_REQUEST *req, OCSP_CERTID *cid)
 {
-	OCSP_ONEREQ *one = NULL;
+	OCSP_ONEREQ *one;
 
-	if (!(one = OCSP_ONEREQ_new()))
+	if ((one = OCSP_ONEREQ_new()) == NULL)
 		goto err;
-	if (one->reqCert)
-		OCSP_CERTID_free(one->reqCert);
+	if (req != NULL) {
+		if (!sk_OCSP_ONEREQ_push(req->tbsRequest->requestList, one))
+			goto err;
+	}
+	OCSP_CERTID_free(one->reqCert);
 	one->reqCert = cid;
-	if (req && !sk_OCSP_ONEREQ_push(req->tbsRequest->requestList, one))
-		goto err;
 	return one;
 
-err:
+ err:
 	OCSP_ONEREQ_free(one);
 	return NULL;
 }
+LCRYPTO_ALIAS(OCSP_request_add0_id);
 
 /* Set requestorName from an X509_NAME structure */
 int
@@ -116,6 +120,7 @@ OCSP_request_set1_name(OCSP_REQUEST *req, X509_NAME *nm)
 	req->tbsRequest->requestorName = gen;
 	return 1;
 }
+LCRYPTO_ALIAS(OCSP_request_set1_name);
 
 /* Add a certificate to an OCSP request */
 int
@@ -135,9 +140,10 @@ OCSP_request_add1_cert(OCSP_REQUEST *req, X509 *cert)
 
 	if (!sk_X509_push(sig->certs, cert))
 		return 0;
-	CRYPTO_add(&cert->references, 1, CRYPTO_LOCK_X509);
+	X509_up_ref(cert);
 	return 1;
 }
+LCRYPTO_ALIAS(OCSP_request_add1_cert);
 
 /* Sign an OCSP request set the requestorName to the subject
  * name of an optional signers certificate and include one
@@ -183,6 +189,7 @@ err:
 	req->optionalSignature = NULL;
 	return 0;
 }
+LCRYPTO_ALIAS(OCSP_request_sign);
 
 /* Get response status */
 int
@@ -190,6 +197,7 @@ OCSP_response_status(OCSP_RESPONSE *resp)
 {
 	return ASN1_ENUMERATED_get(resp->responseStatus);
 }
+LCRYPTO_ALIAS(OCSP_response_status);
 
 /* Extract basic response from OCSP_RESPONSE or NULL if
  * no basic response present.
@@ -211,8 +219,9 @@ OCSP_response_get1_basic(OCSP_RESPONSE *resp)
 
 	return ASN1_item_unpack(rb->response, &OCSP_BASICRESP_it);
 }
+LCRYPTO_ALIAS(OCSP_response_get1_basic);
 
-/* Return number of OCSP_SINGLERESP reponses present in
+/* Return number of OCSP_SINGLERESP responses present in
  * a basic response.
  */
 int
@@ -222,6 +231,7 @@ OCSP_resp_count(OCSP_BASICRESP *bs)
 		return -1;
 	return sk_OCSP_SINGLERESP_num(bs->tbsResponseData->responses);
 }
+LCRYPTO_ALIAS(OCSP_resp_count);
 
 /* Extract an OCSP_SINGLERESP response with a given index */
 OCSP_SINGLERESP *
@@ -231,6 +241,62 @@ OCSP_resp_get0(OCSP_BASICRESP *bs, int idx)
 		return NULL;
 	return sk_OCSP_SINGLERESP_value(bs->tbsResponseData->responses, idx);
 }
+LCRYPTO_ALIAS(OCSP_resp_get0);
+
+const ASN1_GENERALIZEDTIME *
+OCSP_resp_get0_produced_at(const OCSP_BASICRESP *bs)
+{
+	return bs->tbsResponseData->producedAt;
+}
+LCRYPTO_ALIAS(OCSP_resp_get0_produced_at);
+
+const STACK_OF(X509) *
+OCSP_resp_get0_certs(const OCSP_BASICRESP *bs)
+{
+	return bs->certs;
+}
+LCRYPTO_ALIAS(OCSP_resp_get0_certs);
+
+int
+OCSP_resp_get0_id(const OCSP_BASICRESP *bs, const ASN1_OCTET_STRING **pid,
+    const X509_NAME **pname)
+{
+	const OCSP_RESPID *rid = bs->tbsResponseData->responderId;
+
+	if (rid->type == V_OCSP_RESPID_NAME) {
+		*pname = rid->value.byName;
+		*pid = NULL;
+	} else if (rid->type == V_OCSP_RESPID_KEY) {
+		*pid = rid->value.byKey;
+		*pname = NULL;
+	} else {
+		return 0;
+	}
+
+	return 1;
+}
+LCRYPTO_ALIAS(OCSP_resp_get0_id);
+
+const ASN1_OCTET_STRING *
+OCSP_resp_get0_signature(const OCSP_BASICRESP *bs)
+{
+	return bs->signature;
+}
+LCRYPTO_ALIAS(OCSP_resp_get0_signature);
+
+const X509_ALGOR *
+OCSP_resp_get0_tbs_sigalg(const OCSP_BASICRESP *bs)
+{
+	return bs->signatureAlgorithm;
+}
+LCRYPTO_ALIAS(OCSP_resp_get0_tbs_sigalg);
+
+const OCSP_RESPDATA *
+OCSP_resp_get0_respdata(const OCSP_BASICRESP *bs)
+{
+	return bs->tbsResponseData;
+}
+LCRYPTO_ALIAS(OCSP_resp_get0_respdata);
 
 /* Look single response matching a given certificate ID */
 int
@@ -254,6 +320,7 @@ OCSP_resp_find(OCSP_BASICRESP *bs, OCSP_CERTID *id, int last)
 	}
 	return -1;
 }
+LCRYPTO_ALIAS(OCSP_resp_find);
 
 /* Extract status information from an OCSP_SINGLERESP structure.
  * Note: the revtime and reason values are only set if the
@@ -291,6 +358,7 @@ OCSP_single_get0_status(OCSP_SINGLERESP *single, int *reason,
 		*nextupd = single->nextUpdate;
 	return ret;
 }
+LCRYPTO_ALIAS(OCSP_single_get0_status);
 
 /* This function combines the previous ones: look up a certificate ID and
  * if found extract status information. Return 0 is successful.
@@ -313,6 +381,7 @@ OCSP_resp_find_status(OCSP_BASICRESP *bs, OCSP_CERTID *id, int *status,
 		*status = i;
 	return 1;
 }
+LCRYPTO_ALIAS(OCSP_resp_find_status);
 
 /* Check validity of thisUpdate and nextUpdate fields. It is possible that the request will
  * take a few seconds to process and/or the time wont be totally accurate. Therefore to avoid
@@ -390,9 +459,11 @@ OCSP_check_validity(ASN1_GENERALIZEDTIME *thisupd,
 
 	return 1;
 }
+LCRYPTO_ALIAS(OCSP_check_validity);
 
 const OCSP_CERTID *
 OCSP_SINGLERESP_get0_id(const OCSP_SINGLERESP *single)
 {
 	return single->certId;
 }
+LCRYPTO_ALIAS(OCSP_SINGLERESP_get0_id);

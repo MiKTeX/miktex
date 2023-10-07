@@ -1,4 +1,4 @@
-/* $OpenBSD: p_seal.c,v 1.14 2014/10/22 13:02:04 jsing Exp $ */
+/* $OpenBSD: p_seal.c,v 1.16 2023/07/07 19:37:54 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

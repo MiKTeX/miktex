@@ -1,4 +1,4 @@
-/* $OpenBSD: x_crl.c,v 1.34 2019/03/13 20:34:00 tb Exp $ */
+/* $OpenBSD: x_crl.c,v 1.41 2023/07/07 19:37:52 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -65,7 +65,8 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
-#include "asn1_locl.h"
+#include "asn1_local.h"
+#include "x509_local.h"
 
 static int X509_REVOKED_cmp(const X509_REVOKED * const *a,
     const X509_REVOKED * const *b);
@@ -287,9 +288,7 @@ crl_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it, void *exarg)
 		break;
 
 	case ASN1_OP_D2I_POST:
-#ifndef OPENSSL_NO_SHA
-		X509_CRL_digest(crl, EVP_sha1(), crl->sha1_hash, NULL);
-#endif
+		X509_CRL_digest(crl, X509_CRL_HASH_EVP, crl->hash, NULL);
 		crl->idp = X509_CRL_get_ext_d2i(crl,
 		    NID_issuing_distribution_point, NULL, NULL);
 		if (crl->idp)
@@ -659,14 +658,15 @@ X509_CRL_METHOD_new(int (*crl_init)(X509_CRL *crl),
 {
 	X509_CRL_METHOD *m;
 
-	m = malloc(sizeof(X509_CRL_METHOD));
-	if (!m)
+	if ((m = calloc(1, sizeof(X509_CRL_METHOD))) == NULL)
 		return NULL;
+
 	m->crl_init = crl_init;
 	m->crl_free = crl_free;
 	m->crl_lookup = crl_lookup;
 	m->crl_verify = crl_verify;
 	m->flags = X509_CRL_METHOD_DYNAMIC;
+
 	return m;
 }
 
@@ -754,4 +754,10 @@ X509_CRL_get0_signature(const X509_CRL *crl, const ASN1_BIT_STRING **psig,
 		*psig = crl->signature;
 	if (palg != NULL)
 		*palg = crl->sig_alg;
+}
+
+const X509_ALGOR *
+X509_CRL_get0_tbs_sigalg(const X509_CRL *crl)
+{
+	return crl->crl->sig_alg;
 }

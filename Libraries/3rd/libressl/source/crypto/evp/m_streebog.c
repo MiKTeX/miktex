@@ -1,4 +1,4 @@
-/* $OpenBSD: m_streebog.c,v 1.2 2014/11/09 23:06:50 miod Exp $ */
+/* $OpenBSD: m_streebog.c,v 1.7 2023/07/07 19:37:54 beck Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -57,6 +57,8 @@
 #include <openssl/gost.h>
 #include <openssl/objects.h>
 
+#include "evp_local.h"
+
 static int
 streebog_init256(EVP_MD_CTX *ctx)
 {
@@ -97,7 +99,7 @@ static const EVP_MD streebog256_md = {
 	.type = NID_id_tc26_gost3411_2012_256,
 	.pkey_type = NID_undef,
 	.md_size = STREEBOG256_LENGTH,
-	.flags = EVP_MD_FLAG_PKEY_METHOD_SIGNATURE,
+	.flags = 0,
 	.init = streebog_init256,
 	.update = streebog_update256,
 	.final = streebog_final256,
@@ -109,7 +111,7 @@ static const EVP_MD streebog512_md = {
 	.type = NID_id_tc26_gost3411_2012_512,
 	.pkey_type = NID_undef,
 	.md_size = STREEBOG512_LENGTH,
-	.flags = EVP_MD_FLAG_PKEY_METHOD_SIGNATURE,
+	.flags = 0,
 	.init = streebog_init512,
 	.update = streebog_update512,
 	.final = streebog_final512,

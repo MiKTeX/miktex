@@ -1,4 +1,4 @@
-/* $OpenBSD: armcap.c,v 1.8 2019/03/13 10:18:30 patrick Exp $ */
+/* $OpenBSD: armcap.c,v 1.2 2023/07/26 09:57:34 jsing Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,10 +26,6 @@ void _armv8_aes_probe(void);
 void _armv8_sha1_probe(void);
 void _armv8_sha256_probe(void);
 void _armv8_pmull_probe(void);
-#endif
-
-#if defined(__GNUC__) && __GNUC__>=2
-void OPENSSL_cpuid_setup(void) __attribute__((constructor));
 #endif
 
 void

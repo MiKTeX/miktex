@@ -1,4 +1,4 @@
-/* $OpenBSD: by_mem.c,v 1.4 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: by_mem.c,v 1.8 2023/02/16 08:38:17 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -68,6 +68,8 @@
 #include <openssl/lhash.h>
 #include <openssl/x509.h>
 
+#include "x509_local.h"
+
 static int by_mem_ctrl(X509_LOOKUP *, int, const char *, long, char **);
 
 static X509_LOOKUP_METHOD x509_mem_lookup = {
@@ -88,6 +90,7 @@ X509_LOOKUP_mem(void)
 {
 	return (&x509_mem_lookup);
 }
+LCRYPTO_ALIAS(X509_LOOKUP_mem);
 
 static int
 by_mem_ctrl(X509_LOOKUP *lu, int cmd, const char *buf,

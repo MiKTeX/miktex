@@ -1,4 +1,4 @@
-/* $OpenBSD: ts_rsp_verify.c,v 1.18 2017/01/29 17:49:23 beck Exp $ */
+/* $OpenBSD: ts_rsp_verify.c,v 1.30 2023/07/07 07:25:21 beck Exp $ */
 /* Written by Zoltan Glozik (zglozik@stones.com) for the OpenSSL
  * project 2002.
  */
@@ -64,6 +64,10 @@
 #include <openssl/pkcs7.h>
 #include <openssl/ts.h>
 
+#include "evp_local.h"
+#include "ts_local.h"
+#include "x509_local.h"
+
 /* Private function declarations. */
 
 static int TS_verify_cert(X509_STORE *store, STACK_OF(X509) *untrusted,
@@ -71,7 +75,9 @@ static int TS_verify_cert(X509_STORE *store, STACK_OF(X509) *untrusted,
 static int TS_check_signing_certs(PKCS7_SIGNER_INFO *si, STACK_OF(X509) *chain);
 static ESS_SIGNING_CERT *ESS_get_signing_cert(PKCS7_SIGNER_INFO *si);
 static int TS_find_cert(STACK_OF(ESS_CERT_ID) *cert_ids, X509 *cert);
-static int TS_issuer_serial_cmp(ESS_ISSUER_SERIAL *is, X509_CINF *cinfo);
+static ESS_SIGNING_CERT_V2 *ESS_get_signing_cert_v2(PKCS7_SIGNER_INFO *si);
+static int TS_find_cert_v2(STACK_OF(ESS_CERT_ID_V2) *cert_ids, X509 *cert);
+static int TS_issuer_serial_cmp(ESS_ISSUER_SERIAL *is, X509 *cert);
 static int int_TS_RESP_verify_token(TS_VERIFY_CTX *ctx,
     PKCS7 *token, TS_TST_INFO *tst_info);
 static int TS_check_status_info(TS_RESP *response);
@@ -224,6 +230,7 @@ err:
 
 	return ret;
 }
+LCRYPTO_ALIAS(TS_RESP_verify_signature);
 
 /*
  * The certificate chain is returned in chain. Caller is responsible for
@@ -269,36 +276,67 @@ err:
 static int
 TS_check_signing_certs(PKCS7_SIGNER_INFO *si, STACK_OF(X509) *chain)
 {
-	ESS_SIGNING_CERT *ss = ESS_get_signing_cert(si);
-	STACK_OF(ESS_CERT_ID) *cert_ids = NULL;
+	ESS_SIGNING_CERT *ss = NULL;
+	STACK_OF(ESS_CERT_ID) *cert_ids;
+	ESS_SIGNING_CERT_V2 *ssv2 = NULL;
+	STACK_OF(ESS_CERT_ID_V2) *cert_ids_v2;
 	X509 *cert;
 	int i = 0;
 	int ret = 0;
 
-	if (!ss)
-		goto err;
-	cert_ids = ss->cert_ids;
-	/* The signer certificate must be the first in cert_ids. */
-	cert = sk_X509_value(chain, 0);
-	if (TS_find_cert(cert_ids, cert) != 0)
-		goto err;
+	if ((ss = ESS_get_signing_cert(si)) != NULL) {
+		cert_ids = ss->cert_ids;
+		/* The signer certificate must be the first in cert_ids. */
+		cert = sk_X509_value(chain, 0);
 
-	/* Check the other certificates of the chain if there are more
-	   than one certificate ids in cert_ids. */
-	if (sk_ESS_CERT_ID_num(cert_ids) > 1) {
-		/* All the certificates of the chain must be in cert_ids. */
-		for (i = 1; i < sk_X509_num(chain); ++i) {
-			cert = sk_X509_value(chain, i);
-			if (TS_find_cert(cert_ids, cert) < 0)
-				goto err;
+		if (TS_find_cert(cert_ids, cert) != 0)
+			goto err;
+
+		/*
+		 * Check the other certificates of the chain if there are more
+		 * than one certificate ids in cert_ids.
+		 */
+		if (sk_ESS_CERT_ID_num(cert_ids) > 1) {
+			/* All the certificates of the chain must be in cert_ids. */
+			for (i = 1; i < sk_X509_num(chain); i++) {
+				cert = sk_X509_value(chain, i);
+
+				if (TS_find_cert(cert_ids, cert) < 0)
+					goto err;
+			}
 		}
 	}
+
+	if ((ssv2 = ESS_get_signing_cert_v2(si)) != NULL) {
+		cert_ids_v2 = ssv2->cert_ids;
+		/* The signer certificate must be the first in cert_ids_v2. */
+		cert = sk_X509_value(chain, 0);
+
+		if (TS_find_cert_v2(cert_ids_v2, cert) != 0)
+			goto err;
+
+		/*
+		 * Check the other certificates of the chain if there are more
+		 * than one certificate ids in cert_ids_v2.
+		 */
+		if (sk_ESS_CERT_ID_V2_num(cert_ids_v2) > 1) {
+			/* All the certificates of the chain must be in cert_ids_v2. */
+			for (i = 1; i < sk_X509_num(chain); i++) {
+				cert = sk_X509_value(chain, i);
+
+				if (TS_find_cert_v2(cert_ids_v2, cert) < 0)
+					goto err;
+			}
+		}
+	}
+
 	ret = 1;
 
 err:
 	if (!ret)
 		TSerror(TS_R_ESS_SIGNING_CERTIFICATE_ERROR);
 	ESS_SIGNING_CERT_free(ss);
+	ESS_SIGNING_CERT_V2_free(ssv2);
 	return ret;
 }
 
@@ -318,29 +356,82 @@ ESS_get_signing_cert(PKCS7_SIGNER_INFO *si)
 	return d2i_ESS_SIGNING_CERT(NULL, &p, attr->value.sequence->length);
 }
 
+static ESS_SIGNING_CERT_V2 *
+ESS_get_signing_cert_v2(PKCS7_SIGNER_INFO *si)
+{
+	ASN1_TYPE *attr;
+	const unsigned char *p;
+
+	attr = PKCS7_get_signed_attribute(si, NID_id_smime_aa_signingCertificateV2);
+	if (attr == NULL)
+		return NULL;
+	p = attr->value.sequence->data;
+	return d2i_ESS_SIGNING_CERT_V2(NULL, &p, attr->value.sequence->length);
+}
+
 /* Returns < 0 if certificate is not found, certificate index otherwise. */
 static int
 TS_find_cert(STACK_OF(ESS_CERT_ID) *cert_ids, X509 *cert)
 {
 	int i;
+	unsigned char cert_hash[TS_HASH_LEN];
 
 	if (!cert_ids || !cert)
 		return -1;
 
+	if (!X509_digest(cert, TS_HASH_EVP, cert_hash, NULL))
+		return -1;
+
 	/* Recompute SHA1 hash of certificate if necessary (side effect). */
-	X509_check_purpose(cert, -1, 0);
+	if (X509_check_purpose(cert, -1, 0) == -1)
+		return -1;
 
 	/* Look for cert in the cert_ids vector. */
 	for (i = 0; i < sk_ESS_CERT_ID_num(cert_ids); ++i) {
 		ESS_CERT_ID *cid = sk_ESS_CERT_ID_value(cert_ids, i);
 
 		/* Check the SHA-1 hash first. */
-		if (cid->hash->length == sizeof(cert->sha1_hash) &&
-		    !memcmp(cid->hash->data, cert->sha1_hash,
-			sizeof(cert->sha1_hash))) {
+		if (cid->hash->length == TS_HASH_LEN && !memcmp(cid->hash->data,
+		    cert_hash, TS_HASH_LEN)) {
 			/* Check the issuer/serial as well if specified. */
 			ESS_ISSUER_SERIAL *is = cid->issuer_serial;
-			if (!is || !TS_issuer_serial_cmp(is, cert->cert_info))
+
+			if (is == NULL || TS_issuer_serial_cmp(is, cert) == 0)
+				return i;
+		}
+	}
+
+	return -1;
+}
+
+/* Returns < 0 if certificate is not found, certificate index otherwise. */
+static int
+TS_find_cert_v2(STACK_OF(ESS_CERT_ID_V2) *cert_ids, X509 *cert)
+{
+	int i;
+	unsigned char cert_digest[EVP_MAX_MD_SIZE];
+	unsigned int len;
+
+	/* Look for cert in the cert_ids vector. */
+	for (i = 0; i < sk_ESS_CERT_ID_V2_num(cert_ids); ++i) {
+		ESS_CERT_ID_V2 *cid = sk_ESS_CERT_ID_V2_value(cert_ids, i);
+		const EVP_MD *md = EVP_sha256();
+
+		if (cid->hash_alg != NULL)
+			md = EVP_get_digestbyobj(cid->hash_alg->algorithm);
+		if (md == NULL)
+			return -1;
+
+		if (!X509_digest(cert, md, cert_digest, &len))
+			return -1;
+
+		if ((unsigned int)cid->hash->length != len)
+			return -1;
+
+		if (memcmp(cid->hash->data, cert_digest, cid->hash->length) == 0) {
+			ESS_ISSUER_SERIAL *is = cid->issuer_serial;
+
+			if (is == NULL || TS_issuer_serial_cmp(is, cert) == 0)
 				return i;
 		}
 	}
@@ -349,21 +440,21 @@ TS_find_cert(STACK_OF(ESS_CERT_ID) *cert_ids, X509 *cert)
 }
 
 static int
-TS_issuer_serial_cmp(ESS_ISSUER_SERIAL *is, X509_CINF *cinfo)
+TS_issuer_serial_cmp(ESS_ISSUER_SERIAL *is, X509 *cert)
 {
 	GENERAL_NAME *issuer;
 
-	if (!is || !cinfo || sk_GENERAL_NAME_num(is->issuer) != 1)
+	if (is == NULL || cert == NULL || sk_GENERAL_NAME_num(is->issuer) != 1)
 		return -1;
 
 	/* Check the issuer first. It must be a directory name. */
 	issuer = sk_GENERAL_NAME_value(is->issuer, 0);
 	if (issuer->type != GEN_DIRNAME ||
-	    X509_NAME_cmp(issuer->d.dirn, cinfo->issuer))
+	    X509_NAME_cmp(issuer->d.dirn, X509_get_issuer_name(cert)))
 		return -1;
 
 	/* Check the serial number, too. */
-	if (ASN1_INTEGER_cmp(is->serial, cinfo->serialNumber))
+	if (ASN1_INTEGER_cmp(is->serial, X509_get_serialNumber(cert)))
 		return -1;
 
 	return 0;
@@ -395,6 +486,7 @@ TS_RESP_verify_response(TS_VERIFY_CTX *ctx, TS_RESP *response)
 err:
 	return ret;
 }
+LCRYPTO_ALIAS(TS_RESP_verify_response);
 
 /*
  * Tries to extract a TS_TST_INFO structure from the PKCS7 token and
@@ -412,6 +504,7 @@ TS_RESP_verify_token(TS_VERIFY_CTX *ctx, PKCS7 *token)
 	}
 	return ret;
 }
+LCRYPTO_ALIAS(TS_RESP_verify_token);
 
 /*
  * Verifies whether the 'token' contains a valid time stamp token
@@ -593,35 +686,40 @@ TS_check_policy(ASN1_OBJECT *req_oid, TS_TST_INFO *tst_info)
 }
 
 static int
-TS_compute_imprint(BIO *data, TS_TST_INFO *tst_info, X509_ALGOR **md_alg,
-    unsigned char **imprint, unsigned *imprint_len)
+TS_compute_imprint(BIO *data, TS_TST_INFO *tst_info, X509_ALGOR **out_md_alg,
+    unsigned char **out_imprint, unsigned int *out_imprint_len)
 {
-	TS_MSG_IMPRINT *msg_imprint = TS_TST_INFO_get_msg_imprint(tst_info);
-	X509_ALGOR *md_alg_resp = TS_MSG_IMPRINT_get_algo(msg_imprint);
+	TS_MSG_IMPRINT *msg_imprint;
+	X509_ALGOR *md_alg_resp;
+	X509_ALGOR *md_alg = NULL;
+	unsigned char *imprint = NULL;
+	unsigned int imprint_len = 0;
 	const EVP_MD *md;
 	EVP_MD_CTX md_ctx;
 	unsigned char buffer[4096];
 	int length;
 
-	*md_alg = NULL;
-	*imprint = NULL;
+	*out_md_alg = NULL;
+	*out_imprint = NULL;
+	*out_imprint_len = 0;
 
-	/* Return the MD algorithm of the response. */
-	if (!(*md_alg = X509_ALGOR_dup(md_alg_resp)))
+	/* Retrieve the MD algorithm of the response. */
+	msg_imprint = TS_TST_INFO_get_msg_imprint(tst_info);
+	md_alg_resp = TS_MSG_IMPRINT_get_algo(msg_imprint);
+	if ((md_alg = X509_ALGOR_dup(md_alg_resp)) == NULL)
 		goto err;
 
 	/* Getting the MD object. */
-	if (!(md = EVP_get_digestbyobj((*md_alg)->algorithm))) {
+	if ((md = EVP_get_digestbyobj((md_alg)->algorithm)) == NULL) {
 		TSerror(TS_R_UNSUPPORTED_MD_ALGORITHM);
 		goto err;
 	}
 
 	/* Compute message digest. */
-	length = EVP_MD_size(md);
-	if (length < 0)
+	if ((length = EVP_MD_size(md)) < 0)
 		goto err;
-	*imprint_len = length;
-	if (!(*imprint = malloc(*imprint_len))) {
+	imprint_len = length;
+	if ((imprint = malloc(imprint_len)) == NULL) {
 		TSerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -632,16 +730,20 @@ TS_compute_imprint(BIO *data, TS_TST_INFO *tst_info, X509_ALGOR **md_alg,
 		if (!EVP_DigestUpdate(&md_ctx, buffer, length))
 			goto err;
 	}
-	if (!EVP_DigestFinal(&md_ctx, *imprint, NULL))
+	if (!EVP_DigestFinal(&md_ctx, imprint, NULL))
 		goto err;
+
+	*out_md_alg = md_alg;
+	md_alg = NULL;
+	*out_imprint = imprint;
+	imprint = NULL;
+	*out_imprint_len = imprint_len;
 
 	return 1;
 
 err:
-	X509_ALGOR_free(*md_alg);
-	free(*imprint);
-	*imprint = NULL;
-	*imprint_len = 0;
+	X509_ALGOR_free(md_alg);
+	free(imprint);
 	return 0;
 }
 
@@ -711,7 +813,7 @@ TS_check_signer_name(GENERAL_NAME *tsa_name, X509 *signer)
 
 	/* Check the subject name first. */
 	if (tsa_name->type == GEN_DIRNAME &&
-	    X509_name_cmp(tsa_name->d.dirn, signer->cert_info->subject) == 0)
+	    X509_name_cmp(tsa_name->d.dirn, X509_get_subject_name(signer)) == 0)
 		return 1;
 
 	/* Check all the alternative names. */

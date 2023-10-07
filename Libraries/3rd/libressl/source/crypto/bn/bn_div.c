@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_div.c,v 1.25 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: bn_div.c,v 1.40 2023/03/27 10:21:23 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -56,6 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
+#include <assert.h>
 #include <stdio.h>
 
 #include <openssl/opensslconf.h>
@@ -63,149 +64,264 @@
 #include <openssl/bn.h>
 #include <openssl/err.h>
 
-#include "bn_lcl.h"
+#include "bn_arch.h"
+#include "bn_local.h"
+#include "bn_internal.h"
 
-#if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) \
-    && !defined(BN_DIV3W)
-# if defined(__GNUC__) && __GNUC__>=2
-#  if defined(__i386) || defined (__i386__)
-   /*
-    * There were two reasons for implementing this template:
-    * - GNU C generates a call to a function (__udivdi3 to be exact)
-    *   in reply to ((((BN_ULLONG)n0)<<BN_BITS2)|n1)/d0 (I fail to
-    *   understand why...);
-    * - divl doesn't only calculate quotient, but also leaves
-    *   remainder in %edx which we can definitely use here:-)
-    *
-    *					<appro@fy.chalmers.se>
-    */
-#undef bn_div_words
-#  define bn_div_words(n0,n1,d0)		\
-	({  asm volatile (			\
-		"divl	%4"			\
-		: "=a"(q), "=d"(rem)		\
-		: "a"(n1), "d"(n0), "g"(d0)	\
-		: "cc");			\
-	    q;					\
-	})
-#  define REMAINDER_IS_ALREADY_CALCULATED
-#  elif defined(__x86_64) && defined(_LP64)
-   /*
-    * Same story here, but it's 128-bit by 64-bit division. Wow!
-    *					<appro@fy.chalmers.se>
-    */
-#  undef bn_div_words
-#  define bn_div_words(n0,n1,d0)		\
-	({  asm volatile (			\
-		"divq	%4"			\
-		: "=a"(q), "=d"(rem)		\
-		: "a"(n1), "d"(n0), "g"(d0)	\
-		: "cc");			\
-	    q;					\
-	})
-#  define REMAINDER_IS_ALREADY_CALCULATED
-#  endif /* __<cpu> */
-# endif /* __GNUC__ */
-#endif /* OPENSSL_NO_ASM */
+BN_ULONG bn_div_3_words(const BN_ULONG *m, BN_ULONG d1, BN_ULONG d0);
 
+#ifndef HAVE_BN_DIV_WORDS
+#if defined(BN_LLONG) && defined(BN_DIV2W)
 
-/* BN_div computes  dv := num / divisor,  rounding towards
- * zero, and sets up rm  such that  dv*divisor + rm = num  holds.
- * Thus:
- *     dv->neg == num->neg ^ divisor->neg  (unless the result is zero)
- *     rm->neg == num->neg                 (unless the remainder is zero)
- * If 'dv' or 'rm' is NULL, the respective value is not returned.
+BN_ULONG
+bn_div_words(BN_ULONG h, BN_ULONG l, BN_ULONG d)
+{
+	return ((BN_ULONG)(((((BN_ULLONG)h) << BN_BITS2)|l)/(BN_ULLONG)d));
+}
+
+#else
+
+/* Divide h,l by d and return the result. */
+/* I need to test this some more :-( */
+BN_ULONG
+bn_div_words(BN_ULONG h, BN_ULONG l, BN_ULONG d)
+{
+	BN_ULONG dh, dl, q,ret = 0, th, tl, t;
+	int i, count = 2;
+
+	if (d == 0)
+		return (BN_MASK2);
+
+	i = BN_num_bits_word(d);
+	assert((i == BN_BITS2) || (h <= (BN_ULONG)1 << i));
+
+	i = BN_BITS2 - i;
+	if (h >= d)
+		h -= d;
+
+	if (i) {
+		d <<= i;
+		h = (h << i) | (l >> (BN_BITS2 - i));
+		l <<= i;
+	}
+	dh = (d & BN_MASK2h) >> BN_BITS4;
+	dl = (d & BN_MASK2l);
+	for (;;) {
+		if ((h >> BN_BITS4) == dh)
+			q = BN_MASK2l;
+		else
+			q = h / dh;
+
+		th = q * dh;
+		tl = dl * q;
+		for (;;) {
+			t = h - th;
+			if ((t & BN_MASK2h) ||
+			    ((tl) <= (
+			    (t << BN_BITS4) |
+			    ((l & BN_MASK2h) >> BN_BITS4))))
+				break;
+			q--;
+			th -= dh;
+			tl -= dl;
+		}
+		t = (tl >> BN_BITS4);
+		tl = (tl << BN_BITS4) & BN_MASK2h;
+		th += t;
+
+		if (l < tl)
+			th++;
+		l -= tl;
+		if (h < th) {
+			h += d;
+			q--;
+		}
+		h -= th;
+
+		if (--count == 0)
+			break;
+
+		ret = q << BN_BITS4;
+		h = ((h << BN_BITS4) | (l >> BN_BITS4)) & BN_MASK2;
+		l = (l & BN_MASK2l) << BN_BITS4;
+	}
+	ret |= q;
+	return (ret);
+}
+#endif /* !defined(BN_LLONG) && defined(BN_DIV2W) */
+#endif
+
+/*
+ * Divide a double word (h:l) by d, returning the quotient q and the remainder
+ * r, such that q * d + r is equal to the numerator.
+ */
+#ifndef HAVE_BN_DIV_REM_WORDS
+#ifndef HAVE_BN_DIV_REM_WORDS_INLINE
+static inline void
+bn_div_rem_words_inline(BN_ULONG h, BN_ULONG l, BN_ULONG d, BN_ULONG *out_q,
+    BN_ULONG *out_r)
+{
+	BN_ULONG q, r;
+
+	q = bn_div_words(h, l, d);
+	r = (l - q * d) & BN_MASK2;
+
+	*out_q = q;
+	*out_r = r;
+}
+#endif
+
+void
+bn_div_rem_words(BN_ULONG h, BN_ULONG l, BN_ULONG d, BN_ULONG *out_q,
+    BN_ULONG *out_r)
+{
+	bn_div_rem_words_inline(h, l, d, out_q, out_r);
+}
+#endif
+
+#ifndef HAVE_BN_DIV_3_WORDS
+
+/*
+ * Interface is somewhat quirky, |m| is pointer to most significant limb,
+ * and less significant limb is referred at |m[-1]|. This means that caller
+ * is responsible for ensuring that |m[-1]| is valid. Second condition that
+ * has to be met is that |d0|'s most significant bit has to be set. Or in
+ * other words divisor has to be "bit-aligned to the left." The subroutine
+ * considers four limbs, two of which are "overlapping," hence the name...
+ */
+BN_ULONG
+bn_div_3_words(const BN_ULONG *m, BN_ULONG d1, BN_ULONG d0)
+{
+	BN_ULONG n0, n1, q, t2h, t2l;
+	BN_ULONG rem = 0;
+
+	n0 = m[0];
+	n1 = m[-1];
+
+	if (n0 == d0)
+		return BN_MASK2;
+
+	/* n0 < d0 */
+	bn_div_rem_words(n0, n1, d0, &q, &rem);
+
+	bn_mulw(d1, q, &t2h, &t2l);
+
+	for (;;) {
+		if (t2h < rem || (t2h == rem && t2l <= m[-2]))
+			break;
+		q--;
+		rem += d0;
+		if (rem < d0)
+			break; /* don't let rem overflow */
+		if (t2l < d1)
+			t2h--;
+		t2l -= d1;
+	}
+
+	return q;
+}
+#endif /* !HAVE_BN_DIV_3_WORDS */
+
+/*
+ * BN_div_internal computes quotient := numerator / divisor, rounding towards
+ * zero and setting remainder such that quotient * divisor + remainder equals
+ * the numerator. Thus:
+ *
+ *   quotient->neg  == numerator->neg ^ divisor->neg   (unless result is zero)
+ *   remainder->neg == numerator->neg           (unless the remainder is zero)
+ *
+ * If either the quotient or remainder is NULL, the respective value is not
+ * returned.
  */
 static int
-BN_div_internal(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
-    BN_CTX *ctx, int ct)
+BN_div_internal(BIGNUM *quotient, BIGNUM *remainder, const BIGNUM *numerator,
+    const BIGNUM *divisor, BN_CTX *ctx, int ct)
 {
-	int norm_shift, i, loop;
+	int norm_shift, i, loop, r_neg;
 	BIGNUM *tmp, wnum, *snum, *sdiv, *res;
 	BN_ULONG *resp, *wnump;
 	BN_ULONG d0, d1;
 	int num_n, div_n;
 	int no_branch = 0;
+	int ret = 0;
 
-	/* Invalid zero-padding would have particularly bad consequences
-	 * in the case of 'num', so don't just rely on bn_check_top() for this one
-	 * (bn_check_top() works only for BN_DEBUG builds) */
-	if (num->top > 0 && num->d[num->top - 1] == 0) {
+	BN_CTX_start(ctx);
+
+	/* Invalid zero-padding would have particularly bad consequences. */
+	if (numerator->top > 0 && numerator->d[numerator->top - 1] == 0) {
 		BNerror(BN_R_NOT_INITIALIZED);
-		return 0;
+		goto err;
 	}
-
-	bn_check_top(num);
 
 	if (ct)
 		no_branch = 1;
 
-	bn_check_top(dv);
-	bn_check_top(rm);
-	/* bn_check_top(num); */ /* 'num' has been checked already */
-	bn_check_top(divisor);
-
 	if (BN_is_zero(divisor)) {
 		BNerror(BN_R_DIV_BY_ZERO);
-		return (0);
-	}
-
-	if (!no_branch && BN_ucmp(num, divisor) < 0) {
-		if (rm != NULL) {
-			if (BN_copy(rm, num) == NULL)
-				return (0);
-		}
-		if (dv != NULL)
-			BN_zero(dv);
-		return (1);
-	}
-
-	BN_CTX_start(ctx);
-	tmp = BN_CTX_get(ctx);
-	snum = BN_CTX_get(ctx);
-	sdiv = BN_CTX_get(ctx);
-	if (dv == NULL)
-		res = BN_CTX_get(ctx);
-	else
-		res = dv;
-	if (tmp == NULL || snum == NULL || sdiv == NULL || res == NULL)
 		goto err;
+	}
 
-	/* First we normalise the numbers */
-	norm_shift = BN_BITS2 - ((BN_num_bits(divisor)) % BN_BITS2);
-	if (!(BN_lshift(sdiv, divisor, norm_shift)))
+	if (!no_branch) {
+		if (BN_ucmp(numerator, divisor) < 0) {
+			if (remainder != NULL) {
+				if (!bn_copy(remainder, numerator))
+					goto err;
+			}
+			if (quotient != NULL)
+				BN_zero(quotient);
+
+			goto done;
+		}
+	}
+
+	if ((tmp = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((snum = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((sdiv = BN_CTX_get(ctx)) == NULL)
+		goto err;
+	if ((res = quotient) == NULL) {
+		if ((res = BN_CTX_get(ctx)) == NULL)
+			goto err;
+	}
+
+	/* First we normalise the numbers. */
+	norm_shift = BN_BITS2 - BN_num_bits(divisor) % BN_BITS2;
+	if (!BN_lshift(sdiv, divisor, norm_shift))
 		goto err;
 	sdiv->neg = 0;
 	norm_shift += BN_BITS2;
-	if (!(BN_lshift(snum, num, norm_shift)))
+	if (!BN_lshift(snum, numerator, norm_shift))
 		goto err;
 	snum->neg = 0;
 
 	if (no_branch) {
-		/* Since we don't know whether snum is larger than sdiv,
-		 * we pad snum with enough zeroes without changing its
-		 * value.
+		/*
+		 * Since we don't know whether snum is larger than sdiv, we pad
+		 * snum with enough zeroes without changing its value.
 		 */
 		if (snum->top <= sdiv->top + 1) {
-			if (bn_wexpand(snum, sdiv->top + 2) == NULL)
+			if (!bn_wexpand(snum, sdiv->top + 2))
 				goto err;
 			for (i = snum->top; i < sdiv->top + 2; i++)
 				snum->d[i] = 0;
 			snum->top = sdiv->top + 2;
 		} else {
-			if (bn_wexpand(snum, snum->top + 1) == NULL)
+			if (!bn_wexpand(snum, snum->top + 1))
 				goto err;
 			snum->d[snum->top] = 0;
-			snum->top ++;
+			snum->top++;
 		}
 	}
 
 	div_n = sdiv->top;
 	num_n = snum->top;
 	loop = num_n - div_n;
-	/* Lets setup a 'window' into snum
-	 * This is the part that corresponds to the current
-	 * 'area' being divided */
+
+	/*
+	 * Setup a 'window' into snum - this is the part that corresponds to the
+	 * current 'area' being divided.
+	 */
 	wnum.neg = 0;
 	wnum.d = &(snum->d[loop]);
 	wnum.top = div_n;
@@ -222,10 +338,10 @@ BN_div_internal(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor
 	wnump = &(snum->d[num_n - 1]);
 
 	/* Setup to 'res' */
-	res->neg = (num->neg ^ divisor->neg);
 	if (!bn_wexpand(res, (loop + 1)))
 		goto err;
 	res->top = loop - no_branch;
+	r_neg = numerator->neg ^ divisor->neg;
 	resp = &(res->d[loop - 1]);
 
 	/* space for temp */
@@ -234,18 +350,16 @@ BN_div_internal(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor
 
 	if (!no_branch) {
 		if (BN_ucmp(&wnum, sdiv) >= 0) {
-			/* If BN_DEBUG_RAND is defined BN_ucmp changes (via
-			 * bn_pollute) the const bignum arguments =>
-			 * clean the values between top and max again */
-			bn_clear_top2max(&wnum);
 			bn_sub_words(wnum.d, wnum.d, sdiv->d, div_n);
 			*resp = 1;
 		} else
 			res->top--;
 	}
 
-	/* if res->top == 0 then clear the neg value otherwise decrease
-	 * the resp pointer */
+	/*
+	 * If res->top == 0 then clear the neg value otherwise decrease the resp
+	 * pointer.
+	 */
 	if (res->top == 0)
 		res->neg = 0;
 	else
@@ -253,151 +367,91 @@ BN_div_internal(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor
 
 	for (i = 0; i < loop - 1; i++, wnump--, resp--) {
 		BN_ULONG q, l0;
-		/* the first part of the loop uses the top two words of
-		 * snum and sdiv to calculate a BN_ULONG q such that
-		 * | wnum - sdiv * q | < sdiv */
-#if defined(BN_DIV3W) && !defined(OPENSSL_NO_ASM)
-		BN_ULONG bn_div_3_words(BN_ULONG*, BN_ULONG, BN_ULONG);
+
+		/*
+		 * The first part of the loop uses the top two words of snum and
+		 * sdiv to calculate a BN_ULONG q such that:
+		 *
+		 *  | wnum - sdiv * q | < sdiv
+		 */
 		q = bn_div_3_words(wnump, d1, d0);
-#else
-		BN_ULONG n0, n1, rem = 0;
-
-		n0 = wnump[0];
-		n1 = wnump[-1];
-		if (n0 == d0)
-			q = BN_MASK2;
-		else 			/* n0 < d0 */
-		{
-#ifdef BN_LLONG
-			BN_ULLONG t2;
-
-#if defined(BN_DIV2W) && !defined(bn_div_words)
-			q = (BN_ULONG)(((((BN_ULLONG)n0) << BN_BITS2)|n1)/d0);
-#else
-			q = bn_div_words(n0, n1, d0);
-#endif
-
-#ifndef REMAINDER_IS_ALREADY_CALCULATED
-			/*
-			 * rem doesn't have to be BN_ULLONG. The least we
-			 * know it's less that d0, isn't it?
-			 */
-			rem = (n1 - q * d0) & BN_MASK2;
-#endif
-			t2 = (BN_ULLONG)d1*q;
-
-			for (;;) {
-				if (t2 <= ((((BN_ULLONG)rem) << BN_BITS2) |
-				    wnump[-2]))
-					break;
-				q--;
-				rem += d0;
-				if (rem < d0) break; /* don't let rem overflow */
-					t2 -= d1;
-			}
-#else /* !BN_LLONG */
-			BN_ULONG t2l, t2h;
-
-			q = bn_div_words(n0, n1, d0);
-#ifndef REMAINDER_IS_ALREADY_CALCULATED
-			rem = (n1 - q*d0)&BN_MASK2;
-#endif
-
-#if defined(BN_UMULT_LOHI)
-			BN_UMULT_LOHI(t2l, t2h, d1, q);
-#elif defined(BN_UMULT_HIGH)
-			t2l = d1 * q;
-			t2h = BN_UMULT_HIGH(d1, q);
-#else
-			{
-				BN_ULONG ql, qh;
-				t2l = LBITS(d1);
-				t2h = HBITS(d1);
-				ql = LBITS(q);
-				qh = HBITS(q);
-				mul64(t2l, t2h, ql, qh); /* t2=(BN_ULLONG)d1*q; */
-			}
-#endif
-
-			for (;;) {
-				if ((t2h < rem) ||
-				    ((t2h == rem) && (t2l <= wnump[-2])))
-					break;
-				q--;
-				rem += d0;
-				if (rem < d0)
-					break; /* don't let rem overflow */
-				if (t2l < d1)
-					t2h--;
-				t2l -= d1;
-			}
-#endif /* !BN_LLONG */
-		}
-#endif /* !BN_DIV3W */
-
 		l0 = bn_mul_words(tmp->d, sdiv->d, div_n, q);
 		tmp->d[div_n] = l0;
 		wnum.d--;
-		/* ingore top values of the bignums just sub the two
-		 * BN_ULONG arrays with bn_sub_words */
+
+		/*
+		 * Ignore top values of the bignums just sub the two BN_ULONG
+		 * arrays with bn_sub_words.
+		 */
 		if (bn_sub_words(wnum.d, wnum.d, tmp->d, div_n + 1)) {
-			/* Note: As we have considered only the leading
-			 * two BN_ULONGs in the calculation of q, sdiv * q
-			 * might be greater than wnum (but then (q-1) * sdiv
-			 * is less or equal than wnum)
+			/*
+			 * Note: As we have considered only the leading two
+			 * BN_ULONGs in the calculation of q, sdiv * q might be
+			 * greater than wnum (but then (q-1) * sdiv is less or
+			 * equal than wnum).
 			 */
 			q--;
-			if (bn_add_words(wnum.d, wnum.d, sdiv->d, div_n))
-				/* we can't have an overflow here (assuming
+			if (bn_add_words(wnum.d, wnum.d, sdiv->d, div_n)) {
+				/*
+				 * We can't have an overflow here (assuming
 				 * that q != 0, but if q == 0 then tmp is
-				 * zero anyway) */
+				 * zero anyway).
+				 */
 				(*wnump)++;
+			}
 		}
 		/* store part of the result */
 		*resp = q;
 	}
+
 	bn_correct_top(snum);
-	if (rm != NULL) {
-		/* Keep a copy of the neg flag in num because if rm==num
-		 * BN_rshift() will overwrite it.
+
+	if (remainder != NULL) {
+		/*
+		 * Keep a copy of the neg flag in numerator because if
+		 * remainder == numerator, BN_rshift() will overwrite it.
 		 */
-		int neg = num->neg;
-		BN_rshift(rm, snum, norm_shift);
-		if (!BN_is_zero(rm))
-			rm->neg = neg;
-		bn_check_top(rm);
+		int neg = numerator->neg;
+
+		BN_rshift(remainder, snum, norm_shift);
+		BN_set_negative(remainder, neg);
 	}
+
 	if (no_branch)
 		bn_correct_top(res);
+
+	BN_set_negative(res, r_neg);
+
+ done:
+	ret = 1;
+ err:
 	BN_CTX_end(ctx);
-	return (1);
 
-err:
-	bn_check_top(rm);
-	BN_CTX_end(ctx);
-	return (0);
+	return ret;
 }
 
 int
-BN_div(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
-    BN_CTX *ctx)
+BN_div(BIGNUM *quotient, BIGNUM *remainder, const BIGNUM *numerator,
+    const BIGNUM *divisor, BN_CTX *ctx)
 {
-	int ct = ((BN_get_flags(num, BN_FLG_CONSTTIME) != 0) ||
-	    (BN_get_flags(divisor, BN_FLG_CONSTTIME) != 0));
+	int ct;
 
-	return BN_div_internal(dv, rm, num, divisor, ctx, ct);
+	ct = BN_get_flags(numerator, BN_FLG_CONSTTIME) != 0 ||
+	    BN_get_flags(divisor, BN_FLG_CONSTTIME) != 0;
+
+	return BN_div_internal(quotient, remainder, numerator, divisor, ctx, ct);
 }
 
 int
-BN_div_nonct(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
-    BN_CTX *ctx)
+BN_div_nonct(BIGNUM *quotient, BIGNUM *remainder, const BIGNUM *numerator,
+    const BIGNUM *divisor, BN_CTX *ctx)
 {
-	return BN_div_internal(dv, rm, num, divisor, ctx, 0);
+	return BN_div_internal(quotient, remainder, numerator, divisor, ctx, 0);
 }
 
 int
-BN_div_ct(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
-    BN_CTX *ctx)
+BN_div_ct(BIGNUM *quotient, BIGNUM *remainder, const BIGNUM *numerator,
+    const BIGNUM *divisor, BN_CTX *ctx)
 {
-	return BN_div_internal(dv, rm, num, divisor, ctx, 1);
+	return BN_div_internal(quotient, remainder, numerator, divisor, ctx, 1);
 }

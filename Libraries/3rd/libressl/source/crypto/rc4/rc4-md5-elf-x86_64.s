@@ -5,6 +5,7 @@
 .globl	rc4_md5_enc
 .type	rc4_md5_enc,@function
 rc4_md5_enc:
+	endbr64
 	cmpq	$0,%r9
 	je	.Labort
 	pushq	%rbx

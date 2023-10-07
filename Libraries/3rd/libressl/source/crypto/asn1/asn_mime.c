@@ -1,4 +1,4 @@
-/* $OpenBSD: asn_mime.c,v 1.27 2017/01/29 17:49:22 beck Exp $ */
+/* $OpenBSD: asn_mime.c,v 1.32 2023/07/05 21:23:36 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
  */
@@ -62,7 +62,8 @@
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
-#include "asn1_locl.h"
+#include "asn1_local.h"
+#include "evp_local.h"
 
 /* Generalised MIME like utilities for streaming ASN1. Although many
  * have a PKCS7/CMS like flavour others are more general purpose.
@@ -267,7 +268,7 @@ asn1_write_micalg(BIO *out, STACK_OF(X509_ALGOR) *mdalgs)
 
 	ret = 1;
 
-err:
+ err:
 	return ret;
 }
 
@@ -564,6 +565,7 @@ SMIME_crlf_copy(BIO *in, BIO *out, int flags)
 	BIO_free(bf);
 	return 1;
 }
+LCRYPTO_ALIAS(SMIME_crlf_copy);
 
 /* Strip off headers if they are text/plain */
 int
@@ -596,6 +598,7 @@ SMIME_text(BIO *in, BIO *out)
 		return 0;
 	return 1;
 }
+LCRYPTO_ALIAS(SMIME_text);
 
 /*
  * Split a multipart/XXX message body into component parts: result is
@@ -662,9 +665,8 @@ multi_split(BIO *bio, char *bound, STACK_OF(BIO) **ret)
 #define MIME_QUOTE	5
 #define MIME_COMMENT	6
 
-
-static
-STACK_OF(MIME_HEADER) *mime_parse_hdr(BIO *bio)
+static STACK_OF(MIME_HEADER) *
+mime_parse_hdr(BIO *bio)
 {
 	char *p, *q, c;
 	char *ntmp;
@@ -778,7 +780,7 @@ STACK_OF(MIME_HEADER) *mime_parse_hdr(BIO *bio)
 
 	return headers;
 
-merr:
+ merr:
 	if (mhdr != NULL)
 		mime_hdr_free(mhdr);
 	sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
@@ -866,7 +868,7 @@ mime_hdr_new(char *name, char *value)
 		goto err;
 	}
 	return mhdr;
-err:
+ err:
 	free(tmpname);
 	free(tmpval);
 	return NULL;
@@ -901,7 +903,7 @@ mime_hdr_addparam(MIME_HEADER *mhdr, char *name, char *value)
 		goto err;
 	}
 	return 1;
-err:
+ err:
 	free(tmpname);
 	free(tmpval);
 	return 0;
