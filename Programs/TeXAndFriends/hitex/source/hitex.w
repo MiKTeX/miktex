@@ -34249,8 +34249,10 @@ static void main_init(int ac, char *av[])
   argc = ac;
   argv = av;
   interaction = error_stop_mode;
+#if !defined(MIKTEX)
   kpse_record_input = recorder_record_input;
   kpse_record_output = recorder_record_output;
+#endif
 
   @<parse options@>@;
   @<set the program and engine name@>@;
@@ -34458,7 +34460,7 @@ static void parse_options (int argc, char *argv[]);
 we might need some special preparations for Windows.
 
 @<parse options@>=
-#if defined(WIN32)
+#if !defined(MIKTEX) && defined(WIN32)
 {@+ char* enc;
   kpse_set_program_name (argv[0], NULL);
   enc = kpse_var_value("command_line_encoding");
