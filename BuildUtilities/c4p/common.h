@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Common definitions
  *
- * @copyright Copyright © 1991-2022 Christian Schenk
+ * @copyright Copyright © 1991-2023 Christian Schenk
  *
  * This file is part of C4P.
  *
@@ -16,6 +16,8 @@
 #include <stack>
 #include <string>
 #include <vector>
+
+#include <fmt/format.h>
 
 #define T_(x) x
 
@@ -44,6 +46,8 @@ enum pascal_type
     VARIANT_FIELD_LIST_NODE,
     VARIANT_NODE,
 };
+
+inline auto format_as(pascal_type t) { return fmt::underlying(t); }
 
 const size_t BUF_SIZE = 8192;
 const size_t CHAR_POOL_SIZE = 20000;

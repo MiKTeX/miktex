@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2018-2022 Christian Schenk
+## Copyright (C) 2018-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -32,7 +32,7 @@ target_compile_definitions(${fmt_dll_name}
     INTERFACE
         -DFMT_SHARED
     PRIVATE
-        -DFMT_EXPORT
+        -DFMT_LIB_EXPORT
 )
 
 target_include_directories(${fmt_dll_name} PUBLIC ${public_include_directories})
