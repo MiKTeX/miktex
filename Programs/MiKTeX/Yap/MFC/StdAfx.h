@@ -1,6 +1,6 @@
 /* StdAfx.h: includes precompiled header files          -*- C++ -*-
 
-   Copyright (C) 1996-2021 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is part of Yap.
 
@@ -62,7 +62,11 @@
 #include <string>
 
 #include <log4cxx/logger.h>
+#if LOG4CXX_VERSION_MAJOR > 0
+#include <log4cxx/rolling/rollingfileappender.h>
+#else
 #include <log4cxx/rollingfileappender.h>
+#endif
 #include <log4cxx/xml/domconfigurator.h>
 
 #include <fmt/format.h>

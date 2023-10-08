@@ -1,6 +1,6 @@
 /* yap-version.h: Yap version information               -*- C++ -*-
 
-   Copyright (C) 1996-2022 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,8 +19,8 @@
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
 #define MIKTEX_COMP_MINOR_VERSION 4
-#define MIKTEX_COMP_PATCH_VERSION 0
+#define MIKTEX_COMP_PATCH_VERSION 1
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 1996-2021 Christian Schenk"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 1996-2023 Christian Schenk"
 
 #include <miktex/Version>
