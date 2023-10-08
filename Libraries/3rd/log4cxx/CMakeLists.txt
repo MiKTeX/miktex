@@ -21,6 +21,9 @@ set(LOGCHAR_IS_UNICHAR 0)
 set(LOGCHAR_IS_WCHAR 0)
 set(LOGCHAR_IS_UTF8 1)
 
+
+set(Boost_FILESYSTEM_FOUND 0)
+set(Boost_SHARED_MUTEX_FOUND 0)
 set(CFSTRING_API 0)
 set(CHARSET_EBCDIC 0)
 set(CHARSET_ISO88591 0)
@@ -40,8 +43,12 @@ set(HAS_THREAD_LOCAL 0)
 set(HAS_WCSTOMBS 0)
 set(INIT_IOS_BASE 0)
 set(MULTIPROCESS_RFA 0)
+set(NAMESPACE_ALIAS log4cxx)
 set(NETWORKING_SUPPORT 1)
+set(STD_EXPERIMENTAL_FILESYSTEM_FOUND 0)
+set(STD_FILESYSTEM_FOUND 1)
 set(STD_MAKE_UNIQUE_FOUND 1)
+set(STD_SHARED_MUTEX_FOUND 1)
 set(UNICHAR_API 0)
 set(WCHAR_T_API 1)
 
@@ -266,7 +273,7 @@ configure_file(
 list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/miktex-log4cxx-version.h)
 
 configure_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/source/src/main/include/log4cxx/log4cxx.hw
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/include/log4cxx/log4cxx.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/log4cxx.h
 )
 
@@ -284,7 +291,12 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/helpers/makeunique.h
 )
 
-list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/log4cxx/helpers/makeunique.h)
+list(APPEND log4cxx_sources ${CMAKE_CURRENT_BINARY_DIR}/include/log4cxx/helpers/makeunique.h)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/cmake/boost-fallback/boost-std-configuration.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/log4cxx/private/boost-std-configuration.h
+)
 
 # ${CMAKE_CURRENT_SOURCE_DIR}/source/src/main/cpp/
 list(APPEND log4cxx_sources

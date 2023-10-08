@@ -1,6 +1,6 @@
 ## CMakeLists.txt
 ##
-## Copyright (C) 2015-2022 Christian Schenk
+## Copyright (C) 2015-2023 Christian Schenk
 ## 
 ## This file is free software; the copyright holder gives
 ## unlimited permission to copy and/or distribute it, with or
@@ -53,6 +53,12 @@ if(USE_SYSTEM_APRUTIL)
   target_link_libraries(${log4cxx_dll_name} PUBLIC MiKTeX::Imported::APRUTIL)
 else()
   target_link_libraries(${log4cxx_dll_name} PUBLIC ${apr_util_dll_name})
+endif()
+
+if(USE_SYSTEM_FMT)
+  target_link_libraries(${log4cxx_dll_name} PUBLIC MiKTeX::Imported::FMT)
+else()
+  target_link_libraries(${log4cxx_dll_name} PUBLIC ${fmt_dll_name})
 endif()
 
 install(TARGETS ${log4cxx_dll_name}

@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>log4cxx lib win64</TPM:Name>
     <TPM:Title>log4cxx runtime library, Windows x64</TPM:Title>
-    <TPM:Copyright owner="The Apache Software Foundation" year="2000-2007"/>
+    <TPM:Copyright owner="The Apache Software Foundation" year="2000-2023"/>
     <TPM:License type="apache"/>
-    <TPM:Version>0.11.0</TPM:Version>
+    <TPM:Version>1.1.0</TPM:Version>
     <TPM:TargetSystem minVersion="@MIKTEX_MIN_TARGET_SYSTEM_VERSION@">windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
