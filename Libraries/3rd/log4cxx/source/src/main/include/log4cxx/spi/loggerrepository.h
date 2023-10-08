@@ -18,16 +18,11 @@
 #ifndef _LOG4CXX_SPI_LOG_REPOSITORY_H
 #define _LOG4CXX_SPI_LOG_REPOSITORY_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/appender.h>
 #include <log4cxx/spi/loggerfactory.h>
 #include <log4cxx/level.h>
 #include <log4cxx/spi/hierarchyeventlistener.h>
+#include <functional>
 
 namespace log4cxx
 {
@@ -56,6 +51,12 @@ class LOG4CXX_EXPORT LoggerRepository : public virtual helpers::Object
 		*/
 		virtual void addHierarchyEventListener(const HierarchyEventListenerPtr&
 			listener) = 0;
+
+		/**
+		 * Call \c configurator if not yet configured.
+		 */
+		virtual void ensureIsConfigured(std::function<void()> configurator) = 0;
+
 		/**
 		Is the repository disabled for a given level? The answer depends
 		on the repository threshold and the <code>level</code>
@@ -74,13 +75,14 @@ class LOG4CXX_EXPORT LoggerRepository : public virtual helpers::Object
 		parameter instead of a <code>Level</code>. */
 		virtual void setThreshold(const LogString& val) = 0;
 
-		virtual void emitNoAppenderWarning(const LoggerPtr& logger) = 0;
+		virtual void emitNoAppenderWarning(const Logger* logger) = 0;
 
 		/**
-		Get the repository-wide threshold. See {@link
-		#setThreshold(const LevelPtr&) setThreshold}
-		            for an explanation. */
-		virtual const LevelPtr& getThreshold() const = 0;
+		Get the repository-wide threshold.
+
+		See setThreshold for an explanation.
+		*/
+		virtual LevelPtr getThreshold() const = 0;
 
 		virtual LoggerPtr getLogger(const LogString& name) = 0;
 
@@ -95,8 +97,9 @@ class LOG4CXX_EXPORT LoggerRepository : public virtual helpers::Object
 
 		virtual LoggerList getCurrentLoggers() const = 0;
 
-		virtual void fireAddAppenderEvent(const LoggerPtr& logger,
-			const AppenderPtr& appender) = 0;
+		virtual void fireAddAppenderEvent(const Logger* logger,	const Appender* appender) {};
+
+		virtual void fireRemoveAppenderEvent(const Logger* logger, const Appender* appender) {};
 
 		virtual void resetConfiguration() = 0;
 
@@ -107,10 +110,5 @@ class LOG4CXX_EXPORT LoggerRepository : public virtual helpers::Object
 
 }  // namespace spi
 } // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
-
 
 #endif //_LOG4CXX_SPI_LOG_REPOSITORY_H

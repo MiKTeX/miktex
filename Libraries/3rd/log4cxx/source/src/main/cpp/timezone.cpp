@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 
 #define __STDC_CONSTANT_MACROS
 #include <log4cxx/logstring.h>
@@ -50,7 +46,7 @@ class GMTTimeZone : public TimeZone
 		/** Class factory. */
 		static const TimeZonePtr& getInstance()
 		{
-			static TimeZonePtr tz( new GMTTimeZone() );
+			static TimeZonePtr tz = std::make_shared<GMTTimeZone>();
 			return tz;
 		}
 
@@ -75,7 +71,6 @@ class GMTTimeZone : public TimeZone
 			return stat;
 		}
 
-	private:
 		GMTTimeZone() : TimeZone( LOG4CXX_STR("GMT") )
 		{
 		}
@@ -90,7 +85,7 @@ class LocalTimeZone : public TimeZone
 		/** Class factory. */
 		static const TimeZonePtr& getInstance()
 		{
-			static TimeZonePtr tz( new LocalTimeZone() );
+			static TimeZonePtr tz = std::make_shared<LocalTimeZone>();
 			return tz;
 		}
 
@@ -116,11 +111,11 @@ class LocalTimeZone : public TimeZone
 		}
 
 
-	private:
 		LocalTimeZone() : TimeZone( getTimeZoneName() )
 		{
 		}
 
+	private:
 		static const LogString getTimeZoneName()
 		{
 			const int MAX_TZ_LENGTH = 255;
@@ -276,7 +271,7 @@ const TimeZonePtr TimeZone::getTimeZone( const LogString& id )
 
 		s.append(mm);
 		apr_int32_t offset = sign * (hours * 3600 + minutes * 60);
-		return new log4cxx::helpers::TimeZoneImpl::FixedTimeZone( s, offset );
+		return std::make_shared<helpers::TimeZoneImpl::FixedTimeZone>( s, offset );
 	}
 
 	const TimeZonePtr& ltz = getDefault();

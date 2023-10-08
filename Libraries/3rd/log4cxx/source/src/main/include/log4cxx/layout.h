@@ -18,14 +18,7 @@
 #ifndef _LOG4CXX_LAYOUT_H
 #define _LOG4CXX_LAYOUT_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
-#include <log4cxx/helpers/objectimpl.h>
-#include <log4cxx/helpers/objectptr.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/spi/optionhandler.h>
 #include <log4cxx/spi/loggingevent.h>
 
@@ -37,7 +30,7 @@ Extend this abstract class to create your own log layout format.
 */
 class LOG4CXX_EXPORT Layout :
 	public virtual spi::OptionHandler,
-	public virtual helpers::ObjectImpl
+	public virtual helpers::Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(Layout)
@@ -47,9 +40,6 @@ class LOG4CXX_EXPORT Layout :
 		END_LOG4CXX_CAST_MAP()
 
 		virtual ~Layout();
-		void addRef() const;
-		void releaseRef() const;
-
 
 		/**
 		Implement this method to create your own layout format.
@@ -82,16 +72,12 @@ class LOG4CXX_EXPORT Layout :
 		object, then the layout should return <code>true</code>.
 
 		<p>The SimpleLayout, TTCCLayout,
-		PatternLayout all return <code>true</code>. The {@link
-		xml::XMLLayout XMLLayout} returns <code>false</code>.
+		PatternLayout all return <code>true</code>.
+		The {@link xml::XMLLayout XMLLayout} returns <code>false</code>.
 		*/
 		virtual bool ignoresThrowable() const = 0;
 };
 LOG4CXX_PTR_DEF(Layout);
 }
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif // _LOG4CXX_LAYOUT_H

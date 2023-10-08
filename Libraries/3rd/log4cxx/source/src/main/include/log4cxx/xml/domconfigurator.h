@@ -18,13 +18,6 @@
 #ifndef _LOG4CXX_XML_DOM_CONFIGURATOR_H
 #define _LOG4CXX_XML_DOM_CONFIGURATOR_H
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
-
 #include <log4cxx/logstring.h>
 #include <map>
 #include <log4cxx/appender.h>
@@ -68,8 +61,11 @@ files. You can enable log4cxx internal logging by setting the
 */
 class LOG4CXX_EXPORT DOMConfigurator :
 	virtual public spi::Configurator,
-	virtual public helpers::ObjectImpl
+	virtual public helpers::Object
 {
+	public:
+		~DOMConfigurator();
+
 	protected:
 		typedef std::map<LogString, AppenderPtr> AppenderMap;
 		/**
@@ -173,7 +169,7 @@ class LOG4CXX_EXPORT DOMConfigurator :
 			apr_xml_elem* catElement,
 			LoggerPtr logger, bool isRoot,
 			apr_xml_doc* doc,
-			AppenderMap& appenders);
+			AppenderMap& appenders );
 
 		/**
 		 Used internally to parse a layout element.
@@ -219,21 +215,18 @@ class LOG4CXX_EXPORT DOMConfigurator :
 
 		DOMConfigurator(log4cxx::helpers::Pool& p);
 
-		void addRef() const;
-		void releaseRef() const;
-
 		/**
 		A static version of #doConfigure.
 		*/
-		static void configure(const std::string& filename);
+		static spi::ConfigurationStatus configure(const std::string& filename);
 #if LOG4CXX_WCHAR_T_API
-		static void configure(const std::wstring& filename);
+		static spi::ConfigurationStatus configure(const std::wstring& filename);
 #endif
 #if LOG4CXX_UNICHAR_API
-		static void configure(const std::basic_string<UniChar>& filename);
+		static spi::ConfigurationStatus configure(const std::basic_string<UniChar>& filename);
 #endif
 #if LOG4CXX_CFSTRING_API
-		static void configure(const CFStringRef& filename);
+		static spi::ConfigurationStatus configure(const CFStringRef& filename);
 #endif
 		/**
 		Like #configureAndWatch(const std::string& configFilename, long delay)
@@ -241,15 +234,15 @@ class LOG4CXX_EXPORT DOMConfigurator :
 		log4cxx::helpers::FileWatchdog#DEFAULT_DELAY is used.
 		@param configFilename A log4j configuration file in XML format.
 		*/
-		static void configureAndWatch(const std::string& configFilename);
+		static spi::ConfigurationStatus configureAndWatch(const std::string& configFilename);
 #if LOG4CXX_WCHAR_T_API
-		static void configureAndWatch(const std::wstring& configFilename);
+		static spi::ConfigurationStatus configureAndWatch(const std::wstring& configFilename);
 #endif
 #if LOG4CXX_UNICHAR_API
-		static void configureAndWatch(const std::basic_string<UniChar>& configFilename);
+		static spi::ConfigurationStatus configureAndWatch(const std::basic_string<UniChar>& configFilename);
 #endif
 #if LOG4CXX_CFSTRING_API
-		static void configureAndWatch(const CFStringRef& configFilename);
+		static spi::ConfigurationStatus configureAndWatch(const CFStringRef& configFilename);
 #endif
 		/**
 		Read the configuration file <code>configFilename</code> if it
@@ -262,18 +255,18 @@ class LOG4CXX_EXPORT DOMConfigurator :
 		@param configFilename A log4j configuration file in XML format.
 		@param delay The delay in milliseconds to wait between each check.
 		*/
-		static void configureAndWatch(const std::string& configFilename,
+		static spi::ConfigurationStatus configureAndWatch(const std::string& configFilename,
 			long delay);
 #if LOG4CXX_WCHAR_T_API
-		static void configureAndWatch(const std::wstring& configFilename,
+		static spi::ConfigurationStatus configureAndWatch(const std::wstring& configFilename,
 			long delay);
 #endif
 #if LOG4CXX_UNICHAR_API
-		static void configureAndWatch(const std::basic_string<UniChar>& configFilename,
+		static spi::ConfigurationStatus configureAndWatch(const std::basic_string<UniChar>& configFilename,
 			long delay);
 #endif
 #if LOG4CXX_CFSTRING_API
-		static void configureAndWatch(const CFStringRef& configFilename,
+		static spi::ConfigurationStatus configureAndWatch(const CFStringRef& configFilename,
 			long delay);
 #endif
 
@@ -284,8 +277,8 @@ class LOG4CXX_EXPORT DOMConfigurator :
 		@param filename The file to parse.
 		@param repository The hierarchy to operation upon.
 		*/
-		void doConfigure(const File& filename,
-			spi::LoggerRepositoryPtr& repository);
+		spi::ConfigurationStatus doConfigure(const File& filename,
+			spi::LoggerRepositoryPtr repository) override;
 
 	protected:
 		static LogString getAttribute(
@@ -295,23 +288,16 @@ class LOG4CXX_EXPORT DOMConfigurator :
 
 		LogString subst(const LogString& value);
 
-	protected:
-		helpers::Properties props;
-		spi::LoggerRepositoryPtr repository;
-		spi::LoggerFactoryPtr loggerFactory;
-
 	private:
 		//   prevent assignment or copy statements
 		DOMConfigurator(const DOMConfigurator&);
 		DOMConfigurator& operator=(const DOMConfigurator&);
 		static XMLWatchdog* xdog;
+
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(DOMConfiguratorPrivate, m_priv)
 };
 LOG4CXX_PTR_DEF(DOMConfigurator);
 }  // namespace xml
 } // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif // _LOG4CXX_XML_DOM_CONFIGURATOR_H

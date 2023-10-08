@@ -18,12 +18,6 @@
 #ifndef _LOG4CXX_FILTER_LOGGER_MATCH_FILTER_H
 #define _LOG4CXX_FILTER_LOGGER_MATCH_FILTER_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/spi/filter.h>
 #include <log4cxx/level.h>
 
@@ -36,23 +30,22 @@ namespace filter
 /**
    This is a very simple filter based on logger name matching.
 
-   <p>The filter admits two options <b>LoggerToMatch</b> and
-   <b>AcceptOnMatch</b>. If there is an exact match between the value
-   of the <b>LoggerToMatch</b> option and the logger of the {@link
-                spi::LoggingEvent LoggingEvent}, then the #decide method returns  {@link
-                spi::Filter#ACCEPT ACCEPT} in case the <b>AcceptOnMatch</b> option value is set
-   to <code>true</code>, if it is <code>false</code> then {@link
-   spi::Filter#DENY} is returned. If there is no match, {@link
-   spi::Filter#NEUTRAL} is returned.  A loggerToMatch of "root"
-   matches both the root logger and a logger named "root".
+   <p>The filter admits two options <code>loggerToMatch</code> and
+   <code>acceptOnMatch</code>. If there is an exact match between the value
+   of the <code>loggerToMatch</code> option and the logger of the
+   {@link spi::LoggingEvent LoggingEvent}, then the #decide method returns
+   {@link spi::Filter#ACCEPT ACCEPT} in case the <code>acceptOnMatch</code> option value is set
+   to <code>true</code>, if it is <code>false</code> then
+   {@link spi::Filter#DENY} is returned. If there is no match,
+   {@link spi::Filter#NEUTRAL} is returned.
+   A loggerToMatch of "root" matches both the root logger and a logger named "root".
 
    */
 
 class LOG4CXX_EXPORT LoggerMatchFilter : public spi::Filter
 {
 	private:
-		bool acceptOnMatch;
-		LogString loggerToMatch;
+		struct LoggerMatchFilterPrivate;
 
 	public:
 		typedef spi::Filter BASE_CLASS;
@@ -63,46 +56,36 @@ class LOG4CXX_EXPORT LoggerMatchFilter : public spi::Filter
 		END_LOG4CXX_CAST_MAP()
 
 		LoggerMatchFilter();
+		~LoggerMatchFilter();
 
 		/**
 		Set options
 		*/
-		virtual void setOption(const LogString& option,
-			const LogString& value);
+		void setOption(const LogString& option, const LogString& value) override;
 
 		void setLoggerToMatch(const LogString& levelToMatch);
 
 		LogString getLoggerToMatch() const;
 
-		inline void setAcceptOnMatch(bool acceptOnMatch1)
-		{
-			this->acceptOnMatch = acceptOnMatch1;
-		}
+		void setAcceptOnMatch(bool acceptOnMatch1);
 
-		inline bool getAcceptOnMatch() const
-		{
-			return acceptOnMatch;
-		}
+		bool getAcceptOnMatch() const;
 
 		/**
 		Return the decision of this filter.
 
 		Returns {@link spi::Filter#NEUTRAL NEUTRAL} if the
-		<b>LoggerToMatch</b> option is not set or if there is not match.
+		<code>loggerToMatch</code> option is not set or if there is not match.
 		Otherwise, if there is a match, then the returned decision is
-		{@link spi::Filter#ACCEPT ACCEPT} if the <b>AcceptOnMatch</b>
+		{@link spi::Filter#ACCEPT ACCEPT} if the <code>acceptOnMatch</code>
 		property is set to <code>true</code>. The returned decision is
 		{@link spi::Filter#DENY DENY} if the
-		<b>AcceptOnMatch</b> property is set to false.
+		<code>acceptOnMatch</code> property is set to false.
 		*/
-		FilterDecision decide(const spi::LoggingEventPtr& event) const;
+		FilterDecision decide(const spi::LoggingEventPtr& event) const override;
 }; // class LoggerMatchFilter
 LOG4CXX_PTR_DEF(LoggerMatchFilter);
 }  // namespace filter
 } // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif // _LOG4CXX_FILTER_LOGGER_MATCH_FILTER_H

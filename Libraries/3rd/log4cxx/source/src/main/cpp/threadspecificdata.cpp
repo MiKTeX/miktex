@@ -27,9 +27,13 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct ThreadSpecificData::ThreadSpecificDataPrivate{
+	log4cxx::NDC::Stack ndcStack;
+	log4cxx::MDC::Map mdcMap;
+};
 
 ThreadSpecificData::ThreadSpecificData()
-	: ndcStack(), mdcMap()
+	: m_priv(std::make_unique<ThreadSpecificDataPrivate>())
 {
 }
 
@@ -40,12 +44,12 @@ ThreadSpecificData::~ThreadSpecificData()
 
 log4cxx::NDC::Stack& ThreadSpecificData::getStack()
 {
-	return ndcStack;
+	return m_priv->ndcStack;
 }
 
 log4cxx::MDC::Map& ThreadSpecificData::getMap()
 {
-	return mdcMap;
+	return m_priv->mdcMap;
 }
 
 ThreadSpecificData& ThreadSpecificData::getDataNoThreads()
@@ -69,7 +73,7 @@ void ThreadSpecificData::recycle()
 {
 #if APR_HAS_THREADS
 
-	if (ndcStack.empty() && mdcMap.empty())
+	if (m_priv->ndcStack.empty() && m_priv->mdcMap.empty())
 	{
 		void* pData = NULL;
 		apr_status_t stat = apr_threadkey_private_get(&pData, APRInitializer::getTlsKey());

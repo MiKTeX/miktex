@@ -18,7 +18,6 @@
 #ifndef _LOG4CXX_SPI_REPOSITORY_SELECTOR_H
 #define _LOG4CXX_SPI_REPOSITORY_SELECTOR_H
 
-#include <log4cxx/helpers/objectptr.h>
 #include <log4cxx/helpers/object.h>
 
 namespace log4cxx
@@ -26,7 +25,7 @@ namespace log4cxx
 namespace spi
 {
 class LoggerRepository;
-typedef helpers::ObjectPtrT<LoggerRepository> LoggerRepositoryPtr;
+typedef std::shared_ptr<LoggerRepository> LoggerRepositoryPtr;
 
 /**
 The <code>LogManager</code> uses one (and only one)
@@ -45,7 +44,7 @@ class LOG4CXX_EXPORT RepositorySelector : public virtual helpers::Object
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(RepositorySelector)
 		virtual ~RepositorySelector() {}
-		virtual LoggerRepositoryPtr& getLoggerRepository() = 0;
+		virtual LoggerRepositoryPtr getLoggerRepository() = 0;
 };
 LOG4CXX_PTR_DEF(RepositorySelector);
 }  //namespace spi

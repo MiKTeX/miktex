@@ -18,12 +18,6 @@
 #ifndef _LOG4CXX_HELPERS_BYTEARRAYINPUTSTREAM_H
 #define _LOG4CXX_HELPERS_BYTEARRAYINPUTSTREAM_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <vector>
 #include <log4cxx/helpers/inputstream.h>
 
@@ -41,8 +35,7 @@ LOG4CXX_LIST_DEF(ByteList, unsigned char);
 class LOG4CXX_EXPORT ByteArrayInputStream : public InputStream
 {
 	private:
-		ByteList buf;
-		size_t pos;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(ByteArrayInputStreamPriv, m_priv)
 
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(ByteArrayInputStream)
@@ -64,7 +57,7 @@ class LOG4CXX_EXPORT ByteArrayInputStream : public InputStream
 		 * Closes this file input stream and releases any system
 		 * resources associated with the stream.
 		 */
-		virtual void close();
+		void close() override;
 
 		/**
 		 * Reads a sequence of bytes into the given buffer.
@@ -73,7 +66,7 @@ class LOG4CXX_EXPORT ByteArrayInputStream : public InputStream
 		 * @return the total number of bytes read into the buffer, or -1 if there
 		 *         is no more data because the end of the stream has been reached.
 		 */
-		virtual int read(ByteBuffer& buf);
+		int read(ByteBuffer& buf) override;
 
 	private:
 
@@ -88,8 +81,5 @@ LOG4CXX_PTR_DEF(ByteArrayInputStream);
 
 }  //namespace log4cxx
 
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif //_LOG4CXX_HELPERS_BYTEARRAYINPUTSTREAM_H

@@ -18,24 +18,17 @@
 #ifndef _LOG4CXX_APPENDER_SKELETON_H
 #define _LOG4CXX_APPENDER_SKELETON_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/appender.h>
 #include <log4cxx/layout.h>
 #include <log4cxx/spi/errorhandler.h>
 #include <log4cxx/spi/filter.h>
-#include <log4cxx/helpers/objectimpl.h>
-#include <log4cxx/helpers/mutex.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/helpers/pool.h>
 #include <log4cxx/level.h>
 
-
 namespace log4cxx
 {
+
 /**
 *  Implementation base class for all appenders.
 *
@@ -44,39 +37,11 @@ namespace log4cxx
 * */
 class LOG4CXX_EXPORT AppenderSkeleton :
 	public virtual Appender,
-	public virtual helpers::ObjectImpl
+	public virtual helpers::Object
 {
 	protected:
-		/** The layout variable does not need to be set if the appender
-		implementation has its own layout. */
-		LayoutPtr layout;
-
-		/** Appenders are named. */
-		LogString name;
-
-		/**
-		There is no level threshold filtering by default.  */
-		LevelPtr threshold;
-
-		/**
-		It is assumed and enforced that errorHandler is never null.
-		*/
-		spi::ErrorHandlerPtr errorHandler;
-
-		/** The first filter in the filter chain. Set to <code>null</code>
-		initially. */
-		spi::FilterPtr headFilter;
-
-		/** The last filter in the filter chain. */
-		spi::FilterPtr tailFilter;
-
-		/**
-		Is this appender closed?
-		*/
-		bool closed;
-
-		log4cxx::helpers::Pool pool;
-		mutable SHARED_MUTEX mutex;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(AppenderSkeletonPrivate, m_priv)
+		AppenderSkeleton(LOG4CXX_PRIVATE_PTR(AppenderSkeletonPrivate) priv);
 
 		/**
 		Subclasses of <code>AppenderSkeleton</code> should implement this
@@ -97,9 +62,7 @@ class LOG4CXX_EXPORT AppenderSkeleton :
 
 		AppenderSkeleton();
 		AppenderSkeleton(const LayoutPtr& layout);
-
-		void addRef() const;
-		void releaseRef() const;
+		virtual ~AppenderSkeleton();
 
 		/**
 		Finalize this appender by calling the derived class'
@@ -111,72 +74,54 @@ class LOG4CXX_EXPORT AppenderSkeleton :
 		Derived appenders should override this method if option structure
 		requires it.
 		*/
-		virtual void activateOptions(log4cxx::helpers::Pool& /* pool */) {}
-		virtual void setOption(const LogString& option, const LogString& value);
+		void activateOptions(helpers::Pool& /* pool */) override {}
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		Add a filter to end of the filter list.
 		*/
-		void addFilter(const spi::FilterPtr& newFilter) ;
+		void addFilter(const spi::FilterPtr newFilter) override;
 
 	public:
 		/**
 		Clear the filters chain.
 		*/
-		void clearFilters();
+		void clearFilters() override;
 
 		/**
 		Return the currently set spi::ErrorHandler for this
 		Appender.
 		*/
-		const spi::ErrorHandlerPtr& getErrorHandler() const
-		{
-			return errorHandler;
-		}
+		const spi::ErrorHandlerPtr getErrorHandler() const;
 
 		/**
 		Returns the head Filter.
 		*/
-		spi::FilterPtr getFilter() const
-		{
-			return headFilter;
-		}
+		spi::FilterPtr getFilter() const override;
 
 		/**
 		Return the first filter in the filter chain for this
-		Appender. The return value may be <code>0</code> if no is
+		Appender. The return value may be <code>nullptr</code> if no is
 		filter is set.
 		*/
-		const spi::FilterPtr& getFirstFilter() const
-		{
-			return headFilter;
-		}
+		const spi::FilterPtr getFirstFilter() const;
 
 		/**
-		Returns the layout of this appender. The value may be 0.
+		Returns the layout of this appender. The value may be nullptr.
 		*/
-		LayoutPtr getLayout() const
-		{
-			return layout;
-		}
+		LayoutPtr getLayout() const override;
 
 
 		/**
 		Returns the name of this Appender.
 		*/
-		LogString getName() const
-		{
-			return name;
-		}
+		LogString getName() const override;
 
 		/**
 		Returns this appenders threshold level. See the #setThreshold
 		method for the meaning of this option.
 		*/
-		const LevelPtr& getThreshold() const
-		{
-			return threshold;
-		}
+		const LevelPtr getThreshold() const;
 
 		/**
 		Check whether the message level is below the appender's
@@ -191,31 +136,23 @@ class LOG4CXX_EXPORT AppenderSkeleton :
 		* delegating actual logging to the subclasses specific
 		* AppenderSkeleton#append method.
 		* */
-		virtual void doAppend(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& pool);
+		void doAppend(const spi::LoggingEventPtr& event, helpers::Pool& pool) override;
 
 		/**
 		Set the {@link spi::ErrorHandler ErrorHandler} for this Appender.
 		*/
-		void setErrorHandler(const spi::ErrorHandlerPtr& eh);
+		void setErrorHandler(const spi::ErrorHandlerPtr eh);
 
 		/**
 		Set the layout for this appender. Note that some appenders have
-		their own (fixed) layouts or do not use one. For example, the
-		{@link net::SocketAppender SocketAppender} ignores the layout set
-		here.
+		their own (fixed) layouts or do not use one.
 		*/
-		void setLayout(const LayoutPtr& layout1)
-		{
-			this->layout = layout1;
-		}
+		void setLayout(const LayoutPtr layout1) override;
 
 		/**
 		Set the name of this Appender.
 		*/
-		void setName(const LogString& name1)
-		{
-			this->name.assign(name1);
-		}
+		void setName(const LogString& name1) override;
 
 
 		/**
@@ -230,10 +167,5 @@ class LOG4CXX_EXPORT AppenderSkeleton :
 
 }; // class AppenderSkeleton
 }  // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
-
 
 #endif //_LOG4CXX_APPENDER_SKELETON_H

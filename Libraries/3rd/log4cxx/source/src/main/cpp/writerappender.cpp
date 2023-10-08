@@ -17,39 +17,43 @@
 
 #include <log4cxx/writerappender.h>
 #include <log4cxx/helpers/loglog.h>
-#include <log4cxx/helpers/synchronized.h>
 #include <log4cxx/layout.h>
 #include <log4cxx/helpers/stringhelper.h>
+#include <log4cxx/private/appenderskeleton_priv.h>
+#include <log4cxx/private/writerappender_priv.h>
+#include <mutex>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 using namespace log4cxx::spi;
 
+#define _priv static_cast<WriterAppenderPriv*>(m_priv.get())
+
 IMPLEMENT_LOG4CXX_OBJECT(WriterAppender)
 
-WriterAppender::WriterAppender()
+WriterAppender::WriterAppender() :
+	AppenderSkeleton (std::make_unique<WriterAppenderPriv>())
 {
-	LOCK_W sync(mutex);
-	immediateFlush = true;
 }
 
 WriterAppender::WriterAppender(const LayoutPtr& layout1,
 	log4cxx::helpers::WriterPtr& writer1)
-	: AppenderSkeleton(layout1), writer(writer1)
+	: AppenderSkeleton (std::make_unique<WriterAppenderPriv>(layout1, writer1))
 {
 	Pool p;
-	LOCK_W sync(mutex);
-	immediateFlush = true;
 	activateOptions(p);
 }
 
 WriterAppender::WriterAppender(const LayoutPtr& layout1)
-	: AppenderSkeleton(layout1)
+	: AppenderSkeleton (std::make_unique<WriterAppenderPriv>(layout1))
 {
-	LOCK_W sync(mutex);
-	immediateFlush = true;
 }
 
+WriterAppender::WriterAppender(std::unique_ptr<WriterAppenderPriv> priv)
+	: AppenderSkeleton (std::move(priv))
+{
+
+}
 
 WriterAppender::~WriterAppender()
 {
@@ -60,19 +64,19 @@ void WriterAppender::activateOptions(Pool& p)
 {
 	int errors = 0;
 
-	if (layout == 0)
+	if (_priv->layout == 0)
 	{
-		errorHandler->error(
+		_priv->errorHandler->error(
 			((LogString) LOG4CXX_STR("No layout set for the appender named ["))
-			+ name + LOG4CXX_STR("]."));
+			+ _priv->name + LOG4CXX_STR("]."));
 		errors++;
 	}
 
-	if (writer == 0)
+	if (_priv->writer == 0)
 	{
-		errorHandler->error(
+		_priv->errorHandler->error(
 			((LogString) LOG4CXX_STR("No writer set for the appender named ["))
-			+ name + LOG4CXX_STR("]."));
+			+ _priv->name + LOG4CXX_STR("]."));
 		errors++;
 	}
 
@@ -106,7 +110,7 @@ bool WriterAppender::checkEntryConditions() const
 	static bool warnedClosed = false;
 	static bool warnedNoWriter = false;
 
-	if (closed)
+	if (_priv->closed)
 	{
 		if (!warnedClosed)
 		{
@@ -117,24 +121,24 @@ bool WriterAppender::checkEntryConditions() const
 		return false;
 	}
 
-	if (writer == 0)
+	if (_priv->writer == 0)
 	{
 		if (warnedNoWriter)
 		{
-			errorHandler->error(
+			_priv->errorHandler->error(
 				LogString(LOG4CXX_STR("No output stream or file set for the appender named [")) +
-				name + LOG4CXX_STR("]."));
+				_priv->name + LOG4CXX_STR("]."));
 			warnedNoWriter = true;
 		}
 
 		return false;
 	}
 
-	if (layout == 0)
+	if (_priv->layout == 0)
 	{
-		errorHandler->error(
+		_priv->errorHandler->error(
 			LogString(LOG4CXX_STR("No layout set for the appender named [")) +
-			name + LOG4CXX_STR("]."));
+			_priv->name + LOG4CXX_STR("]."));
 		return false;
 	}
 
@@ -154,14 +158,14 @@ bool WriterAppender::checkEntryConditions() const
    */
 void WriterAppender::close()
 {
-	LOCK_W sync(mutex);
+	std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
 
-	if (closed)
+	if (_priv->closed)
 	{
 		return;
 	}
 
-	closed = true;
+	_priv->closed = true;
 	closeWriter();
 }
 
@@ -170,7 +174,7 @@ void WriterAppender::close()
  * */
 void WriterAppender::closeWriter()
 {
-	if (writer != NULL)
+	if (_priv->writer != NULL)
 	{
 		try
 		{
@@ -179,13 +183,13 @@ void WriterAppender::closeWriter()
 			//   Using the object's pool since this is a one-shot operation
 			//    and pool is likely to be reclaimed soon when appender is destructed.
 			//
-			writeFooter(pool);
-			writer->close(pool);
-			writer = 0;
+			writeFooter(_priv->pool);
+			_priv->writer->close(_priv->pool);
+			_priv->writer = 0;
 		}
 		catch (IOException& e)
 		{
-			LogLog::error(LogString(LOG4CXX_STR("Could not close writer for WriterAppender named ")) + name, e);
+			LogLog::error(LogString(LOG4CXX_STR("Could not close writer for WriterAppender named ")) + _priv->name, e);
 		}
 	}
 
@@ -228,34 +232,31 @@ WriterPtr WriterAppender::createWriter(OutputStreamPtr& os)
 		}
 	}
 
-	return new OutputStreamWriter(os, encoder);
+	return WriterPtr(new OutputStreamWriter(os, encoder));
 }
 
 LogString WriterAppender::getEncoding() const
 {
-	return encoding;
+	return _priv->encoding;
 }
 
 void WriterAppender::setEncoding(const LogString& enc)
 {
-	encoding = enc;
+	_priv->encoding = enc;
 }
 
 void WriterAppender::subAppend(const spi::LoggingEventPtr& event, Pool& p)
 {
 	LogString msg;
-	layout->format(msg, event, p);
+	_priv->layout->format(msg, event, p);
+
+	if (_priv->writer != NULL)
 	{
-		LOCK_W sync(mutex);
+		_priv->writer->write(msg, p);
 
-		if (writer != NULL)
+		if (_priv->immediateFlush)
 		{
-			writer->write(msg, p);
-
-			if (immediateFlush)
-			{
-				writer->flush(p);
-			}
+			_priv->writer->flush(p);
 		}
 	}
 }
@@ -263,33 +264,35 @@ void WriterAppender::subAppend(const spi::LoggingEventPtr& event, Pool& p)
 
 void WriterAppender::writeFooter(Pool& p)
 {
-	if (layout != NULL)
+	if (_priv->layout != NULL)
 	{
 		LogString foot;
-		layout->appendFooter(foot, p);
-		LOCK_W sync(mutex);
-		writer->write(foot, p);
+		_priv->layout->appendFooter(foot, p);
+		_priv->writer->write(foot, p);
 	}
 }
 
 void WriterAppender::writeHeader(Pool& p)
 {
-	if (layout != NULL)
+	if (_priv->layout != NULL)
 	{
 		LogString header;
-		layout->appendHeader(header, p);
-		LOCK_W sync(mutex);
-		writer->write(header, p);
+		_priv->layout->appendHeader(header, p);
+		_priv->writer->write(header, p);
 	}
 }
 
 
 void WriterAppender::setWriter(const WriterPtr& newWriter)
 {
-	LOCK_W sync(mutex);
-	writer = newWriter;
+	std::unique_lock<std::recursive_mutex> lock(_priv->mutex);
+	setWriterInternal(newWriter);
 }
 
+void WriterAppender::setWriterInternal(const WriterPtr& newWriter)
+{
+	_priv->writer = newWriter;
+}
 
 bool WriterAppender::requiresLayout() const
 {
@@ -311,6 +314,14 @@ void WriterAppender::setOption(const LogString& option, const LogString& value)
 
 void WriterAppender::setImmediateFlush(bool value)
 {
-	LOCK_W sync(mutex);
-	immediateFlush = value;
+	_priv->immediateFlush = value;
+}
+
+bool WriterAppender::getImmediateFlush() const
+{
+	return _priv->immediateFlush;
+}
+
+const log4cxx::helpers::WriterPtr WriterAppender::getWriter() const{
+	return _priv->writer;
 }

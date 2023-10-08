@@ -21,8 +21,10 @@
 #include <log4cxx/logstring.h>
 #include <time.h>
 #include <log4cxx/helpers/pool.h>
-#include <log4cxx/helpers/thread.h>
 #include <log4cxx/file.h>
+#include <atomic>
+#include <thread>
+#include <condition_variable>
 
 namespace log4cxx
 {
@@ -43,43 +45,28 @@ class LOG4CXX_EXPORT FileWatchdog
 		static long DEFAULT_DELAY /*= 60000*/;
 
 	protected:
-		/**
-		The name of the file to observe  for changes.
-		*/
-		File file;
-
-		/**
-		The delay to observe between every check.
-		By default set DEFAULT_DELAY.*/
-		long delay;
-		log4cxx_time_t lastModif;
-		bool warnedAlready;
-		volatile unsigned int interrupted;
-
-	protected:
 		FileWatchdog(const File& filename);
 		virtual void doOnChange() = 0;
 		void checkAndConfigure();
+		const File& file();
 
 	public:
 		/**
 		Set the delay to observe between each check of the file changes.
 		*/
-		void setDelay(long delay1)
-		{
-			this->delay = delay1;
-		}
+		void setDelay(long delay1);
 
 		void start();
 
 	private:
-		static void* LOG4CXX_THREAD_FUNC run(apr_thread_t* thread, void* data);
-		Pool pool;
-		Thread thread;
+		void run();
+		bool is_interrupted();
+
 
 		FileWatchdog(const FileWatchdog&);
 		FileWatchdog& operator=(const FileWatchdog&);
 
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(FileWatchdogPrivate, m_priv)
 };
 }  // namespace helpers
 } // namespace log4cxx

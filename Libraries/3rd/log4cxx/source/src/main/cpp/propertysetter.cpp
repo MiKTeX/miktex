@@ -96,7 +96,8 @@ void PropertySetter::setProperty(const LogString& option,
 	{
 		LogLog::debug(LOG4CXX_STR("Setting option name=[") +
 			option + LOG4CXX_STR("], value=[") + value + LOG4CXX_STR("]"));
-		OptionHandlerPtr(obj)->setOption(option, value);
+		OptionHandlerPtr handler = log4cxx::cast<OptionHandler>(obj);
+		handler->setOption(option, value);
 	}
 }
 
@@ -104,6 +105,7 @@ void PropertySetter::activate(Pool& p)
 {
 	if (obj != 0 && obj->instanceof(OptionHandler::getStaticClass()))
 	{
-		OptionHandlerPtr(obj)->activateOptions(p);
+		OptionHandlerPtr handler = log4cxx::cast<OptionHandler>(obj);
+		handler->activateOptions(p);
 	}
 }

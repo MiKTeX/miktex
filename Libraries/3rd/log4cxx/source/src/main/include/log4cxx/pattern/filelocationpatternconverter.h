@@ -35,17 +35,14 @@ namespace pattern
 class LOG4CXX_EXPORT FileLocationPatternConverter
 	: public LoggingEventPatternConverter
 {
-		/**
-		 * Private constructor.
-		 */
-		FileLocationPatternConverter();
-
 	public:
 		DECLARE_LOG4CXX_PATTERN(FileLocationPatternConverter)
 		BEGIN_LOG4CXX_CAST_MAP()
 		LOG4CXX_CAST_ENTRY(FileLocationPatternConverter)
 		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
 		END_LOG4CXX_CAST_MAP()
+
+		FileLocationPatternConverter();
 
 		/**
 		 * Obtains an instance of pattern converter.
@@ -57,9 +54,9 @@ class LOG4CXX_EXPORT FileLocationPatternConverter
 
 		using LoggingEventPatternConverter::format;
 
-		void format(const log4cxx::spi::LoggingEventPtr& event,
+		void format(const spi::LoggingEventPtr& event,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 };
 
 }

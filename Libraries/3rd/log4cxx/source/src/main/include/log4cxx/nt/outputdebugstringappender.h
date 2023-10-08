@@ -35,14 +35,14 @@ class LOG4CXX_EXPORT OutputDebugStringAppender : public AppenderSkeleton
 
 		OutputDebugStringAppender();
 
-		bool requiresLayout() const
+		bool requiresLayout() const override
 		{
 			return true;
 		}
 
-		virtual void close() {}
+		void close() override {}
 
-		virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
+		void append(const spi::LoggingEventPtr& event, helpers::Pool& p) override;
 };
 }
 }

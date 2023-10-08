@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/loggingeventpatternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
+#include <log4cxx/private/patternconverter_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::pattern;
@@ -36,11 +34,17 @@ LoggingEventPatternConverter::LoggingEventPatternConverter(
 {
 }
 
+LoggingEventPatternConverter::LoggingEventPatternConverter(std::unique_ptr<PatternConverterPrivate> priv) :
+	PatternConverter (std::move(priv))
+{
+
+}
+
 void LoggingEventPatternConverter::format(const ObjectPtr& obj,
 	LogString& output,
 	log4cxx::helpers::Pool& p) const
 {
-	LoggingEventPtr le(obj);
+	LoggingEventPtr le = log4cxx::cast<LoggingEvent>(obj);
 
 	if (le != NULL)
 	{

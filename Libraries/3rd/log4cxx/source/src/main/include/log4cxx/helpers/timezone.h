@@ -19,13 +19,7 @@
 #define _LOG4CXX_HELPERS_TIMEZONE_H
 
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/objectimpl.h>
-#include <log4cxx/helpers/objectptr.h>
-
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
+#include <log4cxx/helpers/object.h>
 
 struct apr_time_exp_t;
 
@@ -36,7 +30,7 @@ namespace helpers
 class TimeZone;
 LOG4CXX_PTR_DEF(TimeZone);
 
-class LOG4CXX_EXPORT TimeZone : public helpers::ObjectImpl
+class LOG4CXX_EXPORT TimeZone : public helpers::Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(TimeZone)
@@ -66,15 +60,11 @@ class LOG4CXX_EXPORT TimeZone : public helpers::ObjectImpl
 		TimeZone(const LogString& ID);
 		virtual ~TimeZone();
 
-		const LogString id;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER(LogString, id)
 };
 
 
 }
 }
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif //_LOG4CXX_HELPERS_TIMEZONE_H

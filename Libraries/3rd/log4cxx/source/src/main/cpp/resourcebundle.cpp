@@ -70,7 +70,8 @@ ResourceBundlePtr ResourceBundle::getBundle(const LogString& baseName,
 		try
 		{
 			const Class& classObj = Loader::loadClass(bundleName);
-			current = classObj.newInstance();
+			ObjectPtr obj = ObjectPtr(classObj.newInstance());
+			current = log4cxx::cast<PropertyResourceBundle>(obj);
 		}
 		catch (ClassNotFoundException&)
 		{
@@ -91,7 +92,7 @@ ResourceBundlePtr ResourceBundle::getBundle(const LogString& baseName,
 
 			try
 			{
-				current = new PropertyResourceBundle(bundleStream);
+				current = std::make_shared<PropertyResourceBundle>(bundleStream);
 			}
 			catch (Exception&)
 			{

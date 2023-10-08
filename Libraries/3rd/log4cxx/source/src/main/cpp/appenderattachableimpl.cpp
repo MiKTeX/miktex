@@ -20,6 +20,7 @@
 #include <log4cxx/spi/loggingevent.h>
 #include <algorithm>
 #include <log4cxx/helpers/pool.h>
+#include <mutex>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -27,25 +28,25 @@ using namespace log4cxx::spi;
 
 IMPLEMENT_LOG4CXX_OBJECT(AppenderAttachableImpl)
 
+struct AppenderAttachableImpl::priv_data
+{
+	/** Array of appenders. */
+	AppenderList  appenderList;
+	mutable std::recursive_mutex m_mutex;
+};
 
-AppenderAttachableImpl::AppenderAttachableImpl(Pool& pool)
-	: appenderList(),
-	  mutex(pool)
+
+AppenderAttachableImpl::AppenderAttachableImpl(Pool& pool) :
+	m_priv(std::make_unique<AppenderAttachableImpl::priv_data>())
 {
 }
 
-void AppenderAttachableImpl::addRef() const
+AppenderAttachableImpl::~AppenderAttachableImpl()
 {
-	ObjectImpl::addRef();
+
 }
 
-void AppenderAttachableImpl::releaseRef() const
-{
-	ObjectImpl::releaseRef();
-}
-
-
-void AppenderAttachableImpl::addAppender(const AppenderPtr& newAppender)
+void AppenderAttachableImpl::addAppender(const AppenderPtr newAppender)
 {
 	// Null values for newAppender parameter are strictly forbidden.
 	if (newAppender == 0)
@@ -53,12 +54,13 @@ void AppenderAttachableImpl::addAppender(const AppenderPtr& newAppender)
 		return;
 	}
 
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
 	AppenderList::iterator it = std::find(
-			appenderList.begin(), appenderList.end(), newAppender);
+			m_priv->appenderList.begin(), m_priv->appenderList.end(), newAppender);
 
-	if (it == appenderList.end())
+	if (it == m_priv->appenderList.end())
 	{
-		appenderList.push_back(newAppender);
+		m_priv->appenderList.push_back(newAppender);
 	}
 }
 
@@ -66,19 +68,26 @@ int AppenderAttachableImpl::appendLoopOnAppenders(
 	const spi::LoggingEventPtr& event,
 	Pool& p)
 {
-	for (AppenderList::iterator it = appenderList.begin();
-		it != appenderList.end();
-		it++)
+	int numberAppended = 0;
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
+	// FallbackErrorHandler::error() may modify our list of appenders
+	// while we are iterating over them (if it holds the same logger).
+	// So, make a local copy of the appenders that we want to iterate over
+	// before actually iterating over them.
+	AppenderList allAppenders = m_priv->appenderList;
+	for (auto appender : allAppenders)
 	{
-		(*it)->doAppend(event, p);
+		appender->doAppend(event, p);
+		numberAppended++;
 	}
 
-	return (int)appenderList.size();
+	return numberAppended;
 }
 
 AppenderList AppenderAttachableImpl::getAllAppenders() const
 {
-	return appenderList;
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
+	return m_priv->appenderList;
 }
 
 AppenderPtr AppenderAttachableImpl::getAppender(const LogString& name) const
@@ -88,10 +97,11 @@ AppenderPtr AppenderAttachableImpl::getAppender(const LogString& name) const
 		return 0;
 	}
 
-	AppenderList::const_iterator it, itEnd = appenderList.end();
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
+	AppenderList::const_iterator it, itEnd = m_priv->appenderList.end();
 	AppenderPtr appender;
 
-	for (it = appenderList.begin(); it != itEnd; it++)
+	for (it = m_priv->appenderList.begin(); it != itEnd; it++)
 	{
 		appender = *it;
 
@@ -104,46 +114,49 @@ AppenderPtr AppenderAttachableImpl::getAppender(const LogString& name) const
 	return 0;
 }
 
-bool AppenderAttachableImpl::isAttached(const AppenderPtr& appender) const
+bool AppenderAttachableImpl::isAttached(const AppenderPtr appender) const
 {
 	if (appender == 0)
 	{
 		return false;
 	}
 
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
 	AppenderList::const_iterator it = std::find(
-			appenderList.begin(), appenderList.end(), appender);
+			m_priv->appenderList.begin(), m_priv->appenderList.end(), appender);
 
-	return it != appenderList.end();
+	return it != m_priv->appenderList.end();
 }
 
 void AppenderAttachableImpl::removeAllAppenders()
 {
-	AppenderList::iterator it, itEnd = appenderList.end();
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
+	AppenderList::iterator it, itEnd = m_priv->appenderList.end();
 	AppenderPtr a;
 
-	for (it = appenderList.begin(); it != itEnd; it++)
+	for (it = m_priv->appenderList.begin(); it != itEnd; it++)
 	{
 		a = *it;
 		a->close();
 	}
 
-	appenderList.clear();
+	m_priv->appenderList.clear();
 }
 
-void AppenderAttachableImpl::removeAppender(const AppenderPtr& appender)
+void AppenderAttachableImpl::removeAppender(const AppenderPtr appender)
 {
 	if (appender == 0)
 	{
 		return;
 	}
 
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
 	AppenderList::iterator it = std::find(
-			appenderList.begin(), appenderList.end(), appender);
+			m_priv->appenderList.begin(), m_priv->appenderList.end(), appender);
 
-	if (it != appenderList.end())
+	if (it != m_priv->appenderList.end())
 	{
-		appenderList.erase(it);
+		m_priv->appenderList.erase(it);
 	}
 }
 
@@ -154,16 +167,17 @@ void AppenderAttachableImpl::removeAppender(const LogString& name)
 		return;
 	}
 
-	AppenderList::iterator it, itEnd = appenderList.end();
+	std::lock_guard<std::recursive_mutex> lock( m_priv->m_mutex );
+	AppenderList::iterator it, itEnd = m_priv->appenderList.end();
 	AppenderPtr appender;
 
-	for (it = appenderList.begin(); it != itEnd; it++)
+	for (it = m_priv->appenderList.begin(); it != itEnd; it++)
 	{
 		appender = *it;
 
 		if (name == appender->getName())
 		{
-			appenderList.erase(it);
+			m_priv->appenderList.erase(it);
 			return;
 		}
 	}

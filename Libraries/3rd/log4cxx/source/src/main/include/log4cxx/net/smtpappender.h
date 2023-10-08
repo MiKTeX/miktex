@@ -23,53 +23,95 @@
 #include <log4cxx/helpers/cyclicbuffer.h>
 #include <log4cxx/spi/triggeringeventevaluator.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
 namespace log4cxx
 {
 namespace net
 {
 /**
-Send an e-mail when a specific logging event occurs, typically on
-errors or fatal errors.
-<p>The number of logging events delivered in this e-mail depend on
-the value of <b>BufferSize</b> option. The
-<code>SMTPAppender</code> keeps only the last
-<code>BufferSize</code> logging events in its cyclic buffer. This
-keeps memory requirements at a reasonable level while still
-delivering useful application context.
+Send an e-mail when a specific logging event occurs, typically when
+an <b>ERROR</b> level logging event is sent to the appender.
+
+A value must be provided for the following <b>param</b> elements :
+- <b>smtpHost</b> -
+  The URL or IP address of the SMTP server.
+- <b>from</b> -
+  The email address in the <b>from</b> field of the message.
+- one of <b>to</b>, <b>cc</b>, <b>bcc</b> -
+  An email address in the message.
+  
+The following <b>param</b> elements  are optional:
+- <b>smtpPort</b> -
+  The TCP/IP port number on the SMTP server.
+  By default port 25 is assumed.
+- <b>subject</b> -
+  Content for the the <b>subject</b> field of the message.
+- <b>smtpUsername</b> -
+  Provided when the SMTP server requests authentication.
+- <b>smtpPassword</b> -
+  Provided when the SMTP server requests authentication.
+- <b>BufferSize</b> -
+  The number of logging events delivered in an e-mail.
+  The <code>SMTPAppender</code> keeps only the last
+  <code>BufferSize</code> logging events in its cyclic buffer. This
+  keeps memory requirements at a reasonable level while still
+  delivering useful application context.
+  By default 512 logging events are kept in its cyclic buffer.
+- <b>evaluatorClass</b> -
+  The registered spi::TriggeringEventEvaluator sub-class
+  that provides the <code>isTriggeringEvent</code> implementation.
+  This attribute can also be set using the <b>triggeringPolicy</b> element.
+  By default an email is sent
+  when the level of the logging event
+  is greater or equal to <b>ERROR</b>.
+
+  An example configuration is:
+~~~{.xml}
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <appender name="A1" class="RollingFileAppender">
+    <param name="File"   value="${TEMP}/SomeApplicationName.log" />
+    <param name="Append" value="true" />
+    <layout class="PatternLayout">
+      <param name="ConversionPattern" value="%d %-5p %c{2} - %m%n"/>
+    </layout>
+  </appender>
+  <appender name="SENDMAIL" class="SMTPAppender">
+    <param name="from"   value="service_name@example.org" />
+    <param name="to" value="some_support_group@example.org" />
+    <param name="subject" value="Service error detected" />
+    <param name="SMTPHost" value="smtp.example.com"/>
+    <layout class="PatternLayout">
+		<param name="ConversionPattern" value="%-5p %c{2} - %m%n"/>
+    </layout>
+    <!-- triggeringPolicy class="SpecialTriggeringEventEvaluator" -->
+    <!-- param name="evaluatorClass" value="SpecialTriggeringEventEvaluator" -->
+  </appender>
+  <appender name="ASYNC" class="AsyncAppender">
+    <param name="BufferSize" value="1000"/>
+    <param name="Blocking" value="false"/>
+    <appender-ref ref="SENDMAIL"/>
+  </appender>
+  <root>
+    <priority value ="INFO" />
+    <appender-ref ref="A1" />
+    <appender-ref ref="ASYNC" />
+  </root>
+</log4j:configuration>
+~~~
 */
 class LOG4CXX_EXPORT SMTPAppender : public AppenderSkeleton
 {
 	private:
-
-	private:
+		struct SMTPPriv;
 		SMTPAppender(const SMTPAppender&);
 		SMTPAppender& operator=(const SMTPAppender&);
 		static bool asciiCheck(const LogString& value, const LogString& label);
+
 		/**
 		This method determines if there is a sense in attempting to append.
 		<p>It checks whether there is a set output target and also if
 		there is a set layout. If these checks fail, then the boolean
 		value <code>false</code> is returned. */
 		bool checkEntryConditions();
-
-		LogString to;
-		LogString cc;
-		LogString bcc;
-		LogString from;
-		LogString subject;
-		LogString smtpHost;
-		LogString smtpUsername;
-		LogString smtpPassword;
-		int smtpPort;
-		int bufferSize; // 512
-		bool locationInfo;
-		helpers::CyclicBuffer cb;
-		spi::TriggeringEventEvaluatorPtr evaluator;
 
 	public:
 		DECLARE_LOG4CXX_OBJECT(SMTPAppender)
@@ -96,22 +138,22 @@ class LOG4CXX_EXPORT SMTPAppender : public AppenderSkeleton
 		/**
 		 Set options
 		*/
-		virtual void setOption(const LogString& option, const LogString& value);
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		Activate the specified options, such as the smtp host, the
 		recipient, from, etc.
 		*/
-		virtual void activateOptions(log4cxx::helpers::Pool& p);
+		void activateOptions(helpers::Pool& p) override;
 
 		/**
 		Perform SMTPAppender specific appending actions, mainly adding
 		the event to a cyclic buffer and checking if the event triggers
 		an e-mail to be sent. */
-		virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
+		void append(const spi::LoggingEventPtr& event, helpers::Pool& p) override;
 
 
-		virtual void close();
+		void close() override;
 
 		/**
 		Returns value of the <b>To</b> option.
@@ -130,9 +172,9 @@ class LOG4CXX_EXPORT SMTPAppender : public AppenderSkeleton
 
 
 		/**
-		The <code>SMTPAppender</code> requires a {@link
-		Layout layout}.  */
-		virtual bool requiresLayout() const;
+		The <code>SMTPAppender</code> requires a <code>Layout</code>.
+		*/
+		bool requiresLayout() const override;
 
 		/**
 		Send the contents of the cyclic buffer as an e-mail message.
@@ -243,10 +285,7 @@ class LOG4CXX_EXPORT SMTPAppender : public AppenderSkeleton
 		/**
 		Returns value of the <b>BufferSize</b> option.
 		*/
-		inline int getBufferSize() const
-		{
-			return bufferSize;
-		}
+		int getBufferSize() const;
 
 
 		/**
@@ -286,9 +325,5 @@ LOG4CXX_PTR_DEF(SMTPAppender);
 
 }  // namespace net
 } // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif // _LOG4CXX_NET_SMTP_H

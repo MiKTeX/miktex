@@ -28,6 +28,10 @@ namespace log4cxx
 namespace helpers
 {
 
+// Instantiate template pointer types passed as parameters
+LOG4CXX_INSTANTIATE_EXPORTED_PTR(InputStream);
+LOG4CXX_INSTANTIATE_EXPORTED_PTR(CharsetDecoder);
+
 /**
  * Class for reading from character streams.
  * Decorates a byte based InputStream and provides appropriate
@@ -36,8 +40,7 @@ namespace helpers
 class LOG4CXX_EXPORT InputStreamReader : public Reader
 {
 	private:
-		InputStreamPtr in;
-		CharsetDecoderPtr dec;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(InputStreamReaderPrivate, m_priv)
 
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(InputStreamReader)
@@ -68,13 +71,13 @@ class LOG4CXX_EXPORT InputStreamReader : public Reader
 		 *
 		 * @param p The memory pool associated with the reader.
 		 */
-		virtual void close(Pool& p);
+		void close(Pool& p) override;
 
 		/**
 		 * @return The complete stream contents as a LogString.
 		 * @param p The memory pool associated with the reader.
 		 */
-		virtual LogString read(Pool& p);
+		LogString read(Pool& p) override;
 
 		/**
 		 * @return The name of the character encoding being used by this stream.

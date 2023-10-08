@@ -21,9 +21,8 @@
 #include <log4cxx/helpers/onlyonceerrorhandler.h>
 #include <log4cxx/level.h>
 #include <log4cxx/helpers/stringhelper.h>
-#include <log4cxx/helpers/synchronized.h>
-#include <apr_atomic.h>
-
+#include <log4cxx/private/appenderskeleton_priv.h>
+#include <mutex>
 
 using namespace log4cxx;
 using namespace log4cxx::spi;
@@ -31,50 +30,31 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(AppenderSkeleton)
 
+AppenderSkeleton::AppenderSkeleton( std::unique_ptr<AppenderSkeletonPrivate> priv )
+	:   m_priv(std::move(priv))
+{
+
+}
 
 AppenderSkeleton::AppenderSkeleton()
-	:   layout(),
-		name(),
-		threshold(Level::getAll()),
-		errorHandler(new OnlyOnceErrorHandler()),
-		headFilter(),
-		tailFilter(),
-		pool(),
-		SHARED_MUTEX_INIT(mutex, pool)
+	:   m_priv(std::make_unique<AppenderSkeletonPrivate>())
 {
-	LOCK_W sync(mutex);
-	closed = false;
+
 }
 
 AppenderSkeleton::AppenderSkeleton(const LayoutPtr& layout1)
-	: layout(layout1),
-	  name(),
-	  threshold(Level::getAll()),
-	  errorHandler(new OnlyOnceErrorHandler()),
-	  headFilter(),
-	  tailFilter(),
-	  pool(),
-	  SHARED_MUTEX_INIT(mutex, pool)
+	:   m_priv(std::make_unique<AppenderSkeletonPrivate>())
 {
-	LOCK_W sync(mutex);
-	closed = false;
+
 }
 
-void AppenderSkeleton::addRef() const
-{
-	ObjectImpl::addRef();
-}
-
-void AppenderSkeleton::releaseRef() const
-{
-	ObjectImpl::releaseRef();
-}
+AppenderSkeleton::~AppenderSkeleton() {}
 
 void AppenderSkeleton::finalize()
 {
 	// An appender might be closed then garbage collected. There is no
 	// point in closing twice.
-	if (closed)
+	if (m_priv->closed)
 	{
 		return;
 	}
@@ -82,45 +62,45 @@ void AppenderSkeleton::finalize()
 	close();
 }
 
-void AppenderSkeleton::addFilter(const spi::FilterPtr& newFilter)
+void AppenderSkeleton::addFilter(const spi::FilterPtr newFilter)
 {
-	LOCK_W sync(mutex);
+	std::lock_guard<std::recursive_mutex> lock(m_priv->mutex);
 
-	if (headFilter == 0)
+	if (m_priv->headFilter == nullptr)
 	{
-		headFilter = tailFilter = newFilter;
+		m_priv->headFilter = m_priv->tailFilter = newFilter;
 	}
 	else
 	{
-		tailFilter->setNext(newFilter);
-		tailFilter = newFilter;
+		m_priv->tailFilter->setNext(newFilter);
+		m_priv->tailFilter = newFilter;
 	}
 }
 
 void AppenderSkeleton::clearFilters()
 {
-	LOCK_W sync(mutex);
-	headFilter = tailFilter = 0;
+	std::lock_guard<std::recursive_mutex> lock(m_priv->mutex);
+	m_priv->headFilter = m_priv->tailFilter = nullptr;
 }
 
 bool AppenderSkeleton::isAsSevereAsThreshold(const LevelPtr& level) const
 {
-	return ((level == 0) || level->isGreaterOrEqual(threshold));
+	return ((level == 0) || level->isGreaterOrEqual(m_priv->threshold));
 }
 
 void AppenderSkeleton::doAppend(const spi::LoggingEventPtr& event, Pool& pool1)
 {
-	LOCK_W sync(mutex);
+	std::lock_guard<std::recursive_mutex> lock(m_priv->mutex);
 
 	doAppendImpl(event, pool1);
 }
 
 void AppenderSkeleton::doAppendImpl(const spi::LoggingEventPtr& event, Pool& pool1)
 {
-	if (closed)
+	if (m_priv->closed)
 	{
 		LogLog::error(((LogString) LOG4CXX_STR("Attempted to append to closed appender named ["))
-			+ name + LOG4CXX_STR("]."));
+			+ m_priv->name + LOG4CXX_STR("]."));
 		return;
 	}
 
@@ -129,7 +109,7 @@ void AppenderSkeleton::doAppendImpl(const spi::LoggingEventPtr& event, Pool& poo
 		return;
 	}
 
-	FilterPtr f = headFilter;
+	FilterPtr f = m_priv->headFilter;
 
 
 	while (f != 0)
@@ -140,7 +120,7 @@ void AppenderSkeleton::doAppendImpl(const spi::LoggingEventPtr& event, Pool& poo
 				return;
 
 			case Filter::ACCEPT:
-				f = 0;
+				f = nullptr;
 				break;
 
 			case Filter::NEUTRAL:
@@ -151,11 +131,11 @@ void AppenderSkeleton::doAppendImpl(const spi::LoggingEventPtr& event, Pool& poo
 	append(event, pool1);
 }
 
-void AppenderSkeleton::setErrorHandler(const spi::ErrorHandlerPtr& errorHandler1)
+void AppenderSkeleton::setErrorHandler(const spi::ErrorHandlerPtr errorHandler1)
 {
-	LOCK_W sync(mutex);
+	std::lock_guard<std::recursive_mutex> lock(m_priv->mutex);
 
-	if (errorHandler1 == 0)
+	if (errorHandler1 == nullptr)
 	{
 		// We do not throw exception here since the cause is probably a
 		// bad config file.
@@ -163,14 +143,14 @@ void AppenderSkeleton::setErrorHandler(const spi::ErrorHandlerPtr& errorHandler1
 	}
 	else
 	{
-		this->errorHandler = errorHandler1;
+		m_priv->errorHandler = errorHandler1;
 	}
 }
 
 void AppenderSkeleton::setThreshold(const LevelPtr& threshold1)
 {
-	LOCK_W sync(mutex);
-	this->threshold = threshold1;
+	std::lock_guard<std::recursive_mutex> lock(m_priv->mutex);
+	m_priv->threshold = threshold1;
 }
 
 void AppenderSkeleton::setOption(const LogString& option,
@@ -183,4 +163,42 @@ void AppenderSkeleton::setOption(const LogString& option,
 	}
 }
 
+const spi::ErrorHandlerPtr AppenderSkeleton::getErrorHandler() const
+{
+	return m_priv->errorHandler;
+}
 
+spi::FilterPtr AppenderSkeleton::getFilter() const
+{
+	return m_priv->headFilter;
+}
+
+const spi::FilterPtr AppenderSkeleton::getFirstFilter() const
+{
+	return m_priv->headFilter;
+}
+
+LayoutPtr AppenderSkeleton::getLayout() const
+{
+	return m_priv->layout;
+}
+
+LogString AppenderSkeleton::getName() const
+{
+	return m_priv->name;
+}
+
+const LevelPtr AppenderSkeleton::getThreshold() const
+{
+	return m_priv->threshold;
+}
+
+void AppenderSkeleton::setLayout(const LayoutPtr layout1)
+{
+	m_priv->layout = layout1;
+}
+
+void AppenderSkeleton::setName(const LogString& name1)
+{
+	m_priv->name.assign(name1);
+}

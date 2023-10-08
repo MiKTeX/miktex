@@ -18,7 +18,6 @@
 #if !defined(_LOG4CXX_ROLLING_ROLLOVER_DESCRIPTION_H)
 #define _LOG4CXX_ROLLING_ROLLOVER_DESCRIPTION_H
 
-#include <log4cxx/portability.h>
 #include <log4cxx/rolling/action.h>
 
 namespace log4cxx
@@ -27,33 +26,14 @@ namespace rolling
 {
 
 
-class RolloverDescription : public log4cxx::helpers::ObjectImpl
+class RolloverDescription : public log4cxx::helpers::Object
 {
 		DECLARE_LOG4CXX_OBJECT(RolloverDescription)
 		BEGIN_LOG4CXX_CAST_MAP()
 		LOG4CXX_CAST_ENTRY(RolloverDescription)
 		END_LOG4CXX_CAST_MAP()
-		/**
-		 * Active log file name after rollover.
-		 */
-		LogString activeFileName;
 
-		/**
-		 * Should active file be opened for appending.
-		 */
-		bool append;
-
-		/**
-		 * Action to be completed after close of current active log file
-		 * before returning control to caller.
-		 */
-		ActionPtr synchronous;
-
-		/**
-		 * Action to be completed after close of current active log file
-		 * and before next rollover attempt, may be executed asynchronously.
-		 */
-		ActionPtr asynchronous;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(RolloverDescriptionPrivate, m_priv)
 
 	public:
 		RolloverDescription();
@@ -70,6 +50,8 @@ class RolloverDescription : public log4cxx::helpers::ObjectImpl
 			const bool append,
 			const ActionPtr& synchronous,
 			const ActionPtr& asynchronous);
+
+		~RolloverDescription();
 
 		/**
 		 * Active log file name after rollover.

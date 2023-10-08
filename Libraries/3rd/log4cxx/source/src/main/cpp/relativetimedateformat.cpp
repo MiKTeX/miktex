@@ -34,6 +34,6 @@ void log4cxx::helpers::RelativeTimeDateFormat::format(
 	log4cxx_time_t date,
 	Pool& p) const
 {
-	log4cxx_int64_t interval = (date - startTime) / APR_INT64_C(1000);
+	int64_t interval = (date - startTime) / APR_INT64_C(1000);
 	StringHelper::toString(interval, p, s);
 }

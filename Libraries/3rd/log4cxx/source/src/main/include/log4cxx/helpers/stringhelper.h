@@ -43,10 +43,10 @@ class LOG4CXX_EXPORT StringHelper
 
 
 		static int toInt(const LogString& s);
-		static log4cxx_int64_t toInt64(const LogString& s);
+		static int64_t toInt64(const LogString& s);
 
 		static void toString(int i, log4cxx::helpers::Pool& pool, LogString& dst);
-		static void toString(log4cxx_int64_t i, log4cxx::helpers::Pool& pool, LogString& dst);
+		static void toString(int64_t i, log4cxx::helpers::Pool& pool, LogString& dst);
 		static void toString(size_t i, log4cxx::helpers::Pool& pool, LogString& dst);
 
 		static void toString(bool val, LogString& dst);

@@ -24,8 +24,8 @@
 #include <log4cxx/helpers/iso8601dateformat.h>
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/transcoder.h>
+#include <log4cxx/helpers/date.h>
 
-#include <apr_time.h>
 #include <apr_strings.h>
 #include <string.h>
 
@@ -33,15 +33,29 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 using namespace log4cxx::spi;
 
+struct HTMLLayout::HTMLLayoutPrivate
+{
+	HTMLLayoutPrivate() : locationInfo(false), title(LOG4CXX_STR("Log4cxx Log Messages")),
+		dateFormat() {}
+
+	// Print no location info by default
+	bool locationInfo; //= false
+
+	LogString title;
+
+	helpers::ISO8601DateFormat dateFormat;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(HTMLLayout)
 
 
 HTMLLayout::HTMLLayout()
-	: locationInfo(false), title(LOG4CXX_STR("Log4cxx Log Messages")),
-	  dateFormat()
+	: m_priv(std::make_unique<HTMLLayoutPrivate>())
 {
-	dateFormat.setTimeZone(TimeZone::getGMT());
+	m_priv->dateFormat.setTimeZone(TimeZone::getGMT());
 }
+
+HTMLLayout::~HTMLLayout() {}
 
 
 void HTMLLayout::setOption(const LogString& option,
@@ -69,7 +83,7 @@ void HTMLLayout::format(LogString& output,
 	output.append(LOG4CXX_EOL);
 	output.append(LOG4CXX_STR("<td>"));
 
-	dateFormat.format(output, event->getTimeStamp(), p);
+	m_priv->dateFormat.format(output, event->getTimeStamp(), p);
 
 
 	output.append(LOG4CXX_STR("</td>"));
@@ -112,7 +126,7 @@ void HTMLLayout::format(LogString& output,
 	output.append(LOG4CXX_STR("</td>"));
 	output.append(LOG4CXX_EOL);
 
-	if (locationInfo)
+	if (m_priv->locationInfo)
 	{
 		output.append(LOG4CXX_STR("<td>"));
 		const LocationInfo& locInfo = event->getLocationInformation();
@@ -162,7 +176,7 @@ void HTMLLayout::appendHeader(LogString& output, Pool& p)
 	output.append(LOG4CXX_STR("<head>"));
 	output.append(LOG4CXX_EOL);
 	output.append(LOG4CXX_STR("<title>"));
-	output.append(title);
+	output.append(m_priv->title);
 	output.append(LOG4CXX_STR("</title>"));
 	output.append(LOG4CXX_EOL);
 	output.append(LOG4CXX_STR("<style type=\"text/css\">"));
@@ -185,7 +199,7 @@ void HTMLLayout::appendHeader(LogString& output, Pool& p)
 	output.append(LOG4CXX_EOL);
 	output.append(LOG4CXX_STR("Log session start time "));
 
-	dateFormat.format(output, apr_time_now(), p);
+	m_priv->dateFormat.format(output, Date::currentTime(), p);
 
 	output.append(LOG4CXX_STR("<br>"));
 	output.append(LOG4CXX_EOL);
@@ -204,7 +218,7 @@ void HTMLLayout::appendHeader(LogString& output, Pool& p)
 	output.append(LOG4CXX_STR("<th>Logger</th>"));
 	output.append(LOG4CXX_EOL);
 
-	if (locationInfo)
+	if (m_priv->locationInfo)
 	{
 		output.append(LOG4CXX_STR("<th>File:Line</th>"));
 		output.append(LOG4CXX_EOL);
@@ -223,4 +237,34 @@ void HTMLLayout::appendFooter(LogString& output, Pool& /* pool */ )
 	output.append(LOG4CXX_STR("<br>"));
 	output.append(LOG4CXX_EOL);
 	output.append(LOG4CXX_STR("</body></html>"));
+}
+
+void HTMLLayout::setLocationInfo(bool locationInfoFlag)
+{
+	m_priv->locationInfo = locationInfoFlag;
+}
+
+bool HTMLLayout::getLocationInfo() const
+{
+	return m_priv->locationInfo;
+}
+
+void HTMLLayout::setTitle(const LogString& title1)
+{
+	m_priv->title.assign(title1);
+}
+
+const LogString& HTMLLayout::getTitle() const
+{
+	return m_priv->title;
+}
+
+LogString HTMLLayout::getContentType() const
+{
+	return LOG4CXX_STR("text/html");
+}
+
+bool HTMLLayout::ignoresThrowable() const
+{
+	return false;
 }

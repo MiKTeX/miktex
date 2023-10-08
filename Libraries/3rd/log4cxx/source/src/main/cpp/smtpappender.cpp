@@ -19,15 +19,16 @@
 #include <log4cxx/helpers/loglog.h>
 #include <log4cxx/helpers/optionconverter.h>
 #include <log4cxx/spi/loggingevent.h>
+#include <log4cxx/private/string_c11.h>
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/stringtokenizer.h>
 #include <log4cxx/helpers/transcoder.h>
-#include <log4cxx/helpers/synchronized.h>
+#include <log4cxx/helpers/loader.h>
 #if !defined(LOG4CXX)
 	#define LOG4CXX 1
 #endif
 #include <log4cxx/private/log4cxx_private.h>
-
+#include <log4cxx/private/appenderskeleton_priv.h>
 
 
 #include <apr_strings.h>
@@ -192,6 +193,7 @@ class SMTPMessage
 			const LogString msg, Pool& p)
 		{
 			message = smtp_add_message(session);
+			current_len = msg.length();
 			body = current = toMessage(msg, p);
 			messagecbState = 0;
 			smtp_set_reverse_path(message, toAscii(from, p));
@@ -216,6 +218,7 @@ class SMTPMessage
 		smtp_message_t message;
 		const char* body;
 		const char* current;
+		size_t current_len;
 		int messagecbState;
 		void addRecipients(const LogString& addresses, const char* field, Pool& p)
 		{
@@ -333,7 +336,7 @@ class SMTPMessage
 
 				if (pThis->current)
 				{
-					*len = strlen(pThis->current);
+					*len = strnlen_s(pThis->current, pThis->current_len);
 				}
 
 				retval = pThis->current;
@@ -348,7 +351,7 @@ class SMTPMessage
 
 class LOG4CXX_EXPORT DefaultEvaluator :
 	public virtual spi::TriggeringEventEvaluator,
-	public virtual helpers::ObjectImpl
+	public virtual helpers::Object
 {
 	public:
 		DECLARE_LOG4CXX_OBJECT(DefaultEvaluator)
@@ -365,7 +368,7 @@ class LOG4CXX_EXPORT DefaultEvaluator :
 		has ERROR level or higher. Otherwise it returns
 		<code>false</code>.
 		*/
-		virtual bool isTriggeringEvent(const spi::LoggingEventPtr& event);
+		bool isTriggeringEvent(const spi::LoggingEventPtr& event) override;
 	private:
 		DefaultEvaluator(const DefaultEvaluator&);
 		DefaultEvaluator& operator=(const DefaultEvaluator&);
@@ -377,6 +380,41 @@ class LOG4CXX_EXPORT DefaultEvaluator :
 IMPLEMENT_LOG4CXX_OBJECT(DefaultEvaluator)
 IMPLEMENT_LOG4CXX_OBJECT(SMTPAppender)
 
+struct SMTPAppender::SMTPPriv : public AppenderSkeletonPrivate
+{
+	SMTPPriv() :
+		AppenderSkeletonPrivate(),
+		smtpPort(25),
+		bufferSize(512),
+		locationInfo(false),
+		cb(bufferSize),
+		evaluator(new DefaultEvaluator()) {}
+
+	SMTPPriv(spi::TriggeringEventEvaluatorPtr evaluator) :
+		AppenderSkeletonPrivate(),
+		smtpPort(25),
+		bufferSize(512),
+		locationInfo(false),
+		cb(bufferSize),
+		evaluator(evaluator) {}
+
+	LogString to;
+	LogString cc;
+	LogString bcc;
+	LogString from;
+	LogString subject;
+	LogString smtpHost;
+	LogString smtpUsername;
+	LogString smtpPassword;
+	int smtpPort;
+	int bufferSize; // 512
+	bool locationInfo;
+	helpers::CyclicBuffer cb;
+	spi::TriggeringEventEvaluatorPtr evaluator;
+};
+
+#define _priv static_cast<SMTPPriv*>(m_priv.get())
+
 DefaultEvaluator::DefaultEvaluator()
 {
 }
@@ -387,8 +425,7 @@ bool DefaultEvaluator::isTriggeringEvent(const spi::LoggingEventPtr& event)
 }
 
 SMTPAppender::SMTPAppender()
-	: smtpPort(25), bufferSize(512), locationInfo(false), cb(bufferSize),
-	  evaluator(new DefaultEvaluator())
+	: AppenderSkeleton (std::make_unique<SMTPPriv>())
 {
 }
 
@@ -396,8 +433,7 @@ SMTPAppender::SMTPAppender()
 Use <code>evaluator</code> passed as parameter as the
 TriggeringEventEvaluator for this SMTPAppender.  */
 SMTPAppender::SMTPAppender(spi::TriggeringEventEvaluatorPtr evaluator)
-	: smtpPort(25), bufferSize(512), locationInfo(false), cb(bufferSize),
-	  evaluator(evaluator)
+	: AppenderSkeleton (std::make_unique<SMTPPriv>(evaluator))
 {
 }
 
@@ -414,73 +450,73 @@ bool SMTPAppender::requiresLayout() const
 
 LogString SMTPAppender::getFrom() const
 {
-	return from;
+	return _priv->from;
 }
 
 void SMTPAppender::setFrom(const LogString& newVal)
 {
-	from = newVal;
+	_priv->from = newVal;
 }
 
 
 LogString SMTPAppender::getSubject() const
 {
-	return subject;
+	return _priv->subject;
 }
 
 void SMTPAppender::setSubject(const LogString& newVal)
 {
-	subject = newVal;
+	_priv->subject = newVal;
 }
 
 LogString SMTPAppender::getSMTPHost() const
 {
-	return smtpHost;
+	return _priv->smtpHost;
 }
 
 void SMTPAppender::setSMTPHost(const LogString& newVal)
 {
-	smtpHost = newVal;
+	_priv->smtpHost = newVal;
 }
 
 int SMTPAppender::getSMTPPort() const
 {
-	return smtpPort;
+	return _priv->smtpPort;
 }
 
 void SMTPAppender::setSMTPPort(int newVal)
 {
-	smtpPort = newVal;
+	_priv->smtpPort = newVal;
 }
 
 bool SMTPAppender::getLocationInfo() const
 {
-	return locationInfo;
+	return _priv->locationInfo;
 }
 
 void SMTPAppender::setLocationInfo(bool newVal)
 {
-	locationInfo = newVal;
+	_priv->locationInfo = newVal;
 }
 
 LogString SMTPAppender::getSMTPUsername() const
 {
-	return smtpUsername;
+	return _priv->smtpUsername;
 }
 
 void SMTPAppender::setSMTPUsername(const LogString& newVal)
 {
-	smtpUsername = newVal;
+	_priv->smtpUsername = newVal;
 }
 
 LogString SMTPAppender::getSMTPPassword() const
 {
-	return smtpPassword;
+	return _priv->smtpPassword;
 }
 
 void SMTPAppender::setSMTPPassword(const LogString& newVal)
 {
-	smtpPassword = newVal;
+	_priv->smtpPassword = newVal;
 }
 
 
@@ -564,40 +600,40 @@ void SMTPAppender::activateOptions(Pool& p)
 {
 	bool activate = true;
 
-	if (layout == 0)
+	if (_priv->layout == 0)
 	{
-		errorHandler->error(LOG4CXX_STR("No layout set for appender named [") + name + LOG4CXX_STR("]."));
+		_priv->errorHandler->error(LOG4CXX_STR("No layout set for appender named [") + _priv->name + LOG4CXX_STR("]."));
 		activate = false;
 	}
 
-	if (evaluator == 0)
+	if (_priv->evaluator == 0)
 	{
-		errorHandler->error(LOG4CXX_STR("No TriggeringEventEvaluator is set for appender [") +
-			name + LOG4CXX_STR("]."));
+		_priv->errorHandler->error(LOG4CXX_STR("No TriggeringEventEvaluator is set for appender [") +
+			_priv->name + LOG4CXX_STR("]."));
 		activate = false;
 	}
 
-	if (smtpHost.empty())
+	if (_priv->smtpHost.empty())
 	{
-		errorHandler->error(LOG4CXX_STR("No smtpHost is set for appender [") +
-			name + LOG4CXX_STR("]."));
+		_priv->errorHandler->error(LOG4CXX_STR("No smtpHost is set for appender [") +
+			_priv->name + LOG4CXX_STR("]."));
 		activate = false;
 	}
 
-	if (to.empty() && cc.empty() && bcc.empty())
+	if (_priv->to.empty() && _priv->cc.empty() && _priv->bcc.empty())
 	{
-		errorHandler->error(LOG4CXX_STR("No recipient address is set for appender [") +
-			name + LOG4CXX_STR("]."));
+		_priv->errorHandler->error(LOG4CXX_STR("No recipient address is set for appender [") +
+			_priv->name + LOG4CXX_STR("]."));
 		activate = false;
 	}
 
-	activate &= asciiCheck(to, LOG4CXX_STR("to"));
-	activate &= asciiCheck(cc, LOG4CXX_STR("cc"));
-	activate &= asciiCheck(bcc, LOG4CXX_STR("bcc"));
-	activate &= asciiCheck(from, LOG4CXX_STR("from"));
+	activate &= asciiCheck(_priv->to, LOG4CXX_STR("to"));
+	activate &= asciiCheck(_priv->cc, LOG4CXX_STR("cc"));
+	activate &= asciiCheck(_priv->bcc, LOG4CXX_STR("bcc"));
+	activate &= asciiCheck(_priv->from, LOG4CXX_STR("from"));
 
 #if !LOG4CXX_HAVE_LIBESMTP
-	errorHandler->error(LOG4CXX_STR("log4cxx built without SMTP support."));
+	_priv->errorHandler->error(LOG4CXX_STR("log4cxx built without SMTP support."));
 	activate = false;
 #endif
 
@@ -624,9 +660,9 @@ void SMTPAppender::append(const spi::LoggingEventPtr& event, Pool& p)
 	// Get a copy of this thread's MDC.
 	event->getMDCCopy();
 
-	cb.add(event);
+	_priv->cb.add(event);
 
-	if (evaluator->isTriggeringEvent(event))
+	if (_priv->evaluator->isTriggeringEvent(event))
 	{
 		sendBuffer(p);
 	}
@@ -641,23 +677,23 @@ bool SMTPAppender::checkEntryConditions()
 {
 #if LOG4CXX_HAVE_LIBESMTP
 
-	if ((to.empty() && cc.empty() && bcc.empty()) || from.empty() || smtpHost.empty())
+	if ((_priv->to.empty() && _priv->cc.empty() && _priv->bcc.empty()) || _priv->from.empty() || _priv->smtpHost.empty())
 	{
-		errorHandler->error(LOG4CXX_STR("Message not configured."));
+		_priv->errorHandler->error(LOG4CXX_STR("Message not configured."));
 		return false;
 	}
 
-	if (evaluator == 0)
+	if (_priv->evaluator == 0)
 	{
-		errorHandler->error(LOG4CXX_STR("No TriggeringEventEvaluator is set for appender [") +
-			name + LOG4CXX_STR("]."));
+		_priv->errorHandler->error(LOG4CXX_STR("No TriggeringEventEvaluator is set for appender [") +
+			_priv->name + LOG4CXX_STR("]."));
 		return false;
 	}
 
 
-	if (layout == 0)
+	if (_priv->layout == 0)
 	{
-		errorHandler->error(LOG4CXX_STR("No layout set for appender named [") + name + LOG4CXX_STR("]."));
+		_priv->errorHandler->error(LOG4CXX_STR("No layout set for appender named [") + _priv->name + LOG4CXX_STR("]."));
 		return false;
 	}
 
@@ -671,37 +707,37 @@ bool SMTPAppender::checkEntryConditions()
 
 void SMTPAppender::close()
 {
-	this->closed = true;
+	_priv->closed = true;
 }
 
 LogString SMTPAppender::getTo() const
 {
-	return to;
+	return _priv->to;
 }
 
 void SMTPAppender::setTo(const LogString& addressStr)
 {
-	to = addressStr;
+	_priv->to = addressStr;
 }
 
 LogString SMTPAppender::getCc() const
 {
-	return cc;
+	return _priv->cc;
 }
 
 void SMTPAppender::setCc(const LogString& addressStr)
 {
-	cc = addressStr;
+	_priv->cc = addressStr;
 }
 
 LogString SMTPAppender::getBcc() const
 {
-	return bcc;
+	return _priv->bcc;
 }
 
 void SMTPAppender::setBcc(const LogString& addressStr)
 {
-	bcc = addressStr;
+	_priv->bcc = addressStr;
 }
 
 /**
@@ -716,22 +752,22 @@ void SMTPAppender::sendBuffer(Pool& p)
 	try
 	{
 		LogString sbuf;
-		layout->appendHeader(sbuf, p);
+		_priv->layout->appendHeader(sbuf, p);
 
-		int len = cb.length();
+		int len = _priv->cb.length();
 
 		for (int i = 0; i < len; i++)
 		{
-			LoggingEventPtr event = cb.get();
-			layout->format(sbuf, event, p);
+			LoggingEventPtr event = _priv->cb.get();
+			_priv->layout->format(sbuf, event, p);
 		}
 
-		layout->appendFooter(sbuf, p);
+		_priv->layout->appendFooter(sbuf, p);
 
-		SMTPSession session(smtpHost, smtpPort, smtpUsername, smtpPassword, p);
+		SMTPSession session(_priv->smtpHost, _priv->smtpPort, _priv->smtpUsername, _priv->smtpPassword, p);
 
-		SMTPMessage message(session, from, to, cc,
-			bcc, subject, sbuf, p);
+		SMTPMessage message(session, _priv->from, _priv->to, _priv->cc,
+			_priv->bcc, _priv->subject, sbuf, p);
 
 		session.send(p);
 
@@ -749,17 +785,17 @@ Returns value of the <b>EvaluatorClass</b> option.
 */
 LogString SMTPAppender::getEvaluatorClass()
 {
-	return evaluator == 0 ? LogString() : evaluator->getClass().getName();
+	return _priv->evaluator == 0 ? LogString() : _priv->evaluator->getClass().getName();
 }
 
 log4cxx::spi::TriggeringEventEvaluatorPtr SMTPAppender::getEvaluator() const
 {
-	return evaluator;
+	return _priv->evaluator;
 }
 
 void SMTPAppender::setEvaluator(log4cxx::spi::TriggeringEventEvaluatorPtr& trigger)
 {
-	evaluator = trigger;
+	_priv->evaluator = trigger;
 }
 
 /**
@@ -771,8 +807,8 @@ buffer. By default the size of the cyclic buffer is 512 events.
 */
 void SMTPAppender::setBufferSize(int sz)
 {
-	this->bufferSize = sz;
-	cb.resize(sz);
+	_priv->bufferSize = sz;
+	_priv->cb.resize(sz);
 }
 
 /**
@@ -784,7 +820,11 @@ for the SMTPAppender.
 */
 void SMTPAppender::setEvaluatorClass(const LogString& value)
 {
-	evaluator = OptionConverter::instantiateByClassName(value,
-			TriggeringEventEvaluator::getStaticClass(), evaluator);
+	ObjectPtr obj = ObjectPtr(Loader::loadClass(value).newInstance());
+	_priv->evaluator = log4cxx::cast<TriggeringEventEvaluator>(obj);
 }
 
+int SMTPAppender::getBufferSize() const
+{
+	return _priv->bufferSize;
+}

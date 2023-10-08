@@ -24,11 +24,6 @@
 #include <log4cxx/file.h>
 #include <log4cxx/helpers/pool.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
 namespace log4cxx
 {
 namespace helpers
@@ -46,26 +41,7 @@ class Pool;
 class LOG4CXX_EXPORT FileAppender : public WriterAppender
 {
 	protected:
-		/** Append to or truncate the file? The default value for this
-		variable is <code>true</code>, meaning that by default a
-		<code>FileAppender</code> will append to an existing file and
-		not truncate it.
-		<p>This option is meaningful only if the FileAppender opens the
-		file.
-		*/
-		bool fileAppend;
-
-		/**
-		The name of the log file. */
-		LogString fileName;
-
-		/**
-		Do we do bufferedIO? */
-		bool bufferedIO;
-
-		/**
-		How big should the IO buffer be? Default is 8K. */
-		int bufferSize;
+		struct FileAppenderPriv;
 
 	public:
 		DECLARE_LOG4CXX_OBJECT(FileAppender)
@@ -128,40 +104,12 @@ class LOG4CXX_EXPORT FileAppender : public WriterAppender
 		virtual void setFile(const LogString& file);
 
 		/**
-		Sets and <i>opens</i> the file where the log output will
-		go. The specified file must be writable.
-
-		<p>If there was already an opened file, then the previous file
-		is closed first.
-
-		<p><b>Do not use this method directly. To configure a FileAppender
-		or one of its subclasses, set its properties one by one and then
-		call activateOptions.</b>
-
-		@param file The path to the log file.
-		@param append If true will append to fileName. Otherwise will
-		truncate fileName.
-		@param bufferedIO Do we do bufferedIO?
-		@param bufferSize How big should the IO buffer be?
-		@param p memory pool for operation.
-		*/
-		virtual void setFile(const LogString& file, bool append,
-			bool bufferedIO, size_t bufferSize,
-			log4cxx::helpers::Pool& p);
-
-		/**
 		Returns the value of the <b>Append</b> option.
 		*/
-		inline bool getAppend() const
-		{
-			return fileAppend;
-		}
+		bool getAppend() const;
 
 		/** Returns the value of the <b>File</b> option. */
-		inline LogString getFile() const
-		{
-			return fileName;
-		}
+		LogString getFile() const;
 
 		/**
 		<p>Sets and <i>opens</i> the file where the log output will
@@ -169,9 +117,8 @@ class LOG4CXX_EXPORT FileAppender : public WriterAppender
 
 		<p>If there was already an opened file, then the previous file
 		is closed first.*/
-		void activateOptions(log4cxx::helpers::Pool& p);
-		void setOption(const LogString& option,
-			const LogString& value);
+		void activateOptions(helpers::Pool& p) override;
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		Get the value of the <b>BufferedIO</b> option.
@@ -180,18 +127,12 @@ class LOG4CXX_EXPORT FileAppender : public WriterAppender
 		loaded systems.
 
 		*/
-		inline bool getBufferedIO() const
-		{
-			return bufferedIO;
-		}
+		bool getBufferedIO() const;
 
 		/**
 		Get the size of the IO buffer.
 		*/
-		inline  int getBufferSize() const
-		{
-			return bufferSize;
-		}
+		int getBufferSize() const;
 
 		/**
 		The <b>Append</b> option takes a boolean value. It is set to
@@ -219,10 +160,7 @@ class LOG4CXX_EXPORT FileAppender : public WriterAppender
 		/**
 		Set the size of the IO buffer.
 		*/
-		void setBufferSize(int bufferSize1)
-		{
-			this->bufferSize = bufferSize1;
-		}
+		void setBufferSize(int bufferSize1);
 
 		/**
 		 *   Replaces double backslashes with single backslashes
@@ -232,17 +170,44 @@ class LOG4CXX_EXPORT FileAppender : public WriterAppender
 		 */
 		static LogString stripDuplicateBackslashes(const LogString& name);
 
+	protected:
+		void activateOptionsInternal(log4cxx::helpers::Pool& p);
+
+		/**
+		Sets and <i>opens</i> the file where the log output will
+		go. The specified file must be writable.
+
+		<p>If there was already an opened file, then the previous file
+		is closed first.
+
+		<p><b>Do not use this method directly. To configure a FileAppender
+		or one of its subclasses, set its properties one by one and then
+		call activateOptions.</b>
+
+		The mutex must be locked before calling this function.
+
+		@param file The path to the log file.
+		@param append If true will append to fileName. Otherwise will
+		truncate fileName.
+		@param bufferedIO Do we do bufferedIO?
+		@param bufferSize How big should the IO buffer be?
+		@param p memory pool for operation.
+		*/
+		void setFileInternal(const LogString& file, bool append,
+			bool bufferedIO, size_t bufferSize,
+			log4cxx::helpers::Pool& p);
+
+		void setFileInternal(const LogString& file);
+
 	private:
 		FileAppender(const FileAppender&);
 		FileAppender& operator=(const FileAppender&);
+	protected:
+		FileAppender(std::unique_ptr<FileAppenderPriv> priv);
 
 }; // class FileAppender
 LOG4CXX_PTR_DEF(FileAppender);
 
 }  // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif

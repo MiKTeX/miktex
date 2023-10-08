@@ -21,20 +21,9 @@
 #include <log4cxx/helpers/transcoder.h>
 #include <algorithm>
 #include <vector>
-#include <apr_strings.h>
-#include <log4cxx/helpers/pool.h>
-#if !defined(LOG4CXX)
-	#define LOG4CXX 1
-#endif
-#include <log4cxx/private/log4cxx_private.h>
-#include <cctype>
 #include <iterator>
-#include <apr.h>
-//LOG4CXX-417: need stdlib.h for atoi on some systems.
-#ifdef APR_HAVE_STDLIB_H
-	#include <stdlib.h>
-#endif
-
+#include <algorithm>
+#include <cctype>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -119,22 +108,33 @@ bool StringHelper::endsWith(const LogString& s, const LogString& suffix)
 
 int StringHelper::toInt(const LogString& s)
 {
+#if LOG4CXX_LOGCHAR_IS_UNICHAR
 	std::string as;
 	Transcoder::encode(s, as);
-	return atoi(as.c_str());
+	return std::stoi(as);
+#else
+	return std::stoi(s);
+#endif
 }
 
-log4cxx_int64_t StringHelper::toInt64(const LogString& s)
+int64_t StringHelper::toInt64(const LogString& s)
 {
+#if LOG4CXX_LOGCHAR_IS_UNICHAR
 	std::string as;
 	Transcoder::encode(s, as);
-	return apr_atoi64(as.c_str());
+	return std::stoll(as);
+#else
+	return std::stoll(s);
+#endif
 }
 
-void StringHelper::toString(int n, Pool& pool, LogString& s)
+void StringHelper::toString(int n, Pool& pool, LogString& dst)
 {
-	char* fmt = pool.itoa(n);
-	Transcoder::decode(fmt, s);
+#if LOG4CXX_LOGCHAR_IS_WCHAR
+	dst.append(std::to_wstring(n));
+#else
+	Transcoder::decode(std::to_string(n), dst);
+#endif
 }
 
 void StringHelper::toString(bool val, LogString& dst)
@@ -150,35 +150,23 @@ void StringHelper::toString(bool val, LogString& dst)
 }
 
 
-void StringHelper::toString(log4cxx_int64_t n, Pool& pool, LogString& dst)
+void StringHelper::toString(int64_t n, Pool& pool, LogString& dst)
 {
-	if (n >= INT_MIN && n <= INT_MAX)
-	{
-		toString((int) n, pool, dst);
-	}
-	else
-	{
-		const log4cxx_int64_t BILLION = APR_INT64_C(1000000000);
-		int billions = (int) (n / BILLION);
-		char* upper = pool.itoa(billions);
-		int remain = (int) (n - billions * BILLION);
-
-		if (remain < 0)
-		{
-			remain *= -1;
-		}
-
-		char* lower = pool.itoa(remain);
-		Transcoder::decode(upper, dst);
-		dst.append(9 - strlen(lower), 0x30 /* '0' */);
-		Transcoder::decode(lower, dst);
-	}
+#if LOG4CXX_LOGCHAR_IS_WCHAR
+	dst.append(std::to_wstring(n));
+#else
+	Transcoder::decode(std::to_string(n), dst);
+#endif
 }
 
 
-void StringHelper::toString(size_t n, Pool& pool, LogString& s)
+void StringHelper::toString(size_t n, Pool& pool, LogString& dst)
 {
-	toString((log4cxx_int64_t) n, pool, s);
+#if LOG4CXX_LOGCHAR_IS_WCHAR
+	dst.append(std::to_wstring(n));
+#else
+	Transcoder::decode(std::to_string(n), dst);
+#endif
 }
 
 LogString StringHelper::format(const LogString& pattern, const std::vector<LogString>& params)

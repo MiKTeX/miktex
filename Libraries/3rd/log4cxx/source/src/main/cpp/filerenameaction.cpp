@@ -17,21 +17,36 @@
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/rolling/filerenameaction.h>
+#include <log4cxx/private/action_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::rolling;
 using namespace log4cxx::helpers;
+
+#define priv static_cast<FileRenameActionPrivate*>(m_priv.get())
+
+struct FileRenameAction::FileRenameActionPrivate : public ActionPrivate
+{
+	FileRenameActionPrivate( const File& toRename,
+		const File& renameTo,
+		bool renameEmptyFile1):
+		source(toRename), destination(renameTo), renameEmptyFile(renameEmptyFile1) {}
+
+	const File source;
+	const File destination;
+	bool renameEmptyFile;
+};
 
 IMPLEMENT_LOG4CXX_OBJECT(FileRenameAction)
 
 FileRenameAction::FileRenameAction(const File& toRename,
 	const File& renameTo,
 	bool renameEmptyFile1)
-	: source(toRename), destination(renameTo), renameEmptyFile(renameEmptyFile1)
+	: Action( std::make_unique<FileRenameActionPrivate>(toRename, renameTo, renameEmptyFile1) )
 {
 }
 
 bool FileRenameAction::execute(log4cxx::helpers::Pool& pool1) const
 {
-	return source.renameTo(destination, pool1);
+	return priv->source.renameTo(priv->destination, pool1);
 }

@@ -39,17 +39,7 @@ namespace pattern
 class LOG4CXX_EXPORT PropertiesPatternConverter
 	: public LoggingEventPatternConverter
 {
-		/**
-		 * Name of property to output.
-		 */
-		const LogString option;
-
-		/**
-		 * Private constructor.
-		 * @param options options, may be null.
-		 * @param logger logger for diagnostic messages, may be null.
-		 */
-		PropertiesPatternConverter(const LogString& name, const LogString& option);
+		struct PropertiesPatternConverterPrivate;
 
 	public:
 		DECLARE_LOG4CXX_PATTERN(PropertiesPatternConverter)
@@ -57,6 +47,14 @@ class LOG4CXX_EXPORT PropertiesPatternConverter
 		LOG4CXX_CAST_ENTRY(PropertiesPatternConverter)
 		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
 		END_LOG4CXX_CAST_MAP()
+
+		/**
+		 * A Property bundle converter.
+		 *
+		 * @param name of the converter.
+		 * @param option may be null.
+		 */
+		PropertiesPatternConverter(const LogString& name, const LogString& option);
 
 		/**
 		 * Obtains an instance of PropertiesPatternConverter.
@@ -68,9 +66,9 @@ class LOG4CXX_EXPORT PropertiesPatternConverter
 
 		using LoggingEventPatternConverter::format;
 
-		void format(const log4cxx::spi::LoggingEventPtr& event,
+		void format(const spi::LoggingEventPtr& event,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			log4cxx::helpers::Pool& p) const override;
 };
 }
 }

@@ -21,19 +21,30 @@
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/optionconverter.h>
 #include <log4cxx/level.h>
+#include <log4cxx/private/filter_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::filter;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
+#define priv static_cast<LevelMatchFilterPrivate*>(m_priv.get())
+
+struct LevelMatchFilter::LevelMatchFilterPrivate : public FilterPrivate
+{
+	bool acceptOnMatch;
+	LevelPtr levelToMatch;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(LevelMatchFilter)
 
-
 LevelMatchFilter::LevelMatchFilter()
-	: acceptOnMatch(true)
+	: Filter(std::make_unique<LevelMatchFilterPrivate>())
 {
+	priv->acceptOnMatch = true;
 }
+
+LevelMatchFilter::~LevelMatchFilter() {}
 
 void LevelMatchFilter::setOption(const LogString& option,
 	const LogString& value)
@@ -48,26 +59,26 @@ void LevelMatchFilter::setOption(const LogString& option,
 	else if (StringHelper::equalsIgnoreCase(option,
 			LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
 	{
-		acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
+		priv->acceptOnMatch = OptionConverter::toBoolean(value, priv->acceptOnMatch);
 	}
 }
 
 void LevelMatchFilter::setLevelToMatch(const LogString& levelToMatch1)
 {
-	this->levelToMatch = OptionConverter::toLevel(levelToMatch1, this->levelToMatch);
+	priv->levelToMatch = OptionConverter::toLevel(levelToMatch1, priv->levelToMatch);
 }
 
 LogString LevelMatchFilter::getLevelToMatch() const
 {
-	return levelToMatch->toString();
+	return priv->levelToMatch->toString();
 }
 
 Filter::FilterDecision LevelMatchFilter::decide(
 	const log4cxx::spi::LoggingEventPtr& event) const
 {
-	if (levelToMatch != 0 && levelToMatch->equals(event->getLevel()))
+	if (priv->levelToMatch != 0 && priv->levelToMatch->equals(event->getLevel()))
 	{
-		if (acceptOnMatch)
+		if (priv->acceptOnMatch)
 		{
 			return Filter::ACCEPT;
 		}
@@ -82,3 +93,12 @@ Filter::FilterDecision LevelMatchFilter::decide(
 	}
 }
 
+void LevelMatchFilter::setAcceptOnMatch(bool acceptOnMatch1)
+{
+	priv->acceptOnMatch = acceptOnMatch1;
+}
+
+bool LevelMatchFilter::getAcceptOnMatch() const
+{
+	return priv->acceptOnMatch;
+}

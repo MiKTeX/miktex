@@ -34,9 +34,7 @@ class LOG4CXX_EXPORT LoggerFactory : public virtual helpers::Object
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(LoggerFactory)
 		virtual ~LoggerFactory() {}
-		virtual LoggerPtr makeNewLoggerInstance(
-			log4cxx::helpers::Pool& pool,
-			const LogString& name) const = 0;
+		virtual LoggerPtr makeNewLoggerInstance(helpers::Pool& pool, const LogString& name) const = 0;
 };
 
 

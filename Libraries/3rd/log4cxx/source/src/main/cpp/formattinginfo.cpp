@@ -22,6 +22,29 @@
 using namespace log4cxx;
 using namespace log4cxx::pattern;
 
+struct FormattingInfo::FormattingInfoPrivate
+{
+	FormattingInfoPrivate(const bool leftAlign1, const int minLength1, const int maxLength1):
+		minLength(minLength1),
+		maxLength(maxLength1),
+		leftAlign(leftAlign1) {}
+
+	/**
+	 * Minimum length.
+	 */
+	const int minLength;
+
+	/**
+	 * Maximum length.
+	 */
+	const int maxLength;
+
+	/**
+	 * Alignment.
+	 */
+	const bool leftAlign;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(FormattingInfo)
 
 /**
@@ -32,11 +55,11 @@ IMPLEMENT_LOG4CXX_OBJECT(FormattingInfo)
  */
 FormattingInfo::FormattingInfo(
 	const bool leftAlign1, const int minLength1, const int maxLength1) :
-	minLength(minLength1),
-	maxLength(maxLength1),
-	leftAlign(leftAlign1)
+	m_priv(std::make_unique<FormattingInfoPrivate>(leftAlign1, minLength1, maxLength1))
 {
 }
+
+FormattingInfo::~FormattingInfo() {}
 
 /**
  * Gets default instance.
@@ -44,7 +67,7 @@ FormattingInfo::FormattingInfo(
  */
 FormattingInfoPtr FormattingInfo::getDefault()
 {
-	static FormattingInfoPtr def(new FormattingInfo(false, 0, INT_MAX));
+	static FormattingInfoPtr def= std::make_shared<FormattingInfo>(false, 0, INT_MAX);
 	return def;
 }
 
@@ -58,20 +81,35 @@ void FormattingInfo::format(const int fieldStart, LogString& buffer) const
 {
 	int rawLength = int(buffer.length() - fieldStart);
 
-	if (rawLength > maxLength)
+	if (rawLength > m_priv->maxLength)
 	{
 		buffer.erase(buffer.begin() + fieldStart,
-			buffer.begin() + fieldStart + (rawLength - maxLength));
+			buffer.begin() + fieldStart + (rawLength - m_priv->maxLength));
 	}
-	else if (rawLength < minLength)
+	else if (rawLength < m_priv->minLength)
 	{
-		if (leftAlign)
+		if (m_priv->leftAlign)
 		{
-			buffer.append(minLength - rawLength, (logchar) 0x20 /* ' ' */);
+			buffer.append(m_priv->minLength - rawLength, (logchar) 0x20 /* ' ' */);
 		}
 		else
 		{
-			buffer.insert(fieldStart, minLength - rawLength, 0x20 /* ' ' */);
+			buffer.insert(fieldStart, m_priv->minLength - rawLength, 0x20 /* ' ' */);
 		}
 	}
+}
+
+bool FormattingInfo::isLeftAligned() const
+{
+	return m_priv->leftAlign;
+}
+
+int FormattingInfo::getMinLength() const
+{
+	return m_priv->minLength;
+}
+
+int FormattingInfo::getMaxLength() const
+{
+	return m_priv->maxLength;
 }

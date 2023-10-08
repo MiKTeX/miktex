@@ -19,15 +19,9 @@
 #ifndef _LOG4CXX_HELPER_PATTERN_CONVERTER_H
 #define _LOG4CXX_HELPER_PATTERN_CONVERTER_H
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
-
 #include <map>
 #include <vector>
+#include <functional>
 #include <log4cxx/helpers/class.h>
 #include <log4cxx/pattern/patternconverter.h>
 #include <log4cxx/pattern/formattinginfo.h>
@@ -37,7 +31,7 @@ namespace log4cxx
 namespace pattern
 {
 
-typedef PatternConverterPtr (*PatternConstructor)(const std::vector<LogString>& options);
+typedef std::function<PatternConverterPtr(const std::vector<LogString>& options)> PatternConstructor;
 typedef std::map<LogString, PatternConstructor> PatternMap;
 
 
@@ -165,11 +159,6 @@ class LOG4CXX_EXPORT PatternParser
 
 }
 }
-
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 
 #endif

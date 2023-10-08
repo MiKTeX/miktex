@@ -18,7 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_READER_H
 #define _LOG4CXX_HELPERS_READER_H
 
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
@@ -30,7 +30,7 @@ namespace helpers
  * Abstract class for reading from character streams.
  *
  */
-class LOG4CXX_EXPORT Reader : public ObjectImpl
+class LOG4CXX_EXPORT Reader : public Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(Reader)

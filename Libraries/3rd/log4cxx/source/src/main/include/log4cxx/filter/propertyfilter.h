@@ -19,12 +19,6 @@
 #ifndef _LOG4CXX_FILTER_PROPERTYFILTER_H
 #define _LOG4CXX_FILTER_PROPERTYFILTER_H
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/spi/filter.h>
 #include <map>
 
@@ -67,15 +61,11 @@ class LOG4CXX_EXPORT PropertyFilter : public log4cxx::spi::Filter
 		~PropertyFilter();
 		void setProperties(const LogString& props);
 
-		FilterDecision decide(const spi::LoggingEventPtr& event) const;
+		FilterDecision decide(const spi::LoggingEventPtr& event) const override;
 
 };
 
 }
 }
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif

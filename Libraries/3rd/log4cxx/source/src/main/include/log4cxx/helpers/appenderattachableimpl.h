@@ -18,35 +18,29 @@
 #ifndef _LOG4CXX_HELPERS_APPENDER_ATTACHABLE_IMPL_H
 #define _LOG4CXX_HELPERS_APPENDER_ATTACHABLE_IMPL_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 
 #include <log4cxx/spi/appenderattachable.h>
-#include <log4cxx/helpers/objectimpl.h>
-#include <log4cxx/helpers/mutex.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/helpers/pool.h>
+#include <log4cxx/log4cxx.h>
+#include <mutex>
 
 namespace log4cxx
 {
 namespace spi
 {
 class LoggingEvent;
-typedef helpers::ObjectPtrT<LoggingEvent> LoggingEventPtr;
+typedef std::shared_ptr<LoggingEvent> LoggingEventPtr;
 }
 
 namespace helpers
 {
 
 class LOG4CXX_EXPORT AppenderAttachableImpl :
-	public virtual spi::AppenderAttachable,
-	public virtual helpers::ObjectImpl
+	public virtual spi::AppenderAttachable
 {
 	protected:
-		/** Array of appenders. */
-		AppenderList  appenderList;
+		AppenderList& appenderList();
 
 	public:
 		/**
@@ -55,20 +49,19 @@ class LOG4CXX_EXPORT AppenderAttachableImpl :
 		 */
 		AppenderAttachableImpl(Pool& pool);
 
+		~AppenderAttachableImpl();
+
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(AppenderAttachableImpl)
 		BEGIN_LOG4CXX_CAST_MAP()
 		LOG4CXX_CAST_ENTRY(AppenderAttachableImpl)
 		LOG4CXX_CAST_ENTRY(spi::AppenderAttachable)
 		END_LOG4CXX_CAST_MAP()
 
-		void addRef() const;
-		void releaseRef() const;
-
 		// Methods
 		/**
 		 * Add an appender.
 		 */
-		virtual void addAppender(const AppenderPtr& newAppender);
+		void addAppender(const AppenderPtr newAppender) override;
 
 		/**
 		 Call the <code>doAppend</code> method on all attached appenders.
@@ -79,42 +72,38 @@ class LOG4CXX_EXPORT AppenderAttachableImpl :
 		/**
 		 * Get all previously added appenders as an Enumeration.
 		 */
-		virtual AppenderList getAllAppenders() const;
+		AppenderList getAllAppenders() const override;
 
 		/**
 		 * Get an appender by name.
 		 */
-		virtual AppenderPtr getAppender(const LogString& name) const;
+		AppenderPtr getAppender(const LogString& name) const override;
 
 		/**
 		 Returns <code>true</code> if the specified appender is in the
 		 list of attached appenders, <code>false</code> otherwise.
 		*/
-		virtual bool isAttached(const AppenderPtr& appender) const;
+		bool isAttached(const AppenderPtr appender) const override;
 
 		/**
 		 * Remove all previously added appenders.
 		 */
-		virtual void removeAllAppenders();
+		void removeAllAppenders() override;
 
 		/**
 		 * Remove the appender passed as parameter from the list of appenders.
 		 */
-		virtual void removeAppender(const AppenderPtr& appender);
+		void removeAppender(const AppenderPtr appender) override;
 
 		/**
 		 * Remove the appender with the name passed as parameter from the
 		 * list of appenders.
 		 */
-		virtual void removeAppender(const LogString& name);
-
-		inline const log4cxx::helpers::Mutex& getMutex() const
-		{
-			return mutex;
-		}
+		void removeAppender(const LogString& name) override;
 
 	private:
-		log4cxx::helpers::Mutex mutex;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(priv_data, m_priv)
+
 		AppenderAttachableImpl(const AppenderAttachableImpl&);
 		AppenderAttachableImpl& operator=(const AppenderAttachableImpl&);
 };
@@ -124,8 +113,5 @@ LOG4CXX_PTR_DEF(AppenderAttachableImpl);
 }
 }
 
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif //_LOG4CXX_HELPERS_APPENDER_ATTACHABLE_IMPL_H

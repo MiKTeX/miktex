@@ -24,8 +24,46 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(RolloverDescription)
 
+struct RolloverDescription::RolloverDescriptionPrivate{
+	RolloverDescriptionPrivate(){}
 
-RolloverDescription::RolloverDescription()
+	RolloverDescriptionPrivate(
+		const LogString& activeFileName1,
+		const bool append1,
+		const ActionPtr& synchronous1,
+		const ActionPtr& asynchronous1)
+		: activeFileName(activeFileName1),
+		  append(append1),
+		  synchronous(synchronous1),
+		  asynchronous(asynchronous1)
+	{}
+
+	/**
+	 * Active log file name after rollover.
+	 */
+	LogString activeFileName;
+
+	/**
+	 * Should active file be opened for appending.
+	 */
+	bool append;
+
+	/**
+	 * Action to be completed after close of current active log file
+	 * before returning control to caller.
+	 */
+	ActionPtr synchronous;
+
+	/**
+	 * Action to be completed after close of current active log file
+	 * and before next rollover attempt, may be executed asynchronously.
+	 */
+	ActionPtr asynchronous;
+};
+
+
+RolloverDescription::RolloverDescription() :
+	m_priv(std::make_unique<RolloverDescriptionPrivate>())
 {
 }
 
@@ -34,26 +72,25 @@ RolloverDescription::RolloverDescription(
 	const bool append1,
 	const ActionPtr& synchronous1,
 	const ActionPtr& asynchronous1)
-	: activeFileName(activeFileName1),
-	  append(append1),
-	  synchronous(synchronous1),
-	  asynchronous(asynchronous1)
+	: m_priv(std::make_unique<RolloverDescriptionPrivate>(activeFileName1, append1, synchronous1, asynchronous1))
 {
 }
 
+RolloverDescription::~RolloverDescription(){}
+
 LogString RolloverDescription::getActiveFileName() const
 {
-	return activeFileName;
+	return m_priv->activeFileName;
 }
 
 bool RolloverDescription::getAppend() const
 {
-	return append;
+	return m_priv->append;
 }
 
 ActionPtr RolloverDescription::getSynchronous() const
 {
-	return synchronous;
+	return m_priv->synchronous;
 }
 
 /**
@@ -64,5 +101,5 @@ ActionPtr RolloverDescription::getSynchronous() const
  */
 ActionPtr RolloverDescription::getAsynchronous() const
 {
-	return asynchronous;
+	return m_priv->asynchronous;
 }

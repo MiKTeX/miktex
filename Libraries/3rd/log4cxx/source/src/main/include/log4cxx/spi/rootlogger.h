@@ -40,7 +40,9 @@ class LOG4CXX_EXPORT RootLogger : public Logger
 		The root logger names itself as "root". However, the root
 		logger cannot be retrieved by name.
 		*/
-		RootLogger(log4cxx::helpers::Pool& pool, const LevelPtr& level);
+		RootLogger(log4cxx::helpers::Pool& pool, const LevelPtr level);
+
+		~RootLogger() {}
 
 		/**
 		Return the assigned level value without walking the logger
@@ -52,7 +54,7 @@ class LOG4CXX_EXPORT RootLogger : public Logger
 		            Setting a null value to the level of the root logger may have catastrophic
 		            results. We prevent this here.
 		            */
-		void setLevel(const LevelPtr& level);
+		void setLevel(const LevelPtr level);
 };
 }  // namespace spi
 } // namespace log4cxx

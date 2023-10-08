@@ -18,14 +18,8 @@
 #ifndef _LOG4CXX_SPI_APPENDER_ATTACHABLE_H_
 #define _LOG4CXX_SPI_APPENDER_ATTACHABLE_H_
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 #include <log4cxx/logstring.h>
 #include <vector>
-#include <log4cxx/helpers/objectptr.h>
 #include <log4cxx/helpers/object.h>
 #include <log4cxx/appender.h>
 
@@ -45,7 +39,7 @@ class LOG4CXX_EXPORT AppenderAttachable : public virtual helpers::Object
 		/**
 		 * Add an appender.
 		 */
-		virtual void addAppender(const AppenderPtr& newAppender) = 0;
+		virtual void addAppender(const AppenderPtr newAppender) = 0;
 
 		/**
 		 * Get all previously added appenders as an AppenderList.
@@ -61,7 +55,7 @@ class LOG4CXX_EXPORT AppenderAttachable : public virtual helpers::Object
 		 * Returns <code>true</code> if the specified appender is in list of
 		 * attached appenders, <code>false</code> otherwise.
 		 */
-		virtual bool isAttached(const AppenderPtr& appender) const = 0;
+		virtual bool isAttached(const AppenderPtr appender) const = 0;
 
 		/**
 		 * Remove all previously added appenders.
@@ -71,7 +65,7 @@ class LOG4CXX_EXPORT AppenderAttachable : public virtual helpers::Object
 		/**
 		 * Remove the appender passed as parameter from the list of appenders.
 		 */
-		virtual void removeAppender(const AppenderPtr& appender) = 0;
+		virtual void removeAppender(const AppenderPtr appender) = 0;
 
 		/**
 		 * Remove the appender with the name passed as parameter from the
@@ -87,8 +81,5 @@ LOG4CXX_PTR_DEF(AppenderAttachable);
 }
 }
 
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif //_LOG4CXX_SPI_APPENDER_ATTACHABLE_H_

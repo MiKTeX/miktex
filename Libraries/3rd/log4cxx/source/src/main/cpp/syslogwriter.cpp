@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/syslogwriter.h>
@@ -29,12 +26,22 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct SyslogWriter::SyslogWriterPrivate {
+	SyslogWriterPrivate(const LogString& syslogHost1, int syslogHostPort1)
+		: syslogHost(syslogHost1), syslogHostPort(syslogHostPort1){}
+
+	LogString syslogHost;
+	int syslogHostPort;
+	InetAddressPtr address;
+	DatagramSocketPtr ds;
+};
+
 SyslogWriter::SyslogWriter(const LogString& syslogHost1, int syslogHostPort1)
-	: syslogHost(syslogHost1), syslogHostPort(syslogHostPort1)
+	: m_priv(std::make_unique<SyslogWriterPrivate>(syslogHost1, syslogHostPort1))
 {
 	try
 	{
-		this->address = InetAddress::getByName(syslogHost1);
+		m_priv->address = InetAddress::getByName(syslogHost1);
 	}
 	catch (UnknownHostException& e)
 	{
@@ -44,7 +51,7 @@ SyslogWriter::SyslogWriter(const LogString& syslogHost1, int syslogHostPort1)
 
 	try
 	{
-		this->ds = new DatagramSocket();
+		m_priv->ds = DatagramSocket::create();
 	}
 	catch (SocketException& e)
 	{
@@ -53,16 +60,18 @@ SyslogWriter::SyslogWriter(const LogString& syslogHost1, int syslogHostPort1)
 	}
 }
 
+SyslogWriter::~SyslogWriter(){}
+
 void SyslogWriter::write(const LogString& source)
 {
-	if (this->ds != 0 && this->address != 0)
+	if (m_priv->ds != 0 && m_priv->address != 0)
 	{
 		LOG4CXX_ENCODE_CHAR(data, source);
 
-		DatagramPacketPtr packet(
-			new DatagramPacket((void*) data.data(), data.length(),
-				address, syslogHostPort));
+		auto packet = std::make_shared<DatagramPacket>(
+				(void*) data.data(), (int)data.length(),
+				m_priv->address, m_priv->syslogHostPort);
 
-		ds->send(packet);
+		m_priv->ds->send(packet);
 	}
 }

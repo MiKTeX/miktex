@@ -18,7 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_CHARSETDECODER_H
 #define _LOG4CXX_HELPERS_CHARSETDECODER_H
 
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
@@ -33,7 +33,7 @@ class ByteBuffer;
 *   An abstract engine to transform a sequences of bytes in a specific charset
 *   into a LogString.
 */
-class LOG4CXX_EXPORT CharsetDecoder : public ObjectImpl
+class LOG4CXX_EXPORT CharsetDecoder : public Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(CharsetDecoder)

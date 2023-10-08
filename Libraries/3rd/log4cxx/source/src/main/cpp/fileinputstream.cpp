@@ -29,14 +29,24 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct FileInputStream::FileInputStreamPrivate
+{
+	FileInputStreamPrivate() : fileptr(nullptr) {}
+
+	Pool pool;
+	apr_file_t* fileptr;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(FileInputStream)
 
-FileInputStream::FileInputStream(const LogString& filename) : fileptr(0)
+FileInputStream::FileInputStream(const LogString& filename) :
+	m_priv(std::make_unique<FileInputStreamPrivate>())
 {
 	open(filename);
 }
 
-FileInputStream::FileInputStream(const logchar* filename) : fileptr(0)
+FileInputStream::FileInputStream(const logchar* filename) :
+	m_priv(std::make_unique<FileInputStreamPrivate>())
 {
 	LogString fn(filename);
 	open(fn);
@@ -47,7 +57,7 @@ void FileInputStream::open(const LogString& filename)
 {
 	apr_fileperms_t perm = APR_OS_DEFAULT;
 	apr_int32_t flags = APR_READ;
-	apr_status_t stat = File().setPath(filename).open(&fileptr, flags, perm, pool);
+	apr_status_t stat = File().setPath(filename).open(&m_priv->fileptr, flags, perm, m_priv->pool);
 
 	if (stat != APR_SUCCESS)
 	{
@@ -56,11 +66,12 @@ void FileInputStream::open(const LogString& filename)
 }
 
 
-FileInputStream::FileInputStream(const File& aFile)
+FileInputStream::FileInputStream(const File& aFile) :
+	m_priv(std::make_unique<FileInputStreamPrivate>())
 {
 	apr_fileperms_t perm = APR_OS_DEFAULT;
 	apr_int32_t flags = APR_READ;
-	apr_status_t stat = aFile.open(&fileptr, flags, perm, pool);
+	apr_status_t stat = aFile.open(&m_priv->fileptr, flags, perm, m_priv->pool);
 
 	if (stat != APR_SUCCESS)
 	{
@@ -71,20 +82,20 @@ FileInputStream::FileInputStream(const File& aFile)
 
 FileInputStream::~FileInputStream()
 {
-	if (fileptr != NULL && !APRInitializer::isDestructed)
+	if (m_priv->fileptr != NULL && !APRInitializer::isDestructed)
 	{
-		apr_file_close(fileptr);
+		apr_file_close(m_priv->fileptr);
 	}
 }
 
 
 void FileInputStream::close()
 {
-	apr_status_t stat = apr_file_close(fileptr);
+	apr_status_t stat = apr_file_close(m_priv->fileptr);
 
 	if (stat == APR_SUCCESS)
 	{
-		fileptr = NULL;
+		m_priv->fileptr = NULL;
 	}
 	else
 	{
@@ -96,7 +107,7 @@ void FileInputStream::close()
 int FileInputStream::read(ByteBuffer& buf)
 {
 	apr_size_t bytesRead = buf.remaining();
-	apr_status_t stat = apr_file_read(fileptr, buf.current(), &bytesRead);
+	apr_status_t stat = apr_file_read(m_priv->fileptr, buf.current(), &bytesRead);
 	int retval = -1;
 
 	if (!APR_STATUS_IS_EOF(stat))

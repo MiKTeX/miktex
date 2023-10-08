@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/integerpatternconverter.h>
@@ -39,7 +35,7 @@ IntegerPatternConverter::IntegerPatternConverter() :
 PatternConverterPtr IntegerPatternConverter::newInstance(
 	const std::vector<LogString>& /* options */)
 {
-	static PatternConverterPtr instance(new IntegerPatternConverter());
+	static PatternConverterPtr instance = std::make_shared<IntegerPatternConverter>();
 	return instance;
 }
 
@@ -48,7 +44,7 @@ void IntegerPatternConverter::format(
 	LogString& toAppendTo,
 	Pool& p) const
 {
-	IntegerPtr i(obj);
+	IntegerPtr i = log4cxx::cast<Integer>(obj);
 
 	if (i != NULL)
 	{

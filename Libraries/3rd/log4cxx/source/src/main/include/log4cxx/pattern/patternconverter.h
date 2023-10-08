@@ -19,14 +19,9 @@
 #define _LOG4CXX_PATTERN_PATTERN_CONVERTER_H
 
 
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/logstring.h>
 #include <vector>
-
-#ifdef _MSC_VER
-	//   disable identifier too wide for debugging warning
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
 
 #define DECLARE_LOG4CXX_PATTERN(cls) DECLARE_ABSTRACT_LOG4CXX_OBJECT(cls)
 
@@ -47,23 +42,15 @@ typedef std::vector<LogString> OptionsList;
    converting an object in a converter specific manner.
 
  */
-class LOG4CXX_EXPORT PatternConverter : public virtual log4cxx::helpers::ObjectImpl
+class LOG4CXX_EXPORT PatternConverter : public virtual helpers::Object
 {
-
-		/**
-		 * Converter name.
-		 */
-		const LogString name;
-
-		/**
-		 * Converter style name.
-		 */
-		const LogString style;
-
-
 	protected:
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(PatternConverterPrivate, m_priv)
+		PatternConverter(LOG4CXX_PRIVATE_PTR(PatternConverterPrivate) priv);
+
 		/**
-		 * Create a new pattern converter.
+		 * Create a new pattern converter.  Use this constructor when you have a subclass
+		 * that does not have any private data.
 		 * @param name name for pattern converter.
 		 * @param style CSS style for formatted output.
 		 */
@@ -73,10 +60,10 @@ class LOG4CXX_EXPORT PatternConverter : public virtual log4cxx::helpers::ObjectI
 		virtual ~PatternConverter();
 
 	public:
-		DECLARE_LOG4CXX_PATTERN(PatternConverter);
-		BEGIN_LOG4CXX_CAST_MAP();
-		LOG4CXX_CAST_ENTRY(PatternConverter);
-		END_LOG4CXX_CAST_MAP();
+        DECLARE_LOG4CXX_PATTERN(PatternConverter)
+        BEGIN_LOG4CXX_CAST_MAP()
+        LOG4CXX_CAST_ENTRY(PatternConverter)
+        END_LOG4CXX_CAST_MAP()
 
 		/**
 		 * Formats an object into a string buffer.
@@ -84,9 +71,9 @@ class LOG4CXX_EXPORT PatternConverter : public virtual log4cxx::helpers::ObjectI
 		 * @param toAppendTo string buffer to which the formatted event will be appended.  May not be null.
 		 * @param p pool for any allocations necessary during formatting.
 		 */
-		virtual void format(const log4cxx::helpers::ObjectPtr& obj,
+		virtual void format(const helpers::ObjectPtr& obj,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const = 0;
+			helpers::Pool& p) const = 0;
 
 		/**
 		 * This method returns the name of the conversion pattern.
@@ -106,7 +93,7 @@ class LOG4CXX_EXPORT PatternConverter : public virtual log4cxx::helpers::ObjectI
 		 * @param e null values are accepted
 		 * @return  the name of the conversion pattern
 		 */
-		virtual LogString getStyleClass(const log4cxx::helpers::ObjectPtr& e) const;
+		virtual LogString getStyleClass(const helpers::ObjectPtr& e) const;
 
 	protected:
 		/**

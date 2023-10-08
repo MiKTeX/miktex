@@ -76,9 +76,7 @@ class LOG4CXX_EXPORT FixedWindowRollingPolicy : public RollingPolicyBase
 		LOG4CXX_CAST_ENTRY_CHAIN(RollingPolicyBase)
 		END_LOG4CXX_CAST_MAP()
 
-		int minIndex;
-		int maxIndex;
-		bool explicitActiveFile;
+		struct FixedWindowRollingPolicyPrivate;
 
 		/**
 		 * It's almost always a bad idea to have a large window size, say over 12.
@@ -90,10 +88,10 @@ class LOG4CXX_EXPORT FixedWindowRollingPolicy : public RollingPolicyBase
 	public:
 
 		FixedWindowRollingPolicy();
+		~FixedWindowRollingPolicy();
 
-		void activateOptions(log4cxx::helpers::Pool& p);
-		void setOption(const LogString& option,
-			const LogString& value);
+		void activateOptions(helpers::Pool& p) override;
+		void setOption(const LogString& option, const LogString& value) override;
 
 		void rollover();
 
@@ -110,7 +108,7 @@ class LOG4CXX_EXPORT FixedWindowRollingPolicy : public RollingPolicyBase
 		RolloverDescriptionPtr initialize(
 			const   LogString&              currentActiveFile,
 			const   bool                    append,
-			log4cxx::helpers::Pool& pool);
+			helpers::Pool& pool) override;
 
 		/**
 		 * {@inheritDoc}
@@ -118,10 +116,10 @@ class LOG4CXX_EXPORT FixedWindowRollingPolicy : public RollingPolicyBase
 		RolloverDescriptionPtr rollover(
 			const   LogString&              currentActiveFile,
 			const   bool                    append,
-			log4cxx::helpers::Pool& pool);
+			helpers::Pool& pool) override;
 
 	protected:
-		log4cxx::pattern::PatternMap getFormatSpecifiers() const;
+		log4cxx::pattern::PatternMap getFormatSpecifiers() const override;
 
 };
 

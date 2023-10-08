@@ -20,14 +20,13 @@
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/object.h>
-#include <log4cxx/helpers/objectptr.h>
 
 namespace log4cxx
 {
 namespace spi
 {
 class OptionHandler;
-typedef helpers::ObjectPtrT<OptionHandler> OptionHandlerPtr;
+typedef std::shared_ptr<OptionHandler> OptionHandlerPtr;
 
 /**
 A string based interface to configure package components.
@@ -46,11 +45,11 @@ class LOG4CXX_EXPORT OptionHandler : public virtual helpers::Object
 		options have been set. This is required for components which have
 		related options that remain ambigous until all are set.
 
-		<p>For example, the FileAppender has the {@link
-		FileAppender#setFile File} and {@link
-		FileAppender#setAppend Append} options both of
-		which are ambigous until the other is also set.  */
-		virtual void activateOptions(log4cxx::helpers::Pool& p) = 0;
+		<p>For example, the FileAppender has
+		the <code>File</code> and <b>Append</b> options both of
+		which are ambigous until the other is also set.
+		*/
+		virtual void activateOptions(helpers::Pool& p) = 0;
 
 
 		/**

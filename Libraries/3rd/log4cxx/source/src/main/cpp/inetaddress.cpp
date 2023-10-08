@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/inetaddress.h>
@@ -30,6 +27,12 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(InetAddress)
+
+struct InetAddress::InetAddressPrivate{
+
+	LogString ipAddrString;
+	LogString hostNameString;
+};
 
 UnknownHostException::UnknownHostException(const LogString& msg1)
 	: Exception(msg1)
@@ -49,10 +52,13 @@ UnknownHostException& UnknownHostException::operator=(const UnknownHostException
 
 
 InetAddress::InetAddress(const LogString& hostName, const LogString& hostAddr)
-	: ipAddrString(hostAddr), hostNameString(hostName)
+	: m_priv(std::make_unique<InetAddressPrivate>())
 {
+	m_priv->ipAddrString = hostAddr;
+	m_priv->hostNameString = hostName;
 }
 
+InetAddress::~InetAddress(){}
 
 /** Determines all the IP addresses of a host, given the host's name.
 */
@@ -103,7 +109,7 @@ std::vector<InetAddressPtr> InetAddress::getAllByName(const LogString& host)
 			Transcoder::decode(host, hostNameString);
 		}
 
-		result.push_back(new InetAddress(hostNameString, ipAddrString));
+		result.push_back(std::make_shared<InetAddress>(hostNameString, ipAddrString));
 		currentAddr = currentAddr->next;
 	}
 
@@ -122,14 +128,14 @@ InetAddressPtr InetAddress::getByName(const LogString& host)
 */
 LogString InetAddress::getHostAddress() const
 {
-	return ipAddrString;
+	return m_priv->ipAddrString;
 }
 
 /** Gets the host name for this IP address.
 */
 LogString InetAddress::getHostName() const
 {
-	return hostNameString;
+	return m_priv->hostNameString;
 }
 
 /** Returns the local host.

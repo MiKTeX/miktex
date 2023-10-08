@@ -21,31 +21,44 @@
 #include <log4cxx/helpers/systemerrwriter.h>
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/layout.h>
+#include <log4cxx/private/appenderskeleton_priv.h>
+#include <log4cxx/private/writerappender_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct ConsoleAppender::ConsoleAppenderPriv : public WriterAppender::WriterAppenderPriv
+{
+	ConsoleAppenderPriv(LogString target) :
+		WriterAppenderPriv(),
+		target(target) {}
+
+	LogString target;
+};
+
+#define _priv static_cast<ConsoleAppenderPriv*>(m_priv.get())
+
 IMPLEMENT_LOG4CXX_OBJECT(ConsoleAppender)
 
 ConsoleAppender::ConsoleAppender()
-	: target(getSystemOut())
+	: WriterAppender (std::make_unique<ConsoleAppenderPriv>(getSystemOut()))
 {
 }
 
-ConsoleAppender::ConsoleAppender(const LayoutPtr& layout1)
-	: target(getSystemOut())
+ConsoleAppender::ConsoleAppender(const LayoutPtr& layout)
+	: WriterAppender (std::make_unique<ConsoleAppenderPriv>(getSystemOut()))
 {
-	setLayout(layout1);
+	setLayout(layout);
 	Pool p;
-	WriterPtr writer1(new SystemOutWriter());
-	setWriter(writer1);
+	setWriter(std::make_shared<SystemOutWriter>());
 	WriterAppender::activateOptions(p);
 }
 
-ConsoleAppender::ConsoleAppender(const LayoutPtr& layout1, const LogString& target1)
-	: target(target1)
+ConsoleAppender::ConsoleAppender(const LayoutPtr& layout, const LogString& target)
+	: WriterAppender (std::make_unique<ConsoleAppenderPriv>(target))
 {
-	setLayout(layout1);
+	setLayout(layout);
+	setTarget(target);
 	Pool p;
 	ConsoleAppender::activateOptions(p);
 }
@@ -74,12 +87,12 @@ void ConsoleAppender::setTarget(const LogString& value)
 	if (StringHelper::equalsIgnoreCase(v,
 			LOG4CXX_STR("SYSTEM.OUT"), LOG4CXX_STR("system.out")))
 	{
-		target = getSystemOut();
+		_priv->target = getSystemOut();
 	}
 	else if (StringHelper::equalsIgnoreCase(v,
 			LOG4CXX_STR("SYSTEM.ERR"), LOG4CXX_STR("system.err")))
 	{
-		target = getSystemErr();
+		_priv->target = getSystemErr();
 	}
 	else
 	{
@@ -89,7 +102,7 @@ void ConsoleAppender::setTarget(const LogString& value)
 
 LogString ConsoleAppender::getTarget() const
 {
-	return target;
+	return _priv->target;
 }
 
 void ConsoleAppender::targetWarn(const LogString& val)
@@ -101,16 +114,16 @@ void ConsoleAppender::targetWarn(const LogString& val)
 
 void ConsoleAppender::activateOptions(Pool& p)
 {
-	if (StringHelper::equalsIgnoreCase(target,
+	if (StringHelper::equalsIgnoreCase(_priv->target,
 			LOG4CXX_STR("SYSTEM.OUT"), LOG4CXX_STR("system.out")))
 	{
-		WriterPtr writer1(new SystemOutWriter());
+		WriterPtr writer1 = std::make_shared<SystemOutWriter>();
 		setWriter(writer1);
 	}
-	else if (StringHelper::equalsIgnoreCase(target,
+	else if (StringHelper::equalsIgnoreCase(_priv->target,
 			LOG4CXX_STR("SYSTEM.ERR"), LOG4CXX_STR("system.err")))
 	{
-		WriterPtr writer1(new SystemErrWriter());
+		WriterPtr writer1 = std::make_shared<SystemErrWriter>();
 		setWriter(writer1);
 	}
 

@@ -18,8 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_RESOURCE_BUNDLE_H
 #define _LOG4CXX_HELPERS_RESOURCE_BUNDLE_H
 
-#include <log4cxx/helpers/objectimpl.h>
-#include <log4cxx/helpers/objectptr.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
@@ -33,7 +32,7 @@ LOG4CXX_PTR_DEF(ResourceBundle);
 /**
 Resource bundles contain locale-specific objects
 */
-class LOG4CXX_EXPORT ResourceBundle : public ObjectImpl
+class LOG4CXX_EXPORT ResourceBundle : public Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(ResourceBundle)
@@ -82,7 +81,8 @@ class LOG4CXX_EXPORT ResourceBundle : public ObjectImpl
 		The parent bundle is searched by #getString when this bundle does
 		not contain a particular resource.
 		*/
-		ResourceBundlePtr parent;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER(ResourceBundlePtr, parent)
+
 }; // class ResourceBundle
 }  // namespace helpers
 } // namespace log4cxx

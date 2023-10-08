@@ -14,29 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/throwableinformationpatternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
 #include <log4cxx/spi/location/locationinfo.h>
 #include <log4cxx/helpers/stringhelper.h>
+#include <log4cxx/private/patternconverter_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::pattern;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
+struct ThrowableInformationPatternConverter::ThrowableInformationPatternConverterPrivate :
+	public PatternConverterPrivate
+{
+	ThrowableInformationPatternConverterPrivate( const LogString& name, const LogString& style, bool shortReport ) :
+		PatternConverterPrivate( name, style ),
+		shortReport(shortReport) {}
+
+	/**
+	 * If "short", only first line of throwable report will be formatted.
+	 */
+	const bool shortReport;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(ThrowableInformationPatternConverter)
 
 ThrowableInformationPatternConverter::ThrowableInformationPatternConverter(bool shortReport1) :
-	LoggingEventPatternConverter(LOG4CXX_STR("Throwable"),
-		LOG4CXX_STR("throwable")),
-	shortReport(shortReport1)
+	LoggingEventPatternConverter(
+		std::make_unique<ThrowableInformationPatternConverterPrivate>(
+			LOG4CXX_STR("Throwable"),
+			LOG4CXX_STR("throwable"),
+			shortReport1))
 {
 }
 
@@ -45,11 +56,11 @@ PatternConverterPtr ThrowableInformationPatternConverter::newInstance(
 {
 	if (options.size() > 0 && options[0].compare(LOG4CXX_STR("short")) == 0)
 	{
-		static PatternConverterPtr shortConverter(new ThrowableInformationPatternConverter(true));
+		static PatternConverterPtr shortConverter = std::make_shared<ThrowableInformationPatternConverter>(true);
 		return shortConverter;
 	}
 
-	static PatternConverterPtr converter(new ThrowableInformationPatternConverter(false));
+	static PatternConverterPtr converter = std::make_shared<ThrowableInformationPatternConverter>(false);
 	return converter;
 }
 

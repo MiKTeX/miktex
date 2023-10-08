@@ -20,36 +20,59 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct Locale::LocalePrivate
+{
+	LocalePrivate(const LogString& language1)
+		: language(language1)
+	{
+	}
+
+	LocalePrivate(const LogString& language1, const LogString& country1)
+		: language(language1), country(country1)
+	{
+	}
+
+	LocalePrivate(const LogString& language1, const LogString& country1,
+		const LogString& variant1)
+		: language(language1), country(country1), variant(variant1)
+	{
+	}
+
+	const LogString language;
+	const LogString country;
+	const LogString variant;
+};
 
 Locale::Locale(const LogString& language1)
-	: language(language1)
+	: m_priv(std::make_unique<LocalePrivate>(language1))
 {
 }
 
 Locale::Locale(const LogString& language1, const LogString& country1)
-	: language(language1), country(country1)
+	: m_priv(std::make_unique<LocalePrivate>(language1, country1))
 {
 }
 
 Locale::Locale(const LogString& language1, const LogString& country1,
 	const LogString& variant1)
-	: language(language1), country(country1), variant(variant1)
+	: m_priv(std::make_unique<LocalePrivate>(language1, country1, variant1))
 {
 }
 
+Locale::~Locale() {}
 
 const LogString& Locale::getLanguage() const
 {
-	return language;
+	return m_priv->language;
 }
 
 const LogString& Locale::getCountry() const
 {
-	return country;
+	return m_priv->country;
 }
 
 const LogString& Locale::getVariant() const
 {
-	return variant;
+	return m_priv->variant;
 }
 

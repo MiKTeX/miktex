@@ -65,7 +65,7 @@ InputStreamPtr Loader::getResourceAsStream(const LogString& name)
 
 	try
 	{
-		return new FileInputStream(name);
+		return std::make_shared<FileInputStream>(name);
 	}
 	catch (const IOException&)
 	{

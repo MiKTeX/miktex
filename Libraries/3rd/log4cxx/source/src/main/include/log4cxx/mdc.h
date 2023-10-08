@@ -22,11 +22,6 @@
 #include <log4cxx/logstring.h>
 #include <map>
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 namespace log4cxx
 {
 
@@ -224,13 +219,9 @@ class LOG4CXX_EXPORT MDC
 	private:
 		MDC(const MDC&);
 		MDC& operator=(const MDC&);
-		LogString key;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER(LogString, key)
 }; // class MDC;
 }  // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 
 #endif // _LOG4CXX_MDC_H

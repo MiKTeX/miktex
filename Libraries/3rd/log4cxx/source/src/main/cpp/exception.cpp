@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#define __STDC_WANT_LIB_EXT1__ 1
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/exception.h>
 #include <string.h>
@@ -22,6 +22,7 @@
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/transcoder.h>
 #include <log4cxx/helpers/pool.h>
+#include <apr_errno.h>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -61,7 +62,8 @@ Exception::Exception(const Exception& src) : std::exception()
 #if defined(__STDC_LIB_EXT1__) || defined(__STDC_SECURE_LIB__)
 	strcpy_s(msg, sizeof msg, src.msg);
 #else
-	strcpy(msg, src.msg);
+	strncpy(msg, src.msg, MSG_SIZE);
+	msg[MSG_SIZE] = 0;
 #endif
 }
 
@@ -70,7 +72,8 @@ Exception& Exception::operator=(const Exception& src)
 #if defined(__STDC_LIB_EXT1__) || defined(__STDC_SECURE_LIB__)
 	strcpy_s(msg, sizeof msg, src.msg);
 #else
-	strcpy(msg, src.msg);
+	strncpy(msg, src.msg, MSG_SIZE);
+	msg[MSG_SIZE] = 0;
 #endif
 	return *this;
 }
@@ -170,9 +173,16 @@ IOException& IOException::operator=(const IOException& src)
 
 LogString IOException::formatMessage(log4cxx_status_t stat)
 {
+	char err_buff[32];
 	LogString s(LOG4CXX_STR("IO Exception : status code = "));
 	Pool p;
 	StringHelper::toString(stat, p, s);
+	s.append(LOG4CXX_STR("("));
+	apr_strerror(stat, err_buff, sizeof(err_buff));
+	std::string sMsg = err_buff;
+	LOG4CXX_DECODE_CHAR(lsMsg, sMsg);
+	s.append(lsMsg);
+	s.append(LOG4CXX_STR(")"));
 	return s;
 }
 
@@ -245,30 +255,6 @@ LogString TranscoderException::formatMessage(log4cxx_status_t)
 	return LOG4CXX_STR("Transcoder exception");
 }
 
-
-MutexException::MutexException(log4cxx_status_t stat)
-	: Exception(formatMessage(stat))
-{
-}
-
-MutexException::MutexException(const MutexException& src)
-	: Exception(src)
-{
-}
-
-MutexException& MutexException::operator=(const MutexException& src)
-{
-	Exception::operator=(src);
-	return *this;
-}
-
-LogString MutexException::formatMessage(log4cxx_status_t stat)
-{
-	LogString s(LOG4CXX_STR("Mutex exception: stat = "));
-	Pool p;
-	StringHelper::toString(stat, p, s);
-	return s;
-}
 
 InterruptedException::InterruptedException() : Exception(LOG4CXX_STR("Thread was interrupted"))
 {

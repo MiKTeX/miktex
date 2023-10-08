@@ -18,8 +18,6 @@
 #include <log4cxx/helpers/charsetdecoder.h>
 #include <log4cxx/helpers/bytebuffer.h>
 #include <log4cxx/helpers/exception.h>
-#include <log4cxx/helpers/mutex.h>
-#include <log4cxx/helpers/synchronized.h>
 #include <log4cxx/helpers/pool.h>
 #include <apr_xlate.h>
 #if !defined(LOG4CXX)
@@ -30,6 +28,7 @@
 #include <apr_portable.h>
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/transcoder.h>
+#include <mutex>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -55,7 +54,7 @@ class APRCharsetDecoder : public CharsetDecoder
 		 *  Creates a new instance.
 		 *  @param frompage name of source encoding.
 		 */
-		APRCharsetDecoder(const LogString& frompage) : pool(), mutex(pool)
+		APRCharsetDecoder(const LogString& frompage) : pool()
 		{
 #if LOG4CXX_LOGCHAR_IS_WCHAR
 			const char* topage = "WCHAR_T";
@@ -97,7 +96,7 @@ class APRCharsetDecoder : public CharsetDecoder
 			{
 				size_t outbytes_left = initial_outbytes_left;
 				{
-					synchronized sync(mutex);
+					std::unique_lock<std::mutex> lock(mutex);
 					stat = apr_xlate_conv_buffer((apr_xlate_t*) convset,
 							NULL, NULL, (char*) buf, &outbytes_left);
 				}
@@ -112,7 +111,7 @@ class APRCharsetDecoder : public CharsetDecoder
 					size_t pos = in.position();
 					apr_size_t outbytes_left = initial_outbytes_left;
 					{
-						synchronized sync(mutex);
+						std::unique_lock<std::mutex> lock(mutex);
 						stat = apr_xlate_conv_buffer((apr_xlate_t*) convset,
 								in.data() + pos,
 								&inbytes_left,
@@ -131,7 +130,7 @@ class APRCharsetDecoder : public CharsetDecoder
 		APRCharsetDecoder(const APRCharsetDecoder&);
 		APRCharsetDecoder& operator=(const APRCharsetDecoder&);
 		log4cxx::helpers::Pool pool;
-		Mutex mutex;
+		std::mutex mutex;
 		apr_xlate_t* convset;
 };
 
@@ -425,7 +424,7 @@ class USASCIICharsetDecoder : public CharsetDecoder
 class LocaleCharsetDecoder : public CharsetDecoder
 {
 	public:
-		LocaleCharsetDecoder() : pool(), mutex(pool), decoder(), encoding()
+		LocaleCharsetDecoder() : pool(), decoder(), encoding()
 		{
 		}
 		virtual ~LocaleCharsetDecoder()
@@ -451,14 +450,14 @@ class LocaleCharsetDecoder : public CharsetDecoder
 				Pool subpool;
 				const char* enc = apr_os_locale_encoding(subpool.getAPRPool());
 				{
-					synchronized sync(mutex);
+					std::unique_lock<std::mutex> lock(mutex);
 
 					if (enc == 0)
 					{
 						if (decoder == 0)
 						{
 							encoding = "C";
-							decoder = new USASCIICharsetDecoder();
+							decoder.reset( new USASCIICharsetDecoder() );
 						}
 					}
 					else if (encoding != enc)
@@ -473,7 +472,7 @@ class LocaleCharsetDecoder : public CharsetDecoder
 						}
 						catch (IllegalArgumentException&)
 						{
-							decoder = new USASCIICharsetDecoder();
+							decoder.reset( new USASCIICharsetDecoder() );
 						}
 					}
 				}
@@ -484,7 +483,7 @@ class LocaleCharsetDecoder : public CharsetDecoder
 		}
 	private:
 		Pool pool;
-		Mutex mutex;
+		std::mutex mutex;
 		CharsetDecoderPtr decoder;
 		std::string encoding;
 };
@@ -531,7 +530,7 @@ CharsetDecoderPtr CharsetDecoder::getDefaultDecoder()
 	//
 	if (decoder == 0)
 	{
-		return createDefaultDecoder();
+		return CharsetDecoderPtr( createDefaultDecoder() );
 	}
 
 	return decoder;
@@ -548,7 +547,7 @@ CharsetDecoderPtr CharsetDecoder::getUTF8Decoder()
 	//
 	if (decoder == 0)
 	{
-		return new UTF8CharsetDecoder();
+		return std::make_shared<UTF8CharsetDecoder>();
 	}
 
 	return decoder;
@@ -556,7 +555,7 @@ CharsetDecoderPtr CharsetDecoder::getUTF8Decoder()
 
 CharsetDecoderPtr CharsetDecoder::getISOLatinDecoder()
 {
-	return new ISOLatinCharsetDecoder();
+	return std::make_shared<ISOLatinCharsetDecoder>();
 }
 
 
@@ -565,7 +564,7 @@ CharsetDecoderPtr CharsetDecoder::getDecoder(const LogString& charset)
 	if (StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("UTF-8"), LOG4CXX_STR("utf-8")) ||
 		StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("UTF8"), LOG4CXX_STR("utf8")))
 	{
-		return new UTF8CharsetDecoder();
+		return std::make_shared<UTF8CharsetDecoder>();
 	}
 	else if (StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("C"), LOG4CXX_STR("c")) ||
 		charset == LOG4CXX_STR("646") ||
@@ -573,16 +572,16 @@ CharsetDecoderPtr CharsetDecoder::getDecoder(const LogString& charset)
 		StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("ISO646-US"), LOG4CXX_STR("iso646-US")) ||
 		StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("ANSI_X3.4-1968"), LOG4CXX_STR("ansi_x3.4-1968")))
 	{
-		return new USASCIICharsetDecoder();
+		return std::make_shared<USASCIICharsetDecoder>();
 	}
 	else if (StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("ISO-8859-1"), LOG4CXX_STR("iso-8859-1")) ||
 		StringHelper::equalsIgnoreCase(charset, LOG4CXX_STR("ISO-LATIN-1"), LOG4CXX_STR("iso-latin-1")))
 	{
-		return new ISOLatinCharsetDecoder();
+		return std::make_shared<ISOLatinCharsetDecoder>();
 	}
 
 #if APR_HAS_XLATE
-	return new APRCharsetDecoder(charset);
+	return std::make_shared<APRCharsetDecoder>(charset);
 #else
 	throw IllegalArgumentException(charset);
 #endif

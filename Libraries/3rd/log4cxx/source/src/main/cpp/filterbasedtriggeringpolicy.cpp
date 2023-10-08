@@ -25,7 +25,21 @@ using namespace log4cxx::spi;
 
 IMPLEMENT_LOG4CXX_OBJECT(FilterBasedTriggeringPolicy)
 
-FilterBasedTriggeringPolicy::FilterBasedTriggeringPolicy()
+struct FilterBasedTriggeringPolicy::FilterBasedTriggeringPolicyPrivate{
+
+	/**
+	 * The first filter in the filter chain. Set to <code>null</code> initially.
+	 */
+	log4cxx::spi::FilterPtr headFilter;
+
+	/**
+	 * The last filter in the filter chain.
+	 */
+	log4cxx::spi::FilterPtr tailFilter;
+};
+
+FilterBasedTriggeringPolicy::FilterBasedTriggeringPolicy() :
+	m_priv(std::make_unique<FilterBasedTriggeringPolicyPrivate>())
 {
 }
 
@@ -41,12 +55,12 @@ bool FilterBasedTriggeringPolicy::isTriggeringEvent(
 	const LogString& /* filename */,
 	size_t /* fileLength */ )
 {
-	if (headFilter == NULL)
+	if (m_priv->headFilter == NULL)
 	{
 		return false;
 	}
 
-	for (log4cxx::spi::FilterPtr f = headFilter; f != NULL; f = f->getNext())
+	for (log4cxx::spi::FilterPtr f = m_priv->headFilter; f != NULL; f = f->getNext())
 	{
 		switch (f->decide(event))
 		{
@@ -70,28 +84,28 @@ bool FilterBasedTriggeringPolicy::isTriggeringEvent(
  */
 void FilterBasedTriggeringPolicy::addFilter(const log4cxx::spi::FilterPtr& newFilter)
 {
-	if (headFilter == NULL)
+	if (m_priv->headFilter == NULL)
 	{
-		headFilter = newFilter;
-		tailFilter = newFilter;
+		m_priv->headFilter = newFilter;
+		m_priv->tailFilter = newFilter;
 	}
 	else
 	{
-		tailFilter->setNext(newFilter);
-		tailFilter = newFilter;
+		m_priv->tailFilter->setNext(newFilter);
+		m_priv->tailFilter = newFilter;
 	}
 }
 
 void FilterBasedTriggeringPolicy::clearFilters()
 {
 	log4cxx::spi::FilterPtr empty;
-	headFilter = empty;
-	tailFilter = empty;
+	m_priv->headFilter = empty;
+	m_priv->tailFilter = empty;
 }
 
 log4cxx::spi::FilterPtr& FilterBasedTriggeringPolicy::getFilter()
 {
-	return headFilter;
+	return m_priv->headFilter;
 }
 
 /**
@@ -99,7 +113,7 @@ log4cxx::spi::FilterPtr& FilterBasedTriggeringPolicy::getFilter()
  */
 void FilterBasedTriggeringPolicy::activateOptions(log4cxx::helpers::Pool& p)
 {
-	for (log4cxx::spi::FilterPtr f = headFilter; f != NULL; f = f->getNext())
+	for (log4cxx::spi::FilterPtr f = m_priv->headFilter; f != NULL; f = f->getNext())
 	{
 		f->activateOptions(p);
 	}

@@ -26,13 +26,3 @@ IMPLEMENT_LOG4CXX_OBJECT(TriggeringPolicy)
 TriggeringPolicy::~TriggeringPolicy()
 {
 }
-
-void TriggeringPolicy::addRef() const
-{
-	ObjectImpl::addRef();
-}
-
-void TriggeringPolicy::releaseRef() const
-{
-	ObjectImpl::releaseRef();
-}

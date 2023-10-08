@@ -19,14 +19,16 @@
 #define _LOG4CXX_CONFIG_PROPERTYSETTER_H
 
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/objectptr.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
 namespace helpers
 {
 class Object;
-typedef ObjectPtrT<Object> ObjectPtr;
+// Instantiate template pointer type passed as parameter
+LOG4CXX_INSTANTIATE_EXPORTED_PTR(Object);
+LOG4CXX_PTR_DEF(Object);
 
 class Properties;
 class Pool;

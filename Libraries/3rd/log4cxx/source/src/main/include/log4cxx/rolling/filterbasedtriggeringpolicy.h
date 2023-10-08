@@ -35,6 +35,8 @@ class Pool;
 namespace rolling
 {
 
+// Instantiate template pointer types passed as parameters
+LOG4CXX_INSTANTIATE_EXPORTED_PTR(log4cxx::spi::Filter);
 
 /**
  * FilterBasedTriggeringPolicy determines if rolling should be triggered
@@ -54,15 +56,7 @@ class LOG4CXX_EXPORT FilterBasedTriggeringPolicy : public TriggeringPolicy
 		LOG4CXX_CAST_ENTRY_CHAIN(TriggeringPolicy)
 		END_LOG4CXX_CAST_MAP()
 
-		/**
-		 * The first filter in the filter chain. Set to <code>null</code> initially.
-		 */
-		log4cxx::spi::FilterPtr headFilter;
-
-		/**
-		 * The last filter in the filter chain.
-		 */
-		log4cxx::spi::FilterPtr tailFilter;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(FilterBasedTriggeringPolicyPrivate, m_priv)
 
 	public:
 		/**
@@ -82,17 +76,17 @@ class LOG4CXX_EXPORT FilterBasedTriggeringPolicy : public TriggeringPolicy
 		 * @param fileLength Length of the file in bytes.
 		 * @return true if a rollover should occur.
 		 */
-		virtual bool isTriggeringEvent(
+		bool isTriggeringEvent(
 			Appender* appender,
-			const log4cxx::spi::LoggingEventPtr& event,
+			const spi::LoggingEventPtr& event,
 			const LogString& filename,
-			size_t fileLength);
+			size_t fileLength) override;
 
 		/**
 		 * Add a filter to end of the filter list.
 		 * @param newFilter filter to add to end of list.
 		 */
-		void addFilter(const log4cxx::spi::FilterPtr& newFilter);
+		void addFilter(const spi::FilterPtr& newFilter);
 
 		/**
 		 * Clear the filters chain.
@@ -104,14 +98,14 @@ class LOG4CXX_EXPORT FilterBasedTriggeringPolicy : public TriggeringPolicy
 		 * Returns the head Filter.
 		 *
 		 */
-		log4cxx::spi::FilterPtr& getFilter();
+		spi::FilterPtr& getFilter();
 
 		/**
 		 *  Prepares the instance for use.
 		 */
-		void activateOptions(log4cxx::helpers::Pool&);
+		void activateOptions(helpers::Pool&) override;
 
-		void setOption(const LogString& option, const LogString& value);
+		void setOption(const LogString& option, const LogString& value) override;
 };
 
 LOG4CXX_PTR_DEF(FilterBasedTriggeringPolicy);

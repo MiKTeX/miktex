@@ -22,11 +22,6 @@
 #include <log4cxx/logstring.h>
 #include <stack>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 namespace log4cxx
 {
 
@@ -345,10 +340,5 @@ class LOG4CXX_EXPORT NDC
 		static LogString& getFullMessage(DiagnosticContext& ctx);
 }; // class NDC;
 }  // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
-
 
 #endif // _LOG4CXX_NDC_H

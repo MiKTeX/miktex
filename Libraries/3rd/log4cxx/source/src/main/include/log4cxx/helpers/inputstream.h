@@ -18,7 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_INPUTSTREAM_H
 #define _LOG4CXX_HELPERS_INPUTSTREAM_H
 
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
@@ -31,7 +31,7 @@ class ByteBuffer;
  * Abstract class for reading from character streams.
  *
  */
-class LOG4CXX_EXPORT InputStream : public ObjectImpl
+class LOG4CXX_EXPORT InputStream : public Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(InputStream)

@@ -35,8 +35,7 @@ namespace helpers
 class LOG4CXX_EXPORT FileOutputStream : public OutputStream
 {
 	private:
-		Pool pool;
-		apr_file_t* fileptr;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(FileOutputStreamPrivate, m_priv)
 
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(FileOutputStream)
@@ -49,16 +48,12 @@ class LOG4CXX_EXPORT FileOutputStream : public OutputStream
 		FileOutputStream(const logchar* filename, bool append = false);
 		virtual ~FileOutputStream();
 
-		virtual void close(Pool& p);
-		virtual void flush(Pool& p);
-		virtual void write(ByteBuffer& buf, Pool& p);
+		void close(Pool& p) override;
+		void flush(Pool& p) override;
+		void write(ByteBuffer& buf, Pool& p) override;
 
-#ifdef LOG4CXX_MULTI_PROCESS
-		apr_file_t* getFilePtr()
-		{
-			return fileptr;
-		}
-#endif
+		apr_file_t* getFilePtr() const;
+
 	private:
 		FileOutputStream(const FileOutputStream&);
 		FileOutputStream& operator=(const FileOutputStream&);

@@ -21,54 +21,50 @@
 
 namespace log4cxx
 {
-namespace rule
-{
-class ExpressionRule;
-class Rule;
-typedef helpers::ObjectPtrT < Rule > RulePtr;
-typedef helpers::ObjectPtrT < ExpressionRule > ExpressionRulePtr;
-}
 
 namespace filter
 {
+
 /**
- * Location information is usually specified at the appender level - all events associated
- * with an appender either create and parse stack traces or they do not.  This is
- * an expensive operation and in some cases not needed for all events associated with
- * an appender.
+ * When location information is available, individual log statements can be turned on or off
+ * depending on their source location.
  *
- * This filter creates event-level location information only if the provided expression evaluates to true.
+ * This filter allows for filtering messages based off of either the line number of the
+ * message, or the name of the method that the log mesage is in.  The 'operator' parameter
+ * may be used to determine if both the method name and line number must match.
+ * If 'operator' is set to 'AND', then both the line number and method name must match,
+ * otherwise only one needs to match.  By default, 'operator' is set to 'OR'.
  *
- * For information on expression syntax, see org.apache.log4j.rule.ExpressionRule
- *
+ * If location information is not available, this filter does nothing.
  *
  */
 class LOG4CXX_EXPORT LocationInfoFilter: public log4cxx::spi::Filter
 {
-		bool convertInFixToPostFix;
-		LogString expression;
-		log4cxx::rule::RulePtr expressionRule;
-		//HACK: Category is the last of the internal layers - pass this in as the class name
-		//in order for parsing to work correctly
-		LogString className;
-
+		struct LocationInfoFilterPrivate;
 	public:
 		DECLARE_LOG4CXX_OBJECT(LocationInfoFilter)
 		BEGIN_LOG4CXX_CAST_MAP()
-		LOG4CXX_CAST_ENTRY(log4cxx::spi::Filter)
+		LOG4CXX_CAST_ENTRY(LocationInfoFilter)
+		LOG4CXX_CAST_ENTRY_CHAIN(log4cxx::spi::Filter)
 		END_LOG4CXX_CAST_MAP()
 
 		LocationInfoFilter();
 
-		void activateOptions(log4cxx::helpers::Pool&);
+		~LocationInfoFilter();
 
-		void setExpression(const LogString& expression);
+		void setOption(const LogString& option, const LogString& value) override;
 
-		LogString getExpression() const;
+		void setLineNumber(int lineNum);
 
-		void setConvertInFixToPostFix(bool convertInFixToPostFix);
+		void setMethodName(const LogString& methodName);
 
-		bool getConvertInFixToPostFix() const;
+		void setAcceptOnMatch(bool acceptOnMatch1);
+
+		bool getAcceptOnMatch() const;
+
+		bool getMustMatchAll() const;
+
+		void setMustMatchAll(bool mustMatchAll1);
 
 		/**
 		 * If this event does not already contain location information,
@@ -79,9 +75,12 @@ class LOG4CXX_EXPORT LocationInfoFilter: public log4cxx::spi::Filter
 		 *
 		 * Returns {@link log4cxx::spi::Filter#NEUTRAL}
 		 */
-		FilterDecision decide(const spi::LoggingEventPtr& event) const;
+		FilterDecision decide(const spi::LoggingEventPtr& event) const override;
 
 };
+
+LOG4CXX_PTR_DEF(LocationInfoFilter);
+
 }
 }
 #endif

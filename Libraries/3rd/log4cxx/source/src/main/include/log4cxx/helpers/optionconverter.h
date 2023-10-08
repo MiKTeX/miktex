@@ -19,18 +19,18 @@
 #define _LOG4CXX_HELPER_OPTION_CONVERTER_H
 
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/objectptr.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
 class Level;
 class File;
-typedef helpers::ObjectPtrT<Level> LevelPtr;
+typedef std::shared_ptr<Level> LevelPtr;
 
 namespace spi
 {
 class LoggerRepository;
-typedef helpers::ObjectPtrT<LoggerRepository> LoggerRepositoryPtr;
+typedef std::shared_ptr<LoggerRepository> LoggerRepositoryPtr;
 }
 
 namespace helpers
@@ -38,7 +38,7 @@ namespace helpers
 class Properties;
 
 class Object;
-typedef ObjectPtrT<Object> ObjectPtr;
+typedef std::shared_ptr<Object> ObjectPtr;
 
 class Class;
 
@@ -81,9 +81,9 @@ class LOG4CXX_EXPORT OptionConverter
 
 		<p>For example, if the System properties contains "key=value", then
 		the call
-		<pre>
-		String s = OptionConverter.substituteVars("Value of key is ${key}.");
-		</pre>
+		~~~{.cpp}
+		auto s = OptionConverter.substituteVars("Value of key is ${key}.");
+		~~~
 
 		will set the variable <code>s</code> to "Value of key is value.".
 
@@ -94,9 +94,9 @@ class LOG4CXX_EXPORT OptionConverter
 		<p>For example, if system propeties contains no value for the key
 		"inexistentKey", then the call
 
-		<pre>
-		String s = OptionConverter.subsVars("Value of inexistentKey is [${inexistentKey}]");
-		</pre>
+		~~~{.cpp}
+		auto s = OptionConverter.subsVars("Value of inexistentKey is [${inexistentKey}]");
+		~~~
 		will set <code>s</code> to "Value of inexistentKey is []"
 
 		<p>An IllegalArgumentException is thrown if
@@ -153,9 +153,12 @@ class LOG4CXX_EXPORT OptionConverter
 		filename pointed to by <code>configFileName</code> ends in '.xml',
 		in which case DOMConfigurator is used.
 		@param hierarchy The Hierarchy to act on.
+		@param delay If greater than zero, the milliseconds to sleep
+		between checking if <code>configFileName</code> has been modified
+		and needs to be reloaded.
 		*/
 		static void selectAndConfigure(const File& configFileName,
-			const LogString& clazz, spi::LoggerRepositoryPtr& hierarchy);
+			const LogString& clazz, spi::LoggerRepositoryPtr hierarchy, int delay = 0);
 };
 }  // namespace helpers
 } // namespace log4cxx

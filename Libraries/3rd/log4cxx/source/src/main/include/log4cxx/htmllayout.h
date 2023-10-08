@@ -18,12 +18,6 @@
 #ifndef _LOG4CXX_HTML_LAYOUT_H
 #define _LOG4CXX_HTML_LAYOUT_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/layout.h>
 #include <log4cxx/helpers/iso8601dateformat.h>
 
@@ -37,12 +31,7 @@ This layout outputs events in a HTML table.
 class LOG4CXX_EXPORT HTMLLayout : public Layout
 {
 	private:
-		// Print no location info by default
-		bool locationInfo; //= false
-
-		LogString title;
-
-		helpers::ISO8601DateFormat dateFormat;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(HTMLLayoutPrivate, m_priv)
 
 	public:
 		DECLARE_LOG4CXX_OBJECT(HTMLLayout)
@@ -52,6 +41,7 @@ class LOG4CXX_EXPORT HTMLLayout : public Layout
 		END_LOG4CXX_CAST_MAP()
 
 		HTMLLayout();
+		~HTMLLayout();
 
 		/**
 		The <b>LocationInfo</b> option takes a boolean value. By
@@ -64,83 +54,60 @@ class LOG4CXX_EXPORT HTMLLayout : public Layout
 		{@link net::SMTPAppender SMTPAppender} then make sure
 		to set the <b>LocationInfo</b> option of that appender as well.
 		*/
-		inline void setLocationInfo(bool locationInfoFlag)
-		{
-			this->locationInfo = locationInfoFlag;
-		}
+		void setLocationInfo(bool locationInfoFlag);
 
 		/**
 		Returns the current value of the <b>LocationInfo</b> option.
 		*/
-		inline bool getLocationInfo() const
-		{
-			return locationInfo;
-		}
+		bool getLocationInfo() const;
 
 		/**
 		The <b>Title</b> option takes a String value. This option sets the
 		document title of the generated HTML document.
 		<p>Defaults to 'Log4cxx Log Messages'.
 		*/
-		inline void setTitle(const LogString& title1)
-		{
-			this->title.assign(title1);
-		}
+		void setTitle(const LogString& title1);
 
 		/**
 		Returns the current value of the <b>Title</b> option.
 		*/
-		inline const LogString& getTitle() const
-		{
-			return title;
-		}
+		const LogString& getTitle() const;
 
 		/**
 		Returns the content type output by this layout, i.e "text/html".
 		*/
-		virtual LogString getContentType() const
-		{
-			return LOG4CXX_STR("text/html");
-		}
+		LogString getContentType() const override;
 
 		/**
 		No options to activate.
 		*/
-		virtual void activateOptions(log4cxx::helpers::Pool& /* p */) {}
+		void activateOptions(helpers::Pool& /* p */) override {}
 
 		/**
 		Set options
 		*/
-		virtual void setOption(const LogString& option, const LogString& value);
+		void setOption(const LogString& option, const LogString& value) override;
 
-		virtual void format(LogString& output,
-			const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& pool) const;
+		void format(LogString& output,
+			const spi::LoggingEventPtr& event, helpers::Pool& pool) const override;
 
 		/**
 		Append appropriate HTML headers.
 		*/
-		virtual void appendHeader(LogString& output, log4cxx::helpers::Pool& pool);
+		void appendHeader(LogString& output, helpers::Pool& pool) override;
 
 		/**
 		Append the appropriate HTML footers.
 		*/
-		virtual void appendFooter(LogString& output, log4cxx::helpers::Pool& pool);
+		void appendFooter(LogString& output, helpers::Pool& pool) override;
 
 		/**
 		The HTML layout handles the throwable contained in logging
 		events. Hence, this method return <code>false</code>.  */
-		virtual bool ignoresThrowable() const
-		{
-			return false;
-		}
+		bool ignoresThrowable() const override;
 
 }; // class HtmlLayout
 LOG4CXX_PTR_DEF(HTMLLayout);
 }  // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
-
 
 #endif // _LOG4CXX_HTML_LAYOUT_H

@@ -14,11 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/logstring.h>
 #include <log4cxx/rolling/fixedwindowrollingpolicy.h>
 #include <log4cxx/helpers/pool.h>
@@ -32,30 +27,47 @@
 #include <log4cxx/rolling/gzcompressaction.h>
 #include <log4cxx/rolling/zipcompressaction.h>
 #include <log4cxx/pattern/integerpatternconverter.h>
+#include <log4cxx/private/rollingpolicybase_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::rolling;
 using namespace log4cxx::helpers;
 using namespace log4cxx::pattern;
 
+#define priv static_cast<FixedWindowRollingPolicyPrivate*>(m_priv.get())
+
+struct FixedWindowRollingPolicy::FixedWindowRollingPolicyPrivate : public RollingPolicyBasePrivate {
+	FixedWindowRollingPolicyPrivate() :
+		RollingPolicyBasePrivate(),
+		minIndex(1),
+		maxIndex(7),
+		explicitActiveFile(false)
+	{}
+
+	int minIndex;
+	int maxIndex;
+	bool explicitActiveFile;
+	bool throwIOExceptionOnForkFailure = true;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(FixedWindowRollingPolicy)
 
 FixedWindowRollingPolicy::FixedWindowRollingPolicy() :
-	minIndex(1), maxIndex(7)
+	RollingPolicyBase (std::make_unique<FixedWindowRollingPolicyPrivate>())
 {
 }
 
+FixedWindowRollingPolicy::~FixedWindowRollingPolicy(){}
+
 void FixedWindowRollingPolicy::setMaxIndex(int maxIndex1)
 {
-	this->maxIndex = maxIndex1;
+	priv->maxIndex = maxIndex1;
 }
 
 void FixedWindowRollingPolicy::setMinIndex(int minIndex1)
 {
-	this->minIndex = minIndex1;
+	priv->minIndex = minIndex1;
 }
-
-
 
 void FixedWindowRollingPolicy::setOption(const LogString& option,
 	const LogString& value)
@@ -64,13 +76,19 @@ void FixedWindowRollingPolicy::setOption(const LogString& option,
 			LOG4CXX_STR("MININDEX"),
 			LOG4CXX_STR("minindex")))
 	{
-		minIndex = OptionConverter::toInt(value, 1);
+		priv->minIndex = OptionConverter::toInt(value, 1);
 	}
 	else if (StringHelper::equalsIgnoreCase(option,
 			LOG4CXX_STR("MAXINDEX"),
 			LOG4CXX_STR("maxindex")))
 	{
-		maxIndex = OptionConverter::toInt(value, 7);
+		priv->maxIndex = OptionConverter::toInt(value, 7);
+	}
+	else if (StringHelper::equalsIgnoreCase(option,
+			LOG4CXX_STR("THROWIOEXCEPTIONONFORKFAILURE"),
+			LOG4CXX_STR("throwioexceptiononforkfailure")))
+	{
+		priv->throwIOExceptionOnForkFailure = OptionConverter::toBoolean(value, true);
 	}
 	else
 	{
@@ -85,17 +103,17 @@ void FixedWindowRollingPolicy::activateOptions(Pool& p)
 {
 	RollingPolicyBase::activateOptions(p);
 
-	if (maxIndex < minIndex)
+	if (priv->maxIndex < priv->minIndex)
 	{
 		LogLog::warn(
 			LOG4CXX_STR("MaxIndex  cannot be smaller than MinIndex."));
-		maxIndex = minIndex;
+		priv->maxIndex = priv->minIndex;
 	}
 
-	if ((maxIndex - minIndex) > MAX_WINDOW_SIZE)
+	if ((priv->maxIndex - priv->minIndex) > MAX_WINDOW_SIZE)
 	{
 		LogLog::warn(LOG4CXX_STR("Large window sizes are not allowed."));
-		maxIndex = minIndex + MAX_WINDOW_SIZE;
+		priv->maxIndex = priv->minIndex + MAX_WINDOW_SIZE;
 	}
 
 	PatternConverterPtr itc = getIntegerPatternConverter();
@@ -115,25 +133,25 @@ RolloverDescriptionPtr FixedWindowRollingPolicy::initialize(
 	Pool&       pool)
 {
 	LogString newActiveFile(currentActiveFile);
-	explicitActiveFile = false;
+	priv->explicitActiveFile = false;
 
 	if (currentActiveFile.length() > 0)
 	{
-		explicitActiveFile = true;
+		priv->explicitActiveFile = true;
 		newActiveFile = currentActiveFile;
 	}
 
-	if (!explicitActiveFile)
+	if (!priv->explicitActiveFile)
 	{
 		LogString buf;
-		ObjectPtr obj(new Integer(minIndex));
+		ObjectPtr obj = std::make_shared<Integer>(priv->minIndex);
 		formatFileName(obj, buf, pool);
 		newActiveFile = buf;
 	}
 
 	ActionPtr noAction;
 
-	return new RolloverDescription(newActiveFile, append, noAction, noAction);
+	return std::make_shared<RolloverDescription>(newActiveFile, append, noAction, noAction);
 }
 
 /**
@@ -146,59 +164,66 @@ RolloverDescriptionPtr FixedWindowRollingPolicy::rollover(
 {
 	RolloverDescriptionPtr desc;
 
-	if (maxIndex < 0)
+	if (priv->maxIndex < 0)
 	{
 		return desc;
 	}
 
-	int purgeStart = minIndex;
+	int purgeStart = priv->minIndex;
 
-	if (!explicitActiveFile)
+	if (!priv->explicitActiveFile)
 	{
 		purgeStart++;
 	}
 
-	if (!purge(purgeStart, maxIndex, pool))
+	if (!purge(purgeStart, priv->maxIndex, pool))
 	{
 		return desc;
 	}
 
 	LogString buf;
-	ObjectPtr obj(new Integer(purgeStart));
+	ObjectPtr obj = std::make_shared<Integer>(purgeStart);
 	formatFileName(obj, buf, pool);
 
 	LogString renameTo(buf);
 	LogString compressedName(renameTo);
 	ActionPtr compressAction ;
 
+	if(getCreateIntermediateDirectories()){
+		File compressedFile(compressedName);
+		File compressedParent (compressedFile.getParent(pool));
+		compressedParent.mkdirs(pool);
+	}
+
 	if (StringHelper::endsWith(renameTo, LOG4CXX_STR(".gz")))
 	{
 		renameTo.resize(renameTo.size() - 3);
-		compressAction =
-			new GZCompressAction(
-			File().setPath(renameTo),
-			File().setPath(compressedName),
-			true);
+		GZCompressActionPtr comp = std::make_shared<GZCompressAction>(
+					File().setPath(renameTo),
+					File().setPath(compressedName),
+					true);
+		comp->setThrowIOExceptionOnForkFailure(priv->throwIOExceptionOnForkFailure);
+		compressAction = comp;
 	}
 	else if (StringHelper::endsWith(renameTo, LOG4CXX_STR(".zip")))
 	{
 		renameTo.resize(renameTo.size() - 4);
-		compressAction =
-			new ZipCompressAction(
-			File().setPath(renameTo),
-			File().setPath(compressedName),
-			true);
+		ZipCompressActionPtr comp = std::make_shared<ZipCompressAction>(
+					File().setPath(renameTo),
+					File().setPath(compressedName),
+					true);
+		comp->setThrowIOExceptionOnForkFailure(priv->throwIOExceptionOnForkFailure);
+		compressAction = comp;
 	}
 
-	FileRenameActionPtr renameAction =
-		new FileRenameAction(
-		File().setPath(currentActiveFile),
-		File().setPath(renameTo),
-		false);
+	auto renameAction = std::make_shared<FileRenameAction>(
+				File().setPath(currentActiveFile),
+				File().setPath(renameTo),
+				false);
 
-	desc = new RolloverDescription(
-		currentActiveFile,  append,
-		renameAction,       compressAction);
+	desc = std::make_shared<RolloverDescription>(
+				currentActiveFile,  append,
+				renameAction,       compressAction);
 
 	return desc;
 }
@@ -209,7 +234,7 @@ RolloverDescriptionPtr FixedWindowRollingPolicy::rollover(
  */
 int FixedWindowRollingPolicy::getMaxIndex() const
 {
-	return maxIndex;
+	return priv->maxIndex;
 }
 
 /**
@@ -218,7 +243,7 @@ int FixedWindowRollingPolicy::getMaxIndex() const
  */
 int FixedWindowRollingPolicy::getMinIndex() const
 {
-	return minIndex;
+	return priv->minIndex;
 }
 
 
@@ -235,7 +260,7 @@ bool FixedWindowRollingPolicy::purge(int lowIndex, int highIndex, Pool& p) const
 
 	std::vector<FileRenameActionPtr> renames;
 	LogString buf;
-	ObjectPtr obj = new Integer(lowIndex);
+	ObjectPtr obj = std::make_shared<Integer>(lowIndex);
 	formatFileName(obj, buf, p);
 
 	LogString lowFilename(buf);
@@ -296,7 +321,7 @@ bool FixedWindowRollingPolicy::purge(int lowIndex, int highIndex, Pool& p) const
 			//   if intermediate index
 			//     add a rename action to the list
 			buf.erase(buf.begin(), buf.end());
-			obj = new Integer(i + 1);
+			obj = std::make_shared<Integer>(i + 1);
 			formatFileName(obj, buf, p);
 
 			LogString highFilename(buf);
@@ -308,7 +333,7 @@ bool FixedWindowRollingPolicy::purge(int lowIndex, int highIndex, Pool& p) const
 					highFilename.substr(0, highFilename.length() - suffixLength);
 			}
 
-			renames.push_back(new FileRenameAction(*toRename, File().setPath(renameTo), true));
+			renames.push_back(std::make_shared<FileRenameAction>(*toRename, File().setPath(renameTo), true));
 			lowFilename = highFilename;
 		}
 		else

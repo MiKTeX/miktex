@@ -18,6 +18,7 @@
 #if defined(_WIN32)
 #include <log4cxx/nt/outputdebugstringappender.h>
 #include <log4cxx/helpers/transcoder.h>
+#include <log4cxx/private/appenderskeleton_priv.h>
 
 #include "windows.h"
 
@@ -34,7 +35,7 @@ OutputDebugStringAppender::OutputDebugStringAppender()
 void OutputDebugStringAppender::append(const spi::LoggingEventPtr& event, Pool& p)
 {
 	LogString buf;
-	layout->format(buf, event, p);
+	this->m_priv->layout->format(buf, event, p);
 #if LOG4CXX_WCHAR_T_API
 	LOG4CXX_ENCODE_WCHAR(wstr, buf);
 	::OutputDebugStringW(wstr.c_str());

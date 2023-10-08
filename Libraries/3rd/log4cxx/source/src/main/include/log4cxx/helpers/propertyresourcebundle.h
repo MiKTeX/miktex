@@ -49,7 +49,7 @@ class LOG4CXX_EXPORT PropertyResourceBundle : public ResourceBundle
 		*/
 		PropertyResourceBundle(InputStreamPtr inStream);
 
-		virtual LogString getString(const LogString& key) const;
+		LogString getString(const LogString& key) const override;
 
 	protected:
 		Properties properties;

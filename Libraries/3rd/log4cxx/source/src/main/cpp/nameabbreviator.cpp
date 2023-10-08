@@ -61,7 +61,7 @@ class NOPAbbreviator : public NameAbbreviator
 		/**
 		 * {@inheritDoc}
 		 */
-		void abbreviate(LogString::size_type /* nameStart */, LogString& /* buf */) const
+		void abbreviate(LogString::size_type /* nameStart */, LogString& /* buf */) const override
 		{
 		}
 };
@@ -96,7 +96,7 @@ class MaxElementAbbreviator : public NameAbbreviator
 		 * @param buf buffer to append abbreviation.
 		 * @param nameStart start of name to abbreviate.
 		 */
-		void abbreviate(LogString::size_type nameStart, LogString& buf) const
+		void abbreviate(LogString::size_type nameStart, LogString& buf) const override
 		{
 			// We substract 1 from 'len' when assigning to 'end' to avoid out of
 			// bounds exception in return r.substring(end+1, len). This can happen if
@@ -230,7 +230,7 @@ class PatternAbbreviator : public NameAbbreviator
 		 * @param buf buffer that abbreviated name is appended.
 		 * @param nameStart start of name.
 		 */
-		void abbreviate(LogString::size_type nameStart, LogString& buf) const
+		void abbreviate(LogString::size_type nameStart, LogString& buf) const override
 		{
 			//
 			//  all non-terminal patterns are executed once
@@ -291,7 +291,7 @@ NameAbbreviatorPtr NameAbbreviator::getAbbreviator(const LogString& pattern)
 		//
 		if (i == trimmed.length())
 		{
-			return new MaxElementAbbreviator(StringHelper::toInt(trimmed));
+			return std::make_shared<MaxElementAbbreviator>(StringHelper::toInt(trimmed));
 		}
 
 		std::vector<PatternAbbreviatorFragment> fragments;
@@ -345,8 +345,7 @@ NameAbbreviatorPtr NameAbbreviator::getAbbreviator(const LogString& pattern)
 			pos++;
 		}
 
-		NameAbbreviatorPtr abbrev(new PatternAbbreviator(fragments));
-		return abbrev;
+		return std::make_shared<PatternAbbreviator>(fragments);
 	}
 
 	//
@@ -362,7 +361,7 @@ NameAbbreviatorPtr NameAbbreviator::getAbbreviator(const LogString& pattern)
  */
 NameAbbreviatorPtr NameAbbreviator::getDefaultAbbreviator()
 {
-	static NameAbbreviatorPtr def(new NOPAbbreviator());
+	static NameAbbreviatorPtr def = std::make_shared<NOPAbbreviator>();
 	return def;
 }
 

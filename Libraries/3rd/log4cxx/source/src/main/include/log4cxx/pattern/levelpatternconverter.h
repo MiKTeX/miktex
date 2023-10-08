@@ -34,17 +34,14 @@ namespace pattern
  */
 class LOG4CXX_EXPORT LevelPatternConverter : public LoggingEventPatternConverter
 {
-		/**
-		 * Private constructor.
-		 */
-		LevelPatternConverter();
-
 	public:
 		DECLARE_LOG4CXX_PATTERN(LevelPatternConverter)
 		BEGIN_LOG4CXX_CAST_MAP()
 		LOG4CXX_CAST_ENTRY(LevelPatternConverter)
 		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
 		END_LOG4CXX_CAST_MAP()
+
+		LevelPatternConverter();
 
 		/**
 		 * Obtains an instance of pattern converter.
@@ -56,11 +53,11 @@ class LOG4CXX_EXPORT LevelPatternConverter : public LoggingEventPatternConverter
 
 		using LoggingEventPatternConverter::format;
 
-		void format(const log4cxx::spi::LoggingEventPtr& event,
+		void format(const spi::LoggingEventPtr& event,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 
-		LogString getStyleClass(const log4cxx::helpers::ObjectPtr& e) const;
+		LogString getStyleClass(const 	helpers::ObjectPtr& e) const override;
 };
 }
 }

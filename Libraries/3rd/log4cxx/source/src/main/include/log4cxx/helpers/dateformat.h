@@ -30,7 +30,7 @@ namespace helpers
 *  DateFormat is an abstract class for date/time formatting
 * patterned after java.text.DateFormat.
 */
-class LOG4CXX_EXPORT DateFormat : public ObjectImpl
+class LOG4CXX_EXPORT DateFormat : public Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(DateFormat)

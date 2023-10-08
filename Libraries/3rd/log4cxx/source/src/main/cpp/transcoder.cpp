@@ -24,14 +24,13 @@
 #include <log4cxx/helpers/charsetdecoder.h>
 #include <log4cxx/helpers/charsetencoder.h>
 #include <vector>
-#include <apr.h>
-#include <apr_strings.h>
+#include <cstring>
 #if !defined(LOG4CXX)
 	#define LOG4CXX 1
 #endif
 #include <log4cxx/private/log4cxx_private.h>
 
-#if LOG4CXX_LOGCHAR_IS_UNICHAR || LOG4CXX_CFSTRING_API || LOG4CXX_UNICHAR_API
+#if LOG4CXX_CFSTRING_API
 	#include <CoreFoundation/CFString.h>
 #endif
 
@@ -512,6 +511,7 @@ void Transcoder::encode(const LogString& src, std::wstring& dst)
 	for (LogString::const_iterator i = src.begin(); i != src.end();)
 	{
 		unsigned int cp = Transcoder::decode(src, i);
+
 		if (cp != 0xFFFF)
 		{
 			encode(cp, dst);
@@ -536,7 +536,7 @@ wchar_t* Transcoder::wencode(const LogString& src, Pool& p)
 #endif
 	wchar_t* dst = (wchar_t*) p.palloc((tmp.length() + 1) * sizeof(wchar_t));
 	dst[tmp.length()] = 0;
-	memcpy(dst, tmp.data(), tmp.length() * sizeof(wchar_t));
+	std::memcpy(dst, tmp.data(), tmp.length() * sizeof(wchar_t));
 	return dst;
 }
 
@@ -651,7 +651,7 @@ CFStringRef Transcoder::encode(const LogString& src)
 	LOG4CXX_ENCODE_UNICHAR(tmp, src);
 	return CFStringCreateWithCharacters(kCFAllocatorDefault, tmp.data(), tmp.size());
 }
-#endif
+#endif // #if LOG4CXX_CFSTRING_API
 
 
 logchar Transcoder::decode(char val)

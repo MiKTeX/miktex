@@ -35,10 +35,7 @@ namespace pattern
  */
 class LOG4CXX_EXPORT NamePatternConverter : public LoggingEventPatternConverter
 {
-		/**
-		 * Abbreviator.
-		 */
-		const NameAbbreviatorPtr abbreviator;
+		struct NamePatternConverterPrivate;
 
 	public:
 		DECLARE_LOG4CXX_PATTERN(NamePatternConverter)
@@ -65,7 +62,7 @@ class LOG4CXX_EXPORT NamePatternConverter : public LoggingEventPatternConverter
 		 * @param nameStart starting position of name to abbreviate.
 		 * @param buf string buffer containing name.
 		 */
-		void abbreviate(int nameStart, LogString& buf) const;
+		void abbreviate(LogString::size_type nameStart, LogString& buf) const;
 
 	private:
 		NameAbbreviatorPtr getAbbreviator(const std::vector<LogString>& options);

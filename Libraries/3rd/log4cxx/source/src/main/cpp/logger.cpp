@@ -23,9 +23,8 @@
 #include <log4cxx/appender.h>
 #include <log4cxx/level.h>
 #include <log4cxx/helpers/loglog.h>
-#include <log4cxx/spi/loggerrepository.h>
+#include <log4cxx/hierarchy.h>
 #include <log4cxx/helpers/stringhelper.h>
-#include <log4cxx/helpers/synchronized.h>
 #include <log4cxx/helpers/transcoder.h>
 #include <log4cxx/helpers/appenderattachableimpl.h>
 #include <log4cxx/helpers/exception.h>
@@ -39,77 +38,113 @@ using namespace log4cxx;
 using namespace log4cxx::helpers;
 using namespace log4cxx::spi;
 
+struct Logger::LoggerPrivate
+{
+	LoggerPrivate(Pool& p, const LogString& name1):
+		name(name1),
+		repositoryRaw(0),
+		aai(p),
+		additive(true) {}
+
+	/**
+	The name of this logger.
+	*/
+	LogString name;
+
+	/**
+	The assigned level of this logger.  The
+	<code>level</code> variable need not be assigned a value in
+	which case it is inherited form the hierarchy.  */
+	LevelPtr level;
+
+	/**
+	The parent of this logger. All loggers have at least one
+	ancestor which is the root logger. */
+	LoggerPtr parent;
+
+	/** The resourceBundle for localized messages.
+
+	@see setResourceBundle, getResourceBundle
+	*/
+	helpers::ResourceBundlePtr resourceBundle;
+
+
+	// Loggers need to know what Hierarchy they are in
+	log4cxx::spi::LoggerRepository* repositoryRaw;
+
+	helpers::AppenderAttachableImpl aai;
+
+	/** Additivity is set to true by default, that is children inherit
+	        the appenders of their ancestors by default. If this variable is
+	        set to <code>false</code> then the appenders found in the
+	        ancestors of this logger are not used. However, the children
+	        of this logger will inherit its appenders, unless the children
+	        have their additivity flag set to <code>false</code> too. See
+	        the user manual for more details. */
+	bool additive;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(Logger)
 
 Logger::Logger(Pool& p, const LogString& name1)
-	: pool(&p), name(), level(), parent(), resourceBundle(),
-	  repository(), aai(), SHARED_MUTEX_INIT(mutex, p)
+	: m_priv(std::make_unique<LoggerPrivate>(p, name1))
+	, m_threshold(0)
 {
-	name = name1;
-	additive = true;
 }
 
 Logger::~Logger()
 {
 }
 
-void Logger::addRef() const
+void Logger::addAppender(const AppenderPtr newAppender)
 {
-	ObjectImpl::addRef();
-}
-
-void Logger::releaseRef() const
-{
-	ObjectImpl::releaseRef();
-}
-
-void Logger::addAppender(const AppenderPtr& newAppender)
-{
-	log4cxx::spi::LoggerRepository* rep = 0;
+	m_priv->aai.addAppender(newAppender);
+	if (auto rep = getHierarchy())
 	{
-		LOCK_W sync(mutex);
+		rep->fireAddAppenderEvent(this, newAppender.get());
+	}
+}
 
-		if (aai == 0)
+void Logger::reconfigure( const std::vector<AppenderPtr>& appenders, bool additive1 )
+{
+	m_priv->additive = additive1;
+
+	m_priv->aai.removeAllAppenders();
+
+	for ( std::vector<AppenderPtr>::const_iterator it = appenders.cbegin();
+		it != appenders.cend();
+		it++ )
+	{
+		m_priv->aai.addAppender( *it );
+
+		if (auto rep = getHierarchy())
 		{
-			aai = new AppenderAttachableImpl(*pool);
+			rep->fireAddAppenderEvent(this, it->get());
 		}
-
-		aai->addAppender(newAppender);
-		rep = repository;
-	}
-
-	if (rep != 0)
-	{
-		rep->fireAddAppenderEvent(this, newAppender);
 	}
 }
-
 
 void Logger::callAppenders(const spi::LoggingEventPtr& event, Pool& p) const
 {
 	int writes = 0;
 
-	for (LoggerPtr logger(const_cast<Logger*>(this));
+	for (const Logger* logger = this;
 		logger != 0;
-		logger = logger->parent)
+		logger = logger->m_priv->parent.get())
 	{
-		// Protected against simultaneous call to addAppender, removeAppender,...
-		LOCK_R sync(logger->mutex);
+		writes += logger->m_priv->aai.appendLoopOnAppenders(event, p);
 
-		if (logger->aai != 0)
-		{
-			writes += logger->aai->appendLoopOnAppenders(event, p);
-		}
-
-		if (!logger->additive)
+		if (!logger->m_priv->additive)
 		{
 			break;
 		}
 	}
 
-	if (writes == 0 && repository != 0)
+	auto rep = getHierarchy();
+
+	if (writes == 0 && rep)
 	{
-		repository->emitNoAppenderWarning(const_cast<Logger*>(this));
+		rep->emitNoAppenderWarning(const_cast<Logger*>(this));
 	}
 }
 
@@ -127,90 +162,85 @@ void Logger::closeNestedAppenders()
 void Logger::forcedLog(const LevelPtr& level1, const std::string& message,
 	const LocationInfo& location) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_CHAR(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg, location));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, msg, location);
 	callAppenders(event, p);
 }
 
 
 void Logger::forcedLog(const LevelPtr& level1, const std::string& message) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_CHAR(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg,
-			LocationInfo::getLocationUnavailable()));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, msg,
+			LocationInfo::getLocationUnavailable());
 	callAppenders(event, p);
 }
 
 void Logger::forcedLogLS(const LevelPtr& level1, const LogString& message,
 	const LocationInfo& location) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
-	LoggingEventPtr event(new LoggingEvent(name, level1, message, location));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, message, location);
 	callAppenders(event, p);
 }
 
 
 bool Logger::getAdditivity() const
 {
-	return additive;
+	return m_priv->additive;
 }
 
 AppenderList Logger::getAllAppenders() const
 {
-	LOCK_W sync(mutex);
-
-	if (aai == 0)
-	{
-		return AppenderList();
-	}
-	else
-	{
-		return aai->getAllAppenders();
-	}
+	return m_priv->aai.getAllAppenders();
 }
 
 AppenderPtr Logger::getAppender(const LogString& name1) const
 {
-	LOCK_W sync(mutex);
-
-	if (aai == 0 || name1.empty())
-	{
-		return 0;
-	}
-
-	return aai->getAppender(name1);
+	return m_priv->aai.getAppender(name1);
 }
 
 const LevelPtr& Logger::getEffectiveLevel() const
 {
-	for (const Logger* l = this; l != 0; l = l->parent)
+	for (const Logger* l = this; l != 0; l = l->m_priv->parent.get())
 	{
-		if (l->level != 0)
+		if (l->m_priv->level != 0)
 		{
-			return l->level;
+			return l->m_priv->level;
 		}
 	}
 
 	throw NullPointerException(LOG4CXX_STR("No level specified for logger or ancestors."));
 #if LOG4CXX_RETURN_AFTER_THROW
-	return this->level;
+	return m_priv->level;
 #endif
 }
 
-LoggerRepositoryPtr Logger::getLoggerRepository() const
+LoggerRepository* Logger::getLoggerRepository() const
 {
-	return repository;
+	return m_priv->repositoryRaw;
+}
+
+LoggerRepository* Logger::getHierarchy() const
+{
+	return m_priv->repositoryRaw;
 }
 
 ResourceBundlePtr Logger::getResourceBundle() const
 {
-	for (LoggerPtr l(const_cast<Logger*>(this)); l != 0; l = l->parent)
+	for (const Logger* l = this; l != 0; l = l->m_priv->parent.get())
 	{
-		if (l->resourceBundle != 0)
+		if (l->m_priv->resourceBundle != 0)
 		{
-			return l->resourceBundle;
+			return l->m_priv->resourceBundle;
 		}
 	}
 
@@ -248,32 +278,24 @@ LogString Logger::getResourceBundleString(const LogString& key) const
 
 LoggerPtr Logger::getParent() const
 {
-	return parent;
+	return m_priv->parent;
 }
 
-LevelPtr Logger::getLevel() const
+const LevelPtr& Logger::getLevel() const
 {
-	return level;
+	return m_priv->level;
 }
 
-
-bool Logger::isAttached(const AppenderPtr& appender) const
+bool Logger::isAttached(const AppenderPtr appender) const
 {
-	LOCK_R sync(mutex);
-
-	if (appender == 0 || aai == 0)
-	{
-		return false;
-	}
-	else
-	{
-		return aai->isAttached(appender);
-	}
+	return m_priv->aai.isAttached(appender);
 }
 
 bool Logger::isTraceEnabled() const
 {
-	if (repository == 0 || repository->isDisabled(Level::TRACE_INT))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(Level::TRACE_INT))
 	{
 		return false;
 	}
@@ -283,7 +305,9 @@ bool Logger::isTraceEnabled() const
 
 bool Logger::isDebugEnabled() const
 {
-	if (repository == 0 || repository->isDisabled(Level::DEBUG_INT))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(Level::DEBUG_INT))
 	{
 		return false;
 	}
@@ -293,7 +317,9 @@ bool Logger::isDebugEnabled() const
 
 bool Logger::isEnabledFor(const LevelPtr& level1) const
 {
-	if (repository == 0 || repository->isDisabled(level1->toInt()))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(level1->toInt()))
 	{
 		return false;
 	}
@@ -304,7 +330,9 @@ bool Logger::isEnabledFor(const LevelPtr& level1) const
 
 bool Logger::isInfoEnabled() const
 {
-	if (repository == 0 || repository->isDisabled(Level::INFO_INT))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(Level::INFO_INT))
 	{
 		return false;
 	}
@@ -314,7 +342,9 @@ bool Logger::isInfoEnabled() const
 
 bool Logger::isErrorEnabled() const
 {
-	if (repository == 0 || repository->isDisabled(Level::ERROR_INT))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(Level::ERROR_INT))
 	{
 		return false;
 	}
@@ -324,7 +354,9 @@ bool Logger::isErrorEnabled() const
 
 bool Logger::isWarnEnabled() const
 {
-	if (repository == 0 || repository->isDisabled(Level::WARN_INT))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(Level::WARN_INT))
 	{
 		return false;
 	}
@@ -334,7 +366,9 @@ bool Logger::isWarnEnabled() const
 
 bool Logger::isFatalEnabled() const
 {
-	if (repository == 0 || repository->isDisabled(Level::FATAL_INT))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(Level::FATAL_INT))
 	{
 		return false;
 	}
@@ -345,7 +379,9 @@ bool Logger::isFatalEnabled() const
 /*void Logger::l7dlog(const LevelPtr& level, const String& key,
                         const char* file, int line)
 {
-        if (repository == 0 || repository->isDisabled(level->level))
+	auto rep = getHierarchy();
+
+        if (!rep || rep->isDisabled(level->level))
         {
                 return;
         }
@@ -370,7 +406,9 @@ bool Logger::isFatalEnabled() const
 void Logger::l7dlog(const LevelPtr& level1, const LogString& key,
 	const LocationInfo& location, const std::vector<LogString>& params) const
 {
-	if (repository == 0 || repository->isDisabled(level1->toInt()))
+	auto rep = getHierarchy();
+
+	if (!rep || rep->isDisabled(level1->toInt()))
 	{
 		return;
 	}
@@ -443,60 +481,59 @@ void Logger::l7dlog(const LevelPtr& level1, const std::string& key,
 	l7dlog(level1, lkey, location, values);
 }
 
-
-
 void Logger::removeAllAppenders()
 {
-	LOCK_W sync(mutex);
-
-	if (aai != 0)
-	{
-		aai->removeAllAppenders();
-		aai = 0;
-	}
+	m_priv->aai.removeAllAppenders();
 }
 
-void Logger::removeAppender(const AppenderPtr& appender)
+void Logger::removeAppender(const AppenderPtr appender)
 {
-	LOCK_W sync(mutex);
-
-	if (appender == 0 || aai == 0)
-	{
-		return;
-	}
-
-	aai->removeAppender(appender);
+	m_priv->aai.removeAppender(appender);
 }
 
 void Logger::removeAppender(const LogString& name1)
 {
-	LOCK_W sync(mutex);
+	m_priv->aai.removeAppender(name1);
+}
 
-	if (name1.empty() || aai == 0)
-	{
-		return;
-	}
-
-	aai->removeAppender(name1);
+void Logger::removeHierarchy()
+{
+	m_priv->repositoryRaw = 0;
 }
 
 void Logger::setAdditivity(bool additive1)
 {
-	LOCK_W sync(mutex);
-	this->additive = additive1;
+	m_priv->additive = additive1;
 }
 
 void Logger::setHierarchy(spi::LoggerRepository* repository1)
 {
-	this->repository = repository1;
+	m_priv->repositoryRaw = repository1;
 }
 
-void Logger::setLevel(const LevelPtr& level1)
+void Logger::setParent(LoggerPtr parentLogger)
 {
-	this->level = level1;
+	m_priv->parent = parentLogger;
+	updateThreshold();
 }
 
+void Logger::setLevel(const LevelPtr level1)
+{
+	m_priv->level = level1;
+	updateThreshold();
+	if (auto rep = dynamic_cast<Hierarchy*>(getHierarchy()))
+		rep->updateChildren(this);
+}
 
+void Logger::updateThreshold()
+{
+	m_threshold = getEffectiveLevel()->toInt();
+}
+
+const LogString& Logger::getName() const
+{
+	return m_priv->name;
+}
 
 LoggerPtr Logger::getLogger(const std::string& name)
 {
@@ -509,7 +546,10 @@ LoggerPtr Logger::getLogger(const char* const name)
 	return LogManager::getLogger(name);
 }
 
-
+void Logger::setResourceBundle(const helpers::ResourceBundlePtr& bundle)
+{
+	m_priv->resourceBundle = bundle;
+}
 
 LoggerPtr Logger::getRootLogger()
 {
@@ -524,7 +564,7 @@ LoggerPtr Logger::getLoggerLS(const LogString& name,
 
 void Logger::getName(std::string& rv) const
 {
-	Transcoder::encode(name, rv);
+	Transcoder::encode(m_priv->name, rv);
 }
 
 
@@ -665,24 +705,28 @@ LoggerPtr Logger::getLoggerLS(const LogString& name)
 void Logger::forcedLog(const LevelPtr& level1, const std::wstring& message,
 	const LocationInfo& location) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_WCHAR(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg, location));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, msg, location);
 	callAppenders(event, p);
 }
 
 void Logger::forcedLog(const LevelPtr& level1, const std::wstring& message) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_WCHAR(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg,
-			LocationInfo::getLocationUnavailable()));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, msg,
+			LocationInfo::getLocationUnavailable());
 	callAppenders(event, p);
 }
 
 void Logger::getName(std::wstring& rv) const
 {
-	Transcoder::encode(name, rv);
+	Transcoder::encode(m_priv->name, rv);
 }
 
 LoggerPtr Logger::getLogger(const std::wstring& name)
@@ -816,18 +860,22 @@ void Logger::warn(const std::wstring& msg) const
 void Logger::forcedLog(const LevelPtr& level1, const std::basic_string<UniChar>& message,
 	const LocationInfo& location) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_UNICHAR(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg, location));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, msg, location);
 	callAppenders(event, p);
 }
 
 void Logger::forcedLog(const LevelPtr& level1, const std::basic_string<UniChar>& message) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_UNICHAR(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg,
-			LocationInfo::getLocationUnavailable()));
+	auto event = std::make_shared<LoggingEvent>(m_priv->name, level1, msg,
+			LocationInfo::getLocationUnavailable());
 	callAppenders(event, p);
 }
 #endif
@@ -835,7 +883,7 @@ void Logger::forcedLog(const LevelPtr& level1, const std::basic_string<UniChar>&
 #if LOG4CXX_UNICHAR_API
 void Logger::getName(std::basic_string<UniChar>& rv) const
 {
-	Transcoder::encode(name, rv);
+	Transcoder::encode(m_priv->name, rv);
 }
 
 LoggerPtr Logger::getLogger(const std::basic_string<UniChar>& name)
@@ -964,18 +1012,22 @@ void Logger::warn(const std::basic_string<UniChar>& msg) const
 void Logger::forcedLog(const LevelPtr& level1, const CFStringRef& message,
 	const LocationInfo& location) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_CFSTRING(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg, location));
+	auto event = std::make_shared<LoggingEvent>(name, level1, msg, location);
 	callAppenders(event, p);
 }
 
 void Logger::forcedLog(const LevelPtr& level1, const CFStringRef& message) const
 {
+	if (!getHierarchy()) // Has removeHierarchy() been called?
+		return;
 	Pool p;
 	LOG4CXX_DECODE_CFSTRING(msg, message);
-	LoggingEventPtr event(new LoggingEvent(name, level1, msg,
-			LocationInfo::getLocationUnavailable()));
+	auto event = std::make_shared<LoggingEvent>(name, level1, msg,
+			LocationInfo::getLocationUnavailable());
 	callAppenders(event, p);
 }
 

@@ -25,14 +25,30 @@
 #include <log4cxx/helpers/threadspecificdata.h>
 #include <apr_thread_mutex.h>
 #include <apr_thread_proc.h>
-#include <log4cxx/helpers/synchronized.h>
+#include <apr_dbd.h>
 #include <log4cxx/helpers/filewatchdog.h>
+#include <log4cxx/helpers/date.h>
 
 using namespace log4cxx::helpers;
 using namespace log4cxx;
 
 bool APRInitializer::isDestructed = false;
 
+struct APRInitializer::APRInitializerPrivate{
+	APRInitializerPrivate() :
+		p(0),
+		startTime(0),
+		tlsKey(0){
+
+	}
+
+	apr_pool_t* p;
+	std::mutex mutex;
+	std::list<FileWatchdog*> watchdogs;
+	log4cxx_time_t startTime;
+	apr_threadkey_t* tlsKey;
+	std::map<size_t, ObjectPtr> objects;
+};
 
 namespace
 {
@@ -40,47 +56,68 @@ extern "C" void tlsDestruct(void* ptr)
 {
 	delete ((ThreadSpecificData*) ptr);
 }
+
+// The first object created and the last object destroyed
+struct apr_environment
+{
+    apr_environment()
+    {
+        apr_initialize();
+    }
+    ~apr_environment()
+    {
+        apr_terminate();
+    }
+};
+
 }
 
-APRInitializer::APRInitializer() : p(0), mutex(0), startTime(0), tlsKey(0)
+APRInitializer::APRInitializer() :
+	m_priv(std::make_unique<APRInitializerPrivate>())
 {
-	apr_initialize();
-	apr_pool_create(&p, NULL);
-	apr_atomic_init(p);
-	startTime = apr_time_now();
+	apr_pool_create(&m_priv->p, NULL);
+	apr_atomic_init(m_priv->p);
+	m_priv->startTime = Date::currentTime();
 #if APR_HAS_THREADS
-	apr_status_t stat = apr_threadkey_private_create(&tlsKey, tlsDestruct, p);
+	apr_status_t stat = apr_threadkey_private_create(&m_priv->tlsKey, tlsDestruct, m_priv->p);
 	assert(stat == APR_SUCCESS);
-	stat = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_NESTED, p);
 	assert(stat == APR_SUCCESS);
 #endif
+    apr_status_t stat2 = apr_dbd_init(m_priv->p);
+    assert(stat2 == APR_SUCCESS);
 }
 
 APRInitializer::~APRInitializer()
 {
-	{
-#if APR_HAS_THREADS
-		synchronized sync(mutex);
-		apr_threadkey_private_delete(tlsKey);
-#endif
-
-		for (std::list<FileWatchdog*>::iterator iter = watchdogs.begin();
-			iter != watchdogs.end();
-			iter++)
-		{
-			delete *iter;
-		}
-	}
-
-	// TODO LOGCXX-322
-#ifndef APR_HAS_THREADS
-	apr_terminate();
-#endif
+	stopWatchDogs();
 	isDestructed = true;
+#if APR_HAS_THREADS
+	std::unique_lock<std::mutex> lock(m_priv->mutex);
+	apr_threadkey_private_delete(m_priv->tlsKey);
+#endif
+}
+
+void APRInitializer::stopWatchDogs()
+{
+#if APR_HAS_THREADS
+	std::unique_lock<std::mutex> lock(m_priv->mutex);
+#endif
+
+	while (!m_priv->watchdogs.empty())
+	{
+		delete m_priv->watchdogs.back();
+		m_priv->watchdogs.pop_back();
+	}
+}
+
+void APRInitializer::unregisterAll()
+{
+	getInstance().stopWatchDogs();
 }
 
 APRInitializer& APRInitializer::getInstance()
 {
+	static apr_environment env;
 	static APRInitializer init;
 	return init;
 }
@@ -88,44 +125,62 @@ APRInitializer& APRInitializer::getInstance()
 
 log4cxx_time_t APRInitializer::initialize()
 {
-	return getInstance().startTime;
+	return getInstance().m_priv->startTime;
 }
 
 apr_pool_t* APRInitializer::getRootPool()
 {
-	return getInstance().p;
+	return getInstance().m_priv->p;
 }
 
 apr_threadkey_t* APRInitializer::getTlsKey()
 {
-	return getInstance().tlsKey;
+	return getInstance().m_priv->tlsKey;
 }
 
 void APRInitializer::registerCleanup(FileWatchdog* watchdog)
 {
 	APRInitializer& instance(getInstance());
 #if APR_HAS_THREADS
-	synchronized sync(instance.mutex);
+	std::unique_lock<std::mutex> lock(instance.m_priv->mutex);
 #endif
-	instance.watchdogs.push_back(watchdog);
+	instance.m_priv->watchdogs.push_back(watchdog);
 }
 
 void APRInitializer::unregisterCleanup(FileWatchdog* watchdog)
 {
 	APRInitializer& instance(getInstance());
 #if APR_HAS_THREADS
-	synchronized sync(instance.mutex);
+	std::unique_lock<std::mutex> lock(instance.m_priv->mutex);
 #endif
 
-	for (std::list<FileWatchdog*>::iterator iter = instance.watchdogs.begin();
-		iter != instance.watchdogs.end();
+	for (std::list<FileWatchdog*>::iterator iter = instance.m_priv->watchdogs.begin();
+		iter != instance.m_priv->watchdogs.end();
 		iter++)
 	{
 		if (*iter == watchdog)
 		{
-			instance.watchdogs.erase(iter);
+			instance.m_priv->watchdogs.erase(iter);
 			return;
 		}
 	}
 }
 
+void APRInitializer::addObject(size_t key, const ObjectPtr& pObject)
+{
+#if APR_HAS_THREADS
+	std::unique_lock<std::mutex> lock(m_priv->mutex);
+#endif
+	m_priv->objects[key] = pObject;
+}
+
+const ObjectPtr& APRInitializer::findOrAddObject(size_t key, std::function<ObjectPtr()> creator)
+{
+#if APR_HAS_THREADS
+	std::unique_lock<std::mutex> lock(m_priv->mutex);
+#endif
+	auto pItem = m_priv->objects.find(key);
+	if (m_priv->objects.end() == pItem)
+		pItem = m_priv->objects.emplace(key, creator()).first;
+	return pItem->second;
+}

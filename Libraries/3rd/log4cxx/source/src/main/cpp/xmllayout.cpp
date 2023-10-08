@@ -32,12 +32,23 @@ using namespace log4cxx::helpers;
 using namespace log4cxx::spi;
 using namespace log4cxx::xml;
 
+struct XMLLayout::XMLLayoutPrivate
+{
+	XMLLayoutPrivate() : locationInfo(false), properties(false) {}
+
+	// Print no location info by default
+	bool locationInfo; //= false
+	bool properties; // = false
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(XMLLayout)
 
 XMLLayout::XMLLayout()
-	: locationInfo(false), properties(false)
+	: m_priv(std::make_unique<XMLLayoutPrivate>())
 {
 }
+
+XMLLayout::~XMLLayout() {}
 
 void XMLLayout::setOption(const LogString& option,
 	const LogString& value)
@@ -85,7 +96,7 @@ void XMLLayout::format(LogString& output,
 		output.append(LOG4CXX_EOL);
 	}
 
-	if (locationInfo)
+	if (m_priv->locationInfo)
 	{
 		output.append(LOG4CXX_STR("<log4j:locationInfo class=\""));
 		const LocationInfo& locInfo = event->getLocationInformation();
@@ -103,7 +114,7 @@ void XMLLayout::format(LogString& output,
 		output.append(LOG4CXX_EOL);
 	}
 
-	if (properties)
+	if (m_priv->properties)
 	{
 		LoggingEvent::KeySet propertySet(event->getPropertyKeySet());
 		LoggingEvent::KeySet keySet(event->getMDCKeySet());
@@ -157,5 +168,25 @@ void XMLLayout::format(LogString& output,
 	output.append(LOG4CXX_STR("</log4j:event>"));
 	output.append(LOG4CXX_EOL);
 	output.append(LOG4CXX_EOL);
+}
+
+void XMLLayout::setLocationInfo(bool locationInfo1)
+{
+	m_priv->locationInfo = locationInfo1;
+}
+
+bool XMLLayout::getLocationInfo() const
+{
+	return m_priv->locationInfo;
+}
+
+void XMLLayout::setProperties(bool flag)
+{
+	m_priv->properties = flag;
+}
+
+bool XMLLayout::getProperties()
+{
+	return m_priv->properties;
 }
 

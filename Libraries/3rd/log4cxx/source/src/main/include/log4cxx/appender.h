@@ -18,14 +18,7 @@
 #ifndef _LOG4CXX_APPENDER_H
 #define _LOG4CXX_APPENDER_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/spi/optionhandler.h>
-#include <log4cxx/helpers/objectptr.h>
 #include <log4cxx/helpers/object.h>
 #include <vector>
 
@@ -36,17 +29,17 @@ namespace log4cxx
 namespace spi
 {
 class LoggingEvent;
-typedef helpers::ObjectPtrT<LoggingEvent> LoggingEventPtr;
+typedef std::shared_ptr<LoggingEvent> LoggingEventPtr;
 
 class Filter;
-typedef helpers::ObjectPtrT<Filter> FilterPtr;
+typedef std::shared_ptr<Filter> FilterPtr;
 
 class ErrorHandler;
-typedef log4cxx::helpers::ObjectPtrT<ErrorHandler> ErrorHandlerPtr;
+typedef std::shared_ptr<ErrorHandler> ErrorHandlerPtr;
 }
 
 class Layout;
-typedef log4cxx::helpers::ObjectPtrT<Layout> LayoutPtr;
+typedef std::shared_ptr<Layout> LayoutPtr;
 
 
 /**
@@ -64,7 +57,7 @@ class LOG4CXX_EXPORT Appender :
 		/**
 		 Add a filter to the end of the filter list.
 		*/
-		virtual void addFilter(const spi::FilterPtr& newFilter) = 0;
+		virtual void addFilter(const spi::FilterPtr newFilter) = 0;
 
 		/**
 		 Returns the head Filter. The Filters are organized in a linked list
@@ -105,7 +98,7 @@ class LOG4CXX_EXPORT Appender :
 		/**
 		 Set the Layout for this appender.
 		*/
-		virtual void setLayout(const LayoutPtr& layout) = 0;
+		virtual void setLayout(const LayoutPtr layout) = 0;
 
 		/**
 		 Returns this appenders layout.
@@ -140,9 +133,5 @@ LOG4CXX_PTR_DEF(Appender);
 LOG4CXX_LIST_DEF(AppenderList, AppenderPtr);
 
 }
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif //_LOG4CXX_APPENDER_H

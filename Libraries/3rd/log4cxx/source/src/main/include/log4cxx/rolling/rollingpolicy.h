@@ -18,7 +18,6 @@
 #if !defined(_LOG4CXX_ROLLING_ROLLING_POLICY_H)
 #define _LOG4CXX_ROLLING_ROLLING_POLICY_H
 
-#include <log4cxx/portability.h>
 #include <log4cxx/spi/optionhandler.h>
 #include <log4cxx/rolling/rolloverdescription.h>
 #include <log4cxx/file.h>

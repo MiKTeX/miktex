@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/levelpatternconverter.h>
@@ -41,7 +38,7 @@ LevelPatternConverter::LevelPatternConverter() :
 PatternConverterPtr LevelPatternConverter::newInstance(
 	const std::vector<LogString>& /* options */)
 {
-	static PatternConverterPtr def(new LevelPatternConverter());
+	static PatternConverterPtr def = std::make_shared<LevelPatternConverter>();
 	return def;
 }
 
@@ -59,7 +56,7 @@ void LevelPatternConverter::format(
  */
 LogString LevelPatternConverter::getStyleClass(const ObjectPtr& obj) const
 {
-	LoggingEventPtr e(obj);
+	LoggingEventPtr e = log4cxx::cast<LoggingEvent>(obj);
 
 	if (e != NULL)
 	{

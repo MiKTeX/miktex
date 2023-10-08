@@ -21,11 +21,6 @@
 #include <log4cxx/ndc.h>
 #include <log4cxx/mdc.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
 namespace log4cxx
 {
 namespace helpers
@@ -61,15 +56,11 @@ class LOG4CXX_EXPORT ThreadSpecificData
 	private:
 		static ThreadSpecificData& getDataNoThreads();
 		static ThreadSpecificData* createCurrentData();
-		log4cxx::NDC::Stack ndcStack;
-		log4cxx::MDC::Map mdcMap;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(ThreadSpecificDataPrivate, m_priv)
 };
 
 }  // namespace helpers
 } // namespace log4cxx
 
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif

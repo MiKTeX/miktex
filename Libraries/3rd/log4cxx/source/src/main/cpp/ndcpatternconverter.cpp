@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
-
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/ndcpatternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
@@ -42,7 +36,7 @@ NDCPatternConverter::NDCPatternConverter() :
 PatternConverterPtr NDCPatternConverter::newInstance(
 	const std::vector<LogString>& /* options */)
 {
-	static PatternConverterPtr def(new NDCPatternConverter());
+	static PatternConverterPtr def = std::make_shared<NDCPatternConverter>();
 	return def;
 }
 

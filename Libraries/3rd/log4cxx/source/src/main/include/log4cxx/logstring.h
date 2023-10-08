@@ -18,12 +18,6 @@
 #ifndef _LOG4CXX_STRING_H
 #define _LOG4CXX_STRING_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <string>
 #include <log4cxx/log4cxx.h>
 
@@ -65,9 +59,7 @@ namespace log4cxx
 
 typedef std::basic_string<logchar> LogString;
 
-
 }
-
 
 #if !defined(LOG4CXX_EOL)
 	#if defined(_WIN32)
@@ -80,10 +72,6 @@ typedef std::basic_string<logchar> LogString;
 
 #if LOG4CXX_LOGCHAR_IS_UNICHAR || (LOG4CXX_LOGCHAR_IS_UTF8 || LOG4CXX_CHARSET_EBCDIC)
 	#include <log4cxx/helpers/transcoder.h>
-#endif
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
 #endif
 
 #endif //_LOG4CXX_STRING_H

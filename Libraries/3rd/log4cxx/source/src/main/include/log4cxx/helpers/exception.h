@@ -24,7 +24,7 @@
 
 #ifdef _MSC_VER
 	#pragma warning ( push )
-	#pragma warning (disable : 4251 4275) // ::std::exception needs to have dll-interface
+	#pragma warning (disable : 4275) // ::std::exception needs to have dll-interface
 #endif
 
 namespace log4cxx
@@ -118,16 +118,6 @@ class LOG4CXX_EXPORT PoolException : public Exception
 		static LogString formatMessage(log4cxx_status_t stat);
 };
 
-
-class LOG4CXX_EXPORT MutexException : public Exception
-{
-	public:
-		MutexException(log4cxx_status_t stat);
-		MutexException(const MutexException& src);
-		MutexException& operator=(const MutexException&);
-	private:
-		static LogString formatMessage(log4cxx_status_t stat);
-};
 
 class LOG4CXX_EXPORT InterruptedException : public Exception
 {

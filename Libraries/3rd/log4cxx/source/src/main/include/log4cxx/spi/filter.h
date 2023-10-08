@@ -18,8 +18,7 @@
 #ifndef _LOG4CXX_SPI_FILTER_H
 #define _LOG4CXX_SPI_FILTER_H
 
-#include <log4cxx/helpers/objectptr.h>
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/spi/optionhandler.h>
 #include <log4cxx/spi/loggingevent.h>
 
@@ -63,21 +62,17 @@ event is logged without consulting the remaining filters.
 <p>The philosophy of log4cxx filters is largely inspired from the
 Linux ipchains.
 
-<p>Note that filtering is only supported by the {@link
-xml::DOMConfigurator DOMConfigurator}.
+<p>Note that filtering is only supported by the DOMConfigurator.
 */
-class LOG4CXX_EXPORT Filter : public virtual OptionHandler,
-	public virtual helpers::ObjectImpl
+class LOG4CXX_EXPORT Filter : public virtual OptionHandler
 {
-		/**
-		Points to the next filter in the filter chain.
-		*/
-		FilterPtr next;
+	protected:
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(FilterPrivate, m_priv)
+
 	public:
 		Filter();
-
-		void addRef() const;
-		void releaseRef() const;
+		Filter(std::unique_ptr<FilterPrivate> priv);
+		virtual ~Filter();
 
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(Filter)
 		BEGIN_LOG4CXX_CAST_MAP()
@@ -113,8 +108,8 @@ class LOG4CXX_EXPORT Filter : public virtual OptionHandler,
 
 		default do-nothing implementation for convenience.
 		*/
-		void activateOptions(log4cxx::helpers::Pool& p);
-		void setOption(const LogString& option, const LogString& value);
+		void activateOptions(helpers::Pool& p) override;
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		<p>If the decision is <code>DENY</code>, then the event will be

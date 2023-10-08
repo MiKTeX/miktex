@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/loggerpatternconverter.h>
@@ -42,11 +39,11 @@ PatternConverterPtr LoggerPatternConverter::newInstance(
 {
 	if (options.size() == 0)
 	{
-		static PatternConverterPtr def(new LoggerPatternConverter(options));
+		static PatternConverterPtr def = std::make_shared<LoggerPatternConverter>(options);
 		return def;
 	}
 
-	return new LoggerPatternConverter(options);
+	return std::make_shared<LoggerPatternConverter>(options);
 }
 
 void LoggerPatternConverter::format(

@@ -18,93 +18,126 @@
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/filewatchdog.h>
 #include <log4cxx/helpers/loglog.h>
-#include <apr_time.h>
 #include <apr_thread_proc.h>
 #include <apr_atomic.h>
 #include <log4cxx/helpers/transcoder.h>
 #include <log4cxx/helpers/exception.h>
+#include <log4cxx/helpers/threadutility.h>
+#include <log4cxx/helpers/stringhelper.h>
+#include <functional>
+#include <chrono>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
 long FileWatchdog::DEFAULT_DELAY = 60000;
 
-#if APR_HAS_THREADS
+struct FileWatchdog::FileWatchdogPrivate{
+	FileWatchdogPrivate(const File& file1) :
+		file(file1), delay(DEFAULT_DELAY), lastModif(0),
+		warnedAlready(false), interrupted(0), thread(){}
+
+	/**
+	The name of the file to observe  for changes.
+	*/
+	File file;
+
+	/**
+	The delay to observe between every check.
+	By default set DEFAULT_DELAY.*/
+	long delay;
+	log4cxx_time_t lastModif;
+	bool warnedAlready;
+	volatile int interrupted;
+	Pool pool;
+	std::thread thread;
+	std::condition_variable interrupt;
+	std::mutex interrupt_mutex;
+};
 
 FileWatchdog::FileWatchdog(const File& file1)
-	: file(file1), delay(DEFAULT_DELAY), lastModif(0),
-	  warnedAlready(false), interrupted(0), thread()
+	: m_priv(std::make_unique<FileWatchdogPrivate>(file1))
 {
 }
 
 FileWatchdog::~FileWatchdog()
 {
-	apr_atomic_set32(&interrupted, 0xFFFF);
+	m_priv->interrupted = 0xFFFF;
 
-	try
 	{
-		thread.interrupt();
-		thread.join();
+		std::unique_lock<std::mutex> lock(m_priv->interrupt_mutex);
+		m_priv->interrupt.notify_all();
 	}
-	catch (Exception&)
-	{
-	}
+	m_priv->thread.join();
+}
+
+const File& FileWatchdog::file(){
+	return m_priv->file;
 }
 
 void FileWatchdog::checkAndConfigure()
 {
 	Pool pool1;
 
-	if (!file.exists(pool1))
+	if (!m_priv->file.exists(pool1))
 	{
-		if (!warnedAlready)
+		if (!m_priv->warnedAlready)
 		{
 			LogLog::debug(((LogString) LOG4CXX_STR("["))
-				+ file.getPath()
+				+ m_priv->file.getPath()
 				+ LOG4CXX_STR("] does not exist."));
-			warnedAlready = true;
+			m_priv->warnedAlready = true;
 		}
 	}
 	else
 	{
-		apr_time_t thisMod = file.lastModified(pool1);
+		apr_time_t thisMod = m_priv->file.lastModified(pool1);
 
-		if (thisMod > lastModif)
+		if (thisMod > m_priv->lastModif)
 		{
-			lastModif = thisMod;
+			m_priv->lastModif = thisMod;
 			doOnChange();
-			warnedAlready = false;
+			m_priv->warnedAlready = false;
 		}
 	}
 }
 
-void* APR_THREAD_FUNC FileWatchdog::run(apr_thread_t* /* thread */, void* data)
+void FileWatchdog::run()
 {
-	FileWatchdog* pThis = (FileWatchdog*) data;
+	LogString msg(LOG4CXX_STR("Checking ["));
+	msg += m_priv->file.getPath();
+	msg += LOG4CXX_STR("] at ");
+	StringHelper::toString((int)m_priv->delay, m_priv->pool, msg);
+	msg += LOG4CXX_STR(" ms interval");
+	LogLog::debug(msg);
 
-	unsigned int interrupted = apr_atomic_read32(&pThis->interrupted);
-
-	while (!interrupted)
+	while (m_priv->interrupted != 0xFFFF)
 	{
-		try
-		{
-			Thread::sleep(pThis->delay);
-			pThis->checkAndConfigure();
-		}
-		catch (InterruptedException&)
-		{
-			interrupted = apr_atomic_read32(&pThis->interrupted);
-		}
+		std::unique_lock<std::mutex> lock( m_priv->interrupt_mutex );
+		m_priv->interrupt.wait_for( lock, std::chrono::milliseconds( m_priv->delay ),
+			std::bind(&FileWatchdog::is_interrupted, this) );
+
+		checkAndConfigure();
 	}
 
-	return NULL;
+	LogString msg2(LOG4CXX_STR("Stop checking ["));
+	msg2 += m_priv->file.getPath();
+	msg2 += LOG4CXX_STR("]");
+	LogLog::debug(msg2);
 }
 
 void FileWatchdog::start()
 {
 	checkAndConfigure();
 
-	thread.run(run, this);
+	m_priv->thread = ThreadUtility::instance()->createThread( LOG4CXX_STR("FileWatchdog"), &FileWatchdog::run, this );
 }
 
-#endif
+bool FileWatchdog::is_interrupted()
+{
+	return m_priv->interrupted == 0xFFFF;
+}
+
+void FileWatchdog::setDelay(long delay1){
+	m_priv->delay = delay1;
+}

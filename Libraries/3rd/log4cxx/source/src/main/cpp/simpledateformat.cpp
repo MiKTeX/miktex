@@ -140,7 +140,7 @@ class PatternToken
 
 					for (; valueIter != values.end(); valueIter++)
 					{
-						PUT_FACET(facet, os, &time, (wchar_t) wspec);
+						PUT_FACET(facet, os, &time, (char)wspec);
 						Transcoder::decode(os.str().substr(start), *valueIter);
 						start = os.str().length();
 						(*inc)(time, aprtime);
@@ -796,35 +796,51 @@ void SimpleDateFormat::parsePattern( const LogString& fmt, const std::locale* lo
 }
 
 
-SimpleDateFormat::SimpleDateFormat( const LogString& fmt ) : timeZone( TimeZone::getDefault() )
+struct SimpleDateFormat::SimpleDateFormatPrivate{
+	SimpleDateFormatPrivate() :
+		timeZone(TimeZone::getDefault())
+	{}
+
+	/**
+	 * Time zone.
+	 */
+	TimeZonePtr timeZone;
+
+	/**
+	 * List of tokens.
+	 */
+	PatternTokenList pattern;
+};
+
+SimpleDateFormat::SimpleDateFormat( const LogString& fmt ) : m_priv(std::make_unique<SimpleDateFormatPrivate>())
 {
 #if LOG4CXX_HAS_STD_LOCALE
 	std::locale defaultLocale;
-	parsePattern( fmt, & defaultLocale, pattern );
+	parsePattern( fmt, & defaultLocale, m_priv->pattern );
 #else
-	parsePattern( fmt, NULL, pattern );
+	parsePattern( fmt, NULL, m_priv->pattern );
 #endif
 
-	for ( PatternTokenList::iterator iter = pattern.begin(); iter != pattern.end(); iter++ )
+	for ( PatternTokenList::iterator iter = m_priv->pattern.begin(); iter != m_priv->pattern.end(); iter++ )
 	{
-		( * iter )->setTimeZone( timeZone );
+		( * iter )->setTimeZone( m_priv->timeZone );
 	}
 }
 
-SimpleDateFormat::SimpleDateFormat( const LogString& fmt, const std::locale* locale ) : timeZone( TimeZone::getDefault() )
+SimpleDateFormat::SimpleDateFormat( const LogString& fmt, const std::locale* locale ) : m_priv(std::make_unique<SimpleDateFormatPrivate>())
 {
-	parsePattern( fmt, locale, pattern );
+	parsePattern( fmt, locale, m_priv->pattern );
 
-	for ( PatternTokenList::iterator iter = pattern.begin(); iter != pattern.end(); iter++ )
+	for ( PatternTokenList::iterator iter = m_priv->pattern.begin(); iter != m_priv->pattern.end(); iter++ )
 	{
-		( * iter )->setTimeZone( timeZone );
+		( * iter )->setTimeZone( m_priv->timeZone );
 	}
 }
 
 
 SimpleDateFormat::~SimpleDateFormat()
 {
-	for ( PatternTokenList::iterator iter = pattern.begin(); iter != pattern.end(); iter++ )
+	for ( PatternTokenList::iterator iter = m_priv->pattern.begin(); iter != m_priv->pattern.end(); iter++ )
 	{
 		delete * iter;
 	}
@@ -834,11 +850,11 @@ SimpleDateFormat::~SimpleDateFormat()
 void SimpleDateFormat::format( LogString& s, log4cxx_time_t time, Pool& p ) const
 {
 	apr_time_exp_t exploded;
-	apr_status_t stat = timeZone->explode( & exploded, time );
+	apr_status_t stat = m_priv->timeZone->explode( & exploded, time );
 
 	if ( stat == APR_SUCCESS )
 	{
-		for ( PatternTokenList::const_iterator iter = pattern.begin(); iter != pattern.end(); iter++ )
+		for ( PatternTokenList::const_iterator iter = m_priv->pattern.begin(); iter != m_priv->pattern.end(); iter++ )
 		{
 			( * iter )->format( s, exploded, p );
 		}
@@ -847,5 +863,5 @@ void SimpleDateFormat::format( LogString& s, log4cxx_time_t time, Pool& p ) cons
 
 void SimpleDateFormat::setTimeZone( const TimeZonePtr& zone )
 {
-	timeZone = zone;
+	m_priv->timeZone = zone;
 }

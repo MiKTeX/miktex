@@ -22,14 +22,18 @@
 	#error "aprinitializer.h should only be included by log4cxx implementation"
 #endif
 
+#include <log4cxx/helpers/object.h>
 #include <list>
+#include <log4cxx/helpers/date.h>
 
 extern "C" {
 	typedef struct apr_thread_mutex_t apr_thread_mutex_t;
 	typedef struct apr_threadkey_t apr_threadkey_t;
+	struct apr_pool_t;
 }
 
-#include <apr_time.h>
+#include <mutex>
+#include <functional>
 
 namespace log4cxx
 {
@@ -46,25 +50,43 @@ class APRInitializer
 		static bool isDestructed;
 
 		/**
-		 *  Register a FileWatchdog for deletion prior to
-		 *    APR termination.  FileWatchdog must be
+		 *  Register a FileWatchdog for deletion prior to termination.
+		 *    FileWatchdog must be
 		 *    allocated on heap and not deleted elsewhere.
 		 */
 		static void registerCleanup(FileWatchdog* watchdog);
 		static void unregisterCleanup(FileWatchdog* watchdog);
+		static void unregisterAll();
+		/**
+		 *  Store a single instance type ObjectPtr for deletion prior to termination
+		 */
+		template <class T> static void setUnique(const std::shared_ptr<T>& pObject)
+		{
+			getInstance().addObject(typeid(T).hash_code(), pObject);
+		}
+		/**
+		 *  Fetch or add a single instance type ObjectPtr for deletion prior to termination
+		 */
+		template <class T> static std::shared_ptr<T> getOrAddUnique(std::function<ObjectPtr()> creator)
+		{
+			return cast<T>(getInstance().findOrAddObject(typeid(T).hash_code(), creator));
+		}
 
-	private:
+
+	private: // Constructors
 		APRInitializer();
-		APRInitializer(const APRInitializer&);
-		APRInitializer& operator=(const APRInitializer&);
-		apr_pool_t* p;
-		apr_thread_mutex_t* mutex;
-		std::list<FileWatchdog*> watchdogs;
-		apr_time_t startTime;
-		apr_threadkey_t* tlsKey;
+		APRInitializer(const APRInitializer&) = delete;
+		APRInitializer& operator=(const APRInitializer&) = delete;
+	private: // Modifiers
+		void addObject(size_t key, const ObjectPtr& pObject);
+		const ObjectPtr& findOrAddObject(size_t key, std::function<ObjectPtr()> creator);
+		void stopWatchDogs();
+	private: // Attributes
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(APRInitializerPrivate, m_priv)
+	private: // Class methods
 		static APRInitializer& getInstance();
 
-	public:
+	public: // Destructor
 		~APRInitializer();
 };
 } // namespace helpers

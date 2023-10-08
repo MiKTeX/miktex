@@ -27,20 +27,31 @@ namespace net
 {
 
 /**
-Sends {@link log4cxx::spi::LoggingEvent LoggingEvent} objects in XML format
-        to a remote a log server, usually a XMLSocketNode.
+Sends spi::LoggingEvent elements
+to a remote a log server, usually in XML format.
 
-<p>The XMLSocketAppender has the following properties:
+Here is an example configuration that writes JSON to the
+<a href="https://docs.fluentbit.io/manual/pipeline/inputs/tcp">TCP input plugin of a fluent-bit log server</a>
+running on the same system as the application:
+~~~{.xml}
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+<appender name="A1" class="XMLSocketAppender">
+  <param name="RemoteHost" value="localhost" />
+  <param name="Port"       value="5170" />
+  <layout class="JSONLayout"/>
+</appender>
+<root>
+  <priority value ="INFO" />
+  <appender-ref ref="A1" />
+</root>
+</log4j:configuration>
+~~~
 
-- If sent to a XMLSocketNode, remote logging
-        is non-intrusive as far as the log event is concerned. In other
-words, the event will be logged with the same time stamp, {@link
-NDC NDC}, location info as if it were logged locally by
+<p>XMLSocketAppender has the following properties:
+
+- The event will be logged with the same time stamp,
+NDC, location info as if it were logged locally by
 the client.
-
-- XMLSocketAppenders use exclusively an XMLLayout. They ship an
-XML stream representing a {@link spi::LoggingEvent LoggingEvent} object
-        to the server side.
 
 - Remote logging uses the TCP protocol. Consequently, if
 the server is reachable, then log events will eventually arrive
@@ -76,7 +87,7 @@ destruction problem. Most other applications can safely
 ignore it.
 
 - If the application hosting the <code>XMLSocketAppender</code>
-        exits before the <code>XMLSocketAppender</code> is closed either
+exits before the <code>XMLSocketAppender</code> is closed either
 explicitly or subsequent to destruction, then there might
 be untransmitted data in the pipe which might be lost.
 @n @n To avoid lost data, it is usually sufficient to
@@ -99,7 +110,7 @@ class LOG4CXX_EXPORT XMLSocketAppender : public SocketAppenderSkeleton
 		static int DEFAULT_RECONNECTION_DELAY;
 
 		/**
-		An event XML stream cannot exceed 1024 bytes.
+		Unused
 		*/
 		static const int MAX_EVENT_LEN;
 
@@ -124,21 +135,22 @@ class LOG4CXX_EXPORT XMLSocketAppender : public SocketAppenderSkeleton
 
 
 	protected:
-		virtual void setSocket(log4cxx::helpers::SocketPtr& socket, log4cxx::helpers::Pool& p);
+		void setSocket(log4cxx::helpers::SocketPtr& socket, helpers::Pool& p) override;
 
-		virtual void cleanUp(log4cxx::helpers::Pool& p);
+		void cleanUp(helpers::Pool& p) override;
 
-		virtual int getDefaultDelay() const;
+		int getDefaultDelay() const override;
 
-		virtual int getDefaultPort() const;
+		int getDefaultPort() const override;
 
-		void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& pool);
+		void append(const spi::LoggingEventPtr& event, helpers::Pool& pool) override;
 
 	private:
-		log4cxx::helpers::WriterPtr writer;
 		//  prevent copy and assignment statements
 		XMLSocketAppender(const XMLSocketAppender&);
 		XMLSocketAppender& operator=(const XMLSocketAppender&);
+
+		struct XMLSocketAppenderPriv;
 }; // class XMLSocketAppender
 
 LOG4CXX_PTR_DEF(XMLSocketAppender);

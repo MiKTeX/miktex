@@ -26,5 +26,5 @@ LoggerPtr DefaultLoggerFactory::makeNewLoggerInstance(
 	log4cxx::helpers::Pool& pool,
 	const LogString& name) const
 {
-	return new Logger(pool, name);
+	return std::make_shared<Logger>(pool, name);
 }

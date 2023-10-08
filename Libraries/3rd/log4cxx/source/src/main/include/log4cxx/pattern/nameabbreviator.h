@@ -19,8 +19,7 @@
 #define _LOG4CXX_PATTERN_NAME_ABBREVIATOR
 
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/objectptr.h>
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
@@ -36,7 +35,7 @@ LOG4CXX_PTR_DEF(NameAbbreviator);
  *
  *
  */
-class LOG4CXX_EXPORT NameAbbreviator : public log4cxx::helpers::ObjectImpl
+class LOG4CXX_EXPORT NameAbbreviator : public log4cxx::helpers::Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(NameAbbreviator)

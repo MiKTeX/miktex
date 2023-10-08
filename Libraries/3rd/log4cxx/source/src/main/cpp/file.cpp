@@ -27,7 +27,27 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
-File::File()
+struct File::FilePrivate{
+	FilePrivate() :
+		autoDelete(false)
+	{}
+
+	FilePrivate(LogString path) :
+		path(path),
+		autoDelete(false)
+	{}
+
+	FilePrivate(LogString path, bool autoDelete) :
+		path(path),
+		autoDelete(autoDelete)
+	{}
+
+	LogString path;
+	bool autoDelete;
+};
+
+File::File() :
+	m_priv(std::make_unique<FilePrivate>())
 {
 }
 
@@ -54,48 +74,48 @@ static LogString decodeLS(const std::basic_string<S>& src)
 
 
 File::File(const std::string& name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 
 File::File(const char* name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 
 #if LOG4CXX_WCHAR_T_API
 File::File(const std::wstring& name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 
 File::File(const wchar_t* name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 #endif
 
 #if LOG4CXX_UNICHAR_API
 File::File(const std::basic_string<UniChar>& name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 
 File::File(const UniChar* name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 #endif
 
 #if LOG4CXX_CFSTRING_API
 File::File(const CFStringRef& name1)
-	: path(decodeLS(name1))
+	: m_priv(std::make_unique<FilePrivate>(decodeLS(name1)))
 {
 }
 #endif
 
 File::File(const File& src)
-	: path(src.path)
+	: m_priv(std::make_unique<FilePrivate>(src.m_priv->path, src.m_priv->autoDelete))
 {
 }
 
@@ -106,7 +126,8 @@ File& File::operator=(const File& src)
 		return *this;
 	}
 
-	path.assign(src.path);
+	m_priv->path.assign(src.m_priv->path);
+	m_priv->autoDelete = src.m_priv->autoDelete;
 
 	return *this;
 }
@@ -114,31 +135,35 @@ File& File::operator=(const File& src)
 
 File::~File()
 {
+	if(m_priv->autoDelete){
+		Pool p;
+		deleteFile(p);
+	}
 }
 
 
 LogString File::getPath() const
 {
-	return path;
+	return m_priv->path;
 }
 
 File& File::setPath(const LogString& newName)
 {
-	path.assign(newName);
+	m_priv->path.assign(newName);
 	return *this;
 }
 
 LogString File::getName() const
 {
 	const logchar slashes[] = { 0x2F, 0x5C, 0 };
-	size_t lastSlash = path.find_last_of(slashes);
+	size_t lastSlash = m_priv->path.find_last_of(slashes);
 
 	if (lastSlash != LogString::npos)
 	{
-		return path.substr(lastSlash + 1);
+		return m_priv->path.substr(lastSlash + 1);
 	}
 
-	return path;
+	return m_priv->path;
 }
 
 char* File::getPath(Pool& p) const
@@ -149,11 +174,11 @@ char* File::getPath(Pool& p) const
 
 	if (style == APR_FILEPATH_ENCODING_UTF8)
 	{
-		retval = Transcoder::encodeUTF8(path, p);
+		retval = Transcoder::encodeUTF8(m_priv->path, p);
 	}
 	else
 	{
-		retval = Transcoder::encode(path, p);
+		retval = Transcoder::encode(m_priv->path, p);
 	}
 
 	return retval;
@@ -279,8 +304,8 @@ std::vector<LogString> File::list(Pool& p) const
 
 LogString File::getParent(Pool&) const
 {
-	LogString::size_type slashPos = path.rfind(LOG4CXX_STR('/'));
-	LogString::size_type backPos = path.rfind(LOG4CXX_STR('\\'));
+	LogString::size_type slashPos = m_priv->path.rfind(LOG4CXX_STR('/'));
+	LogString::size_type backPos = m_priv->path.rfind(LOG4CXX_STR('\\'));
 
 	if (slashPos == LogString::npos)
 	{
@@ -298,7 +323,7 @@ LogString File::getParent(Pool&) const
 
 	if (slashPos != LogString::npos && slashPos > 0)
 	{
-		parent.assign(path, 0, slashPos);
+		parent.assign(m_priv->path, 0, slashPos);
 	}
 
 	return parent;
@@ -309,4 +334,12 @@ bool File::mkdirs(Pool& p) const
 	apr_status_t stat = apr_dir_make_recursive(convertBackSlashes(getPath(p)),
 			APR_OS_DEFAULT, p.getAPRPool());
 	return stat == APR_SUCCESS;
+}
+
+void File::setAutoDelete(bool autoDelete){
+	m_priv->autoDelete = autoDelete;
+}
+
+bool File::getAutoDelete() const{
+	return m_priv->autoDelete;
 }

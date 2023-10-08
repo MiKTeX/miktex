@@ -20,19 +20,33 @@
 #include <log4cxx/spi/loggingevent.h>
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/optionconverter.h>
+#include <log4cxx/private/filter_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::filter;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
+#define priv static_cast<StringMatchFilterPrivate*>(m_priv.get())
+
+struct StringMatchFilter::StringMatchFilterPrivate : public FilterPrivate
+{
+	StringMatchFilterPrivate() : FilterPrivate(),
+		acceptOnMatch(true),
+		stringToMatch() {}
+
+	bool acceptOnMatch;
+	LogString stringToMatch;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(StringMatchFilter)
 
 StringMatchFilter::StringMatchFilter() :
-	acceptOnMatch(true),
-	stringToMatch()
+	Filter(std::make_unique<StringMatchFilterPrivate>())
 {
 }
+
+StringMatchFilter::~StringMatchFilter() {}
 
 void StringMatchFilter::setOption(const LogString& option,
 	const LogString& value)
@@ -41,12 +55,12 @@ void StringMatchFilter::setOption(const LogString& option,
 	if (StringHelper::equalsIgnoreCase(option,
 			LOG4CXX_STR("STRINGTOMATCH"), LOG4CXX_STR("stringtomatch")))
 	{
-		stringToMatch = value;
+		priv->stringToMatch = value;
 	}
 	else if (StringHelper::equalsIgnoreCase(option,
 			LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
 	{
-		acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
+		priv->acceptOnMatch = OptionConverter::toBoolean(value, priv->acceptOnMatch);
 	}
 }
 
@@ -55,20 +69,20 @@ Filter::FilterDecision StringMatchFilter::decide(
 {
 	const LogString& msg = event->getRenderedMessage();
 
-	if (msg.empty() || stringToMatch.empty())
+	if (msg.empty() || priv->stringToMatch.empty())
 	{
 		return Filter::NEUTRAL;
 	}
 
 
-	if ( msg.find(stringToMatch) == LogString::npos )
+	if ( msg.find(priv->stringToMatch) == LogString::npos )
 	{
 		return Filter::NEUTRAL;
 	}
 	else
 	{
 		// we've got a match
-		if (acceptOnMatch)
+		if (priv->acceptOnMatch)
 		{
 			return Filter::ACCEPT;
 		}
@@ -79,3 +93,22 @@ Filter::FilterDecision StringMatchFilter::decide(
 	}
 }
 
+void StringMatchFilter::setStringToMatch(const LogString& stringToMatch1)
+{
+	priv->stringToMatch.assign(stringToMatch1);
+}
+
+const LogString& StringMatchFilter::getStringToMatch() const
+{
+	return priv->stringToMatch;
+}
+
+void StringMatchFilter::setAcceptOnMatch(bool acceptOnMatch1)
+{
+	priv->acceptOnMatch = acceptOnMatch1;
+}
+
+bool StringMatchFilter::getAcceptOnMatch() const
+{
+	return priv->acceptOnMatch;
+}

@@ -18,18 +18,13 @@
 #ifndef _LOG4CXX_DB_ODBC_APPENDER_H
 #define _LOG4CXX_DB_ODBC_APPENDER_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/log4cxx.h>
 
 #include <log4cxx/helpers/exception.h>
 #include <log4cxx/appenderskeleton.h>
 #include <log4cxx/spi/loggingevent.h>
 #include <list>
+#include <memory>
 
 namespace log4cxx
 {
@@ -50,29 +45,48 @@ class LOG4CXX_EXPORT SQLException : public log4cxx::helpers::Exception
 };
 
 /**
-<p><b>WARNING: This version of ODBCAppender
-is very likely to be completely replaced in the future. Moreoever,
-it does not log exceptions.</b> </p>
+The ODBCAppender sends log events to a database.
 
-The ODBCAppender provides for sending log events to a database.
+<p>Each append call adds the spi::LoggingEvent to a buffer.
+When the buffer is full, values are extracted from each spi::LoggingEvent
+and the sql insert statement executed.
 
+The SQL insert statement pattern must be provided
+either in the Log4cxx configuration file
+using the <b>sql</b> parameter element
+or programatically by calling the <code>setSql(String sql)</code> method.
 
-<p>Each append call adds to an <code>ArrayList</code> buffer.  When
-the buffer is filled each log event is placed in a sql statement
-(configurable) and executed.
+The following <b>param</b> elements are optional:
+- one of <b>DSN</b>, <b>URL</b>, <b>ConnectionString</b> -
+  The <b>serverName</b> parameter value in the <a href="https://learn.microsoft.com/en-us/sql/odbc/reference/syntax/sqlconnect-function">SQLConnect</a> call.
+- <b>User</b> -
+  The <b>UserName</b> parameter value in the <a href="https://learn.microsoft.com/en-us/sql/odbc/reference/syntax/sqlconnect-function">SQLConnect</a> call.
+- <b>Password</b> -
+  The <b>Authentication</b> parameter value in the <a href="https://learn.microsoft.com/en-us/sql/odbc/reference/syntax/sqlconnect-function">SQLConnect</a> call.
+- <b>BufferSize</b> -
+  Delay executing the sql until this many logging events are available.
+  One by default, meaning an sql statement is executed
+  whenever a logging event is appended.
+- <b>ColumnMapping</b> -
+  One element for each "?" in the <b>sql</b> statement
+  in a sequence corresponding to the columns in the insert statement.
+  The following values are supported:
+  - <b>logger</b> - the name of the logger that generated the logging event
+  - <b>level</b> - the level of the logging event
+  - <b>thread</b> - the thread number as a hex string that generated the logging event
+  - <b>threadname</b> - the name assigned to the thread that generated the logging event
+  - <b>time</b> - a datetime or datetime2 SQL field type at which the event was generated
+  - <b>shortfilename</b> - the basename of the file containing the logging statement
+  - <b>fullfilename</b> - the path of the file containing the logging statement
+  - <b>line</b> - the position in the file at which the logging event was generated
+  - <b>class</b> - the class from which the logging event was generated (\ref usingMacros "1")
+  - <b>method</b> - the function in which the logging event was generated (\ref usingMacros "1")
+  - <b>message</b> - the data sent by the logging statement
+  - <b>mdc</b> - A JSON format string of all entries in the logging thread's mapped diagnostic context
+  - <b>mdc{key}</b> - the value associated with the <b>key</b> entry in the logging thread's mapped diagnostic context 
+  - <b>ndc</b> - the last entry the logging thread's nested diagnostic context 
 
-<b>BufferSize</b>, <b>db URL</b>, <b>User</b>, & <b>Password</b> are
-configurable options in the standard log4j ways.
-
-<p>The <code>setSql(String sql)</code> sets the SQL statement to be
-used for logging -- this statement is sent to a
-<code>PatternLayout</code> (either created automaticly by the
-appender or added by the user).  Therefore by default all the
-conversion patterns in <code>PatternLayout</code> can be used
-inside of the statement.  (see the test cases for examples)
-
-<p>Overriding the {@link #getLogStatement} method allows more
-explicit control of the statement used for logging.
+\anchor usingMacros 1. Only available when the LOG4CXX_* macros are used to issue the logging request.
 
 <p>For use as a base class:
 
@@ -88,68 +102,40 @@ you override getConnection make sure to implement
 generated.  Typically this would return the connection to the
 pool it came from.
 
-<li>Override getLogStatement to
-produce specialized or dynamic statements. The default uses the
-sql option value.
-
 </ul>
+
+An example configuration that writes to the data source named "LoggingDSN" is:
+~~~{.xml}
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+<appender name="PreparedAppender" class="ODBCAppender">
+ <param name="DSN" value="LoggingDSN"/>
+ <param name="sql" value="INSERT INTO [SomeDatabaseName].[SomeUserName].[SomeTableName] ([Thread],[LogName],[LogTime],[LogLevel],[FileName],[FileLine],[Message],[MappedContext]) VALUES (?,?,?,?,?,?,?,?)" />
+ <param name="ColumnMapping" value="thread"/>
+ <param name="ColumnMapping" value="logger"/>
+ <param name="ColumnMapping" value="time"/>
+ <param name="ColumnMapping" value="level"/>
+ <param name="ColumnMapping" value="shortfilename"/>
+ <param name="ColumnMapping" value="line"/>
+ <param name="ColumnMapping" value="message"/>
+ <param name="ColumnMapping" value="mdc"/>
+</appender>
+<appender name="ASYNC" class="AsyncAppender">
+  <param name="BufferSize" value="1000"/>
+  <param name="Blocking" value="false"/>
+  <appender-ref ref="PreparedAppender"/>
+</appender>
+<root>
+  <priority value ="INFO" />
+  <appender-ref ref="ASYNC" />
+</root>
+</log4j:configuration>
+~~~
+
+You may also want to consider the DBAppender class, which uses APR in order to support logging to databases apart from ODBC.
 */
 
 class LOG4CXX_EXPORT ODBCAppender : public AppenderSkeleton
 {
-	protected:
-		/**
-		* URL of the DB for default connection handling
-		*/
-		LogString databaseURL;
-
-		/**
-		* User to connect as for default connection handling
-		*/
-		LogString databaseUser;
-
-		/**
-		* User to use for default connection handling
-		*/
-		LogString databasePassword;
-
-		typedef void* SQLHDBC;
-		typedef void* SQLHENV;
-		typedef void* SQLHANDLE;
-		typedef short SQLSMALLINT;
-
-		/**
-		* Connection used by default.  The connection is opened the first time it
-		* is needed and then held open until the appender is closed (usually at
-		* garbage collection).  This behavior is best modified by creating a
-		* sub-class and overriding the <code>getConnection</code> and
-		* <code>closeConnection</code> methods.
-		*/
-		SQLHDBC connection;
-		SQLHENV env;
-
-		/**
-		* Stores the string given to the pattern layout for conversion into a SQL
-		* statement, eg: insert into LogTable (Thread, File, Message) values
-		* ("%t", "%F", "%m")
-		*
-		* Be careful of quotes in your messages!
-		*
-		* Also see PatternLayout.
-		*/
-		LogString sqlStatement;
-
-		/**
-		* size of LoggingEvent buffer before writing to the database.
-		* Default is 1.
-		*/
-		size_t bufferSize;
-
-		/**
-		* ArrayList holding the buffer of Logging Events.
-		*/
-		std::list<spi::LoggingEventPtr> buffer;
-
 	public:
 		DECLARE_LOG4CXX_OBJECT(ODBCAppender)
 		BEGIN_LOG4CXX_CAST_MAP()
@@ -157,43 +143,39 @@ class LOG4CXX_EXPORT ODBCAppender : public AppenderSkeleton
 		LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
 		END_LOG4CXX_CAST_MAP()
 
+		typedef void* SQLHDBC;
+		typedef void* SQLHENV;
+		typedef void* SQLHANDLE;
+		typedef short SQLSMALLINT;
+
 		ODBCAppender();
 		virtual ~ODBCAppender();
 
 		/**
 		Set options
 		*/
-		virtual void setOption(const LogString& option, const LogString& value);
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		Activate the specified options.
 		*/
-		virtual void activateOptions(log4cxx::helpers::Pool& p);
+		void activateOptions(helpers::Pool& p) override;
 
 		/**
 		* Adds the event to the buffer.  When full the buffer is flushed.
 		*/
-		void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool&);
+		void append(const spi::LoggingEventPtr& event, helpers::Pool&) override;
 
-		/**
-		* By default getLogStatement sends the event to the required Layout object.
-		* The layout will format the given pattern into a workable SQL string.
-		*
-		* Overriding this provides direct access to the LoggingEvent
-		* when constructing the logging statement.
-		*
-		*/
 	protected:
+		/**
+		* To be removed.
+		*/
 		LogString getLogStatement(const spi::LoggingEventPtr& event,
 			helpers::Pool& p) const;
 
 		/**
 		*
-		* Override this to provide an alertnate method of getting
-		* connections (such as caching).  One method to fix this is to open
-		* connections at the start of flushBuffer() and close them at the
-		* end.  I use a connection pool outside of ODBCAppender which is
-		* accessed in an override of this method.
+		* To be removed.
 		* */
 		virtual void execute(const LogString& sql,
 			log4cxx::helpers::Pool& p) /*throw(SQLException)*/;
@@ -220,7 +202,7 @@ class LOG4CXX_EXPORT ODBCAppender : public AppenderSkeleton
 		* connection if it is open.
 		*/
 	public:
-		virtual void close();
+		void close() override;
 
 		/**
 		* loops through the buffer of LoggingEvents, gets a
@@ -232,12 +214,9 @@ class LOG4CXX_EXPORT ODBCAppender : public AppenderSkeleton
 		virtual void flushBuffer(log4cxx::helpers::Pool& p);
 
 		/**
-		* ODBCAppender requires a layout.
+		* Does this appender require a layout?
 		* */
-		virtual bool requiresLayout() const
-		{
-			return true;
-		}
+		bool requiresLayout() const override;
 
 		/**
 		* Set pre-formated statement eg: insert into LogTable (msg) values ("%m")
@@ -247,71 +226,40 @@ class LOG4CXX_EXPORT ODBCAppender : public AppenderSkeleton
 		/**
 		* Returns pre-formated statement eg: insert into LogTable (msg) values ("%m")
 		*/
-		inline const LogString& getSql() const
-		{
-			return sqlStatement;
-		}
+		const LogString& getSql() const;
 
 
-		inline void setUser(const LogString& user)
-		{
-			databaseUser = user;
-		}
+		void setUser(const LogString& user);
 
+		void setURL(const LogString& url);
 
-		inline void setURL(const LogString& url)
-		{
-			databaseURL = url;
-		}
+		void setPassword(const LogString& password);
 
+		void setBufferSize(size_t newBufferSize);
 
-		inline void setPassword(const LogString& password)
-		{
-			databasePassword = password;
-		}
+		const LogString& getUser() const;
 
+		const LogString& getURL() const;
 
-		inline void setBufferSize(size_t newBufferSize)
-		{
-			bufferSize = newBufferSize;
-		}
+		const LogString& getPassword() const;
 
-		inline const LogString& getUser() const
-		{
-			return databaseUser;
-		}
-
-
-		inline const LogString& getURL() const
-		{
-			return databaseURL;
-		}
-
-
-		inline const LogString& getPassword() const
-		{
-			return databasePassword;
-		}
-
-		inline size_t getBufferSize() const
-		{
-			return bufferSize;
-		}
+		size_t getBufferSize() const;
 	private:
 		ODBCAppender(const ODBCAppender&);
 		ODBCAppender& operator=(const ODBCAppender&);
+#if LOG4CXX_WCHAR_T_API || LOG4CXX_LOGCHAR_IS_WCHAR_T || defined(WIN32) || defined(_WIN32)
 		static void encode(wchar_t** dest, const LogString& src,
 			log4cxx::helpers::Pool& p);
+#endif
 		static void encode(unsigned short** dest, const LogString& src,
 			log4cxx::helpers::Pool& p);
+
+	protected:
+		struct ODBCAppenderPriv;
 }; // class ODBCAppender
 LOG4CXX_PTR_DEF(ODBCAppender);
 
 } // namespace db
 } // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif // _LOG4CXX_DB_ODBC_APPENDER_H

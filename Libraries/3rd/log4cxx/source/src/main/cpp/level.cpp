@@ -23,6 +23,7 @@
 	#define LOG4CXX 1
 #endif
 #include <log4cxx/helpers/aprinitializer.h>
+#include <mutex>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -31,43 +32,51 @@ IMPLEMENT_LOG4CXX_OBJECT_WITH_CUSTOM_CLASS(Level, LevelClass)
 
 LevelPtr Level::getOff()
 {
-	return LevelPtr(new Level(Level::OFF_INT, LOG4CXX_STR("OFF"), 0));
+	static LevelPtr offLevel = std::make_shared<Level>(Level::OFF_INT, LOG4CXX_STR("OFF"), 0);
+	return offLevel;
 }
 
 LevelPtr Level::getFatal()
 {
-	return LevelPtr(new Level(Level::FATAL_INT, LOG4CXX_STR("FATAL"), 0));
+	static LevelPtr fatalLevel = std::make_shared<Level>(Level::FATAL_INT, LOG4CXX_STR("FATAL"), 0);
+	return fatalLevel;
 }
 
 LevelPtr Level::getError()
 {
-	return LevelPtr(new Level(Level::ERROR_INT, LOG4CXX_STR("ERROR"), 3));
+	static LevelPtr errorLevel = std::make_shared<Level>(Level::ERROR_INT, LOG4CXX_STR("ERROR"), 3);
+	return errorLevel;
 }
 
 LevelPtr Level::getWarn()
 {
-	return LevelPtr(new Level(Level::WARN_INT, LOG4CXX_STR("WARN"), 4));
+	static LevelPtr warnLevel = std::make_shared<Level>(Level::WARN_INT, LOG4CXX_STR("WARN"), 4);
+	return warnLevel;
 }
 
 LevelPtr Level::getInfo()
 {
-	return LevelPtr(new Level(Level::INFO_INT, LOG4CXX_STR("INFO"), 6));
+	static LevelPtr infoLevel = std::make_shared<Level>(Level::INFO_INT, LOG4CXX_STR("INFO"), 6);
+	return infoLevel;
 }
 
 LevelPtr Level::getDebug()
 {
-	return LevelPtr(new Level(Level::DEBUG_INT, LOG4CXX_STR("DEBUG"), 7));
+	static LevelPtr debugLevel = std::make_shared<Level>(Level::DEBUG_INT, LOG4CXX_STR("DEBUG"), 7);
+	return debugLevel;
 }
 
 LevelPtr Level::getTrace()
 {
-	return LevelPtr(new Level(Level::TRACE_INT, LOG4CXX_STR("TRACE"), 7));
+	static LevelPtr traceLevel = std::make_shared<Level>(Level::TRACE_INT, LOG4CXX_STR("TRACE"), 7);
+	return traceLevel;
 }
 
 
 LevelPtr Level::getAll()
 {
-	return LevelPtr(new Level(Level::ALL_INT, LOG4CXX_STR("ALL"), 7));
+	static LevelPtr allLevel = std::make_shared<Level>(Level::ALL_INT, LOG4CXX_STR("ALL"), 7);
+	return allLevel;
 }
 
 
@@ -267,11 +276,11 @@ LevelPtr Level::toLevelLS(const LogString& sArg, const LevelPtr& defaultLevel)
 
 bool Level::equals(const LevelPtr& level1) const
 {
-	return (this->level == level1->level);
+	return level1 && this->level == level1->level;
 }
 
 bool Level::isGreaterOrEqual(const LevelPtr& level1) const
 {
-	return this->level >= level1->level;
+	return level1 && this->level >= level1->level;
 }
 

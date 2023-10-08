@@ -34,8 +34,7 @@ namespace helpers
 class LOG4CXX_EXPORT OutputStreamWriter : public Writer
 {
 	private:
-		OutputStreamPtr out;
-		CharsetEncoderPtr enc;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(OutputStreamWriterPrivate, m_priv)
 
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(OutputStreamWriter)
@@ -48,17 +47,12 @@ class LOG4CXX_EXPORT OutputStreamWriter : public Writer
 		OutputStreamWriter(OutputStreamPtr& out, CharsetEncoderPtr& enc);
 		~OutputStreamWriter();
 
-		virtual void close(Pool& p);
-		virtual void flush(Pool& p);
-		virtual void write(const LogString& str, Pool& p);
+		void close(Pool& p) override;
+		void flush(Pool& p) override;
+		void write(const LogString& str, Pool& p) override;
 		LogString getEncoding() const;
 
-#ifdef LOG4CXX_MULTI_PROCESS
-		OutputStreamPtr getOutPutStreamPtr()
-		{
-			return out;
-		}
-#endif
+		OutputStreamPtr getOutputStreamPtr() const;
 
 	private:
 		OutputStreamWriter(const OutputStreamWriter&);

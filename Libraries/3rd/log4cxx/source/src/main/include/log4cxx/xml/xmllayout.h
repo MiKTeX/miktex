@@ -53,10 +53,7 @@ appender where it is embedded.
 class LOG4CXX_EXPORT XMLLayout : public Layout
 {
 	private:
-
-		// Print no location info by default
-		bool locationInfo; //= false
-		bool properties; // = false
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(XMLLayoutPrivate, m_priv)
 
 	public:
 		DECLARE_LOG4CXX_OBJECT(XMLLayout)
@@ -66,6 +63,7 @@ class LOG4CXX_EXPORT XMLLayout : public Layout
 		END_LOG4CXX_CAST_MAP()
 
 		XMLLayout();
+		~XMLLayout();
 
 		/**
 		The <b>LocationInfo</b> option takes a boolean value. By
@@ -78,62 +76,50 @@ class LOG4CXX_EXPORT XMLLayout : public Layout
 		then make sure to set the
 		<b>LocationInfo</b> option of that appender as well.
 		*/
-		inline void setLocationInfo(bool locationInfo1)
-		{
-			this->locationInfo = locationInfo1;
-		}
+		void setLocationInfo(bool locationInfo1);
 
 		/**
 		Returns the current value of the <b>LocationInfo</b> option.
 		*/
-		inline bool getLocationInfo() const
-		{
-			return locationInfo;
-		}
+		bool getLocationInfo() const;
 
 		/**
 		 * Sets whether MDC key-value pairs should be output, default false.
 		 * @param flag new value.
 		 *
 		*/
-		inline void setProperties(bool flag)
-		{
-			properties = flag;
-		}
+		void setProperties(bool flag);
 
 		/**
 		* Gets whether MDC key-value pairs should be output.
 		* @return true if MDC key-value pairs are output.
 		*
 		*/
-		inline bool getProperties()
-		{
-			return properties;
-		}
+		bool getProperties();
 
 
 		/** No options to activate. */
-		void activateOptions(log4cxx::helpers::Pool& /* p */) { }
+		void activateOptions(helpers::Pool& /* p */) override { }
 
 		/**
 		Set options
 		*/
-		virtual void setOption(const LogString& option,
-			const LogString& value);
+		void setOption(const LogString& option,
+			const LogString& value) override;
 
 		/**
 		* Formats a {@link spi::LoggingEvent LoggingEvent}
 		* in conformance with the log4cxx.dtd.
 		**/
-		virtual void format(LogString& output,
+		void format(LogString& output,
 			const spi::LoggingEventPtr& event,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 
 		/**
 		The XMLLayout prints and does not ignore exceptions. Hence the
 		return value <code>false</code>.
 		*/
-		virtual bool ignoresThrowable() const
+		bool ignoresThrowable() const override
 		{
 			return false;
 		}

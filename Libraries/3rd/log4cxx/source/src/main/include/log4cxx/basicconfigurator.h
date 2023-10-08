@@ -18,8 +18,7 @@
 #ifndef _LOG4CXX_BASIC_CONFIGURATOR_H
 #define _LOG4CXX_BASIC_CONFIGURATOR_H
 
-#include <log4cxx/helpers/objectptr.h>
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/logger.h>
 #include <log4cxx/logstring.h>
 #include <log4cxx/spi/configurator.h>
@@ -27,7 +26,7 @@
 namespace log4cxx
 {
 class Appender;
-typedef helpers::ObjectPtrT<Appender> AppenderPtr;
+typedef std::shared_ptr<Appender> AppenderPtr;
 
 /**
 Use this class to quickly configure the package.
@@ -42,10 +41,13 @@ class LOG4CXX_EXPORT BasicConfigurator
 
 	public:
 		/**
-		Add a ConsoleAppender that uses PatternLayout
-		using the PatternLayout#TTCC_CONVERSION_PATTERN and
-		prints to <code>stdout</code> to the root logger.*/
-		static void configure();
+		Add a ConsoleAppender to the root logger that formats output using \c layout.
+
+		If \c layout is not provided,
+		use a PatternLayout with <code>%%r [%%t] %%p %%c %%x - %%m%%n</code>
+		as the conversion pattern.
+		*/
+		static void configure(const LayoutPtr& layout = LayoutPtr());
 
 		/**
 		Add <code>appender</code> to the root logger.

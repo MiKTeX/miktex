@@ -18,14 +18,7 @@
 #ifndef _LOG4CXX_PROPERTY_CONFIGURATOR_H
 #define _LOG4CXX_PROPERTY_CONFIGURATOR_H
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
-#include <log4cxx/helpers/objectptr.h>
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/logstring.h>
 #include <log4cxx/spi/configurator.h>
 #include <map>
@@ -35,10 +28,10 @@
 namespace log4cxx
 {
 class Logger;
-typedef helpers::ObjectPtrT<Logger> LoggerPtr;
+typedef std::shared_ptr<Logger> LoggerPtr;
 
 class Appender;
-typedef helpers::ObjectPtrT<Appender> AppenderPtr;
+typedef std::shared_ptr<Appender> AppenderPtr;
 
 namespace helpers
 {
@@ -49,13 +42,13 @@ class Properties;
 namespace spi
 {
 class LoggerFactory;
+typedef std::shared_ptr<LoggerFactory> LoggerFactoryPtr;
 }
 
 class PropertyWatchdog;
 /**
-Allows the configuration of log4cxx from an external file.  See
-<b>{@link #doConfigure(const File&, log4cxx::spi::LoggerRepositoryPtr&)}</b>
-for the expected format.
+Allows the configuration of log4cxx from an external file.
+See {@link PropertyConfigurator#doConfigure doConfigure} for the expected format.
 
 <p>It is sometimes useful to see how log4cxx is reading configuration
 files. You can enable log4cxx internal logging by defining the
@@ -65,16 +58,15 @@ files. You can enable log4cxx internal logging by defining the
 the file <b>log4j.properties</b> will be searched in the current directory.
 If the file can be found, then it will
 be fed to the
-{@link PropertyConfigurator#configure(const File& configFilename)}
+{@link PropertyConfigurator#configure(const File& configFilename) configure}
 method.
 
 <p>The <code>PropertyConfigurator</code> does not handle the
-advanced configuration features supported by the {@link
-xml::DOMConfigurator DOMConfigurator} such as
+advanced configuration features supported by the
+{@link xml::DOMConfigurator DOMConfigurator} such as
 support for {@link spi::Filter Filters}, custom
 {@link spi::ErrorHandler ErrorHandlers}, nested
-appenders such as the {@link AsyncAppender
-AsyncAppender}, etc.
+appenders such as the {@link AsyncAppender AsyncAppender}, etc.
 
 <p>All option <em>values</em> admit variable substitution. The
 syntax of variable substitution is similar to that of Unix
@@ -92,7 +84,7 @@ example, if <code>java.home</code> system property is set to
 */
 class LOG4CXX_EXPORT PropertyConfigurator :
 	virtual public spi::Configurator,
-	virtual public helpers::ObjectImpl
+	virtual public helpers::Object
 {
 	protected:
 
@@ -104,7 +96,7 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		/**
 		Used to create new instances of logger
 		*/
-		helpers::ObjectPtrT<spi::LoggerFactory> loggerFactory;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER(spi::LoggerFactoryPtr, loggerFactory)
 
 	public:
 		DECLARE_LOG4CXX_OBJECT(PropertyConfigurator)
@@ -114,9 +106,6 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 
 		PropertyConfigurator();
 		virtual ~PropertyConfigurator();
-		void addRef() const;
-		void releaseRef() const;
-
 		/**
 		Read configuration from a file. <b>The existing configuration is
 		not cleared nor reset.</b> If you require a different behavior,
@@ -293,13 +282,13 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		configuration information is stored.
 		@param hierarchy The hierarchy to operation upon.
 		*/
-		void doConfigure(const File& configFileName,
-			spi::LoggerRepositoryPtr& hierarchy);
+		spi::ConfigurationStatus doConfigure(const File& configFileName,
+			spi::LoggerRepositoryPtr hierarchy) override;
 
 		/**
 		Read configuration options from file <code>configFilename</code>.
 		*/
-		static void configure(const File& configFilename);
+		static spi::ConfigurationStatus configure(const File& configFilename);
 
 		/**
 		Like {@link #configureAndWatch(const File& configFilename, long delay)}
@@ -308,7 +297,7 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		is used.
 		@param configFilename A file in key=value format.
 		*/
-		static void configureAndWatch(const File& configFilename);
+		static spi::ConfigurationStatus configureAndWatch(const File& configFilename);
 
 		/**
 		Read the configuration file <code>configFilename</code> if it
@@ -321,32 +310,31 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		@param configFilename A file in key=value format.
 		@param delay The delay in milliseconds to wait between each check.
 		*/
-		static void configureAndWatch(const File& configFilename,
+		static spi::ConfigurationStatus configureAndWatch(const File& configFilename,
 			long delay);
 
 		/**
 		Read configuration options from <code>properties</code>.
-		See #doConfigure(const File&, log4cxx::spi::LoggerRepositoryPtr&)
+		See {@link PropertyConfigurator#doConfigure doConfigure}
 		for the expected format.
 		*/
-		static void configure(helpers::Properties& properties);
+		static spi::ConfigurationStatus configure(helpers::Properties& properties);
 
 		/**
 		Read configuration options from <code>properties</code>.
-		See #doConfigure(const File&, log4cxx::spi::LoggerRepositoryPtr&)
+		See {@link PropertyConfigurator#doConfigure doConfigure}
 		for the expected format.
 		*/
-		void doConfigure(helpers::Properties& properties,
-			spi::LoggerRepositoryPtr& hierarchy);
+		spi::ConfigurationStatus doConfigure(helpers::Properties& properties,
+			spi::LoggerRepositoryPtr hierarchy);
 
 		// --------------------------------------------------------------------------
 		// Internal stuff
 		// --------------------------------------------------------------------------
 	protected:
 		/**
-		Check the provided <code>Properties</code> object for a
-		#loggerFactory
-		entry specified by LOGGER_FACTORY_KEY.  If such an entry
+		Check the provided <code>Properties</code> object for a LoggerFactory
+		entry specified by *log4j.loggerFactory*.  If such an entry
 		exists, an attempt is made to create an instance using the default
 		constructor.  This instance is used for subsequent Logger creations
 		within this configurator.
@@ -366,7 +354,7 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		/**
 		Parse the additivity option for a non-root logger.
 		*/
-		void parseAdditivityForLogger(helpers::Properties& props,
+		bool parseAdditivityForLogger(helpers::Properties& props,
 			LoggerPtr& cat, const LogString& loggerName);
 
 		/**
@@ -375,7 +363,7 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		void parseLogger(
 			helpers::Properties& props, LoggerPtr& logger,
 			const LogString& optionKey, const LogString& loggerName,
-			const LogString& value);
+			const LogString& value, bool additivity);
 
 		AppenderPtr parseAppender(
 			helpers::Properties& props, const LogString& appenderName);
@@ -389,10 +377,6 @@ class LOG4CXX_EXPORT PropertyConfigurator :
 		static PropertyWatchdog* pdog;
 }; // class PropertyConfigurator
 }  // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 
 #endif //_LOG4CXX_PROPERTY_CONFIGURATOR_H

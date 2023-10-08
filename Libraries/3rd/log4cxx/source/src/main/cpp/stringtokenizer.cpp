@@ -26,8 +26,16 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct StringTokenizer::StringTokenizerPrivate{
+	StringTokenizerPrivate(const LogString& str, const LogString& delim1) : src(str), delim(delim1), pos(0){}
+	LogString src;
+	LogString delim;
+	size_t pos;
+};
+
+
 StringTokenizer::StringTokenizer(const LogString& str, const LogString& delim1)
-	: src(str), delim(delim1), pos(0)
+	: m_priv(std::make_unique<StringTokenizerPrivate>(str, delim1))
 {
 }
 
@@ -37,26 +45,26 @@ StringTokenizer::~StringTokenizer()
 
 bool StringTokenizer::hasMoreTokens() const
 {
-	return (pos != LogString::npos
-			&& src.find_first_not_of(delim, pos) != LogString::npos);
+	return (m_priv->pos != LogString::npos
+			&& m_priv->src.find_first_not_of(m_priv->delim, m_priv->pos) != LogString::npos);
 }
 
 LogString StringTokenizer::nextToken()
 {
-	if (pos != LogString::npos)
+	if (m_priv->pos != LogString::npos)
 	{
-		size_t nextPos = src.find_first_not_of(delim, pos);
+		size_t nextPos = m_priv->src.find_first_not_of(m_priv->delim, m_priv->pos);
 
 		if (nextPos != LogString::npos)
 		{
-			pos = src.find_first_of(delim, nextPos);
+			m_priv->pos = m_priv->src.find_first_of(m_priv->delim, nextPos);
 
-			if (pos == LogString::npos)
+			if (m_priv->pos == LogString::npos)
 			{
-				return src.substr(nextPos);
+				return m_priv->src.substr(nextPos);
 			}
 
-			return src.substr(nextPos, pos - nextPos);
+			return m_priv->src.substr(nextPos, m_priv->pos - nextPos);
 		}
 	}
 

@@ -14,41 +14,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/messagepatternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
 #include <log4cxx/spi/location/locationinfo.h>
 
+
 using namespace log4cxx;
 using namespace log4cxx::pattern;
-using namespace log4cxx::spi;
-using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(MessagePatternConverter)
 
-MessagePatternConverter::MessagePatternConverter() :
-	LoggingEventPatternConverter(LOG4CXX_STR("Message"),
-		LOG4CXX_STR("message"))
+/**
+ * Formats the message of an logging event for a quoted context
+  */
+class QuotedMessagePatternConverter : public LoggingEventPatternConverter
+{
+	logchar m_quote;
+	public:
+		QuotedMessagePatternConverter(logchar quote)
+			: LoggingEventPatternConverter(LOG4CXX_STR("Message"), LOG4CXX_STR("quoted"))
+			, m_quote(quote)
+			{}
+
+		using LoggingEventPatternConverter::format;
+
+		// Duplicate any quote character in the event message
+		void format
+			( const spi::LoggingEventPtr& event
+			, LogString&                  toAppendTo
+			, helpers::Pool&              p
+			) const override
+		{
+			auto& input = event->getRenderedMessage();
+			size_t endIndex, startIndex = 0;
+			while ((endIndex = input.find(m_quote, startIndex)) != input.npos)
+			{
+				toAppendTo.append(input.substr(startIndex, endIndex - startIndex + 1));
+				toAppendTo += m_quote;
+				startIndex = endIndex + 1;
+			}
+			toAppendTo.append(input.substr(startIndex));
+		}
+};
+
+MessagePatternConverter::MessagePatternConverter()
+	: LoggingEventPatternConverter(LOG4CXX_STR("Message")
+	, LOG4CXX_STR("message"))
 {
 }
 
 PatternConverterPtr MessagePatternConverter::newInstance(
-	const std::vector<LogString>& /* options */)
+	const std::vector<LogString>& options)
 {
-	static PatternConverterPtr def(new MessagePatternConverter());
-	return def;
+	if (options.empty() || options.front().empty())
+	{
+		static PatternConverterPtr def = std::make_shared<MessagePatternConverter>();
+		return def;
+	}
+	return std::make_shared<QuotedMessagePatternConverter>(options.front().front());
 }
 
-void MessagePatternConverter::format(
-	const LoggingEventPtr& event,
-	LogString& toAppendTo,
-	Pool& /* p */) const
+void MessagePatternConverter::format
+	( const spi::LoggingEventPtr& event
+	, LogString&                  toAppendTo
+	, helpers::Pool&           /* p */
+	) const
 {
 	toAppendTo.append(event->getRenderedMessage());
 }

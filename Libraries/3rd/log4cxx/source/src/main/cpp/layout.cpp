@@ -25,16 +25,6 @@ IMPLEMENT_LOG4CXX_OBJECT(Layout)
 
 Layout::~Layout() {}
 
-void Layout::addRef() const
-{
-	ObjectImpl::addRef();
-}
-
-void Layout::releaseRef() const
-{
-	ObjectImpl::releaseRef();
-}
-
 LogString Layout::getContentType() const
 {
 	return LOG4CXX_STR("text/plain");

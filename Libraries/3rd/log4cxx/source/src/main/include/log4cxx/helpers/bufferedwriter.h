@@ -20,11 +20,6 @@
 
 #include <log4cxx/helpers/writer.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
 namespace log4cxx
 {
 
@@ -38,9 +33,7 @@ namespace helpers
 class LOG4CXX_EXPORT BufferedWriter : public Writer
 {
 	private:
-		WriterPtr out;
-		size_t sz;
-		LogString buf;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(BufferedWriterPriv, m_priv)
 
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(BufferedWriter)
@@ -53,9 +46,9 @@ class LOG4CXX_EXPORT BufferedWriter : public Writer
 		BufferedWriter(WriterPtr& out, size_t sz);
 		virtual ~BufferedWriter();
 
-		virtual void close(Pool& p);
-		virtual void flush(Pool& p);
-		virtual void write(const LogString& str, Pool& p);
+		void close(Pool& p) override;
+		void flush(Pool& p) override;
+		void write(const LogString& str, Pool& p) override;
 
 	private:
 		BufferedWriter(const BufferedWriter&);
@@ -65,9 +58,5 @@ class LOG4CXX_EXPORT BufferedWriter : public Writer
 } // namespace helpers
 
 }  //namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif //_LOG4CXX_HELPERS_BUFFEREDWRITER_H

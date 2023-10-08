@@ -18,7 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_CHARSETENCODER_H
 #define _LOG4CXX_HELPERS_CHARSETENCODER_H
 
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 #include <log4cxx/helpers/pool.h>
 
 namespace log4cxx
@@ -34,7 +34,7 @@ LOG4CXX_PTR_DEF(CharsetEncoder);
 *   An engine to transform LogStrings into bytes
 *     for the specific character set.
 */
-class LOG4CXX_EXPORT CharsetEncoder : public ObjectImpl
+class LOG4CXX_EXPORT CharsetEncoder : public Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(CharsetEncoder)

@@ -24,6 +24,11 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct ByteArrayOutputStream::ByteArrayOutputStreamPriv
+{
+	ByteList array;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(ByteArrayOutputStream)
 
 ByteArrayOutputStream::ByteArrayOutputStream()
@@ -44,15 +49,15 @@ void ByteArrayOutputStream::flush(Pool& /* p */)
 
 void ByteArrayOutputStream::write(ByteBuffer& buf, Pool& /* p */ )
 {
-	size_t sz = array.size();
-	array.resize(sz + buf.remaining());
-	memcpy(&array[sz], buf.current(), buf.remaining());
+	size_t sz = m_priv->array.size();
+	m_priv->array.resize(sz + buf.remaining());
+	memcpy(&m_priv->array[sz], buf.current(), buf.remaining());
 	buf.position(buf.limit());
 }
 
 std::vector<unsigned char> ByteArrayOutputStream::toByteArray() const
 {
-	return array;
+	return m_priv->array;
 }
 
 

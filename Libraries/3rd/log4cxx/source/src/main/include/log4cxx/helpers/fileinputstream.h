@@ -21,7 +21,7 @@
 #include <log4cxx/helpers/inputstream.h>
 #include <log4cxx/file.h>
 #include <log4cxx/helpers/pool.h>
-
+#include <memory>
 
 namespace log4cxx
 {
@@ -36,8 +36,7 @@ namespace helpers
 class LOG4CXX_EXPORT FileInputStream : public InputStream
 {
 	private:
-		Pool pool;
-		apr_file_t* fileptr;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(FileInputStreamPrivate, m_priv)
 
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(FileInputStream)
@@ -69,7 +68,7 @@ class LOG4CXX_EXPORT FileInputStream : public InputStream
 		 * Closes this file input stream and releases any system
 		 * resources associated with the stream.
 		 */
-		virtual void close();
+		void close() override;
 
 		/**
 		 * Reads a sequence of bytes into the given buffer.
@@ -78,7 +77,7 @@ class LOG4CXX_EXPORT FileInputStream : public InputStream
 		 * @return the total number of bytes read into the buffer, or -1 if there
 		 *         is no more data because the end of the stream has been reached.
 		 */
-		virtual int read(ByteBuffer& buf);
+		int read(ByteBuffer& buf) override;
 
 	private:
 

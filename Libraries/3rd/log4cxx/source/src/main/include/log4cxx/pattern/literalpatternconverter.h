@@ -20,11 +20,6 @@
 
 #include <log4cxx/pattern/loggingeventpatternconverter.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
 namespace log4cxx
 {
 namespace pattern
@@ -39,17 +34,7 @@ namespace pattern
  */
 class LOG4CXX_EXPORT LiteralPatternConverter : public LoggingEventPatternConverter
 {
-		/**
-		 * String literal.
-		 */
-		const LogString literal;
-
-		/**
-		 * Create a new instance.
-		 * @param literal string literal.
-		 */
-		LiteralPatternConverter(const LogString& literal);
-
+		struct LiteralPatternConverterPrivate;
 
 	public:
 		DECLARE_LOG4CXX_PATTERN(LiteralPatternConverter)
@@ -58,25 +43,23 @@ class LOG4CXX_EXPORT LiteralPatternConverter : public LoggingEventPatternConvert
 		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
 		END_LOG4CXX_CAST_MAP()
 
+		LiteralPatternConverter(const LogString& literal);
+
 		static PatternConverterPtr newInstance(const LogString& literal);
 
 		using LoggingEventPatternConverter::format;
 
-		void format(const log4cxx::spi::LoggingEventPtr& event,
+		void format(const spi::LoggingEventPtr& event,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 
-		void format(const log4cxx::helpers::ObjectPtr& obj,
+		void format(const helpers::ObjectPtr& obj,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 };
 
 }
 }
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif
 

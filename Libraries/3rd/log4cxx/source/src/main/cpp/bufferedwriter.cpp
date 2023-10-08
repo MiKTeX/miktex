@@ -21,15 +21,27 @@
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
+struct BufferedWriter::BufferedWriterPriv
+{
+	BufferedWriterPriv(WriterPtr& out1, size_t sz1) :
+		out(out1),
+		sz(sz1)
+	{}
+
+	WriterPtr out;
+	size_t sz;
+	LogString buf;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(BufferedWriter)
 
 BufferedWriter::BufferedWriter(WriterPtr& out1)
-	: out(out1), sz(1024)
+	: BufferedWriter(out1, 1024)
 {
 }
 
 BufferedWriter::BufferedWriter(WriterPtr& out1, size_t sz1)
-	: out(out1), sz(sz1)
+	: m_priv(std::make_unique<BufferedWriterPriv>(out1, sz1))
 {
 }
 
@@ -40,33 +52,33 @@ BufferedWriter::~BufferedWriter()
 void BufferedWriter::close(Pool& p)
 {
 	flush(p);
-	out->close(p);
+	m_priv->out->close(p);
 }
 
 void BufferedWriter::flush(Pool& p)
 {
-	if (buf.length() > 0)
+	if (m_priv->buf.length() > 0)
 	{
-		out->write(buf, p);
-		buf.erase(buf.begin(), buf.end());
+		m_priv->out->write(m_priv->buf, p);
+		m_priv->buf.erase(m_priv->buf.begin(), m_priv->buf.end());
 	}
 }
 
 void BufferedWriter::write(const LogString& str, Pool& p)
 {
-	if (buf.length() + str.length() > sz)
+	if (m_priv->buf.length() + str.length() > m_priv->sz)
 	{
-		out->write(buf, p);
-		buf.erase(buf.begin(), buf.end());
+		m_priv->out->write(m_priv->buf, p);
+		m_priv->buf.erase(m_priv->buf.begin(), m_priv->buf.end());
 	}
 
-	if (str.length() > sz)
+	if (str.length() > m_priv->sz)
 	{
-		out->write(str, p);
+		m_priv->out->write(str, p);
 	}
 	else
 	{
-		buf.append(str);
+		m_priv->buf.append(str);
 	}
 }
 

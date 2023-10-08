@@ -19,8 +19,8 @@
 #define _LOG4CXX_HELPERS_LOG_LOG_H
 
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/mutex.h>
 #include <exception>
+#include <mutex>
 
 namespace log4cxx
 {
@@ -31,68 +31,68 @@ This class used to output log statements from within the log4cxx package.
 
 <p>Log4cxx components cannot make log4cxx logging calls. However, it is
 sometimes useful for the user to learn about what log4cxx is
-doing. You can enable log4cxx internal logging by calling the
+doing. You can enable log4cxx internal debug logging by calling the
 <b>#setInternalDebugging</b> method.
 
-<p>All log4cxx internal debug calls go to standard output
-where as internal error messages are sent to
-standard error output. All internal messages are prepended with
-the string "log4cxx: ".
+<p>All LogLog messages are written to SystemErrWriter
+prepended with the string "log4cxx: ".
 */
 class LOG4CXX_EXPORT LogLog
 {
 	private:
-		bool debugEnabled;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(LogLogPrivate, m_priv)
 
-		/**
-		       In quietMode not even errors generate any output.
-		 */
-		bool quietMode;
-		Mutex mutex;
 		LogLog();
 		LogLog(const LogLog&);
 		LogLog& operator=(const LogLog&);
 		static LogLog& getInstance();
 
-
 	public:
+		~LogLog();
+
 		/**
-		Allows to enable/disable log4cxx internal logging.
+		Use the value of \c enabled as the new internal debug logging state.
 		*/
 		static void setInternalDebugging(bool enabled);
 
 		/**
-		This method is used to output log4cxx internal debug
-		statements. Output goes to the standard output.
+		Output \c msg to SystemErrWriter if internal debug logging is enabled.
 		*/
 		static void debug(const LogString& msg);
+		/**
+		Output \c msg and <code>ex.what()</code> to SystemErrWriter if internal debug logging is enabled.
+		*/
 		static void debug(const LogString& msg, const std::exception& e);
 
 
 		/**
-		This method is used to output log4cxx internal error
-		statements. There is no way to disable error statements.
-		Output goes to stderr.
+		Output \c msg to SystemErrWriter unconditionally.
 		*/
 		static void error(const LogString& msg);
-		static void error(const LogString& msg, const std::exception& e);
+		/**
+		Output \c msg and <code>ex.what()</code> to SystemErrWriter unconditionally.
+		*/
+		static void error(const LogString& msg, const std::exception& ex);
 
 
 		/**
+		Change quiet mode to \c newValue.
+
 		In quiet mode LogLog generates strictly no output, not even
 		for errors.
 
-		@param quietMode <code>true</code> for no output.
+		@param newValue <code>true</code> for no output.
 		*/
-		static void setQuietMode(bool quietMode);
+		static void setQuietMode(bool newValue);
 
 		/**
-		This method is used to output log4cxx internal warning
-		statements. There is no way to disable warning statements.
-		Output goes to stderr.
+		Output \c msg to SystemErrWriter unconditionally.
 		*/
 		static void warn(const LogString&  msg);
-		static void warn(const LogString&  msg, const std::exception& e);
+		/**
+		Output \c msg and <code>ex.what()</code> to SystemErrWriter unconditionally.
+		*/
+		static void warn(const LogString&  msg, const std::exception& ex);
 
 	private:
 		static void emit(const LogString& msg);

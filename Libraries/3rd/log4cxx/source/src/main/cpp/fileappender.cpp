@@ -20,13 +20,14 @@
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/loglog.h>
 #include <log4cxx/helpers/optionconverter.h>
-#include <log4cxx/helpers/synchronized.h>
 #include <log4cxx/helpers/pool.h>
 #include <log4cxx/helpers/fileoutputstream.h>
 #include <log4cxx/helpers/outputstreamwriter.h>
 #include <log4cxx/helpers/bufferedwriter.h>
 #include <log4cxx/helpers/bytebuffer.h>
-#include <log4cxx/helpers/synchronized.h>
+#include <log4cxx/private/writerappender_priv.h>
+#include <log4cxx/private/fileappender_priv.h>
+#include <mutex>
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -34,57 +35,47 @@ using namespace log4cxx::spi;
 
 IMPLEMENT_LOG4CXX_OBJECT(FileAppender)
 
+#define _priv static_cast<FileAppenderPriv*>(m_priv.get())
 
-FileAppender::FileAppender()
+FileAppender::FileAppender() :
+	WriterAppender (std::make_unique<FileAppenderPriv>())
 {
-	LOCK_W sync(mutex);
-	fileAppend = true;
-	bufferedIO = false;
-	bufferSize = 8 * 1024;
 }
 
-FileAppender::FileAppender(const LayoutPtr& layout1, const LogString& fileName1,
-	bool append1, bool bufferedIO1, int bufferSize1)
-	: WriterAppender(layout1)
+FileAppender::FileAppender
+	( const LayoutPtr& layout1
+	, const LogString& fileName1
+	, bool append1
+	, bool bufferedIO1
+	, int bufferSize1
+	)
+	: WriterAppender(std::make_unique<FileAppenderPriv>(layout1, fileName1, append1, bufferedIO1, bufferSize1))
 {
-	{
-		LOCK_W sync(mutex);
-		fileAppend = append1;
-		fileName = fileName1;
-		bufferedIO = bufferedIO1;
-		bufferSize = bufferSize1;
-	}
 	Pool p;
 	activateOptions(p);
 }
 
-FileAppender::FileAppender(const LayoutPtr& layout1, const LogString& fileName1,
-	bool append1)
-	: WriterAppender(layout1)
+FileAppender::FileAppender
+	( const LayoutPtr& layout1
+	, const LogString& fileName1
+	, bool append1
+	)
+	: WriterAppender(std::make_unique<FileAppenderPriv>(layout1, fileName1, append1, false))
 {
-	{
-		LOCK_W sync(mutex);
-		fileAppend = append1;
-		fileName = fileName1;
-		bufferedIO = false;
-		bufferSize = 8 * 1024;
-	}
 	Pool p;
 	activateOptions(p);
 }
 
 FileAppender::FileAppender(const LayoutPtr& layout1, const LogString& fileName1)
-	: WriterAppender(layout1)
+	: WriterAppender(std::make_unique<FileAppenderPriv>(layout1, fileName1))
 {
-	{
-		LOCK_W sync(mutex);
-		fileAppend = true;
-		fileName = fileName1;
-		bufferedIO = false;
-		bufferSize = 8 * 1024;
-	}
 	Pool p;
 	activateOptions(p);
+}
+
+FileAppender::FileAppender(std::unique_ptr<FileAppenderPriv> priv)
+	: WriterAppender (std::move(priv))
+{
 }
 
 FileAppender::~FileAppender()
@@ -94,22 +85,25 @@ FileAppender::~FileAppender()
 
 void FileAppender::setAppend(bool fileAppend1)
 {
-	LOCK_W sync(mutex);
-	this->fileAppend = fileAppend1;
+	std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+	_priv->fileAppend = fileAppend1;
 }
 
 void FileAppender::setFile(const LogString& file)
 {
-	LOCK_W sync(mutex);
-	fileName = file;
+	std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+	setFileInternal(file);
 }
 
-
+void FileAppender::setFileInternal(const LogString& file)
+{
+	_priv->fileName = file;
+}
 
 void FileAppender::setBufferedIO(bool bufferedIO1)
 {
-	LOCK_W sync(mutex);
-	this->bufferedIO = bufferedIO1;
+	std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+	_priv->bufferedIO = bufferedIO1;
 
 	if (bufferedIO1)
 	{
@@ -123,28 +117,28 @@ void FileAppender::setOption(const LogString& option,
 	if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("FILE"), LOG4CXX_STR("file"))
 		|| StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("FILENAME"), LOG4CXX_STR("filename")))
 	{
-		LOCK_W sync(mutex);
-		fileName = stripDuplicateBackslashes(value);
+		std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+		_priv->fileName = stripDuplicateBackslashes(value);
 	}
 	else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("APPEND"), LOG4CXX_STR("append")))
 	{
-		LOCK_W sync(mutex);
-		fileAppend = OptionConverter::toBoolean(value, true);
+		std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+		_priv->fileAppend = OptionConverter::toBoolean(value, true);
 	}
 	else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("BUFFEREDIO"), LOG4CXX_STR("bufferedio")))
 	{
-		LOCK_W sync(mutex);
-		bufferedIO = OptionConverter::toBoolean(value, true);
+		std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+		_priv->bufferedIO = OptionConverter::toBoolean(value, true);
 	}
 	else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("IMMEDIATEFLUSH"), LOG4CXX_STR("immediateflush")))
 	{
-		LOCK_W sync(mutex);
-		bufferedIO = !OptionConverter::toBoolean(value, false);
+		std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+		_priv->bufferedIO = !OptionConverter::toBoolean(value, false);
 	}
 	else if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("BUFFERSIZE"), LOG4CXX_STR("buffersize")))
 	{
-		LOCK_W sync(mutex);
-		bufferSize = OptionConverter::toFileSize(value, 8 * 1024);
+		std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+		_priv->bufferSize = OptionConverter::toFileSize(value, 8 * 1024);
 	}
 	else
 	{
@@ -154,31 +148,36 @@ void FileAppender::setOption(const LogString& option,
 
 void FileAppender::activateOptions(Pool& p)
 {
-	LOCK_W sync(mutex);
+	std::lock_guard<std::recursive_mutex> lock(_priv->mutex);
+	activateOptionsInternal(p);
+}
+
+void FileAppender::activateOptionsInternal(Pool& p)
+{
 	int errors = 0;
 
-	if (!fileName.empty())
+	if (!_priv->fileName.empty())
 	{
 		try
 		{
-			setFile(fileName, fileAppend, bufferedIO, bufferSize, p);
+			setFileInternal(_priv->fileName, _priv->fileAppend, _priv->bufferedIO, _priv->bufferSize, p);
 		}
 		catch (IOException& e)
 		{
 			errors++;
 			LogString msg(LOG4CXX_STR("setFile("));
-			msg.append(fileName);
+			msg.append(_priv->fileName);
 			msg.append(1, (logchar) 0x2C /* ',' */);
-			StringHelper::toString(fileAppend, msg);
+			StringHelper::toString(_priv->fileAppend, msg);
 			msg.append(LOG4CXX_STR(") call failed."));
-			errorHandler->error(msg, e, ErrorCode::FILE_OPEN_FAILURE);
+			_priv->errorHandler->error(msg, e, ErrorCode::FILE_OPEN_FAILURE);
 		}
 	}
 	else
 	{
 		errors++;
 		LogLog::error(LogString(LOG4CXX_STR("File option not set for appender ["))
-			+  name + LOG4CXX_STR("]."));
+			+  _priv->name + LOG4CXX_STR("]."));
 		LogLog::warn(LOG4CXX_STR("Are you using FileAppender instead of ConsoleAppender?"));
 	}
 
@@ -263,15 +262,13 @@ LogString FileAppender::stripDuplicateBackslashes(const LogString& src)
   @throws IOException
 
  */
-void FileAppender::setFile(
+void FileAppender::setFileInternal(
 	const LogString& filename,
 	bool append1,
 	bool bufferedIO1,
 	size_t bufferSize1,
 	Pool& p)
 {
-	LOCK_W sync(mutex);
-
 	// It does not make sense to have immediate flush and bufferedIO.
 	if (bufferedIO1)
 	{
@@ -304,7 +301,7 @@ void FileAppender::setFile(
 
 	try
 	{
-		outStream = new FileOutputStream(filename, append1);
+		outStream = FileOutputStreamPtr(new FileOutputStream(filename, append1));
 	}
 	catch (IOException&)
 	{
@@ -317,7 +314,7 @@ void FileAppender::setFile(
 
 			if (!parentDir.exists(p) && parentDir.mkdirs(p))
 			{
-				outStream = new FileOutputStream(filename, append1);
+				outStream = OutputStreamPtr(new FileOutputStream(filename, append1));
 			}
 			else
 			{
@@ -345,16 +342,40 @@ void FileAppender::setFile(
 
 	if (bufferedIO1)
 	{
-		newWriter = new BufferedWriter(newWriter, bufferSize1);
+		newWriter = std::make_shared<BufferedWriter>(newWriter, bufferSize1);
 	}
 
-	setWriter(newWriter);
+	setWriterInternal(newWriter);
 
-	this->fileAppend = append1;
-	this->bufferedIO = bufferedIO1;
-	this->fileName = filename;
-	this->bufferSize = (int)bufferSize1;
+	_priv->fileAppend = append1;
+	_priv->bufferedIO = bufferedIO1;
+	_priv->fileName = filename;
+	_priv->bufferSize = (int)bufferSize1;
 	writeHeader(p);
 
 }
 
+LogString FileAppender::getFile() const
+{
+	return _priv->fileName;
+}
+
+bool FileAppender::getBufferedIO() const
+{
+	return _priv->bufferedIO;
+}
+
+int FileAppender::getBufferSize() const
+{
+	return _priv->bufferSize;
+}
+
+void FileAppender::setBufferSize(int bufferSize1)
+{
+	_priv->bufferSize = bufferSize1;
+}
+
+bool FileAppender::getAppend() const
+{
+	return _priv->fileAppend;
+}

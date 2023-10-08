@@ -19,16 +19,16 @@
 #define _LOG4CXX_DEFAULT_LOGGER_FACTORY_H
 
 #include <log4cxx/spi/loggerfactory.h>
-#include <log4cxx/helpers/objectimpl.h>
+#include <log4cxx/helpers/object.h>
 
 namespace log4cxx
 {
 class Logger;
-typedef helpers::ObjectPtrT<Logger> LoggerPtr;
+typedef std::shared_ptr<Logger> LoggerPtr;
 
 class LOG4CXX_EXPORT DefaultLoggerFactory :
 	public virtual spi::LoggerFactory,
-	public virtual helpers::ObjectImpl
+	public virtual helpers::Object
 {
 	public:
 		DECLARE_ABSTRACT_LOG4CXX_OBJECT(DefaultLoggerFactory)
@@ -36,9 +36,7 @@ class LOG4CXX_EXPORT DefaultLoggerFactory :
 		LOG4CXX_CAST_ENTRY(spi::LoggerFactory)
 		END_LOG4CXX_CAST_MAP()
 
-		virtual LoggerPtr makeNewLoggerInstance(
-			log4cxx::helpers::Pool& pool,
-			const LogString& name) const;
+		LoggerPtr makeNewLoggerInstance(helpers::Pool& pool, const LogString& name) const override;
 };
 }  // namespace log4cxx
 

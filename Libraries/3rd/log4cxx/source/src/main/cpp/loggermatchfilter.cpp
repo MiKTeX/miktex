@@ -20,28 +20,43 @@
 #include <log4cxx/spi/loggingevent.h>
 #include <log4cxx/helpers/stringhelper.h>
 #include <log4cxx/helpers/optionconverter.h>
+#include <log4cxx/private/filter_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::filter;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
+#define priv static_cast<LoggerMatchFilterPrivate*>(m_priv.get())
+
+struct LoggerMatchFilter::LoggerMatchFilterPrivate : public FilterPrivate
+{
+	LoggerMatchFilterPrivate() : FilterPrivate(),
+		acceptOnMatch(true),
+		loggerToMatch(LOG4CXX_STR("root")) {}
+
+	bool acceptOnMatch;
+	LogString loggerToMatch;
+};
+
 IMPLEMENT_LOG4CXX_OBJECT(LoggerMatchFilter)
 
 
 LoggerMatchFilter::LoggerMatchFilter()
-	: acceptOnMatch(true), loggerToMatch(LOG4CXX_STR("root"))
+	: Filter(std::make_unique<LoggerMatchFilterPrivate>())
 {
 }
 
+LoggerMatchFilter::~LoggerMatchFilter() {}
+
 void LoggerMatchFilter::setLoggerToMatch(const LogString& value)
 {
-	loggerToMatch = value;
+	priv->loggerToMatch = value;
 }
 
 LogString LoggerMatchFilter::getLoggerToMatch() const
 {
-	return loggerToMatch;
+	return priv->loggerToMatch;
 }
 
 void LoggerMatchFilter::setOption(const LogString& option,
@@ -56,18 +71,18 @@ void LoggerMatchFilter::setOption(const LogString& option,
 	else if (StringHelper::equalsIgnoreCase(option,
 			LOG4CXX_STR("ACCEPTONMATCH"), LOG4CXX_STR("acceptonmatch")))
 	{
-		acceptOnMatch = OptionConverter::toBoolean(value, acceptOnMatch);
+		priv->acceptOnMatch = OptionConverter::toBoolean(value, priv->acceptOnMatch);
 	}
 }
 
 Filter::FilterDecision LoggerMatchFilter::decide(
 	const spi::LoggingEventPtr& event) const
 {
-	bool matchOccured = loggerToMatch == event->getLoggerName();
+	bool matchOccured = priv->loggerToMatch == event->getLoggerName();
 
 	if (matchOccured)
 	{
-		if (acceptOnMatch)
+		if (priv->acceptOnMatch)
 		{
 			return Filter::ACCEPT;
 		}
@@ -82,3 +97,12 @@ Filter::FilterDecision LoggerMatchFilter::decide(
 	}
 }
 
+void LoggerMatchFilter::setAcceptOnMatch(bool acceptOnMatch1)
+{
+	priv->acceptOnMatch = acceptOnMatch1;
+}
+
+bool LoggerMatchFilter::getAcceptOnMatch() const
+{
+	return priv->acceptOnMatch;
+}

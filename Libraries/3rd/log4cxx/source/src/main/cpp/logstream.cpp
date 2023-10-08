@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 
+#include <log4cxx/log4cxx.h>
+/* Prevent std::basic_streambuf etc destructor ... already defined in logstream.obj */
+#if defined(_MSC_VER) && (LOG4CXX_UNICHAR_API || LOG4CXX_CFSTRING_API)
+#define __FORCE_INSTANCE
+#endif
 #include <log4cxx/logstring.h>
 #include <log4cxx/stream.h>
 #include <log4cxx/helpers/transcoder.h>
@@ -34,6 +39,9 @@ logstream_base::logstream_ios_base::logstream_ios_base(std::ios_base::fmtflags i
 	//        releases a pointer that was not initialized in the constructor.
 	//
 	memset(this, 0, sizeof(*this));
+#endif
+#if LOG4CXX_INIT_IOS_BASE
+	init(NULL);
 #endif
 	flags(initval);
 	precision(initsize);

@@ -18,14 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_CLASS_H
 #define _LOG4CXX_HELPERS_CLASS_H
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/objectptr.h>
 #include <map>
 
 namespace log4cxx
@@ -33,14 +26,13 @@ namespace log4cxx
 namespace helpers
 {
 class Object;
-typedef ObjectPtrT<Object> ObjectPtr;
 
 
 class LOG4CXX_EXPORT Class
 {
 	public:
 		virtual ~Class();
-		virtual ObjectPtr newInstance() const;
+		virtual Object* newInstance() const;
 		LogString toString() const;
 		virtual LogString getName() const = 0;
 		static const Class& forName(const LogString& className);
@@ -56,12 +48,7 @@ class LOG4CXX_EXPORT Class
 		static ClassMap& getRegistry();
 		static void registerClasses();
 };
-}  // namespace log4cxx
-} // namespace helper
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
-
+}  // namespace helpers
+} // namespace log4cxx
 
 #endif //_LOG4CXX_HELPERS_CLASS_H

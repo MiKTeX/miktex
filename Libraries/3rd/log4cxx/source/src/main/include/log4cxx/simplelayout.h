@@ -18,12 +18,6 @@
 #ifndef _LOG4CXX_SIMPLE_LAYOUT_H
 #define _LOG4CXX_SIMPLE_LAYOUT_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/layout.h>
 
 namespace log4cxx
@@ -57,30 +51,25 @@ class LOG4CXX_EXPORT SimpleLayout : public Layout
 
 		@return A byte array in SimpleLayout format.
 		*/
-		virtual void format(LogString& output,
+		void format(LogString& output,
 			const spi::LoggingEventPtr& event,
-			log4cxx::helpers::Pool& pool) const;
+			helpers::Pool& pool) const override;
 
 		/**
 		The SimpleLayout does not handle the throwable contained within
 		{@link spi::LoggingEvent LoggingEvents}. Thus, it returns
 		<code>true</code>.
 		*/
-		bool ignoresThrowable() const
+		bool ignoresThrowable() const override
 		{
 			return true;
 		}
 
-		virtual void activateOptions(log4cxx::helpers::Pool& /* p */) {}
-		virtual void setOption(const LogString& /* option */,
-			const LogString& /* value */) {}
+		void activateOptions(helpers::Pool& /* p */) override {}
+		void setOption(const LogString& /* option */,
+			const LogString& /* value */) override {}
 };
 LOG4CXX_PTR_DEF(SimpleLayout);
 }  // namespace log4cxx
-
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif //_LOG4CXX_SIMPLE_LAYOUT_H

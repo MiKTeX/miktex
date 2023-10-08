@@ -35,15 +35,12 @@ namespace pattern
  */
 class LOG4CXX_EXPORT ClassNamePatternConverter : public NamePatternConverter
 {
-		/**
-		 * Private constructor.
-		 * @param options options, may be null.
-		 * @param logger logger for diagnostic messages, may be null.
-		 */
-		ClassNamePatternConverter(
-			const std::vector<LogString>& options);
-
 	public:
+		/**
+		 * @param options options, may be null.
+		 */
+		ClassNamePatternConverter(const std::vector<LogString>& options);
+
 		DECLARE_LOG4CXX_PATTERN(ClassNamePatternConverter)
 		BEGIN_LOG4CXX_CAST_MAP()
 		LOG4CXX_CAST_ENTRY(ClassNamePatternConverter)
@@ -60,9 +57,9 @@ class LOG4CXX_EXPORT ClassNamePatternConverter : public NamePatternConverter
 
 		using NamePatternConverter::format;
 
-		void format(const log4cxx::spi::LoggingEventPtr& event,
+		void format(const spi::LoggingEventPtr& event,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 };
 
 }

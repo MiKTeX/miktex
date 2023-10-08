@@ -16,7 +16,9 @@
  */
 #include <log4cxx/logstring.h>
 #include <log4cxx/rolling/action.h>
-#include <log4cxx/helpers/synchronized.h>
+#include <log4cxx/private/action_priv.h>
+#include <mutex>
+#include <memory>
 
 using namespace log4cxx;
 using namespace log4cxx::rolling;
@@ -25,12 +27,12 @@ using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(Action)
 
 Action::Action() :
-	complete(false),
-	interrupted(false),
-	pool(),
-	mutex(pool)
+	m_priv( std::make_unique<Action::ActionPrivate>() )
 {
 }
+
+Action::Action( std::unique_ptr<ActionPrivate> priv ) :
+	m_priv( std::move(priv) ) {}
 
 Action::~Action()
 {
@@ -41,9 +43,9 @@ Action::~Action()
  */
 void Action::run(log4cxx::helpers::Pool& pool1)
 {
-	synchronized sync(mutex);
+	std::unique_lock<std::mutex> lock(m_priv->mutex);
 
-	if (!interrupted)
+	if (!m_priv->interrupted)
 	{
 		try
 		{
@@ -54,8 +56,8 @@ void Action::run(log4cxx::helpers::Pool& pool1)
 			reportException(ex);
 		}
 
-		complete = true;
-		interrupted = true;
+		m_priv->complete = true;
+		m_priv->interrupted = true;
 	}
 }
 
@@ -64,8 +66,8 @@ void Action::run(log4cxx::helpers::Pool& pool1)
  */
 void Action::close()
 {
-	synchronized sync(mutex);
-	interrupted = true;
+	std::unique_lock<std::mutex> lock(m_priv->mutex);
+	m_priv->interrupted = true;
 }
 
 /**
@@ -74,7 +76,7 @@ void Action::close()
  */
 bool Action::isComplete() const
 {
-	return complete;
+	return m_priv->complete;
 }
 
 /**

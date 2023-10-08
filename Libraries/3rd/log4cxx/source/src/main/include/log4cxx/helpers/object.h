@@ -20,11 +20,10 @@
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/class.h>
-#include <log4cxx/helpers/objectptr.h>
 #include <log4cxx/helpers/classregistration.h>
 
 
-#define DECLARE_ABSTRACT_LOG4CXX_OBJECT(object)\
+#define DECLARE_LOG4CXX_CLAZZ_OBJECT(object)\
 	public:\
 	class Clazz##object : public helpers::Class\
 	{\
@@ -33,9 +32,12 @@
 			virtual ~Clazz##object() {}\
 			virtual log4cxx::LogString getName() const { return LOG4CXX_STR(#object); } \
 	};\
-	virtual const helpers::Class& getClass() const;\
 	static const helpers::Class& getStaticClass(); \
 	static const log4cxx::helpers::ClassRegistration& registerClass();
+
+#define DECLARE_ABSTRACT_LOG4CXX_OBJECT(object)\
+	DECLARE_LOG4CXX_CLAZZ_OBJECT(object)\
+	const helpers::Class& getClass() const override;
 
 #define DECLARE_LOG4CXX_OBJECT(object)\
 	public:\
@@ -45,18 +47,18 @@
 			Clazz##object() : helpers::Class() {}\
 			virtual ~Clazz##object() {}\
 			virtual log4cxx::LogString getName() const { return LOG4CXX_STR(#object); } \
-			virtual helpers::ObjectPtr newInstance() const\
+			virtual object* newInstance() const\
 			{\
 				return new object();\
 			}\
 	};\
-	virtual const helpers::Class& getClass() const;\
+	const helpers::Class& getClass() const override;\
 	static const helpers::Class& getStaticClass(); \
 	static const log4cxx::helpers::ClassRegistration& registerClass();
 
 #define DECLARE_LOG4CXX_OBJECT_WITH_CUSTOM_CLASS(object, class)\
 	public:\
-	virtual const helpers::Class& getClass() const;\
+	const helpers::Class& getClass() const override;\
 	static const helpers::Class& getStaticClass();\
 	static const log4cxx::helpers::ClassRegistration&  registerClass();
 
@@ -102,19 +104,46 @@ class Pool;
 class LOG4CXX_EXPORT Object
 {
 	public:
-		DECLARE_ABSTRACT_LOG4CXX_OBJECT(Object)
 		virtual ~Object() {}
-		virtual void addRef() const = 0;
-		virtual void releaseRef() const = 0;
+		virtual const helpers::Class& getClass() const = 0;
 		virtual bool instanceof(const Class& clazz) const = 0;
 		virtual const void* cast(const Class& clazz) const = 0;
+		DECLARE_LOG4CXX_CLAZZ_OBJECT(Object)
 };
 LOG4CXX_PTR_DEF(Object);
 }
+
+/**
+ * Attempt to cast one Object to another kind of Object.
+ *
+ * On success, returns a new shared pointer that points at incoming.
+ * On failure, returns an invalid shared pointer.
+ */
+template<typename Ret,
+	typename Type,
+	bool = std::is_base_of<Ret, helpers::Object>::value,
+	bool = std::is_base_of<Type, helpers::Object>::value>
+std::shared_ptr<Ret> cast(const std::shared_ptr<Type>& incoming)
+{
+	if(!incoming)
+	{
+		return std::shared_ptr<Ret>();
+	}
+
+	Ret* casted = reinterpret_cast<Ret*>(const_cast<void*>(incoming->cast(Ret::getStaticClass())));
+
+	if ( casted )
+	{
+		return std::shared_ptr<Ret>( incoming, casted );
+	}
+
+	return std::shared_ptr<Ret>();
+}
+
 }
 
 #define BEGIN_LOG4CXX_CAST_MAP()\
-	const void * cast(const helpers::Class& clazz) const\
+	const void * cast(const helpers::Class& clazz) const override\
 	{\
 		const void * object = 0;\
 		if (&clazz == &helpers::Object::getStaticClass()) return (const helpers::Object *)this;
@@ -122,7 +151,7 @@ LOG4CXX_PTR_DEF(Object);
 #define END_LOG4CXX_CAST_MAP()\
 	return object;\
 	}\
-	bool instanceof(const helpers::Class& clazz) const\
+	bool instanceof(const helpers::Class& clazz) const override\
 	{ return cast(clazz) != 0; }
 
 #define LOG4CXX_CAST_ENTRY(Interface)\

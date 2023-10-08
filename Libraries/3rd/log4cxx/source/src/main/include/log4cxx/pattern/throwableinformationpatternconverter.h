@@ -37,15 +37,7 @@ namespace pattern
 class LOG4CXX_EXPORT ThrowableInformationPatternConverter
 	: public LoggingEventPatternConverter
 {
-		/**
-		 * If "short", only first line of throwable report will be formatted.
-		 */
-		const bool shortReport;
-
-		/**
-		 * Private constructor.
-		 */
-		ThrowableInformationPatternConverter(bool shortReport);
+		struct ThrowableInformationPatternConverterPrivate;
 
 	public:
 		DECLARE_LOG4CXX_PATTERN(ThrowableInformationPatternConverter)
@@ -54,6 +46,7 @@ class LOG4CXX_EXPORT ThrowableInformationPatternConverter
 		LOG4CXX_CAST_ENTRY_CHAIN(LoggingEventPatternConverter)
 		END_LOG4CXX_CAST_MAP()
 
+		ThrowableInformationPatternConverter(bool shortReport);
 
 		/**
 		 * Gets an instance of the class.
@@ -66,15 +59,15 @@ class LOG4CXX_EXPORT ThrowableInformationPatternConverter
 
 		using LoggingEventPatternConverter::format;
 
-		void format(const log4cxx::spi::LoggingEventPtr& event,
+		void format(const spi::LoggingEventPtr& event,
 			LogString& toAppendTo,
-			log4cxx::helpers::Pool& p) const;
+			helpers::Pool& p) const override;
 
 		/**
 		 * This converter obviously handles throwables.
 		 * @return true.
 		 */
-		bool handlesThrowable() const;
+		bool handlesThrowable() const override;
 };
 }
 }

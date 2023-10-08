@@ -21,13 +21,8 @@
 
 #include <log4cxx/logstring.h>
 #include <limits.h>
-#include <log4cxx/helpers/objectimpl.h>
-#include <log4cxx/helpers/objectptr.h>
-
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
+#include <log4cxx/helpers/object.h>
+#include <mutex>
 
 namespace log4cxx
 {
@@ -40,7 +35,7 @@ namespace log4cxx
  * https://issues.apache.org/jira/browse/LOGCXX-394
  */
 class Level;
-typedef log4cxx::helpers::ObjectPtrT<Level> LevelPtr;
+typedef std::shared_ptr<Level> LevelPtr;
 
 /**
 Defines the minimum set of levels recognized by the system, that is
@@ -50,7 +45,7 @@ Defines the minimum set of levels recognized by the system, that is
 <p>The <code>Level</code> class may be subclassed to define a larger
 level set.
 */
-class LOG4CXX_EXPORT Level : public helpers::ObjectImpl
+class LOG4CXX_EXPORT Level : public helpers::Object
 {
 	public:
 		class LOG4CXX_EXPORT LevelClass : public helpers::Class
@@ -279,41 +274,12 @@ class LOG4CXX_EXPORT Level : public helpers::ObjectImpl
 		}
 
 	private:
+		LOG4CXX_DECLARE_PRIVATE_MEMBER(LogString, name)
 		int level;
-		LogString name;
 		int syslogEquivalent;
 		Level(const Level&);
 		Level& operator=(const Level&);
 };
-
-/**
- * We need to double some logic from LOG4CXX_PTR_DEF or else we are unable to override the
- * comparison operator, which we need to properly fix LOGCXX-394.
- *
- * https://issues.apache.org/jira/browse/LOGCXX-394
- */
-namespace helpers
-{
-
-/** @class log4cxx::helpers::ObjectPtr */
-template<> inline bool LevelPtr::operator==(const LevelPtr& rhs) const
-{
-	return (*this)->equals(rhs);
-}
-template<> inline bool LevelPtr::operator!=(const LevelPtr& rhs) const
-{
-	return !(*this == rhs);
-}
-#if defined(_MSC_VER) && !defined(LOG4CXX_STATIC) && defined(LOG4CXX)
-	template class LOG4CXX_EXPORT log4cxx::helpers::ObjectPtrT<Level>;
-#elif defined(_MSC_VER) && !defined(LOG4CXX_STATIC)
-	#pragma warning(push)
-	#pragma warning(disable: 4231)
-	extern template class LOG4CXX_EXPORT log4cxx::helpers::ObjectPtrT<Level>;
-	#pragma warning(pop)
-#endif
-
-}
 
 }
 
@@ -333,9 +299,5 @@ template<> inline bool LevelPtr::operator!=(const LevelPtr& rhs) const
 
 #define IMPLEMENT_LOG4CXX_LEVEL(level) \
 	IMPLEMENT_LOG4CXX_OBJECT_WITH_CUSTOM_CLASS(level, Class##level)
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif //_LOG4CXX_LEVEL_H

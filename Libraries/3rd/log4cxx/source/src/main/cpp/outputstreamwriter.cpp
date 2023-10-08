@@ -27,8 +27,19 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(OutputStreamWriter)
 
+struct OutputStreamWriter::OutputStreamWriterPrivate{
+	OutputStreamWriterPrivate(OutputStreamPtr& out1) : out(out1), enc(CharsetEncoder::getDefaultEncoder()){}
+
+	OutputStreamWriterPrivate(OutputStreamPtr& out1,
+							  CharsetEncoderPtr& enc1)
+		: out(out1), enc(enc1){}
+
+	OutputStreamPtr out;
+	CharsetEncoderPtr enc;
+};
+
 OutputStreamWriter::OutputStreamWriter(OutputStreamPtr& out1)
-	: out(out1), enc(CharsetEncoder::getDefaultEncoder())
+	: m_priv(std::make_unique<OutputStreamWriterPrivate>(out1))
 {
 	if (out1 == 0)
 	{
@@ -38,7 +49,7 @@ OutputStreamWriter::OutputStreamWriter(OutputStreamPtr& out1)
 
 OutputStreamWriter::OutputStreamWriter(OutputStreamPtr& out1,
 	CharsetEncoderPtr& enc1)
-	: out(out1), enc(enc1)
+	: m_priv(std::make_unique<OutputStreamWriterPrivate>(out1, enc1))
 {
 	if (out1 == 0)
 	{
@@ -57,12 +68,12 @@ OutputStreamWriter::~OutputStreamWriter()
 
 void OutputStreamWriter::close(Pool& p)
 {
-	out->close(p);
+	m_priv->out->close(p);
 }
 
 void OutputStreamWriter::flush(Pool& p)
 {
-	out->flush(p);
+	m_priv->out->flush(p);
 }
 
 void OutputStreamWriter::write(const LogString& str, Pool& p)
@@ -70,6 +81,7 @@ void OutputStreamWriter::write(const LogString& str, Pool& p)
 	if (str.length() > 0)
 	{
 #ifdef LOG4CXX_MULTI_PROCESS
+		// Why does this need to happen for multiproces??  why??
 		size_t bufSize = str.length() * 2;
 		char* rawbuf = new char[bufSize];
 		ByteBuffer buf(rawbuf, (size_t) bufSize);
@@ -78,24 +90,29 @@ void OutputStreamWriter::write(const LogString& str, Pool& p)
 		char rawbuf[BUFSIZE];
 		ByteBuffer buf(rawbuf, (size_t) BUFSIZE);
 #endif
-		enc->reset();
+		m_priv->enc->reset();
 		LogString::const_iterator iter = str.begin();
 
 		while (iter != str.end())
 		{
-			CharsetEncoder::encode(enc, str, iter, buf);
+			CharsetEncoder::encode(m_priv->enc, str, iter, buf);
 			buf.flip();
-			out->write(buf, p);
+			m_priv->out->write(buf, p);
 			buf.clear();
 		}
 
-		CharsetEncoder::encode(enc, str, iter, buf);
-		enc->flush(buf);
+		CharsetEncoder::encode(m_priv->enc, str, iter, buf);
+		m_priv->enc->flush(buf);
 		buf.flip();
-		out->write(buf, p);
+		m_priv->out->write(buf, p);
 #ifdef LOG4CXX_MULTI_PROCESS
 		delete []rawbuf;
 #endif
 	}
+}
+
+OutputStreamPtr OutputStreamWriter::getOutputStreamPtr() const
+{
+	return m_priv->out;
 }
 

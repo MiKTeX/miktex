@@ -18,20 +18,13 @@
 #ifndef _LOG4CXX_SPI_LOGGING_EVENT_H
 #define _LOG4CXX_SPI_LOGGING_EVENT_H
 
-#if defined(_MSC_VER)
-	#pragma warning (push)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
-
-#include <log4cxx/helpers/objectptr.h>
 #include <log4cxx/logstring.h>
 #include <time.h>
 #include <log4cxx/logger.h>
 #include <log4cxx/mdc.h>
 #include <log4cxx/spi/location/locationinfo.h>
 #include <vector>
+#include <chrono>
 
 
 namespace log4cxx
@@ -54,7 +47,7 @@ components.
 <p>This class is of concern to those wishing to extend log4cxx.
 */
 class LOG4CXX_EXPORT LoggingEvent :
-	public virtual helpers::ObjectImpl
+	public virtual helpers::Object
 {
 	public:
 		DECLARE_LOG4CXX_OBJECT(LoggingEvent)
@@ -86,28 +79,16 @@ class LOG4CXX_EXPORT LoggingEvent :
 		~LoggingEvent();
 
 		/** Return the level of this event. */
-		inline const LevelPtr& getLevel() const
-		{
-			return level;
-		}
+		const LevelPtr& getLevel() const;
 
 		/**  Return the name of the logger. */
-		inline const LogString& getLoggerName() const
-		{
-			return logger;
-		}
+		const LogString& getLoggerName() const;
 
 		/** Return the message for this logging event. */
-		inline const LogString& getMessage() const
-		{
-			return message;
-		}
+		const LogString& getMessage() const;
 
 		/** Return the message for this logging event. */
-		inline const LogString& getRenderedMessage() const
-		{
-			return message;
-		}
+		const LogString& getRenderedMessage() const;
 
 		/**Returns the time when the application started,
 		in microseconds elapsed since 01.01.1970.
@@ -115,23 +96,22 @@ class LOG4CXX_EXPORT LoggingEvent :
 		static log4cxx_time_t getStartTime();
 
 		/** Return the threadName of this event. */
-		inline const LogString& getThreadName() const
-		{
-			return threadName;
-		}
+		const LogString& getThreadName() const;
+
+		/**
+		 * Get the user name of the thread.  The default name is (noname) if
+		 * Log4cxx is unable to retrieve the name using a platform-specific call.
+		 */
+		const LogString& getThreadUserName() const;
 
 		/** The number of microseconds elapsed from 01.01.1970 until logging event
 		 was created. */
-		inline log4cxx_time_t getTimeStamp() const
-		{
-			return timeStamp;
-		}
+		log4cxx_time_t getTimeStamp() const;
+
+		std::chrono::time_point<std::chrono::system_clock> getChronoTimeStamp() const;
 
 		/* Return the file where this log statement was written. */
-		inline const log4cxx::spi::LocationInfo& getLocationInformation() const
-		{
-			return locationInfo;
-		}
+		const log4cxx::spi::LocationInfo& getLocationInformation() const;
 
 		/**
 		* This method appends the NDC for this event to passed string. It will return the
@@ -143,12 +123,6 @@ class LOG4CXX_EXPORT LoggingEvent :
 		* @return true if NDC is set.
 		*/
 		bool getNDC(LogString& dest) const;
-
-		/**
-		 *  Writes the content of the LoggingEvent
-		 *  in a format compatible with log4j's serialized form.
-		 */
-		void write(helpers::ObjectOutputStream& os, helpers::Pool& p) const;
 
 		/**
 		* Appends the the context corresponding to the <code>key</code> parameter.
@@ -204,64 +178,15 @@ class LOG4CXX_EXPORT LoggingEvent :
 		void setProperty(const LogString& key, const LogString& value);
 
 	private:
-		/**
-		* The logger of the logging event.
-		**/
-		LogString logger;
-
-		/** level of logging event. */
-		LevelPtr level;
-
-		/** The nested diagnostic context (NDC) of logging event. */
-		mutable LogString* ndc;
-
-		/** The mapped diagnostic context (MDC) of logging event. */
-		mutable MDC::Map* mdcCopy;
-
-		/**
-		* A map of String keys and String values.
-		*/
-		std::map<LogString, LogString>* properties;
-
-		/** Have we tried to do an NDC lookup? If we did, there is no need
-		*  to do it again.  Note that its value is always false when
-		*  serialized. Thus, a receiving SocketNode will never use it's own
-		*  (incorrect) NDC. See also writeObject method.
-		*/
-		mutable bool ndcLookupRequired;
-
-		/**
-		* Have we tried to do an MDC lookup? If we did, there is no need to do it
-		* again.  Note that its value is always false when serialized. See also
-		* the getMDC and getMDCCopy methods.
-		*/
-		mutable bool mdcCopyLookupRequired;
-
-		/** The application supplied message of logging event. */
-		LogString message;
-
-
-		/** The number of microseconds elapsed from 01.01.1970 until logging event
-		 was created. */
-		log4cxx_time_t timeStamp;
-
-		/** The is the location where this log statement was written. */
-		const log4cxx::spi::LocationInfo locationInfo;
-
-
-		/** The identifier of thread in which this logging event
-		was generated.
-		*/
-		const LogString threadName;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(LoggingEventPrivate, m_priv)
 
 		//
 		//   prevent copy and assignment
 		//
 		LoggingEvent(const LoggingEvent&);
 		LoggingEvent& operator=(const LoggingEvent&);
-		static const LogString getCurrentThreadName();
-
-		static void writeProlog(log4cxx::helpers::ObjectOutputStream& os, log4cxx::helpers::Pool& p);
+		static const LogString& getCurrentThreadName();
+		static const LogString& getCurrentThreadUserName();
 
 };
 
@@ -269,10 +194,5 @@ LOG4CXX_PTR_DEF(LoggingEvent);
 LOG4CXX_LIST_DEF(LoggingEventList, LoggingEventPtr);
 }
 }
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
-
 
 #endif //_LOG4CXX_SPI_LOGGING_EVENT_H

@@ -20,7 +20,19 @@
 
 #include <log4cxx/log4cxx.h>
 #include <string>
-#include <log4cxx/helpers/objectoutputstream.h>
+
+#if __cpp_lib_string_view || (_MSVC_LANG >= 201703L)
+#include <string_view>
+#define LOG4CXX_HAS_STRING_VIEW
+#else
+#include <string.h>
+#endif
+
+#if defined(_WIN32)
+#define LOG4CXX_SHORT_FILENAME_SPLIT_CHAR '\\'
+#else
+#define LOG4CXX_SHORT_FILENAME_SPLIT_CHAR '/'
+#endif
 
 namespace log4cxx
 {
@@ -45,7 +57,19 @@ class LOG4CXX_EXPORT LocationInfo
 
 		static const LocationInfo& getLocationUnavailable();
 
-
+#ifdef LOG4CXX_HAS_STRING_VIEW
+		static constexpr const char* calcShortFileName(const char* fileName){
+			std::string_view view(fileName);
+			// If the separator is not found, rfind will return -1.  Adding 1 to
+			// that will have it pointing at fileName, which is a good fallback.
+			return fileName + view.rfind(LOG4CXX_SHORT_FILENAME_SPLIT_CHAR) + 1;
+		}
+#else
+		static const char* calcShortFileName(const char* fileName){
+			const char* location = strrchr(fileName, LOG4CXX_SHORT_FILENAME_SPLIT_CHAR);
+			return location == nullptr ? fileName : location + 1;
+		}
+#endif
 
 		/**
 		 *   Constructor.
@@ -53,8 +77,9 @@ class LOG4CXX_EXPORT LocationInfo
 		 *       location info for current code site
 		 */
 		LocationInfo( const char* const fileName,
-			const char* const functionName,
-			int lineNumber);
+					  const char* const shortFileName,
+					  const char* const functionName,
+					  int lineNumber);
 
 		/**
 		 *   Default constructor.
@@ -89,6 +114,13 @@ class LOG4CXX_EXPORT LocationInfo
 		const char* getFileName() const;
 
 		/**
+		 *   Return the short file name of the caller.
+		 *   @returns file name.  Note that this will fallback to the full filename when using
+		 *    calcShortFileName to calculate the filename at compile-time.
+		 */
+		const char* getShortFileName() const;
+
+		/**
 		  *   Returns the line number of the caller.
 		  * @returns line number, -1 if not available.
 		  */
@@ -96,8 +128,6 @@ class LOG4CXX_EXPORT LocationInfo
 
 		/** Returns the method name of the caller. */
 		const std::string getMethodName() const;
-
-		void write(log4cxx::helpers::ObjectOutputStream& os, log4cxx::helpers::Pool& p) const;
 
 
 	private:
@@ -107,6 +137,9 @@ class LOG4CXX_EXPORT LocationInfo
 		/** Caller's file name. */
 		const char* fileName;
 
+  		/** Caller's short file name. */
+		const char* shortFileName;
+
 		/** Caller's method name. */
 		const char* methodName;
 
@@ -115,7 +148,7 @@ class LOG4CXX_EXPORT LocationInfo
 }
 }
 
-#if !defined(LOG4CXX_LOCATION)
+#if !defined(LOG4CXX_LOCATION) && !LOG4CXX_DISABLE_LOCATION_INFO
 #if defined(_MSC_VER)
 	#if _MSC_VER >= 1300
 		#define __LOG4CXX_FUNC__ __FUNCSIG__
@@ -132,9 +165,15 @@ class LOG4CXX_EXPORT LocationInfo
 #if !defined(__LOG4CXX_FUNC__)
 	#define __LOG4CXX_FUNC__ ""
 #endif
+
+
 #define LOG4CXX_LOCATION ::log4cxx::spi::LocationInfo(__FILE__,         \
+	::log4cxx::spi::LocationInfo::calcShortFileName(__FILE__), \
 	__LOG4CXX_FUNC__, \
 	__LINE__)
-#endif
+
+#else
+#define LOG4CXX_LOCATION ::log4cxx::spi::LocationInfo::getLocationUnavailable()
+#endif // LOG4CXX_LOCATION
 
 #endif //_LOG4CXX_SPI_LOCATION_LOCATIONINFO_H

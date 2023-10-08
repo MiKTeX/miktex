@@ -18,14 +18,7 @@
 #ifndef _LOG4CXX_HELPERS_XML_H
 #define _LOG4CXX_HELPERS_XML_H
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/logstring.h>
-#include <log4cxx/helpers/objectptr.h>
 #include <log4cxx/helpers/object.h>
 #include <log4cxx/helpers/exception.h>
 
@@ -35,13 +28,13 @@ class File;
 namespace helpers
 {
 class XMLDOMNode;
-typedef helpers::ObjectPtrT<XMLDOMNode> XMLDOMNodePtr;
+typedef std::shared_ptr<XMLDOMNode> XMLDOMNodePtr;
 
 class XMLDOMDocument;
-typedef helpers::ObjectPtrT<XMLDOMDocument> XMLDOMDocumentPtr;
+typedef std::shared_ptr<XMLDOMDocument> XMLDOMDocumentPtr;
 
 class XMLDOMNodeList;
-typedef helpers::ObjectPtrT<XMLDOMNodeList> XMLDOMNodeListPtr;
+typedef std::shared_ptr<XMLDOMNodeList> XMLDOMNodeListPtr;
 
 class LOG4CXX_EXPORT DOMException : public RuntimeException
 {
@@ -121,11 +114,6 @@ class LOG4CXX_EXPORT XMLDOMNodeList : virtual public Object
 LOG4CXX_PTR_DEF(XMLDOMNodeList);
 }  // namespace helpers
 } // namespace log4cxx
-
-
-#if defined(_MSC_VER)
-	#pragma warning ( pop )
-#endif
 
 #endif // _LOG4CXX_HELPERS_XML_H
 

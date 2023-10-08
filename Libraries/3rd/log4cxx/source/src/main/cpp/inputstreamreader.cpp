@@ -29,8 +29,19 @@ using namespace log4cxx::helpers;
 
 IMPLEMENT_LOG4CXX_OBJECT(InputStreamReader)
 
+struct InputStreamReader::InputStreamReaderPrivate{
+	InputStreamReaderPrivate(const InputStreamPtr& in1) :
+		in(in1), dec(CharsetDecoder::getDefaultDecoder()){}
+
+	InputStreamReaderPrivate(const InputStreamPtr& in1, const CharsetDecoderPtr& dec1) :
+		in(in1), dec(dec1) {}
+
+	InputStreamPtr in;
+	CharsetDecoderPtr dec;
+};
+
 InputStreamReader::InputStreamReader(const InputStreamPtr& in1)
-	: in(in1), dec(CharsetDecoder::getDefaultDecoder())
+	: m_priv(std::make_unique<InputStreamReaderPrivate>(in1))
 {
 	if (in1 == 0)
 	{
@@ -39,7 +50,7 @@ InputStreamReader::InputStreamReader(const InputStreamPtr& in1)
 }
 
 InputStreamReader::InputStreamReader(const InputStreamPtr& in1, const CharsetDecoderPtr& dec1)
-	: in(in1), dec(dec1)
+	: m_priv(std::make_unique<InputStreamReaderPrivate>(in1, dec1))
 {
 	if (in1 == 0)
 	{
@@ -58,7 +69,7 @@ InputStreamReader::~InputStreamReader()
 
 void InputStreamReader::close(Pool& )
 {
-	in->close();
+	m_priv->in->close();
 }
 
 LogString InputStreamReader::read(Pool& p)
@@ -68,10 +79,10 @@ LogString InputStreamReader::read(Pool& p)
 	LogString output;
 
 	// read whole file
-	while (in->read(buf) >= 0)
+	while (m_priv->in->read(buf) >= 0)
 	{
 		buf.flip();
-		log4cxx_status_t stat = dec->decode(buf, output);
+		log4cxx_status_t stat = m_priv->dec->decode(buf, output);
 
 		if (stat != 0)
 		{

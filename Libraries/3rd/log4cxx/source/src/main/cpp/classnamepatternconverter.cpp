@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/classnamepatternconverter.h>
 #include <log4cxx/spi/loggingevent.h>
@@ -43,11 +39,11 @@ PatternConverterPtr ClassNamePatternConverter::newInstance(
 {
 	if (options.size() == 0)
 	{
-		static PatternConverterPtr def(new ClassNamePatternConverter(options));
+		static PatternConverterPtr def = std::make_shared<ClassNamePatternConverter>(options);
 		return def;
 	}
 
-	return new ClassNamePatternConverter(options);
+	return std::make_shared<ClassNamePatternConverter>(options);
 }
 
 void ClassNamePatternConverter::format(

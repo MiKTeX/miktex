@@ -36,6 +36,41 @@
 #include <log4cxx/helpers/transcoder.h>
 #include <log4cxx/file.h>
 #include <log4cxx/xml/domconfigurator.h>
+#include <log4cxx/logmanager.h>
+#include <apr_general.h>
+#if !defined(LOG4CXX)
+	#define LOG4CXX 1
+#endif
+#include <log4cxx/helpers/aprinitializer.h>
+
+#if APR_HAS_THREADS
+#include <log4cxx/helpers/filewatchdog.h>
+namespace log4cxx
+{
+
+class ConfiguratorWatchdog  : public helpers::FileWatchdog
+{
+	spi::ConfiguratorPtr m_config;
+	public:
+    ConfiguratorWatchdog(const spi::ConfiguratorPtr& config, const File& filename)
+        : helpers::FileWatchdog(filename)
+        , m_config(config)
+    {
+    }
+
+    /**
+    Call PropertyConfigurator#doConfigure(const String& configFileName,
+    const spi::LoggerRepositoryPtr& hierarchy) with the
+    <code>filename</code> to reconfigure log4cxx.
+    */
+    void doOnChange()
+    {
+        m_config->doConfigure(file(), LogManager::getLoggerRepository());
+    }
+};
+
+}
+#endif
 
 using namespace log4cxx;
 using namespace log4cxx::helpers;
@@ -355,7 +390,7 @@ ObjectPtr OptionConverter::instantiateByClassName(const LogString& className,
 		try
 		{
 			const Class& classObj = Loader::loadClass(className);
-			ObjectPtr newObject =  classObj.newInstance();
+			ObjectPtr newObject =  ObjectPtr(classObj.newInstance());
 
 			if (!newObject->instanceof(superClass))
 			{
@@ -375,7 +410,7 @@ ObjectPtr OptionConverter::instantiateByClassName(const LogString& className,
 }
 
 void OptionConverter::selectAndConfigure(const File& configFileName,
-	const LogString& _clazz, spi::LoggerRepositoryPtr& hierarchy)
+	const LogString& _clazz, spi::LoggerRepositoryPtr hierarchy, int delay)
 {
 	ConfiguratorPtr configurator;
 	LogString clazz = _clazz;
@@ -394,9 +429,9 @@ void OptionConverter::selectAndConfigure(const File& configFileName,
 	if (!clazz.empty())
 	{
 		LogLog::debug(LOG4CXX_STR("Preferred configurator class: ") + clazz);
-		configurator = instantiateByClassName(clazz,
-				Configurator::getStaticClass(),
-				0);
+		const Class& clazzObj = Loader::loadClass(clazz);
+		ObjectPtr obj = ObjectPtr(clazzObj.newInstance());
+		configurator = log4cxx::cast<Configurator>(obj);
 
 		if (configurator == 0)
 		{
@@ -407,8 +442,18 @@ void OptionConverter::selectAndConfigure(const File& configFileName,
 	}
 	else
 	{
-		configurator = new PropertyConfigurator();
+		configurator = std::make_shared<PropertyConfigurator>();
 	}
 
-	configurator->doConfigure(configFileName, hierarchy);
+#if APR_HAS_THREADS
+	if (0 < delay)
+	{
+		auto dog = new ConfiguratorWatchdog(configurator, configFileName);
+		APRInitializer::registerCleanup(dog);
+		dog->setDelay(delay);
+		dog->start();
+	}
+	else
+#endif
+		configurator->doConfigure(configFileName, hierarchy);
 }

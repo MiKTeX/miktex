@@ -22,19 +22,12 @@
 #include <log4cxx/logstring.h>
 #include <sstream>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 4275 )
-#endif
-
 namespace log4cxx
 {
 
 
 namespace helpers
 {
-
-void MessageBufferUseStaticStream();
 
 typedef std::ios_base& (*ios_base_manip)(std::ios_base&);
 
@@ -185,14 +178,7 @@ class LOG4CXX_EXPORT CharMessageBuffer
 		 */
 		CharMessageBuffer& operator=(const CharMessageBuffer&);
 
-		/**
-		   * Encapsulated std::string.
-		   */
-		std::basic_string<char> buf;
-		/**
-		 *  Encapsulated stream, created on demand.
-		 */
-		std::basic_ostringstream<char>* stream;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(CharMessageBufferPrivate, m_priv)
 };
 
 template<class V>
@@ -362,14 +348,7 @@ class LOG4CXX_EXPORT UniCharMessageBuffer
 		 */
 		UniCharMessageBuffer& operator=(const UniCharMessageBuffer&);
 
-		/**
-		   * Encapsulated std::string.
-		   */
-		std::basic_string<UniChar> buf;
-		/**
-		 *  Encapsulated stream, created on demand.
-		 */
-		std::basic_ostringstream<UniChar>* stream;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(UniCharMessageBufferPrivate, m_priv)
 };
 
 template<class V>
@@ -528,14 +507,7 @@ class LOG4CXX_EXPORT WideMessageBuffer
 		 */
 		WideMessageBuffer& operator=(const WideMessageBuffer&);
 
-		/**
-		   * Encapsulated std::string.
-		   */
-		std::basic_string<wchar_t> buf;
-		/**
-		 *  Encapsulated stream, created on demand.
-		 */
-		std::basic_ostringstream<wchar_t>* stream;
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(WideMessageBufferPrivate, m_priv)
 };
 
 template<class V>
@@ -800,21 +772,7 @@ class LOG4CXX_EXPORT MessageBuffer
 		 */
 		MessageBuffer& operator=(const MessageBuffer&);
 
-		/**
-		 *  Character message buffer.
-		 */
-		CharMessageBuffer cbuf;
-
-		/**
-		 * Encapsulated wide message buffer, created on demand.
-		 */
-		WideMessageBuffer* wbuf;
-#if LOG4CXX_UNICHAR_API || LOG4CXX_CFSTRING_API
-		/**
-		 * Encapsulated wide message buffer, created on demand.
-		 */
-		UniCharMessageBuffer* ubuf;
-#endif
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(MessageBufferPrivate, m_priv)
 };
 
 template<class V>
@@ -835,17 +793,13 @@ std::ostream& operator<<(MessageBuffer& os, const V& val)
 	typedef UniCharMessageBuffer LogCharMessageBuffer;
 #endif
 
-#else
+#else // !LOG4CXX_WCHAR_T_API
 typedef CharMessageBuffer MessageBuffer;
 typedef CharMessageBuffer LogCharMessageBuffer;
-#endif
+#endif // !LOG4CXX_WCHAR_T_API
 
 }
 }
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif
 

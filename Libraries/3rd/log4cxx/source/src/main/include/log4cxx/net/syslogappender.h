@@ -21,16 +21,23 @@
 #include <log4cxx/appenderskeleton.h>
 #include <log4cxx/helpers/syslogwriter.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
 namespace log4cxx
 {
 namespace net
 {
-/** Use SyslogAppender to send log messages to a remote syslog daemon.*/
+/**
+ * Use SyslogAppender to send log messages to a remote syslog daemon.
+ *
+ * Note that by default, this appender will split up messages that are
+ * more than 1024 bytes long, for compatability with BSD syslog(see
+ * RFC 3164).  Modern syslog implementations(e.g. syslog-ng) can accept
+ * messages much larger, and may have a default of 8k.  You may modify
+ * the default size of the messages by setting the MaxMessageLength option.
+ *
+ * When the message is too large for the current MaxMessageLength,
+ * the packet number and total # will be appended to the end of the
+ * message like this: (5/10)
+ */
 class LOG4CXX_EXPORT SyslogAppender : public AppenderSkeleton
 {
 	public:
@@ -48,7 +55,7 @@ class LOG4CXX_EXPORT SyslogAppender : public AppenderSkeleton
 			const LogString& syslogHost, int syslogFacility);
 		~SyslogAppender();
 		/** Release any resources held by this SyslogAppender.*/
-		void close();
+		void close() override;
 
 		/**
 		Returns the specified syslog facility as a lower-case String,
@@ -66,20 +73,20 @@ class LOG4CXX_EXPORT SyslogAppender : public AppenderSkeleton
 		*/
 		static int getFacility(const LogString& facilityName);
 
-		void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
+		void append(const spi::LoggingEventPtr& event, helpers::Pool& p) override;
 
 		/**
 		This method returns immediately as options are activated when they
 		are set.
 		*/
-		void activateOptions(log4cxx::helpers::Pool& p);
-		void setOption(const LogString& option, const LogString& value);
+		void activateOptions(helpers::Pool& p) override;
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		The SyslogAppender requires a layout. Hence, this method returns
 		<code>true</code>.
 		*/
-		virtual bool requiresLayout() const
+		bool requiresLayout() const override
 		{
 			return true;
 		}
@@ -95,10 +102,7 @@ class LOG4CXX_EXPORT SyslogAppender : public AppenderSkeleton
 		/**
 		Returns the value of the <b>SyslogHost</b> option.
 		*/
-		inline const LogString& getSyslogHost() const
-		{
-			return syslogHost;
-		}
+		const LogString& getSyslogHost() const;
 
 		/**
 		Set the syslog facility. This is the <b>Facility</b> option.
@@ -113,49 +117,35 @@ class LOG4CXX_EXPORT SyslogAppender : public AppenderSkeleton
 		/**
 		Returns the value of the <b>Facility</b> option.
 		*/
-		inline LogString getFacility() const
-		{
-			return getFacilityString(syslogFacility);
-		}
+		LogString getFacility() const;
 
 		/**
 		If the <b>FacilityPrinting</b> option is set to true, the printed
 		message will include the facility name of the application. It is
 		<em>false</em> by default.
 		*/
-		inline void setFacilityPrinting(bool facilityPrinting1)
-		{
-			this->facilityPrinting = facilityPrinting1;
-		}
+		void setFacilityPrinting(bool facilityPrinting1);
 
 		/**
 		Returns the value of the <b>FacilityPrinting</b> option.
 		*/
-		inline bool getFacilityPrinting() const
-		{
-			return facilityPrinting;
-		}
+		bool getFacilityPrinting() const;
+
+		void setMaxMessageLength(int maxMessageLength1);
+
+		int getMaxMessageLength() const;
 
 	protected:
 		void initSyslogFacilityStr();
 
-		int syslogFacility; // Have LOG_USER as default
-		LogString facilityStr;
-		bool facilityPrinting;
-		helpers::SyslogWriter* sw;
-		LogString syslogHost;
-		int syslogHostPort;
 	private:
+		struct SyslogAppenderPriv;
 		SyslogAppender(const SyslogAppender&);
 		SyslogAppender& operator=(const SyslogAppender&);
 }; // class SyslogAppender
 LOG4CXX_PTR_DEF(SyslogAppender);
 } // namespace net
 } // namespace log4cxx
-
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 #endif // _LOG4CXX_NET_SYSLOG_APPENDER_H
 

@@ -15,18 +15,29 @@
  * limitations under the License.
  */
 
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 #include <log4cxx/logstring.h>
 #include <log4cxx/pattern/namepatternconverter.h>
 #include <log4cxx/pattern/nameabbreviator.h>
 #include <log4cxx/spi/loggingevent.h>
+#include <log4cxx/private/patternconverter_priv.h>
 
 using namespace log4cxx;
 using namespace log4cxx::pattern;
 using namespace log4cxx::spi;
+
+#define priv static_cast<NamePatternConverterPrivate*>(m_priv.get())
+
+struct NamePatternConverter::NamePatternConverterPrivate : public PatternConverterPrivate
+{
+	NamePatternConverterPrivate( const LogString& name, const LogString& style, const NameAbbreviatorPtr abbrev ) :
+		PatternConverterPrivate( name, style ),
+		abbreviator(abbrev) {}
+
+	/**
+	 * Abbreviator.
+	 */
+	const NameAbbreviatorPtr abbreviator;
+};
 
 IMPLEMENT_LOG4CXX_OBJECT(NamePatternConverter)
 
@@ -34,8 +45,8 @@ NamePatternConverter::NamePatternConverter(
 	const LogString& name1,
 	const LogString& style1,
 	const std::vector<LogString>& options) :
-	LoggingEventPatternConverter(name1, style1),
-	abbreviator(getAbbreviator(options))
+	LoggingEventPatternConverter(std::make_unique<NamePatternConverterPrivate>(name1, style1,
+			getAbbreviator(options)))
 {
 }
 
@@ -55,7 +66,7 @@ NameAbbreviatorPtr NamePatternConverter::getAbbreviator(
  * @param nameStart starting position of name to abbreviate.
  * @param buf string buffer containing name.
  */
-void NamePatternConverter::abbreviate(int nameStart, LogString& buf) const
+void NamePatternConverter::abbreviate(LogString::size_type nameStart, LogString& buf) const
 {
-	abbreviator->abbreviate(nameStart, buf);
+	priv->abbreviator->abbreviate(nameStart, buf);
 }

@@ -20,12 +20,6 @@
 
 #include <log4cxx/appenderskeleton.h>
 
-#if defined(_MSC_VER)
-	#pragma warning ( push )
-	#pragma warning ( disable: 4251 )
-#endif
-
-
 namespace log4cxx
 {
 namespace nt
@@ -48,49 +42,31 @@ class LOG4CXX_EXPORT NTEventLogAppender : public AppenderSkeleton
 
 		virtual ~NTEventLogAppender();
 
-		virtual void activateOptions(log4cxx::helpers::Pool& p);
-		virtual void close();
-		virtual void setOption(const LogString& option, const LogString& value);
+		void activateOptions(helpers::Pool& p) override;
+		void close() override;
+		void setOption(const LogString& option, const LogString& value) override;
 
 		/**
 		 * The SocketAppender does not use a layout. Hence, this method
 		 * returns <code>false</code>.
 		 *
 		 */
-		bool requiresLayout() const
+		bool requiresLayout() const override
 		{
 			return true;
 		}
 
-		void setSource(const LogString& source)
-		{
-			this->source.assign(source);
-		}
+		void setSource(const LogString& source);
 
-		const LogString& getSource() const
-		{
-			return source;
-		}
+		const LogString& getSource() const;
 
-		void setLog(const LogString& log)
-		{
-			this->log.assign(log);
-		}
+		void setLog(const LogString& log);
 
-		const LogString& getLog() const
-		{
-			return log;
-		}
+		const LogString& getLog() const;
 
-		void setServer(const LogString& server)
-		{
-			this->server.assign(server);
-		}
+		void setServer(const LogString& server);
 
-		const LogString& getServer() const
-		{
-			return server;
-		}
+		const LogString& getServer() const;
 
 
 	protected:
@@ -101,7 +77,7 @@ class LOG4CXX_EXPORT NTEventLogAppender : public AppenderSkeleton
 		typedef void SID;
 		typedef void* HANDLE;
 
-		virtual void append(const spi::LoggingEventPtr& event, log4cxx::helpers::Pool& p);
+		void append(const spi::LoggingEventPtr& event, helpers::Pool& p) override;
 		static unsigned short getEventType(const spi::LoggingEventPtr& event);
 		static unsigned short getEventCategory(const spi::LoggingEventPtr& event);
 		/*
@@ -109,12 +85,7 @@ class LOG4CXX_EXPORT NTEventLogAppender : public AppenderSkeleton
 		 */
 		void addRegistryInfo();
 
-		// Data
-		LogString server;
-		LogString log;
-		LogString source;
-		HANDLE hEventLog;
-		SID* pCurrentUserSID;
+		struct NTEventLogAppenderPrivate;
 		static LogString getErrorString(const LogString& function);
 
 	private:
@@ -127,7 +98,4 @@ LOG4CXX_PTR_DEF(NTEventLogAppender);
 }  // namespace nt
 } // namespace log4cxx
 
-#if defined(_MSC_VER)
-	#pragma warning (pop)
-#endif
 #endif //_LOG4CXX_NT_EVENT_LOG_APPENDER_HEADER_

@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
-
 #include <log4cxx/ndc.h>
 #include <log4cxx/helpers/transcoder.h>
 #include <log4cxx/helpers/threadspecificdata.h>
@@ -327,7 +322,7 @@ bool NDC::pop(std::basic_string<UniChar>& dst)
 
 		if (!stack.empty())
 		{
-			Transcoder::encode(stack.top().message, dst);
+			Transcoder::encode(getMessage(stack.top()), dst);
 			stack.pop();
 			data->recycle();
 			return true;
@@ -349,7 +344,7 @@ bool NDC::peek(std::basic_string<UniChar>& dst)
 
 		if (!stack.empty())
 		{
-			Transcoder::encode(stack.top().message, dst);
+			Transcoder::encode(getMessage(stack.top()), dst);
 			return true;
 		}
 

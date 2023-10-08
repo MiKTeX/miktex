@@ -21,24 +21,20 @@ using namespace log4cxx;
 using namespace log4cxx::spi;
 using namespace log4cxx::helpers;
 
-
-DefaultRepositorySelector::DefaultRepositorySelector(const LoggerRepositoryPtr& repository1)
-	: repository(repository1)
+struct DefaultRepositorySelector::DefaultRepositorySelectorPrivate
 {
+	LoggerRepositoryPtr repository;
+};
+
+DefaultRepositorySelector::DefaultRepositorySelector(const LoggerRepositoryPtr repository1)
+	: m_priv(std::make_unique<DefaultRepositorySelectorPrivate>())
+{
+	m_priv->repository = repository1;
 }
 
-void DefaultRepositorySelector::addRef() const
-{
-	ObjectImpl::addRef();
-}
+DefaultRepositorySelector::~DefaultRepositorySelector() {}
 
-
-void DefaultRepositorySelector::releaseRef() const
+LoggerRepositoryPtr DefaultRepositorySelector::getLoggerRepository()
 {
-	ObjectImpl::releaseRef();
-}
-
-LoggerRepositoryPtr& DefaultRepositorySelector::getLoggerRepository()
-{
-	return repository;
+	return m_priv->repository;
 }

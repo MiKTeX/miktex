@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(_MSC_VER)
-	#pragma warning ( disable: 4231 4251 4275 4786 )
-#endif
-
 #include <log4cxx/logstring.h>
 #include <log4cxx/helpers/class.h>
 #include <log4cxx/helpers/exception.h>
@@ -30,8 +26,6 @@
 	#define LOG4CXX 1
 #endif
 #include <log4cxx/private/log4cxx_private.h>
-#include <log4cxx/rollingfileappender.h>
-#include <log4cxx/dailyrollingfileappender.h>
 
 
 #include <log4cxx/asyncappender.h>
@@ -45,8 +39,6 @@
 	#include <log4cxx/nt/outputdebugstringappender.h>
 #endif
 #include <log4cxx/net/smtpappender.h>
-#include <log4cxx/net/socketappender.h>
-#include <log4cxx/net/sockethubappender.h>
 #include <log4cxx/helpers/datagramsocket.h>
 #include <log4cxx/net/syslogappender.h>
 #include <log4cxx/net/telnetappender.h>
@@ -57,11 +49,11 @@
 #include <log4cxx/htmllayout.h>
 #include <log4cxx/simplelayout.h>
 #include <log4cxx/xml/xmllayout.h>
-#include <log4cxx/ttcclayout.h>
 
 #include <log4cxx/filter/levelmatchfilter.h>
 #include <log4cxx/filter/levelrangefilter.h>
 #include <log4cxx/filter/stringmatchfilter.h>
+#include <log4cxx/filter/locationinfofilter.h>
 #include <log4cxx/rolling/filterbasedtriggeringpolicy.h>
 #include <log4cxx/rolling/fixedwindowrollingpolicy.h>
 #include <log4cxx/rolling/manualtriggeringpolicy.h>
@@ -71,6 +63,7 @@
 
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/varia/fallbackerrorhandler.h>
 #include <apr.h>
 
 
@@ -80,6 +73,11 @@ using namespace log4cxx::net;
 using namespace log4cxx::filter;
 using namespace log4cxx::xml;
 using namespace log4cxx::rolling;
+
+uint32_t libraryVersion(){
+	// This function defined in log4cxx.h
+	return LOG4CXX_VERSION;
+}
 
 Class::Class()
 {
@@ -94,7 +92,7 @@ LogString Class::toString() const
 	return getName();
 }
 
-ObjectPtr Class::newInstance() const
+Object* Class::newInstance() const
 {
 	throw InstantiationException(LOG4CXX_STR("Cannot create new instances of Class."));
 #if LOG4CXX_RETURN_AFTER_THROW
@@ -173,29 +171,16 @@ void Class::registerClasses()
 #endif
 	log4cxx::nt::OutputDebugStringAppender::registerClass();
 #endif
-	log4cxx::RollingFileAppender::registerClass();
 	SMTPAppender::registerClass();
-	SocketAppender::registerClass();
-#if APR_HAS_THREADS
-	SocketHubAppender::registerClass();
-#endif
-	SyslogAppender::registerClass();
-#if APR_HAS_THREADS
-	TelnetAppender::registerClass();
-#endif
-	XMLSocketAppender::registerClass();
-	DateLayout::registerClass();
 	HTMLLayout::registerClass();
 	PatternLayout::registerClass();
 	SimpleLayout::registerClass();
-	TTCCLayout::registerClass();
 	XMLLayout::registerClass();
 	LevelMatchFilter::registerClass();
 	LevelRangeFilter::registerClass();
 	StringMatchFilter::registerClass();
-	log4cxx::RollingFileAppender::registerClass();
+	LocationInfoFilter::registerClass();
 	log4cxx::rolling::RollingFileAppender::registerClass();
-	DailyRollingFileAppender::registerClass();
 	log4cxx::rolling::SizeBasedTriggeringPolicy::registerClass();
 	log4cxx::rolling::TimeBasedRollingPolicy::registerClass();
 	log4cxx::rolling::ManualTriggeringPolicy::registerClass();
@@ -203,5 +188,11 @@ void Class::registerClasses()
 	log4cxx::rolling::FilterBasedTriggeringPolicy::registerClass();
 	log4cxx::xml::DOMConfigurator::registerClass();
 	log4cxx::PropertyConfigurator::registerClass();
+	log4cxx::varia::FallbackErrorHandler::registerClass();
+#if LOG4CXX_HAS_NETWORKING
+	TelnetAppender::registerClass();
+	XMLSocketAppender::registerClass();
+	SyslogAppender::registerClass();
+#endif
 }
 

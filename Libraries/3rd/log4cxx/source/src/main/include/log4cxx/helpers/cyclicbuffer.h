@@ -19,6 +19,7 @@
 #define _LOG4CXX_HELPERS_CYCLICBUFFER_H
 
 #include <log4cxx/spi/loggingevent.h>
+#include <memory>
 
 namespace log4cxx
 {
@@ -33,11 +34,8 @@ just the first or last element.
 */
 class LOG4CXX_EXPORT CyclicBuffer
 {
-		log4cxx::spi::LoggingEventList ea;
-		int first;
-		int last;
-		int numElems;
-		int maxSize;
+	private:
+		LOG4CXX_DECLARE_PRIVATE_MEMBER_PTR(CyclicBufferPriv, m_priv)
 
 	public:
 		/**
@@ -63,10 +61,7 @@ class LOG4CXX_EXPORT CyclicBuffer
 		*/
 		spi::LoggingEventPtr get(int i);
 
-		int getMaxSize() const
-		{
-			return maxSize;
-		}
+		int getMaxSize() const;
 
 		/**
 		Get the oldest (first) element in the buffer. The oldest element
@@ -79,10 +74,7 @@ class LOG4CXX_EXPORT CyclicBuffer
 		guaranteed to be in the range 0 to <code>maxSize</code>
 		(inclusive).
 		*/
-		int length() const
-		{
-			return numElems;
-		}
+		int length() const;
 
 		/**
 		Resize the cyclic buffer to <code>newSize</code>.
