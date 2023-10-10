@@ -1,3 +1,25 @@
+
+/*  Copyright (C) 2014-23 R. D. Tennent School of Computing,
+ *  Queen's University, rdt@cs.queensu.ca
+ *
+ *  This program is free software; you can redistribute it
+ *  and/or modify it under the terms of the GNU General
+ *  Public License as published by the Free Software
+ *  Foundation; either version 2 of the License, or (at your
+ *  option) any later version.
+ *
+ *  This program is distributed in the hope that it will
+ *  be useful, but WITHOUT ANY WARRANTY; without even the
+ *  implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *  PARTICULAR PURPOSE. See the GNU General Public License
+ *  for more details.
+ *
+ *  You should have received a copy of the GNU General
+ *  Public License along with this program; if not, write to
+ *  the Free Software Foundation, Inc., 51 Franklin Street,
+ *  Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 # include "process_command.h"
 
 PRIVATE
@@ -54,7 +76,21 @@ int collective_note (int i)
         status_collective (i);
       }
     }
-    else if (isalnum (*s) || *s == '*')
+    else if (isdigit (*s) )
+    {
+      s++;
+      while ( isdigit (*s) ) /* numerical note >= 10? */
+        s++;
+      current[i] = s;
+      if (debug)
+      { fprintf (logfile, "\nAfter collective_note:\n");
+        status (i);
+        status_collective (i);
+      }
+      vspacing_active[i] = false;
+      return spacing; 
+    }
+    else if (isalpha (*s) || *s == '*')
     {  
       s++; 
       while (*s == '\'' || *s == '`' || *s == '!') 
@@ -94,10 +130,13 @@ void beam_initiation (char *s, int i)
     || prefix ("\\nbbb", s) ) 
     beaming[i] = SP(32); 
   else if ( prefix ("\\ibb", s) 
+    || prefix ("\\uibb", s)
     || prefix ("\\Ibb", s)
-    || prefix ("\\nbb", s) )
+    || prefix ("\\nbb", s)
+    || prefix ("\\unbb", s) )
     beaming[i] = SP(16); 
   else if ( prefix ("\\ib", s) 
+    || prefix ("\\uib", s)
     || prefix ("\\Ib", s) )
     beaming[i] = SP(8); 
   if (debug)
@@ -139,13 +178,15 @@ void beam_termination (char *s, int i)
     if (beaming[i] > SP(32))
       beaming[i] = SP(32);
   }
-  else if ( prefix ("\\tbb", s) ) 
+  else if ( prefix ("\\tbb", s) 
+         || prefix ("\\utbb", s) ) 
   { 
     new_beaming = SP(8);
     if (beaming[i] > SP(16))
       beaming[i] = SP(16);
   }
-  else if ( prefix ("\\tb", s) )
+  else if ( prefix ("\\tb", s) 
+         || prefix ("\\utb", s) ) 
   {
     new_beaming = 0; 
   }
@@ -237,14 +278,16 @@ int spacing_note (int i)
     { spacing = SP(2); break;}
 
     if ( prefix ("\\qa", s)
-      || prefix ("\\ql", s)
+      || prefix ("\\uq", s)     
       || prefix ("\\qu", s)
-      || prefix ("\\qp", s) )
+      || prefix ("\\qp", s)
+      || prefix ("\\ql", s) )   
     { spacing = SP(4); break; }
 
     if ( ( prefix ("\\ca", s) 
-        || prefix ("\\cl", s)
-        || prefix ("\\cu", s) )
+        || prefix ("\\uc", s)  
+        || prefix ("\\cu", s)
+        || prefix ("\\cl", s) )  
       && !prefix ("\\caesura", s ) )
     { spacing = SP(8); break; }
 
@@ -258,7 +301,8 @@ int spacing_note (int i)
     if ( prefix ("\\ccc", s) ) 
     { spacing = SP(32); break; }
 
-    if ( prefix ("\\cc", s) 
+    if ( ( prefix ("\\cc", s) 
+         || prefix ("\\ucc", s) )
        && !prefix ("\\ccn", s) 
        && !prefix ("\\cchar", s) ) 
     { spacing = SP(16); break; }
@@ -277,7 +321,8 @@ int spacing_note (int i)
        && !prefix ("\\qqsk", s) )
     { spacing = SP(64); break; }
 
-    if ( prefix ("\\qb", s))  /* beam note */
+    if ( prefix ("\\ub", s)   
+     ||  prefix ("\\qb", s))  /* beam note */
     { spacing = beaming[i]; 
       if (new_beaming != 0) /* set by preceding \tb... */
       { beaming[i] = new_beaming; 
@@ -355,8 +400,8 @@ int spacing_note (int i)
       break;
     }
 
-    if ( prefix("\\tq", s) 
-      && !prefix("\\tqsk", s) )
+    if ( ( prefix("\\tq", s) && !prefix("\\tqsk", s))
+        || prefix("\\utq", s) )
     { spacing = beaming[i];
       beaming[i] = 0;
       new_beaming = 0;
@@ -372,11 +417,14 @@ int spacing_note (int i)
 /*  non-spacing commands:  */
 
     if ( prefix ("\\ib", s) 
+      || prefix ("\\uib", s)
       || prefix ("\\Ib", s)
-      || prefix ("\\nb", s) )
+      || prefix ("\\nb", s) 
+      || prefix ("\\unb", s) )
       beam_initiation (s, i);
 
-    else if ( prefix("\\tb", s) )
+    else if ( prefix("\\tb", s) 
+           || prefix("\\utb", s) )
       beam_termination (s, i);
 
     else if ( prefix("\\ztq", s) )
@@ -560,7 +608,7 @@ int spacing_note (int i)
   { spacing *= 1.5; dotted = false; }
 
   t = strpbrk (s+1, "{\\&|$"); /* collective coding?  */
-  if (*t == '{')  /*  {...}  */
+  if (*t == '{' )  /*  {...}  */
   { /* Save prefix in collective[i].
      * It will be output for every note in the collective */
     char *ss = s; 

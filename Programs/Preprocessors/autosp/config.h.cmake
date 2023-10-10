@@ -12,9 +12,6 @@
 /* Define to 1 if you have the <limits.h> header file. */
 #cmakedefine HAVE_LIMITS_H 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to 1 if stdbool.h conforms to C99. */
 #cmakedefine HAVE_STDBOOL_H 1
 
@@ -51,9 +48,6 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #cmakedefine HAVE__BOOL 1
 
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#cmakedefine NO_MINUS_C_MINUS_O 1
-
 /* Name of package */
 #undef PACKAGE
 
@@ -75,7 +69,9 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #cmakedefine STDC_HEADERS 1
 
 /* Version number of package */
