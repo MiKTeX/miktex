@@ -1,0 +1,19 @@
+/**
+ * @file windows/miktex-tex2aspc.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 2017-2023 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-tex2aspc-version.h"
+
+#define VER_FILEDESCRIPTION_STR "tex2aspc - converts conventional MusiXTeX code to autosp-compatible format"
+#define VER_INTERNALNAME_STR "tex2aspc"
+#define VER_ORIGINALFILENAME_STR "miktex-tex2aspc.exe"
+
+#include "miktex/win/version.rc"
