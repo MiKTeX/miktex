@@ -165,23 +165,14 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
-/* Define to 1 if you have the <arpa/tftp.h> header file. */
-#undef HAVE_ARPA_TFTP_H
-
 /* Define to 1 if you have _Atomic support. */
 #undef HAVE_ATOMIC
-
-/* Define to 1 if using AWS-LC. */
-#undef HAVE_AWSLC
 
 /* Define to 1 if you have the basename function. */
 #undef HAVE_BASENAME
 
 /* Define to 1 if bool is an available type. */
 #undef HAVE_BOOL_T
-
-/* Define to 1 if using BoringSSL. */
-#undef HAVE_BORINGSSL
 
 /* if BROTLI is in use */
 #undef HAVE_BROTLI
@@ -204,9 +195,6 @@
 
 /* Define to 1 if you have the CloseSocket camel case function. */
 #undef HAVE_CLOSESOCKET_CAMEL
-
-/* Define to 1 if you have the connect function. */
-#undef HAVE_CONNECT
 
 /* Define to 1 if you have the <crypto.h> header file. */
 #undef HAVE_CRYPTO_H
@@ -239,11 +227,11 @@
 /* Define to 1 if you have the `fnmatch' function. */
 #undef HAVE_FNMATCH
 
-/* Define to 1 if you have the `fork' function. */
-#undef HAVE_FORK
-
 /* Define to 1 if you have the freeaddrinfo function. */
 #undef HAVE_FREEADDRINFO
+
+/* Define to 1 if you have the `fseeko' function. */
+#undef HAVE_FSEEKO
 
 /* Define to 1 if you have the fsetxattr function. */
 #undef HAVE_FSETXATTR
@@ -362,6 +350,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the ioctl function. */
+#undef HAVE_IOCTL
+
 /* Define to 1 if you have the ioctlsocket function. */
 #undef HAVE_IOCTLSOCKET
 
@@ -374,6 +365,12 @@
 
 /* Define to 1 if you have a working ioctlsocket FIONBIO function. */
 #undef HAVE_IOCTLSOCKET_FIONBIO
+
+/* Define to 1 if you have a working ioctl FIONBIO function. */
+#undef HAVE_IOCTL_FIONBIO
+
+/* Define to 1 if you have a working ioctl SIOCGIFADDR function. */
+#undef HAVE_IOCTL_SIOCGIFADDR
 
 /* Define to 1 if you have the <io.h> header file. */
 #undef HAVE_IO_H
@@ -578,9 +575,6 @@
 /* Define to 1 if you have the signal function. */
 #undef HAVE_SIGNAL
 
-/* Define to 1 if you have the <signal.h> header file. */
-#undef HAVE_SIGNAL_H
-
 /* Define to 1 if you have the sigsetjmp function or macro. */
 #undef HAVE_SIGSETJMP
 
@@ -644,6 +638,9 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
+/* Define to 1 if you have the <stropts.h> header file. */
+#undef HAVE_STROPTS_H
+
 /* Define to 1 if you have the strtok_r function. */
 #undef HAVE_STRTOK_R
 
@@ -691,9 +688,6 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
-
-/* Define to 1 if you have the <sys/uio.h> header file. */
-#undef HAVE_SYS_UIO_H
 
 /* Define to 1 if you have the <sys/un.h> header file. */
 #undef HAVE_SYS_UN_H
@@ -769,6 +763,9 @@
 
 /* Define to 1 if you have the <zstd.h> header file. */
 #undef HAVE_ZSTD_H
+
+/* Define to 1 if you have the `_fseeki64' function. */
+#undef HAVE__FSEEKI64
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
