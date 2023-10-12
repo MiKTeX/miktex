@@ -28,6 +28,17 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
+const string GetScriptName(const PathName& path)
+{
+#if defined(MIKTEX_WINDOWS)
+    if (path.HasExtension(".exe"))
+    {
+        return path.GetFileNameWithoutExtension().ToString();
+    }
+#endif
+    return path.GetFileName().ToString();
+}
+
 tuple<PathName, vector<string>, vector<string>> SessionImpl::GetScript(const string &scriptEngine, const string &name)
 {
     PathName scriptsIni;
@@ -66,7 +77,7 @@ int SessionImpl::RunScript(const string &scriptEngine, const vector<string> &las
 {
     MIKTEX_ASSERT(argc > 0);
 
-    PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
+    string name = GetScriptName(PathName(argv[0]));
 
     PathName scriptEnginePath;
     if (!Utils::FindProgram(scriptEngine, scriptEnginePath))
@@ -77,13 +88,13 @@ int SessionImpl::RunScript(const string &scriptEngine, const vector<string> &las
             T_("Make sure '{scriptEngine}' is installed on your system."),
             "script-engine-not-found",
             "scriptEngine", scriptEngine,
-            "scriptName", name.ToString());
+            "scriptName", name);
     }
 
     PathName scriptPath;
     vector<string> scriptEngineOptions;
     vector<string> scriptOptions;
-    tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript(scriptEngine, name.ToString());
+    tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript(scriptEngine, name);
 
 #if defined(MIKTEX_WINDOWS)
     bool isCmd = scriptEnginePath.HasExtension(".bat") || scriptEnginePath.HasExtension(".cmd");
@@ -140,11 +151,10 @@ int SessionImpl::RunScript(const string &scriptEngine, const vector<string> &las
 int SessionImpl::RunPerl(int argc, const char **argv)
 {
     MIKTEX_ASSERT(argc > 0);
-    PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
     PathName scriptPath;
     vector<string> scriptEngineOptions;
     vector<string> scriptOptions;
-    tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript("perl", name.ToString());
+    tie(scriptPath, scriptEngineOptions, scriptOptions) = GetScript("perl", GetScriptName(PathName(argv[0])));
     return RunScript("perl", {fmt::format("-I{0}", scriptPath.GetDirectoryName().ToUnix().ToString())}, argc, argv);
 }
 
