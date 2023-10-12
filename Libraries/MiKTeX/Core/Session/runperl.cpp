@@ -28,7 +28,7 @@ using namespace std;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-const string GetScriptName(const PathName& path)
+string GetScriptName(const PathName& path)
 {
 #if defined(MIKTEX_WINDOWS)
     if (path.HasExtension(".exe"))
