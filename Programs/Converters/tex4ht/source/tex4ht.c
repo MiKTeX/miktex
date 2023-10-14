@@ -1,6 +1,6 @@
 
-/* tex4ht.c (2018-07-03-10:36), generated from tex4ht-c.tex
-   Copyright 2009-2018 TeX Users Group
+/* tex4ht.c (2023-10-13-15:32), generated from tex4ht-c.tex
+   Copyright 2009-2023 TeX Users Group
    Copyright 1996-2009 Eitan M. Gurari
 
 %
@@ -5997,22 +5997,22 @@ SetConsoleCtrlHandler((PHANDLER_ROUTINE)sigint_handler, TRUE);
 (IGNORED) printf("----------------------------\n");
 #ifndef KPATHSEA
 #ifdef PLATFORM
-   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 %s)\n",PLATFORM);
+   (IGNORED) printf("tex4ht.c (2023-10-13-15:32 %s)\n",PLATFORM);
 #else
-   (IGNORED) printf("tex4ht.c (2018-07-03-10:36)\n");
+   (IGNORED) printf("tex4ht.c (2023-10-13-15:32)\n");
 #endif
 #else
 #ifdef PLATFORM
 #if defined(MIKTEX)
-   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 %s MiKTeX)\n",PLATFORM);
+   (IGNORED) printf("tex4ht.c (2023-10-13-15:32 %s MiKTeX)\n",PLATFORM);
 #else
-   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 %s kpathsea)\n",PLATFORM);
+   (IGNORED) printf("tex4ht.c (2023-10-13-15:32 %s kpathsea)\n",PLATFORM);
 #endif
 #else
 #if defined(MIKTEX)
-   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 MiKTeX)\n");
+   (IGNORED) printf("tex4ht.c (2023-10-13-15:32 MiKTeX)\n");
 #else
-   (IGNORED) printf("tex4ht.c (2018-07-03-10:36 kpathsea)\n");
+   (IGNORED) printf("tex4ht.c (2023-10-13-15:32 kpathsea)\n");
 #endif
 #endif
 #endif
@@ -7142,6 +7142,11 @@ charset =   m_alloc(struct charset_rec, 256);
 
 max_htf_4hf_n = 256;
 htf_4hf = m_alloc(struct htf_4hf_rec, 256);
+/* Zero the array, since otherwise some elements of htf_4hf may be used
+   before it's initialized. See https://puszcza.gnu.org.ua/bugs/?611.
+   Eitan never wrote a wrapper like malloc_chk for calloc, so
+   just do it manually. */
+memset (htf_4hf, 0, 256 * sizeof (struct htf_4hf_rec));
 
 
       
@@ -8849,7 +8854,7 @@ else if ( in_trace_char ){
 
    
 if( span_on && !in_span_ch  && !ignore_chs && !in_accenting
-            && (default_font != font_tbl[cur_fnt].num) ){
+            && cur_fnt >= 0 && (default_font != font_tbl[cur_fnt].num) ){
   if(  (ch < 137) && (ch != 
 132 
 ) ){

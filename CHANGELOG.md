@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## next
+
+### Upgraded programs
+
+* tex4ht 2023-10-13-15:32
+
 ## 23.10.12 - 2023-10-12
 
 ### Upgraded programs

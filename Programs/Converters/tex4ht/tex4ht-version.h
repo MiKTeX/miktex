@@ -1,6 +1,6 @@
 /* tex4ht-version.h: version number                     -*- C++ -*-
 
-   Copyright (C) 1996-2020 Christian Schenk
+   Copyright (C) 1996-2023 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,11 +18,11 @@
    USA.  */
 
 #define MIKTEX_COMP_MAJOR_VERSION 4
-#define MIKTEX_COMP_MINOR_VERSION 1
+#define MIKTEX_COMP_MINOR_VERSION 2
 #define MIKTEX_COMP_PATCH_VERSION 0
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2018-07-03-10:36"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2023-10-13-15:32"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2009-2018 TeX Users Group, © 1996-2009 Eitan M. Gurari"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2009-2013 TeX Users Group, © 1996-2009 Eitan M. Gurari"
 
 #include <miktex/Version>
