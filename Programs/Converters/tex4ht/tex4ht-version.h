@@ -23,6 +23,6 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "2023-10-13-15:32"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "© 2009-2013 TeX Users Group, © 1996-2009 Eitan M. Gurari"
+#define MIKTEX_COMP_COPYRIGHT_STR "© 2009-2023 TeX Users Group, © 1996-2009 Eitan M. Gurari"
 
 #include <miktex/Version>
