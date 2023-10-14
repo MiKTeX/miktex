@@ -1,0 +1,19 @@
+/**
+ * @file windows/miktex-tex4ht.rc
+ * @author Christian Schenk
+ * @brief Windows resources
+ *
+ * @copyright Copyright © 1998-2023 Christian Schenk
+ *
+ * This file is free software; the copyright holder gives unlimited permission
+ * to copy and/or distribute it, with or without modifications, as long as this
+ * notice is preserved.
+ */
+
+#include "miktex-tex4ht-version.h"
+
+#define VER_FILEDESCRIPTION_STR "TeX4ht - LaTeX and TeX for Hypertext"
+#define VER_INTERNALNAME_STR "tex4ht"
+#define VER_ORIGINALFILENAME_STR "miktex-tex4ht.exe"
+
+#include "miktex/win/version.rc"
