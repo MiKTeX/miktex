@@ -3,7 +3,7 @@
  * @author Christian Schenk
  * @brief Parser specification
  *
- * @copyright Copyright © 1991-2022 Christian Schenk
+ * @copyright Copyright © 1991-2023 Christian Schenk
  *
  * This file is part of C4P.
  *
@@ -17,8 +17,11 @@
 #include <cstdlib>
 #include <cstring>
 
+#pragma push_macro("PACKED")
+#undef PACKED
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#pragma push_macro("PACKED")
 
 #include "common.h"
 #include "output.h"
