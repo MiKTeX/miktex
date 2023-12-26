@@ -196,6 +196,8 @@ FILE *Poptr;
 #undef xfopen
 #define fopen fsyscp_fopen
 #define xfopen fsyscp_xfopen
+#undef stat
+#define stat _stat
 #include <wchar.h>
 int
 fsyscp_stat(const char *path, struct stat *buffer)
@@ -1209,11 +1211,6 @@ main (int ac, string *av)
   av[0] = kpse_program_basename (av[0]);
   _setmaxstdio(2048);
   setmode(fileno(stdin), _O_BINARY);
-#endif
-
-  maininit (ac, av);
-
-#ifdef WIN32
   if (ac > 1) {
     char *pp;
     if ((strlen(av[ac-1]) > 2) &&
@@ -1231,6 +1228,8 @@ main (int ac, string *av)
     }
   }
 #endif
+
+  maininit (ac, av);
 
   /* Call the real main program.  */
   mainbody ();
@@ -2100,6 +2099,19 @@ parse_options (int argc, string *argv)
 
     } /* Else it was a flag; getopt has already done the assignment.  */
   }
+
+  if (output_directory) {
+    /* If they specified --output-directory, save it in an envvar
+       so that subprocesses called with \write18 can get the value.  */
+    xputenv ("TEXMF_OUTPUT_DIRECTORY", output_directory);
+  
+  } else if (getenv ("TEXMF_OUTPUT_DIRECTORY")) {
+    /* If the option wasn't specified, but the envvar is set (i.e., by
+       the user), save the envvar value in our global variable so the
+       rest of our code will use it.  */
+    output_directory = getenv ("TEXMF_OUTPUT_DIRECTORY");
+
+  } /* Else neither option nor envvar was set; do nothing.  */
 }
 
 #if defined(TeX)

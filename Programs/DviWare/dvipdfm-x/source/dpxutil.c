@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2020 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2023 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -190,80 +190,66 @@ dpx_util_get_unique_time_if_given(void)
   return ret;
 }
 
-
-#ifndef HAVE_TM_GMTOFF
-#ifndef HAVE_TIMEZONE
-
-/* auxiliary function to compute timezone offset on
-   systems that do not support the tm_gmtoff in struct tm,
-   or have a timezone variable.  Such as i386-solaris.  */
-
-static int32_t
-compute_timezone_offset()
-{
-  time_t now;
-  struct tm tm;
-  struct tm local;
-  time_t gmtoff;
-
-  now = get_unique_time_if_given();
-  if (now == INVALID_EPOCH_VALUE) {
-    now = time(NULL);
-    localtime_r(&now, &local);
-    gmtime_r(&now, &tm);
-    return (mktime(&local) - mktime(&tm));
-  } else {
-    return(0);
-  }
-}
-
-#endif /* HAVE_TIMEZONE */
-#endif /* HAVE_TM_GMTOFF */
-
 /*
  * Docinfo
  */
+#define TIME_STR_SIZE 30
 int
 dpx_util_format_asn_date (char *date_string, int need_timezone)
 {
-  int32_t     tz_offset;
+  int32_t     off, off_hours, off_mins;
   time_t      current_time;
-  struct tm  *bd_time;
+  struct tm   bd_time, gmt;
+  size_t      size;
 
   current_time = dpx_util_get_unique_time_if_given();
   if (current_time == INVALID_EPOCH_VALUE) {
     time(&current_time);
-    bd_time = localtime(&current_time);
-
-#ifdef HAVE_TM_GMTOFF
-    tz_offset = bd_time->tm_gmtoff;
-#else
-#  ifdef HAVE_TIMEZONE
-    tz_offset = -timezone;
-#  else
-    tz_offset = compute_timezone_offset();
-#  endif /* HAVE_TIMEZONE */
-#endif /* HAVE_TM_GMTOFF */
+    bd_time = *localtime(&current_time);
   } else {
-    bd_time = gmtime(&current_time);
-    tz_offset = 0;
+    bd_time = *gmtime(&current_time);
   }
+
+  size = strftime(date_string, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &bd_time);
+  /* expected format: "YYYYmmddHHMMSS" */
+  if (size == 0) {
+    /* unexpected, contents of date_string is undefined */
+    date_string[0] = '\0';
+    return 0;
+  }
+
+  /* correction for seconds: %S can be in range 00..61,
+     the PDF reference expects 00..59,
+     therefore we map "60" and "61" to "59" */
+  if (date_string[14] == '6') {
+    date_string[14] = '5';
+    date_string[15] = '9';
+    date_string[16] = '\0';    /* for safety */
+  }
+
+/* calculate the time zone offset in the same way as in texmfmp.c */
+  gmt = *gmtime(&current_time);
+  off = 60 * (bd_time.tm_hour - gmt.tm_hour) + bd_time.tm_min - gmt.tm_min;
+  if (bd_time.tm_year != gmt.tm_year) {
+    off += (bd_time.tm_year > gmt.tm_year) ? 1440 : -1440;
+  } else if (bd_time.tm_yday != gmt.tm_yday) {
+    off += (bd_time.tm_yday > gmt.tm_yday) ? 1440 : -1440;
+  }
+
   if (need_timezone) {
-    if (bd_time->tm_isdst > 0) {
-      tz_offset += 3600;
+    if (off == 0) {
+      date_string[size++] = 'Z';
+      date_string[size] = 0;
+    } else {
+      off_hours = off / 60;
+      off_mins = abs(off - off_hours * 60);
+      sprintf(&date_string[size], "%+03d'%02d'", off_hours, off_mins);
     }
-    sprintf(date_string, "D:%04d%02d%02d%02d%02d%02d%c%02d'%02d'",
-            bd_time->tm_year + 1900, bd_time->tm_mon + 1, bd_time->tm_mday,
-            bd_time->tm_hour, bd_time->tm_min, bd_time->tm_sec,
-            (tz_offset > 0) ? '+' : '-', abs(tz_offset) / 3600,
-                                        (abs(tz_offset) / 60) % 60);
   } else {
-    sprintf(date_string, "D:%04d%02d%02d%02d%02d%02d",
-            bd_time->tm_year + 1900, bd_time->tm_mon + 1, bd_time->tm_mday,
-            bd_time->tm_hour, bd_time->tm_min, bd_time->tm_sec);
+    date_string[size] = 0;
   }
 
-  return strlen(date_string);
+  return (int)strlen(date_string);
 }
 
 void

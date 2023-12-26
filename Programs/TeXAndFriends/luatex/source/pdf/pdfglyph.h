@@ -25,5 +25,6 @@ void end_chararray(PDF pdf);
 void end_charmode(PDF pdf);
 void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex);
 void pdf_print_charwidth(PDF pdf, internal_font_number f, int i);
+void pdf_print_cid_charwidth(PDF pdf, int f, int w);
 
 #endif

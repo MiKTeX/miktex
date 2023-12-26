@@ -4,7 +4,11 @@
 
 ### Upgraded programs
 
+* bibtex-x 4.02
+* dvipdfmx 20231124
+* luatex 1.17.1
 * tex4ht 2023-10-13-15:32
+* upmendex 1.08
 
 ## 23.10.12 - 2023-10-12
 

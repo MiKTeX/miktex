@@ -66,6 +66,7 @@ void deftounicode(strnumber glyph, strnumber unistr)
     int i, l;
     glyph_unicode_entry *gu, t;
     void **aa;
+    unsigned long sscan_result;
 
     p = makecstring(glyph);
     assert(strlen(p) < SMALL_BUF_SIZE);
@@ -115,13 +116,15 @@ void deftounicode(strnumber glyph, strnumber unistr)
         gu->code = UNI_STRING;
         gu->unicode_seq = xstrdup(buf2);
     } else {
-        i = sscanf(p, "%lX", &(gu->code));
+        i = sscanf(p, "%lX", &sscan_result);
         assert(i == 1);
-        if (gu->code < 0 || gu->code > 0x10FFFF) {
+        if (sscan_result > 0x10FFFF) {
             pdftex_warn("ToUnicode: value out of range [0,10FFFF]: %lX",
-                        gu->code);
+                        sscan_result);
             gu->code = UNI_UNDEF;
         }
+        else
+            gu->code = sscan_result;
     }
     aa = avl_probe(glyph_unicode_tree, gu);
     assert(aa != NULL);

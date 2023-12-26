@@ -1425,6 +1425,10 @@ void dvi_begin_page(PDF pdf)
 void dvi_end_page(PDF pdf)
 {
     (void) pdf;
+    if (check_dvi_total_pages && total_pages>=65536){
+      print_err(" ==> Fatal error occurred: total_pages>=65536, bad output DVI file produced!");
+      jump_out();
+    }
     dvi_out(eop);
 }
 
@@ -1432,7 +1436,8 @@ void dvi_end_page(PDF pdf)
 
 At the end of the program, we must finish things off by writing the post\-amble.
 If |total_pages=0|, the \.{DVI} file was never opened. If |total_pages>=65536|,
-the \.{DVI} file will lie. And if |max_push>=65536|, the user deserves whatever
+the \.{DVI} file will lie, and if the  option |check_dvi_total_pages| is true, the program abort.
+And if |max_push>=65536|, the user deserves whatever
 chaos might ensue.
 
 */

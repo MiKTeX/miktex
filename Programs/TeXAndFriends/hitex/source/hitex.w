@@ -7537,6 +7537,10 @@ is finished:
 {@+first=start;line=line_stack[index];
 if ((name==18)||(name==19)) pseudo_close();else
 if (name > 17) a_close(&cur_file); /*forget it*/
+if (full_source_filename_stack[in_open]!=NULL)
+{ free(full_source_filename_stack[in_open]);
+  full_source_filename_stack[in_open]=NULL;
+}
 pop_input;decr(in_open);
 }
 
@@ -11002,17 +11006,17 @@ of string pool space; but that can confuse the interactive `\.E' option.
 @p static void start_input(void) /*\TeX\ will \.{\\input} something*/
 {@+
 scan_file_name(); /*set |cur_name| to desired file name*/
-pack_cur_name(".tex");
+pack_cur_name("");
 loop@+{@+begin_file_reading(); /*set up |cur_file| and new level of input*/
-  if (a_open_in(&cur_file)) goto done;
+  if (kpse_in_name_ok((char*)name_of_file+1) && a_open_in(&cur_file)) goto done;
   end_file_reading(); /*remove the level that didn't work*/
   prompt_file_name("input file name",".tex");
   }
 done: name=a_make_name_string(&cur_file);@/
-if (source_filename_stack[in_open]==NULL)
+if (source_filename_stack[in_open]!=NULL)
   free(source_filename_stack[in_open]);
-source_filename_stack[in_open]=strdup(name_of_file+1); /*\TeX\ Live*/
-if (full_source_filename_stack[in_open]==NULL)
+source_filename_stack[in_open]=strdup((char *)name_of_file+1); /*\TeX\ Live*/
+if (full_source_filename_stack[in_open]!=NULL)
   free(full_source_filename_stack[in_open]);
 full_source_filename_stack[in_open]=strdup(full_name_of_file);
 if (job_name==0)
@@ -25728,8 +25732,8 @@ primitive("setlanguage", extension, set_language_code);@/
 primitive("HINTversion", last_item, HINT_version_code);
 @!@:HINT\_version\_}{\.{\\HINTversion} primitive@>
 
-primitive("HINTsubversion", last_item, HINT_subversion_code);
-@!@:HINT\_subversion\_}{\.{\\HINTsubversion} primitive@>
+primitive("HINTminorversion", last_item, HINT_minor_version_code);
+@!@:HINT\_minor\_version\_}{\.{\\HINTminorversion} primitive@>
 
 primitive("HINTdest", extension, label_node);@/
 @!@:HINTdest\_}{\.{\\HINTdest} primitive@>
@@ -30460,21 +30464,21 @@ implement the various features that have been used above to replace
 the new engine returns a version number as an integer
 extending the cases for |last_item|. Since the additional
 primitives that we define are specific to the \HINT\ format,
-we return version and subversion of the \HINT\ file
+we return major and minor version of the \HINT\ file
 format that this program will generate.
 
 @d HINT_version_code (eTeX_last_last_item_cmd_mod+7) /* \.{\\HINTversion} */
-@d HINT_subversion_code (eTeX_last_last_item_cmd_mod+8) /* \.{\\HINTsubversion} */
+@d HINT_minor_version_code (eTeX_last_last_item_cmd_mod+8) /* \.{\\HINTminorversion} */
 
 @ Now this new primitive needs its implementation.
 
 @<Cases of |last_item| for |print_cmd_chr|@>=
 case HINT_version_code: print_esc("HINTversion");@+break;
-case HINT_subversion_code: print_esc("HINTsubversion");@+break;
+case HINT_minor_version_code: print_esc("HINTminorversion");@+break;
 
 @ @<Cases for fetching a \Prote\ int value@>=
 case HINT_version_code: cur_val=HINT_VERSION;@+break;
-case HINT_subversion_code: cur_val=HINT_SUB_VERSION;@+break;
+case HINT_minor_version_code: cur_val=HINT_MINOR_VERSION;@+break;
 
 
 @ The implementation reuses code that has been written as part of
@@ -31653,7 +31657,7 @@ static pointer vpackage(pointer p, scaled h, scaled hf, scaled vf, small_number 
                           if (image_xheight(p)!=null)
                           { pointer r=image_xheight(p);
                             if (xdimen_hfactor(r)==0 && xdimen_vfactor(r)==0)
-			    {  x= x+d+xdimen_width(p);d=0;}
+			    {  x= x+d+xdimen_width(r);d=0;}
                             else goto repack;
                           }
 			}
@@ -34449,8 +34453,9 @@ static void parse_options (int argc, char *argv[])
     { fprintf(stderr,"Try '%s --help' for more information\n",argv[0]);
       exit(1);
     }
-    else if (g == -1) return;
+    else if (g == -1) break;
   }
+  @<Check the environment for extra settings@>@;
 }
 
 @ @<Forward declarations@>=
@@ -34587,6 +34592,19 @@ static char *normalize_quotes (const char *nom, const char *mesg)
     }
     return ret;
 }
+
+@ If the output directory was specified on the command line,
+we save it in an environment variable so that subbrocesses can
+get the value. If on the other hand the environment specifies
+a directory and the command line does not, save the value from
+the environment to the global variable so that it is used in the
+rest of the code.
+
+@<Check the environment for extra settings@>=
+if (output_directory)
+    xputenv ("TEXMF_OUTPUT_DIRECTORY", output_directory);
+else if (getenv ("TEXMF_OUTPUT_DIRECTORY"))
+    output_directory = getenv ("TEXMF_OUTPUT_DIRECTORY");
 
 @*1 Passing a file name as a general text argument.
 
@@ -34895,6 +34913,10 @@ static char *find_file(char *fname, kpse_file_format_type t, int mx)
         fname++;
   }
   filename = kpse_find_file(fname, t, mx);
+  if (full_name_of_file!=NULL)
+  { free(full_name_of_file); full_name_of_file=NULL;}
+  if (filename!=NULL)
+    full_name_of_file=strdup(filename);
   if (quoted) {
         /* Undo modifications */
         fname--;
@@ -34965,7 +34987,8 @@ static int texmf_yesno(const char *var)
 }
 
 @ We need a stack, matching the |line_stack| that
-contains the source file names;
+contains the source file names. For the full source filenames we use
+poiters to |char| because these names are just used for output.
 
 @<Global...@>=
 static char * @!source_filename_stack0[max_in_open]={NULL}, **const @!source_filename_stack = @!source_filename_stack0-1;
@@ -35379,7 +35402,7 @@ make_time_str(time_t t, bool utc)
         lt = *localtime(&t);
     }
     size = strftime(time_str, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &lt);
-    /* expected format: |"YYYYmmddHHMMSS"| */
+    /* expected format: |"D:YYYYmmddHHMMSS"| */
     if (size == 0) {
         /* unexpected, contents of |time_str| is undefined */
         time_str[0] = '\0';
@@ -35412,7 +35435,7 @@ make_time_str(time_t t, bool utc)
     } else {
         off_hours = off / 60;
         off_mins = abs(off - off_hours * 60);
-        snprintf(&time_str[size], 9, "%+03d'%02d'", off_hours, off_mins);
+        snprintf(&time_str[size], TIME_STR_SIZE-size, "%+03d'%02d'", off_hours, off_mins);
     }
 }
 

@@ -1151,6 +1151,8 @@ cur_order:=co_backup; link(backup_head):=backup_backup;
 decr(expand_depth_count);
 @z
 
+% Original report: https://tex.stackexchange.com/questions/609423
+% TeX bug entry: https://tug.org/texmfbug/newbug.html#B155endwrite
 @x
 if t>=cs_token_flag then
 @y
@@ -2476,6 +2478,22 @@ dump_things(mem[hi_mem_min], mem_end+1-hi_mem_min);
 repeat for k:=p to q+1 do undump_wd(mem[k]);
 @y
 repeat undump_things(mem[p], q+2-p);
+@z
+
+@x
+p:=q+node_size(q);
+if (p>lo_mem_max)or((q>=rlink(q))and(rlink(q)<>rover)) then goto bad_fmt;
+@y
+{If the format file is messed up, that addition to |p| might cause it to
+ become garbage. Report from Gregory James DUCK to Karl, 14 Sep 2023.
+ Also changed in \MF. Fix from DRF, who explains: we test before doing the
+ addition to avoid assuming silent wrap-around overflow, and also to to
+ catch cases where |node_size| was, say, bogusly the equivalent of $-1$
+ and thus |p+node_size| would still look valid.}
+if (node_size(q)>lo_mem_max-q) or (rlink(q)>lo_mem_max)
+   or ((q>=rlink(q))and(rlink(q)<>rover))
+then goto bad_fmt;
+p:=q+node_size(q);
 @z
 
 @x

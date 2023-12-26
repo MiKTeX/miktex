@@ -52,6 +52,11 @@ void init_icu_collator()
 					icu_locale, len);
 				exit(254);
 			}
+			len = RULEBUFSIZE - u_strlen(rules);
+			if (len<STYBUFSIZE) {
+				warn_printf(efp, "\nWarning: [ICU] Remaining buffer size (%d) is small for custom collation rules with rules by locale (%s).\n",
+					len, icu_locale);
+			}
 			ucol_close(icu_collator);
 		}
 		unescape((unsigned char *)icu_rules, rules);
@@ -547,7 +552,7 @@ int is_hanzi(UChar *c)
 	if (is_surrogate_pair(c)) {
 		UChar32 c32;
 		c32=U16_GET_SUPPLEMENTARY(*c,*(c+1));
-		if ((c32>=0x20000) &&         /* CJK Unified Ideographs Extension B,C,D,E,F */
+		if ((c32>=0x20000) &&         /* CJK Unified Ideographs Extension B,C,D,E,F,I */
 		                              /* CJK Compatibility Ideographs Supplement */
 		    (c32<=0x323AF)) return 2; /* CJK Unified Ideographs Extension G,H */
 	}

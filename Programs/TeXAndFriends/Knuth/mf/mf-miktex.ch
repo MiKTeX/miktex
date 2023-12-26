@@ -1,6 +1,6 @@
 %% mf-miktex.ch: WEB change file for METAFONT
 %% 
-%% Copyright (C) 1991-2021 Christian Schenk
+%% Copyright (C) 1991-2023 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -1892,6 +1892,27 @@ undump_int (mem_top); {Overwrite whatever we had.}
 if mem_max < mem_top then mem_max:=mem_top; {Use at least what we dumped.}
 if mem_min+1100>mem_top then goto off_base;
 mem:=miktex_reallocate(mem, mem_max - mem_min + 2);
+@z
+
+% _____________________________________________________________________________
+%
+% [48.1195]
+% _____________________________________________________________________________
+
+@x
+p:=q+node_size(q);
+if (p>lo_mem_max)or((q>=rlink(q))and(rlink(q)<>rover)) then goto off_base;
+@y
+{If the base file is messed up, that addition to |p| might cause it to
+ become garbage. Report from Gregory James DUCK to Karl, 14 Sep 2023.
+ Also changed in \MF. Fix from DRF, who explains: we test before doing the
+ addition to avoid assuming silent wrap-around overflow, and also to to
+ catch cases where |node_size| was, say, bogusly the equivalent of $-1$
+ and thus |p+node_size| would still look valid.}
+if (node_size(q)>lo_mem_max-q) or (rlink(q)>lo_mem_max)
+   or ((q>=rlink(q))and(rlink(q)<>rover))
+then goto off_base;
+p:=q+node_size(q);
 @z
 
 % _____________________________________________________________________________

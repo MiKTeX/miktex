@@ -82,6 +82,7 @@ const_string LUATEX_IHELP[] = {
     "   --disable-installer           disable the package installer (do not automatically install missing files)",
     "   --disable-write18             disable system commands",
     "   --draftmode                   switch on draft mode (generates no output PDF)",
+    "   --[no-]check-dvi-total-pages  exit when DVI exceeds 65535 pages (default: check)",
     "   --enable-installer            enable the package installer (automatically install missing files)",
     "   --enable-write18              enable system commands",
     "   --halt-on-error               stop processing at the first error",
@@ -365,6 +366,8 @@ static struct option long_options[] = {
     {"disable-write18", 0, &shellenabledp, -1},
     {"shell-restricted", 0, 0, 0},
     {"debug-format", 0, &debug_format_file, 1},
+    {"check-dvi-total-pages", 0, &check_dvi_total_pages, 1},
+    {"no-check-dvi-total-pages", 0, &check_dvi_total_pages, 0},
     {"file-line-error-style", 0, &filelineerrorstylep, 1},
     {"no-file-line-error-style", 0, &filelineerrorstylep, -1},
     /*tex Shorter option names for the above. */
@@ -561,6 +564,10 @@ static void parse_options(int ac, char **av)
                 WARNING1("Ignoring unknown value `%s' for --output-format",optarg);
                 output_mode_option = 0;
             }
+	} else if (ARGUMENT_IS("check-dvi-total-pages")) {
+            check_dvi_total_pages = 1;
+	} else if (ARGUMENT_IS("no-check-dvi-total-pages")) {
+            check_dvi_total_pages = 0;
         } else if (ARGUMENT_IS("draftmode")) {
             draft_mode_option = 1;
             draft_mode_value = 1;
@@ -1154,6 +1161,7 @@ void lua_initialize(int ac, char **av)
     mk_suffixlist();
 #endif
     /*tex Must be initialized before options are parsed and might get adapted by config table.  */
+    check_dvi_total_pages = true;
     interactionoption = 4;
     filelineerrorstylep = false;
     haltonerrorp = false;
@@ -1322,6 +1330,8 @@ void lua_initialize(int ac, char **av)
             init_kpse();
             kpse_init = 1;
         }
+        /*tex |check_dvi_total_pages| (boolean) */
+        get_lua_boolean("texconfig", "check_dvi_total_pages", &check_dvi_total_pages);
         /*tex |prohibit_file_trace| (boolean) */
         get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
         /*tex |file_line_error| */

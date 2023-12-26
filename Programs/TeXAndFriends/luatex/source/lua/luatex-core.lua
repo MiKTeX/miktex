@@ -22,6 +22,7 @@ local saferoption = status.safer_option
 local shellescape = status.shell_escape -- 0 (disabled) 1 (anything) 2 (restricted)
 local kpseused    = status.kpse_used    -- 0 1
 
+
 if kpseused == 1 then
 
     local type = type
@@ -34,6 +35,10 @@ if kpseused == 1 then
     local kpse_checkpermission  = kpse.check_permission
     local kpse_recordinputfile  = kpse.record_input_file
     local kpse_recordoutputfile = kpse.record_output_file
+
+    local kpse_out_name_ok = kpse.out_name_ok
+    local kpse_in_name_ok  = kpse.in_name_ok
+
 
     local io_open               = io.open
     -- local io_popen              = io.popen -- not need, we  use os.kpsepopen
@@ -50,7 +55,13 @@ if kpseused == 1 then
         if not how then
             how = 'r'
         end
-        local f = io_open(name,how)
+        local check = true 
+        if how == 'r' or how == 'rb' or how == '' then 
+           check = kpse.in_name_ok(name)
+        else 
+           check = kpse.out_name_ok(name)
+        end  
+        local f = check and io_open(name,how)
         if f then
             if type(how) == 'string' and find(how,'w') then
                 kpse_recordoutputfile(name,'w')
@@ -70,7 +81,11 @@ if kpseused == 1 then
                 how = 'r'
             end
         end
-        local f = io_open(name,how)
+        local check = false 
+        if how == 'r' or how == 'rb' or how == '' then 
+           check = kpse.in_name_ok(name)
+        end  
+        local f = check and io_open(name,how)
         if f then
             fio_recordfilename(name,'r')
         end
@@ -105,7 +120,8 @@ if kpseused == 1 then
 
     local function luatex_io_lines(name,how)
         if type(name) == "string" then
-            local f = io_open(name,how or 'r')
+            local check = kpse.in_name_ok(name)
+            local f = check and io_open(name,how or 'r')
             if f then
                 return function()
                     local l = fio_readline(f)

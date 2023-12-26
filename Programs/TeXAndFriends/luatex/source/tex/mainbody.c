@@ -311,6 +311,10 @@ int get_luatexversion(void)
 
 int total_pages = 0;
 
+/*tex abort when DVI exceeds 65535 pages  */
+
+int check_dvi_total_pages = 1;
+
 /*tex recent outputs that didn't ship anything out */
 
 int dead_cycles = 0;

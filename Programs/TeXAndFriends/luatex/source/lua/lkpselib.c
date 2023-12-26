@@ -342,6 +342,39 @@ static int lua_kpathsea_show_path(lua_State * L)
     return 1;
 }
 
+static int in_name_ok(lua_State * L)
+{
+    const char *st = luaL_checkstring(L, 1);
+    TEST_PROGRAM_NAME_SET;
+    lua_pushboolean(L, kpse_in_name_ok(st));
+    return 1;
+}
+
+static int lua_kpathsea_in_name_ok(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *) luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *st = luaL_checkstring(L, 2);
+    lua_pushboolean(L, kpathsea_in_name_ok(*kp,st));
+    return 1;
+}
+
+static int out_name_ok(lua_State * L)
+{
+    const char *st = luaL_checkstring(L, 1);
+    TEST_PROGRAM_NAME_SET;
+    lua_pushboolean(L, kpse_out_name_ok(st));
+    return 1;
+}
+
+static int lua_kpathsea_out_name_ok(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *) luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *st = luaL_checkstring(L, 2);
+    lua_pushboolean(L, kpathsea_out_name_ok(*kp,st));
+    return 1;
+}
+
+
 static int expand_path(lua_State * L)
 {
     const char *st = luaL_checkstring(L, 1);
@@ -1006,6 +1039,8 @@ static const struct luaL_Reg kpselib_m[] = {
     {"expand_path", lua_kpathsea_expand_path},
     {"expand_var", lua_kpathsea_expand_var},
     {"expand_braces", lua_kpathsea_expand_braces},
+    {"in_name_ok", lua_kpathsea_in_name_ok},
+    {"out_name_ok", lua_kpathsea_out_name_ok},
     {"var_value", lua_kpathsea_var_value},
     {"show_path", lua_kpathsea_show_path},
     {"lookup", lua_kpathsea_lookup},
@@ -1026,6 +1061,8 @@ static const struct luaL_Reg kpselib_l[] = {
     {"expand_path", expand_path},
     {"expand_var", expand_var},
     {"expand_braces", expand_braces},
+    {"in_name_ok",in_name_ok},
+    {"out_name_ok",out_name_ok},
     {"var_value", var_value},
     {"show_path", show_path},
     {"lookup", lua_kpse_lookup},

@@ -33,13 +33,42 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 /*tex
 
-    Use exactly this formula also for calculating the |/Width| array values.
+    Use exactly this formula also for calculating the width array values. The units patch below is 
+    meant for opentype cff fonts that don't use the recommended 1000 units per em and was tested 
+    for a few fonts by HH and MS (2023-11-01). We explicitly check for the deviation from 1000 
+    in order to be compatible and only touch the few fonts that are sensitive for this. The patch 
+    makes sure that copying works (in spite of the accessibility hype viewers still have to gamble 
+    on what a space is; so much for standards) and also has the side effect of a bit more compact 
+    character streams. It's one of these cases where one wonders if it was really worth spending 
+    that much time on (because after all, it worked ok in luametatex). 
 
 */
 
 static int64_t pdf_char_width(pdfstructure * p, internal_font_number f, int i)
 {
-    return i64round((double) char_width(f, i) / font_size(f) * ten_pow[e_tj + p->cw.e]);
+    if (font_encodingbytes(f) == 2 && font_format(f) == opentype_format && font_units_per_em(f) != 1000) {
+        /* So we only end up here for the very few fonts that deviate from 1000. */
+        return i64round(((double) font_units_per_em(f) / 1000.0) * (double) char_width(f, i) / font_size(f) * ten_pow[e_tj + p->cw.e]);
+    } else { 
+        return i64round((double) char_width(f, i) / font_size(f) * ten_pow[e_tj + p->cw.e]);
+    }
+}
+
+void pdf_print_cid_charwidth(PDF pdf, int f, int w)
+{
+    if (font_encodingbytes(f) == 2 && font_format(f) == opentype_format && font_units_per_em(f) != 1000) {
+        /* So we only end up here for the very few fonts that deviate from 1000. */
+        pdf_printf(pdf, "%0.1f",(double) w * font_units_per_em(f) / 10000.0);
+    } else { 
+        if (w < 0) {
+            pdf_out(pdf, '-');
+            w = -w;
+        }
+        pdf_printf(pdf, "%i", (w / 10));
+        if ((w % 10) != 0) {
+            pdf_printf(pdf, ".%i", (w % 10));
+        }
+    }
 }
 
 void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
@@ -56,8 +85,9 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
     float slant, extend, squeeze, expand, scale = 1.0;
     float u = 1.0;
     pdfstructure *p = pdf->pstruct;
-    if ((font_format(f) == opentype_format || (font_format(f) == type1_format && font_encodingbytes(f) == 2))  && font_units_per_em(f) > 0)
+    if ((font_format(f) == opentype_format || (font_format(f) == type1_format && font_encodingbytes(f) == 2))  && font_units_per_em(f) > 0) {
         u = font_units_per_em(f) / 1000.0;
+    }
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
     p->fs.m = i64round(font_size(f) / u / by_one_bp * ten_pow[p->fs.e]);

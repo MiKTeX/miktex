@@ -976,13 +976,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
             j = glyph->wd;
         }
         pdf_check_space(pdf);
-        if (j < 0) {
-            pdf_out(pdf, '-');
-            j = -j;
-        }
-        pdf_printf(pdf, "%i", (j / 10));
-        if ((j % 10) != 0)
-            pdf_printf(pdf, ".%i", (j % 10));
+        pdf_print_cid_charwidth(pdf, fo->tex_font, j);
         i = (int) glyph->id;
         pdf_set_space(pdf);
     }

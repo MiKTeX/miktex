@@ -148,6 +148,7 @@ extern boolean haltingonerrorp;
 extern boolean quoted_filename;
 
 extern int total_pages;
+extern int check_dvi_total_pages;
 extern int dead_cycles;
 
 /*

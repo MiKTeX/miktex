@@ -156,8 +156,8 @@ ISBN-13: 979-854992684-4\par
 First printing: August 2019\par
 Second edition: August 2021\par
 \medskip
-\def\lastrevision{Date: Thu Aug 17 14:00:42 2023}
-\lastrevision\par
+Last commit: Mon Dec 4 15:00:09 2023
+\par
 }
 }
 \endgroup
@@ -6973,15 +6973,15 @@ bool hcheck_banner(char *magic)
   s=strtol(t,&t,10);
   if (v!=HINT_VERSION)
   { MESSAGE("Wrong HINT version: got %d.%d, expected %d.%d\n",
-      v,s,HINT_VERSION,HINT_SUB_VERSION); return false; }
-  if (s<HINT_SUB_VERSION)
-  { MESSAGE("Old HINT subversion: got %d.%d, expected %d.%d\n",
-      v,s,HINT_VERSION,HINT_SUB_VERSION); }
-  else if (s>HINT_SUB_VERSION)
-  { MESSAGE("New HINT subversion: got %d.%d, expected %d.%d, update your application\n",
-      v,s,HINT_VERSION,HINT_SUB_VERSION); }
+      v,s,HINT_VERSION,HINT_MINOR_VERSION); return false; }
+  if (s<HINT_MINOR_VERSION)
+  { MESSAGE("Outdated HINT minor version: got %d.%d, expected %d.%d\n",
+      v,s,HINT_VERSION,HINT_MINOR_VERSION); }
+  else if (s>HINT_MINOR_VERSION)
+  { MESSAGE("More recent HINT minor version: got %d.%d, expected %d.%d, update your application\n",
+      v,s,HINT_VERSION,HINT_MINOR_VERSION); }
   if (*t!=' ' && *t!='\n')
-  { MESSAGE("Space expected in banner after HINT subversion\n"); return false; }
+  { MESSAGE("Space expected in banner after HINT minor version\n"); return false; }
   LOG("%s file version " HINT_VERSION_STRING ":%s", magic, t);
   DBG(DBGDIR,"banner size=0x%x\n",hbanner_size);
   return true;
@@ -10802,10 +10802,10 @@ typedef double float64_t;
 #error  @=float64 type must have size 8@>
 #endif
 #define HINT_VERSION 2
-#define HINT_SUB_VERSION 0
+#define HINT_MINOR_VERSION 0
 #define AS_STR(X) #X
 #define VERSION_AS_STR(X,Y) AS_STR(X) "." AS_STR(Y)
-#define HINT_VERSION_STRING VERSION_AS_STR(HINT_VERSION, HINT_SUB_VERSION)
+#define HINT_VERSION_STRING VERSION_AS_STR(HINT_VERSION, HINT_MINOR_VERSION)
 #endif
 @
 
