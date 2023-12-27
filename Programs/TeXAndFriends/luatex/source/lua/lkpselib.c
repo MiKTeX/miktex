@@ -362,6 +362,13 @@ static int out_name_ok(lua_State * L)
 {
     const char *st = luaL_checkstring(L, 1);
     TEST_PROGRAM_NAME_SET;
+#if defined(MIKTEX)
+    if (miktex_hack__is_luaotfload_file(st))
+    {
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+#endif
     lua_pushboolean(L, kpse_out_name_ok(st));
     return 1;
 }
@@ -370,6 +377,13 @@ static int lua_kpathsea_out_name_ok(lua_State * L)
 {
     kpathsea *kp = (kpathsea *) luaL_checkudata(L, 1, KPATHSEA_METATABLE);
     const char *st = luaL_checkstring(L, 2);
+#if defined(MIKTEX)
+    if (miktex_hack__is_luaotfload_file(st))
+    {
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+#endif
     lua_pushboolean(L, kpathsea_out_name_ok(*kp,st));
     return 1;
 }

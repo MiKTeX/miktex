@@ -402,3 +402,18 @@ void miktex_print_banner(FILE* file, const char* name, const char* version)
 {
     fputs(GetBanner(name, version).c_str(), file);
 }
+
+int miktex_hack__is_luaotfload_file(const char* path)
+{
+    shared_ptr<Session> session = Application::GetApplication()->GetSession();
+    auto varDir = session->GetSpecialPath(session->IsAdminMode() ? SpecialPath::CommonDataRoot : SpecialPath::UserDataRoot);
+    if (PathName::Equals(varDir / PathName("m_t_x_t_e_s_t.tmp"), PathName(path)))
+    {
+        return 1;
+    }
+    if (Utils::IsParentDirectoryOf(varDir / PathName("luatex-cache"), PathName(path)))
+    {
+        return 1;
+    }
+    return 0;
+}
